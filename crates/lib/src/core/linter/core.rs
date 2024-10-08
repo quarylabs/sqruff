@@ -10,7 +10,7 @@ use rayon::iter::{IntoParallelRefIterator as _, ParallelIterator as _};
 use smol_str::{SmolStr, ToSmolStr};
 use sqruff_lib_core::dialects::base::Dialect;
 use sqruff_lib_core::errors::{
-    SQLFluffUserError, SQLLexError, SQLLintError, SQLParseError, SqlError,
+    SQLBaseError, SQLFluffUserError, SQLLexError, SQLLintError, SQLParseError, SqlError,
 };
 use sqruff_lib_core::helpers;
 use sqruff_lib_core::linter::compute_anchor_edit_info;
@@ -28,6 +28,7 @@ use crate::core::linter::common::{ParsedString, RenderedFile};
 use crate::core::linter::linted_file::LintedFile;
 use crate::core::linter::linting_result::LintingResult;
 use crate::core::rules::base::{ErasedRule, LintPhase, RulePack};
+use crate::core::rules::noqa::IgnoreMask;
 use crate::rules::get_ruleset;
 use crate::templaters::placeholder::PlaceholderTemplater;
 use crate::templaters::raw::RawTemplater;
@@ -187,25 +188,38 @@ impl Linter {
     ) -> LintedFile {
         let mut violations = parsed_string.violations;
 
-        let (tree, initial_linting_errors) = parsed_string
-            .tree
-            .map(|tree| self.lint_fix_parsed(tables, tree, &parsed_string.templated_file, fix))
-            .unzip();
+        let (patches, ignore_mask, initial_linting_errors) =
+            parsed_string
+                .tree
+                .map_or((Vec::new(), None, Vec::new()), |erased_segment| {
+                    let (tree, ignore_mask, initial_linting_errors) = self.lint_fix_parsed(
+                        tables,
+                        erased_segment,
+                        &parsed_string.templated_file,
+                        fix,
+                    );
+                    let patches = tree.iter_patches(&parsed_string.templated_file);
+                    (patches, ignore_mask, initial_linting_errors)
+                });
+        violations.extend(initial_linting_errors.into_iter().map_into());
 
-        violations.extend(
-            initial_linting_errors
-                .unwrap_or_default()
-                .into_iter()
-                .map_into(),
-        );
+        // Filter violations with ignore mask
+        let violations = violations
+            .into_iter()
+            .filter(|violation| {
+                ignore_mask
+                    .as_ref()
+                    .map_or(true, |ignore_mask| !ignore_mask.is_masked(violation))
+            })
+            .collect();
 
+        // TODO Need to error out unused noqas
         let linted_file = LintedFile {
             path: parsed_string.filename,
-            patches: tree.map_or(Vec::new(), |tree| {
-                tree.iter_patches(&parsed_string.templated_file)
-            }),
+            patches,
             templated_file: parsed_string.templated_file,
             violations,
+            ignore_mask,
         };
 
         if let Some(formatter) = &self.formatter {
@@ -221,7 +235,7 @@ impl Linter {
         mut tree: ErasedSegment,
         templated_file: &TemplatedFile,
         fix: bool,
-    ) -> (ErasedSegment, Vec<SQLLintError>) {
+    ) -> (ErasedSegment, Option<IgnoreMask>, Vec<SQLLintError>) {
         let mut tmp;
         let mut initial_linting_errors = Vec::new();
         let phases: &[_] = if fix {
@@ -235,6 +249,21 @@ impl Linter {
         // If we are fixing then we want to loop up to the runaway_limit, otherwise just
         // once for linting.
         let loop_limit = if fix { 10 } else { 1 };
+        // Look for comment segments which might indicate lines to ignore.
+        let (ignore_mask, violations): (Option<IgnoreMask>, Vec<SQLBaseError>) = {
+            let disable_noqa = self
+                .config
+                .get("disable_noqa", "core")
+                .as_bool()
+                .unwrap_or(false);
+            if disable_noqa {
+                (None, Vec::new())
+            } else {
+                let (ignore_mask, errors) = IgnoreMask::from_tree(&tree);
+                (Some(ignore_mask), errors)
+            }
+        };
+        initial_linting_errors.extend(violations.into_iter().map_into());
 
         for phase in phases {
             let mut rules_this_phase = if phases.len() > 1 {
@@ -327,7 +356,7 @@ impl Linter {
             }
         }
 
-        (tree, initial_linting_errors)
+        (tree, ignore_mask, initial_linting_errors)
     }
 
     /// Template the file.

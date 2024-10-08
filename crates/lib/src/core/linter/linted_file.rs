@@ -1,5 +1,6 @@
 use std::ops::Range;
 
+use crate::core::rules::noqa::IgnoreMask;
 use itertools::Itertools;
 use rustc_hash::FxHashSet;
 use sqruff_lib_core::errors::SQLBaseError;
@@ -12,6 +13,7 @@ pub struct LintedFile {
     pub patches: Vec<FixPatch>,
     pub templated_file: TemplatedFile,
     pub violations: Vec<SQLBaseError>,
+    pub ignore_mask: Option<IgnoreMask>,
 }
 
 impl LintedFile {

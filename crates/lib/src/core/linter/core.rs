@@ -196,7 +196,7 @@ impl Linter {
             initial_linting_errors
                 .unwrap_or_default()
                 .into_iter()
-                .map(Into::into),
+                .map_into(),
         );
 
         let linted_file = LintedFile {
@@ -397,7 +397,7 @@ impl Linter {
                 Some(rendered.filename.to_string()),
             );
             parsed = p;
-            violations.extend(pvs.into_iter().map(Into::into));
+            violations.extend(pvs.into_iter().map_into());
         } else {
             parsed = None;
         };

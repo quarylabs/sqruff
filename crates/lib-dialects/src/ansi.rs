@@ -328,7 +328,7 @@ pub fn raw_dialect() -> Dialect {
                     dialect
                         .sets("bare_functions")
                         .into_iter()
-                        .map(Into::into)
+                        .map_into()
                         .collect_vec(),
                     SyntaxKind::BareFunction,
                 )
@@ -392,7 +392,7 @@ pub fn raw_dialect() -> Dialect {
                     dialect
                         .sets("datetime_units")
                         .into_iter()
-                        .map(Into::into)
+                        .map_into()
                         .collect_vec(),
                     SyntaxKind::DatePart,
                 )
@@ -407,7 +407,7 @@ pub fn raw_dialect() -> Dialect {
                     dialect
                         .sets("date_part_function_name")
                         .into_iter()
-                        .map(Into::into)
+                        .map_into()
                         .collect::<Vec<_>>(),
                     SyntaxKind::FunctionNameIdentifier,
                 )

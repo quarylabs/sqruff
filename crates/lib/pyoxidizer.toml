@@ -1,0 +1,10 @@
+# pyoxidizer.toml
+[packages.python]
+build = "python"
+distribution = "python-embed"
+
+[python_config]
+interpreter_config = "rust_embed_python"
+
+[python_distribution]
+dependencies = ["jinja2", "dbt"]

@@ -34,13 +34,16 @@ name = "depth_map"
 harness = false
 
 [features]
+default = []
 serde = ["dep:serde"]
 stringify = ["dep:serde_yaml", "serde"]
+templater-dbt =  ["dep:pyo3", "dep:pyo3-build-config"]
 
 [dependencies]
 sqruff-lib-core.workspace = true
 sqruff-lib-dialects.workspace = true
 
+pyo3 = { version = "0.22.3", features = ["extension-module"], optional = true }
 dyn-clone = "1"
 fancy-regex = "0.13"
 itertools = "0.13.0"
@@ -85,3 +88,6 @@ glob = "0.3"
 serde_json = "1"
 tempdir = "0.3"
 serde_with = "3.9"
+
+[build-dependencies]
+pyo3-build-config = { version = "0.22.3", optional = true }

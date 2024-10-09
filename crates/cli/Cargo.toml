@@ -30,6 +30,8 @@ codegen-docs = ["clap-markdown", "minijinja", "serde"]
 
 [dependencies]
 sqruff-lib.workspace = true
+# TODO remove this when we have a proper release and make it injectable
+sqruff-lib.features = ["templater-dbt"]
 sqruff-lsp.workspace = true
 clap = { version = "4", features = ["derive"] }
 console = "0.15.8"

@@ -214,23 +214,6 @@ the named parameter param_name will be used as the key to replace, if missing, t
 Also consider making a pull request to the project to have your style added, it may be useful to other people and simplify your configuration."#
     }
 
-    fn template_selection(&self) -> &str {
-        "templater"
-    }
-
-    fn config_pairs(&self) -> (String, String) {
-        ("templater".into(), self.name().to_string())
-    }
-
-    fn sequence_files(
-        &self,
-        f_names: Vec<String>,
-        _: Option<&FluffConfig>,
-        _: Option<&OutputStreamFormatter>,
-    ) -> Vec<String> {
-        f_names
-    }
-
     fn process(
         &self,
         in_str: &str,

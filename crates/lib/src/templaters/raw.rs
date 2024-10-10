@@ -17,24 +17,6 @@ impl Templater for RawTemplater {
         r"The raw templater simply returns the input string as the output string. It passes through the input string unchanged and is useful if you need no templating. It is the defualt templater."
     }
 
-    fn template_selection(&self) -> &str {
-        "templater"
-    }
-
-    fn config_pairs(&self) -> (String, String) {
-        ("templater".to_string(), self.name().to_string())
-    }
-
-    fn sequence_files(
-        &self,
-        f_names: Vec<String>,
-        _: Option<&FluffConfig>,
-        _: Option<&OutputStreamFormatter>,
-    ) -> Vec<String> {
-        // Default is to process in the original order.
-        f_names
-    }
-
     fn process(
         &self,
         in_str: &str,

@@ -21,20 +21,6 @@ pub trait Templater: Send + Sync {
     /// Description of the templater.
     fn description(&self) -> &'static str;
 
-    /// Template Selector
-    fn template_selection(&self) -> &str;
-
-    /// Returns info about the given templater for output by the cli.
-    fn config_pairs(&self) -> (String, String);
-
-    /// Given files to be processed, return a valid processing sequence.
-    fn sequence_files(
-        &self,
-        f_names: Vec<String>,
-        config: Option<&FluffConfig>,
-        formatter: Option<&OutputStreamFormatter>,
-    ) -> Vec<String>;
-
     /// Process a string and return a TemplatedFile.
     fn process(
         &self,

@@ -37,7 +37,7 @@ harness = false
 default = []
 serde = ["dep:serde"]
 stringify = ["dep:serde_yaml", "serde"]
-templater-dbt =  ["dep:pyo3", "dep:pyo3-build-config"]
+templater-jinja =  ["dep:pyo3", "dep:pyo3-build-config"]
 
 [dependencies]
 sqruff-lib-core.workspace = true

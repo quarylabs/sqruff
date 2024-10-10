@@ -32,7 +32,7 @@ fn main() {
             let mut cmd = Command::new(sqruff_path);
             cmd.arg("lint").arg("-f").arg("human").arg("--config").arg("tests/ui_with_python/.sqlfluff").arg(&path);
             // Set the HOME environment variable to the fake home directory
-            let mut home_path = PathBuf::from(env!("CARGO_MANIFEST_DIR"));
+            let home_path = PathBuf::from(env!("CARGO_MANIFEST_DIR"));
             cmd.env("HOME", home_path);
 
             // Run the command and capture the output

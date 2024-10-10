@@ -30,6 +30,7 @@ use crate::core::linter::linting_result::LintingResult;
 use crate::core::rules::base::{ErasedRule, LintPhase, RulePack};
 use crate::core::rules::noqa::IgnoreMask;
 use crate::rules::get_ruleset;
+use crate::templaters::jinja::JinjaTemplater;
 use crate::templaters::placeholder::PlaceholderTemplater;
 use crate::templaters::raw::RawTemplater;
 use crate::templaters::Templater;
@@ -54,6 +55,8 @@ impl Linter {
                 match templater {
                     Some("placeholder") => Arc::<PlaceholderTemplater>::default(),
                     Some("raw") => Arc::<RawTemplater>::default(),
+                    // TODO Fix this ... THis should be a dynamic import from the list of what's available
+                    Some("jija") => Arc::<JinjaTemplater>::default(),
                     None => Arc::<RawTemplater>::default(),
                     _ => panic!("Unknown templater: {}", templater.unwrap()),
                 }

@@ -7,7 +7,9 @@ use pyo3::types::IntoPyDict;
 use sqruff_lib_core::errors::SQLFluffUserError;
 use sqruff_lib_core::templaters::base::TemplatedFile;
 
-pub struct JinjaTemplater {}
+#[derive(Default)]
+pub struct JinjaTemplater;
+
 impl Templater for JinjaTemplater {
     fn name(&self) -> &'static str {
         "jinja"

@@ -1710,6 +1710,7 @@ dependencies = [
  "mimalloc",
  "minijinja",
  "pyo3",
+ "pyo3-build-config",
  "serde",
  "sqruff-lib",
  "sqruff-lsp",

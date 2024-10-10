@@ -61,3 +61,6 @@ expect-test = "1.5.0"
 sqruff-lib.workspace = true
 # TODO remove this when we have a proper release and make it injectable
 sqruff-lib.features = ["templater-jinja"]
+
+[build-dependencies]
+pyo3-build-config = { version = "0.22.3" }

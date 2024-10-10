@@ -25,6 +25,10 @@ bench = false
 name = "ui"
 harness = false
 
+[[test]]
+name = "ui_with_python"
+harness = false
+
 [features]
 codegen-docs = ["clap-markdown", "minijinja", "serde"]
 

@@ -12,7 +12,7 @@ pub mod placeholder;
 pub mod raw;
 
 // templaters returns all the templaters that are available in the library
-#[cfg(not(feature = "templater-dbt"))]
+#[cfg(not(feature = "templater-jinja"))]
 pub fn templaters() -> Vec<Box<dyn Templater>> {
     vec![Box::new(RawTemplater), Box::new(PlaceholderTemplater)]
 }

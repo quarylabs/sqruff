@@ -1709,6 +1709,7 @@ dependencies = [
  "expect-test",
  "mimalloc",
  "minijinja",
+ "pyo3",
  "serde",
  "sqruff-lib",
  "sqruff-lsp",

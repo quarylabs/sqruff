@@ -189,16 +189,13 @@ jobs:
       - convert_release_to_not_draft
     steps:
       - uses: actions/checkout@v4
-      - name: Install Node.js
-        uses: actions/setup-node@v4
+      - uses: actions/setup-node@v4
         with:
           node-version-file: ".nvmrc"
-      - name: Install vsce
-        run: npm install -g vsce
+      - run: npm install -g vsce
       - run: chmod +x .hacking/scripts/download_extension.sh
       - run: ./.hacking/scripts/download_extension.sh
-      - name: Publish to VSCode Marketplace
-        run: vsce publish --packagePath extension.vsix
+      - run: vsce publish --packagePath extension.vsix
         env:
           VSCE_PAT: ${{ secrets.VSCE_PAT }} # Set up the VSCE Personal Access Token in GitHub secrets
 

@@ -6,26 +6,23 @@ use crate::core::config::FluffConfig;
 use crate::templaters::placeholder::PlaceholderTemplater;
 use crate::templaters::raw::RawTemplater;
 
+#[cfg(feature = "templater-jinja")]
+pub mod jinja;
 pub mod placeholder;
 pub mod raw;
-#[cfg(feature = "templater-dbt")]
-pub mod dbt;
 
 // templaters returns all the templaters that are available in the library
 #[cfg(not(feature = "templater-dbt"))]
 pub fn templaters() -> Vec<Box<dyn Templater>> {
-    vec![
-        Box::new(RawTemplater),
-        Box::new(PlaceholderTemplater)
-    ]
+    vec![Box::new(RawTemplater), Box::new(PlaceholderTemplater)]
 }
 
-#[cfg(feature = "templater-dbt")]
+#[cfg(feature = "templater-jinja")]
 pub fn templaters() -> Vec<Box<dyn Templater>> {
     vec![
         Box::new(RawTemplater),
         Box::new(PlaceholderTemplater),
-        Box::new(dbt::DBTTemplater {})
+        Box::new(jinja::JinjaTemplater {}),
     ]
 }
 

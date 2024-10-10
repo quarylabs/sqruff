@@ -89,8 +89,6 @@ class JinjaTemplater(PythonTemplater):
     See: https://jinja.palletsprojects.com/
     """
 
-    name = "jinja"
-
     class Libraries:
         """Mock namespace for user-defined Jinja library."""
 

@@ -18,23 +18,6 @@ impl Templater for JinjaTemplater {
         todo!()
     }
 
-    fn template_selection(&self) -> &str {
-        todo!()
-    }
-
-    fn config_pairs(&self) -> (String, String) {
-        todo!()
-    }
-
-    fn sequence_files(
-        &self,
-        f_names: Vec<String>,
-        config: Option<&FluffConfig>,
-        formatter: Option<&OutputStreamFormatter>,
-    ) -> Vec<String> {
-        todo!()
-    }
-
     fn process(
         &self,
         in_str: &str,

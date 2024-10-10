@@ -13,3 +13,8 @@ dist
 
 .DS_Store
 .eslintcache
+
+# Python
+__pycache__/
+*.pyc
+.venv

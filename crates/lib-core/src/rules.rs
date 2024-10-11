@@ -22,8 +22,7 @@ impl LintFix {
         source: Option<Vec<ErasedSegment>>,
     ) -> Self {
         // If `edit` is provided, copy all elements and strip position markers.
-        let mut clean_edit = None;
-        if let Some(mut edit) = edit {
+        let clean_edit = if let Some(mut edit) = edit {
             // Developer Note: Ensure position markers are unset for all edit segments.
             // We rely on realignment to make position markers later in the process.
             for seg in &mut edit {
@@ -31,8 +30,10 @@ impl LintFix {
                     seg.make_mut().set_position_marker(None);
                 };
             }
-            clean_edit = Some(edit);
-        }
+            Some(edit)
+        } else {
+            None
+        };
 
         // If `source` is provided, filter segments with position markers.
         let clean_source = source.map_or(Vec::new(), |source| {

@@ -6,10 +6,25 @@ use crate::core::config::FluffConfig;
 use crate::templaters::placeholder::PlaceholderTemplater;
 use crate::templaters::raw::RawTemplater;
 
+#[cfg(feature = "python")]
+use crate::templaters::python::PythonTemplater;
+
 pub mod placeholder;
+#[cfg(feature = "python")]
+pub mod python;
 pub mod raw;
 
 // templaters returns all the templaters that are available in the library
+#[cfg(feature = "python")]
+pub fn templaters() -> Vec<Box<dyn Templater>> {
+    vec![
+        Box::new(RawTemplater),
+        Box::new(PlaceholderTemplater),
+        Box::new(PythonTemplater),
+    ]
+}
+
+#[cfg(not(feature = "python"))]
 pub fn templaters() -> Vec<Box<dyn Templater>> {
     vec![Box::new(RawTemplater), Box::new(PlaceholderTemplater)]
 }

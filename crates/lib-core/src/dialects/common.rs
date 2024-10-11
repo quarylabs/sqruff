@@ -3,11 +3,7 @@ use smol_str::SmolStr;
 use crate::parser::segments::base::ErasedSegment;
 
 /// Details about a table alias.
-#[derive(Debug, Eq, Hash, Clone)]
-#[allow(
-    clippy::field_reassign_with_default,
-    clippy::derived_hash_with_manual_eq
-)]
+#[derive(Debug, PartialEq, Eq, Hash, Clone)]
 pub struct AliasInfo {
     /// Name given to the alias
     pub ref_str: SmolStr,
@@ -19,19 +15,7 @@ pub struct AliasInfo {
     pub object_reference: Option<ErasedSegment>,
 }
 
-impl PartialEq for AliasInfo {
-    fn eq(&self, other: &Self) -> bool {
-        self.ref_str == other.ref_str
-            && self.segment == other.segment
-            && self.aliased == other.aliased
-            && self.from_expression_element == other.from_expression_element
-            && self.alias_expression == other.alias_expression
-            && self.object_reference == other.object_reference
-    }
-}
-
 /// Details about a column alias.
-#[allow(dead_code)]
 #[derive(Clone, Debug)]
 pub struct ColumnAliasInfo {
     pub alias_identifier_name: SmolStr,

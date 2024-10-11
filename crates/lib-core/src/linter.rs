@@ -1,7 +1,7 @@
 use ahash::HashMapExt;
 use rustc_hash::FxHashMap;
 
-use crate::rules::LintFix;
+use crate::lint_fix::LintFix;
 use crate::segments::AnchorEditInfo;
 
 pub fn compute_anchor_edit_info(

@@ -6,8 +6,8 @@ use itertools::{chain, enumerate, Itertools};
 use smol_str::SmolStr;
 use sqruff_lib_core::dialects::syntax::{SyntaxKind, SyntaxSet};
 use sqruff_lib_core::helpers::skip_last;
+use sqruff_lib_core::lint_fix::LintFix;
 use sqruff_lib_core::parser::segments::base::{ErasedSegment, SegmentBuilder, Tables};
-use sqruff_lib_core::rules::LintFix;
 use strum_macros::EnumString;
 
 use super::elements::{ReflowBlock, ReflowElement, ReflowPoint, ReflowSequenceType};

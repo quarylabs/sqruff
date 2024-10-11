@@ -4,8 +4,8 @@ use ahash::AHashMap;
 use regex::Regex;
 use sqruff_lib_core::dialects::init::DialectKind;
 use sqruff_lib_core::dialects::syntax::{SyntaxKind, SyntaxSet};
+use sqruff_lib_core::lint_fix::LintFix;
 use sqruff_lib_core::parser::segments::base::SegmentBuilder;
-use sqruff_lib_core::rules::LintFix;
 use strum_macros::{AsRefStr, EnumString};
 
 use crate::core::config::Value;

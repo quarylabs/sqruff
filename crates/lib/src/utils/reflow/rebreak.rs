@@ -3,8 +3,8 @@ use std::str::FromStr;
 
 use sqruff_lib_core::dialects::syntax::SyntaxKind;
 use sqruff_lib_core::helpers::capitalize;
+use sqruff_lib_core::lint_fix::LintFix;
 use sqruff_lib_core::parser::segments::base::{ErasedSegment, Tables};
-use sqruff_lib_core::rules::LintFix;
 use strum_macros::{AsRefStr, EnumString};
 
 use super::elements::{ReflowElement, ReflowSequenceType};

@@ -2,8 +2,8 @@ use ahash::{AHashMap, AHashSet};
 use itertools::{chain, Itertools};
 use smol_str::StrExt;
 use sqruff_lib_core::dialects::syntax::{SyntaxKind, SyntaxSet};
+use sqruff_lib_core::lint_fix::LintFix;
 use sqruff_lib_core::parser::segments::base::{ErasedSegment, SegmentBuilder};
-use sqruff_lib_core::rules::LintFix;
 use sqruff_lib_core::utils::functional::segments::Segments;
 
 use crate::core::config::Value;

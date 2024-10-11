@@ -3,8 +3,8 @@ use std::mem::take;
 
 use itertools::Itertools;
 use sqruff_lib_core::dialects::syntax::SyntaxKind;
+use sqruff_lib_core::lint_fix::LintFix;
 use sqruff_lib_core::parser::segments::base::{ErasedSegment, Tables};
-use sqruff_lib_core::rules::LintFix;
 
 use super::config::ReflowConfig;
 use super::depth_map::DepthMap;

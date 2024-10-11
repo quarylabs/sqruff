@@ -1114,9 +1114,9 @@ fn class_types(syntax_kind: SyntaxKind) -> SyntaxSet {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use crate::lint_fix::LintFix;
     use crate::linter::compute_anchor_edit_info;
     use crate::parser::segments::test_functions::{raw_seg, raw_segments};
-    use crate::rules::LintFix;
 
     #[test]
     /// Test comparison of raw segments.

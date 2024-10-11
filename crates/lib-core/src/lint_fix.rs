@@ -6,11 +6,22 @@ use crate::edit_type::EditType;
 use crate::parser::segments::base::ErasedSegment;
 use crate::templaters::base::{RawFileSlice, TemplatedFile};
 
+/// A potential fix to a linting violation.
 #[derive(Debug, Clone)]
 pub struct LintFix {
+    /// indicate the kind of fix this represents
     pub edit_type: EditType,
+    /// A segment which represents the *position* that this fix should be applied at. For
+    /// - deletions, it represents the segment to delete
+    /// - creations, it implies the position to create at (with the existing element at this position to be moved *after* the edit),
+    /// - `replace`, it  implies the segment to be replaced.
     pub anchor: ErasedSegment,
+    /// For `replace` and `create` fixes, this holds the iterable of segments to create or replace
+    /// at the given `anchor` point.
     pub edit: Option<Vec<ErasedSegment>>,
+    /// For `replace` and `create` fixes, this holds iterable of segments that provided
+    /// code. IMPORTANT: The linter uses this to prevent copying material
+    /// from templated areas.
     pub source: Vec<ErasedSegment>,
 }
 

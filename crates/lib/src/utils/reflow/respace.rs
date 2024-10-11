@@ -2,9 +2,9 @@ use itertools::{enumerate, Itertools};
 use rustc_hash::FxHashMap;
 use sqruff_lib_core::dialects::syntax::{SyntaxKind, SyntaxSet};
 use sqruff_lib_core::edit_type::EditType;
+use sqruff_lib_core::lint_fix::LintFix;
 use sqruff_lib_core::parser::markers::PositionMarker;
 use sqruff_lib_core::parser::segments::base::{ErasedSegment, SegmentBuilder, Tables};
-use sqruff_lib_core::rules::LintFix;
 
 use super::elements::ReflowBlock;
 use crate::core::rules::base::LintResult;

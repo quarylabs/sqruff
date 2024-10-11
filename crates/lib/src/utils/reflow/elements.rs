@@ -3,8 +3,8 @@ use std::iter::zip;
 use itertools::{chain, Itertools};
 use nohash_hasher::IntMap;
 use sqruff_lib_core::dialects::syntax::{SyntaxKind, SyntaxSet};
+use sqruff_lib_core::lint_fix::LintFix;
 use sqruff_lib_core::parser::segments::base::{ErasedSegment, SegmentBuilder, Tables};
-use sqruff_lib_core::rules::LintFix;
 
 use super::config::{ReflowConfig, Spacing};
 use super::depth_map::DepthInfo;

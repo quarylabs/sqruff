@@ -10,8 +10,8 @@ use sqruff_lib_core::dialects::base::Dialect;
 use sqruff_lib_core::dialects::init::DialectKind;
 use sqruff_lib_core::errors::{ErrorStructRule, SQLLintError};
 use sqruff_lib_core::helpers::{Config, IndexMap};
+use sqruff_lib_core::lint_fix::LintFix;
 use sqruff_lib_core::parser::segments::base::{ErasedSegment, Tables};
-use sqruff_lib_core::rules::LintFix;
 use sqruff_lib_core::templaters::base::TemplatedFile;
 use strum_macros::AsRefStr;
 

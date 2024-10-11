@@ -24,6 +24,8 @@ pub(crate) enum Commands {
     Fix(FixArgs),
     #[command(name = "lsp", about = "Run an LSP server")]
     Lsp,
+    #[command(name = "python")]
+    Python,
 }
 
 #[derive(Debug, Parser)]

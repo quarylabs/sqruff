@@ -1,6 +1,6 @@
 use crate::edit_type::EditType;
+use crate::lint_fix::LintFix;
 use crate::parser::segments::fix::SourceFix;
-use crate::rules::LintFix;
 
 /// For a given fix anchor, count of the fix edit types and fixes for it."""
 #[derive(Debug, Clone, Default)]

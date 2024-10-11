@@ -1,8 +1,8 @@
 use ahash::AHashMap;
 use itertools::chain;
 use sqruff_lib_core::dialects::syntax::{SyntaxKind, SyntaxSet};
+use sqruff_lib_core::lint_fix::LintFix;
 use sqruff_lib_core::parser::segments::base::{ErasedSegment, SegmentBuilder, Tables};
-use sqruff_lib_core::rules::LintFix;
 use sqruff_lib_core::utils::functional::segments::Segments;
 use strum_macros::{AsRefStr, EnumString};
 

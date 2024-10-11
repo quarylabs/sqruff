@@ -3,8 +3,8 @@ use std::iter::zip;
 use ahash::AHashMap;
 use itertools::{enumerate, Itertools};
 use sqruff_lib_core::dialects::syntax::{SyntaxKind, SyntaxSet};
+use sqruff_lib_core::lint_fix::LintFix;
 use sqruff_lib_core::parser::segments::base::ErasedSegment;
-use sqruff_lib_core::rules::LintFix;
 
 use crate::core::config::Value;
 use crate::core::rules::base::{CloneRule, ErasedRule, LintResult, Rule, RuleGroups};

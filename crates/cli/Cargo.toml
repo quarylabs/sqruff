@@ -50,7 +50,6 @@ minijinja = { version = "2.1.2", optional = true }
 serde = { version = "1.0.204", features = ["derive"], optional = true }
 
 pyo3 = { version = "0.22.3", features = ["extension-module"] }
-pyo3-ffi = { version = "0.22.3" }
 
 [dev-dependencies]
 assert_cmd = "2.0.16"

@@ -1711,7 +1711,6 @@ dependencies = [
  "minijinja",
  "pyo3",
  "pyo3-build-config",
- "pyo3-ffi",
  "serde",
  "sqruff-lib",
  "sqruff-lsp",

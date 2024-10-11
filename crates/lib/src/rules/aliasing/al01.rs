@@ -121,7 +121,7 @@ FROM foo AS voo
                             as_keyword,
                             rule_cx.parent_stack[0].clone(),
                             TargetSide::Both,
-                            rule_cx.config.unwrap(),
+                            rule_cx.config,
                         )
                         .without(as_keyword)
                         .respace(rule_cx.tables, false, Filter::All)
@@ -145,7 +145,7 @@ FROM foo AS voo
                         &identifier,
                         rule_cx.parent_stack[0].clone(),
                         TargetSide::Before,
-                        rule_cx.config.unwrap(),
+                        rule_cx.config,
                     )
                     .insert(
                         SegmentBuilder::keyword(rule_cx.tables.next_id(), "AS"),

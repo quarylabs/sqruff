@@ -25,7 +25,7 @@ impl RuleST08 {
             anchor,
             context.parent_stack[0].clone(),
             TargetSide::Before,
-            context.config.unwrap(),
+            context.config,
         )
         .replace(
             anchor.clone(),
@@ -125,7 +125,7 @@ SELECT DISTINCT a, b FROM foo
                         &modifier[0],
                         context.parent_stack[0].clone(),
                         TargetSide::After,
-                        context.config.unwrap(),
+                        context.config,
                     ));
                 }
             }

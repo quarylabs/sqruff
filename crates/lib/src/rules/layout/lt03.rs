@@ -63,7 +63,7 @@ FROM foo
 
     fn eval(&self, context: RuleContext) -> Vec<LintResult> {
         if context.segment.is_type(SyntaxKind::ComparisonOperator) {
-            let comparison_positioning = context.config.unwrap().raw["layout"]["type"]
+            let comparison_positioning = context.config.raw["layout"]["type"]
                 ["comparison_operator"]["line_position"]
                 .as_string()
                 .unwrap();
@@ -76,8 +76,8 @@ FROM foo
                 return vec![LintResult::new(None, Vec::new(), None, None, None)];
             }
         } else if context.segment.is_type(SyntaxKind::BinaryOperator) {
-            let binary_positioning = context.config.unwrap().raw["layout"]["type"]
-                ["binary_operator"]["line_position"]
+            let binary_positioning = context.config.raw["layout"]["type"]["binary_operator"]
+                ["line_position"]
                 .as_string()
                 .unwrap();
 
@@ -94,7 +94,7 @@ FROM foo
             &context.segment,
             context.parent_stack.first().unwrap().clone(),
             TargetSide::Both,
-            context.config.unwrap(),
+            context.config,
         )
         .rebreak(context.tables)
         .results()

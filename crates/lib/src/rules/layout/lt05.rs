@@ -15,10 +15,10 @@ pub struct RuleLT05 {
 }
 
 impl Rule for RuleLT05 {
-    fn load_from_config(&self, _config: &AHashMap<String, Value>) -> Result<ErasedRule, String> {
+    fn load_from_config(&self, config: &AHashMap<String, Value>) -> Result<ErasedRule, String> {
         Ok(RuleLT05 {
-            ignore_comment_lines: _config["ignore_comment_lines"].as_bool().unwrap(),
-            ignore_comment_clauses: _config["ignore_comment_clauses"].as_bool().unwrap(),
+            ignore_comment_lines: config["ignore_comment_lines"].as_bool().unwrap(),
+            ignore_comment_clauses: config["ignore_comment_clauses"].as_bool().unwrap(),
         }
         .erased())
     }
@@ -67,10 +67,9 @@ FROM my_table"#
         &[RuleGroups::All, RuleGroups::Core, RuleGroups::Layout]
     }
     fn eval(&self, context: RuleContext) -> Vec<LintResult> {
-        let mut results =
-            ReflowSequence::from_root(context.segment.clone(), context.config.unwrap())
-                .break_long_lines(context.tables)
-                .results();
+        let mut results = ReflowSequence::from_root(context.segment.clone(), context.config)
+            .break_long_lines(context.tables)
+            .results();
 
         let mut to_remove = AHashSet::new();
 
@@ -143,8 +142,6 @@ FROM my_table"#
                             if (line_pos as i32)
                                 < context
                                     .config
-                                    .as_ref()
-                                    .unwrap()
                                     .get("max_line_length", "core")
                                     .as_int()
                                     .unwrap()

@@ -132,7 +132,7 @@ from foo
             .unquoted_identifiers_policy
             .as_deref()
             .unwrap_or_else(|| {
-                context.config.unwrap().raw["rules"]["unquoted_identifiers_policy"]
+                context.config.raw["rules"]["unquoted_identifiers_policy"]
                     .as_string()
                     .unwrap()
             });

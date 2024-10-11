@@ -53,7 +53,7 @@ SELECT 'b' AS col
             &context.segment,
             context.parent_stack.first().unwrap().clone(),
             TargetSide::Both,
-            context.config.unwrap(),
+            context.config,
         )
         .rebreak(context.tables)
         .results()

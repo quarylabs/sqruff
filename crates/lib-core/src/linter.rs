@@ -4,7 +4,9 @@ use rustc_hash::FxHashMap;
 use crate::rules::LintFix;
 use crate::segments::AnchorEditInfo;
 
-pub fn compute_anchor_edit_info(fixes: Vec<LintFix>) -> FxHashMap<u32, AnchorEditInfo> {
+pub fn compute_anchor_edit_info(
+    fixes: impl Iterator<Item = LintFix>,
+) -> FxHashMap<u32, AnchorEditInfo> {
     let mut anchor_info = FxHashMap::new();
 
     for fix in fixes {

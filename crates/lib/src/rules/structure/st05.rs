@@ -192,7 +192,7 @@ join c using(x)
             return lint_results;
         }
 
-        let mut fixes = compute_anchor_edit_info(local_fixes);
+        let mut fixes = compute_anchor_edit_info(local_fixes.into_iter());
         let (new_root, _, _, _) = clone_map.root.apply_fixes(&mut fixes);
 
         let clone_map = SegmentCloneMap::new(segment.first().unwrap().clone(), new_root.clone());

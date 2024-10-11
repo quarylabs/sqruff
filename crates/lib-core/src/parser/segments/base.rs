@@ -1180,7 +1180,7 @@ mod tests {
             ),
         ];
 
-        let anchor_edit_info = compute_anchor_edit_info(fixes);
+        let anchor_edit_info = compute_anchor_edit_info(fixes.into_iter());
 
         // Check the target segment is the only key we have.
         assert_eq!(

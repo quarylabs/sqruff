@@ -328,7 +328,7 @@ impl Linter {
                             continue;
                         }
 
-                        let mut anchor_info = compute_anchor_edit_info(fixes);
+                        let mut anchor_info = compute_anchor_edit_info(fixes.into_iter());
                         let (new_tree, _, _, _valid) = tree.apply_fixes(&mut anchor_info);
 
                         if false {

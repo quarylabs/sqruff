@@ -312,10 +312,9 @@ impl TemplatedFileInner {
                     first_idx = Some(idx + start_idx);
                 }
 
-                #[allow(clippy::if_same_then_else)]
-                if elem.templated_slice.start > templated_pos {
-                    break;
-                } else if !inclusive && elem.templated_slice.end >= templated_pos {
+                if elem.templated_slice.start > templated_pos
+                    || (!inclusive && elem.templated_slice.end >= templated_pos)
+                {
                     break;
                 }
             }

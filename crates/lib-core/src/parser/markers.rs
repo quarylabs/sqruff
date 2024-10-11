@@ -51,24 +51,24 @@ impl PositionMarker {
         working_line_no: Option<usize>,
         working_line_pos: Option<usize>,
     ) -> Self {
-        #[allow(clippy::unnecessary_unwrap)]
-        if working_line_no.is_none() || working_line_pos.is_none() {
-            let (working_line_no, working_line_pos) =
-                templated_file.get_line_pos_of_char_pos(templated_slice.start, false);
-            PositionMarker {
+        match (working_line_no, working_line_pos) {
+            (Some(working_line_no), Some(working_line_pos)) => PositionMarker {
                 source_slice,
                 templated_slice,
                 templated_file,
                 working_line_no,
                 working_line_pos,
-            }
-        } else {
-            PositionMarker {
-                source_slice,
-                templated_slice,
-                templated_file,
-                working_line_no: working_line_no.unwrap(),
-                working_line_pos: working_line_pos.unwrap(),
+            },
+            _ => {
+                let (working_line_no, working_line_pos) =
+                    templated_file.get_line_pos_of_char_pos(templated_slice.start, false);
+                PositionMarker {
+                    source_slice,
+                    templated_slice,
+                    templated_file,
+                    working_line_no,
+                    working_line_pos,
+                }
             }
         }
     }

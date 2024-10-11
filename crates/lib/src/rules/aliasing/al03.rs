@@ -131,7 +131,6 @@ FROM foo
 
         if context
             .config
-            .unwrap()
             .get("allow_scalar", "rules")
             .as_bool()
             .unwrap()

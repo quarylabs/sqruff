@@ -149,7 +149,7 @@ WHERE a IS NULL
             &context.segment,
             context.parent_stack[0].clone(),
             TargetSide::Both,
-            context.config.unwrap(),
+            context.config,
         )
         .replace(context.segment.clone(), &seg)
         .respace(context.tables, false, Filter::All)

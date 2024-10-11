@@ -54,7 +54,7 @@ JOIN bar USING (a)
     }
 
     fn eval(&self, context: RuleContext) -> Vec<LintResult> {
-        let sequence = ReflowSequence::from_root(context.segment, context.config.unwrap());
+        let sequence = ReflowSequence::from_root(context.segment, context.config);
         sequence
             .respace(context.tables, false, Filter::All)
             .results()

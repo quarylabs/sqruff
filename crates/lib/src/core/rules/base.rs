@@ -190,7 +190,7 @@ pub trait Rule: CloneRule + dyn_clone::DynClone + Debug + 'static + Send + Sync 
             tables,
             dialect,
             fix,
-            config: Some(config),
+            config,
             segment: tree.clone(),
             templated_file: <_>::default(),
             path: <_>::default(),

@@ -60,8 +60,7 @@ SELECT a FROM plop
     }
     fn eval(&self, context: RuleContext) -> Vec<LintResult> {
         let mut error_buffer = Vec::new();
-        let global_comma_style = context.config.unwrap().raw["layout"]["type"]["comma"]
-            ["line_position"]
+        let global_comma_style = context.config.raw["layout"]["type"]["comma"]["line_position"]
             .as_string()
             .unwrap();
         let expanded_segments = context.segment.iter_segments(

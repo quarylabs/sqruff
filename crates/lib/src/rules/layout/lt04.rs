@@ -68,8 +68,7 @@ FROM foo
     }
 
     fn eval(&self, context: RuleContext) -> Vec<LintResult> {
-        let comma_positioning = context.config.unwrap().raw["layout"]["type"]["comma"]
-            ["line_position"]
+        let comma_positioning = context.config.raw["layout"]["type"]["comma"]["line_position"]
             .as_string()
             .unwrap();
 
@@ -85,7 +84,7 @@ FROM foo
             &context.segment,
             context.parent_stack.first().unwrap().clone(),
             TargetSide::Both,
-            context.config.unwrap(),
+            context.config,
         )
         .rebreak(context.tables)
         .results()

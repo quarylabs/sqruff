@@ -54,7 +54,7 @@ FROM foo
     }
 
     fn eval(&self, context: RuleContext) -> Vec<LintResult> {
-        ReflowSequence::from_root(context.segment, context.config.unwrap())
+        ReflowSequence::from_root(context.segment, context.config)
             .reindent(context.tables)
             .results()
     }

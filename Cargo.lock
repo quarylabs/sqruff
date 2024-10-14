@@ -113,9 +113,9 @@ dependencies = [
 
 [[package]]
 name = "append-only-vec"
-version = "0.1.6"
+version = "0.1.7"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "2bb8633986ce6db557d8a568b0b874d840db9946e589a3de4cf84fb02130745f"
+checksum = "7992085ec035cfe96992dd31bfd495a2ebd31969bb95f624471cb6c0b349e571"
 
 [[package]]
 name = "arrayvec"

@@ -9,7 +9,7 @@ license.workspace = true
 workspace = true
 
 [dependencies]
-append-only-vec = "0.1.5"
+append-only-vec = "0.1.7"
 indexmap.workspace = true
 polonius-the-crab = "0.4.1"
 sqruff-lib-core = { workspace = true }

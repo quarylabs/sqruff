@@ -65,7 +65,7 @@ strum_macros = "0.26.4"
 strum = "0.26.3"
 serde = { version = "1.0", features = ["derive"], optional = true }
 serde_yaml = { version = "0.9.34", optional = true }
-append-only-vec = "0.1.5"
+append-only-vec = "0.1.7"
 
 [target.'cfg(all(any(target_arch = "wasm32", target_arch = "wasm64"), target_os = "unknown"))'.dependencies]
 getrandom = { version = "0.2", features = ["js"] }

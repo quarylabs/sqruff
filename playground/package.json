@@ -10,7 +10,7 @@
   },
   "dependencies": {
     "@monaco-editor/react": "^4.6.0",
-    "@typescript-eslint/eslint-plugin": "^8.8.0",
+    "@typescript-eslint/eslint-plugin": "^8.8.1",
     "@typescript-eslint/parser": "^8.8.0",
     "classnames": "^2.5.1",
     "cross-env": "^7.0.3",

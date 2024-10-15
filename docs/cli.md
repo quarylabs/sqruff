@@ -8,6 +8,7 @@ This document contains the help content for the `sqruff` command-line program.
 * [`sqruff lint`↴](#sqruff-lint)
 * [`sqruff fix`↴](#sqruff-fix)
 * [`sqruff lsp`↴](#sqruff-lsp)
+* [`sqruff python`↴](#sqruff-python)
 
 ## `sqruff`
 
@@ -20,6 +21,7 @@ sqruff is a sql formatter and linter
 * `lint` — lint files
 * `fix` — fix files
 * `lsp` — Run an LSP server
+* `python` — 
 
 ###### **Options:**
 
@@ -75,6 +77,12 @@ fix files
 Run an LSP server
 
 **Usage:** `sqruff lsp`
+
+
+
+## `sqruff python`
+
+**Usage:** `sqruff python`
 
 
 

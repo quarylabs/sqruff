@@ -12,13 +12,15 @@ use sqruff_lib_core::parser::parsers::StringParser;
 use sqruff_lib_core::parser::segments::meta::MetaSegment;
 use sqruff_lib_core::vec_of_erased;
 
+use crate::{ansi, postgres};
+
 pub fn dialect() -> Dialect {
     raw_dialect().config(|dialect| dialect.expand())
 }
 
 pub fn raw_dialect() -> Dialect {
-    let ansi_dialect = super::ansi::raw_dialect();
-    let postgres_dialect = super::postgres::dialect();
+    let ansi_dialect = ansi::raw_dialect();
+    let postgres_dialect = postgres::dialect();
     let mut duckdb_dialect = postgres_dialect;
     duckdb_dialect.name = DialectKind::Duckdb;
 
@@ -59,6 +61,15 @@ pub fn raw_dialect() -> Dialect {
                     false,
                 )
                 .into(),
+        ),
+        (
+            "LoadStatementSegment".into(),
+            Sequence::new(vec_of_erased![
+                Ref::keyword("LOAD"),
+                Ref::new("SingleIdentifierGrammar"),
+            ])
+            .to_matchable()
+            .into(),
         ),
     ]);
 
@@ -175,6 +186,18 @@ pub fn raw_dialect() -> Dialect {
             Ref::new("BaseExpressionElementGrammar")
         ])
         .to_matchable(),
+    );
+
+    duckdb_dialect.replace_grammar(
+        "StatementSegment",
+        postgres::statement_segment().copy(
+            Some(vec_of_erased![Ref::new("LoadStatementSegment")]),
+            None,
+            None,
+            None,
+            vec![],
+            false,
+        ),
     );
 
     duckdb_dialect

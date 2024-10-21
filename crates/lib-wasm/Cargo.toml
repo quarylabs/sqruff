@@ -13,7 +13,7 @@ crate-type = ["cdylib", "rlib"]
 bench = false
 
 [dependencies]
-line-index = "0.1.1"
+line-index = "0.1.2"
 sqruff-lib.workspace = true
 sqruff-lib-core = { workspace = true, features = ["stringify"] }
 wasm-bindgen = "0.2"

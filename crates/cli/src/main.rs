@@ -3,6 +3,8 @@ use commands::{FixArgs, Format, LintArgs};
 use sqruff_lib::cli::formatters::OutputStreamFormatter;
 use sqruff_lib::core::config::FluffConfig;
 use sqruff_lib::core::linter::core::Linter;
+use std::path::Path;
+use std::sync::Arc;
 
 use crate::commands::{Cli, Commands};
 #[cfg(feature = "codegen-docs")]
@@ -12,6 +14,7 @@ mod commands;
 #[cfg(feature = "codegen-docs")]
 mod docs;
 mod github_action;
+mod ignore;
 
 #[cfg(all(
     not(target_os = "windows"),
@@ -45,10 +48,18 @@ fn main() {
     }
 
     let config = FluffConfig::from_root(extra_config_path, ignore_local_config, None).unwrap();
+    let current_path = std::env::current_dir().unwrap();
+    let ignore_file = ignore::IgnoreFile::new_from_root(&current_path).unwrap();
+    let ignore_file = Arc::new(ignore_file);
+    let ignorer = {
+        let ignore_file = Arc::clone(&ignore_file);
+        move |path: &Path| ignore_file.is_ignored(path)
+    };
+
     match cli.command {
         Commands::Lint(LintArgs { paths, format }) => {
             let mut linter = linter(config, format);
-            let result = linter.lint_paths(paths, false);
+            let result = linter.lint_paths(paths, false, &ignorer);
             let count: usize = result.paths.iter().map(|path| path.files.len()).sum();
 
             // TODO this should be cleaned up better
@@ -92,7 +103,7 @@ fn main() {
             format,
         }) => {
             let mut linter = linter(config, format);
-            let result = linter.lint_paths(paths, true);
+            let result = linter.lint_paths(paths, true, &ignorer);
 
             if result
                 .paths

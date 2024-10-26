@@ -121,7 +121,14 @@ impl Linter {
         self.lint_parsed(&tables, parsed, fix)
     }
 
-    pub fn lint_paths(&mut self, mut paths: Vec<PathBuf>, fix: bool) -> LintingResult {
+    /// ignorer is an optional argument that takes in a function that returns a bool based on the
+    /// path passed to it. If the function returns true, the path is ignored.
+    pub fn lint_paths(
+        &mut self,
+        mut paths: Vec<PathBuf>,
+        fix: bool,
+        ignorer: &(dyn Fn(&Path) -> bool + Send + Sync),
+    ) -> LintingResult {
         let mut result = LintingResult::new();
 
         if paths.is_empty() {
@@ -152,6 +159,9 @@ impl Linter {
 
         expanded_paths
             .par_iter()
+            .filter(|path| {
+                return !ignorer(Path::new(path));
+            })
             .map(|path| {
                 let rendered = self.render_file(path.clone());
                 self.lint_rendered(rendered, fix)

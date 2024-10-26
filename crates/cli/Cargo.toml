@@ -33,6 +33,7 @@ sqruff-lib.workspace = true
 sqruff-lsp.workspace = true
 clap = { version = "4", features = ["derive"] }
 console = "0.15.8"
+ignore = "0.4.23"
 
 [target.'cfg(target_os = "windows")'.dependencies]
 mimalloc = "0.1"

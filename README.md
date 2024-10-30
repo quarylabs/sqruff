@@ -139,6 +139,18 @@ tab_space_size = 4
 indented_joins = True
 ```
 
+#### Ignoring files
+
+Like `.ignore` files, sqruff ignores files and folder, specified in a `.sqruffignore` file placed in the root of where the command is run. For example if placed in `.sqruffignore`, the following code will ignore `.hql` files and files in any director named temp:
+
+```
+# ignore ALL .hql files
+*.hql
+
+# ignore ALL files in ANY directory named temp
+temp/
+```
+
 #### Ignoring errors
 
 The NoQA directive is a way to disable specific rules or all rules for a specific line or range of lines. Similar to flake8’s ignore, individual lines can be ignored by adding `-- noqa` to the end of the line.

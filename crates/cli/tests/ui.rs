@@ -10,11 +10,11 @@ fn main() {
     } else {
         "release"
     };
-    let mut test_dir = PathBuf::from(env!("CARGO_MANIFEST_DIR"));
-    test_dir.push("tests/ui");
+    let mut lint_dir = PathBuf::from(env!("CARGO_MANIFEST_DIR"));
+    lint_dir.push("tests/lint");
 
     // Iterate over each test file in the directory
-    for entry in fs::read_dir(&test_dir).unwrap() {
+    for entry in fs::read_dir(&lint_dir).unwrap() {
         let entry = entry.unwrap();
         let path = entry.path();
 
@@ -51,9 +51,9 @@ fn main() {
             let stdout_str = std::str::from_utf8(&output.stdout).unwrap();
             let exit_code_str = output.status.code().unwrap().to_string();
 
-            let test_dir_str = test_dir.to_string_lossy().to_string();
-            let stderr_normalized: String = stderr_str.replace(&test_dir_str, "tests/ui");
-            let stdout_normalized: String = stdout_str.replace(&test_dir_str, "tests/ui");
+            let test_dir_str = lint_dir.to_string_lossy().to_string();
+            let stderr_normalized: String = stderr_str.replace(&test_dir_str, "tests/lint");
+            let stdout_normalized: String = stdout_str.replace(&test_dir_str, "tests/lint");
 
             expect_file![expected_output_path_stderr].assert_eq(&stderr_normalized);
             expect_file![expected_output_path_stdout].assert_eq(&stdout_normalized);

@@ -1,4 +1,4 @@
-== [tests/ui/hql_file.hql] FAIL
+== [tests/lint/hql_file.hql] FAIL
 L:   1 | P:   7 | LT01 | Expected only single space before "1". Found "   ".
                        | [layout.spacing]
 L:   1 | P:  11 | LT12 | Files must end with a single trailing newline.

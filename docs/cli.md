@@ -35,7 +35,7 @@ lint files
 
 ###### **Arguments:**
 
-* `<PATHS>`
+* `<PATHS>` — Files or directories to fix
 
 ###### **Options:**
 
@@ -56,7 +56,7 @@ fix files
 
 ###### **Arguments:**
 
-* `<PATHS>`
+* `<PATHS>` — Files or directories to fix
 
 ###### **Options:**
 

@@ -93,7 +93,6 @@ fn main() {
             } else {
                 0
             }
-        
         }
         Commands::Fix(FixArgs {
             paths,
@@ -130,7 +129,7 @@ fn main() {
                         }
                     }
                 }
-    
+
                 for linted_dir in result.paths {
                     for mut file in linted_dir.files {
                         let path = std::mem::take(&mut file.path);
@@ -138,7 +137,7 @@ fn main() {
                         std::fs::write(path, write_buff).unwrap();
                     }
                 }
-    
+
                 linter.formatter_mut().unwrap().completion_message();
                 0
             }

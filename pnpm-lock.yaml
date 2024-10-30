@@ -34,8 +34,8 @@ importers:
         specifier: ^10.0.9
         version: 10.0.9
       '@types/node':
-        specifier: ~20.16.15
-        version: 20.16.15
+        specifier: ~22.8.4
+        version: 22.8.4
       '@types/vscode':
         specifier: ^1.94.0
         version: 1.95.0
@@ -783,9 +783,6 @@ packages:
 
   '@types/mocha@10.0.9':
     resolution: {integrity: sha512-sicdRoWtYevwxjOHNMPTl3vSfJM6oyW8o1wXeI7uww6b6xHg8eBznQDNSGBCDJmsE8UMxP05JgZRtsKbTqt//Q==}
-
-  '@types/node@20.16.15':
-    resolution: {integrity: sha512-DV58qQz9dBMqVVn+qnKwGa51QzCD4YM/tQM16qLKxdf5tqz5W4QwtrMzjSTbabN1cFTSuyxVYBy+QWHjWW8X/g==}
 
   '@types/node@22.8.4':
     resolution: {integrity: sha512-SpNNxkftTJOPk0oN+y2bIqurEXHTA2AOZ3EJDDKeJ5VzkvvORSvmQXGQarcOzWV1ac7DCaPBEdMDxBsM+d8jWw==}
@@ -3726,14 +3723,9 @@ snapshots:
 
   '@types/mocha@10.0.9': {}
 
-  '@types/node@20.16.15':
-    dependencies:
-      undici-types: 6.19.8
-
   '@types/node@22.8.4':
     dependencies:
       undici-types: 6.19.8
-    optional: true
 
   '@types/prop-types@15.7.13': {}
 

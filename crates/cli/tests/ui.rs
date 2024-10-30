@@ -37,16 +37,19 @@ fn main() {
             // Run the command and capture the output
             let assert = cmd.assert();
 
-            // Construct the expected output file path
+            // Construct the expected output file paths
             let mut expected_output_path_stderr = path.clone();
             expected_output_path_stderr.set_extension("stderr");
             let mut expected_output_path_stdout = path.clone();
             expected_output_path_stdout.set_extension("stdout");
+            let mut expected_output_path_exitcode = path.clone();
+            expected_output_path_exitcode.set_extension("exitcode");
 
             // Read the expected output
             let output = assert.get_output();
             let stderr_str = std::str::from_utf8(&output.stderr).unwrap();
             let stdout_str = std::str::from_utf8(&output.stdout).unwrap();
+            let exit_code_str = output.status.code().unwrap().to_string();
 
             let test_dir_str = test_dir.to_string_lossy().to_string();
             let stderr_normalized: String = stderr_str.replace(&test_dir_str, "tests/ui");
@@ -54,6 +57,7 @@ fn main() {
 
             expect_file![expected_output_path_stderr].assert_eq(&stderr_normalized);
             expect_file![expected_output_path_stdout].assert_eq(&stdout_normalized);
+            expect_file![expected_output_path_exitcode].assert_eq(&exit_code_str);
         }
     }
 }

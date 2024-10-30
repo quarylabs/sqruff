@@ -56,7 +56,7 @@ fn main() {
         move |path: &Path| ignore_file.is_ignored(path)
     };
 
-    match cli.command {
+    let status_code = match cli.command {
         Commands::Lint(LintArgs { paths, format }) => {
             let mut linter = linter(config, format);
             let result = linter.lint_paths(paths, false, &ignorer);
@@ -83,19 +83,16 @@ fn main() {
 
             eprintln!("The linter processed {count} file(s).");
             linter.formatter_mut().unwrap().completion_message();
-
-            std::process::exit(
-                if linter
-                    .formatter()
-                    .unwrap()
-                    .has_fail
-                    .load(std::sync::atomic::Ordering::SeqCst)
-                {
-                    1
-                } else {
-                    0
-                },
-            )
+            if linter
+                .formatter()
+                .unwrap()
+                .has_fail
+                .load(std::sync::atomic::Ordering::SeqCst)
+            {
+                1
+            } else {
+                0
+            }
         }
         Commands::Fix(FixArgs {
             paths,
@@ -117,35 +114,41 @@ fn main() {
                     .map(|path| path.files.len())
                     .sum::<usize>();
                 println!("{} files processed, nothing to fix.", count_files);
-                return;
-            }
-
-            if !force {
-                match check_user_input() {
-                    Some(true) => {
-                        eprintln!("Attempting fixes...");
-                    }
-                    Some(false) => return,
-                    None => {
-                        eprintln!("Invalid input, please enter 'Y' or 'N'");
-                        eprintln!("Aborting...");
-                        return;
+                0
+            } else {
+                if !force {
+                    match check_user_input() {
+                        Some(true) => {
+                            eprintln!("Attempting fixes...");
+                        }
+                        Some(false) => return,
+                        None => {
+                            eprintln!("Invalid input, please enter 'Y' or 'N'");
+                            eprintln!("Aborting...");
+                            return;
+                        }
                     }
                 }
-            }
 
-            for linted_dir in result.paths {
-                for mut file in linted_dir.files {
-                    let path = std::mem::take(&mut file.path);
-                    let write_buff = file.fix_string();
-                    std::fs::write(path, write_buff).unwrap();
+                for linted_dir in result.paths {
+                    for mut file in linted_dir.files {
+                        let path = std::mem::take(&mut file.path);
+                        let write_buff = file.fix_string();
+                        std::fs::write(path, write_buff).unwrap();
+                    }
                 }
-            }
 
-            linter.formatter_mut().unwrap().completion_message();
+                linter.formatter_mut().unwrap().completion_message();
+                0
+            }
         }
-        Commands::Lsp => sqruff_lsp::run(),
-    }
+        Commands::Lsp => {
+            sqruff_lsp::run();
+            0
+        }
+    };
+
+    std::process::exit(status_code);
 }
 
 fn linter(config: FluffConfig, format: Format) -> Linter {

@@ -28,6 +28,7 @@ pub(crate) enum Commands {
 
 #[derive(Debug, Parser)]
 pub(crate) struct LintArgs {
+    /// Files or directories to fix.
     pub paths: Vec<PathBuf>,
     #[arg(default_value = "human", short, long)]
     pub format: Format,
@@ -35,6 +36,7 @@ pub(crate) struct LintArgs {
 
 #[derive(Debug, Parser)]
 pub(crate) struct FixArgs {
+    /// Files or directories to fix.
     pub paths: Vec<PathBuf>,
     /// Skip the confirmation prompt and go straight to applying fixes.
     #[arg(long)]

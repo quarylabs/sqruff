@@ -65,7 +65,6 @@ jobs:
           args: --release --out dist
           sccache: "true"
           manylinux: musllinux_1_2
-          rust-toolchain: 1.81.0
       - name: Upload wheels
         uses: actions/upload-artifact@v4
         with:
@@ -90,7 +89,6 @@ jobs:
           target: ${{ matrix.platform.target }}
           args: --release --out dist
           sccache: "true"
-          rust-toolchain: 1.81.0
       - name: Upload wheels
         uses: actions/upload-artifact@v4
         with:
@@ -133,7 +131,6 @@ jobs:
           target: x86_64
           command: sdist
           args: --out dist
-          rust-toolchain: 1.81.0
       - name: Upload sdist
         uses: actions/upload-artifact@v4
         with:

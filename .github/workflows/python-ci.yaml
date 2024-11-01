@@ -6,7 +6,9 @@
 name: CI
 
 on:
-  pull_request:
+  push:
+    tags:
+      - "v*.*.*"
   workflow_dispatch:
 
 permissions:
@@ -142,18 +144,18 @@ jobs:
           name: wheels-sdist
           path: crates/cli/dist
 
-  #release:
-  #  name: Release
-  #  runs-on: ubuntu-latest
-  #  environment: production
-  #  #if: "startsWith(github.ref, 'refs/tags/')"
-  #  needs: [linux, musllinux, windows, macos, sdist]
-  #  steps:
-  #    - uses: actions/download-artifact@v4
-  #    - name: Publish to PyPI
-  #      uses: PyO3/maturin-action@v1
-  #      env:
-  #        MATURIN_PYPI_TOKEN: ${{ secrets.PYPI_API_TOKEN }}
-  #      with:
-  #        command: upload
-  #        args: --non-interactive --skip-existing wheels-*/*
+  release:
+    name: Release
+    runs-on: ubuntu-latest
+    environment: production
+    #if: "startsWith(github.ref, 'refs/tags/')"
+    needs: [linux, musllinux, windows, macos, sdist]
+    steps:
+      - uses: actions/download-artifact@v4
+      - name: Publish to PyPI
+        uses: PyO3/maturin-action@v1
+        env:
+          MATURIN_PYPI_TOKEN: ${{ secrets.PYPI_API_TOKEN }}
+        with:
+          command: upload
+          args: --non-interactive --skip-existing wheels-*/*

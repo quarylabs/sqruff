@@ -35,7 +35,7 @@ lint files
 
 ###### **Arguments:**
 
-* `<PATHS>` — Files or directories to fix
+* `<PATHS>` — Files or directories to fix. Use `-` to read from stdin
 
 ###### **Options:**
 
@@ -56,7 +56,7 @@ fix files
 
 ###### **Arguments:**
 
-* `<PATHS>` — Files or directories to fix
+* `<PATHS>` — Files or directories to fix. Use `-` to read from stdin
 
 ###### **Options:**
 

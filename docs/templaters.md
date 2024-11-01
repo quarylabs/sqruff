@@ -10,6 +10,13 @@ FROM users
 WHERE id = :id
 ```
 
+The templater is set in the config file as follows:
+
+```ini
+[sqruff]
+templater = raw
+```
+
 ## Templaters Index
 
 Sqruff comes with the following templaters out of the box:

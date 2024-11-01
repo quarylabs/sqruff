@@ -1,20 +1,24 @@
 use clap::Parser as _;
-use commands::{FixArgs, Format, LintArgs};
+use commands::Format;
 use sqruff_lib::cli::formatters::OutputStreamFormatter;
 use sqruff_lib::core::config::FluffConfig;
 use sqruff_lib::core::linter::core::Linter;
 use std::path::Path;
 use std::sync::Arc;
+use stdin::is_std_in_flag_input;
 
 use crate::commands::{Cli, Commands};
 #[cfg(feature = "codegen-docs")]
 use crate::docs::codegen_docs;
 
 mod commands;
+mod commands_fix;
+mod commands_lint;
 #[cfg(feature = "codegen-docs")]
 mod docs;
 mod github_action;
 mod ignore;
+mod stdin;
 
 #[cfg(all(
     not(target_os = "windows"),
@@ -41,12 +45,10 @@ fn main() {
 
     let mut extra_config_path = None;
     let mut ignore_local_config = false;
-
     if cli.config.is_some() {
         extra_config_path = cli.config;
         ignore_local_config = true;
     }
-
     let config = FluffConfig::from_root(extra_config_path, ignore_local_config, None).unwrap();
     let current_path = std::env::current_dir().unwrap();
     let ignore_file = ignore::IgnoreFile::new_from_root(&current_path).unwrap();
@@ -57,91 +59,22 @@ fn main() {
     };
 
     let status_code = match cli.command {
-        Commands::Lint(LintArgs { paths, format }) => {
-            let mut linter = linter(config, format);
-            let result = linter.lint_paths(paths, false, &ignorer);
-            let count: usize = result.paths.iter().map(|path| path.files.len()).sum();
-
-            // TODO this should be cleaned up better
-            if matches!(format, Format::GithubAnnotationNative) {
-                for path in result.paths {
-                    for file in path.files {
-                        for violation in file.violations {
-                            let line = format!(
-                                "::error title=sqruff,file={},line={},col={}::{}: {}",
-                                file.path,
-                                violation.line_no,
-                                violation.line_pos,
-                                violation.rule.as_ref().unwrap().code,
-                                violation.description
-                            );
-                            eprintln!("{line}");
-                        }
-                    }
-                }
-            }
-
-            eprintln!("The linter processed {count} file(s).");
-            linter.formatter_mut().unwrap().completion_message();
-            if linter
-                .formatter()
-                .unwrap()
-                .has_fail
-                .load(std::sync::atomic::Ordering::SeqCst)
-            {
+        Commands::Lint(args) => match is_std_in_flag_input(&args.paths) {
+            Err(e) => {
+                eprintln!("{e}");
                 1
-            } else {
-                0
             }
-        }
-        Commands::Fix(FixArgs {
-            paths,
-            force,
-            format,
-        }) => {
-            let mut linter = linter(config, format);
-            let result = linter.lint_paths(paths, true, &ignorer);
-
-            if result
-                .paths
-                .iter()
-                .map(|path| path.files.iter().all(|file| file.violations.is_empty()))
-                .all(|v| v)
-            {
-                let count_files = result
-                    .paths
-                    .iter()
-                    .map(|path| path.files.len())
-                    .sum::<usize>();
-                println!("{} files processed, nothing to fix.", count_files);
-                0
-            } else {
-                if !force {
-                    match check_user_input() {
-                        Some(true) => {
-                            eprintln!("Attempting fixes...");
-                        }
-                        Some(false) => return,
-                        None => {
-                            eprintln!("Invalid input, please enter 'Y' or 'N'");
-                            eprintln!("Aborting...");
-                            return;
-                        }
-                    }
-                }
-
-                for linted_dir in result.paths {
-                    for mut file in linted_dir.files {
-                        let path = std::mem::take(&mut file.path);
-                        let write_buff = file.fix_string();
-                        std::fs::write(path, write_buff).unwrap();
-                    }
-                }
-
-                linter.formatter_mut().unwrap().completion_message();
-                0
+            Ok(false) => commands_lint::run_lint(args, config, ignorer),
+            Ok(true) => commands_lint::run_lint_stdin(config, args.format),
+        },
+        Commands::Fix(args) => match is_std_in_flag_input(&args.paths) {
+            Err(e) => {
+                eprintln!("{e}");
+                1
             }
-        }
+            Ok(false) => commands_fix::run_fix(args, config, ignorer),
+            Ok(true) => commands_fix::run_fix_stdin(config, args.format),
+        },
         Commands::Lsp => {
             sqruff_lsp::run();
             0
@@ -151,7 +84,7 @@ fn main() {
     std::process::exit(status_code);
 }
 
-fn linter(config: FluffConfig, format: Format) -> Linter {
+pub(crate) fn linter(config: FluffConfig, format: Format) -> Linter {
     let output_stream: Box<dyn std::io::Write + Send + Sync> = match format {
         Format::Human => Box::new(std::io::stderr()),
         Format::GithubAnnotationNative => Box::new(std::io::sink()),

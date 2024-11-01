@@ -60,4 +60,50 @@ fn main() {
             expect_file![expected_output_path_exitcode].assert_eq(&exit_code_str);
         }
     }
+
+    // Add a new test case for stdin input
+    {
+        // Simple SQL input
+        let sql_input = "SELECT * FROM users;";
+
+        // Construct the path to the sqruff binary
+        let profile = if cfg!(debug_assertions) {
+            "debug"
+        } else {
+            "release"
+        };
+        let mut sqruff_path = PathBuf::from(env!("CARGO_MANIFEST_DIR"));
+        sqruff_path.push(format!("../../target/{}/sqruff", profile));
+
+        // Set up the command with arguments
+        let mut cmd = Command::new(sqruff_path);
+        cmd.arg("lint").arg("-f").arg("human").arg("-"); // Use '-' to indicate stdin
+        cmd.env("HOME", PathBuf::from(env!("CARGO_MANIFEST_DIR")));
+
+        // Provide input via stdin
+        cmd.write_stdin(sql_input);
+
+        // Run the command and capture the output
+        let assert = cmd.assert();
+
+        // Expected output paths
+        let mut lint_dir = lint_dir.clone();
+        assert!(lint_dir.pop());
+        let lint_dir = lint_dir.join("stdin");
+
+        let expected_output_path_stderr = lint_dir.join("stdin.stderr");
+        let expected_output_path_stdout = lint_dir.join("stdin.stdout");
+        let expected_output_path_exitcode = lint_dir.join("stdin.exitcode");
+
+        // Read the output
+        let output = assert.get_output();
+        let stderr_str = std::str::from_utf8(&output.stderr).unwrap();
+        let stdout_str = std::str::from_utf8(&output.stdout).unwrap();
+        let exit_code_str = output.status.code().unwrap().to_string();
+
+        // Assert outputs
+        expect_file![expected_output_path_stderr].assert_eq(&stderr_str);
+        expect_file![expected_output_path_stdout].assert_eq(&stdout_str);
+        expect_file![expected_output_path_exitcode].assert_eq(&exit_code_str);
+    }
 }

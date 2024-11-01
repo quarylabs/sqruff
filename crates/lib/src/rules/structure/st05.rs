@@ -460,7 +460,7 @@ impl CTEBuilder {
 
             if ctes.peek().is_some() {
                 cte_segments.extend([
-                    SegmentBuilder::token(tables.next_id(), ",", SyntaxKind::Comma).finish(),
+                    SegmentBuilder::comma(tables.next_id()),
                     SegmentBuilder::newline(tables.next_id(), "\n"),
                 ]);
             }

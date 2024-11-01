@@ -125,7 +125,7 @@ FROM foo
         } else if self.select_clause_trailing_comma == "require"
             && !last_content.is_type(SyntaxKind::Comma)
         {
-            let new_comma = SegmentBuilder::symbol(rule_cx.tables.next_id(), ",");
+            let new_comma = SegmentBuilder::comma(rule_cx.tables.next_id());
 
             let fix: Vec<LintFix> = vec![LintFix::replace(
                 last_content.clone(),

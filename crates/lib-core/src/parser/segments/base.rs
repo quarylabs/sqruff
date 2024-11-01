@@ -35,6 +35,10 @@ impl SegmentBuilder {
         SegmentBuilder::token(id, raw, SyntaxKind::Keyword).finish()
     }
 
+    pub fn comma(id: u32) -> ErasedSegment {
+        SegmentBuilder::token(id, ",", SyntaxKind::Comma).finish()
+    }
+
     pub fn symbol(id: u32, raw: &str) -> ErasedSegment {
         SegmentBuilder::token(id, raw, SyntaxKind::Symbol).finish()
     }

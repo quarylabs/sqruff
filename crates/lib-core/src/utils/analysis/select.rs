@@ -67,7 +67,6 @@ pub fn get_select_statement_info(
     let select_targets =
         select_clause.children(const { &SyntaxSet::new(&[SyntaxKind::SelectClauseElement]) });
     let select_targets = select_targets
-        .iter()
         .map(|it| SelectClauseElementSegment(it.clone()))
         .collect_vec();
 
@@ -257,8 +256,8 @@ fn get_lambda_argument_columns(segment: &ErasedSegment, dialect: Option<&Dialect
                         .unwrap();
 
                     if start_bracket.raw() == "(" {
-                        let bracketed_arguments =
-                            child_segment.children(&SyntaxSet::single(SyntaxKind::ColumnReference));
+                        let bracketed_arguments = child_segment
+                            .children(const { &SyntaxSet::single(SyntaxKind::ColumnReference) });
 
                         lambda_argument_columns.extend(
                             bracketed_arguments

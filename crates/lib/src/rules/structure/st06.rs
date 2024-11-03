@@ -119,8 +119,9 @@ from x
         }
 
         let select_clause_segment = context.segment.clone();
-        let select_target_elements = select_clause_segment
-            .children(const { &SyntaxSet::new(&[SyntaxKind::SelectClauseElement]) });
+        let select_target_elements: Vec<_> = select_clause_segment
+            .children(const { &SyntaxSet::new(&[SyntaxKind::SelectClauseElement]) })
+            .collect();
 
         if select_target_elements.is_empty() {
             return Vec::new();
@@ -132,7 +133,7 @@ from x
             .collect();
         seen_band_elements.push(Vec::new());
 
-        for segment in &select_target_elements {
+        for &segment in &select_target_elements {
             let mut current_element_band: Option<usize> = None;
 
             for (i, band) in enumerate(SELECT_ELEMENT_ORDER_PREFERENCE) {
@@ -226,10 +227,10 @@ from x
             let fixes = zip(select_target_elements, ordered_select_target_elements)
                 .filter_map(
                     |(initial_select_target_element, replace_select_target_element)| {
-                        (initial_select_target_element != replace_select_target_element).then(
+                        (initial_select_target_element != &replace_select_target_element).then(
                             || {
                                 LintFix::replace(
-                                    initial_select_target_element,
+                                    initial_select_target_element.clone(),
                                     vec![replace_select_target_element],
                                     None,
                                 )

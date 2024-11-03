@@ -27,12 +27,12 @@ impl FromClauseSegment {
             );
         }
 
-        for clause in &direct_table_children {
+        for &clause in &direct_table_children {
             let tmp;
 
             let alias = FromExpressionElementSegment(clause.clone()).eventual_alias();
 
-            let table_expr = if direct_table_children.contains(clause) {
+            let table_expr = if direct_table_children.contains(&clause) {
                 clause
             } else {
                 tmp = clause
@@ -45,7 +45,7 @@ impl FromClauseSegment {
         }
 
         for clause in join_clauses {
-            let aliases = JoinClauseSegment(clause).eventual_aliases();
+            let aliases = JoinClauseSegment(clause.clone()).eventual_aliases();
 
             if !aliases.is_empty() {
                 buff.extend(aliases);

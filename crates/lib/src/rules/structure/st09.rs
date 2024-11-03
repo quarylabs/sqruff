@@ -169,8 +169,9 @@ left join bar
             let comparison_operator = subcondition[1].clone();
             let first_column_reference = subcondition[0].clone();
             let second_column_reference = subcondition[2].clone();
-            let raw_comparison_operators = comparison_operator
-                .children(const { &SyntaxSet::new(&[SyntaxKind::RawComparisonOperator]) });
+            let raw_comparison_operators: Vec<_> = comparison_operator
+                .children(const { &SyntaxSet::new(&[SyntaxKind::RawComparisonOperator]) })
+                .collect();
             let first_table_seg = first_column_reference
                 .child(
                     const {

@@ -383,14 +383,13 @@ impl ErasedSegment {
             .clone()
     }
 
-    pub fn children(&self, seg_types: &SyntaxSet) -> Vec<ErasedSegment> {
-        let mut buff = Vec::new();
-        for seg in self.segments() {
-            if seg_types.contains(seg.get_type()) {
-                buff.push(seg.clone());
-            }
-        }
-        buff
+    pub fn children<'set>(
+        &'set self,
+        seg_types: &'set SyntaxSet,
+    ) -> impl Iterator<Item = &ErasedSegment> + '_ {
+        self.segments()
+            .iter()
+            .filter(move |seg| seg_types.contains(seg.get_type()))
     }
 
     pub fn iter_patches(&self, templated_file: &TemplatedFile) -> Vec<FixPatch> {

@@ -320,7 +320,7 @@ impl<T: Default + Clone> Query<'_, T> {
             selectables.extend(
                 segment
                     .children(const { &SyntaxSet::new(&[SyntaxKind::SelectStatement]) })
-                    .into_iter()
+                    .cloned()
                     .map(|selectable| Selectable {
                         selectable,
                         dialect,

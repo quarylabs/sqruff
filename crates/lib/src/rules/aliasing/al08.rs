@@ -118,7 +118,7 @@ FROM
                         None,
                     ))
                 }
-                Entry::Vacant(entry) => _ = entry.insert(clause_element),
+                Entry::Vacant(entry) => _ = entry.insert(clause_element.clone()),
             };
         }
 

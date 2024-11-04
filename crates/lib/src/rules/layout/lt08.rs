@@ -64,7 +64,7 @@ SELECT a FROM plop
             .as_string()
             .unwrap();
         let expanded_segments = context.segment.iter_segments(
-            Some(const { &SyntaxSet::new(&[SyntaxKind::CommonTableExpression]) }),
+            const { &SyntaxSet::new(&[SyntaxKind::CommonTableExpression]) },
             false,
         );
 

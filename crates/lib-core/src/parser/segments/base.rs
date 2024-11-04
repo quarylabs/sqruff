@@ -345,23 +345,23 @@ impl ErasedSegment {
         }
     }
 
-    pub fn iter_segments(
-        &self,
-        expanding: Option<&SyntaxSet>,
-        pass_through: bool,
-    ) -> Vec<ErasedSegment> {
-        let mut result = Vec::new();
-        for s in self.gather_segments() {
-            if let Some(expanding) = expanding {
-                if expanding.contains(s.get_type()) {
-                    result.extend(
-                        s.iter_segments(if pass_through { Some(expanding) } else { None }, false),
-                    );
+    pub fn iter_segments(&self, expanding: &SyntaxSet, pass_through: bool) -> Vec<ErasedSegment> {
+        let capacity = if expanding.is_empty() {
+            self.segments().len()
+        } else {
+            0
+        };
+        let mut result = Vec::with_capacity(capacity);
+        for segment in self.segments() {
+            if expanding.contains(segment.get_type()) {
+                let expanding = if pass_through {
+                    expanding
                 } else {
-                    result.push(s);
-                }
+                    &SyntaxSet::EMPTY
+                };
+                result.append(&mut segment.iter_segments(expanding, false));
             } else {
-                result.push(s);
+                result.push(segment.clone());
             }
         }
         result
@@ -536,10 +536,6 @@ impl ErasedSegment {
 
     pub fn get_position_marker(&self) -> Option<&PositionMarker> {
         self.value.position_marker.as_ref()
-    }
-
-    pub fn gather_segments(&self) -> Vec<ErasedSegment> {
-        self.segments().to_vec()
     }
 
     pub(crate) fn iter_source_fix_patches(&self, templated_file: &TemplatedFile) -> Vec<FixPatch> {
@@ -783,7 +779,7 @@ impl ErasedSegment {
         let mut fixes_applied = Vec::new();
         let mut _requires_validate = false;
 
-        for seg in self.gather_segments() {
+        for seg in self.segments() {
             // Look for uuid match.
             // This handles potential positioning ambiguity.
 

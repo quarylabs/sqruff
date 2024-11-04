@@ -96,8 +96,9 @@ impl BaseCrawler for SegmentSeekerCrawler {
         }
 
         context.parent_stack.push(context.segment.clone());
-        for (idx, child) in context.segment.gather_segments().into_iter().enumerate() {
-            context.segment = child;
+        let segment = context.segment;
+        for (idx, child) in segment.segments().iter().enumerate() {
+            context.segment = child.clone();
             context.segment_idx = idx;
 
             acc.extend(self.crawl(context.clone()));
@@ -118,8 +119,9 @@ impl BaseCrawler for TokenSeekerCrawler {
         }
 
         context.parent_stack.push(context.segment.clone());
-        for (idx, child) in context.segment.gather_segments().into_iter().enumerate() {
-            context.segment = child;
+        let segment = context.segment;
+        for (idx, child) in segment.segments().iter().enumerate() {
+            context.segment = child.clone();
             context.segment_idx = idx;
 
             acc.extend(self.crawl(context.clone()));

@@ -102,16 +102,16 @@ impl Segments {
     }
 
     pub fn children(&self, predicate: PredicateType) -> Segments {
-        let mut child_segments = Vec::new();
+        let mut child_segments = Vec::with_capacity(predicate.map_or(0, |_| self.len()));
 
         for s in &self.base {
-            for child in s.gather_segments() {
+            for child in s.segments() {
                 if let Some(ref pred) = predicate {
-                    if pred(&child) {
-                        child_segments.push(child);
+                    if pred(child) {
+                        child_segments.push(child.clone());
                     }
                 } else {
-                    child_segments.push(child);
+                    child_segments.push(child.clone());
                 }
             }
         }

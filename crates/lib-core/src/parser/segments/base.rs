@@ -509,10 +509,6 @@ impl ErasedSegment {
         }
     }
 
-    pub fn get_raw_upper(&self) -> Option<String> {
-        self.raw().to_uppercase().into()
-    }
-
     pub fn is_comment(&self) -> bool {
         matches!(
             self.value.syntax_kind,

@@ -56,7 +56,7 @@ impl SQLBaseError {
 
 impl SqlError for SQLBaseError {
     fn fixable(&self) -> bool {
-        false
+        self.fixable
     }
 
     fn rule_code(&self) -> Option<&'static str> {

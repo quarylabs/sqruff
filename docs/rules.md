@@ -108,7 +108,7 @@ Implicit/explicit aliasing of columns.
 
 **Groups:** `all`, `core`, `aliasing`
 
-**Fixable:** No
+**Fixable:** Yes
 
 **Anti-pattern**
 

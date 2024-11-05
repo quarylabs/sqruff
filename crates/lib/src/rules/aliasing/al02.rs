@@ -43,6 +43,10 @@ impl Rule for RuleAL02 {
         Ok(rule.erased())
     }
 
+    fn is_fix_compatible(&self) -> bool {
+        true
+    }
+
     fn name(&self) -> &'static str {
         "aliasing.column"
     }

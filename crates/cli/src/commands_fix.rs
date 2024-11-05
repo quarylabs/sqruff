@@ -45,6 +45,12 @@ pub(crate) fn run_fix(
             }
         }
 
+        let any_unfixable_errors = result.paths.iter().any(|path| {
+            path.files
+                .iter()
+                .any(|file| !file.get_violations(Some(false)).is_empty())
+        });
+
         for linted_dir in result.paths {
             for mut file in linted_dir.files {
                 let path = std::mem::take(&mut file.path);
@@ -52,9 +58,13 @@ pub(crate) fn run_fix(
                 std::fs::write(path, write_buff).unwrap();
             }
         }
-
         linter.formatter_mut().unwrap().completion_message();
-        0
+
+        if any_unfixable_errors {
+            1
+        } else {
+            0
+        }
     }
 }
 

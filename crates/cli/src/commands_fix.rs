@@ -21,7 +21,11 @@ pub(crate) fn run_fix(
     if result
         .paths
         .iter()
-        .map(|path| path.files.iter().all(|file| file.violations.is_empty()))
+        .map(|path| {
+            path.files
+                .iter()
+                .all(|file| file.get_violations(None).is_empty())
+        })
         .all(|v| v)
     {
         let count_files = result
@@ -46,6 +50,12 @@ pub(crate) fn run_fix(
             }
         }
 
+        let any_unfixable_violations = result.paths.iter().any(|dir| {
+            dir.files
+                .iter()
+                .any(|file| !file.get_violations(Some(false)).is_empty())
+        });
+
         for linted_dir in result.paths {
             for mut file in linted_dir.files {
                 let path = std::mem::take(&mut file.path);
@@ -55,7 +65,11 @@ pub(crate) fn run_fix(
         }
 
         linter.formatter_mut().unwrap().completion_message();
-        0
+        if any_unfixable_violations {
+            1
+        } else {
+            0
+        }
     }
 }
 

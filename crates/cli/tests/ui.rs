@@ -106,4 +106,44 @@ fn main() {
         expect_file![expected_output_path_stdout].assert_eq(&stdout_str);
         expect_file![expected_output_path_exitcode].assert_eq(&exit_code_str);
     }
+
+    // Add a new test case for an unfixable SQL file
+    {
+        // Path to the unfixable SQL file
+        let mut test_file_path = PathBuf::from(env!("CARGO_MANIFEST_DIR"));
+        test_file_path.push("tests/fix/still_unfixed.sql");
+
+        // Construct the path to the sqruff binary
+        let mut sqruff_path = PathBuf::from(env!("CARGO_MANIFEST_DIR"));
+        sqruff_path.push(format!("../../target/{}/sqruff", profile));
+
+        // Set up the command with arguments
+        let mut cmd = Command::new(sqruff_path);
+        cmd.arg("fix").arg("-f").arg("human").arg("--force").arg(&test_file_path);
+        cmd.env("HOME", PathBuf::from(env!("CARGO_MANIFEST_DIR")));
+
+        // Run the command and capture the output
+        let assert = cmd.assert();
+
+        // Expected output paths
+        let expected_output_path_stderr = test_file_path.with_extension("stderr");
+        let expected_output_path_stdout = test_file_path.with_extension("stdout");
+        let expected_output_path_exitcode = test_file_path.with_extension("exitcode");
+
+        // Read the output
+        let output = assert.get_output();
+        let stderr_str = std::str::from_utf8(&output.stderr).unwrap();
+        let stdout_str = std::str::from_utf8(&output.stdout).unwrap();
+        let exit_code_str = output.status.code().unwrap().to_string();
+
+        // Normalize paths in stderr and stdout
+        let test_dir_str = test_file_path.parent().unwrap().to_string_lossy();
+        let stderr_normalized = stderr_str.replace(&test_dir_str.to_string(), "tests/fix");
+        let stdout_normalized = stdout_str.replace(&test_dir_str.to_string(), "tests/fix");
+
+        // Assert outputs
+        expect_file![expected_output_path_stderr].assert_eq(&stderr_normalized);
+        expect_file![expected_output_path_stdout].assert_eq(&stdout_normalized);
+        expect_file![expected_output_path_exitcode].assert_eq(&exit_code_str);
+    }
 }

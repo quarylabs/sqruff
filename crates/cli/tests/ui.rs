@@ -106,4 +106,5 @@ fn main() {
         expect_file![expected_output_path_stdout].assert_eq(&stdout_str);
         expect_file![expected_output_path_exitcode].assert_eq(&exit_code_str);
     }
+
 }

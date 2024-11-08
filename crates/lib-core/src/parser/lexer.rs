@@ -255,10 +255,12 @@ impl Pattern {
     }
 
     pub fn regex(name: &'static str, regex: &'static str, syntax_kind: SyntaxKind) -> Self {
+        let regex = format!("^{regex}");
+
         Self {
             name,
             syntax_kind,
-            kind: SearchPatternKind::Regex(Regex::new(regex).unwrap()),
+            kind: SearchPatternKind::Regex(Regex::new(&regex).unwrap()),
         }
     }
 

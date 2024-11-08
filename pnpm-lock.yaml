@@ -34,8 +34,8 @@ importers:
         specifier: ^10.0.9
         version: 10.0.9
       '@types/node':
-        specifier: ~20.16.15
-        version: 20.16.15
+        specifier: ~22.9.0
+        version: 22.9.0
       '@types/vscode':
         specifier: ^1.95.0
         version: 1.95.0
@@ -126,7 +126,7 @@ importers:
         version: 18.3.1
       '@vitejs/plugin-react-swc':
         specifier: ^3.7.1
-        version: 3.7.1(vite@5.4.10(@types/node@22.8.4))
+        version: 3.7.1(vite@5.4.10(@types/node@22.9.0))
       autoprefixer:
         specifier: ^10.4.20
         version: 10.4.20(postcss@8.4.47)
@@ -138,7 +138,7 @@ importers:
         version: 5.6.3
       vite:
         specifier: ^5.4.10
-        version: 5.4.10(@types/node@22.8.4)
+        version: 5.4.10(@types/node@22.9.0)
 
 packages:
 
@@ -788,11 +788,8 @@ packages:
   '@types/mocha@10.0.9':
     resolution: {integrity: sha512-sicdRoWtYevwxjOHNMPTl3vSfJM6oyW8o1wXeI7uww6b6xHg8eBznQDNSGBCDJmsE8UMxP05JgZRtsKbTqt//Q==}
 
-  '@types/node@20.16.15':
-    resolution: {integrity: sha512-DV58qQz9dBMqVVn+qnKwGa51QzCD4YM/tQM16qLKxdf5tqz5W4QwtrMzjSTbabN1cFTSuyxVYBy+QWHjWW8X/g==}
-
-  '@types/node@22.8.4':
-    resolution: {integrity: sha512-SpNNxkftTJOPk0oN+y2bIqurEXHTA2AOZ3EJDDKeJ5VzkvvORSvmQXGQarcOzWV1ac7DCaPBEdMDxBsM+d8jWw==}
+  '@types/node@22.9.0':
+    resolution: {integrity: sha512-vuyHg81vvWA1Z1ELfvLko2c8f34gyA0zaic0+Rllc5lbCnbSyuvb2Oxpm6TAUAC/2xZN3QGqxBNggD1nNR2AfQ==}
 
   '@types/prop-types@15.7.13':
     resolution: {integrity: sha512-hCZTSvwbzWGvhqxp/RqVqwU999pBf2vp7hzIjiYOsl8wqOmUxkQ6ddw1cV3l8811+kdUFus/q4d1Y3E3SyEifA==}
@@ -3732,14 +3729,9 @@ snapshots:
 
   '@types/mocha@10.0.9': {}
 
-  '@types/node@20.16.15':
+  '@types/node@22.9.0':
     dependencies:
       undici-types: 6.19.8
-
-  '@types/node@22.8.4':
-    dependencies:
-      undici-types: 6.19.8
-    optional: true
 
   '@types/prop-types@15.7.13': {}
 
@@ -3835,10 +3827,10 @@ snapshots:
       '@typescript-eslint/types': 8.13.0
       eslint-visitor-keys: 3.4.3
 
-  '@vitejs/plugin-react-swc@3.7.1(vite@5.4.10(@types/node@22.8.4))':
+  '@vitejs/plugin-react-swc@3.7.1(vite@5.4.10(@types/node@22.9.0))':
     dependencies:
       '@swc/core': 1.9.1
-      vite: 5.4.10(@types/node@22.8.4)
+      vite: 5.4.10(@types/node@22.9.0)
     transitivePeerDependencies:
       - '@swc/helpers'
 
@@ -6510,13 +6502,13 @@ snapshots:
 
   vary@1.1.2: {}
 
-  vite@5.4.10(@types/node@22.8.4):
+  vite@5.4.10(@types/node@22.9.0):
     dependencies:
       esbuild: 0.21.5
       postcss: 8.4.47
       rollup: 4.24.4
     optionalDependencies:
-      '@types/node': 22.8.4
+      '@types/node': 22.9.0
       fsevents: 2.3.3
 
   vscode-jsonrpc@8.2.0: {}

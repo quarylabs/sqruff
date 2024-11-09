@@ -4942,7 +4942,7 @@ fn lexer_matchers() -> Vec<Matcher> {
             SyntaxKind::NumericLiteral,
         ),
         Matcher::regex("like_operator", r"!?~~?\*?", SyntaxKind::LikeOperator),
-        Matcher::regex("newline", r"\r\n|\n", SyntaxKind::Newline),
+        Matcher::regex("newline", r"(\r\n|\n)", SyntaxKind::Newline),
         Matcher::string("casting_operator", "::", SyntaxKind::CastingOperator),
         Matcher::string("equals", "=", SyntaxKind::RawComparisonOperator),
         Matcher::string("greater_than", ">", SyntaxKind::RawComparisonOperator),

@@ -11,6 +11,6 @@ workspace = true
 [dependencies]
 append-only-vec = "0.1.5"
 indexmap.workspace = true
-polonius-the-crab = "0.4.1"
+polonius-the-crab = "0.4.2"
 sqruff-lib-core = { workspace = true }
 sqruff-lib-dialects = { workspace = true }

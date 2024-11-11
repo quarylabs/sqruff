@@ -1226,9 +1226,9 @@ dependencies = [
 
 [[package]]
 name = "polonius-the-crab"
-version = "0.4.1"
+version = "0.4.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "96d9b0ba45e2c294fcd0795bc51e45c12746758e9954bb1190f97603ec9a3e91"
+checksum = "e97ca2c89572ae41bbec1c99498251f87dd5a94e500c5ec19c382dd593dd5ce9"
 dependencies = [
  "higher-kinded-types",
  "never-say-never",

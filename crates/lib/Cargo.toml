@@ -74,7 +74,7 @@ getrandom = { version = "0.2", features = ["js"] }
 jemallocator = { version = "0.6.0", package = "tikv-jemallocator" }
 
 [target.'cfg(unix)'.dev-dependencies]
-pprof = { version = "0.13", features = ["flamegraph", "criterion"] }
+pprof = { version = "0.14", features = ["flamegraph", "criterion"] }
 
 [dev-dependencies]
 sqruff-lib = { path = ".", features = ["serde"] }

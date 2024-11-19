@@ -85,9 +85,9 @@ fn main() {
 }
 
 pub(crate) fn linter(config: FluffConfig, format: Format) -> Linter {
-    let output_stream: Box<dyn std::io::Write + Send + Sync> = match format {
-        Format::Human => Box::new(std::io::stderr()),
-        Format::GithubAnnotationNative => Box::new(std::io::sink()),
+    let output_stream = match format {
+        Format::Human => std::io::stderr().into(),
+        Format::GithubAnnotationNative => None,
     };
 
     let formatter = OutputStreamFormatter::new(

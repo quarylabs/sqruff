@@ -1,7 +1,6 @@
 use std::borrow::Cow;
-use std::io::{IsTerminal, Write};
+use std::io::{IsTerminal, Stderr, Write};
 use std::sync::atomic::AtomicBool;
-use std::sync::Mutex;
 
 use anstyle::{AnsiColor, Effects, Style};
 use itertools::enumerate;
@@ -53,7 +52,7 @@ pub trait Formatter {
 }
 
 pub struct OutputStreamFormatter {
-    output_stream: Mutex<Box<dyn Write + Send + Sync>>,
+    output_stream: Option<Stderr>,
     plain_output: bool,
     filter_empty: bool,
     verbosity: i32,
@@ -62,9 +61,9 @@ pub struct OutputStreamFormatter {
 }
 
 impl OutputStreamFormatter {
-    pub fn new(output_stream: Box<dyn Write + Send + Sync>, nocolor: bool) -> Self {
+    pub fn new(output_stream: Option<Stderr>, nocolor: bool) -> Self {
         Self {
-            output_stream: output_stream.into(),
+            output_stream,
             plain_output: Self::should_produce_plain_output(nocolor),
             filter_empty: true,
             verbosity: 0,
@@ -79,12 +78,9 @@ impl OutputStreamFormatter {
 
     fn dispatch(&self, s: &str) {
         if !self.filter_empty || !s.trim().is_empty() {
-            _ = self
-                .output_stream
-                .lock()
-                .unwrap()
-                .write(s.as_bytes())
-                .unwrap();
+            if let Some(output_stream) = &self.output_stream {
+                _ = output_stream.lock().write(s.as_bytes()).unwrap();
+            }
         }
     }
 
@@ -323,15 +319,12 @@ impl Status {
 
 #[cfg(test)]
 mod tests {
-    use std::fs::File;
-
     use anstyle::AnsiColor;
     use fancy_regex::Regex;
     use sqruff_lib_core::dialects::syntax::SyntaxKind;
     use sqruff_lib_core::errors::{ErrorStructRule, SQLLintError};
     use sqruff_lib_core::parser::markers::PositionMarker;
     use sqruff_lib_core::parser::segments::base::SegmentBuilder;
-    use tempdir::TempDir;
 
     use super::OutputStreamFormatter;
     use crate::cli::formatters::split_string_on_spaces;
@@ -362,16 +355,13 @@ mod tests {
         ansi_escape.replace_all(line, "").into_owned()
     }
 
-    fn mk_formatter() -> (TempDir, OutputStreamFormatter) {
-        let temp = TempDir::new(env!("CARGO_PKG_NAME")).unwrap();
-        let file = Box::new(File::create(temp.path().join("out.txt")).unwrap());
-
-        (temp, OutputStreamFormatter::new(file, false))
+    fn mk_formatter() -> OutputStreamFormatter {
+        OutputStreamFormatter::new(None, false)
     }
 
     #[test]
     fn test_cli_formatters_filename_nocol() {
-        let (_temp, formatter) = mk_formatter();
+        let formatter = mk_formatter();
         let actual = formatter.format_filename("blahblah", true);
 
         assert_eq!(escape_ansi(&actual), "== [blahblah] PASS");
@@ -379,7 +369,7 @@ mod tests {
 
     #[test]
     fn test_cli_formatters_violation() {
-        let (_temp, formatter) = mk_formatter();
+        let formatter = mk_formatter();
 
         let s = SegmentBuilder::token(0, "foobarbar", SyntaxKind::Word)
             .with_position(PositionMarker::new(
@@ -405,7 +395,7 @@ mod tests {
 
     #[test]
     fn test_cli_helpers_colorize() {
-        let (_temp, mut formatter) = mk_formatter();
+        let mut formatter = mk_formatter();
         // Force color output for this test.
         formatter.plain_output = false;
 

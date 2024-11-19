@@ -46,7 +46,7 @@ pub struct Selectable<'me> {
     pub dialect: &'me Dialect,
 }
 
-impl<'me> Selectable<'me> {
+impl Selectable<'_> {
     pub fn find_alias(&self, table: &str) -> Option<AliasInfo> {
         self.select_info()
             .as_ref()?
@@ -57,7 +57,7 @@ impl<'me> Selectable<'me> {
     }
 }
 
-impl<'me> Selectable<'me> {
+impl Selectable<'_> {
     pub fn wildcard_info(&self) -> Vec<WildcardInfo> {
         let Some(select_info) = self.select_info() else {
             return Vec::new();
@@ -107,7 +107,7 @@ impl<'me> Selectable<'me> {
     }
 }
 
-impl<'me> Selectable<'me> {
+impl Selectable<'_> {
     pub fn select_info(&self) -> Option<SelectStatementColumnsAndTables> {
         if self.selectable.is_type(SyntaxKind::SelectStatement) {
             return get_select_statement_info(&self.selectable, self.dialect.into(), false);

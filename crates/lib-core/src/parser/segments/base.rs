@@ -383,9 +383,9 @@ impl ErasedSegment {
             .clone()
     }
 
-    pub fn children<'set>(
-        &'set self,
-        seg_types: &'set SyntaxSet,
+    pub fn children(
+        &self,
+        seg_types: &'static SyntaxSet,
     ) -> impl Iterator<Item = &ErasedSegment> + '_ {
         self.segments()
             .iter()

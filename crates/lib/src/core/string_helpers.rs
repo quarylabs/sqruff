@@ -1,5 +1,4 @@
 /// String Helpers for the parser module.
-
 /// Yields all the positions sbstr within in_str https://stackoverflow.com/questions/4664850/how-to-find-all-occurrences-of-a-substring
 pub fn find_all(substr: &str, in_str: &str) -> Vec<usize> {
     // Return nothing if one of the inputs is trivial

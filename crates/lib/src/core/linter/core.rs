@@ -159,9 +159,7 @@ impl Linter {
 
         expanded_paths
             .par_iter()
-            .filter(|path| {
-                return !ignorer(Path::new(path));
-            })
+            .filter(|path| !ignorer(Path::new(path)))
             .map(|path| {
                 let rendered = self.render_file(path.clone());
                 self.lint_rendered(rendered, fix)

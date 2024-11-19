@@ -21,8 +21,7 @@ pub(crate) fn run_fix(
     if result
         .paths
         .iter()
-        .map(|path| path.files.iter().all(|file| file.violations.is_empty()))
-        .all(|v| v)
+        .all(|path| path.files.iter().all(|file| file.violations.is_empty()))
     {
         let count_files = result
             .paths

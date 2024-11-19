@@ -461,7 +461,6 @@ impl<'a> Lexer<'a> {
     }
 
     /// Convert a tuple of lexed elements into a tuple of segments.
-
     fn elements_to_segments(
         &self,
         elements: Vec<TemplateElement>,

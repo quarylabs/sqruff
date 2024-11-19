@@ -7,7 +7,7 @@ pub struct FunctionalContext<'a> {
 }
 
 impl<'a> FunctionalContext<'a> {
-    pub fn new(context: RuleContext<'a>) -> FunctionalContext {
+    pub fn new(context: RuleContext<'a>) -> Self {
         FunctionalContext { context }
     }
 

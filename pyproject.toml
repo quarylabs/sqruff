@@ -9,7 +9,8 @@ dependencies = []
 dev = [
     "pytest>=8.0.0",
     "pytest-cov>=6.0.0",
-    "ruff>=0.8.0"
+    "ruff>=0.8.0",
+    "maturin>=1.7.4"
 ]
 
 [tool.pytest.ini_options]

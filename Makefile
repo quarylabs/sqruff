@@ -14,5 +14,9 @@ python_lint: ## Lint python code
 python_test: ## Run python tests
 	pytest
 
+.PHONY: python_install
+python_install: ## Install python dev dependencies
+	pip install -e ".[dev]"
+
 .PHONY: ci
 ci: python_fmt python_lint python_test ## Run all CI checks

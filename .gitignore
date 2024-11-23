@@ -18,6 +18,7 @@ dist
 __pycache__/
 *.pyc
 .venv
+.coverage
 
 # Secrets
 .env

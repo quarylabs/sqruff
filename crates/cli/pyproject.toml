@@ -5,7 +5,7 @@ build-backend = "maturin"
 [project]
 name = "sqruff" 
 description = "A SQL linter written in rust." 
-requires-python = ">=3.7" 
+requires-python = ">=3.9" 
 
 [tool.maturin]
 bindings = "bin" 

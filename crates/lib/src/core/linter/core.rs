@@ -30,9 +30,8 @@ use crate::core::linter::linting_result::LintingResult;
 use crate::core::rules::base::{ErasedRule, LintPhase, RulePack};
 use crate::core::rules::noqa::IgnoreMask;
 use crate::rules::get_ruleset;
-use crate::templaters::placeholder::PlaceholderTemplater;
 use crate::templaters::raw::RawTemplater;
-use crate::templaters::Templater;
+use crate::templaters::{templaters, Templater};
 
 pub struct Linter {
     config: FluffConfig,
@@ -52,10 +51,14 @@ impl Linter {
             None => {
                 let templater = config.get("templater", "core").as_string();
                 match templater {
-                    Some("placeholder") => Arc::<PlaceholderTemplater>::default(),
-                    Some("raw") => Arc::<RawTemplater>::default(),
+                    Some(templater) => {
+                        let templaters = templaters();
+                        match templaters.into_iter().find(|t| t.name() == templater) {
+                            Some(t) => t.into(),
+                            None => panic!("Unknown templater: {}", templater),
+                        }
+                    }
                     None => Arc::<RawTemplater>::default(),
-                    _ => panic!("Unknown templater: {}", templater.unwrap()),
                 }
             }
         };

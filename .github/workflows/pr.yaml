@@ -154,8 +154,13 @@ jobs:
   python:
     name: Run python checks
     runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python-version: ["3.9", "3.10", "3.11", "3.12", "3.13"]
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
-      - run: pip install -e ".[dev]"
+        with:
+          python-version: ${{ matrix.python-version }}
+      - run: make python_install
       - run: make ci

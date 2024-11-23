@@ -384,26 +384,23 @@ impl Linter {
         }
 
         let templater_violations = vec![];
-        let templated_file = match self.templater.process(
+        match self.templater.process(
             sql.as_ref(),
             filename.as_str(),
             Some(config),
             self.formatter.as_ref(),
         ) {
-            Ok(file) => file,
-            Err(_s) => {
-                // TODO Implement linter warning
-                panic!("not implemented")
-                // linter_logger::warning(s.to_string());
-            }
-        };
-
-        Ok(RenderedFile {
-            templated_file,
-            templater_violations,
-            filename,
-            source_str: sql.to_string(),
-        })
+            Ok(templated_file) => Ok(RenderedFile {
+                templated_file,
+                templater_violations,
+                filename,
+                source_str: sql.to_string(),
+            }),
+            Err(err) => Err(SQLFluffUserError::new(format!(
+                "Failed to template file {} with error {:?}",
+                filename, err
+            ))),
+        }
     }
 
     /// Parse a rendered file.

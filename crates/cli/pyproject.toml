@@ -10,4 +10,3 @@ requires-python = ">=3.9"
 [tool.maturin]
 bindings = "bin" 
 strip = true 
-features = ["python"]

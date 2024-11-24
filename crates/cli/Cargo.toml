@@ -30,8 +30,8 @@ name = "ui_with_python"
 harness = false
 
 [features]
-codegen-docs = ["clap-markdown", "minijinja", "serde"]
 python = ["sqruff-lib/python"]
+codegen-docs = ["clap-markdown", "minijinja", "serde", "python"]
 
 [dependencies]
 sqruff-lib.workspace = true

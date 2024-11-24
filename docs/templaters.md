@@ -23,6 +23,7 @@ Sqruff comes with the following templaters out of the box:
 
 - [raw](raw)
 - [placeholder](placeholder)
+- [python](python)
 
 ## Details
 
@@ -117,3 +118,31 @@ N.B. quotes around param_regex in the config are interpreted literally by the te
 the named parameter param_name will be used as the key to replace, if missing, the parameter is assumed to be positional and numbers are used instead.
 
 Also consider making a pull request to the project to have your style added, it may be useful to other people and simplify your configuration.
+
+### python
+
+**Note:** This templater currently does not work by default in the CLI and needs custom set up to work.
+
+The Python templater uses native Python f-strings. An example would be as follows:
+
+```sql
+SELECT * FROM {blah}
+```
+
+With the following config:
+
+```
+[sqruff]
+templater = python
+
+[sqruff:templater:python:context]
+blah = foo
+```
+
+Before parsing the sql will be transformed to:
+
+```sql
+SELECT * FROM foo
+```
+
+At the moment, dot notation is not supported in the templater.

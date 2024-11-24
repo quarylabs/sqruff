@@ -10,7 +10,7 @@ use sqruff_lib_core::parser::grammar::base::{Anything, Ref};
 use sqruff_lib_core::parser::grammar::delimited::Delimited;
 use sqruff_lib_core::parser::grammar::sequence::{Bracketed, Sequence};
 use sqruff_lib_core::parser::lexer::Matcher;
-use sqruff_lib_core::parser::matchable::MatchableTrait;
+use sqruff_lib_core::parser::matchable::{Matchable, MatchableTrait};
 use sqruff_lib_core::parser::node_matcher::NodeMatcher;
 use sqruff_lib_core::parser::parsers::{RegexParser, StringParser, TypedParser};
 use sqruff_lib_core::parser::segments::generator::SegmentGenerator;
@@ -4968,71 +4968,7 @@ pub fn raw_dialect() -> Dialect {
         .into(),
     )]);
 
-    postgres.replace_grammar(
-        "StatementSegment",
-        ansi::statement_segment().copy(
-            Some(vec_of_erased![
-                Ref::new("AlterDefaultPrivilegesStatementSegment"),
-                Ref::new("DropOwnedStatementSegment"),
-                Ref::new("ReassignOwnedStatementSegment"),
-                Ref::new("CommentOnStatementSegment"),
-                Ref::new("AnalyzeStatementSegment"),
-                Ref::new("CreateTableAsStatementSegment"),
-                Ref::new("AlterTriggerStatementSegment"),
-                Ref::new("SetStatementSegment"),
-                Ref::new("AlterPolicyStatementSegment"),
-                Ref::new("CreatePolicyStatementSegment"),
-                Ref::new("DropPolicyStatementSegment"),
-                Ref::new("CreateDomainStatementSegment"),
-                Ref::new("AlterDomainStatementSegment"),
-                Ref::new("DropDomainStatementSegment"),
-                Ref::new("CreateMaterializedViewStatementSegment"),
-                Ref::new("AlterMaterializedViewStatementSegment"),
-                Ref::new("DropMaterializedViewStatementSegment"),
-                Ref::new("RefreshMaterializedViewStatementSegment"),
-                Ref::new("AlterDatabaseStatementSegment"),
-                Ref::new("DropDatabaseStatementSegment"),
-                Ref::new("VacuumStatementSegment"),
-                Ref::new("AlterFunctionStatementSegment"),
-                Ref::new("CreateViewStatementSegment"),
-                Ref::new("AlterViewStatementSegment"),
-                Ref::new("ListenStatementSegment"),
-                Ref::new("NotifyStatementSegment"),
-                Ref::new("UnlistenStatementSegment"),
-                Ref::new("LoadStatementSegment"),
-                Ref::new("ResetStatementSegment"),
-                Ref::new("DiscardStatementSegment"),
-                Ref::new("AlterProcedureStatementSegment"),
-                Ref::new("CreateProcedureStatementSegment"),
-                Ref::new("DropProcedureStatementSegment"),
-                Ref::new("CopyStatementSegment"),
-                Ref::new("DoStatementSegment"),
-                Ref::new("AlterIndexStatementSegment"),
-                Ref::new("ReindexStatementSegment"),
-                Ref::new("AlterRoleStatementSegment"),
-                Ref::new("CreateExtensionStatementSegment"),
-                Ref::new("DropExtensionStatementSegment"),
-                Ref::new("CreatePublicationStatementSegment"),
-                Ref::new("AlterPublicationStatementSegment"),
-                Ref::new("DropPublicationStatementSegment"),
-                Ref::new("CreateTypeStatementSegment"),
-                Ref::new("AlterTypeStatementSegment"),
-                Ref::new("AlterSchemaStatementSegment"),
-                Ref::new("LockTableStatementSegment"),
-                Ref::new("ClusterStatementSegment"),
-                Ref::new("CreateCollationStatementSegment"),
-                Ref::new("CallStoredProcedureSegment"),
-                Ref::new("CreateServerStatementSegment"),
-                Ref::new("CreateUserMappingStatementSegment"),
-                Ref::new("ImportForeignSchemaStatementSegment"),
-            ]),
-            None,
-            None,
-            None,
-            vec![],
-            false,
-        ),
-    );
+    postgres.replace_grammar("StatementSegment", statement_segment());
 
     postgres.replace_grammar(
         "CreateTriggerStatementSegment",
@@ -6625,4 +6561,69 @@ pub fn raw_dialect() -> Dialect {
     ]);
 
     postgres
+}
+
+pub fn statement_segment() -> Matchable {
+    ansi::statement_segment().copy(
+        Some(vec_of_erased![
+            Ref::new("AlterDefaultPrivilegesStatementSegment"),
+            Ref::new("DropOwnedStatementSegment"),
+            Ref::new("ReassignOwnedStatementSegment"),
+            Ref::new("CommentOnStatementSegment"),
+            Ref::new("AnalyzeStatementSegment"),
+            Ref::new("CreateTableAsStatementSegment"),
+            Ref::new("AlterTriggerStatementSegment"),
+            Ref::new("SetStatementSegment"),
+            Ref::new("AlterPolicyStatementSegment"),
+            Ref::new("CreatePolicyStatementSegment"),
+            Ref::new("DropPolicyStatementSegment"),
+            Ref::new("CreateDomainStatementSegment"),
+            Ref::new("AlterDomainStatementSegment"),
+            Ref::new("DropDomainStatementSegment"),
+            Ref::new("CreateMaterializedViewStatementSegment"),
+            Ref::new("AlterMaterializedViewStatementSegment"),
+            Ref::new("DropMaterializedViewStatementSegment"),
+            Ref::new("RefreshMaterializedViewStatementSegment"),
+            Ref::new("AlterDatabaseStatementSegment"),
+            Ref::new("DropDatabaseStatementSegment"),
+            Ref::new("VacuumStatementSegment"),
+            Ref::new("AlterFunctionStatementSegment"),
+            Ref::new("CreateViewStatementSegment"),
+            Ref::new("AlterViewStatementSegment"),
+            Ref::new("ListenStatementSegment"),
+            Ref::new("NotifyStatementSegment"),
+            Ref::new("UnlistenStatementSegment"),
+            Ref::new("LoadStatementSegment"),
+            Ref::new("ResetStatementSegment"),
+            Ref::new("DiscardStatementSegment"),
+            Ref::new("AlterProcedureStatementSegment"),
+            Ref::new("CreateProcedureStatementSegment"),
+            Ref::new("DropProcedureStatementSegment"),
+            Ref::new("CopyStatementSegment"),
+            Ref::new("DoStatementSegment"),
+            Ref::new("AlterIndexStatementSegment"),
+            Ref::new("ReindexStatementSegment"),
+            Ref::new("AlterRoleStatementSegment"),
+            Ref::new("CreateExtensionStatementSegment"),
+            Ref::new("DropExtensionStatementSegment"),
+            Ref::new("CreatePublicationStatementSegment"),
+            Ref::new("AlterPublicationStatementSegment"),
+            Ref::new("DropPublicationStatementSegment"),
+            Ref::new("CreateTypeStatementSegment"),
+            Ref::new("AlterTypeStatementSegment"),
+            Ref::new("AlterSchemaStatementSegment"),
+            Ref::new("LockTableStatementSegment"),
+            Ref::new("ClusterStatementSegment"),
+            Ref::new("CreateCollationStatementSegment"),
+            Ref::new("CallStoredProcedureSegment"),
+            Ref::new("CreateServerStatementSegment"),
+            Ref::new("CreateUserMappingStatementSegment"),
+            Ref::new("ImportForeignSchemaStatementSegment"),
+        ]),
+        None,
+        None,
+        None,
+        vec![],
+        false,
+    )
 }

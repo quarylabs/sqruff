@@ -169,6 +169,10 @@ impl Dialect {
         self.sets_mut(set_label).extend(keywords);
     }
 
+    pub fn add_keyword_to_set(&mut self, set_label: &'static str, value: &'static str) {
+        self.sets_mut(set_label).insert(value);
+    }
+
     pub fn bracket_sets(&self, label: &str) -> AHashSet<BracketPair> {
         assert!(
             label == "bracket_pairs" || label == "angle_bracket_pairs",

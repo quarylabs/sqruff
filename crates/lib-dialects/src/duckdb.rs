@@ -24,6 +24,8 @@ pub fn raw_dialect() -> Dialect {
     let mut duckdb_dialect = postgres_dialect;
     duckdb_dialect.name = DialectKind::Duckdb;
 
+    duckdb_dialect.add_keyword_to_set("reserved_keywords", "Summarize");
+
     duckdb_dialect.add([
         (
             "SingleIdentifierGrammar".into(),
@@ -67,6 +69,18 @@ pub fn raw_dialect() -> Dialect {
             Sequence::new(vec_of_erased![
                 Ref::keyword("LOAD"),
                 Ref::new("SingleIdentifierGrammar"),
+            ])
+            .to_matchable()
+            .into(),
+        ),
+        (
+            "SummarizeStatemenSegment".into(),
+            Sequence::new(vec_of_erased![
+                Ref::keyword("SUMMARIZE"),
+                one_of(vec_of_erased![
+                    Ref::new("SingleIdentifierGrammar"),
+                    Ref::new("SelectStatementSegment")
+                ])
             ])
             .to_matchable()
             .into(),
@@ -191,7 +205,10 @@ pub fn raw_dialect() -> Dialect {
     duckdb_dialect.replace_grammar(
         "StatementSegment",
         postgres::statement_segment().copy(
-            Some(vec_of_erased![Ref::new("LoadStatementSegment")]),
+            Some(vec_of_erased![
+                Ref::new("LoadStatementSegment"),
+                Ref::new("SummarizeStatemenSegment")
+            ]),
             None,
             None,
             None,

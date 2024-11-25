@@ -74,9 +74,21 @@ pub fn raw_dialect() -> Dialect {
             .into(),
         ),
         (
-            "SummarizeStatemenSegment".into(),
+            "SummarizeStatementSegment".into(),
             Sequence::new(vec_of_erased![
                 Ref::keyword("SUMMARIZE"),
+                one_of(vec_of_erased![
+                    Ref::new("SingleIdentifierGrammar"),
+                    Ref::new("SelectStatementSegment")
+                ])
+            ])
+            .to_matchable()
+            .into(),
+        ),
+        (
+            "DescribeStatementSegment".into(),
+            Sequence::new(vec_of_erased![
+                Ref::keyword("DESCRIBE"),
                 one_of(vec_of_erased![
                     Ref::new("SingleIdentifierGrammar"),
                     Ref::new("SelectStatementSegment")
@@ -207,7 +219,8 @@ pub fn raw_dialect() -> Dialect {
         postgres::statement_segment().copy(
             Some(vec_of_erased![
                 Ref::new("LoadStatementSegment"),
-                Ref::new("SummarizeStatemenSegment")
+                Ref::new("SummarizeStatementSegment"),
+                Ref::new("DescribeStatementSegment")
             ]),
             None,
             None,

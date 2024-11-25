@@ -1,0 +1,3 @@
+DESCRIBE tbl;
+
+DESCRIBE SELECT * FROM tbl;

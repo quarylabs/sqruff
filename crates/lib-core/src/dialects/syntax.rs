@@ -610,8 +610,14 @@ impl SyntaxKind {
     }
 }
 
-#[derive(Debug, Clone, PartialEq, Eq, Default)]
+#[derive(Clone, PartialEq, Eq, Default)]
 pub struct SyntaxSet([u64; 9]);
+
+impl std::fmt::Debug for SyntaxSet {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        f.debug_list().entries(self.iter()).finish()
+    }
+}
 
 impl SyntaxSet {
     pub const EMPTY: SyntaxSet = Self([0; 9]);

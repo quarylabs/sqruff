@@ -367,10 +367,7 @@ pub fn handle_respace_inline_with_space(
     if (matches!(post_constraint, Spacing::Align { .. }) && next_block.is_some())
         || pre_constraint == Spacing::Single && post_constraint == Spacing::Single
     {
-        let mut desired_space;
-        let mut desc;
-
-        match (post_constraint, next_block) {
+        let (desc, desired_space) = match (post_constraint, next_block) {
             (
                 Spacing::Align {
                     seg_type,
@@ -395,11 +392,8 @@ pub fn handle_respace_inline_with_space(
                         None
                     };
 
-                desired_space = " ".to_string();
-                desc = "TODO".to_string();
-
                 if let Some(next_pos) = next_pos {
-                    desired_space = determine_aligned_inline_spacing(
+                    let desired_space = determine_aligned_inline_spacing(
                         root_segment,
                         &last_whitespace,
                         next_block.segments.first().unwrap(),
@@ -408,12 +402,13 @@ pub fn handle_respace_inline_with_space(
                         within,
                         scope,
                     );
-
-                    desc = "TODO".to_string();
+                    ("Item misaligned".to_string(), desired_space)
+                } else {
+                    ("Item misaligned".to_string(), " ".to_string())
                 }
             }
             _ => {
-                desc = if let Some(next_block) = next_block {
+                let desc = if let Some(next_block) = next_block {
                     format!(
                         "Expected only single space before {:?}. Found {:?}.",
                         &next_block.segments[0].raw(),
@@ -425,9 +420,10 @@ pub fn handle_respace_inline_with_space(
                         last_whitespace.raw()
                     )
                 };
-                desired_space = " ".to_string();
+                let desired_space = " ".to_string();
+                (desc, desired_space)
             }
-        }
+        };
 
         let mut new_results = Vec::new();
         if last_whitespace.raw().as_str() != desired_space {

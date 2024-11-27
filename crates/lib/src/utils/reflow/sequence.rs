@@ -109,7 +109,8 @@ impl<'a> ReflowSequence<'a> {
             } else if !elem_buff.is_empty() || !seg_buff.is_empty() {
                 // There are elements. The last will have been a block.
                 // Add a point before we add the block. NOTE: It may be empty.
-                elem_buff.push(ReflowElement::Point(ReflowPoint::new(seg_buff.clone())));
+                let seg_buff = take(&mut seg_buff);
+                elem_buff.push(ReflowElement::Point(ReflowPoint::new(seg_buff)));
             }
 
             // Add the block, with config info.
@@ -119,9 +120,6 @@ impl<'a> ReflowSequence<'a> {
                 reflow_config,
                 depth_info,
             )));
-
-            // Empty the buffer
-            seg_buff.clear();
         }
 
         if !seg_buff.is_empty() {

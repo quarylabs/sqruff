@@ -1,13 +1,8 @@
 """Defines the templaters."""
 
 import copy
-import importlib
-import importlib.util
 import logging
 import os.path
-import pkgutil
-import sys
-from functools import reduce
 from typing import (
     TYPE_CHECKING,
     Any,
@@ -37,19 +32,8 @@ from jinja2.exceptions import TemplateNotFound, UndefinedError
 from jinja2.ext import Extension
 from jinja2.sandbox import SandboxedEnvironment
 
-from sqlfluff.core.config import FluffConfig
-from sqlfluff.core.errors import SQLFluffUserError, SQLTemplaterError
-from sqlfluff.core.formatter import FormatterInterface
-from sqlfluff.core.helpers.slice import is_zero_slice, slice_length
-from sqlfluff.core.templaters.base import (
-    RawFileSlice,
-    TemplatedFile,
-    TemplatedFileSlice,
-    large_file_check,
-)
-from sqlfluff.core.templaters.builtins.dbt import DBT_BUILTINS
-from sqlfluff.core.templaters.python import PythonTemplater
-from sqlfluff.core.templaters.slicers.tracer import JinjaAnalyzer, JinjaTrace
+from templaters.python_templater import PythonTemplater, SQLTemplaterError, TemplatedFile, RawFileSlice, \
+    TemplatedFileSlice
 
 if TYPE_CHECKING:  # pragma: no cover
     from jinja2.runtime import Macro
@@ -57,6 +41,11 @@ if TYPE_CHECKING:  # pragma: no cover
 # Instantiate the templater logger
 templater_logger = logging.getLogger("sqlfluff.templater")
 
+
+def is_zero_slice(s: slice) -> bool:
+    """Return true if this is a zero slice."""
+    is_zero: bool = s.stop == s.start
+    return is_zero
 
 class UndefinedRecorder:
     """Similar to jinja2.StrictUndefined, but remembers, not fails."""
@@ -103,8 +92,6 @@ class JinjaTemplater(PythonTemplater):
 
     See: https://jinja.palletsprojects.com/
     """
-
-    name = "jinja"
 
     class Libraries:
         """Mock namespace for user-defined Jinja library."""
@@ -212,112 +199,115 @@ class JinjaTemplater(PythonTemplater):
                             )
         return macro_ctx
 
-    def _extract_macros_from_config(
-        self, config: FluffConfig, env: Environment, ctx: Dict[str, Any]
-    ) -> Dict[str, "Macro"]:
-        """Take a config and load any macros from it.
+    # TODO Potentially reimplement
+    # def _extract_macros_from_config(
+    #     self, config: FluffConfig, env: Environment, ctx: Dict[str, Any]
+    # ) -> Dict[str, "Macro"]:
+    #     """Take a config and load any macros from it.
+    #
+    #     Args:
+    #         config: The config to extract macros from.
+    #         env: The environment.
+    #         ctx: The context.
+    #
+    #     Returns:
+    #         dict: A dictionary containing the extracted macros.
+    #     """
+    #     if config:
+    #         loaded_context = (
+    #             config.get_section((self.templater_selector, self.name, "macros")) or {}
+    #         )
+    #     else:  # pragma: no cover TODO?
+    #         loaded_context = {}
+    #
+    #     # Iterate to load macros
+    #     macro_ctx: Dict[str, "Macro"] = {}
+    #     for value in loaded_context.values():
+    #         try:
+    #             macro_ctx.update(
+    #                 self._extract_macros_from_template(value, env=env, ctx=ctx)
+    #             )
+    #         except TemplateSyntaxError as err:
+    #             raise SQLFluffUserError(
+    #                 f"Error loading user provided macro:\n`{value}`\n> {err}."
+    #             )
+    #     return macro_ctx
 
-        Args:
-            config: The config to extract macros from.
-            env: The environment.
-            ctx: The context.
-
-        Returns:
-            dict: A dictionary containing the extracted macros.
-        """
-        if config:
-            loaded_context = (
-                config.get_section((self.templater_selector, self.name, "macros")) or {}
-            )
-        else:  # pragma: no cover TODO?
-            loaded_context = {}
-
-        # Iterate to load macros
-        macro_ctx: Dict[str, "Macro"] = {}
-        for value in loaded_context.values():
-            try:
-                macro_ctx.update(
-                    self._extract_macros_from_template(value, env=env, ctx=ctx)
-                )
-            except TemplateSyntaxError as err:
-                raise SQLFluffUserError(
-                    f"Error loading user provided macro:\n`{value}`\n> {err}."
-                )
-        return macro_ctx
-
-    def _extract_libraries_from_config(self, config: FluffConfig) -> Dict[str, Any]:
-        """Extracts libraries from the given configuration.
-
-        This function iterates over the modules in the library path and
-        imports them dynamically. The imported modules are then added to a 'Libraries'
-        object, which is returned as a dictionary excluding magic methods.
-
-        Args:
-            config: The configuration object.
-
-        Returns:
-            dict: A dictionary containing the extracted libraries.
-        """
-        # If a more global library_path is set, let that take precedence.
-        library_path = config.get("library_path") or config.get_section((
-            self.templater_selector,
-            self.name,
-            "library_path",
-        ))
-        if not library_path:
-            return {}
-
-        libraries = JinjaTemplater.Libraries()
-
-        # If library_path has __init__.py we parse it as one module, else we parse it
-        # a set of modules
-        is_library_module = os.path.exists(os.path.join(library_path, "__init__.py"))
-        library_module_name = os.path.basename(library_path)
-
-        # Need to go one level up to parse as a module correctly
-        walk_path = (
-            os.path.join(library_path, "..") if is_library_module else library_path
-        )
-
-        for module_finder, module_name, _ in pkgutil.walk_packages([walk_path]):
-            # skip other modules that can be near module_dir
-            if is_library_module and not module_name.startswith(library_module_name):
-                continue
-
-            # import_module is deprecated as of python 3.4. This follows roughly
-            # the guidance of the python docs:
-            # https://docs.python.org/3/library/importlib.html#approximating-importlib-import-module
-            spec = module_finder.find_spec(module_name, None)
-            assert spec, (
-                f"Module {module_name} failed to be found despite being listed."
-            )
-            module = importlib.util.module_from_spec(spec)
-            sys.modules[module_name] = module
-            assert spec.loader, f"Module {module_name} missing expected loader."
-            spec.loader.exec_module(module)
-
-            if "." in module_name:  # nested modules have `.` in module_name
-                *module_path, last_module_name = module_name.split(".")
-                # find parent module recursively
-                parent_module = reduce(
-                    lambda res, path_part: getattr(res, path_part),
-                    module_path,
-                    libraries,
-                )
-
-                # set attribute on module object to make jinja working correctly
-                setattr(parent_module, last_module_name, module)
-            else:
-                # set attr on `libraries` obj to make it work in jinja nicely
-                setattr(libraries, module_name, module)
-
-        if is_library_module:
-            # when library is module we have one more root module in hierarchy and we
-            # remove it
-            libraries = getattr(libraries, library_module_name)
-
-        # remove magic methods from result
-        return {k: v for k, v in libraries.__dict__.items() if not k.startswith("__")}
+    # def _extract_libraries_from_config(self, config: FluffConfig) -> Dict[str, Any]:
+    #     """Extracts libraries from the given configuration.
+    #
+    #     This function iterates over the modules in the library path and
+    #     imports them dynamically. The imported modules are then added to a 'Libraries'
+    #     object, which is returned as a dictionary excluding magic methods.
+    #
+    #     Args:
+    #         config: The configuration object.
+    #
+    #     Returns:
+    #         dict: A dictionary containing the extracted libraries.
+    #     """
+    #     # If a more global library_path is set, let that take precedence.
+    #     library_path = config.get("library_path") or config.get_section(
+    #         (
+    #             self.templater_selector,
+    #             self.name,
+    #             "library_path",
+    #         )
+    #     )
+    #     if not library_path:
+    #         return {}
+    #
+    #     libraries = JinjaTemplater.Libraries()
+    #
+    #     # If library_path has __init__.py we parse it as one module, else we parse it
+    #     # a set of modules
+    #     is_library_module = os.path.exists(os.path.join(library_path, "__init__.py"))
+    #     library_module_name = os.path.basename(library_path)
+    #
+    #     # Need to go one level up to parse as a module correctly
+    #     walk_path = (
+    #         os.path.join(library_path, "..") if is_library_module else library_path
+    #     )
+    #
+    #     for module_finder, module_name, _ in pkgutil.walk_packages([walk_path]):
+    #         # skip other modules that can be near module_dir
+    #         if is_library_module and not module_name.startswith(library_module_name):
+    #             continue
+    #
+    #         # import_module is deprecated as of python 3.4. This follows roughly
+    #         # the guidance of the python docs:
+    #         # https://docs.python.org/3/library/importlib.html#approximating-importlib-import-module
+    #         spec = module_finder.find_spec(module_name, None)
+    #         assert (
+    #             spec
+    #         ), f"Module {module_name} failed to be found despite being listed."
+    #         module = importlib.util.module_from_spec(spec)
+    #         sys.modules[module_name] = module
+    #         assert spec.loader, f"Module {module_name} missing expected loader."
+    #         spec.loader.exec_module(module)
+    #
+    #         if "." in module_name:  # nested modules have `.` in module_name
+    #             *module_path, last_module_name = module_name.split(".")
+    #             # find parent module recursively
+    #             parent_module = reduce(
+    #                 lambda res, path_part: getattr(res, path_part),
+    #                 module_path,
+    #                 libraries,
+    #             )
+    #
+    #             # set attribute on module object to make jinja working correctly
+    #             setattr(parent_module, last_module_name, module)
+    #         else:
+    #             # set attr on `libraries` obj to make it work in jinja nicely
+    #             setattr(libraries, module_name, module)
+    #
+    #     if is_library_module:
+    #         # when library is module we have one more root module in hierarchy and we
+    #         # remove it
+    #         libraries = getattr(libraries, library_module_name)
+    #
+    #     # remove magic methods from result
+    #     return {k: v for k, v in libraries.__dict__.items() if not k.startswith("__")}
 
     @classmethod
     def _crawl_tree(
@@ -342,278 +332,283 @@ class JinjaTemplater(PythonTemplater):
                 line_pos=pos,
             )
 
-    def _get_jinja_env(self, config: Optional[FluffConfig] = None) -> Environment:
-        """Get a properly configured jinja environment.
+    # def _get_jinja_env(self, config: Optional[FluffConfig] = None) -> Environment:
+    #     """Get a properly configured jinja environment.
+    #
+    #     This method returns a properly configured jinja environment. It
+    #     first checks if the 'ignore' key is present in the config dictionary and
+    #     if it contains the value 'templating'. If so, it creates a subclass of
+    #     FileSystemLoader called SafeFileSystemLoader that overrides the
+    #     get_source method to handle missing templates when templating is ignored.
+    #     If 'ignore' is not present or does not contain 'templating', it uses the
+    #     regular FileSystemLoader. It then sets the extensions to ['jinja2.ext.do']
+    #     and adds the DBTTestExtension if the _apply_dbt_builtins method returns
+    #     True. Finally, it returns a SandboxedEnvironment object with the
+    #     specified settings.
+    #
+    #     Args:
+    #         config (dict, optional): A dictionary containing configuration settings.
+    #
+    #     Returns:
+    #         jinja2.Environment: A properly configured jinja environment.
+    #     """
+    #     loader: Optional[FileSystemLoader]
+    #     macros_path = self._get_macros_path(config, "load_macros_from_path")
+    #     loader_search_path = self._get_loader_search_path(config)
+    #     final_search_path = (loader_search_path or []) + (macros_path or [])
+    #
+    #     ignore_templating = config and "templating" in config.get("ignore")
+    #     if ignore_templating:
+    #
+    #         class SafeFileSystemLoader(FileSystemLoader):
+    #             def get_source(
+    #                 self, environment: Environment, name: str
+    #             ) -> Tuple[str, str, Callable[..., Any]]:
+    #                 try:
+    #                     if not isinstance(name, DummyUndefined):
+    #                         return super().get_source(environment, name)
+    #                     raise TemplateNotFound(str(name))
+    #                 except TemplateNotFound:
+    #                     # When ignore=templating is set, treat missing files
+    #                     # or attempts to load an "Undefined" file as the first
+    #                     # 'base' part of the name / filename rather than failing.
+    #                     templater_logger.debug(
+    #                         "Providing dummy contents for Jinja macro file: %s", name
+    #                     )
+    #                     value = os.path.splitext(os.path.basename(str(name)))[0]
+    #                     return value, f"{value}.sql", lambda: False
+    #
+    #         loader = SafeFileSystemLoader(final_search_path or [])
+    #     else:
+    #         loader = FileSystemLoader(final_search_path) if final_search_path else None
+    #     extensions: List[Union[str, Type[Extension]]] = ["jinja2.ext.do"]
+    #     if self._apply_dbt_builtins(config):
+    #         extensions.append(DBTTestExtension)
+    #
+    #     return SandboxedEnvironment(
+    #         # We explicitly want to preserve newlines.
+    #         keep_trailing_newline=True,
+    #         # The do extension allows the "do" directive
+    #         autoescape=False,
+    #         extensions=extensions,
+    #         loader=loader,
+    #     )
 
-        This method returns a properly configured jinja environment. It
-        first checks if the 'ignore' key is present in the config dictionary and
-        if it contains the value 'templating'. If so, it creates a subclass of
-        FileSystemLoader called SafeFileSystemLoader that overrides the
-        get_source method to handle missing templates when templating is ignored.
-        If 'ignore' is not present or does not contain 'templating', it uses the
-        regular FileSystemLoader. It then sets the extensions to ['jinja2.ext.do']
-        and adds the DBTTestExtension if the _apply_dbt_builtins method returns
-        True. Finally, it returns a SandboxedEnvironment object with the
-        specified settings.
+    # def _get_macros_path(
+    #     self, config: Optional[FluffConfig], key: str
+    # ) -> Optional[List[str]]:
+    #     """Get the list of macros paths from the provided config object.
+    #
+    #     This method searches for a config section specified by the
+    #     templater_selector, name, and key specified. If the section is
+    #     found, it retrieves the value associated with that section and splits it into
+    #     a list of strings using a comma as the delimiter. The resulting list is
+    #     stripped of whitespace and empty strings and returned. If the section is not
+    #     found or the resulting list is empty, it returns None.
+    #
+    #     Args:
+    #         config (FluffConfig): The config object to search for the macros path
+    #             section.
+    #         key (str): Key to load the macros path from the config file.
+    #             Also used for loading the excluding macros path from config.
+    #
+    #     Returns:
+    #         Optional[List[str]]: The list of macros paths if found, None otherwise.
+    #     """
+    #     if config:
+    #         macros_path = config.get_section((self.templater_selector, self.name, key))
+    #         if macros_path:
+    #             result = [s.strip() for s in macros_path.split(",") if s.strip()]
+    #             if result:
+    #                 return result
+    #     return None
 
-        Args:
-            config (dict, optional): A dictionary containing configuration settings.
+    # def _get_loader_search_path(
+    #     self, config: Optional[FluffConfig]
+    # ) -> Optional[List[str]]:
+    #     """Get the list of Jinja loader search paths from the provided config object.
+    #
+    #     This method searches for a config section specified by the
+    #     templater_selector, name, and 'loader_search_path' keys. If the section is
+    #     found, it retrieves the value associated with that section and splits it into
+    #     a list of strings using a comma as the delimiter. The resulting list is
+    #     stripped of whitespace and empty strings and returned. If the section is not
+    #     found or the resulting list is empty, it returns None.
+    #
+    #     Args:
+    #         config (FluffConfig): The config object to search for the loader search
+    #             path section.
+    #
+    #     Returns:
+    #         Optional[List[str]]: The list of loader search paths if found, None
+    #             otherwise.
+    #     """
+    #     if config:
+    #         loader_search_path = config.get_section(
+    #             (
+    #                 self.templater_selector,
+    #                 self.name,
+    #                 "loader_search_path",
+    #             )
+    #         )
+    #         if loader_search_path:
+    #             result = [s.strip() for s in loader_search_path.split(",") if s.strip()]
+    #             if result:
+    #                 return result
+    #     return None
 
-        Returns:
-            jinja2.Environment: A properly configured jinja environment.
-        """
-        loader: Optional[FileSystemLoader]
-        macros_path = self._get_macros_path(config, "load_macros_from_path")
-        loader_search_path = self._get_loader_search_path(config)
-        final_search_path = (loader_search_path or []) + (macros_path or [])
+    # def _get_jinja_analyzer(self, raw_str: str, env: Environment) -> JinjaAnalyzer:
+    #     """Creates a new object derived from JinjaAnalyzer.
+    #
+    #     Derived classes can provide their own analyzers (e.g. to support custom Jinja
+    #     tags).
+    #     """
+    #     return JinjaAnalyzer(raw_str, env)
 
-        ignore_templating = config and "templating" in config.get("ignore")
-        if ignore_templating:
+    # def _apply_dbt_builtins(self, config: Optional[FluffConfig]) -> bool:
+    #     """Check if dbt builtins should be applied from the provided config object.
+    #
+    #     This method searches for a config section specified by the
+    #     templater_selector, name, and 'apply_dbt_builtins' keys. If the section
+    #     is found, it returns the value associated with that section. If the
+    #     section is not found, it returns False.
+    #
+    #     Args:
+    #         config (FluffConfig): The config object to search for the apply_dbt_builtins
+    #             section.
+    #
+    #     Returns:
+    #         bool: True if dbt builtins should be applied, False otherwise.
+    #     """
+    #     if config:
+    #         apply_dbt_builtins = config.get_section(
+    #             (
+    #                 self.templater_selector,
+    #                 self.name,
+    #                 "apply_dbt_builtins",
+    #             )
+    #         )
+    #         # If the config is totally absent for this templater, default to False,
+    #         # but for any other value that isn't boolean, throw an error.
+    #         if apply_dbt_builtins is None:
+    #             apply_dbt_builtins = False
+    #         assert isinstance(apply_dbt_builtins, bool), (
+    #             f"`apply_dbt_builtins` for {self.templater_selector}.{self.name} "
+    #             f"must be True/False, not {apply_dbt_builtins!r}"
+    #         )
+    #         return apply_dbt_builtins
+    #     return False
 
-            class SafeFileSystemLoader(FileSystemLoader):
-                def get_source(
-                    self, environment: Environment, name: str
-                ) -> Tuple[str, str, Callable[..., Any]]:
-                    try:
-                        if not isinstance(name, DummyUndefined):
-                            return super().get_source(environment, name)
-                        raise TemplateNotFound(str(name))
-                    except TemplateNotFound:
-                        # When ignore=templating is set, treat missing files
-                        # or attempts to load an "Undefined" file as the first
-                        # 'base' part of the name / filename rather than failing.
-                        templater_logger.debug(
-                            "Providing dummy contents for Jinja macro file: %s", name
-                        )
-                        value = os.path.splitext(os.path.basename(str(name)))[0]
-                        return value, f"{value}.sql", lambda: False
+    # def _get_env_context(
+    #     self,
+    #     fname: Optional[str],
+    #     config: Optional[FluffConfig],
+    #     env: Environment,
+    # ) -> Dict[str, Any]:
+    #     """Get the templating context from the config.
+    #
+    #     NOTE: This closely mirrors the `get_context` method which we inherit from the
+    #     python templater, but extends the signature. For that reason we define a new
+    #     method here, which internally refers to `get_context`.
+    #
+    #     Args:
+    #         fname (str, optional): The name of the file.
+    #         config (dict, optional): The configuration.
+    #         env: The Jinja Environment.
+    #
+    #     Returns:
+    #         dict: The templating context.
+    #     """
+    #     # Load the context
+    #     live_context = self.get_context(fname, config)
+    #     # Apply dbt builtin functions if we're allowed.
+    #     if config:
+    #         # first make libraries available in the context
+    #         # so they can be used by the macros too
+    #         libraries = self._extract_libraries_from_config(config=config)
+    #         live_context.update(libraries)
+    #
+    #         jinja_filters = libraries.get("SQLFLUFF_JINJA_FILTERS")
+    #         if jinja_filters:
+    #             env.filters.update(jinja_filters)
+    #
+    #         if self._apply_dbt_builtins(config):
+    #             for name in DBT_BUILTINS:
+    #                 # Only apply if it hasn't already been set at this stage.
+    #                 if name not in live_context:
+    #                     live_context[name] = DBT_BUILTINS[name]
+    #
+    #     # Load macros from path (if applicable)
+    #     if config:
+    #         macros_path = self._get_macros_path(config, "load_macros_from_path")
+    #         exclude_macros_path = self._get_macros_path(
+    #             config, "exclude_macros_from_path"
+    #         )
+    #         if macros_path:
+    #             live_context.update(
+    #                 self._extract_macros_from_path(
+    #                     macros_path,
+    #                     env=env,
+    #                     ctx=live_context,
+    #                     exclude_paths=exclude_macros_path,
+    #                 )
+    #             )
+    #
+    #         # Load config macros, these will take precedence over macros from the path
+    #         live_context.update(
+    #             self._extract_macros_from_config(
+    #                 config=config, env=env, ctx=live_context
+    #             )
+    #         )
+    #
+    #     return live_context
 
-            loader = SafeFileSystemLoader(final_search_path or [])
-        else:
-            loader = FileSystemLoader(final_search_path) if final_search_path else None
-        extensions: List[Union[str, Type[Extension]]] = ["jinja2.ext.do"]
-        if self._apply_dbt_builtins(config):
-            extensions.append(DBTTestExtension)
-
-        return SandboxedEnvironment(
-            # We explicitly want to preserve newlines.
-            keep_trailing_newline=True,
-            # The do extension allows the "do" directive
-            autoescape=False,
-            extensions=extensions,
-            loader=loader,
-        )
-
-    def _get_macros_path(
-        self, config: Optional[FluffConfig], key: str
-    ) -> Optional[List[str]]:
-        """Get the list of macros paths from the provided config object.
-
-        This method searches for a config section specified by the
-        templater_selector, name, and key specified. If the section is
-        found, it retrieves the value associated with that section and splits it into
-        a list of strings using a comma as the delimiter. The resulting list is
-        stripped of whitespace and empty strings and returned. If the section is not
-        found or the resulting list is empty, it returns None.
-
-        Args:
-            config (FluffConfig): The config object to search for the macros path
-                section.
-            key (str): Key to load the macros path from the config file.
-                Also used for loading the excluding macros path from config.
-
-        Returns:
-            Optional[List[str]]: The list of macros paths if found, None otherwise.
-        """
-        if config:
-            macros_path = config.get_section((self.templater_selector, self.name, key))
-            if macros_path:
-                result = [s.strip() for s in macros_path.split(",") if s.strip()]
-                if result:
-                    return result
-        return None
-
-    def _get_loader_search_path(
-        self, config: Optional[FluffConfig]
-    ) -> Optional[List[str]]:
-        """Get the list of Jinja loader search paths from the provided config object.
-
-        This method searches for a config section specified by the
-        templater_selector, name, and 'loader_search_path' keys. If the section is
-        found, it retrieves the value associated with that section and splits it into
-        a list of strings using a comma as the delimiter. The resulting list is
-        stripped of whitespace and empty strings and returned. If the section is not
-        found or the resulting list is empty, it returns None.
-
-        Args:
-            config (FluffConfig): The config object to search for the loader search
-                path section.
-
-        Returns:
-            Optional[List[str]]: The list of loader search paths if found, None
-                otherwise.
-        """
-        if config:
-            loader_search_path = config.get_section((
-                self.templater_selector,
-                self.name,
-                "loader_search_path",
-            ))
-            if loader_search_path:
-                result = [s.strip() for s in loader_search_path.split(",") if s.strip()]
-                if result:
-                    return result
-        return None
-
-    def _get_jinja_analyzer(self, raw_str: str, env: Environment) -> JinjaAnalyzer:
-        """Creates a new object derived from JinjaAnalyzer.
-
-        Derived classes can provide their own analyzers (e.g. to support custom Jinja
-        tags).
-        """
-        return JinjaAnalyzer(raw_str, env)
-
-    def _apply_dbt_builtins(self, config: Optional[FluffConfig]) -> bool:
-        """Check if dbt builtins should be applied from the provided config object.
-
-        This method searches for a config section specified by the
-        templater_selector, name, and 'apply_dbt_builtins' keys. If the section
-        is found, it returns the value associated with that section. If the
-        section is not found, it returns False.
-
-        Args:
-            config (FluffConfig): The config object to search for the apply_dbt_builtins
-                section.
-
-        Returns:
-            bool: True if dbt builtins should be applied, False otherwise.
-        """
-        if config:
-            apply_dbt_builtins = config.get_section((
-                self.templater_selector,
-                self.name,
-                "apply_dbt_builtins",
-            ))
-            # If the config is totally absent for this templater, default to False,
-            # but for any other value that isn't boolean, throw an error.
-            if apply_dbt_builtins is None:
-                apply_dbt_builtins = False
-            assert isinstance(apply_dbt_builtins, bool), (
-                f"`apply_dbt_builtins` for {self.templater_selector}.{self.name} "
-                f"must be True/False, not {apply_dbt_builtins!r}"
-            )
-            return apply_dbt_builtins
-        return False
-
-    def _get_env_context(
-        self,
-        fname: Optional[str],
-        config: Optional[FluffConfig],
-        env: Environment,
-    ) -> Dict[str, Any]:
-        """Get the templating context from the config.
-
-        NOTE: This closely mirrors the `get_context` method which we inherit from the
-        python templater, but extends the signature. For that reason we define a new
-        method here, which internally refers to `get_context`.
-
-        Args:
-            fname (str, optional): The name of the file.
-            config (dict, optional): The configuration.
-            env: The Jinja Environment.
-
-        Returns:
-            dict: The templating context.
-        """
-        # Load the context
-        live_context = self.get_context(fname, config)
-        # Apply dbt builtin functions if we're allowed.
-        if config:
-            # first make libraries available in the context
-            # so they can be used by the macros too
-            libraries = self._extract_libraries_from_config(config=config)
-            live_context.update(libraries)
-
-            jinja_filters = libraries.get("SQLFLUFF_JINJA_FILTERS")
-            if jinja_filters:
-                env.filters.update(jinja_filters)
-
-            if self._apply_dbt_builtins(config):
-                for name in DBT_BUILTINS:
-                    # Only apply if it hasn't already been set at this stage.
-                    if name not in live_context:
-                        live_context[name] = DBT_BUILTINS[name]
-
-        # Load macros from path (if applicable)
-        if config:
-            macros_path = self._get_macros_path(config, "load_macros_from_path")
-            exclude_macros_path = self._get_macros_path(
-                config, "exclude_macros_from_path"
-            )
-            if macros_path:
-                live_context.update(
-                    self._extract_macros_from_path(
-                        macros_path,
-                        env=env,
-                        ctx=live_context,
-                        exclude_paths=exclude_macros_path,
-                    )
-                )
-
-            # Load config macros, these will take precedence over macros from the path
-            live_context.update(
-                self._extract_macros_from_config(
-                    config=config, env=env, ctx=live_context
-                )
-            )
-
-        return live_context
-
-    def construct_render_func(
-        self, fname: Optional[str] = None, config: Optional[FluffConfig] = None
-    ) -> Tuple[Environment, Dict[str, Any], Callable[[str], str]]:
-        """Builds and returns objects needed to create and run templates.
-
-        Args:
-            fname (Optional[str]): The name of the file.
-            config (Optional[dict]): The configuration settings.
-
-        Returns:
-            Tuple[Environment, dict, Callable[[str], str]]: A tuple
-            containing the following:
-                - env (Environment): An instance of the 'Environment' class.
-                - live_context (dict): A dictionary containing the live context.
-                - render_func (Callable[[str], str]): A callable function
-                that is used to instantiate templates.
-        """
-        # Load the context
-        env = self._get_jinja_env(config)
-        live_context = self._get_env_context(fname, config, env)
-
-        def render_func(in_str: str) -> str:
-            """Used by JinjaTracer to instantiate templates.
-
-            This function is a closure capturing internal state from process().
-            Note that creating templates involves quite a bit of state known to
-            _this_ function but not to JinjaTracer.
-
-            https://www.programiz.com/python-programming/closure
-            """
-            try:
-                template = env.from_string(in_str, globals=live_context)
-            except TemplateSyntaxError as err:  # pragma: no cover
-                # NOTE: If the template fails to parse, then this clause
-                # will be triggered. However in normal that should never
-                # happen because the template should already have been
-                # validated by the point this is called. Typically that
-                # happens when searching for undefined variables.
-                raise SQLTemplaterError(
-                    f"Late failure to parse jinja template: {err}.",
-                    line_no=err.lineno,
-                )
-            return template.render()
-
-        return env, live_context, render_func
+    # def construct_render_func(
+    #     self, fname: Optional[str] = None,
+    #         # config: Optional[FluffConfig] = None
+    # ) -> Tuple[Environment, Dict[str, Any], Callable[[str], str]]:
+    #     """Builds and returns objects needed to create and run templates.
+    #
+    #     Args:
+    #         fname (Optional[str]): The name of the file.
+    #         config (Optional[dict]): The configuration settings.
+    #
+    #     Returns:
+    #         Tuple[Environment, dict, Callable[[str], str]]: A tuple
+    #         containing the following:
+    #             - env (Environment): An instance of the 'Environment' class.
+    #             - live_context (dict): A dictionary containing the live context.
+    #             - render_func (Callable[[str], str]): A callable function
+    #             that is used to instantiate templates.
+    #     """
+    #     # Load the context
+    #     env = self._get_jinja_env(config)
+    #     live_context = self._get_env_context(fname, config, env)
+    #
+    #     def render_func(in_str: str) -> str:
+    #         """Used by JinjaTracer to instantiate templates.
+    #
+    #         This function is a closure capturing internal state from process().
+    #         Note that creating templates involves quite a bit of state known to
+    #         _this_ function but not to JinjaTracer.
+    #
+    #         https://www.programiz.com/python-programming/closure
+    #         """
+    #         try:
+    #             template = env.from_string(in_str, globals=live_context)
+    #         except TemplateSyntaxError as err:  # pragma: no cover
+    #             # NOTE: If the template fails to parse, then this clause
+    #             # will be triggered. However in normal that should never
+    #             # happen because the template should already have been
+    #             # validated by the point this is called. Typically that
+    #             # happens when searching for undefined variables.
+    #             raise SQLTemplaterError(
+    #                 f"Late failure to parse jinja template: {err}.",
+    #                 line_no=err.lineno,
+    #             )
+    #         return template.render()
+    #
+    #     return env, live_context, render_func
 
     def _generate_violations_for_undefined_variables(
         self,
@@ -624,7 +619,7 @@ class JinjaTemplater(PythonTemplater):
         """Generates violations for any undefined variables."""
         violations: List[SQLTemplaterError] = []
         if undefined_variables:
-            # Lets go through and find out where they are:
+            # Go through and find out where they are:
             for template_err_val in self._crawl_tree(
                 syntax_tree, undefined_variables, in_str
             ):
@@ -654,14 +649,14 @@ class JinjaTemplater(PythonTemplater):
 
         return undefined_variables
 
-    @large_file_check
     def process(
         self,
         *,
         in_str: str,
         fname: str,
-        config: Optional[FluffConfig] = None,
-        formatter: Optional[FormatterInterface] = None,
+        context: Optional[Dict[str, Any]] = None,
+        # config: Optional[FluffConfig] = None,
+        # formatter: Optional[FormatterInterface] = None,
     ) -> Tuple[TemplatedFile, List[SQLTemplaterError]]:
         """Process a string and return the new string.
 
@@ -690,11 +685,11 @@ class JinjaTemplater(PythonTemplater):
             Tuple[TemplatedFile, List[SQLTemplaterError]]: A tuple containing the
             templated file and a list of violations.
         """
-        if not config:  # pragma: no cover
-            raise ValueError(
-                "For the jinja templater, the `process()` method requires a config "
-                "object."
-            )
+        # if not config:  # pragma: no cover
+        #     raise ValueError(
+        #         "For the jinja templater, the `process()` method requires a config "
+        #         "object."
+        #     )
 
         env, live_context, render_func = self.construct_render_func(
             fname=fname, config=config
@@ -996,14 +991,13 @@ class JinjaTemplater(PythonTemplater):
                 trace.templated_str,
             )
 
-    @large_file_check
     def process_with_variants(
         self,
         *,
         in_str: str,
         fname: str,
-        config: Optional[FluffConfig] = None,
-        formatter: Optional[FormatterInterface] = None,
+        # config: Optional[FluffConfig] = None,
+        # formatter: Optional[FormatterInterface] = None,
     ) -> Iterator[Tuple[TemplatedFile, List[SQLTemplaterError]]]:
         """Process a string and return one or more variant renderings.
 
@@ -1214,3 +1208,20 @@ class DBTTestExtension(Extension):
         node.name = f"test_{test_name}"
         node.body = parser.parse_statements(("name:endtest",), drop_needle=True)
         return node
+
+
+def process_from_rust(
+    string: str,
+    fname: str,
+    live_context: Dict[str, Any],
+) -> TemplatedFile:
+    """Process the call from the rust side."""
+    templater = JinjaTemplater(override_context=live_context)
+    (output, errors) = templater.process(
+        in_str=string,
+        fname=fname,
+        context=live_context,
+    )
+    if errors != []:
+        raise ValueError
+    return output

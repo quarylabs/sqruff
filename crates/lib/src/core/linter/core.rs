@@ -2,7 +2,7 @@ use std::borrow::Cow;
 use std::fs::File;
 use std::io::{BufRead, BufReader};
 use std::path::{Path, PathBuf};
-use std::sync::{Arc, OnceLock};
+use std::sync::OnceLock;
 
 use ahash::{AHashMap, AHashSet};
 use itertools::Itertools;
@@ -31,12 +31,12 @@ use crate::core::rules::base::{ErasedRule, LintPhase, RulePack};
 use crate::core::rules::noqa::IgnoreMask;
 use crate::rules::get_ruleset;
 use crate::templaters::raw::RawTemplater;
-use crate::templaters::{templaters, Templater};
+use crate::templaters::{Templater, TEMPLATERS};
 
 pub struct Linter {
     config: FluffConfig,
     formatter: Option<OutputStreamFormatter>,
-    templater: Arc<dyn Templater>,
+    templater: &'static dyn Templater,
     rules: OnceLock<Vec<ErasedRule>>,
 }
 
@@ -44,21 +44,18 @@ impl Linter {
     pub fn new(
         config: FluffConfig,
         formatter: Option<OutputStreamFormatter>,
-        templater: Option<Arc<dyn Templater>>,
+        templater: Option<&'static dyn Templater>,
     ) -> Linter {
-        let templater: Arc<dyn Templater> = match templater {
+        let templater: &'static dyn Templater = match templater {
             Some(templater) => templater,
             None => {
-                let templater = config.get("templater", "core").as_string();
-                match templater {
-                    Some(templater) => {
-                        let templaters = templaters();
-                        match templaters.into_iter().find(|t| t.name() == templater) {
-                            Some(t) => t.into(),
-                            None => panic!("Unknown templater: {}", templater),
-                        }
-                    }
-                    None => Arc::<RawTemplater>::default(),
+                let templater_name = config.get("templater", "core").as_string();
+                match templater_name {
+                    Some(name) => match TEMPLATERS.into_iter().find(|t| t.name() == name) {
+                        Some(t) => t,
+                        None => panic!("Unknown templater: {}", name),
+                    },
+                    None => &RawTemplater,
                 }
             }
         };

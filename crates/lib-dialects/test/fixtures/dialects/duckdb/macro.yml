@@ -1,0 +1,221 @@
+file:
+- statement:
+  - keyword: CREATE
+  - keyword: MACRO
+  - naked_identifier: one
+  - bracketed:
+    - start_bracket: (
+    - end_bracket: )
+  - keyword: AS
+  - expression:
+    - bracketed:
+      - start_bracket: (
+      - expression:
+        - select_statement:
+          - select_clause:
+            - keyword: SELECT
+            - select_clause_element:
+              - numeric_literal: '1'
+      - end_bracket: )
+- statement_terminator: ;
+- statement:
+  - keyword: CREATE
+  - keyword: MACRO
+  - naked_identifier: add
+  - bracketed:
+    - start_bracket: (
+    - column_reference:
+      - naked_identifier: a
+    - comma: ','
+    - column_reference:
+      - naked_identifier: b
+    - end_bracket: )
+  - keyword: AS
+  - expression:
+    - column_reference:
+      - naked_identifier: a
+    - binary_operator: +
+    - column_reference:
+      - naked_identifier: b
+- statement_terminator: ;
+- statement:
+  - keyword: CREATE
+  - keyword: FUNCTION
+  - naked_identifier: add
+  - bracketed:
+    - start_bracket: (
+    - column_reference:
+      - naked_identifier: a
+    - comma: ','
+    - column_reference:
+      - naked_identifier: b
+    - end_bracket: )
+  - keyword: AS
+  - expression:
+    - column_reference:
+      - naked_identifier: a
+    - binary_operator: +
+    - column_reference:
+      - naked_identifier: b
+- statement_terminator: ;
+- statement:
+  - keyword: CREATE
+  - keyword: MACRO
+  - naked_identifier: ifelse
+  - bracketed:
+    - start_bracket: (
+    - column_reference:
+      - naked_identifier: a
+    - comma: ','
+    - column_reference:
+      - naked_identifier: b
+    - comma: ','
+    - column_reference:
+      - naked_identifier: c
+    - end_bracket: )
+  - keyword: AS
+  - expression:
+    - case_expression:
+      - keyword: CASE
+      - when_clause:
+        - keyword: WHEN
+        - expression:
+          - column_reference:
+            - naked_identifier: a
+        - keyword: THEN
+        - expression:
+          - column_reference:
+            - naked_identifier: b
+      - else_clause:
+        - keyword: ELSE
+        - expression:
+          - column_reference:
+            - naked_identifier: c
+      - keyword: END
+- statement_terminator: ;
+- statement:
+  - keyword: CREATE
+  - keyword: MACRO
+  - naked_identifier: plus_one
+  - bracketed:
+    - start_bracket: (
+    - column_reference:
+      - naked_identifier: a
+    - end_bracket: )
+  - keyword: AS
+  - expression:
+    - bracketed:
+      - start_bracket: (
+      - with_compound_statement:
+        - keyword: WITH
+        - common_table_expression:
+          - naked_identifier: cte
+          - keyword: AS
+          - bracketed:
+            - start_bracket: (
+            - select_statement:
+              - select_clause:
+                - keyword: SELECT
+                - select_clause_element:
+                  - numeric_literal: '1'
+                  - alias_expression:
+                    - keyword: AS
+                    - naked_identifier: a
+            - end_bracket: )
+        - select_statement:
+          - select_clause:
+            - keyword: SELECT
+            - select_clause_element:
+              - expression:
+                - column_reference:
+                  - naked_identifier: cte
+                  - dot: .
+                  - naked_identifier: a
+                - binary_operator: +
+                - column_reference:
+                  - naked_identifier: a
+          - from_clause:
+            - keyword: FROM
+            - from_expression:
+              - from_expression_element:
+                - table_expression:
+                  - table_reference:
+                    - naked_identifier: cte
+      - end_bracket: )
+- statement_terminator: ;
+- statement:
+  - keyword: CREATE
+  - keyword: MACRO
+  - naked_identifier: arr_append
+  - bracketed:
+    - start_bracket: (
+    - column_reference:
+      - naked_identifier: l
+    - comma: ','
+    - column_reference:
+      - naked_identifier: e
+    - end_bracket: )
+  - keyword: AS
+  - function:
+    - function_name:
+      - function_name_identifier: list_concat
+    - bracketed:
+      - start_bracket: (
+      - expression:
+        - column_reference:
+          - naked_identifier: l
+      - comma: ','
+      - expression:
+        - function:
+          - function_name:
+            - function_name_identifier: list_value
+          - bracketed:
+            - start_bracket: (
+            - expression:
+              - column_reference:
+                - naked_identifier: e
+            - end_bracket: )
+      - end_bracket: )
+- statement_terminator: ;
+- statement:
+  - keyword: CREATE
+  - keyword: TEMP
+  - keyword: MACRO
+  - naked_identifier: add
+  - bracketed:
+    - start_bracket: (
+    - column_reference:
+      - naked_identifier: a
+    - comma: ','
+    - column_reference:
+      - naked_identifier: b
+    - end_bracket: )
+  - keyword: AS
+  - expression:
+    - column_reference:
+      - naked_identifier: a
+    - binary_operator: +
+    - column_reference:
+      - naked_identifier: b
+- statement_terminator: ;
+- statement:
+  - keyword: CREATE
+  - keyword: TEMPORARY
+  - keyword: MACRO
+  - naked_identifier: add
+  - bracketed:
+    - start_bracket: (
+    - column_reference:
+      - naked_identifier: a
+    - comma: ','
+    - column_reference:
+      - naked_identifier: b
+    - end_bracket: )
+  - keyword: AS
+  - expression:
+    - column_reference:
+      - naked_identifier: a
+    - binary_operator: +
+    - column_reference:
+      - naked_identifier: b
+- statement_terminator: ;

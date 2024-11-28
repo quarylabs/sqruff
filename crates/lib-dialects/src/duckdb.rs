@@ -25,6 +25,7 @@ pub fn raw_dialect() -> Dialect {
     duckdb_dialect.name = DialectKind::Duckdb;
 
     duckdb_dialect.add_keyword_to_set("reserved_keywords", "Summarize");
+    duckdb_dialect.add_keyword_to_set("reserved_keywords", "Macro");
 
     duckdb_dialect.add([
         (
@@ -92,6 +93,32 @@ pub fn raw_dialect() -> Dialect {
                 one_of(vec_of_erased![
                     Ref::new("SingleIdentifierGrammar"),
                     Ref::new("SelectStatementSegment")
+                ])
+            ])
+            .to_matchable()
+            .into(),
+        ),
+        (
+            "CreateMacroStatementSegment".into(),
+            Sequence::new(vec_of_erased![
+                Ref::keyword("CREATE"),
+                one_of(vec_of_erased![
+                    Ref::keyword("TEMP"),
+                    Ref::keyword("TEMPORARY")
+                ])
+                .config(|config| config.optional()),
+                one_of(vec_of_erased![
+                    Ref::keyword("MACRO"),
+                    Ref::keyword("FUNCTION")
+                ]),
+                Ref::new("SingleIdentifierGrammar"),
+                Bracketed::new(vec_of_erased![Delimited::new(vec_of_erased![Ref::new(
+                    "BaseExpressionElementGrammar"
+                )])]),
+                Ref::keyword("AS"),
+                one_of(vec_of_erased![
+                    Ref::new("SelectStatementSegment"),
+                    Ref::new("BaseExpressionElementGrammar")
                 ])
             ])
             .to_matchable()
@@ -220,7 +247,8 @@ pub fn raw_dialect() -> Dialect {
             Some(vec_of_erased![
                 Ref::new("LoadStatementSegment"),
                 Ref::new("SummarizeStatementSegment"),
-                Ref::new("DescribeStatementSegment")
+                Ref::new("DescribeStatementSegment"),
+                Ref::new("CreateMacroStatementSegment")
             ]),
             None,
             None,

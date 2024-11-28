@@ -34,6 +34,7 @@ name = "depth_map"
 harness = false
 
 [features]
+default = ["python"]
 serde = ["dep:serde"]
 stringify = ["dep:serde_yaml", "serde"]
 python = ["pyo3"]

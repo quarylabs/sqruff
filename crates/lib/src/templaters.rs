@@ -7,8 +7,12 @@ use crate::templaters::placeholder::PlaceholderTemplater;
 use crate::templaters::raw::RawTemplater;
 
 #[cfg(feature = "python")]
+use crate::templaters::jinja::JinjaTemplater;
+#[cfg(feature = "python")]
 use crate::templaters::python::PythonTemplater;
 
+#[cfg(feature = "python")]
+pub mod jinja;
 pub mod placeholder;
 #[cfg(feature = "python")]
 pub mod python;
@@ -21,6 +25,7 @@ pub fn templaters() -> Vec<Box<dyn Templater>> {
         Box::new(RawTemplater),
         Box::new(PlaceholderTemplater),
         Box::new(PythonTemplater),
+        Box::new(JinjaTemplater),
     ]
 }
 

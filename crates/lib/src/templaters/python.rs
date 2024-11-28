@@ -200,7 +200,7 @@ impl<'py> FromPyObject<'py> for PythonRawFileSlice {
 }
 
 #[derive(FromPyObject)]
-struct PythonTemplatedFile {
+pub struct PythonTemplatedFile {
     source_str: String,
     fname: String,
     templated_str: Option<String>,
@@ -209,7 +209,7 @@ struct PythonTemplatedFile {
 }
 
 impl PythonTemplatedFile {
-    fn to_templated_file(&self) -> TemplatedFile {
+    pub fn to_templated_file(&self) -> TemplatedFile {
         TemplatedFile::new(
             self.source_str.to_string(),
             self.fname.to_string(),

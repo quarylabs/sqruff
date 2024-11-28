@@ -1,6 +1,3 @@
-use std::cell::RefCell;
-use std::rc::Rc;
-
 use smol_str::{SmolStr, StrExt, ToSmolStr};
 
 use super::select::SelectStatementColumnsAndTables;
@@ -153,31 +150,25 @@ impl Selectable<'_> {
 }
 
 #[derive(Debug, Clone)]
-pub struct Query<'me, T> {
-    pub inner: Rc<RefCell<QueryInner<'me, T>>>,
-}
-
-#[derive(Debug, Clone)]
-pub struct QueryInner<'me, T> {
+pub struct Query<'me> {
     pub query_type: QueryType,
     pub dialect: &'me Dialect,
     pub selectables: Vec<Selectable<'me>>,
-    pub ctes: IndexMap<SmolStr, Query<'me, T>>,
-    pub parent: Option<Query<'me, T>>,
-    pub subqueries: Vec<Query<'me, T>>,
+    pub ctes: IndexMap<SmolStr, Query<'me>>,
+    pub parent: Option<Query<'me>>,
+    pub subqueries: Vec<Query<'me>>,
     pub cte_definition_segment: Option<ErasedSegment>,
     pub cte_name_segment: Option<ErasedSegment>,
-    pub payload: T,
 }
 
-impl<'me, T: Clone + Default> Query<'me, T> {
+impl<'me> Query<'me> {
     pub fn crawl_sources(
         &self,
         segment: ErasedSegment,
 
         pop: bool,
         lookup_cte: bool,
-    ) -> Vec<Source<'me, T>> {
+    ) -> Vec<Source<'me>> {
         let mut acc = Vec::new();
 
         for seg in segment.recursive_crawl(
@@ -204,7 +195,7 @@ impl<'me, T: Clone + Default> Query<'me, T> {
             } else {
                 acc.push(Source::Query(Query::from_segment(
                     &seg,
-                    self.inner.borrow().dialect,
+                    self.dialect,
                     Some(self.clone()),
                 )))
             }
@@ -222,25 +213,16 @@ impl<'me, T: Clone + Default> Query<'me, T> {
     }
 
     #[track_caller]
-    pub fn lookup_cte(&self, name: &str, pop: bool) -> Option<Query<'me, T>> {
+    pub fn lookup_cte(&self, name: &str, pop: bool) -> Option<Query<'me>> {
         let cte = if pop {
-            self.inner
-                .borrow_mut()
-                .ctes
-                .shift_remove(&name.to_uppercase_smolstr())
+            self.ctes.shift_remove(&name.to_uppercase_smolstr())
         } else {
-            self.inner
-                .borrow()
-                .ctes
-                .get(&name.to_uppercase_smolstr())
-                .cloned()
+            self.ctes.get(&name.to_uppercase_smolstr()).cloned()
         };
 
         cte.or_else(move || {
-            self.inner
-                .borrow_mut()
-                .parent
-                .as_mut()
+            self.parent
+                .as_ref()
                 .and_then(|it| it.lookup_cte(name, pop))
         })
     }
@@ -248,28 +230,26 @@ impl<'me, T: Clone + Default> Query<'me, T> {
     fn post_init(&self) {
         let this = self.clone();
 
-        for subquery in &RefCell::borrow(&self.inner).subqueries {
-            RefCell::borrow_mut(&subquery.inner).parent = this.clone().into();
+        for subquery in &self.subqueries {
+            subquery.parent = this.clone().into();
         }
 
-        for cte in RefCell::borrow(&self.inner).ctes.values().cloned() {
-            RefCell::borrow_mut(&cte.inner).parent = this.clone().into();
+        for cte in self.ctes.values().cloned() {
+            cte.parent = this.clone().into();
         }
     }
 }
 
-impl<T: Default + Clone> Query<'_, T> {
+impl Query<'_> {
     pub fn children(&self) -> Vec<Self> {
-        self.inner
-            .borrow()
-            .ctes
+        self.ctes
             .values()
-            .chain(self.inner.borrow().subqueries.iter())
+            .chain(self.subqueries.iter())
             .cloned()
             .collect()
     }
 
-    fn extract_subqueries<'a>(selectable: &Selectable, dialect: &'a Dialect) -> Vec<Query<'a, T>> {
+    fn extract_subqueries<'a>(selectable: &Selectable, dialect: &'a Dialect) -> Vec<Query<'a>> {
         let mut acc = Vec::new();
 
         for subselect in selectable.selectable.recursive_crawl(
@@ -287,7 +267,7 @@ impl<T: Default + Clone> Query<'_, T> {
     pub fn from_root<'a>(
         root_segment: &ErasedSegment,
         dialect: &'a Dialect,
-    ) -> Option<Query<'a, T>> {
+    ) -> Option<Query<'a>> {
         let stmts = root_segment.recursive_crawl(
             &SELECTABLE_TYPES,
             true,
@@ -302,8 +282,8 @@ impl<T: Default + Clone> Query<'_, T> {
     pub fn from_segment<'a>(
         segment: &ErasedSegment,
         dialect: &'a Dialect,
-        parent: Option<Query<'a, T>>,
-    ) -> Query<'a, T> {
+        parent: Option<Query<'a>>,
+    ) -> Query<'a> {
         let mut selectables = Vec::new();
         let mut subqueries = Vec::new();
         let mut cte_defs: Vec<ErasedSegment> = Vec::new();
@@ -356,17 +336,14 @@ impl<T: Default + Clone> Query<'_, T> {
         }
 
         let outer_query = Query {
-            inner: Rc::new(RefCell::new(QueryInner {
-                query_type,
-                dialect,
-                selectables,
-                ctes: <_>::default(),
-                parent,
-                subqueries,
-                cte_definition_segment: None,
-                cte_name_segment: None,
-                payload: T::default(),
-            })),
+            query_type,
+            dialect,
+            selectables,
+            ctes: <_>::default(),
+            parent,
+            subqueries,
+            cte_definition_segment: None,
+            cte_name_segment: None,
         };
 
         outer_query.post_init();
@@ -394,18 +371,18 @@ impl<T: Default + Clone> Query<'_, T> {
             let query = &queries[0];
             let query = Self::from_segment(query, dialect, outer_query.clone().into());
 
-            RefCell::borrow_mut(&query.inner).cte_definition_segment = cte.into();
-            RefCell::borrow_mut(&query.inner).cte_name_segment = name_seg.into();
+            query.cte_definition_segment = cte.into();
+            query.cte_name_segment = name_seg.into();
 
             ctes.insert(name, query);
         }
 
-        RefCell::borrow_mut(&outer_query.inner).ctes = ctes;
+        outer_query.ctes = ctes;
         outer_query
     }
 }
 
-pub enum Source<'a, T> {
+pub enum Source<'a> {
     TableReference(SmolStr),
-    Query(Query<'a, T>),
+    Query(Query<'a>),
 }

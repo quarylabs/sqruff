@@ -1,0 +1,21 @@
+name: Bug Report
+description: File a bug report.
+title: "[Bug]: "
+labels: ["bug"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for taking the time to fill out this bug report!
+  - type: textarea
+    id: version
+    attributes:
+      label: Version
+      description: What version of our software are you running?
+  - type: checkboxes
+    id: checked_in_playground
+    attributes:
+      label: Checked in Playground
+      description: Have you validated this bug in the playground?
+      options:
+        - label: I have checked this bug in the playground [https://playground.quary.dev/?secondary=Format].

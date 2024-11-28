@@ -201,6 +201,7 @@ For more details about, see the documents in the [docs](./docs/) folder which co
 - [Details on the rules](./docs/rules.md)
 - [Details on the CLI](./docs/cli.md)
 - [Details on the templaters](./docs/templaters.md)
+- [Sample configurations](./docs/sample_configurations.md)
 
 ## Community
 

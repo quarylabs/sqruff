@@ -1,8 +1,8 @@
 # Sample Configurations
 
-The followbng document outlines sample configurations that may be used to achieve certain formattting/linting outcomes. 
+The following document outlines sample configurations that may be used to achieve certain formatting/linting outcomes. 
 
-## Alinging AS statements
+## Aligning AS statements
 
 Suppose you want to align as statements in a `select` to return the following outcome. 
 
@@ -22,7 +22,7 @@ select
 from table
 ```
 
-This can be achieved withe following configuration addition:
+This can be achieved with the following configuration addition:
 
 ```
 [sqruff:layout:type:alias_expression]

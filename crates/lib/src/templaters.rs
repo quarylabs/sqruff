@@ -14,20 +14,18 @@ pub mod placeholder;
 pub mod python;
 pub mod raw;
 
+pub static RAW_TEMPLATER: RawTemplater = RawTemplater;
+pub static PLACEHOLDER_TEMPLATER: PlaceholderTemplater = PlaceholderTemplater;
+#[cfg(feature = "python")]
+pub static PYTHON_TEMPLATER: PythonTemplater = PythonTemplater;
+
 // templaters returns all the templaters that are available in the library
 #[cfg(feature = "python")]
-pub fn templaters() -> Vec<Box<dyn Templater>> {
-    vec![
-        Box::new(RawTemplater),
-        Box::new(PlaceholderTemplater),
-        Box::new(PythonTemplater),
-    ]
-}
+pub static TEMPLATERS: [&'static dyn Templater; 3] =
+    [&RAW_TEMPLATER, &PLACEHOLDER_TEMPLATER, &PYTHON_TEMPLATER];
 
 #[cfg(not(feature = "python"))]
-pub fn templaters() -> Vec<Box<dyn Templater>> {
-    vec![Box::new(RawTemplater), Box::new(PlaceholderTemplater)]
-}
+pub static TEMPLATERS: [&'static dyn Templater; 2] = [&RAW_TEMPLATER, &PLACEHOLDER_TEMPLATER];
 
 pub trait Templater: Send + Sync {
     /// The name of the templater.

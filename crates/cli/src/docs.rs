@@ -5,7 +5,7 @@ use minijinja::{context, Environment};
 use serde::Serialize;
 use sqruff_lib::core::rules::base::ErasedRule;
 use sqruff_lib::rules::rules;
-use sqruff_lib::templaters::templaters;
+use sqruff_lib::templaters::TEMPLATERS;
 
 use crate::commands::Cli;
 
@@ -47,8 +47,7 @@ pub(crate) fn codegen_docs() {
     env.add_template("templaters", &template).unwrap();
 
     let tmpl = env.get_template("templaters").unwrap();
-    let templater = templaters();
-    let templaters = templater
+    let templaters = TEMPLATERS
         .into_iter()
         .map(Templater::from)
         .collect::<Vec<_>>();
@@ -69,8 +68,8 @@ struct Templater {
     description: &'static str,
 }
 
-impl From<Box<dyn sqruff_lib::templaters::Templater>> for Templater {
-    fn from(value: Box<dyn sqruff_lib::templaters::Templater>) -> Self {
+impl From<&'static dyn sqruff_lib::templaters::Templater> for Templater {
+    fn from(value: &'static dyn sqruff_lib::templaters::Templater) -> Self {
         Templater {
             name: value.name(),
             description: value.description(),

@@ -88,7 +88,7 @@ async function startPlayground(): Promise<{
   await initSqruff();
 
   const [settingsSource, sqlSource] = [
-    "[sqruff]\ndialect = ansi\nrules = all\n",
+    "[sqruff]\ndialect = ansi\nrules = core\n",
     "SELECT name from USERS",
   ];
 

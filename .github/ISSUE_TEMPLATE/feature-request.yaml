@@ -6,6 +6,12 @@ body:
     attributes:
       value: |
         Thanks for taking the time to fill out this request!
+  - type: textarea
+    id: request
+    attributes:
+      label: What would you like to see?
+    validations:
+      required: true
   - type: checkboxes
     id: checked_in_playground
     attributes:

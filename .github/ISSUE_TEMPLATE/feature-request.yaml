@@ -1,0 +1,15 @@
+name: Feature requst
+description: Ask for a feature.
+labels: ["enhancement"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for taking the time to fill out this request!
+  - type: checkboxes
+    id: checked_in_playground
+    attributes:
+      label: Checked issues
+      description: Have you checked this has not been requested before?
+      options:
+        - label: I have checked this request in the [issues](https://github.com/quarylabs/sqruff/issues).

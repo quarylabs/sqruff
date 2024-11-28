@@ -9,9 +9,12 @@ default-run = "sqruff"
 rust-version = "1.82.0"
 
 [package.metadata.binstall]
-pkg-url = "{ repo }/releases/download/v{ version }/sqruff-{ target }.tar.gz"
+pkg-url = "{ repo }/releases/download/v{ version }/sqruff-{ target-family }-{ target-arch }.tar.gz"
 pkg-fmt = "tgz"
-bin-dir = "sqruff{ binary-ext }"
+
+[package.metadata.binbstall.overrides.x86_64-pc-windows-msvc]
+pkg-url = "{ repo }/releases/download/v{ version }/sqruff-windows-x86_64.zip"
+pkg-fmt = "zip"
 
 [lints]
 workspace = true

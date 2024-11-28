@@ -18,4 +18,4 @@ body:
       label: Checked in Playground
       description: Have you validated this bug in the playground?
       options:
-        - label: I have checked this bug in the playground [https://playground.quary.dev/?secondary=Format].
+        - label: I have checked this bug in the [playground(https://playground.quary.dev/?secondary=Format).

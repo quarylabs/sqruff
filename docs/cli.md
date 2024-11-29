@@ -41,7 +41,7 @@ lint files
 
 * `-f`, `--format <FORMAT>`
 
-  Default value: `human`
+  Default value: `github-annotation-native`
 
   Possible values: `human`, `github-annotation-native`
 
@@ -63,7 +63,7 @@ fix files
 * `--force` — Skip the confirmation prompt and go straight to applying fixes
 * `-f`, `--format <FORMAT>`
 
-  Default value: `human`
+  Default value: `github-annotation-native`
 
   Possible values: `human`, `github-annotation-native`
 

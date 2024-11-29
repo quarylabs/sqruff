@@ -1,7 +1,5 @@
-use std::{
-    fmt::{write, Display},
-    path::PathBuf,
-};
+use std::path::PathBuf;
+use strum_macros::Display;
 
 use clap::{Parser, Subcommand, ValueEnum};
 
@@ -48,7 +46,8 @@ pub(crate) struct FixArgs {
     pub format: Format,
 }
 
-#[derive(Debug, Clone, Copy, ValueEnum)]
+#[derive(Debug, Clone, Copy, ValueEnum, Display)]
+#[strum(serialize_all = "kebab-case")]
 pub(crate) enum Format {
     Human,
     GithubAnnotationNative,
@@ -60,15 +59,6 @@ impl Default for Format {
             Format::GithubAnnotationNative
         } else {
             Format::Human
-        }
-    }
-}
-
-impl Display for Format {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        match self {
-            Format::Human => f.write_str("human"),
-            Format::GithubAnnotationNative => f.write_str("github-annotation-native"),
         }
     }
 }

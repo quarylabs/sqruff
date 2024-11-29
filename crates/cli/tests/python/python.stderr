@@ -1,6 +1,3 @@
-== [tests/ui_with_python/python.sql] FAIL
-L:   1 | P:  23 | LT01 | Unnecessary trailing whitespace. [layout.spacing]
-L:   1 | P:  25 | LT12 | Files must end with a single trailing newline.
-                       | [layout.end_of_file]
-The linter processed 1 file(s).
-All Finished
+dyld[46951]: Library not loaded: @rpath/Python3.framework/Versions/3.9/Python3
+  Referenced from: <5AE71D92-9A7C-373F-B630-A63459FBB47C> /private/var/folders/ss/wg8jqbr549d3w6csxf4t_bl80000gn/T/.tmplMWE4c/debug/sqruff
+  Reason: no LC_RPATH's found

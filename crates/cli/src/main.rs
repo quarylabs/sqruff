@@ -1,6 +1,10 @@
 use clap::Parser as _;
 use commands::Format;
-use sqruff_lib::cli::formatters::OutputStreamFormatter;
+use sqruff_lib::cli::formatters::Formatter;
+use sqruff_lib::cli::{
+    formatters::OutputStreamFormatter,
+    github_annotation_native_formatter::GithubAnnotationNativeFormatter,
+};
 use sqruff_lib::core::config::FluffConfig;
 use sqruff_lib::core::linter::core::Linter;
 use std::path::Path;
@@ -85,17 +89,23 @@ fn main() {
 }
 
 pub(crate) fn linter(config: FluffConfig, format: Format) -> Linter {
-    let output_stream = match format {
-        Format::Human => std::io::stderr().into(),
-        Format::GithubAnnotationNative => None,
+    let formatter: Arc<dyn Formatter> = match format {
+        Format::Human => {
+            let output_stream = std::io::stderr().into();
+            let formatter = OutputStreamFormatter::new(
+                output_stream,
+                config.get("nocolor", "core").as_bool().unwrap_or_default(),
+            );
+            Arc::new(formatter)
+        }
+        Format::GithubAnnotationNative => {
+            let output_stream = std::io::stderr();
+            let formatter = GithubAnnotationNativeFormatter::new(output_stream);
+            Arc::new(formatter)
+        }
     };
 
-    let formatter = OutputStreamFormatter::new(
-        output_stream,
-        config.get("nocolor", "core").as_bool().unwrap_or_default(),
-    );
-
-    Linter::new(config, Some(Arc::new(formatter)), None)
+    Linter::new(config, Some(formatter), None)
 }
 
 fn check_user_input() -> Option<bool> {

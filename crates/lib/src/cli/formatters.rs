@@ -1,6 +1,6 @@
 use std::borrow::Cow;
 use std::io::{IsTerminal, Stderr, Write};
-use std::sync::atomic::AtomicBool;
+use std::sync::atomic::{AtomicBool, AtomicUsize};
 
 use anstyle::{AnsiColor, Effects, Style};
 use itertools::enumerate;
@@ -64,6 +64,7 @@ pub struct OutputStreamFormatter {
     verbosity: i32,
     output_line_length: usize,
     pub has_fail: AtomicBool,
+    files_dispatched: AtomicUsize,
 }
 
 impl Formatter for OutputStreamFormatter {
@@ -78,6 +79,8 @@ impl Formatter for OutputStreamFormatter {
         );
 
         self.dispatch(&s);
+        self.files_dispatched
+            .fetch_add(1, std::sync::atomic::Ordering::SeqCst);
     }
 
     fn has_fail(&self) -> bool {
@@ -85,6 +88,12 @@ impl Formatter for OutputStreamFormatter {
     }
 
     fn completion_message(&self) {
+        let count = self
+            .files_dispatched
+            .load(std::sync::atomic::Ordering::SeqCst);
+        let message = format!("The linter processed {count} file(s).\n");
+        self.dispatch(&message);
+
         let message = if self.plain_output {
             "All Finished\n"
         } else {
@@ -112,6 +121,7 @@ impl OutputStreamFormatter {
             verbosity: 0,
             output_line_length: 80,
             has_fail: false.into(),
+            files_dispatched: 0.into(),
         }
     }
 

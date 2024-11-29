@@ -1,0 +1,5 @@
+::error title=sqruff,file=tests/lint/test_fail_whitespace_before_comma.sql,line=1,col=8::AL03: Column expression without alias. Use explicit `AS` clause.
+::error title=sqruff,file=tests/lint/test_fail_whitespace_before_comma.sql,line=1,col=9::LT01: Unexpected whitespace before comma.
+::error title=sqruff,file=tests/lint/test_fail_whitespace_before_comma.sql,line=1,col=11::AL03: Column expression without alias. Use explicit `AS` clause.
+::error title=sqruff,file=tests/lint/test_fail_whitespace_before_comma.sql,line=1,col=11::LT01: Expected single whitespace between "," and "4".
+::error title=sqruff,file=tests/lint/test_fail_whitespace_before_comma.sql,line=1,col=12::LT12: Files must end with a single trailing newline.

@@ -32,6 +32,10 @@ harness = false
 name = "ui_with_python"
 harness = false
 
+[[test]]
+name = "ui_github"
+harness = false
+
 [features]
 python = ["sqruff-lib/python"]
 codegen-docs = ["clap-markdown", "minijinja", "serde", "python"]

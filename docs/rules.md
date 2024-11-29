@@ -2030,22 +2030,27 @@ Do not specify 'else null' in a case when statement (redundant).
 
 **Anti-pattern**
 
-In this example, the reference `vee` has not been declared.
-
 ```sql
-SELECT
-    vee.a
-FROM foo
+select
+    case
+        when name like '%cat%' then 'meow'
+        when name like '%dog%' then 'woof'
+        else null
+    end
+from x
 ```
 
 **Best practice**
 
-Remove the reference.
+Omit `else null`
 
 ```sql
-SELECT
-    a
-FROM foo
+select
+    case
+        when name like '%cat%' then 'meow'
+        when name like '%dog%' then 'woof'
+    end
+from x
 ```
 
 

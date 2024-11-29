@@ -10,29 +10,8 @@ pub(crate) fn run_lint(
 ) -> i32 {
     let LintArgs { paths, format } = args;
     let mut linter = linter(config, format);
-    let result = linter.lint_paths(paths, false, &ignorer);
-    let count: usize = result.paths.iter().map(|path| path.files.len()).sum();
+    linter.lint_paths(paths, false, &ignorer);
 
-    // TODO this should be cleaned up better
-    if matches!(format, Format::GithubAnnotationNative) {
-        for path in result.paths {
-            for file in path.files {
-                for violation in file.violations {
-                    let line = format!(
-                        "::error title=sqruff,file={},line={},col={}::{}: {}",
-                        file.path,
-                        violation.line_no,
-                        violation.line_pos,
-                        violation.rule.as_ref().unwrap().code,
-                        violation.description
-                    );
-                    eprintln!("{line}");
-                }
-            }
-        }
-    }
-
-    eprintln!("The linter processed {count} file(s).");
     linter.formatter().unwrap().completion_message();
     if linter.formatter().unwrap().has_fail() {
         1
@@ -45,13 +24,13 @@ pub(crate) fn run_lint_stdin(config: FluffConfig, format: Format) -> i32 {
     let read_in = crate::stdin::read_std_in().unwrap();
 
     let linter = linter(config, format);
-    let result = linter.lint_string(&read_in, None, false);
+    linter.lint_string(&read_in, None, false);
 
     linter.formatter().unwrap().completion_message();
 
-    if result.get_violations(None).is_empty() {
-        0
-    } else {
+    if linter.formatter().unwrap().has_fail() {
         1
+    } else {
+        0
     }
 }

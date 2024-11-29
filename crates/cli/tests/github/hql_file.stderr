@@ -1,0 +1,2 @@
+::error title=sqruff,file=tests/lint/hql_file.hql,line=1,col=7::LT01: Expected only single space before "1". Found "   ".
+::error title=sqruff,file=tests/lint/hql_file.hql,line=1,col=11::LT12: Files must end with a single trailing newline.

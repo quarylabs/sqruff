@@ -1,0 +1,19 @@
+::error title=sqruff,file=/Users/benjaminking/Developer/sqruff/crates/cli/tests/lint/LT01_LT012.sql,line=1,col=7::LT01: Expected only single space before "1". Found "   ".
+::error title=sqruff,file=/Users/benjaminking/Developer/sqruff/crates/cli/tests/lint/LT01_LT012.sql,line=1,col=11::LT12: Files must end with a single trailing newline.
+::error title=sqruff,file=tests/lint/LT01_LT012.sql,line=1,col=7::LT01: Expected only single space before "1". Found "   ".
+::error title=sqruff,file=tests/lint/LT01_LT012.sql,line=1,col=11::LT12: Files must end with a single trailing newline.
+::error title=sqruff,file=/Users/benjaminking/Developer/sqruff/crates/cli/tests/lint/test_fail_whitespace_before_comma.sql,line=1,col=8::AL03: Column expression without alias. Use explicit `AS` clause.
+::error title=sqruff,file=/Users/benjaminking/Developer/sqruff/crates/cli/tests/lint/test_fail_whitespace_before_comma.sql,line=1,col=11::AL03: Column expression without alias. Use explicit `AS` clause.
+::error title=sqruff,file=/Users/benjaminking/Developer/sqruff/crates/cli/tests/lint/test_fail_whitespace_before_comma.sql,line=1,col=9::LT01: Unexpected whitespace before comma.
+::error title=sqruff,file=/Users/benjaminking/Developer/sqruff/crates/cli/tests/lint/test_fail_whitespace_before_comma.sql,line=1,col=11::LT01: Expected single whitespace between "," and "4".
+::error title=sqruff,file=/Users/benjaminking/Developer/sqruff/crates/cli/tests/lint/test_fail_whitespace_before_comma.sql,line=1,col=12::LT12: Files must end with a single trailing newline.
+::error title=sqruff,file=tests/lint/test_fail_whitespace_before_comma.sql,line=1,col=8::AL03: Column expression without alias. Use explicit `AS` clause.
+::error title=sqruff,file=tests/lint/test_fail_whitespace_before_comma.sql,line=1,col=11::AL03: Column expression without alias. Use explicit `AS` clause.
+::error title=sqruff,file=tests/lint/test_fail_whitespace_before_comma.sql,line=1,col=9::LT01: Unexpected whitespace before comma.
+::error title=sqruff,file=tests/lint/test_fail_whitespace_before_comma.sql,line=1,col=11::LT01: Expected single whitespace between "," and "4".
+::error title=sqruff,file=tests/lint/test_fail_whitespace_before_comma.sql,line=1,col=12::LT12: Files must end with a single trailing newline.
+::error title=sqruff,file=/Users/benjaminking/Developer/sqruff/crates/cli/tests/python/python.sql,line=1,col=16::LT01: Expected single whitespace between "{" and "tbl_name".
+::error title=sqruff,file=/Users/benjaminking/Developer/sqruff/crates/cli/tests/python/python.sql,line=1,col=24::LT01: Expected single whitespace between "tbl_name" and "}".
+::error title=sqruff,file=/Users/benjaminking/Developer/sqruff/crates/cli/tests/python/python.sql,line=1,col=25::LT01: Unnecessary trailing whitespace.
+::error title=sqruff,file=/Users/benjaminking/Developer/sqruff/crates/cli/tests/python/python.sql,line=2,col=1::LT12: Files must end with a single trailing newline.
+The linter processed 7 file(s).

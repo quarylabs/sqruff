@@ -1720,6 +1720,7 @@ dependencies = [
  "serde",
  "sqruff-lib",
  "sqruff-lsp",
+ "strum_macros",
  "tempfile",
  "tikv-jemallocator",
 ]

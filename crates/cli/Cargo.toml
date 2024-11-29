@@ -39,6 +39,7 @@ codegen-docs = ["clap-markdown", "minijinja", "serde", "python"]
 [dependencies]
 sqruff-lib.workspace = true
 sqruff-lsp.workspace = true
+strum_macros.workspace = true
 
 clap = { version = "4", features = ["derive"] }
 console = "0.15.8"

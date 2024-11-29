@@ -44,9 +44,9 @@ trino = []
 
 [dependencies]
 sqruff-lib-core.workspace = true
+strum.workspace = true
 itertools = "0.13.0"
 ahash = "0.8.11"
-strum = "0.26.3"
 serde_yaml = "0.9.34+deprecated"
 
 [dev-dependencies]

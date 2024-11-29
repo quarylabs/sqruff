@@ -1,4 +1,7 @@
-use std::path::PathBuf;
+use std::{
+    fmt::{write, Display},
+    path::PathBuf,
+};
 
 use clap::{Parser, Subcommand, ValueEnum};
 
@@ -30,7 +33,7 @@ pub(crate) enum Commands {
 pub(crate) struct LintArgs {
     /// Files or directories to fix. Use `-` to read from stdin.
     pub paths: Vec<PathBuf>,
-    #[arg(default_value = "human", short, long)]
+    #[arg(default_value_t, short, long)]
     pub format: Format,
 }
 
@@ -41,7 +44,7 @@ pub(crate) struct FixArgs {
     /// Skip the confirmation prompt and go straight to applying fixes.
     #[arg(long)]
     pub force: bool,
-    #[arg(default_value = "human", short, long)]
+    #[arg(default_value_t, short, long)]
     pub format: Format,
 }
 
@@ -57,6 +60,15 @@ impl Default for Format {
             Format::GithubAnnotationNative
         } else {
             Format::Human
+        }
+    }
+}
+
+impl Display for Format {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        match self {
+            Format::Human => f.write_str("human"),
+            Format::GithubAnnotationNative => f.write_str("github-annotation-native"),
         }
     }
 }

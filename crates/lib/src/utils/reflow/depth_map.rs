@@ -55,7 +55,7 @@ impl DepthMap {
     fn new<'a>(raws_with_stack: impl Iterator<Item = &'a (ErasedSegment, Vec<PathStep>)>) -> Self {
         let depth_info = raws_with_stack
             .into_iter()
-            .map(|(raw, stack)| (raw.id(), DepthInfo::from_raw_and_stack(raw, stack)))
+            .map(|(raw, stack)| (raw.id(), DepthInfo::from_stack(stack)))
             .collect();
         Self { depth_info }
     }
@@ -88,7 +88,7 @@ impl DepthMap {
             .into_iter()
             .map(|raw| {
                 let stack = root_segment.path_to(&raw);
-                (raw.id(), DepthInfo::from_raw_and_stack(&raw, &stack))
+                (raw.id(), DepthInfo::from_stack(&stack))
             })
             .collect();
 
@@ -108,8 +108,7 @@ pub struct DepthInfo {
 }
 
 impl DepthInfo {
-    #[allow(unused_variables)]
-    fn from_raw_and_stack(raw: &ErasedSegment, stack: &[PathStep]) -> DepthInfo {
+    fn from_stack(stack: &[PathStep]) -> DepthInfo {
         let stack_hashes: Vec<u64> = stack.iter().map(|ps| ps.segment.hash_value()).collect();
         let stack_hash_set: IntSet<u64> = IntSet::from_iter(stack_hashes.clone());
 
@@ -172,7 +171,7 @@ impl DepthInfo {
 
         let common_hashes: AHashSet<_> = self
             .stack_hash_set
-            .intersection(&other.stack_hashes.iter().copied().collect())
+            .intersection(&other.stack_hash_set)
             .copied()
             .collect();
 

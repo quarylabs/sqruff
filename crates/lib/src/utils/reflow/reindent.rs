@@ -293,7 +293,7 @@ fn crawl_indent_points(
 
                 if allow_implicit_indents
                     && elements[idx + 1]
-                        .class_types1()
+                        .class_types()
                         .contains(SyntaxKind::StartBracket)
                 {
                     let depth = elements[idx + 1]
@@ -311,7 +311,7 @@ fn crawl_indent_points(
                                 unclosed_bracket = true;
                                 break;
                             }
-                        } else if elem_j.class_types1().contains(SyntaxKind::EndBracket)
+                        } else if elem_j.class_types().contains(SyntaxKind::EndBracket)
                             && elem_j.as_block().unwrap().depth_info().stack_depth == depth
                         {
                             unclosed_bracket = false;
@@ -388,7 +388,7 @@ fn crawl_indent_points(
                 last_line_break_idx = idx.into();
             }
 
-            if elements[idx + 1].class_types1().intersects(
+            if elements[idx + 1].class_types().intersects(
                 const {
                     &SyntaxSet::new(&[
                         SyntaxKind::Comment,
@@ -452,7 +452,7 @@ fn map_line_buffers(
 
         lines.push(IndentLine::from_points(point_buffer.clone()));
 
-        let following_class_types = elements[indent_point.idx + 1].class_types1();
+        let following_class_types = elements[indent_point.idx + 1].class_types();
         if indent_point.indent_trough != 0 && !following_class_types.contains(SyntaxKind::EndOfFile)
         {
             let passing_indents = Range::new(
@@ -468,7 +468,7 @@ fn map_line_buffers(
                 };
 
                 if elements[loc + 1]
-                    .class_types1()
+                    .class_types()
                     .contains(SyntaxKind::StartBracket)
                 {
                     continue;
@@ -492,7 +492,7 @@ fn map_line_buffers(
 
                 // Then check if all comments.
                 if (_pt.idx + 1..indent_point.idx).step_by(2).all(|k| {
-                    elements[k].class_types1().intersects(
+                    elements[k].class_types().intersects(
                         const {
                             &SyntaxSet::new(&[
                                 SyntaxKind::Comment,
@@ -597,7 +597,7 @@ fn lint_line_starting_indent(
     }
 
     if initial_point_idx > 0 && initial_point_idx < elements.len() - 1 {
-        if elements[initial_point_idx + 1].class_types1().intersects(
+        if elements[initial_point_idx + 1].class_types().intersects(
             const {
                 &SyntaxSet::new(&[
                     SyntaxKind::Comment,
@@ -615,10 +615,10 @@ fn lint_line_starting_indent(
         }
 
         if elements[initial_point_idx - 1]
-            .class_types1()
+            .class_types()
             .contains(SyntaxKind::BlockComment)
             && elements[initial_point_idx + 1]
-                .class_types1()
+                .class_types()
                 .contains(SyntaxKind::BlockComment)
             && current_indent.len() > desired_starting_indent.len()
         {
@@ -723,7 +723,7 @@ fn lint_line_untaken_positive_indents(
             }
             closing_trough = _bal + stats.trough;
             _bal += stats.impulse;
-        } else if !elem.class_types1().intersects(
+        } else if !elem.class_types().intersects(
             const {
                 &SyntaxSet::new(&[
                     SyntaxKind::Comment,
@@ -823,7 +823,7 @@ fn lint_line_untaken_negative_indents(
         }
 
         if elements.get(ip.idx + 1).map_or(false, |elem| {
-            elem.class_types1().intersects(
+            elem.class_types().intersects(
                 const { &SyntaxSet::new(&[SyntaxKind::StatementTerminator, SyntaxKind::Comma]) },
             )
         }) {
@@ -1276,7 +1276,7 @@ fn fix_long_line_with_integer_targets(
         let indent_stats = e.indent_impulse();
 
         let new_indent = if indent_stats.impulse < 0 {
-            if elements[e_idx + 1].class_types1().intersects(
+            if elements[e_idx + 1].class_types().intersects(
                 const { &SyntaxSet::new(&[SyntaxKind::StatementTerminator, SyntaxKind::Comma]) },
             ) {
                 break;
@@ -1330,7 +1330,7 @@ pub fn lint_line_length(
             .as_point()
             .filter(|point| {
                 elem_buffer[i + 1]
-                    .class_types1()
+                    .class_types()
                     .contains(SyntaxKind::EndOfFile)
                     || has_untemplated_newline(point)
             })

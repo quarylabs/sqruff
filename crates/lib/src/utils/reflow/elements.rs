@@ -1,3 +1,4 @@
+use std::cell::OnceCell;
 use std::iter::zip;
 use std::ops::Deref;
 use std::rc::Rc;
@@ -35,7 +36,7 @@ fn get_consumed_whitespace(segment: Option<&ErasedSegment>) -> Option<String> {
 pub struct ReflowPointData {
     segments: Vec<ErasedSegment>,
     stats: IndentStats,
-    class_types: SyntaxSet,
+    class_types: OnceCell<SyntaxSet>,
 }
 
 #[derive(Debug, Clone, Default, PartialEq)]
@@ -54,13 +55,12 @@ impl Deref for ReflowPoint {
 impl ReflowPoint {
     pub fn new(segments: Vec<ErasedSegment>) -> Self {
         let stats = Self::generate_indent_stats(&segments);
-        let class_types = segments.iter().flat_map(|it| it.class_types()).collect();
 
         Self {
             value: Rc::new(ReflowPointData {
                 segments,
                 stats,
-                class_types,
+                class_types: OnceCell::new(),
             }),
         }
     }
@@ -70,7 +70,12 @@ impl ReflowPoint {
     }
 
     pub fn class_types(&self) -> &SyntaxSet {
-        &self.class_types
+        self.class_types.get_or_init(|| {
+            self.segments
+                .iter()
+                .flat_map(|it| it.class_types())
+                .collect()
+        })
     }
 
     fn generate_indent_stats(segments: &[ErasedSegment]) -> IndentStats {

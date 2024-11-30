@@ -271,7 +271,7 @@ impl<'a> ReflowSequence<'a> {
             );
 
             let ignore = if new_point
-                .segments
+                .segments()
                 .iter()
                 .any(|seg| seg.is_type(SyntaxKind::Newline))
                 || post

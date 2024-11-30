@@ -23,7 +23,7 @@ fn has_untemplated_newline(point: &ReflowPoint) -> bool {
     {
         return false;
     }
-    point.segments.iter().any(|segment| {
+    point.segments().iter().any(|segment| {
         segment.is_type(SyntaxKind::Newline)
             && (segment
                 .get_position_marker()
@@ -632,16 +632,16 @@ fn lint_line_starting_indent(
             unimplemented!()
         } else {
             initial_point
-                .segments
-                .clone()
-                .into_iter()
+                .segments()
+                .iter()
+                .cloned()
                 .map(LintFix::delete)
                 .collect_vec()
         };
 
         (
             vec![LintResult::new(
-                initial_point.segments[0].clone().into(),
+                initial_point.segments()[0].clone().into(),
                 fixes,
                 None,
                 Some("First line should not be indented.".into()),
@@ -1201,7 +1201,11 @@ fn fix_long_line_with_comment(
 
     fixes.push(LintFix::create_before(
         anchor,
-        chain(Some(comment_seg.clone()), new_point.segments.clone()).collect_vec(),
+        chain(
+            Some(comment_seg.clone()),
+            new_point.segments().iter().cloned(),
+        )
+        .collect_vec(),
     ));
 
     let elements: Vec<_> = prev_elems

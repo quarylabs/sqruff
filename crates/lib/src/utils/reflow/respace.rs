@@ -27,7 +27,7 @@ pub fn determine_constraints(
     // Start with the defaults
     let (mut pre_constraint, strip_newlines) = unpack_constraint(
         if let Some(prev_block) = prev_block {
-            prev_block.spacing_after
+            prev_block.spacing_after()
         } else {
             Spacing::Single
         },
@@ -36,7 +36,7 @@ pub fn determine_constraints(
 
     let (mut post_constraint, mut strip_newlines) = unpack_constraint(
         if let Some(next_block) = next_block {
-            next_block.spacing_before
+            next_block.spacing_before()
         } else {
             Spacing::Single
         },
@@ -47,17 +47,17 @@ pub fn determine_constraints(
     let mut idx = None;
 
     if let Some((prev_block, next_block)) = prev_block.zip(next_block) {
-        let common = prev_block.depth_info.common_with(&next_block.depth_info);
+        let common = prev_block.depth_info().common_with(next_block.depth_info());
         let last_common = common.last().unwrap();
         idx = prev_block
-            .depth_info
+            .depth_info()
             .stack_hashes
             .iter()
             .position(|p| p == last_common)
             .unwrap()
             .into();
 
-        let within_constraint = prev_block.stack_spacing_configs.get(last_common);
+        let within_constraint = prev_block.stack_spacing_configs().get(last_common);
         if let Some(within_constraint) = within_constraint {
             let (within_spacing_inner, strip_newlines_inner) =
                 unpack_constraint(*within_constraint, strip_newlines);
@@ -85,7 +85,7 @@ pub fn determine_constraints(
             panic!(
                 "Unexpected within constraint: {:?} for {:?}",
                 spacing,
-                prev_block.unwrap().depth_info.stack_class_types[idx.unwrap()]
+                prev_block.unwrap().depth_info().stack_class_types[idx.unwrap()]
             );
         }
         _ => {}
@@ -345,7 +345,7 @@ pub fn handle_respace_inline_with_space(
         let description = if let Some(next_block) = next_block {
             format!(
                 "Unexpected whitespace before {}.",
-                pretty_segment_name(&next_block.segment)
+                pretty_segment_name(next_block.segment())
             )
         } else {
             "Unexpected whitespace".to_string()
@@ -376,13 +376,14 @@ pub fn handle_respace_inline_with_space(
                 },
                 Some(next_block),
             ) => {
-                let next_pos = if let Some(pos_marker) = next_block.segment.get_position_marker() {
+                let next_pos = if let Some(pos_marker) = next_block.segment().get_position_marker()
+                {
                     Some(pos_marker.clone())
                 } else if let Some(pos_marker) = last_whitespace.get_position_marker() {
                     Some(pos_marker.end_point_marker())
                 } else if let Some(prev_block) = prev_block {
                     prev_block
-                        .segment
+                        .segment()
                         .get_position_marker()
                         .map(|pos_marker| pos_marker.end_point_marker())
                 } else {
@@ -393,7 +394,7 @@ pub fn handle_respace_inline_with_space(
                     let desired_space = determine_aligned_inline_spacing(
                         root_segment,
                         &last_whitespace,
-                        &next_block.segment,
+                        next_block.segment(),
                         next_pos,
                         seg_type,
                         within,
@@ -408,7 +409,7 @@ pub fn handle_respace_inline_with_space(
                 let desc = if let Some(next_block) = next_block {
                     format!(
                         "Expected only single space before {:?}. Found {:?}.",
-                        next_block.segment.raw(),
+                        next_block.segment().raw(),
                         last_whitespace.raw()
                     )
                 } else {
@@ -476,14 +477,14 @@ pub fn handle_respace_inline_without_space(
     let mut insertion = None;
 
     if let Some(block) = prev_block {
-        if block.segment.get_position_marker().is_none() {
+        if block.segment().get_position_marker().is_none() {
             existing_fix = Some("after");
-            insertion = Some(block.segment.clone());
+            insertion = Some(block.segment().clone());
         }
     } else if let Some(block) = next_block {
-        if block.segment.get_position_marker().is_none() {
+        if block.segment().get_position_marker().is_none() {
             existing_fix = Some("before");
-            insertion = Some(block.segment.clone());
+            insertion = Some(block.segment().clone());
         }
     }
 
@@ -523,8 +524,8 @@ pub fn handle_respace_inline_without_space(
     let desc = if let Some((prev_block, next_block)) = prev_block.zip(next_block) {
         format!(
             "Expected single whitespace between {:?} and {:?}.",
-            prev_block.segment.raw(),
-            next_block.segment.raw()
+            prev_block.segment().raw(),
+            next_block.segment().raw()
         )
     } else {
         "Expected single whitespace.".to_owned()
@@ -534,16 +535,16 @@ pub fn handle_respace_inline_without_space(
         let prev_block = prev_block.unwrap();
         let anchor = if let Some(block) = next_block {
             // If next_block is Some, get the first segment
-            block.segment.clone()
+            block.segment().clone()
         } else {
-            prev_block.segment.clone()
+            prev_block.segment().clone()
         };
 
         LintResult::new(
             anchor.into(),
             vec![LintFix {
                 edit_type: EditType::CreateAfter,
-                anchor: prev_block.segment.clone(),
+                anchor: prev_block.segment().clone(),
                 edit: vec![added_whitespace].into(),
                 source: vec![],
             }],
@@ -553,9 +554,9 @@ pub fn handle_respace_inline_without_space(
         )
     } else if let Some(next_block) = next_block {
         LintResult::new(
-            next_block.segment.clone().into(),
+            next_block.segment().clone().into(),
             vec![LintFix::create_before(
-                next_block.segment.clone(),
+                next_block.segment().clone(),
                 vec![SegmentBuilder::whitespace(tables.next_id(), " ")],
             )],
             None,

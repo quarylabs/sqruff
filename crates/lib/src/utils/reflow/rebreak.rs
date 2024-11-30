@@ -143,7 +143,7 @@ pub fn identify_rebreak_spans(
             continue;
         };
 
-        if let Some(original_line_position) = &block.line_position {
+        if let Some(original_line_position) = block.line_position() {
             let line_position = original_line_position.first().unwrap();
             spans.push(RebreakSpan {
                 target: elem.segments().first().cloned().unwrap(),
@@ -154,9 +154,9 @@ pub fn identify_rebreak_spans(
             });
         }
 
-        for key in block.line_position_configs.keys() {
+        for key in block.line_position_configs().keys() {
             let mut final_idx = None;
-            if block.depth_info.stack_positions[key].idx != 0 {
+            if block.depth_info().stack_positions[key].idx != 0 {
                 continue;
             }
 
@@ -166,10 +166,10 @@ pub fn identify_rebreak_spans(
                     continue;
                 };
 
-                if !end_block.depth_info.stack_positions.contains_key(key) {
+                if !end_block.depth_info().stack_positions.contains_key(key) {
                     final_idx = (end_idx - 2).into();
                 } else if matches!(
-                    end_block.depth_info.stack_positions[key].type_,
+                    end_block.depth_info().stack_positions[key].type_,
                     Some(StackPositionType::End) | Some(StackPositionType::Solo)
                 ) {
                     final_idx = end_idx.into();
@@ -177,7 +177,7 @@ pub fn identify_rebreak_spans(
 
                 if let Some(final_idx) = final_idx {
                     let target_depth = block
-                        .depth_info
+                        .depth_info()
                         .stack_hashes
                         .iter()
                         .position(|it| it == key)
@@ -187,8 +187,10 @@ pub fn identify_rebreak_spans(
                         .segment
                         .clone();
 
-                    let line_position_configs =
-                        block.line_position_configs[key].split(':').next().unwrap();
+                    let line_position_configs = block.line_position_configs()[key]
+                        .split(':')
+                        .next()
+                        .unwrap();
                     let line_position = LinePosition::from_str(line_position_configs).unwrap();
 
                     spans.push(RebreakSpan {
@@ -196,7 +198,7 @@ pub fn identify_rebreak_spans(
                         start_idx: idx,
                         end_idx: final_idx,
                         line_position,
-                        strict: block.line_position_configs[key].ends_with("strict"),
+                        strict: block.line_position_configs()[key].ends_with("strict"),
                     });
 
                     break;

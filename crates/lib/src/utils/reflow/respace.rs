@@ -345,7 +345,7 @@ pub fn handle_respace_inline_with_space(
         let description = if let Some(next_block) = next_block {
             format!(
                 "Unexpected whitespace before {}.",
-                pretty_segment_name(&next_block.segments[0])
+                pretty_segment_name(&next_block.segment)
             )
         } else {
             "Unexpected whitespace".to_string()
@@ -376,27 +376,24 @@ pub fn handle_respace_inline_with_space(
                 },
                 Some(next_block),
             ) => {
-                let next_pos =
-                    if let Some(pos_marker) = next_block.segments[0].get_position_marker() {
-                        Some(pos_marker.clone())
-                    } else if let Some(pos_marker) = last_whitespace.get_position_marker() {
-                        Some(pos_marker.end_point_marker())
-                    } else if let Some(prev_block) = prev_block {
-                        prev_block
-                            .segments
-                            .last()
-                            .unwrap()
-                            .get_position_marker()
-                            .map(|pos_marker| pos_marker.end_point_marker())
-                    } else {
-                        None
-                    };
+                let next_pos = if let Some(pos_marker) = next_block.segment.get_position_marker() {
+                    Some(pos_marker.clone())
+                } else if let Some(pos_marker) = last_whitespace.get_position_marker() {
+                    Some(pos_marker.end_point_marker())
+                } else if let Some(prev_block) = prev_block {
+                    prev_block
+                        .segment
+                        .get_position_marker()
+                        .map(|pos_marker| pos_marker.end_point_marker())
+                } else {
+                    None
+                };
 
                 if let Some(next_pos) = next_pos {
                     let desired_space = determine_aligned_inline_spacing(
                         root_segment,
                         &last_whitespace,
-                        next_block.segments.first().unwrap(),
+                        &next_block.segment,
                         next_pos,
                         seg_type,
                         within,
@@ -411,7 +408,7 @@ pub fn handle_respace_inline_with_space(
                 let desc = if let Some(next_block) = next_block {
                     format!(
                         "Expected only single space before {:?}. Found {:?}.",
-                        &next_block.segments[0].raw(),
+                        next_block.segment.raw(),
                         last_whitespace.raw()
                     )
                 } else {
@@ -479,18 +476,14 @@ pub fn handle_respace_inline_without_space(
     let mut insertion = None;
 
     if let Some(block) = prev_block {
-        if let Some(last_segment) = block.segments.last() {
-            if last_segment.get_position_marker().is_none() {
-                existing_fix = Some("after");
-                insertion = Some(last_segment);
-            }
+        if block.segment.get_position_marker().is_none() {
+            existing_fix = Some("after");
+            insertion = Some(block.segment.clone());
         }
     } else if let Some(block) = next_block {
-        if let Some(first_segment) = block.segments.first() {
-            if first_segment.get_position_marker().is_none() {
-                existing_fix = Some("before");
-                insertion = Some(first_segment);
-            }
+        if block.segment.get_position_marker().is_none() {
+            existing_fix = Some("before");
+            insertion = Some(block.segment.clone());
         }
     }
 
@@ -501,7 +494,10 @@ pub fn handle_respace_inline_without_space(
         'outer: for (result_idx, res) in enumerate(&existing_results) {
             for (fix_idx, fix) in enumerate(&res.fixes) {
                 if let Some(edits) = &fix.edit {
-                    if edits.iter().any(|e| e.id() == insertion.unwrap().id()) {
+                    if edits
+                        .iter()
+                        .any(|e| e.id() == insertion.as_ref().unwrap().id())
+                    {
                         res_found = Some(result_idx);
                         fix_found = Some(fix_idx);
                         break 'outer;
@@ -527,8 +523,8 @@ pub fn handle_respace_inline_without_space(
     let desc = if let Some((prev_block, next_block)) = prev_block.zip(next_block) {
         format!(
             "Expected single whitespace between {:?} and {:?}.",
-            prev_block.segments.last().unwrap().raw(),
-            next_block.segments[0].raw()
+            prev_block.segment.raw(),
+            next_block.segment.raw()
         )
     } else {
         "Expected single whitespace.".to_owned()
@@ -538,17 +534,16 @@ pub fn handle_respace_inline_without_space(
         let prev_block = prev_block.unwrap();
         let anchor = if let Some(block) = next_block {
             // If next_block is Some, get the first segment
-            &block.segments[0]
+            block.segment.clone()
         } else {
-            prev_block.segments.last().unwrap()
-        }
-        .clone();
+            prev_block.segment.clone()
+        };
 
         LintResult::new(
             anchor.into(),
             vec![LintFix {
                 edit_type: EditType::CreateAfter,
-                anchor: prev_block.segments.last().cloned().unwrap(),
+                anchor: prev_block.segment.clone(),
                 edit: vec![added_whitespace].into(),
                 source: vec![],
             }],
@@ -558,9 +553,9 @@ pub fn handle_respace_inline_without_space(
         )
     } else if let Some(next_block) = next_block {
         LintResult::new(
-            next_block.segments[0].clone().into(),
+            next_block.segment.clone().into(),
             vec![LintFix::create_before(
-                next_block.segments[0].clone(),
+                next_block.segment.clone(),
                 vec![SegmentBuilder::whitespace(tables.next_id(), " ")],
             )],
             None,

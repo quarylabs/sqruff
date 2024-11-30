@@ -48,7 +48,10 @@ impl ReflowPoint {
     }
 
     pub fn class_types(&self) -> SyntaxSet {
-        ReflowElement::class_types(&self.segments)
+        self.segments
+            .iter()
+            .flat_map(|it| it.class_types())
+            .collect()
     }
 
     fn generate_indent_stats(segments: &[ErasedSegment]) -> IndentStats {
@@ -699,8 +702,11 @@ impl ReflowElement {
         }
     }
 
-    pub fn class_types1(&self) -> SyntaxSet {
-        Self::class_types(self.segments())
+    pub fn class_types(&self) -> SyntaxSet {
+        match self {
+            ReflowElement::Block(reflow_block) => reflow_block.class_types(),
+            ReflowElement::Point(reflow_point) => reflow_point.class_types(),
+        }
     }
 
     pub fn num_newlines(&self) -> usize {
@@ -729,15 +735,6 @@ impl ReflowElement {
         } else {
             None
         }
-    }
-}
-
-impl ReflowElement {
-    pub fn class_types(segments: &[ErasedSegment]) -> SyntaxSet {
-        segments
-            .iter()
-            .flat_map(|segment| segment.class_types())
-            .collect()
     }
 }
 

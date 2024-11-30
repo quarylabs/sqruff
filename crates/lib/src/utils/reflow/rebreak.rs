@@ -45,7 +45,7 @@ impl RebreakIndices {
             || (dir == -1 && newline_point_idx >= 0)
         {
             if elements[newline_point_idx as usize]
-                .class_types1()
+                .class_types()
                 .contains(SyntaxKind::Newline)
                 || elements[(newline_point_idx + dir as isize) as usize]
                     .segments()

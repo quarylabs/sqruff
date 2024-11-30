@@ -567,18 +567,46 @@ impl IndentStats {
 
 #[derive(Debug, PartialEq, Clone)]
 pub struct ReflowBlock {
-    pub segment: ErasedSegment,
-    pub spacing_before: Spacing,
-    pub spacing_after: Spacing,
-    pub line_position: Option<Vec<LinePosition>>,
-    pub depth_info: DepthInfo,
-    pub stack_spacing_configs: IntMap<u64, Spacing>,
-    pub line_position_configs: IntMap<u64, &'static str>,
+    segment: ErasedSegment,
+    spacing_before: Spacing,
+    spacing_after: Spacing,
+    line_position: Option<Vec<LinePosition>>,
+    depth_info: DepthInfo,
+    stack_spacing_configs: IntMap<u64, Spacing>,
+    line_position_configs: IntMap<u64, &'static str>,
 }
 
 impl ReflowBlock {
+    pub fn segment(&self) -> &ErasedSegment {
+        &self.segment
+    }
+
+    pub fn spacing_before(&self) -> Spacing {
+        self.spacing_before
+    }
+
+    pub fn spacing_after(&self) -> Spacing {
+        self.spacing_after
+    }
+
+    pub fn line_position(&self) -> Option<&[LinePosition]> {
+        self.line_position.as_deref()
+    }
+
+    pub fn depth_info(&self) -> &DepthInfo {
+        &self.depth_info
+    }
+
     pub fn class_types(&self) -> SyntaxSet {
         self.segment.class_types().clone()
+    }
+
+    pub fn stack_spacing_configs(&self) -> &IntMap<u64, Spacing> {
+        &self.stack_spacing_configs
+    }
+
+    pub fn line_position_configs(&self) -> &IntMap<u64, &'static str> {
+        &self.line_position_configs
     }
 }
 

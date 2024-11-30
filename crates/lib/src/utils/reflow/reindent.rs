@@ -68,7 +68,7 @@ impl IndentLine {
         &self,
         elements: &'a ReflowSequenceType,
     ) -> impl Iterator<Item = &'a ErasedSegment> {
-        self.blocks(elements).map(|it| &it.segment)
+        self.blocks(elements).map(|it| it.segment())
     }
 
     fn blocks<'a>(
@@ -296,7 +296,11 @@ fn crawl_indent_points(
                         .class_types1()
                         .contains(SyntaxKind::StartBracket)
                 {
-                    let depth = elements[idx + 1].as_block().unwrap().depth_info.stack_depth;
+                    let depth = elements[idx + 1]
+                        .as_block()
+                        .unwrap()
+                        .depth_info()
+                        .stack_depth;
 
                     let elems = &elements[idx + 1..];
                     unclosed_bracket = elems.is_empty();
@@ -308,7 +312,7 @@ fn crawl_indent_points(
                                 break;
                             }
                         } else if elem_j.class_types1().contains(SyntaxKind::EndBracket)
-                            && elem_j.as_block().unwrap().depth_info.stack_depth == depth
+                            && elem_j.as_block().unwrap().depth_info().stack_depth == depth
                         {
                             unclosed_bracket = false;
                             break;

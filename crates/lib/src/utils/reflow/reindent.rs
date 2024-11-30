@@ -56,24 +56,25 @@ struct IndentLine {
 
 impl IndentLine {
     pub(crate) fn is_all_comments(&self, elements: &ReflowSequenceType) -> bool {
-        let block_segments = self.block_segments(elements);
-        !block_segments.is_empty()
-            && block_segments.iter().all(|seg| {
-                matches!(
-                    seg.get_type(),
-                    SyntaxKind::InlineComment | SyntaxKind::BlockComment | SyntaxKind::Comment
-                )
-            })
+        self.block_segments(elements).all(|seg| {
+            matches!(
+                seg.get_type(),
+                SyntaxKind::InlineComment | SyntaxKind::BlockComment | SyntaxKind::Comment
+            )
+        })
     }
 
-    fn block_segments(&self, elements: &ReflowSequenceType) -> Vec<ErasedSegment> {
-        self.blocks(elements)
-            .into_iter()
-            .map(|it| it.segment.clone())
-            .collect()
+    fn block_segments<'a>(
+        &self,
+        elements: &'a ReflowSequenceType,
+    ) -> impl Iterator<Item = &'a ErasedSegment> {
+        self.blocks(elements).map(|it| &it.segment)
     }
 
-    fn blocks<'a>(&self, elements: &'a ReflowSequenceType) -> Vec<&'a ReflowBlock> {
+    fn blocks<'a>(
+        &self,
+        elements: &'a ReflowSequenceType,
+    ) -> impl Iterator<Item = &'a ReflowBlock> {
         let slice = if self
             .indent_points
             .last()
@@ -86,10 +87,7 @@ impl IndentLine {
             self.indent_points.first().unwrap().idx..self.indent_points.last().unwrap().idx
         };
 
-        elements[slice]
-            .iter()
-            .filter_map(ReflowElement::as_block)
-            .collect()
+        elements[slice].iter().filter_map(ReflowElement::as_block)
     }
 }
 

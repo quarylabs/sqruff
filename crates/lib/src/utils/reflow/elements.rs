@@ -32,15 +32,31 @@ fn get_consumed_whitespace(segment: Option<&ErasedSegment>) -> Option<String> {
 }
 
 #[derive(Debug, Clone, Default, PartialEq)]
+pub struct ReflowPointData {
+    segments: Vec<ErasedSegment>,
+    stats: IndentStats,
+}
+
+#[derive(Debug, Clone, Default, PartialEq)]
 pub struct ReflowPoint {
-    pub segments: Vec<ErasedSegment>,
-    pub stats: IndentStats,
+    value: Rc<ReflowPointData>,
+}
+
+impl Deref for ReflowPoint {
+    type Target = ReflowPointData;
+
+    fn deref(&self) -> &Self::Target {
+        self.value.as_ref()
+    }
 }
 
 impl ReflowPoint {
     pub fn new(segments: Vec<ErasedSegment>) -> Self {
         let stats = Self::generate_indent_stats(&segments);
-        Self { segments, stats }
+
+        Self {
+            value: Rc::new(ReflowPointData { segments, stats }),
+        }
     }
 
     pub fn raw(&self) -> String {
@@ -527,6 +543,10 @@ impl ReflowPoint {
 
         existing_results.extend(new_results);
         (existing_results, ReflowPoint::new(segment_buffer))
+    }
+
+    pub fn segments(&self) -> &[ErasedSegment] {
+        &self.segments
     }
 
     pub fn indent_impulse(&self) -> &IndentStats {

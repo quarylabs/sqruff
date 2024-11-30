@@ -35,6 +35,7 @@ fn get_consumed_whitespace(segment: Option<&ErasedSegment>) -> Option<String> {
 pub struct ReflowPointData {
     segments: Vec<ErasedSegment>,
     stats: IndentStats,
+    class_types: SyntaxSet,
 }
 
 #[derive(Debug, Clone, Default, PartialEq)]
@@ -53,9 +54,14 @@ impl Deref for ReflowPoint {
 impl ReflowPoint {
     pub fn new(segments: Vec<ErasedSegment>) -> Self {
         let stats = Self::generate_indent_stats(&segments);
+        let class_types = segments.iter().flat_map(|it| it.class_types()).collect();
 
         Self {
-            value: Rc::new(ReflowPointData { segments, stats }),
+            value: Rc::new(ReflowPointData {
+                segments,
+                stats,
+                class_types,
+            }),
         }
     }
 
@@ -63,11 +69,8 @@ impl ReflowPoint {
         self.segments.iter().map(|it| it.raw()).join("")
     }
 
-    pub fn class_types(&self) -> SyntaxSet {
-        self.segments
-            .iter()
-            .flat_map(|it| it.class_types())
-            .collect()
+    pub fn class_types(&self) -> &SyntaxSet {
+        &self.class_types
     }
 
     fn generate_indent_stats(segments: &[ErasedSegment]) -> IndentStats {
@@ -635,8 +638,8 @@ impl ReflowBlock {
         &self.depth_info
     }
 
-    pub fn class_types(&self) -> SyntaxSet {
-        self.segment.class_types().clone()
+    pub fn class_types(&self) -> &SyntaxSet {
+        self.segment.class_types()
     }
 
     pub fn stack_spacing_configs(&self) -> &IntMap<u64, Spacing> {
@@ -722,7 +725,7 @@ impl ReflowElement {
         }
     }
 
-    pub fn class_types(&self) -> SyntaxSet {
+    pub fn class_types(&self) -> &SyntaxSet {
         match self {
             ReflowElement::Block(reflow_block) => reflow_block.class_types(),
             ReflowElement::Point(reflow_point) => reflow_point.class_types(),

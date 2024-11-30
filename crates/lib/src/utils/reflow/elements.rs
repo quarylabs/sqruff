@@ -1,4 +1,6 @@
 use std::iter::zip;
+use std::ops::Deref;
+use std::rc::Rc;
 
 use itertools::{chain, Itertools};
 use nohash_hasher::IntMap;
@@ -566,7 +568,7 @@ impl IndentStats {
 }
 
 #[derive(Debug, PartialEq, Clone)]
-pub struct ReflowBlock {
+pub struct ReflowBlockData {
     segment: ErasedSegment,
     spacing_before: Spacing,
     spacing_after: Spacing,
@@ -574,6 +576,19 @@ pub struct ReflowBlock {
     depth_info: DepthInfo,
     stack_spacing_configs: IntMap<u64, Spacing>,
     line_position_configs: IntMap<u64, &'static str>,
+}
+
+#[derive(Debug, PartialEq, Clone)]
+pub struct ReflowBlock {
+    value: Rc<ReflowBlockData>,
+}
+
+impl Deref for ReflowBlock {
+    type Target = ReflowBlockData;
+
+    fn deref(&self) -> &Self::Target {
+        self.value.as_ref()
+    }
 }
 
 impl ReflowBlock {
@@ -641,13 +656,15 @@ impl ReflowBlock {
         });
 
         Self {
-            segment,
-            spacing_before: block_config.spacing_before,
-            spacing_after: block_config.spacing_after,
-            line_position,
-            stack_spacing_configs,
-            line_position_configs,
-            depth_info,
+            value: Rc::new(ReflowBlockData {
+                segment,
+                spacing_before: block_config.spacing_before,
+                spacing_after: block_config.spacing_after,
+                line_position,
+                depth_info,
+                stack_spacing_configs,
+                line_position_configs,
+            }),
         }
     }
 }

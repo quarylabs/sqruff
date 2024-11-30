@@ -567,7 +567,7 @@ impl IndentStats {
 
 #[derive(Debug, PartialEq, Clone)]
 pub struct ReflowBlock {
-    pub segments: Vec<ErasedSegment>,
+    pub segment: ErasedSegment,
     pub spacing_before: Spacing,
     pub spacing_after: Spacing,
     pub line_position: Option<Vec<LinePosition>>,
@@ -578,18 +578,17 @@ pub struct ReflowBlock {
 
 impl ReflowBlock {
     pub fn class_types(&self) -> SyntaxSet {
-        ReflowElement::class_types(&self.segments)
+        self.segment.class_types().clone()
     }
 }
 
 impl ReflowBlock {
     pub fn from_config(
-        segments: Vec<ErasedSegment>,
+        segment: ErasedSegment,
         config: &ReflowConfig,
         depth_info: DepthInfo,
     ) -> Self {
-        let block_config =
-            config.get_block_config(&ReflowElement::class_types(&segments), Some(&depth_info));
+        let block_config = config.get_block_config(segment.class_types(), Some(&depth_info));
 
         let mut stack_spacing_configs = IntMap::default();
         let mut line_position_configs = IntMap::default();
@@ -612,8 +611,9 @@ impl ReflowBlock {
                 .map(|it| it.parse().unwrap())
                 .collect()
         });
+
         Self {
-            segments,
+            segment,
             spacing_before: block_config.spacing_before,
             spacing_after: block_config.spacing_after,
             line_position,
@@ -649,7 +649,7 @@ impl ReflowElement {
 
     pub fn segments(&self) -> &[ErasedSegment] {
         match self {
-            ReflowElement::Block(block) => &block.segments,
+            ReflowElement::Block(block) => std::slice::from_ref(&block.segment),
             ReflowElement::Point(point) => &point.segments,
         }
     }

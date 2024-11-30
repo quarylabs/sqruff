@@ -116,7 +116,7 @@ impl<'a> ReflowSequence<'a> {
             // Add the block, with config info.
             let depth_info = depth_map.get_depth_info(&seg);
             elem_buff.push(ReflowElement::Block(ReflowBlock::from_config(
-                vec![seg],
+                seg,
                 reflow_config,
                 depth_info,
             )));
@@ -183,7 +183,7 @@ impl<'a> ReflowSequence<'a> {
         let target_idx = self.find_element_idx_with(&target);
 
         let new_block = ReflowBlock::from_config(
-            vec![insertion.clone()],
+            insertion.clone(),
             self.reflow_config,
             self.depth_map.get_depth_info(&target),
         );

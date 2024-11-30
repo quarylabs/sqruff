@@ -69,7 +69,7 @@ impl IndentLine {
     fn block_segments(&self, elements: &ReflowSequenceType) -> Vec<ErasedSegment> {
         self.blocks(elements)
             .into_iter()
-            .flat_map(|it| it.segments.clone())
+            .map(|it| it.segment.clone())
             .collect()
     }
 

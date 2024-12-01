@@ -102,8 +102,6 @@ pub fn process_spacing(
     let mut result_buffer = Vec::new();
     let mut last_whitespace = Vec::new();
 
-    let mut last_iter_seg = None;
-
     // Loop through the existing segments looking for spacing.
     for seg in segment_buffer {
         // If it's whitespace, store it.
@@ -117,7 +115,7 @@ pub fn process_spacing(
                 .get_position_marker()
                 .is_some_and(|pos_marker| !pos_marker.is_literal())
             {
-                last_whitespace = Vec::new();
+                last_whitespace.clear();
                 continue;
             }
 
@@ -146,12 +144,10 @@ pub fn process_spacing(
                 }
             }
         }
-
-        last_iter_seg = seg.into();
     }
 
     if last_whitespace.len() >= 2 {
-        let seg = last_iter_seg.unwrap().clone();
+        let seg = segment_buffer.last().unwrap();
 
         for ws in last_whitespace.iter().skip(1).cloned() {
             removal_buffer.push(ws.clone());
@@ -174,15 +170,9 @@ pub fn process_spacing(
         .cloned()
         .collect_vec();
 
-    let last_whitespace_option = if !last_whitespace.is_empty() {
-        Some(last_whitespace[0].clone())
-    } else {
-        None
-    };
-
     (
         filtered_segment_buffer,
-        last_whitespace_option,
+        last_whitespace.first().cloned(),
         result_buffer,
     )
 }

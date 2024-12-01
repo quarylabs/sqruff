@@ -985,7 +985,7 @@ dependencies = [
 
 [[package]]
 name = "lineage"
-version = "0.21.6"
+version = "0.21.7"
 dependencies = [
  "append-only-vec",
  "indexmap 2.6.0",
@@ -1707,7 +1707,7 @@ checksum = "3b9b39299b249ad65f3b7e96443bad61c02ca5cd3589f46cb6d610a0fd6c0d6a"
 
 [[package]]
 name = "sqruff"
-version = "0.21.6"
+version = "0.21.7"
 dependencies = [
  "assert_cmd",
  "clap",
@@ -1727,7 +1727,7 @@ dependencies = [
 
 [[package]]
 name = "sqruff-lib"
-version = "0.21.6"
+version = "0.21.7"
 dependencies = [
  "ahash",
  "anstyle",
@@ -1770,7 +1770,7 @@ dependencies = [
 
 [[package]]
 name = "sqruff-lib-core"
-version = "0.21.6"
+version = "0.21.7"
 dependencies = [
  "ahash",
  "enum_dispatch",
@@ -1791,7 +1791,7 @@ dependencies = [
 
 [[package]]
 name = "sqruff-lib-dialects"
-version = "0.21.6"
+version = "0.21.7"
 dependencies = [
  "ahash",
  "expect-test",
@@ -1805,7 +1805,7 @@ dependencies = [
 
 [[package]]
 name = "sqruff-lsp"
-version = "0.21.6"
+version = "0.21.7"
 dependencies = [
  "ahash",
  "console_error_panic_hook",
@@ -1820,7 +1820,7 @@ dependencies = [
 
 [[package]]
 name = "sqruff-sqlinference"
-version = "0.21.6"
+version = "0.21.7"
 dependencies = [
  "sqruff-lib-core",
  "sqruff-lib-dialects",
@@ -1828,7 +1828,7 @@ dependencies = [
 
 [[package]]
 name = "sqruff-wasm"
-version = "0.21.6"
+version = "0.21.7"
 dependencies = [
  "ahash",
  "line-index",

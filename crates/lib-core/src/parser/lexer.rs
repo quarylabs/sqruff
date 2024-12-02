@@ -1,6 +1,7 @@
 use std::borrow::Cow;
 use std::fmt::Debug;
 use std::ops::Range;
+use std::str::Chars;
 
 use super::markers::PositionMarker;
 use super::segments::base::{ErasedSegment, SegmentBuilder, Tables};
@@ -103,6 +104,10 @@ impl Matcher {
         Self::new(Pattern::regex(name, pattern, syntax_kind))
     }
 
+    pub fn native(name: &'static str, f: fn(&mut Cursor) -> bool, syntax_kind: SyntaxKind) -> Self {
+        Self::new(Pattern::native(name, f, syntax_kind))
+    }
+
     #[track_caller]
     pub fn legacy(
         name: &'static str,
@@ -114,13 +119,19 @@ impl Matcher {
     }
 
     pub fn subdivider(mut self, subdivider: Pattern) -> Self {
-        assert!(matches!(self.pattern.kind, SearchPatternKind::Legacy(_, _)));
+        assert!(matches!(
+            self.pattern.kind,
+            SearchPatternKind::Legacy(_, _) | SearchPatternKind::Native(_)
+        ));
         self.subdivider = Some(subdivider);
         self
     }
 
     pub fn post_subdivide(mut self, trim_post_subdivide: Pattern) -> Self {
-        assert!(matches!(self.pattern.kind, SearchPatternKind::Legacy(_, _)));
+        assert!(matches!(
+            self.pattern.kind,
+            SearchPatternKind::Legacy(_, _) | SearchPatternKind::Native(_)
+        ));
         self.trim_post_subdivide = Some(trim_post_subdivide);
         self
     }
@@ -251,6 +262,7 @@ pub struct Pattern {
 pub enum SearchPatternKind {
     String(&'static str),
     Regex(&'static str),
+    Native(fn(&mut Cursor) -> bool),
     Legacy(fn(&str) -> bool, fancy_regex::Regex),
 }
 
@@ -278,6 +290,14 @@ impl Pattern {
             name,
             syntax_kind,
             kind: SearchPatternKind::Regex(regex),
+        }
+    }
+
+    pub fn native(name: &'static str, f: fn(&mut Cursor) -> bool, syntax_kind: SyntaxKind) -> Self {
+        Self {
+            name,
+            syntax_kind,
+            kind: SearchPatternKind::Native(f),
         }
     }
 
@@ -313,6 +333,10 @@ impl Pattern {
                     }
                 }
             }
+            SearchPatternKind::Native(f) => {
+                let mut cursor = Cursor::new(forward_string);
+                return f(&mut cursor).then(|| cursor.lexed());
+            }
             _ => unreachable!(),
         };
 
@@ -332,6 +356,41 @@ impl Pattern {
             }
             _ => unreachable!("{:?}", self.kind),
         }
+    }
+}
+
+pub struct Cursor<'text> {
+    text: &'text str,
+    chars: Chars<'text>,
+}
+
+impl<'text> Cursor<'text> {
+    const EOF: char = '\0';
+
+    fn new(text: &'text str) -> Self {
+        Self {
+            text,
+            chars: text.chars(),
+        }
+    }
+
+    pub fn peek(&self) -> char {
+        self.chars.clone().next().unwrap_or(Self::EOF)
+    }
+
+    pub fn shift(&mut self) -> char {
+        self.chars.next().unwrap_or(Self::EOF)
+    }
+
+    pub fn shift_while(&mut self, f: impl Fn(char) -> bool + Copy) {
+        while self.peek() != Self::EOF && f(self.peek()) {
+            self.shift();
+        }
+    }
+
+    fn lexed(&self) -> &'text str {
+        let len = self.text.len() - self.chars.as_str().len();
+        &self.text[..len]
     }
 }
 
@@ -374,7 +433,7 @@ impl Lexer {
                     patterns.push(pattern);
                     syntax_map.push((matcher.pattern.name, matcher.pattern.syntax_kind));
                 }
-                SearchPatternKind::Legacy(_, _) => {
+                SearchPatternKind::Legacy(_, _) | SearchPatternKind::Native(_) => {
                     matchers.push(matcher.clone());
                 }
             }

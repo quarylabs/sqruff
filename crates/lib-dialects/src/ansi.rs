@@ -4909,14 +4909,21 @@ fn lexer_matchers() -> Vec<Matcher> {
     vec![
         Matcher::regex("whitespace", r"[^\S\r\n]+", SyntaxKind::Whitespace),
         Matcher::regex("inline_comment", r"(--|#)[^\n]*", SyntaxKind::InlineComment),
-        Matcher::regex(
+        Matcher::legacy(
             "block_comment",
+            |s| s.starts_with("/*"),
             r"\/\*([^\*]|\*(?!\/))*\*\/",
             SyntaxKind::BlockComment,
         )
-        .subdivider(Pattern::regex("newline", r"\r\n|\n", SyntaxKind::Newline))
-        .post_subdivide(Pattern::regex(
+        .subdivider(Pattern::legacy(
+            "newline",
+            |_| true,
+            r"\r\n|\n",
+            SyntaxKind::Newline,
+        ))
+        .post_subdivide(Pattern::legacy(
             "whitespace",
+            |_| true,
             r"[^\S\r\n]+",
             SyntaxKind::Whitespace,
         )),
@@ -4931,13 +4938,15 @@ fn lexer_matchers() -> Vec<Matcher> {
             SyntaxKind::DoubleQuote,
         ),
         Matcher::regex("back_quote", r"`[^`]*`", SyntaxKind::BackQuote),
-        Matcher::regex(
+        Matcher::legacy(
             "dollar_quote",
+            |s| s.starts_with("$"),
             r"\$(\w*)\$[\s\S]*?\$\1\$",
             SyntaxKind::DollarQuote,
         ),
-        Matcher::regex(
+        Matcher::legacy(
             "numeric_literal",
+            |s| s.starts_with(|ch: char| ch == '.' || ch == '-' || ch.is_ascii_alphanumeric()),
             r"(?>\d+\.\d+|\d+\.(?![\.\w])|\.\d+|\d+)(\.?[eE][+-]?\d+)?((?<=\.)|(?=\b))",
             SyntaxKind::NumericLiteral,
         ),

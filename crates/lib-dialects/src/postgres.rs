@@ -36,13 +36,15 @@ pub fn raw_dialect() -> Dialect {
     );
 
     postgres.insert_lexer_matchers(vec![
-        Matcher::regex(
+        Matcher::legacy(
             "unicode_single_quote",
+            |s| s.starts_with("U&'"),
             r"(?s)U&(('')+?(?!')|('.*?(?<!')(?:'')*'(?!')))(\s*UESCAPE\s*'[^0-9A-Fa-f'+\-\s)]')?",
             SyntaxKind::UnicodeSingleQuote
         ),
-        Matcher::regex(
+        Matcher::legacy(
             "escaped_single_quote",
+            |s| s.starts_with("E'"),
             r"(?s)E(('')+?(?!')|'.*?((?<!\\)(?:\\\\)*(?<!')(?:'')*|(?<!\\)(?:\\\\)*\\(?<!')(?:'')*')'(?!'))",
             SyntaxKind::EscapedSingleQuote
         ),
@@ -70,8 +72,9 @@ pub fn raw_dialect() -> Dialect {
 
     postgres.insert_lexer_matchers(
         vec![
-            Matcher::regex(
+            Matcher::legacy(
                 "meta_command",
+                |s| s.starts_with("\\"),
                 r"\\([^\\\r\n])+((\\\\)|(?=\n)|(?=\r\n))?",
                 SyntaxKind::Comment,
             ),
@@ -86,8 +89,9 @@ pub fn raw_dialect() -> Dialect {
 
     postgres.patch_lexer_matchers(vec![
         Matcher::regex("inline_comment", r"(--)[^\n]*", SyntaxKind::InlineComment),
-        Matcher::regex(
+        Matcher::legacy(
             "single_quote",
+            |s| s.starts_with("'"),
             r"(?s)('')+?(?!')|('.*?(?<!')(?:'')*'(?!'))",
             SyntaxKind::SingleQuote,
         ),

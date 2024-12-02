@@ -5,7 +5,7 @@ use indexmap::{IndexMap, IndexSet};
 use ir::{Expr, ExprKind, Tables};
 use schema::Schema;
 use scope::{Scope, ScopeKind, Source};
-use sqruff_lib_core::parser::lexer::{Lexer, StringOrTemplate};
+use sqruff_lib_core::parser::lexer::StringOrTemplate;
 use sqruff_lib_core::parser::parser::Parser;
 use sqruff_lib_core::parser::segments::base::ErasedSegment;
 
@@ -75,7 +75,7 @@ impl<'config> Lineage<'config> {
 fn parse_sql(parser: &Parser, source: &str) -> ErasedSegment {
     let tables = sqruff_lib_core::parser::segments::base::Tables::default();
     let ansi = sqruff_lib_dialects::ansi::dialect();
-    let lexer = Lexer::new(&ansi);
+    let lexer = ansi.lexer();
 
     let tokens = lexer
         .lex(&tables, StringOrTemplate::String(source))

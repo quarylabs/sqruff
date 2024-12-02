@@ -2,8 +2,6 @@ use std::borrow::Cow;
 use std::fmt::Debug;
 use std::ops::Range;
 
-use fancy_regex::Regex;
-
 use super::markers::PositionMarker;
 use super::segments::base::{ErasedSegment, SegmentBuilder, Tables};
 use crate::dialects::base::Dialect;
@@ -100,16 +98,29 @@ impl Matcher {
         Self::new(Pattern::string(name, pattern, syntax_kind))
     }
 
+    #[track_caller]
     pub fn regex(name: &'static str, pattern: &'static str, syntax_kind: SyntaxKind) -> Self {
         Self::new(Pattern::regex(name, pattern, syntax_kind))
     }
 
+    #[track_caller]
+    pub fn legacy(
+        name: &'static str,
+        starts_with: fn(&str) -> bool,
+        pattern: &'static str,
+        syntax_kind: SyntaxKind,
+    ) -> Self {
+        Self::new(Pattern::legacy(name, starts_with, pattern, syntax_kind))
+    }
+
     pub fn subdivider(mut self, subdivider: Pattern) -> Self {
+        assert!(matches!(self.pattern.kind, SearchPatternKind::Legacy(_, _)));
         self.subdivider = Some(subdivider);
         self
     }
 
     pub fn post_subdivide(mut self, trim_post_subdivide: Pattern) -> Self {
+        assert!(matches!(self.pattern.kind, SearchPatternKind::Legacy(_, _)));
         self.trim_post_subdivide = Some(trim_post_subdivide);
         self
     }
@@ -118,6 +129,7 @@ impl Matcher {
         self.pattern.name
     }
 
+    #[track_caller]
     pub fn matches<'a>(&self, forward_string: &'a str) -> Match<'a> {
         match self.pattern.matches(forward_string) {
             Some(matched) => {
@@ -238,7 +250,8 @@ pub struct Pattern {
 #[derive(Debug, Clone)]
 pub enum SearchPatternKind {
     String(&'static str),
-    Regex(Regex),
+    Regex(&'static str),
+    Legacy(fn(&str) -> bool, fancy_regex::Regex),
 }
 
 impl Pattern {
@@ -254,13 +267,31 @@ impl Pattern {
         }
     }
 
+    #[track_caller]
     pub fn regex(name: &'static str, regex: &'static str, syntax_kind: SyntaxKind) -> Self {
-        let regex = format!("^{regex}");
+        #[cfg(debug_assertions)]
+        if regex_automata::dfa::regex::Regex::new(regex).is_err() {
+            panic!("Invalid regex pattern: {}", std::panic::Location::caller());
+        }
 
         Self {
             name,
             syntax_kind,
-            kind: SearchPatternKind::Regex(Regex::new(&regex).unwrap()),
+            kind: SearchPatternKind::Regex(regex),
+        }
+    }
+
+    pub fn legacy(
+        name: &'static str,
+        starts_with: fn(&str) -> bool,
+        regex: &'static str,
+        syntax_kind: SyntaxKind,
+    ) -> Self {
+        let regex = format!("^{}", regex);
+        Self {
+            name,
+            syntax_kind,
+            kind: SearchPatternKind::Legacy(starts_with, fancy_regex::Regex::new(&regex).unwrap()),
         }
     }
 
@@ -271,13 +302,18 @@ impl Pattern {
                     return Some(template);
                 }
             }
-            SearchPatternKind::Regex(ref template) => {
+            SearchPatternKind::Legacy(f, ref template) => {
+                if !f(forward_string) {
+                    return None;
+                }
+
                 if let Ok(Some(matched)) = template.find(forward_string) {
                     if matched.start() == 0 {
                         return Some(matched.as_str());
                     }
                 }
             }
+            _ => unreachable!(),
         };
 
         None
@@ -288,25 +324,29 @@ impl Pattern {
             SearchPatternKind::String(template) => forward_string
                 .find(template)
                 .map(|start| start..start + template.len()),
-            SearchPatternKind::Regex(template) => {
+            SearchPatternKind::Legacy(_, template) => {
                 if let Ok(Some(matched)) = template.find(forward_string) {
                     return Some(matched.range());
                 }
                 None
             }
+            _ => unreachable!("{:?}", self.kind),
         }
     }
 }
 
 /// The Lexer class actually does the lexing step.
-pub struct Lexer<'a> {
-    dialect: &'a Dialect,
+#[derive(Debug, Clone)]
+pub struct Lexer {
+    syntax_map: Vec<(&'static str, SyntaxKind)>,
+    regex: regex_automata::meta::Regex,
+    matchers: Vec<Matcher>,
     last_resort_lexer: Matcher,
 }
 
-impl<'a> From<&'a Dialect> for Lexer<'a> {
+impl<'a> From<&'a Dialect> for Lexer {
     fn from(dialect: &'a Dialect) -> Self {
-        Lexer::new(dialect)
+        Lexer::new(dialect.lexer_matchers())
     }
 }
 
@@ -315,12 +355,41 @@ pub enum StringOrTemplate<'a> {
     Template(TemplatedFile),
 }
 
-impl<'a> Lexer<'a> {
+impl Lexer {
     /// Create a new lexer.
-    pub fn new(dialect: &'a Dialect) -> Self {
+    pub(crate) fn new(lexer_matchers: &[Matcher]) -> Self {
+        let mut patterns = Vec::new();
+        let mut syntax_map = Vec::new();
+        let mut matchers = Vec::new();
+
+        for matcher in lexer_matchers {
+            match matcher.pattern.kind {
+                SearchPatternKind::String(pattern) | SearchPatternKind::Regex(pattern) => {
+                    let pattern = if matches!(matcher.pattern.kind, SearchPatternKind::String(_)) {
+                        fancy_regex::escape(pattern)
+                    } else {
+                        pattern.into()
+                    };
+
+                    patterns.push(pattern);
+                    syntax_map.push((matcher.pattern.name, matcher.pattern.syntax_kind));
+                }
+                SearchPatternKind::Legacy(_, _) => {
+                    matchers.push(matcher.clone());
+                }
+            }
+        }
+
         Lexer {
-            dialect,
-            last_resort_lexer: Matcher::regex("<unlexable>", r"[^\t\n.]*", SyntaxKind::Unlexable),
+            syntax_map,
+            matchers,
+            regex: regex_automata::meta::Regex::new_many(&patterns).unwrap(),
+            last_resort_lexer: Matcher::legacy(
+                "<unlexable>",
+                |_| true,
+                r"[^\t\n.]*",
+                SyntaxKind::Unlexable,
+            ),
         }
     }
 
@@ -346,10 +415,9 @@ impl<'a> Lexer<'a> {
 
         // Lex the string to get a tuple of LexedElement
         let mut element_buffer: Vec<Element> = Vec::new();
-        let lexer_matchers = self.dialect.lexer_matchers();
 
         loop {
-            let mut res = Lexer::lex_match(str_buff, lexer_matchers);
+            let mut res = self.lex_match(str_buff);
             element_buffer.append(&mut res.elements);
 
             if res.forward_string.is_empty() {
@@ -400,8 +468,9 @@ impl<'a> Lexer<'a> {
     }
 
     /// Iteratively match strings using the selection of sub-matchers.
-    fn lex_match<'b>(mut forward_string: &'b str, lexer_matchers: &[Matcher]) -> Match<'b> {
+    fn lex_match<'b>(&self, mut forward_string: &'b str) -> Match<'b> {
         let mut elem_buff = Vec::new();
+
         'main: loop {
             if forward_string.is_empty() {
                 return Match {
@@ -410,7 +479,7 @@ impl<'a> Lexer<'a> {
                 };
             }
 
-            for matcher in lexer_matchers {
+            for matcher in &self.matchers {
                 let mut match_result = matcher.matches(forward_string);
 
                 if !match_result.elements.is_empty() {
@@ -418,6 +487,22 @@ impl<'a> Lexer<'a> {
                     forward_string = match_result.forward_string;
                     continue 'main;
                 }
+            }
+
+            let input =
+                regex_automata::Input::new(forward_string).anchored(regex_automata::Anchored::Yes);
+
+            if let Some(match_) = self.regex.find(input) {
+                let (name, kind) = self.syntax_map[match_.pattern().as_usize()];
+
+                elem_buff.push(Element::new(
+                    name,
+                    kind,
+                    &forward_string[match_.start()..match_.end()],
+                ));
+                forward_string = &forward_string[match_.end()..];
+
+                continue 'main;
             }
 
             return Match {
@@ -514,8 +599,6 @@ fn iter_segments(
                 } else {
                     None
                 };
-
-                _handle_zero_length_slice();
 
                 continue;
             }
@@ -652,10 +735,6 @@ fn iter_segments(
     result
 }
 
-fn _handle_zero_length_slice() {
-    // impl me
-}
-
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -680,19 +759,21 @@ mod tests {
 
     #[test]
     fn test_parser_lexer_trim_post_subdivide() {
-        let matcher: Vec<Matcher> = vec![Matcher::regex(
+        let matcher: Vec<Matcher> = vec![Matcher::legacy(
             "function_script_terminator",
+            |_| true,
             r";\s+(?!\*)\/(?!\*)|\s+(?!\*)\/(?!\*)",
             SyntaxKind::StatementTerminator,
         )
         .subdivider(Pattern::string("semicolon", ";", SyntaxKind::Semicolon))
-        .post_subdivide(Pattern::regex(
+        .post_subdivide(Pattern::legacy(
             "newline",
+            |_| true,
             r"(\n|\r\n)+",
             SyntaxKind::Newline,
         ))];
 
-        let res = Lexer::lex_match(";\n/\n", &matcher);
+        let res = Lexer::new(&matcher).lex_match(";\n/\n");
         assert_eq!(res.elements[0].text, ";");
         assert_eq!(res.elements[1].text, "\n");
         assert_eq!(res.elements[2].text, "/");
@@ -724,7 +805,7 @@ mod tests {
         ];
 
         for (raw, reg, res) in tests {
-            let matcher = Matcher::regex("test", reg, SyntaxKind::Word);
+            let matcher = Matcher::legacy("test", |_| true, reg, SyntaxKind::Word);
 
             assert_matches(raw, &matcher, Some(res));
         }
@@ -747,7 +828,7 @@ mod tests {
             Matcher::regex("test", "#[^#]*#", SyntaxKind::Dash),
         ];
 
-        let res = Lexer::lex_match("..#..#..#", &matchers);
+        let res = Lexer::new(&matchers).lex_match("..#..#..#");
 
         assert_eq!(res.forward_string, "#");
         assert_eq!(res.elements.len(), 5);

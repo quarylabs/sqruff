@@ -7,7 +7,7 @@ use ahash::{AHashMap, AHashSet};
 use crate::dialects::init::DialectKind;
 use crate::dialects::syntax::SyntaxKind;
 use crate::helpers::{capitalize, ToMatchable};
-use crate::parser::lexer::Matcher;
+use crate::parser::lexer::{Lexer, Matcher};
 use crate::parser::matchable::Matchable;
 use crate::parser::parsers::StringParser;
 use crate::parser::types::DialectElementType;
@@ -20,6 +20,7 @@ pub struct Dialect {
     library: AHashMap<Cow<'static, str>, DialectElementType>,
     sets: AHashMap<&'static str, AHashSet<&'static str>>,
     pub bracket_collections: AHashMap<&'static str, AHashSet<BracketPair>>,
+    lexer: Option<Lexer>,
 }
 
 impl PartialEq for Dialect {
@@ -253,6 +254,12 @@ impl Dialect {
                 }
             }
         }
+
+        self.lexer = Lexer::new(self.lexer_matchers()).into();
+    }
+
+    pub fn lexer(&self) -> &Lexer {
+        self.lexer.as_ref().unwrap()
     }
 }
 

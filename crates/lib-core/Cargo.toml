@@ -28,7 +28,7 @@ fancy-regex = "0.14.0"
 pretty_assertions = "1.4.0"
 serde = { version = "1.0", features = ["derive"], optional = true }
 serde_yaml = { version = "0.9.34", optional = true }
-rustc-hash = "2.0.0"
+rustc-hash = "2.1.0"
 sptr = "0.3.2"
 slyce = "0.3.1"
 enum_dispatch = "0.3.13"

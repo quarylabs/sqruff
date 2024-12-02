@@ -7,7 +7,7 @@ mod tests {
     use sqruff_lib_core::dialects::init::DialectKind;
     use sqruff_lib_core::dialects::syntax::SyntaxKind;
     use sqruff_lib_core::parser::context::ParseContext;
-    use sqruff_lib_core::parser::lexer::{Lexer, StringOrTemplate};
+    use sqruff_lib_core::parser::lexer::StringOrTemplate;
     use sqruff_lib_core::parser::matchable::MatchableTrait;
     use sqruff_lib_core::parser::parser::Parser;
     use sqruff_lib_core::parser::segments::base::Tables;
@@ -28,7 +28,7 @@ mod tests {
         for (raw, res) in test_cases {
             // Assume FluffConfig and Lexer are defined somewhere in your codebase
             let ansi = fresh_ansi_dialect();
-            let lexer = Lexer::new(&ansi);
+            let lexer = ansi.lexer();
 
             let tables = Tables::default();
             // Assume that the lex function returns a Result with tokens

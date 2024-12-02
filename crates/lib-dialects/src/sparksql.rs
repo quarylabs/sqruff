@@ -31,7 +31,7 @@ pub fn dialect() -> Dialect {
         Matcher::regex("inline_comment", r"(--)[^\n]*", SyntaxKind::InlineComment),
         Matcher::regex("equals", r"==|<=>|=", SyntaxKind::RawComparisonOperator),
         Matcher::regex("back_quote", r"`([^`]|``)*`", SyntaxKind::BackQuote),
-        Matcher::regex("numeric_literal", r#"(?>(?>\d+\.\d+|\d+\.|\.\d+)([eE][+-]?\d+)?([dDfF]|BD|bd)?|\d+[eE][+-]?\d+([dDfF]|BD|bd)?|\d+([dDfFlLsSyY]|BD|bd)?)((?<=\.)|(?=\b))"#, SyntaxKind::NumericLiteral),
+        Matcher::legacy("numeric_literal", |s| s.starts_with(|ch: char| ch == '.' || ch == '-' || ch.is_ascii_alphanumeric()), r#"(?>(?>\d+\.\d+|\d+\.|\.\d+)([eE][+-]?\d+)?([dDfF]|BD|bd)?|\d+[eE][+-]?\d+([dDfF]|BD|bd)?|\d+([dDfFlLsSyY]|BD|bd)?)((?<=\.)|(?=\b))"#, SyntaxKind::NumericLiteral),
     ]);
 
     sparksql_dialect.insert_lexer_matchers(
@@ -966,8 +966,9 @@ pub fn dialect() -> Dialect {
     ]);
 
     sparksql_dialect.insert_lexer_matchers(
-        vec![Matcher::regex(
+        vec![Matcher::legacy(
             "start_hint",
+            |s| s.starts_with("/*+"),
             r"\/\*\+",
             SyntaxKind::StartHint,
         )],

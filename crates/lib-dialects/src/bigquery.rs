@@ -37,13 +37,15 @@ pub fn dialect() -> Dialect {
     );
 
     dialect.patch_lexer_matchers(vec![
-        Matcher::regex(
+        Matcher::legacy(
             "single_quote",
+            |s| s.starts_with(['\'', 'R', 'r', 'B', 'b'].as_ref()),
             r"([rR]?[bB]?|[bB]?[rR]?)?('''((?<!\\)(\\{2})*\\'|'{,2}(?!')|[^'])*(?<!\\)(\\{2})*'''|'((?<!\\)(\\{2})*\\'|[^'])*(?<!\\)(\\{2})*')",
             SyntaxKind::SingleQuote
         ),
-        Matcher::regex(
+        Matcher::legacy(
             "double_quote",
+            |s| s.starts_with(['"', 'R', 'r', 'B', 'b']),
             r#"([rR]?[bB]?|[bB]?[rR]?)?(\"\"\"((?<!\\)(\\{2})*\\\"|\"{,2}(?!\")|[^\"])*(?<!\\)(\\{2})*\"\"\"|"((?<!\\)(\\{2})*\\"|[^"])*(?<!\\)(\\{2})*")"#,
             SyntaxKind::DoubleQuote
         ),

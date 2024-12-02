@@ -7,7 +7,7 @@ use sqruff_lib_core::parser::grammar::base::{Anything, Nothing, Ref};
 use sqruff_lib_core::parser::grammar::conditional::Conditional;
 use sqruff_lib_core::parser::grammar::delimited::Delimited;
 use sqruff_lib_core::parser::grammar::sequence::{Bracketed, Sequence};
-use sqruff_lib_core::parser::lexer::{Matcher, Pattern};
+use sqruff_lib_core::parser::lexer::{Cursor, Matcher, Pattern};
 use sqruff_lib_core::parser::matchable::{Matchable, MatchableTrait};
 use sqruff_lib_core::parser::node_matcher::NodeMatcher;
 use sqruff_lib_core::parser::parsers::{MultiStringParser, RegexParser, StringParser, TypedParser};
@@ -4909,24 +4909,19 @@ fn lexer_matchers() -> Vec<Matcher> {
     vec![
         Matcher::regex("whitespace", r"[^\S\r\n]+", SyntaxKind::Whitespace),
         Matcher::regex("inline_comment", r"(--|#)[^\n]*", SyntaxKind::InlineComment),
-        Matcher::legacy(
-            "block_comment",
-            |s| s.starts_with("/*"),
-            r"\/\*([^\*]|\*(?!\/))*\*\/",
-            SyntaxKind::BlockComment,
-        )
-        .subdivider(Pattern::legacy(
-            "newline",
-            |_| true,
-            r"\r\n|\n",
-            SyntaxKind::Newline,
-        ))
-        .post_subdivide(Pattern::legacy(
-            "whitespace",
-            |_| true,
-            r"[^\S\r\n]+",
-            SyntaxKind::Whitespace,
-        )),
+        Matcher::native("block_comment", block_comment, SyntaxKind::BlockComment)
+            .subdivider(Pattern::legacy(
+                "newline",
+                |_| true,
+                r"\r\n|\n",
+                SyntaxKind::Newline,
+            ))
+            .post_subdivide(Pattern::legacy(
+                "whitespace",
+                |_| true,
+                r"[^\S\r\n]+",
+                SyntaxKind::Whitespace,
+            )),
         Matcher::regex(
             "single_quote",
             r"'([^'\\]|\\.|'')*'",
@@ -4944,10 +4939,9 @@ fn lexer_matchers() -> Vec<Matcher> {
             r"\$(\w*)\$[\s\S]*?\$\1\$",
             SyntaxKind::DollarQuote,
         ),
-        Matcher::legacy(
+        Matcher::native(
             "numeric_literal",
-            |s| s.starts_with(|ch: char| ch == '.' || ch == '-' || ch.is_ascii_alphanumeric()),
-            r"(?>\d+\.\d+|\d+\.(?![\.\w])|\.\d+|\d+)(\.?[eE][+-]?\d+)?((?<=\.)|(?=\b))",
+            numeric_literal,
             SyntaxKind::NumericLiteral,
         ),
         Matcher::regex("like_operator", r"!?~~?\*?", SyntaxKind::LikeOperator),
@@ -5116,4 +5110,80 @@ pub fn statement_segment() -> Matchable {
 
 pub fn wildcard_expression_segment() -> Matchable {
     Sequence::new(vec![Ref::new("WildcardIdentifierSegment").to_matchable()]).to_matchable()
+}
+
+fn numeric_literal(cursor: &mut Cursor) -> bool {
+    let first_char = cursor.shift();
+    match first_char {
+        '0'..='9' | '.' => {
+            let has_decimal = first_char == '.';
+
+            if has_decimal {
+                if cursor.peek().is_ascii_digit() {
+                    cursor.shift_while(|c| c.is_ascii_digit());
+                } else {
+                    return false;
+                }
+            } else {
+                cursor.shift_while(|c| c.is_ascii_digit());
+                if cursor.peek() == '.' {
+                    cursor.shift();
+                    cursor.shift_while(|c| c.is_ascii_digit());
+                }
+            }
+
+            if let 'e' | 'E' = cursor.peek() {
+                cursor.shift();
+                if let '+' | '-' = cursor.peek() {
+                    cursor.shift();
+                }
+                let mut exp_digits = false;
+                while cursor.peek().is_ascii_digit() {
+                    cursor.shift();
+                    exp_digits = true;
+                }
+                if !exp_digits {
+                    return false;
+                }
+            }
+
+            let next_char = cursor.peek();
+            if next_char == '.' || next_char.is_ascii_alphanumeric() || next_char == '_' {
+                return false;
+            }
+
+            true
+        }
+        _ => false,
+    }
+}
+
+fn block_comment(cursor: &mut Cursor) -> bool {
+    if cursor.shift() != '/' {
+        return false;
+    }
+
+    if cursor.shift() != '*' {
+        return false;
+    }
+
+    let mut depth = 1usize;
+
+    loop {
+        match cursor.shift() {
+            '\0' => return false,
+            '/' if cursor.peek() == '*' => {
+                cursor.shift();
+                depth += 1;
+            }
+            '*' if cursor.peek() == '/' => {
+                cursor.shift();
+                depth -= 1;
+                if depth == 0 {
+                    break true;
+                }
+            }
+            _ => {}
+        }
+    }
 }

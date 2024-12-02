@@ -54,7 +54,7 @@ configparser = "3.1.0"
 phf = { version = "0.11.2", features = ["macros", "unicase"] }
 unicase = "2.7.0"
 anstyle = "1.0"
-tracing = "0.1.40"
+tracing = "0.1.41"
 pretty_assertions = "1.4.0"
 ahash.workspace = true
 lazy-regex = "3.2.0"

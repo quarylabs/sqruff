@@ -845,9 +845,9 @@ dependencies = [
 
 [[package]]
 name = "indexmap"
-version = "2.6.0"
+version = "2.7.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "707907fe3c25f5424cce2cb7e1cbcafee6bdbe735ca90ef77c29e84591e5b9da"
+checksum = "62f822373a4fe84d4bb149bf54e584a7f4abec90e072ed49cda0edea5b95471f"
 dependencies = [
  "equivalent",
  "hashbrown 0.15.1",
@@ -867,7 +867,7 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "232929e1d75fe899576a3d5c7416ad0d88dbfbb3c3d6aa00873a7408a50ddb88"
 dependencies = [
  "ahash",
- "indexmap 2.6.0",
+ "indexmap 2.7.0",
  "is-terminal",
  "itoa",
  "log",
@@ -988,7 +988,7 @@ name = "lineage"
 version = "0.21.7"
 dependencies = [
  "append-only-vec",
- "indexmap 2.6.0",
+ "indexmap 2.7.0",
  "polonius-the-crab",
  "sqruff-lib-core",
  "sqruff-lib-dialects",
@@ -1632,7 +1632,7 @@ dependencies = [
  "chrono",
  "hex",
  "indexmap 1.9.3",
- "indexmap 2.6.0",
+ "indexmap 2.7.0",
  "serde",
  "serde_derive",
  "serde_json",
@@ -1658,7 +1658,7 @@ version = "0.9.34+deprecated"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "6a8b1a1a2ebf674015cc02edccce75287f1a0130d394307b36743c2f5d504b47"
 dependencies = [
- "indexmap 2.6.0",
+ "indexmap 2.7.0",
  "itoa",
  "ryu",
  "serde",
@@ -1741,7 +1741,7 @@ dependencies = [
  "fancy-regex",
  "getrandom",
  "glob",
- "indexmap 2.6.0",
+ "indexmap 2.7.0",
  "itertools 0.13.0",
  "lazy-regex",
  "nohash-hasher",
@@ -1775,7 +1775,7 @@ dependencies = [
  "ahash",
  "enum_dispatch",
  "fancy-regex",
- "indexmap 2.6.0",
+ "indexmap 2.7.0",
  "itertools 0.13.0",
  "nohash-hasher",
  "pretty_assertions",

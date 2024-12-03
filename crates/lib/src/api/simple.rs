@@ -1,11 +1,12 @@
 use std::mem::take;
 use std::str::FromStr;
+use std::sync::Arc;
 
 use ahash::AHashMap;
 use sqruff_lib_core::dialects::init::DialectKind;
 use sqruff_lib_core::errors::{SQLBaseError, SQLFluffUserError};
 
-use crate::cli::formatters::OutputStreamFormatter;
+use crate::cli::formatters::Formatter;
 use crate::core::config::FluffConfig;
 use crate::core::linter::core::Linter;
 
@@ -47,7 +48,7 @@ pub fn lint_with_formatter(
     dialect: String,
     exclude_rules: Option<Vec<String>>,
     config_path: Option<String>,
-    formatter: Option<OutputStreamFormatter>,
+    formatter: Option<Arc<dyn Formatter>>,
 ) -> Result<Vec<SQLBaseError>, SQLFluffUserError> {
     let cfg = get_simple_config(dialect.into(), None, exclude_rules, config_path)?;
 

@@ -95,7 +95,7 @@ pub(crate) fn linter(config: FluffConfig, format: Format) -> Linter {
         config.get("nocolor", "core").as_bool().unwrap_or_default(),
     );
 
-    Linter::new(config, formatter.into(), None)
+    Linter::new(config, Some(Arc::new(formatter)), None)
 }
 
 fn check_user_input() -> Option<bool> {

@@ -5,8 +5,9 @@ use pyo3::{Py, PyAny, Python};
 use sqruff_lib_core::errors::SQLFluffUserError;
 use sqruff_lib_core::templaters::base::{RawFileSlice, TemplatedFile, TemplatedFileSlice};
 
-use crate::cli::formatters::OutputStreamFormatter;
+use crate::cli::formatters::Formatter;
 use crate::core::config::FluffConfig;
+use std::sync::Arc;
 
 use super::Templater;
 
@@ -53,7 +54,7 @@ At the moment, dot notation is not supported in the templater."
         in_str: &str,
         f_name: &str,
         config: Option<&FluffConfig>,
-        _formatter: Option<&OutputStreamFormatter>,
+        _formatter: &Option<Arc<dyn Formatter>>,
     ) -> Result<TemplatedFile, SQLFluffUserError> {
         let empty_hash = AHashMap::new();
         let context = config
@@ -247,7 +248,7 @@ blah = foo
         let templater = PythonTemplater;
 
         let templated_file = templater
-            .process(PYTHON_STRING, "test.sql", Some(&config), None)
+            .process(PYTHON_STRING, "test.sql", Some(&config), &None)
             .unwrap();
 
         assert_eq!(templated_file.to_string(), "SELECT * FROM foo");
@@ -266,7 +267,7 @@ noblah = foo
 
         let templater = PythonTemplater;
 
-        let templated_file = templater.process(PYTHON_STRING, "test.sql", Some(&config), None);
+        let templated_file = templater.process(PYTHON_STRING, "test.sql", Some(&config), &None);
 
         assert!(templated_file.is_err())
     }

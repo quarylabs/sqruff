@@ -1,10 +1,11 @@
 use std::collections::HashMap;
+use std::sync::Arc;
 
 use fancy_regex::Regex;
 use sqruff_lib_core::errors::SQLFluffUserError;
 use sqruff_lib_core::templaters::base::{RawFileSlice, TemplatedFile, TemplatedFileSlice};
 
-use crate::cli::formatters::OutputStreamFormatter;
+use crate::cli::formatters::Formatter;
 use crate::core::config::FluffConfig;
 use crate::templaters::Templater;
 
@@ -219,7 +220,7 @@ Also consider making a pull request to the project to have your style added, it 
         in_str: &str,
         f_name: &str,
         config: Option<&FluffConfig>,
-        _: Option<&OutputStreamFormatter>,
+        _: &Option<Arc<dyn Formatter>>,
     ) -> Result<TemplatedFile, SQLFluffUserError> {
         let mut template_slices = vec![];
         let mut raw_slices = vec![];
@@ -352,7 +353,7 @@ mod tests {
     fn test_templater_no_replacement() {
         let templater = PlaceholderTemplater {};
         let in_str = "SELECT * FROM {{blah}} WHERE %(gnepr)s OR e~':'";
-        let out_str = templater.process(in_str, "test.sql", None, None).unwrap();
+        let out_str = templater.process(in_str, "test.sql", None, &None).unwrap();
         let out = out_str.to_string();
         assert_eq!(in_str, out)
     }
@@ -616,7 +617,7 @@ param_style = {}
             );
             let templater = PlaceholderTemplater {};
             let out_str = templater
-                .process(in_str, "test.sql", Some(&config), None)
+                .process(in_str, "test.sql", Some(&config), &None)
                 .unwrap();
             let out = out_str.to_string();
             assert_eq!(expected_out, out)
@@ -633,7 +634,7 @@ param_style = {}
         );
         let templater = PlaceholderTemplater {};
         let in_str = "SELECT 2+2";
-        let out_str = templater.process(in_str, "test.sql", Some(&config), None);
+        let out_str = templater.process(in_str, "test.sql", Some(&config), &None);
 
         assert!(out_str.is_err());
         assert_eq!(
@@ -655,7 +656,7 @@ param_style = colon
         );
         let templater = PlaceholderTemplater {};
         let in_str = "SELECT 2+2";
-        let out_str = templater.process(in_str, "test.sql", Some(&config), None);
+        let out_str = templater.process(in_str, "test.sql", Some(&config), &None);
 
         assert!(out_str.is_err());
         assert_eq!(
@@ -677,7 +678,7 @@ my_name = john
         let templater = PlaceholderTemplater {};
         let in_str = "SELECT bla FROM blob WHERE id = __my_name__";
         let out_str = templater
-            .process(in_str, "test", Some(&config), None)
+            .process(in_str, "test", Some(&config), &None)
             .unwrap();
         let out = out_str.to_string();
         assert_eq!("SELECT bla FROM blob WHERE id = john", out)
@@ -694,7 +695,7 @@ param_style = unknown
         );
         let templater = PlaceholderTemplater {};
         let in_str = "SELECT * FROM {{blah}} WHERE %(gnepr)s OR e~':'";
-        let out_str = templater.process(in_str, "test.sql", Some(&config), None);
+        let out_str = templater.process(in_str, "test.sql", Some(&config), &None);
 
         assert!(out_str.is_err());
         assert_eq!(

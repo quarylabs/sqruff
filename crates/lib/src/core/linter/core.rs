@@ -2,7 +2,7 @@ use std::borrow::Cow;
 use std::fs::File;
 use std::io::{BufRead, BufReader};
 use std::path::{Path, PathBuf};
-use std::sync::OnceLock;
+use std::sync::{Arc, OnceLock};
 
 use ahash::{AHashMap, AHashSet};
 use itertools::Itertools;
@@ -22,7 +22,7 @@ use sqruff_lib_core::templaters::base::TemplatedFile;
 use walkdir::WalkDir;
 
 use super::linted_dir::LintedDir;
-use crate::cli::formatters::OutputStreamFormatter;
+use crate::cli::formatters::Formatter;
 use crate::core::config::FluffConfig;
 use crate::core::linter::common::{ParsedString, RenderedFile};
 use crate::core::linter::linted_file::LintedFile;
@@ -35,7 +35,7 @@ use crate::templaters::{Templater, TEMPLATERS};
 
 pub struct Linter {
     config: FluffConfig,
-    formatter: Option<OutputStreamFormatter>,
+    formatter: Option<Arc<dyn Formatter>>,
     templater: &'static dyn Templater,
     rules: OnceLock<Vec<ErasedRule>>,
 }
@@ -43,7 +43,7 @@ pub struct Linter {
 impl Linter {
     pub fn new(
         config: FluffConfig,
-        formatter: Option<OutputStreamFormatter>,
+        formatter: Option<Arc<dyn Formatter>>,
         templater: Option<&'static dyn Templater>,
     ) -> Linter {
         let templater: &'static dyn Templater = match templater {
@@ -98,7 +98,7 @@ impl Linter {
 
         // Scan the raw file for config commands.
         self.config.process_raw_file_for_config(sql);
-        let rendered = self.render_string(sql, f_name, &self.config)?;
+        let rendered = self.render_string(sql, f_name.clone(), &self.config)?;
 
         for violation in &rendered.templater_violations {
             violations.push(Box::new(violation.clone()));
@@ -106,7 +106,7 @@ impl Linter {
 
         // Dispatch the output for the parse header
         if let Some(formatter) = &self.formatter {
-            formatter.dispatch_parse_header(/*f_name.clone()*/);
+            formatter.dispatch_parse_header(f_name.clone());
         }
 
         Ok(self.parse_rendered(tables, rendered))
@@ -385,7 +385,7 @@ impl Linter {
             sql.as_ref(),
             filename.as_str(),
             Some(config),
-            self.formatter.as_ref(),
+            &self.formatter,
         ) {
             Ok(templated_file) => Ok(RenderedFile {
                 templated_file,
@@ -645,11 +645,11 @@ impl Linter {
         self.rules.get_or_init(|| self.get_rulepack().rules)
     }
 
-    pub fn formatter(&self) -> Option<&OutputStreamFormatter> {
+    pub fn formatter(&self) -> Option<&Arc<dyn Formatter>> {
         self.formatter.as_ref()
     }
 
-    pub fn formatter_mut(&mut self) -> Option<&mut OutputStreamFormatter> {
+    pub fn formatter_mut(&mut self) -> Option<&mut Arc<dyn Formatter>> {
         self.formatter.as_mut()
     }
 }

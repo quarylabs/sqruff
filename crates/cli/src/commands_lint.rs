@@ -33,13 +33,8 @@ pub(crate) fn run_lint(
     }
 
     eprintln!("The linter processed {count} file(s).");
-    linter.formatter_mut().unwrap().completion_message();
-    if linter
-        .formatter()
-        .unwrap()
-        .has_fail
-        .load(std::sync::atomic::Ordering::SeqCst)
-    {
+    linter.formatter().unwrap().completion_message();
+    if linter.formatter().unwrap().has_fail() {
         1
     } else {
         0
@@ -49,10 +44,10 @@ pub(crate) fn run_lint(
 pub(crate) fn run_lint_stdin(config: FluffConfig, format: Format) -> i32 {
     let read_in = crate::stdin::read_std_in().unwrap();
 
-    let mut linter = linter(config, format);
+    let linter = linter(config, format);
     let result = linter.lint_string(&read_in, None, false);
 
-    linter.formatter_mut().unwrap().completion_message();
+    linter.formatter().unwrap().completion_message();
 
     if result.get_violations(None).is_empty() {
         0

@@ -40,7 +40,7 @@ fn split_string_on_spaces(s: &str, line_length: usize) -> Vec<&str> {
     lines
 }
 
-pub trait Formatter {
+pub trait Formatter: Send + Sync {
     fn dispatch_template_header(
         &self,
         f_name: String,
@@ -49,6 +49,12 @@ pub trait Formatter {
     );
 
     fn dispatch_parse_header(&self, f_name: String);
+
+    fn dispatch_file_violations(&self, linted_file: &LintedFile, only_fixable: bool);
+
+    fn has_fail(&self) -> bool;
+
+    fn completion_message(&self);
 }
 
 pub struct OutputStreamFormatter {
@@ -58,6 +64,43 @@ pub struct OutputStreamFormatter {
     verbosity: i32,
     output_line_length: usize,
     pub has_fail: AtomicBool,
+}
+
+impl Formatter for OutputStreamFormatter {
+    fn dispatch_file_violations(&self, linted_file: &LintedFile, only_fixable: bool) {
+        if self.verbosity < 0 {
+            return;
+        }
+
+        let s = self.format_file_violations(
+            &linted_file.path,
+            linted_file.get_violations(only_fixable.then_some(true)),
+        );
+
+        self.dispatch(&s);
+    }
+
+    fn has_fail(&self) -> bool {
+        self.has_fail.load(std::sync::atomic::Ordering::SeqCst)
+    }
+
+    fn completion_message(&self) {
+        let message = if self.plain_output {
+            "All Finished\n"
+        } else {
+            "All Finished 📜 🎉\n"
+        };
+        self.dispatch(message);
+    }
+    fn dispatch_template_header(
+        &self,
+        _f_name: String,
+        _linter_config: FluffConfig,
+        _file_config: FluffConfig,
+    ) {
+    }
+
+    fn dispatch_parse_header(&self, _f_name: String) {}
 }
 
 impl OutputStreamFormatter {
@@ -83,10 +126,6 @@ impl OutputStreamFormatter {
             }
         }
     }
-
-    pub fn dispatch_template_header(&self) {}
-
-    pub fn dispatch_parse_header(&self) {}
 
     fn format_file_violations(&self, fname: &str, mut violations: Vec<SQLBaseError>) -> String {
         let mut text_buffer = String::new();
@@ -122,18 +161,6 @@ impl OutputStreamFormatter {
         }
 
         text_buffer
-    }
-    pub fn dispatch_file_violations(&self, linted_file: &LintedFile, only_fixable: bool) {
-        if self.verbosity < 0 {
-            return;
-        }
-
-        let s = self.format_file_violations(
-            &linted_file.path,
-            linted_file.get_violations(only_fixable.then_some(true)),
-        );
-
-        self.dispatch(&s);
     }
 
     fn colorize<'a>(&self, s: &'a str, style: Style) -> Cow<'a, str> {
@@ -224,15 +251,6 @@ impl OutputStreamFormatter {
         }
 
         out_buff
-    }
-
-    pub fn completion_message(&mut self) {
-        let message = if self.plain_output {
-            "All Finished\n"
-        } else {
-            "All Finished 📜 🎉\n"
-        };
-        self.dispatch(message);
     }
 }
 

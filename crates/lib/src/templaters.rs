@@ -1,7 +1,9 @@
+use std::sync::Arc;
+
 use sqruff_lib_core::errors::SQLFluffUserError;
 use sqruff_lib_core::templaters::base::TemplatedFile;
 
-use crate::cli::formatters::OutputStreamFormatter;
+use crate::cli::formatters::Formatter;
 use crate::core::config::FluffConfig;
 use crate::templaters::placeholder::PlaceholderTemplater;
 use crate::templaters::raw::RawTemplater;
@@ -40,6 +42,6 @@ pub trait Templater: Send + Sync {
         in_str: &str,
         f_name: &str,
         config: Option<&FluffConfig>,
-        formatter: Option<&OutputStreamFormatter>,
+        formatter: &Option<Arc<dyn Formatter>>,
     ) -> Result<TemplatedFile, SQLFluffUserError>;
 }

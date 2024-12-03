@@ -1,7 +1,9 @@
+use std::sync::Arc;
+
 use sqruff_lib_core::errors::SQLFluffUserError;
 use sqruff_lib_core::templaters::base::TemplatedFile;
 
-use crate::cli::formatters::OutputStreamFormatter;
+use crate::cli::formatters::Formatter;
 use crate::core::config::FluffConfig;
 use crate::templaters::Templater;
 
@@ -22,7 +24,7 @@ impl Templater for RawTemplater {
         in_str: &str,
         f_name: &str,
         _config: Option<&FluffConfig>,
-        _formatter: Option<&OutputStreamFormatter>,
+        _formatter: &Option<Arc<dyn Formatter>>,
     ) -> Result<TemplatedFile, SQLFluffUserError> {
         if let Ok(tf) = TemplatedFile::new(in_str.to_string(), f_name.to_string(), None, None, None)
         {
@@ -42,7 +44,7 @@ mod test {
         let templater = RawTemplater;
         let in_str = "SELECT * FROM {{blah}}";
 
-        let outstr = templater.process(in_str, "test.sql", None, None).unwrap();
+        let outstr = templater.process(in_str, "test.sql", None, &None).unwrap();
 
         assert_eq!(outstr.templated_str, Some(in_str.to_string()));
     }

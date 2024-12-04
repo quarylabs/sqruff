@@ -51,8 +51,7 @@ pub fn lint_with_formatter(
 ) -> Result<Vec<SQLBaseError>, SQLFluffUserError> {
     let cfg = get_simple_config(dialect.into(), None, exclude_rules, config_path)?;
 
-    let mut linter = Linter::new(cfg, None, None);
-    linter.set_formatter(formatter);
+    let mut linter = Linter::new(cfg, formatter, None);
 
     let mut result = linter.lint_string_wrapped(sql, None, false);
 

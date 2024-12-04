@@ -641,10 +641,6 @@ impl Linter {
         &mut self.config
     }
 
-    pub fn set_formatter(&mut self, formatter: Option<OutputStreamFormatter>) {
-        self.formatter = formatter;
-    }
-
     pub fn rules(&self) -> &[ErasedRule] {
         self.rules.get_or_init(|| self.get_rulepack().rules)
     }

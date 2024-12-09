@@ -4,6 +4,7 @@ use pyo3::types::{PyDict, PySlice};
 use pyo3::{Py, PyAny, Python};
 use sqruff_lib_core::errors::SQLFluffUserError;
 use sqruff_lib_core::templaters::base::{RawFileSlice, TemplatedFile, TemplatedFileSlice};
+use std::ffi::CString;
 
 use crate::cli::formatters::Formatter;
 use crate::core::config::FluffConfig;
@@ -87,12 +88,13 @@ At the moment, dot notation is not supported in the templater."
 
         // Need to pull context out of config
         let templated_file = Python::with_gil(|py| -> PyResult<TemplatedFile> {
-            let fun: Py<PyAny> = PyModule::from_code_bound(py, PYTHON_FILE, "", "")?
+            let file = CString::new(PYTHON_FILE).unwrap();
+            let fun: Py<PyAny> = PyModule::from_code(py, &file, c"", c"")?
                 .getattr("process_from_rust")?
                 .into();
 
             // pass object with Rust tuple of positional arguments
-            let py_dict = PyDict::new_bound(py);
+            let py_dict = PyDict::new(py);
             for (k, v) in hashmap.unwrap() {
                 py_dict.set_item(k, v)?;
             }

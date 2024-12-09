@@ -1,4 +1,4 @@
-use std::borrow::Cow;
+use std::borrow::{BorrowMut, Cow};
 use std::fs::File;
 use std::io::{BufRead, BufReader};
 use std::path::{Path, PathBuf};
@@ -113,7 +113,7 @@ impl Linter {
     }
 
     /// Lint a string.
-    pub fn lint_string(&self, sql: &str, filename: Option<String>, fix: bool) -> LintedFile {
+    pub fn lint_string(&mut self, sql: &str, filename: Option<String>, fix: bool) -> LintedFile {
         let tables = Tables::default();
         let parsed = self.parse_string(&tables, sql, filename).unwrap();
 
@@ -182,14 +182,14 @@ impl Linter {
         self.render_string(&in_str, fname, &self.config).unwrap()
     }
 
-    pub fn lint_rendered(&self, rendered: RenderedFile, fix: bool) -> LintedFile {
+    pub fn lint_rendered(&mut self, rendered: RenderedFile, fix: bool) -> LintedFile {
         let tables = Tables::default();
         let parsed = self.parse_rendered(&tables, rendered);
         self.lint_parsed(&tables, parsed, fix)
     }
 
     pub fn lint_parsed(
-        &self,
+        &mut self,
         tables: &Tables,
         parsed_string: ParsedString,
         fix: bool,
@@ -230,8 +230,10 @@ impl Linter {
             ignore_mask,
         };
 
-        if let Some(formatter) = &self.formatter {
-            formatter.dispatch_file_violations(&linted_file, false);
+        if let Some(mut formatter) = &self.formatter {
+            formatter
+                .borrow_mut()
+                .dispatch_file_violations(&linted_file, false);
         }
 
         linted_file

@@ -8,7 +8,7 @@ use super::formatters::Formatter;
 #[derive(Debug)]
 pub struct GithubAnnotationNativeFormatter {
     output_stream: Stderr,
-    pub has_fail: AtomicBool,
+    has_fail: AtomicBool,
 }
 
 impl GithubAnnotationNativeFormatter {
@@ -38,7 +38,7 @@ impl Formatter for GithubAnnotationNativeFormatter {
         // No-op
     }
 
-    fn dispatch_file_violations(&self, linted_file: &LintedFile, _only_fixable: bool) {
+    fn dispatch_file_violations(&mut self, linted_file: &LintedFile, _only_fixable: bool) {
         let mut violations = linted_file.get_violations(None);
 
         violations.sort_by(|a, b| {

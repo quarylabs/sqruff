@@ -50,7 +50,7 @@ pub trait Formatter: Send + Sync {
 
     fn dispatch_parse_header(&self, f_name: String);
 
-    fn dispatch_file_violations(&self, linted_file: &LintedFile, only_fixable: bool);
+    fn dispatch_file_violations(&mut self, linted_file: &LintedFile, only_fixable: bool);
 
     fn has_fail(&self) -> bool;
 
@@ -68,7 +68,7 @@ pub struct OutputStreamFormatter {
 }
 
 impl Formatter for OutputStreamFormatter {
-    fn dispatch_file_violations(&self, linted_file: &LintedFile, only_fixable: bool) {
+    fn dispatch_file_violations(&mut self, linted_file: &LintedFile, only_fixable: bool) {
         if self.verbosity < 0 {
             return;
         }

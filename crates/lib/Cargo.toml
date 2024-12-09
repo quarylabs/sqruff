@@ -34,8 +34,6 @@ name = "depth_map"
 harness = false
 
 [features]
-serde = ["dep:serde"]
-stringify = ["dep:serde_yaml", "serde"]
 python = ["pyo3"]
 
 [dependencies]
@@ -64,8 +62,9 @@ nohash-hasher = "0.2.0"
 rustc-hash = "2.1.0"
 strum_macros = "0.26.4"
 strum = "0.26.3"
-serde = { version = "1.0", features = ["derive"], optional = true }
+serde = { version = "1.0", features = ["derive"] }
 serde_yaml = { version = "0.9.34", optional = true }
+serde_json = "1"
 append-only-vec = "0.1.5"
 
 # Only activated on python
@@ -81,7 +80,7 @@ jemallocator = { version = "0.6.0", package = "tikv-jemallocator" }
 pprof = { version = "0.14", features = ["flamegraph", "criterion"] }
 
 [dev-dependencies]
-sqruff-lib = { path = ".", features = ["serde"] }
+sqruff-lib = { path = "." }
 serde_yaml = "0.9.34"
 criterion = "0.5"
 expect-test = "1.5"

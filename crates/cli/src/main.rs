@@ -1,6 +1,7 @@
 use clap::Parser as _;
 use commands::Format;
 use sqruff_lib::cli::formatters::Formatter;
+use sqruff_lib::cli::json::JsonFormatter;
 use sqruff_lib::cli::{
     formatters::OutputStreamFormatter,
     github_annotation_native_formatter::GithubAnnotationNativeFormatter,
@@ -101,6 +102,10 @@ pub(crate) fn linter(config: FluffConfig, format: Format) -> Linter {
         Format::GithubAnnotationNative => {
             let output_stream = std::io::stderr();
             let formatter = GithubAnnotationNativeFormatter::new(output_stream);
+            Arc::new(formatter)
+        }
+        Format::Json => {
+            let formatter = JsonFormatter::default();
             Arc::new(formatter)
         }
     };

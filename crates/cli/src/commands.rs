@@ -51,6 +51,7 @@ pub(crate) struct FixArgs {
 pub(crate) enum Format {
     Human,
     GithubAnnotationNative,
+    Json,
 }
 
 impl Default for Format {

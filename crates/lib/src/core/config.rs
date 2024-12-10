@@ -458,9 +458,8 @@ impl ConfigLoader {
     }
 }
 
-#[derive(Debug, Clone, PartialEq, Default)]
-#[cfg_attr(any(test, feature = "serde"), derive(serde::Deserialize))]
-#[cfg_attr(any(test, feature = "serde"), serde(untagged))]
+#[derive(Debug, Clone, PartialEq, Default, serde::Deserialize)]
+#[serde(untagged)]
 pub enum Value {
     Int(i32),
     Bool(bool),

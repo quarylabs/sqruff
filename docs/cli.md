@@ -43,7 +43,7 @@ lint files
 
   Default value: `human`
 
-  Possible values: `human`, `github-annotation-native`
+  Possible values: `human`, `github-annotation-native`, `json`
 
 
 
@@ -65,7 +65,7 @@ fix files
 
   Default value: `human`
 
-  Possible values: `human`, `github-annotation-native`
+  Possible values: `human`, `github-annotation-native`, `json`
 
 
 

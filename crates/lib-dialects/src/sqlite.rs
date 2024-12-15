@@ -437,7 +437,8 @@ pub fn raw_dialect() -> Dialect {
                         Ref::new("ValuesClauseSegment"),
                         optionally_bracketed(vec_of_erased![Ref::new("SelectableGrammar")]),
                         Ref::new("DefaultValuesGrammar")
-                    ])
+                    ]),
+                    Ref::new("ReturningClauseSegment").optional()
                 ])
                 .to_matchable(),
             )
@@ -781,6 +782,38 @@ pub fn raw_dialect() -> Dialect {
         ])
         .to_matchable(),
     );
+
+    sqlite_dialect.add([(
+        "ReturningClauseSegment".into(),
+        Sequence::new(vec_of_erased![
+            Ref::keyword("RETURNING"),
+            one_of(vec_of_erased![
+                Ref::new("StarSegment"),
+                Delimited::new(vec_of_erased![Sequence::new(vec_of_erased![
+                    Ref::new("ExpressionSegment"),
+                    Ref::new("AsAliasExpressionSegment").optional(),
+                ])])
+            ])
+        ])
+        .to_matchable()
+        .into(),
+    )]);
+
+    sqlite_dialect.add([(
+        "AsAliasExpressionSegment".into(),
+        NodeMatcher::new(
+            SyntaxKind::AliasExpression,
+            Sequence::new(vec_of_erased![
+                MetaSegment::indent(),
+                Ref::keyword("AS"),
+                Ref::new("SingleIdentifierGrammar"),
+                MetaSegment::dedent(),
+            ])
+            .to_matchable(),
+        )
+        .to_matchable()
+        .into(),
+    )]);
 
     sqlite_dialect
 }

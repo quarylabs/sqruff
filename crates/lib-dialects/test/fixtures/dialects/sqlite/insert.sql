@@ -23,3 +23,18 @@ SELECT * FROM (SELECT
 INSERT INTO t1 DEFAULT VALUES;
 
 INSERT INTO t1 (a, b, c) DEFAULT VALUES;
+
+INSERT INTO t1 (a, b, c) VALUES (1, 2, 3), (4, 5, 6)
+RETURNING *;
+
+INSERT INTO t1 (a, b, c) VALUES (1, 2, 3), (4, 5, 6)
+RETURNING a;
+
+INSERT INTO t1 (a, b, c) VALUES (1, 2, 3), (4, 5, 6)
+RETURNING a AS b;
+
+INSERT INTO t1 (a, b, c) VALUES (1, 2, 3), (4, 5, 6)
+RETURNING a, b;
+
+INSERT INTO t1 (a, b, c) VALUES (1, 2, 3), (4, 5, 6)
+RETURNING a AS aa, b AS bb;

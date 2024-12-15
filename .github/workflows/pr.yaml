@@ -58,6 +58,8 @@ jobs:
   typescript:
     name: TypeScript
     runs-on: ubuntu-latest
+    env:
+      PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD: false
     steps:
       - uses: actions/checkout@v4
       - uses: Swatinem/rust-cache@v2
@@ -74,6 +76,7 @@ jobs:
       - run: pnpm install --frozen-lockfile
       - uses: dtolnay/rust-toolchain@nightly
       - run: curl https://rustwasm.github.io/wasm-pack/installer/init.sh -sSf | sh
+      - run: cd playground && pnpm playwright install
       - run: pnpm run ci
   test:
     name: Test

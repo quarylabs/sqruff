@@ -11,6 +11,8 @@ permissions:
 concurrency:
   group: "pages"
   cancel-in-progress: true
+env:
+  PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD: false
 jobs:
   deploy:
     environment:

@@ -5,7 +5,7 @@ use std::sync::atomic::{AtomicBool, AtomicUsize};
 use anstyle::{AnsiColor, Effects, Style};
 use itertools::enumerate;
 use sqruff_lib_core::errors::SQLBaseError;
-
+use crate::cli::formatter::Formatter;
 use crate::core::config::FluffConfig;
 use crate::core::linter::linted_file::LintedFile;
 
@@ -40,22 +40,6 @@ fn split_string_on_spaces(s: &str, line_length: usize) -> Vec<&str> {
     lines
 }
 
-pub trait Formatter: Send + Sync {
-    fn dispatch_template_header(
-        &self,
-        f_name: String,
-        linter_config: FluffConfig,
-        file_config: FluffConfig,
-    );
-
-    fn dispatch_parse_header(&self, f_name: String);
-
-    fn dispatch_file_violations(&self, linted_file: &LintedFile, only_fixable: bool);
-
-    fn has_fail(&self) -> bool;
-
-    fn completion_message(&self);
-}
 
 pub struct OutputStreamFormatter {
     output_stream: Option<Stderr>,

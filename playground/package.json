@@ -31,7 +31,7 @@
     "@types/react-dom": "^19.0.1",
     "@vitejs/plugin-react-swc": "^3.7.2",
     "autoprefixer": "^10.4.20",
-    "tailwindcss": "^3.4.15",
+    "tailwindcss": "^3.4.16",
     "typescript": "^5.7.2",
     "vite": "^6.0.2"
   }

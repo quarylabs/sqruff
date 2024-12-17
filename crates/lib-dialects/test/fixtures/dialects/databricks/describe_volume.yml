@@ -1,0 +1,8 @@
+file:
+- statement:
+  - describe_statement:
+    - keyword: DESCRIBE
+    - table_reference:
+      - naked_identifier: VOLUME
+    - naked_identifier: VACCINE_VOLUME
+- statement_terminator: ;

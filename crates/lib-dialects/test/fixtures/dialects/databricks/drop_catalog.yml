@@ -1,0 +1,14 @@
+file:
+- unparsable:
+  - word: DROP
+  - word: CATALOG
+  - word: vaccine
+  - word: CASCADE
+  - semicolon: ;
+  - word: DROP
+  - word: CATALOG
+  - word: IF
+  - word: EXISTS
+  - word: vaccine
+  - word: RESTRICT
+  - semicolon: ;

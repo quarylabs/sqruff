@@ -1,0 +1,25 @@
+file:
+- statement:
+  - use_statement:
+    - keyword: USE
+    - database_reference:
+      - naked_identifier: CATALOG
+- file:
+  - word: catalog_name
+  - semicolon: ;
+  - word: USE
+  - word: CATALOG
+  - word: hive_metastore
+  - semicolon: ;
+  - word: USE
+  - word: CATALOG
+  - single_quote: '''hive_metastore'''
+  - semicolon: ;
+  - word: USE
+  - word: CATALOG
+  - back_quote: '`some_catalog`'
+  - semicolon: ;
+  - word: USE
+  - word: CATALOG
+  - word: some_cat
+  - semicolon: ;

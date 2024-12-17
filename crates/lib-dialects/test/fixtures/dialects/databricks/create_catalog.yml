@@ -1,0 +1,22 @@
+file:
+- unparsable:
+  - word: CREATE
+  - word: CATALOG
+  - word: customer_cat
+  - semicolon: ;
+  - word: CREATE
+  - word: CATALOG
+  - word: IF
+  - word: NOT
+  - word: EXISTS
+  - word: customer_cat
+  - semicolon: ;
+  - word: CREATE
+  - word: CATALOG
+  - word: IF
+  - word: NOT
+  - word: EXISTS
+  - word: customer_cat
+  - word: COMMENT
+  - single_quote: '''This is customer catalog'''
+  - semicolon: ;

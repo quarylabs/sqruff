@@ -101,32 +101,32 @@ pub fn dialect() -> Dialect {
             .to_matchable()
             .into(),
         ),
-        // (
-        //     "ConstraintOptionGrammar".into(),
-        //     Sequence::new(vec_of_erased![
-        //         Sequence::new(vec_of_erased![
-        //             Ref::keyword("ENABLE"),
-        //             Ref::keyword("NOVALIDATE")
-        //         ])
-        //         .config(|config| { config.optional() }),
-        //         Sequence::new(vec_of_erased![
-        //             Ref::keyword("NOT"),
-        //             Ref::keyword("ENFORCED")
-        //         ])
-        //         .config(|config| { config.optional() }),
-        //         Sequence::new(vec_of_erased![Ref::keyword("DEFERRABLE")])
-        //             .config(|config| { config.optional() }),
-        //         Sequence::new(vec_of_erased![
-        //             Ref::keyword("INITIALLY"),
-        //             Ref::keyword("DEFERRED")
-        //         ])
-        //         .config(|config| { config.optional() }),
-        //         one_of(vec_of_erased![Ref::keyword("NORELY"), Ref::keyword("RELY"),])
-        //             .config(|config| { config.optional() }),
-        //     ])
-        //     .to_matchable()
-        //     .into(),
-        // ),
+        (
+            "ConstraintOptionGrammar".into(),
+            Sequence::new(vec_of_erased![
+                Sequence::new(vec_of_erased![
+                    Ref::keyword("ENABLE"),
+                    Ref::keyword("NOVALIDATE")
+                ])
+                .config(|config| { config.optional() }),
+                Sequence::new(vec_of_erased![
+                    Ref::keyword("NOT"),
+                    Ref::keyword("ENFORCED")
+                ])
+                .config(|config| { config.optional() }),
+                Sequence::new(vec_of_erased![Ref::keyword("DEFERRABLE")])
+                    .config(|config| { config.optional() }),
+                Sequence::new(vec_of_erased![
+                    Ref::keyword("INITIALLY"),
+                    Ref::keyword("DEFERRED")
+                ])
+                .config(|config| { config.optional() }),
+                one_of(vec_of_erased![Ref::keyword("NORELY"), Ref::keyword("RELY"),])
+                    .config(|config| { config.optional() }),
+            ])
+            .to_matchable()
+            .into(),
+        ),
         // (
         //     "ForeignKeyOptionGrammar".into(),
         //     Sequence::new(vec_of_erased![

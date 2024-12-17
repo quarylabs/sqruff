@@ -1,0 +1,12 @@
+file:
+- unparsable:
+  - word: DROP
+  - word: VOLUME
+  - word: vaccine_volume
+  - semicolon: ;
+  - word: DROP
+  - word: VOLUME
+  - word: IF
+  - word: EXISTS
+  - word: vaccine_volume
+  - semicolon: ;

@@ -13,13 +13,11 @@ file:
               - column_reference:
                 - naked_identifier: arg1
             - unparsable:
-              - raw_comparison_operator: =
-              - raw_comparison_operator: '>'
+              - right_arrow: =>
               - numeric_literal: '3'
               - comma: ','
               - word: arg2
-              - raw_comparison_operator: =
-              - raw_comparison_operator: '>'
+              - right_arrow: =>
               - numeric_literal: '4'
             - end_bracket: )
     - from_clause:
@@ -47,8 +45,7 @@ file:
               - column_reference:
                 - naked_identifier: arg2
             - unparsable:
-              - raw_comparison_operator: =
-              - raw_comparison_operator: '>'
+              - right_arrow: =>
               - numeric_literal: '4'
             - end_bracket: )
     - from_clause:
@@ -73,8 +70,7 @@ file:
               - column_reference:
                 - naked_identifier: arg1
             - unparsable:
-              - raw_comparison_operator: =
-              - raw_comparison_operator: '>'
+              - right_arrow: =>
               - numeric_literal: '3'
               - comma: ','
               - numeric_literal: '4'

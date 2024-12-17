@@ -1,3 +1,7 @@
+use crate::databricks_keywords::{RESERVED_KEYWORDS, UNRESERVED_KEYWORDS};
+use sqruff_lib_core::parser::grammar::anyof::AnyNumberOf;
+use sqruff_lib_core::parser::grammar::delimited::Delimited;
+use sqruff_lib_core::parser::grammar::sequence::Bracketed;
 use sqruff_lib_core::{
     dialects::{base::Dialect, init::DialectKind, syntax::SyntaxKind},
     helpers::{Config, ToMatchable},
@@ -7,8 +11,6 @@ use sqruff_lib_core::{
     },
     vec_of_erased,
 };
-
-use crate::databricks_keywords::{RESERVED_KEYWORDS, UNRESERVED_KEYWORDS};
 
 pub fn dialect() -> Dialect {
     let raw_sparksql = crate::sparksql::dialect();
@@ -127,138 +129,115 @@ pub fn dialect() -> Dialect {
             .to_matchable()
             .into(),
         ),
+        (
+            "ForeignKeyOptionGrammar".into(),
+            Sequence::new(vec_of_erased![
+                Sequence::new(vec_of_erased![Ref::keyword("MATCH"), Ref::keyword("FULL"),])
+                    .config(|config| { config.optional() }),
+                Sequence::new(vec_of_erased![
+                    Ref::keyword("ON"),
+                    Ref::keyword("UPDATE"),
+                    Ref::keyword("NO"),
+                    Ref::keyword("ACTION"),
+                ])
+                .config(|config| { config.optional() }),
+                Sequence::new(vec_of_erased![
+                    Ref::keyword("ON"),
+                    Ref::keyword("DELETE"),
+                    Ref::keyword("NO"),
+                    Ref::keyword("ACTION"),
+                ]),
+            ])
+            .to_matchable()
+            .into(),
+        ),
+        (
+            "DropConstraintGrammar".into(),
+            one_of(vec_of_erased![
+                Sequence::new(vec_of_erased![
+                    Ref::new("PrimaryKeyGrammar"),
+                    Ref::new("IfExistsGrammar").optional(),
+                    one_of(vec_of_erased![
+                        Ref::keyword("RESTRICT"),
+                        Ref::keyword("CASCADE"),
+                    ])
+                    .config(|config| config.optional()),
+                ]),
+                Sequence::new(vec_of_erased![
+                    Ref::new("ForeignKeyGrammar"),
+                    Ref::new("IfExistsGrammar").optional(),
+                    Bracketed::new(vec_of_erased![Ref::new("ColumnReferenceSegment")]),
+                ]),
+                Sequence::new(vec_of_erased![
+                    Ref::keyword("CONSTRAINT"),
+                    Ref::new("IfExistsGrammar").optional(),
+                    Ref::new("ObjectReferenceSegment"),
+                    one_of(vec_of_erased![
+                        Ref::keyword("RESTRICT"),
+                        Ref::keyword("CASCADE"),
+                    ])
+                    .config(|config| config.optional()),
+                ]),
+            ])
+            .to_matchable()
+            .into(),
+        ),
+        (
+            "AlterPartitionGrammar".into(),
+            Bracketed::new(vec_of_erased![Delimited::new(vec_of_erased![
+                AnyNumberOf::new(vec_of_erased![one_of(vec_of_erased![
+                    Ref::new("ColumnReferenceSegment"),
+                    Ref::new("SetClauseSegment"),
+                ]),])
+                .config(|config| config.min_times(1))
+            ])])
+            .to_matchable()
+            .into(),
+        ),
+        (
+            "RowFilterClauseGrammar".into(),
+            Sequence::new(vec_of_erased![
+                Ref::keyword("ROW"),
+                Ref::keyword("FILTER"),
+                Ref::new("ObjectReferenceSegment"),
+                Ref::keyword("ON"),
+                Bracketed::new(vec_of_erased![Delimited::new(vec_of_erased![one_of(
+                    vec_of_erased![
+                        Ref::new("ColumnReferenceSegment"),
+                        Ref::new("LiteralGrammar"),
+                    ]
+                )])
+                .config(|config| config.optional())])
+            ])
+            .to_matchable()
+            .into(),
+        ),
+        // TODO Sort out the following grammar
         // (
-        //     "ForeignKeyOptionGrammar".into(),
-        //     Sequence::new(vec_of_erased![
-        //         Sequence::new(vec_of_erased![Ref::keyword("MATCH"), Ref::keyword("FULL"),])
-        //             .config(|config| { config.optional() }),
-        //         Sequence::new(vec_of_erased![
-        //             Ref::keyword("ON"),
-        //             Ref::keyword("UPDATE"),
-        //             Ref::keyword("NO"),
-        //             Ref::keyword("ACTION"),
-        //         ])
-        //         .config(|config| { config.optional() }),
-        //         Sequence::new(vec_of_erased![
-        //             Ref::keyword("ON"),
-        //             Ref::keyword("DELETE"),
-        //             Ref::keyword("NO"),
-        //             Ref::keyword("ACTION"),
-        //         ]),
-        //     ]),
+        //     "PropertiesBackTickedIdentifierSegment".into(),
+        //     Matcher::regex(
+        //         "properties_naked_identifier",
+        //         r"`.+`",
+        //         SyntaxKind::PropertiesNakedIdentifier,
+        //     ).to_matchable().into(),
         // ),
-        // // DropConstraintGrammar=Sequence(
-        // //     "DROP",
-        // //     OneOf(
-        // //         Sequence(
-        // //             Ref("PrimaryKeyGrammar"),
-        // //             Ref("IfExistsGrammar", optional=True),
-        // //             OneOf(
-        // //                 "RESTRICT",
-        // //                 "CASCADE",
-        // //                 optional=True,
-        // //             ),
-        // //         ),
-        // //         Sequence(
-        // //             Ref("ForeignKeyGrammar"),
-        // //             Ref("IfExistsGrammar", optional=True),
-        // //             Bracketed(
-        // //                 Delimited(
-        // //                     Ref("ColumnReferenceSegment"),
-        // //                 )
-        // //             ),
-        // //         ),
-        // //         Sequence(
-        // //             "CONSTRAINT",
-        // //             Ref("IfExistsGrammar", optional=True),
-        // //             Ref("ObjectReferenceSegment"),
-        // //             OneOf(
-        // //                 "RESTRICT",
-        // //                 "CASCADE",
-        // //                 optional=True,
-        // //             ),
-        // //         ),
-        // //     ),
-        // // ),
-        // (
-        //     "DropConstraintGrammar".into(),
-        //     one_of(vec_of_erased![
-        //         Sequence::new(vec_of_erased![
-        //             Ref::new("PrimaryKeyGrammar"),
-        //             Ref::new("IfExistsGrammar").optional(),
-        //             one_of(vec_of_erased![
-        //                 Ref::keyword("RESTRICT"),
-        //                 Ref::keyword("CASCADE"),
-        //             ])
-        //             .config(|config| config.optional()),
-        //         ]),
-        //         Sequence::new(vec_of_erased![
-        //             Ref::new("ForeignKeyGrammar"),
-        //             Ref::new("IfExistsGrammar").optional(),
-        //             Ref::new("Bracketed").config(|config| {
-        //                 config.set_children(vec_of_erased![Ref::new("ColumnReferenceSegment")])
-        //             }),
-        //         ]),
-        //         Sequence::new(vec_of_erased![
-        //             Ref::keyword("CONSTRAINT"),
-        //             Ref::new("IfExistsGrammar").optional(),
-        //             Ref::new("ObjectReferenceSegment"),
-        //             one_of(vec_of_erased![
-        //                 Ref::keyword("RESTRICT"),
-        //                 Ref::keyword("CASCADE"),
-        //             ])
-        //             .config(|config| config.optional()),
-        //         ]),
-        //     ])
-        //     .to_matchable()
-        //     .into(),
-        // ),
-        // // AlterPartitionGrammar=Sequence(
-        // //     "PARTITION",
-        // //     Bracketed(
-        // //         Delimited(
-        // //             AnyNumberOf(
-        // //                 OneOf(
-        // //                     Ref("ColumnReferenceSegment"),
-        // //                     Ref("SetClauseSegment"),
-        // //                 ),
-        // //                 min_times=1,
-        // //             ),
-        // //         ),
-        // //     ),
-        // // ),
-        // // RowFilterClauseGrammar=Sequence(
-        // //     "ROW",
-        // //     "FILTER",
-        // //     Ref("ObjectReferenceSegment"),
-        // //     "ON",
-        // //     Bracketed(
-        // //         Delimited(
-        // //             OneOf(
-        // //                 Ref("ColumnReferenceSegment"),
-        // //                 Ref("LiteralGrammar"),
-        // //             ),
-        // //             optional=True,
-        // //         ),
-        // //     ),
-        // // ),
-        // // PropertiesBackTickedIdentifierSegment=RegexParser(
-        // //     r"`.+`",
-        // //     IdentifierSegment,
-        // //     type="properties_naked_identifier",
-        // // ),
-        // // LocationWithCredentialGrammar=Sequence(
-        // //     "LOCATION",
-        // //     Ref("QuotedLiteralSegment"),
-        // //     Sequence(
-        // //         "WITH",
-        // //         Bracketed(
-        // //             "CREDENTIAL",
-        // //             Ref("PrincipalIdentifierSegment"),
-        // //         ),
-        // //         optional=True,
-        // //     ),
-        // // ),
+        (
+            "LocationWithCredentialGrammar".into(),
+            Sequence::new(vec_of_erased![
+                Ref::keyword("LOCATION"),
+                Ref::new("QuotedLiteralSegment"),
+                Sequence::new(vec_of_erased![
+                    Ref::keyword("WITH"),
+                    Bracketed::new(vec_of_erased![
+                        Ref::keyword("CREDENTIAL"),
+                        Ref::new("PrincipalIdentifierSegment")
+                    ]),
+                ])
+                .config(|config| { config.optional() }),
+            ])
+            .to_matchable()
+            .into(),
+        ),
         // // NotebookStart=TypedParser("notebook_start", CommentSegment, type="notebook_start"),
         // // MagicLineGrammar=TypedParser("magic_line", CodeSegment, type="magic_line"),
         // // MagicStartGrammar=TypedParser("magic_start", CodeSegment, type="magic_start"),
@@ -268,39 +247,37 @@ pub fn dialect() -> Dialect {
         // // ),
     ]);
 
-    databricks.add([
-        // https://docs.databricks.com/en/sql/language-manual/sql-ref-syntax-aux-show-views.html
-        // Only difference between this and the SparkSQL version:
-        // - `LIKE` keyword is optional
-        (
-            "ShowViewsGrammar".into(),
+    // https://docs.databricks.com/en/sql/language-manual/sql-ref-syntax-aux-show-views.html
+    // Only difference between this and the SparkSQL version:
+    // - `LIKE` keyword is optional
+    databricks.replace_grammar(
+        "ShowViewsGrammar".into(),
+        Sequence::new(vec_of_erased![
+            Ref::keyword("VIEWS"),
+            Sequence::new(vec_of_erased![one_of(vec_of_erased![
+                Ref::keyword("FROM"),
+                Ref::keyword("IN"),
+            ])])
+            .config(|config| {
+                config.optional();
+            }),
             Sequence::new(vec_of_erased![
-                Ref::keyword("VIEWS"),
-                Sequence::new(vec_of_erased![one_of(vec_of_erased![
-                    Ref::keyword("FROM"),
-                    Ref::keyword("IN"),
-                ])])
-                .config(|config| {
-                    config.optional();
-                }),
-                Sequence::new(vec_of_erased![
-                    Ref::keyword("LIKE").optional(),
-                    Ref::new("QuotedLiteralSegment"),
-                ])
-                .config(|config| { config.optional() })
+                Ref::keyword("LIKE").optional(),
+                Ref::new("QuotedLiteralSegment"),
             ])
+            .config(|config| { config.optional() })
+        ])
+        .to_matchable()
+        .into(),
+    );
+    // TODO Missing Show Object Grammar
+    databricks.replace_grammar(
+        "NotNullGrammar".into(),
+        Sequence::new(vec_of_erased![Ref::keyword("NOT"), Ref::keyword("NULL")])
             .to_matchable()
             .into(),
-        ),
-        // TODO Missing Show Object Grammar
-        (
-            "NotNullGrammar".into(),
-            Sequence::new(vec_of_erased![Ref::keyword("NOT"), Ref::keyword("NULL")])
-                .to_matchable()
-                .into(),
-        ),
         // TODO Function NameIdentifierSegment
-    ]);
+    );
 
     return databricks;
 }

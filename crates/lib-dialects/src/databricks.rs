@@ -241,10 +241,18 @@ pub fn dialect() -> Dialect {
         // // NotebookStart=TypedParser("notebook_start", CommentSegment, type="notebook_start"),
         // // MagicLineGrammar=TypedParser("magic_line", CodeSegment, type="magic_line"),
         // // MagicStartGrammar=TypedParser("magic_start", CodeSegment, type="magic_start"),
-        // // VariableNameIdentifierSegment=OneOf(
-        // //     Ref("NakedIdentifierSegment"),
-        // //     Ref("BackQuotedIdentifierSegment"),
-        // // ),
+        (
+            "VariableNameIdentifierSegment".into(),
+            one_of(vec_of_erased![
+                Ref::new("NakedIdentifierSegment"),
+                Ref::new("BackQuotedIdentifierSegment"),
+            ])
+            .to_matchable()
+            .into(),
+        ), // // VariableNameIdentifierSegment=OneOf(
+           // //     Ref("NakedIdentifierSegment"),
+           // //     Ref("BackQuotedIdentifierSegment"),
+           // // ),
     ]);
 
     // https://docs.databricks.com/en/sql/language-manual/sql-ref-syntax-aux-show-views.html

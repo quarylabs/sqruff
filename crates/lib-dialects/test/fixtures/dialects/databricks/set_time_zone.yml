@@ -1,0 +1,38 @@
+file:
+- statement:
+  - set_statement:
+    - keyword: SET
+    - property_name_identifier:
+      - properties_naked_identifier: TIME
+    - naked_identifier: ZONE
+- file:
+  - word: LOCAL
+  - semicolon: ;
+  - word: SET
+  - word: TIME
+  - word: ZONE
+  - single_quote: '''America/Los_Angeles'''
+  - semicolon: ;
+  - word: SET
+  - word: TIME
+  - word: ZONE
+  - single_quote: '''+08:00'''
+  - semicolon: ;
+  - word: SET
+  - word: TIME
+  - word: ZONE
+  - word: INTERVAL
+  - numeric_literal: '1'
+  - word: HOUR
+  - numeric_literal: '30'
+  - word: MINUTES
+  - semicolon: ;
+  - word: SET
+  - word: TIME
+  - word: ZONE
+  - word: INTERVAL
+  - single_quote: '''08:30:00'''
+  - word: HOUR
+  - word: TO
+  - word: SECOND
+  - semicolon: ;

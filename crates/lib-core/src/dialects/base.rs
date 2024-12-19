@@ -3,7 +3,7 @@ use std::collections::hash_map::Entry;
 use std::fmt::Debug;
 
 use ahash::{AHashMap, AHashSet};
-
+use itertools::Itertools;
 use crate::dialects::init::DialectKind;
 use crate::dialects::syntax::SyntaxKind;
 use crate::helpers::{capitalize, ToMatchable};
@@ -69,7 +69,6 @@ impl Dialect {
             .unwrap_or_else(|| panic!("Failed to get mutable reference for {name}"))
         {
             DialectElementType::Matchable(matchable) => {
-                println!("Replacing grammar {:?} with new grammar.", matchable);
                 matchable.as_node_matcher().unwrap().match_grammar = match_grammar;
             }
             DialectElementType::SegmentGenerator(_) => {

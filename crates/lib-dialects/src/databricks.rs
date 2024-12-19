@@ -279,14 +279,16 @@ pub fn dialect() -> Dialect {
         .into(),
     );
 
-    // TODO Missing Show Object Grammar
-    databricks.replace_grammar(
-        "NotNullGrammar".into(),
-        Sequence::new(vec_of_erased![Ref::keyword("NOT"), Ref::keyword("NULL")])
-            .to_matchable()
-            .into(),
-        // TODO Function NameIdentifierSegment
-    );
+    // // TODO Missing Show Object Grammar
+    // databricks.replace_grammar(
+    //     "NotNullGrammar".into(),
+    //     Sequence::new(vec_of_erased![Ref::keyword("NOT"), Ref::keyword("NULL")])
+    //         .to_matchable()
+    //         .into(),
+    //     // TODO Function NameIdentifierSegment
+    // );
+
+    databricks.expand();
 
     return databricks;
 }

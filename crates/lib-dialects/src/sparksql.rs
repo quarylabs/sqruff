@@ -2730,7 +2730,9 @@ pub fn dialect() -> Dialect {
                     })
                 ])
                 .to_matchable(),
-            ).to_matchable().into(),
+            )
+            .to_matchable()
+            .into(),
         ),
         (
             "SetStatementSegment".into(),

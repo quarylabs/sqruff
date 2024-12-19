@@ -259,7 +259,7 @@ pub fn dialect() -> Dialect {
     // Only difference between this and the SparkSQL version:
     // - `LIKE` keyword is optional
     databricks.replace_grammar(
-        "ShowViewsGrammar".into(),
+        "ShowViewsStatement".into(),
         Sequence::new(vec_of_erased![
             Ref::keyword("VIEWS"),
             Sequence::new(vec_of_erased![one_of(vec_of_erased![
@@ -278,6 +278,7 @@ pub fn dialect() -> Dialect {
         .to_matchable()
         .into(),
     );
+
     // TODO Missing Show Object Grammar
     databricks.replace_grammar(
         "NotNullGrammar".into(),

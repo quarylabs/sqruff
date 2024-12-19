@@ -69,6 +69,7 @@ impl Dialect {
             .unwrap_or_else(|| panic!("Failed to get mutable reference for {name}"))
         {
             DialectElementType::Matchable(matchable) => {
+                println!("Replacing grammar {:?} with new grammar.", matchable);
                 matchable.as_node_matcher().unwrap().match_grammar = match_grammar;
             }
             DialectElementType::SegmentGenerator(_) => {

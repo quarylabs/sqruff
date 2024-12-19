@@ -2709,26 +2709,28 @@ pub fn dialect() -> Dialect {
         ),
         (
             "ShowViewsStatement".into(),
-            Sequence::new(vec_of_erased![
-                Ref::keyword("SHOW"),
-                Ref::keyword("VIEWS"),
+            NodeMatcher::new(
+                SyntaxKind::ShowViewsStatement,
                 Sequence::new(vec_of_erased![
-                    one_of(vec_of_erased![Ref::keyword("FROM"), Ref::keyword("IN")]),
-                    Ref::new("DatabaseReferenceSegment")
+                    Ref::keyword("SHOW"),
+                    Ref::keyword("VIEWS"),
+                    Sequence::new(vec_of_erased![
+                        one_of(vec_of_erased![Ref::keyword("FROM"), Ref::keyword("IN")]),
+                        Ref::new("DatabaseReferenceSegment")
+                    ])
+                    .config(|config| {
+                        config.optional();
+                    }),
+                    Sequence::new(vec_of_erased![
+                        Ref::keyword("LIKE"),
+                        Ref::new("QuotedLiteralSegment")
+                    ])
+                    .config(|config| {
+                        config.optional();
+                    })
                 ])
-                .config(|config| {
-                    config.optional();
-                }),
-                Sequence::new(vec_of_erased![
-                    Ref::keyword("LIKE"),
-                    Ref::new("QuotedLiteralSegment")
-                ])
-                .config(|config| {
-                    config.optional();
-                })
-            ])
-            .to_matchable()
-            .into(),
+                .to_matchable(),
+            ).to_matchable().into(),
         ),
         (
             "SetStatementSegment".into(),

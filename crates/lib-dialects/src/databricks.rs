@@ -11,11 +11,12 @@ use sqruff_lib_core::{
     },
     vec_of_erased,
 };
+use crate::sparksql;
 
 pub fn dialect() -> Dialect {
-    let raw_sparksql = crate::sparksql::dialect();
+    let raw_sparksql = sparksql::dialect();
 
-    let mut databricks = crate::sparksql::dialect();
+    let mut databricks = sparksql::dialect();
     databricks.name = DialectKind::Databricks;
 
     // databricks
@@ -238,6 +239,16 @@ pub fn dialect() -> Dialect {
             .to_matchable()
             .into(),
         ),
+        (
+            "ShowVolumesStatement".into(),
+            Sequence::new(vec_of_erased![
+                Ref::keyword("SHOW"),
+                Ref::keyword("VOLUMES"),
+                Ref::new("DatabaseReferenceSegment"),
+            ])
+            .to_matchable()
+            .into(),
+        ),
         // // NotebookStart=TypedParser("notebook_start", CommentSegment, type="notebook_start"),
         // // MagicLineGrammar=TypedParser("magic_line", CodeSegment, type="magic_line"),
         // // MagicStartGrammar=TypedParser("magic_start", CodeSegment, type="magic_start"),
@@ -261,11 +272,12 @@ pub fn dialect() -> Dialect {
     databricks.replace_grammar(
         "ShowViewsStatement".into(),
         Sequence::new(vec_of_erased![
+            Ref::keyword("SHOW"),
             Ref::keyword("VIEWS"),
-            Sequence::new(vec_of_erased![one_of(vec_of_erased![
-                Ref::keyword("FROM"),
-                Ref::keyword("IN"),
-            ])])
+            Sequence::new(vec_of_erased![
+                one_of(vec_of_erased![Ref::keyword("FROM"), Ref::keyword("IN"),]),
+                Ref::new("DatabaseReferenceSegment"),
+            ])
             .config(|config| {
                 config.optional();
             }),
@@ -278,6 +290,23 @@ pub fn dialect() -> Dialect {
         .to_matchable()
         .into(),
     );
+
+    let mut show_statements = sparksql::show_statements();
+    show_statements.push(
+        Ref::new("ShowVolumesStatement")
+            .to_matchable()
+            .into()
+    );
+    databricks.replace_grammar(
+        "ShowStatement".into(),
+        one_of(show_statements)
+            .to_matchable()
+            .into(),
+    );
+
+
+
+
 
     // // TODO Missing Show Object Grammar
     // databricks.replace_grammar(

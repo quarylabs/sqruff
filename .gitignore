@@ -45,6 +45,7 @@ downloads/
 eggs/
 .eggs/
 lib/
+!crates/lib
 lib64/
 parts/
 sdist/

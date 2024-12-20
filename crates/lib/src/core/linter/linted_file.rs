@@ -109,14 +109,13 @@ impl LintedFile {
     ///  may produce strange results.
     fn slice_source_file_using_patches(
         source_patches: Vec<FixPatch>,
-        source_only_slices: Vec<RawFileSlice>,
+        mut source_only_slices: Vec<RawFileSlice>,
         raw_source_string: &str,
     ) -> Vec<Range<usize>> {
         // We now slice up the file using the patches and any source only slices.
         // This gives us regions to apply changes to.
         let mut slice_buff: Vec<Range<usize>> = Vec::new();
         let mut source_idx = 0;
-        let mut source_only_slices = source_only_slices.clone();
 
         for patch in &source_patches {
             // Are there templated slices at or before the start of this patch?

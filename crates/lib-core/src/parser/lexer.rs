@@ -589,7 +589,7 @@ impl Lexer {
             let template_slice = offset_slice(idx, element.text.len());
             idx += element.text.len();
 
-            let templated_string = template.get_templated_string().unwrap();
+            let templated_string = template.templated();
             if templated_string[template_slice.clone()] != element.text {
                 panic!(
                     "Template and lexed elements do not match. This should never happen {:?} != \

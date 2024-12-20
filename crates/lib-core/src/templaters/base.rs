@@ -266,14 +266,8 @@ impl TemplatedFileInner {
     }
 
     /// Get templated string
-    pub fn get_templated_string(&self) -> Option<&str> {
-        self.templated_str.as_deref()
-    }
-
-    /// Return the templated file if coerced to string.
-    #[allow(clippy::inherent_to_string)]
-    pub fn to_string(&self) -> String {
-        self.templated_str.clone().unwrap().to_string()
+    pub fn templated(&self) -> &str {
+        self.templated_str.as_deref().unwrap()
     }
 
     pub fn source_only_slices(&self) -> Vec<RawFileSlice> {

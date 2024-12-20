@@ -354,7 +354,7 @@ mod tests {
         let templater = PlaceholderTemplater {};
         let in_str = "SELECT * FROM {{blah}} WHERE %(gnepr)s OR e~':'";
         let out_str = templater.process(in_str, "test.sql", None, &None).unwrap();
-        let out = out_str.to_string();
+        let out = out_str.templated();
         assert_eq!(in_str, out)
     }
 
@@ -619,7 +619,7 @@ param_style = {}
             let out_str = templater
                 .process(in_str, "test.sql", Some(&config), &None)
                 .unwrap();
-            let out = out_str.to_string();
+            let out = out_str.templated();
             assert_eq!(expected_out, out)
         }
     }
@@ -680,7 +680,7 @@ my_name = john
         let out_str = templater
             .process(in_str, "test", Some(&config), &None)
             .unwrap();
-        let out = out_str.to_string();
+        let out = out_str.templated();
         assert_eq!("SELECT bla FROM blob WHERE id = john", out)
     }
 

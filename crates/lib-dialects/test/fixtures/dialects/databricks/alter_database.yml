@@ -1,144 +1,209 @@
 file:
-- unparsable:
-  - word: ALTER
-  - word: SCHEMA
-  - word: some_cat
-  - word: OWNER
-  - word: TO
-  - back_quote: '`alf@melmak.et`'
-  - semicolon: ;
-  - word: ALTER
-  - word: SCHEMA
-  - word: some_cat
-  - word: OWNER
-  - word: TO
-  - word: my_group
-  - semicolon: ;
-  - word: ALTER
-  - word: SCHEMA
-  - word: some_cat
-  - word: SET
-  - word: OWNER
-  - word: TO
-  - back_quote: '`alf@melmak.et`'
-  - semicolon: ;
-  - word: ALTER
-  - word: SCHEMA
-  - word: some_cat
-  - word: SET
-  - word: OWNER
-  - word: TO
-  - word: my_group
-  - semicolon: ;
-  - word: ALTER
-  - word: DATABASE
-  - word: some_cat
-  - word: OWNER
-  - word: TO
-  - back_quote: '`alf@melmak.et`'
-  - semicolon: ;
-  - word: ALTER
-  - word: DATABASE
-  - word: some_cat
-  - word: SET
-  - word: OWNER
-  - word: TO
-  - back_quote: '`alf@melmak.et`'
-  - semicolon: ;
-  - word: ALTER
-  - word: DATABASE
-  - word: some_cat
-  - word: OWNER
-  - word: TO
-  - word: my_group
-  - semicolon: ;
-  - word: ALTER
-  - word: DATABASE
-  - word: some_cat
-  - word: SET
-  - word: OWNER
-  - word: TO
-  - word: my_group
-  - semicolon: ;
-  - word: ALTER
-  - word: SCHEMA
-  - word: some_cat
-  - word: SET
-  - word: TAGS
-  - start_bracket: (
-  - single_quote: '''tag1'''
-  - raw_comparison_operator: =
-  - single_quote: '''value1'''
-  - end_bracket: )
-  - semicolon: ;
-  - word: ALTER
-  - word: DATABASE
-  - word: some_cat
-  - word: SET
-  - word: TAGS
-  - start_bracket: (
-  - single_quote: '''tag2'''
-  - raw_comparison_operator: =
-  - single_quote: '''value2'''
-  - comma: ','
-  - single_quote: '''tag3'''
-  - raw_comparison_operator: =
-  - single_quote: '''value3'''
-  - end_bracket: )
-  - semicolon: ;
-  - word: ALTER
-  - word: DATABASE
-  - word: some_cat
-  - word: UNSET
-  - word: TAGS
-  - start_bracket: (
-  - single_quote: '''tag1'''
-  - end_bracket: )
-  - semicolon: ;
-  - word: ALTER
-  - word: SCHEMA
-  - word: some_cat
-  - word: UNSET
-  - word: TAGS
-  - start_bracket: (
-  - single_quote: '''tag2'''
-  - comma: ','
-  - single_quote: '''tag3'''
-  - end_bracket: )
-  - semicolon: ;
-  - word: ALTER
-  - word: SCHEMA
-  - word: some_cat
-  - word: ENABLE
-  - word: PREDICTIVE
-  - word: OPTIMIZATION
-  - semicolon: ;
-  - word: ALTER
-  - word: DATABASE
-  - word: some_cat
-  - word: INHERIT
-  - word: PREDICTIVE
-  - word: OPTIMIZATION
-  - semicolon: ;
-  - word: ALTER
-  - word: SCHEMA
-  - word: some_cat
-  - word: DISABLE
-  - word: PREDICTIVE
-  - word: OPTIMIZATION
-  - semicolon: ;
-  - word: ALTER
-  - word: SCHEMA
-  - word: some_cat
-  - word: SET
-  - word: DBPROPERTIES
-  - start_bracket: (
-  - single_quote: '''Edited-by'''
-  - raw_comparison_operator: =
-  - single_quote: '''John Doe'''
-  - comma: ','
-  - single_quote: '''Edit-date'''
-  - raw_comparison_operator: =
-  - single_quote: '''2020-01-01'''
-  - end_bracket: )
-  - semicolon: ;
+- statement:
+  - alter_database_statement:
+    - keyword: ALTER
+    - keyword: SCHEMA
+    - database_reference:
+      - naked_identifier: some_cat
+    - keyword: OWNER
+    - keyword: TO
+    - quoted_identifier: '`alf@melmak.et`'
+- statement_terminator: ;
+- statement:
+  - alter_database_statement:
+    - keyword: ALTER
+    - keyword: SCHEMA
+    - database_reference:
+      - naked_identifier: some_cat
+    - keyword: OWNER
+    - keyword: TO
+    - naked_identifier: my_group
+- statement_terminator: ;
+- statement:
+  - alter_database_statement:
+    - keyword: ALTER
+    - keyword: SCHEMA
+    - database_reference:
+      - naked_identifier: some_cat
+    - keyword: SET
+    - keyword: OWNER
+    - keyword: TO
+    - quoted_identifier: '`alf@melmak.et`'
+- statement_terminator: ;
+- statement:
+  - alter_database_statement:
+    - keyword: ALTER
+    - keyword: SCHEMA
+    - database_reference:
+      - naked_identifier: some_cat
+    - keyword: SET
+    - keyword: OWNER
+    - keyword: TO
+    - naked_identifier: my_group
+- statement_terminator: ;
+- statement:
+  - alter_database_statement:
+    - keyword: ALTER
+    - keyword: DATABASE
+    - database_reference:
+      - naked_identifier: some_cat
+    - keyword: OWNER
+    - keyword: TO
+    - quoted_identifier: '`alf@melmak.et`'
+- statement_terminator: ;
+- statement:
+  - alter_database_statement:
+    - keyword: ALTER
+    - keyword: DATABASE
+    - database_reference:
+      - naked_identifier: some_cat
+    - keyword: SET
+    - keyword: OWNER
+    - keyword: TO
+    - quoted_identifier: '`alf@melmak.et`'
+- statement_terminator: ;
+- statement:
+  - alter_database_statement:
+    - keyword: ALTER
+    - keyword: DATABASE
+    - database_reference:
+      - naked_identifier: some_cat
+    - keyword: OWNER
+    - keyword: TO
+    - naked_identifier: my_group
+- statement_terminator: ;
+- statement:
+  - alter_database_statement:
+    - keyword: ALTER
+    - keyword: DATABASE
+    - database_reference:
+      - naked_identifier: some_cat
+    - keyword: SET
+    - keyword: OWNER
+    - keyword: TO
+    - naked_identifier: my_group
+- statement_terminator: ;
+- statement:
+  - alter_database_statement:
+    - keyword: ALTER
+    - keyword: SCHEMA
+    - database_reference:
+      - naked_identifier: some_cat
+    - keyword: SET
+    - keyword: TAGS
+    - bracketed:
+      - start_bracket: (
+      - property_name_identifier:
+        - quoted_identifier: '''tag1'''
+      - comparison_operator:
+        - raw_comparison_operator: =
+      - quoted_literal: '''value1'''
+      - end_bracket: )
+- statement_terminator: ;
+- statement:
+  - alter_database_statement:
+    - keyword: ALTER
+    - keyword: DATABASE
+    - database_reference:
+      - naked_identifier: some_cat
+    - keyword: SET
+    - keyword: TAGS
+    - bracketed:
+      - start_bracket: (
+      - property_name_identifier:
+        - quoted_identifier: '''tag2'''
+      - comparison_operator:
+        - raw_comparison_operator: =
+      - quoted_literal: '''value2'''
+      - comma: ','
+      - property_name_identifier:
+        - quoted_identifier: '''tag3'''
+      - comparison_operator:
+        - raw_comparison_operator: =
+      - quoted_literal: '''value3'''
+      - end_bracket: )
+- statement_terminator: ;
+- statement:
+  - alter_database_statement:
+    - keyword: ALTER
+    - keyword: DATABASE
+    - database_reference:
+      - naked_identifier: some_cat
+    - keyword: UNSET
+    - keyword: TAGS
+    - bracketed:
+      - start_bracket: (
+      - property_name_identifier:
+        - quoted_identifier: '''tag1'''
+      - end_bracket: )
+- statement_terminator: ;
+- statement:
+  - alter_database_statement:
+    - keyword: ALTER
+    - keyword: SCHEMA
+    - database_reference:
+      - naked_identifier: some_cat
+    - keyword: UNSET
+    - keyword: TAGS
+    - bracketed:
+      - start_bracket: (
+      - property_name_identifier:
+        - quoted_identifier: '''tag2'''
+      - comma: ','
+      - property_name_identifier:
+        - quoted_identifier: '''tag3'''
+      - end_bracket: )
+- statement_terminator: ;
+- statement:
+  - alter_database_statement:
+    - keyword: ALTER
+    - keyword: SCHEMA
+    - database_reference:
+      - naked_identifier: some_cat
+    - keyword: ENABLE
+    - keyword: PREDICTIVE
+    - keyword: OPTIMIZATION
+- statement_terminator: ;
+- statement:
+  - alter_database_statement:
+    - keyword: ALTER
+    - keyword: DATABASE
+    - database_reference:
+      - naked_identifier: some_cat
+    - keyword: INHERIT
+    - keyword: PREDICTIVE
+    - keyword: OPTIMIZATION
+- statement_terminator: ;
+- statement:
+  - alter_database_statement:
+    - keyword: ALTER
+    - keyword: SCHEMA
+    - database_reference:
+      - naked_identifier: some_cat
+    - keyword: DISABLE
+    - keyword: PREDICTIVE
+    - keyword: OPTIMIZATION
+- statement_terminator: ;
+- statement:
+  - alter_database_statement:
+    - keyword: ALTER
+    - keyword: SCHEMA
+    - database_reference:
+      - naked_identifier: some_cat
+    - keyword: SET
+    - keyword: DBPROPERTIES
+    - bracketed:
+      - start_bracket: (
+      - property_name_identifier:
+        - quoted_identifier: '''Edited-by'''
+      - comparison_operator:
+        - raw_comparison_operator: =
+      - quoted_literal: '''John Doe'''
+      - comma: ','
+      - property_name_identifier:
+        - quoted_identifier: '''Edit-date'''
+      - comparison_operator:
+        - raw_comparison_operator: =
+      - quoted_literal: '''2020-01-01'''
+      - end_bracket: )
+- statement_terminator: ;

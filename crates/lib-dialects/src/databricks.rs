@@ -6,6 +6,7 @@ use sqruff_lib_core::parser::grammar::anyof::AnyNumberOf;
 use sqruff_lib_core::parser::grammar::delimited::Delimited;
 use sqruff_lib_core::parser::grammar::sequence::Bracketed;
 use sqruff_lib_core::parser::matchable::MatchableTrait;
+use sqruff_lib_core::parser::segments::meta::MetaSegment;
 use sqruff_lib_core::{
     dialects::{base::Dialect, init::DialectKind, syntax::SyntaxKind},
     helpers::{Config, ToMatchable},
@@ -406,24 +407,427 @@ pub fn dialect() -> Dialect {
 
     // An `ALTER DATABASE/SCHEMA` statement.
     // https://docs.databricks.com/en/sql/language-manual/sql-ref-syntax-ddl-alter-schema.html
-    databricks.replace_grammar("AlterDatabaseStatementSegment", 
-    Sequence::new(vec_of_erased![
-        Ref::keyword("ALTER"),
-        one_of(vec_of_erased![Ref::keyword("DATABASE"), Ref::keyword("SCHEMA")]),
-        Ref::new("DatabaseReferenceSegment"),
-        one_of(vec_of_erased![
-            Sequence::new(vec_of_erased![
-                Ref::keyword("SET"),
-                Ref::new("DatabasePropertiesGrammar"),
+    databricks.replace_grammar(
+        "AlterDatabaseStatementSegment",
+        Sequence::new(vec_of_erased![
+            Ref::keyword("ALTER"),
+            one_of(vec_of_erased![
+                Ref::keyword("DATABASE"),
+                Ref::keyword("SCHEMA")
             ]),
-            Ref::new("SetOwnerGrammar"),
-            Ref::new("SetTagsGrammar"),
-            Ref::new("UnsetTagsGrammar"),
-            Ref::new("PredictiveOptimizationGrammar"),
-        ]),
-    ]).to_matchable().into());
+            Ref::new("DatabaseReferenceSegment"),
+            one_of(vec_of_erased![
+                Sequence::new(vec_of_erased![
+                    Ref::keyword("SET"),
+                    Ref::new("DatabasePropertiesGrammar"),
+                ]),
+                Ref::new("SetOwnerGrammar"),
+                Ref::new("SetTagsGrammar"),
+                Ref::new("UnsetTagsGrammar"),
+                Ref::new("PredictiveOptimizationGrammar"),
+            ]),
+        ])
+        .to_matchable()
+        .into(),
+    );
 
+    // An `ALTER TABLE` statement.
+    // https://docs.databricks.com/en/sql/language-manual/sql-ref-syntax-ddl-alter-table.html
+    //     match_grammar = Sequence(
+    //     "ALTER",
+    //     "TABLE",
+    //     Ref("TableReferenceSegment"),
+    //     Indent,
+    //     OneOf(
+    //         Sequence(
+    //             "RENAME",
+    //             "TO",
+    //             Ref("TableReferenceSegment"),
+    //         ),
+    //         Sequence(
+    //             "ADD",
+    //             OneOf("COLUMNS", "COLUMN"),
+    //             Indent,
+    //             Bracketed(
+    //                 Delimited(
+    //                     Sequence(
+    //                         Ref("ColumnFieldDefinitionSegment"),
+    //                         Ref("ColumnDefaultGrammar", optional=True),
+    //                         Ref("CommentGrammar", optional=True),
+    //                         Ref("FirstOrAfterGrammar", optional=True),
+    //                         Ref("MaskStatementSegment", optional=True),
+    //                     ),
+    //                 ),
+    //             ),
+    //             Dedent,
+    //         ),
+    //         Sequence(
+    //             OneOf("ALTER", "CHANGE"),
+    //             Ref.keyword("COLUMN", optional=True),
+    //             Ref("ColumnReferenceSegment"),
+    //             OneOf(
+    //                 Ref("CommentGrammar"),
+    //                 Ref("FirstOrAfterGrammar"),
+    //                 Sequence(
+    //                     OneOf("SET", "DROP"),
+    //                     "NOT",
+    //                     "NULL",
+    //                 ),
+    //                 Sequence(
+    //                     "TYPE",
+    //                     Ref("DatatypeSegment"),
+    //                 ),
+    //                 Sequence(
+    //                     "SET",
+    //                     Ref("ColumnDefaultGrammar"),
+    //                 ),
+    //                 Sequence(
+    //                     "DROP",
+    //                     "DEFAULT",
+    //                 ),
+    //                 Sequence(
+    //                     "SYNC",
+    //                     "IDENTITY",
+    //                 ),
+    //                 Sequence(
+    //                     "SET",
+    //                     Ref("MaskStatementSegment"),
+    //                 ),
+    //                 Sequence(
+    //                     "DROP",
+    //                     "MASK",
+    //                 ),
+    //                 Ref("SetTagsGrammar"),
+    //                 Ref("UnsetTagsGrammar"),
+    //             ),
+    //         ),
+    //         Sequence(
+    //             "DROP",
+    //             OneOf("COLUMN", "COLUMNS", optional=True),
+    //             Ref("IfExistsGrammar", optional=True),
+    //             OptionallyBracketed(
+    //                 Delimited(
+    //                     Ref("ColumnReferenceSegment"),
+    //                 ),
+    //             ),
+    //         ),
+    //         Sequence(
+    //             "RENAME",
+    //             "COLUMN",
+    //             Ref("ColumnReferenceSegment"),
+    //             "TO",
+    //             Ref("ColumnReferenceSegment"),
+    //         ),
+    //         Sequence(
+    //             "ADD",
+    //             Ref("TableConstraintSegment"),
+    //         ),
+    //         Ref("DropConstraintGrammar"),
+    //         Sequence(
+    //             "DROP",
+    //             "FEATURE",
+    //             Ref("ObjectReferenceSegment"),
+    //             Sequence(
+    //                 "TRUNCATE",
+    //                 "HISTORY",
+    //                 optional=True,
+    //             ),
+    //         ),
+    //         Sequence(
+    //             "ADD",
+    //             Ref("IfNotExistsGrammar", optional=True),
+    //             AnyNumberOf(Ref("AlterPartitionGrammar")),
+    //         ),
+    //         Sequence(
+    //             "DROP",
+    //             Ref("IfExistsGrammar", optional=True),
+    //             AnyNumberOf(Ref("AlterPartitionGrammar")),
+    //         ),
+    //         Sequence(
+    //             Ref("AlterPartitionGrammar"),
+    //             "SET",
+    //             Ref("LocationGrammar"),
+    //         ),
+    //         Sequence(
+    //             Ref("AlterPartitionGrammar"),
+    //             "RENAME",
+    //             "TO",
+    //             Ref("AlterPartitionGrammar"),
+    //         ),
+    //         Sequence(
+    //             "RECOVER",
+    //             "PARTITIONS",
+    //         ),
+    //         Sequence(
+    //             "SET",
+    //             Ref("RowFilterClauseGrammar"),
+    //         ),
+    //         Sequence(
+    //             "DROP",
+    //             "ROW",
+    //             "FILTER",
+    //         ),
+    //         Sequence(
+    //             "SET",
+    //             Ref("TablePropertiesGrammar"),
+    //         ),
+    //         Ref("UnsetTablePropertiesGrammar"),
+    //         Sequence(
+    //             "SET",
+    //             "SERDE",
+    //             Ref("QuotedLiteralSegment"),
+    //             Sequence(
+    //                 "WITH",
+    //                 "SERDEPROPERTIES",
+    //                 Ref("BracketedPropertyListGrammar"),
+    //                 optional=True,
+    //             ),
+    //         ),
+    //         Sequence(
+    //             "SET",
+    //             Ref("LocationGrammar"),
+    //         ),
+    //         Ref("SetOwnerGrammar"),
+    //         Sequence(
+    //             Sequence(
+    //                 "ALTER",
+    //                 "COLUMN",
+    //                 Ref("ColumnReferenceSegment"),
+    //                 optional=True,
+    //             ),
+    //             Ref("SetTagsGrammar"),
+    //         ),
+    //         Sequence(
+    //             Sequence(
+    //                 "ALTER",
+    //                 "COLUMN",
+    //                 Ref("ColumnReferenceSegment"),
+    //                 optional=True,
+    //             ),
+    //             Ref("UnsetTagsGrammar"),
+    //         ),
+    //         Ref("ClusterByClauseSegment"),
+    //         Ref("PredictiveOptimizationGrammar"),
+    //     ),
+    //     Dedent,
+    // )
+    databricks.replace_grammar(
+        "AlterTableStatementSegment",
+        Sequence::new(vec_of_erased![
+            Ref::keyword("ALTER"),
+            Ref::keyword("TABLE"),
+            Ref::new("TableReferenceSegment"),
+            MetaSegment::indent(),
+            one_of(vec_of_erased![
+                Sequence::new(vec_of_erased![
+                    Ref::keyword("RENAME"),
+                    Ref::keyword("TO"),
+                    Ref::new("TableReferenceSegment"),
+                ]),
+                Sequence::new(vec_of_erased![
+                    Ref::keyword("ADD"),
+                    one_of(vec_of_erased![
+                        Ref::keyword("COLUMNS"),
+                        Ref::keyword("COLUMN")
+                    ]),
+                    MetaSegment::indent(),
+                    Bracketed::new(vec_of_erased![Delimited::new(vec_of_erased![
+                        Sequence::new(vec_of_erased![
+                            Ref::new("ColumnFieldDefinitionSegment"),
+                            Ref::new("ColumnDefaultGrammar").optional(),
+                            Ref::new("CommentGrammar").optional(),
+                            Ref::new("FirstOrAfterGrammar").optional(),
+                            Ref::new("MaskStatementSegment").optional(),
+                        ]),
+                    ]),]),
+                    MetaSegment::dedent(),
+                ]),
+                Sequence::new(vec_of_erased![
+                    one_of(vec_of_erased![
+                        Ref::keyword("ALTER"),
+                        Ref::keyword("CHANGE")
+                    ]),
+                    Ref::keyword("COLUMN").optional(),
+                    Ref::new("ColumnReferenceSegment"),
+                    one_of(vec_of_erased![
+                        Ref::new("CommentGrammar"),
+                        Ref::new("FirstOrAfterGrammar"),
+                        Sequence::new(vec_of_erased![
+                            one_of(vec_of_erased![Ref::keyword("SET"), Ref::keyword("DROP")]),
+                            Ref::keyword("NOT"),
+                            Ref::keyword("NULL"),
+                        ]),
+                        Sequence::new(vec_of_erased![
+                            Ref::keyword("TYPE"),
+                            Ref::new("DatatypeSegment"),
+                        ]),
+                        Sequence::new(vec_of_erased![
+                            Ref::keyword("SET"),
+                            Ref::new("ColumnDefaultGrammar"),
+                        ]),
+                        Sequence::new(vec_of_erased![
+                            Ref::keyword("DROP"),
+                            Ref::keyword("DEFAULT"),
+                        ]),
+                        Sequence::new(vec_of_erased![
+                            Ref::keyword("SYNC"),
+                            Ref::keyword("IDENTITY"),
+                        ]),
+                        Sequence::new(vec_of_erased![
+                            Ref::keyword("SET"),
+                            Ref::new("MaskStatementSegment"),
+                        ]),
+                        Sequence::new(vec_of_erased![Ref::keyword("DROP"), Ref::keyword("MASK"),]),
+                        Ref::new("SetTagsGrammar"),
+                        Ref::new("UnsetTagsGrammar"),
+                    ]),
+                ]),
+                Sequence::new(vec_of_erased![
+                    Ref::keyword("DROP"),
+                    one_of(vec_of_erased![
+                        Ref::keyword("COLUMN"),
+                        Ref::keyword("COLUMNS")
+                    ])
+                    .config(|config| { config.optional() }),
+                    Ref::new("IfExistsGrammar").optional(),
+                    one_of(vec_of_erased![
+                        Delimited::new(vec_of_erased![Ref::new("ColumnReferenceSegment")]),
+                        Bracketed::new(vec_of_erased![Delimited::new(vec_of_erased![Ref::new(
+                            "ColumnReferenceSegment"
+                        )]),]),
+                    ]),
+                ]),
+                Sequence::new(vec_of_erased![
+                    Ref::keyword("RENAME"),
+                    Ref::keyword("COLUMN"),
+                    Ref::new("ColumnReferenceSegment"),
+                    Ref::keyword("TO"),
+                    Ref::new("ColumnReferenceSegment"),
+                ]),
+                Sequence::new(vec_of_erased![
+                    Ref::keyword("ADD"),
+                    Ref::new("TableConstraintSegment"),
+                ]),
+                Ref::new("DropConstraintGrammar"),
+                Sequence::new(vec_of_erased![
+                    Ref::keyword("DROP"),
+                    Ref::keyword("FEATURE"),
+                    Ref::new("ObjectReferenceSegment"),
+                    Sequence::new(vec_of_erased![
+                        Ref::keyword("TRUNCATE"),
+                        Ref::keyword("HISTORY"),
+                    ])
+                    .config(|config| { config.optional() }),
+                ]),
+                Sequence::new(vec_of_erased![
+                    Ref::keyword("ADD"),
+                    Ref::new("IfNotExistsGrammar").optional(),
+                    AnyNumberOf::new(vec_of_erased![Ref::new("AlterPartitionGrammar"),]),
+                ]),
+                Sequence::new(vec_of_erased![
+                    Ref::keyword("DROP"),
+                    Ref::new("IfExistsGrammar").optional(),
+                    AnyNumberOf::new(vec_of_erased![Ref::new("AlterPartitionGrammar"),]),
+                ]),
+                Sequence::new(vec_of_erased![
+                    Ref::new("AlterPartitionGrammar"),
+                    Ref::keyword("SET"),
+                    Ref::new("LocationGrammar"),
+                ]),
+                Sequence::new(vec_of_erased![
+                    Ref::new("AlterPartitionGrammar"),
+                    Ref::keyword("RENAME"),
+                    Ref::keyword("TO"),
+                    Ref::new("AlterPartitionGrammar"),
+                ]),
+                Sequence::new(vec_of_erased![
+                    Ref::keyword("RECOVER"),
+                    Ref::keyword("PARTITIONS"),
+                ]),
+                Sequence::new(vec_of_erased![
+                    Ref::keyword("SET"),
+                    Ref::new("RowFilterClauseGrammar"),
+                ]),
+                Sequence::new(vec_of_erased![
+                    Ref::keyword("DROP"),
+                    Ref::keyword("ROW"),
+                    Ref::keyword("FILTER"),
+                ]),
+                Sequence::new(vec_of_erased![
+                    Ref::keyword("SET"),
+                    Ref::new("TablePropertiesGrammar"),
+                ]),
+                Ref::new("UnsetTablePropertiesGrammar"),
+                Sequence::new(vec_of_erased![
+                    Ref::keyword("SET"),
+                    Ref::keyword("SERDE"),
+                    Ref::new("QuotedLiteralSegment"),
+                    Sequence::new(vec_of_erased![
+                        Ref::keyword("WITH"),
+                        Ref::keyword("SERDEPROPERTIES"),
+                        Ref::new("BracketedPropertyListGrammar"),
+                    ])
+                    .config(|config| { config.optional() }),
+                ]),
+                Sequence::new(vec_of_erased![
+                    Ref::keyword("SET"),
+                    Ref::new("LocationGrammar"),
+                ]),
+                Ref::new("SetOwnerGrammar"),
+                Sequence::new(vec_of_erased![
+                    Sequence::new(vec_of_erased![
+                        Ref::keyword("ALTER"),
+                        Ref::keyword("COLUMN"),
+                        Ref::new("ColumnReferenceSegment"),
+                    ])
+                    .config(|config| { config.optional() }),
+                    Ref::new("SetTagsGrammar"),
+                ]),
+                Sequence::new(vec_of_erased![
+                    Sequence::new(vec_of_erased![
+                        Ref::keyword("ALTER"),
+                        Ref::keyword("COLUMN"),
+                        Ref::new("ColumnReferenceSegment"),
+                    ])
+                    .config(|config| { config.optional() }),
+                    Ref::new("UnsetTagsGrammar"),
+                ]),
+                Ref::new("ClusterByClauseSegment"),
+                Ref::new("PredictiveOptimizationGrammar"),
+            ]),
+            MetaSegment::dedent(),
+        ])
+        .to_matchable()
+        .into(),
+    );
 
+    databricks.add([(
+        "VolumeReferenceSegment".into(),
+        Ref::new("ObjectReferenceSegment").to_matchable().into(),
+    )]);
+
+    // An `ALTER VOLUME` statement.
+    // https://docs.databricks.com/en/sql/language-manual/sql-ref-syntax-ddl-alter-volume.html
+    databricks.add([(
+        "AlterVolumeStatementSegment".into(),
+        Sequence::new(vec_of_erased![
+            Ref::keyword("ALTER"),
+            Ref::keyword("VOLUME"),
+            Ref::new("VolumeReferenceSegment"),
+            one_of(vec_of_erased![
+                Sequence::new(vec_of_erased![
+                    Ref::keyword("RENAME"),
+                    Ref::keyword("TO"),
+                    Ref::new("VolumeReferenceSegment"),
+                ]),
+                Ref::new("SetOwnerGrammar"),
+                Ref::new("SetTagsGrammar"),
+                Ref::new("UnsetTagsGrammar"),
+            ]),
+        ])
+        .to_matchable()
+        .into(),
+    )]);
 
     databricks.replace_grammar(
         "StatementSegment",
@@ -432,7 +836,10 @@ pub fn dialect() -> Dialect {
             .match_grammar()
             .unwrap()
             .copy(
-                Some(vec_of_erased![Ref::new("AlterCatalogStatementSegment"),]),
+                Some(vec_of_erased![
+                    Ref::new("AlterCatalogStatementSegment"),
+                    Ref::new("AlterVolumeStatementSegment"),
+                ]),
                 None,
                 None,
                 None,

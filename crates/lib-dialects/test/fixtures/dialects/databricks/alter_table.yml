@@ -10,61 +10,40 @@ file:
     - table_reference:
       - naked_identifier: StudentInfo
 - statement_terminator: ;
-- statement:
-  - alter_table_statement:
-    - keyword: ALTER
-    - keyword: TABLE
-    - table_reference:
-      - naked_identifier: default
-      - dot: .
-      - naked_identifier: StudentInfo
-    - keyword: PARTITION
-    - bracketed:
-      - start_bracket: (
-      - column_reference:
-        - naked_identifier: age
-      - comparison_operator:
-        - raw_comparison_operator: =
-      - quoted_literal: '''10'''
-      - end_bracket: )
-    - keyword: RENAME
-    - keyword: TO
-    - keyword: PARTITION
-    - bracketed:
-      - start_bracket: (
-      - column_reference:
-        - naked_identifier: age
-      - comparison_operator:
-        - raw_comparison_operator: =
-      - quoted_literal: '''15'''
-      - end_bracket: )
-- statement_terminator: ;
-- statement:
-  - alter_table_statement:
-    - keyword: ALTER
-    - keyword: TABLE
-    - table_reference:
-      - naked_identifier: StudentInfo
-    - keyword: ADD
-    - keyword: columns
-    - bracketed:
-      - start_bracket: (
-      - column_definition:
-        - column_reference:
-          - naked_identifier: LastName
-        - data_type:
-          - primitive_type:
-            - keyword: string
-      - comma: ','
-      - column_definition:
-        - column_reference:
-          - naked_identifier: DOB
-        - data_type:
-          - primitive_type:
-            - keyword: timestamp
-      - end_bracket: )
-- statement_terminator: ;
 - file:
+  - word: ALTER
+  - word: TABLE
+  - word: default
+  - dot: .
+  - word: StudentInfo
+  - word: PARTITION
+  - start_bracket: (
+  - word: age
+  - raw_comparison_operator: =
+  - single_quote: '''10'''
+  - end_bracket: )
+  - word: RENAME
+  - word: TO
+  - word: PARTITION
+  - start_bracket: (
+  - word: age
+  - raw_comparison_operator: =
+  - single_quote: '''15'''
+  - end_bracket: )
+  - semicolon: ;
+  - word: ALTER
+  - word: TABLE
+  - word: StudentInfo
+  - word: ADD
+  - word: columns
+  - start_bracket: (
+  - word: LastName
+  - word: string
+  - comma: ','
+  - word: DOB
+  - word: timestamp
+  - end_bracket: )
+  - semicolon: ;
   - word: ALTER
   - word: TABLE
   - word: StudentInfo

@@ -906,6 +906,45 @@ pub fn dialect() -> Dialect {
         .into(),
     )]);
 
+    // A `SET VARIABLE` statement used to set session variables.
+    // https://docs.databricks.com/en/sql/language-manual/sql-ref-syntax-aux-set-variable.html
+    // set var v1=val, v2=val2;
+    //     # set var v1=val, v2=val2;
+    let kv_pair = Sequence::new(vec_of_erased![Delimited::new(vec_of_erased![
+        Ref::new("VariableNameIdentifierSegment"),
+        Ref::new("EqualsSegment"),
+        one_of(vec_of_erased![
+            Ref::keyword("DEFAULT"),
+            one_of(vec_of_erased![
+                Bracketed::new(vec_of_erased![Ref::new("ExpressionSegment")]),
+                Ref::new("ExpressionSegment"),
+            ]),
+        ]),
+    ])]);
+    // set var (v1,v2) = (values(100,200))
+    let bracketed_kv_pair = Sequence::new(vec_of_erased![
+        Bracketed::new(vec_of_erased![Ref::new("VariableNameIdentifierSegment")]),
+        Ref::new("EqualsSegment"),
+        Bracketed::new(vec_of_erased![one_of(vec_of_erased![
+            Ref::new("SelectStatementSegment"),
+            Ref::new("ValuesClauseSegment"),
+        ]),]),
+    ]);
+    databricks.add([(
+        "SetVariableStatementSegment".into(),
+        Sequence::new(vec_of_erased![
+            Ref::keyword("SET"),
+            one_of(vec_of_erased![
+                Ref::keyword("VAR"),
+                Ref::keyword("VARIABLE"),
+            ]),
+            one_of(vec_of_erased![kv_pair.clone(), bracketed_kv_pair.clone(),])
+                .config(|config| config.allow_gaps = true),
+        ])
+        .to_matchable()
+        .into(),
+    )]);
+
     databricks.replace_grammar(
         "StatementSegment",
         raw_sparksql
@@ -919,6 +958,7 @@ pub fn dialect() -> Dialect {
                     Ref::new("AlterVolumeStatementSegment"),
                     Ref::new("CommentOnStatementSegment"),
                     Ref::new("CreateCatalogStatementSegment"),
+                    Ref::new("SetVariableStatementSegment"),
                 ]),
                 None,
                 None,

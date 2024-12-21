@@ -253,7 +253,7 @@ blah = foo
             .process(PYTHON_STRING, "test.sql", Some(&config), &None)
             .unwrap();
 
-        assert_eq!(templated_file.to_string(), "SELECT * FROM foo");
+        assert_eq!(templated_file.templated(), "SELECT * FROM foo");
     }
 
     #[test]

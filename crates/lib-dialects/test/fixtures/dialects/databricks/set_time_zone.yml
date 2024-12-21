@@ -1,38 +1,44 @@
 file:
 - statement:
-  - set_statement:
-    - keyword: SET
-    - property_name_identifier:
-      - properties_naked_identifier: TIME
-    - naked_identifier: ZONE
-- file:
-  - word: LOCAL
-  - semicolon: ;
-  - word: SET
-  - word: TIME
-  - word: ZONE
-  - single_quote: '''America/Los_Angeles'''
-  - semicolon: ;
-  - word: SET
-  - word: TIME
-  - word: ZONE
-  - single_quote: '''+08:00'''
-  - semicolon: ;
-  - word: SET
-  - word: TIME
-  - word: ZONE
-  - word: INTERVAL
-  - numeric_literal: '1'
-  - word: HOUR
-  - numeric_literal: '30'
-  - word: MINUTES
-  - semicolon: ;
-  - word: SET
-  - word: TIME
-  - word: ZONE
-  - word: INTERVAL
-  - single_quote: '''08:30:00'''
-  - word: HOUR
-  - word: TO
-  - word: SECOND
-  - semicolon: ;
+  - keyword: SET
+  - keyword: TIME
+  - keyword: ZONE
+  - keyword: LOCAL
+- statement_terminator: ;
+- statement:
+  - keyword: SET
+  - keyword: TIME
+  - keyword: ZONE
+  - quoted_literal: '''America/Los_Angeles'''
+- statement_terminator: ;
+- statement:
+  - keyword: SET
+  - keyword: TIME
+  - keyword: ZONE
+  - quoted_literal: '''+08:00'''
+- statement_terminator: ;
+- statement:
+  - keyword: SET
+  - keyword: TIME
+  - keyword: ZONE
+  - interval_expression:
+    - keyword: INTERVAL
+    - interval_literal:
+      - numeric_literal: '1'
+      - date_part: HOUR
+    - interval_literal:
+      - numeric_literal: '30'
+      - date_part: MINUTES
+- statement_terminator: ;
+- statement:
+  - keyword: SET
+  - keyword: TIME
+  - keyword: ZONE
+  - interval_expression:
+    - keyword: INTERVAL
+    - interval_literal:
+      - signed_quoted_literal: '''08:30:00'''
+      - date_part: HOUR
+      - keyword: TO
+      - date_part: SECOND
+- statement_terminator: ;

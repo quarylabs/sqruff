@@ -891,6 +891,21 @@ pub fn dialect() -> Dialect {
         .into(),
     )]);
 
+    // A `DROP CATALOG` statement.
+    // https://docs.databricks.com/sql/language-manual/sql-ref-syntax-ddl-drop-catalog.html
+    databricks.add([(
+        "DropCatalogStatementSegment".into(),
+        Sequence::new(vec_of_erased![
+            Ref::keyword("DROP"),
+            Ref::keyword("CATALOG"),
+            Ref::new("IfExistsGrammar").optional(),
+            Ref::new("CatalogReferenceSegment"),
+            Ref::new("DropBehaviorGrammar").optional(),
+        ])
+        .to_matchable()
+        .into(),
+    )]);
+
     databricks.replace_grammar(
         "StatementSegment",
         raw_sparksql
@@ -900,6 +915,7 @@ pub fn dialect() -> Dialect {
             .copy(
                 Some(vec_of_erased![
                     Ref::new("AlterCatalogStatementSegment"),
+                    Ref::new("DropCatalogStatementSegment"),
                     Ref::new("AlterVolumeStatementSegment"),
                     Ref::new("CommentOnStatementSegment"),
                     Ref::new("CreateCatalogStatementSegment"),

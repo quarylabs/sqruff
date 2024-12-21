@@ -2,7 +2,7 @@ file:
 - statement:
   - use_statement:
     - keyword: USE
-    - database_reference:
+    - object_reference:
       - naked_identifier: CATALOG
 - file:
   - word: catalog_name

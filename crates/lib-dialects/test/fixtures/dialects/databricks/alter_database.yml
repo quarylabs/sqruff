@@ -3,7 +3,7 @@ file:
   - alter_database_statement:
     - keyword: ALTER
     - keyword: SCHEMA
-    - database_reference:
+    - object_reference:
       - naked_identifier: some_cat
     - keyword: OWNER
     - keyword: TO
@@ -13,7 +13,7 @@ file:
   - alter_database_statement:
     - keyword: ALTER
     - keyword: SCHEMA
-    - database_reference:
+    - object_reference:
       - naked_identifier: some_cat
     - keyword: OWNER
     - keyword: TO
@@ -23,7 +23,7 @@ file:
   - alter_database_statement:
     - keyword: ALTER
     - keyword: SCHEMA
-    - database_reference:
+    - object_reference:
       - naked_identifier: some_cat
     - keyword: SET
     - keyword: OWNER
@@ -34,7 +34,7 @@ file:
   - alter_database_statement:
     - keyword: ALTER
     - keyword: SCHEMA
-    - database_reference:
+    - object_reference:
       - naked_identifier: some_cat
     - keyword: SET
     - keyword: OWNER
@@ -45,7 +45,7 @@ file:
   - alter_database_statement:
     - keyword: ALTER
     - keyword: DATABASE
-    - database_reference:
+    - object_reference:
       - naked_identifier: some_cat
     - keyword: OWNER
     - keyword: TO
@@ -55,7 +55,7 @@ file:
   - alter_database_statement:
     - keyword: ALTER
     - keyword: DATABASE
-    - database_reference:
+    - object_reference:
       - naked_identifier: some_cat
     - keyword: SET
     - keyword: OWNER
@@ -66,7 +66,7 @@ file:
   - alter_database_statement:
     - keyword: ALTER
     - keyword: DATABASE
-    - database_reference:
+    - object_reference:
       - naked_identifier: some_cat
     - keyword: OWNER
     - keyword: TO
@@ -76,7 +76,7 @@ file:
   - alter_database_statement:
     - keyword: ALTER
     - keyword: DATABASE
-    - database_reference:
+    - object_reference:
       - naked_identifier: some_cat
     - keyword: SET
     - keyword: OWNER
@@ -87,7 +87,7 @@ file:
   - alter_database_statement:
     - keyword: ALTER
     - keyword: SCHEMA
-    - database_reference:
+    - object_reference:
       - naked_identifier: some_cat
     - keyword: SET
     - keyword: TAGS
@@ -104,7 +104,7 @@ file:
   - alter_database_statement:
     - keyword: ALTER
     - keyword: DATABASE
-    - database_reference:
+    - object_reference:
       - naked_identifier: some_cat
     - keyword: SET
     - keyword: TAGS
@@ -127,7 +127,7 @@ file:
   - alter_database_statement:
     - keyword: ALTER
     - keyword: DATABASE
-    - database_reference:
+    - object_reference:
       - naked_identifier: some_cat
     - keyword: UNSET
     - keyword: TAGS
@@ -141,7 +141,7 @@ file:
   - alter_database_statement:
     - keyword: ALTER
     - keyword: SCHEMA
-    - database_reference:
+    - object_reference:
       - naked_identifier: some_cat
     - keyword: UNSET
     - keyword: TAGS
@@ -158,7 +158,7 @@ file:
   - alter_database_statement:
     - keyword: ALTER
     - keyword: SCHEMA
-    - database_reference:
+    - object_reference:
       - naked_identifier: some_cat
     - keyword: ENABLE
     - keyword: PREDICTIVE
@@ -168,7 +168,7 @@ file:
   - alter_database_statement:
     - keyword: ALTER
     - keyword: DATABASE
-    - database_reference:
+    - object_reference:
       - naked_identifier: some_cat
     - keyword: INHERIT
     - keyword: PREDICTIVE
@@ -178,7 +178,7 @@ file:
   - alter_database_statement:
     - keyword: ALTER
     - keyword: SCHEMA
-    - database_reference:
+    - object_reference:
       - naked_identifier: some_cat
     - keyword: DISABLE
     - keyword: PREDICTIVE
@@ -188,7 +188,7 @@ file:
   - alter_database_statement:
     - keyword: ALTER
     - keyword: SCHEMA
-    - database_reference:
+    - object_reference:
       - naked_identifier: some_cat
     - keyword: SET
     - keyword: DBPROPERTIES

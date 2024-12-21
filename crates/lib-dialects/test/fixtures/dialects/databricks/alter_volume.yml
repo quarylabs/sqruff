@@ -1,85 +1,116 @@
 file:
-- unparsable:
-  - word: ALTER
-  - word: VOLUME
-  - word: some_vol
-  - word: RENAME
-  - word: TO
-  - word: some_new_vol
-  - semicolon: ;
-  - word: ALTER
-  - word: VOLUME
-  - word: some_vol
-  - word: OWNER
-  - word: TO
-  - back_quote: '`alf@melmak.et`'
-  - semicolon: ;
-  - word: ALTER
-  - word: VOLUME
-  - word: some_vol
-  - word: OWNER
-  - word: TO
-  - word: my_group
-  - semicolon: ;
-  - word: ALTER
-  - word: VOLUME
-  - word: some_vol
-  - word: SET
-  - word: OWNER
-  - word: TO
-  - back_quote: '`alf@melmak.et`'
-  - semicolon: ;
-  - word: ALTER
-  - word: VOLUME
-  - word: some_vol
-  - word: SET
-  - word: OWNER
-  - word: TO
-  - word: my_group
-  - semicolon: ;
-  - word: ALTER
-  - word: VOLUME
-  - word: some_vol
-  - word: SET
-  - word: TAGS
-  - start_bracket: (
-  - single_quote: '''tag1'''
-  - raw_comparison_operator: =
-  - single_quote: '''value1'''
-  - end_bracket: )
-  - semicolon: ;
-  - word: ALTER
-  - word: VOLUME
-  - word: some_vol
-  - word: SET
-  - word: TAGS
-  - start_bracket: (
-  - single_quote: '''tag2'''
-  - raw_comparison_operator: =
-  - single_quote: '''value2'''
-  - comma: ','
-  - single_quote: '''tag3'''
-  - raw_comparison_operator: =
-  - single_quote: '''value3'''
-  - end_bracket: )
-  - semicolon: ;
-  - word: ALTER
-  - word: VOLUME
-  - word: some_vol
-  - word: UNSET
-  - word: TAGS
-  - start_bracket: (
-  - single_quote: '''tag1'''
-  - end_bracket: )
-  - semicolon: ;
-  - word: ALTER
-  - word: VOLUME
-  - word: some_vol
-  - word: UNSET
-  - word: TAGS
-  - start_bracket: (
-  - single_quote: '''tag2'''
-  - comma: ','
-  - single_quote: '''tag3'''
-  - end_bracket: )
-  - semicolon: ;
+- statement:
+  - keyword: ALTER
+  - keyword: VOLUME
+  - object_reference:
+    - naked_identifier: some_vol
+  - keyword: RENAME
+  - keyword: TO
+  - object_reference:
+    - naked_identifier: some_new_vol
+- statement_terminator: ;
+- statement:
+  - keyword: ALTER
+  - keyword: VOLUME
+  - object_reference:
+    - naked_identifier: some_vol
+  - keyword: OWNER
+  - keyword: TO
+  - quoted_identifier: '`alf@melmak.et`'
+- statement_terminator: ;
+- statement:
+  - keyword: ALTER
+  - keyword: VOLUME
+  - object_reference:
+    - naked_identifier: some_vol
+  - keyword: OWNER
+  - keyword: TO
+  - naked_identifier: my_group
+- statement_terminator: ;
+- statement:
+  - keyword: ALTER
+  - keyword: VOLUME
+  - object_reference:
+    - naked_identifier: some_vol
+  - keyword: SET
+  - keyword: OWNER
+  - keyword: TO
+  - quoted_identifier: '`alf@melmak.et`'
+- statement_terminator: ;
+- statement:
+  - keyword: ALTER
+  - keyword: VOLUME
+  - object_reference:
+    - naked_identifier: some_vol
+  - keyword: SET
+  - keyword: OWNER
+  - keyword: TO
+  - naked_identifier: my_group
+- statement_terminator: ;
+- statement:
+  - keyword: ALTER
+  - keyword: VOLUME
+  - object_reference:
+    - naked_identifier: some_vol
+  - keyword: SET
+  - keyword: TAGS
+  - bracketed:
+    - start_bracket: (
+    - property_name_identifier:
+      - quoted_identifier: '''tag1'''
+    - comparison_operator:
+      - raw_comparison_operator: =
+    - quoted_literal: '''value1'''
+    - end_bracket: )
+- statement_terminator: ;
+- statement:
+  - keyword: ALTER
+  - keyword: VOLUME
+  - object_reference:
+    - naked_identifier: some_vol
+  - keyword: SET
+  - keyword: TAGS
+  - bracketed:
+    - start_bracket: (
+    - property_name_identifier:
+      - quoted_identifier: '''tag2'''
+    - comparison_operator:
+      - raw_comparison_operator: =
+    - quoted_literal: '''value2'''
+    - comma: ','
+    - property_name_identifier:
+      - quoted_identifier: '''tag3'''
+    - comparison_operator:
+      - raw_comparison_operator: =
+    - quoted_literal: '''value3'''
+    - end_bracket: )
+- statement_terminator: ;
+- statement:
+  - keyword: ALTER
+  - keyword: VOLUME
+  - object_reference:
+    - naked_identifier: some_vol
+  - keyword: UNSET
+  - keyword: TAGS
+  - bracketed:
+    - start_bracket: (
+    - property_name_identifier:
+      - quoted_identifier: '''tag1'''
+    - end_bracket: )
+- statement_terminator: ;
+- statement:
+  - keyword: ALTER
+  - keyword: VOLUME
+  - object_reference:
+    - naked_identifier: some_vol
+  - keyword: UNSET
+  - keyword: TAGS
+  - bracketed:
+    - start_bracket: (
+    - property_name_identifier:
+      - quoted_identifier: '''tag2'''
+    - comma: ','
+    - property_name_identifier:
+      - quoted_identifier: '''tag3'''
+    - end_bracket: )
+- statement_terminator: ;

@@ -988,6 +988,64 @@ pub fn dialect() -> Dialect {
         .into(),
     );
 
+    // The parameters for a function ie. `(column type COMMENT 'comment')`.
+    databricks.add([(
+        "FunctionParameterListGrammarWithComments".into(),
+        Bracketed::new(vec_of_erased![Delimited::new(vec_of_erased![
+            Sequence::new(vec_of_erased![
+                Ref::new("FunctionParameterGrammar"),
+                AnyNumberOf::new(vec_of_erased![
+                    Sequence::new(vec_of_erased![
+                        Ref::keyword("DEFAULT"),
+                        Ref::new("LiteralGrammar"),
+                    ])
+                    .config(|config| config.optional()),
+                    Ref::new("CommentClauseSegment").optional(),
+                ]),
+            ]),
+        ])])
+        .to_matchable()
+        .into(),
+    )]);
+
+    // A `CREATE FUNCTION` statement.
+    // https://docs.databricks.com/en/sql/language-manual/sql-ref-syntax-ddl-create-sql-function.html
+    databricks.add([(
+        "CreateDatabricksFunctionStatementSegment".into(),
+        Sequence::new(vec_of_erased![
+            Ref::keyword("CREATE"),
+            Ref::new("OrReplaceGrammar").optional(),
+            Ref::new("TemporaryGrammar").optional(),
+            Ref::keyword("FUNCTION"),
+            Ref::new("IfNotExistsGrammar").optional(),
+            Ref::new("FunctionNameSegment"),
+            Ref::new("FunctionParameterListGrammarWithComments"),
+            Sequence::new(vec_of_erased![
+                Ref::keyword("RETURNS"),
+                one_of(vec_of_erased![
+                    Ref::new("DatatypeSegment"),
+                    Sequence::new(vec_of_erased![
+                        Ref::keyword("TABLE"),
+                        Sequence::new(vec_of_erased![
+                            Bracketed::new(vec_of_erased![Delimited::new(vec_of_erased![
+                                Sequence::new(vec_of_erased![
+                                    Ref::new("ColumnReferenceSegment"),
+                                    Ref::new("DatatypeSegment"),
+                                    Ref::new("CommentGrammar").optional(),
+                                ]),
+                            ]),]),
+                        ])
+                        .config(|config| { config.optional() }),
+                    ]),
+                ])
+                .config(|config| { config.optional() }),
+            ])
+            .config(|config| { config.optional() }),
+            Ref::new("FunctionDefinitionGrammar"),
+
+        ]).to_matchable().into(),
+    )]);
+
     databricks.replace_grammar(
         "StatementSegment",
         raw_sparksql
@@ -1003,7 +1061,9 @@ pub fn dialect() -> Dialect {
                     Ref::new("CreateCatalogStatementSegment"),
                     Ref::new("SetVariableStatementSegment"),
                     Ref::new("SetTimeZoneStatementSegment"),
-                ]),
+                    Ref::new("CreateDatabricksFunctionStatementSegment"),
+                    Ref::new("FunctionParameterListGrammarWithComments"),
+                    ]),
                 None,
                 None,
                 None,

@@ -11,7 +11,7 @@ file:
       - keyword: SHOW
       - keyword: VIEWS
       - keyword: FROM
-      - database_reference:
+      - object_reference:
         - naked_identifier: userdb
 - statement_terminator: ;
 - statement:
@@ -20,7 +20,7 @@ file:
       - keyword: SHOW
       - keyword: VIEWS
       - keyword: IN
-      - database_reference:
+      - object_reference:
         - naked_identifier: global_temp
 - statement_terminator: ;
 - statement:
@@ -29,7 +29,7 @@ file:
       - keyword: SHOW
       - keyword: VIEWS
       - keyword: FROM
-      - database_reference:
+      - object_reference:
         - naked_identifier: default
       - keyword: LIKE
       - quoted_literal: '''sam*'''
@@ -40,5 +40,22 @@ file:
       - keyword: SHOW
       - keyword: VIEWS
       - keyword: LIKE
+      - quoted_literal: '''sam|suj|temp*'''
+- statement_terminator: ;
+- statement:
+  - show_statement:
+    - show_views_statement:
+      - keyword: SHOW
+      - keyword: VIEWS
+      - keyword: FROM
+      - object_reference:
+        - naked_identifier: default
+      - quoted_literal: '''sam*'''
+- statement_terminator: ;
+- statement:
+  - show_statement:
+    - show_views_statement:
+      - keyword: SHOW
+      - keyword: VIEWS
       - quoted_literal: '''sam|suj|temp*'''
 - statement_terminator: ;

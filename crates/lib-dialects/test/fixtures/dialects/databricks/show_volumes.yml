@@ -1,0 +1,73 @@
+file:
+- statement:
+  - show_statement:
+    - keyword: SHOW
+    - keyword: VOLUMES
+- statement_terminator: ;
+- statement:
+  - show_statement:
+    - keyword: SHOW
+    - keyword: VOLUMES
+    - keyword: IN
+    - object_reference:
+      - naked_identifier: sampledb
+- statement_terminator: ;
+- statement:
+  - show_statement:
+    - keyword: SHOW
+    - keyword: VOLUMES
+    - keyword: FROM
+    - object_reference:
+      - naked_identifier: sampledb
+- statement_terminator: ;
+- statement:
+  - show_statement:
+    - keyword: SHOW
+    - keyword: VOLUMES
+    - keyword: LIKE
+    - quoted_literal: '''regex*'''
+- statement_terminator: ;
+- statement:
+  - show_statement:
+    - keyword: SHOW
+    - keyword: VOLUMES
+    - quoted_literal: '''regex*'''
+- statement_terminator: ;
+- statement:
+  - show_statement:
+    - keyword: SHOW
+    - keyword: VOLUMES
+    - keyword: IN
+    - object_reference:
+      - naked_identifier: sampledb
+    - keyword: LIKE
+    - quoted_literal: '''regex*'''
+- statement_terminator: ;
+- statement:
+  - show_statement:
+    - keyword: SHOW
+    - keyword: VOLUMES
+    - keyword: IN
+    - object_reference:
+      - naked_identifier: sampledb
+    - quoted_literal: '''regex*'''
+- statement_terminator: ;
+- statement:
+  - show_statement:
+    - keyword: SHOW
+    - keyword: VOLUMES
+    - keyword: FROM
+    - object_reference:
+      - naked_identifier: sampledb
+    - keyword: LIKE
+    - quoted_literal: '''regex*'''
+- statement_terminator: ;
+- statement:
+  - show_statement:
+    - keyword: SHOW
+    - keyword: VOLUMES
+    - keyword: FROM
+    - object_reference:
+      - naked_identifier: sampledb
+    - quoted_literal: '''regex*'''
+- statement_terminator: ;

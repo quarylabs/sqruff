@@ -1,0 +1,39 @@
+file:
+- statement:
+  - show_statement:
+    - keyword: SHOW
+    - keyword: DATABASES
+- statement_terminator: ;
+- statement:
+  - show_statement:
+    - keyword: SHOW
+    - keyword: DATABASES
+- file:
+  - word: FROM
+  - word: userdb
+  - semicolon: ;
+  - word: SHOW
+  - word: DATABASES
+  - word: IN
+  - word: userdb
+  - semicolon: ;
+  - word: SHOW
+  - word: DATABASES
+  - word: FROM
+  - word: default
+  - word: LIKE
+  - single_quote: '''sam*'''
+  - semicolon: ;
+  - word: SHOW
+  - word: DATABASES
+  - word: FROM
+  - word: default
+  - single_quote: '''sam*'''
+  - semicolon: ;
+  - word: SHOW
+  - word: DATABASES
+  - single_quote: '''sam*|suj'''
+  - semicolon: ;
+  - word: SHOW
+  - word: SCHEMAS
+  - semicolon: ;

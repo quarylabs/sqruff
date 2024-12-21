@@ -22,6 +22,7 @@ pub enum DialectKind {
     Athena,
     Bigquery,
     Clickhouse,
+    Databricks,
     Duckdb,
     Postgres,
     Redshift,

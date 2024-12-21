@@ -1,0 +1,91 @@
+file:
+- statement:
+  - keyword: COMMENT
+  - keyword: ON
+  - keyword: CATALOG
+  - object_reference:
+    - naked_identifier: my_catalog
+  - keyword: IS
+  - quoted_literal: '''This is my catalog'''
+- statement_terminator: ;
+- statement:
+  - keyword: COMMENT
+  - keyword: ON
+  - keyword: CONNECTION
+  - object_reference:
+    - naked_identifier: mysql_connection
+  - keyword: IS
+  - quoted_literal: '''this is a mysql connection'''
+- statement_terminator: ;
+- statement:
+  - keyword: COMMENT
+  - keyword: ON
+  - keyword: SCHEMA
+  - object_reference:
+    - naked_identifier: my_schema
+  - keyword: IS
+  - quoted_literal: '''This is my schema'''
+- statement_terminator: ;
+- statement:
+  - keyword: COMMENT
+  - keyword: ON
+  - keyword: DATABASE
+  - object_reference:
+    - naked_identifier: my_other_schema
+  - keyword: IS
+  - quoted_literal: '''This is my other schema'''
+- statement_terminator: ;
+- statement:
+  - keyword: COMMENT
+  - keyword: ON
+  - keyword: TABLE
+  - table_reference:
+    - naked_identifier: my_table
+  - keyword: IS
+  - quoted_literal: '''This is my table'''
+- statement_terminator: ;
+- statement:
+  - keyword: COMMENT
+  - keyword: ON
+  - keyword: TABLE
+  - table_reference:
+    - naked_identifier: my_table
+  - keyword: IS
+  - keyword: 'NULL'
+- statement_terminator: ;
+- statement:
+  - keyword: COMMENT
+  - keyword: ON
+  - keyword: SHARE
+  - object_reference:
+    - naked_identifier: my_share
+  - keyword: IS
+  - quoted_literal: '''A good share'''
+- statement_terminator: ;
+- statement:
+  - keyword: COMMENT
+  - keyword: ON
+  - keyword: RECIPIENT
+  - object_reference:
+    - naked_identifier: my_recipient
+  - keyword: IS
+  - quoted_literal: '''A good recipient'''
+- statement_terminator: ;
+- statement:
+  - keyword: COMMENT
+  - keyword: ON
+  - keyword: PROVIDER
+  - object_reference:
+    - naked_identifier: my_provider
+  - keyword: IS
+  - quoted_literal: '''A good provider'''
+- statement_terminator: ;
+- statement:
+  - keyword: COMMENT
+  - keyword: ON
+  - keyword: VOLUME
+  - object_reference:
+    - naked_identifier: my_volume
+  - keyword: IS
+  - quoted_literal: '''Huge volume'''
+- statement_terminator: ;

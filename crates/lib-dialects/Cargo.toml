@@ -21,6 +21,7 @@ default = [
     "athena",
     "bigquery",
     "clickhouse",
+    "databricks",
     "duckdb",
     "hive",
     "postgres",
@@ -33,6 +34,7 @@ default = [
 athena = []
 bigquery = []
 clickhouse = []
+databricks = ["sparksql"]
 duckdb = ["postgres"]
 hive = []
 postgres = []

@@ -963,6 +963,31 @@ pub fn dialect() -> Dialect {
         .into(),
     )]);
 
+    databricks.add([
+        (
+            "DatabaseReferenceSegment".into(),
+            Ref::new("ObjectReferenceSegment").to_matchable().into(),
+        )
+    ]);
+    // A `USE DATABASE` statement.
+    // https://docs.databricks.com/sql/language-manual/sql-ref-syntax-ddl-usedb.html
+    databricks.replace_grammar(
+        "UseDatabaseStatementSegment".into(),
+        Sequence::new(vec_of_erased![
+            Ref::keyword("USE"),
+            one_of(vec_of_erased![
+                Ref::keyword("DATABASE"),
+                Ref::keyword("SCHEMA")
+            ])
+            .config(|config| {
+                config.optional();
+            },),
+            Ref::new("DatabaseReferenceSegment"),
+        ])
+        .to_matchable()
+        .into(),
+    );
+
     databricks.replace_grammar(
         "StatementSegment",
         raw_sparksql

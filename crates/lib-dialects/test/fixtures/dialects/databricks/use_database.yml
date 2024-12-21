@@ -2,35 +2,41 @@ file:
 - statement:
   - use_statement:
     - keyword: USE
-    - database_reference:
+    - object_reference:
       - naked_identifier: database_name
 - statement_terminator: ;
 - statement:
   - use_statement:
     - keyword: USE
-    - database_reference:
+    - object_reference:
       - naked_identifier: userdb
 - statement_terminator: ;
 - statement:
   - use_statement:
     - keyword: USE
-    - database_reference:
+    - object_reference:
       - naked_identifier: userdb1
+- statement_terminator: ;
+- statement:
+  - use_database_statement:
+    - keyword: USE
+    - keyword: DATABASE
+    - object_reference:
+      - naked_identifier: database_name
+- statement_terminator: ;
+- statement:
+  - use_database_statement:
+    - keyword: USE
+    - keyword: SCHEMA
+    - object_reference:
+      - naked_identifier: database_name
 - statement_terminator: ;
 - statement:
   - use_statement:
     - keyword: USE
-    - database_reference:
-      - naked_identifier: DATABASE
+    - object_reference:
+      - naked_identifier: IDENTIFIER
 - file:
-  - word: database_name
-  - semicolon: ;
-  - word: USE
-  - word: SCHEMA
-  - word: database_name
-  - semicolon: ;
-  - word: USE
-  - word: IDENTIFIER
   - start_bracket: (
   - single_quote: '''database_name'''
   - end_bracket: )

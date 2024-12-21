@@ -9,7 +9,7 @@ file:
     - keyword: SHOW
     - keyword: VOLUMES
     - keyword: IN
-    - database_reference:
+    - object_reference:
       - naked_identifier: sampledb
 - statement_terminator: ;
 - statement:
@@ -17,7 +17,7 @@ file:
     - keyword: SHOW
     - keyword: VOLUMES
     - keyword: FROM
-    - database_reference:
+    - object_reference:
       - naked_identifier: sampledb
 - statement_terminator: ;
 - statement:
@@ -38,7 +38,7 @@ file:
     - keyword: SHOW
     - keyword: VOLUMES
     - keyword: IN
-    - database_reference:
+    - object_reference:
       - naked_identifier: sampledb
     - keyword: LIKE
     - quoted_literal: '''regex*'''
@@ -48,7 +48,7 @@ file:
     - keyword: SHOW
     - keyword: VOLUMES
     - keyword: IN
-    - database_reference:
+    - object_reference:
       - naked_identifier: sampledb
     - quoted_literal: '''regex*'''
 - statement_terminator: ;
@@ -57,7 +57,7 @@ file:
     - keyword: SHOW
     - keyword: VOLUMES
     - keyword: FROM
-    - database_reference:
+    - object_reference:
       - naked_identifier: sampledb
     - keyword: LIKE
     - quoted_literal: '''regex*'''
@@ -67,7 +67,7 @@ file:
     - keyword: SHOW
     - keyword: VOLUMES
     - keyword: FROM
-    - database_reference:
+    - object_reference:
       - naked_identifier: sampledb
     - quoted_literal: '''regex*'''
 - statement_terminator: ;

@@ -6,7 +6,7 @@ file:
     - keyword: IF
     - keyword: NOT
     - keyword: EXISTS
-    - database_reference:
+    - object_reference:
       - naked_identifier: database_name
     - keyword: COMMENT
     - quoted_literal: '"database_comment"'
@@ -30,7 +30,7 @@ file:
     - keyword: IF
     - keyword: NOT
     - keyword: EXISTS
-    - database_reference:
+    - object_reference:
       - naked_identifier: database_name
     - keyword: COMMENT
     - quoted_literal: '"database_comment"'
@@ -51,7 +51,7 @@ file:
   - create_database_statement:
     - keyword: CREATE
     - keyword: DATABASE
-    - database_reference:
+    - object_reference:
       - naked_identifier: customer_db
 - statement_terminator: ;
 - statement:
@@ -61,7 +61,7 @@ file:
     - keyword: IF
     - keyword: NOT
     - keyword: EXISTS
-    - database_reference:
+    - object_reference:
       - naked_identifier: customer_db
 - statement_terminator: ;
 - statement:
@@ -71,7 +71,7 @@ file:
     - keyword: IF
     - keyword: NOT
     - keyword: EXISTS
-    - database_reference:
+    - object_reference:
       - naked_identifier: customer_db
     - keyword: COMMENT
     - quoted_literal: '''This is customer database'''
@@ -98,7 +98,7 @@ file:
   - create_database_statement:
     - keyword: CREATE
     - keyword: DATABASE
-    - database_reference:
+    - object_reference:
       - naked_identifier: inventory_db
     - keyword: COMMENT
     - quoted_literal: '''This database is used to maintain Inventory'''
@@ -110,7 +110,7 @@ file:
     - keyword: IF
     - keyword: NOT
     - keyword: EXISTS
-    - database_reference:
+    - object_reference:
       - naked_identifier: database_name
 - file:
   - word: MANAGED

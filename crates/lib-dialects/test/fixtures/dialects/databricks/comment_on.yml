@@ -21,7 +21,7 @@ file:
   - keyword: COMMENT
   - keyword: ON
   - keyword: SCHEMA
-  - database_reference:
+  - object_reference:
     - naked_identifier: my_schema
   - keyword: IS
   - quoted_literal: '''This is my schema'''
@@ -30,7 +30,7 @@ file:
   - keyword: COMMENT
   - keyword: ON
   - keyword: DATABASE
-  - database_reference:
+  - object_reference:
     - naked_identifier: my_other_schema
   - keyword: IS
   - quoted_literal: '''This is my other schema'''

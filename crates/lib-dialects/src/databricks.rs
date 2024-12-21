@@ -1046,6 +1046,20 @@ pub fn dialect() -> Dialect {
         ]).to_matchable().into(),
     )]);
 
+    // Drop Volume Statement.
+    // https://docs.databricks.com/en/sql/language-manual/sql-ref-syntax-ddl-drop-volume.html
+    databricks.add([(
+        "DropVolumeStatement".into(),
+        Sequence::new(vec_of_erased![
+            Ref::keyword("DROP"),
+            Ref::keyword("VOLUME"),
+            Ref::new("IfExistsGrammar").optional(),
+            Ref::new("VolumeReferenceSegment"),
+        ])
+        .to_matchable()
+        .into(),
+    )]);    
+
     databricks.replace_grammar(
         "StatementSegment",
         raw_sparksql
@@ -1063,6 +1077,7 @@ pub fn dialect() -> Dialect {
                     Ref::new("SetTimeZoneStatementSegment"),
                     Ref::new("CreateDatabricksFunctionStatementSegment"),
                     Ref::new("FunctionParameterListGrammarWithComments"),
+                    Ref::new("DropVolumeStatement"),
                     ]),
                 None,
                 None,

@@ -1,12 +1,15 @@
 file:
-- unparsable:
-  - word: DROP
-  - word: VOLUME
-  - word: vaccine_volume
-  - semicolon: ;
-  - word: DROP
-  - word: VOLUME
-  - word: IF
-  - word: EXISTS
-  - word: vaccine_volume
-  - semicolon: ;
+- statement:
+  - keyword: DROP
+  - keyword: VOLUME
+  - object_reference:
+    - naked_identifier: vaccine_volume
+- statement_terminator: ;
+- statement:
+  - keyword: DROP
+  - keyword: VOLUME
+  - keyword: IF
+  - keyword: EXISTS
+  - object_reference:
+    - naked_identifier: vaccine_volume
+- statement_terminator: ;

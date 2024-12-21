@@ -1,7 +1,11 @@
+use std::collections::HashSet;
+
 use crate::databricks_keywords::{RESERVED_KEYWORDS, UNRESERVED_KEYWORDS};
+use crate::sparksql;
 use sqruff_lib_core::parser::grammar::anyof::AnyNumberOf;
 use sqruff_lib_core::parser::grammar::delimited::Delimited;
 use sqruff_lib_core::parser::grammar::sequence::Bracketed;
+use sqruff_lib_core::parser::matchable::MatchableTrait;
 use sqruff_lib_core::{
     dialects::{base::Dialect, init::DialectKind, syntax::SyntaxKind},
     helpers::{Config, ToMatchable},
@@ -11,7 +15,6 @@ use sqruff_lib_core::{
     },
     vec_of_erased,
 };
-use crate::sparksql;
 
 pub fn dialect() -> Dialect {
     let raw_sparksql = sparksql::dialect();
@@ -19,13 +22,35 @@ pub fn dialect() -> Dialect {
     let mut databricks = sparksql::dialect();
     databricks.name = DialectKind::Databricks;
 
-    // databricks
-    //     .sets_mut("unreserverd_keywords")
-    //     .extend(UNRESERVED_KEYWORDS);
-    // databricks
-    //     .sets_mut("unreserverd_keywords")
-    //     .extend(raw_sparksql.sets("reserverd_keywords"));
-    // databricks.sets_ut("unreserverd_keywords")
+    // What want to translate from Sqlfluff
+    // databricks_dialect.sets("unreserved_keywords").update(UNRESERVED_KEYWORDS)
+    // databricks_dialect.sets("unreserved_keywords").update(
+    //     sparksql_dialect.sets("reserved_keywords")
+    // )
+    // databricks_dialect.sets("unreserved_keywords").difference_update(RESERVED_KEYWORDS)
+    // databricks_dialect.sets("reserved_keywords").clear()
+    // databricks_dialect.sets("reserved_keywords").update(RESERVED_KEYWORDS)
+    // databricks_dialect.sets("date_part_function_name").update(["TIMEDIFF"])
+
+    databricks
+        .sets_mut("unreserved_keywords")
+        .extend(UNRESERVED_KEYWORDS);
+    databricks
+        .sets_mut("unreserved_keywords")
+        .extend(raw_sparksql.sets("reserved_keywords"));
+    databricks
+        .sets_mut("unreserved_keywords")
+        .retain(|x| !RESERVED_KEYWORDS.contains(x));
+    databricks.sets_mut("reserved_keywords").clear();
+    databricks
+        .sets_mut("reserved_keywords")
+        .extend(RESERVED_KEYWORDS);
+    databricks
+        .sets_mut("data_part_function_name")
+        .extend(["TIMEDIFF"]);
+
+    println!("reserved {:?}", databricks.sets("reserved_keywords"));
+    println!("unreserved {:?}", databricks.sets("unreserved_keywords"));
 
     // databricks.sets_mut("reserverd_keywords").clear();
     // databricks.sets_mut("reserverd_keywords").extend(RESERVED_KEYWORDS);
@@ -75,6 +100,67 @@ pub fn dialect() -> Dialect {
     // );
 
     databricks.add([
+        (
+            "CatalogReferenceSegment".into(),
+            Ref::new("ObjectReferenceSegment").to_matchable().into(),
+        ),
+        (
+            //     SetOwnerGrammar=Sequence(
+            //     Ref.keyword("SET", optional=True),
+            //     "OWNER",
+            //     "TO",
+            //     Ref("PrincipalIdentifierSegment"),
+            // ),
+            "SetOwnerGrammar".into(),
+            Sequence::new(vec_of_erased![
+                Ref::keyword("SET").optional(),
+                Ref::keyword("OWNER"),
+                Ref::keyword("TO"),
+                Ref::new("PrincipalIdentifierSegment"),
+            ])
+            .to_matchable()
+            .into(),
+        ),
+        (
+            "PredictiveOptimizationGrammar".into(),
+            Sequence::new(vec_of_erased![
+                one_of(vec_of_erased![
+                    Ref::keyword("ENABLE"),
+                    Ref::keyword("DISABLE"),
+                    Ref::keyword("INHERIT"),
+                ]),
+                Ref::keyword("PREDICTIVE"),
+                Ref::keyword("OPTIMIZATION"),
+            ])
+            .to_matchable()
+            .into(),
+        ),
+        (
+            // https://docs.databricks.com/en/sql/language-manual/sql-ref-principal.html
+            "PrincipalIdentifierSegment".into(),
+            one_of(vec_of_erased![
+                Ref::new("NakedIdentifierSegment"),
+                Ref::new("BackQuotedIdentifierSegment"),
+            ])
+            .to_matchable()
+            .into(),
+        ),
+        (
+            "AlterCatalogStatementSegment".into(),
+            Sequence::new(vec_of_erased![
+                Ref::keyword("ALTER"),
+                Ref::keyword("CATALOG"),
+                Ref::new("CatalogReferenceSegment"),
+                one_of(vec_of_erased![
+                    Ref::new("SetOwnerGrammar"),
+                    Ref::new("SetTagsGrammar"),
+                    Ref::new("UnsetTagsGrammar"),
+                    Ref::new("PredictiveOptimizationGrammar"),
+                ]),
+            ])
+            .to_matchable()
+            .into(),
+        ),
         (
             "SetTagsGrammar".into(),
             Sequence::new(vec_of_erased![
@@ -244,7 +330,27 @@ pub fn dialect() -> Dialect {
             Sequence::new(vec_of_erased![
                 Ref::keyword("SHOW"),
                 Ref::keyword("VOLUMES"),
-                Ref::new("DatabaseReferenceSegment"),
+                Sequence::new(vec_of_erased![
+                    one_of(vec_of_erased![Ref::keyword("FROM"), Ref::keyword("IN"),]),
+                    Ref::new("DatabaseReferenceSegment"),
+                ])
+                .config(|config| { config.optional() }),
+                Sequence::new(vec_of_erased![
+                    Ref::keyword("LIKE").optional(),
+                    Ref::new("QuotedLiteralSegment"),
+                ])
+                .config(|config| { config.optional() }),
+                //                 "VOLUMES",
+                // Sequence(
+                //     OneOf("FROM", "IN"),
+                //     Ref("DatabaseReferenceSegment"),
+                //     optional=True,
+                // ),
+                // Sequence(
+                //     Ref.keyword("LIKE", optional=True),
+                //     Ref("QuotedLiteralSegment"),
+                //     optional=True,
+                // ),
             ])
             .to_matchable()
             .into(),
@@ -292,30 +398,48 @@ pub fn dialect() -> Dialect {
     );
 
     let mut show_statements = sparksql::show_statements();
-    show_statements.push(
-        Ref::new("ShowVolumesStatement")
-            .to_matchable()
-            .into()
-    );
+    show_statements.push(Ref::new("ShowVolumesStatement").to_matchable().into());
     databricks.replace_grammar(
         "ShowStatement".into(),
-        one_of(show_statements)
-            .to_matchable()
-            .into(),
+        one_of(show_statements).to_matchable().into(),
     );
 
+    // An `ALTER DATABASE/SCHEMA` statement.
+    // https://docs.databricks.com/en/sql/language-manual/sql-ref-syntax-ddl-alter-schema.html
+    databricks.replace_grammar("AlterDatabaseStatementSegment", 
+    Sequence::new(vec_of_erased![
+        Ref::keyword("ALTER"),
+        one_of(vec_of_erased![Ref::keyword("DATABASE"), Ref::keyword("SCHEMA")]),
+        Ref::new("DatabaseReferenceSegment"),
+        one_of(vec_of_erased![
+            Sequence::new(vec_of_erased![
+                Ref::keyword("SET"),
+                Ref::new("DatabasePropertiesGrammar"),
+            ]),
+            Ref::new("SetOwnerGrammar"),
+            Ref::new("SetTagsGrammar"),
+            Ref::new("UnsetTagsGrammar"),
+            Ref::new("PredictiveOptimizationGrammar"),
+        ]),
+    ]).to_matchable().into());
 
 
 
-
-    // // TODO Missing Show Object Grammar
-    // databricks.replace_grammar(
-    //     "NotNullGrammar".into(),
-    //     Sequence::new(vec_of_erased![Ref::keyword("NOT"), Ref::keyword("NULL")])
-    //         .to_matchable()
-    //         .into(),
-    //     // TODO Function NameIdentifierSegment
-    // );
+    databricks.replace_grammar(
+        "StatementSegment",
+        raw_sparksql
+            .grammar("StatementSegment")
+            .match_grammar()
+            .unwrap()
+            .copy(
+                Some(vec_of_erased![Ref::new("AlterCatalogStatementSegment"),]),
+                None,
+                None,
+                None,
+                Vec::new(),
+                false,
+            ),
+    );
 
     databricks.expand();
 

@@ -3,7 +3,6 @@ use std::collections::hash_map::Entry;
 use std::fmt::Debug;
 
 use ahash::{AHashMap, AHashSet};
-use itertools::Itertools;
 use crate::dialects::init::DialectKind;
 use crate::dialects::syntax::SyntaxKind;
 use crate::helpers::{capitalize, ToMatchable};

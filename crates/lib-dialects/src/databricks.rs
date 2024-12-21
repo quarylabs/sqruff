@@ -906,6 +906,24 @@ pub fn dialect() -> Dialect {
         .into(),
     )]);
 
+    // A `SET TIME ZONE` statement.
+    // https://docs.databricks.com/sql/language-manual/sql-ref-syntax-aux-conf-mgmt-set-timezone.html
+    databricks.add([(
+        "SetTimeZoneStatementSegment".into(),
+        Sequence::new(vec_of_erased![
+            Ref::keyword("SET"),
+            Ref::keyword("TIME"),
+            Ref::keyword("ZONE"),
+            one_of(vec_of_erased![
+                Ref::keyword("LOCAL"),
+                Ref::new("QuotedLiteralSegment"),
+                Ref::new("IntervalExpressionSegment")
+            ]),
+        ])
+        .to_matchable()
+        .into(),
+    )]);
+
     // A `SET VARIABLE` statement used to set session variables.
     // https://docs.databricks.com/en/sql/language-manual/sql-ref-syntax-aux-set-variable.html
     // set var v1=val, v2=val2;
@@ -959,6 +977,7 @@ pub fn dialect() -> Dialect {
                     Ref::new("CommentOnStatementSegment"),
                     Ref::new("CreateCatalogStatementSegment"),
                     Ref::new("SetVariableStatementSegment"),
+                    Ref::new("SetTimeZoneStatementSegment"),
                 ]),
                 None,
                 None,

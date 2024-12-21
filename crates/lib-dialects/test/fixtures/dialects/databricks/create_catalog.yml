@@ -1,22 +1,27 @@
 file:
-- unparsable:
-  - word: CREATE
-  - word: CATALOG
-  - word: customer_cat
-  - semicolon: ;
-  - word: CREATE
-  - word: CATALOG
-  - word: IF
-  - word: NOT
-  - word: EXISTS
-  - word: customer_cat
-  - semicolon: ;
-  - word: CREATE
-  - word: CATALOG
-  - word: IF
-  - word: NOT
-  - word: EXISTS
-  - word: customer_cat
-  - word: COMMENT
-  - single_quote: '''This is customer catalog'''
-  - semicolon: ;
+- statement:
+  - keyword: CREATE
+  - keyword: CATALOG
+  - object_reference:
+    - naked_identifier: customer_cat
+- statement_terminator: ;
+- statement:
+  - keyword: CREATE
+  - keyword: CATALOG
+  - keyword: IF
+  - keyword: NOT
+  - keyword: EXISTS
+  - object_reference:
+    - naked_identifier: customer_cat
+- statement_terminator: ;
+- statement:
+  - keyword: CREATE
+  - keyword: CATALOG
+  - keyword: IF
+  - keyword: NOT
+  - keyword: EXISTS
+  - object_reference:
+    - naked_identifier: customer_cat
+  - keyword: COMMENT
+  - quoted_literal: '''This is customer catalog'''
+- statement_terminator: ;

@@ -1,72 +1,91 @@
 file:
-- unparsable:
-  - word: COMMENT
-  - word: ON
-  - word: CATALOG
-  - word: my_catalog
-  - word: IS
-  - single_quote: '''This is my catalog'''
-  - semicolon: ;
-  - word: COMMENT
-  - word: ON
-  - word: CONNECTION
-  - word: mysql_connection
-  - word: IS
-  - single_quote: '''this is a mysql connection'''
-  - semicolon: ;
-  - word: COMMENT
-  - word: ON
-  - word: SCHEMA
-  - word: my_schema
-  - word: IS
-  - single_quote: '''This is my schema'''
-  - semicolon: ;
-  - word: COMMENT
-  - word: ON
-  - word: DATABASE
-  - word: my_other_schema
-  - word: IS
-  - single_quote: '''This is my other schema'''
-  - semicolon: ;
-  - word: COMMENT
-  - word: ON
-  - word: TABLE
-  - word: my_table
-  - word: IS
-  - single_quote: '''This is my table'''
-  - semicolon: ;
-  - word: COMMENT
-  - word: ON
-  - word: TABLE
-  - word: my_table
-  - word: IS
-  - word: 'NULL'
-  - semicolon: ;
-  - word: COMMENT
-  - word: ON
-  - word: SHARE
-  - word: my_share
-  - word: IS
-  - single_quote: '''A good share'''
-  - semicolon: ;
-  - word: COMMENT
-  - word: ON
-  - word: RECIPIENT
-  - word: my_recipient
-  - word: IS
-  - single_quote: '''A good recipient'''
-  - semicolon: ;
-  - word: COMMENT
-  - word: ON
-  - word: PROVIDER
-  - word: my_provider
-  - word: IS
-  - single_quote: '''A good provider'''
-  - semicolon: ;
-  - word: COMMENT
-  - word: ON
-  - word: VOLUME
-  - word: my_volume
-  - word: IS
-  - single_quote: '''Huge volume'''
-  - semicolon: ;
+- statement:
+  - keyword: COMMENT
+  - keyword: ON
+  - keyword: CATALOG
+  - object_reference:
+    - naked_identifier: my_catalog
+  - keyword: IS
+  - quoted_literal: '''This is my catalog'''
+- statement_terminator: ;
+- statement:
+  - keyword: COMMENT
+  - keyword: ON
+  - keyword: CONNECTION
+  - object_reference:
+    - naked_identifier: mysql_connection
+  - keyword: IS
+  - quoted_literal: '''this is a mysql connection'''
+- statement_terminator: ;
+- statement:
+  - keyword: COMMENT
+  - keyword: ON
+  - keyword: SCHEMA
+  - database_reference:
+    - naked_identifier: my_schema
+  - keyword: IS
+  - quoted_literal: '''This is my schema'''
+- statement_terminator: ;
+- statement:
+  - keyword: COMMENT
+  - keyword: ON
+  - keyword: DATABASE
+  - database_reference:
+    - naked_identifier: my_other_schema
+  - keyword: IS
+  - quoted_literal: '''This is my other schema'''
+- statement_terminator: ;
+- statement:
+  - keyword: COMMENT
+  - keyword: ON
+  - keyword: TABLE
+  - table_reference:
+    - naked_identifier: my_table
+  - keyword: IS
+  - quoted_literal: '''This is my table'''
+- statement_terminator: ;
+- statement:
+  - keyword: COMMENT
+  - keyword: ON
+  - keyword: TABLE
+  - table_reference:
+    - naked_identifier: my_table
+  - keyword: IS
+  - keyword: 'NULL'
+- statement_terminator: ;
+- statement:
+  - keyword: COMMENT
+  - keyword: ON
+  - keyword: SHARE
+  - object_reference:
+    - naked_identifier: my_share
+  - keyword: IS
+  - quoted_literal: '''A good share'''
+- statement_terminator: ;
+- statement:
+  - keyword: COMMENT
+  - keyword: ON
+  - keyword: RECIPIENT
+  - object_reference:
+    - naked_identifier: my_recipient
+  - keyword: IS
+  - quoted_literal: '''A good recipient'''
+- statement_terminator: ;
+- statement:
+  - keyword: COMMENT
+  - keyword: ON
+  - keyword: PROVIDER
+  - object_reference:
+    - naked_identifier: my_provider
+  - keyword: IS
+  - quoted_literal: '''A good provider'''
+- statement_terminator: ;
+- statement:
+  - keyword: COMMENT
+  - keyword: ON
+  - keyword: VOLUME
+  - object_reference:
+    - naked_identifier: my_volume
+  - keyword: IS
+  - quoted_literal: '''Huge volume'''
+- statement_terminator: ;

@@ -801,6 +801,53 @@ pub fn dialect() -> Dialect {
         .into(),
     );
 
+    // `COMMENT ON` statement.
+    // https://docs.databricks.com/en/sql/language-manual/sql-ref-syntax-ddl-comment.html
+    databricks.add([(
+        "CommentOnStatementSegment".into(),
+        Sequence::new(vec_of_erased![
+            Ref::keyword("COMMENT"),
+            Ref::keyword("ON"),
+            one_of(vec_of_erased![
+                Sequence::new(vec_of_erased![
+                    Ref::keyword("CATALOG"),
+                    Ref::new("CatalogReferenceSegment"),
+                ]),
+                Sequence::new(vec_of_erased![
+                    one_of(vec_of_erased![
+                        Ref::keyword("DATABASE"),
+                        Ref::keyword("SCHEMA")
+                    ]),
+                    Ref::new("DatabaseReferenceSegment"),
+                ]),
+                Sequence::new(vec_of_erased![
+                    Ref::keyword("TABLE"),
+                    Ref::new("TableReferenceSegment"),
+                ]),
+                Sequence::new(vec_of_erased![
+                    Ref::keyword("VOLUME"),
+                    Ref::new("VolumeReferenceSegment"),
+                ]),
+                Sequence::new(vec_of_erased![
+                    one_of(vec_of_erased![
+                        Ref::keyword("CONNECTION"),
+                        Ref::keyword("PROVIDER"),
+                        Ref::keyword("RECIPIENT"),
+                        Ref::keyword("SHARE"),
+                    ]),
+                    Ref::new("ObjectReferenceSegment"),
+                ]),
+            ]),
+            Ref::keyword("IS"),
+            one_of(vec_of_erased![
+                Ref::new("QuotedLiteralSegment"),
+                Ref::keyword("NULL"),
+            ]),
+        ])
+        .to_matchable()
+        .into(),
+    )]);
+
     databricks.add([(
         "VolumeReferenceSegment".into(),
         Ref::new("ObjectReferenceSegment").to_matchable().into(),
@@ -829,6 +876,21 @@ pub fn dialect() -> Dialect {
         .into(),
     )]);
 
+    // A `CREATE CATALOG` statement.
+    // https://docs.databricks.com/en/sql/language-manual/sql-ref-syntax-ddl-create-catalog.html
+    databricks.add([(
+        "CreateCatalogStatementSegment".into(),
+        Sequence::new(vec_of_erased![
+            Ref::keyword("CREATE"),
+            Ref::keyword("CATALOG"),
+            Ref::new("IfNotExistsGrammar").optional(),
+            Ref::new("CatalogReferenceSegment"),
+            Ref::new("CommentGrammar").optional(),
+        ])
+        .to_matchable()
+        .into(),
+    )]);
+
     databricks.replace_grammar(
         "StatementSegment",
         raw_sparksql
@@ -839,6 +901,8 @@ pub fn dialect() -> Dialect {
                 Some(vec_of_erased![
                     Ref::new("AlterCatalogStatementSegment"),
                     Ref::new("AlterVolumeStatementSegment"),
+                    Ref::new("CommentOnStatementSegment"),
+                    Ref::new("CreateCatalogStatementSegment"),
                 ]),
                 None,
                 None,

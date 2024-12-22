@@ -55,7 +55,8 @@ file:
     - bracketed:
       - start_bracket: (
       - expression:
-        - keyword: NOT
+        - not_operator:
+          - keyword: NOT
         - function:
           - function_name:
             - function_name_identifier: accounts_is_excluded_full_name

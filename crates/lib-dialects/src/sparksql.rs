@@ -37,6 +37,16 @@ pub fn dialect() -> Dialect {
     sparksql_dialect.insert_lexer_matchers(
         vec![
             Matcher::regex(
+                "raw_single_quote",
+                r"[rR]'([^'\\]|\\.)*'",
+                SyntaxKind::RawSingleQuote,
+            ),
+            Matcher::regex(
+                "raw_double_quote",
+                r#"[rR]"([^"\\]|\\.)*""#,
+                SyntaxKind::RawDoubleQuote,
+            ),
+            Matcher::regex(
                 "bytes_single_quote",
                 r"X'([^'\\]|\\.)*'",
                 SyntaxKind::BytesSingleQuote,
@@ -137,6 +147,24 @@ pub fn dialect() -> Dialect {
 
     sparksql_dialect.add([
         (
+            // A `SET` statement used to set runtime properties.
+            // https://spark.apache.org/docs/latest/sql-ref-syntax-aux-conf-mgmt-set.html
+            "SetStatementSegment".into(),
+            Sequence::new(vec_of_erased![
+                Ref::keyword("SET"),
+                Ref::new("SQLConfPropertiesSegment").optional(),
+                one_of(vec_of_erased![
+                    Ref::new("PropertyListGrammar"),
+                    Ref::new("PropertyNameSegment")
+                ])
+                .config(|config| {
+                    config.optional();
+                })
+            ])
+            .to_matchable()
+            .into(),
+        ),
+        (
             "ComparisonOperatorGrammar".into(),
             one_of(vec_of_erased![
                 Ref::new("EqualsSegment"),
@@ -201,6 +229,15 @@ pub fn dialect() -> Dialect {
             .into(),
         ),
         (
+            "RawQuotedLiteralSegment".into(),
+            one_of(vec_of_erased![
+                TypedParser::new(SyntaxKind::RawSingleQuote, SyntaxKind::Literal),
+                TypedParser::new(SyntaxKind::RawDoubleQuote, SyntaxKind::Literal)
+            ])
+            .to_matchable()
+            .into(),
+        ),
+        (
             "QuotedLiteralSegment".into(),
             one_of(vec_of_erased![
                 TypedParser::new(SyntaxKind::SingleQuote, SyntaxKind::QuotedLiteral),
@@ -214,7 +251,10 @@ pub fn dialect() -> Dialect {
             sparksql_dialect
                 .grammar("LiteralGrammar")
                 .copy(
-                    Some(vec_of_erased![Ref::new("BytesQuotedLiteralSegment")]),
+                    Some(vec_of_erased![
+                        Ref::new("RawQuotedLiteralSegment"),
+                        Ref::new("BytesQuotedLiteralSegment"),
+                    ]),
                     None,
                     None,
                     None,
@@ -395,14 +435,145 @@ pub fn dialect() -> Dialect {
             .to_matchable()
             .into(),
         ),
+        (
+            // An UNPIVOT single column syntax fragment.
+            "SingleValueColumnUnpivotSegment".into(),
+            Sequence::new(vec_of_erased![
+                Ref::new("SingleIdentifierGrammar"),
+                Ref::keyword("FOR"),
+                Ref::new("SingleIdentifierGrammar"),
+                Ref::keyword("IN"),
+                Bracketed::new(vec_of_erased![
+                    MetaSegment::indent(),
+                    Delimited::new(vec_of_erased![Sequence::new(vec_of_erased![
+                        Ref::new("ColumnReferenceSegment"),
+                        Ref::new("AliasExpressionSegment").optional()
+                    ])])
+                ])
+                .config(|config| {
+                    config.parse_mode(ParseMode::Greedy);
+                }),
+                MetaSegment::dedent(),
+            ])
+            .to_matchable()
+            .into(),
+        ),
+        (
+            // An UNPIVOT multiple column syntax fragment.
+            "MultiValueColumnUnpivotSegment".into(),
+            Sequence::new(vec_of_erased![
+                Bracketed::new(vec_of_erased![Delimited::new(vec_of_erased![Ref::new(
+                    "SingleIdentifierGrammar"
+                )])]),
+                MetaSegment::indent(),
+                Ref::keyword("FOR"),
+                Ref::new("SingleIdentifierGrammar"),
+                Ref::keyword("IN"),
+                Bracketed::new(vec_of_erased![
+                    MetaSegment::indent(),
+                    Delimited::new(vec_of_erased![Sequence::new(vec_of_erased![
+                        Bracketed::new(vec_of_erased![
+                            MetaSegment::indent(),
+                            Delimited::new(vec_of_erased![Ref::new("ColumnReferenceSegment")]),
+                        ]),
+                        Ref::new("AliasExpressionSegment").optional()
+                    ])])
+                ])
+                .config(|config| {
+                    config.parse_mode(ParseMode::Greedy);
+                }),
+                MetaSegment::dedent()
+            ])
+            .to_matchable()
+            .into(),
+        ),
     ]);
+
+    sparksql_dialect.add([(
+        // Any number of join clauses, including the `JOIN` keyword.
+        // https://spark.apache.org/docs/latest/sql-ref-syntax-qry-select-join.html
+        "JoinLikeClauseGrammar".into(),
+        Sequence::new(vec![
+            one_of(vec_of_erased![
+                Ref::new("PivotClauseSegment"),
+                Ref::new("UnpivotClauseSegment"),
+                Ref::new("LateralViewClauseSegment"),
+            ])
+            .to_matchable(),
+            Ref::new("AliasExpressionSegment")
+                .exclude(Ref::new("FromClauseTerminatorGrammar"))
+                .exclude(Ref::new("JoinLikeClauseGrammar"))
+                .optional()
+                .to_matchable(),
+        ])
+        .to_matchable()
+        .into(),
+    )]);
+
+    sparksql_dialect.replace_grammar(
+        "NotOperatorGrammar",
+        one_of(vec_of_erased![
+            StringParser::new("NOT", SyntaxKind::Keyword),
+            StringParser::new("!", SyntaxKind::NotOperator),
+        ])
+        .to_matchable()
+        .into(),
+    );
+
+    sparksql_dialect.replace_grammar(
+        "WildcardExpressionSegment",
+        ansi::raw_dialect()
+            .grammar("WildcardExpressionSegment")
+            .match_grammar()
+            .unwrap()
+            .copy(
+                Some(vec_of_erased![Ref::new("ExceptClauseSegment").optional(),]),
+                None,
+                None,
+                None,
+                Vec::new(),
+                false,
+            ),
+    );
+
+    sparksql_dialect.add([(
+        "DateTimeLiteralGrammar".into(),
+        Sequence::new(vec_of_erased![
+            one_of(vec_of_erased![
+                Ref::keyword("DATE"),
+                Ref::keyword("TIME"),
+                Ref::keyword("TIMESTAMP"),
+                Ref::keyword("INTERVAL"),
+                Ref::keyword("TIMESTAMP_LTZ"),
+                Ref::keyword("TIMESTAMP_NTZ"),
+            ]),
+            TypedParser::new(SyntaxKind::SingleQuote, SyntaxKind::DateConstructorLiteral)
+        ])
+        .to_matchable()
+        .into(),
+    )]);
 
     sparksql_dialect.add([
         (
             "FileLiteralSegment".into(),
-            TypedParser::new(SyntaxKind::FileLiteral, SyntaxKind::FileLiteral)
-                .to_matchable()
-                .into(),
+            one_of(vec_of_erased![
+                TypedParser::new(SyntaxKind::FileLiteral, SyntaxKind::Literal),
+                Sequence::new(vec_of_erased![
+                    Ref::new("SlashSegment").optional(),
+                    Delimited::new(vec_of_erased![Delimited::new(vec_of_erased![
+                        TypedParser::new(SyntaxKind::Word, SyntaxKind::PathSegment),
+                    ])
+                    .config(|config| {
+                        config.delimiter(Ref::new("DotSegment"));
+                    }),])
+                    .config(|config| {
+                        config.disallow_gaps();
+                        config.delimiter(Ref::new("SlashSegment"));
+                    })
+                ])
+            ])
+            .to_matchable()
+            .into(),
         ),
         (
             "BackQuotedIdentifierSegment".into(),
@@ -548,6 +719,33 @@ pub fn dialect() -> Dialect {
                         })
                 ])
             ])
+            .to_matchable()
+            .into(),
+        ),
+        (
+            // A `SET VARIABLE` statement used to set session variables.
+            // https://spark.apache.org/docs/4.0.0-preview2/sql-ref-syntax-aux-set-var.html
+            "SetVariableStatementSegment".into(),
+            Sequence::new(vec_of_erased![
+                Ref::keyword("SET"),
+                one_of(vec_of_erased![
+                    Ref::keyword("VAR"),
+                    Ref::keyword("VARIABLE")
+                ]),
+                one_of(vec_of_erased![
+                    Bracketed::new(vec_of_erased![Delimited::new(vec_of_erased![Ref::new(
+                        "SingleIdentifierGrammar"
+                    ),])]),
+                    Delimited::new(vec_of_erased![Ref::new("SingleIdentifierGrammar"),])
+                ]),
+                Ref::new("EqualsSegment"),
+                one_of(vec_of_erased![
+                    Ref::keyword("DEFAULT"),
+                    Ref::new("ExpressionSegment"),
+                    Bracketed::new(vec_of_erased![Ref::new("ExpressionSegment")]),
+                ])
+            ])
+            .allow_gaps(true)
             .to_matchable()
             .into(),
         ),
@@ -904,9 +1102,7 @@ pub fn dialect() -> Dialect {
                     Ref::new("OrReplaceGrammar"),
                     Ref::new("OrRefreshGrammar")
                 ])
-                .config(|config| {
-                    config.optional();
-                }),
+                .config(|c| c.optional()),
                 Ref::new("TemporaryGrammar").optional(),
                 Ref::keyword("EXTERNAL").optional(),
                 Ref::keyword("STREAMING").optional(),
@@ -921,11 +1117,13 @@ pub fn dialect() -> Dialect {
                     Bracketed::new(vec_of_erased![Delimited::new(vec_of_erased![
                         Sequence::new(vec_of_erased![
                             one_of(vec_of_erased![
-                                Ref::new("ColumnDefinitionSegment"),
-                                Ref::new("GeneratedColumnDefinitionSegment")
+                                Ref::new("ColumnFieldDefinitionSegment"),
+                                Ref::new("GeneratedColumnDefinitionSegment"),
+                                Ref::new("TableConstraintSegment").optional()
                             ]),
                             Ref::new("CommentGrammar").optional()
-                        ])
+                        ]),
+                        Ref::new("ConstraintStatementSegment").optional()
                     ])]),
                     Sequence::new(vec_of_erased![
                         Ref::keyword("LIKE"),
@@ -935,9 +1133,7 @@ pub fn dialect() -> Dialect {
                         ])
                     ])
                 ])
-                .config(|config| {
-                    config.optional();
-                }),
+                .config(|c| c.optional()),
                 Ref::new("UsingClauseSegment").optional(),
                 any_set_of(vec_of_erased![
                     Ref::new("RowFormatClauseSegment"),
@@ -945,25 +1141,22 @@ pub fn dialect() -> Dialect {
                     Ref::new("CommentGrammar"),
                     Ref::new("OptionsGrammar"),
                     Ref::new("PartitionSpecGrammar"),
-                    Ref::new("BucketSpecGrammar")
+                    Ref::new("BucketSpecGrammar"),
+                    Ref::new("LocationGrammar"),
+                    Ref::new("CommentGrammar"),
+                    Ref::new("TablePropertiesGrammar"),
+                    Sequence::new(vec_of_erased![
+                        Ref::keyword("CLUSTER"),
+                        Ref::keyword("BY"),
+                        Ref::new("BracketedColumnReferenceListGrammar")
+                    ])
                 ])
-                .config(|config| {
-                    config.optional();
-                }),
-                MetaSegment::indent(),
-                AnyNumberOf::new(vec_of_erased![
-                    Ref::new("LocationGrammar").optional(),
-                    Ref::new("CommentGrammar").optional(),
-                    Ref::new("TablePropertiesGrammar").optional()
-                ]),
-                MetaSegment::dedent(),
+                .config(|c| c.optional()),
                 Sequence::new(vec_of_erased![
                     Ref::keyword("AS").optional(),
                     optionally_bracketed(vec_of_erased![Ref::new("SelectableGrammar")])
                 ])
-                .config(|config| {
-                    config.optional();
-                })
+                .config(|c| c.optional())
             ])
             .to_matchable()
             .into(),
@@ -2150,10 +2343,73 @@ pub fn dialect() -> Dialect {
         .to_matchable(),
     );
 
+    // An UNPIVOT expression.
+    // https://spark.apache.org/docs/latest/sql-ref-syntax-qry-select-unpivot.html
+    sparksql_dialect.add([(
+        "UnpivotClauseSegment".into(),
+        NodeMatcher::new(
+            SyntaxKind::UnpivotClause,
+            Sequence::new(vec_of_erased![
+                MetaSegment::indent(),
+                Ref::keyword("UNPIVOT"),
+                Sequence::new(vec_of_erased![
+                    one_of(vec_of_erased![
+                        Ref::keyword("INCLUDE"),
+                        Ref::keyword("EXCLUDE")
+                    ]),
+                    Ref::keyword("NULLS")
+                ])
+                .config(|config| {
+                    config.optional();
+                }),
+                MetaSegment::indent(),
+                Bracketed::new(vec_of_erased![one_of(vec_of_erased![
+                    Ref::new("SingleValueColumnUnpivotSegment"),
+                    Ref::new("MultiValueColumnUnpivotSegment")
+                ])]),
+                MetaSegment::dedent(),
+            ])
+            .to_matchable(),
+        )
+        .to_matchable()
+        .into(),
+    )]);
+
+    // A `TABLESAMPLE` clause following a table identifier.
+    // https://spark.apache.org/docs/latest/sql-ref-syntax-qry-select-sampling.html
+    sparksql_dialect.replace_grammar(
+        "SamplingExpressionSegment",
+        Sequence::new(vec_of_erased![
+            Ref::keyword("TABLESAMPLE"),
+            one_of(vec_of_erased![
+                Bracketed::new(vec_of_erased![
+                    Ref::new("NumericLiteralSegment"),
+                    one_of(vec_of_erased![
+                        Ref::keyword("PERCENT"),
+                        Ref::keyword("ROWS")
+                    ])
+                ]),
+                Bracketed::new(vec_of_erased![
+                    Ref::keyword("BUCKET"),
+                    Ref::new("NumericLiteralSegment"),
+                    Ref::keyword("OUT"),
+                    Ref::keyword("OF"),
+                    Ref::new("NumericLiteralSegment")
+                ])
+            ])
+        ])
+        .to_matchable(),
+    );
+
     sparksql_dialect.replace_grammar(
         "UnorderedSelectStatementSegment",
         ansi::get_unordered_select_statement_segment_grammar().copy(
-            Some(vec_of_erased![Ref::new("QualifyClauseSegment").optional()]),
+            Some(vec_of_erased![
+                Ref::new("QualifyClauseSegment").optional(),
+                Ref::new("ClusterByClauseSegment").optional(),
+                Ref::new("DistributeByClauseSegment").optional(),
+                Ref::new("SortByClauseSegment").optional(),
+            ]),
             None,
             None,
             Some(vec_of_erased![Ref::new("OverlapsClauseSegment").optional()]),
@@ -2276,6 +2532,26 @@ pub fn dialect() -> Dialect {
             .into(),
         ),
     ]);
+
+    // A `QUALIFY` clause like in `SELECT`.
+    sparksql_dialect.add([(
+        "QualifyClauseSegment".into(),
+        NodeMatcher::new(
+            SyntaxKind::QualifyClause,
+            Sequence::new(vec_of_erased![
+                Ref::keyword("QUALIFY"),
+                MetaSegment::indent(),
+                one_of(vec_of_erased![
+                    Ref::new("ExpressionSegment"),
+                    Bracketed::new(vec_of_erased![Ref::new("ExpressionSegment")])
+                ]),
+                MetaSegment::dedent(),
+            ])
+            .to_matchable(),
+        )
+        .to_matchable()
+        .into(),
+    )]);
 
     // A `TABLESAMPLE` clause following a table identifier.
     // https://spark.apache.org/docs/latest/sql-ref-syntax-qry-select-sampling.html
@@ -2443,6 +2719,8 @@ pub fn dialect() -> Dialect {
     );
 
     sparksql_dialect.add([
+        // A `ADD {FILE | FILES}` statement.
+        // https://spark.apache.org/docs/latest/sql-ref-syntax-aux-resource-mgmt-add-file.html
         (
             "AddFileSegment".into(),
             NodeMatcher::new(
@@ -2450,7 +2728,10 @@ pub fn dialect() -> Dialect {
                 Sequence::new(vec_of_erased![
                     Ref::keyword("ADD"),
                     Ref::new("FileKeywordSegment"),
-                    AnyNumberOf::new(vec_of_erased![Ref::new("QuotedLiteralSegment")])
+                    AnyNumberOf::new(vec_of_erased![
+                        Ref::new("QuotedLiteralSegment"),
+                        Ref::new("FileLiteralSegment")
+                    ])
                 ])
                 .to_matchable(),
             )
@@ -2645,7 +2926,10 @@ pub fn dialect() -> Dialect {
                 Sequence::new(vec_of_erased![
                     Ref::keyword("LIST"),
                     Ref::new("FileKeywordSegment"),
-                    AnyNumberOf::new(vec_of_erased![Ref::new("QuotedLiteralSegment")])
+                    AnyNumberOf::new(vec_of_erased![
+                        Ref::new("QuotedLiteralSegment"),
+                        Ref::new("FileLiteralSegment")
+                    ])
                 ])
                 .to_matchable(),
             )
@@ -2771,6 +3055,33 @@ pub fn dialect() -> Dialect {
                 ])
                 .to_matchable(),
             )
+            .to_matchable()
+            .into(),
+        ),
+        (
+            // An UNPIVOT expression.
+            // https://spark.apache.org/docs/latest/sql-ref-syntax-qry-select-unpivot.html
+            "UnpivotClauseSegment".into(),
+            Sequence::new(vec_of_erased![
+                MetaSegment::indent(),
+                Ref::keyword("UNPIVOT"),
+                Sequence::new(vec_of_erased![
+                    one_of(vec_of_erased![
+                        Ref::keyword("INCLUDE"),
+                        Ref::keyword("EXCLUDE")
+                    ]),
+                    Ref::keyword("NULLS")
+                ])
+                .config(|config| {
+                    config.optional();
+                }),
+                MetaSegment::indent(),
+                Bracketed::new(vec_of_erased![one_of(vec_of_erased![
+                    Ref::new("SingleValueColumnUnpivotSegment"),
+                    Ref::new("MultiValueColumnUnpivotSegment")
+                ])]),
+                MetaSegment::dedent(),
+            ])
             .to_matchable()
             .into(),
         ),
@@ -3353,7 +3664,8 @@ pub fn dialect() -> Dialect {
                                 Ref::new("BracketedColumnReferenceListGrammar")
                             ])
                         ])
-                    ]),
+                    ])
+                    .config(|config| config.optional()),
                     Sequence::new(vec_of_erased![
                         Ref::keyword("STORED"),
                         Ref::keyword("AS"),
@@ -3363,7 +3675,21 @@ pub fn dialect() -> Dialect {
                     ])
                     .config(|config| {
                         config.optional();
-                    })
+                    }),
+                    Sequence::new(vec_of_erased![
+                        Ref::keyword("TRACK"),
+                        Ref::keyword("HISTORY"),
+                        Ref::keyword("ON"),
+                        one_of(vec_of_erased![
+                            Delimited::new(vec_of_erased![Ref::new("ColumnReferenceSegment"),]),
+                            Sequence::new(vec_of_erased![
+                                Ref::new("StarSegment"),
+                                Ref::keyword("EXCEPT"),
+                                Ref::new("BracketedColumnReferenceListGrammar"),
+                            ]),
+                        ]),
+                    ])
+                    .config(|config| config.optional()),
                 ])
                 .to_matchable(),
             )
@@ -3383,6 +3709,21 @@ pub fn dialect() -> Dialect {
             false,
         ),
     );
+
+    let mut select_clause_terminators = ansi::select_clause_terminators();
+    select_clause_terminators.extend(vec_of_erased![
+        Sequence::new(vec_of_erased![Ref::keyword("CLUSTER"), Ref::keyword("BY")]),
+        Sequence::new(vec_of_erased![
+            Ref::keyword("DISTRIBUTE"),
+            Ref::keyword("BY")
+        ]),
+        Sequence::new(vec_of_erased![Ref::keyword("SORT"), Ref::keyword("BY")]),
+        Ref::keyword("QUALIFY"),
+    ]);
+    sparksql_dialect.add([(
+        "SelectClauseTerminatorGrammar".into(),
+        one_of(select_clause_terminators).to_matchable().into(),
+    )]);
 
     sparksql_dialect.add([
         (
@@ -3416,17 +3757,11 @@ pub fn dialect() -> Dialect {
                                     config.allow_trailing = true;
                                 })
                         ])
-                    ])
+                    ]),
+                    MetaSegment::dedent(),
                 ])
                 .config(|config| {
-                    config.terminators = vec_of_erased![
-                        Ref::keyword("FROM"),
-                        Ref::keyword("WHERE"),
-                        Ref::keyword("UNION"),
-                        Sequence::new(vec_of_erased![Ref::keyword("ORDER"), Ref::keyword("BY")]),
-                        Ref::keyword("LIMIT"),
-                        Ref::keyword("OVERLAPS")
-                    ];
+                    config.terminators = vec_of_erased![Ref::new("SelectClauseTerminatorGrammar"),];
                     config.parse_mode(ParseMode::GreedyOnceStarted);
                 })
                 .to_matchable(),

@@ -7,7 +7,8 @@ file:
         - expression:
           - boolean_literal: 'TRUE'
           - binary_operator: AND
-          - keyword: NOT
+          - not_operator:
+            - keyword: NOT
           - boolean_literal: 'FALSE'
 - statement_terminator: ;
 - statement:
@@ -33,7 +34,8 @@ file:
       - keyword: SELECT
       - select_clause_element:
         - expression:
-          - keyword: NOT
+          - not_operator:
+            - keyword: NOT
           - boolean_literal: 'TRUE'
 - statement_terminator: ;
 - statement:
@@ -42,7 +44,8 @@ file:
       - keyword: SELECT
       - select_clause_element:
         - expression:
-          - keyword: NOT
+          - not_operator:
+            - keyword: NOT
           - boolean_literal: 'TRUE'
           - binary_operator: AND
           - boolean_literal: 'FALSE'

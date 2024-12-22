@@ -8,7 +8,8 @@ file:
     - bracketed:
       - start_bracket: (
       - column_definition:
-        - naked_identifier: a
+        - column_reference:
+          - naked_identifier: a
         - data_type:
           - struct_type:
             - keyword: STRUCT
@@ -28,7 +29,8 @@ file:
               - end_angle_bracket: '>'
       - comma: ','
       - column_definition:
-        - naked_identifier: d
+        - column_reference:
+          - naked_identifier: d
         - data_type:
           - keyword: MAP
           - start_angle_bracket: <
@@ -42,7 +44,8 @@ file:
           - end_angle_bracket: '>'
       - comma: ','
       - column_definition:
-        - naked_identifier: e
+        - column_reference:
+          - naked_identifier: e
         - data_type:
           - array_type:
             - keyword: ARRAY
@@ -62,7 +65,8 @@ file:
     - bracketed:
       - start_bracket: (
       - column_definition:
-        - naked_identifier: a
+        - column_reference:
+          - naked_identifier: a
         - data_type:
           - struct_type:
             - keyword: STRUCT
@@ -88,7 +92,8 @@ file:
             - quoted_literal: '''col_comment'''
       - comma: ','
       - column_definition:
-        - naked_identifier: d
+        - column_reference:
+          - naked_identifier: d
         - data_type:
           - keyword: MAP
           - start_angle_bracket: <
@@ -106,7 +111,8 @@ file:
             - quoted_literal: '''col_comment'''
       - comma: ','
       - column_definition:
-        - naked_identifier: e
+        - column_reference:
+          - naked_identifier: e
         - data_type:
           - array_type:
             - keyword: ARRAY
@@ -130,7 +136,8 @@ file:
     - bracketed:
       - start_bracket: (
       - column_definition:
-        - naked_identifier: a
+        - column_reference:
+          - naked_identifier: a
         - data_type:
           - struct_type:
             - keyword: STRUCT
@@ -158,7 +165,8 @@ file:
               - end_angle_bracket: '>'
       - comma: ','
       - column_definition:
-        - naked_identifier: d
+        - column_reference:
+          - naked_identifier: d
         - data_type:
           - keyword: MAP
           - start_angle_bracket: <
@@ -194,7 +202,8 @@ file:
           - end_angle_bracket: '>'
       - comma: ','
       - column_definition:
-        - naked_identifier: g
+        - column_reference:
+          - naked_identifier: g
         - data_type:
           - array_type:
             - keyword: ARRAY
@@ -236,7 +245,8 @@ file:
     - bracketed:
       - start_bracket: (
       - column_definition:
-        - naked_identifier: a
+        - column_reference:
+          - naked_identifier: a
         - data_type:
           - struct_type:
             - keyword: STRUCT
@@ -256,7 +266,8 @@ file:
               - end_angle_bracket: '>'
       - comma: ','
       - column_definition:
-        - quoted_identifier: '`d`'
+        - column_reference:
+          - quoted_identifier: '`d`'
         - data_type:
           - keyword: MAP
           - start_angle_bracket: <
@@ -270,7 +281,8 @@ file:
           - end_angle_bracket: '>'
       - comma: ','
       - column_definition:
-        - naked_identifier: e
+        - column_reference:
+          - naked_identifier: e
         - data_type:
           - array_type:
             - keyword: ARRAY
@@ -281,3 +293,18 @@ file:
             - end_angle_bracket: '>'
       - end_bracket: )
 - statement_terminator: ;
+- statement:
+  - create_table_statement:
+    - keyword: CREATE
+    - keyword: TABLE
+    - table_reference:
+      - naked_identifier: my_table
+- file:
+  - start_bracket: (
+  - word: field_a
+  - word: STRING
+  - comma: ','
+  - word: field_b
+  - word: VARIANT
+  - end_bracket: )
+  - semicolon: ;

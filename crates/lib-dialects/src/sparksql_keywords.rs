@@ -315,6 +315,7 @@ pub(crate) const UNRESERVED_KEYWORDS: &[&str] = &[
     "WIDGET",
     "DROPDOWN",
     "TEXT",
+    "TRACK",
     "CHOICES",
     "REMOVE",
 ];

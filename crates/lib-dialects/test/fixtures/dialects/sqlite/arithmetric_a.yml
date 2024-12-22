@@ -305,7 +305,8 @@ file:
         - expression:
           - boolean_literal: 'FALSE'
           - binary_operator: AND
-          - keyword: NOT
+          - not_operator:
+            - keyword: NOT
           - bracketed:
             - start_bracket: (
             - expression:
@@ -320,9 +321,12 @@ file:
         - expression:
           - boolean_literal: 'FALSE'
           - binary_operator: AND
-          - keyword: NOT
-          - keyword: NOT
-          - keyword: NOT
+          - not_operator:
+            - keyword: NOT
+          - not_operator:
+            - keyword: NOT
+          - not_operator:
+            - keyword: NOT
           - bracketed:
             - start_bracket: (
             - expression:
@@ -337,7 +341,8 @@ file:
         - expression:
           - boolean_literal: 'FALSE'
           - binary_operator: AND
-          - keyword: NOT
+          - not_operator:
+            - keyword: NOT
           - bracketed:
             - start_bracket: (
             - expression:
@@ -352,7 +357,8 @@ file:
         - expression:
           - boolean_literal: 'FALSE'
           - binary_operator: AND
-          - keyword: NOT
+          - not_operator:
+            - keyword: NOT
           - function:
             - function_name:
               - function_name_identifier: func

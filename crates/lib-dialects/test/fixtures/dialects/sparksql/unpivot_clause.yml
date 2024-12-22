@@ -14,29 +14,28 @@ file:
           - table_expression:
             - table_reference:
               - naked_identifier: sales_quarterly
-        - unpivot_clause:
-          - keyword: UNPIVOT
+        - keyword: UNPIVOT
+        - bracketed:
+          - start_bracket: (
+          - naked_identifier: sales
+          - keyword: FOR
+          - naked_identifier: quarter
+          - keyword: IN
           - bracketed:
             - start_bracket: (
-            - naked_identifier: sales
-            - keyword: FOR
-            - naked_identifier: quarter
-            - keyword: IN
-            - bracketed:
-              - start_bracket: (
-              - column_reference:
-                - naked_identifier: q1
-              - comma: ','
-              - column_reference:
-                - naked_identifier: q2
-              - comma: ','
-              - column_reference:
-                - naked_identifier: q3
-              - comma: ','
-              - column_reference:
-                - naked_identifier: q4
-              - end_bracket: )
+            - column_reference:
+              - naked_identifier: q1
+            - comma: ','
+            - column_reference:
+              - naked_identifier: q2
+            - comma: ','
+            - column_reference:
+              - naked_identifier: q3
+            - comma: ','
+            - column_reference:
+              - naked_identifier: q4
             - end_bracket: )
+          - end_bracket: )
 - statement_terminator: ;
 - statement:
   - select_statement:
@@ -55,43 +54,42 @@ file:
           - table_expression:
             - table_reference:
               - naked_identifier: sales_quarterly
-        - unpivot_clause:
-          - keyword: UNPIVOT
-          - keyword: INCLUDE
-          - keyword: NULLS
+        - keyword: UNPIVOT
+        - keyword: INCLUDE
+        - keyword: NULLS
+        - bracketed:
+          - start_bracket: (
+          - naked_identifier: sales
+          - keyword: FOR
+          - naked_identifier: quarter
+          - keyword: IN
           - bracketed:
             - start_bracket: (
-            - naked_identifier: sales
-            - keyword: FOR
-            - naked_identifier: quarter
-            - keyword: IN
-            - bracketed:
-              - start_bracket: (
-              - column_reference:
-                - naked_identifier: q1
-              - alias_expression:
-                - keyword: AS
-                - naked_identifier: Q1
-              - comma: ','
-              - column_reference:
-                - naked_identifier: q2
-              - alias_expression:
-                - keyword: AS
-                - naked_identifier: Q2
-              - comma: ','
-              - column_reference:
-                - naked_identifier: q3
-              - alias_expression:
-                - keyword: AS
-                - naked_identifier: Q3
-              - comma: ','
-              - column_reference:
-                - naked_identifier: q4
-              - alias_expression:
-                - keyword: AS
-                - naked_identifier: Q4
-              - end_bracket: )
+            - column_reference:
+              - naked_identifier: q1
+            - alias_expression:
+              - keyword: AS
+              - naked_identifier: Q1
+            - comma: ','
+            - column_reference:
+              - naked_identifier: q2
+            - alias_expression:
+              - keyword: AS
+              - naked_identifier: Q2
+            - comma: ','
+            - column_reference:
+              - naked_identifier: q3
+            - alias_expression:
+              - keyword: AS
+              - naked_identifier: Q3
+            - comma: ','
+            - column_reference:
+              - naked_identifier: q4
+            - alias_expression:
+              - keyword: AS
+              - naked_identifier: Q4
             - end_bracket: )
+          - end_bracket: )
         - alias_expression:
           - keyword: AS
           - naked_identifier: up
@@ -111,48 +109,47 @@ file:
           - table_expression:
             - table_reference:
               - naked_identifier: sales_quarterly
-        - unpivot_clause:
-          - keyword: UNPIVOT
-          - keyword: EXCLUDE
-          - keyword: NULLS
+        - keyword: UNPIVOT
+        - keyword: EXCLUDE
+        - keyword: NULLS
+        - bracketed:
+          - start_bracket: (
+          - bracketed:
+            - start_bracket: (
+            - naked_identifier: first_quarter
+            - comma: ','
+            - naked_identifier: second_quarter
+            - end_bracket: )
+          - keyword: FOR
+          - naked_identifier: half_of_the_year
+          - keyword: IN
           - bracketed:
             - start_bracket: (
             - bracketed:
               - start_bracket: (
-              - naked_identifier: first_quarter
+              - column_reference:
+                - naked_identifier: q1
               - comma: ','
-              - naked_identifier: second_quarter
+              - column_reference:
+                - naked_identifier: q2
               - end_bracket: )
-            - keyword: FOR
-            - naked_identifier: half_of_the_year
-            - keyword: IN
+            - alias_expression:
+              - keyword: AS
+              - naked_identifier: H1
+            - comma: ','
             - bracketed:
               - start_bracket: (
-              - bracketed:
-                - start_bracket: (
-                - column_reference:
-                  - naked_identifier: q1
-                - comma: ','
-                - column_reference:
-                  - naked_identifier: q2
-                - end_bracket: )
-              - alias_expression:
-                - keyword: AS
-                - naked_identifier: H1
+              - column_reference:
+                - naked_identifier: q3
               - comma: ','
-              - bracketed:
-                - start_bracket: (
-                - column_reference:
-                  - naked_identifier: q3
-                - comma: ','
-                - column_reference:
-                  - naked_identifier: q4
-                - end_bracket: )
-              - alias_expression:
-                - keyword: AS
-                - naked_identifier: H2
+              - column_reference:
+                - naked_identifier: q4
               - end_bracket: )
+            - alias_expression:
+              - keyword: AS
+              - naked_identifier: H2
             - end_bracket: )
+          - end_bracket: )
 - statement_terminator: ;
 - statement:
   - select_statement:
@@ -169,88 +166,86 @@ file:
           - table_expression:
             - table_reference:
               - naked_identifier: sales
-        - unpivot_clause:
-          - keyword: UNPIVOT
-          - keyword: INCLUDE
-          - keyword: NULLS
+        - keyword: UNPIVOT
+        - keyword: INCLUDE
+        - keyword: NULLS
+        - bracketed:
+          - start_bracket: (
+          - naked_identifier: sales
+          - keyword: FOR
+          - naked_identifier: quarter
+          - keyword: IN
           - bracketed:
             - start_bracket: (
-            - naked_identifier: sales
-            - keyword: FOR
-            - naked_identifier: quarter
-            - keyword: IN
-            - bracketed:
-              - start_bracket: (
-              - column_reference:
-                - naked_identifier: q1
-              - alias_expression:
-                - keyword: AS
-                - quoted_identifier: '`Jan-Mar`'
-              - comma: ','
-              - column_reference:
-                - naked_identifier: q2
-              - alias_expression:
-                - keyword: AS
-                - quoted_identifier: '`Apr-Jun`'
-              - comma: ','
-              - column_reference:
-                - naked_identifier: q3
-              - alias_expression:
-                - keyword: AS
-                - quoted_identifier: '`Jul-Sep`'
-              - comma: ','
-              - column_reference:
-                - naked_identifier: sales
-                - dot: .
-                - naked_identifier: q4
-              - alias_expression:
-                - keyword: AS
-                - quoted_identifier: '`Oct-Dec`'
-              - end_bracket: )
+            - column_reference:
+              - naked_identifier: q1
+            - alias_expression:
+              - keyword: AS
+              - quoted_identifier: '`Jan-Mar`'
+            - comma: ','
+            - column_reference:
+              - naked_identifier: q2
+            - alias_expression:
+              - keyword: AS
+              - quoted_identifier: '`Apr-Jun`'
+            - comma: ','
+            - column_reference:
+              - naked_identifier: q3
+            - alias_expression:
+              - keyword: AS
+              - quoted_identifier: '`Jul-Sep`'
+            - comma: ','
+            - column_reference:
+              - naked_identifier: sales
+              - dot: .
+              - naked_identifier: q4
+            - alias_expression:
+              - keyword: AS
+              - quoted_identifier: '`Oct-Dec`'
             - end_bracket: )
+          - end_bracket: )
       - comma: ','
       - from_expression:
         - from_expression_element:
           - table_expression:
             - table_reference:
               - naked_identifier: sales
-        - unpivot_clause:
-          - keyword: UNPIVOT
-          - keyword: INCLUDE
-          - keyword: NULLS
+        - keyword: UNPIVOT
+        - keyword: INCLUDE
+        - keyword: NULLS
+        - bracketed:
+          - start_bracket: (
+          - naked_identifier: sales
+          - keyword: FOR
+          - naked_identifier: quarter
+          - keyword: IN
           - bracketed:
             - start_bracket: (
-            - naked_identifier: sales
-            - keyword: FOR
-            - naked_identifier: quarter
-            - keyword: IN
-            - bracketed:
-              - start_bracket: (
-              - column_reference:
-                - naked_identifier: q1
-              - alias_expression:
-                - keyword: AS
-                - quoted_identifier: '`Jan-Mar`'
-              - comma: ','
-              - column_reference:
-                - naked_identifier: q2
-              - alias_expression:
-                - keyword: AS
-                - quoted_identifier: '`Apr-Jun`'
-              - comma: ','
-              - column_reference:
-                - naked_identifier: q3
-              - alias_expression:
-                - keyword: AS
-                - quoted_identifier: '`Jul-Sep`'
-              - comma: ','
-              - column_reference:
-                - naked_identifier: sales
-                - dot: .
-                - naked_identifier: q4
-              - alias_expression:
-                - keyword: AS
-                - quoted_identifier: '`Oct-Dec`'
-              - end_bracket: )
+            - column_reference:
+              - naked_identifier: q1
+            - alias_expression:
+              - keyword: AS
+              - quoted_identifier: '`Jan-Mar`'
+            - comma: ','
+            - column_reference:
+              - naked_identifier: q2
+            - alias_expression:
+              - keyword: AS
+              - quoted_identifier: '`Apr-Jun`'
+            - comma: ','
+            - column_reference:
+              - naked_identifier: q3
+            - alias_expression:
+              - keyword: AS
+              - quoted_identifier: '`Jul-Sep`'
+            - comma: ','
+            - column_reference:
+              - naked_identifier: sales
+              - dot: .
+              - naked_identifier: q4
+            - alias_expression:
+              - keyword: AS
+              - quoted_identifier: '`Oct-Dec`'
             - end_bracket: )
+          - end_bracket: )
 - statement_terminator: ;

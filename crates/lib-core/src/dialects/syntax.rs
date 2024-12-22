@@ -593,6 +593,9 @@ pub enum SyntaxKind {
     MapTypeSchema,
     PrepareStatement,
     ExecuteStatement,
+    NotOperator,
+    RawSingleQuote,
+    RawDoubleQuote,
 }
 
 impl SyntaxKind {

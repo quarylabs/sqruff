@@ -11,7 +11,8 @@ file:
     - bracketed:
       - start_bracket: (
       - column_definition:
-        - naked_identifier: test
+        - column_reference:
+          - naked_identifier: test
         - data_type:
           - primitive_type:
             - keyword: STRING
@@ -121,19 +122,22 @@ file:
     - bracketed:
       - start_bracket: (
       - column_definition:
-        - naked_identifier: id
+        - column_reference:
+          - naked_identifier: id
         - data_type:
           - primitive_type:
             - keyword: INT
       - comma: ','
       - column_definition:
-        - naked_identifier: student_name
+        - column_reference:
+          - naked_identifier: student_name
         - data_type:
           - primitive_type:
             - keyword: STRING
       - comma: ','
       - column_definition:
-        - naked_identifier: age
+        - column_reference:
+          - naked_identifier: age
         - data_type:
           - primitive_type:
             - keyword: INT
@@ -181,19 +185,22 @@ file:
     - bracketed:
       - start_bracket: (
       - column_definition:
-        - naked_identifier: id
+        - column_reference:
+          - naked_identifier: id
         - data_type:
           - primitive_type:
             - keyword: INT
       - comma: ','
       - column_definition:
-        - naked_identifier: student_name
+        - column_reference:
+          - naked_identifier: student_name
         - data_type:
           - primitive_type:
             - keyword: STRING
       - comma: ','
       - column_definition:
-        - naked_identifier: age
+        - column_reference:
+          - naked_identifier: age
         - data_type:
           - primitive_type:
             - keyword: INT
@@ -208,19 +215,22 @@ file:
     - bracketed:
       - start_bracket: (
       - column_definition:
-        - naked_identifier: id
+        - column_reference:
+          - naked_identifier: id
         - data_type:
           - primitive_type:
             - keyword: INT
       - comma: ','
       - column_definition:
-        - naked_identifier: student_name
+        - column_reference:
+          - naked_identifier: student_name
         - data_type:
           - primitive_type:
             - keyword: STRING
       - comma: ','
       - column_definition:
-        - naked_identifier: age
+        - column_reference:
+          - naked_identifier: age
         - data_type:
           - primitive_type:
             - keyword: INT
@@ -250,19 +260,22 @@ file:
     - bracketed:
       - start_bracket: (
       - column_definition:
-        - naked_identifier: id
+        - column_reference:
+          - naked_identifier: id
         - data_type:
           - primitive_type:
             - keyword: INT
       - comma: ','
       - column_definition:
-        - naked_identifier: student_name
+        - column_reference:
+          - naked_identifier: student_name
         - data_type:
           - primitive_type:
             - keyword: STRING
       - comma: ','
       - column_definition:
-        - naked_identifier: age
+        - column_reference:
+          - naked_identifier: age
         - data_type:
           - primitive_type:
             - keyword: INT
@@ -302,19 +315,22 @@ file:
     - bracketed:
       - start_bracket: (
       - column_definition:
-        - naked_identifier: id
+        - column_reference:
+          - naked_identifier: id
         - data_type:
           - primitive_type:
             - keyword: INT
       - comma: ','
       - column_definition:
-        - naked_identifier: student_name
+        - column_reference:
+          - naked_identifier: student_name
         - data_type:
           - primitive_type:
             - keyword: STRING
       - comma: ','
       - column_definition:
-        - naked_identifier: age
+        - column_reference:
+          - naked_identifier: age
         - data_type:
           - primitive_type:
             - keyword: INT
@@ -340,19 +356,22 @@ file:
     - bracketed:
       - start_bracket: (
       - column_definition:
-        - naked_identifier: id
+        - column_reference:
+          - naked_identifier: id
         - data_type:
           - primitive_type:
             - keyword: INT
       - comma: ','
       - column_definition:
-        - naked_identifier: student_name
+        - column_reference:
+          - naked_identifier: student_name
         - data_type:
           - primitive_type:
             - keyword: STRING
       - comma: ','
       - column_definition:
-        - naked_identifier: age
+        - column_reference:
+          - naked_identifier: age
         - data_type:
           - primitive_type:
             - keyword: INT
@@ -373,4 +392,45 @@ file:
     - keyword: STORED
     - keyword: AS
     - keyword: PARQUET
+- statement_terminator: ;
+- statement:
+  - create_table_statement:
+    - keyword: create
+    - keyword: table
+    - keyword: if
+    - keyword: not
+    - keyword: exists
+    - table_reference:
+      - naked_identifier: my_table_space
+      - dot: .
+      - naked_identifier: my_test_table
+    - bracketed:
+      - start_bracket: (
+      - column_definition:
+        - column_reference:
+          - naked_identifier: test_value
+        - data_type:
+          - primitive_type:
+            - keyword: string
+      - comma: ','
+      - column_definition:
+        - column_reference:
+          - naked_identifier: activity_date_partition
+        - data_type:
+          - primitive_type:
+            - keyword: date
+      - end_bracket: )
+    - using_clause:
+      - keyword: using
+      - data_source_format:
+        - keyword: DELTA
+    - keyword: location
+    - quoted_literal: '''s3://some-bucket/test-data/'''
+    - keyword: partitioned
+    - keyword: by
+    - bracketed:
+      - start_bracket: (
+      - column_reference:
+        - naked_identifier: activity_date_partition
+      - end_bracket: )
 - statement_terminator: ;

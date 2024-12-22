@@ -62,7 +62,8 @@ file:
     - where_clause:
       - keyword: WHERE
       - expression:
-        - keyword: NOT
+        - not_operator:
+          - keyword: NOT
         - keyword: EXISTS
         - bracketed:
           - start_bracket: (

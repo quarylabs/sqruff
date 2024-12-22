@@ -1,0 +1,40 @@
+file:
+- statement:
+  - select_statement:
+    - select_clause:
+      - keyword: select
+      - select_clause_element:
+        - keyword: timestamp_ntz
+        - date_constructor_literal: '''1970-01-01'''
+      - comma: ','
+      - select_clause_element:
+        - keyword: TIMESTAMP_LTZ
+        - date_constructor_literal: '''1970-01-01'''
+      - comma: ','
+      - select_clause_element:
+        - function:
+          - function_name:
+            - function_name_identifier: cast
+          - bracketed:
+            - start_bracket: (
+            - expression:
+              - quoted_literal: '''1970-01-01'''
+            - keyword: as
+            - data_type:
+              - primitive_type:
+                - keyword: TIMESTAMP_NTZ
+            - end_bracket: )
+      - comma: ','
+      - select_clause_element:
+        - function:
+          - function_name:
+            - function_name_identifier: cast
+          - bracketed:
+            - start_bracket: (
+            - expression:
+              - quoted_literal: '''1970-01-01'''
+            - keyword: as
+            - data_type:
+              - primitive_type:
+                - keyword: timestamp_ltz
+            - end_bracket: )

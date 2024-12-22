@@ -37,3 +37,30 @@ file:
       - dot: .
       - properties_naked_identifier: substitute
 - statement_terminator: ;
+- statement:
+  - set_statement:
+    - keyword: SET
+    - property_name_identifier:
+      - properties_naked_identifier: spark
+      - dot: .
+      - properties_naked_identifier: sql
+      - dot: .
+      - properties_naked_identifier: cache
+      - dot: .
+      - properties_naked_identifier: serializer
+    - comparison_operator:
+      - raw_comparison_operator: =
+    - properties_naked_identifier: org
+    - dot: .
+    - properties_naked_identifier: apache
+    - dot: .
+    - properties_naked_identifier: spark
+    - dot: .
+    - properties_naked_identifier: sql
+    - dot: .
+    - properties_naked_identifier: execution
+    - dot: .
+    - properties_naked_identifier: columnar
+    - dot: .
+    - properties_naked_identifier: DefaultCachedBatchSerializer
+- statement_terminator: ;

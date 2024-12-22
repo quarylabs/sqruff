@@ -14,7 +14,6 @@
 #   0 - Pattern NOT found in any file
 #   1 - Pattern found in at least one file
 
-pattern="unparsable:"
 shift  # Shift so $@ now contains only filenames (if any)
 
 # If no files are specified, default to looking in crates/lib-dialects/test/fixtures/dialects/***/*.yml
@@ -22,21 +21,34 @@ if [[ $# -eq 0 ]]; then
   set -- crates/lib-dialects/test/fixtures/dialects/**/*.yml
 fi
 
+pattern_unparsable="unparsable:"
+files_found_unparsable=()
+
+pattern_file="\- file:"
+files_found_file=()
+
 found=0
-files_found=()
 
 for filename in "$@"; do
   # Use extended regular expressions (-E). -q ensures grep is quiet (no output).
-  if grep -qE "$pattern" "$filename" 2>/dev/null; then
+  if grep -qE "$pattern_unparsable" "$filename" 2>/dev/null; then
     found=1
-    files_found+=("$filename")
+    files_found_unparsable+=("$filename")
+  fi
+  if grep -qE "$pattern_file" "$filename" 2>/dev/null; then
+    found=1
+    files_found_file+=("$filename")
   fi
 done
 
 # If found in any file, list them
 if [[ $found -eq 1 ]]; then
-  echo "Pattern '$pattern' found in:"
-  for file in "${files_found[@]}"; do
+  echo "Pattern '$pattern_unparsable' found in:"
+  for file in "${files_found_unparsable[@]}"; do
+    echo "  $file"
+  done
+  echo "Pattern '$pattern_file' found in:"
+  for file in "${files_found_file[@]}"; do
     echo "  $file"
   done
 fi

@@ -52,23 +52,23 @@ file:
   - add_jar_statement:
     - keyword: ADD
     - file_keyword: JAR
-    - file_literal: ivy://group:module:version?exclude=group:module&transitive=true
+    - literal: ivy://group:module:version?exclude=group:module&transitive=true
 - statement_terminator: ;
 - statement:
   - add_jar_statement:
     - keyword: ADD
     - file_keyword: JAR
-    - file_literal: /path/to/some.jar
+    - literal: /path/to/some.jar
 - statement_terminator: ;
 - statement:
   - add_jar_statement:
     - keyword: ADD
     - file_keyword: JAR
-    - file_literal: path/to/some.jar
+    - literal: path/to/some.jar
 - statement_terminator: ;
 - statement:
   - add_jar_statement:
     - keyword: ADD
     - file_keyword: JAR
-    - file_literal: ivy://path/to/some.jar
+    - literal: ivy://path/to/some.jar
 - statement_terminator: ;

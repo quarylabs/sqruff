@@ -614,9 +614,26 @@ pub fn raw_dialect() -> Dialect {
         ),
         (
             "NotOperatorGrammar".into(),
-            StringParser::new("NOT", SyntaxKind::Keyword)
-                .to_matchable()
-                .into(),
+            NodeMatcher::new(
+                SyntaxKind::NotOperator,
+                StringParser::new("NOT", SyntaxKind::Keyword)
+                    .to_matchable()
+                    .into(),
+            )
+            .to_matchable()
+            .into(),
+        ),
+        (
+            // SELECT * EXCEPT clause.
+            "ExceptClauseSegment".into(),
+            Sequence::new(vec_of_erased![
+                Ref::keyword("EXCEPT"),
+                Bracketed::new(vec_of_erased![Delimited::new(vec_of_erased![Ref::new(
+                    "ColumnReferenceSegment"
+                ),])],)
+            ])
+            .to_matchable()
+            .into(),
         ),
         (
             // This is a placeholder for other dialects.
@@ -744,17 +761,7 @@ pub fn raw_dialect() -> Dialect {
         ),
         (
             "SelectClauseTerminatorGrammar".into(),
-            one_of(vec_of_erased![
-                Ref::keyword("FROM"),
-                Ref::keyword("WHERE"),
-                Sequence::new(vec_of_erased![Ref::keyword("ORDER"), Ref::keyword("BY")]),
-                Ref::keyword("LIMIT"),
-                Ref::keyword("OVERLAPS"),
-                Ref::new("SetOperatorSegment"),
-                Ref::keyword("FETCH"),
-            ])
-            .to_matchable()
-            .into(),
+            one_of(select_clause_terminators()).to_matchable().into(),
         ),
         // Define these as grammars to allow child dialects to enable them (since they are
         // non-standard keywords)
@@ -5186,4 +5193,16 @@ fn block_comment(cursor: &mut Cursor) -> bool {
             _ => {}
         }
     }
+}
+
+pub(crate) fn select_clause_terminators() -> Vec<Matchable> {
+    vec_of_erased![
+        Ref::keyword("FROM"),
+        Ref::keyword("WHERE"),
+        Sequence::new(vec_of_erased![Ref::keyword("ORDER"), Ref::keyword("BY")]),
+        Ref::keyword("LIMIT"),
+        Ref::keyword("OVERLAPS"),
+        Ref::new("SetOperatorSegment"),
+        Ref::keyword("FETCH"),
+    ]
 }

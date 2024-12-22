@@ -1,0 +1,207 @@
+file:
+- statement:
+  - select_statement:
+    - select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+        - wildcard_expression:
+          - wildcard_identifier:
+            - star: '*'
+    - from_clause:
+      - keyword: FROM
+      - from_expression:
+        - from_expression_element:
+          - table_expression:
+            - table_reference:
+              - naked_identifier: sales_quarterly
+          - alias_expression:
+            - naked_identifier: UNPIVOT
+    - unparsable:
+      - start_bracket: (
+      - word: sales
+      - word: FOR
+      - word: quarter
+      - word: IN
+      - start_bracket: (
+      - word: q1
+      - comma: ','
+      - word: q2
+      - comma: ','
+      - word: q3
+      - comma: ','
+      - word: q4
+      - end_bracket: )
+      - end_bracket: )
+- statement_terminator: ;
+- statement:
+  - select_statement:
+    - select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+        - wildcard_expression:
+          - wildcard_identifier:
+            - naked_identifier: up
+            - dot: .
+            - star: '*'
+    - from_clause:
+      - keyword: FROM
+      - from_expression:
+        - from_expression_element:
+          - table_expression:
+            - table_reference:
+              - naked_identifier: sales_quarterly
+          - alias_expression:
+            - naked_identifier: UNPIVOT
+    - unparsable:
+      - word: INCLUDE
+      - word: NULLS
+      - start_bracket: (
+      - word: sales
+      - word: FOR
+      - word: quarter
+      - word: IN
+      - start_bracket: (
+      - word: q1
+      - word: AS
+      - word: Q1
+      - comma: ','
+      - word: q2
+      - word: AS
+      - word: Q2
+      - comma: ','
+      - word: q3
+      - word: AS
+      - word: Q3
+      - comma: ','
+      - word: q4
+      - word: AS
+      - word: Q4
+      - end_bracket: )
+      - end_bracket: )
+      - word: AS
+      - word: up
+- statement_terminator: ;
+- statement:
+  - select_statement:
+    - select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+        - wildcard_expression:
+          - wildcard_identifier:
+            - star: '*'
+    - from_clause:
+      - keyword: FROM
+      - from_expression:
+        - from_expression_element:
+          - table_expression:
+            - table_reference:
+              - naked_identifier: sales_quarterly
+          - alias_expression:
+            - naked_identifier: UNPIVOT
+    - unparsable:
+      - word: EXCLUDE
+      - word: NULLS
+      - start_bracket: (
+      - start_bracket: (
+      - word: first_quarter
+      - comma: ','
+      - word: second_quarter
+      - end_bracket: )
+      - word: FOR
+      - word: half_of_the_year
+      - word: IN
+      - start_bracket: (
+      - start_bracket: (
+      - word: q1
+      - comma: ','
+      - word: q2
+      - end_bracket: )
+      - word: AS
+      - word: H1
+      - comma: ','
+      - start_bracket: (
+      - word: q3
+      - comma: ','
+      - word: q4
+      - end_bracket: )
+      - word: AS
+      - word: H2
+      - end_bracket: )
+      - end_bracket: )
+- statement_terminator: ;
+- statement:
+  - select_statement:
+    - select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+        - wildcard_expression:
+          - wildcard_identifier:
+            - star: '*'
+    - from_clause:
+      - keyword: FROM
+      - from_expression:
+        - from_expression_element:
+          - table_expression:
+            - table_reference:
+              - naked_identifier: sales
+          - alias_expression:
+            - naked_identifier: UNPIVOT
+    - unparsable:
+      - word: INCLUDE
+      - word: NULLS
+      - start_bracket: (
+      - word: sales
+      - word: FOR
+      - word: quarter
+      - word: IN
+      - start_bracket: (
+      - word: q1
+      - word: AS
+      - back_quote: '`Jan-Mar`'
+      - comma: ','
+      - word: q2
+      - word: AS
+      - back_quote: '`Apr-Jun`'
+      - comma: ','
+      - word: q3
+      - word: AS
+      - back_quote: '`Jul-Sep`'
+      - comma: ','
+      - word: sales
+      - dot: .
+      - word: q4
+      - word: AS
+      - back_quote: '`Oct-Dec`'
+      - end_bracket: )
+      - end_bracket: )
+      - comma: ','
+      - word: sales
+      - word: UNPIVOT
+      - word: INCLUDE
+      - word: NULLS
+      - start_bracket: (
+      - word: sales
+      - word: FOR
+      - word: quarter
+      - word: IN
+      - start_bracket: (
+      - word: q1
+      - word: AS
+      - back_quote: '`Jan-Mar`'
+      - comma: ','
+      - word: q2
+      - word: AS
+      - back_quote: '`Apr-Jun`'
+      - comma: ','
+      - word: q3
+      - word: AS
+      - back_quote: '`Jul-Sep`'
+      - comma: ','
+      - word: sales
+      - dot: .
+      - word: q4
+      - word: AS
+      - back_quote: '`Oct-Dec`'
+      - end_bracket: )
+      - end_bracket: )
+- statement_terminator: ;

@@ -65,3 +65,62 @@ file:
                       - naked_identifier: customers_bronze
                   - end_bracket: )
 - statement_terminator: ;
+- statement:
+  - create_view_statement:
+    - keyword: CREATE
+    - keyword: TEMPORARY
+    - keyword: LIVE
+    - keyword: VIEW
+    - table_reference:
+      - naked_identifier: filtered_data
+- file:
+  - start_bracket: (
+  - word: a
+  - word: COMMENT
+  - single_quote: '''a'''
+  - comma: ','
+  - word: b
+  - word: COMMENT
+  - single_quote: '''b'''
+  - comma: ','
+  - word: CONSTRAINT
+  - word: valid_a
+  - word: EXPECT
+  - start_bracket: (
+  - word: a
+  - word: IS
+  - word: NOT
+  - word: 'NULL'
+  - end_bracket: )
+  - comma: ','
+  - word: CONSTRAINT
+  - word: valid_b
+  - word: EXPECT
+  - start_bracket: (
+  - word: b
+  - raw_comparison_operator: '>'
+  - numeric_literal: '0'
+  - end_bracket: )
+  - end_bracket: )
+  - word: AS
+  - word: SELECT
+  - word: a
+  - comma: ','
+  - word: b
+  - word: FROM
+  - word: live
+  - dot: .
+  - word: taxi_raw
+  - semicolon: ;
+  - word: CREATE
+  - word: OR
+  - word: REFRESH
+  - word: MATERIALIZED
+  - word: VIEW
+  - word: temp_table
+  - word: AS
+  - word: SELECT
+  - numeric_literal: '1'
+  - word: AS
+  - word: ID
+  - semicolon: ;

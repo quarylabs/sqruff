@@ -53,6 +53,6 @@ serde_yaml = "0.9.34+deprecated"
 sqruff-lib-core.workspace = true
 sqruff-lib-core.features = ["serde", "stringify"]
 rayon = "1.10.0"
-expect-test = "1.5.0"
+expect-test = "1.5.1"
 glob = "0.3.1"
 serde_yaml = "0.9.34+deprecated"

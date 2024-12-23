@@ -1,0 +1,17 @@
+file:
+- statement:
+  - keyword: DROP
+  - keyword: CATALOG
+  - object_reference:
+    - naked_identifier: vaccine
+  - keyword: CASCADE
+- statement_terminator: ;
+- statement:
+  - keyword: DROP
+  - keyword: CATALOG
+  - keyword: IF
+  - keyword: EXISTS
+  - object_reference:
+    - naked_identifier: vaccine
+  - keyword: RESTRICT
+- statement_terminator: ;

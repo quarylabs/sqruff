@@ -744,17 +744,7 @@ pub fn raw_dialect() -> Dialect {
         ),
         (
             "SelectClauseTerminatorGrammar".into(),
-            one_of(vec_of_erased![
-                Ref::keyword("FROM"),
-                Ref::keyword("WHERE"),
-                Sequence::new(vec_of_erased![Ref::keyword("ORDER"), Ref::keyword("BY")]),
-                Ref::keyword("LIMIT"),
-                Ref::keyword("OVERLAPS"),
-                Ref::new("SetOperatorSegment"),
-                Ref::keyword("FETCH"),
-            ])
-            .to_matchable()
-            .into(),
+            one_of(select_clause_terminators()).to_matchable().into(),
         ),
         // Define these as grammars to allow child dialects to enable them (since they are
         // non-standard keywords)
@@ -1930,10 +1920,29 @@ pub fn raw_dialect() -> Dialect {
                         }
                     ),
                     Conditional::new(MetaSegment::dedent()).indented_ctes(),
-                    one_of(vec_of_erased![
-                        Ref::new("NonWithSelectableGrammar"),
-                        Ref::new("NonWithNonSelectableGrammar")
-                    ])
+                    Ref::new("NonWithSelectableGrammar"),
+                ])
+                .to_matchable(),
+            )
+            .to_matchable()
+            .into(),
+        ),
+        (
+            "WithCompoundNonSelectStatementSegment".into(),
+            NodeMatcher::new(
+                SyntaxKind::WithCompoundStatement,
+                Sequence::new(vec_of_erased![
+                    Ref::keyword("WITH"),
+                    Ref::keyword("RECURSIVE").optional(),
+                    Conditional::new(MetaSegment::indent()).indented_ctes(),
+                    Delimited::new(vec_of_erased![Ref::new("CTEDefinitionSegment")]).config(
+                        |this| {
+                            this.terminators = vec_of_erased![Ref::keyword("SELECT")];
+                            this.allow_trailing();
+                        }
+                    ),
+                    Conditional::new(MetaSegment::dedent()).indented_ctes(),
+                    Ref::new("NonWithNonSelectableGrammar"),
                 ])
                 .to_matchable(),
             )
@@ -4834,8 +4843,12 @@ pub fn raw_dialect() -> Dialect {
         (
             "SelectableGrammar".into(),
             one_of(vec![
-                optionally_bracketed(vec![Ref::new("WithCompoundStatementSegment").to_matchable()])
+                optionally_bracketed(vec_of_erased![Ref::new("WithCompoundStatementSegment")])
                     .to_matchable(),
+                optionally_bracketed(vec_of_erased![Ref::new(
+                    "WithCompoundNonSelectStatementSegment"
+                )])
+                .to_matchable(),
                 Ref::new("NonWithSelectableGrammar").to_matchable(),
                 Bracketed::new(vec![Ref::new("SelectableGrammar").to_matchable()]).to_matchable(),
             ])
@@ -4869,6 +4882,8 @@ pub fn raw_dialect() -> Dialect {
                 Ref::new("ValuesClauseSegment").to_matchable(),
                 Ref::new("UnorderedSelectStatementSegment").to_matchable(),
                 Bracketed::new(vec![Ref::new("SelectStatementSegment").to_matchable()])
+                    .to_matchable(),
+                Bracketed::new(vec![Ref::new("WithCompoundStatementSegment").to_matchable()])
                     .to_matchable(),
                 Bracketed::new(vec![Ref::new("NonSetSelectableGrammar").to_matchable()])
                     .to_matchable(),
@@ -5186,4 +5201,16 @@ fn block_comment(cursor: &mut Cursor) -> bool {
             _ => {}
         }
     }
+}
+
+pub(crate) fn select_clause_terminators() -> Vec<Matchable> {
+    vec_of_erased![
+        Ref::keyword("FROM"),
+        Ref::keyword("WHERE"),
+        Sequence::new(vec_of_erased![Ref::keyword("ORDER"), Ref::keyword("BY")]),
+        Ref::keyword("LIMIT"),
+        Ref::keyword("OVERLAPS"),
+        Ref::new("SetOperatorSegment"),
+        Ref::keyword("FETCH"),
+    ]
 }

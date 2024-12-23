@@ -19,7 +19,7 @@ shift  # Shift so $@ now contains only filenames (if any)
 
 # If no files are specified, default to looking in crates/lib-dialects/test/fixtures/dialects/***/*.yml
 if [[ $# -eq 0 ]]; then
-  set -- crates/lib-dialects/test/fixtures/dialects/**\/*.yml
+  set -- crates/lib-dialects/test/fixtures/dialects/**/*.yml
 fi
 
 found=0

@@ -614,9 +614,26 @@ pub fn raw_dialect() -> Dialect {
         ),
         (
             "NotOperatorGrammar".into(),
-            StringParser::new("NOT", SyntaxKind::Keyword)
-                .to_matchable()
-                .into(),
+            NodeMatcher::new(
+                SyntaxKind::NotOperator,
+                StringParser::new("NOT", SyntaxKind::Keyword)
+                    .to_matchable()
+                    .into(),
+            )
+            .to_matchable()
+            .into(),
+        ),
+        (
+            // SELECT * EXCEPT clause.
+            "ExceptClauseSegment".into(),
+            Sequence::new(vec_of_erased![
+                Ref::keyword("EXCEPT"),
+                Bracketed::new(vec_of_erased![Delimited::new(vec_of_erased![Ref::new(
+                    "ColumnReferenceSegment"
+                ),])],)
+            ])
+            .to_matchable()
+            .into(),
         ),
         (
             // This is a placeholder for other dialects.

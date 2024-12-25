@@ -541,7 +541,11 @@ pub fn dialect() -> Dialect {
                 Ref::new("EqualsSegment").optional(),
                 one_of(vec_of_erased![
                     Ref::new("LiteralGrammar"),
-                    Ref::new("SingleIdentifierGrammar")
+                    // when property value is Java Class Name
+                    Delimited::new(vec_of_erased![Ref::new("PropertiesNakedIdentifierSegment"),])
+                        .config(|config| {
+                            config.delimiter(Ref::new("DotSegment"));
+                        })
                 ])
             ])
             .to_matchable()

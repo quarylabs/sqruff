@@ -253,6 +253,8 @@ pub(crate) const UNRESERVED_KEYWORDS: &[&str] = &[
     "TEMPORARY",
     "TERMINATED",
     "TIME",
+    "TIMESTAMP_LTZ",
+    "TIMESTAMP_NTZ",
     "TOUCH",
     "TRANSACTION",
     "TRANSACTIONS",

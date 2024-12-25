@@ -1047,6 +1047,8 @@ pub fn dialect() -> Dialect {
                     Ref::keyword("DOUBLE"),
                     Ref::keyword("DATE"),
                     Ref::keyword("TIMESTAMP"),
+                    Ref::keyword("TIMESTAMP_LTZ"),
+                    Ref::keyword("TIMESTAMP_NTZ"),
                     Ref::keyword("STRING"),
                     Sequence::new(vec_of_erased![
                         one_of(vec_of_erased![

@@ -224,7 +224,6 @@ impl From<SQLParseError> for SQLBaseError {
             this.fatal = true;
             this.line_no = line_no;
             this.line_pos = line_pos;
-            this.description = value.description;
         })
     }
 }

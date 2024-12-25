@@ -1542,6 +1542,102 @@ pub fn dialect() -> Dialect {
         .into(),
     )]);
 
+    sparksql_dialect.add([(
+        "JoinLikeClauseGrammar".into(),
+        Sequence::new(vec_of_erased![
+            one_of(vec_of_erased![
+                Ref::new("PivotClauseSegment"),
+                Ref::new("UnpivotClauseSegment"),
+            ]),
+            Ref::new("AliasExpressionSegment").optional()
+        ])
+        .to_matchable()
+        .into(),
+    )]);
+
+    sparksql_dialect.add([
+        // An Unpivot segment.
+        // https://spark.apache.org/docs/latest/sql-ref-syntax-qry-select-unpivot.html
+        (
+            "UnpivotClauseSegment".into(),
+            NodeMatcher::new(
+                SyntaxKind::UnpivotClause,
+                Sequence::new(vec_of_erased![
+                    Ref::keyword("UNPIVOT"),
+                    Sequence::new(vec_of_erased![
+                        one_of(vec_of_erased![
+                            Ref::keyword("INCLUDE"),
+                            Ref::keyword("EXCLUDE")
+                        ]),
+                        Ref::keyword("NULLS")
+                    ])
+                    .config(|config| {
+                        config.optional();
+                    }),
+                    MetaSegment::indent(),
+                    Bracketed::new(vec_of_erased![one_of(vec_of_erased![
+                        Ref::new("SingleValueColumnUnpivotSegment"),
+                        Ref::new("MultiValueColumnUnpivotSegment")
+                    ])]),
+                    MetaSegment::dedent(),
+                ])
+                .to_matchable(),
+            )
+            .to_matchable()
+            .into(),
+        ),
+        (
+            "SingleValueColumnUnpivotSegment".into(),
+            Sequence::new(vec_of_erased![
+                Ref::new("SingleIdentifierGrammar"),
+                Ref::keyword("FOR"),
+                Ref::new("SingleIdentifierGrammar"),
+                Ref::keyword("IN"),
+                Bracketed::new(vec_of_erased![
+                    MetaSegment::indent(),
+                    Delimited::new(vec_of_erased![Sequence::new(vec_of_erased![
+                        Ref::new("ColumnReferenceSegment"),
+                        Ref::new("AliasExpressionSegment").optional()
+                    ])]),
+                    MetaSegment::dedent()
+                ])
+                .config(|config| {
+                    config.parse_mode = ParseMode::Greedy;
+                }),
+            ])
+            .to_matchable()
+            .into(),
+        ),
+        (
+            "MultiValueColumnUnpivotSegment".into(),
+            Sequence::new(vec_of_erased![
+                Bracketed::new(vec_of_erased![Delimited::new(vec_of_erased![Ref::new(
+                    "SingleIdentifierGrammar"
+                )])]),
+                MetaSegment::indent(),
+                Ref::keyword("FOR"),
+                Ref::new("SingleIdentifierGrammar"),
+                Ref::keyword("IN"),
+                Bracketed::new(vec_of_erased![
+                    MetaSegment::indent(),
+                    Delimited::new(vec_of_erased![Sequence::new(vec_of_erased![
+                        Bracketed::new(vec_of_erased![
+                            MetaSegment::indent(),
+                            Delimited::new(vec_of_erased![Ref::new("ColumnReferenceSegment")]),
+                        ]),
+                        Ref::new("AliasExpressionSegment").optional()
+                    ])]),
+                ])
+                .config(|config| {
+                    config.parse_mode = ParseMode::Greedy;
+                }),
+                MetaSegment::dedent()
+            ])
+            .to_matchable()
+            .into(),
+        ),
+    ]);
+
     sparksql_dialect.replace_grammar(
         "CreateDatabaseStatementSegment",
         Sequence::new(vec_of_erased![
@@ -3035,13 +3131,12 @@ pub fn dialect() -> Dialect {
             Ref::new("AliasExpressionSegment")
                 .exclude(one_of(vec_of_erased![
                     Ref::new("FromClauseTerminatorGrammar"),
-                    Ref::new("SamplingExpressionSegment")
+                    Ref::new("JoinLikeClauseGrammar")
                 ]))
                 .optional(),
             Ref::new("SamplingExpressionSegment").optional(),
             AnyNumberOf::new(vec_of_erased![Ref::new("LateralViewClauseSegment")]),
             Ref::new("NamedWindowSegment").optional(),
-            Ref::new("PivotClauseSegment").optional(),
             Ref::new("PostTableExpressionGrammar").optional()
         ])
         .to_matchable(),

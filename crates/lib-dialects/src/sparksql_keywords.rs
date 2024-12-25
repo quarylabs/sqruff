@@ -268,6 +268,7 @@ pub(crate) const UNRESERVED_KEYWORDS: &[&str] = &[
     "UNBOUNDED",
     "UNCACHE",
     "UNLOCK",
+    "UNPIVOT",
     "UNSET",
     "UPDATE",
     "USE",

@@ -179,6 +179,7 @@ pub enum SyntaxKind {
     ParameterizedExpression,
     PivotForClause,
     FromPivotExpression,
+    UnpivotClause,
     FromUnpivotExpression,
     NotMatchedByTargetClause,
     MergeWhenMatchedClause,
@@ -611,7 +612,7 @@ impl SyntaxKind {
 }
 
 #[derive(Clone, PartialEq, Eq, Default)]
-pub struct SyntaxSet([u64; 9]);
+pub struct SyntaxSet([u64; 10]);
 
 impl std::fmt::Debug for SyntaxSet {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
@@ -620,7 +621,7 @@ impl std::fmt::Debug for SyntaxSet {
 }
 
 impl SyntaxSet {
-    pub const EMPTY: SyntaxSet = Self([0; 9]);
+    pub const EMPTY: SyntaxSet = Self([0; 10]);
     const SLICE_BITS: u16 = u64::BITS as u16;
 
     pub const fn new(kinds: &[SyntaxKind]) -> Self {

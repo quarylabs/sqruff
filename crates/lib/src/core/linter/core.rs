@@ -9,7 +9,6 @@ use itertools::Itertools;
 use rayon::iter::{IntoParallelRefIterator as _, ParallelIterator as _};
 use smol_str::{SmolStr, ToSmolStr};
 use sqruff_lib_core::dialects::base::Dialect;
-use sqruff_lib_core::dialects::syntax::{SyntaxKind, SyntaxSet};
 use sqruff_lib_core::errors::{
     SQLBaseError, SQLFluffUserError, SQLLexError, SQLLintError, SQLParseError, SqlError,
 };
@@ -462,20 +461,6 @@ impl Linter {
                 None
             }
         };
-
-        if let Some(parsed) = &parsed {
-            let unparsables = parsed.recursive_crawl(
-                &SyntaxSet::single(SyntaxKind::Unparsable),
-                true,
-                &SyntaxSet::EMPTY,
-                true,
-            );
-
-            violations.extend(unparsables.into_iter().map(|segment| SQLParseError {
-                description: "Found unparsable section".into(),
-                segment: segment.into(),
-            }));
-        }
 
         (parsed, violations)
     }

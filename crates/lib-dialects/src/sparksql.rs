@@ -1174,6 +1174,33 @@ pub fn dialect() -> Dialect {
             .to_matchable()
             .into(),
         ),
+        (
+            // A `SET VARIABLE` statement used to set session variables.
+            // https://spark.apache.org/docs/4.0.0-preview2/sql-ref-syntax-aux-set-var.html
+            "SetVariableStatementSegment".into(),
+            Sequence::new(vec_of_erased![
+                Ref::keyword("SET"),
+                one_of(vec_of_erased![
+                    Ref::keyword("VAR"),
+                    Ref::keyword("VARIABLE")
+                ]),
+                one_of(vec_of_erased![
+                    Bracketed::new(vec_of_erased![Delimited::new(vec_of_erased![Ref::new(
+                        "SingleIdentifierGrammar"
+                    ),])]),
+                    Delimited::new(vec_of_erased![Ref::new("SingleIdentifierGrammar"),])
+                ]),
+                Ref::new("EqualsSegment"),
+                one_of(vec_of_erased![
+                    Ref::keyword("DEFAULT"),
+                    Ref::new("ExpressionSegment"),
+                    Bracketed::new(vec_of_erased![Ref::new("ExpressionSegment")]),
+                ])
+            ])
+            .allow_gaps(true)
+            .to_matchable()
+            .into(),
+        ),
     ]);
 
     sparksql_dialect.replace_grammar(
@@ -2829,6 +2856,7 @@ pub fn dialect() -> Dialect {
                 Ref::new("CreateWidgetStatementSegment"),
                 Ref::new("RemoveWidgetStatementSegment"),
                 Ref::new("ReplaceTableStatementSegment"),
+                Ref::new("SetVariableStatementSegment"),
             ]),
             None,
             None,

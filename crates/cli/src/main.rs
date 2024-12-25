@@ -118,7 +118,7 @@ pub(crate) fn linter(config: FluffConfig, format: Format) -> Linter {
         }
     };
 
-    Linter::new(config, Some(formatter), None)
+    Linter::new(config, Some(formatter), None, false)
 }
 
 fn check_user_input() -> Option<bool> {

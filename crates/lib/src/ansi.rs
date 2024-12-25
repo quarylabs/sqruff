@@ -197,7 +197,12 @@ mod tests {
         ];
 
         for (raw, err_locations) in tests {
-            let lnt = Linter::new(FluffConfig::new(<_>::default(), None, None), None, None);
+            let lnt = Linter::new(
+                FluffConfig::new(<_>::default(), None, None),
+                None,
+                None,
+                false,
+            );
             let tables = Tables::default();
             let parsed = lnt.parse_string(&tables, raw, None).unwrap();
             assert!(!parsed.violations.is_empty());
@@ -213,7 +218,12 @@ mod tests {
 
     #[test]
     fn test_dialect_ansi_is_whitespace() {
-        let lnt = Linter::new(FluffConfig::new(<_>::default(), None, None), None, None);
+        let lnt = Linter::new(
+            FluffConfig::new(<_>::default(), None, None),
+            None,
+            None,
+            false,
+        );
         let file_content = std::fs::read_to_string(
             "../lib-dialects/test/fixtures/dialects/ansi/select_in_multiline_comment.sql",
         )
@@ -238,7 +248,12 @@ mod tests {
                 [1, 5, 8, 11, 15, 17, 19, 23, 24, 26, 29, 31, 33, 34, 35].as_slice(),
             ),
         ];
-        let lnt = Linter::new(FluffConfig::new(<_>::default(), None, None), None, None);
+        let lnt = Linter::new(
+            FluffConfig::new(<_>::default(), None, None),
+            None,
+            None,
+            false,
+        );
 
         for (sql_string, meta_loc) in cases {
             let tables = Tables::default();

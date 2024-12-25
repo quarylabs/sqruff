@@ -52,7 +52,7 @@ pub fn lint_with_formatter(
 ) -> Result<Vec<SQLBaseError>, SQLFluffUserError> {
     let cfg = get_simple_config(dialect.into(), None, exclude_rules, config_path)?;
 
-    let mut linter = Linter::new(cfg, formatter, None);
+    let mut linter = Linter::new(cfg, formatter, None, false);
 
     let mut result = linter.lint_string_wrapped(sql, None, false);
 
@@ -61,7 +61,7 @@ pub fn lint_with_formatter(
 
 pub fn fix(sql: &str) -> String {
     let cfg = get_simple_config(Some("ansi".into()), None, None, None).unwrap();
-    let mut linter = Linter::new(cfg, None, None);
+    let mut linter = Linter::new(cfg, None, None, false);
     let mut result = linter.lint_string_wrapped(sql, None, true);
     take(&mut result.paths[0].files[0]).fix_string()
 }

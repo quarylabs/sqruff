@@ -70,7 +70,12 @@ ORDER BY
 fn fix(c: &mut Criterion) {
     let passes = [("fix_complex_query", COMPLEX_QUERY)];
 
-    let linter = Linter::new(sqruff_lib::core::config::FluffConfig::default(), None, None);
+    let linter = Linter::new(
+        sqruff_lib::core::config::FluffConfig::default(),
+        None,
+        None,
+        false,
+    );
     for (name, source) in passes {
         let tables = Tables::default();
         let parsed = linter.parse_string(&tables, source, None).unwrap();

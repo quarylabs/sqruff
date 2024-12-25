@@ -76,7 +76,7 @@ fn main() {
         return;
     }
 
-    let mut linter = Linter::new(FluffConfig::default(), None, None);
+    let mut linter = Linter::new(FluffConfig::default(), None, None, false);
     let mut core = AHashMap::new();
     core.insert(
         "core".to_string(),

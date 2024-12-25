@@ -7,7 +7,7 @@ use crate::core::linter::core::Linter;
 
 pub fn parse_ansi_string(sql: &str) -> ErasedSegment {
     let tables = Tables::default();
-    let linter = Linter::new(<_>::default(), None, None);
+    let linter = Linter::new(<_>::default(), None, None, false);
     linter
         .parse_string(&tables, sql, None)
         .unwrap()

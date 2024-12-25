@@ -1177,6 +1177,17 @@ pub fn raw_dialect() -> Dialect {
             .into(),
         ),
         (
+            "AlterTableDropColumnGrammar".into(),
+            Sequence::new(vec_of_erased![
+                Ref::keyword("DROP"),
+                Ref::keyword("COLUMN").optional(),
+                Ref::new("IfExistsGrammar").optional(),
+                Ref::new("SingleIdentifierGrammar"),
+            ])
+            .to_matchable()
+            .into(),
+        ),
+        (
             "AlterTableOptionsGrammar".into(),
             one_of(vec_of_erased![
                 // Table options
@@ -1204,6 +1215,8 @@ pub fn raw_dialect() -> Dialect {
                     )])])
                     .config(|this| this.optional())
                 ]),
+                // Drop Column
+                Ref::new("AlterTableDropColumnGrammar"),
                 // Rename
                 Sequence::new(vec_of_erased![
                     Ref::keyword("RENAME"),

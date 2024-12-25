@@ -71,7 +71,7 @@ impl Linter {
     #[wasm_bindgen(constructor)]
     pub fn new(source: &str) -> Self {
         Self {
-            base: SqruffLinter::new(FluffConfig::from_source(source), None, None),
+            base: SqruffLinter::new(FluffConfig::from_source(source), None, None, false),
         }
     }
 

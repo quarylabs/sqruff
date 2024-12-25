@@ -9,6 +9,7 @@ use itertools::Itertools;
 use rayon::iter::{IntoParallelRefIterator as _, ParallelIterator as _};
 use smol_str::{SmolStr, ToSmolStr};
 use sqruff_lib_core::dialects::base::Dialect;
+use sqruff_lib_core::dialects::syntax::{SyntaxKind, SyntaxSet};
 use sqruff_lib_core::errors::{
     SQLBaseError, SQLFluffUserError, SQLLexError, SQLLintError, SQLParseError, SqlError,
 };
@@ -38,6 +39,9 @@ pub struct Linter {
     formatter: Option<Arc<dyn Formatter>>,
     templater: &'static dyn Templater,
     rules: OnceLock<Vec<ErasedRule>>,
+
+    /// include_parse_errors is a flag to indicate whether to include parse errors in the output
+    include_parse_errors: bool,
 }
 
 impl Linter {
@@ -45,6 +49,7 @@ impl Linter {
         config: FluffConfig,
         formatter: Option<Arc<dyn Formatter>>,
         templater: Option<&'static dyn Templater>,
+        include_parse_errors: bool,
     ) -> Linter {
         let templater: &'static dyn Templater = match templater {
             Some(templater) => templater,
@@ -64,6 +69,7 @@ impl Linter {
             formatter,
             templater,
             rules: OnceLock::new(),
+            include_parse_errors,
         }
     }
 
@@ -429,6 +435,7 @@ impl Linter {
                 &token_list,
                 &self.config,
                 Some(rendered.filename.to_string()),
+                self.include_parse_errors,
             );
             parsed = p;
             violations.extend(pvs.into_iter().map_into());
@@ -450,6 +457,7 @@ impl Linter {
         tokens: &[ErasedSegment],
         config: &FluffConfig,
         filename: Option<String>,
+        include_parse_errors: bool,
     ) -> (Option<ErasedSegment>, Vec<SQLParseError>) {
         let parser: Parser = config.into();
         let mut violations: Vec<SQLParseError> = Vec::new();
@@ -459,6 +467,22 @@ impl Linter {
             Err(error) => {
                 violations.push(error);
                 None
+            }
+        };
+
+        if include_parse_errors {
+            if let Some(parsed) = &parsed {
+                let unparsables = parsed.recursive_crawl(
+                    &SyntaxSet::single(SyntaxKind::Unparsable),
+                    true,
+                    &SyntaxSet::EMPTY,
+                    true,
+                );
+
+                violations.extend(unparsables.into_iter().map(|segment| SQLParseError {
+                    description: "Found unparsable section".into(),
+                    segment: segment.into(),
+                }));
             }
         };
 
@@ -671,7 +695,12 @@ mod tests {
     #[test]
     fn test_linter_path_from_paths_dir() {
         // Test extracting paths from directories.
-        let lntr = Linter::new(FluffConfig::new(<_>::default(), None, None), None, None); // Assuming Linter has a new() method for initialization
+        let lntr = Linter::new(
+            FluffConfig::new(<_>::default(), None, None),
+            None,
+            None,
+            false,
+        ); // Assuming Linter has a new() method for initialization
         let paths = lntr.paths_from_path("test/fixtures/lexer".into(), None, None, None, None);
         let expected = vec![
             "test.fixtures.lexer.basic.sql",
@@ -684,7 +713,12 @@ mod tests {
     #[test]
     fn test_linter_path_from_paths_default() {
         // Test .sql files are found by default.
-        let lntr = Linter::new(FluffConfig::new(<_>::default(), None, None), None, None); // Assuming Linter has a new() method for initialization
+        let lntr = Linter::new(
+            FluffConfig::new(<_>::default(), None, None),
+            None,
+            None,
+            false,
+        ); // Assuming Linter has a new() method for initialization
         let paths = normalise_paths(lntr.paths_from_path(
             "test/fixtures/linter".into(),
             None,
@@ -703,7 +737,7 @@ mod tests {
         // FluffConfig
         let config =
             FluffConfig::new(<_>::default(), None, None).with_sql_file_exts(vec![".txt".into()]);
-        let lntr = Linter::new(config, None, None); // Assuming Linter has a new() method for initialization
+        let lntr = Linter::new(config, None, None, false); // Assuming Linter has a new() method for initialization
 
         let paths = lntr.paths_from_path("test/fixtures/linter".into(), None, None, None, None);
 
@@ -720,7 +754,12 @@ mod tests {
 
     #[test]
     fn test_linter_path_from_paths_file() {
-        let lntr = Linter::new(FluffConfig::new(<_>::default(), None, None), None, None); // Assuming Linter has a new() method for initialization
+        let lntr = Linter::new(
+            FluffConfig::new(<_>::default(), None, None),
+            None,
+            None,
+            false,
+        ); // Assuming Linter has a new() method for initialization
         let paths = lntr.paths_from_path(
             "test/fixtures/linter/indentation_errors.sql".into(),
             None,
@@ -754,7 +793,12 @@ mod tests {
     // test__linter__linting_unexpected_error_handled_gracefully
     #[test]
     fn test_linter_empty_file() {
-        let linter = Linter::new(FluffConfig::new(<_>::default(), None, None), None, None);
+        let linter = Linter::new(
+            FluffConfig::new(<_>::default(), None, None),
+            None,
+            None,
+            false,
+        );
         let tables = Tables::default();
         let parsed = linter.parse_string(&tables, "", None).unwrap();
 
@@ -781,7 +825,12 @@ mod tests {
         "
         .to_string();
 
-        let linter = Linter::new(FluffConfig::new(<_>::default(), None, None), None, None);
+        let linter = Linter::new(
+            FluffConfig::new(<_>::default(), None, None),
+            None,
+            None,
+            false,
+        );
         let tables = Tables::default();
         let _parsed = linter.parse_string(&tables, &sql, None).unwrap();
     }

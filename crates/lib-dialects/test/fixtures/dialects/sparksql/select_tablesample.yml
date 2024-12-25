@@ -47,8 +47,6 @@ file:
           - table_expression:
             - table_reference:
               - naked_identifier: test
-          - alias_expression:
-            - naked_identifier: t
           - sample_expression:
             - keyword: TABLESAMPLE
             - bracketed:
@@ -56,6 +54,8 @@ file:
               - numeric_literal: '50'
               - keyword: PERCENT
               - end_bracket: )
+          - alias_expression:
+            - naked_identifier: t
 - statement_terminator: ;
 - statement:
   - select_statement:
@@ -79,9 +79,6 @@ file:
           - table_expression:
             - table_reference:
               - naked_identifier: test
-          - alias_expression:
-            - keyword: AS
-            - naked_identifier: t
           - sample_expression:
             - keyword: TABLESAMPLE
             - bracketed:
@@ -89,6 +86,9 @@ file:
               - numeric_literal: '50'
               - keyword: PERCENT
               - end_bracket: )
+          - alias_expression:
+            - keyword: AS
+            - naked_identifier: t
 - statement_terminator: ;
 - statement:
   - select_statement:
@@ -214,8 +214,6 @@ file:
           - table_expression:
             - table_reference:
               - naked_identifier: test_1
-          - alias_expression:
-            - naked_identifier: t1
           - sample_expression:
             - keyword: TABLESAMPLE
             - bracketed:
@@ -223,6 +221,8 @@ file:
               - numeric_literal: '5'
               - keyword: ROWS
               - end_bracket: )
+          - alias_expression:
+            - naked_identifier: t1
         - join_clause:
           - keyword: NATURAL
           - keyword: JOIN
@@ -230,8 +230,6 @@ file:
             - table_expression:
               - table_reference:
                 - naked_identifier: test_2
-            - alias_expression:
-              - naked_identifier: t2
             - sample_expression:
               - keyword: TABLESAMPLE
               - bracketed:
@@ -242,6 +240,8 @@ file:
                 - keyword: OF
                 - numeric_literal: '10'
                 - end_bracket: )
+            - alias_expression:
+              - naked_identifier: t2
 - statement_terminator: ;
 - statement:
   - select_statement:
@@ -265,9 +265,6 @@ file:
           - table_expression:
             - table_reference:
               - naked_identifier: test_1
-          - alias_expression:
-            - keyword: AS
-            - naked_identifier: t1
           - sample_expression:
             - keyword: TABLESAMPLE
             - bracketed:
@@ -275,6 +272,9 @@ file:
               - numeric_literal: '5'
               - keyword: ROWS
               - end_bracket: )
+          - alias_expression:
+            - keyword: AS
+            - naked_identifier: t1
         - join_clause:
           - keyword: NATURAL
           - keyword: JOIN
@@ -282,9 +282,6 @@ file:
             - table_expression:
               - table_reference:
                 - naked_identifier: test_2
-            - alias_expression:
-              - keyword: AS
-              - naked_identifier: t2
             - sample_expression:
               - keyword: TABLESAMPLE
               - bracketed:
@@ -295,4 +292,7 @@ file:
                 - keyword: OF
                 - numeric_literal: '10'
                 - end_bracket: )
+            - alias_expression:
+              - keyword: AS
+              - naked_identifier: t2
 - statement_terminator: ;

@@ -2143,6 +2143,8 @@ pub fn dialect() -> Dialect {
         ),
     ]);
 
+    // A `TABLESAMPLE` clause following a table identifier.
+    // https://spark.apache.org/docs/latest/sql-ref-syntax-qry-select-sampling.html
     sparksql_dialect.replace_grammar(
         "SamplingExpressionSegment",
         Sequence::new(vec_of_erased![
@@ -2166,6 +2168,7 @@ pub fn dialect() -> Dialect {
         ])
         .to_matchable(),
     );
+
     sparksql_dialect.add([
         (
             "LateralViewClauseSegment".into(),
@@ -2989,6 +2992,7 @@ pub fn dialect() -> Dialect {
         Sequence::new(vec_of_erased![
             Ref::new("PreTableFunctionKeywordsGrammar").optional(),
             optionally_bracketed(vec_of_erased![Ref::new("TableExpressionSegment")]),
+            Ref::new("SamplingExpressionSegment").optional(),
             Ref::new("AliasExpressionSegment")
                 .exclude(one_of(vec_of_erased![
                     Ref::new("FromClauseTerminatorGrammar"),

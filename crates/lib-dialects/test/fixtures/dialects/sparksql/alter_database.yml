@@ -79,3 +79,23 @@ file:
       - quoted_literal: '''01/01/2001'''
       - end_bracket: )
 - statement_terminator: ;
+- statement:
+  - alter_database_statement:
+    - keyword: ALTER
+    - keyword: DATABASE
+    - database_reference:
+      - naked_identifier: inventory
+    - keyword: SET
+    - keyword: LOCATION
+    - quoted_literal: '''file:/temp/spark-warehouse/new_inventory.db'''
+- statement_terminator: ;
+- statement:
+  - alter_database_statement:
+    - keyword: ALTER
+    - keyword: SCHEMA
+    - database_reference:
+      - naked_identifier: inventory
+    - keyword: SET
+    - keyword: LOCATION
+    - quoted_literal: '''file:/temp/spark-warehouse/new_inventory.db'''
+- statement_terminator: ;

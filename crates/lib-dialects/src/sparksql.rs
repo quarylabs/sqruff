@@ -1151,6 +1151,8 @@ pub fn dialect() -> Dialect {
             .into(),
         ),
         (
+            // An `ALTER DATABASE/SCHEMA` statement.
+            // http://spark.apache.org/docs/latest/sql-ref-syntax-ddl-alter-database.html
             "AlterDatabaseStatementSegment".into(),
             NodeMatcher::new(
                 SyntaxKind::AlterDatabaseStatement,
@@ -1162,7 +1164,10 @@ pub fn dialect() -> Dialect {
                     ]),
                     Ref::new("DatabaseReferenceSegment"),
                     Ref::keyword("SET"),
-                    Ref::new("DatabasePropertiesGrammar")
+                    one_of(vec_of_erased![
+                        Ref::new("DatabasePropertiesGrammar"),
+                        Ref::new("LocationGrammar")
+                    ])
                 ])
                 .to_matchable(),
             )

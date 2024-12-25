@@ -3037,15 +3037,7 @@ pub fn dialect() -> Dialect {
                     Ref::new("FromClauseTerminatorGrammar"),
                     Ref::new("SamplingExpressionSegment")
                 ]))
-                .optional()
-                .config(|config| {
-                    config.exclude = one_of(vec_of_erased![
-                        Ref::new("FromClauseTerminatorGrammar"),
-                        Ref::new("SamplingExpressionSegment")
-                    ])
-                    .to_matchable()
-                    .into();
-                }),
+                .optional(),
             Ref::new("SamplingExpressionSegment").optional(),
             AnyNumberOf::new(vec_of_erased![Ref::new("LateralViewClauseSegment")]),
             Ref::new("NamedWindowSegment").optional(),

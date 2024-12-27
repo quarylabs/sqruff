@@ -1721,6 +1721,21 @@ pub fn raw_dialect() -> Dialect {
         hive_dialect.grammar("CreateTableStatementSegment").into(),
     )]);
 
+    sparksql_dialect.add([(
+        "NonWithNonSelectableGrammar".into(),
+        ansi::raw_dialect()
+            .grammar("NonWithNonSelectableGrammar")
+            .copy(
+                Some(vec_of_erased![Ref::new("InsertOverwriteDirectorySegment")]),
+                None,
+                None,
+                None,
+                Vec::new(),
+                false,
+            )
+            .into(),
+    )]);
+
     sparksql_dialect.replace_grammar(
         "CreateViewStatementSegment",
         Sequence::new(vec_of_erased![

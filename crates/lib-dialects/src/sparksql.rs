@@ -3427,7 +3427,23 @@ pub fn raw_dialect() -> Dialect {
                     ])
                     .config(|config| {
                         config.optional();
-                    })
+                    }),
+                    Sequence::new(vec_of_erased![
+                        Ref::keyword("TRACK"),
+                        Ref::keyword("HISTORY"),
+                        Ref::keyword("ON"),
+                        one_of(vec_of_erased![
+                            Delimited::new(vec_of_erased![Ref::new("ColumnReferenceSegment")]),
+                            Sequence::new(vec_of_erased![
+                                Ref::new("StarSegment"),
+                                Ref::keyword("EXCEPT"),
+                                Ref::new("BracketedColumnReferenceListGrammar")
+                            ])
+                        ])
+                    ])
+                    .config(|config| {
+                        config.optional();
+                    }),
                 ])
                 .to_matchable(),
             )

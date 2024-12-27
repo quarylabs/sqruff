@@ -2209,6 +2209,8 @@ pub fn raw_dialect() -> Dialect {
             Some(vec_of_erased![
                 Ref::new("QualifyClauseSegment").optional(),
                 Ref::new("ClusterByClauseSegment").optional(),
+                Ref::new("DistributeByClauseSegment").optional(),
+                Ref::new("SortByClauseSegment").optional(),
             ]),
             None,
             None,

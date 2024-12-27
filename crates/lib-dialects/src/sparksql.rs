@@ -945,7 +945,12 @@ pub fn dialect() -> Dialect {
                     Ref::new("CommentGrammar"),
                     Ref::new("OptionsGrammar"),
                     Ref::new("PartitionSpecGrammar"),
-                    Ref::new("BucketSpecGrammar")
+                    Ref::new("BucketSpecGrammar"),
+                    Sequence::new(vec_of_erased![
+                        Ref::keyword("CLUSTER"),
+                        Ref::keyword("BY"),
+                        Ref::new("BracketedColumnReferenceListGrammar")
+                    ])
                 ])
                 .config(|config| {
                     config.optional();
@@ -2153,7 +2158,10 @@ pub fn dialect() -> Dialect {
     sparksql_dialect.replace_grammar(
         "UnorderedSelectStatementSegment",
         ansi::get_unordered_select_statement_segment_grammar().copy(
-            Some(vec_of_erased![Ref::new("QualifyClauseSegment").optional()]),
+            Some(vec_of_erased![
+                Ref::new("QualifyClauseSegment").optional(),
+                Ref::new("ClusterByClauseSegment").optional(),
+            ]),
             None,
             None,
             Some(vec_of_erased![Ref::new("OverlapsClauseSegment").optional()]),

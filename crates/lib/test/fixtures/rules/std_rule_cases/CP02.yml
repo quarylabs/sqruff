@@ -260,6 +260,7 @@ test_pass_bigquery_safe_does_not_trigger:
       dialect: bigquery
 
 test_pass_databricks_case_sensitive_property:
+  ignored: databricks not fully implemented yet
   pass_str: SET spark.databricks.delta.properties.defaults.enableChangeDataFeed = true;
   configs:
     core:

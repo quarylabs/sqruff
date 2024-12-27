@@ -946,6 +946,9 @@ pub fn raw_dialect() -> Dialect {
                     Ref::new("OptionsGrammar"),
                     Ref::new("PartitionSpecGrammar"),
                     Ref::new("BucketSpecGrammar"),
+                    Ref::new("LocationGrammar"),
+                    Ref::new("CommentGrammar"),
+                    Ref::new("TablePropertiesGrammar"),
                     Sequence::new(vec_of_erased![
                         Ref::keyword("CLUSTER"),
                         Ref::keyword("BY"),
@@ -955,13 +958,6 @@ pub fn raw_dialect() -> Dialect {
                 .config(|config| {
                     config.optional();
                 }),
-                MetaSegment::indent(),
-                AnyNumberOf::new(vec_of_erased![
-                    Ref::new("LocationGrammar").optional(),
-                    Ref::new("CommentGrammar").optional(),
-                    Ref::new("TablePropertiesGrammar").optional()
-                ]),
-                MetaSegment::dedent(),
                 Sequence::new(vec_of_erased![
                     Ref::keyword("AS").optional(),
                     optionally_bracketed(vec_of_erased![Ref::new("SelectableGrammar")])

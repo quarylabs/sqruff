@@ -1090,7 +1090,8 @@ pub fn raw_dialect() -> Dialect {
                         Ref::new("BracketedArguments").optional()
                     ]),
                     Ref::keyword("BINARY"),
-                    Ref::keyword("INTERVAL")
+                    Ref::keyword("INTERVAL"),
+                    Ref::keyword("VARIANT"),
                 ])
                 .to_matchable(),
             )

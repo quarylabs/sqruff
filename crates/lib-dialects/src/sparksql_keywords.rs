@@ -273,6 +273,7 @@ pub(crate) const UNRESERVED_KEYWORDS: &[&str] = &[
     "UPDATE",
     "USE",
     "VALUES",
+    "VARIANT",
     "VAR",
     "VARIABLE",
     "VIEW",

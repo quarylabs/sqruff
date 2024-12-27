@@ -21,7 +21,7 @@ use sqruff_lib_core::vec_of_erased;
 use super::sparksql_keywords::{RESERVED_KEYWORDS, UNRESERVED_KEYWORDS};
 use crate::ansi;
 
-pub fn dialect() -> Dialect {
+pub fn raw_dialect() -> Dialect {
     let ansi_dialect = ansi::raw_dialect();
     let hive_dialect = super::hive::raw_dialect();
     let mut sparksql_dialect = ansi_dialect;
@@ -3537,9 +3537,11 @@ pub fn dialect() -> Dialect {
         }
         .to_matchable(),
     );
-
-    sparksql_dialect.expand();
     sparksql_dialect
+}
+
+pub fn dialect() -> Dialect {
+    raw_dialect().config(|config| config.expand())
 }
 
 pub fn show_statements() -> Vec<Matchable> {

@@ -1,0 +1,31 @@
+file:
+- statement:
+  - keyword: USE
+  - keyword: CATALOG
+  - object_reference:
+    - naked_identifier: catalog_name
+- statement_terminator: ;
+- statement:
+  - keyword: USE
+  - keyword: CATALOG
+  - object_reference:
+    - naked_identifier: hive_metastore
+- statement_terminator: ;
+- statement:
+  - keyword: USE
+  - keyword: CATALOG
+  - object_reference:
+    - quoted_identifier: '''hive_metastore'''
+- statement_terminator: ;
+- statement:
+  - keyword: USE
+  - keyword: CATALOG
+  - object_reference:
+    - quoted_identifier: '`some_catalog`'
+- statement_terminator: ;
+- statement:
+  - keyword: USE
+  - keyword: CATALOG
+  - object_reference:
+    - naked_identifier: some_cat
+- statement_terminator: ;

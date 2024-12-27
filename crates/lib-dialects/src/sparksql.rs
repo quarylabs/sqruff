@@ -947,7 +947,8 @@ pub fn raw_dialect() -> Dialect {
                                 Ref::new("GeneratedColumnDefinitionSegment")
                             ]),
                             Ref::new("CommentGrammar").optional()
-                        ])
+                        ]),
+                        Ref::new("ConstraintStatementSegment").optional(),
                     ])]),
                     Sequence::new(vec_of_erased![
                         Ref::keyword("LIKE"),
@@ -1734,14 +1735,18 @@ pub fn raw_dialect() -> Dialect {
             Ref::new("TemporaryGrammar").optional(),
             Ref::keyword("STREAMING").optional(),
             Ref::keyword("LIVE").optional(),
+            Ref::keyword("MATERIALIZED").optional(),
             Ref::keyword("VIEW"),
             Ref::new("IfNotExistsGrammar").optional(),
             Ref::new("TableReferenceSegment"),
             Sequence::new(vec_of_erased![Bracketed::new(vec_of_erased![
-                Delimited::new(vec_of_erased![Sequence::new(vec_of_erased![
-                    Ref::new("ColumnReferenceSegment"),
-                    Ref::new("CommentGrammar").optional()
-                ])])
+                Delimited::new(vec_of_erased![
+                    Sequence::new(vec_of_erased![
+                        Ref::new("ColumnReferenceSegment"),
+                        Ref::new("CommentGrammar").optional()
+                    ]),
+                    Ref::new("ConstraintStatementSegment").optional()
+                ])
             ])])
             .config(|config| {
                 config.optional();

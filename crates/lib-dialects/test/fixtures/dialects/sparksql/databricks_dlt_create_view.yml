@@ -65,3 +65,93 @@ file:
                       - naked_identifier: customers_bronze
                   - end_bracket: )
 - statement_terminator: ;
+- statement:
+  - create_view_statement:
+    - keyword: CREATE
+    - keyword: TEMPORARY
+    - keyword: LIVE
+    - keyword: VIEW
+    - table_reference:
+      - naked_identifier: filtered_data
+    - bracketed:
+      - start_bracket: (
+      - column_reference:
+        - naked_identifier: a
+      - keyword: COMMENT
+      - quoted_literal: '''a'''
+      - comma: ','
+      - column_reference:
+        - naked_identifier: b
+      - keyword: COMMENT
+      - quoted_literal: '''b'''
+      - comma: ','
+      - constraint_statement:
+        - keyword: CONSTRAINT
+        - object_reference:
+          - naked_identifier: valid_a
+        - keyword: EXPECT
+        - bracketed:
+          - start_bracket: (
+          - expression:
+            - column_reference:
+              - naked_identifier: a
+            - keyword: IS
+            - keyword: NOT
+            - null_literal: 'NULL'
+          - end_bracket: )
+      - comma: ','
+      - constraint_statement:
+        - keyword: CONSTRAINT
+        - object_reference:
+          - naked_identifier: valid_b
+        - keyword: EXPECT
+        - bracketed:
+          - start_bracket: (
+          - expression:
+            - column_reference:
+              - naked_identifier: b
+            - comparison_operator:
+              - raw_comparison_operator: '>'
+            - numeric_literal: '0'
+          - end_bracket: )
+      - end_bracket: )
+    - keyword: AS
+    - select_statement:
+      - select_clause:
+        - keyword: SELECT
+        - select_clause_element:
+          - column_reference:
+            - naked_identifier: a
+        - comma: ','
+        - select_clause_element:
+          - column_reference:
+            - naked_identifier: b
+      - from_clause:
+        - keyword: FROM
+        - from_expression:
+          - from_expression_element:
+            - table_expression:
+              - table_reference:
+                - naked_identifier: live
+                - dot: .
+                - naked_identifier: taxi_raw
+- statement_terminator: ;
+- statement:
+  - create_view_statement:
+    - keyword: CREATE
+    - keyword: OR
+    - keyword: REFRESH
+    - keyword: MATERIALIZED
+    - keyword: VIEW
+    - table_reference:
+      - naked_identifier: temp_table
+    - keyword: AS
+    - select_statement:
+      - select_clause:
+        - keyword: SELECT
+        - select_clause_element:
+          - numeric_literal: '1'
+          - alias_expression:
+            - keyword: AS
+            - naked_identifier: ID
+- statement_terminator: ;

@@ -3450,7 +3450,7 @@ pub fn raw_dialect() -> Dialect {
                 Sequence::new(vec_of_erased![
                     Ref::keyword("EXCEPT"),
                     Bracketed::new(vec_of_erased![Delimited::new(vec_of_erased![Ref::new(
-                        "SingleIdentifierGrammar"
+                        "ColumnReferenceSegment"
                     )])])
                 ])
                 .to_matchable(),

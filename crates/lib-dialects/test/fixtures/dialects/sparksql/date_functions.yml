@@ -36,9 +36,7 @@ file:
                   - function_name_identifier: DATEDIFF
                 - bracketed:
                   - start_bracket: (
-                  - expression:
-                    - column_reference:
-                      - naked_identifier: SECOND
+                  - date_part: SECOND
                   - comma: ','
                   - expression:
                     - column_reference:
@@ -66,9 +64,7 @@ file:
             - function_name_identifier: DATE_ADD
           - bracketed:
             - start_bracket: (
-            - expression:
-              - column_reference:
-                - naked_identifier: MICROSECOND
+            - date_part: MICROSECOND
             - comma: ','
             - expression:
               - numeric_literal: '5'
@@ -87,9 +83,7 @@ file:
             - function_name_identifier: DATE_DIFF
           - bracketed:
             - start_bracket: (
-            - expression:
-              - column_reference:
-                - naked_identifier: MILLISECOND
+            - date_part: MILLISECOND
             - comma: ','
             - expression:
               - column_reference:
@@ -128,9 +122,7 @@ file:
             - function_name_identifier: DATEDIFF
           - bracketed:
             - start_bracket: (
-            - expression:
-              - column_reference:
-                - naked_identifier: HOUR
+            - date_part: HOUR
             - comma: ','
             - expression:
               - column_reference:
@@ -171,9 +163,7 @@ file:
             - function_name_identifier: TIMESTAMPDIFF
           - bracketed:
             - start_bracket: (
-            - expression:
-              - column_reference:
-                - naked_identifier: WEEK
+            - date_part: WEEK
             - comma: ','
             - expression:
               - column_reference:
@@ -193,9 +183,7 @@ file:
             - function_name_identifier: DATE_ADD
           - bracketed:
             - start_bracket: (
-            - expression:
-              - column_reference:
-                - naked_identifier: MONTH
+            - date_part: MONTH
             - comma: ','
             - expression:
               - numeric_literal: '5'
@@ -214,9 +202,7 @@ file:
             - function_name_identifier: DATE_ADD
           - bracketed:
             - start_bracket: (
-            - expression:
-              - column_reference:
-                - naked_identifier: QUARTER
+            - date_part: QUARTER
             - comma: ','
             - expression:
               - numeric_literal: '5'
@@ -235,9 +221,7 @@ file:
             - function_name_identifier: DATE_ADD
           - bracketed:
             - start_bracket: (
-            - expression:
-              - column_reference:
-                - naked_identifier: YEAR
+            - date_part: YEAR
             - comma: ','
             - expression:
               - numeric_literal: '5'

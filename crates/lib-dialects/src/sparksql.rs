@@ -89,6 +89,18 @@ pub fn raw_dialect() -> Dialect {
         "CURRENT_USER",
     ]);
 
+    sparksql_dialect.sets_mut("date_part_function_name").clear();
+    sparksql_dialect
+        .sets_mut("date_part_function_name")
+        .extend([
+            "DATE_ADD",
+            "DATE_DIFF",
+            "DATEADD",
+            "DATEDIFF",
+            "TIMESTAMPADD",
+            "TIMESTAMPDIFF",
+        ]);
+
     sparksql_dialect.sets_mut("datetime_units").clear();
     sparksql_dialect.sets_mut("datetime_units").extend([
         "YEAR",

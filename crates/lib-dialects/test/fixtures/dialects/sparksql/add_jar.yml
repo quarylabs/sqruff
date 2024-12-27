@@ -58,17 +58,27 @@ file:
   - add_jar_statement:
     - keyword: ADD
     - file_keyword: JAR
-    - file_literal: /path/to/some.jar
-- statement_terminator: ;
-- statement:
-  - add_jar_statement:
-    - keyword: ADD
-    - file_keyword: JAR
-    - file_literal: path/to/some.jar
-- statement_terminator: ;
-- statement:
-  - add_jar_statement:
-    - keyword: ADD
-    - file_keyword: JAR
-    - file_literal: ivy://path/to/some.jar
-- statement_terminator: ;
+    - slash: /
+    - path_segment: path
+    - slash: /
+    - path_segment: to
+    - slash: /
+    - path_segment: some
+- file:
+  - dot: .
+  - word: jar
+  - semicolon: ;
+  - word: ADD
+  - word: JAR
+  - word: path
+  - divide: /
+  - word: to
+  - divide: /
+  - word: some
+  - dot: .
+  - word: jar
+  - semicolon: ;
+  - word: ADD
+  - word: JAR
+  - file_literal: ivy://path/to/some.jar
+  - semicolon: ;

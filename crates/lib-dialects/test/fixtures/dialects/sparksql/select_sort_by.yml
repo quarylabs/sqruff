@@ -577,3 +577,23 @@ file:
       - column_reference:
         - naked_identifier: age
 - statement_terminator: ;
+- statement:
+  - select_statement:
+    - select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+        - function:
+          - function_name:
+            - function_name_identifier: CURRENT_DATE
+          - bracketed:
+            - start_bracket: (
+            - end_bracket: )
+        - alias_expression:
+          - keyword: AS
+          - naked_identifier: p_data_date
+    - sort_by_clause:
+      - keyword: SORT
+      - keyword: BY
+      - column_reference:
+        - naked_identifier: p_data_date
+- statement_terminator: ;

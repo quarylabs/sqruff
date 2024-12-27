@@ -432,7 +432,7 @@ pub fn raw_dialect() -> Dialect {
                 Sequence::new(vec_of_erased![
                     Ref::new("SlashSegment").optional(),
                     Delimited::new(vec_of_erased![Delimited::new(vec_of_erased![
-                        TypedParser::new(SyntaxKind::Word, SyntaxKind::PathSegment),
+                        TypedParser::new(SyntaxKind::Word, SyntaxKind::Word),
                     ])
                     .config(|config| { config.delimiter(Ref::new("SlashSegment")) })])
                     .config(|config| {

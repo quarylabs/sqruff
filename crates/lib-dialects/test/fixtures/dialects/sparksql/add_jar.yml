@@ -59,11 +59,11 @@ file:
     - keyword: ADD
     - file_keyword: JAR
     - slash: /
-    - path_segment: path
+    - word: path
     - slash: /
-    - path_segment: to
+    - word: to
     - slash: /
-    - path_segment: some
+    - word: some
 - file:
   - dot: .
   - word: jar

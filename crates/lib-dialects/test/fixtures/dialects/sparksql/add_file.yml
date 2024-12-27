@@ -35,7 +35,7 @@ file:
     - keyword: ADD
     - file_keyword: FILE
     - slash: /
-    - path_segment: tmp
+    - word: tmp
     - slash: /
-    - path_segment: test
+    - word: test
 - statement_terminator: ;

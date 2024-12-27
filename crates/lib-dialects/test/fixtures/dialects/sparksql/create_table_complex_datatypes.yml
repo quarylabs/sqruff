@@ -281,3 +281,24 @@ file:
             - end_angle_bracket: '>'
       - end_bracket: )
 - statement_terminator: ;
+- statement:
+  - create_table_statement:
+    - keyword: CREATE
+    - keyword: TABLE
+    - table_reference:
+      - naked_identifier: my_table
+    - bracketed:
+      - start_bracket: (
+      - column_definition:
+        - naked_identifier: field_a
+        - data_type:
+          - primitive_type:
+            - keyword: STRING
+      - comma: ','
+      - column_definition:
+        - naked_identifier: field_b
+        - data_type:
+          - primitive_type:
+            - keyword: VARIANT
+      - end_bracket: )
+- statement_terminator: ;

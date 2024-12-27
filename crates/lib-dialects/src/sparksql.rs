@@ -10,7 +10,7 @@ use sqruff_lib_core::parser::grammar::conditional::Conditional;
 use sqruff_lib_core::parser::grammar::delimited::Delimited;
 use sqruff_lib_core::parser::grammar::sequence::{Bracketed, Sequence};
 use sqruff_lib_core::parser::lexer::Matcher;
-use sqruff_lib_core::parser::matchable::MatchableTrait;
+use sqruff_lib_core::parser::matchable::{Matchable, MatchableTrait};
 use sqruff_lib_core::parser::node_matcher::NodeMatcher;
 use sqruff_lib_core::parser::parsers::{MultiStringParser, RegexParser, StringParser, TypedParser};
 use sqruff_lib_core::parser::segments::bracketed::BracketedSegmentMatcher;
@@ -2754,149 +2754,7 @@ pub fn dialect() -> Dialect {
             "ShowStatement".into(),
             NodeMatcher::new(
                 SyntaxKind::ShowStatement,
-                one_of(vec_of_erased![
-                    Ref::new("ShowViewsStatement"),
-                    Sequence::new(vec_of_erased![
-                        Ref::keyword("SHOW"),
-                        one_of(vec_of_erased![
-                            Sequence::new(vec_of_erased![
-                                Ref::keyword("CREATE"),
-                                Ref::keyword("TABLE"),
-                                Ref::new("TableExpressionSegment"),
-                                Sequence::new(vec_of_erased![
-                                    Ref::keyword("AS"),
-                                    Ref::keyword("SERDE")
-                                ])
-                                .config(|config| {
-                                    config.optional();
-                                })
-                            ]),
-                            Sequence::new(vec_of_erased![
-                                Ref::keyword("COLUMNS"),
-                                Ref::keyword("IN"),
-                                Ref::new("TableExpressionSegment"),
-                                Sequence::new(vec_of_erased![
-                                    Ref::keyword("IN"),
-                                    Ref::new("DatabaseReferenceSegment")
-                                ])
-                                .config(|config| {
-                                    config.optional();
-                                })
-                            ]),
-                            Sequence::new(vec_of_erased![
-                                one_of(vec_of_erased![
-                                    Ref::keyword("DATABASES"),
-                                    Ref::keyword("SCHEMAS")
-                                ]),
-                                Sequence::new(vec_of_erased![
-                                    Ref::keyword("LIKE"),
-                                    Ref::new("QuotedLiteralSegment")
-                                ])
-                                .config(|config| {
-                                    config.optional();
-                                })
-                            ]),
-                            Sequence::new(vec_of_erased![
-                                one_of(vec_of_erased![
-                                    Ref::keyword("USER"),
-                                    Ref::keyword("SYSTEM"),
-                                    Ref::keyword("ALL")
-                                ])
-                                .config(|config| {
-                                    config.optional();
-                                }),
-                                Ref::keyword("FUNCTIONS"),
-                                one_of(vec_of_erased![
-                                    Sequence::new(vec_of_erased![
-                                        Ref::new("DatabaseReferenceSegment"),
-                                        Ref::new("DotSegment"),
-                                        Ref::new("FunctionNameSegment")
-                                    ])
-                                    .config(|config| {
-                                        config.disallow_gaps();
-                                        config.optional();
-                                    }),
-                                    Ref::new("FunctionNameSegment").optional(),
-                                    Sequence::new(vec_of_erased![
-                                        Ref::keyword("LIKE"),
-                                        Ref::new("QuotedLiteralSegment")
-                                    ])
-                                    .config(|config| {
-                                        config.optional();
-                                    })
-                                ])
-                            ]),
-                            Sequence::new(vec_of_erased![
-                                Ref::keyword("PARTITIONS"),
-                                Ref::new("TableReferenceSegment"),
-                                Ref::new("PartitionSpecGrammar").optional()
-                            ]),
-                            Sequence::new(vec_of_erased![
-                                Ref::keyword("TABLE"),
-                                Ref::keyword("EXTENDED"),
-                                Sequence::new(vec_of_erased![
-                                    one_of(vec_of_erased![
-                                        Ref::keyword("IN"),
-                                        Ref::keyword("FROM")
-                                    ]),
-                                    Ref::new("DatabaseReferenceSegment")
-                                ])
-                                .config(|config| {
-                                    config.optional();
-                                }),
-                                Ref::keyword("LIKE"),
-                                Ref::new("QuotedLiteralSegment"),
-                                Ref::new("PartitionSpecGrammar").optional()
-                            ]),
-                            Sequence::new(vec_of_erased![
-                                Ref::keyword("TABLES"),
-                                Sequence::new(vec_of_erased![
-                                    one_of(vec_of_erased![
-                                        Ref::keyword("FROM"),
-                                        Ref::keyword("IN")
-                                    ]),
-                                    Ref::new("DatabaseReferenceSegment")
-                                ])
-                                .config(|config| {
-                                    config.optional();
-                                }),
-                                Sequence::new(vec_of_erased![
-                                    Ref::keyword("LIKE"),
-                                    Ref::new("QuotedLiteralSegment")
-                                ])
-                                .config(|config| {
-                                    config.optional();
-                                })
-                            ]),
-                            Sequence::new(vec_of_erased![
-                                Ref::keyword("TBLPROPERTIES"),
-                                Ref::new("TableReferenceSegment"),
-                                Ref::new("BracketedPropertyNameListGrammar").optional()
-                            ]),
-                            Sequence::new(vec_of_erased![
-                                Ref::keyword("VIEWS"),
-                                Sequence::new(vec_of_erased![
-                                    one_of(vec_of_erased![
-                                        Ref::keyword("FROM"),
-                                        Ref::keyword("IN")
-                                    ]),
-                                    Ref::new("DatabaseReferenceSegment")
-                                ])
-                                .config(|config| {
-                                    config.optional();
-                                }),
-                                Sequence::new(vec_of_erased![
-                                    Ref::keyword("LIKE"),
-                                    Ref::new("QuotedLiteralSegment")
-                                ])
-                                .config(|config| {
-                                    config.optional();
-                                })
-                            ])
-                        ])
-                    ])
-                ])
-                .to_matchable(),
+                one_of(show_statements()).to_matchable(),
             )
             .to_matchable()
             .into(),
@@ -3674,4 +3532,137 @@ pub fn dialect() -> Dialect {
 
     sparksql_dialect.expand();
     sparksql_dialect
+}
+
+pub fn show_statements() -> Vec<Matchable> {
+    vec_of_erased![
+        Ref::new("ShowViewsStatement"),
+        Sequence::new(vec_of_erased![
+            Ref::keyword("SHOW"),
+            one_of(vec_of_erased![
+                Sequence::new(vec_of_erased![
+                    Ref::keyword("CREATE"),
+                    Ref::keyword("TABLE"),
+                    Ref::new("TableExpressionSegment"),
+                    Sequence::new(vec_of_erased![Ref::keyword("AS"), Ref::keyword("SERDE")])
+                        .config(|config| {
+                            config.optional();
+                        })
+                ]),
+                Sequence::new(vec_of_erased![
+                    Ref::keyword("COLUMNS"),
+                    Ref::keyword("IN"),
+                    Ref::new("TableExpressionSegment"),
+                    Sequence::new(vec_of_erased![
+                        Ref::keyword("IN"),
+                        Ref::new("DatabaseReferenceSegment")
+                    ])
+                    .config(|config| {
+                        config.optional();
+                    })
+                ]),
+                Sequence::new(vec_of_erased![
+                    one_of(vec_of_erased![
+                        Ref::keyword("DATABASES"),
+                        Ref::keyword("SCHEMAS")
+                    ]),
+                    Sequence::new(vec_of_erased![
+                        Ref::keyword("LIKE"),
+                        Ref::new("QuotedLiteralSegment")
+                    ])
+                    .config(|config| {
+                        config.optional();
+                    })
+                ]),
+                Sequence::new(vec_of_erased![
+                    one_of(vec_of_erased![
+                        Ref::keyword("USER"),
+                        Ref::keyword("SYSTEM"),
+                        Ref::keyword("ALL")
+                    ])
+                    .config(|config| {
+                        config.optional();
+                    }),
+                    Ref::keyword("FUNCTIONS"),
+                    one_of(vec_of_erased![
+                        Sequence::new(vec_of_erased![
+                            Ref::new("DatabaseReferenceSegment"),
+                            Ref::new("DotSegment"),
+                            Ref::new("FunctionNameSegment")
+                        ])
+                        .config(|config| {
+                            config.disallow_gaps();
+                            config.optional();
+                        }),
+                        Ref::new("FunctionNameSegment").optional(),
+                        Sequence::new(vec_of_erased![
+                            Ref::keyword("LIKE"),
+                            Ref::new("QuotedLiteralSegment")
+                        ])
+                        .config(|config| {
+                            config.optional();
+                        })
+                    ])
+                ]),
+                Sequence::new(vec_of_erased![
+                    Ref::keyword("PARTITIONS"),
+                    Ref::new("TableReferenceSegment"),
+                    Ref::new("PartitionSpecGrammar").optional()
+                ]),
+                Sequence::new(vec_of_erased![
+                    Ref::keyword("TABLE"),
+                    Ref::keyword("EXTENDED"),
+                    Sequence::new(vec_of_erased![
+                        one_of(vec_of_erased![Ref::keyword("IN"), Ref::keyword("FROM")]),
+                        Ref::new("DatabaseReferenceSegment")
+                    ])
+                    .config(|config| {
+                        config.optional();
+                    }),
+                    Ref::keyword("LIKE"),
+                    Ref::new("QuotedLiteralSegment"),
+                    Ref::new("PartitionSpecGrammar").optional()
+                ]),
+                Sequence::new(vec_of_erased![
+                    Ref::keyword("TABLES"),
+                    Sequence::new(vec_of_erased![
+                        one_of(vec_of_erased![Ref::keyword("FROM"), Ref::keyword("IN")]),
+                        Ref::new("DatabaseReferenceSegment")
+                    ])
+                    .config(|config| {
+                        config.optional();
+                    }),
+                    Sequence::new(vec_of_erased![
+                        Ref::keyword("LIKE"),
+                        Ref::new("QuotedLiteralSegment")
+                    ])
+                    .config(|config| {
+                        config.optional();
+                    })
+                ]),
+                Sequence::new(vec_of_erased![
+                    Ref::keyword("TBLPROPERTIES"),
+                    Ref::new("TableReferenceSegment"),
+                    Ref::new("BracketedPropertyNameListGrammar").optional()
+                ]),
+                Sequence::new(vec_of_erased![
+                    Ref::keyword("VIEWS"),
+                    Sequence::new(vec_of_erased![
+                        one_of(vec_of_erased![Ref::keyword("FROM"), Ref::keyword("IN")]),
+                        Ref::new("DatabaseReferenceSegment")
+                    ])
+                    .config(|config| {
+                        config.optional();
+                    }),
+                    Sequence::new(vec_of_erased![
+                        Ref::keyword("LIKE"),
+                        Ref::new("QuotedLiteralSegment")
+                    ])
+                    .config(|config| {
+                        config.optional();
+                    })
+                ])
+            ])
+        ])
+    ]
 }

@@ -3354,6 +3354,8 @@ pub fn raw_dialect() -> Dialect {
             .into(),
         ),
         (
+            // A statement ingest CDC data a target table.
+            // https://docs.databricks.com/workflows/delta-live-tables/delta-live-tables-cdc.html#sql
             "ApplyChangesIntoStatementSegment".into(),
             NodeMatcher::new(
                 SyntaxKind::ApplyChangesIntoStatement,
@@ -3412,7 +3414,10 @@ pub fn raw_dialect() -> Dialect {
                                 Ref::new("BracketedColumnReferenceListGrammar")
                             ])
                         ])
-                    ]),
+                    ])
+                    .config(|config| {
+                        config.optional();
+                    }),
                     Sequence::new(vec_of_erased![
                         Ref::keyword("STORED"),
                         Ref::keyword("AS"),

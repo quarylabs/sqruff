@@ -306,3 +306,51 @@ file:
     - keyword: TYPE
     - numeric_literal: '1'
 - statement_terminator: ;
+- statement:
+  - create_table_statement:
+    - keyword: CREATE
+    - keyword: OR
+    - keyword: REFRESH
+    - keyword: STREAMING
+    - keyword: LIVE
+    - keyword: TABLE
+    - table_reference:
+      - naked_identifier: target
+- statement_terminator: ;
+- statement:
+  - apply_changes_into_statement:
+    - keyword: APPLY
+    - keyword: CHANGES
+    - keyword: INTO
+    - table_expression:
+      - table_reference:
+        - naked_identifier: live
+        - dot: .
+        - naked_identifier: target
+    - from_clause:
+      - keyword: FROM
+      - from_expression:
+        - from_expression_element:
+          - table_expression:
+            - function:
+              - function_name:
+                - function_name_identifier: STREAM
+              - bracketed:
+                - start_bracket: (
+                - expression:
+                  - column_reference:
+                    - naked_identifier: cdc_data
+                    - dot: .
+                    - naked_identifier: users
+                - end_bracket: )
+    - keyword: KEYS
+    - bracketed:
+      - start_bracket: (
+      - column_reference:
+        - naked_identifier: user_id
+      - end_bracket: )
+    - keyword: SEQUENCE
+    - keyword: BY
+    - column_reference:
+      - naked_identifier: sequence_num
+- statement_terminator: ;

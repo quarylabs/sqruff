@@ -312,6 +312,8 @@ pub(crate) const UNRESERVED_KEYWORDS: &[&str] = &[
     "STREAMING",
     "UPDATES",
     "VIOLATION",
+    "TRACK",
+    "HISTORY",
     // Databricks widget
     "WIDGET",
     "DROPDOWN",

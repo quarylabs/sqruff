@@ -137,6 +137,28 @@ pub fn raw_dialect() -> Dialect {
 
     sparksql_dialect.add([
         (
+            "SelectClauseTerminatorGrammar".into(),
+            ansi::raw_dialect()
+                .grammar("SelectClauseTerminatorGrammar")
+                .copy(
+                    Some(vec_of_erased![
+                        Sequence::new(vec_of_erased![Ref::keyword("CLUSTER"), Ref::keyword("BY")]),
+                        Sequence::new(vec_of_erased![
+                            Ref::keyword("DISTRIBUTE"),
+                            Ref::keyword("BY")
+                        ]),
+                        Sequence::new(vec_of_erased![Ref::keyword("SORT"), Ref::keyword("BY")]),
+                        Ref::keyword("QUALIFY"),
+                    ]),
+                    None,
+                    None,
+                    None,
+                    Vec::new(),
+                    false,
+                )
+                .into(),
+        ),
+        (
             "ComparisonOperatorGrammar".into(),
             one_of(vec_of_erased![
                 Ref::new("EqualsSegment"),
@@ -1549,6 +1571,7 @@ pub fn raw_dialect() -> Dialect {
             one_of(vec_of_erased![
                 Ref::new("PivotClauseSegment"),
                 Ref::new("UnpivotClauseSegment"),
+                Ref::new("LateralViewClauseSegment"),
             ]),
             Ref::new("AliasExpressionSegment").optional()
         ])
@@ -2133,6 +2156,15 @@ pub fn raw_dialect() -> Dialect {
                 })
             ])
         ])
+        .config(|config| {
+            config.exclude = Some(
+                Sequence::new(vec_of_erased![
+                    Ref::keyword("EXCEPT"),
+                    Bracketed::new(vec_of_erased![Anything::new()]),
+                ])
+                .to_matchable(),
+            )
+        })
         .to_matchable(),
     );
 
@@ -3423,14 +3455,7 @@ pub fn raw_dialect() -> Dialect {
                     ])
                 ])
                 .config(|config| {
-                    config.terminators = vec_of_erased![
-                        Ref::keyword("FROM"),
-                        Ref::keyword("WHERE"),
-                        Ref::keyword("UNION"),
-                        Sequence::new(vec_of_erased![Ref::keyword("ORDER"), Ref::keyword("BY")]),
-                        Ref::keyword("LIMIT"),
-                        Ref::keyword("OVERLAPS")
-                    ];
+                    config.terminators = vec_of_erased![Ref::new("SelectClauseTerminatorGrammar"),];
                     config.parse_mode(ParseMode::GreedyOnceStarted);
                 })
                 .to_matchable(),

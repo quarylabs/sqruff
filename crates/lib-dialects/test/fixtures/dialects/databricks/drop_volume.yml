@@ -1,0 +1,15 @@
+file:
+- statement:
+  - keyword: DROP
+  - keyword: VOLUME
+  - object_reference:
+    - naked_identifier: vaccine_volume
+- statement_terminator: ;
+- statement:
+  - keyword: DROP
+  - keyword: VOLUME
+  - keyword: IF
+  - keyword: EXISTS
+  - object_reference:
+    - naked_identifier: vaccine_volume
+- statement_terminator: ;

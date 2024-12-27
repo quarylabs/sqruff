@@ -15,6 +15,10 @@ mod bigquery_keywords;
 pub mod clickhouse;
 #[cfg(feature = "clickhouse")]
 mod clickhouse_keywords;
+#[cfg(feature = "databricks")]
+pub mod databricks;
+#[cfg(feature = "databricks")]
+pub mod databricks_keywords;
 #[cfg(feature = "duckdb")]
 pub mod duckdb;
 #[cfg(feature = "hive")]
@@ -54,6 +58,8 @@ pub fn kind_to_dialect(kind: &DialectKind) -> Option<Dialect> {
         DialectKind::Bigquery => bigquery::dialect(),
         #[cfg(feature = "clickhouse")]
         DialectKind::Clickhouse => clickhouse::dialect(),
+        #[cfg(feature = "databricks")]
+        DialectKind::Databricks => databricks::dialect(),
         #[cfg(feature = "duckdb")]
         DialectKind::Duckdb => duckdb::dialect(),
         #[cfg(feature = "postgres")]

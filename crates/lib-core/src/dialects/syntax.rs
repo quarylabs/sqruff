@@ -360,6 +360,7 @@ pub enum SyntaxKind {
     CreateStreamStatement,
     AlterStreamStatement,
     ShowStatement,
+    ShowViewsStatement,
     AlterUserStatement,
     AlterSessionStatement,
     AlterSessionSetStatement,

@@ -204,6 +204,51 @@ pub fn dialect() -> Dialect {
             "VolumeReferenceSegment".into(),
             Ref::new("ObjectReferenceSegment").to_matchable().into(),
         ),
+        (
+            "CommentOnStatementSegment".into(),
+            Sequence::new(vec_of_erased![
+                Ref::keyword("COMMENT"),
+                Ref::keyword("ON"),
+                one_of(vec_of_erased![
+                    Sequence::new(vec_of_erased![
+                        Ref::keyword("CATALOG"),
+                        Ref::new("CatalogReferenceSegment"),
+                    ]),
+                    Sequence::new(vec_of_erased![
+                        one_of(vec_of_erased![
+                            Ref::keyword("DATABASE"),
+                            Ref::keyword("SCHEMA")
+                        ]),
+                        Ref::new("DatabaseReferenceSegment"),
+                    ]),
+                    Sequence::new(vec_of_erased![
+                        Ref::keyword("TABLE"),
+                        Ref::new("TableReferenceSegment"),
+                    ]),
+                    Sequence::new(vec_of_erased![
+                        Ref::keyword("VOLUME"),
+                        Ref::new("VolumeReferenceSegment"),
+                    ]),
+                    // TODO Split out individual items if they have references
+                    Sequence::new(vec_of_erased![
+                        one_of(vec_of_erased![
+                            Ref::keyword("CONNECTION"),
+                            Ref::keyword("PROVIDER"),
+                            Ref::keyword("RECIPIENT"),
+                            Ref::keyword("SHARE"),
+                        ]),
+                        Ref::new("ObjectReferenceSegment"),
+                    ]),
+                ]),
+                Ref::keyword("IS"),
+                one_of(vec_of_erased![
+                    Ref::new("QuotedLiteralSegment"),
+                    Ref::keyword("NULL"),
+                ]),
+            ])
+            .to_matchable()
+            .into(),
+        ),
     ]);
 
     // A reference to an object.
@@ -240,6 +285,7 @@ pub fn dialect() -> Dialect {
                     Ref::new("DropVolumeStatementSegment"),
                     Ref::new("SetTimeZoneStatementSegment"),
                     Ref::new("OptimizeTableStatementSegment"),
+                    Ref::new("CommentOnStatementSegment"),
                 ]),
                 None,
                 None,

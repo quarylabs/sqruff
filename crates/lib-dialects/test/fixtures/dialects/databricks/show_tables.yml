@@ -30,3 +30,18 @@ file:
     - keyword: LIKE
     - quoted_literal: '''sam*'''
 - statement_terminator: ;
+- statement:
+  - show_statement:
+    - keyword: SHOW
+    - keyword: TABLES
+    - keyword: FROM
+    - object_reference:
+      - naked_identifier: default
+    - quoted_literal: '''sam*'''
+- statement_terminator: ;
+- statement:
+  - show_statement:
+    - keyword: SHOW
+    - keyword: TABLES
+    - quoted_literal: '''sam*|suj'''
+- statement_terminator: ;

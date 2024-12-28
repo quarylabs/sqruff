@@ -308,6 +308,202 @@ pub fn dialect() -> Dialect {
             .to_matchable()
             .into(),
         ),
+        // https://docs.databricks.com/en/sql/language-manual/sql-ref-syntax-aux-show-schemas.html
+        // Differences between this and the SparkSQL version:
+        // - Support for `FROM`|`IN` at the catalog level
+        // - `LIKE` keyword is optional
+        (
+            "ShowDatabasesSchemasGrammar".into(),
+            Sequence::new(vec_of_erased![
+                one_of(vec_of_erased![
+                    Ref::keyword("DATABASES"),
+                    Ref::keyword("SCHEMAS"),
+                ]),
+                Sequence::new(vec_of_erased![
+                    one_of(vec_of_erased![Ref::keyword("FROM"), Ref::keyword("IN"),]),
+                    Ref::new("DatabaseReferenceSegment"),
+                ])
+                .config(|config| {
+                    config.optional();
+                }),
+                Sequence::new(vec_of_erased![
+                    Ref::keyword("LIKE").optional(),
+                    Ref::new("QuotedLiteralSegment"),
+                ])
+                .config(|config| {
+                    config.optional();
+                }),
+            ])
+            .to_matchable()
+            .into(),
+        ),
+        // https://docs.databricks.com/en/sql/language-manual/sql-ref-syntax-aux-show-schemas.html
+        // Differences between this and the SparkSQL version:
+        // - Support for `FROM`|`IN` at the catalog level
+        // - `LIKE` keyword is optional
+        (
+            "ShowDatabasesSchemasGrammar".into(),
+            Sequence::new(vec_of_erased![
+                one_of(vec_of_erased![
+                    Ref::keyword("DATABASES"),
+                    Ref::keyword("SCHEMAS"),
+                ]),
+                Sequence::new(vec_of_erased![
+                    one_of(vec_of_erased![Ref::keyword("FROM"), Ref::keyword("IN"),]),
+                    Ref::new("DatabaseReferenceSegment"),
+                ])
+                .config(|config| {
+                    config.optional();
+                }),
+                Sequence::new(vec_of_erased![
+                    Ref::keyword("LIKE").optional(),
+                    Ref::new("QuotedLiteralSegment"),
+                ])
+                .config(|config| {
+                    config.optional();
+                }),
+            ])
+            .to_matchable()
+            .into(),
+        ),
+        // Show Functions Statement
+        // https://docs.databricks.com/en/sql/language-manual/sql-ref-syntax-aux-show-functions.html
+        //
+        // Represents the grammar part after the show
+        //
+        // Differences between this and the SparkSQL version:
+        // - Support for `FROM`|`IN` at the schema level
+        // - `LIKE` keyword is optional
+        (
+            "ShowFunctionsGrammar".into(),
+            Sequence::new(vec_of_erased![
+                one_of(vec_of_erased![
+                    Ref::keyword("USER"),
+                    Ref::keyword("SYSTEM"),
+                    Ref::keyword("ALL"),
+                ])
+                .config(|config| {
+                    config.optional();
+                }),
+                Ref::keyword("FUNCTIONS"),
+                Sequence::new(vec_of_erased![
+                    Sequence::new(vec_of_erased![
+                        one_of(vec_of_erased![Ref::keyword("FROM"), Ref::keyword("IN")]),
+                        Ref::new("DatabaseReferenceSegment"),
+                    ])
+                    .config(|config| {
+                        config.optional();
+                    }),
+                    Sequence::new(vec_of_erased![
+                        Ref::keyword("LIKE").optional(),
+                        one_of(vec_of_erased![
+                            // qualified function from a database
+                            Sequence::new(vec_of_erased![
+                                Ref::new("DatabaseReferenceSegment"),
+                                Ref::new("DotSegment"),
+                                Ref::new("FunctionNameSegment"),
+                            ])
+                            .config(|config| {
+                                config.disallow_gaps();
+                            }),
+                            // non-qualified function
+                            Ref::new("FunctionNameSegment"),
+                            // Regex/like string
+                            Ref::new("QuotedLiteralSegment"),
+                        ]),
+                    ])
+                    .config(|config| {
+                        config.optional();
+                    }),
+                ])
+                .config(|config| {
+                    config.optional();
+                }),
+            ])
+            .to_matchable()
+            .into(),
+        ),
+        //     # https://docs.databricks.com/en/sql/language-manual/sql-ref-syntax-aux-show-tables.html
+        //     # Differences between this and the SparkSQL version:
+        //     # - `LIKE` keyword is optional
+        (
+            "ShowTablesGrammar".into(),
+            Sequence::new(vec_of_erased![
+                Ref::keyword("TABLES"),
+                Sequence::new(vec_of_erased![
+                    one_of(vec_of_erased![Ref::keyword("FROM"), Ref::keyword("IN")]),
+                    Ref::new("DatabaseReferenceSegment"),
+                ])
+                .config(|config| {
+                    config.optional();
+                }),
+                Sequence::new(vec_of_erased![
+                    Ref::keyword("LIKE").optional(),
+                    Ref::new("QuotedLiteralSegment"),
+                ])
+                .config(|config| {
+                    config.optional();
+                }),
+            ])
+            .to_matchable()
+            .into(),
+        ),
+        // https://docs.databricks.com/en/sql/language-manual/sql-ref-syntax-aux-show-views.html
+        // Only difference between this and the SparkSQL version:
+        // - `LIKE` keyword is optional
+        (
+            "ShowViewsGrammar".into(),
+            Sequence::new(vec_of_erased![
+                Ref::keyword("VIEWS"),
+                Sequence::new(vec_of_erased![
+                    one_of(vec_of_erased![Ref::keyword("FROM"), Ref::keyword("IN")]),
+                    Ref::new("DatabaseReferenceSegment"),
+                ])
+                .config(|config| {
+                    config.optional();
+                }),
+                Sequence::new(vec_of_erased![
+                    Ref::keyword("LIKE").optional(),
+                    Ref::new("QuotedLiteralSegment"),
+                ])
+                .config(|config| {
+                    config.optional();
+                }),
+            ])
+            .to_matchable()
+            .into(),
+        ),
+        // https://docs.databricks.com/en/sql/language-manual/sql-ref-syntax-aux-show-volumes.html
+        (
+            "ShowObjectGrammar".into(),
+            sparksql::raw_dialect()
+                .grammar("ShowObjectGrammar")
+                .copy(
+                    Some(vec_of_erased![Sequence::new(vec_of_erased![
+                        Ref::keyword("VOLUMES"),
+                        Sequence::new(vec_of_erased![
+                            one_of(vec_of_erased![Ref::keyword("FROM"), Ref::keyword("IN")]),
+                            Ref::new("DatabaseReferenceSegment"),
+                        ])
+                        .config(|config| {
+                            config.optional();
+                        }),
+                        Sequence::new(vec_of_erased![
+                            Ref::keyword("LIKE").optional(),
+                            Ref::new("QuotedLiteralSegment"),
+                        ])
+                        .config(|config| {
+                            config.optional();
+                        }),
+                    ])]),
+                    None,
+                    None,
+                    None,
+                    Vec::new(),
+                    false,
+                )
+                .into(),
+        ),
     ]);
 
     // A reference to an object.

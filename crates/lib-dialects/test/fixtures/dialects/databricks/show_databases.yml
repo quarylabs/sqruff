@@ -2,12 +2,12 @@ file:
 - statement:
   - show_statement:
     - keyword: SHOW
-    - keyword: VIEWS
+    - keyword: DATABASES
 - statement_terminator: ;
 - statement:
   - show_statement:
     - keyword: SHOW
-    - keyword: VIEWS
+    - keyword: DATABASES
     - keyword: FROM
     - object_reference:
       - naked_identifier: userdb
@@ -15,15 +15,15 @@ file:
 - statement:
   - show_statement:
     - keyword: SHOW
-    - keyword: VIEWS
+    - keyword: DATABASES
     - keyword: IN
     - object_reference:
-      - naked_identifier: global_temp
+      - naked_identifier: userdb
 - statement_terminator: ;
 - statement:
   - show_statement:
     - keyword: SHOW
-    - keyword: VIEWS
+    - keyword: DATABASES
     - keyword: FROM
     - object_reference:
       - naked_identifier: default
@@ -33,14 +33,7 @@ file:
 - statement:
   - show_statement:
     - keyword: SHOW
-    - keyword: VIEWS
-    - keyword: LIKE
-    - quoted_literal: '''sam|suj|temp*'''
-- statement_terminator: ;
-- statement:
-  - show_statement:
-    - keyword: SHOW
-    - keyword: VIEWS
+    - keyword: DATABASES
     - keyword: FROM
     - object_reference:
       - naked_identifier: default
@@ -49,6 +42,11 @@ file:
 - statement:
   - show_statement:
     - keyword: SHOW
-    - keyword: VIEWS
-    - quoted_literal: '''sam|suj|temp*'''
+    - keyword: DATABASES
+    - quoted_literal: '''sam*|suj'''
+- statement_terminator: ;
+- statement:
+  - show_statement:
+    - keyword: SHOW
+    - keyword: SCHEMAS
 - statement_terminator: ;

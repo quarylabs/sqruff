@@ -14,3 +14,10 @@ SHOW VIEWS FROM default LIKE 'sam*';
 -- matching the pattern `sam|suj｜temp*`
 SHOW VIEWS LIKE 'sam|suj|temp*';
 
+-- List all views from default database matching the pattern `sam*`
+-- without LIKE keyword
+SHOW VIEWS FROM default 'sam*';
+
+-- List all views from the current database
+-- matching the pattern `sam|suj｜temp*` without LIKE keyword
+SHOW VIEWS 'sam|suj|temp*';

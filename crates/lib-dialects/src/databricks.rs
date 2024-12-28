@@ -124,7 +124,7 @@ pub fn dialect() -> Dialect {
                 .config(|config| {
                     config.optional();
                 }),
-                Ref::new("ObjectReferenceSegment"),
+                Ref::new("DatabaseReferenceSegment"),
             ])
             .to_matchable()
             .into(),
@@ -174,7 +174,38 @@ pub fn dialect() -> Dialect {
             .to_matchable()
             .into(),
         ),
+        (
+            "DatabaseReferenceSegment".into(),
+            Ref::new("ObjectReferenceSegment").to_matchable().into(),
+        ),
+        (
+            "IdentifierClauseSegment".into(),
+            Sequence::new(vec_of_erased![
+                Ref::keyword("IDENTIFIER"),
+                Bracketed::new(vec_of_erased![Ref::new("SingleIdentifierGrammar")]),
+            ])
+            .to_matchable()
+            .into(),
+        ),
     ]);
+
+    // A reference to an object.
+    databricks.replace_grammar(
+        "ObjectReferenceSegment",
+        Delimited::new(vec_of_erased![
+            one_of(vec_of_erased![
+                Ref::new("SingleIdentifierGrammar"),
+                Ref::new("IdentifierClauseSegment"),
+            ]),
+            Ref::new("ObjectReferenceDelimiterGrammar"),
+        ])
+        .config(|config| {
+            config.delimiter(Ref::new("ObjectReferenceDelimiterGrammar"));
+            config.terminators = vec_of_erased![Ref::new("ObjectReferenceTerminatorGrammar")];
+            config.disallow_gaps();
+        })
+        .to_matchable(),
+    );
 
     // Override statement segment
     databricks.replace_grammar(

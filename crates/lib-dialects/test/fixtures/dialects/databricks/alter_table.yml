@@ -1,0 +1,12 @@
+file:
+- statement:
+  - alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - object_reference:
+      - naked_identifier: Student
+    - keyword: RENAME
+    - keyword: TO
+    - object_reference:
+      - naked_identifier: StudentInfo
+- statement_terminator: ;

@@ -31,7 +31,7 @@ file:
       - from_expression:
         - from_expression_element:
           - table_expression:
-            - table_reference:
+            - object_reference:
               - naked_identifier: sales
         - pivot_clause:
           - keyword: PIVOT
@@ -124,7 +124,7 @@ file:
       - from_expression:
         - from_expression_element:
           - table_expression:
-            - table_reference:
+            - object_reference:
               - naked_identifier: sales
         - pivot_clause:
           - keyword: PIVOT
@@ -299,7 +299,7 @@ file:
                   - from_expression:
                     - from_expression_element:
                       - table_expression:
-                        - table_reference:
+                        - object_reference:
                           - naked_identifier: sales
               - end_bracket: )
           - alias_expression:
@@ -417,7 +417,7 @@ file:
                   - from_expression:
                     - from_expression_element:
                       - table_expression:
-                        - table_reference:
+                        - object_reference:
                           - naked_identifier: sales
               - end_bracket: )
           - alias_expression:

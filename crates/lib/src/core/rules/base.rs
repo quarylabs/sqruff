@@ -307,7 +307,6 @@ pub struct RuleManifest {
     pub name: &'static str,
     pub description: &'static str,
     pub groups: &'static [RuleGroups],
-    pub aliases: Vec<&'static str>,
     pub rule_class: ErasedRule,
 }
 
@@ -383,30 +382,7 @@ impl RuleSet {
             }
         }
 
-        let reference_map: AHashMap<_, _> = chain(group_map, reference_map).collect();
-
-        let mut alias_map: AHashMap<_, AHashSet<&'static str>> = AHashMap::new();
-        for manifest in self.register.values() {
-            for alias in &manifest.aliases {
-                if let Some(codes) = reference_map.get(alias) {
-                    tracing::warn!(
-                        "Rule {} defines alias '{}' which is already defined as a name, code or \
-                         group of {:?}. This alias will not be available for use as a result of \
-                         this collision.",
-                        manifest.code,
-                        alias,
-                        codes
-                    );
-                } else {
-                    alias_map
-                        .entry(*alias)
-                        .or_insert_with(AHashSet::new)
-                        .insert(manifest.code);
-                }
-            }
-        }
-
-        chain(alias_map, reference_map).collect()
+        chain(group_map, reference_map).collect()
     }
 
     fn expand_rule_refs(

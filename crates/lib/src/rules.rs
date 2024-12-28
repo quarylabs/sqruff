@@ -38,7 +38,6 @@ pub fn get_ruleset() -> RuleSet {
                 name: rule.name(),
                 description: rule.description(),
                 groups: rule.groups(),
-                aliases: <_>::default(),
                 rule_class: rule,
             },
         );

@@ -2626,6 +2626,90 @@ pub fn raw_dialect() -> Dialect {
             .into(),
         ),
         (
+            "DescribeObjectGrammar".into(),
+            one_of(vec_of_erased![
+                Sequence::new(vec_of_erased![
+                    one_of(vec_of_erased![
+                        Ref::keyword("DATABASE"),
+                        Ref::keyword("SCHEMA")
+                    ]),
+                    Ref::keyword("EXTENDED").optional(),
+                    Ref::new("DatabaseReferenceSegment")
+                ]),
+                Sequence::new(vec_of_erased![
+                    Ref::keyword("FUNCTION"),
+                    Ref::keyword("EXTENDED").optional(),
+                    Ref::new("FunctionNameSegment")
+                ]),
+                Sequence::new(vec_of_erased![
+                    Ref::keyword("TABLE").optional(),
+                    Ref::keyword("EXTENDED").optional(),
+                    Ref::new("TableReferenceSegment"),
+                    Ref::new("PartitionSpecGrammar").optional(),
+                    Sequence::new(vec_of_erased![
+                        Ref::new("SingleIdentifierGrammar"),
+                        AnyNumberOf::new(vec_of_erased![Sequence::new(vec_of_erased![
+                            Ref::new("DotSegment"),
+                            Ref::new("SingleIdentifierGrammar")
+                        ])
+                        .config(|config| {
+                            config.disallow_gaps();
+                        })])
+                        .config(|config| {
+                            config.max_times = Some(2);
+                            config.disallow_gaps();
+                        })
+                    ])
+                    .config(|config| {
+                        config.optional();
+                        config.disallow_gaps();
+                    })
+                ]),
+                Sequence::new(vec_of_erased![
+                    Ref::keyword("QUERY").optional(),
+                    one_of(vec_of_erased![
+                        Sequence::new(vec_of_erased![
+                            Ref::keyword("TABLE"),
+                            Ref::new("TableReferenceSegment")
+                        ]),
+                        Sequence::new(vec_of_erased![
+                            Ref::keyword("FROM"),
+                            Ref::new("TableReferenceSegment"),
+                            Ref::keyword("SELECT"),
+                            Delimited::new(vec_of_erased![Ref::new("ColumnReferenceSegment")]),
+                            Ref::new("WhereClauseSegment").optional(),
+                            Ref::new("GroupByClauseSegment").optional(),
+                            Ref::new("OrderByClauseSegment").optional(),
+                            Ref::new("LimitClauseSegment").optional()
+                        ]),
+                        Ref::new("StatementSegment")
+                    ])
+                ])
+            ])
+            .config(|config| {
+                config.exclude = one_of(vec_of_erased![
+                    Ref::keyword("HISTORY"),
+                    Ref::keyword("DETAIL")
+                ])
+                .to_matchable()
+                .into();
+            })
+            .to_matchable()
+            .into(),
+        ),
+        // A `DESCRIBE` statement.
+        // This class provides coverage for databases, tables, functions, and queries.
+
+        // NB: These are similar enough that it makes sense to include them in a
+        // common class, especially since there wouldn't be any specific rules that
+        // would apply to one describe vs another, but they could be broken out to
+        // one class per describe statement type.
+
+        // https://spark.apache.org/docs/latest/sql-ref-syntax-aux-describe-database.html
+        // https://spark.apache.org/docs/latest/sql-ref-syntax-aux-describe-function.html
+        // https://spark.apache.org/docs/latest/sql-ref-syntax-aux-describe-query.html
+        // https://spark.apache.org/docs/latest/sql-ref-syntax-aux-describe-table.html
+        (
             "DescribeStatementSegment".into(),
             NodeMatcher::new(
                 SyntaxKind::DescribeStatement,
@@ -2634,75 +2718,7 @@ pub fn raw_dialect() -> Dialect {
                         Ref::keyword("DESCRIBE"),
                         Ref::keyword("DESC")
                     ]),
-                    one_of(vec_of_erased![
-                        Sequence::new(vec_of_erased![
-                            one_of(vec_of_erased![
-                                Ref::keyword("DATABASE"),
-                                Ref::keyword("SCHEMA")
-                            ]),
-                            Ref::keyword("EXTENDED").optional(),
-                            Ref::new("DatabaseReferenceSegment")
-                        ]),
-                        Sequence::new(vec_of_erased![
-                            Ref::keyword("FUNCTION"),
-                            Ref::keyword("EXTENDED").optional(),
-                            Ref::new("FunctionNameSegment")
-                        ]),
-                        Sequence::new(vec_of_erased![
-                            Ref::keyword("TABLE").optional(),
-                            Ref::keyword("EXTENDED").optional(),
-                            Ref::new("TableReferenceSegment"),
-                            Ref::new("PartitionSpecGrammar").optional(),
-                            Sequence::new(vec_of_erased![
-                                Ref::new("SingleIdentifierGrammar"),
-                                AnyNumberOf::new(vec_of_erased![Sequence::new(vec_of_erased![
-                                    Ref::new("DotSegment"),
-                                    Ref::new("SingleIdentifierGrammar")
-                                ])
-                                .config(|config| {
-                                    config.disallow_gaps();
-                                })])
-                                .config(|config| {
-                                    config.max_times = Some(2);
-                                    config.disallow_gaps();
-                                })
-                            ])
-                            .config(|config| {
-                                config.optional();
-                                config.disallow_gaps();
-                            })
-                        ]),
-                        Sequence::new(vec_of_erased![
-                            Ref::keyword("QUERY").optional(),
-                            one_of(vec_of_erased![
-                                Sequence::new(vec_of_erased![
-                                    Ref::keyword("TABLE"),
-                                    Ref::new("TableReferenceSegment")
-                                ]),
-                                Sequence::new(vec_of_erased![
-                                    Ref::keyword("FROM"),
-                                    Ref::new("TableReferenceSegment"),
-                                    Ref::keyword("SELECT"),
-                                    Delimited::new(vec_of_erased![Ref::new(
-                                        "ColumnReferenceSegment"
-                                    )]),
-                                    Ref::new("WhereClauseSegment").optional(),
-                                    Ref::new("GroupByClauseSegment").optional(),
-                                    Ref::new("OrderByClauseSegment").optional(),
-                                    Ref::new("LimitClauseSegment").optional()
-                                ]),
-                                Ref::new("StatementSegment")
-                            ])
-                        ])
-                    ])
-                    .config(|config| {
-                        config.exclude = one_of(vec_of_erased![
-                            Ref::keyword("HISTORY"),
-                            Ref::keyword("DETAIL")
-                        ])
-                        .to_matchable()
-                        .into();
-                    })
+                    Ref::new("DescribeObjectGrammar"),
                 ])
                 .to_matchable(),
             )

@@ -237,6 +237,30 @@ pub fn dialect() -> Dialect {
                 )
                 .into(),
         ),
+        (
+            // A `DECLARE [OR REPLACE] VARIABLE` statement.
+            // https://docs.databricks.com/en/sql/language-manual/sql-ref-syntax-ddl-declare-variable.html
+            "DeclareOrReplaceVariableStatementSegment".into(),
+            Sequence::new(vec_of_erased![
+                Ref::keyword("DECLARE"),
+                Ref::new("OrReplaceGrammar").optional(),
+                Ref::keyword("VARIABLE").optional(),
+                Ref::new("SingleIdentifierGrammar"),
+                Ref::new("DatatypeSegment").optional(),
+                Sequence::new(vec_of_erased![
+                    one_of(vec_of_erased![
+                        Ref::keyword("DEFAULT"),
+                        Ref::new("EqualsSegment")
+                    ]),
+                    Ref::new("ExpressionSegment"),
+                ])
+                .config(|config| {
+                    config.optional();
+                }),
+            ])
+            .to_matchable()
+            .into(),
+        ),
         // `COMMENT ON` statement.
         // https://docs.databricks.com/en/sql/language-manual/sql-ref-syntax-ddl-comment.html
         (
@@ -339,6 +363,7 @@ pub fn dialect() -> Dialect {
                     Ref::new("SetTimeZoneStatementSegment"),
                     Ref::new("OptimizeTableStatementSegment"),
                     Ref::new("CommentOnStatementSegment"),
+                    Ref::new("DeclareOrReplaceVariableStatementSegment"),
                 ]),
                 None,
                 None,

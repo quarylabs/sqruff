@@ -10,4 +10,9 @@ SHOW TABLES IN userdb;
 -- List all tables from default database matching the pattern `sam*`
 SHOW TABLES FROM default LIKE 'sam*';
 
+-- List all tables from default database matching the pattern `sam*`
+-- without LIKE keyword
+SHOW TABLES FROM default 'sam*';
 
+-- List all tables matching the pattern `sam*|suj` without LIKE keyword
+SHOW TABLES 'sam*|suj';

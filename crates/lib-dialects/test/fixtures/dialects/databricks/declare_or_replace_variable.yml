@@ -1,0 +1,54 @@
+file:
+- statement:
+  - keyword: DECLARE
+  - naked_identifier: var
+- statement_terminator: ;
+- statement:
+  - keyword: DECLARE
+  - keyword: OR
+  - keyword: REPLACE
+  - naked_identifier: var
+- statement_terminator: ;
+- statement:
+  - keyword: DECLARE
+  - keyword: OR
+  - keyword: REPLACE
+  - keyword: VARIABLE
+  - naked_identifier: var
+- statement_terminator: ;
+- statement:
+  - keyword: DECLARE
+  - naked_identifier: var
+  - data_type:
+    - primitive_type:
+      - keyword: INT
+  - keyword: DEFAULT
+  - expression:
+    - numeric_literal: '5'
+- statement_terminator: ;
+- statement:
+  - keyword: DECLARE
+  - naked_identifier: var
+  - data_type:
+    - primitive_type:
+      - keyword: INT
+  - comparison_operator:
+    - raw_comparison_operator: =
+  - expression:
+    - numeric_literal: '5'
+- statement_terminator: ;
+- statement:
+  - keyword: DECLARE
+  - naked_identifier: var
+  - comparison_operator:
+    - raw_comparison_operator: =
+  - expression:
+    - numeric_literal: '5'
+- statement_terminator: ;
+- statement:
+  - keyword: DECLARE
+  - naked_identifier: var
+  - keyword: DEFAULT
+  - expression:
+    - numeric_literal: '5'
+- statement_terminator: ;

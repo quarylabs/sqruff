@@ -638,7 +638,7 @@ FROM foo
         assert_eq!(violations.len(), 1);
         assert_eq!(
             violations.iter().map(|v| v.line_no).collect::<Vec<_>>(),
-            [2].iter().cloned().collect::<Vec<_>>()
+            [2].to_vec()
         );
     }
 

@@ -32,6 +32,10 @@ pub fn dialect() -> Dialect {
         .sets_mut("reserved_keywords")
         .extend(RESERVED_KEYWORDS);
 
+    databricks
+        .sets_mut("date_part_function_name")
+        .extend(["TIMEDIFF"]);
+
     databricks.add([
         (
             "PrincipalIdentifierSegment".into(),

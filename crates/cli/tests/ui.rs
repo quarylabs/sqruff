@@ -102,8 +102,8 @@ fn main() {
         let exit_code_str = output.status.code().unwrap().to_string();
 
         // Assert outputs
-        expect_file![expected_output_path_stderr].assert_eq(&stderr_str);
-        expect_file![expected_output_path_stdout].assert_eq(&stdout_str);
+        expect_file![expected_output_path_stderr].assert_eq(stderr_str);
+        expect_file![expected_output_path_stdout].assert_eq(stdout_str);
         expect_file![expected_output_path_exitcode].assert_eq(&exit_code_str);
     }
 }

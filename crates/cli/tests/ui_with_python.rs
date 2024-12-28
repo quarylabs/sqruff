@@ -26,7 +26,7 @@ fn main() {
             // Make sure sqruff is built with python feature
             // Build the binary with the python feature in the test directory
             Command::new("cargo")
-                .args(&[
+                .args([
                     "build",
                     "--features",
                     "python",

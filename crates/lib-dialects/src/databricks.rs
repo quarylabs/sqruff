@@ -209,6 +209,26 @@ pub fn dialect() -> Dialect {
             Ref::new("ObjectReferenceSegment").to_matchable().into(),
         ),
         (
+            // https://docs.databricks.com/en/sql/language-manual/sql-ref-syntax-aux-describe-volume.html
+            "DescribeObjectGrammar".into(),
+            sparksql::dialect()
+                .grammar("DescribeObjectGrammar")
+                .copy(
+                    Some(vec_of_erased![Sequence::new(vec_of_erased![
+                        Ref::keyword("VOLUME"),
+                        Ref::new("VolumeReferenceSegment"),
+                    ])]),
+                    Some(0),
+                    None,
+                    None,
+                    Vec::new(),
+                    false,
+                )
+                .into(),
+        ),
+        // `COMMENT ON` statement.
+        // https://docs.databricks.com/en/sql/language-manual/sql-ref-syntax-ddl-comment.html
+        (
             "CommentOnStatementSegment".into(),
             Sequence::new(vec_of_erased![
                 Ref::keyword("COMMENT"),

@@ -187,6 +187,23 @@ pub fn dialect() -> Dialect {
             .to_matchable()
             .into(),
         ),
+        (
+            // Drop Volume Statement.
+            // https://docs.databricks.com/en/sql/language-manual/sql-ref-syntax-ddl-drop-volume.html
+            "DropVolumeStatementSegment".into(),
+            Sequence::new(vec_of_erased![
+                Ref::keyword("DROP"),
+                Ref::keyword("VOLUME"),
+                Ref::new("IfExistsGrammar").optional(),
+                Ref::new("VolumeReferenceSegment"),
+            ])
+            .to_matchable()
+            .into(),
+        ),
+        (
+            "VolumeReferenceSegment".into(),
+            Ref::new("ObjectReferenceSegment").to_matchable().into(),
+        ),
     ]);
 
     // A reference to an object.
@@ -220,6 +237,7 @@ pub fn dialect() -> Dialect {
                     Ref::new("CreateCatalogStatementSegment"),
                     Ref::new("DropCatalogStatementSegment"),
                     Ref::new("UseCatalogStatementSegment"),
+                    Ref::new("DropVolumeStatementSegment"),
                     Ref::new("SetTimeZoneStatementSegment"),
                     Ref::new("OptimizeTableStatementSegment"),
                 ]),

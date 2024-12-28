@@ -308,6 +308,35 @@ pub fn dialect() -> Dialect {
             .to_matchable()
             .into(),
         ),
+        // https://docs.databricks.com/en/sql/language-manual/sql-ref-syntax-aux-show-schemas.html
+        // Differences between this and the SparkSQL version:
+        // - Support for `FROM`|`IN` at the catalog level
+        // - `LIKE` keyword is optional
+        (
+            "ShowDatabasesSchemasGrammar".into(),
+            Sequence::new(vec_of_erased![
+                one_of(vec_of_erased![
+                    Ref::keyword("DATABASES"),
+                    Ref::keyword("SCHEMAS"),
+                ]),
+                Sequence::new(vec_of_erased![
+                    one_of(vec_of_erased![Ref::keyword("FROM"), Ref::keyword("IN"),]),
+                    Ref::new("DatabaseReferenceSegment"),
+                ])
+                .config(|config| {
+                    config.optional();
+                }),
+                Sequence::new(vec_of_erased![
+                    Ref::keyword("LIKE").optional(),
+                    Ref::new("QuotedLiteralSegment"),
+                ])
+                .config(|config| {
+                    config.optional();
+                }),
+            ])
+            .to_matchable()
+            .into(),
+        ),
     ]);
 
     // A reference to an object.

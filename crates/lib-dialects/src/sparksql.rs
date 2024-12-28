@@ -429,6 +429,17 @@ pub fn raw_dialect() -> Dialect {
             .to_matchable()
             .into(),
         ),
+        (
+            // An `IDENTIFIER` clause segment.
+            // https://docs.databricks.com/en/sql/language-manual/sql-ref-names-identifier-clause.html
+            "IdentifierClauseSegment".into(),
+            Sequence::new(vec_of_erased![
+                Ref::keyword("IDENTIFIER"),
+                Bracketed::new(vec_of_erased![Ref::new("ExpressionSegment"),]),
+            ])
+            .to_matchable()
+            .into(),
+        ),
     ]);
 
     sparksql_dialect.add([
@@ -3490,6 +3501,22 @@ pub fn raw_dialect() -> Dialect {
             Vec::new(),
             false,
         ),
+    );
+
+    // A reference to an object.
+    // allow whitespace
+    sparksql_dialect.replace_grammar(
+        "ObjectReferenceSegment",
+        Delimited::new(vec_of_erased![one_of(vec_of_erased![
+            Ref::new("SingleIdentifierGrammar"),
+            Ref::new("IdentifierClauseSegment")
+        ])])
+        .config(|config| {
+            config.delimiter(Ref::new("ObjectReferenceDelimiterGrammar"));
+            config.terminators = vec_of_erased![Ref::new("ObjectReferenceTerminatorGrammar")];
+            config.disallow_gaps();
+        })
+        .to_matchable(),
     );
 
     sparksql_dialect.add([

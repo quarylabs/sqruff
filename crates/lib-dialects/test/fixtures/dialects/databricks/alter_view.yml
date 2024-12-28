@@ -1,0 +1,35 @@
+file:
+- statement:
+  - alter_view_statement:
+    - keyword: ALTER
+    - keyword: VIEW
+    - object_reference:
+      - naked_identifier: tempsc1
+      - dot: .
+      - naked_identifier: v1
+    - keyword: RENAME
+    - keyword: TO
+    - object_reference:
+      - naked_identifier: tempsc1
+      - dot: .
+      - naked_identifier: v2
+- statement_terminator: ;
+- statement:
+  - alter_view_statement:
+    - keyword: ALTER
+    - keyword: VIEW
+    - object_reference:
+      - keyword: IDENTIFIER
+      - bracketed:
+        - start_bracket: (
+        - quoted_identifier: '''tempsc1.v1'''
+        - end_bracket: )
+    - keyword: RENAME
+    - keyword: TO
+    - object_reference:
+      - keyword: IDENTIFIER
+      - bracketed:
+        - start_bracket: (
+        - quoted_identifier: '''tempsc1.v2'''
+        - end_bracket: )
+- statement_terminator: ;

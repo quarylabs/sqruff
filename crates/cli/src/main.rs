@@ -50,7 +50,16 @@ fn main() {
 
     let mut extra_config_path = None;
     let mut ignore_local_config = false;
-    if cli.config.is_some() {
+    if let Some(config) = cli.config.as_ref() {
+        if !Path::new(config).is_file() {
+            eprintln!(
+                "The specified config file '{}' does not exist.",
+                cli.config.as_ref().unwrap()
+            );
+
+            std::process::exit(1);
+        };
+
         extra_config_path = cli.config;
         ignore_local_config = true;
     }

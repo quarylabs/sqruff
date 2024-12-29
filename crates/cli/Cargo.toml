@@ -25,6 +25,10 @@ path = "src/bin/bench.rs"
 bench = false
 
 [[test]]
+name = "config_not_found"
+harness = false
+
+[[test]]
 name = "ui"
 harness = false
 

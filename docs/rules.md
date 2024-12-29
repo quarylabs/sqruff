@@ -73,7 +73,7 @@ The following rules are available in this create. This list is generated from th
 
 Implicit/explicit aliasing of table.
 
-**Code:** AL01
+**Code:** `AL01`
 
 **Groups:** `all`, `aliasing`
 
@@ -104,7 +104,7 @@ FROM foo AS voo
 
 Implicit/explicit aliasing of columns.
 
-**Code:** AL02
+**Code:** `AL02`
 
 **Groups:** `all`, `core`, `aliasing`
 
@@ -135,7 +135,7 @@ FROM foo
 
 Column expression without alias. Use explicit `AS` clause.
 
-**Code:** AL03
+**Code:** `AL03`
 
 **Groups:** `all`, `core`, `aliasing`
 
@@ -168,7 +168,7 @@ FROM foo
 
 Table aliases should be unique within each clause.
 
-**Code:** AL04
+**Code:** `AL04`
 
 **Groups:** `all`, `core`, `aliasing`
 
@@ -221,7 +221,7 @@ FROM
 
 Tables should not be aliased if that alias is not used.
 
-**Code:** AL05
+**Code:** `AL05`
 
 **Groups:** `all`, `core`, `aliasing`
 
@@ -258,7 +258,7 @@ FROM foo
 
 Identify aliases in from clause and join conditions
 
-**Code:** AL06
+**Code:** `AL06`
 
 **Groups:** `all`, `core`, `aliasing`
 
@@ -300,7 +300,7 @@ JOIN
 
 Avoid table aliases in from clauses and join conditions.
 
-**Code:** AL07
+**Code:** `AL07`
 
 **Groups:** `all`, `aliasing`
 
@@ -345,7 +345,7 @@ FROM
 
 Column aliases should be unique within each clause.
 
-**Code:** AL08
+**Code:** `AL08`
 
 **Groups:** `all`, `core`, `aliasing`
 
@@ -390,7 +390,7 @@ FROM
 
 Find self-aliased columns and fix them
 
-**Code:** AL09
+**Code:** `AL09`
 
 **Groups:** `all`, `core`, `aliasing`
 
@@ -421,7 +421,7 @@ FROM table;
 
 Ambiguous use of 'DISTINCT' in a 'SELECT' statement with 'GROUP BY'.
 
-**Code:** AM01
+**Code:** `AM01`
 
 **Groups:** `all`, `core`, `ambiguous`
 
@@ -454,7 +454,7 @@ FROM foo
 
 Look for UNION keyword not immediately followed by DISTINCT or ALL
 
-**Code:** AM02
+**Code:** `AM02`
 
 **Groups:** `all`, `core`, `ambiguous`
 
@@ -487,7 +487,7 @@ SELECT a, b FROM table_2
 
 Ambiguous ordering directions for columns in order by clause.
 
-**Code:** AM03
+**Code:** `AM03`
 
 **Groups:** `all`, `ambiguous`
 
@@ -520,7 +520,7 @@ ORDER BY a ASC, b DESC
 
 Outermost query should produce known number of columns.
 
-**Code:** AM04
+**Code:** `AM04`
 
 **Groups:** `all`, `ambiguous`
 
@@ -563,7 +563,7 @@ SELECT a, b FROM t
 
 Join clauses should be fully qualified.
 
-**Code:** AM05
+**Code:** `AM05`
 
 **Groups:** `all`, `ambiguous`
 
@@ -595,7 +595,7 @@ SELECT a, b FROM table_2
 
 Inconsistent column references in 'GROUP BY/ORDER BY' clauses.
 
-**Code:** AM06
+**Code:** `AM06`
 
 **Groups:** `all`, `core`, `ambiguous`
 
@@ -628,7 +628,7 @@ ORDER BY a ASC, b DESC
 
 All queries in set expression should return the same number of columns.
 
-**Code:** AM07
+**Code:** `AM07`
 
 **Groups:** `all`, `ambiguous`
 
@@ -678,7 +678,7 @@ FROM t
 
 Inconsistent capitalisation of keywords.
 
-**Code:** CP01
+**Code:** `CP01`
 
 **Groups:** `all`, `core`, `capitalisation`
 
@@ -715,7 +715,7 @@ from foo
 
 Inconsistent capitalisation of unquoted identifiers.
 
-**Code:** CP02
+**Code:** `CP02`
 
 **Groups:** `all`, `core`, `capitalisation`
 
@@ -755,7 +755,7 @@ from foo
 
 Inconsistent capitalisation of function names.
 
-**Code:** CP03
+**Code:** `CP03`
 
 **Groups:** `all`, `core`, `capitalisation`
 
@@ -789,7 +789,7 @@ FROM foo
 
 Inconsistent capitalisation of boolean/null literal.
 
-**Code:** CP04
+**Code:** `CP04`
 
 **Groups:** `all`, `core`, `capitalisation`
 
@@ -835,7 +835,7 @@ from foo
 
 Inconsistent capitalisation of datatypes.
 
-**Code:** CP05
+**Code:** `CP05`
 
 **Groups:** `all`, `core`, `capitalisation`
 
@@ -868,7 +868,7 @@ CREATE TABLE t (
 
 Consistent usage of ``!=`` or ``<>`` for "not equal to" operator.
 
-**Code:** CV01
+**Code:** `CV01`
 
 **Groups:** `all`, `convention`
 
@@ -895,7 +895,7 @@ SELECT * FROM X WHERE 1 != 2 AND 3 != 4;
 
 Use 'COALESCE' instead of 'IFNULL' or 'NVL'.
 
-**Code:** CV02
+**Code:** `CV02`
 
 **Groups:** `all`, `convention`
 
@@ -927,7 +927,7 @@ FROM baz;
 
 Trailing commas within select clause
 
-**Code:** CV03
+**Code:** `CV03`
 
 **Groups:** `all`, `core`, `convention`
 
@@ -960,7 +960,7 @@ FROM foo
 
 Use consistent syntax to express "count number of rows".
 
-**Code:** CV04
+**Code:** `CV04`
 
 **Groups:** `all`, `core`, `convention`
 
@@ -991,7 +991,7 @@ from table_a
 
 Relational operators should not be used to check for NULL values.
 
-**Code:** CV05
+**Code:** `CV05`
 
 **Groups:** `all`, `core`, `convention`
 
@@ -1024,7 +1024,7 @@ WHERE a IS NULL
 
 Statements must end with a semi-colon.
 
-**Code:** CV06
+**Code:** `CV06`
 
 **Groups:** `all`, `convention`
 
@@ -1060,7 +1060,7 @@ FROM foo;
 
 Top-level statements should not be wrapped in brackets.
 
-**Code:** CV07
+**Code:** `CV07`
 
 **Groups:** `all`, `convention`
 
@@ -1103,7 +1103,7 @@ Don’t wrap top-level statements in brackets.
 
 Use LEFT JOIN instead of RIGHT JOIN.
 
-**Code:** CV08
+**Code:** `CV08`
 
 **Groups:** `all`, `convention`
 
@@ -1140,7 +1140,7 @@ LEFT JOIN foo
 
 Block a list of configurable words from being used.
 
-**Code:** CV09
+**Code:** `CV09`
 
 **Groups:** `all`, `convention`
 
@@ -1183,7 +1183,7 @@ CREATE TABLE myschema.t1 (a BOOL);
 
 Consistent usage of preferred quotes for quoted literals.
 
-**Code:** CV10
+**Code:** `CV10`
 
 **Groups:** `all`, `convention`
 
@@ -1218,7 +1218,7 @@ from foo
 
 Enforce consistent type casting style.
 
-**Code:** CV11
+**Code:** `CV11`
 
 **Groups:** `all`, `convention`
 
@@ -1253,7 +1253,7 @@ FROM foo;
 
 Inappropriate Spacing.
 
-**Code:** LT01
+**Code:** `LT01`
 
 **Groups:** `all`, `core`, `layout`
 
@@ -1288,7 +1288,7 @@ JOIN bar USING (a)
 
 Incorrect Indentation.
 
-**Code:** LT02
+**Code:** `LT02`
 
 **Groups:** `all`, `core`, `layout`
 
@@ -1323,7 +1323,7 @@ FROM foo
 
 Operators should follow a standard for being before/after newlines.
 
-**Code:** LT03
+**Code:** `LT03`
 
 **Groups:** `all`, `layout`
 
@@ -1365,7 +1365,7 @@ FROM foo
 
 Leading/Trailing comma enforcement.
 
-**Code:** LT04
+**Code:** `LT04`
 
 **Groups:** `all`, `layout`
 
@@ -1409,7 +1409,7 @@ FROM foo
 
 Line is too long.
 
-**Code:** LT05
+**Code:** `LT05`
 
 **Groups:** `all`, `core`, `layout`
 
@@ -1449,7 +1449,7 @@ FROM my_table
 
 Function name not immediately followed by parenthesis.
 
-**Code:** LT06
+**Code:** `LT06`
 
 **Groups:** `all`, `core`, `layout`
 
@@ -1480,7 +1480,7 @@ FROM foo
 
 'WITH' clause closing bracket should be on a new line.
 
-**Code:** LT07
+**Code:** `LT07`
 
 **Groups:** `all`, `core`, `layout`
 
@@ -1514,7 +1514,7 @@ SELECT * FROM zoo
 
 Blank line expected but not found after CTE closing bracket.
 
-**Code:** LT08
+**Code:** `LT08`
 
 **Groups:** `all`, `core`, `layout`
 
@@ -1548,7 +1548,7 @@ SELECT a FROM plop
 
 Select targets should be on a new line unless there is only one select target.
 
-**Code:** LT09
+**Code:** `LT09`
 
 **Groups:** `all`, `layout`
 
@@ -1602,7 +1602,7 @@ FROM test_table;
 
 'SELECT' modifiers (e.g. 'DISTINCT') must be on the same line as 'SELECT'.
 
-**Code:** LT10
+**Code:** `LT10`
 
 **Groups:** `all`, `core`, `layout`
 
@@ -1635,7 +1635,7 @@ from x
 
 Set operators should be surrounded by newlines.
 
-**Code:** LT11
+**Code:** `LT11`
 
 **Groups:** `all`, `core`, `layout`
 
@@ -1665,7 +1665,7 @@ SELECT 'b' AS col
 
 Files must end with a single trailing newline.
 
-**Code:** LT12
+**Code:** `LT12`
 
 **Groups:** `all`, `core`, `layout`
 
@@ -1740,7 +1740,7 @@ Add trailing newline to the end. The $ character represents end of file.
 
 Files must not begin with newlines or whitespace.
 
-**Code:** LT13
+**Code:** `LT13`
 
 **Groups:** `all`, `layout`
 
@@ -1799,7 +1799,7 @@ Start file on either code or comment. (The ^ represents the beginning of the fil
 
 References cannot reference objects not present in 'FROM' clause.
 
-**Code:** RF01
+**Code:** `RF01`
 
 **Groups:** `all`, `core`, `references`
 
@@ -1831,7 +1831,7 @@ FROM foo
 
 References should be qualified if select has more than one referenced table/view.
 
-**Code:** RF02
+**Code:** `RF02`
 
 **Groups:** `all`, `references`
 
@@ -1862,7 +1862,7 @@ LEFT JOIN vee ON vee.a = foo.a
 
 References should be consistent in statements with a single table.
 
-**Code:** RF03
+**Code:** `RF03`
 
 **Groups:** `all`, `references`
 
@@ -1903,7 +1903,7 @@ FROM foo
 
 Keywords should not be used as identifiers.
 
-**Code:** RF04
+**Code:** `RF04`
 
 **Groups:** `all`, `references`
 
@@ -1934,7 +1934,7 @@ FROM foo AS vee
 
 Do not use special characters in identifiers.
 
-**Code:** RF05
+**Code:** `RF05`
 
 **Groups:** `all`, `references`
 
@@ -1973,7 +1973,7 @@ CREATE TABLE DBO.ColumnNames
 
 Unnecessary quoted identifier.
 
-**Code:** RF06
+**Code:** `RF06`
 
 **Groups:** `all`, `references`
 
@@ -2022,7 +2022,7 @@ SELECT 123 as `foo` -- For BigQuery, MySql, ...
 
 Do not specify 'else null' in a case when statement (redundant).
 
-**Code:** ST01
+**Code:** `ST01`
 
 **Groups:** `all`, `structure`
 
@@ -2058,7 +2058,7 @@ from x
 
 Unnecessary 'CASE' statement.
 
-**Code:** ST02
+**Code:** `ST02`
 
 **Groups:** `all`, `structure`
 
@@ -2123,7 +2123,7 @@ from fancy_table
 
 Query defines a CTE (common-table expression) but does not use it.
 
-**Code:** ST03
+**Code:** `ST03`
 
 **Groups:** `all`, `core`, `structure`
 
@@ -2166,7 +2166,7 @@ FROM cte1
 
 Nested ``CASE`` statement in ``ELSE`` clause could be flattened.
 
-**Code:** ST04
+**Code:** `ST04`
 
 **Groups:** `all`, `structure`
 
@@ -2206,7 +2206,7 @@ FROM mytable
 
 Join/From clauses should not contain subqueries. Use CTEs instead.
 
-**Code:** ST05
+**Code:** `ST05`
 
 **Groups:** `all`, `structure`
 
@@ -2244,7 +2244,7 @@ join c using(x)
 
 Select wildcards then simple targets before calculations and aggregates.
 
-**Code:** ST06
+**Code:** `ST06`
 
 **Groups:** `all`, `structure`
 
@@ -2278,7 +2278,7 @@ from x
 
 Prefer specifying join keys instead of using ``USING``.
 
-**Code:** ST07
+**Code:** `ST07`
 
 **Groups:** `all`, `structure`
 
@@ -2314,7 +2314,7 @@ INNER JOIN table_b
 
 Looking for DISTINCT before a bracket
 
-**Code:** ST08
+**Code:** `ST08`
 
 **Groups:** `all`, `core`, `structure`
 
@@ -2341,7 +2341,7 @@ SELECT DISTINCT a, b FROM foo
 
 Joins should list the table referenced earlier/later first.
 
-**Code:** ST09
+**Code:** `ST09`
 
 **Groups:** `all`, `structure`
 

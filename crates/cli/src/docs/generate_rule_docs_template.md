@@ -14,7 +14,7 @@ The following rules are available in this create. This list is generated from th
 
 {{ rule.description }}
 
-**Code:** {{ rule.code }}
+**Code:** `{{ rule.code }}`
 
 **Groups:** {% for group in rule.groups %}`{{ group }}`{% if not loop.last %}, {%endif %}{% endfor %}
 

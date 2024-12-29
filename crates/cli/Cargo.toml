@@ -29,6 +29,10 @@ name = "config_not_found"
 harness = false
 
 [[test]]
+name = "configure_rule"
+harness = false
+
+[[test]]
 name = "ui"
 harness = false
 

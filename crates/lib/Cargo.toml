@@ -50,7 +50,7 @@ indexmap.workspace = true
 common-path = "1.0.0"
 configparser = "3.1.0"
 phf = { version = "0.11.2", features = ["macros", "unicase"] }
-unicase = "2.7.0"
+unicase = "2.8.1"
 anstyle = "1.0"
 tracing = "0.1.41"
 pretty_assertions = "1.4.0"

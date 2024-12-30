@@ -1,4 +1,4 @@
-use std::path::PathBuf;
+use std::path::{Path, PathBuf};
 
 use assert_cmd::Command;
 use expect_test::expect_file;
@@ -15,54 +15,69 @@ fn configure_rule() {
         "release"
     };
 
-    let file_dir = PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("tests/configure_rule");
+    let cargo_folder = Path::new(env!("CARGO_MANIFEST_DIR"));
+
+    let sql_path = cargo_folder.join("tests/configure_rule/_example.sql");
 
     // Construct the path to the sqruff binary
-    let mut sqruff_path = PathBuf::from(env!("CARGO_MANIFEST_DIR"));
+    let mut sqruff_path = PathBuf::from(cargo_folder);
     sqruff_path.push(format!("../../target/{}/sqruff", profile));
 
-    let path = PathBuf::from(env!("CARGO_MANIFEST_DIR"))
-        .join("tests")
-        .join("configure_rule")
-        .join("example.sql");
-    let config_path = PathBuf::from(env!("CARGO_MANIFEST_DIR"))
-        .join("tests")
-        .join("configure_rule")
-        .join("config.cfg");
+    let file_dir = PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("tests/configure_rule");
 
-    // Set up the command with arguments
-    let mut cmd = Command::new(sqruff_path);
-    cmd.arg("lint")
-        .arg("-f")
-        .arg("human")
-        .arg("--config")
-        .arg(&config_path)
-        .arg(&path);
-    // Set the HOME environment variable to the fake home directory
-    cmd.env("HOME", PathBuf::from(env!("CARGO_MANIFEST_DIR")));
+    // Find all .cfg files in configure_rule folder
+    // Lint with all the config files
 
-    // Run the command and capture the output
-    let assert = cmd.assert();
+    let all_config_files = file_dir
+        .read_dir()
+        .unwrap()
+        .filter_map(|entry| {
+            let entry = entry.unwrap();
+            let path = entry.path();
+            if path.extension().unwrap() == "cfg" {
+                Some(path)
+            } else {
+                None
+            }
+        })
+        .collect::<Vec<_>>();
 
-    // Construct the expected output file paths
-    let mut expected_output_path_stderr = path.clone();
-    expected_output_path_stderr.set_extension("stderr");
-    let mut expected_output_path_stdout = path.clone();
-    expected_output_path_stdout.set_extension("stdout");
-    let mut expected_output_path_exitcode = path.clone();
-    expected_output_path_exitcode.set_extension("exitcode");
+    for config in all_config_files {
+        // Set up the command with arguments
+        let mut cmd = Command::new(sqruff_path.clone());
+        cmd.arg("lint")
+            .arg("-f")
+            .arg("human")
+            .arg("--config")
+            .arg(&config)
+            .arg(&sql_path);
 
-    // Read the expected output
-    let output = assert.get_output();
-    let stderr_str = std::str::from_utf8(&output.stderr).unwrap();
-    let stdout_str = std::str::from_utf8(&output.stdout).unwrap();
-    let exit_code_str = output.status.code().unwrap().to_string();
+        // Set the HOME environment variable to the fake home directory
+        cmd.env("HOME", PathBuf::from(env!("CARGO_MANIFEST_DIR")));
 
-    let test_dir_str = file_dir.to_string_lossy().to_string();
-    let stderr_normalized: String = stderr_str.replace(&test_dir_str, "tests/configure_rule");
-    let stdout_normalized: String = stdout_str.replace(&test_dir_str, "tests/configure_rule");
+        // Run the command and capture the output
+        let assert = cmd.assert();
 
-    expect_file![expected_output_path_stderr].assert_eq(&stderr_normalized);
-    expect_file![expected_output_path_stdout].assert_eq(&stdout_normalized);
-    expect_file![expected_output_path_exitcode].assert_eq(&exit_code_str);
+        // Construct the expected output file paths
+        let mut expected_output_path_stderr = config.clone();
+        expected_output_path_stderr.set_extension("stderr");
+        let mut expected_output_path_stdout = config.clone();
+        expected_output_path_stdout.set_extension("stdout");
+        let mut expected_output_path_exitcode = config.clone();
+        expected_output_path_exitcode.set_extension("exitcode");
+
+        // Read the expected output
+        let output = assert.get_output();
+        let stderr_str = std::str::from_utf8(&output.stderr).unwrap();
+        let stdout_str = std::str::from_utf8(&output.stdout).unwrap();
+        let exit_code_str = output.status.code().unwrap().to_string();
+
+        let test_dir_str = file_dir.to_string_lossy().to_string();
+        let stderr_normalized: String = stderr_str.replace(&test_dir_str, "tests/configure_rule");
+        let stdout_normalized: String = stdout_str.replace(&test_dir_str, "tests/configure_rule");
+
+        expect_file![expected_output_path_stderr].assert_eq(&stderr_normalized);
+        expect_file![expected_output_path_stdout].assert_eq(&stdout_normalized);
+        expect_file![expected_output_path_exitcode].assert_eq(&exit_code_str);
+    }
 }

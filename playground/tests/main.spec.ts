@@ -6,5 +6,5 @@ test("home page opens", async ({ page }) => {
 
   // Check if the main heading or any expected element is visible
   // For a React app created by Vite + React template, the initial content often includes <h1>Vite + React</h1>
-  await page.getByRole("link", { name: "quary Quary" }).isVisible();
+  await expect(page.getByRole("link", { name: "quary Quary" })).toBeVisible();
 });

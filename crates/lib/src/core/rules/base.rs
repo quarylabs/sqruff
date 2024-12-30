@@ -401,10 +401,6 @@ impl RuleSet {
     pub(crate) fn get_rulepack(&self, config: &FluffConfig) -> RulePack {
         let reference_map = self.rule_reference_map();
         let rules = config.get_section("rules");
-
-        let rules_in_core = config.get("rules", "core");
-        println!("{:?}", rules_in_core);
-
         let keylist = self.register.keys();
         let mut instantiated_rules = Vec::with_capacity(keylist.len());
 

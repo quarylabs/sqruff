@@ -51,6 +51,7 @@ fn configure_rule() {
             .arg("--config")
             .arg(&config)
             .arg(&sql_path);
+        cmd.current_dir(&cargo_folder);
 
         // Set the HOME environment variable to the fake home directory
         cmd.env("HOME", PathBuf::from(env!("CARGO_MANIFEST_DIR")));

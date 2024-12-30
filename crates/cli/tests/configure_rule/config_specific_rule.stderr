@@ -1,5 +1,4 @@
 == [tests/configure_rule/_example.sql] FAIL
-L:   2 | P:   1 | LT12 | Files must end with a single trailing newline.
-                       | [layout.end_of_file]
+L:   1 | P:  28 | AL01 | Implicit/explicit aliasing of table. [aliasing.table]
 The linter processed 1 file(s).
 All Finished

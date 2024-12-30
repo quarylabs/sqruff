@@ -48,9 +48,7 @@ fn main() {
 
     let cli = Cli::parse();
 
-    let mut extra_config_path = None;
-    let mut ignore_local_config = false;
-    if let Some(config) = cli.config.as_ref() {
+    let config: FluffConfig = if let Some(config) = cli.config.as_ref() {
         if !Path::new(config).is_file() {
             eprintln!(
                 "The specified config file '{}' does not exist.",
@@ -59,11 +57,12 @@ fn main() {
 
             std::process::exit(1);
         };
+        let read_file = std::fs::read_to_string(config).unwrap();
+        FluffConfig::from_source(&read_file)
+    } else {
+        FluffConfig::from_root(None, false, None).unwrap()
+    };
 
-        extra_config_path = cli.config;
-        ignore_local_config = true;
-    }
-    let config = FluffConfig::from_root(extra_config_path, ignore_local_config, None).unwrap();
     let current_path = std::env::current_dir().unwrap();
     let ignore_file = ignore::IgnoreFile::new_from_root(&current_path).unwrap();
     let ignore_file = Arc::new(ignore_file);

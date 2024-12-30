@@ -113,7 +113,6 @@ Start file on either code or comment. (The ^ represents the beginning of the fil
                     raw_stack.into_iter().map(LintFix::delete).collect_vec(),
                     None,
                     None,
-                    None,
                 )];
             } else {
                 break;

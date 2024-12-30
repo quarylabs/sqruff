@@ -80,7 +80,6 @@ FROM foo
                     Vec::new(),
                     None,
                     None,
-                    None,
                 )];
             }
         }

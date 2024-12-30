@@ -199,7 +199,6 @@ impl<'a> ReflowSequence<'a> {
                 vec![LintFix::create_before(target, vec![insertion])],
                 None,
                 None,
-                None,
             );
 
             return ReflowSequence {
@@ -246,7 +245,6 @@ impl<'a> ReflowSequence<'a> {
             lint_results: vec![LintResult::new(
                 target.clone().into(),
                 vec![LintFix::delete(target.clone())],
-                None,
                 None,
                 None,
             )],
@@ -380,7 +378,6 @@ impl<'a> ReflowSequence<'a> {
             lint_results: vec![LintResult::new(
                 target.clone().into(),
                 vec![LintFix::replace(target.clone(), edit.to_vec(), None)],
-                None,
                 None,
                 None,
             )],

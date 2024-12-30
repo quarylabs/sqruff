@@ -77,7 +77,6 @@ LEFT JOIN foo
                 vec![],
                 None,
                 None,
-                None,
             )]
         } else {
             vec![]

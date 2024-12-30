@@ -152,7 +152,6 @@ from foo
                     .finish()],
                     None,
                 )],
-                None,
                 Some("".into()),
                 None,
             )];

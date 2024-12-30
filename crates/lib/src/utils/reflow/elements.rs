@@ -199,7 +199,6 @@ impl ReflowPoint {
                         vec![LintResult::new(
                             indent_seg.clone().into(),
                             vec![LintFix::delete(indent_seg.clone())],
-                            None,
                             Some(
                                 description
                                     .map(ToOwned::to_owned)
@@ -231,7 +230,6 @@ impl ReflowPoint {
                 let lint_result = LintResult::new(
                     indent_seg.clone().into(),
                     vec![LintFix::replace(indent_seg, vec![new_indent.clone()], None)],
-                    None,
                     description.into(),
                     None,
                 );
@@ -278,7 +276,6 @@ impl ReflowPoint {
                             vec![last_newline.clone(), new_indent],
                             None,
                         )],
-                        None,
                         format!("Expected {}", indent_description(desired_indent)).into(),
                         None,
                     )],
@@ -347,7 +344,6 @@ impl ReflowPoint {
                     vec![LintResult::new(
                         ws_seg.clone().into(),
                         vec![fix],
-                        None,
                         description.into(),
                         source.map(ToOwned::to_owned),
                     )],
@@ -372,7 +368,6 @@ impl ReflowPoint {
                         vec![LintResult::new(
                             before.clone().into(),
                             vec![fix],
-                            None,
                             Some(format!(
                                 "Expected line break and {} before {:?}",
                                 indent_description(desired_indent),
@@ -399,7 +394,6 @@ impl ReflowPoint {
                         vec![LintResult::new(
                             Some(after),
                             vec![fix],
-                            None,
                             Some(description),
                             source.map(ToOwned::to_owned),
                         )],
@@ -436,7 +430,6 @@ impl ReflowPoint {
             new_results.push(LintResult::new(
                 None,
                 vec![LintFix::delete(whitespace.clone())],
-                None,
                 Some("Unnecessary trailing whitespace at end of file.".into()),
                 None,
             ));
@@ -499,8 +492,7 @@ impl ReflowPoint {
                             let mut res = existing_results.remove(index);
 
                             res.fixes.push(LintFix::delete(last_whitespace));
-                            let new_result =
-                                LintResult::new(res.anchor, res.fixes, None, None, None);
+                            let new_result = LintResult::new(res.anchor, res.fixes, None, None);
                             new_results.push(new_result);
                         } else {
                             panic!("Could not find removal result.");

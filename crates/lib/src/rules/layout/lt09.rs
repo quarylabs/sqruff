@@ -310,7 +310,7 @@ impl RuleLT09 {
         }
 
         if !fixes.is_empty() {
-            return vec![LintResult::new(segment.into(), fixes, None, None, None)];
+            return vec![LintResult::new(segment.into(), fixes, None, None)];
         }
 
         Vec::new()
@@ -551,7 +551,6 @@ impl RuleLT09 {
         vec![LintResult::new(
             select_clause.get(0, None).unwrap().clone().into(),
             fixes,
-            None,
             None,
             None,
         )]

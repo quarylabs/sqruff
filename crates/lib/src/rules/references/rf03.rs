@@ -216,7 +216,6 @@ fn validate_one_reference(
             LintResult::new(
                 ref_.clone().0.into(),
                 Vec::new(),
-                None,
                 format!(
                     "{} reference '{}' found in single table select which is inconsistent with \
                      previous references.",
@@ -252,7 +251,6 @@ fn validate_one_reference(
         return LintResult::new(
             ref_.0.clone().into(),
             fixes,
-            None,
             format!(
                 "{} reference '{}' found in single table select.",
                 capitalize(this_ref_type),
@@ -285,7 +283,6 @@ fn validate_one_reference(
     LintResult::new(
         ref_.clone().into(),
         fixes,
-        None,
         format!(
             "{} reference '{}' found in single table select.",
             capitalize(this_ref_type),

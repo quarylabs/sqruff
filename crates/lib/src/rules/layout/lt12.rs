@@ -157,7 +157,6 @@ Add trailing newline to the end. The $ character represents end of file.
                 )],
                 None,
                 None,
-                None,
             )]
         } else if trailing_newlines.len() > 1 {
             vec![LintResult::new(
@@ -167,7 +166,6 @@ Add trailing newline to the end. The $ character represents end of file.
                     .skip(1)
                     .map(|d| LintFix::delete(d.clone()))
                     .collect(),
-                None,
                 None,
                 None,
             )]

@@ -220,13 +220,7 @@ FROM mytable
             &end_indent_str,
         ));
 
-        vec![LintResult::new(
-            case2.first().cloned(),
-            fixes,
-            None,
-            None,
-            None,
-        )]
+        vec![LintResult::new(case2.first().cloned(), fixes, None, None)]
     }
 
     fn is_fix_compatible(&self) -> bool {

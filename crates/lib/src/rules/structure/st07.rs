@@ -81,7 +81,6 @@ INNER JOIN table_b
         let unfixable_result = LintResult::new(
             using_anchor.clone().into(),
             Vec::new(),
-            None,
             Some("Found USING statement. Expected only ON statements.".into()),
             None,
         );
@@ -149,7 +148,6 @@ INNER JOIN table_b
         vec![LintResult::new(
             using_anchor.clone().into(),
             fixes,
-            None,
             None,
             None,
         )]

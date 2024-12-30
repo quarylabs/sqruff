@@ -176,7 +176,6 @@ SELECT DISTINCT a, b FROM foo
                 vec![LintFix::replace(anchor.clone(), edits, None)],
                 None,
                 None,
-                None,
             )];
         }
 
@@ -185,7 +184,7 @@ SELECT DISTINCT a, b FROM foo
                 let fixes = seq.respace(context.tables, false, Filter::All).fixes();
 
                 if !fixes.is_empty() {
-                    return vec![LintResult::new(Some(anchor), fixes, None, None, None)];
+                    return vec![LintResult::new(Some(anchor), fixes, None, None)];
                 }
             }
         }

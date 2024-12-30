@@ -145,7 +145,6 @@ FROM foo
                     Vec::new(),
                     None,
                     None,
-                    None,
                 )];
             }
 
@@ -155,7 +154,6 @@ FROM foo
         vec![LintResult::new(
             context.segment.into(),
             Vec::new(),
-            None,
             None,
             None,
         )]

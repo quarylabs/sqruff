@@ -150,7 +150,6 @@ from fancy_table
                         return vec![LintResult::new(
                             condition_expression.into(),
                             fixes,
-                            None,
                             "Unnecessary CASE statement. Use COALESCE function instead."
                                 .to_owned()
                                 .into(),
@@ -223,7 +222,6 @@ from fancy_table
                         return vec![LintResult::new(
                             condition_expression.into(),
                             fixes,
-                            None,
                             Some(String::new()),
                             None,
                         )];
@@ -235,7 +233,6 @@ from fancy_table
                     return vec![LintResult::new(
                         condition_expression.into(),
                         fixes,
-                        None,
                         "Unnecessary CASE statement. Use COALESCE function instead."
                             .to_owned()
                             .into(),
@@ -251,7 +248,6 @@ from fancy_table
                     return vec![LintResult::new(
                         condition_expression.into(),
                         fixes,
-                        None,
                         format!(
                             "Unnecessary CASE statement. Just use column '{}'.",
                             column_reference_segment.raw()

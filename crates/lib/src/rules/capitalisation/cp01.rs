@@ -147,11 +147,11 @@ from foo
                     .iter()
                     .any(|&it| parent.is_type(it))
         {
-            return vec![LintResult::new(None, Vec::new(), None, None, None)];
+            return vec![LintResult::new(None, Vec::new(), None, None)];
         }
 
         if parent.get_type() == SyntaxKind::FunctionName && parent.segments().len() != 1 {
-            return vec![LintResult::new(None, Vec::new(), None, None, None)];
+            return vec![LintResult::new(None, Vec::new(), None, None)];
         }
 
         vec![handle_segment(
@@ -195,7 +195,7 @@ pub fn handle_segment(
     context: &RuleContext,
 ) -> LintResult {
     if seg.raw().is_empty() || seg.is_templated() {
-        return LintResult::new(None, Vec::new(), None, None, None);
+        return LintResult::new(None, Vec::new(), None, None);
     }
 
     let mut refuted_cases = context.try_get::<RefutedCases>().unwrap_or_default().0;
@@ -255,7 +255,7 @@ pub fn handle_segment(
 
         if !possible_cases.is_empty() {
             context.set(LatestPossibleCase(possible_cases[0].to_string()));
-            return LintResult::new(None, Vec::new(), None, None, None);
+            return LintResult::new(None, Vec::new(), None, None);
         } else {
             context
                 .try_get::<LatestPossibleCase>()
@@ -288,7 +288,7 @@ pub fn handle_segment(
     };
 
     if fixed_raw == seg.raw().as_str() {
-        LintResult::new(None, Vec::new(), None, None, None)
+        LintResult::new(None, Vec::new(), None, None)
     } else {
         let consistency = if extended_capitalisation_policy == "consistent" {
             "consistently "
@@ -309,7 +309,6 @@ pub fn handle_segment(
                 vec![seg.edit(context.tables.next_id(), fixed_raw.to_string().into(), None)],
                 None,
             )],
-            None,
             format!("{description_elem} must be {consistency}{policy}").into(),
             None,
         )

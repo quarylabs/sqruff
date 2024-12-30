@@ -643,7 +643,6 @@ fn lint_line_starting_indent(
             vec![LintResult::new(
                 initial_point.segments()[0].clone().into(),
                 fixes,
-                None,
                 Some("First line should not be indented.".into()),
                 None,
             )],
@@ -1444,13 +1443,7 @@ pub fn lint_line_length(
                 fixes = fixes_from_results(line_results.into_iter()).collect();
             }
 
-            results.push(LintResult::new(
-                first_seg.into(),
-                fixes,
-                None,
-                desc.into(),
-                None,
-            ))
+            results.push(LintResult::new(first_seg.into(), fixes, desc.into(), None))
         }
 
         line_buffer.clear();

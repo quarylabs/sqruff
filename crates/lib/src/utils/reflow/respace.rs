@@ -124,7 +124,6 @@ pub fn process_spacing(
                 result_buffer.push(LintResult::new(
                     seg.clone().into(),
                     vec![LintFix::delete(seg.clone())],
-                    None,
                     Some("Unexpected line break.".into()),
                     None,
                 ));
@@ -137,7 +136,6 @@ pub fn process_spacing(
                     result_buffer.push(LintResult::new(
                         ws.clone().into(),
                         vec![LintFix::delete(ws)],
-                        None,
                         Some("Unnecessary trailing whitespace.".into()),
                         None,
                     ))
@@ -154,7 +152,6 @@ pub fn process_spacing(
             result_buffer.push(LintResult::new(
                 seg.clone().into(),
                 vec![LintFix::delete(ws)],
-                None,
                 "Unnecessary trailing whitespace.".to_owned().into(),
                 None,
             ));
@@ -344,7 +341,6 @@ pub fn handle_respace_inline_with_space(
         let lint_result = LintResult::new(
             last_whitespace.clone().into(),
             vec![LintFix::delete(last_whitespace)],
-            None,
             Some(description),
             None,
         );
@@ -424,7 +420,6 @@ pub fn handle_respace_inline_with_space(
                     vec![new_seg.clone()],
                     None,
                 )],
-                None,
                 Some(desc),
                 None,
             ));
@@ -538,7 +533,6 @@ pub fn handle_respace_inline_without_space(
                 edit: vec![added_whitespace].into(),
                 source: vec![],
             }],
-            None,
             desc.into(),
             None,
         )
@@ -549,7 +543,6 @@ pub fn handle_respace_inline_without_space(
                 next_block.segment().clone(),
                 vec![SegmentBuilder::whitespace(tables.next_id(), " ")],
             )],
-            None,
             Some(desc),
             None,
         )

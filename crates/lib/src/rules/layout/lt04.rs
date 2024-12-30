@@ -77,7 +77,7 @@ FROM foo
             context.parent_stack.last().unwrap(),
             comma_positioning,
         ) {
-            return vec![LintResult::new(None, Vec::new(), None, None, None)];
+            return vec![LintResult::new(None, Vec::new(), None, None)];
         };
 
         ReflowSequence::from_around_target(

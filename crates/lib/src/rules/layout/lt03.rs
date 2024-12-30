@@ -73,7 +73,7 @@ FROM foo
                 context.parent_stack.last().unwrap(),
                 comparison_positioning,
             ) {
-                return vec![LintResult::new(None, Vec::new(), None, None, None)];
+                return vec![LintResult::new(None, Vec::new(), None, None)];
             }
         } else if context.segment.is_type(SyntaxKind::BinaryOperator) {
             let binary_positioning = context.config.raw["layout"]["type"]["binary_operator"]
@@ -86,7 +86,7 @@ FROM foo
                 context.parent_stack.last().unwrap(),
                 binary_positioning,
             ) {
-                return vec![LintResult::new(None, Vec::new(), None, None, None)];
+                return vec![LintResult::new(None, Vec::new(), None, None)];
             }
         }
 

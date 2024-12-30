@@ -172,7 +172,6 @@ SELECT 123 as `foo` -- For BigQuery, MySql, ...
                 vec![LintResult::new(
                     context.segment.into(),
                     Vec::new(),
-                    None,
                     Some(format!(
                         "Missing quoted keyword identifier {identifier_contents}."
                     )),
@@ -200,7 +199,6 @@ SELECT 123 as `foo` -- For BigQuery, MySql, ...
             return vec![LintResult::new(
                 context.segment.into(),
                 Vec::new(),
-                None,
                 Some(format!("Missing quoted identifier {identifier_contents}.")),
                 None,
             )];
@@ -232,7 +230,6 @@ SELECT 123 as `foo` -- For BigQuery, MySql, ...
                     .finish()],
                     None,
                 )],
-                None,
                 Some(format!(
                     "Unnecessary quoted identifier {}.",
                     context.segment.raw()

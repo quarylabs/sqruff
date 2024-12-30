@@ -92,7 +92,6 @@ FROM cte1
             result.push(LintResult::new(
                 cte.cte_name_segment.clone(),
                 Vec::new(),
-                None,
                 Some(format!(
                     "Query defines CTE \"{}\" but does not use it.",
                     cte.cte_name_segment.as_ref().unwrap().raw()

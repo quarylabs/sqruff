@@ -113,7 +113,6 @@ FROM
                     violations.push(LintResult::new(
                         column_alias.clone().into(),
                         vec![],
-                        None,
                         format!("Reuse of column alias '{alias}' from line {line_no}.").into(),
                         None,
                     ))

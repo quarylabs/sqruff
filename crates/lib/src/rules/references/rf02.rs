@@ -151,7 +151,6 @@ impl RuleRF02 {
                 violation_buff.push(LintResult::new(
                     r.0.clone().into(),
                     Vec::new(),
-                    None,
                     format!(
                         "Unqualified reference {} found in select with more than one referenced \
                          table/view.",

@@ -133,7 +133,6 @@ FROM table;
                             violations.push(LintResult::new(
                                 Some(clause_element_raw_segment[0].clone()),
                                 fixes,
-                                None,
                                 Some("Column should not be self-aliased.".into()),
                                 None,
                             ));

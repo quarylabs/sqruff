@@ -268,7 +268,6 @@ FROM foo;
                     return vec![LintResult::new(
                         context.segment.clone().into(),
                         fixes,
-                        None,
                         "Inconsistent type casting styles found.".to_owned().into(),
                         None,
                     )];
@@ -392,7 +391,6 @@ FROM foo;
                 return vec![LintResult::new(
                     context.segment.clone().into(),
                     fixes,
-                    None,
                     "Used type casting style is different from the preferred type casting style."
                         .to_owned()
                         .into(),

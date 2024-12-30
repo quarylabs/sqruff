@@ -152,7 +152,6 @@ impl RuleAL04 {
                 LintResult::new(
                     alias.segment.clone(),
                     Vec::new(),
-                    None,
                     format!(
                         "Duplicate table alias '{}'. Table aliases should be unique.",
                         alias.ref_str

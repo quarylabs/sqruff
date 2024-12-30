@@ -80,7 +80,7 @@ SELECT a, b FROM t
                 vec![]
             }
             Err(anchor) => {
-                vec![LintResult::new(Some(anchor), vec![], None, None, None)]
+                vec![LintResult::new(Some(anchor), vec![], None, None)]
             }
         }
     }

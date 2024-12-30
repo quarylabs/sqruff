@@ -128,7 +128,6 @@ FROM foo AS voo
                         .fixes(),
                         None,
                         None,
-                        None,
                     )];
                 }
             } else if self.aliasing != Aliasing::Implicit {
@@ -154,7 +153,6 @@ FROM foo AS voo
                     )
                     .respace(rule_cx.tables, false, Filter::All)
                     .fixes(),
-                    None,
                     None,
                     None,
                 )];

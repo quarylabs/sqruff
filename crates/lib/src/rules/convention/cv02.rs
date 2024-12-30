@@ -110,7 +110,6 @@ FROM baz;
         vec![LintResult::new(
             context.segment.clone().into(),
             vec![fix],
-            None,
             Some(format!(
                 "Use 'COALESCE' instead of '{}'.",
                 context.segment.raw().to_uppercase_smolstr()

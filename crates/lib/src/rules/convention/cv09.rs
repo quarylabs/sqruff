@@ -108,7 +108,6 @@ CREATE TABLE myschema.t1 (a BOOL);
             return vec![LintResult::new(
                 Some(context.segment.clone()),
                 vec![],
-                None,
                 Some(format!("Use of blocked word '{}'.", raw_upper)),
                 None,
             )];
@@ -119,7 +118,6 @@ CREATE TABLE myschema.t1 (a BOOL);
                 return vec![LintResult::new(
                     Some(context.segment.clone()),
                     vec![],
-                    None,
                     Some(format!("Use of blocked regex '{}'.", raw_upper)),
                     None,
                 )];
@@ -131,7 +129,6 @@ CREATE TABLE myschema.t1 (a BOOL);
                         return vec![LintResult::new(
                             Some(context.segment.clone()),
                             vec![],
-                            None,
                             Some(format!("Use of blocked regex '{}'.", raw_upper)),
                             None,
                         )];

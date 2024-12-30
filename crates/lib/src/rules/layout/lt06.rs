@@ -86,13 +86,11 @@ FROM foo
                         .collect_vec(),
                     None,
                     None,
-                    None,
                 )]
             } else {
                 vec![LintResult::new(
                     intermediate_segments.pop().into(),
                     vec![],
-                    None,
                     None,
                     None,
                 )]

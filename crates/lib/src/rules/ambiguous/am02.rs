@@ -87,7 +87,7 @@ SELECT a, b FROM table_2
                 None,
             )];
 
-            return vec![LintResult::new(Some(segments), fixes, None, None, None)];
+            return vec![LintResult::new(Some(segments), fixes, None, None)];
         } else if raw_upper.contains("UNION")
             && !(raw_upper.contains("ALL") || raw_upper.contains("DISTINCT"))
         {
@@ -104,7 +104,7 @@ SELECT a, b FROM table_2
                 None,
             )];
 
-            return vec![LintResult::new(Some(segments), fixes, None, None, None)];
+            return vec![LintResult::new(Some(segments), fixes, None, None)];
         }
 
         Vec::new()

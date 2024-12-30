@@ -130,7 +130,6 @@ SELECT a, b FROM table_2
                 )],
                 None,
                 None,
-                None,
             )];
         };
 
@@ -153,7 +152,6 @@ SELECT a, b FROM table_2
                         SegmentBuilder::whitespace(context.tables.next_id(), " "),
                     ],
                 )],
-                None,
                 None,
                 None,
             )];

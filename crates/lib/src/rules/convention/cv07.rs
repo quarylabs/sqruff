@@ -118,13 +118,7 @@ Don’t wrap top-level statements in brackets.
                 None,
             ));
 
-            results.push(LintResult::new(
-                Some(bracketed_segment),
-                fixes,
-                None,
-                None,
-                None,
-            ))
+            results.push(LintResult::new(Some(bracketed_segment), fixes, None, None))
         }
         results
     }

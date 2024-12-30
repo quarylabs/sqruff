@@ -474,7 +474,6 @@ pub fn rebreak_sequence(
             fixes,
             None,
             None,
-            None,
         ));
     }
 

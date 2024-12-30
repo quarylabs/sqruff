@@ -89,7 +89,6 @@ ORDER BY a ASC, b DESC
             fixes,
             None,
             None,
-            None,
         )]
     }
 

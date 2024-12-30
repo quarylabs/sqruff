@@ -51,7 +51,6 @@ impl RuleAL06 {
                         violation_buff.push(LintResult::new(
                             Some(alias_identifier_ref),
                             Vec::new(),
-                            None,
                             format!(
                                 "Aliases should be at least '{:?}' character(s) long",
                                 self.min_alias_length
@@ -73,7 +72,6 @@ impl RuleAL06 {
                         violation_buff.push(LintResult::new(
                             Some(alias_identifier_ref),
                             Vec::new(),
-                            None,
                             format!(
                                 "Aliases should be no more than '{:?}' character(s) long.",
                                 self.max_alias_length

@@ -192,7 +192,6 @@ CREATE TABLE DBO.ColumnNames
                 Vec::new(),
                 None,
                 None,
-                None,
             )];
         }
 

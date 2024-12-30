@@ -139,7 +139,7 @@ from foo
         if identifiers_policy_applicable(policy, &context.parent_stack) {
             self.base.eval(context)
         } else {
-            vec![LintResult::new(None, Vec::new(), None, None, None)]
+            vec![LintResult::new(None, Vec::new(), None, None)]
         }
     }
 

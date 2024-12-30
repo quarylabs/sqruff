@@ -95,7 +95,6 @@ FROM t
                 vec![],
                 None,
                 None,
-                None,
             )]
         } else {
             vec![]

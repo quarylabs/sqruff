@@ -160,7 +160,6 @@ SELECT * FROM X WHERE 1 != 2 AND 3 != 4;
             fixes,
             None,
             None,
-            None,
         )]
     }
 

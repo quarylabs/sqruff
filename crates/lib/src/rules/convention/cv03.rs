@@ -115,7 +115,6 @@ FROM foo
                 return vec![LintResult::new(
                     Some(last_content),
                     fixes,
-                    None,
                     "Trailing comma in select statement forbidden"
                         .to_owned()
                         .into(),
@@ -136,7 +135,6 @@ FROM foo
             return vec![LintResult::new(
                 Some(last_content),
                 fix,
-                None,
                 "Trailing comma in select statement required"
                     .to_owned()
                     .into(),

@@ -203,7 +203,6 @@ SELECT a FROM plop
                 fixes,
                 None,
                 None,
-                None,
             ));
         }
 

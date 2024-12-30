@@ -216,7 +216,6 @@ impl RuleCV06 {
             fixes,
             None,
             None,
-            None,
         ))
     }
 
@@ -314,13 +313,7 @@ impl RuleCV06 {
             )
         };
 
-        Some(LintResult::new(
-            Some(anchor_segment),
-            fixes,
-            None,
-            None,
-            None,
-        ))
+        Some(LintResult::new(Some(anchor_segment), fixes, None, None))
     }
 
     fn create_semicolon_and_delete_whitespace(
@@ -417,7 +410,6 @@ impl RuleCV06 {
                     fixes,
                     None,
                     None,
-                    None,
                 ))
             } else {
                 // Semi-colon on new line.
@@ -444,7 +436,6 @@ impl RuleCV06 {
                 Some(LintResult::new(
                     Some(trigger_segment.unwrap().clone()),
                     fixes,
-                    None,
                     None,
                     None,
                 ))

@@ -265,7 +265,6 @@ left join bar
         vec![LintResult::new(
             context.segment.into(),
             fixes,
-            None,
             format!(
                 "Joins should list the table referenced {}",
                 self.preferred_first_table_in_join_clause

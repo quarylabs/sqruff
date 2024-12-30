@@ -130,7 +130,6 @@ ORDER BY a ASC, b DESC
                     Vec::new(),
                     None,
                     None,
-                    None,
                 )];
             } else {
                 let current_group_by_order_by_convention =
@@ -143,7 +142,6 @@ ORDER BY a ASC, b DESC
                         return vec![LintResult::new(
                             context.segment.into(),
                             Vec::new(),
-                            None,
                             None,
                             None,
                         )];
@@ -161,7 +159,6 @@ ORDER BY a ASC, b DESC
             return vec![LintResult::new(
                 context.segment.into(),
                 Vec::new(),
-                None,
                 None,
                 None,
             )];

@@ -217,7 +217,6 @@ from x
                     Vec::new(),
                     None,
                     None,
-                    None,
                 )];
             }
 
@@ -243,7 +242,6 @@ from x
             return vec![LintResult::new(
                 select_clause_segment.into(),
                 fixes,
-                None,
                 None,
                 None,
             )];

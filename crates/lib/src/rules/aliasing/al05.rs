@@ -240,7 +240,6 @@ impl RuleAL05 {
         LintResult::new(
             alias.segment,
             fixes,
-            None,
             format!(
                 "Alias '{}' is never used in SELECT statement.",
                 alias.ref_str

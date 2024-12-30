@@ -149,13 +149,7 @@ from x
         // Delete the original select clause modifier.
         fixes.push(LintFix::delete(select_clause_modifier.clone()));
 
-        vec![LintResult::new(
-            context.segment.into(),
-            fixes,
-            None,
-            None,
-            None,
-        )]
+        vec![LintResult::new(context.segment.into(), fixes, None, None)]
     }
 
     fn is_fix_compatible(&self) -> bool {

@@ -123,7 +123,6 @@ SELECT * FROM zoo
                     )],
                     None,
                     None,
-                    None,
                 )];
             }
         }

@@ -119,7 +119,6 @@ from table_a
                     )],
                     None,
                     None,
-                    None,
                 )];
             }
 
@@ -156,7 +155,6 @@ from table_a
                             )],
                             None,
                         )],
-                        None,
                         None,
                         None,
                     )];

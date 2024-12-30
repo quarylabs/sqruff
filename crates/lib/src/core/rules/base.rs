@@ -23,9 +23,6 @@ use crate::core::config::{FluffConfig, Value};
 pub struct LintResult {
     pub anchor: Option<ErasedSegment>,
     pub fixes: Vec<LintFix>,
-
-    #[allow(dead_code)]
-    memory: Option<AHashMap<String, String>>, // Adjust type as needed
     description: Option<String>,
     source: String,
 }
@@ -48,7 +45,6 @@ impl LintResult {
     pub fn new(
         anchor: Option<ErasedSegment>,
         fixes: Vec<LintFix>,
-        memory: Option<AHashMap<String, String>>,
         description: Option<String>,
         source: Option<String>,
     ) -> Self {
@@ -57,7 +53,6 @@ impl LintResult {
         LintResult {
             anchor,
             fixes,
-            memory,
             description,
             source: source.unwrap_or_default(),
         }

@@ -306,7 +306,6 @@ impl RuleST05 {
             let res = LintResult::new(
                 anchor.into(),
                 Vec::new(),
-                None,
                 format!(
                     "{} clauses should not contain subqueries. Use CTEs instead",
                     select.get_type().as_str()

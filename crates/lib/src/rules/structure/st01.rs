@@ -84,7 +84,7 @@ from x
             fixes.push(LintFix::delete(else_clause.first().unwrap().clone()));
             fixes.extend(before_else.into_iter().map(LintFix::delete));
 
-            vec![LintResult::new(anchor.into(), fixes, None, None, None)]
+            vec![LintResult::new(anchor.into(), fixes, None, None)]
         } else {
             Vec::new()
         }

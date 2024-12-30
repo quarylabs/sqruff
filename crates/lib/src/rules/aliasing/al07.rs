@@ -152,7 +152,6 @@ impl RuleAL07 {
                 violation_buff.push(LintResult::new(
                     alias_info.alias_identifier_ref,
                     fixes,
-                    None,
                     "Avoid aliases in from clauses and join conditions."
                         .to_owned()
                         .into(),

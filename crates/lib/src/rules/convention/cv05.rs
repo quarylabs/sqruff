@@ -160,7 +160,6 @@ WHERE a IS NULL
             fixes,
             None,
             None,
-            None,
         )]
     }
 

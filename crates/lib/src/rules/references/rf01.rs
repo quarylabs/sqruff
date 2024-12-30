@@ -76,7 +76,6 @@ impl RuleRF01 {
                 return LintResult::new(
                     tbl_refs[0].0.segments[0].clone().into(),
                     Vec::new(),
-                    None,
                     format!(
                         "Reference '{}' refers to table/view not found in the FROM clause or \
                          found in ancestor statement.",

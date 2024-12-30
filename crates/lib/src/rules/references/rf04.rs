@@ -95,7 +95,7 @@ FROM foo AS vee
                 .iter()
                 .any(|regex| regex.is_match(context.segment.raw()))
         {
-            return vec![LintResult::new(None, Vec::new(), None, None, None)];
+            return vec![LintResult::new(None, Vec::new(), None, None)];
         }
 
         let raw_segment = context.segment.raw();
@@ -133,7 +133,6 @@ FROM foo AS vee
             vec![LintResult::new(
                 Some(context.segment.clone()),
                 Vec::new(),
-                None,
                 None,
                 None,
             )]

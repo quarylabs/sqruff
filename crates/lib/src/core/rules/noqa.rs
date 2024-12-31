@@ -66,6 +66,7 @@ impl NoQADirective {
                         description: format!("Rule {} not found in rule set", rule),
                         rule: None,
                         source_slice: Default::default(),
+                        fixable: false,
                     });
                 }
             }
@@ -134,6 +135,7 @@ impl NoQADirective {
                                         .into(),
                                     rule: None,
                                     source_slice: Default::default(),
+                                    fixable: false,
                                 })
                             } else {
                                 Ok(Some(NoQADirective::RangeIgnoreRules(RangeIgnoreRules {
@@ -172,6 +174,7 @@ impl NoQADirective {
                                             .to_string(),
                                     rule: None,
                                     source_slice: Default::default(),
+                                    fixable: false,
                                 })
                             } else {
                                 Ok(Some(NoQADirective::RangeIgnoreRules(RangeIgnoreRules {
@@ -197,6 +200,7 @@ impl NoQADirective {
                                         .into(),
                                 rule: None,
                                 source_slice: Default::default(),
+                                fixable: false,
                             })
                         } else {
                             return Ok(Some(NoQADirective::LineIgnoreRules(LineIgnoreRules {
@@ -218,6 +222,7 @@ impl NoQADirective {
                                     .into(),
                             rule: None,
                             source_slice: Default::default(),
+                            fixable: false,
                         })
                     }
                 } else {
@@ -232,6 +237,7 @@ impl NoQADirective {
                                 .to_string(),
                         rule: None,
                         source_slice: Default::default(),
+                        fixable: false,
                     })
                 }
             } else {
@@ -317,6 +323,7 @@ impl IgnoreMask {
                 description: "Could not get position marker".to_string(),
                 rule: None,
                 source_slice: Default::default(),
+                fixable: false,
             })?
             .source_position();
         NoQADirective::parse_from_comment(comment_content, line_no, line_pos)
@@ -484,6 +491,7 @@ mod tests {
                 code: "AL02",
             }),
             source_slice: Default::default(),
+            fixable: true,
         };
         let mask = IgnoreMask {
             ignore_list: vec![NoQADirective::LineIgnoreRules(LineIgnoreRules {

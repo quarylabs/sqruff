@@ -352,19 +352,18 @@ impl ConfigLoader {
             ".sqruff", /* "pyproject.toml" */
         ];
 
-        let path = if path.is_dir() {
-            path
-        } else {
-            path.parent().unwrap()
-        };
         let mut configs = AHashMap::new();
 
-        for fname in filename_options {
-            let path = path.join(fname);
-            if path.exists() {
-                self.load_config_file(path, &mut configs);
+        if path.is_dir() {
+            for fname in filename_options {
+                let path = path.join(fname);
+                if path.exists() {
+                    self.load_config_file(path, &mut configs);
+                }
             }
-        }
+        } else if path.is_file() {
+            self.load_config_file(path, &mut configs);
+        };
 
         configs
     }

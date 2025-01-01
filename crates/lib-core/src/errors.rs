@@ -16,7 +16,7 @@ pub trait SqlError {
     fn check_tuple(&self) -> CheckTuple;
 }
 
-#[derive(Debug, PartialEq, Clone)]
+#[derive(Debug, PartialEq, Clone, Default)]
 pub struct SQLBaseError {
     pub fatal: bool,
     pub ignore: bool,
@@ -26,6 +26,7 @@ pub struct SQLBaseError {
     pub description: String,
     pub rule: Option<ErrorStructRule>,
     pub source_slice: Range<usize>,
+    pub fixable: bool,
 }
 
 #[derive(Debug, PartialEq, Clone, Default)]
@@ -34,26 +35,7 @@ pub struct ErrorStructRule {
     pub code: &'static str,
 }
 
-impl Default for SQLBaseError {
-    fn default() -> Self {
-        Self::new()
-    }
-}
-
 impl SQLBaseError {
-    pub fn new() -> Self {
-        Self {
-            description: String::new(),
-            fatal: false,
-            ignore: false,
-            warning: false,
-            line_no: 0,
-            line_pos: 0,
-            rule: None,
-            source_slice: 0..0,
-        }
-    }
-
     pub fn rule_code(&self) -> &'static str {
         self.rule.as_ref().map_or("????", |rule| rule.code)
     }
@@ -96,11 +78,12 @@ pub struct SQLLintError {
 }
 
 impl SQLLintError {
-    pub fn new(description: &str, segment: ErasedSegment) -> Self {
+    pub fn new(description: &str, segment: ErasedSegment, fixable: bool) -> Self {
         Self {
-            base: SQLBaseError::new().config(|this| {
+            base: SQLBaseError::default().config(|this| {
                 this.description = description.into();
                 this.set_position_marker(segment.get_position_marker().unwrap().clone());
+                this.fixable = fixable;
             }),
         }
     }
@@ -220,11 +203,12 @@ impl From<SQLParseError> for SQLBaseError {
             (line_no, line_pos) = pos_marker.source_position();
         }
 
-        Self::new().config(|this| {
+        Self::default().config(|this| {
             this.fatal = true;
             this.line_no = line_no;
             this.line_pos = line_pos;
             this.description = value.description;
+            this.fixable = false;
         })
     }
 }

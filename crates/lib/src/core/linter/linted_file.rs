@@ -17,9 +17,16 @@ pub struct LintedFile {
 }
 
 impl LintedFile {
-    #[allow(unused_variables)]
     pub fn get_violations(&self, fixable: Option<bool>) -> Vec<SQLBaseError> {
-        self.violations.clone().into_iter().map_into().collect_vec()
+        if let Some(fixable) = fixable {
+            self.violations
+                .iter()
+                .filter(|v| v.fixable == fixable)
+                .cloned()
+                .collect_vec()
+        } else {
+            self.violations.clone().into_iter().map_into().collect_vec()
+        }
     }
 
     ///  Use patches and raw file to fix the source file.

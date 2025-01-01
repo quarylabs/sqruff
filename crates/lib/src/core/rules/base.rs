@@ -66,7 +66,9 @@ impl LintResult {
             .clone()
             .unwrap_or_else(|| rule.description().to_string());
 
-        SQLLintError::new(description.as_str(), anchor)
+        let is_fixable = rule.is_fix_compatible();
+
+        SQLLintError::new(description.as_str(), anchor, is_fixable)
             .config(|this| {
                 this.rule = Some(ErrorStructRule {
                     name: rule.name(),
@@ -209,7 +211,7 @@ pub trait Rule: CloneRule + dyn_clone::DynClone + Debug + 'static + Send + Sync 
             let resp = match resp {
                 Ok(t) => t,
                 Err(_) => {
-                    vs.push(SQLLintError::new("Unexpected exception. Could you open an issue at https://github.com/quarylabs/sqruff", tree.clone()));
+                    vs.push(SQLLintError::new("Unexpected exception. Could you open an issue at https://github.com/quarylabs/sqruff", tree.clone(), false));
                     return (vs, fixes);
                 }
             };

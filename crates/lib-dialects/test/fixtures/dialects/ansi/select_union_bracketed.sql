@@ -1,0 +1,4 @@
+(SELECT 0) UNION (SELECT 1);
+
+((SELECT 0)) UNION ((SELECT 1));
+

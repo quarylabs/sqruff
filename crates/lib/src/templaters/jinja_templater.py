@@ -32,8 +32,13 @@ from jinja2.exceptions import TemplateNotFound, UndefinedError
 from jinja2.ext import Extension
 from jinja2.sandbox import SandboxedEnvironment
 
-from templaters.python_templater import PythonTemplater, SQLTemplaterError, TemplatedFile, RawFileSlice, \
-    TemplatedFileSlice
+from templaters.python_templater import (
+    PythonTemplater,
+    SQLTemplaterError,
+    TemplatedFile,
+    RawFileSlice,
+    TemplatedFileSlice,
+)
 
 if TYPE_CHECKING:  # pragma: no cover
     from jinja2.runtime import Macro
@@ -46,6 +51,7 @@ def is_zero_slice(s: slice) -> bool:
     """Return true if this is a zero slice."""
     is_zero: bool = s.stop == s.start
     return is_zero
+
 
 class UndefinedRecorder:
     """Similar to jinja2.StrictUndefined, but remembers, not fails."""

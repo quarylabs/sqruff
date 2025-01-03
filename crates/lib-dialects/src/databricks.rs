@@ -308,6 +308,84 @@ pub fn dialect() -> Dialect {
             .to_matchable()
             .into(),
         ),
+        // https://docs.databricks.com/en/sql/language-manual/sql-ref-syntax-aux-show-schemas.html
+        // Differences between this and the SparkSQL version:
+        // - Support for `FROM`|`IN` at the catalog level
+        // - `LIKE` keyword is optional
+        (
+            "ShowDatabasesSchemasGrammar".into(),
+            Sequence::new(vec_of_erased![
+                one_of(vec_of_erased![
+                    Ref::keyword("DATABASES"),
+                    Ref::keyword("SCHEMAS"),
+                ]),
+                Sequence::new(vec_of_erased![
+                    one_of(vec_of_erased![Ref::keyword("FROM"), Ref::keyword("IN"),]),
+                    Ref::new("DatabaseReferenceSegment"),
+                ])
+                .config(|config| {
+                    config.optional();
+                }),
+                Sequence::new(vec_of_erased![
+                    Ref::keyword("LIKE").optional(),
+                    Ref::new("QuotedLiteralSegment"),
+                ])
+                .config(|config| {
+                    config.optional();
+                }),
+            ])
+            .to_matchable()
+            .into(),
+        ),
+        // Show Functions Statement
+        // https://docs.databricks.com/en/sql/language-manual/sql-ref-syntax-aux-show-functions.html
+        //
+        // Represents the grammar part after the show
+        //
+        // Differences between this and the SparkSQL version:
+        // - Support for `FROM`|`IN` at the schema level
+        // - `LIKE` keyword is optional
+        ("ShowFunctionsGrammar".into(),
+
+    //             ShowFunctionsGrammar=Sequence(
+    //     # SHOW FUNCTIONS
+    //     OneOf("USER", "SYSTEM", "ALL", optional=True),
+    //     "FUNCTIONS",
+    //     Sequence(
+    //         Sequence(
+    //             OneOf("FROM", "IN"),
+    //             Ref("DatabaseReferenceSegment"),
+    //             optional=True,
+    //         ),
+    //         Sequence(
+    //             Ref.keyword("LIKE", optional=True),
+    //             OneOf(
+    //                 # qualified function from a database
+    //                 Sequence(
+    //                     Ref("DatabaseReferenceSegment"),
+    //                     Ref("DotSegment"),
+    //                     Ref("FunctionNameSegment"),
+    //                     allow_gaps=False,
+    //                 ),
+    //                 # non-qualified function
+    //                 Ref("FunctionNameSegment"),
+    //                 # Regex/like string
+    //                 Ref("QuotedLiteralSegment"),
+    //             ),
+    //             optional=True,
+    //         ),
+    //         optional=True,
+    //     ),
+    // ),
+            Sequence::new(
+                vec_of_erased![
+                    one_of(vec_of_erased![
+                        Ref::keyword("USER"),
+                        Ref::keyword("SYSTEM"),
+                        Ref::keyword("ALL"),
+                    ])
+                    .config
+
     ]);
 
     // A reference to an object.

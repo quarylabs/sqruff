@@ -1,0 +1,121 @@
+file:
+- statement:
+  - show_statement:
+    - keyword: SHOW
+    - keyword: FUNCTIONS
+- statement_terminator: ;
+- statement:
+  - show_statement:
+    - keyword: SHOW
+    - keyword: FUNCTIONS
+    - function_name:
+      - function_name_identifier: trim
+- statement_terminator: ;
+- statement:
+  - show_statement:
+    - keyword: SHOW
+    - keyword: ALL
+    - keyword: FUNCTIONS
+    - function_name:
+      - function_name_identifier: trim
+- statement_terminator: ;
+- statement:
+  - show_statement:
+    - keyword: SHOW
+    - keyword: SYSTEM
+    - keyword: FUNCTIONS
+    - function_name:
+      - function_name_identifier: concat
+- statement_terminator: ;
+- statement:
+  - show_statement:
+    - keyword: SHOW
+    - keyword: USER
+    - keyword: FUNCTIONS
+    - function_name:
+      - function_name_identifier: concat_user
+- statement_terminator: ;
+- statement:
+  - show_statement:
+    - keyword: SHOW
+    - keyword: SYSTEM
+    - keyword: FUNCTIONS
+    - function_name:
+      - naked_identifier: salesdb
+      - dot: .
+      - function_name_identifier: max
+- statement_terminator: ;
+- statement:
+  - show_statement:
+    - keyword: SHOW
+    - keyword: FUNCTIONS
+    - keyword: LIKE
+    - quoted_literal: '''t*'''
+- statement_terminator: ;
+- statement:
+  - show_statement:
+    - keyword: SHOW
+    - keyword: FUNCTIONS
+- file:
+  - single_quote: '''t*'''
+  - semicolon: ;
+  - word: SHOW
+  - word: USER
+  - word: FUNCTIONS
+  - word: LIKE
+  - single_quote: '''t*'''
+  - semicolon: ;
+  - word: SHOW
+  - word: USER
+  - word: FUNCTIONS
+  - single_quote: '''t*'''
+  - semicolon: ;
+  - word: SHOW
+  - word: FUNCTIONS
+  - word: LIKE
+  - single_quote: '''yea*|windo*'''
+  - semicolon: ;
+  - word: SHOW
+  - word: FUNCTIONS
+  - word: LIKE
+  - single_quote: '''t[a-z][a-z][a-z]'''
+  - semicolon: ;
+  - word: SHOW
+  - word: FUNCTIONS
+  - word: FROM
+  - word: default
+  - semicolon: ;
+  - word: SHOW
+  - word: USER
+  - word: FUNCTIONS
+  - word: FROM
+  - word: default
+  - semicolon: ;
+  - word: SHOW
+  - word: FUNCTIONS
+  - word: FROM
+  - word: default
+  - word: LIKE
+  - single_quote: '''t*'''
+  - semicolon: ;
+  - word: SHOW
+  - word: FUNCTIONS
+  - word: FROM
+  - word: default
+  - single_quote: '''t*'''
+  - semicolon: ;
+  - word: SHOW
+  - word: USER
+  - word: FUNCTIONS
+  - word: FROM
+  - word: default
+  - word: LIKE
+  - single_quote: '''t*'''
+  - semicolon: ;
+  - word: SHOW
+  - word: USER
+  - word: FUNCTIONS
+  - word: FROM
+  - word: default
+  - single_quote: '''t*'''
+  - semicolon: ;

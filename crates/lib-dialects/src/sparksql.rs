@@ -3624,6 +3624,48 @@ pub fn raw_dialect() -> Dialect {
         ),
     ]);
 
+    sparksql_dialect.add([(
+        // Show Functions
+        "ShowFunctionsGrmmar".into(),
+        Sequence::new(vec_of_erased![
+            one_of(vec_of_erased![
+                Ref::keyword("USER"),
+                Ref::keyword("SYSTEM"),
+                Ref::keyword("ALL")
+            ])
+            .config(|config| {
+                config.optional();
+            }),
+            Ref::keyword("FUNCTIONS"),
+            one_of(vec_of_erased![
+                // qualified function from a database
+                Sequence::new(vec_of_erased![
+                    Ref::new("DatabaseReferenceSegment"),
+                    Ref::new("DotSegment"),
+                    Ref::new("FunctionNameSegment")
+                ])
+                .config(|config| {
+                    config.disallow_gaps();
+                    config.optional();
+                }),
+                // non-qualified function
+                Ref::new("FunctionNameSegment").optional(),
+                Sequence::new(vec_of_erased![
+                    Ref::keyword("LIKE"),
+                    Ref::new("QuotedLiteralSegment")
+                ])
+                .config(|config| {
+                    config.optional();
+                })
+            ])
+            .config(|config| {
+                config.optional();
+            })
+        ])
+        .to_matchable()
+        .into(),
+    )]);
+
     sparksql_dialect.replace_grammar(
         "FrameClauseSegment",
         {
@@ -3670,6 +3712,7 @@ pub fn show_statements() -> Vec<Matchable> {
         Sequence::new(vec_of_erased![
             Ref::keyword("SHOW"),
             one_of(vec_of_erased![
+                Ref::new("ShowFunctionsGrmmar"),
                 Sequence::new(vec_of_erased![
                     Ref::keyword("CREATE"),
                     Ref::keyword("TABLE"),

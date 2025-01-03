@@ -4855,15 +4855,13 @@ pub fn raw_dialect() -> Dialect {
     ansi_dialect.add([
         (
             "SelectableGrammar".into(),
-            one_of(vec![
-                optionally_bracketed(vec_of_erased![Ref::new("WithCompoundStatementSegment")])
-                    .to_matchable(),
+            one_of(vec_of_erased![
+                optionally_bracketed(vec_of_erased![Ref::new("WithCompoundStatementSegment")]),
                 optionally_bracketed(vec_of_erased![Ref::new(
                     "WithCompoundNonSelectStatementSegment"
-                )])
-                .to_matchable(),
-                Ref::new("NonWithSelectableGrammar").to_matchable(),
-                Bracketed::new(vec![Ref::new("SelectableGrammar").to_matchable()]).to_matchable(),
+                )]),
+                Ref::new("NonWithSelectableGrammar"),
+                Bracketed::new(vec_of_erased![Ref::new("SelectableGrammar")]),
             ])
             .to_matchable()
             .into(),

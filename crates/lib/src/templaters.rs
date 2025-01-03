@@ -9,8 +9,12 @@ use crate::templaters::placeholder::PlaceholderTemplater;
 use crate::templaters::raw::RawTemplater;
 
 #[cfg(feature = "python")]
+use crate::templaters::jinja::JinjaTemplater;
+#[cfg(feature = "python")]
 use crate::templaters::python::PythonTemplater;
 
+#[cfg(feature = "python")]
+pub mod jinja;
 pub mod placeholder;
 #[cfg(feature = "python")]
 pub mod python;
@@ -20,11 +24,17 @@ pub static RAW_TEMPLATER: RawTemplater = RawTemplater;
 pub static PLACEHOLDER_TEMPLATER: PlaceholderTemplater = PlaceholderTemplater;
 #[cfg(feature = "python")]
 pub static PYTHON_TEMPLATER: PythonTemplater = PythonTemplater;
+#[cfg(feature = "python")]
+pub static JINJA_TEMPLATER: JinjaTemplater = JinjaTemplater;
 
 // templaters returns all the templaters that are available in the library
 #[cfg(feature = "python")]
-pub static TEMPLATERS: [&'static dyn Templater; 3] =
-    [&RAW_TEMPLATER, &PLACEHOLDER_TEMPLATER, &PYTHON_TEMPLATER];
+pub static TEMPLATERS: [&'static dyn Templater; 3] = [
+    &RAW_TEMPLATER,
+    &PLACEHOLDER_TEMPLATER,
+    &PYTHON_TEMPLATER,
+    &JINJA_TEMPLATER,
+];
 
 #[cfg(not(feature = "python"))]
 pub static TEMPLATERS: [&'static dyn Templater; 2] = [&RAW_TEMPLATER, &PLACEHOLDER_TEMPLATER];

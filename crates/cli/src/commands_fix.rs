@@ -9,13 +9,14 @@ pub(crate) fn run_fix(
     args: FixArgs,
     config: FluffConfig,
     ignorer: impl Fn(&Path) -> bool + Send + Sync,
+    collect_parse_errors: bool,
 ) -> i32 {
     let FixArgs {
         paths,
         force,
         format,
     } = args;
-    let mut linter = linter(config, format);
+    let mut linter = linter(config, format, collect_parse_errors);
     let result = linter.lint_paths(paths, true, &ignorer);
 
     if result
@@ -68,10 +69,14 @@ pub(crate) fn run_fix(
     }
 }
 
-pub(crate) fn run_fix_stdin(config: FluffConfig, format: Format) -> i32 {
+pub(crate) fn run_fix_stdin(
+    config: FluffConfig,
+    format: Format,
+    collect_parse_errors: bool,
+) -> i32 {
     let read_in = crate::stdin::read_std_in().unwrap();
 
-    let linter = linter(config, format);
+    let linter = linter(config, format, collect_parse_errors);
     let result = linter.lint_string(&read_in, None, true);
 
     // print fixed to std out

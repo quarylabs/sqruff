@@ -47,6 +47,7 @@ fn main() {
     return codegen_docs();
 
     let cli = Cli::parse();
+    let collect_parse_errors = cli.parsing_errors;
 
     let config: FluffConfig = if let Some(config) = cli.config.as_ref() {
         if !Path::new(config).is_file() {
@@ -77,16 +78,16 @@ fn main() {
                 eprintln!("{e}");
                 1
             }
-            Ok(false) => commands_lint::run_lint(args, config, ignorer),
-            Ok(true) => commands_lint::run_lint_stdin(config, args.format),
+            Ok(false) => commands_lint::run_lint(args, config, ignorer, collect_parse_errors),
+            Ok(true) => commands_lint::run_lint_stdin(config, args.format, collect_parse_errors),
         },
         Commands::Fix(args) => match is_std_in_flag_input(&args.paths) {
             Err(e) => {
                 eprintln!("{e}");
                 1
             }
-            Ok(false) => commands_fix::run_fix(args, config, ignorer),
-            Ok(true) => commands_fix::run_fix_stdin(config, args.format),
+            Ok(false) => commands_fix::run_fix(args, config, ignorer, collect_parse_errors),
+            Ok(true) => commands_fix::run_fix_stdin(config, args.format, collect_parse_errors),
         },
         Commands::Lsp => {
             sqruff_lsp::run();
@@ -97,7 +98,7 @@ fn main() {
     std::process::exit(status_code);
 }
 
-pub(crate) fn linter(config: FluffConfig, format: Format) -> Linter {
+pub(crate) fn linter(config: FluffConfig, format: Format, collect_parse_errors: bool) -> Linter {
     let formatter: Arc<dyn Formatter> = match format {
         Format::Human => {
             let output_stream = std::io::stderr().into();
@@ -118,7 +119,7 @@ pub(crate) fn linter(config: FluffConfig, format: Format) -> Linter {
         }
     };
 
-    Linter::new(config, Some(formatter), None, false)
+    Linter::new(config, Some(formatter), None, collect_parse_errors)
 }
 
 fn check_user_input() -> Option<bool> {

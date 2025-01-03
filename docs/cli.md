@@ -24,6 +24,9 @@ sqruff is a sql formatter and linter
 ###### **Options:**
 
 * `--config <CONFIG>` — Path to a configuration file
+* `--parsing-errors` — Show parse errors
+
+  Default value: `false`
 
 
 

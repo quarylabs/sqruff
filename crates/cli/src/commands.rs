@@ -15,6 +15,9 @@ pub(crate) struct Cli {
     /// Path to a configuration file.
     #[arg(long, global = true)]
     pub config: Option<String>,
+    /// Show parse errors.
+    #[arg(long, global = true, default_value = "false")]
+    pub parsing_errors: bool,
 }
 
 #[derive(Debug, Subcommand)]

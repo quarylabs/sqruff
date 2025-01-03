@@ -480,7 +480,7 @@ impl Linter {
                 );
 
                 violations.extend(unparsables.into_iter().map(|segment| SQLParseError {
-                    description: "Found unparsable section".into(),
+                    description: "Unparsable section".into(),
                     segment: segment.into(),
                 }));
             }

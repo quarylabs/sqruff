@@ -30,6 +30,10 @@ name = "fix_return_code"
 harness = false
 
 [[test]]
+name = "fix_parse_errors"
+harness = false
+
+[[test]]
 name = "config_not_found"
 harness = false
 

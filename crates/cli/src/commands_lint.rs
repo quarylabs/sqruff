@@ -7,9 +7,11 @@ pub(crate) fn run_lint(
     args: LintArgs,
     config: FluffConfig,
     ignorer: impl Fn(&Path) -> bool + Send + Sync,
+    collect_parse_errors: bool,
 ) -> i32 {
     let LintArgs { paths, format } = args;
-    let mut linter = linter(config, format);
+    let mut linter = linter(config, format, collect_parse_errors);
+
     linter.lint_paths(paths, false, &ignorer);
 
     linter.formatter().unwrap().completion_message();
@@ -20,10 +22,14 @@ pub(crate) fn run_lint(
     }
 }
 
-pub(crate) fn run_lint_stdin(config: FluffConfig, format: Format) -> i32 {
+pub(crate) fn run_lint_stdin(
+    config: FluffConfig,
+    format: Format,
+    collect_parse_errors: bool,
+) -> i32 {
     let read_in = crate::stdin::read_std_in().unwrap();
 
-    let linter = linter(config, format);
+    let linter = linter(config, format, collect_parse_errors);
     linter.lint_string(&read_in, None, false);
 
     linter.formatter().unwrap().completion_message();

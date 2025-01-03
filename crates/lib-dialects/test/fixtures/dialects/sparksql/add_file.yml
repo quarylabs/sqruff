@@ -30,3 +30,12 @@ file:
     - quoted_literal: '"/path with space/cde.txt"'
     - quoted_literal: '''/path with space/fgh.txt'''
 - statement_terminator: ;
+- statement:
+  - add_file_statement:
+    - keyword: ADD
+    - file_keyword: FILE
+    - slash: /
+    - word: tmp
+    - slash: /
+    - word: test
+- statement_terminator: ;

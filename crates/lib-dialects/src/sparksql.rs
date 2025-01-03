@@ -77,7 +77,7 @@ pub fn raw_dialect() -> Dialect {
 
     sparksql_dialect.insert_lexer_matchers(
         vec![
-            Matcher::regex("file_literal", r#"[a-zA-Z0-9]*:?([a-zA-Z0-9\-_\.]*(/|\\)){2,}((([a-zA-Z0-9\-_\.]*(:|\?|=|&)[a-zA-Z0-9\-_\.]*)+)|([a-zA-Z0-9\-_\.]*\.[a-z]+))"#, SyntaxKind::FileLiteral),
+            Matcher::regex("file_literal", r#"[a-zA-Z0-9]+:([a-zA-Z0-9\-_\.]*(/|\\)){2,}((([a-zA-Z0-9\-_\.]*(:|\?|=|&)[a-zA-Z0-9\-_\.]*)+)|([a-zA-Z0-9\-_\.]*\.[a-z]+))"#, SyntaxKind::FileLiteral),
         ],
         "newline",
     );
@@ -444,10 +444,28 @@ pub fn raw_dialect() -> Dialect {
 
     sparksql_dialect.add([
         (
+            // A path literal that isn't quoted.
+            //
+            // The regular expression will pickup any paths with a leading protocol, however to
+            // prevent some division operators that may look like paths, we only parse them here
+            // **after** lexing.
             "FileLiteralSegment".into(),
-            TypedParser::new(SyntaxKind::FileLiteral, SyntaxKind::FileLiteral)
-                .to_matchable()
-                .into(),
+            one_of(vec_of_erased![
+                TypedParser::new(SyntaxKind::FileLiteral, SyntaxKind::FileLiteral),
+                Sequence::new(vec_of_erased![
+                    Ref::new("SlashSegment").optional(),
+                    Delimited::new(vec_of_erased![Delimited::new(vec_of_erased![
+                        TypedParser::new(SyntaxKind::Word, SyntaxKind::Word),
+                    ])
+                    .config(|config| { config.delimiter(Ref::new("SlashSegment")) })])
+                    .config(|config| {
+                        config.delimiter(Ref::new("SlashSegment"));
+                        config.disallow_gaps();
+                    })
+                ])
+            ])
+            .to_matchable()
+            .into(),
         ),
         (
             "BackQuotedIdentifierSegment".into(),
@@ -2532,7 +2550,10 @@ pub fn raw_dialect() -> Dialect {
                 Sequence::new(vec_of_erased![
                     Ref::keyword("ADD"),
                     Ref::new("FileKeywordSegment"),
-                    AnyNumberOf::new(vec_of_erased![Ref::new("QuotedLiteralSegment")])
+                    AnyNumberOf::new(vec_of_erased![
+                        Ref::new("QuotedLiteralSegment"),
+                        Ref::new("FileLiteralSegment")
+                    ])
                 ])
                 .to_matchable(),
             )
@@ -2743,7 +2764,10 @@ pub fn raw_dialect() -> Dialect {
                 Sequence::new(vec_of_erased![
                     Ref::keyword("LIST"),
                     Ref::new("FileKeywordSegment"),
-                    AnyNumberOf::new(vec_of_erased![Ref::new("QuotedLiteralSegment")])
+                    AnyNumberOf::new(vec_of_erased![
+                        Ref::new("QuotedLiteralSegment"),
+                        Ref::new("FileLiteralSegment")
+                    ])
                 ])
                 .to_matchable(),
             )
@@ -2757,7 +2781,10 @@ pub fn raw_dialect() -> Dialect {
                 Sequence::new(vec_of_erased![
                     Ref::keyword("LIST"),
                     Ref::new("JarKeywordSegment"),
-                    AnyNumberOf::new(vec_of_erased![Ref::new("QuotedLiteralSegment")])
+                    AnyNumberOf::new(vec_of_erased![
+                        Ref::new("QuotedLiteralSegment"),
+                        Ref::new("FileLiteralSegment")
+                    ])
                 ])
                 .to_matchable(),
             )

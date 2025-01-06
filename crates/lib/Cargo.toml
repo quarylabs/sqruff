@@ -42,7 +42,7 @@ sqruff-lib-dialects.workspace = true
 
 dyn-clone = "1"
 fancy-regex = "0.14.0"
-itertools = "0.13.0"
+itertools = "0.14.0"
 regex = "1"
 walkdir = "2.5.0"
 enum_dispatch = "0.3.13"

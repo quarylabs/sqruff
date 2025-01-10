@@ -148,10 +148,7 @@ impl RuleLT09 {
             .and_then(|it| children.find(&it));
 
         let selects = children.select(
-            Some(|segment: &ErasedSegment| {
-                segment.get_type() == SyntaxKind::Keyword
-                    && segment.raw().eq_ignore_ascii_case("select")
-            }),
+            Some(|segment: &ErasedSegment| segment.is_keyword("select")),
             None,
             None,
             None,

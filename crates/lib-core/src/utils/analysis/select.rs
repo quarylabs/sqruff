@@ -85,7 +85,7 @@ pub fn get_select_statement_info(
             let mut seen_using = false;
 
             for seg in join_clause.segments() {
-                if seg.is_type(SyntaxKind::Keyword) && seg.raw().eq_ignore_ascii_case("USING") {
+                if seg.is_keyword("USING") {
                     seen_using = true;
                 } else if seg.is_type(SyntaxKind::JoinOnCondition) {
                     for on_seg in seg.segments() {

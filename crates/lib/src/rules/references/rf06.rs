@@ -214,7 +214,7 @@ SELECT 123 as `foo` -- For BigQuery, MySql, ...
         ) && naked_identifier_parser
             .anti_template
             .as_ref()
-            .map_or(true, |anti_template| {
+            .is_none_or(|anti_template| {
                 !is_full_match(anti_template.as_str(), &identifier_contents)
             })
         {

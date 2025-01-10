@@ -223,7 +223,7 @@ impl Linter {
             .filter(|violation| {
                 ignore_mask
                     .as_ref()
-                    .map_or(true, |ignore_mask| !ignore_mask.is_masked(violation))
+                    .is_none_or(|ignore_mask| !ignore_mask.is_masked(violation))
             })
             .collect();
 

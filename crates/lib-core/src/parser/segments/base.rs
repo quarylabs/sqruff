@@ -329,7 +329,7 @@ impl ErasedSegment {
                 }
             }
 
-            if select_if.as_ref().map_or(true, |f| f(seg)) {
+            if select_if.as_ref().is_none_or(|f| f(seg)) {
                 buff.push(seg.clone());
             }
         }

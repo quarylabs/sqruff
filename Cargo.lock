@@ -906,9 +906,9 @@ dependencies = [
 
 [[package]]
 name = "itertools"
-version = "0.13.0"
+version = "0.14.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "413ee7dfc52ee1a4949ceeb7dbc8a33f2d6c088194d9f922fb8318faf1f01186"
+checksum = "2b192c782037fadd9cfa75548310488aabdbf3d2da73885b31bd0abd03351285"
 dependencies = [
  "either",
 ]
@@ -1744,7 +1744,7 @@ dependencies = [
  "getrandom",
  "glob",
  "indexmap 2.7.0",
- "itertools 0.13.0",
+ "itertools 0.14.0",
  "lazy-regex",
  "nohash-hasher",
  "phf",
@@ -1778,7 +1778,7 @@ dependencies = [
  "enum_dispatch",
  "fancy-regex",
  "indexmap 2.7.0",
- "itertools 0.13.0",
+ "itertools 0.14.0",
  "nohash-hasher",
  "pretty_assertions",
  "regex-automata",
@@ -1799,7 +1799,7 @@ dependencies = [
  "ahash",
  "expect-test",
  "glob",
- "itertools 0.13.0",
+ "itertools 0.14.0",
  "rayon",
  "serde_yaml",
  "sqruff-lib-core",
@@ -1920,12 +1920,13 @@ checksum = "61c41af27dd6d1e27b1b16b489db798443478cef1f06a660c96db617ba5de3b1"
 
 [[package]]
 name = "tempfile"
-version = "3.14.0"
+version = "3.15.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "28cce251fcbc87fac86a866eeb0d6c2d536fc16d06f184bb61aeae11aa4cee0c"
+checksum = "9a8a559c81686f576e8cd0290cd2a24a2a9ad80c98b3478856500fcbd7acd704"
 dependencies = [
  "cfg-if",
  "fastrand",
+ "getrandom",
  "once_cell",
  "rustix",
  "windows-sys 0.59.0",

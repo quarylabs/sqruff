@@ -625,14 +625,7 @@ impl ErasedSegment {
 
         if hash == 0 {
             let mut hasher = ahash::AHasher::default();
-            self.get_type().hash(&mut hasher);
-            self.raw().hash(&mut hasher);
-
-            if let Some(marker) = &self.get_position_marker() {
-                marker.source_position().hash(&mut hasher);
-            } else {
-                None::<usize>.hash(&mut hasher);
-            }
+            self.id().hash(&mut hasher);
 
             hash = hasher.finish();
 
@@ -938,19 +931,7 @@ pub mod serde {
 
 impl PartialEq for ErasedSegment {
     fn eq(&self, other: &Self) -> bool {
-        if self.id() == other.id() {
-            return true;
-        }
-
-        let pos_self = self.get_position_marker();
-        let pos_other = other.get_position_marker();
-        if let Some((pos_self, pos_other)) = pos_self.zip(pos_other) {
-            self.get_type() == other.get_type()
-                && pos_self.working_loc() == pos_other.working_loc()
-                && self.raw() == other.raw()
-        } else {
-            false
-        }
+        self.id() == other.id()
     }
 }
 

@@ -323,7 +323,7 @@ fn crawl_indent_points(
                 }
 
                 if unclosed_bracket || !allow_implicit_indents {
-                    indent_stats.implicit_indents = Vec::new();
+                    indent_stats.implicit_indents = Default::default();
                 }
             }
 

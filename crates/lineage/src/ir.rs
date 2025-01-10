@@ -265,7 +265,7 @@ impl Tables {
 
         std::iter::from_fn(move || {
             if let Some(last_node) = last.take() {
-                if prune.as_mut().is_some_and(|prune| !prune(self, last_node)) {
+                if prune.as_mut().is_none_or(|prune| !prune(self, last_node)) {
                     match &self.exprs[last_node].kind {
                         ExprKind::Select {
                             with,

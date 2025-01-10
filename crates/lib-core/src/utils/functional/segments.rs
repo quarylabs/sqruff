@@ -77,13 +77,13 @@ impl Segments {
     pub fn all(&self, predicate: PredicateType) -> bool {
         self.base
             .iter()
-            .all(|s| predicate.map_or(true, |pred| pred(s)))
+            .all(|s| predicate.is_some_and(|pred| pred(s)))
     }
 
     pub fn any(&self, predicate: PredicateType) -> bool {
         self.base
             .iter()
-            .any(|s| predicate.map_or(true, |pred| pred(s)))
+            .any(|s| predicate.is_some_and(|pred| pred(s)))
     }
 
     pub fn len(&self) -> usize {
@@ -127,7 +127,7 @@ impl Segments {
             .iter()
             .rev()
             .find_map(|s| {
-                if predicate.as_ref().map_or(true, |p| p(s)) {
+                if predicate.as_ref().is_some_and(|p| p(s)) {
                     Some(Segments {
                         base: vec![s.clone()],
                         templated_file: self.templated_file.clone(),
@@ -148,7 +148,7 @@ impl Segments {
 
     pub fn find_first<F: Fn(&ErasedSegment) -> bool>(&self, predicate: Option<F>) -> Segments {
         for s in &self.base {
-            if predicate.as_ref().map_or(true, |p| p(s)) {
+            if predicate.as_ref().is_some_and(|p| p(s)) {
                 return Segments {
                     base: vec![s.clone()],
                     templated_file: self.templated_file.clone(),
@@ -191,7 +191,7 @@ impl Segments {
                 }
             }
 
-            if select_if.as_ref().map_or(true, |f| f(seg)) {
+            if select_if.as_ref().is_some_and(|f| f(seg)) {
                 buff.push(seg.clone());
             }
         }

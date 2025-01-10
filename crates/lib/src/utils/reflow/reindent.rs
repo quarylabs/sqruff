@@ -27,7 +27,7 @@ fn has_untemplated_newline(point: &ReflowPoint) -> bool {
         segment.is_type(SyntaxKind::Newline)
             && (segment
                 .get_position_marker()
-                .map_or(true, |position_marker| position_marker.is_literal()))
+                .is_some_and(|position_marker| position_marker.is_literal()))
     })
 }
 

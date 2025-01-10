@@ -66,9 +66,7 @@ FROM foo
                 .children(Some(|it| it.is_type(SyntaxKind::SelectClauseModifier)))
                 .children(Some(|it| it.is_type(SyntaxKind::Keyword)))
                 .select(
-                    Some(|it: &ErasedSegment| {
-                        it.is_type(SyntaxKind::Keyword) && it.raw().eq_ignore_ascii_case("DISTINCT")
-                    }),
+                    Some(|it: &ErasedSegment| it.is_keyword("DISTINCT")),
                     None,
                     None,
                     None,

@@ -3,7 +3,6 @@ use std::cell::{Cell, OnceCell};
 use std::fmt::Debug;
 use std::hash::{Hash, Hasher};
 use std::rc::Rc;
-use std::sync::atomic::{AtomicU64, Ordering};
 
 use itertools::enumerate;
 use rustc_hash::FxHashMap;
@@ -64,6 +63,7 @@ impl SegmentBuilder {
                     descendant_type_set: Default::default(),
                     raw_segments_with_ancestors: Default::default(),
                 }),
+                hash: OnceCell::new(),
             },
         }
     }
@@ -77,6 +77,7 @@ impl SegmentBuilder {
                 class_types: class_types(syntax_kind),
                 position_marker: None,
                 kind: NodeOrTokenKind::Token(TokenData { raw: raw.into() }),
+                hash: OnceCell::new(),
             },
         }
     }
@@ -99,7 +100,6 @@ impl SegmentBuilder {
     pub fn finish(self) -> ErasedSegment {
         ErasedSegment {
             value: Rc::new(self.node_or_token),
-            hash: Rc::new(AtomicU64::new(0)),
         }
     }
 }
@@ -120,7 +120,6 @@ impl Tables {
 #[derive(Debug, Clone)]
 pub struct ErasedSegment {
     pub(crate) value: Rc<NodeOrToken>,
-    pub(crate) hash: Rc<AtomicU64>,
 }
 
 impl Hash for ErasedSegment {
@@ -260,8 +259,8 @@ impl ErasedSegment {
                     descendant_type_set: node.descendant_type_set.clone(),
                     raw_segments_with_ancestors: node.raw_segments_with_ancestors.clone(),
                 }),
+                hash: OnceCell::new(),
             }),
-            hash: self.hash.clone(),
         }
     }
 
@@ -621,9 +620,7 @@ impl ErasedSegment {
     }
 
     pub fn hash_value(&self) -> u64 {
-        let mut hash = self.hash.load(Ordering::Acquire);
-
-        if hash == 0 {
+        *self.value.hash.get_or_init(|| {
             let mut hasher = ahash::AHasher::default();
             self.get_type().hash(&mut hasher);
             self.raw().hash(&mut hasher);
@@ -634,23 +631,13 @@ impl ErasedSegment {
                 None::<usize>.hash(&mut hasher);
             }
 
-            hash = hasher.finish();
-
-            let exchange = self
-                .hash
-                .compare_exchange(0, hash, Ordering::AcqRel, Ordering::Acquire);
-            if let Err(old) = exchange {
-                hash = old
-            }
-        }
-
-        hash
+            hasher.finish()
+        })
     }
 
     pub fn deep_clone(&self) -> Self {
         Self {
             value: Rc::new(self.value.as_ref().clone()),
-            hash: self.hash.clone(),
         }
     }
 
@@ -1047,6 +1034,7 @@ pub struct NodeOrToken {
     position_marker: Option<PositionMarker>,
     kind: NodeOrTokenKind,
     code_idx: OnceCell<Rc<Vec<usize>>>,
+    hash: OnceCell<u64>,
 }
 
 #[derive(Debug, Clone)]

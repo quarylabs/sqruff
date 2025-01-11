@@ -1,6 +1,6 @@
 use ahash::AHashMap;
 use itertools::{enumerate, multiunzip, Itertools as _};
-use smol_str::{StrExt, ToSmolStr};
+use smol_str::StrExt;
 
 use super::context::ParseContext;
 use super::match_result::{MatchResult, Matched, Span};
@@ -129,7 +129,7 @@ pub fn longest_match(
     let cache_position = segments[idx as usize].get_position_marker().unwrap();
 
     let loc_key = (
-        segments[idx as usize].raw().to_smolstr(),
+        segments[idx as usize].raw().clone(),
         cache_position.working_loc(),
         segments[idx as usize].get_type(),
         max_idx,
@@ -221,11 +221,10 @@ fn next_match(
 
     for idx in idx..max_idx {
         let seg = &segments[idx as usize];
-        let idxs = raw_simple_map
+        let mut matcher_idxs = raw_simple_map
             .get(&first_trimmed_raw(seg))
             .cloned()
             .unwrap_or_default();
-        let mut matcher_idxs = Vec::from_iter(idxs);
 
         let keys = type_simple_map.keys().copied().collect();
         let type_overlap = seg.class_types().clone().intersection(&keys);

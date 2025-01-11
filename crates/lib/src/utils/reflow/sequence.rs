@@ -325,7 +325,7 @@ impl<'a> ReflowSequence<'a> {
     }
 
     // https://github.com/sqlfluff/sqlfluff/blob/baceed9907908e055b79ca50ce6203bcd7949f39/src/sqlfluff/utils/reflow/sequence.py#L397
-    pub fn replace(&mut self, target: ErasedSegment, edit: &[ErasedSegment]) -> Self {
+    pub fn replace(mut self, target: ErasedSegment, edit: &[ErasedSegment]) -> Self {
         let target_raws = target.get_raw_segments();
 
         let mut edit_raws: Vec<ErasedSegment> = Vec::new();
@@ -372,9 +372,9 @@ impl<'a> ReflowSequence<'a> {
 
         ReflowSequence {
             elements: new_elements,
-            root_segment: self.root_segment.clone(),
+            root_segment: self.root_segment,
             reflow_config: self.reflow_config,
-            depth_map: self.depth_map.clone(),
+            depth_map: self.depth_map,
             lint_results: vec![LintResult::new(
                 target.clone().into(),
                 vec![LintFix::replace(target.clone(), edit.to_vec(), None)],

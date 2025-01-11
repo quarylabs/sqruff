@@ -589,7 +589,7 @@ impl IndentStats {
     }
 }
 
-#[derive(Debug, PartialEq, Clone)]
+#[derive(Debug, PartialEq)]
 pub struct ReflowBlockData {
     segment: ErasedSegment,
     spacing_before: Spacing,

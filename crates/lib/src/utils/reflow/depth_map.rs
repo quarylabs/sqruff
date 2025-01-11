@@ -46,7 +46,6 @@ impl StackPosition {
     }
 }
 
-#[derive(Clone)]
 pub struct DepthMap {
     depth_info: AHashMap<u32, DepthInfo>,
 }
@@ -130,11 +129,11 @@ impl DepthInfo {
         }
     }
 
-    pub fn trim(&self, amount: usize) -> DepthInfo {
+    pub fn trim(self, amount: usize) -> DepthInfo {
         // Return a DepthInfo object with some amount trimmed.
         if amount == 0 {
             // The trivial case.
-            return self.clone();
+            return self;
         }
 
         let slice_set: IntSet<_> = IntSet::from_iter(
@@ -149,18 +148,19 @@ impl DepthInfo {
             .copied()
             .collect();
 
+        let stack_positions = self
+            .stack_positions
+            .into_iter()
+            .filter(|(hash, _)| new_hash_set.contains(hash))
+            .collect();
+
         DepthInfo {
             stack_depth: self.stack_depth - amount,
             stack_hashes: self.stack_hashes[..self.stack_hashes.len() - amount].to_vec(),
-            stack_hash_set: new_hash_set.clone(),
+            stack_hash_set: new_hash_set,
             stack_class_types: self.stack_class_types[..self.stack_class_types.len() - amount]
                 .to_vec(),
-            stack_positions: self
-                .stack_positions
-                .iter()
-                .filter(|(k, _)| new_hash_set.contains(k))
-                .map(|(k, v)| (*k, v.clone()))
-                .collect(),
+            stack_positions,
         }
     }
 

@@ -1,3 +1,4 @@
+use std::fmt::Display;
 use std::ops::{Deref, DerefMut, Range};
 
 use fancy_regex::Regex;
@@ -146,6 +147,12 @@ pub struct SQLFluffUserError {
 impl SQLFluffUserError {
     pub fn new(value: String) -> SQLFluffUserError {
         SQLFluffUserError { value }
+    }
+}
+
+impl Display for SQLFluffUserError {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        f.write_str(&self.value)
     }
 }
 

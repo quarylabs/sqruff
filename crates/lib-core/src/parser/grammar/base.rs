@@ -132,8 +132,8 @@ impl MatchableTrait for Ref {
                 parse_context.deeper_match(self.reset_terminators, &self.terminators, |this| {
                     if exclude
                         .match_segments(segments, idx, this)
-                        .map_err(|e| dbg!(e))
-                        .map_or(false, |match_result| match_result.has_match())
+                        .inspect_err(|e| eprintln!("Parser error: {:?}", e))
+                        .is_ok_and(|match_result| match_result.has_match())
                     {
                         return Some(MatchResult::empty_at(idx));
                     }

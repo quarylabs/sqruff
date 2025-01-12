@@ -18,7 +18,7 @@ use crate::utils::reflow::config::ReflowConfig;
 pub fn split_comma_separated_string(raw_str: &str) -> Value {
     let values = raw_str
         .split(',')
-        .flat_map(|x| {
+        .filter_map(|x| {
             let trimmed = x.trim();
             (!trimmed.is_empty()).then(|| Value::String(trimmed.into()))
         })

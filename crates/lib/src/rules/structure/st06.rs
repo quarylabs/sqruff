@@ -210,7 +210,7 @@ from x
             if context
                 .parent_stack
                 .last()
-                .map_or(false, implicit_column_references)
+                .is_some_and(implicit_column_references)
             {
                 return vec![LintResult::new(
                     select_clause_segment.into(),

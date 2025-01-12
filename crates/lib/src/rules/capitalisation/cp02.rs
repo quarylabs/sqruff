@@ -120,9 +120,10 @@ from foo
     fn eval(&self, context: RuleContext) -> Vec<LintResult> {
         // TODO: add databricks
         if context.dialect.name == DialectKind::Sparksql
-            && context.parent_stack.last().map_or(false, |it| {
-                it.get_type() == SyntaxKind::PropertyNameIdentifier
-            })
+            && context
+                .parent_stack
+                .last()
+                .is_some_and(|it| it.get_type() == SyntaxKind::PropertyNameIdentifier)
             && context.segment.raw() == "enableChangeDataFeed"
         {
             return Vec::new();

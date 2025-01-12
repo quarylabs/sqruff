@@ -112,8 +112,7 @@ FROM foo AS vee
                 .sets("unreserved_keywords")
                 .contains(context.segment.raw().to_uppercase().as_str()))
             || (context.segment.is_type(SyntaxKind::QuotedIdentifier)
-                && self.quoted_identifiers_policy.as_ref().map_or(
-                    false,
+                && self.quoted_identifiers_policy.as_ref().is_some_and(
                     |quoted_identifiers_policy| {
                         identifiers_policy_applicable(
                             quoted_identifiers_policy,

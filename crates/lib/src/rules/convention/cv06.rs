@@ -485,9 +485,8 @@ impl RuleCV06 {
             .first()
             .cloned();
 
-        let is_one_line = first_code.map_or(false, |segment| {
-            Self::is_one_line_statement(parent_segment, segment.clone())
-        });
+        let is_one_line = first_code
+            .is_some_and(|segment| Self::is_one_line_statement(parent_segment, segment.clone()));
 
         // We can tidy up any whitespace between the segment and the preceding
         // code/comment segment. Don't mess with the comment spacing/placement.

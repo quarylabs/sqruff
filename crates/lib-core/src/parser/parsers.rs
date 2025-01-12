@@ -169,7 +169,7 @@ impl PartialEq for RegexParser {
                 .anti_template
                 .as_ref()
                 .zip(other.anti_template.as_ref())
-                .map_or(false, |(lhs, rhs)| lhs.as_str() == rhs.as_str())
+                .is_some_and(|(lhs, rhs)| lhs.as_str() == rhs.as_str())
             && self.kind == other.kind
     }
 }
@@ -222,7 +222,7 @@ impl MatchableTrait for RegexParser {
             SmolStr::from_iter(segment.raw().chars().map(|ch| ch.to_ascii_uppercase()));
         if let Some(result) = self.template.find(&segment_raw_upper).ok().flatten() {
             if result.as_str() == segment_raw_upper
-                && !self.anti_template.as_ref().map_or(false, |anti_template| {
+                && !self.anti_template.as_ref().is_some_and(|anti_template| {
                     anti_template
                         .is_match(&segment_raw_upper)
                         .unwrap_or_default()

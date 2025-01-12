@@ -484,7 +484,7 @@ impl ReflowPoint {
                                 res.anchor
                                     .as_ref()
                                     .and_then(|a| a.get_position_marker())
-                                    .map_or(false, |pm| pm.templated_slice.end == temp_idx)
+                                    .is_some_and(|pm| pm.templated_slice.end == temp_idx)
                             })
                         {
                             let mut res = existing_results.remove(index);

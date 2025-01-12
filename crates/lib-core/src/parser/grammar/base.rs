@@ -1,8 +1,6 @@
-use std::borrow::Cow;
-use std::ops::Deref;
-use std::sync::OnceLock;
-
 use ahash::AHashSet;
+use std::borrow::Cow;
+use std::sync::OnceLock;
 
 use crate::dialects::base::Dialect;
 use crate::dialects::syntax::SyntaxSet;
@@ -104,7 +102,7 @@ impl MatchableTrait for Ref {
         self.simple_cache
             .get_or_init(|| {
                 if let Some(ref c) = crumbs {
-                    if c.contains(&self.reference.deref()) {
+                    if c.contains(&&*self.reference) {
                         let loop_string = c.join(" -> ");
                         panic!("Self referential grammar detected: {}", loop_string);
                     }

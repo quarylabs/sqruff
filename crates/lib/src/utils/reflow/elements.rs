@@ -111,11 +111,18 @@ impl ReflowPoint {
                 .is_some()
             {
                 continue;
-            } else if seg.is_type(SyntaxKind::Newline) {
-                return indent;
-            } else if seg.is_whitespace() {
-                indent = Some(seg.clone());
-            } else if get_consumed_whitespace(Some(seg))
+            }
+
+            match seg.get_type() {
+                SyntaxKind::Newline => return indent,
+                SyntaxKind::Whitespace => {
+                    indent = Some(seg.clone());
+                    continue;
+                }
+                _ => {}
+            }
+
+            if get_consumed_whitespace(Some(seg))
                 .unwrap_or_default()
                 .contains('\n')
             {
@@ -199,8 +206,10 @@ impl ReflowPoint {
                             vec![LintFix::delete(indent_seg.clone())],
                             Some(
                                 description
-                                    .map(ToOwned::to_owned)
-                                    .unwrap_or_else(|| "Line should not be indented.".to_owned())
+                                    .map_or_else(
+                                        || "Line should not be indented.".to_owned(),
+                                        ToOwned::to_owned,
+                                    )
                                     .to_string(),
                             ),
                             source.map(|s| s.to_string()),

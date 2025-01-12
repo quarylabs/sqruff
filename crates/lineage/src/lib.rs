@@ -248,7 +248,7 @@ fn to_node(
         };
 
         #[allow(clippy::unnecessary_to_owned)] // borrow checker error
-        for projection in projections.to_vec() {
+        for projection in projections.clone() {
             if let &ExprKind::Alias0(_, name) = &tables.exprs[projection].kind {
                 let name = tables.stringify(name);
                 to_node(

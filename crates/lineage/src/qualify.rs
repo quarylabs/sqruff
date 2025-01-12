@@ -147,7 +147,7 @@ fn qualify_outputs(tables: &mut Tables, scope: &Scope) {
                 let name = s.split(".").last().unwrap();
 
                 projection =
-                    tables.alloc_expr(ExprKind::Alias(s.to_owned(), name.to_owned().into()), None);
+                    tables.alloc_expr(ExprKind::Alias(s.clone(), name.to_owned().into()), None);
             }
             _ => {}
         }

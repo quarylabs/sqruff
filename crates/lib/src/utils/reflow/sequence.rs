@@ -274,7 +274,7 @@ impl<'a> ReflowSequence<'a> {
                 .any(|seg| seg.is_type(SyntaxKind::Newline))
                 || post
                     .as_ref()
-                    .map_or(false, |p| p.class_types().contains(SyntaxKind::EndOfFile))
+                    .is_some_and(|p| p.class_types().contains(SyntaxKind::EndOfFile))
             {
                 filter == Filter::Inline
             } else {

@@ -132,7 +132,7 @@ CREATE TABLE DBO.ColumnNames
                 && context
                     .parent_stack
                     .last()
-                    .map_or(false, |it| it.is_type(SyntaxKind::TableReference))
+                    .is_some_and(|it| it.is_type(SyntaxKind::TableReference))
             {
                 if identifier.ends_with('*') {
                     identifier.pop();
@@ -173,7 +173,7 @@ CREATE TABLE DBO.ColumnNames
             && context
                 .parent_stack
                 .last()
-                .map_or(false, |it| it.get_type() == SyntaxKind::TableReference)
+                .is_some_and(|it| it.get_type() == SyntaxKind::TableReference)
         {
             identifier = identifier[1..].to_string();
         }

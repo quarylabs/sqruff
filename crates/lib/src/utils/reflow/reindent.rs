@@ -538,7 +538,7 @@ fn deduce_line_current_indent(
     } else if matches!(elements[0], ReflowElement::Point(_))
         && elements[0].segments()[0]
             .get_position_marker()
-            .map_or(false, |marker| marker.working_loc() == (1, 1))
+            .is_some_and(|marker| marker.working_loc() == (1, 1))
     {
         if elements[0].segments()[0].is_type(SyntaxKind::Placeholder) {
             unimplemented!()
@@ -821,7 +821,7 @@ fn lint_line_untaken_negative_indents(
             continue;
         }
 
-        if elements.get(ip.idx + 1).map_or(false, |elem| {
+        if elements.get(ip.idx + 1).is_some_and(|elem| {
             elem.class_types().intersects(
                 const { &SyntaxSet::new(&[SyntaxKind::StatementTerminator, SyntaxKind::Comma]) },
             )

@@ -35,7 +35,7 @@ fn qualify_tables(tables: &mut Tables, expr: Expr) {
                     for node in crate::scope::walk_in_scope(tables, scope.expr()) {
                         let node_data = &tables.exprs[node];
 
-                        if node_data.parent.map_or(false, |parent| {
+                        if node_data.parent.is_some_and(|parent| {
                             matches!(&tables.exprs[parent].kind, ExprKind::From { .. })
                         }) {
                             if let ExprKind::TableReference(_, slot @ None) =

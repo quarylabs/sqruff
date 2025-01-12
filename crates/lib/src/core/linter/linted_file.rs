@@ -132,7 +132,7 @@ impl LintedFile {
             // smoothly from here.
             while source_only_slices
                 .first()
-                .map_or(false, |s| s.source_idx < patch.source_slice.start)
+                .is_some_and(|s| s.source_idx < patch.source_slice.start)
             {
                 let next_so_slice = source_only_slices.remove(0).source_slice();
                 // Add a pre-slice before the next templated slices if needed.
@@ -147,7 +147,7 @@ impl LintedFile {
             // Does this patch cover the next source-only slice directly?
             if source_only_slices
                 .first()
-                .map_or(false, |s| patch.source_slice == s.source_slice())
+                .is_some_and(|s| patch.source_slice == s.source_slice())
             {
                 // Log information here if needed
                 // Removing next source only slice from the stack because it

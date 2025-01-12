@@ -817,7 +817,7 @@ impl ErasedSegment {
 
                 #[allow(unused_assignments)]
                 if !(f.edit_type == EditType::Replace
-                    && f.edit.as_ref().map_or(false, |x| x.len() == 1)
+                    && f.edit.as_ref().is_some_and(|x| x.len() == 1)
                     && f.edit.as_ref().unwrap()[0].class_types() == seg.class_types())
                 {
                     _requires_validate = true;

@@ -86,7 +86,7 @@ impl Scope {
                         _ => {
                             let expr_data = &tables.exprs[node];
                             if is_derived_table(expr_data)
-                                && expr_data.parent().map_or(false, |parent| {
+                                && expr_data.parent().is_some_and(|parent| {
                                     matches!(
                                         tables.exprs[parent].kind,
                                         ExprKind::From { .. } | ExprKind::Subquery(..)
@@ -420,7 +420,7 @@ pub(crate) fn walk_in_scope(tables: &Tables, root_expr: Expr) -> Vec<Expr> {
             ExprKind::Cte { .. } | ExprKind::Select { .. } | ExprKind::Union { .. }
         );
 
-        let c2 = data.parent.map_or(false, |parent| {
+        let c2 = data.parent.is_some_and(|parent| {
             matches!(
                 tables.exprs[parent].kind,
                 ExprKind::From { .. } | ExprKind::Subquery(..)

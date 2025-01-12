@@ -6,7 +6,7 @@ pub fn identifiers_policy_applicable(policy: &str, parent_stack: &[ErasedSegment
         "all" => true,
         "none" => false,
         _ => {
-            let is_alias = parent_stack.last().map_or(false, |last| {
+            let is_alias = parent_stack.last().is_some_and(|last| {
                 [
                     SyntaxKind::AliasExpression,
                     SyntaxKind::ColumnDefinition,

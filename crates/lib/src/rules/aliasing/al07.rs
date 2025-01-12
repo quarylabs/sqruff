@@ -66,7 +66,7 @@ impl RuleAL07 {
                 if table_counts.get(&raw_table).unwrap_or(&0) > &1
                     && table_aliases
                         .get(&raw_table)
-                        .map_or(false, |aliases| aliases.len() > 1)
+                        .is_some_and(|aliases| aliases.len() > 1)
                 {
                     continue;
                 }

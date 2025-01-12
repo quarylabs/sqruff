@@ -165,7 +165,7 @@ SELECT a FROM plop
 
                     while line_idx
                         .checked_sub(offset)
-                        .map_or(false, |idx| comment_lines.contains(&idx))
+                        .is_some_and(|idx| comment_lines.contains(&idx))
                     {
                         offset += 1;
                     }

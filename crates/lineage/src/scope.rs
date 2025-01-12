@@ -287,7 +287,7 @@ fn traverse_union(tables: &mut Tables, scope: &mut Scope, acc: &mut Vec<Scope>) 
 fn traverse_ctes(tables: &mut Tables, scope: &mut Scope, acc: &mut Vec<Scope>) {
     let mut sources = HashMap::new();
 
-    let ctes = scope.stats(tables).ctes.to_vec();
+    let ctes = scope.stats(tables).ctes.clone();
 
     for cte in ctes {
         let &ExprKind::Cte { this, alias } = &tables.exprs[cte].kind else {
@@ -380,7 +380,7 @@ fn traverse_tables(tables: &mut Tables, scope: &mut Scope, acc: &mut Vec<Scope>)
 }
 
 fn traverse_subqueries(tables: &mut Tables, scope: &mut Scope, acc: &mut Vec<Scope>) {
-    let subqueries = scope.stats(tables).subqueries.to_vec();
+    let subqueries = scope.stats(tables).subqueries.clone();
 
     #[allow(clippy::unnecessary_to_owned)] // borrow checker error
     for subquery in subqueries {

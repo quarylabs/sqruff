@@ -205,7 +205,7 @@ fn generate_join_conditions(
     edit_segments
         .get(..edit_segments.len().saturating_sub(3))
         .map_or(Vec::new(), ToOwned::to_owned)
-        .to_vec()
+        .clone()
 }
 
 fn extract_deletion_sequence_and_anchor(

@@ -459,15 +459,14 @@ pub fn greedy_match(
             for idx in (working_idx..=start_idx).rev() {
                 if segments[idx as usize - 1].is_meta() {
                     continue;
-                } else if matches!(
+                }
+
+                allowable_match = matches!(
                     segments[idx as usize - 1].get_type(),
                     SyntaxKind::Whitespace | SyntaxKind::Newline
-                ) {
-                    allowable_match = true;
-                    break;
-                } else {
-                    break;
-                }
+                );
+
+                break;
             }
 
             if !allowable_match {

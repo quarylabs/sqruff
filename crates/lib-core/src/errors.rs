@@ -140,7 +140,6 @@ impl SqlError for SQLTemplaterError {
 /// An error which should be fed back to the user.
 #[derive(Debug)]
 pub struct SQLFluffUserError {
-    #[allow(dead_code)]
     pub value: String,
 }
 

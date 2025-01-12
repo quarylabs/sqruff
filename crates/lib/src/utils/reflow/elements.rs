@@ -148,7 +148,7 @@ impl ReflowPoint {
         if let Some(consumed_whitespace) = consumed_whitespace {
             return consumed_whitespace
                 .split('\n')
-                .last()
+                .next_back()
                 .unwrap()
                 .to_owned()
                 .into();

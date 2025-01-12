@@ -70,7 +70,10 @@ pub fn get_select_statement_info(
         .map(|it| SelectClauseElementSegment(it.clone()))
         .collect_vec();
 
-    let col_aliases = select_targets.iter().flat_map(|s| s.alias()).collect_vec();
+    let col_aliases = select_targets
+        .iter()
+        .filter_map(|s| s.alias())
+        .collect_vec();
 
     let mut using_cols: Vec<SmolStr> = Vec::new();
     let fc = segment.child(const { &SyntaxSet::new(&[SyntaxKind::FromClause]) });

@@ -437,7 +437,7 @@ impl<'a> ReflowSequence<'a> {
     fn iter_points_with_constraints(
         &self,
     ) -> impl Iterator<Item = (&ReflowPoint, Option<&ReflowBlock>, Option<&ReflowBlock>)> + '_ {
-        self.elements.iter().enumerate().flat_map(|(idx, elem)| {
+        self.elements.iter().enumerate().filter_map(|(idx, elem)| {
             if let ReflowElement::Point(elem) = elem {
                 {
                     let mut pre = None;

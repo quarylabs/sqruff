@@ -1070,7 +1070,7 @@ pub struct TokenData {
 
 #[track_caller]
 pub fn pos_marker(segments: &[ErasedSegment]) -> PositionMarker {
-    let markers = segments.iter().flat_map(|seg| seg.get_position_marker());
+    let markers = segments.iter().filter_map(|seg| seg.get_position_marker());
 
     PositionMarker::from_child_markers(markers)
 }

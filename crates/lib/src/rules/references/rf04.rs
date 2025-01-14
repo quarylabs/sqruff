@@ -99,7 +99,13 @@ FROM foo AS vee
         }
 
         let raw_segment = context.segment.raw();
-        let upper_segment = raw_segment[1..raw_segment.len() - 1].to_uppercase();
+        let upper_segment = {
+            if context.segment.is_type(SyntaxKind::NakedIdentifier) {
+                raw_segment.to_uppercase()
+            } else {
+                raw_segment[1..raw_segment.len() - 1].to_uppercase()
+            }
+        };
 
         // FIXME: simplify the condition
         if (context.segment.is_type(SyntaxKind::NakedIdentifier)

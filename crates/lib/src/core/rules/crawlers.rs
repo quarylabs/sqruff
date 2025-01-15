@@ -14,7 +14,7 @@ pub trait BaseCrawler {
         self.works_on_unparsable() || !segment.is_type(SyntaxKind::Unparsable)
     }
 
-    fn crawl<'a>(&self, context: RuleContext<'a>) -> Vec<RuleContext<'a>>;
+    fn crawl<'a>(&self, context: RuleContext<'a>, f: &mut impl FnMut(RuleContext<'a>));
 }
 
 #[enum_dispatch(BaseCrawler)]
@@ -32,11 +32,9 @@ pub enum Crawler {
 pub struct RootOnlyCrawler;
 
 impl BaseCrawler for RootOnlyCrawler {
-    fn crawl<'a>(&self, context: RuleContext<'a>) -> Vec<RuleContext<'a>> {
+    fn crawl<'a>(&self, context: RuleContext<'a>, f: &mut impl FnMut(RuleContext<'a>)) {
         if self.passes_filter(&context.segment) {
-            vec![context.clone()]
-        } else {
-            Vec::new()
+            f(context);
         }
     }
 }
@@ -72,17 +70,16 @@ impl SegmentSeekerCrawler {
 }
 
 impl BaseCrawler for SegmentSeekerCrawler {
-    fn crawl<'a>(&self, mut context: RuleContext<'a>) -> Vec<RuleContext<'a>> {
-        let mut acc = Vec::new();
+    fn crawl<'a>(&self, mut context: RuleContext<'a>, f: &mut impl FnMut(RuleContext<'a>)) {
         let mut self_match = false;
 
         if self.is_self_match(&context.segment) {
             self_match = true;
-            acc.push(context.clone());
+            f(context.clone());
         }
 
         if context.segment.segments().is_empty() || (self_match && !self.allow_recurse) {
-            return acc;
+            return;
         }
 
         if !self.types.intersects(context.segment.descendant_type_set()) {
@@ -92,7 +89,7 @@ impl BaseCrawler for SegmentSeekerCrawler {
                     .append(&mut context.segment.get_raw_segments());
             }
 
-            return acc;
+            return;
         }
 
         context.parent_stack.push(context.segment.clone());
@@ -101,21 +98,17 @@ impl BaseCrawler for SegmentSeekerCrawler {
             context.segment = child.clone();
             context.segment_idx = idx;
 
-            acc.extend(self.crawl(context.clone()));
+            self.crawl(context.clone(), f);
         }
-
-        acc
     }
 }
 
 pub struct TokenSeekerCrawler;
 
 impl BaseCrawler for TokenSeekerCrawler {
-    fn crawl<'a>(&self, mut context: RuleContext<'a>) -> Vec<RuleContext<'a>> {
-        let mut acc = Vec::new();
-
+    fn crawl<'a>(&self, mut context: RuleContext<'a>, f: &mut impl FnMut(RuleContext<'a>)) {
         if context.segment.segments().is_empty() {
-            acc.push(context.clone());
+            f(context.clone());
         }
 
         context.parent_stack.push(context.segment.clone());
@@ -124,9 +117,7 @@ impl BaseCrawler for TokenSeekerCrawler {
             context.segment = child.clone();
             context.segment_idx = idx;
 
-            acc.extend(self.crawl(context.clone()));
+            self.crawl(context.clone(), f);
         }
-
-        acc
     }
 }

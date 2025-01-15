@@ -200,15 +200,15 @@ pub trait Rule: CloneRule + dyn_clone::DynClone + Debug + 'static + Send + Sync 
             return Vec::new();
         }
 
-        for context in self.crawl_behaviour().crawl(root_context) {
+        self.crawl_behaviour().crawl(root_context, &mut |context| {
             let resp =
-                std::panic::catch_unwind(std::panic::AssertUnwindSafe(|| self.eval(context)));
+            std::panic::catch_unwind(std::panic::AssertUnwindSafe(|| self.eval(context)));
 
             let resp = match resp {
                 Ok(t) => t,
                 Err(_) => {
                     vs.push(SQLLintError::new("Unexpected exception. Could you open an issue at https://github.com/quarylabs/sqruff", tree.clone(), false, vec![]));
-                    return vs;
+                    Vec::new()
                 }
             };
 
@@ -224,7 +224,7 @@ pub trait Rule: CloneRule + dyn_clone::DynClone + Debug + 'static + Send + Sync 
 
             // Consume the new results
             vs.extend(new_lerrs);
-        }
+        });
 
         vs
     }

@@ -1,4 +1,5 @@
 use std::ops::Range;
+use std::rc::Rc;
 
 use ahash::AHashSet;
 
@@ -19,8 +20,29 @@ use crate::templaters::base::TemplatedFile;
 /// - Positions within the fixed file are identified with a line number and line
 ///   position, which identify a point.
 /// - Arithmetic comparisons are on the location in the fixed file.
-#[derive(Debug, Clone, Eq)]
+#[derive(Debug, Clone)]
 pub struct PositionMarker {
+    data: Rc<PositionMarkerData>,
+}
+
+impl std::ops::Deref for PositionMarker {
+    type Target = PositionMarkerData;
+
+    fn deref(&self) -> &Self::Target {
+        &self.data
+    }
+}
+
+impl std::ops::DerefMut for PositionMarker {
+    fn deref_mut(&mut self) -> &mut Self::Target {
+        Rc::make_mut(&mut self.data)
+    }
+}
+
+impl Eq for PositionMarker {}
+
+#[derive(Debug, Clone)]
+pub struct PositionMarkerData {
     pub source_slice: Range<usize>,
     pub templated_slice: Range<usize>,
     pub templated_file: TemplatedFile,
@@ -30,12 +52,15 @@ pub struct PositionMarker {
 
 impl Default for PositionMarker {
     fn default() -> Self {
-        PositionMarker {
-            source_slice: 0..0,
-            templated_slice: 0..0,
-            templated_file: "".to_string().into(),
-            working_line_no: 0,
-            working_line_pos: 0,
+        Self {
+            data: PositionMarkerData {
+                source_slice: 0..0,
+                templated_slice: 0..0,
+                templated_file: "".to_string().into(),
+                working_line_no: 0,
+                working_line_pos: 0,
+            }
+            .into(),
         }
     }
 }
@@ -52,22 +77,28 @@ impl PositionMarker {
         working_line_pos: Option<usize>,
     ) -> Self {
         match (working_line_no, working_line_pos) {
-            (Some(working_line_no), Some(working_line_pos)) => PositionMarker {
-                source_slice,
-                templated_slice,
-                templated_file,
-                working_line_no,
-                working_line_pos,
-            },
-            _ => {
-                let (working_line_no, working_line_pos) =
-                    templated_file.get_line_pos_of_char_pos(templated_slice.start, false);
-                PositionMarker {
+            (Some(working_line_no), Some(working_line_pos)) => Self {
+                data: PositionMarkerData {
                     source_slice,
                     templated_slice,
                     templated_file,
                     working_line_no,
                     working_line_pos,
+                }
+                .into(),
+            },
+            _ => {
+                let (working_line_no, working_line_pos) =
+                    templated_file.get_line_pos_of_char_pos(templated_slice.start, false);
+                Self {
+                    data: PositionMarkerData {
+                        source_slice,
+                        templated_slice,
+                        templated_file,
+                        working_line_no,
+                        working_line_pos,
+                    }
+                    .into(),
                 }
             }
         }
@@ -222,21 +253,27 @@ impl PositionMarker {
         end_point_marker: &PositionMarker,
     ) -> PositionMarker {
         Self {
-            source_slice: start_point_marker.source_slice.start..end_point_marker.source_slice.end,
-            templated_slice: start_point_marker.templated_slice.start
-                ..end_point_marker.templated_slice.end,
-            templated_file: start_point_marker.templated_file.clone(),
-            working_line_no: start_point_marker.working_line_no,
-            working_line_pos: start_point_marker.working_line_pos,
+            data: PositionMarkerData {
+                source_slice: start_point_marker.source_slice.start
+                    ..end_point_marker.source_slice.end,
+                templated_slice: start_point_marker.templated_slice.start
+                    ..end_point_marker.templated_slice.end,
+                templated_file: start_point_marker.templated_file.clone(),
+                working_line_no: start_point_marker.working_line_no,
+                working_line_pos: start_point_marker.working_line_pos,
+            }
+            .into(),
         }
     }
 
-    pub(crate) fn with_working_position(self, line_no: usize, line_pos: usize) -> PositionMarker {
-        Self {
-            working_line_no: line_no,
-            working_line_pos: line_pos,
-            ..self
-        }
+    pub(crate) fn with_working_position(
+        mut self,
+        line_no: usize,
+        line_pos: usize,
+    ) -> PositionMarker {
+        self.working_line_no = line_no;
+        self.working_line_pos = line_pos;
+        self
     }
 
     pub(crate) fn is_point(&self) -> bool {

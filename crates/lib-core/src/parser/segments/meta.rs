@@ -6,7 +6,6 @@ use super::base::ErasedSegment;
 use crate::dialects::syntax::{SyntaxKind, SyntaxSet};
 use crate::errors::SQLParseError;
 use crate::parser::context::ParseContext;
-use crate::parser::markers::PositionMarker;
 use crate::parser::match_result::MatchResult;
 use crate::parser::matchable::{Matchable, MatchableTrait};
 
@@ -15,17 +14,12 @@ pub type Indent = MetaSegment;
 #[derive(Debug, Clone, PartialEq)]
 pub struct MetaSegment {
     id: u32,
-    position_marker: Option<PositionMarker>,
     pub(crate) kind: SyntaxKind,
 }
 
 impl MetaSegment {
     pub fn from_kind(kind: SyntaxKind) -> Self {
-        Self {
-            kind,
-            position_marker: None,
-            id: 0,
-        }
+        Self { kind, id: 0 }
     }
 
     pub fn indent() -> Self {

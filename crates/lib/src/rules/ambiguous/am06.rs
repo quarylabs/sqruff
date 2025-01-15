@@ -126,7 +126,7 @@ ORDER BY a ASC, b DESC
         if self.group_by_and_order_by_style == GroupByAndOrderByConvention::Consistent {
             if column_reference_category_set.len() > 1 {
                 return vec![LintResult::new(
-                    context.segment.into(),
+                    context.segment.clone().into(),
                     Vec::new(),
                     None,
                     None,
@@ -140,7 +140,7 @@ ORDER BY a ASC, b DESC
                 {
                     if prior_group_by_order_by_convention != current_group_by_order_by_convention {
                         return vec![LintResult::new(
-                            context.segment.into(),
+                            context.segment.clone().into(),
                             Vec::new(),
                             None,
                             None,
@@ -157,7 +157,7 @@ ORDER BY a ASC, b DESC
             .any(|category| *category != self.group_by_and_order_by_style)
         {
             return vec![LintResult::new(
-                context.segment.into(),
+                context.segment.clone().into(),
                 Vec::new(),
                 None,
                 None,

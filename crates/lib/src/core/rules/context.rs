@@ -9,9 +9,13 @@ use sqruff_lib_core::templaters::base::TemplatedFile;
 
 use crate::core::config::FluffConfig;
 
-/// Struct for holding the context passed to rule eval function
 #[derive(Clone, Debug)]
 pub struct RuleContext<'a> {
+    data: Rc<RuleContextData<'a>>,
+}
+
+#[derive(Clone, Debug)]
+pub struct RuleContextData<'a> {
     pub tables: &'a Tables,
     pub dialect: &'a Dialect,
     pub templated_file: Option<TemplatedFile>,
@@ -31,7 +35,44 @@ pub struct RuleContext<'a> {
     pub segment_idx: usize,
 }
 
-impl RuleContext<'_> {
+impl<'a> std::ops::Deref for RuleContext<'a> {
+    type Target = RuleContextData<'a>;
+
+    fn deref(&self) -> &Self::Target {
+        &self.data
+    }
+}
+
+impl std::ops::DerefMut for RuleContext<'_> {
+    fn deref_mut(&mut self) -> &mut Self::Target {
+        Rc::make_mut(&mut self.data)
+    }
+}
+
+impl<'a> RuleContext<'a> {
+    pub fn new(
+        tables: &'a Tables,
+        dialect: &'a Dialect,
+        config: &'a FluffConfig,
+        segment: ErasedSegment,
+    ) -> Self {
+        Self {
+            data: RuleContextData {
+                tables,
+                dialect,
+                config,
+                segment,
+                templated_file: <_>::default(),
+                path: <_>::default(),
+                parent_stack: <_>::default(),
+                raw_stack: <_>::default(),
+                memory: Rc::new(RefCell::new(AHashMap::new())),
+                segment_idx: 0,
+            }
+            .into(),
+        }
+    }
+
     pub fn try_get<T: Clone + 'static>(&self) -> Option<T> {
         let id = TypeId::of::<T>();
 

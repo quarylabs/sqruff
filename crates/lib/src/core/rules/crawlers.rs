@@ -84,16 +84,15 @@ impl BaseCrawler for SegmentSeekerCrawler {
 
         if !self.types.intersects(context.segment.descendant_type_set()) {
             if self.provide_raw_stack {
-                context
-                    .raw_stack
-                    .append(&mut context.segment.get_raw_segments());
+                let raw_segments = context.segment.get_raw_segments();
+                context.raw_stack.extend(raw_segments);
             }
 
             return;
         }
 
-        context.parent_stack.push(context.segment.clone());
-        let segment = context.segment;
+        let segment = context.segment.clone();
+        context.parent_stack.push(segment.clone());
         for (idx, child) in segment.segments().iter().enumerate() {
             context.segment = child.clone();
             context.segment_idx = idx;
@@ -111,12 +110,11 @@ impl BaseCrawler for TokenSeekerCrawler {
             f(context.clone());
         }
 
-        context.parent_stack.push(context.segment.clone());
-        let segment = context.segment;
+        let segment = context.segment.clone();
+        context.parent_stack.push(segment.clone());
         for (idx, child) in segment.segments().iter().enumerate() {
             context.segment = child.clone();
             context.segment_idx = idx;
-
             self.crawl(context.clone(), f);
         }
     }

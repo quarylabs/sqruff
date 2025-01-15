@@ -141,7 +141,7 @@ FROM foo
 
             if elements.len() > 1 {
                 return vec![LintResult::new(
-                    context.segment.into(),
+                    context.segment.clone().into(),
                     Vec::new(),
                     None,
                     None,
@@ -152,7 +152,7 @@ FROM foo
         }
 
         vec![LintResult::new(
-            context.segment.into(),
+            context.segment.clone().into(),
             Vec::new(),
             None,
             None,

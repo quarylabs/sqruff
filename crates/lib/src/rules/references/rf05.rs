@@ -188,7 +188,7 @@ CREATE TABLE DBO.ColumnNames
             && !identifier.chars().all(|c| c.is_ascii_alphanumeric())
         {
             return vec![LintResult::new(
-                context.segment.into(),
+                context.segment.clone().into(),
                 Vec::new(),
                 None,
                 None,

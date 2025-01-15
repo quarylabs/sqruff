@@ -170,7 +170,7 @@ SELECT 123 as `foo` -- For BigQuery, MySql, ...
         if self.prefer_quoted_keywords && identifier_is_keyword {
             return if !identifier_is_quoted {
                 vec![LintResult::new(
-                    context.segment.into(),
+                    context.segment.clone().into(),
                     Vec::new(),
                     Some(format!(
                         "Missing quoted keyword identifier {identifier_contents}."
@@ -197,7 +197,7 @@ SELECT 123 as `foo` -- For BigQuery, MySql, ...
 
         if self.prefer_quoted_identifiers {
             return vec![LintResult::new(
-                context.segment.into(),
+                context.segment.clone().into(),
                 Vec::new(),
                 Some(format!("Missing quoted identifier {identifier_contents}.")),
                 None,

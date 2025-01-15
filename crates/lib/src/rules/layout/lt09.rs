@@ -114,7 +114,7 @@ FROM test_table;
             return self.eval_multiple_select_target_elements(
                 context.tables,
                 select_targets_info,
-                context.segment,
+                context.segment.clone(),
             );
         }
 
@@ -321,7 +321,7 @@ impl RuleLT09 {
         context: RuleContext,
     ) -> Vec<LintResult> {
         let select_clause = FunctionalContext::new(context.clone()).segment();
-        let parent_stack = context.parent_stack;
+        let parent_stack = &context.parent_stack;
 
         if !(select_targets_info.select_idx < select_targets_info.first_new_line_idx
             && select_targets_info.first_new_line_idx < select_targets_info.first_select_target_idx)

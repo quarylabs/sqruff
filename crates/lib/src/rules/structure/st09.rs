@@ -263,7 +263,7 @@ left join bar
         }
 
         vec![LintResult::new(
-            context.segment.into(),
+            context.segment.clone().into(),
             fixes,
             format!(
                 "Joins should list the table referenced {}",

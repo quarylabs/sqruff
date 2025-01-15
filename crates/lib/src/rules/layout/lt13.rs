@@ -109,7 +109,7 @@ Start file on either code or comment. (The ^ represents the beginning of the fil
             // Non-whitespace segment.
             if !raw_stack.all(Some(|seg| seg.is_meta())) {
                 return vec![LintResult::new(
-                    context.segment.into(),
+                    context.segment.clone().into(),
                     raw_stack.into_iter().map(LintFix::delete).collect_vec(),
                     None,
                     None,

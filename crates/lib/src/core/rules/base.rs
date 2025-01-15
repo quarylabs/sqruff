@@ -1,7 +1,6 @@
-use std::cell::RefCell;
 use std::fmt::{self, Debug};
 use std::ops::Deref;
-use std::rc::Rc;
+
 use std::sync::Arc;
 
 use ahash::{AHashMap, AHashSet};
@@ -180,19 +179,8 @@ pub trait Rule: CloneRule + dyn_clone::DynClone + Debug + 'static + Send + Sync 
         templated_file: &TemplatedFile,
         tree: ErasedSegment,
         config: &FluffConfig,
-    ) -> Vec<SQLLintError> {
-        let root_context = RuleContext {
-            tables,
-            dialect,
-            config,
-            segment: tree.clone(),
-            templated_file: <_>::default(),
-            path: <_>::default(),
-            parent_stack: <_>::default(),
-            raw_stack: <_>::default(),
-            memory: Rc::new(RefCell::new(AHashMap::new())),
-            segment_idx: 0,
-        };
+    ) -> (Vec<SQLLintError>, Vec<LintFix>) {
+        let root_context = RuleContext::new(tables, dialect, config, tree.clone());
         let mut vs = Vec::new();
 
         // TODO Will to return a note that rules were skipped

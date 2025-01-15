@@ -337,7 +337,7 @@ FROM
             base_table.first().cloned(),
             from_expression_elements,
             column_reference_segments,
-            context.segment,
+            context.segment.clone(),
         )
     }
 

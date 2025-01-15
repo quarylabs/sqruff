@@ -67,7 +67,8 @@ Don’t wrap top-level statements in brackets.
     fn eval(&self, context: RuleContext) -> Vec<LintResult> {
         let mut results = vec![];
 
-        for (parent, bracketed_segment) in Self::iter_bracketed_statements(context.segment) {
+        for (parent, bracketed_segment) in Self::iter_bracketed_statements(context.segment.clone())
+        {
             let bracket_set = [SyntaxKind::StartBracket, SyntaxKind::EndBracket];
 
             let mut filtered_children: Vec<ErasedSegment> = bracketed_segment

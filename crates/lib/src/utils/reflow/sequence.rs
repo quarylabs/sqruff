@@ -258,12 +258,13 @@ impl<'a> ReflowSequence<'a> {
         let mut new_elements = Vec::new();
 
         for (point, pre, post) in self.iter_points_with_constraints() {
-            let (new_lint_results, mut new_point) = point.respace_point(
+            let lint_results_len = lint_results.len();
+            let (mut new_lint_results, mut new_point) = point.respace_point(
                 tables,
                 pre,
                 post,
                 &self.root_segment,
-                lint_results.clone(),
+                lint_results,
                 strip_newlines,
                 "before",
             );
@@ -283,9 +284,10 @@ impl<'a> ReflowSequence<'a> {
 
             if ignore {
                 new_point = point.clone();
-            } else {
-                lint_results = new_lint_results;
+                new_lint_results.truncate(lint_results_len);
             }
+
+            lint_results = new_lint_results;
 
             if let Some(pre_value) = pre {
                 if new_elements.is_empty() || new_elements.last().unwrap() != pre_value {

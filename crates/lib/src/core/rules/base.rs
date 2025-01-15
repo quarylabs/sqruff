@@ -19,7 +19,6 @@ use super::context::RuleContext;
 use super::crawlers::{BaseCrawler, Crawler};
 use crate::core::config::{FluffConfig, Value};
 
-#[derive(Clone)]
 pub struct LintResult {
     pub anchor: Option<ErasedSegment>,
     pub fixes: Vec<LintFix>,

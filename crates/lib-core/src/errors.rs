@@ -47,7 +47,7 @@ impl SQLBaseError {
         self.line_no = line_no;
         self.line_pos = line_pos;
 
-        self.source_slice = position_marker.source_slice;
+        self.source_slice = position_marker.source_slice.clone();
     }
 
     pub fn desc(&self) -> &str {

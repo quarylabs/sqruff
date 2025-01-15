@@ -2,8 +2,10 @@ use crate::edit_type::EditType;
 use crate::lint_fix::LintFix;
 use crate::parser::segments::fix::SourceFix;
 
+type LintFixIdx = usize;
+
 /// For a given fix anchor, count of the fix edit types and fixes for it."""
-#[derive(Debug, Clone, Default)]
+#[derive(Debug, Default)]
 pub struct AnchorEditInfo {
     pub delete: usize,
     pub replace: usize,
@@ -12,7 +14,7 @@ pub struct AnchorEditInfo {
     pub fixes: Vec<LintFix>,
     pub source_fixes: Vec<SourceFix>,
     // First fix of edit_type "replace" in "fixes"
-    pub first_replace: Option<LintFix>,
+    pub first_replace: Option<LintFixIdx>,
 }
 
 impl AnchorEditInfo {
@@ -65,15 +67,17 @@ impl AnchorEditInfo {
             }
         }
 
-        self.fixes.push(fix.clone());
         if fix.edit_type == EditType::Replace && self.first_replace.is_none() {
-            self.first_replace = Some(fix.clone());
+            self.first_replace = Some(self.fixes.len());
         }
+
         match fix.edit_type {
             EditType::CreateBefore => self.create_before += 1,
             EditType::CreateAfter => self.create_after += 1,
             EditType::Replace => self.replace += 1,
             EditType::Delete => self.delete += 1,
         };
+
+        self.fixes.push(fix);
     }
 }

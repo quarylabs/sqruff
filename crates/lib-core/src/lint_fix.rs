@@ -7,7 +7,7 @@ use crate::parser::segments::base::ErasedSegment;
 use crate::templaters::base::{RawFileSlice, TemplatedFile};
 
 /// A potential fix to a linting violation.
-#[derive(Debug, Clone)]
+#[derive(Debug)]
 pub struct LintFix {
     /// indicate the kind of fix this represents
     pub edit_type: EditType,

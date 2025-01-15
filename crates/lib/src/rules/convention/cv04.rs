@@ -111,7 +111,7 @@ from table_a
                     SegmentBuilder::token(context.tables.next_id(), preferred, SyntaxKind::Literal)
                         .finish();
                 return vec![LintResult::new(
-                    context.segment.into(),
+                    context.segment.clone().into(),
                     vec![LintFix::replace(
                         f_content[0].clone(),
                         vec![new_segment],
@@ -142,7 +142,7 @@ from table_a
                     let first_expression_raw = first_expression.raw();
 
                     return vec![LintResult::new(
-                        context.segment.into(),
+                        context.segment.clone().into(),
                         vec![LintFix::replace(
                             first_expression.clone(),
                             vec![first_expression.edit(

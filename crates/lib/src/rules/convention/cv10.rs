@@ -143,7 +143,7 @@ from foo
             return vec![LintResult::new(
                 context.segment.clone().into(),
                 vec![LintFix::replace(
-                    context.segment,
+                    context.segment.clone(),
                     vec![SegmentBuilder::token(
                         context.tables.next_id(),
                         &fixed_string,

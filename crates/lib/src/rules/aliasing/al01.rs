@@ -139,7 +139,7 @@ FROM foo AS voo
                     .expect("Failed to find identifier. Raise this as a bug on GitHub.");
 
                 return vec![LintResult::new(
-                    rule_cx.segment.into(),
+                    rule_cx.segment.clone().into(),
                     ReflowSequence::from_around_target(
                         &identifier,
                         rule_cx.parent_stack[0].clone(),

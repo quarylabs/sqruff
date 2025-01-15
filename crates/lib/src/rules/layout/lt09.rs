@@ -263,22 +263,24 @@ impl RuleLT09 {
                 }
 
                 let segments = segment.segments();
-                let ws_to_delete = segment.select_children(
-                    if i == 0 {
-                        Some(&segments[start_seg])
-                    } else {
-                        Some(&select_targets_info.select_targets[i - 1])
-                    },
-                    None,
-                    Some(|seg| seg.is_type(SyntaxKind::Whitespace)),
-                    Some(|seg| {
-                        seg.is_type(SyntaxKind::Whitespace)
-                            | seg.is_type(SyntaxKind::Comma)
-                            | seg.is_meta()
-                    }),
-                );
 
-                fixes.extend(ws_to_delete.into_iter().map(LintFix::delete));
+                let start = if i == 0 {
+                    &segments[start_seg]
+                } else {
+                    &select_targets_info.select_targets[i - 1]
+                };
+
+                let start_position = segments.iter().position(|it| it == start).unwrap();
+                let ws_to_delete = segments[start_position + 1..]
+                    .iter()
+                    .take_while(|it| {
+                        it.is_type(SyntaxKind::Whitespace)
+                            | it.is_type(SyntaxKind::Comma)
+                            | it.is_meta()
+                    })
+                    .filter(|it| it.is_type(SyntaxKind::Whitespace));
+
+                fixes.extend(ws_to_delete.cloned().map(LintFix::delete));
                 fixes.push(LintFix::create_before(
                     select_target.clone(),
                     vec![SegmentBuilder::newline(tables.next_id(), "\n")],

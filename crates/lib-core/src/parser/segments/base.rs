@@ -298,44 +298,6 @@ impl ErasedSegment {
         }
     }
 
-    pub fn select_children(
-        &self,
-        start_seg: Option<&ErasedSegment>,
-        stop_seg: Option<&ErasedSegment>,
-        select_if: Option<fn(&ErasedSegment) -> bool>,
-        loop_while: Option<fn(&ErasedSegment) -> bool>,
-    ) -> Vec<ErasedSegment> {
-        let segments = self.segments();
-
-        let start_index = start_seg
-            .and_then(|seg| segments.iter().position(|x| x == seg))
-            .map_or(0, |index| index + 1);
-
-        let stop_index = stop_seg
-            .and_then(|seg| segments.iter().position(|x| x == seg))
-            .unwrap_or(segments.len());
-
-        let mut buff = Vec::new();
-
-        for seg in segments
-            .iter()
-            .skip(start_index)
-            .take(stop_index - start_index)
-        {
-            if let Some(loop_while) = &loop_while {
-                if !loop_while(seg) {
-                    break;
-                }
-            }
-
-            if select_if.as_ref().is_none_or(|f| f(seg)) {
-                buff.push(seg.clone());
-            }
-        }
-
-        buff
-    }
-
     pub fn is_templated(&self) -> bool {
         if let Some(pos_marker) = self.get_position_marker() {
             pos_marker.source_slice.start != pos_marker.source_slice.end && !pos_marker.is_literal()

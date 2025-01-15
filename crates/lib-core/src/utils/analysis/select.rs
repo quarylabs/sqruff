@@ -237,17 +237,17 @@ fn get_lambda_argument_columns(segment: &ErasedSegment, dialect: Option<&Dialect
 
         if potential_arrow.raw() == "->" {
             let arrow_operator = &potential_arrow;
-            let mut argument_segments = potential_lambda.select_children(
-                None,
-                Some(arrow_operator),
-                Some(|it: &ErasedSegment| {
+            let mut argument_segments = potential_lambda
+                .segments()
+                .iter()
+                .take_while(|&it| it != arrow_operator)
+                .filter(|it| {
                     matches!(
                         it.get_type(),
                         SyntaxKind::Bracketed | SyntaxKind::ColumnReference
                     )
-                }),
-                None,
-            );
+                })
+                .collect_vec();
 
             assert_eq!(argument_segments.len(), 1);
             let child_segment = argument_segments.pop().unwrap();

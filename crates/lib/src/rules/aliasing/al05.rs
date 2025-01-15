@@ -74,7 +74,7 @@ FROM foo
         &[RuleGroups::All, RuleGroups::Core, RuleGroups::Aliasing]
     }
 
-    fn eval(&self, context: RuleContext) -> Vec<LintResult> {
+    fn eval(&self, context: &RuleContext) -> Vec<LintResult> {
         let mut violations = Vec::new();
         let select_info = get_select_statement_info(&context.segment, context.dialect.into(), true);
 

@@ -164,7 +164,7 @@ pub trait Rule: CloneRule + dyn_clone::DynClone + Debug + 'static + Send + Sync 
             .unwrap_or(name)
     }
 
-    fn eval(&self, rule_cx: RuleContext) -> Vec<LintResult>;
+    fn eval(&self, rule_cx: &RuleContext) -> Vec<LintResult>;
 
     fn is_fix_compatible(&self) -> bool {
         false
@@ -180,7 +180,7 @@ pub trait Rule: CloneRule + dyn_clone::DynClone + Debug + 'static + Send + Sync 
         tree: ErasedSegment,
         config: &FluffConfig,
     ) -> (Vec<SQLLintError>, Vec<LintFix>) {
-        let root_context = RuleContext::new(tables, dialect, config, tree.clone());
+        let mut root_context = RuleContext::new(tables, dialect, config, tree.clone());
         let mut vs = Vec::new();
 
         // TODO Will to return a note that rules were skipped
@@ -188,7 +188,7 @@ pub trait Rule: CloneRule + dyn_clone::DynClone + Debug + 'static + Send + Sync 
             return Vec::new();
         }
 
-        self.crawl_behaviour().crawl(root_context, &mut |context| {
+        self.crawl_behaviour().crawl(&mut root_context, &mut |context| {
             let resp =
             std::panic::catch_unwind(std::panic::AssertUnwindSafe(|| self.eval(context)));
 

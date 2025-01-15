@@ -70,7 +70,7 @@ FROM t
         &[RuleGroups::All, RuleGroups::Ambiguous]
     }
 
-    fn eval(&self, context: RuleContext) -> Vec<LintResult> {
+    fn eval(&self, context: &RuleContext) -> Vec<LintResult> {
         debug_assert!(context.segment.is_type(SyntaxKind::SetExpression));
 
         let mut root = &context.segment;

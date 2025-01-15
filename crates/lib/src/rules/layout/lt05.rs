@@ -66,7 +66,7 @@ FROM my_table"#
     fn groups(&self) -> &'static [RuleGroups] {
         &[RuleGroups::All, RuleGroups::Core, RuleGroups::Layout]
     }
-    fn eval(&self, context: RuleContext) -> Vec<LintResult> {
+    fn eval(&self, context: &RuleContext) -> Vec<LintResult> {
         let mut results = ReflowSequence::from_root(context.segment.clone(), context.config)
             .break_long_lines(context.tables)
             .results();

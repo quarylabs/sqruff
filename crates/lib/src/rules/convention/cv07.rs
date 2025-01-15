@@ -64,7 +64,7 @@ Don’t wrap top-level statements in brackets.
         &[RuleGroups::All, RuleGroups::Convention]
     }
 
-    fn eval(&self, context: RuleContext) -> Vec<LintResult> {
+    fn eval(&self, context: &RuleContext) -> Vec<LintResult> {
         let mut results = vec![];
 
         for (parent, bracketed_segment) in Self::iter_bracketed_statements(context.segment.clone())

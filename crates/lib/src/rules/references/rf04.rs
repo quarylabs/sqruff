@@ -85,7 +85,7 @@ FROM foo AS vee
         &[RuleGroups::All, RuleGroups::References]
     }
 
-    fn eval(&self, context: RuleContext) -> Vec<LintResult> {
+    fn eval(&self, context: &RuleContext) -> Vec<LintResult> {
         if context.segment.raw().len() == 1
             || self
                 .ignore_words

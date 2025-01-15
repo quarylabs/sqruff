@@ -98,8 +98,8 @@ join c using(x)
         &[RuleGroups::All, RuleGroups::Structure]
     }
 
-    fn eval(&self, context: RuleContext) -> Vec<LintResult> {
-        let functional_context = FunctionalContext::new(context.clone());
+    fn eval(&self, context: &RuleContext) -> Vec<LintResult> {
+        let functional_context = FunctionalContext::new(context);
         let segment = functional_context.segment();
         let parent_stack = functional_context.parent_stack();
 

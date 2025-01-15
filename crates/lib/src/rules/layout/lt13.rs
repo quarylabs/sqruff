@@ -85,7 +85,7 @@ Start file on either code or comment. (The ^ represents the beginning of the fil
         &[RuleGroups::All, RuleGroups::Layout]
     }
 
-    fn eval(&self, context: RuleContext) -> Vec<LintResult> {
+    fn eval(&self, context: &RuleContext) -> Vec<LintResult> {
         let mut raw_segments = Vec::new();
 
         for seg in context.segment.recursive_crawl_all(false) {

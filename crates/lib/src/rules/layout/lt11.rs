@@ -48,7 +48,7 @@ SELECT 'b' AS col
     fn groups(&self) -> &'static [RuleGroups] {
         &[RuleGroups::All, RuleGroups::Core, RuleGroups::Layout]
     }
-    fn eval(&self, context: RuleContext) -> Vec<LintResult> {
+    fn eval(&self, context: &RuleContext) -> Vec<LintResult> {
         ReflowSequence::from_around_target(
             &context.segment,
             context.parent_stack.first().unwrap().clone(),

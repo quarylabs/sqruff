@@ -3,11 +3,11 @@ use sqruff_lib_core::utils::functional::segments::Segments;
 use crate::core::rules::context::RuleContext;
 
 pub struct FunctionalContext<'a> {
-    context: RuleContext<'a>,
+    context: &'a RuleContext<'a>,
 }
 
 impl<'a> FunctionalContext<'a> {
-    pub fn new(context: RuleContext<'a>) -> Self {
+    pub fn new(context: &'a RuleContext<'a>) -> Self {
         FunctionalContext { context }
     }
 

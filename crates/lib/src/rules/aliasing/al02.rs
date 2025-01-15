@@ -83,8 +83,8 @@ FROM foo
         &[RuleGroups::All, RuleGroups::Core, RuleGroups::Aliasing]
     }
 
-    fn eval(&self, context: RuleContext) -> Vec<LintResult> {
-        if FunctionalContext::new(context.clone())
+    fn eval(&self, context: &RuleContext) -> Vec<LintResult> {
+        if FunctionalContext::new(context)
             .segment()
             .children(None)
             .last()

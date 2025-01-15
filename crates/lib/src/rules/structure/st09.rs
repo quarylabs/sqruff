@@ -81,11 +81,9 @@ left join bar
         &[RuleGroups::All, RuleGroups::Structure]
     }
 
-    fn eval(&self, context: RuleContext) -> Vec<LintResult> {
+    fn eval(&self, context: &RuleContext) -> Vec<LintResult> {
         let mut table_aliases = Vec::new();
-        let children = FunctionalContext::new(context.clone())
-            .segment()
-            .children(None);
+        let children = FunctionalContext::new(context).segment().children(None);
         let join_clauses =
             children.recursive_crawl(const { &SyntaxSet::new(&[SyntaxKind::JoinClause]) }, true);
         let join_on_conditions = join_clauses.children(None).recursive_crawl(

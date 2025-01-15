@@ -73,8 +73,8 @@ FROM foo
         &[RuleGroups::All, RuleGroups::Core, RuleGroups::Convention]
     }
 
-    fn eval(&self, rule_cx: RuleContext) -> Vec<LintResult> {
-        let segment = FunctionalContext::new(rule_cx.clone()).segment();
+    fn eval(&self, rule_cx: &RuleContext) -> Vec<LintResult> {
+        let segment = FunctionalContext::new(rule_cx).segment();
         let children = segment.children(None);
 
         let last_content: ErasedSegment = children

@@ -123,7 +123,7 @@ FROM foo;
         &[RuleGroups::All, RuleGroups::Convention]
     }
 
-    fn eval(&self, context: RuleContext) -> Vec<LintResult> {
+    fn eval(&self, context: &RuleContext) -> Vec<LintResult> {
         let current_type_casting_style = if context.segment.is_type(SyntaxKind::Function) {
             let Some(function_name) = context
                 .segment
@@ -144,7 +144,7 @@ FROM foo;
             TypeCastingStyle::None
         };
 
-        let functional_context = FunctionalContext::new(context.clone());
+        let functional_context = FunctionalContext::new(context);
         match self.preferred_type_casting_style {
             TypeCastingStyle::Consistent => {
                 let Some(prior_type_casting_style) = context.try_get::<TypeCastingStyle>() else {

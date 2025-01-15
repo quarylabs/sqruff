@@ -109,7 +109,7 @@ from foo
             RuleGroups::Capitalisation,
         ]
     }
-    fn eval(&self, context: RuleContext) -> Vec<LintResult> {
+    fn eval(&self, context: &RuleContext) -> Vec<LintResult> {
         self.base.eval(context)
     }
 

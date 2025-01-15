@@ -58,7 +58,7 @@ from x
         &[RuleGroups::All, RuleGroups::Structure]
     }
 
-    fn eval(&self, context: RuleContext) -> Vec<LintResult> {
+    fn eval(&self, context: &RuleContext) -> Vec<LintResult> {
         let mut violation_exists = false;
 
         static SELECT_ELEMENT_ORDER_PREFERENCE: &[&[Validate]] = &[

@@ -61,7 +61,7 @@ FROM foo
         &[RuleGroups::All, RuleGroups::Layout]
     }
 
-    fn eval(&self, context: RuleContext) -> Vec<LintResult> {
+    fn eval(&self, context: &RuleContext) -> Vec<LintResult> {
         if context.segment.is_type(SyntaxKind::ComparisonOperator) {
             let comparison_positioning = context.config.raw["layout"]["type"]
                 ["comparison_operator"]["line_position"]

@@ -53,7 +53,7 @@ JOIN bar USING (a)
         &[RuleGroups::All, RuleGroups::Core, RuleGroups::Layout]
     }
 
-    fn eval(&self, context: RuleContext) -> Vec<LintResult> {
+    fn eval(&self, context: &RuleContext) -> Vec<LintResult> {
         let sequence = ReflowSequence::from_root(context.segment.clone(), context.config);
         sequence
             .respace(context.tables, false, Filter::All)

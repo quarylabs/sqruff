@@ -54,8 +54,8 @@ SELECT * FROM zoo
     fn groups(&self) -> &'static [RuleGroups] {
         &[RuleGroups::All, RuleGroups::Core, RuleGroups::Layout]
     }
-    fn eval(&self, context: RuleContext) -> Vec<LintResult> {
-        let segments = FunctionalContext::new(context.clone())
+    fn eval(&self, context: &RuleContext) -> Vec<LintResult> {
+        let segments = FunctionalContext::new(context)
             .segment()
             .children(Some(|seg| seg.is_type(SyntaxKind::CommonTableExpression)));
 

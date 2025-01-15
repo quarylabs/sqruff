@@ -57,7 +57,7 @@ LEFT JOIN foo
         &[RuleGroups::All, RuleGroups::Convention]
     }
 
-    fn eval(&self, context: RuleContext) -> Vec<LintResult> {
+    fn eval(&self, context: &RuleContext) -> Vec<LintResult> {
         assert!(context.segment.is_type(SyntaxKind::JoinClause));
 
         let segments = context

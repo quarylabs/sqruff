@@ -144,10 +144,8 @@ JOIN
         &[RuleGroups::All, RuleGroups::Core, RuleGroups::Aliasing]
     }
 
-    fn eval(&self, context: RuleContext) -> Vec<LintResult> {
-        let children = FunctionalContext::new(context.clone())
-            .segment()
-            .children(None);
+    fn eval(&self, context: &RuleContext) -> Vec<LintResult> {
+        let children = FunctionalContext::new(context).segment().children(None);
         let from_expression_elements = children.recursive_crawl(
             const { &SyntaxSet::new(&[SyntaxKind::FromExpressionElement]) },
             true,

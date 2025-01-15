@@ -104,7 +104,7 @@ SELECT 123 as `foo` -- For BigQuery, MySql, ...
         &[RuleGroups::All, RuleGroups::References]
     }
 
-    fn eval(&self, context: RuleContext) -> Vec<LintResult> {
+    fn eval(&self, context: &RuleContext) -> Vec<LintResult> {
         if matches!(
             context.dialect.name,
             DialectKind::Postgres | DialectKind::Snowflake
@@ -113,7 +113,7 @@ SELECT 123 as `foo` -- For BigQuery, MySql, ...
             return Vec::new();
         }
 
-        if FunctionalContext::new(context.clone())
+        if FunctionalContext::new(context)
             .parent_stack()
             .any(Some(|it| {
                 [SyntaxKind::PasswordAuth, SyntaxKind::ExecuteAsClause]

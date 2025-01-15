@@ -65,7 +65,7 @@ CREATE TABLE t (
         ]
     }
 
-    fn eval(&self, context: RuleContext) -> Vec<LintResult> {
+    fn eval(&self, context: &RuleContext) -> Vec<LintResult> {
         let mut results = Vec::new();
 
         if context.segment.is_type(SyntaxKind::PrimitiveType)
@@ -86,7 +86,7 @@ CREATE TABLE t (
                     &self.extended_capitalisation_policy,
                     "extended_capitalisation_policy",
                     seg.clone(),
-                    &context,
+                    context,
                 ));
             }
         }

@@ -67,7 +67,7 @@ FROM foo
         &[RuleGroups::All, RuleGroups::Layout]
     }
 
-    fn eval(&self, context: RuleContext) -> Vec<LintResult> {
+    fn eval(&self, context: &RuleContext) -> Vec<LintResult> {
         let comma_positioning = context.config.raw["layout"]["type"]["comma"]["line_position"]
             .as_string()
             .unwrap();

@@ -232,7 +232,7 @@ FROM foo
         ]
     }
 
-    fn eval(&self, context: RuleContext) -> Vec<LintResult> {
+    fn eval(&self, context: &RuleContext) -> Vec<LintResult> {
         let query = Query::from_segment(&context.segment, context.dialect, None);
         let mut violations = Vec::new();
         let tmp;

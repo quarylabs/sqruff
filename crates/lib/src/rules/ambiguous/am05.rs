@@ -92,7 +92,7 @@ SELECT a, b FROM table_2
         &[RuleGroups::All, RuleGroups::Ambiguous]
     }
 
-    fn eval(&self, context: RuleContext) -> Vec<LintResult> {
+    fn eval(&self, context: &RuleContext) -> Vec<LintResult> {
         assert!(context.segment.is_type(SyntaxKind::JoinClause));
 
         let join_clause_keywords = context

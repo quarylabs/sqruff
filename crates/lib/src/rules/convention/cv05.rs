@@ -77,7 +77,7 @@ WHERE a IS NULL
         &[RuleGroups::All, RuleGroups::Core, RuleGroups::Convention]
     }
 
-    fn eval(&self, context: RuleContext) -> Vec<LintResult> {
+    fn eval(&self, context: &RuleContext) -> Vec<LintResult> {
         if context.parent_stack.len() >= 2 {
             for type_str in [
                 SyntaxKind::SetClauseList,

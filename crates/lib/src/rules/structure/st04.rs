@@ -66,8 +66,8 @@ FROM mytable
         &[RuleGroups::All, RuleGroups::Structure]
     }
 
-    fn eval(&self, context: RuleContext) -> Vec<LintResult> {
-        let segment = FunctionalContext::new(context.clone()).segment();
+    fn eval(&self, context: &RuleContext) -> Vec<LintResult> {
+        let segment = FunctionalContext::new(context).segment();
         let case1_children = segment.children(None);
         let case1_keywords =
             case1_children.find_first(Some(|it: &ErasedSegment| it.is_keyword("CASE")));

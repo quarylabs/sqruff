@@ -71,7 +71,7 @@ SELECT a, b FROM t
         &[RuleGroups::All, RuleGroups::Ambiguous]
     }
 
-    fn eval(&self, rule_cx: RuleContext) -> Vec<LintResult> {
+    fn eval(&self, rule_cx: &RuleContext) -> Vec<LintResult> {
         let query = Query::from_segment(&rule_cx.segment, rule_cx.dialect, None);
 
         let result = self.analyze_result_columns(query);

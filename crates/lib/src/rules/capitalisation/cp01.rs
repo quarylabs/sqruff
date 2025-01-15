@@ -122,7 +122,7 @@ from foo
         ]
     }
 
-    fn eval(&self, context: RuleContext) -> Vec<LintResult> {
+    fn eval(&self, context: &RuleContext) -> Vec<LintResult> {
         let parent = context.parent_stack.last().unwrap();
 
         if self
@@ -159,7 +159,7 @@ from foo
             &self.capitalisation_policy,
             &self.cap_policy_name,
             context.segment.clone(),
-            &context,
+            context,
         )]
     }
 

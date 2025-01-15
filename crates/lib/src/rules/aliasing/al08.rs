@@ -67,7 +67,7 @@ FROM
         &[RuleGroups::All, RuleGroups::Core, RuleGroups::Aliasing]
     }
 
-    fn eval(&self, context: RuleContext) -> Vec<LintResult> {
+    fn eval(&self, context: &RuleContext) -> Vec<LintResult> {
         let mut used_aliases = AHashMap::new();
         let mut violations = Vec::new();
 

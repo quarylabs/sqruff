@@ -53,7 +53,7 @@ FROM foo
         &[RuleGroups::All, RuleGroups::Core, RuleGroups::Layout]
     }
 
-    fn eval(&self, context: RuleContext) -> Vec<LintResult> {
+    fn eval(&self, context: &RuleContext) -> Vec<LintResult> {
         ReflowSequence::from_root(context.segment.clone(), context.config)
             .reindent(context.tables)
             .results()

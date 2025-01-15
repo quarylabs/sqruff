@@ -318,7 +318,6 @@ impl Linter {
                     let linting_errors = rule.crawl(
                         tables,
                         &self.config.dialect,
-                        fix,
                         templated_file,
                         tree.clone(),
                         &self.config,

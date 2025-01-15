@@ -177,7 +177,6 @@ pub trait Rule: CloneRule + dyn_clone::DynClone + Debug + 'static + Send + Sync 
         &self,
         tables: &Tables,
         dialect: &Dialect,
-        fix: bool,
         templated_file: &TemplatedFile,
         tree: ErasedSegment,
         config: &FluffConfig,
@@ -185,7 +184,6 @@ pub trait Rule: CloneRule + dyn_clone::DynClone + Debug + 'static + Send + Sync 
         let root_context = RuleContext {
             tables,
             dialect,
-            fix,
             config,
             segment: tree.clone(),
             templated_file: <_>::default(),

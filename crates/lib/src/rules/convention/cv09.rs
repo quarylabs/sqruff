@@ -93,7 +93,7 @@ CREATE TABLE myschema.t1 (a BOOL);
         &[RuleGroups::All, RuleGroups::Convention]
     }
 
-    fn eval(&self, context: RuleContext) -> Vec<LintResult> {
+    fn eval(&self, context: &RuleContext) -> Vec<LintResult> {
         if matches!(
             context.segment.get_type(),
             SyntaxKind::Comment | SyntaxKind::InlineComment | SyntaxKind::BlockComment

@@ -271,14 +271,12 @@ FROM
         &[RuleGroups::All, RuleGroups::Aliasing]
     }
 
-    fn eval(&self, context: RuleContext) -> Vec<LintResult> {
+    fn eval(&self, context: &RuleContext) -> Vec<LintResult> {
         if !self.force_enable {
             return Vec::new();
         }
 
-        let children = FunctionalContext::new(context.clone())
-            .segment()
-            .children(None);
+        let children = FunctionalContext::new(context).segment().children(None);
         let from_clause_segment = children
             .select(
                 Some(|it: &ErasedSegment| it.is_type(SyntaxKind::FromClause)),

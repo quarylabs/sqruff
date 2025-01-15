@@ -100,7 +100,7 @@ CREATE TABLE DBO.ColumnNames
         &[RuleGroups::All, RuleGroups::References]
     }
 
-    fn eval(&self, context: RuleContext) -> Vec<LintResult> {
+    fn eval(&self, context: &RuleContext) -> Vec<LintResult> {
         if self
             .ignore_words
             .contains(&context.segment.raw().to_lowercase())

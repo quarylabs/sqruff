@@ -67,7 +67,7 @@ SELECT a, b FROM table_2
         ]
     }
 
-    fn eval(&self, rule_cx: RuleContext) -> Vec<LintResult> {
+    fn eval(&self, rule_cx: &RuleContext) -> Vec<LintResult> {
         let raw = rule_cx.segment.raw();
         let raw_upper = raw.to_uppercase();
 

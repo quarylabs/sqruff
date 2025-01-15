@@ -95,7 +95,7 @@ LEFT JOIN vee ON vee.a = foo.a
         &[RuleGroups::All, RuleGroups::References]
     }
 
-    fn eval(&self, context: RuleContext) -> Vec<LintResult> {
+    fn eval(&self, context: &RuleContext) -> Vec<LintResult> {
         self.base.eval(context)
     }
 

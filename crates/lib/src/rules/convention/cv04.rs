@@ -69,7 +69,7 @@ from table_a
         &[RuleGroups::All, RuleGroups::Core, RuleGroups::Convention]
     }
 
-    fn eval(&self, context: RuleContext) -> Vec<LintResult> {
+    fn eval(&self, context: &RuleContext) -> Vec<LintResult> {
         let Some(function_name) = context
             .segment
             .child(const { &SyntaxSet::new(&[SyntaxKind::FunctionName]) })
@@ -78,7 +78,7 @@ from table_a
         };
 
         if function_name.raw().eq_ignore_ascii_case("COUNT") {
-            let f_content = FunctionalContext::new(context.clone())
+            let f_content = FunctionalContext::new(context)
                 .segment()
                 .children(Some(|it: &ErasedSegment| it.is_type(SyntaxKind::Bracketed)))
                 .children(Some(|it: &ErasedSegment| {

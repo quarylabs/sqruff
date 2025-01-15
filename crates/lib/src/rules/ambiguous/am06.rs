@@ -80,8 +80,8 @@ ORDER BY a ASC, b DESC
         &[RuleGroups::All, RuleGroups::Core, RuleGroups::Ambiguous]
     }
 
-    fn eval(&self, context: RuleContext) -> Vec<LintResult> {
-        let skip = FunctionalContext::new(context.clone())
+    fn eval(&self, context: &RuleContext) -> Vec<LintResult> {
+        let skip = FunctionalContext::new(context)
             .parent_stack()
             .any(Some(|it| {
                 let ignore_types = [

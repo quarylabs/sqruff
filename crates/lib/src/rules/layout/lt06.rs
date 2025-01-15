@@ -52,7 +52,7 @@ FROM foo
     fn groups(&self) -> &'static [RuleGroups] {
         &[RuleGroups::All, RuleGroups::Core, RuleGroups::Layout]
     }
-    fn eval(&self, context: RuleContext) -> Vec<LintResult> {
+    fn eval(&self, context: &RuleContext) -> Vec<LintResult> {
         let segment = FunctionalContext::new(context).segment();
         let children = segment.children(None);
 

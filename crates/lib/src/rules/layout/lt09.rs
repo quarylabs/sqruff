@@ -96,9 +96,9 @@ FROM test_table;
         &[RuleGroups::All, RuleGroups::Layout]
     }
 
-    fn eval(&self, context: RuleContext) -> Vec<LintResult> {
-        let select_targets_info = Self::get_indexes(context.clone());
-        let select_clause = FunctionalContext::new(context.clone()).segment();
+    fn eval(&self, context: &RuleContext) -> Vec<LintResult> {
+        let select_targets_info = Self::get_indexes(context);
+        let select_clause = FunctionalContext::new(context).segment();
 
         let wildcards = select_clause
             .children(Some(|sp| sp.is_type(SyntaxKind::SelectClauseElement)))
@@ -131,10 +131,8 @@ FROM test_table;
 }
 
 impl RuleLT09 {
-    fn get_indexes(context: RuleContext) -> SelectTargetsInfo {
-        let children = FunctionalContext::new(context.clone())
-            .segment()
-            .children(None);
+    fn get_indexes(context: &RuleContext) -> SelectTargetsInfo {
+        let children = FunctionalContext::new(context).segment().children(None);
 
         let select_targets = children.select(
             Some(|segment: &ErasedSegment| segment.is_type(SyntaxKind::SelectClauseElement)),
@@ -318,9 +316,9 @@ impl RuleLT09 {
     fn eval_single_select_target_element(
         &self,
         select_targets_info: SelectTargetsInfo,
-        context: RuleContext,
+        context: &RuleContext,
     ) -> Vec<LintResult> {
-        let select_clause = FunctionalContext::new(context.clone()).segment();
+        let select_clause = FunctionalContext::new(context).segment();
         let parent_stack = &context.parent_stack;
 
         if !(select_targets_info.select_idx < select_targets_info.first_new_line_idx

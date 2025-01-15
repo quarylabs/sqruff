@@ -103,7 +103,7 @@ from foo
         &[RuleGroups::All, RuleGroups::Convention]
     }
 
-    fn eval(&self, context: RuleContext) -> Vec<LintResult> {
+    fn eval(&self, context: &RuleContext) -> Vec<LintResult> {
         // TODO: "databricks", "hive", "mysql"
         if !(self.force_enable
             || matches!(

@@ -58,7 +58,7 @@ from x
         &[RuleGroups::All, RuleGroups::Structure]
     }
 
-    fn eval(&self, context: RuleContext) -> Vec<LintResult> {
+    fn eval(&self, context: &RuleContext) -> Vec<LintResult> {
         let anchor = context.segment.clone();
 
         let children = FunctionalContext::new(context).segment().children(None);

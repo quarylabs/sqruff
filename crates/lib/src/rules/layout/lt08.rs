@@ -58,7 +58,7 @@ SELECT a FROM plop
     fn groups(&self) -> &'static [RuleGroups] {
         &[RuleGroups::All, RuleGroups::Core, RuleGroups::Layout]
     }
-    fn eval(&self, context: RuleContext) -> Vec<LintResult> {
+    fn eval(&self, context: &RuleContext) -> Vec<LintResult> {
         let mut error_buffer = Vec::new();
         let global_comma_style = context.config.raw["layout"]["type"]["comma"]["line_position"]
             .as_string()

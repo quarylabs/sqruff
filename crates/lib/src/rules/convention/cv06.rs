@@ -69,7 +69,7 @@ FROM foo;
         &[RuleGroups::All, RuleGroups::Convention]
     }
 
-    fn eval(&self, context: RuleContext) -> Vec<LintResult> {
+    fn eval(&self, context: &RuleContext) -> Vec<LintResult> {
         debug_assert!(context.segment.is_type(SyntaxKind::File));
 
         let mut results = vec![];

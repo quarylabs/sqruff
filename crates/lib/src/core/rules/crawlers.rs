@@ -14,7 +14,7 @@ pub trait BaseCrawler {
         self.works_on_unparsable() || !segment.is_type(SyntaxKind::Unparsable)
     }
 
-    fn crawl<'a>(&self, context: RuleContext<'a>, f: &mut impl FnMut(RuleContext<'a>));
+    fn crawl<'a>(&self, context: &mut RuleContext<'a>, f: &mut impl FnMut(&RuleContext<'a>));
 }
 
 #[enum_dispatch(BaseCrawler)]
@@ -32,7 +32,7 @@ pub enum Crawler {
 pub struct RootOnlyCrawler;
 
 impl BaseCrawler for RootOnlyCrawler {
-    fn crawl<'a>(&self, context: RuleContext<'a>, f: &mut impl FnMut(RuleContext<'a>)) {
+    fn crawl<'a>(&self, context: &mut RuleContext<'a>, f: &mut impl FnMut(&RuleContext<'a>)) {
         if self.passes_filter(&context.segment) {
             f(context);
         }
@@ -70,12 +70,12 @@ impl SegmentSeekerCrawler {
 }
 
 impl BaseCrawler for SegmentSeekerCrawler {
-    fn crawl<'a>(&self, mut context: RuleContext<'a>, f: &mut impl FnMut(RuleContext<'a>)) {
+    fn crawl<'a>(&self, context: &mut RuleContext<'a>, f: &mut impl FnMut(&RuleContext<'a>)) {
         let mut self_match = false;
 
         if self.is_self_match(&context.segment) {
             self_match = true;
-            f(context.clone());
+            f(context);
         }
 
         if context.segment.segments().is_empty() || (self_match && !self.allow_recurse) {
@@ -96,8 +96,9 @@ impl BaseCrawler for SegmentSeekerCrawler {
         for (idx, child) in segment.segments().iter().enumerate() {
             context.segment = child.clone();
             context.segment_idx = idx;
-
-            self.crawl(context.clone(), f);
+            let checkpoint = context.checkpoint();
+            self.crawl(context, f);
+            context.restore(checkpoint);
         }
     }
 }
@@ -105,9 +106,9 @@ impl BaseCrawler for SegmentSeekerCrawler {
 pub struct TokenSeekerCrawler;
 
 impl BaseCrawler for TokenSeekerCrawler {
-    fn crawl<'a>(&self, mut context: RuleContext<'a>, f: &mut impl FnMut(RuleContext<'a>)) {
+    fn crawl<'a>(&self, context: &mut RuleContext<'a>, f: &mut impl FnMut(&RuleContext<'a>)) {
         if context.segment.segments().is_empty() {
-            f(context.clone());
+            f(context);
         }
 
         let segment = context.segment.clone();
@@ -115,7 +116,10 @@ impl BaseCrawler for TokenSeekerCrawler {
         for (idx, child) in segment.segments().iter().enumerate() {
             context.segment = child.clone();
             context.segment_idx = idx;
-            self.crawl(context.clone(), f);
+
+            let checkpoint = context.checkpoint();
+            self.crawl(context, f);
+            context.restore(checkpoint);
         }
     }
 }

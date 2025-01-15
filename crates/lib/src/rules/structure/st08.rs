@@ -17,7 +17,7 @@ pub struct RuleST08;
 impl RuleST08 {
     pub fn remove_unneeded_brackets<'a>(
         &self,
-        context: RuleContext<'a>,
+        context: &RuleContext<'a>,
         bracketed: Segments,
     ) -> (ErasedSegment, ReflowSequence<'a>) {
         let anchor = &bracketed.get(0, None).unwrap();
@@ -81,12 +81,10 @@ SELECT DISTINCT a, b FROM foo
         &[RuleGroups::All, RuleGroups::Core, RuleGroups::Structure]
     }
 
-    fn eval(&self, context: RuleContext) -> Vec<LintResult> {
+    fn eval(&self, context: &RuleContext) -> Vec<LintResult> {
         let mut seq: Option<ReflowSequence> = None;
         let mut anchor: Option<ErasedSegment> = None;
-        let children = FunctionalContext::new(context.clone())
-            .segment()
-            .children(None);
+        let children = FunctionalContext::new(context).segment().children(None);
 
         if context.segment.is_type(SyntaxKind::SelectClause) {
             let modifier = children.select(
@@ -116,7 +114,7 @@ SELECT DISTINCT a, b FROM foo
 
             if !modifier.is_empty() && !bracketed.is_empty() {
                 if expression[0].segments().len() == 1 {
-                    let ret = self.remove_unneeded_brackets(context.clone(), bracketed);
+                    let ret = self.remove_unneeded_brackets(context, bracketed);
                     anchor = ret.0.into();
                     seq = ret.1.into();
                 } else {

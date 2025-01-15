@@ -117,7 +117,7 @@ from foo
         ]
     }
 
-    fn eval(&self, context: RuleContext) -> Vec<LintResult> {
+    fn eval(&self, context: &RuleContext) -> Vec<LintResult> {
         // TODO: add databricks
         if context.dialect.name == DialectKind::Sparksql
             && context

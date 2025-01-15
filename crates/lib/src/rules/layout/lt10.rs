@@ -54,11 +54,9 @@ from x
     fn groups(&self) -> &'static [RuleGroups] {
         &[RuleGroups::All, RuleGroups::Core, RuleGroups::Layout]
     }
-    fn eval(&self, context: RuleContext) -> Vec<LintResult> {
+    fn eval(&self, context: &RuleContext) -> Vec<LintResult> {
         // Get children of select_clause and the corresponding select keyword.
-        let child_segments = FunctionalContext::new(context.clone())
-            .segment()
-            .children(None);
+        let child_segments = FunctionalContext::new(context).segment().children(None);
         let select_keyword = child_segments.first().unwrap();
 
         // See if we have a select_clause_modifier.

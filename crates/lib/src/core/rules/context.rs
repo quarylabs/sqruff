@@ -9,13 +9,8 @@ use sqruff_lib_core::templaters::base::TemplatedFile;
 
 use crate::core::config::FluffConfig;
 
-#[derive(Clone, Debug)]
+#[derive(Debug)]
 pub struct RuleContext<'a> {
-    data: Rc<RuleContextData<'a>>,
-}
-
-#[derive(Clone, Debug)]
-pub struct RuleContextData<'a> {
     pub tables: &'a Tables,
     pub dialect: &'a Dialect,
     pub templated_file: Option<TemplatedFile>,
@@ -35,18 +30,9 @@ pub struct RuleContextData<'a> {
     pub segment_idx: usize,
 }
 
-impl<'a> std::ops::Deref for RuleContext<'a> {
-    type Target = RuleContextData<'a>;
-
-    fn deref(&self) -> &Self::Target {
-        &self.data
-    }
-}
-
-impl std::ops::DerefMut for RuleContext<'_> {
-    fn deref_mut(&mut self) -> &mut Self::Target {
-        Rc::make_mut(&mut self.data)
-    }
+pub struct Checkpoint {
+    parent_stack: usize,
+    raw_stack: usize,
 }
 
 impl<'a> RuleContext<'a> {
@@ -57,20 +43,29 @@ impl<'a> RuleContext<'a> {
         segment: ErasedSegment,
     ) -> Self {
         Self {
-            data: RuleContextData {
-                tables,
-                dialect,
-                config,
-                segment,
-                templated_file: <_>::default(),
-                path: <_>::default(),
-                parent_stack: <_>::default(),
-                raw_stack: <_>::default(),
-                memory: Rc::new(RefCell::new(AHashMap::new())),
-                segment_idx: 0,
-            }
-            .into(),
+            tables,
+            dialect,
+            config,
+            segment,
+            templated_file: <_>::default(),
+            path: <_>::default(),
+            parent_stack: <_>::default(),
+            raw_stack: <_>::default(),
+            memory: Rc::new(RefCell::new(AHashMap::new())),
+            segment_idx: 0,
         }
+    }
+
+    pub fn checkpoint(&self) -> Checkpoint {
+        Checkpoint {
+            parent_stack: self.parent_stack.len(),
+            raw_stack: self.raw_stack.len(),
+        }
+    }
+
+    pub fn restore(&mut self, checkpoint: Checkpoint) {
+        self.parent_stack.truncate(checkpoint.parent_stack);
+        self.raw_stack.truncate(checkpoint.raw_stack);
     }
 
     pub fn try_get<T: Clone + 'static>(&self) -> Option<T> {

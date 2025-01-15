@@ -132,9 +132,8 @@ Add trailing newline to the end. The $ character represents end of file.
         &[RuleGroups::All, RuleGroups::Core, RuleGroups::Layout]
     }
 
-    fn eval(&self, context: RuleContext) -> Vec<LintResult> {
-        let (parent_stack, segment) =
-            get_last_segment(FunctionalContext::new(context.clone()).segment());
+    fn eval(&self, context: &RuleContext) -> Vec<LintResult> {
+        let (parent_stack, segment) = get_last_segment(FunctionalContext::new(context).segment());
 
         if segment.is_empty() {
             return Vec::new();

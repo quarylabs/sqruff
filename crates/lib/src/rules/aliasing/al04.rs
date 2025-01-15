@@ -100,7 +100,7 @@ FROM
         &[RuleGroups::All, RuleGroups::Core, RuleGroups::Aliasing]
     }
 
-    fn eval(&self, context: RuleContext) -> Vec<LintResult> {
+    fn eval(&self, context: &RuleContext) -> Vec<LintResult> {
         let Some(select_info) =
             get_select_statement_info(&context.segment, context.dialect.into(), true)
         else {

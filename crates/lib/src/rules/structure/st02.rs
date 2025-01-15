@@ -90,14 +90,12 @@ from fancy_table
         &[RuleGroups::All, RuleGroups::Structure]
     }
 
-    fn eval(&self, context: RuleContext) -> Vec<LintResult> {
+    fn eval(&self, context: &RuleContext) -> Vec<LintResult> {
         if context.segment.segments()[0]
             .raw()
             .eq_ignore_ascii_case("CASE")
         {
-            let children = FunctionalContext::new(context.clone())
-                .segment()
-                .children(None);
+            let children = FunctionalContext::new(context).segment().children(None);
 
             let when_clauses = children.select(
                 Some(|it: &ErasedSegment| it.is_type(SyntaxKind::WhenClause)),
@@ -141,7 +139,7 @@ from fancy_table
                         let preceding_not = then_expression_upper == "FALSE";
 
                         let fixes = Self::coalesce_fix_list(
-                            &context,
+                            context,
                             coalesce_arg_1,
                             coalesce_arg_2,
                             preceding_not,
@@ -218,7 +216,7 @@ from fancy_table
 
                     if coalesce_arg_2.raw().eq_ignore_ascii_case("NULL") {
                         let fixes =
-                            Self::column_only_fix_list(&context, column_reference_segment.clone());
+                            Self::column_only_fix_list(context, column_reference_segment.clone());
                         return vec![LintResult::new(
                             condition_expression.into(),
                             fixes,
@@ -228,7 +226,7 @@ from fancy_table
                     }
 
                     let fixes =
-                        Self::coalesce_fix_list(&context, coalesce_arg_1, coalesce_arg_2, false);
+                        Self::coalesce_fix_list(context, coalesce_arg_1, coalesce_arg_2, false);
 
                     return vec![LintResult::new(
                         condition_expression.into(),
@@ -243,7 +241,7 @@ from fancy_table
                     .eq_ignore_ascii_case(then_expression.raw())
                 {
                     let fixes =
-                        Self::column_only_fix_list(&context, column_reference_segment.clone());
+                        Self::column_only_fix_list(context, column_reference_segment.clone());
 
                     return vec![LintResult::new(
                         condition_expression.into(),

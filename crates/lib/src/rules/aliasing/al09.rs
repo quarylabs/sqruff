@@ -53,7 +53,7 @@ FROM table;
         &[RuleGroups::All, RuleGroups::Core, RuleGroups::Aliasing]
     }
 
-    fn eval(&self, context: RuleContext) -> Vec<LintResult> {
+    fn eval(&self, context: &RuleContext) -> Vec<LintResult> {
         let mut violations = Vec::new();
 
         let children = FunctionalContext::new(context).segment().children(None);

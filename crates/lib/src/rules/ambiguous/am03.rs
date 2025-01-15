@@ -55,7 +55,7 @@ ORDER BY a ASC, b DESC
         &[RuleGroups::All, RuleGroups::Ambiguous]
     }
 
-    fn eval(&self, context: RuleContext) -> Vec<LintResult> {
+    fn eval(&self, context: &RuleContext) -> Vec<LintResult> {
         // Only trigger on orderby_clause
         let order_by_spec = Self::get_order_by_info(context.segment.clone());
         let order_types = order_by_spec

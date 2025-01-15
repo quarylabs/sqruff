@@ -81,7 +81,7 @@ FROM baz;
         &[RuleGroups::All, RuleGroups::Convention]
     }
 
-    fn eval(&self, context: RuleContext) -> Vec<LintResult> {
+    fn eval(&self, context: &RuleContext) -> Vec<LintResult> {
         // Use "COALESCE" instead of "IFNULL" or "NVL".
         // We only care about function names, and they should be the
         // only things we get.

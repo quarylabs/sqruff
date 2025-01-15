@@ -54,8 +54,8 @@ FROM foo
         &[RuleGroups::All, RuleGroups::Core, RuleGroups::Ambiguous]
     }
 
-    fn eval(&self, context: RuleContext) -> Vec<LintResult> {
-        let segment = FunctionalContext::new(context.clone()).segment();
+    fn eval(&self, context: &RuleContext) -> Vec<LintResult> {
+        let segment = FunctionalContext::new(context).segment();
 
         if !segment
             .children(Some(|it| it.is_type(SyntaxKind::GroupbyClause)))

@@ -4,24 +4,6 @@ use std::io::{BufRead, BufReader};
 use std::path::{Path, PathBuf};
 use std::sync::{Arc, OnceLock};
 
-use ahash::{AHashMap, AHashSet};
-use itertools::Itertools;
-use rayon::iter::{IntoParallelRefIterator as _, ParallelIterator as _};
-use smol_str::{SmolStr, ToSmolStr};
-use sqruff_lib_core::dialects::base::Dialect;
-use sqruff_lib_core::dialects::syntax::{SyntaxKind, SyntaxSet};
-use sqruff_lib_core::errors::{
-    SQLBaseError, SQLFluffUserError, SQLLexError, SQLLintError, SQLParseError, SqlError,
-};
-use sqruff_lib_core::helpers;
-use sqruff_lib_core::linter::compute_anchor_edit_info;
-use sqruff_lib_core::parser::lexer::StringOrTemplate;
-use sqruff_lib_core::parser::parser::Parser;
-use sqruff_lib_core::parser::segments::base::{ErasedSegment, Tables};
-use sqruff_lib_core::parser::segments::fix::SourceFix;
-use sqruff_lib_core::templaters::base::TemplatedFile;
-use walkdir::WalkDir;
-
 use super::linted_dir::LintedDir;
 use crate::cli::formatters::Formatter;
 use crate::core::config::FluffConfig;
@@ -33,6 +15,24 @@ use crate::core::rules::noqa::IgnoreMask;
 use crate::rules::get_ruleset;
 use crate::templaters::raw::RawTemplater;
 use crate::templaters::{Templater, TEMPLATERS};
+use ahash::{AHashMap, AHashSet};
+use itertools::Itertools;
+use rayon::iter::{IntoParallelRefIterator as _, ParallelIterator as _};
+use smol_str::{SmolStr, ToSmolStr};
+use sqruff_lib_core::dialects::base::Dialect;
+use sqruff_lib_core::dialects::syntax::{SyntaxKind, SyntaxSet};
+use sqruff_lib_core::errors::{
+    SQLBaseError, SQLFluffUserError, SQLLexError, SQLLintError, SQLParseError, SqlError,
+};
+use sqruff_lib_core::helpers;
+use sqruff_lib_core::lint_fix::LintFix;
+use sqruff_lib_core::linter::compute_anchor_edit_info;
+use sqruff_lib_core::parser::lexer::StringOrTemplate;
+use sqruff_lib_core::parser::parser::Parser;
+use sqruff_lib_core::parser::segments::base::{ErasedSegment, Tables};
+use sqruff_lib_core::parser::segments::fix::SourceFix;
+use sqruff_lib_core::templaters::base::TemplatedFile;
+use walkdir::WalkDir;
 
 pub struct Linter {
     config: FluffConfig,
@@ -315,7 +315,7 @@ impl Linter {
                         continue;
                     }
 
-                    let (linting_errors, fixes) = rule.crawl(
+                    let linting_errors = rule.crawl(
                         tables,
                         &self.config.dialect,
                         fix,
@@ -323,10 +323,25 @@ impl Linter {
                         tree.clone(),
                         &self.config,
                     );
+                    let linting_errors: Vec<SQLLintError> = linting_errors
+                        .into_iter()
+                        .filter(|error| {
+                            !ignore_mask
+                                .clone()
+                                .map_or(false, |ignore_mask: IgnoreMask| {
+                                    ignore_mask.is_masked(error)
+                                })
+                        })
+                        .collect();
 
                     if is_first_linter_pass {
-                        initial_linting_errors.extend(linting_errors);
+                        initial_linting_errors.extend(linting_errors.clone());
                     }
+
+                    let fixes: Vec<LintFix> = linting_errors
+                        .into_iter()
+                        .flat_map(|linting_error| linting_error.clone().fixes.clone())
+                        .collect();
 
                     if fix && !fixes.is_empty() {
                         // Do some sanity checks on the fixes before applying.

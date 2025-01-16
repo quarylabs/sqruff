@@ -38,7 +38,7 @@ use sqruff_lib_core::parser::segments::base::ErasedSegment;
 /// -- Enforce all rules from this line forward
 /// SELECT col_a a FROM foo -- noqa: enable=all
 /// ```
-#[derive(Eq, PartialEq, Debug)]
+#[derive(Eq, PartialEq, Debug, Clone)]
 enum NoQADirective {
     LineIgnoreAll(LineIgnoreAll),
     LineIgnoreRules(LineIgnoreRules),
@@ -249,14 +249,14 @@ impl NoQADirective {
     }
 }
 
-#[derive(Eq, PartialEq, Debug, strum_macros::EnumString)]
+#[derive(Eq, PartialEq, Debug, Clone, strum_macros::EnumString)]
 #[strum(serialize_all = "lowercase")]
 enum IgnoreAction {
     Enable,
     Disable,
 }
 
-#[derive(Eq, PartialEq, Debug)]
+#[derive(Eq, PartialEq, Debug, Clone)]
 struct RangeIgnoreAll {
     line_no: usize,
     line_pos: usize,
@@ -264,7 +264,7 @@ struct RangeIgnoreAll {
     action: IgnoreAction,
 }
 
-#[derive(Eq, PartialEq, Debug)]
+#[derive(Eq, PartialEq, Debug, Clone)]
 struct RangeIgnoreRules {
     line_no: usize,
     line_pos: usize,
@@ -273,14 +273,14 @@ struct RangeIgnoreRules {
     rules: HashSet<String>,
 }
 
-#[derive(Eq, PartialEq, Debug)]
+#[derive(Eq, PartialEq, Debug, Clone)]
 struct LineIgnoreAll {
     line_no: usize,
     line_pos: usize,
     raw_string: String,
 }
 
-#[derive(Eq, PartialEq, Debug)]
+#[derive(Eq, PartialEq, Debug, Clone)]
 struct LineIgnoreRules {
     line_no: usize,
     line_pos: usize,
@@ -288,7 +288,7 @@ struct LineIgnoreRules {
     rules: HashSet<String>,
 }
 
-#[derive(Debug, Default)]
+#[derive(Debug, Clone, Default)]
 pub struct IgnoreMask {
     ignore_list: Vec<NoQADirective>,
 }

@@ -58,7 +58,7 @@ impl LintResult {
         }
     }
 
-    pub fn to_linting_error(&self, rule: ErasedRule) -> Option<SQLLintError> {
+    pub fn to_linting_error(&self, rule: ErasedRule, fixes: Vec<LintFix>) -> Option<SQLLintError> {
         let anchor = self.anchor.clone()?;
 
         let description = self
@@ -68,7 +68,7 @@ impl LintResult {
 
         let is_fixable = rule.is_fix_compatible();
 
-        SQLLintError::new(description.as_str(), anchor, is_fixable)
+        SQLLintError::new(description.as_str(), anchor, is_fixable, fixes)
             .config(|this| {
                 this.rule = Some(ErrorStructRule {
                     name: rule.name(),
@@ -182,7 +182,7 @@ pub trait Rule: CloneRule + dyn_clone::DynClone + Debug + 'static + Send + Sync 
         templated_file: &TemplatedFile,
         tree: ErasedSegment,
         config: &FluffConfig,
-    ) -> (Vec<SQLLintError>, Vec<LintFix>) {
+    ) -> Vec<SQLLintError> {
         let root_context = RuleContext {
             tables,
             dialect,
@@ -197,11 +197,10 @@ pub trait Rule: CloneRule + dyn_clone::DynClone + Debug + 'static + Send + Sync 
             segment_idx: 0,
         };
         let mut vs = Vec::new();
-        let mut fixes = Vec::new();
 
         // TODO Will to return a note that rules were skipped
         if self.dialect_skip().contains(&dialect.name) && !self.force_enable() {
-            return (Vec::new(), Vec::new());
+            return Vec::new();
         }
 
         for context in self.crawl_behaviour().crawl(root_context) {
@@ -211,28 +210,26 @@ pub trait Rule: CloneRule + dyn_clone::DynClone + Debug + 'static + Send + Sync 
             let resp = match resp {
                 Ok(t) => t,
                 Err(_) => {
-                    vs.push(SQLLintError::new("Unexpected exception. Could you open an issue at https://github.com/quarylabs/sqruff", tree.clone(), false));
-                    return (vs, fixes);
+                    vs.push(SQLLintError::new("Unexpected exception. Could you open an issue at https://github.com/quarylabs/sqruff", tree.clone(), false, vec![]));
+                    return vs;
                 }
             };
 
             let mut new_lerrs = Vec::new();
-            let mut new_fixes = Vec::new();
 
             if resp.is_empty() {
                 // Assume this means no problems (also means no memory)
             } else {
                 for elem in resp {
-                    self.process_lint_result(elem, templated_file, &mut new_lerrs, &mut new_fixes);
+                    self.process_lint_result(elem, templated_file, &mut new_lerrs);
                 }
             }
 
             // Consume the new results
             vs.extend(new_lerrs);
-            fixes.extend(new_fixes);
         }
 
-        (vs, fixes)
+        vs
     }
 
     fn process_lint_result(
@@ -240,7 +237,6 @@ pub trait Rule: CloneRule + dyn_clone::DynClone + Debug + 'static + Send + Sync 
         res: LintResult,
         templated_file: &TemplatedFile,
         new_lerrs: &mut Vec<SQLLintError>,
-        new_fixes: &mut Vec<LintFix>,
     ) {
         if res
             .fixes
@@ -250,14 +246,8 @@ pub trait Rule: CloneRule + dyn_clone::DynClone + Debug + 'static + Send + Sync 
             return;
         }
 
-        let ignored = false;
-
-        if let Some(lerr) = res.to_linting_error(self.erased()) {
+        if let Some(lerr) = res.to_linting_error(self.erased(), res.fixes.clone()) {
             new_lerrs.push(lerr);
-        }
-
-        if !ignored {
-            new_fixes.extend(res.fixes);
         }
     }
 }

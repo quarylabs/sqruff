@@ -1,18 +1,17 @@
-use ahash::AHashMap;
 use pyo3::prelude::*;
-use pyo3::types::{PyDict, PySlice};
+use pyo3::types::PySlice;
 use pyo3::{Py, PyAny, Python};
 use sqruff_lib_core::errors::SQLFluffUserError;
 use sqruff_lib_core::templaters::base::{RawFileSlice, TemplatedFile, TemplatedFileSlice};
 use std::ffi::CString;
 
+use super::Templater;
 use crate::cli::formatters::Formatter;
 use crate::core::config::FluffConfig;
+use crate::templaters::python_shared::PythonFluffConfig;
 use std::sync::Arc;
 
-use super::Templater;
-
-const PYTHON_FILE: &str = include_str!("python_templater.py");
+const PYTHON_FILE: &str = include_str!("templaters/python_templater.py");
 
 #[derive(Default)]
 pub struct PythonTemplater;
@@ -57,32 +56,6 @@ At the moment, dot notation is not supported in the templater."
         config: &FluffConfig,
         _formatter: &Option<Arc<dyn Formatter>>,
     ) -> Result<TemplatedFile, SQLFluffUserError> {
-        let context = config.get_section("templater");
-        let python = context.get("python").ok_or(SQLFluffUserError::new(
-            "Python templater requires a python section in the config".to_string(),
-        ))?;
-        let python = python.as_map().ok_or(SQLFluffUserError::new(
-            "Python templater requires a python section in the config".to_string(),
-        ))?;
-        let python = python.get("context").ok_or(SQLFluffUserError::new(
-            "Python templater requires a context section in the python section of the config"
-                .to_string(),
-        ))?;
-        let python = python.as_map().ok_or(SQLFluffUserError::new(
-            "Python templater requires a context section in the python section of the config"
-                .to_string(),
-        ))?;
-
-        let hashmap = python
-            .iter()
-            .map(|(k, v)| {
-                let value = v.as_string().ok_or(SQLFluffUserError::new(
-                    "Python templater context values must be strings".to_string(),
-                ))?;
-                Ok((k.to_string(), value.to_string()))
-            })
-            .collect::<Result<AHashMap<String, String>, SQLFluffUserError>>();
-
         // Need to pull context out of config
         let templated_file = Python::with_gil(|py| -> PyResult<TemplatedFile> {
             let file = CString::new(PYTHON_FILE).unwrap();
@@ -91,11 +64,14 @@ At the moment, dot notation is not supported in the templater."
                 .into();
 
             // pass object with Rust tuple of positional arguments
-            let py_dict = PyDict::new(py);
-            for (k, v) in hashmap.unwrap() {
-                py_dict.set_item(k, v)?;
-            }
-            let args = (in_str.to_string(), f_name.to_string(), py_dict);
+            let py_dict = config.to_python_context(py, "python").unwrap();
+            let python_fluff_config: PythonFluffConfig = config.clone().into();
+            let args = (
+                in_str.to_string(),
+                f_name.to_string(),
+                python_fluff_config.to_json_string(),
+                py_dict,
+            );
             let returned = fun.call1(py, args);
 
             // Parse the returned value
@@ -164,6 +140,7 @@ impl PythonTemplatedFileSlice {
     }
 }
 
+#[derive(Debug)]
 struct PythonRawFileSlice {
     raw: String,
     slice_tpe: String,
@@ -199,8 +176,8 @@ impl<'py> FromPyObject<'py> for PythonRawFileSlice {
     }
 }
 
-#[derive(FromPyObject)]
-struct PythonTemplatedFile {
+#[derive(FromPyObject, Debug)]
+pub struct PythonTemplatedFile {
     source_str: String,
     fname: String,
     templated_str: Option<String>,
@@ -209,7 +186,7 @@ struct PythonTemplatedFile {
 }
 
 impl PythonTemplatedFile {
-    fn to_templated_file(&self) -> TemplatedFile {
+    pub fn to_templated_file(&self) -> TemplatedFile {
         TemplatedFile::new(
             self.source_str.to_string(),
             self.fname.to_string(),

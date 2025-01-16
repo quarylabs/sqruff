@@ -1714,6 +1714,7 @@ dependencies = [
  "ignore",
  "mimalloc",
  "minijinja",
+ "pyo3",
  "serde",
  "sqruff-lib",
  "sqruff-lsp",

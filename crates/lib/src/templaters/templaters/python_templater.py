@@ -1,4 +1,5 @@
 import ast
+import json
 import logging
 import re
 from collections.abc import Iterable, Iterator
@@ -19,6 +20,17 @@ templater_logger = logging.getLogger("sqlfluff.templater")
 class FluffConfig(NamedTuple):
     templater_unwrap_wrapped_queries: bool
 
+    jinja_templater_paths: List[str]
+    jinja_loader_search_path: List[str]
+    jinja_apply_dbt_builtins: bool
+    jinja_ignore_templating: bool
+    jinja_library_paths: List[str]
+
+
+def fluff_config_from_json(json_stringified: str) -> FluffConfig:
+    """Parse a JSON string into a FluffConfig object."""
+    return FluffConfig(**json.loads(json_stringified))
+
 
 class FormatterInterface:
     pass
@@ -32,6 +44,12 @@ class SQLTemplaterError(Exception):
 def zero_slice(i: int) -> slice:
     """Construct a zero slice from a single integer."""
     return slice(i, i)
+
+
+def slice_length(s: slice) -> int:
+    """Get the length of a slice."""
+    length: int = s.stop - s.start
+    return length
 
 
 def offset_slice(start: int, offset: int) -> slice:
@@ -287,7 +305,12 @@ class PythonTemplater:
         except (SyntaxError, ValueError):
             return s
 
-    def get_context(self, context: Dict[str, str]) -> Dict[str, Any]:
+    def get_context(
+        self,
+        fname: Optional[str],
+        config: Optional[FluffConfig],
+        context: Optional[Dict[str, str]],
+    ) -> Dict[str, Any]:
         """Get the templating context from the config.
 
         This function retrieves the templating context from the config by
@@ -304,6 +327,8 @@ class PythonTemplater:
             dict: The templating context.
 
         """
+        if context is None:
+            return {}
         live_context = context
         for k in live_context:
             live_context[k] = self.infer_type(live_context[k])
@@ -337,7 +362,11 @@ class PythonTemplater:
             formatter (:obj:`CallbackFormatter`): Optional object for output.
 
         """
-        live_context = self.get_context(context)
+        live_context = self.get_context(
+            fname=fname,
+            config=config,
+            context=context,
+        )
 
         def render_func(raw_str: str) -> str:
             """Render the string using the captured live_context.
@@ -1242,14 +1271,17 @@ class PythonTemplater:
 def process_from_rust(
     string: str,
     fname: str,
+    config_string: str,
     live_context: Dict[str, Any],
 ) -> TemplatedFile:
     """Process the call from the rust side."""
     templater = PythonTemplater(override_context=live_context)
+    config = fluff_config_from_json(config_string)
     (output, errors) = templater.process(
         in_str=string,
         fname=fname,
         context=live_context,
+        config=config,
     )
     if errors != []:
         raise ValueError

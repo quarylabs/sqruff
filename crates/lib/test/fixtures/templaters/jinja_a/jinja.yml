@@ -1,0 +1,16 @@
+file:
+- statement:
+  - select_statement:
+    - select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+        - numeric_literal: '56'
+    - from_clause:
+      - keyword: FROM
+      - from_expression:
+        - from_expression_element:
+          - table_expression:
+            - table_reference:
+              - naked_identifier: sch1
+              - dot: .
+              - naked_identifier: tbl2

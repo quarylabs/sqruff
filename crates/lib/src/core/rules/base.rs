@@ -179,7 +179,7 @@ pub trait Rule: CloneRule + dyn_clone::DynClone + Debug + 'static + Send + Sync 
         templated_file: &TemplatedFile,
         tree: ErasedSegment,
         config: &FluffConfig,
-    ) -> (Vec<SQLLintError>, Vec<LintFix>) {
+    ) -> Vec<SQLLintError> {
         let mut root_context = RuleContext::new(tables, dialect, config, tree.clone());
         let mut vs = Vec::new();
 
@@ -190,7 +190,7 @@ pub trait Rule: CloneRule + dyn_clone::DynClone + Debug + 'static + Send + Sync 
 
         self.crawl_behaviour().crawl(&mut root_context, &mut |context| {
             let resp =
-            std::panic::catch_unwind(std::panic::AssertUnwindSafe(|| self.eval(context)));
+                std::panic::catch_unwind(std::panic::AssertUnwindSafe(|| self.eval(context)));
 
             let resp = match resp {
                 Ok(t) => t,

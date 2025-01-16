@@ -1,0 +1,3608 @@
+CREATE TABLE IF NOT EXISTS `project_id.dataset_id.table_id` (
+  id STRING NOT NULL,
+  product STRING NOT NULL,
+  cost INTEGER NOT NULL,
+  timestamp_added TIMESTAMP NOT NULL  
+);
+
+INSERT INTO `project_id.dataset_id.table_id` (
+    id,
+    product,
+    cost,
+    timestamp_added
+)
+VALUES
+(
+        0,
+        orange,
+        400,
+        current_timestamp()
+    ),
+(
+        1,
+        car,
+        200,
+        current_timestamp()
+    ),
+(
+        2,
+        bike,
+        100,
+        current_timestamp()
+    ),
+(
+        3,
+        bike,
+        400,
+        current_timestamp()
+    ),
+(
+        4,
+        car,
+        300,
+        current_timestamp()
+    ),
+(
+        5,
+        bike,
+        200,
+        current_timestamp()
+    ),
+(
+        6,
+        tv,
+        100,
+        current_timestamp()
+    ),
+(
+        7,
+        tv,
+        400,
+        current_timestamp()
+    ),
+(
+        8,
+        tv,
+        400,
+        current_timestamp()
+    ),
+(
+        9,
+        tv,
+        100,
+        current_timestamp()
+    ),
+(
+        10,
+        car,
+        400,
+        current_timestamp()
+    ),
+(
+        11,
+        bike,
+        300,
+        current_timestamp()
+    ),
+(
+        12,
+        car,
+        400,
+        current_timestamp()
+    ),
+(
+        13,
+        car,
+        400,
+        current_timestamp()
+    ),
+(
+        14,
+        car,
+        300,
+        current_timestamp()
+    ),
+(
+        15,
+        car,
+        400,
+        current_timestamp()
+    ),
+(
+        16,
+        car,
+        400,
+        current_timestamp()
+    ),
+(
+        17,
+        bike,
+        200,
+        current_timestamp()
+    ),
+(
+        18,
+        tv,
+        300,
+        current_timestamp()
+    ),
+(
+        19,
+        bike,
+        200,
+        current_timestamp()
+    ),
+(
+        20,
+        orange,
+        100,
+        current_timestamp()
+    ),
+(
+        21,
+        orange,
+        100,
+        current_timestamp()
+    ),
+(
+        22,
+        car,
+        200,
+        current_timestamp()
+    ),
+(
+        23,
+        tv,
+        100,
+        current_timestamp()
+    ),
+(
+        24,
+        car,
+        200,
+        current_timestamp()
+    ),
+(
+        25,
+        tv,
+        200,
+        current_timestamp()
+    ),
+(
+        26,
+        tv,
+        400,
+        current_timestamp()
+    ),
+(
+        27,
+        tv,
+        200,
+        current_timestamp()
+    ),
+(
+        28,
+        car,
+        400,
+        current_timestamp()
+    ),
+(
+        29,
+        orange,
+        400,
+        current_timestamp()
+    ),
+(
+        30,
+        orange,
+        400,
+        current_timestamp()
+    ),
+(
+        31,
+        bike,
+        200,
+        current_timestamp()
+    ),
+(
+        32,
+        car,
+        100,
+        current_timestamp()
+    ),
+(
+        33,
+        car,
+        400,
+        current_timestamp()
+    ),
+(
+        34,
+        bike,
+        100,
+        current_timestamp()
+    ),
+(
+        35,
+        car,
+        300,
+        current_timestamp()
+    ),
+(
+        36,
+        tv,
+        200,
+        current_timestamp()
+    ),
+(
+        37,
+        tv,
+        300,
+        current_timestamp()
+    ),
+(
+        38,
+        orange,
+        300,
+        current_timestamp()
+    ),
+(
+        39,
+        tv,
+        300,
+        current_timestamp()
+    ),
+(
+        40,
+        tv,
+        300,
+        current_timestamp()
+    ),
+(
+        41,
+        orange,
+        300,
+        current_timestamp()
+    ),
+(
+        42,
+        orange,
+        200,
+        current_timestamp()
+    ),
+(
+        43,
+        orange,
+        200,
+        current_timestamp()
+    ),
+(
+        44,
+        car,
+        200,
+        current_timestamp()
+    ),
+(
+        45,
+        orange,
+        400,
+        current_timestamp()
+    ),
+(
+        46,
+        orange,
+        400,
+        current_timestamp()
+    ),
+(
+        47,
+        tv,
+        400,
+        current_timestamp()
+    ),
+(
+        48,
+        bike,
+        100,
+        current_timestamp()
+    ),
+(
+        49,
+        car,
+        300,
+        current_timestamp()
+    ),
+(
+        50,
+        car,
+        400,
+        current_timestamp()
+    ),
+(
+        51,
+        car,
+        100,
+        current_timestamp()
+    ),
+(
+        52,
+        bike,
+        200,
+        current_timestamp()
+    ),
+(
+        53,
+        bike,
+        400,
+        current_timestamp()
+    ),
+(
+        54,
+        car,
+        300,
+        current_timestamp()
+    ),
+(
+        55,
+        tv,
+        100,
+        current_timestamp()
+    ),
+(
+        56,
+        car,
+        100,
+        current_timestamp()
+    ),
+(
+        57,
+        tv,
+        400,
+        current_timestamp()
+    ),
+(
+        58,
+        bike,
+        200,
+        current_timestamp()
+    ),
+(
+        59,
+        orange,
+        100,
+        current_timestamp()
+    ),
+(
+        60,
+        tv,
+        300,
+        current_timestamp()
+    ),
+(
+        61,
+        orange,
+        300,
+        current_timestamp()
+    ),
+(
+        62,
+        tv,
+        400,
+        current_timestamp()
+    ),
+(
+        63,
+        bike,
+        400,
+        current_timestamp()
+    ),
+(
+        64,
+        tv,
+        300,
+        current_timestamp()
+    ),
+(
+        65,
+        tv,
+        400,
+        current_timestamp()
+    ),
+(
+        66,
+        car,
+        300,
+        current_timestamp()
+    ),
+(
+        67,
+        orange,
+        300,
+        current_timestamp()
+    ),
+(
+        68,
+        bike,
+        200,
+        current_timestamp()
+    ),
+(
+        69,
+        bike,
+        100,
+        current_timestamp()
+    ),
+(
+        70,
+        tv,
+        100,
+        current_timestamp()
+    ),
+(
+        71,
+        bike,
+        300,
+        current_timestamp()
+    ),
+(
+        72,
+        bike,
+        300,
+        current_timestamp()
+    ),
+(
+        73,
+        orange,
+        100,
+        current_timestamp()
+    ),
+(
+        74,
+        orange,
+        400,
+        current_timestamp()
+    ),
+(
+        75,
+        bike,
+        400,
+        current_timestamp()
+    ),
+(
+        76,
+        bike,
+        100,
+        current_timestamp()
+    ),
+(
+        77,
+        bike,
+        300,
+        current_timestamp()
+    ),
+(
+        78,
+        orange,
+        300,
+        current_timestamp()
+    ),
+(
+        79,
+        orange,
+        300,
+        current_timestamp()
+    ),
+(
+        80,
+        orange,
+        300,
+        current_timestamp()
+    ),
+(
+        81,
+        bike,
+        400,
+        current_timestamp()
+    ),
+(
+        82,
+        orange,
+        100,
+        current_timestamp()
+    ),
+(
+        83,
+        orange,
+        200,
+        current_timestamp()
+    ),
+(
+        84,
+        bike,
+        400,
+        current_timestamp()
+    ),
+(
+        85,
+        bike,
+        400,
+        current_timestamp()
+    ),
+(
+        86,
+        orange,
+        400,
+        current_timestamp()
+    ),
+(
+        87,
+        orange,
+        300,
+        current_timestamp()
+    ),
+(
+        88,
+        car,
+        100,
+        current_timestamp()
+    ),
+(
+        89,
+        tv,
+        200,
+        current_timestamp()
+    ),
+(
+        90,
+        tv,
+        400,
+        current_timestamp()
+    ),
+(
+        91,
+        bike,
+        400,
+        current_timestamp()
+    ),
+(
+        92,
+        car,
+        300,
+        current_timestamp()
+    ),
+(
+        93,
+        tv,
+        200,
+        current_timestamp()
+    ),
+(
+        94,
+        orange,
+        300,
+        current_timestamp()
+    ),
+(
+        95,
+        tv,
+        200,
+        current_timestamp()
+    ),
+(
+        96,
+        car,
+        400,
+        current_timestamp()
+    ),
+(
+        97,
+        car,
+        200,
+        current_timestamp()
+    ),
+(
+        98,
+        tv,
+        300,
+        current_timestamp()
+    ),
+(
+        99,
+        orange,
+        300,
+        current_timestamp()
+    ),
+(
+        100,
+        bike,
+        100,
+        current_timestamp()
+    ),
+(
+        101,
+        bike,
+        200,
+        current_timestamp()
+    ),
+(
+        102,
+        bike,
+        100,
+        current_timestamp()
+    ),
+(
+        103,
+        bike,
+        300,
+        current_timestamp()
+    ),
+(
+        104,
+        car,
+        400,
+        current_timestamp()
+    ),
+(
+        105,
+        tv,
+        200,
+        current_timestamp()
+    ),
+(
+        106,
+        bike,
+        300,
+        current_timestamp()
+    ),
+(
+        107,
+        orange,
+        400,
+        current_timestamp()
+    ),
+(
+        108,
+        tv,
+        300,
+        current_timestamp()
+    ),
+(
+        109,
+        car,
+        100,
+        current_timestamp()
+    ),
+(
+        110,
+        tv,
+        400,
+        current_timestamp()
+    ),
+(
+        111,
+        tv,
+        400,
+        current_timestamp()
+    ),
+(
+        112,
+        orange,
+        400,
+        current_timestamp()
+    ),
+(
+        113,
+        car,
+        300,
+        current_timestamp()
+    ),
+(
+        114,
+        tv,
+        200,
+        current_timestamp()
+    ),
+(
+        115,
+        orange,
+        100,
+        current_timestamp()
+    ),
+(
+        116,
+        car,
+        100,
+        current_timestamp()
+    ),
+(
+        117,
+        tv,
+        200,
+        current_timestamp()
+    ),
+(
+        118,
+        tv,
+        400,
+        current_timestamp()
+    ),
+(
+        119,
+        tv,
+        400,
+        current_timestamp()
+    ),
+(
+        120,
+        bike,
+        200,
+        current_timestamp()
+    ),
+(
+        121,
+        car,
+        300,
+        current_timestamp()
+    ),
+(
+        122,
+        orange,
+        300,
+        current_timestamp()
+    ),
+(
+        123,
+        orange,
+        300,
+        current_timestamp()
+    ),
+(
+        124,
+        orange,
+        200,
+        current_timestamp()
+    ),
+(
+        125,
+        orange,
+        300,
+        current_timestamp()
+    ),
+(
+        126,
+        bike,
+        200,
+        current_timestamp()
+    ),
+(
+        127,
+        bike,
+        100,
+        current_timestamp()
+    ),
+(
+        128,
+        bike,
+        300,
+        current_timestamp()
+    ),
+(
+        129,
+        car,
+        200,
+        current_timestamp()
+    ),
+(
+        130,
+        tv,
+        200,
+        current_timestamp()
+    ),
+(
+        131,
+        car,
+        200,
+        current_timestamp()
+    ),
+(
+        132,
+        car,
+        200,
+        current_timestamp()
+    ),
+(
+        133,
+        orange,
+        200,
+        current_timestamp()
+    ),
+(
+        134,
+        orange,
+        400,
+        current_timestamp()
+    ),
+(
+        135,
+        tv,
+        100,
+        current_timestamp()
+    ),
+(
+        136,
+        tv,
+        200,
+        current_timestamp()
+    ),
+(
+        137,
+        car,
+        100,
+        current_timestamp()
+    ),
+(
+        138,
+        tv,
+        400,
+        current_timestamp()
+    ),
+(
+        139,
+        bike,
+        200,
+        current_timestamp()
+    ),
+(
+        140,
+        car,
+        100,
+        current_timestamp()
+    ),
+(
+        141,
+        car,
+        300,
+        current_timestamp()
+    ),
+(
+        142,
+        bike,
+        100,
+        current_timestamp()
+    ),
+(
+        143,
+        car,
+        200,
+        current_timestamp()
+    ),
+(
+        144,
+        car,
+        300,
+        current_timestamp()
+    ),
+(
+        145,
+        car,
+        400,
+        current_timestamp()
+    ),
+(
+        146,
+        tv,
+        200,
+        current_timestamp()
+    ),
+(
+        147,
+        bike,
+        400,
+        current_timestamp()
+    ),
+(
+        148,
+        orange,
+        300,
+        current_timestamp()
+    ),
+(
+        149,
+        tv,
+        300,
+        current_timestamp()
+    ),
+(
+        150,
+        tv,
+        200,
+        current_timestamp()
+    ),
+(
+        151,
+        bike,
+        100,
+        current_timestamp()
+    ),
+(
+        152,
+        orange,
+        300,
+        current_timestamp()
+    ),
+(
+        153,
+        tv,
+        200,
+        current_timestamp()
+    ),
+(
+        154,
+        bike,
+        100,
+        current_timestamp()
+    ),
+(
+        155,
+        orange,
+        300,
+        current_timestamp()
+    ),
+(
+        156,
+        bike,
+        200,
+        current_timestamp()
+    ),
+(
+        157,
+        orange,
+        100,
+        current_timestamp()
+    ),
+(
+        158,
+        tv,
+        100,
+        current_timestamp()
+    ),
+(
+        159,
+        orange,
+        300,
+        current_timestamp()
+    ),
+(
+        160,
+        tv,
+        100,
+        current_timestamp()
+    ),
+(
+        161,
+        tv,
+        400,
+        current_timestamp()
+    ),
+(
+        162,
+        car,
+        300,
+        current_timestamp()
+    ),
+(
+        163,
+        orange,
+        300,
+        current_timestamp()
+    ),
+(
+        164,
+        tv,
+        400,
+        current_timestamp()
+    ),
+(
+        165,
+        orange,
+        200,
+        current_timestamp()
+    ),
+(
+        166,
+        bike,
+        200,
+        current_timestamp()
+    ),
+(
+        167,
+        bike,
+        200,
+        current_timestamp()
+    ),
+(
+        168,
+        car,
+        200,
+        current_timestamp()
+    ),
+(
+        169,
+        bike,
+        200,
+        current_timestamp()
+    ),
+(
+        170,
+        tv,
+        400,
+        current_timestamp()
+    ),
+(
+        171,
+        tv,
+        400,
+        current_timestamp()
+    ),
+(
+        172,
+        car,
+        100,
+        current_timestamp()
+    ),
+(
+        173,
+        tv,
+        200,
+        current_timestamp()
+    ),
+(
+        174,
+        bike,
+        400,
+        current_timestamp()
+    ),
+(
+        175,
+        bike,
+        400,
+        current_timestamp()
+    ),
+(
+        176,
+        car,
+        300,
+        current_timestamp()
+    ),
+(
+        177,
+        car,
+        200,
+        current_timestamp()
+    ),
+(
+        178,
+        tv,
+        400,
+        current_timestamp()
+    ),
+(
+        179,
+        bike,
+        200,
+        current_timestamp()
+    ),
+(
+        180,
+        tv,
+        400,
+        current_timestamp()
+    ),
+(
+        181,
+        bike,
+        200,
+        current_timestamp()
+    ),
+(
+        182,
+        tv,
+        400,
+        current_timestamp()
+    ),
+(
+        183,
+        bike,
+        100,
+        current_timestamp()
+    ),
+(
+        184,
+        tv,
+        200,
+        current_timestamp()
+    ),
+(
+        185,
+        car,
+        300,
+        current_timestamp()
+    ),
+(
+        186,
+        bike,
+        100,
+        current_timestamp()
+    ),
+(
+        187,
+        car,
+        400,
+        current_timestamp()
+    ),
+(
+        188,
+        orange,
+        200,
+        current_timestamp()
+    ),
+(
+        189,
+        tv,
+        100,
+        current_timestamp()
+    ),
+(
+        190,
+        bike,
+        400,
+        current_timestamp()
+    ),
+(
+        191,
+        bike,
+        300,
+        current_timestamp()
+    ),
+(
+        192,
+        car,
+        200,
+        current_timestamp()
+    ),
+(
+        193,
+        car,
+        100,
+        current_timestamp()
+    ),
+(
+        194,
+        car,
+        200,
+        current_timestamp()
+    ),
+(
+        195,
+        bike,
+        100,
+        current_timestamp()
+    ),
+(
+        196,
+        orange,
+        300,
+        current_timestamp()
+    ),
+(
+        197,
+        tv,
+        400,
+        current_timestamp()
+    ),
+(
+        198,
+        bike,
+        200,
+        current_timestamp()
+    ),
+(
+        199,
+        car,
+        100,
+        current_timestamp()
+    ),
+(
+        200,
+        tv,
+        400,
+        current_timestamp()
+    ),
+(
+        201,
+        bike,
+        400,
+        current_timestamp()
+    ),
+(
+        202,
+        car,
+        400,
+        current_timestamp()
+    ),
+(
+        203,
+        bike,
+        100,
+        current_timestamp()
+    ),
+(
+        204,
+        tv,
+        300,
+        current_timestamp()
+    ),
+(
+        205,
+        tv,
+        200,
+        current_timestamp()
+    ),
+(
+        206,
+        orange,
+        100,
+        current_timestamp()
+    ),
+(
+        207,
+        tv,
+        200,
+        current_timestamp()
+    ),
+(
+        208,
+        tv,
+        300,
+        current_timestamp()
+    ),
+(
+        209,
+        bike,
+        200,
+        current_timestamp()
+    ),
+(
+        210,
+        car,
+        200,
+        current_timestamp()
+    ),
+(
+        211,
+        car,
+        400,
+        current_timestamp()
+    ),
+(
+        212,
+        orange,
+        300,
+        current_timestamp()
+    ),
+(
+        213,
+        bike,
+        200,
+        current_timestamp()
+    ),
+(
+        214,
+        orange,
+        200,
+        current_timestamp()
+    ),
+(
+        215,
+        tv,
+        300,
+        current_timestamp()
+    ),
+(
+        216,
+        bike,
+        400,
+        current_timestamp()
+    ),
+(
+        217,
+        car,
+        300,
+        current_timestamp()
+    ),
+(
+        218,
+        car,
+        400,
+        current_timestamp()
+    ),
+(
+        219,
+        tv,
+        400,
+        current_timestamp()
+    ),
+(
+        220,
+        car,
+        300,
+        current_timestamp()
+    ),
+(
+        221,
+        car,
+        200,
+        current_timestamp()
+    ),
+(
+        222,
+        tv,
+        100,
+        current_timestamp()
+    ),
+(
+        223,
+        tv,
+        300,
+        current_timestamp()
+    ),
+(
+        224,
+        tv,
+        200,
+        current_timestamp()
+    ),
+(
+        225,
+        orange,
+        300,
+        current_timestamp()
+    ),
+(
+        226,
+        car,
+        300,
+        current_timestamp()
+    ),
+(
+        227,
+        car,
+        200,
+        current_timestamp()
+    ),
+(
+        228,
+        car,
+        300,
+        current_timestamp()
+    ),
+(
+        229,
+        tv,
+        300,
+        current_timestamp()
+    ),
+(
+        230,
+        car,
+        100,
+        current_timestamp()
+    ),
+(
+        231,
+        tv,
+        400,
+        current_timestamp()
+    ),
+(
+        232,
+        bike,
+        400,
+        current_timestamp()
+    ),
+(
+        233,
+        tv,
+        100,
+        current_timestamp()
+    ),
+(
+        234,
+        orange,
+        100,
+        current_timestamp()
+    ),
+(
+        235,
+        orange,
+        200,
+        current_timestamp()
+    ),
+(
+        236,
+        orange,
+        200,
+        current_timestamp()
+    ),
+(
+        237,
+        orange,
+        200,
+        current_timestamp()
+    ),
+(
+        238,
+        orange,
+        100,
+        current_timestamp()
+    ),
+(
+        239,
+        tv,
+        200,
+        current_timestamp()
+    ),
+(
+        240,
+        tv,
+        100,
+        current_timestamp()
+    ),
+(
+        241,
+        bike,
+        100,
+        current_timestamp()
+    ),
+(
+        242,
+        orange,
+        100,
+        current_timestamp()
+    ),
+(
+        243,
+        bike,
+        100,
+        current_timestamp()
+    ),
+(
+        244,
+        orange,
+        400,
+        current_timestamp()
+    ),
+(
+        245,
+        bike,
+        300,
+        current_timestamp()
+    ),
+(
+        246,
+        bike,
+        300,
+        current_timestamp()
+    ),
+(
+        247,
+        tv,
+        300,
+        current_timestamp()
+    ),
+(
+        248,
+        tv,
+        300,
+        current_timestamp()
+    ),
+(
+        249,
+        tv,
+        400,
+        current_timestamp()
+    ),
+(
+        250,
+        tv,
+        100,
+        current_timestamp()
+    ),
+(
+        251,
+        car,
+        200,
+        current_timestamp()
+    ),
+(
+        252,
+        orange,
+        300,
+        current_timestamp()
+    ),
+(
+        253,
+        bike,
+        200,
+        current_timestamp()
+    ),
+(
+        254,
+        car,
+        300,
+        current_timestamp()
+    ),
+(
+        255,
+        car,
+        300,
+        current_timestamp()
+    ),
+(
+        256,
+        bike,
+        200,
+        current_timestamp()
+    ),
+(
+        257,
+        car,
+        100,
+        current_timestamp()
+    ),
+(
+        258,
+        car,
+        400,
+        current_timestamp()
+    ),
+(
+        259,
+        bike,
+        400,
+        current_timestamp()
+    ),
+(
+        260,
+        bike,
+        300,
+        current_timestamp()
+    ),
+(
+        261,
+        bike,
+        400,
+        current_timestamp()
+    ),
+(
+        262,
+        car,
+        300,
+        current_timestamp()
+    ),
+(
+        263,
+        bike,
+        100,
+        current_timestamp()
+    ),
+(
+        264,
+        bike,
+        100,
+        current_timestamp()
+    ),
+(
+        265,
+        tv,
+        100,
+        current_timestamp()
+    ),
+(
+        266,
+        orange,
+        400,
+        current_timestamp()
+    ),
+(
+        267,
+        bike,
+        100,
+        current_timestamp()
+    ),
+(
+        268,
+        car,
+        300,
+        current_timestamp()
+    ),
+(
+        269,
+        orange,
+        300,
+        current_timestamp()
+    ),
+(
+        270,
+        bike,
+        200,
+        current_timestamp()
+    ),
+(
+        271,
+        tv,
+        200,
+        current_timestamp()
+    ),
+(
+        272,
+        tv,
+        300,
+        current_timestamp()
+    ),
+(
+        273,
+        tv,
+        100,
+        current_timestamp()
+    ),
+(
+        274,
+        car,
+        400,
+        current_timestamp()
+    ),
+(
+        275,
+        tv,
+        300,
+        current_timestamp()
+    ),
+(
+        276,
+        bike,
+        200,
+        current_timestamp()
+    ),
+(
+        277,
+        orange,
+        400,
+        current_timestamp()
+    ),
+(
+        278,
+        tv,
+        100,
+        current_timestamp()
+    ),
+(
+        279,
+        bike,
+        400,
+        current_timestamp()
+    ),
+(
+        280,
+        tv,
+        100,
+        current_timestamp()
+    ),
+(
+        281,
+        bike,
+        400,
+        current_timestamp()
+    ),
+(
+        282,
+        tv,
+        200,
+        current_timestamp()
+    ),
+(
+        283,
+        orange,
+        100,
+        current_timestamp()
+    ),
+(
+        284,
+        bike,
+        300,
+        current_timestamp()
+    ),
+(
+        285,
+        orange,
+        100,
+        current_timestamp()
+    ),
+(
+        286,
+        orange,
+        100,
+        current_timestamp()
+    ),
+(
+        287,
+        bike,
+        200,
+        current_timestamp()
+    ),
+(
+        288,
+        bike,
+        200,
+        current_timestamp()
+    ),
+(
+        289,
+        car,
+        100,
+        current_timestamp()
+    ),
+(
+        290,
+        bike,
+        300,
+        current_timestamp()
+    ),
+(
+        291,
+        tv,
+        400,
+        current_timestamp()
+    ),
+(
+        292,
+        tv,
+        400,
+        current_timestamp()
+    ),
+(
+        293,
+        car,
+        200,
+        current_timestamp()
+    ),
+(
+        294,
+        tv,
+        300,
+        current_timestamp()
+    ),
+(
+        295,
+        bike,
+        200,
+        current_timestamp()
+    ),
+(
+        296,
+        bike,
+        300,
+        current_timestamp()
+    ),
+(
+        297,
+        car,
+        300,
+        current_timestamp()
+    ),
+(
+        298,
+        car,
+        400,
+        current_timestamp()
+    ),
+(
+        299,
+        orange,
+        200,
+        current_timestamp()
+    ),
+(
+        300,
+        bike,
+        100,
+        current_timestamp()
+    ),
+(
+        301,
+        bike,
+        400,
+        current_timestamp()
+    ),
+(
+        302,
+        tv,
+        200,
+        current_timestamp()
+    ),
+(
+        303,
+        orange,
+        300,
+        current_timestamp()
+    ),
+(
+        304,
+        tv,
+        300,
+        current_timestamp()
+    ),
+(
+        305,
+        orange,
+        100,
+        current_timestamp()
+    ),
+(
+        306,
+        bike,
+        300,
+        current_timestamp()
+    ),
+(
+        307,
+        bike,
+        400,
+        current_timestamp()
+    ),
+(
+        308,
+        bike,
+        100,
+        current_timestamp()
+    ),
+(
+        309,
+        tv,
+        200,
+        current_timestamp()
+    ),
+(
+        310,
+        tv,
+        100,
+        current_timestamp()
+    ),
+(
+        311,
+        car,
+        400,
+        current_timestamp()
+    ),
+(
+        312,
+        bike,
+        100,
+        current_timestamp()
+    ),
+(
+        313,
+        car,
+        100,
+        current_timestamp()
+    ),
+(
+        314,
+        car,
+        300,
+        current_timestamp()
+    ),
+(
+        315,
+        bike,
+        400,
+        current_timestamp()
+    ),
+(
+        316,
+        car,
+        100,
+        current_timestamp()
+    ),
+(
+        317,
+        car,
+        300,
+        current_timestamp()
+    ),
+(
+        318,
+        tv,
+        200,
+        current_timestamp()
+    ),
+(
+        319,
+        bike,
+        200,
+        current_timestamp()
+    ),
+(
+        320,
+        bike,
+        400,
+        current_timestamp()
+    ),
+(
+        321,
+        tv,
+        400,
+        current_timestamp()
+    ),
+(
+        322,
+        car,
+        100,
+        current_timestamp()
+    ),
+(
+        323,
+        car,
+        300,
+        current_timestamp()
+    ),
+(
+        324,
+        car,
+        300,
+        current_timestamp()
+    ),
+(
+        325,
+        orange,
+        400,
+        current_timestamp()
+    ),
+(
+        326,
+        car,
+        300,
+        current_timestamp()
+    ),
+(
+        327,
+        car,
+        200,
+        current_timestamp()
+    ),
+(
+        328,
+        bike,
+        100,
+        current_timestamp()
+    ),
+(
+        329,
+        bike,
+        300,
+        current_timestamp()
+    ),
+(
+        330,
+        car,
+        200,
+        current_timestamp()
+    ),
+(
+        331,
+        orange,
+        100,
+        current_timestamp()
+    ),
+(
+        332,
+        tv,
+        400,
+        current_timestamp()
+    ),
+(
+        333,
+        bike,
+        200,
+        current_timestamp()
+    ),
+(
+        334,
+        orange,
+        100,
+        current_timestamp()
+    ),
+(
+        335,
+        bike,
+        200,
+        current_timestamp()
+    ),
+(
+        336,
+        tv,
+        200,
+        current_timestamp()
+    ),
+(
+        337,
+        bike,
+        100,
+        current_timestamp()
+    ),
+(
+        338,
+        orange,
+        100,
+        current_timestamp()
+    ),
+(
+        339,
+        car,
+        400,
+        current_timestamp()
+    ),
+(
+        340,
+        car,
+        400,
+        current_timestamp()
+    ),
+(
+        341,
+        bike,
+        200,
+        current_timestamp()
+    ),
+(
+        342,
+        tv,
+        400,
+        current_timestamp()
+    ),
+(
+        343,
+        orange,
+        100,
+        current_timestamp()
+    ),
+(
+        344,
+        car,
+        400,
+        current_timestamp()
+    ),
+(
+        345,
+        orange,
+        100,
+        current_timestamp()
+    ),
+(
+        346,
+        orange,
+        300,
+        current_timestamp()
+    ),
+(
+        347,
+        bike,
+        400,
+        current_timestamp()
+    ),
+(
+        348,
+        tv,
+        400,
+        current_timestamp()
+    ),
+(
+        349,
+        orange,
+        100,
+        current_timestamp()
+    ),
+(
+        350,
+        orange,
+        300,
+        current_timestamp()
+    ),
+(
+        351,
+        bike,
+        200,
+        current_timestamp()
+    ),
+(
+        352,
+        tv,
+        300,
+        current_timestamp()
+    ),
+(
+        353,
+        bike,
+        100,
+        current_timestamp()
+    ),
+(
+        354,
+        tv,
+        100,
+        current_timestamp()
+    ),
+(
+        355,
+        car,
+        100,
+        current_timestamp()
+    ),
+(
+        356,
+        bike,
+        200,
+        current_timestamp()
+    ),
+(
+        357,
+        orange,
+        400,
+        current_timestamp()
+    ),
+(
+        358,
+        bike,
+        300,
+        current_timestamp()
+    ),
+(
+        359,
+        orange,
+        300,
+        current_timestamp()
+    ),
+(
+        360,
+        orange,
+        200,
+        current_timestamp()
+    ),
+(
+        361,
+        car,
+        300,
+        current_timestamp()
+    ),
+(
+        362,
+        tv,
+        100,
+        current_timestamp()
+    ),
+(
+        363,
+        tv,
+        300,
+        current_timestamp()
+    ),
+(
+        364,
+        car,
+        100,
+        current_timestamp()
+    ),
+(
+        365,
+        tv,
+        300,
+        current_timestamp()
+    ),
+(
+        366,
+        car,
+        400,
+        current_timestamp()
+    ),
+(
+        367,
+        bike,
+        100,
+        current_timestamp()
+    ),
+(
+        368,
+        orange,
+        300,
+        current_timestamp()
+    ),
+(
+        369,
+        tv,
+        100,
+        current_timestamp()
+    ),
+(
+        370,
+        orange,
+        200,
+        current_timestamp()
+    ),
+(
+        371,
+        car,
+        100,
+        current_timestamp()
+    ),
+(
+        372,
+        orange,
+        200,
+        current_timestamp()
+    ),
+(
+        373,
+        tv,
+        400,
+        current_timestamp()
+    ),
+(
+        374,
+        bike,
+        300,
+        current_timestamp()
+    ),
+(
+        375,
+        car,
+        300,
+        current_timestamp()
+    ),
+(
+        376,
+        orange,
+        100,
+        current_timestamp()
+    ),
+(
+        377,
+        bike,
+        400,
+        current_timestamp()
+    ),
+(
+        378,
+        orange,
+        200,
+        current_timestamp()
+    ),
+(
+        379,
+        car,
+        400,
+        current_timestamp()
+    ),
+(
+        380,
+        orange,
+        400,
+        current_timestamp()
+    ),
+(
+        381,
+        tv,
+        200,
+        current_timestamp()
+    ),
+(
+        382,
+        tv,
+        100,
+        current_timestamp()
+    ),
+(
+        383,
+        car,
+        200,
+        current_timestamp()
+    ),
+(
+        384,
+        tv,
+        200,
+        current_timestamp()
+    ),
+(
+        385,
+        car,
+        100,
+        current_timestamp()
+    ),
+(
+        386,
+        car,
+        300,
+        current_timestamp()
+    ),
+(
+        387,
+        car,
+        100,
+        current_timestamp()
+    ),
+(
+        388,
+        orange,
+        400,
+        current_timestamp()
+    ),
+(
+        389,
+        bike,
+        200,
+        current_timestamp()
+    ),
+(
+        390,
+        tv,
+        300,
+        current_timestamp()
+    ),
+(
+        391,
+        orange,
+        300,
+        current_timestamp()
+    ),
+(
+        392,
+        bike,
+        100,
+        current_timestamp()
+    ),
+(
+        393,
+        orange,
+        300,
+        current_timestamp()
+    ),
+(
+        394,
+        car,
+        300,
+        current_timestamp()
+    ),
+(
+        395,
+        bike,
+        300,
+        current_timestamp()
+    ),
+(
+        396,
+        orange,
+        300,
+        current_timestamp()
+    ),
+(
+        397,
+        orange,
+        200,
+        current_timestamp()
+    ),
+(
+        398,
+        car,
+        400,
+        current_timestamp()
+    ),
+(
+        399,
+        orange,
+        300,
+        current_timestamp()
+    ),
+(
+        400,
+        orange,
+        400,
+        current_timestamp()
+    ),
+(
+        401,
+        orange,
+        400,
+        current_timestamp()
+    ),
+(
+        402,
+        car,
+        200,
+        current_timestamp()
+    ),
+(
+        403,
+        bike,
+        200,
+        current_timestamp()
+    ),
+(
+        404,
+        orange,
+        200,
+        current_timestamp()
+    ),
+(
+        405,
+        bike,
+        200,
+        current_timestamp()
+    ),
+(
+        406,
+        tv,
+        400,
+        current_timestamp()
+    ),
+(
+        407,
+        bike,
+        200,
+        current_timestamp()
+    ),
+(
+        408,
+        bike,
+        400,
+        current_timestamp()
+    ),
+(
+        409,
+        car,
+        300,
+        current_timestamp()
+    ),
+(
+        410,
+        orange,
+        200,
+        current_timestamp()
+    ),
+(
+        411,
+        car,
+        100,
+        current_timestamp()
+    ),
+(
+        412,
+        orange,
+        100,
+        current_timestamp()
+    ),
+(
+        413,
+        orange,
+        300,
+        current_timestamp()
+    ),
+(
+        414,
+        orange,
+        400,
+        current_timestamp()
+    ),
+(
+        415,
+        tv,
+        100,
+        current_timestamp()
+    ),
+(
+        416,
+        car,
+        100,
+        current_timestamp()
+    ),
+(
+        417,
+        car,
+        100,
+        current_timestamp()
+    ),
+(
+        418,
+        tv,
+        200,
+        current_timestamp()
+    ),
+(
+        419,
+        orange,
+        400,
+        current_timestamp()
+    ),
+(
+        420,
+        orange,
+        300,
+        current_timestamp()
+    ),
+(
+        421,
+        bike,
+        100,
+        current_timestamp()
+    ),
+(
+        422,
+        orange,
+        300,
+        current_timestamp()
+    ),
+(
+        423,
+        orange,
+        200,
+        current_timestamp()
+    ),
+(
+        424,
+        tv,
+        300,
+        current_timestamp()
+    ),
+(
+        425,
+        orange,
+        400,
+        current_timestamp()
+    ),
+(
+        426,
+        tv,
+        400,
+        current_timestamp()
+    ),
+(
+        427,
+        car,
+        100,
+        current_timestamp()
+    ),
+(
+        428,
+        car,
+        100,
+        current_timestamp()
+    ),
+(
+        429,
+        orange,
+        200,
+        current_timestamp()
+    ),
+(
+        430,
+        car,
+        400,
+        current_timestamp()
+    ),
+(
+        431,
+        orange,
+        300,
+        current_timestamp()
+    ),
+(
+        432,
+        orange,
+        300,
+        current_timestamp()
+    ),
+(
+        433,
+        bike,
+        400,
+        current_timestamp()
+    ),
+(
+        434,
+        tv,
+        400,
+        current_timestamp()
+    ),
+(
+        435,
+        car,
+        100,
+        current_timestamp()
+    ),
+(
+        436,
+        orange,
+        400,
+        current_timestamp()
+    ),
+(
+        437,
+        car,
+        100,
+        current_timestamp()
+    ),
+(
+        438,
+        orange,
+        200,
+        current_timestamp()
+    ),
+(
+        439,
+        bike,
+        200,
+        current_timestamp()
+    ),
+(
+        440,
+        orange,
+        200,
+        current_timestamp()
+    ),
+(
+        441,
+        car,
+        300,
+        current_timestamp()
+    ),
+(
+        442,
+        bike,
+        300,
+        current_timestamp()
+    ),
+(
+        443,
+        bike,
+        300,
+        current_timestamp()
+    ),
+(
+        444,
+        orange,
+        400,
+        current_timestamp()
+    ),
+(
+        445,
+        tv,
+        300,
+        current_timestamp()
+    ),
+(
+        446,
+        tv,
+        100,
+        current_timestamp()
+    ),
+(
+        447,
+        orange,
+        300,
+        current_timestamp()
+    ),
+(
+        448,
+        tv,
+        300,
+        current_timestamp()
+    ),
+(
+        449,
+        car,
+        400,
+        current_timestamp()
+    ),
+(
+        450,
+        bike,
+        100,
+        current_timestamp()
+    ),
+(
+        451,
+        orange,
+        400,
+        current_timestamp()
+    ),
+(
+        452,
+        car,
+        200,
+        current_timestamp()
+    ),
+(
+        453,
+        car,
+        300,
+        current_timestamp()
+    ),
+(
+        454,
+        bike,
+        300,
+        current_timestamp()
+    ),
+(
+        455,
+        orange,
+        400,
+        current_timestamp()
+    ),
+(
+        456,
+        car,
+        300,
+        current_timestamp()
+    ),
+(
+        457,
+        car,
+        400,
+        current_timestamp()
+    ),
+(
+        458,
+        tv,
+        300,
+        current_timestamp()
+    ),
+(
+        459,
+        bike,
+        100,
+        current_timestamp()
+    ),
+(
+        460,
+        orange,
+        400,
+        current_timestamp()
+    ),
+(
+        461,
+        orange,
+        100,
+        current_timestamp()
+    ),
+(
+        462,
+        tv,
+        300,
+        current_timestamp()
+    ),
+(
+        463,
+        tv,
+        100,
+        current_timestamp()
+    ),
+(
+        464,
+        bike,
+        400,
+        current_timestamp()
+    ),
+(
+        465,
+        orange,
+        100,
+        current_timestamp()
+    ),
+(
+        466,
+        car,
+        400,
+        current_timestamp()
+    ),
+(
+        467,
+        car,
+        400,
+        current_timestamp()
+    ),
+(
+        468,
+        tv,
+        100,
+        current_timestamp()
+    ),
+(
+        469,
+        car,
+        400,
+        current_timestamp()
+    ),
+(
+        470,
+        bike,
+        400,
+        current_timestamp()
+    ),
+(
+        471,
+        bike,
+        400,
+        current_timestamp()
+    ),
+(
+        472,
+        tv,
+        300,
+        current_timestamp()
+    ),
+(
+        473,
+        car,
+        100,
+        current_timestamp()
+    ),
+(
+        474,
+        orange,
+        100,
+        current_timestamp()
+    ),
+(
+        475,
+        bike,
+        100,
+        current_timestamp()
+    ),
+(
+        476,
+        tv,
+        200,
+        current_timestamp()
+    ),
+(
+        477,
+        orange,
+        200,
+        current_timestamp()
+    ),
+(
+        478,
+        bike,
+        100,
+        current_timestamp()
+    ),
+(
+        479,
+        tv,
+        400,
+        current_timestamp()
+    ),
+(
+        480,
+        orange,
+        100,
+        current_timestamp()
+    ),
+(
+        481,
+        car,
+        300,
+        current_timestamp()
+    ),
+(
+        482,
+        tv,
+        100,
+        current_timestamp()
+    ),
+(
+        483,
+        car,
+        200,
+        current_timestamp()
+    ),
+(
+        484,
+        orange,
+        100,
+        current_timestamp()
+    ),
+(
+        485,
+        bike,
+        200,
+        current_timestamp()
+    ),
+(
+        486,
+        bike,
+        100,
+        current_timestamp()
+    ),
+(
+        487,
+        car,
+        300,
+        current_timestamp()
+    ),
+(
+        488,
+        car,
+        300,
+        current_timestamp()
+    ),
+(
+        489,
+        bike,
+        400,
+        current_timestamp()
+    ),
+(
+        490,
+        car,
+        100,
+        current_timestamp()
+    ),
+(
+        491,
+        bike,
+        300,
+        current_timestamp()
+    ),
+(
+        492,
+        car,
+        400,
+        current_timestamp()
+    ),
+(
+        493,
+        tv,
+        300,
+        current_timestamp()
+    ),
+(
+        494,
+        car,
+        400,
+        current_timestamp()
+    ),
+(
+        495,
+        tv,
+        300,
+        current_timestamp()
+    ),
+(
+        496,
+        bike,
+        100,
+        current_timestamp()
+    ),
+(
+        497,
+        car,
+        300,
+        current_timestamp()
+    ),
+(
+        498,
+        car,
+        100,
+        current_timestamp()
+    ),
+(
+        499,
+        orange,
+        300,
+        current_timestamp()
+    ),
+(
+        500,
+        bike,
+        400,
+        current_timestamp()
+    ),
+(
+        501,
+        bike,
+        400,
+        current_timestamp()
+    ),
+(
+        502,
+        car,
+        200,
+        current_timestamp()
+    ),
+(
+        503,
+        orange,
+        200,
+        current_timestamp()
+    ),
+(
+        504,
+        orange,
+        100,
+        current_timestamp()
+    ),
+(
+        505,
+        bike,
+        300,
+        current_timestamp()
+    ),
+(
+        506,
+        bike,
+        200,
+        current_timestamp()
+    ),
+(
+        507,
+        tv,
+        100,
+        current_timestamp()
+    ),
+(
+        508,
+        orange,
+        300,
+        current_timestamp()
+    ),
+(
+        509,
+        bike,
+        300,
+        current_timestamp()
+    ),
+(
+        510,
+        car,
+        100,
+        current_timestamp()
+    ),
+(
+        511,
+        bike,
+        300,
+        current_timestamp()
+    ),
+(
+        512,
+        car,
+        300,
+        current_timestamp()
+    ),
+(
+        513,
+        orange,
+        300,
+        current_timestamp()
+    ),
+(
+        514,
+        tv,
+        200,
+        current_timestamp()
+    ),
+(
+        515,
+        bike,
+        300,
+        current_timestamp()
+    ),
+(
+        516,
+        car,
+        400,
+        current_timestamp()
+    ),
+(
+        517,
+        orange,
+        100,
+        current_timestamp()
+    ),
+(
+        518,
+        bike,
+        300,
+        current_timestamp()
+    ),
+(
+        519,
+        tv,
+        200,
+        current_timestamp()
+    ),
+(
+        520,
+        orange,
+        200,
+        current_timestamp()
+    ),
+(
+        521,
+        bike,
+        400,
+        current_timestamp()
+    ),
+(
+        522,
+        bike,
+        300,
+        current_timestamp()
+    ),
+(
+        523,
+        orange,
+        100,
+        current_timestamp()
+    ),
+(
+        524,
+        bike,
+        300,
+        current_timestamp()
+    ),
+(
+        525,
+        orange,
+        100,
+        current_timestamp()
+    ),
+(
+        526,
+        car,
+        400,
+        current_timestamp()
+    ),
+(
+        527,
+        bike,
+        100,
+        current_timestamp()
+    ),
+(
+        528,
+        car,
+        300,
+        current_timestamp()
+    ),
+(
+        529,
+        bike,
+        100,
+        current_timestamp()
+    ),
+(
+        530,
+        bike,
+        100,
+        current_timestamp()
+    ),
+(
+        531,
+        bike,
+        200,
+        current_timestamp()
+    ),
+(
+        532,
+        car,
+        300,
+        current_timestamp()
+    ),
+(
+        533,
+        bike,
+        200,
+        current_timestamp()
+    ),
+(
+        534,
+        orange,
+        100,
+        current_timestamp()
+    ),
+(
+        535,
+        tv,
+        200,
+        current_timestamp()
+    ),
+(
+        536,
+        orange,
+        100,
+        current_timestamp()
+    ),
+(
+        537,
+        orange,
+        400,
+        current_timestamp()
+    ),
+(
+        538,
+        tv,
+        200,
+        current_timestamp()
+    ),
+(
+        539,
+        tv,
+        300,
+        current_timestamp()
+    ),
+(
+        540,
+        orange,
+        200,
+        current_timestamp()
+    ),
+(
+        541,
+        car,
+        400,
+        current_timestamp()
+    ),
+(
+        542,
+        orange,
+        100,
+        current_timestamp()
+    ),
+(
+        543,
+        orange,
+        400,
+        current_timestamp()
+    ),
+(
+        544,
+        orange,
+        100,
+        current_timestamp()
+    ),
+(
+        545,
+        bike,
+        400,
+        current_timestamp()
+    ),
+(
+        546,
+        tv,
+        400,
+        current_timestamp()
+    ),
+(
+        547,
+        bike,
+        400,
+        current_timestamp()
+    ),
+(
+        548,
+        car,
+        100,
+        current_timestamp()
+    ),
+(
+        549,
+        orange,
+        300,
+        current_timestamp()
+    ),
+(
+        550,
+        tv,
+        400,
+        current_timestamp()
+    ),
+(
+        551,
+        tv,
+        400,
+        current_timestamp()
+    ),
+(
+        552,
+        orange,
+        300,
+        current_timestamp()
+    ),
+(
+        553,
+        orange,
+        400,
+        current_timestamp()
+    ),
+(
+        554,
+        orange,
+        100,
+        current_timestamp()
+    ),
+(
+        555,
+        bike,
+        200,
+        current_timestamp()
+    ),
+(
+        556,
+        orange,
+        200,
+        current_timestamp()
+    ),
+(
+        557,
+        orange,
+        100,
+        current_timestamp()
+    ),
+(
+        558,
+        car,
+        300,
+        current_timestamp()
+    ),
+(
+        559,
+        orange,
+        200,
+        current_timestamp()
+    ),
+(
+        560,
+        orange,
+        100,
+        current_timestamp()
+    ),
+(
+        561,
+        tv,
+        100,
+        current_timestamp()
+    ),
+(
+        562,
+        car,
+        100,
+        current_timestamp()
+    ),
+(
+        563,
+        bike,
+        200,
+        current_timestamp()
+    ),
+(
+        564,
+        bike,
+        400,
+        current_timestamp()
+    ),
+(
+        565,
+        bike,
+        400,
+        current_timestamp()
+    ),
+(
+        566,
+        car,
+        300,
+        current_timestamp()
+    ),
+(
+        567,
+        orange,
+        100,
+        current_timestamp()
+    ),
+(
+        568,
+        car,
+        400,
+        current_timestamp()
+    ),
+(
+        569,
+        car,
+        400,
+        current_timestamp()
+    ),
+(
+        570,
+        tv,
+        200,
+        current_timestamp()
+    ),
+(
+        571,
+        bike,
+        400,
+        current_timestamp()
+    ),
+(
+        572,
+        bike,
+        300,
+        current_timestamp()
+    ),
+(
+        573,
+        bike,
+        400,
+        current_timestamp()
+    ),
+(
+        574,
+        orange,
+        300,
+        current_timestamp()
+    ),
+(
+        575,
+        bike,
+        400,
+        current_timestamp()
+    ),
+(
+        576,
+        tv,
+        100,
+        current_timestamp()
+    ),
+(
+        577,
+        bike,
+        300,
+        current_timestamp()
+    ),
+(
+        578,
+        tv,
+        100,
+        current_timestamp()
+    ),
+(
+        579,
+        tv,
+        100,
+        current_timestamp()
+    ),
+(
+        580,
+        bike,
+        300,
+        current_timestamp()
+    ),
+(
+        581,
+        tv,
+        300,
+        current_timestamp()
+    ),
+(
+        582,
+        car,
+        400,
+        current_timestamp()
+    ),
+(
+        583,
+        orange,
+        400,
+        current_timestamp()
+    ),
+(
+        584,
+        tv,
+        100,
+        current_timestamp()
+    ),
+(
+        585,
+        bike,
+        100,
+        current_timestamp()
+    ),
+(
+        586,
+        bike,
+        100,
+        current_timestamp()
+    ),
+(
+        587,
+        tv,
+        300,
+        current_timestamp()
+    ),
+(
+        588,
+        tv,
+        100,
+        current_timestamp()
+    ),
+(
+        589,
+        bike,
+        200,
+        current_timestamp()
+    ),
+(
+        590,
+        bike,
+        100,
+        current_timestamp()
+    ),
+(
+        591,
+        bike,
+        200,
+        current_timestamp()
+    ),
+(
+        592,
+        orange,
+        400,
+        current_timestamp()
+    ),
+(
+        593,
+        tv,
+        300,
+        current_timestamp()
+    ),
+(
+        594,
+        tv,
+        400,
+        current_timestamp()
+    ),
+(
+        595,
+        orange,
+        100,
+        current_timestamp()
+    ),
+(
+        596,
+        orange,
+        100,
+        current_timestamp()
+    ),
+(
+        597,
+        car,
+        300,
+        current_timestamp()
+    ),
+(
+        598,
+        car,
+        400,
+        current_timestamp()
+    )

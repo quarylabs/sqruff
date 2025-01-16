@@ -53,16 +53,7 @@ impl Linter {
     ) -> Linter {
         let templater: &'static dyn Templater = match templater {
             Some(templater) => templater,
-            None => {
-                let templater_name = config.get("templater", "core").as_string();
-                match templater_name {
-                    Some(name) => match TEMPLATERS.into_iter().find(|t| t.name() == name) {
-                        Some(t) => t,
-                        None => panic!("Unknown templater: {}", name),
-                    },
-                    None => &RawTemplater,
-                }
-            }
+            None => Linter::get_templater(&config),
         };
         Linter {
             config,
@@ -70,6 +61,17 @@ impl Linter {
             templater,
             rules: OnceLock::new(),
             include_parse_errors,
+        }
+    }
+
+    pub fn get_templater(config: &FluffConfig) -> &'static dyn Templater {
+        let templater_name = config.get("templater", "core").as_string();
+        match templater_name {
+            Some(name) => match TEMPLATERS.into_iter().find(|t| t.name() == name) {
+                Some(t) => t,
+                None => panic!("Unknown templater: {}", name),
+            },
+            None => &RawTemplater,
         }
     }
 

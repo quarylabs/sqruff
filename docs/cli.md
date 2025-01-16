@@ -8,6 +8,7 @@ This document contains the help content for the `sqruff` command-line program.
 * [`sqruff lint`↴](#sqruff-lint)
 * [`sqruff fix`↴](#sqruff-fix)
 * [`sqruff lsp`↴](#sqruff-lsp)
+* [`sqruff info`↴](#sqruff-info)
 
 ## `sqruff`
 
@@ -17,9 +18,10 @@ sqruff is a sql formatter and linter
 
 ###### **Subcommands:**
 
-* `lint` — lint files
-* `fix` — fix files
+* `lint` — Lint files
+* `fix` — Fix files
 * `lsp` — Run an LSP server
+* `info` — Print information about sqruff and the current environment
 
 ###### **Options:**
 
@@ -32,7 +34,7 @@ sqruff is a sql formatter and linter
 
 ## `sqruff lint`
 
-lint files
+Lint files
 
 **Usage:** `sqruff lint [OPTIONS] [PATHS]...`
 
@@ -53,7 +55,7 @@ lint files
 
 ## `sqruff fix`
 
-fix files
+Fix files
 
 **Usage:** `sqruff fix [OPTIONS] [PATHS]...`
 
@@ -78,6 +80,14 @@ fix files
 Run an LSP server
 
 **Usage:** `sqruff lsp`
+
+
+
+## `sqruff info`
+
+Print information about sqruff and the current environment
+
+**Usage:** `sqruff info`
 
 
 

@@ -3,8 +3,7 @@
 import logging
 
 import pytest
-
-from .python_templater import (
+from templaters.python_templater import (
     IntermediateFileSlice,
     PythonTemplater,
     RawFileSlice,

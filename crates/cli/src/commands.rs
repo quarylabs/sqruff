@@ -22,12 +22,17 @@ pub(crate) struct Cli {
 
 #[derive(Debug, Subcommand)]
 pub(crate) enum Commands {
-    #[command(name = "lint", about = "lint files")]
+    #[command(name = "lint", about = "Lint files")]
     Lint(LintArgs),
-    #[command(name = "fix", about = "fix files")]
+    #[command(name = "fix", about = "Fix files")]
     Fix(FixArgs),
     #[command(name = "lsp", about = "Run an LSP server")]
     Lsp,
+    #[command(
+        name = "info",
+        about = "Print information about sqruff and the current environment"
+    )]
+    Info,
 }
 
 #[derive(Debug, Parser)]

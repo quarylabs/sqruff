@@ -21,6 +21,10 @@ doctest = false
 name = "rules"
 harness = false
 
+[[test]]
+name = "templaters"
+harness = false
+
 [[bench]]
 name = "parsing"
 harness = false
@@ -34,7 +38,7 @@ name = "depth_map"
 harness = false
 
 [features]
-python = ["pyo3"]
+python = ["pyo3", "sqruff-lib-core/serde"]
 
 [dependencies]
 sqruff-lib-core.workspace = true

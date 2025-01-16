@@ -18,6 +18,7 @@ use crate::docs::codegen_docs;
 
 mod commands;
 mod commands_fix;
+mod commands_info;
 mod commands_lint;
 #[cfg(feature = "codegen-docs")]
 mod docs;
@@ -91,6 +92,10 @@ fn main() {
         },
         Commands::Lsp => {
             sqruff_lsp::run();
+            0
+        }
+        Commands::Info => {
+            commands_info::info();
             0
         }
     };

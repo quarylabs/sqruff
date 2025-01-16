@@ -83,14 +83,19 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - uses: actions/setup-python@v5
+      - id: setup-python
+        uses: actions/setup-python@v5
+      - name: Install dependencies
+        run: make python_install
+      - name: Add site-packages to PYTHONPATH
+        run: echo "PYTHONPATH=$(python -c 'import site; print(site.getsitepackages()[0])'):\$PYTHONPATH" >> $GITHUB_ENV
+      - name: Run tests in cli
+        run: cargo test --manifest-path ./crates/cli/Cargo.toml
       - uses: dtolnay/rust-toolchain@stable
       - uses: Swatinem/rust-cache@v2
       - uses: taiki-e/install-action@nextest
       - name: Run all tests apart from cli
         run: cargo test --all --all-features --exclude sqruff
-      - name: Run tests in cli
-        run: cargo test --manifest-path ./crates/cli/Cargo.toml
       - name: Check for diffs
         run: git diff --quiet || exit 1
   benchmark:

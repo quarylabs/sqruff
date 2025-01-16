@@ -32,7 +32,7 @@ sqruff-lsp = { version = "0.24.0", path = "crates/lsp" }
 sqruff-lib-core = { version = "0.24.0", path = "crates/lib-core" }
 sqruff-lib-dialects = { version = "0.24.0", path = "crates/lib-dialects"}
 wasm-bindgen = "0.2"
-wasm-pack = "0.13.0"
+wasm-pack = "0.13.1"
 
 strum = "0.26.3"
 strum_macros = "0.26.4"

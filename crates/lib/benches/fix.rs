@@ -3,6 +3,7 @@ use criterion::{black_box, criterion_group, criterion_main, Criterion};
 use pprof::criterion::{Output, PProfProfiler};
 use sqruff_lib::core::linter::core::Linter;
 use sqruff_lib_core::parser::segments::base::Tables;
+use std::path::Path;
 
 #[cfg(all(
     not(target_os = "windows"),
@@ -68,7 +69,13 @@ ORDER BY
     e.salary;"#;
 
 fn fix(c: &mut Criterion) {
-    let passes = [("fix_complex_query", COMPLEX_QUERY)];
+    // Read super long file to string
+    let path = Path::new(env!("CARGO_MANIFEST_DIR")).join("benches/superlong.sql");
+    let superlong = std::fs::read_to_string(path).unwrap();
+    let passes = [
+        ("fix_complex_query", COMPLEX_QUERY.to_string()),
+        ("fix_superlong", superlong),
+    ];
 
     let linter = Linter::new(
         sqruff_lib::core::config::FluffConfig::default(),
@@ -78,7 +85,7 @@ fn fix(c: &mut Criterion) {
     );
     for (name, source) in passes {
         let tables = Tables::default();
-        let parsed = linter.parse_string(&tables, source, None).unwrap();
+        let parsed = linter.parse_string(&tables, &source, None).unwrap();
 
         c.bench_function(name, |b| {
             b.iter(|| black_box(linter.lint_parsed(&tables, parsed.clone(), true)));

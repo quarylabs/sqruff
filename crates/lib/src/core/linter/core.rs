@@ -399,12 +399,10 @@ impl Linter {
         }
 
         let templater_violations = vec![];
-        match self.templater.process(
-            sql.as_ref(),
-            filename.as_str(),
-            Some(config),
-            &self.formatter,
-        ) {
+        match self
+            .templater
+            .process(sql.as_ref(), filename.as_str(), config, &self.formatter)
+        {
             Ok(templated_file) => Ok(RenderedFile {
                 templated_file,
                 templater_violations,

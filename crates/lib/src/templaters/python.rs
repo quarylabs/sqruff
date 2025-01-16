@@ -54,13 +54,10 @@ At the moment, dot notation is not supported in the templater."
         &self,
         in_str: &str,
         f_name: &str,
-        config: Option<&FluffConfig>,
+        config: &FluffConfig,
         _formatter: &Option<Arc<dyn Formatter>>,
     ) -> Result<TemplatedFile, SQLFluffUserError> {
-        let empty_hash = AHashMap::new();
-        let context = config
-            .map(|config| config.get_section("templater"))
-            .unwrap_or(&empty_hash);
+        let context = config.get_section("templater");
         let python = context.get("python").ok_or(SQLFluffUserError::new(
             "Python templater requires a python section in the config".to_string(),
         ))?;
@@ -250,7 +247,7 @@ blah = foo
         let templater = PythonTemplater;
 
         let templated_file = templater
-            .process(PYTHON_STRING, "test.sql", Some(&config), &None)
+            .process(PYTHON_STRING, "test.sql", &config, &None)
             .unwrap();
 
         assert_eq!(templated_file.templated(), "SELECT * FROM foo");
@@ -269,7 +266,7 @@ noblah = foo
 
         let templater = PythonTemplater;
 
-        let templated_file = templater.process(PYTHON_STRING, "test.sql", Some(&config), &None);
+        let templated_file = templater.process(PYTHON_STRING, "test.sql", &config, &None);
 
         assert!(templated_file.is_err())
     }

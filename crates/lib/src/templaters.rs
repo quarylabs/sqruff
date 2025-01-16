@@ -41,7 +41,7 @@ pub trait Templater: Send + Sync {
         &self,
         in_str: &str,
         f_name: &str,
-        config: Option<&FluffConfig>,
+        config: &FluffConfig,
         formatter: &Option<Arc<dyn Formatter>>,
     ) -> Result<TemplatedFile, SQLFluffUserError>;
 }

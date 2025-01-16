@@ -23,7 +23,7 @@ impl Templater for RawTemplater {
         &self,
         in_str: &str,
         f_name: &str,
-        _config: Option<&FluffConfig>,
+        _config: &FluffConfig,
         _formatter: &Option<Arc<dyn Formatter>>,
     ) -> Result<TemplatedFile, SQLFluffUserError> {
         if let Ok(tf) = TemplatedFile::new(in_str.to_string(), f_name.to_string(), None, None, None)
@@ -44,7 +44,9 @@ mod test {
         let templater = RawTemplater;
         let in_str = "SELECT * FROM {{blah}}";
 
-        let outstr = templater.process(in_str, "test.sql", None, &None).unwrap();
+        let outstr = templater
+            .process(in_str, "test.sql", &FluffConfig::from_source(""), &None)
+            .unwrap();
 
         assert_eq!(outstr.templated_str, Some(in_str.to_string()));
     }

@@ -73,19 +73,11 @@ pub fn get_known_styles() -> HashMap<&'static str, Regex> {
     m
 }
 
-const DEFAULT_STYLE: &str = "colon";
-
 const NO_PARAM_OR_STYLE: &str =
     "No param_regex nor param_style was provided to the placeholder templater.";
 
 impl PlaceholderTemplater {
-    fn derive_style(&self, config: Option<&FluffConfig>) -> Result<Regex, SQLFluffUserError> {
-        if config.is_none() {
-            return Ok(get_known_styles().get(DEFAULT_STYLE).unwrap().clone());
-        }
-        let config = config.ok_or(SQLFluffUserError::new(
-            "No config provided to templater 'placeholder'".to_string(),
-        ))?;
+    fn derive_style(&self, config: &FluffConfig) -> Result<Regex, SQLFluffUserError> {
         let config = config
             .get("placeholder", "templater")
             .as_map()
@@ -219,7 +211,7 @@ Also consider making a pull request to the project to have your style added, it 
         &self,
         in_str: &str,
         f_name: &str,
-        config: Option<&FluffConfig>,
+        config: &FluffConfig,
         _: &Option<Arc<dyn Formatter>>,
     ) -> Result<TemplatedFile, SQLFluffUserError> {
         let mut template_slices = vec![];
@@ -232,8 +224,7 @@ Also consider making a pull request to the project to have your style added, it 
         let mut param_counter = 1;
         let regex = self.derive_style(config)?;
 
-        let template_config =
-            config.and_then(|config| config.get("placeholder", "templater").as_map());
+        let template_config = config.get("placeholder", "templater").as_map();
 
         for cap in regex.captures_iter(in_str) {
             let cap = cap.unwrap();
@@ -353,7 +344,14 @@ mod tests {
     fn test_templater_no_replacement() {
         let templater = PlaceholderTemplater {};
         let in_str = "SELECT * FROM {{blah}} WHERE %(gnepr)s OR e~':'";
-        let out_str = templater.process(in_str, "test.sql", None, &None).unwrap();
+        let config = FluffConfig::from_source(
+            "
+[sqruff:templater:placeholder]
+param_style = colon",
+        );
+        let out_str = templater
+            .process(in_str, "test.sql", &config, &None)
+            .unwrap();
         let out = out_str.templated();
         assert_eq!(in_str, out)
     }
@@ -617,7 +615,7 @@ param_style = {}
             );
             let templater = PlaceholderTemplater {};
             let out_str = templater
-                .process(in_str, "test.sql", Some(&config), &None)
+                .process(in_str, "test.sql", &config, &None)
                 .unwrap();
             let out = out_str.templated();
             assert_eq!(expected_out, out)
@@ -634,7 +632,7 @@ param_style = {}
         );
         let templater = PlaceholderTemplater {};
         let in_str = "SELECT 2+2";
-        let out_str = templater.process(in_str, "test.sql", Some(&config), &None);
+        let out_str = templater.process(in_str, "test.sql", &config, &None);
 
         assert!(out_str.is_err());
         assert_eq!(
@@ -656,7 +654,7 @@ param_style = colon
         );
         let templater = PlaceholderTemplater {};
         let in_str = "SELECT 2+2";
-        let out_str = templater.process(in_str, "test.sql", Some(&config), &None);
+        let out_str = templater.process(in_str, "test.sql", &config, &None);
 
         assert!(out_str.is_err());
         assert_eq!(
@@ -677,9 +675,7 @@ my_name = john
         );
         let templater = PlaceholderTemplater {};
         let in_str = "SELECT bla FROM blob WHERE id = __my_name__";
-        let out_str = templater
-            .process(in_str, "test", Some(&config), &None)
-            .unwrap();
+        let out_str = templater.process(in_str, "test", &config, &None).unwrap();
         let out = out_str.templated();
         assert_eq!("SELECT bla FROM blob WHERE id = john", out)
     }
@@ -695,7 +691,7 @@ param_style = unknown
         );
         let templater = PlaceholderTemplater {};
         let in_str = "SELECT * FROM {{blah}} WHERE %(gnepr)s OR e~':'";
-        let out_str = templater.process(in_str, "test.sql", Some(&config), &None);
+        let out_str = templater.process(in_str, "test.sql", &config, &None);
 
         assert!(out_str.is_err());
         assert_eq!(

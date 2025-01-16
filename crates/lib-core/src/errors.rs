@@ -5,6 +5,7 @@ use fancy_regex::Regex;
 
 use super::parser::segments::base::ErasedSegment;
 use crate::helpers::Config;
+use crate::lint_fix::LintFix;
 use crate::parser::markers::PositionMarker;
 
 type CheckTuple = (&'static str, usize, usize);
@@ -76,16 +77,23 @@ impl SqlError for SQLBaseError {
 #[derive(Debug, PartialEq, Clone)]
 pub struct SQLLintError {
     base: SQLBaseError,
+    pub fixes: Vec<LintFix>,
 }
 
 impl SQLLintError {
-    pub fn new(description: &str, segment: ErasedSegment, fixable: bool) -> Self {
+    pub fn new(
+        description: &str,
+        segment: ErasedSegment,
+        fixable: bool,
+        fixes: Vec<LintFix>,
+    ) -> Self {
         Self {
             base: SQLBaseError::default().config(|this| {
                 this.description = description.into();
                 this.set_position_marker(segment.get_position_marker().unwrap().clone());
                 this.fixable = fixable;
             }),
+            fixes,
         }
     }
 }
@@ -112,7 +120,10 @@ impl From<SQLLintError> for SQLBaseError {
 
 impl From<SQLBaseError> for SQLLintError {
     fn from(value: SQLBaseError) -> Self {
-        Self { base: value }
+        Self {
+            base: value,
+            fixes: vec![],
+        }
     }
 }
 

@@ -372,7 +372,7 @@ mod tests {
             ))
             .finish();
 
-        let mut v = SQLLintError::new("DESC", s, false);
+        let mut v = SQLLintError::new("DESC", s, false, vec![]);
 
         v.rule = Some(ErrorStructRule {
             name: "some-name",

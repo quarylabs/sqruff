@@ -1,0 +1,6 @@
+[sqruff]
+templater=jinja
+
+[sqruff:templater:jinja:context]
+testing_schema=sch1
+testing_table=tbl2

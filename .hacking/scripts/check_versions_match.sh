@@ -20,7 +20,7 @@ code_version=$(grep "\"version\"" editors/code/package.json | awk -F '"' '{print
 compare_versions "$cargo_version" "$code_version"
 
 # Extract version from pyproject.toml file
-pyproject_version=$(grep "\"version\"" editors/code/package.json | awk -F '"' '{print $4}')
+pyproject_version=$(grep "^version" crates/cli/pyproject.toml | awk -F '"' '{print $2}')
 compare_versions "$cargo_version" "$pyproject_version"
 
 # If GitHub release version is provided, compare it as well

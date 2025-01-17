@@ -83,11 +83,14 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
       - uses: dtolnay/rust-toolchain@stable
       - uses: Swatinem/rust-cache@v2
       - uses: taiki-e/install-action@nextest
-      - name: Run tests
-        run: cargo test
+      - name: Run all tests apart from cli
+        run: cargo test --all --all-features --exclude sqruff
+      - name: Run tests in cli
+        run: cargo test --manifest-path ./crates/cli/Cargo.toml
       - name: Check for diffs
         run: git diff --quiet || exit 1
   benchmark:

@@ -563,12 +563,7 @@ impl ErasedSegment {
     }
 
     pub fn addr(&self) -> usize {
-        fn addr<T: ?Sized>(t: *const T) -> usize {
-            let c: *const () = t.cast();
-            sptr::Strict::addr(c)
-        }
-
-        addr(Rc::as_ptr(&self.value))
+        Rc::as_ptr(&self.value).addr()
     }
 
     pub fn direct_descendant_type_set(&self) -> SyntaxSet {

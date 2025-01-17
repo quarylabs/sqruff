@@ -327,9 +327,7 @@ impl Linter {
                         .filter(|error| {
                             !ignore_mask
                                 .clone()
-                                .map_or(false, |ignore_mask: IgnoreMask| {
-                                    ignore_mask.is_masked(error)
-                                })
+                                .is_some_and(|ignore_mask: IgnoreMask| ignore_mask.is_masked(error))
                         })
                         .collect();
 

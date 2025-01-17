@@ -80,7 +80,7 @@ jemallocator = { version = "0.6.0", package = "tikv-jemallocator" }
 pprof = { version = "0.14", features = ["flamegraph", "criterion"] }
 
 [dev-dependencies]
-sqruff-lib = { path = "." }
+sqruff-lib = { path = ".", features = ["python"] }
 serde_yaml = "0.9.34"
 criterion = "0.5"
 expect-test = "1.5"

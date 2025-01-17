@@ -605,9 +605,7 @@ impl ErasedSegment {
 
     #[track_caller]
     pub(crate) fn make_mut(&mut self) -> &mut NodeOrToken {
-        let mut this = self.deep_clone();
-        std::mem::swap(self, &mut this);
-        Rc::get_mut(&mut self.value).unwrap()
+        Rc::make_mut(&mut self.value)
     }
 
     pub fn reference(&self) -> ObjectReferenceSegment {

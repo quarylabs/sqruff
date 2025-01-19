@@ -110,6 +110,7 @@ pub(crate) fn linter(config: FluffConfig, format: Format, collect_parse_errors: 
             let formatter = OutputStreamFormatter::new(
                 output_stream,
                 config.get("nocolor", "core").as_bool().unwrap_or_default(),
+                config.get("verbose", "core").as_int().unwrap_or_default(),
             );
             Arc::new(formatter)
         }

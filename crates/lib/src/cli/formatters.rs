@@ -113,12 +113,12 @@ impl Formatter for OutputStreamFormatter {
 }
 
 impl OutputStreamFormatter {
-    pub fn new(output_stream: Option<Stderr>, nocolor: bool) -> Self {
+    pub fn new(output_stream: Option<Stderr>, nocolor: bool, verbosity: i32) -> Self {
         Self {
             output_stream,
             plain_output: Self::should_produce_plain_output(nocolor),
             filter_empty: true,
-            verbosity: 0,
+            verbosity,
             output_line_length: 80,
             has_fail: false.into(),
             files_dispatched: 0.into(),
@@ -347,7 +347,7 @@ mod tests {
     }
 
     fn mk_formatter() -> OutputStreamFormatter {
-        OutputStreamFormatter::new(None, false)
+        OutputStreamFormatter::new(None, false, 0)
     }
 
     #[test]

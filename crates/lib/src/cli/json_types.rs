@@ -5,6 +5,7 @@ use sqruff_lib_core::errors::SQLBaseError;
 
 impl From<SQLBaseError> for Diagnostic {
     fn from(value: SQLBaseError) -> Self {
+        let code = value.rule.map(|rule| rule.code.to_string());
         Diagnostic {
             range: Range {
                 start: Position::new(value.line_no as u32, value.line_pos as u32),
@@ -17,6 +18,7 @@ impl From<SQLBaseError> for Diagnostic {
                 DiagnosticSeverity::Error
             },
             source: Some("sqruff".to_string()),
+            code,
             // code: todo!(),
             // source: Some(value.get_source().to_string()),
             // code: Some(DiagnosticCode {
@@ -65,14 +67,23 @@ pub struct Diagnostic {
     pub severity: DiagnosticSeverity,
     /// A human-readable string describing the source of this diagnostic, e.g. 'typescript' or 'super lint'.
     source: Option<String>,
-    // A code or identifier for this diagnostic. Should be used for later processing, e.g. when providing {@link CodeActionContext code actions}.
-    // code: Option<DiagnosticCode>,
+    // The diagnostic's code, which might appear in the user interface.
+    code: Option<String>,
+    // An optional property to describe the error code.
+    // code_description: Option<CodeDescription>,
     // TODO Maybe implement
     // An array of related diagnostic information, e.g. when symbol-names within a scope collide all definitions can be marked via this property.
     // related_information: Vec<DiagnosticRelatedInformation>,
     // Additional metadata about the diagnostic.
     // tags: Vec<DiagnosticTag>,
 }
+
+// Structure to capture a description for an error code.
+// #[derive(Serialize)]
+// pub struct CodeDescription {
+//     /// An URI to open with more information about the diagnostic error.
+//     href: String,
+// }
 
 // /// Represents a related message and source code location for a diagnostic. This should be used to point to code locations that cause or are related to a diagnostics, e.g when duplicating a symbol in a scope.
 // #[derive(Serialize)]

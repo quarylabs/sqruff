@@ -13,7 +13,7 @@
 # #
 # import pytest
 #
-# from templaters.jinja_templater import process_from_rust
+# from sqruff_templaters.jinja_templater import process_from_rust
 #
 # # from jinja2 import Environment, nodes
 # # from jinja2.exceptions import UndefinedError

@@ -25,6 +25,7 @@ Sqruff comes with the following templaters out of the box:
 - [placeholder](placeholder)
 - [python](python)
 - [jinja](jinja)
+- [dbt](dbt)
 
 ## Details
 
@@ -149,5 +150,9 @@ SELECT * FROM foo
 At the moment, dot notation is not supported in the templater.
 
 ### jinja
+
+Not fully implemented yet. More details to come.
+
+### dbt
 
 Not fully implemented yet. More details to come.

@@ -2,7 +2,7 @@
 
 from typing import Any, Union
 
-from templaters.jinja_templater_builtins_common import FunctionWrapper
+from sqruff_templaters.jinja_templater_builtins_common import FunctionWrapper
 
 
 class RelationEmulator:

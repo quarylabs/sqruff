@@ -15,6 +15,13 @@ pub struct PythonFluffConfig {
     jinja_apply_dbt_builtins: bool,
     jinja_ignore_templating: Option<bool>,
     jinja_library_paths: Vec<String>,
+
+    dbt_profile: Option<String>,
+    dbt_profiles_dir: Option<String>,
+    dbt_target: Option<String>,
+    dbt_target_path: Option<String>,
+    dbt_context: Option<String>,
+    dbt_project_dir: Option<String>,
 }
 
 impl PythonFluffConfig {
@@ -76,6 +83,13 @@ impl From<FluffConfig> for PythonFluffConfig {
                         .collect::<Vec<_>>()
                 })
                 .unwrap_or_default(),
+
+            dbt_profile: None,
+            dbt_profiles_dir: None,
+            dbt_target: None,
+            dbt_target_path: None,
+            dbt_context: None,
+            dbt_project_dir: None,
         }
     }
 }

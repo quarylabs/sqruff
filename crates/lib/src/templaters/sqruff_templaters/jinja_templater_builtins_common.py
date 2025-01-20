@@ -2,7 +2,7 @@
 
 from typing import Any, Callable
 
-from templaters.python_templater import SQLTemplaterError
+from sqruff_templaters.python_templater import SQLTemplaterError
 
 
 class FunctionWrapper:

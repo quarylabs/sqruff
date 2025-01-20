@@ -14,6 +14,8 @@ use crate::templaters::jinja::JinjaTemplater;
 use crate::templaters::python::PythonTemplater;
 
 #[cfg(feature = "python")]
+pub mod dbt;
+#[cfg(feature = "python")]
 pub mod jinja;
 pub mod placeholder;
 #[cfg(feature = "python")]
@@ -28,14 +30,17 @@ pub static PLACEHOLDER_TEMPLATER: PlaceholderTemplater = PlaceholderTemplater;
 pub static PYTHON_TEMPLATER: PythonTemplater = PythonTemplater;
 #[cfg(feature = "python")]
 pub static JINJA_TEMPLATER: JinjaTemplater = JinjaTemplater;
+#[cfg(feature = "python")]
+pub static DBT_TEMPLATER: dbt::DBTTemplater = dbt::DBTTemplater;
 
 // templaters returns all the templaters that are available in the library
 #[cfg(feature = "python")]
-pub static TEMPLATERS: [&'static dyn Templater; 4] = [
+pub static TEMPLATERS: [&'static dyn Templater; 5] = [
     &RAW_TEMPLATER,
     &PLACEHOLDER_TEMPLATER,
     &PYTHON_TEMPLATER,
     &JINJA_TEMPLATER,
+    &DBT_TEMPLATER,
 ];
 
 #[cfg(not(feature = "python"))]

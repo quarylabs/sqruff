@@ -13,7 +13,7 @@
     "@monaco-editor/react": "^4.6.0",
     "@playwright/test": "^1.49.1",
     "@typescript-eslint/eslint-plugin": "^8.19.1",
-    "@typescript-eslint/parser": "^8.19.1",
+    "@typescript-eslint/parser": "^8.20.0",
     "classnames": "^2.5.1",
     "cross-env": "^7.0.3",
     "eslint": "^9.18.0",

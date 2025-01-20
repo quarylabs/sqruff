@@ -35,9 +35,9 @@ from jinja2 import (
 from jinja2.exceptions import TemplateNotFound, UndefinedError
 from jinja2.ext import Extension
 from jinja2.sandbox import SandboxedEnvironment
-from templaters.jinja_templater_builtins_dbt import DBT_BUILTINS
-from templaters.jinja_templater_tracers import JinjaAnalyzer, JinjaTrace
-from templaters.python_templater import (
+from sqruff_templaters.jinja_templater_builtins_dbt import DBT_BUILTINS
+from sqruff_templaters.jinja_templater_tracers import JinjaAnalyzer, JinjaTrace
+from sqruff_templaters.python_templater import (
     FluffConfig,
     PythonTemplater,
     RawFileSlice,

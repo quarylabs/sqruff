@@ -185,8 +185,8 @@ impl OutputStreamFormatter {
         }
     }
 
-    fn format_filename(&self, filename: &str, success: impl IntoStatus) -> String {
-        let status = success.into_status();
+    fn format_filename(&self, filename: &str, success: bool) -> String {
+        let status = if success { Status::Pass } else { Status::Fail };
 
         let color = match status {
             Status::Pass | Status::Fixed => AnsiColor::Green,
@@ -261,31 +261,6 @@ impl OutputStreamFormatter {
         }
 
         out_buff
-    }
-}
-
-pub trait IntoStatus {
-    fn into_status(self) -> Status;
-}
-
-impl IntoStatus for bool {
-    fn into_status(self) -> Status {
-        if self {
-            Status::Pass
-        } else {
-            Status::Fail
-        }
-    }
-}
-
-impl IntoStatus for (Status, bool) {
-    fn into_status(self) -> Status {
-        let (if_ok, is_ok) = self;
-        if is_ok {
-            if_ok
-        } else {
-            Status::Fail
-        }
     }
 }
 

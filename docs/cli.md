@@ -18,8 +18,8 @@ sqruff is a sql formatter and linter
 
 ###### **Subcommands:**
 
-* `lint` — Lint files
-* `fix` — Fix files
+* `lint` — Lint SQL files via passing a list of files or using stdin
+* `fix` — Fix SQL files via passing a list of files or using stdin
 * `lsp` — Run an LSP server
 * `info` — Print information about sqruff and the current environment
 
@@ -34,7 +34,7 @@ sqruff is a sql formatter and linter
 
 ## `sqruff lint`
 
-Lint files
+Lint SQL files via passing a list of files or using stdin
 
 **Usage:** `sqruff lint [OPTIONS] [PATHS]...`
 
@@ -55,7 +55,7 @@ Lint files
 
 ## `sqruff fix`
 
-Fix files
+Fix SQL files via passing a list of files or using stdin
 
 **Usage:** `sqruff fix [OPTIONS] [PATHS]...`
 

@@ -440,28 +440,23 @@ impl<'a> ReflowSequence<'a> {
         &self,
     ) -> impl Iterator<Item = (&ReflowPoint, Option<&ReflowBlock>, Option<&ReflowBlock>)> + '_ {
         self.elements.iter().enumerate().filter_map(|(idx, elem)| {
-            if let ReflowElement::Point(elem) = elem {
-                {
-                    let mut pre = None;
-                    let mut post = None;
+            let point = elem.as_point()?;
+            let mut pre = None;
+            let mut post = None;
 
-                    if idx > 0 {
-                        if let ReflowElement::Block(ref block) = self.elements[idx - 1] {
-                            pre = Some(block);
-                        }
-                    }
-
-                    if idx < self.elements.len() - 1 {
-                        if let ReflowElement::Block(ref block) = self.elements[idx + 1] {
-                            post = Some(block);
-                        }
-                    }
-
-                    (elem, pre, post).into()
+            if idx > 0 {
+                if let ReflowElement::Block(ref block) = self.elements[idx - 1] {
+                    pre = Some(block);
                 }
-            } else {
-                None
             }
+
+            if idx < self.elements.len() - 1 {
+                if let ReflowElement::Block(ref block) = self.elements[idx + 1] {
+                    post = Some(block);
+                }
+            }
+
+            (point, pre, post).into()
         })
     }
 

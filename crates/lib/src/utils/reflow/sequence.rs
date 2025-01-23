@@ -445,15 +445,11 @@ impl<'a> ReflowSequence<'a> {
             let mut post = None;
 
             if idx > 0 {
-                if let ReflowElement::Block(ref block) = self.elements[idx - 1] {
-                    pre = Some(block);
-                }
+                pre = Some(self.elements[idx - 1].as_block().unwrap());
             }
 
             if idx < self.elements.len() - 1 {
-                if let ReflowElement::Block(ref block) = self.elements[idx + 1] {
-                    post = Some(block);
-                }
+                post = Some(self.elements[idx + 1].as_block().unwrap());
             }
 
             (point, pre, post).into()

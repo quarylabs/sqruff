@@ -35,6 +35,10 @@ pub fn raw_dialect() -> Dialect {
 
     sqlite_dialect.add([
         (
+            "ColumnConstraintDefaultGrammar".into(),
+            Ref::new("ExpressionSegment").to_matchable().into(),
+        ),
+        (
             "BooleanBinaryOperatorGrammar".into(),
             one_of(vec_of_erased![
                 Ref::new("AndOperatorGrammar"),

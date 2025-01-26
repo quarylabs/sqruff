@@ -60,7 +60,7 @@ pub fn raw_dialect() -> Dialect {
         ),
         Matcher::regex(
             "trgm_operator",
-            r#"%|<%|%>|<<%|%>>|<->|<<->|<->>|<<<->|<->>>"#,
+            r#"(<<<->|<->>>|<<->|<->>|<->|<<%|%>>|%>|<%|%)"#,
             SyntaxKind::LikeOperator
         ),
         Matcher::string(

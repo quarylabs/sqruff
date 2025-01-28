@@ -12,7 +12,7 @@ dependencies = [
 dev = [
     "pytest>=8.0.0",
     "pytest-cov>=6.0.0",
-    "ruff>=0.8.0",
+    "ruff>=0.9.4",
     "maturin>=1.8.0",
     "jinja2>=3.0.0",
     "regex",

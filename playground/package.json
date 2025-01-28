@@ -27,7 +27,7 @@
     "react-resizable-panels": "^2.1.7"
   },
   "devDependencies": {
-    "@types/react": "^19.0.7",
+    "@types/react": "^19.0.8",
     "@types/react-dom": "^19.0.3",
     "@vitejs/plugin-react-swc": "^3.7.2",
     "autoprefixer": "^10.4.20",

@@ -479,15 +479,14 @@ pub fn handle_respace_inline_without_space(
 
         'outer: for (result_idx, res) in enumerate(&existing_results) {
             for (fix_idx, fix) in enumerate(&res.fixes) {
-                if let Some(edits) = &fix.edit {
-                    if edits
-                        .iter()
-                        .any(|e| e.id() == insertion.as_ref().unwrap().id())
-                    {
-                        res_found = Some(result_idx);
-                        fix_found = Some(fix_idx);
-                        break 'outer;
-                    }
+                if fix
+                    .edit
+                    .iter()
+                    .any(|e| e.id() == insertion.as_ref().unwrap().id())
+                {
+                    res_found = Some(result_idx);
+                    fix_found = Some(fix_idx);
+                    break 'outer;
                 }
             }
         }
@@ -500,7 +499,7 @@ pub fn handle_respace_inline_without_space(
         if existing_fix == "before" {
             unimplemented!()
         } else if existing_fix == "after" {
-            fix.edit.as_mut().unwrap().push(added_whitespace);
+            fix.edit.push(added_whitespace);
         }
 
         return (segment_buffer, existing_results, true);
@@ -530,7 +529,7 @@ pub fn handle_respace_inline_without_space(
             vec![LintFix {
                 edit_type: EditType::CreateAfter,
                 anchor: prev_block.segment().clone(),
-                edit: vec![added_whitespace].into(),
+                edit: vec![added_whitespace],
                 source: vec![],
             }],
             desc.into(),

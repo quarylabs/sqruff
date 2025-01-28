@@ -18,7 +18,7 @@ pub struct LintFix {
     pub anchor: ErasedSegment,
     /// For `replace` and `create` fixes, this holds the iterable of segments to create or replace
     /// at the given `anchor` point.
-    pub edit: Option<Vec<ErasedSegment>>,
+    pub edit: Vec<ErasedSegment>,
     /// For `replace` and `create` fixes, this holds iterable of segments that provided
     /// code. IMPORTANT: The linter uses this to prevent copying material
     /// from templated areas.
@@ -29,22 +29,17 @@ impl LintFix {
     fn new(
         edit_type: EditType,
         anchor: ErasedSegment,
-        edit: Option<Vec<ErasedSegment>>,
+        mut edit: Vec<ErasedSegment>,
         source: Option<Vec<ErasedSegment>>,
     ) -> Self {
         // If `edit` is provided, copy all elements and strip position markers.
-        let clean_edit = if let Some(mut edit) = edit {
-            // Developer Note: Ensure position markers are unset for all edit segments.
-            // We rely on realignment to make position markers later in the process.
-            for seg in &mut edit {
-                if seg.get_position_marker().is_some() {
-                    seg.make_mut().set_position_marker(None);
-                };
-            }
-            Some(edit)
-        } else {
-            None
-        };
+        // Developer Note: Ensure position markers are unset for all edit segments.
+        // We rely on realignment to make position markers later in the process.
+        for seg in &mut edit {
+            if seg.get_position_marker().is_some() {
+                seg.make_mut().set_position_marker(None);
+            };
+        }
 
         // If `source` is provided, filter segments with position markers.
         let clean_source = source.map_or(Vec::new(), |source| {
@@ -57,13 +52,13 @@ impl LintFix {
         LintFix {
             edit_type,
             anchor,
-            edit: clean_edit,
+            edit,
             source: clean_source,
         }
     }
 
     pub fn create_before(anchor: ErasedSegment, edit_segments: Vec<ErasedSegment>) -> Self {
-        Self::new(EditType::CreateBefore, anchor, edit_segments.into(), None)
+        Self::new(EditType::CreateBefore, anchor, edit_segments, None)
     }
 
     pub fn create_after(
@@ -71,7 +66,7 @@ impl LintFix {
         edit_segments: Vec<ErasedSegment>,
         source: Option<Vec<ErasedSegment>>,
     ) -> Self {
-        Self::new(EditType::CreateAfter, anchor, edit_segments.into(), source)
+        Self::new(EditType::CreateAfter, anchor, edit_segments, source)
     }
 
     pub fn replace(
@@ -79,27 +74,18 @@ impl LintFix {
         edit_segments: Vec<ErasedSegment>,
         source: Option<Vec<ErasedSegment>>,
     ) -> Self {
-        Self::new(
-            EditType::Replace,
-            anchor_segment,
-            Some(edit_segments),
-            source,
-        )
+        Self::new(EditType::Replace, anchor_segment, edit_segments, source)
     }
 
     pub fn delete(anchor_segment: ErasedSegment) -> Self {
-        Self::new(EditType::Delete, anchor_segment, None, None)
+        Self::new(EditType::Delete, anchor_segment, Vec::new(), None)
     }
 
     /// Return whether this a valid source only edit.
     pub fn is_just_source_edit(&self) -> bool {
-        if let Some(edit) = &self.edit {
-            self.edit_type == EditType::Replace
-                && edit.len() == 1
-                && edit[0].raw() == self.anchor.raw()
-        } else {
-            false
-        }
+        self.edit_type == EditType::Replace
+            && self.edit.len() == 1
+            && self.edit[0].raw() == self.anchor.raw()
     }
 
     fn fix_slices(
@@ -127,15 +113,11 @@ impl LintFix {
                     return AHashSet::new();
                 } else if self
                     .edit
-                    .as_deref()
-                    .unwrap_or(&[])
                     .iter()
                     .all(|it| it.segments().is_empty() && !it.get_source_fixes().is_empty())
                 {
                     let source_edit_slices: Vec<_> = self
                         .edit
-                        .as_deref()
-                        .unwrap_or(&[])
                         .iter()
                         .flat_map(|edit| edit.get_source_fixes())
                         .map(|source_fixe| source_fixe.source_slice.clone())
@@ -185,11 +167,8 @@ impl LintFix {
     }
 
     pub fn has_template_conflicts(&self, templated_file: &TemplatedFile) -> bool {
-        if self.edit_type == EditType::Replace
-            && self.edit.is_none()
-            && self.edit.as_ref().unwrap().len() == 1
-        {
-            let edit = &self.edit.as_ref().unwrap()[0];
+        if self.edit_type == EditType::Replace && self.edit.len() == 1 {
+            let edit = &self.edit[0];
             if edit.raw() == self.anchor.raw() && !edit.get_source_fixes().is_empty() {
                 return false;
             }
@@ -232,29 +211,18 @@ impl PartialEq for LintFix {
         if self.anchor.id() != other.anchor.id() {
             return false;
         }
-        // Compare edits if they exist
-        if let Some(self_edit) = &self.edit {
-            if let Some(other_edit) = &other.edit {
-                // Check lengths
-                if self_edit.len() != other_edit.len() {
-                    return false;
-                }
-                // Compare raw and source_fixes for each corresponding BaseSegment
-                for (self_base_segment, other_base_segment) in self_edit.iter().zip(other_edit) {
-                    if self_base_segment.raw() != other_base_segment.raw()
-                        || self_base_segment.get_source_fixes()
-                            != other_base_segment.get_source_fixes()
-                    {
-                        return false;
-                    }
-                }
-            } else {
-                // self has edit, other doesn't
+
+        // Check lengths
+        if self.edit.len() != other.edit.len() {
+            return false;
+        }
+        // Compare raw and source_fixes for each corresponding BaseSegment
+        for (self_base_segment, other_base_segment) in self.edit.iter().zip(&other.edit) {
+            if self_base_segment.raw() != other_base_segment.raw()
+                || self_base_segment.get_source_fixes() != other_base_segment.get_source_fixes()
+            {
                 return false;
             }
-        } else if other.edit.is_some() {
-            // other has edit, self doesn't
-            return false;
         }
         // If none of the above conditions were met, objects are equal
         true

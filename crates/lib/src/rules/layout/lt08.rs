@@ -193,8 +193,7 @@ SELECT a FROM plop
                 anchor: fix_point.unwrap(),
                 edit: repeat(SegmentBuilder::newline(context.tables.next_id(), "\n"))
                     .take(num_newlines)
-                    .collect_vec()
-                    .into(),
+                    .collect_vec(),
                 source: Vec::new(),
             }];
 

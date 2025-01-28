@@ -74,7 +74,7 @@ impl SqlError for SQLBaseError {
     }
 }
 
-#[derive(Debug, PartialEq, Clone)]
+#[derive(Debug, Clone)]
 pub struct SQLLintError {
     base: SQLBaseError,
     pub fixes: Vec<LintFix>,

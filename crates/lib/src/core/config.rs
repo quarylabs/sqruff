@@ -59,8 +59,7 @@ impl FluffConfig {
     }
 
     pub fn from_source(source: &str) -> FluffConfig {
-        let configs = ConfigLoader {}.from_source(source);
-
+        let configs = ConfigLoader::from_source(source);
         FluffConfig::new(configs, None, None)
     }
 
@@ -92,11 +91,13 @@ impl FluffConfig {
             a
         }
 
-        let values = ConfigLoader
-            .get_config_elems_from_file(None, include_str!("./default_config.cfg").into());
+        let values = ConfigLoader::get_config_elems_from_file(
+            None,
+            include_str!("./default_config.cfg").into(),
+        );
 
         let mut defaults = AHashMap::new();
-        ConfigLoader.incorporate_vals(&mut defaults, values);
+        ConfigLoader::incorporate_vals(&mut defaults, values);
 
         let mut configs = nested_combine(defaults, configs);
 
@@ -358,30 +359,29 @@ impl ConfigLoader {
             for fname in filename_options {
                 let path = path.join(fname);
                 if path.exists() {
-                    self.load_config_file(path, &mut configs);
+                    ConfigLoader::load_config_file(path, &mut configs);
                 }
             }
         } else if path.is_file() {
-            self.load_config_file(path, &mut configs);
+            ConfigLoader::load_config_file(path, &mut configs);
         };
 
         configs
     }
 
-    pub fn from_source(&self, source: &str) -> AHashMap<String, Value> {
+    pub fn from_source(source: &str) -> AHashMap<String, Value> {
         let mut configs = AHashMap::new();
-        let elems = self.get_config_elems_from_file(None, Some(source));
-        self.incorporate_vals(&mut configs, elems);
+        let elems = ConfigLoader::get_config_elems_from_file(None, Some(source));
+        ConfigLoader::incorporate_vals(&mut configs, elems);
         configs
     }
 
-    pub fn load_config_file(&self, path: impl AsRef<Path>, configs: &mut AHashMap<String, Value>) {
-        let elems = self.get_config_elems_from_file(path.as_ref().into(), None);
-        self.incorporate_vals(configs, elems);
+    pub fn load_config_file(path: impl AsRef<Path>, configs: &mut AHashMap<String, Value>) {
+        let elems = ConfigLoader::get_config_elems_from_file(path.as_ref().into(), None);
+        ConfigLoader::incorporate_vals(configs, elems);
     }
 
     fn get_config_elems_from_file(
-        &self,
         path: Option<&Path>,
         config_string: Option<&str>,
     ) -> Vec<(Vec<String>, Value)> {
@@ -433,11 +433,7 @@ impl ConfigLoader {
         buff
     }
 
-    fn incorporate_vals(
-        &self,
-        ctx: &mut AHashMap<String, Value>,
-        values: Vec<(Vec<String>, Value)>,
-    ) {
+    fn incorporate_vals(ctx: &mut AHashMap<String, Value>, values: Vec<(Vec<String>, Value)>) {
         for (path, value) in values {
             let mut current_map = &mut *ctx;
             for key in path.iter().take(path.len() - 1) {

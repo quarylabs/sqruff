@@ -10,7 +10,7 @@ def test_dbt():
     current = Path(os.path.dirname(os.path.abspath(__file__)))
     folder = current.joinpath("sample_dbt")
     file = folder.joinpath("models/example/my_first_dbt_model.sql")
-    profiles = folder.joinpath(".profiles")
+    profiles = folder.joinpath("profiles")
 
     templated_file = process_from_rust(
         """
@@ -48,3 +48,6 @@ from source_data
     )
 
     assert templated_file.sliced_file
+    assert len(templated_file.sliced_file) > 1
+    assert templated_file.raw_sliced
+    assert len(templated_file.raw_sliced) > 1

@@ -40,12 +40,22 @@ from sqruff_templaters.python_templater import (
     FluffConfig,
     fluff_config_from_json,
 )
+import dbt.mp_context
 
 if TYPE_CHECKING:  # pragma: no cover
     from dbt.semver import VersionSpecifier
 
 # Instantiate the templater logger
 templater_logger = logging.getLogger("sqlfluff.templater")
+
+
+def _dummy_get_mp_context():
+    import multiprocessing.dummy  # Thread-based "fake" multiprocessing
+
+    return multiprocessing.dummy
+
+
+dbt.mp_context.get_mp_context = _dummy_get_mp_context
 
 
 @dataclass
@@ -261,7 +271,7 @@ class DbtTemplater(JinjaTemplater):
 
         # Attempt to silence internal logging at this point.
         # https://github.com/sqlfluff/sqlfluff/issues/5054
-        # self.try_silence_dbt_logs()
+        self.try_silence_dbt_logs()
 
         user_config = None
         cli_vars = self._get_cli_vars()

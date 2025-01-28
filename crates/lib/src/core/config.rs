@@ -387,13 +387,13 @@ impl ConfigLoader {
     }
 
     fn get_config_elems_from_file(
-        path: Option<&Path>,
+        config_path: Option<&Path>,
         config_string: Option<&str>,
     ) -> Vec<(Vec<String>, Value)> {
         let mut buff = Vec::new();
         let mut config = Ini::new();
 
-        let content = match (path, config_string) {
+        let content = match (config_path, config_string) {
             (None, None) | (Some(_), Some(_)) => {
                 unimplemented!("One of fpath or config_string is required.")
             }
@@ -418,7 +418,7 @@ impl ConfigLoader {
             let config_map = config.get_map_ref();
             if let Some(section) = config_map.get(&section) {
                 for (name, value) in section {
-                    let value: Value = value.as_ref().unwrap().parse().unwrap();
+                    let mut value: Value = value.as_ref().unwrap().parse().unwrap();
                     let name_lowercase = name.to_lowercase();
 
                     if name_lowercase == "load_macros_from_path" {
@@ -429,11 +429,14 @@ impl ConfigLoader {
                         // if relative path, make it absolute
                         let path = PathBuf::from(value.as_string().unwrap());
                         if !path.is_absolute() {
-                            unimplemented!(
-                                "Relative paths are not supported yet. {}, {}",
-                                name,
-                                path.to_str().unwrap_or_default()
-                            );
+                            let config_path = config_path.unwrap().parent().unwrap();
+                            // make config path absolute
+                            let current_dir = std::env::current_dir().unwrap();
+                            let config_path = current_dir.join(config_path);
+                            let config_path = std::path::absolute(config_path).unwrap();
+                            let path = config_path.join(path);
+                            let path: String = path.to_string_lossy().into();
+                            value = Value::String(path.into());
                         }
                     }
 

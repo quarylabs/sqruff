@@ -60,7 +60,7 @@ fn main() {
             std::process::exit(1);
         };
         let read_file = std::fs::read_to_string(config).unwrap();
-        FluffConfig::from_source(&read_file)
+        FluffConfig::from_source(&read_file, None)
     } else {
         FluffConfig::from_root(None, false, None).unwrap()
     };

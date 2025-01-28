@@ -45,7 +45,12 @@ mod test {
         let in_str = "SELECT * FROM {{blah}}";
 
         let outstr = templater
-            .process(in_str, "test.sql", &FluffConfig::from_source(""), &None)
+            .process(
+                in_str,
+                "test.sql",
+                &FluffConfig::from_source("", None),
+                &None,
+            )
             .unwrap();
 
         assert_eq!(outstr.templated_str, Some(in_str.to_string()));

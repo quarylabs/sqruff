@@ -70,7 +70,7 @@ impl Wasm {
 
     #[wasm_bindgen(js_name = updateConfig)]
     pub fn update_config(&mut self, source: &str) {
-        *self.0.linter.config_mut() = FluffConfig::from_source(source);
+        *self.0.linter.config_mut() = FluffConfig::from_source(source, None);
         self.0.recheck_files();
     }
 

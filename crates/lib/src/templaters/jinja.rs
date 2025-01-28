@@ -148,7 +148,7 @@ FROM events
     [sqruff]
     templater = jinja
         ";
-        let config = FluffConfig::from_source(source);
+        let config = FluffConfig::from_source(source, None);
         let templater = JinjaTemplater;
 
         let processed = templater

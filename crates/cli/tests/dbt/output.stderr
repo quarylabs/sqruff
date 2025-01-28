@@ -1,0 +1,28 @@
+error: unexpected argument '-c' found
+
+Usage: sqruff [OPTIONS] <COMMAND>
+
+For more information, try '--help'.
+/Users/benjaminking/.pyenv/versions/3.13.1/lib/python3.13/multiprocessing/resource_tracker.py:136: UserWarning: resource_tracker: process died unexpectedly, relaunching.  Some resources might leak.
+  warnings.warn('resource_tracker: process died unexpectedly, '
+error: unexpected argument '-c' found
+
+Usage: sqruff [OPTIONS] <COMMAND>
+
+For more information, try '--help'.
+error: unexpected argument '-c' found
+
+Usage: sqruff [OPTIONS] <COMMAND>
+
+For more information, try '--help'.
+error: unexpected argument '-c' found
+
+Usage: sqruff [OPTIONS] <COMMAND>
+
+For more information, try '--help'.
+thread '<unnamed>' panicked at crates/lib-core/src/parser/lexer.rs:665:34:
+attempt to subtract with overflow
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+== [models/example/my_first_dbt_model.sql] FAIL
+L:   1 | P:   1 | LT13 | Files must not begin with newlines or whitespace.
+                       | [layout.start_of_file]

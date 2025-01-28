@@ -134,7 +134,7 @@ mod tests {
 
     #[test]
     fn test_fluff_base_config() {
-        let config = FluffConfig::from_source("");
+        let config = FluffConfig::from_source("", None);
 
         let python_fluff_config = PythonFluffConfig::from(config);
 

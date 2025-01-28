@@ -58,8 +58,13 @@ impl FluffConfig {
         self.reflow = ReflowConfig::from_fluff_config(self);
     }
 
-    pub fn from_source(source: &str) -> FluffConfig {
-        let configs = ConfigLoader::from_source(source);
+    /// from_source creates a config object from a string. This is used for testing and for
+    /// loading a config from a string.
+    ///
+    /// The optional_path_specification is used to specify a path to use for relative paths in the
+    /// config. This is useful for testing.
+    pub fn from_source(source: &str, optional_path_specification: Option<&Path>) -> FluffConfig {
+        let configs = ConfigLoader::from_source(source, optional_path_specification);
         FluffConfig::new(configs, None, None)
     }
 
@@ -369,9 +374,9 @@ impl ConfigLoader {
         configs
     }
 
-    pub fn from_source(source: &str) -> AHashMap<String, Value> {
+    pub fn from_source(source: &str, path: Option<&Path>) -> AHashMap<String, Value> {
         let mut configs = AHashMap::new();
-        let elems = ConfigLoader::get_config_elems_from_file(None, Some(source));
+        let elems = ConfigLoader::get_config_elems_from_file(path, Some(source));
         ConfigLoader::incorporate_vals(&mut configs, elems);
         configs
     }

@@ -348,6 +348,7 @@ mod tests {
             "
 [sqruff:templater:placeholder]
 param_style = colon",
+            None,
         );
         let out_str = templater
             .process(in_str, "test.sql", &config, &None)
@@ -612,6 +613,7 @@ param_style = {}
                         .join("\n")
                 )
                 .as_str(),
+                None,
             );
             let templater = PlaceholderTemplater {};
             let out_str = templater
@@ -626,10 +628,7 @@ param_style = {}
     /// Test the error raised when config is incomplete, as in no param_regex
     /// nor param_style.
     fn test_templater_setup_none() {
-        let config = FluffConfig::from_source(
-            r#"
-            "#,
-        );
+        let config = FluffConfig::from_source("", None);
         let templater = PlaceholderTemplater {};
         let in_str = "SELECT 2+2";
         let out_str = templater.process(in_str, "test.sql", &config, &None);
@@ -651,6 +650,7 @@ param_style = {}
 param_regex = __(?P<param_name>[\w_]+)__
 param_style = colon
             "#,
+            None,
         );
         let templater = PlaceholderTemplater {};
         let in_str = "SELECT 2+2";
@@ -672,6 +672,7 @@ param_style = colon
 param_regex = __(?P<param_name>[\w_]+)__
 my_name = john
 "#,
+            None,
         );
         let templater = PlaceholderTemplater {};
         let in_str = "SELECT bla FROM blob WHERE id = __my_name__";
@@ -688,6 +689,7 @@ my_name = john
 [sqruff:templater:placeholder]
 param_style = unknown
             "#,
+            None,
         );
         let templater = PlaceholderTemplater {};
         let in_str = "SELECT * FROM {{blah}} WHERE %(gnepr)s OR e~':'";
@@ -713,6 +715,7 @@ rules = all
 [sqruff:templater:placeholder]
 param_style = percent
 "#,
+            None,
         );
         let sql = "SELECT a,b FROM users WHERE a = %s";
 

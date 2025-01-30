@@ -6602,6 +6602,103 @@ pub fn raw_dialect() -> Dialect {
             .to_matchable()
             .into(),
         ),
+        (
+            // Statics Reference
+            "StatisticsReferenceSegment".into(),
+            Ref::new("ObjectReferenceSegment").to_matchable().into(),
+        ),
+        (
+            // Create Statistics Segment.
+            // As specified in https://www.postgresql.org/docs/16/sql-createstatistics.html
+            "CreateStatisticsStatementSegment".into(),
+            Sequence::new(vec_of_erased![
+                Ref::keyword("CREATE"),
+                Ref::keyword("STATISTICS"),
+                Sequence::new(vec_of_erased![
+                    Ref::new("IfNotExistsGrammar").optional(),
+                    Ref::new("StatisticsReferenceSegment"),
+                ])
+                .config(|this| this.optional()),
+                Bracketed::new(vec_of_erased![Delimited::new(vec_of_erased![
+                    Ref::keyword("DEPENDENCIES"),
+                    Ref::keyword("MCV"),
+                    Ref::keyword("NDISTINCT"),
+                ])])
+                .config(|this| this.optional()),
+                Ref::keyword("ON"),
+                Delimited::new(vec_of_erased![
+                    Ref::new("ColumnReferenceSegment"),
+                    Ref::new("ExpressionSegment"),
+                ]),
+                Ref::keyword("FROM"),
+                Ref::new("TableReferenceSegment"),
+            ])
+            .to_matchable()
+            .into(),
+        ),
+        (
+            // Alter Statistics Segment.
+            // As specified in https://www.postgresql.org/docs/16/sql-alterstatistics.html
+            "AlterStatisticsStatementSegment".into(),
+            Sequence::new(vec_of_erased![
+                Ref::keyword("ALTER"),
+                Ref::keyword("STATISTICS"),
+                Ref::new("StatisticsReferenceSegment"),
+                one_of(vec_of_erased![
+                    Sequence::new(vec_of_erased![
+                        Ref::keyword("OWNER"),
+                        Ref::keyword("TO"),
+                        one_of(vec_of_erased![
+                            one_of(vec_of_erased![
+                                Ref::new("ParameterNameSegment"),
+                                Ref::new("QuotedIdentifierSegment")
+                            ]),
+                            Ref::keyword("CURRENT_ROLE"),
+                            Ref::keyword("CURRENT_USER"),
+                            Ref::keyword("SESSION_USER")
+                        ])
+                    ]),
+                    Sequence::new(vec_of_erased![
+                        Ref::keyword("RENAME"),
+                        Ref::keyword("TO"),
+                        Ref::new("StatisticsReferenceSegment")
+                    ]),
+                    Sequence::new(vec_of_erased![
+                        Ref::keyword("SET"),
+                        one_of(vec_of_erased![
+                            Sequence::new(vec_of_erased![
+                                Ref::keyword("SCHEMA"),
+                                Ref::new("SchemaReferenceSegment")
+                            ]),
+                            Sequence::new(vec_of_erased![
+                                Ref::keyword("STATISTICS"),
+                                Ref::new("NumericLiteralSegment")
+                            ])
+                        ])
+                    ])
+                ])
+            ])
+            .to_matchable()
+            .into(),
+        ),
+        (
+            // Drop Statistics Segment.
+            // As specified in https://www.postgresql.org/docs/16/sql-dropstatistics.html
+            "DropStatisticsStatementSegment".into(),
+            Sequence::new(vec_of_erased![
+                Ref::keyword("DROP"),
+                Ref::keyword("STATISTICS"),
+                Ref::new("IfExistsGrammar").optional(),
+                Delimited::new(vec_of_erased![Ref::new("StatisticsReferenceSegment")]),
+                one_of(vec_of_erased![
+                    Ref::keyword("CASCADE"),
+                    Ref::keyword("RESTRICT"),
+                ])
+                .config(|this| this.optional()),
+            ])
+            .to_matchable()
+            .into(),
+        ),
     ]);
 
     postgres
@@ -6610,6 +6707,9 @@ pub fn raw_dialect() -> Dialect {
 pub fn statement_segment() -> Matchable {
     ansi::statement_segment().copy(
         Some(vec_of_erased![
+            Ref::new("CreateStatisticsStatementSegment"),
+            Ref::new("AlterStatisticsStatementSegment"),
+            Ref::new("DropStatisticsStatementSegment"),
             Ref::new("AlterDefaultPrivilegesStatementSegment"),
             Ref::new("DropOwnedStatementSegment"),
             Ref::new("ReassignOwnedStatementSegment"),

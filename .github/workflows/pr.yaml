@@ -92,11 +92,10 @@ jobs:
           echo "${{ github.workspace }}/.venv/bin" >> $GITHUB_PATH
       - name: Install dependencies
         run: make python_install
-      - name: Run tests in cli
-        run: cargo test --manifest-path ./crates/cli/Cargo.toml
       - uses: dtolnay/rust-toolchain@stable
       - uses: Swatinem/rust-cache@v2
-      - uses: taiki-e/install-action@nextest
+      - name: Run tests in cli
+        run: cargo test --manifest-path ./crates/cli/Cargo.toml
       - name: Run all tests apart from cli
         run: cargo test --all --all-features --exclude sqruff
       - name: Check for diffs

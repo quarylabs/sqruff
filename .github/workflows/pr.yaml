@@ -94,10 +94,7 @@ jobs:
         run: make python_install
       - uses: dtolnay/rust-toolchain@stable
       - uses: Swatinem/rust-cache@v2
-      - name: Run tests in cli
-        run: cargo test --manifest-path ./crates/cli/Cargo.toml
-      - name: Run all tests apart from cli
-        run: cargo test --all --all-features --exclude sqruff
+      - run: make rust_test
       - name: Check for diffs
         run: git diff --quiet || exit 1
   benchmark:

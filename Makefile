@@ -8,6 +8,7 @@ python_fmt: ## Format python code
 
 .PHONY: python_lint
 python_lint: ## Lint python code
+	ruff format --check .
 	ruff check .
 
 .PHONY: python_test
@@ -23,4 +24,4 @@ python_generate_gha: ## Generate GitHub Actions workflow
 	maturin generate-ci github --manifest-path "crates/cli/Cargo.toml" --output .github/workflows/python-ci.yaml
 
 .PHONY: ci
-ci: python_fmt python_lint python_test ## Run all CI checks
+ci: python_lint python_test ## Run all CI checks

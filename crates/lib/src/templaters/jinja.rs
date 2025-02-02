@@ -33,15 +33,6 @@ impl Templater for JinjaTemplater {
         _: &Option<Arc<dyn Formatter>>,
     ) -> Result<TemplatedFile, SQLFluffUserError> {
         let templated_file = Python::with_gil(|py| -> PyResult<TemplatedFile> {
-            let sysconfig = py.import("sysconfig")?;
-            let paths = sysconfig.call_method0("get_paths")?;
-            let site_packages = paths.get_item("purelib")?;
-            let site_packages: &str = site_packages.extract()?;
-
-            let sys = py.import("sys")?;
-            let path = sys.getattr("path")?;
-            path.call_method1("append", (site_packages,))?; // append site-packages
-
             let files = [
                 (
                     "sqruff_templaters/jinja_templater_builtins_common.py",

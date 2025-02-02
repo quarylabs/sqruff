@@ -1,6 +1,7 @@
 use crate::core::config::FluffConfig;
 use ahash::AHashMap;
 use pyo3::prelude::*;
+use pyo3::types::PyList;
 use pyo3::types::{PyDict, PyMapping, PyString};
 use pyo3::{Bound, Python};
 use serde::{Deserialize, Serialize};
@@ -158,6 +159,29 @@ pub(crate) fn add_venv_site_packages(py: Python) -> PyResult<()> {
             }
         }
     }
+    Ok(())
+}
+
+/// Add the temporary files to the site-packages so that the python code
+/// can import them.
+pub(crate) fn add_temp_files_to_site_packages(py: Python, files: &[(&str, &str)]) -> PyResult<()> {
+    // Create temp folder
+    let temp_folder = std::env::temp_dir();
+
+    // Files may have a path, so we need to create the folder structure
+    files.iter().for_each(|(name, file_contents)| {
+        let new_file = temp_folder.join(name);
+        let new_folder = new_file.parent().unwrap();
+        std::fs::create_dir_all(&new_folder).unwrap();
+        std::fs::write(new_file, file_contents).unwrap();
+    });
+
+    let syspath = py
+        .import("sys")?
+        .getattr("path")?
+        .downcast_into::<PyList>()?;
+    syspath.insert(0, temp_folder)?;
+
     Ok(())
 }
 

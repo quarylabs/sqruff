@@ -1,11 +1,11 @@
 use super::python::PythonTemplatedFile;
 use super::Templater;
 use crate::core::config::FluffConfig;
+use crate::templaters::python_shared::add_temp_files_to_site_packages;
 use crate::templaters::python_shared::add_venv_site_packages;
 use crate::templaters::python_shared::PythonFluffConfig;
 use crate::templaters::Formatter;
 use pyo3::prelude::*;
-use pyo3::types::PyList;
 use pyo3::{Py, PyAny, Python};
 use sqruff_lib_core::errors::SQLFluffUserError;
 use sqruff_lib_core::templaters::base::TemplatedFile;
@@ -44,39 +44,25 @@ impl Templater for JinjaTemplater {
 
             let files = [
                 (
-                    "jinja_templater_builtins_common",
+                    "sqruff_templaters/jinja_templater_builtins_common.py",
                     include_str!("sqruff_templaters/jinja_templater_builtins_common.py"),
                 ),
                 (
-                    "jinja_templater_builtins_dbt",
+                    "sqruff_templaters/jinja_templater_builtins_dbt.py",
                     include_str!("sqruff_templaters/jinja_templater_builtins_dbt.py"),
                 ),
                 (
-                    "jinja_templater_tracers",
+                    "sqruff_templaters/jinja_templater_tracers.py",
                     include_str!("sqruff_templaters/jinja_templater_tracers.py"),
                 ),
                 (
-                    "python_templater",
+                    "sqruff_templaters/python_templater.py",
                     include_str!("sqruff_templaters/python_templater.py"),
                 ),
             ];
 
             add_venv_site_packages(py)?;
-
-            // Create temp folder
-            let temp_folder = std::env::temp_dir();
-            let temp_folder_templaters = temp_folder.join("sqruff_templaters");
-            std::fs::create_dir_all(&temp_folder_templaters).unwrap();
-            for (name, file_contents) in files.iter() {
-                let file_name = temp_folder_templaters.join(format!("{}.py", name));
-                std::fs::write(file_name, file_contents).unwrap();
-            }
-
-            let syspath = py
-                .import("sys")?
-                .getattr("path")?
-                .downcast_into::<PyList>()?;
-            syspath.insert(0, temp_folder)?;
+            add_temp_files_to_site_packages(py, &files)?;
 
             let file_contents = CString::new(JINJA_FILE).unwrap();
             let main_module = PyModule::from_code(py, &file_contents, c"", c"")?;

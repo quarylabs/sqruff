@@ -9,12 +9,9 @@ use pyo3::prelude::*;
 use pyo3::{Py, PyAny, Python};
 use sqruff_lib_core::errors::SQLFluffUserError;
 use sqruff_lib_core::templaters::base::TemplatedFile;
-use std::ffi::CString;
 use std::sync::Arc;
 
 pub struct JinjaTemplater;
-
-const JINJA_FILE: &str = include_str!("sqruff_templaters/jinja_templater.py");
 
 impl Templater for JinjaTemplater {
     fn name(&self) -> &'static str {
@@ -34,6 +31,14 @@ impl Templater for JinjaTemplater {
     ) -> Result<TemplatedFile, SQLFluffUserError> {
         let templated_file = Python::with_gil(|py| -> PyResult<TemplatedFile> {
             let files = [
+                (
+                    "sqruff_templaters/__init__.py",
+                    include_str!("sqruff_templaters/__init__.py"),
+                ),
+                (
+                    "sqruff_templaters/jinja_templater.py",
+                    include_str!("sqruff_templaters/jinja_templater.py"),
+                ),
                 (
                     "sqruff_templaters/jinja_templater_builtins_common.py",
                     include_str!("sqruff_templaters/jinja_templater_builtins_common.py"),
@@ -55,8 +60,7 @@ impl Templater for JinjaTemplater {
             add_venv_site_packages(py)?;
             add_temp_files_to_site_packages(py, &files)?;
 
-            let file_contents = CString::new(JINJA_FILE).unwrap();
-            let main_module = PyModule::from_code(py, &file_contents, c"", c"")?;
+            let main_module = PyModule::import(py, "sqruff_templaters.jinja_templater")?;
             let fun: Py<PyAny> = main_module.getattr("process_from_rust")?.into();
 
             let py_dict = config.to_python_context(py, "jinja").unwrap();

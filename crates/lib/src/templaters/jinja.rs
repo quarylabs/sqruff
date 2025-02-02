@@ -1,10 +1,11 @@
 use super::python::PythonTemplatedFile;
 use super::Templater;
 use crate::core::config::FluffConfig;
+use crate::templaters::python_shared::add_venv_site_packages;
 use crate::templaters::python_shared::PythonFluffConfig;
 use crate::templaters::Formatter;
 use pyo3::prelude::*;
-use pyo3::types::{PyList, PyMapping, PyString};
+use pyo3::types::PyList;
 use pyo3::{Py, PyAny, Python};
 use sqruff_lib_core::errors::SQLFluffUserError;
 use sqruff_lib_core::templaters::base::TemplatedFile;
@@ -60,31 +61,7 @@ impl Templater for JinjaTemplater {
                 ),
             ];
 
-            // Add virtual environment site-packages to sys.path
-            let os = py.import("os").unwrap();
-            let environ = os.getattr("environ").unwrap();
-            let environ = environ.downcast::<PyMapping>().unwrap();
-            if let Ok(environ) = environ.get_item("VIRTUAL_ENV") {
-                let virtual_env = environ.downcast::<PyString>();
-                if let Ok(virtual_env) = virtual_env {
-                    let virtual_env = virtual_env.to_string();
-                    // figure out which python folder sits in virtual_env
-                    let virtual_env_lib = format!("{}/lib", virtual_env);
-                    // look at the contents of the lib folder
-                    let lib_folder = std::fs::read_dir(virtual_env_lib).unwrap();
-                    for entry in lib_folder {
-                        let entry = entry.unwrap();
-                        let entry_path = entry.path();
-                        if entry_path.is_dir() {
-                            let entry_path_str = entry_path.to_str().unwrap();
-                            if entry_path_str.contains("python") {
-                                let site_packages = entry_path.join("site-packages");
-                                path.call_method1("append", (site_packages.to_str().unwrap(),))?;
-                            }
-                        }
-                    }
-                }
-            };
+            add_venv_site_packages(py)?;
 
             // Create temp folder
             let temp_folder = std::env::temp_dir();

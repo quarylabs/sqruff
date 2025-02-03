@@ -187,7 +187,7 @@ jobs:
         with:
           python-version: ${{ matrix.python-version }}
       - run: make python_install
-      - run: make ci
+      - run: make python_ci
   check-no-unparsable:
     name: Check no unparsable files
     runs-on: ubuntu-latest

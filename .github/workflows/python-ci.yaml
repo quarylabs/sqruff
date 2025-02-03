@@ -38,6 +38,10 @@ jobs:
             target: ppc64le
     steps:
       - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+      with:
+        python-version: '3.13'
+
       - name: Build wheels
         uses: PyO3/maturin-action@v1
         with:
@@ -66,6 +70,9 @@ jobs:
             target: armv7
     steps:
       - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.13'
       - name: Build wheels
         uses: PyO3/maturin-action@v1
         with:
@@ -90,6 +97,9 @@ jobs:
             target: x86
     steps:
       - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.13'
       - name: Build wheels
         uses: PyO3/maturin-action@v1
         with:

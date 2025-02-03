@@ -24,3 +24,4 @@ dbt = [
 [tool.maturin]
 bindings = "bin" 
 strip = true 
+features = ["python"]

@@ -27,23 +27,33 @@ jobs:
         platform:
           - runner: ubuntu-22.04
             target: x86_64
-            python-architecture: x86_64
+            python-architecture: x64
+            qemu: false
           - runner: ubuntu-22.04
             target: x86
-            python-architecture: x86
+            python-architecture: x64
+            qemu: false
           - runner: ubuntu-22.04
             target: aarch64
             python-architecture: arm64
+            qemu: true
           - runner: ubuntu-22.04
             target: armv7
             python-architecture: x64
+            qemu: true
           # - runner: ubuntu-22.04
           #   target: s390x
           - runner: ubuntu-22.04
             target: ppc64le
-            python-architecture: ppc64le
+            python-architecture: x64
+            qemu: true
     steps:
       - uses: actions/checkout@v4
+      - name: Set up QEMU
+        if: ${{ matrix.platform.qemu }}
+        uses: docker/setup-qemu-action@v3
+        with:
+          platforms: arm64,arm,ppc64le
       - uses: actions/setup-python@v5
         with:
           python-version: '3.12'
@@ -70,17 +80,26 @@ jobs:
           - runner: ubuntu-22.04
             target: x86_64
             python-architecture: x64
+            qemu: false
           - runner: ubuntu-22.04
             target: x86
             python-architecture: x64
+            qemu: false
           - runner: ubuntu-22.04
             target: aarch64
             python-architecture: arm64
+            qemu: true
           - runner: ubuntu-22.04
             target: armv7
             python-architecture: x64
+            qemu: true
     steps:
       - uses: actions/checkout@v4
+      - name: Set up QEMU
+        if: ${{ matrix.platform.qemu }}
+        uses: docker/setup-qemu-action@v3
+        with:
+          platforms: arm64,arm
       - uses: actions/setup-python@v5
         with:
           python-version: '3.12'

@@ -33,7 +33,7 @@ jobs:
             python-architecture: x86
           - runner: ubuntu-22.04
             target: aarch64
-            python-architecture: aarch64
+            python-architecture: arm64
           - runner: ubuntu-22.04
             target: armv7
             python-architecture: x64
@@ -75,7 +75,7 @@ jobs:
             python-architecture: x64
           - runner: ubuntu-22.04
             target: aarch64
-            python-architecture: aarch64
+            python-architecture: arm64
           - runner: ubuntu-22.04
             target: armv7
             python-architecture: x64

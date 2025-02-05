@@ -35,7 +35,7 @@ jobs:
             python-architecture: aarch64
           - runner: ubuntu-22.04
             target: armv7
-            python-architecture: armv7
+            python-architecture: x64
           # - runner: ubuntu-22.04
           #   target: s390x
           - runner: ubuntu-22.04
@@ -76,7 +76,7 @@ jobs:
             python-architecture: aarch64
           - runner: ubuntu-22.04
             target: armv7
-            python-architecture: armv7
+            python-architecture: x64
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
@@ -114,7 +114,7 @@ jobs:
         uses: PyO3/maturin-action@v1
         with:
           target: ${{ matrix.platform.target }}
-          args: --release --out dist --manifest-path crates/cli/Cargo.toml
+          args: --release --out dist --manifest-path crates/cli/Cargo.toml --interpreter 3.13
           sccache: "true"
       - name: Upload wheels
         uses: actions/upload-artifact@v4

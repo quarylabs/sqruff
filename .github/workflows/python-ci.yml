@@ -120,18 +120,21 @@ jobs:
   windows:
     runs-on: ${{ matrix.platform.runner }}
     strategy:
-      fail-fast: false  # Allow other variants to continue even if one fails
+      fail-fast: false
       matrix:
         platform:
-          - runner: windows-latest
-            target: x86_64
-          - runner: windows-latest
-            target: aarch64
+          - target: x86_64-pc-windows-msvc
+            arch: x64
+          - target: i686-pc-windows-msvc
+            arch: x86
+          - target: aarch64-pc-windows-msvc
+            arch: x64
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
         with:
           python-version: '3.12'
+          architecture: ${{ matrix.platform.arch }}
       - name: Build wheels
         uses: PyO3/maturin-action@v1
         with:

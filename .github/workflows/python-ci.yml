@@ -71,6 +71,22 @@ jobs:
           name: wheels-macos-${{ matrix.platform.target }}
           path: dist
 
+  linux:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Build wheels
+        uses: PyO3/maturin-action@v1
+        with:
+          target: x86_64-unknown-linux-gnu
+          args: --release --out dist --manifest-path crates/cli/Cargo.toml
+          sccache: "true"
+      - name: Upload wheels
+        uses: actions/upload-artifact@v4
+        with:
+          name: wheels-linux-x86_64
+          path: dist
+
   sdist:
     runs-on: ubuntu-latest
     steps:
@@ -90,7 +106,7 @@ jobs:
     name: Release
     runs-on: ubuntu-latest
     if: ${{ startsWith(github.ref, 'refs/tags/') || github.event_name == 'workflow_dispatch' }}
-    needs: [windows, macos, sdist]
+    needs: [windows, macos, linux, sdist]
     continue-on-error: true
     permissions:
       # Use to sign the release artifacts

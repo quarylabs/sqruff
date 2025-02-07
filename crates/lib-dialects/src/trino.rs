@@ -304,7 +304,7 @@ pub fn dialect() -> Dialect {
     trino_dialect.replace_grammar(
         "StatementSegment",
         super::ansi::statement_segment().copy(
-            None,
+            Some(vec_of_erased![Ref::new("AnalyzeStatementSegment")]),
             None,
             None,
             Some(vec_of_erased![Ref::new("TransactionStatementSegment")]),
@@ -314,6 +314,28 @@ pub fn dialect() -> Dialect {
     );
 
     trino_dialect.add([
+        // An 'ANALYZE' statement.
+        // As per docs https://trino.io/docs/current/sql/analyze.html
+        (
+            "AnalyzeStatementSegment".into(),
+            Sequence::new(vec_of_erased![
+                Ref::keyword("ANALYZE"),
+                Ref::new("TableReferenceSegment"),
+                Sequence::new(vec_of_erased![
+                    Ref::keyword("WITH"),
+                    Bracketed::new(vec_of_erased![Delimited::new(vec_of_erased![
+                        Ref::new("ParameterNameSegment"),
+                        Ref::new("EqualsSegment"),
+                        Ref::new("ExpressionSegment"),
+                    ]),]),
+                ])
+                .config(|config| {
+                    config.optional();
+                })
+            ])
+            .to_matchable()
+            .into(),
+        ),
         (
             "IntervalExpressionSegment".into(),
             NodeMatcher::new(

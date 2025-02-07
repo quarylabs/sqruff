@@ -1,0 +1,34 @@
+file:
+- statement:
+  - keyword: ANALYZE
+  - table_reference:
+    - naked_identifier: web
+- statement_terminator: ;
+- statement:
+  - keyword: ANALYZE
+  - table_reference:
+    - naked_identifier: hive
+    - dot: .
+    - naked_identifier: default
+    - dot: .
+    - naked_identifier: stores
+- statement_terminator: ;
+- statement:
+  - keyword: ANALYZE
+  - table_reference:
+    - naked_identifier: hive
+    - dot: .
+    - naked_identifier: default
+    - dot: .
+    - naked_identifier: sales
+  - keyword: WITH
+  - bracketed:
+    - start_bracket: (
+    - expression:
+      - column_reference:
+        - naked_identifier: partitions
+      - comparison_operator:
+        - raw_comparison_operator: =
+      - numeric_literal: '1'
+    - end_bracket: )
+- statement_terminator: ;

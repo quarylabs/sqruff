@@ -279,12 +279,41 @@ pub fn dialect() -> Dialect {
                     ]),
                     Ref::keyword("ARRAY"),
                     Ref::keyword("MAP"),
-                    Ref::keyword("ROW"),
+                    Ref::new("RowTypeSegment"),
                     Ref::keyword("IPADDRESS"),
                     Ref::keyword("UUID")
                 ])
                 .to_matchable(),
             )
+            .to_matchable()
+            .into(),
+        ),
+        (
+            // Expression to construct a ROW datatype.
+            "RowTypeSegment".into(),
+            Sequence::new(vec_of_erased![
+                Ref::keyword("ROW"),
+                Ref::new("RowTypeSchemaSegment").optional()
+            ])
+            .to_matchable()
+            .into(),
+        ),
+        (
+            // Expression to construct the schema of a ROW datatype.
+            "RowTypeSchemaSegment".into(),
+            Bracketed::new(vec_of_erased![Delimited::new(vec_of_erased![
+                // Comma-separated list of field names/types
+                Sequence::new(vec_of_erased![one_of(vec_of_erased![
+                    // ParameterNames can look like Datatypes so can't use
+                    // Optional=True here and instead do a OneOf in order
+                    // with DataType only first, followed by both.
+                    Ref::new("DatatypeSegment"),
+                    Sequence::new(vec_of_erased![
+                        Ref::new("ParameterNameSegment"),
+                        Ref::new("DatatypeSegment"),
+                    ])
+                ]),])
+            ])])
             .to_matchable()
             .into(),
         ),

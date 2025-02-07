@@ -158,11 +158,13 @@ pub fn dialect() -> Dialect {
             "FunctionContentsGrammar".into(),
             AnyNumberOf::new(vec_of_erased![
                 Ref::new("ExpressionSegment"),
+                // A Cast-like function
                 Sequence::new(vec_of_erased![
                     Ref::new("ExpressionSegment"),
                     Ref::keyword("AS"),
                     Ref::new("DatatypeSegment")
                 ]),
+                // A Trim function
                 Sequence::new(vec_of_erased![
                     Ref::new("TrimParametersGrammar"),
                     Ref::new("ExpressionSegment")
@@ -171,6 +173,7 @@ pub fn dialect() -> Dialect {
                     Ref::keyword("FROM"),
                     Ref::new("ExpressionSegment")
                 ]),
+                // An extract-like or substring-like function
                 Sequence::new(vec_of_erased![
                     one_of(vec_of_erased![
                         Ref::new("DatetimeUnitSegment"),
@@ -204,7 +207,8 @@ pub fn dialect() -> Dialect {
                 ]),
                 Ref::new("IgnoreRespectNullsGrammar"),
                 Ref::new("IndexColumnDefinitionSegment"),
-                Ref::new("EmptyStructLiteralSegment")
+                Ref::new("EmptyStructLiteralSegment"),
+                Ref::new("ListaggOverflowClauseSegment")
             ])
             .to_matchable()
             .into(),
@@ -335,6 +339,62 @@ pub fn dialect() -> Dialect {
                 .config(|config| {
                     config.optional();
                 })
+            ])
+            .to_matchable()
+            .into(),
+        ),
+        (
+            "PostFunctionGrammar".into(),
+            super::ansi::raw_dialect()
+                .grammar("PostFunctionGrammar")
+                .copy(
+                    Some(vec_of_erased![Ref::new("WithinGroupClauseSegment")]),
+                    None,
+                    None,
+                    Some(vec_of_erased![Ref::new("TransactionStatementSegment")]),
+                    Vec::new(),
+                    false,
+                )
+                .into(),
+        ),
+        (
+            // ON OVERFLOW clause of listagg function.
+            // https://trino.io/docs/current/functions/aggregate.html#array_agg
+            "ListaggOverflowClauseSegment".into(),
+            Sequence::new(vec_of_erased![
+                Ref::keyword("ON"),
+                Ref::keyword("OVERFLOW"),
+                one_of(vec_of_erased![
+                    Ref::keyword("ERROR"),
+                    Sequence::new(vec_of_erased![
+                        Ref::keyword("TRUNCATE"),
+                        Ref::new("SingleQuotedIdentifierSegment").optional(),
+                        one_of(vec_of_erased![
+                            Ref::keyword("WITH"),
+                            Ref::keyword("WITHOUT")
+                        ])
+                        .config(|config| {
+                            config.optional();
+                        }),
+                        Ref::keyword("COUNT").optional()
+                    ]),
+                ]),
+            ])
+            .to_matchable()
+            .into(),
+        ),
+        (
+            // An WITHIN GROUP clause for window functions.
+            // https://trino.io/docs/current/functions/aggregate.html#array_agg
+            // Trino supports an optional FILTER during aggregation that comes
+            // immediately after the WITHIN GROUP clause.
+            // https://trino.io/docs/current/functions/aggregate.html#filtering-during-aggregation
+            "WithinGroupClauseSegment".into(),
+            Sequence::new(vec_of_erased![
+                Ref::keyword("WITHIN"),
+                Ref::keyword("GROUP"),
+                Bracketed::new(vec_of_erased![Ref::new("OrderByClauseSegment")]),
+                Ref::new("FilterClauseGrammar").optional(),
             ])
             .to_matchable()
             .into(),

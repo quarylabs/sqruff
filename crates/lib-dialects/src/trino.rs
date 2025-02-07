@@ -304,7 +304,10 @@ pub fn dialect() -> Dialect {
     trino_dialect.replace_grammar(
         "StatementSegment",
         super::ansi::statement_segment().copy(
-            Some(vec_of_erased![Ref::new("AnalyzeStatementSegment")]),
+            Some(vec_of_erased![
+                Ref::new("AnalyzeStatementSegment"),
+                Ref::new("CommentOnStatementSegment")
+            ]),
             None,
             None,
             Some(vec_of_erased![Ref::new("TransactionStatementSegment")]),
@@ -332,6 +335,41 @@ pub fn dialect() -> Dialect {
                 .config(|config| {
                     config.optional();
                 })
+            ])
+            .to_matchable()
+            .into(),
+        ),
+        (
+            // `COMMENT ON` statement.
+            // https://trino.io/docs/current/sql/comment.html
+            "CommentOnStatementSegment".into(),
+            Sequence::new(vec_of_erased![
+                Ref::keyword("COMMENT"),
+                Ref::keyword("ON"),
+                Sequence::new(vec_of_erased![
+                    one_of(vec_of_erased![
+                        Sequence::new(vec_of_erased![
+                            one_of(vec_of_erased![
+                                Ref::keyword("TABLE"),
+                                // TODO: Create a ViewReferenceSegment
+                                Ref::keyword("VIEW"),
+                            ]),
+                            Ref::new("TableReferenceSegment"),
+                        ]),
+                        Sequence::new(vec_of_erased![
+                            Ref::keyword("COLUMN"),
+                            // TODO: Does this correctly emit a Table Reference?
+                            Ref::new("ColumnReferenceSegment"),
+                        ]),
+                    ]),
+                    Sequence::new(vec_of_erased![
+                        Ref::keyword("IS"),
+                        one_of(vec_of_erased![
+                            Ref::new("QuotedLiteralSegment"),
+                            Ref::keyword("NULL")
+                        ]),
+                    ]),
+                ]),
             ])
             .to_matchable()
             .into(),

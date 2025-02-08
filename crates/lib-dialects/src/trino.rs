@@ -59,13 +59,13 @@ pub fn dialect() -> Dialect {
         ),
         (
             "StartAngleBracketSegment".into(),
-            StringParser::new("<", SyntaxKind::Symbol)
+            StringParser::new("<", SyntaxKind::StartAngleBracket)
                 .to_matchable()
                 .into(),
         ),
         (
             "EndAngleBracketSegment".into(),
-            StringParser::new(">", SyntaxKind::Symbol)
+            StringParser::new(">", SyntaxKind::EndAngleBracket)
                 .to_matchable()
                 .into(),
         ),
@@ -91,14 +91,15 @@ pub fn dialect() -> Dialect {
         ),
     ]);
 
-    trino_dialect
-        .bracket_sets_mut("angle_bracket_pairs")
-        .extend([(
+    trino_dialect.update_bracket_sets(
+        "angle_bracket_pairs",
+        vec![(
             "angle",
             "StartAngleBracketSegment",
             "EndAngleBracketSegment",
             false,
-        )]);
+        )],
+    );
 
     trino_dialect.add([
         (
@@ -346,6 +347,30 @@ pub fn dialect() -> Dialect {
         ])
         .to_matchable(),
     );
+
+    trino_dialect.replace_grammar(
+        "ArrayTypeSegment",
+        Sequence::new(vec_of_erased![
+            Ref::keyword("ARRAY"),
+            Ref::new("ArrayTypeSchemaSegment").optional()
+        ])
+        .to_matchable(),
+    );
+
+    trino_dialect.add([(
+        "ArrayTypeSchemaSegment".into(),
+        one_of(vec_of_erased![
+            Bracketed::new(vec_of_erased![Ref::new("DatatypeSegment")]).config(|config| {
+                config.bracket_pairs_set = "angle_bracket_pairs";
+                config.bracket_type = "angle";
+            }),
+            Bracketed::new(vec_of_erased![Ref::new("DatatypeSegment")]).config(|config| {
+                config.bracket_type = "round";
+            })
+        ])
+        .to_matchable()
+        .into(),
+    )]);
 
     trino_dialect.replace_grammar(
         "GroupByClauseSegment",

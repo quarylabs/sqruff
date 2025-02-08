@@ -294,6 +294,7 @@ pub fn dialect() -> Dialect {
                     Ref::keyword("TINYINT"),
                     Ref::keyword("SMALLINT"),
                     Ref::keyword("INTEGER"),
+                    Ref::keyword("INT"),
                     Ref::keyword("BIGINT"),
                     Ref::keyword("REAL"),
                     Ref::keyword("DOUBLE"),

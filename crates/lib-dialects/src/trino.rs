@@ -284,6 +284,33 @@ pub fn dialect() -> Dialect {
         .to_matchable(),
     );
 
+    trino_dialect.replace_grammar(
+        "GroupByClauseSegment",
+        Sequence::new(vec_of_erased![
+            Ref::keyword("GROUP"),
+            Ref::keyword("BY"),
+            MetaSegment::indent(),
+            one_of(vec_of_erased![
+                Ref::keyword("ALL"),
+                Ref::new("CubeRollupClauseSegment"),
+                // Add GROUPING SETS support
+                Ref::new("GroupingSetsClauseSegment"),
+                Sequence::new(vec_of_erased![Delimited::new(vec_of_erased![
+                    Ref::new("ColumnReferenceSegment"),
+                    // Can `GROUP BY 1`
+                    Ref::new("NumericLiteralSegment"),
+                    // Can `GROUP BY coalesce(col, 1)`
+                    Ref::new("ExpressionSegment"),
+                ])
+                .config(|config| {
+                    config.terminators = vec_of_erased![Ref::new("GroupByClauseTerminatorGrammar")]
+                })])
+            ]),
+            MetaSegment::dedent(),
+        ])
+        .to_matchable(),
+    );
+
     trino_dialect.add([
         (
             "DatatypeSegment".into(),

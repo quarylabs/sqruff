@@ -458,9 +458,11 @@ pub fn dialect() -> Dialect {
                             config.optional();
                         })
                     ]),
-                    Ref::keyword("ARRAY"),
+                    // Structural
+                    Ref::new("ArrayTypeSegment"),
                     Ref::keyword("MAP"),
                     Ref::new("RowTypeSegment"),
+                    // Others
                     Ref::keyword("IPADDRESS"),
                     Ref::keyword("UUID")
                 ])

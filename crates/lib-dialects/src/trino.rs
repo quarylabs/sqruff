@@ -6,9 +6,10 @@ use sqruff_lib_core::parser::grammar::anyof::{one_of, AnyNumberOf};
 use sqruff_lib_core::parser::grammar::base::{Anything, Nothing, Ref};
 use sqruff_lib_core::parser::grammar::delimited::Delimited;
 use sqruff_lib_core::parser::grammar::sequence::{Bracketed, Sequence};
+use sqruff_lib_core::parser::lexer::Matcher;
 use sqruff_lib_core::parser::matchable::MatchableTrait;
 use sqruff_lib_core::parser::node_matcher::NodeMatcher;
-use sqruff_lib_core::parser::parsers::TypedParser;
+use sqruff_lib_core::parser::parsers::{StringParser, TypedParser};
 use sqruff_lib_core::parser::segments::meta::MetaSegment;
 use sqruff_lib_core::vec_of_erased;
 
@@ -36,6 +37,68 @@ pub fn dialect() -> Dialect {
         "reserved_keywords",
         super::trino_keywords::TRINO_RESERVED_KEYWORDS,
     );
+
+    trino_dialect.insert_lexer_matchers(
+        // Regexp Replace w/ Lambda: https://trino.io/docs/422/functions/regexp.html
+        vec![Matcher::string("right_arrow", "->", SyntaxKind::RightArrow)],
+        "like_operator",
+    );
+
+    trino_dialect.add([
+        (
+            "RightArrowOperator".into(),
+            StringParser::new("->", SyntaxKind::BinaryOperator)
+                .to_matchable()
+                .into(),
+        ),
+        (
+            "LambdaArrowSegment".into(),
+            StringParser::new("->", SyntaxKind::Symbol)
+                .to_matchable()
+                .into(),
+        ),
+        (
+            "StartAngleBracketSegment".into(),
+            StringParser::new("<", SyntaxKind::Symbol)
+                .to_matchable()
+                .into(),
+        ),
+        (
+            "EndAngleBracketSegment".into(),
+            StringParser::new(">", SyntaxKind::Symbol)
+                .to_matchable()
+                .into(),
+        ),
+        (
+            "FormatJsonEncodingGrammar".into(),
+            Sequence::new(vec_of_erased![
+                Ref::keyword("FORMAT"),
+                Ref::keyword("JSON"),
+                Sequence::new(vec_of_erased![
+                    Ref::keyword("ENCODING"),
+                    one_of(vec_of_erased![
+                        Ref::keyword("UTF8"),
+                        Ref::keyword("UTF16"),
+                        Ref::keyword("UTF32")
+                    ])
+                    .config(|config| {
+                        config.optional();
+                    })
+                ]),
+            ])
+            .to_matchable()
+            .into(),
+        ),
+    ]);
+
+    trino_dialect
+        .bracket_sets_mut("angle_bracket_pairs")
+        .extend([(
+            "angle",
+            "StartAngleBracketSegment",
+            "EndAngleBracketSegment",
+            false,
+        )]);
 
     trino_dialect.add([
         (
@@ -312,6 +375,15 @@ pub fn dialect() -> Dialect {
     );
 
     trino_dialect.add([
+        (
+            "FunctionContentsExpressionGrammar".into(),
+            one_of(vec_of_erased![
+                Ref::new("LambdaExpressionSegment"),
+                Ref::new("ExpressionSegment"),
+            ])
+            .to_matchable()
+            .into(),
+        ),
         (
             "DatatypeSegment".into(),
             NodeMatcher::new(
@@ -670,6 +742,19 @@ pub fn dialect() -> Dialect {
                 })
                 .to_matchable(),
             )
+            .to_matchable()
+            .into(),
+        ),
+        (
+            "LambdaExpressionSegment".into(),
+            Sequence::new(vec_of_erased![
+                one_of(vec_of_erased![
+                    Ref::new("ParameterNameSegment"),
+                    Bracketed::new(vec_of_erased![Ref::new("ParameterNameSegment")]),
+                ]),
+                Ref::new("LambdaArrowSegment"),
+                Ref::new("ExpressionSegment"),
+            ])
             .to_matchable()
             .into(),
         ),

@@ -183,8 +183,12 @@ pub fn dialect() -> Dialect {
                     Ref::new("ExpressionSegment")
                 ]),
                 Sequence::new(vec_of_erased![
+                    // Allow an optional DISTINCT keyword here.
                     Ref::keyword("DISTINCT").optional(),
                     one_of(vec_of_erased![
+                        // Most functions will be using the delimiited route
+                        // but for COUNT(*) or similar we allow the star segement
+                        // here.
                         Ref::new("StarSegment"),
                         Delimited::new(vec_of_erased![Ref::new(
                             "FunctionContentsExpressionGrammar"
@@ -192,6 +196,8 @@ pub fn dialect() -> Dialect {
                     ])
                 ]),
                 Ref::new("OrderByClauseSegment"),
+                // # used by string_agg (postgres), group_concat (exasol),listagg (snowflake)
+                // # like a function call: POSITION ( 'QL' IN 'SQL')
                 Sequence::new(vec_of_erased![
                     one_of(vec_of_erased![
                         Ref::new("QuotedLiteralSegment"),
@@ -205,10 +211,60 @@ pub fn dialect() -> Dialect {
                         Ref::new("ColumnReferenceSegment")
                     ])
                 ]),
+                // For JSON_QUERY function
+                // https://trino.io/docs/current/functions/json.html#json_query
+                Sequence::new(vec_of_erased![
+                    Ref::new("ExpressionSegment"),
+                    Ref::new("FormatJsonEncodingGrammar").optional(),
+                    Ref::new("CommaSegment"),
+                    Ref::new("ExpressionSegment"),
+                    one_of(vec_of_erased![
+                        Sequence::new(vec_of_erased![
+                            Ref::keyword("WITHOUT"),
+                            Ref::keyword("ARRAY").optional(),
+                            Ref::keyword("WRAPPER"),
+                        ]),
+                        Sequence::new(vec_of_erased![
+                            Ref::keyword("WITH"),
+                            one_of(vec_of_erased![
+                                Ref::keyword("CONDITIONAL"),
+                                Ref::keyword("UNCONDITIONAL")
+                            ])
+                            .config(|config| {
+                                config.optional();
+                            }),
+                            Ref::keyword("ARRAY").optional(),
+                            Ref::keyword("WRAPPER")
+                        ])
+                    ])
+                    .config(|config| {
+                        config.optional();
+                    })
+                ]),
                 Ref::new("IgnoreRespectNullsGrammar"),
                 Ref::new("IndexColumnDefinitionSegment"),
                 Ref::new("EmptyStructLiteralSegment"),
                 Ref::new("ListaggOverflowClauseSegment")
+            ])
+            .to_matchable()
+            .into(),
+        ),
+        (
+            "FormatJsonEncodingGrammar".into(),
+            Sequence::new(vec_of_erased![
+                Ref::keyword("FORMAT"),
+                Ref::keyword("JSON"),
+                Sequence::new(vec_of_erased![
+                    Ref::keyword("ENCODING"),
+                    one_of(vec_of_erased![
+                        Ref::keyword("UTF8"),
+                        Ref::keyword("UTF16"),
+                        Ref::keyword("UTF32")
+                    ])
+                    .config(|config| {
+                        config.optional();
+                    })
+                ]),
             ])
             .to_matchable()
             .into(),

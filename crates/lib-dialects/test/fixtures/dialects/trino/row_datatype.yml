@@ -51,3 +51,44 @@ file:
           - table_expression:
             - table_reference:
               - naked_identifier: customers
+- statement_terminator: ;
+- statement:
+  - select_statement:
+    - select_clause:
+      - keyword: select
+      - select_clause_element:
+        - expression:
+          - function:
+            - function_name:
+              - function_name_identifier: CAST
+            - bracketed:
+              - start_bracket: (
+              - expression:
+                - function:
+                  - function_name:
+                    - function_name_identifier: ROW
+                  - bracketed:
+                    - start_bracket: (
+                    - expression:
+                      - numeric_literal: '1'
+                    - comma: ','
+                    - expression:
+                      - numeric_literal: '2.0'
+                    - end_bracket: )
+              - keyword: AS
+              - data_type:
+                - keyword: ROW
+                - bracketed:
+                  - start_bracket: (
+                  - parameter: x
+                  - data_type:
+                    - keyword: BIGINT
+                  - comma: ','
+                  - parameter: y
+                  - data_type:
+                    - keyword: DOUBLE
+                  - end_bracket: )
+              - end_bracket: )
+          - dot: .
+          - naked_identifier: x
+- statement_terminator: ;

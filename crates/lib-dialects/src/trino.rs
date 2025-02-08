@@ -383,6 +383,40 @@ pub fn dialect() -> Dialect {
             .into(),
         ),
         (
+            "AccessorGrammar".into(),
+            AnyNumberOf::new(vec_of_erased![
+                Ref::new("ArrayAccessorSegment"),
+                // Add in semi structured expressions
+                Ref::new("SemiStructuredAccessorSegment"),
+            ])
+            .to_matchable()
+            .into(),
+        ),
+        (
+            // A semi-structured data accessor segment.
+            "SemiStructuredAccessorSegment".into(),
+            Sequence::new(vec_of_erased![
+                Ref::new("DotSegment"),
+                Ref::new("SingleIdentifierGrammar"),
+                Ref::new("ArrayAccessorSegment").optional(),
+                AnyNumberOf::new(vec_of_erased![
+                    Sequence::new(vec_of_erased![
+                        Ref::new("DotSegment"),
+                        Ref::new("SingleIdentifierGrammar"),
+                    ])
+                    .config(|config| {
+                        config.allow_gaps = true;
+                    }),
+                    Ref::new("ArrayAccessorSegment").optional(),
+                ])
+                .config(|config| {
+                    config.allow_gaps = true;
+                })
+            ])
+            .to_matchable()
+            .into(),
+        ),
+        (
             // Expression to construct the schema of a ROW datatype.
             "RowTypeSchemaSegment".into(),
             Bracketed::new(vec_of_erased![Delimited::new(vec_of_erased![

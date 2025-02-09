@@ -713,7 +713,7 @@ impl ErasedSegment {
         }
 
         let mut seg_buffer = Vec::new();
-        let mut fixes_applied = Vec::new();
+        let mut has_applied_fixes = false;
         let mut _requires_validate = false;
 
         for seg in self.segments() {
@@ -733,9 +733,10 @@ impl ErasedSegment {
 
             let fixes_count = anchor_info.fixes.len();
             for mut lint_fix in anchor_info.fixes {
+                has_applied_fixes = true;
+
                 // Deletes are easy.
                 if lint_fix.edit_type == EditType::Delete {
-                    fixes_applied.push(lint_fix);
                     // We're just getting rid of this segment.
                     _requires_validate = true;
                     // NOTE: We don't add the segment in this case.
@@ -779,12 +780,10 @@ impl ErasedSegment {
                 if lint_fix.edit_type == EditType::CreateBefore {
                     seg_buffer.push(seg.clone());
                 }
-
-                fixes_applied.push(lint_fix);
             }
         }
 
-        if !fixes_applied.is_empty() {
+        if has_applied_fixes {
             seg_buffer =
                 position_segments(&seg_buffer, self.get_position_marker().as_ref().unwrap());
         }

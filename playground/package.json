@@ -14,7 +14,7 @@
     "@playwright/test": "^1.50.1",
     "classnames": "^2.5.1",
     "cross-env": "^7.0.3",
-    "eslint": "^9.20.0",
+    "eslint": "^9.20.1",
     "eslint-config-prettier": "^10.0.1",
     "eslint-plugin-import": "^2.31.0",
     "eslint-plugin-react": "^7.37.4",

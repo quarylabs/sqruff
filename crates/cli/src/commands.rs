@@ -39,8 +39,8 @@ pub(crate) enum Commands {
         about = "Print information about sqruff and the current environment"
     )]
     Info,
-    #[command(name = "rules", about = " Show the current rules in use")]
-    Rules,
+    #[command(name = "rules", about = "Show the current rules in use")]
+    Rules(RuleArgs),
 }
 
 #[derive(Debug, Parser)]
@@ -60,6 +60,13 @@ pub(crate) struct FixArgs {
     pub force: bool,
     #[arg(default_value_t, short, long)]
     pub format: Format,
+}
+
+#[derive(Debug, Parser)]
+pub(crate) struct RuleArgs {
+    /// No color - output will be without ANSI color codes.
+    #[arg(long)]
+    pub nocolor: bool,
 }
 
 #[derive(Debug, Clone, Copy, ValueEnum, Display)]

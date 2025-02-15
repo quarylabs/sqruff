@@ -20,6 +20,7 @@ mod commands;
 mod commands_fix;
 mod commands_info;
 mod commands_lint;
+mod commands_rules;
 #[cfg(feature = "codegen-docs")]
 mod docs;
 mod github_action;
@@ -98,8 +99,8 @@ fn main() {
             commands_info::info();
             0
         }
-        Commands::Rules => {
-            todo!();
+        Commands::Rules(args) => {
+            commands_rules::rules_info(args);
             0
         }
     };

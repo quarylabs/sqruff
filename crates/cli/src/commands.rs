@@ -39,6 +39,8 @@ pub(crate) enum Commands {
         about = "Print information about sqruff and the current environment"
     )]
     Info,
+    #[command(name = "rules", about = " Show the current rules in use")]
+    Rules,
 }
 
 #[derive(Debug, Parser)]

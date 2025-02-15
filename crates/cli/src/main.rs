@@ -98,6 +98,10 @@ fn main() {
             commands_info::info();
             0
         }
+        Commands::Rules => {
+            todo!();
+            0
+        }
     };
 
     std::process::exit(status_code);

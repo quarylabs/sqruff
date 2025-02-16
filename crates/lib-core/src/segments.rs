@@ -59,8 +59,7 @@ impl AnchorEditInfo {
         };
 
         if fix.is_just_source_edit() {
-            let edit = fix.edit.as_ref().unwrap();
-            self.source_fixes.extend(edit[0].get_source_fixes());
+            self.source_fixes.extend(fix.edit[0].get_source_fixes());
 
             if let Some(_first_replace) = &self.first_replace {
                 unimplemented!();

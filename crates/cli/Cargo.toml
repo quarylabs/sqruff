@@ -6,7 +6,7 @@ repository.workspace = true
 edition.workspace = true
 license.workspace = true
 default-run = "sqruff"
-rust-version = "1.84.0"
+rust-version = "1.84.1"
 
 [package.metadata.binstall]
 pkg-url = "{ repo }/releases/download/v{ version }/sqruff-{ target-family }-{ target-arch }.tar.gz"
@@ -23,7 +23,6 @@ workspace = true
 name = "bench"
 path = "src/bin/bench.rs"
 bench = false
-
 
 [[test]]
 name = "fix_return_code"
@@ -47,6 +46,14 @@ harness = false
 
 [[test]]
 name = "ui_with_python"
+harness = false
+
+[[test]]
+name = "ui_with_jinja"
+harness = false
+
+[[test]]
+name = "ui_with_dbt"
 harness = false
 
 [[test]]

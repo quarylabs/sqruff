@@ -23,7 +23,7 @@ from typing import (
 import regex
 from jinja2 import Environment
 from jinja2.exceptions import TemplateSyntaxError
-from templaters.python_templater import RawFileSlice, TemplatedFileSlice
+from sqruff_templaters.python_templater import RawFileSlice, TemplatedFileSlice
 
 # Instantiate the templater logger
 templater_logger = logging.getLogger("sqlfluff.templater")

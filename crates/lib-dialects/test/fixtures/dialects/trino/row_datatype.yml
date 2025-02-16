@@ -1,0 +1,94 @@
+file:
+- statement:
+  - select_statement:
+    - select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+        - column_reference:
+          - naked_identifier: name
+      - comma: ','
+      - select_clause_element:
+        - function:
+          - function_name:
+            - function_name_identifier: CAST
+          - bracketed:
+            - start_bracket: (
+            - expression:
+              - function:
+                - function_name:
+                  - function_name_identifier: ROW
+                - bracketed:
+                  - start_bracket: (
+                  - expression:
+                    - column_reference:
+                      - naked_identifier: price
+                  - comma: ','
+                  - expression:
+                    - column_reference:
+                      - naked_identifier: store
+                  - end_bracket: )
+            - keyword: AS
+            - data_type:
+              - keyword: ROW
+              - bracketed:
+                - start_bracket: (
+                - parameter: price
+                - data_type:
+                  - keyword: REAL
+                - comma: ','
+                - parameter: store
+                - data_type:
+                  - keyword: VARCHAR
+                - end_bracket: )
+            - end_bracket: )
+        - alias_expression:
+          - keyword: AS
+          - naked_identifier: data_row
+    - from_clause:
+      - keyword: FROM
+      - from_expression:
+        - from_expression_element:
+          - table_expression:
+            - table_reference:
+              - naked_identifier: customers
+- statement_terminator: ;
+- statement:
+  - select_statement:
+    - select_clause:
+      - keyword: select
+      - select_clause_element:
+        - expression:
+          - function:
+            - function_name:
+              - function_name_identifier: CAST
+            - bracketed:
+              - start_bracket: (
+              - expression:
+                - function:
+                  - function_name:
+                    - function_name_identifier: ROW
+                  - bracketed:
+                    - start_bracket: (
+                    - expression:
+                      - numeric_literal: '1'
+                    - comma: ','
+                    - expression:
+                      - numeric_literal: '2.0'
+                    - end_bracket: )
+              - keyword: AS
+              - data_type:
+                - keyword: ROW
+                - bracketed:
+                  - start_bracket: (
+                  - parameter: x
+                  - data_type:
+                    - keyword: BIGINT
+                  - comma: ','
+                  - parameter: y
+                  - data_type:
+                    - keyword: DOUBLE
+                  - end_bracket: )
+              - end_bracket: )
+          - dot: .
+          - naked_identifier: x
+- statement_terminator: ;

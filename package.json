@@ -6,7 +6,7 @@
   },
   "engineStrict": true,
   "devDependencies": {
-    "prettier": "^3.4.2"
+    "prettier": "^3.5.0"
   },
   "scripts": {
     "ci": "pnpm run fmt:check && pnpm run lint && pnpm run build && pnpm run test && pnpm run package",

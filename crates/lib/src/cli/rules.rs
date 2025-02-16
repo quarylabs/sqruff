@@ -52,11 +52,11 @@ impl RulesFormatter {
     }
 
     fn format_rule(&self, rule: &ErasedRule) -> String {
-        let group = self.format_groups(&rule);
-        let code = self.colorize(&rule.code(), BLUE);
-        let name = self.colorize(&rule.name(), BLUE);
+        let group = self.format_groups(rule);
+        let code = self.colorize(rule.code(), BLUE);
+        let name = self.colorize(rule.name(), BLUE);
         let decription = &rule.description();
-        let groups = self.colorize(&group.as_str(), YELLOW);
+        let groups = self.colorize(group.as_str(), YELLOW);
 
         format!("{code}:\t[{name}] {decription}\n\tgroups: {groups}")
     }

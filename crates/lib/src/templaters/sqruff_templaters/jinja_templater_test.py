@@ -593,23 +593,6 @@ from sqruff_templaters.jinja_templater import DummyUndefined
 # #     # Check one of them is a templating error on line 1
 # #     assert any(v.rule_code() == "TMP" and v.line_no == 1 for v in vs)
 # #
-# #
-# # def test__templater_jinja_dynamic_variable_no_violations():
-# #     """Test no templater violation for variable defined within template."""
-# #     t = JinjaTemplater(override_context=dict(blah="foo"))
-# #     instr = """{% if True %}
-# #     {% set some_var %}1{% endset %}
-# #     SELECT {{some_var}}
-# # {% endif %}
-# # """
-# #     outstr, vs = t.process(
-# #         in_str=instr, fname="test", config=FluffConfig(overrides={"dialect": "ansi"})
-# #     )
-# #     assert str(outstr) == "\n    \n    SELECT 1\n\n"
-# #     # Check we have no violations.
-# #     assert len(vs) == 0
-# #
-# #
 # # def test__templater_jinja_error_syntax():
 # #     """Test syntax problems in the jinja templater."""
 # #     t = JinjaTemplater()

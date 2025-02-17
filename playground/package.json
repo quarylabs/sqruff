@@ -10,7 +10,7 @@
     "test": "playwright test"
   },
   "dependencies": {
-    "@monaco-editor/react": "^4.6.0",
+    "@monaco-editor/react": "^4.7.0",
     "@playwright/test": "^1.50.1",
     "classnames": "^2.5.1",
     "cross-env": "^7.0.3",

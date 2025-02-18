@@ -99,8 +99,8 @@ fn main() {
             commands_info::info();
             0
         }
-        Commands::Rules(args) => {
-            commands_rules::rules_info(args);
+        Commands::Rules => {
+            commands_rules::rules_info(config);
             0
         }
     };

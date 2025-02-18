@@ -23,7 +23,7 @@ sqruff is a sql formatter and linter
 * `fix` — Fix SQL files via passing a list of files or using stdin
 * `lsp` — Run an LSP server
 * `info` — Print information about sqruff and the current environment
-* `rules` — Show the current rules in use
+* `rules` — Explain the available rules
 
 ###### **Options:**
 
@@ -95,13 +95,9 @@ Print information about sqruff and the current environment
 
 ## `sqruff rules`
 
-Show the current rules in use
+Explain the available rules
 
-**Usage:** `sqruff rules [OPTIONS]`
-
-###### **Options:**
-
-* `--nocolor` — No color - output will be without ANSI color codes
+**Usage:** `sqruff rules`
 
 
 

@@ -9,6 +9,7 @@ This document contains the help content for the `sqruff` command-line program.
 * [`sqruff fix`↴](#sqruff-fix)
 * [`sqruff lsp`↴](#sqruff-lsp)
 * [`sqruff info`↴](#sqruff-info)
+* [`sqruff rules`↴](#sqruff-rules)
 
 ## `sqruff`
 
@@ -22,6 +23,7 @@ sqruff is a sql formatter and linter
 * `fix` — Fix SQL files via passing a list of files or using stdin
 * `lsp` — Run an LSP server
 * `info` — Print information about sqruff and the current environment
+* `rules` — Show the current rules in use
 
 ###### **Options:**
 
@@ -88,6 +90,18 @@ Run an LSP server
 Print information about sqruff and the current environment
 
 **Usage:** `sqruff info`
+
+
+
+## `sqruff rules`
+
+Show the current rules in use
+
+**Usage:** `sqruff rules [OPTIONS]`
+
+###### **Options:**
+
+* `--nocolor` — No color - output will be without ANSI color codes
 
 
 

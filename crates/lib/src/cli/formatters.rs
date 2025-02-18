@@ -1,5 +1,6 @@
+use super::utils::*;
 use std::borrow::Cow;
-use std::io::{IsTerminal, Stderr, Write};
+use std::io::{Stderr, Write};
 use std::sync::atomic::{AtomicBool, AtomicUsize};
 
 use anstyle::{AnsiColor, Effects, Style};
@@ -10,35 +11,6 @@ use crate::core::config::FluffConfig;
 use crate::core::linter::linted_file::LintedFile;
 
 const LIGHT_GREY: Style = AnsiColor::Black.on_default().effects(Effects::BOLD);
-
-fn split_string_on_spaces(s: &str, line_length: usize) -> Vec<&str> {
-    let mut lines = Vec::new();
-    let mut line_start = 0;
-    let mut last_space = 0;
-
-    for (idx, char) in s.char_indices() {
-        if char.is_whitespace() {
-            last_space = idx;
-        }
-
-        if idx - line_start >= line_length {
-            if last_space == line_start {
-                lines.push(&s[line_start..idx]);
-                line_start = idx + 1;
-            } else {
-                lines.push(&s[line_start..last_space]);
-                line_start = last_space + 1;
-            }
-            last_space = line_start;
-        }
-    }
-
-    if line_start < s.len() {
-        lines.push(&s[line_start..]);
-    }
-
-    lines
-}
 
 pub trait Formatter: Send + Sync {
     fn dispatch_template_header(
@@ -116,17 +88,13 @@ impl OutputStreamFormatter {
     pub fn new(output_stream: Option<Stderr>, nocolor: bool, verbosity: i32) -> Self {
         Self {
             output_stream,
-            plain_output: Self::should_produce_plain_output(nocolor),
+            plain_output: should_produce_plain_output(nocolor),
             filter_empty: true,
             verbosity,
             output_line_length: 80,
             has_fail: false.into(),
             files_dispatched: 0.into(),
         }
-    }
-
-    fn should_produce_plain_output(nocolor: bool) -> bool {
-        nocolor || !std::io::stdout().is_terminal()
     }
 
     fn dispatch(&self, s: &str) {
@@ -174,15 +142,7 @@ impl OutputStreamFormatter {
     }
 
     fn colorize<'a>(&self, s: &'a str, style: Style) -> Cow<'a, str> {
-        Self::colorize_helper(self.plain_output, s, style)
-    }
-
-    fn colorize_helper(plain_output: bool, s: &str, style: Style) -> Cow<'_, str> {
-        if plain_output {
-            s.into()
-        } else {
-            format!("{style}{s}{style:#}").into()
-        }
+        colorize_helper(self.plain_output, s, style)
     }
 
     fn format_filename(&self, filename: &str, success: bool) -> String {

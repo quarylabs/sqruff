@@ -1,9 +1,8 @@
-use std::borrow::Cow;
-
+use super::utils::*;
 use crate::core::rules::base::ErasedRule;
 use crate::rules::rules;
-
 use anstyle::{AnsiColor, Style};
+use std::borrow::Cow;
 
 const BLUE: Style = AnsiColor::Blue.on_default();
 const YELLOW: Style = AnsiColor::Yellow.on_default();
@@ -11,14 +10,14 @@ const YELLOW: Style = AnsiColor::Yellow.on_default();
 #[derive(Debug)]
 pub struct RulesFormatter {
     rules: Vec<ErasedRule>,
-    nocolor: bool,
+    plain_output: bool,
 }
 
 impl Default for RulesFormatter {
     fn default() -> Self {
         Self {
             rules: rules(),
-            nocolor: false,
+            plain_output: false,
         }
     }
 }
@@ -27,20 +26,12 @@ impl RulesFormatter {
     pub fn new(nocolor: bool) -> Self {
         Self {
             rules: rules(),
-            nocolor,
+            plain_output: should_produce_plain_output(nocolor),
         }
     }
 
     fn colorize<'a>(&self, s: &'a str, style: Style) -> Cow<'a, str> {
-        Self::colorize_helper(self.nocolor, s, style)
-    }
-
-    fn colorize_helper(nocolor: bool, s: &str, style: Style) -> Cow<'_, str> {
-        if nocolor {
-            s.into()
-        } else {
-            format!("{style}{s}{style:#}").into()
-        }
+        colorize_helper(self.plain_output, s, style)
     }
 
     fn format_groups(&self, rule: &ErasedRule) -> String {

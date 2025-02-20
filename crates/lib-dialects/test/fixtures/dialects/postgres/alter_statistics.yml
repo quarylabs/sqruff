@@ -1,0 +1,40 @@
+file:
+- statement:
+  - keyword: ALTER
+  - keyword: STATISTICS
+  - object_reference:
+    - naked_identifier: foo
+  - keyword: OWNER
+  - keyword: TO
+  - parameter: CURRENT_USER
+- statement_terminator: ;
+- statement:
+  - keyword: ALTER
+  - keyword: STATISTICS
+  - object_reference:
+    - naked_identifier: foo
+  - keyword: RENAME
+  - keyword: TO
+  - object_reference:
+    - naked_identifier: bar
+- statement_terminator: ;
+- statement:
+  - keyword: ALTER
+  - keyword: STATISTICS
+  - object_reference:
+    - naked_identifier: foo
+  - keyword: SET
+  - keyword: SCHEMA
+  - table_reference:
+    - object_reference:
+      - naked_identifier: my_schema
+- statement_terminator: ;
+- statement:
+  - keyword: ALTER
+  - keyword: STATISTICS
+  - object_reference:
+    - naked_identifier: foo
+  - keyword: SET
+  - keyword: STATISTICS
+  - numeric_literal: '4'
+- statement_terminator: ;

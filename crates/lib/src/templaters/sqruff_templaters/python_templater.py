@@ -26,6 +26,13 @@ class FluffConfig(NamedTuple):
     jinja_ignore_templating: bool
     jinja_library_paths: List[str]
 
+    dbt_profile: Optional[str]
+    dbt_profiles_dir: Optional[str]
+    dbt_target: Optional[str]
+    dbt_target_path: Optional[str]
+    dbt_context: Optional[str]
+    dbt_project_dir: Optional[str]
+
 
 def fluff_config_from_json(json_stringified: str) -> FluffConfig:
     """Parse a JSON string into a FluffConfig object."""

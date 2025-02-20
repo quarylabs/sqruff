@@ -81,21 +81,34 @@ jobs:
   test-cargo:
     name: Cargo test
     runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:latest
+        env:
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_USER: postgres
+          POSTGRES_DB: postgres
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
     steps:
       - uses: actions/checkout@v4
       - id: setup-python
         uses: actions/setup-python@v5
+      - name: Create and activate virtual environment
+        run: |
+          python -m venv .venv
+          echo "VIRTUAL_ENV=${{ github.workspace }}/.venv" >> $GITHUB_ENV
+          echo "${{ github.workspace }}/.venv/bin" >> $GITHUB_PATH
       - name: Install dependencies
         run: make python_install
-      - name: Add site-packages to PYTHONPATH
-        run: echo "PYTHONPATH=$(python -c 'import site; print(site.getsitepackages()[0])'):\$PYTHONPATH" >> $GITHUB_ENV
-      - name: Run tests in cli
-        run: cargo test --manifest-path ./crates/cli/Cargo.toml
       - uses: dtolnay/rust-toolchain@stable
       - uses: Swatinem/rust-cache@v2
-      - uses: taiki-e/install-action@nextest
-      - name: Run all tests apart from cli
-        run: cargo test --all --all-features --exclude sqruff
+      - run: make rust_test
       - name: Check for diffs
         run: git diff --quiet || exit 1
   benchmark:
@@ -165,6 +178,20 @@ jobs:
   python:
     name: Run python checks
     runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:latest
+        env:
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_USER: postgres
+          POSTGRES_DB: postgres
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
     strategy:
       matrix:
         python-version: ["3.9", "3.10", "3.11", "3.12", "3.13"]
@@ -174,7 +201,7 @@ jobs:
         with:
           python-version: ${{ matrix.python-version }}
       - run: make python_install
-      - run: make ci
+      - run: make python_ci
   check-no-unparsable:
     name: Check no unparsable files
     runs-on: ubuntu-latest

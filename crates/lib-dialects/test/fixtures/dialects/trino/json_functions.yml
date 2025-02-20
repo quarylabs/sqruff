@@ -1,0 +1,112 @@
+file:
+- statement:
+  - select_statement:
+    - select_clause:
+      - keyword: select
+      - select_clause_element:
+        - function:
+          - function_name:
+            - function_name_identifier: json_query
+          - bracketed:
+            - start_bracket: (
+            - expression:
+              - column_reference:
+                - naked_identifier: payload
+            - expression:
+              - column_reference:
+                - naked_identifier: format
+            - expression:
+              - column_reference:
+                - naked_identifier: json
+            - comma: ','
+            - expression:
+              - quoted_literal: '''lax $.unstructured.abcd[*].field?(@ > 0.5)'''
+            - keyword: with
+            - keyword: array
+            - keyword: wrapper
+            - end_bracket: )
+      - comma: ','
+      - select_clause_element:
+        - function:
+          - function_name:
+            - function_name_identifier: json_query
+          - bracketed:
+            - start_bracket: (
+            - expression:
+              - column_reference:
+                - naked_identifier: payload
+            - keyword: format
+            - keyword: json
+            - keyword: encoding
+            - keyword: utf8
+            - comma: ','
+            - expression:
+              - quoted_literal: '''lax $.unstructured.abcd[*].field?(@ > 0.5)'''
+            - keyword: without
+            - keyword: array
+            - keyword: wrapper
+            - end_bracket: )
+      - comma: ','
+      - select_clause_element:
+        - function:
+          - function_name:
+            - function_name_identifier: json_query
+          - bracketed:
+            - start_bracket: (
+            - expression:
+              - column_reference:
+                - naked_identifier: payload
+            - keyword: format
+            - keyword: json
+            - keyword: encoding
+            - keyword: utf16
+            - comma: ','
+            - expression:
+              - quoted_literal: '''lax $.unstructured.abcd[*].field?(@ > 0.5)'''
+            - keyword: with
+            - keyword: conditional
+            - keyword: wrapper
+            - end_bracket: )
+      - comma: ','
+      - select_clause_element:
+        - function:
+          - function_name:
+            - function_name_identifier: json_query
+          - bracketed:
+            - start_bracket: (
+            - expression:
+              - column_reference:
+                - naked_identifier: payload
+            - keyword: format
+            - keyword: json
+            - keyword: encoding
+            - keyword: utf32
+            - comma: ','
+            - expression:
+              - quoted_literal: '''lax $.unstructured.abcd[*].field?(@ > 0.5)'''
+            - keyword: with
+            - keyword: unconditional
+            - keyword: array
+            - keyword: wrapper
+            - end_bracket: )
+      - comma: ','
+      - select_clause_element:
+        - function:
+          - function_name:
+            - function_name_identifier: json_query
+          - bracketed:
+            - start_bracket: (
+            - expression:
+              - column_reference:
+                - naked_identifier: payload
+            - expression:
+              - column_reference:
+                - naked_identifier: format
+            - expression:
+              - column_reference:
+                - naked_identifier: json
+            - comma: ','
+            - expression:
+              - quoted_literal: '''lax $.unstructured.abcd[*].field?(@ > 0.5)'''
+            - end_bracket: )
+- statement_terminator: ;

@@ -1,0 +1,7 @@
+[sqruff]
+templater = dbt
+dialect = postgres
+rules = all
+
+[sqruff:templater:dbt]
+profiles_dir = profiles

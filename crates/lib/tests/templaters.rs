@@ -52,7 +52,7 @@ fn main() {
     for templater_setup in &templaters_folders {
         println!("{:?}", templater_setup);
         let config = std::fs::read_to_string(templater_setup.join(".sqruff")).unwrap();
-        let config = FluffConfig::from_source(&config);
+        let config = FluffConfig::from_source(&config, None);
 
         // for every sql file in that folder
         for sql_file in glob(&format!("{}/*.sql", templater_setup.to_str().unwrap())).unwrap() {

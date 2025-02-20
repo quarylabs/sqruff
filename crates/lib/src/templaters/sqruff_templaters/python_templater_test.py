@@ -3,7 +3,7 @@
 import logging
 
 import pytest
-from templaters.python_templater import (
+from sqruff_templaters.python_templater import (
     IntermediateFileSlice,
     PythonTemplater,
     RawFileSlice,

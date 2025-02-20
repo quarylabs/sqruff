@@ -713,7 +713,7 @@ impl ErasedSegment {
         }
 
         let mut seg_buffer = Vec::new();
-        let mut fixes_applied = Vec::new();
+        let mut has_applied_fixes = false;
         let mut _requires_validate = false;
 
         for seg in self.segments() {
@@ -733,10 +733,10 @@ impl ErasedSegment {
 
             let fixes_count = anchor_info.fixes.len();
             for mut lint_fix in anchor_info.fixes {
+                has_applied_fixes = true;
+
                 // Deletes are easy.
-                #[allow(unused_assignments)]
                 if lint_fix.edit_type == EditType::Delete {
-                    fixes_applied.push(lint_fix);
                     // We're just getting rid of this segment.
                     _requires_validate = true;
                     // NOTE: We don't add the segment in this case.
@@ -757,24 +757,22 @@ impl ErasedSegment {
                 }
 
                 let mut consumed_pos = false;
-                for s in std::mem::take(lint_fix.edit.as_mut().unwrap()) {
-                    let mut s = s.deep_clone();
+                for mut s in std::mem::take(&mut lint_fix.edit) {
                     if lint_fix.edit_type == EditType::Replace
                         && !consumed_pos
                         && s.raw() == seg.raw()
                     {
                         consumed_pos = true;
-                        s.get_mut()
+                        s.make_mut()
                             .set_position_marker(seg.get_position_marker().cloned());
                     }
 
                     seg_buffer.push(s);
                 }
 
-                #[allow(unused_assignments)]
                 if !(lint_fix.edit_type == EditType::Replace
-                    && lint_fix.edit.as_ref().is_some_and(|x| x.len() == 1)
-                    && lint_fix.edit.as_ref().unwrap()[0].class_types() == seg.class_types())
+                    && lint_fix.edit.len() == 1
+                    && lint_fix.edit[0].class_types() == seg.class_types())
                 {
                     _requires_validate = true;
                 }
@@ -782,12 +780,10 @@ impl ErasedSegment {
                 if lint_fix.edit_type == EditType::CreateBefore {
                     seg_buffer.push(seg.clone());
                 }
-
-                fixes_applied.push(lint_fix);
             }
         }
 
-        if !fixes_applied.is_empty() {
+        if has_applied_fixes {
             seg_buffer =
                 position_segments(&seg_buffer, self.get_position_marker().as_ref().unwrap());
         }
@@ -801,7 +797,6 @@ impl ErasedSegment {
             seg_buffer.push(s);
             seg_buffer.extend(post);
 
-            #[allow(unused_assignments)]
             if !validated {
                 _requires_validate = true;
             }

@@ -1,0 +1,52 @@
+file:
+- statement:
+  - keyword: COMMENT
+  - keyword: ON
+  - keyword: TABLE
+  - table_reference:
+    - naked_identifier: abc
+  - keyword: IS
+  - quoted_literal: '''xyz'''
+- statement_terminator: ;
+- statement:
+  - keyword: COMMENT
+  - keyword: ON
+  - keyword: VIEW
+  - table_reference:
+    - naked_identifier: abc
+  - keyword: IS
+  - quoted_literal: '''xyz'''
+- statement_terminator: ;
+- statement:
+  - keyword: COMMENT
+  - keyword: ON
+  - keyword: COLUMN
+  - column_reference:
+    - naked_identifier: table1
+    - dot: .
+    - naked_identifier: column1
+  - keyword: IS
+  - quoted_literal: '''abc'''
+- statement_terminator: ;
+- statement:
+  - keyword: COMMENT
+  - keyword: ON
+  - keyword: COLUMN
+  - column_reference:
+    - naked_identifier: table1
+    - dot: .
+    - naked_identifier: column2
+  - keyword: IS
+  - quoted_literal: '''abc'''
+- statement_terminator: ;
+- statement:
+  - keyword: COMMENT
+  - keyword: ON
+  - keyword: COLUMN
+  - column_reference:
+    - naked_identifier: table1
+    - dot: .
+    - naked_identifier: column3
+  - keyword: IS
+  - quoted_literal: '''abc.'''
+- statement_terminator: ;

@@ -1,0 +1,5 @@
+== [models/example/my_first_dbt_model.sql] FAIL
+L:   1 | P:   1 | LT13 | Files must not begin with newlines or whitespace.
+                       | [layout.start_of_file]
+The linter processed 1 file(s).
+All Finished

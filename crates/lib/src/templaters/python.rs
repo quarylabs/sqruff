@@ -11,7 +11,7 @@ use crate::core::config::FluffConfig;
 use crate::templaters::python_shared::PythonFluffConfig;
 use std::sync::Arc;
 
-const PYTHON_FILE: &str = include_str!("templaters/python_templater.py");
+const PYTHON_FILE: &str = include_str!("sqruff_templaters/python_templater.py");
 
 #[derive(Default)]
 pub struct PythonTemplater;
@@ -219,7 +219,7 @@ templater = python
 [sqruff:templater:python:context]
 blah = foo
 ";
-        let config = FluffConfig::from_source(source);
+        let config = FluffConfig::from_source(source, None);
 
         let templater = PythonTemplater;
 
@@ -239,7 +239,7 @@ templater = python
 [sqruff:templater:python:context]
 noblah = foo
 ";
-        let config = FluffConfig::from_source(source);
+        let config = FluffConfig::from_source(source, None);
 
         let templater = PythonTemplater;
 

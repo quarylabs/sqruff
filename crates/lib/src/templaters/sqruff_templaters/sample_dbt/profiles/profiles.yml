@@ -1,0 +1,12 @@
+test:
+  outputs:
+    test:
+      dbname: postgres
+      host: localhost
+      pass: postgres
+      port: 5432
+      schema: postgres
+      threads: 1
+      type: postgres
+      user: postgres
+  target: test

@@ -629,6 +629,7 @@ mod tests {
 dialect = bigquery
 rules = AL02
     "#,
+                None,
             ),
             None,
             None,
@@ -661,6 +662,7 @@ FROM foo
 dialect = bigquery
 rules = AL02
     "#,
+                None,
             ),
             None,
             None,
@@ -674,6 +676,7 @@ dialect = bigquery
 rules = AL02
 disable_noqa = True
     "#,
+                None,
             ),
             None,
             None,
@@ -701,6 +704,7 @@ FROM foo
 dialect = bigquery
 rules = AL02
     "#,
+                None,
             ),
             None,
             None,

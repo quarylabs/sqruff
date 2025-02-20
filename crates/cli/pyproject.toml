@@ -4,10 +4,24 @@ build-backend = "maturin"
 
 [project]
 name = "sqruff" 
-version = "0.24.3"
+version = "0.25.4"
 description = "A SQL linter written in rust." 
 requires-python = ">=3.9" 
+
+[project.optional-dependencies]
+jinja = [
+    "regex",
+    "jinja2>=3.0.0",
+    "jinja2-simple-tags>=0.3.1"
+]
+dbt = [
+    "regex",
+    "jinja2>=3.0.0",
+    "jinja2-simple-tags>=0.3.1",
+    "dbt-core>=1.4.1",
+]
 
 [tool.maturin]
 bindings = "bin" 
 strip = true 
+features = ["python"]

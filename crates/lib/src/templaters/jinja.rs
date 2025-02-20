@@ -118,4 +118,24 @@ FROM events
             "\n\n\nSELECT\n    event_id\n    \n    , campaign\n    \n    , click_item\n    \nFROM events\n"
         )
     }
+
+    #[test]
+    fn test_jinja_templater_dynamic_variable_no_violations() {
+        let source = r"
+    [sqruff]
+    templater = jinja
+        ";
+        let config = FluffConfig::from_source(source, None);
+        let templater = JinjaTemplater;
+        let instr = r#"{% if True %}
+    {% set some_var %}1{% endset %}
+    SELECT {{some_var}}
+{% endif %}
+"#;
+        let processed = templater
+            .process(instr, "test.sql", &config, &None)
+            .unwrap();
+
+        assert_eq!(processed.templated(), "\n    \n    SELECT 1\n\n");
+    }
 }

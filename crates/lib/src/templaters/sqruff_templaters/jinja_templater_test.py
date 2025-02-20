@@ -1,36 +1,40 @@
-# """Tests for the jinja templater.
+"""Tests for the jinja templater.
+
+These tests also test much of the core lexer, especially
+the treatment of templated sections which only really make
+sense to test in the context of a templater which supports
+loops and placeholders.
+"""
+
+# import logging
+# from collections import defaultdict
+# from pathlib import Path
+# from typing import List, NamedTuple, Union
 #
-# These tests also test much of the core lexer, especially
-# the treatment of templated sections which only really make
-# sense to test in the context of a templater which supports
-# loops and placeholders.
-# """
-#
-# # import logging
-# # from collections import defaultdict
-# # from pathlib import Path
-# # from typing import List, NamedTuple, Union
-# #
 # import pytest
-#
+
 # from sqruff_templaters.jinja_templater import process_from_rust
-#
-# # from jinja2 import Environment, nodes
-# # from jinja2.exceptions import UndefinedError
-# # from jinja2.ext import Extension
-# # from jinja2.nodes import Node
-# # from jinja2.parser import Parser
-# #
-# # from .python_templater import FluffConfig, Linter
-# # from .python_templater import SQLFluffSkipFile, SQLFluffUserError, SQLTemplaterError
-# # from .python_templater import BaseSegment, RawFileSlice, TemplatedFile
-# # from .jinja_templater import JinjaTemplater, DummyUndefined
-# # from .jinja_templater_tracers import JinjaAnalyzer, JinjaTagConfiguration
-#
+
+# from jinja2 import Environment, nodes
+# from jinja2.exceptions import UndefinedError
+# from jinja2.ext import Extension
+# from jinja2.nodes import Node
+# from jinja2.parser import Parser
+
+# from .python_templater import FluffConfig, Linter
+# from .python_templater import SQLFluffSkipFile, SQLFluffUserError, SQLTemplaterError
+# from .python_templater import BaseSegment, RawFileSlice, TemplatedFile
+from jinja2 import UndefinedError
+import pytest
+from sqruff_templaters.jinja_templater import DummyUndefined
+# from .jinja_templater_tracers import JinjaAnalyzer, JinjaTagConfiguration
+
 # JINJA_STRING = (
 #     "SELECT * FROM {% for c in blah %}{{c}}{% if not loop.last %}, "
 #     "{% endif %}{% endfor %} WHERE {{condition}}\n\n"
 # )
+
+
 #
 # JINJA_MACRO_CALL_SQL = (
 #     "{% macro render_name(title) %}\n"
@@ -64,7 +68,7 @@
 #         (
 #             """
 # {% set event_columns = ['campaign', 'click_item'] %}
-#
+
 # SELECT
 #     event_id
 #     {% for event_column in event_columns %}
@@ -83,25 +87,30 @@
 # def test__templater_jinja(instr: str, expected_outstr):
 #     """Test jinja templating and the treatment of whitespace."""
 #     outstr, _ = process_from_rust(
-#         string=instr, fname="test", live_context=dict(blah="foo", condition="a < 10")
+#         string=instr,
+#         fname="test",
+#         live_context=dict(blah="foo", condition="a < 10"),
+#         config_string="{}",
 #     )
-#
+
 #     assert str(outstr) == expected_outstr
-#
-#
-# # class RawTemplatedTestCase(NamedTuple):
-# #     """Instances of this object are test cases for test__templater_jinja_slices."""
-# #
-# #     name: str
-# #     instr: str
-# #     templated_str: str
-# #
-# #     # These fields are used to check TemplatedFile.sliced_file.
-# #     expected_templated_sliced__source_list: List[str]
-# #     expected_templated_sliced__templated_list: List[str]
-# #
-# #     # This field is used to check TemplatedFile.raw_sliced.
-# #     expected_raw_sliced__source_list: List[str]
+
+
+# class RawTemplatedTestCase(NamedTuple):
+#     """Instances of this object are test cases for test__templater_jinja_slices."""
+
+#     name: str
+#     instr: str
+#     templated_str: str
+
+#     # These fields are used to check TemplatedFile.sliced_file.
+#     expected_templated_sliced__source_list: List[str]
+#     expected_templated_sliced__templated_list: List[str]
+
+#     # This field is used to check TemplatedFile.raw_sliced.
+#     expected_raw_sliced__source_list: List[str]
+
+
 # #
 # #
 # # @pytest.mark.parametrize(
@@ -583,23 +592,6 @@
 # #     assert len(vs) > 0
 # #     # Check one of them is a templating error on line 1
 # #     assert any(v.rule_code() == "TMP" and v.line_no == 1 for v in vs)
-# #
-# #
-# # def test__templater_jinja_dynamic_variable_no_violations():
-# #     """Test no templater violation for variable defined within template."""
-# #     t = JinjaTemplater(override_context=dict(blah="foo"))
-# #     instr = """{% if True %}
-# #     {% set some_var %}1{% endset %}
-# #     SELECT {{some_var}}
-# # {% endif %}
-# # """
-# #     outstr, vs = t.process(
-# #         in_str=instr, fname="test", config=FluffConfig(overrides={"dialect": "ansi"})
-# #     )
-# #     assert str(outstr) == "\n    \n    SELECT 1\n\n"
-# #     # Check we have no violations.
-# #     assert len(vs) == 0
-# #
 # #
 # # def test__templater_jinja_error_syntax():
 # #     """Test syntax problems in the jinja templater."""
@@ -1756,45 +1748,47 @@
 # #         assert len(violations) == 0
 # #
 # #
-# # def test_dummy_undefined_fail_with_undefined_error():
-# #     """Tests that a recursion error bug no longer occurs."""
-# #     ud = DummyUndefined("name")
-# #     with pytest.raises(UndefinedError):
-# #         # This was previously causing a recursion error.
-# #         ud._fail_with_undefined_error()
-# #
-# #
-# # def test_undefined_magic_methods():
-# #     """Test all the magic methods defined on DummyUndefined."""
-# #     ud = DummyUndefined("name")
-# #
-# #     # _self_impl
-# #     assert ud + ud is ud
-# #     assert ud - ud is ud
-# #     assert ud / ud is ud
-# #     assert ud // ud is ud
-# #     assert ud % ud is ud
-# #     assert ud**ud is ud
-# #     assert +ud is ud
-# #     assert -ud is ud
-# #     assert ud << ud is ud
-# #     assert ud[ud] is ud
-# #     assert ~ud is ud
-# #     assert ud(ud) is ud
-# #
-# #     # _bool_impl
-# #     assert ud and ud
-# #     assert ud or ud
-# #     assert ud ^ ud
-# #     assert bool(ud)
-# #     assert ud < ud
-# #     assert ud <= ud
-# #     assert ud == ud
-# #     assert ud != ud
-# #     assert ud >= ud
-# #     assert ud > ud
-# #
-# #     assert ud + ud is ud
+def test_dummy_undefined_fail_with_undefined_error():
+    """Tests that a recursion error bug no longer occurs."""
+    ud = DummyUndefined("name")
+    with pytest.raises(UndefinedError):
+        # This was previously causing a recursion error.
+        ud._fail_with_undefined_error()
+
+
+def test_undefined_magic_methods():
+    """Test all the magic methods defined on DummyUndefined."""
+    ud = DummyUndefined("name")
+
+    # _self_impl
+    assert ud + ud is ud
+    assert ud - ud is ud
+    assert ud / ud is ud
+    assert ud // ud is ud
+    assert ud % ud is ud
+    assert ud**ud is ud
+    assert +ud is ud
+    assert -ud is ud
+    assert ud << ud is ud
+    assert ud[ud] is ud
+    assert ~ud is ud
+    assert ud(ud) is ud
+
+    # _bool_impl
+    assert ud and ud
+    assert ud or ud
+    assert ud ^ ud
+    assert bool(ud)
+    assert ud < ud
+    assert ud <= ud
+    assert ud == ud
+    assert ud != ud
+    assert ud >= ud
+    assert ud > ud
+
+    assert ud + ud is ud
+
+
 # #
 # #
 # # @pytest.mark.parametrize(

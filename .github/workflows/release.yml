@@ -65,6 +65,10 @@ jobs:
     runs-on: ${{ matrix.platform.os }}
     needs:
       - check-versions-match
+    permissions:
+      id-token: write
+      contents: read
+      attestations: write
     strategy:
       fail-fast: false
       matrix:
@@ -116,6 +120,11 @@ jobs:
 
       - name: Generate SHA-256 and Save to File
         run: shasum -a 256 ${{ matrix.platform.name }} > ${{ matrix.platform.name }}.sha256
+
+      - name: Generate build provenance
+        uses: actions/attest-build-provenance@v2
+        with:
+          subject-path: ${{ matrix.platform.name }}
 
       - name: Publish GitHub release
         uses: softprops/action-gh-release@v2

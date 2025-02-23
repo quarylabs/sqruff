@@ -38,7 +38,7 @@ jobs:
       - check-versions-match
     permissions:
       id-token: write
-      contents: read
+      contents: write
       attestations: write
       packages: write
     steps:

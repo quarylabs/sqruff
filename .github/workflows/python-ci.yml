@@ -87,6 +87,26 @@ jobs:
           name: wheels-linux-x86_64
           path: dist
 
+  linux-manylinux:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        manylinux: [2014]
+    steps:
+      - uses: actions/checkout@v4
+      - name: Build wheels
+        uses: PyO3/maturin-action@v1
+        with:
+          target: x86_64-unknown-linux-gnu
+          manylinux: ${{ matrix.manylinux }}
+          args: --release --out dist --manifest-path crates/cli/Cargo.toml
+          sccache: "true"
+      - name: Upload wheels
+        uses: actions/upload-artifact@v4
+        with:
+          name: wheels-linux-x86_64-manylinux${{ matrix.manylinux }}
+          path: dist
+
   sdist:
     runs-on: ubuntu-latest
     steps:

@@ -11,7 +11,7 @@ use crate::core::rules::base::{CloneRule, ErasedRule, LintResult, Rule, RuleGrou
 use crate::core::rules::context::RuleContext;
 use crate::core::rules::crawlers::{Crawler, SegmentSeekerCrawler};
 use crate::utils::functional::context::FunctionalContext;
-use crate::utils::reflow::reindent::{construct_single_indent, IndentUnit};
+use crate::utils::reflow::reindent::{IndentUnit, construct_single_indent};
 
 #[derive(Clone, Debug, Default)]
 pub struct RuleST04;

@@ -3,7 +3,7 @@ use sqruff_lib_core::dialects::init::DialectKind;
 use sqruff_lib_core::dialects::syntax::SyntaxKind;
 use sqruff_lib_core::helpers::{Config, ToMatchable};
 use sqruff_lib_core::parser::grammar::anyof::{
-    any_set_of, one_of, optionally_bracketed, AnyNumberOf,
+    AnyNumberOf, any_set_of, one_of, optionally_bracketed,
 };
 use sqruff_lib_core::parser::grammar::base::Ref;
 use sqruff_lib_core::parser::grammar::conditional::Conditional;
@@ -231,13 +231,13 @@ pub fn dialect() -> Dialect {
 
     clickhouse_dialect.replace_grammar(
         "BracketedArguments",
-        Bracketed::new(vec_of_erased![Delimited::new(vec_of_erased![one_of(
-            vec_of_erased![
+        Bracketed::new(vec_of_erased![
+            Delimited::new(vec_of_erased![one_of(vec_of_erased![
                 Ref::new("DatatypeIdentifierSegment"),
                 Ref::new("NumericLiteralSegment"),
-            ]
-        )])
-        .config(|this| this.optional())])
+            ])])
+            .config(|this| this.optional())
+        ])
         .to_matchable(),
     );
 
@@ -375,15 +375,17 @@ pub fn dialect() -> Dialect {
                             ]),
                             Sequence::new(vec_of_erased![
                                 Ref::keyword("SETTINGS"),
-                                Delimited::new(vec_of_erased![Sequence::new(vec_of_erased![
-                                    Ref::new("NakedIdentifierSegment"),
-                                    Ref::new("EqualsSegment"),
-                                    one_of(vec_of_erased![
-                                        Ref::new("NumericLiteralSegment"),
-                                        Ref::new("QuotedLiteralSegment"),
-                                    ]),
-                                ])
-                                .config(|this| this.optional())]),
+                                Delimited::new(vec_of_erased![
+                                    Sequence::new(vec_of_erased![
+                                        Ref::new("NakedIdentifierSegment"),
+                                        Ref::new("EqualsSegment"),
+                                        one_of(vec_of_erased![
+                                            Ref::new("NumericLiteralSegment"),
+                                            Ref::new("QuotedLiteralSegment"),
+                                        ]),
+                                    ])
+                                    .config(|this| this.optional())
+                                ]),
                             ]),
                         ]),
                     ]),
@@ -598,17 +600,19 @@ pub fn dialect() -> Dialect {
                 .config(|this| this.optional()),
                 Sequence::new(vec_of_erased![
                     Ref::keyword("SETTINGS"),
-                    Delimited::new(vec_of_erased![Sequence::new(vec_of_erased![
-                        Ref::new("NakedIdentifierSegment"),
-                        Ref::new("EqualsSegment"),
-                        one_of(vec_of_erased![
+                    Delimited::new(vec_of_erased![
+                        Sequence::new(vec_of_erased![
                             Ref::new("NakedIdentifierSegment"),
-                            Ref::new("NumericLiteralSegment"),
-                            Ref::new("QuotedLiteralSegment"),
-                            Ref::new("BooleanLiteralGrammar"),
-                        ]),
+                            Ref::new("EqualsSegment"),
+                            one_of(vec_of_erased![
+                                Ref::new("NakedIdentifierSegment"),
+                                Ref::new("NumericLiteralSegment"),
+                                Ref::new("QuotedLiteralSegment"),
+                                Ref::new("BooleanLiteralGrammar"),
+                            ]),
+                        ])
+                        .config(|this| this.optional())
                     ])
-                    .config(|this| this.optional())])
                     .config(|this| this.optional()),
                 ]),
             ]),

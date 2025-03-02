@@ -397,12 +397,14 @@ impl RuleCV06 {
             return if !semicolon_newline {
                 let fixes = vec![LintFix::create_after(
                     anchor_segment.unwrap().clone(),
-                    vec![SegmentBuilder::token(
-                        tables.next_id(),
-                        ";",
-                        SyntaxKind::StatementTerminator,
-                    )
-                    .finish()],
+                    vec![
+                        SegmentBuilder::token(
+                            tables.next_id(),
+                            ";",
+                            SyntaxKind::StatementTerminator,
+                        )
+                        .finish(),
+                    ],
                     None,
                 )];
                 Some(LintResult::new(

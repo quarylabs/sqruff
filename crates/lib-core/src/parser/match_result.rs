@@ -204,9 +204,11 @@ impl MatchResult {
             Matched::Newtype(kind) => {
                 let old = result_segments.pop().unwrap();
 
-                vec![SegmentBuilder::token(old.id(), old.raw().as_ref(), kind)
-                    .with_position(old.get_position_marker().unwrap().clone())
-                    .finish()]
+                vec![
+                    SegmentBuilder::token(old.id(), old.raw().as_ref(), kind)
+                        .with_position(old.get_position_marker().unwrap().clone())
+                        .finish(),
+                ]
             }
         }
     }

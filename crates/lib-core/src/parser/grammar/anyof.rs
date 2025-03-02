@@ -1,5 +1,5 @@
 use ahash::AHashSet;
-use itertools::{chain, Itertools};
+use itertools::{Itertools, chain};
 use nohash_hasher::IntMap;
 
 use super::sequence::{Bracketed, Sequence};
@@ -12,7 +12,7 @@ use crate::parser::match_algorithms::{
 };
 use crate::parser::match_result::{MatchResult, Matched, Span};
 use crate::parser::matchable::{
-    next_matchable_cache_key, Matchable, MatchableCacheKey, MatchableTrait,
+    Matchable, MatchableCacheKey, MatchableTrait, next_matchable_cache_key,
 };
 use crate::parser::segments::base::ErasedSegment;
 use crate::parser::types::ParseMode;

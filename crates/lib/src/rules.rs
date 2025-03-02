@@ -1,4 +1,4 @@
-use itertools::{chain, Itertools};
+use itertools::{Itertools, chain};
 use sqruff_lib_core::helpers::IndexMap;
 
 use crate::core::rules::base::{ErasedRule, RuleManifest, RuleSet};

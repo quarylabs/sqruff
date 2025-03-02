@@ -2,7 +2,7 @@ use std::borrow::Cow;
 use std::mem::take;
 
 use ahash::{AHashMap, AHashSet};
-use itertools::{chain, enumerate, Itertools};
+use itertools::{Itertools, chain, enumerate};
 use smol_str::SmolStr;
 use sqruff_lib_core::dialects::syntax::{SyntaxKind, SyntaxSet};
 use sqruff_lib_core::helpers::skip_last;
@@ -12,7 +12,7 @@ use strum_macros::EnumString;
 
 use super::elements::{ReflowBlock, ReflowElement, ReflowPoint, ReflowSequenceType};
 use super::helpers::fixes_from_results;
-use super::rebreak::{identify_rebreak_spans, LinePosition, RebreakSpan};
+use super::rebreak::{LinePosition, RebreakSpan, identify_rebreak_spans};
 use crate::core::rules::base::LintResult;
 use crate::utils::reflow::elements::IndentStats;
 

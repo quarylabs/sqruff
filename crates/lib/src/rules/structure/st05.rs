@@ -2,8 +2,8 @@ use std::iter::zip;
 use std::ops::{Index, IndexMut};
 
 use ahash::{AHashMap, AHashSet};
-use itertools::{enumerate, Itertools};
-use smol_str::{format_smolstr, SmolStr, StrExt, ToSmolStr};
+use itertools::{Itertools, enumerate};
+use smol_str::{SmolStr, StrExt, ToSmolStr, format_smolstr};
 use sqruff_lib_core::dialects::base::Dialect;
 use sqruff_lib_core::dialects::common::AliasInfo;
 use sqruff_lib_core::dialects::init::DialectKind;
@@ -161,13 +161,15 @@ join c using(x)
 
             local_fixes.push(LintFix::replace(
                 this_seg_clone.clone(),
-                vec![SegmentBuilder::node(
-                    context.tables.next_id(),
-                    this_seg_clone.get_type(),
-                    context.dialect.name,
-                    vec![new_table_ref],
-                )
-                .finish()],
+                vec![
+                    SegmentBuilder::node(
+                        context.tables.next_id(),
+                        this_seg_clone.get_type(),
+                        context.dialect.name,
+                        vec![new_table_ref],
+                    )
+                    .finish(),
+                ],
                 None,
             ));
 
@@ -741,16 +743,22 @@ fn create_table_ref(tables: &Tables, table_name: &str, dialect: &Dialect) -> Era
         tables.next_id(),
         SyntaxKind::TableExpression,
         dialect.name,
-        vec![SegmentBuilder::node(
-            tables.next_id(),
-            SyntaxKind::TableReference,
-            dialect.name,
-            vec![
-                SegmentBuilder::token(tables.next_id(), table_name, SyntaxKind::NakedIdentifier)
+        vec![
+            SegmentBuilder::node(
+                tables.next_id(),
+                SyntaxKind::TableReference,
+                dialect.name,
+                vec![
+                    SegmentBuilder::token(
+                        tables.next_id(),
+                        table_name,
+                        SyntaxKind::NakedIdentifier,
+                    )
                     .finish(),
-            ],
-        )
-        .finish()],
+                ],
+            )
+            .finish(),
+        ],
     )
     .finish()
 }

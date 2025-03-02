@@ -3,7 +3,7 @@ use sqruff_lib_core::dialects::init::DialectKind;
 use sqruff_lib_core::dialects::syntax::SyntaxKind;
 use sqruff_lib_core::helpers::{Config, ToMatchable};
 use sqruff_lib_core::parser::grammar::anyof::{
-    any_set_of, one_of, optionally_bracketed, AnyNumberOf,
+    AnyNumberOf, any_set_of, one_of, optionally_bracketed,
 };
 use sqruff_lib_core::parser::grammar::base::{Anything, Ref};
 use sqruff_lib_core::parser::grammar::conditional::Conditional;
@@ -1312,18 +1312,9 @@ pub fn raw_dialect() -> Dialect {
                     ]),
                     Ref::keyword("COLUMN").optional(),
                     MetaSegment::indent(),
-                    AnyNumberOf::new(vec_of_erased![Ref::new("ColumnReferenceSegment")
-                        .exclude(one_of(vec_of_erased![
-                            Ref::keyword("COMMENT"),
-                            Ref::keyword("TYPE"),
-                            Ref::new("DatatypeSegment"),
-                            Ref::keyword("FIRST"),
-                            Ref::keyword("AFTER"),
-                            Ref::keyword("SET"),
-                            Ref::keyword("DROP")
-                        ]))
-                        .config(|config| {
-                            config.exclude = one_of(vec_of_erased![
+                    AnyNumberOf::new(vec_of_erased![
+                        Ref::new("ColumnReferenceSegment")
+                            .exclude(one_of(vec_of_erased![
                                 Ref::keyword("COMMENT"),
                                 Ref::keyword("TYPE"),
                                 Ref::new("DatatypeSegment"),
@@ -1331,10 +1322,21 @@ pub fn raw_dialect() -> Dialect {
                                 Ref::keyword("AFTER"),
                                 Ref::keyword("SET"),
                                 Ref::keyword("DROP")
-                            ])
-                            .to_matchable()
-                            .into();
-                        })])
+                            ]))
+                            .config(|config| {
+                                config.exclude = one_of(vec_of_erased![
+                                    Ref::keyword("COMMENT"),
+                                    Ref::keyword("TYPE"),
+                                    Ref::new("DatatypeSegment"),
+                                    Ref::keyword("FIRST"),
+                                    Ref::keyword("AFTER"),
+                                    Ref::keyword("SET"),
+                                    Ref::keyword("DROP")
+                                ])
+                                .to_matchable()
+                                .into();
+                            })
+                    ])
                     .config(|config| {
                         config.max_times = Some(2);
                     }),
@@ -2143,12 +2145,13 @@ pub fn raw_dialect() -> Dialect {
                 SyntaxKind::SelectHint,
                 Sequence::new(vec_of_erased![Sequence::new(vec_of_erased![
                     Ref::new("StartHintSegment"),
-                    Delimited::new(vec_of_erased![AnyNumberOf::new(vec_of_erased![Ref::new(
-                        "HintFunctionSegment"
-                    )])
-                    .config(|config| {
-                        config.min_times = 1;
-                    })])
+                    Delimited::new(vec_of_erased![
+                        AnyNumberOf::new(vec_of_erased![Ref::new("HintFunctionSegment")]).config(
+                            |config| {
+                                config.min_times = 1;
+                            }
+                        )
+                    ])
                     .config(|config| {
                         config.terminators = vec_of_erased![Ref::new("EndHintSegment")];
                     }),
@@ -2659,13 +2662,15 @@ pub fn raw_dialect() -> Dialect {
                     Ref::new("PartitionSpecGrammar").optional(),
                     Sequence::new(vec_of_erased![
                         Ref::new("SingleIdentifierGrammar"),
-                        AnyNumberOf::new(vec_of_erased![Sequence::new(vec_of_erased![
-                            Ref::new("DotSegment"),
-                            Ref::new("SingleIdentifierGrammar")
+                        AnyNumberOf::new(vec_of_erased![
+                            Sequence::new(vec_of_erased![
+                                Ref::new("DotSegment"),
+                                Ref::new("SingleIdentifierGrammar")
+                            ])
+                            .config(|config| {
+                                config.disallow_gaps();
+                            })
                         ])
-                        .config(|config| {
-                            config.disallow_gaps();
-                        })])
                         .config(|config| {
                             config.max_times = Some(2);
                             config.disallow_gaps();
@@ -3018,22 +3023,24 @@ pub fn raw_dialect() -> Dialect {
         "ValuesClauseSegment",
         Sequence::new(vec_of_erased![
             Ref::keyword("VALUES"),
-            Delimited::new(vec_of_erased![one_of(vec_of_erased![
-                Bracketed::new(vec_of_erased![Delimited::new(vec_of_erased![
+            Delimited::new(vec_of_erased![
+                one_of(vec_of_erased![
+                    Bracketed::new(vec_of_erased![Delimited::new(vec_of_erased![
+                        Ref::keyword("NULL"),
+                        Ref::new("ExpressionSegment")
+                    ])])
+                    .config(|config| {
+                        config.parse_mode(ParseMode::Greedy);
+                    }),
                     Ref::keyword("NULL"),
                     Ref::new("ExpressionSegment")
-                ])])
+                ])
                 .config(|config| {
-                    config.parse_mode(ParseMode::Greedy);
-                }),
-                Ref::keyword("NULL"),
-                Ref::new("ExpressionSegment")
-            ])
-            .config(|config| {
-                config.exclude = one_of(vec_of_erased![Ref::keyword("VALUES")])
-                    .to_matchable()
-                    .into();
-            })]),
+                    config.exclude = one_of(vec_of_erased![Ref::keyword("VALUES")])
+                        .to_matchable()
+                        .into();
+                })
+            ]),
             Ref::new("AliasExpressionSegment")
                 .exclude(one_of(vec_of_erased![
                     Ref::keyword("LIMIT"),

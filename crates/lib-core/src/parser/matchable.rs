@@ -1,6 +1,6 @@
 use std::ops::Deref;
-use std::sync::atomic::{AtomicU32, Ordering};
 use std::sync::Arc;
+use std::sync::atomic::{AtomicU32, Ordering};
 
 use ahash::AHashSet;
 use enum_dispatch::enum_dispatch;

@@ -1,4 +1,4 @@
-use itertools::{enumerate, Itertools};
+use itertools::{Itertools, enumerate};
 use rustc_hash::FxHashMap;
 use sqruff_lib_core::dialects::syntax::{SyntaxKind, SyntaxSet};
 use sqruff_lib_core::edit_type::EditType;

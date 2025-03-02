@@ -33,7 +33,7 @@ impl Rule for RuleCV01 {
                     return Err(format!(
                         "Invalid value for preferred_not_equal_style: {}",
                         value
-                    ))
+                    ));
                 }
             };
             Ok(RuleCV01 {
@@ -135,22 +135,26 @@ SELECT * FROM X WHERE 1 != 2 AND 3 != 4;
         let fixes = vec![
             LintFix::replace(
                 raw_comparison_operators[0].clone(),
-                vec![SegmentBuilder::token(
-                    context.tables.next_id(),
-                    replacement[0],
-                    SyntaxKind::ComparisonOperator,
-                )
-                .finish()],
+                vec![
+                    SegmentBuilder::token(
+                        context.tables.next_id(),
+                        replacement[0],
+                        SyntaxKind::ComparisonOperator,
+                    )
+                    .finish(),
+                ],
                 None,
             ),
             LintFix::replace(
                 raw_comparison_operators[1].clone(),
-                vec![SegmentBuilder::token(
-                    context.tables.next_id(),
-                    replacement[1],
-                    SyntaxKind::ComparisonOperator,
-                )
-                .finish()],
+                vec![
+                    SegmentBuilder::token(
+                        context.tables.next_id(),
+                        replacement[1],
+                        SyntaxKind::ComparisonOperator,
+                    )
+                    .finish(),
+                ],
                 None,
             ),
         ];

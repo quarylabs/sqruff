@@ -61,11 +61,7 @@ pub(crate) fn run_fix(
         }
         linter.formatter_mut().unwrap().completion_message();
 
-        if any_unfixable_errors {
-            1
-        } else {
-            0
-        }
+        if any_unfixable_errors { 1 } else { 0 }
     }
 }
 
@@ -84,9 +80,5 @@ pub(crate) fn run_fix_stdin(
     println!("{}", result.fix_string());
 
     // if all fixable violations are fixable, return 0 else return 1
-    if violations.is_empty() {
-        0
-    } else {
-        1
-    }
+    if violations.is_empty() { 0 } else { 1 }
 }

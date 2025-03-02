@@ -14,7 +14,7 @@ use crate::core::rules::base::{ErasedRule, LintPhase, RulePack};
 use crate::core::rules::noqa::IgnoreMask;
 use crate::rules::get_ruleset;
 use crate::templaters::raw::RawTemplater;
-use crate::templaters::{Templater, TEMPLATERS};
+use crate::templaters::{TEMPLATERS, Templater};
 use ahash::{AHashMap, AHashSet};
 use itertools::Itertools;
 use rayon::iter::{IntoParallelRefIterator as _, ParallelIterator as _};
@@ -611,12 +611,14 @@ impl Linter {
 
                 // Only one possible file, since we only
                 // have one "ignore file name"
-                let file_name = vec![ignore_file_path
-                    .file_name()
-                    .unwrap()
-                    .to_str()
-                    .unwrap()
-                    .to_string()];
+                let file_name = vec![
+                    ignore_file_path
+                        .file_name()
+                        .unwrap()
+                        .to_str()
+                        .unwrap()
+                        .to_string(),
+                ];
 
                 (dir_name, None, file_name)
             })

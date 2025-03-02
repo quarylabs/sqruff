@@ -1,4 +1,4 @@
-use itertools::{enumerate, Itertools};
+use itertools::{Itertools, enumerate};
 use smol_str::{SmolStr, ToSmolStr};
 
 use crate::dialects::init::DialectKind;

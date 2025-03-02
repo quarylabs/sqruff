@@ -5,12 +5,12 @@ use std::sync::OnceLock;
 use crate::dialects::base::Dialect;
 use crate::dialects::syntax::SyntaxSet;
 use crate::errors::SQLParseError;
-use crate::helpers::{capitalize, ToMatchable};
+use crate::helpers::{ToMatchable, capitalize};
 use crate::parser::context::ParseContext;
 use crate::parser::match_algorithms::greedy_match;
 use crate::parser::match_result::MatchResult;
 use crate::parser::matchable::{
-    next_matchable_cache_key, Matchable, MatchableCacheKey, MatchableTrait,
+    Matchable, MatchableCacheKey, MatchableTrait, next_matchable_cache_key,
 };
 use crate::parser::segments::base::ErasedSegment;
 

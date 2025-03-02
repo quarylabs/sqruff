@@ -6,7 +6,7 @@ use sqruff_lib_core::dialects::base::Dialect;
 use sqruff_lib_core::dialects::init::DialectKind;
 use sqruff_lib_core::dialects::syntax::SyntaxKind;
 use sqruff_lib_core::helpers::{Config, ToMatchable};
-use sqruff_lib_core::parser::grammar::anyof::{one_of, optionally_bracketed, AnyNumberOf};
+use sqruff_lib_core::parser::grammar::anyof::{AnyNumberOf, one_of, optionally_bracketed};
 use sqruff_lib_core::parser::grammar::base::{Nothing, Ref};
 use sqruff_lib_core::parser::grammar::delimited::Delimited;
 use sqruff_lib_core::parser::grammar::sequence::{Bracketed, Sequence};
@@ -444,11 +444,13 @@ pub fn dialect() -> Dialect {
             ansi_dialect
                 .grammar("PostFunctionGrammar")
                 .copy(
-                    Some(vec_of_erased![Sequence::new(vec_of_erased![
-                        Ref::keyword("WITH"),
-                        Ref::keyword("ORDINALITY")
-                    ])
-                    .config(|config| config.optional())]),
+                    Some(vec_of_erased![
+                        Sequence::new(vec_of_erased![
+                            Ref::keyword("WITH"),
+                            Ref::keyword("ORDINALITY")
+                        ])
+                        .config(|config| config.optional())
+                    ]),
                     None,
                     None,
                     None,

@@ -1,7 +1,7 @@
 use std::io::Write;
 use std::path::Path;
 
-use minijinja::{context, Environment};
+use minijinja::{Environment, context};
 use serde::Serialize;
 use sqruff_lib::core::rules::base::ErasedRule;
 use sqruff_lib::rules::rules;

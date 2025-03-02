@@ -2,7 +2,7 @@ use sqruff_lib_core::dialects::base::Dialect;
 use sqruff_lib_core::dialects::init::DialectKind;
 use sqruff_lib_core::dialects::syntax::SyntaxKind;
 use sqruff_lib_core::helpers::{Config, ToMatchable};
-use sqruff_lib_core::parser::grammar::anyof::{one_of, AnyNumberOf};
+use sqruff_lib_core::parser::grammar::anyof::{AnyNumberOf, one_of};
 use sqruff_lib_core::parser::grammar::base::{Anything, Nothing, Ref};
 use sqruff_lib_core::parser::grammar::delimited::Delimited;
 use sqruff_lib_core::parser::grammar::sequence::{Bracketed, Sequence};
@@ -383,16 +383,19 @@ pub fn dialect() -> Dialect {
                 Ref::new("CubeRollupClauseSegment"),
                 // Add GROUPING SETS support
                 Ref::new("GroupingSetsClauseSegment"),
-                Sequence::new(vec_of_erased![Delimited::new(vec_of_erased![
-                    Ref::new("ColumnReferenceSegment"),
-                    // Can `GROUP BY 1`
-                    Ref::new("NumericLiteralSegment"),
-                    // Can `GROUP BY coalesce(col, 1)`
-                    Ref::new("ExpressionSegment"),
+                Sequence::new(vec_of_erased![
+                    Delimited::new(vec_of_erased![
+                        Ref::new("ColumnReferenceSegment"),
+                        // Can `GROUP BY 1`
+                        Ref::new("NumericLiteralSegment"),
+                        // Can `GROUP BY coalesce(col, 1)`
+                        Ref::new("ExpressionSegment"),
+                    ])
+                    .config(|config| {
+                        config.terminators =
+                            vec_of_erased![Ref::new("GroupByClauseTerminatorGrammar")]
+                    })
                 ])
-                .config(|config| {
-                    config.terminators = vec_of_erased![Ref::new("GroupByClauseTerminatorGrammar")]
-                })])
             ]),
             MetaSegment::dedent(),
         ])

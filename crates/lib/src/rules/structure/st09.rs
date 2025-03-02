@@ -242,14 +242,16 @@ left join bar
                 {
                     fixes.push(LintFix::replace(
                         raw_comparison_operators[0].clone(),
-                        vec![SegmentBuilder::token(
-                            context.tables.next_id(),
-                            raw_comparison_operator_opposites(
-                                raw_comparison_operators[0].raw().as_ref(),
-                            ),
-                            SyntaxKind::RawComparisonOperator,
-                        )
-                        .finish()],
+                        vec![
+                            SegmentBuilder::token(
+                                context.tables.next_id(),
+                                raw_comparison_operator_opposites(
+                                    raw_comparison_operators[0].raw().as_ref(),
+                                ),
+                                SyntaxKind::RawComparisonOperator,
+                            )
+                            .finish(),
+                        ],
                         None,
                     ));
                 }

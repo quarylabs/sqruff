@@ -2506,19 +2506,43 @@ LEFT JOIN q.shift_last sl
 
     #[test]
     fn test_get_column_with_source() {
-        let tests: Vec<(&str, Vec<(&str, (&str, &str))>, Vec<&str>, Vec<&str>)> =
-            vec![
-            ("SELECT a FROM q.model_a", vec![("a", ("q.model_a", "a"))], vec![], vec![]),
-            ("SELECT a AS b FROM q.model_a", vec![("b", ("q.model_a", "a"))], vec![], vec![]),
+        let tests: Vec<(&str, Vec<(&str, (&str, &str))>, Vec<&str>, Vec<&str>)> = vec![
+            (
+                "SELECT a FROM q.model_a",
+                vec![("a", ("q.model_a", "a"))],
+                vec![],
+                vec![],
+            ),
+            (
+                "SELECT a AS b FROM q.model_a",
+                vec![("b", ("q.model_a", "a"))],
+                vec![],
+                vec![],
+            ),
             (
                 "SELECT a, b AS c FROM q.model_a",
                 vec![("a", ("q.model_a", "a")), ("c", ("q.model_a", "b"))],
                 vec![],
                 vec![],
             ),
-            ("SELECT b.a FROM q.model_a b", vec![("a", ("q.model_a", "a"))], vec![], vec![]),
-            ("SELECT a FROM q.model_a b", vec![("a", ("q.model_a", "a"))], vec![], vec![]),
-            ("SELECT b.c AS a FROM q.model_a b", vec![("a", ("q.model_a", "c"))], vec![], vec![]),
+            (
+                "SELECT b.a FROM q.model_a b",
+                vec![("a", ("q.model_a", "a"))],
+                vec![],
+                vec![],
+            ),
+            (
+                "SELECT a FROM q.model_a b",
+                vec![("a", ("q.model_a", "a"))],
+                vec![],
+                vec![],
+            ),
+            (
+                "SELECT b.c AS a FROM q.model_a b",
+                vec![("a", ("q.model_a", "c"))],
+                vec![],
+                vec![],
+            ),
             (
                 "SELECT alias_a.a AS c, alias_b.b FROM q.model_a alias_a INNER JOIN q.model_b \
                  alias_b ON alias_a.a=alias_b.a;",
@@ -2571,7 +2595,12 @@ LEFT JOIN q.shift_last sl
                 vec![],
                 vec![],
             ),
-            ("SELECT COUNT(*) AS b FROM q.table_a", vec![], vec![], vec!["b"]),
+            (
+                "SELECT COUNT(*) AS b FROM q.table_a",
+                vec![],
+                vec![],
+                vec!["b"],
+            ),
             (
                 "SELECT count(*) AS b FROM (SELECT a.b AS c FROM q.table_a a)",
                 vec![],
@@ -2628,7 +2657,12 @@ from final",
                 vec![],
             ),
             // TODO Be smarter about type casting
-            ("SELECT date::date as cost_date FROM q.table_a", vec![], vec!["cost_date"], vec![]),
+            (
+                "SELECT date::date as cost_date FROM q.table_a",
+                vec![],
+                vec!["cost_date"],
+                vec![],
+            ),
             // TODO Be smarter about casting, here could do one of
             (
                 "SELECT CASE when market != 'THING' or receive_market != 'THING' then 1 when \

@@ -145,14 +145,16 @@ from table_a
                         context.segment.clone().into(),
                         vec![LintFix::replace(
                             first_expression.clone(),
-                            vec![first_expression.edit(
-                                context.tables.next_id(),
-                                first_expression
-                                    .raw()
-                                    .replace(first_expression_raw.as_str(), preferred)
-                                    .into(),
-                                None,
-                            )],
+                            vec![
+                                first_expression.edit(
+                                    context.tables.next_id(),
+                                    first_expression
+                                        .raw()
+                                        .replace(first_expression_raw.as_str(), preferred)
+                                        .into(),
+                                    None,
+                                ),
+                            ],
                             None,
                         )],
                         None,

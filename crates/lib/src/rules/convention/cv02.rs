@@ -98,12 +98,14 @@ FROM baz;
         // Create fix to replace "IFNULL" or "NVL" with "COALESCE".
         let fix = LintFix::replace(
             context.segment.clone(),
-            vec![SegmentBuilder::token(
-                context.tables.next_id(),
-                "COALESCE",
-                SyntaxKind::FunctionNameIdentifier,
-            )
-            .finish()],
+            vec![
+                SegmentBuilder::token(
+                    context.tables.next_id(),
+                    "COALESCE",
+                    SyntaxKind::FunctionNameIdentifier,
+                )
+                .finish(),
+            ],
             None,
         );
 

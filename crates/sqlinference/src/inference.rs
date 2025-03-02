@@ -2,7 +2,7 @@ use std::collections::{HashMap, HashSet};
 
 use sqruff_lib_core::parser::parser::Parser;
 
-use crate::infer_tests::{infer_tests, InferenceReason};
+use crate::infer_tests::{InferenceReason, infer_tests};
 use crate::test::Test;
 
 #[derive(Debug, Clone, Eq, PartialEq)]

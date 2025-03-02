@@ -1,5 +1,5 @@
 use ahash::AHashMap;
-use itertools::{enumerate, Itertools};
+use itertools::{Itertools, enumerate};
 use sqruff_lib_core::dialects::syntax::{SyntaxKind, SyntaxSet};
 use sqruff_lib_core::edit_type::EditType;
 use sqruff_lib_core::lint_fix::LintFix;

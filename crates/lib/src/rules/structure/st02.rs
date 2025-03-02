@@ -1,5 +1,5 @@
 use ahash::{AHashMap, AHashSet};
-use itertools::{chain, Itertools};
+use itertools::{Itertools, chain};
 use smol_str::StrExt;
 use sqruff_lib_core::dialects::syntax::{SyntaxKind, SyntaxSet};
 use sqruff_lib_core::lint_fix::LintFix;

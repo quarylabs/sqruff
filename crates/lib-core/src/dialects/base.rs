@@ -6,7 +6,7 @@ use ahash::{AHashMap, AHashSet};
 
 use crate::dialects::init::DialectKind;
 use crate::dialects::syntax::SyntaxKind;
-use crate::helpers::{capitalize, ToMatchable};
+use crate::helpers::{ToMatchable, capitalize};
 use crate::parser::lexer::{Lexer, Matcher};
 use crate::parser::matchable::Matchable;
 use crate::parser::parsers::StringParser;

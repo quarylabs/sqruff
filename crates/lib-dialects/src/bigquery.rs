@@ -3,7 +3,7 @@ use sqruff_lib_core::dialects::base::Dialect;
 use sqruff_lib_core::dialects::init::DialectKind;
 use sqruff_lib_core::dialects::syntax::SyntaxKind;
 use sqruff_lib_core::helpers::{Config, ToMatchable};
-use sqruff_lib_core::parser::grammar::anyof::{one_of, optionally_bracketed, AnyNumberOf};
+use sqruff_lib_core::parser::grammar::anyof::{AnyNumberOf, one_of, optionally_bracketed};
 use sqruff_lib_core::parser::grammar::base::{Anything, Nothing, Ref};
 use sqruff_lib_core::parser::grammar::delimited::Delimited;
 use sqruff_lib_core::parser::grammar::sequence::{Bracketed, Sequence};
@@ -379,10 +379,10 @@ pub fn dialect() -> Dialect {
             "ProcedureParameterListSegment".into(),
             NodeMatcher::new(
                 SyntaxKind::ProcedureParameterList,
-                Bracketed::new(vec_of_erased![Delimited::new(vec_of_erased![Ref::new(
-                    "ProcedureParameterGrammar"
-                )])
-                .config(|this| this.optional())])
+                Bracketed::new(vec_of_erased![
+                    Delimited::new(vec_of_erased![Ref::new("ProcedureParameterGrammar")])
+                        .config(|this| this.optional())
+                ])
                 .to_matchable(),
             )
             .to_matchable()
@@ -442,10 +442,10 @@ pub fn dialect() -> Dialect {
                 Sequence::new(vec_of_erased![
                     Ref::keyword("CALL"),
                     Ref::new("ProcedureNameSegment"),
-                    Bracketed::new(vec_of_erased![Delimited::new(vec_of_erased![Ref::new(
-                        "ExpressionSegment"
-                    )])
-                    .config(|this| this.optional())])
+                    Bracketed::new(vec_of_erased![
+                        Delimited::new(vec_of_erased![Ref::new("ExpressionSegment")])
+                            .config(|this| this.optional())
+                    ])
                 ])
                 .to_matchable(),
             )
@@ -603,9 +603,9 @@ pub fn dialect() -> Dialect {
     dialect.replace_grammar(
         "UnorderedSelectStatementSegment",
         ansi::get_unordered_select_statement_segment_grammar().copy(
-            Some(vec![Ref::new("QualifyClauseSegment")
-                .optional()
-                .to_matchable()]),
+            Some(vec![
+                Ref::new("QualifyClauseSegment").optional().to_matchable(),
+            ]),
             None,
             Some(Ref::new("OverlapsClauseSegment").optional().to_matchable()),
             None,
@@ -1021,14 +1021,16 @@ pub fn dialect() -> Dialect {
         "FunctionNameSegment",
         Sequence::new(vec_of_erased![
             // AnyNumberOf to handle project names, schemas, or the SAFE keyword
-            AnyNumberOf::new(vec_of_erased![Sequence::new(vec_of_erased![
-                one_of(vec_of_erased![
-                    Ref::keyword("SAFE"),
-                    Ref::new("SingleIdentifierGrammar")
-                ]),
-                Ref::new("DotSegment"),
-            ])
-            .terminators(vec_of_erased![Ref::new("BracketedSegment")])]),
+            AnyNumberOf::new(vec_of_erased![
+                Sequence::new(vec_of_erased![
+                    one_of(vec_of_erased![
+                        Ref::keyword("SAFE"),
+                        Ref::new("SingleIdentifierGrammar")
+                    ]),
+                    Ref::new("DotSegment"),
+                ])
+                .terminators(vec_of_erased![Ref::new("BracketedSegment")])
+            ]),
             // Base function name
             one_of(vec_of_erased![
                 Ref::new("FunctionNameIdentifierSegment"),
@@ -1284,21 +1286,23 @@ pub fn dialect() -> Dialect {
         "SemiStructuredAccessorSegment".into(),
         NodeMatcher::new(
             SyntaxKind::SemiStructuredExpression,
-            Sequence::new(vec_of_erased![AnyNumberOf::new(vec_of_erased![
-                Sequence::new(vec_of_erased![
-                    Ref::new("DotSegment"),
-                    one_of(vec_of_erased![
-                        Ref::new("SingleIdentifierGrammar"),
-                        Ref::new("StarSegment")
+            Sequence::new(vec_of_erased![
+                AnyNumberOf::new(vec_of_erased![
+                    Sequence::new(vec_of_erased![
+                        Ref::new("DotSegment"),
+                        one_of(vec_of_erased![
+                            Ref::new("SingleIdentifierGrammar"),
+                            Ref::new("StarSegment")
+                        ])
                     ])
+                    .config(|this| this.allow_gaps = true),
+                    Ref::new("ArrayAccessorSegment").optional()
                 ])
-                .config(|this| this.allow_gaps = true),
-                Ref::new("ArrayAccessorSegment").optional()
+                .config(|this| {
+                    this.allow_gaps = true;
+                    this.min_times = 1;
+                })
             ])
-            .config(|this| {
-                this.allow_gaps = true;
-                this.min_times = 1;
-            })])
             .config(|this| this.allow_gaps = true)
             .to_matchable(),
         )
@@ -1340,16 +1344,20 @@ pub fn dialect() -> Dialect {
     );
 
     dialect.replace_grammar("TableReferenceSegment", {
-        Delimited::new(vec_of_erased![Sequence::new(vec_of_erased![
-            Ref::new("SingleIdentifierGrammar"),
-            AnyNumberOf::new(vec_of_erased![Sequence::new(vec_of_erased![
-                Ref::new("DashSegment"),
-                Ref::new("NakedIdentifierPart")
+        Delimited::new(vec_of_erased![
+            Sequence::new(vec_of_erased![
+                Ref::new("SingleIdentifierGrammar"),
+                AnyNumberOf::new(vec_of_erased![
+                    Sequence::new(vec_of_erased![
+                        Ref::new("DashSegment"),
+                        Ref::new("NakedIdentifierPart")
+                    ])
+                    .config(|this| this.allow_gaps = false)
+                ])
+                .config(|this| this.optional())
             ])
-            .config(|this| this.allow_gaps = false)])
-            .config(|this| this.optional())
+            .config(|this| this.allow_gaps = false)
         ])
-        .config(|this| this.allow_gaps = false)])
         .config(|this| {
             this.delimiter(Ref::new("ObjectReferenceDelimiterGrammar"));
             this.terminators = vec_of_erased![
@@ -1627,10 +1635,10 @@ pub fn dialect() -> Dialect {
                 ])
                 .config(|this| this.optional()),
                 Ref::new("TableReferenceSegment"),
-                Bracketed::new(vec_of_erased![Delimited::new(vec_of_erased![Ref::new(
-                    "ColumnDefinitionSegment"
-                )])
-                .config(|this| this.allow_trailing = true)])
+                Bracketed::new(vec_of_erased![
+                    Delimited::new(vec_of_erased![Ref::new("ColumnDefinitionSegment")])
+                        .config(|this| this.allow_trailing = true)
+                ])
                 .config(|this| this.optional()),
                 AnyNumberOf::new(vec_of_erased![
                     Sequence::new(vec_of_erased![
@@ -1643,10 +1651,10 @@ pub fn dialect() -> Dialect {
                         Ref::keyword("WITH"),
                         Ref::keyword("PARTITION"),
                         Ref::keyword("COLUMNS"),
-                        Bracketed::new(vec_of_erased![Delimited::new(vec_of_erased![Ref::new(
-                            "ColumnDefinitionSegment"
-                        )])
-                        .config(|this| this.allow_trailing = true)])
+                        Bracketed::new(vec_of_erased![
+                            Delimited::new(vec_of_erased![Ref::new("ColumnDefinitionSegment")])
+                                .config(|this| this.allow_trailing = true)
+                        ])
                         .config(|this| this.optional())
                     ])
                     .config(|this| this.optional()),
@@ -1679,10 +1687,10 @@ pub fn dialect() -> Dialect {
                 ])
                 .config(|this| this.optional()),
                 Ref::new("TableReferenceSegment"),
-                Bracketed::new(vec_of_erased![Delimited::new(vec_of_erased![Ref::new(
-                    "ColumnDefinitionSegment"
-                )])
-                .config(|this| this.allow_trailing = true)])
+                Bracketed::new(vec_of_erased![
+                    Delimited::new(vec_of_erased![Ref::new("ColumnDefinitionSegment")])
+                        .config(|this| this.allow_trailing = true)
+                ])
                 .config(|this| this.optional()),
                 AnyNumberOf::new(vec_of_erased![
                     Sequence::new(vec_of_erased![
@@ -1695,10 +1703,10 @@ pub fn dialect() -> Dialect {
                         Ref::keyword("WITH"),
                         Ref::keyword("PARTITION"),
                         Ref::keyword("COLUMNS"),
-                        Bracketed::new(vec_of_erased![Delimited::new(vec_of_erased![Ref::new(
-                            "ColumnDefinitionSegment"
-                        )])
-                        .config(|this| this.allow_trailing = true)])
+                        Bracketed::new(vec_of_erased![
+                            Delimited::new(vec_of_erased![Ref::new("ColumnDefinitionSegment")])
+                                .config(|this| this.allow_trailing = true)
+                        ])
                         .config(|this| this.optional())
                     ])
                     .config(|this| this.optional()),
@@ -1905,19 +1913,21 @@ pub fn dialect() -> Dialect {
                     ]),
                     // multi column unpivot
                     Bracketed::new(vec_of_erased![
-                        Bracketed::new(vec_of_erased![Delimited::new(vec_of_erased![Ref::new(
-                            "SingleIdentifierGrammar"
-                        ),])
-                        .config(|this| this.min_delimiters = 1)]),
+                        Bracketed::new(vec_of_erased![
+                            Delimited::new(vec_of_erased![Ref::new("SingleIdentifierGrammar"),])
+                                .config(|this| this.min_delimiters = 1)
+                        ]),
                         Ref::keyword("FOR"),
                         Ref::new("SingleIdentifierGrammar"),
                         Ref::keyword("IN"),
                         Bracketed::new(vec_of_erased![Delimited::new(vec_of_erased![
                             Sequence::new(vec_of_erased![
-                                Bracketed::new(vec_of_erased![Delimited::new(vec_of_erased![
-                                    Ref::new("SingleIdentifierGrammar"),
-                                ])
-                                .config(|this| this.min_delimiters = 1)]),
+                                Bracketed::new(vec_of_erased![
+                                    Delimited::new(vec_of_erased![Ref::new(
+                                        "SingleIdentifierGrammar"
+                                    ),])
+                                    .config(|this| this.min_delimiters = 1)
+                                ]),
                                 Ref::new("UnpivotAliasExpressionSegment").optional(),
                             ]),
                         ])]),

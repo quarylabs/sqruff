@@ -63,10 +63,10 @@ FROM foo
 
     fn eval(&self, context: &RuleContext) -> Vec<LintResult> {
         if context.segment.is_type(SyntaxKind::ComparisonOperator) {
-            let comparison_positioning = context.config.raw["layout"]["type"]
-                ["comparison_operator"]["line_position"]
-                .as_string()
-                .unwrap();
+            let comparison_positioning =
+                context.config.raw["layout"]["type"]["comparison_operator"]["line_position"]
+                    .as_string()
+                    .unwrap();
 
             if self.check_trail_lead_shortcut(
                 &context.segment,
@@ -76,10 +76,10 @@ FROM foo
                 return vec![LintResult::new(None, Vec::new(), None, None)];
             }
         } else if context.segment.is_type(SyntaxKind::BinaryOperator) {
-            let binary_positioning = context.config.raw["layout"]["type"]["binary_operator"]
-                ["line_position"]
-                .as_string()
-                .unwrap();
+            let binary_positioning =
+                context.config.raw["layout"]["type"]["binary_operator"]["line_position"]
+                    .as_string()
+                    .unwrap();
 
             if self.check_trail_lead_shortcut(
                 &context.segment,

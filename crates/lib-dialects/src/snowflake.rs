@@ -4,7 +4,7 @@ use sqruff_lib_core::dialects::init::DialectKind;
 use sqruff_lib_core::dialects::syntax::SyntaxKind;
 use sqruff_lib_core::helpers::{Config, ToMatchable};
 use sqruff_lib_core::parser::grammar::anyof::{
-    any_set_of, one_of, optionally_bracketed, AnyNumberOf,
+    AnyNumberOf, any_set_of, one_of, optionally_bracketed,
 };
 use sqruff_lib_core::parser::grammar::base::{Nothing, Ref};
 use sqruff_lib_core::parser::grammar::delimited::Delimited;
@@ -1193,16 +1193,16 @@ pub fn dialect() -> Dialect {
         "ValuesClauseSegment",
         Sequence::new(vec_of_erased![
             Ref::keyword("VALUES"),
-            Delimited::new(vec_of_erased![Bracketed::new(vec_of_erased![
-                Delimited::new(vec_of_erased![
+            Delimited::new(vec_of_erased![
+                Bracketed::new(vec_of_erased![Delimited::new(vec_of_erased![
                     Ref::keyword("DEFAULT"),
                     Ref::keyword("NULL"),
                     Ref::new("ExpressionSegment"),
-                ])
-            ])
-            .config(|this| {
-                this.parse_mode = ParseMode::Greedy;
-            }),]),
+                ])])
+                .config(|this| {
+                    this.parse_mode = ParseMode::Greedy;
+                }),
+            ]),
         ])
         .to_matchable(),
     );
@@ -1950,10 +1950,10 @@ pub fn dialect() -> Dialect {
                 Sequence::new(vec_of_erased![
                     Ref::keyword("ADD"),
                     Ref::new("PrimaryKeyGrammar"),
-                    Bracketed::new(vec_of_erased![Delimited::new(vec_of_erased![Ref::new(
-                        "ColumnReferenceSegment"
-                    ),])
-                    .config(|this| this.optional()),]),
+                    Bracketed::new(vec_of_erased![
+                        Delimited::new(vec_of_erased![Ref::new("ColumnReferenceSegment"),])
+                            .config(|this| this.optional()),
+                    ]),
                 ]),
                 Ref::new("AlterTableTableColumnActionSegment"),
             ]),
@@ -3083,10 +3083,12 @@ pub fn dialect() -> Dialect {
                         Ref::new("DatatypeSegment"),
                         Sequence::new(vec_of_erased![
                             Ref::keyword("TABLE"),
-                            Bracketed::new(vec_of_erased![Delimited::new(vec_of_erased![
-                                Ref::new("ColumnDefinitionSegment"),
-                            ])
-                            .config(|this| this.optional()),]),
+                            Bracketed::new(vec_of_erased![
+                                Delimited::new(
+                                    vec_of_erased![Ref::new("ColumnDefinitionSegment"),]
+                                )
+                                .config(|this| this.optional()),
+                            ]),
                         ]),
                     ]),
                     any_set_of(vec_of_erased![
@@ -4257,18 +4259,18 @@ pub fn dialect() -> Dialect {
             "TaskExpressionSegment".into(),
             NodeMatcher::new(
                 SyntaxKind::SnowflakeTaskExpressionSegment,
-                Sequence::new(vec_of_erased![Delimited::new(vec_of_erased![one_of(
-                    vec_of_erased![
+                Sequence::new(vec_of_erased![
+                    Delimited::new(vec_of_erased![one_of(vec_of_erased![
                         Ref::new("ExpressionSegment"),
                         Sequence::new(vec_of_erased![
                             Ref::new("SystemFunctionName"),
                             Bracketed::new(vec_of_erased![Ref::new("QuotedLiteralSegment"),]),
                         ]),
-                    ]
-                ),],)
-                .config(|this| this.delimiter(one_of(vec_of_erased![Ref::new(
-                    "BooleanBinaryOperatorGrammar"
-                ),]))),])
+                    ]),],)
+                    .config(|this| this.delimiter(one_of(vec_of_erased![Ref::new(
+                        "BooleanBinaryOperatorGrammar"
+                    ),]))),
+                ])
                 .to_matchable(),
             )
             .to_matchable()
@@ -5031,10 +5033,10 @@ pub fn dialect() -> Dialect {
                     Sequence::new(vec_of_erased![
                         Ref::keyword("NULL_IF"),
                         Ref::new("EqualsSegment"),
-                        Bracketed::new(vec_of_erased![Delimited::new(vec_of_erased![Ref::new(
-                            "QuotedLiteralSegment"
-                        ),])
-                        .config(|this| this.optional()),]),
+                        Bracketed::new(vec_of_erased![
+                            Delimited::new(vec_of_erased![Ref::new("QuotedLiteralSegment"),])
+                                .config(|this| this.optional()),
+                        ]),
                     ]),
                     Sequence::new(vec_of_erased![
                         one_of(vec_of_erased![
@@ -5109,10 +5111,10 @@ pub fn dialect() -> Dialect {
                     Sequence::new(vec_of_erased![
                         Ref::keyword("NULL_IF"),
                         Ref::new("EqualsSegment"),
-                        Bracketed::new(vec_of_erased![Delimited::new(vec_of_erased![Ref::new(
-                            "QuotedLiteralSegment"
-                        ),])
-                        .config(|this| this.optional()),]),
+                        Bracketed::new(vec_of_erased![
+                            Delimited::new(vec_of_erased![Ref::new("QuotedLiteralSegment"),])
+                                .config(|this| this.optional()),
+                        ]),
                     ]),
                     Sequence::new(vec_of_erased![
                         Ref::keyword("FILE_EXTENSION"),
@@ -5169,10 +5171,10 @@ pub fn dialect() -> Dialect {
                     Sequence::new(vec_of_erased![
                         Ref::keyword("NULL_IF"),
                         Ref::new("EqualsSegment"),
-                        Bracketed::new(vec_of_erased![Delimited::new(vec_of_erased![Ref::new(
-                            "QuotedLiteralSegment"
-                        ),])
-                        .config(|this| this.optional()),]),
+                        Bracketed::new(vec_of_erased![
+                            Delimited::new(vec_of_erased![Ref::new("QuotedLiteralSegment"),])
+                                .config(|this| this.optional()),
+                        ]),
                     ]),
                 ]);
 
@@ -5205,10 +5207,10 @@ pub fn dialect() -> Dialect {
                     Sequence::new(vec_of_erased![
                         Ref::keyword("NULL_IF"),
                         Ref::new("EqualsSegment"),
-                        Bracketed::new(vec_of_erased![Delimited::new(vec_of_erased![Ref::new(
-                            "QuotedLiteralSegment"
-                        ),])
-                        .config(|this| this.optional()),]),
+                        Bracketed::new(vec_of_erased![
+                            Delimited::new(vec_of_erased![Ref::new("QuotedLiteralSegment"),])
+                                .config(|this| this.optional()),
+                        ]),
                     ]),
                 ]);
 
@@ -5250,10 +5252,10 @@ pub fn dialect() -> Dialect {
                     Sequence::new(vec_of_erased![
                         Ref::keyword("NULL_IF"),
                         Ref::new("EqualsSegment"),
-                        Bracketed::new(vec_of_erased![Delimited::new(vec_of_erased![Ref::new(
-                            "QuotedLiteralSegment"
-                        ),])
-                        .config(|this| this.optional()),]),
+                        Bracketed::new(vec_of_erased![
+                            Delimited::new(vec_of_erased![Ref::new("QuotedLiteralSegment"),])
+                                .config(|this| this.optional()),
+                        ]),
                     ]),
                 ]);
 
@@ -5492,10 +5494,10 @@ pub fn dialect() -> Dialect {
                         Sequence::new(vec_of_erased![
                             Ref::keyword("NULL_IF"),
                             Ref::new("EqualsSegment"),
-                            Bracketed::new(vec_of_erased![Delimited::new(vec_of_erased![
-                                Ref::new("QuotedLiteralSegment"),
-                            ])
-                            .config(|this| this.optional()),]),
+                            Bracketed::new(vec_of_erased![
+                                Delimited::new(vec_of_erased![Ref::new("QuotedLiteralSegment"),])
+                                    .config(|this| this.optional()),
+                            ]),
                         ]),
                         Sequence::new(vec_of_erased![
                             Ref::keyword("EMPTY_FIELD_AS_NULL"),
@@ -5795,16 +5797,18 @@ pub fn dialect() -> Dialect {
             "InternalStageParameters".into(),
             NodeMatcher::new(
                 SyntaxKind::StageParameters,
-                Sequence::new(vec_of_erased![Sequence::new(vec_of_erased![
-                    Ref::keyword("ENCRYPTION"),
-                    Ref::new("EqualsSegment"),
-                    Bracketed::new(vec_of_erased![
-                        Ref::keyword("TYPE"),
+                Sequence::new(vec_of_erased![
+                    Sequence::new(vec_of_erased![
+                        Ref::keyword("ENCRYPTION"),
                         Ref::new("EqualsSegment"),
-                        Ref::new("SnowflakeEncryptionOption"),
-                    ]),
+                        Bracketed::new(vec_of_erased![
+                            Ref::keyword("TYPE"),
+                            Ref::new("EqualsSegment"),
+                            Ref::new("SnowflakeEncryptionOption"),
+                        ]),
+                    ])
+                    .config(|this| this.optional()),
                 ])
-                .config(|this| this.optional()),])
                 .to_matchable(),
             )
             .to_matchable()
@@ -6975,18 +6979,18 @@ pub fn dialect() -> Dialect {
                         Sequence::new(vec_of_erased![
                             Ref::keyword("FUNCTION"),
                             Ref::new("FunctionNameSegment"),
-                            Bracketed::new(vec_of_erased![Delimited::new(vec_of_erased![
-                                Ref::new("DatatypeSegment"),
-                            ])
-                            .config(|this| this.optional()),]),
+                            Bracketed::new(vec_of_erased![
+                                Delimited::new(vec_of_erased![Ref::new("DatatypeSegment"),])
+                                    .config(|this| this.optional()),
+                            ]),
                         ]),
                         Sequence::new(vec_of_erased![
                             Ref::keyword("PROCEDURE"),
                             Ref::new("FunctionNameSegment"),
-                            Bracketed::new(vec_of_erased![Delimited::new(vec_of_erased![
-                                Ref::new("DatatypeSegment"),
-                            ])
-                            .config(|this| this.optional()),]),
+                            Bracketed::new(vec_of_erased![
+                                Delimited::new(vec_of_erased![Ref::new("DatatypeSegment"),])
+                                    .config(|this| this.optional()),
+                            ]),
                         ]),
                     ]),
                 ])

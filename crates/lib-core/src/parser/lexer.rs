@@ -817,19 +817,21 @@ mod tests {
 
     #[test]
     fn test_parser_lexer_trim_post_subdivide() {
-        let matcher: Vec<Matcher> = vec![Matcher::legacy(
-            "function_script_terminator",
-            |_| true,
-            r";\s+(?!\*)\/(?!\*)|\s+(?!\*)\/(?!\*)",
-            SyntaxKind::StatementTerminator,
-        )
-        .subdivider(Pattern::string("semicolon", ";", SyntaxKind::Semicolon))
-        .post_subdivide(Pattern::legacy(
-            "newline",
-            |_| true,
-            r"(\n|\r\n)+",
-            SyntaxKind::Newline,
-        ))];
+        let matcher: Vec<Matcher> = vec![
+            Matcher::legacy(
+                "function_script_terminator",
+                |_| true,
+                r";\s+(?!\*)\/(?!\*)|\s+(?!\*)\/(?!\*)",
+                SyntaxKind::StatementTerminator,
+            )
+            .subdivider(Pattern::string("semicolon", ";", SyntaxKind::Semicolon))
+            .post_subdivide(Pattern::legacy(
+                "newline",
+                |_| true,
+                r"(\n|\r\n)+",
+                SyntaxKind::Newline,
+            )),
+        ];
 
         let res = Lexer::new(&matcher).lex_match(";\n/\n");
         assert_eq!(res.elements[0].text, ";");

@@ -3,7 +3,7 @@ use std::iter::zip;
 use std::ops::Deref;
 use std::rc::Rc;
 
-use itertools::{chain, Itertools};
+use itertools::{Itertools, chain};
 use nohash_hasher::IntMap;
 use sqruff_lib_core::dialects::syntax::{SyntaxKind, SyntaxSet};
 use sqruff_lib_core::lint_fix::LintFix;

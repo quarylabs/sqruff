@@ -85,7 +85,10 @@ fn fix_return_code() {
     let stdout_str = str::from_utf8(&output.stdout).unwrap();
     let stderr_str = str::from_utf8(&output.stderr).unwrap();
     assert_eq!(stdout_str, "SELECT foo AS bar FROM tabs\n");
-    assert_eq!(stderr_str, "== [<string>] FAIL\nL:   1 | P:  12 | AL02 | Implicit/explicit aliasing of columns.\n                       | [aliasing.column]\n");
+    assert_eq!(
+        stderr_str,
+        "== [<string>] FAIL\nL:   1 | P:  12 | AL02 | Implicit/explicit aliasing of columns.\n                       | [aliasing.column]\n"
+    );
     assert_eq!(output.status.code().unwrap(), 0);
 
     // STDIN - fix some not all
@@ -106,6 +109,9 @@ fn fix_return_code() {
     let stdout_str = str::from_utf8(&output.stdout).unwrap();
     let stderr_str = str::from_utf8(&output.stderr).unwrap();
     assert_eq!(stdout_str, "SELECT foo AS bar, * FROM tabs\n");
-    assert_eq!(stderr_str, "== [<string>] FAIL\nL:   1 | P:   1 | AM04 | Outermost query should produce known number of columns.\n                       | [ambiguous.column_count]\nL:   1 | P:  12 | AL02 | Implicit/explicit aliasing of columns.\n                       | [aliasing.column]\n");
+    assert_eq!(
+        stderr_str,
+        "== [<string>] FAIL\nL:   1 | P:   1 | AM04 | Outermost query should produce known number of columns.\n                       | [ambiguous.column_count]\nL:   1 | P:  12 | AL02 | Implicit/explicit aliasing of columns.\n                       | [aliasing.column]\n"
+    );
     assert_eq!(output.status.code().unwrap(), 1);
 }

@@ -1,5 +1,5 @@
 use ahash::AHashMap;
-use itertools::{enumerate, multiunzip, Itertools as _};
+use itertools::{Itertools as _, enumerate, multiunzip};
 use smol_str::StrExt;
 
 use super::context::ParseContext;

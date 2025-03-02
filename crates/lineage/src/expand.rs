@@ -2,7 +2,7 @@ use std::collections::HashMap;
 
 use sqruff_lib_core::parser::segments::base::ErasedSegment;
 
-use crate::ir::{lower_inner, specific_statement_segment, Expr, ExprKind, Tables};
+use crate::ir::{Expr, ExprKind, Tables, lower_inner, specific_statement_segment};
 
 pub(crate) fn expand(tables: &mut Tables, sources: &HashMap<String, ErasedSegment>, expr: Expr) {
     let exprs: Vec<_> = tables.walk::<fn(&Tables, _) -> _>(expr, None).collect();

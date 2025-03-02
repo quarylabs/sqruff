@@ -4,7 +4,7 @@ use sqruff_lib_core::dialects::init::DialectKind;
 use sqruff_lib_core::dialects::syntax::SyntaxKind;
 use sqruff_lib_core::helpers::{Config, ToMatchable};
 use sqruff_lib_core::parser::grammar::anyof::{
-    any_set_of, one_of, optionally_bracketed, AnyNumberOf,
+    AnyNumberOf, any_set_of, one_of, optionally_bracketed,
 };
 use sqruff_lib_core::parser::grammar::base::{Anything, Nothing, Ref};
 use sqruff_lib_core::parser::grammar::delimited::Delimited;
@@ -339,12 +339,15 @@ pub fn raw_dialect() -> Dialect {
     ]);
     redshift_dialect.replace_grammar(
         "BracketedArguments",
-        Bracketed::new(vec_of_erased![Delimited::new(vec_of_erased![one_of(
-            vec_of_erased![Ref::new("LiteralGrammar"), Ref::keyword("MAX")]
-        )])
-        .config(|this| {
-            this.optional();
-        })])
+        Bracketed::new(vec_of_erased![
+            Delimited::new(vec_of_erased![one_of(vec_of_erased![
+                Ref::new("LiteralGrammar"),
+                Ref::keyword("MAX")
+            ])])
+            .config(|this| {
+                this.optional();
+            })
+        ])
         .to_matchable(),
     );
 
@@ -1746,8 +1749,8 @@ pub fn raw_dialect() -> Dialect {
                     Ref::keyword("REFCURSOR"),
                     Ref::new("DatatypeSegment")
                 ]);
-                Bracketed::new(vec_of_erased![Delimited::new(vec_of_erased![
-                    Sequence::new(vec_of_erased![
+                Bracketed::new(vec_of_erased![
+                    Delimited::new(vec_of_erased![Sequence::new(vec_of_erased![
                         AnyNumberOf::new(vec_of_erased![
                             Ref::new("ParameterNameSegment")
                                 .exclude(one_of(vec_of_erased![
@@ -1761,11 +1764,11 @@ pub fn raw_dialect() -> Dialect {
                             this.max_times_per_element = 1.into();
                         }),
                         param_type.clone()
-                    ])
+                    ])])
+                    .config(|this| {
+                        this.optional();
+                    })
                 ])
-                .config(|this| {
-                    this.optional();
-                })])
                 .to_matchable()
             })
             .to_matchable()
@@ -2902,12 +2905,13 @@ pub fn raw_dialect() -> Dialect {
                     Ref::keyword("EXTERNAL"),
                     Ref::keyword("FUNCTION"),
                     Ref::new("FunctionNameSegment"),
-                    Bracketed::new(vec_of_erased![Delimited::new(vec_of_erased![Ref::new(
-                        "DatatypeSegment"
-                    )])
-                    .config(|this| {
-                        this.optional();
-                    })]),
+                    Bracketed::new(vec_of_erased![
+                        Delimited::new(vec_of_erased![Ref::new("DatatypeSegment")]).config(
+                            |this| {
+                                this.optional();
+                            }
+                        )
+                    ]),
                     Ref::keyword("RETURNS"),
                     Ref::new("DatatypeSegment"),
                     one_of(vec_of_erased![

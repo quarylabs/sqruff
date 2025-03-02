@@ -3,7 +3,7 @@ use std::str::FromStr;
 use ahash::AHashMap;
 use glob::glob;
 use serde::Deserialize;
-use serde_with::{serde_as, KeyValueMap};
+use serde_with::{KeyValueMap, serde_as};
 use sqruff_lib::core::config::{FluffConfig, Value};
 use sqruff_lib::core::linter::core::Linter;
 use sqruff_lib_core::dialects::init::DialectKind;

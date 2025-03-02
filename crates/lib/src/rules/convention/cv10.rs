@@ -144,12 +144,14 @@ from foo
                 context.segment.clone().into(),
                 vec![LintFix::replace(
                     context.segment.clone(),
-                    vec![SegmentBuilder::token(
-                        context.tables.next_id(),
-                        &fixed_string,
-                        SyntaxKind::QuotedLiteral,
-                    )
-                    .finish()],
+                    vec![
+                        SegmentBuilder::token(
+                            context.tables.next_id(),
+                            &fixed_string,
+                            SyntaxKind::QuotedLiteral,
+                        )
+                        .finish(),
+                    ],
                     None,
                 )],
                 Some("".into()),

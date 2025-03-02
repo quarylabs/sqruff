@@ -4,7 +4,7 @@ use sqruff_lib_core::dialects::init::DialectKind;
 use sqruff_lib_core::dialects::syntax::SyntaxKind;
 use sqruff_lib_core::helpers::{Config, ToMatchable};
 use sqruff_lib_core::parser::grammar::anyof::{
-    any_set_of, one_of, optionally_bracketed, AnyNumberOf,
+    AnyNumberOf, any_set_of, one_of, optionally_bracketed,
 };
 use sqruff_lib_core::parser::grammar::base::{Anything, Ref};
 use sqruff_lib_core::parser::grammar::delimited::Delimited;
@@ -941,11 +941,10 @@ pub fn raw_dialect() -> Dialect {
                 Ref::new("DatatypeIdentifierSegment")
             ]),
             one_of(vec_of_erased![
-                AnyNumberOf::new(vec_of_erased![Bracketed::new(vec_of_erased![Ref::new(
-                    "ExpressionSegment"
-                )
-                .optional()])
-                .config(|this| this.bracket_type("square"))]),
+                AnyNumberOf::new(vec_of_erased![
+                    Bracketed::new(vec_of_erased![Ref::new("ExpressionSegment").optional()])
+                        .config(|this| this.bracket_type("square"))
+                ]),
                 Ref::new("ArrayTypeSegment"),
                 Ref::new("SizedArrayTypeSegment"),
             ])
@@ -1704,9 +1703,9 @@ pub fn raw_dialect() -> Dialect {
     postgres.replace_grammar(
         "UnorderedSelectStatementSegment",
         ansi::get_unordered_select_statement_segment_grammar().copy(
-            Some(vec![Ref::new("IntoClauseSegment")
-                .optional()
-                .to_matchable()]),
+            Some(vec![
+                Ref::new("IntoClauseSegment").optional().to_matchable(),
+            ]),
             None,
             Some(Ref::new("FromClauseSegment").optional().to_matchable()),
             None,
@@ -2181,8 +2180,8 @@ pub fn raw_dialect() -> Dialect {
             Ref::new("TableReferenceSegment"),
             one_of(vec_of_erased![
                 Sequence::new(vec_of_erased![
-                    Bracketed::new(vec_of_erased![Delimited::new(vec_of_erased![one_of(
-                        vec_of_erased![
+                    Bracketed::new(vec_of_erased![
+                        Delimited::new(vec_of_erased![one_of(vec_of_erased![
                             Sequence::new(vec_of_erased![
                                 Ref::new("ColumnReferenceSegment"),
                                 Ref::new("DatatypeSegment"),
@@ -2201,9 +2200,9 @@ pub fn raw_dialect() -> Dialect {
                                 AnyNumberOf::new(vec_of_erased![Ref::new("LikeOptionSegment"),])
                                     .config(|this| this.optional()),
                             ]),
-                        ]
-                    ),])
-                    .config(|this| this.optional()),]),
+                        ]),])
+                        .config(|this| this.optional()),
+                    ]),
                     Sequence::new(vec_of_erased![
                         Ref::keyword("INHERITS"),
                         Bracketed::new(vec_of_erased![Delimited::new(vec_of_erased![Ref::new(
@@ -2215,19 +2214,23 @@ pub fn raw_dialect() -> Dialect {
                 Sequence::new(vec_of_erased![
                     Ref::keyword("OF"),
                     Ref::new("ParameterNameSegment"),
-                    Bracketed::new(vec_of_erased![Delimited::new(vec_of_erased![
-                        Sequence::new(vec_of_erased![
-                            Ref::new("ColumnReferenceSegment"),
+                    Bracketed::new(vec_of_erased![
+                        Delimited::new(vec_of_erased![
                             Sequence::new(vec_of_erased![
-                                Ref::keyword("WITH"),
-                                Ref::keyword("OPTIONS"),
-                            ])
-                            .config(|this| this.optional()),
-                            AnyNumberOf::new(vec_of_erased![Ref::new("ColumnConstraintSegment"),]),
-                        ]),
-                        Ref::new("TableConstraintSegment"),
-                    ])
-                    .config(|this| this.optional()),]),
+                                Ref::new("ColumnReferenceSegment"),
+                                Sequence::new(vec_of_erased![
+                                    Ref::keyword("WITH"),
+                                    Ref::keyword("OPTIONS"),
+                                ])
+                                .config(|this| this.optional()),
+                                AnyNumberOf::new(vec_of_erased![Ref::new(
+                                    "ColumnConstraintSegment"
+                                ),]),
+                            ]),
+                            Ref::new("TableConstraintSegment"),
+                        ])
+                        .config(|this| this.optional()),
+                    ]),
                 ]),
                 Sequence::new(vec_of_erased![
                     Ref::keyword("PARTITION"),
@@ -2629,10 +2632,12 @@ pub fn raw_dialect() -> Dialect {
                                 ]),
                                 Ref::keyword("AS"),
                                 Ref::keyword("IDENTITY"),
-                                Bracketed::new(vec_of_erased![AnyNumberOf::new(vec_of_erased![
-                                    Ref::new("AlterSequenceOptionsSegment")
-                                ])
-                                .config(|this| this.optional()),]),
+                                Bracketed::new(vec_of_erased![
+                                    AnyNumberOf::new(vec_of_erased![Ref::new(
+                                        "AlterSequenceOptionsSegment"
+                                    )])
+                                    .config(|this| this.optional()),
+                                ]),
                             ]),
                             Sequence::new(vec_of_erased![one_of(vec_of_erased![
                                 Sequence::new(vec_of_erased![
@@ -4530,10 +4535,10 @@ pub fn raw_dialect() -> Dialect {
                                     Ref::keyword("ROUTINE"),
                                 ]),
                                 Ref::new("ObjectReferenceSegment"),
-                                Bracketed::new(vec_of_erased![Sequence::new(vec_of_erased![
-                                    Anything::new()
+                                Bracketed::new(vec_of_erased![
+                                    Sequence::new(vec_of_erased![Anything::new()])
+                                        .config(|this| this.optional()),
                                 ])
-                                .config(|this| this.optional()),])
                                 .config(|this| this.optional()),
                             ]),
                         ]),
@@ -6253,10 +6258,10 @@ pub fn raw_dialect() -> Dialect {
                             .config(|this| this.optional()),
                     ])
                     .config(|this| this.optional()),
-                    Bracketed::new(vec_of_erased![Delimited::new(vec_of_erased![
-                        Anything::new()
+                    Bracketed::new(vec_of_erased![
+                        Delimited::new(vec_of_erased![Anything::new()])
+                            .config(|this| this.optional())
                     ])
-                    .config(|this| this.optional())])
                     .config(|this| this.optional()),
                 ])
                 .to_matchable(),

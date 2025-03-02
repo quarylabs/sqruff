@@ -35,6 +35,9 @@ fn parse_errors() {
     let stdout_str = str::from_utf8(&output.stdout).unwrap();
     let stderr_str = str::from_utf8(&output.stderr).unwrap();
     assert_eq!(stdout_str, "SelEc\n\n");
-    assert_eq!(stderr_str, "== [<string>] FAIL\nL:   1 | P:   1 | ???? | Unparsable section\nL:   1 | P:   1 | LT12 | Files must end with a single trailing newline.\n                       | [layout.end_of_file]\n");
+    assert_eq!(
+        stderr_str,
+        "== [<string>] FAIL\nL:   1 | P:   1 | ???? | Unparsable section\nL:   1 | P:   1 | LT12 | Files must end with a single trailing newline.\n                       | [layout.end_of_file]\n"
+    );
     assert_eq!(output.status.code().unwrap(), 1);
 }

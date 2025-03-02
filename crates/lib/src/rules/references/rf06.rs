@@ -222,12 +222,14 @@ SELECT 123 as `foo` -- For BigQuery, MySql, ...
                 context.segment.clone().into(),
                 vec![LintFix::replace(
                     context.segment.clone(),
-                    vec![SegmentBuilder::token(
-                        context.tables.next_id(),
-                        &identifier_contents,
-                        SyntaxKind::NakedIdentifier,
-                    )
-                    .finish()],
+                    vec![
+                        SegmentBuilder::token(
+                            context.tables.next_id(),
+                            &identifier_contents,
+                            SyntaxKind::NakedIdentifier,
+                        )
+                        .finish(),
+                    ],
                     None,
                 )],
                 Some(format!(

@@ -24,6 +24,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
+        python_version: ["3.10","3.11", "3.12", "3.13"]
         platform:
           - target: x86_64-pc-windows-msvc
             arch: x64
@@ -33,13 +34,13 @@ jobs:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
         with:
-          python-version: "3.12"
+          python-version: "{{ matrix.python_version }}"
           architecture: ${{ matrix.platform.arch }}
       - name: Build wheels
         uses: PyO3/maturin-action@v1
         with:
           target: ${{ matrix.platform.target }}
-          args: --release --out dist --manifest-path crates/cli/Cargo.toml --interpreter 3.12
+          args: --release --out dist --manifest-path crates/cli/Cargo.toml --interpreter {{ matrix.python_version }}
           sccache: "true"
       - name: Upload wheels
         uses: actions/upload-artifact@v4
@@ -52,6 +53,7 @@ jobs:
     strategy:
       fail-fast: false # Allow other variants to continue even if one fails
       matrix:
+        python_version: ["3.10","3.11", "3.12", "3.13"]
         platform:
           - runner: macos-13
             target: x86_64
@@ -63,7 +65,7 @@ jobs:
         uses: PyO3/maturin-action@v1
         with:
           target: ${{ matrix.platform.target }}
-          args: --release --out dist --manifest-path crates/cli/Cargo.toml
+          args: --release -i python${{ matrix.python_version }} --out dist --manifest-path crates/cli/Cargo.toml
           sccache: "true"
       - name: Upload wheels
         uses: actions/upload-artifact@v4
@@ -73,13 +75,16 @@ jobs:
 
   linux:
     runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python_version: ["3.10","3.11", "3.12", "3.13"]
     steps:
       - uses: actions/checkout@v4
       - name: Build wheels
         uses: PyO3/maturin-action@v1
         with:
           target: x86_64-unknown-linux-gnu
-          args: --release --out dist --manifest-path crates/cli/Cargo.toml
+          args: --release -i python${{ matrix.python_version }} --out dist --manifest-path crates/cli/Cargo.toml
           sccache: "true"
       - name: Upload wheels
         uses: actions/upload-artifact@v4

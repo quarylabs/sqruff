@@ -13,7 +13,7 @@ jobs:
     name: Check licenses match
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # ratchet:actions/checkout@v4
       - name: Copy LICENSE to editors/code directory
         run: cp LICENSE editors/code/LICENSE
       - name: Copy README.md to editors/code directory
@@ -24,7 +24,7 @@ jobs:
     name: Check versions match
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # ratchet:actions/checkout@v4
       - name: Install jq
         run: sudo apt-get install jq
       - name: Allow running check_versions_match.sh
@@ -34,24 +34,24 @@ jobs:
     name: Rust Check
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-      - uses: Swatinem/rust-cache@v2
-      - uses: dtolnay/rust-toolchain@stable
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # ratchet:actions/checkout@v4
+      - uses: Swatinem/rust-cache@f0deed1e0edfc6a9be95417288c0e1099b1eeec3 # ratchet:Swatinem/rust-cache@v2
+      - uses: dtolnay/rust-toolchain@38b70195107dddab2c7bbd522bcf763bac00963b # ratchet:dtolnay/rust-toolchain@stable
       - run: cargo check --all --all-features --tests --benches
   compile:
     name: Compile
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-      - uses: Swatinem/rust-cache@v2
-      - uses: dtolnay/rust-toolchain@stable
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # ratchet:actions/checkout@v4
+      - uses: Swatinem/rust-cache@f0deed1e0edfc6a9be95417288c0e1099b1eeec3 # ratchet:Swatinem/rust-cache@v2
+      - uses: dtolnay/rust-toolchain@38b70195107dddab2c7bbd522bcf763bac00963b # ratchet:dtolnay/rust-toolchain@stable
       - run: cargo build --locked --release --all-features
   compile-wasm:
     name: Compile wasm32-unknown-unknown
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-      - uses: Swatinem/rust-cache@v2
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # ratchet:actions/checkout@v4
+      - uses: Swatinem/rust-cache@f0deed1e0edfc6a9be95417288c0e1099b1eeec3 # ratchet:Swatinem/rust-cache@v2
       - name: Add WASM target
         run: rustup target add wasm32-unknown-unknown
       - run: cargo build --package sqruff-lib --locked --release --target wasm32-unknown-unknown
@@ -61,20 +61,20 @@ jobs:
     env:
       PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD: false
     steps:
-      - uses: actions/checkout@v4
-      - uses: Swatinem/rust-cache@v2
-      - uses: pnpm/action-setup@v4
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # ratchet:actions/checkout@v4
+      - uses: Swatinem/rust-cache@f0deed1e0edfc6a9be95417288c0e1099b1eeec3 # ratchet:Swatinem/rust-cache@v2
+      - uses: pnpm/action-setup@a7487c7e89a18df4991f7f222e4898a00d66ddda # ratchet:pnpm/action-setup@v4
         name: Install pnpm
         with:
           version: 9
           run_install: false
       - name: Install Nodejs
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@1d0ff469b7ec7b3cb9d8673fde0c81c44821de2a # ratchet:actions/setup-node@v4
         with:
           node-version-file: ".nvmrc"
           cache: "pnpm"
       - run: pnpm install --frozen-lockfile
-      - uses: dtolnay/rust-toolchain@nightly
+      - uses: dtolnay/rust-toolchain@4f94fbe7e03939b0e674bcc9ca609a16088f63ff # ratchet:dtolnay/rust-toolchain@nightly
       - run: curl https://rustwasm.github.io/wasm-pack/installer/init.sh -sSf | sh
       - run: cd playground && pnpm playwright install
       - run: pnpm run ci
@@ -83,7 +83,7 @@ jobs:
     runs-on: ubuntu-latest
     services:
       postgres:
-        image: postgres:latest
+        image: index.docker.io/library/postgres@sha256:81f32a88ec561664634637dd446487efd5f9d90996304b96210078e90e5c8b21 # ratchet:postgres:latest
         env:
           POSTGRES_PASSWORD: postgres
           POSTGRES_USER: postgres
@@ -96,9 +96,9 @@ jobs:
           --health-timeout 5s
           --health-retries 5
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # ratchet:actions/checkout@v4
       - id: setup-python
-        uses: actions/setup-python@v5
+        uses: actions/setup-python@42375524e23c412d93fb67b49958b491fce71c38 # ratchet:actions/setup-python@v5
       - name: Create and activate virtual environment
         run: |
           python -m venv .venv
@@ -106,8 +106,8 @@ jobs:
           echo "${{ github.workspace }}/.venv/bin" >> $GITHUB_PATH
       - name: Install dependencies
         run: make python_install
-      - uses: dtolnay/rust-toolchain@stable
-      - uses: Swatinem/rust-cache@v2
+      - uses: dtolnay/rust-toolchain@38b70195107dddab2c7bbd522bcf763bac00963b # ratchet:dtolnay/rust-toolchain@stable
+      - uses: Swatinem/rust-cache@f0deed1e0edfc6a9be95417288c0e1099b1eeec3 # ratchet:Swatinem/rust-cache@v2
       - run: make rust_test
       - name: Check for diffs
         run: git diff --quiet || exit 1
@@ -115,19 +115,19 @@ jobs:
     name: Benchmark
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-      - uses: dtolnay/rust-toolchain@stable
-      - uses: Swatinem/rust-cache@v2
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # ratchet:actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@38b70195107dddab2c7bbd522bcf763bac00963b # ratchet:dtolnay/rust-toolchain@stable
+      - uses: Swatinem/rust-cache@f0deed1e0edfc6a9be95417288c0e1099b1eeec3 # ratchet:Swatinem/rust-cache@v2
       - name: Run benchmarks
         run: cargo run --color=always --bin bench --manifest-path ./crates/cli/Cargo.toml
   fmt:
     name: Format
     runs-on: ubuntu-latest
     steps:
-      - uses: Swatinem/rust-cache@v2
+      - uses: Swatinem/rust-cache@f0deed1e0edfc6a9be95417288c0e1099b1eeec3 # ratchet:Swatinem/rust-cache@v2
       - name: Checkout sources
-        uses: actions/checkout@v4
-      - uses: dtolnay/rust-toolchain@stable
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # ratchet:actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@38b70195107dddab2c7bbd522bcf763bac00963b # ratchet:dtolnay/rust-toolchain@stable
         with:
           components: rustfmt
       - name: Run cargo fmt
@@ -136,14 +136,14 @@ jobs:
     name: Lint
     runs-on: ubuntu-latest
     steps:
-      - uses: Swatinem/rust-cache@v2
-      - uses: taiki-e/install-action@cargo-hack
-      - uses: taiki-e/install-action@cargo-machete
-      - uses: dtolnay/rust-toolchain@stable
+      - uses: Swatinem/rust-cache@f0deed1e0edfc6a9be95417288c0e1099b1eeec3 # ratchet:Swatinem/rust-cache@v2
+      - uses: taiki-e/install-action@dc31d68fd5b543e71fcf192c363a7ac2223bfc5b # ratchet:taiki-e/install-action@cargo-hack
+      - uses: taiki-e/install-action@96200019792a838c050bcc22dda6518ee07fd860 # ratchet:taiki-e/install-action@cargo-machete
+      - uses: dtolnay/rust-toolchain@38b70195107dddab2c7bbd522bcf763bac00963b # ratchet:dtolnay/rust-toolchain@stable
         with:
           components: clippy
       - name: Checkout sources
-        uses: actions/checkout@v4
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # ratchet:actions/checkout@v4
       - name: Run cargo clippy
         run: cargo clippy --all --all-features -- -D warnings
       - name: Check unused dependencies
@@ -154,13 +154,13 @@ jobs:
     name: Check Prettier formatting
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-      - uses: pnpm/action-setup@v4
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # ratchet:actions/checkout@v4
+      - uses: pnpm/action-setup@a7487c7e89a18df4991f7f222e4898a00d66ddda # ratchet:pnpm/action-setup@v4
         name: Install pnpm
         with:
           version: 9
       - name: Install Nodejs
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@1d0ff469b7ec7b3cb9d8673fde0c81c44821de2a # ratchet:actions/setup-node@v4
         with:
           node-version-file: ".nvmrc"
           cache: "pnpm"
@@ -170,9 +170,9 @@ jobs:
     name: Shellcheck
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # ratchet:actions/checkout@v4
       - name: Run ShellCheck
-        uses: ludeeus/action-shellcheck@master
+        uses: ludeeus/action-shellcheck@00b27aa7cb85167568cb48a3838b75f4265f2bca # ratchet:ludeeus/action-shellcheck@master
         with:
           scandir: "./.hacking/scripts"
   python:
@@ -180,7 +180,7 @@ jobs:
     runs-on: ubuntu-latest
     services:
       postgres:
-        image: postgres:latest
+        image: index.docker.io/library/postgres@sha256:81f32a88ec561664634637dd446487efd5f9d90996304b96210078e90e5c8b21 # ratchet:postgres:latest
         env:
           POSTGRES_PASSWORD: postgres
           POSTGRES_USER: postgres
@@ -196,16 +196,26 @@ jobs:
       matrix:
         python-version: ["3.9", "3.10", "3.11", "3.12", "3.13"]
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-python@v5
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # ratchet:actions/checkout@v4
+      - uses: actions/setup-python@42375524e23c412d93fb67b49958b491fce71c38 # ratchet:actions/setup-python@v5
         with:
           python-version: ${{ matrix.python-version }}
       - run: make python_install
       - run: make python_ci
+  github-actions-ratchet-check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # ratchet:actions/checkout@v4
+      - name: Set up Go
+        uses: actions/setup-go@41dfa10bad2bb2ae585af6ee5bb4d7d973ad74ed # ratchet:actions/setup-go@v4
+      - name: Install ratchet
+        run: go install github.com/sethvargo/ratchet@latest
+      - name: Ratchet Check
+        run: make ratchet_check
   check-no-unparsable:
     name: Check no unparsable files
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # ratchet:actions/checkout@v4
       - run: chmod +x ./.hacking/scripts/check_for_unparsable.sh
       - run: ./.hacking/scripts/check_for_unparsable.sh

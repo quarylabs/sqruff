@@ -32,4 +32,16 @@ rust_test: ## Run rust tests
 	cargo test --all --all-features --exclude sqruff
 
 .PHONY: ci
-ci: python_ci rust_test ## Run all CI checks
+ci: ratchet_check python_ci rust_test ## Run all CI checks
+
+.PHONY: ratchet_pin
+ratchet_pin: ## Pins all the Github workflow versions
+	ratchet pin .github/workflows/*
+
+.PHONY: ratchet_update
+ratchet_update: ## Updates all the Github workflow versions
+	ratchet update .github/workflows/*
+
+.PHONY: ratchet_check
+ratchet_check: ## Checks all the Github workflow versions
+	ratchet check .github/workflows/*

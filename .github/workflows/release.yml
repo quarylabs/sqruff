@@ -10,7 +10,7 @@ jobs:
     name: Convert release to draft
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # ratchet:actions/checkout@v4
       - run: chmod +x .hacking/scripts/convert_release_to_draft.sh
       - run: .hacking/scripts/convert_release_to_draft.sh
         env:
@@ -21,7 +21,7 @@ jobs:
     needs:
       - convert-release-as-draft
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # ratchet:actions/checkout@v4
       - name: Install jq
         run: sudo apt-get install jq
       - name: Allow running check_versions_match.sh
@@ -42,25 +42,25 @@ jobs:
       attestations: write
       packages: write
     steps:
-      - uses: actions/checkout@v4
-      - uses: Swatinem/rust-cache@v2
-      - uses: pnpm/action-setup@v4
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # ratchet:actions/checkout@v4
+      - uses: Swatinem/rust-cache@f0deed1e0edfc6a9be95417288c0e1099b1eeec3 # ratchet:Swatinem/rust-cache@v2
+      - uses: pnpm/action-setup@a7487c7e89a18df4991f7f222e4898a00d66ddda # ratchet:pnpm/action-setup@v4
         name: Install pnpm
         with:
           version: 9
           run_install: false
       - name: Install Nodejs
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@1d0ff469b7ec7b3cb9d8673fde0c81c44821de2a # ratchet:actions/setup-node@v4
         with:
           node-version-file: ".nvmrc"
           cache: "pnpm"
       - run: pnpm install --frozen-lockfile
-      - uses: dtolnay/rust-toolchain@stable
+      - uses: dtolnay/rust-toolchain@38b70195107dddab2c7bbd522bcf763bac00963b # ratchet:dtolnay/rust-toolchain@stable
       - run: curl https://rustwasm.github.io/wasm-pack/installer/init.sh -sSf | sh
       - run: cd editors/code && pnpm run build
       - run: cd editors/code && pnpm run package
       - name: Publish GitHub release
-        uses: softprops/action-gh-release@v2
+        uses: softprops/action-gh-release@c95fe1489396fe8a9eb87c0abf8aa5b2ef267fda # ratchet:softprops/action-gh-release@v2
         with:
           draft: true
           files: |
@@ -100,13 +100,13 @@ jobs:
             target: aarch64-apple-darwin
             bin: sqruff
     steps:
-      - uses: actions/checkout@v4
-      - uses: Swatinem/rust-cache@v2
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # ratchet:actions/checkout@v4
+      - uses: Swatinem/rust-cache@f0deed1e0edfc6a9be95417288c0e1099b1eeec3 # ratchet:Swatinem/rust-cache@v2
       - name: Install musl-tools on Linux
         run: sudo apt-get update --yes && sudo apt-get install --yes musl-tools
         if: contains(matrix.platform.name, 'musl')
       - name: Build binary
-        uses: houseabsolute/actions-rust-cross@v1
+        uses: houseabsolute/actions-rust-cross@e2ab1c383646cf01240677290e926946f490acf1 # ratchet:houseabsolute/actions-rust-cross@v1
         with:
           command: build
           target: ${{ matrix.platform.target }}
@@ -128,7 +128,7 @@ jobs:
         run: shasum -a 256 ${{ matrix.platform.name }} > ${{ matrix.platform.name }}.sha256
 
       - name: Publish GitHub release
-        uses: softprops/action-gh-release@v2
+        uses: softprops/action-gh-release@c95fe1489396fe8a9eb87c0abf8aa5b2ef267fda # ratchet:softprops/action-gh-release@v2
         with:
           draft: true
           files: |
@@ -139,19 +139,19 @@ jobs:
     needs:
       - check-versions-match
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # ratchet:actions/checkout@v4
       - name: Set up QEMU
-        uses: docker/setup-qemu-action@v3
+        uses: docker/setup-qemu-action@29109295f81e9208d7d86ff1c6c12d2833863392 # ratchet:docker/setup-qemu-action@v3
       - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v3
+        uses: docker/setup-buildx-action@b5ca514318bd6ebac0fb2aedd5d36ec1b5c232a2 # ratchet:docker/setup-buildx-action@v3
       - name: Login to GitHub Container Registry
-        uses: docker/login-action@v3
+        uses: docker/login-action@9780b0c442fbb1117ed29e0efdff1e18412f7567 # ratchet:docker/login-action@v3
         with:
           registry: ghcr.io
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
       - name: Build and Push Docker Image
-        uses: docker/build-push-action@v6
+        uses: docker/build-push-action@471d1dc4e07e5cdedd4c2171150001c434f0b7a4 # ratchet:docker/build-push-action@v6
         with:
           context: .
           push: true
@@ -167,7 +167,7 @@ jobs:
       - release
       - release-vsix
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # ratchet:actions/checkout@v4
       - run: chmod +x ./.hacking/scripts/convert_release_to_not_draft.sh
       - run: ./.hacking/scripts/convert_release_to_not_draft.sh
         env:
@@ -180,40 +180,40 @@ jobs:
     env:
       HOMEBREW_ACCESS_TOKEN: ${{ secrets.HOMEBREW_ACCESS_TOKEN }}
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # ratchet:actions/checkout@v4
       - run: ./.hacking/scripts/update_homebrew_pr.sh $HOMEBREW_ACCESS_TOKEN
   publish-to-cargo:
     name: Publish to Cargo
     runs-on: ubuntu-latest
     needs: [convert_release_to_not_draft]
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions-rs/toolchain@v1
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # ratchet:actions/checkout@v4
+      - uses: actions-rs/toolchain@16499b5e05bf2e26879000db0c1d13f7e13fa3af # ratchet:actions-rs/toolchain@v1
         with:
           toolchain: stable
           profile: minimal
       - name: Publish sqruff-lib-core to Cargo
-        uses: actions-rs/cargo@v1
+        uses: actions-rs/cargo@844f36862e911db73fe0815f00a4a2602c279505 # ratchet:actions-rs/cargo@v1
         with:
           command: publish
           args: --token ${{ secrets.CARGO_API_TOKEN }} -p sqruff-lib-core
       - name: Publish sqruff-lib-dialects to Cargo
-        uses: actions-rs/cargo@v1
+        uses: actions-rs/cargo@844f36862e911db73fe0815f00a4a2602c279505 # ratchet:actions-rs/cargo@v1
         with:
           command: publish
           args: --token ${{ secrets.CARGO_API_TOKEN }} -p sqruff-lib-dialects
       - name: Publish sqruff-lib to Cargo
-        uses: actions-rs/cargo@v1
+        uses: actions-rs/cargo@844f36862e911db73fe0815f00a4a2602c279505 # ratchet:actions-rs/cargo@v1
         with:
           command: publish
           args: --token ${{ secrets.CARGO_API_TOKEN }} -p sqruff-lib
       - name: Publish sqruff-lsp to Cargo
-        uses: actions-rs/cargo@v1
+        uses: actions-rs/cargo@844f36862e911db73fe0815f00a4a2602c279505 # ratchet:actions-rs/cargo@v1
         with:
           command: publish
           args: --token ${{ secrets.CARGO_API_TOKEN }} -p sqruff-lsp
       - name: Publish sqruff to Cargo
-        uses: actions-rs/cargo@v1
+        uses: actions-rs/cargo@844f36862e911db73fe0815f00a4a2602c279505 # ratchet:actions-rs/cargo@v1
         with:
           command: publish
           args: --token ${{ secrets.CARGO_API_TOKEN }} -p sqruff
@@ -224,8 +224,8 @@ jobs:
       - release-vsix
       - convert_release_to_not_draft
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # ratchet:actions/checkout@v4
+      - uses: actions/setup-node@1d0ff469b7ec7b3cb9d8673fde0c81c44821de2a # ratchet:actions/setup-node@v4
         with:
           node-version-file: ".nvmrc"
       - run: npm install -g vsce

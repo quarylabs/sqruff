@@ -64,6 +64,10 @@ jobs:
         with:
           allowUpdates: true
           draft: true
+          omitBody: true
+          omitBodyDuringUpdate: true
+          omitNameDuringUpdate: true
+          omitDraftDuringUpdate: true
           artifacts: |
             editors/code/*.vsix
   release:
@@ -133,6 +137,10 @@ jobs:
         with:
           allowUpdates: true
           draft: true
+          omitBody: true
+          omitBodyDuringUpdate: true
+          omitNameDuringUpdate: true
+          omitDraftDuringUpdate: true
           artifacts: |
             sqruff-*
   build-and-push-docker:

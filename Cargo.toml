@@ -1,5 +1,5 @@
 [workspace.package]
-version = "0.25.12"
+version = "0.25.13"
 repository = "https://github.com/quarylabs/sqruff"
 edition = "2024"
 license = "Apache-2.0"
@@ -27,10 +27,10 @@ codegen-units = 1
 [workspace.dependencies]
 ahash = { version = "0.8.11", features = ["compile-time-rng", "serde"] }
 indexmap = "2.7.1"
-sqruff-lib = { version = "0.25.12", path = "crates/lib" }
-sqruff-lsp = { version = "0.25.12", path = "crates/lsp" }
-sqruff-lib-core = { version = "0.25.12", path = "crates/lib-core" }
-sqruff-lib-dialects = { version = "0.25.12", path = "crates/lib-dialects" }
+sqruff-lib = { version = "0.25.13", path = "crates/lib" }
+sqruff-lsp = { version = "0.25.13", path = "crates/lsp" }
+sqruff-lib-core = { version = "0.25.13", path = "crates/lib-core" }
+sqruff-lib-dialects = { version = "0.25.13", path = "crates/lib-dialects" }
 wasm-bindgen = "0.2"
 wasm-pack = "0.13.1"
 

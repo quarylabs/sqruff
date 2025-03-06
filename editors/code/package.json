@@ -7,7 +7,7 @@
     "url": "https://github.com/quarylabs/sqruff.git"
   },
   "publisher": "Quary",
-  "version": "0.25.11",
+  "version": "0.25.12",
   "engines": {
     "vscode": "^1.96.0"
   },

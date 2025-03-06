@@ -1,0 +1,519 @@
+{
+    // Use IntelliSense to learn about possible attributes.
+    // Hover to view descriptions of existing attributes.
+    // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "type": "lldb",
+            "request": "launch",
+            "name": "Debug executable 'bench'",
+            "cargo": {
+                "args": [
+                    "build",
+                    "--bin=bench",
+                    "--package=sqruff"
+                ],
+                "filter": {
+                    "name": "bench",
+                    "kind": "bin"
+                }
+            },
+            "args": [],
+            "cwd": "${workspaceFolder}"
+        },
+        {
+            "type": "lldb",
+            "request": "launch",
+            "name": "Debug unit tests in executable 'bench'",
+            "cargo": {
+                "args": [
+                    "test",
+                    "--no-run",
+                    "--bin=bench",
+                    "--package=sqruff"
+                ],
+                "filter": {
+                    "name": "bench",
+                    "kind": "bin"
+                }
+            },
+            "args": [],
+            "cwd": "${workspaceFolder}"
+        },
+        {
+            "type": "lldb",
+            "request": "launch",
+            "name": "Debug executable 'sqruff'",
+            "cargo": {
+                "args": [
+                    "build",
+                    "--bin=sqruff",
+                    "--package=sqruff"
+                ],
+                "filter": {
+                    "name": "sqruff",
+                    "kind": "bin"
+                }
+            },
+            "args": [],
+            "cwd": "${workspaceFolder}"
+        },
+        {
+            "type": "lldb",
+            "request": "launch",
+            "name": "Debug unit tests in executable 'sqruff'",
+            "cargo": {
+                "args": [
+                    "test",
+                    "--no-run",
+                    "--bin=sqruff",
+                    "--package=sqruff"
+                ],
+                "filter": {
+                    "name": "sqruff",
+                    "kind": "bin"
+                }
+            },
+            "args": [],
+            "cwd": "${workspaceFolder}"
+        },
+        {
+            "type": "lldb",
+            "request": "launch",
+            "name": "Debug integration test 'config_not_found'",
+            "cargo": {
+                "args": [
+                    "test",
+                    "--no-run",
+                    "--test=config_not_found",
+                    "--package=sqruff"
+                ],
+                "filter": {
+                    "name": "config_not_found",
+                    "kind": "test"
+                }
+            },
+            "args": [],
+            "cwd": "${workspaceFolder}"
+        },
+        {
+            "type": "lldb",
+            "request": "launch",
+            "name": "Debug integration test 'configure_rule'",
+            "cargo": {
+                "args": [
+                    "test",
+                    "--no-run",
+                    "--test=configure_rule",
+                    "--package=sqruff"
+                ],
+                "filter": {
+                    "name": "configure_rule",
+                    "kind": "test"
+                }
+            },
+            "args": [],
+            "cwd": "${workspaceFolder}"
+        },
+        {
+            "type": "lldb",
+            "request": "launch",
+            "name": "Debug integration test 'fix_parse_errors'",
+            "cargo": {
+                "args": [
+                    "test",
+                    "--no-run",
+                    "--test=fix_parse_errors",
+                    "--package=sqruff"
+                ],
+                "filter": {
+                    "name": "fix_parse_errors",
+                    "kind": "test"
+                }
+            },
+            "args": [],
+            "cwd": "${workspaceFolder}"
+        },
+        {
+            "type": "lldb",
+            "request": "launch",
+            "name": "Debug integration test 'fix_return_code'",
+            "cargo": {
+                "args": [
+                    "test",
+                    "--no-run",
+                    "--test=fix_return_code",
+                    "--package=sqruff"
+                ],
+                "filter": {
+                    "name": "fix_return_code",
+                    "kind": "test"
+                }
+            },
+            "args": [],
+            "cwd": "${workspaceFolder}"
+        },
+        {
+            "type": "lldb",
+            "request": "launch",
+            "name": "Debug integration test 'ui'",
+            "cargo": {
+                "args": [
+                    "test",
+                    "--no-run",
+                    "--test=ui",
+                    "--package=sqruff"
+                ],
+                "filter": {
+                    "name": "ui",
+                    "kind": "test"
+                }
+            },
+            "args": [],
+            "cwd": "${workspaceFolder}"
+        },
+        {
+            "type": "lldb",
+            "request": "launch",
+            "name": "Debug integration test 'ui_github'",
+            "cargo": {
+                "args": [
+                    "test",
+                    "--no-run",
+                    "--test=ui_github",
+                    "--package=sqruff"
+                ],
+                "filter": {
+                    "name": "ui_github",
+                    "kind": "test"
+                }
+            },
+            "args": [],
+            "cwd": "${workspaceFolder}"
+        },
+        {
+            "type": "lldb",
+            "request": "launch",
+            "name": "Debug integration test 'ui_json'",
+            "cargo": {
+                "args": [
+                    "test",
+                    "--no-run",
+                    "--test=ui_json",
+                    "--package=sqruff"
+                ],
+                "filter": {
+                    "name": "ui_json",
+                    "kind": "test"
+                }
+            },
+            "args": [],
+            "cwd": "${workspaceFolder}"
+        },
+        {
+            "type": "lldb",
+            "request": "launch",
+            "name": "Debug integration test 'ui_with_dbt'",
+            "cargo": {
+                "args": [
+                    "test",
+                    "--no-run",
+                    "--test=ui_with_dbt",
+                    "--package=sqruff"
+                ],
+                "filter": {
+                    "name": "ui_with_dbt",
+                    "kind": "test"
+                }
+            },
+            "args": [],
+            "cwd": "${workspaceFolder}"
+        },
+        {
+            "type": "lldb",
+            "request": "launch",
+            "name": "Debug integration test 'ui_with_jinja'",
+            "cargo": {
+                "args": [
+                    "test",
+                    "--no-run",
+                    "--test=ui_with_jinja",
+                    "--package=sqruff"
+                ],
+                "filter": {
+                    "name": "ui_with_jinja",
+                    "kind": "test"
+                }
+            },
+            "args": [],
+            "cwd": "${workspaceFolder}"
+        },
+        {
+            "type": "lldb",
+            "request": "launch",
+            "name": "Debug integration test 'ui_with_python'",
+            "cargo": {
+                "args": [
+                    "test",
+                    "--no-run",
+                    "--test=ui_with_python",
+                    "--package=sqruff"
+                ],
+                "filter": {
+                    "name": "ui_with_python",
+                    "kind": "test"
+                }
+            },
+            "args": [],
+            "cwd": "${workspaceFolder}"
+        },
+        {
+            "type": "lldb",
+            "request": "launch",
+            "name": "Debug unit tests in library 'sqruff_lib'",
+            "cargo": {
+                "args": [
+                    "test",
+                    "--no-run",
+                    "--lib",
+                    "--package=sqruff-lib"
+                ],
+                "filter": {
+                    "name": "sqruff_lib",
+                    "kind": "lib"
+                }
+            },
+            "args": [],
+            "cwd": "${workspaceFolder}"
+        },
+        {
+            "type": "lldb",
+            "request": "launch",
+            "name": "Debug integration test 'rules'",
+            "cargo": {
+                "args": [
+                    "test",
+                    "--no-run",
+                    "--test=rules",
+                    "--package=sqruff-lib"
+                ],
+                "filter": {
+                    "name": "rules",
+                    "kind": "test"
+                }
+            },
+            "args": [],
+            "cwd": "${workspaceFolder}"
+        },
+        {
+            "type": "lldb",
+            "request": "launch",
+            "name": "Debug integration test 'templaters'",
+            "cargo": {
+                "args": [
+                    "test",
+                    "--no-run",
+                    "--test=templaters",
+                    "--package=sqruff-lib"
+                ],
+                "filter": {
+                    "name": "templaters",
+                    "kind": "test"
+                }
+            },
+            "args": [],
+            "cwd": "${workspaceFolder}"
+        },
+        {
+            "type": "lldb",
+            "request": "launch",
+            "name": "Debug benchmark 'depth_map'",
+            "cargo": {
+                "args": [
+                    "test",
+                    "--no-run",
+                    "--bench=depth_map",
+                    "--package=sqruff-lib"
+                ],
+                "filter": {
+                    "name": "depth_map",
+                    "kind": "bench"
+                }
+            },
+            "args": [],
+            "cwd": "${workspaceFolder}"
+        },
+        {
+            "type": "lldb",
+            "request": "launch",
+            "name": "Debug benchmark 'fix'",
+            "cargo": {
+                "args": [
+                    "test",
+                    "--no-run",
+                    "--bench=fix",
+                    "--package=sqruff-lib"
+                ],
+                "filter": {
+                    "name": "fix",
+                    "kind": "bench"
+                }
+            },
+            "args": [],
+            "cwd": "${workspaceFolder}"
+        },
+        {
+            "type": "lldb",
+            "request": "launch",
+            "name": "Debug benchmark 'parsing'",
+            "cargo": {
+                "args": [
+                    "test",
+                    "--no-run",
+                    "--bench=parsing",
+                    "--package=sqruff-lib"
+                ],
+                "filter": {
+                    "name": "parsing",
+                    "kind": "bench"
+                }
+            },
+            "args": [],
+            "cwd": "${workspaceFolder}"
+        },
+        {
+            "type": "lldb",
+            "request": "launch",
+            "name": "Debug unit tests in library 'sqruff_lib_core'",
+            "cargo": {
+                "args": [
+                    "test",
+                    "--no-run",
+                    "--lib",
+                    "--package=sqruff-lib-core"
+                ],
+                "filter": {
+                    "name": "sqruff_lib_core",
+                    "kind": "lib"
+                }
+            },
+            "args": [],
+            "cwd": "${workspaceFolder}"
+        },
+        {
+            "type": "lldb",
+            "request": "launch",
+            "name": "Debug unit tests in library 'sqruff_lib_dialects'",
+            "cargo": {
+                "args": [
+                    "test",
+                    "--no-run",
+                    "--lib",
+                    "--package=sqruff-lib-dialects"
+                ],
+                "filter": {
+                    "name": "sqruff_lib_dialects",
+                    "kind": "lib"
+                }
+            },
+            "args": [],
+            "cwd": "${workspaceFolder}"
+        },
+        {
+            "type": "lldb",
+            "request": "launch",
+            "name": "Debug integration test 'dialects'",
+            "cargo": {
+                "args": [
+                    "test",
+                    "--no-run",
+                    "--test=dialects",
+                    "--package=sqruff-lib-dialects"
+                ],
+                "filter": {
+                    "name": "dialects",
+                    "kind": "test"
+                }
+            },
+            "args": [],
+            "cwd": "${workspaceFolder}"
+        },
+        {
+            "type": "lldb",
+            "request": "launch",
+            "name": "Debug unit tests in library 'sqruff_lsp'",
+            "cargo": {
+                "args": [
+                    "test",
+                    "--no-run",
+                    "--lib",
+                    "--package=sqruff-lsp"
+                ],
+                "filter": {
+                    "name": "sqruff_lsp",
+                    "kind": "lib"
+                }
+            },
+            "args": [],
+            "cwd": "${workspaceFolder}"
+        },
+        {
+            "type": "lldb",
+            "request": "launch",
+            "name": "Debug unit tests in library 'sqruff_wasm'",
+            "cargo": {
+                "args": [
+                    "test",
+                    "--no-run",
+                    "--lib",
+                    "--package=sqruff-wasm"
+                ],
+                "filter": {
+                    "name": "sqruff_wasm",
+                    "kind": "lib"
+                }
+            },
+            "args": [],
+            "cwd": "${workspaceFolder}"
+        },
+        {
+            "type": "lldb",
+            "request": "launch",
+            "name": "Debug unit tests in library 'lineage'",
+            "cargo": {
+                "args": [
+                    "test",
+                    "--no-run",
+                    "--lib",
+                    "--package=lineage"
+                ],
+                "filter": {
+                    "name": "lineage",
+                    "kind": "lib"
+                }
+            },
+            "args": [],
+            "cwd": "${workspaceFolder}"
+        },
+        {
+            "type": "lldb",
+            "request": "launch",
+            "name": "Debug unit tests in library 'sqruff_sqlinference'",
+            "cargo": {
+                "args": [
+                    "test",
+                    "--no-run",
+                    "--lib",
+                    "--package=sqruff-sqlinference"
+                ],
+                "filter": {
+                    "name": "sqruff_sqlinference",
+                    "kind": "lib"
+                }
+            },
+            "args": [],
+            "cwd": "${workspaceFolder}"
+        }
+    ]
+}

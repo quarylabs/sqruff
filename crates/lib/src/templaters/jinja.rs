@@ -120,6 +120,92 @@ FROM events
     }
 
     #[test]
+    fn test_jinja_templater_slice_file_empty() {
+        let source = r"
+    [sqruff]
+    templater = jinja
+        ";
+        let config = FluffConfig::from_source(source, None);
+        let templater = JinjaTemplater;
+
+        let processed = templater
+            .process("", "test.sql", &config, &None)
+            .unwrap();
+
+        // For an empty file, we expect no slices
+        assert_eq!(processed.sliced_file.len(), 0);
+    }
+
+    #[test]
+    fn test_jinja_templater_slice_file_simple() {
+        let source = r"
+[sqruff]
+templater = jinja
+        ";
+        let config = FluffConfig::from_source(source, None);
+        let templater = JinjaTemplater;
+
+        let processed = templater
+            .process("foo", "test.sql", &config, &None)
+            .unwrap();
+
+        // For a simple literal string, we expect one slice of type "literal"
+        let slices = processed.sliced_file.clone();
+        assert_eq!(slices.len(), 1);
+        
+        let slice = &slices[0];
+        assert_eq!(slice.slice_type, "literal");
+        assert_eq!(slice.source_slice, 0..3);
+        assert_eq!(slice.templated_slice, 0..3);
+    }
+
+    #[test]
+    fn test_jinja_templater_slice_file_with_comment_and_variable() {
+        let source = r"
+[sqruff]
+templater = jinja
+
+[sqruff.templater.jinja.context]
+blah = bar
+        ";
+        let config = FluffConfig::from_source(source, None);
+        let templater = JinjaTemplater;
+
+        let processed = templater
+            .process("SELECT {{blah}}, boo {# comment #} from something", "test.sql", &config, &None)
+            .unwrap();
+
+        // Check the slices match the expected pattern
+        let slices = processed.sliced_file.clone();
+        assert_eq!(slices.len(), 5);
+        
+        // Check each slice type and range
+        assert_eq!(slices[0].slice_type, "literal");
+        assert_eq!(slices[0].source_slice, 0..7);
+        assert_eq!(slices[0].templated_slice, 0..7);
+        
+        assert_eq!(slices[1].slice_type, "templated");
+        assert_eq!(slices[1].source_slice, 7..15);
+        assert_eq!(slices[1].templated_slice, 7..13);
+        
+        assert_eq!(slices[2].slice_type, "literal");
+        assert_eq!(slices[2].source_slice, 15..21);
+        assert_eq!(slices[2].templated_slice, 13..19);
+        
+        assert_eq!(slices[3].slice_type, "comment");
+        assert_eq!(slices[3].source_slice, 21..34);
+        assert_eq!(slices[3].templated_slice, 19..19);
+        
+        assert_eq!(slices[4].slice_type, "literal");
+        assert_eq!(slices[4].source_slice, 34..49);
+        assert_eq!(slices[4].templated_slice, 19..34);
+        
+        // Verify the templated output
+        assert_eq!(processed.templated(), "SELECT foobar, boo  from something");
+    }
+
+
+    #[test]
     fn test_jinja_templater_dynamic_variable_no_violations() {
         let source = r"
     [sqruff]

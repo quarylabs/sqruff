@@ -43,7 +43,7 @@ pub fn get_known_styles() -> HashMap<&'static str, Regex> {
     // e.g. WHERE bla = $name or WHERE bla = ${name}
     m.insert(
         "dollar",
-        Regex::new(r"(?<![:\w\\])\${?(?P<param_name>[\w_]+)}?").unwrap(),
+        Regex::new(r"\$(?:{)?(?P<param_name>[\w_]+)(?:})?").unwrap(),
     );
 
     // e.g. USE ${flyway:database}.schema_name;
@@ -182,7 +182,7 @@ param_style = colon
 my_name = 'john'
 ```
 
-then you can set sample values for each parameter, like my_name above. Notice that the value needs to be escaped as it will be replaced as a string during parsing. When the sample values aren’t provided, the templater will use parameter names themselves by default.
+then you can set sample values for each parameter, like my_name above. Notice that the value needs to be escaped as it will be replaced as a string during parsing. When the sample values aren't provided, the templater will use parameter names themselves by default.
 
 When parameters are positional, like question_mark, then their name is simply the order in which they appear, starting with 1.
 
@@ -200,7 +200,7 @@ param_regex = __(?P<param_name>[\w_]+)__
 my_name = 'john'
 ```
 
-N.B. quotes around param_regex in the config are interpreted literally by the templater. e.g. param_regex=’__(?P<param_name>[w_]+)__’ matches ‘__some_param__’ not __some_param__
+N.B. quotes around param_regex in the config are interpreted literally by the templater. e.g. param_regex='__(?P<param_name>[w_]+)__' matches '__some_param__' not __some_param__
 
 the named parameter param_name will be used as the key to replace, if missing, the parameter is assumed to be positional and numbers are used instead.
 
@@ -724,5 +724,39 @@ param_style = percent
         let result = take(&mut result.paths[0].files[0]).fix_string();
 
         assert_eq!(result, "SELECT\n    a,\n    b\nFROM users WHERE a = %s\n");
+    }
+
+    #[test]
+    /// Test dollar style parameters without spaces
+    fn test_dollar_style_no_spaces() {
+        let config = FluffConfig::from_source(
+            r#"
+[sqruff:templater:placeholder]
+param_style = dollar
+col2_value = 'test_value'
+            "#,
+            None,
+        );
+        let templater = PlaceholderTemplater {};
+        let test_cases = [
+            (
+                "SELECT col1 from my_table WHERE col2 = ${col2_value}",
+                "SELECT col1 from my_table WHERE col2 = 'test_value'",
+            ),
+            (
+                "SELECT col1 from my_table WHERE col2 = $col2_value",
+                "SELECT col1 from my_table WHERE col2 = 'test_value'",
+            ),
+            (
+                "-- debugging, col2_value = ${col2_value}",
+                "-- debugging, col2_value = 'test_value'",
+            ),
+        ];
+
+        for (input, expected) in test_cases {
+            let out_str = templater.process(input, "test.sql", &config, &None).unwrap();
+            let out = out_str.templated();
+            assert_eq!(expected, out, "Failed on input: {}", input);
+        }
     }
 }

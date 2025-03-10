@@ -74,7 +74,7 @@ jobs:
           node-version-file: ".nvmrc"
           cache: "pnpm"
       - run: pnpm install --frozen-lockfile
-      - uses: dtolnay/rust-toolchain@4f94fbe7e03939b0e674bcc9ca609a16088f63ff # ratchet:dtolnay/rust-toolchain@nightly
+      - uses: dtolnay/rust-toolchain@38b70195107dddab2c7bbd522bcf763bac00963b # ratchet:dtolnay/rust-toolchain@nightly
       - run: curl https://rustwasm.github.io/wasm-pack/installer/init.sh -sSf | sh
       - run: cd playground && pnpm playwright install
       - run: pnpm run ci

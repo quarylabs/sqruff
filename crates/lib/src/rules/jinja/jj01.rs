@@ -1,4 +1,5 @@
 use ahash::AHashMap;
+use sqruff_lib_core::dialects::syntax::SyntaxKind;
 use sqruff_lib_core::lint_fix::LintFix;
 use sqruff_lib_core::parser::segments::base::{ErasedSegment, SegmentBuilder};
 use sqruff_lib_core::parser::segments::fix::SourceFix;
@@ -58,6 +59,9 @@ SELECT {{ a }} from {{
     }
 
     fn eval(&self, context: &RuleContext) -> Vec<LintResult> {
+        // Look for non-literal segments.
+        // NOTE: The existing crawlers don't filter very well for only templated
+        // code, and so we process the whole file from the root here.
         debug_assert!(context.segment.get_position_marker().is_some());
 
         // If the position marker for the root segment is literal then there's
@@ -92,14 +96,16 @@ SELECT {{ a }} from {{
                 .raw
                 .find(stripped.chars().next().unwrap())
                 .unwrap_or(0);
-
-            // Whitespace should be single space OR contain newline
+            // For the following section, whitespace should be a single
+            // whitespace OR it should contain a newline.
             let mut pre_fix = None;
             let mut post_fix = None;
 
+            // Check the initial whitespace
             if ws_pre.is_empty() || (ws_pre != " " && !ws_pre.contains('\n')) {
                 pre_fix = Some(" ");
             }
+            // Check latter whitespace
             if ws_post.is_empty() || (ws_post != " " && !ws_post.contains('\n')) {
                 post_fix = Some(" ");
             }
@@ -176,23 +182,24 @@ impl RuleJJ01 {
             "String must start with {{ and end with }}"
         );
 
-        // Get the main content between the tag markers
+        // Jinja tags all have a length of two. We can use slicing to remove them easily.
         let mut main = s[2..s.len() - 2].to_string();
         let mut pre = s[..2].to_string();
         let mut post = s[s.len() - 2..].to_string();
 
-        // Handle plus/minus modifiers
+        // Optionally Jinja tags may also have plus or minus notation
+        // https://jinja2docs.readthedocs.io/en/stable/templates.html#whitespace-control
         let modifier_chars = ['+', '-'];
         if !main.is_empty() && modifier_chars.contains(&main.chars().next().unwrap()) {
-            let first_char = main.chars().next().unwrap();
+            let first_char = main.chars().next().unwrap().to_string();
             main = main[1..].to_string();
-            // Keep the modifier directly after {% or {{
+            // Keep the modifier with the tag marker
             pre = format!("{}{}", pre, first_char);
         }
         if !main.is_empty() && modifier_chars.contains(&main.chars().last().unwrap()) {
-            let last_char = main.chars().last().unwrap();
+            let last_char = main.chars().last().unwrap().to_string();
             main = main[..main.len() - 1].to_string();
-            // Keep the modifier directly before %} or }}
+            // Keep the modifier with the tag marker
             post = format!("{}{}", last_char, post);
         }
 
@@ -209,10 +216,8 @@ impl RuleJJ01 {
         // Recursively search to find a raw segment for a position in the source.
         // NOTE: This assumes it's not being called on a `raw`.
         // In the case that there are multiple potential targets, we will find the first.
-        assert!(!segment.is_raw(), "Segment must not be raw");
         let segments = segment.segments();
-        assert!(segments.len() > 0, "Segment must have segments");
-
+        assert!(!segments.is_empty(), "Segment must have segments");
         for seg in segments {
             let Some(pos_marker) = seg.get_position_marker() else {
                 continue;
@@ -222,7 +227,7 @@ impl RuleJJ01 {
                 continue;
             }
             // Is the current segment raw?
-            if seg.is_raw() {
+            if seg.is_type(SyntaxKind::Raw) {
                 return Some(seg);
             }
             // Otherwise recurse

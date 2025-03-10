@@ -784,10 +784,28 @@ fn iter_segments(
                         // Carry on to the next lexed element
                         break;
                     } else {
-                        unimplemented!()
+                        // We've got an element which extends beyond this templated slice.
+                        // This means that a _single_ lexed element claims both some
+                        // templated elements and some non-templated elements. That could
+                        // include all kinds of things (and from here we don't know what
+                        // else is yet to come, comments, blocks, literals etc...).
+
+                        // In the `literal` version of this code we would consider
+                        // splitting the literal element here, but in the templated
+                        // side we don't. That's because the way that templated tokens
+                        // are lexed, means that they should arrive "pre-split".
+
+                        // Stash the source idx for later when we do make a segment.
+                        if stashed_source_idx.is_none() {
+                            stashed_source_idx = Some(tfs.source_slice.start);
+                            continue;
+                        }
+                        // Move on to the next template slice
+                        continue;
                     }
                 }
             }
+            panic!("Unable to process slice: {:?}", tfs);
         }
     }
     result

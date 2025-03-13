@@ -1,0 +1,25 @@
+file:
+- statement:
+  - access_statement:
+    - keyword: grant
+    - object_reference:
+      - naked_identifier: some_role
+    - keyword: to
+    - role_reference:
+      - naked_identifier: a_user
+    - keyword: with
+    - keyword: admin
+    - boolean_literal: 'true'
+- statement_terminator: ;
+- statement:
+  - access_statement:
+    - keyword: grant
+    - object_reference:
+      - naked_identifier: some_role
+    - keyword: to
+    - role_reference:
+      - naked_identifier: a_user
+    - keyword: with
+    - keyword: admin
+    - boolean_literal: 'false'
+- statement_terminator: ;

@@ -3239,24 +3239,7 @@ pub fn raw_dialect() -> Dialect {
                                 Ref::new("FunctionSegment"),
                                 Ref::keyword("PUBLIC")
                             ])]),
-                            one_of(vec_of_erased![
-                                Sequence::new(vec_of_erased![
-                                    Ref::keyword("WITH"),
-                                    Ref::keyword("GRANT"),
-                                    Ref::keyword("OPTION"),
-                                ]),
-                                Sequence::new(vec_of_erased![
-                                    Ref::keyword("WITH"),
-                                    Ref::keyword("ADMIN"),
-                                    Ref::keyword("OPTION"),
-                                ]),
-                                Sequence::new(vec_of_erased![
-                                    Ref::keyword("COPY"),
-                                    Ref::keyword("CURRENT"),
-                                    Ref::keyword("GRANTS"),
-                                ])
-                            ])
-                            .config(|this| this.optional()),
+                            Ref::new("AccessStatementSegmentGrantRoleWithOptionGrammar").optional(),
                             Sequence::new(vec_of_erased![
                                 Ref::keyword("GRANTED"),
                                 Ref::keyword("BY"),
@@ -4588,6 +4571,28 @@ pub fn raw_dialect() -> Dialect {
     )]);
 
     ansi_dialect.add([
+        (
+            "AccessStatementSegmentGrantRoleWithOptionGrammar".into(),
+            one_of(vec_of_erased![
+                Sequence::new(vec_of_erased![
+                    Ref::keyword("WITH"),
+                    Ref::keyword("GRANT"),
+                    Ref::keyword("OPTION"),
+                ]),
+                Sequence::new(vec_of_erased![
+                    Ref::keyword("WITH"),
+                    Ref::keyword("ADMIN"),
+                    Ref::keyword("OPTION"),
+                ]),
+                Sequence::new(vec_of_erased![
+                    Ref::keyword("COPY"),
+                    Ref::keyword("CURRENT"),
+                    Ref::keyword("GRANTS"),
+                ])
+            ])
+            .to_matchable()
+            .into(),
+        ),
         (
             // Expression_A_Grammar
             // https://www.cockroachlabs.com/docs/v20.2/sql-grammar.html#a_expr

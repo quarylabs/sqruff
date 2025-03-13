@@ -6704,6 +6704,33 @@ pub fn raw_dialect() -> Dialect {
             .to_matchable()
             .into(),
         ),
+        (
+            "AccessStatementSegmentGrantRoleWithOptionGrammar".into(),
+            one_of(vec_of_erased![
+                Sequence::new(vec_of_erased![
+                    Ref::keyword("WITH"),
+                    Ref::keyword("GRANT"),
+                    Ref::keyword("OPTION"),
+                ]),
+                Sequence::new(vec_of_erased![
+                    Ref::keyword("WITH"),
+                    Ref::keyword("ADMIN"),
+                    Ref::keyword("OPTION"),
+                ]),
+                Sequence::new(vec_of_erased![
+                    Ref::keyword("WITH"),
+                    Ref::keyword("ADMIN"),
+                    Ref::new("BooleanLiteralGrammar"),
+                ]),
+                Sequence::new(vec_of_erased![
+                    Ref::keyword("COPY"),
+                    Ref::keyword("CURRENT"),
+                    Ref::keyword("GRANTS"),
+                ])
+            ])
+            .to_matchable()
+            .into(),
+        ),
     ]);
 
     postgres

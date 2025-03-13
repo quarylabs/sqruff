@@ -10,7 +10,7 @@ use crate::parser::markers::PositionMarker;
 
 type CheckTuple = (&'static str, usize, usize);
 
-pub trait SqlError {
+pub trait SqlError: Display {
     fn fixable(&self) -> bool;
     fn rule_code(&self) -> Option<&'static str>;
     fn identifier(&self) -> &'static str;
@@ -53,6 +53,12 @@ impl SQLBaseError {
 
     pub fn desc(&self) -> &str {
         &self.description
+    }
+}
+
+impl Display for SQLBaseError {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "{}", self.description)
     }
 }
 
@@ -129,6 +135,12 @@ impl From<SQLBaseError> for SQLLintError {
 
 #[derive(Debug, PartialEq, Clone)]
 pub struct SQLTemplaterError {}
+
+impl Display for SQLTemplaterError {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "SQLTemplaterError")
+    }
+}
 
 impl SqlError for SQLTemplaterError {
     fn fixable(&self) -> bool {

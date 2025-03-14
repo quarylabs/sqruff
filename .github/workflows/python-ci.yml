@@ -19,32 +19,32 @@ permissions:
   contents: read
 
 jobs:
-  windows:
-    runs-on: windows-latest
-    strategy:
-      fail-fast: false
-      matrix:
-        platform:
-          - target: x86_64-pc-windows-msvc
-            arch: x64
-          - target: i686-pc-windows-msvc
-            arch: x86
-    steps:
-      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # ratchet:actions/checkout@v4
-      - uses: actions/setup-python@42375524e23c412d93fb67b49958b491fce71c38 # ratchet:actions/setup-python@v5
-        with:
-          architecture: ${{ matrix.platform.arch }}
-      - name: Build wheels
-        uses: PyO3/maturin-action@36db84001d74475ad1b8e6613557ae4ee2dc3598 # ratchet:PyO3/maturin-action@v1
-        with:
-          target: ${{ matrix.platform.target }}
-          args: --release --interpreter python3.10 python3.11 python3.12 python3.13 --out dist --manifest-path crates/cli/Cargo.toml
-          sccache: "true"
-      - name: Upload wheels
-        uses: actions/upload-artifact@4cec3d8aa04e39d1a68397de0c4cd6fb9dce8ec1 # ratchet:actions/upload-artifact@v4
-        with:
-          name: wheels-${{ matrix.platform.target }}
-          path: dist
+  ##windows:
+  ##  runs-on: windows-latest
+  ##  strategy:
+  ##    fail-fast: false
+  ##    matrix:
+  ##      platform:
+  ##        - target: x86_64-pc-windows-msvc
+  ##          arch: x64
+  ##        - target: i686-pc-windows-msvc
+  ##          arch: x86
+  ##  steps:
+  ##    - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # ratchet:actions/checkout@v4
+  ##    - uses: actions/setup-python@42375524e23c412d93fb67b49958b491fce71c38 # ratchet:actions/setup-python@v5
+  ##      with:
+  ##        architecture: ${{ matrix.platform.arch }}
+  ##    - name: Build wheels
+  ##      uses: PyO3/maturin-action@36db84001d74475ad1b8e6613557ae4ee2dc3598 # ratchet:PyO3/maturin-action@v1
+  ##      with:
+  ##        target: ${{ matrix.platform.target }}
+  ##        args: --release --interpreter python3.10 python3.11 python3.12 python3.13 --out dist --manifest-path crates/cli/Cargo.toml
+  ##        sccache: "true"
+  ##    - name: Upload wheels
+  ##      uses: actions/upload-artifact@4cec3d8aa04e39d1a68397de0c4cd6fb9dce8ec1 # ratchet:actions/upload-artifact@v4
+  ##      with:
+  ##        name: wheels-${{ matrix.platform.target }}
+  ##        path: dist
 
   macos:
     runs-on: ${{ matrix.platform.runner }}
@@ -52,8 +52,8 @@ jobs:
       fail-fast: false # Allow other variants to continue even if one fails
       matrix:
         platform:
-          - runner: macos-13
-            target: x86_64
+          # - runner: macos-13
+          #   target: x86_64
           - runner: macos-14
             target: aarch64
     steps:
@@ -64,8 +64,8 @@ jobs:
       - name: Build wheels
         uses: PyO3/maturin-action@36db84001d74475ad1b8e6613557ae4ee2dc3598 # ratchet:PyO3/maturin-action@v1
         with:
-          target: ${{ matrix.platform.target }}
-          args: --release  --interpreter python3.10 python3.11 python3.12 python3.13 --out dist --manifest-path crates/cli/Cargo.toml
+          target: aarch64-apple-darwin
+          args: --release  --interpreter python3.13 --out dist --manifest-path crates/cli/Cargo.toml
           sccache: "true"
       - name: Upload wheels
         uses: actions/upload-artifact@4cec3d8aa04e39d1a68397de0c4cd6fb9dce8ec1 # ratchet:actions/upload-artifact@v4
@@ -73,48 +73,48 @@ jobs:
           name: wheels-macos-${{ matrix.platform.target }}
           path: dist
 
-  linux:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # ratchet:actions/checkout@v4
-      - uses: actions/setup-python@42375524e23c412d93fb67b49958b491fce71c38 # ratchet:actions/setup-python@v5
-        with:
-          python-version: "3.10"
-      - uses: actions/setup-python@42375524e23c412d93fb67b49958b491fce71c38 # ratchet:actions/setup-python@v5
-        with:
-          python-version: "3.11"
-      - uses: actions/setup-python@42375524e23c412d93fb67b49958b491fce71c38 # ratchet:actions/setup-python@v5
-        with:
-          python-version: "3.12"
-      - uses: actions/setup-python@42375524e23c412d93fb67b49958b491fce71c38 # ratchet:actions/setup-python@v5
-        with:
-          python-version: "3.13"
-      - name: Build wheels
-        uses: PyO3/maturin-action@36db84001d74475ad1b8e6613557ae4ee2dc3598 # ratchet:PyO3/maturin-action@v1
-        with:
-          target: x86_64-unknown-linux-gnu
-          args: --release  --interpreter python3.10 python3.11 python3.12 python3.13 --out dist --manifest-path crates/cli/Cargo.toml
-          sccache: "true"
-      - name: Upload wheels
-        uses: actions/upload-artifact@4cec3d8aa04e39d1a68397de0c4cd6fb9dce8ec1 # ratchet:actions/upload-artifact@v4
-        with:
-          name: wheels-linux-x86_64
-          path: dist
+  ##linux:
+  ##  runs-on: ubuntu-latest
+  ##  steps:
+  ##    - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # ratchet:actions/checkout@v4
+  ##    - uses: actions/setup-python@42375524e23c412d93fb67b49958b491fce71c38 # ratchet:actions/setup-python@v5
+  ##      with:
+  ##        python-version: "3.10"
+  ##    - uses: actions/setup-python@42375524e23c412d93fb67b49958b491fce71c38 # ratchet:actions/setup-python@v5
+  ##      with:
+  ##        python-version: "3.11"
+  ##    - uses: actions/setup-python@42375524e23c412d93fb67b49958b491fce71c38 # ratchet:actions/setup-python@v5
+  ##      with:
+  ##        python-version: "3.12"
+  ##    - uses: actions/setup-python@42375524e23c412d93fb67b49958b491fce71c38 # ratchet:actions/setup-python@v5
+  ##      with:
+  ##        python-version: "3.13"
+  ##    - name: Build wheels
+  ##      uses: PyO3/maturin-action@36db84001d74475ad1b8e6613557ae4ee2dc3598 # ratchet:PyO3/maturin-action@v1
+  ##      with:
+  ##        target: x86_64-unknown-linux-gnu
+  ##        args: --release  --interpreter python3.10 python3.11 python3.12 python3.13 --out dist --manifest-path crates/cli/Cargo.toml
+  ##        sccache: "true"
+  ##    - name: Upload wheels
+  ##      uses: actions/upload-artifact@4cec3d8aa04e39d1a68397de0c4cd6fb9dce8ec1 # ratchet:actions/upload-artifact@v4
+  ##      with:
+  ##        name: wheels-linux-x86_64
+  ##        path: dist
 
-  sdist:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # ratchet:actions/checkout@v4
-      - name: Build sdist
-        uses: PyO3/maturin-action@36db84001d74475ad1b8e6613557ae4ee2dc3598 # ratchet:PyO3/maturin-action@v1
-        with:
-          command: sdist
-          args: --out dist --manifest-path crates/cli/Cargo.toml
-      - name: Upload sdist
-        uses: actions/upload-artifact@4cec3d8aa04e39d1a68397de0c4cd6fb9dce8ec1 # ratchet:actions/upload-artifact@v4
-        with:
-          name: wheels-sdist
-          path: dist
+  ##sdist:
+  ##  runs-on: ubuntu-latest
+  ##  steps:
+  ##    - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # ratchet:actions/checkout@v4
+  ##    - name: Build sdist
+  ##      uses: PyO3/maturin-action@36db84001d74475ad1b8e6613557ae4ee2dc3598 # ratchet:PyO3/maturin-action@v1
+  ##      with:
+  ##        command: sdist
+  ##        args: --out dist --manifest-path crates/cli/Cargo.toml
+  ##    - name: Upload sdist
+  ##      uses: actions/upload-artifact@4cec3d8aa04e39d1a68397de0c4cd6fb9dce8ec1 # ratchet:actions/upload-artifact@v4
+  ##      with:
+  ##        name: wheels-sdist
+  ##        path: dist
 
   release:
     name: Release

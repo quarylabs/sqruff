@@ -69,13 +69,11 @@ jobs:
           target: aarch64
           args: --release --out ../../dist
           sccache: "true"
-      - run: |
-          ls -lah dist/ \
-          python3 -m ensurepip --upgrade \
-          python3 -m pip install --upgrade pip \
-          pip --version \
-          pip install dist/sqruff-0.25.16-cp313-cp313-macosx_11_0_arm64.whl \
-          sqruff
+      - run: python3 -m ensurepip --upgrade \
+      - run: python3 -m pip install --upgrade pip \
+      - run: pip --version \
+      - run: pip install dist/sqruff-0.25.16-cp313-cp313-macosx_11_0_arm64.whl \
+      - run: sqruff
       - name: Upload wheels
         uses: actions/upload-artifact@4cec3d8aa04e39d1a68397de0c4cd6fb9dce8ec1 # ratchet:actions/upload-artifact@v4
         with:

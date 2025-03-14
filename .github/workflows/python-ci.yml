@@ -57,7 +57,7 @@ jobs:
         platform:
           # - runner: macos-13
           #   target: x86_64
-          - runner: macos-14
+          - runner: macos-latest
             target: aarch64
     steps:
       - run: sw_vers

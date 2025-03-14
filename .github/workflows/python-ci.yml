@@ -15,9 +15,6 @@ on:
   pull_request:
   workflow_dispatch:
 
-env:
-  MACOSX_DEPLOYMENT_TARGET: 14
-
 permissions:
   contents: read
 
@@ -69,7 +66,6 @@ jobs:
         uses: PyO3/maturin-action@ac4fe6ed80d382f96d3456076766a4fdbe284bf9 # ratchet:PyO3/maturin-action@v1
         with:
           working-directory: crates/cli
-          docker-options: -e MACOSX_DEPLOYMENT_TARGET=14
           target: aarch64
           args: --release --out ../../dist
           sccache: "true"

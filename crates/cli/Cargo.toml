@@ -76,7 +76,6 @@ strum_macros.workspace = true
 clap = { version = "4", features = ["derive"] }
 console = "0.15.8"
 ignore = "0.4.23"
-pyo3 = { version = "0.24.0", features = ["auto-initialize"], optional = true }
 
 [target.'cfg(target_os = "windows")'.dependencies]
 mimalloc = "0.1"

@@ -64,8 +64,9 @@ jobs:
       - name: Build wheels
         uses: PyO3/maturin-action@ac4fe6ed80d382f96d3456076766a4fdbe284bf9 # ratchet:PyO3/maturin-action@v1
         with:
+          working-dir: crates/cli
           target: aarch64
-          args: --release  --interpreter python3.13 --out dist --manifest-path crates/cli/Cargo.toml
+          args: --release  --interpreter python3.13 --out dist
           sccache: "true"
       - name: Upload wheels
         uses: actions/upload-artifact@4cec3d8aa04e39d1a68397de0c4cd6fb9dce8ec1 # ratchet:actions/upload-artifact@v4

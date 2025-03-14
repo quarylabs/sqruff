@@ -47,7 +47,7 @@ jobs:
   ##        path: dist
 
   macos:
-    runs-on: macos-14
+    runs-on: ${{ matrix.platform.runner }}
     strategy:
       fail-fast: false # Allow other variants to continue even if one fails
       matrix:
@@ -62,9 +62,9 @@ jobs:
         with:
           python-version: "3.13"
       - name: Build wheels
-        uses: PyO3/maturin-action@36db84001d74475ad1b8e6613557ae4ee2dc3598 # ratchet:PyO3/maturin-action@v1
+        uses: PyO3/maturin-action@ac4fe6ed80d382f96d3456076766a4fdbe284bf9 # ratchet:PyO3/maturin-action@v1
         with:
-          target: aarch64-apple-darwin
+          target: aarch64
           args: --release  --interpreter python3.13 --out dist --manifest-path crates/cli/Cargo.toml
           sccache: "true"
       - name: Upload wheels

@@ -69,6 +69,7 @@ jobs:
           target: aarch64
           args: --release --out ../../dist
           sccache: "true"
+      - run: echo $PYTHON_PATH
       - run: python3 -m ensurepip --upgrade \
       - run: python3 -m pip install --upgrade pip \
       - run: pip --version \

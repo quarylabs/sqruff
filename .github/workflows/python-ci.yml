@@ -65,7 +65,7 @@ jobs:
         uses: PyO3/maturin-action@36db84001d74475ad1b8e6613557ae4ee2dc3598 # ratchet:PyO3/maturin-action@v1
         with:
           target: aarch64-apple-darwin
-          args: --release  --interpreter python3.13 --out dist --manifest-path crates/cli/Cargo.toml
+          args: --release  --out dist --manifest-path crates/cli/Cargo.toml
           sccache: "true"
       - name: Upload wheels
         uses: actions/upload-artifact@4cec3d8aa04e39d1a68397de0c4cd6fb9dce8ec1 # ratchet:actions/upload-artifact@v4

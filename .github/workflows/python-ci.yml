@@ -64,7 +64,7 @@ jobs:
       - name: Build wheels
         uses: PyO3/maturin-action@ac4fe6ed80d382f96d3456076766a4fdbe284bf9 # ratchet:PyO3/maturin-action@v1
         with:
-          working-dir: crates/cli
+          working-directory: crates/cli
           target: aarch64
           args: --release --out dist
           sccache: "true"

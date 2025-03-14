@@ -47,7 +47,7 @@ jobs:
   ##        path: dist
 
   macos:
-    runs-on: ${{ matrix.platform.runner }}
+    runs-on: macos-14
     strategy:
       fail-fast: false # Allow other variants to continue even if one fails
       matrix:

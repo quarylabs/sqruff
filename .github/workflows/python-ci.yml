@@ -66,7 +66,7 @@ jobs:
         with:
           working-directory: crates/cli
           target: aarch64
-          args: --release --out dist
+          args: --release --out ../../dist
           sccache: "true"
       - name: Upload wheels
         uses: actions/upload-artifact@4cec3d8aa04e39d1a68397de0c4cd6fb9dce8ec1 # ratchet:actions/upload-artifact@v4

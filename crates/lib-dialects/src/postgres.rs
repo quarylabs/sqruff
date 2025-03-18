@@ -6259,8 +6259,19 @@ pub fn raw_dialect() -> Dialect {
                     ])
                     .config(|this| this.optional()),
                     Bracketed::new(vec_of_erased![
-                        Delimited::new(vec_of_erased![Anything::new()])
-                            .config(|this| this.optional())
+                        Delimited::new(vec_of_erased![one_of(vec_of_erased![
+                            Sequence::new(vec_of_erased![
+                                Ref::new("ColumnReferenceSegment"),
+                                Ref::new("DatatypeSegment"),
+                                Sequence::new(vec_of_erased![
+                                    Ref::keyword("COLLATE"),
+                                    Ref::new("CollationReferenceSegment"),
+                                ])
+                                .config(|this| this.optional()),
+                            ]),
+                            Anything::new(),
+                        ])])
+                        .config(|this| this.optional())
                     ])
                     .config(|this| this.optional()),
                 ])

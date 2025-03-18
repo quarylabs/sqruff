@@ -459,11 +459,15 @@ file:
     - keyword: AS
     - bracketed:
       - start_bracket: (
-      - word: name
-      - word: text
+      - column_reference:
+        - naked_identifier: name
+      - data_type:
+        - keyword: text
       - comma: ','
-      - word: salary
-      - word: numeric
+      - column_reference:
+        - naked_identifier: salary
+      - data_type:
+        - keyword: numeric
       - end_bracket: )
 - statement_terminator: ;
 - statement:

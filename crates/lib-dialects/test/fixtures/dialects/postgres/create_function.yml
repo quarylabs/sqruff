@@ -338,11 +338,15 @@ file:
     - keyword: AS
     - bracketed:
       - start_bracket: (
-      - word: f1
-      - word: int
+      - column_reference:
+        - naked_identifier: f1
+      - data_type:
+        - keyword: int
       - comma: ','
-      - word: f2
-      - word: text
+      - column_reference:
+        - naked_identifier: f2
+      - data_type:
+        - keyword: text
       - end_bracket: )
 - statement_terminator: ;
 - statement:

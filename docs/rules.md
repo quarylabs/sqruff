@@ -66,6 +66,7 @@ The following rules are available in this create. This list is generated from th
 | ST07 | [structure.using](#structureusing) | Prefer specifying join keys instead of using ``USING``. | 
 | ST08 | [structure.distinct](#structuredistinct) | Looking for DISTINCT before a bracket | 
 | ST09 | [structure.join_condition_order](#structurejoin_condition_order) | Joins should list the table referenced earlier/later first. | 
+| JJ01 | [jinja.padding](#jinjapadding) | Jinja tags should have a single whitespace on either side. | 
 
 ## Rule Details
 
@@ -2380,5 +2381,35 @@ from foo
 left join bar
     on foo.a = bar.a
     and foo.b = bar.b
+```
+
+
+### jinja.padding
+
+Jinja tags should have a single whitespace on either side.
+
+**Code:** `JJ01`
+
+**Groups:** `all`, `jinja`
+
+**Fixable:** Yes
+
+**Anti-pattern**
+
+Jinja tags with either no whitespace or very long whitespace are hard to read.
+
+```sql
+SELECT {{    a     }} from {{ref('foo')}}
+```
+
+**Best practice**
+
+A single whitespace surrounding Jinja tags, alternatively longer gaps containing newlines are acceptable.
+
+```sql
+SELECT {{ a }} from {{ ref('foo') }};
+SELECT {{ a }} from {{
+     ref('foo')
+}};
 ```
 

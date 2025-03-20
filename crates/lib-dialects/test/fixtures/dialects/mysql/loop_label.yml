@@ -1,0 +1,18 @@
+file:
+- unparsable:
+  - word: iteration
+  - colon: ':'
+  - word: loop
+  - word: select
+  - numeric_literal: '1'
+  - semicolon: ;
+  - word: iterate
+  - word: iteration
+  - semicolon: ;
+  - word: leave
+  - word: iteration
+  - semicolon: ;
+  - word: end
+  - word: loop
+  - word: iteration
+  - semicolon: ;

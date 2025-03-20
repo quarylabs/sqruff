@@ -1,0 +1,9 @@
+file:
+- unparsable:
+  - word: blocks
+  - colon: ':'
+  - word: BEGIN
+  - word: nest
+  - colon: ':'
+  - word: begin
+  - word: set

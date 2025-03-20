@@ -1,0 +1,68 @@
+file:
+- statement:
+  - values_clause:
+    - keyword: VALUES
+    - keyword: ROW
+    - bracketed:
+      - start_bracket: (
+      - quoted_literal: '''a'''
+      - comma: ','
+      - numeric_literal: '1'
+      - end_bracket: )
+    - comma: ','
+    - keyword: ROW
+    - bracketed:
+      - start_bracket: (
+      - quoted_literal: '''b'''
+      - comma: ','
+      - numeric_literal: '2'
+      - end_bracket: )
+- statement_terminator: ;
+- statement:
+  - values_clause:
+    - keyword: VALUES
+    - keyword: ROW
+    - bracketed:
+      - start_bracket: (
+      - quoted_literal: '''a'''
+      - comma: ','
+      - numeric_literal: '1'
+      - end_bracket: )
+    - comma: ','
+    - keyword: ROW
+    - bracketed:
+      - start_bracket: (
+      - expression:
+        - function:
+          - function_name:
+            - function_name_identifier: upper
+          - bracketed:
+            - start_bracket: (
+            - expression:
+              - quoted_literal: '''b'''
+            - end_bracket: )
+      - comma: ','
+      - expression:
+        - numeric_literal: '2'
+        - binary_operator: +
+        - numeric_literal: '1'
+      - end_bracket: )
+- statement_terminator: ;
+- statement:
+  - values_clause:
+    - keyword: VALUES
+    - keyword: ROW
+    - bracketed:
+      - start_bracket: (
+      - expression:
+        - bare_function: CURRENT_DATE
+      - comma: ','
+      - quoted_literal: '''2020-06-04'''
+      - unparsable:
+        - plus: +
+        - word: interval
+        - minus: '-'
+        - numeric_literal: '5'
+        - word: day
+      - end_bracket: )
+- statement_terminator: ;

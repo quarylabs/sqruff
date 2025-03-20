@@ -25,6 +25,8 @@ pub mod duckdb;
 pub mod hive;
 #[cfg(feature = "mysql")]
 pub mod mysql;
+#[cfg(feature = "mysql")]
+mod mysql_keywords;
 #[cfg(feature = "postgres")]
 pub mod postgres;
 #[cfg(feature = "postgres")]

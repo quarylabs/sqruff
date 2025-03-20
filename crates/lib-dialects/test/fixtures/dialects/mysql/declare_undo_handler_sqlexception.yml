@@ -1,0 +1,13 @@
+file:
+- unparsable:
+  - word: DECLARE
+  - word: undo
+  - word: handler
+  - word: for
+  - word: sqlexception
+  - word: begin
+  - word: select
+  - numeric_literal: '1'
+  - semicolon: ;
+  - word: end
+  - semicolon: ;

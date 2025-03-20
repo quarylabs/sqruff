@@ -1,0 +1,277 @@
+file:
+- statement:
+  - select_statement:
+    - select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+        - quoted_literal: ''''''
+- statement_terminator: ;
+- statement:
+  - select_statement:
+    - select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+        - column_reference:
+          - quoted_identifier: '""'
+- statement_terminator: ;
+- statement:
+  - select_statement:
+    - select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+        - quoted_literal: ''''''''''
+- statement_terminator: ;
+- statement:
+  - select_statement:
+    - select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+        - column_reference:
+          - quoted_identifier: '""'
+        - alias_expression:
+          - quoted_identifier: '""'
+- statement_terminator: ;
+- statement:
+  - select_statement:
+    - select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+        - quoted_literal: |-
+            '
+
+            '
+- statement_terminator: ;
+- statement:
+  - select_statement:
+    - select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+        - column_reference:
+          - quoted_identifier: |-
+              "
+
+              "
+- statement_terminator: ;
+- statement:
+  - select_statement:
+    - select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+        - quoted_literal: '''''''aaa'''''''
+- statement_terminator: ;
+- statement:
+  - select_statement:
+    - select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+        - column_reference:
+          - quoted_identifier: '""'
+        - alias_expression:
+          - quoted_identifier: '"aaa"'
+      - unparsable:
+        - double_quote: '""'
+- statement_terminator: ;
+- statement:
+  - select_statement:
+    - select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+        - quoted_literal: |-
+            '
+            ''
+            '
+- statement_terminator: ;
+- statement:
+  - select_statement:
+    - select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+        - column_reference:
+          - quoted_identifier: |-
+              "
+              "
+        - alias_expression:
+          - quoted_identifier: |-
+              "
+              "
+- statement_terminator: ;
+- statement:
+  - select_statement:
+    - select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+        - quoted_literal: '''foo'''
+        - alias_expression:
+          - quoted_identifier: '''bar'''
+- statement_terminator: ;
+- statement:
+  - select_statement:
+    - select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+        - column_reference:
+          - quoted_identifier: '"foo"'
+        - alias_expression:
+          - quoted_identifier: '"bar"'
+- statement_terminator: ;
+- statement:
+  - select_statement:
+    - select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+        - quoted_literal: '''foo'''
+        - alias_expression:
+          - quoted_identifier: '''bar'''
+- statement_terminator: ;
+- statement:
+  - select_statement:
+    - select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+        - column_reference:
+          - quoted_identifier: '"foo"'
+        - alias_expression:
+          - quoted_identifier: '"bar"'
+- statement_terminator: ;
+- statement:
+  - select_statement:
+    - select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+        - quoted_literal: '''foo'''
+        - alias_expression:
+          - quoted_identifier: '"bar"'
+- statement_terminator: ;
+- statement:
+  - select_statement:
+    - select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+        - quoted_literal: '''foo'''
+        - alias_expression:
+          - quoted_identifier: '''bar'''
+- statement_terminator: ;
+- statement:
+  - select_statement:
+    - select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+        - column_reference:
+          - quoted_identifier: '"foo"'
+        - alias_expression:
+          - quoted_identifier: '"bar"'
+- statement_terminator: ;
+- statement:
+  - select_statement:
+    - select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+        - quoted_literal: '''foo'''
+        - alias_expression:
+          - quoted_identifier: '''bar'''
+- statement_terminator: ;
+- statement:
+  - select_statement:
+    - select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+        - column_reference:
+          - quoted_identifier: '"foo"'
+        - alias_expression:
+          - quoted_identifier: '"bar"'
+- statement_terminator: ;
+- statement:
+  - select_statement:
+    - select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+        - quoted_literal: '''foo'''
+        - alias_expression:
+          - quoted_identifier: '''bar'''
+- statement_terminator: ;
+- statement:
+  - select_statement:
+    - select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+        - column_reference:
+          - quoted_identifier: '"foo"'
+        - alias_expression:
+          - quoted_identifier: '"bar"'
+- statement_terminator: ;
+- statement:
+  - update_statement:
+    - keyword: UPDATE
+    - table_reference:
+      - naked_identifier: table1
+    - set_clause_list:
+      - keyword: SET
+      - set_clause:
+        - column_reference:
+          - naked_identifier: column1
+        - comparison_operator:
+          - raw_comparison_operator: =
+        - quoted_literal: '''baz\''s'''
+- statement_terminator: ;
+- statement:
+  - update_statement:
+    - keyword: UPDATE
+    - table_reference:
+      - naked_identifier: table1
+    - set_clause_list:
+      - keyword: SET
+      - set_clause:
+        - column_reference:
+          - naked_identifier: column1
+        - comparison_operator:
+          - raw_comparison_operator: =
+        - column_reference:
+          - quoted_identifier: '"baz\"s"'
+- statement_terminator: ;
+- statement:
+  - select_statement:
+    - select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+        - quoted_literal: '''terminating MySQL-y escaped single-quote bazs\'''''
+- statement_terminator: ;
+- statement:
+  - select_statement:
+    - select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+        - column_reference:
+          - quoted_identifier: '"terminating MySQL-y escaped double-quote bazs\""'
+- statement_terminator: ;
+- statement:
+  - select_statement:
+    - select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+        - quoted_literal: '''terminating ANSI-ish escaped single-quote '''''''
+- statement_terminator: ;
+- statement:
+  - select_statement:
+    - select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+        - column_reference:
+          - quoted_identifier: '"terminating ANSI-ish escaped double-quote "'
+        - alias_expression:
+          - quoted_identifier: '""'
+- statement_terminator: ;
+- statement:
+  - select_statement:
+    - select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+        - quoted_literal: '''\\'''
+- statement_terminator: ;
+- statement:
+  - select_statement:
+    - select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+        - column_reference:
+          - quoted_identifier: '"\\"'
+- statement_terminator: ;

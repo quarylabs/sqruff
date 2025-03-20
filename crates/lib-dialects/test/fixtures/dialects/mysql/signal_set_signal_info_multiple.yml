@@ -1,0 +1,12 @@
+file:
+- unparsable:
+  - word: resignal
+  - word: set
+  - word: message_text
+  - raw_comparison_operator: =
+  - single_quote: '''test message'''
+  - comma: ','
+  - word: mysql_errno
+  - raw_comparison_operator: =
+  - single_quote: '''42S500'''
+  - semicolon: ;

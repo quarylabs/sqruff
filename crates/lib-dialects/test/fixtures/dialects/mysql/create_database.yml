@@ -1,0 +1,76 @@
+file:
+- statement:
+  - create_database_statement:
+    - keyword: CREATE
+    - keyword: DATABASE
+    - database_reference:
+      - naked_identifier: my_database
+- statement_terminator: ;
+- statement:
+  - create_database_statement:
+    - keyword: CREATE
+    - keyword: DATABASE
+    - keyword: IF
+    - keyword: NOT
+    - keyword: EXISTS
+    - database_reference:
+      - naked_identifier: my_database
+- statement_terminator: ;
+- statement:
+  - create_database_statement:
+    - keyword: CREATE
+    - keyword: DATABASE
+    - database_reference:
+      - naked_identifier: my_database
+- file:
+  - word: DEFAULT
+  - word: CHARACTER
+  - word: SET
+  - word: utf8mb4
+  - word: COLLATE
+  - word: utf8mb4_0900_ai_ci
+  - word: DEFAULT
+  - word: ENCRYPTION
+  - single_quote: '''N'''
+  - semicolon: ;
+  - word: CREATE
+  - word: DATABASE
+  - word: my_database
+  - word: DEFAULT
+  - word: CHARACTER
+  - word: SET
+  - raw_comparison_operator: =
+  - word: utf8mb4
+  - word: COLLATE
+  - raw_comparison_operator: =
+  - word: utf8mb4_0900_ai_ci
+  - word: DEFAULT
+  - word: ENCRYPTION
+  - raw_comparison_operator: =
+  - single_quote: '''N'''
+  - semicolon: ;
+  - word: CREATE
+  - word: SCHEMA
+  - word: my_database
+  - word: DEFAULT
+  - word: CHARACTER
+  - word: SET
+  - word: utf8mb4
+  - word: COLLATE
+  - word: utf8mb4_0900_ai_ci
+  - word: DEFAULT
+  - word: ENCRYPTION
+  - single_quote: '''N'''
+  - semicolon: ;
+  - word: CREATE
+  - word: DATABASE
+  - word: IF
+  - word: NOT
+  - word: EXISTS
+  - word: xxx
+  - word: CHARACTER
+  - word: SET
+  - double_quote: '"utf8mb4"'
+  - word: COLLATE
+  - double_quote: '"utf8mb4_bin"'
+  - semicolon: ;

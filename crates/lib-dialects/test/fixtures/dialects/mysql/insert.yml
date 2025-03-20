@@ -1,0 +1,387 @@
+file:
+- statement:
+  - insert_statement:
+    - keyword: INSERT
+    - keyword: INTO
+    - table_reference:
+      - naked_identifier: t1
+    - bracketed:
+      - start_bracket: (
+      - column_reference:
+        - naked_identifier: a
+      - comma: ','
+      - column_reference:
+        - naked_identifier: b
+      - comma: ','
+      - column_reference:
+        - naked_identifier: c
+      - end_bracket: )
+    - values_clause:
+      - keyword: VALUES
+      - bracketed:
+        - start_bracket: (
+        - numeric_literal: '1'
+        - comma: ','
+        - numeric_literal: '2'
+        - comma: ','
+        - numeric_literal: '3'
+        - end_bracket: )
+      - comma: ','
+      - bracketed:
+        - start_bracket: (
+        - numeric_literal: '4'
+        - comma: ','
+        - numeric_literal: '5'
+        - comma: ','
+        - numeric_literal: '6'
+        - end_bracket: )
+- statement_terminator: ;
+- statement:
+  - insert_statement:
+    - keyword: INSERT
+    - keyword: INTO
+    - table_reference:
+      - naked_identifier: t1
+    - select_statement:
+      - select_clause:
+        - keyword: SELECT
+        - select_clause_element:
+          - wildcard_expression:
+            - wildcard_identifier:
+              - star: '*'
+      - from_clause:
+        - keyword: FROM
+        - from_expression:
+          - from_expression_element:
+            - table_expression:
+              - bracketed:
+                - start_bracket: (
+                - select_statement:
+                  - select_clause:
+                    - keyword: SELECT
+                    - select_clause_element:
+                      - column_reference:
+                        - naked_identifier: c
+                    - comma: ','
+                    - select_clause_element:
+                      - expression:
+                        - column_reference:
+                          - naked_identifier: c
+                        - binary_operator: +
+                        - column_reference:
+                          - naked_identifier: d
+                      - alias_expression:
+                        - keyword: AS
+                        - naked_identifier: e
+                  - from_clause:
+                    - keyword: FROM
+                    - from_expression:
+                      - from_expression_element:
+                        - table_expression:
+                          - table_reference:
+                            - naked_identifier: t2
+                - end_bracket: )
+            - alias_expression:
+              - keyword: AS
+              - naked_identifier: dt
+- statement_terminator: ;
+- statement:
+  - insert_statement:
+    - keyword: INSERT
+    - keyword: INTO
+    - table_reference:
+      - naked_identifier: t1
+    - bracketed:
+      - start_bracket: (
+      - column_reference:
+        - naked_identifier: a
+      - comma: ','
+      - column_reference:
+        - naked_identifier: b
+      - comma: ','
+      - column_reference:
+        - naked_identifier: c
+      - end_bracket: )
+    - values_clause:
+      - keyword: VALUES
+      - bracketed:
+        - start_bracket: (
+        - numeric_literal: '1'
+        - comma: ','
+        - numeric_literal: '2'
+        - comma: ','
+        - numeric_literal: '3'
+        - end_bracket: )
+      - comma: ','
+      - bracketed:
+        - start_bracket: (
+        - numeric_literal: '4'
+        - comma: ','
+        - numeric_literal: '5'
+        - comma: ','
+        - numeric_literal: '6'
+        - end_bracket: )
+- file:
+  - word: AS
+  - word: t2
+  - word: ON
+  - word: DUPLICATE
+  - word: KEY
+  - word: UPDATE
+  - word: c
+  - raw_comparison_operator: =
+  - word: t2
+  - dot: .
+  - word: a
+  - plus: +
+  - word: t2
+  - dot: .
+  - word: b
+  - semicolon: ;
+  - word: INSERT
+  - word: INTO
+  - word: t1
+  - start_bracket: (
+  - word: a
+  - comma: ','
+  - word: b
+  - comma: ','
+  - word: c
+  - end_bracket: )
+  - word: VALUES
+  - start_bracket: (
+  - numeric_literal: '1'
+  - comma: ','
+  - numeric_literal: '2'
+  - comma: ','
+  - numeric_literal: '3'
+  - end_bracket: )
+  - comma: ','
+  - start_bracket: (
+  - numeric_literal: '4'
+  - comma: ','
+  - numeric_literal: '5'
+  - comma: ','
+  - numeric_literal: '6'
+  - end_bracket: )
+  - word: AS
+  - word: t2
+  - word: ON
+  - word: DUPLICATE
+  - word: KEY
+  - word: UPDATE
+  - word: a
+  - raw_comparison_operator: =
+  - word: VALUES
+  - start_bracket: (
+  - word: a
+  - end_bracket: )
+  - comma: ','
+  - word: b
+  - raw_comparison_operator: =
+  - word: VALUES
+  - start_bracket: (
+  - word: b
+  - end_bracket: )
+  - semicolon: ;
+  - word: INSERT
+  - word: INTO
+  - word: t1
+  - start_bracket: (
+  - word: a
+  - comma: ','
+  - word: b
+  - comma: ','
+  - word: c
+  - end_bracket: )
+  - word: VALUES
+  - start_bracket: (
+  - numeric_literal: '1'
+  - comma: ','
+  - numeric_literal: '2'
+  - comma: ','
+  - numeric_literal: '3'
+  - end_bracket: )
+  - comma: ','
+  - start_bracket: (
+  - numeric_literal: '4'
+  - comma: ','
+  - numeric_literal: '5'
+  - comma: ','
+  - numeric_literal: '6'
+  - end_bracket: )
+  - word: AS
+  - word: t2
+  - start_bracket: (
+  - word: m
+  - comma: ','
+  - word: n
+  - comma: ','
+  - word: p
+  - end_bracket: )
+  - word: ON
+  - word: DUPLICATE
+  - word: KEY
+  - word: UPDATE
+  - word: c
+  - raw_comparison_operator: =
+  - word: m
+  - plus: +
+  - word: n
+  - semicolon: ;
+  - word: INSERT
+  - word: INTO
+  - word: t1
+  - word: SELECT
+  - star: '*'
+  - word: FROM
+  - start_bracket: (
+  - word: SELECT
+  - word: c
+  - comma: ','
+  - word: c
+  - plus: +
+  - word: d
+  - word: AS
+  - word: e
+  - word: FROM
+  - word: t2
+  - end_bracket: )
+  - word: AS
+  - word: dt
+  - word: ON
+  - word: DUPLICATE
+  - word: KEY
+  - word: UPDATE
+  - word: b
+  - raw_comparison_operator: =
+  - word: e
+  - semicolon: ;
+  - word: INSERT
+  - word: INTO
+  - word: t1
+  - word: SELECT
+  - star: '*'
+  - word: FROM
+  - start_bracket: (
+  - word: SELECT
+  - word: c
+  - comma: ','
+  - word: c
+  - plus: +
+  - word: d
+  - word: AS
+  - word: e
+  - word: FROM
+  - word: t2
+  - end_bracket: )
+  - word: ON
+  - word: DUPLICATE
+  - word: KEY
+  - word: UPDATE
+  - word: b
+  - raw_comparison_operator: =
+  - word: e
+  - semicolon: ;
+  - word: INSERT
+  - word: INTO
+  - word: t1
+  - start_bracket: (
+  - word: a
+  - comma: ','
+  - word: b
+  - comma: ','
+  - word: c
+  - end_bracket: )
+  - word: TABLE
+  - word: t2
+  - word: as
+  - word: t3
+  - start_bracket: (
+  - word: m
+  - comma: ','
+  - word: n
+  - comma: ','
+  - word: p
+  - end_bracket: )
+  - word: ON
+  - word: DUPLICATE
+  - word: KEY
+  - word: UPDATE
+  - word: b
+  - raw_comparison_operator: =
+  - word: n
+  - plus: +
+  - word: p
+  - semicolon: ;
+  - word: INSERT
+  - word: INTO
+  - word: t1
+  - word: SET
+  - word: a
+  - raw_comparison_operator: =
+  - numeric_literal: '1'
+  - comma: ','
+  - word: b
+  - raw_comparison_operator: =
+  - numeric_literal: '2'
+  - comma: ','
+  - word: c
+  - raw_comparison_operator: =
+  - numeric_literal: '3'
+  - word: AS
+  - word: t2
+  - word: ON
+  - word: DUPLICATE
+  - word: KEY
+  - word: UPDATE
+  - word: c
+  - raw_comparison_operator: =
+  - word: t2
+  - dot: .
+  - word: a
+  - plus: +
+  - word: t2
+  - dot: .
+  - word: b
+  - semicolon: ;
+  - word: INSERT
+  - word: INTO
+  - word: t1
+  - word: SET
+  - word: a
+  - raw_comparison_operator: =
+  - numeric_literal: '1'
+  - comma: ','
+  - word: b
+  - raw_comparison_operator: =
+  - numeric_literal: '2'
+  - comma: ','
+  - word: c
+  - raw_comparison_operator: =
+  - numeric_literal: '3'
+  - word: AS
+  - word: t2
+  - start_bracket: (
+  - word: m
+  - comma: ','
+  - word: n
+  - comma: ','
+  - word: p
+  - end_bracket: )
+  - word: ON
+  - word: DUPLICATE
+  - word: KEY
+  - word: UPDATE
+  - word: c
+  - raw_comparison_operator: =
+  - word: m
+  - plus: +
+  - word: n
+  - comma: ','
+  - word: b
+  - raw_comparison_operator: =
+  - word: n
+  - plus: +
+  - word: p
+  - semicolon: ;

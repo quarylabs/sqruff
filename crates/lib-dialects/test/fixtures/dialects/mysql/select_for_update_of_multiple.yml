@@ -1,0 +1,22 @@
+file:
+- statement:
+  - select_statement:
+    - select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+        - numeric_literal: '1'
+    - from_clause:
+      - keyword: FROM
+      - from_expression:
+        - from_expression_element:
+          - table_expression:
+            - table_reference:
+              - naked_identifier: table1
+    - unparsable:
+      - word: FOR
+      - word: UPDATE
+      - word: OF
+      - word: test1
+      - comma: ','
+      - word: test2
+- statement_terminator: ;

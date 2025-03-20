@@ -1,0 +1,6 @@
+file:
+- unparsable:
+  - word: DECLARE
+  - word: abc
+  - word: int
+  - semicolon: ;

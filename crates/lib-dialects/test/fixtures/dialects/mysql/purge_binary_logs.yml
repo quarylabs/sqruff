@@ -1,0 +1,34 @@
+file:
+- unparsable:
+  - word: PURGE
+  - word: BINARY
+  - word: LOGS
+  - word: TO
+  - single_quote: '''mysql-bin.010'''
+  - semicolon: ;
+  - word: PURGE
+  - word: BINARY
+  - word: LOGS
+  - word: BEFORE
+  - single_quote: '''2019-04-02 22:46:26'''
+  - semicolon: ;
+  - word: PURGE
+  - word: BINARY
+  - word: LOGS
+  - word: BEFORE
+  - word: TIMESTAMP
+  - single_quote: '''2019-04-02 22:46:26'''
+  - semicolon: ;
+  - word: PURGE
+  - word: BINARY
+  - word: LOGS
+  - word: BEFORE
+  - numeric_literal: '19830905132800'
+  - semicolon: ;
+  - word: PURGE
+  - word: BINARY
+  - word: LOGS
+  - word: BEFORE
+  - word: TIMESTAMP
+  - numeric_literal: '19830905132800'
+  - semicolon: ;

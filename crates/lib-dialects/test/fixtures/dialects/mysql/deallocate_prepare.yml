@@ -1,0 +1,6 @@
+file:
+- unparsable:
+  - word: DEALLOCATE
+  - word: PREPARE
+  - word: dynam
+  - semicolon: ;

@@ -1,0 +1,29 @@
+file:
+- statement:
+  - select_statement:
+    - select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+        - expression:
+          - data_type:
+            - data_type_identifier: b
+          - quoted_literal: '''01'''
+- statement_terminator: ;
+- statement:
+  - select_statement:
+    - select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+        - expression:
+          - data_type:
+            - data_type_identifier: B
+          - quoted_literal: '''01'''
+- statement_terminator: ;
+- statement:
+  - select_statement:
+    - select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+        - column_reference:
+          - naked_identifier: '0b01'
+- statement_terminator: ;

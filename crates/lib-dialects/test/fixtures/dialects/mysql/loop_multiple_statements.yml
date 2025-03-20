@@ -1,0 +1,14 @@
+file:
+- unparsable:
+  - word: loop
+  - word: select
+  - numeric_literal: '1'
+  - semicolon: ;
+  - word: select
+  - star: '*'
+  - word: from
+  - word: onetable
+  - semicolon: ;
+  - word: end
+  - word: loop
+  - semicolon: ;

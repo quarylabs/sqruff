@@ -1,0 +1,18 @@
+file:
+- unparsable:
+  - word: CREATE
+  - word: TABLE
+  - word: t1
+  - start_bracket: (
+  - word: col1
+  - word: VARCHAR
+  - start_bracket: (
+  - numeric_literal: '5'
+  - end_bracket: )
+  - word: CHARACTER
+  - word: SET
+  - word: latin1
+  - word: COLLATE
+  - word: latin1_german1_ci
+  - end_bracket: )
+  - semicolon: ;

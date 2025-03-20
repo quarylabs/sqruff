@@ -1,0 +1,6 @@
+file:
+- unparsable:
+  - word: DROP
+  - word: PREPARE
+  - word: dynam
+  - semicolon: ;

@@ -1,0 +1,65 @@
+file:
+- statement:
+  - create_trigger_statement:
+    - keyword: CREATE
+    - keyword: TRIGGER
+    - trigger_reference:
+      - naked_identifier: delete_members_after_transactions
+    - keyword: AFTER
+    - keyword: DELETE
+    - keyword: ON
+    - table_reference:
+      - naked_identifier: transactions
+    - keyword: FOR
+    - keyword: EACH
+    - keyword: ROW
+- file:
+  - word: DELETE
+  - word: FROM
+  - word: members
+  - word: WHERE
+  - word: username
+  - word: NOT
+  - word: IN
+  - start_bracket: (
+  - word: SELECT
+  - word: UNIQUE
+  - start_bracket: (
+  - word: username
+  - end_bracket: )
+  - word: FROM
+  - word: transactions
+  - end_bracket: )
+  - semicolon: ;
+  - word: CREATE
+  - word: TRIGGER
+  - word: some_trigger
+  - word: AFTER
+  - word: DELETE
+  - word: ON
+  - word: some_table
+  - word: FOR
+  - word: EACH
+  - word: ROW
+  - word: BEGIN
+  - word: DELETE
+  - word: FROM
+  - word: some_table
+  - semicolon: ;
+  - word: INSERT
+  - word: INTO
+  - word: some_table
+  - semicolon: ;
+  - word: END
+  - semicolon: ;
+  - word: CREATE
+  - word: TRIGGER
+  - word: ins_sum
+  - word: BEFORE
+  - word: INSERT
+  - word: ON
+  - word: account
+  - word: FOR
+  - word: EACH
+  - word: ROW
+  - word: SET

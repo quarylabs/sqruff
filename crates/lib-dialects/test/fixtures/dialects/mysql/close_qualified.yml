@@ -1,0 +1,5 @@
+file:
+- unparsable:
+  - word: CLOSE
+  - back_quote: '`curcursor`'
+  - semicolon: ;

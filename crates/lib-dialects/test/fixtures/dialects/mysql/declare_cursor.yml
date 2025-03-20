@@ -1,0 +1,9 @@
+file:
+- unparsable:
+  - word: DECLARE
+  - word: test
+  - word: CURSOR
+  - word: FOR
+  - word: SELECT
+  - numeric_literal: '1'
+  - semicolon: ;

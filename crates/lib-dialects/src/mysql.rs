@@ -2,7 +2,7 @@ use sqruff_lib_core::dialects::base::Dialect;
 use sqruff_lib_core::dialects::init::DialectKind;
 use sqruff_lib_core::dialects::syntax::SyntaxKind;
 use sqruff_lib_core::helpers::{Config, ToMatchable};
-use sqruff_lib_core::parser::grammar::anyof::one_of;
+use sqruff_lib_core::parser::grammar::anyof::{AnyNumberOf, one_of};
 use sqruff_lib_core::parser::grammar::base::Ref;
 use sqruff_lib_core::parser::grammar::delimited::Delimited;
 use sqruff_lib_core::parser::segments::meta::MetaSegment;
@@ -128,6 +128,50 @@ pub fn raw_dialect() -> Dialect {
                     Delimited::new(vec_of_erased![Ref::new("SessionVariableNameSegment")]),
                 ])
                 .config(|delimited| delimited.optional()),
+            ])
+            .to_matchable()
+            .into(),
+        ),
+        (
+            // A `REPEAT-UNTIL` statement.
+            // https://dev.mysql.com/doc/refman/8.0/en/repeat.html
+            "RepeatStatementSegment".into(),
+            one_of(vec_of_erased![
+                Sequence::new(vec_of_erased![
+                    Sequence::new(vec_of_erased![
+                        Ref::new("SingleIdentifierGrammar"),
+                        Ref::new("ColonSegment"),
+                    ])
+                    .config(|sequence| sequence.optional()),
+                    Ref::keyword("REPEAT"),
+                    AnyNumberOf::new(vec_of_erased![Ref::new("StatementSegment")]),
+                ]),
+                Sequence::new(vec_of_erased![
+                    Ref::keyword("UNTIL"),
+                    Ref::new("ExpressionSegment"),
+                    Sequence::new(vec_of_erased![
+                        Ref::keyword("END"),
+                        Ref::keyword("REPEAT"),
+                        Ref::new("SingleIdentifierGrammar").optional(),
+                    ]),
+                ]),
+            ])
+            .to_matchable()
+            .into(),
+        ),
+        (
+            // This is the body of a `DEALLOCATE/DROP` statement.
+            // https://dev.mysql.com/doc/refman/8.0/en/deallocate-prepare.html
+            "DeallocateSegment".into(),
+            Sequence::new(vec_of_erased![
+                Sequence::new(vec_of_erased![
+                    one_of(vec_of_erased![
+                        Ref::keyword("DEALLOCATE"),
+                        Ref::keyword("DROP"),
+                    ]),
+                    Ref::keyword("PREPARE"),
+                ]),
+                Ref::new("NakedIdentifierSegment"),
             ])
             .to_matchable()
             .into(),

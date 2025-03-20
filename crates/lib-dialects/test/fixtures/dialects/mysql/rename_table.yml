@@ -1,0 +1,18 @@
+file:
+- unparsable:
+  - word: RENAME
+  - word: TABLE
+  - word: old_table
+  - word: TO
+  - word: new_table
+  - semicolon: ;
+  - word: RENAME
+  - word: TABLE
+  - word: old_table1
+  - word: TO
+  - word: new_table1
+  - comma: ','
+  - word: old_table2
+  - word: TO
+  - word: new_table2
+  - semicolon: ;

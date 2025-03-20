@@ -1,0 +1,22 @@
+file:
+- unparsable:
+  - word: CREATE
+  - word: FUNCTION
+  - back_quote: '`testfunction`'
+  - start_bracket: (
+  - word: var1
+  - word: int
+  - end_bracket: )
+  - word: RETURNS
+  - word: int
+  - word: DETERMINISTIC
+  - word: BEGIN
+  - word: RETURN
+  - start_bracket: (
+  - word: var1
+  - plus: +
+  - numeric_literal: '1'
+  - end_bracket: )
+  - semicolon: ;
+  - word: END
+  - like_operator: '~'

@@ -1,0 +1,12 @@
+file:
+- unparsable:
+  - word: create
+  - word: table
+  - word: a
+  - start_bracket: (
+  - word: b
+  - word: int
+  - word: unique
+  - word: key
+  - end_bracket: )
+  - semicolon: ;

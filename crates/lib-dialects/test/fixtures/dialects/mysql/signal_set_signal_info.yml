@@ -1,0 +1,8 @@
+file:
+- unparsable:
+  - word: resignal
+  - word: set
+  - word: message_text
+  - raw_comparison_operator: =
+  - single_quote: '''test message'''
+  - semicolon: ;

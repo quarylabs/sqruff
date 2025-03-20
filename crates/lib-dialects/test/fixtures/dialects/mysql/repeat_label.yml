@@ -1,0 +1,6 @@
+file:
+- unparsable:
+  - word: iteration
+  - colon: ':'
+  - word: repeat
+  - word: set

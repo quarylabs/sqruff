@@ -1,0 +1,18 @@
+file:
+- unparsable:
+  - word: while
+  - word: _cnt
+  - raw_comparison_operator: <
+  - raw_comparison_operator: =
+  - word: _max_cnt
+  - word: do
+  - word: set
+  - word: _cnt
+  - raw_comparison_operator: =
+  - word: _cnt
+  - plus: +
+  - numeric_literal: '1'
+  - semicolon: ;
+  - word: end
+  - word: while
+  - semicolon: ;

@@ -1,0 +1,9 @@
+file:
+- unparsable:
+  - word: loop
+  - word: select
+  - numeric_literal: '1'
+  - semicolon: ;
+  - word: end
+  - word: loop
+  - semicolon: ;

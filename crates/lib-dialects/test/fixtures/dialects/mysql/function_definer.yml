@@ -1,0 +1,6 @@
+file:
+- unparsable:
+  - word: CREATE
+  - word: DEFINER
+  - raw_comparison_operator: =
+  - back_quote: '`test`'

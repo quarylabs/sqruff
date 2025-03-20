@@ -1,0 +1,9 @@
+file:
+- unparsable:
+  - word: fetch
+  - word: curcursor
+  - word: into
+  - word: test
+  - comma: ','
+  - word: test2
+  - semicolon: ;

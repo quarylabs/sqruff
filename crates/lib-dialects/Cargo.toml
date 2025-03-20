@@ -24,6 +24,7 @@ default = [
     "databricks",
     "duckdb",
     "hive",
+    "mysql",
     "postgres",
     "redshift",
     "snowflake",
@@ -37,6 +38,7 @@ clickhouse = []
 databricks = ["sparksql"]
 duckdb = ["postgres"]
 hive = []
+mysql = []
 postgres = []
 redshift = ["postgres"]
 snowflake = []

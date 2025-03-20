@@ -4,6 +4,7 @@ use sqruff_lib_core::dialects::syntax::SyntaxKind;
 use sqruff_lib_core::helpers::{Config, ToMatchable};
 use sqruff_lib_core::parser::grammar::anyof::one_of;
 use sqruff_lib_core::parser::grammar::base::Ref;
+use sqruff_lib_core::parser::grammar::delimited::Delimited;
 use sqruff_lib_core::parser::segments::meta::MetaSegment;
 use sqruff_lib_core::vec_of_erased;
 use sqruff_lib_core::{parser::grammar::sequence::Sequence, parser::lexer::Matcher};
@@ -71,23 +72,67 @@ pub fn raw_dialect() -> Dialect {
         "TIMESTAMPDIFF",
     ]);
 
-    mysql.add([(
-        // A reference to an object with an `AS` clause.
-        // The optional AS keyword allows both implicit and explicit aliasing.
-        "AliasExpressionSegment".into(),
-        Sequence::new(vec_of_erased![
-            MetaSegment::indent(),
-            Ref::keyword("AS").optional(),
-            one_of(vec_of_erased![
+    mysql.add([
+        (
+            // A reference to an object with an `AS` clause.
+            // The optional AS keyword allows both implicit and explicit aliasing.
+            "AliasExpressionSegment".into(),
+            Sequence::new(vec_of_erased![
+                MetaSegment::indent(),
+                Ref::keyword("AS").optional(),
+                one_of(vec_of_erased![
+                    Ref::new("SingleIdentifierGrammar"),
+                    Ref::new("SingleQuotedIdentifierSegment"),
+                    Ref::new("DoubleQuotedIdentifierSegment"),
+                ]),
+                MetaSegment::dedent(),
+            ])
+            .to_matchable()
+            .into(),
+        ),
+        (
+            // This is a CLOSE or Open statement.
+            // https://dev.mysql.com/doc/refman/8.0/en/close.html
+            // https://dev.mysql.com/doc/refman/8.0/en/open.html
+            "CursorOpenCloseSegment".into(),
+            Sequence::new(vec_of_erased![
+                one_of(vec_of_erased![Ref::keyword("CLOSE"), Ref::keyword("OPEN"),]),
+                one_of(vec_of_erased![
+                    Ref::new("SingleIdentifierGrammar"),
+                    Ref::new("QuotedIdentifierSegment"),
+                ]),
+            ])
+            .to_matchable()
+            .into(),
+        ),
+        (
+            // A `ITERATE` statement.
+            // https://dev.mysql.com/doc/refman/8.0/en/iterate.html
+            "IterateStatementSegment".into(),
+            Sequence::new(vec_of_erased![
+                Ref::keyword("ITERATE"),
                 Ref::new("SingleIdentifierGrammar"),
-                Ref::new("SingleQuotedIdentifierSegment"),
-                Ref::new("DoubleQuotedIdentifierSegment"),
-            ]),
-            MetaSegment::dedent(),
-        ])
-        .to_matchable()
-        .into(),
-    )]);
+            ])
+            .to_matchable()
+            .into(),
+        ),
+        (
+            // This is the body of a `EXECUTE` statement.
+            // https://dev.mysql.com/doc/refman/8.0/en/execute.html
+            "ExecuteSegment".into(),
+            Sequence::new(vec_of_erased![
+                Ref::keyword("EXECUTE"),
+                Ref::new("NakedIdentifierSegment"),
+                Sequence::new(vec_of_erased![
+                    Ref::keyword("USING"),
+                    Delimited::new(vec_of_erased![Ref::new("SessionVariableNameSegment")]),
+                ])
+                .config(|delimited| delimited.optional()),
+            ])
+            .to_matchable()
+            .into(),
+        ),
+    ]);
 
     mysql
 }

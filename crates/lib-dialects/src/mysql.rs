@@ -262,6 +262,38 @@ pub fn raw_dialect() -> Dialect {
             .to_matchable()
             .into(),
         ),
+        (
+            // A `RENAME TABLE` statement.
+            // https://dev.mysql.com/doc/refman/8.0/en/rename-table.html
+            "RenameTableStatementSegment".into(),
+            Sequence::new(vec_of_erased![
+                Ref::keyword("RENAME"),
+                Ref::keyword("TABLE"),
+                Delimited::new(vec_of_erased![Sequence::new(vec_of_erased![
+                    Ref::new("TableReferenceSegment"),
+                    Ref::keyword("TO"),
+                    Ref::new("TableReferenceSegment"),
+                ]),]),
+            ])
+            .to_matchable()
+            .into(),
+        ),
+        (
+            // A `RESET MASTER` statement.
+            // https://dev.mysql.com/doc/refman/8.0/en/reset-master.html
+            "ResetMasterStatementSegment".into(),
+            Sequence::new(vec_of_erased![
+                Ref::keyword("RESET"),
+                Ref::keyword("MASTER"),
+                Sequence::new(vec_of_erased![
+                    Ref::keyword("TO"),
+                    Ref::new("NumericLiteralSegment"),
+                ])
+                .config(|sequence| sequence.optional()),
+            ])
+            .to_matchable()
+            .into(),
+        ),
     ]);
 
     mysql

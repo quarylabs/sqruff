@@ -408,6 +408,28 @@ pub fn raw_dialect() -> Dialect {
             .to_matchable()
             .into(),
         ),
+        (
+            // A `REPAIR TABLE` statement.
+            // https://dev.mysql.com/doc/refman/8.0/en/repair-table.html
+            "RepairTableStatementSegment".into(),
+            Sequence::new(vec_of_erased![
+                Ref::keyword("REPAIR"),
+                one_of(vec_of_erased![
+                    Ref::keyword("NO_WRITE_TO_BINLOG"),
+                    Ref::keyword("LOCAL"),
+                ])
+                .config(|one| one.optional()),
+                Ref::keyword("TABLE"),
+                Delimited::new(vec_of_erased![Ref::new("TableReferenceSegment"),]),
+                AnyNumberOf::new(vec_of_erased![
+                    Ref::keyword("QUICK"),
+                    Ref::keyword("EXTENDED"),
+                    Ref::keyword("USE_FRM"),
+                ])
+            ])
+            .to_matchable()
+            .into(),
+        ),
     ]);
 
     mysql

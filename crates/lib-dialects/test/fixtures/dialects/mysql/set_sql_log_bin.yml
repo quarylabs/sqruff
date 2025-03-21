@@ -1,0 +1,12 @@
+file:
+- unparsable:
+  - word: SET
+  - word: sql_log_bin
+  - raw_comparison_operator: =
+  - word: ON
+  - semicolon: ;
+  - word: SET
+  - word: sql_log_bin
+  - raw_comparison_operator: =
+  - word: OFF
+  - semicolon: ;

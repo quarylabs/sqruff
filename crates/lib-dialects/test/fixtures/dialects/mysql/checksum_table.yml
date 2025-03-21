@@ -1,0 +1,26 @@
+file:
+- unparsable:
+  - word: CHECKSUM
+  - word: TABLE
+  - word: some_table
+  - word: QUICK
+  - semicolon: ;
+  - word: CHECKSUM
+  - word: TABLE
+  - word: some_table1
+  - comma: ','
+  - word: some_table2
+  - word: QUICK
+  - semicolon: ;
+  - word: CHECKSUM
+  - word: TABLE
+  - word: some_table
+  - word: EXTENDED
+  - semicolon: ;
+  - word: CHECKSUM
+  - word: TABLE
+  - word: some_table1
+  - comma: ','
+  - word: some_table2
+  - word: EXTENDED
+  - semicolon: ;

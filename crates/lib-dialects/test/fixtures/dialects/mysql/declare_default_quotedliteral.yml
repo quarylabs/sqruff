@@ -1,0 +1,8 @@
+file:
+- unparsable:
+  - word: DECLARE
+  - word: abc
+  - word: longtext
+  - word: default
+  - single_quote: '''test'''
+  - semicolon: ;

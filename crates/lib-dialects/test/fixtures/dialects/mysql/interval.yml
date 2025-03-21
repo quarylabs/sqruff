@@ -1,0 +1,204 @@
+file:
+- statement:
+  - select_statement:
+    - select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+        - function:
+          - function_name:
+            - function_name_identifier: DATE_ADD
+          - bracketed:
+            - start_bracket: (
+            - expression:
+              - function:
+                - function_name:
+                  - function_name_identifier: CURDATE
+                - bracketed:
+                  - start_bracket: (
+                  - end_bracket: )
+            - unparsable:
+              - comma: ','
+              - word: INTERVAL
+              - minus: '-'
+              - numeric_literal: '30'
+              - word: DAY
+            - end_bracket: )
+- statement_terminator: ;
+- statement:
+  - select_statement:
+    - select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+        - function:
+          - function_name:
+            - function_name_identifier: SUBDATE
+          - bracketed:
+            - start_bracket: (
+            - expression:
+              - quoted_literal: '''2008-01-02'''
+            - comma: ','
+            - expression:
+              - interval_expression:
+                - keyword: INTERVAL
+                - numeric_literal: '31'
+                - date_part: DAY
+            - end_bracket: )
+- statement_terminator: ;
+- statement:
+  - select_statement:
+    - select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+        - function:
+          - function_name:
+            - function_name_identifier: ADDDATE
+          - bracketed:
+            - start_bracket: (
+            - expression:
+              - function:
+                - function_name:
+                  - function_name_identifier: CURDATE
+                - bracketed:
+                  - start_bracket: (
+                  - end_bracket: )
+            - unparsable:
+              - comma: ','
+              - word: INTERVAL
+              - minus: '-'
+              - numeric_literal: '30'
+              - word: DAY
+            - end_bracket: )
+- statement_terminator: ;
+- statement:
+  - select_statement:
+    - select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+        - function:
+          - function_name:
+            - function_name_identifier: DATE_SUB
+          - bracketed:
+            - start_bracket: (
+            - expression:
+              - quoted_literal: '''1992-12-31 23:59:59.000002'''
+            - comma: ','
+            - expression:
+              - keyword: INTERVAL
+              - date_constructor_literal: '''1.999999'''
+            - unparsable:
+              - word: SECOND_MICROSECOND
+            - end_bracket: )
+- statement_terminator: ;
+- statement:
+  - select_statement:
+    - select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+        - function:
+          - function_name:
+            - function_name_identifier: DATE_ADD
+          - bracketed:
+            - start_bracket: (
+            - expression:
+              - quoted_literal: '''2100-12-31 23:59:59'''
+            - comma: ','
+            - expression:
+              - keyword: INTERVAL
+              - date_constructor_literal: '''1:1'''
+            - unparsable:
+              - word: MINUTE_SECOND
+            - end_bracket: )
+- statement_terminator: ;
+- statement:
+  - select_statement:
+    - select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+        - function:
+          - function_name:
+            - function_name_identifier: DATE_ADD
+          - bracketed:
+            - start_bracket: (
+            - expression:
+              - function:
+                - function_name:
+                  - function_name_identifier: CURDATE
+                - bracketed:
+                  - start_bracket: (
+                  - end_bracket: )
+            - comma: ','
+            - expression:
+              - data_type:
+                - data_type_identifier: INTERVAL
+              - numeric_literal: '7'
+              - binary_operator: '*'
+              - numeric_literal: '4'
+            - expression:
+              - column_reference:
+                - naked_identifier: DAY
+            - end_bracket: )
+- statement_terminator: ;
+- statement:
+  - select_statement:
+    - select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+        - function:
+          - function_name:
+            - function_name_identifier: ADDDATE
+          - bracketed:
+            - start_bracket: (
+            - expression:
+              - function:
+                - function_name:
+                  - function_name_identifier: CURDATE
+                - bracketed:
+                  - start_bracket: (
+                  - end_bracket: )
+            - unparsable:
+              - comma: ','
+              - word: INTERVAL
+              - word: col1
+              - word: DAY
+            - end_bracket: )
+    - from_clause:
+      - keyword: FROM
+      - from_expression:
+        - from_expression_element:
+          - table_expression:
+            - table_reference:
+              - naked_identifier: tbl1
+- statement_terminator: ;
+- statement:
+  - select_statement:
+    - select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+        - function:
+          - function_name:
+            - function_name_identifier: SUBDATE
+          - bracketed:
+            - start_bracket: (
+            - expression:
+              - function:
+                - function_name:
+                  - function_name_identifier: CURDATE
+                - bracketed:
+                  - start_bracket: (
+                  - end_bracket: )
+            - unparsable:
+              - comma: ','
+              - word: INTERVAL
+              - word: col1
+              - plus: +
+              - word: col2
+              - word: DAY
+            - end_bracket: )
+    - from_clause:
+      - keyword: FROM
+      - from_expression:
+        - from_expression_element:
+          - table_expression:
+            - table_reference:
+              - naked_identifier: tbl1
+- statement_terminator: ;

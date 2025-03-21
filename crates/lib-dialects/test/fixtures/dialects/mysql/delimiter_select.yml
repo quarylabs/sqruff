@@ -1,0 +1,9 @@
+file:
+- unparsable:
+  - word: DELIMITER
+  - like_operator: '~'
+  - word: SELECT
+  - numeric_literal: '1'
+  - like_operator: '~'
+  - word: DELIMITER
+  - semicolon: ;

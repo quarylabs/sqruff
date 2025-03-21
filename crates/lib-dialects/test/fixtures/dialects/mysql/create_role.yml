@@ -1,0 +1,9 @@
+file:
+- unparsable:
+  - word: CREATE
+  - word: ROLE
+  - word: IF
+  - word: NOT
+  - word: EXISTS
+  - single_quote: '''example-role'''
+  - semicolon: ;

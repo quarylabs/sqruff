@@ -1,0 +1,11 @@
+file:
+- unparsable:
+  - word: SET
+  - word: a
+  - raw_comparison_operator: =
+  - numeric_literal: '1'
+  - comma: ','
+  - word: b
+  - raw_comparison_operator: =
+  - numeric_literal: '2'
+  - semicolon: ;

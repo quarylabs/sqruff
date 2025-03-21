@@ -1,0 +1,17 @@
+file:
+- unparsable:
+  - word: CREATE
+  - word: FUNCTION
+  - back_quote: '`testfunction`'
+  - start_bracket: (
+  - word: var1
+  - word: int
+  - end_bracket: )
+  - word: RETURNS
+  - word: longtext
+  - word: COMMENT
+  - single_quote: '''this is a comment'''
+  - word: DETERMINISTIC
+  - word: BEGIN
+  - word: END
+  - like_operator: '~'

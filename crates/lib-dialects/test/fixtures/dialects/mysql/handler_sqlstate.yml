@@ -1,0 +1,14 @@
+file:
+- unparsable:
+  - word: DECLARE
+  - word: exit
+  - word: handler
+  - word: for
+  - word: SQLSTATE
+  - single_quote: '''1'''
+  - word: begin
+  - word: select
+  - numeric_literal: '1'
+  - semicolon: ;
+  - word: end
+  - semicolon: ;

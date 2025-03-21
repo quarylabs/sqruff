@@ -1,0 +1,10 @@
+file:
+- unparsable:
+  - word: DROP
+  - word: INDEX
+  - back_quote: '`test`'
+  - word: ON
+  - back_quote: '`table1`'
+  - dot: .
+  - back_quote: '`foo`'
+  - semicolon: ;

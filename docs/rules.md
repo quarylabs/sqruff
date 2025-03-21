@@ -429,7 +429,7 @@ Ambiguous use of 'DISTINCT' in a 'SELECT' statement with 'GROUP BY'.
 
 **Anti-pattern**
 
-`DISTINCT` and `GROUP BY are conflicting.
+`DISTINCT` and `GROUP BY` are conflicting.
 
 ```sql
 SELECT DISTINCT

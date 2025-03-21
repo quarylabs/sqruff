@@ -2,6 +2,8 @@ on: [pull_request]
 name: benchmark pull requests
 env:
   PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD: true
+  RUSTFLAGS: "-C lto=off"
+
 jobs:
   benchmark:
     name: run benchmark

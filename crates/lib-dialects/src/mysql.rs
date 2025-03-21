@@ -367,6 +367,47 @@ pub fn raw_dialect() -> Dialect {
             .to_matchable()
             .into(),
         ),
+        (
+            // An `ANALYZE TABLE` statement.
+            // https://dev.mysql.com/doc/refman/8.0/en/analyze-table.html
+            "AnalyzeTableStatementSegment".into(),
+            Sequence::new(vec_of_erased![
+                Ref::keyword("ANALYZE"),
+                one_of(vec_of_erased![
+                    Ref::keyword("NO_WRITE_TO_BINLOG"),
+                    Ref::keyword("LOCAL"),
+                ])
+                .config(|one| one.optional()),
+                Ref::keyword("TABLE"),
+                one_of(vec_of_erased![
+                    Sequence::new(vec_of_erased![Delimited::new(vec_of_erased![Ref::new(
+                        "TableReferenceSegment"
+                    ),]),]),
+                    Sequence::new(vec_of_erased![
+                        Ref::new("TableReferenceSegment"),
+                        Ref::keyword("UPDATE"),
+                        Ref::keyword("HISTOGRAM"),
+                        Ref::keyword("ON"),
+                        Delimited::new(vec_of_erased![Ref::new("ColumnReferenceSegment"),]),
+                        Sequence::new(vec_of_erased![
+                            Ref::keyword("WITH"),
+                            Ref::new("NumericLiteralSegment"),
+                            Ref::keyword("BUCKETS"),
+                        ])
+                        .config(|seq| seq.optional()),
+                    ]),
+                    Sequence::new(vec_of_erased![
+                        Ref::new("TableReferenceSegment"),
+                        Ref::keyword("DROP"),
+                        Ref::keyword("HISTOGRAM"),
+                        Ref::keyword("ON"),
+                        Delimited::new(vec_of_erased![Ref::new("ColumnReferenceSegment"),]),
+                    ]),
+                ]),
+            ])
+            .to_matchable()
+            .into(),
+        ),
     ]);
 
     mysql

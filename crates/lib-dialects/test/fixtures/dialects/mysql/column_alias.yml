@@ -15,9 +15,8 @@ file:
       - keyword: SELECT
       - select_clause_element:
         - numeric_literal: '2'
-        - alias_expression:
-          - keyword: AS
-          - quoted_identifier: '''two'''
+        - keyword: AS
+        - quoted_identifier: '''two'''
 - statement_terminator: ;
 - statement:
   - select_statement:
@@ -25,9 +24,8 @@ file:
       - keyword: SELECT
       - select_clause_element:
         - numeric_literal: '3'
-        - alias_expression:
-          - keyword: AS
-          - quoted_identifier: '"three"'
+        - keyword: AS
+        - quoted_identifier: '"three"'
 - statement_terminator: ;
 - statement:
   - select_statement:
@@ -35,9 +33,8 @@ file:
       - keyword: SELECT
       - select_clause_element:
         - numeric_literal: '4'
-        - alias_expression:
-          - keyword: AS
-          - quoted_identifier: '"four"'
+        - keyword: AS
+        - quoted_identifier: '"four"'
       - unparsable:
         - double_quote: '"_with_escaped_double_quotes"'
 - statement_terminator: ;

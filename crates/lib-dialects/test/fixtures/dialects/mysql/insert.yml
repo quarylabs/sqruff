@@ -70,9 +70,8 @@ file:
                         - binary_operator: +
                         - column_reference:
                           - naked_identifier: d
-                      - alias_expression:
-                        - keyword: AS
-                        - naked_identifier: e
+                      - keyword: AS
+                      - naked_identifier: e
                   - from_clause:
                     - keyword: FROM
                     - from_expression:
@@ -81,9 +80,8 @@ file:
                           - table_reference:
                             - naked_identifier: t2
                 - end_bracket: )
-            - alias_expression:
-              - keyword: AS
-              - naked_identifier: dt
+            - keyword: AS
+            - naked_identifier: dt
 - statement_terminator: ;
 - statement:
   - insert_statement:

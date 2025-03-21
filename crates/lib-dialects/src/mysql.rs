@@ -5,6 +5,7 @@ use sqruff_lib_core::helpers::{Config, ToMatchable};
 use sqruff_lib_core::parser::grammar::anyof::{AnyNumberOf, one_of};
 use sqruff_lib_core::parser::grammar::base::Ref;
 use sqruff_lib_core::parser::grammar::delimited::Delimited;
+use sqruff_lib_core::parser::parsers::TypedParser;
 use sqruff_lib_core::parser::segments::meta::MetaSegment;
 use sqruff_lib_core::vec_of_erased;
 use sqruff_lib_core::{parser::grammar::sequence::Sequence, parser::lexer::Matcher};
@@ -71,6 +72,14 @@ pub fn raw_dialect() -> Dialect {
         "TIMESTAMPADD",
         "TIMESTAMPDIFF",
     ]);
+
+    mysql.add([(
+        // MySQL allows the usage of a double quoted identifier for an alias.
+        "DoubleQuotedIdentifierSegment".into(),
+        TypedParser::new(SyntaxKind::DoubleQuote, SyntaxKind::Identifier)
+            .to_matchable()
+            .into(),
+    )]);
 
     mysql.add([
         (

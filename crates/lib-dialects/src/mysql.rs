@@ -176,6 +176,92 @@ pub fn raw_dialect() -> Dialect {
             .to_matchable()
             .into(),
         ),
+        (
+            // This is a FETCH statement.
+            // https://dev.mysql.com/doc/refman/8.0/en/fetch.html
+            "CursorFetchSegment".into(),
+            Sequence::new(vec_of_erased![
+                Ref::keyword("FETCH"),
+                Sequence::new(vec_of_erased![
+                    Ref::keyword("NEXT").optional(),
+                    Ref::keyword("FROM"),
+                ])
+                .config(|sequence| sequence.optional()),
+                Ref::new("NakedIdentifierSegment"),
+                Ref::keyword("INTO"),
+                Delimited::new(vec_of_erased![
+                    Ref::new("SessionVariableNameSegment"),
+                    Ref::new("LocalVariableNameSegment"),
+                ]),
+            ])
+            .to_matchable()
+            .into(),
+        ),
+        (
+            // This is a `DROP INDEX` statement.
+            // https://dev.mysql.com/doc/refman/8.0/en/drop-index.html
+            "DropIndexStatementSegment".into(),
+            Sequence::new(vec_of_erased![
+                Ref::keyword("DROP"),
+                Ref::keyword("INDEX"),
+                Ref::new("IndexReferenceSegment"),
+                Ref::keyword("ON"),
+                Ref::new("TableReferenceSegment"),
+                one_of(vec_of_erased![
+                    Sequence::new(vec_of_erased![
+                        Ref::keyword("ALGORITHM"),
+                        Ref::new("EqualsSegment").optional(),
+                        one_of(vec_of_erased![
+                            Ref::keyword("DEFAULT"),
+                            Ref::keyword("INPLACE"),
+                            Ref::keyword("COPY"),
+                        ]),
+                    ]),
+                    Sequence::new(vec_of_erased![
+                        Ref::keyword("LOCK"),
+                        Ref::new("EqualsSegment").optional(),
+                        one_of(vec_of_erased![
+                            Ref::keyword("DEFAULT"),
+                            Ref::keyword("NONE"),
+                            Ref::keyword("SHARED"),
+                            Ref::keyword("EXCLUSIVE"),
+                        ]),
+                    ]),
+                ])
+                .config(|delimited| delimited.optional()),
+            ])
+            .to_matchable()
+            .into(),
+        ),
+        (
+            // A `DROP` statement that addresses stored procedures and functions..
+            // https://dev.mysql.com/doc/refman/8.0/en/drop-procedure.html
+            "DropProcedureStatementSegment".into(),
+            Sequence::new(vec_of_erased![
+                Ref::keyword("DROP"),
+                one_of(vec_of_erased![
+                    Ref::keyword("PROCEDURE"),
+                    Ref::keyword("FUNCTION"),
+                ]),
+                Ref::new("IfExistsGrammar").optional(),
+                Ref::new("ObjectReferenceSegment"),
+            ])
+            .to_matchable()
+            .into(),
+        ),
+        (
+            // A `DROP` statement that addresses loadable functions.
+            // https://dev.mysql.com/doc/refman/8.0/en/drop-function-loadable.html
+            "DropFunctionStatementSegment".into(),
+            Sequence::new(vec_of_erased![
+                Ref::keyword("DROP"),
+                Ref::keyword("FUNCTION"),
+                Ref::new("IfExistsGrammar").optional(),
+                Ref::new("FunctionNameSegment"),
+            ])
+            .to_matchable()
+            .into(),
+        ),
     ]);
 
     mysql

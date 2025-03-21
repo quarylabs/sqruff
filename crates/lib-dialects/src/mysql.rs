@@ -430,6 +430,45 @@ pub fn raw_dialect() -> Dialect {
             .to_matchable()
             .into(),
         ),
+        (
+            // An `OPTIMIZE TABLE` statement.
+            // https://dev.mysql.com/doc/refman/8.0/en/optimize-table.html
+            "OptimizeTableStatementSegment".into(),
+            Sequence::new(vec_of_erased![
+                Ref::keyword("OPTIMIZE"),
+                one_of(vec_of_erased![
+                    Ref::keyword("NO_WRITE_TO_BINLOG"),
+                    Ref::keyword("LOCAL"),
+                ])
+                .config(|one| one.optional()),
+                Ref::keyword("TABLE"),
+                Delimited::new(vec_of_erased![Ref::new("TableReferenceSegment"),]),
+            ])
+            .to_matchable()
+            .into(),
+        ),
+        (
+            // An `UPDATE` statement.
+            // https://dev.mysql.com/doc/refman/8.0/en/update.html
+            "UpdateStatementSegment".into(),
+            Sequence::new(vec_of_erased![
+                Ref::keyword("UPDATE"),
+                Ref::keyword("LOW_PRIORITY").optional(),
+                Ref::keyword("IGNORE").optional(),
+                MetaSegment::indent(),
+                Delimited::new(vec_of_erased![
+                    Ref::new("TableReferenceSegment"),
+                    Ref::new("FromExpressionSegment"),
+                ]),
+                MetaSegment::dedent(),
+                Ref::new("SetClauseListSegment"),
+                Ref::new("WhereClauseSegment").optional(),
+                Ref::new("OrderByClauseSegment").optional(),
+                Ref::new("LimitClauseSegment").optional(),
+            ])
+            .to_matchable()
+            .into(),
+        ),
     ]);
 
     mysql

@@ -294,6 +294,79 @@ pub fn raw_dialect() -> Dialect {
             .to_matchable()
             .into(),
         ),
+        (
+            // A `PURGE BINARY LOGS` statement.
+            // https://dev.mysql.com/doc/refman/8.0/en/purge-binary-logs.html
+            "PurgeBinaryLogsStatementSegment".into(),
+            Sequence::new(vec_of_erased![
+                Ref::keyword("PURGE"),
+                one_of(vec_of_erased![
+                    Ref::keyword("BINARY"),
+                    Ref::keyword("MASTER"),
+                ]),
+                Ref::keyword("LOGS"),
+                one_of(vec_of_erased![
+                    Sequence::new(vec_of_erased![
+                        Ref::keyword("TO"),
+                        Ref::new("QuotedLiteralSegment"),
+                    ]),
+                    Sequence::new(vec_of_erased![
+                        Ref::keyword("BEFORE"),
+                        Ref::new("ExpressionSegment"),
+                    ]),
+                ]),
+            ])
+            .to_matchable()
+            .into(),
+        ),
+        (
+            // A `HELP` statement.
+            // https://dev.mysql.com/doc/refman/8.0/en/help.html
+            "HelpStatementSegment".into(),
+            Sequence::new(vec_of_erased![
+                Ref::keyword("HELP"),
+                Ref::new("QuotedLiteralSegment"),
+            ])
+            .to_matchable()
+            .into(),
+        ),
+        (
+            // A `CHECK TABLE` statement.
+            // https://dev.mysql.com/doc/refman/8.0/en/check-table.html
+            "CheckTableStatementSegment".into(),
+            Sequence::new(vec_of_erased![
+                Ref::keyword("CHECK"),
+                Ref::keyword("TABLE"),
+                Delimited::new(vec_of_erased![Ref::new("TableReferenceSegment"),]),
+                AnyNumberOf::new(vec_of_erased![
+                    Sequence::new(vec_of_erased![Ref::keyword("FOR"), Ref::keyword("UPGRADE"),]),
+                    Ref::keyword("QUICK"),
+                    Ref::keyword("FAST"),
+                    Ref::keyword("MEDIUM"),
+                    Ref::keyword("EXTENDED"),
+                    Ref::keyword("CHANGED"),
+                ])
+                .config(|any_number| any_number.min_times(1)),
+            ])
+            .to_matchable()
+            .into(),
+        ),
+        (
+            // A `CHECKSUM TABLE` statement.
+            // https://dev.mysql.com/doc/refman/8.0/en/checksum-table.html
+            "ChecksumTableStatementSegment".into(),
+            Sequence::new(vec_of_erased![
+                Ref::keyword("CHECKSUM"),
+                Ref::keyword("TABLE"),
+                Delimited::new(vec_of_erased![Ref::new("TableReferenceSegment"),]),
+                one_of(vec_of_erased![
+                    Ref::keyword("QUICK"),
+                    Ref::keyword("EXTENDED"),
+                ]),
+            ])
+            .to_matchable()
+            .into(),
+        ),
     ]);
 
     mysql

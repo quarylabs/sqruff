@@ -12,6 +12,9 @@
   <a aria-label="Quary logo" href="https://quary.dev/">
     <img src="https://img.shields.io/badge/MADE%20BY%20Quary-000000.svg?style=for-the-badge&logo=Quary&labelColor=000">
   </a>
+  <a aria-label="Open VSX" href="https://open-vsx.org/extension/Quary/sqruff">
+    <img src="https://img.shields.io/open-vsx/v/Quary/sqruff?style=for-the-badge">
+  </a>
 </p>
 
 `sqruff` is a SQL linter and formatter written in Rust. Key features include:
@@ -103,6 +106,10 @@ sqruff --help
 #### Visual Studio Code Extension
 
 In addition to the CLI installation mechanism listed above, sqruff is also released as a [Visual Studio Code extension](https://marketplace.visualstudio.com/items?itemName=Quary.sqruff).
+
+#### Open VSX
+
+Sqruff is also available on [Open VSX](https://open-vsx.org/extension/Quary/sqruff) for use with other IDEs that support Open VSX extensions.
 
 ### Usage
 

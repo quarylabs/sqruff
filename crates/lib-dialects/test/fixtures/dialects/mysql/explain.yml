@@ -11,26 +11,25 @@ file:
 - statement:
   - explain_statement:
     - keyword: explain
-    - update_statement:
-      - keyword: update
-      - table_reference:
-        - naked_identifier: tbl
-      - set_clause_list:
-        - keyword: set
-        - set_clause:
-          - column_reference:
-            - naked_identifier: foo
-          - comparison_operator:
-            - raw_comparison_operator: =
-          - numeric_literal: '1'
-      - where_clause:
-        - keyword: where
-        - expression:
-          - column_reference:
-            - naked_identifier: bar
-          - comparison_operator:
-            - raw_comparison_operator: =
-          - numeric_literal: '2'
+    - keyword: update
+    - table_reference:
+      - naked_identifier: tbl
+    - set_clause_list:
+      - keyword: set
+      - set_clause:
+        - column_reference:
+          - naked_identifier: foo
+        - comparison_operator:
+          - raw_comparison_operator: =
+        - numeric_literal: '1'
+    - where_clause:
+      - keyword: where
+      - expression:
+        - column_reference:
+          - naked_identifier: bar
+        - comparison_operator:
+          - raw_comparison_operator: =
+        - numeric_literal: '2'
 - statement_terminator: ;
 - statement:
   - explain_statement:

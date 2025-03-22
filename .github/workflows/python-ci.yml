@@ -42,6 +42,7 @@ jobs:
       - name: "Build sdist"
         uses: PyO3/maturin-action@36db84001d74475ad1b8e6613557ae4ee2dc3598 # v1
         with:
+          working-directory: crates/cli
           command: sdist
           args: --out dist
       - name: "Test sdist"
@@ -70,6 +71,7 @@ jobs:
   #     - name: "Build wheels - x86_64"
   #       uses: PyO3/maturin-action@36db84001d74475ad1b8e6613557ae4ee2dc3598 # v1
   #       with:
+          # working-directory: crates/cli
   #         target: x86_64
   #         args: --release --locked --out dist
   #     - name: "Upload wheels"
@@ -108,6 +110,7 @@ jobs:
       - name: "Build wheels - aarch64"
         uses: PyO3/maturin-action@36db84001d74475ad1b8e6613557ae4ee2dc3598 # v1
         with:
+          working-directory: crates/cli
           target: aarch64
           args: --release --locked --out dist
       - name: "Test wheel - aarch64"
@@ -160,6 +163,7 @@ jobs:
       - name: "Build wheels"
         uses: PyO3/maturin-action@36db84001d74475ad1b8e6613557ae4ee2dc3598 # v1
         with:
+          working-directory: crates/cli
           target: ${{ matrix.platform.target }}
           args: --release --locked --out dist
         env:
@@ -209,6 +213,7 @@ jobs:
       - name: "Build wheels"
         uses: PyO3/maturin-action@36db84001d74475ad1b8e6613557ae4ee2dc3598 # v1
         with:
+          working-directory: crates/cli
           target: ${{ matrix.target }}
           manylinux: auto
           args: --release --locked --out dist
@@ -269,6 +274,7 @@ jobs:
   #     - name: "Build wheels"
   #       uses: PyO3/maturin-action@36db84001d74475ad1b8e6613557ae4ee2dc3598 # v1
   #       with:
+          # working-directory: crates/cli
   #         target: ${{ matrix.platform.target }}
   #         manylinux: auto
   #         docker-options: ${{ matrix.platform.maturin_docker_options }}
@@ -333,6 +339,7 @@ jobs:
   #     - name: "Build wheels"
   #       uses: PyO3/maturin-action@36db84001d74475ad1b8e6613557ae4ee2dc3598 # v1
   #       with:
+          # working-directory: crates/cli
   #         target: ${{ matrix.target }}
   #         manylinux: musllinux_1_2
   #         args: --release --locked --out dist
@@ -396,6 +403,7 @@ jobs:
   #     - name: "Build wheels"
   #       uses: PyO3/maturin-action@36db84001d74475ad1b8e6613557ae4ee2dc3598 # v1
   #       with:
+          # working-directory: crates/cli
   #         target: ${{ matrix.platform.target }}
   #         manylinux: musllinux_1_2
   #         args: --release --locked --out dist
@@ -463,5 +471,6 @@ jobs:
         env:
           MATURIN_PYPI_TOKEN: ${{ secrets.PYPI_API_TOKEN }}
         with:
+          working-directory: crates/cli
           command: upload
           args: --non-interactive --skip-existing artifacts-*/*

@@ -27,8 +27,8 @@ testpaths = ["crates"]
 addopts = "-v --cov"
 
 [build-system]
-requires = ["setuptools>=64.0.0"]
-build-backend = "setuptools.build_meta"
+requires = ["maturin>=1.0,<2.0"]
+build-backend = "maturin"
 
 [tool.setuptools.packages.find]
 where = ["crates/lib/src/templaters"]
@@ -48,3 +48,5 @@ exclude = [
 include = [
     "rust-toolchain.toml"
 ]
+python-packages = ["../crates/lib/src/templaters"]
+

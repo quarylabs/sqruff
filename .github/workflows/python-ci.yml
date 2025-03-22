@@ -44,7 +44,7 @@ jobs:
         with:
           working-directory: crates/cli
           command: sdist
-          args: --out dist
+          args: --out ../../dist
       - name: "Test sdist"
         run: |
           pip install dist/"${PACKAGE_NAME}"-*.tar.gz --force-reinstall
@@ -73,7 +73,7 @@ jobs:
   #       with:
           # working-directory: crates/cli
   #         target: x86_64
-  #         args: --release --locked --out dist
+  #         args: --release --locked --out ../../dist
   #     - name: "Upload wheels"
   #       uses: actions/upload-artifact@4cec3d8aa04e39d1a68397de0c4cd6fb9dce8ec1 # v4
   #       with:
@@ -112,7 +112,7 @@ jobs:
         with:
           working-directory: crates/cli
           target: aarch64
-          args: --release --locked --out dist
+          args: --release --locked --out ../../dist
       - name: "Test wheel - aarch64"
         run: |
           pip install dist/"${PACKAGE_NAME}"-*.whl --force-reinstall
@@ -165,7 +165,7 @@ jobs:
         with:
           working-directory: crates/cli
           target: ${{ matrix.platform.target }}
-          args: --release --locked --out dist
+          args: --release --locked --out ../../dist
         env:
           # aarch64 build fails, see https://github.com/PyO3/maturin/issues/2110
           XWIN_VERSION: 16
@@ -216,7 +216,7 @@ jobs:
           working-directory: crates/cli
           target: ${{ matrix.target }}
           manylinux: auto
-          args: --release --locked --out dist
+          args: --release --locked --out ../../dist
       - name: "Test wheel"
         if: ${{ startsWith(matrix.target, 'x86_64') }}
         run: |
@@ -278,7 +278,7 @@ jobs:
   #         target: ${{ matrix.platform.target }}
   #         manylinux: auto
   #         docker-options: ${{ matrix.platform.maturin_docker_options }}
-  #         args: --release --locked --out dist
+  #         args: --release --locked --out ../../dist
   #     - uses: uraimo/run-on-arch-action@ac33288c3728ca72563c97b8b88dda5a65a84448 # v2
   #       if: ${{ matrix.platform.arch != 'ppc64' && matrix.platform.arch != 'ppc64le'}}
   #       name: Test wheel
@@ -342,7 +342,7 @@ jobs:
           # working-directory: crates/cli
   #         target: ${{ matrix.target }}
   #         manylinux: musllinux_1_2
-  #         args: --release --locked --out dist
+  #         args: --release --locked --out ../../dist
   #     - name: "Test wheel"
   #       if: matrix.target == 'x86_64-unknown-linux-musl'
   #       uses: addnab/docker-run-action@v3
@@ -406,7 +406,7 @@ jobs:
           # working-directory: crates/cli
   #         target: ${{ matrix.platform.target }}
   #         manylinux: musllinux_1_2
-  #         args: --release --locked --out dist
+  #         args: --release --locked --out ../../dist
   #         docker-options: ${{ matrix.platform.maturin_docker_options }}
   #     - uses: uraimo/run-on-arch-action@ac33288c3728ca72563c97b8b88dda5a65a84448 # v2
   #       name: Test wheel

@@ -27,6 +27,7 @@ env:
   CARGO_TERM_COLOR: always
   RUSTUP_MAX_RETRIES: 10
 
+
 jobs:
   sdist:
     if: ${{ !contains(github.event.pull_request.labels.*.name, 'no-build') }}
@@ -135,6 +136,7 @@ jobs:
         with:
           name: artifacts-aarch64-apple-darwin
           path: dist
+
 
   windows:
     if: ${{ !contains(github.event.pull_request.labels.*.name, 'no-build') }}
@@ -442,7 +444,7 @@ jobs:
     name: Release
     runs-on: ubuntu-latest
     if: ${{ startsWith(github.ref, 'refs/tags/') || github.event_name == 'workflow_dispatch' }}
-    needs: [windows, macos-x86_64, macos-aarch64, linux, sdist]
+    needs: [windows, macos-aarch64, linux, sdist]
     continue-on-error: true
     permissions:
       # Use to sign the release artifacts

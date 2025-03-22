@@ -345,7 +345,7 @@ jobs:
           args: --release --locked --out ../../dist
       - name: "Test wheel"
         if: matrix.target == 'x86_64-unknown-linux-musl'
-        uses: addnab/docker-run-action@v3
+        uses: addnab/docker-run-action@3e77f186b7a929ef010f183a9e24c0f9955ea609
         with:
           image: alpine:latest
           options: -v ${{ github.workspace }}:/io -w /io

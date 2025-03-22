@@ -1,24 +1,9 @@
 [project]
 name = "sqruff"
 version = "0.0.1"
-readme = "../../README.md"
+readme = "README.md"
 requires-python = ">=3.9"
 dependencies = [
-    "Jinja2>=3.0.0",
-    "regex"
-]
-
-[project.optional-dependencies]
-dev = [
-    "pytest>=8.0.0",
-    "pytest-cov>=6.0.0",
-    "ruff>=0.9.4",
-    "maturin>=1.8.0",
-    "jinja2>=3.0.0",
-    "regex",
-    "dbt-core>=1.4.1",
-    "dbt-postgres>=1.4.1",
-    "jinja2-simple-tags>=0.3.1"
 ]
 
 [tool.pytest.ini_options]
@@ -27,8 +12,8 @@ testpaths = ["crates"]
 addopts = "-v --cov"
 
 [build-system]
-requires = ["setuptools", "wheel", "maturin"]
-build-backend = "setuptools.build_meta"
+requires = ["maturin"]
+build-backend = "maturin"
 
 [tool.setuptools.packages.find]
 where = ["crates/lib/src/templaters"]

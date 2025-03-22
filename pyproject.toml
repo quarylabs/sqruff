@@ -48,4 +48,3 @@ exclude = [
 include = [
     "rust-toolchain.toml"
 ]
-python-packages = ["crates/lib/src/templaters/sqruff_templaters"]

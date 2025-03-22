@@ -17,7 +17,7 @@ python_test: ## Run python tests
 
 .PHONY: python_install
 python_install: ## Install python dev dependencies
-	pip install -e ".[dev]"
+	pip install crates/lib -e ".[dev]"
 
 .PHONY: python_generate_gha
 python_generate_gha: ## Generate GitHub Actions workflow

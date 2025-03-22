@@ -61,6 +61,9 @@ jobs:
           manylinux: auto
           container: off
           args: --release  --out dist --manifest-path crates/cli/Cargo.toml
+      - uses: actions/setup-python@v4
+        with:
+          python-version: '3.9'
       - name: Build Wheels - musllinux
         uses: PyO3/maturin-action@main
         with:

@@ -27,7 +27,6 @@ env:
   CARGO_TERM_COLOR: always
   RUSTUP_MAX_RETRIES: 10
 
-
 jobs:
   sdist:
     if: ${{ !contains(github.event.pull_request.labels.*.name, 'no-build') }}
@@ -136,7 +135,6 @@ jobs:
         with:
           name: artifacts-aarch64-apple-darwin
           path: dist
-
 
   windows:
     if: ${{ !contains(github.event.pull_request.labels.*.name, 'no-build') }}

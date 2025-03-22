@@ -46,7 +46,7 @@ strip = true
 exclude = [
 ]
 include = [
-    "rust-toolchain.toml"
+    "rust-toolchain.toml",
+    "../crates/lib/src/templaters"
 ]
-python-packages = ["../crates/lib/src/templaters"]
 

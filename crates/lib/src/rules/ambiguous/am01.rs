@@ -28,7 +28,7 @@ impl Rule for RuleAM01 {
         r#"
 **Anti-pattern**
 
-`DISTINCT` and `GROUP BY are conflicting.
+`DISTINCT` and `GROUP BY` are conflicting.
 
 ```sql
 SELECT DISTINCT

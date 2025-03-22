@@ -58,7 +58,7 @@ jobs:
 
   macos-x86_64:
     if: ${{ !contains(github.event.pull_request.labels.*.name, 'no-build') }}
-    runs-on: macos-14
+    runs-on: macos-12
     steps:
       - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4
         with:
@@ -264,16 +264,6 @@ jobs:
             maturin_docker_options: -e JEMALLOC_SYS_WITH_LG_PAGE=16
           - target: armv7-unknown-linux-gnueabihf
             arch: armv7
-          - target: s390x-unknown-linux-gnu
-            arch: s390x
-          - target: powerpc64le-unknown-linux-gnu
-            arch: ppc64le
-            # see https://github.com/astral-sh/sqruff/issues/10073
-            maturin_docker_options: -e JEMALLOC_SYS_WITH_LG_PAGE=16
-          - target: powerpc64-unknown-linux-gnu
-            arch: ppc64
-            # see https://github.com/astral-sh/sqruff/issues/10073
-            maturin_docker_options: -e JEMALLOC_SYS_WITH_LG_PAGE=16
           - target: arm-unknown-linux-musleabihf
             arch: arm
 
@@ -296,8 +286,8 @@ jobs:
         if: ${{ matrix.platform.arch != 'ppc64' && matrix.platform.arch != 'ppc64le'}}
         name: Test wheel
         with:
-          arch: ${{ matrix.platform.arch == 'arm' && 'armv6' || matrix.platform.arch }}
-          distro: ${{ matrix.platform.arch == 'arm' && 'bullseye' || 'ubuntu20.04' }}
+          arch: ${{ matrix.platform.arch }}
+          distro: ${{ 'ubuntu20.04' }}
           githubToken: ${{ github.token }}
           install: |
             apt-get update
@@ -362,7 +352,7 @@ jobs:
           image: alpine:latest
           options: -v ${{ github.workspace }}:/io -w /io
           run: |
-            apk add python3
+            apk add --no-cache python3-dev gcc musl-dev
             python -m venv .venv
             .venv/bin/pip3 install ${{ env.PACKAGE_NAME }} --no-index --find-links dist/ --force-reinstall
             .venv/bin/${{ env.MODULE_NAME }} --help
@@ -426,7 +416,7 @@ jobs:
           distro: alpine_latest
           githubToken: ${{ github.token }}
           install: |
-            apk add python3
+            apk add --no-cache python3-dev gcc musl-dev
           run: |
             python -m venv .venv
             .venv/bin/pip3 install ${{ env.PACKAGE_NAME }} --no-index --find-links dist/ --force-reinstall

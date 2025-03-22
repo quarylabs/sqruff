@@ -53,7 +53,7 @@ jobs:
       - name: "Upload sdist"
         uses: actions/upload-artifact@4cec3d8aa04e39d1a68397de0c4cd6fb9dce8ec1 # v4
         with:
-          name: wheels-sdist
+          name: artifacts-sdist
           path: dist
 
   macos-x86_64:
@@ -92,9 +92,7 @@ jobs:
         uses: actions/upload-artifact@4cec3d8aa04e39d1a68397de0c4cd6fb9dce8ec1 # v4
         with:
           name: artifacts-macos-x86_64
-          path: |
-            *.tar.gz
-            *.sha256
+          path: dist
 
   macos-aarch64:
     if: ${{ !contains(github.event.pull_request.labels.*.name, 'no-build') }}
@@ -137,9 +135,8 @@ jobs:
         uses: actions/upload-artifact@4cec3d8aa04e39d1a68397de0c4cd6fb9dce8ec1 # v4
         with:
           name: artifacts-aarch64-apple-darwin
-          path: |
-            *.tar.gz
-            *.sha256
+          path: dist
+
 
   windows:
     if: ${{ !contains(github.event.pull_request.labels.*.name, 'no-build') }}
@@ -192,9 +189,7 @@ jobs:
         uses: actions/upload-artifact@4cec3d8aa04e39d1a68397de0c4cd6fb9dce8ec1 # v4
         with:
           name: artifacts-${{ matrix.platform.target }}
-          path: |
-            *.zip
-            *.sha256
+          path: dist
 
   linux:
     if: ${{ !contains(github.event.pull_request.labels.*.name, 'no-build') }}
@@ -247,9 +242,7 @@ jobs:
         uses: actions/upload-artifact@4cec3d8aa04e39d1a68397de0c4cd6fb9dce8ec1 # v4
         with:
           name: artifacts-${{ matrix.target }}
-          path: |
-            *.tar.gz
-            *.sha256
+          path: dist
 
   # linux-cross:
   #   if: ${{ !contains(github.event.pull_request.labels.*.name, 'no-build') }}
@@ -446,3 +439,31 @@ jobs:
   #         path: |
   #           *.tar.gz
   #           *.sha256
+
+  release:
+    name: Release
+    runs-on: ubuntu-latest
+    if: ${{ startsWith(github.ref, 'refs/tags/') || github.event_name == 'workflow_dispatch' }}
+    needs: [windows, macos, linux, sdist]
+    continue-on-error: true
+    permissions:
+      # Use to sign the release artifacts
+      id-token: write
+      # Used to upload release artifacts
+      contents: write
+      # Used to generate artifact attestation
+      attestations: write
+    steps:
+      - uses: actions/download-artifact@cc203385981b70ca67e1cc392babf9cc229d5806 # ratchet:actions/download-artifact@v4
+      - name: Generate artifact attestation
+        uses: actions/attest-build-provenance@c074443f1aee8d4aeeae555aebba3282517141b2 # ratchet:actions/attest-build-provenance@v2
+        with:
+          subject-path: "artifacts-*/*"
+      - name: Publish to PyPI
+        if: ${{ startsWith(github.ref, 'refs/tags/') }}
+        uses: PyO3/maturin-action@36db84001d74475ad1b8e6613557ae4ee2dc3598 # ratchet:PyO3/maturin-action@v1
+        env:
+          MATURIN_PYPI_TOKEN: ${{ secrets.PYPI_API_TOKEN }}
+        with:
+          command: upload
+          args: --non-interactive --skip-existing artifacts-*/*

@@ -22,6 +22,14 @@ dbt = [
 ]
 
 [tool.maturin]
-bindings = "bin" 
-strip = true 
-features = ["python"]
+bindings = "bin"
+manifest-path = "Cargo.toml"
+module-name = "sqruff"
+python-source = "python"
+strip = true
+exclude = [
+]
+include = [
+    "rust-toolchain.toml",
+]
+

@@ -47,6 +47,5 @@ exclude = [
 ]
 include = [
     "rust-toolchain.toml",
-    "../crates/lib/src/templaters"
 ]
 

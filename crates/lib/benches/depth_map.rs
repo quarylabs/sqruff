@@ -6,17 +6,7 @@ use sqruff_lib::core::linter::core::Linter;
 use sqruff_lib::utils::reflow::depth_map::DepthMap;
 use sqruff_lib_core::parser::segments::base::Tables;
 
-#[cfg(all(
-    not(target_os = "windows"),
-    not(target_os = "openbsd"),
-    any(
-        target_arch = "x86_64",
-        target_arch = "aarch64",
-        target_arch = "powerpc64"
-    )
-))]
-#[global_allocator]
-static ALLOC: jemallocator::Jemalloc = jemallocator::Jemalloc;
+include!("shims/global_alloc_overwrite.rs");
 
 const COMPLEX_QUERY: &str = r#"-- Insert segments
 INSERT INTO segments (id, name) VALUES

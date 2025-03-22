@@ -8,14 +8,20 @@ file:
     - keyword: AS
     - bracketed:
       - start_bracket: (
-      - word: int_
-      - word: INT4
+      - column_reference:
+        - naked_identifier: int_
+      - data_type:
+        - keyword: INT4
       - comma: ','
-      - word: bool_
-      - word: BOOLEAN
+      - column_reference:
+        - naked_identifier: bool_
+      - data_type:
+        - keyword: BOOLEAN
       - comma: ','
-      - word: comment_
-      - word: TEXT
+      - column_reference:
+        - naked_identifier: comment_
+      - data_type:
+        - keyword: TEXT
       - end_bracket: )
 - statement_terminator: ;
 - statement:

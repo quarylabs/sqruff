@@ -33,6 +33,7 @@ Sqruff currently supports the following SQL dialects:
 - [**Clickhouse**](https://clickhouse.com/docs/en/sql-reference/)
 - [**Databricks**](https://docs.databricks.com/en/sql/language-manual/index.html)
 - [**DuckDB**](https://duckdb.org/docs/sql/introduction)
+- [**Mysql**](https://dev.mysql.com/doc/)
 - [**PostgreSQL**](https://www.postgresql.org/docs/current/sql.html)
 - [**Redshift**](https://docs.aws.amazon.com/redshift/latest/dg/cm_chap_SQLCommandRef.html)
 - [**Snowflake**](https://docs.snowflake.com/en/sql-reference.html)

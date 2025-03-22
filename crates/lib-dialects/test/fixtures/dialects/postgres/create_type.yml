@@ -75,9 +75,44 @@ file:
     - keyword: AS
     - bracketed:
       - start_bracket: (
-      - word: foo
-      - word: varchar
-      - word: collate
-      - word: utf8
+      - column_reference:
+        - naked_identifier: foo
+      - data_type:
+        - keyword: varchar
+      - keyword: collate
+      - collation_reference:
+        - naked_identifier: utf8
+      - end_bracket: )
+- statement_terminator: ;
+- statement:
+  - create_type_statement:
+    - keyword: CREATE
+    - keyword: TYPE
+    - object_reference:
+      - naked_identifier: person
+    - keyword: AS
+    - bracketed:
+      - start_bracket: (
+      - column_reference:
+        - naked_identifier: first_name
+      - data_type:
+        - keyword: text
+      - keyword: COLLATE
+      - collation_reference:
+        - quoted_identifier: '"en_US"'
+      - comma: ','
+      - column_reference:
+        - naked_identifier: last_name
+      - data_type:
+        - keyword: text
+      - keyword: COLLATE
+      - collation_reference:
+        - quoted_identifier: '"en_US"'
+      - comma: ','
+      - column_reference:
+        - naked_identifier: birth_date
+      - data_type:
+        - datetime_type_identifier:
+          - keyword: date
       - end_bracket: )
 - statement_terminator: ;

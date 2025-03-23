@@ -1,19 +1,20 @@
 file:
 - statement:
-  - create_user_statement:
-    - keyword: CREATE
-    - keyword: USER
-    - role_reference:
-      - naked_identifier: jeffrey
+  - keyword: CREATE
+  - keyword: USER
+  - role_reference:
+    - naked_identifier: jeffrey
+- statement_terminator: ;
+- statement:
+  - keyword: CREATE
+  - keyword: USER
+  - keyword: IF
+  - keyword: NOT
+  - keyword: EXISTS
+  - role_reference:
+    - naked_identifier: jeffrey
 - statement_terminator: ;
 - file:
-  - word: CREATE
-  - word: USER
-  - word: IF
-  - word: NOT
-  - word: EXISTS
-  - word: jeffrey
-  - semicolon: ;
   - word: CREATE
   - word: USER
   - single_quote: '''prj_svc'''

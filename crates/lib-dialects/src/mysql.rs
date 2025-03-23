@@ -1,3 +1,5 @@
+use super::ansi::{self};
+use crate::mysql_keywords::{MYSQL_RESERVED_KEYWORDS, MYSQL_UNRESERVED_KEYWORDS};
 use sqruff_lib_core::dialects::base::Dialect;
 use sqruff_lib_core::dialects::init::DialectKind;
 use sqruff_lib_core::dialects::syntax::SyntaxKind;
@@ -6,14 +8,11 @@ use sqruff_lib_core::parser::grammar::anyof::{AnyNumberOf, one_of};
 use sqruff_lib_core::parser::grammar::base::{Anything, Ref};
 use sqruff_lib_core::parser::grammar::delimited::Delimited;
 use sqruff_lib_core::parser::grammar::sequence::Bracketed;
+use sqruff_lib_core::parser::matchable::MatchableTrait;
 use sqruff_lib_core::parser::parsers::TypedParser;
 use sqruff_lib_core::parser::segments::meta::MetaSegment;
 use sqruff_lib_core::vec_of_erased;
 use sqruff_lib_core::{parser::grammar::sequence::Sequence, parser::lexer::Matcher};
-
-use crate::mysql_keywords::{MYSQL_RESERVED_KEYWORDS, MYSQL_UNRESERVED_KEYWORDS};
-
-use super::ansi;
 
 pub fn dialect() -> Dialect {
     raw_dialect().config(|dialect| dialect.expand())
@@ -179,14 +178,26 @@ pub fn raw_dialect() -> Dialect {
                 Ref::keyword("CREATE"),
                 Ref::keyword("USER"),
                 Ref::new("IfNotExistsGrammar").optional(),
-                Delimited::new(vec_of_erased![
+                Delimited::new(vec_of_erased![Sequence::new(vec_of_erased![
+                    Ref::new("RoleReferenceSegment"),
                     Sequence::new(vec_of_erased![
-                        Ref::new("RoleReferenceSegment"),
-                        Sequence::new(vec_of_erased![
-                            Delimited::new(vec_of_erased![
+                        Delimited::new(vec_of_erased![Sequence::new(vec_of_erased![
+                            Ref::keyword("IDENTIFIED"),
+                            one_of(vec_of_erased![
                                 Sequence::new(vec_of_erased![
-                                    Ref::keyword("IDENTIFIED"),
+                                    Ref::keyword("BY"),
                                     one_of(vec_of_erased![
+                                        Sequence::new(vec_of_erased![
+                                            Ref::keyword("RANDOM"),
+                                            Ref::keyword("PASSWORD"),
+                                        ]),
+                                        Ref::new("QuotedLiteralSegment"),
+                                    ]),
+                                ]),
+                                Sequence::new(vec_of_erased![
+                                    Ref::keyword("WITH"),
+                                    Ref::new("ObjectReferenceSegment"),
+                                    Sequence::new(vec_of_erased![one_of(vec_of_erased![
                                         Sequence::new(vec_of_erased![
                                             Ref::keyword("BY"),
                                             one_of(vec_of_erased![
@@ -198,59 +209,41 @@ pub fn raw_dialect() -> Dialect {
                                             ]),
                                         ]),
                                         Sequence::new(vec_of_erased![
-                                            Ref::keyword("WITH"),
-                                            Ref::new("ObjectReferenceSegment"),
-                                            Sequence::new(vec_of_erased![
-                                                one_of(vec_of_erased![
-                                                    Sequence::new(vec_of_erased![
-                                                        Ref::keyword("BY"),
-                                                        one_of(vec_of_erased![
-                                                            Sequence::new(vec_of_erased![
-                                                                Ref::keyword("RANDOM"),
-                                                                Ref::keyword("PASSWORD"),
-                                                            ]),
-                                                            Ref::new("QuotedLiteralSegment"),
+                                            Ref::keyword("AS"),
+                                            Ref::new("QuotedLiteralSegment"),
+                                        ]),
+                                        Sequence::new(vec_of_erased![
+                                            Ref::keyword("INITIAL"),
+                                            Ref::keyword("AUTHENTICATION"),
+                                            Ref::keyword("IDENTIFIED"),
+                                            one_of(vec_of_erased![
+                                                Sequence::new(vec_of_erased![
+                                                    Ref::keyword("BY"),
+                                                    one_of(vec_of_erased![
+                                                        Sequence::new(vec_of_erased![
+                                                            Ref::keyword("RANDOM"),
+                                                            Ref::keyword("PASSWORD"),
                                                         ]),
-                                                    ]),
-                                                    Sequence::new(vec_of_erased![
-                                                        Ref::keyword("AS"),
                                                         Ref::new("QuotedLiteralSegment"),
                                                     ]),
-                                                    Sequence::new(vec_of_erased![
-                                                        Ref::keyword("INITIAL"),
-                                                        Ref::keyword("AUTHENTICATION"),
-                                                        Ref::keyword("IDENTIFIED"),
-                                                        one_of(vec_of_erased![
-                                                            Sequence::new(vec_of_erased![
-                                                                Ref::keyword("BY"),
-                                                                one_of(vec_of_erased![
-                                                                    Sequence::new(vec_of_erased![
-                                                                        Ref::keyword("RANDOM"),
-                                                                        Ref::keyword("PASSWORD"),
-                                                                    ]),
-                                                                    Ref::new("QuotedLiteralSegment"),
-                                                                ]),
-                                                            ]),
-                                                            Sequence::new(vec_of_erased![
-                                                                Ref::keyword("WITH"),
-                                                                Ref::new("ObjectReferenceSegment"),
-                                                                Ref::keyword("AS"),
-                                                                Ref::new("QuotedLiteralSegment"),
-                                                            ]),
-                                                        ]),
-                                                    ]),
                                                 ]),
-                                            ])
-                                            .config(|sequence| sequence.optional()),
+                                                Sequence::new(vec_of_erased![
+                                                    Ref::keyword("WITH"),
+                                                    Ref::new("ObjectReferenceSegment"),
+                                                    Ref::keyword("AS"),
+                                                    Ref::new("QuotedLiteralSegment"),
+                                                ]),
+                                            ]),
                                         ]),
-                                    ]),
+                                    ]),])
+                                    .config(|sequence| sequence.optional()),
                                 ]),
-                            ])
-                            .config(|delimited| delimited.delimiter(Ref::keyword("AND"))),
-                        ])
-                        .config(|sequence| sequence.optional()),
-                    ]),
-                ]),
+                            ]),
+                        ]),])
+                        .config(|delimited| delimited.delimiter(Ref::keyword("AND"))),
+                    ])
+                    .config(|sequence| sequence.optional()),
+                ]),]),
                 Sequence::new(vec_of_erased![
                     Ref::keyword("DEFAULT"),
                     Ref::keyword("ROLE"),
@@ -261,106 +254,96 @@ pub fn raw_dialect() -> Dialect {
                     Ref::keyword("REQUIRE"),
                     one_of(vec_of_erased![
                         Ref::keyword("NONE"),
-                        Delimited::new(vec_of_erased![
-                            one_of(vec_of_erased![
-                                Ref::keyword("SSL"),
-                                Ref::keyword("X509"),
-                                Sequence::new(vec_of_erased![
-                                    Ref::keyword("CIPHER"),
-                                    Ref::new("QuotedLiteralSegment"),
-                                ]),
-                                Sequence::new(vec_of_erased![
-                                    Ref::keyword("ISSUER"),
-                                    Ref::new("QuotedLiteralSegment"),
-                                ]),
-                                Sequence::new(vec_of_erased![
-                                    Ref::keyword("SUBJECT"),
-                                    Ref::new("QuotedLiteralSegment"),
-                                ]),
+                        Delimited::new(vec_of_erased![one_of(vec_of_erased![
+                            Ref::keyword("SSL"),
+                            Ref::keyword("X509"),
+                            Sequence::new(vec_of_erased![
+                                Ref::keyword("CIPHER"),
+                                Ref::new("QuotedLiteralSegment"),
                             ]),
-                        ])
+                            Sequence::new(vec_of_erased![
+                                Ref::keyword("ISSUER"),
+                                Ref::new("QuotedLiteralSegment"),
+                            ]),
+                            Sequence::new(vec_of_erased![
+                                Ref::keyword("SUBJECT"),
+                                Ref::new("QuotedLiteralSegment"),
+                            ]),
+                        ]),])
                         .config(|delimited| delimited.delimiter(Ref::keyword("AND"))),
                     ]),
                 ])
                 .config(|sequence| sequence.optional()),
                 Sequence::new(vec_of_erased![
                     Ref::keyword("WITH"),
-                    AnyNumberOf::new(vec_of_erased![
-                        Sequence::new(vec_of_erased![
-                            one_of(vec_of_erased![
-                                Ref::keyword("MAX_QUERIES_PER_HOUR"),
-                                Ref::keyword("MAX_UPDATES_PER_HOUR"),
-                                Ref::keyword("MAX_CONNECTIONS_PER_HOUR"),
-                                Ref::keyword("MAX_USER_CONNECTIONS"),
-                            ]),
-                            Ref::new("NumericLiteralSegment"),
+                    AnyNumberOf::new(vec_of_erased![Sequence::new(vec_of_erased![
+                        one_of(vec_of_erased![
+                            Ref::keyword("MAX_QUERIES_PER_HOUR"),
+                            Ref::keyword("MAX_UPDATES_PER_HOUR"),
+                            Ref::keyword("MAX_CONNECTIONS_PER_HOUR"),
+                            Ref::keyword("MAX_USER_CONNECTIONS"),
                         ]),
-                    ]),
+                        Ref::new("NumericLiteralSegment"),
+                    ]),]),
                 ])
                 .config(|sequence| sequence.optional()),
-                Sequence::new(vec_of_erased![
-                    AnyNumberOf::new(vec_of_erased![
-                        Sequence::new(vec_of_erased![
-                            Ref::keyword("PASSWORD"),
-                            Ref::keyword("EXPIRE"),
+                Sequence::new(vec_of_erased![AnyNumberOf::new(vec_of_erased![
+                    Sequence::new(vec_of_erased![
+                        Ref::keyword("PASSWORD"),
+                        Ref::keyword("EXPIRE"),
+                        Sequence::new(vec_of_erased![one_of(vec_of_erased![
+                            Ref::keyword("DEFAULT"),
+                            Ref::keyword("NEVER"),
                             Sequence::new(vec_of_erased![
-                                one_of(vec_of_erased![
-                                    Ref::keyword("DEFAULT"),
-                                    Ref::keyword("NEVER"),
-                                    Sequence::new(vec_of_erased![
-                                        Ref::keyword("INTERVAL"),
-                                        Ref::new("NumericLiteralSegment"),
-                                        Ref::keyword("DAY"),
-                                    ]),
-                                ]),
-                            ])
-                            .config(|sequence| sequence.optional()),
-                        ]),
-                        Sequence::new(vec_of_erased![
-                            Ref::keyword("PASSWORD"),
-                            Ref::keyword("HISTORY"),
-                            one_of(vec_of_erased![
-                                Ref::keyword("DEFAULT"),
+                                Ref::keyword("INTERVAL"),
                                 Ref::new("NumericLiteralSegment"),
+                                Ref::keyword("DAY"),
                             ]),
-                        ]),
-                        Sequence::new(vec_of_erased![
-                            Ref::keyword("PASSWORD"),
-                            Ref::keyword("REUSE"),
-                            Ref::keyword("INTERVAL"),
-                            one_of(vec_of_erased![
-                                Ref::keyword("DEFAULT"),
-                                Sequence::new(vec_of_erased![
-                                    Ref::new("NumericLiteralSegment"),
-                                    Ref::keyword("DAY"),
-                                ]),
-                            ]),
-                        ]),
-                        Sequence::new(vec_of_erased![
-                            Ref::keyword("PASSWORD"),
-                            Ref::keyword("REQUIRE"),
-                            Ref::keyword("CURRENT"),
-                            Sequence::new(vec_of_erased![
-                                one_of(vec_of_erased![
-                                    Ref::keyword("DEFAULT"),
-                                    Ref::keyword("OPTIONAL"),
-                                ]),
-                            ])
-                            .config(|sequence| sequence.optional()),
-                        ]),
-                        Sequence::new(vec_of_erased![
-                            Ref::keyword("FAILED_LOGIN_ATTEMPTS"),
+                        ]),])
+                        .config(|sequence| sequence.optional()),
+                    ]),
+                    Sequence::new(vec_of_erased![
+                        Ref::keyword("PASSWORD"),
+                        Ref::keyword("HISTORY"),
+                        one_of(vec_of_erased![
+                            Ref::keyword("DEFAULT"),
                             Ref::new("NumericLiteralSegment"),
                         ]),
-                        Sequence::new(vec_of_erased![
-                            Ref::keyword("PASSWORD_LOCK_TIME"),
-                            one_of(vec_of_erased![
+                    ]),
+                    Sequence::new(vec_of_erased![
+                        Ref::keyword("PASSWORD"),
+                        Ref::keyword("REUSE"),
+                        Ref::keyword("INTERVAL"),
+                        one_of(vec_of_erased![
+                            Ref::keyword("DEFAULT"),
+                            Sequence::new(vec_of_erased![
                                 Ref::new("NumericLiteralSegment"),
-                                Ref::keyword("UNBOUNDED"),
+                                Ref::keyword("DAY"),
                             ]),
                         ]),
                     ]),
-                ])
+                    Sequence::new(vec_of_erased![
+                        Ref::keyword("PASSWORD"),
+                        Ref::keyword("REQUIRE"),
+                        Ref::keyword("CURRENT"),
+                        Sequence::new(vec_of_erased![one_of(vec_of_erased![
+                            Ref::keyword("DEFAULT"),
+                            Ref::keyword("OPTIONAL"),
+                        ]),])
+                        .config(|sequence| sequence.optional()),
+                    ]),
+                    Sequence::new(vec_of_erased![
+                        Ref::keyword("FAILED_LOGIN_ATTEMPTS"),
+                        Ref::new("NumericLiteralSegment"),
+                    ]),
+                    Sequence::new(vec_of_erased![
+                        Ref::keyword("PASSWORD_LOCK_TIME"),
+                        one_of(vec_of_erased![
+                            Ref::new("NumericLiteralSegment"),
+                            Ref::keyword("UNBOUNDED"),
+                        ]),
+                    ]),
+                ]),])
                 .config(|sequence| sequence.optional()),
                 Sequence::new(vec_of_erased![
                     Ref::keyword("ACCOUNT"),
@@ -368,7 +351,10 @@ pub fn raw_dialect() -> Dialect {
                 ])
                 .config(|sequence| sequence.optional()),
                 Sequence::new(vec_of_erased![
-                    one_of(vec_of_erased![Ref::keyword("COMMENT"), Ref::keyword("ATTRIBUTE")]),
+                    one_of(vec_of_erased![
+                        Ref::keyword("COMMENT"),
+                        Ref::keyword("ATTRIBUTE")
+                    ]),
                     Ref::new("QuotedLiteralSegment"),
                 ])
                 .config(|sequence| sequence.optional()),
@@ -458,6 +444,55 @@ pub fn raw_dialect() -> Dialect {
                     Ref::keyword("PREPARE"),
                 ]),
                 Ref::new("NakedIdentifierSegment"),
+            ])
+            .to_matchable()
+            .into(),
+        ),
+        (
+            // This is the body of a `RESIGNAL` statement.
+            // https://dev.mysql.com/doc/refman/8.0/en/resignal.html
+            "ResignalSegment".into(),
+            Sequence::new(vec_of_erased![
+                one_of(vec_of_erased![
+                    Ref::keyword("SIGNAL"),
+                    Ref::keyword("RESIGNAL"),
+                ]),
+                one_of(vec_of_erased![
+                    Sequence::new(vec_of_erased![
+                        Ref::keyword("SQLSTATE"),
+                        Ref::keyword("VALUE").optional(),
+                        Ref::new("QuotedLiteralSegment"),
+                    ]),
+                    Ref::new("NakedIdentifierSegment"),
+                ])
+                .config(|one_of| one_of.optional()),
+                Sequence::new(vec_of_erased![
+                    Ref::keyword("SET"),
+                    Delimited::new(vec_of_erased![Sequence::new(vec_of_erased![
+                        one_of(vec_of_erased![
+                            Ref::keyword("CLASS_ORIGIN"),
+                            Ref::keyword("SUBCLASS_ORIGIN"),
+                            Ref::keyword("RETURNED_SQLSTATE"),
+                            Ref::keyword("MESSAGE_TEXT"),
+                            Ref::keyword("MYSQL_ERRNO"),
+                            Ref::keyword("CONSTRAINT_CATALOG"),
+                            Ref::keyword("CONSTRAINT_SCHEMA"),
+                            Ref::keyword("CONSTRAINT_NAME"),
+                            Ref::keyword("CATALOG_NAME"),
+                            Ref::keyword("SCHEMA_NAME"),
+                            Ref::keyword("TABLE_NAME"),
+                            Ref::keyword("COLUMN_NAME"),
+                            Ref::keyword("CURSOR_NAME"),
+                        ]),
+                        Ref::new("EqualsSegment"),
+                        one_of(vec_of_erased![
+                            Ref::new("SessionVariableNameSegment"),
+                            Ref::new("LocalVariableNameSegment"),
+                            Ref::new("QuotedLiteralSegment"),
+                        ]),
+                    ]),]),
+                ])
+                .config(|sequence| sequence.optional()),
             ])
             .to_matchable()
             .into(),
@@ -755,7 +790,198 @@ pub fn raw_dialect() -> Dialect {
             .to_matchable()
             .into(),
         ),
+        (
+            // A `DELIMITER` statement.
+            "DelimiterStatement".into(),
+            Sequence::new(vec_of_erased![Ref::keyword("DELIMITER"),])
+                .to_matchable()
+                .into(),
+        ),
+        (
+            // A `DECLARE` statement.
+            // https://dev.mysql.com/doc/refman/8.0/en/declare-local-variable.html
+            // https://dev.mysql.com/doc/refman/8.0/en/declare-handler.html
+            // https://dev.mysql.com/doc/refman/8.0/en/declare-condition.html
+            // https://dev.mysql.com/doc/refman/8.0/en/declare-cursor.html
+            "DeclareStatement".into(),
+            one_of(vec_of_erased![
+                Sequence::new(vec_of_erased![
+                    Ref::keyword("DECLARE"),
+                    Ref::new("NakedIdentifierSegment"),
+                    Ref::keyword("CURSOR"),
+                    Ref::keyword("FOR"),
+                    Ref::new("StatementSegment"),
+                ]),
+                Sequence::new(vec_of_erased![
+                    Ref::keyword("DECLARE"),
+                    one_of(vec_of_erased![
+                        Ref::keyword("CONTINUE"),
+                        Ref::keyword("EXIT"),
+                        Ref::keyword("UNDO"),
+                    ]),
+                    Ref::keyword("HANDLER"),
+                    Ref::keyword("FOR"),
+                    one_of(vec_of_erased![
+                        Ref::keyword("SQLEXCEPTION"),
+                        Ref::keyword("SQLWARNING"),
+                        Sequence::new(vec_of_erased![Ref::keyword("NOT"), Ref::keyword("FOUND"),]),
+                        Sequence::new(vec_of_erased![
+                            Ref::keyword("SQLSTATE"),
+                            Ref::keyword("VALUE").optional(),
+                            Ref::new("QuotedLiteralSegment"),
+                        ]),
+                        one_of(vec_of_erased![
+                            Ref::new("QuotedLiteralSegment"),
+                            Ref::new("NumericLiteralSegment"),
+                            Ref::new("NakedIdentifierSegment"),
+                        ]),
+                    ]),
+                    Sequence::new(vec_of_erased![Ref::new("StatementSegment")]),
+                ]),
+                Sequence::new(vec_of_erased![
+                    Ref::keyword("DECLARE"),
+                    Ref::new("NakedIdentifierSegment"),
+                    Ref::keyword("CONDITION"),
+                    Ref::keyword("FOR"),
+                    one_of(vec_of_erased![
+                        Ref::new("QuotedLiteralSegment"),
+                        Ref::new("NumericLiteralSegment"),
+                    ]),
+                ]),
+                Sequence::new(vec_of_erased![
+                    Ref::keyword("DECLARE"),
+                    Ref::new("LocalVariableNameSegment"),
+                    Ref::new("DatatypeSegment"),
+                    Sequence::new(vec_of_erased![
+                        Ref::keyword("DEFAULT"),
+                        one_of(vec_of_erased![
+                            Ref::new("QuotedLiteralSegment"),
+                            Ref::new("NumericLiteralSegment"),
+                            Ref::new("FunctionSegment"),
+                        ]),
+                    ])
+                    .config(|seq| seq.optional()),
+                ]),
+            ])
+            .to_matchable()
+            .into(),
+        ),
+        (
+            // A `CREATE PROCEDURE` statement.
+            // https://dev.mysql.com/doc/refman/8.0/en/create-procedure.html
+            "CreateProcedureStatementSegment".into(),
+            Sequence::new(vec_of_erased![
+                Ref::keyword("CREATE"),
+                Ref::new("DefinerSegment").optional(),
+                Ref::keyword("PROCEDURE"),
+                Ref::new("FunctionNameSegment"),
+                Ref::new("ProcedureParameterListGrammar").optional(),
+                Ref::new("CommentClauseSegment").optional(),
+                Ref::new("CharacteristicStatement").optional(),
+                Ref::new("FunctionDefinitionGrammar"),
+            ])
+            .to_matchable()
+            .into(),
+        ),
+        (
+            // A `SET TRANSACTION` statement.
+            // https://dev.mysql.com/doc/refman/8.0/en/set-transaction.html
+            "SetTransactionStatementSegment".into(),
+            Sequence::new(vec_of_erased![
+                Ref::keyword("SET"),
+                one_of(vec_of_erased![
+                    Ref::keyword("GLOBAL"),
+                    Ref::keyword("SESSION"),
+                ])
+                .config(|this| this.optional()),
+                Ref::keyword("TRANSACTION"),
+                Delimited::new(vec_of_erased![
+                    Sequence::new(vec_of_erased![
+                        Ref::keyword("ISOLATION"),
+                        Ref::keyword("LEVEL"),
+                        one_of(vec_of_erased![
+                            Sequence::new(vec_of_erased![
+                                Ref::keyword("READ"),
+                                one_of(vec_of_erased![
+                                    Ref::keyword("COMMITTED"),
+                                    Ref::keyword("UNCOMMITTED"),
+                                ]),
+                            ]),
+                            Sequence::new(vec_of_erased![
+                                Ref::keyword("REPEATABLE"),
+                                Ref::keyword("READ"),
+                            ]),
+                            Ref::keyword("SERIALIZABLE"),
+                        ]),
+                    ]),
+                    Sequence::new(vec_of_erased![
+                        Ref::keyword("READ"),
+                        one_of(vec_of_erased![Ref::keyword("WRITE"), Ref::keyword("ONLY"),]),
+                    ]),
+                ]),
+            ])
+            .to_matchable()
+            .into(),
+        ),
     ]);
+
+    mysql.replace_grammar(
+        "StatementSegment",
+        ansi::statement_segment().copy(
+            Some(vec_of_erased![
+                Ref::new("DelimiterStatement"),
+                Ref::new("CreateProcedureStatementSegment"),
+                Ref::new("DeclareStatement"),
+                Ref::new("SetTransactionStatementSegment"),
+                Ref::new("SetAssignmentStatementSegment"),
+                Ref::new("IfExpressionStatement"),
+                Ref::new("WhileStatementSegment"),
+                Ref::new("IterateStatementSegment"),
+                Ref::new("RepeatStatementSegment"),
+                Ref::new("LoopStatementSegment"),
+                Ref::new("CallStoredProcedureSegment"),
+                Ref::new("PrepareSegment"),
+                Ref::new("ExecuteSegment"),
+                Ref::new("DeallocateSegment"),
+                Ref::new("GetDiagnosticsSegment"),
+                Ref::new("ResignalSegment"),
+                Ref::new("CursorOpenCloseSegment"),
+                Ref::new("CursorFetchSegment"),
+                Ref::new("DropProcedureStatementSegment"),
+                Ref::new("AlterTableStatementSegment"),
+                Ref::new("AlterViewStatementSegment"),
+                Ref::new("CreateViewStatementSegment"),
+                Ref::new("RenameTableStatementSegment"),
+                Ref::new("ResetMasterStatementSegment"),
+                Ref::new("PurgeBinaryLogsStatementSegment"),
+                Ref::new("HelpStatementSegment"),
+                Ref::new("CheckTableStatementSegment"),
+                Ref::new("ChecksumTableStatementSegment"),
+                Ref::new("AnalyzeTableStatementSegment"),
+                Ref::new("RepairTableStatementSegment"),
+                Ref::new("OptimizeTableStatementSegment"),
+                Ref::new("UpsertClauseListSegment"),
+                Ref::new("InsertRowAliasSegment"),
+                Ref::new("FlushStatementSegment"),
+                Ref::new("LoadDataSegment"),
+                Ref::new("ReplaceSegment"),
+                Ref::new("AlterDatabaseStatementSegment"),
+                Ref::new("ReturnStatementSegment"),
+                Ref::new("SetNamesStatementSegment"),
+                Ref::new("CreateEventStatementSegment"),
+                Ref::new("AlterEventStatementSegment"),
+                Ref::new("DropEventStatementSegment"),
+            ]),
+            None,
+            None,
+            Some(vec_of_erased![
+                // handle CREATE SCHEMA in CreateDatabaseStatementSegment
+                Ref::new("CreateSchemaStatementSegment"),
+            ]),
+            Vec::new(),
+            false,
+        ),
+    );
 
     mysql
 }

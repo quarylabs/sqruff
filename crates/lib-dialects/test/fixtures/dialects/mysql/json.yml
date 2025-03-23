@@ -7,10 +7,9 @@ file:
       - naked_identifier: facts
     - bracketed:
       - start_bracket: (
-      - column_definition:
-        - naked_identifier: sentence
-        - data_type:
-          - data_type_identifier: JSON
+      - naked_identifier: sentence
+      - data_type:
+        - data_type_identifier: JSON
       - end_bracket: )
 - statement_terminator: ;
 - statement:

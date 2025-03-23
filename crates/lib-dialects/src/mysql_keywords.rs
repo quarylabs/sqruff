@@ -777,10 +777,11 @@ XID
 XML
 YEAR
 ZONE
+NOW
 SHARED
 INPLACE
 NOCOPY
 INSTANT
 ";
 // These are not all MySQL keywords, but sqruff needs them to parse well.
-// Anything past SHARED is not a MySQL keyword.
+// Anything past NOW and including NOW is not a MySQL keyword.

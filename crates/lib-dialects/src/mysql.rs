@@ -3,8 +3,9 @@ use sqruff_lib_core::dialects::init::DialectKind;
 use sqruff_lib_core::dialects::syntax::SyntaxKind;
 use sqruff_lib_core::helpers::{Config, ToMatchable};
 use sqruff_lib_core::parser::grammar::anyof::{AnyNumberOf, one_of};
-use sqruff_lib_core::parser::grammar::base::Ref;
+use sqruff_lib_core::parser::grammar::base::{Anything, Ref};
 use sqruff_lib_core::parser::grammar::delimited::Delimited;
+use sqruff_lib_core::parser::grammar::sequence::Bracketed;
 use sqruff_lib_core::parser::parsers::TypedParser;
 use sqruff_lib_core::parser::segments::meta::MetaSegment;
 use sqruff_lib_core::vec_of_erased;
@@ -95,6 +96,77 @@ pub fn raw_dialect() -> Dialect {
                     Ref::new("DoubleQuotedIdentifierSegment"),
                 ]),
                 MetaSegment::dedent(),
+            ])
+            .to_matchable()
+            .into(),
+        ),
+        (
+            // A column definition, e.g. for CREATE TABLE or ALTER TABLE.
+            "ColumnDefinitionSegment".into(),
+            Sequence::new(vec_of_erased![
+                Ref::new("SingleIdentifierGrammar"), // Column name
+                one_of(vec_of_erased![
+                    // DATETIME and TIMESTAMP take special logic
+                    Ref::new("DatatypeSegment").exclude(one_of(vec_of_erased![
+                        Ref::keyword("DATETIME"),
+                        Ref::keyword("TIMESTAMP"),
+                    ])),
+                    Sequence::new(vec_of_erased![
+                        one_of(vec_of_erased![
+                            Ref::keyword("DATETIME"),
+                            Ref::keyword("TIMESTAMP"),
+                        ]),
+                        Bracketed::new(vec_of_erased![Ref::new("NumericLiteralSegment"),])
+                            .config(|bracketed| bracketed.optional()), // Precision
+                        AnyNumberOf::new(vec_of_erased![
+                            // Allow NULL/NOT NULL, DEFAULT, and ON UPDATE in any order
+                            Sequence::new(vec_of_erased![
+                                Sequence::new(vec_of_erased![Ref::keyword("NOT"),])
+                                    .config(|sequence| sequence.optional()),
+                                Ref::keyword("NULL"),
+                            ])
+                            .config(|sequence| sequence.optional()),
+                            Sequence::new(vec_of_erased![
+                                Ref::keyword("DEFAULT"),
+                                one_of(vec_of_erased![
+                                    Sequence::new(vec_of_erased![
+                                        one_of(vec_of_erased![
+                                            Ref::keyword("CURRENT_TIMESTAMP"),
+                                            Ref::keyword("NOW"),
+                                        ]),
+                                        Bracketed::new(vec_of_erased![
+                                            Ref::new("NumericLiteralSegment").optional()
+                                        ])
+                                        .config(|bracketed| bracketed.optional()),
+                                    ]),
+                                    Ref::new("NumericLiteralSegment"),
+                                    Ref::new("QuotedLiteralSegment"),
+                                    Ref::keyword("NULL"),
+                                ]),
+                            ])
+                            .config(|sequence| sequence.optional()),
+                            Sequence::new(vec_of_erased![
+                                Ref::keyword("ON"),
+                                Ref::keyword("UPDATE"),
+                                one_of(vec_of_erased![
+                                    Ref::keyword("CURRENT_TIMESTAMP"),
+                                    Ref::keyword("NOW"),
+                                ]),
+                                Bracketed::new(vec_of_erased![
+                                    Ref::new("NumericLiteralSegment").optional()
+                                ])
+                                .config(|bracketed| bracketed.optional()),
+                            ])
+                            .config(|sequence| sequence.optional()),
+                        ])
+                        .config(|any_number| any_number.optional()),
+                    ]),
+                ]),
+                Bracketed::new(vec_of_erased![Anything::new(),])
+                    .config(|bracketed| bracketed.optional()), // For types like VARCHAR(100)
+                AnyNumberOf::new(vec_of_erased![
+                    Ref::new("ColumnConstraintSegment").optional(),
+                ]),
             ])
             .to_matchable()
             .into(),

@@ -26,7 +26,7 @@ testpaths = ["crates"]
 addopts = "-v --cov"
 
 [build-system]
-requires = ["setuptools", "wheel"]
+requires = ["setuptools>=64.0.0"]
 build-backend = "setuptools.build_meta"
 
 [tool.setuptools.packages.find]

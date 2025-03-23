@@ -1042,6 +1042,91 @@ pub fn raw_dialect() -> Dialect {
             .to_matchable()
             .into(),
         ),
+        (
+            // CALL statement used to execute a stored procedure.
+            // https://dev.mysql.com/doc/refman/8.0/en/call.html
+            "CallStoredProcedureSegment".into(),
+            Sequence::new(vec_of_erased![
+                Ref::keyword("CALL"),
+                Ref::new("FunctionSegment"),
+            ])
+            .to_matchable()
+            .into(),
+        ),
+        (
+            // PREPARE statement.
+            // https://dev.mysql.com/doc/refman/8.0/en/prepare.html
+            "PrepareSegment".into(),
+            Sequence::new(vec_of_erased![
+                Ref::keyword("PREPARE"),
+                Ref::new("NakedIdentifierSegment"),
+                Ref::keyword("FROM"),
+                one_of(vec_of_erased![
+                    Ref::new("QuotedLiteralSegment"),
+                    Ref::new("SessionVariableNameSegment"),
+                    Ref::new("LocalVariableNameSegment"),
+                ]),
+            ])
+            .to_matchable()
+            .into(),
+        ),
+        (
+            // GET DIAGNOSTICS statement.
+            // https://dev.mysql.com/doc/refman/8.0/en/get-diagnostics.html
+            "GetDiagnosticsSegment".into(),
+            Sequence::new(vec_of_erased![
+                Ref::keyword("GET"),
+                Sequence::new(vec_of_erased![
+                    Ref::keyword("CURRENT"),
+                    Ref::keyword("STACKED"),
+                ])
+                .config(|this| this.optional()),
+                Ref::keyword("DIAGNOSTICS"),
+                Delimited::new(vec_of_erased![Sequence::new(vec_of_erased![
+                    one_of(vec_of_erased![
+                        Ref::new("SessionVariableNameSegment"),
+                        Ref::new("LocalVariableNameSegment"),
+                    ]),
+                    Ref::new("EqualsSegment"),
+                    one_of(vec_of_erased![
+                        Ref::keyword("NUMBER"),
+                        Ref::keyword("ROW_COUNT"),
+                    ]),
+                ])])
+                .config(|this| this.optional()),
+                Ref::keyword("CONDITION"),
+                one_of(vec_of_erased![
+                    Ref::new("SessionVariableNameSegment"),
+                    Ref::new("LocalVariableNameSegment"),
+                    Ref::new("NumericLiteralSegment"),
+                ]),
+                Delimited::new(vec_of_erased![Sequence::new(vec_of_erased![
+                    one_of(vec_of_erased![
+                        Ref::new("SessionVariableNameSegment"),
+                        Ref::new("LocalVariableNameSegment"),
+                    ]),
+                    Ref::new("EqualsSegment"),
+                    one_of(vec_of_erased![
+                        Ref::keyword("CLASS_ORIGIN"),
+                        Ref::keyword("SUBCLASS_ORIGIN"),
+                        Ref::keyword("RETURNED_SQLSTATE"),
+                        Ref::keyword("MESSAGE_TEXT"),
+                        Ref::keyword("MYSQL_ERRNO"),
+                        Ref::keyword("CONSTRAINT_CATALOG"),
+                        Ref::keyword("CONSTRAINT_SCHEMA"),
+                        Ref::keyword("CONSTRAINT_NAME"),
+                        Ref::keyword("CATALOG_NAME"),
+                        Ref::keyword("SCHEMA_NAME"),
+                        Ref::keyword("TABLE_NAME"),
+                        Ref::keyword("COLUMN_NAME"),
+                        Ref::keyword("CURSOR_NAME"),
+                    ]),
+                ])])
+                .config(|this| this.optional()),
+            ])
+            .to_matchable()
+            .into(),
+        ),
     ]);
 
     mysql.replace_grammar(

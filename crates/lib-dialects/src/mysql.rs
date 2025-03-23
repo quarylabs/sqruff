@@ -9,6 +9,7 @@ use sqruff_lib_core::parser::grammar::base::{Anything, Ref};
 use sqruff_lib_core::parser::grammar::delimited::Delimited;
 use sqruff_lib_core::parser::grammar::sequence::Bracketed;
 use sqruff_lib_core::parser::matchable::MatchableTrait;
+use sqruff_lib_core::parser::node_matcher::NodeMatcher;
 use sqruff_lib_core::parser::parsers::TypedParser;
 use sqruff_lib_core::parser::segments::meta::MetaSegment;
 use sqruff_lib_core::vec_of_erased;
@@ -918,6 +919,124 @@ pub fn raw_dialect() -> Dialect {
                         Ref::keyword("READ"),
                         one_of(vec_of_erased![Ref::keyword("WRITE"), Ref::keyword("ONLY"),]),
                     ]),
+                ]),
+            ])
+            .to_matchable()
+            .into(),
+        ),
+        (
+            // A `SET` statement.
+            // https://dev.mysql.com/doc/refman/8.0/en/set-variable.html
+            "SetAssignmentStatementSegment".into(),
+            NodeMatcher::new(
+                SyntaxKind::SetStatement,
+                Sequence::new(vec_of_erased![
+                    Ref::keyword("SET"),
+                    Delimited::new(vec_of_erased![Sequence::new(vec_of_erased![
+                        Sequence::new(vec_of_erased![
+                            one_of(vec_of_erased![Ref::keyword("NEW"), Ref::keyword("OLD"),]),
+                            Ref::new("DotSegment"),
+                        ])
+                        .config(|this| this.optional()),
+                        one_of(vec_of_erased![
+                            Ref::new("SessionVariableNameSegment"),
+                            Ref::new("LocalVariableNameSegment"),
+                        ]),
+                        one_of(vec_of_erased![
+                            Ref::new("EqualsSegment"),
+                            Ref::new("WalrusOperatorSegment"),
+                        ]),
+                        AnyNumberOf::new(vec_of_erased![
+                            Ref::new("QuotedLiteralSegment"),
+                            Ref::new("DoubleQuotedLiteralSegment"),
+                            Ref::new("SessionVariableNameSegment"),
+                            Ref::new("SystemVariableSegment"),
+                            // Match boolean keywords before local variables.
+                            Ref::new("BooleanDynamicSystemVariablesGrammar"),
+                            Ref::new("LocalVariableNameSegment"),
+                            Ref::new("FunctionSegment"),
+                            Ref::new("ArithmeticBinaryOperatorGrammar"),
+                            Ref::new("ExpressionSegment"),
+                        ]),
+                    ]),]),
+                ])
+                .to_matchable(),
+            )
+            .to_matchable()
+            .into(),
+        ),
+        (
+            // IF-THEN-ELSE-ELSEIF-END IF statement.
+            // https://dev.mysql.com/doc/refman/8.0/en/if.html
+            "IfExpressionStatement".into(),
+            AnyNumberOf::new(vec_of_erased![
+                Sequence::new(vec_of_erased![
+                    Ref::keyword("IF"),
+                    Ref::new("ExpressionSegment"),
+                    Ref::keyword("THEN"),
+                    Ref::new("StatementSegment"),
+                ]),
+                Sequence::new(vec_of_erased![
+                    Ref::keyword("ELSEIF"),
+                    Ref::new("ExpressionSegment"),
+                    Ref::keyword("THEN"),
+                    Ref::new("StatementSegment"),
+                ]),
+                Sequence::new(vec_of_erased![
+                    Ref::keyword("ELSE"),
+                    Ref::new("StatementSegment"),
+                ])
+                .config(|this| this.optional()),
+                Sequence::new(vec_of_erased![Ref::keyword("END"), Ref::keyword("IF"),]),
+            ])
+            .to_matchable()
+            .into(),
+        ),
+        (
+            // WHILE-DO-END WHILE statement.
+            // https://dev.mysql.com/doc/refman/8.0/en/while.html
+            "WhileStatementSegment".into(),
+            one_of(vec_of_erased![
+                Sequence::new(vec_of_erased![
+                    Sequence::new(vec_of_erased![
+                        Ref::new("SingleIdentifierGrammar"),
+                        Ref::new("ColonSegment"),
+                    ])
+                    .config(|this| this.optional()),
+                    Sequence::new(vec_of_erased![
+                        Ref::keyword("WHILE"),
+                        Ref::new("ExpressionSegment"),
+                        Ref::keyword("DO"),
+                        AnyNumberOf::new(vec_of_erased![Ref::new("StatementSegment"),]),
+                    ]),
+                ]),
+                Sequence::new(vec_of_erased![
+                    Ref::keyword("END"),
+                    Ref::keyword("WHILE"),
+                    Ref::new("SingleIdentifierGrammar").optional(),
+                ]),
+            ])
+            .to_matchable()
+            .into(),
+        ),
+        (
+            // LOOP statement.
+            // https://dev.mysql.com/doc/refman/8.0/en/loop.html
+            "LoopStatementSegment".into(),
+            one_of(vec_of_erased![
+                Sequence::new(vec_of_erased![
+                    Sequence::new(vec_of_erased![
+                        Ref::new("SingleIdentifierGrammar"),
+                        Ref::new("ColonSegment"),
+                    ])
+                    .config(|this| this.optional()),
+                    Ref::keyword("LOOP"),
+                    AnyNumberOf::new(vec_of_erased![Ref::new("StatementSegment"),]),
+                ]),
+                Sequence::new(vec_of_erased![
+                    Ref::keyword("END"),
+                    Ref::keyword("LOOP"),
+                    Ref::new("SingleIdentifierGrammar").optional(),
                 ]),
             ])
             .to_matchable()

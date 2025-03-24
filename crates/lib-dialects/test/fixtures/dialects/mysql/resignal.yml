@@ -1,4 +1,4 @@
 file:
-- unparsable:
-  - word: resignal
-  - semicolon: ;
+- statement:
+  - keyword: resignal
+- statement_terminator: ;

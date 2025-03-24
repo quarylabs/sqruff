@@ -1,8 +1,9 @@
 file:
-- unparsable:
-  - word: DECLARE
-  - word: abc
-  - word: int
-  - word: default
+- statement:
+  - keyword: DECLARE
+  - variable: abc
+  - data_type:
+    - data_type_identifier: int
+  - keyword: default
   - numeric_literal: '1'
-  - semicolon: ;
+- statement_terminator: ;

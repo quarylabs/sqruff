@@ -1,7 +1,7 @@
 file:
-- unparsable:
-  - word: PREPARE
-  - word: test
-  - word: FROM
-  - word: _test
-  - semicolon: ;
+- statement:
+  - keyword: PREPARE
+  - naked_identifier: test
+  - keyword: FROM
+  - variable: _test
+- statement_terminator: ;

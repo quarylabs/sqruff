@@ -1,5 +1,5 @@
 file:
-- unparsable:
-  - word: resignal
-  - word: testcondition
-  - semicolon: ;
+- statement:
+  - keyword: resignal
+  - naked_identifier: testcondition
+- statement_terminator: ;

@@ -1,5 +1,5 @@
 file:
-- unparsable:
-  - word: CLOSE
-  - word: curcursor
-  - semicolon: ;
+- statement:
+  - keyword: CLOSE
+  - naked_identifier: curcursor
+- statement_terminator: ;

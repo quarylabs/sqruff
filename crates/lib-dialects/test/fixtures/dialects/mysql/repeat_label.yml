@@ -1,6 +1,7 @@
 file:
-- unparsable:
-  - word: iteration
+- statement:
+  - naked_identifier: iteration
   - colon: ':'
-  - word: repeat
+  - keyword: repeat
+- file:
   - word: set

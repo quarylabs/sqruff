@@ -1,6 +1,6 @@
 file:
-- unparsable:
-  - word: resignal
-  - word: sqlstate
-  - single_quote: '''42S02'''
-  - semicolon: ;
+- statement:
+  - keyword: resignal
+  - keyword: sqlstate
+  - quoted_literal: '''42S02'''
+- statement_terminator: ;

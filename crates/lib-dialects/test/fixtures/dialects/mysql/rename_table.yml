@@ -1,18 +1,25 @@
 file:
-- unparsable:
-  - word: RENAME
-  - word: TABLE
-  - word: old_table
-  - word: TO
-  - word: new_table
-  - semicolon: ;
-  - word: RENAME
-  - word: TABLE
-  - word: old_table1
-  - word: TO
-  - word: new_table1
+- statement:
+  - keyword: RENAME
+  - keyword: TABLE
+  - table_reference:
+    - naked_identifier: old_table
+  - keyword: TO
+  - table_reference:
+    - naked_identifier: new_table
+- statement_terminator: ;
+- statement:
+  - keyword: RENAME
+  - keyword: TABLE
+  - table_reference:
+    - naked_identifier: old_table1
+  - keyword: TO
+  - table_reference:
+    - naked_identifier: new_table1
   - comma: ','
-  - word: old_table2
-  - word: TO
-  - word: new_table2
-  - semicolon: ;
+  - table_reference:
+    - naked_identifier: old_table2
+  - keyword: TO
+  - table_reference:
+    - naked_identifier: new_table2
+- statement_terminator: ;

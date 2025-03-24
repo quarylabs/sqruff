@@ -1,12 +1,15 @@
 file:
-- unparsable:
-  - word: DECLARE
-  - word: exit
-  - word: handler
-  - word: for
-  - word: not
-  - word: found
-  - word: begin
+- statement:
+  - keyword: DECLARE
+  - keyword: exit
+  - keyword: handler
+  - keyword: for
+  - keyword: not
+  - keyword: found
+  - statement:
+    - transaction_statement:
+      - keyword: begin
+- file:
   - word: select
   - numeric_literal: '1'
   - semicolon: ;

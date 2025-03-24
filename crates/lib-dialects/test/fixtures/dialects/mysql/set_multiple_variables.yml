@@ -1,11 +1,14 @@
 file:
-- unparsable:
-  - word: SET
-  - word: a
-  - raw_comparison_operator: =
-  - numeric_literal: '1'
-  - comma: ','
-  - word: b
-  - raw_comparison_operator: =
-  - numeric_literal: '2'
-  - semicolon: ;
+- statement:
+  - set_statement:
+    - keyword: SET
+    - variable: a
+    - comparison_operator:
+      - raw_comparison_operator: =
+    - variable: '1'
+    - comma: ','
+    - variable: b
+    - comparison_operator:
+      - raw_comparison_operator: =
+    - variable: '2'
+- statement_terminator: ;

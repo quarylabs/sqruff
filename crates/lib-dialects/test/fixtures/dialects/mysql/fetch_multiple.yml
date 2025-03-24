@@ -1,9 +1,9 @@
 file:
-- unparsable:
-  - word: fetch
-  - word: curcursor
-  - word: into
-  - word: test
+- statement:
+  - keyword: fetch
+  - naked_identifier: curcursor
+  - keyword: into
+  - variable: test
   - comma: ','
-  - word: test2
-  - semicolon: ;
+  - variable: test2
+- statement_terminator: ;

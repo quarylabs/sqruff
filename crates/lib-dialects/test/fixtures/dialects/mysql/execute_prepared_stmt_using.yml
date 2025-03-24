@@ -1,5 +1,6 @@
 file:
-- unparsable:
-  - word: execute
-  - word: test
+- statement:
+  - keyword: execute
+  - naked_identifier: test
+- file:
   - word: using

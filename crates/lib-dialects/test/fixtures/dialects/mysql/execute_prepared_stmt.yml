@@ -1,5 +1,5 @@
 file:
-- unparsable:
-  - word: execute
-  - word: test
-  - semicolon: ;
+- statement:
+  - keyword: execute
+  - naked_identifier: test
+- statement_terminator: ;

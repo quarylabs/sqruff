@@ -1,63 +1,74 @@
 file:
-- unparsable:
-  - word: FLUSH
-  - word: LOGS
-  - semicolon: ;
-  - word: FLUSH
-  - word: NO_WRITE_TO_BINLOG
-  - word: BINARY
-  - word: LOGS
+- statement:
+  - keyword: FLUSH
+  - keyword: LOGS
+- statement_terminator: ;
+- statement:
+  - keyword: FLUSH
+  - keyword: NO_WRITE_TO_BINLOG
+  - keyword: BINARY
+  - keyword: LOGS
   - comma: ','
-  - word: ENGINE
-  - word: LOGS
+  - keyword: ENGINE
+  - keyword: LOGS
   - comma: ','
-  - word: ERROR
-  - word: LOGS
+  - keyword: ERROR
+  - keyword: LOGS
   - comma: ','
-  - word: GENERAL
-  - word: LOGS
+  - keyword: GENERAL
+  - keyword: LOGS
   - comma: ','
-  - word: HOSTS
-  - semicolon: ;
-  - word: FLUSH
-  - word: LOCAL
-  - word: PRIVILEGES
+  - keyword: HOSTS
+- statement_terminator: ;
+- statement:
+  - keyword: FLUSH
+  - keyword: LOCAL
+  - keyword: PRIVILEGES
   - comma: ','
-  - word: OPTIMIZER_COSTS
+  - keyword: OPTIMIZER_COSTS
   - comma: ','
-  - word: RELAY
-  - word: LOGS
+  - keyword: RELAY
+  - keyword: LOGS
   - comma: ','
-  - word: SLOW
-  - word: LOGS
+  - keyword: SLOW
+  - keyword: LOGS
   - comma: ','
-  - word: STATUS
+  - keyword: STATUS
   - comma: ','
-  - word: USER_RESOURCES
-  - semicolon: ;
-  - word: FLUSH
-  - word: RELAY
-  - word: LOGS
-  - word: FOR
-  - word: CHANNEL
-  - word: my_channel
-  - semicolon: ;
-  - word: FLUSH
-  - word: TABLES
-  - semicolon: ;
-  - word: FLUSH
-  - word: TABLES
-  - word: WITH
-  - word: READ
-  - word: LOCK
-  - semicolon: ;
-  - word: FLUSH
-  - word: TABLES
-  - word: table1
-  - semicolon: ;
-  - word: FLUSH
-  - word: TABLES
-  - word: table1
+  - keyword: USER_RESOURCES
+- statement_terminator: ;
+- statement:
+  - keyword: FLUSH
+  - keyword: RELAY
+  - keyword: LOGS
+  - keyword: FOR
+  - keyword: CHANNEL
+  - object_reference:
+    - naked_identifier: my_channel
+- statement_terminator: ;
+- statement:
+  - keyword: FLUSH
+  - keyword: TABLES
+- statement_terminator: ;
+- statement:
+  - keyword: FLUSH
+  - keyword: TABLES
+  - keyword: WITH
+  - keyword: READ
+  - keyword: LOCK
+- statement_terminator: ;
+- statement:
+  - keyword: FLUSH
+  - keyword: TABLES
+  - table_reference:
+    - naked_identifier: table1
+- statement_terminator: ;
+- statement:
+  - keyword: FLUSH
+  - keyword: TABLES
+  - table_reference:
+    - naked_identifier: table1
+- file:
   - comma: ','
   - back_quote: '`foo`'
   - dot: .

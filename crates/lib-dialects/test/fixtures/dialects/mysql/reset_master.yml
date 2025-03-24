@@ -1,10 +1,11 @@
 file:
-- unparsable:
-  - word: RESET
-  - word: MASTER
-  - semicolon: ;
-  - word: RESET
-  - word: MASTER
-  - word: TO
+- statement:
+  - keyword: RESET
+  - keyword: MASTER
+- statement_terminator: ;
+- statement:
+  - keyword: RESET
+  - keyword: MASTER
+  - keyword: TO
   - numeric_literal: '1234'
-  - semicolon: ;
+- statement_terminator: ;

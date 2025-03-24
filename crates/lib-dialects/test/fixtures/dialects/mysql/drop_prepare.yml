@@ -1,6 +1,6 @@
 file:
-- unparsable:
-  - word: DROP
-  - word: PREPARE
-  - word: dynam
-  - semicolon: ;
+- statement:
+  - keyword: DROP
+  - keyword: PREPARE
+  - naked_identifier: dynam
+- statement_terminator: ;

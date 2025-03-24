@@ -1,8 +1,8 @@
 file:
-- unparsable:
-  - word: DECLARE
-  - word: random_condition_name
-  - word: CONDITION
-  - word: FOR
+- statement:
+  - keyword: DECLARE
+  - naked_identifier: random_condition_name
+  - keyword: CONDITION
+  - keyword: FOR
   - numeric_literal: '1051'
-  - semicolon: ;
+- statement_terminator: ;

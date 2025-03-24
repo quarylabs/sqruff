@@ -1,34 +1,43 @@
 file:
-- unparsable:
-  - word: PURGE
-  - word: BINARY
-  - word: LOGS
-  - word: TO
-  - single_quote: '''mysql-bin.010'''
-  - semicolon: ;
-  - word: PURGE
-  - word: BINARY
-  - word: LOGS
-  - word: BEFORE
-  - single_quote: '''2019-04-02 22:46:26'''
-  - semicolon: ;
-  - word: PURGE
-  - word: BINARY
-  - word: LOGS
-  - word: BEFORE
-  - word: TIMESTAMP
-  - single_quote: '''2019-04-02 22:46:26'''
-  - semicolon: ;
-  - word: PURGE
-  - word: BINARY
-  - word: LOGS
-  - word: BEFORE
-  - numeric_literal: '19830905132800'
-  - semicolon: ;
-  - word: PURGE
-  - word: BINARY
-  - word: LOGS
-  - word: BEFORE
-  - word: TIMESTAMP
-  - numeric_literal: '19830905132800'
-  - semicolon: ;
+- statement:
+  - keyword: PURGE
+  - keyword: BINARY
+  - keyword: LOGS
+  - keyword: TO
+  - quoted_literal: '''mysql-bin.010'''
+- statement_terminator: ;
+- statement:
+  - keyword: PURGE
+  - keyword: BINARY
+  - keyword: LOGS
+  - keyword: BEFORE
+  - expression:
+    - quoted_literal: '''2019-04-02 22:46:26'''
+- statement_terminator: ;
+- statement:
+  - keyword: PURGE
+  - keyword: BINARY
+  - keyword: LOGS
+  - keyword: BEFORE
+  - expression:
+    - keyword: TIMESTAMP
+    - date_constructor_literal: '''2019-04-02 22:46:26'''
+- statement_terminator: ;
+- statement:
+  - keyword: PURGE
+  - keyword: BINARY
+  - keyword: LOGS
+  - keyword: BEFORE
+  - expression:
+    - numeric_literal: '19830905132800'
+- statement_terminator: ;
+- statement:
+  - keyword: PURGE
+  - keyword: BINARY
+  - keyword: LOGS
+  - keyword: BEFORE
+  - expression:
+    - data_type:
+      - keyword: TIMESTAMP
+    - numeric_literal: '19830905132800'
+- statement_terminator: ;

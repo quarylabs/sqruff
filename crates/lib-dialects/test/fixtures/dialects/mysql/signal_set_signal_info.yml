@@ -1,8 +1,9 @@
 file:
-- unparsable:
-  - word: resignal
-  - word: set
-  - word: message_text
-  - raw_comparison_operator: =
-  - single_quote: '''test message'''
-  - semicolon: ;
+- statement:
+  - keyword: resignal
+  - keyword: set
+  - keyword: message_text
+  - comparison_operator:
+    - raw_comparison_operator: =
+  - quoted_literal: '''test message'''
+- statement_terminator: ;

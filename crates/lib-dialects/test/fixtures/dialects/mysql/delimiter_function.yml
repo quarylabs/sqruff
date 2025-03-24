@@ -1,6 +1,7 @@
 file:
-- unparsable:
-  - word: DELIMITER
+- statement:
+  - keyword: DELIMITER
+- file:
   - like_operator: '~'
   - word: CREATE
   - word: FUNCTION

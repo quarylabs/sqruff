@@ -1,20 +1,25 @@
 file:
-- unparsable:
-  - word: HELP
-  - single_quote: '''contents'''
-  - semicolon: ;
-  - word: HELP
-  - single_quote: '''data types'''
-  - semicolon: ;
-  - word: HELP
-  - single_quote: '''ascii'''
-  - semicolon: ;
-  - word: HELP
-  - single_quote: '''create table'''
-  - semicolon: ;
-  - word: HELP
-  - single_quote: '''status'''
-  - semicolon: ;
-  - word: HELP
-  - single_quote: '''functions'''
-  - semicolon: ;
+- statement:
+  - keyword: HELP
+  - quoted_literal: '''contents'''
+- statement_terminator: ;
+- statement:
+  - keyword: HELP
+  - quoted_literal: '''data types'''
+- statement_terminator: ;
+- statement:
+  - keyword: HELP
+  - quoted_literal: '''ascii'''
+- statement_terminator: ;
+- statement:
+  - keyword: HELP
+  - quoted_literal: '''create table'''
+- statement_terminator: ;
+- statement:
+  - keyword: HELP
+  - quoted_literal: '''status'''
+- statement_terminator: ;
+- statement:
+  - keyword: HELP
+  - quoted_literal: '''functions'''
+- statement_terminator: ;

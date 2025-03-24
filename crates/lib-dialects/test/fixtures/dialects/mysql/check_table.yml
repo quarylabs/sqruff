@@ -1,82 +1,113 @@
 file:
-- unparsable:
-  - word: CHECK
-  - word: TABLE
-  - word: some_table
-  - word: FOR
-  - word: UPGRADE
-  - semicolon: ;
-  - word: CHECK
-  - word: TABLE
-  - word: some_table1
+- statement:
+  - keyword: CHECK
+  - keyword: TABLE
+  - table_reference:
+    - naked_identifier: some_table
+  - keyword: FOR
+  - keyword: UPGRADE
+- statement_terminator: ;
+- statement:
+  - keyword: CHECK
+  - keyword: TABLE
+  - table_reference:
+    - naked_identifier: some_table1
   - comma: ','
-  - word: some_table2
-  - word: FOR
-  - word: UPGRADE
-  - semicolon: ;
-  - word: CHECK
-  - word: TABLE
-  - word: some_table
-  - word: QUICK
-  - semicolon: ;
-  - word: CHECK
-  - word: TABLE
-  - word: some_table1
+  - table_reference:
+    - naked_identifier: some_table2
+  - keyword: FOR
+  - keyword: UPGRADE
+- statement_terminator: ;
+- statement:
+  - keyword: CHECK
+  - keyword: TABLE
+  - table_reference:
+    - naked_identifier: some_table
+  - keyword: QUICK
+- statement_terminator: ;
+- statement:
+  - keyword: CHECK
+  - keyword: TABLE
+  - table_reference:
+    - naked_identifier: some_table1
   - comma: ','
-  - word: some_table2
-  - word: QUICK
-  - semicolon: ;
-  - word: CHECK
-  - word: TABLE
-  - word: some_table
-  - word: FAST
-  - semicolon: ;
-  - word: CHECK
-  - word: TABLE
-  - word: some_table1
+  - table_reference:
+    - naked_identifier: some_table2
+  - keyword: QUICK
+- statement_terminator: ;
+- statement:
+  - keyword: CHECK
+  - keyword: TABLE
+  - table_reference:
+    - naked_identifier: some_table
+  - keyword: FAST
+- statement_terminator: ;
+- statement:
+  - keyword: CHECK
+  - keyword: TABLE
+  - table_reference:
+    - naked_identifier: some_table1
   - comma: ','
-  - word: some_table2
-  - word: FAST
-  - semicolon: ;
-  - word: CHECK
-  - word: TABLE
-  - word: some_table
-  - word: MEDIUM
-  - semicolon: ;
-  - word: CHECK
-  - word: TABLE
-  - word: some_table1
+  - table_reference:
+    - naked_identifier: some_table2
+  - keyword: FAST
+- statement_terminator: ;
+- statement:
+  - keyword: CHECK
+  - keyword: TABLE
+  - table_reference:
+    - naked_identifier: some_table
+  - keyword: MEDIUM
+- statement_terminator: ;
+- statement:
+  - keyword: CHECK
+  - keyword: TABLE
+  - table_reference:
+    - naked_identifier: some_table1
   - comma: ','
-  - word: some_table2
-  - word: MEDIUM
-  - semicolon: ;
-  - word: CHECK
-  - word: TABLE
-  - word: some_table
-  - word: EXTENDED
-  - semicolon: ;
-  - word: CHECK
-  - word: TABLE
-  - word: some_table1
+  - table_reference:
+    - naked_identifier: some_table2
+  - keyword: MEDIUM
+- statement_terminator: ;
+- statement:
+  - keyword: CHECK
+  - keyword: TABLE
+  - table_reference:
+    - naked_identifier: some_table
+  - keyword: EXTENDED
+- statement_terminator: ;
+- statement:
+  - keyword: CHECK
+  - keyword: TABLE
+  - table_reference:
+    - naked_identifier: some_table1
   - comma: ','
-  - word: some_table2
-  - word: EXTENDED
-  - semicolon: ;
-  - word: CHECK
-  - word: TABLE
-  - word: some_table
-  - word: CHANGED
-  - semicolon: ;
-  - word: CHECK
-  - word: TABLE
-  - word: some_table1
+  - table_reference:
+    - naked_identifier: some_table2
+  - keyword: EXTENDED
+- statement_terminator: ;
+- statement:
+  - keyword: CHECK
+  - keyword: TABLE
+  - table_reference:
+    - naked_identifier: some_table
+  - keyword: CHANGED
+- statement_terminator: ;
+- statement:
+  - keyword: CHECK
+  - keyword: TABLE
+  - table_reference:
+    - naked_identifier: some_table1
   - comma: ','
-  - word: some_table2
-  - word: CHANGED
-  - semicolon: ;
-  - word: CHECK
-  - word: TABLE
-  - word: some_table
-  - word: FAST
-  - word: QUICK
-  - semicolon: ;
+  - table_reference:
+    - naked_identifier: some_table2
+  - keyword: CHANGED
+- statement_terminator: ;
+- statement:
+  - keyword: CHECK
+  - keyword: TABLE
+  - table_reference:
+    - naked_identifier: some_table
+  - keyword: FAST
+  - keyword: QUICK
+- statement_terminator: ;

@@ -1,14 +1,20 @@
 file:
-- unparsable:
-  - word: iteration
+- statement:
+  - naked_identifier: iteration
   - colon: ':'
-  - word: loop
-  - word: select
-  - numeric_literal: '1'
-  - semicolon: ;
-  - word: iterate
-  - word: iteration
-  - semicolon: ;
+  - keyword: loop
+  - statement:
+    - select_statement:
+      - select_clause:
+        - keyword: select
+        - select_clause_element:
+          - numeric_literal: '1'
+- statement_terminator: ;
+- statement:
+  - keyword: iterate
+  - naked_identifier: iteration
+- statement_terminator: ;
+- file:
   - word: leave
   - word: iteration
   - semicolon: ;

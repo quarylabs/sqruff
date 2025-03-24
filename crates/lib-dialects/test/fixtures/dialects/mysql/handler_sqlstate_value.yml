@@ -1,13 +1,16 @@
 file:
-- unparsable:
-  - word: DECLARE
-  - word: exit
-  - word: handler
-  - word: for
-  - word: SQLSTATE
-  - word: VALUE
-  - single_quote: '''1'''
-  - word: begin
+- statement:
+  - keyword: DECLARE
+  - keyword: exit
+  - keyword: handler
+  - keyword: for
+  - keyword: SQLSTATE
+  - keyword: VALUE
+  - quoted_literal: '''1'''
+  - statement:
+    - transaction_statement:
+      - keyword: begin
+- file:
   - word: select
   - numeric_literal: '1'
   - semicolon: ;

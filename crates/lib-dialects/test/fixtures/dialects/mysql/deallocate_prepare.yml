@@ -1,6 +1,6 @@
 file:
-- unparsable:
-  - word: DEALLOCATE
-  - word: PREPARE
-  - word: dynam
-  - semicolon: ;
+- statement:
+  - keyword: DEALLOCATE
+  - keyword: PREPARE
+  - naked_identifier: dynam
+- statement_terminator: ;

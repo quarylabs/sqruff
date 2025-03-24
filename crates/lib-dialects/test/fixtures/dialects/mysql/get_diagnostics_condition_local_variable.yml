@@ -1,7 +1,7 @@
 file:
-- unparsable:
-  - word: GET
-  - word: DIAGNOSTICS
-  - word: CONDITION
-  - word: _test
-  - semicolon: ;
+- statement:
+  - keyword: GET
+  - keyword: DIAGNOSTICS
+  - keyword: CONDITION
+  - variable: _test
+- statement_terminator: ;

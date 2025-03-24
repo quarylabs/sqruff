@@ -1,97 +1,108 @@
 file:
-- unparsable:
-  - word: SET
-  - word: TRANSACTION
-  - word: ISOLATION
-  - word: LEVEL
-  - word: REPEATABLE
-  - word: READ
-  - semicolon: ;
-  - word: SET
-  - word: TRANSACTION
-  - word: ISOLATION
-  - word: LEVEL
-  - word: READ
-  - word: COMMITTED
-  - semicolon: ;
-  - word: SET
-  - word: TRANSACTION
-  - word: ISOLATION
-  - word: LEVEL
-  - word: READ
-  - word: UNCOMMITTED
-  - semicolon: ;
-  - word: SET
-  - word: TRANSACTION
-  - word: ISOLATION
-  - word: LEVEL
-  - word: SERIALIZABLE
-  - semicolon: ;
-  - word: SET
-  - word: GLOBAL
-  - word: TRANSACTION
-  - word: ISOLATION
-  - word: LEVEL
-  - word: REPEATABLE
-  - word: READ
-  - semicolon: ;
-  - word: SET
-  - word: SESSION
-  - word: TRANSACTION
-  - word: ISOLATION
-  - word: LEVEL
-  - word: READ
-  - word: COMMITTED
-  - semicolon: ;
-  - word: SET
-  - word: TRANSACTION
-  - word: READ
-  - word: WRITE
-  - semicolon: ;
-  - word: SET
-  - word: GLOBAL
-  - word: TRANSACTION
-  - word: READ
-  - word: ONLY
-  - semicolon: ;
-  - word: SET
-  - word: SESSION
-  - word: TRANSACTION
-  - word: ISOLATION
-  - word: LEVEL
-  - word: REPEATABLE
-  - word: READ
+- statement:
+  - keyword: SET
+  - keyword: TRANSACTION
+  - keyword: ISOLATION
+  - keyword: LEVEL
+  - keyword: REPEATABLE
+  - keyword: READ
+- statement_terminator: ;
+- statement:
+  - keyword: SET
+  - keyword: TRANSACTION
+  - keyword: ISOLATION
+  - keyword: LEVEL
+  - keyword: READ
+  - keyword: COMMITTED
+- statement_terminator: ;
+- statement:
+  - keyword: SET
+  - keyword: TRANSACTION
+  - keyword: ISOLATION
+  - keyword: LEVEL
+  - keyword: READ
+  - keyword: UNCOMMITTED
+- statement_terminator: ;
+- statement:
+  - keyword: SET
+  - keyword: TRANSACTION
+  - keyword: ISOLATION
+  - keyword: LEVEL
+  - keyword: SERIALIZABLE
+- statement_terminator: ;
+- statement:
+  - keyword: SET
+  - keyword: GLOBAL
+  - keyword: TRANSACTION
+  - keyword: ISOLATION
+  - keyword: LEVEL
+  - keyword: REPEATABLE
+  - keyword: READ
+- statement_terminator: ;
+- statement:
+  - keyword: SET
+  - keyword: SESSION
+  - keyword: TRANSACTION
+  - keyword: ISOLATION
+  - keyword: LEVEL
+  - keyword: READ
+  - keyword: COMMITTED
+- statement_terminator: ;
+- statement:
+  - keyword: SET
+  - keyword: TRANSACTION
+  - keyword: READ
+  - keyword: WRITE
+- statement_terminator: ;
+- statement:
+  - keyword: SET
+  - keyword: GLOBAL
+  - keyword: TRANSACTION
+  - keyword: READ
+  - keyword: ONLY
+- statement_terminator: ;
+- statement:
+  - keyword: SET
+  - keyword: SESSION
+  - keyword: TRANSACTION
+  - keyword: ISOLATION
+  - keyword: LEVEL
+  - keyword: REPEATABLE
+  - keyword: READ
   - comma: ','
-  - word: READ
-  - word: ONLY
-  - semicolon: ;
-  - word: SET
-  - word: GLOBAL
-  - word: TRANSACTION
-  - word: ISOLATION
-  - word: LEVEL
-  - word: SERIALIZABLE
+  - keyword: READ
+  - keyword: ONLY
+- statement_terminator: ;
+- statement:
+  - keyword: SET
+  - keyword: GLOBAL
+  - keyword: TRANSACTION
+  - keyword: ISOLATION
+  - keyword: LEVEL
+  - keyword: SERIALIZABLE
   - comma: ','
-  - word: READ
-  - word: WRITE
-  - semicolon: ;
-  - word: SET
-  - word: SESSION
-  - word: TRANSACTION
-  - word: READ
-  - word: WRITE
+  - keyword: READ
+  - keyword: WRITE
+- statement_terminator: ;
+- statement:
+  - keyword: SET
+  - keyword: SESSION
+  - keyword: TRANSACTION
+  - keyword: READ
+  - keyword: WRITE
   - comma: ','
-  - word: ISOLATION
-  - word: LEVEL
-  - word: READ
-  - word: UNCOMMITTED
-  - semicolon: ;
-  - word: SET
-  - word: TRANSACTION
-  - word: READ
-  - word: ONLY
+  - keyword: ISOLATION
+  - keyword: LEVEL
+  - keyword: READ
+  - keyword: UNCOMMITTED
+- statement_terminator: ;
+- statement:
+  - keyword: SET
+  - keyword: TRANSACTION
+  - keyword: READ
+  - keyword: ONLY
   - comma: ','
-  - word: ISOLATION
-  - word: LEVEL
-  - word: SERIALIZABLE
-  - semicolon: ;
+  - keyword: ISOLATION
+  - keyword: LEVEL
+  - keyword: SERIALIZABLE
+- statement_terminator: ;

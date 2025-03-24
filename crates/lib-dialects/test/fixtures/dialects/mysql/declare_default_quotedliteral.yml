@@ -1,8 +1,9 @@
 file:
-- unparsable:
-  - word: DECLARE
-  - word: abc
-  - word: longtext
-  - word: default
-  - single_quote: '''test'''
-  - semicolon: ;
+- statement:
+  - keyword: DECLARE
+  - variable: abc
+  - data_type:
+    - data_type_identifier: longtext
+  - keyword: default
+  - quoted_literal: '''test'''
+- statement_terminator: ;

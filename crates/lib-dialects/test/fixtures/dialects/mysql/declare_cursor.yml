@@ -1,9 +1,13 @@
 file:
-- unparsable:
-  - word: DECLARE
-  - word: test
-  - word: CURSOR
-  - word: FOR
-  - word: SELECT
-  - numeric_literal: '1'
-  - semicolon: ;
+- statement:
+  - keyword: DECLARE
+  - naked_identifier: test
+  - keyword: CURSOR
+  - keyword: FOR
+  - statement:
+    - select_statement:
+      - select_clause:
+        - keyword: SELECT
+        - select_clause_element:
+          - numeric_literal: '1'
+- statement_terminator: ;

@@ -1,36 +1,50 @@
 file:
-- unparsable:
-  - word: OPTIMIZE
-  - word: TABLE
-  - word: some_table
-  - semicolon: ;
-  - word: OPTIMIZE
-  - word: TABLE
-  - word: some_table1
+- statement:
+  - keyword: OPTIMIZE
+  - keyword: TABLE
+  - table_reference:
+    - naked_identifier: some_table
+- statement_terminator: ;
+- statement:
+  - keyword: OPTIMIZE
+  - keyword: TABLE
+  - table_reference:
+    - naked_identifier: some_table1
   - comma: ','
-  - word: some_table2
-  - semicolon: ;
-  - word: OPTIMIZE
-  - word: NO_WRITE_TO_BINLOG
-  - word: TABLE
-  - word: some_table
-  - semicolon: ;
-  - word: OPTIMIZE
-  - word: NO_WRITE_TO_BINLOG
-  - word: TABLE
-  - word: some_table1
+  - table_reference:
+    - naked_identifier: some_table2
+- statement_terminator: ;
+- statement:
+  - keyword: OPTIMIZE
+  - keyword: NO_WRITE_TO_BINLOG
+  - keyword: TABLE
+  - table_reference:
+    - naked_identifier: some_table
+- statement_terminator: ;
+- statement:
+  - keyword: OPTIMIZE
+  - keyword: NO_WRITE_TO_BINLOG
+  - keyword: TABLE
+  - table_reference:
+    - naked_identifier: some_table1
   - comma: ','
-  - word: some_table2
-  - semicolon: ;
-  - word: OPTIMIZE
-  - word: LOCAL
-  - word: TABLE
-  - word: some_table
-  - semicolon: ;
-  - word: OPTIMIZE
-  - word: LOCAL
-  - word: TABLE
-  - word: some_table1
+  - table_reference:
+    - naked_identifier: some_table2
+- statement_terminator: ;
+- statement:
+  - keyword: OPTIMIZE
+  - keyword: LOCAL
+  - keyword: TABLE
+  - table_reference:
+    - naked_identifier: some_table
+- statement_terminator: ;
+- statement:
+  - keyword: OPTIMIZE
+  - keyword: LOCAL
+  - keyword: TABLE
+  - table_reference:
+    - naked_identifier: some_table1
   - comma: ','
-  - word: some_table2
-  - semicolon: ;
+  - table_reference:
+    - naked_identifier: some_table2
+- statement_terminator: ;

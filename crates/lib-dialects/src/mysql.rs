@@ -10,7 +10,7 @@ use sqruff_lib_core::parser::grammar::delimited::Delimited;
 use sqruff_lib_core::parser::grammar::sequence::Bracketed;
 use sqruff_lib_core::parser::matchable::MatchableTrait;
 use sqruff_lib_core::parser::node_matcher::NodeMatcher;
-use sqruff_lib_core::parser::parsers::TypedParser;
+use sqruff_lib_core::parser::parsers::{RegexParser, StringParser, TypedParser};
 use sqruff_lib_core::parser::segments::meta::MetaSegment;
 use sqruff_lib_core::vec_of_erased;
 use sqruff_lib_core::{parser::grammar::sequence::Sequence, parser::lexer::Matcher};
@@ -81,6 +81,59 @@ pub fn raw_dialect() -> Dialect {
             .to_matchable()
             .into(),
     )]);
+
+    mysql.add([
+        (
+            // A session variable name, e.g. @variable_name
+            "SessionVariableNameSegment".into(),
+            RegexParser::new(r"[@][a-zA-Z0-9_$]*", SyntaxKind::Variable)
+                .to_matchable()
+                .into(),
+        ),
+        (
+            // A local variable name, e.g. variable_name or `variable_name`
+            "LocalVariableNameSegment".into(),
+            RegexParser::new(r"`?[a-zA-Z0-9_$]*`?", SyntaxKind::Variable)
+                .to_matchable()
+                .into(),
+        ),
+        (
+            // A walrus operator, e.g. :=
+            "WalrusOperatorSegment".into(),
+            StringParser::new(":=", SyntaxKind::AssignmentOperator)
+                .to_matchable()
+                .into(),
+        ),
+        (
+            // A double quoted literal segment, e.g. "literal"
+            "DoubleQuotedLiteralSegment".into(),
+            TypedParser::new(SyntaxKind::DoubleQuote, SyntaxKind::Literal)
+                .to_matchable()
+                .into(),
+        ),
+        (
+            // A system variable segment, e.g. @@variable_name, @@session.variable_name, @@global.variable_name
+            "SystemVariableSegment".into(),
+            RegexParser::new(
+                r"@@((session|global)\.)?[A-Za-z0-9_]+",
+                SyntaxKind::Variable,
+            )
+            .to_matchable()
+            .into(),
+        ),
+        (
+            // Boolean dynamic system variables grammar
+            // Boolean dynamic system variables can be set to ON/OFF, TRUE/FALSE, or 0/1
+            // https://dev.mysql.com/doc/refman/8.0/en/dynamic-system-variables.html
+            "BooleanDynamicSystemVariablesGrammar".into(),
+            one_of(vec_of_erased![
+                one_of(vec_of_erased![Ref::keyword("ON"), Ref::keyword("OFF"),]),
+                one_of(vec_of_erased![Ref::keyword("TRUE"), Ref::keyword("FALSE"),]),
+            ])
+            .to_matchable()
+            .into(),
+        ),
+    ]);
 
     mysql.add([
         (
@@ -1479,6 +1532,155 @@ pub fn raw_dialect() -> Dialect {
                 Ref::new("CommentClauseSegment").optional(),
                 Ref::keyword("DO"),
                 Ref::new("StatementSegment")
+            ])
+            .to_matchable()
+            .into(),
+        ),
+        (
+            // An `ALTER EVENT` statement.
+            // As specified in https://dev.mysql.com/doc/refman/9.2/en/alter-event.html
+            "AlterEventStatementSegment".into(),
+            Sequence::new(vec_of_erased![
+                Ref::keyword("ALTER"),
+                Ref::new("DefinerSegment").optional(),
+                Ref::keyword("EVENT"),
+                Ref::new("ObjectReferenceSegment"),
+                Sequence::new(vec_of_erased![
+                    Ref::keyword("ON"),
+                    Ref::keyword("SCHEDULE"),
+                    one_of(vec_of_erased![Ref::keyword("AT"), Ref::keyword("EVERY")]),
+                    Ref::new("ExpressionSegment"),
+                    one_of(vec_of_erased![Ref::new("DatetimeUnitSegment")])
+                        .config(|this| this.optional()),
+                    AnyNumberOf::new(vec_of_erased![Sequence::new(vec_of_erased![
+                        one_of(vec_of_erased![Ref::keyword("STARTS"), Ref::keyword("ENDS")]),
+                        Ref::new("ExpressionSegment")
+                    ])])
+                    .config(|this| this.optional())
+                ])
+                .config(|this| this.optional()),
+                Sequence::new(vec_of_erased![
+                    Ref::keyword("ON"),
+                    Ref::keyword("COMPLETION"),
+                    Ref::keyword("NOT").optional(),
+                    Ref::keyword("PRESERVE")
+                ])
+                .config(|this| this.optional()),
+                Sequence::new(vec_of_erased![
+                    Ref::keyword("RENAME"),
+                    Ref::keyword("TO"),
+                    Ref::new("ObjectReferenceSegment")
+                ])
+                .config(|this| this.optional()),
+                one_of(vec_of_erased![
+                    Ref::keyword("ENABLE"),
+                    Ref::keyword("DISABLE"),
+                    Sequence::new(vec_of_erased![
+                        Ref::keyword("DISABLE"),
+                        Ref::keyword("ON"),
+                        one_of(vec_of_erased![
+                            Ref::keyword("REPLICA"),
+                            Ref::keyword("SLAVE")
+                        ])
+                    ])
+                ])
+                .config(|this| this.optional()),
+                Ref::new("CommentClauseSegment").optional(),
+                Sequence::new(vec_of_erased![
+                    Ref::keyword("DO"),
+                    Ref::new("StatementSegment")
+                ])
+                .config(|this| this.optional())
+            ])
+            .to_matchable()
+            .into(),
+        ),
+        (
+            // A `DROP EVENT` statement.
+            // As specified in https://dev.mysql.com/doc/refman/9.2/en/drop-event.html
+            "DropEventStatementSegment".into(),
+            Sequence::new(vec_of_erased![
+                Ref::keyword("DROP"),
+                Ref::keyword("EVENT"),
+                Ref::new("IfExistsGrammar").optional(),
+                Ref::new("ObjectReferenceSegment")
+            ])
+            .to_matchable()
+            .into(),
+        ),
+        (
+            // This is the body of a `CREATE FUNCTION` and `CREATE TRIGGER` statements.
+            "DefinerSegment".into(),
+            Sequence::new(vec_of_erased![
+                Ref::keyword("DEFINER"),
+                Ref::new("EqualsSegment"),
+                Ref::new("RoleReferenceSegment"),
+            ])
+            .to_matchable()
+            .into(),
+        ),
+        (
+            // This is the body of a partition clause.
+            "SelectPartitionClauseSegment".into(),
+            Sequence::new(vec_of_erased![
+                Ref::keyword("PARTITION"),
+                Bracketed::new(vec_of_erased![Delimited::new(vec_of_erased![Ref::new(
+                    "ObjectReferenceSegment"
+                )])])
+            ])
+            .to_matchable()
+            .into(),
+        ),
+        (
+            // A database characteristic.
+            // As specified in https://dev.mysql.com/doc/refman/8.0/en/alter-database.html
+            "AlterOptionSegment".into(),
+            Sequence::new(vec_of_erased![one_of(vec_of_erased![
+                Sequence::new(vec_of_erased![
+                    Ref::keyword("DEFAULT").optional(),
+                    Ref::keyword("CHARACTER"),
+                    Ref::keyword("SET"),
+                    Ref::new("EqualsSegment").optional(),
+                    Ref::new("NakedIdentifierSegment"),
+                ]),
+                Sequence::new(vec_of_erased![
+                    Ref::keyword("DEFAULT").optional(),
+                    Ref::keyword("COLLATE"),
+                    Ref::new("EqualsSegment").optional(),
+                    Ref::new("CollationReferenceSegment"),
+                ]),
+                Sequence::new(vec_of_erased![
+                    Ref::keyword("DEFAULT").optional(),
+                    Ref::keyword("ENCRYPTION"),
+                    Ref::new("EqualsSegment").optional(),
+                    Ref::new("QuotedLiteralSegment"),
+                ]),
+                Sequence::new(vec_of_erased![
+                    Ref::keyword("READ"),
+                    Ref::keyword("ONLY"),
+                    Ref::new("EqualsSegment").optional(),
+                    one_of(vec_of_erased![
+                        Ref::keyword("DEFAULT"),
+                        Ref::new("NumericLiteralSegment"),
+                    ]),
+                ]),
+            ]),])
+            .to_matchable()
+            .into(),
+        ),
+        (
+            // A WITH CHECK OPTION segment for CREATE/ALTER View Syntax.
+            // As specified in https://dev.mysql.com/doc/refman/8.0/en/alter-view.html
+            "WithCheckOptionSegment".into(),
+            Sequence::new(vec_of_erased![
+                Ref::keyword("WITH"),
+                one_of(vec_of_erased![
+                    Ref::keyword("CASCADED"),
+                    Ref::keyword("LOCAL"),
+                ])
+                .config(|one_of| one_of.optional()),
+                Ref::keyword("CHECK"),
+                Ref::keyword("OPTION"),
             ])
             .to_matchable()
             .into(),

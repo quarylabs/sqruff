@@ -1,4 +1,5 @@
 file:
-- unparsable:
-  - word: repeat
+- statement:
+  - keyword: repeat
+- file:
   - word: set

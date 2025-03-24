@@ -1,11 +1,14 @@
 file:
-- unparsable:
-  - word: DECLARE
-  - word: continue
-  - word: handler
-  - word: for
-  - word: sqlexception
-  - word: begin
+- statement:
+  - keyword: DECLARE
+  - keyword: continue
+  - keyword: handler
+  - keyword: for
+  - keyword: sqlexception
+  - statement:
+    - transaction_statement:
+      - keyword: begin
+- file:
   - word: select
   - numeric_literal: '1'
   - semicolon: ;

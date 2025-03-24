@@ -92,4 +92,4 @@ serde = { version = "1.0.219", features = ["derive"], optional = true }
 [dev-dependencies]
 assert_cmd = "2.0.16"
 expect-test = "1.5.0"
-tempfile = "3.18.0"
+tempfile = "3.19.1"

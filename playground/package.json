@@ -11,7 +11,7 @@
   },
   "dependencies": {
     "@monaco-editor/react": "^4.7.0",
-    "@playwright/test": "^1.51.0",
+    "@playwright/test": "^1.51.1",
     "classnames": "^2.5.1",
     "cross-env": "^7.0.3",
     "eslint": "^9.22.0",
@@ -24,8 +24,8 @@
     "react-resizable-panels": "^2.1.7"
   },
   "devDependencies": {
-    "@eslint/js": "^9.21.0",
-    "@types/react": "^19.0.10",
+    "@eslint/js": "^9.23.0",
+    "@types/react": "^19.0.12",
     "@types/react-dom": "^19.0.4",
     "@vitejs/plugin-react-swc": "^3.8.0",
     "autoprefixer": "^10.4.20",

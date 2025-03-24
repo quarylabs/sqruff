@@ -41,7 +41,7 @@ jobs:
           args: --release --interpreter python3.10 python3.11 python3.12 python3.13 --out dist --manifest-path crates/cli/Cargo.toml
           sccache: "true"
       - name: Upload wheels
-        uses: actions/upload-artifact@4cec3d8aa04e39d1a68397de0c4cd6fb9dce8ec1 # ratchet:actions/upload-artifact@v4
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # ratchet:actions/upload-artifact@v4
         with:
           name: wheels-${{ matrix.platform.target }}
           path: dist
@@ -68,7 +68,7 @@ jobs:
           args: --release  --interpreter python3.10 python3.11 python3.12 python3.13 --out dist --manifest-path crates/cli/Cargo.toml
           sccache: "true"
       - name: Upload wheels
-        uses: actions/upload-artifact@4cec3d8aa04e39d1a68397de0c4cd6fb9dce8ec1 # ratchet:actions/upload-artifact@v4
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # ratchet:actions/upload-artifact@v4
         with:
           name: wheels-macos-${{ matrix.platform.target }}
           path: dist
@@ -96,7 +96,7 @@ jobs:
           args: --release  --interpreter python3.10 python3.11 python3.12 python3.13 --out dist --manifest-path crates/cli/Cargo.toml
           sccache: "true"
       - name: Upload wheels
-        uses: actions/upload-artifact@4cec3d8aa04e39d1a68397de0c4cd6fb9dce8ec1 # ratchet:actions/upload-artifact@v4
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # ratchet:actions/upload-artifact@v4
         with:
           name: wheels-linux-x86_64
           path: dist
@@ -111,7 +111,7 @@ jobs:
           command: sdist
           args: --out dist --manifest-path crates/cli/Cargo.toml
       - name: Upload sdist
-        uses: actions/upload-artifact@4cec3d8aa04e39d1a68397de0c4cd6fb9dce8ec1 # ratchet:actions/upload-artifact@v4
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # ratchet:actions/upload-artifact@v4
         with:
           name: wheels-sdist
           path: dist

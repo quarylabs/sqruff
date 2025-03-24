@@ -4,7 +4,7 @@ use sqruff_lib_core::dialects::base::Dialect;
 use sqruff_lib_core::dialects::init::DialectKind;
 use sqruff_lib_core::dialects::syntax::SyntaxKind;
 use sqruff_lib_core::helpers::{Config, ToMatchable};
-use sqruff_lib_core::parser::grammar::anyof::{AnyNumberOf, one_of};
+use sqruff_lib_core::parser::grammar::anyof::{AnyNumberOf, one_of, optionally_bracketed};
 use sqruff_lib_core::parser::grammar::base::{Anything, Ref};
 use sqruff_lib_core::parser::grammar::delimited::Delimited;
 use sqruff_lib_core::parser::grammar::sequence::Bracketed;
@@ -1123,6 +1123,362 @@ pub fn raw_dialect() -> Dialect {
                     ]),
                 ])])
                 .config(|this| this.optional()),
+            ])
+            .to_matchable()
+            .into(),
+        ),
+        (
+            // An `ALTER VIEW .. AS ..` statement.
+            // As specified in https://dev.mysql.com/doc/refman/8.0/en/alter-view.html
+            "AlterViewStatementSegment".into(),
+            Sequence::new(vec_of_erased![
+                Ref::keyword("ALTER"),
+                Sequence::new(vec_of_erased![
+                    Ref::keyword("ALGORITHM"),
+                    Ref::new("EqualsSegment"),
+                    one_of(vec_of_erased![
+                        Ref::keyword("UNDEFINED"),
+                        Ref::keyword("MERGE"),
+                        Ref::keyword("TEMPTABLE"),
+                    ]),
+                ])
+                .config(|this| this.optional()),
+                Ref::new("DefinerSegment").optional(),
+                Sequence::new(vec_of_erased![
+                    Ref::keyword("SQL"),
+                    Ref::keyword("SECURITY"),
+                    one_of(vec_of_erased![
+                        Ref::keyword("DEFINER"),
+                        Ref::keyword("INVOKER"),
+                    ]),
+                ])
+                .config(|this| this.optional()),
+                Ref::keyword("VIEW"),
+                Ref::new("TableReferenceSegment"),
+                Ref::new("BracketedColumnReferenceListGrammar").optional(),
+                Ref::keyword("AS"),
+                optionally_bracketed(vec_of_erased![Ref::new("SelectableGrammar")]),
+                Ref::new("WithCheckOptionSegment").optional(),
+            ])
+            .to_matchable()
+            .into(),
+        ),
+        (
+            // An `ON DUPLICATE KEY UPDATE` statement.
+            // As specified in https://dev.mysql.com/doc/refman/8.0/en/insert-on-duplicate.html
+            "UpsertClauseListSegment".into(),
+            Sequence::new(vec_of_erased![
+                Ref::keyword("ON"),
+                Ref::keyword("DUPLICATE"),
+                Ref::keyword("KEY"),
+                Ref::keyword("UPDATE"),
+                Delimited::new(vec_of_erased![Ref::new("SetClauseSegment")])
+            ])
+            .to_matchable()
+            .into(),
+        ),
+        (
+            // A row alias segment (used in `INSERT` statements).
+            // As specified in https://dev.mysql.com/doc/refman/8.0/en/insert.html
+            "InsertRowAliasSegment".into(),
+            Sequence::new(vec_of_erased![
+                Ref::keyword("AS"),
+                Ref::new("SingleIdentifierGrammar"),
+                Bracketed::new(vec_of_erased![Ref::new("SingleIdentifierListSegment")])
+                    .config(|this| this.optional())
+            ])
+            .to_matchable()
+            .into(),
+        ),
+        (
+            // A `Flush` statement.
+            // As per https://dev.mysql.com/doc/refman/8.0/en/flush.html
+            "FlushStatementSegment".into(),
+            Sequence::new(vec_of_erased![
+                Ref::keyword("FLUSH"),
+                one_of(vec_of_erased![
+                    Ref::keyword("NO_WRITE_TO_BINLOG"),
+                    Ref::keyword("LOCAL"),
+                ])
+                .config(|this| this.optional()),
+                one_of(vec_of_erased![
+                    Delimited::new(vec_of_erased![
+                        Sequence::new(vec_of_erased![Ref::keyword("BINARY"), Ref::keyword("LOGS")]),
+                        Sequence::new(vec_of_erased![Ref::keyword("ENGINE"), Ref::keyword("LOGS")]),
+                        Sequence::new(vec_of_erased![Ref::keyword("ERROR"), Ref::keyword("LOGS")]),
+                        Sequence::new(vec_of_erased![
+                            Ref::keyword("GENERAL"),
+                            Ref::keyword("LOGS")
+                        ]),
+                        Ref::keyword("HOSTS"),
+                        Ref::keyword("LOGS"),
+                        Ref::keyword("PRIVILEGES"),
+                        Ref::keyword("OPTIMIZER_COSTS"),
+                        Sequence::new(vec_of_erased![
+                            Ref::keyword("RELAY"),
+                            Ref::keyword("LOGS"),
+                            Sequence::new(vec_of_erased![
+                                Ref::keyword("FOR"),
+                                Ref::keyword("CHANNEL"),
+                                Ref::new("ObjectReferenceSegment")
+                            ])
+                            .config(|this| this.optional())
+                        ]),
+                        Sequence::new(vec_of_erased![Ref::keyword("SLOW"), Ref::keyword("LOGS")]),
+                        Ref::keyword("STATUS"),
+                        Ref::keyword("USER_RESOURCES")
+                    ]),
+                    Sequence::new(vec_of_erased![
+                        Ref::keyword("TABLES"),
+                        Sequence::new(vec_of_erased![
+                            Delimited::new(vec_of_erased![Ref::new("TableReferenceSegment")])
+                                .config(
+                                    |this| this.terminators = vec_of_erased![Ref::keyword("WITH")]
+                                ),
+                        ])
+                        .config(|this| this.optional()),
+                        Sequence::new(vec_of_erased![
+                            Ref::keyword("WITH"),
+                            Ref::keyword("READ"),
+                            Ref::keyword("LOCK")
+                        ])
+                        .config(|this| this.optional())
+                    ]),
+                    Sequence::new(vec_of_erased![
+                        Ref::keyword("TABLES"),
+                        Sequence::new(vec_of_erased![
+                            Delimited::new(vec_of_erased![Ref::new("TableReferenceSegment")])
+                                .config(
+                                    |this| this.terminators = vec_of_erased![Ref::keyword("FOR")]
+                                ),
+                        ]),
+                        Sequence::new(vec_of_erased![Ref::keyword("FOR"), Ref::keyword("EXPORT")])
+                            .config(|this| this.optional())
+                    ])
+                ])
+            ])
+            .to_matchable()
+            .into(),
+        ),
+        (
+            // A `LOAD DATA` statement.
+            // As specified in https://dev.mysql.com/doc/refman/8.0/en/load-data.html
+            "LoadDataSegment".into(),
+            Sequence::new(vec_of_erased![
+                Ref::keyword("LOAD"),
+                Ref::keyword("DATA"),
+                one_of(vec_of_erased![
+                    Ref::keyword("LOW_PRIORITY"),
+                    Ref::keyword("CONCURRENT")
+                ])
+                .config(|this| this.optional()),
+                Sequence::new(vec_of_erased![Ref::keyword("LOCAL")]).config(|this| this.optional()),
+                Ref::keyword("INFILE"),
+                Ref::new("QuotedLiteralSegment"),
+                one_of(vec_of_erased![
+                    Ref::keyword("REPLACE"),
+                    Ref::keyword("IGNORE")
+                ])
+                .config(|this| this.optional()),
+                Ref::keyword("INTO"),
+                Ref::keyword("TABLE"),
+                Ref::new("TableReferenceSegment"),
+                Ref::new("SelectPartitionClauseSegment").optional(),
+                Sequence::new(vec_of_erased![
+                    Ref::keyword("CHARACTER"),
+                    Ref::keyword("SET"),
+                    Ref::new("NakedIdentifierSegment")
+                ])
+                .config(|this| this.optional()),
+                Sequence::new(vec_of_erased![
+                    one_of(vec_of_erased![
+                        Ref::keyword("FIELDS"),
+                        Ref::keyword("COLUMNS")
+                    ]),
+                    Sequence::new(vec_of_erased![
+                        Ref::keyword("TERMINATED"),
+                        Ref::keyword("BY"),
+                        Ref::new("QuotedLiteralSegment")
+                    ])
+                    .config(|this| this.optional()),
+                    Sequence::new(vec_of_erased![
+                        Sequence::new(vec_of_erased![Ref::keyword("OPTIONALLY")])
+                            .config(|this| this.optional()),
+                        Ref::keyword("ENCLOSED"),
+                        Ref::keyword("BY"),
+                        Ref::new("QuotedLiteralSegment")
+                    ])
+                    .config(|this| this.optional()),
+                    Sequence::new(vec_of_erased![
+                        Ref::keyword("ESCAPED"),
+                        Ref::keyword("BY"),
+                        Ref::new("QuotedLiteralSegment")
+                    ])
+                    .config(|this| this.optional())
+                ])
+                .config(|this| this.optional()),
+                Sequence::new(vec_of_erased![
+                    Ref::keyword("LINES"),
+                    Sequence::new(vec_of_erased![
+                        Ref::keyword("STARTING"),
+                        Ref::keyword("BY"),
+                        Ref::new("QuotedLiteralSegment")
+                    ])
+                    .config(|this| this.optional()),
+                    Sequence::new(vec_of_erased![
+                        Ref::keyword("TERMINATED"),
+                        Ref::keyword("BY"),
+                        Ref::new("QuotedLiteralSegment")
+                    ])
+                    .config(|this| this.optional())
+                ])
+                .config(|this| this.optional()),
+                Sequence::new(vec_of_erased![
+                    Ref::keyword("IGNORE"),
+                    Ref::new("NumericLiteralSegment"),
+                    one_of(vec_of_erased![Ref::keyword("LINES"), Ref::keyword("ROWS")])
+                ])
+                .config(|this| this.optional()),
+                Sequence::new(vec_of_erased![Bracketed::new(vec_of_erased![
+                    Delimited::new(vec_of_erased![Ref::new("ColumnReferenceSegment")])
+                ])])
+                .config(|this| this.optional()),
+                Sequence::new(vec_of_erased![
+                    Ref::keyword("SET"),
+                    Ref::new("Expression_B_Grammar")
+                ])
+                .config(|this| this.optional())
+            ])
+            .to_matchable()
+            .into(),
+        ),
+        (
+            // A `REPLACE` statement.
+            // As specified in https://dev.mysql.com/doc/refman/8.0/en/replace.html
+            "ReplaceSegment".into(),
+            Sequence::new(vec_of_erased![
+                Ref::keyword("REPLACE"),
+                one_of(vec_of_erased![
+                    Ref::keyword("LOW_PRIORITY"),
+                    Ref::keyword("DELAYED")
+                ])
+                .config(|this| this.optional()),
+                Sequence::new(vec_of_erased![Ref::keyword("INTO")]).config(|this| this.optional()),
+                Ref::new("TableReferenceSegment"),
+                Ref::new("SelectPartitionClauseSegment").optional(),
+                one_of(vec_of_erased![
+                    Sequence::new(vec_of_erased![
+                        Ref::new("BracketedColumnReferenceListGrammar").optional(),
+                        Ref::new("ValuesClauseSegment")
+                    ]),
+                    Ref::new("SetClauseListSegment"),
+                    Sequence::new(vec_of_erased![
+                        Ref::new("BracketedColumnReferenceListGrammar").optional(),
+                        one_of(vec_of_erased![
+                            Ref::new("SelectableGrammar"),
+                            Sequence::new(vec_of_erased![
+                                Ref::keyword("TABLE"),
+                                Ref::new("TableReferenceSegment")
+                            ])
+                        ])
+                    ])
+                ])
+            ])
+            .to_matchable()
+            .into(),
+        ),
+        (
+            // An `ALTER DATABASE` statement.
+            // As specified in https://dev.mysql.com/doc/refman/8.0/en/alter-database.html
+            "AlterDatabaseStatementSegment".into(),
+            Sequence::new(vec_of_erased![
+                Ref::keyword("ALTER"),
+                one_of(vec_of_erased![
+                    Ref::keyword("DATABASE"),
+                    Ref::keyword("SCHEMA")
+                ]),
+                Ref::new("DatabaseReferenceSegment").optional(),
+                AnyNumberOf::new(vec_of_erased![Ref::new("AlterOptionSegment")])
+            ])
+            .to_matchable()
+            .into(),
+        ),
+        (
+            // A `RETURN` statement.
+            // As specified in https://dev.mysql.com/doc/refman/8.0/en/return.html
+            "ReturnStatementSegment".into(),
+            Sequence::new(vec_of_erased![
+                Ref::keyword("RETURN"),
+                Ref::new("ExpressionSegment")
+            ])
+            .to_matchable()
+            .into(),
+        ),
+        (
+            // A `SET NAMES` statement.
+            // As specified in https://dev.mysql.com/doc/refman/8.0/en/set-names.html
+            "SetNamesStatementSegment".into(),
+            Sequence::new(vec_of_erased![
+                Ref::keyword("SET"),
+                Ref::keyword("NAMES"),
+                one_of(vec_of_erased![
+                    Ref::keyword("DEFAULT"),
+                    Ref::new("QuotedLiteralSegment"),
+                    Ref::new("NakedIdentifierSegment")
+                ]),
+                Sequence::new(vec_of_erased![
+                    Ref::keyword("COLLATE"),
+                    Ref::new("CollationReferenceSegment")
+                ])
+                .config(|this| this.optional())
+            ])
+            .to_matchable()
+            .into(),
+        ),
+        (
+            // A `CREATE EVENT` statement.
+            // As specified in https://dev.mysql.com/doc/refman/9.2/en/create-event.html
+            "CreateEventStatementSegment".into(),
+            Sequence::new(vec_of_erased![
+                Ref::keyword("CREATE"),
+                Ref::new("DefinerSegment").optional(),
+                Ref::keyword("EVENT"),
+                Ref::new("IfNotExistsGrammar").optional(),
+                Ref::new("ObjectReferenceSegment"),
+                Ref::keyword("ON"),
+                Ref::keyword("SCHEDULE"),
+                one_of(vec_of_erased![Ref::keyword("AT"), Ref::keyword("EVERY")]),
+                Ref::new("ExpressionSegment"),
+                one_of(vec_of_erased![Ref::new("DatetimeUnitSegment")])
+                    .config(|this| this.optional()),
+                AnyNumberOf::new(vec_of_erased![Sequence::new(vec_of_erased![
+                    one_of(vec_of_erased![Ref::keyword("STARTS"), Ref::keyword("ENDS")]),
+                    Ref::new("ExpressionSegment")
+                ])])
+                .config(|this| this.optional()),
+                Sequence::new(vec_of_erased![
+                    Ref::keyword("ON"),
+                    Ref::keyword("COMPLETION"),
+                    Ref::keyword("NOT").optional(),
+                    Ref::keyword("PRESERVE")
+                ])
+                .config(|this| this.optional()),
+                one_of(vec_of_erased![
+                    Ref::keyword("ENABLE"),
+                    Ref::keyword("DISABLE"),
+                    Sequence::new(vec_of_erased![
+                        Ref::keyword("DISABLE"),
+                        Ref::keyword("ON"),
+                        one_of(vec_of_erased![
+                            Ref::keyword("REPLICA"),
+                            Ref::keyword("SLAVE")
+                        ])
+                    ])
+                ])
+                .config(|this| this.optional()),
+                Ref::new("CommentClauseSegment").optional(),
+                Ref::keyword("DO"),
+                Ref::new("StatementSegment")
             ])
             .to_matchable()
             .into(),

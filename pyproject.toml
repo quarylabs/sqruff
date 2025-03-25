@@ -1,7 +1,6 @@
 [project]
 name = "sqruff"
 version = "0.0.1"
-readme = "README.md"
 requires-python = ">=3.9"
 dependencies = [
     "Jinja2>=3.0.0",
@@ -35,3 +34,4 @@ where = ["crates/lib/src/templaters"]
 
 [tool.ruff.lint]
 ignore = ["S101", "UP006", "ANN001", "PT006", "ARG005", "SLF001", "PLR0913", "ANN201", "FIX002", "FA100", "TD003", "TD002", "SIM118", "PLW2901", "PLR0915", "PLR0912", "C901", "EM102", "TRY003", "FBT002", "FBT001", "ARG002", "B904", "E501", "D417", "EM101", "B904", "INP001", "FIX004", "ANN401", "C408", "D107", "ANN204", "D400", "D401", "D101", "UP035", "D103", "D100", "D211", "D213", "D203", "ISC001", "COM812"]
+

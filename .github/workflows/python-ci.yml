@@ -402,4 +402,4 @@ jobs:
         with:
           working-directory: crates/cli
           command: upload
-          args: --non-interactive --skip-existing artifacts-*/
+          args: --non-interactive --skip-existing wheels-*/*

@@ -1,0 +1,6 @@
+file:
+- statement:
+  - keyword: DROP
+  - keyword: PREPARE
+  - naked_identifier: dynam
+- statement_terminator: ;

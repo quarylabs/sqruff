@@ -1,0 +1,9 @@
+file:
+- statement:
+  - keyword: fetch
+  - keyword: next
+  - keyword: from
+  - naked_identifier: curcursor
+  - keyword: into
+  - variable: test
+- statement_terminator: ;

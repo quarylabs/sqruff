@@ -1,0 +1,18 @@
+file:
+- unparsable:
+  - word: if
+  - start_bracket: (
+  - start_bracket: (
+  - word: select
+  - word: count
+  - start_bracket: (
+  - star: '*'
+  - end_bracket: )
+  - word: from
+  - word: table1
+  - end_bracket: )
+  - raw_comparison_operator: =
+  - numeric_literal: '0'
+  - end_bracket: )
+  - word: then
+  - word: set

@@ -97,7 +97,7 @@ param_style = colon
 my_name = 'john'
 ```
 
-then you can set sample values for each parameter, like my_name above. Notice that the value needs to be escaped as it will be replaced as a string during parsing. When the sample values aren’t provided, the templater will use parameter names themselves by default.
+then you can set sample values for each parameter, like my_name above. Notice that the value needs to be escaped as it will be replaced as a string during parsing. When the sample values aren't provided, the templater will use parameter names themselves by default.
 
 When parameters are positional, like question_mark, then their name is simply the order in which they appear, starting with 1.
 
@@ -115,7 +115,7 @@ param_regex = __(?P<param_name>[\w_]+)__
 my_name = 'john'
 ```
 
-N.B. quotes around param_regex in the config are interpreted literally by the templater. e.g. param_regex=’__(?P<param_name>[w_]+)__’ matches ‘__some_param__’ not __some_param__
+N.B. quotes around param_regex in the config are interpreted literally by the templater. e.g. param_regex='__(?P<param_name>[w_]+)__' matches '__some_param__' not __some_param__
 
 the named parameter param_name will be used as the key to replace, if missing, the parameter is assumed to be positional and numbers are used instead.
 

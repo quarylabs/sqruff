@@ -395,7 +395,7 @@ jobs:
       #   with:
       #     subject-path: "wheels-*/*"
       - name: Publish to PyPI
-        if: ${{ startsWith(github.ref, 'refs/tags/') }}
+        # if: ${{ startsWith(github.ref, 'refs/tags/') }}
         uses: PyO3/maturin-action@22fe573c6ed0c03ab9b84e631cbfa49bddf6e20e # ratchet:PyO3/maturin-action@v1
         env:
           MATURIN_PYPI_TOKEN: test

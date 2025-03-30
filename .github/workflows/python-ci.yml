@@ -400,6 +400,6 @@ jobs:
         env:
           MATURIN_PYPI_TOKEN: test
         with:
-          working-directory: crates/cli
+          # working-directory: crates/cli
           command: upload
           args: --non-interactive --skip-existing wheels-*/*

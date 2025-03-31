@@ -40,7 +40,7 @@ jobs:
         with:
           python-version: ${{ env.PYTHON_VERSION }}
       - name: "Build sdist"
-        uses: PyO3/maturin-action@36db84001d74475ad1b8e6613557ae4ee2dc3598 # v1
+        uses: PyO3/maturin-action@22fe573c6ed0c03ab9b84e631cbfa49bddf6e20e # v1
         with:
           working-directory: crates/cli
           command: sdist
@@ -69,7 +69,7 @@ jobs:
   #         python-version: ${{ env.PYTHON_VERSION }}
   #         architecture: x64
   #     - name: "Build wheels - x86_64"
-  #       uses: PyO3/maturin-action@36db84001d74475ad1b8e6613557ae4ee2dc3598 # v1
+  #       uses: PyO3/maturin-action@22fe573c6ed0c03ab9b84e631cbfa49bddf6e20e # v1
   #       with:
   #         working-directory: crates/cli
   #         target: x86_64
@@ -108,7 +108,7 @@ jobs:
           python-version: ${{ env.PYTHON_VERSION }}
           architecture: arm64
       - name: "Build wheels - aarch64"
-        uses: PyO3/maturin-action@36db84001d74475ad1b8e6613557ae4ee2dc3598 # v1
+        uses: PyO3/maturin-action@22fe573c6ed0c03ab9b84e631cbfa49bddf6e20e # v1
         with:
           working-directory: crates/cli
           target: aarch64
@@ -161,7 +161,7 @@ jobs:
           python-version: ${{ env.PYTHON_VERSION }}
           architecture: ${{ matrix.platform.arch }}
       - name: "Build wheels"
-        uses: PyO3/maturin-action@36db84001d74475ad1b8e6613557ae4ee2dc3598 # v1
+        uses: PyO3/maturin-action@22fe573c6ed0c03ab9b84e631cbfa49bddf6e20e # v1
         with:
           working-directory: crates/cli
           target: ${{ matrix.platform.target }}
@@ -211,7 +211,7 @@ jobs:
           python-version: ${{ env.PYTHON_VERSION }}
           architecture: x64
       - name: "Build wheels"
-        uses: PyO3/maturin-action@36db84001d74475ad1b8e6613557ae4ee2dc3598 # v1
+        uses: PyO3/maturin-action@22fe573c6ed0c03ab9b84e631cbfa49bddf6e20e # v1
         with:
           working-directory: crates/cli
           target: ${{ matrix.target }}
@@ -265,7 +265,7 @@ jobs:
           python-version: ${{ env.PYTHON_VERSION }}
           architecture: x64
       - name: "Build wheels"
-        uses: PyO3/maturin-action@36db84001d74475ad1b8e6613557ae4ee2dc3598 # v1
+        uses: PyO3/maturin-action@22fe573c6ed0c03ab9b84e631cbfa49bddf6e20e # v1
         with:
           working-directory: crates/cli
           target: ${{ matrix.target }}
@@ -329,7 +329,7 @@ jobs:
         with:
           python-version: ${{ env.PYTHON_VERSION }}
       - name: "Build wheels"
-        uses: PyO3/maturin-action@36db84001d74475ad1b8e6613557ae4ee2dc3598 # v1
+        uses: PyO3/maturin-action@22fe573c6ed0c03ab9b84e631cbfa49bddf6e20e # v1
         with:
           working-directory: crates/cli
           target: ${{ matrix.platform.target }}

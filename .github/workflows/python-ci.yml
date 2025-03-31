@@ -36,7 +36,7 @@ jobs:
         with:
           submodules: recursive
           persist-credentials: false
-      - uses: actions/setup-python@42375524e23c412d93fb67b49958b491fce71c38 # v5
+      - uses: actions/setup-python@8d9ed9ac5c53483de85588cdf95a591a75ab9f55 # v5
         with:
           python-version: ${{ env.PYTHON_VERSION }}
       - name: "Build sdist"
@@ -64,7 +64,7 @@ jobs:
   #       with:
   #         submodules: recursive
   #         persist-credentials: false
-  #     - uses: actions/setup-python@42375524e23c412d93fb67b49958b491fce71c38 # v5
+  #     - uses: actions/setup-python@8d9ed9ac5c53483de85588cdf95a591a75ab9f55 # v5
   #       with:
   #         python-version: ${{ env.PYTHON_VERSION }}
   #         architecture: x64
@@ -103,7 +103,7 @@ jobs:
         with:
           submodules: recursive
           persist-credentials: false
-      - uses: actions/setup-python@42375524e23c412d93fb67b49958b491fce71c38 # v5
+      - uses: actions/setup-python@8d9ed9ac5c53483de85588cdf95a591a75ab9f55 # v5
         with:
           python-version: ${{ env.PYTHON_VERSION }}
           architecture: arm64
@@ -156,7 +156,7 @@ jobs:
         with:
           submodules: recursive
           persist-credentials: false
-      - uses: actions/setup-python@42375524e23c412d93fb67b49958b491fce71c38 # v5
+      - uses: actions/setup-python@8d9ed9ac5c53483de85588cdf95a591a75ab9f55 # v5
         with:
           python-version: ${{ env.PYTHON_VERSION }}
           architecture: ${{ matrix.platform.arch }}
@@ -206,7 +206,7 @@ jobs:
         with:
           submodules: recursive
           persist-credentials: false
-      - uses: actions/setup-python@42375524e23c412d93fb67b49958b491fce71c38 # v5
+      - uses: actions/setup-python@8d9ed9ac5c53483de85588cdf95a591a75ab9f55 # v5
         with:
           python-version: ${{ env.PYTHON_VERSION }}
           architecture: x64
@@ -260,7 +260,7 @@ jobs:
         with:
           submodules: recursive
           persist-credentials: false
-      - uses: actions/setup-python@42375524e23c412d93fb67b49958b491fce71c38 # v5
+      - uses: actions/setup-python@8d9ed9ac5c53483de85588cdf95a591a75ab9f55 # v5
         with:
           python-version: ${{ env.PYTHON_VERSION }}
           architecture: x64
@@ -325,7 +325,7 @@ jobs:
         with:
           submodules: recursive
           persist-credentials: false
-      - uses: actions/setup-python@42375524e23c412d93fb67b49958b491fce71c38 # v5
+      - uses: actions/setup-python@8d9ed9ac5c53483de85588cdf95a591a75ab9f55 # v5
         with:
           python-version: ${{ env.PYTHON_VERSION }}
       - name: "Build wheels"

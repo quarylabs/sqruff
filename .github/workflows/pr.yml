@@ -98,7 +98,7 @@ jobs:
     steps:
       - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # ratchet:actions/checkout@v4
       - id: setup-python
-        uses: actions/setup-python@42375524e23c412d93fb67b49958b491fce71c38 # ratchet:actions/setup-python@v5
+        uses: actions/setup-python@8d9ed9ac5c53483de85588cdf95a591a75ab9f55 # ratchet:actions/setup-python@v5
       - name: Create and activate virtual environment
         run: |
           python -m venv .venv
@@ -197,7 +197,7 @@ jobs:
         python-version: ["3.9", "3.10", "3.11", "3.12", "3.13"]
     steps:
       - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # ratchet:actions/checkout@v4
-      - uses: actions/setup-python@42375524e23c412d93fb67b49958b491fce71c38 # ratchet:actions/setup-python@v5
+      - uses: actions/setup-python@8d9ed9ac5c53483de85588cdf95a591a75ab9f55 # ratchet:actions/setup-python@v5
         with:
           python-version: ${{ matrix.python-version }}
       - run: make python_install

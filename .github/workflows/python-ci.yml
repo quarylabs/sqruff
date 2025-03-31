@@ -336,7 +336,7 @@ jobs:
           manylinux: musllinux_1_2
           args: --release --locked --out ../../dist
           docker-options: ${{ matrix.platform.maturin_docker_options }}
-      - uses: uraimo/run-on-arch-action@ac33288c3728ca72563c97b8b88dda5a65a84448 # v2
+      - uses: uraimo/run-on-arch-action@1c358dc49363439f8c563ce8f93005f7fe76b849 # v3
         name: Test wheel
         with:
           arch: ${{ matrix.platform.arch }}

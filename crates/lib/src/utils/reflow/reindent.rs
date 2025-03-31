@@ -953,11 +953,11 @@ fn source_char_len(elements: &[ReflowElement]) -> usize {
 
         if Some(source_slice.clone()) != last_source_slice {
             if !seg.raw().is_empty() && slice_len == 0 {
-                char_len += seg.raw().len();
+                char_len += seg.raw().chars().count();
             } else if slice_len == 0 {
                 continue;
             } else if pos_marker.is_literal() {
-                char_len += seg.raw().len();
+                char_len += seg.raw().chars().count();
                 last_source_slice = Some(source_slice);
             } else {
                 char_len += source_slice.end - source_slice.start;

@@ -32,4 +32,5 @@ exclude = [
 include = [
     "rust-toolchain.toml",
 ]
+features = ["python"]
 

@@ -314,8 +314,7 @@ impl<'a> ReflowSequence<'a> {
         }
 
         // Delegate to the rebreak algorithm
-        let (elem_buff, lint_results) =
-            rebreak_sequence(tables, self.elements, self.root_segment.clone());
+        let (elem_buff, lint_results) = rebreak_sequence(tables, self.elements, &self.root_segment);
 
         ReflowSequence {
             root_segment: self.root_segment,

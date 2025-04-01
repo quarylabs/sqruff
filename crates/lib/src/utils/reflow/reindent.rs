@@ -5,7 +5,6 @@ use ahash::{AHashMap, AHashSet};
 use itertools::{Itertools, chain, enumerate};
 use smol_str::SmolStr;
 use sqruff_lib_core::dialects::syntax::{SyntaxKind, SyntaxSet};
-use sqruff_lib_core::helpers::skip_last;
 use sqruff_lib_core::lint_fix::LintFix;
 use sqruff_lib_core::parser::segments::base::{ErasedSegment, SegmentBuilder, Tables};
 use strum_macros::EnumString;
@@ -792,7 +791,7 @@ fn lint_line_untaken_negative_indents(
         return Vec::new();
     }
 
-    for ip in skip_last(indent_line.indent_points.iter()) {
+    for ip in indent_line.indent_points.split_last().unwrap().1 {
         if ip.is_line_break || ip.indent_impulse >= 0 {
             continue;
         }

@@ -254,7 +254,7 @@ fn indentation(
         indent_level = segment_indent.indent_val() as usize + 1;
     }
 
-    let indent_str = if let Some(whitespace_seg) = leading_whitespace.first() {
+    if let Some(whitespace_seg) = leading_whitespace.first() {
         if !leading_whitespace.is_empty() && whitespace_seg.raw().len() > 1 {
             leading_whitespace
                 .iter()
@@ -265,8 +265,7 @@ fn indentation(
         }
     } else {
         construct_single_indent(indent_unit).repeat(indent_level)
-    };
-    indent_str
+    }
 }
 
 fn rebuild_spacing(

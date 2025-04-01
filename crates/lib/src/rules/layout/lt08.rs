@@ -1,5 +1,3 @@
-use std::iter::repeat;
-
 use ahash::AHashMap;
 use itertools::Itertools;
 use sqruff_lib_core::dialects::syntax::{SyntaxKind, SyntaxSet};
@@ -191,9 +189,11 @@ SELECT a FROM plop
             let fixes = vec![LintFix {
                 edit_type: fix_type,
                 anchor: fix_point.unwrap(),
-                edit: repeat(SegmentBuilder::newline(context.tables.next_id(), "\n"))
-                    .take(num_newlines)
-                    .collect_vec(),
+                edit: std::iter::repeat_n(
+                    SegmentBuilder::newline(context.tables.next_id(), "\n"),
+                    num_newlines,
+                )
+                .collect_vec(),
                 source: Vec::new(),
             }];
 

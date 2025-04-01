@@ -354,6 +354,7 @@ fn traverse_tables(tables: &mut Tables, scope: &mut Scope, acc: &mut Vec<Scope>)
             let table_name = value.clone();
             let source_name = alias.as_deref().unwrap_or(value).to_string();
 
+            #[allow(clippy::map_entry)]
             if scope.get().sources.contains_key(&table_name) {
                 sources.insert(source_name, scope.get().sources[&table_name].clone());
             } else {

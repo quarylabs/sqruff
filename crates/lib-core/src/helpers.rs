@@ -42,11 +42,6 @@ pub trait Config: Sized {
 
 impl<T> Config for T {}
 
-pub fn skip_last<T>(mut iter: impl Iterator<Item = T>) -> impl Iterator<Item = T> {
-    let last = iter.next();
-    iter.scan(last, |state, item| std::mem::replace(state, Some(item)))
-}
-
 // https://github.com/rust-lang/rfcs/issues/2208#issuecomment-342679694
 pub fn normalize(p: &Path) -> PathBuf {
     let mut stack: Vec<Component> = vec![];

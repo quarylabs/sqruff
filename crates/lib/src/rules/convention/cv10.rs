@@ -1,5 +1,3 @@
-use std::iter::repeat;
-
 use ahash::AHashMap;
 use regex::Regex;
 use sqruff_lib_core::dialects::init::DialectKind;
@@ -183,7 +181,7 @@ fn normalize_preferred_quoted_literal_style(
     let (orig_quote, new_quote) = if trimmed
         .chars()
         .take(3)
-        .eq(repeat(preferred_quote_char).take(3))
+        .eq(std::iter::repeat_n(preferred_quote_char, 3))
     {
         return s.to_string();
     } else if trimmed.starts_with(preferred_quote_char) {
@@ -194,11 +192,11 @@ fn normalize_preferred_quoted_literal_style(
     } else if trimmed
         .chars()
         .take(3)
-        .eq(repeat(alternate_quote_char).take(3))
+        .eq(std::iter::repeat_n(alternate_quote_char, 3))
     {
         (
-            repeat(alternate_quote_char).take(3).collect(),
-            repeat(preferred_quote_char).take(3).collect(),
+            std::iter::repeat_n(alternate_quote_char, 3).collect(),
+            std::iter::repeat_n(preferred_quote_char, 3).collect(),
         )
     } else if trimmed.starts_with(alternate_quote_char) {
         (
@@ -245,7 +243,9 @@ fn normalize_preferred_quoted_literal_style(
         new_body
     };
 
-    if new_quote.chars().eq(repeat(preferred_quote_char).take(3))
+    if new_quote
+        .chars()
+        .eq(std::iter::repeat_n(preferred_quote_char, 3))
         && new_body.ends_with(preferred_quote_char)
     {
         let truncated_body = &new_body[..new_body.len() - 1];

@@ -129,7 +129,7 @@ impl RebreakLocation {
 
 pub fn identify_rebreak_spans(
     element_buffer: &ReflowSequenceType,
-    root_segment: ErasedSegment,
+    root_segment: &ErasedSegment,
 ) -> Vec<RebreakSpan> {
     let mut spans = Vec::new();
 
@@ -213,7 +213,7 @@ pub fn identify_rebreak_spans(
 pub fn rebreak_sequence(
     tables: &Tables,
     elements: ReflowSequenceType,
-    root_segment: ErasedSegment,
+    root_segment: &ErasedSegment,
 ) -> (ReflowSequenceType, Vec<LintResult>) {
     let mut lint_results = Vec::new();
     let mut fixes = Vec::new();
@@ -227,7 +227,7 @@ pub fn rebreak_sequence(
     // side to respace them at the same time.
 
     // 1. First find appropriate spans.
-    let spans = identify_rebreak_spans(&elem_buff, root_segment.clone());
+    let spans = identify_rebreak_spans(&elem_buff, root_segment);
 
     let mut locations = Vec::new();
     for span in spans {
@@ -299,7 +299,7 @@ pub fn rebreak_sequence(
                     tables,
                     elem_buff[loc.next.adj_pt_idx as usize - 1].as_block(),
                     elem_buff[loc.next.adj_pt_idx as usize + 1].as_block(),
-                    &root_segment,
+                    root_segment,
                     new_results,
                     true,
                     "before",
@@ -320,7 +320,7 @@ pub fn rebreak_sequence(
                     tables,
                     elem_buff[(loc.next.adj_pt_idx - 1) as usize].as_block(),
                     elem_buff[(loc.next.pre_code_pt_idx + 1) as usize].as_block(),
-                    &root_segment,
+                    root_segment,
                     Vec::new(),
                     false,
                     "after",
@@ -385,7 +385,7 @@ pub fn rebreak_sequence(
                     tables,
                     elem_buff[loc.prev.adj_pt_idx as usize - 1].as_block(),
                     elem_buff[loc.prev.adj_pt_idx as usize + 1].as_block(),
-                    &root_segment,
+                    root_segment,
                     new_results,
                     true,
                     "before",
@@ -406,7 +406,7 @@ pub fn rebreak_sequence(
                     tables,
                     elem_buff[(loc.prev.pre_code_pt_idx - 1) as usize].as_block(),
                     elem_buff[(loc.prev.adj_pt_idx + 1) as usize].as_block(),
-                    &root_segment,
+                    root_segment,
                     Vec::new(),
                     false,
                     "before",
@@ -429,7 +429,7 @@ pub fn rebreak_sequence(
                     tables,
                     &deduce_line_indent(
                         loc.target.get_raw_segments().last().unwrap(),
-                        &root_segment,
+                        root_segment,
                     ),
                     loc.target.clone().into(),
                     None,
@@ -446,7 +446,7 @@ pub fn rebreak_sequence(
                     tables,
                     &deduce_line_indent(
                         loc.target.get_raw_segments().first().unwrap(),
-                        &root_segment,
+                        root_segment,
                     ),
                     None,
                     loc.target.clone().into(),

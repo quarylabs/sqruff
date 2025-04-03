@@ -1,0 +1,94 @@
+file:
+- statement:
+  - delete_statement:
+    - keyword: DELETE
+    - from_clause:
+      - keyword: FROM
+      - from_expression:
+        - from_expression_element:
+          - table_expression:
+            - table_reference:
+              - naked_identifier: table_name
+    - where_clause:
+      - keyword: WHERE
+      - expression:
+        - column_reference:
+          - naked_identifier: a
+        - comparison_operator:
+          - raw_comparison_operator: '>'
+        - numeric_literal: '0'
+- statement_terminator: ;
+- statement:
+  - delete_statement:
+    - keyword: DELETE
+    - from_clause:
+      - keyword: FROM
+      - from_expression:
+        - from_expression_element:
+          - table_expression:
+            - table_reference:
+              - naked_identifier: table_name
+    - where_clause:
+      - keyword: WHERE
+      - expression:
+        - column_reference:
+          - naked_identifier: a
+        - comparison_operator:
+          - raw_comparison_operator: '>'
+        - numeric_literal: '0'
+    - keyword: RETURNING
+    - star: '*'
+- statement_terminator: ;
+- statement:
+  - delete_statement:
+    - keyword: DELETE
+    - from_clause:
+      - keyword: FROM
+      - from_expression:
+        - from_expression_element:
+          - table_expression:
+            - table_reference:
+              - naked_identifier: table_name
+    - where_clause:
+      - keyword: WHERE
+      - expression:
+        - column_reference:
+          - naked_identifier: a
+        - comparison_operator:
+          - raw_comparison_operator: '>'
+        - numeric_literal: '0'
+    - keyword: RETURNING
+    - expression:
+      - column_reference:
+        - naked_identifier: a
+- statement_terminator: ;
+- statement:
+  - delete_statement:
+    - keyword: DELETE
+    - from_clause:
+      - keyword: FROM
+      - from_expression:
+        - from_expression_element:
+          - table_expression:
+            - table_reference:
+              - naked_identifier: table_name
+    - where_clause:
+      - keyword: WHERE
+      - expression:
+        - column_reference:
+          - naked_identifier: a
+        - comparison_operator:
+          - raw_comparison_operator: '>'
+        - numeric_literal: '0'
+    - keyword: RETURNING
+    - expression:
+      - column_reference:
+        - naked_identifier: a
+    - comma: ','
+    - expression:
+      - column_reference:
+        - naked_identifier: b
+    - alias_expression:
+      - keyword: AS
+      - naked_identifier: bee
+- statement_terminator: ;

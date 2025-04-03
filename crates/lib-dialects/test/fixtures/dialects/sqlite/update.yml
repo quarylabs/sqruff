@@ -1,0 +1,142 @@
+file:
+- statement:
+  - update_statement:
+    - keyword: UPDATE
+    - table_reference:
+      - naked_identifier: table_name
+    - set_clause_list:
+      - keyword: SET
+      - set_clause:
+        - column_reference:
+          - naked_identifier: column1
+        - comparison_operator:
+          - raw_comparison_operator: =
+        - column_reference:
+          - naked_identifier: value1
+      - comma: ','
+      - set_clause:
+        - column_reference:
+          - naked_identifier: column2
+        - comparison_operator:
+          - raw_comparison_operator: =
+        - column_reference:
+          - naked_identifier: value2
+    - where_clause:
+      - keyword: WHERE
+      - expression:
+        - column_reference:
+          - naked_identifier: a
+        - comparison_operator:
+          - raw_comparison_operator: =
+        - numeric_literal: '1'
+- statement_terminator: ;
+- statement:
+  - update_statement:
+    - keyword: UPDATE
+    - table_reference:
+      - naked_identifier: table_name
+    - set_clause_list:
+      - keyword: SET
+      - set_clause:
+        - column_reference:
+          - naked_identifier: column1
+        - comparison_operator:
+          - raw_comparison_operator: =
+        - column_reference:
+          - naked_identifier: value1
+      - comma: ','
+      - set_clause:
+        - column_reference:
+          - naked_identifier: column2
+        - comparison_operator:
+          - raw_comparison_operator: =
+        - column_reference:
+          - naked_identifier: value2
+    - where_clause:
+      - keyword: WHERE
+      - expression:
+        - column_reference:
+          - naked_identifier: a
+        - comparison_operator:
+          - raw_comparison_operator: =
+        - numeric_literal: '1'
+    - keyword: RETURNING
+    - star: '*'
+- statement_terminator: ;
+- statement:
+  - update_statement:
+    - keyword: UPDATE
+    - table_reference:
+      - naked_identifier: table_name
+    - set_clause_list:
+      - keyword: SET
+      - set_clause:
+        - column_reference:
+          - naked_identifier: column1
+        - comparison_operator:
+          - raw_comparison_operator: =
+        - column_reference:
+          - naked_identifier: value1
+      - comma: ','
+      - set_clause:
+        - column_reference:
+          - naked_identifier: column2
+        - comparison_operator:
+          - raw_comparison_operator: =
+        - column_reference:
+          - naked_identifier: value2
+    - where_clause:
+      - keyword: WHERE
+      - expression:
+        - column_reference:
+          - naked_identifier: a
+        - comparison_operator:
+          - raw_comparison_operator: =
+        - numeric_literal: '1'
+    - keyword: RETURNING
+    - expression:
+      - column_reference:
+        - naked_identifier: column1
+- statement_terminator: ;
+- statement:
+  - update_statement:
+    - keyword: UPDATE
+    - table_reference:
+      - naked_identifier: table_name
+    - set_clause_list:
+      - keyword: SET
+      - set_clause:
+        - column_reference:
+          - naked_identifier: column1
+        - comparison_operator:
+          - raw_comparison_operator: =
+        - column_reference:
+          - naked_identifier: value1
+      - comma: ','
+      - set_clause:
+        - column_reference:
+          - naked_identifier: column2
+        - comparison_operator:
+          - raw_comparison_operator: =
+        - column_reference:
+          - naked_identifier: value2
+    - where_clause:
+      - keyword: WHERE
+      - expression:
+        - column_reference:
+          - naked_identifier: a
+        - comparison_operator:
+          - raw_comparison_operator: =
+        - numeric_literal: '1'
+    - keyword: RETURNING
+    - expression:
+      - column_reference:
+        - naked_identifier: column1
+    - alias_expression:
+      - keyword: AS
+      - naked_identifier: c1
+    - comma: ','
+    - expression:
+      - column_reference:
+        - naked_identifier: column2
+- statement_terminator: ;

@@ -449,6 +449,41 @@ pub fn raw_dialect() -> Dialect {
             .to_matchable()
             .into(),
         ),
+        (
+            "DeleteStatementSegment".into(),
+            NodeMatcher::new(
+                SyntaxKind::DeleteStatement,
+                Sequence::new(vec_of_erased![
+                    Ref::keyword("DELETE"),
+                    Ref::new("FromClauseSegment"),
+                    Ref::new("WhereClauseSegment").optional(),
+                    Ref::new("ReturningClauseSegment").optional()
+                ])
+                .to_matchable(),
+            )
+            .to_matchable()
+            .into(),
+        ),
+        (
+            "UpdateStatementSegment".into(),
+            NodeMatcher::new(
+                SyntaxKind::UpdateStatement,
+                Sequence::new(vec_of_erased![
+                    Ref::keyword("UPDATE"),
+                    Ref::new("TableReferenceSegment"),
+                    Ref::new("AliasExpressionSegment")
+                        .exclude(Ref::keyword("SET"))
+                        .optional(),
+                    Ref::new("SetClauseListSegment"),
+                    Ref::new("FromClauseSegment").optional(),
+                    Ref::new("WhereClauseSegment").optional(),
+                    Ref::new("ReturningClauseSegment").optional()
+                ])
+                .to_matchable(),
+            )
+            .to_matchable()
+            .into(),
+        ),
     ]);
 
     let column_constraint = sqlite_dialect

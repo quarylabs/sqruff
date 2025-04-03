@@ -182,16 +182,16 @@ fn main() {
 
             match case.kind {
                 TestCaseKind::Pass { pass_str } => {
-                    let f = linter.lint_string_wrapped(&pass_str, None, false);
+                    let f = linter.lint_string_wrapped(&pass_str, false);
                     assert_eq!(&f.paths[0].files[0].violations, &[]);
                 }
                 TestCaseKind::Fail { fail_str } => {
-                    let f = linter.lint_string_wrapped(&fail_str, None, false);
+                    let f = linter.lint_string_wrapped(&fail_str, false);
                     assert_ne!(&f.paths[0].files[0].violations, &[])
                 }
                 TestCaseKind::Fix { fail_str, fix_str } => {
                     let f = std::mem::take(
-                        &mut linter.lint_string_wrapped(&fail_str, None, true).paths[0].files[0],
+                        &mut linter.lint_string_wrapped(&fail_str, true).paths[0].files[0],
                     )
                     .fix_string();
 

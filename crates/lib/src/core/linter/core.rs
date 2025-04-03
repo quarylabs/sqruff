@@ -76,20 +76,14 @@ impl Linter {
     }
 
     /// Lint strings directly.
-    pub fn lint_string_wrapped(
-        &mut self,
-        sql: &str,
-        filename: Option<String>,
-        fix: bool,
-    ) -> LintingResult {
-        let filename = filename.unwrap_or_else(|| "<string input>".into());
+    pub fn lint_string_wrapped(&mut self, sql: &str, fix: bool) -> LintingResult {
+        let filename = "<string input>".to_owned();
 
         let linted_path = LintedDir::new(filename.clone());
         linted_path.add(self.lint_string(sql, Some(filename), fix));
 
         let mut result = LintingResult::new();
         result.add(linted_path);
-        result.stop_timer();
         result
     }
 

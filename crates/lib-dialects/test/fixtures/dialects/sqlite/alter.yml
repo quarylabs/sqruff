@@ -1,0 +1,94 @@
+file:
+- statement:
+  - alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+      - naked_identifier: table1
+    - keyword: RENAME
+    - keyword: TO
+    - parameter: '"table2"'
+- statement_terminator: ;
+- statement:
+  - alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+      - naked_identifier: table1
+    - keyword: RENAME
+    - keyword: COLUMN
+    - column_reference:
+      - quoted_identifier: '"a"'
+    - keyword: TO
+    - column_reference:
+      - naked_identifier: b
+- statement_terminator: ;
+- statement:
+  - alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+      - naked_identifier: table1
+    - keyword: DROP
+    - column_reference:
+      - naked_identifier: a
+- statement_terminator: ;
+- statement:
+  - alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+      - naked_identifier: table1
+    - keyword: DROP
+    - keyword: COLUMN
+    - column_reference:
+      - quoted_identifier: '"a"'
+- statement_terminator: ;
+- statement:
+  - alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+      - naked_identifier: table1
+    - keyword: ADD
+    - keyword: COLUMN
+    - column_definition:
+      - naked_identifier: a
+      - data_type:
+        - data_type_identifier: INTEGER
+      - column_constraint_segment:
+        - keyword: NOT
+        - keyword: 'NULL'
+- statement_terminator: ;
+- statement:
+  - alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+      - naked_identifier: table1
+    - keyword: ADD
+    - keyword: COLUMN
+    - column_definition:
+      - quoted_identifier: '"a"'
+      - data_type:
+        - data_type_identifier: INTEGER
+      - column_constraint_segment:
+        - keyword: NOT
+        - keyword: 'NULL'
+- statement_terminator: ;
+- statement:
+  - alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+      - quoted_identifier: '"table1"'
+    - keyword: ADD
+    - keyword: COLUMN
+    - column_definition:
+      - naked_identifier: a
+      - data_type:
+        - data_type_identifier: INTEGER
+      - column_constraint_segment:
+        - keyword: NOT
+        - keyword: 'NULL'
+- statement_terminator: ;

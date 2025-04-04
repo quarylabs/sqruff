@@ -827,6 +827,43 @@ pub fn raw_dialect() -> Dialect {
         .to_matchable(),
     );
 
+    sqlite_dialect.replace_grammar(
+        "AlterTableStatementSegment",
+        Sequence::new(vec_of_erased![
+            Ref::keyword("ALTER"),
+            Ref::keyword("TABLE"),
+            Ref::new("TableReferenceSegment"),
+            one_of(vec_of_erased![
+                Sequence::new(vec_of_erased![
+                    Ref::keyword("RENAME"),
+                    Ref::keyword("TO"),
+                    one_of(vec_of_erased![one_of(vec_of_erased![
+                        Ref::new("ParameterNameSegment"),
+                        Ref::new("QuotedIdentifierSegment")
+                    ])])
+                ]),
+                Sequence::new(vec_of_erased![
+                    Ref::keyword("RENAME"),
+                    Ref::keyword("COLUMN").optional(),
+                    Ref::new("ColumnReferenceSegment"),
+                    Ref::keyword("TO"),
+                    Ref::new("ColumnReferenceSegment")
+                ]),
+                Sequence::new(vec_of_erased![
+                    Ref::keyword("ADD"),
+                    Ref::keyword("COLUMN").optional(),
+                    Ref::new("ColumnDefinitionSegment"),
+                ]),
+                Sequence::new(vec_of_erased![
+                    Ref::keyword("DROP"),
+                    Ref::keyword("COLUMN").optional(),
+                    Ref::new("ColumnReferenceSegment")
+                ]),
+            ]),
+        ])
+        .to_matchable(),
+    );
+
     sqlite_dialect.add([(
         "ReturningClauseSegment".into(),
         Sequence::new(vec_of_erased![

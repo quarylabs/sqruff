@@ -1,0 +1,12 @@
+file:
+- statement:
+  - keyword: GET
+  - keyword: DIAGNOSTICS
+  - keyword: CONDITION
+  - variable: '1'
+  - variable: _test
+  - comparison_operator:
+    - raw_comparison_operator: =
+  - keyword: CLASS_ORIGIN
+- file:
+  - comma: ','

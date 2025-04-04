@@ -1,0 +1,11 @@
+file:
+- statement:
+  - keyword: RESET
+  - keyword: MASTER
+- statement_terminator: ;
+- statement:
+  - keyword: RESET
+  - keyword: MASTER
+  - keyword: TO
+  - numeric_literal: '1234'
+- statement_terminator: ;

@@ -1,0 +1,8 @@
+file:
+- unparsable:
+  - word: DROP
+  - word: FUNCTION
+  - word: IF
+  - word: EXISTS
+  - back_quote: '`testfunction`'
+  - semicolon: ;

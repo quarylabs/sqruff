@@ -187,7 +187,12 @@ pub fn raw_dialect() -> Dialect {
         ),
         (
             "PostFunctionGrammar".into(),
-            Ref::new("FilterClauseGrammar").to_matchable().into(),
+            Sequence::new(vec_of_erased![
+                Ref::new("FilterClauseGrammar").optional(),
+                Ref::new("OverClauseSegment"),
+            ])
+            .to_matchable()
+            .into(),
         ),
         (
             "IgnoreRespectNullsGrammar".into(),

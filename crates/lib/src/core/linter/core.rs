@@ -17,7 +17,7 @@ use crate::templaters::raw::RawTemplater;
 use crate::templaters::{TEMPLATERS, Templater};
 use ahash::{AHashMap, AHashSet};
 use itertools::Itertools;
-use rayon::iter::{IntoParallelRefIterator as _, ParallelIterator as _};
+use par_iter::iter::{IntoParallelRefIterator as _, ParallelIterator as _};
 use smol_str::{SmolStr, ToSmolStr};
 use sqruff_lib_core::dialects::base::Dialect;
 use sqruff_lib_core::dialects::syntax::{SyntaxKind, SyntaxSet};

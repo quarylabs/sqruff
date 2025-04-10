@@ -9,20 +9,66 @@ pub fn object_ref_matches_table(
         return true;
     }
 
+    // Helper function to strip quotes from identifiers
+    let strip_quotes = |s: &str| s.trim_matches('"').to_string();
+
     // Simple case: Reference exactly matches a target.
     for pr in possible_references {
-        if targets.contains(pr) {
-            return true;
+        for t in targets {
+            if pr.len() == t.len()
+                && pr
+                    .iter()
+                    .zip(t.iter())
+                    .all(|(p, t)| strip_quotes(p.as_str()) == strip_quotes(t.as_str()))
+            {
+                return true;
+            }
+        }
+    }
+
+    // Handle schema-qualified table references with aliases
+    for pr in possible_references {
+        for t in targets {
+            // If the reference is just the alias (e.g. "user_profiles")
+            if pr.len() == 1
+                && t.len() == 1
+                && strip_quotes(pr[0].as_str()) == strip_quotes(t[0].as_str())
+            {
+                return true;
+            }
+            // If the reference includes schema (e.g. ["public", "user_profiles"])
+            if pr.len() == 2
+                && t.len() == 1
+                && strip_quotes(pr[1].as_str()) == strip_quotes(t[0].as_str())
+            {
+                return true;
+            }
         }
     }
 
     // Tricky case: If one is shorter than the other, check for a suffix match.
     for pr in possible_references {
         for t in targets {
-            if (pr.len() < t.len() && pr == &t[t.len() - pr.len()..])
-                || (t.len() < pr.len() && t == &pr[pr.len() - t.len()..])
-            {
-                return true;
+            match pr.len().cmp(&t.len()) {
+                std::cmp::Ordering::Less => {
+                    let suffix_match = pr
+                        .iter()
+                        .zip(t[t.len() - pr.len()..].iter())
+                        .all(|(p, t)| strip_quotes(p.as_str()) == strip_quotes(t.as_str()));
+                    if suffix_match {
+                        return true;
+                    }
+                }
+                std::cmp::Ordering::Greater => {
+                    let suffix_match = t
+                        .iter()
+                        .zip(pr[pr.len() - t.len()..].iter())
+                        .all(|(t, p)| strip_quotes(t.as_str()) == strip_quotes(p.as_str()));
+                    if suffix_match {
+                        return true;
+                    }
+                }
+                std::cmp::Ordering::Equal => {}
             }
         }
     }

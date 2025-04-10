@@ -118,3 +118,21 @@ file:
     - keyword: ROLE
     - keyword: NONE
 - statement_terminator: ;
+- statement:
+  - set_statement:
+    - keyword: SET
+    - keyword: LOCAL
+    - parameter: search_path
+    - comparison_operator:
+      - raw_comparison_operator: =
+    - naked_identifier: schema_name
+- statement_terminator: ;
+- statement:
+  - set_statement:
+    - keyword: SET
+    - keyword: LOCAL
+    - parameter: search_path
+    - comparison_operator:
+      - raw_comparison_operator: =
+    - quoted_identifier: '"schema_name"'
+- statement_terminator: ;

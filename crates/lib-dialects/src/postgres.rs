@@ -5389,6 +5389,7 @@ pub fn raw_dialect() -> Dialect {
                                 Delimited::new(vec_of_erased![
                                     Ref::new("LiteralGrammar"),
                                     Ref::new("NakedIdentifierSegment"),
+                                    Ref::new("QuotedIdentifierSegment"),
                                     Ref::new("OnKeywordAsIdentifierSegment"),
                                 ]),
                             ]),

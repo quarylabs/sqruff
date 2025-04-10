@@ -305,3 +305,14 @@ test_pass_postgres_merge_with_alias:
   configs:
     core:
       dialect: tsql
+
+test_pass_postgres_select_with_alias_quoted:
+  # https://github.com/quarylabs/sqruff/issues/1501
+  pass_str: |
+    SELECT
+      "user_profiles".first_name AS "user_profile_first_name"
+    FROM
+      public.user_profiles AS "user_profiles"
+  configs:
+    core:
+      dialect: postgres

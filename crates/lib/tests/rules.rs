@@ -140,7 +140,7 @@ fn main() {
             }
 
             let has_config = !case.configs.is_empty();
-
+            let rule = case.configs.get("rules").and_then(|it| it.as_string());
             if has_config {
                 *linter.config_mut() = FluffConfig::new(case.configs.clone(), None, None);
                 linter.config_mut().raw.extend(core.clone());
@@ -183,7 +183,38 @@ fn main() {
             match case.kind {
                 TestCaseKind::Pass { pass_str } => {
                     let f = linter.lint_string_wrapped(&pass_str, false);
-                    assert_eq!(&f.paths[0].files[0].violations, &[]);
+                    let error_string = format!(
+                        r#"
+The following test test can be used to recreate the issue:
+
+#[cfg(test)]
+mod tests {{
+    use crate::core::{{config::FluffConfig, linter::core::Linter}};
+
+    #[test]
+    fn test_example() {{
+        let config = FluffConfig::from_source("
+[sqruff]
+rules = {rule}
+dialect = {dialect}
+",
+ None);
+
+        let mut linter = Linter::new(config, None, None, false);
+
+        let pass_str = r"{pass_str}";
+
+        let f = linter.lint_string_wrapped(&pass_str, false);
+        assert_eq!(&f.paths[0].files[0].violations, &[]);
+    }}
+}}
+"#,
+                        rule = rule.unwrap_or(""),
+                        dialect = dialect_name,
+                        pass_str = pass_str
+                    );
+
+                    assert_eq!(&f.paths[0].files[0].violations, &[], "{}", error_string);
                 }
                 TestCaseKind::Fail { fail_str } => {
                     let f = linter.lint_string_wrapped(&fail_str, false);

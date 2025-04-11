@@ -45,3 +45,8 @@ ratchet_update: ## Updates all the Github workflow versions
 .PHONY: ratchet_check
 ratchet_check: ## Checks all the Github workflow versions
 	ratchet check .github/workflows/*
+
+.PHONY: load_vscode_settings
+load_vscode_settings: ## Loads the sample vscode settings
+	mkdir -p .vscode
+	cp -f .hacking/vscode/* .vscode/

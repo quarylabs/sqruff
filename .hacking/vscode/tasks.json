@@ -12,7 +12,8 @@
       "group": {
         "kind": "build",
         "isDefault": true
-      }
+      },
+      "cwd": "${workspaceFolder}/editors/code"
     },
     {
       "type": "npm",
@@ -24,7 +25,8 @@
       "presentation": {
         "group": "watch",
         "reveal": "never"
-      }
+      },
+      "cwd": "${workspaceFolder}/editors/code"
     },
     {
       "type": "npm",
@@ -36,7 +38,8 @@
       "presentation": {
         "group": "watch",
         "reveal": "never"
-      }
+      },
+      "cwd": "${workspaceFolder}/editors/code"
     },
     {
       "type": "npm",
@@ -47,12 +50,14 @@
         "reveal": "never",
         "group": "watchers"
       },
-      "group": "build"
+      "group": "build",
+      "cwd": "${workspaceFolder}/editors/code"
     },
     {
       "label": "tasks: watch-tests",
       "dependsOn": ["npm: watch", "npm: watch-tests"],
-      "problemMatcher": []
+      "problemMatcher": [],
+      "cwd": "${workspaceFolder}/editors/code"
     }
   ]
 }

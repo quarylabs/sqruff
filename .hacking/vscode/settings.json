@@ -1,0 +1,16 @@
+{
+    "python.testing.pytestArgs": [
+        "."
+    ],
+    "python.testing.unittestEnabled": false,
+    "python.testing.pytestEnabled": true,
+    "files.exclude": {
+      "editors/code/dist": false,
+      "editors/code/out": false
+    },
+    "search.exclude": {
+      "editors/code/dist": true,
+      "editors/code/out": true
+    },
+    "typescript.tsc.autoDetect": "off"
+  }

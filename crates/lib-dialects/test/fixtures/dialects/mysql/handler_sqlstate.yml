@@ -1,0 +1,17 @@
+file:
+- statement:
+  - keyword: DECLARE
+  - keyword: exit
+  - keyword: handler
+  - keyword: for
+  - keyword: SQLSTATE
+  - quoted_literal: '''1'''
+  - statement:
+    - transaction_statement:
+      - keyword: begin
+- file:
+  - word: select
+  - numeric_literal: '1'
+  - semicolon: ;
+  - word: end
+  - semicolon: ;

@@ -54,13 +54,7 @@ esbuild
   .build({
     entryPoints: ["src/native.ts"],
     bundle: true,
-    external: [
-      "vscode",
-      "vscode-languageclient",
-      "vscode-languageclient/node",
-      "path",
-      "fs",
-    ],
+    external: ["vscode", "path", "fs"],
     outfile: "dist/native.cjs",
     platform: "node",
     format: "cjs",

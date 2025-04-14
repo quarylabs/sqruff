@@ -115,7 +115,7 @@ jobs:
         run: sudo apt-get update --yes && sudo apt-get install --yes musl-tools
         if: contains(matrix.platform.name, 'musl')
       - name: Build binary
-        uses: houseabsolute/actions-rust-cross@e2ab1c383646cf01240677290e926946f490acf1 # ratchet:houseabsolute/actions-rust-cross@v1
+        uses: houseabsolute/actions-rust-cross@f7da4010930154943c99d13df0151dece91a924f # ratchet:houseabsolute/actions-rust-cross@v1
         with:
           command: build
           target: ${{ matrix.platform.target }}

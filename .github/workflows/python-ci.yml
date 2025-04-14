@@ -112,7 +112,7 @@ jobs:
         with:
           working-directory: crates/cli
           target: aarch64
-          args: --release --locked --out ../../dist
+          args: --release --locked --out ../../dist -i 3.9 -i 3.10 -i 3.11 -i 3.12 -i 3.13
       - name: "Test wheel - aarch64"
         run: |
           pip install dist/"${PACKAGE_NAME}"-*.whl --force-reinstall
@@ -165,7 +165,7 @@ jobs:
         with:
           working-directory: crates/cli
           target: ${{ matrix.platform.target }}
-          args: --release --locked --out ../../dist
+          args: --release --locked --out ../../dist -i 3.9 -i 3.10 -i 3.11 -i 3.12 -i 3.13
         env:
           # aarch64 build fails, see https://github.com/PyO3/maturin/issues/2110
           XWIN_VERSION: 16
@@ -216,7 +216,7 @@ jobs:
           working-directory: crates/cli
           target: ${{ matrix.target }}
           manylinux: auto
-          args: --release --locked --out ../../dist
+          args: --release --locked --out ../../dist -i 3.9 -i 3.10 -i 3.11 -i 3.12 -i 3.13
       - name: "Test wheel"
         if: ${{ startsWith(matrix.target, 'x86_64') }}
         run: |
@@ -270,7 +270,7 @@ jobs:
           working-directory: crates/cli
           target: ${{ matrix.target }}
           manylinux: musllinux_1_2
-          args: --release --locked --out ../../dist
+          args: --release --locked --out ../../dist -i 3.9 -i 3.10 -i 3.11 -i 3.12 -i 3.13
       - name: "Test wheel"
         if: matrix.target == 'x86_64-unknown-linux-musl'
         uses: addnab/docker-run-action@3e77f186b7a929ef010f183a9e24c0f9955ea609

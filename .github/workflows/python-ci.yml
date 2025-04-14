@@ -112,7 +112,7 @@ jobs:
         with:
           working-directory: crates/cli
           target: aarch64
-          args: --release --locked --out ../../dist -i 3.10 -i 3.11 -i 3.12 -i 3.13
+          args: --release --locked --out ../../dist -i 3.11 
       - name: "Test wheel - aarch64"
         run: |
           pip install dist/"${PACKAGE_NAME}"-*.whl --force-reinstall

@@ -253,4 +253,18 @@ jobs:
       - run: vsce publish --packagePath extension.vsix
         env:
           VSCE_PAT: ${{ secrets.VSCE_PAT }} # Set up the VSCE Personal Access Token in GitHub secrets
-
+  publish-to-openvsx:
+    name: Publish VSIX to Open VSX
+    runs-on: ubuntu-latest
+    needs:
+      - release-vsix
+      - convert_release_to_not_draft
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions/setup-node@v2
+        with:
+          node-version: '14'
+      - run: npm install -g ovsx
+      - run: chmod +x .hacking/scripts/download_extension.sh
+      - run: ./.hacking/scripts/download_extension.sh
+      - run: ovsx publish extension.vsix -p ${{ secrets.OPEN_VSX_TOKEN }}

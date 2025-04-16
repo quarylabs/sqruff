@@ -198,6 +198,11 @@ pub(crate) fn add_temp_files_to_site_packages(py: Python, files: &[(&str, &str)]
     Ok(())
 }
 
+/// prepare python
+pub(crate) fn prepare_python() {
+    pyo3::prepare_freethreaded_python();
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;

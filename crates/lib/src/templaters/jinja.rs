@@ -5,6 +5,7 @@ use crate::templaters::Formatter;
 use crate::templaters::python_shared::PythonFluffConfig;
 use crate::templaters::python_shared::add_temp_files_to_site_packages;
 use crate::templaters::python_shared::add_venv_site_packages;
+use crate::templaters::python_shared::prepare_python;
 use pyo3::prelude::*;
 use pyo3::{Py, PyAny, Python};
 use sqruff_lib_core::errors::SQLFluffUserError;
@@ -29,6 +30,8 @@ impl Templater for JinjaTemplater {
         config: &FluffConfig,
         _: &Option<Arc<dyn Formatter>>,
     ) -> Result<TemplatedFile, SQLFluffUserError> {
+        prepare_python();
+
         let templated_file = Python::with_gil(|py| -> PyResult<TemplatedFile> {
             let files = [
                 (

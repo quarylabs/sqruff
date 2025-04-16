@@ -1,14 +1,14 @@
+use super::Templater;
+use crate::cli::formatters::Formatter;
+use crate::core::config::FluffConfig;
+use crate::templaters::python_shared::PythonFluffConfig;
+use crate::templaters::python_shared::prepare_python;
 use pyo3::prelude::*;
 use pyo3::types::PySlice;
 use pyo3::{Py, PyAny, Python};
 use sqruff_lib_core::errors::SQLFluffUserError;
 use sqruff_lib_core::templaters::base::{RawFileSlice, TemplatedFile, TemplatedFileSlice};
 use std::ffi::CString;
-
-use super::Templater;
-use crate::cli::formatters::Formatter;
-use crate::core::config::FluffConfig;
-use crate::templaters::python_shared::PythonFluffConfig;
 use std::sync::Arc;
 
 const PYTHON_FILE: &str = include_str!("sqruff_templaters/python_templater.py");
@@ -56,6 +56,8 @@ At the moment, dot notation is not supported in the templater."
         config: &FluffConfig,
         _formatter: &Option<Arc<dyn Formatter>>,
     ) -> Result<TemplatedFile, SQLFluffUserError> {
+        prepare_python();
+
         // Need to pull context out of config
         let templated_file = Python::with_gil(|py| -> PyResult<TemplatedFile> {
             let file = CString::new(PYTHON_FILE).unwrap();

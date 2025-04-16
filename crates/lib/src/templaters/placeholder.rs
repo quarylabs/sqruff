@@ -70,6 +70,12 @@ pub fn get_known_styles() -> HashMap<&'static str, Regex> {
         Regex::new(r"(?<!&)&{?(?P<param_name>[\w]+)}?").unwrap(),
     );
 
+    // e.g. WHERE bla = :#${qwe}
+    m.insert(
+        "apache_camel",
+        Regex::new(r":#\$\{(?P<param_name>.+)}").unwrap(),
+    );
+
     m
 }
 
@@ -172,6 +178,9 @@ A few common styles are supported:
 
  -- ampersand
  WHERE bla = &s or WHERE bla = &{s} or USE DATABASE MARK_{ENV}
+
+ -- apache_camel
+ WHERE bla = :#${qwe}
 ```
 
 The can be configured by setting `param_style` in the config file. For example:

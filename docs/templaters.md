@@ -87,6 +87,9 @@ A few common styles are supported:
 
  -- ampersand
  WHERE bla = &s or WHERE bla = &{s} or USE DATABASE MARK_{ENV}
+
+ -- apache_camel
+ WHERE bla = :#${qwe}
 ```
 
 The can be configured by setting `param_style` in the config file. For example:

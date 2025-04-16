@@ -107,3 +107,22 @@ export function LineageIcon() {
     </svg>
   );
 }
+
+export function TemplaterOutputIcon() {
+  return (
+    <svg
+      width="16"
+      height="16"
+      viewBox="0 0 16 16"
+      fill="none"
+      xmlns="http://www.w3.org/2000/svg"
+    >
+      <path
+        fillRule="evenodd"
+        clipRule="evenodd"
+        d="M3 2C2.44772 2 2 2.44772 2 3V13C2 13.5523 2.44772 14 3 14H13C13.5523 14 14 13.5523 14 13V3C14 2.44772 13.5523 2 13 2H3ZM3 3H13V13H3V3ZM5 5H11V6H5V5ZM11 8H5V9H11V8ZM5 11H9V12H5V11Z"
+        fill="#C5C5C5"
+      />
+    </svg>
+  );
+}

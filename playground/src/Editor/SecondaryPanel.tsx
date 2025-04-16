@@ -4,6 +4,7 @@ export enum SecondaryTool {
   "Format" = "Format",
   "Cst" = "Cst",
   "Lineage" = "Lineage",
+  "Templater" = "Templater",
 }
 
 export default function SecondaryPanel({

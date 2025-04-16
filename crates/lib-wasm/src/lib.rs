@@ -36,6 +36,7 @@ pub enum Tool {
     Format = "Format",
     Cst = "Cst",
     Lineage = "Lineage",
+    Templater = "Templater",
 }
 
 #[wasm_bindgen]
@@ -82,6 +83,11 @@ impl Linter {
         let tables = Tables::default();
         let parsed = self.base.parse_string(&tables, sql, None).unwrap();
 
+        let templated = self
+            .base
+            .render_string(sql, "".to_string(), self.base.config())
+            .unwrap();
+
         let cst = if tool == Tool::Cst {
             parsed.tree.clone()
         } else {
@@ -116,6 +122,7 @@ impl Linter {
 
                 print_tree(&tables, node, "", "", "")
             }
+            Tool::Templater => templated.templated_file.to_yaml(),
             Tool::__Invalid => String::from("Error: unsupported tool"),
         };
 

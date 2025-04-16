@@ -65,7 +65,6 @@ export default function Editor({
     const { sqlSource, settingsSource } = deferredSource;
     try {
       const linter = new Linter(settingsSource);
-
       return linter.check(sqlSource, secondaryTool);
     } catch (error) {
       console.log(error);

@@ -1,5 +1,10 @@
 import SideBar, { SideBarEntry } from "./SideBar";
-import { FormatIcon, LineageIcon, StructureIcon } from "./Icons";
+import {
+  FormatIcon,
+  LineageIcon,
+  StructureIcon,
+  TemplaterOutputIcon,
+} from "./Icons";
 import { SecondaryTool } from "./SecondaryPanel";
 
 interface RightSideBarProps {
@@ -21,7 +26,6 @@ export default function SecondarySideBar({
       >
         <FormatIcon />
       </SideBarEntry>
-
       <SideBarEntry
         title="CST"
         position={"right"}
@@ -30,7 +34,6 @@ export default function SecondarySideBar({
       >
         <StructureIcon />
       </SideBarEntry>
-
       <SideBarEntry
         title="Lineage"
         position={"right"}
@@ -38,6 +41,14 @@ export default function SecondarySideBar({
         onClick={() => onSelected(SecondaryTool.Lineage)}
       >
         <LineageIcon />
+      </SideBarEntry>
+      <SideBarEntry
+        title="Templater"
+        position={"right"}
+        selected={selected === SecondaryTool.Templater}
+        onClick={() => onSelected(SecondaryTool.Templater)}
+      >
+        <TemplaterOutputIcon />
       </SideBarEntry>
     </SideBar>
   );

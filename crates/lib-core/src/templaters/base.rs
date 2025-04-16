@@ -2,12 +2,16 @@ use std::cmp::Ordering;
 use std::ops::{Deref, Range};
 use std::sync::Arc;
 
+#[cfg(feature = "stringify")]
+use serde::{Deserialize, Serialize};
+
 use smol_str::SmolStr;
 
 use crate::errors::{SQLFluffSkipFile, ValueError};
 use crate::slice_helpers::zero_slice;
 
 /// A slice referring to a templated file.
+#[cfg_attr(feature = "stringify", derive(Serialize))]
 #[derive(Debug, Clone, PartialEq, Eq, Hash)]
 pub struct TemplatedFileSlice {
     pub slice_type: String,
@@ -57,6 +61,12 @@ impl TemplatedFile {
             )?),
         })
     }
+
+    #[cfg(feature = "stringify")]
+    pub fn to_yaml(&self) -> String {
+        let inner = &*self.inner;
+        serde_yaml::to_string(inner).unwrap()
+    }
 }
 
 impl From<String> for TemplatedFile {
@@ -88,6 +98,7 @@ impl Deref for TemplatedFile {
     }
 }
 
+#[cfg_attr(feature = "stringify", derive(Serialize))]
 #[derive(Debug, PartialEq, Eq, Clone, Hash, Default)]
 pub struct TemplatedFileInner {
     pub source_str: String,
@@ -528,6 +539,7 @@ pub fn iter_indices_of_newlines(raw_str: &str) -> impl Iterator<Item = usize> + 
     raw_str.match_indices('\n').map(|(idx, _)| idx)
 }
 
+#[cfg_attr(feature = "stringify", derive(Serialize, Deserialize))]
 #[derive(Debug, PartialEq, Eq, Clone, Hash)]
 pub enum RawFileSliceType {
     Comment,
@@ -537,6 +549,7 @@ pub enum RawFileSliceType {
 }
 
 /// A slice referring to a raw file.
+#[cfg_attr(feature = "stringify", derive(Serialize, Deserialize))]
 #[derive(Debug, PartialEq, Eq, Clone, Hash)]
 pub struct RawFileSlice {
     /// Source string

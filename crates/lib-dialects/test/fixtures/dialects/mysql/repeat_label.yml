@@ -1,0 +1,7 @@
+file:
+- statement:
+  - naked_identifier: iteration
+  - colon: ':'
+  - keyword: repeat
+- file:
+  - word: set

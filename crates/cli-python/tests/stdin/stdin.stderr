@@ -1,0 +1,5 @@
+== [<string>] FAIL
+L:   1 | P:  20 | LT12 | Files must end with a single trailing newline.
+                       | [layout.end_of_file]
+The linter processed 1 file(s).
+All Finished

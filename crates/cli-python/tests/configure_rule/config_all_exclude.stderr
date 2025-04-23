@@ -1,0 +1,4 @@
+== [tests/configure_rule/_example.sql] FAIL
+L:   1 | P:  28 | AL01 | Implicit/explicit aliasing of table. [aliasing.table]
+The linter processed 1 file(s).
+All Finished

@@ -9,7 +9,7 @@ fn main() {
 
     let start = Instant::now();
 
-    let output = Command::new("target/release/sqruff")
+    let output = Command::new("target/release/sqruff-cli")
         .args([
             "lint",
             "crates/lib-dialects/test/fixtures/dialects/ansi",

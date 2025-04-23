@@ -22,7 +22,7 @@ fn main() {
         if path
             .extension()
             .and_then(|e| e.to_str())
-            .map_or(false, |ext| ext == "sql" || ext == "hql")
+            .is_some_and(|ext| ext == "sql" || ext == "hql")
         {
             // Construct the path to the sqruff binary
             let mut sqruff_path = PathBuf::from(env!("CARGO_MANIFEST_DIR"));
@@ -73,7 +73,7 @@ fn main() {
             "release"
         };
         let mut sqruff_path = PathBuf::from(env!("CARGO_MANIFEST_DIR"));
-        sqruff_path.push(format!("../../target/{}/sqruff", profile));
+        sqruff_path.push(format!("../../target/{}/sqruff-cli", profile));
 
         // Set up the command with arguments
         let mut cmd = Command::new(sqruff_path);

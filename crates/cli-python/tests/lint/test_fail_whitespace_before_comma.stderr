@@ -1,0 +1,12 @@
+== [tests/lint/test_fail_whitespace_before_comma.sql] FAIL
+L:   1 | P:   8 | AL03 | Column expression without alias. Use explicit `AS`
+                       | clause. [aliasing.expression]
+L:   1 | P:   9 | LT01 | Unexpected whitespace before comma. [layout.spacing]
+L:   1 | P:  11 | AL03 | Column expression without alias. Use explicit `AS`
+                       | clause. [aliasing.expression]
+L:   1 | P:  11 | LT01 | Expected single whitespace between "," and "4".
+                       | [layout.spacing]
+L:   1 | P:  12 | LT12 | Files must end with a single trailing newline.
+                       | [layout.end_of_file]
+The linter processed 1 file(s).
+All Finished

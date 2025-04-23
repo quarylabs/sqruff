@@ -58,12 +58,9 @@ At the moment, dot notation is not supported in the templater."
     ) -> Result<TemplatedFile, SQLFluffUserError> {
         // Need to pull context out of config
         let templated_file = Python::with_gil(|py| -> PyResult<TemplatedFile> {
-            let file = CString::new(PYTHON_FILE).unwrap();
-            let fun: Py<PyAny> = PyModule::from_code(py, &file, c"", c"")?
-                .getattr("process_from_rust")?
-                .into();
-
-            // pass object with Rust tuple of positional arguments
+            let main_module = PyModule::import(py, "sqruff.templaters.python_templater")?;
+            let fun: Py<PyAny> = main_module.getattr("process_from_rust")?.into();
+                        // pass object with Rust tuple of positional arguments
             let py_dict = config.to_python_context(py, "python").unwrap();
             let python_fluff_config: PythonFluffConfig = config.clone().into();
             let args = (

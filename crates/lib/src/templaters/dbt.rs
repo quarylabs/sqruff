@@ -30,41 +30,7 @@ impl Templater for DBTTemplater {
         _: &Option<Arc<dyn Formatter>>,
     ) -> Result<TemplatedFile, SQLFluffUserError> {
         let templated_file = Python::with_gil(|py| -> PyResult<TemplatedFile> {
-            let files = [
-                (
-                    "sqruff_templaters/__init__.py",
-                    include_str!("sqruff_templaters/__init__.py"),
-                ),
-                (
-                    "sqruff_templaters/dbt_templater.py",
-                    include_str!("sqruff_templaters/dbt_templater.py"),
-                ),
-                (
-                    "sqruff_templaters/jinja_templater.py",
-                    include_str!("sqruff_templaters/jinja_templater.py"),
-                ),
-                (
-                    "sqruff_templaters/jinja_templater_builtins_common.py",
-                    include_str!("sqruff_templaters/jinja_templater_builtins_common.py"),
-                ),
-                (
-                    "sqruff_templaters/jinja_templater_builtins_dbt.py",
-                    include_str!("sqruff_templaters/jinja_templater_builtins_dbt.py"),
-                ),
-                (
-                    "sqruff_templaters/jinja_templater_tracers.py",
-                    include_str!("sqruff_templaters/jinja_templater_tracers.py"),
-                ),
-                (
-                    "sqruff_templaters/python_templater.py",
-                    include_str!("sqruff_templaters/python_templater.py"),
-                ),
-            ];
-
-            add_venv_site_packages(py)?;
-            add_temp_files_to_site_packages(py, &files)?;
-
-            let main_module = PyModule::import(py, "sqruff_templaters.dbt_templater")?;
+            let main_module = PyModule::import(py, "sqruff.templaters.dbt_templater")?;
             let fun: Py<PyAny> = main_module.getattr("process_from_rust")?.into();
 
             let py_dict = config.to_python_context(py, "dbt").unwrap();

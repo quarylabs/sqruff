@@ -1,0 +1,6 @@
+[sqruff]
+templater = python
+
+[sqruff:templater:python:context]
+tbl_name = my_table
+

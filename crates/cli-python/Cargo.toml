@@ -1,0 +1,66 @@
+[package]
+name = "sqruff-cli-python"
+description = "A high-speed SQL linter."
+version.workspace = true
+repository.workspace = true
+edition.workspace = true
+license.workspace = true
+rust-version = "1.86"
+
+crate-type = ["cdylib"]
+
+[lints]
+workspace = true
+
+[[test]]
+name = "fix_return_code"
+harness = false
+
+[[test]]
+name = "fix_parse_errors"
+harness = false
+
+[[test]]
+name = "config_not_found"
+harness = false
+
+[[test]]
+name = "configure_rule"
+harness = false
+
+[[test]]
+name = "ui"
+harness = false
+
+[[test]]
+name = "ui_with_python"
+harness = false
+
+[[test]]
+name = "ui_with_jinja"
+harness = false
+
+[[test]]
+name = "ui_with_dbt"
+harness = false
+
+[[test]]
+name = "ui_github"
+harness = false
+
+[[test]]
+name = "ui_json"
+harness = false
+
+[dependencies]
+sqruff-cli-lib.workspace = true
+
+[dev-dependencies]
+assert_cmd = "2.0.16"
+expect-test = "1.5.0"
+tempfile = "3.19.1"
+
+[dependencies.pyo3]
+version = "0.24.1"
+# "abi3-py38" tells pyo3 (and maturin) to build using the stable ABI with minimum Python version 3.8
+features = ["abi3-py38"]

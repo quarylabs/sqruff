@@ -1,0 +1,33 @@
+[project]
+name = "sqruff" 
+version = "0.25.29"
+description = "A SQL linter written in rust." 
+requires-python = ">=3.9" 
+
+[project.optional-dependencies]
+jinja = [
+    "regex",
+    "jinja2>=3.0.0",
+    "jinja2-simple-tags>=0.3.1"
+]
+dbt = [
+    "regex",
+    "jinja2>=3.0.0",
+    "jinja2-simple-tags>=0.3.1",
+    "dbt-core>=1.4.1",
+]
+
+[project.scripts]
+sqruff = "sqruff.main:main"
+
+[build-system]
+requires = ["maturin>=1.8"]
+build-backend = "maturin" 
+
+[tool.maturin]
+manifest-path = "Cargo.toml"
+module-name = "sqruff._lib_name"
+strip = true
+features = ["pyo3/extension-module"]
+python-source = "python"
+

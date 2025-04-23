@@ -1726,12 +1726,24 @@ name = "sqruff"
 version = "0.25.29"
 dependencies = [
  "assert_cmd",
+ "expect-test",
+ "mimalloc",
+ "pyo3",
+ "sqruff-cli-lib",
+ "tempfile",
+ "tikv-jemallocator",
+]
+
+[[package]]
+name = "sqruff-cli-lib"
+version = "0.25.29"
+dependencies = [
+ "assert_cmd",
  "clap",
  "clap-markdown",
  "console",
  "expect-test",
  "ignore",
- "mimalloc",
  "minijinja",
  "pyo3",
  "serde",
@@ -1739,7 +1751,17 @@ dependencies = [
  "sqruff-lsp",
  "strum_macros",
  "tempfile",
- "tikv-jemallocator",
+]
+
+[[package]]
+name = "sqruff-cli-python"
+version = "0.25.29"
+dependencies = [
+ "assert_cmd",
+ "expect-test",
+ "pyo3",
+ "sqruff-cli-lib",
+ "tempfile",
 ]
 
 [[package]]

@@ -100,7 +100,11 @@ impl OutputStreamFormatter {
     fn dispatch(&self, s: &str) {
         if !self.filter_empty || !s.trim().is_empty() {
             if let Some(output_stream) = &self.output_stream {
-                _ = output_stream.lock().write(s.as_bytes()).unwrap();
+                let mut output_stream = output_stream.lock();
+                output_stream
+                    .write_all(s.as_bytes())
+                    .and_then(|_| output_stream.flush())
+                    .unwrap_or_else(|e| panic!("failed to emit error: {e}"));
             }
         }
     }

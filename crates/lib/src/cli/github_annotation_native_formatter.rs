@@ -20,7 +20,11 @@ impl GithubAnnotationNativeFormatter {
     }
 
     fn dispatch(&self, s: &str) {
-        let _ignored = self.output_stream.lock().write(s.as_bytes()).unwrap();
+        let mut output_stream = self.output_stream.lock();
+        output_stream
+            .write_all(s.as_bytes())
+            .and_then(|_| output_stream.flush())
+            .unwrap_or_else(|e| panic!("failed to emit error: {e}"));
     }
 }
 

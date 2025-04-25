@@ -1,1 +1,4 @@
-from ._lib_name import run_cli  # noqa
+try:
+    from ._lib_name import run_cli  # noqa
+except ImportError:
+    pass

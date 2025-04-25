@@ -26,7 +26,7 @@ loops and placeholders.
 # from .python_templater import BaseSegment, RawFileSlice, TemplatedFile
 from jinja2 import UndefinedError
 import pytest
-from sqruff_templaters.jinja_templater import DummyUndefined
+from sqruff.templaters.jinja_templater import DummyUndefined
 # from .jinja_templater_tracers import JinjaAnalyzer, JinjaTagConfiguration
 
 # JINJA_STRING = (

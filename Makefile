@@ -26,6 +26,17 @@ python_generate_gha: ## Generate GitHub Actions workflow
 .PHONY: python_ci
 python_ci: python_lint python_test ## Run python CI 
 
+.PHONY: rust_fmt
+rust_fmt: ## Format rust code
+	cargo fmt --all
+
+.PHONY: rust_lint
+rust_lint: ## Lint rust code
+	cargo fmt --all -- --check
+	cargo clippy --all --all-features -- -D warnings
+	cargo machete
+	cargo hack check --each-feature --exclude-features=codegen-docs
+
 .PHONY: rust_test
 rust_test: ## Run rust tests
 	cargo test --manifest-path ./crates/cli/Cargo.toml

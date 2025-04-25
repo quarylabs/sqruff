@@ -120,18 +120,6 @@ jobs:
       - uses: Swatinem/rust-cache@9d47c6ad4b02e050fd481d890b2ea34778fd09d6 # ratchet:Swatinem/rust-cache@v2
       - name: Run benchmarks
         run: cargo run --color=always --bin bench --manifest-path ./crates/cli/Cargo.toml
-  fmt:
-    name: Format
-    runs-on: ubuntu-latest
-    steps:
-      - uses: Swatinem/rust-cache@9d47c6ad4b02e050fd481d890b2ea34778fd09d6 # ratchet:Swatinem/rust-cache@v2
-      - name: Checkout sources
-        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # ratchet:actions/checkout@v4
-      - uses: dtolnay/rust-toolchain@38b70195107dddab2c7bbd522bcf763bac00963b # ratchet:dtolnay/rust-toolchain@stable
-        with:
-          components: rustfmt
-      - name: Run cargo fmt
-        run: cargo fmt --all -- --check
   lint:
     name: Lint
     runs-on: ubuntu-latest
@@ -144,12 +132,7 @@ jobs:
           components: clippy
       - name: Checkout sources
         uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # ratchet:actions/checkout@v4
-      - name: Run cargo clippy
-        run: cargo clippy --all --all-features -- -D warnings
-      - name: Check unused dependencies
-        run: cargo machete
-      - name: Cargo hack
-        run: cargo hack check --each-feature --exclude-features=codegen-docs
+      - run: make rust_lint
   prettier-formatting:
     name: Check Prettier formatting
     runs-on: ubuntu-latest

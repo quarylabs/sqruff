@@ -9,7 +9,7 @@ fn main() {
         .unwrap()
         .parent()
         .unwrap()
-        .join("crates/lib/src/templaters/sqruff_templaters/sample_dbt/");
+        .join("crates/cli-python/python/sqruff/templaters/sample_dbt/");
     let output_dir = PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("tests/dbt");
     // Create the output directory
     std::fs::create_dir_all(&output_dir).unwrap();

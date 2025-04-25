@@ -49,18 +49,6 @@ name = "ui"
 harness = false
 
 [[test]]
-name = "ui_with_python"
-harness = false
-
-[[test]]
-name = "ui_with_jinja"
-harness = false
-
-[[test]]
-name = "ui_with_dbt"
-harness = false
-
-[[test]]
 name = "ui_github"
 harness = false
 

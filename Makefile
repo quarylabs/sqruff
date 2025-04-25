@@ -39,6 +39,7 @@ rust_lint: ## Lint rust code
 
 .PHONY: rust_test
 rust_test: ## Run rust tests
+	cd crates/cli-python && maturin develop
 	cargo test --manifest-path ./crates/cli/Cargo.toml
 	cargo test --all --all-features --exclude sqruff
 

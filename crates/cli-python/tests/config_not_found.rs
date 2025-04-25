@@ -8,24 +8,31 @@ fn main() {
 }
 
 fn config_not_found_lint() {
-    let profile = if cfg!(debug_assertions) {
-        "debug"
-    } else {
-        "release"
-    };
     let mut lint_dir = PathBuf::from(env!("CARGO_MANIFEST_DIR"));
     lint_dir.push("tests/config_not_found");
 
     let entry_path = lint_dir.as_path().join("example.sql");
     let config_path = lint_dir.as_path().join("non_existant.cfg");
 
-    // Check if the file has a .sql or .hql extension
-    // Construct the path to the sqruff binary
-    let mut sqruff_path = PathBuf::from(env!("CARGO_MANIFEST_DIR"));
-    sqruff_path.push(format!("../../target/{}/sqruff", profile));
+    // Check if we have a virtual environment at the project root
+    let mut venv_path = PathBuf::from(env!("CARGO_MANIFEST_DIR"));
+    venv_path.push("../../.venv");
+    if !venv_path.exists() {
+        panic!(
+            "Virtual environment not found at project root. Please create a .venv directory and run 'maturin develop'"
+        );
+    }
+    // Check if sqruff script exists in the virtual environment
+    let mut sqruff_script_path = venv_path.clone();
+    sqruff_script_path.push("bin/sqruff");
+    if !sqruff_script_path.exists() {
+        panic!(
+            "sqruff script not found in .venv/bin/sqruff. Please run 'maturin develop' in the virtual environment"
+        );
+    }
 
     // Set up the command with arguments
-    let mut cmd = Command::new(sqruff_path);
+    let mut cmd = Command::new(sqruff_script_path);
     cmd.arg("lint")
         .arg("-f")
         .arg("human")

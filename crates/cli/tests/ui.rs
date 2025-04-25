@@ -73,7 +73,7 @@ fn main() {
             "release"
         };
         let mut sqruff_path = PathBuf::from(env!("CARGO_MANIFEST_DIR"));
-        sqruff_path.push(format!("../../target/{}/sqruff-cli", profile));
+        sqruff_path.push(format!("../../target/{}/sqruff", profile));
 
         // Set up the command with arguments
         let mut cmd = Command::new(sqruff_path);

@@ -3,15 +3,12 @@ use pyo3::types::PySlice;
 use pyo3::{Py, PyAny, Python};
 use sqruff_lib_core::errors::SQLFluffUserError;
 use sqruff_lib_core::templaters::base::{RawFileSlice, TemplatedFile, TemplatedFileSlice};
-use std::ffi::CString;
 
 use super::Templater;
 use crate::cli::formatters::Formatter;
 use crate::core::config::FluffConfig;
 use crate::templaters::python_shared::PythonFluffConfig;
 use std::sync::Arc;
-
-const PYTHON_FILE: &str = include_str!("sqruff_templaters/python_templater.py");
 
 #[derive(Default)]
 pub struct PythonTemplater;
@@ -60,7 +57,7 @@ At the moment, dot notation is not supported in the templater."
         let templated_file = Python::with_gil(|py| -> PyResult<TemplatedFile> {
             let main_module = PyModule::import(py, "sqruff.templaters.python_templater")?;
             let fun: Py<PyAny> = main_module.getattr("process_from_rust")?.into();
-                        // pass object with Rust tuple of positional arguments
+            // pass object with Rust tuple of positional arguments
             let py_dict = config.to_python_context(py, "python").unwrap();
             let python_fluff_config: PythonFluffConfig = config.clone().into();
             let args = (

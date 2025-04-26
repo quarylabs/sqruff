@@ -159,17 +159,32 @@ impl Linter {
             }
         }
 
-        expanded_paths
-            .par_iter()
+        let paths: Vec<String> = expanded_paths
+            .into_iter()
             .filter(|path| !ignorer(Path::new(path)))
-            .map(|path| {
-                let rendered = self.render_file(path.clone());
-                self.lint_rendered(rendered, fix)
-            })
-            .for_each(|linted_file| {
-                let path = expanded_path_to_linted_dir[&linted_file.path];
-                result.paths[path].add(linted_file);
-            });
+            .collect_vec();
+        let rendered_files: Vec<LintedFile> = if self.templater.can_process_in_parallel() {
+            paths
+                .par_iter()
+                .map(|path| {
+                    let rendered = self.render_file(path.clone());
+                    self.lint_rendered(rendered, fix)
+                })
+                .collect()
+        } else {
+            paths
+                .iter()
+                .map(|path| {
+                    let rendered = self.render_file(path.clone());
+                    self.lint_rendered(rendered, fix)
+                })
+                .collect_vec()
+        };
+
+        rendered_files.par_iter().for_each(|linted_file| {
+            let path = expanded_path_to_linted_dir[&linted_file.path];
+            result.paths[path].add(linted_file.clone());
+        });
 
         result
     }

@@ -16,6 +16,10 @@ impl Templater for DBTTemplater {
         "dbt"
     }
 
+    fn can_process_in_parallel(&self) -> bool {
+        false
+    }
+
     fn description(&self) -> &'static str {
         "Not fully implemented yet. More details to come."
     }

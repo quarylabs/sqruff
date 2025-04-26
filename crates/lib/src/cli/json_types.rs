@@ -12,11 +12,7 @@ impl From<SQLBaseError> for Diagnostic {
                 end: Position::new(value.line_no as u32, value.line_pos as u32),
             },
             message: value.description,
-            severity: if value.warning {
-                DiagnosticSeverity::Warning
-            } else {
-                DiagnosticSeverity::Error
-            },
+            severity: DiagnosticSeverity::Warning,
             source: Some("sqruff".to_string()),
             code,
             // code: todo!(),

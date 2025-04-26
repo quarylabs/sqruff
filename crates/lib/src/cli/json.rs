@@ -28,7 +28,7 @@ impl Formatter for JsonFormatter {
         let lock = self.violations.lock().unwrap();
         lock.values().any(|v| {
             v.iter()
-                .any(|d| matches!(&d.severity, DiagnosticSeverity::Error))
+                .any(|d| matches!(&d.severity, DiagnosticSeverity::Warning))
         })
     }
 

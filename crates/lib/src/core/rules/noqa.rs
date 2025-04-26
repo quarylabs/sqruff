@@ -58,15 +58,12 @@ impl NoQADirective {
             for rule in rules {
                 if !available_rules.contains(rule.as_str()) {
                     return Err(SQLBaseError {
-                        fatal: true,
-                        ignore: false,
-                        warning: false,
+                        fixable: false,
                         line_no: 0,
                         line_pos: 0,
                         description: format!("Rule {} not found in rule set", rule),
                         rule: None,
                         source_slice: Default::default(),
-                        fixable: false,
                     });
                 }
             }
@@ -126,16 +123,13 @@ impl NoQADirective {
                                 .collect();
                             if rules.is_empty() {
                                 Err(SQLBaseError {
-                                    fatal: true,
-                                    ignore: false,
-                                    warning: false,
+                                    fixable: false,
                                     line_no,
                                     line_pos,
                                     description: "Malformed 'noqa' section. Expected 'noqa: <rule>[,...] | all'"
                                         .into(),
                                     rule: None,
                                     source_slice: Default::default(),
-                                    fixable: false,
                                 })
                             } else {
                                 Ok(Some(NoQADirective::RangeIgnoreRules(RangeIgnoreRules {
@@ -164,9 +158,7 @@ impl NoQADirective {
                                 .collect();
                             if rules.is_empty() {
                                 Err(SQLBaseError {
-                                    fatal: true,
-                                    ignore: false,
-                                    warning: false,
+                                    fixable: false,
                                     line_no,
                                     line_pos,
                                     description:
@@ -174,7 +166,6 @@ impl NoQADirective {
                                             .to_string(),
                                     rule: None,
                                     source_slice: Default::default(),
-                                    fixable: false,
                                 })
                             } else {
                                 Ok(Some(NoQADirective::RangeIgnoreRules(RangeIgnoreRules {
@@ -190,9 +181,7 @@ impl NoQADirective {
                         let rules = comment.split(",").map_into().collect::<HashSet<String>>();
                         if rules.is_empty() {
                             Err(SQLBaseError {
-                                fatal: true,
-                                ignore: false,
-                                warning: false,
+                                fixable: false,
                                 line_no,
                                 line_pos,
                                 description:
@@ -200,7 +189,6 @@ impl NoQADirective {
                                         .into(),
                                 rule: None,
                                 source_slice: Default::default(),
-                                fixable: false,
                             })
                         } else {
                             return Ok(Some(NoQADirective::LineIgnoreRules(LineIgnoreRules {
@@ -212,9 +200,7 @@ impl NoQADirective {
                         }
                     } else {
                         Err(SQLBaseError {
-                            fatal: true,
-                            ignore: false,
-                            warning: false,
+                            fixable: false,
                             line_no,
                             line_pos,
                             description:
@@ -222,14 +208,11 @@ impl NoQADirective {
                                     .into(),
                             rule: None,
                             source_slice: Default::default(),
-                            fixable: false,
                         })
                     }
                 } else {
                     Err(SQLBaseError {
-                        fatal: true,
-                        ignore: false,
-                        warning: false,
+                        fixable: false,
                         line_no,
                         line_pos,
                         description:
@@ -237,7 +220,6 @@ impl NoQADirective {
                                 .to_string(),
                         rule: None,
                         source_slice: Default::default(),
-                        fixable: false,
                     })
                 }
             } else {
@@ -315,15 +297,12 @@ impl IgnoreMask {
         let (line_no, line_pos) = comment
             .get_position_marker()
             .ok_or(SQLBaseError {
-                fatal: true,
-                ignore: false,
-                warning: false,
+                fixable: false,
                 line_no: 0,
                 line_pos: 0,
                 description: "Could not get position marker".to_string(),
                 rule: None,
                 source_slice: Default::default(),
-                fixable: false,
             })?
             .source_position();
         NoQADirective::parse_from_comment(comment_content, line_no, line_pos)
@@ -480,9 +459,7 @@ mod tests {
     #[test]
     fn test_is_masked_single_line() {
         let error = SQLBaseError {
-            fatal: false,
-            ignore: false,
-            warning: false,
+            fixable: true,
             line_no: 2,
             line_pos: 11,
             description: "Implicit/explicit aliasing of columns.".to_string(),
@@ -491,7 +468,6 @@ mod tests {
                 code: "AL02",
             }),
             source_slice: Default::default(),
-            fixable: true,
         };
         let mask = IgnoreMask {
             ignore_list: vec![NoQADirective::LineIgnoreRules(LineIgnoreRules {
@@ -613,7 +589,6 @@ mod tests {
                     assert!(result.is_err());
                     let result_err = result.err().unwrap();
                     assert_eq!(result_err.description, err);
-                    assert!(result_err.fatal);
                 }
             }
         }

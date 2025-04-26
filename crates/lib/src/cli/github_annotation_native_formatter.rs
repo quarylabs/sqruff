@@ -64,10 +64,9 @@ impl Formatter for GithubAnnotationNativeFormatter {
                 violation.rule.as_ref().unwrap().code,
                 violation.description
             );
+
             self.dispatch(&message);
-            if !violation.ignore && !violation.warning {
-                self.has_fail.store(true, Ordering::SeqCst);
-            }
+            self.has_fail.store(true, Ordering::SeqCst);
         }
     }
 

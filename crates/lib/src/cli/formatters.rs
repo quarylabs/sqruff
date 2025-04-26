@@ -112,18 +112,10 @@ impl OutputStreamFormatter {
     fn format_file_violations(&self, fname: &str, mut violations: Vec<SQLBaseError>) -> String {
         let mut text_buffer = String::new();
 
-        let fails = violations
-            .iter()
-            .filter(|violation| !violation.ignore && !violation.warning)
-            .count();
-        let warns = violations
-            .iter()
-            .filter(|violation| violation.warning)
-            .count();
-        let show = fails + warns > 0;
+        let show = !violations.is_empty();
 
         if self.verbosity > 0 || show {
-            let text = self.format_filename(fname, fails == 0);
+            let text = self.format_filename(fname, !show);
             text_buffer.push_str(&text);
             text_buffer.push('\n');
         }
@@ -174,20 +166,10 @@ impl OutputStreamFormatter {
         max_line_length: usize,
     ) -> String {
         let violation: SQLBaseError = violation.into();
-        let desc = violation.desc();
-
-        let severity = if violation.ignore {
-            "IGNORE: "
-        } else if violation.warning {
-            "WARNING: "
-        } else {
-            ""
-        };
+        let mut desc = violation.desc().to_string();
 
         let line_elem = format!("{:4}", violation.line_no);
         let pos_elem = format!("{:4}", violation.line_pos);
-
-        let mut desc = format!("{severity}{desc}");
 
         if let Some(rule) = &violation.rule {
             let text = self.colorize(rule.name, LIGHT_GREY);
@@ -196,11 +178,7 @@ impl OutputStreamFormatter {
         }
 
         let split_desc = split_string_on_spaces(&desc, max_line_length - 25);
-        let mut section_color = if violation.ignore || violation.warning {
-            LIGHT_GREY
-        } else {
-            AnsiColor::Blue.on_default()
-        };
+        let mut section_color = AnsiColor::Blue.on_default();
 
         let mut out_buff = String::new();
         for (idx, line) in enumerate(split_desc) {

@@ -20,15 +20,12 @@ pub trait SqlError: Display {
 
 #[derive(Debug, PartialEq, Clone, Default)]
 pub struct SQLBaseError {
-    pub fatal: bool,
-    pub ignore: bool,
-    pub warning: bool,
+    pub fixable: bool,
     pub line_no: usize,
     pub line_pos: usize,
     pub description: String,
     pub rule: Option<ErrorStructRule>,
     pub source_slice: Range<usize>,
-    pub fixable: bool,
 }
 
 #[derive(Debug, PartialEq, Clone, Default)]
@@ -233,11 +230,9 @@ impl From<SQLParseError> for SQLBaseError {
         }
 
         Self::default().config(|this| {
-            this.fatal = true;
             this.line_no = line_no;
             this.line_pos = line_pos;
             this.description = value.description;
-            this.fixable = false;
         })
     }
 }

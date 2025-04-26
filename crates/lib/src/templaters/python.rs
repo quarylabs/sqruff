@@ -18,6 +18,10 @@ impl Templater for PythonTemplater {
         "python"
     }
 
+    fn can_process_in_parallel(&self) -> bool {
+        false
+    }
+
     fn description(&self) -> &'static str {
         r"**Note:** This templater currently does not work by default in the CLI and needs custom set up to work.
 

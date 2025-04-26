@@ -50,6 +50,9 @@ pub trait Templater: Send + Sync {
     /// The name of the templater.
     fn name(&self) -> &'static str;
 
+    /// Can process in parrallel.
+    fn can_process_in_parallel(&self) -> bool;
+
     /// Description of the templater.
     fn description(&self) -> &'static str;
 

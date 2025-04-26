@@ -125,6 +125,10 @@ impl Templater for PlaceholderTemplater {
         "placeholder"
     }
 
+    fn can_process_in_parallel(&self) -> bool {
+        true
+    }
+
     fn description(&self) -> &'static str {
         r#"Libraries such as SQLAlchemy or Psycopg use different parameter placeholder styles to mark where a parameter has to be inserted in the query.
 

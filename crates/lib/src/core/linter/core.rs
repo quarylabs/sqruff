@@ -159,18 +159,28 @@ impl Linter {
             }
         }
 
-        expanded_paths
-            .par_iter()
-            .filter(|path| !ignorer(Path::new(path)))
+        if self.templater.can_process_in_parallel() {
+            expanded_paths
+                .par_iter()
+                .filter(|path| !ignorer(Path::new(path)))
             .map(|path| {
                 let rendered = self.render_file(path.clone());
                 self.lint_rendered(rendered, fix)
             })
             .for_each(|linted_file| {
-                let path = expanded_path_to_linted_dir[&linted_file.path];
-                result.paths[path].add(linted_file);
-            });
-
+                    let path = expanded_path_to_linted_dir[&linted_file.path];
+                    result.paths[path].add(linted_file);
+                });
+        } else {
+            expanded_paths
+                .iter()
+                .filter(|path| !ignorer(Path::new(path)))
+                .map(|path| self.lint_rendered(self.render_file(path.clone()), fix))
+                .for_each(|linted_file| {
+                    let path = expanded_path_to_linted_dir[&linted_file.path];
+                    result.paths[path].add(linted_file);
+                });
+        }
         result
     }
 

@@ -8,8 +8,8 @@ from sqruff.templaters.python_templater import FluffConfig
 
 def test_dbt():
     current = Path(os.path.dirname(os.path.abspath(__file__)))
-    folder = current.joinpath("sample_dbt")
-    file = folder.joinpath("models/example/my_first_dbt_model.sql")
+    folder = current.joinpath("../../../tests/dbt_sample")
+    file = folder.joinpath("models/customers.sql")
     profiles = folder.joinpath("profiles")
 
     templated_file = process_from_rust(

@@ -5,11 +5,6 @@ use assert_cmd::Command;
 use expect_test::expect_file;
 
 fn main() {
-    let profile = if cfg!(debug_assertions) {
-        "debug"
-    } else {
-        "release"
-    };
     let mut lint_dir = PathBuf::from(env!("CARGO_MANIFEST_DIR"));
     lint_dir.push("tests/json");
 

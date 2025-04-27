@@ -8,12 +8,6 @@ fn main() {
 }
 
 fn fix_return_code() {
-    let profile = if cfg!(debug_assertions) {
-        "debug"
-    } else {
-        "release"
-    };
-
     // Tests needed
     // STDIN
     // - Fix, do nothing -> 0

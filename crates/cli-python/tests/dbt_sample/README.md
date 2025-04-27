@@ -1,0 +1,1 @@
+DBT Sample Project taken from https://github.com/dbt-labs/jaffle_shop_duckdb/commit/6fa7d8a0abfc460e645cc4add995c1ec635f7e44

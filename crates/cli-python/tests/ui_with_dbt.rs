@@ -9,7 +9,7 @@ fn main() {
         .unwrap()
         .parent()
         .unwrap()
-        .join("crates/cli-python/python/sqruff/templaters/sample_dbt/");
+        .join("crates/cli-python/tests/dbt_sample/");
     let output_dir = PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("tests/dbt");
     // Create the output directory
     std::fs::create_dir_all(&output_dir).unwrap();
@@ -39,7 +39,7 @@ fn main() {
     cmd.arg("lint")
         .arg("-f")
         .arg("human")
-        .arg("models/example/my_first_dbt_model.sql");
+        .arg("models/customers.sql");
 
     // Run the command and capture the output
     let assert = cmd.assert();

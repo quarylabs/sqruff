@@ -662,18 +662,23 @@ fn iter_segments(
             }
 
             if tfs.slice_type == "literal" {
-                let tfs_offset = tfs.source_slice.start - tfs.templated_slice.start;
+                let tfs_offset = (tfs.source_slice.start as isize) - (tfs.templated_slice.start as isize);
 
                 // NOTE: Greater than OR EQUAL, to include the case of it matching
                 // length exactly.
                 if element.template_slice.end <= tfs.templated_slice.end {
                     let slice_start = stashed_source_idx.unwrap_or_else(|| {
-                        element.template_slice.start + consumed_element_length + tfs_offset
+                        let sum = element.template_slice.start as isize + consumed_element_length as isize + tfs_offset;
+                        if sum < 0 {
+                            panic!("Slice start is negative: {}", sum);
+                        }
+                        sum.try_into().unwrap_or_else(|_| panic!("Cannot convert {} to usize", sum))
                     });
 
+                    let source_slice_end = (element.template_slice.end as isize + tfs_offset) as usize;
                     result.push(element.to_segment(
                         PositionMarker::new(
-                            slice_start..element.template_slice.end + tfs_offset,
+                            slice_start..source_slice_end,
                             element.template_slice.clone(),
                             templated_file.clone(),
                             None,
@@ -715,10 +720,14 @@ fn iter_segments(
                         let incremental_length =
                             tfs.templated_slice.end - element.template_slice.start;
 
+                        let source_slice_start = element.template_slice.start as isize + consumed_element_length as isize + tfs_offset;
+                        let source_slice_start = source_slice_start.try_into().unwrap_or_else(|_| panic!("Cannot convert {} to usize", source_slice_start));
+                        let source_slice_end = source_slice_start as isize + incremental_length as isize;
+                        let source_slice_end = source_slice_end.try_into().unwrap_or_else(|_| panic!("Cannot convert {} to usize", source_slice_end));
+
                         result.push(element.to_segment(
                             PositionMarker::new(
-                                element.template_slice.start + consumed_element_length + tfs_offset
-                                    ..tfs.templated_slice.end + tfs_offset,
+                                source_slice_start..source_slice_end,
                                 element.template_slice.clone(),
                                 templated_file.clone(),
                                 None,

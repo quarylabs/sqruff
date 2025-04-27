@@ -8,12 +8,6 @@ fn main() {
 }
 
 fn parse_errors() {
-    let profile = if cfg!(debug_assertions) {
-        "debug"
-    } else {
-        "release"
-    };
-
     let cargo_folder = Path::new(env!("CARGO_MANIFEST_DIR"));
     // Check if we have a virtual environment at the project root
     let mut venv_path = PathBuf::from(env!("CARGO_MANIFEST_DIR"));

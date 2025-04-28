@@ -30,7 +30,7 @@ strum_macros.workspace = true
 clap = { version = "4", features = ["derive"] }
 console = "0.15.8"
 ignore = "0.4.23"
-pyo3 = { version = "0.24.1", optional = true }
+pyo3 = { version = "0.24.2", optional = true }
 
 
 # Codegen dependencies

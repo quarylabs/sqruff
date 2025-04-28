@@ -21,7 +21,7 @@
     "monaco-editor": "^0.52.2",
     "react": "^19.1.0",
     "react-dom": "^19.1.0",
-    "react-resizable-panels": "^2.1.8"
+    "react-resizable-panels": "^2.1.9"
   },
   "devDependencies": {
     "@eslint/js": "^9.25.0",

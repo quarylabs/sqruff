@@ -65,25 +65,30 @@ impl Rule for RuleAM05 {
 
     fn long_description(&self) -> &'static str {
         r#"
+By default this rule is configured to enforce fully qualified `INNER JOIN` clauses, but not `[LEFT/RIGHT/FULL] OUTER JOIN`. If you prefer a stricter lint then this is configurable.
+
+* `fully_qualify_join_types`: Which types of JOIN clauses should be fully qualified? Must be one of `['inner', 'outer', 'both']`.
+
 **Anti-pattern**
 
-In this example, `UNION DISTINCT` should be preferred over `UNION`, because explicit is better than implicit.
-
+A join is used without specifying the kind of join.
 
 ```sql
-SELECT a, b FROM table_1
-UNION
-SELECT a, b FROM table_2
+SELECT
+    foo
+FROM bar
+JOIN baz;
 ```
 
 **Best practice**
 
-Specify `DISTINCT` or `ALL` after `UNION` (note that `DISTINCT` is the default behavior).
+Use `INNER JOIN` rather than `JOIN`.
 
 ```sql
-SELECT a, b FROM table_1
-UNION DISTINCT
-SELECT a, b FROM table_2
+SELECT
+    foo
+FROM bar
+INNER JOIN baz;
 ```
 "#
     }

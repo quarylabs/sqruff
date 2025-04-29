@@ -303,7 +303,8 @@ impl Linter {
                         continue;
                     }
 
-                    let linting_errors = rule.crawl(
+                    let linting_errors = crate::core::rules::base::crawl(
+                        rule,
                         tables,
                         &self.config.dialect,
                         templated_file,

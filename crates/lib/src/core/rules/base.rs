@@ -56,7 +56,7 @@ impl LintResult {
         }
     }
 
-    pub fn to_linting_error(&self, rule: ErasedRule, fixes: Vec<LintFix>) -> Option<SQLLintError> {
+    pub fn to_linting_error(&self, rule: &ErasedRule) -> Option<SQLLintError> {
         let anchor = self.anchor.clone()?;
 
         let description = self
@@ -66,7 +66,7 @@ impl LintResult {
 
         let is_fixable = rule.is_fix_compatible();
 
-        SQLLintError::new(description.as_str(), anchor, is_fixable, fixes)
+        SQLLintError::new(description.as_str(), anchor, is_fixable, self.fixes.clone())
             .config(|this| {
                 this.rule = Some(ErrorStructRule {
                     name: rule.name(),
@@ -107,23 +107,13 @@ impl Debug for LintResult {
     }
 }
 
-pub trait CloneRule {
-    fn erased(&self) -> ErasedRule;
-}
-
-impl<T: Rule> CloneRule for T {
-    fn erased(&self) -> ErasedRule {
-        dyn_clone::clone(self).erased()
-    }
-}
-
 #[derive(Debug, Clone, PartialEq)]
 pub enum LintPhase {
     Main,
     Post,
 }
 
-pub trait Rule: CloneRule + dyn_clone::DynClone + Debug + 'static + Send + Sync {
+pub trait Rule: Debug + 'static + Send + Sync {
     fn load_from_config(&self, _config: &AHashMap<String, Value>) -> Result<ErasedRule, String>;
 
     fn lint_phase(&self) -> LintPhase {
@@ -171,73 +161,71 @@ pub trait Rule: CloneRule + dyn_clone::DynClone + Debug + 'static + Send + Sync 
     }
 
     fn crawl_behaviour(&self) -> Crawler;
-
-    fn crawl(
-        &self,
-        tables: &Tables,
-        dialect: &Dialect,
-        templated_file: &TemplatedFile,
-        tree: ErasedSegment,
-        config: &FluffConfig,
-    ) -> Vec<SQLLintError> {
-        let mut root_context = RuleContext::new(tables, dialect, config, tree.clone());
-        let mut vs = Vec::new();
-
-        // TODO Will to return a note that rules were skipped
-        if self.dialect_skip().contains(&dialect.name) && !self.force_enable() {
-            return Vec::new();
-        }
-
-        self.crawl_behaviour().crawl(&mut root_context, &mut |context| {
-            let resp =
-                std::panic::catch_unwind(std::panic::AssertUnwindSafe(|| self.eval(context)));
-
-            let resp = match resp {
-                Ok(t) => t,
-                Err(_) => {
-                    vs.push(SQLLintError::new("Unexpected exception. Could you open an issue at https://github.com/quarylabs/sqruff", tree.clone(), false, vec![]));
-                    Vec::new()
-                }
-            };
-
-            let mut new_lerrs = Vec::new();
-
-            if resp.is_empty() {
-                // Assume this means no problems (also means no memory)
-            } else {
-                for elem in resp {
-                    self.process_lint_result(elem, templated_file, &mut new_lerrs);
-                }
-            }
-
-            // Consume the new results
-            vs.extend(new_lerrs);
-        });
-
-        vs
-    }
-
-    fn process_lint_result(
-        &self,
-        res: LintResult,
-        templated_file: &TemplatedFile,
-        new_lerrs: &mut Vec<SQLLintError>,
-    ) {
-        if res
-            .fixes
-            .iter()
-            .any(|it| it.has_template_conflicts(templated_file))
-        {
-            return;
-        }
-
-        if let Some(lerr) = res.to_linting_error(self.erased(), res.fixes.clone()) {
-            new_lerrs.push(lerr);
-        }
-    }
 }
 
-dyn_clone::clone_trait_object!(Rule);
+pub fn crawl(
+    rule: &ErasedRule,
+    tables: &Tables,
+    dialect: &Dialect,
+    templated_file: &TemplatedFile,
+    tree: ErasedSegment,
+    config: &FluffConfig,
+) -> Vec<SQLLintError> {
+    let mut root_context = RuleContext::new(tables, dialect, config, tree.clone());
+    let mut vs = Vec::new();
+
+    // TODO Will to return a note that rules were skipped
+    if rule.dialect_skip().contains(&dialect.name) && !rule.force_enable() {
+        return Vec::new();
+    }
+
+    rule.crawl_behaviour().crawl(&mut root_context, &mut |context| {
+        let resp =
+            std::panic::catch_unwind(std::panic::AssertUnwindSafe(|| rule.eval(context)));
+
+        let resp = match resp {
+            Ok(t) => t,
+            Err(_) => {
+                vs.push(SQLLintError::new("Unexpected exception. Could you open an issue at https://github.com/quarylabs/sqruff", tree.clone(), false, vec![]));
+                Vec::new()
+            }
+        };
+
+        let mut new_lerrs = Vec::new();
+
+        if resp.is_empty() {
+            // Assume this means no problems (also means no memory)
+        } else {
+            for elem in resp {
+                process_lint_result(rule, elem, templated_file, &mut new_lerrs);
+            }
+        }
+
+        // Consume the new results
+        vs.extend(new_lerrs);
+    });
+
+    vs
+}
+
+fn process_lint_result(
+    rule: &ErasedRule,
+    res: LintResult,
+    templated_file: &TemplatedFile,
+    new_lerrs: &mut Vec<SQLLintError>,
+) {
+    if res
+        .fixes
+        .iter()
+        .any(|it| it.has_template_conflicts(templated_file))
+    {
+        return;
+    }
+
+    if let Some(lerr) = res.to_linting_error(rule) {
+        new_lerrs.push(lerr);
+    }
+}
 
 #[derive(Debug, Clone)]
 pub struct ErasedRule {

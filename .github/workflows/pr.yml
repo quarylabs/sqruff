@@ -111,15 +111,6 @@ jobs:
       - run: make rust_test
       - name: Check for diffs
         run: git diff --quiet || exit 1
-  benchmark:
-    name: Benchmark
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # ratchet:actions/checkout@v4
-      - uses: dtolnay/rust-toolchain@38b70195107dddab2c7bbd522bcf763bac00963b # ratchet:dtolnay/rust-toolchain@stable
-      - uses: Swatinem/rust-cache@9d47c6ad4b02e050fd481d890b2ea34778fd09d6 # ratchet:Swatinem/rust-cache@v2
-      - name: Run benchmarks
-        run: cargo run --color=always --bin bench --manifest-path ./crates/cli/Cargo.toml
   lint:
     name: Lint
     runs-on: ubuntu-latest

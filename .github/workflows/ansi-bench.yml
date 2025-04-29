@@ -1,0 +1,21 @@
+name: Benchmark
+
+on:
+  pull_request:
+  merge_group:
+
+env:
+  CARGO_INCREMENTAL: 0
+  CARGO_NET_RETRY: 10
+  RUSTUP_MAX_RETRIES: 10
+
+jobs:
+  benchmark:
+    name: Run benchmarks
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+      - uses: dtolnay/rust-toolchain@38b70195107dddab2c7bbd522bcf763bac00963b
+      - uses: Swatinem/rust-cache@9d47c6ad4b02e050fd481d890b2ea34778fd09d6
+      - name: Run benchmarks
+        run: cargo run --color=always --bin bench --manifest-path ./crates/cli/Cargo.toml

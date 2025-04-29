@@ -19,16 +19,8 @@ pub(crate) fn run_fix(
     let mut linter = linter(config, format, collect_parse_errors);
     let result = linter.lint_paths(paths, true, &ignorer);
 
-    if result
-        .paths
-        .iter()
-        .all(|path| path.files.iter().all(|file| file.violations.is_empty()))
-    {
-        let count_files = result
-            .paths
-            .iter()
-            .map(|path| path.files.len())
-            .sum::<usize>();
+    if result.files.iter().all(|file| file.violations.is_empty()) {
+        let count_files = result.files.len();
         println!("{} files processed, nothing to fix.", count_files);
         0
     } else {
@@ -46,19 +38,17 @@ pub(crate) fn run_fix(
             }
         }
 
-        let any_unfixable_errors = result.paths.iter().any(|path| {
-            path.files
-                .iter()
-                .any(|file| !file.get_violations(Some(false)).is_empty())
-        });
+        let any_unfixable_errors = result
+            .files
+            .iter()
+            .any(|file| !file.get_violations(Some(false)).is_empty());
 
-        for linted_dir in result.paths {
-            for mut file in linted_dir.files {
-                let path = std::mem::take(&mut file.path);
-                let write_buff = file.fix_string();
-                std::fs::write(path, write_buff).unwrap();
-            }
+        for mut file in result.files {
+            let path = std::mem::take(&mut file.path);
+            let write_buff = file.fix_string();
+            std::fs::write(path, write_buff).unwrap();
         }
+
         linter.formatter_mut().unwrap().completion_message();
 
         if any_unfixable_errors { 1 } else { 0 }

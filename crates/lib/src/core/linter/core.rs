@@ -4,7 +4,6 @@ use std::io::{BufRead, BufReader};
 use std::path::{Path, PathBuf};
 use std::sync::{Arc, OnceLock};
 
-use super::linted_dir::LintedDir;
 use crate::cli::formatters::Formatter;
 use crate::core::config::FluffConfig;
 use crate::core::linter::common::{ParsedString, RenderedFile};
@@ -17,7 +16,7 @@ use crate::templaters::raw::RawTemplater;
 use crate::templaters::{TEMPLATERS, Templater};
 use ahash::{AHashMap, AHashSet};
 use itertools::Itertools;
-use rayon::iter::{IntoParallelRefIterator as _, ParallelIterator as _};
+use rayon::iter::{IndexedParallelIterator, IntoParallelRefIterator as _, ParallelIterator as _};
 use smol_str::{SmolStr, ToSmolStr};
 use sqruff_lib_core::dialects::base::Dialect;
 use sqruff_lib_core::dialects::syntax::{SyntaxKind, SyntaxSet};
@@ -79,11 +78,8 @@ impl Linter {
     pub fn lint_string_wrapped(&mut self, sql: &str, fix: bool) -> LintingResult {
         let filename = "<string input>".to_owned();
 
-        let linted_path = LintedDir::new(filename.clone());
-        linted_path.add(self.lint_string(sql, Some(filename), fix));
-
         let mut result = LintingResult::new();
-        result.add(linted_path);
+        result.add(self.lint_string(sql, Some(filename), fix));
         result
     }
 
@@ -131,62 +127,43 @@ impl Linter {
         fix: bool,
         ignorer: &(dyn Fn(&Path) -> bool + Send + Sync),
     ) -> LintingResult {
-        let mut result = LintingResult::new();
-
         if paths.is_empty() {
             paths.push(std::env::current_dir().unwrap());
         }
 
         let mut expanded_paths = Vec::new();
-        let mut expanded_path_to_linted_dir = AHashMap::default();
 
         for path in paths {
-            let linted_dir = LintedDir::new(path.display().to_string());
-            let key = result.add(linted_dir);
-
-            let paths = if path.is_file() {
-                vec![path.to_string_lossy().to_string()]
+            if path.is_file() {
+                expanded_paths.push(path.to_string_lossy().to_string());
             } else {
-                self.paths_from_path(path, None, None, None, None)
+                expanded_paths.extend(self.paths_from_path(path, None, None, None, None));
             };
-
-            expanded_paths.reserve(paths.len());
-            expanded_path_to_linted_dir.reserve(paths.len());
-
-            for path in paths {
-                expanded_paths.push(path.clone());
-                expanded_path_to_linted_dir.insert(path, key);
-            }
         }
 
         let paths: Vec<String> = expanded_paths
             .into_iter()
             .filter(|path| !ignorer(Path::new(path)))
             .collect_vec();
-        let rendered_files: Vec<LintedFile> = if self.templater.can_process_in_parallel() {
+
+        let mut files = Vec::with_capacity(paths.len());
+
+        if self.templater.can_process_in_parallel() {
             paths
                 .par_iter()
                 .map(|path| {
                     let rendered = self.render_file(path.clone());
                     self.lint_rendered(rendered, fix)
                 })
-                .collect()
+                .collect_into_vec(&mut files);
         } else {
-            paths
-                .iter()
-                .map(|path| {
-                    let rendered = self.render_file(path.clone());
-                    self.lint_rendered(rendered, fix)
-                })
-                .collect_vec()
+            files.extend(paths.iter().map(|path| {
+                let rendered = self.render_file(path.clone());
+                self.lint_rendered(rendered, fix)
+            }));
         };
 
-        rendered_files.par_iter().for_each(|linted_file| {
-            let path = expanded_path_to_linted_dir[&linted_file.path];
-            result.paths[path].add(linted_file.clone());
-        });
-
-        result
+        LintingResult { files }
     }
 
     pub fn get_rulepack(&self) -> RulePack {

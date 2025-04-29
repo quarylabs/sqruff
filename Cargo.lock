@@ -1770,7 +1770,6 @@ version = "0.26.1"
 dependencies = [
  "ahash",
  "anstyle",
- "append-only-vec",
  "common-path",
  "configparser",
  "criterion",

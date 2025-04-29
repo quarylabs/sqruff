@@ -1,0 +1,53 @@
+name: "Build Binaries"
+description: "Build binaries for all supported platforms"
+inputs:
+  package:
+    description: "Whether to package the binaries into archives"
+    required: false
+    default: "false"
+  publish:
+    description: "Whether to publish the binaries"
+    required: false
+    default: "false"
+
+runs:
+  using: "composite"
+  steps:
+    - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # ratchet:actions/checkout@v4
+    - uses: Swatinem/rust-cache@9d47c6ad4b02e050fd481d890b2ea34778fd09d6 # ratchet:Swatinem/rust-cache@v2
+    - name: Install musl-tools on Linux
+      if: contains(matrix.platform.name, 'musl')
+      run: sudo apt-get update --yes && sudo apt-get install --yes musl-tools
+      shell: bash
+    - name: Install musl distribution
+      if: contains(matrix.platform.name, 'musl')
+      run: rustup target add x86_64-unknown-linux-musl
+      shell: bash
+    - name: Build binary
+      uses: houseabsolute/actions-rust-cross@f7da4010930154943c99d13df0151dece91a924f # ratchet:houseabsolute/actions-rust-cross@v1
+      with:
+        command: build
+        target: ${{ matrix.platform.target }}
+        toolchain: stable
+        args: --locked --release --bin sqruff --package sqruff
+        strip: true
+    - name: Package as archive
+      if: inputs.package == 'true'
+      shell: bash
+      run: |
+        cd target/${{ matrix.platform.target }}/release
+        if [[ "${{ matrix.platform.os }}" == "windows-latest" ]]; then
+          7z a ../../../${{ matrix.platform.name }} ${{ matrix.platform.bin }}
+        else
+          tar czvf ../../../${{ matrix.platform.name }} ${{ matrix.platform.bin }}
+        fi
+        cd -
+    - name: Generate SHA-256 and Save to File
+      if: inputs.package == 'true'
+      run: shasum -a 256 ${{ matrix.platform.name }} > ${{ matrix.platform.name }}.sha256
+      shell: bash
+    - name: Generate artifact attestation
+      if: inputs.publish == 'true'
+      uses: actions/attest-build-provenance@c074443f1aee8d4aeeae555aebba3282517141b2 # ratchet:actions/attest-build-provenance@v2
+      with:
+        subject-path: "sqruff-*"

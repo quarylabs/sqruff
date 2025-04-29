@@ -1,8 +1,8 @@
-use crate::core::linter::linted_dir::LintedDir;
+use super::linted_file::LintedFile;
 
 #[derive(Debug)]
 pub struct LintingResult {
-    pub paths: Vec<LintedDir>,
+    pub files: Vec<LintedFile>,
 }
 
 impl Default for LintingResult {
@@ -13,13 +13,13 @@ impl Default for LintingResult {
 
 impl LintingResult {
     pub fn new() -> Self {
-        LintingResult { paths: vec![] }
+        LintingResult { files: vec![] }
     }
 
     /// Add a new `LintedDir` to this result.
-    pub fn add(&mut self, path: LintedDir) -> usize {
-        let idx = self.paths.len();
-        self.paths.push(path);
+    pub fn add(&mut self, path: LintedFile) -> usize {
+        let idx = self.files.len();
+        self.files.push(path);
         idx
     }
 }

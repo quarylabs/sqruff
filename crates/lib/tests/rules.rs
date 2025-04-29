@@ -214,17 +214,16 @@ dialect = {dialect}
                         pass_str = pass_str
                     );
 
-                    assert_eq!(&f.paths[0].files[0].violations, &[], "{}", error_string);
+                    assert_eq!(&f.files[0].violations, &[], "{}", error_string);
                 }
                 TestCaseKind::Fail { fail_str } => {
                     let f = linter.lint_string_wrapped(&fail_str, false);
-                    assert_ne!(&f.paths[0].files[0].violations, &[])
+                    assert_ne!(&f.files[0].violations, &[])
                 }
                 TestCaseKind::Fix { fail_str, fix_str } => {
-                    let f = std::mem::take(
-                        &mut linter.lint_string_wrapped(&fail_str, true).paths[0].files[0],
-                    )
-                    .fix_string();
+                    let f =
+                        std::mem::take(&mut linter.lint_string_wrapped(&fail_str, true).files[0])
+                            .fix_string();
 
                     pretty_assertions::assert_eq!(f, fix_str);
                 }

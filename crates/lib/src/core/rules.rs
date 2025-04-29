@@ -274,6 +274,62 @@ pub struct RuleSet {
     pub(crate) register: IndexMap<&'static str, RuleManifest>,
 }
 
+#[macro_export]
+macro_rules! define_rule {
+    (
+        $(#[doc = $doc:literal])+
+        $vis:vis struct $name:ident $( { $($field:ident : $ftype:ty),* $(,)? } )?;
+        name = $rule_name:expr;
+        description = $description:expr;
+        groups = [ $($group:expr),* $(,)? ];
+        eval = $eval:path;
+        load_from_config = $load:path;
+        is_fix_compatible = $fix:expr;
+        crawl_behaviour = $crawler:expr;
+    ) => {
+        $( #[doc = $doc] )+
+        #[derive(Default, Debug, Clone)]
+        $vis struct $name $( { $($field : $ftype),* } )?
+
+        impl $crate::core::rules::Rule for $name {
+            fn load_from_config(
+                &self,
+                config: &ahash::AHashMap<String, $crate::core::config::Value>
+            ) -> Result<$crate::core::rules::ErasedRule, String> {
+                $load(config)
+            }
+
+            fn name(&self) -> &'static str {
+                $rule_name
+            }
+
+            fn description(&self) -> &'static str {
+                $description
+            }
+
+            fn long_description(&self) -> &'static str {
+                concat!($($doc, '\n',)+)
+            }
+
+            fn groups(&self) -> &'static [$crate::core::rules::RuleGroups] {
+                &[$($group),*]
+            }
+
+            fn eval(&self, context: &$crate::core::rules::context::RuleContext) -> Vec<$crate::core::rules::LintResult> {
+                $eval(context)
+            }
+
+            fn is_fix_compatible(&self) -> bool {
+                $fix
+            }
+
+            fn crawl_behaviour(&self) -> $crate::core::rules::crawlers::Crawler {
+                $crawler.into()
+            }
+        }
+    };
+}
+
 impl RuleSet {
     fn rule_reference_map(&self) -> AHashMap<&'static str, AHashSet<&'static str>> {
         let valid_codes: AHashSet<_> = self.register.keys().copied().collect();

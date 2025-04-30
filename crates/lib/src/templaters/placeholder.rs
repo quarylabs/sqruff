@@ -34,6 +34,12 @@ pub fn get_known_styles() -> HashMap<&'static str, Regex> {
         Regex::new(r"(?<![:\w\\]):(?P<param_name>\d+)").unwrap(),
     );
 
+    // e.g. WHERE bla = @name
+    m.insert(
+        "at",
+        Regex::new(r"(?<![:\w\\])@(?P<param_name>\w+)").unwrap(),
+    );
+
     // e.g. WHERE bla = %(name)s
     m.insert(
         "pyformat",
@@ -373,7 +379,7 @@ param_style = colon",
     #[test]
     fn test_all_the_known_styles() {
         // in, param_style, expected_out, values
-        let cases: [(&str, &str, &str, Vec<(&str, &str)>); 16] = [
+        let cases: [(&str, &str, &str, Vec<(&str, &str)>); 19] = [
             (
                 "SELECT * FROM f, o, o WHERE a < 10\n\n",
                 "colon",
@@ -422,6 +428,60 @@ WHERE (city_id) IN :city_ids
 AND date > '2020-10-01'
             "#,
                 "colon",
+                r#"
+SELECT user_mail, city_id
+FROM users_data
+WHERE (city_id) IN (1, 2, 3)
+AND date > '2020-10-01'
+            "#,
+                vec![
+                    ("user_id", "42"),
+                    ("start_date", "'2020-01-01'"),
+                    ("city_ids", "(1, 2, 3)"),
+                ],
+            ),
+            (
+                r#"
+SELECT user_mail, city_id
+FROM users_data
+WHERE userid = @user_id AND date > @start_date
+"#,
+                "at",
+                r#"
+SELECT user_mail, city_id
+FROM users_data
+WHERE userid = 42 AND date > '2020-01-01'
+"#,
+                vec![
+                    ("user_id", "42"),
+                    ("start_date", "'2020-01-01'"),
+                    ("city_ids", "(1, 2, 3)"),
+                ],
+            ),
+            (
+                r#"
+SELECT user_mail, city_id
+FROM users_data
+WHERE userid = @user_id AND date > @start_date"#,
+                "at",
+                r#"
+SELECT user_mail, city_id
+FROM users_data
+WHERE userid = 42 AND date > '2020-01-01'"#,
+                vec![
+                    ("user_id", "42"),
+                    ("start_date", "'2020-01-01'"),
+                    ("city_ids", "(1, 2, 3)"),
+                ],
+            ),
+            (
+                r#"
+SELECT user_mail, city_id
+FROM users_data
+WHERE (city_id) IN @city_ids
+AND date > '2020-10-01'
+            "#,
+                "at",
                 r#"
 SELECT user_mail, city_id
 FROM users_data

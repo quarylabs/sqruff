@@ -504,6 +504,16 @@ pub fn dialect() -> Dialect {
                 )
                 .into(),
         ),
+        // https://docs.databricks.com/aws/en/sql/language-manual/sql-ref-syntax-dml-insert-into#insert-using-the-by-name-clause
+        (
+            "InsertBracketedColumnReferenceListGrammar".into(),
+            one_of(vec_of_erased![
+                Ref::new("BracketedColumnReferenceListGrammar"),
+                Sequence::new(vec_of_erased![Ref::keyword("BY"), Ref::keyword("NAME"),]),
+            ])
+            .to_matchable()
+            .into(),
+        ),
     ]);
 
     // A reference to an object.

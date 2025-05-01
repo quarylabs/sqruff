@@ -92,11 +92,6 @@ impl Linter {
         self.config.process_raw_file_for_config(sql);
         let rendered = self.render_string(sql, f_name.clone(), &self.config)?;
 
-        // Dispatch the output for the parse header
-        if let Some(formatter) = &self.formatter {
-            formatter.dispatch_parse_header(f_name.clone());
-        }
-
         Ok(self.parse_rendered(tables, rendered))
     }
 
@@ -153,7 +148,7 @@ impl Linter {
             }));
         };
 
-        LintingResult { files }
+        LintingResult::new(files)
     }
 
     pub fn get_rulepack(&self) -> RulePack {
@@ -201,16 +196,16 @@ impl Linter {
         }
 
         // TODO Need to error out unused noqas
-        let linted_file = LintedFile {
-            path: parsed_string.filename,
+        let linted_file = LintedFile::new(
+            parsed_string.filename,
             patches,
-            templated_file: parsed_string.templated_file,
+            parsed_string.templated_file,
             violations,
             ignore_mask,
-        };
+        );
 
         if let Some(formatter) = &self.formatter {
-            formatter.dispatch_file_violations(&linted_file, false);
+            formatter.dispatch_file_violations(&linted_file);
         }
 
         linted_file

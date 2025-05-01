@@ -1,7 +1,7 @@
 use std::ops::Range;
 
 use crate::core::rules::noqa::IgnoreMask;
-use itertools::Itertools;
+
 use rustc_hash::FxHashSet;
 use sqruff_lib_core::errors::SQLBaseError;
 use sqruff_lib_core::parser::segments::fix::FixPatch;
@@ -9,28 +9,52 @@ use sqruff_lib_core::templaters::{RawFileSlice, TemplatedFile};
 
 #[derive(Debug, Default, Clone)]
 pub struct LintedFile {
+    // FIXME: remove pub when we have a better way to handle this.
     pub path: String,
-    pub patches: Vec<FixPatch>,
-    pub templated_file: TemplatedFile,
-    pub violations: Vec<SQLBaseError>,
-    pub ignore_mask: Option<IgnoreMask>,
+    patches: Vec<FixPatch>,
+    templated_file: TemplatedFile,
+    violations: Vec<SQLBaseError>,
+    #[expect(dead_code)]
+    ignore_mask: Option<IgnoreMask>,
 }
 
 impl LintedFile {
+    pub fn new(
+        path: String,
+        patches: Vec<FixPatch>,
+        templated_file: TemplatedFile,
+        mut violations: Vec<SQLBaseError>,
+        ignore_mask: Option<IgnoreMask>,
+    ) -> Self {
+        violations.sort_by_key(|v| (v.line_no, v.line_pos));
+
+        Self {
+            path,
+            patches,
+            templated_file,
+            violations,
+            ignore_mask,
+        }
+    }
+
     pub fn has_violations(&self) -> bool {
         !self.violations.is_empty()
     }
 
-    pub fn get_violations(&self, is_fixable: Option<bool>) -> Vec<SQLBaseError> {
-        if let Some(is_fixable) = is_fixable {
-            self.violations
-                .iter()
-                .filter(|v| v.fixable == is_fixable)
-                .cloned()
-                .collect_vec()
-        } else {
-            self.violations.clone().into_iter().map_into().collect_vec()
-        }
+    pub fn has_unfixable_violations(&self) -> bool {
+        self.violations().iter().any(|violation| !violation.fixable)
+    }
+
+    pub fn path(&self) -> &str {
+        &self.path
+    }
+
+    pub fn into_violations(self) -> Vec<SQLBaseError> {
+        self.violations
+    }
+
+    pub fn violations(&self) -> &[SQLBaseError] {
+        &self.violations
     }
 
     ///  Use patches and raw file to fix the source file.

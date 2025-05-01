@@ -13,7 +13,7 @@ pub(crate) fn run_lint(
     let mut linter = linter(config, format, collect_parse_errors);
     let result = linter.lint_paths(paths, false, &ignorer);
 
-    linter.formatter().unwrap().completion_message();
+    linter.formatter().unwrap().completion_message(result.len());
 
     result.has_violations() as i32
 }
@@ -28,7 +28,7 @@ pub(crate) fn run_lint_stdin(
     let linter = linter(config, format, collect_parse_errors);
     let result = linter.lint_string(&read_in, None, false);
 
-    linter.formatter().unwrap().completion_message();
+    linter.formatter().unwrap().completion_message(1);
 
     result.has_violations() as i32
 }

@@ -191,6 +191,9 @@ A few common styles are supported:
 
  -- apache_camel
  WHERE bla = :#${qwe}
+
+ -- at
+ WHERE bla = @my_name
 ```
 
 The can be configured by setting `param_style` in the config file. For example:

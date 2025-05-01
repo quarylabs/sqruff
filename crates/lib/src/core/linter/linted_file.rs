@@ -17,6 +17,10 @@ pub struct LintedFile {
 }
 
 impl LintedFile {
+    pub fn has_violations(&self) -> bool {
+        !self.violations.is_empty()
+    }
+
     pub fn get_violations(&self, is_fixable: Option<bool>) -> Vec<SQLBaseError> {
         if let Some(is_fixable) = is_fixable {
             self.violations

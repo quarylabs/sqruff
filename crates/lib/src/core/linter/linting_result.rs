@@ -16,6 +16,10 @@ impl LintingResult {
         LintingResult { files: vec![] }
     }
 
+    pub fn has_violations(&self) -> bool {
+        self.files.iter().any(|file| file.has_violations())
+    }
+
     /// Add a new `LintedDir` to this result.
     pub fn add(&mut self, path: LintedFile) -> usize {
         let idx = self.files.len();

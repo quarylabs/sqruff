@@ -70,10 +70,6 @@ impl Formatter for GithubAnnotationNativeFormatter {
         }
     }
 
-    fn has_fail(&self) -> bool {
-        self.has_fail.load(Ordering::SeqCst)
-    }
-
     fn completion_message(&self) {
         // No-op
     }

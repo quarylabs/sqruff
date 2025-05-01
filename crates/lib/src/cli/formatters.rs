@@ -1,7 +1,7 @@
 use super::utils::*;
 use std::borrow::Cow;
 use std::io::{Stderr, Write};
-use std::sync::atomic::{AtomicBool, AtomicUsize};
+use std::sync::atomic::AtomicUsize;
 
 use anstyle::{AnsiColor, Effects, Style};
 use itertools::enumerate;
@@ -24,8 +24,6 @@ pub trait Formatter: Send + Sync {
 
     fn dispatch_file_violations(&self, linted_file: &LintedFile, only_fixable: bool);
 
-    fn has_fail(&self) -> bool;
-
     fn completion_message(&self);
 }
 
@@ -35,7 +33,6 @@ pub struct OutputStreamFormatter {
     filter_empty: bool,
     verbosity: i32,
     output_line_length: usize,
-    pub has_fail: AtomicBool,
     files_dispatched: AtomicUsize,
 }
 
@@ -53,10 +50,6 @@ impl Formatter for OutputStreamFormatter {
         self.dispatch(&s);
         self.files_dispatched
             .fetch_add(1, std::sync::atomic::Ordering::SeqCst);
-    }
-
-    fn has_fail(&self) -> bool {
-        self.has_fail.load(std::sync::atomic::Ordering::SeqCst)
     }
 
     fn completion_message(&self) {
@@ -92,7 +85,6 @@ impl OutputStreamFormatter {
             filter_empty: true,
             verbosity,
             output_line_length: 80,
-            has_fail: false.into(),
             files_dispatched: 0.into(),
         }
     }
@@ -146,11 +138,7 @@ impl OutputStreamFormatter {
 
         let color = match status {
             Status::Pass | Status::Fixed => AnsiColor::Green,
-            Status::Fail | Status::Error => {
-                self.has_fail
-                    .store(true, std::sync::atomic::Ordering::SeqCst);
-                AnsiColor::Red
-            }
+            Status::Fail | Status::Error => AnsiColor::Red,
         }
         .on_default();
 

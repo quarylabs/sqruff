@@ -1,0 +1,230 @@
+file:
+- statement:
+  - insert_statement:
+    - keyword: INSERT
+    - keyword: INTO
+    - object_reference:
+      - naked_identifier: target
+    - keyword: BY
+    - keyword: NAME
+    - select_statement:
+      - select_clause:
+        - keyword: SELECT
+        - select_clause_element:
+          - function:
+            - function_name:
+              - function_name_identifier: named_struct
+            - bracketed:
+              - start_bracket: (
+              - expression:
+                - quoted_literal: '''b'''
+              - comma: ','
+              - expression:
+                - numeric_literal: '2'
+              - comma: ','
+              - expression:
+                - quoted_literal: '''a'''
+              - comma: ','
+              - expression:
+                - numeric_literal: '1'
+              - end_bracket: )
+          - alias_expression:
+            - keyword: AS
+            - naked_identifier: s
+        - comma: ','
+        - select_clause_element:
+          - numeric_literal: '0'
+          - alias_expression:
+            - keyword: AS
+            - naked_identifier: n
+        - comma: ','
+        - select_clause_element:
+          - quoted_literal: '''data'''
+          - alias_expression:
+            - keyword: AS
+            - naked_identifier: text
+- statement_terminator: ;
+- statement:
+  - insert_statement:
+    - keyword: INSERT
+    - keyword: INTO
+    - object_reference:
+      - naked_identifier: target
+    - keyword: BY
+    - keyword: NAME
+    - select_statement:
+      - select_clause:
+        - keyword: SELECT
+        - select_clause_element:
+          - function:
+            - function_name:
+              - function_name_identifier: array
+            - bracketed:
+              - start_bracket: (
+              - expression:
+                - function:
+                  - function_name:
+                    - function_name_identifier: named_struct
+                  - bracketed:
+                    - start_bracket: (
+                    - expression:
+                      - quoted_literal: '''b'''
+                    - comma: ','
+                    - expression:
+                      - numeric_literal: '2'
+                    - comma: ','
+                    - expression:
+                      - quoted_literal: '''a'''
+                    - comma: ','
+                    - expression:
+                      - numeric_literal: '1'
+                    - end_bracket: )
+              - end_bracket: )
+          - alias_expression:
+            - keyword: AS
+            - naked_identifier: arr
+        - comma: ','
+        - select_clause_element:
+          - numeric_literal: '0'
+          - alias_expression:
+            - keyword: AS
+            - naked_identifier: n
+- statement_terminator: ;
+- statement:
+  - insert_statement:
+    - keyword: INSERT
+    - keyword: INTO
+    - object_reference:
+      - naked_identifier: target
+    - keyword: BY
+    - keyword: NAME
+    - select_statement:
+      - select_clause:
+        - keyword: SELECT
+        - select_clause_element:
+          - function:
+            - function_name:
+              - function_name_identifier: array
+            - bracketed:
+              - start_bracket: (
+              - expression:
+                - function:
+                  - function_name:
+                    - function_name_identifier: named_struct
+                  - bracketed:
+                    - start_bracket: (
+                    - expression:
+                      - quoted_literal: '''b'''
+                    - comma: ','
+                    - expression:
+                      - numeric_literal: '2'
+                    - comma: ','
+                    - expression:
+                      - quoted_literal: '''a'''
+                    - comma: ','
+                    - expression:
+                      - numeric_literal: '1'
+                    - end_bracket: )
+              - end_bracket: )
+          - alias_expression:
+            - keyword: AS
+            - naked_identifier: arr
+- statement_terminator: ;
+- statement:
+  - insert_statement:
+    - keyword: INSERT
+    - keyword: INTO
+    - object_reference:
+      - naked_identifier: target
+    - keyword: BY
+    - keyword: NAME
+    - select_statement:
+      - select_clause:
+        - keyword: SELECT
+        - select_clause_element:
+          - function:
+            - function_name:
+              - function_name_identifier: array
+            - bracketed:
+              - start_bracket: (
+              - expression:
+                - function:
+                  - function_name:
+                    - function_name_identifier: named_struct
+                  - bracketed:
+                    - start_bracket: (
+                    - expression:
+                      - quoted_literal: '''b'''
+                    - comma: ','
+                    - expression:
+                      - numeric_literal: '2'
+                    - comma: ','
+                    - expression:
+                      - quoted_literal: '''a'''
+                    - comma: ','
+                    - expression:
+                      - numeric_literal: '1'
+                    - end_bracket: )
+              - end_bracket: )
+          - alias_expression:
+            - keyword: AS
+            - naked_identifier: arr
+        - comma: ','
+        - select_clause_element:
+          - numeric_literal: '0'
+          - alias_expression:
+            - keyword: AS
+            - naked_identifier: badname
+- statement_terminator: ;
+- statement:
+  - insert_statement:
+    - keyword: INSERT
+    - keyword: INTO
+    - object_reference:
+      - naked_identifier: target
+    - keyword: BY
+    - keyword: NAME
+    - select_statement:
+      - select_clause:
+        - keyword: SELECT
+        - select_clause_element:
+          - function:
+            - function_name:
+              - function_name_identifier: array
+            - bracketed:
+              - start_bracket: (
+              - expression:
+                - function:
+                  - function_name:
+                    - function_name_identifier: named_struct
+                  - bracketed:
+                    - start_bracket: (
+                    - expression:
+                      - quoted_literal: '''b'''
+                    - comma: ','
+                    - expression:
+                      - numeric_literal: '2'
+                    - comma: ','
+                    - expression:
+                      - quoted_literal: '''a'''
+                    - comma: ','
+                    - expression:
+                      - numeric_literal: '1'
+                    - end_bracket: )
+              - end_bracket: )
+          - alias_expression:
+            - keyword: AS
+            - naked_identifier: arr
+        - comma: ','
+        - select_clause_element:
+          - numeric_literal: '0'
+          - alias_expression:
+            - keyword: AS
+            - naked_identifier: n
+        - comma: ','
+        - select_clause_element:
+          - numeric_literal: '1'
+          - alias_expression:
+            - keyword: AS
+            - naked_identifier: n
+- statement_terminator: ;

@@ -75,12 +75,9 @@ impl Linter {
     }
 
     /// Lint strings directly.
-    pub fn lint_string_wrapped(&mut self, sql: &str, fix: bool) -> LintingResult {
+    pub fn lint_string_wrapped(&mut self, sql: &str, fix: bool) -> LintedFile {
         let filename = "<string input>".to_owned();
-
-        let mut result = LintingResult::new();
-        result.add(self.lint_string(sql, Some(filename), fix));
-        result
+        self.lint_string(sql, Some(filename), fix)
     }
 
     /// Parse a string.

@@ -17,12 +17,12 @@ perf = "warn"
 cloned_instead_of_copied = "warn"
 
 # https://github.com/rustwasm/wasm-bindgen/issues/3451#issuecomment-1562982835
-[profile.dev]
-opt-level = "s"
+#[profile.dev]
+#opt-level = "s"
 
-[profile.release]
-lto = true
-codegen-units = 1
+#[profile.release]
+#lto = true
+#codegen-units = 1
 
 [workspace.dependencies]
 ahash = { version = "0.8.11", features = ["compile-time-rng", "serde"] }

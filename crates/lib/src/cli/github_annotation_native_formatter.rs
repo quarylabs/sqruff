@@ -1,4 +1,3 @@
-use crate::core::config::FluffConfig;
 use crate::core::linter::linted_file::LintedFile;
 use std::io::{Stderr, Write};
 use std::sync::atomic::{AtomicBool, Ordering};
@@ -29,39 +28,14 @@ impl GithubAnnotationNativeFormatter {
 }
 
 impl Formatter for GithubAnnotationNativeFormatter {
-    fn dispatch_template_header(
-        &self,
-        _f_name: String,
-        _linter_config: FluffConfig,
-        _file_config: FluffConfig,
-    ) {
-        // No-op
-    }
-
-    fn dispatch_parse_header(&self, _f_name: String) {
-        // No-op
-    }
-
-    fn dispatch_file_violations(&self, linted_file: &LintedFile, _only_fixable: bool) {
-        let mut violations = linted_file.get_violations(None);
-
-        violations.sort_by(|a, b| {
-            a.line_no
-                .cmp(&b.line_no)
-                .then_with(|| a.line_pos.cmp(&b.line_pos))
-                .then_with(|| {
-                    let b = b.rule.as_ref().unwrap().code;
-                    a.rule.as_ref().unwrap().code.cmp(b)
-                })
-        });
-
-        for violation in violations {
+    fn dispatch_file_violations(&self, linted_file: &LintedFile) {
+        for violation in linted_file.violations() {
             let message = format!(
                 "::error title=sqruff,file={},line={},col={}::{}: {}\n",
-                linted_file.path,
+                linted_file.path(),
                 violation.line_no,
                 violation.line_pos,
-                violation.rule.as_ref().unwrap().code,
+                violation.rule_code(),
                 violation.description
             );
 
@@ -70,7 +44,7 @@ impl Formatter for GithubAnnotationNativeFormatter {
         }
     }
 
-    fn completion_message(&self) {
+    fn completion_message(&self, _count: usize) {
         // No-op
     }
 }

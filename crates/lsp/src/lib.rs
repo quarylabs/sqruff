@@ -189,7 +189,7 @@ impl LanguageServer {
         let result = self.linter.lint_string(text, None, false);
 
         let diagnostics = result
-            .violations
+            .into_violations()
             .into_iter()
             .map(|violation| {
                 let range = {

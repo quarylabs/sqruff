@@ -59,6 +59,12 @@ harness = false
 [package.metadata.cargo-machete]
 ignored = ["pyo3"]
 
+[package.metadata.wix]
+upgrade-guid = "8EF43478-5698-40EB-8135-48F9CF52E9E8"
+path-guid = "8EB37E7E-D048-4BC5-A520-CAE4ADB7400C"
+license = false
+eula = false
+
 [dependencies]
 sqruff-cli-lib.workspace = true
 pyo3 = { version = "0.24.2" , features = ["auto-initialize"], optional = true }

@@ -24,6 +24,11 @@ opt-level = "s"
 lto = true
 codegen-units = 1
 
+# The profile that 'dist' will build with
+[profile.dist]
+inherits = "release"
+lto = "thin"
+
 [workspace.dependencies]
 ahash = { version = "0.8.11", features = ["compile-time-rng", "serde"] }
 indexmap = "2.7.1"

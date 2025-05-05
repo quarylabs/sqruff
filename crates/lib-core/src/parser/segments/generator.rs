@@ -1,4 +1,4 @@
-use crate::dialects::base::Dialect;
+use crate::dialects::Dialect;
 use crate::parser::matchable::Matchable;
 
 type Generator = fn(&Dialect) -> Matchable;

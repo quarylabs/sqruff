@@ -6,9 +6,9 @@ use sqruff_lib_core::parser::grammar::delimited::Delimited;
 use sqruff_lib_core::parser::grammar::sequence::Bracketed;
 use sqruff_lib_core::parser::matchable::MatchableTrait;
 use sqruff_lib_core::{
-    dialects::{base::Dialect, init::DialectKind},
+    dialects::{Dialect, init::DialectKind},
     helpers::ToMatchable,
-    parser::grammar::{base::Ref, sequence::Sequence},
+    parser::grammar::{Ref, sequence::Sequence},
     vec_of_erased,
 };
 

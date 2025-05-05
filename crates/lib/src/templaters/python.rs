@@ -2,7 +2,7 @@ use pyo3::prelude::*;
 use pyo3::types::PySlice;
 use pyo3::{Py, PyAny, Python};
 use sqruff_lib_core::errors::SQLFluffUserError;
-use sqruff_lib_core::templaters::base::{RawFileSlice, TemplatedFile, TemplatedFileSlice};
+use sqruff_lib_core::templaters::{RawFileSlice, TemplatedFile, TemplatedFileSlice};
 
 use super::Templater;
 use crate::cli::formatters::Formatter;

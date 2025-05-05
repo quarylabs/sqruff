@@ -1,6 +1,6 @@
 use ahash::AHashSet;
 
-use super::base::ErasedSegment;
+use super::ErasedSegment;
 use crate::dialects::syntax::{SyntaxKind, SyntaxSet};
 use crate::errors::SQLParseError;
 use crate::parser::context::ParseContext;

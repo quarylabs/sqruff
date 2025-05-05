@@ -4,11 +4,11 @@ use std::str::FromStr;
 use sqruff_lib_core::dialects::syntax::SyntaxKind;
 use sqruff_lib_core::helpers::capitalize;
 use sqruff_lib_core::lint_fix::LintFix;
-use sqruff_lib_core::parser::segments::base::{ErasedSegment, Tables};
+use sqruff_lib_core::parser::segments::{ErasedSegment, Tables};
 use strum_macros::{AsRefStr, EnumString};
 
 use super::elements::{ReflowElement, ReflowSequenceType};
-use crate::core::rules::base::LintResult;
+use crate::core::rules::LintResult;
 use crate::utils::reflow::depth_map::StackPositionType;
 use crate::utils::reflow::elements::ReflowPoint;
 use crate::utils::reflow::helpers::{deduce_line_indent, fixes_from_results};
@@ -555,7 +555,7 @@ fn reorder_and_insert(
 mod tests {
     use sqruff_lib::core::test_functions::parse_ansi_string;
     use sqruff_lib_core::helpers::enter_panic;
-    use sqruff_lib_core::parser::segments::base::Tables;
+    use sqruff_lib_core::parser::segments::Tables;
 
     use crate::utils::reflow::sequence::{ReflowSequence, TargetSide};
 

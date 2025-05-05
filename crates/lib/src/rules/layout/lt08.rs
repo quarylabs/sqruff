@@ -4,12 +4,12 @@ use sqruff_lib_core::dialects::syntax::{SyntaxKind, SyntaxSet};
 use sqruff_lib_core::edit_type::EditType;
 use sqruff_lib_core::helpers::IndexMap;
 use sqruff_lib_core::lint_fix::LintFix;
-use sqruff_lib_core::parser::segments::base::SegmentBuilder;
+use sqruff_lib_core::parser::segments::SegmentBuilder;
 
 use crate::core::config::Value;
-use crate::core::rules::base::{Erased, ErasedRule, LintResult, Rule, RuleGroups};
 use crate::core::rules::context::RuleContext;
 use crate::core::rules::crawlers::{Crawler, SegmentSeekerCrawler};
+use crate::core::rules::{Erased, ErasedRule, LintResult, Rule, RuleGroups};
 
 #[derive(Debug, Default, Clone)]
 pub struct RuleLT08;

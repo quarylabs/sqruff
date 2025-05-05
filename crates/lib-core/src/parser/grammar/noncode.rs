@@ -5,7 +5,7 @@ use crate::errors::SQLParseError;
 use crate::parser::context::ParseContext;
 use crate::parser::match_result::{MatchResult, Span};
 use crate::parser::matchable::{Matchable, MatchableCacheKey, MatchableTrait};
-use crate::parser::segments::base::ErasedSegment;
+use crate::parser::segments::ErasedSegment;
 
 #[derive(Debug, Clone, PartialEq)]
 pub struct NonCodeMatcher;

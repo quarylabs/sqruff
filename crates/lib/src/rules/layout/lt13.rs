@@ -5,9 +5,9 @@ use sqruff_lib_core::lint_fix::LintFix;
 use sqruff_lib_core::utils::functional::segments::Segments;
 
 use crate::core::config::Value;
-use crate::core::rules::base::{Erased, ErasedRule, LintPhase, LintResult, Rule, RuleGroups};
 use crate::core::rules::context::RuleContext;
 use crate::core::rules::crawlers::{Crawler, RootOnlyCrawler};
+use crate::core::rules::{Erased, ErasedRule, LintPhase, LintResult, Rule, RuleGroups};
 
 #[derive(Debug, Default, Clone)]
 pub struct RuleLT13;

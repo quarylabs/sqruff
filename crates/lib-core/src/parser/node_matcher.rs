@@ -4,7 +4,7 @@ use crate::errors::SQLParseError;
 use crate::parser::context::ParseContext;
 use crate::parser::match_result::{MatchResult, Matched};
 use crate::parser::matchable::Matchable;
-use crate::parser::segments::base::ErasedSegment;
+use crate::parser::segments::ErasedSegment;
 
 #[macro_export]
 macro_rules! vec_of_erased {

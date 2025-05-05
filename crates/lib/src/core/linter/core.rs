@@ -9,8 +9,8 @@ use crate::core::config::FluffConfig;
 use crate::core::linter::common::{ParsedString, RenderedFile};
 use crate::core::linter::linted_file::LintedFile;
 use crate::core::linter::linting_result::LintingResult;
-use crate::core::rules::base::{ErasedRule, LintPhase, RulePack};
 use crate::core::rules::noqa::IgnoreMask;
+use crate::core::rules::{ErasedRule, LintPhase, RulePack};
 use crate::rules::get_ruleset;
 use crate::templaters::raw::RawTemplater;
 use crate::templaters::{TEMPLATERS, Templater};
@@ -18,7 +18,7 @@ use ahash::{AHashMap, AHashSet};
 use itertools::Itertools;
 use rayon::iter::{IndexedParallelIterator, IntoParallelRefIterator as _, ParallelIterator as _};
 use smol_str::{SmolStr, ToSmolStr};
-use sqruff_lib_core::dialects::base::Dialect;
+use sqruff_lib_core::dialects::Dialect;
 use sqruff_lib_core::dialects::syntax::{SyntaxKind, SyntaxSet};
 use sqruff_lib_core::errors::{
     SQLBaseError, SQLFluffUserError, SQLLexError, SQLLintError, SQLParseError, SqlError,
@@ -26,11 +26,11 @@ use sqruff_lib_core::errors::{
 use sqruff_lib_core::helpers;
 use sqruff_lib_core::lint_fix::LintFix;
 use sqruff_lib_core::linter::compute_anchor_edit_info;
+use sqruff_lib_core::parser::Parser;
 use sqruff_lib_core::parser::lexer::StringOrTemplate;
-use sqruff_lib_core::parser::parser::Parser;
-use sqruff_lib_core::parser::segments::base::{ErasedSegment, Tables};
 use sqruff_lib_core::parser::segments::fix::SourceFix;
-use sqruff_lib_core::templaters::base::TemplatedFile;
+use sqruff_lib_core::parser::segments::{ErasedSegment, Tables};
+use sqruff_lib_core::templaters::TemplatedFile;
 use walkdir::WalkDir;
 
 pub struct Linter {
@@ -300,7 +300,7 @@ impl Linter {
                         continue;
                     }
 
-                    let linting_errors = crate::core::rules::base::crawl(
+                    let linting_errors = crate::core::rules::crawl(
                         rule,
                         tables,
                         &self.config.dialect,
@@ -678,7 +678,7 @@ impl Linter {
 
 #[cfg(test)]
 mod tests {
-    use sqruff_lib_core::parser::segments::base::Tables;
+    use sqruff_lib_core::parser::segments::Tables;
 
     use crate::core::config::FluffConfig;
     use crate::core::linter::core::Linter;

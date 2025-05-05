@@ -4,7 +4,7 @@ use pprof::criterion::{Output, PProfProfiler};
 use sqruff_lib::core::config::FluffConfig;
 use sqruff_lib::core::linter::core::Linter;
 use sqruff_lib::utils::reflow::depth_map::DepthMap;
-use sqruff_lib_core::parser::segments::base::Tables;
+use sqruff_lib_core::parser::segments::Tables;
 use std::hint::black_box;
 
 include!("shims/global_alloc_overwrite.rs");

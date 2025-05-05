@@ -3,7 +3,7 @@ use smol_str::{SmolStr, ToSmolStr};
 
 use crate::dialects::init::DialectKind;
 use crate::dialects::syntax::{SyntaxKind, SyntaxSet};
-use crate::parser::segments::base::ErasedSegment;
+use crate::parser::segments::ErasedSegment;
 
 #[derive(PartialEq, Eq, PartialOrd, Ord, Clone, Copy)]
 pub enum ObjectReferenceLevel {

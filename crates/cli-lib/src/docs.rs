@@ -3,7 +3,7 @@ use std::path::Path;
 
 use minijinja::{Environment, context};
 use serde::Serialize;
-use sqruff_lib::core::rules::base::ErasedRule;
+use sqruff_lib::core::rules::ErasedRule;
 use sqruff_lib::rules::rules;
 use sqruff_lib::templaters::TEMPLATERS;
 

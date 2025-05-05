@@ -4,10 +4,10 @@ use smol_str::SmolStr;
 
 use super::match_result::MatchResult;
 use super::matchable::{Matchable, MatchableCacheKey};
-use crate::dialects::base::Dialect;
+use crate::dialects::Dialect;
 use crate::dialects::syntax::SyntaxKind;
 use crate::helpers::IndexSet;
-use crate::parser::parser::Parser;
+use crate::parser::Parser;
 
 type LocKey = u32;
 type LocKeyData = (SmolStr, (usize, usize), SyntaxKind, u32);

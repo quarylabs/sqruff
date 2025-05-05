@@ -3,7 +3,7 @@ use std::ops::{Deref, DerefMut, Range};
 
 use fancy_regex::Regex;
 
-use super::parser::segments::base::ErasedSegment;
+use super::parser::segments::ErasedSegment;
 use crate::helpers::Config;
 use crate::lint_fix::LintFix;
 use crate::parser::markers::PositionMarker;

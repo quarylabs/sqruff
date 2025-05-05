@@ -4,7 +4,7 @@ use std::rc::Rc;
 use ahash::AHashSet;
 
 use crate::slice_helpers::zero_slice;
-use crate::templaters::base::TemplatedFile;
+use crate::templaters::TemplatedFile;
 
 /// A reference to a position in a file.
 ///
@@ -298,7 +298,7 @@ mod tests {
     use std::ops::Range;
 
     use crate::parser::markers::PositionMarker;
-    use crate::templaters::base::TemplatedFile;
+    use crate::templaters::TemplatedFile;
 
     /// Test that we can correctly infer positions from strings.
     #[test]

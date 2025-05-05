@@ -3,18 +3,18 @@ use std::ops::{Deref, DerefMut};
 use ahash::AHashSet;
 
 use super::anyof::{AnyNumberOf, one_of};
-use super::base::Ref;
 use crate::dialects::syntax::SyntaxSet;
 use crate::errors::SQLParseError;
 use crate::helpers::ToMatchable;
 use crate::parser::context::ParseContext;
+use crate::parser::grammar::Ref;
 use crate::parser::grammar::noncode::NonCodeMatcher;
 use crate::parser::match_algorithms::{longest_match, skip_start_index_forward_to_code};
 use crate::parser::match_result::MatchResult;
 use crate::parser::matchable::{
     Matchable, MatchableCacheKey, MatchableTrait, next_matchable_cache_key,
 };
-use crate::parser::segments::base::ErasedSegment;
+use crate::parser::segments::ErasedSegment;
 
 /// Match an arbitrary number of elements separated by a delimiter.
 ///

@@ -3,7 +3,7 @@ use std::sync::Arc;
 
 use fancy_regex::Regex;
 use sqruff_lib_core::errors::SQLFluffUserError;
-use sqruff_lib_core::templaters::base::{RawFileSlice, TemplatedFile, TemplatedFileSlice};
+use sqruff_lib_core::templaters::{RawFileSlice, TemplatedFile, TemplatedFileSlice};
 
 use crate::cli::formatters::Formatter;
 use crate::core::config::FluffConfig;

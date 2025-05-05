@@ -1,10 +1,10 @@
 use std::collections::{HashMap, HashSet};
 use std::fmt::Display;
 
-use sqruff_lib_core::dialects::base::Dialect;
+use sqruff_lib_core::dialects::Dialect;
 use sqruff_lib_core::dialects::syntax::{SyntaxKind, SyntaxSet};
-use sqruff_lib_core::parser::parser::Parser;
-use sqruff_lib_core::parser::segments::base::ErasedSegment;
+use sqruff_lib_core::parser::Parser;
+use sqruff_lib_core::parser::segments::ErasedSegment;
 use sqruff_lib_core::utils::analysis::query::Query;
 use sqruff_lib_core::utils::functional::segments::Segments;
 

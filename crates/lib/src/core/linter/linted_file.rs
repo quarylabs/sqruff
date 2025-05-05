@@ -5,7 +5,7 @@ use itertools::Itertools;
 use rustc_hash::FxHashSet;
 use sqruff_lib_core::errors::{SQLBaseError, SqlError};
 use sqruff_lib_core::parser::segments::fix::FixPatch;
-use sqruff_lib_core::templaters::base::{RawFileSlice, TemplatedFile};
+use sqruff_lib_core::templaters::{RawFileSlice, TemplatedFile};
 
 #[derive(Debug, Default, Clone)]
 pub struct LintedFile {
@@ -190,7 +190,7 @@ impl LintedFile {
 
 #[cfg(test)]
 mod test {
-    use sqruff_lib_core::templaters::base::TemplatedFileSlice;
+    use sqruff_lib_core::templaters::TemplatedFileSlice;
 
     use super::*;
 

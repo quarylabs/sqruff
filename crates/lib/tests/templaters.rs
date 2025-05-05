@@ -4,9 +4,9 @@ use expect_test::expect_file;
 use glob::glob;
 use sqruff_lib::core::config::FluffConfig;
 use sqruff_lib::core::linter::core::Linter;
+use sqruff_lib_core::parser::Parser;
 use sqruff_lib_core::parser::lexer::{Lexer, StringOrTemplate};
-use sqruff_lib_core::parser::parser::Parser;
-use sqruff_lib_core::parser::segments::base::Tables;
+use sqruff_lib_core::parser::segments::Tables;
 
 #[derive(Default)]
 pub struct Args {

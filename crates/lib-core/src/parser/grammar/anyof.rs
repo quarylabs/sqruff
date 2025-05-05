@@ -14,7 +14,7 @@ use crate::parser::match_result::{MatchResult, Matched, Span};
 use crate::parser::matchable::{
     Matchable, MatchableCacheKey, MatchableTrait, next_matchable_cache_key,
 };
-use crate::parser::segments::base::ErasedSegment;
+use crate::parser::segments::ErasedSegment;
 use crate::parser::types::ParseMode;
 
 fn parse_mode_match_result(

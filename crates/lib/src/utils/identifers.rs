@@ -1,5 +1,5 @@
 use sqruff_lib_core::dialects::syntax::SyntaxKind;
-use sqruff_lib_core::parser::segments::base::ErasedSegment;
+use sqruff_lib_core::parser::segments::ErasedSegment;
 
 pub fn identifiers_policy_applicable(policy: &str, parent_stack: &[ErasedSegment]) -> bool {
     match policy {

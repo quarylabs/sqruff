@@ -1,5 +1,5 @@
 use super::utils::*;
-use crate::core::rules::base::ErasedRule;
+use crate::core::rules::ErasedRule;
 use crate::rules::rules;
 use anstyle::{AnsiColor, Style};
 use std::borrow::Cow;

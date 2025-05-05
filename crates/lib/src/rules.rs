@@ -1,7 +1,7 @@
 use itertools::{Itertools, chain};
 use sqruff_lib_core::helpers::IndexMap;
 
-use crate::core::rules::base::{ErasedRule, RuleManifest, RuleSet};
+use crate::core::rules::{ErasedRule, RuleManifest, RuleSet};
 
 pub mod aliasing;
 pub mod ambiguous;
@@ -49,7 +49,7 @@ pub fn get_ruleset() -> RuleSet {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::core::rules::base::RuleGroups;
+    use crate::core::rules::RuleGroups;
 
     #[test]
     fn no_rule_should_not_include_all_as_that_is_default() {

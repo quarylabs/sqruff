@@ -6,7 +6,7 @@ use crate::templaters::python_shared::PythonFluffConfig;
 use pyo3::prelude::*;
 use pyo3::{Py, PyAny, Python};
 use sqruff_lib_core::errors::SQLFluffUserError;
-use sqruff_lib_core::templaters::base::TemplatedFile;
+use sqruff_lib_core::templaters::TemplatedFile;
 use std::sync::Arc;
 
 pub struct JinjaTemplater;

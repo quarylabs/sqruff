@@ -1,8 +1,8 @@
-use sqruff_lib_core::dialects::base::Dialect;
+use sqruff_lib_core::dialects::Dialect;
 use sqruff_lib_core::dialects::syntax::SyntaxKind;
 use sqruff_lib_core::helpers::{Config, ToMatchable};
+use sqruff_lib_core::parser::grammar::Ref;
 use sqruff_lib_core::parser::grammar::anyof::one_of;
-use sqruff_lib_core::parser::grammar::base::Ref;
 use sqruff_lib_core::parser::grammar::delimited::Delimited;
 use sqruff_lib_core::parser::grammar::sequence::{Bracketed, Sequence};
 use sqruff_lib_core::parser::node_matcher::NodeMatcher;

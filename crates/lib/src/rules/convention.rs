@@ -1,4 +1,4 @@
-use crate::core::rules::base::ErasedRule;
+use crate::core::rules::ErasedRule;
 
 pub mod cv01;
 pub mod cv02;
@@ -13,7 +13,7 @@ pub mod cv10;
 pub mod cv11;
 
 pub fn rules() -> Vec<ErasedRule> {
-    use crate::core::rules::base::Erased as _;
+    use crate::core::rules::Erased as _;
 
     vec![
         cv01::RuleCV01::default().erased(),

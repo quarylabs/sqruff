@@ -3,8 +3,8 @@ use std::ops::Range;
 use ahash::AHashSet;
 
 use crate::edit_type::EditType;
-use crate::parser::segments::base::ErasedSegment;
-use crate::templaters::base::{RawFileSlice, TemplatedFile};
+use crate::parser::segments::ErasedSegment;
+use crate::templaters::{RawFileSlice, TemplatedFile};
 
 /// A potential fix to a linting violation.
 #[derive(Debug, Clone)]

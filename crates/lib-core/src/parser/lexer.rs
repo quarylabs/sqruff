@@ -4,12 +4,12 @@ use std::ops::Range;
 use std::str::Chars;
 
 use super::markers::PositionMarker;
-use super::segments::base::{ErasedSegment, SegmentBuilder, Tables};
-use crate::dialects::base::Dialect;
+use super::segments::{ErasedSegment, SegmentBuilder, Tables};
+use crate::dialects::Dialect;
 use crate::dialects::syntax::SyntaxKind;
 use crate::errors::{SQLLexError, ValueError};
 use crate::slice_helpers::{is_zero_slice, offset_slice};
-use crate::templaters::base::TemplatedFile;
+use crate::templaters::TemplatedFile;
 
 /// An element matched during lexing.
 #[derive(Debug, Clone)]

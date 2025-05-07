@@ -157,7 +157,9 @@ SELECT a FROM plop
                         }
                     }
                 } else if comma_style == "leading" {
-                    fix_point = forward_slice[comma_seg_idx].clone().into();
+                    if comma_seg_idx < forward_slice.len() {
+                        fix_point = forward_slice[comma_seg_idx].clone().into();
+                    }
                 } else {
                     let mut offset = 1;
 
@@ -186,16 +188,22 @@ SELECT a FROM plop
                 1
             };
 
-            let fixes = vec![LintFix {
-                edit_type: fix_type,
-                anchor: fix_point.unwrap(),
-                edit: std::iter::repeat_n(
-                    SegmentBuilder::newline(context.tables.next_id(), "\n"),
-                    num_newlines,
-                )
-                .collect_vec(),
-                source: Vec::new(),
-            }];
+            // Only create fixes if we have a valid fix point
+            let fixes = if let Some(anchor) = fix_point {
+                vec![LintFix {
+                    edit_type: fix_type,
+                    anchor,
+                    edit: std::iter::repeat_n(
+                        SegmentBuilder::newline(context.tables.next_id(), "\n"),
+                        num_newlines,
+                    )
+                    .collect_vec(),
+                    source: Vec::new(),
+                }]
+            } else {
+                // Skip generating a fix if we don't have a valid anchor point
+                Vec::new()
+            };
 
             error_buffer.push(LintResult::new(
                 forward_slice[seg_idx].clone().into(),

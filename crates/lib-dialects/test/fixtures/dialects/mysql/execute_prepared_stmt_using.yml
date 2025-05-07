@@ -1,0 +1,6 @@
+file:
+- statement:
+  - keyword: execute
+  - naked_identifier: test
+- file:
+  - word: using

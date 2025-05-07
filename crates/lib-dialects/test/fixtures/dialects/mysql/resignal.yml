@@ -1,0 +1,4 @@
+file:
+- statement:
+  - keyword: resignal
+- statement_terminator: ;

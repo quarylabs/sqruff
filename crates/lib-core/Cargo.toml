@@ -18,7 +18,7 @@ stringify = ["dep:serde_yaml", "serde"]
 
 [dependencies]
 smol_str = "0.3.1"
-ahash = { version = "0.8.11", features = ["compile-time-rng", "serde"] }
+ahash = { version = "0.8.12", features = ["compile-time-rng", "serde"] }
 strum.workspace = true
 strum_macros.workspace = true
 indexmap = "2.7.1"

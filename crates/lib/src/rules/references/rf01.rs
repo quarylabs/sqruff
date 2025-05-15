@@ -3,7 +3,7 @@ use std::cell::RefCell;
 use ahash::AHashMap;
 use itertools::Itertools;
 use smol_str::SmolStr;
-use sqruff_lib_core::dialects::base::Dialect;
+use sqruff_lib_core::dialects::Dialect;
 use sqruff_lib_core::dialects::common::AliasInfo;
 use sqruff_lib_core::dialects::init::DialectKind;
 use sqruff_lib_core::dialects::syntax::{SyntaxKind, SyntaxSet};
@@ -13,10 +13,10 @@ use sqruff_lib_core::parser::segments::object_reference::{
 use sqruff_lib_core::utils::analysis::query::{Query, Selectable};
 
 use crate::core::config::Value;
-use crate::core::rules::base::{Erased, ErasedRule, LintResult, Rule, RuleGroups};
 use crate::core::rules::context::RuleContext;
 use crate::core::rules::crawlers::{Crawler, SegmentSeekerCrawler};
 use crate::core::rules::reference::object_ref_matches_table;
+use crate::core::rules::{Erased, ErasedRule, LintResult, Rule, RuleGroups};
 
 #[derive(Debug, Default, Clone)]
 struct RF01Query {

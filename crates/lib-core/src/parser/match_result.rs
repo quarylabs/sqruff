@@ -4,7 +4,7 @@ use std::cmp::Ordering;
 use ahash::HashMapExt;
 use nohash_hasher::IntMap;
 
-use super::segments::base::{ErasedSegment, SegmentBuilder, Tables};
+use super::segments::{ErasedSegment, SegmentBuilder, Tables};
 use crate::dialects::init::DialectKind;
 use crate::dialects::syntax::SyntaxKind;
 use crate::parser::markers::PositionMarker;

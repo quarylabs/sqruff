@@ -4,11 +4,11 @@ use std::rc::Rc;
 use smol_str::{SmolStr, StrExt, ToSmolStr};
 
 use super::select::SelectStatementColumnsAndTables;
-use crate::dialects::base::Dialect;
+use crate::dialects::Dialect;
 use crate::dialects::common::AliasInfo;
 use crate::dialects::syntax::{SyntaxKind, SyntaxSet};
 use crate::helpers::IndexMap;
-use crate::parser::segments::base::ErasedSegment;
+use crate::parser::segments::ErasedSegment;
 use crate::utils::analysis::select::get_select_statement_info;
 use crate::utils::functional::segments::Segments;
 

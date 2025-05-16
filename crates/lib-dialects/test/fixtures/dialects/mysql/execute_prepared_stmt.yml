@@ -1,0 +1,5 @@
+file:
+- statement:
+  - keyword: execute
+  - naked_identifier: test
+- statement_terminator: ;

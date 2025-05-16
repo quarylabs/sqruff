@@ -1,0 +1,24 @@
+file:
+- statement:
+  - naked_identifier: iteration
+  - colon: ':'
+  - keyword: loop
+  - statement:
+    - select_statement:
+      - select_clause:
+        - keyword: select
+        - select_clause_element:
+          - numeric_literal: '1'
+- statement_terminator: ;
+- statement:
+  - keyword: iterate
+  - naked_identifier: iteration
+- statement_terminator: ;
+- file:
+  - word: leave
+  - word: iteration
+  - semicolon: ;
+  - word: end
+  - word: loop
+  - word: iteration
+  - semicolon: ;

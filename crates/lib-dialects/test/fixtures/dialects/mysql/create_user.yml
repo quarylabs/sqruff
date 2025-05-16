@@ -1,0 +1,29 @@
+file:
+- statement:
+  - keyword: CREATE
+  - keyword: USER
+  - role_reference:
+    - naked_identifier: jeffrey
+- statement_terminator: ;
+- statement:
+  - keyword: CREATE
+  - keyword: USER
+  - keyword: IF
+  - keyword: NOT
+  - keyword: EXISTS
+  - role_reference:
+    - naked_identifier: jeffrey
+- statement_terminator: ;
+- file:
+  - word: CREATE
+  - word: USER
+  - single_quote: '''prj_svc'''
+  - word: IDENTIFIED
+  - word: WITH
+  - word: AWSAuthenticationPlugin
+  - word: AS
+  - single_quote: '''RDS'''
+  - semicolon: ;
+  - word: CREATE
+  - word: USER
+  - single_quote: '''jeffrey'''

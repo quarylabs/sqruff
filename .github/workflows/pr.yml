@@ -120,7 +120,7 @@ jobs:
       - uses: taiki-e/install-action@96200019792a838c050bcc22dda6518ee07fd860 # ratchet:taiki-e/install-action@cargo-machete
       - uses: dtolnay/rust-toolchain@38b70195107dddab2c7bbd522bcf763bac00963b # ratchet:dtolnay/rust-toolchain@stable
         with:
-          components: clippy
+          components: clippy, rustfmt
       - name: Checkout sources
         uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # ratchet:actions/checkout@v4
       - run: make rust_lint

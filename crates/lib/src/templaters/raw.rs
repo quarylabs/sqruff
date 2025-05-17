@@ -20,7 +20,7 @@ impl Templater for RawTemplater {
     }
 
     fn description(&self) -> &'static str {
-        r"The raw templater simply returns the input string as the output string. It passes through the input string unchanged and is useful if you need no templating. It is the defualt templater."
+        r"The raw templater simply returns the input string as the output string. It passes through the input string unchanged and is useful if you need no templating. It is the default templater."
     }
 
     fn process(

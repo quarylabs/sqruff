@@ -4,4 +4,4 @@ The following instructions are for developers who want to contribute to the sqru
 
 ## VS Code Defaults
 
-The repository includes a sample `.vscode` in `.hacking/vscode`. This is used to configure the vscode settings with 
+The repository includes a sample `.vscode` in `.hacking/vscode`. This is used to configure the vscode settings with recommended defaults.

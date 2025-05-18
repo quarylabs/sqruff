@@ -34,6 +34,12 @@ pub fn get_known_styles() -> HashMap<&'static str, Regex> {
         Regex::new(r"(?<![:\w\\]):(?P<param_name>\d+)").unwrap(),
     );
 
+    // e.g. WHERE bla = @name
+    m.insert(
+        "at",
+        Regex::new(r"(?<![:\w\\])@(?P<param_name>\w+)").unwrap(),
+    );
+
     // e.g. WHERE bla = %(name)s
     m.insert(
         "pyformat",
@@ -185,6 +191,9 @@ A few common styles are supported:
 
  -- apache_camel
  WHERE bla = :#${qwe}
+
+ -- at
+ WHERE bla = @my_name
 ```
 
 The can be configured by setting `param_style` in the config file. For example:
@@ -347,7 +356,6 @@ Also consider making a pull request to the project to have your style added, it 
 
 #[cfg(test)]
 mod tests {
-    use std::mem::take;
 
     use super::*;
     use crate::core::linter::core::Linter;
@@ -373,7 +381,7 @@ param_style = colon",
     #[test]
     fn test_all_the_known_styles() {
         // in, param_style, expected_out, values
-        let cases: [(&str, &str, &str, Vec<(&str, &str)>); 16] = [
+        let cases: [(&str, &str, &str, Vec<(&str, &str)>); 19] = [
             (
                 "SELECT * FROM f, o, o WHERE a < 10\n\n",
                 "colon",
@@ -422,6 +430,60 @@ WHERE (city_id) IN :city_ids
 AND date > '2020-10-01'
             "#,
                 "colon",
+                r#"
+SELECT user_mail, city_id
+FROM users_data
+WHERE (city_id) IN (1, 2, 3)
+AND date > '2020-10-01'
+            "#,
+                vec![
+                    ("user_id", "42"),
+                    ("start_date", "'2020-01-01'"),
+                    ("city_ids", "(1, 2, 3)"),
+                ],
+            ),
+            (
+                r#"
+SELECT user_mail, city_id
+FROM users_data
+WHERE userid = @user_id AND date > @start_date
+"#,
+                "at",
+                r#"
+SELECT user_mail, city_id
+FROM users_data
+WHERE userid = 42 AND date > '2020-01-01'
+"#,
+                vec![
+                    ("user_id", "42"),
+                    ("start_date", "'2020-01-01'"),
+                    ("city_ids", "(1, 2, 3)"),
+                ],
+            ),
+            (
+                r#"
+SELECT user_mail, city_id
+FROM users_data
+WHERE userid = @user_id AND date > @start_date"#,
+                "at",
+                r#"
+SELECT user_mail, city_id
+FROM users_data
+WHERE userid = 42 AND date > '2020-01-01'"#,
+                vec![
+                    ("user_id", "42"),
+                    ("start_date", "'2020-01-01'"),
+                    ("city_ids", "(1, 2, 3)"),
+                ],
+            ),
+            (
+                r#"
+SELECT user_mail, city_id
+FROM users_data
+WHERE (city_id) IN @city_ids
+AND date > '2020-10-01'
+            "#,
+                "at",
                 r#"
 SELECT user_mail, city_id
 FROM users_data
@@ -733,8 +795,7 @@ param_style = percent
         let sql = "SELECT a,b FROM users WHERE a = %s";
 
         let mut linter = Linter::new(config, None, None, false);
-        let mut result = linter.lint_string_wrapped(sql, true);
-        let result = take(&mut result.files[0]).fix_string();
+        let result = linter.lint_string_wrapped(sql, true).fix_string();
 
         assert_eq!(result, "SELECT\n    a,\n    b\nFROM users WHERE a = %s\n");
     }

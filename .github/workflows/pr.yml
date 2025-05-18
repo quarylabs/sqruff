@@ -115,14 +115,14 @@ jobs:
     name: Lint
     runs-on: ubuntu-latest
     steps:
+      - name: Checkout sources
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # ratchet:actions/checkout@v4
       - uses: Swatinem/rust-cache@9d47c6ad4b02e050fd481d890b2ea34778fd09d6 # ratchet:Swatinem/rust-cache@v2
       - uses: taiki-e/install-action@dc31d68fd5b543e71fcf192c363a7ac2223bfc5b # ratchet:taiki-e/install-action@cargo-hack
       - uses: taiki-e/install-action@96200019792a838c050bcc22dda6518ee07fd860 # ratchet:taiki-e/install-action@cargo-machete
       - uses: dtolnay/rust-toolchain@38b70195107dddab2c7bbd522bcf763bac00963b # ratchet:dtolnay/rust-toolchain@stable
         with:
-          components: clippy
-      - name: Checkout sources
-        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # ratchet:actions/checkout@v4
+          components: clippy, rustfmt
       - run: make rust_lint
   prettier-formatting:
     name: Check Prettier formatting
@@ -167,7 +167,7 @@ jobs:
     steps:
       - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # ratchet:actions/checkout@v4
       - name: Set up Go
-        uses: actions/setup-go@0aaccfd150d50ccaeb58ebd88d36e91967a5f35b # ratchet:actions/setup-go@v4
+        uses: actions/setup-go@d35c59abb061a4a6fb18e82ac0862c26744d6ab5 # ratchet:actions/setup-go@v4
       - name: Install ratchet
         run: go install github.com/sethvargo/ratchet@latest
       - name: Ratchet Check
@@ -179,3 +179,37 @@ jobs:
       - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # ratchet:actions/checkout@v4
       - run: chmod +x ./.hacking/scripts/check_for_unparsable.sh
       - run: ./.hacking/scripts/check_for_unparsable.sh
+
+  build-binaries:
+    name: Build binaries for all platforms
+    runs-on: ${{ matrix.platform.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        platform:
+          - name: sqruff-linux-x86_64-musl.tar.gz
+            os: ubuntu-latest
+            target: x86_64-unknown-linux-musl
+            bin: sqruff
+          - name: sqruff-linux-aarch64-musl.tar.gz
+            os: ubuntu-latest
+            target: aarch64-unknown-linux-musl
+            bin: sqruff
+          - name: sqruff-windows-x86_64.zip
+            os: windows-latest
+            target: x86_64-pc-windows-msvc
+            bin: sqruff.exe
+          - name: sqruff-darwin-x86_64.tar.gz
+            os: macos-13
+            target: x86_64-apple-darwin
+            bin: sqruff
+          - name: sqruff-darwin-aarch64.tar.gz
+            os: macOS-latest
+            target: aarch64-apple-darwin
+            bin: sqruff
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # ratchet:actions/checkout@v4
+      - uses: ./.github/actions/build-binaries
+        with:
+          package: false
+          publish: false

@@ -1935,6 +1935,12 @@ pub fn raw_dialect() -> Dialect {
             .into(),
         ),
         (
+            "InsertBracketedColumnReferenceListGrammar".into(),
+            Ref::new("BracketedColumnReferenceListGrammar")
+                .to_matchable()
+                .into(),
+        ),
+        (
             "InsertStatementSegment".into(),
             NodeMatcher::new(
                 SyntaxKind::InsertStatement,
@@ -1947,7 +1953,7 @@ pub fn raw_dialect() -> Dialect {
                     Ref::keyword("TABLE").optional(),
                     Ref::new("TableReferenceSegment"),
                     Ref::new("PartitionSpecGrammar").optional(),
-                    Ref::new("BracketedColumnReferenceListGrammar").optional(),
+                    Ref::new("InsertBracketedColumnReferenceListGrammar").optional(),
                     one_of(vec_of_erased![
                         AnyNumberOf::new(vec_of_erased![Ref::new("ValuesClauseSegment")]).config(
                             |config| {

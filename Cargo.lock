@@ -304,9 +304,9 @@ dependencies = [
 
 [[package]]
 name = "clap"
-version = "4.5.37"
+version = "4.5.38"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "eccb054f56cbd38340b380d4a8e69ef1f02f1af43db2f0cc817a4774d80ae071"
+checksum = "ed93b9805f8ba930df42c2590f05453d5ec36cbb85d018868a5b24d31f6ac000"
 dependencies = [
  "clap_builder",
  "clap_derive",
@@ -314,18 +314,18 @@ dependencies = [
 
 [[package]]
 name = "clap-markdown"
-version = "0.1.4"
+version = "0.1.5"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "8ebc67e6266e14f8b31541c2f204724fa2ac7ad5c17d6f5908fbb92a60f42cff"
+checksum = "d2a2617956a06d4885b490697b5307ebb09fec10b088afc18c81762d848c2339"
 dependencies = [
  "clap",
 ]
 
 [[package]]
 name = "clap_builder"
-version = "4.5.37"
+version = "4.5.38"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "efd9466fac8543255d3b1fcad4762c5e116ffe808c8a3043d4263cd4fd4862a2"
+checksum = "379026ff283facf611b0ea629334361c4211d1b12ee01024eec1591133b04120"
 dependencies = [
  "anstream",
  "anstyle",
@@ -994,7 +994,7 @@ dependencies = [
 
 [[package]]
 name = "lineage"
-version = "0.26.1"
+version = "0.26.3"
 dependencies = [
  "append-only-vec",
  "indexmap 2.9.0",
@@ -1086,9 +1086,9 @@ dependencies = [
 
 [[package]]
 name = "minijinja"
-version = "2.9.0"
+version = "2.10.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "98642a6dfca91122779a307b77cd07a4aa951fbe32232aaf5bad9febc66be754"
+checksum = "dd72e8b4e42274540edabec853f607c015c73436159b06c39c7af85a20433155"
 dependencies = [
  "serde",
 ]
@@ -1717,7 +1717,7 @@ dependencies = [
 
 [[package]]
 name = "sqruff"
-version = "0.26.1"
+version = "0.26.3"
 dependencies = [
  "assert_cmd",
  "expect-test",
@@ -1730,7 +1730,7 @@ dependencies = [
 
 [[package]]
 name = "sqruff-cli-lib"
-version = "0.26.1"
+version = "0.26.3"
 dependencies = [
  "assert_cmd",
  "clap",
@@ -1749,7 +1749,7 @@ dependencies = [
 
 [[package]]
 name = "sqruff-cli-python"
-version = "0.26.1"
+version = "0.26.3"
 dependencies = [
  "assert_cmd",
  "expect-test",
@@ -1760,7 +1760,7 @@ dependencies = [
 
 [[package]]
 name = "sqruff-lib"
-version = "0.26.1"
+version = "0.26.3"
 dependencies = [
  "ahash",
  "anstyle",
@@ -1801,7 +1801,7 @@ dependencies = [
 
 [[package]]
 name = "sqruff-lib-core"
-version = "0.26.1"
+version = "0.26.3"
 dependencies = [
  "ahash",
  "enum_dispatch",
@@ -1822,7 +1822,7 @@ dependencies = [
 
 [[package]]
 name = "sqruff-lib-dialects"
-version = "0.26.1"
+version = "0.26.3"
 dependencies = [
  "ahash",
  "expect-test",
@@ -1836,7 +1836,7 @@ dependencies = [
 
 [[package]]
 name = "sqruff-lsp"
-version = "0.26.1"
+version = "0.26.3"
 dependencies = [
  "ahash",
  "console_error_panic_hook",
@@ -1851,7 +1851,7 @@ dependencies = [
 
 [[package]]
 name = "sqruff-sqlinference"
-version = "0.26.1"
+version = "0.26.3"
 dependencies = [
  "sqruff-lib-core",
  "sqruff-lib-dialects",
@@ -1859,7 +1859,7 @@ dependencies = [
 
 [[package]]
 name = "sqruff-wasm"
-version = "0.26.1"
+version = "0.26.3"
 dependencies = [
  "ahash",
  "line-index",
@@ -1948,9 +1948,9 @@ checksum = "e502f78cdbb8ba4718f566c418c52bc729126ffd16baee5baa718cf25dd5a69a"
 
 [[package]]
 name = "tempfile"
-version = "3.19.1"
+version = "3.20.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "7437ac7763b9b123ccf33c338a5cc1bac6f69b45a136c19bdd8a65e3916435bf"
+checksum = "e8a64e3985349f2441a1a9ef0b853f869006c3855f2cda6862a94d26ebb9d6a1"
 dependencies = [
  "fastrand",
  "getrandom 0.3.2",

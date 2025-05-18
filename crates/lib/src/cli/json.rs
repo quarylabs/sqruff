@@ -4,7 +4,7 @@ use crate::core::{config::FluffConfig, linter::linted_file::LintedFile};
 
 use super::{
     formatters::Formatter,
-    json_types::{Diagnostic, DiagnosticCollection, DiagnosticSeverity},
+    json_types::{Diagnostic, DiagnosticCollection},
 };
 
 #[derive(Default)]
@@ -22,14 +22,6 @@ impl Formatter for JsonFormatter {
                 .map(|err| Diagnostic::from(err.clone()))
                 .collect::<Vec<_>>(),
         );
-    }
-
-    fn has_fail(&self) -> bool {
-        let lock = self.violations.lock().unwrap();
-        lock.values().any(|v| {
-            v.iter()
-                .any(|d| matches!(&d.severity, DiagnosticSeverity::Warning))
-        })
     }
 
     fn completion_message(&self) {

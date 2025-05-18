@@ -6,7 +6,7 @@ repository.workspace = true
 edition.workspace = true
 license.workspace = true
 default-run = "sqruff"
-rust-version = "1.86"
+rust-version = "1.87"
 
 [package.metadata.binstall]
 pkg-url = "{ repo }/releases/download/v{ version }/sqruff-{ target-family }-{ target-arch }.tar.gz"
@@ -72,4 +72,4 @@ jemallocator = { version = "0.6.0", package = "tikv-jemallocator" }
 [dev-dependencies]
 assert_cmd = "2.0.16"
 expect-test = "1.5.0"
-tempfile = "3.19.1"
+tempfile = "3.20.0"

@@ -56,7 +56,7 @@ impl LintResult {
         }
     }
 
-    pub fn to_linting_error(&self, rule: &ErasedRule) -> Option<SQLLintError> {
+    pub fn to_linting_error(self, rule: &ErasedRule) -> Option<SQLLintError> {
         let anchor = self.anchor.clone()?;
 
         let description = self
@@ -66,7 +66,7 @@ impl LintResult {
 
         let is_fixable = rule.is_fix_compatible();
 
-        SQLLintError::new(description.as_str(), anchor, is_fixable, self.fixes.clone())
+        SQLLintError::new(description.as_str(), anchor, is_fixable, self.fixes)
             .config(|this| {
                 this.rule = Some(ErrorStructRule {
                     name: rule.name(),

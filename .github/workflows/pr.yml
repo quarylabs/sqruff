@@ -115,14 +115,14 @@ jobs:
     name: Lint
     runs-on: ubuntu-latest
     steps:
+      - name: Checkout sources
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # ratchet:actions/checkout@v4
       - uses: Swatinem/rust-cache@9d47c6ad4b02e050fd481d890b2ea34778fd09d6 # ratchet:Swatinem/rust-cache@v2
       - uses: taiki-e/install-action@dc31d68fd5b543e71fcf192c363a7ac2223bfc5b # ratchet:taiki-e/install-action@cargo-hack
       - uses: taiki-e/install-action@96200019792a838c050bcc22dda6518ee07fd860 # ratchet:taiki-e/install-action@cargo-machete
       - uses: dtolnay/rust-toolchain@38b70195107dddab2c7bbd522bcf763bac00963b # ratchet:dtolnay/rust-toolchain@stable
         with:
-          components: clippy
-      - name: Checkout sources
-        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # ratchet:actions/checkout@v4
+          components: clippy, rustfmt
       - run: make rust_lint
   prettier-formatting:
     name: Check Prettier formatting

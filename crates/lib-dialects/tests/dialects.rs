@@ -7,9 +7,9 @@ use rayon::iter::ParallelIterator;
 use rayon::prelude::IntoParallelRefIterator;
 use sqruff_lib_core::dialects::init::DialectKind;
 use sqruff_lib_core::helpers;
+use sqruff_lib_core::parser::Parser;
 use sqruff_lib_core::parser::lexer::{Lexer, StringOrTemplate};
-use sqruff_lib_core::parser::parser::Parser;
-use sqruff_lib_core::parser::segments::base::Tables;
+use sqruff_lib_core::parser::segments::Tables;
 use sqruff_lib_dialects::kind_to_dialect;
 use strum::IntoEnumIterator;
 

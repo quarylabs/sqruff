@@ -4,7 +4,7 @@ use std::mem::take;
 use itertools::Itertools;
 use sqruff_lib_core::dialects::syntax::SyntaxKind;
 use sqruff_lib_core::lint_fix::LintFix;
-use sqruff_lib_core::parser::segments::base::{ErasedSegment, Tables};
+use sqruff_lib_core::parser::segments::{ErasedSegment, Tables};
 
 use super::config::ReflowConfig;
 use super::depth_map::DepthMap;
@@ -12,7 +12,7 @@ use super::elements::{ReflowBlock, ReflowElement, ReflowPoint, ReflowSequenceTyp
 use super::rebreak::rebreak_sequence;
 use super::reindent::{construct_single_indent, lint_indent_points, lint_line_length};
 use crate::core::config::FluffConfig;
-use crate::core::rules::base::LintResult;
+use crate::core::rules::LintResult;
 
 pub struct ReflowSequence<'a> {
     root_segment: ErasedSegment,

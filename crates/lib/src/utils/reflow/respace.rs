@@ -4,10 +4,10 @@ use sqruff_lib_core::dialects::syntax::{SyntaxKind, SyntaxSet};
 use sqruff_lib_core::edit_type::EditType;
 use sqruff_lib_core::lint_fix::LintFix;
 use sqruff_lib_core::parser::markers::PositionMarker;
-use sqruff_lib_core::parser::segments::base::{ErasedSegment, SegmentBuilder, Tables};
+use sqruff_lib_core::parser::segments::{ErasedSegment, SegmentBuilder, Tables};
 
 use super::elements::ReflowBlock;
-use crate::core::rules::base::LintResult;
+use crate::core::rules::LintResult;
 use crate::utils::reflow::config::Spacing;
 use crate::utils::reflow::helpers::pretty_segment_name;
 

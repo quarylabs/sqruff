@@ -1,11 +1,11 @@
-use sqruff_lib_core::dialects::base::Dialect;
+use sqruff_lib_core::dialects::Dialect;
 use sqruff_lib_core::dialects::init::DialectKind;
 use sqruff_lib_core::dialects::syntax::SyntaxKind;
 use sqruff_lib_core::helpers::{Config, ToMatchable};
+use sqruff_lib_core::parser::grammar::Ref;
 use sqruff_lib_core::parser::grammar::anyof::{
     AnyNumberOf, any_set_of, one_of, optionally_bracketed,
 };
-use sqruff_lib_core::parser::grammar::base::Ref;
 use sqruff_lib_core::parser::grammar::conditional::Conditional;
 use sqruff_lib_core::parser::grammar::delimited::Delimited;
 use sqruff_lib_core::parser::grammar::sequence::{Bracketed, Sequence};

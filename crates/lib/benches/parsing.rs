@@ -1,4 +1,4 @@
-use criterion::{Criterion, black_box, criterion_group, criterion_main};
+use criterion::{Criterion, criterion_group, criterion_main};
 #[cfg(unix)]
 use pprof::criterion::{Output, PProfProfiler};
 use sqruff_lib::core::config::FluffConfig;
@@ -8,6 +8,7 @@ use sqruff_lib_core::parser::context::ParseContext;
 use sqruff_lib_core::parser::matchable::MatchableTrait as _;
 use sqruff_lib_core::parser::parser::Parser;
 use sqruff_lib_core::parser::segments::test_functions::lex;
+use std::hint::black_box;
 
 include!("shims/global_alloc_overwrite.rs");
 

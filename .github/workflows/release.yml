@@ -143,7 +143,7 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
       - name: Build and Push Docker Image
-        uses: docker/build-push-action@14487ce63c7a62a4a324b0bfb37086795e31c6c1 # ratchet:docker/build-push-action@v6
+        uses: docker/build-push-action@1dc73863535b631f98b2378be8619f83b136f4a0 # ratchet:docker/build-push-action@v6
         with:
           context: .
           push: true

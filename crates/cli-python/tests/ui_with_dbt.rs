@@ -39,7 +39,7 @@ fn main() {
     cmd.arg("lint")
         .arg("-f")
         .arg("human")
-        .arg("models/customers.sql");
+        .arg("models");
 
     // Run the command and capture the output
     let assert = cmd.assert();

@@ -1,0 +1,5 @@
+file:
+- statement:
+  - keyword: CLOSE
+  - naked_identifier: curcursor
+- statement_terminator: ;

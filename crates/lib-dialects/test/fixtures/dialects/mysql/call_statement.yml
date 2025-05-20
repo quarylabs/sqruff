@@ -1,0 +1,22 @@
+file:
+- unparsable:
+  - word: CALL
+  - word: somefunction
+  - start_bracket: (
+  - single_quote: '''a'''
+  - end_bracket: )
+  - semicolon: ;
+  - word: CALL
+  - word: somefunction
+  - start_bracket: (
+  - word: test
+  - start_bracket: (
+  - single_quote: '''something'''
+  - end_bracket: )
+  - end_bracket: )
+  - semicolon: ;
+  - word: CALL
+  - word: somefunction
+  - start_bracket: (
+  - single_quote: '''test'''
+  - comma: ','

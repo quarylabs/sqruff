@@ -1,0 +1,7 @@
+file:
+- statement:
+  - keyword: GET
+  - keyword: DIAGNOSTICS
+  - keyword: CONDITION
+  - variable: _test
+- statement_terminator: ;

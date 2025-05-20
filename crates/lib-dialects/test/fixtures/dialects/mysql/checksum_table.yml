@@ -1,0 +1,35 @@
+file:
+- statement:
+  - keyword: CHECKSUM
+  - keyword: TABLE
+  - table_reference:
+    - naked_identifier: some_table
+  - keyword: QUICK
+- statement_terminator: ;
+- statement:
+  - keyword: CHECKSUM
+  - keyword: TABLE
+  - table_reference:
+    - naked_identifier: some_table1
+  - comma: ','
+  - table_reference:
+    - naked_identifier: some_table2
+  - keyword: QUICK
+- statement_terminator: ;
+- statement:
+  - keyword: CHECKSUM
+  - keyword: TABLE
+  - table_reference:
+    - naked_identifier: some_table
+  - keyword: EXTENDED
+- statement_terminator: ;
+- statement:
+  - keyword: CHECKSUM
+  - keyword: TABLE
+  - table_reference:
+    - naked_identifier: some_table1
+  - comma: ','
+  - table_reference:
+    - naked_identifier: some_table2
+  - keyword: EXTENDED
+- statement_terminator: ;

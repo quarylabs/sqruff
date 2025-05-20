@@ -5,7 +5,7 @@ use sqruff_lib_core::lint_fix::LintFix;
 use sqruff_lib_core::parser::segments::base::SegmentBuilder;
 
 use crate::core::config::Value;
-use crate::core::rules::base::{CloneRule, ErasedRule, LintResult, Rule, RuleGroups};
+use crate::core::rules::base::{Erased, ErasedRule, LintResult, Rule, RuleGroups};
 use crate::core::rules::context::RuleContext;
 use crate::core::rules::crawlers::{Crawler, SegmentSeekerCrawler};
 

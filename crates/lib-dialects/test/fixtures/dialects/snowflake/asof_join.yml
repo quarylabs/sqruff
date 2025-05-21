@@ -1,0 +1,77 @@
+file:
+- statement:
+  - select_statement:
+    - select_clause:
+      - keyword: select
+      - select_clause_element:
+        - column_reference:
+          - naked_identifier: a
+          - dot: .
+          - naked_identifier: id
+        - alias_expression:
+          - keyword: as
+          - naked_identifier: id_d
+      - comma: ','
+      - select_clause_element:
+        - column_reference:
+          - naked_identifier: b
+          - dot: .
+          - naked_identifier: id
+        - alias_expression:
+          - keyword: as
+          - naked_identifier: id_b
+    - from_clause:
+      - keyword: from
+      - from_expression:
+        - from_expression_element:
+          - table_expression:
+            - table_reference:
+              - naked_identifier: schema
+              - dot: .
+              - naked_identifier: table_a
+          - alias_expression:
+            - keyword: as
+            - naked_identifier: a
+        - join_clause:
+          - join_clause:
+            - keyword: asof
+            - keyword: join
+            - from_expression_element:
+              - table_expression:
+                - table_reference:
+                  - naked_identifier: schema
+                  - dot: .
+                  - naked_identifier: table_b
+              - alias_expression:
+                - keyword: as
+                - naked_identifier: b
+            - match_condition_clause:
+              - keyword: match_condition
+              - bracketed:
+                - start_bracket: (
+                - expression:
+                  - column_reference:
+                    - naked_identifier: a
+                    - dot: .
+                    - naked_identifier: event_ts
+                  - comparison_operator:
+                    - raw_comparison_operator: '>'
+                    - raw_comparison_operator: =
+                  - column_reference:
+                    - naked_identifier: b
+                    - dot: .
+                    - naked_identifier: event_ts
+                - end_bracket: )
+            - join_on_condition:
+              - keyword: on
+              - expression:
+                - column_reference:
+                  - naked_identifier: a
+                  - dot: .
+                  - naked_identifier: id
+                - comparison_operator:
+                  - raw_comparison_operator: =
+                - column_reference:
+                  - naked_identifier: b
+                  - dot: .
+                  - naked_identifier: id

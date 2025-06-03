@@ -8,6 +8,7 @@ use sqruff_lib_core::parser::grammar::anyof::{
 };
 use sqruff_lib_core::parser::grammar::base::{Nothing, Ref};
 use sqruff_lib_core::parser::grammar::delimited::Delimited;
+use sqruff_lib_core::parser::grammar::conditional::Conditional;
 use sqruff_lib_core::parser::grammar::sequence::{Bracketed, Sequence};
 use sqruff_lib_core::parser::lexer::Matcher;
 use sqruff_lib_core::parser::matchable::{Matchable, MatchableTrait};
@@ -1624,6 +1625,19 @@ pub fn dialect() -> Dialect {
                     .config(|this| {
                         this.parse_mode = ParseMode::Greedy;
                     }),
+                ])
+                .to_matchable(),
+            )
+            .to_matchable()
+            .into(),
+        ),
+        (
+            "MatchConditionSegment".into(),
+            NodeMatcher::new(
+                SyntaxKind::MatchConditionClause,
+                Sequence::new(vec_of_erased![
+                    Ref::keyword("MATCH_CONDITION"),
+                    Bracketed::new(vec_of_erased![Ref::new("ExpressionSegment")])
                 ])
                 .to_matchable(),
             )
@@ -7653,6 +7667,76 @@ pub fn dialect() -> Dialect {
         .to_matchable()
         .into(),
     )]);
+
+    snowflake_dialect.add([(
+        "JoinTypeKeywordsGrammar".into(),
+        one_of(vec_of_erased![
+            Ref::keyword("CROSS"),
+            Ref::keyword("INNER"),
+            Sequence::new(vec_of_erased![
+                one_of(vec_of_erased![
+                    Ref::keyword("FULL"),
+                    Ref::keyword("LEFT"),
+                    Ref::keyword("RIGHT"),
+                ]),
+                Ref::keyword("OUTER").optional(),
+            ]),
+            Ref::keyword("ASOF"),
+        ])
+        .config(|this| this.optional())
+        .to_matchable()
+        .into(),
+    )]);
+
+    snowflake_dialect.replace_grammar(
+        "JoinClauseSegment",
+        NodeMatcher::new(
+            SyntaxKind::JoinClause,
+            one_of(vec_of_erased![
+                Sequence::new(vec_of_erased![
+                    Ref::new("JoinTypeKeywordsGrammar").optional(),
+                    Ref::new("JoinKeywordsGrammar"),
+                    MetaSegment::indent(),
+                    Ref::new("FromExpressionElementSegment"),
+                    AnyNumberOf::new(vec_of_erased![Ref::new("NestedJoinGrammar")]),
+                    MetaSegment::dedent(),
+                    Ref::new("MatchConditionSegment").optional(),
+                    Sequence::new(vec_of_erased![
+                        Conditional::new(MetaSegment::indent()).indented_using_on(),
+                        one_of(vec_of_erased![
+                            Ref::new("JoinOnConditionSegment"),
+                            Sequence::new(vec_of_erased![
+                                Ref::keyword("USING"),
+                                MetaSegment::indent(),
+                                Bracketed::new(vec_of_erased![Delimited::new(vec_of_erased![
+                                    Ref::new("SingleIdentifierGrammar")
+                                ])])
+                                .config(|this| this.parse_mode = ParseMode::Greedy),
+                                MetaSegment::dedent(),
+                            ])
+                        ]),
+                        Conditional::new(MetaSegment::dedent()).indented_using_on(),
+                    ])
+                    .config(|this| this.optional())
+                ]),
+                Sequence::new(vec_of_erased![
+                    Ref::new("NaturalJoinKeywordsGrammar"),
+                    Ref::new("JoinKeywordsGrammar"),
+                    MetaSegment::indent(),
+                    Ref::new("FromExpressionElementSegment"),
+                    MetaSegment::dedent(),
+                ]),
+                Sequence::new(vec_of_erased![
+                    Ref::new("ExtendedNaturalJoinKeywordsGrammar"),
+                    MetaSegment::indent(),
+                    Ref::new("FromExpressionElementSegment"),
+                    MetaSegment::dedent(),
+                ])
+            ])
+            .to_matchable(),
+        )
+        .to_matchable(),
+    );
 
     snowflake_dialect.expand();
     snowflake_dialect

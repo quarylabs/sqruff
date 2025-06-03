@@ -309,6 +309,7 @@ pub enum SyntaxKind {
     ChangesClause,
     FromAtExpression,
     FromBeforeExpression,
+    MatchConditionClause,
     SnowflakeKeywordExpression,
     SemiStructuredExpression,
     SelectExcludeClause,

@@ -85,7 +85,7 @@ In this example, the alias `voo` is implicit.
 
 ```sql
 SELECT
-    voo.a
+   voo.a
 FROM foo voo
 ```
 
@@ -95,10 +95,9 @@ Add `AS` to make the alias explicit.
 
 ```sql
 SELECT
-    voo.a
+   voo.a
 FROM foo AS voo
 ```
-
 
 ### aliasing.column
 
@@ -116,7 +115,7 @@ In this example, the alias for column `a` is implicit.
 
 ```sql
 SELECT
-  a alias_col
+ a alias_col
 FROM foo
 ```
 
@@ -126,10 +125,9 @@ Add the `AS` keyword to make the alias explicit.
 
 ```sql
 SELECT
-    a AS alias_col
+   a AS alias_col
 FROM foo
 ```
-
 
 ### aliasing.expression
 
@@ -147,8 +145,8 @@ In this example, there is no alias for both sums.
 
 ```sql
 SELECT
-    sum(a),
-    sum(b)
+   sum(a),
+   sum(b)
 FROM foo
 ```
 
@@ -158,11 +156,10 @@ Add aliases.
 
 ```sql
 SELECT
-    sum(a) AS a_sum,
-    sum(b) AS b_sum
+   sum(a) AS a_sum,
+   sum(b) AS b_sum
 FROM foo
 ```
-
 
 ### aliasing.unique.table
 
@@ -180,19 +177,19 @@ In this example, the alias t is reused for two different tables:
 
 ```sql
 SELECT
-    t.a,
-    t.b
+   t.a,
+   t.b
 FROM foo AS t, bar AS t
 
 -- This can also happen when using schemas where the
 -- implicit alias is the table name:
 
 SELECT
-    a,
-    b
+   a,
+   b
 FROM
-    2020.foo,
-    2021.foo
+   2020.foo,
+   2021.foo
 ```
 
 **Best practice**
@@ -201,21 +198,20 @@ Make all tables have a unique alias.
 
 ```sql
 SELECT
-    f.a,
-    b.b
+   f.a,
+   b.b
 FROM foo AS f, bar AS b
 
 -- Also use explicit aliases when referencing two tables
 -- with the same name from two different schemas.
 
 SELECT
-    f1.a,
-    f2.b
+   f1.a,
+   f2.b
 FROM
-    2020.foo AS f1,
-    2021.foo AS f2
+   2020.foo AS f1,
+   2021.foo AS f2
 ```
-
 
 ### aliasing.unused
 
@@ -233,7 +229,7 @@ In this example, alias `zoo` is not used.
 
 ```sql
 SELECT
-    a
+   a
 FROM foo AS zoo
 ```
 
@@ -243,16 +239,15 @@ Use the alias or remove it. An unused alias makes code harder to read without ch
 
 ```sql
 SELECT
-    zoo.a
+   zoo.a
 FROM foo AS zoo
 
 -- Alternatively...
 
 SELECT
-    a
+   a
 FROM foo
 ```
-
 
 ### aliasing.length
 
@@ -270,7 +265,7 @@ In this example, alias `o` is used for the orders table.
 
 ```sql
 SELECT
-    SUM(o.amount) as order_amount,
+   SUM(o.amount) as order_amount,
 FROM orders as o
 ```
 
@@ -282,19 +277,18 @@ See also: Rule_AL07.
 
 ```sql
 SELECT
-    SUM(orders.amount) as order_amount,
+   SUM(orders.amount) as order_amount,
 FROM orders
 
 SELECT
-    replacement_orders.amount,
-    previous_orders.amount
+   replacement_orders.amount,
+   previous_orders.amount
 FROM
-    orders AS replacement_orders
+   orders AS replacement_orders
 JOIN
-    orders AS previous_orders
-    ON replacement_orders.id = previous_orders.replacement_id
+   orders AS previous_orders
+   ON replacement_orders.id = previous_orders.replacement_id
 ```
-
 
 ### aliasing.forbid
 
@@ -312,8 +306,8 @@ In this example, alias o is used for the orders table, and c is used for custome
 
 ```sql
 SELECT
-    COUNT(o.customer_id) as order_amount,
-    c.name
+   COUNT(o.customer_id) as order_amount,
+   c.name
 FROM orders as o
 JOIN customers as c on o.id = c.user_id
 ```
@@ -324,22 +318,21 @@ Avoid aliases.
 
 ```sql
 SELECT
-    COUNT(orders.customer_id) as order_amount,
-    customers.name
+   COUNT(orders.customer_id) as order_amount,
+   customers.name
 FROM orders
 JOIN customers on orders.id = customers.user_id
 
 -- Self-join will not raise issue
 
 SELECT
-    table1.a,
-    table_alias.b,
+   table1.a,
+   table_alias.b,
 FROM
-    table1
-    LEFT JOIN table1 AS table_alias ON
-        table1.foreign_key = table_alias.foreign_key
+   table1
+   LEFT JOIN table1 AS table_alias ON
+       table1.foreign_key = table_alias.foreign_key
 ```
-
 
 ### layout.cte_newline
 
@@ -357,8 +350,8 @@ In this example, alias o is used for the orders table, and c is used for custome
 
 ```sql
 SELECT
-    COUNT(o.customer_id) as order_amount,
-    c.name
+   COUNT(o.customer_id) as order_amount,
+   c.name
 FROM orders as o
 JOIN customers as c on o.id = c.user_id
 ```
@@ -369,22 +362,21 @@ Avoid aliases.
 
 ```sql
 SELECT
-    COUNT(orders.customer_id) as order_amount,
-    customers.name
+   COUNT(orders.customer_id) as order_amount,
+   customers.name
 FROM orders
 JOIN customers on orders.id = customers.user_id
 
 -- Self-join will not raise issue
 
 SELECT
-    table1.a,
-    table_alias.b,
+   table1.a,
+   table_alias.b,
 FROM
-    table1
-    LEFT JOIN table1 AS table_alias ON
-        table1.foreign_key = table_alias.foreign_key
+   table1
+   LEFT JOIN table1 AS table_alias ON
+       table1.foreign_key = table_alias.foreign_key
 ```
-
 
 ### aliasing.self_alias.column
 
@@ -402,7 +394,7 @@ Aliasing the column to itself.
 
 ```sql
 SELECT
-    col AS col
+   col AS col
 FROM table;
 ```
 
@@ -412,10 +404,9 @@ Not to use alias to rename the column to its original name. Self-aliasing leads 
 
 ```sql
 SELECT
-    col
+   col
 FROM table;
 ```
-
 
 ### ambiguous.distinct
 
@@ -433,7 +424,7 @@ Ambiguous use of 'DISTINCT' in a 'SELECT' statement with 'GROUP BY'.
 
 ```sql
 SELECT DISTINCT
-    a
+   a
 FROM foo
 GROUP BY a
 ```
@@ -445,10 +436,9 @@ Remove `DISTINCT` or `GROUP BY`. In our case, removing `GROUP BY` is better.
 
 ```sql
 SELECT DISTINCT
-    a
+   a
 FROM foo
 ```
-
 
 ### ambiguous.union
 
@@ -480,7 +470,6 @@ SELECT a, b FROM table_1
 UNION DISTINCT
 SELECT a, b FROM table_2
 ```
-
 **Dialects where this rule is skipped:** `bigquery`, `postgres`, `snowflake`, `clickhouse`, `sparksql`, `duckdb`
 
 ### ambiguous.order_by
@@ -499,7 +488,7 @@ In this example, the `ORDER BY` clause is ambiguous because some columns are exp
 
 ```sql
 SELECT
-    a, b
+   a, b
 FROM foo
 ORDER BY a, b DESC
 ```
@@ -510,11 +499,10 @@ If any columns in the `ORDER BY` clause specify `ASC` or `DESC`, they should all
 
 ```sql
 SELECT
-    a, b
+   a, b
 FROM foo
 ORDER BY a ASC, b DESC
 ```
-
 
 ### ambiguous.column_count
 
@@ -537,7 +525,7 @@ Querying all columns using `*` produces a query result where the number or order
 
 ```sql
 WITH cte AS (
-    SELECT * FROM foo
+   SELECT * FROM foo
 )
 
 SELECT * FROM cte
@@ -551,7 +539,7 @@ Somewhere along the "path" to the source data, specify columns explicitly.
 
 ```sql
 WITH cte AS (
-    SELECT * FROM foo
+   SELECT * FROM foo
 )
 
 SELECT a, b FROM cte
@@ -579,7 +567,7 @@ A join is used without specifying the kind of join.
 
 ```sql
 SELECT
-    foo
+   foo
 FROM bar
 JOIN baz;
 ```
@@ -590,11 +578,10 @@ Use `INNER JOIN` rather than `JOIN`.
 
 ```sql
 SELECT
-    foo
+   foo
 FROM bar
 INNER JOIN baz;
 ```
-
 
 ### ambiguous.column_references
 
@@ -612,7 +599,7 @@ In this example, the ORRDER BY clause mixes explicit and implicit order by colum
 
 ```sql
 SELECT
-    a, b
+   a, b
 FROM foo
 ORDER BY a, b DESC
 ```
@@ -623,11 +610,10 @@ If any columns in the ORDER BY clause specify ASC or DESC, they should all do so
 
 ```sql
 SELECT
-    a, b
+   a, b
 FROM foo
 ORDER BY a ASC, b DESC
 ```
-
 
 ### ambiguous.set_columns
 
@@ -645,18 +631,18 @@ When writing set expressions, all queries must return the same number of columns
 
 ```sql
 WITH cte AS (
-    SELECT
-        a,
-        b
-    FROM foo
+   SELECT
+       a,
+       b
+   FROM foo
 )
 SELECT * FROM cte
 UNION
 SELECT
-    c,
-    d,
-    e
- FROM t
+   c,
+   d,
+   e
+FROM t
 ```
 
 **Best practice**
@@ -665,19 +651,18 @@ Always specify columns when writing set queries and ensure that they all seleect
 
 ```sql
 WITH cte AS (
-    SELECT a, b FROM foo
+   SELECT a, b FROM foo
 )
 SELECT
-    a,
-    b
+   a,
+   b
 FROM cte
 UNION
 SELECT
-    c,
-    d
+   c,
+   d
 FROM t
 ```
-
 
 ### capitalisation.keywords
 
@@ -695,7 +680,7 @@ In this example, select is in lower-case whereas `FROM` is in upper-case.
 
 ```sql
 select
-    a
+   a
 FROM foo
 ```
 
@@ -705,16 +690,15 @@ Make all keywords either in upper-case or in lower-case.
 
 ```sql
 SELECT
-    a
+   a
 FROM foo
 
 -- Also good
 
 select
-    a
+   a
 from foo
 ```
-
 
 ### capitalisation.identifiers
 
@@ -732,8 +716,8 @@ In this example, unquoted identifier `a` is in lower-case but `B` is in upper-ca
 
 ```sql
 select
-    a,
-    B
+   a,
+   B
 from foo
 ```
 
@@ -743,18 +727,17 @@ Ensure all unquoted identifiers are either in upper-case or in lower-case.
 
 ```sql
 select
-    a,
-    b
+   a,
+   b
 from foo
 
 -- Also good
 
 select
-    A,
-    B
+   A,
+   B
 from foo
 ```
-
 
 ### capitalisation.functions
 
@@ -772,8 +755,8 @@ In this example, the two `SUM` functions don’t have the same capitalisation.
 
 ```sql
 SELECT
-    sum(a) AS aa,
-    SUM(b) AS bb
+   sum(a) AS aa,
+   SUM(b) AS bb
 FROM foo
 ```
 
@@ -784,11 +767,10 @@ Make the case consistent.
 
 ```sql
 SELECT
-    sum(a) AS aa,
-    sum(b) AS bb
+   sum(a) AS aa,
+   sum(b) AS bb
 FROM foo
 ```
-
 
 ### capitalisation.literals
 
@@ -806,10 +788,10 @@ In this example, `null` and `false` are in lower-case whereas `TRUE` is in upper
 
 ```sql
 select
-    a,
-    null,
-    TRUE,
-    false
+   a,
+   null,
+   TRUE,
+   false
 from foo
 ```
 
@@ -819,22 +801,21 @@ Ensure all literal `null`/`true`/`false` literals are consistently upper or lowe
 
 ```sql
 select
-    a,
-    NULL,
-    TRUE,
-    FALSE
+   a,
+   NULL,
+   TRUE,
+   FALSE
 from foo
 
 -- Also good
 
 select
-    a,
-    null,
-    true,
-    false
+   a,
+   null,
+   true,
+   false
 from foo
 ```
-
 
 ### capitalisation.types
 
@@ -852,8 +833,8 @@ In this example, `int` and `unsigned` are in lower-case whereas `VARCHAR` is in 
 
 ```sql
 CREATE TABLE t (
-    a int unsigned,
-    b VARCHAR(15)
+   a int unsigned,
+   b VARCHAR(15)
 );
 ```
 
@@ -863,11 +844,10 @@ Ensure all datatypes are consistently upper or lower case
 
 ```sql
 CREATE TABLE t (
-    a INT UNSIGNED,
-    b VARCHAR(15)
+   a INT UNSIGNED,
+   b VARCHAR(15)
 );
 ```
-
 
 ### convention.not_equal
 
@@ -894,7 +874,6 @@ Ensure all "not equal to" comparisons are consistent, not mixing `!=` and `<>`.
 ```sql
 SELECT * FROM X WHERE 1 != 2 AND 3 != 4;
 ```
-
 
 ### convention.coalesce
 
@@ -927,7 +906,6 @@ SELECT coalesce(foo, 0) AS bar,
 FROM baz;
 ```
 
-
 ### convention.select_trailing_comma
 
 Trailing commas within select clause
@@ -944,8 +922,8 @@ In this example, the last selected column has a trailing comma.
 
 ```sql
 SELECT
-    a,
-    b,
+   a,
+   b,
 FROM foo
 ```
 
@@ -955,11 +933,10 @@ Remove the trailing comma.
 
 ```sql
 SELECT
-    a,
-    b
+   a,
+   b
 FROM foo
 ```
-
 
 ### convention.count_rows
 
@@ -977,7 +954,7 @@ In this example, `count(1)` is used to count the number of rows in a table.
 
 ```sql
 select
-    count(1)
+   count(1)
 from table_a
 ```
 
@@ -987,10 +964,9 @@ Use count(*) unless specified otherwise by config prefer_count_1, or prefer_coun
 
 ```sql
 select
-    count(*)
+   count(*)
 from table_a
 ```
-
 
 ### convention.is_null
 
@@ -1008,7 +984,7 @@ In this example, the `=` operator is used to check for `NULL` values.
 
 ```sql
 SELECT
-    a
+   a
 FROM foo
 WHERE a = NULL
 ```
@@ -1019,11 +995,10 @@ Use `IS` or `IS NOT` to check for `NULL` values.
 
 ```sql
 SELECT
-    a
+   a
 FROM foo
 WHERE a IS NULL
 ```
-
 
 ### convention.terminator
 
@@ -1041,13 +1016,13 @@ A statement is not immediately terminated with a semi-colon. The `•` represent
 
 ```sql
 SELECT
-    a
+   a
 FROM foo
 
 ;
 
 SELECT
-    b
+   b
 FROM bar••;
 ```
 
@@ -1057,7 +1032,7 @@ Immediately terminate the statement with a semi-colon.
 
 ```sql
 SELECT
-    a
+   a
 FROM foo;
 ```
 
@@ -1076,15 +1051,15 @@ Top-level statements should not be wrapped in brackets.
 A top-level statement is wrapped in brackets.
 
 ```sql
- (SELECT
-     foo
- FROM bar)
+(SELECT
+    foo
+FROM bar)
 
- -- This also applies to statements containing a sub-query.
+-- This also applies to statements containing a sub-query.
 
- (SELECT
-     foo
- FROM (SELECT * FROM bar))
+(SELECT
+    foo
+FROM (SELECT * FROM bar))
 ```
 
 **Best practice**
@@ -1092,17 +1067,16 @@ A top-level statement is wrapped in brackets.
 Don’t wrap top-level statements in brackets.
 
 ```sql
- SELECT
-     foo
- FROM bar
+SELECT
+    foo
+FROM bar
 
- -- Likewise for statements containing a sub-query.
+-- Likewise for statements containing a sub-query.
 
- SELECT
-     foo
- FROM (SELECT * FROM bar)
+SELECT
+    foo
+FROM (SELECT * FROM bar)
 ```
-
 
 ### convention.left_join
 
@@ -1120,11 +1094,11 @@ Use LEFT JOIN instead of RIGHT JOIN.
 
 ```sql
 SELECT
-    foo.col1,
-    bar.col2
+   foo.col1,
+   bar.col2
 FROM foo
 RIGHT JOIN bar
-    ON foo.bar_id = bar.id;
+   ON foo.bar_id = bar.id;
 ```
 
 **Best practice**
@@ -1133,13 +1107,12 @@ Refactor and use ``LEFT JOIN`` instead.
 
 ```sql
 SELECT
-    foo.col1,
-    bar.col2
+   foo.col1,
+   bar.col2
 FROM bar
 LEFT JOIN foo
-   ON foo.bar_id = bar.id;
+  ON foo.bar_id = bar.id;
 ```
-
 
 ### convention.blocked_words
 
@@ -1159,11 +1132,11 @@ This block list is case insensitive.
 **Example use cases**
 
 * We prefer ``BOOL`` over ``BOOLEAN`` and there is no existing rule to enforce
-  this. Until such a rule is written, we can add ``BOOLEAN`` to the deny list
-  to cause a linting error to flag this.
+ this. Until such a rule is written, we can add ``BOOLEAN`` to the deny list
+ to cause a linting error to flag this.
 * We have deprecated a schema/table/function and want to prevent it being used
-  in future. We can add that to the denylist and then add a ``-- noqa: CV09`` for
-  the few exceptions that still need to be in the code base for now.
+ in future. We can add that to the denylist and then add a ``-- noqa: CV09`` for
+ the few exceptions that still need to be in the code base for now.
 
 **Anti-pattern**
 
@@ -1183,7 +1156,6 @@ SELECT * FROM my_table WHERE 1 = 1;
 CREATE TABLE myschema.t1 (a BOOL);
 ```
 
-
 ### convention.quoted_literals
 
 Consistent usage of preferred quotes for quoted literals.
@@ -1198,10 +1170,10 @@ Consistent usage of preferred quotes for quoted literals.
 
 ```sql
 select
-    "abc",
-    'abc',
-    "\"",
-    "abc" = 'abc'
+   "abc",
+   'abc',
+   "\"",
+   "abc" = 'abc'
 from foo
 ```
 
@@ -1211,13 +1183,12 @@ Ensure all quoted literals use preferred quotes, unless escaping can be reduced 
 
 ```sql
 select
-    "abc",
-    "abc",
-    '"',
-    "abc" = "abc"
+   "abc",
+   "abc",
+   '"',
+   "abc" = "abc"
 from foo
-```P        
-
+```P
 
 ### convention.casting_style
 
@@ -1235,9 +1206,9 @@ Using a mixture of `CONVERT`, `::`, and `CAST` when `preferred_type_casting_styl
 
 ```sql
 SELECT
-    CONVERT(int, 1) AS bar,
-    100::int::text,
-    CAST(10 AS text) AS coo
+   CONVERT(int, 1) AS bar,
+   100::int::text,
+   CAST(10 AS text) AS coo
 FROM foo;
 ```
 
@@ -1247,12 +1218,11 @@ Use a consistent type casting style.
 
 ```sql
 SELECT
-    CAST(1 AS int) AS bar,
-    CAST(CAST(100 AS int) AS text),
-    CAST(10 AS text) AS coo
+   CAST(1 AS int) AS bar,
+   CAST(CAST(100 AS int) AS text),
+   CAST(10 AS text) AS coo
 FROM foo;
 ```
-
 
 ### layout.spacing
 
@@ -1263,7 +1233,6 @@ Inappropriate Spacing.
 **Groups:** `all`, `core`, `layout`
 
 **Fixable:** Yes
-
 **Anti-pattern**
 
 In this example, spacing is all over the place and is represented by `•`.
@@ -1287,7 +1256,6 @@ SELECT
 FROM foo
 JOIN bar USING (a)
 ```
-
 
 ### layout.indent
 
@@ -1323,7 +1291,6 @@ SELECT
 FROM foo
 ```
 
-
 ### layout.operators
 
 Operators should follow a standard for being before/after newlines.
@@ -1340,8 +1307,8 @@ In this example, if line_position = leading (or unspecified, as is the default),
 
 ```sql
 SELECT
-    a +
-    b
+   a +
+   b
 FROM foo
 ```
 
@@ -1351,8 +1318,8 @@ If line_position = leading (or unspecified, as this is the default), place the o
 
 ```sql
 SELECT
-    a
-    + b
+   a
+   + b
 FROM foo
 ```
 
@@ -1360,11 +1327,10 @@ If line_position = trailing, place the operator before the newline.
 
 ```sql
 SELECT
-    a +
-    b
+   a +
+   b
 FROM foo
 ```
-
 
 ### layout.commas
 
@@ -1382,9 +1348,9 @@ There is a mixture of leading and trailing commas.
 
 ```sql
 SELECT
-    a
-    , b,
-    c
+   a
+   , b,
+   c
 FROM foo
 ```
 
@@ -1394,21 +1360,20 @@ By default, sqruff prefers trailing commas. However it is configurable for leadi
 
 ```sql
 SELECT
-    a,
-    b,
-    c
+   a,
+   b,
+   c
 FROM foo
 
 -- Alternatively, set the configuration file to 'leading'
 -- and then the following would be acceptable:
 
 SELECT
-    a
-    , b
-    , c
+   a
+   , b
+   , c
 FROM foo
 ```
-
 
 ### layout.long_lines
 
@@ -1426,9 +1391,9 @@ In this example, the line is too long.
 
 ```sql
 SELECT
-    my_function(col1 + col2, arg2, arg3) over (partition by col3, col4 order by col5 rows between unbounded preceding and current row) as my_relatively_long_alias,
-    my_other_function(col6, col7 + col8, arg4) as my_other_relatively_long_alias,
-    my_expression_function(col6, col7 + col8, arg4) = col9 + col10 as another_relatively_long_alias
+   my_function(col1 + col2, arg2, arg3) over (partition by col3, col4 order by col5 rows between unbounded preceding and current row) as my_relatively_long_alias,
+   my_other_function(col6, col7 + col8, arg4) as my_other_relatively_long_alias,
+   my_expression_function(col6, col7 + col8, arg4) = col9 + col10 as another_relatively_long_alias
 FROM my_table
 ```
 
@@ -1438,16 +1403,16 @@ Wraps the line to be within the maximum line length.
 
 ```sql
 SELECT
-    my_function(col1 + col2, arg2, arg3)
-        over (
-            partition by col3, col4
-            order by col5 rows between unbounded preceding and current row
-        )
-        as my_relatively_long_alias,
-    my_other_function(col6, col7 + col8, arg4)
-        as my_other_relatively_long_alias,
-    my_expression_function(col6, col7 + col8, arg4)
-    = col9 + col10 as another_relatively_long_alias
+   my_function(col1 + col2, arg2, arg3)
+       over (
+           partition by col3, col4
+           order by col5 rows between unbounded preceding and current row
+       )
+       as my_relatively_long_alias,
+   my_other_function(col6, col7 + col8, arg4)
+       as my_other_relatively_long_alias,
+   my_expression_function(col6, col7 + col8, arg4)
+   = col9 + col10 as another_relatively_long_alias
 FROM my_table
 
 ### layout.functions
@@ -1466,7 +1431,7 @@ In this example, there is a space between the function and the parenthesis.
 
 ```sql
 SELECT
-    sum (a)
+   sum (a)
 FROM foo
 ```
 
@@ -1476,10 +1441,9 @@ Remove the space between the function and the parenthesis.
 
 ```sql
 SELECT
-    sum(a)
+   sum(a)
 FROM foo
 ```
-
 
 ### layout.cte_bracket
 
@@ -1496,10 +1460,10 @@ FROM foo
 In this example, the closing bracket is on the same line as CTE.
 
 ```sql
- WITH zoo AS (
-     SELECT a FROM foo)
+WITH zoo AS (
+    SELECT a FROM foo)
 
- SELECT * FROM zoo
+SELECT * FROM zoo
 ```
 
 **Best practice**
@@ -1508,12 +1472,11 @@ Move the closing bracket on a new line.
 
 ```sql
 WITH zoo AS (
-    SELECT a FROM foo
+   SELECT a FROM foo
 )
 
 SELECT * FROM zoo
 ```
-
 
 ### layout.cte_newline
 
@@ -1531,7 +1494,7 @@ There is no blank line after the CTE closing bracket. In queries with many CTEs,
 
 ```sql
 WITH plop AS (
-    SELECT * FROM foo
+   SELECT * FROM foo
 )
 SELECT a FROM plop
 ```
@@ -1542,12 +1505,11 @@ Add a blank line.
 
 ```sql
 WITH plop AS (
-    SELECT * FROM foo
+   SELECT * FROM foo
 )
 
 SELECT a FROM plop
 ```
-
 
 ### layout.select_targets
 
@@ -1570,7 +1532,7 @@ from foo;
 -- Single select target on its own line.
 
 SELECT
-    a
+   a
 FROM foo;
 ```
 
@@ -1580,8 +1542,8 @@ Multiple select targets each on their own line.
 
 ```sql
 select
-    a,
-    b
+   a,
+   b
 from foo;
 
 -- Single select target on the same line as the ``SELECT``
@@ -1594,14 +1556,13 @@ FROM foo;
 -- can still be on a new line.
 
 SELECT
-    SUM(
-        1 + SUM(
-            2 + 3
-        )
-    ) AS col
+   SUM(
+       1 + SUM(
+           2 + 3
+       )
+   ) AS col
 FROM test_table;
 ```
-
 
 ### layout.select_modifiers
 
@@ -1619,8 +1580,8 @@ In this example, the `DISTINCT` modifier is on the next line after the `SELECT` 
 
 ```sql
 select
-    distinct a,
-    b
+   distinct a,
+   b
 from x
 ```
 
@@ -1630,11 +1591,10 @@ Move the `DISTINCT` modifier to the same line as the `SELECT` keyword.
 
 ```sql
 select distinct
-    a,
-    b
+   a,
+   b
 from x
 ```
-
 
 ### layout.set_operators
 
@@ -1665,7 +1625,6 @@ UNION ALL
 SELECT 'b' AS col
 ```
 
-
 ### layout.end_of_file
 
 Files must end with a single trailing newline.
@@ -1681,34 +1640,34 @@ Files must end with a single trailing newline.
 The content in file does not end with a single trailing newline. The $ represents end of file.
 
 ```sql
- SELECT
-     a
- FROM foo$
+SELECT
+    a
+FROM foo$
 
- -- Ending on an indented line means there is no newline
- -- at the end of the file, the • represents space.
+-- Ending on an indented line means there is no newline
+-- at the end of the file, the • represents space.
 
- SELECT
- ••••a
- FROM
- ••••foo
- ••••$
+SELECT
+••••a
+FROM
+••••foo
+••••$
 
- -- Ending on a semi-colon means the last line is not a
- -- newline.
+-- Ending on a semi-colon means the last line is not a
+-- newline.
 
- SELECT
-     a
- FROM foo
- ;$
+SELECT
+    a
+FROM foo
+;$
 
- -- Ending with multiple newlines.
+-- Ending with multiple newlines.
 
- SELECT
-     a
- FROM foo
+SELECT
+    a
+FROM foo
 
- $
+$
 ```
 
 **Best practice**
@@ -1716,30 +1675,29 @@ The content in file does not end with a single trailing newline. The $ represent
 Add trailing newline to the end. The $ character represents end of file.
 
 ```sql
- SELECT
-     a
- FROM foo
- $
+SELECT
+    a
+FROM foo
+$
 
- -- Ensuring the last line is not indented so is just a
- -- newline.
+-- Ensuring the last line is not indented so is just a
+-- newline.
 
- SELECT
- ••••a
- FROM
- ••••foo
- $
+SELECT
+••••a
+FROM
+••••foo
+$
 
- -- Even when ending on a semi-colon, ensure there is a
- -- newline after.
+-- Even when ending on a semi-colon, ensure there is a
+-- newline after.
 
- SELECT
-     a
- FROM foo
- ;
- $
+SELECT
+    a
+FROM foo
+;
+$
 ```
-
 
 ### layout.start_of_file
 
@@ -1756,19 +1714,19 @@ Files must not begin with newlines or whitespace.
 The file begins with newlines or whitespace. The ^ represents the beginning of the file.
 
 ```sql
- ^
+^
 
- SELECT
-     a
- FROM foo
+SELECT
+    a
+FROM foo
 
- -- Beginning on an indented line is also forbidden,
- -- (the • represents space).
+-- Beginning on an indented line is also forbidden,
+-- (the • represents space).
 
- ••••SELECT
- ••••a
- FROM
- ••••foo
+••••SELECT
+••••a
+FROM
+••••foo
 ```
 
 **Best practice**
@@ -1776,29 +1734,28 @@ The file begins with newlines or whitespace. The ^ represents the beginning of t
 Start file on either code or comment. (The ^ represents the beginning of the file.)
 
 ```sql
- ^SELECT
-     a
- FROM foo
+^SELECT
+    a
+FROM foo
 
- -- Including an initial block comment.
+-- Including an initial block comment.
 
- ^/*
- This is a description of my SQL code.
- */
- SELECT
-     a
- FROM
-     foo
+^/*
+This is a description of my SQL code.
+*/
+SELECT
+    a
+FROM
+    foo
 
- -- Including an initial inline comment.
+-- Including an initial inline comment.
 
- ^--This is a description of my SQL code.
- SELECT
-     a
- FROM
-     foo
+^--This is a description of my SQL code.
+SELECT
+    a
+FROM
+    foo
 ```
-
 
 ### references.from
 
@@ -1816,7 +1773,7 @@ In this example, the reference `vee` has not been declared.
 
 ```sql
 SELECT
-    vee.a
+   vee.a
 FROM foo
 ```
 
@@ -1826,10 +1783,9 @@ Remove the reference.
 
 ```sql
 SELECT
-    a
+   a
 FROM foo
 ```
-
 **Dialects where this rule is skipped:** `redshift`, `bigquery`, `sparksql`
 
 ### references.qualification
@@ -1862,7 +1818,6 @@ FROM foo
 LEFT JOIN vee ON vee.a = foo.a
 ```
 
-
 ### references.consistent
 
 References should be consistent in statements with a single table.
@@ -1879,8 +1834,8 @@ In this example, only the field b is referenced.
 
 ```sql
 SELECT
-    a,
-    foo.b
+   a,
+   foo.b
 FROM foo
 ```
 
@@ -1890,18 +1845,17 @@ Add or remove references to all fields.
 
 ```sql
 SELECT
-    a,
-    b
+   a,
+   b
 FROM foo
 
 -- Also good
 
 SELECT
-    foo.a,
-    foo.b
+   foo.a,
+   foo.b
 FROM foo
 ```
-
 **Dialects where this rule is skipped:** `bigquery`, `redshift`
 
 ### references.keywords
@@ -1920,7 +1874,7 @@ In this example, `SUM` (a built-in function) is used as an alias.
 
 ```sql
 SELECT
-    sum.a
+   sum.a
 FROM foo AS sum
 ```
 
@@ -1930,10 +1884,9 @@ Avoid using keywords as the name of an alias.
 
 ```sql
 SELECT
-    vee.a
+   vee.a
 FROM foo AS vee
 ```
-
 
 ### references.special_chars
 
@@ -1952,10 +1905,10 @@ Using special characters within identifiers when creating or aliasing objects.
 ```sql
 CREATE TABLE DBO.ColumnNames
 (
-    [Internal Space] INT,
-    [Greater>Than] INT,
-    [Less<Than] INT,
-    Number# INT
+   [Internal Space] INT,
+   [Greater>Than] INT,
+   [Less<Than] INT,
+   Number# INT
 )
 ```
 
@@ -1966,13 +1919,12 @@ Identifiers should include only alphanumerics and underscores.
 ```sql
 CREATE TABLE DBO.ColumnNames
 (
-    [Internal_Space] INT,
-    [GreaterThan] INT,
-    [LessThan] INT,
-    NumberVal INT
+   [Internal_Space] INT,
+   [GreaterThan] INT,
+   [LessThan] INT,
+   NumberVal INT
 )
 ```
-
 
 ### references.quoting
 
@@ -2037,11 +1989,11 @@ Do not specify 'else null' in a case when statement (redundant).
 
 ```sql
 select
-    case
-        when name like '%cat%' then 'meow'
-        when name like '%dog%' then 'woof'
-        else null
-    end
+   case
+       when name like '%cat%' then 'meow'
+       when name like '%dog%' then 'woof'
+       else null
+   end
 from x
 ```
 
@@ -2051,13 +2003,12 @@ Omit `else null`
 
 ```sql
 select
-    case
-        when name like '%cat%' then 'meow'
-        when name like '%dog%' then 'woof'
-    end
+   case
+       when name like '%cat%' then 'meow'
+       when name like '%dog%' then 'woof'
+   end
 from x
 ```
-
 
 ### structure.simple_case
 
@@ -2075,30 +2026,30 @@ CASE statement returns booleans.
 
 ```sql
 select
-    case
-        when fab > 0 then true
-        else false
-    end as is_fab
+   case
+       when fab > 0 then true
+       else false
+   end as is_fab
 from fancy_table
 
 -- This rule can also simplify CASE statements
 -- that aim to fill NULL values.
 
 select
-    case
-        when fab is null then 0
-        else fab
-    end as fab_clean
+   case
+       when fab is null then 0
+       else fab
+   end as fab_clean
 from fancy_table
 
 -- This also covers where the case statement
 -- replaces NULL values with NULL values.
 
 select
-    case
-        when fab is null then null
-        else fab
-    end as fab_clean
+   case
+       when fab is null then null
+       else fab
+   end as fab_clean
 from fancy_table
 ```
 
@@ -2108,13 +2059,13 @@ Reduce to WHEN condition within COALESCE function.
 
 ```sql
 select
-    coalesce(fab > 0, false) as is_fab
+   coalesce(fab > 0, false) as is_fab
 from fancy_table
 
 -- To fill NULL values.
 
 select
-    coalesce(fab, 0) as fab_clean
+   coalesce(fab, 0) as fab_clean
 from fancy_table
 
 -- NULL filling NULL.
@@ -2122,7 +2073,6 @@ from fancy_table
 select fab as fab_clean
 from fancy_table
 ```
-
 
 ### structure.unused_cte
 
@@ -2140,12 +2090,12 @@ Defining a CTE that is not used by the query is harmless, but it means the code 
 
 ```sql
 WITH cte1 AS (
-  SELECT a
-  FROM t
+ SELECT a
+ FROM t
 ),
 cte2 AS (
-  SELECT b
-  FROM u
+ SELECT b
+ FROM u
 )
 
 SELECT *
@@ -2158,14 +2108,13 @@ Remove unused CTEs.
 
 ```sql
 WITH cte1 AS (
-  SELECT a
-  FROM t
+ SELECT a
+ FROM t
 )
 
 SELECT *
 FROM cte1
 ```
-
 
 ### structure.nested_case
 
@@ -2183,13 +2132,13 @@ In this example, the outer `CASE`'s `ELSE` is an unnecessary, nested `CASE`.
 
 ```sql
 SELECT
-  CASE
-    WHEN species = 'Cat' THEN 'Meow'
-    ELSE
-    CASE
-       WHEN species = 'Dog' THEN 'Woof'
-    END
-  END as sound
+ CASE
+   WHEN species = 'Cat' THEN 'Meow'
+   ELSE
+   CASE
+      WHEN species = 'Dog' THEN 'Woof'
+   END
+ END as sound
 FROM mytable
 ```
 
@@ -2199,13 +2148,12 @@ Move the body of the inner `CASE` to the end of the outer one.
 
 ```sql
 SELECT
-  CASE
-    WHEN species = 'Cat' THEN 'Meow'
-    WHEN species = 'Dog' THEN 'Woof'
-  END AS sound
+ CASE
+   WHEN species = 'Cat' THEN 'Meow'
+   WHEN species = 'Dog' THEN 'Woof'
+ END AS sound
 FROM mytable
 ```
-
 
 ### structure.subquery
 
@@ -2223,10 +2171,10 @@ Join is a sub query in a `FROM` clause. This can make the query harder to read a
 
 ```sql
 select
-    a.x, a.y, b.z
+   a.x, a.y, b.z
 from a
 join (
-    select x, z from b
+   select x, z from b
 ) using(x)
 ```
 
@@ -2236,14 +2184,13 @@ Use a Common Table Expression (CTE) to define the subquery and then join it to t
 
 ```sql
 with c as (
-    select x, z from b
+   select x, z from b
 )
 select
-    a.x, a.y, c.z
+   a.x, a.y, c.z
 from a
 join c using(x)
 ```
-
 
 ### structure.column_order
 
@@ -2259,10 +2206,10 @@ Select wildcards then simple targets before calculations and aggregates.
 
 ```sql
 select
-    a,
-    *,
-    row_number() over (partition by id order by date) as y,
-    b
+   a,
+   *,
+   row_number() over (partition by id order by date) as y,
+   b
 from x
 ```
 
@@ -2272,10 +2219,10 @@ Order `select` targets in ascending complexity
 
 ```sql
 select
-    *,
-    a,
-    b,
-    row_number() over (partition by id order by date) as y
+   *,
+   a,
+   b,
+   row_number() over (partition by id order by date) as y
 from x
 ```
 
@@ -2293,10 +2240,10 @@ Prefer specifying join keys instead of using ``USING``.
 
 ```sql
 SELECT
-    table_a.field_1,
-    table_b.field_2
+   table_a.field_1,
+   table_b.field_2
 FROM
-    table_a
+   table_a
 INNER JOIN table_b USING (id)
 ```
 
@@ -2306,12 +2253,12 @@ Specify the keys directly
 
 ```sql
 SELECT
-    table_a.field_1,
-    table_b.field_2
+   table_a.field_1,
+   table_b.field_2
 FROM
-    table_a
+   table_a
 INNER JOIN table_b
-    ON table_a.id = table_b.id
+   ON table_a.id = table_b.id
 ```
 **Dialects where this rule is skipped:** `clickhouse`
 
@@ -2341,7 +2288,6 @@ Remove parentheses to be clear that the DISTINCT applies to both columns.
 SELECT DISTINCT a, b FROM foo
 ```
 
-
 ### structure.join_condition_order
 
 Joins should list the table referenced earlier/later first.
@@ -2360,16 +2306,16 @@ is set to `earlier`.
 
 ```sql
 select
-    foo.a,
-    foo.b,
-    bar.c
+   foo.a,
+   foo.b,
+   bar.c
 from foo
 left join bar
-    -- This subcondition does not list
-    -- the table referenced earlier first:
-    on bar.a = foo.a
-    -- Neither does this subcondition:
-    and bar.b = foo.b
+   -- This subcondition does not list
+   -- the table referenced earlier first:
+   on bar.a = foo.a
+   -- Neither does this subcondition:
+   and bar.b = foo.b
 ```
 
 **Best practice**
@@ -2378,12 +2324,11 @@ List the tables that were referenced earlier first.
 
 ```sql
 select
-    foo.a,
-    foo.b,
-    bar.c
+   foo.a,
+   foo.b,
+   bar.c
 from foo
 left join bar
-    on foo.a = bar.a
-    and foo.b = bar.b
+   on foo.a = bar.a
+   and foo.b = bar.b
 ```
-

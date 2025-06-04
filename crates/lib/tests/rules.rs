@@ -221,6 +221,11 @@ dialect = {dialect}
                     assert_ne!(&f.violations, &[])
                 }
                 TestCaseKind::Fix { fail_str, fix_str } => {
+                    assert_ne!(
+                        &fail_str, &fix_str,
+                        "Fail and fix strings should not be equal"
+                    );
+
                     let f = linter.lint_string_wrapped(&fail_str, true).fix_string();
 
                     pretty_assertions::assert_eq!(f, fix_str);

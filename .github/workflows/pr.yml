@@ -119,7 +119,7 @@ jobs:
         uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # ratchet:actions/checkout@v4
       - uses: Swatinem/rust-cache@9d47c6ad4b02e050fd481d890b2ea34778fd09d6 # ratchet:Swatinem/rust-cache@v2
       - uses: taiki-e/install-action@0ef4f35ddc4b6153a6ab3244a74c795572d27045 # ratchet:taiki-e/install-action@cargo-hack
-      - uses: taiki-e/install-action@60d1e0b7b9b30b3ee6dce287792460110d5eb552 # ratchet:taiki-e/install-action@cargo-machete
+      - uses: taiki-e/install-action@0ef4f35ddc4b6153a6ab3244a74c795572d27045 # ratchet:taiki-e/install-action@cargo-machete
       - uses: dtolnay/rust-toolchain@4305c38b25d97ef35a8ad1f985ccf2d2242004f2 # ratchet:dtolnay/rust-toolchain@stable
         with:
           components: clippy, rustfmt

@@ -36,7 +36,7 @@ jobs:
     steps:
       - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # ratchet:actions/checkout@v4
       - uses: Swatinem/rust-cache@9d47c6ad4b02e050fd481d890b2ea34778fd09d6 # ratchet:Swatinem/rust-cache@v2
-      - uses: dtolnay/rust-toolchain@38b70195107dddab2c7bbd522bcf763bac00963b # ratchet:dtolnay/rust-toolchain@stable
+      - uses: dtolnay/rust-toolchain@4305c38b25d97ef35a8ad1f985ccf2d2242004f2 # ratchet:dtolnay/rust-toolchain@stable
       - run: cargo check --all --all-features --tests --benches
   compile:
     name: Compile
@@ -44,7 +44,7 @@ jobs:
     steps:
       - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # ratchet:actions/checkout@v4
       - uses: Swatinem/rust-cache@9d47c6ad4b02e050fd481d890b2ea34778fd09d6 # ratchet:Swatinem/rust-cache@v2
-      - uses: dtolnay/rust-toolchain@38b70195107dddab2c7bbd522bcf763bac00963b # ratchet:dtolnay/rust-toolchain@stable
+      - uses: dtolnay/rust-toolchain@4305c38b25d97ef35a8ad1f985ccf2d2242004f2 # ratchet:dtolnay/rust-toolchain@stable
       - run: cargo build --locked --release --all-features
   compile-wasm:
     name: Compile wasm32-unknown-unknown
@@ -74,7 +74,7 @@ jobs:
           node-version-file: ".nvmrc"
           cache: "pnpm"
       - run: pnpm install --frozen-lockfile
-      - uses: dtolnay/rust-toolchain@38b70195107dddab2c7bbd522bcf763bac00963b # ratchet:dtolnay/rust-toolchain@nightly
+      - uses: dtolnay/rust-toolchain@b95584d8105b9ab200e15821fa671848cf2b7017 # ratchet:dtolnay/rust-toolchain@nightly
       - run: curl https://rustwasm.github.io/wasm-pack/installer/init.sh -sSf | sh
       - run: cd playground && pnpm playwright install
       - run: pnpm run ci
@@ -83,7 +83,7 @@ jobs:
     runs-on: ubuntu-latest
     services:
       postgres:
-        image: index.docker.io/library/postgres@sha256:81f32a88ec561664634637dd446487efd5f9d90996304b96210078e90e5c8b21 # ratchet:postgres:latest
+        image: index.docker.io/library/postgres@sha256:6efd0df010dc3cb40d5e33e3ef84acecc5e73161bd3df06029ee8698e5e12c60 # ratchet:postgres:latest
         env:
           POSTGRES_PASSWORD: postgres
           POSTGRES_USER: postgres
@@ -106,7 +106,7 @@ jobs:
           echo "${{ github.workspace }}/.venv/bin" >> $GITHUB_PATH
       - name: Install dependencies
         run: make python_install
-      - uses: dtolnay/rust-toolchain@38b70195107dddab2c7bbd522bcf763bac00963b # ratchet:dtolnay/rust-toolchain@stable
+      - uses: dtolnay/rust-toolchain@4305c38b25d97ef35a8ad1f985ccf2d2242004f2 # ratchet:dtolnay/rust-toolchain@stable
       - uses: Swatinem/rust-cache@9d47c6ad4b02e050fd481d890b2ea34778fd09d6 # ratchet:Swatinem/rust-cache@v2
       - run: make rust_test
       - name: Check for diffs
@@ -118,9 +118,9 @@ jobs:
       - name: Checkout sources
         uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # ratchet:actions/checkout@v4
       - uses: Swatinem/rust-cache@9d47c6ad4b02e050fd481d890b2ea34778fd09d6 # ratchet:Swatinem/rust-cache@v2
-      - uses: taiki-e/install-action@dc31d68fd5b543e71fcf192c363a7ac2223bfc5b # ratchet:taiki-e/install-action@cargo-hack
-      - uses: taiki-e/install-action@96200019792a838c050bcc22dda6518ee07fd860 # ratchet:taiki-e/install-action@cargo-machete
-      - uses: dtolnay/rust-toolchain@38b70195107dddab2c7bbd522bcf763bac00963b # ratchet:dtolnay/rust-toolchain@stable
+      - uses: taiki-e/install-action@0ef4f35ddc4b6153a6ab3244a74c795572d27045 # ratchet:taiki-e/install-action@cargo-hack
+      - uses: taiki-e/install-action@60d1e0b7b9b30b3ee6dce287792460110d5eb552 # ratchet:taiki-e/install-action@cargo-machete
+      - uses: dtolnay/rust-toolchain@4305c38b25d97ef35a8ad1f985ccf2d2242004f2 # ratchet:dtolnay/rust-toolchain@stable
         with:
           components: clippy, rustfmt
       - run: make rust_lint
@@ -167,7 +167,7 @@ jobs:
     steps:
       - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # ratchet:actions/checkout@v4
       - name: Set up Go
-        uses: actions/setup-go@d35c59abb061a4a6fb18e82ac0862c26744d6ab5 # ratchet:actions/setup-go@v4
+        uses: actions/setup-go@19bb51245e9c80abacb2e91cc42b33fa478b8639 # ratchet:actions/setup-go@v4
       - name: Install ratchet
         run: go install github.com/sethvargo/ratchet@latest
       - name: Ratchet Check

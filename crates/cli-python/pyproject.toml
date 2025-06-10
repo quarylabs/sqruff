@@ -1,6 +1,6 @@
 [project]
 name = "sqruff" 
-version = "0.26.5"
+version = "0.26.6"
 description = "A SQL linter written in rust." 
 requires-python = ">=3.9" 
 

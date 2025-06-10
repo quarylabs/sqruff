@@ -1,6 +1,33 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+@import "tailwindcss";
+
+@theme {
+  --color-ayu-accent: #ffac2f;
+  --color-ayu-background: #f8f9fa;
+  --color-ayu-background-dark: #0b0e14;
+  --color-black: #261230;
+  --color-white: #FFFFFF;
+  --color-radiate: #D7FF64;
+  --color-flare: #6340AC;
+  --color-rock: #78876E;
+  --color-galaxy: #181818;
+  --color-space: #30173D;
+  --color-comet: #6F5D6F;
+  --color-cosmic: #DE5FE9;
+  --color-sun: #FFAC2F;
+  --color-electron: #46EBE1;
+  --color-aurora: #46EB74;
+  --color-constellation: #5F6DE9;
+  --color-neutron: #CFF3CF;
+  --color-proton: #F6AFBC;
+  --color-nebula: #CDCBFB;
+  --color-supernova: #F1AFF6;
+  --color-starlight: #F4F4F1;
+  --color-lunar: #FBF2FC;
+  --color-asteroid: #E3CEE3;
+  --color-crater: #F0DFDF;
+  
+  --font-family-mono: Roboto Mono, monospace;
+}
 
 * {
   box-sizing: border-box;
@@ -18,7 +45,7 @@ html,
 
 .shadow-copied {
   --tw-shadow:
-    0 0 0 1px theme("colors.white"), inset 0 0 0 1px theme("colors.white");
+    0 0 0 1px var(--color-white), inset 0 0 0 1px var(--color-white);
   --tw-shadow-colored:
     0 0 0 1px var(--tw-shadow-color), inset 0 0 0 1px var(--tw-shadow-color);
 

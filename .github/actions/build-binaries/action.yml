@@ -32,7 +32,6 @@ runs:
         args: --locked --release --bin sqruff --package sqruff
         strip: true
     - name: Package as archive
-      if: inputs.package == 'true'
       shell: bash
       run: |
         cd target/${{ matrix.platform.target }}/release
@@ -43,7 +42,6 @@ runs:
         fi
         cd -
     - name: Generate SHA-256 and Save to File
-      if: inputs.package == 'true'
       run: shasum -a 256 ${{ matrix.platform.name }} > ${{ matrix.platform.name }}.sha256
       shell: bash
     - name: Generate artifact attestation

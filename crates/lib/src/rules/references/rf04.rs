@@ -2,7 +2,7 @@ use itertools::Itertools;
 use regex::Regex;
 use sqruff_lib_core::dialects::syntax::{SyntaxKind, SyntaxSet};
 
-use crate::core::rules::base::{CloneRule, ErasedRule, LintResult, Rule, RuleGroups};
+use crate::core::rules::base::{Erased, ErasedRule, LintResult, Rule, RuleGroups};
 use crate::core::rules::context::RuleContext;
 use crate::core::rules::crawlers::{Crawler, SegmentSeekerCrawler};
 use crate::utils::identifers::identifiers_policy_applicable;

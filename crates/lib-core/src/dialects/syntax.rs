@@ -307,6 +307,7 @@ pub enum SyntaxKind {
     PatternExpression,
     MatchRecognizeClause,
     ChangesClause,
+    MatchConditionClause,
     FromAtExpression,
     FromBeforeExpression,
     SnowflakeKeywordExpression,

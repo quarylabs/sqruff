@@ -6,6 +6,7 @@ use sqruff_lib_core::helpers::{Config, ToMatchable};
 use sqruff_lib_core::parser::grammar::anyof::{
     AnyNumberOf, any_set_of, one_of, optionally_bracketed,
 };
+use sqruff_lib_core::parser::grammar::conditional::Conditional;
 use sqruff_lib_core::parser::grammar::delimited::Delimited;
 use sqruff_lib_core::parser::grammar::sequence::{Bracketed, Sequence};
 use sqruff_lib_core::parser::grammar::{Nothing, Ref};
@@ -62,6 +63,79 @@ pub fn dialect() -> Dialect {
             .config(|this| this.optional()),
             Ref::new("SamplingExpressionSegment").optional(),
             Ref::new("PostTableExpressionGrammar").optional(),
+        ])
+        .to_matchable(),
+    );
+
+    snowflake_dialect.replace_grammar(
+        "JoinClauseSegment",
+        one_of(vec_of_erased![
+            Sequence::new(vec_of_erased![
+                Ref::new("JoinTypeKeywordsGrammar").optional(),
+                Ref::new("JoinKeywordsGrammar"),
+                MetaSegment::indent(),
+                Ref::new("FromExpressionElementSegment"),
+                AnyNumberOf::new(vec_of_erased![Ref::new("NestedJoinGrammar")]),
+                MetaSegment::dedent(),
+                Sequence::new(vec_of_erased![
+                    Conditional::new(MetaSegment::indent()).indented_using_on(),
+                    one_of(vec_of_erased![
+                        Ref::new("JoinOnConditionSegment"),
+                        Sequence::new(vec_of_erased![
+                            Ref::keyword("USING"),
+                            MetaSegment::indent(),
+                            Bracketed::new(vec_of_erased![Delimited::new(vec_of_erased![
+                                Ref::new("SingleIdentifierGrammar")
+                            ])])
+                            .config(|this| this.parse_mode = ParseMode::Greedy),
+                            MetaSegment::dedent(),
+                        ])
+                    ]),
+                    Conditional::new(MetaSegment::dedent()).indented_using_on(),
+                ])
+                .config(|this| this.optional())
+            ]),
+            Sequence::new(vec_of_erased![
+                Ref::new("NaturalJoinKeywordsGrammar"),
+                Ref::new("JoinKeywordsGrammar"),
+                MetaSegment::indent(),
+                Ref::new("FromExpressionElementSegment"),
+                MetaSegment::dedent(),
+            ]),
+            Sequence::new(vec_of_erased![
+                Ref::new("ExtendedNaturalJoinKeywordsGrammar"),
+                MetaSegment::indent(),
+                Ref::new("FromExpressionElementSegment"),
+                MetaSegment::dedent(),
+            ]),
+            Sequence::new(vec_of_erased![
+                Ref::keyword("ASOF"),
+                Ref::keyword("JOIN"),
+                MetaSegment::indent(),
+                Ref::new("FromExpressionElementSegment"),
+                AnyNumberOf::new(vec_of_erased![Ref::new("NestedJoinGrammar")]),
+                MetaSegment::dedent(),
+                MetaSegment::indent(),
+                Ref::new("MatchConditionSegment"),
+                MetaSegment::dedent(),
+                Sequence::new(vec_of_erased![
+                    Conditional::new(MetaSegment::indent()).indented_using_on(),
+                    one_of(vec_of_erased![
+                        Ref::new("JoinOnConditionSegment"),
+                        Sequence::new(vec_of_erased![
+                            Ref::keyword("USING"),
+                            MetaSegment::indent(),
+                            Bracketed::new(vec_of_erased![Delimited::new(vec_of_erased![
+                                Ref::new("SingleIdentifierGrammar")
+                            ])])
+                            .config(|this| this.parse_mode = ParseMode::Greedy),
+                            MetaSegment::dedent(),
+                        ])
+                    ]),
+                    Conditional::new(MetaSegment::dedent()).indented_using_on(),
+                ])
+                .config(|this| this.optional())
+            ])
         ])
         .to_matchable(),
     );
@@ -1579,6 +1653,19 @@ pub fn dialect() -> Dialect {
                         ]),
                     ])
                     .config(|this| this.optional()),
+                ])
+                .to_matchable(),
+            )
+            .to_matchable()
+            .into(),
+        ),
+        (
+            "MatchConditionSegment".into(),
+            NodeMatcher::new(
+                SyntaxKind::MatchConditionClause,
+                Sequence::new(vec_of_erased![
+                    Ref::keyword("MATCH_CONDITION"),
+                    Bracketed::new(vec_of_erased![Ref::new("ExpressionSegment")]),
                 ])
                 .to_matchable(),
             )

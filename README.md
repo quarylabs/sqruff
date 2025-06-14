@@ -56,7 +56,7 @@ Open the [playground](https://playground.quary.dev) to try out the linter and fo
 You can use [brew](https://brew.sh/) to install sqruff easily on macOS.
 
 ```bash
-brew install quarylabs/quary/sqruff
+brew install sqruff
 ```
 
 #### Linux

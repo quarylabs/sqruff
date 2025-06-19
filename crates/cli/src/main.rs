@@ -1,4 +1,3 @@
-#[cfg(target_os = "windows")]
 #[global_allocator]
 static ALLOC: mimalloc::MiMalloc = mimalloc::MiMalloc;
 

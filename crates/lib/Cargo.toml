@@ -69,9 +69,11 @@ serde_json = "1"
 
 # Only activated on python
 pyo3 = { version = "0.25.1", optional = true }
+mimalloc = "0.1"
 
 [target.'cfg(all(any(target_arch = "wasm32", target_arch = "wasm64"), target_os = "unknown"))'.dependencies]
 getrandom = { version = "0.2", features = ["js"] }
+
 
 [target.'cfg(unix)'.dev-dependencies]
 pprof = { version = "0.15", features = ["flamegraph", "criterion"] }

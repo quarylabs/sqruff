@@ -63,6 +63,22 @@ FROM foo
         if children.any(Some(|it| it.get_type() == SyntaxKind::AliasExpression)) {
             return Vec::new();
         }
+        
+        // Check for T-SQL alternative alias syntax: AliasName = Expression
+        // In T-SQL, the pattern is: [Whitespace]* Identifier [Whitespace]* = [Whitespace]* Expression
+        let segments: Vec<_> = children.clone().into_iter()
+            .filter(|s| !s.is_type(SyntaxKind::Whitespace) && !s.is_type(SyntaxKind::Newline))
+            .collect();
+        
+        if segments.len() >= 3 {
+            // Check if first non-whitespace element is identifier and second is equals
+            if (segments[0].is_type(SyntaxKind::Identifier) || 
+                segments[0].is_type(SyntaxKind::NakedIdentifier)) &&
+               segments[1].is_type(SyntaxKind::RawComparisonOperator) &&
+               segments[1].raw() == "=" {
+                return Vec::new();
+            }
+        }
 
         // Ignore if it's a function with EMITS clause as EMITS is equivalent to AS
         if !children

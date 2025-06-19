@@ -77,3 +77,42 @@ test_pass_cte_column_list:
         a,
         b
     FROM cte
+
+
+# T-SQL alternative alias syntax tests
+test_pass_tsql_alternative_alias_simple:
+  # T-SQL supports AliasName = Expression syntax
+  pass_str: SELECT UUID = u_uuid FROM table1
+  configs:
+    core:
+      dialect: tsql
+
+test_pass_tsql_alternative_alias_with_cast:
+  # T-SQL alias with CAST expression
+  pass_str: SELECT UUID = CAST(u_uuid AS CHAR(36)) FROM table1
+  configs:
+    core:
+      dialect: tsql
+
+test_pass_tsql_alternative_alias_multiple:
+  # Multiple T-SQL style aliases
+  pass_str: |
+    SELECT
+        UUID = CAST(u_uuid AS CHAR(36)),
+        Name = u_name,
+        Date = GETDATE()
+    FROM table1
+  configs:
+    core:
+      dialect: tsql
+
+test_pass_tsql_alternative_alias_mixed:
+  # Mix of T-SQL and standard SQL alias syntax
+  pass_str: |
+    SELECT
+        UUID = u_uuid,
+        u_name AS Name
+    FROM table1
+  configs:
+    core:
+      dialect: tsql

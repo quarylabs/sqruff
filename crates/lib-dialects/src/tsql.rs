@@ -52,6 +52,26 @@ pub fn dialect() -> Dialect {
             .to_matchable()
             .into(),
         );
+        
+        // T-SQL supports alternative alias syntax: AliasName = Expression
+        dialect.replace_grammar(
+            "SelectClauseElementSegment",
+            ansi::select_clause_element().copy(
+                Some(vec_of_erased![
+                    // T-SQL alternative alias syntax: AliasName = Expression
+                    Sequence::new(vec_of_erased![
+                        Ref::new("SingleIdentifierGrammar"),
+                        Ref::new("EqualsSegment"),
+                        Ref::new("BaseExpressionElementGrammar")
+                    ])
+                ]),
+                None,
+                None,
+                None,
+                Vec::new(),
+                false,
+            ).into(),
+        );
     })
 }
 
@@ -428,7 +448,6 @@ pub fn raw_dialect() -> Dialect {
         .into(),
     );
 
-
     // USE statement for changing database context
     dialect.add([
         (
@@ -552,6 +571,27 @@ pub fn raw_dialect() -> Dialect {
             Ref::new("TableHintGrammar").optional().to_matchable().into(),
         ),
     ]);
+    
+    // T-SQL alternative alias syntax: AliasName = Expression
+    // This allows SELECT UUID = CAST(u_uuid AS CHAR(36)) syntax
+    dialect.replace_grammar(
+        "SelectClauseElementSegment",
+        ansi::select_clause_element().copy(
+            Some(vec_of_erased![
+                // T-SQL alternative alias syntax: AliasName = Expression
+                Sequence::new(vec_of_erased![
+                    Ref::new("SingleIdentifierGrammar"),
+                    Ref::new("EqualsSegment"),
+                    Ref::new("BaseExpressionElementGrammar")
+                ])
+            ]),
+            None,
+            None,
+            None,
+            Vec::new(),
+            false,
+        ).into(),
+    );
 
     dialect
 }

@@ -159,16 +159,8 @@ impl RuleAL05 {
                     .extend(select_info.table_aliases);
 
                 for r in select_info.reference_buffer {
-                    let raw_ref = r.0.raw().to_string();
-                    if raw_ref.contains("op2ref") {
-                        println!("DEBUG AL05: Found op2ref reference: '{}' type: {:?}", raw_ref, r.0.get_type());
-                    }
-                    
                     let table_refs = r.extract_possible_references(ObjectReferenceLevel::Table, dialect.name);
                     for tr in &table_refs {
-                        if tr.part.contains("op2ref") {
-                            println!("DEBUG AL05: Found op2ref table ref: '{}'", tr.part);
-                        }
                         Self::resolve_and_mark_reference(query.clone(), tr.part.clone());
                     }
                     

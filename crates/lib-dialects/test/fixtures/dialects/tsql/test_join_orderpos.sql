@@ -1,6 +1,0 @@
--- Test ORDERPOS_P in JOIN
-SELECT * FROM t1
-JOIN ORDERPOS_P AS o ON t1.id = o.id;
-
-SELECT * FROM t1
-JOIN sao.ORDERPOS_P AS o ON t1.id = o.id;

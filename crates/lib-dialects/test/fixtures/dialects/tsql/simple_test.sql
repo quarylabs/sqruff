@@ -1,1 +1,0 @@
-SELECT OrderIDs.value FROM table1 AS OrderIDs

@@ -255,6 +255,22 @@ test_pass_tsql_values_clause_in_parentheses:
     core:
       dialect: tsql
 
+test_pass_tsql_alias_in_in_clause:
+  # Table alias used within IN clause should be recognized
+  pass_str: |
+    SELECT
+        COUNT(*)
+    FROM
+        NegSoft_ERP_SalesOrderPositionReference AS op2ref
+        INNER JOIN sao.ORDERPOS_P AS Position ON Position.I_ORDERPOS_P = op2ref.i_position_id
+    WHERE
+        123 IN (op2ref.i_position_id, op2ref.i_positionref_id)
+        AND op2ref.i_referencetype_id = 1
+        AND op2ref.dt_deleted IS NULL
+  configs:
+    core:
+      dialect: tsql
+
 test_pass_join_on_expression_in_parentheses:
   pass_str: |
     SELECT table1.c1
@@ -392,3 +408,14 @@ test_pass_tsql_cross_apply_reference:
   configs:
     core:
       dialect: tsql
+
+test_pass_join_on_condition_reference:
+  # Table aliases used in JOIN ON conditions should not be flagged as unused
+  pass_str: |
+    SELECT
+        COUNT(*)
+    FROM
+        table1 AS alias1
+        INNER JOIN table2 AS alias2 ON alias2.id = alias1.ref_id
+    WHERE
+        alias1.active = 1

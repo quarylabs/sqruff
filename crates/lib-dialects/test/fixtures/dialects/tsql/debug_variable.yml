@@ -1,9 +1,0 @@
-file:
-- statement:
-  - select_statement:
-    - select_clause:
-      - keyword: SELECT
-      - select_clause_element:
-        - parameterized_expression:
-          - tsql_variable: '@myvar'
-- statement_terminator: ;

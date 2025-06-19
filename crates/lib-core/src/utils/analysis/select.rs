@@ -122,7 +122,7 @@ pub fn get_select_statement_info(
                                 on_seg.get_type(),
                                 SyntaxKind::Bracketed | SyntaxKind::Expression
                             ) {
-                                reference_buffer.extend(get_object_references(seg));
+                                reference_buffer.extend(get_object_references(on_seg));
                             }
                         }
                     } else if seen_using && seg.is_type(SyntaxKind::Bracketed) {

@@ -90,6 +90,9 @@ pub fn raw_dialect() -> Dialect {
         .sets_mut("unreserved_keywords")
         .extend(tsql_keywords::tsql_unreserved_keywords());
     
+    // Remove POSITION from reserved keywords to allow it as an alias
+    dialect.sets_mut("reserved_keywords").remove("POSITION");
+    
     // Add table hint keywords to unreserved keywords
     dialect.sets_mut("unreserved_keywords").extend([
         "NOLOCK",
@@ -109,6 +112,9 @@ pub fn raw_dialect() -> Dialect {
         "FORCESCAN",
         "HOLDLOCK",
         "SNAPSHOT",
+        // Add POSITION to allow it as an identifier/alias
+        // This fixes the parser issue with "sao.ORDERPOS_P AS Position"
+        "POSITION",
     ]);
 
     // T-SQL specific operators

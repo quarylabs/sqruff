@@ -1,0 +1,58 @@
+file:
+- statement:
+  - select_statement:
+    - select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+        - wildcard_expression:
+          - wildcard_identifier:
+            - naked_identifier: OrderStates
+            - dot: .
+            - star: '*'
+    - from_clause:
+      - keyword: FROM
+      - from_expression:
+        - from_expression_element:
+          - table_expression:
+            - table_reference:
+              - table_reference:
+                - tsql_variable: '@OrderIDs'
+          - alias_expression:
+            - keyword: AS
+            - naked_identifier: OrderIDs
+        - join_clause:
+          - keyword: OUTER
+          - keyword: APPLY
+          - from_expression_element:
+            - table_expression:
+              - bracketed:
+                - start_bracket: (
+                - select_statement:
+                  - select_clause:
+                    - keyword: SELECT
+                    - select_clause_element:
+                      - expression:
+                        - column_reference:
+                          - naked_identifier: OrderID
+                        - comparison_operator:
+                          - raw_comparison_operator: =
+                        - column_reference:
+                          - naked_identifier: OrderIDs
+                  - unparsable:
+                    - dot: .
+                    - word: value
+                    - comma: ','
+                    - word: OrderProcessStateName
+                    - raw_comparison_operator: =
+                    - single_quote: '''test'''
+                    - word: FROM
+                    - word: sao
+                    - dot: .
+                    - word: NegSoft_ERP_SalesOrderState
+                    - word: AS
+                    - word: NxOrderState
+                - end_bracket: )
+            - alias_expression:
+              - keyword: AS
+              - naked_identifier: OrderStates
+- statement_terminator: ;

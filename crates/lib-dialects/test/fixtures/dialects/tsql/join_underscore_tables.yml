@@ -1,0 +1,117 @@
+file:
+- statement:
+  - select_statement:
+    - select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+        - wildcard_expression:
+          - wildcard_identifier:
+            - star: '*'
+    - from_clause:
+      - keyword: FROM
+      - from_expression:
+        - from_expression_element:
+          - table_expression:
+            - table_reference:
+              - table_reference:
+                - object_reference:
+                  - naked_identifier: table_a
+          - alias_expression:
+            - keyword: AS
+            - naked_identifier: a
+          - keyword: WITH
+          - bracketed:
+            - start_bracket: (
+            - keyword: NOLOCK
+            - end_bracket: )
+        - join_clause:
+          - keyword: INNER
+          - keyword: JOIN
+          - from_expression_element:
+            - table_expression:
+              - table_reference:
+                - table_reference:
+                  - object_reference:
+                    - naked_identifier: TABLE_B
+            - alias_expression:
+              - keyword: AS
+              - naked_identifier: b
+            - keyword: WITH
+            - bracketed:
+              - start_bracket: (
+              - keyword: NOLOCK
+              - end_bracket: )
+          - join_on_condition:
+            - keyword: ON
+            - expression:
+              - column_reference:
+                - naked_identifier: a
+                - dot: .
+                - naked_identifier: id
+              - comparison_operator:
+                - raw_comparison_operator: =
+              - column_reference:
+                - naked_identifier: b
+                - dot: .
+                - naked_identifier: id
+        - join_clause:
+          - keyword: INNER
+          - keyword: JOIN
+          - from_expression_element:
+            - table_expression:
+              - table_reference:
+                - table_reference:
+                  - object_reference:
+                    - naked_identifier: table_c_d
+            - alias_expression:
+              - keyword: AS
+              - naked_identifier: c
+            - keyword: WITH
+            - bracketed:
+              - start_bracket: (
+              - keyword: NOLOCK
+              - end_bracket: )
+          - join_on_condition:
+            - keyword: ON
+            - expression:
+              - column_reference:
+                - naked_identifier: b
+                - dot: .
+                - naked_identifier: id
+              - comparison_operator:
+                - raw_comparison_operator: =
+              - column_reference:
+                - naked_identifier: c
+                - dot: .
+                - naked_identifier: id
+        - join_clause:
+          - keyword: INNER
+          - keyword: JOIN
+          - from_expression_element:
+            - table_expression:
+              - table_reference:
+                - table_reference:
+                  - object_reference:
+                    - naked_identifier: ORDERS_P
+            - alias_expression:
+              - keyword: AS
+              - naked_identifier: o
+            - keyword: WITH
+            - bracketed:
+              - start_bracket: (
+              - keyword: NOLOCK
+              - end_bracket: )
+          - join_on_condition:
+            - keyword: ON
+            - expression:
+              - column_reference:
+                - naked_identifier: c
+                - dot: .
+                - naked_identifier: id
+              - comparison_operator:
+                - raw_comparison_operator: =
+              - column_reference:
+                - naked_identifier: o
+                - dot: .
+                - naked_identifier: id
+- statement_terminator: ;

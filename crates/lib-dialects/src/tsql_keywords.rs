@@ -108,6 +108,8 @@ pub(crate) fn tsql_reserved_keywords() -> AHashSet<&'static str> {
             "NATIONAL",
             "NOCHECK",
             "NONCLUSTERED",
+            "NOEXPAND",
+            "NOLOCK",
             "NOT",
             "NULL",
             "NULLIF",

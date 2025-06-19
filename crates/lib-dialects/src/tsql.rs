@@ -8,6 +8,7 @@ use sqruff_lib_core::parser::grammar::delimited::Delimited;
 use sqruff_lib_core::parser::grammar::sequence::{Bracketed, Sequence};
 use sqruff_lib_core::parser::lexer::Matcher;
 use sqruff_lib_core::parser::node_matcher::NodeMatcher;
+use sqruff_lib_core::parser::parsers::TypedParser;
 use sqruff_lib_core::vec_of_erased;
 
 use crate::{ansi, tsql_keywords};
@@ -35,9 +36,10 @@ pub fn raw_dialect() -> Dialect {
         "%=", "&=", "*=", "+=", "-=", "/=", "^=", "|=", "!<", "!>",
     ]);
 
-    // T-SQL supports square brackets for identifiers
+    // T-SQL supports square brackets for identifiers and @ for variables
     dialect.patch_lexer_matchers(vec![
         Matcher::regex("tsql_square_bracket_identifier", r"\[[^\]]*\]", SyntaxKind::DoubleQuote),
+        Matcher::regex("tsql_variable", r"@[a-zA-Z_][a-zA-Z0-9_]*", SyntaxKind::Placeholder),
     ]);
 
     // Add T-SQL specific bare functions
@@ -47,6 +49,17 @@ pub fn raw_dialect() -> Dialect {
         "SESSION_USER",
         "SYSTEM_USER",
         "USER",
+    ]);
+    
+    // Add aggregate and other functions
+    dialect.sets_mut("aggregate_functions").extend([
+        "STRING_AGG",
+    ]);
+    
+    dialect.sets_mut("special_functions").extend([
+        "COALESCE",
+        "NULLIF",
+        "ISNULL",
     ]);
 
     // T-SQL datetime units
@@ -80,6 +93,26 @@ pub fn raw_dialect() -> Dialect {
         "SYSDATETIME",
         "SYSUTCDATETIME",
         "SYSDATETIMEOFFSET",
+    ]);
+    
+    // Add T-SQL string functions
+    dialect.sets_mut("scalar_functions").extend([
+        "SUBSTRING",
+        "CHARINDEX",
+        "LEN",
+        "LEFT",
+        "RIGHT",
+        "LTRIM",
+        "RTRIM",
+        "REPLACE",
+        "STUFF",
+        "PATINDEX",
+        "QUOTENAME",
+        "REPLICATE",
+        "REVERSE",
+        "SPACE",
+        "STR",
+        "UNICODE",
     ]);
 
     // T-SQL specific value table functions
@@ -362,6 +395,63 @@ pub fn raw_dialect() -> Dialect {
             Sequence::new(vec_of_erased![
                 Ref::keyword("USE"),
                 Ref::new("DatabaseReferenceSegment")
+            ])
+            .to_matchable()
+            .into(),
+        ),
+    ]);
+    
+    // Add variable reference support
+    dialect.replace_grammar(
+        "SingleIdentifierGrammar",
+        one_of(vec_of_erased![
+            Ref::new("NakedIdentifierSegment"),
+            Ref::new("QuotedIdentifierSegment"),
+            Ref::new("SingleQuotedIdentifierSegment"),
+            TypedParser::new(SyntaxKind::Placeholder, SyntaxKind::Identifier), // For @variables
+        ])
+        .to_matchable()
+        .into(),
+    );
+    
+    // Table hints support
+    dialect.add([
+        (
+            "TableHintSegment".into(),
+            NodeMatcher::new(SyntaxKind::Expression, Nothing::new().to_matchable()).to_matchable().into(),
+        ),
+        (
+            "TableHintGrammar".into(),
+            Sequence::new(vec_of_erased![
+                Ref::keyword("WITH"),
+                Bracketed::new(vec_of_erased![
+                    Delimited::new(vec_of_erased![
+                        one_of(vec_of_erased![
+                            Ref::keyword("NOLOCK"),
+                            Ref::keyword("READUNCOMMITTED"),
+                            Ref::keyword("READCOMMITTED"),
+                            Ref::keyword("REPEATABLEREAD"),
+                            Ref::keyword("SERIALIZABLE"),
+                            Ref::keyword("READPAST"),
+                            Ref::keyword("ROWLOCK"),
+                            Ref::keyword("TABLOCK"),
+                            Ref::keyword("TABLOCKX"),
+                            Ref::keyword("UPDLOCK"),
+                            Ref::keyword("XLOCK"),
+                            Ref::keyword("NOEXPAND"),
+                            Ref::keyword("INDEX"),
+                            Ref::keyword("FORCESEEK"),
+                            Ref::keyword("FORCESCAN"),
+                            Ref::keyword("HOLDLOCK"),
+                            Ref::keyword("SNAPSHOT"),
+                            Ref::keyword("SPATIAL_WINDOW_MAX_CELLS"),
+                            Ref::keyword("KEEPIDENTITY"),
+                            Ref::keyword("KEEPDEFAULTS"),
+                            Ref::keyword("IGNORE_CONSTRAINTS"),
+                            Ref::keyword("IGNORE_TRIGGERS"),
+                        ])
+                    ])
+                ])
             ])
             .to_matchable()
             .into(),

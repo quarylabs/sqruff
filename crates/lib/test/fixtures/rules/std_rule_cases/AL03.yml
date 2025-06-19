@@ -78,18 +78,17 @@ test_pass_cte_column_list:
         b
     FROM cte
 
-
 # T-SQL alternative alias syntax tests
 test_pass_tsql_alternative_alias_simple:
   # T-SQL supports AliasName = Expression syntax
-  pass_str: SELECT UUID = u_uuid FROM table1
+  pass_str: SELECT ItemCode = item_code FROM inventory
   configs:
     core:
       dialect: tsql
 
 test_pass_tsql_alternative_alias_with_cast:
   # T-SQL alias with CAST expression
-  pass_str: SELECT UUID = CAST(u_uuid AS CHAR(36)) FROM table1
+  pass_str: SELECT ItemCode = CAST(item_code AS CHAR(36)) FROM inventory
   configs:
     core:
       dialect: tsql
@@ -98,10 +97,10 @@ test_pass_tsql_alternative_alias_multiple:
   # Multiple T-SQL style aliases
   pass_str: |
     SELECT
-        UUID = CAST(u_uuid AS CHAR(36)),
-        Name = u_name,
-        Date = GETDATE()
-    FROM table1
+        ItemCode = CAST(item_code AS CHAR(36)),
+        Description = item_desc,
+        CreatedDate = GETDATE()
+    FROM inventory
   configs:
     core:
       dialect: tsql
@@ -110,9 +109,9 @@ test_pass_tsql_alternative_alias_mixed:
   # Mix of T-SQL and standard SQL alias syntax
   pass_str: |
     SELECT
-        UUID = u_uuid,
-        u_name AS Name
-    FROM table1
+        ItemCode = item_code,
+        item_desc AS Description
+    FROM inventory
   configs:
     core:
       dialect: tsql
@@ -121,9 +120,9 @@ test_pass_tsql_alternative_alias_complex_expression:
   # T-SQL alias with complex dotted expression
   pass_str: |
     SELECT
-        EMailAddress = InvoiceEMailAddress.EMail,
-        CustomerName = Customer.Name
-    FROM table1
+        ContactInfo = OrderContact.Email,
+        ClientName = Client.FullName
+    FROM orders
   configs:
     core:
       dialect: tsql
@@ -131,8 +130,8 @@ test_pass_tsql_alternative_alias_complex_expression:
 test_pass_insert_into_select:
   # INSERT INTO ... SELECT doesn't require aliases
   pass_str: |
-    INSERT INTO target_table (col1, col2)
+    INSERT INTO dest_table (field1, field2)
     SELECT
-        source_col1,
-        UPPER(source_col2)
-    FROM source_table
+        src_field1,
+        UPPER(src_field2)
+    FROM src_table

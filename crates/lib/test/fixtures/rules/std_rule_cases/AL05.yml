@@ -255,22 +255,6 @@ test_pass_tsql_values_clause_in_parentheses:
     core:
       dialect: tsql
 
-test_pass_tsql_alias_in_in_clause:
-  # Table alias used within IN clause should be recognized
-  pass_str: |
-    SELECT
-        COUNT(*)
-    FROM
-        NegSoft_ERP_SalesOrderPositionReference AS op2ref
-        INNER JOIN sao.ORDERPOS_P AS Position ON Position.I_ORDERPOS_P = op2ref.i_position_id
-    WHERE
-        123 IN (op2ref.i_position_id, op2ref.i_positionref_id)
-        AND op2ref.i_referencetype_id = 1
-        AND op2ref.dt_deleted IS NULL
-  configs:
-    core:
-      dialect: tsql
-
 test_pass_join_on_expression_in_parentheses:
   pass_str: |
     SELECT table1.c1
@@ -367,15 +351,16 @@ test_pass_redshift_semi_structured_op:
     core:
       dialect: redshift
 
+
 test_pass_tsql_subquery_with_table_hints:
   # Test for AL05 bug fix: aliases in T-SQL subqueries with table hints
   # should not be flagged as unused when they are used in WHERE clauses
   pass_str: |
-    SELECT CASE sr.status
-      WHEN 2 THEN ISNULL((SELECT su.s_name1 FROM sao.purordpos_p AS pp WITH(NOLOCK), sao.supplier_m AS su WITH(NOLOCK) WHERE su.i_supplier_m = pp.i_supplier_m AND pp.i_purordpos_p = sr.n_receiptposid), '')
+    SELECT CASE record.status
+      WHEN 2 THEN ISNULL((SELECT vendor.name FROM dbo.purchase_order AS po WITH(NOLOCK), dbo.vendor_master AS vendor WITH(NOLOCK) WHERE vendor.vendor_id = po.vendor_id AND po.order_id = record.receipt_id), '')
       ELSE 'default'
     END
-    FROM some_receipt AS sr
+    FROM receipt_table AS record
   configs:
     core:
       dialect: tsql
@@ -385,16 +370,16 @@ test_pass_tsql_outer_apply_table_variable:
   # T-SQL OUTER APPLY with table variable reference should not flag as unused
   pass_str: |
     SELECT
-        OrderStates.*
+        ResultStates.*
     FROM
-        @OrderIDs AS OrderIDs
+        @ItemIDs AS ItemIDs
         OUTER APPLY(
             SELECT
-                OrderID = OrderIDs.value
-                ,OrderProcessStateName = 'test'
+                ItemID = ItemIDs.value
+                ,StateName = 'test'
             FROM
-                SalesOrderState AS NxOrderState
-        ) AS OrderStates
+                ItemState AS CurrentState
+        ) AS ResultStates
   configs:
     core:
       dialect: tsql

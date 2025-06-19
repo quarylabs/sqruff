@@ -86,28 +86,55 @@ pub fn get_select_statement_info(
             true,
         ) {
             let mut seen_using = false;
+            let mut is_apply_clause = false;
 
+            // Check if this is an APPLY clause
             for seg in join_clause.segments() {
-                if seg.is_keyword("USING") {
-                    seen_using = true;
-                } else if seg.is_type(SyntaxKind::JoinOnCondition) {
-                    for on_seg in seg.segments() {
-                        if matches!(
-                            on_seg.get_type(),
-                            SyntaxKind::Bracketed | SyntaxKind::Expression
-                        ) {
-                            reference_buffer.extend(get_object_references(seg));
+                if seg.is_keyword("APPLY") {
+                    is_apply_clause = true;
+                    break;
+                }
+            }
+
+            // For APPLY clauses, collect references from the entire clause
+            if is_apply_clause {
+                // For APPLY clauses, we need to crawl into nested SELECT statements
+                // to find references that might refer to outer tables
+                let apply_refs = join_clause
+                    .recursive_crawl(
+                        const { &SyntaxSet::new(&[SyntaxKind::ObjectReference, SyntaxKind::ColumnReference]) },
+                        true,
+                        &SyntaxSet::EMPTY, // Don't exclude any segment types for APPLY
+                        true,
+                    )
+                    .into_iter()
+                    .map(|seg| seg.reference())
+                    .collect::<Vec<_>>();
+                reference_buffer.extend(apply_refs);
+            } else {
+                // Regular JOIN handling
+                for seg in join_clause.segments() {
+                    if seg.is_keyword("USING") {
+                        seen_using = true;
+                    } else if seg.is_type(SyntaxKind::JoinOnCondition) {
+                        for on_seg in seg.segments() {
+                            if matches!(
+                                on_seg.get_type(),
+                                SyntaxKind::Bracketed | SyntaxKind::Expression
+                            ) {
+                                reference_buffer.extend(get_object_references(seg));
+                            }
                         }
-                    }
-                } else if seen_using && seg.is_type(SyntaxKind::Bracketed) {
-                    for subseg in seg.segments() {
-                        if subseg.is_type(SyntaxKind::Identifier)
-                            || subseg.is_type(SyntaxKind::NakedIdentifier)
-                        {
-                            using_cols.push(subseg.raw().clone());
+                    } else if seen_using && seg.is_type(SyntaxKind::Bracketed) {
+                        for subseg in seg.segments() {
+                            if subseg.is_type(SyntaxKind::Identifier)
+                                || subseg.is_type(SyntaxKind::NakedIdentifier)
+                            {
+                                using_cols.push(subseg.raw().clone());
+                            }
                         }
+                        seen_using = false;
                     }
-                    seen_using = false;
                 }
             }
         }

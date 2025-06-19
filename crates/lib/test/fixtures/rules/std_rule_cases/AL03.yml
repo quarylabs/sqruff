@@ -116,3 +116,23 @@ test_pass_tsql_alternative_alias_mixed:
   configs:
     core:
       dialect: tsql
+
+test_pass_tsql_alternative_alias_complex_expression:
+  # T-SQL alias with complex dotted expression
+  pass_str: |
+    SELECT
+        EMailAddress = InvoiceEMailAddress.EMail,
+        CustomerName = Customer.Name
+    FROM table1
+  configs:
+    core:
+      dialect: tsql
+
+test_pass_insert_into_select:
+  # INSERT INTO ... SELECT doesn't require aliases
+  pass_str: |
+    INSERT INTO target_table (col1, col2)
+    SELECT
+        source_col1,
+        UPPER(source_col2)
+    FROM source_table

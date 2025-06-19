@@ -363,3 +363,32 @@ test_pass_tsql_subquery_with_table_hints:
   configs:
     core:
       dialect: tsql
+
+
+test_pass_tsql_outer_apply_table_variable:
+  # T-SQL OUTER APPLY with table variable reference should not flag as unused
+  pass_str: |
+    SELECT
+        OrderStates.*
+    FROM
+        @OrderIDs AS OrderIDs
+        OUTER APPLY(
+            SELECT
+                OrderID = OrderIDs.value
+                ,OrderProcessStateName = 'test'
+            FROM
+                SalesOrderState AS NxOrderState
+        ) AS OrderStates
+  configs:
+    core:
+      dialect: tsql
+
+test_pass_tsql_cross_apply_reference:
+  # T-SQL CROSS APPLY with alias reference should not flag as unused
+  pass_str: |
+    SELECT t2.* 
+    FROM table1 AS t1 
+    CROSS APPLY (SELECT value = t1.id) AS t2
+  configs:
+    core:
+      dialect: tsql

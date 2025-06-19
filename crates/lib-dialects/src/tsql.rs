@@ -7,6 +7,7 @@ use sqruff_lib_core::parser::grammar::anyof::{AnyNumberOf, one_of};
 use sqruff_lib_core::parser::grammar::base::{Nothing, Ref};
 use sqruff_lib_core::parser::grammar::delimited::Delimited;
 use sqruff_lib_core::parser::grammar::sequence::{Bracketed, Sequence};
+use sqruff_lib_core::parser::segments::meta::MetaSegment;
 use sqruff_lib_core::parser::lexer::Matcher;
 use sqruff_lib_core::parser::node_matcher::NodeMatcher;
 use sqruff_lib_core::parser::parsers::TypedParser;
@@ -592,6 +593,39 @@ pub fn raw_dialect() -> Dialect {
             false,
         ).into(),
     );
+    
+    // APPLY clause support (CROSS APPLY and OUTER APPLY)
+    dialect.add([
+        (
+            "ApplyClauseSegment".into(),
+            NodeMatcher::new(
+                SyntaxKind::JoinClause,
+                Sequence::new(vec_of_erased![
+                    one_of(vec_of_erased![
+                        Ref::keyword("CROSS"),
+                        Ref::keyword("OUTER")
+                    ]),
+                    Ref::keyword("APPLY"),
+                    MetaSegment::indent(),
+                    Ref::new("FromExpressionElementSegment"),
+                    MetaSegment::dedent()
+                ])
+                .to_matchable()
+            )
+            .to_matchable()
+            .into(),
+        ),
+    ]);
+    
+    // Add JoinLikeClauseGrammar for T-SQL to include APPLY
+    dialect.add([
+        (
+            "JoinLikeClauseGrammar".into(),
+            Ref::new("ApplyClauseSegment")
+            .to_matchable()
+            .into(),
+        ),
+    ]);
 
     dialect
 }

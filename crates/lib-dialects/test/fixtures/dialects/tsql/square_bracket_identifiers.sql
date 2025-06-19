@@ -1,0 +1,1 @@
+SELECT [Customer Name], [Order Date] FROM [Sales Data];

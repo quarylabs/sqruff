@@ -1,1 +1,1 @@
-SELECT value FROM @BusinessUnitIDs;
+SELECT value FROM @DepartmentCodes;

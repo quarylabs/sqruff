@@ -3,14 +3,14 @@ file:
   - word: SELECT
   - word: value
   - word: FROM
-  - tsql_variable: '@BusinessUnitIDs'
+  - tsql_variable: '@DepartmentCodes'
   - semicolon: ;
   - word: SELECT
   - word: ids
   - dot: .
   - word: value
   - word: FROM
-  - tsql_variable: '@BusinessUnitIDs'
+  - tsql_variable: '@DepartmentCodes'
   - word: AS
   - word: ids
   - semicolon: ;

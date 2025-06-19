@@ -361,21 +361,26 @@ impl RuleSet {
         &self,
         glob_list: Vec<String>,
         reference_map: &AHashMap<&'static str, AHashSet<&'static str>>,
-    ) -> AHashSet<&'static str> {
+    ) -> Result<AHashSet<&'static str>, String> {
         let mut expanded_rule_set = AHashSet::new();
 
         for r in glob_list {
             if reference_map.contains_key(r.as_str()) {
                 expanded_rule_set.extend(reference_map[r.as_str()].clone());
             } else {
-                panic!("Rule {r} not found in rule reference map");
+                let available_rules: Vec<&str> = reference_map.keys().copied().collect();
+                return Err(format!(
+                    "Rule '{}' not found. Available rules: {}",
+                    r,
+                    available_rules.join(", ")
+                ));
             }
         }
 
-        expanded_rule_set
+        Ok(expanded_rule_set)
     }
 
-    pub(crate) fn get_rulepack(&self, config: &FluffConfig) -> RulePack {
+    pub(crate) fn get_rulepack(&self, config: &FluffConfig) -> Result<RulePack, String> {
         let reference_map = self.rule_reference_map();
         let rules = config.get_section("rules");
         let keylist = self.register.keys();
@@ -397,8 +402,8 @@ impl RuleSet {
             None => Vec::new(),
         };
 
-        let expanded_allowlist = self.expand_rule_refs(allowlist, &reference_map);
-        let expanded_denylist = self.expand_rule_refs(denylist, &reference_map);
+        let expanded_allowlist = self.expand_rule_refs(allowlist, &reference_map)?;
+        let expanded_denylist = self.expand_rule_refs(denylist, &reference_map)?;
 
         let keylist: Vec<_> = keylist
             .into_iter()
@@ -420,9 +425,9 @@ impl RuleSet {
             instantiated_rules.push(rule.load_from_config(specific_rule_config).unwrap());
         }
 
-        RulePack {
+        Ok(RulePack {
             rules: instantiated_rules,
             _reference_map: reference_map,
-        }
+        })
     }
 }

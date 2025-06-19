@@ -163,7 +163,7 @@ impl Linter {
         LintingResult { files }
     }
 
-    pub fn get_rulepack(&self) -> RulePack {
+    pub fn get_rulepack(&self) -> Result<RulePack, String> {
         let rs = get_ruleset();
         rs.get_rulepack(&self.config)
     }
@@ -663,7 +663,15 @@ impl Linter {
     }
 
     pub fn rules(&self) -> &[ErasedRule] {
-        self.rules.get_or_init(|| self.get_rulepack().rules)
+        self.rules.get_or_init(|| {
+            match self.get_rulepack() {
+                Ok(rulepack) => rulepack.rules,
+                Err(error) => {
+                    eprintln!("Error loading rules: {}", error);
+                    std::process::exit(1);
+                }
+            }
+        })
     }
 
     pub fn formatter(&self) -> Option<&Arc<dyn Formatter>> {

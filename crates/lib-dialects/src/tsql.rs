@@ -226,7 +226,14 @@ pub fn raw_dialect() -> Dialect {
                 Ref::keyword("TOP"),
                 one_of(vec_of_erased![
                     Ref::new("NumericLiteralSegment"),
-                    Bracketed::new(vec_of_erased![Ref::new("NumericLiteralSegment")])
+                    Ref::new("TsqlVariableSegment"),
+                    Bracketed::new(vec_of_erased![
+                        one_of(vec_of_erased![
+                            Ref::new("NumericLiteralSegment"),
+                            Ref::new("TsqlVariableSegment"),
+                            Ref::new("ExpressionSegment")
+                        ])
+                    ])
                 ]),
                 Ref::keyword("PERCENT").optional(),
                 Ref::keyword("WITH").optional(),

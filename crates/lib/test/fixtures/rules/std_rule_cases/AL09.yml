@@ -1,0 +1,101 @@
+rule: AL09
+
+test_pass_no_alias:
+  pass_str: |
+    SELECT
+        col
+    FROM table
+
+test_pass_different_alias:
+  pass_str: |
+    SELECT
+        col AS column_name
+    FROM table
+
+test_pass_table_qualified:
+  pass_str: |
+    SELECT
+        t.col AS col
+    FROM table t
+
+test_pass_multiple_columns:
+  pass_str: |
+    SELECT
+        col1,
+        col2 AS column2,
+        col3
+    FROM table
+
+test_fail_self_alias_simple:
+  fail_str: |
+    SELECT
+        col AS col
+    FROM table
+  fix_str: |
+    SELECT
+        col
+    FROM table
+
+test_fail_self_alias_case_insensitive:
+  fail_str: |
+    SELECT
+        col AS COL
+    FROM table
+  fix_str: |
+    SELECT
+        col
+    FROM table
+
+test_fail_self_alias_quoted:
+  fail_str: |
+    SELECT
+        "col" AS "col"
+    FROM table
+  fix_str: |
+    SELECT
+        "col"
+    FROM table
+
+test_fail_self_alias_mixed_quotes:
+  fail_str: |
+    SELECT
+        col AS "col"
+    FROM table
+  fix_str: |
+    SELECT
+        col
+    FROM table
+
+test_fail_self_alias_multiple_columns:
+  fail_str: |
+    SELECT
+        col1,
+        col2 AS col2,
+        col3
+    FROM table
+  fix_str: |
+    SELECT
+        col1,
+        col2,
+        col3
+    FROM table
+
+test_fail_self_alias_table_qualified:
+  fail_str: |
+    SELECT
+        table.col AS col
+    FROM table
+  fix_str: |
+    SELECT
+        table.col
+    FROM table
+
+test_fail_self_alias_complex_whitespace:
+  fail_str: |
+    SELECT
+        col    AS    col
+    FROM table
+  fix_str: |
+    SELECT
+        col
+    FROM table

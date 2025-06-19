@@ -350,3 +350,16 @@ test_pass_redshift_semi_structured_op:
   configs:
     core:
       dialect: redshift
+
+test_pass_tsql_subquery_with_table_hints:
+  # Test for AL05 bug fix: aliases in T-SQL subqueries with table hints
+  # should not be flagged as unused when they are used in WHERE clauses
+  pass_str: |
+    SELECT CASE sr.status
+      WHEN 2 THEN ISNULL((SELECT su.s_name1 FROM sao.purordpos_p AS pp WITH(NOLOCK), sao.supplier_m AS su WITH(NOLOCK) WHERE su.i_supplier_m = pp.i_supplier_m AND pp.i_purordpos_p = sr.n_receiptposid), '')
+      ELSE 'default'
+    END
+    FROM some_receipt AS sr
+  configs:
+    core:
+      dialect: tsql

@@ -203,7 +203,7 @@ impl RuleAL05 {
                     .child(const { &SyntaxSet::new(&[SyntaxKind::ValuesClause]) })
                     .is_some()
                 {
-                    matches!(dialect_name, DialectKind::Snowflake)
+                    matches!(dialect_name, DialectKind::Snowflake | DialectKind::Tsql)
                 } else {
                     segment
                         .iter_segments(const { &SyntaxSet::new(&[SyntaxKind::Bracketed]) }, false)

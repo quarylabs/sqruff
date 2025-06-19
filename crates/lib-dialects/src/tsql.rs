@@ -68,6 +68,27 @@ pub fn raw_dialect() -> Dialect {
     dialect
         .sets_mut("unreserved_keywords")
         .extend(tsql_keywords::tsql_unreserved_keywords());
+    
+    // Add table hint keywords to unreserved keywords
+    dialect.sets_mut("unreserved_keywords").extend([
+        "NOLOCK",
+        "READUNCOMMITTED", 
+        "READCOMMITTED",
+        "REPEATABLEREAD",
+        "SERIALIZABLE",
+        "READPAST",
+        "ROWLOCK",
+        "TABLOCK",
+        "TABLOCKX",
+        "UPDLOCK",
+        "XLOCK",
+        "NOEXPAND",
+        "INDEX",
+        "FORCESEEK",
+        "FORCESCAN",
+        "HOLDLOCK",
+        "SNAPSHOT",
+    ]);
 
     // T-SQL specific operators
     dialect.sets_mut("operator_symbols").extend([
@@ -513,17 +534,22 @@ pub fn raw_dialect() -> Dialect {
                             Ref::keyword("FORCESCAN"),
                             Ref::keyword("HOLDLOCK"),
                             Ref::keyword("SNAPSHOT"),
-                            Ref::keyword("SPATIAL_WINDOW_MAX_CELLS"),
-                            Ref::keyword("KEEPIDENTITY"),
-                            Ref::keyword("KEEPDEFAULTS"),
-                            Ref::keyword("IGNORE_CONSTRAINTS"),
-                            Ref::keyword("IGNORE_TRIGGERS"),
+                            Ref::new("NumericLiteralSegment"), // For INDEX(...) and other hints with parameters
+                            Ref::new("NakedIdentifierSegment"), // For dynamic hint values
                         ])
                     ])
                 ])
             ])
             .to_matchable()
             .into(),
+        ),
+    ]);
+
+    // Override PostTableExpressionGrammar to include table hints
+    dialect.add([
+        (
+            "PostTableExpressionGrammar".into(),
+            Ref::new("TableHintGrammar").optional().to_matchable().into(),
         ),
     ]);
 

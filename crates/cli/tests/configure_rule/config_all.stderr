@@ -1,9 +1,4 @@
 == [tests/configure_rule/_example.sql] FAIL
-L:   1 | P:  21 | RF03 | Unqualified reference 'table1' found in single table
-                       | select. [references.consistent]
-L:   1 | P:  21 | RF03 | Unqualified reference 'table1' found in single table
-                       | select which is inconsistent with previous references.
-                       | [references.consistent]
 L:   1 | P:  28 | AL01 | Implicit/explicit aliasing of table. [aliasing.table]
 L:   2 | P:   1 | LT12 | Files must end with a single trailing newline.
                        | [layout.end_of_file]

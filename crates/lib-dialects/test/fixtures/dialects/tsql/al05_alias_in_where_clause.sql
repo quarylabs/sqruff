@@ -3,12 +3,12 @@
 SELECT
     COUNT(*)
 FROM
-    sao.NegSoft_ERP_SalesOrderPositionReference AS op2ref WITH(NOLOCK)
-    INNER JOIN sao.ORDERPOS_P AS Position WITH(NOLOCK) ON Position.I_ORDERPOS_P = op2ref.i_position_id
-    INNER JOIN sao.ORDERPOS_P AS PositionRef WITH(NOLOCK) ON PositionRef.I_ORDERPOS_P = op2ref.i_positionref_id
+    schema1.Table_Sales_Position_Reference AS op2ref WITH(NOLOCK)
+    INNER JOIN schema1.TBL_POS_DATA AS Position WITH(NOLOCK) ON Position.I_POS_ID = op2ref.i_position_id
+    INNER JOIN schema1.TBL_POS_DATA AS PositionRef WITH(NOLOCK) ON PositionRef.I_POS_ID = op2ref.i_positionref_id
 WHERE
     -- Alias used in IN clause
-    OrderPositions.I_ORDERPOS_P IN (op2ref.i_position_id, op2ref.i_positionref_id)
+    OrderPositions.I_POS_ID IN (op2ref.i_position_id, op2ref.i_positionref_id)
     -- Alias used in equality check
     AND op2ref.i_referencetype_id = 1
     -- Alias used in IS NULL check

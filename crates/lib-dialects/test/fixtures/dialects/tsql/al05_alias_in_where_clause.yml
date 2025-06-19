@@ -19,9 +19,9 @@ file:
             - table_reference:
               - table_reference:
                 - object_reference:
-                  - naked_identifier: sao
+                  - naked_identifier: schema1
                   - dot: .
-                  - naked_identifier: NegSoft_ERP_SalesOrderPositionReference
+                  - naked_identifier: Table_Sales_Position_Reference
           - alias_expression:
             - keyword: AS
             - naked_identifier: op2ref
@@ -38,9 +38,9 @@ file:
               - table_reference:
                 - table_reference:
                   - object_reference:
-                    - naked_identifier: sao
+                    - naked_identifier: schema1
                     - dot: .
-                    - naked_identifier: ORDERPOS_P
+                    - naked_identifier: TBL_POS_DATA
             - alias_expression:
               - keyword: AS
               - naked_identifier: Position
@@ -55,7 +55,7 @@ file:
               - column_reference:
                 - naked_identifier: Position
                 - dot: .
-                - naked_identifier: I_ORDERPOS_P
+                - naked_identifier: I_POS_ID
               - comparison_operator:
                 - raw_comparison_operator: =
               - column_reference:
@@ -70,9 +70,9 @@ file:
               - table_reference:
                 - table_reference:
                   - object_reference:
-                    - naked_identifier: sao
+                    - naked_identifier: schema1
                     - dot: .
-                    - naked_identifier: ORDERPOS_P
+                    - naked_identifier: TBL_POS_DATA
             - alias_expression:
               - keyword: AS
               - naked_identifier: PositionRef
@@ -87,7 +87,7 @@ file:
               - column_reference:
                 - naked_identifier: PositionRef
                 - dot: .
-                - naked_identifier: I_ORDERPOS_P
+                - naked_identifier: I_POS_ID
               - comparison_operator:
                 - raw_comparison_operator: =
               - column_reference:
@@ -100,7 +100,7 @@ file:
         - column_reference:
           - naked_identifier: OrderPositions
           - dot: .
-          - naked_identifier: I_ORDERPOS_P
+          - naked_identifier: I_POS_ID
         - keyword: IN
         - bracketed:
           - start_bracket: (

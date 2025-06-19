@@ -1,1 +1,16 @@
-# YML test files are auto-populated by running tests with UPDATE_EXPECT=1
+file:
+- unparsable:
+  - word: BEGIN
+  - word: SELECT
+  - star: '*'
+  - word: FROM
+  - word: customers
+  - semicolon: ;
+  - word: UPDATE
+  - word: customers
+  - word: SET
+  - word: status
+  - raw_comparison_operator: =
+  - single_quote: '''Active'''
+  - semicolon: ;
+  - word: END

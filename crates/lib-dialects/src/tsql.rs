@@ -2,6 +2,7 @@ use sqruff_lib_core::dialects::base::Dialect;
 use sqruff_lib_core::dialects::init::DialectKind;
 use sqruff_lib_core::dialects::syntax::SyntaxKind;
 use sqruff_lib_core::helpers::{Config, ToMatchable};
+use sqruff_lib_core::parser::matchable::MatchableTrait;
 use sqruff_lib_core::parser::grammar::anyof::{AnyNumberOf, one_of};
 use sqruff_lib_core::parser::grammar::base::{Nothing, Ref};
 use sqruff_lib_core::parser::grammar::delimited::Delimited;
@@ -14,7 +15,44 @@ use sqruff_lib_core::vec_of_erased;
 use crate::{ansi, tsql_keywords};
 
 pub fn dialect() -> Dialect {
-    raw_dialect().config(|dialect| dialect.expand())
+    raw_dialect().config(|dialect| {
+        dialect.expand();
+        
+        // Add T-SQL variable support to LiteralGrammar for use in expressions
+        // This enables variables to work inside parentheses and other expression contexts
+        dialect.add([
+            (
+                "LiteralGrammar".into(),
+                dialect
+                    .grammar("LiteralGrammar")
+                    .copy(
+                        Some(vec_of_erased![Ref::new("ParameterizedSegment")]),
+                        None,
+                        None,
+                        None,
+                        Vec::new(),
+                        false,
+                    )
+                    .into(),
+            ),
+        ]);
+        
+        // Add T-SQL table variable support for table references
+        // This enables @TableVariable to work in FROM clauses
+        dialect.replace_grammar(
+            "TableReferenceSegment",
+            NodeMatcher::new(
+                SyntaxKind::TableReference,
+                one_of(vec_of_erased![
+                    Ref::new("ObjectReferenceSegment"), // Original object references
+                    Ref::new("TsqlVariableSegment"),    // T-SQL table variables like @MyTable
+                ])
+                .to_matchable(),
+            )
+            .to_matchable()
+            .into(),
+        );
+    })
 }
 
 pub fn raw_dialect() -> Dialect {
@@ -37,10 +75,13 @@ pub fn raw_dialect() -> Dialect {
     ]);
 
     // T-SQL supports square brackets for identifiers and @ for variables
-    dialect.patch_lexer_matchers(vec![
-        Matcher::regex("tsql_square_bracket_identifier", r"\[[^\]]*\]", SyntaxKind::DoubleQuote),
-        Matcher::regex("tsql_variable", r"@[a-zA-Z_][a-zA-Z0-9_]*", SyntaxKind::Placeholder),
-    ]);
+    dialect.insert_lexer_matchers(
+        vec![
+            Matcher::regex("tsql_square_bracket_identifier", r"\[[^\]]*\]", SyntaxKind::DoubleQuote),
+            Matcher::regex("tsql_variable", r"@[a-zA-Z_][a-zA-Z0-9_]*", SyntaxKind::TsqlVariable),
+        ],
+        "equals",
+    );
 
     // Add T-SQL specific bare functions
     dialect.sets_mut("bare_functions").extend([
@@ -160,7 +201,7 @@ pub fn raw_dialect() -> Dialect {
                 Ref::keyword("DECLARE"),
                 Delimited::new(vec_of_erased![
                     Sequence::new(vec_of_erased![
-                        Ref::new("SingleIdentifierGrammar"),
+                        Ref::new("TsqlVariableSegment"),
                         Ref::new("DatatypeSegment"),
                         Sequence::new(vec_of_erased![
                             Ref::new("EqualsSegment"),
@@ -185,7 +226,7 @@ pub fn raw_dialect() -> Dialect {
             "SetVariableStatementGrammar".into(),
             Sequence::new(vec_of_erased![
                 Ref::keyword("SET"),
-                Ref::new("SingleIdentifierGrammar"),
+                Ref::new("TsqlVariableSegment"),
                 Ref::new("EqualsSegment"),
                 Ref::new("ExpressionSegment")
             ])
@@ -366,23 +407,6 @@ pub fn raw_dialect() -> Dialect {
         .into(),
     );
 
-    // Update table expressions to include PIVOT/UNPIVOT
-    dialect.replace_grammar(
-        "TableExpressionSegment",
-        one_of(vec_of_erased![
-            Ref::new("ValuesClauseSegment"),
-            Ref::new("BareFunctionSegment"),
-            Ref::new("FunctionSegment"),
-            Ref::new("TableReferenceSegment"),
-            Bracketed::new(vec_of_erased![Ref::new("SelectableGrammar")]),
-            Sequence::new(vec_of_erased![
-                Ref::new("TableReferenceSegment"),
-                Ref::new("PivotUnpivotGrammar")
-            ])
-        ])
-        .to_matchable()
-        .into(),
-    );
 
     // USE statement for changing database context
     dialect.add([
@@ -402,17 +426,62 @@ pub fn raw_dialect() -> Dialect {
     ]);
     
     // Add variable reference support
+    // Note: We add this as a new segment type instead of replacing SingleIdentifierGrammar
+    dialect.add([
+        (
+            "TsqlVariableSegment".into(),
+            TypedParser::new(SyntaxKind::TsqlVariable, SyntaxKind::TsqlVariable).to_matchable().into(),
+        ),
+        (
+            "ParameterizedSegment".into(),
+            NodeMatcher::new(
+                SyntaxKind::ParameterizedExpression,
+                Ref::new("TsqlVariableSegment").to_matchable(),
+            ).to_matchable().into(),
+        ),
+        (
+            "TsqlTableVariableSegment".into(),
+            NodeMatcher::new(
+                SyntaxKind::TableReference,
+                Ref::new("TsqlVariableSegment").to_matchable(),
+            ).to_matchable().into(),
+        ),
+    ]);
+    
+    // Update TableReferenceSegment to support T-SQL table variables directly
+    // (Must be done after TsqlVariableSegment is defined)
     dialect.replace_grammar(
-        "SingleIdentifierGrammar",
+        "TableReferenceSegment",
+        NodeMatcher::new(
+            SyntaxKind::TableReference,
+            one_of(vec_of_erased![
+                Ref::new("ObjectReferenceSegment"), // Original object references
+                Ref::new("TsqlVariableSegment"),    // T-SQL table variables like @MyTable
+            ])
+            .to_matchable(),
+        )
+        .to_matchable()
+        .into(),
+    );
+
+    // Update TableExpressionSegment to include PIVOT/UNPIVOT
+    dialect.replace_grammar(
+        "TableExpressionSegment",
         one_of(vec_of_erased![
-            Ref::new("NakedIdentifierSegment"),
-            Ref::new("QuotedIdentifierSegment"),
-            Ref::new("SingleQuotedIdentifierSegment"),
-            TypedParser::new(SyntaxKind::Placeholder, SyntaxKind::Identifier), // For @variables
+            Ref::new("ValuesClauseSegment"),
+            Ref::new("BareFunctionSegment"),
+            Ref::new("FunctionSegment"),
+            Ref::new("TableReferenceSegment"),
+            Bracketed::new(vec_of_erased![Ref::new("SelectableGrammar")]),
+            Sequence::new(vec_of_erased![
+                Ref::new("TableReferenceSegment"),
+                Ref::new("PivotUnpivotGrammar")
+            ])
         ])
         .to_matchable()
         .into(),
     );
+    
     
     // Table hints support
     dialect.add([

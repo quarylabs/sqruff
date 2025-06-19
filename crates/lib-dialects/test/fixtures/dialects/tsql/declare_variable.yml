@@ -1,1 +1,11 @@
-# YML test files are auto-populated by running tests with UPDATE_EXPECT=1
+file:
+- statement:
+  - keyword: DECLARE
+  - tsql_variable: '@MyVariable'
+  - data_type:
+    - data_type_identifier: INT
+  - comparison_operator:
+    - raw_comparison_operator: =
+  - expression:
+    - numeric_literal: '42'
+- statement_terminator: ;

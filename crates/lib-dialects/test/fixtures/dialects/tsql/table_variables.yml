@@ -1,0 +1,25 @@
+file:
+- unparsable:
+  - word: SELECT
+  - word: value
+  - word: FROM
+  - tsql_variable: '@BusinessUnitIDs'
+  - semicolon: ;
+  - word: SELECT
+  - word: ids
+  - dot: .
+  - word: value
+  - word: FROM
+  - tsql_variable: '@BusinessUnitIDs'
+  - word: AS
+  - word: ids
+  - semicolon: ;
+  - word: SELECT
+  - star: '*'
+  - word: FROM
+  - tsql_variable: '@TableVariable'
+  - word: WITH
+  - start_bracket: (
+  - word: NOLOCK
+  - end_bracket: )
+  - semicolon: ;

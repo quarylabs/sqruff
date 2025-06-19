@@ -3,9 +3,6 @@ file:
   - select_statement:
     - select_clause:
       - keyword: SELECT
-      - keyword: TOP
-      - numeric_literal: '50'
-      - keyword: PERCENT
       - select_clause_element:
         - wildcard_expression:
           - wildcard_identifier:
@@ -18,5 +15,5 @@ file:
             - table_reference:
               - table_reference:
                 - object_reference:
-                  - naked_identifier: sales
+                  - naked_identifier: table1
 - statement_terminator: ;

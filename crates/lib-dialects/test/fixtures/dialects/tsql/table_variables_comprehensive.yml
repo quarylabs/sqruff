@@ -1,48 +1,126 @@
 file:
-- unparsable:
-  - word: SELECT
-  - word: value
-  - word: FROM
-  - tsql_variable: '@DepartmentCodes'
-  - semicolon: ;
-  - word: SELECT
-  - word: ids
-  - dot: .
-  - word: value
-  - word: FROM
-  - tsql_variable: '@DepartmentCodes'
-  - word: AS
-  - word: ids
-  - semicolon: ;
-  - word: SELECT
-  - star: '*'
-  - word: FROM
-  - tsql_variable: '@TableVariable'
-  - word: WHERE
-  - word: value
-  - raw_comparison_operator: '>'
-  - numeric_literal: '0'
-  - semicolon: ;
-  - word: SELECT
-  - star: '*'
-  - word: FROM
-  - tsql_variable: '@TableVariable'
-  - word: WITH
-  - start_bracket: (
-  - word: NOLOCK
-  - end_bracket: )
-  - semicolon: ;
-  - word: SELECT
-  - star: '*'
-  - word: FROM
-  - word: table1
-  - word: WHERE
-  - word: id
-  - word: IN
-  - start_bracket: (
-  - word: SELECT
-  - word: value
-  - word: FROM
-  - tsql_variable: '@DepartmentCodes'
-  - end_bracket: )
-  - semicolon: ;
+- statement:
+  - select_statement:
+    - select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+        - column_reference:
+          - naked_identifier: value
+    - from_clause:
+      - keyword: FROM
+      - from_expression:
+        - from_expression_element:
+          - table_expression:
+            - table_reference:
+              - table_reference:
+                - tsql_variable: '@DepartmentCodes'
+- statement_terminator: ;
+- statement:
+  - select_statement:
+    - select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+        - column_reference:
+          - naked_identifier: ids
+          - dot: .
+          - naked_identifier: value
+    - from_clause:
+      - keyword: FROM
+      - from_expression:
+        - from_expression_element:
+          - table_expression:
+            - table_reference:
+              - table_reference:
+                - tsql_variable: '@DepartmentCodes'
+          - alias_expression:
+            - keyword: AS
+            - naked_identifier: ids
+- statement_terminator: ;
+- statement:
+  - select_statement:
+    - select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+        - wildcard_expression:
+          - wildcard_identifier:
+            - star: '*'
+    - from_clause:
+      - keyword: FROM
+      - from_expression:
+        - from_expression_element:
+          - table_expression:
+            - table_reference:
+              - table_reference:
+                - tsql_variable: '@TableVariable'
+    - where_clause:
+      - keyword: WHERE
+      - expression:
+        - column_reference:
+          - naked_identifier: value
+        - comparison_operator:
+          - raw_comparison_operator: '>'
+        - numeric_literal: '0'
+- statement_terminator: ;
+- statement:
+  - select_statement:
+    - select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+        - wildcard_expression:
+          - wildcard_identifier:
+            - star: '*'
+    - from_clause:
+      - keyword: FROM
+      - from_expression:
+        - from_expression_element:
+          - table_expression:
+            - table_reference:
+              - table_reference:
+                - tsql_variable: '@TableVariable'
+          - keyword: WITH
+          - bracketed:
+            - start_bracket: (
+            - keyword: NOLOCK
+            - end_bracket: )
+- statement_terminator: ;
+- statement:
+  - select_statement:
+    - select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+        - wildcard_expression:
+          - wildcard_identifier:
+            - star: '*'
+    - from_clause:
+      - keyword: FROM
+      - from_expression:
+        - from_expression_element:
+          - table_expression:
+            - table_reference:
+              - table_reference:
+                - object_reference:
+                  - naked_identifier: table1
+    - where_clause:
+      - keyword: WHERE
+      - expression:
+        - column_reference:
+          - naked_identifier: id
+        - keyword: IN
+        - bracketed:
+          - start_bracket: (
+          - select_statement:
+            - select_clause:
+              - keyword: SELECT
+              - select_clause_element:
+                - column_reference:
+                  - naked_identifier: value
+            - from_clause:
+              - keyword: FROM
+              - from_expression:
+                - from_expression_element:
+                  - table_expression:
+                    - table_reference:
+                      - table_reference:
+                        - tsql_variable: '@DepartmentCodes'
+          - end_bracket: )
+- statement_terminator: ;

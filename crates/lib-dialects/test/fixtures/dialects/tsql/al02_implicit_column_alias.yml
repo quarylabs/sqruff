@@ -3,17 +3,13 @@ file:
   - select_statement:
     - select_clause:
       - keyword: SELECT
+      - keyword: TOP
+      - bracketed:
+        - start_bracket: (
+        - tsql_variable: '@RowLimit'
+        - end_bracket: )
       - select_clause_element:
-        - expression:
-          - data_type:
-            - data_type_identifier: TOP
-            - bracketed_arguments:
-              - bracketed:
-                - start_bracket: (
-                - parameterized_expression:
-                  - tsql_variable: '@RowLimit'
-                - end_bracket: )
-          - numeric_literal: '1'
+        - numeric_literal: '1'
         - alias_expression:
           - keyword: AS
           - naked_identifier: RecordType

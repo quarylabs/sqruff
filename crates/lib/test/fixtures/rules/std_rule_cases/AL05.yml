@@ -404,3 +404,31 @@ test_pass_join_on_condition_reference:
         INNER JOIN table2 AS alias2 ON alias2.id = alias1.ref_id
     WHERE
         alias1.active = 1
+
+test_pass_tsql_exists_with_outer_apply:
+  # Aliases should be tracked in EXISTS with OUTER APPLY and outer query references
+  pass_str: | 
+    SELECT
+        col = (CASE
+            WHEN EXISTS (
+                SELECT 1
+                FROM
+                    t1 AS t1alias
+                    INNER JOIN t2 AS t2alias ON t2alias.id = outerAlias.I_ITEM_M
+                    OUTER APPLY (
+                        SELECT TOP 1
+                            ID = vendor.id
+                        FROM
+                            t3 AS vendor
+                    ) AS VendorParent
+                WHERE
+                    t1alias.id = outerAlias.I_OFFERPOS_P
+                    AND t2alias.warranty = 1
+            ) THEN 1
+            ELSE 0
+        END)
+    FROM
+        (SELECT TOP 1 I_ITEM_M = 1, I_OFFERPOS_P = 100 FROM table1) AS outerAlias
+  configs:
+    core:
+      dialect: tsql

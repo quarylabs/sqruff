@@ -60,6 +60,83 @@ pub fn get_select_statement_info(
             reference_buffer.extend(get_object_references(&clause));
         }
     }
+    
+    // Additional check: If we have complex FROM clause with multiple JOINs, 
+    // ensure all references are collected properly
+    let fc = segment.child(const { &SyntaxSet::new(&[SyntaxKind::FromClause]) });
+    if let Some(fc) = &fc {
+        let join_clauses = fc.recursive_crawl(
+            const { &SyntaxSet::new(&[SyntaxKind::JoinClause]) },
+            true,
+            const { &SyntaxSet::single(SyntaxKind::SelectStatement) },
+            true,
+        );
+        
+        // Count regular JOINs and check for APPLY
+        let mut regular_joins = 0;
+        let mut has_apply = false;
+        
+        for join in &join_clauses {
+            let segments = join.segments();
+            if segments.iter().any(|seg| seg.is_keyword("APPLY")) {
+                has_apply = true;
+            } else if segments.iter().any(|seg| seg.is_keyword("JOIN")) {
+                regular_joins += 1;
+            }
+        }
+        
+        // If we have multiple JOINs (2+) followed by APPLY, or multiple APPLY clauses, 
+        // we need special handling
+        let apply_count = join_clauses.iter().filter(|j| 
+            j.segments().iter().any(|s| s.is_keyword("APPLY"))
+        ).count();
+        
+        if (regular_joins >= 2 && has_apply) || apply_count >= 2 {
+            // The issue is that with this specific structure, some WHERE clause references
+            // might not be collected properly. Let's ensure we get ALL references from
+            // WHERE clause when this pattern is detected.
+            if let Some(where_clause) = segment.child(&SyntaxSet::new(&[SyntaxKind::WhereClause])) {
+                // Get all object references from WHERE clause without any exclusions
+                let where_refs = where_clause
+                    .recursive_crawl(
+                        const { &SyntaxSet::new(&[SyntaxKind::ObjectReference, SyntaxKind::ColumnReference]) },
+                        true,
+                        &SyntaxSet::EMPTY, // Don't exclude anything
+                        true,
+                    )
+                    .into_iter()
+                    .map(|seg| seg.reference())
+                    .collect::<Vec<_>>();
+                
+                // Add all WHERE clause references to the buffer
+                for r in where_refs {
+                    if !reference_buffer.iter().any(|existing| existing.0 == r.0) {
+                        reference_buffer.push(r);
+                    }
+                }
+            }
+            
+            // Also ensure we get references from all JOIN ON conditions
+            for join in &join_clauses {
+                let join_refs = join
+                    .recursive_crawl(
+                        const { &SyntaxSet::new(&[SyntaxKind::ObjectReference, SyntaxKind::ColumnReference]) },
+                        true,
+                        &SyntaxSet::EMPTY,
+                        true,
+                    )
+                    .into_iter()
+                    .map(|seg| seg.reference())
+                    .collect::<Vec<_>>();
+                    
+                for r in join_refs {
+                    if !reference_buffer.iter().any(|existing| existing.0 == r.0) {
+                        reference_buffer.push(r);
+                    }
+                }
+            }
+        }
+    }
 
     let select_clause = segment
         .child(const { &SyntaxSet::new(&[SyntaxKind::SelectClause]) })

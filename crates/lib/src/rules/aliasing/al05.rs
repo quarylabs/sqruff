@@ -118,16 +118,16 @@ FROM foo
             }
         }
 
+        // Collect all table references from all query levels
+        let all_tbl_refs = self.collect_all_tbl_refs(&query);
+
         for alias in &RefCell::borrow(&query.inner).payload.aliases {
             if Self::is_alias_required(&alias.from_expression_element, context.dialect.name) {
                 continue;
             }
 
             if alias.aliased
-                && !RefCell::borrow(&query.inner)
-                    .payload
-                    .tbl_refs
-                    .contains(&alias.ref_str)
+                && !all_tbl_refs.contains(&alias.ref_str)
             {
                 let violation = self.report_unused_alias(alias.clone());
                 violations.push(violation);
@@ -147,6 +147,23 @@ FROM foo
 }
 
 impl RuleAL05 {
+    fn collect_all_tbl_refs(&self, query: &Query<AL05Query>) -> AHashSet<SmolStr> {
+        let mut all_refs = AHashSet::new();
+        
+        // Collect from current level
+        for tbl_ref in &RefCell::borrow(&query.inner).payload.tbl_refs {
+            all_refs.insert(tbl_ref.clone());
+        }
+        
+        // Collect from all children recursively
+        for child in query.children() {
+            let child_refs = self.collect_all_tbl_refs(&child);
+            all_refs.extend(child_refs);
+        }
+        
+        all_refs
+    }
+
     #[allow(clippy::only_used_in_recursion)]
     fn analyze_table_aliases(&self, query: Query<AL05Query>, dialect: &Dialect) {
         let selectables = std::mem::take(&mut RefCell::borrow_mut(&query.inner).selectables);
@@ -159,6 +176,16 @@ impl RuleAL05 {
                     .extend(select_info.table_aliases);
 
                 for r in select_info.reference_buffer {
+                    // For T-SQL, be more aggressive about extracting references
+                    if dialect.name == DialectKind::Tsql && r.is_qualified() {
+                        // For qualified references like "alias.column", always check the first part
+                        let parts = r.iter_raw_references();
+                        if !parts.is_empty() {
+                            Self::resolve_and_mark_reference(query.clone(), parts[0].part.clone());
+                        }
+                    }
+                    
+                    // Standard table reference extraction
                     let table_refs = r.extract_possible_references(ObjectReferenceLevel::Table, dialect.name);
                     for tr in &table_refs {
                         Self::resolve_and_mark_reference(query.clone(), tr.part.clone());

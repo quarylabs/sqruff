@@ -93,6 +93,10 @@ pub fn raw_dialect() -> Dialect {
     // Remove POSITION from reserved keywords to allow it as an alias
     dialect.sets_mut("reserved_keywords").remove("POSITION");
     
+    // Remove VALUE from reserved keywords to allow it as an identifier
+    // This fixes the parser issue with "Customers.value"
+    dialect.sets_mut("reserved_keywords").remove("VALUE");
+    
     // Add table hint keywords to unreserved keywords
     dialect.sets_mut("unreserved_keywords").extend([
         "NOLOCK",
@@ -113,7 +117,7 @@ pub fn raw_dialect() -> Dialect {
         "HOLDLOCK",
         "SNAPSHOT",
         // Add POSITION to allow it as an identifier/alias
-        // This fixes the parser issue with "sao.ORDERPOS_P AS Position"
+        // This fixes the parser issue with "dbo.OrderPos AS Position"
         "POSITION",
     ]);
 

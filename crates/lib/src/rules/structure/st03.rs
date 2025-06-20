@@ -2,6 +2,7 @@ use std::cell::RefCell;
 
 use ahash::AHashMap;
 use smol_str::StrExt;
+use sqruff_lib_core::dialects::init::DialectKind;
 use sqruff_lib_core::dialects::syntax::{SyntaxKind, SyntaxSet};
 use sqruff_lib_core::helpers::IndexMap;
 use sqruff_lib_core::utils::analysis::query::Query;
@@ -76,15 +77,42 @@ FROM cte1
             .keys()
             .map(|it| (it.to_uppercase_smolstr(), it.clone()))
             .collect();
+        
 
-        // Look for both TableReference and ObjectReference nodes as CTE references
-        // can appear as either depending on context (e.g., inside APPLY clauses)
+        // First, collect all CTE definition segments to check if references are within them
+        let cte_segments = if context.dialect.name == DialectKind::Tsql {
+            context.segment.recursive_crawl(
+                const { &SyntaxSet::new(&[SyntaxKind::CommonTableExpression]) },
+                false,
+                const { &SyntaxSet::single(SyntaxKind::WithCompoundStatement) },
+                true,
+            )
+        } else {
+            Vec::new()
+        };
+
         for reference in context.segment.recursive_crawl(
             const { &SyntaxSet::new(&[SyntaxKind::TableReference, SyntaxKind::ObjectReference]) },
             true,
-            &SyntaxSet::EMPTY,
+            const { &SyntaxSet::single(SyntaxKind::WithCompoundStatement) },
             true,
         ) {
+            // TSQL Fix: Skip references that are within CTE definitions to avoid counting
+            // table aliases within CTE definitions as references to the CTE itself.
+            // In T-SQL, it's common to have table aliases that match CTE names (case-insensitively).
+            if context.dialect.name == DialectKind::Tsql {
+                // Check if this reference is within any CTE definition
+                let is_within_cte = cte_segments.iter().any(|cte| {
+                    // Check if the reference segment is a descendant of the CTE segment
+                    !cte.path_to(&reference).is_empty()
+                });
+                
+                if is_within_cte {
+                    // Skip this reference as it's within a CTE definition
+                    continue;
+                }
+            }
+            
             remaining_ctes.shift_remove(&reference.raw().to_uppercase_smolstr());
         }
 

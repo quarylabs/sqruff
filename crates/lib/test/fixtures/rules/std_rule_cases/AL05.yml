@@ -432,3 +432,16 @@ test_pass_tsql_exists_with_outer_apply:
   configs:
     core:
       dialect: tsql
+
+test_pass_tsql_cte_join_with_alias:
+  # CTE reference in JOIN clause with alias should be properly tracked
+  pass_str: |
+    WITH mycte AS (
+        SELECT CategoryID FROM table1
+    )
+    SELECT MYCTE.*
+    FROM MyItem
+    LEFT OUTER JOIN mycte AS MYCTE ON MYCTE.CategoryID = MyItem.id
+  configs:
+    core:
+      dialect: tsql

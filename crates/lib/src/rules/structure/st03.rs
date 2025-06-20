@@ -77,10 +77,12 @@ FROM cte1
             .map(|it| (it.to_uppercase_smolstr(), it.clone()))
             .collect();
 
+        // Look for both TableReference and ObjectReference nodes as CTE references
+        // can appear as either depending on context (e.g., inside APPLY clauses)
         for reference in context.segment.recursive_crawl(
-            const { &SyntaxSet::new(&[SyntaxKind::TableReference]) },
+            const { &SyntaxSet::new(&[SyntaxKind::TableReference, SyntaxKind::ObjectReference]) },
             true,
-            const { &SyntaxSet::single(SyntaxKind::WithCompoundStatement) },
+            &SyntaxSet::EMPTY,
             true,
         ) {
             remaining_ctes.shift_remove(&reference.raw().to_uppercase_smolstr());

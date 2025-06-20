@@ -88,10 +88,6 @@ FROM
                     column_alias = it.clone().into();
                     break;
                 }
-            } else if let Some(column_reference) =
-                clause_element.child(const { &SyntaxSet::new(&[SyntaxKind::ColumnReference]) })
-            {
-                column_alias = column_reference.segments().last().cloned();
             }
 
             let Some(column_alias) = column_alias else {

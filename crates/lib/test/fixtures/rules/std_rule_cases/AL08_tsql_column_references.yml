@@ -1,0 +1,33 @@
+rule: AL08
+
+test_pass_tsql_column_references_not_aliases:
+  # Column references should not be treated as aliases
+  pass_str: |
+    SELECT
+        MyName.s_name
+        ,MyType.id
+        ,AnotherClass.id
+        ,@ObjectID AS ObjectID
+    FROM
+        table1 AS MyName
+        INNER JOIN table2 AS MyType ON MyType.name = 'test'
+        INNER JOIN table3 AS AnotherClass ON AnotherClass.path = 'test'
+  configs:
+    core:
+      dialect: tsql
+
+test_fail_actual_duplicate_aliases:
+  # Actual duplicate aliases should still be caught
+  fail_str: |
+    SELECT
+        col1 AS id
+        ,col2 AS id
+    FROM table1
+  fix_str: |
+    SELECT
+        col1 AS id
+        ,col2
+    FROM table1
+  configs:
+    core:
+      dialect: tsql

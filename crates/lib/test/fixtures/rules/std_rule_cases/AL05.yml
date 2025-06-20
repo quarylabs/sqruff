@@ -445,3 +445,50 @@ test_pass_tsql_cte_join_with_alias:
   configs:
     core:
       dialect: tsql
+
+test_pass_tsql_alias_in_subquery_where:
+  # Alias used in subquery WHERE clause should be properly tracked
+  pass_str: |
+    SELECT
+        COUNT(*)
+    FROM
+        Table1
+    WHERE
+        EXISTS (
+            SELECT
+                COUNT(*)
+            FROM
+                sao.Table2 AS myref
+                INNER JOIN sao.Table3 AS anotherref ON anotherref.id = myref.i_reference_id
+                INNER JOIN sao.Table4 AS someref ON someref.id = myref.i_light_id
+            WHERE
+                myref.i_type_id = 1
+        )
+  configs:
+    core:
+      dialect: tsql
+
+test_fail_tsql_alias_in_subquery_where_unused:
+  # Alias defined but genuinely not used should still be flagged
+  fail_str: |
+    SELECT
+        COUNT(*)
+    FROM
+        Table1
+    WHERE
+        EXISTS (
+            SELECT
+                COUNT(*)
+            FROM
+                sao.Table2 AS myref
+                INNER JOIN sao.Table3 AS anotherref ON anotherref.id = 1
+            WHERE
+                anotherref.id = 1
+        )
+  violations:
+    - description: Alias 'myref' is never used in SELECT statement.
+      line_no: 11
+      line_pos: 48
+  configs:
+    core:
+      dialect: tsql

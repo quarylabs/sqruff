@@ -176,19 +176,38 @@ impl RuleAL05 {
                     .extend(select_info.table_aliases);
 
                 for r in select_info.reference_buffer {
-                    // For T-SQL, be more aggressive about extracting references
-                    if dialect.name == DialectKind::Tsql && r.is_qualified() {
-                        // For qualified references like "alias.column", always check the first part
-                        let parts = r.iter_raw_references();
-                        if !parts.is_empty() {
-                            Self::resolve_and_mark_reference(query.clone(), parts[0].part.clone());
-                        }
-                    }
-                    
                     // Standard table reference extraction
                     let table_refs = r.extract_possible_references(ObjectReferenceLevel::Table, dialect.name);
                     for tr in &table_refs {
                         Self::resolve_and_mark_reference(query.clone(), tr.part.clone());
+                    }
+                    
+                    // For T-SQL, be more aggressive about extracting references from qualified names
+                    if dialect.name == DialectKind::Tsql {
+                        // For qualified references like "alias.column", always check the first part
+                        if r.is_qualified() {
+                            let parts = r.iter_raw_references();
+                            if !parts.is_empty() {
+                                Self::resolve_and_mark_reference(query.clone(), parts[0].part.clone());
+                            }
+                        }
+                        
+                        // Additional check for ObjectReference segments that might contain table references
+                        if matches!(r.0.get_type(), SyntaxKind::ObjectReference) {
+                            // Extract all identifier parts and check if any match table aliases
+                            for part in r.iter_raw_references() {
+                                Self::resolve_and_mark_reference(query.clone(), part.part.clone());
+                            }
+                        }
+                        
+                        // For T-SQL, also check if the raw text contains a dot, indicating a qualified reference
+                        let raw = r.0.raw();
+                        if raw.contains('.') {
+                            // Split on dot and use the first part as a potential table reference
+                            if let Some(first_part) = raw.split('.').next() {
+                                Self::resolve_and_mark_reference(query.clone(), first_part.to_string());
+                            }
+                        }
                     }
                     
                     // Special handling for ColumnReference that might be a table alias in APPLY context
@@ -217,6 +236,7 @@ impl RuleAL05 {
     }
 
     fn resolve_and_mark_reference(query: Query<AL05Query>, r#ref: String) {
+        // First check if the reference matches any alias at the current level
         if RefCell::borrow(&query.inner)
             .payload
             .aliases
@@ -227,7 +247,11 @@ impl RuleAL05 {
                 .payload
                 .tbl_refs
                 .push(r#ref.into());
-        } else if let Some(parent) = RefCell::borrow(&query.inner).parent.clone() {
+            return;
+        }
+        
+        // If not found at current level, check parent levels
+        if let Some(parent) = RefCell::borrow(&query.inner).parent.clone() {
             Self::resolve_and_mark_reference(parent, r#ref);
         }
     }

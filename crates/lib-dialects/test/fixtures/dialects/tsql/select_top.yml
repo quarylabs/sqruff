@@ -3,8 +3,10 @@ file:
   - select_statement:
     - select_clause:
       - keyword: SELECT
-      - keyword: TOP
-      - numeric_literal: '10'
+      - select_clause_modifier:
+        - select_clause_modifier:
+          - keyword: TOP
+          - numeric_literal: '10'
       - select_clause_element:
         - wildcard_expression:
           - wildcard_identifier:

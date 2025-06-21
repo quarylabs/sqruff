@@ -233,19 +233,11 @@ pub fn raw_dialect() -> Dialect {
 
     // Add T-SQL specific grammar
 
-    // TOP clause support
-    dialect.add([
-        (
-            "TopClauseSegment".into(),
-            NodeMatcher::new(
-                SyntaxKind::SelectClauseModifier,
-                Nothing::new().to_matchable(),
-            )
-            .to_matchable()
-            .into(),
-        ),
-        (
-            "TopClauseGrammar".into(),
+    // TOP clause support - wrapped in SelectClauseModifierSegment
+    dialect.replace_grammar(
+        "SelectClauseModifierSegment",
+        NodeMatcher::new(
+            SyntaxKind::SelectClauseModifier,
             Sequence::new(vec_of_erased![
                 Ref::keyword("TOP"),
                 one_of(vec_of_erased![
@@ -261,10 +253,11 @@ pub fn raw_dialect() -> Dialect {
                 Ref::keyword("WITH").optional(),
                 Ref::keyword("TIES").optional()
             ])
-            .to_matchable()
-            .into(),
-        ),
-    ]);
+            .to_matchable(),
+        )
+        .to_matchable()
+        .into(),
+    );
 
     // DECLARE statement
     dialect.add([
@@ -478,13 +471,12 @@ pub fn raw_dialect() -> Dialect {
         .to_matchable(),
     );
 
-    // Update SELECT to include TOP clause
+    // Update SELECT to include TOP clause via SelectClauseModifierSegment
     dialect.replace_grammar(
         "SelectClauseSegment",
         Sequence::new(vec_of_erased![
             Ref::keyword("SELECT"),
             Ref::new("SelectClauseModifierSegment").optional(),
-            Ref::new("TopClauseGrammar").optional(),
             Ref::new("SelectClauseElementSegment"),
             AnyNumberOf::new(vec_of_erased![Sequence::new(vec_of_erased![
                 Ref::new("CommaSegment"),

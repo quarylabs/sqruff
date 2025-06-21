@@ -1,0 +1,49 @@
+file:
+- statement:
+  - set_statement:
+    - keyword: SET
+    - variable: some_bool_param
+    - comparison_operator:
+      - raw_comparison_operator: =
+    - keyword: ON
+- statement_terminator: ;
+- statement:
+  - set_statement:
+    - keyword: SET
+    - variable: some_bool_param
+    - comparison_operator:
+      - raw_comparison_operator: =
+    - keyword: OFF
+- statement_terminator: ;
+- statement:
+  - set_statement:
+    - keyword: SET
+    - variable: some_bool_param
+    - comparison_operator:
+      - raw_comparison_operator: =
+    - keyword: 'TRUE'
+- statement_terminator: ;
+- statement:
+  - set_statement:
+    - keyword: SET
+    - variable: some_bool_param
+    - comparison_operator:
+      - raw_comparison_operator: =
+    - keyword: 'FALSE'
+- statement_terminator: ;
+- statement:
+  - set_statement:
+    - keyword: SET
+    - variable: some_bool_param
+    - comparison_operator:
+      - raw_comparison_operator: =
+    - variable: '0'
+- statement_terminator: ;
+- statement:
+  - set_statement:
+    - keyword: SET
+    - variable: some_bool_param
+    - comparison_operator:
+      - raw_comparison_operator: =
+    - variable: '1'
+- statement_terminator: ;

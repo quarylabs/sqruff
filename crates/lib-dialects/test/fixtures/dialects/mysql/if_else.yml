@@ -1,0 +1,10 @@
+file:
+- unparsable:
+  - word: if
+  - start_bracket: (
+  - word: x
+  - raw_comparison_operator: =
+  - numeric_literal: '0'
+  - end_bracket: )
+  - word: then
+  - word: set

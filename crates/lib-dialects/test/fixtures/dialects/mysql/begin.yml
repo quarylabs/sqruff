@@ -1,0 +1,11 @@
+file:
+- unparsable:
+  - word: blocks
+  - colon: ':'
+  - word: BEGIN
+  - word: select
+  - numeric_literal: '1'
+  - semicolon: ;
+  - word: END
+  - word: blocks
+  - like_operator: '~'

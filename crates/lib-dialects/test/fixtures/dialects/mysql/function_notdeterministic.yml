@@ -1,0 +1,21 @@
+file:
+- unparsable:
+  - word: CREATE
+  - word: FUNCTION
+  - back_quote: '`add`'
+  - start_bracket: (
+  - word: test
+  - word: int
+  - end_bracket: )
+  - word: RETURNS
+  - word: longtext
+  - word: NOT
+  - word: DETERMINISTIC
+  - word: BEGIN
+  - word: SELECT
+  - numeric_literal: '1'
+  - plus: +
+  - numeric_literal: '2'
+  - semicolon: ;
+  - word: END
+  - like_operator: '~'

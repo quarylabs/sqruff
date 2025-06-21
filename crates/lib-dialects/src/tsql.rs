@@ -260,6 +260,8 @@ pub fn raw_dialect() -> Dialect {
     );
 
     // DECLARE statement
+    // Note: T-SQL uses = for both assignment and comparison. The parser represents
+    // it as EqualsSegment/ComparisonOperator in both cases.
     dialect.add([
         (
             "DeclareStatementSegment".into(),

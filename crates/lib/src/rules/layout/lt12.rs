@@ -8,7 +8,6 @@ use crate::core::config::Value;
 use crate::core::rules::base::{Erased, ErasedRule, LintPhase, LintResult, Rule, RuleGroups};
 use crate::core::rules::context::RuleContext;
 use crate::core::rules::crawlers::{Crawler, RootOnlyCrawler};
-use crate::utils::functional::context::FunctionalContext;
 
 fn get_trailing_newlines(segment: &ErasedSegment) -> Vec<ErasedSegment> {
     let mut result = Vec::new();
@@ -27,19 +26,21 @@ fn get_trailing_newlines(segment: &ErasedSegment) -> Vec<ErasedSegment> {
     result
 }
 
-fn get_last_segment(mut segment: Segments) -> (Vec<ErasedSegment>, Segments) {
-    let mut parent_stack = Vec::new();
 
-    loop {
-        let children = segment.children(None);
-
-        if !children.is_empty() {
-            parent_stack.push(segment.first().unwrap().clone());
-            segment = children.find_last(Some(|s| !s.is_type(SyntaxKind::EndOfFile)));
-        } else {
-            return (parent_stack, segment);
+fn get_last_non_whitespace_segment(segment: &ErasedSegment) -> Option<ErasedSegment> {
+    let mut last_non_whitespace = None;
+    
+    for seg in segment.recursive_crawl_all(true) {
+        if !seg.is_whitespace() 
+            && !seg.is_type(SyntaxKind::Newline) 
+            && !seg.is_type(SyntaxKind::EndOfFile) 
+            && !seg.is_type(SyntaxKind::Dedent)
+            && !seg.is_type(SyntaxKind::Indent) {
+            last_non_whitespace = Some(seg.clone());
         }
     }
+    
+    last_non_whitespace
 }
 
 #[derive(Debug, Default, Clone)]
@@ -133,33 +134,41 @@ Add trailing newline to the end. The $ character represents end of file.
     }
 
     fn eval(&self, context: &RuleContext) -> Vec<LintResult> {
-        let (parent_stack, segment) = get_last_segment(FunctionalContext::new(context).segment());
-
-        if segment.is_empty() {
-            return Vec::new();
-        }
-
         let trailing_newlines = Segments::from_vec(get_trailing_newlines(&context.segment), None);
+        
         if trailing_newlines.is_empty() {
-            let fix_anchor_segment = if parent_stack.len() == 1 {
-                segment.first().unwrap().clone()
-            } else {
-                parent_stack[1].clone()
-            };
-
-            vec![LintResult::new(
-                segment.first().unwrap().clone().into(),
-                vec![LintFix::create_after(
-                    fix_anchor_segment,
-                    vec![SegmentBuilder::newline(context.tables.next_id(), "\n")],
+            // Find the last non-whitespace segment in the file
+            let last_segment = get_last_non_whitespace_segment(&context.segment);
+            
+            if let Some(anchor) = last_segment {
+                vec![LintResult::new(
+                    anchor.clone().into(),
+                    vec![LintFix::create_after(
+                        anchor,
+                        vec![SegmentBuilder::newline(context.tables.next_id(), "\n")],
+                        None,
+                    )],
                     None,
-                )],
-                None,
-                None,
-            )]
+                    None,
+                )]
+            } else {
+                // If we can't find a non-whitespace segment, just add newline at the end
+                vec![LintResult::new(
+                    context.segment.clone().into(),
+                    vec![LintFix::create_after(
+                        context.segment.clone(),
+                        vec![SegmentBuilder::newline(context.tables.next_id(), "\n")],
+                        None,
+                    )],
+                    None,
+                    None,
+                )]
+            }
         } else if trailing_newlines.len() > 1 {
+            // Find the first trailing newline to report the error on
+            let first_newline = trailing_newlines.first().unwrap();
             vec![LintResult::new(
-                segment.first().unwrap().clone().into(),
+                first_newline.clone().into(),
                 trailing_newlines
                     .into_iter()
                     .skip(1)

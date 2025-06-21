@@ -39,3 +39,26 @@ test_fail_templated_no_newline:
   # templated code).
   fail_str: "{% if true %}\nSELECT 1 + 1\n{%- endif %}"
   fix_str: "{% if true %}\nSELECT 1 + 1\n{%- endif %}\n"
+
+test_fail_tsql_no_final_newline:
+  # T-SQL statement ending without newline after SELECT
+  fail_str: |
+    DECLARE @UpdatedRows AS INT = 0;
+    SET @UpdatedRows = @@ROWCOUNT;
+    SELECT @UpdatedRows;
+  fix_str: |
+    DECLARE @UpdatedRows AS INT = 0;
+    SET @UpdatedRows = @@ROWCOUNT;
+    SELECT @UpdatedRows;
+
+  configs:
+    core:
+      dialect: tsql
+
+test_fail_tsql_assignment_no_newline:
+  # T-SQL assignment split issue - the fixer should not break lines
+  fail_str: "SET @UpdatedRows = @@ROWCOUNT;\nSELECT @UpdatedRows;"
+  fix_str: "SET @UpdatedRows = @@ROWCOUNT;\nSELECT @UpdatedRows;\n"
+  configs:
+    core:
+      dialect: tsql

@@ -84,6 +84,24 @@ pub fn dialect() -> Dialect {
         .to_matchable(),
     );
 
+    clickhouse_dialect.replace_grammar(
+        "SelectClauseModifierSegment",
+        one_of(vec_of_erased![
+            Sequence::new(vec_of_erased![
+                Ref::keyword("DISTINCT"),
+                Sequence::new(vec_of_erased![
+                    Ref::keyword("ON"),
+                    Bracketed::new(vec_of_erased![Delimited::new(vec_of_erased![Ref::new(
+                        "ExpressionSegment"
+                    )])])
+                ])
+                .config(|this| this.optional())
+            ]),
+            Ref::keyword("ALL")
+        ])
+        .to_matchable(),
+    );
+
     clickhouse_dialect.add([
         (
             "SingleIdentifierGrammar".into(),

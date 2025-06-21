@@ -44,7 +44,6 @@ python = ["pyo3", "sqruff-lib-core/serde"]
 sqruff-lib-core.workspace = true
 sqruff-lib-dialects.workspace = true
 
-dyn-clone = "1"
 fancy-regex = "0.14.0"
 itertools = "0.14.0"
 regex = "1"
@@ -75,9 +74,6 @@ pyo3 = { version = "0.25.1", optional = true }
 
 [target.'cfg(all(any(target_arch = "wasm32", target_arch = "wasm64"), target_os = "unknown"))'.dependencies]
 getrandom = { version = "0.2", features = ["js"] }
-
-[target.'cfg(all(not(target_os = "windows"), not(target_os = "openbsd"), any(target_arch = "x86_64", target_arch = "aarch64", target_arch = "powerpc64")))'.dependencies]
-jemallocator = { version = "0.6.0", package = "tikv-jemallocator" }
 
 [target.'cfg(unix)'.dev-dependencies]
 pprof = { version = "0.15", features = ["flamegraph", "criterion"] }

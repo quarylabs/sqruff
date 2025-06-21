@@ -1,0 +1,35 @@
+rule: ST03
+
+test_cte_used_in_outer_apply:
+  # CTEs referenced inside OUTER APPLY should not trigger ST03
+  dialect: tsql
+  pass_str: |
+    WITH CTE1 AS (SELECT 1 AS id)
+    SELECT * 
+    FROM some_table t
+    OUTER APPLY (
+        SELECT * FROM CTE1
+    ) x;
+
+test_cte_used_in_cross_apply:
+  # CTEs referenced inside CROSS APPLY should not trigger ST03
+  dialect: tsql
+  pass_str: |
+    WITH CTE1 AS (SELECT 1 AS id)
+    SELECT * 
+    FROM some_table t
+    CROSS APPLY (
+        SELECT * FROM CTE1
+    ) x;
+
+test_cte_used_after_apply:
+  # CTEs referenced after APPLY clauses should be detected
+  dialect: tsql
+  pass_str: |
+    WITH CTE1 AS (SELECT 1 AS id)
+    SELECT * 
+    FROM some_table t
+    OUTER APPLY (
+        SELECT 1 AS col
+    ) x
+    LEFT JOIN CTE1 ON CTE1.id = 1;

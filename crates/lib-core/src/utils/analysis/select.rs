@@ -35,6 +35,23 @@ pub fn get_object_references(segment: &ErasedSegment) -> Vec<ObjectReferenceSegm
         .collect()
 }
 
+// Version that includes subqueries for alias tracking
+pub fn get_object_references_with_subqueries(segment: &ErasedSegment) -> Vec<ObjectReferenceSegment> {
+    let refs = segment
+        .recursive_crawl(
+            const { &SyntaxSet::new(&[SyntaxKind::ObjectReference, SyntaxKind::ColumnReference]) },
+            true,
+            &SyntaxSet::EMPTY, // Don't exclude any segment types to get subquery references
+            true,
+        )
+        .into_iter()
+        .map(|seg| seg.reference())
+        .collect::<Vec<_>>();
+    
+    
+    refs
+}
+
 pub fn get_select_statement_info(
     segment: &ErasedSegment,
     dialect: Option<&Dialect>,
@@ -57,7 +74,106 @@ pub fn get_select_statement_info(
     ] {
         let clause = segment.child(&SyntaxSet::new(&[potential_clause]));
         if let Some(clause) = clause {
-            reference_buffer.extend(get_object_references(&clause));
+            // For WHERE clauses, include subqueries to catch alias references in EXISTS, IN, etc.
+            if potential_clause == SyntaxKind::WhereClause {
+                reference_buffer.extend(get_object_references_with_subqueries(&clause));
+            } else {
+                reference_buffer.extend(get_object_references(&clause));
+            }
+        }
+    }
+    
+    // Additional check: Collect references from FROM clause with subqueries
+    let fc = segment.child(const { &SyntaxSet::new(&[SyntaxKind::FromClause]) });
+    if let Some(fc) = &fc {
+        // Also collect references from the FROM clause with subqueries included
+        reference_buffer.extend(get_object_references_with_subqueries(fc));
+        
+        // Special handling: Look for qualified identifiers in the text that might be table.column references
+        let all_text_segments = fc.recursive_crawl(
+            const { &SyntaxSet::new(&[SyntaxKind::Identifier, SyntaxKind::NakedIdentifier]) },
+            true,
+            &SyntaxSet::EMPTY,
+            true,
+        );
+        
+        for text_seg in all_text_segments {
+            let raw = text_seg.raw();
+            if raw.contains('.') && raw.len() < 50 { // Reasonable limit to avoid parsing large text blocks
+                // Create a synthetic ColumnReference for qualified identifiers
+                reference_buffer.push(text_seg.reference());
+            }
+        }
+        let join_clauses = fc.recursive_crawl(
+            const { &SyntaxSet::new(&[SyntaxKind::JoinClause]) },
+            true,
+            const { &SyntaxSet::single(SyntaxKind::SelectStatement) },
+            true,
+        );
+        
+        // Count regular JOINs and check for APPLY
+        let mut regular_joins = 0;
+        let mut has_apply = false;
+        
+        for join in &join_clauses {
+            let segments = join.segments();
+            if segments.iter().any(|seg| seg.is_keyword("APPLY")) {
+                has_apply = true;
+            } else if segments.iter().any(|seg| seg.is_keyword("JOIN")) {
+                regular_joins += 1;
+            }
+        }
+        
+        // If we have multiple JOINs (2+) followed by APPLY, or multiple APPLY clauses, 
+        // we need special handling
+        let apply_count = join_clauses.iter().filter(|j| 
+            j.segments().iter().any(|s| s.is_keyword("APPLY"))
+        ).count();
+        
+        if (regular_joins >= 2 && has_apply) || apply_count >= 2 {
+            // The issue is that with this specific structure, some WHERE clause references
+            // might not be collected properly. Let's ensure we get ALL references from
+            // WHERE clause when this pattern is detected.
+            if let Some(where_clause) = segment.child(&SyntaxSet::new(&[SyntaxKind::WhereClause])) {
+                // Get all object references from WHERE clause without any exclusions
+                let where_refs = where_clause
+                    .recursive_crawl(
+                        const { &SyntaxSet::new(&[SyntaxKind::ObjectReference, SyntaxKind::ColumnReference]) },
+                        true,
+                        &SyntaxSet::EMPTY, // Don't exclude anything
+                        true,
+                    )
+                    .into_iter()
+                    .map(|seg| seg.reference())
+                    .collect::<Vec<_>>();
+                
+                // Add all WHERE clause references to the buffer
+                for r in where_refs {
+                    if !reference_buffer.iter().any(|existing| existing.0 == r.0) {
+                        reference_buffer.push(r);
+                    }
+                }
+            }
+            
+            // Also ensure we get references from all JOIN ON conditions
+            for join in &join_clauses {
+                let join_refs = join
+                    .recursive_crawl(
+                        const { &SyntaxSet::new(&[SyntaxKind::ObjectReference, SyntaxKind::ColumnReference]) },
+                        true,
+                        &SyntaxSet::EMPTY,
+                        true,
+                    )
+                    .into_iter()
+                    .map(|seg| seg.reference())
+                    .collect::<Vec<_>>();
+                    
+                for r in join_refs {
+                    if !reference_buffer.iter().any(|existing| existing.0 == r.0) {
+                        reference_buffer.push(r);
+                    }
+                }
+            }
         }
     }
 
@@ -86,28 +202,55 @@ pub fn get_select_statement_info(
             true,
         ) {
             let mut seen_using = false;
+            let mut is_apply_clause = false;
 
+            // Check if this is an APPLY clause
             for seg in join_clause.segments() {
-                if seg.is_keyword("USING") {
-                    seen_using = true;
-                } else if seg.is_type(SyntaxKind::JoinOnCondition) {
-                    for on_seg in seg.segments() {
-                        if matches!(
-                            on_seg.get_type(),
-                            SyntaxKind::Bracketed | SyntaxKind::Expression
-                        ) {
-                            reference_buffer.extend(get_object_references(seg));
+                if seg.is_keyword("APPLY") {
+                    is_apply_clause = true;
+                    break;
+                }
+            }
+
+            // For APPLY clauses, collect references from the entire clause
+            if is_apply_clause {
+                // For APPLY clauses, we need to crawl into nested SELECT statements
+                // to find references that might refer to outer tables
+                let apply_refs = join_clause
+                    .recursive_crawl(
+                        const { &SyntaxSet::new(&[SyntaxKind::ObjectReference, SyntaxKind::ColumnReference]) },
+                        true,
+                        &SyntaxSet::EMPTY, // Don't exclude any segment types for APPLY
+                        true,
+                    )
+                    .into_iter()
+                    .map(|seg| seg.reference())
+                    .collect::<Vec<_>>();
+                reference_buffer.extend(apply_refs);
+            } else {
+                // Regular JOIN handling
+                for seg in join_clause.segments() {
+                    if seg.is_keyword("USING") {
+                        seen_using = true;
+                    } else if seg.is_type(SyntaxKind::JoinOnCondition) {
+                        for on_seg in seg.segments() {
+                            if matches!(
+                                on_seg.get_type(),
+                                SyntaxKind::Bracketed | SyntaxKind::Expression
+                            ) {
+                                reference_buffer.extend(get_object_references(on_seg));
+                            }
                         }
-                    }
-                } else if seen_using && seg.is_type(SyntaxKind::Bracketed) {
-                    for subseg in seg.segments() {
-                        if subseg.is_type(SyntaxKind::Identifier)
-                            || subseg.is_type(SyntaxKind::NakedIdentifier)
-                        {
-                            using_cols.push(subseg.raw().clone());
+                    } else if seen_using && seg.is_type(SyntaxKind::Bracketed) {
+                        for subseg in seg.segments() {
+                            if subseg.is_type(SyntaxKind::Identifier)
+                                || subseg.is_type(SyntaxKind::NakedIdentifier)
+                            {
+                                using_cols.push(subseg.raw().clone());
+                            }
                         }
+                        seen_using = false;
                     }
-                    seen_using = false;
                 }
             }
         }

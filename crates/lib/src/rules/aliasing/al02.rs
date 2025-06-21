@@ -84,15 +84,45 @@ FROM foo
     }
 
     fn eval(&self, context: &RuleContext) -> Vec<LintResult> {
-        if FunctionalContext::new(context)
+        // For T-SQL, check if this is the equals-style alias syntax
+        if context.dialect.name == sqruff_lib_core::dialects::init::DialectKind::Tsql {
+            // Look through the parent stack to find SelectClauseElement
+            for parent in context.parent_stack.iter().rev() {
+                if parent.get_type() == SyntaxKind::SelectClauseElement {
+                    // Get the raw text of the entire select clause element
+                    let parent_raw = parent.raw();
+                    
+                    // Check if this looks like T-SQL equals syntax
+                    // This covers cases like "DocumentTypeID = 4" or "LicenseQuantity = SUM(...)"
+                    if parent_raw.contains(" = ") || parent_raw.contains("=") {
+                        // Additional check: make sure this is actually an alias expression
+                        // followed by equals, not some other construct
+                        let alias_raw = context.segment.raw();
+                        
+                        // Handle the case where the alias might contain whitespace or be part of a larger expression
+                        // For example, in "SELECT TOP (10) DocumentTypeID = 4", we want to find "DocumentTypeID"
+                        if parent_raw.contains(&format!("{} =", alias_raw.as_str())) ||
+                           parent_raw.contains(&format!("{}=", alias_raw.as_str())) ||
+                           parent_raw.contains(&format!("{}\n=", alias_raw.as_str())) ||
+                           parent_raw.contains(&format!("{}\r\n=", alias_raw.as_str())) ||
+                           parent_raw.contains(&format!("{}\t=", alias_raw.as_str())) {
+                            return Vec::new();
+                        }
+                    }
+                    break;
+                }
+            }
+        }
+        
+        // Original check - if the last child of the alias expression is "="
+        if let Some(last_child) = FunctionalContext::new(context)
             .segment()
             .children(None)
             .last()
-            .unwrap()
-            .raw()
-            == "="
         {
-            return Vec::new();
+            if last_child.raw() == "=" {
+                return Vec::new();
+            }
         }
 
         self.base.eval(context)

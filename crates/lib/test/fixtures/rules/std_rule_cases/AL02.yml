@@ -110,3 +110,24 @@ test_alias_expression_align_4515_3:
           spacing_before: align
           align_within: select_clause
           align_scope: bracketed
+
+test_pass_tsql_equals_alias_with_top:
+  # Test T-SQL equals-style alias with TOP clause
+  pass_str: SELECT TOP 10 ID = 4
+  configs:
+    core:
+      dialect: tsql
+
+test_pass_tsql_equals_alias_with_top_param:
+  # Test T-SQL equals-style alias with TOP clause using parameter
+  pass_str: SELECT TOP (@Limit) ID = 4
+  configs:
+    core:
+      dialect: tsql
+
+test_pass_tsql_equals_alias_with_top_expression:
+  # Test T-SQL equals-style alias with TOP clause using expression
+  pass_str: SELECT TOP (100 + @Extra) ID = 4
+  configs:
+    core:
+      dialect: tsql

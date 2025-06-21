@@ -118,19 +118,58 @@ FROM foo
             }
         }
 
+        // Collect all table references from all query levels
+        let all_tbl_refs = self.collect_all_tbl_refs(&query);
+
         for alias in &RefCell::borrow(&query.inner).payload.aliases {
             if Self::is_alias_required(&alias.from_expression_element, context.dialect.name) {
                 continue;
             }
 
             if alias.aliased
-                && !RefCell::borrow(&query.inner)
-                    .payload
-                    .tbl_refs
-                    .contains(&alias.ref_str)
+                && !all_tbl_refs.contains(&alias.ref_str)
             {
-                let violation = self.report_unused_alias(alias.clone());
-                violations.push(violation);
+                // For T-SQL, do a more comprehensive check by scanning the entire query tree
+                // This is a workaround for cases where qualified references in WHERE IN clauses
+                // are not properly detected by the reference buffer
+                let mut is_used = false;
+                if context.dialect.name == DialectKind::Tsql && !all_tbl_refs.is_empty() {
+                    // Only apply this workaround if we already found some references
+                    // This helps avoid false positives where an alias truly isn't used
+                    
+                    // Get the parent segment that contains the WHERE clause
+                    // Walk up the parent stack to find a segment that contains the full query including WHERE
+                    let mut search_segment = context.segment.clone();
+                    for parent in &context.parent_stack {
+                        let parent_text = parent.raw();
+                        if parent_text.contains("WHERE") && parent_text.len() > search_segment.raw().len() {
+                            search_segment = parent.clone();
+                        }
+                    }
+                    
+                    let query_text = search_segment.raw();
+                    
+                    // Use regex-like pattern to find alias.column references
+                    // Check for common patterns where this alias might be used
+                    let patterns = [
+                        format!("{}.", alias.ref_str), // Basic pattern: alias.
+                        format!(" {}.", alias.ref_str), // With space before
+                        format!("({}.", alias.ref_str), // In parentheses
+                        format!(",{}.", alias.ref_str), // After comma
+                    ];
+                    
+                    for pattern in &patterns {
+                        if query_text.contains(pattern) {
+                            is_used = true;
+                            break;
+                        }
+                    }
+                }
+                
+                if !is_used {
+                    let violation = self.report_unused_alias(alias.clone());
+                    violations.push(violation);
+                }
             }
         }
 
@@ -147,6 +186,26 @@ FROM foo
 }
 
 impl RuleAL05 {
+    fn collect_all_tbl_refs(&self, query: &Query<AL05Query>) -> AHashSet<SmolStr> {
+        let mut all_refs = AHashSet::new();
+        
+        // Collect from current level
+        for tbl_ref in &RefCell::borrow(&query.inner).payload.tbl_refs {
+            all_refs.insert(tbl_ref.clone());
+        }
+        
+        
+        // Collect from all children recursively
+        for child in query.children() {
+            let child_refs = self.collect_all_tbl_refs(&child);
+            all_refs.extend(child_refs);
+        }
+        
+        
+        all_refs
+    }
+    
+
     #[allow(clippy::only_used_in_recursion)]
     fn analyze_table_aliases(&self, query: Query<AL05Query>, dialect: &Dialect) {
         let selectables = std::mem::take(&mut RefCell::borrow_mut(&query.inner).selectables);
@@ -158,11 +217,78 @@ impl RuleAL05 {
                     .aliases
                     .extend(select_info.table_aliases);
 
+                
                 for r in select_info.reference_buffer {
-                    for tr in
-                        r.extract_possible_references(ObjectReferenceLevel::Table, dialect.name)
-                    {
-                        Self::resolve_and_mark_reference(query.clone(), tr.part);
+                    
+                    // Standard table reference extraction
+                    let table_refs = r.extract_possible_references(ObjectReferenceLevel::Table, dialect.name);
+                    for tr in &table_refs {
+                        Self::resolve_and_mark_reference(query.clone(), tr.part.clone());
+                    }
+                    
+                    // For T-SQL, be more aggressive about extracting references from qualified names
+                    if dialect.name == DialectKind::Tsql {
+                        // For qualified references like "alias.column", always check the first part
+                        if r.is_qualified() {
+                            let parts = r.iter_raw_references();
+                            if !parts.is_empty() {
+                                Self::resolve_and_mark_reference(query.clone(), parts[0].part.clone());
+                            }
+                        }
+                        
+                        // Additional check for ObjectReference segments that might contain table references
+                        if matches!(r.0.get_type(), SyntaxKind::ObjectReference) {
+                            // Extract all identifier parts and check if any match table aliases
+                            for part in r.iter_raw_references() {
+                                Self::resolve_and_mark_reference(query.clone(), part.part.clone());
+                            }
+                        }
+                        
+                        // For T-SQL, also check if the raw text contains a dot, indicating a qualified reference
+                        let raw = r.0.raw();
+                        if raw.contains('.') {
+                            // Split on dot and use the first part as a potential table reference
+                            if let Some(first_part) = raw.split('.').next() {
+                                Self::resolve_and_mark_reference(query.clone(), first_part.to_string());
+                            }
+                        }
+                    }
+                    
+                    // For all dialects: Handle ANY reference that might be qualified table.column references
+                    let raw = r.0.raw();
+                    if raw.contains('.') && raw.len() < 100 { // Reasonable length limit
+                        // This could be a qualified reference like "alias.column"
+                        if let Some(first_part) = raw.split('.').next() {
+                            // Only consider it if the first part looks like an identifier (no spaces, reasonable length)
+                            // Skip if this looks like a function call (starts with parenthesis or contains function pattern)
+                            // but allow expressions inside IN clauses
+                            let is_function_call = raw.starts_with('(') || (raw.contains('(') && !raw.contains(','));
+                            
+                            if first_part.len() < 50 && !first_part.contains(' ') && !first_part.is_empty() && !is_function_call {
+                                Self::resolve_and_mark_reference(query.clone(), first_part.to_string());
+                            }
+                        }
+                    }
+                    
+                    
+                    
+                    // Handle ColumnReference that might be a table alias reference 
+                    // This is more restrictive than before to avoid false positives
+                    if matches!(r.0.get_type(), SyntaxKind::ColumnReference) {
+                        let column_name = r.0.raw().to_string();
+                        
+                        // Check if this column reference matches any known table alias
+                        // Only do this for T-SQL and only if we haven't seen any qualified references yet
+                        if dialect.name == DialectKind::Tsql {
+                            if RefCell::borrow(&query.inner)
+                                .payload
+                                .aliases
+                                .iter()
+                                .any(|alias| alias.ref_str == column_name)
+                            {
+                                Self::resolve_and_mark_reference(query.clone(), column_name);
+                            }
+                        }
                     }
                 }
             }
@@ -176,6 +302,7 @@ impl RuleAL05 {
     }
 
     fn resolve_and_mark_reference(query: Query<AL05Query>, r#ref: String) {
+        // First check if the reference matches any alias at the current level
         if RefCell::borrow(&query.inner)
             .payload
             .aliases
@@ -186,7 +313,11 @@ impl RuleAL05 {
                 .payload
                 .tbl_refs
                 .push(r#ref.into());
-        } else if let Some(parent) = RefCell::borrow(&query.inner).parent.clone() {
+            return;
+        }
+        
+        // If not found at current level, check parent levels
+        if let Some(parent) = RefCell::borrow(&query.inner).parent.clone() {
             Self::resolve_and_mark_reference(parent, r#ref);
         }
     }
@@ -203,7 +334,7 @@ impl RuleAL05 {
                     .child(const { &SyntaxSet::new(&[SyntaxKind::ValuesClause]) })
                     .is_some()
                 {
-                    matches!(dialect_name, DialectKind::Snowflake)
+                    matches!(dialect_name, DialectKind::Snowflake | DialectKind::Tsql)
                 } else {
                     segment
                         .iter_segments(const { &SyntaxSet::new(&[SyntaxKind::Bracketed]) }, false)

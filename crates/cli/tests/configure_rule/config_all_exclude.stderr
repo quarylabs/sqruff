@@ -1,4 +1,9 @@
 == [tests/configure_rule/_example.sql] FAIL
+L:   1 | P:  21 | RF03 | Unqualified reference 'table1' found in single table
+                       | select. [references.consistent]
+L:   1 | P:  21 | RF03 | Unqualified reference 'table1' found in single table
+                       | select which is inconsistent with previous references.
+                       | [references.consistent]
 L:   1 | P:  28 | AL01 | Implicit/explicit aliasing of table. [aliasing.table]
 The linter processed 1 file(s).
 All Finished

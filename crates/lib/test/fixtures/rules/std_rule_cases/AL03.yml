@@ -77,3 +77,61 @@ test_pass_cte_column_list:
         a,
         b
     FROM cte
+
+# T-SQL alternative alias syntax tests
+test_pass_tsql_alternative_alias_simple:
+  # T-SQL supports AliasName = Expression syntax
+  pass_str: SELECT ItemCode = item_code FROM inventory
+  configs:
+    core:
+      dialect: tsql
+
+test_pass_tsql_alternative_alias_with_cast:
+  # T-SQL alias with CAST expression
+  pass_str: SELECT ItemCode = CAST(item_code AS CHAR(36)) FROM inventory
+  configs:
+    core:
+      dialect: tsql
+
+test_pass_tsql_alternative_alias_multiple:
+  # Multiple T-SQL style aliases
+  pass_str: |
+    SELECT
+        ItemCode = CAST(item_code AS CHAR(36)),
+        Description = item_desc,
+        CreatedDate = GETDATE()
+    FROM inventory
+  configs:
+    core:
+      dialect: tsql
+
+test_pass_tsql_alternative_alias_mixed:
+  # Mix of T-SQL and standard SQL alias syntax
+  pass_str: |
+    SELECT
+        ItemCode = item_code,
+        item_desc AS Description
+    FROM inventory
+  configs:
+    core:
+      dialect: tsql
+
+test_pass_tsql_alternative_alias_complex_expression:
+  # T-SQL alias with complex dotted expression
+  pass_str: |
+    SELECT
+        ContactInfo = OrderContact.Email,
+        ClientName = Client.FullName
+    FROM orders
+  configs:
+    core:
+      dialect: tsql
+
+test_pass_insert_into_select:
+  # INSERT INTO ... SELECT doesn't require aliases
+  pass_str: |
+    INSERT INTO dest_table (field1, field2)
+    SELECT
+        src_field1,
+        UPPER(src_field2)
+    FROM src_table

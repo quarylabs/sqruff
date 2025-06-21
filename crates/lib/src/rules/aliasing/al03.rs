@@ -63,6 +63,49 @@ FROM foo
         if children.any(Some(|it| it.get_type() == SyntaxKind::AliasExpression)) {
             return Vec::new();
         }
+        
+        // Check for T-SQL alternative alias syntax: AliasName = Expression
+        // In T-SQL, the pattern is: [Whitespace]* Identifier [Whitespace]* = [Whitespace]* Expression
+        let segments: Vec<_> = children.clone().into_iter()
+            .filter(|s| !s.is_type(SyntaxKind::Whitespace) && !s.is_type(SyntaxKind::Newline))
+            .collect();
+        
+        // Check for T-SQL alternative alias syntax within Expression segments
+        // Pattern: Expression containing [ColumnReference/Identifier, =, any expression]
+        for seg in &segments {
+            if seg.is_type(SyntaxKind::Expression) {
+                let expr_segments: Vec<_> = seg.segments().iter()
+                    .filter(|s| !s.is_type(SyntaxKind::Whitespace) && !s.is_type(SyntaxKind::Newline))
+                    .collect();
+                
+                if expr_segments.len() >= 3 {
+                    let first_is_identifier = expr_segments[0].is_type(SyntaxKind::ColumnReference) ||
+                        expr_segments[0].is_type(SyntaxKind::Identifier) ||
+                        expr_segments[0].is_type(SyntaxKind::NakedIdentifier);
+                    let second_is_equals = expr_segments[1].is_type(SyntaxKind::ComparisonOperator) &&
+                        expr_segments[1].raw() == "=";
+                    
+                    if first_is_identifier && second_is_equals {
+                        // This is T-SQL alias syntax: AliasName = Expression
+                        // The expression after = can be complex (multiple segments)
+                        return Vec::new();
+                    }
+                }
+            }
+        }
+        
+        if segments.len() >= 3 {
+            // Check if first non-whitespace element is identifier and second is equals
+            let first_is_identifier = segments[0].is_type(SyntaxKind::Identifier) || 
+                segments[0].is_type(SyntaxKind::NakedIdentifier);
+            let second_is_equals = segments[1].is_type(SyntaxKind::RawComparisonOperator) &&
+               segments[1].raw() == "=";
+            
+            if first_is_identifier && second_is_equals {
+                // This is T-SQL alias syntax: AliasName = Expression  
+                return Vec::new();
+            }
+        }
 
         // Ignore if it's a function with EMITS clause as EMITS is equivalent to AS
         if !children
@@ -113,6 +156,15 @@ FROM foo
             .find_last(Some(|it| it.is_type(SyntaxKind::CommonTableExpression)))
             .children(None)
             .any(Some(|it| it.is_type(SyntaxKind::CTEColumnList)))
+        {
+            return Vec::new();
+        }
+
+        // Skip aliasing requirements for INSERT INTO ... SELECT statements
+        // In these cases, columns are mapped by position, not by alias
+        if !parent_stack
+            .find_last(Some(|it| it.is_type(SyntaxKind::InsertStatement)))
+            .is_empty()
         {
             return Vec::new();
         }

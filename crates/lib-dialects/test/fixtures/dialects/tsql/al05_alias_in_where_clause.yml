@@ -1,0 +1,132 @@
+file:
+- statement:
+  - select_statement:
+    - select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+        - function:
+          - function_name:
+            - function_name_identifier: COUNT
+          - bracketed:
+            - start_bracket: (
+            - star: '*'
+            - end_bracket: )
+    - from_clause:
+      - keyword: FROM
+      - from_expression:
+        - from_expression_element:
+          - table_expression:
+            - table_reference:
+              - table_reference:
+                - object_reference:
+                  - naked_identifier: schema1
+                  - dot: .
+                  - naked_identifier: Table_Sales_Position_Reference
+          - alias_expression:
+            - keyword: AS
+            - naked_identifier: op2ref
+          - keyword: WITH
+          - bracketed:
+            - start_bracket: (
+            - keyword: NOLOCK
+            - end_bracket: )
+        - join_clause:
+          - keyword: INNER
+          - keyword: JOIN
+          - from_expression_element:
+            - table_expression:
+              - table_reference:
+                - table_reference:
+                  - object_reference:
+                    - naked_identifier: schema1
+                    - dot: .
+                    - naked_identifier: TBL_POS_DATA
+            - alias_expression:
+              - keyword: AS
+              - naked_identifier: Position
+            - keyword: WITH
+            - bracketed:
+              - start_bracket: (
+              - keyword: NOLOCK
+              - end_bracket: )
+          - join_on_condition:
+            - keyword: ON
+            - expression:
+              - column_reference:
+                - naked_identifier: Position
+                - dot: .
+                - naked_identifier: I_POS_ID
+              - comparison_operator:
+                - raw_comparison_operator: =
+              - column_reference:
+                - naked_identifier: op2ref
+                - dot: .
+                - naked_identifier: i_position_id
+        - join_clause:
+          - keyword: INNER
+          - keyword: JOIN
+          - from_expression_element:
+            - table_expression:
+              - table_reference:
+                - table_reference:
+                  - object_reference:
+                    - naked_identifier: schema1
+                    - dot: .
+                    - naked_identifier: TBL_POS_DATA
+            - alias_expression:
+              - keyword: AS
+              - naked_identifier: PositionRef
+            - keyword: WITH
+            - bracketed:
+              - start_bracket: (
+              - keyword: NOLOCK
+              - end_bracket: )
+          - join_on_condition:
+            - keyword: ON
+            - expression:
+              - column_reference:
+                - naked_identifier: PositionRef
+                - dot: .
+                - naked_identifier: I_POS_ID
+              - comparison_operator:
+                - raw_comparison_operator: =
+              - column_reference:
+                - naked_identifier: op2ref
+                - dot: .
+                - naked_identifier: i_positionref_id
+    - where_clause:
+      - keyword: WHERE
+      - expression:
+        - column_reference:
+          - naked_identifier: OrderPositions
+          - dot: .
+          - naked_identifier: I_POS_ID
+        - keyword: IN
+        - bracketed:
+          - start_bracket: (
+          - column_reference:
+            - naked_identifier: op2ref
+            - dot: .
+            - naked_identifier: i_position_id
+          - comma: ','
+          - column_reference:
+            - naked_identifier: op2ref
+            - dot: .
+            - naked_identifier: i_positionref_id
+          - end_bracket: )
+        - binary_operator: AND
+        - column_reference:
+          - naked_identifier: op2ref
+          - dot: .
+          - naked_identifier: i_referencetype_id
+        - comparison_operator:
+          - raw_comparison_operator: =
+        - numeric_literal: '1'
+        - binary_operator: AND
+        - column_reference:
+          - naked_identifier: op2ref
+          - dot: .
+          - naked_identifier: dt_deleted
+        - keyword: IS
+        - null_literal: 'NULL'
+- statement_terminator: ;

@@ -5,7 +5,7 @@ use smol_str::SmolStr;
 use super::context::ParseContext;
 use super::match_result::{MatchResult, Matched, Span};
 use super::matchable::{Matchable, MatchableCacheKey, MatchableTrait, next_matchable_cache_key};
-use super::segments::base::ErasedSegment;
+use super::segments::ErasedSegment;
 use crate::dialects::syntax::{SyntaxKind, SyntaxSet};
 use crate::errors::SQLParseError;
 

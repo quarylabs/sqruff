@@ -1,8 +1,8 @@
 use std::ops::Range;
 
 use crate::dialects::syntax::SyntaxSet;
-use crate::parser::segments::base::ErasedSegment;
-use crate::templaters::base::TemplatedFile;
+use crate::parser::segments::ErasedSegment;
+use crate::templaters::TemplatedFile;
 
 type PredicateType = Option<fn(&ErasedSegment) -> bool>;
 

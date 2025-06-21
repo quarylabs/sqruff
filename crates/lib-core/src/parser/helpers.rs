@@ -1,6 +1,6 @@
 use smol_str::SmolStr;
 
-use super::segments::base::ErasedSegment;
+use super::segments::ErasedSegment;
 
 pub(crate) fn join_segments_raw(segments: &[ErasedSegment]) -> SmolStr {
     SmolStr::from_iter(segments.iter().map(|s| s.raw().as_str()))

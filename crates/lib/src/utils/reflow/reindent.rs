@@ -6,13 +6,13 @@ use itertools::{Itertools, chain, enumerate};
 use smol_str::SmolStr;
 use sqruff_lib_core::dialects::syntax::{SyntaxKind, SyntaxSet};
 use sqruff_lib_core::lint_fix::LintFix;
-use sqruff_lib_core::parser::segments::base::{ErasedSegment, SegmentBuilder, Tables};
+use sqruff_lib_core::parser::segments::{ErasedSegment, SegmentBuilder, Tables};
 use strum_macros::EnumString;
 
 use super::elements::{ReflowBlock, ReflowElement, ReflowPoint, ReflowSequenceType};
 use super::helpers::fixes_from_results;
 use super::rebreak::{LinePosition, RebreakSpan, identify_rebreak_spans};
-use crate::core::rules::base::LintResult;
+use crate::core::rules::LintResult;
 use crate::utils::reflow::elements::IndentStats;
 
 fn has_untemplated_newline(point: &ReflowPoint) -> bool {

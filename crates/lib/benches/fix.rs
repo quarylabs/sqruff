@@ -2,7 +2,7 @@ use criterion::{Criterion, criterion_group, criterion_main};
 #[cfg(unix)]
 use pprof::criterion::{Output, PProfProfiler};
 use sqruff_lib::core::linter::core::Linter;
-use sqruff_lib_core::parser::segments::base::Tables;
+use sqruff_lib_core::parser::segments::Tables;
 use std::hint::black_box;
 use std::path::Path;
 

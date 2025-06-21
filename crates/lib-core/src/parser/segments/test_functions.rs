@@ -1,12 +1,12 @@
 use std::ops::Range;
 
-use super::base::{ErasedSegment, SegmentBuilder, Tables};
-use crate::dialects::base::Dialect;
+use super::{ErasedSegment, SegmentBuilder, Tables};
+use crate::dialects::Dialect;
 use crate::dialects::syntax::SyntaxKind;
 use crate::helpers::Config;
 use crate::parser::lexer::{Lexer, StringOrTemplate};
 use crate::parser::markers::PositionMarker;
-use crate::templaters::base::TemplatedFile;
+use crate::templaters::TemplatedFile;
 
 pub fn bracket_segments() -> Vec<ErasedSegment> {
     generate_test_segments_func(vec![

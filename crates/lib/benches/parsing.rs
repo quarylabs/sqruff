@@ -4,9 +4,9 @@ use pprof::criterion::{Output, PProfProfiler};
 use sqruff_lib::core::config::FluffConfig;
 use sqruff_lib::core::test_functions::fresh_ansi_dialect;
 use sqruff_lib_core::dialects::syntax::SyntaxKind;
+use sqruff_lib_core::parser::Parser;
 use sqruff_lib_core::parser::context::ParseContext;
 use sqruff_lib_core::parser::matchable::MatchableTrait as _;
-use sqruff_lib_core::parser::parser::Parser;
 use sqruff_lib_core::parser::segments::test_functions::lex;
 use std::hint::black_box;
 

@@ -2,7 +2,7 @@ use ahash::HashSet;
 use itertools::Itertools;
 use sqruff_lib_core::dialects::syntax::{SyntaxKind, SyntaxSet};
 use sqruff_lib_core::errors::SQLBaseError;
-use sqruff_lib_core::parser::segments::base::ErasedSegment;
+use sqruff_lib_core::parser::segments::ErasedSegment;
 
 /// The NoQA directive is a way to disable specific rules or all rules for a specific line or range of lines.
 /// Similar to flake8’s ignore, individual lines can be ignored by adding `-- noqa` to the end of the line.

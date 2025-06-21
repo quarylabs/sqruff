@@ -25,11 +25,12 @@ file:
           - alias_expression:
             - keyword: AS
             - naked_identifier: op2ref
-          - keyword: WITH
-          - bracketed:
-            - start_bracket: (
-            - keyword: NOLOCK
-            - end_bracket: )
+          - expression:
+            - keyword: WITH
+            - bracketed:
+              - start_bracket: (
+              - keyword: NOLOCK
+              - end_bracket: )
         - join_clause:
           - keyword: INNER
           - keyword: JOIN

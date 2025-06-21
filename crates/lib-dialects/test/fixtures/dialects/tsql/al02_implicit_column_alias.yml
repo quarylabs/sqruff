@@ -338,11 +338,12 @@ file:
           - alias_expression:
             - keyword: AS
             - naked_identifier: Orders
-          - keyword: WITH
-          - bracketed:
-            - start_bracket: (
-            - keyword: NOLOCK
-            - end_bracket: )
+          - expression:
+            - keyword: WITH
+            - bracketed:
+              - start_bracket: (
+              - keyword: NOLOCK
+              - end_bracket: )
         - join_clause:
           - keyword: LEFT
           - keyword: OUTER
@@ -358,11 +359,12 @@ file:
             - alias_expression:
               - keyword: AS
               - naked_identifier: PaymentTerms
-            - keyword: WITH
-            - bracketed:
-              - start_bracket: (
-              - keyword: NOLOCK
-              - end_bracket: )
+            - expression:
+              - keyword: WITH
+              - bracketed:
+                - start_bracket: (
+                - keyword: NOLOCK
+                - end_bracket: )
           - join_on_condition:
             - keyword: ON
             - expression:
@@ -391,11 +393,12 @@ file:
             - alias_expression:
               - keyword: AS
               - naked_identifier: Customers
-            - keyword: WITH
-            - bracketed:
-              - start_bracket: (
-              - keyword: NOLOCK
-              - end_bracket: )
+            - expression:
+              - keyword: WITH
+              - bracketed:
+                - start_bracket: (
+                - keyword: NOLOCK
+                - end_bracket: )
           - join_on_condition:
             - keyword: ON
             - expression:
@@ -424,11 +427,12 @@ file:
             - alias_expression:
               - keyword: AS
               - naked_identifier: Contacts
-            - keyword: WITH
-            - bracketed:
-              - start_bracket: (
-              - keyword: NOLOCK
-              - end_bracket: )
+            - expression:
+              - keyword: WITH
+              - bracketed:
+                - start_bracket: (
+                - keyword: NOLOCK
+                - end_bracket: )
           - join_on_condition:
             - keyword: ON
             - expression:
@@ -517,11 +521,12 @@ file:
                         - alias_expression:
                           - keyword: AS
                           - naked_identifier: ord
-                        - keyword: WITH
-                        - bracketed:
-                          - start_bracket: (
-                          - keyword: NOLOCK
-                          - end_bracket: )
+                        - expression:
+                          - keyword: WITH
+                          - bracketed:
+                            - start_bracket: (
+                            - keyword: NOLOCK
+                            - end_bracket: )
                       - join_clause:
                         - keyword: LEFT
                         - keyword: OUTER
@@ -537,11 +542,12 @@ file:
                           - alias_expression:
                             - keyword: AS
                             - naked_identifier: LineItems
-                          - keyword: WITH
-                          - bracketed:
-                            - start_bracket: (
-                            - keyword: NOLOCK
-                            - end_bracket: )
+                          - expression:
+                            - keyword: WITH
+                            - bracketed:
+                              - start_bracket: (
+                              - keyword: NOLOCK
+                              - end_bracket: )
                         - join_on_condition:
                           - keyword: ON
                           - expression:

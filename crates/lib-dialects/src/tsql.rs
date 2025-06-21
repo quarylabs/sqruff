@@ -566,41 +566,51 @@ pub fn raw_dialect() -> Dialect {
         .to_matchable(),
     );
 
-    // Table hints support
+    // Table hints support - properly structured as table hint segments
     dialect.add([
         (
             "TableHintSegment".into(),
-            NodeMatcher::new(SyntaxKind::Expression, Nothing::new().to_matchable())
-                .to_matchable()
-                .into(),
+            NodeMatcher::new(
+                SyntaxKind::Expression,
+                Sequence::new(vec_of_erased![
+                    Ref::keyword("WITH"),
+                    Bracketed::new(vec_of_erased![Delimited::new(vec_of_erased![
+                        Ref::new("TableHintElement")
+                    ])])
+                ])
+                .to_matchable(),
+            )
+            .to_matchable()
+            .into(),
         ),
         (
-            "TableHintGrammar".into(),
-            Sequence::new(vec_of_erased![
-                Ref::keyword("WITH"),
-                Bracketed::new(vec_of_erased![Delimited::new(vec_of_erased![one_of(
-                    vec_of_erased![
-                        Ref::keyword("NOLOCK"),
-                        Ref::keyword("READUNCOMMITTED"),
-                        Ref::keyword("READCOMMITTED"),
-                        Ref::keyword("REPEATABLEREAD"),
-                        Ref::keyword("SERIALIZABLE"),
-                        Ref::keyword("READPAST"),
-                        Ref::keyword("ROWLOCK"),
-                        Ref::keyword("TABLOCK"),
-                        Ref::keyword("TABLOCKX"),
-                        Ref::keyword("UPDLOCK"),
-                        Ref::keyword("XLOCK"),
-                        Ref::keyword("NOEXPAND"),
-                        Ref::keyword("INDEX"),
-                        Ref::keyword("FORCESEEK"),
-                        Ref::keyword("FORCESCAN"),
-                        Ref::keyword("HOLDLOCK"),
-                        Ref::keyword("SNAPSHOT"),
-                        Ref::new("NumericLiteralSegment"), // For INDEX(...) and other hints with parameters
-                        Ref::new("NakedIdentifierSegment"), // For dynamic hint values
-                    ]
-                )])])
+            "TableHintElement".into(),
+            one_of(vec_of_erased![
+                // Simple hints (just keywords)
+                Ref::keyword("NOLOCK"),
+                Ref::keyword("READUNCOMMITTED"),
+                Ref::keyword("READCOMMITTED"),
+                Ref::keyword("REPEATABLEREAD"),
+                Ref::keyword("SERIALIZABLE"),
+                Ref::keyword("READPAST"),
+                Ref::keyword("ROWLOCK"),
+                Ref::keyword("TABLOCK"),
+                Ref::keyword("TABLOCKX"),
+                Ref::keyword("UPDLOCK"),
+                Ref::keyword("XLOCK"),
+                Ref::keyword("NOEXPAND"),
+                Ref::keyword("FORCESEEK"),
+                Ref::keyword("FORCESCAN"),
+                Ref::keyword("HOLDLOCK"),
+                Ref::keyword("SNAPSHOT"),
+                // INDEX hint with parameter
+                Sequence::new(vec_of_erased![
+                    Ref::keyword("INDEX"),
+                    Bracketed::new(vec_of_erased![one_of(vec_of_erased![
+                        Ref::new("NumericLiteralSegment"),
+                        Ref::new("NakedIdentifierSegment")
+                    ])])
+                ])
             ])
             .to_matchable()
             .into(),
@@ -610,7 +620,7 @@ pub fn raw_dialect() -> Dialect {
     // Override PostTableExpressionGrammar to include table hints
     dialect.add([(
         "PostTableExpressionGrammar".into(),
-        Ref::new("TableHintGrammar")
+        Ref::new("TableHintSegment")
             .optional()
             .to_matchable()
             .into(),

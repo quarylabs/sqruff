@@ -486,6 +486,7 @@ pub enum SyntaxKind {
     Indent,
     Implicit,
     AtSignLiteral,
+    TsqlVariable,
     QuestionMark,
     RightArrow,
     UdfBody,

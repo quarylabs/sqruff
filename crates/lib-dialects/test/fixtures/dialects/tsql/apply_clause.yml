@@ -1,0 +1,48 @@
+file:
+- statement:
+  - select_statement:
+    - select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+        - column_reference:
+          - naked_identifier: OrderIDs
+    - unparsable:
+      - dot: .
+      - word: value
+      - comma: ','
+      - word: Details
+      - dot: .
+      - word: ProductName
+      - word: FROM
+      - tsql_variable: '@OrderIDs'
+      - word: AS
+      - word: OrderIDs
+      - word: OUTER
+      - word: APPLY
+      - start_bracket: (
+      - word: SELECT
+      - word: ProductName
+      - raw_comparison_operator: =
+      - word: p
+      - dot: .
+      - word: Name
+      - comma: ','
+      - word: OrderID
+      - raw_comparison_operator: =
+      - word: OrderIDs
+      - dot: .
+      - word: value
+      - word: FROM
+      - word: Products
+      - word: p
+      - word: WHERE
+      - word: p
+      - dot: .
+      - word: OrderID
+      - raw_comparison_operator: =
+      - word: OrderIDs
+      - dot: .
+      - word: value
+      - end_bracket: )
+      - word: AS
+      - word: Details

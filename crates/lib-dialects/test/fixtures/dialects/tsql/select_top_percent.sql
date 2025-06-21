@@ -1,0 +1,1 @@
+SELECT TOP 50 PERCENT * FROM sales;

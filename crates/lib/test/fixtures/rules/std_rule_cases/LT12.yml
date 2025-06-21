@@ -69,3 +69,35 @@ test_pass_tsql_rowcount_with_newline:
   configs:
     core:
       dialect: tsql
+
+test_fail_tsql_complex_no_newline:
+  # Complex T-SQL file ending without newline - tests the fix for false positives
+  # where get_trailing_newlines was finding newlines from the beginning of the file
+  fail_str: |
+    DECLARE @UpdatedRows AS INT = 0;
+    
+    UPDATE table1 SET col1 = 1;
+    SET @UpdatedRows = @@ROWCOUNT;
+    
+    IF @UpdatedRows > 0 BEGIN
+      UPDATE table2 SET col1 = 1;
+      SET @UpdatedRows = @UpdatedRows + @@ROWCOUNT;
+    END
+    
+    SELECT @UpdatedRows;
+  fix_str: |
+    DECLARE @UpdatedRows AS INT = 0;
+    
+    UPDATE table1 SET col1 = 1;
+    SET @UpdatedRows = @@ROWCOUNT;
+    
+    IF @UpdatedRows > 0 BEGIN
+      UPDATE table2 SET col1 = 1;
+      SET @UpdatedRows = @UpdatedRows + @@ROWCOUNT;
+    END
+    
+    SELECT @UpdatedRows;
+
+  configs:
+    core:
+      dialect: tsql

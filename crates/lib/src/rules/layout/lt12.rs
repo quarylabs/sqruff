@@ -11,9 +11,14 @@ use crate::core::rules::crawlers::{Crawler, RootOnlyCrawler};
 
 fn get_trailing_newlines(segment: &ErasedSegment) -> Vec<ErasedSegment> {
     let mut result = Vec::new();
+    
+    // Collect all leaf segments (segments without children) in order
+    let mut leaf_segments = Vec::new();
+    collect_leaf_segments(segment, &mut leaf_segments);
+    
+    // Start from the end and work backwards to find trailing newlines
     let mut found_non_whitespace = false;
-
-    for seg in segment.recursive_crawl_all(true) {
+    for seg in leaf_segments.iter().rev() {
         // Skip meta segments
         if seg.is_type(SyntaxKind::Dedent) 
             || seg.is_type(SyntaxKind::EndOfFile)
@@ -23,14 +28,26 @@ fn get_trailing_newlines(segment: &ErasedSegment) -> Vec<ErasedSegment> {
         
         if !found_non_whitespace {
             if seg.is_type(SyntaxKind::Newline) {
-                result.push(seg.clone());
+                result.insert(0, seg.clone()); // Insert at beginning since we're going backwards
             } else if !seg.is_whitespace() {
                 found_non_whitespace = true;
             }
         }
     }
-
+    
     result
+}
+
+fn collect_leaf_segments(segment: &ErasedSegment, leaf_segments: &mut Vec<ErasedSegment>) {
+    if segment.segments().is_empty() {
+        // This is a leaf segment
+        leaf_segments.push(segment.clone());
+    } else {
+        // Recursively collect from children in order
+        for child in segment.segments() {
+            collect_leaf_segments(child, leaf_segments);
+        }
+    }
 }
 
 

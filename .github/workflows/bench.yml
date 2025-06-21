@@ -1,5 +1,8 @@
 on: [pull_request]
 name: benchmark pull requests
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
 env:
   PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD: true
 jobs:

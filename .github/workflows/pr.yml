@@ -2,6 +2,9 @@ on:
   pull_request:
   merge_group:
 name: PR Checks
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
 env:
   CARGO_INCREMENTAL: 0
   CARGO_NET_RETRY: 10

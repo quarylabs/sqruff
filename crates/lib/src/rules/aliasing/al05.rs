@@ -129,8 +129,47 @@ FROM foo
             if alias.aliased
                 && !all_tbl_refs.contains(&alias.ref_str)
             {
-                let violation = self.report_unused_alias(alias.clone());
-                violations.push(violation);
+                // For T-SQL, do a more comprehensive check by scanning the entire query tree
+                // This is a workaround for cases where qualified references in WHERE IN clauses
+                // are not properly detected by the reference buffer
+                let mut is_used = false;
+                if context.dialect.name == DialectKind::Tsql && !all_tbl_refs.is_empty() {
+                    // Only apply this workaround if we already found some references
+                    // This helps avoid false positives where an alias truly isn't used
+                    
+                    // Get the parent segment that contains the WHERE clause
+                    // Walk up the parent stack to find a segment that contains the full query including WHERE
+                    let mut search_segment = context.segment.clone();
+                    for parent in &context.parent_stack {
+                        let parent_text = parent.raw();
+                        if parent_text.contains("WHERE") && parent_text.len() > search_segment.raw().len() {
+                            search_segment = parent.clone();
+                        }
+                    }
+                    
+                    let query_text = search_segment.raw();
+                    
+                    // Use regex-like pattern to find alias.column references
+                    // Check for common patterns where this alias might be used
+                    let patterns = [
+                        format!("{}.", alias.ref_str), // Basic pattern: alias.
+                        format!(" {}.", alias.ref_str), // With space before
+                        format!("({}.", alias.ref_str), // In parentheses
+                        format!(",{}.", alias.ref_str), // After comma
+                    ];
+                    
+                    for pattern in &patterns {
+                        if query_text.contains(pattern) {
+                            is_used = true;
+                            break;
+                        }
+                    }
+                }
+                
+                if !is_used {
+                    let violation = self.report_unused_alias(alias.clone());
+                    violations.push(violation);
+                }
             }
         }
 
@@ -155,68 +194,17 @@ impl RuleAL05 {
             all_refs.insert(tbl_ref.clone());
         }
         
+        
         // Collect from all children recursively
         for child in query.children() {
             let child_refs = self.collect_all_tbl_refs(&child);
             all_refs.extend(child_refs);
         }
         
-        // Additional T-SQL specific collection: Scan for qualified identifiers that might be table.column references
-        // This is needed because the standard reference collection doesn't always catch qualified column references
-        let query_borrow = RefCell::borrow(&query.inner);
-        let selectables = query_borrow.selectables.clone();
-        drop(query_borrow);
-        
-        for selectable in selectables {
-            let select_statement = &selectable.selectable;
-            // Look for any text segments containing dots that might be qualified references
-            let all_segments = select_statement.recursive_crawl(
-                &SyntaxSet::EMPTY, // Get all segment types
-                true,
-                &SyntaxSet::EMPTY,
-                true,
-            );
-            
-            for seg in all_segments {
-                let raw = seg.raw();
-                // Only look for qualified references - must contain a dot and look like "table.column"
-                if raw.contains('.') && raw.len() < 100 && !raw.contains(' ') && !raw.contains('(') && !raw.contains(')') {
-                    // This might be a qualified reference like "alias.column"
-                    if let Some(first_part) = raw.split('.').next() {
-                        if first_part.len() < 50 && !first_part.is_empty() {
-                            // Check if this first part matches any alias in our query hierarchy
-                            if self.alias_exists_in_query_hierarchy(query, first_part) {
-                                all_refs.insert(first_part.to_smolstr());
-                            }
-                        }
-                    }
-                }
-            }
-        }
         
         all_refs
     }
     
-    fn alias_exists_in_query_hierarchy(&self, query: &Query<AL05Query>, alias: &str) -> bool {
-        // Check current level
-        if RefCell::borrow(&query.inner).payload.aliases.iter().any(|a| a.ref_str == alias) {
-            return true;
-        }
-        
-        // Check all children recursively
-        for child in query.children() {
-            if self.alias_exists_in_query_hierarchy(&child, alias) {
-                return true;
-            }
-        }
-        
-        // Check parent if available
-        if let Some(parent) = &RefCell::borrow(&query.inner).parent {
-            return self.alias_exists_in_query_hierarchy(parent, alias);
-        }
-        
-        false
-    }
 
     #[allow(clippy::only_used_in_recursion)]
     fn analyze_table_aliases(&self, query: Query<AL05Query>, dialect: &Dialect) {
@@ -272,8 +260,11 @@ impl RuleAL05 {
                         // This could be a qualified reference like "alias.column"
                         if let Some(first_part) = raw.split('.').next() {
                             // Only consider it if the first part looks like an identifier (no spaces, reasonable length)
-                            // Also exclude function calls and other non-reference patterns
-                            if first_part.len() < 50 && !first_part.contains(' ') && !first_part.is_empty() && !raw.contains('(') && !raw.contains(')') {
+                            // Skip if this looks like a function call (starts with parenthesis or contains function pattern)
+                            // but allow expressions inside IN clauses
+                            let is_function_call = raw.starts_with('(') || (raw.contains('(') && !raw.contains(','));
+                            
+                            if first_part.len() < 50 && !first_part.contains(' ') && !first_part.is_empty() && !is_function_call {
                                 Self::resolve_and_mark_reference(query.clone(), first_part.to_string());
                             }
                         }

@@ -492,3 +492,36 @@ test_fail_tsql_alias_in_subquery_where_unused:
   configs:
     core:
       dialect: tsql
+
+test_pass_tsql_alias_in_complex_where_in_clause:
+  # Alias used in complex WHERE IN clause with multiple references - reproduces bug from RecalculateOrderDeliveryDateCritical.sql
+  pass_str: |
+    SELECT
+        COUNT(*)
+    FROM
+        sao.TableA AS op2ref WITH(NOLOCK)
+        INNER JOIN sao.TableB AS Position WITH(NOLOCK) ON Position.id = op2ref.i_position_id AND Position.DT_DELETED IS NULL
+        INNER JOIN sao.TableC AS PositionRef WITH(NOLOCK) ON PositionRef.id = op2ref.i_positionref_id AND PositionRef.DT_DELETED IS NULL
+    WHERE
+        OrderPositions.id IN (op2ref.i_position_id, op2ref.i_ref_id)
+        AND op2ref.i_type_id = 1
+        AND OrderPositions.id2 = Orders.id2
+        AND op2ref.dt_deleted IS NULL
+  configs:
+    core:
+      dialect: tsql
+
+test_pass_tsql_alias_with_qualified_refs_in_where_in:
+  # Simplified version - alias used in WHERE IN clause with qualified column references
+  pass_str: |
+    SELECT COUNT(*)
+    FROM
+        TableA AS op2ref
+        INNER JOIN TableB AS Position ON Position.id = op2ref.i_position_id
+    WHERE
+        SomeTable.id IN (op2ref.i_position_id, op2ref.i_positionref_id)
+        AND op2ref.i_referencetype_id = 1
+        AND op2ref.dt_deleted IS NULL
+  configs:
+    core:
+      dialect: tsql

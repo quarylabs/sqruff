@@ -1,7 +1,18 @@
 file:
-- unparsable:
-  - word: SELECT
-  - word: value
-  - word: FROM
-  - tsql_variable: '@DepartmentCodes'
-  - semicolon: ;
+- statement:
+  - statement:
+    - select_statement:
+      - select_clause:
+        - keyword: SELECT
+        - select_clause_element:
+          - column_reference:
+            - quoted_identifier: '[value]'
+      - from_clause:
+        - keyword: FROM
+        - from_expression:
+          - from_expression_element:
+            - table_expression:
+              - table_reference:
+                - table_reference:
+                  - tsql_variable: '@DepartmentCodes'
+- statement_terminator: ;

@@ -3,7 +3,7 @@ use sqruff_lib_core::dialects::init::DialectKind;
 use sqruff_lib_core::dialects::syntax::SyntaxKind;
 use sqruff_lib_core::helpers::{Config, ToMatchable};
 use sqruff_lib_core::parser::grammar::anyof::{AnyNumberOf, one_of};
-use sqruff_lib_core::parser::grammar::base::{Nothing, Ref};
+use sqruff_lib_core::parser::grammar::base::Ref;
 use sqruff_lib_core::parser::grammar::delimited::Delimited;
 use sqruff_lib_core::parser::grammar::sequence::{Bracketed, Sequence};
 use sqruff_lib_core::parser::lexer::Matcher;
@@ -274,9 +274,7 @@ pub fn raw_dialect() -> Dialect {
     dialect.add([
         (
             "DeclareStatementSegment".into(),
-            NodeMatcher::new(SyntaxKind::Statement, Nothing::new().to_matchable())
-                .to_matchable()
-                .into(),
+            Ref::new("DeclareStatementGrammar").to_matchable().into(),
         ),
         (
             "DeclareStatementGrammar".into(),
@@ -301,9 +299,7 @@ pub fn raw_dialect() -> Dialect {
     dialect.add([
         (
             "SetVariableStatementSegment".into(),
-            NodeMatcher::new(SyntaxKind::Statement, Nothing::new().to_matchable())
-                .to_matchable()
-                .into(),
+            Ref::new("SetVariableStatementGrammar").to_matchable().into(),
         ),
         (
             "SetVariableStatementGrammar".into(),
@@ -322,9 +318,7 @@ pub fn raw_dialect() -> Dialect {
     dialect.add([
         (
             "PrintStatementSegment".into(),
-            NodeMatcher::new(SyntaxKind::Statement, Nothing::new().to_matchable())
-                .to_matchable()
-                .into(),
+            Ref::new("PrintStatementGrammar").to_matchable().into(),
         ),
         (
             "PrintStatementGrammar".into(),
@@ -341,16 +335,32 @@ pub fn raw_dialect() -> Dialect {
     dialect.add([
         (
             "BeginEndBlockSegment".into(),
-            NodeMatcher::new(SyntaxKind::Statement, Nothing::new().to_matchable())
-                .to_matchable()
-                .into(),
+            Ref::new("BeginEndBlockGrammar").to_matchable().into(),
         ),
         (
             "BeginEndBlockGrammar".into(),
             Sequence::new(vec_of_erased![
                 Ref::keyword("BEGIN"),
-                AnyNumberOf::new(vec_of_erased![Ref::new("StatementSegment")])
-                    .config(|this| this.min_times(1)),
+                MetaSegment::indent(),
+                AnyNumberOf::new(vec_of_erased![
+                    Sequence::new(vec_of_erased![
+                        one_of(vec_of_erased![
+                            Ref::new("SelectableGrammar"),
+                            Ref::new("InsertStatementSegment"),
+                            Ref::new("UpdateStatementSegment"),
+                            Ref::new("DeleteStatementSegment"),
+                            Ref::new("DeclareStatementSegment"),
+                            Ref::new("SetVariableStatementSegment"),
+                            Ref::new("PrintStatementSegment"),
+                            Ref::new("IfStatementSegment"),
+                            Ref::new("WhileStatementSegment"),
+                            Ref::new("BeginEndBlockSegment")  // Allow nested BEGIN...END
+                        ]),
+                        Ref::new("DelimiterGrammar").optional()
+                    ])
+                ])
+                .config(|this| this.min_times(0)),  // Allow empty blocks
+                MetaSegment::dedent(),
                 Ref::keyword("END")
             ])
             .to_matchable()
@@ -362,9 +372,7 @@ pub fn raw_dialect() -> Dialect {
     dialect.add([
         (
             "IfStatementSegment".into(),
-            NodeMatcher::new(SyntaxKind::Statement, Nothing::new().to_matchable())
-                .to_matchable()
-                .into(),
+            Ref::new("IfStatementGrammar").to_matchable().into(),
         ),
         (
             "IfStatementGrammar".into(),
@@ -387,9 +395,7 @@ pub fn raw_dialect() -> Dialect {
     dialect.add([
         (
             "WhileStatementSegment".into(),
-            NodeMatcher::new(SyntaxKind::Statement, Nothing::new().to_matchable())
-                .to_matchable()
-                .into(),
+            Ref::new("WhileStatementGrammar").to_matchable().into(),
         ),
         (
             "WhileStatementGrammar".into(),
@@ -407,7 +413,7 @@ pub fn raw_dialect() -> Dialect {
     dialect.add([
         (
             "PivotUnpivotSegment".into(),
-            NodeMatcher::new(SyntaxKind::TableExpression, Nothing::new().to_matchable())
+            NodeMatcher::new(SyntaxKind::TableExpression, Ref::new("PivotUnpivotGrammar").to_matchable())
                 .to_matchable()
                 .into(),
         ),
@@ -448,9 +454,7 @@ pub fn raw_dialect() -> Dialect {
     dialect.add([
         (
             "BatchSeparatorSegment".into(),
-            NodeMatcher::new(SyntaxKind::Statement, Nothing::new().to_matchable())
-                .to_matchable()
-                .into(),
+            Ref::new("BatchSeparatorGrammar").to_matchable().into(),
         ),
         (
             "BatchSeparatorGrammar".into(),
@@ -461,24 +465,29 @@ pub fn raw_dialect() -> Dialect {
     // Add T-SQL specific statement types to the statement segment
     dialect.replace_grammar(
         "StatementSegment",
-        one_of(vec_of_erased![
-            Ref::new("DeclareStatementGrammar"),
-            Ref::new("SetVariableStatementGrammar"),
-            Ref::new("PrintStatementGrammar"),
-            Ref::new("BeginEndBlockGrammar"),
-            Ref::new("IfStatementGrammar"),
-            Ref::new("WhileStatementGrammar"),
-            Ref::new("BatchSeparatorGrammar"),
-            Ref::new("UseStatementGrammar"),
-            // Include base statement types that exist in ANSI
-            Ref::new("SelectableGrammar"),
-            Ref::new("InsertStatementSegment"),
-            Ref::new("UpdateStatementSegment"),
-            Ref::new("DeleteStatementSegment"),
-            Ref::new("CreateTableStatementSegment"),
-            Ref::new("AlterTableStatementSegment"),
-            Ref::new("DropTableStatementSegment")
-        ])
+        NodeMatcher::new(
+            SyntaxKind::Statement,
+            one_of(vec_of_erased![
+                Ref::new("DeclareStatementGrammar"),
+                Ref::new("SetVariableStatementGrammar"),
+                Ref::new("PrintStatementGrammar"),
+                Ref::new("BeginEndBlockGrammar"),
+                Ref::new("IfStatementGrammar"),
+                Ref::new("WhileStatementGrammar"),
+                Ref::new("BatchSeparatorGrammar"),
+                Ref::new("UseStatementGrammar"),
+                // Include base statement types that exist in ANSI
+                Ref::new("SelectableGrammar"),
+                Ref::new("InsertStatementSegment"),
+                Ref::new("UpdateStatementSegment"),
+                Ref::new("DeleteStatementSegment"),
+                Ref::new("CreateTableStatementSegment"),
+                Ref::new("AlterTableStatementSegment"),
+                Ref::new("DropTableStatementSegment")
+            ])
+            .config(|this| this.terminators = vec_of_erased![Ref::new("DelimiterGrammar")])
+            .to_matchable(),
+        )
         .to_matchable(),
     );
 
@@ -501,9 +510,7 @@ pub fn raw_dialect() -> Dialect {
     dialect.add([
         (
             "UseStatementSegment".into(),
-            NodeMatcher::new(SyntaxKind::Statement, Nothing::new().to_matchable())
-                .to_matchable()
-                .into(),
+            Ref::new("UseStatementGrammar").to_matchable().into(),
         ),
         (
             "UseStatementGrammar".into(),

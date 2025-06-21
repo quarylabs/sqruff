@@ -1,1 +1,1 @@
-SELECT value FROM @DepartmentCodes;
+SELECT [value] FROM @DepartmentCodes;

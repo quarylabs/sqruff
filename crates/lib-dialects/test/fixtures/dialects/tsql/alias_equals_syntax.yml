@@ -1,29 +1,30 @@
 file:
 - statement:
-  - select_statement:
-    - select_clause:
-      - keyword: SELECT
-      - select_clause_element:
-        - expression:
-          - column_reference:
-            - naked_identifier: TsqlAlias
-          - comparison_operator:
-            - raw_comparison_operator: =
-          - function:
-            - function_name:
-              - function_name_identifier: SUM
-            - bracketed:
-              - start_bracket: (
-              - expression:
-                - column_reference:
-                  - naked_identifier: quantity
-              - end_bracket: )
-    - from_clause:
-      - keyword: FROM
-      - from_expression:
-        - from_expression_element:
-          - table_expression:
-            - table_reference:
+  - statement:
+    - select_statement:
+      - select_clause:
+        - keyword: SELECT
+        - select_clause_element:
+          - expression:
+            - column_reference:
+              - naked_identifier: TsqlAlias
+            - comparison_operator:
+              - raw_comparison_operator: =
+            - function:
+              - function_name:
+                - function_name_identifier: SUM
+              - bracketed:
+                - start_bracket: (
+                - expression:
+                  - column_reference:
+                    - naked_identifier: quantity
+                - end_bracket: )
+      - from_clause:
+        - keyword: FROM
+        - from_expression:
+          - from_expression_element:
+            - table_expression:
               - table_reference:
-                - object_reference:
-                  - naked_identifier: table1
+                - table_reference:
+                  - object_reference:
+                    - naked_identifier: table1

@@ -66,9 +66,6 @@ pyo3 = { version = "0.25.1" , features = ["auto-initialize"], optional = true }
 [target.'cfg(target_os = "windows")'.dependencies]
 mimalloc = "0.1"
 
-[target.'cfg(all(not(target_os = "windows"), not(target_os = "openbsd"), any(target_arch = "x86_64", target_arch = "aarch64", target_arch = "powerpc64")))'.dependencies]
-jemallocator = { version = "0.6.0", package = "tikv-jemallocator" }
-
 [dev-dependencies]
 assert_cmd = "2.0.16"
 expect-test = "1.5.0"

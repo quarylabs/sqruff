@@ -7,13 +7,6 @@
         target_arch = "powerpc64"
     )
 ))]
-#[global_allocator]
-static ALLOC: jemallocator::Jemalloc = jemallocator::Jemalloc;
-
-// Disable decay after 10s because it can show up as *random* slow allocations
-// in benchmarks. We don't need purging in benchmarks because it isn't important
-// to give unallocated pages back to the OS.
-// https://jemalloc.net/jemalloc.3.html#opt.dirty_decay_ms
 #[cfg(all(
     not(target_os = "windows"),
     not(target_os = "openbsd"),

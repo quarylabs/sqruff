@@ -54,22 +54,21 @@ pub fn dialect() -> Dialect {
         // T-SQL supports alternative alias syntax: AliasName = Expression
         dialect.replace_grammar(
             "SelectClauseElementSegment",
-            ansi::select_clause_element()
-                .copy(
-                    Some(vec_of_erased![
-                        // T-SQL alternative alias syntax: AliasName = Expression
-                        Sequence::new(vec_of_erased![
-                            Ref::new("SingleIdentifierGrammar"),
-                            Ref::new("AssignmentOperatorSegment"),
-                            Ref::new("BaseExpressionElementGrammar")
-                        ])
-                    ]),
-                    None,
-                    None,
-                    None,
-                    Vec::new(),
-                    false,
-                ),
+            ansi::select_clause_element().copy(
+                Some(vec_of_erased![
+                    // T-SQL alternative alias syntax: AliasName = Expression
+                    Sequence::new(vec_of_erased![
+                        Ref::new("SingleIdentifierGrammar"),
+                        Ref::new("AssignmentOperatorSegment"),
+                        Ref::new("BaseExpressionElementGrammar")
+                    ])
+                ]),
+                None,
+                None,
+                None,
+                Vec::new(),
+                false,
+            ),
         );
     })
 }
@@ -255,22 +254,19 @@ pub fn raw_dialect() -> Dialect {
             ])
             .to_matchable(),
         )
-        .to_matchable()
-        .into(),
+        .to_matchable(),
     );
 
     // Add T-SQL assignment operator segment
-    dialect.add([
-        (
-            "AssignmentOperatorSegment".into(),
-            NodeMatcher::new(
-                SyntaxKind::AssignmentOperator,
-                Ref::new("EqualsSegment").to_matchable(),
-            )
-            .to_matchable()
-            .into(),
-        ),
-    ]);
+    dialect.add([(
+        "AssignmentOperatorSegment".into(),
+        NodeMatcher::new(
+            SyntaxKind::AssignmentOperator,
+            Ref::new("EqualsSegment").to_matchable(),
+        )
+        .to_matchable()
+        .into(),
+    )]);
 
     // DECLARE statement
     // Note: T-SQL uses = for both assignment and comparison. We use AssignmentOperator
@@ -589,9 +585,9 @@ pub fn raw_dialect() -> Dialect {
                 SyntaxKind::Expression,
                 Sequence::new(vec_of_erased![
                     Ref::keyword("WITH"),
-                    Bracketed::new(vec_of_erased![Delimited::new(vec_of_erased![
-                        Ref::new("TableHintElement")
-                    ])])
+                    Bracketed::new(vec_of_erased![Delimited::new(vec_of_erased![Ref::new(
+                        "TableHintElement"
+                    )])])
                 ])
                 .to_matchable(),
             )
@@ -640,7 +636,6 @@ pub fn raw_dialect() -> Dialect {
             .to_matchable()
             .into(),
     )]);
-
 
     // APPLY clause support (CROSS APPLY and OUTER APPLY)
     dialect.add([(

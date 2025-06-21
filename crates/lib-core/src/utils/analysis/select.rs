@@ -35,6 +35,23 @@ pub fn get_object_references(segment: &ErasedSegment) -> Vec<ObjectReferenceSegm
         .collect()
 }
 
+// Version that includes subqueries for alias tracking
+pub fn get_object_references_with_subqueries(segment: &ErasedSegment) -> Vec<ObjectReferenceSegment> {
+    let refs = segment
+        .recursive_crawl(
+            const { &SyntaxSet::new(&[SyntaxKind::ObjectReference, SyntaxKind::ColumnReference]) },
+            true,
+            &SyntaxSet::EMPTY, // Don't exclude any segment types to get subquery references
+            true,
+        )
+        .into_iter()
+        .map(|seg| seg.reference())
+        .collect::<Vec<_>>();
+    
+    
+    refs
+}
+
 pub fn get_select_statement_info(
     segment: &ErasedSegment,
     dialect: Option<&Dialect>,
@@ -57,14 +74,36 @@ pub fn get_select_statement_info(
     ] {
         let clause = segment.child(&SyntaxSet::new(&[potential_clause]));
         if let Some(clause) = clause {
-            reference_buffer.extend(get_object_references(&clause));
+            // For WHERE clauses, include subqueries to catch alias references in EXISTS, IN, etc.
+            if potential_clause == SyntaxKind::WhereClause {
+                reference_buffer.extend(get_object_references_with_subqueries(&clause));
+            } else {
+                reference_buffer.extend(get_object_references(&clause));
+            }
         }
     }
     
-    // Additional check: If we have complex FROM clause with multiple JOINs, 
-    // ensure all references are collected properly
+    // Additional check: Collect references from FROM clause with subqueries
     let fc = segment.child(const { &SyntaxSet::new(&[SyntaxKind::FromClause]) });
     if let Some(fc) = &fc {
+        // Also collect references from the FROM clause with subqueries included
+        reference_buffer.extend(get_object_references_with_subqueries(fc));
+        
+        // Special handling: Look for qualified identifiers in the text that might be table.column references
+        let all_text_segments = fc.recursive_crawl(
+            const { &SyntaxSet::new(&[SyntaxKind::Identifier, SyntaxKind::NakedIdentifier]) },
+            true,
+            &SyntaxSet::EMPTY,
+            true,
+        );
+        
+        for text_seg in all_text_segments {
+            let raw = text_seg.raw();
+            if raw.contains('.') && raw.len() < 50 { // Reasonable limit to avoid parsing large text blocks
+                // Create a synthetic ColumnReference for qualified identifiers
+                reference_buffer.push(text_seg.reference());
+            }
+        }
         let join_clauses = fc.recursive_crawl(
             const { &SyntaxSet::new(&[SyntaxKind::JoinClause]) },
             true,

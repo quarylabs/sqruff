@@ -60,7 +60,7 @@ pub fn dialect() -> Dialect {
                         // T-SQL alternative alias syntax: AliasName = Expression
                         Sequence::new(vec_of_erased![
                             Ref::new("SingleIdentifierGrammar"),
-                            Ref::new("EqualsSegment"),
+                            Ref::new("AssignmentOperatorSegment"),
                             Ref::new("BaseExpressionElementGrammar")
                         ])
                     ]),
@@ -259,9 +259,22 @@ pub fn raw_dialect() -> Dialect {
         .into(),
     );
 
+    // Add T-SQL assignment operator segment
+    dialect.add([
+        (
+            "AssignmentOperatorSegment".into(),
+            NodeMatcher::new(
+                SyntaxKind::AssignmentOperator,
+                Ref::new("EqualsSegment").to_matchable(),
+            )
+            .to_matchable()
+            .into(),
+        ),
+    ]);
+
     // DECLARE statement
-    // Note: T-SQL uses = for both assignment and comparison. The parser represents
-    // it as EqualsSegment/ComparisonOperator in both cases.
+    // Note: T-SQL uses = for both assignment and comparison. We use AssignmentOperator
+    // to distinguish assignment context from comparison context.
     dialect.add([
         (
             "DeclareStatementSegment".into(),
@@ -277,7 +290,7 @@ pub fn raw_dialect() -> Dialect {
                     Ref::new("TsqlVariableSegment"),
                     Ref::new("DatatypeSegment"),
                     Sequence::new(vec_of_erased![
-                        Ref::new("EqualsSegment"),
+                        Ref::new("AssignmentOperatorSegment"),
                         Ref::new("ExpressionSegment")
                     ])
                     .config(|this| this.optional())
@@ -301,7 +314,7 @@ pub fn raw_dialect() -> Dialect {
             Sequence::new(vec_of_erased![
                 Ref::keyword("SET"),
                 Ref::new("TsqlVariableSegment"),
-                Ref::new("EqualsSegment"),
+                Ref::new("AssignmentOperatorSegment"),
                 Ref::new("ExpressionSegment")
             ])
             .to_matchable()
@@ -628,27 +641,6 @@ pub fn raw_dialect() -> Dialect {
             .into(),
     )]);
 
-    // T-SQL alternative alias syntax: AliasName = Expression
-    // This allows SELECT UUID = CAST(u_uuid AS CHAR(36)) syntax
-    dialect.replace_grammar(
-        "SelectClauseElementSegment",
-        ansi::select_clause_element()
-            .copy(
-                Some(vec_of_erased![
-                    // T-SQL alternative alias syntax: AliasName = Expression
-                    Sequence::new(vec_of_erased![
-                        Ref::new("SingleIdentifierGrammar"),
-                        Ref::new("EqualsSegment"),
-                        Ref::new("BaseExpressionElementGrammar")
-                    ])
-                ]),
-                None,
-                None,
-                None,
-                Vec::new(),
-                false,
-            ),
-    );
 
     // APPLY clause support (CROSS APPLY and OUTER APPLY)
     dialect.add([(

@@ -11,15 +11,22 @@ use crate::core::rules::crawlers::{Crawler, RootOnlyCrawler};
 
 fn get_trailing_newlines(segment: &ErasedSegment) -> Vec<ErasedSegment> {
     let mut result = Vec::new();
+    let mut found_non_whitespace = false;
 
     for seg in segment.recursive_crawl_all(true) {
-        if seg.is_type(SyntaxKind::Newline) {
-            result.push(seg.clone());
-        } else if !seg.is_whitespace()
-            && !seg.is_type(SyntaxKind::Dedent)
-            && !seg.is_type(SyntaxKind::EndOfFile)
-        {
-            break;
+        // Skip meta segments
+        if seg.is_type(SyntaxKind::Dedent) 
+            || seg.is_type(SyntaxKind::EndOfFile)
+            || seg.is_type(SyntaxKind::Indent) {
+            continue;
+        }
+        
+        if !found_non_whitespace {
+            if seg.is_type(SyntaxKind::Newline) {
+                result.push(seg.clone());
+            } else if !seg.is_whitespace() {
+                found_non_whitespace = true;
+            }
         }
     }
 

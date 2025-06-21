@@ -120,7 +120,7 @@ pub fn raw_dialect() -> Dialect {
     dialect.insert_lexer_matchers(
         vec![
             Matcher::regex("tsql_square_bracket_identifier", r"\[[^\]]*\]", SyntaxKind::DoubleQuote),
-            Matcher::regex("tsql_variable", r"@[a-zA-Z_][a-zA-Z0-9_]*", SyntaxKind::TsqlVariable),
+            Matcher::regex("tsql_variable", r"@@?[a-zA-Z_][a-zA-Z0-9_]*", SyntaxKind::TsqlVariable),
         ],
         "equals",
     );

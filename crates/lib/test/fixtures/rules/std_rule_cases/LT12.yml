@@ -62,3 +62,10 @@ test_fail_tsql_assignment_no_newline:
   configs:
     core:
       dialect: tsql
+
+test_pass_tsql_rowcount_with_newline:
+  # T-SQL with @@ROWCOUNT and trailing newline should pass
+  pass_str: "SET @UpdatedRows = @@ROWCOUNT;\nSELECT @UpdatedRows;\n"
+  configs:
+    core:
+      dialect: tsql

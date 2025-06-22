@@ -47,7 +47,7 @@ pub fn dialect() -> Dialect {
                     Sequence::new(vec_of_erased![
                         Ref::new("SingleIdentifierGrammar"),
                         Ref::new("AssignmentOperatorSegment"),
-                        Ref::new("BaseExpressionElementGrammar")
+                        Ref::new("ExpressionSegment")
                     ])
                 ]),
                 None,

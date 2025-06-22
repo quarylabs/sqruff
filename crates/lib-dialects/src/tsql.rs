@@ -264,21 +264,27 @@ pub fn raw_dialect() -> Dialect {
         "SelectClauseModifierSegment",
         NodeMatcher::new(
             SyntaxKind::SelectClauseModifier,
-            Sequence::new(vec_of_erased![
-                Ref::keyword("TOP"),
-                // TOP can take a number, variable, or expression in parentheses
-                one_of(vec_of_erased![
-                    Ref::new("NumericLiteralSegment"), // TOP 10
-                    Ref::new("TsqlVariableSegment"),   // TOP @RowCount
-                    Bracketed::new(vec_of_erased![one_of(vec_of_erased![
-                        Ref::new("NumericLiteralSegment"), // TOP (10)
-                        Ref::new("TsqlVariableSegment"),   // TOP (@RowCount)
-                        Ref::new("ExpressionSegment")      // TOP (SELECT COUNT(*)/2 FROM...)
-                    ])])
-                ]),
-                Ref::keyword("PERCENT").optional(), // TOP 50 PERCENT
-                Ref::keyword("WITH").optional(),    // WITH TIES requires both keywords
-                Ref::keyword("TIES").optional()     // Returns all ties for last place
+            one_of(vec_of_erased![
+                // Keep ANSI's DISTINCT/ALL
+                Ref::keyword("DISTINCT"),
+                Ref::keyword("ALL"),
+                // Add T-SQL's TOP clause
+                Sequence::new(vec_of_erased![
+                    Ref::keyword("TOP"),
+                    // TOP can take a number, variable, or expression in parentheses
+                    one_of(vec_of_erased![
+                        Ref::new("NumericLiteralSegment"), // TOP 10
+                        Ref::new("TsqlVariableSegment"),   // TOP @RowCount
+                        Bracketed::new(vec_of_erased![one_of(vec_of_erased![
+                            Ref::new("NumericLiteralSegment"), // TOP (10)
+                            Ref::new("TsqlVariableSegment"),   // TOP (@RowCount)
+                            Ref::new("ExpressionSegment")      // TOP (SELECT COUNT(*)/2 FROM...)
+                        ])])
+                    ]),
+                    Ref::keyword("PERCENT").optional(), // TOP 50 PERCENT
+                    Ref::keyword("WITH").optional(),    // WITH TIES requires both keywords
+                    Ref::keyword("TIES").optional()     // Returns all ties for last place
+                ])
             ])
             .to_matchable(),
         )

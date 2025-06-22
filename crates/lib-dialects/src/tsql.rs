@@ -4,6 +4,7 @@ use sqruff_lib_core::dialects::syntax::SyntaxKind;
 use sqruff_lib_core::helpers::{Config, ToMatchable};
 use sqruff_lib_core::parser::grammar::anyof::{AnyNumberOf, one_of};
 use sqruff_lib_core::parser::grammar::base::Ref;
+use sqruff_lib_core::parser::grammar::conditional::Conditional;
 use sqruff_lib_core::parser::grammar::delimited::Delimited;
 use sqruff_lib_core::parser::grammar::sequence::{Bracketed, Sequence};
 use sqruff_lib_core::parser::lexer::Matcher;
@@ -11,6 +12,7 @@ use sqruff_lib_core::parser::matchable::MatchableTrait;
 use sqruff_lib_core::parser::node_matcher::NodeMatcher;
 use sqruff_lib_core::parser::parsers::TypedParser;
 use sqruff_lib_core::parser::segments::meta::MetaSegment;
+use sqruff_lib_core::parser::types::ParseMode;
 use sqruff_lib_core::vec_of_erased;
 
 use crate::{ansi, tsql_keywords};
@@ -35,21 +37,6 @@ pub fn dialect() -> Dialect {
                 )
                 .into(),
         )]);
-
-        // Add T-SQL table variable support for table references
-        // This enables @TableVariable to work in FROM clauses
-        dialect.replace_grammar(
-            "TableReferenceSegment",
-            NodeMatcher::new(
-                SyntaxKind::TableReference,
-                one_of(vec_of_erased![
-                    Ref::new("ObjectReferenceSegment"), // Original object references
-                    Ref::new("TsqlVariableSegment"),    // T-SQL table variables like @MyTable
-                ])
-                .to_matchable(),
-            )
-            .to_matchable(),
-        );
 
         // T-SQL supports alternative alias syntax: AliasName = Expression
         dialect.replace_grammar(
@@ -463,11 +450,13 @@ pub fn raw_dialect() -> Dialect {
     ]);
 
     // Add T-SQL specific statement types to the statement segment
+    // We extend the ANSI statement_segment() rather than replacing it completely
     dialect.replace_grammar(
         "StatementSegment",
         NodeMatcher::new(
             SyntaxKind::Statement,
             one_of(vec_of_erased![
+                // T-SQL specific statements
                 Ref::new("DeclareStatementGrammar"),
                 Ref::new("SetVariableStatementGrammar"),
                 Ref::new("PrintStatementGrammar"),
@@ -476,14 +465,45 @@ pub fn raw_dialect() -> Dialect {
                 Ref::new("WhileStatementGrammar"),
                 Ref::new("BatchSeparatorGrammar"),
                 Ref::new("UseStatementGrammar"),
-                // Include base statement types that exist in ANSI
+                // Include all ANSI statement types
                 Ref::new("SelectableGrammar"),
+                Ref::new("MergeStatementSegment"),
                 Ref::new("InsertStatementSegment"),
-                Ref::new("UpdateStatementSegment"),
-                Ref::new("DeleteStatementSegment"),
+                Ref::new("TransactionStatementSegment"),
+                Ref::new("DropTableStatementSegment"),
+                Ref::new("DropViewStatementSegment"),
+                Ref::new("CreateUserStatementSegment"),
+                Ref::new("DropUserStatementSegment"),
+                Ref::new("TruncateStatementSegment"),
+                Ref::new("AccessStatementSegment"),
                 Ref::new("CreateTableStatementSegment"),
+                Ref::new("CreateRoleStatementSegment"),
+                Ref::new("DropRoleStatementSegment"),
                 Ref::new("AlterTableStatementSegment"),
-                Ref::new("DropTableStatementSegment")
+                Ref::new("CreateSchemaStatementSegment"),
+                Ref::new("SetSchemaStatementSegment"),
+                Ref::new("DropSchemaStatementSegment"),
+                Ref::new("DropTypeStatementSegment"),
+                Ref::new("CreateDatabaseStatementSegment"),
+                Ref::new("DropDatabaseStatementSegment"),
+                Ref::new("CreateIndexStatementSegment"),
+                Ref::new("DropIndexStatementSegment"),
+                Ref::new("CreateViewStatementSegment"),
+                Ref::new("DeleteStatementSegment"),
+                Ref::new("UpdateStatementSegment"),
+                Ref::new("CreateCastStatementSegment"),
+                Ref::new("DropCastStatementSegment"),
+                Ref::new("CreateFunctionStatementSegment"),
+                Ref::new("DropFunctionStatementSegment"),
+                Ref::new("CreateModelStatementSegment"),
+                Ref::new("DropModelStatementSegment"),
+                Ref::new("DescribeStatementSegment"),
+                Ref::new("ExplainStatementSegment"),
+                Ref::new("CreateSequenceStatementSegment"),
+                Ref::new("AlterSequenceStatementSegment"),
+                Ref::new("DropSequenceStatementSegment"),
+                Ref::new("CreateTriggerStatementSegment"),
+                Ref::new("DropTriggerStatementSegment")
             ])
             .config(|this| this.terminators = vec_of_erased![Ref::new("DelimiterGrammar")])
             .to_matchable(),
@@ -491,20 +511,6 @@ pub fn raw_dialect() -> Dialect {
         .to_matchable(),
     );
 
-    // Update SELECT to include TOP clause via SelectClauseModifierSegment
-    dialect.replace_grammar(
-        "SelectClauseSegment",
-        Sequence::new(vec_of_erased![
-            Ref::keyword("SELECT"),
-            Ref::new("SelectClauseModifierSegment").optional(),
-            Ref::new("SelectClauseElementSegment"),
-            AnyNumberOf::new(vec_of_erased![Sequence::new(vec_of_erased![
-                Ref::new("CommaSegment"),
-                Ref::new("SelectClauseElementSegment")
-            ])])
-        ])
-        .to_matchable(),
-    );
 
     // USE statement for changing database context
     dialect.add([
@@ -588,16 +594,12 @@ pub fn raw_dialect() -> Dialect {
     dialect.add([
         (
             "TableHintSegment".into(),
-            NodeMatcher::new(
-                SyntaxKind::Expression,
-                Sequence::new(vec_of_erased![
-                    Ref::keyword("WITH"),
-                    Bracketed::new(vec_of_erased![Delimited::new(vec_of_erased![Ref::new(
-                        "TableHintElement"
-                    )])])
-                ])
-                .to_matchable(),
-            )
+            Sequence::new(vec_of_erased![
+                Ref::keyword("WITH"),
+                Bracketed::new(vec_of_erased![Delimited::new(vec_of_erased![Ref::new(
+                    "TableHintElement"
+                )])])
+            ])
             .to_matchable()
             .into(),
         ),
@@ -643,6 +645,63 @@ pub fn raw_dialect() -> Dialect {
             .to_matchable()
             .into(),
     )]);
+    
+    // Also update JoinClauseSegment to handle APPLY syntax properly
+    dialect.replace_grammar(
+        "JoinClauseSegment",
+        NodeMatcher::new(
+            SyntaxKind::JoinClause,
+            one_of(vec_of_erased![
+                // Standard JOIN syntax
+                Sequence::new(vec_of_erased![
+                    Ref::new("JoinTypeKeywordsGrammar").optional(),
+                    Ref::new("JoinKeywordsGrammar"),
+                    MetaSegment::indent(),
+                    Ref::new("FromExpressionElementSegment"),
+                    AnyNumberOf::new(vec_of_erased![Ref::new("NestedJoinGrammar")]),
+                    MetaSegment::dedent(),
+                    Sequence::new(vec_of_erased![
+                        Conditional::new(MetaSegment::indent()).indented_using_on(),
+                        one_of(vec_of_erased![
+                            Ref::new("JoinOnConditionSegment"),
+                            Sequence::new(vec_of_erased![
+                                Ref::keyword("USING"),
+                                MetaSegment::indent(),
+                                Bracketed::new(vec_of_erased![Delimited::new(vec_of_erased![
+                                    Ref::new("SingleIdentifierGrammar")
+                                ])])
+                                .config(|this| this.parse_mode = ParseMode::Greedy),
+                                MetaSegment::dedent(),
+                            ])
+                        ]),
+                        Conditional::new(MetaSegment::dedent()).indented_using_on(),
+                    ])
+                    .config(|this| this.optional())
+                ]),
+                // NATURAL JOIN
+                Sequence::new(vec_of_erased![
+                    Ref::new("NaturalJoinKeywordsGrammar"),
+                    Ref::new("JoinKeywordsGrammar"),
+                    MetaSegment::indent(),
+                    Ref::new("FromExpressionElementSegment"),
+                    MetaSegment::dedent(),
+                ]),
+                // T-SQL APPLY syntax
+                Sequence::new(vec_of_erased![
+                    one_of(vec_of_erased![
+                        Ref::keyword("CROSS"),
+                        Ref::keyword("OUTER")
+                    ]),
+                    Ref::keyword("APPLY"),
+                    MetaSegment::indent(),
+                    Ref::new("FromExpressionElementSegment"),
+                    MetaSegment::dedent(),
+                ])
+            ])
+            .to_matchable()
+        )
+        .to_matchable()
+    );
 
     // APPLY clause support (CROSS APPLY and OUTER APPLY)
     dialect.add([(

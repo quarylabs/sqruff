@@ -51,13 +51,6 @@
 //     This issue would require significant changes to parser/linter core architecture.
 //     The table hint parsing itself may work, but the linter incorrectly reports
 //     "WITH" as an unused alias regardless of correct parsing.
-//
-// Files still containing unparsable sections (5 total, down from 8):
-// - al02_implicit_column_alias.yml: Implicit column aliases without AS keyword
-// - al05_alias_in_where_clause.yml: Aliases used in WHERE clauses
-// - al05_exact_issue.yml: Similar alias issues
-// - apply_clause.yml: APPLY with complex table expressions
-// - tsql_alias_column_ref.yml: T-SQL equals alias with qualified column refs (partial)
 
 use sqruff_lib_core::dialects::Dialect;
 use sqruff_lib_core::dialects::init::DialectKind;

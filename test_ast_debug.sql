@@ -1,1 +1,0 @@
-FROM Users WITH (NOLOCK)

@@ -209,19 +209,7 @@ file:
                                   - keyword: SELECT
                                   - select_clause_element:
                                     - expression:
-                                      - bracketed:
-                                        - start_bracket: (
-                                        - unparsable:
-                                          - word: Users
-                                          - dot: .
-                                          - word: first_name
-                                          - plus: +
-                                          - single_quote: ''' '''
-                                          - plus: +
-                                          - word: Users
-                                          - dot: .
-                                          - word: last_name
-                                        - end_bracket: )
+                                      - quoted_literal: '''Employee Name'''
                                     - alias_expression:
                                       - keyword: AS
                                       - naked_identifier: employee_name
@@ -264,31 +252,42 @@ file:
                                               - table_reference:
                                                 - object_reference:
                                                   - naked_identifier: dbo
-                                - unparsable:
-                                  - dot: .
-                                  - word: users
-                                  - word: AS
-                                  - word: Users
-                                  - word: WITH
-                                  - start_bracket: (
-                                  - word: NOLOCK
-                                  - end_bracket: )
-                                  - word: ON
-                                  - word: Users
-                                  - dot: .
-                                  - word: user_id
-                                  - raw_comparison_operator: =
-                                  - word: Assignments
-                                  - dot: .
-                                  - word: user_id
-                                  - word: WHERE
-                                  - word: Assignments
-                                  - dot: .
-                                  - word: order_id
-                                  - raw_comparison_operator: =
-                                  - word: Orders
-                                  - dot: .
-                                  - word: order_id
+                                                  - dot: .
+                                                  - naked_identifier: users
+                                          - alias_expression:
+                                            - keyword: AS
+                                            - naked_identifier: Users
+                                          - keyword: WITH
+                                          - bracketed:
+                                            - start_bracket: (
+                                            - keyword: NOLOCK
+                                            - end_bracket: )
+                                        - join_on_condition:
+                                          - keyword: ON
+                                          - expression:
+                                            - column_reference:
+                                              - naked_identifier: Users
+                                              - dot: .
+                                              - naked_identifier: user_id
+                                            - comparison_operator:
+                                              - raw_comparison_operator: =
+                                            - column_reference:
+                                              - naked_identifier: Assignments
+                                              - dot: .
+                                              - naked_identifier: user_id
+                                - where_clause:
+                                  - keyword: WHERE
+                                  - expression:
+                                    - column_reference:
+                                      - naked_identifier: Assignments
+                                      - dot: .
+                                      - naked_identifier: order_id
+                                    - comparison_operator:
+                                      - raw_comparison_operator: =
+                                    - column_reference:
+                                      - naked_identifier: Orders
+                                      - dot: .
+                                      - naked_identifier: order_id
                               - end_bracket: )
                           - alias_expression:
                             - keyword: AS

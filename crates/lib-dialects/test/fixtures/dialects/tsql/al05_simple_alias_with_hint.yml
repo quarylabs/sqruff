@@ -12,18 +12,19 @@ file:
         - keyword: FROM
         - from_expression:
           - from_expression_element:
-            - table_expression:
-              - table_reference:
-                - object_reference:
-                  - naked_identifier: mytable
-            - alias_expression:
-              - keyword: AS
-              - naked_identifier: t
-            - keyword: WITH
-            - bracketed:
-              - start_bracket: (
-              - keyword: NOLOCK
-              - end_bracket: )
+            - from_expression_element:
+              - table_expression:
+                - table_reference:
+                  - object_reference:
+                    - naked_identifier: mytable
+              - alias_expression:
+                - keyword: AS
+                - naked_identifier: t
+              - keyword: WITH
+              - bracketed:
+                - start_bracket: (
+                - keyword: NOLOCK
+                - end_bracket: )
       - where_clause:
         - keyword: WHERE
         - expression:

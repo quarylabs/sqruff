@@ -19,63 +19,65 @@ file:
         - keyword: FROM
         - from_expression:
           - from_expression_element:
-            - table_expression:
-              - table_reference:
-                - tsql_variable: '@OrderIDs'
-            - alias_expression:
-              - keyword: AS
-              - naked_identifier: OrderIDs
+            - from_expression_element:
+              - table_expression:
+                - table_reference:
+                  - tsql_variable: '@OrderIDs'
+              - alias_expression:
+                - keyword: AS
+                - naked_identifier: OrderIDs
           - join_clause:
             - join_clause:
               - keyword: OUTER
               - keyword: APPLY
               - from_expression_element:
-                - table_expression:
-                  - bracketed:
-                    - start_bracket: (
-                    - select_statement:
-                      - select_clause:
-                        - keyword: SELECT
-                        - select_clause_element:
-                          - naked_identifier: ProductName
-                          - assignment_operator:
+                - from_expression_element:
+                  - table_expression:
+                    - bracketed:
+                      - start_bracket: (
+                      - select_statement:
+                        - select_clause:
+                          - keyword: SELECT
+                          - select_clause_element:
+                            - naked_identifier: ProductName
+                            - assignment_operator:
+                              - raw_comparison_operator: =
+                            - column_reference:
+                              - naked_identifier: p
+                          - unparsable:
+                            - dot: .
+                            - word: Name
+                            - comma: ','
+                            - word: OrderID
                             - raw_comparison_operator: =
+                            - word: OrderIDs
+                            - dot: .
+                            - double_quote: '[value]'
+                        - from_clause:
+                          - keyword: FROM
+                          - from_expression:
+                            - from_expression_element:
+                              - from_expression_element:
+                                - table_expression:
+                                  - table_reference:
+                                    - object_reference:
+                                      - naked_identifier: Products
+                                - alias_expression:
+                                  - naked_identifier: p
+                        - where_clause:
+                          - keyword: WHERE
                           - expression:
                             - column_reference:
                               - naked_identifier: p
-                        - unparsable:
-                          - dot: .
-                          - word: Name
-                          - comma: ','
-                          - word: OrderID
-                          - raw_comparison_operator: =
-                          - word: OrderIDs
-                          - dot: .
-                          - double_quote: '[value]'
-                      - from_clause:
-                        - keyword: FROM
-                        - from_expression:
-                          - from_expression_element:
-                            - table_expression:
-                              - table_reference:
-                                - object_reference:
-                                  - naked_identifier: Products
-                            - alias_expression:
-                              - naked_identifier: p
-                      - where_clause:
-                        - keyword: WHERE
-                        - expression:
-                          - column_reference:
-                            - naked_identifier: p
-                            - dot: .
-                            - naked_identifier: OrderID
-                          - comparison_operator:
-                            - raw_comparison_operator: =
-                          - column_reference:
-                            - naked_identifier: OrderIDs
-                            - dot: .
-                            - quoted_identifier: '[value]'
-                    - end_bracket: )
-                - alias_expression:
-                  - keyword: AS
-                  - naked_identifier: Details
+                              - dot: .
+                              - naked_identifier: OrderID
+                            - comparison_operator:
+                              - raw_comparison_operator: =
+                            - column_reference:
+                              - naked_identifier: OrderIDs
+                              - dot: .
+                              - quoted_identifier: '[value]'
+                      - end_bracket: )
+                  - alias_expression:
+                    - keyword: AS
+                    - naked_identifier: Details

@@ -2,7 +2,7 @@ use sqruff_lib_core::dialects::base::Dialect;
 use sqruff_lib_core::dialects::init::DialectKind;
 use sqruff_lib_core::dialects::syntax::SyntaxKind;
 use sqruff_lib_core::helpers::{Config, ToMatchable};
-use sqruff_lib_core::parser::grammar::anyof::{AnyNumberOf, one_of};
+use sqruff_lib_core::parser::grammar::anyof::{AnyNumberOf, one_of, optionally_bracketed};
 use sqruff_lib_core::parser::grammar::base::Ref;
 use sqruff_lib_core::parser::grammar::conditional::Conditional;
 use sqruff_lib_core::parser::grammar::delimited::Delimited;
@@ -17,29 +17,7 @@ use sqruff_lib_core::vec_of_erased;
 use crate::{ansi, tsql_keywords};
 
 pub fn dialect() -> Dialect {
-    raw_dialect().config(|dialect| {
-        // T-SQL supports alternative alias syntax: AliasName = Expression
-        dialect.replace_grammar(
-            "SelectClauseElementSegment",
-            one_of(vec_of_erased![
-                // T-SQL alternative alias syntax: AliasName = Expression (check this first!)
-                Sequence::new(vec_of_erased![
-                    Ref::new("SingleIdentifierGrammar"),
-                    Ref::new("AssignmentOperatorSegment"),
-                    Ref::new("ExpressionSegment")
-                ]),
-                // Standard ANSI syntax
-                Ref::new("WildcardExpressionSegment"),
-                Sequence::new(vec_of_erased![
-                    Ref::new("BaseExpressionElementGrammar"),
-                    Ref::new("AliasExpressionSegment").optional(),
-                ]),
-            ])
-            .to_matchable(),
-        );
-
-        dialect.expand();
-    })
+    raw_dialect()
 }
 
 pub fn raw_dialect() -> Dialect {
@@ -626,6 +604,56 @@ pub fn raw_dialect() -> Dialect {
             .into(),
     )]);
 
+    // Override FromExpressionElementSegment to remove the WITH OFFSET sequence
+    // that conflicts with T-SQL table hints
+    dialect.replace_grammar(
+        "FromExpressionElementSegment",
+        NodeMatcher::new(
+            SyntaxKind::FromExpressionElement,
+            Sequence::new(vec_of_erased![
+                Ref::new("PreTableFunctionKeywordsGrammar").optional(),
+                optionally_bracketed(vec_of_erased![Ref::new("TableExpressionSegment")]),
+                Ref::new("AliasExpressionSegment")
+                    .exclude(one_of(vec_of_erased![
+                        Ref::new("FromClauseTerminatorGrammar"),
+                        Ref::new("JoinLikeClauseGrammar")
+                    ]))
+                    .optional(),
+                // Remove the WITH OFFSET sequence from ANSI - T-SQL uses WITH for table hints
+                // which are handled by PostTableExpressionGrammar
+                Ref::new("SamplingExpressionSegment").optional(),
+                Ref::new("PostTableExpressionGrammar").optional()
+            ])
+            .to_matchable(),
+        )
+        .to_matchable(),
+    );
+
+    // Override FromExpressionElementSegment to remove the WITH OFFSET sequence
+    // that conflicts with T-SQL table hints
+    dialect.replace_grammar(
+        "FromExpressionElementSegment",
+        NodeMatcher::new(
+            SyntaxKind::FromExpressionElement,
+            Sequence::new(vec_of_erased![
+                Ref::new("PreTableFunctionKeywordsGrammar").optional(),
+                optionally_bracketed(vec_of_erased![Ref::new("TableExpressionSegment")]),
+                Ref::new("AliasExpressionSegment")
+                    .exclude(one_of(vec_of_erased![
+                        Ref::new("FromClauseTerminatorGrammar"),
+                        Ref::new("JoinLikeClauseGrammar")
+                    ]))
+                    .optional(),
+                // Remove the WITH OFFSET sequence from ANSI - T-SQL uses WITH for table hints
+                // which are handled by PostTableExpressionGrammar
+                Ref::new("SamplingExpressionSegment").optional(),
+                Ref::new("PostTableExpressionGrammar").optional()
+            ])
+            .to_matchable(),
+        )
+        .to_matchable(),
+    );
+
     // Also update JoinClauseSegment to handle APPLY syntax properly
     dialect.replace_grammar(
         "JoinClauseSegment",
@@ -783,5 +811,33 @@ pub fn raw_dialect() -> Dialect {
         .into(),
     )]);
 
+    // T-SQL supports alternative alias syntax: AliasName = Expression
+    // This must be done before expand() to ensure proper parsing
+    dialect.replace_grammar(
+        "SelectClauseElementSegment",
+        one_of(vec_of_erased![
+            // T-SQL alternative alias syntax: AliasName = Expression
+            // This is checked first and uses a more specific pattern
+            Sequence::new(vec_of_erased![
+                Ref::new("NakedIdentifierSegment"),  // More specific than SingleIdentifierGrammar
+                Ref::new("AssignmentOperatorSegment"),
+                one_of(vec_of_erased![
+                    Ref::new("LiteralGrammar"),
+                    Ref::new("ColumnReferenceSegment"),
+                    Ref::new("FunctionSegment"),
+                    Ref::new("ExpressionSegment"),
+                ])
+            ]),
+            // Standard ANSI syntax
+            Ref::new("WildcardExpressionSegment"),
+            Sequence::new(vec_of_erased![
+                Ref::new("BaseExpressionElementGrammar"),
+                Ref::new("AliasExpressionSegment").optional(),
+            ]),
+        ])
+        .to_matchable(),
+    );
+
+    dialect.expand();
     dialect
 }

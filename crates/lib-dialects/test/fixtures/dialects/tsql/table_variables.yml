@@ -11,9 +11,10 @@ file:
         - keyword: FROM
         - from_expression:
           - from_expression_element:
-            - table_expression:
-              - table_reference:
-                - tsql_variable: '@DepartmentCodes'
+            - from_expression_element:
+              - table_expression:
+                - table_reference:
+                  - tsql_variable: '@DepartmentCodes'
 - statement_terminator: ;
 - statement:
   - statement:
@@ -29,12 +30,13 @@ file:
         - keyword: FROM
         - from_expression:
           - from_expression_element:
-            - table_expression:
-              - table_reference:
-                - tsql_variable: '@DepartmentCodes'
-            - alias_expression:
-              - keyword: AS
-              - naked_identifier: ids
+            - from_expression_element:
+              - table_expression:
+                - table_reference:
+                  - tsql_variable: '@DepartmentCodes'
+              - alias_expression:
+                - keyword: AS
+                - naked_identifier: ids
 - statement_terminator: ;
 - statement:
   - statement:
@@ -49,12 +51,13 @@ file:
         - keyword: FROM
         - from_expression:
           - from_expression_element:
-            - table_expression:
-              - table_reference:
-                - tsql_variable: '@TableVariable'
-            - keyword: WITH
-            - bracketed:
-              - start_bracket: (
-              - keyword: NOLOCK
-              - end_bracket: )
+            - from_expression_element:
+              - table_expression:
+                - table_reference:
+                  - tsql_variable: '@TableVariable'
+              - keyword: WITH
+              - bracketed:
+                - start_bracket: (
+                - keyword: NOLOCK
+                - end_bracket: )
 - statement_terminator: ;

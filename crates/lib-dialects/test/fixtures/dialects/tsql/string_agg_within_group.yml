@@ -32,10 +32,11 @@ file:
         - keyword: FROM
         - from_expression:
           - from_expression_element:
-            - table_expression:
-              - table_reference:
-                - object_reference:
-                  - naked_identifier: Employees
+            - from_expression_element:
+              - table_expression:
+                - table_reference:
+                  - object_reference:
+                    - naked_identifier: Employees
 - statement_terminator: ;
 - statement:
   - statement:
@@ -71,10 +72,11 @@ file:
         - keyword: FROM
         - from_expression:
           - from_expression_element:
-            - table_expression:
-              - table_reference:
-                - object_reference:
-                  - naked_identifier: Products
+            - from_expression_element:
+              - table_expression:
+                - table_reference:
+                  - object_reference:
+                    - naked_identifier: Products
 - statement_terminator: ;
 - statement:
   - statement:
@@ -113,10 +115,11 @@ file:
         - keyword: FROM
         - from_expression:
           - from_expression_element:
-            - table_expression:
-              - table_reference:
-                - object_reference:
-                  - naked_identifier: Employees
+            - from_expression_element:
+              - table_expression:
+                - table_reference:
+                  - object_reference:
+                    - naked_identifier: Employees
       - groupby_clause:
         - keyword: GROUP
         - keyword: BY
@@ -172,10 +175,11 @@ file:
         - keyword: FROM
         - from_expression:
           - from_expression_element:
-            - table_expression:
-              - table_reference:
-                - object_reference:
-                  - naked_identifier: Products
+            - from_expression_element:
+              - table_expression:
+                - table_reference:
+                  - object_reference:
+                    - naked_identifier: Products
       - groupby_clause:
         - keyword: GROUP
         - keyword: BY
@@ -224,10 +228,11 @@ file:
         - keyword: FROM
         - from_expression:
           - from_expression_element:
-            - table_expression:
-              - table_reference:
-                - object_reference:
-                  - naked_identifier: Cities
+            - from_expression_element:
+              - table_expression:
+                - table_reference:
+                  - object_reference:
+                    - naked_identifier: Cities
       - groupby_clause:
         - keyword: GROUP
         - keyword: BY
@@ -283,10 +288,11 @@ file:
         - keyword: FROM
         - from_expression:
           - from_expression_element:
-            - table_expression:
-              - table_reference:
-                - object_reference:
-                  - naked_identifier: Products
+            - from_expression_element:
+              - table_expression:
+                - table_reference:
+                  - object_reference:
+                    - naked_identifier: Products
       - where_clause:
         - keyword: WHERE
         - expression:
@@ -309,59 +315,61 @@ file:
         - keyword: FROM
         - from_expression:
           - from_expression_element:
-            - table_expression:
-              - bracketed:
-                - start_bracket: (
-                - select_statement:
-                  - select_clause:
-                    - keyword: SELECT
-                    - select_clause_element:
-                      - column_reference:
-                        - naked_identifier: DepartmentID
-                    - comma: ','
-                    - select_clause_element:
-                      - function:
-                        - function_name:
-                          - function_name_identifier: STRING_AGG
-                        - bracketed:
-                          - start_bracket: (
-                          - expression:
-                            - column_reference:
-                              - naked_identifier: EmployeeName
-                          - comma: ','
-                          - expression:
-                            - quoted_literal: ''', '''
-                          - end_bracket: )
-                        - withingroup_clause:
-                          - keyword: WITHIN
-                          - keyword: GROUP
+            - from_expression_element:
+              - table_expression:
+                - bracketed:
+                  - start_bracket: (
+                  - select_statement:
+                    - select_clause:
+                      - keyword: SELECT
+                      - select_clause_element:
+                        - column_reference:
+                          - naked_identifier: DepartmentID
+                      - comma: ','
+                      - select_clause_element:
+                        - function:
+                          - function_name:
+                            - function_name_identifier: STRING_AGG
                           - bracketed:
                             - start_bracket: (
-                            - orderby_clause:
-                              - keyword: ORDER
-                              - keyword: BY
+                            - expression:
                               - column_reference:
-                                - naked_identifier: Salary
-                              - keyword: DESC
+                                - naked_identifier: EmployeeName
+                            - comma: ','
+                            - expression:
+                              - quoted_literal: ''', '''
                             - end_bracket: )
-                      - alias_expression:
-                        - keyword: as
-                        - naked_identifier: TopEarners
-                  - from_clause:
-                    - keyword: FROM
-                    - from_expression:
-                      - from_expression_element:
-                        - table_expression:
-                          - table_reference:
-                            - object_reference:
-                              - naked_identifier: Employees
-                  - groupby_clause:
-                    - keyword: GROUP
-                    - keyword: BY
-                    - column_reference:
-                      - naked_identifier: DepartmentID
-                - end_bracket: )
-            - alias_expression:
-              - keyword: AS
-              - naked_identifier: DeptSummary
+                          - withingroup_clause:
+                            - keyword: WITHIN
+                            - keyword: GROUP
+                            - bracketed:
+                              - start_bracket: (
+                              - orderby_clause:
+                                - keyword: ORDER
+                                - keyword: BY
+                                - column_reference:
+                                  - naked_identifier: Salary
+                                - keyword: DESC
+                              - end_bracket: )
+                        - alias_expression:
+                          - keyword: as
+                          - naked_identifier: TopEarners
+                    - from_clause:
+                      - keyword: FROM
+                      - from_expression:
+                        - from_expression_element:
+                          - from_expression_element:
+                            - table_expression:
+                              - table_reference:
+                                - object_reference:
+                                  - naked_identifier: Employees
+                    - groupby_clause:
+                      - keyword: GROUP
+                      - keyword: BY
+                      - column_reference:
+                        - naked_identifier: DepartmentID
+                  - end_bracket: )
+              - alias_expression:
+                - keyword: AS
+                - naked_identifier: DeptSummary
 - statement_terminator: ;

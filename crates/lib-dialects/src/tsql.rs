@@ -545,14 +545,10 @@ pub fn raw_dialect() -> Dialect {
     // (Must be done after TsqlVariableSegment is defined)
     dialect.replace_grammar(
         "TableReferenceSegment",
-        NodeMatcher::new(
-            SyntaxKind::TableReference,
-            one_of(vec_of_erased![
-                Ref::new("ObjectReferenceSegment"), // Original object references
-                Ref::new("TsqlVariableSegment"),    // T-SQL table variables like @MyTable
-            ])
-            .to_matchable(),
-        )
+        one_of(vec_of_erased![
+            Ref::new("ObjectReferenceSegment"), // Original object references
+            Ref::new("TsqlVariableSegment"),    // T-SQL table variables like @MyTable
+        ])
         .to_matchable(),
     );
 

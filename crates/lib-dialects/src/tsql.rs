@@ -668,5 +668,33 @@ pub fn raw_dialect() -> Dialect {
         Ref::new("ApplyClauseSegment").to_matchable().into(),
     )]);
 
+    // Add WITHIN GROUP clause support for aggregate functions like STRING_AGG
+    dialect.add([
+        (
+            "WithinGroupClauseSegment".into(),
+            NodeMatcher::new(
+                SyntaxKind::WithingroupClause,
+                Sequence::new(vec_of_erased![
+                    Ref::keyword("WITHIN"),
+                    Ref::keyword("GROUP"),
+                    Bracketed::new(vec_of_erased![Ref::new("OrderByClauseSegment").optional()]),
+                ])
+                .to_matchable(),
+            )
+            .to_matchable()
+            .into(),
+        ),
+        (
+            "PostFunctionGrammar".into(),
+            AnyNumberOf::new(vec_of_erased![
+                Ref::new("WithinGroupClauseSegment"),
+                Ref::new("OverClauseSegment"),
+                Ref::new("FilterClauseGrammar"),
+            ])
+            .to_matchable()
+            .into(),
+        ),
+    ]);
+
     dialect
 }

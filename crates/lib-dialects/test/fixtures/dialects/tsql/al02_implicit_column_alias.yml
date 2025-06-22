@@ -183,79 +183,115 @@ file:
                             - expression:
                               - quoted_literal: ''','''
                             - end_bracket: )
-                  - unparsable:
-                    - word: WITHIN
-                    - word: GROUP
-                    - start_bracket: (
-                    - word: ORDER
-                    - word: BY
-                    - word: employee_role
-                    - end_bracket: )
-                    - plus: +
-                    - single_quote: ''']'''
-                    - word: FROM
-                    - start_bracket: (
-                    - word: SELECT
-                    - start_bracket: (
-                    - word: Users
-                    - dot: .
-                    - word: first_name
-                    - plus: +
-                    - single_quote: ''' '''
-                    - plus: +
-                    - word: Users
-                    - dot: .
-                    - word: last_name
-                    - end_bracket: )
-                    - word: AS
-                    - word: employee_name
-                    - comma: ','
-                    - word: Assignments
-                    - dot: .
-                    - word: role_id
-                    - word: AS
-                    - word: employee_role
-                    - word: FROM
-                    - word: dbo
-                    - dot: .
-                    - word: order_assignments
-                    - word: AS
-                    - word: Assignments
-                    - word: WITH
-                    - start_bracket: (
-                    - word: NOLOCK
-                    - end_bracket: )
-                    - word: LEFT
-                    - word: OUTER
-                    - word: JOIN
-                    - word: dbo
-                    - dot: .
-                    - word: users
-                    - word: AS
-                    - word: Users
-                    - word: WITH
-                    - start_bracket: (
-                    - word: NOLOCK
-                    - end_bracket: )
-                    - word: ON
-                    - word: Users
-                    - dot: .
-                    - word: user_id
-                    - raw_comparison_operator: =
-                    - word: Assignments
-                    - dot: .
-                    - word: user_id
-                    - word: WHERE
-                    - word: Assignments
-                    - dot: .
-                    - word: order_id
-                    - raw_comparison_operator: =
-                    - word: Orders
-                    - dot: .
-                    - word: order_id
-                    - end_bracket: )
-                    - word: AS
-                    - word: emp_data
+                          - withingroup_clause:
+                            - keyword: WITHIN
+                            - keyword: GROUP
+                            - bracketed:
+                              - start_bracket: (
+                              - orderby_clause:
+                                - keyword: ORDER
+                                - keyword: BY
+                                - column_reference:
+                                  - naked_identifier: employee_role
+                              - end_bracket: )
+                        - binary_operator: +
+                        - quoted_literal: ''']'''
+                  - from_clause:
+                    - keyword: FROM
+                    - from_expression:
+                      - from_expression_element:
+                        - table_expression:
+                          - bracketed:
+                            - start_bracket: (
+                            - select_statement:
+                              - select_clause:
+                                - keyword: SELECT
+                                - select_clause_element:
+                                  - expression:
+                                    - bracketed:
+                                      - start_bracket: (
+                                      - unparsable:
+                                        - word: Users
+                                        - dot: .
+                                        - word: first_name
+                                        - plus: +
+                                        - single_quote: ''' '''
+                                        - plus: +
+                                        - word: Users
+                                        - dot: .
+                                        - word: last_name
+                                      - end_bracket: )
+                                  - alias_expression:
+                                    - keyword: AS
+                                    - naked_identifier: employee_name
+                                - comma: ','
+                                - select_clause_element:
+                                  - column_reference:
+                                    - naked_identifier: Assignments
+                                    - dot: .
+                                    - naked_identifier: role_id
+                                  - alias_expression:
+                                    - keyword: AS
+                                    - naked_identifier: employee_role
+                              - from_clause:
+                                - keyword: FROM
+                                - from_expression:
+                                  - from_expression_element:
+                                    - table_expression:
+                                      - table_reference:
+                                        - table_reference:
+                                          - object_reference:
+                                            - naked_identifier: dbo
+                                            - dot: .
+                                            - naked_identifier: order_assignments
+                                    - alias_expression:
+                                      - keyword: AS
+                                      - naked_identifier: Assignments
+                                    - expression:
+                                      - keyword: WITH
+                                      - bracketed:
+                                        - start_bracket: (
+                                        - keyword: NOLOCK
+                                        - end_bracket: )
+                                  - join_clause:
+                                    - keyword: LEFT
+                                    - keyword: OUTER
+                                    - keyword: JOIN
+                                    - from_expression_element:
+                                      - table_expression:
+                                        - table_reference:
+                                          - table_reference:
+                                            - object_reference:
+                                              - naked_identifier: dbo
+                              - unparsable:
+                                - dot: .
+                                - word: users
+                                - word: AS
+                                - word: Users
+                                - word: WITH
+                                - start_bracket: (
+                                - word: NOLOCK
+                                - end_bracket: )
+                                - word: ON
+                                - word: Users
+                                - dot: .
+                                - word: user_id
+                                - raw_comparison_operator: =
+                                - word: Assignments
+                                - dot: .
+                                - word: user_id
+                                - word: WHERE
+                                - word: Assignments
+                                - dot: .
+                                - word: order_id
+                                - raw_comparison_operator: =
+                                - word: Orders
+                                - dot: .
+                                - word: order_id
+                            - end_bracket: )
+                        - alias_expression:
+                          - keyword: AS
+                          - naked_identifier: emp_data
               - end_bracket: )
           - alias_expression:
             - keyword: AS

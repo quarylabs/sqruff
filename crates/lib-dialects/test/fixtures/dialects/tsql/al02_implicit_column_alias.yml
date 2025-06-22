@@ -170,12 +170,12 @@ file:
                                   - keyword: AS
                                   - data_type:
                                     - data_type_identifier: NVARCHAR
-                                  - expression:
-                                    - bracketed:
-                                      - start_bracket: (
-                                      - unparsable:
-                                        - word: MAX
-                                      - end_bracket: )
+                                    - bracketed_arguments:
+                                      - bracketed_arguments:
+                                        - bracketed:
+                                          - start_bracket: (
+                                          - keyword: MAX
+                                          - end_bracket: )
                                   - end_bracket: )
                               - binary_operator: +
                               - quoted_literal: '''"'''

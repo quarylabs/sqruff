@@ -680,16 +680,35 @@ pub fn raw_dialect() -> Dialect {
         .to_matchable(),
     );
 
-    // T-SQL specific data type handling for MAX keyword
-    // TODO: Fix this - DatatypeIdentifierSegment is not a grammar, it's a SegmentGenerator
-    // dialect.replace_grammar(
-    //     "DatatypeIdentifierSegment",
-    //     one_of(vec_of_erased![
-    //         Ref::new("SingleIdentifierGrammar"),
-    //         Ref::keyword("MAX")  // T-SQL allows MAX as a data type length
-    //     ])
-    //     .to_matchable()
-    // );
+    // T-SQL specific data type handling for MAX keyword and -1
+    // Override BracketedArguments to accept MAX keyword and negative numbers
+    dialect.replace_grammar(
+        "BracketedArguments",
+        NodeMatcher::new(
+            SyntaxKind::BracketedArguments,
+            Bracketed::new(vec![
+                Delimited::new(vec![
+                    one_of(vec![
+                        Ref::new("LiteralGrammar").to_matchable(),
+                        Ref::keyword("MAX").to_matchable(),
+                        // Support negative numbers like -1 for NVARCHAR(-1)
+                        Sequence::new(vec_of_erased![
+                            Ref::new("SignedSegmentGrammar"),
+                            Ref::new("NumericLiteralSegment")
+                        ])
+                        .to_matchable(),
+                    ])
+                    .to_matchable()
+                ])
+                .config(|this| {
+                    this.optional();
+                })
+                .to_matchable(),
+            ])
+            .to_matchable(),
+        )
+        .to_matchable(),
+    );
 
     // APPLY clause support (CROSS APPLY and OUTER APPLY)
     dialect.add([(

@@ -447,7 +447,6 @@ pub(crate) fn tsql_future_keywords() -> AHashSet<&'static str> {
         "UNNEST",
         "USAGE",
         "USING",
-        "VALUE",
         "VAR_POP",
         "VAR_SAMP",
         "VARCHAR",

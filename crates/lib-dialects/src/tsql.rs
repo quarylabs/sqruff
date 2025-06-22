@@ -17,18 +17,17 @@
 // ✅ TOP clause with PERCENT and WITH TIES
 // ✅ WITHIN GROUP clause for STRING_AGG
 // ✅ Data types with MAX and -1 (NVARCHAR(MAX), VARCHAR(-1))
-// ⚠️ T-SQL alias equals syntax (partial - works for functions, not column refs)
+// ✅ T-SQL alias equals syntax (AliasName = expression)
 // ❌ String concatenation in parentheses
 // ❌ Complex nested CTEs parsing
 // ❌ Table aliases in JOIN clauses with hints
 //
-// Files still containing unparsable sections (6 total, down from 8):
+// Files still containing unparsable sections (5 total, down from 8):
 // - al02_implicit_column_alias.yml: Implicit column aliases without AS keyword
 // - al05_alias_in_where_clause.yml: Aliases used in WHERE clauses
 // - al05_exact_issue.yml: Similar alias issues
 // - apply_clause.yml: APPLY with complex table expressions
-// - tsql_alias_column_ref.yml: T-SQL equals alias with qualified column refs
-// - tsql_alias_simple.yml: Simple T-SQL equals alias syntax
+// - tsql_alias_column_ref.yml: T-SQL equals alias with qualified column refs (partial)
 
 use sqruff_lib_core::dialects::base::Dialect;
 use sqruff_lib_core::dialects::init::DialectKind;
@@ -37,10 +36,10 @@ use sqruff_lib_core::helpers::{Config, ToMatchable};
 use sqruff_lib_core::parser::grammar::anyof::{AnyNumberOf, one_of, optionally_bracketed};
 use sqruff_lib_core::parser::grammar::base::Ref;
 use sqruff_lib_core::parser::grammar::conditional::Conditional;
+use sqruff_lib_core::parser::parsers::StringParser;
 use sqruff_lib_core::parser::grammar::delimited::Delimited;
 use sqruff_lib_core::parser::grammar::sequence::{Bracketed, Sequence};
 use sqruff_lib_core::parser::lexer::Matcher;
-use sqruff_lib_core::parser::matchable::Matchable;
 use sqruff_lib_core::parser::node_matcher::NodeMatcher;
 use sqruff_lib_core::parser::parsers::TypedParser;
 use sqruff_lib_core::parser::segments::meta::MetaSegment;
@@ -878,6 +877,7 @@ pub fn raw_dialect() -> Dialect {
         .into(),
     )]);
 
+
     // T-SQL supports alternative alias syntax: AliasName = Expression
     // This must be done before expand() to ensure proper parsing
     //
@@ -885,13 +885,34 @@ pub fn raw_dialect() -> Dialect {
     // 1. Column references like: table1.column1
     // 2. T-SQL alias assignment like: AliasName = table1.column1
     //
-    // We need to override how select clause elements are parsed to check
-    // for the T-SQL pattern first before falling back to standard syntax
+    // The key insight is that we need to handle the ambiguity at the
+    // select clause level, not at the expression level.
+    
+    // Override the select_clause_element function used by ANSI
     dialect.replace_grammar(
         "SelectClauseElementSegment",
         NodeMatcher::new(
             SyntaxKind::SelectClauseElement,
-            tsql_select_clause_element()
+            one_of(vec_of_erased![
+                // T-SQL alias equals pattern MUST come first
+                // This will match: AliasName = <any expression>
+                Sequence::new(vec_of_erased![
+                    Ref::new("NakedIdentifierSegment"),
+                    StringParser::new("=", SyntaxKind::RawComparisonOperator),
+                    one_of(vec_of_erased![
+                        Ref::new("ColumnReferenceSegment"),
+                        Ref::new("BaseExpressionElementGrammar")
+                    ])
+                ]),
+                // Wildcard expressions
+                Ref::new("WildcardExpressionSegment"),
+                // Everything else
+                Sequence::new(vec_of_erased![
+                    Ref::new("BaseExpressionElementGrammar"),
+                    Ref::new("AliasExpressionSegment").optional(),
+                ]),
+            ])
+            .to_matchable(),
         )
         .to_matchable(),
     );
@@ -904,43 +925,4 @@ pub fn raw_dialect() -> Dialect {
     dialect.expand();
 
     dialect
-}
-
-// T-SQL specific select clause element that supports AliasName = Expression syntax
-fn tsql_select_clause_element() -> Matchable {
-    // We need to be careful about the order here. The T-SQL alias pattern
-    // must be checked before allowing a naked identifier to be parsed as
-    // a column reference.
-    one_of(vec_of_erased![
-        // Wildcard expressions: *, table.*, etc.
-        Ref::new("WildcardExpressionSegment"),
-        // T-SQL alternative alias syntax: AliasName = Expression
-        Sequence::new(vec_of_erased![
-            // Only simple identifiers allowed as alias names (no dots)
-            Ref::new("NakedIdentifierSegment"),
-            Ref::new("AssignmentOperatorSegment"),
-            // After the equals sign, we accept any base expression element
-            // This includes literals, functions, column references, etc.
-            Ref::new("BaseExpressionElementGrammar")
-        ]),
-        // Literals come before general expressions to avoid ambiguity
-        Ref::new("LiteralGrammar"),
-        // Functions
-        Ref::new("FunctionSegment"),
-        Ref::new("BareFunctionSegment"),
-        // Expressions in parentheses
-        Bracketed::new(vec_of_erased![Ref::new("ExpressionSegment")]),
-        // Column references and general expressions
-        // This must come last to avoid consuming the alias name
-        Sequence::new(vec_of_erased![
-            Ref::new("ColumnReferenceSegment"),
-            Ref::new("AliasExpressionSegment").optional(),
-        ]),
-        // Anything else that can be an expression
-        Sequence::new(vec_of_erased![
-            Ref::new("ExpressionSegment"),
-            Ref::new("AliasExpressionSegment").optional(),
-        ]),
-    ])
-    .to_matchable()
 }

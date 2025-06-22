@@ -43,8 +43,7 @@ file:
                           - select_clause_element:
                             - select_clause_element:
                               - naked_identifier: ProductName
-                              - assignment_operator:
-                                - raw_comparison_operator: =
+                              - raw_comparison_operator: =
                               - column_reference:
                                 - naked_identifier: p
                           - unparsable:

@@ -5,18 +5,17 @@ file:
       - select_clause:
         - keyword: SELECT
         - select_clause_element:
-          - select_clause_element:
-            - function:
-              - function_name:
-                - function_name_identifier: SUM
-              - bracketed:
-                - start_bracket: (
-                - expression:
-                  - column_reference:
-                    - naked_identifier: col1
-                - end_bracket: )
-            - alias_expression:
-              - naked_identifier: implicit_alias
+          - function:
+            - function_name:
+              - function_name_identifier: SUM
+            - bracketed:
+              - start_bracket: (
+              - expression:
+                - column_reference:
+                  - naked_identifier: col1
+              - end_bracket: )
+          - alias_expression:
+            - naked_identifier: implicit_alias
       - from_clause:
         - keyword: FROM
         - from_expression:

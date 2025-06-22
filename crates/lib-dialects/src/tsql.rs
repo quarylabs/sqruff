@@ -891,29 +891,25 @@ pub fn raw_dialect() -> Dialect {
     // Override the select_clause_element function used by ANSI
     dialect.replace_grammar(
         "SelectClauseElementSegment",
-        NodeMatcher::new(
-            SyntaxKind::SelectClauseElement,
-            one_of(vec_of_erased![
-                // T-SQL alias equals pattern MUST come first
-                // This will match: AliasName = <any expression>
-                Sequence::new(vec_of_erased![
-                    Ref::new("NakedIdentifierSegment"),
-                    StringParser::new("=", SyntaxKind::RawComparisonOperator),
-                    one_of(vec_of_erased![
-                        Ref::new("ColumnReferenceSegment"),
-                        Ref::new("BaseExpressionElementGrammar")
-                    ])
-                ]),
-                // Wildcard expressions
-                Ref::new("WildcardExpressionSegment"),
-                // Everything else
-                Sequence::new(vec_of_erased![
-                    Ref::new("BaseExpressionElementGrammar"),
-                    Ref::new("AliasExpressionSegment").optional(),
-                ]),
-            ])
-            .to_matchable(),
-        )
+        one_of(vec_of_erased![
+            // T-SQL alias equals pattern MUST come first
+            // This will match: AliasName = <any expression>
+            Sequence::new(vec_of_erased![
+                Ref::new("NakedIdentifierSegment"),
+                StringParser::new("=", SyntaxKind::RawComparisonOperator),
+                one_of(vec_of_erased![
+                    Ref::new("ColumnReferenceSegment"),
+                    Ref::new("BaseExpressionElementGrammar")
+                ])
+            ]),
+            // Wildcard expressions
+            Ref::new("WildcardExpressionSegment"),
+            // Everything else
+            Sequence::new(vec_of_erased![
+                Ref::new("BaseExpressionElementGrammar"),
+                Ref::new("AliasExpressionSegment").optional(),
+            ]),
+        ])
         .to_matchable(),
     );
     

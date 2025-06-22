@@ -5,9 +5,8 @@ file:
       - select_clause:
         - keyword: SELECT
         - select_clause_element:
-          - select_clause_element:
-            - column_reference:
-              - naked_identifier: SimpleAlias
+          - column_reference:
+            - naked_identifier: SimpleAlias
         - unparsable:
           - raw_comparison_operator: =
           - word: value

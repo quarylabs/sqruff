@@ -49,7 +49,7 @@ use sqruff_lib_core::vec_of_erased;
 use crate::{ansi, tsql_keywords};
 
 pub fn dialect() -> Dialect {
-    raw_dialect()
+    raw_dialect().config(|dialect| dialect.expand())
 }
 
 pub fn raw_dialect() -> Dialect {
@@ -624,6 +624,7 @@ pub fn raw_dialect() -> Dialect {
                 Bracketed::new(vec_of_erased![Delimited::new(vec_of_erased![Ref::new(
                     "TableHintElement"
                 )])])
+                .config(|this| this.parse_mode = ParseMode::Greedy)
             ])
             .to_matchable()
             .into(),
@@ -663,67 +664,56 @@ pub fn raw_dialect() -> Dialect {
         ),
     ]);
 
-    // Replace the default AliasExpressionSegment to properly exclude WITH in T-SQL
+    // Define PostTableExpressionGrammar for T-SQL to handle table hints
     dialect.replace_grammar(
-        "AliasExpressionSegment", 
-        NodeMatcher::new(
-            SyntaxKind::AliasExpression,
-            Sequence::new(vec_of_erased![
-                MetaSegment::indent(),
-                Ref::keyword("AS").optional(),
-                one_of(vec_of_erased![
-                    Sequence::new(vec_of_erased![
-                        Ref::new("SingleIdentifierGrammar")
-                            .exclude(Ref::keyword("WITH")),
-                        Bracketed::new(vec_of_erased![Ref::new("SingleIdentifierListSegment")])
-                            .config(|this| this.optional())
-                    ]),
-                    Ref::new("SingleQuotedIdentifierSegment")
-                        .exclude(Ref::keyword("WITH"))
-                ]),
-                MetaSegment::dedent(),
-            ])
-            .to_matchable(),
-        )
-        .to_matchable(),
+        "PostTableExpressionGrammar",
+        Ref::new("TableHintSegment").optional().to_matchable(),
     );
 
-    // Override PostTableExpressionGrammar to include table hints
-    dialect.add([(
-        "PostTableExpressionGrammar".into(),
-        Ref::new("TableHintSegment")
-            .optional()
-            .to_matchable()
-            .into(),
-    )]);
-
-    // Override FromExpressionElementSegment to remove the WITH OFFSET sequence
-    // that conflicts with T-SQL table hints
-    // ANSI SQL uses WITH OFFSET for row limiting, but T-SQL uses WITH for table hints
+    // Override FromExpressionElementSegment for T-SQL to handle table hints correctly
     dialect.replace_grammar(
         "FromExpressionElementSegment",
         NodeMatcher::new(
             SyntaxKind::FromExpressionElement,
-            Sequence::new(vec_of_erased![
-                Ref::new("PreTableFunctionKeywordsGrammar").optional(),
-                optionally_bracketed(vec_of_erased![Ref::new("TableExpressionSegment")]),
-                Ref::new("AliasExpressionSegment")
-                    .exclude(one_of(vec_of_erased![
-                        Ref::new("FromClauseTerminatorGrammar"),
-                        Ref::new("JoinLikeClauseGrammar")
-                    ]))
-                    .optional(),
-                // Remove the WITH OFFSET sequence from ANSI - T-SQL uses WITH for table hints
-                // which are handled by PostTableExpressionGrammar
-                Ref::new("SamplingExpressionSegment").optional(),
-                Ref::new("PostTableExpressionGrammar").optional()
+            one_of(vec_of_erased![
+                // Pattern 1: Table + AS alias + table hints
+                Sequence::new(vec_of_erased![
+                    Ref::new("PreTableFunctionKeywordsGrammar").optional(),
+                    optionally_bracketed(vec_of_erased![Ref::new("TableExpressionSegment")]),
+                    Ref::keyword("AS"),
+                    Ref::new("SingleIdentifierGrammar"),
+                    Ref::new("SamplingExpressionSegment").optional(),
+                    Ref::new("PostTableExpressionGrammar").optional()
+                ]),
+                // Pattern 2: Table + naked alias + table hints (alias cannot be WITH)
+                Sequence::new(vec_of_erased![
+                    Ref::new("PreTableFunctionKeywordsGrammar").optional(),
+                    optionally_bracketed(vec_of_erased![Ref::new("TableExpressionSegment")]),
+                    Ref::new("SingleIdentifierGrammar")
+                        .exclude(Ref::keyword("WITH")),
+                    Ref::new("SamplingExpressionSegment").optional(),
+                    Ref::new("PostTableExpressionGrammar").optional()
+                ]),
+                // Pattern 3: Table + WITH table hints (no alias)
+                Sequence::new(vec_of_erased![
+                    Ref::new("PreTableFunctionKeywordsGrammar").optional(),
+                    optionally_bracketed(vec_of_erased![Ref::new("TableExpressionSegment")]),
+                    Ref::new("SamplingExpressionSegment").optional(),
+                    Ref::new("PostTableExpressionGrammar")
+                ]),
+                // Pattern 4: Just table (no alias, no hints)
+                Sequence::new(vec_of_erased![
+                    Ref::new("PreTableFunctionKeywordsGrammar").optional(),
+                    optionally_bracketed(vec_of_erased![Ref::new("TableExpressionSegment")]),
+                    Ref::new("SamplingExpressionSegment").optional(),
+                ])
             ])
             .to_matchable(),
         )
         .to_matchable(),
     );
 
-    // Also update JoinClauseSegment to handle APPLY syntax properly
+    // Update JoinClauseSegment to handle APPLY syntax properly
     dialect.replace_grammar(
         "JoinClauseSegment",
         NodeMatcher::new(
@@ -955,7 +945,6 @@ pub fn raw_dialect() -> Dialect {
     // This method recursively expands all grammar references and builds
     // the final parser. Without this, grammar references won't be resolved
     // and the parser will fail at runtime.
-    dialect.expand();
 
     dialect
 }

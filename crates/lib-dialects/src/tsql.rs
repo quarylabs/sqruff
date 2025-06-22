@@ -19,25 +19,6 @@ use crate::{ansi, tsql_keywords};
 
 pub fn dialect() -> Dialect {
     raw_dialect().config(|dialect| {
-        dialect.expand();
-
-        // Add T-SQL variable support to LiteralGrammar for use in expressions
-        // This enables variables to work inside parentheses and other expression contexts
-        dialect.add([(
-            "LiteralGrammar".into(),
-            dialect
-                .grammar("LiteralGrammar")
-                .copy(
-                    Some(vec_of_erased![Ref::new("ParameterizedSegment")]),
-                    None,
-                    None,
-                    None,
-                    Vec::new(),
-                    false,
-                )
-                .into(),
-        )]);
-
         // T-SQL supports alternative alias syntax: AliasName = Expression
         dialect.replace_grammar(
             "SelectClauseElementSegment",
@@ -57,6 +38,8 @@ pub fn dialect() -> Dialect {
                 false,
             ),
         );
+        
+        dialect.expand();
     })
 }
 
@@ -703,6 +686,17 @@ pub fn raw_dialect() -> Dialect {
         .to_matchable()
     );
 
+    // T-SQL specific data type handling for MAX keyword
+    // TODO: Fix this - DatatypeIdentifierSegment is not a grammar, it's a SegmentGenerator
+    // dialect.replace_grammar(
+    //     "DatatypeIdentifierSegment",
+    //     one_of(vec_of_erased![
+    //         Ref::new("SingleIdentifierGrammar"),
+    //         Ref::keyword("MAX")  // T-SQL allows MAX as a data type length
+    //     ])
+    //     .to_matchable()
+    // );
+
     // APPLY clause support (CROSS APPLY and OUTER APPLY)
     dialect.add([(
         "ApplyClauseSegment".into(),
@@ -750,6 +744,27 @@ pub fn raw_dialect() -> Dialect {
             Ref::new("WithinGroupClauseSegment"),
             Ref::new("OverClauseSegment"),
             Ref::new("FilterClauseGrammar")
+        ])
+        .to_matchable()
+        .into(),
+    )]);
+
+    // Add T-SQL variable support to LiteralGrammar for use in expressions
+    // This MUST be done before expand() is called in dialect() function
+    // so that the expression grammars include variable support
+    dialect.add([(
+        "LiteralGrammar".into(),
+        one_of(vec_of_erased![
+            Ref::new("QuotedLiteralSegment"),
+            Ref::new("NumericLiteralSegment"),
+            Ref::new("BooleanLiteralGrammar"),
+            Ref::new("QualifiedNumericLiteralSegment"),
+            Ref::new("NullLiteralSegment"),
+            Ref::new("DateTimeLiteralGrammar"),
+            Ref::new("ArrayLiteralSegment"),
+            Ref::new("TypedArrayLiteralSegment"),
+            Ref::new("ObjectLiteralSegment"),
+            Ref::new("ParameterizedSegment")  // Add T-SQL variables
         ])
         .to_matchable()
         .into(),

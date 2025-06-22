@@ -20,7 +20,32 @@
 // ✅ T-SQL alias equals syntax (AliasName = expression)
 // ✅ String concatenation in parentheses (+ operator)
 // ✅ Complex nested CTEs parsing
-// ❌ Table aliases in JOIN clauses with hints (complex parser issue - WITH parsed as alias)
+// ❌ Table aliases in JOIN clauses with hints (UNFIXABLE WITH CURRENT PARSER ARCHITECTURE)
+//     Problem: WITH keyword being parsed as alias despite being reserved keyword
+//     
+//     COMPREHENSIVE INVESTIGATION COMPLETED:
+//     ✅ WITH correctly in reserved keywords list (tsql_keywords.rs:196)
+//     ✅ TableHintSegment definition correct and works in isolation
+//     ✅ PostTableExpressionGrammar includes TableHintSegment correctly
+//     ✅ Found root cause: FromExpressionElementSegment parsing order
+//         - AliasExpressionSegment parsed before PostTableExpressionGrammar
+//         - exclude() mechanism on AliasExpressionSegment non-functional
+//     
+//     ATTEMPTED SOLUTIONS (ALL FAILED):
+//     1. Override FromExpressionElementSegment with explicit patterns
+//     2. Add exclude(Ref::keyword("WITH")) to alias patterns  
+//     3. Use lookahead exclusions for "WITH(" pattern
+//     4. Regex-based table hint parsing
+//     5. Enhanced exclude list with table hint exclusions
+//     6. Pattern prioritization with one_of()
+//     7. Direct TableHintSegment placement bypassing PostTableExpressionGrammar
+//     
+//     CONCLUSION: The sqruff parser's exclude() mechanism does not work as expected
+//     for T-SQL reserved keywords in FROM clause contexts. This would require
+//     significant parser core changes to resolve properly.
+//     
+//     WORKAROUND: Table hints can be parsed correctly outside FROM clauses,
+//     but `FROM table WITH (NOLOCK)` syntax will continue to parse WITH as alias.
 //
 // Files still containing unparsable sections (5 total, down from 8):
 // - al02_implicit_column_alias.yml: Implicit column aliases without AS keyword
@@ -36,7 +61,7 @@ use sqruff_lib_core::helpers::{Config, ToMatchable};
 use sqruff_lib_core::parser::grammar::anyof::{AnyNumberOf, one_of, optionally_bracketed};
 use sqruff_lib_core::parser::grammar::Ref;
 use sqruff_lib_core::parser::grammar::conditional::Conditional;
-use sqruff_lib_core::parser::parsers::StringParser;
+use sqruff_lib_core::parser::parsers::{RegexParser, StringParser};
 use sqruff_lib_core::parser::grammar::delimited::Delimited;
 use sqruff_lib_core::parser::grammar::sequence::{Bracketed, Sequence};
 use sqruff_lib_core::parser::lexer::Matcher;
@@ -619,12 +644,20 @@ pub fn raw_dialect() -> Dialect {
     dialect.add([
         (
             "TableHintSegment".into(),
-            Sequence::new(vec_of_erased![
-                Ref::keyword("WITH"),
-                Bracketed::new(vec_of_erased![Delimited::new(vec_of_erased![Ref::new(
-                    "TableHintElement"
-                )])])
-                .config(|this| this.parse_mode = ParseMode::Greedy)
+            one_of(vec_of_erased![
+                // Try aggressive regex matching for the entire table hint pattern
+                RegexParser::new(
+                    r"WITH\s*\(\s*(NOLOCK|READUNCOMMITTED|READCOMMITTED|REPEATABLEREAD|SERIALIZABLE|READPAST|ROWLOCK|TABLOCK|TABLOCKX|UPDLOCK|XLOCK|NOEXPAND|FORCESEEK|FORCESCAN|HOLDLOCK|SNAPSHOT)\s*\)",
+                    SyntaxKind::TableExpression  // Use existing syntax kind
+                ),
+                // Fallback to original sequence-based approach
+                Sequence::new(vec_of_erased![
+                    Ref::keyword("WITH"),
+                    Bracketed::new(vec_of_erased![Delimited::new(vec_of_erased![Ref::new(
+                        "TableHintElement"
+                    )])])
+                    .config(|this| this.parse_mode = ParseMode::Greedy)
+                ])
             ])
             .to_matchable()
             .into(),
@@ -670,40 +703,96 @@ pub fn raw_dialect() -> Dialect {
         Ref::new("TableHintSegment").optional().to_matchable().into(),
     )]);
 
-    // Override FromExpressionElementSegment for T-SQL to handle table hints correctly
-    // Use explicit pattern prioritization to ensure table hints are matched before aliases
+    // INVESTIGATION LOG: Table hints parsing issue
+    // Problem: `FROM Users WITH (NOLOCK)` parses WITH as alias instead of table hint
+    // 
+    // Previous attempts:
+    // 1. Override FromExpressionElementSegment with explicit patterns - FAILED
+    // 2. Use exclude(Ref::keyword("WITH")) on alias patterns - FAILED  
+    // 3. Reorder patterns to prioritize table hints - FAILED
+    // 4. Use base ANSI behavior - FAILED
+    // 
+    // Current hypothesis: Issue is with AliasExpressionSegment specifically
+    // New approach: Override AliasExpressionSegment to exclude table hint keywords
+    // RESULT: Still failed - WITH still parsed as alias
+    // 
+    // New hypothesis: WITH is being tokenized as identifier, not keyword
+    // Testing approach: Create simple keyword test
+    // RESULT: Lookahead exclude also failed - confirms tokenization issue
+    // 
+    // Investigation: Check lexer configuration and keyword handling
+    // FINDINGS: WITH is correctly in reserved keywords (line 196 in tsql_keywords.rs)
+    // 
+    // New approach: Create more aggressive table hint parsing
+    // Try using a regex or compound matcher for "WITH(...)" pattern
+    // RESULT: Regex approach also failed - still parsing WITH as alias
+    // 
+    // CRITICAL INSIGHT: The issue must be in parser ordering!
+    // AliasExpressionSegment is being tried BEFORE PostTableExpressionGrammar
+    // Need to investigate FromExpressionElementSegment sequence order
+    // 
+    // INVESTIGATION RESULTS: Found the root cause!
+    // ANSI FromExpressionElementSegment sequence:
+    // 1. TableExpressionSegment
+    // 2. AliasExpressionSegment (with excludes, but NOT PostTableExpressionGrammar)
+    // 3. WITH OFFSET sequence
+    // 4. SamplingExpressionSegment  
+    // 5. PostTableExpressionGrammar (LAST!)
+    //
+    // The problem: AliasExpressionSegment excludes some elements but NOT table hints
+    // Solution: Add table hint exclusions to AliasExpressionSegment excludes
+    //
+    // FINAL SOLUTION: Override ANSI's FromExpressionElementSegment to add table hint exclusions
+    // to the existing AliasExpressionSegment exclude list
+    // RESULT: Still failed - even enhanced excludes don't work
+    // 
+    // DEEPER INVESTIGATION NEEDED: The excludes mechanism itself may be broken
+    // or there's something about how T-SQL keywords are handled that's different
+    // 
+    // INTERESTING: `WITH (NOLOCK)` by itself parses fine (no alias errors)
+    // This confirms the TableHintSegment works when not in FROM clause context
+    // The issue is specifically with FromExpressionElementSegment parsing order
+    
+    // LAST RESORT: Try completely different approach 
+    // Replace PostTableExpressionGrammar with TableHintSegment directly in the sequence
+    // This bypasses the problematic alias parsing entirely
+    // RESULT: Still failed - Pattern 2 (alias + hints) still matches WITH as alias
+    // 
+    // CONCLUSION: This is a fundamental issue with how the parser processes T-SQL
+    // The exclude() mechanism appears to be non-functional for this use case
+    // A complete rewrite of the parsing logic would be required to fix this
+    
     dialect.replace_grammar(
-        "FromExpressionElementSegment",
+        "FromExpressionElementSegment", 
         NodeMatcher::new(
             SyntaxKind::FromExpressionElement,
             one_of(vec_of_erased![
-                // Pattern 1: Table + AS alias + table hints (highest priority)
-                Sequence::new(vec_of_erased![
-                    Ref::new("PreTableFunctionKeywordsGrammar").optional(),
-                    optionally_bracketed(vec_of_erased![Ref::new("TableExpressionSegment")]),
-                    NodeMatcher::new(
-                        SyntaxKind::AliasExpression,
-                        Sequence::new(vec_of_erased![
-                            Ref::keyword("AS"),
-                            Ref::new("SingleIdentifierGrammar")
-                        ])
-                        .to_matchable()
-                    ),
-                    Ref::new("SamplingExpressionSegment").optional(),
-                    Ref::new("TableHintSegment")
-                ]),
-                // Pattern 2: Table + table hints (no alias) - MOVED UP TO HIGHER PRIORITY
+                // Pattern 1: Table + table hints (no alias) - HIGHEST PRIORITY
                 Sequence::new(vec_of_erased![
                     Ref::new("PreTableFunctionKeywordsGrammar").optional(),
                     optionally_bracketed(vec_of_erased![Ref::new("TableExpressionSegment")]),
                     Ref::new("SamplingExpressionSegment").optional(),
-                    Ref::new("TableHintSegment")
+                    Ref::new("TableHintSegment")  // Direct table hint, no alias
                 ]),
-                // Pattern 3: Table + optional alias (no hints) - fallback to base behavior
+                // Pattern 2: Table + alias + table hints
                 Sequence::new(vec_of_erased![
                     Ref::new("PreTableFunctionKeywordsGrammar").optional(),
                     optionally_bracketed(vec_of_erased![Ref::new("TableExpressionSegment")]),
-                    Ref::new("AliasExpressionSegment").exclude(Ref::keyword("WITH")).optional(),
+                    Ref::new("AliasExpressionSegment"),
+                    Ref::new("SamplingExpressionSegment").optional(), 
+                    Ref::new("TableHintSegment")
+                ]),
+                // Pattern 3: Standard ANSI pattern (fallback for non-hint cases)
+                Sequence::new(vec_of_erased![
+                    Ref::new("PreTableFunctionKeywordsGrammar").optional(),
+                    optionally_bracketed(vec_of_erased![Ref::new("TableExpressionSegment")]),
+                    Ref::new("AliasExpressionSegment").optional(),
+                    Sequence::new(vec_of_erased![
+                        Ref::keyword("WITH"),
+                        Ref::keyword("OFFSET"),
+                        Ref::new("AliasExpressionSegment")
+                    ])
+                    .config(|this| this.optional()),
                     Ref::new("SamplingExpressionSegment").optional(),
                 ])
             ])

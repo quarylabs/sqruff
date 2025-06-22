@@ -663,6 +663,31 @@ pub fn raw_dialect() -> Dialect {
         ),
     ]);
 
+    // Replace the default AliasExpressionSegment to properly exclude WITH in T-SQL
+    dialect.replace_grammar(
+        "AliasExpressionSegment", 
+        NodeMatcher::new(
+            SyntaxKind::AliasExpression,
+            Sequence::new(vec_of_erased![
+                MetaSegment::indent(),
+                Ref::keyword("AS").optional(),
+                one_of(vec_of_erased![
+                    Sequence::new(vec_of_erased![
+                        Ref::new("SingleIdentifierGrammar")
+                            .exclude(Ref::keyword("WITH")),
+                        Bracketed::new(vec_of_erased![Ref::new("SingleIdentifierListSegment")])
+                            .config(|this| this.optional())
+                    ]),
+                    Ref::new("SingleQuotedIdentifierSegment")
+                        .exclude(Ref::keyword("WITH"))
+                ]),
+                MetaSegment::dedent(),
+            ])
+            .to_matchable(),
+        )
+        .to_matchable(),
+    );
+
     // Override PostTableExpressionGrammar to include table hints
     dialect.add([(
         "PostTableExpressionGrammar".into(),

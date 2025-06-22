@@ -39,22 +39,19 @@ file:
                         - select_clause:
                           - keyword: SELECT
                           - select_clause_element:
+                            - naked_identifier: ProductName
+                            - raw_comparison_operator: =
                             - column_reference:
                               - naked_identifier: p
-                              - dot: .
-                              - naked_identifier: Name
-                            - alias_expression:
-                              - keyword: AS
-                              - naked_identifier: ProductName
-                          - comma: ','
-                          - select_clause_element:
-                            - column_reference:
-                              - naked_identifier: OrderIDs
-                              - dot: .
-                              - quoted_identifier: '[value]'
-                            - alias_expression:
-                              - keyword: AS
-                              - naked_identifier: OrderID
+                          - unparsable:
+                            - dot: .
+                            - word: Name
+                            - comma: ','
+                            - word: OrderID
+                            - raw_comparison_operator: =
+                            - word: OrderIDs
+                            - dot: .
+                            - double_quote: '[value]'
                         - from_clause:
                           - keyword: FROM
                           - from_expression:

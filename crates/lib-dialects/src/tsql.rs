@@ -22,18 +22,18 @@
 // ✅ Complex nested CTEs parsing
 // ❌ Table aliases in JOIN clauses with hints (UNFIXABLE - PARSER/LINTER ARCHITECTURAL ISSUE)
 //     Problem: WITH keyword being parsed as alias despite being reserved keyword
-//     
+//
 //     DEEP INVESTIGATION COMPLETED (10+ approaches tested):
 //     ✅ WITH correctly in reserved keywords list (tsql_keywords.rs:196)
-//     ✅ TableHintSegment definition correct and works in isolation  
+//     ✅ TableHintSegment definition correct and works in isolation
 //     ✅ PostTableExpressionGrammar includes TableHintSegment correctly
 //     ✅ WITH correctly tokenized as keyword (not identifier)
 //     ✅ Found root cause: Complex interaction between parser and linter
-//     
+//
 //     ATTEMPTED SOLUTIONS (ALL FAILED):
 //     1. Override FromExpressionElementSegment with explicit patterns
 //     2. Add exclude(Ref::keyword("WITH")) to alias patterns
-//     3. Use lookahead exclusions for "WITH(" pattern  
+//     3. Use lookahead exclusions for "WITH(" pattern
 //     4. Regex-based table hint parsing
 //     5. Enhanced exclude list with table hint exclusions
 //     6. Pattern prioritization with one_of()
@@ -42,12 +42,12 @@
 //     9. Corrected exclude() syntax with config closures
 //     10. Override NakedIdentifierSegment with forced WITH exclusion
 //     11. Custom table reference parser with table hint precedence
-//     
+//
 //     FINAL CONCLUSION: This is a fundamental architectural limitation where either:
 //     1. The parser correctly parses table hints but the linter misidentifies the AST
 //     2. The exclude() mechanism has deeper bugs in the parser core
 //     3. T-SQL table hint syntax conflicts with core parser assumptions
-//     
+//
 //     This issue would require significant changes to parser/linter core architecture.
 //     The table hint parsing itself may work, but the linter incorrectly reports
 //     "WITH" as an unused alias regardless of correct parsing.
@@ -63,15 +63,15 @@ use sqruff_lib_core::dialects::Dialect;
 use sqruff_lib_core::dialects::init::DialectKind;
 use sqruff_lib_core::dialects::syntax::SyntaxKind;
 use sqruff_lib_core::helpers::{Config, ToMatchable};
-use sqruff_lib_core::parser::grammar::anyof::{AnyNumberOf, one_of, optionally_bracketed};
 use sqruff_lib_core::parser::grammar::Ref;
+use sqruff_lib_core::parser::grammar::anyof::{AnyNumberOf, one_of, optionally_bracketed};
 use sqruff_lib_core::parser::grammar::conditional::Conditional;
-use sqruff_lib_core::parser::parsers::{RegexParser, StringParser};
 use sqruff_lib_core::parser::grammar::delimited::Delimited;
 use sqruff_lib_core::parser::grammar::sequence::{Bracketed, Sequence};
 use sqruff_lib_core::parser::lexer::Matcher;
 use sqruff_lib_core::parser::node_matcher::NodeMatcher;
 use sqruff_lib_core::parser::parsers::TypedParser;
+use sqruff_lib_core::parser::parsers::{RegexParser, StringParser};
 use sqruff_lib_core::parser::segments::meta::MetaSegment;
 use sqruff_lib_core::parser::types::ParseMode;
 use sqruff_lib_core::vec_of_erased;
@@ -711,43 +711,46 @@ pub fn raw_dialect() -> Dialect {
     // Define PostTableExpressionGrammar for T-SQL to handle table hints
     dialect.add([(
         "PostTableExpressionGrammar".into(),
-        Ref::new("TableHintSegment").optional().to_matchable().into(),
+        Ref::new("TableHintSegment")
+            .optional()
+            .to_matchable()
+            .into(),
     )]);
 
     // INVESTIGATION LOG: Table hints parsing issue
     // Problem: `FROM Users WITH (NOLOCK)` parses WITH as alias instead of table hint
-    // 
+    //
     // Previous attempts:
     // 1. Override FromExpressionElementSegment with explicit patterns - FAILED
-    // 2. Use exclude(Ref::keyword("WITH")) on alias patterns - FAILED  
+    // 2. Use exclude(Ref::keyword("WITH")) on alias patterns - FAILED
     // 3. Reorder patterns to prioritize table hints - FAILED
     // 4. Use base ANSI behavior - FAILED
-    // 
+    //
     // Current hypothesis: Issue is with AliasExpressionSegment specifically
     // New approach: Override AliasExpressionSegment to exclude table hint keywords
     // RESULT: Still failed - WITH still parsed as alias
-    // 
+    //
     // New hypothesis: WITH is being tokenized as identifier, not keyword
     // Testing approach: Create simple keyword test
     // RESULT: Lookahead exclude also failed - confirms tokenization issue
-    // 
+    //
     // Investigation: Check lexer configuration and keyword handling
     // FINDINGS: WITH is correctly in reserved keywords (line 196 in tsql_keywords.rs)
-    // 
+    //
     // New approach: Create more aggressive table hint parsing
     // Try using a regex or compound matcher for "WITH(...)" pattern
     // RESULT: Regex approach also failed - still parsing WITH as alias
-    // 
+    //
     // CRITICAL INSIGHT: The issue must be in parser ordering!
     // AliasExpressionSegment is being tried BEFORE PostTableExpressionGrammar
     // Need to investigate FromExpressionElementSegment sequence order
-    // 
+    //
     // INVESTIGATION RESULTS: Found the root cause!
     // ANSI FromExpressionElementSegment sequence:
     // 1. TableExpressionSegment
     // 2. AliasExpressionSegment (with excludes, but NOT PostTableExpressionGrammar)
     // 3. WITH OFFSET sequence
-    // 4. SamplingExpressionSegment  
+    // 4. SamplingExpressionSegment
     // 5. PostTableExpressionGrammar (LAST!)
     //
     // The problem: AliasExpressionSegment excludes some elements but NOT table hints
@@ -756,26 +759,26 @@ pub fn raw_dialect() -> Dialect {
     // FINAL SOLUTION: Override ANSI's FromExpressionElementSegment to add table hint exclusions
     // to the existing AliasExpressionSegment exclude list
     // RESULT: Still failed - even enhanced excludes don't work
-    // 
+    //
     // DEEPER INVESTIGATION NEEDED: The excludes mechanism itself may be broken
     // or there's something about how T-SQL keywords are handled that's different
-    // 
+    //
     // INTERESTING: `WITH (NOLOCK)` by itself parses fine (no alias errors)
     // This confirms the TableHintSegment works when not in FROM clause context
     // The issue is specifically with FromExpressionElementSegment parsing order
-    
-    // LAST RESORT: Try completely different approach 
+
+    // LAST RESORT: Try completely different approach
     // Replace PostTableExpressionGrammar with TableHintSegment directly in the sequence
     // This bypasses the problematic alias parsing entirely
     // RESULT: Still failed - Pattern 2 (alias + hints) still matches WITH as alias
-    // 
+    //
     // CONCLUSION: This is a fundamental issue with how the parser processes T-SQL
     // The exclude() mechanism appears to be non-functional for this use case
     // A complete rewrite of the parsing logic would be required to fix this
     //
     // DEEPER INVESTIGATION: Exploring alternative approaches
     // 1. Custom lexer matchers for table hints
-    // 2. Anti-template mechanism analysis  
+    // 2. Anti-template mechanism analysis
     // 3. Token stream debugging
     // 4. Custom parser implementation
     //
@@ -806,33 +809,33 @@ pub fn raw_dialect() -> Dialect {
     // 1. The linter is analyzing the wrong AST structure
     // 2. The table hint parsing succeeds but creates the wrong node type
     // 3. There's a deeper issue with how T-SQL hints are represented in the AST
-    
+
     // Create custom T-SQL table reference parser with explicit table hint handling
-    dialect.add([
-        (
-            "TSqlTableReferenceWithHintsSegment".into(),
-            one_of(vec_of_erased![
-                // Direct table hint matching - tries this first
-                Sequence::new(vec_of_erased![
-                    Ref::new("TableExpressionSegment"),
-                    Ref::new("TableHintSegment")
-                ]),
-                // Fallback to regular table reference
-                Ref::new("TableExpressionSegment")
-            ])
-            .to_matchable()
-            .into(),
-        )
-    ]);
-    
+    dialect.add([(
+        "TSqlTableReferenceWithHintsSegment".into(),
+        one_of(vec_of_erased![
+            // Direct table hint matching - tries this first
+            Sequence::new(vec_of_erased![
+                Ref::new("TableExpressionSegment"),
+                Ref::new("TableHintSegment")
+            ]),
+            // Fallback to regular table reference
+            Ref::new("TableExpressionSegment")
+        ])
+        .to_matchable()
+        .into(),
+    )]);
+
     dialect.replace_grammar(
-        "FromExpressionElementSegment", 
+        "FromExpressionElementSegment",
         NodeMatcher::new(
             SyntaxKind::FromExpressionElement,
             Sequence::new(vec_of_erased![
                 Ref::new("PreTableFunctionKeywordsGrammar").optional(),
                 // Use custom T-SQL table reference parser instead of plain TableExpressionSegment
-                optionally_bracketed(vec_of_erased![Ref::new("TSqlTableReferenceWithHintsSegment")]),
+                optionally_bracketed(vec_of_erased![Ref::new(
+                    "TSqlTableReferenceWithHintsSegment"
+                )]),
                 Ref::new("AliasExpressionSegment").optional(),
                 Sequence::new(vec_of_erased![
                     Ref::keyword("WITH"),
@@ -1026,7 +1029,6 @@ pub fn raw_dialect() -> Dialect {
         .into(),
     )]);
 
-
     // T-SQL supports alternative alias syntax: AliasName = Expression
     // This must be done before expand() to ensure proper parsing
     //
@@ -1036,7 +1038,7 @@ pub fn raw_dialect() -> Dialect {
     //
     // The key insight is that we need to handle the ambiguity at the
     // select clause level, not at the expression level.
-    
+
     // Override the select_clause_element function used by ANSI
     dialect.replace_grammar(
         "SelectClauseElementSegment",
@@ -1061,15 +1063,15 @@ pub fn raw_dialect() -> Dialect {
         ])
         .to_matchable(),
     );
-    
+
     // T-SQL uses + for both arithmetic and string concatenation
     // Override StringBinaryOperatorGrammar to include the + operator
     // This fixes string concatenation in parentheses like: (first_name + ' ' + last_name)
     dialect.add([(
         "StringBinaryOperatorGrammar".into(),
         one_of(vec_of_erased![
-            Ref::new("ConcatSegment"),  // Standard || operator
-            Ref::new("PlusSegment"),    // T-SQL + operator for string concatenation
+            Ref::new("ConcatSegment"), // Standard || operator
+            Ref::new("PlusSegment"),   // T-SQL + operator for string concatenation
         ])
         .to_matchable()
         .into(),

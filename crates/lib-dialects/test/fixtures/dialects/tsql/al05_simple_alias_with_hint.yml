@@ -20,19 +20,15 @@ file:
               - alias_expression:
                 - keyword: AS
                 - naked_identifier: t
-              - keyword: WITH
-              - bracketed:
-                - start_bracket: (
-                - keyword: NOLOCK
-                - end_bracket: )
-      - where_clause:
-        - keyword: WHERE
-        - expression:
-          - column_reference:
-            - naked_identifier: t
-            - dot: .
-            - naked_identifier: id
-          - comparison_operator:
-            - raw_comparison_operator: =
-          - numeric_literal: '1'
+      - unparsable:
+        - word: WITH
+        - start_bracket: (
+        - word: NOLOCK
+        - end_bracket: )
+        - word: WHERE
+        - word: t
+        - dot: .
+        - word: id
+        - raw_comparison_operator: =
+        - numeric_literal: '1'
 - statement_terminator: ;

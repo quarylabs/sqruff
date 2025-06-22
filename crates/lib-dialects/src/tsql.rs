@@ -20,7 +20,7 @@
 // ✅ T-SQL alias equals syntax (AliasName = expression)
 // ✅ String concatenation in parentheses (+ operator)
 // ✅ Complex nested CTEs parsing
-// ❌ Table aliases in JOIN clauses with hints
+// ❌ Table aliases in JOIN clauses with hints (complex parser issue - WITH parsed as alias)
 //
 // Files still containing unparsable sections (5 total, down from 8):
 // - al02_implicit_column_alias.yml: Implicit column aliases without AS keyword
@@ -29,12 +29,12 @@
 // - apply_clause.yml: APPLY with complex table expressions
 // - tsql_alias_column_ref.yml: T-SQL equals alias with qualified column refs (partial)
 
-use sqruff_lib_core::dialects::base::Dialect;
+use sqruff_lib_core::dialects::Dialect;
 use sqruff_lib_core::dialects::init::DialectKind;
 use sqruff_lib_core::dialects::syntax::SyntaxKind;
 use sqruff_lib_core::helpers::{Config, ToMatchable};
 use sqruff_lib_core::parser::grammar::anyof::{AnyNumberOf, one_of, optionally_bracketed};
-use sqruff_lib_core::parser::grammar::base::Ref;
+use sqruff_lib_core::parser::grammar::Ref;
 use sqruff_lib_core::parser::grammar::conditional::Conditional;
 use sqruff_lib_core::parser::parsers::StringParser;
 use sqruff_lib_core::parser::grammar::delimited::Delimited;
@@ -665,46 +665,45 @@ pub fn raw_dialect() -> Dialect {
     ]);
 
     // Define PostTableExpressionGrammar for T-SQL to handle table hints
-    dialect.replace_grammar(
-        "PostTableExpressionGrammar",
-        Ref::new("TableHintSegment").optional().to_matchable(),
-    );
+    dialect.add([(
+        "PostTableExpressionGrammar".into(),
+        Ref::new("TableHintSegment").optional().to_matchable().into(),
+    )]);
 
     // Override FromExpressionElementSegment for T-SQL to handle table hints correctly
+    // Use explicit pattern prioritization to ensure table hints are matched before aliases
     dialect.replace_grammar(
         "FromExpressionElementSegment",
         NodeMatcher::new(
             SyntaxKind::FromExpressionElement,
             one_of(vec_of_erased![
-                // Pattern 1: Table + AS alias + table hints
+                // Pattern 1: Table + AS alias + table hints (highest priority)
                 Sequence::new(vec_of_erased![
                     Ref::new("PreTableFunctionKeywordsGrammar").optional(),
                     optionally_bracketed(vec_of_erased![Ref::new("TableExpressionSegment")]),
-                    Ref::keyword("AS"),
-                    Ref::new("SingleIdentifierGrammar"),
+                    NodeMatcher::new(
+                        SyntaxKind::AliasExpression,
+                        Sequence::new(vec_of_erased![
+                            Ref::keyword("AS"),
+                            Ref::new("SingleIdentifierGrammar")
+                        ])
+                        .to_matchable()
+                    ),
                     Ref::new("SamplingExpressionSegment").optional(),
-                    Ref::new("PostTableExpressionGrammar").optional()
+                    Ref::new("TableHintSegment")
                 ]),
-                // Pattern 2: Table + naked alias + table hints (alias cannot be WITH)
-                Sequence::new(vec_of_erased![
-                    Ref::new("PreTableFunctionKeywordsGrammar").optional(),
-                    optionally_bracketed(vec_of_erased![Ref::new("TableExpressionSegment")]),
-                    Ref::new("SingleIdentifierGrammar")
-                        .exclude(Ref::keyword("WITH")),
-                    Ref::new("SamplingExpressionSegment").optional(),
-                    Ref::new("PostTableExpressionGrammar").optional()
-                ]),
-                // Pattern 3: Table + WITH table hints (no alias)
+                // Pattern 2: Table + table hints (no alias) - MOVED UP TO HIGHER PRIORITY
                 Sequence::new(vec_of_erased![
                     Ref::new("PreTableFunctionKeywordsGrammar").optional(),
                     optionally_bracketed(vec_of_erased![Ref::new("TableExpressionSegment")]),
                     Ref::new("SamplingExpressionSegment").optional(),
-                    Ref::new("PostTableExpressionGrammar")
+                    Ref::new("TableHintSegment")
                 ]),
-                // Pattern 4: Just table (no alias, no hints)
+                // Pattern 3: Table + optional alias (no hints) - fallback to base behavior
                 Sequence::new(vec_of_erased![
                     Ref::new("PreTableFunctionKeywordsGrammar").optional(),
                     optionally_bracketed(vec_of_erased![Ref::new("TableExpressionSegment")]),
+                    Ref::new("AliasExpressionSegment").exclude(Ref::keyword("WITH")).optional(),
                     Ref::new("SamplingExpressionSegment").optional(),
                 ])
             ])

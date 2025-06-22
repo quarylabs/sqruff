@@ -8,7 +8,6 @@ use sqruff_lib_core::parser::grammar::conditional::Conditional;
 use sqruff_lib_core::parser::grammar::delimited::Delimited;
 use sqruff_lib_core::parser::grammar::sequence::{Bracketed, Sequence};
 use sqruff_lib_core::parser::lexer::Matcher;
-use sqruff_lib_core::parser::matchable::MatchableTrait;
 use sqruff_lib_core::parser::node_matcher::NodeMatcher;
 use sqruff_lib_core::parser::parsers::TypedParser;
 use sqruff_lib_core::parser::segments::meta::MetaSegment;
@@ -22,21 +21,21 @@ pub fn dialect() -> Dialect {
         // T-SQL supports alternative alias syntax: AliasName = Expression
         dialect.replace_grammar(
             "SelectClauseElementSegment",
-            ansi::select_clause_element().copy(
-                Some(vec_of_erased![
-                    // T-SQL alternative alias syntax: AliasName = Expression
-                    Sequence::new(vec_of_erased![
-                        Ref::new("SingleIdentifierGrammar"),
-                        Ref::new("AssignmentOperatorSegment"),
-                        Ref::new("ExpressionSegment")
-                    ])
+            one_of(vec_of_erased![
+                // T-SQL alternative alias syntax: AliasName = Expression (check this first!)
+                Sequence::new(vec_of_erased![
+                    Ref::new("SingleIdentifierGrammar"),
+                    Ref::new("AssignmentOperatorSegment"),
+                    Ref::new("BaseExpressionElementGrammar")
                 ]),
-                None,
-                None,
-                None,
-                Vec::new(),
-                false,
-            ),
+                // Standard ANSI syntax
+                Ref::new("WildcardExpressionSegment"),
+                Sequence::new(vec_of_erased![
+                    Ref::new("BaseExpressionElementGrammar"),
+                    Ref::new("AliasExpressionSegment").optional(),
+                ]),
+            ])
+            .to_matchable(),
         );
         
         dialect.expand();

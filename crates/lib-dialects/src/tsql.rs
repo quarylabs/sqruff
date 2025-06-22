@@ -885,7 +885,8 @@ pub fn raw_dialect() -> Dialect {
     // 1. Column references like: table1.column1
     // 2. T-SQL alias assignment like: AliasName = table1.column1
     //
-    // We replace the SelectClauseElementSegment with our custom implementation
+    // We need to override how select clause elements are parsed to check
+    // for the T-SQL pattern first before falling back to standard syntax
     dialect.replace_grammar(
         "SelectClauseElementSegment",
         NodeMatcher::new(
@@ -894,6 +895,7 @@ pub fn raw_dialect() -> Dialect {
         )
         .to_matchable(),
     );
+    
 
     // CRITICAL: expand() must be called after all grammar modifications
     // This method recursively expands all grammar references and builds
@@ -906,21 +908,37 @@ pub fn raw_dialect() -> Dialect {
 
 // T-SQL specific select clause element that supports AliasName = Expression syntax
 fn tsql_select_clause_element() -> Matchable {
+    // We need to be careful about the order here. The T-SQL alias pattern
+    // must be checked before allowing a naked identifier to be parsed as
+    // a column reference.
     one_of(vec_of_erased![
+        // Wildcard expressions: *, table.*, etc.
+        Ref::new("WildcardExpressionSegment"),
         // T-SQL alternative alias syntax: AliasName = Expression
-        // This MUST be checked first to prevent the alias name from being
-        // parsed as a column reference by BaseExpressionElementGrammar
         Sequence::new(vec_of_erased![
             // Only simple identifiers allowed as alias names (no dots)
             Ref::new("NakedIdentifierSegment"),
             Ref::new("AssignmentOperatorSegment"),
-            // Expression can be anything - literal, column ref, function, etc.
+            // After the equals sign, we accept any base expression element
+            // This includes literals, functions, column references, etc.
             Ref::new("BaseExpressionElementGrammar")
         ]),
-        // Standard ANSI syntax follows
-        Ref::new("WildcardExpressionSegment"), // SELECT *
+        // Literals come before general expressions to avoid ambiguity
+        Ref::new("LiteralGrammar"),
+        // Functions
+        Ref::new("FunctionSegment"),
+        Ref::new("BareFunctionSegment"),
+        // Expressions in parentheses
+        Bracketed::new(vec_of_erased![Ref::new("ExpressionSegment")]),
+        // Column references and general expressions
+        // This must come last to avoid consuming the alias name
         Sequence::new(vec_of_erased![
-            Ref::new("BaseExpressionElementGrammar"),
+            Ref::new("ColumnReferenceSegment"),
+            Ref::new("AliasExpressionSegment").optional(),
+        ]),
+        // Anything else that can be an expression
+        Sequence::new(vec_of_erased![
+            Ref::new("ExpressionSegment"),
             Ref::new("AliasExpressionSegment").optional(),
         ]),
     ])

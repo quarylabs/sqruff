@@ -6,11 +6,11 @@ file:
         - keyword: SELECT
         - select_clause_element:
           - select_clause_element:
-            - naked_identifier: TsqlAlias
-            - assignment_operator:
-              - raw_comparison_operator: =
             - column_reference:
-              - naked_identifier: value
+              - naked_identifier: TsqlAlias
+        - unparsable:
+          - raw_comparison_operator: =
+          - word: value
       - from_clause:
         - keyword: FROM
         - from_expression:

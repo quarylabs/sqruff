@@ -13,7 +13,8 @@ file:
               - end_bracket: )
         - select_clause_element:
           - select_clause_element:
-            - numeric_literal: '1'
+            - expression:
+              - numeric_literal: '1'
             - alias_expression:
               - keyword: AS
               - naked_identifier: RecordType
@@ -40,20 +41,21 @@ file:
         - comma: ','
         - select_clause_element:
           - select_clause_element:
-            - function:
-              - function_name:
-                - function_name_identifier: COALESCE
-              - bracketed:
-                - start_bracket: (
-                - expression:
-                  - column_reference:
-                    - naked_identifier: Orders
-                    - dot: .
-                    - naked_identifier: description
-                - comma: ','
-                - expression:
-                  - quoted_literal: ''''''
-                - end_bracket: )
+            - expression:
+              - function:
+                - function_name:
+                  - function_name_identifier: COALESCE
+                - bracketed:
+                  - start_bracket: (
+                  - expression:
+                    - column_reference:
+                      - naked_identifier: Orders
+                      - dot: .
+                      - naked_identifier: description
+                  - comma: ','
+                  - expression:
+                    - quoted_literal: ''''''
+                  - end_bracket: )
             - alias_expression:
               - keyword: AS
               - naked_identifier: RecordDescription
@@ -97,20 +99,21 @@ file:
         - comma: ','
         - select_clause_element:
           - select_clause_element:
-            - function:
-              - function_name:
-                - function_name_identifier: COALESCE
-              - bracketed:
-                - start_bracket: (
-                - expression:
-                  - column_reference:
-                    - naked_identifier: Orders
-                    - dot: .
-                    - naked_identifier: total_amount
-                - comma: ','
-                - expression:
-                  - numeric_literal: '0'
-                - end_bracket: )
+            - expression:
+              - function:
+                - function_name:
+                  - function_name_identifier: COALESCE
+                - bracketed:
+                  - start_bracket: (
+                  - expression:
+                    - column_reference:
+                      - naked_identifier: Orders
+                      - dot: .
+                      - naked_identifier: total_amount
+                  - comma: ','
+                  - expression:
+                    - numeric_literal: '0'
+                  - end_bracket: )
             - alias_expression:
               - keyword: AS
               - naked_identifier: TotalAmount
@@ -342,40 +345,42 @@ file:
         - comma: ','
         - select_clause_element:
           - select_clause_element:
-            - function:
-              - function_name:
-                - function_name_identifier: COALESCE
-              - bracketed:
-                - start_bracket: (
-                - expression:
-                  - column_reference:
-                    - naked_identifier: Contacts
-                    - dot: .
-                    - naked_identifier: last_name
-                - comma: ','
-                - expression:
-                  - quoted_literal: ''''''
-                - end_bracket: )
+            - expression:
+              - function:
+                - function_name:
+                  - function_name_identifier: COALESCE
+                - bracketed:
+                  - start_bracket: (
+                  - expression:
+                    - column_reference:
+                      - naked_identifier: Contacts
+                      - dot: .
+                      - naked_identifier: last_name
+                  - comma: ','
+                  - expression:
+                    - quoted_literal: ''''''
+                  - end_bracket: )
             - alias_expression:
               - keyword: AS
               - naked_identifier: ContactLastName
         - comma: ','
         - select_clause_element:
           - select_clause_element:
-            - function:
-              - function_name:
-                - function_name_identifier: COALESCE
-              - bracketed:
-                - start_bracket: (
-                - expression:
-                  - column_reference:
-                    - naked_identifier: Contacts
-                    - dot: .
-                    - naked_identifier: first_name
-                - comma: ','
-                - expression:
-                  - quoted_literal: ''''''
-                - end_bracket: )
+            - expression:
+              - function:
+                - function_name:
+                  - function_name_identifier: COALESCE
+                - bracketed:
+                  - start_bracket: (
+                  - expression:
+                    - column_reference:
+                      - naked_identifier: Contacts
+                      - dot: .
+                      - naked_identifier: first_name
+                  - comma: ','
+                  - expression:
+                    - quoted_literal: ''''''
+                  - end_bracket: )
             - alias_expression:
               - keyword: AS
               - naked_identifier: ContactFirstName
@@ -514,54 +519,56 @@ file:
                           - keyword: SELECT
                           - select_clause_element:
                             - select_clause_element:
-                              - function:
-                                - function_name:
-                                  - function_name_identifier: SUM
-                                - bracketed:
-                                  - start_bracket: (
-                                  - expression:
-                                    - function:
-                                      - function_name:
-                                        - function_name_identifier: COALESCE
-                                      - bracketed:
-                                        - start_bracket: (
-                                        - expression:
-                                          - column_reference:
-                                            - naked_identifier: LineItems
-                                            - dot: .
-                                            - naked_identifier: amount
-                                        - comma: ','
-                                        - expression:
-                                          - numeric_literal: '0'
-                                        - end_bracket: )
-                                  - end_bracket: )
+                              - expression:
+                                - function:
+                                  - function_name:
+                                    - function_name_identifier: SUM
+                                  - bracketed:
+                                    - start_bracket: (
+                                    - expression:
+                                      - function:
+                                        - function_name:
+                                          - function_name_identifier: COALESCE
+                                        - bracketed:
+                                          - start_bracket: (
+                                          - expression:
+                                            - column_reference:
+                                              - naked_identifier: LineItems
+                                              - dot: .
+                                              - naked_identifier: amount
+                                          - comma: ','
+                                          - expression:
+                                            - numeric_literal: '0'
+                                          - end_bracket: )
+                                    - end_bracket: )
                               - alias_expression:
                                 - keyword: AS
                                 - naked_identifier: TotalSales
                           - comma: ','
                           - select_clause_element:
                             - select_clause_element:
-                              - function:
-                                - function_name:
-                                  - function_name_identifier: SUM
-                                - bracketed:
-                                  - start_bracket: (
-                                  - expression:
-                                    - function:
-                                      - function_name:
-                                        - function_name_identifier: COALESCE
-                                      - bracketed:
-                                        - start_bracket: (
-                                        - expression:
-                                          - column_reference:
-                                            - naked_identifier: LineItems
-                                            - dot: .
-                                            - naked_identifier: cost
-                                        - comma: ','
-                                        - expression:
-                                          - numeric_literal: '0'
-                                        - end_bracket: )
-                                  - end_bracket: )
+                              - expression:
+                                - function:
+                                  - function_name:
+                                    - function_name_identifier: SUM
+                                  - bracketed:
+                                    - start_bracket: (
+                                    - expression:
+                                      - function:
+                                        - function_name:
+                                          - function_name_identifier: COALESCE
+                                        - bracketed:
+                                          - start_bracket: (
+                                          - expression:
+                                            - column_reference:
+                                              - naked_identifier: LineItems
+                                              - dot: .
+                                              - naked_identifier: cost
+                                          - comma: ','
+                                          - expression:
+                                            - numeric_literal: '0'
+                                          - end_bracket: )
+                                    - end_bracket: )
                               - alias_expression:
                                 - keyword: AS
                                 - naked_identifier: TotalCost

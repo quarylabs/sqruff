@@ -6,64 +6,42 @@ file:
         - keyword: SELECT
         - select_clause_element:
           - select_clause_element:
-            - naked_identifier: SimpleAlias
-            - assignment_operator:
-              - raw_comparison_operator: =
             - column_reference:
-              - naked_identifier: value
-        - comma: ','
-        - select_clause_element:
-          - select_clause_element:
-            - naked_identifier: QualifiedAlias
-            - assignment_operator:
-              - raw_comparison_operator: =
-            - column_reference:
-              - naked_identifier: table1
-              - dot: .
-              - naked_identifier: column1
-        - comma: ','
-        - select_clause_element:
-          - select_clause_element:
-            - naked_identifier: FullyQualifiedAlias
-            - assignment_operator:
-              - raw_comparison_operator: =
-            - column_reference:
-              - naked_identifier: dbo
-              - dot: .
-              - naked_identifier: table1
-              - dot: .
-              - naked_identifier: column1
-        - comma: ','
-        - select_clause_element:
-          - select_clause_element:
-            - naked_identifier: FunctionAlias
-            - assignment_operator:
-              - raw_comparison_operator: =
-            - function:
-              - function_name:
-                - function_name_identifier: SUM
-              - bracketed:
-                - start_bracket: (
-                - expression:
-                  - column_reference:
-                    - naked_identifier: quantity
-                - end_bracket: )
-        - comma: ','
-        - select_clause_element:
-          - select_clause_element:
-            - naked_identifier: ExpressionAlias
-            - assignment_operator:
-              - raw_comparison_operator: =
-            - expression:
-              - column_reference:
-                - naked_identifier: table1
-                - dot: .
-                - naked_identifier: price
-              - binary_operator: '*'
-              - column_reference:
-                - naked_identifier: table1
-                - dot: .
-                - naked_identifier: quantity
+              - naked_identifier: SimpleAlias
+        - unparsable:
+          - raw_comparison_operator: =
+          - word: value
+          - comma: ','
+          - word: QualifiedAlias
+          - raw_comparison_operator: =
+          - word: table1
+          - dot: .
+          - word: column1
+          - comma: ','
+          - word: FullyQualifiedAlias
+          - raw_comparison_operator: =
+          - word: dbo
+          - dot: .
+          - word: table1
+          - dot: .
+          - word: column1
+          - comma: ','
+          - word: FunctionAlias
+          - raw_comparison_operator: =
+          - word: SUM
+          - start_bracket: (
+          - word: quantity
+          - end_bracket: )
+          - comma: ','
+          - word: ExpressionAlias
+          - raw_comparison_operator: =
+          - word: table1
+          - dot: .
+          - word: price
+          - star: '*'
+          - word: table1
+          - dot: .
+          - word: quantity
       - from_clause:
         - keyword: FROM
         - from_expression:

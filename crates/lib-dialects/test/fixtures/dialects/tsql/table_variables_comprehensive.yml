@@ -5,8 +5,9 @@ file:
       - select_clause:
         - keyword: SELECT
         - select_clause_element:
-          - column_reference:
-            - quoted_identifier: '[value]'
+          - select_clause_element:
+            - column_reference:
+              - quoted_identifier: '[value]'
       - from_clause:
         - keyword: FROM
         - from_expression:
@@ -22,10 +23,11 @@ file:
       - select_clause:
         - keyword: SELECT
         - select_clause_element:
-          - column_reference:
-            - naked_identifier: ids
-            - dot: .
-            - quoted_identifier: '[value]'
+          - select_clause_element:
+            - column_reference:
+              - naked_identifier: ids
+              - dot: .
+              - quoted_identifier: '[value]'
       - from_clause:
         - keyword: FROM
         - from_expression:
@@ -44,9 +46,10 @@ file:
       - select_clause:
         - keyword: SELECT
         - select_clause_element:
-          - wildcard_expression:
-            - wildcard_identifier:
-              - star: '*'
+          - select_clause_element:
+            - wildcard_expression:
+              - wildcard_identifier:
+                - star: '*'
       - from_clause:
         - keyword: FROM
         - from_expression:
@@ -70,9 +73,10 @@ file:
       - select_clause:
         - keyword: SELECT
         - select_clause_element:
-          - wildcard_expression:
-            - wildcard_identifier:
-              - star: '*'
+          - select_clause_element:
+            - wildcard_expression:
+              - wildcard_identifier:
+                - star: '*'
       - from_clause:
         - keyword: FROM
         - from_expression:
@@ -93,9 +97,10 @@ file:
       - select_clause:
         - keyword: SELECT
         - select_clause_element:
-          - wildcard_expression:
-            - wildcard_identifier:
-              - star: '*'
+          - select_clause_element:
+            - wildcard_expression:
+              - wildcard_identifier:
+                - star: '*'
       - from_clause:
         - keyword: FROM
         - from_expression:
@@ -117,8 +122,9 @@ file:
               - select_clause:
                 - keyword: SELECT
                 - select_clause_element:
-                  - column_reference:
-                    - quoted_identifier: '[value]'
+                  - select_clause_element:
+                    - column_reference:
+                      - quoted_identifier: '[value]'
               - from_clause:
                 - keyword: FROM
                 - from_expression:

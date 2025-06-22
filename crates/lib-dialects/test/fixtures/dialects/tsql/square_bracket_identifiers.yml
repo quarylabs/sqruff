@@ -5,12 +5,14 @@ file:
       - select_clause:
         - keyword: SELECT
         - select_clause_element:
-          - column_reference:
-            - quoted_identifier: '[Customer Name]'
+          - select_clause_element:
+            - column_reference:
+              - quoted_identifier: '[Customer Name]'
         - comma: ','
         - select_clause_element:
-          - column_reference:
-            - quoted_identifier: '[Order Date]'
+          - select_clause_element:
+            - column_reference:
+              - quoted_identifier: '[Order Date]'
       - from_clause:
         - keyword: FROM
         - from_expression:

@@ -5,16 +5,18 @@ file:
       - select_clause:
         - keyword: SELECT
         - select_clause_element:
-          - column_reference:
-            - naked_identifier: OrderIDs
-            - dot: .
-            - quoted_identifier: '[value]'
+          - select_clause_element:
+            - column_reference:
+              - naked_identifier: OrderIDs
+              - dot: .
+              - quoted_identifier: '[value]'
         - comma: ','
         - select_clause_element:
-          - column_reference:
-            - naked_identifier: Details
-            - dot: .
-            - naked_identifier: ProductName
+          - select_clause_element:
+            - column_reference:
+              - naked_identifier: Details
+              - dot: .
+              - naked_identifier: ProductName
       - from_clause:
         - keyword: FROM
         - from_expression:
@@ -39,11 +41,12 @@ file:
                         - select_clause:
                           - keyword: SELECT
                           - select_clause_element:
-                            - naked_identifier: ProductName
-                            - assignment_operator:
-                              - raw_comparison_operator: =
-                            - column_reference:
-                              - naked_identifier: p
+                            - select_clause_element:
+                              - naked_identifier: ProductName
+                              - assignment_operator:
+                                - raw_comparison_operator: =
+                              - column_reference:
+                                - naked_identifier: p
                           - unparsable:
                             - dot: .
                             - word: Name

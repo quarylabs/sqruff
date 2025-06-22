@@ -37,7 +37,7 @@ pub fn dialect() -> Dialect {
             ])
             .to_matchable(),
         );
-        
+
         dialect.expand();
     })
 }
@@ -268,7 +268,9 @@ pub fn raw_dialect() -> Dialect {
     dialect.add([
         (
             "SetVariableStatementSegment".into(),
-            Ref::new("SetVariableStatementGrammar").to_matchable().into(),
+            Ref::new("SetVariableStatementGrammar")
+                .to_matchable()
+                .into(),
         ),
         (
             "SetVariableStatementGrammar".into(),
@@ -311,24 +313,22 @@ pub fn raw_dialect() -> Dialect {
             Sequence::new(vec_of_erased![
                 Ref::keyword("BEGIN"),
                 MetaSegment::indent(),
-                AnyNumberOf::new(vec_of_erased![
-                    Sequence::new(vec_of_erased![
-                        one_of(vec_of_erased![
-                            Ref::new("SelectableGrammar"),
-                            Ref::new("InsertStatementSegment"),
-                            Ref::new("UpdateStatementSegment"),
-                            Ref::new("DeleteStatementSegment"),
-                            Ref::new("DeclareStatementSegment"),
-                            Ref::new("SetVariableStatementSegment"),
-                            Ref::new("PrintStatementSegment"),
-                            Ref::new("IfStatementSegment"),
-                            Ref::new("WhileStatementSegment"),
-                            Ref::new("BeginEndBlockSegment")  // Allow nested BEGIN...END
-                        ]),
-                        Ref::new("DelimiterGrammar").optional()
-                    ])
-                ])
-                .config(|this| this.min_times(0)),  // Allow empty blocks
+                AnyNumberOf::new(vec_of_erased![Sequence::new(vec_of_erased![
+                    one_of(vec_of_erased![
+                        Ref::new("SelectableGrammar"),
+                        Ref::new("InsertStatementSegment"),
+                        Ref::new("UpdateStatementSegment"),
+                        Ref::new("DeleteStatementSegment"),
+                        Ref::new("DeclareStatementSegment"),
+                        Ref::new("SetVariableStatementSegment"),
+                        Ref::new("PrintStatementSegment"),
+                        Ref::new("IfStatementSegment"),
+                        Ref::new("WhileStatementSegment"),
+                        Ref::new("BeginEndBlockSegment") // Allow nested BEGIN...END
+                    ]),
+                    Ref::new("DelimiterGrammar").optional()
+                ])])
+                .config(|this| this.min_times(0)), // Allow empty blocks
                 MetaSegment::dedent(),
                 Ref::keyword("END")
             ])
@@ -382,9 +382,12 @@ pub fn raw_dialect() -> Dialect {
     dialect.add([
         (
             "PivotUnpivotSegment".into(),
-            NodeMatcher::new(SyntaxKind::TableExpression, Ref::new("PivotUnpivotGrammar").to_matchable())
-                .to_matchable()
-                .into(),
+            NodeMatcher::new(
+                SyntaxKind::TableExpression,
+                Ref::new("PivotUnpivotGrammar").to_matchable(),
+            )
+            .to_matchable()
+            .into(),
         ),
         (
             "PivotUnpivotGrammar".into(),
@@ -492,7 +495,6 @@ pub fn raw_dialect() -> Dialect {
         )
         .to_matchable(),
     );
-
 
     // USE statement for changing database context
     dialect.add([
@@ -623,7 +625,7 @@ pub fn raw_dialect() -> Dialect {
             .to_matchable()
             .into(),
     )]);
-    
+
     // Also update JoinClauseSegment to handle APPLY syntax properly
     dialect.replace_grammar(
         "JoinClauseSegment",
@@ -666,19 +668,16 @@ pub fn raw_dialect() -> Dialect {
                 ]),
                 // T-SQL APPLY syntax
                 Sequence::new(vec_of_erased![
-                    one_of(vec_of_erased![
-                        Ref::keyword("CROSS"),
-                        Ref::keyword("OUTER")
-                    ]),
+                    one_of(vec_of_erased![Ref::keyword("CROSS"), Ref::keyword("OUTER")]),
                     Ref::keyword("APPLY"),
                     MetaSegment::indent(),
                     Ref::new("FromExpressionElementSegment"),
                     MetaSegment::dedent(),
                 ])
             ])
-            .to_matchable()
+            .to_matchable(),
         )
-        .to_matchable()
+        .to_matchable(),
     );
 
     // T-SQL specific data type handling for MAX keyword
@@ -759,7 +758,7 @@ pub fn raw_dialect() -> Dialect {
             Ref::new("ArrayLiteralSegment"),
             Ref::new("TypedArrayLiteralSegment"),
             Ref::new("ObjectLiteralSegment"),
-            Ref::new("ParameterizedSegment")  // Add T-SQL variables
+            Ref::new("ParameterizedSegment") // Add T-SQL variables
         ])
         .to_matchable()
         .into(),

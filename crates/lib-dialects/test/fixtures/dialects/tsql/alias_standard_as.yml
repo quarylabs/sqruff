@@ -23,6 +23,5 @@ file:
           - from_expression_element:
             - table_expression:
               - table_reference:
-                - table_reference:
-                  - object_reference:
-                    - naked_identifier: table1
+                - object_reference:
+                  - naked_identifier: table1

@@ -26,7 +26,7 @@ pub fn dialect() -> Dialect {
                 Sequence::new(vec_of_erased![
                     Ref::new("SingleIdentifierGrammar"),
                     Ref::new("AssignmentOperatorSegment"),
-                    Ref::new("BaseExpressionElementGrammar")
+                    Ref::new("ExpressionSegment")
                 ]),
                 // Standard ANSI syntax
                 Ref::new("WildcardExpressionSegment"),
@@ -231,7 +231,7 @@ pub fn raw_dialect() -> Dialect {
         "AssignmentOperatorSegment".into(),
         NodeMatcher::new(
             SyntaxKind::AssignmentOperator,
-            Ref::new("EqualsSegment").to_matchable(),
+            Ref::new("RawEqualsSegment").to_matchable(),
         )
         .to_matchable()
         .into(),

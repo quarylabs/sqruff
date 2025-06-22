@@ -5,11 +5,10 @@ file:
       - select_clause:
         - keyword: SELECT
         - select_clause_element:
+          - naked_identifier: TsqlAlias
+          - assignment_operator:
+            - raw_comparison_operator: =
           - expression:
-            - column_reference:
-              - naked_identifier: TsqlAlias
-            - comparison_operator:
-              - raw_comparison_operator: =
             - function:
               - function_name:
                 - function_name_identifier: SUM
@@ -25,6 +24,5 @@ file:
           - from_expression_element:
             - table_expression:
               - table_reference:
-                - table_reference:
-                  - object_reference:
-                    - naked_identifier: table1
+                - object_reference:
+                  - naked_identifier: table1

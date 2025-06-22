@@ -18,26 +18,24 @@ file:
           - from_expression_element:
             - table_expression:
               - table_reference:
-                - table_reference:
-                  - object_reference:
-                    - naked_identifier: schema1
-                    - dot: .
-                    - naked_identifier: Table_Sales_Position_Reference
+                - object_reference:
+                  - naked_identifier: schema1
+                  - dot: .
+                  - naked_identifier: Table_Sales_Position_Reference
             - alias_expression:
               - keyword: AS
               - naked_identifier: op2ref
-            - expression:
-              - keyword: WITH
-              - bracketed:
-                - start_bracket: (
-                - keyword: NOLOCK
-                - end_bracket: )
+            - keyword: WITH
+            - bracketed:
+              - start_bracket: (
+              - keyword: NOLOCK
+              - end_bracket: )
           - join_clause:
-            - keyword: INNER
-            - keyword: JOIN
-            - from_expression_element:
-              - table_expression:
-                - table_reference:
+            - join_clause:
+              - keyword: INNER
+              - keyword: JOIN
+              - from_expression_element:
+                - table_expression:
                   - table_reference:
                     - object_reference:
                       - naked_identifier: schema1

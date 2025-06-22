@@ -13,8 +13,7 @@ file:
           - from_expression_element:
             - table_expression:
               - table_reference:
-                - table_reference:
-                  - tsql_variable: '@DepartmentCodes'
+                - tsql_variable: '@DepartmentCodes'
 - statement_terminator: ;
 - statement:
   - statement:
@@ -32,8 +31,7 @@ file:
           - from_expression_element:
             - table_expression:
               - table_reference:
-                - table_reference:
-                  - tsql_variable: '@DepartmentCodes'
+                - tsql_variable: '@DepartmentCodes'
             - alias_expression:
               - keyword: AS
               - naked_identifier: ids
@@ -53,8 +51,7 @@ file:
           - from_expression_element:
             - table_expression:
               - table_reference:
-                - table_reference:
-                  - tsql_variable: '@TableVariable'
+                - tsql_variable: '@TableVariable'
       - where_clause:
         - keyword: WHERE
         - expression:
@@ -79,14 +76,12 @@ file:
           - from_expression_element:
             - table_expression:
               - table_reference:
-                - table_reference:
-                  - tsql_variable: '@TableVariable'
-            - expression:
-              - keyword: WITH
-              - bracketed:
-                - start_bracket: (
-                - keyword: NOLOCK
-                - end_bracket: )
+                - tsql_variable: '@TableVariable'
+            - keyword: WITH
+            - bracketed:
+              - start_bracket: (
+              - keyword: NOLOCK
+              - end_bracket: )
 - statement_terminator: ;
 - statement:
   - statement:
@@ -103,9 +98,8 @@ file:
           - from_expression_element:
             - table_expression:
               - table_reference:
-                - table_reference:
-                  - object_reference:
-                    - naked_identifier: table1
+                - object_reference:
+                  - naked_identifier: table1
       - where_clause:
         - keyword: WHERE
         - expression:
@@ -126,7 +120,6 @@ file:
                   - from_expression_element:
                     - table_expression:
                       - table_reference:
-                        - table_reference:
-                          - tsql_variable: '@DepartmentCodes'
+                        - tsql_variable: '@DepartmentCodes'
             - end_bracket: )
 - statement_terminator: ;

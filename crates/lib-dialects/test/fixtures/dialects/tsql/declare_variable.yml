@@ -6,8 +6,7 @@ file:
     - data_type:
       - data_type_identifier: INT
     - assignment_operator:
-      - comparison_operator:
-        - raw_comparison_operator: =
+      - raw_comparison_operator: =
     - expression:
       - numeric_literal: '42'
 - statement_terminator: ;

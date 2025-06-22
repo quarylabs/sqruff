@@ -34,9 +34,8 @@ file:
           - from_expression_element:
             - table_expression:
               - table_reference:
-                - table_reference:
-                  - object_reference:
-                    - naked_identifier: Employees
+                - object_reference:
+                  - naked_identifier: Employees
 - statement_terminator: ;
 - statement:
   - statement:
@@ -74,9 +73,8 @@ file:
           - from_expression_element:
             - table_expression:
               - table_reference:
-                - table_reference:
-                  - object_reference:
-                    - naked_identifier: Products
+                - object_reference:
+                  - naked_identifier: Products
 - statement_terminator: ;
 - statement:
   - statement:
@@ -117,9 +115,8 @@ file:
           - from_expression_element:
             - table_expression:
               - table_reference:
-                - table_reference:
-                  - object_reference:
-                    - naked_identifier: Employees
+                - object_reference:
+                  - naked_identifier: Employees
       - groupby_clause:
         - keyword: GROUP
         - keyword: BY
@@ -177,9 +174,8 @@ file:
           - from_expression_element:
             - table_expression:
               - table_reference:
-                - table_reference:
-                  - object_reference:
-                    - naked_identifier: Products
+                - object_reference:
+                  - naked_identifier: Products
       - groupby_clause:
         - keyword: GROUP
         - keyword: BY
@@ -230,9 +226,8 @@ file:
           - from_expression_element:
             - table_expression:
               - table_reference:
-                - table_reference:
-                  - object_reference:
-                    - naked_identifier: Cities
+                - object_reference:
+                  - naked_identifier: Cities
       - groupby_clause:
         - keyword: GROUP
         - keyword: BY
@@ -289,9 +284,8 @@ file:
           - from_expression_element:
             - table_expression:
               - table_reference:
-                - table_reference:
-                  - object_reference:
-                    - naked_identifier: Products
+                - object_reference:
+                  - naked_identifier: Products
       - where_clause:
         - keyword: WHERE
         - expression:
@@ -358,9 +352,8 @@ file:
                       - from_expression_element:
                         - table_expression:
                           - table_reference:
-                            - table_reference:
-                              - object_reference:
-                                - naked_identifier: Employees
+                            - object_reference:
+                              - naked_identifier: Employees
                   - groupby_clause:
                     - keyword: GROUP
                     - keyword: BY

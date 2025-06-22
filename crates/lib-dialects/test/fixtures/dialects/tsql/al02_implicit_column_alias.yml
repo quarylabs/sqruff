@@ -239,27 +239,25 @@ file:
                                   - from_expression_element:
                                     - table_expression:
                                       - table_reference:
-                                        - table_reference:
-                                          - object_reference:
-                                            - naked_identifier: dbo
-                                            - dot: .
-                                            - naked_identifier: order_assignments
+                                        - object_reference:
+                                          - naked_identifier: dbo
+                                          - dot: .
+                                          - naked_identifier: order_assignments
                                     - alias_expression:
                                       - keyword: AS
                                       - naked_identifier: Assignments
-                                    - expression:
-                                      - keyword: WITH
-                                      - bracketed:
-                                        - start_bracket: (
-                                        - keyword: NOLOCK
-                                        - end_bracket: )
+                                    - keyword: WITH
+                                    - bracketed:
+                                      - start_bracket: (
+                                      - keyword: NOLOCK
+                                      - end_bracket: )
                                   - join_clause:
-                                    - keyword: LEFT
-                                    - keyword: OUTER
-                                    - keyword: JOIN
-                                    - from_expression_element:
-                                      - table_expression:
-                                        - table_reference:
+                                    - join_clause:
+                                      - keyword: LEFT
+                                      - keyword: OUTER
+                                      - keyword: JOIN
+                                      - from_expression_element:
+                                        - table_expression:
                                           - table_reference:
                                             - object_reference:
                                               - naked_identifier: dbo
@@ -367,273 +365,266 @@ file:
           - from_expression_element:
             - table_expression:
               - table_reference:
-                - table_reference:
-                  - object_reference:
-                    - naked_identifier: dbo
-                    - dot: .
-                    - naked_identifier: orders
+                - object_reference:
+                  - naked_identifier: dbo
+                  - dot: .
+                  - naked_identifier: orders
             - alias_expression:
               - keyword: AS
               - naked_identifier: Orders
-            - expression:
-              - keyword: WITH
-              - bracketed:
-                - start_bracket: (
-                - keyword: NOLOCK
-                - end_bracket: )
+            - keyword: WITH
+            - bracketed:
+              - start_bracket: (
+              - keyword: NOLOCK
+              - end_bracket: )
           - join_clause:
-            - keyword: LEFT
-            - keyword: OUTER
-            - keyword: JOIN
-            - from_expression_element:
-              - table_expression:
-                - table_reference:
+            - join_clause:
+              - keyword: LEFT
+              - keyword: OUTER
+              - keyword: JOIN
+              - from_expression_element:
+                - table_expression:
                   - table_reference:
                     - object_reference:
                       - naked_identifier: dbo
                       - dot: .
                       - naked_identifier: payment_terms
-              - alias_expression:
-                - keyword: AS
-                - naked_identifier: PaymentTerms
-              - expression:
+                - alias_expression:
+                  - keyword: AS
+                  - naked_identifier: PaymentTerms
                 - keyword: WITH
                 - bracketed:
                   - start_bracket: (
                   - keyword: NOLOCK
                   - end_bracket: )
-            - join_on_condition:
-              - keyword: ON
-              - expression:
-                - column_reference:
-                  - naked_identifier: PaymentTerms
-                  - dot: .
-                  - naked_identifier: term_id
-                - comparison_operator:
-                  - raw_comparison_operator: =
-                - column_reference:
-                  - naked_identifier: Orders
-                  - dot: .
-                  - naked_identifier: payment_term_id
+              - join_on_condition:
+                - keyword: ON
+                - expression:
+                  - column_reference:
+                    - naked_identifier: PaymentTerms
+                    - dot: .
+                    - naked_identifier: term_id
+                  - comparison_operator:
+                    - raw_comparison_operator: =
+                  - column_reference:
+                    - naked_identifier: Orders
+                    - dot: .
+                    - naked_identifier: payment_term_id
           - join_clause:
-            - keyword: LEFT
-            - keyword: OUTER
-            - keyword: JOIN
-            - from_expression_element:
-              - table_expression:
-                - table_reference:
+            - join_clause:
+              - keyword: LEFT
+              - keyword: OUTER
+              - keyword: JOIN
+              - from_expression_element:
+                - table_expression:
                   - table_reference:
                     - object_reference:
                       - naked_identifier: dbo
                       - dot: .
                       - naked_identifier: customers
-              - alias_expression:
-                - keyword: AS
-                - naked_identifier: Customers
-              - expression:
+                - alias_expression:
+                  - keyword: AS
+                  - naked_identifier: Customers
                 - keyword: WITH
                 - bracketed:
                   - start_bracket: (
                   - keyword: NOLOCK
                   - end_bracket: )
-            - join_on_condition:
-              - keyword: ON
-              - expression:
-                - column_reference:
-                  - naked_identifier: Customers
-                  - dot: .
-                  - naked_identifier: customer_id
-                - comparison_operator:
-                  - raw_comparison_operator: =
-                - column_reference:
-                  - naked_identifier: Orders
-                  - dot: .
-                  - naked_identifier: customer_id
+              - join_on_condition:
+                - keyword: ON
+                - expression:
+                  - column_reference:
+                    - naked_identifier: Customers
+                    - dot: .
+                    - naked_identifier: customer_id
+                  - comparison_operator:
+                    - raw_comparison_operator: =
+                  - column_reference:
+                    - naked_identifier: Orders
+                    - dot: .
+                    - naked_identifier: customer_id
           - join_clause:
-            - keyword: LEFT
-            - keyword: OUTER
-            - keyword: JOIN
-            - from_expression_element:
-              - table_expression:
-                - table_reference:
+            - join_clause:
+              - keyword: LEFT
+              - keyword: OUTER
+              - keyword: JOIN
+              - from_expression_element:
+                - table_expression:
                   - table_reference:
                     - object_reference:
                       - naked_identifier: dbo
                       - dot: .
                       - naked_identifier: contacts
-              - alias_expression:
-                - keyword: AS
-                - naked_identifier: Contacts
-              - expression:
+                - alias_expression:
+                  - keyword: AS
+                  - naked_identifier: Contacts
                 - keyword: WITH
                 - bracketed:
                   - start_bracket: (
                   - keyword: NOLOCK
                   - end_bracket: )
-            - join_on_condition:
-              - keyword: ON
-              - expression:
-                - column_reference:
-                  - naked_identifier: Contacts
-                  - dot: .
-                  - naked_identifier: contact_id
-                - comparison_operator:
-                  - raw_comparison_operator: =
-                - column_reference:
-                  - naked_identifier: Orders
-                  - dot: .
-                  - naked_identifier: contact_id
+              - join_on_condition:
+                - keyword: ON
+                - expression:
+                  - column_reference:
+                    - naked_identifier: Contacts
+                    - dot: .
+                    - naked_identifier: contact_id
+                  - comparison_operator:
+                    - raw_comparison_operator: =
+                  - column_reference:
+                    - naked_identifier: Orders
+                    - dot: .
+                    - naked_identifier: contact_id
           - join_clause:
-            - keyword: OUTER
-            - keyword: APPLY
-            - from_expression_element:
-              - table_expression:
-                - bracketed:
-                  - start_bracket: (
-                  - select_statement:
-                    - select_clause:
-                      - keyword: SELECT
-                      - select_clause_element:
-                        - function:
-                          - function_name:
-                            - function_name_identifier: SUM
-                          - bracketed:
-                            - start_bracket: (
-                            - expression:
-                              - function:
-                                - function_name:
-                                  - function_name_identifier: COALESCE
-                                - bracketed:
-                                  - start_bracket: (
-                                  - expression:
-                                    - column_reference:
-                                      - naked_identifier: LineItems
-                                      - dot: .
-                                      - naked_identifier: amount
-                                  - comma: ','
-                                  - expression:
-                                    - numeric_literal: '0'
-                                  - end_bracket: )
-                            - end_bracket: )
-                        - alias_expression:
-                          - keyword: AS
-                          - naked_identifier: TotalSales
-                      - comma: ','
-                      - select_clause_element:
-                        - function:
-                          - function_name:
-                            - function_name_identifier: SUM
-                          - bracketed:
-                            - start_bracket: (
-                            - expression:
-                              - function:
-                                - function_name:
-                                  - function_name_identifier: COALESCE
-                                - bracketed:
-                                  - start_bracket: (
-                                  - expression:
-                                    - column_reference:
-                                      - naked_identifier: LineItems
-                                      - dot: .
-                                      - naked_identifier: cost
-                                  - comma: ','
-                                  - expression:
-                                    - numeric_literal: '0'
-                                  - end_bracket: )
-                            - end_bracket: )
-                        - alias_expression:
-                          - keyword: AS
-                          - naked_identifier: TotalCost
-                    - from_clause:
-                      - keyword: FROM
-                      - from_expression:
-                        - from_expression_element:
-                          - table_expression:
-                            - table_reference:
+            - join_clause:
+              - keyword: OUTER
+              - keyword: APPLY
+              - from_expression_element:
+                - table_expression:
+                  - bracketed:
+                    - start_bracket: (
+                    - select_statement:
+                      - select_clause:
+                        - keyword: SELECT
+                        - select_clause_element:
+                          - function:
+                            - function_name:
+                              - function_name_identifier: SUM
+                            - bracketed:
+                              - start_bracket: (
+                              - expression:
+                                - function:
+                                  - function_name:
+                                    - function_name_identifier: COALESCE
+                                  - bracketed:
+                                    - start_bracket: (
+                                    - expression:
+                                      - column_reference:
+                                        - naked_identifier: LineItems
+                                        - dot: .
+                                        - naked_identifier: amount
+                                    - comma: ','
+                                    - expression:
+                                      - numeric_literal: '0'
+                                    - end_bracket: )
+                              - end_bracket: )
+                          - alias_expression:
+                            - keyword: AS
+                            - naked_identifier: TotalSales
+                        - comma: ','
+                        - select_clause_element:
+                          - function:
+                            - function_name:
+                              - function_name_identifier: SUM
+                            - bracketed:
+                              - start_bracket: (
+                              - expression:
+                                - function:
+                                  - function_name:
+                                    - function_name_identifier: COALESCE
+                                  - bracketed:
+                                    - start_bracket: (
+                                    - expression:
+                                      - column_reference:
+                                        - naked_identifier: LineItems
+                                        - dot: .
+                                        - naked_identifier: cost
+                                    - comma: ','
+                                    - expression:
+                                      - numeric_literal: '0'
+                                    - end_bracket: )
+                              - end_bracket: )
+                          - alias_expression:
+                            - keyword: AS
+                            - naked_identifier: TotalCost
+                      - from_clause:
+                        - keyword: FROM
+                        - from_expression:
+                          - from_expression_element:
+                            - table_expression:
                               - table_reference:
                                 - object_reference:
                                   - naked_identifier: dbo
                                   - dot: .
                                   - naked_identifier: orders
-                          - alias_expression:
-                            - keyword: AS
-                            - naked_identifier: ord
-                          - expression:
+                            - alias_expression:
+                              - keyword: AS
+                              - naked_identifier: ord
                             - keyword: WITH
                             - bracketed:
                               - start_bracket: (
                               - keyword: NOLOCK
                               - end_bracket: )
-                        - join_clause:
-                          - keyword: LEFT
-                          - keyword: OUTER
-                          - keyword: JOIN
-                          - from_expression_element:
-                            - table_expression:
-                              - table_reference:
-                                - table_reference:
-                                  - object_reference:
-                                    - naked_identifier: dbo
+                          - join_clause:
+                            - join_clause:
+                              - keyword: LEFT
+                              - keyword: OUTER
+                              - keyword: JOIN
+                              - from_expression_element:
+                                - table_expression:
+                                  - table_reference:
+                                    - object_reference:
+                                      - naked_identifier: dbo
+                                      - dot: .
+                                      - naked_identifier: order_items
+                                - alias_expression:
+                                  - keyword: AS
+                                  - naked_identifier: LineItems
+                                - keyword: WITH
+                                - bracketed:
+                                  - start_bracket: (
+                                  - keyword: NOLOCK
+                                  - end_bracket: )
+                              - join_on_condition:
+                                - keyword: ON
+                                - expression:
+                                  - column_reference:
+                                    - naked_identifier: LineItems
                                     - dot: .
-                                    - naked_identifier: order_items
-                            - alias_expression:
-                              - keyword: AS
-                              - naked_identifier: LineItems
-                            - expression:
-                              - keyword: WITH
-                              - bracketed:
-                                - start_bracket: (
-                                - keyword: NOLOCK
-                                - end_bracket: )
-                          - join_on_condition:
-                            - keyword: ON
-                            - expression:
-                              - column_reference:
-                                - naked_identifier: LineItems
-                                - dot: .
-                                - naked_identifier: order_id
-                              - comparison_operator:
-                                - raw_comparison_operator: =
-                              - column_reference:
-                                - naked_identifier: ord
-                                - dot: .
-                                - naked_identifier: order_id
-                              - binary_operator: AND
-                              - column_reference:
-                                - naked_identifier: LineItems
-                                - dot: .
-                                - naked_identifier: item_type
-                              - keyword: IN
-                              - bracketed:
-                                - start_bracket: (
-                                - numeric_literal: '1'
-                                - comma: ','
-                                - numeric_literal: '2'
-                                - end_bracket: )
-                              - binary_operator: AND
-                              - column_reference:
-                                - naked_identifier: LineItems
-                                - dot: .
-                                - naked_identifier: deleted_at
-                              - keyword: IS
-                              - null_literal: 'NULL'
-                    - where_clause:
-                      - keyword: WHERE
-                      - expression:
-                        - column_reference:
-                          - naked_identifier: ord
-                          - dot: .
-                          - naked_identifier: order_id
-                        - comparison_operator:
-                          - raw_comparison_operator: =
-                        - column_reference:
-                          - naked_identifier: Orders
-                          - dot: .
-                          - naked_identifier: order_id
-                  - end_bracket: )
-              - alias_expression:
-                - keyword: AS
-                - naked_identifier: Summary
+                                    - naked_identifier: order_id
+                                  - comparison_operator:
+                                    - raw_comparison_operator: =
+                                  - column_reference:
+                                    - naked_identifier: ord
+                                    - dot: .
+                                    - naked_identifier: order_id
+                                  - binary_operator: AND
+                                  - column_reference:
+                                    - naked_identifier: LineItems
+                                    - dot: .
+                                    - naked_identifier: item_type
+                                  - keyword: IN
+                                  - bracketed:
+                                    - start_bracket: (
+                                    - numeric_literal: '1'
+                                    - comma: ','
+                                    - numeric_literal: '2'
+                                    - end_bracket: )
+                                  - binary_operator: AND
+                                  - column_reference:
+                                    - naked_identifier: LineItems
+                                    - dot: .
+                                    - naked_identifier: deleted_at
+                                  - keyword: IS
+                                  - null_literal: 'NULL'
+                      - where_clause:
+                        - keyword: WHERE
+                        - expression:
+                          - column_reference:
+                            - naked_identifier: ord
+                            - dot: .
+                            - naked_identifier: order_id
+                          - comparison_operator:
+                            - raw_comparison_operator: =
+                          - column_reference:
+                            - naked_identifier: Orders
+                            - dot: .
+                            - naked_identifier: order_id
+                    - end_bracket: )
+                - alias_expression:
+                  - keyword: AS
+                  - naked_identifier: Summary
       - where_clause:
         - keyword: WHERE
         - expression:

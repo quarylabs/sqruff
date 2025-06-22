@@ -20,9 +20,8 @@ file:
                 - from_expression_element:
                   - table_expression:
                     - table_reference:
-                      - table_reference:
-                        - object_reference:
-                          - naked_identifier: table1
+                      - object_reference:
+                        - naked_identifier: table1
           - end_bracket: )
       - select_statement:
         - select_clause:
@@ -37,32 +36,31 @@ file:
             - from_expression_element:
               - table_expression:
                 - table_reference:
-                  - table_reference:
-                    - object_reference:
-                      - naked_identifier: NxItem
+                  - object_reference:
+                    - naked_identifier: NxItem
             - join_clause:
-              - keyword: LEFT
-              - keyword: OUTER
-              - keyword: JOIN
-              - from_expression_element:
-                - table_expression:
-                  - table_reference:
+              - join_clause:
+                - keyword: LEFT
+                - keyword: OUTER
+                - keyword: JOIN
+                - from_expression_element:
+                  - table_expression:
                     - table_reference:
                       - object_reference:
                         - naked_identifier: bu2ic
-                - alias_expression:
-                  - keyword: AS
-                  - naked_identifier: BU2IC
-              - join_on_condition:
-                - keyword: ON
-                - expression:
-                  - column_reference:
+                  - alias_expression:
+                    - keyword: AS
                     - naked_identifier: BU2IC
-                    - dot: .
-                    - naked_identifier: ItemCategoryID
-                  - comparison_operator:
-                    - raw_comparison_operator: =
-                  - column_reference:
-                    - naked_identifier: NxItem
-                    - dot: .
-                    - naked_identifier: i_category_id
+                - join_on_condition:
+                  - keyword: ON
+                  - expression:
+                    - column_reference:
+                      - naked_identifier: BU2IC
+                      - dot: .
+                      - naked_identifier: ItemCategoryID
+                    - comparison_operator:
+                      - raw_comparison_operator: =
+                    - column_reference:
+                      - naked_identifier: NxItem
+                      - dot: .
+                      - naked_identifier: i_category_id

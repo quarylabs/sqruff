@@ -703,12 +703,14 @@ fn iter_segments(
                     // overlap?
                     // NOTE: If the rest of the logic works, this should never
                     // happen.
-                    // lexer_logger.debug("     NOTE: Missed Skip")  # pragma: no cover
+                    log::debug!("Missed Skip");
                     continue;
                 } else {
                     // This means that the current lexed element spans across
                     // multiple templated file slices.
-                    // lexer_logger.debug("     Consuming whole spanning literal")
+
+                    log::debug!("Consuming whole spanning literal",);
+
                     // This almost certainly means there's a templated element
                     // in the middle of a whole lexed element.
 
@@ -752,12 +754,10 @@ fn iter_segments(
                         // We can't split it. We're going to end up yielding a segment
                         // which spans multiple slices. Stash the type, and if we haven't
                         // set the start yet, stash it too.
-                        // lexer_logger.debug("     Spilling over literal slice.")
+                        log::debug!("Spilling over literal slice.");
                         if stashed_source_idx.is_none() {
                             stashed_source_idx = (element.template_slice.start + idx).into();
-                            // lexer_logger.debug(
-                            //     "     Stashing a source start. %s", stashed_source_idx
-                            // )
+                            log::debug!("Stashing a source start. {stashed_source_idx:?}");
                             continue;
                         }
                     }
@@ -777,7 +777,7 @@ fn iter_segments(
 
                     // Is our current element totally contained in this slice?
                     if element.template_slice.end <= tfs.templated_slice.end {
-                        // lexer_logger.debug("     Contained templated slice.")
+                        log::debug!("Contained templated slice.");
                         // Yes it is. Add lexed element with source slices as the whole
                         // span of the source slice for the file slice.
                         // If we've got an existing stashed source start, use that

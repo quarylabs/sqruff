@@ -46,7 +46,7 @@ pub struct TemplatedFile {
 impl TemplatedFile {
     pub fn new(
         source_str: String,
-        f_name: String,
+        name: String,
         input_templated_str: Option<String>,
         sliced_file: Option<Vec<TemplatedFileSlice>>,
         input_raw_sliced: Option<Vec<RawFileSlice>>,
@@ -54,12 +54,16 @@ impl TemplatedFile {
         Ok(TemplatedFile {
             inner: Arc::new(TemplatedFileInner::new(
                 source_str,
-                f_name,
+                name,
                 input_templated_str,
                 sliced_file,
                 input_raw_sliced,
             )?),
         })
+    }
+
+    pub fn name(&self) -> &str {
+        &self.inner.name
     }
 
     #[cfg(feature = "stringify")]
@@ -102,7 +106,7 @@ impl Deref for TemplatedFile {
 #[derive(Debug, PartialEq, Eq, Clone, Hash, Default)]
 pub struct TemplatedFileInner {
     pub source_str: String,
-    f_name: String,
+    name: String,
     pub templated_str: Option<String>,
     source_newlines: Vec<usize>,
     templated_newlines: Vec<usize>,
@@ -234,7 +238,7 @@ impl TemplatedFileInner {
             templated_newlines,
             source_str: source_str.clone(),
             sliced_file,
-            f_name,
+            name: f_name,
             templated_str: Some(templated_str),
         })
     }

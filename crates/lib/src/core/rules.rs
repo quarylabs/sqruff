@@ -317,7 +317,7 @@ impl RuleSet {
         };
 
         if !name_collisions.is_empty() {
-            tracing::warn!(
+            log::warn!(
                 "The following defined rule names were found which collide with codes. Those \
                  names will not be available for selection: {name_collisions:?}",
             );
@@ -330,7 +330,7 @@ impl RuleSet {
             for group in manifest.groups {
                 let group = group.as_ref();
                 if let Some(codes) = reference_map.get(group) {
-                    tracing::warn!(
+                    log::warn!(
                         "Rule {} defines group '{}' which is already defined as a name or code of \
                          {:?}. This group will not be available for use as a result of this \
                          collision.",

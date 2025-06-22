@@ -19,7 +19,7 @@
 // ✅ Data types with MAX and -1 (NVARCHAR(MAX), VARCHAR(-1))
 // ✅ T-SQL alias equals syntax (AliasName = expression)
 // ✅ String concatenation in parentheses (+ operator)
-// ❌ Complex nested CTEs parsing
+// ✅ Complex nested CTEs parsing
 // ❌ Table aliases in JOIN clauses with hints
 //
 // Files still containing unparsable sections (5 total, down from 8):

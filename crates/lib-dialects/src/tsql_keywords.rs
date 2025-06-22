@@ -447,6 +447,7 @@ pub(crate) fn tsql_future_keywords() -> AHashSet<&'static str> {
         "UNNEST",
         "USAGE",
         "USING",
+        // "VALUE", // Commented out to allow "value" as identifier in T-SQL alias equals syntax
         "VAR_POP",
         "VAR_SAMP",
         "VARCHAR",

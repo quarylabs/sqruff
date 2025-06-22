@@ -18,7 +18,7 @@
 // ✅ WITHIN GROUP clause for STRING_AGG
 // ✅ Data types with MAX and -1 (NVARCHAR(MAX), VARCHAR(-1))
 // ✅ T-SQL alias equals syntax (AliasName = expression)
-// ❌ String concatenation in parentheses
+// ✅ String concatenation in parentheses (+ operator)
 // ❌ Complex nested CTEs parsing
 // ❌ Table aliases in JOIN clauses with hints
 //
@@ -913,6 +913,18 @@ pub fn raw_dialect() -> Dialect {
         .to_matchable(),
     );
     
+    // T-SQL uses + for both arithmetic and string concatenation
+    // Override StringBinaryOperatorGrammar to include the + operator
+    // This fixes string concatenation in parentheses like: (first_name + ' ' + last_name)
+    dialect.add([(
+        "StringBinaryOperatorGrammar".into(),
+        one_of(vec_of_erased![
+            Ref::new("ConcatSegment"),  // Standard || operator
+            Ref::new("PlusSegment"),    // T-SQL + operator for string concatenation
+        ])
+        .to_matchable()
+        .into(),
+    )]);
 
     // CRITICAL: expand() must be called after all grammar modifications
     // This method recursively expands all grammar references and builds

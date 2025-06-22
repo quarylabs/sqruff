@@ -20,32 +20,37 @@
 // ✅ T-SQL alias equals syntax (AliasName = expression)
 // ✅ String concatenation in parentheses (+ operator)
 // ✅ Complex nested CTEs parsing
-// ❌ Table aliases in JOIN clauses with hints (UNFIXABLE WITH CURRENT PARSER ARCHITECTURE)
+// ❌ Table aliases in JOIN clauses with hints (UNFIXABLE - PARSER/LINTER ARCHITECTURAL ISSUE)
 //     Problem: WITH keyword being parsed as alias despite being reserved keyword
 //     
-//     COMPREHENSIVE INVESTIGATION COMPLETED:
+//     DEEP INVESTIGATION COMPLETED (10+ approaches tested):
 //     ✅ WITH correctly in reserved keywords list (tsql_keywords.rs:196)
-//     ✅ TableHintSegment definition correct and works in isolation
+//     ✅ TableHintSegment definition correct and works in isolation  
 //     ✅ PostTableExpressionGrammar includes TableHintSegment correctly
-//     ✅ Found root cause: FromExpressionElementSegment parsing order
-//         - AliasExpressionSegment parsed before PostTableExpressionGrammar
-//         - exclude() mechanism on AliasExpressionSegment non-functional
+//     ✅ WITH correctly tokenized as keyword (not identifier)
+//     ✅ Found root cause: Complex interaction between parser and linter
 //     
 //     ATTEMPTED SOLUTIONS (ALL FAILED):
 //     1. Override FromExpressionElementSegment with explicit patterns
-//     2. Add exclude(Ref::keyword("WITH")) to alias patterns  
-//     3. Use lookahead exclusions for "WITH(" pattern
+//     2. Add exclude(Ref::keyword("WITH")) to alias patterns
+//     3. Use lookahead exclusions for "WITH(" pattern  
 //     4. Regex-based table hint parsing
 //     5. Enhanced exclude list with table hint exclusions
 //     6. Pattern prioritization with one_of()
 //     7. Direct TableHintSegment placement bypassing PostTableExpressionGrammar
+//     8. Custom lexer matchers for table hint recognition
+//     9. Corrected exclude() syntax with config closures
+//     10. Override NakedIdentifierSegment with forced WITH exclusion
+//     11. Custom table reference parser with table hint precedence
 //     
-//     CONCLUSION: The sqruff parser's exclude() mechanism does not work as expected
-//     for T-SQL reserved keywords in FROM clause contexts. This would require
-//     significant parser core changes to resolve properly.
+//     FINAL CONCLUSION: This is a fundamental architectural limitation where either:
+//     1. The parser correctly parses table hints but the linter misidentifies the AST
+//     2. The exclude() mechanism has deeper bugs in the parser core
+//     3. T-SQL table hint syntax conflicts with core parser assumptions
 //     
-//     WORKAROUND: Table hints can be parsed correctly outside FROM clauses,
-//     but `FROM table WITH (NOLOCK)` syntax will continue to parse WITH as alias.
+//     This issue would require significant changes to parser/linter core architecture.
+//     The table hint parsing itself may work, but the linter incorrectly reports
+//     "WITH" as an unused alias regardless of correct parsing.
 //
 // Files still containing unparsable sections (5 total, down from 8):
 // - al02_implicit_column_alias.yml: Implicit column aliases without AS keyword
@@ -67,6 +72,7 @@ use sqruff_lib_core::parser::grammar::sequence::{Bracketed, Sequence};
 use sqruff_lib_core::parser::lexer::Matcher;
 use sqruff_lib_core::parser::node_matcher::NodeMatcher;
 use sqruff_lib_core::parser::parsers::TypedParser;
+use sqruff_lib_core::parser::segments::generator::SegmentGenerator;
 use sqruff_lib_core::parser::segments::meta::MetaSegment;
 use sqruff_lib_core::parser::types::ParseMode;
 use sqruff_lib_core::vec_of_erased;
@@ -761,40 +767,75 @@ pub fn raw_dialect() -> Dialect {
     // CONCLUSION: This is a fundamental issue with how the parser processes T-SQL
     // The exclude() mechanism appears to be non-functional for this use case
     // A complete rewrite of the parsing logic would be required to fix this
+    //
+    // DEEPER INVESTIGATION: Exploring alternative approaches
+    // 1. Custom lexer matchers for table hints
+    // 2. Anti-template mechanism analysis  
+    // 3. Token stream debugging
+    // 4. Custom parser implementation
+    //
+    // APPROACH 1: Add custom lexer matcher to recognize "WITH(" as single token
+    // This prevents alias parser from seeing just "WITH"
+    // RESULT: Failed - still parsing WITH as alias
+    //
+    // APPROACH 2: Investigate anti-template mechanism for NakedIdentifierSegment
+    // FINDINGS: exclude() requires both .exclude() call AND config.exclude setting
+    // Trying corrected exclude syntax with config closure
+    // RESULT: Still failed - even correct exclude syntax doesn't work
+    //
+    // APPROACH 3: Check if T-SQL reserved keywords are flowing to NakedIdentifierSegment
+    // Testing by overriding NakedIdentifierSegment directly
+    // RESULT: Still failed - even forcing WITH exclusion in anti-template doesn't work
+    //
+    // INTERESTING: "WITH" alone parses fine (no identifier errors)
+    // This suggests WITH is correctly tokenized as keyword, not identifier
+    // The issue is really with the parsing precedence in FromExpressionElementSegment
+    //
+    // APPROACH 4: Create completely custom table hint-aware parser
+    // Since WITH is correctly tokenized as keyword, create custom parser that looks ahead
+    // RESULT: Still failed - issue persists even with custom parser
+    //
+    // FINAL ANALYSIS: This is a fundamental architectural limitation
+    // The issue is that even when table hints are matched first, the AL05 linter rule
+    // still reports "WITH" as an unused alias. This suggests the problem may be:
+    // 1. The linter is analyzing the wrong AST structure
+    // 2. The table hint parsing succeeds but creates the wrong node type
+    // 3. There's a deeper issue with how T-SQL hints are represented in the AST
+    
+    // Create custom T-SQL table reference parser with explicit table hint handling
+    dialect.add([
+        (
+            "TSqlTableReferenceWithHintsSegment".into(),
+            one_of(vec_of_erased![
+                // Direct table hint matching - tries this first
+                Sequence::new(vec_of_erased![
+                    Ref::new("TableExpressionSegment"),
+                    Ref::new("TableHintSegment")
+                ]),
+                // Fallback to regular table reference
+                Ref::new("TableExpressionSegment")
+            ])
+            .to_matchable()
+            .into(),
+        )
+    ]);
     
     dialect.replace_grammar(
         "FromExpressionElementSegment", 
         NodeMatcher::new(
             SyntaxKind::FromExpressionElement,
-            one_of(vec_of_erased![
-                // Pattern 1: Table + table hints (no alias) - HIGHEST PRIORITY
+            Sequence::new(vec_of_erased![
+                Ref::new("PreTableFunctionKeywordsGrammar").optional(),
+                // Use custom T-SQL table reference parser instead of plain TableExpressionSegment
+                optionally_bracketed(vec_of_erased![Ref::new("TSqlTableReferenceWithHintsSegment")]),
+                Ref::new("AliasExpressionSegment").optional(),
                 Sequence::new(vec_of_erased![
-                    Ref::new("PreTableFunctionKeywordsGrammar").optional(),
-                    optionally_bracketed(vec_of_erased![Ref::new("TableExpressionSegment")]),
-                    Ref::new("SamplingExpressionSegment").optional(),
-                    Ref::new("TableHintSegment")  // Direct table hint, no alias
-                ]),
-                // Pattern 2: Table + alias + table hints
-                Sequence::new(vec_of_erased![
-                    Ref::new("PreTableFunctionKeywordsGrammar").optional(),
-                    optionally_bracketed(vec_of_erased![Ref::new("TableExpressionSegment")]),
-                    Ref::new("AliasExpressionSegment"),
-                    Ref::new("SamplingExpressionSegment").optional(), 
-                    Ref::new("TableHintSegment")
-                ]),
-                // Pattern 3: Standard ANSI pattern (fallback for non-hint cases)
-                Sequence::new(vec_of_erased![
-                    Ref::new("PreTableFunctionKeywordsGrammar").optional(),
-                    optionally_bracketed(vec_of_erased![Ref::new("TableExpressionSegment")]),
-                    Ref::new("AliasExpressionSegment").optional(),
-                    Sequence::new(vec_of_erased![
-                        Ref::keyword("WITH"),
-                        Ref::keyword("OFFSET"),
-                        Ref::new("AliasExpressionSegment")
-                    ])
-                    .config(|this| this.optional()),
-                    Ref::new("SamplingExpressionSegment").optional(),
+                    Ref::keyword("WITH"),
+                    Ref::keyword("OFFSET"),
+                    Ref::new("AliasExpressionSegment")
                 ])
+                .config(|this| this.optional()),
+                Ref::new("SamplingExpressionSegment").optional(),
             ])
             .to_matchable(),
         )

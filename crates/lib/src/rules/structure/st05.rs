@@ -4,22 +4,22 @@ use std::ops::{Index, IndexMut};
 use ahash::{AHashMap, AHashSet};
 use itertools::{Itertools, enumerate};
 use smol_str::{SmolStr, StrExt, ToSmolStr, format_smolstr};
-use sqruff_lib_core::dialects::base::Dialect;
+use sqruff_lib_core::dialects::Dialect;
 use sqruff_lib_core::dialects::common::AliasInfo;
 use sqruff_lib_core::dialects::init::DialectKind;
 use sqruff_lib_core::dialects::syntax::{SyntaxKind, SyntaxSet};
 use sqruff_lib_core::lint_fix::LintFix;
 use sqruff_lib_core::linter::compute_anchor_edit_info;
-use sqruff_lib_core::parser::segments::base::{ErasedSegment, SegmentBuilder, Tables};
 use sqruff_lib_core::parser::segments::object_reference::ObjectReferenceLevel;
+use sqruff_lib_core::parser::segments::{ErasedSegment, SegmentBuilder, Tables};
 use sqruff_lib_core::utils::analysis::query::{Query, Selectable};
 use sqruff_lib_core::utils::analysis::select::get_select_statement_info;
 use sqruff_lib_core::utils::functional::segments::Segments;
 
 use crate::core::config::Value;
-use crate::core::rules::base::{Erased, ErasedRule, LintResult, Rule, RuleGroups};
 use crate::core::rules::context::RuleContext;
 use crate::core::rules::crawlers::{Crawler, SegmentSeekerCrawler};
+use crate::core::rules::{Erased, ErasedRule, LintResult, Rule, RuleGroups};
 use crate::utils::functional::context::FunctionalContext;
 
 const SELECT_TYPES: SyntaxSet = SyntaxSet::new(&[

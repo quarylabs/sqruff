@@ -1,6 +1,6 @@
 use enum_dispatch::enum_dispatch;
 use sqruff_lib_core::dialects::syntax::{SyntaxKind, SyntaxSet};
-use sqruff_lib_core::parser::segments::base::ErasedSegment;
+use sqruff_lib_core::parser::segments::ErasedSegment;
 
 use crate::core::rules::context::RuleContext;
 

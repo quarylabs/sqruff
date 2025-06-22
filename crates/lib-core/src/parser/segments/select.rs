@@ -1,6 +1,6 @@
 use crate::dialects::common::ColumnAliasInfo;
 use crate::dialects::syntax::{SyntaxKind, SyntaxSet};
-use crate::parser::segments::base::ErasedSegment;
+use crate::parser::segments::ErasedSegment;
 
 #[derive(Clone)]
 pub struct SelectClauseElementSegment(pub ErasedSegment);

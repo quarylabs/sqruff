@@ -3,9 +3,9 @@ use smol_str::StrExt;
 use sqruff_lib_core::dialects::syntax::SyntaxKind;
 
 use crate::core::config::Value;
-use crate::core::rules::base::{Erased, ErasedRule, LintResult, Rule, RuleGroups};
 use crate::core::rules::context::RuleContext;
 use crate::core::rules::crawlers::{Crawler, TokenSeekerCrawler};
+use crate::core::rules::{Erased, ErasedRule, LintResult, Rule, RuleGroups};
 
 #[derive(Default, Clone, Debug)]
 pub struct RuleCV09 {

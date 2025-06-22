@@ -3,7 +3,7 @@ use crate::dialects::syntax::SyntaxKind;
 use crate::errors::SQLParseError;
 use crate::parser::context::ParseContext;
 use crate::parser::matchable::MatchableTrait;
-use crate::parser::segments::base::{ErasedSegment, SegmentBuilder, Tables};
+use crate::parser::segments::{ErasedSegment, SegmentBuilder, Tables};
 
 #[derive(Debug, Clone, PartialEq)]
 pub struct FileSegment;

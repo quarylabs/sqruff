@@ -220,7 +220,7 @@ mod tests {
     use sqruff_lib_core::dialects::syntax::SyntaxKind;
     use sqruff_lib_core::errors::{ErrorStructRule, SQLLintError};
     use sqruff_lib_core::parser::markers::PositionMarker;
-    use sqruff_lib_core::parser::segments::base::SegmentBuilder;
+    use sqruff_lib_core::parser::segments::SegmentBuilder;
 
     use super::OutputStreamFormatter;
     use crate::cli::formatters::split_string_on_spaces;

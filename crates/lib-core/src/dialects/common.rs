@@ -1,6 +1,6 @@
 use smol_str::SmolStr;
 
-use crate::parser::segments::base::ErasedSegment;
+use crate::parser::segments::ErasedSegment;
 
 /// Details about a table alias.
 #[derive(Debug, PartialEq, Eq, Hash, Clone)]

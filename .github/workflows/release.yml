@@ -242,8 +242,7 @@ jobs:
       - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # ratchet:actions/setup-node@v4
         with:
           node-version-file: ".nvmrc"
-          cache: "pnpm"
       - run: npm install -g ovsx
       - run: chmod +x .hacking/scripts/download_extension.sh
       - run: ./.hacking/scripts/download_extension.sh
-      - run: ovsx publish extension.vsix -p ${{ secrets.OPEN_VSX_TOKEN }}
+      - run: ovsx publish -p ${{ secrets.OPEN_VSX_TOKEN }} extension.vsix

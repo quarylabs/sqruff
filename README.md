@@ -51,7 +51,7 @@ Open the [playground](https://playground.quary.dev) to try out the linter and fo
 
 ### Installation
 
-#### macOS
+#### Homebrew
 
 You can use [brew](https://brew.sh/) to install sqruff easily on macOS.
 
@@ -59,7 +59,7 @@ You can use [brew](https://brew.sh/) to install sqruff easily on macOS.
 brew install sqruff
 ```
 
-#### Linux
+#### Download the binary with bash script
 
 Using `bash`:
 
@@ -92,11 +92,10 @@ jobs:
 
 #### For other platforms
 
-Either download the binary from the [releases page](https://github.com/quarylabs/sqruff/releases) or compile it yourself and with cargo with the following commands.
+Either download the binary from the [releases page](https://github.com/quarylabs/sqruff/releases) or compile it yourself and with cargo:
 
 ```bash
-rustup toolchain install nightly
-cargo +nightly install sqruff
+cargo install sqruff
 sqruff --help
 ```
 

@@ -1,0 +1,85 @@
+file:
+- statement:
+  - statement:
+    - keyword: DECLARE
+    - tsql_variable: '@LargeText'
+    - data_type:
+      - data_type_identifier: NVARCHAR
+      - bracketed_arguments:
+        - bracketed_arguments:
+          - bracketed:
+            - start_bracket: (
+            - keyword: MAX
+            - end_bracket: )
+- statement_terminator: ;
+- statement:
+  - statement:
+    - keyword: DECLARE
+    - tsql_variable: '@BigString'
+    - data_type:
+      - data_type_identifier: VARCHAR
+      - bracketed_arguments:
+        - bracketed_arguments:
+          - bracketed:
+            - start_bracket: (
+            - keyword: MAX
+            - end_bracket: )
+- statement_terminator: ;
+- statement:
+  - statement:
+    - keyword: DECLARE
+    - tsql_variable: '@BinaryData'
+    - data_type:
+      - data_type_identifier: VARBINARY
+      - bracketed_arguments:
+        - bracketed_arguments:
+          - bracketed:
+            - start_bracket: (
+            - keyword: MAX
+            - end_bracket: )
+- statement_terminator: ;
+- statement:
+  - statement:
+    - keyword: DECLARE
+    - tsql_variable: '@LargeText2'
+    - data_type:
+      - data_type_identifier: NVARCHAR
+      - bracketed_arguments:
+        - bracketed_arguments:
+          - bracketed:
+            - start_bracket: (
+            - numeric_literal:
+              - sign_indicator: '-'
+              - numeric_literal: '1'
+            - end_bracket: )
+- statement_terminator: ;
+- statement:
+  - statement:
+    - keyword: DECLARE
+    - tsql_variable: '@BigString2'
+    - data_type:
+      - data_type_identifier: VARCHAR
+      - bracketed_arguments:
+        - bracketed_arguments:
+          - bracketed:
+            - start_bracket: (
+            - numeric_literal:
+              - sign_indicator: '-'
+              - numeric_literal: '1'
+            - end_bracket: )
+- statement_terminator: ;
+- statement:
+  - statement:
+    - keyword: DECLARE
+    - tsql_variable: '@BinaryData2'
+    - data_type:
+      - data_type_identifier: VARBINARY
+      - bracketed_arguments:
+        - bracketed_arguments:
+          - bracketed:
+            - start_bracket: (
+            - numeric_literal:
+              - sign_indicator: '-'
+              - numeric_literal: '1'
+            - end_bracket: )
+- statement_terminator: ;

@@ -83,6 +83,9 @@ criterion = "0.5"
 expect-test = "1.5"
 glob = "0.3"
 serde_json = "1"
-serde_with = "3.13"
+serde_with = { version = "3.13", default-features = false, features = [
+    "alloc",
+    "macros",
+] }
 sqruff-lib-core = { path = "../lib-core", features = ["serde"] }
 pyo3 = { version = "0.25.1", features = ["auto-initialize"] }

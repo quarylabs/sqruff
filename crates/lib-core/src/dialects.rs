@@ -20,7 +20,6 @@ use crate::parser::types::DialectElementType;
 pub struct Dialect {
     pub name: DialectKind,
     lexer_matchers: Option<Vec<Matcher>>,
-    // TODO: Can we use PHF here? https://crates.io/crates/phf
     library: AHashMap<Cow<'static, str>, DialectElementType>,
     sets: AHashMap<&'static str, AHashSet<&'static str>>,
     pub bracket_collections: AHashMap<&'static str, AHashSet<BracketPair>>,

@@ -28,11 +28,14 @@ const SELECT_TYPES: SyntaxSet = SyntaxSet::new(&[
     SyntaxKind::SelectStatement,
 ]);
 
-static CONFIG_MAPPING: phf::Map<&str, SyntaxSet> = phf::phf_map! {
-    "join" => SyntaxSet::single(SyntaxKind::JoinClause),
-    "from" => SyntaxSet::single(SyntaxKind::FromExpressionElement),
-    "both" => SyntaxSet::new(&[SyntaxKind::JoinClause, SyntaxKind::FromExpressionElement])
-};
+fn config_mapping(key: &str) -> SyntaxSet {
+    match key {
+        "join" => SyntaxSet::single(SyntaxKind::JoinClause),
+        "from" => SyntaxSet::single(SyntaxKind::FromExpressionElement),
+        "both" => SyntaxSet::new(&[SyntaxKind::JoinClause, SyntaxKind::FromExpressionElement]),
+        _ => unreachable!("Invalid value for 'forbid_subquery_in': {key}"),
+    }
+}
 
 #[allow(dead_code)]
 struct NestedSubQuerySummary<'a> {
@@ -334,7 +337,7 @@ impl RuleST05 {
     ) -> Vec<NestedSubQuerySummary<'a>> {
         let mut acc = Vec::new();
 
-        let parent_types = &CONFIG_MAPPING[&self.forbid_subquery_in];
+        let parent_types = config_mapping(&self.forbid_subquery_in);
         let mut queries = vec![query.clone()];
         queries.extend(query.inner.borrow().ctes.values().cloned());
 

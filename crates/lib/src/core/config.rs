@@ -580,14 +580,6 @@ impl FromStr for Value {
     type Err = ();
 
     fn from_str(s: &str) -> Result<Self, Self::Err> {
-        use unicase::UniCase;
-
-        static KEYWORDS: phf::Map<UniCase<&'static str>, Value> = phf::phf_map! {
-            UniCase::ascii("true") => Value::Bool(true),
-            UniCase::ascii("false") => Value::Bool(false),
-            UniCase::ascii("none") => Value::None,
-        };
-
         if let Ok(value) = s.parse() {
             return Ok(Value::Int(value));
         }
@@ -596,11 +588,12 @@ impl FromStr for Value {
             return Ok(Value::Float(value));
         }
 
-        let key = UniCase::ascii(s);
-        let value = KEYWORDS
-            .get(&key)
-            .cloned()
-            .unwrap_or_else(|| Value::String(Box::from(s)));
+        let value = match () {
+            _ if s.eq_ignore_ascii_case("true") => Value::Bool(true),
+            _ if s.eq_ignore_ascii_case("false") => Value::Bool(false),
+            _ if s.eq_ignore_ascii_case("none") => Value::None,
+            _ => Value::String(Box::from(s)),
+        };
 
         Ok(value)
     }

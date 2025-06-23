@@ -40,8 +40,8 @@ rust_lint: ## Lint rust code
 .PHONY: rust_test
 rust_test: ## Run rust tests
 	cd crates/cli-python && maturin develop
-	cargo test --manifest-path ./crates/cli/Cargo.toml
-	cargo test --all --all-features --exclude sqruff
+	cargo test --no-fail-fast --manifest-path ./crates/cli/Cargo.toml
+	cargo test --no-fail-fast --all --all-features --exclude sqruff
 
 .PHONY: ci
 ci: ratchet_check python_ci rust_test ## Run all CI checks

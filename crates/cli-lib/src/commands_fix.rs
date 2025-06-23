@@ -1,4 +1,3 @@
-use crate::check_user_input;
 use crate::commands::FixArgs;
 use crate::commands::Format;
 use crate::linter;
@@ -13,7 +12,7 @@ pub(crate) fn run_fix(
 ) -> i32 {
     let FixArgs {
         paths,
-        force,
+        check,
         format,
     } = args;
     let mut linter = linter(config, format, collect_parse_errors);
@@ -24,29 +23,17 @@ pub(crate) fn run_fix(
         println!("{} files processed, nothing to fix.", count_files);
         0
     } else {
-        if !force {
-            match check_user_input() {
-                Some(true) => {
-                    eprintln!("Attempting fixes...");
-                }
-                Some(false) => return 0,
-                None => {
-                    eprintln!("Invalid input, please enter 'Y' or 'N'");
-                    eprintln!("Aborting...");
-                    return 0;
-                }
-            }
-        }
-
         let any_unfixable_errors = result
             .files
             .iter()
             .any(|file| !file.get_violations(Some(false)).is_empty());
 
-        for mut file in result.files {
-            let path = std::mem::take(&mut file.path);
-            let write_buff = file.fix_string();
-            std::fs::write(path, write_buff).unwrap();
+        if !check {
+            for mut file in result.files {
+                let path = std::mem::take(&mut file.path);
+                let write_buff = file.fix_string();
+                std::fs::write(path, write_buff).unwrap();
+            }
         }
 
         linter.formatter_mut().unwrap().completion_message();

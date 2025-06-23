@@ -120,21 +120,3 @@ pub(crate) fn linter(config: FluffConfig, format: Format, collect_parse_errors: 
 
     Linter::new(config, Some(formatter), None, collect_parse_errors)
 }
-
-fn check_user_input() -> Option<bool> {
-    use std::io::Write;
-
-    let mut term = console::Term::stdout();
-    _ = term
-        .write(b"Are you sure you wish to attempt to fix these? [Y/n] ")
-        .unwrap();
-    term.flush().unwrap();
-
-    let ret = match term.read_char().unwrap().to_ascii_lowercase() {
-        'y' | '\r' | '\n' => Some(true),
-        'n' => Some(false),
-        _ => None,
-    };
-    _ = term.write(b" ...\n").unwrap();
-    ret
-}

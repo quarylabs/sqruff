@@ -67,8 +67,8 @@ Fix SQL files via passing a list of files or using stdin
 
 ###### **Options:**
 
-* `--force` — Skip the confirmation prompt and go straight to applying fixes
-* `-f`, `--format <FORMAT>`
+* `--check` — If set, will not apply fixes but only check for violations
+* `-f`, `--format <FORMAT>` — The output format for the results
 
   Default value: `human`
 

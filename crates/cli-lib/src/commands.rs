@@ -55,9 +55,10 @@ pub struct LintArgs {
 pub struct FixArgs {
     /// Files or directories to fix. Use `-` to read from stdin.
     pub paths: Vec<PathBuf>,
-    /// Skip the confirmation prompt and go straight to applying fixes.
+    /// If set, will not apply fixes but only check for violations.
     #[arg(long)]
-    pub force: bool,
+    pub check: bool,
+    /// The output format for the results.
     #[arg(default_value_t, short, long)]
     pub format: Format,
 }

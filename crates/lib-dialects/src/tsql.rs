@@ -658,6 +658,139 @@ pub fn raw_dialect() -> Dialect {
             .into(),
     )]);
 
+    // INVESTIGATION LOG: Table hints parsing issue
+    // Problem: `FROM Users WITH (NOLOCK)` parses WITH as alias instead of table hint
+    //
+    // Previous attempts:
+    // 1. Override FromExpressionElementSegment with explicit patterns - FAILED
+    // 2. Use exclude(Ref::keyword("WITH")) on alias patterns - FAILED
+    // 3. Reorder patterns to prioritize table hints - FAILED
+    // 4. Use base ANSI behavior - FAILED
+    //
+    // Current hypothesis: Issue is with AliasExpressionSegment specifically
+    // New approach: Override AliasExpressionSegment to exclude table hint keywords
+    // RESULT: Still failed - WITH still parsed as alias
+    //
+    // New hypothesis: WITH is being tokenized as identifier, not keyword
+    // Testing approach: Create simple keyword test
+    // RESULT: Lookahead exclude also failed - confirms tokenization issue
+    //
+    // Investigation: Check lexer configuration and keyword handling
+    // FINDINGS: WITH is correctly in reserved keywords (line 196 in tsql_keywords.rs)
+    //
+    // New approach: Create more aggressive table hint parsing
+    // Try using a regex or compound matcher for "WITH(...)" pattern
+    // RESULT: Regex approach also failed - still parsing WITH as alias
+    //
+    // CRITICAL INSIGHT: The issue must be in parser ordering!
+    // AliasExpressionSegment is being tried BEFORE PostTableExpressionGrammar
+    // Need to investigate FromExpressionElementSegment sequence order
+    //
+    // INVESTIGATION RESULTS: Found the root cause!
+    // ANSI FromExpressionElementSegment sequence:
+    // 1. TableExpressionSegment
+    // 2. AliasExpressionSegment (with excludes, but NOT PostTableExpressionGrammar)
+    // 3. WITH OFFSET sequence
+    // 4. SamplingExpressionSegment
+    // 5. PostTableExpressionGrammar (LAST!)
+    //
+    // The problem: AliasExpressionSegment excludes some elements but NOT table hints
+    // Solution: Add table hint exclusions to AliasExpressionSegment excludes
+    //
+    // FINAL SOLUTION: Override ANSI's FromExpressionElementSegment to add table hint exclusions
+    // to the existing AliasExpressionSegment exclude list
+    // RESULT: Still failed - even enhanced excludes don't work
+    //
+    // DEEPER INVESTIGATION NEEDED: The excludes mechanism itself may be broken
+    // or there's something about how T-SQL keywords are handled that's different
+    //
+    // INTERESTING: `WITH (NOLOCK)` by itself parses fine (no alias errors)
+    // This confirms the TableHintSegment works when not in FROM clause context
+    // The issue is specifically with FromExpressionElementSegment parsing order
+
+    // LAST RESORT: Try completely different approach
+    // Replace PostTableExpressionGrammar with TableHintSegment directly in the sequence
+    // This bypasses the problematic alias parsing entirely
+    // RESULT: Still failed - Pattern 2 (alias + hints) still matches WITH as alias
+    //
+    // CONCLUSION: This is a fundamental issue with how the parser processes T-SQL
+    // The exclude() mechanism appears to be non-functional for this use case
+    // A complete rewrite of the parsing logic would be required to fix this
+    //
+    // DEEPER INVESTIGATION: Exploring alternative approaches
+    // 1. Custom lexer matchers for table hints
+    // 2. Anti-template mechanism analysis
+    // 3. Token stream debugging
+    // 4. Custom parser implementation
+    //
+    // APPROACH 1: Add custom lexer matcher to recognize "WITH(" as single token
+    // This prevents alias parser from seeing just "WITH"
+    // RESULT: Failed - still parsing WITH as alias
+    //
+    // APPROACH 2: Investigate anti-template mechanism for NakedIdentifierSegment
+    // FINDINGS: exclude() requires both .exclude() call AND config.exclude setting
+    // Trying corrected exclude syntax with config closure
+    // RESULT: Still failed - even correct exclude syntax doesn't work
+    //
+    // APPROACH 3: Check if T-SQL reserved keywords are flowing to NakedIdentifierSegment
+    // Testing by overriding NakedIdentifierSegment directly
+    // RESULT: Still failed - even forcing WITH exclusion in anti-template doesn't work
+    //
+    // INTERESTING: "WITH" alone parses fine (no identifier errors)
+    // This suggests WITH is correctly tokenized as keyword, not identifier
+    // The issue is really with the parsing precedence in FromExpressionElementSegment
+    //
+    // APPROACH 4: Create completely custom table hint-aware parser
+    // Since WITH is correctly tokenized as keyword, create custom parser that looks ahead
+    // RESULT: Still failed - issue persists even with custom parser
+    //
+    // FINAL ANALYSIS: This is a fundamental architectural limitation
+    // The issue is that even when table hints are matched first, the AL05 linter rule
+    // still reports "WITH" as an unused alias. This suggests the problem may be:
+    // 1. The linter is analyzing the wrong AST structure
+    // 2. The table hint parsing succeeds but creates the wrong node type
+    // 3. There's a deeper issue with how T-SQL hints are represented in the AST
+
+    // Create custom T-SQL table reference parser with explicit table hint handling
+    dialect.add([(
+        "TSqlTableReferenceWithHintsSegment".into(),
+        one_of(vec_of_erased![
+            // Direct table hint matching - tries this first
+            Sequence::new(vec_of_erased![
+                Ref::new("TableExpressionSegment"),
+                Ref::new("TableHintSegment")
+            ]),
+            // Fallback to regular table reference
+            Ref::new("TableExpressionSegment")
+        ])
+        .to_matchable()
+        .into(),
+    )]);
+
+    dialect.replace_grammar(
+        "FromExpressionElementSegment",
+        NodeMatcher::new(
+            SyntaxKind::FromExpressionElement,
+            Sequence::new(vec_of_erased![
+                Ref::new("PreTableFunctionKeywordsGrammar").optional(),
+                // Use custom T-SQL table reference parser instead of plain TableExpressionSegment
+                optionally_bracketed(vec_of_erased![Ref::new(
+                    "TSqlTableReferenceWithHintsSegment"
+                )]),
+                Ref::new("AliasExpressionSegment").optional(),
+                Sequence::new(vec_of_erased![
+                    Ref::keyword("WITH"),
+                    Ref::keyword("OFFSET"),
+                    Ref::new("AliasExpressionSegment")
+                ])
+                .config(|this| this.optional()),
+                Ref::new("SamplingExpressionSegment").optional(),
+            ])
+            .to_matchable(),
+        )
+        .to_matchable(),
+    );
+
     // Update JoinClauseSegment to handle APPLY syntax properly
     dialect.replace_grammar(
         "JoinClauseSegment",

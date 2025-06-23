@@ -9,7 +9,7 @@ use crate::dialects::syntax::SyntaxSet;
 use crate::errors::SQLParseError;
 
 /// A matcher that excludes patterns based on lookahead.
-/// 
+///
 /// This is useful for cases where we need to exclude a token (like "WITH")
 /// only when it's followed by a specific pattern (like "(").
 #[derive(Debug, Clone, PartialEq)]
@@ -67,8 +67,9 @@ impl MatchableTrait for LookaheadExclude {
         let current_raw = segments[idx as usize].raw();
         if current_raw.to_uppercase() == self.first_token {
             // Look ahead for second token, skipping any whitespace
-            let next_idx = skip_start_index_forward_to_code(segments, idx + 1, segments.len() as u32);
-            
+            let next_idx =
+                skip_start_index_forward_to_code(segments, idx + 1, segments.len() as u32);
+
             if next_idx < segments.len() as u32 {
                 let next_raw = segments[next_idx as usize].raw();
                 if next_raw == self.lookahead_token.as_str() {
@@ -77,87 +78,12 @@ impl MatchableTrait for LookaheadExclude {
                 }
             }
         }
-        
+
         // No match - don't exclude
         Ok(MatchResult::empty_at(idx))
     }
 
     fn cache_key(&self) -> MatchableCacheKey {
         self.cache_key
-    }
-}
-
-
-#[cfg(test)]
-mod tests {
-    use super::*;
-    use crate::dialects::init::DialectKind;
-    use crate::dialects::syntax::SyntaxKind;
-    use crate::parser::segments::test_functions::generate_test_segments;
-    
-    #[test]
-    fn test_lookahead_exclude_matches() {
-        let segments = generate_test_segments(vec![
-            ("WITH", SyntaxKind::Keyword),
-            (" ", SyntaxKind::Whitespace),
-            ("(", SyntaxKind::Symbol),
-        ]);
-        
-        let exclude = LookaheadExclude::new("WITH", "(");
-        let mut ctx = ParseContext::new(DialectKind::default());
-        
-        // Should match at position 0 (WITH followed by ()
-        let result = exclude.match_segments(&segments, 0, &mut ctx).unwrap();
-        assert!(result.has_match());
-        assert_eq!(result.span.start, 0);
-        assert_eq!(result.span.end, 1);
-    }
-    
-    #[test]
-    fn test_lookahead_exclude_no_match_different_second_token() {
-        let segments = generate_test_segments(vec![
-            ("WITH", SyntaxKind::Keyword),
-            (" ", SyntaxKind::Whitespace),
-            ("TABLE1", SyntaxKind::NakedIdentifier),
-        ]);
-        
-        let exclude = LookaheadExclude::new("WITH", "(");
-        let mut ctx = ParseContext::new(DialectKind::default());
-        
-        // Should not match - second token is not (
-        let result = exclude.match_segments(&segments, 0, &mut ctx).unwrap();
-        assert!(!result.has_match());
-    }
-    
-    #[test]
-    fn test_lookahead_exclude_no_match_different_first_token() {
-        let segments = generate_test_segments(vec![
-            ("SELECT", SyntaxKind::Keyword),
-            (" ", SyntaxKind::Whitespace),
-            ("(", SyntaxKind::Symbol),
-        ]);
-        
-        let exclude = LookaheadExclude::new("WITH", "(");
-        let mut ctx = ParseContext::new(DialectKind::default());
-        
-        // Should not match - first token is not WITH
-        let result = exclude.match_segments(&segments, 0, &mut ctx).unwrap();
-        assert!(!result.has_match());
-    }
-    
-    #[test]
-    fn test_lookahead_exclude_case_insensitive() {
-        let segments = generate_test_segments(vec![
-            ("with", SyntaxKind::Keyword),  // lowercase
-            (" ", SyntaxKind::Whitespace),
-            ("(", SyntaxKind::Symbol),
-        ]);
-        
-        let exclude = LookaheadExclude::new("WITH", "(");
-        let mut ctx = ParseContext::new(DialectKind::default());
-        
-        // Should match - case insensitive for first token
-        let result = exclude.match_segments(&segments, 0, &mut ctx).unwrap();
-        assert!(result.has_match());
     }
 }

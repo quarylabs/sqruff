@@ -8,6 +8,7 @@ use sqruff_lib_core::parser::grammar::delimited::Delimited;
 use sqruff_lib_core::parser::grammar::sequence::{Bracketed, Sequence};
 use sqruff_lib_core::parser::grammar::{Anything, Nothing, Ref};
 use sqruff_lib_core::parser::lexer::{Cursor, Matcher, Pattern};
+use sqruff_lib_core::parser::lookahead::LookaheadExclude;
 use sqruff_lib_core::parser::matchable::{Matchable, MatchableTrait};
 use sqruff_lib_core::parser::node_matcher::NodeMatcher;
 use sqruff_lib_core::parser::parsers::{MultiStringParser, RegexParser, StringParser, TypedParser};
@@ -4393,7 +4394,8 @@ pub fn raw_dialect() -> Dialect {
                         .exclude(one_of(vec_of_erased![
                             Ref::new("FromClauseTerminatorGrammar"),
                             Ref::new("SamplingExpressionSegment"),
-                            Ref::new("JoinLikeClauseGrammar")
+                            Ref::new("JoinLikeClauseGrammar"),
+                            LookaheadExclude::new("WITH", "(")
                         ]))
                         .optional(),
                     Sequence::new(vec_of_erased![

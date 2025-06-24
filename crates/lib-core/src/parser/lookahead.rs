@@ -72,7 +72,7 @@ impl MatchableTrait for LookaheadExclude {
 
             if next_idx < segments.len() as u32 {
                 let next_raw = segments[next_idx as usize].raw();
-                if next_raw == self.lookahead_token {
+                if next_raw.eq_ignore_ascii_case(self.lookahead_token) {
                     // Match found - return a match to indicate this should be excluded
                     return Ok(MatchResult::from_span(idx, idx + 1));
                 }

@@ -1026,7 +1026,6 @@ pub fn raw_dialect() -> Dialect {
         .into(),
     )]);
 
-
     // CRITICAL: expand() must be called after all grammar modifications
     // This method recursively expands all grammar references and builds
     // the final parser. Without this, grammar references won't be resolved

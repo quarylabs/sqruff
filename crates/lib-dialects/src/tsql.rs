@@ -5,11 +5,12 @@ use sqruff_lib_core::dialects::init::DialectKind;
 use sqruff_lib_core::dialects::syntax::SyntaxKind;
 use sqruff_lib_core::helpers::{Config, ToMatchable};
 use sqruff_lib_core::parser::grammar::Ref;
-use sqruff_lib_core::parser::grammar::anyof::{AnyNumberOf, one_of};
+use sqruff_lib_core::parser::grammar::anyof::{AnyNumberOf, one_of, optionally_bracketed};
 use sqruff_lib_core::parser::grammar::conditional::Conditional;
 use sqruff_lib_core::parser::grammar::delimited::Delimited;
 use sqruff_lib_core::parser::grammar::sequence::{Bracketed, Sequence};
 use sqruff_lib_core::parser::lexer::Matcher;
+use sqruff_lib_core::parser::lookahead::LookaheadExclude;
 use sqruff_lib_core::parser::node_matcher::NodeMatcher;
 use sqruff_lib_core::parser::parsers::TypedParser;
 use sqruff_lib_core::parser::parsers::{RegexParser, StringParser};
@@ -770,6 +771,39 @@ pub fn raw_dialect() -> Dialect {
                 .into(),
         ),
     ]);
+
+    // SOLUTION: Override FromExpressionElementSegment to ensure LookaheadExclude is properly applied
+    // This is the correct fix for WITH(NOLOCK) parsing issues
+    // The key insight is that T-SQL needs to preserve the ANSI exclude pattern while using its own PostTableExpressionGrammar
+    dialect.replace_grammar(
+        "FromExpressionElementSegment",
+        NodeMatcher::new(
+            SyntaxKind::FromExpressionElement,
+            Sequence::new(vec_of_erased![
+                Ref::new("PreTableFunctionKeywordsGrammar").optional(),
+                optionally_bracketed(vec_of_erased![Ref::new("TableExpressionSegment")]),
+                Ref::new("AliasExpressionSegment")
+                    .exclude(one_of(vec_of_erased![
+                        Ref::new("FromClauseTerminatorGrammar"),
+                        Ref::new("SamplingExpressionSegment"),
+                        Ref::new("JoinLikeClauseGrammar"),
+                        LookaheadExclude::new("WITH", "(")  // Prevents WITH from being parsed as alias when followed by (
+                    ]))
+                    .optional(),
+                Sequence::new(vec_of_erased![
+                    Ref::keyword("WITH"),
+                    Ref::keyword("OFFSET"),
+                    Ref::new("AliasExpressionSegment")
+                ])
+                .config(|this| this.optional()),
+                Ref::new("SamplingExpressionSegment").optional(),
+                Ref::new("PostTableExpressionGrammar").optional()  // T-SQL table hints
+            ])
+            .to_matchable(),
+        )
+        .to_matchable(),
+    );
+    
     
 
     // Update JoinClauseSegment to handle APPLY syntax properly

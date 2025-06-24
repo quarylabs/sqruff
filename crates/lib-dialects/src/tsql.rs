@@ -10,6 +10,7 @@ use sqruff_lib_core::parser::grammar::conditional::Conditional;
 use sqruff_lib_core::parser::grammar::delimited::Delimited;
 use sqruff_lib_core::parser::grammar::sequence::{Bracketed, Sequence};
 use sqruff_lib_core::parser::lexer::Matcher;
+use sqruff_lib_core::parser::lookahead::LookaheadExclude;
 use sqruff_lib_core::parser::node_matcher::NodeMatcher;
 use sqruff_lib_core::parser::parsers::TypedParser;
 use sqruff_lib_core::parser::parsers::{RegexParser, StringParser};
@@ -650,14 +651,6 @@ pub fn raw_dialect() -> Dialect {
         ),
     ]);
 
-    // Define PostTableExpressionGrammar for T-SQL to handle table hints
-    dialect.add([(
-        "PostTableExpressionGrammar".into(),
-        Ref::new("TableHintSegment")
-            .optional()
-            .to_matchable()
-            .into(),
-    )]);
 
     // INVESTIGATION LOG: Table hints parsing issue
     // Problem: `FROM Users WITH (NOLOCK)` parses WITH as alias instead of table hint
@@ -768,17 +761,26 @@ pub fn raw_dialect() -> Dialect {
         .into(),
     )]);
 
+    // Add proper lookahead exclude to the FROM expression parsing
+    // This ensures WITH(NOLOCK) is not parsed as an alias
     dialect.replace_grammar(
         "FromExpressionElementSegment",
         NodeMatcher::new(
             SyntaxKind::FromExpressionElement,
             Sequence::new(vec_of_erased![
                 Ref::new("PreTableFunctionKeywordsGrammar").optional(),
-                // Use custom T-SQL table reference parser instead of plain TableExpressionSegment
-                optionally_bracketed(vec_of_erased![Ref::new(
-                    "TSqlTableReferenceWithHintsSegment"
-                )]),
-                Ref::new("AliasExpressionSegment").optional(),
+                optionally_bracketed(vec_of_erased![Ref::new("TableExpressionSegment")]),
+                Ref::new("AliasExpressionSegment")
+                    .exclude(one_of(vec_of_erased![
+                        Ref::new("FromClauseTerminatorGrammar"),
+                        Ref::new("SamplingExpressionSegment"),
+                        Ref::new("JoinLikeClauseGrammar"),
+                        // This is the key fix: exclude WITH followed by parenthesis
+                        LookaheadExclude::new("WITH", "(")
+                    ]))
+                    .optional(),
+                // Table hints come after the alias
+                Ref::new("TableHintSegment").optional(),
                 Sequence::new(vec_of_erased![
                     Ref::keyword("WITH"),
                     Ref::keyword("OFFSET"),

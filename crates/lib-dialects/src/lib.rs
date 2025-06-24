@@ -53,6 +53,8 @@ mod trino_keywords;
 pub mod tsql;
 #[cfg(feature = "tsql")]
 mod tsql_keywords;
+#[cfg(all(test, feature = "tsql"))]
+mod tsql_test;
 
 pub fn kind_to_dialect(kind: &DialectKind) -> Option<Dialect> {
     #[allow(unreachable_patterns)]

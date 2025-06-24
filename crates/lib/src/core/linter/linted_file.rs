@@ -3,7 +3,7 @@ use std::ops::Range;
 use crate::core::rules::noqa::IgnoreMask;
 use itertools::Itertools;
 use rustc_hash::FxHashSet;
-use sqruff_lib_core::errors::{SQLBaseError, SqlError};
+use sqruff_lib_core::errors::SQLBaseError;
 use sqruff_lib_core::parser::segments::fix::FixPatch;
 use sqruff_lib_core::templaters::{RawFileSlice, TemplatedFile};
 
@@ -25,7 +25,7 @@ impl LintedFile {
         if let Some(is_fixable) = is_fixable {
             self.violations
                 .iter()
-                .filter(|v| v.fixable() == is_fixable)
+                .filter(|v| v.fixable == is_fixable)
                 .cloned()
                 .collect_vec()
         } else {

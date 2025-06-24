@@ -8,16 +8,6 @@ use crate::helpers::Config;
 use crate::lint_fix::LintFix;
 use crate::parser::markers::PositionMarker;
 
-type CheckTuple = (&'static str, usize, usize);
-
-pub trait SqlError: Display {
-    fn fixable(&self) -> bool;
-    fn rule_code(&self) -> Option<&'static str>;
-    fn identifier(&self) -> &'static str;
-    /// Get a tuple representing this error. Mostly for testing.
-    fn check_tuple(&self) -> CheckTuple;
-}
-
 #[derive(Debug, PartialEq, Clone, Default)]
 pub struct SQLBaseError {
     pub fixable: bool,
@@ -56,24 +46,6 @@ impl SQLBaseError {
 impl Display for SQLBaseError {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         write!(f, "{}", self.description)
-    }
-}
-
-impl SqlError for SQLBaseError {
-    fn fixable(&self) -> bool {
-        self.fixable
-    }
-
-    fn rule_code(&self) -> Option<&'static str> {
-        None
-    }
-
-    fn identifier(&self) -> &'static str {
-        "base"
-    }
-
-    fn check_tuple(&self) -> CheckTuple {
-        ("", self.line_no, self.line_pos)
     }
 }
 
@@ -136,24 +108,6 @@ pub struct SQLTemplaterError {}
 impl Display for SQLTemplaterError {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         write!(f, "SQLTemplaterError")
-    }
-}
-
-impl SqlError for SQLTemplaterError {
-    fn fixable(&self) -> bool {
-        false
-    }
-
-    fn rule_code(&self) -> Option<&'static str> {
-        None
-    }
-
-    fn identifier(&self) -> &'static str {
-        "templater"
-    }
-
-    fn check_tuple(&self) -> CheckTuple {
-        ("", 0, 0)
     }
 }
 

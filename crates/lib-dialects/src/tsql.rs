@@ -29,16 +29,15 @@ pub fn raw_dialect() -> Dialect {
     let mut dialect = ansi::raw_dialect();
     dialect.name = DialectKind::Tsql;
 
-    // Replace ANSI keywords with T-SQL specific keywords
-    // T-SQL has different reserved words than standard SQL
-    dialect.sets_mut("reserved_keywords").clear();
+    // Extend ANSI keywords with T-SQL specific keywords
+    // T-SQL inherits from ANSI SQL and adds additional reserved words
+    // IMPORTANT: Don't clear ANSI keywords as they contain fundamental SQL keywords like FROM, SELECT, etc.
     dialect
         .sets_mut("reserved_keywords")
-        .extend(tsql_keywords::tsql_reserved_keywords());
-    dialect.sets_mut("unreserved_keywords").clear();
+        .extend(tsql_keywords::tsql_additional_reserved_keywords());
     dialect
         .sets_mut("unreserved_keywords")
-        .extend(tsql_keywords::tsql_unreserved_keywords());
+        .extend(tsql_keywords::tsql_additional_unreserved_keywords());
 
     // Add table hint keywords to unreserved keywords
     // These are used in WITH (NOLOCK) style hints on tables
@@ -1032,6 +1031,18 @@ pub fn raw_dialect() -> Dialect {
         .to_matchable()
         .into(),
     )]);
+
+    // Define PostTableExpressionGrammar to include T-SQL table hints
+    // This leverages the ANSI LookaheadExclude mechanism for WITH(NOLOCK) parsing
+    dialect.add([
+        (
+            "PostTableExpressionGrammar".into(),
+            Ref::new("TableHintSegment")
+                .optional()
+                .to_matchable()
+                .into(),
+        ),
+    ]);
 
     // CRITICAL: expand() must be called after all grammar modifications
     // This method recursively expands all grammar references and builds

@@ -5,48 +5,62 @@ file:
       - select_clause:
         - keyword: SELECT
         - select_clause_element:
+          - naked_identifier: SimpleAlias
+          - raw_comparison_operator: =
           - column_reference:
-            - naked_identifier: SimpleAlias
-        - unparsable:
+            - naked_identifier: value
+        - comma: ','
+        - select_clause_element:
+          - naked_identifier: QualifiedAlias
           - raw_comparison_operator: =
-          - word: value
-          - comma: ','
-          - word: QualifiedAlias
+          - column_reference:
+            - naked_identifier: table1
+            - dot: .
+            - naked_identifier: column1
+        - comma: ','
+        - select_clause_element:
+          - naked_identifier: FullyQualifiedAlias
           - raw_comparison_operator: =
-          - word: table1
-          - dot: .
-          - word: column1
-          - comma: ','
-          - word: FullyQualifiedAlias
+          - column_reference:
+            - naked_identifier: dbo
+            - dot: .
+            - naked_identifier: table1
+            - dot: .
+            - naked_identifier: column1
+        - comma: ','
+        - select_clause_element:
+          - naked_identifier: FunctionAlias
           - raw_comparison_operator: =
-          - word: dbo
-          - dot: .
-          - word: table1
-          - dot: .
-          - word: column1
-          - comma: ','
-          - word: FunctionAlias
+          - function:
+            - function_name:
+              - function_name_identifier: SUM
+            - bracketed:
+              - start_bracket: (
+              - expression:
+                - column_reference:
+                  - naked_identifier: quantity
+              - end_bracket: )
+        - comma: ','
+        - select_clause_element:
+          - naked_identifier: ExpressionAlias
           - raw_comparison_operator: =
-          - word: SUM
-          - start_bracket: (
-          - word: quantity
-          - end_bracket: )
-          - comma: ','
-          - word: ExpressionAlias
-          - raw_comparison_operator: =
-          - word: table1
-          - dot: .
-          - word: price
-          - star: '*'
-          - word: table1
-          - dot: .
-          - word: quantity
+          - expression:
+            - column_reference:
+              - naked_identifier: table1
+              - dot: .
+              - naked_identifier: price
+            - binary_operator: '*'
+            - column_reference:
+              - naked_identifier: table1
+              - dot: .
+              - naked_identifier: quantity
       - from_clause:
         - keyword: FROM
         - from_expression:
           - from_expression_element:
-            - table_expression:
-              - table_reference:
-                - object_reference:
-                  - naked_identifier: table1
+            - from_expression_element:
+              - table_expression:
+                - table_reference:
+                  - object_reference:
+                    - naked_identifier: table1
 - statement_terminator: ;

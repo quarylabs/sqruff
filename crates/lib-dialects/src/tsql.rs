@@ -591,7 +591,6 @@ pub fn raw_dialect() -> Dialect {
         .to_matchable(),
     );
 
-
     // Table hints support - properly structured as table hint segments
     // Example: SELECT * FROM Users WITH (NOLOCK)
     dialect.add([
@@ -649,7 +648,6 @@ pub fn raw_dialect() -> Dialect {
             .into(),
         ),
     ]);
-
 
     // INVESTIGATION LOG: Table hints parsing issue
     // Problem: `FROM Users WITH (NOLOCK)` parses WITH as alias instead of table hint
@@ -761,15 +759,13 @@ pub fn raw_dialect() -> Dialect {
     )]);
 
     // Define PostTableExpressionGrammar to include T-SQL table hints
-    dialect.add([
-        (
-            "PostTableExpressionGrammar".into(),
-            Ref::new("TableHintSegment")
-                .optional()
-                .to_matchable()
-                .into(),
-        ),
-    ]);
+    dialect.add([(
+        "PostTableExpressionGrammar".into(),
+        Ref::new("TableHintSegment")
+            .optional()
+            .to_matchable()
+            .into(),
+    )]);
 
     // SOLUTION: Override FromExpressionElementSegment to ensure LookaheadExclude is properly applied
     // This is the correct fix for WITH(NOLOCK) parsing issues
@@ -786,7 +782,7 @@ pub fn raw_dialect() -> Dialect {
                         Ref::new("FromClauseTerminatorGrammar"),
                         Ref::new("SamplingExpressionSegment"),
                         Ref::new("JoinLikeClauseGrammar"),
-                        LookaheadExclude::new("WITH", "(")  // Prevents WITH from being parsed as alias when followed by (
+                        LookaheadExclude::new("WITH", "(") // Prevents WITH from being parsed as alias when followed by (
                     ]))
                     .optional(),
                 Sequence::new(vec_of_erased![
@@ -796,14 +792,12 @@ pub fn raw_dialect() -> Dialect {
                 ])
                 .config(|this| this.optional()),
                 Ref::new("SamplingExpressionSegment").optional(),
-                Ref::new("PostTableExpressionGrammar").optional()  // T-SQL table hints
+                Ref::new("PostTableExpressionGrammar").optional() // T-SQL table hints
             ])
             .to_matchable(),
         )
         .to_matchable(),
     );
-    
-    
 
     // Update JoinClauseSegment to handle APPLY syntax properly
     dialect.replace_grammar(
@@ -1032,17 +1026,6 @@ pub fn raw_dialect() -> Dialect {
         .into(),
     )]);
 
-    // Define PostTableExpressionGrammar to include T-SQL table hints
-    // This leverages the ANSI LookaheadExclude mechanism for WITH(NOLOCK) parsing
-    dialect.add([
-        (
-            "PostTableExpressionGrammar".into(),
-            Ref::new("TableHintSegment")
-                .optional()
-                .to_matchable()
-                .into(),
-        ),
-    ]);
 
     // CRITICAL: expand() must be called after all grammar modifications
     // This method recursively expands all grammar references and builds

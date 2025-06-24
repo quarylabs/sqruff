@@ -247,7 +247,7 @@ impl Dialect {
                 for kw in keywords {
                     let n = format!("{}KeywordSegment", capitalize(kw));
                     if !self.library.contains_key(n.as_str()) {
-                        let parser = StringParser::new(&kw.to_lowercase(), SyntaxKind::Keyword);
+                        let parser = StringParser::new(kw, SyntaxKind::Keyword);
 
                         self.library.insert(
                             n.into(),

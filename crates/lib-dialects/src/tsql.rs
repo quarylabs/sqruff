@@ -30,8 +30,7 @@ pub fn raw_dialect() -> Dialect {
     dialect.name = DialectKind::Tsql;
 
     // Extend ANSI keywords with T-SQL specific keywords
-    // T-SQL inherits from ANSI SQL and adds additional reserved words
-    // IMPORTANT: Don't clear ANSI keywords as they contain fundamental SQL keywords like FROM, SELECT, etc.
+    // IMPORTANT: Don't clear ANSI keywords as they contain fundamental SQL keywords
     dialect
         .sets_mut("reserved_keywords")
         .extend(tsql_keywords::tsql_additional_reserved_keywords());
@@ -40,54 +39,42 @@ pub fn raw_dialect() -> Dialect {
         .extend(tsql_keywords::tsql_additional_unreserved_keywords());
 
     // Add table hint keywords to unreserved keywords
-    // These are used in WITH (NOLOCK) style hints on tables
     dialect.sets_mut("unreserved_keywords").extend([
-        "NOLOCK",          // No shared locks, allows dirty reads
-        "READUNCOMMITTED", // Same as NOLOCK
-        "READCOMMITTED",   // Default isolation level
-        "REPEATABLEREAD",  // Hold locks until transaction completes
-        "SERIALIZABLE",    // Highest isolation level
-        "READPAST",        // Skip locked rows
-        "ROWLOCK",         // Force row-level locks
-        "TABLOCK",         // Force table-level shared lock
-        "TABLOCKX",        // Force table-level exclusive lock
-        "UPDLOCK",         // Use update locks instead of shared
-        "XLOCK",           // Force exclusive locks
-        "NOEXPAND",        // Don't expand indexed views
-        "INDEX",           // Force specific index usage
-        "FORCESEEK",       // Force index seek operation
-        "FORCESCAN",       // Force index scan operation
-        "HOLDLOCK",        // Same as SERIALIZABLE
-        "SNAPSHOT",        // Use snapshot isolation
+        "NOLOCK",
+        "READUNCOMMITTED",
+        "READCOMMITTED",
+        "REPEATABLEREAD",
+        "SERIALIZABLE",
+        "READPAST",
+        "ROWLOCK",
+        "TABLOCK",
+        "TABLOCKX",
+        "UPDLOCK",
+        "XLOCK",
+        "NOEXPAND",
+        "INDEX",
+        "FORCESEEK",
+        "FORCESCAN",
+        "HOLDLOCK",
+        "SNAPSHOT",
     ]);
 
     // T-SQL specific operators
-    // Compound assignment operators and special comparison operators
     dialect.sets_mut("operator_symbols").extend([
-        "%=", // Modulo assignment
-        "&=", // Bitwise AND assignment
-        "*=", // Multiply assignment
-        "+=", // Add assignment
-        "-=", // Subtract assignment
-        "/=", // Divide assignment
-        "^=", // Bitwise XOR assignment
-        "|=", // Bitwise OR assignment
-        "!<", // Not less than
-        "!>", // Not greater than
+        "%=", "&=", "*=", "+=", "-=", "/=", "^=", "|=",  // Compound assignment
+        "!<", "!>",  // Special comparison operators
     ]);
 
     // T-SQL supports square brackets for identifiers and @ for variables
-    // Insert these matchers before the equals matcher for proper precedence
     dialect.insert_lexer_matchers(
         vec![
-            // Square brackets for identifiers with spaces/reserved words: [Column Name]
+            // Square brackets for identifiers: [Column Name]
             Matcher::regex(
                 "tsql_square_bracket_identifier",
                 r"\[[^\]]*\]",
                 SyntaxKind::DoubleQuote,
             ),
-            // Variables start with @ (local) or @@ (global/system)
-            // Examples: @MyVar, @@ROWCOUNT, @@IDENTITY
+            // Variables: @MyVar (local) or @@ROWCOUNT (global/system)
             Matcher::regex(
                 "tsql_variable",
                 r"@@?[a-zA-Z_][a-zA-Z0-9_]*",
@@ -199,8 +186,7 @@ pub fn raw_dialect() -> Dialect {
 
     // Add T-SQL specific grammar
 
-    // TOP clause support - wrapped in SelectClauseModifierSegment
-    // Supports: SELECT TOP 10 ..., SELECT TOP (10) PERCENT ..., SELECT TOP 5 WITH TIES ...
+    // TOP clause support (e.g., SELECT TOP 10, TOP (10) PERCENT, TOP 5 WITH TIES)
     dialect.replace_grammar(
         "SelectClauseModifierSegment",
         NodeMatcher::new(
@@ -212,19 +198,18 @@ pub fn raw_dialect() -> Dialect {
                 // Add T-SQL's TOP clause
                 Sequence::new(vec_of_erased![
                     Ref::keyword("TOP"),
-                    // TOP can take a number, variable, or expression in parentheses
                     one_of(vec_of_erased![
-                        Ref::new("NumericLiteralSegment"), // TOP 10
-                        Ref::new("TsqlVariableSegment"),   // TOP @RowCount
+                        Ref::new("NumericLiteralSegment"),
+                        Ref::new("TsqlVariableSegment"),
                         Bracketed::new(vec_of_erased![one_of(vec_of_erased![
-                            Ref::new("NumericLiteralSegment"), // TOP (10)
-                            Ref::new("TsqlVariableSegment"),   // TOP (@RowCount)
-                            Ref::new("ExpressionSegment")      // TOP (SELECT COUNT(*)/2 FROM...)
+                            Ref::new("NumericLiteralSegment"),
+                            Ref::new("TsqlVariableSegment"),
+                            Ref::new("ExpressionSegment")
                         ])])
                     ]),
-                    Ref::keyword("PERCENT").optional(), // TOP 50 PERCENT
-                    Ref::keyword("WITH").optional(),    // WITH TIES requires both keywords
-                    Ref::keyword("TIES").optional()     // Returns all ties for last place
+                    Ref::keyword("PERCENT").optional(),
+                    Ref::keyword("WITH").optional(),
+                    Ref::keyword("TIES").optional()
                 ])
             ])
             .to_matchable(),
@@ -233,8 +218,6 @@ pub fn raw_dialect() -> Dialect {
     );
 
     // Add T-SQL assignment operator segment
-    // Uses RawEqualsSegment instead of EqualsSegment to avoid being wrapped
-    // in a comparison_operator node, which would be semantically incorrect
     dialect.add([(
         "AssignmentOperatorSegment".into(),
         NodeMatcher::new(
@@ -247,8 +230,6 @@ pub fn raw_dialect() -> Dialect {
 
     // DECLARE statement for variable declarations
     // Syntax: DECLARE @var1 INT = 10, @var2 VARCHAR(50) = 'text'
-    // Note: T-SQL uses = for both assignment and comparison. We use AssignmentOperator
-    // to distinguish assignment context from comparison context.
     dialect.add([
         (
             "DeclareStatementSegment".into(),
@@ -260,10 +241,9 @@ pub fn raw_dialect() -> Dialect {
                 Ref::keyword("DECLARE"),
                 // Multiple variables can be declared with comma separation
                 Delimited::new(vec_of_erased![Sequence::new(vec_of_erased![
-                    Ref::new("TsqlVariableSegment"), // @variable_name
-                    Ref::new("DatatypeSegment"),     // INT, VARCHAR(50), etc.
+                    Ref::new("TsqlVariableSegment"),
+                    Ref::new("DatatypeSegment"),
                     Sequence::new(vec_of_erased![
-                        // Optional initialization
                         Ref::new("AssignmentOperatorSegment"),
                         Ref::new("ExpressionSegment")
                     ])
@@ -314,7 +294,6 @@ pub fn raw_dialect() -> Dialect {
     ]);
 
     // BEGIN...END blocks for grouping multiple statements
-    // These are like { } in C-style languages
     dialect.add([
         (
             "BeginEndBlockSegment".into(),
@@ -324,11 +303,10 @@ pub fn raw_dialect() -> Dialect {
             "BeginEndBlockGrammar".into(),
             Sequence::new(vec_of_erased![
                 Ref::keyword("BEGIN"),
-                MetaSegment::indent(), // Increase indentation level
+                MetaSegment::indent(),
                 AnyNumberOf::new(vec_of_erased![Sequence::new(vec_of_erased![
-                    // All allowed statement types within BEGIN...END
                     one_of(vec_of_erased![
-                        Ref::new("SelectableGrammar"), // SELECT, CTEs
+                        Ref::new("SelectableGrammar"),
                         Ref::new("InsertStatementSegment"),
                         Ref::new("UpdateStatementSegment"),
                         Ref::new("DeleteStatementSegment"),
@@ -337,12 +315,12 @@ pub fn raw_dialect() -> Dialect {
                         Ref::new("PrintStatementSegment"),
                         Ref::new("IfStatementSegment"),
                         Ref::new("WhileStatementSegment"),
-                        Ref::new("BeginEndBlockSegment") // Allow nested BEGIN...END
+                        Ref::new("BeginEndBlockSegment")
                     ]),
-                    Ref::new("DelimiterGrammar").optional() // Semicolons are optional in T-SQL
+                    Ref::new("DelimiterGrammar").optional()
                 ])])
-                .config(|this| this.min_times(0)), // Allow empty blocks
-                MetaSegment::dedent(), // Decrease indentation level
+                .config(|this| this.min_times(0)),
+                MetaSegment::dedent(),
                 Ref::keyword("END")
             ])
             .to_matchable()
@@ -391,7 +369,7 @@ pub fn raw_dialect() -> Dialect {
         ),
     ]);
 
-    // PIVOT and UNPIVOT support for transforming rows to columns and vice versa
+    // PIVOT and UNPIVOT support
     dialect.add([
         (
             "PivotUnpivotSegment".into(),
@@ -405,31 +383,29 @@ pub fn raw_dialect() -> Dialect {
         (
             "PivotUnpivotGrammar".into(),
             one_of(vec_of_erased![
-                // PIVOT rotates rows into columns
-                // Example: PIVOT (SUM(Amount) FOR Month IN ([Jan], [Feb], [Mar]))
+                // PIVOT (SUM(Amount) FOR Month IN ([Jan], [Feb], [Mar]))
                 Sequence::new(vec_of_erased![
                     Ref::keyword("PIVOT"),
                     Bracketed::new(vec_of_erased![
-                        Ref::new("FunctionSegment"), // Aggregate function (SUM, AVG, etc.)
+                        Ref::new("FunctionSegment"),
                         Ref::keyword("FOR"),
-                        Ref::new("ColumnReferenceSegment"), // Column to pivot on
+                        Ref::new("ColumnReferenceSegment"),
                         Ref::keyword("IN"),
                         Bracketed::new(vec_of_erased![Delimited::new(vec_of_erased![Ref::new(
-                            "LiteralGrammar" // List of values to become columns
+                            "LiteralGrammar"
                         )])])
                     ])
                 ]),
-                // UNPIVOT rotates columns into rows (reverse of PIVOT)
-                // Example: UNPIVOT (Value FOR Month IN ([Jan], [Feb], [Mar]))
+                // UNPIVOT (Value FOR Month IN ([Jan], [Feb], [Mar]))
                 Sequence::new(vec_of_erased![
                     Ref::keyword("UNPIVOT"),
                     Bracketed::new(vec_of_erased![
-                        Ref::new("ColumnReferenceSegment"), // Value column name
+                        Ref::new("ColumnReferenceSegment"),
                         Ref::keyword("FOR"),
-                        Ref::new("ColumnReferenceSegment"), // New column for unpivoted names
+                        Ref::new("ColumnReferenceSegment"),
                         Ref::keyword("IN"),
                         Bracketed::new(vec_of_erased![Delimited::new(vec_of_erased![Ref::new(
-                            "ColumnReferenceSegment" // Columns to unpivot
+                            "ColumnReferenceSegment"
                         )])])
                     ])
                 ])
@@ -439,7 +415,7 @@ pub fn raw_dialect() -> Dialect {
         ),
     ]);
 
-    // GO batch separator (special handling as it's not really a statement)
+    // GO batch separator
     dialect.add([
         (
             "BatchSeparatorSegment".into(),
@@ -452,14 +428,12 @@ pub fn raw_dialect() -> Dialect {
     ]);
 
     // Add T-SQL specific statement types to the statement segment
-    // We extend the ANSI statement_segment() rather than replacing it completely
-    // IMPORTANT: References must use Grammar suffix for grammar definitions
     dialect.replace_grammar(
         "StatementSegment",
         NodeMatcher::new(
             SyntaxKind::Statement,
             one_of(vec_of_erased![
-                // T-SQL specific statements (using Grammar suffix)
+                // T-SQL specific statements
                 Ref::new("DeclareStatementGrammar"),
                 Ref::new("SetVariableStatementGrammar"),
                 Ref::new("PrintStatementGrammar"),
@@ -532,17 +506,14 @@ pub fn raw_dialect() -> Dialect {
     ]);
 
     // Add variable reference support for T-SQL @ and @@ variables
-    // Note: We add this as a new segment type instead of replacing SingleIdentifierGrammar
     dialect.add([
         (
-            // Basic variable segment that matches @variable or @@variable tokens
             "TsqlVariableSegment".into(),
             TypedParser::new(SyntaxKind::TsqlVariable, SyntaxKind::TsqlVariable)
                 .to_matchable()
                 .into(),
         ),
         (
-            // Wrap variables as parameterized expressions for use in queries
             "ParameterizedSegment".into(),
             NodeMatcher::new(
                 SyntaxKind::ParameterizedExpression,
@@ -552,7 +523,6 @@ pub fn raw_dialect() -> Dialect {
             .into(),
         ),
         (
-            // Special handling for table variables like @TempTable
             "TsqlTableVariableSegment".into(),
             NodeMatcher::new(
                 SyntaxKind::TableReference,
@@ -563,13 +533,12 @@ pub fn raw_dialect() -> Dialect {
         ),
     ]);
 
-    // Update TableReferenceSegment to support T-SQL table variables directly
-    // (Must be done after TsqlVariableSegment is defined)
+    // Update TableReferenceSegment to support T-SQL table variables
     dialect.replace_grammar(
         "TableReferenceSegment",
         one_of(vec_of_erased![
-            Ref::new("ObjectReferenceSegment"), // Original object references
-            Ref::new("TsqlVariableSegment"),    // T-SQL table variables like @MyTable
+            Ref::new("ObjectReferenceSegment"),
+            Ref::new("TsqlVariableSegment"),
         ])
         .to_matchable(),
     );
@@ -591,25 +560,16 @@ pub fn raw_dialect() -> Dialect {
         .to_matchable(),
     );
 
-    // Table hints support - properly structured as table hint segments
-    // Example: SELECT * FROM Users WITH (NOLOCK)
+    // Table hints support - Example: SELECT * FROM Users WITH (NOLOCK)
     dialect.add([
         (
             "TableHintSegment".into(),
-            one_of(vec_of_erased![
-                // Try aggressive regex matching for the entire table hint pattern
-                RegexParser::new(
-                    r"WITH\s*\(\s*(NOLOCK|READUNCOMMITTED|READCOMMITTED|REPEATABLEREAD|SERIALIZABLE|READPAST|ROWLOCK|TABLOCK|TABLOCKX|UPDLOCK|XLOCK|NOEXPAND|FORCESEEK|FORCESCAN|HOLDLOCK|SNAPSHOT)\s*\)",
-                    SyntaxKind::TableExpression  // Use existing syntax kind
-                ),
-                // Fallback to original sequence-based approach
-                Sequence::new(vec_of_erased![
-                    Ref::keyword("WITH"),
-                    Bracketed::new(vec_of_erased![Delimited::new(vec_of_erased![Ref::new(
-                        "TableHintElement"
-                    )])])
-                    .config(|this| this.parse_mode = ParseMode::Greedy)
-                ])
+            Sequence::new(vec_of_erased![
+                Ref::keyword("WITH"),
+                Bracketed::new(vec_of_erased![Delimited::new(vec_of_erased![Ref::new(
+                    "TableHintElement"
+                )])])
+                .config(|this| this.parse_mode = ParseMode::Greedy)
             ])
             .to_matchable()
             .into(),
@@ -617,7 +577,7 @@ pub fn raw_dialect() -> Dialect {
         (
             "TableHintElement".into(),
             one_of(vec_of_erased![
-                // Simple hints (just keywords) - see comment at top for meanings
+                // Simple hints (just keywords)
                 Ref::keyword("NOLOCK"),
                 Ref::keyword("READUNCOMMITTED"),
                 Ref::keyword("READCOMMITTED"),
@@ -635,12 +595,11 @@ pub fn raw_dialect() -> Dialect {
                 Ref::keyword("HOLDLOCK"),
                 Ref::keyword("SNAPSHOT"),
                 // INDEX hint with parameter
-                // Example: WITH (INDEX(IX_Users_Email))
                 Sequence::new(vec_of_erased![
                     Ref::keyword("INDEX"),
                     Bracketed::new(vec_of_erased![one_of(vec_of_erased![
-                        Ref::new("NumericLiteralSegment"),  // INDEX(0) for clustered
-                        Ref::new("NakedIdentifierSegment")  // INDEX(IX_IndexName)
+                        Ref::new("NumericLiteralSegment"),
+                        Ref::new("NakedIdentifierSegment")
                     ])])
                 ])
             ])
@@ -648,115 +607,6 @@ pub fn raw_dialect() -> Dialect {
             .into(),
         ),
     ]);
-
-    // INVESTIGATION LOG: Table hints parsing issue
-    // Problem: `FROM Users WITH (NOLOCK)` parses WITH as alias instead of table hint
-    //
-    // Previous attempts:
-    // 1. Override FromExpressionElementSegment with explicit patterns - FAILED
-    // 2. Use exclude(Ref::keyword("WITH")) on alias patterns - FAILED
-    // 3. Reorder patterns to prioritize table hints - FAILED
-    // 4. Use base ANSI behavior - FAILED
-    //
-    // Current hypothesis: Issue is with AliasExpressionSegment specifically
-    // New approach: Override AliasExpressionSegment to exclude table hint keywords
-    // RESULT: Still failed - WITH still parsed as alias
-    //
-    // New hypothesis: WITH is being tokenized as identifier, not keyword
-    // Testing approach: Create simple keyword test
-    // RESULT: Lookahead exclude also failed - confirms tokenization issue
-    //
-    // Investigation: Check lexer configuration and keyword handling
-    // FINDINGS: WITH is correctly in reserved keywords (line 196 in tsql_keywords.rs)
-    //
-    // New approach: Create more aggressive table hint parsing
-    // Try using a regex or compound matcher for "WITH(...)" pattern
-    // RESULT: Regex approach also failed - still parsing WITH as alias
-    //
-    // CRITICAL INSIGHT: The issue must be in parser ordering!
-    // AliasExpressionSegment is being tried BEFORE PostTableExpressionGrammar
-    // Need to investigate FromExpressionElementSegment sequence order
-    //
-    // INVESTIGATION RESULTS: Found the root cause!
-    // ANSI FromExpressionElementSegment sequence:
-    // 1. TableExpressionSegment
-    // 2. AliasExpressionSegment (with excludes, but NOT PostTableExpressionGrammar)
-    // 3. WITH OFFSET sequence
-    // 4. SamplingExpressionSegment
-    // 5. PostTableExpressionGrammar (LAST!)
-    //
-    // The problem: AliasExpressionSegment excludes some elements but NOT table hints
-    // Solution: Add table hint exclusions to AliasExpressionSegment excludes
-    //
-    // FINAL SOLUTION: Override ANSI's FromExpressionElementSegment to add table hint exclusions
-    // to the existing AliasExpressionSegment exclude list
-    // RESULT: Still failed - even enhanced excludes don't work
-    //
-    // DEEPER INVESTIGATION NEEDED: The excludes mechanism itself may be broken
-    // or there's something about how T-SQL keywords are handled that's different
-    //
-    // INTERESTING: `WITH (NOLOCK)` by itself parses fine (no alias errors)
-    // This confirms the TableHintSegment works when not in FROM clause context
-    // The issue is specifically with FromExpressionElementSegment parsing order
-
-    // LAST RESORT: Try completely different approach
-    // Replace PostTableExpressionGrammar with TableHintSegment directly in the sequence
-    // This bypasses the problematic alias parsing entirely
-    // RESULT: Still failed - Pattern 2 (alias + hints) still matches WITH as alias
-    //
-    // CONCLUSION: This is a fundamental issue with how the parser processes T-SQL
-    // The exclude() mechanism appears to be non-functional for this use case
-    // A complete rewrite of the parsing logic would be required to fix this
-    //
-    // DEEPER INVESTIGATION: Exploring alternative approaches
-    // 1. Custom lexer matchers for table hints
-    // 2. Anti-template mechanism analysis
-    // 3. Token stream debugging
-    // 4. Custom parser implementation
-    //
-    // APPROACH 1: Add custom lexer matcher to recognize "WITH(" as single token
-    // This prevents alias parser from seeing just "WITH"
-    // RESULT: Failed - still parsing WITH as alias
-    //
-    // APPROACH 2: Investigate anti-template mechanism for NakedIdentifierSegment
-    // FINDINGS: exclude() requires both .exclude() call AND config.exclude setting
-    // Trying corrected exclude syntax with config closure
-    // RESULT: Still failed - even correct exclude syntax doesn't work
-    //
-    // APPROACH 3: Check if T-SQL reserved keywords are flowing to NakedIdentifierSegment
-    // Testing by overriding NakedIdentifierSegment directly
-    // RESULT: Still failed - even forcing WITH exclusion in anti-template doesn't work
-    //
-    // INTERESTING: "WITH" alone parses fine (no identifier errors)
-    // This suggests WITH is correctly tokenized as keyword, not identifier
-    // The issue is really with the parsing precedence in FromExpressionElementSegment
-    //
-    // APPROACH 4: Create completely custom table hint-aware parser
-    // Since WITH is correctly tokenized as keyword, create custom parser that looks ahead
-    // RESULT: Still failed - issue persists even with custom parser
-    //
-    // FINAL ANALYSIS: This is a fundamental architectural limitation
-    // The issue is that even when table hints are matched first, the AL05 linter rule
-    // still reports "WITH" as an unused alias. This suggests the problem may be:
-    // 1. The linter is analyzing the wrong AST structure
-    // 2. The table hint parsing succeeds but creates the wrong node type
-    // 3. There's a deeper issue with how T-SQL hints are represented in the AST
-
-    // Create custom T-SQL table reference parser with explicit table hint handling
-    dialect.add([(
-        "TSqlTableReferenceWithHintsSegment".into(),
-        one_of(vec_of_erased![
-            // Direct table hint matching - tries this first
-            Sequence::new(vec_of_erased![
-                Ref::new("TableExpressionSegment"),
-                Ref::new("TableHintSegment")
-            ]),
-            // Fallback to regular table reference
-            Ref::new("TableExpressionSegment")
-        ])
-        .to_matchable()
-        .into(),
-    )]);
 
     // Define PostTableExpressionGrammar to include T-SQL table hints
     dialect.add([(
@@ -767,9 +617,8 @@ pub fn raw_dialect() -> Dialect {
             .into(),
     )]);
 
-    // SOLUTION: Override FromExpressionElementSegment to ensure LookaheadExclude is properly applied
-    // This is the correct fix for WITH(NOLOCK) parsing issues
-    // The key insight is that T-SQL needs to preserve the ANSI exclude pattern while using its own PostTableExpressionGrammar
+    // Override FromExpressionElementSegment to ensure table hints are parsed correctly
+    // The LookaheadExclude prevents WITH from being parsed as an alias when followed by (
     dialect.replace_grammar(
         "FromExpressionElementSegment",
         NodeMatcher::new(
@@ -884,17 +733,9 @@ pub fn raw_dialect() -> Dialect {
     );
 
     // APPLY clause support (CROSS APPLY and OUTER APPLY)
-    // APPLY is T-SQL's way to invoke a table-valued function for each row
-    // of the outer table expression. It's like a JOIN but can reference
-    // columns from the outer query.
-    //
-    // CROSS APPLY: Similar to INNER JOIN - returns only rows where the
-    //              function returns results
-    // OUTER APPLY: Similar to LEFT JOIN - returns all rows from left side,
-    //              with NULLs when function returns no results
-    //
-    // Example: SELECT * FROM Customers c
-    //          CROSS APPLY dbo.GetOrdersForCustomer(c.CustomerID) o
+    // APPLY invokes a table-valued function for each row of the outer table
+    // CROSS APPLY: Like INNER JOIN - returns only rows with results
+    // OUTER APPLY: Like LEFT JOIN - returns all rows, NULLs when no results
     dialect.add([(
         "ApplyClauseSegment".into(),
         NodeMatcher::new(
@@ -920,9 +761,6 @@ pub fn raw_dialect() -> Dialect {
     )]);
 
     // WITHIN GROUP support for ordered set aggregate functions
-    // This is used primarily with STRING_AGG in T-SQL to specify the order
-    // of concatenated values within each group
-    // Example: STRING_AGG(name, ',') WITHIN GROUP (ORDER BY hire_date)
     dialect.add([(
         "WithinGroupClauseSegment".into(),
         NodeMatcher::new(
@@ -931,7 +769,6 @@ pub fn raw_dialect() -> Dialect {
                 Ref::keyword("WITHIN"),
                 Ref::keyword("GROUP"),
                 Bracketed::new(vec_of_erased![
-                    // ORDER BY is optional - if omitted, order is undefined
                     Ref::new("OrderByClauseSegment").optional()
                 ])
             ])
@@ -942,10 +779,6 @@ pub fn raw_dialect() -> Dialect {
     )]);
 
     // Override PostFunctionGrammar to include WITHIN GROUP
-    // This allows aggregate functions to be followed by these clauses:
-    // - WITHIN GROUP: For ordered aggregates (T-SQL specific)
-    // - OVER: For window functions (ANSI standard)
-    // - FILTER: For filtered aggregates (ANSI standard)
     dialect.add([(
         "PostFunctionGrammar".into(),
         AnyNumberOf::new(vec_of_erased![
@@ -957,9 +790,7 @@ pub fn raw_dialect() -> Dialect {
         .into(),
     )]);
 
-    // Add T-SQL variable support to LiteralGrammar for use in expressions
-    // This MUST be done before expand() is called in dialect() function
-    // so that the expression grammars include variable support
+    // Add T-SQL variable support to LiteralGrammar
     dialect.add([(
         "LiteralGrammar".into(),
         one_of(vec_of_erased![
@@ -979,21 +810,12 @@ pub fn raw_dialect() -> Dialect {
     )]);
 
     // T-SQL supports alternative alias syntax: AliasName = Expression
-    // This must be done before expand() to ensure proper parsing
-    //
-    // The challenge here is that the parser needs to distinguish between:
-    // 1. Column references like: table1.column1
-    // 2. T-SQL alias assignment like: AliasName = table1.column1
-    //
-    // The key insight is that we need to handle the ambiguity at the
-    // select clause level, not at the expression level.
-
-    // Override the select_clause_element function used by ANSI
+    // The parser distinguishes between column references (table1.column1)
+    // and alias assignments (AliasName = table1.column1)
     dialect.replace_grammar(
         "SelectClauseElementSegment",
         one_of(vec_of_erased![
-            // T-SQL alias equals pattern MUST come first
-            // This will match: AliasName = <any expression>
+            // T-SQL alias equals pattern: AliasName = Expression
             Sequence::new(vec_of_erased![
                 Ref::new("NakedIdentifierSegment"),
                 StringParser::new("=", SyntaxKind::RawComparisonOperator),
@@ -1014,8 +836,6 @@ pub fn raw_dialect() -> Dialect {
     );
 
     // T-SQL uses + for both arithmetic and string concatenation
-    // Override StringBinaryOperatorGrammar to include the + operator
-    // This fixes string concatenation in parentheses like: (first_name + ' ' + last_name)
     dialect.add([(
         "StringBinaryOperatorGrammar".into(),
         one_of(vec_of_erased![
@@ -1026,10 +846,7 @@ pub fn raw_dialect() -> Dialect {
         .into(),
     )]);
 
-    // CRITICAL: expand() must be called after all grammar modifications
-    // This method recursively expands all grammar references and builds
-    // the final parser. Without this, grammar references won't be resolved
-    // and the parser will fail at runtime.
+    // expand() must be called after all grammar modifications
 
     dialect
 }

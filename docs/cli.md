@@ -67,7 +67,6 @@ Fix SQL files via passing a list of files or using stdin
 
 ###### **Options:**
 
-* `--check` — If set, will not apply fixes but only check for violations
 * `-f`, `--format <FORMAT>` — The output format for the results
 
   Default value: `human`

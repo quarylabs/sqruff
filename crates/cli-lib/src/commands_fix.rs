@@ -10,11 +10,7 @@ pub(crate) fn run_fix(
     ignorer: impl Fn(&Path) -> bool + Send + Sync,
     collect_parse_errors: bool,
 ) -> i32 {
-    let FixArgs {
-        paths,
-        check,
-        format,
-    } = args;
+    let FixArgs { paths, format } = args;
     let mut linter = linter(config, format, collect_parse_errors);
     let result = linter.lint_paths(paths, true, &ignorer);
 
@@ -28,12 +24,10 @@ pub(crate) fn run_fix(
             .iter()
             .any(|file| !file.get_violations(Some(false)).is_empty());
 
-        if !check {
-            for mut file in result.files {
-                let path = std::mem::take(&mut file.path);
-                let write_buff = file.fix_string();
-                std::fs::write(path, write_buff).unwrap();
-            }
+        for mut file in result.files {
+            let path = std::mem::take(&mut file.path);
+            let write_buff = file.fix_string();
+            std::fs::write(path, write_buff).unwrap();
         }
 
         linter.formatter_mut().unwrap().completion_message();

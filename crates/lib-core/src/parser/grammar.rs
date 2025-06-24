@@ -8,7 +8,6 @@ use ahash::AHashSet;
 use std::borrow::Cow;
 use std::sync::OnceLock;
 
-use crate::dialects::Dialect;
 use crate::dialects::syntax::SyntaxSet;
 use crate::errors::SQLParseError;
 use crate::helpers::ToMatchable;
@@ -68,11 +67,6 @@ impl Ref {
         self
     }
 
-    // Method to get the referenced element
-    fn _get_elem(&self, dialect: &Dialect) -> Matchable {
-        dialect.r#ref(&self.reference)
-    }
-
     // Static method to create a Ref instance for a keyword
     #[track_caller]
     pub fn keyword(keyword: impl Into<Cow<'static, str>>) -> Self {
@@ -124,7 +118,9 @@ impl MatchableTrait for Ref {
                 let mut new_crumbs = crumbs.unwrap_or_default();
                 new_crumbs.push(&self.reference);
 
-                self._get_elem(parse_context.dialect())
+                parse_context
+                    .dialect()
+                    .r#ref(&self.reference)
                     .simple(parse_context, Some(new_crumbs))
             })
             .clone()
@@ -136,7 +132,7 @@ impl MatchableTrait for Ref {
         idx: u32,
         parse_context: &mut ParseContext,
     ) -> Result<MatchResult, SQLParseError> {
-        let elem = self._get_elem(parse_context.dialect());
+        let elem = parse_context.dialect().r#ref(&self.reference);
 
         if let Some(exclude) = &self.exclude {
             let ctx =

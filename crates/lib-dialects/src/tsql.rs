@@ -13,7 +13,7 @@ use sqruff_lib_core::parser::lexer::Matcher;
 use sqruff_lib_core::parser::lookahead::LookaheadExclude;
 use sqruff_lib_core::parser::node_matcher::NodeMatcher;
 use sqruff_lib_core::parser::parsers::TypedParser;
-use sqruff_lib_core::parser::parsers::{RegexParser, StringParser};
+use sqruff_lib_core::parser::parsers::StringParser;
 use sqruff_lib_core::parser::segments::meta::MetaSegment;
 use sqruff_lib_core::parser::types::ParseMode;
 use sqruff_lib_core::vec_of_erased;
@@ -61,8 +61,8 @@ pub fn raw_dialect() -> Dialect {
 
     // T-SQL specific operators
     dialect.sets_mut("operator_symbols").extend([
-        "%=", "&=", "*=", "+=", "-=", "/=", "^=", "|=",  // Compound assignment
-        "!<", "!>",  // Special comparison operators
+        "%=", "&=", "*=", "+=", "-=", "/=", "^=", "|=", // Compound assignment
+        "!<", "!>", // Special comparison operators
     ]);
 
     // T-SQL supports square brackets for identifiers and @ for variables
@@ -768,9 +768,7 @@ pub fn raw_dialect() -> Dialect {
             Sequence::new(vec_of_erased![
                 Ref::keyword("WITHIN"),
                 Ref::keyword("GROUP"),
-                Bracketed::new(vec_of_erased![
-                    Ref::new("OrderByClauseSegment").optional()
-                ])
+                Bracketed::new(vec_of_erased![Ref::new("OrderByClauseSegment").optional()])
             ])
             .to_matchable(),
         )

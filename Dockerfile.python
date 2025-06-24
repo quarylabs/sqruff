@@ -10,7 +10,7 @@ RUN apt-get update && apt-get install -y \
 
 WORKDIR /usr/src/sqruff
 COPY . .
-RUN cargo build --release -p sqruff --bin sqruff --features python
+RUN cargo build --release -p sqruff --bin sqruff --features python --locked
 
 # Runtime stage
 FROM debian:bookworm-slim

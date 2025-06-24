@@ -10,7 +10,7 @@ use ahash::{AHashMap, AHashSet};
 
 use crate::dialects::init::DialectKind;
 use crate::dialects::syntax::SyntaxKind;
-use crate::helpers::{ToMatchable, capitalize};
+use crate::helpers::ToMatchable;
 use crate::parser::lexer::{Lexer, Matcher};
 use crate::parser::matchable::Matchable;
 use crate::parser::parsers::StringParser;
@@ -205,6 +205,7 @@ impl Dialect {
         }
     }
 
+    #[track_caller]
     pub fn r#ref(&self, name: &str) -> Matchable {
         match self.library.get(name) {
             Some(DialectElementType::Matchable(matchable)) => matchable.clone(),
@@ -212,21 +213,7 @@ impl Dialect {
                 panic!("Unexpected SegmentGenerator while fetching '{}'", name);
             }
             None => {
-                if let Some(keyword) = name.strip_suffix("KeywordSegment") {
-                    let keyword_tip = "\
-                        \n\nThe syntax in the query is not (yet?) supported. Try to \
-                        narrow down your query to a minimal, reproducible case and \
-                        raise an issue on GitHub.\n\n\
-                        Or, even better, see this guide on how to help contribute \
-                        keyword and/or dialect updates:\n\
-                        https://github.com/quarylabs/sqruff";
-                    panic!(
-                        "Grammar refers to the '{keyword}' keyword which was not found in the \
-                         dialect.{keyword_tip}",
-                    );
-                } else {
-                    panic!("Grammar refers to '{name}' which was not found in the dialect.",);
-                }
+                panic!("Grammar refers to '{name}' which was not found in the dialect.",);
             }
         }
     }
@@ -244,13 +231,12 @@ impl Dialect {
 
         for keyword_set in ["unreserved_keywords", "reserved_keywords"] {
             if let Some(keywords) = self.sets.get(keyword_set) {
-                for kw in keywords {
-                    let n = format!("{}KeywordSegment", capitalize(kw));
-                    if !self.library.contains_key(n.as_str()) {
+                for &kw in keywords {
+                    if !self.library.contains_key(kw) {
                         let parser = StringParser::new(kw, SyntaxKind::Keyword);
 
                         self.library.insert(
-                            n.into(),
+                            kw.into(),
                             DialectElementType::Matchable(parser.to_matchable()),
                         );
                     }

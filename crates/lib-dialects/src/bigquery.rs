@@ -418,7 +418,7 @@ pub fn dialect() -> Dialect {
                     Ref::new("ProcedureParameterListSegment"),
                     Sequence::new(vec_of_erased![
                         Ref::keyword("OPTIONS"),
-                        Ref::keyword("strict_mode"),
+                        Ref::keyword("STRICT_MODE"),
                         StringParser::new("strict_mode", SyntaxKind::ProcedureOption),
                         Ref::new("EqualsSegment"),
                         Ref::new("BooleanLiteralGrammar").optional(),

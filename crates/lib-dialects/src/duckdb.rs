@@ -24,8 +24,8 @@ pub fn raw_dialect() -> Dialect {
     let mut duckdb_dialect = postgres_dialect;
     duckdb_dialect.name = DialectKind::Duckdb;
 
-    duckdb_dialect.add_keyword_to_set("reserved_keywords", "Summarize");
-    duckdb_dialect.add_keyword_to_set("reserved_keywords", "Macro");
+    duckdb_dialect.add_keyword_to_set("reserved_keywords", "SUMMARIZE");
+    duckdb_dialect.add_keyword_to_set("reserved_keywords", "MACRO");
 
     duckdb_dialect.add([
         (

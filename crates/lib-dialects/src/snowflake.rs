@@ -2716,7 +2716,7 @@ pub fn dialect() -> Dialect {
 
                 let schema_object_names_keywrods: Vec<Matchable> = schema_object_names
                     .iter()
-                    .map(|name| Ref::keyword(name).to_matchable())
+                    .map(|name| Ref::keyword(*name).to_matchable())
                     .collect();
 
                 let mut schema_object_types = schema_object_names_keywrods.clone();
@@ -2757,7 +2757,7 @@ pub fn dialect() -> Dialect {
                 let schema_object_types_plural = one_of(
                     schema_object_names
                         .iter()
-                        .map(|name| Ref::keyword(&format!("{}S", name)).to_matchable())
+                        .map(|name| Ref::keyword(format!("{}S", name)).to_matchable())
                         .collect(),
                 );
 

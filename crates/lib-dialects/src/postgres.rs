@@ -1472,7 +1472,7 @@ pub fn raw_dialect() -> Dialect {
             NodeMatcher::new(SyntaxKind::WktGeometryType, {
                 let geometry_type_keywords = POSTGRES_POSTGIS_DATATYPE_KEYWORDS
                     .iter()
-                    .map(|(kw, _)| Ref::keyword(kw).to_matchable())
+                    .map(|(kw, _)| Ref::keyword(*kw).to_matchable())
                     .collect_vec();
 
                 let mut geometry_type_keywords0 = geometry_type_keywords.clone();

@@ -11,7 +11,7 @@ use std::sync::OnceLock;
 use crate::dialects::Dialect;
 use crate::dialects::syntax::SyntaxSet;
 use crate::errors::SQLParseError;
-use crate::helpers::{ToMatchable, capitalize};
+use crate::helpers::ToMatchable;
 use crate::parser::context::ParseContext;
 use crate::parser::match_algorithms::greedy_match;
 use crate::parser::match_result::MatchResult;
@@ -74,9 +74,16 @@ impl Ref {
     }
 
     // Static method to create a Ref instance for a keyword
-    pub fn keyword(keyword: &str) -> Self {
-        let name = capitalize(keyword) + "KeywordSegment";
-        Ref::new(name)
+    #[track_caller]
+    pub fn keyword(keyword: impl Into<Cow<'static, str>>) -> Self {
+        let keyword = keyword.into();
+
+        assert!(
+            keyword.chars().all(|c| !c.is_lowercase()),
+            "Keyword references must be uppercase: {keyword}",
+        );
+
+        Ref::new(keyword)
     }
 }
 

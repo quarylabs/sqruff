@@ -1885,7 +1885,7 @@ pub fn raw_dialect() -> Dialect {
             NodeMatcher::new(
                 SyntaxKind::FetchStatement,
                 Sequence::new(vec_of_erased![
-                    Ref::keyword("fetch"),
+                    Ref::keyword("FETCH"),
                     one_of(vec_of_erased![
                         Ref::keyword("NEXT"),
                         Ref::keyword("ALL"),

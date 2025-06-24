@@ -99,14 +99,6 @@ impl StringParser {
             cache_key: next_matchable_cache_key(),
         }
     }
-
-    pub fn simple(&self, _parse_cx: &ParseContext) -> (AHashSet<String>, AHashSet<String>) {
-        (self.simple.clone(), AHashSet::new())
-    }
-
-    pub fn is_first_match(&self, segment: &ErasedSegment) -> bool {
-        segment.is_code() && self.template.eq_ignore_ascii_case(segment.raw())
-    }
 }
 
 impl MatchableTrait for StringParser {

@@ -1,4 +1,3 @@
-use crate::check_user_input;
 use crate::commands::FixArgs;
 use crate::commands::Format;
 use crate::linter;
@@ -11,11 +10,7 @@ pub(crate) fn run_fix(
     ignorer: impl Fn(&Path) -> bool + Send + Sync,
     collect_parse_errors: bool,
 ) -> i32 {
-    let FixArgs {
-        paths,
-        force,
-        format,
-    } = args;
+    let FixArgs { paths, format } = args;
     let mut linter = linter(config, format, collect_parse_errors);
     let result = linter.lint_paths(paths, true, &ignorer);
 
@@ -24,20 +19,6 @@ pub(crate) fn run_fix(
         println!("{} files processed, nothing to fix.", count_files);
         0
     } else {
-        if !force {
-            match check_user_input() {
-                Some(true) => {
-                    eprintln!("Attempting fixes...");
-                }
-                Some(false) => return 0,
-                None => {
-                    eprintln!("Invalid input, please enter 'Y' or 'N'");
-                    eprintln!("Aborting...");
-                    return 0;
-                }
-            }
-        }
-
         let any_unfixable_errors = result
             .files
             .iter()

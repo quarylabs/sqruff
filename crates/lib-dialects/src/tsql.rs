@@ -5,12 +5,11 @@ use sqruff_lib_core::dialects::init::DialectKind;
 use sqruff_lib_core::dialects::syntax::SyntaxKind;
 use sqruff_lib_core::helpers::{Config, ToMatchable};
 use sqruff_lib_core::parser::grammar::Ref;
-use sqruff_lib_core::parser::grammar::anyof::{AnyNumberOf, one_of, optionally_bracketed};
+use sqruff_lib_core::parser::grammar::anyof::{AnyNumberOf, one_of};
 use sqruff_lib_core::parser::grammar::conditional::Conditional;
 use sqruff_lib_core::parser::grammar::delimited::Delimited;
 use sqruff_lib_core::parser::grammar::sequence::{Bracketed, Sequence};
 use sqruff_lib_core::parser::lexer::Matcher;
-use sqruff_lib_core::parser::lookahead::LookaheadExclude;
 use sqruff_lib_core::parser::node_matcher::NodeMatcher;
 use sqruff_lib_core::parser::parsers::TypedParser;
 use sqruff_lib_core::parser::parsers::{RegexParser, StringParser};
@@ -761,38 +760,17 @@ pub fn raw_dialect() -> Dialect {
         .into(),
     )]);
 
-    // Add proper lookahead exclude to the FROM expression parsing
-    // This ensures WITH(NOLOCK) is not parsed as an alias
-    dialect.replace_grammar(
-        "FromExpressionElementSegment",
-        NodeMatcher::new(
-            SyntaxKind::FromExpressionElement,
-            Sequence::new(vec_of_erased![
-                Ref::new("PreTableFunctionKeywordsGrammar").optional(),
-                optionally_bracketed(vec_of_erased![Ref::new("TableExpressionSegment")]),
-                Ref::new("AliasExpressionSegment")
-                    .exclude(one_of(vec_of_erased![
-                        Ref::new("FromClauseTerminatorGrammar"),
-                        Ref::new("SamplingExpressionSegment"),
-                        Ref::new("JoinLikeClauseGrammar"),
-                        // This is the key fix: exclude WITH followed by parenthesis
-                        LookaheadExclude::new("WITH", "(")
-                    ]))
-                    .optional(),
-                // Table hints come after the alias
-                Ref::new("TableHintSegment").optional(),
-                Sequence::new(vec_of_erased![
-                    Ref::keyword("WITH"),
-                    Ref::keyword("OFFSET"),
-                    Ref::new("AliasExpressionSegment")
-                ])
-                .config(|this| this.optional()),
-                Ref::new("SamplingExpressionSegment").optional(),
-            ])
-            .to_matchable(),
-        )
-        .to_matchable(),
-    );
+    // Define PostTableExpressionGrammar to include T-SQL table hints
+    dialect.add([
+        (
+            "PostTableExpressionGrammar".into(),
+            Ref::new("TableHintSegment")
+                .optional()
+                .to_matchable()
+                .into(),
+        ),
+    ]);
+    
 
     // Update JoinClauseSegment to handle APPLY syntax properly
     dialect.replace_grammar(

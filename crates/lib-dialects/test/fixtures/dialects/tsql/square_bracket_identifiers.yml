@@ -15,9 +15,8 @@ file:
         - keyword: FROM
         - from_expression:
           - from_expression_element:
-            - from_expression_element:
-              - table_expression:
-                - table_reference:
-                  - object_reference:
-                    - quoted_identifier: '[Sales Data]'
+            - table_expression:
+              - table_reference:
+                - object_reference:
+                  - quoted_identifier: '[Sales Data]'
 - statement_terminator: ;

@@ -11,8 +11,7 @@ file:
         - keyword: FROM
         - from_expression:
           - from_expression_element:
-            - from_expression_element:
-              - table_expression:
-                - table_reference:
-                  - tsql_variable: '@DepartmentCodes'
+            - table_expression:
+              - table_reference:
+                - tsql_variable: '@DepartmentCodes'
 - statement_terminator: ;

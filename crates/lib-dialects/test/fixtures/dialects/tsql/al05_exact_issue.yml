@@ -26,24 +26,16 @@ file:
               - alias_expression:
                 - keyword: AS
                 - naked_identifier: op2ref
-              - keyword: WITH
-              - bracketed:
-                - start_bracket: (
-                - keyword: NOLOCK
-                - end_bracket: )
-          - join_clause:
-            - join_clause:
-              - keyword: INNER
-              - keyword: JOIN
-              - from_expression_element:
-                - from_expression_element:
-                  - table_expression:
-                    - table_reference:
-                      - object_reference:
-                        - naked_identifier: schema1
-                        - dot: .
-                        - naked_identifier: TBL_POS_DATA
       - unparsable:
+        - word: WITH
+        - start_bracket: (
+        - word: NOLOCK
+        - end_bracket: )
+        - word: INNER
+        - word: JOIN
+        - word: schema1
+        - dot: .
+        - word: TBL_POS_DATA
         - word: AS
         - word: Position
         - word: WITH

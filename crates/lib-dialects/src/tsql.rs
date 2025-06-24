@@ -591,6 +591,7 @@ pub fn raw_dialect() -> Dialect {
         .to_matchable(),
     );
 
+
     // Table hints support - properly structured as table hint segments
     // Example: SELECT * FROM Users WITH (NOLOCK)
     dialect.add([

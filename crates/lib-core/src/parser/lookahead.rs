@@ -15,19 +15,19 @@ use crate::errors::SQLParseError;
 #[derive(Debug, Clone, PartialEq)]
 pub struct LookaheadExclude {
     /// The first token to match (e.g., "WITH")
-    first_token: String,
+    first_token: &'static str,
     /// The lookahead token to check for (e.g., "(")
-    lookahead_token: String,
+    lookahead_token: &'static str,
     /// Unique cache key for this matcher
     cache_key: MatchableCacheKey,
 }
 
 impl LookaheadExclude {
     /// Create a new LookaheadExclude matcher.
-    pub fn new(first_token: impl Into<String>, lookahead_token: impl Into<String>) -> Self {
+    pub fn new(first_token: &'static str, lookahead_token: &'static str) -> Self {
         Self {
-            first_token: first_token.into().to_uppercase(),
-            lookahead_token: lookahead_token.into(),
+            first_token,
+            lookahead_token,
             cache_key: next_matchable_cache_key(),
         }
     }
@@ -65,14 +65,14 @@ impl MatchableTrait for LookaheadExclude {
 
         // Check if current token matches first pattern (case-insensitive)
         let current_raw = segments[idx as usize].raw();
-        if current_raw.to_uppercase() == self.first_token {
+        if current_raw.eq_ignore_ascii_case(self.first_token) {
             // Look ahead for second token, skipping any whitespace
             let next_idx =
                 skip_start_index_forward_to_code(segments, idx + 1, segments.len() as u32);
 
             if next_idx < segments.len() as u32 {
                 let next_raw = segments[next_idx as usize].raw();
-                if next_raw == self.lookahead_token.as_str() {
+                if next_raw == self.lookahead_token {
                     // Match found - return a match to indicate this should be excluded
                     return Ok(MatchResult::from_span(idx, idx + 1));
                 }

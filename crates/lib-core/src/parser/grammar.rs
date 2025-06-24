@@ -72,7 +72,7 @@ impl Ref {
     pub fn keyword(keyword: impl Into<Cow<'static, str>>) -> Self {
         let keyword = keyword.into();
 
-        assert!(
+        debug_assert!(
             keyword.chars().all(|c| !c.is_lowercase()),
             "Keyword references must be uppercase: {keyword}",
         );

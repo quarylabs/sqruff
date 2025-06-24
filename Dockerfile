@@ -1,11 +1,13 @@
 
 # Builder stage
-FROM rust:1.72 AS builder
+FROM rust:1.87-bookworm AS builder
+
 WORKDIR /usr/src/sqruff
 COPY . .
-RUN cargo build --release --bin sqruff
+RUN cargo build --release -p sqruff --bin sqruff --locked
 
 # Runtime stage
-FROM debian:buster-slim
+FROM debian:bookworm-slim
+
 COPY --from=builder /usr/src/sqruff/target/release/sqruff /usr/local/bin/sqruff
 ENTRYPOINT ["sqruff"]

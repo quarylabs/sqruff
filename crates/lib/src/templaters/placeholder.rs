@@ -799,4 +799,34 @@ param_style = percent
 
         assert_eq!(result, "SELECT\n    a,\n    b\nFROM users WHERE a = %s\n");
     }
+
+    #[test]
+    /// Test dollar placeholder in comment (issue #1574)
+    fn test_dollar_placeholder_in_comment() {
+        let config = FluffConfig::from_source(
+            r#"
+[sqruff:templater:placeholder]
+param_style = dollar
+"#,
+            None,
+        );
+        let sql = r#"SELECT
+  *
+FROM
+  foo
+  -- $id .
+  JOIN bar;"#;
+
+        let templater = PlaceholderTemplater {};
+        let result = templater.process(sql, "test.sql", &config, &None).unwrap();
+
+        // The comment should remain unchanged
+        let expected = r#"SELECT
+  *
+FROM
+  foo
+  -- id .
+  JOIN bar;"#;
+        assert_eq!(result.templated(), expected);
+    }
 }

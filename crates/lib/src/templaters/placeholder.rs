@@ -94,18 +94,18 @@ impl PlaceholderTemplater {
         let mut regions = Vec::new();
         let bytes = sql.as_bytes();
         let len = bytes.len();
-        
+
         if len < 2 {
             return regions;
         }
-        
+
         let mut i = 0;
-        
+
         // Use pre-computed length to avoid repeated calls
         while i < len - 1 {
             let b0 = bytes[i];
             let b1 = bytes[i + 1];
-            
+
             if b0 == b'-' && b1 == b'-' {
                 // Line comment
                 let start = i;
@@ -128,7 +128,7 @@ impl PlaceholderTemplater {
                     i += 1;
                 }
                 // Handle case where block comment doesn't close
-                if i >= len - 1 && (i >= len || bytes[i-1] != b'/') {
+                if i >= len - 1 && (i >= len || bytes[i - 1] != b'/') {
                     i = len;
                 }
                 regions.push(start..i);
@@ -136,24 +136,26 @@ impl PlaceholderTemplater {
                 i += 1;
             }
         }
-        
+
         regions
     }
-    
+
     /// Check if a position is within any comment region
     fn is_in_comment(&self, comment_regions: &[std::ops::Range<usize>], pos: usize) -> bool {
         // Since regions are added in order during scanning, we can use binary search
-        comment_regions.binary_search_by(|region| {
-            if pos < region.start {
-                std::cmp::Ordering::Greater
-            } else if pos >= region.end {
-                std::cmp::Ordering::Less
-            } else {
-                std::cmp::Ordering::Equal
-            }
-        }).is_ok()
+        comment_regions
+            .binary_search_by(|region| {
+                if pos < region.start {
+                    std::cmp::Ordering::Greater
+                } else if pos >= region.end {
+                    std::cmp::Ordering::Less
+                } else {
+                    std::cmp::Ordering::Equal
+                }
+            })
+            .is_ok()
     }
-    
+
     fn derive_style(&self, config: &FluffConfig) -> Result<Regex, SQLFluffUserError> {
         let config = config
             .get("placeholder", "templater")
@@ -456,7 +458,8 @@ param_style = colon",
     #[test]
     fn test_all_the_known_styles() {
         // in, param_style, expected_out, values
-        let cases: [(&str, &str, &str, Vec<(&str, &str)>); 19] = [
+        type TestCase<'a> = (&'a str, &'a str, &'a str, Vec<(&'a str, &'a str)>);
+        let cases: [TestCase; 19] = [
             (
                 "SELECT * FROM f, o, o WHERE a < 10\n\n",
                 "colon",
@@ -920,7 +923,7 @@ name = test_name
 "#,
             None,
         );
-        
+
         // Test line comments
         let sql = r#"SELECT $id, $name -- $id should not be replaced here
 FROM users
@@ -928,7 +931,7 @@ WHERE id = $id; -- Neither should $name here"#;
 
         let templater = PlaceholderTemplater {};
         let result = templater.process(sql, "test.sql", &config, &None).unwrap();
-        
+
         let expected = r#"SELECT 123, test_name -- $id should not be replaced here
 FROM users
 WHERE id = 123; -- Neither should $name here"#;
@@ -942,7 +945,7 @@ WHERE id = 123; -- Neither should $name here"#;
 FROM users WHERE name = $name"#;
 
         let result2 = templater.process(sql2, "test.sql", &config, &None).unwrap();
-        
+
         let expected2 = r#"SELECT /* $id in comment */ 123
 /* Multi-line comment
    with $name placeholder

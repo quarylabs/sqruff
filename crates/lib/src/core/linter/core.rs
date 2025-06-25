@@ -21,7 +21,7 @@ use smol_str::{SmolStr, ToSmolStr};
 use sqruff_lib_core::dialects::Dialect;
 use sqruff_lib_core::dialects::syntax::{SyntaxKind, SyntaxSet};
 use sqruff_lib_core::errors::{
-    SQLBaseError, SQLFluffUserError, SQLLexError, SQLLintError, SQLParseError, SqlError,
+    SQLBaseError, SQLFluffUserError, SQLLexError, SQLLintError, SQLParseError,
 };
 use sqruff_lib_core::helpers;
 use sqruff_lib_core::lint_fix::LintFix;
@@ -89,15 +89,9 @@ impl Linter {
     ) -> Result<ParsedString, SQLFluffUserError> {
         let f_name = filename.unwrap_or_else(|| "<string>".to_string());
 
-        let mut violations: Vec<Box<dyn SqlError>> = vec![];
-
         // Scan the raw file for config commands.
         self.config.process_raw_file_for_config(sql);
         let rendered = self.render_string(sql, f_name.clone(), &self.config)?;
-
-        for violation in &rendered.templater_violations {
-            violations.push(Box::new(violation.clone()));
-        }
 
         // Dispatch the output for the parse header
         if let Some(formatter) = &self.formatter {

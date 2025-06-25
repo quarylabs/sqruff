@@ -89,6 +89,49 @@ const NO_PARAM_OR_STYLE: &str =
     "No param_regex nor param_style was provided to the placeholder templater.";
 
 impl PlaceholderTemplater {
+    /// Find all comment regions in the SQL string (returns byte ranges)
+    fn find_comment_regions(&self, sql: &str) -> Vec<std::ops::Range<usize>> {
+        let mut regions = Vec::new();
+        let bytes = sql.as_bytes();
+        let mut i = 0;
+        
+        while i < bytes.len() {
+            // Check for line comment (--)
+            if i + 1 < bytes.len() && bytes[i] == b'-' && bytes[i + 1] == b'-' {
+                let start = i;
+                // Find the end of the line
+                while i < bytes.len() && bytes[i] != b'\n' {
+                    i += 1;
+                }
+                regions.push(start..i);
+            }
+            // Check for block comment (/* */)
+            else if i + 1 < bytes.len() && bytes[i] == b'/' && bytes[i + 1] == b'*' {
+                let start = i;
+                i += 2; // Skip /*
+                // Find the closing */
+                while i + 1 < bytes.len() {
+                    if bytes[i] == b'*' && bytes[i + 1] == b'/' {
+                        i += 2; // Skip */
+                        break;
+                    }
+                    i += 1;
+                }
+                regions.push(start..i);
+            }
+            else {
+                i += 1;
+            }
+        }
+        
+        regions
+    }
+    
+    /// Check if a position is within any comment region
+    fn is_in_comment(&self, comment_regions: &[std::ops::Range<usize>], pos: usize) -> bool {
+        comment_regions.iter().any(|region| region.contains(&pos))
+    }
+    
     fn derive_style(&self, config: &FluffConfig) -> Result<Regex, SQLFluffUserError> {
         let config = config
             .get("placeholder", "templater")
@@ -248,9 +291,17 @@ Also consider making a pull request to the project to have your style added, it 
 
         let template_config = config.get("placeholder", "templater").as_map();
 
+        // First, identify comment regions to skip
+        let comment_regions = self.find_comment_regions(in_str);
+
         for cap in regex.captures_iter(in_str) {
             let cap = cap.unwrap();
             let span = cap.get(0).unwrap().range();
+
+            // Check if this match is within a comment region
+            if self.is_in_comment(&comment_regions, span.start) {
+                continue; // Skip replacements in comments
+            }
 
             let param_name = if let Some(name) = cap.name("param_name") {
                 name.as_str().to_string()
@@ -803,8 +854,8 @@ param_style = percent
     #[test]
     /// Test dollar placeholder in comment (issue #1574)
     /// This test verifies that the lexer no longer crashes when processing
-    /// dollar placeholders in comments. Note that currently placeholders
-    /// in comments ARE replaced, which may not be ideal behavior.
+    /// dollar placeholders in comments and that placeholders in comments
+    /// are preserved (not replaced).
     fn test_dollar_placeholder_in_comment() {
         let config = FluffConfig::from_source(
             r#"
@@ -823,14 +874,56 @@ FROM
         let templater = PlaceholderTemplater {};
         let result = templater.process(sql, "test.sql", &config, &None).unwrap();
 
-        // Currently, placeholders in comments ARE replaced
-        // This may not be ideal, but at least it doesn't crash anymore
+        // Placeholders in comments should be preserved
         let expected = r#"SELECT
   *
 FROM
   foo
-  -- id .
+  -- $id .
   JOIN bar;"#;
         assert_eq!(result.templated(), expected);
+    }
+
+    #[test]
+    /// Test placeholders are preserved in various comment types
+    fn test_placeholders_preserved_in_comments() {
+        let config = FluffConfig::from_source(
+            r#"
+[sqruff:templater:placeholder]
+param_style = dollar
+id = 123
+name = test_name
+"#,
+            None,
+        );
+        
+        // Test line comments
+        let sql = r#"SELECT $id, $name -- $id should not be replaced here
+FROM users
+WHERE id = $id; -- Neither should $name here"#;
+
+        let templater = PlaceholderTemplater {};
+        let result = templater.process(sql, "test.sql", &config, &None).unwrap();
+        
+        let expected = r#"SELECT 123, test_name -- $id should not be replaced here
+FROM users
+WHERE id = 123; -- Neither should $name here"#;
+        assert_eq!(result.templated(), expected);
+
+        // Test block comments
+        let sql2 = r#"SELECT /* $id in comment */ $id
+/* Multi-line comment
+   with $name placeholder
+   should not be replaced */ 
+FROM users WHERE name = $name"#;
+
+        let result2 = templater.process(sql2, "test.sql", &config, &None).unwrap();
+        
+        let expected2 = r#"SELECT /* $id in comment */ 123
+/* Multi-line comment
+   with $name placeholder
+   should not be replaced */ 
+FROM users WHERE name = test_name"#;
+        assert_eq!(result2.templated(), expected2);
     }
 }

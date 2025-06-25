@@ -802,6 +802,9 @@ param_style = percent
 
     #[test]
     /// Test dollar placeholder in comment (issue #1574)
+    /// This test verifies that the lexer no longer crashes when processing
+    /// dollar placeholders in comments. Note that currently placeholders
+    /// in comments ARE replaced, which may not be ideal behavior.
     fn test_dollar_placeholder_in_comment() {
         let config = FluffConfig::from_source(
             r#"
@@ -820,7 +823,8 @@ FROM
         let templater = PlaceholderTemplater {};
         let result = templater.process(sql, "test.sql", &config, &None).unwrap();
 
-        // The comment should remain unchanged
+        // Currently, placeholders in comments ARE replaced
+        // This may not be ideal, but at least it doesn't crash anymore
         let expected = r#"SELECT
   *
 FROM

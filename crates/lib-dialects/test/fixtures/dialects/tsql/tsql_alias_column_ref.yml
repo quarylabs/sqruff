@@ -1,0 +1,66 @@
+file:
+- statement:
+  - statement:
+    - select_statement:
+      - select_clause:
+        - keyword: SELECT
+        - select_clause_element:
+          - naked_identifier: SimpleAlias
+          - raw_comparison_operator: =
+          - column_reference:
+            - naked_identifier: value
+        - comma: ','
+        - select_clause_element:
+          - naked_identifier: QualifiedAlias
+          - raw_comparison_operator: =
+          - column_reference:
+            - naked_identifier: table1
+            - dot: .
+            - naked_identifier: column1
+        - comma: ','
+        - select_clause_element:
+          - naked_identifier: FullyQualifiedAlias
+          - raw_comparison_operator: =
+          - column_reference:
+            - naked_identifier: dbo
+            - dot: .
+            - naked_identifier: table1
+            - dot: .
+            - naked_identifier: column1
+        - comma: ','
+        - select_clause_element:
+          - naked_identifier: FunctionAlias
+          - raw_comparison_operator: =
+          - function:
+            - function_name:
+              - function_name_identifier: SUM
+            - bracketed:
+              - start_bracket: (
+              - expression:
+                - column_reference:
+                  - naked_identifier: quantity
+              - end_bracket: )
+        - comma: ','
+        - select_clause_element:
+          - naked_identifier: ExpressionAlias
+          - raw_comparison_operator: =
+          - expression:
+            - column_reference:
+              - naked_identifier: table1
+              - dot: .
+              - naked_identifier: price
+            - binary_operator: '*'
+            - column_reference:
+              - naked_identifier: table1
+              - dot: .
+              - naked_identifier: quantity
+      - from_clause:
+        - keyword: FROM
+        - from_expression:
+          - from_expression_element:
+            - from_expression_element:
+              - table_expression:
+                - table_reference:
+                  - object_reference:
+                    - naked_identifier: table1
+- statement_terminator: ;

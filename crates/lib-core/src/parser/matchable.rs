@@ -12,6 +12,7 @@ use super::grammar::delimited::Delimited;
 use super::grammar::noncode::NonCodeMatcher;
 use super::grammar::sequence::{Bracketed, Sequence};
 use super::grammar::{Anything, Nothing, Ref};
+use super::lookahead::LookaheadExclude;
 use super::match_result::MatchResult;
 use super::node_matcher::NodeMatcher;
 use super::parsers::{MultiStringParser, RegexParser, StringParser, TypedParser};
@@ -104,6 +105,7 @@ pub enum MatchableTraitImpl {
     Anything(Anything),
     Conditional(Conditional),
     BracketedSegmentMatcher(BracketedSegmentMatcher),
+    LookaheadExclude(LookaheadExclude),
 }
 
 impl PartialEq for MatchableTraitImpl {

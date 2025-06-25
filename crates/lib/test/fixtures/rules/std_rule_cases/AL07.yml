@@ -213,7 +213,7 @@ issue_1589:
 
 issue_1639:
   # TODO: Fix AL07 rule to handle CREATE TABLE statements properly
-  ignored: true
+  ignored: "AL07 rule needs update to handle CREATE TABLE statements"
   fail_str: |
     DECLARE @VariableE date = GETDATE()
 

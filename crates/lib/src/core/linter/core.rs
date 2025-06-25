@@ -486,7 +486,7 @@ impl Linter {
         dialect: &Dialect,
     ) -> (Option<Vec<ErasedSegment>>, Vec<SQLLexError>) {
         let mut violations: Vec<SQLLexError> = vec![];
-        // linter_logger.info("LEXING RAW ({})", templated_file.fname);
+        log::debug!("LEXING RAW ({})", templated_file.name());
         // Get the lexer
         let lexer = dialect.lexer();
         // Lex the file and log any problems

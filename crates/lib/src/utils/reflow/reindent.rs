@@ -1361,7 +1361,7 @@ pub fn lint_line_length(
         let line_no = first_seg.get_position_marker().unwrap().working_line_no;
 
         if line_len <= line_length_limit {
-            tracing::info!(
+            log::info!(
                 "Line #{}. Length {} <= {}. OK.",
                 line_no,
                 line_len,
@@ -1401,9 +1401,9 @@ pub fn lint_line_length(
                     trailing_comments,
                 );
             } else if matched_indents.is_empty() {
-                tracing::debug!("Handling as unfixable line.");
+                log::debug!("Handling as unfixable line.");
             } else {
-                tracing::debug!("Handling as normal line.");
+                log::debug!("Handling as normal line.");
                 let target_balance = matched_indents
                     .keys()
                     .map(|k| k.into_f64())

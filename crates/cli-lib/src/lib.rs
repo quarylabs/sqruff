@@ -25,6 +25,7 @@ mod commands_rules;
 mod docs;
 mod github_action;
 mod ignore;
+mod logger;
 mod stdin;
 
 #[cfg(feature = "codegen-docs")]
@@ -38,6 +39,7 @@ where
     I: IntoIterator<Item = T>,
     T: Into<std::ffi::OsString> + Clone,
 {
+    let _ = logger::init();
     let cli = Cli::parse_from(args);
     let collect_parse_errors = cli.parsing_errors;
 

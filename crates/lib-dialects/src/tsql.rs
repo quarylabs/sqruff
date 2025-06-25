@@ -247,7 +247,10 @@ pub fn raw_dialect() -> Dialect {
                 one_of(vec_of_erased![
                     Ref::new("RawEqualsSegment"),
                     // Compound assignment operators
-                    TypedParser::new(SyntaxKind::AssignmentOperator, SyntaxKind::AssignmentOperator),
+                    TypedParser::new(
+                        SyntaxKind::AssignmentOperator,
+                        SyntaxKind::AssignmentOperator
+                    ),
                 ])
                 .to_matchable(),
             )
@@ -257,9 +260,12 @@ pub fn raw_dialect() -> Dialect {
         // Add raw segment definitions for compound assignment operators
         (
             "CompoundAssignmentOperatorSegment".into(),
-            TypedParser::new(SyntaxKind::AssignmentOperator, SyntaxKind::AssignmentOperator)
-                .to_matchable()
-                .into(),
+            TypedParser::new(
+                SyntaxKind::AssignmentOperator,
+                SyntaxKind::AssignmentOperator,
+            )
+            .to_matchable()
+            .into(),
         ),
     ]);
 
@@ -882,22 +888,20 @@ pub fn raw_dialect() -> Dialect {
     )]);
 
     // T-SQL IDENTITY column constraint
-    dialect.add([
-        (
-            "IdentityGrammar".into(),
-            Sequence::new(vec_of_erased![
-                Ref::keyword("IDENTITY"),
-                Bracketed::new(vec_of_erased![
-                    Ref::new("NumericLiteralSegment"), // seed
-                    Ref::new("CommaSegment"),
-                    Ref::new("NumericLiteralSegment")  // increment
-                ])
-                .config(|this| this.optional())
+    dialect.add([(
+        "IdentityGrammar".into(),
+        Sequence::new(vec_of_erased![
+            Ref::keyword("IDENTITY"),
+            Bracketed::new(vec_of_erased![
+                Ref::new("NumericLiteralSegment"), // seed
+                Ref::new("CommaSegment"),
+                Ref::new("NumericLiteralSegment") // increment
             ])
-            .to_matchable()
-            .into(),
-        ),
-    ]);
+            .config(|this| this.optional())
+        ])
+        .to_matchable()
+        .into(),
+    )]);
 
     // Override ColumnConstraintSegment to add IDENTITY support
     dialect.replace_grammar(
@@ -1017,9 +1021,9 @@ pub fn raw_dialect() -> Dialect {
                     Sequence::new(vec_of_erased![
                         Ref::new("TsqlVariableSegment"),
                         Ref::keyword("TABLE"),
-                        Bracketed::new(vec_of_erased![Delimited::new(vec_of_erased![
-                            Ref::new("ColumnDefinitionSegment")
-                        ])])
+                        Bracketed::new(vec_of_erased![Delimited::new(vec_of_erased![Ref::new(
+                            "ColumnDefinitionSegment"
+                        )])])
                     ])
                 ]),
                 Ref::keyword("AS"),
@@ -1036,72 +1040,66 @@ pub fn raw_dialect() -> Dialect {
     );
 
     // T-SQL CREATE PROCEDURE support
-    dialect.add([
-        (
-            "CreateProcedureStatementSegment".into(),
-            NodeMatcher::new(
-                SyntaxKind::Statement,
+    dialect.add([(
+        "CreateProcedureStatementSegment".into(),
+        NodeMatcher::new(
+            SyntaxKind::Statement,
+            Sequence::new(vec_of_erased![
+                Ref::keyword("CREATE"),
+                one_of(vec_of_erased![
+                    Ref::keyword("PROCEDURE"),
+                    Ref::keyword("PROC")
+                ]),
+                Ref::new("ObjectReferenceSegment"),
+                // Parameters (optional)
                 Sequence::new(vec_of_erased![
-                    Ref::keyword("CREATE"),
-                    one_of(vec_of_erased![
-                        Ref::keyword("PROCEDURE"),
-                        Ref::keyword("PROC")
-                    ]),
-                    Ref::new("ObjectReferenceSegment"),
-                    // Parameters (optional)
-                    Sequence::new(vec_of_erased![
-                        Delimited::new(vec_of_erased![
-                            Sequence::new(vec_of_erased![
-                                Ref::new("TsqlVariableSegment"),
-                                Ref::new("DatatypeSegment"),
-                                // Optional default value
-                                Sequence::new(vec_of_erased![
-                                    Ref::new("EqualsSegment"),
-                                    Ref::new("LiteralGrammar")
-                                ])
-                                .config(|this| this.optional()),
-                                // Optional OUTPUT keyword
-                                Ref::keyword("OUTPUT").optional()
-                            ])
+                    Delimited::new(vec_of_erased![Sequence::new(vec_of_erased![
+                        Ref::new("TsqlVariableSegment"),
+                        Ref::new("DatatypeSegment"),
+                        // Optional default value
+                        Sequence::new(vec_of_erased![
+                            Ref::new("EqualsSegment"),
+                            Ref::new("LiteralGrammar")
                         ])
-                        .config(|this| this.optional())
-                    ])
-                    .config(|this| this.optional()),
-                    Ref::keyword("AS"),
-                    Ref::new("BeginEndBlockGrammar")
+                        .config(|this| this.optional()),
+                        // Optional OUTPUT keyword
+                        Ref::keyword("OUTPUT").optional()
+                    ])])
+                    .config(|this| this.optional())
                 ])
-                .to_matchable(),
-            )
-            .to_matchable()
-            .into(),
-        ),
-    ]);
+                .config(|this| this.optional()),
+                Ref::keyword("AS"),
+                Ref::new("BeginEndBlockGrammar")
+            ])
+            .to_matchable(),
+        )
+        .to_matchable()
+        .into(),
+    )]);
 
     // T-SQL CREATE TYPE support for table types
-    dialect.add([
-        (
-            "CreateTypeStatementSegment".into(),
-            NodeMatcher::new(
-                SyntaxKind::CreateTypeStatement,
-                Sequence::new(vec_of_erased![
-                    Ref::keyword("CREATE"),
-                    Ref::keyword("TYPE"),
-                    Ref::new("ObjectReferenceSegment"),
-                    Ref::keyword("AS"),
-                    Ref::keyword("TABLE"),
-                    Bracketed::new(vec_of_erased![Delimited::new(vec_of_erased![one_of(
-                        vec_of_erased![
-                            Ref::new("TableConstraintSegment"),
-                            Ref::new("ColumnDefinitionSegment")
-                        ]
-                    )])])
-                ])
-                .to_matchable(),
-            )
-            .to_matchable()
-            .into(),
-        ),
-    ]);
+    dialect.add([(
+        "CreateTypeStatementSegment".into(),
+        NodeMatcher::new(
+            SyntaxKind::CreateTypeStatement,
+            Sequence::new(vec_of_erased![
+                Ref::keyword("CREATE"),
+                Ref::keyword("TYPE"),
+                Ref::new("ObjectReferenceSegment"),
+                Ref::keyword("AS"),
+                Ref::keyword("TABLE"),
+                Bracketed::new(vec_of_erased![Delimited::new(vec_of_erased![one_of(
+                    vec_of_erased![
+                        Ref::new("TableConstraintSegment"),
+                        Ref::new("ColumnDefinitionSegment")
+                    ]
+                )])])
+            ])
+            .to_matchable(),
+        )
+        .to_matchable()
+        .into(),
+    )]);
 
     // expand() must be called after all grammar modifications
 

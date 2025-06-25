@@ -93,33 +93,46 @@ impl PlaceholderTemplater {
     fn find_comment_regions(&self, sql: &str) -> Vec<std::ops::Range<usize>> {
         let mut regions = Vec::new();
         let bytes = sql.as_bytes();
+        let len = bytes.len();
+        
+        if len < 2 {
+            return regions;
+        }
+        
         let mut i = 0;
         
-        while i < bytes.len() {
-            // Check for line comment (--)
-            if i + 1 < bytes.len() && bytes[i] == b'-' && bytes[i + 1] == b'-' {
+        // Use pre-computed length to avoid repeated calls
+        while i < len - 1 {
+            let b0 = bytes[i];
+            let b1 = bytes[i + 1];
+            
+            if b0 == b'-' && b1 == b'-' {
+                // Line comment
                 let start = i;
-                // Find the end of the line
-                while i < bytes.len() && bytes[i] != b'\n' {
+                i += 2;
+                // Find end of line
+                while i < len && bytes[i] != b'\n' {
                     i += 1;
                 }
                 regions.push(start..i);
-            }
-            // Check for block comment (/* */)
-            else if i + 1 < bytes.len() && bytes[i] == b'/' && bytes[i + 1] == b'*' {
+            } else if b0 == b'/' && b1 == b'*' {
+                // Block comment
                 let start = i;
-                i += 2; // Skip /*
-                // Find the closing */
-                while i + 1 < bytes.len() {
+                i += 2;
+                // Find closing */
+                while i < len - 1 {
                     if bytes[i] == b'*' && bytes[i + 1] == b'/' {
-                        i += 2; // Skip */
+                        i += 2;
                         break;
                     }
                     i += 1;
                 }
+                // Handle case where block comment doesn't close
+                if i >= len - 1 && (i >= len || bytes[i-1] != b'/') {
+                    i = len;
+                }
                 regions.push(start..i);
-            }
-            else {
+            } else {
                 i += 1;
             }
         }
@@ -129,7 +142,16 @@ impl PlaceholderTemplater {
     
     /// Check if a position is within any comment region
     fn is_in_comment(&self, comment_regions: &[std::ops::Range<usize>], pos: usize) -> bool {
-        comment_regions.iter().any(|region| region.contains(&pos))
+        // Since regions are added in order during scanning, we can use binary search
+        comment_regions.binary_search_by(|region| {
+            if pos < region.start {
+                std::cmp::Ordering::Greater
+            } else if pos >= region.end {
+                std::cmp::Ordering::Less
+            } else {
+                std::cmp::Ordering::Equal
+            }
+        }).is_ok()
     }
     
     fn derive_style(&self, config: &FluffConfig) -> Result<Regex, SQLFluffUserError> {
@@ -279,11 +301,13 @@ Also consider making a pull request to the project to have your style added, it 
         config: &FluffConfig,
         _: &Option<Arc<dyn Formatter>>,
     ) -> Result<TemplatedFile, SQLFluffUserError> {
-        let mut template_slices = vec![];
-        let mut raw_slices = vec![];
+        // Pre-allocate with reasonable capacity to avoid reallocation
+        let estimated_slices = (in_str.len() / 50).max(10);
+        let mut template_slices = Vec::with_capacity(estimated_slices);
+        let mut raw_slices = Vec::with_capacity(estimated_slices);
         let mut last_pos_raw = 0usize;
         let mut last_pos_templated = 0;
-        let mut out_str = "".to_string();
+        let mut out_str = String::with_capacity(in_str.len());
 
         // when the param has no name, use a 1-based index
         let mut param_counter = 1;

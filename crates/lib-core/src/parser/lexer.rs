@@ -769,12 +769,10 @@ fn iter_segments(
                         // Update how much of the element we've consumed
                         consumed_element_length += incremental_length;
 
-                        // If we've consumed the whole slice, move on
-                        if element.template_slice.start + consumed_element_length
-                            == tfs.templated_slice.end
-                        {
-                            tfs_idx += 1;
-                        }
+                        // Note: We can't increment tfs_idx here due to borrowing rules
+                        // The whitespace handling continues with the current tfs_idx
+                        // Continue to process the next tfs with the updated consumed_element_length
+                        continue;
                     } else {
                         // We can't split it. We're going to end up yielding a segment
                         // which spans multiple slices. Stash the type, and if we haven't

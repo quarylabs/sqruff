@@ -11,17 +11,21 @@ impl JoinClauseSegment {
 
         // Check if this is an APPLY clause (CROSS APPLY or OUTER APPLY)
         // APPLY clauses have a different structure where FromExpressionElement is in the sequence
-        let is_apply = self.0.children(const { &SyntaxSet::new(&[SyntaxKind::Keyword]) })
+        let is_apply = self
+            .0
+            .children(const { &SyntaxSet::new(&[SyntaxKind::Keyword]) })
             .any(|kw| kw.raw().to_uppercase() == "APPLY");
 
         let from_expression = if is_apply {
             // For APPLY clauses, find the FromExpressionElement in the sequence
-            self.0.children(const { &SyntaxSet::new(&[SyntaxKind::FromExpressionElement]) })
+            self.0
+                .children(const { &SyntaxSet::new(&[SyntaxKind::FromExpressionElement]) })
                 .next()
                 .cloned()
         } else {
             // For regular JOIN clauses, get the nested child
-            self.0.child(const { &SyntaxSet::new(&[SyntaxKind::FromExpressionElement]) })
+            self.0
+                .child(const { &SyntaxSet::new(&[SyntaxKind::FromExpressionElement]) })
         };
 
         if let Some(from_expr) = from_expression {

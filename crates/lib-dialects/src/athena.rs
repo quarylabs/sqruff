@@ -65,49 +65,49 @@ pub fn dialect() -> Dialect {
                 .into(),
         ),
         (
-            "JsonfileKeywordSegment".into(),
+            "JSONFILE".into(),
             StringParser::new("JSONFILE", SyntaxKind::FileFormat)
                 .to_matchable()
                 .into(),
         ),
         (
-            "RcfileKeywordSegment".into(),
+            "RCFILE".into(),
             StringParser::new("RCFILE", SyntaxKind::FileFormat)
                 .to_matchable()
                 .into(),
         ),
         (
-            "OrcKeywordSegment".into(),
+            "ORC".into(),
             StringParser::new("ORCFILE", SyntaxKind::FileFormat)
                 .to_matchable()
                 .into(),
         ),
         (
-            "ParquetKeywordSegment".into(),
+            "PARQUET".into(),
             StringParser::new("PARQUETFILE", SyntaxKind::FileFormat)
                 .to_matchable()
                 .into(),
         ),
         (
-            "AvroKeywordSegment".into(),
+            "AVRO".into(),
             StringParser::new("AVROFILE", SyntaxKind::FileFormat)
                 .to_matchable()
                 .into(),
         ),
         (
-            "IonKeywordSegment".into(),
+            "ION".into(),
             StringParser::new("IONFILE", SyntaxKind::FileFormat)
                 .to_matchable()
                 .into(),
         ),
         (
-            "SequencefileKeywordSegment".into(),
+            "SEQUENCEFILE".into(),
             StringParser::new("SEQUENCEFILE", SyntaxKind::FileFormat)
                 .to_matchable()
                 .into(),
         ),
         (
-            "TextfileKeywordSegment".into(),
+            "TEXTFILE".into(),
             StringParser::new("TEXTFILE", SyntaxKind::FileFormat)
                 .to_matchable()
                 .into(),
@@ -143,16 +143,16 @@ pub fn dialect() -> Dialect {
             "CTASPropertyGrammar".into(),
             Sequence::new(vec_of_erased![
                 one_of(vec_of_erased![
-                    Ref::keyword("external_location"),
-                    Ref::keyword("format"),
-                    Ref::keyword("partitioned_by"),
-                    Ref::keyword("bucketed_by"),
-                    Ref::keyword("bucket_count"),
-                    Ref::keyword("write_compression"),
-                    Ref::keyword("orc_compression"),
-                    Ref::keyword("parquet_compression"),
-                    Ref::keyword("field_delimiter"),
-                    Ref::keyword("location")
+                    Ref::keyword("EXTERNAL_LOCATION"),
+                    Ref::keyword("FORMAT"),
+                    Ref::keyword("PARTITIONED_BY"),
+                    Ref::keyword("BUCKETED_BY"),
+                    Ref::keyword("BUCKET_COUNT"),
+                    Ref::keyword("WRITE_COMPRESSION"),
+                    Ref::keyword("ORC_COMPRESSION"),
+                    Ref::keyword("PARQUET_COMPRESSION"),
+                    Ref::keyword("FIELD_DELIMITER"),
+                    Ref::keyword("LOCATION")
                 ]),
                 Ref::new("EqualsSegment"),
                 Ref::new("LiteralGrammar")
@@ -164,21 +164,21 @@ pub fn dialect() -> Dialect {
             "CTASIcebergPropertyGrammar".into(),
             Sequence::new(vec_of_erased![
                 one_of(vec_of_erased![
-                    Ref::keyword("external_location"),
-                    Ref::keyword("format"),
-                    Ref::keyword("partitioned_by"),
-                    Ref::keyword("bucketed_by"),
-                    Ref::keyword("bucket_count"),
-                    Ref::keyword("write_compression"),
-                    Ref::keyword("orc_compression"),
-                    Ref::keyword("parquet_compression"),
-                    Ref::keyword("field_delimiter"),
-                    Ref::keyword("location"),
-                    Ref::keyword("is_external"),
-                    Ref::keyword("table_type"),
-                    Ref::keyword("partitioning"),
-                    Ref::keyword("vacuum_max_snapshot_age_ms"),
-                    Ref::keyword("vacuum_min_snapshots_to_keep")
+                    Ref::keyword("EXTERNAL_LOCATION"),
+                    Ref::keyword("FORMAT"),
+                    Ref::keyword("PARTITIONED_BY"),
+                    Ref::keyword("BUCKETED_BY"),
+                    Ref::keyword("BUCKET_COUNT"),
+                    Ref::keyword("WRITE_COMPRESSION"),
+                    Ref::keyword("ORC_COMPRESSION"),
+                    Ref::keyword("PARQUET_COMPRESSION"),
+                    Ref::keyword("FIELD_DELIMITER"),
+                    Ref::keyword("LOCATION"),
+                    Ref::keyword("IS_EXTERNAL"),
+                    Ref::keyword("TABLE_TYPE"),
+                    Ref::keyword("PARTITIONING"),
+                    Ref::keyword("VACUUM_MAX_SNAPSHOT_AGE_MS"),
+                    Ref::keyword("VACUUM_MIN_SNAPSHOTS_TO_KEEP")
                 ]),
                 Ref::new("EqualsSegment"),
                 Ref::new("LiteralGrammar")
@@ -199,10 +199,10 @@ pub fn dialect() -> Dialect {
             "UnloadPropertyGrammar".into(),
             Sequence::new(vec_of_erased![
                 one_of(vec_of_erased![
-                    Ref::keyword("format"),
-                    Ref::keyword("partitioned_by"),
-                    Ref::keyword("compression"),
-                    Ref::keyword("field_delimiter")
+                    Ref::keyword("FORMAT"),
+                    Ref::keyword("PARTITIONED_BY"),
+                    Ref::keyword("COMPRESSION"),
+                    Ref::keyword("FIELD_DELIMITER")
                 ]),
                 Ref::new("EqualsSegment"),
                 Ref::new("LiteralGrammar")
@@ -599,8 +599,8 @@ pub fn dialect() -> Dialect {
                     Ref::keyword("JSON"),
                     Ref::keyword("TIME"),
                     Ref::keyword("IPADDRESS"),
-                    Ref::keyword("HyperLogLog"),
-                    Ref::keyword("P4HyperLogLog")
+                    Ref::keyword("HYPERLOGLOG"),
+                    Ref::keyword("P4HYPERLOGLOG")
                 ])
                 .to_matchable(),
             )

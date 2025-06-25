@@ -56,7 +56,7 @@ fn test_dialect_ansi_file_lex() {
 #[test]
 fn test_dialect_ansi_specific_segment_parses() {
     let cases = [
-        ("SelectKeywordSegment", "select"),
+        ("SELECT", "select"),
         ("NakedIdentifierSegment", "online_sales"),
         ("BareFunctionSegment", "current_timestamp"),
         ("FunctionSegment", "current_timestamp()"),

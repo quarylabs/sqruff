@@ -474,31 +474,31 @@ pub fn raw_dialect() -> Dialect {
                 .into(),
         ),
         (
-            "BinaryfileKeywordSegment".into(),
+            "BINARYFILE".into(),
             StringParser::new("BINARYFILE", SyntaxKind::FileFormat)
                 .to_matchable()
                 .into(),
         ),
         (
-            "JsonfileKeywordSegment".into(),
+            "JSONFILE".into(),
             StringParser::new("JSONFILE", SyntaxKind::FileFormat)
                 .to_matchable()
                 .into(),
         ),
         (
-            "RcfileKeywordSegment".into(),
+            "RCFILE".into(),
             StringParser::new("RCFILE", SyntaxKind::FileFormat)
                 .to_matchable()
                 .into(),
         ),
         (
-            "SequencefileKeywordSegment".into(),
+            "SEQUENCEFILE".into(),
             StringParser::new("SEQUENCEFILE", SyntaxKind::FileFormat)
                 .to_matchable()
                 .into(),
         ),
         (
-            "TextfileKeywordSegment".into(),
+            "TEXTFILE".into(),
             StringParser::new("TEXTFILE", SyntaxKind::FileFormat)
                 .to_matchable()
                 .into(),
@@ -528,25 +528,25 @@ pub fn raw_dialect() -> Dialect {
                 .into(),
         ),
         (
-            "FileKeywordSegment".into(),
+            "FILE".into(),
             MultiStringParser::new(vec!["FILE".into(), "FILES".into()], SyntaxKind::FileKeyword)
                 .to_matchable()
                 .into(),
         ),
         (
-            "JarKeywordSegment".into(),
+            "JAR".into(),
             MultiStringParser::new(vec!["JAR".into(), "JARS".into()], SyntaxKind::FileKeyword)
                 .to_matchable()
                 .into(),
         ),
         (
-            "NoscanKeywordSegment".into(),
+            "NOSCAN".into(),
             StringParser::new("NOSCAN", SyntaxKind::Keyword)
                 .to_matchable()
                 .into(),
         ),
         (
-            "WhlKeywordSegment".into(),
+            "WHL".into(),
             StringParser::new("WHL", SyntaxKind::FileKeyword)
                 .to_matchable()
                 .into(),
@@ -813,9 +813,9 @@ pub fn raw_dialect() -> Dialect {
         (
             "ResourceFileGrammar".into(),
             one_of(vec_of_erased![
-                Ref::new("JarKeywordSegment"),
-                Ref::new("WhlKeywordSegment"),
-                Ref::new("FileKeywordSegment")
+                Ref::new("JAR"),
+                Ref::new("WHL"),
+                Ref::new("FILE")
             ])
             .to_matchable()
             .into(),
@@ -1413,7 +1413,7 @@ pub fn raw_dialect() -> Dialect {
                     })
                 ]),
                 Sequence::new(vec_of_erased![
-                    Ref::keyword("Replace"),
+                    Ref::keyword("REPLACE"),
                     Ref::new("PartitionFieldGrammar")
                 ]),
                 Sequence::new(vec_of_erased![
@@ -2540,7 +2540,7 @@ pub fn raw_dialect() -> Dialect {
                 SyntaxKind::AddFileStatement,
                 Sequence::new(vec_of_erased![
                     Ref::keyword("ADD"),
-                    Ref::new("FileKeywordSegment"),
+                    Ref::keyword("FILE"),
                     AnyNumberOf::new(vec_of_erased![Ref::new("QuotedLiteralSegment")])
                 ])
                 .to_matchable(),
@@ -2554,7 +2554,7 @@ pub fn raw_dialect() -> Dialect {
                 SyntaxKind::AddJarStatement,
                 Sequence::new(vec_of_erased![
                     Ref::keyword("ADD"),
-                    Ref::new("JarKeywordSegment"),
+                    Ref::keyword("JAR"),
                     AnyNumberOf::new(vec_of_erased![
                         Ref::new("QuotedLiteralSegment"),
                         Ref::new("FileLiteralSegment")
@@ -2753,7 +2753,7 @@ pub fn raw_dialect() -> Dialect {
                 SyntaxKind::ListFileStatement,
                 Sequence::new(vec_of_erased![
                     Ref::keyword("LIST"),
-                    Ref::new("FileKeywordSegment"),
+                    Ref::keyword("FILE"),
                     AnyNumberOf::new(vec_of_erased![Ref::new("QuotedLiteralSegment")])
                 ])
                 .to_matchable(),
@@ -2767,7 +2767,7 @@ pub fn raw_dialect() -> Dialect {
                 SyntaxKind::ListJarStatement,
                 Sequence::new(vec_of_erased![
                     Ref::keyword("LIST"),
-                    Ref::new("JarKeywordSegment"),
+                    Ref::keyword("JAR"),
                     AnyNumberOf::new(vec_of_erased![Ref::new("QuotedLiteralSegment")])
                 ])
                 .to_matchable(),

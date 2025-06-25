@@ -786,8 +786,6 @@ test_fail_tsql_else_if_successive:
 
 # TSQL function
 test_tsql_function:
-  # TODO: Fix T-SQL CREATE FUNCTION parsing
-  ignored: "T-SQL CREATE FUNCTION syntax not fully supported"
   fail_str: |
     CREATE FUNCTION dbo.isoweek (@DATE datetime)
     RETURNS int

@@ -284,7 +284,6 @@ impl Linter {
                     rules_this_phase = self.rules();
                 }
 
-                let last_fixes = Vec::new();
                 for rule in rules_this_phase {
                     // Performance: After first loop pass, skip rules that don't do fixes. Any
                     // results returned won't be seen by the user anyway (linting errors ADDED by
@@ -302,6 +301,7 @@ impl Linter {
                         tree.clone(),
                         &self.config,
                     );
+
                     let linting_errors: Vec<SQLLintError> = linting_errors
                         .into_iter()
                         .filter(|error| {
@@ -321,29 +321,8 @@ impl Linter {
                         .collect();
 
                     if fix && !fixes.is_empty() {
-                        // Do some sanity checks on the fixes before applying.
-                        // let anchor_info = BaseSegment.compute_anchor_edit_info(fixes);
-
-                        // This is the happy path. We have fixes, now we want to apply them.
-
-                        if fixes == last_fixes {
-                            eprintln!(
-                                "One fix for {} not applied, it would re-cause the same error.",
-                                rule.code()
-                            );
-                            continue;
-                        }
-
                         let mut anchor_info = compute_anchor_edit_info(fixes.into_iter());
                         let (new_tree, _, _, _valid) = tree.apply_fixes(&mut anchor_info);
-
-                        if false {
-                            println!(
-                                "Fixes for {rule:?} not applied, as it would result in an \
-                                 unparsable file. Please report this as a bug with a minimal \
-                                 query which demonstrates this warning.",
-                            );
-                        }
 
                         let loop_check_tuple =
                             (new_tree.raw().to_smolstr(), new_tree.get_source_fixes());

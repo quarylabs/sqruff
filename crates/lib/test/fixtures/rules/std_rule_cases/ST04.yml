@@ -455,3 +455,49 @@ test_pass_multiple_case_simple_else:
             ELSE 'GBP'
         END AS currency
     FROM pricing;
+
+test_fail_issue_916_only_nested_case:
+  # Issue 916: Verify that nested CASE still gets flattened while simple ELSE is preserved
+  fail_str: |
+    SELECT
+        CASE
+            WHEN x = 1 THEN 'one'
+            ELSE 'default'
+        END AS simple_else,
+        CASE
+            WHEN y = 1 THEN 'A'
+            ELSE
+                CASE
+                    WHEN y = 2 THEN 'B'
+                    ELSE 'C'
+                END
+        END AS nested_case
+    FROM mytable;
+  fix_str: |
+    SELECT
+        CASE
+            WHEN x = 1 THEN 'one'
+            ELSE 'default'
+        END AS simple_else,
+        CASE
+            WHEN y = 1 THEN 'A'
+            WHEN y = 2 THEN 'B'
+            ELSE 'C'
+        END AS nested_case
+    FROM mytable;
+
+test_pass_issue_916_regression:
+  # Issue 916: This was the exact case that was failing - ELSE 'C' was being removed
+  # This test ensures the regression doesn't happen
+  pass_str: | 
+    CREATE OR REPLACE FUNCTION get_grade(
+        percentage FLOAT64
+    )
+    RETURNS STRING
+    AS (
+        CASE
+            WHEN percentage > 80 THEN 'A'
+            WHEN percentage > 40 THEN 'B'
+            ELSE 'C'
+        END
+    );

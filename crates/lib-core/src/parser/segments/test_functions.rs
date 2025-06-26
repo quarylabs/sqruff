@@ -17,7 +17,7 @@ pub fn bracket_segments() -> Vec<ErasedSegment> {
 pub fn lex(dialect: &Dialect, string: &str) -> Vec<ErasedSegment> {
     let lexer = Lexer::new(dialect.lexer_matchers());
     let tables = Tables::default();
-    let (segments, errors) = lexer.lex(&tables, string).unwrap();
+    let (segments, errors) = lexer.lex(&tables, string);
     assert_eq!(errors, &[]);
     segments
 }

@@ -29,12 +29,8 @@ fn test_dialect_ansi_file_lex() {
 
         let tables = Tables::default();
         // Assume that the lex function returns a Result with tokens
-        let tokens_result = lexer.lex(&tables, raw);
+        let (tokens, errors) = lexer.lex(&tables, raw);
 
-        // Check if lexing was successful, and if not, fail the test
-        assert!(tokens_result.is_ok(), "Lexing failed for input: {}", raw);
-
-        let (tokens, errors) = tokens_result.unwrap();
         assert_eq!(errors.len(), 0, "Lexing failed for input: {}", raw);
 
         // Check if the raw components of the tokens match the expected result

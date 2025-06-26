@@ -468,22 +468,15 @@ impl Linter {
         // Get the lexer
         let lexer = dialect.lexer();
         // Lex the file and log any problems
-        let result = lexer.lex(tables, templated_file);
-        match result {
-            Err(_err) => {
-                unimplemented!("violations.push(_err)");
-                // return (None, violations, config.clone());
-            }
-            Ok((tokens, lex_vs)) => {
-                violations.extend(lex_vs);
+        let (tokens, lex_vs) = lexer.lex(tables, templated_file);
 
-                if tokens.is_empty() {
-                    return (None, violations);
-                }
+        violations.extend(lex_vs);
 
-                (tokens.into(), violations)
-            }
+        if tokens.is_empty() {
+            return (None, violations);
         }
+
+        (tokens.into(), violations)
     }
 
     /// Normalise newlines to unix-style line endings.

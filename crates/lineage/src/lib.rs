@@ -76,9 +76,7 @@ fn parse_sql(parser: &Parser, source: &str) -> ErasedSegment {
     let ansi = sqruff_lib_dialects::ansi::dialect();
     let lexer = ansi.lexer();
 
-    let tokens = lexer
-        .lex(&tables, source)
-        .map_or(Vec::new(), |(tokens, _)| tokens);
+    let (tokens, _) = lexer.lex(&tables, source);
 
     let tables = sqruff_lib_core::parser::segments::Tables::default();
     parser.parse(&tables, &tokens, None).unwrap().unwrap()

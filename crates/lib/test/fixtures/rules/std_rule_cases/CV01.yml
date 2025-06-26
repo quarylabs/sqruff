@@ -101,8 +101,6 @@ test_pass_c_style_not_equal_to_tsql:
         preferred_not_equal_style: "c_style"
 
 test_fail_c_style_not_equal_to_tsql:
-  # Cannot properly convert multi-line <> operators to != when split across lines with comments
-  ignored: "Multi-line comparison operator conversion not working correctly"
   fail_str: |
     SELECT * FROM X WHERE 1  <
       -- some comment
@@ -174,8 +172,6 @@ test_pass_ansi_not_equal_to_tsql:
         preferred_not_equal_style: "ansi"
 
 test_fail_ansi_not_equal_to_tsql:
-  # Cannot properly convert multi-line != operators to <> when split across lines with comments
-  ignored: "Multi-line comparison operator conversion not working correctly"
   fail_str: |
     SELECT * FROM X WHERE 1  !
       -- some comment

@@ -407,13 +407,22 @@ test_fail_issue_916_verify_nested_still_works:
   # Issue 916: Verify nested CASE is still flattened correctly
   fail_str: |
     SELECT
-        CASE WHEN x = 1 THEN 'A' ELSE 'B' END,  -- Simple ELSE preserved
-        CASE WHEN y = 1 THEN 'A' ELSE CASE WHEN y = 2 THEN 'B' ELSE 'C' END END  -- Nested flattened
+        CASE WHEN x = 1 THEN 'A' ELSE 'B' END AS simple,
+        CASE
+            WHEN y = 1 THEN 'A'
+            ELSE
+                CASE
+                    WHEN y = 2 THEN 'B'
+                    ELSE 'C'
+                END
+        END AS nested
     FROM t;
   fix_str: |
     SELECT
-        CASE WHEN x = 1 THEN 'A' ELSE 'B' END,  -- Simple ELSE preserved
-        CASE WHEN y = 1 THEN 'A'
-        WHEN y = 2 THEN 'B'
-        ELSE 'C'END  -- Nested flattened
+        CASE WHEN x = 1 THEN 'A' ELSE 'B' END AS simple,
+        CASE
+            WHEN y = 1 THEN 'A'
+            WHEN y = 2 THEN 'B'
+            ELSE 'C'
+        END AS nested
     FROM t;

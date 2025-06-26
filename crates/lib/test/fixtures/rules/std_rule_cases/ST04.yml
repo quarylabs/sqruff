@@ -415,6 +415,5 @@ test_fail_issue_916_verify_nested_still_works:
         CASE WHEN x = 1 THEN 'A' ELSE 'B' END,  -- Simple ELSE preserved
         CASE WHEN y = 1 THEN 'A'
         WHEN y = 2 THEN 'B'
-        ELSE 'C'
-        END  -- Nested flattened
+        ELSE 'C'END  -- Nested flattened
     FROM t;

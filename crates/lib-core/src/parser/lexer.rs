@@ -409,11 +409,6 @@ impl<'a> From<&'a Dialect> for Lexer {
     }
 }
 
-pub enum StringOrTemplate<'a> {
-    String(&'a str),
-    Template(TemplatedFile),
-}
-
 impl Lexer {
     /// Create a new lexer.
     pub(crate) fn new(lexer_matchers: &[Matcher]) -> Self {
@@ -455,22 +450,10 @@ impl Lexer {
     pub fn lex(
         &self,
         tables: &Tables,
-        raw: StringOrTemplate,
+        template: impl Into<TemplatedFile>,
     ) -> Result<(Vec<ErasedSegment>, Vec<SQLLexError>), ValueError> {
-        // Make sure we've got a string buffer and a template regardless of what was
-        // passed in.
-
-        let template;
-        let mut str_buff = match raw {
-            StringOrTemplate::String(s) => {
-                template = s.into();
-                s
-            }
-            StringOrTemplate::Template(slot) => {
-                template = slot;
-                template.templated_str.as_ref().unwrap()
-            }
-        };
+        let template = template.into();
+        let mut str_buff = template.templated_str.as_deref().unwrap();
 
         // Lex the string to get a tuple of LexedElement
         let mut element_buffer: Vec<Element> = Vec::new();
@@ -502,6 +485,7 @@ impl Lexer {
         for seg in &mut segments {
             seg.get_mut().set_id(tables.next_id())
         }
+
         Ok((segments, Vec::new()))
     }
 

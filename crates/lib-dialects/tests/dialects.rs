@@ -8,7 +8,7 @@ use rayon::prelude::IntoParallelRefIterator;
 use sqruff_lib_core::dialects::init::DialectKind;
 use sqruff_lib_core::helpers;
 use sqruff_lib_core::parser::Parser;
-use sqruff_lib_core::parser::lexer::{Lexer, StringOrTemplate};
+use sqruff_lib_core::parser::lexer::Lexer;
 use sqruff_lib_core::parser::segments::Tables;
 use sqruff_lib_dialects::kind_to_dialect;
 use strum::IntoEnumIterator;
@@ -101,7 +101,7 @@ fn main() {
                 let tables = Tables::default();
                 let lexer = Lexer::from(&dialect);
                 let parser = Parser::from(&dialect);
-                let tokens = lexer.lex(&tables, StringOrTemplate::String(&sql)).unwrap();
+                let tokens = lexer.lex(&tables, sql).unwrap();
                 assert!(tokens.1.is_empty());
 
                 let parsed = parser.parse(&tables, &tokens.0, None).unwrap();

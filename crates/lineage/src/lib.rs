@@ -6,7 +6,6 @@ use ir::{Expr, ExprKind, Tables};
 use schema::Schema;
 use scope::{Scope, ScopeKind, Source};
 use sqruff_lib_core::parser::Parser;
-use sqruff_lib_core::parser::lexer::StringOrTemplate;
 use sqruff_lib_core::parser::segments::ErasedSegment;
 
 mod expand;
@@ -78,7 +77,7 @@ fn parse_sql(parser: &Parser, source: &str) -> ErasedSegment {
     let lexer = ansi.lexer();
 
     let tokens = lexer
-        .lex(&tables, StringOrTemplate::String(source))
+        .lex(&tables, source)
         .map_or(Vec::new(), |(tokens, _)| tokens);
 
     let tables = sqruff_lib_core::parser::segments::Tables::default();

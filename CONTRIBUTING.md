@@ -4,7 +4,7 @@ Contributions are welcome! See [CONTRIBUTING.md](./CONTRIBUTING.md) for guidelin
 
 ## Running locally
 
-The project shouldn't require anything more than the `rust-toolchain.toml` version of Rust specified which you can set up with `rustup`. 
+The project requires Rust version specified in `rust-toolchain.toml`which you can set up with `rustup`, as well as a Python environment setup as shown below.
 
 ### Setting Up Python
 

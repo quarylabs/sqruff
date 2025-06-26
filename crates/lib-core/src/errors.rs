@@ -129,19 +129,6 @@ impl Display for SQLFluffUserError {
     }
 }
 
-// Not from SQLFluff but translates Python value error
-#[derive(Debug)]
-pub struct ValueError {
-    #[allow(dead_code)]
-    value: String,
-}
-
-impl ValueError {
-    pub fn new(value: String) -> ValueError {
-        ValueError { value }
-    }
-}
-
 #[derive(Debug)]
 pub struct SQLParseError {
     pub description: String,

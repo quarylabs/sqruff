@@ -7,7 +7,7 @@ use super::markers::PositionMarker;
 use super::segments::{ErasedSegment, SegmentBuilder, Tables};
 use crate::dialects::Dialect;
 use crate::dialects::syntax::SyntaxKind;
-use crate::errors::{SQLLexError, ValueError};
+use crate::errors::SQLLexError;
 use crate::slice_helpers::{is_zero_slice, offset_slice};
 use crate::templaters::TemplatedFile;
 
@@ -451,7 +451,7 @@ impl Lexer {
         &self,
         tables: &Tables,
         template: impl Into<TemplatedFile>,
-    ) -> Result<(Vec<ErasedSegment>, Vec<SQLLexError>), ValueError> {
+    ) -> (Vec<ErasedSegment>, Vec<SQLLexError>) {
         let template = template.into();
         let mut str_buff = template.templated_str.as_deref().unwrap();
 
@@ -486,7 +486,7 @@ impl Lexer {
             seg.get_mut().set_id(tables.next_id())
         }
 
-        Ok((segments, Vec::new()))
+        (segments, Vec::new())
     }
 
     /// Generate any lexing errors for any un-lex-ables.

@@ -72,10 +72,10 @@ fn main() {
                     .process(&sql, &sql_file.to_string_lossy(), &config, &None)
                     .unwrap();
 
-                let tokens = lexer.lex(&tables, templated_file).unwrap();
-                assert!(tokens.1.is_empty());
+                let (tokens, errors) = lexer.lex(&tables, templated_file);
+                assert!(errors.is_empty());
 
-                let parsed = parser.parse(&tables, &tokens.0, None).unwrap();
+                let parsed = parser.parse(&tables, &tokens, None).unwrap();
                 let tree = parsed.unwrap();
                 let tree = tree.to_serialised(true, true);
 

@@ -7,7 +7,7 @@ use serde::{Deserialize, Serialize};
 
 use smol_str::SmolStr;
 
-use crate::errors::{SQLFluffSkipFile, ValueError};
+use crate::errors::SQLFluffSkipFile;
 use crate::slice_helpers::zero_slice;
 
 /// A slice referring to a templated file.
@@ -300,7 +300,7 @@ impl TemplatedFileInner {
         templated_pos: usize,
         start_idx: Option<usize>,
         inclusive: Option<bool>,
-    ) -> Result<(usize, usize), ValueError> {
+    ) -> Option<(usize, usize)> {
         let start_idx = start_idx.unwrap_or(0);
         let inclusive = inclusive.unwrap_or(true);
 
@@ -334,25 +334,23 @@ impl TemplatedFileInner {
             last_idx += 1;
         }
 
-        match first_idx {
-            Some(first_idx) => Ok((first_idx, last_idx)),
-            None => Err(ValueError::new("Position Not Found".to_string())),
-        }
+        first_idx.map(|first_idx| (first_idx, last_idx))
     }
 
     /// Convert a template slice to a source slice.
     pub fn templated_slice_to_source_slice(
         &self,
         template_slice: Range<usize>,
-    ) -> Result<Range<usize>, ValueError> {
+    ) -> Result<Range<usize>, String> {
         if self.sliced_file.is_empty() {
             return Ok(template_slice);
         }
 
         let sliced_file = self.sliced_file.clone();
 
-        let (ts_start_sf_start, ts_start_sf_stop) =
-            self.find_slice_indices_of_templated_pos(template_slice.start, None, None)?;
+        let (ts_start_sf_start, ts_start_sf_stop) = self
+            .find_slice_indices_of_templated_pos(template_slice.start, None, None)
+            .ok_or("Position not found in templated file")?;
 
         let ts_start_subsliced_file = &sliced_file[ts_start_sf_start..ts_start_sf_stop];
 
@@ -399,16 +397,17 @@ impl TemplatedFileInner {
                     ts_start_subsliced_file[0].source_slice.start + offset,
                 ))
             } else {
-                Err(ValueError::new(format!(
+                Err(format!(
                     "Attempting a single length slice within a templated section! {:?} within \
                      {:?}.",
                     template_slice, ts_start_subsliced_file
-                )))
+                ))
             };
         }
 
-        let (ts_stop_sf_start, ts_stop_sf_stop) =
-            self.find_slice_indices_of_templated_pos(template_slice.end, None, Some(false))?;
+        let (ts_stop_sf_start, ts_stop_sf_stop) = self
+            .find_slice_indices_of_templated_pos(template_slice.end, None, Some(false))
+            .ok_or("Position not found in templated file")?;
 
         let mut ts_start_sf_start = ts_start_sf_start;
         if insertion_point >= 0 {
@@ -427,9 +426,9 @@ impl TemplatedFileInner {
 
         let start_slices = if ts_start_sf_start == ts_start_sf_stop {
             return match ts_start_sf_start.cmp(&sliced_file.len()) {
-                Ordering::Greater => Err(ValueError::new(
-                    "Starting position higher than sliced file position".into(),
-                )),
+                Ordering::Greater => {
+                    panic!("Starting position higher than sliced file position")
+                }
                 Ordering::Less => Ok(sliced_file[1].source_slice.clone()),
                 Ordering::Equal => Ok(sliced_file.last().unwrap().source_slice.clone()),
             };

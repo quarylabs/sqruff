@@ -101,7 +101,7 @@ fn main() {
                 let tables = Tables::default();
                 let lexer = Lexer::from(&dialect);
                 let parser = Parser::from(&dialect);
-                let tokens = lexer.lex(&tables, sql).unwrap();
+                let tokens = lexer.lex(&tables, sql);
                 assert!(tokens.1.is_empty());
 
                 let parsed = parser.parse(&tables, &tokens.0, None).unwrap();

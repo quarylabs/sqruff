@@ -5,7 +5,7 @@ use glob::glob;
 use sqruff_lib::core::config::FluffConfig;
 use sqruff_lib::core::linter::core::Linter;
 use sqruff_lib_core::parser::Parser;
-use sqruff_lib_core::parser::lexer::{Lexer, StringOrTemplate};
+use sqruff_lib_core::parser::lexer::Lexer;
 use sqruff_lib_core::parser::segments::Tables;
 
 #[derive(Default)]
@@ -72,9 +72,7 @@ fn main() {
                     .process(&sql, &sql_file.to_string_lossy(), &config, &None)
                     .unwrap();
 
-                let tokens = lexer
-                    .lex(&tables, StringOrTemplate::Template(templated_file))
-                    .unwrap();
+                let tokens = lexer.lex(&tables, templated_file).unwrap();
                 assert!(tokens.1.is_empty());
 
                 let parsed = parser.parse(&tables, &tokens.0, None).unwrap();

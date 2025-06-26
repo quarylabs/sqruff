@@ -6,7 +6,6 @@ use sqruff_lib_core::dialects::init::DialectKind;
 use sqruff_lib_core::dialects::syntax::SyntaxKind;
 use sqruff_lib_core::parser::Parser;
 use sqruff_lib_core::parser::context::ParseContext;
-use sqruff_lib_core::parser::lexer::StringOrTemplate;
 use sqruff_lib_core::parser::matchable::MatchableTrait;
 use sqruff_lib_core::parser::segments::Tables;
 use sqruff_lib_core::parser::segments::test_functions::lex;
@@ -30,7 +29,7 @@ fn test_dialect_ansi_file_lex() {
 
         let tables = Tables::default();
         // Assume that the lex function returns a Result with tokens
-        let tokens_result = lexer.lex(&tables, StringOrTemplate::String(raw));
+        let tokens_result = lexer.lex(&tables, raw);
 
         // Check if lexing was successful, and if not, fail the test
         assert!(tokens_result.is_ok(), "Lexing failed for input: {}", raw);

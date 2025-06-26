@@ -4,7 +4,7 @@ use super::{ErasedSegment, SegmentBuilder, Tables};
 use crate::dialects::Dialect;
 use crate::dialects::syntax::SyntaxKind;
 use crate::helpers::Config;
-use crate::parser::lexer::{Lexer, StringOrTemplate};
+use crate::parser::lexer::Lexer;
 use crate::parser::markers::PositionMarker;
 use crate::templaters::TemplatedFile;
 
@@ -17,9 +17,7 @@ pub fn bracket_segments() -> Vec<ErasedSegment> {
 pub fn lex(dialect: &Dialect, string: &str) -> Vec<ErasedSegment> {
     let lexer = Lexer::new(dialect.lexer_matchers());
     let tables = Tables::default();
-    let (segments, errors) = lexer
-        .lex(&tables, StringOrTemplate::String(string))
-        .unwrap();
+    let (segments, errors) = lexer.lex(&tables, string).unwrap();
     assert_eq!(errors, &[]);
     segments
 }

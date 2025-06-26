@@ -27,7 +27,6 @@ use sqruff_lib_core::helpers;
 use sqruff_lib_core::lint_fix::LintFix;
 use sqruff_lib_core::linter::compute_anchor_edit_info;
 use sqruff_lib_core::parser::Parser;
-use sqruff_lib_core::parser::lexer::StringOrTemplate;
 use sqruff_lib_core::parser::segments::fix::SourceFix;
 use sqruff_lib_core::parser::segments::{ErasedSegment, Tables};
 use sqruff_lib_core::templaters::TemplatedFile;
@@ -469,7 +468,7 @@ impl Linter {
         // Get the lexer
         let lexer = dialect.lexer();
         // Lex the file and log any problems
-        let result = lexer.lex(tables, StringOrTemplate::Template(templated_file));
+        let result = lexer.lex(tables, templated_file);
         match result {
             Err(_err) => {
                 unimplemented!("violations.push(_err)");

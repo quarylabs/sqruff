@@ -4,10 +4,40 @@ Contributions are welcome! See [CONTRIBUTING.md](./CONTRIBUTING.md) for guidelin
 
 ## Running locally
 
-The project shouldn't require anything more than the `rust-toolchain.toml` version of Rust specified which you can set up with `rustup`. Once you have that the following runs the test suite. 
+The project requires Rust version specified in `rust-toolchain.toml`which you can set up with `rustup`, as well as a Python environment setup as shown below.
+
+### Setting Up Python
+
+You'll also need to set up a python virtualenv and install dependencies as follows:
 
 ```bash
-cargo test
+virtualenv .venv
+source ./venv/bin/activate
+make python_install
+```
+
+### Running Tests
+
+Once you have that the following runs the test suite. 
+
+#### Rust Tests
+
+```bash
+make rust_test
+```
+
+#### Python Tests
+
+```bash
+make python_test
+```
+
+## VS Code Setup
+
+Run the following command to set up your VS Code environment using the recommended settings:
+
+```bash
+make load_vscode_settings
 ```
 
 ## Releasing
@@ -22,7 +52,7 @@ cargo test
 cargo publish -p sqruff-lib
 ```
 
-5. Release `sqruff` crate
+6. Release `sqruff` crate
 
 ```bash
 cargo publish -p sqruff

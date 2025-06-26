@@ -1,6 +1,5 @@
 pub mod context;
 pub mod grammar;
-mod helpers;
 pub mod lexer;
 pub mod lookahead;
 pub mod markers;
@@ -79,8 +78,15 @@ impl<'a> Parser<'a> {
             filename,
         )?;
 
-        // Basic Validation, that we haven't dropped anything.
-        helpers::check_still_complete(segments, &[root.clone()], &[]);
+        #[cfg(debug_assertions)]
+        {
+            // Basic Validation, that we haven't dropped anything.
+            let join_segments_raw = |segments: &[ErasedSegment]| {
+                smol_str::SmolStr::from_iter(segments.iter().map(|s| s.raw().as_str()))
+            };
+
+            pretty_assertions::assert_eq!(&join_segments_raw(segments), root.raw());
+        }
 
         Ok(root.into())
     }

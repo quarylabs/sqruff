@@ -150,8 +150,25 @@ from foo
             return vec![LintResult::new(None, Vec::new(), None, None)];
         }
 
-        if parent.get_type() == SyntaxKind::FunctionName && parent.segments().len() != 1 {
-            return vec![LintResult::new(None, Vec::new(), None, None)];
+        // For T-SQL and other dialects, some function names like CAST and COALESCE
+        // are also keywords and should be capitalized by CP01
+        if parent.get_type() == SyntaxKind::FunctionName {
+            // Only process single-segment function names that are also keywords
+            if parent.segments().len() != 1 {
+                return vec![LintResult::new(None, Vec::new(), None, None)];
+            }
+            // Check if this function name is also a keyword in the dialect
+            let dialect = &context.dialect;
+            let function_name = context.segment.raw().to_uppercase();
+            let is_keyword = dialect
+                .sets("reserved_keywords")
+                .contains(function_name.as_str())
+                || dialect
+                    .sets("unreserved_keywords")
+                    .contains(function_name.as_str());
+            if !is_keyword {
+                return vec![LintResult::new(None, Vec::new(), None, None)];
+            }
         }
 
         vec![handle_segment(
@@ -174,6 +191,7 @@ from foo
                     SyntaxKind::Keyword,
                     SyntaxKind::BinaryOperator,
                     SyntaxKind::DatePart,
+                    SyntaxKind::FunctionNameIdentifier,
                 ])
             },
         )

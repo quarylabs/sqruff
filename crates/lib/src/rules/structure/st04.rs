@@ -108,6 +108,19 @@ FROM mytable
             return Vec::new();
         }
 
+        // Check if case2 actually contains a CASE expression
+        // If there's no nested CASE, we shouldn't proceed with flattening
+        let Some(case2_first_case) = case2_first_case else {
+            return Vec::new();
+        };
+
+        // Additionally check that case2 is actually a CASE expression
+        if !case2.any(Some(|seg: &ErasedSegment| {
+            seg.is_type(SyntaxKind::CaseExpression)
+        })) {
+            return Vec::new();
+        }
+
         let x1 = segment
             .children(Some(|it| it.is_code()))
             .select::<fn(&ErasedSegment) -> bool>(
@@ -121,7 +134,12 @@ FROM mytable
 
         let x2 = case2
             .children(Some(|it| it.is_code()))
-            .select::<fn(&ErasedSegment) -> bool>(None, None, case2_first_case, case2_first_when)
+            .select::<fn(&ErasedSegment) -> bool>(
+                None,
+                None,
+                case2_first_case.into(),
+                case2_first_when,
+            )
             .into_iter()
             .map(|it| it.raw().to_smolstr());
 

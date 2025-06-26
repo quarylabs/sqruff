@@ -369,3 +369,89 @@ test_fail_retain_comments_after_else:
                 THEN "value2" -- but also here
         END
     FROM table;
+
+test_pass_simple_else_literal:
+  # Issue 916: Simple ELSE with literal value should NOT trigger the rule
+  pass_str: | 
+    SELECT
+        CASE
+            WHEN percentage > 80 THEN 'A'
+            WHEN percentage > 40 THEN 'B'
+            ELSE 'C'
+        END AS grade
+    FROM mytable;
+
+test_pass_simple_else_column:
+  # Issue 916: Simple ELSE with column reference should NOT trigger the rule
+  pass_str: |
+    SELECT
+        CASE
+            WHEN status = 'active' THEN 1
+            WHEN status = 'pending' THEN 2
+            ELSE default_value
+        END AS status_code
+    FROM mytable;
+
+test_pass_simple_else_null:
+  # Issue 916: Simple ELSE with NULL should NOT trigger the rule
+  pass_str: |
+    SELECT
+        CASE
+            WHEN x = 1 THEN 'one'
+            WHEN x = 2 THEN 'two'
+            ELSE NULL
+        END AS result
+    FROM mytable;
+
+test_pass_simple_else_numeric:
+  # Issue 916: Simple ELSE with numeric value should NOT trigger the rule
+  pass_str: |
+    SELECT
+        CASE
+            WHEN score >= 90 THEN 4.0
+            WHEN score >= 80 THEN 3.0
+            WHEN score >= 70 THEN 2.0
+            ELSE 0.0
+        END AS gpa
+    FROM grades;
+
+test_pass_function_in_else:
+  # Issue 916: ELSE with function call should NOT trigger the rule
+  pass_str: |
+    SELECT
+        CASE
+            WHEN category = 'A' THEN 'Category A'
+            WHEN category = 'B' THEN 'Category B'
+            ELSE CONCAT('Other: ', category)
+        END AS category_name
+    FROM products;
+
+test_pass_else_in_create_function:
+  # Issue 916: CASE in CREATE FUNCTION with simple ELSE should NOT trigger
+  pass_str: |
+    CREATE OR REPLACE FUNCTION get_grade(
+        percentage FLOAT64
+    )
+    RETURNS STRING
+    AS (
+        CASE
+            WHEN percentage > 80 THEN 'A'
+            WHEN percentage > 40 THEN 'B'
+            ELSE 'C'
+        END
+    );
+
+test_pass_multiple_case_simple_else:
+  # Multiple CASE statements with simple ELSE clauses should NOT trigger
+  pass_str: |
+    SELECT
+        CASE
+            WHEN type = 'premium' THEN 100
+            ELSE 50
+        END AS base_price,
+        CASE
+            WHEN region = 'US' THEN 'USD'
+            WHEN region = 'EU' THEN 'EUR'
+            ELSE 'GBP'
+        END AS currency
+    FROM pricing;

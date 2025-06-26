@@ -1361,12 +1361,7 @@ pub fn lint_line_length(
         let line_no = first_seg.get_position_marker().unwrap().working_line_no;
 
         if line_len <= line_length_limit {
-            log::info!(
-                "Line #{}. Length {} <= {}. OK.",
-                line_no,
-                line_len,
-                line_length_limit,
-            )
+            log::info!("Line #{line_no}. Length {line_len} <= {line_length_limit}. OK.")
         } else {
             let line_elements = chain(line_buffer.clone(), Some(elem.clone())).collect_vec();
             let mut fixes: Vec<LintFix> = Vec::new();

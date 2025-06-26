@@ -135,7 +135,7 @@ impl<'py> FluffConfig {
         for (k, v) in hashmap {
             py_dict
                 .set_item(k, v)
-                .map_err(|e| SQLFluffUserError::new(format!("Python templater error: {:?}", e)))?;
+                .map_err(|e| SQLFluffUserError::new(format!("Python templater error: {e:?}")))?;
         }
         Ok(py_dict)
     }

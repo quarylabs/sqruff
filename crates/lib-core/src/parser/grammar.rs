@@ -111,7 +111,7 @@ impl MatchableTrait for Ref {
                 if let Some(ref c) = crumbs {
                     if c.contains(&&*self.reference) {
                         let loop_string = c.join(" -> ");
-                        panic!("Self referential grammar detected: {}", loop_string);
+                        panic!("Self referential grammar detected: {loop_string}");
                     }
                 }
 
@@ -139,7 +139,7 @@ impl MatchableTrait for Ref {
                 parse_context.deeper_match(self.reset_terminators, &self.terminators, |this| {
                     if exclude
                         .match_segments(segments, idx, this)
-                        .inspect_err(|e| log::error!("Parser error: {:?}", e))
+                        .inspect_err(|e| log::error!("Parser error: {e:?}"))
                         .is_ok_and(|match_result| match_result.has_match())
                     {
                         return Some(MatchResult::empty_at(idx));

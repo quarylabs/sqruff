@@ -574,7 +574,7 @@ fn indent_description(indent: &str) -> String {
             assert!(indent.chars().all(|c| c == '\t'));
             format!("indent of {} tabs", indent.len())
         }
-        _ => panic!("Invalid indent construction: {:?}", indent),
+        _ => panic!("Invalid indent construction: {indent:?}"),
     }
 }
 

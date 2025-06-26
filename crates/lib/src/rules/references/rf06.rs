@@ -256,7 +256,7 @@ SELECT 123 as `foo` -- For BigQuery, MySql, ...
 }
 
 fn is_full_match(pattern: &str, text: &str) -> bool {
-    let full_pattern = format!("(?i)^{}$", pattern); // Adding (?i) for case insensitivity
+    let full_pattern = format!("(?i)^{pattern}$"); // Adding (?i) for case insensitivity
     let regex = fancy_regex::Regex::new(&full_pattern).unwrap();
     regex.is_match(text).unwrap()
 }

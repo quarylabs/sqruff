@@ -179,7 +179,7 @@ fn print_tree(
     );
 
     let mut it = node_data.downstream.iter().peekable();
-    let child_prefix = format!("{0}{1}", parent_prefix, parent_suffix);
+    let child_prefix = format!("{parent_prefix}{parent_suffix}");
 
     while let Some(child) = it.next().copied() {
         let ret = match it.peek() {

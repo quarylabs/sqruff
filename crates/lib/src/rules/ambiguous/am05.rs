@@ -43,8 +43,7 @@ impl Rule for RuleAM05 {
                 let join_type = JoinType::from_str(join_type).map_err(|_| {
                     format!(
                         "Rule AM05 expects a `fully_qualify_join_types` array of valid join \
-                         types. Got: {}",
-                        join_type
+                         types. Got: {join_type}"
                     )
                 })?;
                 Ok(RuleAM05 {

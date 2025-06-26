@@ -271,10 +271,7 @@ pub fn rebreak_sequence(
                     capitalize(&pretty_name)
                 )
             } else {
-                format!(
-                    "Found trailing {}. Expected only leading near line breaks.",
-                    pretty_name
-                )
+                format!("Found trailing {pretty_name}. Expected only leading near line breaks.")
             };
 
             if loc.next.adj_pt_idx == loc.next.pre_code_pt_idx
@@ -363,10 +360,7 @@ pub fn rebreak_sequence(
                     capitalize(&pretty_name)
                 )
             } else {
-                format!(
-                    "Found leading {}. Expected only trailing near line breaks.",
-                    pretty_name
-                )
+                format!("Found leading {pretty_name}. Expected only trailing near line breaks.")
             };
 
             if loc.prev.adj_pt_idx == loc.prev.pre_code_pt_idx

@@ -77,7 +77,7 @@ At the moment, dot notation is not supported in the templater."
             let templated_file: PythonTemplatedFile = returned.extract(py)?;
             Ok(templated_file.to_templated_file())
         })
-        .map_err(|e| SQLFluffUserError::new(format!("Python templater error: {:?}", e)))?;
+        .map_err(|e| SQLFluffUserError::new(format!("Python templater error: {e:?}")))?;
 
         Ok(templated_file)
     }

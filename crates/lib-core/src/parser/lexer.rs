@@ -239,7 +239,7 @@ impl Matcher {
         }
 
         if !content_buff.is_empty() || !str_buff.is_empty() {
-            let raw = format!("{}{}", content_buff, str_buff);
+            let raw = format!("{content_buff}{str_buff}");
             elem_buff.push(Element::new(
                 self.pattern.name,
                 self.pattern.syntax_kind,
@@ -307,7 +307,7 @@ impl Pattern {
         regex: &'static str,
         syntax_kind: SyntaxKind,
     ) -> Self {
-        let regex = format!("^{}", regex);
+        let regex = format!("^{regex}");
         Self {
             name,
             syntax_kind,
@@ -657,10 +657,10 @@ fn iter_segments(
                             + consumed_element_length as isize
                             + tfs_offset;
                         if sum < 0 {
-                            panic!("Slice start is negative: {}", sum);
+                            panic!("Slice start is negative: {sum}");
                         }
                         sum.try_into()
-                            .unwrap_or_else(|_| panic!("Cannot convert {} to usize", sum))
+                            .unwrap_or_else(|_| panic!("Cannot convert {sum} to usize"))
                     });
 
                     let source_slice_end =
@@ -716,12 +716,12 @@ fn iter_segments(
                             + tfs_offset;
                         let source_slice_start =
                             source_slice_start.try_into().unwrap_or_else(|_| {
-                                panic!("Cannot convert {} to usize", source_slice_start)
+                                panic!("Cannot convert {source_slice_start} to usize")
                             });
                         let source_slice_end =
                             source_slice_start as isize + incremental_length as isize;
                         let source_slice_end = source_slice_end.try_into().unwrap_or_else(|_| {
-                            panic!("Cannot convert {} to usize", source_slice_end)
+                            panic!("Cannot convert {source_slice_end} to usize")
                         });
 
                         result.push(element.to_segment(
@@ -811,7 +811,7 @@ fn iter_segments(
                     }
                 }
             }
-            panic!("Unable to process slice: {:?}", tfs);
+            panic!("Unable to process slice: {tfs:?}");
         }
     }
     result

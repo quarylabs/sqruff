@@ -5,7 +5,7 @@ version.workspace = true
 repository.workspace = true
 edition.workspace = true
 license.workspace = true
-rust-version = "1.87"
+rust-version = "1.88"
 
 [package.metadata.binstall]
 pkg-url = "{ repo }/releases/download/v{ version }/sqruff-{ target-family }-{ target-arch }.tar.gz"

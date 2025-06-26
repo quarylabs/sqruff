@@ -61,7 +61,7 @@ impl NoQADirective {
                         fixable: false,
                         line_no: 0,
                         line_pos: 0,
-                        description: format!("Rule {} not found in rule set", rule),
+                        description: format!("Rule {rule} not found in rule set"),
                         rule: None,
                         source_slice: Default::default(),
                     });

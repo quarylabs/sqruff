@@ -4911,6 +4911,7 @@ pub fn raw_dialect() -> Dialect {
                 Ref::new("UpdateStatementSegment").to_matchable(),
                 Ref::new("InsertStatementSegment").to_matchable(),
                 Ref::new("DeleteStatementSegment").to_matchable(),
+                Ref::new("MergeStatementSegment").to_matchable(),
             ])
             .to_matchable()
             .into(),

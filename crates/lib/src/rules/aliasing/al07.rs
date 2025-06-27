@@ -278,12 +278,17 @@ FROM
         // For CREATE TABLE ... AS (SELECT ...), find the embedded SELECT statement
         let segment_to_analyze = if context.segment.is_type(SyntaxKind::CreateTableStatement) {
             // Find SELECT statement within CREATE TABLE
-            if let Some(select_segment) = context.segment.recursive_crawl(
-                const { &SyntaxSet::new(&[SyntaxKind::SelectStatement]) },
-                true,
-                &SyntaxSet::EMPTY,
-                true,
-            ).into_iter().next() {
+            if let Some(select_segment) = context
+                .segment
+                .recursive_crawl(
+                    const { &SyntaxSet::new(&[SyntaxKind::SelectStatement]) },
+                    true,
+                    &SyntaxSet::EMPTY,
+                    true,
+                )
+                .into_iter()
+                .next()
+            {
                 select_segment
             } else {
                 return Vec::new();
@@ -294,17 +299,20 @@ FROM
 
         // Get FROM clause from the segment we want to analyze
         // Use recursive_crawl instead of children for finding FROM clause
-        let from_clause_opt = segment_to_analyze.recursive_crawl(
-            const { &SyntaxSet::new(&[SyntaxKind::FromClause]) },
-            true,
-            &SyntaxSet::EMPTY,
-            true,
-        ).into_iter().next();
-        
+        let from_clause_opt = segment_to_analyze
+            .recursive_crawl(
+                const { &SyntaxSet::new(&[SyntaxKind::FromClause]) },
+                true,
+                &SyntaxSet::EMPTY,
+                true,
+            )
+            .into_iter()
+            .next();
+
         if from_clause_opt.is_none() {
             return Vec::new();
         }
-        
+
         let from_clause = from_clause_opt.unwrap();
         let from_clause_segment = Segments::from_vec(vec![from_clause.clone()], None);
 
@@ -336,7 +344,7 @@ FROM
         ) {
             from_expression_elements.push(from_expression_element);
         }
-        
+
         // Also get FROM expression elements from JOIN clauses and other parts after FROM
         for from_expression_element in segment_to_analyze.recursive_crawl(
             const { &SyntaxSet::new(&[SyntaxKind::FromExpressionElement]) },
@@ -345,11 +353,14 @@ FROM
             true,
         ) {
             // Skip if already added from FROM clause
-            if !from_expression_elements.iter().any(|e| e == &from_expression_element) {
+            if !from_expression_elements
+                .iter()
+                .any(|e| e == &from_expression_element)
+            {
                 from_expression_elements.push(from_expression_element);
             }
         }
-        
+
         // Get all column references in the entire statement
         for column_ref in segment_to_analyze.recursive_crawl(
             const { &SyntaxSet::new(&[SyntaxKind::ColumnReference]) },
@@ -359,7 +370,6 @@ FROM
         ) {
             column_reference_segments.push(column_ref);
         }
-
 
         self.lint_aliases_in_join(
             context.tables,
@@ -376,7 +386,12 @@ FROM
 
     fn crawl_behaviour(&self) -> Crawler {
         SegmentSeekerCrawler::new(
-            const { SyntaxSet::new(&[SyntaxKind::SelectStatement, SyntaxKind::CreateTableStatement]) }
+            const {
+                SyntaxSet::new(&[
+                    SyntaxKind::SelectStatement,
+                    SyntaxKind::CreateTableStatement,
+                ])
+            },
         )
         .into()
     }

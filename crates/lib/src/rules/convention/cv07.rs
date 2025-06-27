@@ -162,49 +162,54 @@ impl RuleCV07 {
         file_segment: ErasedSegment,
     ) -> Vec<(ErasedSegment, ErasedSegment)> {
         let statements = Self::iter_statements(file_segment);
-        
+
         let result: Vec<(ErasedSegment, ErasedSegment)> = statements
             .into_iter()
             .flat_map(|stmt| {
                 // Check if statement contains brackets around the whole statement
                 let segments = stmt.segments();
-                
+
                 // Special handling for T-SQL where Statement contains another Statement
                 if segments.len() == 1 && segments[0].is_type(SyntaxKind::Statement) {
                     let inner_stmt = &segments[0];
                     let inner_segments = inner_stmt.segments();
-                    
+
                     // Check if the inner statement contains a Bracketed segment
-                    if inner_segments.len() == 1 && inner_segments[0].is_type(SyntaxKind::Bracketed) {
+                    if inner_segments.len() == 1 && inner_segments[0].is_type(SyntaxKind::Bracketed)
+                    {
                         // This is a bracketed statement like (SELECT ...)
                         return vec![(stmt.clone(), inner_segments[0].clone())];
                     }
-                    
+
                     // Check if the inner statement starts and ends with brackets
                     if inner_segments.len() >= 3 {
                         let first = inner_segments.first();
                         let last = inner_segments.last();
                         if let (Some(first_seg), Some(last_seg)) = (first, last) {
-                            if first_seg.is_type(SyntaxKind::StartBracket) && last_seg.is_type(SyntaxKind::EndBracket) {
+                            if first_seg.is_type(SyntaxKind::StartBracket)
+                                && last_seg.is_type(SyntaxKind::EndBracket)
+                            {
                                 // This is a bracketed statement like (SELECT ...)
                                 return vec![(stmt.clone(), inner_stmt.clone())];
                             }
                         }
                     }
                 }
-                
+
                 // Check if statement starts and ends with brackets (T-SQL)
                 if segments.len() >= 3 {
                     let first = segments.first();
                     let last = segments.last();
                     if let (Some(first_seg), Some(last_seg)) = (first, last) {
-                        if first_seg.is_type(SyntaxKind::StartBracket) && last_seg.is_type(SyntaxKind::EndBracket) {
+                        if first_seg.is_type(SyntaxKind::StartBracket)
+                            && last_seg.is_type(SyntaxKind::EndBracket)
+                        {
                             // This is a bracketed statement like (SELECT ...)
                             return vec![(stmt.clone(), stmt.clone())];
                         }
                     }
                 }
-                
+
                 // Check if the statement contains a single Bracketed segment (ANSI)
                 if segments.len() == 1 {
                     let first_seg = &segments[0];
@@ -212,7 +217,7 @@ impl RuleCV07 {
                         return vec![(stmt.clone(), first_seg.clone())];
                     }
                 }
-                
+
                 // Check for bracketed segments within the statement
                 stmt.segments()
                     .iter()
@@ -226,7 +231,7 @@ impl RuleCV07 {
                     .collect::<Vec<_>>()
             })
             .collect();
-        
+
         result
     }
 }

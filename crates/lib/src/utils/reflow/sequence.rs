@@ -217,7 +217,7 @@ impl<'a> ReflowSequence<'a> {
         self.elements
             .iter()
             .position(|elem| elem.segments().contains(target))
-            .unwrap_or_else(|| panic!("Target [{:?}] not found in ReflowSequence.", target))
+            .unwrap_or_else(|| panic!("Target [{target:?}] not found in ReflowSequence."))
     }
 
     pub fn without(self, target: &ErasedSegment) -> ReflowSequence<'a> {

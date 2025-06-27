@@ -32,7 +32,7 @@ pub(crate) fn info() {
             let sys_path = sys_path.downcast::<PyList>().unwrap();
             println!("sys.path:");
             for p in sys_path.iter() {
-                println!("  {}", p);
+                println!("  {p}");
             }
 
             // If you need to check environment variables (e.g. VIRTUAL_ENV),
@@ -45,7 +45,7 @@ pub(crate) fn info() {
                 // if string
                 let virtual_env = environ.downcast::<PyString>();
                 if let Ok(virtual_env) = virtual_env {
-                    println!("VIRTUAL_ENV: {}", virtual_env);
+                    println!("VIRTUAL_ENV: {virtual_env}");
                 } else {
                     println!("VIRTUAL_ENV not set.");
                 }

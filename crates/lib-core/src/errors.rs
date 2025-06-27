@@ -143,13 +143,10 @@ impl SQLParseError {
         if let Ok(true) = regex.is_match(value) {
             true
         } else {
-            let msg = format!(
-                "Regex pattern did not match.\nRegex: {:?}\nInput: {:?}",
-                regexp, value
-            );
+            let msg = format!("Regex pattern did not match.\nRegex: {regexp:?}\nInput: {value:?}");
 
             if regexp == value {
-                panic!("{}\nDid you mean to escape the regex?", msg);
+                panic!("{msg}\nDid you mean to escape the regex?");
             } else {
                 panic!("{}", msg);
             }

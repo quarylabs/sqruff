@@ -67,7 +67,7 @@ impl Linter {
         match templater_name {
             Some(name) => match TEMPLATERS.into_iter().find(|t| t.name() == name) {
                 Some(t) => t,
-                None => panic!("Unknown templater: {}", name),
+                None => panic!("Unknown templater: {name}"),
             },
             None => &RawTemplater,
         }
@@ -368,8 +368,7 @@ impl Linter {
                 source_str: sql.to_string(),
             }),
             Err(err) => Err(SQLFluffUserError::new(format!(
-                "Failed to template file {} with error {:?}",
-                filename, err
+                "Failed to template file {filename} with error {err:?}"
             ))),
         }
     }
@@ -509,10 +508,7 @@ impl Linter {
             if ignore_non_existent_files {
                 return Vec::new();
             } else {
-                panic!(
-                    "Specified path does not exist. Check it/they exist(s): {:?}",
-                    path
-                );
+                panic!("Specified path does not exist. Check it/they exist(s): {path:?}");
             }
         };
 

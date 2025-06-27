@@ -102,10 +102,10 @@ impl Debug for LintResult {
                                 desc, self.source, anchor, fix_coda
                             )
                         } else {
-                            write!(f, "LintResult({}: {:?}{})", desc, anchor, fix_coda)
+                            write!(f, "LintResult({desc}: {anchor:?}{fix_coda})")
                         }
                     }
-                    None => write!(f, "LintResult({:?}{})", anchor, fix_coda),
+                    None => write!(f, "LintResult({anchor:?}{fix_coda})"),
                 }
             }
         }

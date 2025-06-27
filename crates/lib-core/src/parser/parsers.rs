@@ -168,7 +168,7 @@ impl PartialEq for RegexParser {
 
 impl RegexParser {
     pub fn new(template: &str, kind: SyntaxKind) -> Self {
-        let template_pattern = Regex::new(&format!("(?i){}", template)).unwrap();
+        let template_pattern = Regex::new(&format!("(?i){template}")).unwrap();
 
         Self {
             template: template_pattern,

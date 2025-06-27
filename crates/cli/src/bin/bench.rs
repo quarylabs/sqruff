@@ -23,5 +23,5 @@ fn main() {
 
     println!("stdout:\n{}", String::from_utf8_lossy(&output.stdout));
     println!("stderr:\n{}", String::from_utf8_lossy(&output.stderr));
-    println!("Execution took: {:?}", duration);
+    println!("Execution took: {duration:?}");
 }

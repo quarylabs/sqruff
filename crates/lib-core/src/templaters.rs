@@ -398,9 +398,8 @@ impl TemplatedFileInner {
                 ))
             } else {
                 Err(format!(
-                    "Attempting a single length slice within a templated section! {:?} within \
-                     {:?}.",
-                    template_slice, ts_start_subsliced_file
+                    "Attempting a single length slice within a templated section! {template_slice:?} within \
+                     {ts_start_subsliced_file:?}."
                 ))
             };
         }

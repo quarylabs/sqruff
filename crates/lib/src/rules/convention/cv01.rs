@@ -31,8 +31,7 @@ impl Rule for RuleCV01 {
                 "ansi" => PreferredNotEqualStyle::Ansi,
                 _ => {
                     return Err(format!(
-                        "Invalid value for preferred_not_equal_style: {}",
-                        value
+                        "Invalid value for preferred_not_equal_style: {value}"
                     ));
                 }
             };

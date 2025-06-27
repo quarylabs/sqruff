@@ -327,6 +327,6 @@ fn name_sequence(prefix: &'static str) -> impl Fn() -> String {
     move || {
         let current = sequence.get();
         sequence.set(current + 1);
-        format!("{}{}", prefix, current)
+        format!("{prefix}{current}")
     }
 }

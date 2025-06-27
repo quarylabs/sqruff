@@ -405,7 +405,7 @@ pub fn dialect() -> Dialect {
             SegmentGenerator::new(|dialect| {
                 let reserved_keywords = dialect.sets("reserved_keywords");
                 let pattern = reserved_keywords.iter().join("|");
-                let anti_template = format!("^({})$", pattern);
+                let anti_template = format!("^({pattern})$");
 
                 RegexParser::new("[A-Z0-9_]*[A-Z_][A-Z0-9_]*", SyntaxKind::NakedIdentifier)
                     .anti_template(&anti_template)

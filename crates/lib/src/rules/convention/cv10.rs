@@ -249,7 +249,7 @@ fn normalize_preferred_quoted_literal_style(
         && new_body.ends_with(preferred_quote_char)
     {
         let truncated_body = &new_body[..new_body.len() - 1];
-        new_body = format!("{}\\{}", truncated_body, preferred_quote_char);
+        new_body = format!("{truncated_body}\\{preferred_quote_char}");
     }
 
     let orig_escape_count = body.matches("\\").count();

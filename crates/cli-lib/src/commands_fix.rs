@@ -16,7 +16,7 @@ pub(crate) fn run_fix(
 
     if result.files.iter().all(|file| file.violations.is_empty()) {
         let count_files = result.files.len();
-        println!("{} files processed, nothing to fix.", count_files);
+        println!("{count_files} files processed, nothing to fix.");
         0
     } else {
         let any_unfixable_errors = result

@@ -105,7 +105,7 @@ impl PlaceholderTemplater {
                     "Invalid param_regex for templater 'placeholder'".to_string(),
                 ))?;
                 let regex = Regex::new(param_regex).map_err(|e| {
-                    SQLFluffUserError::new(format!("Invalid regex for param_regex: {}", e))
+                    SQLFluffUserError::new(format!("Invalid regex for param_regex: {e}"))
                 })?;
                 Ok(regex)
             }
@@ -116,8 +116,7 @@ impl PlaceholderTemplater {
                 let known_styles = get_known_styles();
                 let regex = known_styles.get(param_style).ok_or_else(|| {
                     SQLFluffUserError::new(format!(
-                        "Unknown param_style '{}' for templater 'placeholder'",
-                        param_style
+                        "Unknown param_style '{param_style}' for templater 'placeholder'"
                     ))
                 })?;
                 Ok(regex.clone())
@@ -273,8 +272,7 @@ Also consider making a pull request to the project to have your style added, it 
                             "false".to_string()
                         }),
                         _ => Err(SQLFluffUserError::new(format!(
-                            "Invalid value for parameter replacement: {}",
-                            param_name
+                            "Invalid value for parameter replacement: {param_name}"
                         ))),
                     }
                 })?;

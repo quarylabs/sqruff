@@ -27,7 +27,7 @@ impl Formatter for JsonFormatter {
     fn completion_message(&self) {
         let lock = self.violations.lock().unwrap();
         let json = serde_json::to_string(&*lock).unwrap();
-        println!("{}", json);
+        println!("{json}");
     }
 
     fn dispatch_template_header(

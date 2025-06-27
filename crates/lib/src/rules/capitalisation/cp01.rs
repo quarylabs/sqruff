@@ -314,7 +314,7 @@ pub fn handle_segment(
             ""
         };
         let policy = match concrete_policy {
-            concrete_policy @ ("upper" | "lower") => format!("{} case.", concrete_policy),
+            concrete_policy @ ("upper" | "lower") => format!("{concrete_policy} case."),
             "capitalise" => "capitalised.".to_string(),
             "pascal" => "pascal case.".to_string(),
             _ => "".to_string(),

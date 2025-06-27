@@ -716,7 +716,7 @@ pub fn dialect() -> Dialect {
                 // Generate the anti template from the set of reserved keywords
                 let reserved_keywords = dialect.sets("reserved_keywords");
                 let pattern = reserved_keywords.iter().join("|");
-                let anti_template = format!("^({})$", pattern);
+                let anti_template = format!("^({pattern})$");
 
                 RegexParser::new("[a-zA-Z_][a-zA-Z0-9_$]*", SyntaxKind::NakedIdentifier)
                     .anti_template(&anti_template)
@@ -2757,7 +2757,7 @@ pub fn dialect() -> Dialect {
                 let schema_object_types_plural = one_of(
                     schema_object_names
                         .iter()
-                        .map(|name| Ref::keyword(format!("{}S", name)).to_matchable())
+                        .map(|name| Ref::keyword(format!("{name}S")).to_matchable())
                         .collect(),
                 );
 

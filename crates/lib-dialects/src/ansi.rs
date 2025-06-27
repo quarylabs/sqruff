@@ -345,7 +345,7 @@ pub fn raw_dialect() -> Dialect {
                 // Generate the anti template from the set of reserved keywords
                 let reserved_keywords = dialect.sets("reserved_keywords");
                 let pattern = reserved_keywords.iter().join("|");
-                let anti_template = format!("^({})$", pattern);
+                let anti_template = format!("^({pattern})$");
 
                 RegexParser::new("[A-Z0-9_]*[A-Z][A-Z0-9_]*", SyntaxKind::NakedIdentifier)
                     .anti_template(&anti_template)

@@ -39,7 +39,7 @@ impl Display for Operation {
             Operation::Min => "min".to_string(),
             Operation::Max => "max".to_string(),
         };
-        write!(f, "{}", str)
+        write!(f, "{str}")
     }
 }
 
@@ -681,8 +681,7 @@ fn extract_select(query: &Query<'_, ()>) -> Result<ExtractedSelect, String> {
                                             } else {
                                                 let (target_table, target_key) =
                                                     sub_columns.get(int_key).ok_or(format!(
-                                                        "Could not find {} in {:?}",
-                                                        int_key, sub_columns
+                                                        "Could not find {int_key} in {sub_columns:?}"
                                                     ))?;
                                                 int_table.clone_from(target_table);
                                                 int_key.clone_from(target_key);
@@ -891,8 +890,7 @@ impl ExtractedFunc for Vec<Extracted> {
                                 return Ok(Some(value.clone()));
                             }
                             return Err(format!(
-                                "In find alias, could not find {} in {:?}",
-                                target, reference
+                                "In find alias, could not find {target} in {reference:?}"
                             ));
                         }
                     }
@@ -910,7 +908,7 @@ impl ExtractedFunc for Vec<Extracted> {
                 _ => {}
             }
         }
-        Err(format!("Could not find {} in {:?}", target, self))
+        Err(format!("Could not find {target} in {self:?}"))
     }
 
     fn get_source(&self, value: &str) -> Result<Source, String> {
@@ -941,7 +939,7 @@ impl ExtractedFunc for Vec<Extracted> {
                                     operation.clone(),
                                 ))
                             } else {
-                                Err(format!("In getsource, Could not find {} in {:?}", value, m))
+                                Err(format!("In getsource, Could not find {value} in {m:?}"))
                             }
                         }
                     },
@@ -951,10 +949,7 @@ impl ExtractedFunc for Vec<Extracted> {
                         ExtractedSelect::Extracted { mapped, .. } => {
                             let underlying_column = mapped
                                 .get(value)
-                                .ok_or(format!(
-                                    "In mapped, could not find {} in {:?}",
-                                    value, select
-                                ))?
+                                .ok_or(format!("In mapped, could not find {value} in {select:?}"))?
                                 .clone();
                             Ok(UnderlyingColumn(underlying_column))
                         }
@@ -978,8 +973,7 @@ impl ExtractedFunc for Vec<Extracted> {
                                 let v = mapped
                                     .get(value)
                                     .ok_or(format!(
-                                        "In mapped, could not find {} in {:?}",
-                                        value, select
+                                        "In mapped, could not find {value} in {select:?}"
                                     ))?
                                     .clone();
                                 Ok(UnderlyingColumn(v))

@@ -143,7 +143,7 @@ impl Dialect {
     pub fn sets(&self, label: &str) -> AHashSet<&'static str> {
         match label {
             "bracket_pairs" | "angle_bracket_pairs" => {
-                panic!("Use `bracket_sets` to retrieve {} set.", label);
+                panic!("Use `bracket_sets` to retrieve {label} set.");
             }
             _ => (),
         }
@@ -154,8 +154,7 @@ impl Dialect {
     pub fn sets_mut(&mut self, label: &'static str) -> &mut AHashSet<&'static str> {
         assert!(
             label != "bracket_pairs" && label != "angle_bracket_pairs",
-            "Use `bracket_sets` to retrieve {} set.",
-            label
+            "Use `bracket_sets` to retrieve {label} set."
         );
 
         match self.sets.entry(label) {
@@ -210,7 +209,7 @@ impl Dialect {
         match self.library.get(name) {
             Some(DialectElementType::Matchable(matchable)) => matchable.clone(),
             Some(DialectElementType::SegmentGenerator(_)) => {
-                panic!("Unexpected SegmentGenerator while fetching '{}'", name);
+                panic!("Unexpected SegmentGenerator while fetching '{name}'");
             }
             None => {
                 panic!("Grammar refers to '{name}' which was not found in the dialect.",);

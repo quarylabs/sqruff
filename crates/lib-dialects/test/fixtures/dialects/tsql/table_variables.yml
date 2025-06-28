@@ -1,63 +1,57 @@
 file:
 - statement:
-  - statement:
-    - select_statement:
-      - select_clause:
-        - keyword: SELECT
-        - select_clause_element:
-          - column_reference:
-            - quoted_identifier: '[value]'
-      - from_clause:
-        - keyword: FROM
-        - from_expression:
-          - from_expression_element:
-            - from_expression_element:
-              - table_expression:
-                - table_reference:
-                  - tsql_variable: '@DepartmentCodes'
+  - select_statement:
+    - select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+        - column_reference:
+          - quoted_identifier: '[value]'
+    - from_clause:
+      - keyword: FROM
+      - from_expression:
+        - from_expression_element:
+          - table_expression:
+            - table_reference:
+              - tsql_variable: '@DepartmentCodes'
 - statement_terminator: ;
 - statement:
-  - statement:
-    - select_statement:
-      - select_clause:
-        - keyword: SELECT
-        - select_clause_element:
-          - column_reference:
+  - select_statement:
+    - select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+        - column_reference:
+          - naked_identifier: ids
+          - dot: .
+          - quoted_identifier: '[value]'
+    - from_clause:
+      - keyword: FROM
+      - from_expression:
+        - from_expression_element:
+          - table_expression:
+            - table_reference:
+              - tsql_variable: '@DepartmentCodes'
+          - alias_expression:
+            - keyword: AS
             - naked_identifier: ids
-            - dot: .
-            - quoted_identifier: '[value]'
-      - from_clause:
-        - keyword: FROM
-        - from_expression:
-          - from_expression_element:
-            - from_expression_element:
-              - table_expression:
-                - table_reference:
-                  - tsql_variable: '@DepartmentCodes'
-              - alias_expression:
-                - keyword: AS
-                - naked_identifier: ids
 - statement_terminator: ;
 - statement:
-  - statement:
-    - select_statement:
-      - select_clause:
-        - keyword: SELECT
-        - select_clause_element:
-          - wildcard_expression:
-            - wildcard_identifier:
-              - star: '*'
-      - from_clause:
-        - keyword: FROM
-        - from_expression:
-          - from_expression_element:
-            - from_expression_element:
-              - table_expression:
-                - table_reference:
-                  - tsql_variable: '@TableVariable'
-              - keyword: WITH
-              - bracketed:
-                - start_bracket: (
-                - keyword: NOLOCK
-                - end_bracket: )
+  - select_statement:
+    - select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+        - wildcard_expression:
+          - wildcard_identifier:
+            - star: '*'
+    - from_clause:
+      - keyword: FROM
+      - from_expression:
+        - from_expression_element:
+          - table_expression:
+            - table_reference:
+              - tsql_variable: '@TableVariable'
+          - keyword: WITH
+          - bracketed:
+            - start_bracket: (
+            - keyword: NOLOCK
+            - end_bracket: )
 - statement_terminator: ;

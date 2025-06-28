@@ -188,31 +188,27 @@ pub fn raw_dialect() -> Dialect {
     // TOP clause support (e.g., SELECT TOP 10, TOP (10) PERCENT, TOP 5 WITH TIES)
     dialect.replace_grammar(
         "SelectClauseModifierSegment",
-        NodeMatcher::new(
-            SyntaxKind::SelectClauseModifier,
-            one_of(vec_of_erased![
-                // Keep ANSI's DISTINCT/ALL
-                Ref::keyword("DISTINCT"),
-                Ref::keyword("ALL"),
-                // Add T-SQL's TOP clause
-                Sequence::new(vec_of_erased![
-                    Ref::keyword("TOP"),
-                    one_of(vec_of_erased![
+        one_of(vec_of_erased![
+            // Keep ANSI's DISTINCT/ALL
+            Ref::keyword("DISTINCT"),
+            Ref::keyword("ALL"),
+            // Add T-SQL's TOP clause
+            Sequence::new(vec_of_erased![
+                Ref::keyword("TOP"),
+                one_of(vec_of_erased![
+                    Ref::new("NumericLiteralSegment"),
+                    Ref::new("TsqlVariableSegment"),
+                    Bracketed::new(vec_of_erased![one_of(vec_of_erased![
                         Ref::new("NumericLiteralSegment"),
                         Ref::new("TsqlVariableSegment"),
-                        Bracketed::new(vec_of_erased![one_of(vec_of_erased![
-                            Ref::new("NumericLiteralSegment"),
-                            Ref::new("TsqlVariableSegment"),
-                            Ref::new("ExpressionSegment")
-                        ])])
-                    ]),
-                    Ref::keyword("PERCENT").optional(),
-                    Ref::keyword("WITH").optional(),
-                    Ref::keyword("TIES").optional()
-                ])
+                        Ref::new("ExpressionSegment")
+                    ])])
+                ]),
+                Ref::keyword("PERCENT").optional(),
+                Ref::keyword("WITH").optional(),
+                Ref::keyword("TIES").optional()
             ])
-            .to_matchable(),
-        )
+        ])
         .to_matchable(),
     );
 
@@ -429,61 +425,57 @@ pub fn raw_dialect() -> Dialect {
     // Add T-SQL specific statement types to the statement segment
     dialect.replace_grammar(
         "StatementSegment",
-        NodeMatcher::new(
-            SyntaxKind::Statement,
-            one_of(vec_of_erased![
-                // T-SQL specific statements
-                Ref::new("DeclareStatementGrammar"),
-                Ref::new("SetVariableStatementGrammar"),
-                Ref::new("PrintStatementGrammar"),
-                Ref::new("BeginEndBlockGrammar"),
-                Ref::new("IfStatementGrammar"),
-                Ref::new("WhileStatementGrammar"),
-                Ref::new("BatchSeparatorGrammar"),
-                Ref::new("UseStatementGrammar"),
-                // Include all ANSI statement types
-                Ref::new("SelectableGrammar"),
-                Ref::new("MergeStatementSegment"),
-                Ref::new("InsertStatementSegment"),
-                Ref::new("TransactionStatementSegment"),
-                Ref::new("DropTableStatementSegment"),
-                Ref::new("DropViewStatementSegment"),
-                Ref::new("CreateUserStatementSegment"),
-                Ref::new("DropUserStatementSegment"),
-                Ref::new("TruncateStatementSegment"),
-                Ref::new("AccessStatementSegment"),
-                Ref::new("CreateTableStatementSegment"),
-                Ref::new("CreateRoleStatementSegment"),
-                Ref::new("DropRoleStatementSegment"),
-                Ref::new("AlterTableStatementSegment"),
-                Ref::new("CreateSchemaStatementSegment"),
-                Ref::new("SetSchemaStatementSegment"),
-                Ref::new("DropSchemaStatementSegment"),
-                Ref::new("DropTypeStatementSegment"),
-                Ref::new("CreateDatabaseStatementSegment"),
-                Ref::new("DropDatabaseStatementSegment"),
-                Ref::new("CreateIndexStatementSegment"),
-                Ref::new("DropIndexStatementSegment"),
-                Ref::new("CreateViewStatementSegment"),
-                Ref::new("DeleteStatementSegment"),
-                Ref::new("UpdateStatementSegment"),
-                Ref::new("CreateCastStatementSegment"),
-                Ref::new("DropCastStatementSegment"),
-                Ref::new("CreateFunctionStatementSegment"),
-                Ref::new("DropFunctionStatementSegment"),
-                Ref::new("CreateModelStatementSegment"),
-                Ref::new("DropModelStatementSegment"),
-                Ref::new("DescribeStatementSegment"),
-                Ref::new("ExplainStatementSegment"),
-                Ref::new("CreateSequenceStatementSegment"),
-                Ref::new("AlterSequenceStatementSegment"),
-                Ref::new("DropSequenceStatementSegment"),
-                Ref::new("CreateTriggerStatementSegment"),
-                Ref::new("DropTriggerStatementSegment")
-            ])
-            .config(|this| this.terminators = vec_of_erased![Ref::new("DelimiterGrammar")])
-            .to_matchable(),
-        )
+        one_of(vec_of_erased![
+            // T-SQL specific statements
+            Ref::new("DeclareStatementGrammar"),
+            Ref::new("SetVariableStatementGrammar"),
+            Ref::new("PrintStatementGrammar"),
+            Ref::new("BeginEndBlockGrammar"),
+            Ref::new("IfStatementGrammar"),
+            Ref::new("WhileStatementGrammar"),
+            Ref::new("BatchSeparatorGrammar"),
+            Ref::new("UseStatementGrammar"),
+            // Include all ANSI statement types
+            Ref::new("SelectableGrammar"),
+            Ref::new("MergeStatementSegment"),
+            Ref::new("InsertStatementSegment"),
+            Ref::new("TransactionStatementSegment"),
+            Ref::new("DropTableStatementSegment"),
+            Ref::new("DropViewStatementSegment"),
+            Ref::new("CreateUserStatementSegment"),
+            Ref::new("DropUserStatementSegment"),
+            Ref::new("TruncateStatementSegment"),
+            Ref::new("AccessStatementSegment"),
+            Ref::new("CreateTableStatementSegment"),
+            Ref::new("CreateRoleStatementSegment"),
+            Ref::new("DropRoleStatementSegment"),
+            Ref::new("AlterTableStatementSegment"),
+            Ref::new("CreateSchemaStatementSegment"),
+            Ref::new("SetSchemaStatementSegment"),
+            Ref::new("DropSchemaStatementSegment"),
+            Ref::new("DropTypeStatementSegment"),
+            Ref::new("CreateDatabaseStatementSegment"),
+            Ref::new("DropDatabaseStatementSegment"),
+            Ref::new("CreateIndexStatementSegment"),
+            Ref::new("DropIndexStatementSegment"),
+            Ref::new("CreateViewStatementSegment"),
+            Ref::new("DeleteStatementSegment"),
+            Ref::new("UpdateStatementSegment"),
+            Ref::new("CreateCastStatementSegment"),
+            Ref::new("DropCastStatementSegment"),
+            Ref::new("CreateFunctionStatementSegment"),
+            Ref::new("DropFunctionStatementSegment"),
+            Ref::new("CreateModelStatementSegment"),
+            Ref::new("DropModelStatementSegment"),
+            Ref::new("DescribeStatementSegment"),
+            Ref::new("ExplainStatementSegment"),
+            Ref::new("CreateSequenceStatementSegment"),
+            Ref::new("AlterSequenceStatementSegment"),
+            Ref::new("DropSequenceStatementSegment"),
+            Ref::new("CreateTriggerStatementSegment"),
+            Ref::new("DropTriggerStatementSegment")
+        ])
+        .config(|this| this.terminators = vec_of_erased![Ref::new("DelimiterGrammar")])
         .to_matchable(),
     );
 
@@ -620,84 +612,76 @@ pub fn raw_dialect() -> Dialect {
     // The LookaheadExclude prevents WITH from being parsed as an alias when followed by (
     dialect.replace_grammar(
         "FromExpressionElementSegment",
-        NodeMatcher::new(
-            SyntaxKind::FromExpressionElement,
+        Sequence::new(vec_of_erased![
+            Ref::new("PreTableFunctionKeywordsGrammar").optional(),
+            optionally_bracketed(vec_of_erased![Ref::new("TableExpressionSegment")]),
+            Ref::new("AliasExpressionSegment")
+                .exclude(one_of(vec_of_erased![
+                    Ref::new("FromClauseTerminatorGrammar"),
+                    Ref::new("SamplingExpressionSegment"),
+                    Ref::new("JoinLikeClauseGrammar"),
+                    LookaheadExclude::new("WITH", "(") // Prevents WITH from being parsed as alias when followed by (
+                ]))
+                .optional(),
             Sequence::new(vec_of_erased![
-                Ref::new("PreTableFunctionKeywordsGrammar").optional(),
-                optionally_bracketed(vec_of_erased![Ref::new("TableExpressionSegment")]),
+                Ref::keyword("WITH"),
+                Ref::keyword("OFFSET"),
                 Ref::new("AliasExpressionSegment")
-                    .exclude(one_of(vec_of_erased![
-                        Ref::new("FromClauseTerminatorGrammar"),
-                        Ref::new("SamplingExpressionSegment"),
-                        Ref::new("JoinLikeClauseGrammar"),
-                        LookaheadExclude::new("WITH", "(") // Prevents WITH from being parsed as alias when followed by (
-                    ]))
-                    .optional(),
-                Sequence::new(vec_of_erased![
-                    Ref::keyword("WITH"),
-                    Ref::keyword("OFFSET"),
-                    Ref::new("AliasExpressionSegment")
-                ])
-                .config(|this| this.optional()),
-                Ref::new("SamplingExpressionSegment").optional(),
-                Ref::new("PostTableExpressionGrammar").optional() // T-SQL table hints
             ])
-            .to_matchable(),
-        )
+            .config(|this| this.optional()),
+            Ref::new("SamplingExpressionSegment").optional(),
+            Ref::new("PostTableExpressionGrammar").optional() // T-SQL table hints
+        ])
         .to_matchable(),
     );
 
     // Update JoinClauseSegment to handle APPLY syntax properly
     dialect.replace_grammar(
         "JoinClauseSegment",
-        NodeMatcher::new(
-            SyntaxKind::JoinClause,
-            one_of(vec_of_erased![
-                // Standard JOIN syntax
+        one_of(vec_of_erased![
+            // Standard JOIN syntax
+            Sequence::new(vec_of_erased![
+                Ref::new("JoinTypeKeywordsGrammar").optional(),
+                Ref::new("JoinKeywordsGrammar"),
+                MetaSegment::indent(),
+                Ref::new("FromExpressionElementSegment"),
+                AnyNumberOf::new(vec_of_erased![Ref::new("NestedJoinGrammar")]),
+                MetaSegment::dedent(),
                 Sequence::new(vec_of_erased![
-                    Ref::new("JoinTypeKeywordsGrammar").optional(),
-                    Ref::new("JoinKeywordsGrammar"),
-                    MetaSegment::indent(),
-                    Ref::new("FromExpressionElementSegment"),
-                    AnyNumberOf::new(vec_of_erased![Ref::new("NestedJoinGrammar")]),
-                    MetaSegment::dedent(),
-                    Sequence::new(vec_of_erased![
-                        Conditional::new(MetaSegment::indent()).indented_using_on(),
-                        one_of(vec_of_erased![
-                            Ref::new("JoinOnConditionSegment"),
-                            Sequence::new(vec_of_erased![
-                                Ref::keyword("USING"),
-                                MetaSegment::indent(),
-                                Bracketed::new(vec_of_erased![Delimited::new(vec_of_erased![
-                                    Ref::new("SingleIdentifierGrammar")
-                                ])])
-                                .config(|this| this.parse_mode = ParseMode::Greedy),
-                                MetaSegment::dedent(),
-                            ])
-                        ]),
-                        Conditional::new(MetaSegment::dedent()).indented_using_on(),
-                    ])
-                    .config(|this| this.optional())
-                ]),
-                // NATURAL JOIN
-                Sequence::new(vec_of_erased![
-                    Ref::new("NaturalJoinKeywordsGrammar"),
-                    Ref::new("JoinKeywordsGrammar"),
-                    MetaSegment::indent(),
-                    Ref::new("FromExpressionElementSegment"),
-                    MetaSegment::dedent(),
-                ]),
-                // T-SQL APPLY syntax
-                Sequence::new(vec_of_erased![
-                    one_of(vec_of_erased![Ref::keyword("CROSS"), Ref::keyword("OUTER")]),
-                    Ref::keyword("APPLY"),
-                    MetaSegment::indent(),
-                    Ref::new("FromExpressionElementSegment"),
-                    MetaSegment::dedent(),
+                    Conditional::new(MetaSegment::indent()).indented_using_on(),
+                    one_of(vec_of_erased![
+                        Ref::new("JoinOnConditionSegment"),
+                        Sequence::new(vec_of_erased![
+                            Ref::keyword("USING"),
+                            MetaSegment::indent(),
+                            Bracketed::new(vec_of_erased![Delimited::new(vec_of_erased![
+                                Ref::new("SingleIdentifierGrammar")
+                            ])])
+                            .config(|this| this.parse_mode = ParseMode::Greedy),
+                            MetaSegment::dedent(),
+                        ])
+                    ]),
+                    Conditional::new(MetaSegment::dedent()).indented_using_on(),
                 ])
+                .config(|this| this.optional())
+            ]),
+            // NATURAL JOIN
+            Sequence::new(vec_of_erased![
+                Ref::new("NaturalJoinKeywordsGrammar"),
+                Ref::new("JoinKeywordsGrammar"),
+                MetaSegment::indent(),
+                Ref::new("FromExpressionElementSegment"),
+                MetaSegment::dedent(),
+            ]),
+            // T-SQL APPLY syntax
+            Sequence::new(vec_of_erased![
+                one_of(vec_of_erased![Ref::keyword("CROSS"), Ref::keyword("OUTER")]),
+                Ref::keyword("APPLY"),
+                MetaSegment::indent(),
+                Ref::new("FromExpressionElementSegment"),
+                MetaSegment::dedent(),
             ])
-            .to_matchable(),
-        )
+        ])
         .to_matchable(),
     );
 
@@ -705,29 +689,25 @@ pub fn raw_dialect() -> Dialect {
     // Override BracketedArguments to accept MAX keyword and negative numbers
     dialect.replace_grammar(
         "BracketedArguments",
-        NodeMatcher::new(
-            SyntaxKind::BracketedArguments,
-            Bracketed::new(vec![
-                Delimited::new(vec![
-                    one_of(vec![
-                        Ref::new("LiteralGrammar").to_matchable(),
-                        Ref::keyword("MAX").to_matchable(),
-                        // Support negative numbers like -1 for NVARCHAR(-1)
-                        Sequence::new(vec_of_erased![
-                            Ref::new("SignedSegmentGrammar"),
-                            Ref::new("NumericLiteralSegment")
-                        ])
-                        .to_matchable(),
+        Bracketed::new(vec![
+            Delimited::new(vec![
+                one_of(vec![
+                    Ref::new("LiteralGrammar").to_matchable(),
+                    Ref::keyword("MAX").to_matchable(),
+                    // Support negative numbers like -1 for NVARCHAR(-1)
+                    Sequence::new(vec_of_erased![
+                        Ref::new("SignedSegmentGrammar"),
+                        Ref::new("NumericLiteralSegment")
                     ])
                     .to_matchable(),
                 ])
-                .config(|this| {
-                    this.optional();
-                })
                 .to_matchable(),
             ])
+            .config(|this| {
+                this.optional();
+            })
             .to_matchable(),
-        )
+        ])
         .to_matchable(),
     );
 

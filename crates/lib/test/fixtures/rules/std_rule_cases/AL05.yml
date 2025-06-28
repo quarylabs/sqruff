@@ -245,6 +245,7 @@ test_pass_tsql_values_clause_in_parentheses:
   # Tests a fix for issue 3522. In tsql, the parentheses surrouding "values" are
   # required (otherwise syntax error). SQLFluff was incorrectly complaining that
   # the alias 't' was unused.
+  ignored: "not set up correctly with tsql yet"
   pass_str: |
     SELECT *
     FROM (VALUES

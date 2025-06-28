@@ -5,7 +5,6 @@ use fancy_regex::Regex;
 
 use super::parser::segments::ErasedSegment;
 use crate::helpers::Config;
-use crate::lint_fix::LintFix;
 use crate::parser::markers::PositionMarker;
 
 #[derive(Debug, PartialEq, Clone, Default)]
@@ -52,23 +51,16 @@ impl Display for SQLBaseError {
 #[derive(Debug, Clone)]
 pub struct SQLLintError {
     base: SQLBaseError,
-    pub fixes: Vec<LintFix>,
 }
 
 impl SQLLintError {
-    pub fn new(
-        description: &str,
-        segment: ErasedSegment,
-        fixable: bool,
-        fixes: Vec<LintFix>,
-    ) -> Self {
+    pub fn new(description: &str, segment: ErasedSegment, fixable: bool) -> Self {
         Self {
             base: SQLBaseError::default().config(|this| {
                 this.description = description.into();
                 this.set_position_marker(segment.get_position_marker().unwrap().clone());
                 this.fixable = fixable;
             }),
-            fixes,
         }
     }
 }
@@ -95,10 +87,7 @@ impl From<SQLLintError> for SQLBaseError {
 
 impl From<SQLBaseError> for SQLLintError {
     fn from(value: SQLBaseError) -> Self {
-        Self {
-            base: value,
-            fixes: vec![],
-        }
+        Self { base: value }
     }
 }
 

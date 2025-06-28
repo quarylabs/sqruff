@@ -10,13 +10,14 @@ use crate::core::linter::common::{ParsedString, RenderedFile};
 use crate::core::linter::linted_file::LintedFile;
 use crate::core::linter::linting_result::LintingResult;
 use crate::core::rules::noqa::IgnoreMask;
-use crate::core::rules::{ErasedRule, LintPhase, RulePack};
+use crate::core::rules::{ErasedRule, Exception, LintPhase, RulePack};
 use crate::rules::get_ruleset;
 use crate::templaters::raw::RawTemplater;
 use crate::templaters::{TEMPLATERS, Templater};
 use ahash::{AHashMap, AHashSet};
 use itertools::Itertools;
 use rayon::iter::{IndexedParallelIterator, IntoParallelRefIterator as _, ParallelIterator as _};
+use rustc_hash::FxHashMap;
 use smol_str::{SmolStr, ToSmolStr};
 use sqruff_lib_core::dialects::Dialect;
 use sqruff_lib_core::dialects::syntax::{SyntaxKind, SyntaxSet};
@@ -24,7 +25,6 @@ use sqruff_lib_core::errors::{
     SQLBaseError, SQLFluffUserError, SQLLexError, SQLLintError, SQLParseError,
 };
 use sqruff_lib_core::helpers;
-use sqruff_lib_core::lint_fix::LintFix;
 use sqruff_lib_core::linter::compute_anchor_edit_info;
 use sqruff_lib_core::parser::Parser;
 use sqruff_lib_core::parser::segments::fix::SourceFix;
@@ -196,14 +196,9 @@ impl Linter {
         violations.extend(initial_linting_errors.into_iter().map_into());
 
         // Filter violations with ignore mask
-        let violations = violations
-            .into_iter()
-            .filter(|violation| {
-                ignore_mask
-                    .as_ref()
-                    .is_none_or(|ignore_mask| !ignore_mask.is_masked(violation))
-            })
-            .collect();
+        if let Some(ignore_mask) = &ignore_mask {
+            violations.retain(|violation| !ignore_mask.is_masked(violation, None));
+        }
 
         // TODO Need to error out unused noqas
         let linted_file = LintedFile {
@@ -228,8 +223,7 @@ impl Linter {
         templated_file: &TemplatedFile,
         fix: bool,
     ) -> (ErasedSegment, Option<IgnoreMask>, Vec<SQLLintError>) {
-        let mut tmp;
-        let mut initial_linting_errors = Vec::new();
+        let mut initial_violations = Vec::new();
         let phases: &[_] = if fix {
             &[LintPhase::Main, LintPhase::Post]
         } else {
@@ -255,27 +249,29 @@ impl Linter {
                 (Some(ignore_mask), errors)
             }
         };
-        initial_linting_errors.extend(violations.into_iter().map_into());
+
+        initial_violations.extend(violations.into_iter().map_into());
+
+        let mut anchor_info = FxHashMap::default();
 
         for phase in phases {
+            let loop_limit = if *phase == LintPhase::Main {
+                loop_limit
+            } else {
+                2
+            };
             let mut rules_this_phase = if phases.len() > 1 {
-                tmp = self
+                &self
                     .rules()
                     .iter()
                     .filter(|rule| rule.lint_phase() == *phase)
                     .cloned()
-                    .collect_vec();
-
-                &tmp
+                    .collect_vec()
             } else {
                 self.rules()
             };
 
-            for loop_ in 0..(if *phase == LintPhase::Main {
-                loop_limit
-            } else {
-                2
-            }) {
+            for loop_ in 0..loop_limit {
                 let is_first_linter_pass = *phase == phases[0] && loop_ == 0;
                 let mut changed = false;
 
@@ -284,6 +280,8 @@ impl Linter {
                 }
 
                 for rule in rules_this_phase {
+                    anchor_info.clear();
+
                     // Performance: After first loop pass, skip rules that don't do fixes. Any
                     // results returned won't be seen by the user anyway (linting errors ADDED by
                     // rules changing SQL, are not reported back to the user - only initial linting
@@ -292,36 +290,45 @@ impl Linter {
                         continue;
                     }
 
-                    let linting_errors = crate::core::rules::crawl(
+                    let result = crate::core::rules::crawl(
                         rule,
                         tables,
                         &self.config.dialect,
                         templated_file,
                         tree.clone(),
                         &self.config,
+                        &mut |mut result| {
+                            if ignore_mask.as_ref().is_none_or(|ignore_mask| {
+                                !ignore_mask.is_masked(&result, rule.into())
+                            }) {
+                                compute_anchor_edit_info(
+                                    &mut anchor_info,
+                                    std::mem::take(&mut result.fixes),
+                                );
+
+                                if is_first_linter_pass {
+                                    initial_violations.extend(result.to_linting_error(rule));
+                                }
+                            }
+                        },
                     );
 
-                    let linting_errors: Vec<SQLLintError> = linting_errors
-                        .into_iter()
-                        .filter(|error| {
-                            !ignore_mask
-                                .clone()
-                                .is_some_and(|ignore_mask: IgnoreMask| ignore_mask.is_masked(error))
-                        })
-                        .collect();
+                    if let Err(Exception) = result {
+                        if is_first_linter_pass {
+                            initial_violations.push(
+                                SQLLintError::new(
+                                    "Unexpected exception. Could you open an issue at https://github.com/quarylabs/sqruff",
+                                    tree.clone(),
+                                    false,
+                                ),
+                            );
+                        }
 
-                    if is_first_linter_pass {
-                        initial_linting_errors.extend(linting_errors.clone());
+                        continue;
                     }
 
-                    let fixes: Vec<LintFix> = linting_errors
-                        .into_iter()
-                        .flat_map(|linting_error| linting_error.clone().fixes.clone())
-                        .collect();
-
-                    if fix && !fixes.is_empty() {
-                        let mut anchor_info = compute_anchor_edit_info(fixes.into_iter());
-                        let (new_tree, _, _, _valid) = tree.apply_fixes(&mut anchor_info);
+                    if fix && !anchor_info.is_empty() {
+                        let (new_tree, _, _) = tree.apply_fixes(&mut anchor_info);
 
                         let loop_check_tuple =
                             (new_tree.raw().to_smolstr(), new_tree.get_source_fixes());
@@ -340,7 +347,7 @@ impl Linter {
             }
         }
 
-        (tree, ignore_mask, initial_linting_errors)
+        (tree, ignore_mask, initial_violations)
     }
 
     /// Template the file.

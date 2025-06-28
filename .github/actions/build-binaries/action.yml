@@ -31,6 +31,14 @@ runs:
         toolchain: stable
         args: --locked --release --bin sqruff --package sqruff
         strip: true
+    - name: Quickly test binary 
+      shell: bash
+      run: |
+        if [[ "${{ matrix.platform.os }}" == "windows-latest" ]]; then
+          ./target/${{ matrix.platform.target }}/release/sqruff.exe --version
+        else
+          ./target/${{ matrix.platform.target }}/release/sqruff --version
+        fi
     - name: Package as archive
       shell: bash
       run: |

@@ -88,10 +88,17 @@ fn main() {
         let input = std::fs::read_to_string(path).unwrap();
 
         let file: TestFile = serde_yaml::from_str(&input).unwrap();
-        core.get_mut("core").unwrap().as_map_mut().unwrap().insert(
-            "rule_allowlist".into(),
-            Value::Array(vec![Value::String(file.rule.clone().into())]),
-        );
+        let file_rules = file
+            .rule
+            .split(",")
+            .map(|x| Value::String(x.into()))
+            .collect::<Vec<Value>>();
+
+        core.get_mut("core")
+            .unwrap()
+            .as_map_mut()
+            .unwrap()
+            .insert("rule_allowlist".into(), Value::Array(file_rules));
 
         linter.config_mut().raw.extend(core.clone());
         linter.config_mut().reload_reflow();

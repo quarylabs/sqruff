@@ -104,11 +104,18 @@ pub fn dialect() -> Dialect {
 
     clickhouse_dialect.add([
         (
+            "BackQuotedIdentifierSegment".into(),
+            TypedParser::new(SyntaxKind::BackQuote, SyntaxKind::QuotedIdentifier)
+                .to_matchable()
+                .into(),
+        ),
+        (
             "SingleIdentifierGrammar".into(),
             one_of(vec_of_erased![
                 Ref::new("NakedIdentifierSegment"),
                 Ref::new("QuotedIdentifierSegment"),
                 Ref::new("SingleQuotedIdentifierSegment"),
+                Ref::new("BackQuotedIdentifierSegment"),
             ])
             .to_matchable()
             .into(),

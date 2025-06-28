@@ -4,6 +4,27 @@ use sqruff_lib_core::dialects::syntax::{SyntaxKind, SyntaxSet};
 use sqruff_lib_core::errors::SQLBaseError;
 use sqruff_lib_core::parser::segments::ErasedSegment;
 
+use crate::core::rules::{ErasedRule, LintResult};
+
+pub trait HasViolation {
+    fn source_position(&self) -> Option<(usize, usize)>;
+}
+
+impl HasViolation for SQLBaseError {
+    fn source_position(&self) -> Option<(usize, usize)> {
+        Some((self.line_no, self.line_pos))
+    }
+}
+
+impl HasViolation for LintResult {
+    fn source_position(&self) -> Option<(usize, usize)> {
+        self.anchor
+            .as_ref()?
+            .get_position_marker()
+            .map(|m| m.source_position())
+    }
+}
+
 /// The NoQA directive is a way to disable specific rules or all rules for a specific line or range of lines.
 /// Similar to flake8’s ignore, individual lines can be ignored by adding `-- noqa` to the end of the line.
 /// Additionally, specific rules can be ignored by quoting their code or the category.
@@ -338,19 +359,23 @@ impl IgnoreMask {
 
     /// is_masked returns true if the IgnoreMask masks the violation
     /// TODO - The parsing should also return warnings for rules that aren't used
-    pub fn is_masked(&self, violation: &SQLBaseError) -> bool {
-        fn is_masked_by_line_rules(ignore_mask: &IgnoreMask, violation: &SQLBaseError) -> bool {
-            for ignore in &ignore_mask.ignore_list {
+    pub fn is_masked(&self, violation: &impl HasViolation, rule: Option<&ErasedRule>) -> bool {
+        let Some((vline_no, vline_pos)) = violation.source_position() else {
+            return true;
+        };
+
+        let is_masked_by_line_rules = || {
+            for ignore in &self.ignore_list {
                 match ignore {
                     NoQADirective::LineIgnoreAll(LineIgnoreAll { line_no, .. }) => {
-                        if violation.line_no == *line_no {
+                        if vline_no == *line_no {
                             return true;
                         }
                     }
                     NoQADirective::LineIgnoreRules(LineIgnoreRules { line_no, rules, .. }) => {
-                        if violation.line_no == *line_no {
-                            if let Some(rule) = &violation.rule {
-                                if rules.contains(rule.code) {
+                        if vline_no == *line_no {
+                            if let Some(rule) = rule {
+                                if rules.contains(rule.code()) {
                                     return true;
                                 }
                             }
@@ -360,15 +385,15 @@ impl IgnoreMask {
                 }
             }
             false
-        }
+        };
 
-        /// is_masked_by_range returns true if the violation is masked by the RangeIgnoreRules and
-        /// RangeIgnoreAll components in the ignore mask
-        fn is_masked_by_range_rules(ignore_mask: &IgnoreMask, violation: &SQLBaseError) -> bool {
+        // is_masked_by_range returns true if the violation is masked by the RangeIgnoreRules and
+        // RangeIgnoreAll components in the ignore mask
+        let is_masked_by_range_rules = || {
             // Collect RangeIgnore directives
             let mut directives = Vec::new();
 
-            for ignore in &ignore_mask.ignore_list {
+            for ignore in &self.ignore_list {
                 match ignore {
                     NoQADirective::RangeIgnoreAll(RangeIgnoreAll {
                         line_no, line_pos, ..
@@ -396,10 +421,10 @@ impl IgnoreMask {
             // For each directive
             for (line_no, line_pos, ignore) in directives {
                 // Check if the directive is before the violation
-                if *line_no > violation.line_no {
+                if *line_no > vline_no {
                     break;
                 }
-                if *line_no == violation.line_no && *line_pos > violation.line_pos {
+                if *line_no == vline_no && *line_pos > vline_pos {
                     break;
                 }
 
@@ -434,16 +459,16 @@ impl IgnoreMask {
             // Check whether the violation is masked
             if all_rules_disabled {
                 return true;
-            } else if let Some(rule) = &violation.rule {
-                if disabled_rules.contains(rule.code) {
+            } else if let Some(rule) = rule {
+                if disabled_rules.contains(rule.code()) {
                     return true;
                 }
             }
 
             false
-        }
+        };
 
-        is_masked_by_line_rules(self, violation) || is_masked_by_range_rules(self, violation)
+        is_masked_by_line_rules() || is_masked_by_range_rules()
     }
 }
 
@@ -452,9 +477,9 @@ mod tests {
     use super::*;
     use crate::core::config::FluffConfig;
     use crate::core::linter::core::Linter;
+    use crate::core::rules::Erased;
     use crate::core::rules::noqa::NoQADirective;
     use itertools::Itertools;
-    use sqruff_lib_core::errors::ErrorStructRule;
 
     #[test]
     fn test_is_masked_single_line() {
@@ -463,10 +488,7 @@ mod tests {
             line_no: 2,
             line_pos: 11,
             description: "Implicit/explicit aliasing of columns.".to_string(),
-            rule: Some(ErrorStructRule {
-                name: "aliasing.column",
-                code: "AL02",
-            }),
+            rule: None,
             source_slice: Default::default(),
         };
         let mask = IgnoreMask {
@@ -494,9 +516,12 @@ mod tests {
             })],
         };
 
-        assert!(!not_mask_wrong_line.is_masked(&error));
-        assert!(!not_mask_wrong_rule.is_masked(&error));
-        assert!(mask.is_masked(&error));
+        assert!(!not_mask_wrong_line.is_masked(&error, None));
+        assert!(!not_mask_wrong_rule.is_masked(&error, None));
+        assert!(mask.is_masked(
+            &error,
+            Some(&crate::rules::aliasing::al02::RuleAL02::default().erased())
+        ));
     }
 
     #[test]

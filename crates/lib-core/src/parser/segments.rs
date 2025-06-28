@@ -718,9 +718,9 @@ impl ErasedSegment {
     pub fn apply_fixes(
         &self,
         fixes: &mut FxHashMap<u32, AnchorEditInfo>,
-    ) -> (ErasedSegment, Vec<ErasedSegment>, Vec<ErasedSegment>, bool) {
+    ) -> (ErasedSegment, Vec<ErasedSegment>, Vec<ErasedSegment>) {
         if fixes.is_empty() || self.segments().is_empty() {
-            return (self.clone(), Vec::new(), Vec::new(), true);
+            return (self.clone(), Vec::new(), Vec::new());
         }
 
         let mut seg_buffer = Vec::new();
@@ -802,20 +802,16 @@ impl ErasedSegment {
         let seg_queue = seg_buffer;
         let mut seg_buffer = Vec::new();
         for seg in seg_queue {
-            let (s, pre, post, validated) = seg.apply_fixes(fixes);
+            let (mid, pre, post) = seg.apply_fixes(fixes);
 
             seg_buffer.extend(pre);
-            seg_buffer.push(s);
+            seg_buffer.push(mid);
             seg_buffer.extend(post);
-
-            if !validated {
-                _requires_validate = true;
-            }
         }
 
         let seg_buffer =
             position_segments(&seg_buffer, self.get_position_marker().as_ref().unwrap());
-        (self.new(seg_buffer), Vec::new(), Vec::new(), false)
+        (self.new(seg_buffer), Vec::new(), Vec::new())
     }
 }
 
@@ -1112,7 +1108,8 @@ mod tests {
             ),
         ];
 
-        let anchor_edit_info = compute_anchor_edit_info(fixes.into_iter());
+        let mut anchor_edit_info = Default::default();
+        compute_anchor_edit_info(&mut anchor_edit_info, fixes);
 
         // Check the target segment is the only key we have.
         assert_eq!(

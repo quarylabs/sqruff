@@ -3,6 +3,7 @@ use std::ops::{Index, IndexMut};
 
 use ahash::{AHashMap, AHashSet};
 use itertools::{Itertools, enumerate};
+use rustc_hash::FxHashMap;
 use smol_str::{SmolStr, StrExt, ToSmolStr, format_smolstr};
 use sqruff_lib_core::dialects::Dialect;
 use sqruff_lib_core::dialects::common::AliasInfo;
@@ -197,8 +198,9 @@ join c using(x)
             return lint_results;
         }
 
-        let mut fixes = compute_anchor_edit_info(local_fixes.into_iter());
-        let (new_root, _, _, _) = clone_map.root.apply_fixes(&mut fixes);
+        let mut fixes = FxHashMap::default();
+        compute_anchor_edit_info(&mut fixes, local_fixes);
+        let (new_root, _, _) = clone_map.root.apply_fixes(&mut fixes);
 
         let clone_map = SegmentCloneMap::new(segment.first().unwrap().clone(), new_root.clone());
         for subquery_parent_slot in q {

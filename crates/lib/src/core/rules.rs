@@ -66,12 +66,12 @@ impl LintResult {
 
         let description = self
             .description
-            .clone()
-            .unwrap_or_else(|| rule.description().to_string());
+            .as_deref()
+            .unwrap_or_else(|| rule.description());
 
         let is_fixable = rule.is_fix_compatible();
 
-        SQLLintError::new(description.as_str(), anchor, is_fixable, self.fixes)
+        SQLLintError::new(description, anchor, is_fixable)
             .config(|this| {
                 this.rule = Some(ErrorStructRule {
                     name: rule.name(),
@@ -168,6 +168,8 @@ pub trait Rule: Debug + 'static + Send + Sync {
     fn crawl_behaviour(&self) -> Crawler;
 }
 
+pub struct Exception;
+
 pub fn crawl(
     rule: &ErasedRule,
     tables: &Tables,
@@ -175,60 +177,41 @@ pub fn crawl(
     templated_file: &TemplatedFile,
     tree: ErasedSegment,
     config: &FluffConfig,
-) -> Vec<SQLLintError> {
+    on_violation: &mut impl FnMut(LintResult),
+) -> Result<(), Exception> {
     let mut root_context = RuleContext::new(tables, dialect, config, tree.clone());
-    let mut vs = Vec::new();
+    let mut has_exception = false;
 
     // TODO Will to return a note that rules were skipped
     if rule.dialect_skip().contains(&dialect.name) && !rule.force_enable() {
-        return Vec::new();
+        return Ok(());
     }
 
-    rule.crawl_behaviour().crawl(&mut root_context, &mut |context| {
-        let resp =
-            std::panic::catch_unwind(std::panic::AssertUnwindSafe(|| rule.eval(context)));
+    rule.crawl_behaviour()
+        .crawl(&mut root_context, &mut |context| {
+            let resp =
+                std::panic::catch_unwind(std::panic::AssertUnwindSafe(|| rule.eval(context)));
 
-        let resp = match resp {
-            Ok(t) => t,
-            Err(_) => {
-                vs.push(SQLLintError::new("Unexpected exception. Could you open an issue at https://github.com/quarylabs/sqruff", tree.clone(), false, vec![]));
-                Vec::new()
+            let Ok(results) = resp else {
+                has_exception = true;
+                return;
+            };
+
+            for result in results {
+                if !result
+                    .fixes
+                    .iter()
+                    .any(|it| it.has_template_conflicts(templated_file))
+                {
+                    on_violation(result);
+                }
             }
-        };
+        });
 
-        let mut new_lerrs = Vec::new();
-
-        if resp.is_empty() {
-            // Assume this means no problems (also means no memory)
-        } else {
-            for elem in resp {
-                process_lint_result(rule, elem, templated_file, &mut new_lerrs);
-            }
-        }
-
-        // Consume the new results
-        vs.extend(new_lerrs);
-    });
-
-    vs
-}
-
-fn process_lint_result(
-    rule: &ErasedRule,
-    res: LintResult,
-    templated_file: &TemplatedFile,
-    new_lerrs: &mut Vec<SQLLintError>,
-) {
-    if res
-        .fixes
-        .iter()
-        .any(|it| it.has_template_conflicts(templated_file))
-    {
-        return;
-    }
-
-    if let Some(lerr) = res.to_linting_error(rule) {
-        new_lerrs.push(lerr);
+    if has_exception {
+        Err(Exception)
+    } else {
+        Ok(())
     }
 }
 

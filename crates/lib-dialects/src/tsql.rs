@@ -1101,6 +1101,39 @@ pub fn raw_dialect() -> Dialect {
         .into(),
     )]);
 
+    // T-SQL Nested JOIN support
+    // Handles syntax like:
+    // FROM table1
+    // LEFT JOIN table2
+    //   LEFT JOIN table3 ON table2.id = table3.id
+    // ON table1.id = table2.id
+    // Override the ANSI NestedJoinGrammar (which is Nothing)
+    dialect.add([(
+        "NestedJoinGrammar".into(),
+        one_of(vec_of_erased![
+            // Standard nested JOIN
+            Sequence::new(vec_of_erased![
+                Ref::new("JoinTypeKeywordsGrammar").optional(),
+                Ref::new("JoinKeywordsGrammar"),
+                MetaSegment::indent(),
+                Ref::new("FromExpressionElementSegment"),
+                AnyNumberOf::new(vec_of_erased![Ref::new("NestedJoinGrammar")]),
+                MetaSegment::dedent(),
+                Ref::new("JoinOnConditionSegment").optional()
+            ]),
+            // T-SQL APPLY as nested operation
+            Sequence::new(vec_of_erased![
+                one_of(vec_of_erased![Ref::keyword("CROSS"), Ref::keyword("OUTER")]),
+                Ref::keyword("APPLY"),
+                MetaSegment::indent(),
+                Ref::new("FromExpressionElementSegment"),
+                MetaSegment::dedent(),
+            ])
+        ])
+        .to_matchable()
+        .into(),
+    )]);
+
     // expand() must be called after all grammar modifications
 
     dialect

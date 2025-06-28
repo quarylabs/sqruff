@@ -83,3 +83,11 @@ ORDER BY d
 TTL d + INTERVAL 1 MONTH DELETE,
     d + INTERVAL 1 WEEK TO VOLUME 'aaa',
     d + INTERVAL 2 WEEK TO DISK 'bbb';
+
+create table example_backquote
+(
+    `a` String,
+    `b` String
+)
+engine = MergeTree()
+order by (a, b);

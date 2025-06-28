@@ -744,3 +744,42 @@ file:
       - keyword: DISK
       - quoted_literal: '''bbb'''
 - statement_terminator: ;
+- statement:
+  - create_table_statement:
+    - keyword: create
+    - keyword: table
+    - table_reference:
+      - naked_identifier: example_backquote
+    - bracketed:
+      - start_bracket: (
+      - column_definition:
+        - quoted_identifier: '`a`'
+        - data_type:
+          - data_type_identifier: String
+      - comma: ','
+      - column_definition:
+        - quoted_identifier: '`b`'
+        - data_type:
+          - data_type_identifier: String
+      - end_bracket: )
+    - engine:
+      - keyword: engine
+      - comparison_operator:
+        - raw_comparison_operator: =
+      - table_engine_function:
+        - function_name:
+          - function_name_identifier: MergeTree
+        - bracketed:
+          - start_bracket: (
+          - end_bracket: )
+      - keyword: order
+      - keyword: by
+      - bracketed:
+        - start_bracket: (
+        - column_reference:
+          - naked_identifier: a
+        - comma: ','
+        - column_reference:
+          - naked_identifier: b
+        - end_bracket: )
+- statement_terminator: ;

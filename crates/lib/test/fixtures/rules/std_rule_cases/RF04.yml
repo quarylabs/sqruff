@@ -80,8 +80,6 @@ test_fail_keyword_as_quoted_identifier_table_alias:
 
 test_pass_valid_quoted_identifier_not_alias:
   # should pass on default config as not alias
-  # TODO: Fix T-SQL quoted identifier keyword detection
-  ignored: "T-SQL quoted identifier keyword detection not working correctly"
   pass_str: SELECT [parameter]
   configs:
     rules:
@@ -100,8 +98,6 @@ test_fail_keyword_as_quoted_identifier_not_alias_all:
       dialect: tsql
 
 test_pass_valid_quoted_identifier_table_alias_column_alias_config:
-  # TODO: Fix T-SQL quoted identifier keyword detection
-  ignored: "T-SQL quoted identifier keyword detection not working correctly"
   pass_str: SELECT [x] FROM [tbl] AS [parameter]
   configs:
     rules:
@@ -126,7 +122,6 @@ test_pass_ignore_word1:
       references.keywords:
         ignore_words: create
 
-
 test_pass_ignore_word2:
   pass_str: SELECT col1 AS date FROM table1
   configs:
@@ -140,7 +135,6 @@ test_pass_ignore_words_regex1:
     rules:
       references.keywords:
         ignore_words_regex: ^cr
-
 
 test_pass_ignore_words_regex2:
   pass_str: SELECT col1 AS date FROM table1

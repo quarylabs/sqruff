@@ -88,10 +88,17 @@ fn main() {
         let input = std::fs::read_to_string(path).unwrap();
 
         let file: TestFile = serde_yaml::from_str(&input).unwrap();
-        core.get_mut("core").unwrap().as_map_mut().unwrap().insert(
-            "rule_allowlist".into(),
-            Value::Array(vec![Value::String(file.rule.clone().into())]),
-        );
+        let file_rules = file
+            .rule
+            .split(",")
+            .map(|x| Value::String(x.into()))
+            .collect::<Vec<Value>>();
+
+        core.get_mut("core")
+            .unwrap()
+            .as_map_mut()
+            .unwrap()
+            .insert("rule_allowlist".into(), Value::Array(file_rules));
 
         linter.config_mut().raw.extend(core.clone());
         linter.config_mut().reload_reflow();
@@ -140,7 +147,7 @@ fn main() {
             }
 
             let has_config = !case.configs.is_empty();
-            let rule = case.configs.get("rules").and_then(|it| it.as_string());
+            let rule = &file.rule;
             if has_config {
                 *linter.config_mut() = FluffConfig::new(case.configs.clone(), None, None);
                 linter.config_mut().raw.extend(core.clone());
@@ -189,7 +196,7 @@ The following test test can be used to recreate the issue:
 
 #[cfg(test)]
 mod tests {{
-    use crate::core::{{config::FluffConfig, linter::core::Linter}};
+    use sqruff_lib::core::{{config::FluffConfig, linter::core::Linter}};
 
     #[test]
     fn test_example() {{
@@ -205,11 +212,11 @@ dialect = {dialect}
         let pass_str = r"{pass_str}";
 
         let f = linter.lint_string_wrapped(&pass_str, false);
-        assert_eq!(&f.paths[0].files[0].violations, &[]);
+        assert_eq!(&f.violations, &[]);
     }}
 }}
 "#,
-                        rule = rule.unwrap_or(""),
+                        rule = rule,
                         dialect = dialect_name,
                         pass_str = pass_str
                     );

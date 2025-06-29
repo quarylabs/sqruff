@@ -1,0 +1,10 @@
+rule: CP01,CP03
+
+test_pass_keyword_upper_function_lower:
+  pass_str: SELECT 1, coalesce(1, 0) FROM blah
+  configs:
+    rules:
+      capitalisation.keywords:
+        capitalisation_policy: upper
+      capitalisation.functions:
+        extended_capitalisation_policy: lower

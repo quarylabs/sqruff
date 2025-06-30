@@ -42,7 +42,7 @@
     "vscode-languageserver": "^9.0.1"
   },
   "devDependencies": {
-    "@eslint/js": "^9.29.0",
+    "@eslint/js": "^9.30.0",
     "@rauschma/env-var": "^1.0.1",
     "@types/mocha": "^10.0.10",
     "@types/node": "~22.15.32",

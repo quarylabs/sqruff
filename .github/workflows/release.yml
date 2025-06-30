@@ -43,7 +43,7 @@ jobs:
       packages: write
     steps:
       - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # ratchet:actions/checkout@v4
-      - uses: Swatinem/rust-cache@9d47c6ad4b02e050fd481d890b2ea34778fd09d6 # ratchet:Swatinem/rust-cache@v2
+      - uses: Swatinem/rust-cache@98c8021b550208e191a6a3145459bfc9fb29c4c0 # ratchet:Swatinem/rust-cache@v2
       - uses: pnpm/action-setup@a7487c7e89a18df4991f7f222e4898a00d66ddda # ratchet:pnpm/action-setup@v4
         name: Install pnpm
         with:

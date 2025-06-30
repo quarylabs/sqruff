@@ -64,7 +64,7 @@ jobs:
         with:
           subject-path: "editors/code/*.vsix"
       - name: Publish GitHub release
-        uses: ncipollo/release-action@440c8c1cb0ed28b9f43e4d1d670870f059653174 # ratchet:ncipollo/release-action@v1
+        uses: ncipollo/release-action@bcfe5470707e8832e12347755757cec0eb3c22af # ratchet:ncipollo/release-action@v1
         with:
           allowUpdates: true
           draft: true
@@ -115,7 +115,7 @@ jobs:
           package: true
           publish: true
       - name: Publish GitHub release
-        uses: ncipollo/release-action@440c8c1cb0ed28b9f43e4d1d670870f059653174 # ratchet:ncipollo/release-action@v1
+        uses: ncipollo/release-action@bcfe5470707e8832e12347755757cec0eb3c22af # ratchet:ncipollo/release-action@v1
         with:
           allowUpdates: true
           draft: true

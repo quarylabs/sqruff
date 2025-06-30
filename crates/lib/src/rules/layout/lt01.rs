@@ -1,6 +1,6 @@
-use crate::core::rules::{Erased, LintResult, RuleGroups};
 use crate::core::rules::context::RuleContext;
 use crate::core::rules::crawlers::RootOnlyCrawler;
+use crate::core::rules::{Erased, LintResult, RuleGroups};
 use crate::define_rule;
 use crate::utils::reflow::sequence::{Filter, ReflowSequence};
 

@@ -1,5 +1,6 @@
 // T-SQL (Transact-SQL) dialect implementation for Microsoft SQL Server
 
+use itertools::Itertools;
 use sqruff_lib_core::dialects::Dialect;
 use sqruff_lib_core::dialects::init::DialectKind;
 use sqruff_lib_core::dialects::syntax::SyntaxKind;
@@ -17,7 +18,6 @@ use sqruff_lib_core::parser::segments::generator::SegmentGenerator;
 use sqruff_lib_core::parser::segments::meta::MetaSegment;
 use sqruff_lib_core::parser::types::ParseMode;
 use sqruff_lib_core::vec_of_erased;
-use itertools::Itertools;
 
 use crate::{ansi, tsql_keywords};
 

@@ -1,0 +1,11 @@
+# Test metadata for table_object_references.sql
+# Copied from sqlfluff to ensure backward compatibility
+
+test_tsql_table_object_references:
+  description: "Temp table references with various quoting styles"
+  expected_success: true
+  
+  # These tests ensure temp tables work with:
+  # - Double quotes: "#my_table"
+  # - Square brackets: [#my_table]
+  # - Various database/schema prefixes (., .., ...)

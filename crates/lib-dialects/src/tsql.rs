@@ -12,10 +12,12 @@ use sqruff_lib_core::parser::grammar::sequence::{Bracketed, Sequence};
 use sqruff_lib_core::parser::lexer::Matcher;
 use sqruff_lib_core::parser::lookahead::LookaheadExclude;
 use sqruff_lib_core::parser::node_matcher::NodeMatcher;
-use sqruff_lib_core::parser::parsers::{StringParser, TypedParser};
+use sqruff_lib_core::parser::parsers::{RegexParser, StringParser, TypedParser};
+use sqruff_lib_core::parser::segments::generator::SegmentGenerator;
 use sqruff_lib_core::parser::segments::meta::MetaSegment;
 use sqruff_lib_core::parser::types::ParseMode;
 use sqruff_lib_core::vec_of_erased;
+use itertools::Itertools;
 
 use crate::{ansi, tsql_keywords};
 
@@ -240,6 +242,25 @@ pub fn raw_dialect() -> Dialect {
             Ref::new("RawEqualsSegment").to_matchable(),
         )
         .to_matchable()
+        .into(),
+    )]);
+
+    // Override NakedIdentifierSegment to support T-SQL identifiers with # at the end
+    // T-SQL allows temporary table names like #temp or ##global
+    dialect.add([(
+        "NakedIdentifierSegment".into(),
+        SegmentGenerator::new(|dialect| {
+            // Generate the anti template from the set of reserved keywords
+            let reserved_keywords = dialect.sets("reserved_keywords");
+            let pattern = reserved_keywords.iter().join("|");
+            let anti_template = format!("^({pattern})$");
+
+            // T-SQL pattern: allows alphanumeric, underscore, and optional # at the end
+            // Must contain at least one letter (not just numbers/underscores)
+            RegexParser::new("[A-Z0-9_]*[A-Z][A-Z0-9_]*#?", SyntaxKind::NakedIdentifier)
+                .anti_template(&anti_template)
+                .to_matchable()
+        })
         .into(),
     )]);
 

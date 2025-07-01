@@ -77,7 +77,7 @@ pub fn raw_dialect() -> Dialect {
         ],
         "start_square_bracket",
     );
-    
+
     // Insert other T-SQL specific matchers
     dialect.insert_lexer_matchers(
         vec![
@@ -90,7 +90,7 @@ pub fn raw_dialect() -> Dialect {
         ],
         "equals",
     );
-    
+
     // T-SQL specific lexer patches:
     // 1. T-SQL only uses -- for inline comments, not # (which is used in temp table names)
     // 2. Update word pattern to allow # at the end (SQL Server 2017+ syntax)

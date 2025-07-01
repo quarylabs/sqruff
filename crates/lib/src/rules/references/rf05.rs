@@ -177,7 +177,7 @@ CREATE TABLE DBO.ColumnNames
         {
             identifier = identifier[1..].to_string();
         }
-        
+
         // T-SQL allows # at the end of identifiers (SQL Server 2017+)
         if context.dialect.name == DialectKind::Tsql && identifier.ends_with('#') {
             identifier = identifier[..identifier.len() - 1].to_string();

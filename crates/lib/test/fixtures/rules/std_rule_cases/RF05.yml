@@ -31,11 +31,10 @@ test_fail_special_chars_create_table_lt_bigquery:
     core:
       dialect: bigquery
 
-test_fail_special_chars_create_table_hash_unquoted:
+test_pass_special_chars_create_table_hash_unquoted_tsql:
   # T-SQL now allows # at the end of identifiers (SQL Server 2017+)
-  # This test would now pass, so we need to ignore it
-  ignored: "T-SQL now allows # at end of identifiers (SQL Server 2017+) - this test would pass"
-  fail_str:
+  # This was previously a fail test but now passes with our fix
+  pass_str:
     CREATE TABLE DBO.ColumnNames
     (
         Number# INT
@@ -109,14 +108,10 @@ test_fail_special_chars_quoted_policy_column_alias:
       references.special_chars:
         quoted_identifiers_policy: column_aliases
 
-test_fail_special_chars_unquoted_policy_aliases:
-  # T-SQL lexer splits identifiers at special chars (# starts comment, - is operator)
-  # so "aliashash#" becomes "aliashash" + "#" and can't be tested as single identifier
-  # This is a limitation of how T-SQL lexes identifiers vs other dialects
-  # UPDATE: Fixed in SQL Server 2017+ - # at end is now valid, but keeping as ignored
-  # since the test framework expects this to fail but it now passes
-  ignored: "T-SQL now allows # at end of identifiers (SQL Server 2017+) - this test would pass"
-  fail_str:
+test_pass_special_chars_unquoted_policy_aliases_tsql:
+  # T-SQL now allows # at the end of identifiers (SQL Server 2017+)
+  # This was previously a fail test but now passes with our fix
+  pass_str:
     SELECT a
     FROM DBO.ColumnNames as aliashash#
   configs:
@@ -126,14 +121,10 @@ test_fail_special_chars_unquoted_policy_aliases:
     core:
       dialect: tsql
 
-test_fail_special_chars_unquoted_policy_column_aliases:
-  # T-SQL lexer splits identifiers at special chars (# starts comment, - is operator)
-  # so "aliashash#" becomes "aliashash" + "#" and can't be tested as single identifier
-  # This is a limitation of how T-SQL lexes identifiers vs other dialects
-  # UPDATE: Fixed in SQL Server 2017+ - # at end is now valid, but keeping as ignored
-  # since the test framework expects this to fail but it now passes
-  ignored: "T-SQL now allows # at end of identifiers (SQL Server 2017+) - this test would pass"
-  fail_str:
+test_pass_special_chars_unquoted_policy_column_aliases_tsql:
+  # T-SQL now allows # at the end of identifiers (SQL Server 2017+)
+  # This was previously a fail test but now passes with our fix
+  pass_str:
     SELECT a as aliashash#
     FROM DBO.ColumnNames
   configs:

@@ -91,13 +91,11 @@ pub fn raw_dialect() -> Dialect {
         "equals",
     );
     
-    // T-SQL only uses -- for inline comments, not # (which is used in temp table names)
+    // T-SQL specific lexer patches:
+    // 1. T-SQL only uses -- for inline comments, not # (which is used in temp table names)
+    // 2. Update word pattern to allow # at the end (SQL Server 2017+ syntax)
     dialect.patch_lexer_matchers(vec![
         Matcher::regex("inline_comment", r"--[^\n]*", SyntaxKind::InlineComment),
-    ]);
-    
-    // Update T-SQL word pattern to allow # at the end (SQL Server 2017+ syntax)
-    dialect.patch_lexer_matchers(vec![
         Matcher::regex("word", r"[0-9a-zA-Z_]+#?", SyntaxKind::Word),
     ]);
 

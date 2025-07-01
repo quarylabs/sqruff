@@ -148,6 +148,19 @@ Sqruff takes significant inspiration from SQLFluff. Understanding when to follow
 - **Integration tests**: In `tests/` directories
 - **UI tests**: For CLI output validation
 
+## Auto-Generated Documentation
+
+**IMPORTANT**: Some documentation files are auto-generated from source code. Never edit these files directly:
+
+- **`docs/cli.md`** - Generated from CLI argument definitions using clap-markdown
+- **`docs/rules.md`** - Generated from rules source code
+- **`docs/templaters.md`** - Generated from templaters source code
+
+To update these docs:
+1. Modify the source code (CLI args, rule implementations, or templater code)
+2. The GitHub Actions workflow will automatically regenerate the docs
+3. Alternatively, run locally: `cargo run --bin sqruff -F codegen-docs`
+
 ## Configuration
 
 ### `.sqruff` File Format
@@ -185,8 +198,7 @@ SELECT * FROM table;
 4. **Copy SQLFluff tests**: Use their test cases as a starting point
 5. Add to rule registry in `crates/lib/src/rules/mod.rs`
 6. Add tests with SQL examples (including SQLFluff compatibility tests)
-7. Update documentation in `docs/rules.md`
-8. Note any intentional differences from SQLFluff
+7. Note any intentional differences from SQLFluff
 
 ### New SQL Dialect
 1. **Research SQLFluff dialect**: Check if SQLFluff has this dialect (https://github.com/sqlfluff/sqlfluff/tree/main/src/sqlfluff/dialects)

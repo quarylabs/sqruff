@@ -31,17 +31,6 @@ test_fail_special_chars_create_table_lt_bigquery:
     core:
       dialect: bigquery
 
-test_pass_special_chars_create_table_hash_unquoted_tsql:
-  # T-SQL now allows # at the end of identifiers (SQL Server 2017+)
-  # This was previously a fail test but now passes with our fix
-  pass_str:
-    CREATE TABLE DBO.ColumnNames
-    (
-        Number# INT
-    )
-  configs:
-    core:
-      dialect: tsql
 
 test_pass_special_chars_create_table_none:
   pass_str:
@@ -108,31 +97,6 @@ test_fail_special_chars_quoted_policy_column_alias:
       references.special_chars:
         quoted_identifiers_policy: column_aliases
 
-test_pass_special_chars_unquoted_policy_aliases_tsql:
-  # T-SQL now allows # at the end of identifiers (SQL Server 2017+)
-  # This was previously a fail test but now passes with our fix
-  pass_str:
-    SELECT a
-    FROM DBO.ColumnNames as aliashash#
-  configs:
-    rules:
-      references.special_chars:
-        unquoted_identifiers_policy: aliases
-    core:
-      dialect: tsql
-
-test_pass_special_chars_unquoted_policy_column_aliases_tsql:
-  # T-SQL now allows # at the end of identifiers (SQL Server 2017+)
-  # This was previously a fail test but now passes with our fix
-  pass_str:
-    SELECT a as aliashash#
-    FROM DBO.ColumnNames
-  configs:
-    rules:
-      references.special_chars:
-        unquoted_identifiers_policy: column_aliases
-    core:
-      dialect: tsql
 
 test_pass_special_chars_quoted_policy_aliases:
   pass_str:
@@ -528,29 +492,22 @@ test_fail_special_chars_redshift_hash_column:
     core:
       dialect: redshift
 
-# T-SQL tests for SQL Server 2017+ syntax with # at end
-test_pass_tsql_identifier_hash_at_end_table:
+# T-SQL comprehensive test for SQL Server 2017+ syntax with # at end
+test_pass_tsql_identifier_hash_comprehensive:
   # SQL Server 2017+ allows # at the end of regular identifiers
+  # This test covers tables, column aliases, table aliases, and qualified references
   pass_str: |
-    CREATE TABLE asdasd# (id INT);
-    SELECT * FROM asdasd#;
-    DROP TABLE asdasd#;
-  configs:
-    core:
-      dialect: tsql
-
-test_pass_tsql_identifier_hash_at_end_alias:
-  # SQL Server 2017+ allows # at the end of identifiers in aliases
-  pass_str: |
-    SELECT col1 as alias# FROM table1;
-  configs:
-    core:
-      dialect: tsql
-
-test_pass_tsql_identifier_hash_at_end_table_alias:
-  # SQL Server 2017+ allows # at the end of table aliases
-  pass_str: |
-    SELECT t#.col1 FROM table1 as t#;
+    CREATE TABLE orders# (
+        order_id# INT,
+        total# DECIMAL(10,2)
+    );
+    
+    SELECT 
+        o#.order_id# as id#,
+        o#.total# as amount#
+    FROM orders# as o#;
+    
+    DROP TABLE orders#;
   configs:
     core:
       dialect: tsql

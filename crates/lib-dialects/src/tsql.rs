@@ -65,6 +65,7 @@ pub fn raw_dialect() -> Dialect {
     ]);
 
     // T-SQL supports square brackets for identifiers and @ for variables
+    // Insert square bracket identifier before individual bracket matchers to ensure it's matched first
     dialect.insert_lexer_matchers(
         vec![
             // Square brackets for identifiers: [Column Name]
@@ -73,15 +74,37 @@ pub fn raw_dialect() -> Dialect {
                 r"\[[^\]]*\]",
                 SyntaxKind::DoubleQuote,
             ),
+        ],
+        "start_square_bracket",
+    );
+    
+    // Insert other T-SQL specific matchers
+    dialect.insert_lexer_matchers(
+        vec![
             // Variables: @MyVar (local) or @@ROWCOUNT (global/system)
             Matcher::regex(
                 "tsql_variable",
                 r"@@?[a-zA-Z_][a-zA-Z0-9_]*",
                 SyntaxKind::TsqlVariable,
             ),
+            // Temporary tables: #TempTable (local) or ##GlobalTempTable (global)
+            Matcher::regex(
+                "tsql_temp_table",
+                r"##?[a-zA-Z_][a-zA-Z0-9_]*",
+                SyntaxKind::Word,
+            ),
         ],
         "equals",
     );
+    
+    // T-SQL only uses -- for inline comments, not # (which is used in temp table names)
+    dialect.patch_lexer_matchers(vec![
+        Matcher::regex("inline_comment", r"--[^\n]*", SyntaxKind::InlineComment),
+    ]);
+
+    // Since T-SQL uses square brackets as quoted identifiers and the lexer
+    // already maps them to SyntaxKind::DoubleQuote, the ANSI QuotedIdentifierSegment
+    // should handle them correctly. No additional parser configuration needed.
 
     // Add T-SQL specific bare functions
     dialect.sets_mut("bare_functions").extend([
@@ -522,14 +545,22 @@ pub fn raw_dialect() -> Dialect {
             .to_matchable()
             .into(),
         ),
+        (
+            "TsqlTempTableIdentifierSegment".into(),
+            // Match word tokens that are temp tables (start with # or ##)
+            TypedParser::new(SyntaxKind::Word, SyntaxKind::TableReference)
+                .to_matchable()
+                .into(),
+        ),
     ]);
 
-    // Update TableReferenceSegment to support T-SQL table variables
+    // Update TableReferenceSegment to support T-SQL table variables and temp tables
     dialect.replace_grammar(
         "TableReferenceSegment",
         one_of(vec_of_erased![
             Ref::new("ObjectReferenceSegment"),
             Ref::new("TsqlVariableSegment"),
+            Ref::new("TsqlTempTableIdentifierSegment"),
         ])
         .to_matchable(),
     );

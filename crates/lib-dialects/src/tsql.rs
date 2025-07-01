@@ -87,12 +87,6 @@ pub fn raw_dialect() -> Dialect {
                 r"@@?[a-zA-Z_][a-zA-Z0-9_]*",
                 SyntaxKind::TsqlVariable,
             ),
-            // Temporary tables: #TempTable (local) or ##GlobalTempTable (global)
-            Matcher::regex(
-                "tsql_temp_table",
-                r"##?[a-zA-Z_][a-zA-Z0-9_]*",
-                SyntaxKind::Word,
-            ),
         ],
         "equals",
     );
@@ -100,6 +94,11 @@ pub fn raw_dialect() -> Dialect {
     // T-SQL only uses -- for inline comments, not # (which is used in temp table names)
     dialect.patch_lexer_matchers(vec![
         Matcher::regex("inline_comment", r"--[^\n]*", SyntaxKind::InlineComment),
+    ]);
+    
+    // Update T-SQL word pattern to allow # at the end (SQL Server 2017+ syntax)
+    dialect.patch_lexer_matchers(vec![
+        Matcher::regex("word", r"[0-9a-zA-Z_]+#?", SyntaxKind::Word),
     ]);
 
     // Since T-SQL uses square brackets as quoted identifiers and the lexer
@@ -545,22 +544,15 @@ pub fn raw_dialect() -> Dialect {
             .to_matchable()
             .into(),
         ),
-        (
-            "TsqlTempTableIdentifierSegment".into(),
-            // Match word tokens that are temp tables (start with # or ##)
-            TypedParser::new(SyntaxKind::Word, SyntaxKind::TableReference)
-                .to_matchable()
-                .into(),
-        ),
     ]);
 
-    // Update TableReferenceSegment to support T-SQL table variables and temp tables
+    // Update TableReferenceSegment to support T-SQL table variables
+    // Temp tables are now handled as regular ObjectReferenceSegment since they use word tokens
     dialect.replace_grammar(
         "TableReferenceSegment",
         one_of(vec_of_erased![
             Ref::new("ObjectReferenceSegment"),
             Ref::new("TsqlVariableSegment"),
-            Ref::new("TsqlTempTableIdentifierSegment"),
         ])
         .to_matchable(),
     );

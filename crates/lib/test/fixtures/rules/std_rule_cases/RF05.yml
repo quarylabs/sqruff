@@ -106,12 +106,9 @@ test_fail_special_chars_quoted_policy_column_alias:
       references.special_chars:
         quoted_identifiers_policy: column_aliases
 
-test_fail_special_chars_unquoted_policy_aliases:
-  # T-SQL lexer splits identifiers at special chars (# starts comment, - is operator)
-  # so "aliashash#" becomes "aliashash" + "#" and can't be tested as single identifier
-  # This is a limitation of how T-SQL lexes identifiers vs other dialects
-  ignored: "T-SQL special character detection not working correctly - lexer splits at special chars"
-  fail_str:
+test_pass_special_chars_unquoted_policy_aliases_tsql_hash_allowed:
+  # T-SQL allows # at the end of identifiers (SQL Server 2017+), so this should pass
+  pass_str:
     SELECT a
     FROM DBO.ColumnNames as aliashash#
   configs:
@@ -121,12 +118,9 @@ test_fail_special_chars_unquoted_policy_aliases:
     core:
       dialect: tsql
 
-test_fail_special_chars_unquoted_policy_column_aliases:
-  # T-SQL lexer splits identifiers at special chars (# starts comment, - is operator)
-  # so "aliashash#" becomes "aliashash" + "#" and can't be tested as single identifier
-  # This is a limitation of how T-SQL lexes identifiers vs other dialects
-  ignored: "T-SQL special character detection not working correctly - lexer splits at special chars"
-  fail_str:
+test_pass_special_chars_unquoted_policy_column_aliases_tsql_hash_allowed:
+  # T-SQL allows # at the end of identifiers (SQL Server 2017+), so this should pass
+  pass_str:
     SELECT a as aliashash#
     FROM DBO.ColumnNames
   configs:

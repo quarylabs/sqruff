@@ -1,0 +1,1852 @@
+test AL01::test_fail_default_explicit
+test AL01::test_fail_explicit
+test AL01::test_fail_implicit
+test AL01::test_fail_implicit_alias
+test AL01::test_fail_implicit_alias_space
+test AL01::test_fail_implicit_alias_explicit
+test AL01::test_fail_implicit_alias_implicit
+test AL01::test_fail_implicit_alias_implicit_multiple
+test AL01::test_fail_implicit_alias_implicit_newline
+test AL01::test_fail_default_explicit_alias_merge
+test AL01::test_fail_explicit_alias_merge
+test AL01::test_pass_implicit_alias_merge
+test AL01::test_alias_expression_4492
+test AL01::test_alias_expression_4089
+test AL01::test_pass_alias_expression_oracle_tables ignored, ignored, dialect oracle is not supported
+test AL02::issue_561
+test AL02::test_fail_explicit_column_default
+test AL02::test_fail_explicit_column_explicit
+test AL02::test_fail_explicit_column_implicit
+test AL02::test_pass_tsql_alternative_alias
+test AL02::test_fail_alias_ending_equals
+test AL02::test_fail_alias_ending_raw_equals
+test AL02::test_alias_expression_align_4515_1
+test AL02::test_alias_expression_align_4515_2
+test AL02::test_alias_expression_align_4515_3
+test AL02::test_fail_alias_expression_oracle_columns ignored, ignored, dialect oracle is not supported
+test AL02::test_pass_bigquery_replace_clause_implicit
+failed: AL02 - test_pass_bigquery_replace_clause_implicit
+test AL03::test_pass_column_exp_without_alias_1
+test AL03::test_pass_column_exp_without_alias_2
+test AL03::test_pass_column_exp_without_alias_allow_scalar_true
+test AL03::test_fail_column_exp_without_alias
+test AL03::test_pass_column_exp_without_alias_if_only_cast
+test AL03::test_pass_column_exp_without_alias_if_only_cast_inc_double_cast
+test AL03::test_pass_column_exp_without_alias_if_bracketed
+test AL03::test_fail_column_exp_without_alias_and_cast_fn
+test AL03::test_fail_column_exp_without_alias_allow_scalar_false
+test AL03::test_pass_column_exp_with_alias
+test AL03::test_pass_function_emits ignored, ignored, dialect exasol is not supported
+test AL03::test_fail_cte_no_column_list
+test AL03::test_pass_cte_column_list
+test AL03::test_pass_duckdb_columns_expression
+failed: AL03 - test_pass_duckdb_columns_expression
+test AL03::test_pass_duckdb_nested_columns_expression
+failed: AL03 - test_pass_duckdb_nested_columns_expression
+test AL03::test_pass_duckdb_exclude_expression
+failed: AL03 - test_pass_duckdb_exclude_expression
+test AL03::test_pass_duckdb_replace_expression
+failed: AL03 - test_pass_duckdb_replace_expression
+test AL03::test_fail_subquery_without_alias
+failed: AL03 - test_fail_subquery_without_alias
+test AL03::test_pass_subquery_with_alias
+test AL04::test_fail_exactly_once_duplicated_aliases
+test AL04::test_fail_two_duplicated_aliases
+test AL04::test_fail_subquery
+test AL04::test_pass_subquery
+test AL04::test_pass_bigquery_function
+test AL04::test_pass_tsql_table_variable
+test AL04::test_fail_subquery_same_alias
+failed: AL04 - test_fail_subquery_same_alias
+test AL04::test_fail_subquery_alias_matches_base_table
+failed: AL04 - test_fail_subquery_alias_matches_base_table
+test AL04::test_fail_subquery_table_matches_base_table
+failed: AL04 - test_fail_subquery_table_matches_base_table
+test AL04::test_fail_subquery_join_matches_base_table
+failed: AL04 - test_fail_subquery_join_matches_base_table
+test AL05::test_fail_table_alias_not_referenced_1
+test AL05::test_fail_table_alias_not_referenced_1_subquery
+test AL05::test_pass_table_alias_referenced_subquery
+test AL05::test_pass_table_alias_referenced
+test AL05::test_pass_unaliased_table_referenced
+test AL05::test_ignore_bigquery_value_table_functions
+test AL05::test_ignore_postgres_value_table_functions
+test AL05::test_ignore_postgres_value_table_functions_generate_series
+test AL05::test_fail_table_alias_not_referenced_2
+test AL05::test_fail_table_alias_not_referenced_2_subquery
+test AL05::test_pass_subquery_alias_not_referenced
+test AL05::test_pass_bigquery_unaliased_table_with_hyphens
+test AL05::test_pass_bigquery_aliased_table_with_ticks_referenced
+test AL05::test_pass_tsql_object_reference_override
+test AL05::test_pass_subselect_uses_alias_1
+test AL05::test_pass_subselect_uses_alias_2
+test AL05::test_pass_subselect_uses_alias_3
+test AL05::test_ansi_function_not_table_parameter
+test AL05::test_bigquery_function_takes_tablealias_parameter
+test AL05::test_bigquery_function_takes_tablealias_column_parameter
+test AL05::test_bigquery_function_takes_tablealias_column_struct_parameter
+test AL05::test_snowflake_delete_cte
+test AL05::test_pass_exasol_values_clause ignored, ignored, dialect exasol is not supported
+test AL05::test_fail_exasol_values_clause ignored, ignored, dialect exasol is not supported
+test AL05::test_pass_sparksql_values_clause
+test AL05::test_fail_sparksql_values_clause
+test AL05::test_pass_snowflake_values
+test AL05::test_pass_tsql_values_clause_in_parentheses ignored, not set up correctly with tsql yet
+test AL05::test_pass_join_on_expression_in_parentheses
+test AL05::test_pass_bigquery_qualify_clause
+test AL05::test_pass_bigquery_nested_inner_join
+test AL05::test_fail_snowflake_flatten_function
+test AL05::test_pass_derived_query_requires_alias_1
+test AL05::test_pass_derived_query_requires_alias_2
+test AL05::test_pass_derived_query_requires_alias_3
+test AL05::test_pass_redshift_semi_structured_op
+test AL05::test_pass_postgres_values_clause
+failed: AL05 - test_pass_postgres_values_clause
+test AL05::test_pass_naked_select_single_quoted_table
+test AL05::test_fail_naked_select_single_quoted_table_wrong_case
+failed: AL05 - test_fail_naked_select_single_quoted_table_wrong_case
+test AL05::test_pass_naked_select_single_quoted_table_ci
+test AL05::test_pass_naked_select_single_quoted_table_qcs_nup
+test AL05::test_fail_naked_select_single_quoted_table_wrong_case_qcs_nup
+failed: AL05 - test_fail_naked_select_single_quoted_table_wrong_case_qcs_nup
+test AL05::test_pass_naked_select_single_quoted_table_qcs_nlow
+test AL05::test_fail_naked_select_single_quoted_table_wrong_case_qcs_nlow
+failed: AL05 - test_fail_naked_select_single_quoted_table_wrong_case_qcs_nlow
+test AL05::test_pass_naked_select_single_quoted_table_lower_cs
+test AL05::test_pass_naked_select_single_quoted_table_upper_cs
+test AL05::test_fail_naked_select_single_quoted_table_wrong_case_cs
+failed: AL05 - test_fail_naked_select_single_quoted_table_wrong_case_cs
+test AL05::test_pass_naked_select_quoted_table
+test AL05::test_pass_quoted_select_naked_table
+failed: AL05 - test_pass_quoted_select_naked_table
+test AL05::test_pass_naked_select_quoted_table_subquery
+test AL05::test_pass_quoted_select_naked_table_subquery
+failed: AL05 - test_pass_quoted_select_naked_table_subquery
+test AL05::test_pass_naked_select_double_quoted_table_ci
+test AL05::test_pass_naked_select_double_quoted_table_qcs_nup
+test AL05::test_fail_naked_select_double_quoted_table_wrong_case_qcs_nup
+failed: AL05 - test_fail_naked_select_double_quoted_table_wrong_case_qcs_nup
+test AL05::test_pass_naked_select_double_quoted_table_qcs_nlow
+test AL05::test_fail_naked_select_double_quoted_table_wrong_case_qcs_nlow
+failed: AL05 - test_fail_naked_select_double_quoted_table_wrong_case_qcs_nlow
+test AL05::test_pass_naked_select_double_quoted_table_lower_cs
+test AL05::test_pass_naked_select_double_quoted_table_upper_cs
+test AL05::test_fail_naked_select_double_quoted_table_wrong_case_cs
+failed: AL05 - test_fail_naked_select_double_quoted_table_wrong_case_cs
+test AL05::test_pass_athena_naked_select_quoted_table
+test AL05::test_pass_athena_quoted_select_naked_table
+failed: AL05 - test_pass_athena_quoted_select_naked_table
+test AL05::test_pass_athena_naked_select_back_quoted_table
+test AL05::test_pass_athena_back_quoted_select_naked_table
+failed: AL05 - test_pass_athena_back_quoted_select_naked_table
+test AL05::test_pass_bigquery_naked_select_quoted_table
+test AL05::test_pass_bigquery_quoted_select_naked_table
+failed: AL05 - test_pass_bigquery_quoted_select_naked_table
+test AL05::test_pass_bigquery_quoted_escapes
+test AL05::test_pass_clickhouse_naked_select_quoted_table
+test AL05::test_pass_clickhouse_quoted_select_naked_table
+failed: AL05 - test_pass_clickhouse_quoted_select_naked_table
+test AL05::test_pass_clickhouse_quoted_escapes
+test AL05::test_fail_clickhouse_naked_select_quoted_table_cs
+failed: AL05 - test_fail_clickhouse_naked_select_quoted_table_cs
+test AL05::test_pass_clickhouse_quoted_select_naked_table_cs
+test AL05::test_pass_db2_naked_select_double_quoted_table ignored, ignored, dialect db2 is not supported
+test AL05::test_fail_db2_naked_select_double_quoted_table_wrong_case ignored, ignored, dialect db2 is not supported
+test AL05::test_pass_duckdb_naked_select_double_quoted_table
+test AL05::test_pass_duckdb_quoted_select_naked_table
+failed: AL05 - test_pass_duckdb_quoted_select_naked_table
+test AL05::test_pass_duckdb_quoted_select_single_quote_table
+test AL05::test_fail_duckdb_single_quote_select_naked_table
+test AL05::test_pass_exasol_naked_select_double_quoted_table ignored, ignored, dialect exasol is not supported
+test AL05::test_pass_exasol_quoted_select_naked_table ignored, ignored, dialect exasol is not supported
+test AL05::test_fail_exasol_quoted_select_naked_table_wrong_case ignored, ignored, dialect exasol is not supported
+test AL05::test_pass_exasol_quoted_select_single_quote_table ignored, ignored, dialect exasol is not supported
+test AL05::test_pass_hive_naked_select_quoted_table ignored, ignored, dialect hive is not supported
+test AL05::test_pass_hive_quoted_select_naked_table ignored, ignored, dialect hive is not supported
+test AL05::test_pass_mysql_quoted_select_quoted_table
+test AL05::test_pass_mysql_naked_select_quoted_table
+test AL05::test_pass_mysql_quoted_select_naked_table
+test AL05::test_pass_oracle_naked_select_double_quoted_table ignored, ignored, dialect oracle is not supported
+test AL05::test_fail_oracle_naked_select_double_quoted_table_wrong_case ignored, ignored, dialect oracle is not supported
+test AL05::test_pass_postgres_naked_select_double_quoted_table
+test AL05::test_fail_postgres_naked_select_double_quoted_table
+failed: AL05 - test_fail_postgres_naked_select_double_quoted_table
+test AL05::test_pass_postgres_quoted_select_naked_table
+failed: AL05 - test_pass_postgres_quoted_select_naked_table
+test AL05::test_pass_postgres_quoted_select_single_quote_table
+test AL05::test_pass_redshift_naked_select_double_quoted_table
+test AL05::test_fail_redshift_naked_select_double_quoted_table
+failed: AL05 - test_fail_redshift_naked_select_double_quoted_table
+test AL05::test_pass_redshift_quoted_select_naked_table
+failed: AL05 - test_pass_redshift_quoted_select_naked_table
+test AL05::test_pass_redshift_quoted_select_single_quote_table
+test AL05::test_pass_snowflake_naked_select_double_quoted_table
+test AL05::test_fail_snowflake_naked_select_double_quoted_table_wrong_case
+failed: AL05 - test_fail_snowflake_naked_select_double_quoted_table_wrong_case
+test AL05::test_pass_sparksql_naked_select_double_quoted_table
+test AL05::test_pass_sparksql_quoted_select_naked_table
+failed: AL05 - test_pass_sparksql_quoted_select_naked_table
+test AL05::test_pass_sqlite_naked_select_quoted_table
+test AL05::test_pass_sqlite_quoted_select_naked_table
+failed: AL05 - test_pass_sqlite_quoted_select_naked_table
+test AL05::test_pass_sqlite_naked_select_quoted_table_subquery
+test AL05::test_pass_sqlite_quoted_select_naked_table_subquery
+failed: AL05 - test_pass_sqlite_quoted_select_naked_table_subquery
+test AL05::test_pass_sqlite_different_escaped_quotes
+test AL05::test_pass_teradata_naked_select_double_quoted_table ignored, ignored, dialect teradata is not supported
+test AL05::test_pass_teradata_quoted_select_naked_table ignored, ignored, dialect teradata is not supported
+test AL05::test_pass_trino_naked_select_double_quoted_table
+test AL05::test_pass_trino_quoted_select_naked_table
+failed: AL05 - test_pass_trino_quoted_select_naked_table
+test AL05::test_pass_tsql_naked_select_quoted_table
+test AL05::test_pass_tsql_quoted_select_naked_table
+failed: AL05 - test_pass_tsql_quoted_select_naked_table
+test AL05::test_pass_vertica_naked_select_double_quoted_table ignored, ignored, dialect vertica is not supported
+test AL05::test_pass_vertica_quoted_select_naked_table ignored, ignored, dialect vertica is not supported
+test AL05::test_pass_repeat_referenced_table
+failed: AL05 - test_pass_repeat_referenced_table
+test AL05::test_pass_case_insensitive
+failed: AL05 - test_pass_case_insensitive
+test AL05::test_pass_quoted_case_insensitive
+test AL05::test_pass_postgres_different_quoted_case_insensitive
+test AL05::test_pass_snowflake_flatten_lateral
+failed: AL05 - test_pass_snowflake_flatten_lateral
+test AL05::test_fail_snowflake_flatten_lateral
+failed: AL05 - test_fail_snowflake_flatten_lateral
+test AL05::test_pass_bigquery_cross_join_unnest
+failed: AL05 - test_pass_bigquery_cross_join_unnest
+test AL05::test_pass_bigquery_cross_join_array
+failed: AL05 - test_pass_bigquery_cross_join_array
+test AL05::test_pass_redshift_qualify_follows_from
+failed: AL05 - test_pass_redshift_qualify_follows_from
+test AL05::test_fail_redshift_qualify_follows_from
+failed: AL05 - test_fail_redshift_qualify_follows_from
+test AL05::test_fail_redshift_qualify_does_not_follows_from
+test AL05::test_pass_postgres_jsonb_array_elements_text
+failed: AL05 - test_pass_postgres_jsonb_array_elements_text
+test AL05::test_pass_postgres_json_array_elements
+failed: AL05 - test_pass_postgres_json_array_elements
+test AL05::test_pass_bigquery_unnest
+failed: AL05 - test_pass_bigquery_unnest
+test AL05::test_pass_redshift_array_value
+test AL06::test_pass_no_config
+test AL06::test_fail_alias_too_short
+test AL06::test_fail_alias_too_long
+test AL06::test_fail_alias_min_and_max
+test AL06::test_pass_with_config
+test AL07::test_pass_allow_self_join_alias
+test AL07::test_fail_avoid_aliases_1
+test AL07::test_fail_avoid_aliases_2
+test AL07::test_fail_avoid_aliases_3
+test AL07::alias_single_char_identifiers
+test AL07::alias_with_wildcard_identifier
+test AL07::select_from_values
+test AL07::select_from_table_generator
+test AL07::issue_635
+test AL07::issue_239
+test AL07::issue_610
+test AL07::issue_1589
+test AL07::issue_1639 ignored, T-SQL CREATE TABLE syntax not fully supported yet
+test AL07::test_fail_no_copy_code_out_of_template ignored, jinja is not supported
+test AL07::test_bigquery_skip_multipart_names
+test AL07::test_bigquery_force_enable
+test AL07::test_violation_locations
+test AL07::test_fail_fix_command
+test AL07::test_fail_fix_self_aliased_table_5954
+test AL08::test_fail_references
+test AL08::test_fail_aliases
+test AL08::test_fail_alias_refs
+test AL08::test_fail_locs
+test AL08::test_fail_alias_quoted
+test AL08::test_fail_alias_case
+test AL08::test_fail_qualified
+test AL08::test_pass_table_names
+test AL09::test_pass_no_self_alias
+test AL09::test_fail_no_quotes_same_case
+test AL09::test_fail_with_quotes_same_case
+test AL09::test_fail_different_case
+test AL09::test_pass_different_case_clickhouse ignored, Need to fix AL09, see https://github.com/sqlfluff/sqlfluff/pull/6333
+test AL09::test_pass_different_quotes
+test AL09::test_pass_mysql_quoted_identifiers
+test AM01::test_pass_only_group_by
+test AM01::test_fail_distinct_and_group_by
+test AM02::test_pass_union_all
+test AM02::test_fail_bare_union
+test AM02::test_pass_union_distinct
+test AM02::test_pass_union_distinct_with_comment
+test AM02::test_fail_triple_join_with_one_bad
+test AM02::test_fail_triple_join_with_one_bad_lowercase
+test AM02::test_exasol ignored, ignored, dialect exasol is not supported
+test AM02::test_exasol_union_all ignored, ignored, dialect exasol is not supported
+test AM02::test_postgres
+test AM02::test_redshift
+test AM03::test_unspecified
+test AM03::test_unspecified_unspecified
+test AM03::test_unspecified_desc
+test AM03::test_asc_desc
+test AM03::test_desc_unspecified
+test AM03::test_desc_asc
+test AM03::test_nulls_last
+test AM03::test_comment
+test AM04::test_pass_known_number_of_result_columns_1
+test AM04::test_fail_unknown_number_of_result_columns_1
+test AM04::test_pass_known_number_of_result_columns_2
+test AM04::test_fail_unknown_number_of_result_columns_2
+test AM04::test_pass_known_number_of_result_columns_3
+test AM04::test_pass_known_number_of_result_columns_4
+test AM04::test_fail_unknown_number_of_result_columns_3
+test AM04::test_pass_known_number_of_result_columns_5
+test AM04::test_fail_unknown_number_of_result_columns_4
+test AM04::test_fail_unknown_number_of_result_columns_5
+test AM04::test_pass_known_number_of_result_columns_6
+test AM04::test_fail_unknown_number_of_result_columns_6
+test AM04::test_pass_known_number_of_result_columns_7
+test AM04::test_fail_unknown_number_of_result_columns_7
+test AM04::test_pass_known_number_of_result_columns_8
+test AM04::test_fail_unknown_number_of_result_columns_8
+test AM04::test_fail_unknown_number_of_result_columns_9
+test AM04::test_fail_unknown_number_of_result_columns_10
+test AM04::test_pass_known_number_of_result_columns_9
+test AM04::test_pass_known_number_of_result_columns_10
+test AM04::test_pass_known_number_of_result_columns_11
+test AM04::test_fail_unknown_number_of_result_columns_11
+test AM04::test_fail_unknown_number_of_result_columns_12
+test AM04::test_fail_unknown_number_of_result_columns_13
+test AM04::test_pass_known_number_of_result_columns_12
+test AM04::test_fail_unknown_number_of_result_columns_14
+test AM04::test_fail_unknown_number_of_result_columns_15
+test AM04::test_pass_known_number_of_result_columns_13
+test AM04::test_pass_known_number_of_result_columns_14
+test AM04::test_fail_unknown_number_of_result_columns_16
+test AM04::test_pass_known_number_of_result_columns_15
+test AM04::test_fail_unknown_number_of_result_columns_17
+test AM04::test_fail_unknown_number_of_result_columns_18
+test AM04::test_pass_nested_ctes_1
+test AM04::test_fail_nested_ctes_1
+test AM04::test_fail_nested_ctes_2
+test AM04::test_pass_nested_ctes_3
+test AM04::test_pass_nested_ctes_4
+test AM04::test_cte_reference_outer_5
+test AM04::test_cte_tricky_nesting_6
+test AM04::test_nested_and_same_level_ctes_7
+test AM04::test_nested_cte_references_outer_8
+test AM04::test_pass_join_inside_cte_with_unqualified
+test AM04::test_pass_known_number_of_columns_in_two_join_subqueries
+test AM04::test_fail_two_join_subqueries_one_with_unknown_number_of_columns
+test AM04::test_fail_no_source_table
+test AM04::test_query_on_snowflake_stage
+test AM04::test_snowflake_delete_cte
+test AM04::test_pass_exasol_values_clause_cte_1 ignored, ignored, dialect exasol is not supported
+test AM04::test_pass_exasol_values_clause_cte_2 ignored, ignored, dialect exasol is not supported
+test AM04::test_pass_exasol_values_clause ignored, ignored, dialect exasol is not supported
+test AM04::test_fail_exasol_invalid_foreign_key_from ignored, ignored, dialect exasol is not supported
+test AM04::test_pass_exasol_invalid_foreign_key_from ignored, ignored, dialect exasol is not supported
+test AM04::test_pass_cte_no_select_final_statement
+test AM04::test_tsql_select_system_as_identifier
+test AM04::test_pass_sparksql_values_clause_cte_1
+test AM04::test_pass_sparksql_values_clause_cte_2
+test AM04::test_pass_sparksql_values_clause
+test AM05::test_fail_lone_join_default
+test AM05::test_fail_lone_join_lowercase_default
+test AM05::test_pass_inner_join_default
+test AM05::test_pass_left_join_default
+test AM05::test_pass_right_join_default
+test AM05::test_pass_full_join_default
+test AM05::test_pass_left_outer_join_default
+test AM05::test_pass_right_outer_join_default
+test AM05::test_pass_full_outer_join_default
+test AM05::test_pass_cross_join_default
+test AM05::test_fail_lone_join_inner
+test AM05::test_fail_lone_join_lowercase_inner
+test AM05::test_pass_inner_join_inner
+test AM05::test_pass_left_join_inner
+test AM05::test_pass_right_join_inner
+test AM05::test_pass_full_join_inner
+test AM05::test_pass_left_outer_join_inner
+test AM05::test_pass_right_outer_join_inner
+test AM05::test_pass_full_outer_join_inner
+test AM05::test_pass_lone_join_outer
+test AM05::test_pass_inner_join_outer
+test AM05::test_fail_left_join_outer
+test AM05::test_fail_right_join_outer
+test AM05::test_fail_full_join_outer
+test AM05::test_fail_full_join_lowercase_outer
+test AM05::test_pass_left_outer_join_outer
+test AM05::test_pass_right_outer_join_outer
+test AM05::test_pass_full_outer_join_outer
+test AM05::test_fail_lone_join_both
+test AM05::test_fail_lone_join_lowercase_both
+test AM05::test_pass_inner_join_both
+test AM05::test_fail_left_join_both
+test AM05::test_fail_right_join_both
+test AM05::test_fail_full_join_both
+test AM05::test_fail_full_join_lowercase_both
+test AM05::test_pass_left_outer_join_both
+test AM05::test_pass_right_outer_join_both
+test AM05::test_pass_full_outer_join_both
+test AM06::test_pass_explicit_group_by_default
+test AM06::test_pass_implicit_group_by_default
+test AM06::test_pass_explicit_order_by_default
+test AM06::test_fail_implicit_order_by_default
+test AM06::test_fail_mix_group_by_default
+test AM06::test_pass_implicit_group_by_and_order_by_default
+test AM06::test_pass_explicit_group_by_and_order_by_default
+test AM06::test_fail_within_line_mix_group_by_and_order_by_default
+test AM06::test_fail_across_line_mix_group_by_and_order_by_default
+test AM06::test_pass_explicit_expression_order_by_default
+test AM06::test_fail_implicit_expression_order_by_default
+test AM06::test_pass_explicit_group_by_custom_explicit
+test AM06::test_fail_implicit_group_by_custom_explicit
+test AM06::test_fail_mix_group_by_custom_explicit
+test AM06::test_pass_explicit_order_by_custom_explicit
+test AM06::test_fail_implicit_order_by_custom_explicit
+test AM06::test_pass_explicit_group_by_and_order_by_custom_explicit
+test AM06::test_fail_implicit_group_by_and_order_by_custom_explicit
+test AM06::test_fail_within_line_mix_group_by_and_order_by_custom_explicit
+test AM06::test_fail_across_line_mix_group_by_and_order_by_custom_explicit
+test AM06::test_pass_explicit_expression_order_by_custom_explicit
+test AM06::test_fail_implicit_expression_order_by_custom_explicit
+test AM06::test_pass_explicit_group_by_custom_implicit
+test AM06::test_fail_implicit_group_by_custom_implicit
+test AM06::test_pass_explicit_order_by_custom_implicit
+test AM06::test_fail_implicit_order_by_custom_implicit
+test AM06::test_fail_mix_group_by_custom_implicit
+test AM06::test_pass_implicit_group_by_and_order_by_custom_implicit
+test AM06::test_fail_explicit_group_by_and_order_by_custom_implicit
+test AM06::test_fail_within_line_mix_group_by_and_order_by_custom_implicit
+test AM06::test_fail_across_line_mix_group_by_and_order_by_custom_implicit
+test AM06::test_fail_explicit_expression_order_by_custom_implicit
+test AM06::test_fail_implicit_expression_order_by_custom_implicit
+test AM06::test_fail_consistent_snowflake
+test AM06::test_fail_consistent_exasol ignored, ignored, dialect exasol is not supported
+test AM06::test_pass_window
+test AM06::test_pass_window_snowflake
+test AM06::test_pass_withingroup_snowflake
+test AM06::test_pass_groupby_rollup_bigquery
+test AM06::test_fail_groupby_rollup_bigquery
+test AM06::test_pass_groupby_rollup_postgres
+test AM06::test_fail_groupby_rollup_postgres
+test AM06::test_pass_groupby_rollup_exasol ignored, ignored, dialect exasol is not supported
+test AM06::test_fail_groupby_rollup_exasol ignored, ignored, dialect exasol is not supported
+test AM06::test_pass_groupby_rollup_athena
+test AM06::test_fail_groupby_rollup_athena
+test AM06::test_pass_groupby_rollup_sparksql
+test AM06::test_fail_groupby_rollup_sparksql
+test AM06::test_pass_array_agg_bigquery
+test AM06::test_pass_array_expression_bigquery
+test AM07::test_pass_known_number_of_result_columns_1
+test AM07::test_fail_known_number_of_result_columns_1
+test AM07::test_pass_known_number_of_result_columns_2
+test AM07::test_fail_known_number_of_result_columns_2
+test AM07::test_pass_known_number_of_result_columns_3
+test AM07::test_pass_known_number_of_result_columns_4
+test AM07::test_fail_known_number_of_result_columns_3
+test AM07::test_pass_known_number_of_result_columns_5
+test AM07::test_pass_known_number_of_result_columns_6
+test AM07::test_fail_unknown_number_of_result_columns_4
+test AM07::test_pass_known_number_of_result_columns_7
+test AM07::test_pass_unknown_wildcard_number_of_result_columns_8
+test AM07::test_pass_known_number_of_result_columns_9
+test AM07::test_pass_known_number_of_result_columns_10
+test AM07::test_pass_known_number_of_result_columns_11
+test AM07::test_fail_unknown_number_of_result_columns_5
+test AM07::test_pass_known_number_of_result_columns_13
+test AM07::test_pass_known_number_of_result_columns_14
+test AM07::test_pass_known_number_of_result_columns_15
+test AM07::test_fail_unknown_number_of_result_columns_6
+test AM07::test_pass_known_number_of_result_columns_16
+test AM07::test_pass_known_number_of_result_columns_17
+test AM07::test_fail_known_number_of_result_columns_7
+test AM07::test_pass_nested_ctes_1
+test AM07::test_fail_nested_ctes_1
+test AM07::test_cte_reference_outer_2
+test AM07::test_cte_tricky_nesting_3
+test AM07::test_nested_and_same_level_ctes_4
+test AM07::test_nested_cte_references_outer_5
+test AM07::test_pass_join_inside_cte_with_unqualified
+test AM07::test_pass_known_number_of_columns_in_two_join_subqueries
+test AM07::test_fail_two_join_subqueries_one_with_unknown_number_of_columns
+test AM07::test_query_on_snowflake_stage
+test AM07::test_pass_cte_no_select_final_statement
+test AM07::test_fail_cte_no_select_final_statement
+test AM07::test_tsql_select_system_as_identifier
+test AM07::test_pass_dbt_union_relations_output
+failed: AM07 - test_pass_dbt_union_relations_output
+test CP01::test_fail_inconsistent_capitalisation_1
+test CP01::test_fail_inconsistent_capitalisation_2
+test CP01::test_fail_capitalisation_policy_lower
+test CP01::test_fail_capitalisation_policy_upper
+test CP01::test_fail_capitalisation_policy_capitalise
+test CP01::test_fail_date_part_inconsistent_capitalisation
+test CP01::test_fail_date_part_capitalisation_policy_lower
+test CP01::test_fail_date_part_capitalisation_policy_upper
+test CP01::test_pass_date_part_consistent_capitalisation
+test CP01::test_pass_data_type_inconsistent_capitalisation
+test CP01::test_pass_bigquery_date
+test CP01::test_pass_ignore_word
+test CP01::test_pass_ignore_words
+test CP01::test_pass_ignore_words_regex_simple
+test CP01::test_fail_ignore_words_regex_simple
+test CP01::test_pass_ignore_words_complex
+test CP01::test_pass_ignore_templated_code_true
+test CP01::test_fail_ignore_templated_code_false ignored, jinja is not supported
+test CP01::test_fail_snowflake_group_by_cube
+test CP01::test_pass_ignore_null
+test CP01::test_pass_ignore_true
+test CP01::test_pass_ignore_false
+test CP01::test_fail_bigquery_week
+test CP01::test_fail_select_lower
+test CP01::test_fail_select_lower_keyword_functions ignored, T-SQL function name capitalization not working correctly
+test CP01,CP03::test_pass_keyword_upper_function_lower
+test CP02::test_pass_consistent_capitalisation_1
+test CP02::test_pass_consistent_capitalisation_2
+test CP02::test_pass_consistent_capitalisation_with_null
+test CP02::test_pass_consistent_capitalisation_with_single_letter_upper
+test CP02::test_pass_consistent_capitalisation_with_single_word_snake
+test CP02::test_fail_consistent_capitalisation_with_single_word_pascal
+failed: CP02 - test_fail_consistent_capitalisation_with_single_word_pascal
+test CP02::test_fail_consistent_capitalisation_with_multiple_words_with_numbers
+failed: CP02 - test_fail_consistent_capitalisation_with_multiple_words_with_numbers
+test CP02::test_pass_consistent_capitalisation_with_leading_underscore
+test CP02::test_fail_inconsistent_capitalisation_lowercase_1
+test CP02::test_fail_inconsistent_capitalisation_lowercase_2
+test CP02::test_fail_inconsistent_capitalisation_uppercase
+test CP02::test_pass_consistent_capitalisation_policy_pascal_1
+test CP02::test_pass_consistent_capitalisation_policy_pascal_2
+test CP02::test_pass_consistent_capitalisation_policy_pascal_3
+test CP02::test_pass_consistent_capitalisation_policy_pascal_4
+test CP02::test_pass_consistent_capitalisation_policy_pascal_5
+test CP02::test_pass_consistent_capitalisation_policy_pascal_6
+test CP02::test_fail_inconsistent_capitalisation_policy_pascal_1
+test CP02::test_fail_inconsistent_capitalisation_policy_pascal_2
+test CP02::test_fail_inconsistent_capitalisation_policy_pascal_3
+test CP02::test_fail_inconsistent_capitalisation_policy_pascal_4
+test CP02::test_fail_consistent_capitalisation_policy_pascal_5
+test CP02::test_fail_inconsistent_capitalisation_pascal_v_capitalise
+test CP02::test_fail_inconsistent_capitalisation_policy_camel_1
+failed: CP02 - test_fail_inconsistent_capitalisation_policy_camel_1
+test CP02::test_fail_inconsistent_capitalisation_policy_camel_2
+failed: CP02 - test_fail_inconsistent_capitalisation_policy_camel_2
+test CP02::test_fail_inconsistent_capitalisation_policy_camel_3
+failed: CP02 - test_fail_inconsistent_capitalisation_policy_camel_3
+test CP02::test_pass_policy_unquoted_identifiers_aliases_1
+test CP02::test_pass_policy_unquoted_identifiers_aliases_2
+test CP02::test_pass_policy_unquoted_identifiers_aliases_3
+test CP02::test_pass_policy_unquoted_identifiers_aliases_4
+test CP02::test_policy_unquoted_identifiers_aliases_5
+failed: CP02 - test_policy_unquoted_identifiers_aliases_5
+test CP02::test_policy_unquoted_identifiers_aliases_6
+test CP02::test_policy_unquoted_identifiers_aliases_7
+test CP02::test_policy_unquoted_identifiers_aliases_8
+failed: CP02 - test_policy_unquoted_identifiers_aliases_8
+test CP02::test_policy_unquoted_identifiers_column_aliases_1
+test CP02::test_policy_unquoted_identifiers_aliases_2
+failed: CP02 - test_policy_unquoted_identifiers_aliases_2
+test CP02::test_pass_ignore_word
+test CP02::test_pass_consistent_capitalisation_properties_naked_identifier
+test CP02::test_fail_inconsistent_capitalisation_properties_naked_identifier
+test CP02::test_fail_inconsistent_capitalisation_properties_naked_identifier_2
+test CP02::test_pass_bigquery_safe_does_not_trigger
+test CP02::test_pass_databricks_case_sensitive_property ignored, databricks not fully implemented yet
+test CP02::test_fail_snake_aliases
+failed: CP02 - test_fail_snake_aliases
+test CP02::test_fail_camel_aliases
+failed: CP02 - test_fail_camel_aliases
+test CP02,LT01::test_fail_cp02_fail_lt01
+test CP02,LT01::test_fail_cp02_pass_lt01
+test CP02,LT01::test_pass_cp02_fail_lt01
+test CP02,LT01::test_pass_cp02_pass_lt01
+test CP02,LT01::test_fail_fix_cp02_lt01_with_templating_6678templater not yet supported ignored, placeholder templating is not supported
+test CP03::test_fail_inconsistent_function_capitalisation_1
+test CP03::test_fail_inconsistent_function_capitalisation_2
+test CP03::test_bare_functions
+test CP03::test_bare_functions_2
+test CP03::test_bare_functions_3
+test CP03::test_fail_capitalization_after_comma
+test CP03::test_pass_fully_qualified_function_mixed_functions
+test CP03::test_pass_fully_qualified_function_pascal_case
+test CP03::test_pass_ignore_word
+test CP03::test_pass_ignore_templated_code_true
+test CP03::test_fail_ignore_templated_code_false ignored, jinja is not supported
+test CP03::test_pass_func_name_templated_literal_mix
+test CP03::test_pass_ignore_words_regex_simple
+test CP03::test_pass_ignore_words_regex_complex
+test CP03::test_pass_ignore_words_regex_bigquery_simple
+test CP03::test_pass_ignore_words_regex_bigquery_complex
+test CP03::test_bare_functions_4
+failed: CP03 - test_bare_functions_4
+test CP04::test_fail_inconsistent_boolean_capitalisation_1
+test CP04::test_fail_inconsistent_boolean_capitalisation_2
+test CP04::test_pass_ignore_word
+test CP04::test_fail_upper_boolean_capitalisation
+test CP04::test_fail_lower_boolean_capitalisation
+test CP05::test_pass_default_consistent_lower
+test CP05::test_pass_default_consistent_upper
+test CP05::test_pass_default_consistent_capitalised
+test CP05::test_fail_default_consistent_pascal
+failed: CP05 - test_fail_default_consistent_pascal
+test CP05::test_fail_data_type_inconsistent_capitalisation_1
+test CP05::test_fail_data_type_inconsistent_capitalisation_2
+test CP05::test_fail_data_type_inconsistent_capitalisation_3
+test CP05::test_fail_data_type_capitalisation_policy_lower
+test CP05::test_fail_data_type_capitalisation_policy_lower_2
+test CP05::test_fail_data_type_capitalisation_policy_upper
+test CP05::test_fail_data_type_capitalisation_policy_upper_2
+test CP05::test_fail_data_type_capitalisation_policy_capitalise
+test CP05::test_fail_data_type_capitalisation_policy_keywords_1
+test CP05::test_fail_data_type_capitalisation_policy_keywords_2
+test CP05::test_pass_sparksql_complex_data_types
+test CP05::test_pass_bigquery_struct_params
+test CP05::test_pass_typless_structs_dont_trigger_rule
+test CV01::test_pass_consistent_c_style_not_equal_to
+test CV01::test_fail_consistent_ansi_not_equal_to
+test CV01::test_pass_consistent_less_than
+test CV01::test_pass_consistent_non_comparison
+test CV01::test_fail_consistent_c_style_not_equal_to_multi
+test CV01::test_fail_consistent_ansi_not_equal_to_multi
+test CV01::test_pass_consistent_c_style_not_equal_to_tsql
+test CV01::test_pass_consistent_ansi_not_equal_to_tsql
+test CV01::test_pass_c_style_not_equal_to
+test CV01::test_fail_c_style_not_equal_to
+test CV01::test_pass_c_style_less_than
+test CV01::test_pass_c_style_non_comparison
+test CV01::test_fail_c_style_not_equal_to_multi
+test CV01::test_pass_c_style_not_equal_to_tsql
+test CV01::test_fail_c_style_not_equal_to_tsql ignored, T-SQL multi-line comparison operator conversion not working correctly
+test CV01::test_pass_ansi_not_equal_to
+test CV01::test_fail_ansi_not_equal_to
+test CV01::test_pass_ansi_less_than
+test CV01::test_pass_ansi_non_comparison
+test CV01::test_fail_ansi_not_equal_to_multi
+test CV01::test_pass_ansi_not_equal_to_tsql
+test CV01::test_fail_ansi_not_equal_to_tsql ignored, T-SQL multi-line comparison operator conversion not working correctly
+test CV02::test_pass_coalesce
+test CV02::test_fail_ifnull
+test CV02::test_fail_nvl
+test CV03::test_require_pass
+test CV03::test_require_fail
+test CV03::test_forbid_pass
+test CV03::test_forbid_fail
+test CV03::test_fail_templated
+failed: CV03 - test_fail_templated
+test CV04::passes_on_count_star
+test CV04::passes_on_count_1
+test CV04::changes_count_0_to_count_star
+test CV04::passes_on_count_0
+test CV04::passes_on_count_1_if_both_present
+test CV04::changes_to_count_1_if_both_present
+test CV04::changes_count_1_to_count_star
+test CV04::handles_whitespaces
+test CV04::changes_count_star_to_count_0
+test CV04::changes_count_star_to_count_1
+test CV04::changes_count_1_to_count_0
+test CV04::changes_count_0_to_count_1
+test CV04::changes_count_star_to_count_1_handle_new_line
+test CV04::no_false_positive_on_count_col
+test CV04::no_false_positive_on_expression
+test CV05::test_is_null
+test CV05::test_is_not_null
+test CV05::test_not_equals_null_upper
+test CV05::test_not_equals_null_multi_nulls
+test CV05::test_not_equals_null_lower
+test CV05::test_equals_null_spaces
+test CV05::test_equals_null_no_spaces
+test CV05::test_complex_case_1
+test CV05::test_set_clause
+test CV05::test_bigquery_set_options
+test CV05::test_tsql_exec_clause
+test CV05::test_tsql_alternate_alias_syntax
+test CV05::test_exclude_constraint
+test CV05::test_mysql_system_variable
+test CV06::test_pass_semi_colon_same_line_default
+test CV06::test_pass_semi_colon_custom_newline
+test CV06::test_fail_semi_colon_same_line_custom_newline
+test CV06::test_pass_no_semi_colon_default
+test CV06::test_pass_no_semi_colon_custom_newline
+test CV06::test_fail_no_semi_colon_custom_require
+test CV06::test_fail_no_semi_colon_custom_require_oneline
+test CV06::test_fail_no_semi_colon_custom_require_multiline
+test CV06::test_pass_multi_statement_semi_colon_default
+test CV06::test_pass_multi_statement_semi_colon_custom_oneline
+test CV06::test_fail_multi_statement_semi_colon_custom_multiline
+test CV06::test_pass_multi_statement_no_trailing_semi_colon_default
+test CV06::test_pass_multi_statement_no_trailing_semi_colon_custom_require
+test CV06::test_fail_multi_statement_no_trailing_semi_colon_custom_require_oneline
+test CV06::test_fail_multi_statement_no_trailing_semi_colon_custom_require_multiline
+test CV06::test_fail_space_semi_colon_default
+test CV06::test_fail_newline_semi_colon_default
+test CV06::test_pass_newline_semi_colon_custom_newline
+test CV06::test_fail_multi_statement_semi_colon_default
+test CV06::test_fail_multi_statement_semi_colon_custom_require_multiline
+test CV06::test_fail_multiple_newlines_semi_colon_custom_require_newline
+test CV06::test_fail_final_semi_colon_same_line_inline_comment
+test CV06::test_fail_final_semi_colon_same_line_inline_comment_custom_oneline
+test CV06::test_fail_final_semi_colon_newline_inline_comment_custom_multiline
+test CV06::test_fail_same_line_inline_comment
+test CV06::test_fail_same_line_multiple_inline_comment
+test CV06::test_pass_newline_inline_comment
+test CV06::test_fail_newline_inline_comment
+test CV06::test_fail_newline_multiple_inline_comments_custom_oneline
+test CV06::test_fail_newline_multiple_inline_comments_custom_multiline
+test CV06::test_fail_newline_trailing_inline_comment
+test CV06::test_fail_newline_preceding_block_comment_custom_oneline
+test CV06::test_fail_newline_preceding_block_comment_custom_multiline
+test CV06::test_fail_newline_trailing_block_comment
+test CV06::test_fail_newline_block_comment_semi_colon_before
+test CV06::test_fail_newline_block_comment_semi_colon_after
+test CV06::test_fail_newline_create_table
+test CV06::test_fail_newline_create_table_inline_comment
+test CV06::test_fail_whitespace_after_simple_select
+test CV06::test_fail_whitespace_after_snowflake_set
+test CV06::test_fail_templated_fix_crosses_block_boundary
+test CV06::test_pass_empty_file
+test CV06::test_pass_empty_file_with_require_final_semicolon
+test CV06::test_pass_file_with_only_comments
+test CV06::test_pass_file_with_only_comments_with_require_final_semicolon
+test CV07::test_pass_no_outer_brackets
+test CV07::test_fail_outer_brackets
+test CV07::test_fail_outer_brackets_inner_subquery
+test CV07::test_pass_set_statement_brackets
+test CV07::test_pass_no_outer_brackets_tsql
+test CV07::test_fail_outer_brackets_tsql
+test CV07::test_fail_outer_brackets_inner_subquery_tsql
+test CV07::test_pass_begin_end_statement_brackets_tsql ignored, tsql not quite working yet
+test CV07::test_fail_leading_trailing_whitespace
+test CV07::test_fail_leading_whitespace_and_comment
+test CV08::test_fail_right_join
+test CV08::test_pass_left_join
+test CV08::test_pass_inner_join
+test CV08::test_fail_right_and_right_join
+test CV08::test_fail_right_and_left_join
+test CV08::test_fail_right_and_inner_join
+test CV08::test_pass_left_inner_join
+test CV08::test_fail_subquery_right_join
+test CV08::test_pass_subquery_left_join
+test CV08::test_pass_subquery_inner_join
+test CV08::test_fail_with_right_join
+test CV08::test_pass_with_left_join
+test CV08::test_pass_with_inner_join
+test CV09::test_pass_default_none
+test CV09::test_fail_deny_word
+test CV09::test_fail_deny_word_case_difference1
+test CV09::test_fail_deny_word_case_difference2
+test CV09::test_fail_multiple_deny_words1
+test CV09::test_fail_multiple_deny_words2
+test CV09::test_pass_not_complete_match
+test CV09::test_pass_is_comment
+test CV09::test_pass_in_comment
+test CV09::test_fail_bool ignored, ignored, dialect exasol is not supported
+test CV09::test_pass_bool ignored, ignored, dialect exasol is not supported
+test CV09::test_pass_bigquery
+test CV09::test_fail_bigquery
+test CV09::test_fail_bigquery2
+test CV09::test_fail_bigquery3
+test CV09::test_pass_comment_word1
+test CV09::test_pass_comment_word2
+test CV09::test_pass_comment_word3
+test CV09::test_pass_comment_regex1
+test CV09::test_pass_comment_regex2
+test CV09::test_pass_comment_regex3
+test CV09::test_pass_match_source1templater not yet supported ignored, jinja templating is not supported
+test CV09::test_pass_match_source2templater not yet supported ignored, jinja templating is not supported
+test CV09::test_fail_match_source1templater not yet supported ignored, jinja templating is not supported
+test CV10::test_fail_result_of_fix_is_valid_bigquery
+test CV10::test_fail_result_of_fix_is_valid_hive ignored, ignored, dialect hive is not supported
+test CV10::test_fail_result_of_fix_is_valid_mysql
+failed: CV10 - test_fail_result_of_fix_is_valid_mysql
+test CV10::test_fail_result_of_fix_is_valid_sparksql
+test CV10::test_pass_preferred_tripple_quotes
+test CV10::test_fail_alternate_tripple_quotes
+test CV10::test_fail_unnecessary_escaping
+test CV10::test_fail_bigquery_string_prefixes
+test CV10::test_fail_bigquery_string_prefixes_when_style_is_consistent
+test CV10::test_fail_tripple_quoted_strings_with_quotes_in_them
+test CV10::test_fail_tripple_quoted_strings_dont_remove_escapes_single_quotes
+test CV10::test_fail_tripple_quoted_strings_dont_remove_escapes_double_quotes
+test CV10::test_fail_edge_case_tripple_quoted_string_ending_with_double_quote
+test CV10::test_pass_lots_of_quotes
+test CV10::test_fail_lots_of_quotes
+test CV10::test_fail_quote_replace_in_raw_strings
+test CV10::test_pass_dollar_quoted_strings_are_ignored
+test CV10::test_pass_date_constructor_strings_are_ignored_1
+test CV10::test_pass_date_constructor_strings_are_ignored_2
+test CV10::test_pass_empty_string
+test CV10::test_fail_empty_string
+test CV10::test_pass_partially_templated_quoted_literals_simple
+test CV10::test_fail_partially_templated_quoted_literals_simple ignored, jinja is not supported
+test CV10::test_pass_partially_templated_quoted_literals_complex
+test CV10::test_fail_partially_templated_quoted_literals_complex ignored, jinja is not supported
+test CV10::test_pass_partially_templated_quoted_literals_with_multiple_templates
+test CV10::test_fail_partially_templated_quoted_literals_with_multiple_templates ignored, jinja is not supported
+test CV10::test_fail_partially_templated_quoted_literals_inside_blocks ignored, jinja is not supported
+test CV10::test_pass_fully_templated_quoted_literals_are_ignored
+test CV10::test_pass_partially_templated_literals_are_ignored_when_some_quotes_are_inside_the_template_1
+test CV10::test_pass_partially_templated_literals_are_ignored_when_some_quotes_are_inside_the_template_2
+test CV10::test_pass_prefix_chars_are_correctly_detected_as_unlintable
+test CV11::test_pass_cast
+test CV11::test_pass_casting_operator
+test CV11::test_pass_multi_casting_operator
+test CV11::test_pass_convert
+test CV11::test_pass_3_argument_convert
+test CV11::test_pass_convert_with_comment
+test CV11::test_pass_cast_with_comment
+test CV11::test_fail_cast_with_comment_when_config_is_set_to_convert
+test CV11::test_fail_cast_with_comment_when_config_is_set_to_shorthand
+test CV11::test_fail_3_argument_convert_when_config_is_set_to_cast
+test CV11::test_fail_3_argument_convert_when_config_is_set_to_shorthand
+test CV11::test_fail_inconsistent_type_casting_prior_convert
+test CV11::test_fail_inconsistent_type_casting_with_comment
+test CV11::test_fail_inconsistent_type_casting_prior_cast
+test CV11::test_fail_inconsistent_type_casting_prior_cast_3_arguments_convert
+test CV11::test_fail_inconsistent_type_casting_prior_convert_cast_with_comment
+test CV11::test_fail_inconsistent_type_casting_prior_shorthand
+test CV11::test_fail_inconsistent_type_casting_prior_shorthand_3_arguments_convert
+test CV11::test_fail_inconsistent_type_casting_prior_shorthand_cast_with_comment
+test CV11::test_fail_inconsistent_type_casting_when_config_cast
+test CV11::test_fail_inconsistent_type_casting_3_arguments_convert_when_config_cast
+test CV11::test_fail_inconsistent_type_casting_when_config_convert
+test CV11::test_fail_inconsistent_type_casting_when_config_shorthand
+test CV11::test_fail_inconsistent_type_casting_3_arguments_convert_when_config_shorthand
+test CV11::test_pass_when_dialect_is_teradata ignored, ignored, dialect teradata is not supported
+test CV11::test_fail_parenthesize_expression_when_config_shorthand_from_cast
+test CV11::test_fail_parenthesize_expression_when_config_shorthand_from_convert
+test CV11::test_fail_snowflake_semi_structured_cast_4453
+test CV11::test_pass_macro_cast
+test LT01::test_excess_space_without_align_alias
+test LT01::test_excess_space_with_align_alias
+test LT01::test_missing_keyword_with_align_alias
+test LT01::test_skip_alias_with_align_alias
+test LT01::test_excess_space_with_align_alias_wider
+test LT01::test_align_alias_boundary
+test LT01::test_align_alias_inline_pass
+test LT01::test_align_alias_inline_fail
+test LT01::test_align_multiple_a
+test LT01::test_align_multiple_b
+test LT01::test_align_multiple_multiple_lines_a
+failed: LT01 - test_align_multiple_multiple_lines_a
+test LT01::test_align_multiple_multiple_lines_b
+failed: LT01 - test_align_multiple_multiple_lines_b
+test LT01::test_align_multiple_all
+failed: LT01 - test_align_multiple_all
+test LT01::test_align_multiple_operators
+failed: LT01 - test_align_multiple_operators
+test LT01::test_pass_parenthesis_block_isolated
+test LT01::test_pass_parenthesis_block_isolated_template ignored, jinja is not supported
+test LT01::test_fail_parenthesis_block_not_isolated
+test LT01::test_fail_parenthesis_block_not_isolated_templated
+test LT01::test_pass_parenthesis_function
+test LT01::test_pass_snowflake_match_condition
+failed: LT01 - test_pass_snowflake_match_condition
+test LT01::test_fail_snowflake_match_condition
+failed: LT01 - test_fail_snowflake_match_condition
+test LT01::test_pass_ansi_bracketed_data_types
+failed: LT01 - test_pass_ansi_bracketed_data_types
+test LT01::test_pass_mysql_bracketed_data_types
+failed: LT01 - test_pass_mysql_bracketed_data_types
+test LT01::test_fail_whitespace_before_comma
+test LT01::test_fail_whitespace_before_comma_template
+test LT01::test_pass_errors_only_in_templated_and_ignore ignored, jinja is not supported
+test LT01::test_fail_errors_only_in_non_templated_and_ignore ignored, jinja is not supported
+test LT01::test_pass_single_whitespace_after_comma
+test LT01::test_pass_single_whitespace_after_comma_template ignored, jinja is not supported
+test LT01::test_fail_multiple_whitespace_after_comma
+test LT01::test_fail_no_whitespace_after_comma
+test LT01::test_fail_no_whitespace_after_comma_2
+test LT01::test_pass_bigquery_trailing_comma
+test LT01::test_basic
+test LT01::test_basic_template ignored, jinja is not supported
+test LT01::test_basic_fix
+test LT01::test_basic_fail_template
+test LT01::test_simple_fix
+test LT01::test_identifier_fix ignored, T-SQL multi-line object reference joining not working correctly
+test LT01::test_comparison_operator_fix ignored, T-SQL split comparison operator joining not working correctly
+test LT01::test_comparison_operator_pass ignored, T-SQL comparison operator >= incorrectly parsed as two tokens
+test LT01::test_casting_operator_fix
+test LT01::test_casting_operator_pass
+test LT01::test_fix_tsql_spaced_chars ignored, T-SQL split comparison operator joining not working correctly
+test LT01::test_pass_postgres_case_statement
+test LT01::test_excess_space_cast
+test LT01::test_redshift_at_time_zone
+test LT01::test_pass_snowflake_semi_structured
+test LT01::test_fail_snowflake_semi_structured_single
+test LT01::test_fail_snowflake_semi_structured_multi
+test LT01::test_pass_bigquery_specific
+test LT01::test_pass_bigquery_specific_arrays_1
+test LT01::test_pass_bigquery_specific_arrays_2
+test LT01::test_pass_bigquery_array_function
+test LT01::test_pass_bigquery_specific_structs
+test LT01::test_pass_bigquery_specific_struct_access
+test LT01::test_pass_bigquery_struct_function_no_spaces
+test LT01::test_postgres_datatype
+test LT01::test_redshift_datatype
+test LT01::test_bigquery_datatype
+test LT01::test_athena_datatype
+test LT01::test_hive_datatype ignored, ignored, dialect hive is not supported
+test LT01::test_sqlite_datatype
+test LT01::test_sparksql_datatype
+test LT01::test_exasol_datatype ignored, ignored, dialect exasol is not supported
+test LT01::test_teradata_datatype ignored, ignored, dialect teradata is not supported
+test LT01::test_tsql_datatype
+test LT01::test_snowflake_match_pattern
+test LT01::test_hive_set_statement ignored, ignored, dialect hive is not supported
+test LT01::test_spark_set_statement
+test LT01::test_clickhouse_system_path
+test LT01::test_pass_simple_select
+test LT01::test_pass_expression
+test LT01::test_fail_as
+test LT01::test_fail_expression
+test LT01::test_pass_comma
+test LT01::test_pass_semicolon
+test LT01::test_pass_bigquery_udf_triple_single_quote
+test LT01::test_pass_bigquery_udf_triple_double_quote
+test LT01::test_pass_ansi_single_quote
+test LT01::test_fail_ansi_single_quote
+test LT01::test_pass_tsql_unicode_single_quote ignored, T-SQL Unicode string literal N'string' incorrectly parsed as two tokens
+test LT01::test_fail_tsql_unicode_single_quote ignored, T-SQL Unicode string literal N'string' incorrectly parsed as two tokens
+test LT01::test_fail_ansi_unicode_single_quote
+test LT01::test_pass_casting_expression
+test LT01::test_fail_bigquery_casting
+test LT01::test_fail_teradata_casting_type1 ignored, ignored, dialect teradata is not supported
+test LT01::test_pass_teradata_casting_type2 ignored, ignored, dialect teradata is not supported
+test LT01::test_pass_sparksql_ansi_interval_minus
+test LT01::test_pass_sparksql_multi_units_interval_minus
+test LT01::test_fail_old_python_test
+test LT01::test_fail_no_space_after_using_clause
+test LT01::test_pass_newline_after_using_clause
+test LT01::test_fail_cte_no_space_after_as
+test LT01::test_fail_multiple_spaces_after_as
+test LT01::test_fail_cte_newline_after_as
+test LT01::test_fail_cte_newline_and_spaces_after_as
+test LT01::test_pass_cte_comment_after_as
+failed: LT01 - test_pass_cte_comment_after_as
+test LT01::test_pass_brackets
+test LT01::test_pass_expression
+test LT01::test_fail_expression
+test LT01::test_pass_newline_1
+test LT01::test_pass_newline_2
+test LT01::test_pass_newline_£
+test LT01::test_pass_sign_indicators
+test LT01::test_pass_tilde
+test LT01::fail_simple
+test LT01::pass_bigquery_hyphen
+test LT01::pass_sparksql_ansi_interval_minus
+test LT01::test_pass_sparksql_multi_units_interval_minus
+test LT01::pass_tsql_assignment_operator ignored, T-SQL compound assignment operator += incorrectly parsed as two tokens
+test LT01::pass_concat_string
+test LT01::test_pass_placeholder_spacing ignored, jinja is not supported
+test LT01::fail_bigquery_whitespaces_in_function_reference
+test LT01::pass_bigquery_safe_prefix_function
+test LT01::fail_bigquery_safe_prefix_function
+test LT01::pass_sparksql_file_literal
+test LT01::pass_sqlite_column_path_operator
+failed: LT01 - pass_sqlite_column_path_operator
+test LT01::test_fail_trailing_whitespace
+test LT01::test_fail_trailing_whitespace_on_initial_blank_line
+test LT01::test_pass_trailing_whitespace_before_template_code ignored, jinja is not supported
+test LT01::test_fail_trailing_whitespace_and_whitespace_control ignored, jinja is not supported
+test LT01::test_pass_macro_trailing ignored, jinja is not supported
+test LT02::test_fail_reindent_first_line_1
+test LT02::test_fail_reindent_first_line_2
+test LT02::test_pass_indentation_of_comments_1
+test LT02::test_pass_indentation_of_comments_2
+test LT02::test_fail_tab_indentation
+test LT02::test_pass_indented_joins_default
+test LT02::test_pass_indented_joins_false
+test LT02::test_pass_indented_joins_true
+test LT02::test_fail_indented_joins_true_fix
+test LT02::test_fail_indented_joins_false_fix
+test LT02::test_pass_indented_using_on_default
+test LT02::test_pass_indented_using_on_true
+test LT02::test_pass_indented_using_on_false
+test LT02::test_fail_indented_using_on_false
+test LT02::test_fail_indented_joins_using_on_true
+test LT02::test_fail_indented_joins_using_on_false
+test LT02::test_fail_indented_using_on_merge_statment_default
+test LT02::test_pass_indented_using_on_merge_statment_false
+test LT02::test_pass_indented_on_contents_default
+test LT02::test_pass_indented_on_contents_true
+test LT02::test_pass_indented_on_contents_false
+test LT02::test_fail_indented_on_contents_default_fix_a
+test LT02::test_fail_indented_on_contents_default_fix_b
+test LT02::test_fail_indented_on_contents_false_fix
+test LT02::test_pass_indented_from_with_comment
+test LT02::test_pass_ignored_comment
+failed: LT02 - test_pass_ignored_comment
+test LT02::test_fail_indented_from_with_comment_alternate
+test LT02::test_fail_indented_from_with_comment_fix
+test LT02::test_fail_indented_multi_line_comment
+test LT02::test_jinja_with_disbalanced_pairs ignored, jinja is not supported
+test LT02::test_fail_attempted_hanger_fix
+test LT02::test_fail_possible_hanger_fix
+test LT02::test_fail_consecutive_hangers
+test LT02::test_fail_consecutive_hangers_implicit
+test LT02::test_fail_clean_reindent_fix
+test LT02::test_pass_indent_snowflake
+test LT02::test_pass_indent_indent_bigquery
+test LT02::test_jinja_indent_templated_table_name_a ignored, jinja is not supported
+test LT02::test_jinja_indent_templated_table_name_b ignored, jinja is not supported
+test LT02::test_jinja_nested_blocks ignored, jinja is not supported
+test LT02::test_limit_and_qualify_and_window_indent
+test LT02::test_limit_and_qualify_and_window_single_line
+test LT02::test_pass_cte
+test LT02::test_fail_indented_cte
+test LT02::test_exasol_script ignored, ignored, dialect exasol is not supported
+test LT02::test_pass_tsql_else_if ignored, T-SQL IF/ELSE IF/ELSE indentation not working correctly
+test LT02::test_fail_tsql_else_if ignored, T-SQL IF/ELSE IF/ELSE indentation not working correctly
+test LT02::test_fail_tsql_else_if_successive ignored, T-SQL IF/ELSE IF/ELSE indentation not working correctly
+test LT02::test_tsql_function ignored, T-SQL CREATE FUNCTION syntax not fully supported
+test LT02::test_pass_ignore_templated_whitespace
+test LT02::test_fail_ignore_templated_whitespace_1
+test LT02::test_fail_ignore_templated_whitespace_2
+test LT02::test_fail_ignore_templated_whitespace_3
+test LT02::test_pass_ignore_templated_whitespace_4
+test LT02::test_pass_ignore_templated_newline_not_last_line ignored, jinja is not supported
+test LT02::test_pass_ignore_templated_newline_last_line
+test LT02::test_fail_fix_template_indentation_1
+test LT02::test_fail_fix_template_indentation_2 ignored, jinja is not supported
+test LT02::test_pass_tsql_update_indent
+test LT02::test_pass_tsql_declare_indent ignored, T-SQL DECLARE statement indentation not working correctly
+test LT02::test_pass_tsql_set_indent ignored, T-SQL SET statement indentation not working correctly
+test LT02::test_pass_tsql_set_indent_multiple_params ignored, T-SQL SET statement indentation not working correctly
+test LT02::test_pass_tsql_if_indent ignored, T-SQL IF statement indentation not working correctly
+test LT02::test_pass_exasol_func_indent ignored, ignored, dialect exasol is not supported
+test LT02::test_fail_fix_exa_func_format ignored, ignored, dialect exasol is not supported
+test LT02::test_pass_tsql_index_indent ignored, T-SQL CREATE INDEX indentation not working correctly
+test LT02::test_pass_tsql_statistics_indent ignored, T-SQL CREATE STATISTICS indentation not working correctly
+test LT02::test_fail_snowflake_merge_statement
+test LT02::test_fail_hanging_indents_convert_to_normal_indent
+test LT02::test_fail_hanging_indents_fix_mixed_indents
+test LT02::test_pass_indented_procedure_parameters ignored, T-SQL CREATE PROCEDURE syntax not fully supported
+test LT02::test_fail_unindented_procedure_parameters ignored, T-SQL CREATE PROCEDURE syntax not fully supported
+test LT02::test_tsql_bubble_up_newline_after_fix ignored, T-SQL CREATE PROCEDURE syntax not fully supported
+test LT02::test_tsql_cross_apply_indentation
+test LT02::test_tsql_cross_join_indentation
+test LT02::test_tsql_nested_join ignored, T-SQL nested JOIN indentation not working correctly
+test LT02::test_tsql_outer_apply_indentation
+test LT02::test_tsql_outer_apply_indentation_fix
+test LT02::test_fail_consuming_whitespace_a ignored, jinja is not supported
+test LT02::test_fail_consuming_whitespace_b ignored, jinja is not supported
+test LT02::test_pass_consuming_whitespace_stable ignored, jinja is not supported
+test LT02::test_fail_trailing_comments
+test LT02::test_fail_case_statement
+test LT02::test_pass_templated_case_statement ignored, jinja is not supported
+test LT02::test_pass_jinja_tag_multiline ignored, jinja is not supported
+test LT02::test_pass_trailing_inline_noqa
+test LT02::test_pass_implicit_indent
+test LT02::test_fail_deny_implicit_indent
+test LT02::test_pass_templated_newlines ignored, jinja is not supported
+test LT02::test_fail_fix_beside_templated ignored, jinja is not supported
+test LT02::test_pass_block_comment
+test LT02::test_fix_block_comment
+test LT02::test_fail_case_else_end_clause
+test LT02::test_fail_hard_templated_indents ignored, jinja is not supported
+test LT02::test_fail_fix_consistency_around_comments
+test LT02::test_fail_coverage_indent_trough
+test LT02::test_pass_combined_comment_impulses
+test LT02::test_indented_comment_tsql
+test LT02::test_pass_join_comment_indents_1
+test LT02::test_pass_join_comment_indents_2
+test LT02::test_comment_effect_indents_default
+test LT02::test_comment_effect_indents_implicit
+test LT02::test_untaken_negative_1
+test LT02::test_untaken_negative_2
+test LT02::test_untaken_negative_implicit
+test LT02::test_fail_mixed_tabs_and_spaces
+test LT02::test_fix_implicit_indents_4467_a
+test LT02::test_fix_implicit_indents_4467_b
+test LT02::test_fix_macro_indents_4367 ignored, jinja is not supported
+test LT02::test_fix_untaken_positive_4433
+test LT02::test_implicit_case_4542
+test LT02::test_indented_joins_4484
+test LT02::test_tsql_where_implicit_4559
+test LT02::test_jinja_nested_tracking ignored, jinja is not supported
+test LT02::test_configure_no_indent_before_then_4589
+test LT02::test_bigquery_insert_statement_values_clause
+test LT02::test_bigquery_merge_statement_values_clause
+test LT02::test_fail_issue_4680 ignored, jinja is not supported
+test LT02::test_implicit_indent_when
+test LT02::test_implicit_indent_nested_when
+test LT02::test_fail_issue_4745 ignored, jinja is not supported
+test LT02::test_pass_trailing_comment_1
+test LT02::test_pass_trailing_comment_2
+test LT02::test_pass_issue_4582
+test LT02::test_pass_issue_4540
+test LT02::test_pass_closed_bracketed_implicit
+test LT02::test_fix_unclosed_bracketed_implicit
+test LT02::test_pass_implicit_where
+test LT02::test_pass_templated_join
+failed: LT02 - test_pass_templated_join
+test LT02::test_whitespace_control_issue_5277
+failed: LT02 - test_whitespace_control_issue_5277
+test LT02::test_inconsistent_indent
+failed: LT02 - test_inconsistent_indent
+test LT02::test_pass_loop_indent_0
+failed: LT02 - test_pass_loop_indent_0
+test LT02::test_pass_loop_indent_1
+failed: LT02 - test_pass_loop_indent_1
+test LT02::test_pass_loop_indent_2
+failed: LT02 - test_pass_loop_indent_2
+test LT02::test_pass_loop_indent_3
+failed: LT02 - test_pass_loop_indent_3
+test LT02::test_pass_loop_indent_4
+failed: LT02 - test_pass_loop_indent_4
+test LT02::test_pass_loop_indent_5
+failed: LT02 - test_pass_loop_indent_5
+test LT02::test_pass_loop_indent_6
+failed: LT02 - test_pass_loop_indent_6
+test LT02::test_fail_sqlite_update_returning
+failed: LT02 - test_fail_sqlite_update_returning
+test LT02::test_fail_postgres_update_returning
+failed: LT02 - test_fail_postgres_update_returning
+test LT02::test_fail_postgres_insert_returning
+failed: LT02 - test_fail_postgres_insert_returning
+test LT02::test_fail_postgres_on_conflict_returning
+failed: LT02 - test_fail_postgres_on_conflict_returning
+test LT02::test_fail_ansi_update
+failed: LT02 - test_fail_ansi_update
+test LT02::test_fail_exasol_update ignored, ignored, dialect exasol is not supported
+test LT02::test_fail_mysql_update
+failed: LT02 - test_fail_mysql_update
+test LT02::test_fail_teradata_update ignored, ignored, dialect teradata is not supported
+test LT02::test_fail_tsql_update
+failed: LT02 - test_fail_tsql_update
+test LT02::test_jinja_value_error_6378templater not yet supported ignored, jinja templating is not supported
+test LT02::spaces_pass_default
+test LT02::spaces_fail
+test LT02::spaces_fail_custom_tab_space_size
+test LT02::tabs_fail_default
+test LT02::tabs_fail_default_set_tab_space_size
+test LT02::tabs_pass
+test LT02::indented_comments
+test LT02::indented_comments_default_config
+test LT02::indented_comments_tab_config
+test LT03::passes_on_before_default
+test LT03::fails_on_after_default
+test LT03::fails_on_after_default_on_and
+test LT03::fails_on_after_with_comment_order_preserved
+test LT03::passes_on_before_explicit
+test LT03::fails_on_after_explicit
+test LT03::fails_on_after_multi_explicit
+test LT03::fails_on_before_override
+test LT03::passes_on_after_override
+test LT03::fails_on_before_override_with_comment_order
+test LT03::fails_on_after_override_with_comment_order
+test LT03::fails_leading_with_comments
+test LT03::fails_trailing_with_comments
+test LT03::passes_templated_newline
+test LT03::fails_templated_code_non_templated_newline ignored, jinja is not supported
+test LT03::passes_operator_alone_on_line
+test LT03::fixes_tuple_error_issue ignored, jinja is not supported
+test LT04::leading_comma_violations
+test LT04::leading_comma_violation_with_inline_comment
+test LT04::leading_commas_allowed
+test LT04::leading_commas_allowed_with_header
+test LT04::leading_comma_violations_in_with_statement
+test LT04::leading_commas_allowed_in_with_statement
+test LT04::trailing_comma_violations
+test LT04::trailing_commas_allowed
+test LT04::trailing_comma_fixing_removes_extra_whitespace
+test LT04::leading_comma_fixing_flows_around_comments
+test LT04::trailing_comma_move_past_several_comment_lines
+test LT04::leading_comma_move_past_several_comment_lines
+test LT04::leading_comma_with_templated_column_1
+test LT04::leading_comma_with_templated_column_2
+test LT04::trailing_comma_with_templated_column_1
+test LT04::trailing_comma_with_templated_column_2
+test LT04::leading_comma_fix_mixed_indent
+test LT04::trailing_comma_fix_mixed_indent
+test LT04::trailing_comma_no_space_comment
+failed: LT04 - trailing_comma_no_space_comment
+test LT05::test_pass_line_too_long_config_override
+test LT05::test_fail_line_too_long_with_comments_1
+test LT05::test_fail_line_too_long_with_comments_1_after
+test LT05::test_fail_line_too_long_with_comments_1_no_newline
+test LT05::test_fail_line_too_long_with_comments_2
+test LT05::test_fail_line_too_long_with_comments_3
+test LT05::test_fail_line_too_long_with_comments_4
+test LT05::test_pass_line_too_long_with_comments_ignore_comment_lines
+test LT05::test_fail_line_too_long_only_comments
+test LT05::test_fail_line_too_long_handling_indents
+test LT05::test_pass_line_too_long_ignore_comments_true
+test LT05::test_pass_line_too_long_ignore_comments_false
+test LT05::test_compute_line_length_before_template_expansion_1
+test LT05::test_compute_line_length_before_template_expansion_2 ignored, jinja is not supported
+test LT05::test_long_jinja_comment
+test LT05::test_long_jinja_comment_ignore ignored, jinja is not supported
+test LT05::test_for_loop
+test LT05::test_for_loop_repeating_elements_starts_with_literal
+test LT05::test_for_loop_starting_with_templated_piece
+test LT05::test_for_loop_fail_complex_match
+test LT05::test_for_loop_fail_simple_match
+test LT05::test_set_statement
+test LT05::test_issue_1666_line_too_long_unfixable_jinja
+test LT05::test_fail_ignore_comment_clauses_1
+test LT05::test_fail_ignore_comment_clauses_2
+test LT05::test_pass_ignore_comment_clauses
+test LT05::test_pass_ignore_comment_clauses_teradata ignored, ignored, dialect teradata is not supported
+test LT05::test_pass_ignore_comment_clauses_exasol ignored, ignored, dialect exasol is not supported
+test LT05::test_pass_ignore_comment_clauses_snowflake
+test LT05::test_pass_ignore_comment_clauses_postgres
+test LT05::test_fail_templated_comment_line
+test LT05::test_pass_ignore_templated_comment_lines ignored, jinja is not supported
+test LT05::test_fail_operator_precedence_1
+test LT05::test_fail_operator_precedence_2
+test LT05::test_fail_operator_precedence_3
+test LT05::test_pass_long_multiline_jinja
+test LT05::test_fail_long_inline_statement
+test LT05::test_pass_check_off_1
+test LT05::test_pass_check_off_2
+test LT05::test_comment_move_mid_query
+test LT05::test_fix_implicit_indent
+test LT05::test_fix_no_implicit_indent
+test LT05::test_fix_window_function
+test LT05::test_fail_do_not_fix_noqa
+test LT05::test_block_comment_single_line_noqa
+test LT05::test_fail_block_comment_single_line_noqa
+test LT05::test_fail_block_comment_multi_line_noqa
+test LT05::test_fail_block_comment_noqa_following_preceding_text_noqa
+test LT05::test_fail_block_comment_noqa_not_at_end_of_line_noqa
+test LT05::test_operator_precedence
+test LT05::test_long_functions_and_aliases
+test LT05::test_order_by_rebreak_span ignored, jinja is not supported
+test LT05::test_trailing_semicolon_moves
+test LT05::test_pass_window_function
+test LT05::test_fail_no_fix_long_templated
+test LT06::passing_example
+test LT06::passing_example_window_function
+test LT06::simple_fail
+test LT06::complex_fail_1
+test LT06::complex_fail_2
+test LT07::test_pass_with_clause_closing_aligned
+test LT07::test_pass_with_clause_closing_aligned_whitespace_consumption_a
+test LT07::test_pass_with_clause_closing_aligned_whitespace_consumption_b
+failed: LT07 - test_pass_with_clause_closing_aligned_whitespace_consumption_b
+test LT07::test_pass_with_clause_closing_aligned_whitespace_consumption_c
+test LT07::test_fix_with_clause_closing_aligned_whitespace_consumption_d
+test LT07::test_pass_with_clause_closing_oneline
+test LT07::test_pass_with_clause_closing_misaligned_indentation
+test LT07::test_pass_with_clause_closing_misaligned_negative_indentation
+test LT07::test_move_parenthesis_to_next_line
+test LT07::test_pass_cte_with_column_list
+test LT07::test_pass_with_clause_closing_misaligned_indentation_in_templated_block
+test LT07::test_move_parenthesis_to_next_line_in_templated_block ignored, jinja is not supported
+test LT07::test_pass_templated_clauses
+test LT08::test_pass_blank_line_after_cte_trailing_comma
+test LT08::test_pass_blank_line_after_cte_leading_comma
+test LT08::test_fail_no_blank_line_after_each_cte
+test LT08::test_fail_no_blank_line_after_cte_before_comment
+test LT08::test_fail_no_blank_line_after_cte_and_comment
+test LT08::test_fail_no_blank_line_after_last_cte_trailing_comma
+test LT08::test_fail_no_blank_line_after_last_cte_leading_comma
+test LT08::test_fail_oneline_cte_leading_comma
+test LT08::test_fail_cte_floating_comma
+test LT08::test_pass_column_name_definition
+test LT08::test_pass_column_name_definition_multiple
+test LT08::test_fail_column_name_definition_newline
+test LT08::test_fail_column_name_definition_comment
+test LT08::test_pass_recursive_with_argument_list
+test LT08::test_pass_recursive_with_argument_list_postgres
+test LT09::test_single_select_target_and_no_newline_between_select_and_select_target
+test LT09::test_single_wildcard_select_target_and_no_newline_between_select_and_select_target_1
+test LT09::test_single_wildcard_select_target_and_no_newline_between_select_and_select_target_2
+test LT09::test_single_select_target_and_newline_after_select_target_1
+test LT09::test_single_select_target_and_newline_after_select_target_2
+test LT09::test_single_select_target_and_newline_before_select_target
+test LT09::test_multiple_select_targets_on_newlines_and_newline_after_select
+test LT09::test_single_wildcard_select_target_and_newline_before_select_target_1
+test LT09::test_single_wildcard_select_target_and_newline_before_select_target_2
+test LT09::test_single_wildcard_select_target_and_newline_before_select_target_plus_from_on_same_line_1
+test LT09::test_single_wildcard_select_target_and_newline_before_select_target_plus_from_on_same_line_2
+test LT09::test_multiple_select_targets_all_on_the_same_line
+test LT09::test_multiple_select_targets_all_on_the_same_line_plus_from_clause
+test LT09::test_multiple_select_targets_including_wildcard_all_on_the_same_line_plus_from_clause
+test LT09::test_multiple_select_target_plus_from_clause_on_the_same_line
+test LT09::test_multiple_select_targets_trailing_whitespace_after_select
+test LT09::test_single_select_with_comment_after_select
+test LT09::test_comment_between_select_and_single_select_target
+test LT09::test_multiple_select_targets_some_newlines_missing_1
+test LT09::test_multiple_select_targets_some_newlines_missing_2
+test LT09::test_cte
+test LT09::test_single_newline_no_from
+test LT09::test_single_distinct_no_from
+test LT09::test_distinct_many
+test LT09::test_distinct_single_pass
+test LT09::test_distinct_single_fail_a
+test LT09::test_distinct_single_fail_b
+test LT09::test_single_select_with_no_from
+test LT09::test_single_select_with_no_from_previous_comment
+test LT09::test_single_select_with_comment_after_column
+test LT09::test_single_select_with_comment_after_column_no_space
+test LT09::test_single_select_with_multiple_mixed_comments
+test LT09::test_single_select_with_comment before
+test LT09::test_create_view
+test LT09::test_multiline_single
+test LT09::test_multiline_expressions
+failed: LT09 - test_multiline_expressions
+test LT09::test_pass_leading_commas
+test LT10::test_fail_distinct_on_next_line_1
+test LT10::test_fail_distinct_on_next_line_2
+test LT10::test_fail_distinct_on_next_line_3
+test LT10::test_fail_distinct_on_next_line_4
+test LT10::test_pass_distinct_on_same_line_with_select
+test LT11::test_fail_simple_fix_union_all_before
+test LT11::test_fail_simple_fix_union_all_after
+test LT11::test_fail_simple_fix_union_all_before_and_after
+test LT11::test_pass_multiple_newlines_are_allowed
+test LT11::test_fail_fix_works_in_subqueries
+test LT11::test_pass_fix_works_in_subqueries_after_LT02_fix
+test LT11::test_fail_simple_fix_union_before_and_after
+test LT11::test_fail_simple_fix_intersect_before_and_after
+test LT11::test_fail_simple_fix_except_before_and_after
+test LT11::test_fail_simple_fix_minus_before_and_after
+test LT11::test_fail_simple_fix_bigquery_intersect_distinct_before_and_after
+test LT12::test_pass_single_final_newline
+test LT12::test_fail_no_final_newline
+test LT12::test_fail_multiple_final_newlines
+test LT12::test_pass_templated_plus_raw_newlines
+test LT12::test_pass_templated_consume_whitespace
+test LT12::test_fail_templated_consume_whitespace_nothing
+test LT12::test_fail_templated_consume_whitespace_whitespace
+failed: LT12 - test_fail_templated_consume_whitespace_whitespace
+test LT12::test_fail_templated_consume_whitespace_extra
+test LT12::test_fail_templated_plus_raw_newlines
+test LT12::test_fail_templated_plus_raw_newlines_extra_newline
+test LT12::test_pass_templated_macro_newlines
+test LT12::test_fail_templated_no_newline
+test LT13::test_pass_leading_whitespace_statement
+test LT13::test_pass_leading_whitespace_comment
+test LT13::test_pass_leading_whitespace_inline_comment
+test LT13::test_pass_leading_whitespace_inline_comment_hash
+test LT13::test_pass_leading_whitespace_jinja_comment
+test LT13::test_pass_leading_whitespace_jinja_if
+test LT13::test_pass_leading_whitespace_jinja_for
+test LT13::test_fail_leading_whitespace_statement
+test LT13::test_fail_leading_whitespace_comment
+test LT13::test_fail_leading_whitespace_inline_comment
+test LT13::test_fail_leading_whitespace_jinja_comment
+test LT13::test_fail_leading_whitespace_jinja_if
+test LT13::test_fail_leading_whitespace_jinja_for
+test RF01::test_pass_object_referenced_1
+test RF01::test_fail_object_not_referenced_1
+test RF01::test_fail_object_not_referenced_2
+test RF01::test_pass_object_referenced_2
+test RF01::test_pass_object_referenced_3
+test RF01::test_pass_object_referenced_4a
+test RF01::test_pass_object_referenced_4b
+failed: RF01 - test_pass_object_referenced_4b
+test RF01::test_pass_object_referenced_5a
+test RF01::test_pass_object_referenced_5b
+test RF01::test_pass_object_referenced_5c
+test RF01::test_pass_object_referenced_5d ignored, ignored, dialect hive is not supported
+test RF01::test_pass_object_referenced_5e
+test RF01::test_pass_object_referenced_6
+test RF01::test_pass_object_referenced_7
+test RF01::test_fail_object_referenced_7
+test RF01::test_pass_object_referenced_8
+test RF01::test_pass_two_part_reference_8
+test RF01::test_pass_two_part_reference_9
+test RF01::test_fail_two_part_reference_10
+test RF01::test_fail_two_part_reference_11
+test RF01::test_pass_two_part_reference_11
+test RF01::test_pass_bigquery_dash
+test RF01::test_pass_exasol_select_into ignored, ignored, dialect exasol is not supported
+test RF01::test_pass_simple_delete
+test RF01::test_exasol_invalid_foreign_key_from ignored, ignored, dialect exasol is not supported
+test RF01::test_tsql_select_system_as_identifier
+test RF01::test_mysql_select_no_from_should_not_except
+test RF01::test_nested_join_clause_does_not_flag ignored, T-SQL nested JOIN syntax causes panic in parser
+test RF01::test_nested_join_clauses_do_not_flag ignored, T-SQL nested JOIN syntax causes panic in parser
+test RF01::test_parenthesized_join_clauses_do_not_flag ignored, T-SQL parenthesized JOIN syntax causes panic in parser
+test RF01::test_soql_ignore_rule ignored, ignored, dialect soql is not supported
+test RF01::test_postgres_value_table_alias
+test RF01::test_pass_update_with_alias
+test RF01::test_pass_postgres_merge_with_alias
+test RF01::test_pass_tsql_nested_join_alias
+failed: RF01 - test_pass_tsql_nested_join_alias
+test RF01::test_pass_trino_lambda_expression
+failed: RF01 - test_pass_trino_lambda_expression
+test RF01::test_athena_ignore_rule_if_single_table
+failed: RF01 - test_athena_ignore_rule_if_single_table
+test RF01::test_athena_apply_rule_if_single_table_and_force_enable
+test RF01::test_athena_apply_rule_if_multiple_tables
+test RF01::test_athena_apply_rule_if_one_aliased_table
+test RF01::test_sqlite_create_trigger_after_insert_reference
+failed: RF01 - test_sqlite_create_trigger_after_insert_reference
+test RF01::test_sqlite_create_trigger_after_delete_reference
+failed: RF01 - test_sqlite_create_trigger_after_delete_reference
+test RF01::test_sqlite_create_trigger_after_update_reference
+failed: RF01 - test_sqlite_create_trigger_after_update_reference
+test RF01::test_sqlite_outside_of_trigger
+test RF01::test_mysql_identifier_with_backticks_should_not_except
+test RF01::test_snowflake_pass_dot_inside_quotes
+failed: RF01 - test_snowflake_pass_dot_inside_quotes
+test RF01::test_postgres_pass_dot_inside_quotes
+failed: RF01 - test_postgres_pass_dot_inside_quotes
+test RF01::test_tsql_bracketed_identifiers_pass
+failed: RF01 - test_tsql_bracketed_identifiers_pass
+test RF01::test_bigquery_unnest_with_offset_pass
+test RF01::test_pass_tsql_pivot_table_alias
+failed: RF01 - test_pass_tsql_pivot_table_alias
+test RF02::test_pass_qualified_references_multi_table_statements
+test RF02::test_fail_unqualified_references_multi_table_statements
+test RF02::test_pass_qualified_references_multi_table_statements_subquery
+test RF02::test_fail_unqualified_references_multi_table_statements_subquery
+test RF02::test_pass_qualified_references_multi_table_statements_subquery_mix
+test RF02::test_allow_date_parts_as_function_parameter_bigquery
+test RF02::test_allow_date_parts_as_function_parameter_snowflake
+test RF02::test_ignore_value_table_functions_when_counting_tables
+test RF02::test_ignore_value_table_functions_when_counting_unqualified_aliases
+test RF02::test_allow_unqualified_references_in_sparksql_lambdas
+test RF02::test_pass_databricks_lambdas
+failed: RF02 - test_pass_databricks_lambdas
+test RF02::test_allow_unqualified_references_in_snowflake_lambdas
+failed: RF02 - test_allow_unqualified_references_in_snowflake_lambdas
+test RF02::test_allow_unqualified_references_in_athena_lambdas
+test RF02::test_allow_unqualified_references_in_athena_lambdas_with_several_arguments
+test RF02::test_disallow_unqualified_references_in_malformed_lambdas
+test RF02::test_fail_column_and_alias_same_name
+test RF02::test_pass_column_and_alias_same_name_1
+test RF02::test_pass_column_and_alias_same_name_2
+test RF02::test_pass_qualified_references_multi_table_statements_mysql
+test RF02::test_fail_unqualified_references_multi_table_statements_mysql
+test RF02::test_fail_column_and_alias_same_name_mysql
+test RF02::test_pass_column_and_alias_same_name_1_mysql
+test RF02::test_pass_column_and_alias_same_name_2_mysql
+test RF02::test_pass_variable_reference_in_where_clause_mysql
+test RF02::test_pass_qualified_references_multi_table_statements_tsql ignored, T-SQL JOIN syntax causes panic in parser
+test RF02::test_fail_unqualified_references_multi_table_statements_tsql ignored, T-SQL JOIN syntax causes panic in parser
+test RF02::test_fail_column_and_alias_same_name_tsql ignored, T-SQL JOIN syntax causes panic in parser
+test RF02::test_pass_column_and_alias_same_name_1_tsql ignored, T-SQL JOIN syntax causes panic in parser
+test RF02::test_pass_column_and_alias_same_name_2_tsql ignored, T-SQL JOIN syntax causes panic in parser
+test RF02::test_pass_rowtype_with_join ignored, ignored, dialect hive is not supported
+test RF02::test_fail_table_plus_flatten_snowflake_1
+test RF02::test_fail_table_plus_flatten_snowflake_2
+test RF02::test_pass_table_plus_flatten_snowflake_1
+test RF02::test_pass_ignore_words_column_name
+test RF02::test_pass_ignore_words_regex_column_name
+test RF02::test_pass_ignore_words_regex_bigquery_declare_example
+test RF02::test_pass_redshift
+test RF02::test_pass_tsql ignored, T-SQL JOIN syntax causes panic in parser
+test RF02::test_pass_ansi
+test RF02::test_pass_redshift_convert
+test RF02::test_fail_unreferenced_subquery_column
+failed: RF02 - test_fail_unreferenced_subquery_column
+test RF02::test_pass_referenced_subquery_column
+test RF02::test_pass_referenced_subquery_is_self
+test RF02::test_pass_declared_bigquery_variable
+failed: RF02 - test_pass_declared_bigquery_variable
+test RF02::test_pass_from_clause_subquery
+test RF02::test_pass_join_clause_subquery
+test RF02::test_fail_nested_correlated_subquery_inside_from_clause
+failed: RF02 - test_fail_nested_correlated_subquery_inside_from_clause
+test RF02::test_fail_select_scalar_subquery
+failed: RF02 - test_fail_select_scalar_subquery
+test RF02::test_fail_exists_subquery
+failed: RF02 - test_fail_exists_subquery
+test RF02::test_pass_ignore_deeper_alias_6389
+failed: RF02 - test_pass_ignore_deeper_alias_6389
+test RF02::test_fail_unqual_refs_multi_table_statements_ignore_external_references
+test RF02::test_fail_unqual_refs_multi_table_statements_subq_ignore_external_references
+test RF02::test_pass_unreferenced_subquery_column_subqueries_ignore_external_references
+test RF02::test_pass_select_scalar_subquery_subqueries_ignore_external_references
+test RF02::test_pass_exists_subquery_subqueries_ignore_external_references
+test RF03::test_fail_single_table_mixed_qualification_of_references
+test RF03::test_pass_single_table_consistent_references_1
+test RF03::test_pass_single_table_consistent_references_2
+test RF03::test_pass_on_tableless_table
+test RF03::test_fail_single_table_mixed_qualification_of_references_subquery
+test RF03::test_pass_lateral_table_ref
+test RF03::test_pass_single_table_consistent_references_1_subquery
+test RF03::test_pass_single_table_consistent_references_2_subquery
+test RF03::test_fail_single_table_reference_when_unqualified_config
+test RF03::test_fail_single_table_reference_when_qualified_config
+test RF03::test_pass_single_table_reference_in_subquery
+test RF03::test_value_table_functions_do_not_require_qualification
+test RF03::test_object_references_1a
+test RF03::test_object_references_1b
+test RF03::test_object_references_1c
+test RF03::test_object_references_1d
+test RF03::test_object_references_1e
+test RF03::test_object_references_struct_inconsistent_fix_a
+test RF03::test_object_references_1f ignored, ignored, dialect hive is not supported
+test RF03::test_object_references_1g
+test RF03::test_tsql_pivot_are_excluded ignored, tsql not quite working yet
+test RF03::test_date_functions_are_excluded
+test RF03::test_select_alias_in_where_clause_1
+test RF03::test_select_alias_in_where_clause_2
+test RF03::test_pass_group_by_alias
+test RF03::test_pass_order_by_alias
+test RF03::test_pass_having
+test RF03::test_fail_select_alias_in_where_clause_5
+test RF03::test_pass_tsql_parameter
+test RF03::test_pass_tsql_pivot
+test RF03::test_unfixable_ambiguous_reference_subquery
+test RF03::test_pass_snowflake_flatten_function
+test RF03::passes_tql_table_variable
+test RF03::fail_but_dont_fix_templated_table_name_consistent ignored, jinja is not supported
+test RF03::fail_but_dont_fix_templated_table_name_qualified ignored, jinja is not supported
+test RF03::pass_tsql_subselect_merge_statement
+failed: RF03 - pass_tsql_subselect_merge_statement
+test RF03::test_pass_subselect_unqualified_one_reference_3987
+failed: RF03 - test_pass_subselect_unqualified_one_reference_3987
+test RF03::test_pass_subselect_unqualified_two_references_3987
+failed: RF03 - test_pass_subselect_unqualified_two_references_3987
+test RF03::test_pass_subselect_qualified_reference_5599
+test RF03::test_fail_no_fix_unqualified_correlated_subquery_5983
+test RF03::test_fail_cte_qualified_to_unqualified_6014
+test RF03::test_fail_cte_unqualified_to_qualified_6014
+test RF03::test_pass_postgres_named_arguments
+test RF03::test_pass_trino_lambda_expression
+failed: RF03 - test_pass_trino_lambda_expression
+test RF03::test_pass_snowflake_lambda_expression
+test RF04::test_pass_valid_identifier
+test RF04::test_fail_keyword_as_identifier_column
+test RF04::test_fail_keyword_as_identifier_column_alias
+test RF04::test_fail_keyword_as_identifier_table_alias
+test RF04::test_pass_valid_identifier_not_alias
+test RF04::test_fail_keyword_as_identifier_not_alias_all
+test RF04::test_pass_valid_identifier_table_alias_column_alias_config
+test RF04::test_fail_keyword_as_identifier_column_alias_config
+test RF04::test_pass_valid_quoted_identifier
+test RF04::test_fail_keyword_as_quoted_identifier_column
+test RF04::test_pass_keyword_as_quoted_identifier_column_none_policy
+test RF04::test_fail_keyword_as_quoted_identifier_column_alias
+test RF04::test_fail_keyword_as_quoted_identifier_table_alias
+test RF04::test_pass_valid_quoted_identifier_not_alias
+test RF04::test_fail_keyword_as_quoted_identifier_not_alias_all
+test RF04::test_pass_valid_quoted_identifier_table_alias_column_alias_config
+test RF04::test_fail_keyword_as_quoted_identifier_column_alias_config
+test RF04::test_pass_ignore_word1
+test RF04::test_pass_ignore_word2
+test RF04::test_pass_ignore_words_regex1
+test RF04::test_pass_ignore_words_regex2
+test RF04::test_pass_one_character_identifier
+test RF05::test_fail_special_chars_create_table_space
+test RF05::test_fail_special_chars_create_table_gt
+test RF05::test_fail_special_chars_create_table_lt
+test RF05::test_fail_special_chars_create_table_lt_bigquery
+test RF05::test_fail_special_chars_create_table_hash_unquoted
+failed: RF05 - test_fail_special_chars_create_table_hash_unquoted
+test RF05::test_pass_special_chars_create_table_none
+test RF05::test_pass_special_chars_create_table_none_quoted_tsql
+test RF05::test_pass_special_chars_create_table_none_quoted_biquery
+test RF05::test_pass_special_chars_create_table_space_allowed
+test RF05::test_fail_special_chars_quoted_policy_alias
+test RF05::test_fail_special_chars_quoted_policy_column_alias
+test RF05::test_fail_special_chars_unquoted_policy_aliases ignored, T-SQL special character detection not working correctly
+test RF05::test_fail_special_chars_unquoted_policy_column_aliases ignored, T-SQL special character detection not working correctly
+test RF05::test_pass_special_chars_quoted_policy_aliases
+test RF05::test_pass_special_chars_quoted_policy_none
+test RF05::test_pass_special_chars_unquoted_policy_aliases
+test RF05::test_pass_special_chars_unquoted_policy_column_aliases
+test RF05::test_pass_special_chars_quoted_policy_column_aliases
+test RF05::test_pass_dots_bigquery
+test RF05::test_pass_star_bigquery
+test RF05::test_fail_star_bigquery
+test RF05::test_pass_hyphen_bigquery_quotes_1
+test RF05::test_pass_hyphen_bigquery_quotes_2
+test RF05::test_pass_hyphen_bigquery_no_quotes
+test RF05::test_pass_dot_bigquery
+test RF05::test_fail_single_quote_bigquery
+test RF05::test_pass_single_quote_bigquery
+test RF05::test_pass_single_quote2_bigquery
+test RF05::test_pass_dot_slash_identifier_in_file_reference_sparksql
+test RF05::test_pass_star_identifier_in_file_reference_sparksql
+test RF05::test_pass_question_mark_identifier_in_file_reference_sparksql
+test RF05::test_pass_character_class_identifier_in_file_reference_sparksql
+test RF05::test_pass_negated_character_class_identifier_in_file_reference_sparksql
+test RF05::test_pass_character_range_identifier_in_file_reference_sparksql
+test RF05::test_pass_negated_character_range_identifier_in_file_reference_sparksql
+test RF05::test_pass_alteration_identifier_in_file_reference_sparksql
+test RF05::test_pass_ignore_lists_quoted
+test RF05::test_pass_ignore_lists_quoted_fail
+test RF05::test_pass_ignore_lists_quoted_mixed_case
+test RF05::test_pass_ignore_lists_unquoted
+test RF05::test_pass_ignore_lists_unquoted_fail
+test RF05::test_pass_ignore_lists_unquoted_mixed_case
+test RF05::test_pass_ignore_words_regex_unquoted
+test RF05::test_pass_create_extension_reference_quoted
+failed: RF05 - test_pass_create_extension_reference_quoted
+test RF05::test_pass_drop_extension_reference_quoted
+failed: RF05 - test_pass_drop_extension_reference_quoted
+test RF05::test_pass_ignore_words_regex_quoted
+test RF05::test_fail_ignore_words_regex_quoted_mixed_case
+test RF05::test_pass_special_chars_show_tblproperties
+test RF05::test_fail_special_chars_show_tblproperties
+test RF05::test_pass_special_chars_redshift_hash_table
+test RF05::test_fail_special_chars_redshift_hash_column
+test RF05::test_pass_table_aliases
+test RF05::test_fail_table_aliases
+failed: RF05 - test_fail_table_aliases
+test RF05::test_pass_special_chars_snowflake_stage_metadata
+failed: RF05 - test_pass_special_chars_snowflake_stage_metadata
+test RF05::test_pass_pivot_snowflake
+failed: RF05 - test_pass_pivot_snowflake
+test RF05::test_pass_pivot_snowflake_complex
+failed: RF05 - test_pass_pivot_snowflake_complex
+test RF06::test_pass_default
+failed: RF06 - test_pass_default
+test RF06::test_fail_default_uppercase
+failed: RF06 - test_fail_default_uppercase
+test RF06::test_fail_default_lowercase
+failed: RF06 - test_fail_default_lowercase
+test RF06::test_fail_default_insensitive
+test RF06::test_pass_reference_tsql
+test RF06::test_fail_reference_tsql
+test RF06::test_pass_column_reference_prefer_quoted_ansi
+test RF06::test_pass_column_reference_prefer_quoted_tsql
+test RF06::test_fail_column_reference_prefer_quoted_ansi
+test RF06::test_pass_table_reference_prefer_quoted_ansi
+test RF06::test_pass_table_reference_prefer_quoted_tsql
+test RF06::test_fail_table_reference_prefer_quoted_ansi
+test RF06::test_fail_table_reference_prefer_quoted_tsql
+test RF06::test_pass_multiple_references_prefer_quoted_ansi
+test RF06::test_pass_multiple_references_prefer_quoted_tsql
+test RF06::test_fail_multiple_references_prefer_quoted_ansi
+test RF06::test_fail_multiple_references_prefer_quoted_tsql
+test RF06::test_pass_whitespace_prefer_quoted_ansi
+test RF06::test_pass_whitespace_prefer_quoted_tsql
+test RF06::test_pass_special_symbols_prefer_quoted_ansi
+test RF06::test_pass_special_symbols_prefer_quoted_tsql
+test RF06::test_pass_reserved_keyword_prefer_quoted_ansi
+test RF06::test_pass_reserved_keyword_prefer_quoted_tsql
+test RF06::test_pass_column_reference_prefer_quoted_backticks
+test RF06::test_fail_column_reference_prefer_quoted_backticks
+test RF06::test_pass_table_reference_prefer_quoted_backticks
+test RF06::test_fail_table_reference_prefer_quoted_backticks
+test RF06::test_pass_multiple_references_prefer_quoted_backticks
+test RF06::test_fail_multiple_references_prefer_quoted_backticks
+test RF06::test_pass_whitespace_prefer_quoted_backticks
+test RF06::test_pass_special_symbols_prefer_quoted_backticks
+test RF06::test_pass_reserved_keyword_prefer_quoted_backticks
+test RF06::test_pass_datetime_redshift
+test RF06::test_pass_uppivot_bigquery
+test RF06::test_pass_quoted_identifier_keyword_tsql
+test RF06::test_pass_create_user_quoted_password_exasol ignored, ignored, dialect exasol is not supported
+test RF06::test_fail_create_quoted_user_exasol ignored, ignored, dialect exasol is not supported
+test RF06::test_pass_ignore_lists
+test RF06::test_pass_ignore_lists_tsql
+test RF06::test_pass_ignore_lists_mixed_case
+test RF06::test_pass_ignore_lists_mixed_case_tsql
+test RF06::test_pass_ignore_words_regex
+test RF06::test_pass_ignore_words_regex_tsql
+test RF06::test_pass_ignore_words_regex_mixed_case
+test RF06::test_pass_ignore_words_regex_mixed_case_tsql
+test RF06::test_pass_ignore_if
+test RF06::test_pass_ignore_if_tsql
+test RF06::test_fail_insert_overwrite_directory
+test RF06::test_pass_insert_overwrite_directory
+test RF06::test_fail_quoted_column_ansi
+test RF06::test_fail_quoted_column_tsql
+test RF06::test_fail_quoted_column_tsql_case_insensitive
+test RF06::test_pass_quoted_column_snowflake
+test RF06::test_fail_quoted_column_snowflake_case_insensitive
+failed: RF06 - test_fail_quoted_column_snowflake_case_insensitive
+test RF06::test_fail_quoted_column_postgres_case_sensitive
+failed: RF06 - test_fail_quoted_column_postgres_case_sensitive
+test RF06::test_fail_quoted_column_postgres_case_insensitive
+failed: RF06 - test_fail_quoted_column_postgres_case_insensitive
+test RF06::test_pass_prefer_quoted_keywords_athena
+test RF06::test_fail_prefer_quoted_keywords_athena
+test RF06::test_pass_tsql_execute_as
+test RF06::test_pass_exasol_password_literals ignored, ignored, dialect exasol is not supported
+test ST01::no_redundant_else_null
+test ST01::redundant_else_null
+test ST01::alternate_case_when_syntax
+test ST01::alternate_case_when_syntax_boolean
+test ST01::else_expression
+test ST02::test_pass_case_cannot_be_reduced_1
+test ST02::test_pass_case_cannot_be_reduced_2
+test ST02::test_pass_case_cannot_be_reduced_3
+test ST02::test_pass_case_cannot_be_reduced_4
+test ST02::test_pass_case_cannot_be_reduced_5
+test ST02::test_pass_case_cannot_be_reduced_6
+test ST02::test_pass_case_cannot_be_reduced_7
+test ST02::test_pass_case_cannot_be_reduced_8
+test ST02::test_pass_case_cannot_be_reduced_9
+test ST02::test_pass_case_cannot_be_reduced_10
+test ST02::test_pass_case_cannot_be_reduced_11
+test ST02::test_pass_case_cannot_be_reduced_12
+test ST02::test_pass_case_cannot_be_reduced_13
+test ST02::test_pass_array_accessors
+test ST02::test_fail_unnecessary_case_1
+test ST02::test_fail_unnecessary_case_2
+test ST02::test_fail_unnecessary_case_3
+test ST02::test_fail_unnecessary_case_4
+test ST02::test_fail_unnecessary_case_5
+test ST02::test_fail_unnecessary_case_6
+test ST02::test_fail_unnecessary_case_7
+test ST02::test_fail_unnecessary_case_8
+test ST02::test_fail_unnecessary_case_9
+test ST02::test_fail_unnecessary_case_10
+test ST02::test_fail_unnecessary_case_11
+test ST02::test_fail_no_copy_code_out_of_template ignored, jinja is not supported
+test ST03::test_pass_no_cte_defined_1
+test ST03::test_pass_cte_defined_and_used_1
+test ST03::test_pass_cte_defined_and_used_2
+test ST03::test_pass_cte_defined_and_used_case_insensitive
+test ST03::test_fail_cte_defined_but_unused_1
+test ST03::test_fail_cte_defined_but_unused_2
+test ST03::test_pass_cte_defined_and_used_3
+test ST03::test_fail_cte_defined_but_unused_3
+test ST03::test_pass_no_cte_defined_2
+test ST03::test_pass_cte_defined_and_used_4
+test ST03::test_pass_cte_defined_and_used_5
+test ST03::test_pass_cte_defined_and_used_6
+test ST03::test_fail_cte_defined_but_unused_4
+test ST03::test_pass_cte_defined_and_used_7
+test ST03::test_snowflake_delete_cte
+test ST03::test_pass_exasol_values_clause_cte_1 ignored, ignored, dialect exasol is not supported
+test ST03::test_pass_exasol_values_clause_cte_2 ignored, ignored, dialect exasol is not supported
+test ST03::test_pass_sparksql_values_clause_cte_1
+test ST03::test_pass_sparksql_values_clause_cte_2
+test ST03::test_fail_query_uses_templating
+test ST03::test_pass_update_cte
+test ST03::test_fail_update_cte
+test ST03::test_fail_nested_cte
+test ST03::test_pass_nested_query
+test ST03::test_fail_nested_query
+test ST03::test_pass_nested_query_in_from_clause
+test ST03::test_fail_nested_query_in_from_clause
+test ST03::test_pass_nested_with_cte
+failed: ST03 - test_pass_nested_with_cte
+test ST03::test_pass_bigquery_quoted_cte_unquoted_ref
+failed: ST03 - test_pass_bigquery_quoted_cte_unquoted_ref
+test ST03::test_pass_bigquery_quoted_cte_quoted_ref
+test ST03::test_pass_bigquery_unquoted_cte_quoted_ref
+failed: ST03 - test_pass_bigquery_unquoted_cte_quoted_ref
+test ST04::test_pass_1
+test ST04::test_pass_2
+test ST04::test_fail_1
+test ST04::test_fail_2
+test ST04::test_fail_3
+test ST04::test_fail_4
+test ST04::test_fail_5
+test ST04::test_double_nesting_1
+test ST04::test_double_nesting_2
+test ST04::test_fail_no_copy_code_out_of_template ignored, jinja is not supported
+test ST04::test_pass_different_case_expressions1
+test ST04::test_pass_different_case_expressions2
+test ST04::test_fail_nested_same_case
+test ST04::test_fail_retain_comments
+test ST04::test_fail_retain_comments_after_end
+test ST04::test_fail_retain_comments_after_else
+test ST05::select_fail
+test ST05::cte_select_fail
+test ST05::cte_with_clashing_name
+test ST05::double_nested_fail
+test ST05::double_nested_fail_2
+test ST05::unfixable_cte_clash
+test ST05::with_recursive_fail_no_fix
+test ST05::select_multijoin_fail
+test ST05::with_fail
+test ST05::set_fail
+test ST05::simple_pass
+test ST05::from_clause_pass
+test ST05::from_clause_fail
+test ST05::both_clause_fail
+test ST05::no_inner_from_pass
+test ST05::uses_templating
+test ST05::issue_2898_redshift_attribute_error
+test ST05::issue_3623_internal_error_multiple_templated_files ignored, T-SQL CTE syntax handling not working correctly
+test ST05::issue_3622_no_space_after_from
+test ST05::issue_3617_parentheses_around_ctas_select
+test ST05::issue_3572_correlated_subquery_1
+test ST05::issue_3572_correlated_subquery_2
+test ST05::issue_3572_correlated_subquery_3
+test ST05::issue_3598_avoid_looping_1
+test ST05::issue_3598_avoid_looping_2
+test ST05::test_fail_subquery_in_cte
+test ST05::test_fail_subquery_in_cte_2
+test ST05::test_fail_subquery_in_cte_3
+test ST05::test_cte_with_multiple_subqueries
+test ST05::test_cte_with_double_nested_subquery
+failed: ST05 - test_cte_with_double_nested_subquery
+test ST05::test_two_ctes_with_same_named_nested_subquery
+failed: ST05 - test_two_ctes_with_same_named_nested_subquery
+test ST05::test_fail_set_subquery_in_second_query
+failed: ST05 - test_fail_set_subquery_in_second_query
+test ST05::test_fail_set_subquery_in_second_query_join
+failed: ST05 - test_fail_set_subquery_in_second_query_join
+test ST05::test_fail_order_4782
+failed: ST05 - test_fail_order_4782
+test ST05::test_fail_order_5265
+failed: ST05 - test_fail_order_5265
+test ST05::test_fail_no_fix_nested_subquery_join
+failed: ST05 - test_fail_no_fix_nested_subquery_join
+test ST05::test_pass_nested_table_function
+failed: ST05 - test_pass_nested_table_function
+test ST05::test_pass_nested_table_function_with_subquery
+test ST05::test_fail_mariadb_insert_cte_select ignored, ignored, dialect mariadb is not supported
+test ST06::test_pass_select_statement_order
+test ST06::test_fail_select_statement_order_1
+test ST06::test_fail_select_statement_order_2
+test ST06::test_fail_select_statement_order_3
+test ST06::test_fail_select_statement_order_4
+test ST06::test_fail_select_statement_order_5
+test ST06::test_union_statements_ignored
+test ST06::test_insert_statements_ignored
+test ST06::test_insert_statement_with_cte_ignored
+test ST06::test_merge_statements_ignored
+test ST06::test_merge_statement_with_cte_ignored
+test ST06::test_create_table_as_select_statements_ignored
+test ST06::test_create_table_as_select_with_cte_ignored
+test ST06::test_fail_fix_explicit_column_references_1
+test ST06::test_fail_fix_explicit_column_references_2
+test ST06::test_fail_no_fix_implicit_column_references
+test ST06::test_pass_cte_used_in_set
+test ST06::test_pass_subquery_used_in_set
+test ST06::test_fail_cte_used_in_set
+failed: ST06 - test_fail_cte_used_in_set
+test ST06::test_fail_cte_used_in_select
+failed: ST06 - test_fail_cte_used_in_select
+test ST07::test_pass_specify_join_keys
+test ST07::test_fail_specify_join_keys_1
+test ST07::test_fail_specify_join_keys_1_with_alias
+test ST07::test_fail_specify_join_keys_1_with_subquery
+test ST07::test_fail_specify_join_keys_1_with_multi_using
+test ST07::test_fail_specify_join_keys_2
+test ST07::test_partial_fixed_up_to_2nd_join
+test ST07::select_using_fail
+test ST07::test_fail_parent_child_positioning
+test ST07::fail_but_dont_fix_templated_table_names ignored, jinja is not supported
+test ST07::test_pass_clickhouse
+test ST08::test_fail_distinct_with_parenthesis_1
+test ST08::test_fail_distinct_with_parenthesis_2
+test ST08::test_fail_distinct_with_parenthesis_3
+test ST08::test_fail_distinct_with_parenthesis_4
+test ST08::test_fail_distinct_with_parenthesis_5
+test ST08::test_fail_distinct_with_parenthesis_6
+test ST08::test_fail_distinct_with_parenthesis_7
+test ST08::test_pass_no_distinct
+test ST08::test_fail_distinct_column_inside_count
+test ST08::test_fail_distinct_concat_inside_count
+test ST08::test_pass_distinct_subquery_inside_count
+failed: ST08 - test_pass_distinct_subquery_inside_count
+test ST09::test_pass_no_join_clauses
+test ST09::test_pass_no_join_on_conditions
+test ST09::test_pass_ignored_subconditions
+test ST09::test_pass_unqualified_column_reference
+test ST09::test_pass_earlier_table_first
+test ST09::test_pass_later_table_first
+test ST09::test_fail_earlier_table_first
+test ST09::test_fail_later_table_first
+test ST09::test_fail_later_table_first_left_outer
+test ST09::test_fail_later_table_first_inner
+test ST09::test_fail_later_table_first_right
+test ST09::test_fail_later_table_first_right_outer
+test ST09::test_fail_later_table_first_full_outer
+test ST09::test_pass_later_table_first_cross
+test ST09::test_fail_later_table_first_multiple_subconditions
+test ST09::test_fail_later_table_first_multiple_comparison_operators
+test ST09::test_fail_later_table_first_subquery
+test ST09::test_fail_later_table_first_cte
+test ST09::test_fail_later_table_no_join_clause_in_cte
+test ST09::test_fail_later_table_no_join_clause_in_main_query
+test ST09::test_fail_later_table_first_brackets_after_on
+test ST09::test_fail_later_table_first_brackets_after_from
+test ST09::test_fail_later_table_first_quoted_table_and_column
+test ST09::test_fail_sparksql_lt_eq_gt_operator
+failed: ST09 - test_fail_sparksql_lt_eq_gt_operator
+test ST09::test_pass_jinja_templated_tables_correct_order
+test ST09::test_fail_jinja_templated_issue_5506_reproduction

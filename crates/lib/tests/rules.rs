@@ -13,6 +13,7 @@ pub struct Args {
     list: bool,
     ignored: bool,
     no_capture: bool,
+    no_fail_fast: bool,
 }
 
 impl Args {
@@ -26,6 +27,7 @@ impl Args {
                 "--list" => self.list = true,
                 "--ignored" => self.ignored = true,
                 "--no-capture" => self.no_capture = true,
+                "--no-fail-fast" => self.no_fail_fast = true,
                 _ => {}
             }
         }
@@ -221,21 +223,38 @@ dialect = {dialect}
                         pass_str = pass_str
                     );
 
-                    assert_eq!(&f.violations, &[], "{}", error_string);
+                    if args.no_fail_fast && !f.violations.is_empty() {
+                        println!("failed: {} - {}", file.rule, case.name);
+                    } else {
+                        assert_eq!(&f.violations, &[], "{}", error_string);
+                    }
                 }
                 TestCaseKind::Fail { fail_str } => {
                     let f = linter.lint_string_wrapped(&fail_str, false);
-                    assert_ne!(&f.violations, &[])
+
+                    if args.no_fail_fast && f.violations.is_empty() {
+                        println!("failed: {} - {}", file.rule, case.name);
+                    } else {
+                        assert_ne!(&f.violations, &[])
+                    }
                 }
                 TestCaseKind::Fix { fail_str, fix_str } => {
-                    assert_ne!(
-                        &fail_str, &fix_str,
-                        "Fail and fix strings should not be equal"
-                    );
+                    if args.no_fail_fast && fail_str == fix_str {
+                        println!("failed: {} - {}", file.rule, case.name);
+                    } else {
+                        assert_ne!(
+                            &fail_str, &fix_str,
+                            "Fail and fix strings should not be equal"
+                        );
+                    }
 
                     let f = linter.lint_string_wrapped(&fail_str, true).fix_string();
 
-                    pretty_assertions::assert_eq!(f, fix_str);
+                    if args.no_fail_fast && f != fix_str {
+                        println!("failed: {} - {}", file.rule, case.name);
+                    } else {
+                        pretty_assertions::assert_eq!(f, fix_str);
+                    }
                 }
             }
 

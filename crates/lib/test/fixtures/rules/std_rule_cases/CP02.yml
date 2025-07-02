@@ -4,7 +4,6 @@ issues_670:
   pass_str: SELECT a FROM ${ref("SHUTDOWN_DATES_ALL_PLANTS")}
   configs:
     core:
-      templater: placeholder
       templater:
         placeholder:
           param_regex: (?s)\$\{\s*self\s*\(\s*\)\s*\}|\$\{\s*ref\s*\(\s*(\"?\w+\"?|\{[^}]+\})\s*\)\s*\}|\$\{\s*ref\s*\(\s*\'\s*\d*\s*([\w]+)\s*\'\s*\)\s*\}|\$\{\s*[^}]*\s*\}

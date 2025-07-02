@@ -78,9 +78,8 @@ test_pass_sparksql_multi_units_interval_minus:
       dialect: sparksql
 
 pass_tsql_assignment_operator:
-  # Test that we fix the outer whitespace but don't add any in between + and =.
-  # TODO: Fix T-SQL compound assignment operators parsing - += incorrectly parsed as two tokens
   ignored: "T-SQL compound assignment operator += incorrectly parsed as two tokens"
+  # Test that we fix the outer whitespace but don't add any in between + and =.
   fail_str: SET @param1+=1
   fix_str: SET @param1 += 1
   configs:
@@ -91,9 +90,9 @@ pass_concat_string:
   pass_str: SELECT 'barry' || 'pollard'
 
 test_pass_placeholder_spacing:
+  ignored: "jinja is not supported"
   # Test for spacing issues around placeholders
   # https://github.com/sqlfluff/sqlfluff/issues/4253
-  ignored: "jinja is not supported"
   pass_str: |
     {% set is_dev_environment = true %}
 
@@ -132,3 +131,15 @@ fail_bigquery_safe_prefix_function:
   configs:
     core:
       dialect: bigquery
+
+pass_sparksql_file_literal:
+  pass_str: ADD JAR path/to/some.jar;
+  configs:
+    core:
+      dialect: sparksql
+
+pass_sqlite_column_path_operator:
+  pass_str: SELECT a -> 'b';
+  configs:
+    core:
+      dialect: sqlite

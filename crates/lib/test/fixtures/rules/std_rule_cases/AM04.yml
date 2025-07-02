@@ -375,11 +375,11 @@ test_pass_nested_ctes_3:
   # Test for issue 1984
   pass_str:
     with a as (
-    with b as (
-    select * from c
-    )
-    
-    select 1 from b
+        with b as (
+            select * from c
+        )
+
+        select 1 from b
     )
 
     select * from a
@@ -388,11 +388,11 @@ test_pass_nested_ctes_4:
   # Test for issue 1984
   pass_str:
     with a as (
-    with b as (
-    select * from c
-    )
-    
-    select * from b
+        with b as (
+            select * from c
+        )
+
+        select * from b
     )
 
     select 1 from a
@@ -400,39 +400,39 @@ test_pass_nested_ctes_4:
 test_cte_reference_outer_5:
   pass_str:
     with a as (
-    select 1 from b
+        select 1 from b
     )
 
     select * from (
-    select * from a
+        select * from a
     )
 
 test_cte_tricky_nesting_6:
   pass_str:
     with b as (
-    select 1 from c
+        select 1 from c
     )
 
     select * from (
-    with a as (
-    select * from b
-    )
-    
-    select * from a
+        with a as (
+            select * from b
+        )
+
+        select * from a
     )
 
 test_nested_and_same_level_ctes_7:
   pass_str:
     with a as (
-    with c as (
-    select 1 from d
-    ),
-    
-    b as (
-    select * from c
-    )
-    
-    select * from b
+      with c as (
+        select 1 from d
+      ),
+
+      b as (
+        select * from c
+      )
+
+      select * from b
     )
 
     select * from a
@@ -440,15 +440,15 @@ test_nested_and_same_level_ctes_7:
 test_nested_cte_references_outer_8:
   pass_str:
     with c as (
-    select 1 from d
+      select 1 from d
     ),
 
     a as (
-    with b as (
-    select * from c
-    )
-    
-    select * from b
+      with b as (
+        select * from c
+      )
+
+      select * from b
     )
 
     select * from a
@@ -456,11 +456,11 @@ test_nested_cte_references_outer_8:
 test_pass_join_inside_cte_with_unqualified:
   pass_str:
     with cte as (
-    select
-    *
-    from
-    t1
-    inner join t2
+        select
+            *
+        from
+            t1
+        inner join t2
     )
 
     select a, b from cte;
@@ -468,27 +468,27 @@ test_pass_join_inside_cte_with_unqualified:
 test_pass_known_number_of_columns_in_two_join_subqueries:
   pass_str:
     select
-    *
+        *
     from (
-    select a
-    from foo
+        select a
+        from foo
     ) t1
     inner join (
-    select b
-    from bar
+        select b
+        from bar
     ) t2;
 
 test_fail_two_join_subqueries_one_with_unknown_number_of_columns:
   fail_str:
     select
-    *
+        *
     from (
-    select *
-    from foo
+        select *
+        from foo
     ) t1
     inner join (
-    select b
-    from bar
+        select b
+        from bar
     ) t2;
 
 test_fail_no_source_table:
@@ -515,87 +515,85 @@ test_snowflake_delete_cte:
     core:
       dialect: snowflake
 
-# TODO Reinstate tests
-#test_pass_exasol_values_clause_cte_1:
-#  pass_str: |
-#    WITH txt AS (
-#        VALUES (1)
-#        AS t (id)
-#    )
-#
-#    SELECT *
-#    FROM txt
-#  configs:
-#    core:
-#      dialect: exasol
-#
-#test_pass_exasol_values_clause_cte_2:
-#  pass_str: |
-#    WITH txt AS (
-#        VALUES (1, 'foo')
-#        AS t (id, name)
-#    )
-#
-#    SELECT *
-#    FROM txt
-#  configs:
-#    core:
-#      dialect: exasol
-#
-#test_pass_exasol_values_clause:
-#  pass_str:
-#    SELECT *
-#    FROM (
-#    VALUES (1, 2), (3, 4)
-#    ) AS t(c1, c2)
-#  configs:
-#    core:
-#      dialect: exasol
-#
-#test_fail_exasol_invalid_foreign_key_from:
-#  # This query should fail (I think) because it
-#  # returns more than just the foreign key and
-#  # that could be an unknown number of columns.
-#  fail_str: |
-#    SELECT *
-#    WITH INVALID FOREIGN KEY (nr)
-#      FROM T1 REFERENCING T2 (id)
-#  configs:
-#    core:
-#      dialect: exasol
-#
-#test_pass_exasol_invalid_foreign_key_from:
-#  # This query should pass because it will return
-#  # just the foreign key.
-#  pass_str: |
-#    SELECT INVALID FOREIGN KEY (nr)
-#      FROM T1 REFERENCING T2 (id)
-#  configs:
-#    core:
-#      dialect: exasol
+test_pass_exasol_values_clause_cte_1:
+  pass_str: |
+    WITH txt AS (
+        VALUES (1)
+        AS t (id)
+    )
+
+    SELECT *
+    FROM txt
+  configs:
+    core:
+      dialect: exasol
+
+test_pass_exasol_values_clause_cte_2:
+  pass_str: |
+    WITH txt AS (
+        VALUES (1, 'foo')
+        AS t (id, name)
+    )
+
+    SELECT *
+    FROM txt
+  configs:
+    core:
+      dialect: exasol
+
+test_pass_exasol_values_clause:
+  pass_str:
+    SELECT *
+    FROM (
+        VALUES (1, 2), (3, 4)
+    ) AS t(c1, c2)
+  configs:
+    core:
+      dialect: exasol
+
+test_fail_exasol_invalid_foreign_key_from:
+  # This query should fail (I think) because it
+  # returns more than just the foreign key and
+  # that could be an unknown number of columns.
+  fail_str: |
+    SELECT *
+    WITH INVALID FOREIGN KEY (nr)
+      FROM T1 REFERENCING T2 (id)
+  configs:
+    core:
+      dialect: exasol
+
+test_pass_exasol_invalid_foreign_key_from:
+  # This query should pass because it will return
+  # just the foreign key.
+  pass_str: |
+    SELECT INVALID FOREIGN KEY (nr)
+      FROM T1 REFERENCING T2 (id)
+  configs:
+    core:
+      dialect: exasol
 
 test_pass_cte_no_select_final_statement:
   pass_str:
     WITH mycte AS (
-    SELECT
-    foo,
-    bar
-    FROM mytable1
+      SELECT
+          foo,
+          bar
+      FROM mytable1
     )
 
     UPDATE sometable
     SET
-    sometable.baz = mycte.bar
+        sometable.baz = mycte.bar
     FROM
-    mycte;
+        mycte;
 
-# TODO Reinstate
-#test_tsql_select_system_as_identifier:
-#  pass_str: |
-#    SELECT @@IDENTITY AS 'Identity'
-#  configs:
-#    core:
-#      dialect: tsql
+test_tsql_select_system_as_identifier:
+  pass_str: |
+    SELECT @@IDENTITY AS 'Identity'
+  configs:
+    core:
+      dialect: tsql
 
 test_pass_sparksql_values_clause_cte_1:
   pass_str: |
@@ -627,7 +625,7 @@ test_pass_sparksql_values_clause:
   pass_str:
     SELECT *
     FROM (
-    VALUES (1, 2), (3, 4)
+        VALUES (1, 2), (3, 4)
     ) AS t(c1, c2)
   configs:
     core:

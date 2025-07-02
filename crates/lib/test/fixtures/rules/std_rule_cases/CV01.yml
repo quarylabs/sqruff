@@ -101,7 +101,6 @@ test_pass_c_style_not_equal_to_tsql:
         preferred_not_equal_style: "c_style"
 
 test_fail_c_style_not_equal_to_tsql:
-  # TODO: Fix T-SQL multi-line comparison operator handling
   ignored: "T-SQL multi-line comparison operator conversion not working correctly"
   fail_str: |
     SELECT * FROM X WHERE 1  <
@@ -174,7 +173,6 @@ test_pass_ansi_not_equal_to_tsql:
         preferred_not_equal_style: "ansi"
 
 test_fail_ansi_not_equal_to_tsql:
-  # TODO: Fix T-SQL multi-line comparison operator handling
   ignored: "T-SQL multi-line comparison operator conversion not working correctly"
   fail_str: |
     SELECT * FROM X WHERE 1  !

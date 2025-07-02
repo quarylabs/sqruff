@@ -77,3 +77,45 @@ test_pass_cte_column_list:
         a,
         b
     FROM cte
+
+test_pass_duckdb_columns_expression:
+  pass_str: |
+    SELECT COLUMNS(c -> c LIKE '%num%'), 1 AS x FROM numbers;
+  configs:
+    core:
+      dialect: duckdb
+
+test_pass_duckdb_nested_columns_expression:
+  pass_str: |
+    SELECT MIN(COLUMNS(c -> c LIKE '%num%')), 1 AS x FROM numbers;
+  configs:
+    core:
+      dialect: duckdb
+
+test_pass_duckdb_exclude_expression:
+  pass_str: |
+    select * exclude (y), 6 as z from tabx;
+  configs:
+    core:
+      dialect: duckdb
+
+test_pass_duckdb_replace_expression:
+  pass_str: |
+    select * replace (3 as x), 6 as z from tabx;
+  configs:
+    core:
+      dialect: duckdb
+
+test_fail_subquery_without_alias:
+  fail_str: |
+    SELECT
+        (SELECT MAX(t.col) AS m FROM t),
+        (SELECT MAX(t.col2) AS m FROM t)
+    FROM tbl;
+
+test_pass_subquery_with_alias:
+  pass_str: |
+    SELECT
+        (SELECT MAX(t.col) AS m FROM t) AS a,
+        (SELECT MAX(t.col2) AS m FROM t) AS b
+    FROM tbl;

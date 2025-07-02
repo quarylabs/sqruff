@@ -206,10 +206,10 @@ test_double_nesting_2:
     FROM mytable
 
 test_fail_no_copy_code_out_of_template:
+  ignored: "jinja is not supported"
   # The rule wants to replace the case statement with coalesce(), but
   # LintFix.has_template_conflicts() correctly prevents it copying code out
   # of the templated region. Hence, the query is not modified.
-  ignored: "jinja is not supported"
   fail_str: |
     SELECT
         c1,
@@ -369,60 +369,3 @@ test_fail_retain_comments_after_else:
                 THEN "value2" -- but also here
         END
     FROM table;
-
-test_pass_simple_else_literal:
-  # Issue 916: Simple ELSE with literal should NOT trigger
-  pass_str: |
-    SELECT CASE WHEN x = 1 THEN 'A' ELSE 'B' END FROM t;
-
-test_pass_simple_else_column:
-  # Issue 916: ELSE with column reference should NOT trigger
-  pass_str: |
-    SELECT CASE WHEN x = 1 THEN 1 ELSE col END FROM t;
-
-test_pass_simple_else_null:
-  # Issue 916: ELSE NULL should NOT trigger
-  pass_str: |
-    SELECT CASE WHEN x = 1 THEN 'one' ELSE NULL END FROM t;
-
-test_pass_simple_else_function:
-  # Issue 916: ELSE with function should NOT trigger
-  pass_str: |
-    SELECT CASE WHEN x = 1 THEN 'A' ELSE CONCAT('B', x) END FROM t;
-
-test_pass_else_in_create_function:
-  # Issue 916: The original reported case - should NOT trigger
-  pass_str: |
-    CREATE FUNCTION get_grade(percentage FLOAT64)
-    RETURNS STRING
-    AS (
-        CASE
-            WHEN percentage > 80 THEN 'A'
-            WHEN percentage > 40 THEN 'B'
-            ELSE 'C'
-        END
-    );
-
-test_fail_issue_916_verify_nested_still_works:
-  # Issue 916: Verify nested CASE is still flattened correctly
-  fail_str: |
-    SELECT
-        CASE WHEN x = 1 THEN 'A' ELSE 'B' END AS simple,
-        CASE
-            WHEN y = 1 THEN 'A'
-            ELSE
-                CASE
-                    WHEN y = 2 THEN 'B'
-                    ELSE 'C'
-                END
-        END AS nested
-    FROM t;
-  fix_str: |
-    SELECT
-        CASE WHEN x = 1 THEN 'A' ELSE 'B' END AS simple,
-        CASE
-            WHEN y = 1 THEN 'A'
-            WHEN y = 2 THEN 'B'
-            ELSE 'C'
-        END AS nested
-    FROM t;

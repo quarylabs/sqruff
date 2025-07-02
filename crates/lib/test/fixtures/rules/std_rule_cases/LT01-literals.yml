@@ -67,7 +67,6 @@ test_fail_ansi_single_quote:
   fix_str: "SELECT a + 'b' + 'c' FROM tbl;"
 
 test_pass_tsql_unicode_single_quote:
-  # TODO: Fix T-SQL Unicode string literal parsing - N'string' incorrectly parsed as two tokens
   ignored: "T-SQL Unicode string literal N'string' incorrectly parsed as two tokens"
   pass_str: "SELECT a + N'b' + N'c' FROM tbl;"
   configs:
@@ -75,7 +74,6 @@ test_pass_tsql_unicode_single_quote:
       dialect: tsql
 
 test_fail_tsql_unicode_single_quote:
-  # TODO: Fix T-SQL Unicode string literal parsing - N'string' incorrectly parsed as two tokens
   ignored: "T-SQL Unicode string literal N'string' incorrectly parsed as two tokens"
   fail_str: "SELECT a +N'b'+N'c' FROM tbl;"
   fix_str: "SELECT a + N'b' + N'c' FROM tbl;"
@@ -134,16 +132,58 @@ test_fail_old_python_test:
   violations:
     - code: LT01
       description: Expected single whitespace between binary operator '+' and quoted literal.
-      line_no: 1
-      line_pos: 11
       name: layout.spacing
+      warning: false
+      start_file_pos: 10
+      start_line_no: 1
+      start_line_pos: 11
+      end_file_pos: 13
+      end_line_no: 1
+      end_line_pos: 14
+      fixes:
+      - edit: ' '
+        end_file_pos: 10
+        end_line_no: 1
+        end_line_pos: 11
+        start_file_pos: 10
+        start_line_no: 1
+        start_line_pos: 11
+        type: create_after
     - code: LT01
       description: Expected single whitespace between quoted literal and binary operator '+'.
-      line_no: 1
-      line_pos: 14
       name: layout.spacing
+      warning: false
+      start_file_pos: 13
+      start_line_no: 1
+      start_line_pos: 14
+      end_file_pos: 14
+      end_line_no: 1
+      end_line_pos: 15
+      fixes:
+      - edit: ' '
+        end_file_pos: 13
+        end_line_no: 1
+        end_line_pos: 14
+        start_file_pos: 13
+        start_line_no: 1
+        start_line_pos: 14
+        type: create_after
     - code: LT01
       description: Expected single whitespace between binary operator '+' and quoted literal.
-      line_no: 1
-      line_pos: 15
       name: layout.spacing
+      warning: false
+      start_file_pos: 14
+      start_line_no: 1
+      start_line_pos: 15
+      end_file_pos: 17
+      end_line_no: 1
+      end_line_pos: 18
+      fixes:
+      - edit: ' '
+        end_file_pos: 14
+        end_line_no: 1
+        end_line_pos: 15
+        start_file_pos: 14
+        start_line_no: 1
+        start_line_pos: 15
+        type: create_after

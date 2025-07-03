@@ -812,7 +812,7 @@ pub fn raw_dialect() -> Dialect {
     dialect.add([(
         "StringBinaryOperatorGrammar".into(),
         one_of(vec_of_erased![
-            Ref::new("ConcatSegment"), // Standard |_| operator
+            Ref::new("ConcatSegment"), // Standard || operator
             Ref::new("PlusSegment"),   // T-SQL + operator for string concatenation
         ])
         .to_matchable()

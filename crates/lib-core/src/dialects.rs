@@ -44,10 +44,7 @@ impl Dialect {
         self.name
     }
 
-    pub fn add(
-        &mut self,
-        iter: impl IntoIterator<Item = (Cow<'static, str>, DialectElementType)> + Clone,
-    ) {
+    pub fn add(&mut self, iter: impl IntoIterator<Item = (Cow<'static, str>, DialectElementType)>) {
         self.library.extend(iter);
     }
 

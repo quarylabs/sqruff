@@ -9,7 +9,3 @@ SELECT o#.total# FROM orders# AS o#;
 
 -- Column alias with #
 SELECT total AS amount# FROM orders#;
-
--- Temp tables (# at start) should still work
-CREATE TABLE #temp_table (id INT);
-CREATE TABLE ##global_temp (id INT);

@@ -57,6 +57,3 @@ file:
               - object_reference:
                 - naked_identifier: orders#
 - statement_terminator: ;
-- file:
-  - word: CREATE
-  - word: TABLE

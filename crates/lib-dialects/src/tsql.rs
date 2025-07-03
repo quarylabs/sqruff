@@ -255,9 +255,11 @@ pub fn raw_dialect() -> Dialect {
             let pattern = reserved_keywords.iter().join("|");
             let anti_template = format!("^({pattern})$");
 
-            // T-SQL pattern: allows alphanumeric, underscore, and optional # at the end
-            // Must contain at least one letter (not just numbers/underscores)
-            RegexParser::new("[A-Z0-9_]*[A-Z][A-Z0-9_]*#?", SyntaxKind::NakedIdentifier)
+            // T-SQL pattern: supports both temp tables (#temp, ##global) and identifiers ending with #
+            // Pattern explanation:
+            // - ##?[A-Z][A-Z0-9_]*    matches temp tables: #temp or ##global
+            // - [A-Z0-9_]*[A-Z][A-Z0-9_]*#?   matches regular identifiers with optional # at end
+            RegexParser::new("(##?[A-Z][A-Z0-9_]*|[A-Z0-9_]*[A-Z][A-Z0-9_]*#?)", SyntaxKind::NakedIdentifier)
                 .anti_template(&anti_template)
                 .to_matchable()
         })

@@ -185,8 +185,8 @@ test_pass_known_number_of_result_columns_10:
 
 test_pass_known_number_of_result_columns_11:
   pass_str: select a, b from `d.t`
-    union all
-    select c, d from `d.t`
+            union all
+            select c, d from `d.t`
   configs:
     core:
       dialect: bigquery
@@ -332,11 +332,11 @@ test_fail_nested_ctes_1:
 test_cte_reference_outer_2:
   pass_str:
     with a as (
-    select 1 from b
+        select 1 from b
     )
 
     select * from (
-    select * from a
+        select * from a
     )
 
     union
@@ -347,15 +347,15 @@ test_cte_reference_outer_2:
 test_cte_tricky_nesting_3:
   pass_str:
     with b as (
-    select 1 from c
+        select 1 from c
     )
 
     select * from (
-    with a as (
-    select * from b
-    )
-    
-    select * from a
+        with a as (
+            select * from b
+        )
+
+        select * from a
     )
 
     union
@@ -365,15 +365,15 @@ test_cte_tricky_nesting_3:
 test_nested_and_same_level_ctes_4:
   pass_str:
     with a as (
-    with c as (
-    select 1 from d
-    ),
-    
-    b as (
-    select * from c
-    )
-    
-    select * from b
+      with c as (
+        select 1 from d
+      ),
+
+      b as (
+        select * from c
+      )
+
+      select * from b
     )
 
     select * from a
@@ -384,15 +384,15 @@ test_nested_and_same_level_ctes_4:
 test_nested_cte_references_outer_5:
   pass_str:
     with c as (
-    select 1 from d
+      select 1 from d
     ),
 
     a as (
-    with b as (
-    select * from c
-    )
-    
-    select * from b
+      with b as (
+        select * from c
+      )
+
+      select * from b
     )
 
     select * from a
@@ -403,11 +403,11 @@ test_nested_cte_references_outer_5:
 test_pass_join_inside_cte_with_unqualified:
   pass_str:
     with cte as (
-    select
-    *
-    from
-    t1
-    inner join t2
+        select
+            *
+        from
+            t1
+        inner join t2
     )
 
     select a, b from cte
@@ -417,14 +417,14 @@ test_pass_join_inside_cte_with_unqualified:
 test_pass_known_number_of_columns_in_two_join_subqueries:
   pass_str:
     select
-    *
+        *
     from (
-    select a
-    from foo
+        select a
+        from foo
     ) t1
     inner join (
-    select b
-    from bar
+        select b
+        from bar
     ) t2
     union
     select c, d from t3;
@@ -432,14 +432,14 @@ test_pass_known_number_of_columns_in_two_join_subqueries:
 test_fail_two_join_subqueries_one_with_unknown_number_of_columns:
   fail_str:
     select
-    *
+        *
     from (
-    select b
-    from foo
+        select b
+        from foo
     ) t1
     inner join (
-    select b
-    from bar
+        select b
+        from bar
     ) t2
     union
     select c, d, e from t3;
@@ -460,33 +460,33 @@ test_query_on_snowflake_stage:
 test_pass_cte_no_select_final_statement:
   pass_str:
     WITH mycte AS (
-    SELECT
-    foo,
-    bar
-    FROM mytable1
+      SELECT
+          foo,
+          bar
+      FROM mytable1
     )
 
     UPDATE sometable
     SET
-    sometable.baz = mycte.bar
+        sometable.baz = mycte.bar
     FROM
-    mycte;
+        mycte;
 
 test_fail_cte_no_select_final_statement:
   fail_str:
     UPDATE sometable
     SET
-    sometable.baz = mycte.bar
+        sometable.baz = mycte.bar
     FROM
-    (SELECT
-    foo,
-    bar
-    FROM mytable1
-    
-    UNION ALL
-    
-    SELECT
-    bar
+        (SELECT
+          foo,
+          bar
+      FROM mytable1
+
+      UNION ALL
+
+      SELECT
+        bar
     FROM mytable2) as k
 
 test_tsql_select_system_as_identifier:
@@ -495,3 +495,26 @@ test_tsql_select_system_as_identifier:
   configs:
     core:
       dialect: tsql
+
+test_pass_dbt_union_relations_output:
+  pass_str: |
+    with
+    unified_partitions as (
+      (
+        select
+          cast("id" as INTEGER) as "id"
+        from "dev"."main"."my_first_dbt_model"
+        where id = 1
+      )
+
+      union all
+
+      (
+        select
+          cast("id" as INTEGER) as "id"
+        from "dev"."main"."my_second_dbt_model"
+        where id = 1
+      )
+    )
+
+    select * from unified_partitions

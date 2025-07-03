@@ -103,6 +103,33 @@ test_allow_unqualified_references_in_sparksql_lambdas:
     core:
       dialect: sparksql
 
+test_pass_databricks_lambdas:
+  pass_str: |
+    select
+        i.*,
+        aggregate(i.some_column, 0, (acc, x) -> acc + x) as y
+    from some_table as o
+    inner join some_other_table as i
+        on o.id = i.id;
+  configs:
+    core:
+      dialect: databricks
+
+test_allow_unqualified_references_in_snowflake_lambdas:
+  pass_str: |
+    select
+        t.v,
+        o.v,
+        transform(t.arr1, x int -> x + 1) as f1,
+        filter(t.arr2, y -> y:value > 0) as f2,
+        reduce(o.arr, 0, (acc, val) -> acc + val) as f3
+    from some_table as t
+    inner join some_other_table as o
+        on t.id = o.id;
+  configs:
+    core:
+      dialect: snowflake
+
 test_allow_unqualified_references_in_athena_lambdas:
   pass_str: |
     select
@@ -231,7 +258,6 @@ test_pass_variable_reference_in_where_clause_mysql:
       dialect: mysql
 
 test_pass_qualified_references_multi_table_statements_tsql:
-  # TODO: Fix T-SQL JOIN parsing causing panic in join.rs
   ignored: "T-SQL JOIN syntax causes panic in parser"
   pass_str: |
     SELECT foo.a, vee.b
@@ -242,7 +268,6 @@ test_pass_qualified_references_multi_table_statements_tsql:
       dialect: tsql
 
 test_fail_unqualified_references_multi_table_statements_tsql:
-  # TODO: Fix T-SQL JOIN parsing causing panic in join.rs
   ignored: "T-SQL JOIN syntax causes panic in parser"
   fail_str: |
     SELECT a, b
@@ -253,9 +278,8 @@ test_fail_unqualified_references_multi_table_statements_tsql:
       dialect: tsql
 
 test_fail_column_and_alias_same_name_tsql:
-  # See issue #2169
-  # TODO: Fix T-SQL JOIN parsing causing panic in join.rs
   ignored: "T-SQL JOIN syntax causes panic in parser"
+  # See issue #2169
   fail_str: |
     SELECT
         foo AS foo,
@@ -267,7 +291,6 @@ test_fail_column_and_alias_same_name_tsql:
       dialect: tsql
 
 test_pass_column_and_alias_same_name_1_tsql:
-  # TODO: Fix T-SQL JOIN parsing causing panic in join.rs
   ignored: "T-SQL JOIN syntax causes panic in parser"
   pass_str: |
     SELECT
@@ -280,10 +303,9 @@ test_pass_column_and_alias_same_name_1_tsql:
       dialect: tsql
 
 test_pass_column_and_alias_same_name_2_tsql:
+  ignored: "T-SQL JOIN syntax causes panic in parser"
   # Possible for unqualified columns if
   # it is actually an alias of another column.
-  # TODO: Fix T-SQL JOIN parsing causing panic in join.rs
-  ignored: "T-SQL JOIN syntax causes panic in parser"
   pass_str: |
     SELECT
         a.bar AS baz,
@@ -364,12 +386,11 @@ test_pass_ignore_words_regex_column_name:
         ignore_words_regex: ^_
 
 test_pass_ignore_words_regex_bigquery_declare_example:
-  pass_str:
-    DECLARE _test INT64 DEFAULT 42;
+  pass_str: DECLARE _test INT64 DEFAULT 42;
     SELECT _test
     FROM t_table1
     LEFT JOIN t_table_2
-        ON TRUE
+    ON TRUE
   configs:
     core:
       dialect: bigquery
@@ -379,8 +400,7 @@ test_pass_ignore_words_regex_bigquery_declare_example:
 
 test_pass_redshift:
   # This was failing in issue 3380.
-  pass_str:
-    SELECT account.id
+  pass_str: SELECT account.id
     FROM salesforce_sd.account
     INNER JOIN salesforce_sd."user" ON salesforce_sd."user".id = account.ownerid
   configs:
@@ -388,26 +408,24 @@ test_pass_redshift:
       dialect: redshift
 
 test_pass_tsql:
-  # This was failing in issue 3342.
-  # TODO: Fix T-SQL JOIN parsing causing panic in join.rs
   ignored: "T-SQL JOIN syntax causes panic in parser"
-  pass_str:
-    select
-        psc.col1
+  # This was failing in issue 3342.
+  pass_str: select
+    psc.col1
     from
-        tbl1 as psc
+    tbl1 as psc
     where
-        exists
-        (
-            select 1 as data
-            from
-                tbl2 as pr
-            join tbl2 as c on c.cid = pr.cid
-            where
-                c.col1 = 'x'
-                and pr.col2 <= convert(date, getdate())
-                and pr.pid = psc.pid
-        )
+    exists
+    (
+    select 1 as data
+    from
+    tbl2 as pr
+    join tbl2 as c on c.cid = pr.cid
+    where
+    c.col1 = 'x'
+    and pr.col2 <= convert(date, getdate())
+    and pr.pid = psc.pid
+    )
   configs:
     core:
       dialect: tsql
@@ -436,3 +454,152 @@ test_pass_redshift_convert:
   configs:
     core:
       dialect: redshift
+
+test_fail_unreferenced_subquery_column:
+  # Issue 6067
+  fail_str: |
+    SELECT a
+    FROM foo
+    WHERE a IN (SELECT a FROM bar)
+
+test_pass_referenced_subquery_column:
+  # Issue 6067
+  pass_str: |
+    SELECT a
+    FROM foo
+    WHERE a IN (SELECT bar.a FROM bar)
+
+test_pass_referenced_subquery_is_self:
+  pass_str: |
+    SELECT *
+    FROM (SELECT a FROM table)
+
+test_pass_declared_bigquery_variable:
+  pass_str: |
+    DECLARE run_time TIMESTAMP DEFAULT '2020-01-01 00:00:00';
+
+    SELECT table_a.age FROM table_a
+    INNER JOIN
+        table_b
+        ON
+            table_a.id = table_b.id
+    WHERE table_a.start_date <= run_time;
+  configs:
+    core:
+      dialect: bigquery
+
+test_pass_from_clause_subquery:
+  pass_str: |
+    SELECT
+        a.id AS a_id,
+        b.id AS b_id
+    FROM
+        (
+            SELECT id
+            FROM foo
+        ) AS a
+    INNER JOIN bar AS b ON a.id = b.ib;
+
+test_pass_join_clause_subquery:
+  pass_str: |
+    SELECT
+        a.id AS a_id,
+        b.id AS b_id
+    FROM bar AS b
+    JOIN (
+            SELECT id
+            FROM foo
+        ) AS a
+    ON a.id = b.id;
+
+test_fail_nested_correlated_subquery_inside_from_clause:
+  fail_str: |
+    SELECT
+        a.id AS a_id,
+        b.id AS b_id
+    FROM
+        (
+            SELECT id
+            FROM foo
+            WHERE id IN (SELECT id FROM baz)
+        ) AS a
+    INNER JOIN bar AS b ON a.id = b.id;
+
+test_fail_select_scalar_subquery:
+  fail_str: |
+    SELECT
+        (SELECT max(id) FROM foo2) AS f1
+    FROM bar;
+
+test_fail_exists_subquery:
+  fail_str: |
+    SELECT id
+    FROM bar
+    WHERE EXISTS (
+        SELECT 1 FROM foo2
+        WHERE bar.id = id
+    );
+
+test_pass_ignore_deeper_alias_6389:
+  pass_str: |
+    SELECT (SELECT MAX(x.col) AS m FROM x) AS _stats
+    FROM stats_today AS t
+    LEFT JOIN stats_this_month AS tm
+      ON tm.x = t.x
+    WHERE _stats IS NOT NULL;
+
+test_fail_unqual_refs_multi_table_statements_ignore_external_references:
+  fail_str: |
+    SELECT a, b
+    FROM foo
+    LEFT JOIN vee ON vee.a = foo.a
+  configs:
+    rules:
+      references.qualification:
+        subqueries_ignore_external_references: True
+
+test_fail_unqual_refs_multi_table_statements_subq_ignore_external_references:
+  fail_str: |
+    SELECT a
+    FROM (
+        SELECT a, b
+        FROM foo
+        LEFT JOIN vee ON vee.a = foo.a
+    )
+  configs:
+    rules:
+      references.qualification:
+        subqueries_ignore_external_references: True
+
+test_pass_unreferenced_subquery_column_subqueries_ignore_external_references:
+  pass_str: |
+    SELECT a
+    FROM foo
+    WHERE a IN (SELECT a FROM bar)
+  configs:
+    rules:
+      references.qualification:
+        subqueries_ignore_external_references: True
+
+test_pass_select_scalar_subquery_subqueries_ignore_external_references:
+  pass_str: |
+    SELECT
+        (SELECT max(id) FROM foo2) AS f1
+    FROM bar;
+  configs:
+    rules:
+      references.qualification:
+        subqueries_ignore_external_references: True
+
+test_pass_exists_subquery_subqueries_ignore_external_references:
+  pass_str: |
+    SELECT id
+    FROM bar
+    WHERE EXISTS (
+        SELECT 1 FROM foo2
+        WHERE bar.id = id
+    );
+  configs:
+    rules:
+      references.qualification:
+        subqueries_ignore_external_references: True

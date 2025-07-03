@@ -33,7 +33,6 @@ test_simple_fix:
     from foo
 
 test_identifier_fix:
-  # TODO: Fix T-SQL multi-line object reference handling
   ignored: "T-SQL multi-line object reference joining not working correctly"
   fail_str: |
     SELECT [thistable] . [col]
@@ -47,7 +46,6 @@ test_identifier_fix:
       dialect: tsql
 
 test_comparison_operator_fix:
-  # TODO: Fix T-SQL split comparison operator handling
   ignored: "T-SQL split comparison operator joining not working correctly"
   fail_str: |
     SELECT foo
@@ -62,7 +60,6 @@ test_comparison_operator_fix:
       dialect: tsql
 
 test_comparison_operator_pass:
-  # TODO: Fix T-SQL comparison operator parsing - incorrectly detecting >= as needing spacing
   ignored: "T-SQL comparison operator >= incorrectly parsed as two tokens"
   pass_str: |
     SELECT foo
@@ -89,7 +86,6 @@ test_casting_operator_pass:
       dialect: postgres
 
 test_fix_tsql_spaced_chars:
-  # TODO: Fix T-SQL split comparison operator handling
   ignored: "T-SQL split comparison operator joining not working correctly"
   fail_str: |
     SELECT col1 FROM table1 WHERE 1 > = 1

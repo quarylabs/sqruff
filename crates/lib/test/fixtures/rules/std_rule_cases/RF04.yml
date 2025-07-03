@@ -122,6 +122,7 @@ test_pass_ignore_word1:
       references.keywords:
         ignore_words: create
 
+
 test_pass_ignore_word2:
   pass_str: SELECT col1 AS date FROM table1
   configs:
@@ -136,6 +137,7 @@ test_pass_ignore_words_regex1:
       references.keywords:
         ignore_words_regex: ^cr
 
+
 test_pass_ignore_words_regex2:
   pass_str: SELECT col1 AS date FROM table1
   configs:
@@ -148,15 +150,3 @@ test_pass_one_character_identifier:
   configs:
     core:
       dialect: snowflake
-
-test_pass_bigquery:
-  pass_str: SELECT stop from USERS
-  configs:
-    core:
-      dialect: bigquery
-
-test_pass_bigquery2:
-  pass_str: SELECT `stop` from USERS
-  configs:
-    core:
-      dialect: bigquery

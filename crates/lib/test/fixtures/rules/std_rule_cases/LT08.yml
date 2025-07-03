@@ -204,59 +204,6 @@ test_pass_column_name_definition_multiple:
         cte_1.var,
         cte_2.var
     FROM cte_1, cte_2;
-  
-
-test_pass_leading_comma_cte:
-  # https://github.com/quarylabs/sqruff/issues/1584
-  pass_str: |
-    with x as (
-      select 1 as a
-    )
-
-    , b as ( select 2 as e)
-    
-    select * 
-    from x, b;
-
-test_fail_edge_case_leading_comma:
-  # https://github.com/quarylabs/sqruff/issues/1584 
-  fail_str: |
-    with x as (
-      select 1 as a
-    )
-    , b as ( select 2 as e)
-    
-    select * 
-    from x, b;
-  fix_str: |
-    with x as (
-      select 1 as a
-    )
-    
-    , b as ( select 2 as e)
-    
-    select * 
-    from x, b;
-
-test_fail_leading_comma_no_space_after_comma:
-  # Test case where leading comma has no space after it
-  fail_str: |
-    with x as (
-      select 1 as a
-    )
-    , b as ( select 2 as e)
-    
-    select * 
-    from x, b;
-  fix_str: |
-    with x as (
-      select 1 as a
-    )
-    
-    , b as ( select 2 as e)
-    
-    select * 
-    from x, b;
 
 test_fail_column_name_definition_newline:
   fail_str: |

@@ -250,9 +250,9 @@ passes_operator_alone_on_line:
       'jklm'
 
 fixes_tuple_error_issue:
+  ignored: "jinja is not supported"
   # https://github.com/sqlfluff/sqlfluff/issues/4184
   # NB: This one isn't fixable.
-  ignored: "jinja is not supported"
   fail_str: |
     select * from foo
     where c is not null and -- comment

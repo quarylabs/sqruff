@@ -540,7 +540,7 @@ pub fn dialect() -> Dialect {
         "TableExpressionSegment",
         sparksql::dialect()
             .grammar("TableExpressionSegment")
-            .match_grammar()
+            .match_grammar(&databricks)
             .unwrap()
             .copy(
                 Some(vec_of_erased![Ref::new("IdentifierClauseSegment")]),
@@ -557,7 +557,7 @@ pub fn dialect() -> Dialect {
         "StatementSegment",
         raw_sparksql
             .grammar("StatementSegment")
-            .match_grammar()
+            .match_grammar(&databricks)
             .unwrap()
             .copy(
                 Some(vec_of_erased![

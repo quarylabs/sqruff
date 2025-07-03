@@ -1,4 +1,7 @@
+use std::sync::OnceLock;
+
 use super::matchable::MatchableTrait;
+use crate::dialects::Dialect;
 use crate::dialects::syntax::SyntaxKind;
 use crate::errors::SQLParseError;
 use crate::parser::context::ParseContext;
@@ -13,18 +16,41 @@ macro_rules! vec_of_erased {
     }};
 }
 
-#[derive(Debug, Clone)]
+#[derive(Clone)]
 pub struct NodeMatcher {
     node_kind: SyntaxKind,
-    pub(crate) match_grammar: Matchable,
+    match_grammar: OnceLock<Matchable>,
+    factory: fn(&Dialect) -> Matchable,
 }
 
 impl NodeMatcher {
-    pub fn new(node_kind: SyntaxKind, match_grammar: Matchable) -> Self {
+    pub fn new(node_kind: SyntaxKind, build_grammar: fn(&Dialect) -> Matchable) -> Self {
         Self {
             node_kind,
-            match_grammar,
+            match_grammar: OnceLock::new(),
+            factory: build_grammar,
         }
+    }
+
+    pub fn match_grammar(&self, dialect: &Dialect) -> Matchable {
+        self.match_grammar
+            .get_or_init(|| (self.factory)(dialect))
+            .clone()
+    }
+
+    pub fn replace(&mut self, match_grammar: Matchable) {
+        self.match_grammar = OnceLock::new();
+        let _ = self.match_grammar.set(match_grammar);
+    }
+}
+
+impl std::fmt::Debug for NodeMatcher {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        f.debug_struct("NodeMatcher")
+            .field("node_kind", &self.node_kind)
+            .field("match_grammar", &"...")
+            .field("factory", &"...")
+            .finish()
     }
 }
 
@@ -39,8 +65,8 @@ impl MatchableTrait for NodeMatcher {
         self.node_kind
     }
 
-    fn match_grammar(&self) -> Option<Matchable> {
-        self.match_grammar.clone().into()
+    fn match_grammar(&self, dialect: &Dialect) -> Option<Matchable> {
+        self.match_grammar(dialect).into()
     }
 
     fn elements(&self) -> &[Matchable] {
@@ -61,7 +87,7 @@ impl MatchableTrait for NodeMatcher {
             return Ok(MatchResult::from_span(idx, idx + 1));
         }
 
-        let grammar = self.match_grammar().unwrap();
+        let grammar = self.match_grammar(parse_context.dialect());
         let match_result = parse_context
             .deeper_match(false, &[], |ctx| grammar.match_segments(segments, idx, ctx))?;
 

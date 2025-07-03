@@ -268,8 +268,7 @@ pub fn dialect() -> Dialect {
 
     clickhouse_dialect.add([(
         "ArrayJoinClauseSegment".into(),
-        NodeMatcher::new(
-            SyntaxKind::ArrayJoinClause,
+        NodeMatcher::new(SyntaxKind::ArrayJoinClause, |_| {
             Sequence::new(vec_of_erased![
                 Ref::keyword("LEFT").optional(),
                 Ref::keyword("ARRAY"),
@@ -278,8 +277,8 @@ pub fn dialect() -> Dialect {
                 Delimited::new(vec_of_erased![Ref::new("SelectClauseElementSegment")]),
                 MetaSegment::dedent(),
             ])
-            .to_matchable(),
-        )
+            .to_matchable()
+        })
         .to_matchable()
         .into(),
     )]);
@@ -331,8 +330,7 @@ pub fn dialect() -> Dialect {
     clickhouse_dialect.add([
         (
             "TableEngineFunctionSegment".into(),
-            NodeMatcher::new(
-                SyntaxKind::TableEngineFunction,
+            NodeMatcher::new(SyntaxKind::TableEngineFunction, |_| {
                 Sequence::new(vec_of_erased![
                     Ref::new("FunctionNameSegment").exclude(one_of(vec_of_erased![
                         Ref::new("DatePartFunctionNameSegment"),
@@ -346,29 +344,27 @@ pub fn dialect() -> Dialect {
                         this.parse_mode(ParseMode::Greedy)
                     }),
                 ])
-                .to_matchable(),
-            )
+                .to_matchable()
+            })
             .to_matchable()
             .into(),
         ),
         (
             "OnClusterClauseSegment".into(),
-            NodeMatcher::new(
-                SyntaxKind::OnClusterClause,
+            NodeMatcher::new(SyntaxKind::OnClusterClause, |_| {
                 Sequence::new(vec_of_erased![
                     Ref::keyword("ON"),
                     Ref::keyword("CLUSTER"),
                     Ref::new("SingleIdentifierGrammar"),
                 ])
-                .to_matchable(),
-            )
+                .to_matchable()
+            })
             .to_matchable()
             .into(),
         ),
         (
             "TableEngineSegment".into(),
-            NodeMatcher::new(
-                SyntaxKind::Engine,
+            NodeMatcher::new(SyntaxKind::Engine, |_| {
                 Sequence::new(vec_of_erased![
                     Ref::keyword("ENGINE"),
                     Ref::new("EqualsSegment"),
@@ -415,15 +411,14 @@ pub fn dialect() -> Dialect {
                         ]),
                     ]),
                 ])
-                .to_matchable(),
-            )
+                .to_matchable()
+            })
             .to_matchable()
             .into(),
         ),
         (
             "DatabaseEngineFunctionSegment".into(),
-            NodeMatcher::new(
-                SyntaxKind::EngineFunction,
+            NodeMatcher::new(SyntaxKind::EngineFunction, |_| {
                 Sequence::new(vec_of_erased![
                     one_of(vec_of_erased![
                         Ref::keyword("ATOMIC"),
@@ -443,15 +438,14 @@ pub fn dialect() -> Dialect {
                         this.optional();
                     }),
                 ])
-                .to_matchable(),
-            )
+                .to_matchable()
+            })
             .to_matchable()
             .into(),
         ),
         (
             "DatabaseEngineSegment".into(),
-            NodeMatcher::new(
-                SyntaxKind::DatabaseEngine,
+            NodeMatcher::new(SyntaxKind::DatabaseEngine, |_| {
                 Sequence::new(vec_of_erased![
                     Ref::keyword("ENGINE"),
                     Ref::new("EqualsSegment"),
@@ -503,28 +497,26 @@ pub fn dialect() -> Dialect {
                         ]),
                     ]),
                 ])
-                .to_matchable(),
-            )
+                .to_matchable()
+            })
             .to_matchable()
             .into(),
         ),
         (
             "ColumnTTLSegment".into(),
-            NodeMatcher::new(
-                SyntaxKind::ColumnTtlSegment,
+            NodeMatcher::new(SyntaxKind::ColumnTtlSegment, |_| {
                 Sequence::new(vec_of_erased![
                     Ref::keyword("TTL"),
                     Ref::new("ExpressionSegment"),
                 ])
-                .to_matchable(),
-            )
+                .to_matchable()
+            })
             .to_matchable()
             .into(),
         ),
         (
             "TableTTLSegment".into(),
-            NodeMatcher::new(
-                SyntaxKind::TableTtlSegment,
+            NodeMatcher::new(SyntaxKind::TableTtlSegment, |_| {
                 Sequence::new(vec_of_erased![
                     Ref::keyword("TTL"),
                     Delimited::new(vec_of_erased![Sequence::new(vec_of_erased![
@@ -547,15 +539,14 @@ pub fn dialect() -> Dialect {
                         Ref::new("GroupByClauseSegment").optional(),
                     ])]),
                 ])
-                .to_matchable(),
-            )
+                .to_matchable()
+            })
             .to_matchable()
             .into(),
         ),
         (
             "ColumnConstraintSegment".into(),
-            NodeMatcher::new(
-                SyntaxKind::ColumnConstraintSegment,
+            NodeMatcher::new(SyntaxKind::ColumnConstraintSegment, |_| {
                 any_set_of(vec_of_erased![Sequence::new(vec_of_erased![
                     Sequence::new(vec_of_erased![
                         Ref::keyword("CONSTRAINT"),
@@ -601,8 +592,8 @@ pub fn dialect() -> Dialect {
                         Ref::new("ColumnTTLSegment"),
                     ]),
                 ]),])
-                .to_matchable(),
-            )
+                .to_matchable()
+            })
             .to_matchable()
             .into(),
         ),
@@ -719,8 +710,7 @@ pub fn dialect() -> Dialect {
 
     clickhouse_dialect.add([(
         "CreateMaterializedViewStatementSegment".into(),
-        NodeMatcher::new(
-            SyntaxKind::CreateMaterializedViewStatement,
+        NodeMatcher::new(SyntaxKind::CreateMaterializedViewStatement, |_| {
             Sequence::new(vec_of_erased![
                 Ref::keyword("CREATE"),
                 Ref::keyword("MATERIALIZED"),
@@ -743,8 +733,8 @@ pub fn dialect() -> Dialect {
                 Ref::new("SelectableGrammar"),
                 Ref::new("TableEndClauseSegment").optional(),
             ])
-            .to_matchable(),
-        )
+            .to_matchable()
+        })
         .to_matchable()
         .into(),
     )]);
@@ -778,8 +768,7 @@ pub fn dialect() -> Dialect {
 
     clickhouse_dialect.add([(
         "DropDictionaryStatementSegment".into(),
-        NodeMatcher::new(
-            SyntaxKind::DropDictionaryStatement,
+        NodeMatcher::new(SyntaxKind::DropDictionaryStatement, |_| {
             Sequence::new(vec_of_erased![
                 Ref::keyword("DROP"),
                 Ref::keyword("DICTIONARY"),
@@ -787,8 +776,8 @@ pub fn dialect() -> Dialect {
                 Ref::new("SingleIdentifierGrammar"),
                 Ref::keyword("SYNC").optional(),
             ])
-            .to_matchable(),
-        )
+            .to_matchable()
+        })
         .to_matchable()
         .into(),
     )]);
@@ -820,8 +809,7 @@ pub fn dialect() -> Dialect {
     clickhouse_dialect.add([
         (
             "DropQuotaStatementSegment".into(),
-            NodeMatcher::new(
-                SyntaxKind::DropQuotaStatement,
+            NodeMatcher::new(SyntaxKind::DropQuotaStatement, |_| {
                 Sequence::new(vec_of_erased![
                     Ref::keyword("DROP"),
                     Ref::keyword("QUOTA"),
@@ -829,15 +817,14 @@ pub fn dialect() -> Dialect {
                     Ref::new("SingleIdentifierGrammar"),
                     Ref::new("OnClusterClauseSegment").optional(),
                 ])
-                .to_matchable(),
-            )
+                .to_matchable()
+            })
             .to_matchable()
             .into(),
         ),
         (
             "DropSettingProfileStatementSegment".into(),
-            NodeMatcher::new(
-                SyntaxKind::DropSettingProfileStatement,
+            NodeMatcher::new(SyntaxKind::DropSettingProfileStatement, |_| {
                 Sequence::new(vec_of_erased![
                     Ref::keyword("DROP"),
                     Delimited::new(vec_of_erased![Ref::new("NakedIdentifierSegment")])
@@ -847,8 +834,8 @@ pub fn dialect() -> Dialect {
                     Ref::new("SingleIdentifierGrammar"),
                     Ref::new("OnClusterClauseSegment").optional(),
                 ])
-                .to_matchable(),
-            )
+                .to_matchable()
+            })
             .to_matchable()
             .into(),
         ),
@@ -882,8 +869,7 @@ pub fn dialect() -> Dialect {
     clickhouse_dialect.add([
         (
             "SystemMergesSegment".into(),
-            NodeMatcher::new(
-                SyntaxKind::SystemMergesSegment,
+            NodeMatcher::new(SyntaxKind::SystemMergesSegment, |_| {
                 Sequence::new(vec_of_erased![
                     one_of(vec_of_erased![Ref::keyword("START"), Ref::keyword("STOP"),]),
                     Ref::keyword("MERGES"),
@@ -896,44 +882,41 @@ pub fn dialect() -> Dialect {
                         Ref::new("TableReferenceSegment"),
                     ]),
                 ])
-                .to_matchable(),
-            )
+                .to_matchable()
+            })
             .to_matchable()
             .into(),
         ),
         (
             "SystemTTLMergesSegment".into(),
-            NodeMatcher::new(
-                SyntaxKind::SystemTtlMergesSegment,
+            NodeMatcher::new(SyntaxKind::SystemTtlMergesSegment, |_| {
                 Sequence::new(vec_of_erased![
                     one_of(vec_of_erased![Ref::keyword("START"), Ref::keyword("STOP"),]),
                     Ref::keyword("TTL"),
                     Ref::keyword("MERGES"),
                     Ref::new("TableReferenceSegment").optional(),
                 ])
-                .to_matchable(),
-            )
+                .to_matchable()
+            })
             .to_matchable()
             .into(),
         ),
         (
             "SystemMovesSegment".into(),
-            NodeMatcher::new(
-                SyntaxKind::SystemMovesSegment,
+            NodeMatcher::new(SyntaxKind::SystemMovesSegment, |_| {
                 Sequence::new(vec_of_erased![
                     one_of(vec_of_erased![Ref::keyword("START"), Ref::keyword("STOP"),]),
                     Ref::keyword("MOVES"),
                     Ref::new("TableReferenceSegment").optional(),
                 ])
-                .to_matchable(),
-            )
+                .to_matchable()
+            })
             .to_matchable()
             .into(),
         ),
         (
             "SystemReplicaSegment".into(),
-            NodeMatcher::new(
-                SyntaxKind::SystemReplicaSegment,
+            NodeMatcher::new(SyntaxKind::SystemReplicaSegment, |_| {
                 one_of(vec_of_erased![
                     Sequence::new(vec_of_erased![
                         Ref::keyword("SYNC"),
@@ -977,73 +960,68 @@ pub fn dialect() -> Dialect {
                         Ref::new("OnClusterClauseSegment").optional(),
                     ]),
                 ])
-                .to_matchable(),
-            )
+                .to_matchable()
+            })
             .to_matchable()
             .into(),
         ),
         (
             "SystemFilesystemSegment".into(),
-            NodeMatcher::new(
-                SyntaxKind::SystemFilesystemSegment,
+            NodeMatcher::new(SyntaxKind::SystemFilesystemSegment, |_| {
                 Sequence::new(vec_of_erased![
                     Ref::keyword("DROP"),
                     Ref::keyword("FILESYSTEM"),
                     Ref::keyword("CACHE"),
                 ])
-                .to_matchable(),
-            )
+                .to_matchable()
+            })
             .to_matchable()
             .into(),
         ),
         (
             "SystemReplicatedSegment".into(),
-            NodeMatcher::new(
-                SyntaxKind::SystemReplicatedSegment,
+            NodeMatcher::new(SyntaxKind::SystemReplicatedSegment, |_| {
                 Sequence::new(vec_of_erased![
                     one_of(vec_of_erased![Ref::keyword("START"), Ref::keyword("STOP"),]),
                     Ref::keyword("REPLICATED"),
                     Ref::keyword("SENDS"),
                     Ref::new("TableReferenceSegment").optional(),
                 ])
-                .to_matchable(),
-            )
+                .to_matchable()
+            })
             .to_matchable()
             .into(),
         ),
         (
             "SystemReplicationSegment".into(),
-            NodeMatcher::new(
-                SyntaxKind::SystemReplicationSegment,
+            NodeMatcher::new(SyntaxKind::SystemReplicationSegment, |_| {
                 Sequence::new(vec_of_erased![
                     one_of(vec_of_erased![Ref::keyword("START"), Ref::keyword("STOP"),]),
                     Ref::keyword("REPLICATION"),
                     Ref::keyword("QUEUES"),
                     Ref::new("TableReferenceSegment").optional(),
                 ])
-                .to_matchable(),
-            )
+                .to_matchable()
+            })
             .to_matchable()
             .into(),
         ),
         (
             "SystemFetchesSegment".into(),
-            NodeMatcher::new(
-                SyntaxKind::SystemFetchesSegment,
+            NodeMatcher::new(SyntaxKind::SystemFetchesSegment, |_| {
                 Sequence::new(vec_of_erased![
                     one_of(vec_of_erased![Ref::keyword("START"), Ref::keyword("STOP"),]),
                     Ref::keyword("FETCHES"),
                     Ref::new("TableReferenceSegment").optional(),
                 ])
-                .to_matchable(),
-            )
+                .to_matchable()
+            })
             .to_matchable()
             .into(),
         ),
         (
             "SystemDistributedSegment".into(),
-            NodeMatcher::new(
-                SyntaxKind::SystemDistributedSegment,
+            NodeMatcher::new(SyntaxKind::SystemDistributedSegment, |_| {
                 Sequence::new(vec_of_erased![one_of(vec_of_erased![
                     Sequence::new(vec_of_erased![
                         one_of(vec_of_erased![Ref::keyword("START"), Ref::keyword("STOP"),]),
@@ -1057,15 +1035,14 @@ pub fn dialect() -> Dialect {
                         Ref::new("TableReferenceSegment"),
                     ]),
                 ]),])
-                .to_matchable(),
-            )
+                .to_matchable()
+            })
             .to_matchable()
             .into(),
         ),
         (
             "SystemModelSegment".into(),
-            NodeMatcher::new(
-                SyntaxKind::SystemModelSegment,
+            NodeMatcher::new(SyntaxKind::SystemModelSegment, |_| {
                 Sequence::new(vec_of_erased![
                     Ref::keyword("RELOAD"),
                     one_of(vec_of_erased![
@@ -1082,44 +1059,41 @@ pub fn dialect() -> Dialect {
                         ]),
                     ]),
                 ])
-                .to_matchable(),
-            )
+                .to_matchable()
+            })
             .to_matchable()
             .into(),
         ),
         (
             "SystemFileSegment".into(),
-            NodeMatcher::new(
-                SyntaxKind::SystemFileSegment,
+            NodeMatcher::new(SyntaxKind::SystemFileSegment, |_| {
                 Sequence::new(vec_of_erased![
                     Ref::keyword("SYNC"),
                     Ref::keyword("FILE"),
                     Ref::keyword("CACHE"),
                 ])
-                .to_matchable(),
-            )
+                .to_matchable()
+            })
             .to_matchable()
             .into(),
         ),
         (
             "SystemUnfreezeSegment".into(),
-            NodeMatcher::new(
-                SyntaxKind::SystemUnfreezeSegment,
+            NodeMatcher::new(SyntaxKind::SystemUnfreezeSegment, |_| {
                 Sequence::new(vec_of_erased![
                     Ref::keyword("UNFREEZE"),
                     Ref::keyword("WITH"),
                     Ref::keyword("NAME"),
                     Ref::new("ObjectReferenceSegment"),
                 ])
-                .to_matchable(),
-            )
+                .to_matchable()
+            })
             .to_matchable()
             .into(),
         ),
         (
             "SystemStatementSegment".into(),
-            NodeMatcher::new(
-                SyntaxKind::SystemStatement,
+            NodeMatcher::new(SyntaxKind::SystemStatement, |_| {
                 Sequence::new(vec_of_erased![
                     Ref::keyword("SYSTEM"),
                     one_of(vec_of_erased![
@@ -1137,8 +1111,8 @@ pub fn dialect() -> Dialect {
                         Ref::new("SystemModelSegment"),
                     ]),
                 ])
-                .to_matchable(),
-            )
+                .to_matchable()
+            })
             .to_matchable()
             .into(),
         ),

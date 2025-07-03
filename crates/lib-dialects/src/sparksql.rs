@@ -1040,8 +1040,7 @@ pub fn raw_dialect() -> Dialect {
     sparksql_dialect.add([
         (
             "SQLConfPropertiesSegment".into(),
-            NodeMatcher::new(
-                SyntaxKind::SqlConfOption,
+            NodeMatcher::new(SyntaxKind::SqlConfOption, |_| {
                 Sequence::new(vec_of_erased![
                     StringParser::new("-", SyntaxKind::Dash),
                     StringParser::new("v", SyntaxKind::SqlConfOption)
@@ -1049,32 +1048,30 @@ pub fn raw_dialect() -> Dialect {
                 .config(|config| {
                     config.disallow_gaps();
                 })
-                .to_matchable(),
-            )
+                .to_matchable()
+            })
             .to_matchable()
             .into(),
         ),
         (
             "DivBinaryOperatorSegment".into(),
-            NodeMatcher::new(
-                SyntaxKind::BinaryOperator,
-                Ref::keyword("DIV").to_matchable(),
-            )
+            NodeMatcher::new(SyntaxKind::BinaryOperator, |_| {
+                Ref::keyword("DIV").to_matchable()
+            })
             .to_matchable()
             .into(),
         ),
         (
             "QualifyClauseSegment".into(),
-            NodeMatcher::new(
-                SyntaxKind::QualifyClause,
+            NodeMatcher::new(SyntaxKind::QualifyClause, |_| {
                 Sequence::new(vec_of_erased![
                     Ref::keyword("QUALIFY"),
                     MetaSegment::indent(),
                     optionally_bracketed(vec_of_erased![Ref::new("ExpressionSegment")]),
                     MetaSegment::dedent()
                 ])
-                .to_matchable(),
-            )
+                .to_matchable()
+            })
             .to_matchable()
             .into(),
         ),
@@ -1083,8 +1080,7 @@ pub fn raw_dialect() -> Dialect {
     sparksql_dialect.add([
         (
             "PrimitiveTypeSegment".into(),
-            NodeMatcher::new(
-                SyntaxKind::PrimitiveType,
+            NodeMatcher::new(SyntaxKind::PrimitiveType, |_| {
                 one_of(vec_of_erased![
                     Ref::keyword("BOOLEAN"),
                     Ref::keyword("TINYINT"),
@@ -1116,8 +1112,8 @@ pub fn raw_dialect() -> Dialect {
                     Ref::keyword("INTERVAL"),
                     Ref::keyword("VARIANT"),
                 ])
-                .to_matchable(),
-            )
+                .to_matchable()
+            })
             .to_matchable()
             .into(),
         ),
@@ -1138,8 +1134,7 @@ pub fn raw_dialect() -> Dialect {
     sparksql_dialect.add([
         (
             "SemiStructuredAccessorSegment".into(),
-            NodeMatcher::new(
-                SyntaxKind::SemiStructuredExpression,
+            NodeMatcher::new(SyntaxKind::SemiStructuredExpression, |_| {
                 Sequence::new(vec_of_erased![
                     Ref::new("ColonSegment"),
                     one_of(vec_of_erased![
@@ -1171,15 +1166,14 @@ pub fn raw_dialect() -> Dialect {
                         Ref::new("ArrayAccessorSegment").optional()
                     ])
                 ])
-                .to_matchable(),
-            )
+                .to_matchable()
+            })
             .to_matchable()
             .into(),
         ),
         (
             "DatatypeSegment".into(),
-            NodeMatcher::new(
-                SyntaxKind::DataType,
+            NodeMatcher::new(SyntaxKind::DataType, |_| {
                 one_of(vec_of_erased![
                     Ref::new("PrimitiveTypeSegment"),
                     Ref::new("ArrayTypeSegment"),
@@ -1197,8 +1191,8 @@ pub fn raw_dialect() -> Dialect {
                     ]),
                     Ref::new("StructTypeSegment")
                 ])
-                .to_matchable(),
-            )
+                .to_matchable()
+            })
             .to_matchable()
             .into(),
         ),
@@ -1206,8 +1200,7 @@ pub fn raw_dialect() -> Dialect {
             // An `ALTER DATABASE/SCHEMA` statement.
             // http://spark.apache.org/docs/latest/sql-ref-syntax-ddl-alter-database.html
             "AlterDatabaseStatementSegment".into(),
-            NodeMatcher::new(
-                SyntaxKind::AlterDatabaseStatement,
+            NodeMatcher::new(SyntaxKind::AlterDatabaseStatement, |_| {
                 Sequence::new(vec_of_erased![
                     Ref::keyword("ALTER"),
                     one_of(vec_of_erased![
@@ -1221,8 +1214,8 @@ pub fn raw_dialect() -> Dialect {
                         Ref::new("LocationGrammar")
                     ])
                 ])
-                .to_matchable(),
-            )
+                .to_matchable()
+            })
             .to_matchable()
             .into(),
         ),
@@ -1543,8 +1536,7 @@ pub fn raw_dialect() -> Dialect {
 
     sparksql_dialect.add([(
         "ColumnFieldDefinitionSegment".into(),
-        NodeMatcher::new(
-            SyntaxKind::ColumnDefinition,
+        NodeMatcher::new(SyntaxKind::ColumnDefinition, |_| {
             Sequence::new(vec_of_erased![
                 Ref::new("ColumnReferenceSegment"),
                 Ref::new("DatatypeSegment"),
@@ -1555,16 +1547,15 @@ pub fn raw_dialect() -> Dialect {
                     Ref::new("ColumnConstraintSegment").optional()
                 ])
             ])
-            .to_matchable(),
-        )
+            .to_matchable()
+        })
         .to_matchable()
         .into(),
     )]);
 
     sparksql_dialect.add([(
         "AlterViewStatementSegment".into(),
-        NodeMatcher::new(
-            SyntaxKind::AlterViewStatement,
+        NodeMatcher::new(SyntaxKind::AlterViewStatement, |_| {
             Sequence::new(vec_of_erased![
                 Ref::keyword("ALTER"),
                 Ref::keyword("VIEW"),
@@ -1586,8 +1577,8 @@ pub fn raw_dialect() -> Dialect {
                     ])
                 ])
             ])
-            .to_matchable(),
-        )
+            .to_matchable()
+        })
         .to_matchable()
         .into(),
     )]);
@@ -1611,8 +1602,7 @@ pub fn raw_dialect() -> Dialect {
         // https://spark.apache.org/docs/latest/sql-ref-syntax-qry-select-unpivot.html
         (
             "UnpivotClauseSegment".into(),
-            NodeMatcher::new(
-                SyntaxKind::UnpivotClause,
+            NodeMatcher::new(SyntaxKind::UnpivotClause, |_| {
                 Sequence::new(vec_of_erased![
                     Ref::keyword("UNPIVOT"),
                     Sequence::new(vec_of_erased![
@@ -1632,8 +1622,8 @@ pub fn raw_dialect() -> Dialect {
                     ])]),
                     MetaSegment::dedent(),
                 ])
-                .to_matchable(),
-            )
+                .to_matchable()
+            })
             .to_matchable()
             .into(),
         ),
@@ -1816,8 +1806,7 @@ pub fn raw_dialect() -> Dialect {
     sparksql_dialect.add([
         (
             "CreateWidgetStatementSegment".into(),
-            NodeMatcher::new(
-                SyntaxKind::CreateWidgetStatement,
+            NodeMatcher::new(SyntaxKind::CreateWidgetStatement, |_| {
                 Sequence::new(vec_of_erased![
                     Ref::keyword("CREATE"),
                     Ref::keyword("WIDGET"),
@@ -1838,35 +1827,33 @@ pub fn raw_dialect() -> Dialect {
                         ])
                     ])
                 ])
-                .to_matchable(),
-            )
+                .to_matchable()
+            })
             .to_matchable()
             .into(),
         ),
         (
             "ReplaceTableStatementSegment".into(),
-            NodeMatcher::new(
-                SyntaxKind::ReplaceTableStatement,
+            NodeMatcher::new(SyntaxKind::ReplaceTableStatement, |_| {
                 Sequence::new(vec_of_erased![
                     Ref::keyword("REPLACE"),
                     Ref::new("TableDefinitionSegment")
                 ])
-                .to_matchable(),
-            )
+                .to_matchable()
+            })
             .to_matchable()
             .into(),
         ),
         (
             "RemoveWidgetStatementSegment".into(),
-            NodeMatcher::new(
-                SyntaxKind::RemoveWidgetStatement,
+            NodeMatcher::new(SyntaxKind::RemoveWidgetStatement, |_| {
                 Sequence::new(vec_of_erased![
                     Ref::keyword("REMOVE"),
                     Ref::keyword("WIDGET"),
                     Ref::new("WidgetNameIdentifierSegment")
                 ])
-                .to_matchable(),
-            )
+                .to_matchable()
+            })
             .to_matchable()
             .into(),
         ),
@@ -1888,8 +1875,7 @@ pub fn raw_dialect() -> Dialect {
     );
     sparksql_dialect.add([(
         "DropFunctionStatementSegment".into(),
-        NodeMatcher::new(
-            SyntaxKind::DropFunctionStatement,
+        NodeMatcher::new(SyntaxKind::DropFunctionStatement, |_| {
             Sequence::new(vec_of_erased![
                 Ref::keyword("DROP"),
                 Ref::new("TemporaryGrammar").optional(),
@@ -1897,8 +1883,8 @@ pub fn raw_dialect() -> Dialect {
                 Ref::new("IfExistsGrammar").optional(),
                 Ref::new("FunctionNameSegment")
             ])
-            .to_matchable(),
-        )
+            .to_matchable()
+        })
         .to_matchable()
         .into(),
     )]);
@@ -1923,14 +1909,13 @@ pub fn raw_dialect() -> Dialect {
     sparksql_dialect.add([
         (
             "UseDatabaseStatementSegment".into(),
-            NodeMatcher::new(
-                SyntaxKind::UseDatabaseStatement,
+            NodeMatcher::new(SyntaxKind::UseDatabaseStatement, |_| {
                 Sequence::new(vec_of_erased![
                     Ref::keyword("USE"),
                     Ref::new("DatabaseReferenceSegment")
                 ])
-                .to_matchable(),
-            )
+                .to_matchable()
+            })
             .to_matchable()
             .into(),
         ),
@@ -1942,8 +1927,7 @@ pub fn raw_dialect() -> Dialect {
         ),
         (
             "InsertStatementSegment".into(),
-            NodeMatcher::new(
-                SyntaxKind::InsertStatement,
+            NodeMatcher::new(SyntaxKind::InsertStatement, |_| {
                 Sequence::new(vec_of_erased![
                     Ref::keyword("INSERT"),
                     one_of(vec_of_erased![
@@ -1977,15 +1961,14 @@ pub fn raw_dialect() -> Dialect {
                         ])
                     ])
                 ])
-                .to_matchable(),
-            )
+                .to_matchable()
+            })
             .to_matchable()
             .into(),
         ),
         (
             "InsertOverwriteDirectorySegment".into(),
-            NodeMatcher::new(
-                SyntaxKind::InsertOverwriteDirectoryStatement,
+            NodeMatcher::new(SyntaxKind::InsertOverwriteDirectoryStatement, |_| {
                 Sequence::new(vec_of_erased![
                     Ref::keyword("INSERT"),
                     Ref::keyword("OVERWRITE"),
@@ -2004,15 +1987,14 @@ pub fn raw_dialect() -> Dialect {
                         Ref::new("SelectableGrammar")
                     ])
                 ])
-                .to_matchable(),
-            )
+                .to_matchable()
+            })
             .to_matchable()
             .into(),
         ),
         (
             "InsertOverwriteDirectoryHiveFmtSegment".into(),
-            NodeMatcher::new(
-                SyntaxKind::InsertOverwriteDirectoryHiveFmtStatement,
+            NodeMatcher::new(SyntaxKind::InsertOverwriteDirectoryHiveFmtStatement, |_| {
                 Sequence::new(vec_of_erased![
                     Ref::keyword("INSERT"),
                     Ref::keyword("OVERWRITE"),
@@ -2030,15 +2012,14 @@ pub fn raw_dialect() -> Dialect {
                         Ref::new("SelectableGrammar")
                     ])
                 ])
-                .to_matchable(),
-            )
+                .to_matchable()
+            })
             .to_matchable()
             .into(),
         ),
         (
             "LoadDataSegment".into(),
-            NodeMatcher::new(
-                SyntaxKind::LoadDataStatement,
+            NodeMatcher::new(SyntaxKind::LoadDataStatement, |_| {
                 Sequence::new(vec_of_erased![
                     Ref::keyword("LOAD"),
                     Ref::keyword("DATA"),
@@ -2051,15 +2032,14 @@ pub fn raw_dialect() -> Dialect {
                     Ref::new("TableReferenceSegment"),
                     Ref::new("PartitionSpecGrammar").optional()
                 ])
-                .to_matchable(),
-            )
+                .to_matchable()
+            })
             .to_matchable()
             .into(),
         ),
         (
             "ClusterByClauseSegment".into(),
-            NodeMatcher::new(
-                SyntaxKind::ClusterByClause,
+            NodeMatcher::new(SyntaxKind::ClusterByClause, |_| {
                 Sequence::new(vec_of_erased![
                     Ref::keyword("CLUSTER"),
                     Ref::keyword("BY"),
@@ -2082,15 +2062,14 @@ pub fn raw_dialect() -> Dialect {
                     }),
                     MetaSegment::dedent()
                 ])
-                .to_matchable(),
-            )
+                .to_matchable()
+            })
             .to_matchable()
             .into(),
         ),
         (
             "DistributeByClauseSegment".into(),
-            NodeMatcher::new(
-                SyntaxKind::DistributeByClause,
+            NodeMatcher::new(SyntaxKind::DistributeByClause, |_| {
                 Sequence::new(vec_of_erased![
                     Ref::keyword("DISTRIBUTE"),
                     Ref::keyword("BY"),
@@ -2114,15 +2093,14 @@ pub fn raw_dialect() -> Dialect {
                     }),
                     MetaSegment::dedent()
                 ])
-                .to_matchable(),
-            )
+                .to_matchable()
+            })
             .to_matchable()
             .into(),
         ),
         (
             "HintFunctionSegment".into(),
-            NodeMatcher::new(
-                SyntaxKind::HintFunction,
+            NodeMatcher::new(SyntaxKind::HintFunction, |_| {
                 Sequence::new(vec_of_erased![
                     Ref::new("FunctionNameSegment"),
                     Bracketed::new(vec_of_erased![Delimited::new(vec_of_erased![
@@ -2140,15 +2118,14 @@ pub fn raw_dialect() -> Dialect {
                         config.optional();
                     })
                 ])
-                .to_matchable(),
-            )
+                .to_matchable()
+            })
             .to_matchable()
             .into(),
         ),
         (
             "SelectHintSegment".into(),
-            NodeMatcher::new(
-                SyntaxKind::SelectHint,
+            NodeMatcher::new(SyntaxKind::SelectHint, |_| {
                 Sequence::new(vec_of_erased![Sequence::new(vec_of_erased![
                     Ref::new("StartHintSegment"),
                     Delimited::new(vec_of_erased![
@@ -2163,8 +2140,8 @@ pub fn raw_dialect() -> Dialect {
                     }),
                     Ref::new("EndHintSegment")
                 ])])
-                .to_matchable(),
-            )
+                .to_matchable()
+            })
             .to_matchable()
             .into(),
         ),
@@ -2311,21 +2288,19 @@ pub fn raw_dialect() -> Dialect {
     sparksql_dialect.add([
         (
             "WithCubeRollupClauseSegment".into(),
-            NodeMatcher::new(
-                SyntaxKind::WithCubeRollupClause,
+            NodeMatcher::new(SyntaxKind::WithCubeRollupClause, |_| {
                 Sequence::new(vec_of_erased![
                     Ref::keyword("WITH"),
                     one_of(vec_of_erased![Ref::keyword("CUBE"), Ref::keyword("ROLLUP")])
                 ])
-                .to_matchable(),
-            )
+                .to_matchable()
+            })
             .to_matchable()
             .into(),
         ),
         (
             "SortByClauseSegment".into(),
-            NodeMatcher::new(
-                SyntaxKind::SortByClause,
+            NodeMatcher::new(SyntaxKind::SortByClause, |_| {
                 Sequence::new(vec_of_erased![
                     Ref::keyword("SORT"),
                     Ref::keyword("BY"),
@@ -2361,8 +2336,8 @@ pub fn raw_dialect() -> Dialect {
                     }),
                     MetaSegment::dedent()
                 ])
-                .to_matchable(),
-            )
+                .to_matchable()
+            })
             .to_matchable()
             .into(),
         ),
@@ -2397,8 +2372,7 @@ pub fn raw_dialect() -> Dialect {
     sparksql_dialect.add([
         (
             "LateralViewClauseSegment".into(),
-            NodeMatcher::new(
-                SyntaxKind::LateralViewClause,
+            NodeMatcher::new(SyntaxKind::LateralViewClause, |_| {
                 Sequence::new(vec_of_erased![
                     MetaSegment::indent(),
                     Ref::keyword("LATERAL"),
@@ -2423,15 +2397,14 @@ pub fn raw_dialect() -> Dialect {
                     ]),
                     MetaSegment::dedent()
                 ])
-                .to_matchable(),
-            )
+                .to_matchable()
+            })
             .to_matchable()
             .into(),
         ),
         (
             "PivotClauseSegment".into(),
-            NodeMatcher::new(
-                SyntaxKind::PivotClause,
+            NodeMatcher::new(SyntaxKind::PivotClause, |_| {
                 Sequence::new(vec_of_erased![
                     MetaSegment::indent(),
                     Ref::keyword("PIVOT"),
@@ -2465,15 +2438,14 @@ pub fn raw_dialect() -> Dialect {
                     ]),
                     MetaSegment::dedent()
                 ])
-                .to_matchable(),
-            )
+                .to_matchable()
+            })
             .to_matchable()
             .into(),
         ),
         (
             "TransformClauseSegment".into(),
-            NodeMatcher::new(
-                SyntaxKind::TransformClause,
+            NodeMatcher::new(SyntaxKind::TransformClause, |_| {
                 Sequence::new(vec_of_erased![
                     Ref::keyword("TRANSFORM"),
                     Bracketed::new(vec_of_erased![Delimited::new(vec_of_erased![Ref::new(
@@ -2500,8 +2472,8 @@ pub fn raw_dialect() -> Dialect {
                     }),
                     Ref::new("RowFormatClauseSegment").optional()
                 ])
-                .to_matchable(),
-            )
+                .to_matchable()
+            })
             .to_matchable()
             .into(),
         ),
@@ -2536,22 +2508,20 @@ pub fn raw_dialect() -> Dialect {
     sparksql_dialect.add([
         (
             "AddFileSegment".into(),
-            NodeMatcher::new(
-                SyntaxKind::AddFileStatement,
+            NodeMatcher::new(SyntaxKind::AddFileStatement, |_| {
                 Sequence::new(vec_of_erased![
                     Ref::keyword("ADD"),
                     Ref::keyword("FILE"),
                     AnyNumberOf::new(vec_of_erased![Ref::new("QuotedLiteralSegment")])
                 ])
-                .to_matchable(),
-            )
+                .to_matchable()
+            })
             .to_matchable()
             .into(),
         ),
         (
             "AddJarSegment".into(),
-            NodeMatcher::new(
-                SyntaxKind::AddJarStatement,
+            NodeMatcher::new(SyntaxKind::AddJarStatement, |_| {
                 Sequence::new(vec_of_erased![
                     Ref::keyword("ADD"),
                     Ref::keyword("JAR"),
@@ -2560,15 +2530,14 @@ pub fn raw_dialect() -> Dialect {
                         Ref::new("FileLiteralSegment")
                     ])
                 ])
-                .to_matchable(),
-            )
+                .to_matchable()
+            })
             .to_matchable()
             .into(),
         ),
         (
             "AnalyzeTableSegment".into(),
-            NodeMatcher::new(
-                SyntaxKind::AnalyzeTableStatement,
+            NodeMatcher::new(SyntaxKind::AnalyzeTableStatement, |_| {
                 Sequence::new(vec_of_erased![
                     Ref::keyword("ANALYZE"),
                     one_of(vec_of_erased![
@@ -2607,15 +2576,14 @@ pub fn raw_dialect() -> Dialect {
                         ])
                     ])
                 ])
-                .to_matchable(),
-            )
+                .to_matchable()
+            })
             .to_matchable()
             .into(),
         ),
         (
             "CacheTableSegment".into(),
-            NodeMatcher::new(
-                SyntaxKind::CacheTable,
+            NodeMatcher::new(SyntaxKind::CacheTable, |_| {
                 Sequence::new(vec_of_erased![
                     Ref::keyword("CACHE"),
                     Ref::keyword("LAZY").optional(),
@@ -2630,18 +2598,17 @@ pub fn raw_dialect() -> Dialect {
                         config.optional();
                     })
                 ])
-                .to_matchable(),
-            )
+                .to_matchable()
+            })
             .to_matchable()
             .into(),
         ),
         (
             "ClearCacheSegment".into(),
-            NodeMatcher::new(
-                SyntaxKind::ClearCache,
+            NodeMatcher::new(SyntaxKind::ClearCache, |_| {
                 Sequence::new(vec_of_erased![Ref::keyword("CLEAR"), Ref::keyword("CACHE")])
-                    .to_matchable(),
-            )
+                    .to_matchable()
+            })
             .to_matchable()
             .into(),
         ),
@@ -2733,8 +2700,7 @@ pub fn raw_dialect() -> Dialect {
         // https://spark.apache.org/docs/latest/sql-ref-syntax-aux-describe-table.html
         (
             "DescribeStatementSegment".into(),
-            NodeMatcher::new(
-                SyntaxKind::DescribeStatement,
+            NodeMatcher::new(SyntaxKind::DescribeStatement, |_| {
                 Sequence::new(vec_of_erased![
                     one_of(vec_of_erased![
                         Ref::keyword("DESCRIBE"),
@@ -2742,43 +2708,40 @@ pub fn raw_dialect() -> Dialect {
                     ]),
                     Ref::new("DescribeObjectGrammar"),
                 ])
-                .to_matchable(),
-            )
+                .to_matchable()
+            })
             .to_matchable()
             .into(),
         ),
         (
             "ListFileSegment".into(),
-            NodeMatcher::new(
-                SyntaxKind::ListFileStatement,
+            NodeMatcher::new(SyntaxKind::ListFileStatement, |_| {
                 Sequence::new(vec_of_erased![
                     Ref::keyword("LIST"),
                     Ref::keyword("FILE"),
                     AnyNumberOf::new(vec_of_erased![Ref::new("QuotedLiteralSegment")])
                 ])
-                .to_matchable(),
-            )
+                .to_matchable()
+            })
             .to_matchable()
             .into(),
         ),
         (
             "ListJarSegment".into(),
-            NodeMatcher::new(
-                SyntaxKind::ListJarStatement,
+            NodeMatcher::new(SyntaxKind::ListJarStatement, |_| {
                 Sequence::new(vec_of_erased![
                     Ref::keyword("LIST"),
                     Ref::keyword("JAR"),
                     AnyNumberOf::new(vec_of_erased![Ref::new("QuotedLiteralSegment")])
                 ])
-                .to_matchable(),
-            )
+                .to_matchable()
+            })
             .to_matchable()
             .into(),
         ),
         (
             "RefreshStatementSegment".into(),
-            NodeMatcher::new(
-                SyntaxKind::RefreshStatement,
+            NodeMatcher::new(SyntaxKind::RefreshStatement, |_| {
                 Sequence::new(vec_of_erased![
                     Ref::keyword("REFRESH"),
                     one_of(vec_of_erased![
@@ -2793,15 +2756,14 @@ pub fn raw_dialect() -> Dialect {
                         ])
                     ])
                 ])
-                .to_matchable(),
-            )
+                .to_matchable()
+            })
             .to_matchable()
             .into(),
         ),
         (
             "ResetStatementSegment".into(),
-            NodeMatcher::new(
-                SyntaxKind::ResetStatement,
+            NodeMatcher::new(SyntaxKind::ResetStatement, |_| {
                 Sequence::new(vec_of_erased![
                     Ref::keyword("RESET"),
                     Delimited::new(vec_of_erased![Ref::new("SingleIdentifierGrammar")]).config(
@@ -2811,8 +2773,8 @@ pub fn raw_dialect() -> Dialect {
                         }
                     )
                 ])
-                .to_matchable(),
-            )
+                .to_matchable()
+            })
             .to_matchable()
             .into(),
         ),
@@ -2840,8 +2802,7 @@ pub fn raw_dialect() -> Dialect {
         ),
         (
             "SetStatementSegment".into(),
-            NodeMatcher::new(
-                SyntaxKind::SetStatement,
+            NodeMatcher::new(SyntaxKind::SetStatement, |_| {
                 Sequence::new(vec_of_erased![
                     Ref::keyword("SET"),
                     Ref::new("SQLConfPropertiesSegment").optional(),
@@ -2853,8 +2814,8 @@ pub fn raw_dialect() -> Dialect {
                         config.optional();
                     })
                 ])
-                .to_matchable(),
-            )
+                .to_matchable()
+            })
             .to_matchable()
             .into(),
         ),
@@ -2876,29 +2837,27 @@ pub fn raw_dialect() -> Dialect {
             // https://spark.apache.org/docs/latest/sql-ref-syntax-aux-show-tblproperties.html
             // https://spark.apache.org/docs/latest/sql-ref-syntax-aux-show-views.html
             "ShowStatement".into(),
-            NodeMatcher::new(
-                SyntaxKind::ShowStatement,
+            NodeMatcher::new(SyntaxKind::ShowStatement, |_| {
                 Sequence::new(vec_of_erased![
                     Ref::keyword("SHOW"),
                     Ref::new("ShowObjectGrammar")
                 ])
-                .to_matchable(),
-            )
+                .to_matchable()
+            })
             .to_matchable()
             .into(),
         ),
         (
             "UncacheTableSegment".into(),
-            NodeMatcher::new(
-                SyntaxKind::UncacheTable,
+            NodeMatcher::new(SyntaxKind::UncacheTable, |_| {
                 Sequence::new(vec_of_erased![
                     Ref::keyword("UNCACHE"),
                     Ref::keyword("TABLE"),
                     Ref::new("IfExistsGrammar").optional(),
                     Ref::new("TableReferenceSegment")
                 ])
-                .to_matchable(),
-            )
+                .to_matchable()
+            })
             .to_matchable()
             .into(),
         ),
@@ -3097,15 +3056,14 @@ pub fn raw_dialect() -> Dialect {
     );
     sparksql_dialect.add([(
         "FileReferenceSegment".into(),
-        NodeMatcher::new(
-            SyntaxKind::FileReference,
+        NodeMatcher::new(SyntaxKind::FileReference, |_| {
             Sequence::new(vec_of_erased![
                 Ref::new("DataSourcesV2FileTypeGrammar"),
                 Ref::new("DotSegment"),
                 Ref::new("BackQuotedIdentifierSegment")
             ])
-            .to_matchable(),
-        )
+            .to_matchable()
+        })
         .to_matchable()
         .into(),
     )]);
@@ -3132,8 +3090,7 @@ pub fn raw_dialect() -> Dialect {
     sparksql_dialect.add([
         (
             "PropertyNameSegment".into(),
-            NodeMatcher::new(
-                SyntaxKind::PropertyNameIdentifier,
+            NodeMatcher::new(SyntaxKind::PropertyNameIdentifier, |_| {
                 Sequence::new(vec_of_erased![one_of(vec_of_erased![
                     Delimited::new(vec_of_erased![Ref::new("PropertiesNakedIdentifierSegment")])
                         .config(|config| {
@@ -3142,15 +3099,14 @@ pub fn raw_dialect() -> Dialect {
                         }),
                     Ref::new("SingleIdentifierGrammar")
                 ])])
-                .to_matchable(),
-            )
+                .to_matchable()
+            })
             .to_matchable()
             .into(),
         ),
         (
             "GeneratedColumnDefinitionSegment".into(),
-            NodeMatcher::new(
-                SyntaxKind::GeneratedColumnDefinition,
+            NodeMatcher::new(SyntaxKind::GeneratedColumnDefinition, |_| {
                 Sequence::new(vec_of_erased![
                     Ref::new("SingleIdentifierGrammar"),
                     Ref::new("DatatypeSegment"),
@@ -3170,8 +3126,8 @@ pub fn raw_dialect() -> Dialect {
                         Ref::new("ColumnConstraintSegment").optional()
                     ])
                 ])
-                .to_matchable(),
-            )
+                .to_matchable()
+            })
             .to_matchable()
             .into(),
         ),
@@ -3234,8 +3190,7 @@ pub fn raw_dialect() -> Dialect {
     );
     sparksql_dialect.add([(
         "IntervalLiteralSegment".into(),
-        NodeMatcher::new(
-            SyntaxKind::IntervalLiteral,
+        NodeMatcher::new(SyntaxKind::IntervalLiteral, |_| {
             Sequence::new(vec_of_erased![
                 Ref::new("SignedSegmentGrammar").optional(),
                 one_of(vec_of_erased![
@@ -3246,8 +3201,8 @@ pub fn raw_dialect() -> Dialect {
                 Ref::keyword("TO").optional(),
                 Ref::new("DatetimeUnitSegment").optional()
             ])
-            .to_matchable(),
-        )
+            .to_matchable()
+        })
         .to_matchable()
         .into(),
     )]);
@@ -3266,8 +3221,7 @@ pub fn raw_dialect() -> Dialect {
     sparksql_dialect.add([
         (
             "VacuumStatementSegment".into(),
-            NodeMatcher::new(
-                SyntaxKind::VacuumStatement,
+            NodeMatcher::new(SyntaxKind::VacuumStatement, |_| {
                 Sequence::new(vec_of_erased![
                     Ref::keyword("VACUUM"),
                     one_of(vec_of_erased![
@@ -3287,15 +3241,14 @@ pub fn raw_dialect() -> Dialect {
                         config.optional();
                     })
                 ])
-                .to_matchable(),
-            )
+                .to_matchable()
+            })
             .to_matchable()
             .into(),
         ),
         (
             "DescribeHistoryStatementSegment".into(),
-            NodeMatcher::new(
-                SyntaxKind::DescribeHistoryStatement,
+            NodeMatcher::new(SyntaxKind::DescribeHistoryStatement, |_| {
                 Sequence::new(vec_of_erased![
                     Ref::keyword("DESCRIBE"),
                     Ref::keyword("HISTORY"),
@@ -3306,15 +3259,14 @@ pub fn raw_dialect() -> Dialect {
                     ]),
                     Ref::new("LimitClauseSegment").optional()
                 ])
-                .to_matchable(),
-            )
+                .to_matchable()
+            })
             .to_matchable()
             .into(),
         ),
         (
             "DescribeDetailStatementSegment".into(),
-            NodeMatcher::new(
-                SyntaxKind::DescribeDetailStatement,
+            NodeMatcher::new(SyntaxKind::DescribeDetailStatement, |_| {
                 Sequence::new(vec_of_erased![
                     Ref::keyword("DESCRIBE"),
                     Ref::keyword("DETAIL"),
@@ -3324,15 +3276,14 @@ pub fn raw_dialect() -> Dialect {
                         Ref::new("TableReferenceSegment")
                     ])
                 ])
-                .to_matchable(),
-            )
+                .to_matchable()
+            })
             .to_matchable()
             .into(),
         ),
         (
             "GenerateManifestFileStatementSegment".into(),
-            NodeMatcher::new(
-                SyntaxKind::GenerateManifestFileStatement,
+            NodeMatcher::new(SyntaxKind::GenerateManifestFileStatement, |_| {
                 Sequence::new(vec_of_erased![
                     Ref::keyword("GENERATE"),
                     StringParser::new("symlink_format_manifest", SyntaxKind::SymlinkFormatManifest),
@@ -3344,15 +3295,14 @@ pub fn raw_dialect() -> Dialect {
                         Ref::new("TableReferenceSegment")
                     ])
                 ])
-                .to_matchable(),
-            )
+                .to_matchable()
+            })
             .to_matchable()
             .into(),
         ),
         (
             "ConvertToDeltaStatementSegment".into(),
-            NodeMatcher::new(
-                SyntaxKind::ConvertToDeltaStatement,
+            NodeMatcher::new(SyntaxKind::ConvertToDeltaStatement, |_| {
                 Sequence::new(vec_of_erased![
                     Ref::keyword("CONVERT"),
                     Ref::keyword("TO"),
@@ -3367,15 +3317,14 @@ pub fn raw_dialect() -> Dialect {
                     }),
                     Ref::new("PartitionSpecGrammar").optional()
                 ])
-                .to_matchable(),
-            )
+                .to_matchable()
+            })
             .to_matchable()
             .into(),
         ),
         (
             "RestoreTableStatementSegment".into(),
-            NodeMatcher::new(
-                SyntaxKind::RestoreTableStatement,
+            NodeMatcher::new(SyntaxKind::RestoreTableStatement, |_| {
                 Sequence::new(vec_of_erased![
                     Ref::keyword("RESTORE"),
                     Ref::keyword("TABLE"),
@@ -3390,15 +3339,14 @@ pub fn raw_dialect() -> Dialect {
                         Ref::new("VersionAsOfGrammar")
                     ])
                 ])
-                .to_matchable(),
-            )
+                .to_matchable()
+            })
             .to_matchable()
             .into(),
         ),
         (
             "ConstraintStatementSegment".into(),
-            NodeMatcher::new(
-                SyntaxKind::ConstraintStatement,
+            NodeMatcher::new(SyntaxKind::ConstraintStatement, |_| {
                 Sequence::new(vec_of_erased![
                     Ref::keyword("CONSTRAINT"),
                     Ref::new("ObjectReferenceSegment"),
@@ -3419,8 +3367,8 @@ pub fn raw_dialect() -> Dialect {
                         config.optional();
                     })
                 ])
-                .to_matchable(),
-            )
+                .to_matchable()
+            })
             .to_matchable()
             .into(),
         ),
@@ -3428,8 +3376,7 @@ pub fn raw_dialect() -> Dialect {
             // A statement ingest CDC data a target table.
             // https://docs.databricks.com/workflows/delta-live-tables/delta-live-tables-cdc.html#sql
             "ApplyChangesIntoStatementSegment".into(),
-            NodeMatcher::new(
-                SyntaxKind::ApplyChangesIntoStatement,
+            NodeMatcher::new(SyntaxKind::ApplyChangesIntoStatement, |_| {
                 Sequence::new(vec_of_erased![
                     Sequence::new(vec_of_erased![
                         Ref::keyword("APPLY"),
@@ -3516,8 +3463,8 @@ pub fn raw_dialect() -> Dialect {
                         config.optional();
                     }),
                 ])
-                .to_matchable(),
-            )
+                .to_matchable()
+            })
             .to_matchable()
             .into(),
         ),
@@ -3554,23 +3501,21 @@ pub fn raw_dialect() -> Dialect {
     sparksql_dialect.add([
         (
             "ExceptClauseSegment".into(),
-            NodeMatcher::new(
-                SyntaxKind::SelectExceptClause,
+            NodeMatcher::new(SyntaxKind::SelectExceptClause, |_| {
                 Sequence::new(vec_of_erased![
                     Ref::keyword("EXCEPT"),
                     Bracketed::new(vec_of_erased![Delimited::new(vec_of_erased![Ref::new(
                         "ColumnReferenceSegment"
                     )])])
                 ])
-                .to_matchable(),
-            )
+                .to_matchable()
+            })
             .to_matchable()
             .into(),
         ),
         (
             "SelectClauseSegment".into(),
-            NodeMatcher::new(
-                SyntaxKind::SelectClause,
+            NodeMatcher::new(SyntaxKind::SelectClause, |_| {
                 Sequence::new(vec_of_erased![
                     Ref::keyword("SELECT"),
                     one_of(vec_of_erased![
@@ -3589,42 +3534,39 @@ pub fn raw_dialect() -> Dialect {
                     config.terminators = vec_of_erased![Ref::new("SelectClauseTerminatorGrammar"),];
                     config.parse_mode(ParseMode::GreedyOnceStarted);
                 })
-                .to_matchable(),
-            )
+                .to_matchable()
+            })
             .to_matchable()
             .into(),
         ),
         (
             "UsingClauseSegment".into(),
-            NodeMatcher::new(
-                SyntaxKind::UsingClause,
+            NodeMatcher::new(SyntaxKind::UsingClause, |_| {
                 Sequence::new(vec_of_erased![
                     Ref::keyword("USING"),
                     Ref::new("DataSourceFormatSegment")
                 ])
-                .to_matchable(),
-            )
+                .to_matchable()
+            })
             .to_matchable()
             .into(),
         ),
         (
             "DataSourceFormatSegment".into(),
-            NodeMatcher::new(
-                SyntaxKind::DataSourceFormat,
+            NodeMatcher::new(SyntaxKind::DataSourceFormat, |_| {
                 one_of(vec_of_erased![
                     Ref::new("FileFormatGrammar"),
                     Ref::keyword("JDBC"),
                     Ref::new("ObjectReferenceSegment")
                 ])
-                .to_matchable(),
-            )
+                .to_matchable()
+            })
             .to_matchable()
             .into(),
         ),
         (
             "IcebergTransformationSegment".into(),
-            NodeMatcher::new(
-                SyntaxKind::IcebergTransformation,
+            NodeMatcher::new(SyntaxKind::IcebergTransformation, |_| {
                 one_of(vec_of_erased![
                     Sequence::new(vec_of_erased![
                         one_of(vec_of_erased![
@@ -3649,8 +3591,8 @@ pub fn raw_dialect() -> Dialect {
                         ])])
                     ])
                 ])
-                .to_matchable(),
-            )
+                .to_matchable()
+            })
             .to_matchable()
             .into(),
         ),

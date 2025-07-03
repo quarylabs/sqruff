@@ -492,21 +492,19 @@ pub fn dialect() -> Dialect {
     dialect.add([
         (
             "MapTypeSegment".into(),
-            NodeMatcher::new(
-                SyntaxKind::MapType,
+            NodeMatcher::new(SyntaxKind::MapType, |_| {
                 Sequence::new(vec_of_erased![
                     Ref::keyword("MAP"),
                     Ref::new("MapTypeSchemaSegment").optional()
                 ])
-                .to_matchable(),
-            )
+                .to_matchable()
+            })
             .to_matchable()
             .into(),
         ),
         (
             "MapTypeSchemaSegment".into(),
-            NodeMatcher::new(
-                SyntaxKind::MapTypeSchema,
+            NodeMatcher::new(SyntaxKind::MapTypeSchema, |_| {
                 Bracketed::new(vec_of_erased![Sequence::new(vec_of_erased![
                     Ref::new("PrimitiveTypeSegment"),
                     Ref::new("CommaSegment"),
@@ -516,8 +514,8 @@ pub fn dialect() -> Dialect {
                     config.bracket_pairs_set = "angle_bracket_pairs";
                     config.bracket_type = "angle";
                 })
-                .to_matchable(),
-            )
+                .to_matchable()
+            })
             .to_matchable()
             .into(),
         ),
@@ -550,8 +548,7 @@ pub fn dialect() -> Dialect {
     dialect.add([
         (
             "StructTypeSchemaSegment".into(),
-            NodeMatcher::new(
-                SyntaxKind::StructTypeSchema,
+            NodeMatcher::new(SyntaxKind::StructTypeSchema, |_| {
                 Bracketed::new(vec_of_erased![Delimited::new(vec_of_erased![
                     Sequence::new(vec_of_erased![
                         Ref::new("NakedIdentifierSegment"),
@@ -564,15 +561,14 @@ pub fn dialect() -> Dialect {
                     config.bracket_pairs_set = "angle_bracket_pairs";
                     config.bracket_type = "angle";
                 })
-                .to_matchable(),
-            )
+                .to_matchable()
+            })
             .to_matchable()
             .into(),
         ),
         (
             "PrimitiveTypeSegment".into(),
-            NodeMatcher::new(
-                SyntaxKind::PrimitiveType,
+            NodeMatcher::new(SyntaxKind::PrimitiveType, |_| {
                 one_of(vec_of_erased![
                     Ref::keyword("BOOLEAN"),
                     Ref::keyword("TINYINT"),
@@ -602,15 +598,14 @@ pub fn dialect() -> Dialect {
                     Ref::keyword("HYPERLOGLOG"),
                     Ref::keyword("P4HYPERLOGLOG")
                 ])
-                .to_matchable(),
-            )
+                .to_matchable()
+            })
             .to_matchable()
             .into(),
         ),
         (
             "DatatypeSegment".into(),
-            NodeMatcher::new(
-                SyntaxKind::DataType,
+            NodeMatcher::new(SyntaxKind::DataType, |_| {
                 one_of(vec_of_erased![
                     Ref::new("PrimitiveTypeSegment"),
                     Ref::new("StructTypeSegment"),
@@ -630,8 +625,8 @@ pub fn dialect() -> Dialect {
                     ]),
                     Ref::new("DatetimeWithTZSegment")
                 ])
-                .to_matchable(),
-            )
+                .to_matchable()
+            })
             .to_matchable()
             .into(),
         ),
@@ -658,8 +653,7 @@ pub fn dialect() -> Dialect {
     dialect.add([
         (
             "CreateTableStatementSegment".into(),
-            NodeMatcher::new(
-                SyntaxKind::CreateTableStatement,
+            NodeMatcher::new(SyntaxKind::CreateTableStatement, |_| {
                 Sequence::new(vec_of_erased![
                     Ref::keyword("CREATE"),
                     Ref::keyword("EXTERNAL").optional(),
@@ -733,30 +727,28 @@ pub fn dialect() -> Dialect {
                         ])
                     ])
                 ])
-                .to_matchable(),
-            )
+                .to_matchable()
+            })
             .to_matchable()
             .into(),
         ),
         (
             "MsckRepairTableStatementSegment".into(),
-            NodeMatcher::new(
-                SyntaxKind::MsckRepairTableStatement,
+            NodeMatcher::new(SyntaxKind::MsckRepairTableStatement, |_| {
                 Sequence::new(vec_of_erased![
                     Ref::keyword("MSCK"),
                     Ref::keyword("REPAIR"),
                     Ref::keyword("TABLE"),
                     Ref::new("TableReferenceSegment")
                 ])
-                .to_matchable(),
-            )
+                .to_matchable()
+            })
             .to_matchable()
             .into(),
         ),
         (
             "RowFormatClauseSegment".into(),
-            NodeMatcher::new(
-                SyntaxKind::RowFormatClause,
+            NodeMatcher::new(SyntaxKind::RowFormatClause, |_| {
                 Sequence::new(vec_of_erased![
                     Ref::keyword("ROW"),
                     Ref::keyword("FORMAT"),
@@ -818,15 +810,14 @@ pub fn dialect() -> Dialect {
                         ])
                     ])
                 ])
-                .to_matchable(),
-            )
+                .to_matchable()
+            })
             .to_matchable()
             .into(),
         ),
         (
             "InsertStatementSegment".into(),
-            NodeMatcher::new(
-                SyntaxKind::InsertStatement,
+            NodeMatcher::new(SyntaxKind::InsertStatement, |_| {
                 Sequence::new(vec_of_erased![
                     Ref::keyword("INSERT"),
                     Ref::keyword("INTO"),
@@ -846,15 +837,14 @@ pub fn dialect() -> Dialect {
                         ])
                     ])
                 ])
-                .to_matchable(),
-            )
+                .to_matchable()
+            })
             .to_matchable()
             .into(),
         ),
         (
             "UnloadStatementSegment".into(),
-            NodeMatcher::new(
-                SyntaxKind::UnloadStatement,
+            NodeMatcher::new(SyntaxKind::UnloadStatement, |_| {
                 Sequence::new(vec_of_erased![
                     Ref::keyword("UNLOAD"),
                     Bracketed::new(vec_of_erased![Ref::new("SelectableGrammar")]),
@@ -868,15 +858,14 @@ pub fn dialect() -> Dialect {
                         config.optional();
                     })
                 ])
-                .to_matchable(),
-            )
+                .to_matchable()
+            })
             .to_matchable()
             .into(),
         ),
         (
             "PrepareStatementSegment".into(),
-            NodeMatcher::new(
-                SyntaxKind::PrepareStatement,
+            NodeMatcher::new(SyntaxKind::PrepareStatement, |_| {
                 Sequence::new(vec_of_erased![
                     Ref::keyword("PREPARE"),
                     Ref::new("TableReferenceSegment"),
@@ -887,15 +876,14 @@ pub fn dialect() -> Dialect {
                         Ref::new("InsertStatementSegment"),
                     ])])
                 ])
-                .to_matchable(),
-            )
+                .to_matchable()
+            })
             .to_matchable()
             .into(),
         ),
         (
             "ExecuteStatementSegment".into(),
-            NodeMatcher::new(
-                SyntaxKind::ExecuteStatement,
+            NodeMatcher::new(SyntaxKind::ExecuteStatement, |_| {
                 Sequence::new(vec_of_erased![
                     Ref::keyword("EXECUTE"),
                     Ref::new("TableReferenceSegment"),
@@ -907,15 +895,14 @@ pub fn dialect() -> Dialect {
                         config.optional();
                     })
                 ])
-                .to_matchable(),
-            )
+                .to_matchable()
+            })
             .to_matchable()
             .into(),
         ),
         (
             "IntervalExpressionSegment".into(),
-            NodeMatcher::new(
-                SyntaxKind::IntervalExpression,
+            NodeMatcher::new(SyntaxKind::IntervalExpression, |_| {
                 Sequence::new(vec_of_erased![
                     Ref::keyword("INTERVAL").optional(),
                     one_of(vec_of_erased![Sequence::new(vec_of_erased![
@@ -934,8 +921,8 @@ pub fn dialect() -> Dialect {
                         })
                     ])])
                 ])
-                .to_matchable(),
-            )
+                .to_matchable()
+            })
             .to_matchable()
             .into(),
         ),
@@ -943,8 +930,7 @@ pub fn dialect() -> Dialect {
 
     dialect.add([(
         "ShowStatementSegment".into(),
-        NodeMatcher::new(
-            SyntaxKind::ShowStatement,
+        NodeMatcher::new(SyntaxKind::ShowStatement, |_| {
             Sequence::new(vec_of_erased![
                 Ref::keyword("SHOW"),
                 one_of(vec_of_erased![
@@ -1032,8 +1018,8 @@ pub fn dialect() -> Dialect {
                     ])
                 ])
             ])
-            .to_matchable(),
-        )
+            .to_matchable()
+        })
         .to_matchable()
         .into(),
     )]);

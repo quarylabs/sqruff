@@ -259,9 +259,12 @@ pub fn raw_dialect() -> Dialect {
             // Pattern explanation:
             // - ##?[A-Z][A-Z0-9_]*    matches temp tables: #temp or ##global
             // - [A-Z0-9_]*[A-Z][A-Z0-9_]*#?   matches regular identifiers with optional # at end
-            RegexParser::new("(##?[A-Z][A-Z0-9_]*|[A-Z0-9_]*[A-Z][A-Z0-9_]*#?)", SyntaxKind::NakedIdentifier)
-                .anti_template(&anti_template)
-                .to_matchable()
+            RegexParser::new(
+                "(##?[A-Z][A-Z0-9_]*|[A-Z0-9_]*[A-Z][A-Z0-9_]*#?)",
+                SyntaxKind::NakedIdentifier,
+            )
+            .anti_template(&anti_template)
+            .to_matchable()
         })
         .into(),
     )]);

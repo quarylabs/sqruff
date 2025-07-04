@@ -31,15 +31,6 @@ test_fail_special_chars_create_table_lt_bigquery:
     core:
       dialect: bigquery
 
-test_fail_special_chars_create_table_hash_unquoted:
-  fail_str:
-    CREATE TABLE DBO.ColumnNames
-    (
-        Number# INT
-    )
-  configs:
-    core:
-      dialect: tsql
 
 test_pass_special_chars_create_table_none:
   pass_str:
@@ -106,31 +97,6 @@ test_fail_special_chars_quoted_policy_column_alias:
       references.special_chars:
         quoted_identifiers_policy: column_aliases
 
-test_fail_special_chars_unquoted_policy_aliases:
-  # TODO: Fix T-SQL special character detection in identifiers
-  ignored: "T-SQL special character detection not working correctly"
-  fail_str:
-    SELECT a
-    FROM DBO.ColumnNames as aliashash#
-  configs:
-    rules:
-      references.special_chars:
-        unquoted_identifiers_policy: aliases
-    core:
-      dialect: tsql
-
-test_fail_special_chars_unquoted_policy_column_aliases:
-  # TODO: Fix T-SQL special character detection in identifiers
-  ignored: "T-SQL special character detection not working correctly"
-  fail_str:
-    SELECT a as aliashash#
-    FROM DBO.ColumnNames
-  configs:
-    rules:
-      references.special_chars:
-        unquoted_identifiers_policy: column_aliases
-    core:
-      dialect: tsql
 
 test_pass_special_chars_quoted_policy_aliases:
   pass_str:
@@ -180,6 +146,81 @@ test_pass_special_chars_quoted_policy_column_aliases:
     rules:
       references.special_chars:
         quoted_identifiers_policy: column_aliases
+
+# T-SQL specific tests for valid syntax with special characters
+test_fail_tsql_quoted_identifier_with_hash:
+  # T-SQL uses square brackets for quoted identifiers with special chars
+  fail_str:
+    SELECT [col#name] FROM table1
+  configs:
+    rules:
+      references.special_chars:
+        quoted_identifiers_policy: all
+    core:
+      dialect: tsql
+
+test_fail_tsql_quoted_identifier_with_space:
+  fail_str:
+    SELECT [column name] FROM table1
+  configs:
+    rules:
+      references.special_chars:
+        quoted_identifiers_policy: all
+    core:
+      dialect: tsql
+
+test_fail_tsql_quoted_identifier_with_hyphen:
+  fail_str:
+    SELECT [col-name] FROM table1
+  configs:
+    rules:
+      references.special_chars:
+        quoted_identifiers_policy: all
+    core:
+      dialect: tsql
+
+test_pass_tsql_quoted_identifier_with_special_chars_none_policy:
+  # Should pass when quoted_identifiers_policy is none
+  pass_str:
+    SELECT [col#name], [column name], [col-name] FROM table1
+  configs:
+    rules:
+      references.special_chars:
+        quoted_identifiers_policy: none
+    core:
+      dialect: tsql
+
+test_fail_tsql_quoted_alias_with_special_chars:
+  fail_str:
+    SELECT col1 as [alias#name], col2 as [alias with space] FROM table1
+  configs:
+    rules:
+      references.special_chars:
+        quoted_identifiers_policy: aliases
+    core:
+      dialect: tsql
+
+test_pass_tsql_temp_table_no_special_chars:
+  # Temp tables starting with # should not be flagged (no special chars after #)
+  pass_str:
+    SELECT * FROM #TempTable
+  configs:
+    rules:
+      references.special_chars:
+        unquoted_identifiers_policy: all
+    core:
+      dialect: tsql
+
+test_pass_tsql_global_temp_table_no_special_chars:
+  # Global temp tables starting with ## should not be flagged
+  pass_str:
+    SELECT * FROM ##GlobalTempTable
+  configs:
+    rules:
+      references.special_chars:
+        unquoted_identifiers_policy: all
+    core:
+      dialect: tsql
 
 test_pass_dots_bigquery:
   pass_str:
@@ -450,3 +491,23 @@ test_fail_special_chars_redshift_hash_column:
   configs:
     core:
       dialect: redshift
+
+# T-SQL comprehensive test for SQL Server 2017+ syntax with # at end
+test_pass_tsql_identifier_hash_comprehensive:
+  # SQL Server 2017+ allows # at the end of regular identifiers
+  # This test covers tables, column aliases, table aliases, and qualified references
+  pass_str: |
+    CREATE TABLE orders# (
+        order_id# INT,
+        total# DECIMAL(10,2)
+    );
+    
+    SELECT 
+        o#.order_id# as id#,
+        o#.total# as amount#
+    FROM orders# as o#;
+    
+    DROP TABLE orders#;
+  configs:
+    core:
+      dialect: tsql

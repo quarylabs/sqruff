@@ -207,8 +207,17 @@ join c using(x)
             ctes.replace_with_clone(subquery_parent_slot, &clone_map);
         }
 
-        let _segment = Segments::new(new_root, None);
-        let output_select = if is_with {
+        let _segment = Segments::new(new_root.clone(), None);
+        
+        // Special handling for T-SQL CREATE TABLE AS WITH case
+        // In this case, we want to pass the entire WITH statement so we can append to it
+        let is_create_table_as_with = is_with && 
+            // Check if the root contains CREATE TABLE
+            new_root.raw().to_lowercase().contains("create table") &&
+            // Check if there are existing CTEs that we need to append to
+            !ctes.ctes.is_empty();
+            
+        let output_select = if is_with && !is_create_table_as_with {
             _segment.children(Some(|it: &ErasedSegment| {
                 matches!(
                     it.get_type(),
@@ -475,6 +484,7 @@ impl CTEBuilder {
         cte_segments
     }
 
+
     fn compose_select(
         &self,
         tables: &Tables,
@@ -482,6 +492,11 @@ impl CTEBuilder {
         output_select_clone: ErasedSegment,
         case_preference: Case,
     ) -> ErasedSegment {
+        // Check if this is already a WITH statement - if so, append to it instead of wrapping
+        if output_select_clone.is_type(SyntaxKind::WithCompoundStatement) {
+            return self.compose_select_append_to_existing(tables, dialect, output_select_clone, case_preference);
+        }
+
         let mut segments = vec![
             segmentify(tables, "WITH", case_preference),
             SegmentBuilder::whitespace(tables.next_id(), " "),
@@ -495,6 +510,102 @@ impl CTEBuilder {
             SyntaxKind::WithCompoundStatement,
             dialect,
             segments,
+        )
+        .finish()
+    }
+
+    fn compose_select_append_to_existing(
+        &self,
+        tables: &Tables,
+        dialect: DialectKind,
+        existing_with_segment: ErasedSegment,
+        _case_preference: Case,
+    ) -> ErasedSegment {
+        if self.ctes.is_empty() {
+            return existing_with_segment;
+        }
+
+        // Get the names of existing CTEs to avoid duplicating them
+        let existing_cte_names: std::collections::HashSet<String> = existing_with_segment
+            .recursive_crawl(
+                &SyntaxSet::single(SyntaxKind::CommonTableExpression),
+                false,
+                &SyntaxSet::EMPTY,
+                true,
+            )
+            .iter()
+            .filter_map(|cte| {
+                cte.child(&SyntaxSet::new(&[
+                    SyntaxKind::Identifier,
+                    SyntaxKind::NakedIdentifier,
+                    SyntaxKind::QuotedIdentifier,
+                ])).map(|id| id.raw().to_lowercase())
+            })
+            .collect();
+
+        // Filter out CTEs that already exist
+        let new_ctes: Vec<_> = self.ctes.iter()
+            .filter(|cte| {
+                let cte_name = cte
+                    .child(&SyntaxSet::new(&[
+                        SyntaxKind::Identifier,
+                        SyntaxKind::NakedIdentifier,
+                        SyntaxKind::QuotedIdentifier,
+                    ]))
+                    .map(|id| id.raw().to_lowercase())
+                    .unwrap_or_default();
+                !existing_cte_names.contains(&cte_name)
+            })
+            .collect();
+
+        if new_ctes.is_empty() {
+            return existing_with_segment;
+        }
+
+        let with_segments = existing_with_segment.segments();
+        let mut new_segments = Vec::new();
+        let mut added_new_ctes = false;
+
+        for seg in with_segments.iter() {
+            // Look for the point where we transition from CTEs to the main SELECT/SET statement
+            if (seg.is_type(SyntaxKind::SelectStatement) || seg.is_type(SyntaxKind::SetExpression)) 
+                && !added_new_ctes {
+                
+                // Remove any trailing newlines before adding our CTEs
+                while new_segments.last().map_or(false, |s: &ErasedSegment| s.is_type(SyntaxKind::Newline)) {
+                    new_segments.pop();
+                }
+                
+                // Add comma and newline before our new CTEs (since there are existing CTEs)
+                if new_segments.iter().any(|s| s.is_type(SyntaxKind::CommonTableExpression)) {
+                    new_segments.push(SegmentBuilder::comma(tables.next_id()));
+                    new_segments.push(SegmentBuilder::newline(tables.next_id(), "\n"));
+                }
+                
+                // Add only the new CTEs (not the duplicates)
+                let mut new_cte_iter = new_ctes.iter().peekable();
+                while let Some(cte) = new_cte_iter.next() {
+                    new_segments.push((*cte).clone());
+                    if new_cte_iter.peek().is_some() {
+                        new_segments.extend([
+                            SegmentBuilder::comma(tables.next_id()),
+                            SegmentBuilder::newline(tables.next_id(), "\n"),
+                        ]);
+                    }
+                }
+                new_segments.push(SegmentBuilder::newline(tables.next_id(), "\n"));
+                
+                added_new_ctes = true;
+            }
+            
+            new_segments.push(seg.clone());
+        }
+
+        SegmentBuilder::node(
+            tables.next_id(),
+            SyntaxKind::WithCompoundStatement,
+            dialect,
+            new_segments,
         )
         .finish()
     }

@@ -179,6 +179,9 @@ join c using(x)
 
             q.push(subquery_parent_slot);
 
+            // Check for bracketed CREATE TABLE AS - these are specifically problematic
+            // patterns like CREATE TABLE foo AS (SELECT ...)
+            // But T-SQL CREATE TABLE AS WITH patterns should be fixable
             let bracketed_ctas = parent_stack
                 .base
                 .iter()
@@ -208,26 +211,7 @@ join c using(x)
         }
 
         let _segment = Segments::new(new_root.clone(), None);
-
-        // Special handling for T-SQL CREATE TABLE AS WITH case
-        // In this case, we want to pass the entire WITH statement so we can append to it
-        let is_create_table_as_with = is_with &&
-            // Check if we're within a CREATE TABLE statement context
-            parent_stack.base.iter()
-                .any(|segment| segment.is_type(SyntaxKind::CreateTableStatement)) &&
-            // Check if there are existing CTEs that we need to append to
-            !ctes.ctes.is_empty();
-
-        let output_select = if is_with && !is_create_table_as_with {
-            _segment.children(Some(|it: &ErasedSegment| {
-                matches!(
-                    it.get_type(),
-                    SyntaxKind::SetExpression | SyntaxKind::SelectStatement
-                )
-            }))
-        } else {
-            _segment.clone()
-        };
+        let output_select = _segment.clone();
 
         for result in &mut lint_results {
             let subquery_parent = subquery_parent.clone().unwrap();
@@ -492,16 +476,24 @@ impl CTEBuilder {
         output_select_clone: ErasedSegment,
         case_preference: Case,
     ) -> ErasedSegment {
-        // Check if this is already a WITH statement - if so, append to it instead of wrapping
-        if output_select_clone.is_type(SyntaxKind::WithCompoundStatement) {
-            return self.compose_select_append_to_existing(
-                tables,
-                dialect,
-                output_select_clone,
-                case_preference,
-            );
+        if self.should_extend_existing_with(&output_select_clone) {
+            self.extend_existing_with(tables, dialect, output_select_clone, case_preference)
+        } else {
+            self.create_new_with_wrapper(tables, dialect, output_select_clone, case_preference)
         }
+    }
 
+    fn should_extend_existing_with(&self, segment: &ErasedSegment) -> bool {
+        segment.is_type(SyntaxKind::WithCompoundStatement)
+    }
+
+    fn create_new_with_wrapper(
+        &self,
+        tables: &Tables,
+        dialect: DialectKind,
+        output_select_clone: ErasedSegment,
+        case_preference: Case,
+    ) -> ErasedSegment {
         let mut segments = vec![
             segmentify(tables, "WITH", case_preference),
             SegmentBuilder::whitespace(tables.next_id(), " "),
@@ -519,7 +511,7 @@ impl CTEBuilder {
         .finish()
     }
 
-    fn compose_select_append_to_existing(
+    fn extend_existing_with(
         &self,
         tables: &Tables,
         dialect: DialectKind,
@@ -549,24 +541,20 @@ impl CTEBuilder {
             })
             .collect();
 
-        // Filter out CTEs that already exist
-        let new_ctes: Vec<_> = self
-            .ctes
-            .iter()
-            .filter(|cte| {
-                let cte_name = cte
-                    .child(&SyntaxSet::new(&[
-                        SyntaxKind::Identifier,
-                        SyntaxKind::NakedIdentifier,
-                        SyntaxKind::QuotedIdentifier,
-                    ]))
-                    .map(|id| id.raw().to_lowercase())
-                    .unwrap_or_default();
-                !existing_cte_names.contains(&cte_name)
-            })
-            .collect();
+        // Check if we have any new CTEs to add
+        let has_new_ctes = self.ctes.iter().any(|cte| {
+            let cte_name = cte
+                .child(&SyntaxSet::new(&[
+                    SyntaxKind::Identifier,
+                    SyntaxKind::NakedIdentifier,
+                    SyntaxKind::QuotedIdentifier,
+                ]))
+                .map(|id| id.raw().to_lowercase())
+                .unwrap_or_default();
+            !existing_cte_names.contains(&cte_name)
+        });
 
-        if new_ctes.is_empty() {
+        if !has_new_ctes {
             return existing_with_segment;
         }
 
@@ -596,8 +584,26 @@ impl CTEBuilder {
                     new_segments.push(SegmentBuilder::newline(tables.next_id(), "\n"));
                 }
 
-                // Add only the new CTEs (not the duplicates)
-                let mut new_cte_iter = new_ctes.iter().peekable();
+                // Add only the new CTEs in the correct order (respecting dependencies)
+                // Since self.ctes maintains dependency order via insert_cte logic,
+                // we need to preserve that order when filtering
+                let new_cte_segments: Vec<_> = self
+                    .ctes
+                    .iter()
+                    .filter(|cte| {
+                        let cte_name = cte
+                            .child(&SyntaxSet::new(&[
+                                SyntaxKind::Identifier,
+                                SyntaxKind::NakedIdentifier,
+                                SyntaxKind::QuotedIdentifier,
+                            ]))
+                            .map(|id| id.raw().to_lowercase())
+                            .unwrap_or_default();
+                        !existing_cte_names.contains(&cte_name)
+                    })
+                    .collect();
+
+                let mut new_cte_iter = new_cte_segments.iter().peekable();
                 while let Some(cte) = new_cte_iter.next() {
                     new_segments.push((*cte).clone());
                     if new_cte_iter.peek().is_some() {

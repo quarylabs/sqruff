@@ -84,12 +84,12 @@ double_nested_fail:
       UNION ALL
       select 1 as x, 2 as z
     ),
-    c as (
-        select x, z from p_cte
-      ),
     b as (
       select x, z from c
-    )
+    ),
+    c as (
+        select x, z from p_cte
+      )
     select
         a.x, a.y, b.z
     from a

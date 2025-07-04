@@ -298,8 +298,7 @@ pub fn raw_dialect() -> Dialect {
     ]);
     sqlite_dialect.add([(
         "SetOperatorSegment".into(),
-        NodeMatcher::new(
-            SyntaxKind::SetOperator,
+        NodeMatcher::new(SyntaxKind::SetOperator, |_| {
             one_of(vec_of_erased![
                 Sequence::new(vec_of_erased![
                     Ref::keyword("UNION"),
@@ -327,8 +326,8 @@ pub fn raw_dialect() -> Dialect {
                 .to_matchable()
                 .into();
             })
-            .to_matchable(),
-        )
+            .to_matchable()
+        })
         .to_matchable()
         .into(),
     )]);
@@ -363,8 +362,7 @@ pub fn raw_dialect() -> Dialect {
     );
     sqlite_dialect.add([(
         "TableEndClauseSegment".into(),
-        NodeMatcher::new(
-            SyntaxKind::TableEndClauseSegment,
+        NodeMatcher::new(SyntaxKind::TableEndClauseSegment, |_| {
             Delimited::new(vec_of_erased![
                 Sequence::new(vec_of_erased![
                     Ref::keyword("WITHOUT"),
@@ -372,8 +370,8 @@ pub fn raw_dialect() -> Dialect {
                 ]),
                 Ref::keyword("STRICT")
             ])
-            .to_matchable(),
-        )
+            .to_matchable()
+        })
         .to_matchable()
         .into(),
     )]);
@@ -397,8 +395,7 @@ pub fn raw_dialect() -> Dialect {
     sqlite_dialect.add([
         (
             "IndexColumnDefinitionSegment".into(),
-            NodeMatcher::new(
-                SyntaxKind::IndexColumnDefinition,
+            NodeMatcher::new(SyntaxKind::IndexColumnDefinition, |_| {
                 Sequence::new(vec_of_erased![
                     one_of(vec_of_erased![
                         Ref::new("SingleIdentifierGrammar"),
@@ -410,15 +407,14 @@ pub fn raw_dialect() -> Dialect {
                         }
                     )
                 ])
-                .to_matchable(),
-            )
+                .to_matchable()
+            })
             .to_matchable()
             .into(),
         ),
         (
             "InsertStatementSegment".into(),
-            NodeMatcher::new(
-                SyntaxKind::InsertStatement,
+            NodeMatcher::new(SyntaxKind::InsertStatement, |_| {
                 Sequence::new(vec_of_erased![
                     one_of(vec_of_erased![
                         Sequence::new(vec_of_erased![
@@ -449,30 +445,28 @@ pub fn raw_dialect() -> Dialect {
                     ]),
                     Ref::new("ReturningClauseSegment").optional()
                 ])
-                .to_matchable(),
-            )
+                .to_matchable()
+            })
             .to_matchable()
             .into(),
         ),
         (
             "DeleteStatementSegment".into(),
-            NodeMatcher::new(
-                SyntaxKind::DeleteStatement,
+            NodeMatcher::new(SyntaxKind::DeleteStatement, |_| {
                 Sequence::new(vec_of_erased![
                     Ref::keyword("DELETE"),
                     Ref::new("FromClauseSegment"),
                     Ref::new("WhereClauseSegment").optional(),
                     Ref::new("ReturningClauseSegment").optional()
                 ])
-                .to_matchable(),
-            )
+                .to_matchable()
+            })
             .to_matchable()
             .into(),
         ),
         (
             "UpdateStatementSegment".into(),
-            NodeMatcher::new(
-                SyntaxKind::UpdateStatement,
+            NodeMatcher::new(SyntaxKind::UpdateStatement, |_| {
                 Sequence::new(vec_of_erased![
                     Ref::keyword("UPDATE"),
                     Ref::new("TableReferenceSegment"),
@@ -484,8 +478,8 @@ pub fn raw_dialect() -> Dialect {
                     Ref::new("WhereClauseSegment").optional(),
                     Ref::new("ReturningClauseSegment").optional()
                 ])
-                .to_matchable(),
-            )
+                .to_matchable()
+            })
             .to_matchable()
             .into(),
         ),
@@ -493,7 +487,7 @@ pub fn raw_dialect() -> Dialect {
 
     let column_constraint = sqlite_dialect
         .grammar("ColumnConstraintSegment")
-        .match_grammar()
+        .match_grammar(&sqlite_dialect)
         .unwrap()
         .copy(
             Some(vec_of_erased![
@@ -611,20 +605,19 @@ pub fn raw_dialect() -> Dialect {
 
     sqlite_dialect.add([(
         "PragmaReferenceSegment".into(),
-        NodeMatcher::new(
-            SyntaxKind::PragmaReference,
+        NodeMatcher::new(SyntaxKind::PragmaReference, |sqlite_dialect| {
             sqlite_dialect
                 .grammar("ObjectReferenceSegment")
-                .match_grammar()
-                .unwrap(),
-        )
+                .match_grammar(sqlite_dialect)
+                .unwrap()
+        })
         .to_matchable()
         .into(),
     )]);
 
     sqlite_dialect.add([(
         "PragmaStatementSegment".into(),
-        NodeMatcher::new(SyntaxKind::PragmaStatement, {
+        NodeMatcher::new(SyntaxKind::PragmaStatement, |_| {
             let pragma_value = one_of(vec_of_erased![
                 Ref::new("LiteralGrammar"),
                 Ref::new("BooleanLiteralGrammar"),
@@ -741,8 +734,7 @@ pub fn raw_dialect() -> Dialect {
     );
     sqlite_dialect.add([(
         "UnorderedSelectStatementSegment".into(),
-        NodeMatcher::new(
-            SyntaxKind::SelectStatement,
+        NodeMatcher::new(SyntaxKind::SelectStatement, |_| {
             Sequence::new(vec_of_erased![
                 Ref::new("SelectClauseSegment"),
                 MetaSegment::dedent(),
@@ -753,19 +745,18 @@ pub fn raw_dialect() -> Dialect {
                 Ref::new("OverlapsClauseSegment").optional(),
                 Ref::new("NamedWindowSegment").optional()
             ])
-            .to_matchable(),
-        )
+            .to_matchable()
+        })
         .to_matchable()
         .into(),
     )]);
 
     sqlite_dialect.add([(
         "SelectStatementSegment".into(),
-        NodeMatcher::new(
-            SyntaxKind::SelectStatement,
+        NodeMatcher::new(SyntaxKind::SelectStatement, |sqlite_dialect| {
             sqlite_dialect
                 .grammar("UnorderedSelectStatementSegment")
-                .match_grammar()
+                .match_grammar(sqlite_dialect)
                 .unwrap()
                 .copy(
                     Some(vec_of_erased![
@@ -779,8 +770,8 @@ pub fn raw_dialect() -> Dialect {
                     None,
                     Vec::new(),
                     false,
-                ),
-        )
+                )
+        })
         .to_matchable()
         .into(),
     )]);
@@ -882,16 +873,15 @@ pub fn raw_dialect() -> Dialect {
 
     sqlite_dialect.add([(
         "AsAliasExpressionSegment".into(),
-        NodeMatcher::new(
-            SyntaxKind::AliasExpression,
+        NodeMatcher::new(SyntaxKind::AliasExpression, |_| {
             Sequence::new(vec_of_erased![
                 MetaSegment::indent(),
                 Ref::keyword("AS"),
                 Ref::new("SingleIdentifierGrammar"),
                 MetaSegment::dedent(),
             ])
-            .to_matchable(),
-        )
+            .to_matchable()
+        })
         .to_matchable()
         .into(),
     )]);

@@ -237,10 +237,9 @@ pub fn raw_dialect() -> Dialect {
     // Add T-SQL assignment operator segment
     dialect.add([(
         "AssignmentOperatorSegment".into(),
-        NodeMatcher::new(
-            SyntaxKind::AssignmentOperator,
-            Ref::new("RawEqualsSegment").to_matchable(),
-        )
+        NodeMatcher::new(SyntaxKind::AssignmentOperator, |_| {
+            Ref::new("RawEqualsSegment").to_matchable()
+        })
         .to_matchable()
         .into(),
     )]);
@@ -414,10 +413,9 @@ pub fn raw_dialect() -> Dialect {
     dialect.add([
         (
             "PivotUnpivotSegment".into(),
-            NodeMatcher::new(
-                SyntaxKind::TableExpression,
-                Ref::new("PivotUnpivotGrammar").to_matchable(),
-            )
+            NodeMatcher::new(SyntaxKind::TableExpression, |_| {
+                Ref::new("PivotUnpivotGrammar").to_matchable()
+            })
             .to_matchable()
             .into(),
         ),
@@ -552,19 +550,17 @@ pub fn raw_dialect() -> Dialect {
         ),
         (
             "ParameterizedSegment".into(),
-            NodeMatcher::new(
-                SyntaxKind::ParameterizedExpression,
-                Ref::new("TsqlVariableSegment").to_matchable(),
-            )
+            NodeMatcher::new(SyntaxKind::ParameterizedExpression, |_| {
+                Ref::new("TsqlVariableSegment").to_matchable()
+            })
             .to_matchable()
             .into(),
         ),
         (
             "TsqlTableVariableSegment".into(),
-            NodeMatcher::new(
-                SyntaxKind::TableReference,
-                Ref::new("TsqlVariableSegment").to_matchable(),
-            )
+            NodeMatcher::new(SyntaxKind::TableReference, |_| {
+                Ref::new("TsqlVariableSegment").to_matchable()
+            })
             .to_matchable()
             .into(),
         ),
@@ -765,7 +761,8 @@ pub fn raw_dialect() -> Dialect {
     dialect.add([(
         "ApplyClauseSegment".into(),
         NodeMatcher::new(
-            SyntaxKind::JoinClause, // APPLY is classified as a join type
+            SyntaxKind::JoinClause,
+            |_| // APPLY is classified as a join type
             Sequence::new(vec_of_erased![
                 one_of(vec_of_erased![Ref::keyword("CROSS"), Ref::keyword("OUTER")]),
                 Ref::keyword("APPLY"),
@@ -789,15 +786,14 @@ pub fn raw_dialect() -> Dialect {
     // WITHIN GROUP support for ordered set aggregate functions
     dialect.add([(
         "WithinGroupClauseSegment".into(),
-        NodeMatcher::new(
-            SyntaxKind::WithingroupClause,
+        NodeMatcher::new(SyntaxKind::WithingroupClause, |_| {
             Sequence::new(vec_of_erased![
                 Ref::keyword("WITHIN"),
                 Ref::keyword("GROUP"),
                 Bracketed::new(vec_of_erased![Ref::new("OrderByClauseSegment").optional()])
             ])
-            .to_matchable(),
-        )
+            .to_matchable()
+        })
         .to_matchable()
         .into(),
     )]);

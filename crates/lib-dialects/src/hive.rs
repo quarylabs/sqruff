@@ -85,8 +85,7 @@ pub fn raw_dialect() -> Dialect {
         ),
         (
             "MsckRepairTableStatementSegment".into(),
-            NodeMatcher::new(
-                SyntaxKind::MsckRepairTableStatement,
+            NodeMatcher::new(SyntaxKind::MsckRepairTableStatement, |_| {
                 Sequence::new(vec_of_erased![
                     Ref::keyword("MSCK"),
                     Ref::keyword("REPAIR"),
@@ -104,15 +103,14 @@ pub fn raw_dialect() -> Dialect {
                         config.optional();
                     })
                 ])
-                .to_matchable(),
-            )
+                .to_matchable()
+            })
             .to_matchable()
             .into(),
         ),
         (
             "RowFormatClauseSegment".into(),
-            NodeMatcher::new(
-                SyntaxKind::RowFormatClause,
+            NodeMatcher::new(SyntaxKind::RowFormatClause, |_| {
                 Sequence::new(vec_of_erased![
                     Ref::keyword("ROW"),
                     Ref::keyword("FORMAT"),
@@ -174,15 +172,14 @@ pub fn raw_dialect() -> Dialect {
                         ])
                     ])
                 ])
-                .to_matchable(),
-            )
+                .to_matchable()
+            })
             .to_matchable()
             .into(),
         ),
         (
             "StructTypeSchemaSegment".into(),
-            NodeMatcher::new(
-                SyntaxKind::StructTypeSchema,
+            NodeMatcher::new(SyntaxKind::StructTypeSchema, |_| {
                 Bracketed::new(vec_of_erased![
                     Delimited::new(vec_of_erased![Sequence::new(vec_of_erased![
                         Ref::new("SingleIdentifierGrammar"),
@@ -198,15 +195,14 @@ pub fn raw_dialect() -> Dialect {
                     config.bracket_pairs_set = "angle_bracket_pairs";
                     config.bracket_type = "angle";
                 })
-                .to_matchable(),
-            )
+                .to_matchable()
+            })
             .to_matchable()
             .into(),
         ),
         (
             "SkewedByClauseSegment".into(),
-            NodeMatcher::new(
-                SyntaxKind::SkewedByClause,
+            NodeMatcher::new(SyntaxKind::SkewedByClause, |_| {
                 Sequence::new(vec_of_erased![
                     Ref::keyword("SKEWED"),
                     Ref::keyword("BY"),
@@ -229,8 +225,8 @@ pub fn raw_dialect() -> Dialect {
                         config.optional();
                     })
                 ])
-                .to_matchable(),
-            )
+                .to_matchable()
+            })
             .to_matchable()
             .into(),
         ),

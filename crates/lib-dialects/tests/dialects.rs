@@ -53,7 +53,7 @@ fn main() {
     let dialects = DialectKind::iter()
         .map(|dialect| dialect.as_ref().to_string())
         .collect::<HashSet<String>>();
-    println!("{:?}", dialects);
+    println!("{dialects:?}");
 
     // list folders in the dialects directory
     let dialects_dir = std::path::Path::new("test/fixtures/dialects");
@@ -68,7 +68,7 @@ fn main() {
             Some(entry.unwrap().path())
         })
         .collect::<HashSet<std::path::PathBuf>>();
-    println!("{:?}", dialects_dirs);
+    println!("{dialects_dirs:?}");
 
     // check if all dialects have a corresponding folder
     for dialect in &dialects {
@@ -81,14 +81,14 @@ fn main() {
     for dialect_name in &dialects {
         let dialect_kind = DialectKind::from_str(dialect_name).unwrap();
         let Some(dialect) = kind_to_dialect(&dialect_kind) else {
-            println!("{} disabled", dialect_name);
+            println!("{dialect_name} disabled");
             continue;
         };
 
-        let path = format!("test/fixtures/dialects/{}/*.sql", dialect_name);
+        let path = format!("test/fixtures/dialects/{dialect_name}/*.sql");
         let files = glob::glob(&path).unwrap().flatten().collect_vec();
 
-        println!("For dialect: {}, found {} files", dialect_name, files.len());
+        println!("For dialect: {dialect_name}, found {} files", files.len());
 
         files.par_iter().for_each(|file| {
             let _panic = helpers::enter_panic(file.display().to_string());

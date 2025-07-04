@@ -69,7 +69,7 @@ impl Dialect {
             .unwrap_or_else(|| panic!("Failed to get mutable reference for {name}"))
         {
             DialectElementType::Matchable(matchable) => {
-                matchable.as_node_matcher().unwrap().match_grammar = match_grammar;
+                matchable.as_node_matcher().unwrap().replace(match_grammar);
             }
             DialectElementType::SegmentGenerator(_) => {
                 unreachable!("Attempted to fetch non grammar [{name}] with `Dialect::grammar`.")

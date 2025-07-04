@@ -1,5 +1,6 @@
 // T-SQL (Transact-SQL) dialect implementation for Microsoft SQL Server
 
+use itertools::Itertools;
 use sqruff_lib_core::dialects::Dialect;
 use sqruff_lib_core::dialects::init::DialectKind;
 use sqruff_lib_core::dialects::syntax::SyntaxKind;
@@ -12,7 +13,8 @@ use sqruff_lib_core::parser::grammar::sequence::{Bracketed, Sequence};
 use sqruff_lib_core::parser::lexer::Matcher;
 use sqruff_lib_core::parser::lookahead::LookaheadExclude;
 use sqruff_lib_core::parser::node_matcher::NodeMatcher;
-use sqruff_lib_core::parser::parsers::{StringParser, TypedParser};
+use sqruff_lib_core::parser::parsers::{RegexParser, StringParser, TypedParser};
+use sqruff_lib_core::parser::segments::generator::SegmentGenerator;
 use sqruff_lib_core::parser::segments::meta::MetaSegment;
 use sqruff_lib_core::parser::types::ParseMode;
 use sqruff_lib_core::vec_of_erased;
@@ -65,6 +67,7 @@ pub fn raw_dialect() -> Dialect {
     ]);
 
     // T-SQL supports square brackets for identifiers and @ for variables
+    // Insert square bracket identifier before individual bracket matchers to ensure it's matched first
     dialect.insert_lexer_matchers(
         vec![
             // Square brackets for identifiers: [Column Name]
@@ -73,6 +76,13 @@ pub fn raw_dialect() -> Dialect {
                 r"\[[^\]]*\]",
                 SyntaxKind::DoubleQuote,
             ),
+        ],
+        "start_square_bracket",
+    );
+
+    // Insert other T-SQL specific matchers
+    dialect.insert_lexer_matchers(
+        vec![
             // Variables: @MyVar (local) or @@ROWCOUNT (global/system)
             Matcher::regex(
                 "tsql_variable",
@@ -82,6 +92,18 @@ pub fn raw_dialect() -> Dialect {
         ],
         "equals",
     );
+
+    // T-SQL specific lexer patches:
+    // 1. T-SQL only uses -- for inline comments, not # (which is used in temp table names)
+    // 2. Update word pattern to allow # at the end (SQL Server 2017+ syntax)
+    dialect.patch_lexer_matchers(vec![
+        Matcher::regex("inline_comment", r"--[^\n]*", SyntaxKind::InlineComment),
+        Matcher::regex("word", r"[0-9a-zA-Z_]+#?", SyntaxKind::Word),
+    ]);
+
+    // Since T-SQL uses square brackets as quoted identifiers and the lexer
+    // already maps them to SyntaxKind::DoubleQuote, the ANSI QuotedIdentifierSegment
+    // should handle them correctly. No additional parser configuration needed.
 
     // Add T-SQL specific bare functions
     dialect.sets_mut("bare_functions").extend([
@@ -215,11 +237,34 @@ pub fn raw_dialect() -> Dialect {
     // Add T-SQL assignment operator segment
     dialect.add([(
         "AssignmentOperatorSegment".into(),
-        NodeMatcher::new(
-            SyntaxKind::AssignmentOperator,
-            Ref::new("RawEqualsSegment").to_matchable(),
-        )
+        NodeMatcher::new(SyntaxKind::AssignmentOperator, |_| {
+            Ref::new("RawEqualsSegment").to_matchable()
+        })
         .to_matchable()
+        .into(),
+    )]);
+
+    // Override NakedIdentifierSegment to support T-SQL identifiers with # at the end
+    // T-SQL allows temporary table names like #temp or ##global
+    dialect.add([(
+        "NakedIdentifierSegment".into(),
+        SegmentGenerator::new(|dialect| {
+            // Generate the anti template from the set of reserved keywords
+            let reserved_keywords = dialect.sets("reserved_keywords");
+            let pattern = reserved_keywords.iter().join("|");
+            let anti_template = format!("^({pattern})$");
+
+            // T-SQL pattern: supports both temp tables (#temp, ##global) and identifiers ending with #
+            // Pattern explanation:
+            // - ##?[A-Z][A-Z0-9_]*    matches temp tables: #temp or ##global
+            // - [A-Z0-9_]*[A-Z][A-Z0-9_]*#?   matches regular identifiers with optional # at end
+            RegexParser::new(
+                "(##?[A-Z][A-Z0-9_]*|[A-Z0-9_]*[A-Z][A-Z0-9_]*#?)",
+                SyntaxKind::NakedIdentifier,
+            )
+            .anti_template(&anti_template)
+            .to_matchable()
+        })
         .into(),
     )]);
 
@@ -368,10 +413,9 @@ pub fn raw_dialect() -> Dialect {
     dialect.add([
         (
             "PivotUnpivotSegment".into(),
-            NodeMatcher::new(
-                SyntaxKind::TableExpression,
-                Ref::new("PivotUnpivotGrammar").to_matchable(),
-            )
+            NodeMatcher::new(SyntaxKind::TableExpression, |_| {
+                Ref::new("PivotUnpivotGrammar").to_matchable()
+            })
             .to_matchable()
             .into(),
         ),
@@ -506,25 +550,24 @@ pub fn raw_dialect() -> Dialect {
         ),
         (
             "ParameterizedSegment".into(),
-            NodeMatcher::new(
-                SyntaxKind::ParameterizedExpression,
-                Ref::new("TsqlVariableSegment").to_matchable(),
-            )
+            NodeMatcher::new(SyntaxKind::ParameterizedExpression, |_| {
+                Ref::new("TsqlVariableSegment").to_matchable()
+            })
             .to_matchable()
             .into(),
         ),
         (
             "TsqlTableVariableSegment".into(),
-            NodeMatcher::new(
-                SyntaxKind::TableReference,
-                Ref::new("TsqlVariableSegment").to_matchable(),
-            )
+            NodeMatcher::new(SyntaxKind::TableReference, |_| {
+                Ref::new("TsqlVariableSegment").to_matchable()
+            })
             .to_matchable()
             .into(),
         ),
     ]);
 
     // Update TableReferenceSegment to support T-SQL table variables
+    // Temp tables are now handled as regular ObjectReferenceSegment since they use word tokens
     dialect.replace_grammar(
         "TableReferenceSegment",
         one_of(vec_of_erased![
@@ -718,7 +761,8 @@ pub fn raw_dialect() -> Dialect {
     dialect.add([(
         "ApplyClauseSegment".into(),
         NodeMatcher::new(
-            SyntaxKind::JoinClause, // APPLY is classified as a join type
+            SyntaxKind::JoinClause,
+            |_| // APPLY is classified as a join type
             Sequence::new(vec_of_erased![
                 one_of(vec_of_erased![Ref::keyword("CROSS"), Ref::keyword("OUTER")]),
                 Ref::keyword("APPLY"),
@@ -742,15 +786,14 @@ pub fn raw_dialect() -> Dialect {
     // WITHIN GROUP support for ordered set aggregate functions
     dialect.add([(
         "WithinGroupClauseSegment".into(),
-        NodeMatcher::new(
-            SyntaxKind::WithingroupClause,
+        NodeMatcher::new(SyntaxKind::WithingroupClause, |_| {
             Sequence::new(vec_of_erased![
                 Ref::keyword("WITHIN"),
                 Ref::keyword("GROUP"),
                 Bracketed::new(vec_of_erased![Ref::new("OrderByClauseSegment").optional()])
             ])
-            .to_matchable(),
-        )
+            .to_matchable()
+        })
         .to_matchable()
         .into(),
     )]);

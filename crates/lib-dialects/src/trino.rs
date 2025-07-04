@@ -414,8 +414,7 @@ pub fn dialect() -> Dialect {
         ),
         (
             "DatatypeSegment".into(),
-            NodeMatcher::new(
-                SyntaxKind::DataType,
+            NodeMatcher::new(SyntaxKind::DataType, |_| {
                 one_of(vec_of_erased![
                     Ref::keyword("BOOLEAN"),
                     Ref::keyword("TINYINT"),
@@ -469,8 +468,8 @@ pub fn dialect() -> Dialect {
                     Ref::keyword("IPADDRESS"),
                     Ref::keyword("UUID")
                 ])
-                .to_matchable(),
-            )
+                .to_matchable()
+            })
             .to_matchable()
             .into(),
         ),
@@ -539,9 +538,11 @@ pub fn dialect() -> Dialect {
         ),
         (
             "OverlapsClauseSegment".into(),
-            NodeMatcher::new(SyntaxKind::OverlapsClause, Nothing::new().to_matchable())
-                .to_matchable()
-                .into(),
+            NodeMatcher::new(SyntaxKind::OverlapsClause, |_| {
+                Nothing::new().to_matchable()
+            })
+            .to_matchable()
+            .into(),
         ),
     ]);
 
@@ -685,8 +686,7 @@ pub fn dialect() -> Dialect {
         ),
         (
             "IntervalExpressionSegment".into(),
-            NodeMatcher::new(
-                SyntaxKind::IntervalExpression,
+            NodeMatcher::new(SyntaxKind::IntervalExpression, |_| {
                 Sequence::new(vec_of_erased![
                     Ref::keyword("INTERVAL"),
                     Ref::new("QuotedLiteralSegment"),
@@ -699,14 +699,14 @@ pub fn dialect() -> Dialect {
                         Ref::keyword("SECOND")
                     ])
                 ])
-                .to_matchable(),
-            )
+                .to_matchable()
+            })
             .to_matchable()
             .into(),
         ),
         (
             "FrameClauseSegment".into(),
-            NodeMatcher::new(SyntaxKind::FrameClause, {
+            NodeMatcher::new(SyntaxKind::FrameClause, |_| {
                 let frame_extent = one_of(vec_of_erased![
                     Sequence::new(vec_of_erased![Ref::keyword("CURRENT"), Ref::keyword("ROW"),]),
                     Sequence::new(vec_of_erased![
@@ -741,8 +741,7 @@ pub fn dialect() -> Dialect {
         ),
         (
             "SetOperatorSegment".into(),
-            NodeMatcher::new(
-                SyntaxKind::SetOperator,
+            NodeMatcher::new(SyntaxKind::SetOperator, |_| {
                 one_of(vec_of_erased![
                     Sequence::new(vec_of_erased![
                         Ref::keyword("UNION"),
@@ -770,8 +769,8 @@ pub fn dialect() -> Dialect {
                     .to_matchable()
                     .into();
                 })
-                .to_matchable(),
-            )
+                .to_matchable()
+            })
             .to_matchable()
             .into(),
         ),

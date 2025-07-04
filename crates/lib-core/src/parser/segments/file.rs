@@ -46,11 +46,10 @@ impl FileSegment {
 
         let file_segment = parse_context.dialect().r#ref("FileSegment");
 
-        let match_result = file_segment.match_grammar().unwrap().match_segments(
-            &segments[..end_idx as usize],
-            start_idx,
-            parse_context,
-        )?;
+        let match_result = file_segment
+            .match_grammar(parse_context.dialect())
+            .unwrap()
+            .match_segments(&segments[..end_idx as usize], start_idx, parse_context)?;
 
         let match_span = match_result.span;
         let has_match = match_result.has_match();

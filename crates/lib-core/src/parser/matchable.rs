@@ -19,6 +19,7 @@ use super::parsers::{MultiStringParser, RegexParser, StringParser, TypedParser};
 use super::segments::ErasedSegment;
 use super::segments::bracketed::BracketedSegmentMatcher;
 use super::segments::meta::MetaSegment;
+use crate::dialects::Dialect;
 use crate::dialects::syntax::{SyntaxKind, SyntaxSet};
 use crate::errors::SQLParseError;
 
@@ -137,7 +138,7 @@ pub trait MatchableTrait {
         todo!()
     }
 
-    fn match_grammar(&self) -> Option<Matchable> {
+    fn match_grammar(&self, _dialect: &Dialect) -> Option<Matchable> {
         None
     }
 
@@ -159,7 +160,7 @@ pub trait MatchableTrait {
         parse_context: &ParseContext,
         crumbs: Option<Vec<&str>>,
     ) -> Option<(AHashSet<String>, SyntaxSet)> {
-        let match_grammar = self.match_grammar()?;
+        let match_grammar = self.match_grammar(parse_context.dialect())?;
 
         match_grammar.simple(parse_context, crumbs)
     }

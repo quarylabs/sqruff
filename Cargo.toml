@@ -16,10 +16,6 @@ unused_qualifications = "warn"
 perf = "warn"
 cloned_instead_of_copied = "warn"
 
-# https://github.com/rustwasm/wasm-bindgen/issues/3451#issuecomment-1562982835
-[profile.dev]
-opt-level = "s"
-
 [profile.release]
 lto = true
 codegen-units = 1

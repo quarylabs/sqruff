@@ -1215,8 +1215,7 @@ pub fn dialect() -> Dialect {
 
     snowflake_dialect.add([(
         "ConnectByClauseSegment".into(),
-        NodeMatcher::new(
-            SyntaxKind::ConnectbyClause,
+        NodeMatcher::new(SyntaxKind::ConnectbyClause, |_| {
             Sequence::new(vec_of_erased![
                 Ref::keyword("START"),
                 Ref::keyword("WITH"),
@@ -1231,8 +1230,8 @@ pub fn dialect() -> Dialect {
                     Ref::new("ColumnReferenceSegment"),
                 ])])
             ])
-            .to_matchable(),
-        )
+            .to_matchable()
+        })
         .to_matchable()
         .into(),
     )]);
@@ -1283,8 +1282,7 @@ pub fn dialect() -> Dialect {
 
     snowflake_dialect.add([(
         "InsertStatementSegment".into(),
-        NodeMatcher::new(
-            SyntaxKind::InsertStatement,
+        NodeMatcher::new(SyntaxKind::InsertStatement, |_| {
             Sequence::new(vec_of_erased![
                 Ref::keyword("INSERT"),
                 Ref::keyword("OVERWRITE").optional(),
@@ -1342,8 +1340,8 @@ pub fn dialect() -> Dialect {
                     ]),
                 ]),
             ])
-            .to_matchable(),
-        )
+            .to_matchable()
+        })
         .to_matchable()
         .into(),
     )]);
@@ -1434,8 +1432,7 @@ pub fn dialect() -> Dialect {
     snowflake_dialect.add([
         (
             "SetAssignmentStatementSegment".into(),
-            NodeMatcher::new(
-                SyntaxKind::SetStatement,
+            NodeMatcher::new(SyntaxKind::SetStatement, |_| {
                 one_of(vec_of_erased![
                     Sequence::new(vec_of_erased![
                         Ref::keyword("SET"),
@@ -1454,28 +1451,26 @@ pub fn dialect() -> Dialect {
                         ),]),]),
                     ]),
                 ])
-                .to_matchable(),
-            )
+                .to_matchable()
+            })
             .to_matchable()
             .into(),
         ),
         (
             "CallStoredProcedureSegment".into(),
-            NodeMatcher::new(
-                SyntaxKind::CallSegment,
+            NodeMatcher::new(SyntaxKind::CallSegment, |_| {
                 Sequence::new(vec_of_erased![
                     Ref::keyword("CALL"),
                     Ref::new("FunctionSegment"),
                 ])
-                .to_matchable(),
-            )
+                .to_matchable()
+            })
             .to_matchable()
             .into(),
         ),
         (
             "WithinGroupClauseSegment".into(),
-            NodeMatcher::new(
-                SyntaxKind::WithingroupClause,
+            NodeMatcher::new(SyntaxKind::WithingroupClause, |_| {
                 Sequence::new(vec_of_erased![
                     Ref::keyword("WITHIN"),
                     Ref::keyword("GROUP"),
@@ -1484,15 +1479,14 @@ pub fn dialect() -> Dialect {
                             this.parse_mode = ParseMode::Greedy;
                         }),
                 ])
-                .to_matchable(),
-            )
+                .to_matchable()
+            })
             .to_matchable()
             .into(),
         ),
         (
             "PatternSegment".into(),
-            NodeMatcher::new(
-                SyntaxKind::PatternExpression,
+            NodeMatcher::new(SyntaxKind::PatternExpression, |_| {
                 Sequence::new(vec_of_erased![
                     Ref::new("CaretSegment").optional(),
                     one_of(vec_of_erased![
@@ -1502,15 +1496,14 @@ pub fn dialect() -> Dialect {
                     ]),
                     Ref::new("DollarSegment").optional(),
                 ])
-                .to_matchable(),
-            )
+                .to_matchable()
+            })
             .to_matchable()
             .into(),
         ),
         (
             "MatchRecognizeClauseSegment".into(),
-            NodeMatcher::new(
-                SyntaxKind::MatchRecognizeClause,
+            NodeMatcher::new(SyntaxKind::MatchRecognizeClause, |_| {
                 Sequence::new(vec_of_erased![
                     Ref::keyword("MATCH_RECOGNIZE"),
                     Bracketed::new(vec_of_erased![
@@ -1599,15 +1592,14 @@ pub fn dialect() -> Dialect {
                         ]),]),
                     ]),
                 ])
-                .to_matchable(),
-            )
+                .to_matchable()
+            })
             .to_matchable()
             .into(),
         ),
         (
             "ChangesClauseSegment".into(),
-            NodeMatcher::new(
-                SyntaxKind::ChangesClause,
+            NodeMatcher::new(SyntaxKind::ChangesClause, |_| {
                 Sequence::new(vec_of_erased![
                     Ref::keyword("CHANGES"),
                     Bracketed::new(vec_of_erased![
@@ -1654,28 +1646,26 @@ pub fn dialect() -> Dialect {
                     ])
                     .config(|this| this.optional()),
                 ])
-                .to_matchable(),
-            )
+                .to_matchable()
+            })
             .to_matchable()
             .into(),
         ),
         (
             "MatchConditionSegment".into(),
-            NodeMatcher::new(
-                SyntaxKind::MatchConditionClause,
+            NodeMatcher::new(SyntaxKind::MatchConditionClause, |_| {
                 Sequence::new(vec_of_erased![
                     Ref::keyword("MATCH_CONDITION"),
                     Bracketed::new(vec_of_erased![Ref::new("ExpressionSegment")]),
                 ])
-                .to_matchable(),
-            )
+                .to_matchable()
+            })
             .to_matchable()
             .into(),
         ),
         (
             "FromAtExpressionSegment".into(),
-            NodeMatcher::new(
-                SyntaxKind::FromAtExpression,
+            NodeMatcher::new(SyntaxKind::FromAtExpression, |_| {
                 Sequence::new(vec_of_erased![
                     Ref::keyword("AT"),
                     Bracketed::new(vec_of_erased![
@@ -1688,15 +1678,14 @@ pub fn dialect() -> Dialect {
                         Ref::new("ExpressionSegment"),
                     ]),
                 ])
-                .to_matchable(),
-            )
+                .to_matchable()
+            })
             .to_matchable()
             .into(),
         ),
         (
             "FromBeforeExpressionSegment".into(),
-            NodeMatcher::new(
-                SyntaxKind::FromBeforeExpression,
+            NodeMatcher::new(SyntaxKind::FromBeforeExpression, |_| {
                 Sequence::new(vec_of_erased![
                     Ref::keyword("BEFORE"),
                     Bracketed::new(vec_of_erased![
@@ -1712,15 +1701,14 @@ pub fn dialect() -> Dialect {
                         this.parse_mode = ParseMode::Greedy;
                     }),
                 ])
-                .to_matchable(),
-            )
+                .to_matchable()
+            })
             .to_matchable()
             .into(),
         ),
         (
             "FromPivotExpressionSegment".into(),
-            NodeMatcher::new(
-                SyntaxKind::FromPivotExpression,
+            NodeMatcher::new(SyntaxKind::FromPivotExpression, |_| {
                 Sequence::new(vec_of_erased![
                     Ref::keyword("PIVOT"),
                     Bracketed::new(vec_of_erased![
@@ -1733,15 +1721,14 @@ pub fn dialect() -> Dialect {
                         ),]),]),
                     ]),
                 ])
-                .to_matchable(),
-            )
+                .to_matchable()
+            })
             .to_matchable()
             .into(),
         ),
         (
             "FromUnpivotExpressionSegment".into(),
-            NodeMatcher::new(
-                SyntaxKind::FromUnpivotExpression,
+            NodeMatcher::new(SyntaxKind::FromUnpivotExpression, |_| {
                 Sequence::new(vec_of_erased![
                     Ref::keyword("UNPIVOT"),
                     Bracketed::new(vec_of_erased![
@@ -1754,8 +1741,8 @@ pub fn dialect() -> Dialect {
                         ),]),]),
                     ]),
                 ])
-                .to_matchable(),
-            )
+                .to_matchable()
+            })
             .to_matchable()
             .into(),
         ),
@@ -1797,8 +1784,7 @@ pub fn dialect() -> Dialect {
     snowflake_dialect.add([
         (
             "NamedParameterExpressionSegment".into(),
-            NodeMatcher::new(
-                SyntaxKind::SnowflakeKeywordExpression,
+            NodeMatcher::new(SyntaxKind::SnowflakeKeywordExpression, |_| {
                 Sequence::new(vec_of_erased![
                     Ref::new("ParameterNameSegment"),
                     Ref::new("ParameterAssignerSegment"),
@@ -1808,15 +1794,14 @@ pub fn dialect() -> Dialect {
                         Ref::new("ExpressionSegment"),
                     ]),
                 ])
-                .to_matchable(),
-            )
+                .to_matchable()
+            })
             .to_matchable()
             .into(),
         ),
         (
             "SemiStructuredAccessorSegment".into(),
-            NodeMatcher::new(
-                SyntaxKind::SemiStructuredExpression,
+            NodeMatcher::new(SyntaxKind::SemiStructuredExpression, |_| {
                 Sequence::new(vec_of_erased![
                     one_of(vec_of_erased![
                         Ref::new("DotSegment"),
@@ -1850,15 +1835,14 @@ pub fn dialect() -> Dialect {
                 .config(|this| {
                     this.allow_gaps = true;
                 })
-                .to_matchable(),
-            )
+                .to_matchable()
+            })
             .to_matchable()
             .into(),
         ),
         (
             "QualifyClauseSegment".into(),
-            NodeMatcher::new(
-                SyntaxKind::QualifyClause,
+            NodeMatcher::new(SyntaxKind::QualifyClause, |_| {
                 Sequence::new(vec_of_erased![
                     Ref::keyword("QUALIFY"),
                     MetaSegment::indent(),
@@ -1868,8 +1852,8 @@ pub fn dialect() -> Dialect {
                     ]),
                     MetaSegment::dedent(),
                 ])
-                .to_matchable(),
-            )
+                .to_matchable()
+            })
             .to_matchable()
             .into(),
         ),
@@ -1906,8 +1890,7 @@ pub fn dialect() -> Dialect {
     snowflake_dialect.add([
         (
             "ExcludeClauseSegment".into(),
-            NodeMatcher::new(
-                SyntaxKind::SelectExcludeClause,
+            NodeMatcher::new(SyntaxKind::SelectExcludeClause, |_| {
                 Sequence::new(vec_of_erased![
                     Ref::keyword("EXCLUDE"),
                     one_of(vec_of_erased![
@@ -1917,15 +1900,14 @@ pub fn dialect() -> Dialect {
                         Ref::new("SingleIdentifierGrammar"),
                     ]),
                 ])
-                .to_matchable(),
-            )
+                .to_matchable()
+            })
             .to_matchable()
             .into(),
         ),
         (
             "RenameClauseSegment".into(),
-            NodeMatcher::new(
-                SyntaxKind::SelectRenameClause,
+            NodeMatcher::new(SyntaxKind::SelectRenameClause, |_| {
                 Sequence::new(vec_of_erased![
                     Ref::keyword("RENAME"),
                     one_of(vec_of_erased![
@@ -1943,15 +1925,14 @@ pub fn dialect() -> Dialect {
                         ]),]),
                     ]),
                 ])
-                .to_matchable(),
-            )
+                .to_matchable()
+            })
             .to_matchable()
             .into(),
         ),
         (
             "ReplaceClauseSegment".into(),
-            NodeMatcher::new(
-                SyntaxKind::SelectReplaceClause,
+            NodeMatcher::new(SyntaxKind::SelectReplaceClause, |_| {
                 Sequence::new(vec_of_erased![
                     Ref::keyword("REPLACE"),
                     Bracketed::new(vec_of_erased![Delimited::new(vec_of_erased![
@@ -1962,8 +1943,8 @@ pub fn dialect() -> Dialect {
                         ]),
                     ]),]),
                 ])
-                .to_matchable(),
-            )
+                .to_matchable()
+            })
             .to_matchable()
             .into(),
         ),
@@ -2051,8 +2032,7 @@ pub fn dialect() -> Dialect {
     snowflake_dialect.add([
         (
             "AlterTableTableColumnActionSegment".into(),
-            NodeMatcher::new(
-                SyntaxKind::AlterTableTableColumnAction,
+            NodeMatcher::new(SyntaxKind::AlterTableTableColumnAction, |_| {
                 one_of(vec_of_erased![
                     // Add Column
                     Sequence::new(vec_of_erased![
@@ -2235,15 +2215,14 @@ pub fn dialect() -> Dialect {
                         .config(|this| this.optional()),
                     ]),
                 ])
-                .to_matchable(),
-            )
+                .to_matchable()
+            })
             .to_matchable()
             .into(),
         ),
         (
             "AlterTableClusteringActionSegment".into(),
-            NodeMatcher::new(
-                SyntaxKind::AlterTableClusteringAction,
+            NodeMatcher::new(SyntaxKind::AlterTableClusteringAction, |_| {
                 one_of(vec_of_erased![
                     Sequence::new(vec_of_erased![
                         Ref::keyword("CLUSTER"),
@@ -2278,15 +2257,14 @@ pub fn dialect() -> Dialect {
                         Ref::keyword("KEY"),
                     ]),
                 ])
-                .to_matchable(),
-            )
+                .to_matchable()
+            })
             .to_matchable()
             .into(),
         ),
         (
             "AlterTableConstraintActionSegment".into(),
-            NodeMatcher::new(
-                SyntaxKind::AlterTableConstraintAction,
+            NodeMatcher::new(SyntaxKind::AlterTableConstraintAction, |_| {
                 one_of(vec_of_erased![
                     // Add Column
                     Sequence::new(vec_of_erased![
@@ -2349,15 +2327,14 @@ pub fn dialect() -> Dialect {
                         Ref::new("NakedIdentifierSegment"),
                     ]),
                 ])
-                .to_matchable(),
-            )
+                .to_matchable()
+            })
             .to_matchable()
             .into(),
         ),
         (
             "AlterWarehouseStatementSegment".into(),
-            NodeMatcher::new(
-                SyntaxKind::AlterWarehouseStatement,
+            NodeMatcher::new(SyntaxKind::AlterWarehouseStatement, |_| {
                 Sequence::new(vec_of_erased![
                     Ref::keyword("ALTER"),
                     Ref::keyword("WAREHOUSE"),
@@ -2419,15 +2396,14 @@ pub fn dialect() -> Dialect {
                         ]),
                     ]),
                 ])
-                .to_matchable(),
-            )
+                .to_matchable()
+            })
             .to_matchable()
             .into(),
         ),
         (
             "AlterShareStatementSegment".into(),
-            NodeMatcher::new(
-                SyntaxKind::AlterShareStatement,
+            NodeMatcher::new(SyntaxKind::AlterShareStatement, |_| {
                 Sequence::new(vec_of_erased![
                     Ref::keyword("ALTER"),
                     Ref::keyword("SHARE"),
@@ -2474,15 +2450,14 @@ pub fn dialect() -> Dialect {
                         ]),
                     ]),
                 ])
-                .to_matchable(),
-            )
+                .to_matchable()
+            })
             .to_matchable()
             .into(),
         ),
         (
             "AlterStorageIntegrationSegment".into(),
-            NodeMatcher::new(
-                SyntaxKind::AlterStorageIntegrationStatement,
+            NodeMatcher::new(SyntaxKind::AlterStorageIntegrationStatement, |_| {
                 Sequence::new(vec_of_erased![
                     Ref::keyword("ALTER"),
                     Ref::keyword("STORAGE").optional(),
@@ -2571,15 +2546,14 @@ pub fn dialect() -> Dialect {
                         ]),
                     ]),
                 ])
-                .to_matchable(),
-            )
+                .to_matchable()
+            })
             .to_matchable()
             .into(),
         ),
         (
             "AlterExternalTableStatementSegment".into(),
-            NodeMatcher::new(
-                SyntaxKind::AlterExternalTableStatement,
+            NodeMatcher::new(SyntaxKind::AlterExternalTableStatement, |_| {
                 Sequence::new(vec_of_erased![
                     Ref::keyword("ALTER"),
                     Ref::keyword("EXTERNAL"),
@@ -2633,29 +2607,27 @@ pub fn dialect() -> Dialect {
                         ]),
                     ]),
                 ])
-                .to_matchable(),
-            )
+                .to_matchable()
+            })
             .to_matchable()
             .into(),
         ),
         (
             "CommentEqualsClauseSegment".into(),
-            NodeMatcher::new(
-                SyntaxKind::CommentEqualsClause,
+            NodeMatcher::new(SyntaxKind::CommentEqualsClause, |_| {
                 Sequence::new(vec_of_erased![
                     Ref::keyword("COMMENT"),
                     Ref::new("EqualsSegment"),
                     Ref::new("QuotedLiteralSegment"),
                 ])
-                .to_matchable(),
-            )
+                .to_matchable()
+            })
             .to_matchable()
             .into(),
         ),
         (
             "TagBracketedEqualsSegment".into(),
-            NodeMatcher::new(
-                SyntaxKind::TagBracketedEquals,
+            NodeMatcher::new(SyntaxKind::TagBracketedEquals, |_| {
                 Sequence::new(vec_of_erased![
                     Sequence::new(vec_of_erased![Ref::keyword("WITH"),])
                         .config(|this| this.optional()),
@@ -2668,15 +2640,14 @@ pub fn dialect() -> Dialect {
                         ])
                     ])]),
                 ])
-                .to_matchable(),
-            )
+                .to_matchable()
+            })
             .to_matchable()
             .into(),
         ),
         (
             "TagEqualsSegment".into(),
-            NodeMatcher::new(
-                SyntaxKind::TagEquals,
+            NodeMatcher::new(SyntaxKind::TagEquals, |_| {
                 Sequence::new(vec_of_erased![
                     Ref::keyword("TAG"),
                     Delimited::new(vec_of_erased![Sequence::new(vec_of_erased![
@@ -2685,8 +2656,8 @@ pub fn dialect() -> Dialect {
                         Ref::new("QuotedLiteralSegment"),
                     ])])
                 ])
-                .to_matchable(),
-            )
+                .to_matchable()
+            })
             .to_matchable()
             .into(),
         ),
@@ -2707,7 +2678,7 @@ pub fn dialect() -> Dialect {
     snowflake_dialect.add([
         (
             "AccessStatementSegment".into(),
-            NodeMatcher::new(SyntaxKind::AccessStatement, {
+            NodeMatcher::new(SyntaxKind::AccessStatement, |_| {
                 let global_permissions = one_of(vec_of_erased![
                     Sequence::new(vec_of_erased![
                         Ref::keyword("CREATE"),
@@ -3096,8 +3067,7 @@ pub fn dialect() -> Dialect {
         ),
         (
             "CreateCloneStatementSegment".into(),
-            NodeMatcher::new(
-                SyntaxKind::CreateCloneStatement,
+            NodeMatcher::new(SyntaxKind::CreateCloneStatement, |_| {
                 Sequence::new(vec_of_erased![
                     Ref::keyword("CREATE"),
                     Sequence::new(vec_of_erased![Ref::keyword("OR"), Ref::keyword("REPLACE"),])
@@ -3129,15 +3099,14 @@ pub fn dialect() -> Dialect {
                     ])
                     .config(|this| this.optional()),
                 ])
-                .to_matchable(),
-            )
+                .to_matchable()
+            })
             .to_matchable()
             .into(),
         ),
         (
             "CreateDatabaseFromShareStatementSegment".into(),
-            NodeMatcher::new(
-                SyntaxKind::CreateDatabaseFromShareStatement,
+            NodeMatcher::new(SyntaxKind::CreateDatabaseFromShareStatement, |_| {
                 Sequence::new(vec_of_erased![
                     Ref::keyword("CREATE"),
                     Ref::keyword("DATABASE"),
@@ -3145,15 +3114,14 @@ pub fn dialect() -> Dialect {
                     Sequence::new(vec_of_erased![Ref::keyword("FROM"), Ref::keyword("SHARE"),]),
                     Ref::new("ObjectReferenceSegment"),
                 ])
-                .to_matchable(),
-            )
+                .to_matchable()
+            })
             .to_matchable()
             .into(),
         ),
         (
             "CreateProcedureStatementSegment".into(),
-            NodeMatcher::new(
-                SyntaxKind::CreateProcedureStatement,
+            NodeMatcher::new(SyntaxKind::CreateProcedureStatement, |_| {
                 Sequence::new(vec_of_erased![
                     Ref::keyword("CREATE"),
                     Sequence::new(vec_of_erased![Ref::keyword("OR"), Ref::keyword("REPLACE"),])
@@ -3268,28 +3236,26 @@ pub fn dialect() -> Dialect {
                         Ref::new("ScriptingBlockStatementSegment"),
                     ]),
                 ])
-                .to_matchable(),
-            )
+                .to_matchable()
+            })
             .to_matchable()
             .into(),
         ),
         (
             "ReturnStatementSegment".into(),
-            NodeMatcher::new(
-                SyntaxKind::ReturnStatement,
+            NodeMatcher::new(SyntaxKind::ReturnStatement, |_| {
                 Sequence::new(vec_of_erased![
                     Ref::keyword("RETURN"),
                     Ref::new("ExpressionSegment"),
                 ])
-                .to_matchable(),
-            )
+                .to_matchable()
+            })
             .to_matchable()
             .into(),
         ),
         (
             "ScriptingBlockStatementSegment".into(),
-            NodeMatcher::new(
-                SyntaxKind::ScriptingBlockStatement,
+            NodeMatcher::new(SyntaxKind::ScriptingBlockStatement, |_| {
                 one_of(vec_of_erased![
                     Sequence::new(vec_of_erased![
                         Ref::keyword("BEGIN"),
@@ -3297,15 +3263,14 @@ pub fn dialect() -> Dialect {
                     ]),
                     Sequence::new(vec_of_erased![Ref::keyword("END")]),
                 ])
-                .to_matchable(),
-            )
+                .to_matchable()
+            })
             .to_matchable()
             .into(),
         ),
         (
             "ScriptingLetStatementSegment".into(),
-            NodeMatcher::new(
-                SyntaxKind::ScriptingLetStatement,
+            NodeMatcher::new(SyntaxKind::ScriptingLetStatement, |_| {
                 one_of(vec_of_erased![
                     // Initial declaration and assignment
                     Sequence::new(vec_of_erased![
@@ -3359,15 +3324,14 @@ pub fn dialect() -> Dialect {
                         ]),
                     ]),
                 ])
-                .to_matchable(),
-            )
+                .to_matchable()
+            })
             .to_matchable()
             .into(),
         ),
         (
             "CreateFunctionStatementSegment".into(),
-            NodeMatcher::new(
-                SyntaxKind::CreateFunctionStatement,
+            NodeMatcher::new(SyntaxKind::CreateFunctionStatement, |_| {
                 Sequence::new(vec_of_erased![
                     Ref::keyword("CREATE"),
                     Sequence::new(vec_of_erased![Ref::keyword("OR"), Ref::keyword("REPLACE"),])
@@ -3474,15 +3438,14 @@ pub fn dialect() -> Dialect {
                     ])
                     .config(|this| this.optional()),
                 ])
-                .to_matchable(),
-            )
+                .to_matchable()
+            })
             .to_matchable()
             .into(),
         ),
         (
             "AlterFunctionStatementSegment".into(),
-            NodeMatcher::new(
-                SyntaxKind::AlterFunctionStatement,
+            NodeMatcher::new(SyntaxKind::AlterFunctionStatement, |_| {
                 Sequence::new(vec_of_erased![
                     Ref::keyword("ALTER"),
                     Ref::keyword("FUNCTION"),
@@ -3564,15 +3527,14 @@ pub fn dialect() -> Dialect {
                         ]),
                     ]),
                 ])
-                .to_matchable(),
-            )
+                .to_matchable()
+            })
             .to_matchable()
             .into(),
         ),
         (
             "CreateExternalFunctionStatementSegment".into(),
-            NodeMatcher::new(
-                SyntaxKind::CreateExternalFunctionStatement,
+            NodeMatcher::new(SyntaxKind::CreateExternalFunctionStatement, |_| {
                 Sequence::new(vec_of_erased![
                     Ref::keyword("CREATE"),
                     Sequence::new(vec_of_erased![Ref::keyword("OR"), Ref::keyword("REPLACE"),])
@@ -3663,15 +3625,14 @@ pub fn dialect() -> Dialect {
                     Ref::keyword("AS"),
                     Ref::new("SingleQuotedIdentifierSegment"),
                 ])
-                .to_matchable(),
-            )
+                .to_matchable()
+            })
             .to_matchable()
             .into(),
         ),
         (
             "WarehouseObjectPropertiesSegment".into(),
-            NodeMatcher::new(
-                SyntaxKind::WarehouseObjectProperties,
+            NodeMatcher::new(SyntaxKind::WarehouseObjectProperties, |_| {
                 any_set_of(vec_of_erased![
                     Sequence::new(vec_of_erased![
                         Ref::keyword("WAREHOUSE_TYPE"),
@@ -3727,15 +3688,14 @@ pub fn dialect() -> Dialect {
                         Ref::new("NakedIdentifierSegment"),
                     ]),
                 ])
-                .to_matchable(),
-            )
+                .to_matchable()
+            })
             .to_matchable()
             .into(),
         ),
         (
             "WarehouseObjectParamsSegment".into(),
-            NodeMatcher::new(
-                SyntaxKind::WarehouseObjectProperties,
+            NodeMatcher::new(SyntaxKind::WarehouseObjectProperties, |_| {
                 any_set_of(vec_of_erased![
                     Sequence::new(vec_of_erased![
                         Ref::keyword("MAX_CONCURRENCY_LEVEL"),
@@ -3753,15 +3713,14 @@ pub fn dialect() -> Dialect {
                         Ref::new("NumericLiteralSegment"),
                     ]),
                 ])
-                .to_matchable(),
-            )
+                .to_matchable()
+            })
             .to_matchable()
             .into(),
         ),
         (
             "ConstraintPropertiesSegment".into(),
-            NodeMatcher::new(
-                SyntaxKind::ConstraintPropertiesSegment,
+            NodeMatcher::new(SyntaxKind::ConstraintPropertiesSegment, |_| {
                 Sequence::new(vec_of_erased![
                     Sequence::new(vec_of_erased![
                         Ref::keyword("CONSTRAINT"),
@@ -3808,8 +3767,8 @@ pub fn dialect() -> Dialect {
                         ]),
                     ]),]),
                 ])
-                .to_matchable(),
-            )
+                .to_matchable()
+            })
             .to_matchable()
             .into(),
         ),
@@ -3905,8 +3864,7 @@ pub fn dialect() -> Dialect {
 
     snowflake_dialect.add([(
         "CopyOptionsSegment".into(),
-        NodeMatcher::new(
-            SyntaxKind::CopyOptions,
+        NodeMatcher::new(SyntaxKind::CopyOptions, |_| {
             one_of(vec_of_erased![
                 any_set_of(vec_of_erased![
                     Sequence::new(vec_of_erased![
@@ -3982,8 +3940,8 @@ pub fn dialect() -> Dialect {
                     ]),
                 ]),
             ])
-            .to_matchable(),
-        )
+            .to_matchable()
+        })
         .to_matchable()
         .into(),
     )]);
@@ -4012,8 +3970,7 @@ pub fn dialect() -> Dialect {
     snowflake_dialect.add([
         (
             "AlterRoleStatementSegment".into(),
-            NodeMatcher::new(
-                SyntaxKind::AlterRoleStatement,
+            NodeMatcher::new(SyntaxKind::AlterRoleStatement, |_| {
                 Sequence::new(vec_of_erased![
                     Ref::keyword("ALTER"),
                     Ref::keyword("ROLE"),
@@ -4052,15 +4009,14 @@ pub fn dialect() -> Dialect {
                         ]),
                     ]),
                 ])
-                .to_matchable(),
-            )
+                .to_matchable()
+            })
             .to_matchable()
             .into(),
         ),
         (
             "AlterSchemaStatementSegment".into(),
-            NodeMatcher::new(
-                SyntaxKind::AlterSchemaStatement,
+            NodeMatcher::new(SyntaxKind::AlterSchemaStatement, |_| {
                 Sequence::new(vec_of_erased![
                     Ref::keyword("ALTER"),
                     Ref::keyword("SCHEMA"),
@@ -4114,15 +4070,14 @@ pub fn dialect() -> Dialect {
                         ]),
                     ]),
                 ])
-                .to_matchable(),
-            )
+                .to_matchable()
+            })
             .to_matchable()
             .into(),
         ),
         (
             "SchemaObjectParamsSegment".into(),
-            NodeMatcher::new(
-                SyntaxKind::SchemaObjectProperties,
+            NodeMatcher::new(SyntaxKind::SchemaObjectProperties, |_| {
                 any_set_of(vec_of_erased![
                     Sequence::new(vec_of_erased![
                         Ref::keyword("DATA_RETENTION_TIME_IN_DAYS"),
@@ -4141,8 +4096,8 @@ pub fn dialect() -> Dialect {
                     ]),
                     Ref::new("CommentEqualsClauseSegment"),
                 ])
-                .to_matchable(),
-            )
+                .to_matchable()
+            })
             .to_matchable()
             .into(),
         ),
@@ -4260,8 +4215,7 @@ pub fn dialect() -> Dialect {
     snowflake_dialect.add([
         (
             "CreateTaskSegment".into(),
-            NodeMatcher::new(
-                SyntaxKind::CreateTaskStatement,
+            NodeMatcher::new(SyntaxKind::CreateTaskStatement, |_| {
                 Sequence::new(vec_of_erased![
                     Ref::keyword("CREATE"),
                     Sequence::new(vec_of_erased![Ref::keyword("OR"), Ref::keyword("REPLACE"),])
@@ -4337,15 +4291,14 @@ pub fn dialect() -> Dialect {
                         MetaSegment::dedent(),
                     ]),
                 ])
-                .to_matchable(),
-            )
+                .to_matchable()
+            })
             .to_matchable()
             .into(),
         ),
         (
             "TaskExpressionSegment".into(),
-            NodeMatcher::new(
-                SyntaxKind::SnowflakeTaskExpressionSegment,
+            NodeMatcher::new(SyntaxKind::SnowflakeTaskExpressionSegment, |_| {
                 Sequence::new(vec_of_erased![
                     Delimited::new(vec_of_erased![one_of(vec_of_erased![
                         Ref::new("ExpressionSegment"),
@@ -4358,15 +4311,14 @@ pub fn dialect() -> Dialect {
                         "BooleanBinaryOperatorGrammar"
                     ),]))),
                 ])
-                .to_matchable(),
-            )
+                .to_matchable()
+            })
             .to_matchable()
             .into(),
         ),
         (
             "CreateStatementSegment".into(),
-            NodeMatcher::new(
-                SyntaxKind::CreateStatement,
+            NodeMatcher::new(SyntaxKind::CreateStatement, |_| {
                 Sequence::new(vec_of_erased![
                     Ref::keyword("CREATE"),
                     Ref::new("OrReplaceGrammar").optional(),
@@ -4636,15 +4588,14 @@ pub fn dialect() -> Dialect {
                     ])
                     .config(|this| this.optional()),
                 ])
-                .to_matchable(),
-            )
+                .to_matchable()
+            })
             .to_matchable()
             .into(),
         ),
         (
             "CreateUserSegment".into(),
-            NodeMatcher::new(
-                SyntaxKind::CreateUserStatement,
+            NodeMatcher::new(SyntaxKind::CreateUserStatement, |_| {
                 Sequence::new(vec_of_erased![
                     Ref::keyword("CREATE"),
                     Sequence::new(vec_of_erased![Ref::keyword("OR"), Ref::keyword("REPLACE"),])
@@ -4777,8 +4728,8 @@ pub fn dialect() -> Dialect {
                     ]),
                     MetaSegment::dedent(),
                 ])
-                .to_matchable(),
-            )
+                .to_matchable()
+            })
             .to_matchable()
             .into(),
         ),
@@ -4828,8 +4779,7 @@ pub fn dialect() -> Dialect {
     snowflake_dialect.add([
         (
             "AlterViewStatementSegment".into(),
-            NodeMatcher::new(
-                SyntaxKind::AlterViewStatement,
+            NodeMatcher::new(SyntaxKind::AlterViewStatement, |_| {
                 Sequence::new(vec_of_erased![
                     Ref::keyword("ALTER"),
                     Ref::keyword("VIEW"),
@@ -4933,15 +4883,14 @@ pub fn dialect() -> Dialect {
                         ]),
                     ]),
                 ])
-                .to_matchable(),
-            )
+                .to_matchable()
+            })
             .to_matchable()
             .into(),
         ),
         (
             "AlterMaterializedViewStatementSegment".into(),
-            NodeMatcher::new(
-                SyntaxKind::AlterMaterializedViewStatement,
+            NodeMatcher::new(SyntaxKind::AlterMaterializedViewStatement, |_| {
                 Sequence::new(vec_of_erased![
                     Ref::keyword("ALTER"),
                     Ref::keyword("MATERIALIZED"),
@@ -4983,15 +4932,14 @@ pub fn dialect() -> Dialect {
                         ]),
                     ]),
                 ])
-                .to_matchable(),
-            )
+                .to_matchable()
+            })
             .to_matchable()
             .into(),
         ),
         (
             "CreateFileFormatSegment".into(),
-            NodeMatcher::new(
-                SyntaxKind::CreateFileFormatSegment,
+            NodeMatcher::new(SyntaxKind::CreateFileFormatSegment, |_| {
                 Sequence::new(vec_of_erased![
                     Ref::keyword("CREATE"),
                     Ref::new("OrReplaceGrammar").optional(),
@@ -5012,15 +4960,14 @@ pub fn dialect() -> Dialect {
                     ])
                     .config(|this| this.optional()),
                 ])
-                .to_matchable(),
-            )
+                .to_matchable()
+            })
             .to_matchable()
             .into(),
         ),
         (
             "AlterFileFormatSegment".into(),
-            NodeMatcher::new(
-                SyntaxKind::AlterFileFormatSegment,
+            NodeMatcher::new(SyntaxKind::AlterFileFormatSegment, |_| {
                 Sequence::new(vec_of_erased![
                     Ref::keyword("ALTER"),
                     Sequence::new(vec_of_erased![Ref::keyword("FILE"), Ref::keyword("FORMAT"),]),
@@ -5050,14 +4997,14 @@ pub fn dialect() -> Dialect {
                     ])
                     .config(|this| this.optional()),
                 ])
-                .to_matchable(),
-            )
+                .to_matchable()
+            })
             .to_matchable()
             .into(),
         ),
         (
             "CsvFileFormatTypeParameters".into(),
-            NodeMatcher::new(SyntaxKind::CsvFileFormatTypeParameters, {
+            NodeMatcher::new(SyntaxKind::CsvFileFormatTypeParameters, |_| {
                 let file_format_type_parameter = one_of(vec_of_erased![
                     Sequence::new(vec_of_erased![
                         Ref::keyword("TYPE"),
@@ -5159,7 +5106,7 @@ pub fn dialect() -> Dialect {
         ),
         (
             "JsonFileFormatTypeParameters".into(),
-            NodeMatcher::new(SyntaxKind::JsonFileFormatTypeParameters, {
+            NodeMatcher::new(SyntaxKind::JsonFileFormatTypeParameters, |_| {
                 let file_format_type_parameter = one_of(vec_of_erased![
                     Sequence::new(vec_of_erased![
                         Ref::keyword("TYPE"),
@@ -5235,7 +5182,7 @@ pub fn dialect() -> Dialect {
         ),
         (
             "AvroFileFormatTypeParameters".into(),
-            NodeMatcher::new(SyntaxKind::AvroFileFormatTypeParameters, {
+            NodeMatcher::new(SyntaxKind::AvroFileFormatTypeParameters, |_| {
                 let file_format_type_parameter = one_of(vec_of_erased![
                     Sequence::new(vec_of_erased![
                         Ref::keyword("TYPE"),
@@ -5276,7 +5223,7 @@ pub fn dialect() -> Dialect {
         ),
         (
             "OrcFileFormatTypeParameters".into(),
-            NodeMatcher::new(SyntaxKind::OrcFileFormatTypeParameters, {
+            NodeMatcher::new(SyntaxKind::OrcFileFormatTypeParameters, |_| {
                 let file_format_type_parameter = one_of(vec_of_erased![
                     Sequence::new(vec_of_erased![
                         Ref::keyword("TYPE"),
@@ -5312,7 +5259,7 @@ pub fn dialect() -> Dialect {
         ),
         (
             "ParquetFileFormatTypeParameters".into(),
-            NodeMatcher::new(SyntaxKind::ParquetFileFormatTypeParameters, {
+            NodeMatcher::new(SyntaxKind::ParquetFileFormatTypeParameters, |_| {
                 let file_format_type_parameter = one_of(vec_of_erased![
                     Sequence::new(vec_of_erased![
                         Ref::keyword("TYPE"),
@@ -5357,7 +5304,7 @@ pub fn dialect() -> Dialect {
         ),
         (
             "XmlFileFormatTypeParameters".into(),
-            NodeMatcher::new(SyntaxKind::XmlFileFormatTypeParameters, {
+            NodeMatcher::new(SyntaxKind::XmlFileFormatTypeParameters, |_| {
                 let file_format_type_parameter = one_of(vec_of_erased![
                     Sequence::new(vec_of_erased![
                         Ref::keyword("TYPE"),
@@ -5397,8 +5344,7 @@ pub fn dialect() -> Dialect {
         ),
         (
             "AlterPipeSegment".into(),
-            NodeMatcher::new(
-                SyntaxKind::AlterPipeSegment,
+            NodeMatcher::new(SyntaxKind::AlterPipeSegment, |_| {
                 Sequence::new(vec_of_erased![
                     Ref::keyword("ALTER"),
                     Ref::keyword("PIPE"),
@@ -5452,15 +5398,14 @@ pub fn dialect() -> Dialect {
                     ]),
                     Ref::new("CommaSegment").optional(),
                 ])
-                .to_matchable(),
-            )
+                .to_matchable()
+            })
             .to_matchable()
             .into(),
         ),
         (
             "FileFormatSegment".into(),
-            NodeMatcher::new(
-                SyntaxKind::FileFormatSegment,
+            NodeMatcher::new(SyntaxKind::FileFormatSegment, |_| {
                 one_of(vec_of_erased![
                     one_of(vec_of_erased![
                         Ref::new("QuotedLiteralSegment"),
@@ -5488,15 +5433,14 @@ pub fn dialect() -> Dialect {
                         Ref::new("FormatTypeOptions").optional(),
                     ]),]),
                 ])
-                .to_matchable(),
-            )
+                .to_matchable()
+            })
             .to_matchable()
             .into(),
         ),
         (
             "FormatTypeOptions".into(),
-            NodeMatcher::new(
-                SyntaxKind::FormatTypeOptions,
+            NodeMatcher::new(SyntaxKind::FormatTypeOptions, |_| {
                 one_of(vec_of_erased![
                     // COPY INTO <location>, open for extension
                     any_set_of(vec_of_erased![
@@ -5600,15 +5544,14 @@ pub fn dialect() -> Dialect {
                     // COPY INTO <table>, open for extension
                     any_set_of(vec_of_erased![]),
                 ])
-                .to_matchable(),
-            )
+                .to_matchable()
+            })
             .to_matchable()
             .into(),
         ),
         (
             "CreateExternalTableSegment".into(),
-            NodeMatcher::new(
-                SyntaxKind::CreateExternalTableStatement,
+            NodeMatcher::new(SyntaxKind::CreateExternalTableStatement, |_| {
                 Sequence::new(vec_of_erased![
                     Ref::keyword("CREATE"),
                     Sequence::new(vec_of_erased![Ref::keyword("OR"), Ref::keyword("REPLACE"),])
@@ -5699,8 +5642,8 @@ pub fn dialect() -> Dialect {
                         Ref::new("CommentEqualsClauseSegment"),
                     ]),
                 ])
-                .to_matchable(),
-            )
+                .to_matchable()
+            })
             .to_matchable()
             .into(),
         ),
@@ -5737,8 +5680,7 @@ pub fn dialect() -> Dialect {
     snowflake_dialect.add([
         (
             "PartitionBySegment".into(),
-            NodeMatcher::new(
-                SyntaxKind::PartitionBySegment,
+            NodeMatcher::new(SyntaxKind::PartitionBySegment, |_| {
                 Sequence::new(vec_of_erased![
                     Ref::keyword("PARTITION"),
                     Ref::keyword("BY"),
@@ -5748,15 +5690,14 @@ pub fn dialect() -> Dialect {
                     )]),]),
                     MetaSegment::dedent(),
                 ])
-                .to_matchable(),
-            )
+                .to_matchable()
+            })
             .to_matchable()
             .into(),
         ),
         (
             "CopyIntoLocationStatementSegment".into(),
-            NodeMatcher::new(
-                SyntaxKind::CopyIntoLocationStatement,
+            NodeMatcher::new(SyntaxKind::CopyIntoLocationStatement, |_| {
                 Sequence::new(vec_of_erased![
                     Ref::keyword("COPY"),
                     Ref::keyword("INTO"),
@@ -5799,15 +5740,14 @@ pub fn dialect() -> Dialect {
                         ]),
                     ]),
                 ])
-                .to_matchable(),
-            )
+                .to_matchable()
+            })
             .to_matchable()
             .into(),
         ),
         (
             "CopyIntoTableStatementSegment".into(),
-            NodeMatcher::new(
-                SyntaxKind::CopyIntoTableStatement,
+            NodeMatcher::new(SyntaxKind::CopyIntoTableStatement, |_| {
                 Sequence::new(vec_of_erased![
                     Ref::keyword("COPY"),
                     Ref::keyword("INTO"),
@@ -5860,30 +5800,28 @@ pub fn dialect() -> Dialect {
                     ])
                     .config(|this| this.optional()),
                 ])
-                .to_matchable(),
-            )
+                .to_matchable()
+            })
             .to_matchable()
             .into(),
         ),
         (
             "StorageLocation".into(),
-            NodeMatcher::new(
-                SyntaxKind::StorageLocation,
+            NodeMatcher::new(SyntaxKind::StorageLocation, |_| {
                 one_of(vec_of_erased![
                     Ref::new("StagePath"),
                     Ref::new("S3Path"),
                     Ref::new("GCSPath"),
                     Ref::new("AzureBlobStoragePath"),
                 ])
-                .to_matchable(),
-            )
+                .to_matchable()
+            })
             .to_matchable()
             .into(),
         ),
         (
             "InternalStageParameters".into(),
-            NodeMatcher::new(
-                SyntaxKind::StageParameters,
+            NodeMatcher::new(SyntaxKind::StageParameters, |_| {
                 Sequence::new(vec_of_erased![
                     Sequence::new(vec_of_erased![
                         Ref::keyword("ENCRYPTION"),
@@ -5896,15 +5834,14 @@ pub fn dialect() -> Dialect {
                     ])
                     .config(|this| this.optional()),
                 ])
-                .to_matchable(),
-            )
+                .to_matchable()
+            })
             .to_matchable()
             .into(),
         ),
         (
             "S3ExternalStageParameters".into(),
-            NodeMatcher::new(
-                SyntaxKind::S3ExternalStageParameters,
+            NodeMatcher::new(SyntaxKind::S3ExternalStageParameters, |_| {
                 Sequence::new(vec_of_erased![
                     one_of(vec_of_erased![
                         Sequence::new(vec_of_erased![
@@ -5979,15 +5916,14 @@ pub fn dialect() -> Dialect {
                     ])
                     .config(|this| this.optional()),
                 ])
-                .to_matchable(),
-            )
+                .to_matchable()
+            })
             .to_matchable()
             .into(),
         ),
         (
             "GCSExternalStageParameters".into(),
-            NodeMatcher::new(
-                SyntaxKind::GcsExternalStageParameters,
+            NodeMatcher::new(SyntaxKind::GcsExternalStageParameters, |_| {
                 Sequence::new(vec_of_erased![
                     Sequence::new(vec_of_erased![
                         Ref::keyword("STORAGE_INTEGRATION"),
@@ -6017,15 +5953,14 @@ pub fn dialect() -> Dialect {
                     ])
                     .config(|this| this.optional()),
                 ])
-                .to_matchable(),
-            )
+                .to_matchable()
+            })
             .to_matchable()
             .into(),
         ),
         (
             "AzureBlobStorageExternalStageParameters".into(),
-            NodeMatcher::new(
-                SyntaxKind::AzureBlobStorageExternalStageParameters,
+            NodeMatcher::new(SyntaxKind::AzureBlobStorageExternalStageParameters, |_| {
                 Sequence::new(vec_of_erased![
                     one_of(vec_of_erased![
                         Sequence::new(vec_of_erased![
@@ -6066,15 +6001,14 @@ pub fn dialect() -> Dialect {
                     ])
                     .config(|this| this.optional()),
                 ])
-                .to_matchable(),
-            )
+                .to_matchable()
+            })
             .to_matchable()
             .into(),
         ),
         (
             "CreateStageSegment".into(),
-            NodeMatcher::new(
-                SyntaxKind::CreateStageStatement,
+            NodeMatcher::new(SyntaxKind::CreateStageStatement, |_| {
                 Sequence::new(vec_of_erased![
                     Ref::keyword("CREATE"),
                     Sequence::new(vec_of_erased![Ref::keyword("OR"), Ref::keyword("REPLACE"),])
@@ -6215,15 +6149,14 @@ pub fn dialect() -> Dialect {
                     Ref::new("CommentEqualsClauseSegment").optional(),
                     MetaSegment::dedent(),
                 ])
-                .to_matchable(),
-            )
+                .to_matchable()
+            })
             .to_matchable()
             .into(),
         ),
         (
             "AlterStageSegment".into(),
-            NodeMatcher::new(
-                SyntaxKind::AlterStageStatement,
+            NodeMatcher::new(SyntaxKind::AlterStageStatement, |_| {
                 Sequence::new(vec_of_erased![
                     Ref::keyword("ALTER"),
                     Ref::keyword("STAGE"),
@@ -6304,15 +6237,14 @@ pub fn dialect() -> Dialect {
                         ]),
                     ]),
                 ])
-                .to_matchable(),
-            )
+                .to_matchable()
+            })
             .to_matchable()
             .into(),
         ),
         (
             "CreateStreamStatementSegment".into(),
-            NodeMatcher::new(
-                SyntaxKind::CreateStreamStatement,
+            NodeMatcher::new(SyntaxKind::CreateStreamStatement, |_| {
                 Sequence::new(vec_of_erased![
                     Ref::keyword("CREATE"),
                     Ref::new("OrReplaceGrammar").optional(),
@@ -6367,15 +6299,14 @@ pub fn dialect() -> Dialect {
                     ]),
                     Ref::new("CommentEqualsClauseSegment").optional(),
                 ])
-                .to_matchable(),
-            )
+                .to_matchable()
+            })
             .to_matchable()
             .into(),
         ),
         (
             "AlterStreamStatementSegment".into(),
-            NodeMatcher::new(
-                SyntaxKind::AlterStreamStatement,
+            NodeMatcher::new(SyntaxKind::AlterStreamStatement, |_| {
                 Sequence::new(vec_of_erased![
                     Ref::keyword("ALTER"),
                     Ref::keyword("STREAM"),
@@ -6411,14 +6342,14 @@ pub fn dialect() -> Dialect {
                         ]),
                     ]),
                 ])
-                .to_matchable(),
-            )
+                .to_matchable()
+            })
             .to_matchable()
             .into(),
         ),
         (
             "ShowStatementSegment".into(),
-            NodeMatcher::new(SyntaxKind::ShowStatement, {
+            NodeMatcher::new(SyntaxKind::ShowStatement, |_| {
                 let object_types_plural = one_of(vec_of_erased![
                     Ref::keyword("PARAMETERS"),
                     Sequence::new(vec_of_erased![
@@ -6572,8 +6503,7 @@ pub fn dialect() -> Dialect {
         ),
         (
             "AlterUserStatementSegment".into(),
-            NodeMatcher::new(
-                SyntaxKind::AlterUserStatement,
+            NodeMatcher::new(SyntaxKind::AlterUserStatement, |_| {
                 Sequence::new(vec_of_erased![
                     Ref::keyword("ALTER"),
                     Ref::keyword("USER"),
@@ -6641,8 +6571,8 @@ pub fn dialect() -> Dialect {
                         ]),
                     ]),
                 ])
-                .to_matchable(),
-            )
+                .to_matchable()
+            })
             .to_matchable()
             .into(),
         ),
@@ -6693,8 +6623,7 @@ pub fn dialect() -> Dialect {
     snowflake_dialect.add([
         (
             "AlterSessionStatementSegment".into(),
-            NodeMatcher::new(
-                SyntaxKind::AlterSessionStatement,
+            NodeMatcher::new(SyntaxKind::AlterSessionStatement, |_| {
                 Sequence::new(vec_of_erased![
                     Ref::keyword("ALTER"),
                     Ref::keyword("SESSION"),
@@ -6703,15 +6632,14 @@ pub fn dialect() -> Dialect {
                         Ref::new("AlterSessionUnsetClauseSegment"),
                     ]),
                 ])
-                .to_matchable(),
-            )
+                .to_matchable()
+            })
             .to_matchable()
             .into(),
         ),
         (
             "AlterSessionSetClauseSegment".into(),
-            NodeMatcher::new(
-                SyntaxKind::AlterSessionSetStatement,
+            NodeMatcher::new(SyntaxKind::AlterSessionSetStatement, |_| {
                 Sequence::new(vec_of_erased![
                     Ref::keyword("SET"),
                     Ref::new("ParameterNameSegment"),
@@ -6722,28 +6650,26 @@ pub fn dialect() -> Dialect {
                         Ref::new("NumericLiteralSegment"),
                     ]),
                 ])
-                .to_matchable(),
-            )
+                .to_matchable()
+            })
             .to_matchable()
             .into(),
         ),
         (
             "AlterSessionUnsetClauseSegment".into(),
-            NodeMatcher::new(
-                SyntaxKind::AlterSessionUnsetClause,
+            NodeMatcher::new(SyntaxKind::AlterSessionUnsetClause, |_| {
                 Sequence::new(vec_of_erased![
                     Ref::keyword("UNSET"),
                     Delimited::new(vec_of_erased![Ref::new("ParameterNameSegment")]),
                 ])
-                .to_matchable(),
-            )
+                .to_matchable()
+            })
             .to_matchable()
             .into(),
         ),
         (
             "AlterTaskStatementSegment".into(),
-            NodeMatcher::new(
-                SyntaxKind::AlterTaskStatement,
+            NodeMatcher::new(SyntaxKind::AlterTaskStatement, |_| {
                 Sequence::new(vec_of_erased![
                     Ref::keyword("ALTER"),
                     Ref::keyword("TASK"),
@@ -6778,15 +6704,14 @@ pub fn dialect() -> Dialect {
                         ]),
                     ]),
                 ])
-                .to_matchable(),
-            )
+                .to_matchable()
+            })
             .to_matchable()
             .into(),
         ),
         (
             "AlterTaskSpecialSetClauseSegment".into(),
-            NodeMatcher::new(
-                SyntaxKind::AlterTaskSpecialSetClause,
+            NodeMatcher::new(SyntaxKind::AlterTaskSpecialSetClause, |_| {
                 Sequence::new(vec_of_erased![
                     Ref::keyword("SET"),
                     any_set_of(vec_of_erased![
@@ -6811,15 +6736,14 @@ pub fn dialect() -> Dialect {
                     ])
                     .config(|this| this.min_times(1)),
                 ])
-                .to_matchable(),
-            )
+                .to_matchable()
+            })
             .to_matchable()
             .into(),
         ),
         (
             "AlterTaskSetClauseSegment".into(),
-            NodeMatcher::new(
-                SyntaxKind::AlterTaskSetClause,
+            NodeMatcher::new(SyntaxKind::AlterTaskSetClause, |_| {
                 Sequence::new(vec_of_erased![
                     Ref::keyword("SET"),
                     Delimited::new(vec_of_erased![Sequence::new(vec_of_erased![
@@ -6832,35 +6756,33 @@ pub fn dialect() -> Dialect {
                         ]),
                     ]),]),
                 ])
-                .to_matchable(),
-            )
+                .to_matchable()
+            })
             .to_matchable()
             .into(),
         ),
         (
             "AlterTaskUnsetClauseSegment".into(),
-            NodeMatcher::new(
-                SyntaxKind::AlterTaskUnsetClause,
+            NodeMatcher::new(SyntaxKind::AlterTaskUnsetClause, |_| {
                 Sequence::new(vec_of_erased![
                     Ref::keyword("UNSET"),
                     Delimited::new(vec_of_erased![Ref::new("ParameterNameSegment")]),
                 ])
-                .to_matchable(),
-            )
+                .to_matchable()
+            })
             .to_matchable()
             .into(),
         ),
         (
             "ExecuteTaskClauseSegment".into(),
-            NodeMatcher::new(
-                SyntaxKind::ExecuteTaskClause,
+            NodeMatcher::new(SyntaxKind::ExecuteTaskClause, |_| {
                 Sequence::new(vec_of_erased![
                     Ref::keyword("EXECUTE"),
                     Ref::keyword("TASK"),
                     Ref::new("ObjectReferenceSegment"),
                 ])
-                .to_matchable(),
-            )
+                .to_matchable()
+            })
             .to_matchable()
             .into(),
         ),
@@ -6901,8 +6823,7 @@ pub fn dialect() -> Dialect {
     snowflake_dialect.add([
         (
             "DeleteStatementSegment".into(),
-            NodeMatcher::new(
-                SyntaxKind::DeleteStatement,
+            NodeMatcher::new(SyntaxKind::DeleteStatement, |_| {
                 Sequence::new(vec_of_erased![
                     Ref::keyword("DELETE"),
                     Ref::keyword("FROM"),
@@ -6920,15 +6841,14 @@ pub fn dialect() -> Dialect {
                     .config(|this| this.optional()),
                     Ref::new("WhereClauseSegment").optional(),
                 ])
-                .to_matchable(),
-            )
+                .to_matchable()
+            })
             .to_matchable()
             .into(),
         ),
         (
             "DescribeStatementSegment".into(),
-            NodeMatcher::new(
-                SyntaxKind::DescribeStatement,
+            NodeMatcher::new(SyntaxKind::DescribeStatement, |_| {
                 Sequence::new(vec_of_erased![
                     one_of(vec_of_erased![
                         Ref::keyword("DESCRIBE"),
@@ -7081,8 +7001,8 @@ pub fn dialect() -> Dialect {
                         ]),
                     ]),
                 ])
-                .to_matchable(),
-            )
+                .to_matchable()
+            })
             .to_matchable()
             .into(),
         ),
@@ -7137,8 +7057,7 @@ pub fn dialect() -> Dialect {
     snowflake_dialect.add([
         (
             "UnsetStatementSegment".into(),
-            NodeMatcher::new(
-                SyntaxKind::UnsetStatement,
+            NodeMatcher::new(SyntaxKind::UnsetStatement, |_| {
                 Sequence::new(vec_of_erased![
                     Ref::keyword("UNSET"),
                     one_of(vec_of_erased![
@@ -7148,15 +7067,14 @@ pub fn dialect() -> Dialect {
                         ),]),]),
                     ]),
                 ])
-                .to_matchable(),
-            )
+                .to_matchable()
+            })
             .to_matchable()
             .into(),
         ),
         (
             "UndropStatementSegment".into(),
-            NodeMatcher::new(
-                SyntaxKind::UndropStatement,
+            NodeMatcher::new(SyntaxKind::UndropStatement, |_| {
                 Sequence::new(vec_of_erased![
                     Ref::keyword("UNDROP"),
                     one_of(vec_of_erased![
@@ -7174,15 +7092,14 @@ pub fn dialect() -> Dialect {
                         ]),
                     ]),
                 ])
-                .to_matchable(),
-            )
+                .to_matchable()
+            })
             .to_matchable()
             .into(),
         ),
         (
             "CommentStatementSegment".into(),
-            NodeMatcher::new(
-                SyntaxKind::CommentStatement,
+            NodeMatcher::new(SyntaxKind::CommentStatement, |_| {
                 Sequence::new(vec_of_erased![
                     Ref::keyword("COMMENT"),
                     Sequence::new(vec_of_erased![Ref::keyword("IF"), Ref::keyword("EXISTS"),])
@@ -7246,8 +7163,8 @@ pub fn dialect() -> Dialect {
                     Ref::keyword("IS"),
                     Ref::new("QuotedLiteralSegment"),
                 ])
-                .to_matchable(),
-            )
+                .to_matchable()
+            })
             .to_matchable()
             .into(),
         ),
@@ -7286,8 +7203,7 @@ pub fn dialect() -> Dialect {
 
     snowflake_dialect.add([(
         "CallStatementSegment".into(),
-        NodeMatcher::new(
-            SyntaxKind::CallStatement,
+        NodeMatcher::new(SyntaxKind::CallStatement, |_| {
             Sequence::new(vec_of_erased![
                 Ref::keyword("CALL"),
                 Sequence::new(vec_of_erased![
@@ -7298,8 +7214,8 @@ pub fn dialect() -> Dialect {
                     .config(|this| this.parse_mode(ParseMode::Greedy)),
                 ]),
             ])
-            .to_matchable(),
-        )
+            .to_matchable()
+        })
         .to_matchable()
         .into(),
     )]);
@@ -7421,8 +7337,7 @@ pub fn dialect() -> Dialect {
     snowflake_dialect.add([
         (
             "DropProcedureStatementSegment".into(),
-            NodeMatcher::new(
-                SyntaxKind::DropProcedureStatement,
+            NodeMatcher::new(SyntaxKind::DropProcedureStatement, |_| {
                 Sequence::new(vec_of_erased![
                     Ref::keyword("DROP"),
                     Ref::keyword("PROCEDURE"),
@@ -7430,15 +7345,14 @@ pub fn dialect() -> Dialect {
                     Ref::new("FunctionNameSegment"),
                     Ref::new("FunctionParameterListGrammar"),
                 ])
-                .to_matchable(),
-            )
+                .to_matchable()
+            })
             .to_matchable()
             .into(),
         ),
         (
             "DropExternalTableStatementSegment".into(),
-            NodeMatcher::new(
-                SyntaxKind::DropExternalTableStatement,
+            NodeMatcher::new(SyntaxKind::DropExternalTableStatement, |_| {
                 Sequence::new(vec_of_erased![
                     Ref::keyword("DROP"),
                     Ref::keyword("EXTERNAL"),
@@ -7447,15 +7361,14 @@ pub fn dialect() -> Dialect {
                     Ref::new("TableReferenceSegment"),
                     Ref::new("DropBehaviorGrammar").optional(),
                 ])
-                .to_matchable(),
-            )
+                .to_matchable()
+            })
             .to_matchable()
             .into(),
         ),
         (
             "DropFunctionStatementSegment".into(),
-            NodeMatcher::new(
-                SyntaxKind::DropFunctionStatement,
+            NodeMatcher::new(SyntaxKind::DropFunctionStatement, |_| {
                 Sequence::new(vec_of_erased![
                     Ref::keyword("DROP"),
                     Ref::keyword("EXTERNAL").optional(),
@@ -7464,15 +7377,14 @@ pub fn dialect() -> Dialect {
                     Ref::new("FunctionNameSegment"),
                     Ref::new("FunctionParameterListGrammar"),
                 ])
-                .to_matchable(),
-            )
+                .to_matchable()
+            })
             .to_matchable()
             .into(),
         ),
         (
             "DropMaterializedViewStatementSegment".into(),
-            NodeMatcher::new(
-                SyntaxKind::DropMaterializedViewStatement,
+            NodeMatcher::new(SyntaxKind::DropMaterializedViewStatement, |_| {
                 Sequence::new(vec_of_erased![
                     Ref::keyword("DROP"),
                     Ref::keyword("MATERIALIZED"),
@@ -7480,15 +7392,14 @@ pub fn dialect() -> Dialect {
                     Ref::new("IfExistsGrammar").optional(),
                     Ref::new("TableReferenceSegment"),
                 ])
-                .to_matchable(),
-            )
+                .to_matchable()
+            })
             .to_matchable()
             .into(),
         ),
         (
             "DropObjectStatementSegment".into(),
-            NodeMatcher::new(
-                SyntaxKind::DropObjectStatement,
+            NodeMatcher::new(SyntaxKind::DropObjectStatement, |_| {
                 Sequence::new(vec_of_erased![
                     Ref::keyword("DROP"),
                     one_of(vec_of_erased![
@@ -7573,15 +7484,14 @@ pub fn dialect() -> Dialect {
                         ]),
                     ]),
                 ])
-                .to_matchable(),
-            )
+                .to_matchable()
+            })
             .to_matchable()
             .into(),
         ),
         (
             "ListStatementSegment".into(),
-            NodeMatcher::new(
-                SyntaxKind::ListStatement,
+            NodeMatcher::new(SyntaxKind::ListStatement, |_| {
                 Sequence::new(vec_of_erased![
                     one_of(vec_of_erased![Ref::keyword("LIST"), Ref::keyword("LS"),]),
                     Ref::new("StagePath"),
@@ -7592,15 +7502,14 @@ pub fn dialect() -> Dialect {
                     ])
                     .config(|this| this.optional()),
                 ])
-                .to_matchable(),
-            )
+                .to_matchable()
+            })
             .to_matchable()
             .into(),
         ),
         (
             "GetStatementSegment".into(),
-            NodeMatcher::new(
-                SyntaxKind::GetStatement,
+            NodeMatcher::new(SyntaxKind::GetStatement, |_| {
                 Sequence::new(vec_of_erased![
                     Ref::keyword("GET"),
                     Ref::new("StagePath"),
@@ -7624,15 +7533,14 @@ pub fn dialect() -> Dialect {
                         ]),
                     ]),
                 ])
-                .to_matchable(),
-            )
+                .to_matchable()
+            })
             .to_matchable()
             .into(),
         ),
         (
             "PutStatementSegment".into(),
-            NodeMatcher::new(
-                SyntaxKind::PutStatement,
+            NodeMatcher::new(SyntaxKind::PutStatement, |_| {
                 Sequence::new(vec_of_erased![
                     Ref::keyword("PUT"),
                     one_of(vec_of_erased![
@@ -7663,15 +7571,14 @@ pub fn dialect() -> Dialect {
                         ]),
                     ]),
                 ])
-                .to_matchable(),
-            )
+                .to_matchable()
+            })
             .to_matchable()
             .into(),
         ),
         (
             "RemoveStatementSegment".into(),
-            NodeMatcher::new(
-                SyntaxKind::RemoveStatement,
+            NodeMatcher::new(SyntaxKind::RemoveStatement, |_| {
                 Sequence::new(vec_of_erased![
                     one_of(vec_of_erased![Ref::keyword("REMOVE"), Ref::keyword("RM"),]),
                     Ref::new("StagePath"),
@@ -7685,8 +7592,8 @@ pub fn dialect() -> Dialect {
                     ])
                     .config(|this| this.optional()),
                 ])
-                .to_matchable(),
-            )
+                .to_matchable()
+            })
             .to_matchable()
             .into(),
         ),
@@ -7717,8 +7624,7 @@ pub fn dialect() -> Dialect {
 
     snowflake_dialect.add([(
         "ShorthandCastSegment".into(),
-        NodeMatcher::new(
-            SyntaxKind::CastExpression,
+        NodeMatcher::new(SyntaxKind::CastExpression, |_| {
             Sequence::new(vec_of_erased![
                 one_of(vec_of_erased![
                     Ref::new("Expression_D_Grammar"),
@@ -7735,8 +7641,8 @@ pub fn dialect() -> Dialect {
                 ]),])
                 .config(|this| this.min_times(1)),
             ])
-            .to_matchable(),
-        )
+            .to_matchable()
+        })
         .to_matchable()
         .into(),
     )]);

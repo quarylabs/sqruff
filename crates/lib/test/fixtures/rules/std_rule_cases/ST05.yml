@@ -84,12 +84,12 @@ double_nested_fail:
       UNION ALL
       select 1 as x, 2 as z
     ),
-    c as (
-        select x, z from p_cte
-      ),
     b as (
       select x, z from c
-    )
+    ),
+    c as (
+        select x, z from p_cte
+      )
     select
         a.x, a.y, b.z
     from a
@@ -349,7 +349,6 @@ issue_2898_redshift_attribute_error:
 
 issue_3623_internal_error_multiple_templated_files:
   # TODO: Fix T-SQL CTE (Common Table Expression) handling
-  ignored: "T-SQL CTE syntax handling not working correctly"
   fail_str: |
     CREATE TABLE #procs
     WITH (DISTRIBUTION = HASH([eid])) AS

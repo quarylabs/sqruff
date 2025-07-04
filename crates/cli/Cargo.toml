@@ -27,6 +27,7 @@ codegen-docs = ["sqruff-cli-lib/codegen-docs"]
 name = "bench"
 path = "src/bin/bench.rs"
 bench = false
+publish = false
 
 [[test]]
 name = "fix_return_code"
@@ -61,7 +62,7 @@ ignored = ["pyo3"]
 
 [dependencies]
 sqruff-cli-lib.workspace = true
-pyo3 = { version = "0.25.1" , features = ["auto-initialize"], optional = true }
+pyo3 = { version = "0.25.1", features = ["auto-initialize"], optional = true }
 
 [target.'cfg(target_os = "windows")'.dependencies]
 mimalloc = "0.1"

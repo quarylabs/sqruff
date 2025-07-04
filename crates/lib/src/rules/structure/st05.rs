@@ -212,8 +212,9 @@ join c using(x)
         // Special handling for T-SQL CREATE TABLE AS WITH case
         // In this case, we want to pass the entire WITH statement so we can append to it
         let is_create_table_as_with = is_with &&
-            // Check if the root contains CREATE TABLE
-            new_root.raw().to_lowercase().contains("create table") &&
+            // Check if we're within a CREATE TABLE statement context
+            parent_stack.base.iter()
+                .any(|segment| segment.is_type(SyntaxKind::CreateTableStatement)) &&
             // Check if there are existing CTEs that we need to append to
             !ctes.ctes.is_empty();
 

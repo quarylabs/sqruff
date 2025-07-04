@@ -866,6 +866,119 @@ pub fn raw_dialect() -> Dialect {
         .into(),
     )]);
 
+    // T-SQL allows spaces within comparison operators (e.g., "> =" parses as ">=")
+    // This enables the LT01 rule to fix split operators to their standard form
+    // Override ANSI definitions to allow gaps between operator characters
+    dialect.add([
+        (
+            "GreaterThanOrEqualToSegment".into(),
+            NodeMatcher::new(SyntaxKind::ComparisonOperator, |_| {
+                Sequence::new(vec_of_erased![
+                    Ref::new("RawGreaterThanSegment"),
+                    Ref::new("RawEqualsSegment"),
+                ])
+                .allow_gaps(true) // Allow spaces: > =
+                .to_matchable()
+            })
+            .to_matchable()
+            .into(),
+        ),
+        (
+            "LessThanOrEqualToSegment".into(),
+            NodeMatcher::new(SyntaxKind::ComparisonOperator, |_| {
+                Sequence::new(vec_of_erased![
+                    Ref::new("RawLessThanSegment"),
+                    Ref::new("RawEqualsSegment"),
+                ])
+                .allow_gaps(true) // Allow spaces: < =
+                .to_matchable()
+            })
+            .to_matchable()
+            .into(),
+        ),
+        (
+            "NotEqualToSegment".into(),
+            NodeMatcher::new(SyntaxKind::ComparisonOperator, |_| {
+                one_of(vec_of_erased![
+                    Sequence::new(vec_of_erased![
+                        Ref::new("RawNotSegment"),
+                        Ref::new("RawEqualsSegment"),
+                    ])
+                    .allow_gaps(true), // Allow spaces: ! =
+                    Sequence::new(vec_of_erased![
+                        Ref::new("RawLessThanSegment"),
+                        Ref::new("RawGreaterThanSegment"),
+                    ])
+                    .allow_gaps(true), // Allow spaces: < >
+                ])
+                .to_matchable()
+            })
+            .to_matchable()
+            .into(),
+        ),
+    ]);
+
+    // T-SQL specific operators that should also allow gaps
+    dialect.add([
+        (
+            "TsqlNotGreaterThanSegment".into(),
+            NodeMatcher::new(SyntaxKind::ComparisonOperator, |_| {
+                Sequence::new(vec_of_erased![
+                    Ref::new("RawNotSegment"),
+                    Ref::new("RawGreaterThanSegment"),
+                ])
+                .allow_gaps(true) // Allow spaces: ! >
+                .to_matchable()
+            })
+            .to_matchable()
+            .into(),
+        ),
+        (
+            "TsqlNotLessThanSegment".into(),
+            NodeMatcher::new(SyntaxKind::ComparisonOperator, |_| {
+                Sequence::new(vec_of_erased![
+                    Ref::new("RawNotSegment"),
+                    Ref::new("RawLessThanSegment"),
+                ])
+                .allow_gaps(true) // Allow spaces: ! <
+                .to_matchable()
+            })
+            .to_matchable()
+            .into(),
+        ),
+    ]);
+
+    // Update ComparisonOperatorGrammar to include T-SQL specific operators
+    dialect.add([(
+        "ComparisonOperatorGrammar".into(),
+        one_of(vec_of_erased![
+            Ref::new("EqualsSegment"),
+            Ref::new("GreaterThanSegment"),
+            Ref::new("LessThanSegment"),
+            Ref::new("GreaterThanOrEqualToSegment"),
+            Ref::new("LessThanOrEqualToSegment"),
+            Ref::new("NotEqualToSegment"),
+            Ref::new("LikeOperatorSegment"),
+            // ANSI sequences for IS DISTINCT FROM
+            Sequence::new(vec_of_erased![
+                Ref::keyword("IS"),
+                Ref::keyword("DISTINCT"),
+                Ref::keyword("FROM")
+            ]),
+            Sequence::new(vec_of_erased![
+                Ref::keyword("IS"),
+                Ref::keyword("NOT"),
+                Ref::keyword("DISTINCT"),
+                Ref::keyword("FROM")
+            ]),
+            // T-SQL specific operators
+            Ref::new("TsqlNotGreaterThanSegment"),
+            Ref::new("TsqlNotLessThanSegment"),
+        ])
+        .to_matchable()
+        .into(),
+    )]);
+
     // expand() must be called after all grammar modifications
 
     dialect

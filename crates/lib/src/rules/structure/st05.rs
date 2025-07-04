@@ -208,15 +208,15 @@ join c using(x)
         }
 
         let _segment = Segments::new(new_root.clone(), None);
-        
+
         // Special handling for T-SQL CREATE TABLE AS WITH case
         // In this case, we want to pass the entire WITH statement so we can append to it
-        let is_create_table_as_with = is_with && 
+        let is_create_table_as_with = is_with &&
             // Check if the root contains CREATE TABLE
             new_root.raw().to_lowercase().contains("create table") &&
             // Check if there are existing CTEs that we need to append to
             !ctes.ctes.is_empty();
-            
+
         let output_select = if is_with && !is_create_table_as_with {
             _segment.children(Some(|it: &ErasedSegment| {
                 matches!(
@@ -484,7 +484,6 @@ impl CTEBuilder {
         cte_segments
     }
 
-
     fn compose_select(
         &self,
         tables: &Tables,
@@ -494,7 +493,12 @@ impl CTEBuilder {
     ) -> ErasedSegment {
         // Check if this is already a WITH statement - if so, append to it instead of wrapping
         if output_select_clone.is_type(SyntaxKind::WithCompoundStatement) {
-            return self.compose_select_append_to_existing(tables, dialect, output_select_clone, case_preference);
+            return self.compose_select_append_to_existing(
+                tables,
+                dialect,
+                output_select_clone,
+                case_preference,
+            );
         }
 
         let mut segments = vec![
@@ -539,12 +543,15 @@ impl CTEBuilder {
                     SyntaxKind::Identifier,
                     SyntaxKind::NakedIdentifier,
                     SyntaxKind::QuotedIdentifier,
-                ])).map(|id| id.raw().to_lowercase())
+                ]))
+                .map(|id| id.raw().to_lowercase())
             })
             .collect();
 
         // Filter out CTEs that already exist
-        let new_ctes: Vec<_> = self.ctes.iter()
+        let new_ctes: Vec<_> = self
+            .ctes
+            .iter()
             .filter(|cte| {
                 let cte_name = cte
                     .child(&SyntaxSet::new(&[
@@ -568,20 +575,26 @@ impl CTEBuilder {
 
         for seg in with_segments.iter() {
             // Look for the point where we transition from CTEs to the main SELECT/SET statement
-            if (seg.is_type(SyntaxKind::SelectStatement) || seg.is_type(SyntaxKind::SetExpression)) 
-                && !added_new_ctes {
-                
+            if (seg.is_type(SyntaxKind::SelectStatement) || seg.is_type(SyntaxKind::SetExpression))
+                && !added_new_ctes
+            {
                 // Remove any trailing newlines before adding our CTEs
-                while new_segments.last().map_or(false, |s: &ErasedSegment| s.is_type(SyntaxKind::Newline)) {
+                while new_segments
+                    .last()
+                    .is_some_and(|s: &ErasedSegment| s.is_type(SyntaxKind::Newline))
+                {
                     new_segments.pop();
                 }
-                
+
                 // Add comma and newline before our new CTEs (since there are existing CTEs)
-                if new_segments.iter().any(|s| s.is_type(SyntaxKind::CommonTableExpression)) {
+                if new_segments
+                    .iter()
+                    .any(|s| s.is_type(SyntaxKind::CommonTableExpression))
+                {
                     new_segments.push(SegmentBuilder::comma(tables.next_id()));
                     new_segments.push(SegmentBuilder::newline(tables.next_id(), "\n"));
                 }
-                
+
                 // Add only the new CTEs (not the duplicates)
                 let mut new_cte_iter = new_ctes.iter().peekable();
                 while let Some(cte) = new_cte_iter.next() {
@@ -594,10 +607,10 @@ impl CTEBuilder {
                     }
                 }
                 new_segments.push(SegmentBuilder::newline(tables.next_id(), "\n"));
-                
+
                 added_new_ctes = true;
             }
-            
+
             new_segments.push(seg.clone());
         }
 

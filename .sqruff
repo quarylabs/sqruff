@@ -1,0 +1,6 @@
+[sqruff]
+dialect = tsql
+rules = ST05
+
+[sqruff:rules:structure.subquery]
+forbid_subquery_in = both

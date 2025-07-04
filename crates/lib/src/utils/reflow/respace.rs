@@ -316,6 +316,32 @@ pub fn handle_respace_inline_with_space(
     mut segment_buffer: Vec<ErasedSegment>,
     last_whitespace: ErasedSegment,
 ) -> (Vec<ErasedSegment>, Vec<LintResult>) {
+    // Check if we have split comparison operators that should be joined
+    if let (Some(prev), Some(next)) = (prev_block, next_block) {
+        if should_join_comparison_operators(prev.segment(), next.segment()) {
+            // Remove whitespace between split comparison operators
+            let ws_idx = segment_buffer
+                .iter()
+                .position(|it| it == &last_whitespace)
+                .unwrap();
+            segment_buffer.remove(ws_idx);
+
+            let description = format!(
+                "Unexpected whitespace between '{}' and '{}' in comparison operator.",
+                prev.segment().raw(),
+                next.segment().raw()
+            );
+
+            let lint_result = LintResult::new(
+                last_whitespace.clone().into(),
+                vec![LintFix::delete(last_whitespace)],
+                Some(description),
+                None,
+            );
+
+            return (segment_buffer, vec![lint_result]);
+        }
+    }
     // Get some indices so that we can reference around them
     let ws_idx = segment_buffer
         .iter()
@@ -443,6 +469,13 @@ pub fn handle_respace_inline_without_space(
     mut existing_results: Vec<LintResult>,
     anchor_on: &str,
 ) -> (Vec<ErasedSegment>, Vec<LintResult>, bool) {
+    // Check if we have split comparison operators that should be joined
+    if let (Some(prev), Some(next)) = (prev_block, next_block) {
+        if should_join_comparison_operators(prev.segment(), next.segment()) {
+            // Don't add whitespace between split comparison operators
+            return (segment_buffer, existing_results, false);
+        }
+    }
     let constraints = [Spacing::Touch, Spacing::Any];
 
     if constraints.contains(&pre_constraint) || constraints.contains(&post_constraint) {
@@ -551,6 +584,26 @@ pub fn handle_respace_inline_without_space(
 
     existing_results.push(new_result);
     (segment_buffer, existing_results, false)
+}
+
+/// Check if two segments form a split comparison operator that should be joined
+fn should_join_comparison_operators(prev_seg: &ErasedSegment, next_seg: &ErasedSegment) -> bool {
+    // Both segments must be raw comparison operators
+    if !prev_seg.is_type(SyntaxKind::RawComparisonOperator)
+        || !next_seg.is_type(SyntaxKind::RawComparisonOperator)
+    {
+        return false;
+    }
+
+    // Get the raw values
+    let prev_raw = prev_seg.raw();
+    let next_raw = next_seg.raw();
+
+    // Check for valid compound operator patterns
+    matches!(
+        (prev_raw.as_str(), next_raw.as_str()),
+        (">" | "<" | "!", "=") | ("<", ">") | ("!", ">" | "<")
+    )
 }
 
 #[cfg(test)]

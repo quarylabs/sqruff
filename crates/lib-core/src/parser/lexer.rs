@@ -625,7 +625,7 @@ fn iter_segments(
 
     // Now work out source slices, and add in template placeholders.
     for element in lexed_elements {
-        let consumed_element_length = 0;
+        let mut consumed_element_length = 0;
         let mut stashed_source_idx = None;
 
         for (idx, tfs) in templated_file_slices
@@ -663,8 +663,19 @@ fn iter_segments(
                             .unwrap_or_else(|_| panic!("Cannot convert {sum} to usize"))
                     });
 
-                    let source_slice_end =
-                        (element.template_slice.end as isize + tfs_offset) as usize;
+                    let source_slice_end_calc = element.template_slice.end as isize + tfs_offset;
+                    if source_slice_end_calc < 0 {
+                        panic!(
+                            "Source slice end is negative: {} (element.template_slice.end={}, tfs_offset={})",
+                            source_slice_end_calc, element.template_slice.end, tfs_offset
+                        );
+                    }
+                    let source_slice_end = source_slice_end_calc as usize;
+                    let subslice = if consumed_element_length < element.raw.len() {
+                        Some(consumed_element_length..element.raw.len())
+                    } else {
+                        None
+                    };
                     result.push(element.to_segment(
                         PositionMarker::new(
                             slice_start..source_slice_end,
@@ -673,7 +684,7 @@ fn iter_segments(
                             None,
                             None,
                         ),
-                        Some(consumed_element_length..element.raw.len()),
+                        subslice,
                     ));
 
                     // If it was an exact match, consume the templated element too.
@@ -697,6 +708,12 @@ fn iter_segments(
 
                     // This almost certainly means there's a templated element
                     // in the middle of a whole lexed element.
+
+                    // Check if the element actually overlaps with this tfs
+                    if element.template_slice.start >= tfs.templated_slice.end {
+                        // Element starts after this tfs ends, skip to next tfs
+                        continue;
+                    }
 
                     // What we do here depends on whether we're allowed to split
                     // lexed elements. This is basically only true if it's whitespace.
@@ -734,6 +751,14 @@ fn iter_segments(
                             ),
                             offset_slice(consumed_element_length, incremental_length).into(),
                         ));
+
+                        // Update how much of the element we've consumed
+                        consumed_element_length += incremental_length;
+
+                        // Note: We can't increment tfs_idx here due to borrowing rules
+                        // The whitespace handling continues with the current tfs_idx
+                        // Continue to process the next tfs with the updated consumed_element_length
+                        continue;
                     } else {
                         // We can't split it. We're going to end up yielding a segment
                         // which spans multiple slices. Stash the type, and if we haven't
@@ -772,6 +797,11 @@ fn iter_segments(
                             tfs.source_slice.start + consumed_element_length
                         };
 
+                        let subslice = if consumed_element_length < element.raw.len() {
+                            Some(consumed_element_length..element.raw.len())
+                        } else {
+                            None
+                        };
                         result.push(element.to_segment(
                             PositionMarker::new(
                                 slice_start..tfs.source_slice.end,
@@ -780,7 +810,7 @@ fn iter_segments(
                                 None,
                                 None,
                             ),
-                            Some(consumed_element_length..element.raw.len()),
+                            subslice,
                         ));
 
                         // If it was an exact match, consume the templated element too.

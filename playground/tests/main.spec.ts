@@ -15,3 +15,39 @@ test("home page opens", async ({ page }) => {
     "SELECT name FROM users",
   );
 });
+
+test("state is saved when sql changes", async ({ page }) => {
+  await page.goto("http://localhost:5173");
+
+  await expect(page.getByRole("link", { name: "quary Quary" })).toBeVisible();
+
+  await page.getByLabel("Format").click();
+
+  await page
+    .locator("#main")
+    .getByRole("code")
+    .locator("div")
+    .filter({ hasText: "SELECT name from USERS" })
+    .nth(3)
+    .click();
+
+  await page.keyboard.press("Control+A")
+  await page.keyboard.press("Backspace");
+  await page.keyboard.type("SELECT name FROM users_test");
+
+  await expect(page.locator("#secondary-panel")).toContainText(
+    "SELECT name FROM users_test",
+  );
+
+  const url = new URL(page.url());
+
+  expect(url.hash.length).toBeGreaterThan(10);
+});
+
+test("state is loaded", async ({ page }) => {
+  await page.goto("http://localhost:5173/?secondary=Format#eNodijsKgDAMhq8SMru4Cp7EOpSaSqFE2j+dxLsbOn6Pl9EqbwypkoxWiiATGC+uzIre8Hqg9ZHzGfQqcY47RUUJ2kcVOKWnS1D+flhxHAs=");
+
+  await expect(page.locator("#secondary-panel")).toContainText(
+    "select 1 as test",
+  );
+});

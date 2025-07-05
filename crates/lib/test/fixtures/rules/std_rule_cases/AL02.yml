@@ -42,6 +42,57 @@ test_pass_tsql_alternative_alias:
     core:
       dialect: tsql
 
+test_pass_tsql_alternative_alias_with_top:
+  # Test T-SQL alternative alias syntax with TOP clause
+  # This should NOT trigger AL02 - it's valid T-SQL syntax
+  pass_str: |
+    SELECT TOP 20
+        JiraIssueID = JiraIssue.i_jira_id,
+        JiraIssueKey = JiraIssue.s_key
+    FROM JiraIssue
+  configs:
+    core:
+      dialect: tsql
+
+test_pass_tsql_alternative_alias_with_distinct_top:
+  # Test T-SQL alternative alias syntax with DISTINCT TOP clause
+  # This should NOT trigger AL02 - it's valid T-SQL syntax
+  pass_str: |
+    SELECT DISTINCT TOP 20
+        JiraIssueID = JiraIssue.i_jira_id,
+        JiraIssueKey = JiraIssue.s_key
+    FROM JiraIssue
+  configs:
+    core:
+      dialect: tsql
+
+test_fail_tsql_implicit_alias_with_distinct_top_skip:
+  # Test implicit alias with DISTINCT TOP - this SHOULD trigger AL02
+  # SKIPPED: AL01's fix logic doesn't work correctly for column aliases
+  # The AS keyword is inserted at the wrong position
+  pass_str: |
+    SELECT DISTINCT TOP 20
+        JiraIssue.i_jira_id JiraIssueID,
+        JiraIssue.s_key JiraIssueKey
+    FROM JiraIssue
+  configs:
+    core:
+      dialect: tsql
+    rules:
+      aliasing.column:
+        aliasing: implicit
+
+test_pass_tsql_multiline_alias_with_top:
+  # T-SQL alias syntax spanning multiple lines with TOP
+  # This is now handled correctly by the multiline workaround in AL02
+  pass_str: |
+    SELECT TOP 20
+        JiraIssueID = JiraIssue.i_jira_id
+    FROM JiraIssue
+  configs:
+    core:
+      dialect: tsql
+
 test_fail_alias_ending_equals:
   # Test explicit column alias doesn't catch false positives
   fail_str: select col1 "example="

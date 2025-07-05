@@ -829,24 +829,35 @@ pub fn raw_dialect() -> Dialect {
         .into(),
     )]);
 
+    // Add EqualsSegment for T-SQL alias syntax
+    dialect.add([(
+        "EqualsSegment".into(),
+        StringParser::new("=", SyntaxKind::RawComparisonOperator)
+            .to_matchable()
+            .into(),
+    )]);
+
     // T-SQL supports alternative alias syntax: AliasName = Expression
-    // The parser distinguishes between column references (table1.column1)
-    // and alias assignments (AliasName = table1.column1)
     dialect.replace_grammar(
         "SelectClauseElementSegment",
         one_of(vec_of_erased![
             // T-SQL alias equals pattern: AliasName = Expression
             Sequence::new(vec_of_erased![
-                Ref::new("NakedIdentifierSegment"),
-                StringParser::new("=", SyntaxKind::RawComparisonOperator),
                 one_of(vec_of_erased![
+                    Ref::new("NakedIdentifierSegment"),
+                    Ref::new("QuotedIdentifierSegment")
+                ]),
+                Ref::new("EqualsSegment"),
+                one_of(vec_of_erased![
+                    Ref::new("LiteralGrammar"),
                     Ref::new("ColumnReferenceSegment"),
-                    Ref::new("BaseExpressionElementGrammar")
+                    Ref::new("ExpressionSegment")
                 ])
-            ]),
+            ])
+            .config(|this| this.parse_mode = ParseMode::GreedyOnceStarted),
             // Wildcard expressions
             Ref::new("WildcardExpressionSegment"),
-            // Everything else
+            // Everything else (standard column with optional alias)
             Sequence::new(vec_of_erased![
                 Ref::new("BaseExpressionElementGrammar"),
                 Ref::new("AliasExpressionSegment").optional(),
@@ -854,6 +865,7 @@ pub fn raw_dialect() -> Dialect {
         ])
         .to_matchable(),
     );
+
 
     // T-SQL uses + for both arithmetic and string concatenation
     dialect.add([(

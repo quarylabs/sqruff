@@ -102,6 +102,34 @@ pub fn dialect() -> Dialect {
         .to_matchable(),
     );
 
+    clickhouse_dialect.replace_grammar(
+        "OrderByClauseSegment",
+        Sequence::new(vec_of_erased![
+            Ref::keyword("ORDER"),
+            Ref::keyword("BY"),
+            MetaSegment::indent(),
+            Delimited::new(vec_of_erased![Sequence::new(vec_of_erased![
+                one_of(vec_of_erased![
+                    Ref::new("ColumnReferenceSegment"),
+                    Ref::new("NumericLiteralSegment"),
+                    Ref::new("ExpressionSegment"),
+                ]),
+                one_of(vec_of_erased![Ref::keyword("ASC"), Ref::keyword("DESC"),])
+                    .config(|this| this.optional()),
+                Sequence::new(vec_of_erased![
+                    Ref::keyword("NULLS"),
+                    one_of(vec_of_erased![Ref::keyword("FIRST"), Ref::keyword("LAST"),]),
+                ])
+                .config(|this| this.optional()),
+                Ref::new("WithFillSegment").optional(),
+            ])])
+            .config(|this| this.terminators =
+                vec_of_erased![Ref::keyword("LIMIT"), Ref::new("FrameClauseUnitGrammar")]),
+            MetaSegment::dedent(),
+        ])
+        .to_matchable(),
+    );
+
     clickhouse_dialect.add([
         (
             "BackQuotedIdentifierSegment".into(),
@@ -280,6 +308,34 @@ pub fn dialect() -> Dialect {
             .into(),
         ),
     ]);
+
+    clickhouse_dialect.add([(
+        "WithFillSegment".into(),
+        Sequence::new(vec_of_erased![
+            Ref::keyword("WITH"),
+            Ref::keyword("FILL"),
+            Sequence::new(vec_of_erased![
+                Ref::keyword("FROM"),
+                Ref::new("ExpressionSegment"),
+            ])
+            .config(|this| this.optional()),
+            Sequence::new(vec_of_erased![
+                Ref::keyword("TO"),
+                Ref::new("ExpressionSegment"),
+            ])
+            .config(|this| this.optional()),
+            Sequence::new(vec_of_erased![
+                Ref::keyword("STEP"),
+                one_of(vec_of_erased![
+                    Ref::new("NumericLiteralSegment"),
+                    Ref::new("IntervalExpressionSegment"),
+                ])
+            ])
+            .config(|this| this.optional()),
+        ])
+        .to_matchable()
+        .into(),
+    )]);
 
     clickhouse_dialect.replace_grammar(
         "BracketedArguments",

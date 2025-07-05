@@ -82,6 +82,22 @@ test_fail_tsql_implicit_alias_with_distinct_top:
     core:
       dialect: tsql
 
+test_known_limitation_tsql_multiline_alias_with_top:
+  # Known limitation: T-SQL alias syntax spanning multiple lines with TOP
+  # The parser treats the identifier as a column with implicit aliasing
+  # before it sees the "=" on the same line
+  fail_str: |
+    SELECT TOP 20
+        JiraIssueID = JiraIssue.i_jira_id
+    FROM JiraIssue
+  fix_str: |
+    SELECT TOP 20
+        JiraIssue.i_jira_id AS JiraIssueID
+    FROM JiraIssue
+  configs:
+    core:
+      dialect: tsql
+
 test_fail_alias_ending_equals:
   # Test explicit column alias doesn't catch false positives
   fail_str: select col1 "example="

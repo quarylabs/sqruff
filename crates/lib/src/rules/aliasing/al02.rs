@@ -103,6 +103,38 @@ FROM foo
                         }
                     }
                 }
+                
+                // Additional check for T-SQL: If this is an implicit alias (no AS keyword),
+                // check if the aliased identifier is followed by "=" in the SelectClauseElement
+                // 
+                // Known limitation: This doesn't work when the T-SQL alias syntax spans multiple lines
+                // with TOP, e.g.:
+                //   SELECT TOP 20
+                //       JiraIssueID = expression
+                // 
+                // In this case, the parser has already committed to parsing JiraIssueID as a column
+                // reference with implicit aliasing before it sees the "=" on the same line.
+                if context.segment.segments().iter().all(|s| s.raw() != "AS" && s.raw() != "as") {
+                    // Find the identifier being used as alias
+                    if let Some(identifier) = context.segment.segments().iter().find(|s| {
+                        matches!(s.get_type(), SyntaxKind::NakedIdentifier | SyntaxKind::QuotedIdentifier)
+                    }) {
+                        // Check if this identifier is followed by "=" in the parent
+                        if let Some(id_pos) = parent_segments.iter().position(|s| s.raw() == identifier.raw()) {
+                            // Look for "=" after this identifier
+                            for i in (id_pos + 1)..parent_segments.len() {
+                                let seg = &parent_segments[i];
+                                if !seg.is_whitespace() && !seg.is_meta() {
+                                    if seg.raw() == "=" {
+                                        // This is T-SQL "identifier = expression" syntax
+                                        return Vec::new();
+                                    }
+                                    break;
+                                }
+                            }
+                        }
+                    }
+                }
             }
         }
         

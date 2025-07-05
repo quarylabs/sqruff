@@ -84,6 +84,54 @@ FROM foo
     }
 
     fn eval(&self, context: &RuleContext) -> Vec<LintResult> {
+        // For T-SQL, check if this AliasExpression is part of "alias = expression" syntax
+        if let Some(parent) = context.parent_stack.last() {
+            if parent.get_type() == SyntaxKind::SelectClauseElement {
+                let parent_segments = parent.segments();
+                
+                // Special handling for T-SQL: Check if the parent contains TOP
+                // This is a workaround for the parser bug where "TOP 20" is included in SelectClauseElement
+                if parent_segments.iter().any(|seg| {
+                    seg.get_type() == SyntaxKind::Expression && seg.raw().trim().starts_with("TOP")
+                }) {
+                    // When TOP is present, the parser creates unparsable sections for T-SQL alias syntax
+                    // Check the grandparent (SelectClause) for unparsable sections containing "="
+                    if context.parent_stack.len() >= 2 {
+                        if let Some(grandparent) = context.parent_stack.get(context.parent_stack.len() - 2) {
+                            if grandparent.get_type() == SyntaxKind::SelectClause {
+                                let gp_segments = grandparent.segments();
+                                // Look for unparsable segments containing "="
+                                for seg in gp_segments {
+                                    if seg.get_type() == SyntaxKind::Unparsable && seg.raw().contains("=") {
+                                        // This is T-SQL syntax that the parser couldn't handle
+                                        // The presence of "=" in an unparsable segment after our identifier
+                                        // indicates T-SQL alias syntax, not implicit aliasing
+                                        return Vec::new();
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+                
+                // Original check: Find this AliasExpression and check for following "="
+                if let Some(pos) = parent_segments.iter().position(|s| s == &context.segment) {
+                    // Check if the next non-whitespace segment is "="
+                    for i in (pos + 1)..parent_segments.len() {
+                        let seg = &parent_segments[i];
+                        if !seg.is_whitespace() && !seg.is_meta() {
+                            if seg.raw() == "=" {
+                                // This is T-SQL "alias = expression" syntax, not implicit aliasing
+                                return Vec::new();
+                            }
+                            break;
+                        }
+                    }
+                }
+            }
+        }
+        
+        // Original check for other cases
         if FunctionalContext::new(context)
             .segment()
             .children(None)

@@ -27,8 +27,7 @@ file:
       - set_clause:
         - column_reference:
           - naked_identifier: status
-        - comparison_operator:
-          - raw_comparison_operator: =
+        - raw_comparison_operator: =
         - quoted_literal: '''Active'''
   - statement_terminator: ;
   - keyword: END

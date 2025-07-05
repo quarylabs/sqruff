@@ -285,8 +285,7 @@ file:
       - expression:
         - column_reference:
           - naked_identifier: CategoryID
-        - comparison_operator:
-          - raw_comparison_operator: =
+        - raw_comparison_operator: =
         - numeric_literal: '1'
 - statement_terminator: ;
 - statement:

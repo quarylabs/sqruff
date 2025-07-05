@@ -1,4 +1,5 @@
 import { test, expect } from "@playwright/test";
+import { formatEditorContains, updateEditorText } from "./helpers";
 
 test("home page opens", async ({ page }) => {
   // Navigate to the home page
@@ -11,33 +12,18 @@ test("home page opens", async ({ page }) => {
   // Click on format and check if the format page opens and shows sql
   await page.getByLabel("Format").click();
   await expect(page.locator("#main")).toContainText("SELECT name from USERS");
-  await expect(page.locator("#secondary-panel")).toContainText(
-    "SELECT name FROM users",
-  );
+
+  await formatEditorContains(page, "SELECT name FROM users");
 });
 
 test("state is saved when sql changes", async ({ page }) => {
   await page.goto("/");
 
-  await expect(page.getByRole("link", { name: "quary Quary" })).toBeVisible();
-
   await page.getByLabel("Format").click();
 
-  await page
-    .locator("#main")
-    .getByRole("code")
-    .locator("div")
-    .filter({ hasText: "SELECT name from USERS" })
-    .nth(3)
-    .click();
+  await updateEditorText(page, "SELECT name FROM users_test");
 
-  await page.keyboard.press("Control+A")
-  await page.keyboard.press("Backspace");
-  await page.keyboard.type("SELECT name FROM users_test");
-
-  await expect(page.locator("#secondary-panel")).toContainText(
-    "SELECT name FROM users_test",
-  );
+  await formatEditorContains(page, "SELECT name FROM users_test");
 
   const url = new URL(page.url());
 
@@ -45,9 +31,9 @@ test("state is saved when sql changes", async ({ page }) => {
 });
 
 test("state is loaded", async ({ page }) => {
-  await page.goto("/?secondary=Format#eNodijsKgDAMhq8SMru4Cp7EOpSaSqFE2j+dxLsbOn6Pl9EqbwypkoxWiiATGC+uzIre8Hqg9ZHzGfQqcY47RUUJ2kcVOKWnS1D+flhxHAs=");
-
-  await expect(page.locator("#secondary-panel")).toContainText(
-    "select 1 as test",
+  await page.goto(
+    "/?secondary=Format#eNodijsKgDAMhq8SMru4Cp7EOpSaSqFE2j+dxLsbOn6Pl9EqbwypkoxWiiATGC+uzIre8Hqg9ZHzGfQqcY47RUUJ2kcVOKWnS1D+flhxHAs=",
   );
+
+  await formatEditorContains(page, "select 1 as test");
 });

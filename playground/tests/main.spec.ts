@@ -2,7 +2,7 @@ import { test, expect } from "@playwright/test";
 
 test("home page opens", async ({ page }) => {
   // Navigate to the home page
-  await page.goto("http://localhost:5173");
+  await page.goto("/");
 
   // Check if the main heading or any expected element is visible
   // For a React app created by Vite + React template, the initial content often includes <h1>Vite + React</h1>
@@ -17,7 +17,7 @@ test("home page opens", async ({ page }) => {
 });
 
 test("state is saved when sql changes", async ({ page }) => {
-  await page.goto("http://localhost:5173");
+  await page.goto("/");
 
   await expect(page.getByRole("link", { name: "quary Quary" })).toBeVisible();
 
@@ -45,7 +45,7 @@ test("state is saved when sql changes", async ({ page }) => {
 });
 
 test("state is loaded", async ({ page }) => {
-  await page.goto("http://localhost:5173/?secondary=Format#eNodijsKgDAMhq8SMru4Cp7EOpSaSqFE2j+dxLsbOn6Pl9EqbwypkoxWiiATGC+uzIre8Hqg9ZHzGfQqcY47RUUJ2kcVOKWnS1D+flhxHAs=");
+  await page.goto("/?secondary=Format#eNodijsKgDAMhq8SMru4Cp7EOpSaSqFE2j+dxLsbOn6Pl9EqbwypkoxWiiATGC+uzIre8Hqg9ZHzGfQqcY47RUUJ2kcVOKWnS1D+flhxHAs=");
 
   await expect(page.locator("#secondary-panel")).toContainText(
     "select 1 as test",

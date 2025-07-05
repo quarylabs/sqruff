@@ -866,8 +866,9 @@ pub fn raw_dialect() -> Dialect {
         .into(),
     )]);
 
-    // T-SQL allows spaces within comparison operators (e.g., "> =" parses as ">=")
-    // This enables the LT01 rule to fix split operators to their standard form
+    // Parse split comparison operators (e.g., "> =") to enable fixing by LT01 rule
+    // NOTE: T-SQL does NOT accept split operators as valid syntax, but the linter
+    // needs to parse them to fix common typing errors (matching SQLFluff behavior)
     // Override ANSI definitions to allow gaps between operator characters
     dialect.add([
         (

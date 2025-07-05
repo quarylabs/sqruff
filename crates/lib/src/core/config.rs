@@ -2,7 +2,7 @@ use std::ops::Index;
 use std::path::{Path, PathBuf};
 use std::str::FromStr;
 
-use ahash::AHashMap;
+use rustc_hash::FxHashMap;
 use configparser::ini::Ini;
 use itertools::Itertools;
 use sqruff_lib_core::dialects::Dialect;
@@ -31,9 +31,9 @@ pub fn split_comma_separated_string(raw_str: &str) -> Value {
 #[derive(Debug, PartialEq, Clone)]
 pub struct FluffConfig {
     pub(crate) indentation: FluffConfigIndentation,
-    pub raw: AHashMap<String, Value>,
+    pub raw: FxHashMap<String, Value>,
     extra_config_path: Option<String>,
-    _configs: AHashMap<String, AHashMap<String, String>>,
+    _configs: FxHashMap<String, FxHashMap<String, String>>,
     pub(crate) dialect: Dialect,
     sql_file_exts: Vec<String>,
     reflow: ReflowConfig,
@@ -68,20 +68,20 @@ impl FluffConfig {
         FluffConfig::new(configs, None, None)
     }
 
-    pub fn get_section(&self, section: &str) -> &AHashMap<String, Value> {
+    pub fn get_section(&self, section: &str) -> &FxHashMap<String, Value> {
         self.raw[section].as_map().unwrap()
     }
 
     // TODO This is not a translation that is particularly accurate.
     pub fn new(
-        configs: AHashMap<String, Value>,
+        configs: FxHashMap<String, Value>,
         extra_config_path: Option<String>,
         indentation: Option<FluffConfigIndentation>,
     ) -> Self {
         fn nested_combine(
-            mut a: AHashMap<String, Value>,
-            b: AHashMap<String, Value>,
-        ) -> AHashMap<String, Value> {
+            mut a: FxHashMap<String, Value>,
+            b: FxHashMap<String, Value>,
+        ) -> FxHashMap<String, Value> {
             for (key, value_b) in b {
                 match (a.get(&key), value_b) {
                     (Some(Value::Map(map_a)), Value::Map(map_b)) => {
@@ -101,7 +101,7 @@ impl FluffConfig {
             include_str!("./default_config.cfg").into(),
         );
 
-        let mut defaults = AHashMap::new();
+        let mut defaults = FxHashMap::default();
         ConfigLoader::incorporate_vals(&mut defaults, values);
 
         let mut configs = nested_combine(defaults, configs);
@@ -152,7 +152,7 @@ impl FluffConfig {
             dialect: dialect
                 .expect("Dialect is disabled. Please enable the corresponding feature."),
             extra_config_path,
-            _configs: AHashMap::new(),
+            _configs: FxHashMap::default(),
             indentation: indentation.unwrap_or_default(),
             sql_file_exts,
             reflow: ReflowConfig::default(),
@@ -171,7 +171,7 @@ impl FluffConfig {
     pub fn from_root(
         extra_config_path: Option<String>,
         ignore_local_config: bool,
-        overrides: Option<AHashMap<String, String>>,
+        overrides: Option<FxHashMap<String, String>>,
     ) -> Result<FluffConfig, SQLFluffUserError> {
         let loader = ConfigLoader {};
         let mut config =
@@ -181,7 +181,7 @@ impl FluffConfig {
             if let Some(dialect) = overrides.get("dialect") {
                 let core = config
                     .entry("core".into())
-                    .or_insert_with(|| Value::Map(AHashMap::new()));
+                    .or_insert_with(|| Value::Map(FxHashMap::default()));
 
                 core.as_map_mut()
                     .unwrap()
@@ -332,7 +332,7 @@ impl ConfigLoader {
         path: impl AsRef<Path>,
         extra_config_path: Option<String>,
         ignore_local_config: bool,
-    ) -> AHashMap<String, Value> {
+    ) -> FxHashMap<String, Value> {
         let path = path.as_ref();
 
         let config_stack = if ignore_local_config {
@@ -349,7 +349,7 @@ impl ConfigLoader {
         nested_combine(config_stack)
     }
 
-    pub fn load_config_at_path(&self, path: impl AsRef<Path>) -> AHashMap<String, Value> {
+    pub fn load_config_at_path(&self, path: impl AsRef<Path>) -> FxHashMap<String, Value> {
         let path = path.as_ref();
 
         let filename_options = [
@@ -358,7 +358,7 @@ impl ConfigLoader {
             ".sqruff", /* "pyproject.toml" */
         ];
 
-        let mut configs = AHashMap::new();
+        let mut configs = FxHashMap::default();
 
         if path.is_dir() {
             for fname in filename_options {
@@ -374,14 +374,14 @@ impl ConfigLoader {
         configs
     }
 
-    pub fn from_source(source: &str, path: Option<&Path>) -> AHashMap<String, Value> {
-        let mut configs = AHashMap::new();
+    pub fn from_source(source: &str, path: Option<&Path>) -> FxHashMap<String, Value> {
+        let mut configs = FxHashMap::default();
         let elems = ConfigLoader::get_config_elems_from_file(path, Some(source));
         ConfigLoader::incorporate_vals(&mut configs, elems);
         configs
     }
 
-    pub fn load_config_file(path: impl AsRef<Path>, configs: &mut AHashMap<String, Value>) {
+    pub fn load_config_file(path: impl AsRef<Path>, configs: &mut FxHashMap<String, Value>) {
         let elems = ConfigLoader::get_config_elems_from_file(path.as_ref().into(), None);
         ConfigLoader::incorporate_vals(configs, elems);
     }
@@ -450,13 +450,13 @@ impl ConfigLoader {
         buff
     }
 
-    fn incorporate_vals(ctx: &mut AHashMap<String, Value>, values: Vec<(Vec<String>, Value)>) {
+    fn incorporate_vals(ctx: &mut FxHashMap<String, Value>, values: Vec<(Vec<String>, Value)>) {
         for (path, value) in values {
             let mut current_map = &mut *ctx;
             for key in path.iter().take(path.len() - 1) {
                 match current_map
                     .entry(key.to_string())
-                    .or_insert_with(|| Value::Map(AHashMap::new()))
+                    .or_insert_with(|| Value::Map(FxHashMap::default()))
                     .as_map_mut()
                 {
                     Some(slot) => current_map = slot,
@@ -477,7 +477,7 @@ pub enum Value {
     Bool(bool),
     Float(f64),
     String(Box<str>),
-    Map(AHashMap<String, Value>),
+    Map(FxHashMap<String, Value>),
     Array(Vec<Value>),
     #[default]
     None,
@@ -535,7 +535,7 @@ impl Value {
 
         Some(f(self))
     }
-    pub fn as_map(&self) -> Option<&AHashMap<String, Value>> {
+    pub fn as_map(&self) -> Option<&FxHashMap<String, Value>> {
         if let Self::Map(map) = self {
             Some(map)
         } else {
@@ -543,7 +543,7 @@ impl Value {
         }
     }
 
-    pub fn as_map_mut(&mut self) -> Option<&mut AHashMap<String, Value>> {
+    pub fn as_map_mut(&mut self) -> Option<&mut FxHashMap<String, Value>> {
         if let Self::Map(map) = self {
             Some(map)
         } else {
@@ -599,9 +599,9 @@ impl FromStr for Value {
     }
 }
 
-fn nested_combine(config_stack: Vec<AHashMap<String, Value>>) -> AHashMap<String, Value> {
+fn nested_combine(config_stack: Vec<FxHashMap<String, Value>>) -> FxHashMap<String, Value> {
     let capacity = config_stack.len();
-    let mut result = AHashMap::with_capacity(capacity);
+    let mut result = FxHashMap::with_capacity_and_hasher(capacity, Default::default());
 
     for dict in config_stack {
         for (key, value) in dict {
@@ -616,7 +616,7 @@ impl<'a> From<&'a FluffConfig> for Parser<'a> {
     fn from(config: &'a FluffConfig) -> Self {
         let dialect = config.get_dialect();
         let indentation_config = config.raw["indentation"].as_map().unwrap();
-        let indentation_config: AHashMap<_, _> = indentation_config
+        let indentation_config: FxHashMap<_, _> = indentation_config
             .iter()
             .map(|(key, value)| (key.clone(), value.to_bool()))
             .collect();

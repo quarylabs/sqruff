@@ -1,4 +1,3 @@
-use ahash::AHashMap;
 use rustc_hash::FxHashMap;
 use smol_str::SmolStr;
 
@@ -30,7 +29,7 @@ pub struct ParseContext<'a> {
     pub(crate) terminators: Vec<Matchable>,
     loc_keys: IndexSet<LocKeyData>,
     parse_cache: FxHashMap<CacheKey, MatchResult>,
-    pub(crate) indentation_config: &'a AHashMap<String, bool>,
+    pub(crate) indentation_config: &'a FxHashMap<String, bool>,
 }
 
 impl<'a> From<&'a Parser<'a>> for ParseContext<'a> {
@@ -42,7 +41,7 @@ impl<'a> From<&'a Parser<'a>> for ParseContext<'a> {
 }
 
 impl<'a> ParseContext<'a> {
-    pub fn new(dialect: &'a Dialect, indentation_config: &'a AHashMap<String, bool>) -> Self {
+    pub fn new(dialect: &'a Dialect, indentation_config: &'a FxHashMap<String, bool>) -> Self {
         Self {
             dialect,
             terminators: Vec::new(),

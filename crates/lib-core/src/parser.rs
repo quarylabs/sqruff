@@ -11,7 +11,7 @@ pub mod parsers;
 pub mod segments;
 pub mod types;
 
-use ahash::AHashMap;
+use rustc_hash::FxHashMap;
 
 use crate::dialects::Dialect;
 use crate::errors::SQLParseError;
@@ -22,20 +22,20 @@ use segments::{ErasedSegment, Tables};
 #[derive(Clone)]
 pub struct Parser<'a> {
     dialect: &'a Dialect,
-    pub(crate) indentation_config: AHashMap<String, bool>,
+    pub(crate) indentation_config: FxHashMap<String, bool>,
 }
 
 impl<'a> From<&'a Dialect> for Parser<'a> {
     fn from(value: &'a Dialect) -> Self {
         Self {
             dialect: value,
-            indentation_config: AHashMap::new(),
+            indentation_config: FxHashMap::default(),
         }
     }
 }
 
 impl<'a> Parser<'a> {
-    pub fn new(dialect: &'a Dialect, indentation_config: AHashMap<String, bool>) -> Self {
+    pub fn new(dialect: &'a Dialect, indentation_config: FxHashMap<String, bool>) -> Self {
         Self {
             dialect,
             indentation_config,
@@ -46,7 +46,7 @@ impl<'a> Parser<'a> {
         self.dialect
     }
 
-    pub fn indentation_config(&self) -> &AHashMap<String, bool> {
+    pub fn indentation_config(&self) -> &FxHashMap<String, bool> {
         &self.indentation_config
     }
 

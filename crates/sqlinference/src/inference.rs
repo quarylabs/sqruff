@@ -1,4 +1,6 @@
-use std::collections::{HashMap, HashSet};
+use std::collections::HashMap;
+
+use rustc_hash::FxHashSet;
 
 use sqruff_lib_core::parser::Parser;
 
@@ -18,7 +20,7 @@ pub enum TestRunnerAction {
 /// The sql_map is a map of the model to the sql code that is generated.
 pub fn figure_out_skippable_tests(
     parser: &Parser,
-    tests: &HashSet<Test>,
+    tests: &FxHashSet<Test>,
     sql_map: &HashMap<String, String>,
 ) -> HashMap<Test, TestRunnerAction> {
     let all_inferred_tests = sql_map
@@ -305,7 +307,7 @@ mod tests {
 
             let actual = figure_out_skippable_tests(
                 &parser,
-                &test.input_tests.into_iter().collect::<HashSet<_>>(),
+                &test.input_tests.into_iter().collect::<FxHashSet<_>>(),
                 &test.sql,
             );
 

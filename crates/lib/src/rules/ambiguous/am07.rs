@@ -1,4 +1,4 @@
-use ahash::{AHashMap, HashSet, HashSetExt};
+use rustc_hash::{FxHashMap, FxHashSet};
 use sqruff_lib_core::dialects::syntax::{SyntaxKind, SyntaxSet};
 use sqruff_lib_core::utils::analysis::query::{Query, Selectable, Source, WildcardInfo};
 
@@ -11,7 +11,7 @@ use crate::core::rules::{Erased, ErasedRule, LintResult, Rule, RuleGroups};
 pub struct RuleAM07;
 
 impl Rule for RuleAM07 {
-    fn load_from_config(&self, _config: &AHashMap<String, Value>) -> Result<ErasedRule, String> {
+    fn load_from_config(&self, _config: &FxHashMap<String, Value>) -> Result<ErasedRule, String> {
         Ok(RuleAM07.erased())
     }
 
@@ -117,8 +117,8 @@ impl RuleAM07 {
     /// can't guarantee that we can always resolve any wildcards (*), so
     /// we also return a flag to indicate whether any present have been
     /// fully resolved.
-    fn get_select_target_counts(&self, query: Query<()>) -> (HashSet<usize>, bool) {
-        let mut select_target_counts = HashSet::new();
+    fn get_select_target_counts(&self, query: Query<()>) -> (FxHashSet<usize>, bool) {
+        let mut select_target_counts = FxHashSet::default();
         let mut resolved_wildcard = true;
 
         let selectables = query.inner.borrow().selectables.clone();

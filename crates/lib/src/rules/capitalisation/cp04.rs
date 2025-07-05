@@ -1,4 +1,4 @@
-use ahash::AHashMap;
+use rustc_hash::FxHashMap;
 use regex::Regex;
 use sqruff_lib_core::dialects::syntax::{SyntaxKind, SyntaxSet};
 
@@ -27,7 +27,7 @@ impl Default for RuleCP04 {
 }
 
 impl Rule for RuleCP04 {
-    fn load_from_config(&self, config: &AHashMap<String, Value>) -> Result<ErasedRule, String> {
+    fn load_from_config(&self, config: &FxHashMap<String, Value>) -> Result<ErasedRule, String> {
         Ok(RuleCP04 {
             base: RuleCP01 {
                 capitalisation_policy: config["capitalisation_policy"].as_string().unwrap().into(),

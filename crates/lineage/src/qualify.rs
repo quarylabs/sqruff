@@ -1,6 +1,8 @@
 use std::cell::{OnceCell, RefCell};
 use std::collections::hash_map::Entry;
-use std::collections::{HashMap, HashSet};
+use std::collections::HashMap;
+
+use rustc_hash::FxHashSet;
 
 use indexmap::IndexMap;
 
@@ -206,11 +208,11 @@ impl<'scope, 'schema> Resolver<'scope, 'schema> {
                 .iter()
                 .map(|col| (col.clone(), first_table.clone()))
                 .collect();
-            let mut all_columns: HashSet<String> = first_columns.iter().cloned().collect();
+            let mut all_columns: FxHashSet<String> = first_columns.iter().cloned().collect();
 
             for (table, columns) in source_columns_iter {
-                let unique: HashSet<String> = columns.iter().cloned().collect();
-                let ambiguous: HashSet<String> =
+                let unique: FxHashSet<String> = columns.iter().cloned().collect();
+                let ambiguous: FxHashSet<String> =
                     all_columns.intersection(&unique).cloned().collect();
                 all_columns.extend(unique.iter().cloned());
 

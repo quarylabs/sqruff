@@ -24,10 +24,8 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "e89da841a80418a9b391ebaea17f5c112ffaaa96f621d2c285b5174da76b9011"
 dependencies = [
  "cfg-if",
- "const-random",
  "getrandom 0.2.16",
  "once_cell",
- "serde",
  "version_check",
  "zerocopy",
 ]
@@ -359,26 +357,6 @@ checksum = "a06aeb73f470f66dcdbf7223caeebb85984942f22f1adb2a088cf9668146bbbc"
 dependencies = [
  "cfg-if",
  "wasm-bindgen",
-]
-
-[[package]]
-name = "const-random"
-version = "0.1.18"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "87e00182fe74b066627d63b85fd550ac2998d4b0bd86bfed477a0ae4c7c71359"
-dependencies = [
- "const-random-macro",
-]
-
-[[package]]
-name = "const-random-macro"
-version = "0.1.16"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "f9d839f2a20b0aee515dc581a6172f2321f96cab76c1a38a4c584a194955390e"
-dependencies = [
- "getrandom 0.2.16",
- "once_cell",
- "tiny-keccak",
 ]
 
 [[package]]
@@ -922,6 +900,7 @@ dependencies = [
  "append-only-vec",
  "indexmap",
  "polonius-the-crab",
+ "rustc-hash",
  "sqruff-lib-core",
  "sqruff-lib-dialects",
 ]
@@ -1594,7 +1573,6 @@ dependencies = [
 name = "sqruff-lib"
 version = "0.28.0"
 dependencies = [
- "ahash",
  "anstyle",
  "common-path",
  "configparser",
@@ -1632,7 +1610,6 @@ dependencies = [
 name = "sqruff-lib-core"
 version = "0.28.0"
 dependencies = [
- "ahash",
  "enum_dispatch",
  "fancy-regex",
  "indexmap",
@@ -1654,11 +1631,11 @@ dependencies = [
 name = "sqruff-lib-dialects"
 version = "0.28.0"
 dependencies = [
- "ahash",
  "expect-test",
  "glob",
  "itertools 0.14.0",
  "rayon",
+ "rustc-hash",
  "serde_yaml",
  "sqruff-lib-core",
  "strum",
@@ -1668,11 +1645,11 @@ dependencies = [
 name = "sqruff-lsp"
 version = "0.28.0"
 dependencies = [
- "ahash",
  "console_error_panic_hook",
  "js-sys",
  "lsp-server",
  "lsp-types",
+ "rustc-hash",
  "serde-wasm-bindgen",
  "serde_json",
  "sqruff-lib",
@@ -1683,6 +1660,7 @@ dependencies = [
 name = "sqruff-sqlinference"
 version = "0.28.0"
 dependencies = [
+ "rustc-hash",
  "sqruff-lib-core",
  "sqruff-lib-dialects",
 ]
@@ -1691,9 +1669,9 @@ dependencies = [
 name = "sqruff-wasm"
 version = "0.28.0"
 dependencies = [
- "ahash",
  "line-index",
  "lineage",
+ "rustc-hash",
  "sqruff-lib",
  "sqruff-lib-core",
  "wasm-bindgen",
@@ -1839,15 +1817,6 @@ name = "time-core"
 version = "0.1.4"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "c9e9a38711f559d9e3ce1cdb06dd7c5b8ea546bc90052da6d06bb76da74bb07c"
-
-[[package]]
-name = "tiny-keccak"
-version = "2.0.2"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "2c9d3793400a45f954c52e73d068316d76b6f4e36977e3fcebb13a2721e80237"
-dependencies = [
- "crunchy",
-]
 
 [[package]]
 name = "tinytemplate"

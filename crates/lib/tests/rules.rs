@@ -1,6 +1,6 @@
 use std::str::FromStr;
 
-use ahash::AHashMap;
+use rustc_hash::FxHashMap;
 use glob::glob;
 use serde::Deserialize;
 use serde_with::{KeyValueMap, serde_as};
@@ -51,7 +51,7 @@ struct TestCase {
     #[serde(flatten)]
     kind: TestCaseKind,
     #[serde(default)]
-    configs: AHashMap<String, Value>,
+    configs: FxHashMap<String, Value>,
 }
 
 #[derive(Debug, Deserialize)]
@@ -77,7 +77,7 @@ fn main() {
     }
 
     let mut linter = Linter::new(FluffConfig::default(), None, None, false);
-    let mut core = AHashMap::new();
+    let mut core = FxHashMap::default();
     core.insert(
         "core".to_string(),
         linter.config_mut().raw.get("core").unwrap().clone(),

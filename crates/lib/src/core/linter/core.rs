@@ -14,10 +14,9 @@ use crate::core::rules::{ErasedRule, Exception, LintPhase, RulePack};
 use crate::rules::get_ruleset;
 use crate::templaters::raw::RawTemplater;
 use crate::templaters::{TEMPLATERS, Templater};
-use ahash::{AHashMap, AHashSet};
+use rustc_hash::{FxHashMap, FxHashSet};
 use itertools::Itertools;
 use rayon::iter::{IndexedParallelIterator, IntoParallelRefIterator as _, ParallelIterator as _};
-use rustc_hash::FxHashMap;
 use smol_str::{SmolStr, ToSmolStr};
 use sqruff_lib_core::dialects::Dialect;
 use sqruff_lib_core::dialects::syntax::{SyntaxKind, SyntaxSet};
@@ -229,7 +228,7 @@ impl Linter {
         } else {
             &[LintPhase::Main]
         };
-        let mut previous_versions: AHashSet<(SmolStr, Vec<SourceFix>)> =
+        let mut previous_versions: FxHashSet<(SmolStr, Vec<SourceFix>)> =
             [(tree.raw().to_smolstr(), vec![])].into_iter().collect();
 
         // If we are fixing then we want to loop up to the runaway_limit, otherwise just
@@ -579,7 +578,7 @@ impl Linter {
         path_walk.extend(path_walk_ignore_file);
 
         let mut buffer = Vec::new();
-        let mut ignores = AHashMap::new();
+        let mut ignores = FxHashMap::default();
         let sql_file_exts = self.config.sql_file_exts();
 
         for (dirpath, _, filenames) in path_walk {
@@ -610,7 +609,7 @@ impl Linter {
             }
         }
 
-        let mut filtered_buffer = AHashSet::new();
+        let mut filtered_buffer = FxHashSet::default();
 
         for fpath in buffer {
             let npath = helpers::normalize(&fpath).to_str().unwrap().to_string();

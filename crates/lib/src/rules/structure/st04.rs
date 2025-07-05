@@ -1,4 +1,4 @@
-use ahash::AHashMap;
+use rustc_hash::FxHashMap;
 use itertools::Itertools;
 use smol_str::ToSmolStr;
 use sqruff_lib_core::dialects::syntax::{SyntaxKind, SyntaxSet};
@@ -17,7 +17,7 @@ use crate::utils::reflow::reindent::{IndentUnit, construct_single_indent};
 pub struct RuleST04;
 
 impl Rule for RuleST04 {
-    fn load_from_config(&self, _config: &AHashMap<String, Value>) -> Result<ErasedRule, String> {
+    fn load_from_config(&self, _config: &FxHashMap<String, Value>) -> Result<ErasedRule, String> {
         Ok(RuleST04.erased())
     }
 

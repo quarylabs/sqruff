@@ -1,14 +1,14 @@
 use std::str::FromStr;
 
-use ahash::AHashMap;
+use rustc_hash::FxHashMap;
 use sqruff_lib_core::dialects::syntax::{SyntaxKind, SyntaxSet};
 
 use crate::core::config::{FluffConfig, Value};
 use crate::utils::reflow::depth_map::{DepthInfo, StackPositionType};
 use crate::utils::reflow::reindent::{IndentUnit, TrailingComments};
 
-type ConfigElementType = AHashMap<String, String>;
-type ConfigDictType = AHashMap<SyntaxKind, ConfigElementType>;
+type ConfigElementType = FxHashMap<String, String>;
+type ConfigDictType = FxHashMap<SyntaxKind, ConfigElementType>;
 
 /// Holds spacing config for a block and allows easy manipulation
 #[derive(Debug, PartialEq, Eq, Clone)]
@@ -54,7 +54,7 @@ impl BlockConfig {
         line_position: Option<&'static str>,
         config: Option<&ConfigElementType>,
     ) {
-        let empty = AHashMap::new();
+        let empty = FxHashMap::default();
         let config = config.unwrap_or(&empty);
 
         self.spacing_before = before
@@ -274,8 +274,8 @@ impl ReflowConfig {
     }
 }
 
-fn convert_to_config_dict(input: AHashMap<String, Value>) -> ConfigDictType {
-    let mut config_dict = ConfigDictType::new();
+fn convert_to_config_dict(input: FxHashMap<String, Value>) -> ConfigDictType {
+    let mut config_dict = ConfigDictType::default();
 
     for (key, value) in input {
         match value {

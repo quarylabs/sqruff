@@ -1,4 +1,4 @@
-use ahash::AHashMap;
+use rustc_hash::FxHashMap;
 use sqruff_lib_core::dialects::syntax::{SyntaxKind, SyntaxSet};
 
 use crate::core::config::Value;
@@ -32,7 +32,7 @@ enum GroupByAndOrderByConvention {
 }
 
 impl Rule for RuleAM06 {
-    fn load_from_config(&self, config: &AHashMap<String, Value>) -> Result<ErasedRule, String> {
+    fn load_from_config(&self, config: &FxHashMap<String, Value>) -> Result<ErasedRule, String> {
         Ok(RuleAM06 {
             group_by_and_order_by_style: config["group_by_and_order_by_style"]
                 .as_string()
@@ -97,7 +97,7 @@ ORDER BY a ASC, b DESC
         }
 
         // Initialize the map
-        let mut column_reference_category_map = AHashMap::new();
+        let mut column_reference_category_map = FxHashMap::default();
         column_reference_category_map.insert(
             SyntaxKind::ColumnReference,
             GroupByAndOrderByConvention::Explicit,

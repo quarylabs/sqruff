@@ -18,7 +18,7 @@ stringify = ["dep:serde_yaml", "serde"]
 
 [dependencies]
 smol_str = "0.3.1"
-ahash = { version = "0.8.11", features = ["compile-time-rng", "serde"] }
+rustc-hash.workspace = true
 strum.workspace = true
 strum_macros.workspace = true
 indexmap = "2.10.0"
@@ -28,7 +28,6 @@ fancy-regex = "0.14.0"
 pretty_assertions = "1.4.0"
 serde = { version = "1.0", features = ["derive"], optional = true }
 serde_yaml = { version = "0.9.34", optional = true }
-rustc-hash = "2.1.1"
 slyce = "0.3.1"
 enum_dispatch = "0.3.13"
 regex-automata = { version = "0.4.9", features = ["perf"] }

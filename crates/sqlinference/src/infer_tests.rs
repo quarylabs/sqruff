@@ -1,5 +1,7 @@
-use std::collections::{HashMap, HashSet};
+use std::collections::HashMap;
 use std::fmt::Display;
+
+use rustc_hash::FxHashSet;
 
 use sqruff_lib_core::dialects::Dialect;
 use sqruff_lib_core::dialects::syntax::{SyntaxKind, SyntaxSet};
@@ -50,7 +52,7 @@ pub fn infer_tests(
     parser: &Parser,
     path_of_sql: &str,
     select_statement: &str,
-    tests: &HashSet<Test>,
+    tests: &FxHashSet<Test>,
 ) -> Result<HashMap<Test, InferenceReason>, String> {
     // TODO Deal with this dialect properly
     let extracted_select = get_column_with_source(parser, select_statement)?;
@@ -395,7 +397,7 @@ pub enum ExtractedSelect {
     Extracted {
         mapped: HashMap<String, (String, String)>,
         unmapped: Vec<String>,
-        count_stars: HashSet<String>,
+        count_stars: FxHashSet<String>,
         operated_on: OperatedOn,
     },
     Star(String),
@@ -491,7 +493,7 @@ fn extract_select(query: &Query<'_, ()>) -> Result<ExtractedSelect, String> {
         } else {
             let mut columns: HashMap<String, (String, String)> = HashMap::new();
             let mut unnamed: Vec<String> = vec![];
-            let mut count_stars: HashSet<String> = HashSet::new();
+            let mut count_stars: FxHashSet<String> = FxHashSet::default();
             let mut operated_on: OperatedOn = HashMap::new();
 
             for select_clause_element in select_clause_elements {
@@ -654,7 +656,7 @@ fn extract_select(query: &Query<'_, ()>) -> Result<ExtractedSelect, String> {
 
                         let mut columns_map: HashMap<String, (String, String)> =
                             extracted_mapped.clone();
-                        let mut count_stars_set: HashSet<String> = extracted_count_stars.clone();
+                        let mut count_stars_set: FxHashSet<String> = extracted_count_stars.clone();
 
                         for (name, extracted) in &withs {
                             match extracted {
@@ -673,7 +675,7 @@ fn extract_select(query: &Query<'_, ()>) -> Result<ExtractedSelect, String> {
                                     let sub_columns = mapped.clone();
                                     let sub_columns_star = count_stars.clone();
 
-                                    let mut sub_column_star_found: HashSet<String> = HashSet::new();
+                                    let mut sub_column_star_found: FxHashSet<String> = FxHashSet::default();
                                     for (_, (int_table, int_key)) in columns_map.iter_mut() {
                                         if int_table == name {
                                             if sub_columns_star.contains(int_key) {

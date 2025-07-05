@@ -1,4 +1,4 @@
-use ahash::AHashMap;
+use rustc_hash::FxHashMap;
 use line_index::LineIndex;
 use lineage::{Lineage, Node};
 use sqruff_lib::core::config::FluffConfig;
@@ -117,7 +117,7 @@ impl Linter {
             Tool::Format => result.fix_string(),
             Tool::Cst => cst.unwrap().stringify(false),
             Tool::Lineage => {
-                let parser = Parser::new(self.base.config().get_dialect(), AHashMap::new());
+                let parser = Parser::new(self.base.config().get_dialect(), FxHashMap::default());
                 let (tables, node) = Lineage::new(parser, "", sql).build();
 
                 print_tree(&tables, node, "", "", "")

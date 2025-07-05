@@ -14,3 +14,4 @@ indexmap.workspace = true
 polonius-the-crab = "0.4.1"
 sqruff-lib-core = { workspace = true }
 sqruff-lib-dialects = { workspace = true }
+rustc-hash.workspace = true

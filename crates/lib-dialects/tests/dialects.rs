@@ -1,6 +1,6 @@
 use std::str::FromStr;
 
-use ahash::HashSet;
+use rustc_hash::FxHashSet;
 use expect_test::expect_file;
 use itertools::Itertools;
 use rayon::iter::ParallelIterator;
@@ -52,7 +52,7 @@ fn main() {
 
     let dialects = DialectKind::iter()
         .map(|dialect| dialect.as_ref().to_string())
-        .collect::<HashSet<String>>();
+        .collect::<FxHashSet<String>>();
     println!("{dialects:?}");
 
     // list folders in the dialects directory
@@ -67,7 +67,7 @@ fn main() {
             }
             Some(entry.unwrap().path())
         })
-        .collect::<HashSet<std::path::PathBuf>>();
+        .collect::<FxHashSet<std::path::PathBuf>>();
     println!("{dialects_dirs:?}");
 
     // check if all dialects have a corresponding folder

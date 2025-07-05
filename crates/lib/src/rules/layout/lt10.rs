@@ -1,4 +1,4 @@
-use ahash::AHashMap;
+use rustc_hash::FxHashMap;
 use itertools::chain;
 use sqruff_lib_core::dialects::syntax::{SyntaxKind, SyntaxSet};
 use sqruff_lib_core::lint_fix::LintFix;
@@ -14,7 +14,7 @@ use crate::utils::functional::context::FunctionalContext;
 pub struct RuleLT10;
 
 impl Rule for RuleLT10 {
-    fn load_from_config(&self, _config: &AHashMap<String, Value>) -> Result<ErasedRule, String> {
+    fn load_from_config(&self, _config: &FxHashMap<String, Value>) -> Result<ErasedRule, String> {
         Ok(RuleLT10.erased())
     }
     fn name(&self) -> &'static str {

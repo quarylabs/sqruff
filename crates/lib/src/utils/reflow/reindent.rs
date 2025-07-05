@@ -1,7 +1,7 @@
 use std::borrow::Cow;
 use std::mem::take;
 
-use ahash::{AHashMap, AHashSet};
+use rustc_hash::{FxHashMap, FxHashSet};
 use itertools::{Itertools, chain, enumerate};
 use smol_str::SmolStr;
 use sqruff_lib_core::dialects::syntax::{SyntaxKind, SyntaxSet};
@@ -423,8 +423,8 @@ fn map_line_buffers(
 ) -> (Vec<IndentLine>, Vec<usize>) {
     let mut lines = Vec::new();
     let mut point_buffer = Vec::new();
-    let mut previous_points = AHashMap::new();
-    let mut untaken_indent_locs = AHashMap::new();
+    let mut previous_points = FxHashMap::default();
+    let mut untaken_indent_locs = FxHashMap::default();
     let mut imbalanced_locs = Vec::new();
 
     for indent_point in crawl_indent_points(elements, allow_implicit_indents) {
@@ -800,18 +800,18 @@ fn lint_line_untaken_negative_indents(
             continue;
         }
 
-        let covered_indents: AHashSet<isize> = Range::new(
+        let covered_indents: FxHashSet<isize> = Range::new(
             ip.initial_indent_balance,
             ip.initial_indent_balance + ip.indent_trough,
             -1,
         )
         .collect();
 
-        let untaken_indents: AHashSet<_> = ip
+        let untaken_indents: FxHashSet<_> = ip
             .untaken_indents
             .iter()
             .copied()
-            .collect::<AHashSet<_>>()
+            .collect::<FxHashSet<_>>()
             .difference(&forced_indents.iter().map(|it| *it as isize).collect())
             .copied()
             .collect();
@@ -900,7 +900,7 @@ pub fn lint_indent_points(
     tables: &Tables,
     elements: ReflowSequenceType,
     single_indent: &str,
-    _skip_indentation_in: AHashSet<String>,
+    _skip_indentation_in: FxHashSet<String>,
     allow_implicit_indents: bool,
 ) -> (ReflowSequenceType, Vec<LintResult>) {
     let (mut lines, imbalanced_indent_locs) = map_line_buffers(&elements, allow_implicit_indents);
@@ -968,8 +968,8 @@ fn source_char_len(elements: &[ReflowElement]) -> usize {
     char_len
 }
 
-fn rebreak_priorities(spans: Vec<RebreakSpan>) -> AHashMap<usize, usize> {
-    let mut rebreak_priority = AHashMap::with_capacity(spans.len());
+fn rebreak_priorities(spans: Vec<RebreakSpan>) -> FxHashMap<usize, usize> {
+    let mut rebreak_priority = FxHashMap::with_capacity_and_hasher(spans.len(), Default::default());
 
     for span in spans {
         let rebreak_indices: &[usize] = match span.line_position {
@@ -1006,7 +1006,7 @@ fn rebreak_priorities(spans: Vec<RebreakSpan>) -> AHashMap<usize, usize> {
     rebreak_priority
 }
 
-type MatchedIndentsType = AHashMap<FloatTypeWrapper, Vec<usize>>;
+type MatchedIndentsType = FxHashMap<FloatTypeWrapper, Vec<usize>>;
 
 fn increment_balance(
     input_balance: isize,
@@ -1014,7 +1014,7 @@ fn increment_balance(
     elem_idx: usize,
 ) -> (isize, MatchedIndentsType) {
     let mut balance = input_balance;
-    let mut matched_indents = AHashMap::new();
+    let mut matched_indents = FxHashMap::default();
 
     if indent_stats.trough < 0 {
         for b in (0..indent_stats.trough.abs()).step_by(1) {
@@ -1041,13 +1041,13 @@ fn increment_balance(
 
 fn match_indents(
     line_elements: ReflowSequenceType,
-    rebreak_priorities: AHashMap<usize, usize>,
+    rebreak_priorities: FxHashMap<usize, usize>,
     newline_idx: usize,
     allow_implicit_indents: bool,
 ) -> MatchedIndentsType {
     let mut balance = 0;
-    let mut matched_indents: MatchedIndentsType = AHashMap::new();
-    let mut implicit_indents = AHashMap::new();
+    let mut matched_indents: MatchedIndentsType = FxHashMap::default();
+    let mut implicit_indents = FxHashMap::default();
 
     for (idx, e) in enumerate(&line_elements) {
         let ReflowElement::Point(point) = e else {
@@ -1082,14 +1082,14 @@ fn match_indents(
     if allow_implicit_indents {
         let keys: Vec<_> = matched_indents.keys().copied().collect();
         for indent_level in keys {
-            let major_points: AHashSet<_> = matched_indents[&indent_level]
+            let major_points: FxHashSet<_> = matched_indents[&indent_level]
                 .iter()
                 .copied()
-                .collect::<AHashSet<_>>()
-                .difference(&AHashSet::from([newline_idx]))
+                .collect::<FxHashSet<_>>()
+                .difference(&FxHashSet::from_iter([newline_idx]))
                 .copied()
-                .collect::<AHashSet<_>>()
-                .difference(&implicit_indents.keys().copied().collect::<AHashSet<_>>())
+                .collect::<FxHashSet<_>>()
+                .difference(&implicit_indents.keys().copied().collect::<FxHashSet<_>>())
                 .copied()
                 .collect();
 

@@ -1,6 +1,6 @@
 use std::ops::Range;
 
-use ahash::AHashSet;
+use rustc_hash::FxHashSet;
 
 use crate::edit_type::EditType;
 use crate::parser::segments::ErasedSegment;
@@ -92,7 +92,7 @@ impl LintFix {
         &self,
         templated_file: &TemplatedFile,
         within_only: bool,
-    ) -> AHashSet<RawFileSlice> {
+    ) -> FxHashSet<RawFileSlice> {
         let anchor_slice = self
             .anchor
             .get_position_marker()
@@ -110,7 +110,7 @@ impl LintFix {
             EditType::Replace => {
                 let pos = self.anchor.get_position_marker().unwrap();
                 if pos.source_slice.start == pos.source_slice.end {
-                    return AHashSet::new();
+                    return FxHashSet::default();
                 } else if self
                     .edit
                     .iter()
@@ -125,7 +125,7 @@ impl LintFix {
 
                     let slice =
                         templated_file.raw_slices_spanning_source_slice(&source_edit_slices[0]);
-                    return AHashSet::from_iter(slice);
+                    return FxHashSet::from_iter(slice);
                 }
 
                 anchor_slice
@@ -145,8 +145,8 @@ impl LintFix {
         templated_file: &TemplatedFile,
         templated_slices: impl Iterator<Item = Range<usize>>,
         file_end_slice: Option<RawFileSlice>,
-    ) -> AHashSet<RawFileSlice> {
-        let mut raw_slices = AHashSet::new();
+    ) -> FxHashSet<RawFileSlice> {
+        let mut raw_slices = FxHashSet::default();
 
         for templated_slice in templated_slices {
             let templated_slice =

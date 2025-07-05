@@ -1,4 +1,4 @@
-use ahash::AHashMap;
+use rustc_hash::FxHashMap;
 use sqruff_lib_core::dialects::syntax::{SyntaxKind, SyntaxSet};
 
 use super::al01::{Aliasing, RuleAL01};
@@ -30,7 +30,7 @@ impl RuleAL02 {
 }
 
 impl Rule for RuleAL02 {
-    fn load_from_config(&self, config: &AHashMap<String, Value>) -> Result<ErasedRule, String> {
+    fn load_from_config(&self, config: &FxHashMap<String, Value>) -> Result<ErasedRule, String> {
         let aliasing = match config.get("aliasing").unwrap().as_string().unwrap() {
             "explicit" => Aliasing::Explicit,
             "implicit" => Aliasing::Implicit,

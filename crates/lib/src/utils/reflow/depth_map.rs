@@ -1,6 +1,6 @@
 use std::iter::zip;
 
-use ahash::{AHashMap, AHashSet};
+use rustc_hash::{FxHashMap, FxHashSet};
 use nohash_hasher::{IntMap, IntSet};
 use sqruff_lib_core::dialects::syntax::SyntaxSet;
 use sqruff_lib_core::parser::segments::{ErasedSegment, PathStep};
@@ -47,7 +47,7 @@ impl StackPosition {
 }
 
 pub struct DepthMap {
-    depth_info: AHashMap<u32, DepthInfo>,
+    depth_info: FxHashMap<u32, DepthInfo>,
 }
 
 impl DepthMap {
@@ -169,7 +169,7 @@ impl DepthInfo {
         // We use AHashSet intersection because it's efficient and hashes should be
         // unique.
 
-        let common_hashes: AHashSet<_> = self
+        let common_hashes: FxHashSet<_> = self
             .stack_hash_set
             .intersection(&other.stack_hash_set)
             .copied()

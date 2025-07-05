@@ -1,4 +1,4 @@
-use ahash::HashSet;
+use rustc_hash::FxHashSet;
 use itertools::Itertools;
 use sqruff_lib_core::dialects::syntax::{SyntaxKind, SyntaxSet};
 use sqruff_lib_core::errors::SQLBaseError;
@@ -71,10 +71,10 @@ impl NoQADirective {
     /// validate checks if the NoQADirective is valid by checking it against a rule set and returns
     /// error if it is valid against a set of errors rules
     #[allow(dead_code)]
-    fn validate_against_rules(&self, available_rules: &HashSet<&str>) -> Result<(), SQLBaseError> {
+    fn validate_against_rules(&self, available_rules: &FxHashSet<&str>) -> Result<(), SQLBaseError> {
         fn check_rules(
-            rules: &HashSet<String>,
-            available_rules: &HashSet<&str>,
+            rules: &FxHashSet<String>,
+            available_rules: &FxHashSet<&str>,
         ) -> Result<(), SQLBaseError> {
             for rule in rules {
                 if !available_rules.contains(rule.as_str()) {
@@ -137,7 +137,7 @@ impl NoQADirective {
                                 action: IgnoreAction::Disable,
                             })))
                         } else {
-                            let rules: HashSet<_> = comment
+                            let rules: FxHashSet<_> = comment
                                 .split(",")
                                 .map(|rule| rule.trim().to_string())
                                 .filter(|rule| !rule.is_empty())
@@ -172,7 +172,7 @@ impl NoQADirective {
                                 raw_string: original_comment.to_string(),
                             })))
                         } else {
-                            let rules: HashSet<_> = comment
+                            let rules: FxHashSet<_> = comment
                                 .split(",")
                                 .map(|rule| rule.trim().to_string())
                                 .filter(|rule| !rule.is_empty())
@@ -199,7 +199,7 @@ impl NoQADirective {
                             }
                         }
                     } else if !comment.is_empty() {
-                        let rules = comment.split(",").map_into().collect::<HashSet<String>>();
+                        let rules = comment.split(",").map_into().collect::<FxHashSet<String>>();
                         if rules.is_empty() {
                             Err(SQLBaseError {
                                 fixable: false,
@@ -273,7 +273,7 @@ struct RangeIgnoreRules {
     line_pos: usize,
     raw_string: String,
     action: IgnoreAction,
-    rules: HashSet<String>,
+    rules: FxHashSet<String>,
 }
 
 #[derive(Eq, PartialEq, Debug, Clone)]
@@ -288,7 +288,7 @@ struct LineIgnoreRules {
     line_no: usize,
     line_pos: usize,
     raw_string: String,
-    rules: HashSet<String>,
+    rules: FxHashSet<String>,
 }
 
 #[derive(Debug, Clone, Default)]
@@ -416,7 +416,7 @@ impl IgnoreMask {
 
             // Initialize state
             let mut all_rules_disabled = false;
-            let mut disabled_rules = <HashSet<String>>::default();
+            let mut disabled_rules = <FxHashSet<String>>::default();
 
             // For each directive
             for (line_no, line_pos, ignore) in directives {
@@ -557,7 +557,7 @@ mod tests {
                     rules: ["LT01", "LT02"]
                         .into_iter()
                         .map_into()
-                        .collect::<HashSet<String>>(),
+                        .collect::<FxHashSet<String>>(),
                 }))),
             ),
             (
@@ -567,7 +567,7 @@ mod tests {
                     line_pos: 0,
                     raw_string: "noqa: enable=LT01".to_string(),
                     action: IgnoreAction::Enable,
-                    rules: ["LT01"].into_iter().map_into().collect::<HashSet<String>>(),
+                    rules: ["LT01"].into_iter().map_into().collect::<FxHashSet<String>>(),
                 }))),
             ),
             (
@@ -577,7 +577,7 @@ mod tests {
                     line_pos: 0,
                     raw_string: "noqa: disable=CP01".to_string(),
                     action: IgnoreAction::Disable,
-                    rules: ["CP01"].into_iter().map_into().collect::<HashSet<String>>(),
+                    rules: ["CP01"].into_iter().map_into().collect::<FxHashSet<String>>(),
                 }))),
             ),
             (

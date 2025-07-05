@@ -1,6 +1,6 @@
 use std::cell::RefCell;
 
-use ahash::AHashMap;
+use rustc_hash::FxHashMap;
 use itertools::Itertools;
 use smol_str::SmolStr;
 use sqruff_lib_core::dialects::Dialect;
@@ -176,7 +176,7 @@ impl RuleRF01 {
 }
 
 impl Rule for RuleRF01 {
-    fn load_from_config(&self, config: &AHashMap<String, Value>) -> Result<ErasedRule, String> {
+    fn load_from_config(&self, config: &FxHashMap<String, Value>) -> Result<ErasedRule, String> {
         Ok(RuleRF01 {
             force_enable: config["force_enable"].as_bool().unwrap(),
         }

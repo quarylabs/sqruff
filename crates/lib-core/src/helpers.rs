@@ -6,8 +6,8 @@ use std::sync::Once;
 
 use crate::parser::matchable::{Matchable, MatchableTraitImpl};
 
-pub type IndexMap<K, V> = indexmap::IndexMap<K, V, BuildHasherDefault<ahash::AHasher>>;
-pub type IndexSet<V> = indexmap::IndexSet<V, BuildHasherDefault<ahash::AHasher>>;
+pub type IndexMap<K, V> = indexmap::IndexMap<K, V, BuildHasherDefault<rustc_hash::FxHasher>>;
+pub type IndexSet<V> = indexmap::IndexSet<V, BuildHasherDefault<rustc_hash::FxHasher>>;
 
 pub trait ToMatchable: Sized {
     fn to_matchable(self) -> Matchable;

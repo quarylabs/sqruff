@@ -8,7 +8,7 @@ use std::ops::Deref;
 
 use std::sync::Arc;
 
-use ahash::{AHashMap, AHashSet};
+use rustc_hash::{FxHashMap, FxHashSet};
 use itertools::chain;
 use sqruff_lib_core::dialects::Dialect;
 use sqruff_lib_core::dialects::init::DialectKind;
@@ -119,7 +119,7 @@ pub enum LintPhase {
 }
 
 pub trait Rule: Debug + 'static + Send + Sync {
-    fn load_from_config(&self, _config: &AHashMap<String, Value>) -> Result<ErasedRule, String>;
+    fn load_from_config(&self, _config: &FxHashMap<String, Value>) -> Result<ErasedRule, String>;
 
     fn lint_phase(&self) -> LintPhase {
         LintPhase::Main
@@ -261,7 +261,7 @@ pub struct RuleManifest {
 #[derive(Clone)]
 pub struct RulePack {
     pub(crate) rules: Vec<ErasedRule>,
-    _reference_map: AHashMap<&'static str, AHashSet<&'static str>>,
+    _reference_map: FxHashMap<&'static str, FxHashSet<&'static str>>,
 }
 
 impl RulePack {
@@ -275,27 +275,27 @@ pub struct RuleSet {
 }
 
 impl RuleSet {
-    fn rule_reference_map(&self) -> AHashMap<&'static str, AHashSet<&'static str>> {
-        let valid_codes: AHashSet<_> = self.register.keys().copied().collect();
+    fn rule_reference_map(&self) -> FxHashMap<&'static str, FxHashSet<&'static str>> {
+        let valid_codes: FxHashSet<_> = self.register.keys().copied().collect();
 
-        let reference_map: AHashMap<_, AHashSet<_>> = valid_codes
+        let reference_map: FxHashMap<_, FxHashSet<_>> = valid_codes
             .iter()
-            .map(|&code| (code, AHashSet::from([code])))
+            .map(|&code| (code, FxHashSet::from_iter([code])))
             .collect();
 
         let name_map = {
-            let mut name_map = AHashMap::new();
+            let mut name_map = FxHashMap::default();
             for manifest in self.register.values() {
                 name_map
                     .entry(manifest.name)
-                    .or_insert_with(AHashSet::new)
+                    .or_insert_with(FxHashSet::default)
                     .insert(manifest.code);
             }
             name_map
         };
 
-        let name_collisions: AHashSet<_> = {
-            let name_keys: AHashSet<_> = name_map.keys().copied().collect();
+        let name_collisions: FxHashSet<_> = {
+            let name_keys: FxHashSet<_> = name_map.keys().copied().collect();
             name_keys.intersection(&valid_codes).copied().collect()
         };
 
@@ -306,9 +306,9 @@ impl RuleSet {
             );
         }
 
-        let reference_map: AHashMap<_, _> = chain(name_map, reference_map).collect();
+        let reference_map: FxHashMap<_, _> = chain(name_map, reference_map).collect();
 
-        let mut group_map: AHashMap<_, AHashSet<&'static str>> = AHashMap::new();
+        let mut group_map: FxHashMap<_, FxHashSet<&'static str>> = FxHashMap::default();
         for manifest in self.register.values() {
             for group in manifest.groups {
                 let group = group.as_ref();
@@ -324,7 +324,7 @@ impl RuleSet {
                 } else {
                     group_map
                         .entry(group)
-                        .or_insert_with(AHashSet::new)
+                        .or_insert_with(FxHashSet::default)
                         .insert(manifest.code);
                 }
             }
@@ -336,9 +336,9 @@ impl RuleSet {
     fn expand_rule_refs(
         &self,
         glob_list: Vec<String>,
-        reference_map: &AHashMap<&'static str, AHashSet<&'static str>>,
-    ) -> AHashSet<&'static str> {
-        let mut expanded_rule_set = AHashSet::new();
+        reference_map: &FxHashMap<&'static str, FxHashSet<&'static str>>,
+    ) -> FxHashSet<&'static str> {
+        let mut expanded_rule_set = FxHashSet::default();
 
         for r in glob_list {
             if reference_map.contains_key(r.as_str()) {
@@ -385,7 +385,7 @@ impl RuleSet {
             let rule = self.register[code].rule_class.clone();
             let rule_config_ref = rule.config_ref();
 
-            let tmp = AHashMap::new();
+            let tmp = FxHashMap::default();
 
             let specific_rule_config = rules
                 .get(rule_config_ref)

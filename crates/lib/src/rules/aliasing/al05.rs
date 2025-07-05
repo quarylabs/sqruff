@@ -1,6 +1,6 @@
 use std::cell::RefCell;
 
-use ahash::{AHashMap, AHashSet};
+use rustc_hash::{FxHashMap, FxHashSet};
 use smol_str::{SmolStr, ToSmolStr};
 use sqruff_lib_core::dialects::Dialect;
 use sqruff_lib_core::dialects::common::AliasInfo;
@@ -28,7 +28,7 @@ struct AL05Query {
 pub struct RuleAL05;
 
 impl Rule for RuleAL05 {
-    fn load_from_config(&self, _config: &AHashMap<String, Value>) -> Result<ErasedRule, String> {
+    fn load_from_config(&self, _config: &FxHashMap<String, Value>) -> Result<ErasedRule, String> {
         Ok(RuleAL05.erased())
     }
 
@@ -90,8 +90,8 @@ FROM foo
         self.analyze_table_aliases(query.clone(), context.dialect);
 
         if context.dialect.name == DialectKind::Redshift {
-            let mut references = AHashSet::default();
-            let mut aliases = AHashSet::default();
+            let mut references = FxHashSet::default();
+            let mut aliases = FxHashSet::default();
 
             for alias in &query.inner.borrow().payload.aliases {
                 aliases.insert(alias.ref_str.clone());

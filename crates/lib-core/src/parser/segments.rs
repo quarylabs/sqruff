@@ -588,7 +588,7 @@ impl ErasedSegment {
 
     pub fn hash_value(&self) -> u64 {
         *self.value.hash.get_or_init(|| {
-            let mut hasher = ahash::AHasher::default();
+            let mut hasher = rustc_hash::FxHasher::default();
             self.get_type().hash(&mut hasher);
             self.raw().hash(&mut hasher);
 

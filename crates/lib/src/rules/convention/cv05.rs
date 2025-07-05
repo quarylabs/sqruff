@@ -1,6 +1,6 @@
 use std::borrow::Cow;
 
-use ahash::AHashMap;
+use rustc_hash::FxHashMap;
 use sqruff_lib_core::dialects::syntax::{SyntaxKind, SyntaxSet};
 use sqruff_lib_core::parser::segments::{ErasedSegment, SegmentBuilder};
 use sqruff_lib_core::utils::functional::segments::Segments;
@@ -35,7 +35,7 @@ fn create_base_is_null_sequence(is_upper: bool, operator_raw: Cow<str>) -> Corre
 }
 
 impl Rule for RuleCV05 {
-    fn load_from_config(&self, _config: &AHashMap<String, Value>) -> Result<ErasedRule, String> {
+    fn load_from_config(&self, _config: &FxHashMap<String, Value>) -> Result<ErasedRule, String> {
         Ok(RuleCV05.erased())
     }
 

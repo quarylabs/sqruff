@@ -1,6 +1,6 @@
 use std::fmt::Debug;
 
-use ahash::AHashSet;
+use rustc_hash::FxHashSet;
 
 use super::ErasedSegment;
 use crate::dialects::syntax::{SyntaxKind, SyntaxSet};
@@ -44,7 +44,7 @@ impl MatchableTrait for MetaSegment {
         &self,
         _parse_context: &ParseContext,
         _crumbs: Option<Vec<&str>>,
-    ) -> Option<(AHashSet<String>, SyntaxSet)> {
+    ) -> Option<(FxHashSet<String>, SyntaxSet)> {
         None
     }
 

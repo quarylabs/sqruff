@@ -1,11 +1,11 @@
-use ahash::AHashSet;
+use rustc_hash::FxHashSet;
 
 use crate::ansi_keywords::{ANSI_RESERVED_KEYWORDS, ANSI_UNRESERVED_KEYWORDS};
 
 /// T-SQL reserved keywords from Microsoft documentation
 /// https://learn.microsoft.com/en-us/sql/t-sql/language-elements/reserved-keywords-transact-sql
 /// T-SQL specific keywords (to be added to ANSI keywords, not replace them)
-pub(crate) fn tsql_additional_reserved_keywords() -> AHashSet<&'static str> {
+pub(crate) fn tsql_additional_reserved_keywords() -> FxHashSet<&'static str> {
     [
         // Current T-SQL Reserved Keywords (from Microsoft documentation)
         "ADD",
@@ -200,7 +200,7 @@ pub(crate) fn tsql_additional_reserved_keywords() -> AHashSet<&'static str> {
 
 /// T-SQL future keywords from Microsoft documentation
 /// These are potential reserved keywords in future versions
-pub(crate) fn tsql_future_keywords() -> AHashSet<&'static str> {
+pub(crate) fn tsql_future_keywords() -> FxHashSet<&'static str> {
     [
         // Future Keywords (from Microsoft documentation)
         "ABSOLUTE",
@@ -488,7 +488,7 @@ pub(crate) fn tsql_future_keywords() -> AHashSet<&'static str> {
 /// T-SQL unreserved keywords
 /// These are keywords that can be used as identifiers without quoting
 /// T-SQL additional unreserved keywords (to be added to ANSI keywords)
-pub(crate) fn tsql_additional_unreserved_keywords() -> AHashSet<&'static str> {
+pub(crate) fn tsql_additional_unreserved_keywords() -> FxHashSet<&'static str> {
     // Include all future keywords as unreserved keywords
     // This allows them to be recognized but still used as identifiers
     tsql_future_keywords()
@@ -496,7 +496,7 @@ pub(crate) fn tsql_additional_unreserved_keywords() -> AHashSet<&'static str> {
 
 /// Complete T-SQL reserved keywords (ANSI + T-SQL specific) - for backwards compatibility
 #[allow(dead_code)]
-pub(crate) fn tsql_reserved_keywords() -> AHashSet<&'static str> {
+pub(crate) fn tsql_reserved_keywords() -> FxHashSet<&'static str> {
     // Combine ANSI keywords with T-SQL specific reserved keywords
     ANSI_RESERVED_KEYWORDS
         .lines()
@@ -507,6 +507,6 @@ pub(crate) fn tsql_reserved_keywords() -> AHashSet<&'static str> {
 
 /// Complete T-SQL unreserved keywords - for backwards compatibility
 #[allow(dead_code)]
-pub(crate) fn tsql_unreserved_keywords() -> AHashSet<&'static str> {
+pub(crate) fn tsql_unreserved_keywords() -> FxHashSet<&'static str> {
     tsql_additional_unreserved_keywords()
 }

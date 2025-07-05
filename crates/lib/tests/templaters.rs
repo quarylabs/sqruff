@@ -47,7 +47,7 @@ fn main() {
             }
             Some(entry.unwrap().path())
         })
-        .collect::<HashSet<std::path::PathBuf>>();
+        .collect::<FxHashSet<std::path::PathBuf>>();
 
     for templater_setup in &templaters_folders {
         println!("{:?}", templater_setup);

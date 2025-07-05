@@ -1,9 +1,8 @@
 use std::iter::zip;
 use std::ops::{Index, IndexMut};
 
-use ahash::{AHashMap, AHashSet};
+use rustc_hash::{FxHashMap, FxHashSet};
 use itertools::{Itertools, enumerate};
-use rustc_hash::FxHashMap;
 use smol_str::{SmolStr, StrExt, ToSmolStr, format_smolstr};
 use sqruff_lib_core::dialects::Dialect;
 use sqruff_lib_core::dialects::common::AliasInfo;
@@ -43,7 +42,7 @@ struct NestedSubQuerySummary<'a> {
     query: Query<'a, ()>,
     selectable: Selectable<'a>,
     table_alias: AliasInfo,
-    select_source_names: AHashSet<SmolStr>,
+    select_source_names: FxHashSet<SmolStr>,
 }
 
 #[derive(Clone, Debug, Default)]
@@ -52,7 +51,7 @@ pub(crate) struct RuleST05 {
 }
 
 impl Rule for RuleST05 {
-    fn load_from_config(&self, config: &AHashMap<String, Value>) -> Result<ErasedRule, String> {
+    fn load_from_config(&self, config: &FxHashMap<String, Value>) -> Result<ErasedRule, String> {
         Ok(RuleST05 {
             forbid_subquery_in: config["forbid_subquery_in"].as_string().unwrap().into(),
         }
@@ -349,7 +348,7 @@ impl RuleST05 {
                     continue;
                 };
 
-                let mut select_source_names = AHashSet::new();
+                let mut select_source_names = FxHashSet::default();
                 for table_alias in select_info.table_aliases {
                     if !table_alias.ref_str.is_empty() {
                         select_source_names.insert(table_alias.ref_str.clone());
@@ -427,7 +426,7 @@ fn get_first_select_statement_descendant(segment: &ErasedSegment) -> Option<Eras
 
 fn is_correlated_subquery(
     nested_select: Segments,
-    select_source_names: &AHashSet<SmolStr>,
+    select_source_names: &FxHashSet<SmolStr>,
     dialect: &Dialect,
 ) -> bool {
     let Some(select_statement) =
@@ -770,7 +769,7 @@ fn create_table_ref(tables: &Tables, table_name: &str, dialect: &Dialect) -> Era
 
 pub(crate) struct SegmentCloneMap {
     root: ErasedSegment,
-    segment_map: AHashMap<usize, ErasedSegment>,
+    segment_map: FxHashMap<usize, ErasedSegment>,
 }
 
 impl Index<&ErasedSegment> for SegmentCloneMap {
@@ -789,7 +788,7 @@ impl IndexMut<&ErasedSegment> for SegmentCloneMap {
 
 impl SegmentCloneMap {
     fn new(segment: ErasedSegment, segment_copy: ErasedSegment) -> Self {
-        let mut segment_map = AHashMap::new();
+        let mut segment_map = FxHashMap::default();
 
         for (old_segment, new_segment) in zip(
             segment.recursive_crawl_all(false),

@@ -10,6 +10,7 @@ workspace = true
 
 [dependencies]
 sqruff-lib-core = { workspace = true }
+rustc-hash.workspace = true
 
 [dev-dependencies]
 sqruff-lib-dialects = { workspace = true }

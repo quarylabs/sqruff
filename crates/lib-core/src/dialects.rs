@@ -6,7 +6,7 @@ use std::borrow::Cow;
 use std::collections::hash_map::Entry;
 use std::fmt::Debug;
 
-use ahash::{AHashMap, AHashSet};
+use rustc_hash::{FxHashMap, FxHashSet};
 
 use crate::dialects::init::DialectKind;
 use crate::dialects::syntax::SyntaxKind;
@@ -20,9 +20,9 @@ use crate::parser::types::DialectElementType;
 pub struct Dialect {
     pub name: DialectKind,
     lexer_matchers: Option<Vec<Matcher>>,
-    library: AHashMap<Cow<'static, str>, DialectElementType>,
-    sets: AHashMap<&'static str, AHashSet<&'static str>>,
-    pub bracket_collections: AHashMap<&'static str, AHashSet<BracketPair>>,
+    library: FxHashMap<Cow<'static, str>, DialectElementType>,
+    sets: FxHashMap<&'static str, FxHashSet<&'static str>>,
+    pub bracket_collections: FxHashMap<&'static str, FxHashSet<BracketPair>>,
     lexer: Option<Lexer>,
 }
 
@@ -117,7 +117,7 @@ impl Dialect {
             panic!("Lexer struct must be defined before it can be patched!");
         }
 
-        let patch_dict: AHashMap<&'static str, Matcher> = lexer_patch
+        let patch_dict: FxHashMap<&'static str, Matcher> = lexer_patch
             .into_iter()
             .map(|elem| (elem.name(), elem))
             .collect();
@@ -137,7 +137,7 @@ impl Dialect {
         self.lexer_matchers = lexer_matchers.into();
     }
 
-    pub fn sets(&self, label: &str) -> AHashSet<&'static str> {
+    pub fn sets(&self, label: &str) -> FxHashSet<&'static str> {
         match label {
             "bracket_pairs" | "angle_bracket_pairs" => {
                 panic!("Use `bracket_sets` to retrieve {label} set.");
@@ -148,7 +148,7 @@ impl Dialect {
         self.sets.get(label).cloned().unwrap_or_default()
     }
 
-    pub fn sets_mut(&mut self, label: &'static str) -> &mut AHashSet<&'static str> {
+    pub fn sets_mut(&mut self, label: &'static str) -> &mut FxHashSet<&'static str> {
         assert!(
             label != "bracket_pairs" && label != "angle_bracket_pairs",
             "Use `bracket_sets` to retrieve {label} set."
@@ -173,7 +173,7 @@ impl Dialect {
         self.sets_mut(set_label).insert(value);
     }
 
-    pub fn bracket_sets(&self, label: &str) -> AHashSet<BracketPair> {
+    pub fn bracket_sets(&self, label: &str) -> FxHashSet<BracketPair> {
         assert!(
             label == "bracket_pairs" || label == "angle_bracket_pairs",
             "Invalid bracket set. Consider using another identifier instead."
@@ -185,7 +185,7 @@ impl Dialect {
             .unwrap_or_default()
     }
 
-    pub fn bracket_sets_mut(&mut self, label: &'static str) -> &mut AHashSet<BracketPair> {
+    pub fn bracket_sets_mut(&mut self, label: &'static str) -> &mut FxHashSet<BracketPair> {
         assert!(
             label == "bracket_pairs" || label == "angle_bracket_pairs",
             "Invalid bracket set. Consider using another identifier instead."

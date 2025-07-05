@@ -1,7 +1,6 @@
 use std::borrow::Cow;
 use std::cmp::Ordering;
 
-use ahash::HashMapExt;
 use nohash_hasher::IntMap;
 
 use super::segments::{ErasedSegment, SegmentBuilder, Tables};
@@ -136,7 +135,10 @@ impl MatchResult {
 
         let mut result_segments = Vec::new();
         let mut trigger_locs: IntMap<u32, Vec<Trigger>> =
-            IntMap::with_capacity(self.insert_segments.len() + self.child_matches.len());
+            IntMap::with_capacity_and_hasher(
+                self.insert_segments.len() + self.child_matches.len(),
+                Default::default()
+            );
 
         for (pos, insert) in self.insert_segments {
             trigger_locs

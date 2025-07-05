@@ -90,7 +90,15 @@ FROM foo
                 let parent_segments = parent.segments();
                 
                 // Special handling for T-SQL: Check if the parent contains TOP
-                // This is a workaround for the parser bug where "TOP 20" is included in SelectClauseElement
+                // This is a workaround for a parser issue where T-SQL's "alias = expression" 
+                // syntax is not properly parsed when used with TOP or DISTINCT TOP.
+                // 
+                // Example that fails to parse correctly:
+                //   SELECT TOP 5 ColumnAlias = table.column FROM table
+                //   SELECT DISTINCT TOP 5 ColumnAlias = table.column FROM table
+                //
+                // The parser incorrectly creates unparsable sections for the "= expression" part,
+                // causing AL02 to flag valid T-SQL syntax as implicit aliasing.
                 if parent_segments.iter().any(|seg| {
                     seg.get_type() == SyntaxKind::Expression && seg.raw().trim().starts_with("TOP")
                 }) {

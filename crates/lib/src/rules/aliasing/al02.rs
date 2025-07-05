@@ -106,14 +106,6 @@ FROM foo
                 
                 // Additional check for T-SQL: If this is an implicit alias (no AS keyword),
                 // check if the aliased identifier is followed by "=" in the SelectClauseElement
-                // 
-                // Known limitation: This doesn't work when the T-SQL alias syntax spans multiple lines
-                // with TOP, e.g.:
-                //   SELECT TOP 20
-                //       JiraIssueID = expression
-                // 
-                // In this case, the parser has already committed to parsing JiraIssueID as a column
-                // reference with implicit aliasing before it sees the "=" on the same line.
                 if context.segment.segments().iter().all(|s| s.raw() != "AS" && s.raw() != "as") {
                     // Find the identifier being used as alias
                     if let Some(identifier) = context.segment.segments().iter().find(|s| {
@@ -134,21 +126,57 @@ FROM foo
                             }
                         }
                     }
+                    
+                    // Special handling for multiline T-SQL alias syntax with TOP
+                    // When the parser sees:
+                    //   SELECT TOP 20
+                    //       JiraIssueID = expression
+                    // It parses JiraIssueID as a column with implicit alias before seeing the =
+                    // 
+                    // To detect this, we check if:
+                    // 1. We're in a SELECT with TOP
+                    // 2. The entire SELECT clause contains "identifier ="
+                    if context.parent_stack.len() >= 2 {
+                        if let Some(select_clause) = context.parent_stack.iter().rev().find(|s| s.get_type() == SyntaxKind::SelectClause) {
+                            // Check if this SELECT has TOP by looking at the raw text
+                            let select_raw = select_clause.raw();
+                            
+                            // Look for TOP in the select clause text
+                            let has_top = select_raw.split_whitespace()
+                                .take(10) // Look at first few tokens
+                                .any(|token| token.to_uppercase() == "TOP");
+                            
+                            if has_top {
+                                // Get the identifier from the alias expression
+                                if let Some(identifier) = context.segment.segments().iter().find(|s| {
+                                    matches!(s.get_type(), SyntaxKind::NakedIdentifier | SyntaxKind::QuotedIdentifier)
+                                }) {
+                                    // Since the parser creates separate elements for identifier and = expression,
+                                    // we need to look at the entire SELECT clause to detect the pattern
+                                    let identifier_raw = identifier.raw();
+                                    
+                                    // Look in the entire SELECT clause for the pattern "identifier ="
+                                    if let Some(id_pos) = select_raw.find(identifier_raw.as_str()) {
+                                        let after_id = &select_raw[id_pos + identifier_raw.len()..];
+                                        
+                                        // Skip whitespace and check for =
+                                        let trimmed = after_id.trim_start();
+                                        if trimmed.starts_with('=') {
+                                            // This is T-SQL alias syntax
+                                            return Vec::new();
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
                 }
             }
         }
         
         // Original check for other cases
-        if FunctionalContext::new(context)
-            .segment()
-            .children(None)
-            .last()
-            .unwrap()
-            .raw()
-            == "="
-        {
-            return Vec::new();
-        }
+        // This was checking if the alias ends with "=" but that's too broad
+        // It was incorrectly catching quoted identifiers like "example="
 
         self.base.eval(context)
     }

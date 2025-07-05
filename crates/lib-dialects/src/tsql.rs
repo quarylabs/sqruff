@@ -838,15 +838,15 @@ pub fn raw_dialect() -> Dialect {
     )]);
 
     // T-SQL supports alternative alias syntax: AliasName = Expression
-    // The parser distinguishes between column references (table1.column1)
-    // and alias assignments (AliasName = table1.column1)
     dialect.replace_grammar(
         "SelectClauseElementSegment",
         one_of(vec_of_erased![
             // T-SQL alias equals pattern: AliasName = Expression
-            // Must be first to take precedence
             Sequence::new(vec_of_erased![
-                Ref::new("SingleIdentifierGrammar"),
+                one_of(vec_of_erased![
+                    Ref::new("NakedIdentifierSegment"),
+                    Ref::new("QuotedIdentifierSegment")
+                ]),
                 Ref::new("EqualsSegment"),
                 one_of(vec_of_erased![
                     Ref::new("LiteralGrammar"),

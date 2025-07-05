@@ -42,6 +42,46 @@ test_pass_tsql_alternative_alias:
     core:
       dialect: tsql
 
+test_pass_tsql_alternative_alias_with_top:
+  # Test T-SQL alternative alias syntax with TOP clause
+  # This should NOT trigger AL02 - it's valid T-SQL syntax
+  pass_str: |
+    SELECT TOP 20
+        JiraIssueID = JiraIssue.i_jira_id,
+        JiraIssueKey = JiraIssue.s_key
+    FROM JiraIssue
+  configs:
+    core:
+      dialect: tsql
+
+test_pass_tsql_alternative_alias_with_distinct_top:
+  # Test T-SQL alternative alias syntax with DISTINCT TOP clause
+  # This should NOT trigger AL02 - it's valid T-SQL syntax
+  pass_str: |
+    SELECT DISTINCT TOP 20
+        JiraIssueID = JiraIssue.i_jira_id,
+        JiraIssueKey = JiraIssue.s_key
+    FROM JiraIssue
+  configs:
+    core:
+      dialect: tsql
+
+test_fail_tsql_implicit_alias_with_distinct_top:
+  # Test implicit alias with DISTINCT TOP - this SHOULD trigger AL02
+  fail_str: |
+    SELECT DISTINCT TOP 20
+        JiraIssue.i_jira_id JiraIssueID,
+        JiraIssue.s_key JiraIssueKey
+    FROM JiraIssue
+  fix_str: |
+    SELECT DISTINCT TOP 20
+        JiraIssue.i_jira_id AS JiraIssueID,
+        JiraIssue.s_key AS JiraIssueKey
+    FROM JiraIssue
+  configs:
+    core:
+      dialect: tsql
+
 test_fail_alias_ending_equals:
   # Test explicit column alias doesn't catch false positives
   fail_str: select col1 "example="

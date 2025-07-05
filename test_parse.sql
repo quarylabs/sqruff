@@ -1,1 +1,0 @@
-SELECT DISTINCT TOP 20 JiraIssue.i_jira_id JiraIssueID FROM JiraIssue

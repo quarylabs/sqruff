@@ -1,5 +1,0 @@
-[sqruff]
-dialect = tsql
-
-[sqruff:rules:aliasing.column]
-aliasing = explicit

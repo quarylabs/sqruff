@@ -9,6 +9,7 @@ export default defineConfig({
   // Run tests in headless browsers by default
   use: {
     headless: true,
+    baseURL: "http://localhost:5173",
   },
   // Configure projects for different browsers if desired
   projects: [

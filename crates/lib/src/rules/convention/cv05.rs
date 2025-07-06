@@ -104,8 +104,9 @@ WHERE a IS NULL
         }
 
         // Check for T-SQL alias syntax in SELECT clause (e.g., "name = null")
-        if !context.parent_stack.is_empty() 
-            && context.parent_stack[context.parent_stack.len() - 1].is_type(SyntaxKind::SelectClauseElement) 
+        if !context.parent_stack.is_empty()
+            && context.parent_stack[context.parent_stack.len() - 1]
+                .is_type(SyntaxKind::SelectClauseElement)
         {
             // In T-SQL, "alias = expression" in SELECT is an alias assignment, not a comparison
             if context.dialect.name == DialectKind::Tsql {

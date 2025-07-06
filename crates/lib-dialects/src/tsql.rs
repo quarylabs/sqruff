@@ -13,7 +13,7 @@ use sqruff_lib_core::parser::grammar::sequence::{Bracketed, Sequence};
 use sqruff_lib_core::parser::lexer::Matcher;
 use sqruff_lib_core::parser::lookahead::LookaheadExclude;
 use sqruff_lib_core::parser::node_matcher::NodeMatcher;
-use sqruff_lib_core::parser::parsers::{RegexParser, StringParser, TypedParser};
+use sqruff_lib_core::parser::parsers::{RegexParser, TypedParser};
 use sqruff_lib_core::parser::segments::generator::SegmentGenerator;
 use sqruff_lib_core::parser::segments::meta::MetaSegment;
 use sqruff_lib_core::parser::types::ParseMode;
@@ -829,13 +829,8 @@ pub fn raw_dialect() -> Dialect {
         .into(),
     )]);
 
-    // Add EqualsSegment for T-SQL alias syntax
-    dialect.add([(
-        "EqualsSegment".into(),
-        StringParser::new("=", SyntaxKind::RawComparisonOperator)
-            .to_matchable()
-            .into(),
-    )]);
+    // Note: EqualsSegment is already defined in ANSI and properly wraps
+    // RawEqualsSegment in a ComparisonOperator node, so we don't need to redefine it
 
     // T-SQL supports alternative alias syntax: AliasName = Expression
     dialect.replace_grammar(

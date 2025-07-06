@@ -54,7 +54,8 @@ file:
                 - naked_identifier: Position
                 - dot: .
                 - naked_identifier: I_POS_ID
-              - raw_comparison_operator: =
+              - comparison_operator:
+                - raw_comparison_operator: =
               - column_reference:
                 - naked_identifier: op2ref
                 - dot: .
@@ -66,6 +67,7 @@ file:
           - naked_identifier: op2ref
           - dot: .
           - naked_identifier: i_referencetype_id
-        - raw_comparison_operator: =
+        - comparison_operator:
+          - raw_comparison_operator: =
         - numeric_literal: '1'
 - statement_terminator: ;

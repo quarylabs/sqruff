@@ -56,7 +56,8 @@ file:
                   - naked_identifier: BU2IC
                   - dot: .
                   - naked_identifier: ItemCategoryID
-                - raw_comparison_operator: =
+                - comparison_operator:
+                  - raw_comparison_operator: =
                 - column_reference:
                   - naked_identifier: NxItem
                   - dot: .

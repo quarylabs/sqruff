@@ -43,7 +43,8 @@ file:
                     - keyword: SELECT
                     - select_clause_element:
                       - naked_identifier: TotalAmount
-                      - raw_comparison_operator: =
+                      - comparison_operator:
+                        - raw_comparison_operator: =
                       - expression:
                         - function:
                           - function_name:
@@ -74,7 +75,8 @@ file:
                         - naked_identifier: o
                         - dot: .
                         - naked_identifier: CustomerID
-                      - raw_comparison_operator: =
+                      - comparison_operator:
+                        - raw_comparison_operator: =
                       - column_reference:
                         - naked_identifier: c
                         - dot: .
@@ -90,5 +92,6 @@ file:
           - naked_identifier: c
           - dot: .
           - naked_identifier: Active
-        - raw_comparison_operator: =
+        - comparison_operator:
+          - raw_comparison_operator: =
         - numeric_literal: '1'

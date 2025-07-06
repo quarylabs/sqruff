@@ -1,5 +1,6 @@
 use ahash::AHashMap;
 use sqruff_lib_core::dialects::syntax::{SyntaxKind, SyntaxSet};
+use sqruff_lib_core::parser::segments::ErasedSegment;
 
 use super::al01::{Aliasing, RuleAL01};
 use crate::core::config::Value;
@@ -25,6 +26,81 @@ impl RuleAL02 {
     pub fn aliasing(mut self, aliasing: Aliasing) -> Self {
         self.base = self.base.aliasing(aliasing);
         self
+    }
+    
+    /// Check if this alias expression is part of T-SQL "alias = expression" syntax
+    fn is_tsql_alias_equals_syntax(&self, context: &RuleContext, parent: &ErasedSegment) -> bool {
+        let parent_segments = parent.segments();
+        
+        // Check 1: Is the alias expression followed by "="?
+        if let Some(pos) = parent_segments.iter().position(|s| s == &context.segment) {
+            // Check if the next non-whitespace segment is "="
+            for i in (pos + 1)..parent_segments.len() {
+                let seg = &parent_segments[i];
+                if !seg.is_whitespace() && !seg.is_meta() {
+                    if seg.raw() == "=" {
+                        return true;
+                    }
+                    break;
+                }
+            }
+        }
+        
+        // Only check further if this is an implicit alias (no AS keyword)
+        if !context.segment.segments().iter().all(|s| s.raw() != "AS" && s.raw() != "as") {
+            return false;
+        }
+        
+        // Check 2: Is the identifier in the alias followed by "=" in the parent?
+        if let Some(identifier) = context.segment.segments().iter().find(|s| {
+            matches!(s.get_type(), SyntaxKind::NakedIdentifier | SyntaxKind::QuotedIdentifier)
+        }) {
+            if let Some(id_pos) = parent_segments.iter().position(|s| s.raw() == identifier.raw()) {
+                for i in (id_pos + 1)..parent_segments.len() {
+                    let seg = &parent_segments[i];
+                    if !seg.is_whitespace() && !seg.is_meta() {
+                        if seg.raw() == "=" {
+                            return true;
+                        }
+                        break;
+                    }
+                }
+            }
+        }
+        
+        // Check 3: Multiline T-SQL alias syntax with TOP
+        // When parser sees "SELECT TOP 20\n    JiraIssueID = expression"
+        // it parses JiraIssueID as implicit alias before seeing the "="
+        if context.parent_stack.len() >= 2 {
+            if let Some(select_clause) = context.parent_stack.iter().rev()
+                .find(|s| s.get_type() == SyntaxKind::SelectClause) {
+                
+                let select_raw = select_clause.raw();
+                
+                // Only check if SELECT has TOP
+                let has_top = select_raw.split_whitespace()
+                    .take(10)
+                    .any(|token| token.to_uppercase() == "TOP");
+                
+                if has_top {
+                    if let Some(identifier) = context.segment.segments().iter().find(|s| {
+                        matches!(s.get_type(), SyntaxKind::NakedIdentifier | SyntaxKind::QuotedIdentifier)
+                    }) {
+                        let identifier_raw = identifier.raw();
+                        
+                        // Look for "identifier =" pattern in the entire SELECT clause
+                        if let Some(id_pos) = select_raw.find(identifier_raw.as_str()) {
+                            let after_id = &select_raw[id_pos + identifier_raw.len()..];
+                            if after_id.trim_start().starts_with('=') {
+                                return true;
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        
+        false
     }
 }
 
@@ -83,100 +159,16 @@ FROM foo
     }
 
     fn eval(&self, context: &RuleContext) -> Vec<LintResult> {
-        // For T-SQL, check if this AliasExpression is part of "alias = expression" syntax
+        // Check if this is within a SELECT clause element
         if let Some(parent) = context.parent_stack.last() {
             if parent.get_type() == SyntaxKind::SelectClauseElement {
-                let parent_segments = parent.segments();
-                
-                // Find this AliasExpression and check for following "="
-                if let Some(pos) = parent_segments.iter().position(|s| s == &context.segment) {
-                    // Check if the next non-whitespace segment is "="
-                    for i in (pos + 1)..parent_segments.len() {
-                        let seg = &parent_segments[i];
-                        if !seg.is_whitespace() && !seg.is_meta() {
-                            if seg.raw() == "=" {
-                                // This is T-SQL "alias = expression" syntax, not implicit aliasing
-                                return Vec::new();
-                            }
-                            break;
-                        }
-                    }
-                }
-                
-                // Additional check for T-SQL: If this is an implicit alias (no AS keyword),
-                // check if the aliased identifier is followed by "=" in the SelectClauseElement
-                if context.segment.segments().iter().all(|s| s.raw() != "AS" && s.raw() != "as") {
-                    // Find the identifier being used as alias
-                    if let Some(identifier) = context.segment.segments().iter().find(|s| {
-                        matches!(s.get_type(), SyntaxKind::NakedIdentifier | SyntaxKind::QuotedIdentifier)
-                    }) {
-                        // Check if this identifier is followed by "=" in the parent
-                        if let Some(id_pos) = parent_segments.iter().position(|s| s.raw() == identifier.raw()) {
-                            // Look for "=" after this identifier
-                            for i in (id_pos + 1)..parent_segments.len() {
-                                let seg = &parent_segments[i];
-                                if !seg.is_whitespace() && !seg.is_meta() {
-                                    if seg.raw() == "=" {
-                                        // This is T-SQL "identifier = expression" syntax
-                                        return Vec::new();
-                                    }
-                                    break;
-                                }
-                            }
-                        }
-                    }
-                    
-                    // Special handling for multiline T-SQL alias syntax with TOP
-                    // When the parser sees:
-                    //   SELECT TOP 20
-                    //       JiraIssueID = expression
-                    // It parses JiraIssueID as a column with implicit alias before seeing the =
-                    // 
-                    // To detect this, we check if:
-                    // 1. We're in a SELECT with TOP
-                    // 2. The entire SELECT clause contains "identifier ="
-                    if context.parent_stack.len() >= 2 {
-                        if let Some(select_clause) = context.parent_stack.iter().rev().find(|s| s.get_type() == SyntaxKind::SelectClause) {
-                            // Check if this SELECT has TOP by looking at the raw text
-                            let select_raw = select_clause.raw();
-                            
-                            // Look for TOP in the select clause text
-                            let has_top = select_raw.split_whitespace()
-                                .take(10) // Look at first few tokens
-                                .any(|token| token.to_uppercase() == "TOP");
-                            
-                            if has_top {
-                                // Get the identifier from the alias expression
-                                if let Some(identifier) = context.segment.segments().iter().find(|s| {
-                                    matches!(s.get_type(), SyntaxKind::NakedIdentifier | SyntaxKind::QuotedIdentifier)
-                                }) {
-                                    // Since the parser creates separate elements for identifier and = expression,
-                                    // we need to look at the entire SELECT clause to detect the pattern
-                                    let identifier_raw = identifier.raw();
-                                    
-                                    // Look in the entire SELECT clause for the pattern "identifier ="
-                                    if let Some(id_pos) = select_raw.find(identifier_raw.as_str()) {
-                                        let after_id = &select_raw[id_pos + identifier_raw.len()..];
-                                        
-                                        // Skip whitespace and check for =
-                                        let trimmed = after_id.trim_start();
-                                        if trimmed.starts_with('=') {
-                                            // This is T-SQL alias syntax
-                                            return Vec::new();
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                    }
+                // Skip if this is T-SQL "alias = expression" syntax
+                if self.is_tsql_alias_equals_syntax(context, parent) {
+                    return Vec::new();
                 }
             }
         }
         
-        // Original check for other cases
-        // This was checking if the alias ends with "=" but that's too broad
-        // It was incorrectly catching quoted identifiers like "example="
-
         self.base.eval(context)
     }
 

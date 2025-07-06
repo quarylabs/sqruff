@@ -52,6 +52,7 @@ test_pass_cte_with_column_list:
     select * from search_path
 
 test_pass_with_clause_closing_misaligned_indentation_in_templated_block:
+  ignored: "jinja is not set"
   pass_str: |
     with
     {% if true %}
@@ -85,6 +86,7 @@ test_move_parenthesis_to_next_line_in_templated_block:
     select * from cte
 
 test_pass_templated_clauses:
+  ignored: "jinja is not set"
   pass_str: |
     with
 

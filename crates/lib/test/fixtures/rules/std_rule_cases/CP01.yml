@@ -63,7 +63,6 @@ test_pass_date_part_consistent_capitalisation:
   # Test that correctly capitalized time units are left unchanged
   pass_str: SELECT dt + INTERVAL 2 DAY, INTERVAL 3 HOUR
 
-
 test_pass_data_type_inconsistent_capitalisation:
   # Test that we don't have the "inconsistent" bug
   pass_str: CREATE TABLE table1 (account_id bigint);
@@ -123,6 +122,7 @@ test_pass_ignore_words_complex:
         ignore_words_regex: (^Se|^Fr)
 
 test_pass_ignore_templated_code_true:
+  ignored: "jinja is not set"
   pass_str: |
     {{ "select" }} a
     FROM foo

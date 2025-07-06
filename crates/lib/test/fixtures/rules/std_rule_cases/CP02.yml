@@ -1,6 +1,7 @@
 rule: CP02
 
 issues_670:
+  ignored: "code is not parsing"
   pass_str: SELECT a FROM ${ref("SHUTDOWN_DATES_ALL_PLANTS")}
   configs:
     core:

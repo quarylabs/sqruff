@@ -208,14 +208,32 @@ pub fn raw_dialect() -> Dialect {
     // Add T-SQL specific grammar
 
     // TOP clause support (e.g., SELECT TOP 10, TOP (10) PERCENT, TOP 5 WITH TIES)
+    // T-SQL allows DISTINCT/ALL followed by TOP
     dialect.replace_grammar(
         "SelectClauseModifierSegment",
         one_of(vec_of_erased![
-            // Keep ANSI's DISTINCT/ALL
+            // DISTINCT/ALL alone
             Ref::keyword("DISTINCT"),
             Ref::keyword("ALL"),
-            // Add T-SQL's TOP clause
+            // TOP alone
             Sequence::new(vec_of_erased![
+                Ref::keyword("TOP"),
+                one_of(vec_of_erased![
+                    Ref::new("NumericLiteralSegment"),
+                    Ref::new("TsqlVariableSegment"),
+                    Bracketed::new(vec_of_erased![one_of(vec_of_erased![
+                        Ref::new("NumericLiteralSegment"),
+                        Ref::new("TsqlVariableSegment"),
+                        Ref::new("ExpressionSegment")
+                    ])])
+                ]),
+                Ref::keyword("PERCENT").optional(),
+                Ref::keyword("WITH").optional(),
+                Ref::keyword("TIES").optional()
+            ]),
+            // DISTINCT/ALL followed by TOP
+            Sequence::new(vec_of_erased![
+                one_of(vec_of_erased![Ref::keyword("DISTINCT"), Ref::keyword("ALL")]),
                 Ref::keyword("TOP"),
                 one_of(vec_of_erased![
                     Ref::new("NumericLiteralSegment"),
@@ -842,7 +860,7 @@ pub fn raw_dialect() -> Dialect {
             // Use SingleIdentifierGrammar which has proper terminators
             Sequence::new(vec_of_erased![
                 Ref::new("SingleIdentifierGrammar"),
-                Ref::new("EqualsSegment"),
+                Ref::new("AssignmentOperatorSegment"),
                 one_of(vec_of_erased![
                     Ref::new("LiteralGrammar"),
                     Ref::new("ColumnReferenceSegment"),

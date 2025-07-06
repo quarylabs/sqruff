@@ -43,7 +43,7 @@ file:
                     - keyword: SELECT
                     - select_clause_element:
                       - naked_identifier: TotalAmount
-                      - comparison_operator:
+                      - assignment_operator:
                         - raw_comparison_operator: =
                       - expression:
                         - function:

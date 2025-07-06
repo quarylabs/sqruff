@@ -1,7 +1,6 @@
 use std::borrow::Cow;
 
 use ahash::AHashMap;
-use sqruff_lib_core::dialects::init::DialectKind;
 use sqruff_lib_core::dialects::syntax::{SyntaxKind, SyntaxSet};
 use sqruff_lib_core::parser::segments::{ErasedSegment, SegmentBuilder};
 use sqruff_lib_core::utils::functional::segments::Segments;
@@ -103,16 +102,6 @@ WHERE a IS NULL
             }
         }
 
-        // Check for T-SQL alias syntax in SELECT clause (e.g., "name = null")
-        if !context.parent_stack.is_empty()
-            && context.parent_stack[context.parent_stack.len() - 1]
-                .is_type(SyntaxKind::SelectClauseElement)
-        {
-            // In T-SQL, "alias = expression" in SELECT is an alias assignment, not a comparison
-            if context.dialect.name == DialectKind::Tsql {
-                return Vec::new();
-            }
-        }
 
         if !context.parent_stack.is_empty()
             && context.parent_stack[context.parent_stack.len() - 1]

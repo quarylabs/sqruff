@@ -212,15 +212,52 @@ SELECT * FROM table;
 
 ## Debugging Tips
 
+### Debugging Linting Issues (When Rules Flag Valid Syntax)
+
+**IMPORTANT**: When a linting rule incorrectly flags valid syntax, always check the parser first before modifying the rule. Most issues stem from incorrect AST generation, not rule logic.
+
+#### Debugging Approach
+1. **Parser First**: Check if the parser creates the correct AST structure
+   - Create minimal test cases to isolate the issue
+   - Test components separately (e.g., `TOP` alone, `DISTINCT` alone, then `DISTINCT TOP`)
+   - Look for "unparsable" segments in the AST - this indicates parser grammar issues
+2. **Grammar Combinations**: SQL dialects often support keyword combinations that need explicit handling
+   - Example: T-SQL's `DISTINCT TOP` needs to be defined as a combined modifier
+   - Check if `SelectClauseModifierSegment` or similar grammar rules handle all valid combinations
+3. **AST Node Types**: Ensure semantically correct node types
+   - Example: T-SQL's `alias = expression` should use `AssignmentOperator`, not `ComparisonOperator`
+   - Wrong node types can confuse rules and lead to incorrect behavior
+4. **Only Then Check Rules**: If parser output is correct, then investigate rule logic
+
+#### Example: T-SQL DISTINCT TOP Issue
+```sql
+-- This valid T-SQL was incorrectly flagged by AL02:
+SELECT DISTINCT TOP 20 JiraIssueID = JiraIssue.i_jira_id
+```
+**Root Cause**: The T-SQL dialect's `SelectClauseModifierSegment` didn't support `DISTINCT TOP` as a combined modifier. The parser created separate modifiers, breaking the subsequent T-SQL alias pattern matching.
+
+**Fix**: Updated the grammar to explicitly handle the combination:
+```rust
+// Support DISTINCT/ALL followed by TOP as a single modifier
+Sequence::new(vec_of_erased![
+    one_of(vec_of_erased![Ref::keyword("DISTINCT"), Ref::keyword("ALL")]),
+    Ref::keyword("TOP"),
+    // ... rest of TOP grammar
+])
+```
+
 ### Parser Issues
 - Use `cargo test <test_name> -- --nocapture` to see parse tree output
 - Check dialect-specific grammar in `crates/lib-dialects/`
 - Update test fixtures with `env UPDATE_EXPECT=1 cargo test`
+- Create minimal SQL test cases to isolate parser behavior
+- Look for patterns where valid syntax creates "unparsable" segments
 
 ### Rule Development
 - Use `sqruff parse <file.sql>` to see AST structure
 - Add `println!` debugging in rule implementation
 - Test rules with minimal SQL examples first
+- Verify the parser creates expected AST before implementing rule logic
 
 ## Release Process
 1. Update versions in Cargo.toml files

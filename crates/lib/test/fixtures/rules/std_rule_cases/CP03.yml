@@ -55,6 +55,7 @@ test_pass_ignore_word:
         ignore_words: min
 
 test_pass_ignore_templated_code_true:
+  ignored: "not set"
   pass_str: |
     SELECT
         {{ "greatest(a, b)" }},
@@ -78,6 +79,7 @@ test_fail_ignore_templated_code_false:
       ignore_templated_areas: false
 
 test_pass_func_name_templated_literal_mix:
+  ignored: "looking at templating code"
   # Issue 3022. This was actually a bug in BaseSegment.iter_patches().
   pass_str: SELECT RO(), {{ "t" }}.func()
 

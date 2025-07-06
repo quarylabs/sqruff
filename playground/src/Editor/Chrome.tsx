@@ -1,18 +1,64 @@
-import { useCallback, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { default as Editor, Source } from "./Editor";
 import initSqruff from "../pkg";
 import Header from "./Header";
+import { fromBase64, toBase64 } from "./stateSerializer";
+import { debounce } from "lodash-es";
+
+function updateStateUrl(state: {
+  sql: string | null;
+  settings: string | null;
+}) {
+  if (!state.sql || !state.settings) {
+    return;
+  }
+
+  location.hash = "#" + toBase64(JSON.stringify(state));
+}
+
+function getStateUrl(): Source | null {
+  if (location.hash.length < 2) {
+    return null;
+  }
+
+  try {
+    const state = JSON.parse(fromBase64(location.hash.slice(1)));
+
+    if (!state.sql || !state.settings) {
+      return null;
+    }
+
+    return {
+      sqlSource: state.sql,
+      settingsSource: state.settings,
+    };
+  } catch (error) {
+    console.warn("Failed to parse state from URL", error);
+    return null;
+  }
+}
 
 export default function Chrome() {
   const initPromise = useRef<null | Promise<void>>(null);
   const [sqlSource, setSqlSource] = useState<null | string>(null);
   const [settings, setSettings] = useState<null | string>(null);
+  const updateStateUrlDebounced = useCallback(
+    debounce(updateStateUrl, 100),
+    [],
+  );
 
   if (initPromise.current == null) {
     initPromise.current = startPlayground()
       .then(({ sourceCode, settings }) => {
-        setSqlSource(sourceCode);
-        setSettings(settings);
+        const stateFromUrl = getStateUrl();
+
+        if (stateFromUrl != null) {
+          setSqlSource(stateFromUrl.sqlSource);
+          setSettings(stateFromUrl.settingsSource);
+        } else {
+          setSqlSource(sourceCode);
+          setSettings(settings);
+        }
       })
       .catch((error) => {
         console.error("Failed to initialize playground.", error);
@@ -64,6 +110,13 @@ ${settings}
 
     return { sqlSource: sqlSource, settingsSource: settings };
   }, [settings, sqlSource]);
+
+  useEffect(() => {
+    updateStateUrlDebounced({
+      sql: source?.sqlSource ?? "",
+      settings: source?.settingsSource ?? "",
+    });
+  }, [source]);
 
   return (
     <main className="flex flex-col h-full">

@@ -76,7 +76,7 @@ fn main() {
         return;
     }
 
-    let mut linter = Linter::new(FluffConfig::default(), None, None, false);
+    let mut linter = Linter::new(FluffConfig::default(), None, None, true);
     let mut core = AHashMap::new();
     core.insert(
         "core".to_string(),
@@ -207,7 +207,7 @@ dialect = {dialect}
 ",
  None);
 
-        let mut linter = Linter::new(config, None, None, false);
+        let mut linter = Linter::new(config, None, None, true);
 
         let pass_str = r"{pass_str}";
 

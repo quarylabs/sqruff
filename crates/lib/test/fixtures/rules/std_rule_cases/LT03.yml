@@ -61,7 +61,6 @@ passes_on_before_explicit:
         comparison_operator:
           line_position: leading
 
-
 fails_on_after_explicit:
   fail_str: |
     select
@@ -216,6 +215,7 @@ fails_trailing_with_comments:
   configs: *operator_before
 
 passes_templated_newline:
+  ignored: "jinja is not set"
   pass_str: |
     {% macro binary_literal(expression) %}
       X'{{ expression }}'

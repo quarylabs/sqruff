@@ -502,6 +502,7 @@ test_fail_clean_reindent_fix:
 
 # https://github.com/sqlfluff/sqlfluff/issues/643
 test_pass_indent_snowflake:
+  ignored: "jinja is not set"
   pass_str: |
     with source_data as (
         select * from {{ source('source_name', 'xxx_yyy_zzz') }}
@@ -515,6 +516,7 @@ test_pass_indent_snowflake:
 
 # https://github.com/sqlfluff/sqlfluff/issues/643
 test_pass_indent_indent_bigquery:
+  ignored: "jinja is not set"
   pass_str: |
     with source_data as (
         select * from {{ source('source_name', 'xxx_yyy_zzz') }}
@@ -526,7 +528,7 @@ test_pass_indent_indent_bigquery:
       dialect: bigquery
 
 test_jinja_indent_templated_table_name_a:
-  ignored: "jinja is not supported"
+  ignored: "jinja is not set"
   fail_str: |
     -- This file combines product data from individual brands into a staging table
     {% for product in ['table1', 'table2'] %}
@@ -839,6 +841,7 @@ test_tsql_function:
       dialect: tsql
 
 test_pass_ignore_templated_whitespace:
+  ignored: "jinja is not set"
   pass_str: |
     SELECT
         c1,
@@ -849,6 +852,7 @@ test_pass_ignore_templated_whitespace:
       ignore_templated_areas: false
 
 test_fail_ignore_templated_whitespace_1:
+  ignored: "jinja is not set"
   fail_str: |
     SELECT
         c1,
@@ -880,6 +884,7 @@ test_fail_ignore_templated_whitespace_2:
       ignore_templated_areas: false
 
 test_fail_ignore_templated_whitespace_3:
+  ignored: "jinja is not set"
   fail_str: |
     SELECT
         c1,
@@ -895,6 +900,7 @@ test_fail_ignore_templated_whitespace_3:
       ignore_templated_areas: false
 
 test_pass_ignore_templated_whitespace_4:
+  ignored: "jinja is not set"
   # Note the newline after c2. This causes "AS other_id" to be on a different
   # line in templated space, but not raw space. LT02 should ignore lines like
   # this.
@@ -914,6 +920,7 @@ test_pass_ignore_templated_newline_not_last_line:
         using (id)
 
 test_pass_ignore_templated_newline_last_line:
+  ignored: "jinja is not set"
   pass_str: |
     select *
     from {{ "\n\nmy_table" }}

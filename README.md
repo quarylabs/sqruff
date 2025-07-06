@@ -205,6 +205,12 @@ For more details about, see the documents in the [docs](./docs/) folder which co
 - [Details on the templaters](./docs/templaters.md)
 - [Sample configurations](./docs/sample_configurations.md)
 
+## Community Projects
+
+If your project isn't listed here and you would like it to be, please feel free to create a PR.
+
+- [`cargo-sqruff`](https://github.com/gvozdvmozgu/cargo-sqruff): you can use [`cargo-sqruff`](https://github.com/gvozdvmozgu/cargo-sqruff), implemented as a `dylint` plugin, to lint your SQL queries that run through `sqlx`!
+
 ## Community
 
 Join the Quary community on [Slack](https://join.slack.com/t/quarylabs/shared_invite/zt-2dlbfnztw-dMLXJVL38NcbhqRuM5gUcw) to ask questions, suggest features, or share your projects. Also feel free to raise any issues in the repository.

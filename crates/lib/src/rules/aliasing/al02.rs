@@ -6,7 +6,6 @@ use crate::core::config::Value;
 use crate::core::rules::context::RuleContext;
 use crate::core::rules::crawlers::{Crawler, SegmentSeekerCrawler};
 use crate::core::rules::{Erased, ErasedRule, LintResult, Rule, RuleGroups};
-use crate::utils::functional::context::FunctionalContext;
 
 #[derive(Debug, Clone)]
 pub struct RuleAL02 {

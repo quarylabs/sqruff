@@ -841,22 +841,19 @@ pub fn raw_dialect() -> Dialect {
     dialect.replace_grammar(
         "SelectClauseElementSegment",
         one_of(vec_of_erased![
+            // Wildcard expressions first (highest priority)
+            Ref::new("WildcardExpressionSegment"),
             // T-SQL alias equals pattern: AliasName = Expression
+            // Use SingleIdentifierGrammar which has proper terminators
             Sequence::new(vec_of_erased![
-                one_of(vec_of_erased![
-                    Ref::new("NakedIdentifierSegment"),
-                    Ref::new("QuotedIdentifierSegment")
-                ]),
+                Ref::new("SingleIdentifierGrammar"),
                 Ref::new("EqualsSegment"),
                 one_of(vec_of_erased![
                     Ref::new("LiteralGrammar"),
                     Ref::new("ColumnReferenceSegment"),
                     Ref::new("ExpressionSegment")
                 ])
-            ])
-            .config(|this| this.parse_mode = ParseMode::GreedyOnceStarted),
-            // Wildcard expressions
-            Ref::new("WildcardExpressionSegment"),
+            ]),
             // Everything else (standard column with optional alias)
             Sequence::new(vec_of_erased![
                 Ref::new("BaseExpressionElementGrammar"),

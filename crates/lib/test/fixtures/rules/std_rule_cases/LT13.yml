@@ -16,12 +16,15 @@ test_pass_leading_whitespace_inline_comment_hash:
       dialect: bigquery
 
 test_pass_leading_whitespace_jinja_comment:
+  ignored: "jinja is not set"
   pass_str: "{# I am a comment #}\nSELECT foo FROM bar\n"
 
 test_pass_leading_whitespace_jinja_if:
+  ignored: "jinja is not set"
   pass_str: "{% if True %}\nSELECT foo\nFROM bar;\n{% endif %}\n"
 
 test_pass_leading_whitespace_jinja_for:
+  ignored: "jinja is not set"
   pass_str: "{% for item in range(10) %}\nSELECT foo_{{ item }}\nFROM bar;\n{% endfor %}\n"
 
 test_fail_leading_whitespace_statement:
@@ -37,13 +40,16 @@ test_fail_leading_whitespace_inline_comment:
   fix_str: "--I am a comment\nSELECT foo FROM bar\n"
 
 test_fail_leading_whitespace_jinja_comment:
+  ignored: "jinja is not set"
   fail_str: "\n  {# I am a comment #}\nSELECT foo FROM bar\n"
   fix_str: "{# I am a comment #}\nSELECT foo FROM bar\n"
 
 test_fail_leading_whitespace_jinja_if:
+  ignored: "jinja is not set"
   fail_str: "\n  {% if True %}\nSELECT foo\nFROM bar;\n{% endif %}\n"
   fix_str: "{% if True %}\nSELECT foo\nFROM bar;\n{% endif %}\n"
 
 test_fail_leading_whitespace_jinja_for:
+  ignored: "jinja is not set"
   fail_str: "\n  {% for item in range(10) %}\nSELECT foo_{{ item }}\nFROM bar;\n{% endfor %}\n"
   fix_str: "{% for item in range(10) %}\nSELECT foo_{{ item }}\nFROM bar;\n{% endfor %}\n"

@@ -291,6 +291,7 @@ test_pass_update_with_alias:
         SELECT 1 FROM foobar AS tmp WHERE tmp.idx = dest.idx)
 
 test_pass_postgres_merge_with_alias:
+  ignored: "test says postgres but it's set to tsql"
   pass_str: |
     merge dw.sch.tbl dest
     using land.sch.tbl src

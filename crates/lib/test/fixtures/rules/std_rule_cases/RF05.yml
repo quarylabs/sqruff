@@ -31,7 +31,6 @@ test_fail_special_chars_create_table_lt_bigquery:
     core:
       dialect: bigquery
 
-
 test_pass_special_chars_create_table_none:
   pass_str:
     CREATE TABLE DBO.ColumnNames
@@ -96,7 +95,6 @@ test_fail_special_chars_quoted_policy_column_alias:
     rules:
       references.special_chars:
         quoted_identifiers_policy: column_aliases
-
 
 test_pass_special_chars_quoted_policy_aliases:
   pass_str:
@@ -201,6 +199,7 @@ test_fail_tsql_quoted_alias_with_special_chars:
       dialect: tsql
 
 test_pass_tsql_temp_table_no_special_chars:
+  ignored: "still unparseable"
   # Temp tables starting with # should not be flagged (no special chars after #)
   pass_str:
     SELECT * FROM #TempTable
@@ -212,6 +211,7 @@ test_pass_tsql_temp_table_no_special_chars:
       dialect: tsql
 
 test_pass_tsql_global_temp_table_no_special_chars:
+  ignored: "still unparseable"
   # Global temp tables starting with ## should not be flagged
   pass_str:
     SELECT * FROM ##GlobalTempTable

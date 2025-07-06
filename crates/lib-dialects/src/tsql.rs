@@ -863,7 +863,6 @@ pub fn raw_dialect() -> Dialect {
         .to_matchable(),
     );
 
-
     // T-SQL uses + for both arithmetic and string concatenation
     dialect.add([(
         "StringBinaryOperatorGrammar".into(),

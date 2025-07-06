@@ -102,7 +102,6 @@ WHERE a IS NULL
             }
         }
 
-
         if !context.parent_stack.is_empty()
             && context.parent_stack[context.parent_stack.len() - 1]
                 .is_type(SyntaxKind::ExclusionConstraintElement)

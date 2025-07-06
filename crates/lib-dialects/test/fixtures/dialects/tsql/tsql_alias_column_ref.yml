@@ -5,13 +5,15 @@ file:
       - keyword: SELECT
       - select_clause_element:
         - naked_identifier: SimpleAlias
-        - raw_comparison_operator: =
+        - comparison_operator:
+          - raw_comparison_operator: =
         - column_reference:
           - naked_identifier: value
       - comma: ','
       - select_clause_element:
         - naked_identifier: QualifiedAlias
-        - raw_comparison_operator: =
+        - comparison_operator:
+          - raw_comparison_operator: =
         - column_reference:
           - naked_identifier: table1
           - dot: .
@@ -19,7 +21,8 @@ file:
       - comma: ','
       - select_clause_element:
         - naked_identifier: FullyQualifiedAlias
-        - raw_comparison_operator: =
+        - comparison_operator:
+          - raw_comparison_operator: =
         - column_reference:
           - naked_identifier: dbo
           - dot: .
@@ -29,20 +32,23 @@ file:
       - comma: ','
       - select_clause_element:
         - naked_identifier: FunctionAlias
-        - raw_comparison_operator: =
-        - function:
-          - function_name:
-            - function_name_identifier: SUM
-          - bracketed:
-            - start_bracket: (
-            - expression:
-              - column_reference:
-                - naked_identifier: quantity
-            - end_bracket: )
+        - comparison_operator:
+          - raw_comparison_operator: =
+        - expression:
+          - function:
+            - function_name:
+              - function_name_identifier: SUM
+            - bracketed:
+              - start_bracket: (
+              - expression:
+                - column_reference:
+                  - naked_identifier: quantity
+              - end_bracket: )
       - comma: ','
       - select_clause_element:
         - naked_identifier: ExpressionAlias
-        - raw_comparison_operator: =
+        - comparison_operator:
+          - raw_comparison_operator: =
         - expression:
           - column_reference:
             - naked_identifier: table1

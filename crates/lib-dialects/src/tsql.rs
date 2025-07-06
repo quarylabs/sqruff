@@ -13,7 +13,7 @@ use sqruff_lib_core::parser::grammar::sequence::{Bracketed, Sequence};
 use sqruff_lib_core::parser::lexer::Matcher;
 use sqruff_lib_core::parser::lookahead::LookaheadExclude;
 use sqruff_lib_core::parser::node_matcher::NodeMatcher;
-use sqruff_lib_core::parser::parsers::{RegexParser, StringParser, TypedParser};
+use sqruff_lib_core::parser::parsers::{RegexParser, TypedParser};
 use sqruff_lib_core::parser::segments::generator::SegmentGenerator;
 use sqruff_lib_core::parser::segments::meta::MetaSegment;
 use sqruff_lib_core::parser::types::ParseMode;
@@ -829,24 +829,27 @@ pub fn raw_dialect() -> Dialect {
         .into(),
     )]);
 
+    // Note: EqualsSegment is already defined in ANSI and properly wraps
+    // RawEqualsSegment in a ComparisonOperator node, so we don't need to redefine it
+
     // T-SQL supports alternative alias syntax: AliasName = Expression
-    // The parser distinguishes between column references (table1.column1)
-    // and alias assignments (AliasName = table1.column1)
     dialect.replace_grammar(
         "SelectClauseElementSegment",
         one_of(vec_of_erased![
+            // Wildcard expressions first (highest priority)
+            Ref::new("WildcardExpressionSegment"),
             // T-SQL alias equals pattern: AliasName = Expression
+            // Use SingleIdentifierGrammar which has proper terminators
             Sequence::new(vec_of_erased![
-                Ref::new("NakedIdentifierSegment"),
-                StringParser::new("=", SyntaxKind::RawComparisonOperator),
+                Ref::new("SingleIdentifierGrammar"),
+                Ref::new("EqualsSegment"),
                 one_of(vec_of_erased![
+                    Ref::new("LiteralGrammar"),
                     Ref::new("ColumnReferenceSegment"),
-                    Ref::new("BaseExpressionElementGrammar")
+                    Ref::new("ExpressionSegment")
                 ])
             ]),
-            // Wildcard expressions
-            Ref::new("WildcardExpressionSegment"),
-            // Everything else
+            // Everything else (standard column with optional alias)
             Sequence::new(vec_of_erased![
                 Ref::new("BaseExpressionElementGrammar"),
                 Ref::new("AliasExpressionSegment").optional(),

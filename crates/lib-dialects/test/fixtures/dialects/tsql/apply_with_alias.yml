@@ -43,18 +43,20 @@ file:
                     - keyword: SELECT
                     - select_clause_element:
                       - naked_identifier: TotalAmount
-                      - raw_comparison_operator: =
-                      - function:
-                        - function_name:
-                          - function_name_identifier: SUM
-                        - bracketed:
-                          - start_bracket: (
-                          - expression:
-                            - column_reference:
-                              - naked_identifier: o
-                              - dot: .
-                              - naked_identifier: Amount
-                          - end_bracket: )
+                      - comparison_operator:
+                        - raw_comparison_operator: =
+                      - expression:
+                        - function:
+                          - function_name:
+                            - function_name_identifier: SUM
+                          - bracketed:
+                            - start_bracket: (
+                            - expression:
+                              - column_reference:
+                                - naked_identifier: o
+                                - dot: .
+                                - naked_identifier: Amount
+                            - end_bracket: )
                   - from_clause:
                     - keyword: FROM
                     - from_expression:

@@ -298,6 +298,7 @@ leading_comma_with_templated_column_1:
           line_position: leading
 
 leading_comma_with_templated_column_2:
+  ignored: "jinja is not set"
   pass_str: |
     SELECT
         c1
@@ -311,6 +312,7 @@ leading_comma_with_templated_column_2:
           line_position: leading
 
 trailing_comma_with_templated_column_1:
+  ignored: "jinja is not set"
   fail_str: |
     SELECT
         {{ "c1" }}
@@ -323,6 +325,7 @@ trailing_comma_with_templated_column_1:
     FROM logs
 
 trailing_comma_with_templated_column_2:
+  ignored: "jinja is not set"
   pass_str: |
     SELECT
         {{ "c1

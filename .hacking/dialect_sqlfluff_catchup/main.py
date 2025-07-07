@@ -57,11 +57,11 @@ def compare_directories(sqruff_dir: Path, sqlfluff_dir: Path) -> bool:
     """
     Compare sqruff vs sqlfluff directories for differences in .sql files.
     Returns True if there are differences that indicate sqlfluff has moved ahead of sqruff.
-    
+
     Differences that matter:
     - Files in sqlfluff but not in sqruff (missing in sqruff)
     - Files in both but with different content
-    
+
     Not a difference:
     - Files in sqruff but not in sqlfluff (sqruff is ahead, which is fine)
     """
@@ -125,7 +125,7 @@ def find_first_difference_commit(sqlfluff_path: Path, dialect: str) -> Optional[
 
     try:
         last_matching_commit = None
-        
+
         # Check each commit from oldest to newest to find the last commit that matches sqruff
         for i, commit_line in enumerate(commits):
             if not commit_line.strip():
@@ -140,7 +140,11 @@ def find_first_difference_commit(sqlfluff_path: Path, dialect: str) -> Optional[
             temp_dir.mkdir(parents=True)
 
             # Use git show to get the files at this commit
-            show_cmd = ["git", "show", f"{commit_hash}:{dialect_dir.relative_to(sqlfluff_path)}"]
+            show_cmd = [
+                "git",
+                "show",
+                f"{commit_hash}:{dialect_dir.relative_to(sqlfluff_path)}",
+            ]
             exit_code, _, stderr = run_command(show_cmd, cwd=sqlfluff_path)
 
             if exit_code != 0:
@@ -148,11 +152,14 @@ def find_first_difference_commit(sqlfluff_path: Path, dialect: str) -> Optional[
                 continue
 
             # Extract files from this commit to temp directory
-            extract_cmd = ["git", "archive", commit_hash, f"test/fixtures/dialects/{dialect}"]
+            extract_cmd = [
+                "git",
+                "archive",
+                commit_hash,
+                f"test/fixtures/dialects/{dialect}",
+            ]
             extract_process = subprocess.run(
-                extract_cmd, 
-                cwd=sqlfluff_path,
-                capture_output=True
+                extract_cmd, cwd=sqlfluff_path, capture_output=True
             )
 
             if extract_process.returncode != 0:
@@ -161,9 +168,7 @@ def find_first_difference_commit(sqlfluff_path: Path, dialect: str) -> Optional[
             # Extract the archive to temp directory
             extract_archive_cmd = ["tar", "-xf", "-", "-C", str(temp_dir)]
             tar_process = subprocess.run(
-                extract_archive_cmd, 
-                input=extract_process.stdout, 
-                capture_output=True
+                extract_archive_cmd, input=extract_process.stdout, capture_output=True
             )
 
             if tar_process.returncode != 0:
@@ -197,7 +202,9 @@ def find_first_difference_commit(sqlfluff_path: Path, dialect: str) -> Optional[
             print("sqruff is up to date with sqlfluff")
             return None
         else:
-            print("No matching commits found - sqruff and sqlfluff have completely diverged")
+            print(
+                "No matching commits found - sqruff and sqlfluff have completely diverged"
+            )
             return commits[0].split()[0]  # Return first commit
 
     finally:
@@ -250,23 +257,26 @@ def copy_from_commit(sqlfluff_path: Path, dialect: str, commit_hash: str) -> Lis
 
     try:
         # Extract files from this commit to temp directory
-        extract_cmd = ["git", "archive", commit_hash, f"test/fixtures/dialects/{dialect}"]
+        extract_cmd = [
+            "git",
+            "archive",
+            commit_hash,
+            f"test/fixtures/dialects/{dialect}",
+        ]
         extract_process = subprocess.run(
-            extract_cmd, 
-            cwd=sqlfluff_path,
-            capture_output=True
+            extract_cmd, cwd=sqlfluff_path, capture_output=True
         )
 
         if extract_process.returncode != 0:
-            print(f"Error extracting files from commit {commit_hash}: {extract_process.stderr}")
+            print(
+                f"Error extracting files from commit {commit_hash}: {extract_process.stderr}"
+            )
             return []
 
         # Extract the archive to temp directory
         extract_archive_cmd = ["tar", "-xf", "-", "-C", str(temp_dir)]
         tar_process = subprocess.run(
-            extract_archive_cmd, 
-            input=extract_process.stdout, 
-            capture_output=True
+            extract_archive_cmd, input=extract_process.stdout, capture_output=True
         )
 
         if tar_process.returncode != 0:
@@ -383,7 +393,9 @@ def main():
             copied_files = copy_from_commit(
                 sqlfluff_path, args.dialect, first_difference_commit
             )
-            print(f"Copied {len(copied_files)} SQL files from commit {first_difference_commit}")
+            print(
+                f"Copied {len(copied_files)} SQL files from commit {first_difference_commit}"
+            )
         else:
             print("Copying SQL files from current sqlfluff state...")
             copied_files = copy_sql_files(sqlfluff_dialect_dir, sqruff_dialect_dir)

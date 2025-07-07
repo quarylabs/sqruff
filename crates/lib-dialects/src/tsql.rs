@@ -233,7 +233,10 @@ pub fn raw_dialect() -> Dialect {
             ]),
             // DISTINCT/ALL followed by TOP
             Sequence::new(vec_of_erased![
-                one_of(vec_of_erased![Ref::keyword("DISTINCT"), Ref::keyword("ALL")]),
+                one_of(vec_of_erased![
+                    Ref::keyword("DISTINCT"),
+                    Ref::keyword("ALL")
+                ]),
                 Ref::keyword("TOP"),
                 one_of(vec_of_erased![
                     Ref::new("NumericLiteralSegment"),

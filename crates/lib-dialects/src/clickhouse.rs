@@ -139,84 +139,91 @@ pub fn dialect() -> Dialect {
     clickhouse_dialect.add(vec![
         (
             "JoinTypeKeywords".into(),
-            one_of(vec_of_erased![
-                // This case INNER [ANY,ALL] JOIN
-                Sequence::new(vec_of_erased![
-                    Ref::keyword("INNER"),
-                    one_of(vec_of_erased![Ref::keyword("ALL"), Ref::keyword("ANY")])
-                        .config(|this| this.optional()),
-                ]),
-                // This case [ANY,ALL] INNER JOIN
-                Sequence::new(vec_of_erased![
-                    one_of(vec_of_erased![Ref::keyword("ALL"), Ref::keyword("ANY")])
-                        .config(|this| this.optional()),
-                    Ref::keyword("INNER"),
-                ]),
-                // This case FULL ALL OUTER JOIN
-                Sequence::new(vec_of_erased![
-                    Ref::keyword("FULL"),
-                    Ref::keyword("ALL").optional(),
-                    Ref::keyword("OUTER").optional(),
-                ]),
-                // This case ALL FULL OUTER JOIN
-                Sequence::new(vec_of_erased![
-                    Ref::keyword("ALL").optional(),
-                    Ref::keyword("FULL"),
-                    Ref::keyword("OUTER").optional(),
-                ]),
-                // This case LEFT [OUTER,ANTI,SEMI,ANY,ASOF] JOIN
-                Sequence::new(vec_of_erased![
-                    Ref::keyword("LEFT"),
-                    one_of(vec_of_erased![
-                        Ref::keyword("ANTI"),
-                        Ref::keyword("SEMI"),
-                        one_of(vec_of_erased![Ref::keyword("ANY"), Ref::keyword("ALL")])
-                            .config(|this| this.optional()),
-                        Ref::keyword("ASOF"),
-                    ])
-                    .config(|this| this.optional()),
-                    Ref::keyword("OUTER").optional(),
-                ]),
-                // This case [ANTI,SEMI,ANY,ASOF] LEFT JOIN
-                Sequence::new(vec_of_erased![
-                    one_of(vec_of_erased![
-                        Ref::keyword("ANTI"),
-                        Ref::keyword("SEMI"),
-                        one_of(vec_of_erased![Ref::keyword("ANY"), Ref::keyword("ALL")])
-                            .config(|this| this.optional()),
-                        Ref::keyword("ASOF"),
-                    ]),
-                    Ref::keyword("LEFT"),
-                ]),
-                // This case RIGHT [OUTER,ANTI,SEMI,ANY,ASOF] JOIN
-                Sequence::new(vec_of_erased![
-                    Ref::keyword("RIGHT"),
-                    one_of(vec_of_erased![
-                        Ref::keyword("OUTER"),
-                        Ref::keyword("ANTI"),
-                        Ref::keyword("SEMI"),
-                        one_of(vec_of_erased![Ref::keyword("ANY"), Ref::keyword("ALL")])
-                            .config(|this| this.optional()),
-                    ])
-                    .config(|this| this.optional()),
-                    Ref::keyword("OUTER").optional(),
-                ]),
-                // This case [OUTER,ANTI,SEMI,ANY] RIGHT JOIN
-                Sequence::new(vec_of_erased![
-                    one_of(vec_of_erased![
-                        Ref::keyword("ANTI"),
-                        Ref::keyword("SEMI"),
-                        one_of(vec_of_erased![Ref::keyword("ANY"), Ref::keyword("ALL")])
+            Sequence::new(vec_of_erased![
+                Ref::keyword("GLOBAL").optional(),
+                one_of(vec_of_erased![
+                    // This case INNER [ANY,ALL] JOIN
+                    Sequence::new(vec_of_erased![
+                        Ref::keyword("INNER"),
+                        one_of(vec_of_erased![Ref::keyword("ALL"), Ref::keyword("ANY")])
                             .config(|this| this.optional()),
                     ]),
-                    Ref::keyword("RIGHT"),
-                ]),
-                // This case CROSS JOIN
-                Ref::keyword("CROSS"),
-                // This case ANY JOIN
-                Ref::keyword("ANY"),
-                // This case ALL JOIN
-                Ref::keyword("ALL"),
+                    // This case [ANY,ALL] INNER JOIN
+                    Sequence::new(vec_of_erased![
+                        one_of(vec_of_erased![Ref::keyword("ALL"), Ref::keyword("ANY")])
+                            .config(|this| this.optional()),
+                        Ref::keyword("INNER"),
+                    ]),
+                    // This case FULL ALL OUTER JOIN
+                    Sequence::new(vec_of_erased![
+                        Ref::keyword("FULL"),
+                        Ref::keyword("ALL").optional(),
+                        Ref::keyword("OUTER").optional(),
+                    ]),
+                    // This case ALL FULL OUTER JOIN
+                    Sequence::new(vec_of_erased![
+                        Ref::keyword("ALL").optional(),
+                        Ref::keyword("FULL"),
+                        Ref::keyword("OUTER").optional(),
+                    ]),
+                    // This case LEFT [OUTER,ANTI,SEMI,ANY,ASOF] JOIN
+                    Sequence::new(vec_of_erased![
+                        Ref::keyword("LEFT"),
+                        one_of(vec_of_erased![
+                            Ref::keyword("ANTI"),
+                            Ref::keyword("SEMI"),
+                            one_of(vec_of_erased![Ref::keyword("ANY"), Ref::keyword("ALL")])
+                                .config(|this| this.optional()),
+                            Ref::keyword("ASOF"),
+                        ])
+                        .config(|this| this.optional()),
+                        Ref::keyword("OUTER").optional(),
+                    ]),
+                    // This case [ANTI,SEMI,ANY,ASOF] LEFT JOIN
+                    Sequence::new(vec_of_erased![
+                        one_of(vec_of_erased![
+                            Ref::keyword("ANTI"),
+                            Ref::keyword("SEMI"),
+                            one_of(vec_of_erased![Ref::keyword("ANY"), Ref::keyword("ALL")])
+                                .config(|this| this.optional()),
+                            Ref::keyword("ASOF"),
+                        ]),
+                        Ref::keyword("LEFT"),
+                    ]),
+                    // This case RIGHT [OUTER,ANTI,SEMI,ANY,ASOF] JOIN
+                    Sequence::new(vec_of_erased![
+                        Ref::keyword("RIGHT"),
+                        one_of(vec_of_erased![
+                            Ref::keyword("OUTER"),
+                            Ref::keyword("ANTI"),
+                            Ref::keyword("SEMI"),
+                            one_of(vec_of_erased![Ref::keyword("ANY"), Ref::keyword("ALL")])
+                                .config(|this| this.optional()),
+                        ])
+                        .config(|this| this.optional()),
+                        Ref::keyword("OUTER").optional(),
+                    ]),
+                    // This case [OUTER,ANTI,SEMI,ANY] RIGHT JOIN
+                    Sequence::new(vec_of_erased![
+                        one_of(vec_of_erased![
+                            Ref::keyword("ANTI"),
+                            Ref::keyword("SEMI"),
+                            one_of(vec_of_erased![Ref::keyword("ANY"), Ref::keyword("ALL")])
+                                .config(|this| this.optional()),
+                        ]),
+                        Ref::keyword("RIGHT"),
+                    ]),
+                    // This case CROSS JOIN
+                    Ref::keyword("CROSS"),
+                    // This case PASTE JOIN
+                    Ref::keyword("PASTE"),
+                    // This case ASOF JOIN
+                    Ref::keyword("ASOF"),
+                    // This case ANY JOIN
+                    Ref::keyword("ANY"),
+                    // This case ALL JOIN
+                    Ref::keyword("ALL"),
+                ])
             ])
             .to_matchable()
             .into(),
@@ -243,16 +250,36 @@ pub fn dialect() -> Dialect {
         .into(),
     )]);
 
-    clickhouse_dialect.add([(
-        "JoinLikeClauseGrammar".into(),
-        Sequence::new(vec_of_erased![
-            AnyNumberOf::new(vec_of_erased![Ref::new("ArrayJoinClauseSegment")])
-                .config(|this| this.min_times(1)),
-            Ref::new("AliasExpressionSegment").optional(),
-        ])
-        .to_matchable()
-        .into(),
-    )]);
+    clickhouse_dialect.add([
+        (
+            "JoinLikeClauseGrammar".into(),
+            Sequence::new(vec_of_erased![
+                AnyNumberOf::new(vec_of_erased![Ref::new("ArrayJoinClauseSegment")])
+                    .config(|this| this.min_times(1)),
+                Ref::new("AliasExpressionSegment").optional(),
+            ])
+            .to_matchable()
+            .into(),
+        ),
+        (
+            "InOperatorGrammar".into(),
+            Sequence::new(vec_of_erased![
+                Ref::keyword("GLOBAL").optional(),
+                Ref::keyword("NOT").optional(),
+                Ref::keyword("IN"),
+                one_of(vec_of_erased![
+                    Bracketed::new(vec_of_erased![one_of(vec_of_erased![
+                        Delimited::new(vec_of_erased![Ref::new("Expression_A_Grammar"),]),
+                        Ref::new("SelectableGrammar"),
+                    ])])
+                    .config(|this| this.parse_mode(ParseMode::Greedy)),
+                    Ref::new("FunctionSegment"), // E.g. UNNEST() or tuple()
+                ])
+            ])
+            .to_matchable()
+            .into(),
+        ),
+    ]);
 
     clickhouse_dialect.replace_grammar(
         "BracketedArguments",

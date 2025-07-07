@@ -208,28 +208,21 @@ pub fn raw_dialect() -> Dialect {
     // Add T-SQL specific grammar
 
     // TOP clause support (e.g., SELECT TOP 10, TOP (10) PERCENT, TOP 5 WITH TIES)
+    // T-SQL allows DISTINCT/ALL followed by TOP
     dialect.replace_grammar(
         "SelectClauseModifierSegment",
-        one_of(vec_of_erased![
-            // Keep ANSI's DISTINCT/ALL
+        AnyNumberOf::new(vec_of_erased![
             Ref::keyword("DISTINCT"),
             Ref::keyword("ALL"),
-            // Add T-SQL's TOP clause
+            // TOP alone
             Sequence::new(vec_of_erased![
+                // https://docs.microsoft.com/en-us/sql/t-sql/queries/top-transact-sql
                 Ref::keyword("TOP"),
-                one_of(vec_of_erased![
-                    Ref::new("NumericLiteralSegment"),
-                    Ref::new("TsqlVariableSegment"),
-                    Bracketed::new(vec_of_erased![one_of(vec_of_erased![
-                        Ref::new("NumericLiteralSegment"),
-                        Ref::new("TsqlVariableSegment"),
-                        Ref::new("ExpressionSegment")
-                    ])])
-                ]),
+                optionally_bracketed(vec_of_erased![Ref::new("ExpressionSegment")]),
                 Ref::keyword("PERCENT").optional(),
                 Ref::keyword("WITH").optional(),
                 Ref::keyword("TIES").optional()
-            ])
+            ]),
         ])
         .to_matchable(),
     );

@@ -44,7 +44,7 @@ python = ["pyo3", "sqruff-lib-core/serde"]
 sqruff-lib-core.workspace = true
 sqruff-lib-dialects.workspace = true
 
-fancy-regex = "0.14.0"
+fancy-regex = "0.15.0"
 itertools = "0.14.0"
 regex = "1"
 walkdir = "2.5.0"

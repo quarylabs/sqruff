@@ -17,13 +17,11 @@ the changes in the sqlfluff dialects commit by commit.
 """
 
 import argparse
-import os
 import shutil
 import subprocess
 import sys
 from pathlib import Path
 from typing import List, Optional, Tuple
-import difflib
 
 
 def run_command(cmd: List[str], cwd: Optional[str] = None) -> Tuple[int, str, str]:

@@ -735,6 +735,25 @@ pub fn dialect() -> Dialect {
         .to_matchable(),
     );
 
+    clickhouse_dialect.replace_grammar(
+        "CreateViewStatementSegment",
+        NodeMatcher::new(SyntaxKind::CreateViewStatement, |_| {
+            Sequence::new(vec_of_erased![
+                Ref::keyword("CREATE"),
+                Ref::new("OrReplaceGrammar").optional(),
+                Ref::keyword("VIEW"),
+                Ref::new("IfNotExistsGrammar").optional(),
+                Ref::new("TableReferenceSegment"),
+                Ref::new("OnClusterClauseSegment").optional(),
+                Ref::keyword("AS"),
+                Ref::new("SelectableGrammar"),
+                Ref::new("TableEndClauseSegment").optional()
+            ])
+            .to_matchable()
+        })
+        .to_matchable(),
+    );
+
     clickhouse_dialect.add([(
         "CreateMaterializedViewStatementSegment".into(),
         NodeMatcher::new(SyntaxKind::CreateMaterializedViewStatement, |_| {

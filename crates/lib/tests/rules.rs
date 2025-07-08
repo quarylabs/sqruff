@@ -189,7 +189,7 @@ fn main() {
 
             match case.kind {
                 TestCaseKind::Pass { pass_str } => {
-                    let f = linter.lint_string_wrapped(&pass_str, false);
+                    let result = linter.lint_string_wrapped(&pass_str, false);
                     let error_string = format!(
                         r#"
 The following test test can be used to recreate the issue:
@@ -221,11 +221,11 @@ dialect = {dialect}
                         pass_str = pass_str
                     );
 
-                    assert_eq!(&f.violations, &[], "{}", error_string);
+                    assert_eq!(&result.violations(), &[], "{}", error_string);
                 }
                 TestCaseKind::Fail { fail_str } => {
-                    let f = linter.lint_string_wrapped(&fail_str, false);
-                    assert_ne!(&f.violations, &[])
+                    let file = linter.lint_string_wrapped(&fail_str, false);
+                    assert_ne!(&file.violations(), &[])
                 }
                 TestCaseKind::Fix { fail_str, fix_str } => {
                     assert_ne!(
@@ -233,9 +233,9 @@ dialect = {dialect}
                         "Fail and fix strings should not be equal"
                     );
 
-                    let f = linter.lint_string_wrapped(&fail_str, true).fix_string();
+                    let actual = linter.lint_string_wrapped(&fail_str, true).fix_string();
 
-                    pretty_assertions::assert_eq!(f, fix_str);
+                    pretty_assertions::assert_eq!(actual, fix_str);
                 }
             }
 

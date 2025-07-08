@@ -14,25 +14,23 @@ pub(crate) fn run_fix(
     let mut linter = linter(config, format, collect_parse_errors);
     let result = linter.lint_paths(paths, true, &ignorer);
 
-    if result.files.iter().all(|file| file.violations.is_empty()) {
-        let count_files = result.files.len();
-        println!("{count_files} files processed, nothing to fix.");
+    if !result.has_violations() {
+        println!("{} files processed, nothing to fix.", result.len());
         0
     } else {
-        let any_unfixable_errors = result
-            .files
-            .iter()
-            .any(|file| !file.get_violations(Some(false)).is_empty());
+        let any_unfixable_errors = result.has_unfixable_violations();
+        let files = result.len();
 
-        for mut file in result.files {
+        for mut file in result {
             let path = std::mem::take(&mut file.path);
-            let write_buff = file.fix_string();
-            std::fs::write(path, write_buff).unwrap();
+            let fixed = file.fix_string();
+
+            std::fs::write(path, fixed).unwrap();
         }
 
-        linter.formatter_mut().unwrap().completion_message();
+        linter.formatter_mut().unwrap().completion_message(files);
 
-        if any_unfixable_errors { 1 } else { 0 }
+        any_unfixable_errors as i32
     }
 }
 
@@ -46,10 +44,10 @@ pub(crate) fn run_fix_stdin(
     let linter = linter(config, format, collect_parse_errors);
     let result = linter.lint_string(&read_in, None, true);
 
-    // print fixed to std out
-    let violations = result.get_violations(Some(false));
+    let has_unfixable_errors = result.has_unfixable_violations();
+
     println!("{}", result.fix_string());
 
     // if all fixable violations are fixable, return 0 else return 1
-    if violations.is_empty() { 0 } else { 1 }
+    has_unfixable_errors as i32
 }

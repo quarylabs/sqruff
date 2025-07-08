@@ -94,17 +94,17 @@ impl Linter {
             None
         };
 
-        let mut result = self.base.lint_parsed(&tables, parsed, tool == Tool::Format);
-        let violations = &mut result.violations;
+        let result = self.base.lint_parsed(&tables, parsed, tool == Tool::Format);
+        let violations = result.violations();
 
         let diagnostics = violations
-            .iter_mut()
+            .iter()
             .map(|violation| {
                 let start = line_index.line_col(violation.source_slice.start.try_into().unwrap());
                 let end = line_index.line_col(violation.source_slice.end.try_into().unwrap());
 
                 Diagnostic {
-                    message: std::mem::take(&mut violation.description),
+                    message: violation.description.clone(),
                     start_line_number: start.line + 1,
                     start_column: start.col + 1,
                     end_line_number: end.line + 1,

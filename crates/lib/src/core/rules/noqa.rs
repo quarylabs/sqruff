@@ -643,7 +643,7 @@ FROM foo
 "#;
 
         let result = linter.lint_string(sql, None, false);
-        let violations = result.get_violations(None);
+        let violations = result.violations();
 
         assert_eq!(violations.len(), 1);
         assert_eq!(
@@ -691,8 +691,8 @@ FROM foo
         let result_with_disabled = linter_with_disabled.lint_string(sql, None, false);
         let result_without_disabled = linter_without_disabled.lint_string(sql, None, false);
 
-        assert_eq!(result_without_disabled.get_violations(None).len(), 1);
-        assert_eq!(result_with_disabled.get_violations(None).len(), 2);
+        assert_eq!(result_without_disabled.violations().len(), 1);
+        assert_eq!(result_with_disabled.violations().len(), 2);
     }
 
     #[test]
@@ -730,7 +730,7 @@ FROM foo
         let result_rule = linter_without_disabled.lint_string(sql_disable_rule, None, false);
         let result_all = linter_without_disabled.lint_string(sql_disable_all, None, false);
 
-        assert_eq!(result_rule.get_violations(None).len(), 3);
-        assert_eq!(result_all.get_violations(None).len(), 3);
+        assert_eq!(result_rule.violations().len(), 3);
+        assert_eq!(result_all.violations().len(), 3);
     }
 }

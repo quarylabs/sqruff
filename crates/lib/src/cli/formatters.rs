@@ -1,30 +1,18 @@
 use super::utils::*;
 use std::borrow::Cow;
 use std::io::{Stderr, Write};
-use std::sync::atomic::AtomicUsize;
 
 use anstyle::{AnsiColor, Effects, Style};
 use itertools::enumerate;
 use sqruff_lib_core::errors::SQLBaseError;
 
-use crate::core::config::FluffConfig;
 use crate::core::linter::linted_file::LintedFile;
 
 const LIGHT_GREY: Style = AnsiColor::Black.on_default().effects(Effects::BOLD);
 
 pub trait Formatter: Send + Sync {
-    fn dispatch_template_header(
-        &self,
-        f_name: String,
-        linter_config: FluffConfig,
-        file_config: FluffConfig,
-    );
-
-    fn dispatch_parse_header(&self, f_name: String);
-
-    fn dispatch_file_violations(&self, linted_file: &LintedFile, only_fixable: bool);
-
-    fn completion_message(&self);
+    fn dispatch_file_violations(&self, linted_file: &LintedFile);
+    fn completion_message(&self, count: usize);
 }
 
 pub struct OutputStreamFormatter {
@@ -33,48 +21,27 @@ pub struct OutputStreamFormatter {
     filter_empty: bool,
     verbosity: i32,
     output_line_length: usize,
-    files_dispatched: AtomicUsize,
 }
 
 impl Formatter for OutputStreamFormatter {
-    fn dispatch_file_violations(&self, linted_file: &LintedFile, only_fixable: bool) {
+    fn dispatch_file_violations(&self, linted_file: &LintedFile) {
         if self.verbosity < 0 {
             return;
         }
 
-        let s = self.format_file_violations(
-            &linted_file.path,
-            linted_file.get_violations(only_fixable.then_some(true)),
-        );
+        let s = self.format_file_violations(linted_file.path(), linted_file.violations());
 
         self.dispatch(&s);
-        self.files_dispatched
-            .fetch_add(1, std::sync::atomic::Ordering::SeqCst);
     }
 
-    fn completion_message(&self) {
-        let count = self
-            .files_dispatched
-            .load(std::sync::atomic::Ordering::SeqCst);
-        let message = format!("The linter processed {count} file(s).\n");
-        self.dispatch(&message);
-
-        let message = if self.plain_output {
+    fn completion_message(&self, count: usize) {
+        self.dispatch(&format!("The linter processed {count} file(s).\n"));
+        self.dispatch(if self.plain_output {
             "All Finished\n"
         } else {
             "All Finished 📜 🎉\n"
-        };
-        self.dispatch(message);
+        });
     }
-    fn dispatch_template_header(
-        &self,
-        _f_name: String,
-        _linter_config: FluffConfig,
-        _file_config: FluffConfig,
-    ) {
-    }
-
-    fn dispatch_parse_header(&self, _f_name: String) {}
 }
 
 impl OutputStreamFormatter {
@@ -85,7 +52,6 @@ impl OutputStreamFormatter {
             filter_empty: true,
             verbosity,
             output_line_length: 80,
-            files_dispatched: 0.into(),
         }
     }
 
@@ -101,7 +67,7 @@ impl OutputStreamFormatter {
         }
     }
 
-    fn format_file_violations(&self, fname: &str, mut violations: Vec<SQLBaseError>) -> String {
+    fn format_file_violations(&self, fname: &str, violations: &[SQLBaseError]) -> String {
         let mut text_buffer = String::new();
 
         let show = !violations.is_empty();
@@ -113,12 +79,6 @@ impl OutputStreamFormatter {
         }
 
         if show {
-            violations.sort_by(|a, b| {
-                a.line_no
-                    .cmp(&b.line_no)
-                    .then_with(|| a.line_pos.cmp(&b.line_pos))
-            });
-
             for violation in violations {
                 let text = self.format_violation(violation, self.output_line_length);
                 text_buffer.push_str(&text);
@@ -148,12 +108,7 @@ impl OutputStreamFormatter {
         format!("== [{filename}] {status}")
     }
 
-    fn format_violation(
-        &self,
-        violation: impl Into<SQLBaseError>,
-        max_line_length: usize,
-    ) -> String {
-        let violation: SQLBaseError = violation.into();
+    fn format_violation(&self, violation: &SQLBaseError, max_line_length: usize) -> String {
         let mut desc = violation.desc().to_string();
 
         let line_elem = format!("{:4}", violation.line_no);
@@ -217,10 +172,7 @@ impl Status {
 mod tests {
     use anstyle::AnsiColor;
     use fancy_regex::Regex;
-    use sqruff_lib_core::dialects::syntax::SyntaxKind;
-    use sqruff_lib_core::errors::{ErrorStructRule, SQLLintError};
-    use sqruff_lib_core::parser::markers::PositionMarker;
-    use sqruff_lib_core::parser::segments::SegmentBuilder;
+    use sqruff_lib_core::errors::{ErrorStructRule, SQLBaseError};
 
     use super::OutputStreamFormatter;
     use crate::cli::formatters::split_string_on_spaces;
@@ -267,24 +219,19 @@ mod tests {
     fn test_cli_formatters_violation() {
         let formatter = mk_formatter();
 
-        let s = SegmentBuilder::token(0, "foobarbar", SyntaxKind::Word)
-            .with_position(PositionMarker::new(
-                10..19,
-                10..19,
-                "      \n\n  foobarbar".into(),
-                None,
-                None,
-            ))
-            .finish();
+        let v = SQLBaseError {
+            fixable: false,
+            line_no: 3,
+            line_pos: 3,
+            description: "DESC".into(),
+            rule: Some(ErrorStructRule {
+                name: "some-name",
+                code: "DESC",
+            }),
+            source_slice: 0..0,
+        };
 
-        let mut v = SQLLintError::new("DESC", s, false);
-
-        v.rule = Some(ErrorStructRule {
-            name: "some-name",
-            code: "DESC",
-        });
-
-        let f = formatter.format_violation(v, 90);
+        let f = formatter.format_violation(&v, 90);
 
         assert_eq!(escape_ansi(&f), "L:   3 | P:   3 | DESC | DESC [some-name]");
     }

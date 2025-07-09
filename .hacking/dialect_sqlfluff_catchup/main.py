@@ -22,6 +22,8 @@ import subprocess
 import sys
 from pathlib import Path
 from typing import List, Optional, Tuple
+from claude_code_sdk import query, ClaudeCodeOptions
+import anyio
 
 
 def run_command(cmd: List[str], cwd: Optional[str] = None) -> Tuple[int, str, str]:
@@ -309,7 +311,7 @@ def copy_from_commit(sqlfluff_path: Path, dialect: str, commit_hash: str) -> Lis
                 print(f"Warning: Could not clean up temp directory {temp_dir}: {e}")
 
 
-def main():
+async def main():
     parser = argparse.ArgumentParser(
         description="Compare and sync dialect fixtures between sqruff and sqlfluff"
     )
@@ -329,6 +331,11 @@ def main():
     )
     parser.add_argument(
         "--copy-from-commit", help="Copy SQL files from a specific commit hash"
+    )
+    parser.add_argument(
+        "--claude-attempt-change",
+        action="store_true",
+        help="Attempt to implement the change in the sqlfluff commit in the sqruff dialect with claude",
     )
 
     args = parser.parse_args()
@@ -410,8 +417,101 @@ def main():
             print(f"First difference commit: {first_difference_commit}")
         print()
 
+    # Attempt to implement the change in the sqlfluff commit in the sqruff dialect with claude
+    if args.claude_attempt_change:
+        # Get the sqlfluff commit
+        commit_hash = first_difference_commit
+        if not commit_hash:
+            print("No commit found to implement changes from")
+            return
+        print(f"Fetching changes from SQLFluff commit {commit_hash}...")
+
+        # Get the diff for this commit, excluding test fixture files
+        cmd = ["git", "show", "--format=", commit_hash, "--", "src/sqlfluff/dialects/"]
+        exit_code, diff_output, stderr = run_command(cmd, cwd=sqlfluff_path)
+
+        if exit_code != 0:
+            print(f"Error getting commit diff: {stderr}")
+            return
+
+        # Filter out fixture changes and extract only dialect implementation changes
+        relevant_changes = []
+        current_file_diff = []
+        in_relevant_file = False
+
+        for line in diff_output.split("\n"):
+            if line.startswith("diff --git"):
+                # Save previous file diff if it was relevant
+                if in_relevant_file and current_file_diff:
+                    relevant_changes.extend(current_file_diff)
+                current_file_diff = [line]
+                # Check if this is a dialect implementation file (not a test fixture)
+                in_relevant_file = (
+                    "/dialects/" in line and "/test/" not in line and ".py" in line
+                )
+            elif in_relevant_file:
+                current_file_diff.append(line)
+
+        # Don't forget the last file
+        if in_relevant_file and current_file_diff:
+            relevant_changes.extend(current_file_diff)
+
+        if not relevant_changes:
+            print("No relevant dialect implementation changes found in this commit")
+            return
+
+        # Get commit message for context
+        cmd = ["git", "show", "--format=%B", "-s", commit_hash]
+        exit_code, commit_message, stderr = run_command(cmd, cwd=str(sqlfluff_path))
+
+        if exit_code == 0:
+            commit_message = commit_message.strip()
+        else:
+            commit_message = "Could not retrieve commit message"
+
+        # Join the relevant changes back into a diff string
+        dialect_changes = "\n".join(relevant_changes)
+
+        print(f"Found {len(relevant_changes)} lines of dialect implementation changes")
+        print(f"Commit message: {commit_message}")
+
+        # Prepare the prompt for Claude
+        prompt = f"""The following changes were made to SQLFluff dialects in commit {commit_hash}:
+
+Commit message: {commit_message}
+
+Dialect implementation changes:
+```diff
+{dialect_changes}
+```
+
+Please analyze these SQLFluff dialect changes and implement the equivalent changes in the Sqruff Rust dialect implementation for the {args.dialect} dialect. 
+
+The Sqruff dialect files are located in the current directory. Look for the appropriate Rust files that correspond to the SQLFluff Python changes and apply similar modifications while adapting them to Rust patterns and Sqruff's architecture.
+
+Key considerations:
+1. SQLFluff uses Python while Sqruff uses Rust
+2. Grammar definitions may have different syntax but should achieve the same parsing behavior
+3. Keyword additions/modifications should be reflected in the Rust dialect
+4. Look for files like `{args.dialect}.rs` or related modules in the current directory
+
+Please implement these changes in the Sqruff dialect."""
+
+        print(
+            f"Attempting to implement the change in the sqlfluff commit {args.claude_attempt_change} in the sqruff dialect with claude..."
+        )
+        async for message in query(options=options, prompt=prompt):
+            pass
+
     print("Done!")
 
 
-if __name__ == "__main__":
-    main()
+options = ClaudeCodeOptions(
+    max_turns=3,
+    cwd=(Path(__file__).parent.parent.parent / "crates" / "lib-dialects"),
+    allowed_tools=["Read", "Write"],
+    permission_mode="acceptEdits",
+)
+
+
+anyio.run(main)

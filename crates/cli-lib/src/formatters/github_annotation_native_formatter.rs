@@ -1,17 +1,17 @@
-use crate::core::linter::linted_file::LintedFile;
 use std::io::{Stderr, Write};
 use std::sync::atomic::{AtomicBool, Ordering};
 
-use super::formatters::Formatter;
+use sqruff_lib::Formatter;
+use sqruff_lib::core::linter::linted_file::LintedFile;
 
 #[derive(Debug)]
-pub struct GithubAnnotationNativeFormatter {
+pub(crate) struct GithubAnnotationNativeFormatter {
     output_stream: Stderr,
     pub has_fail: AtomicBool,
 }
 
 impl GithubAnnotationNativeFormatter {
-    pub fn new(stderr: Stderr) -> Self {
+    pub(crate) fn new(stderr: Stderr) -> Self {
         Self {
             output_stream: stderr,
             has_fail: AtomicBool::new(false),

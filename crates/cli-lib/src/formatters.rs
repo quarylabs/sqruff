@@ -1,21 +1,24 @@
-use super::utils::*;
+pub(crate) mod github_annotation_native_formatter;
+pub(crate) mod json;
+pub(crate) mod json_types;
+pub(crate) mod rules;
+pub(crate) mod utils;
+
 use std::borrow::Cow;
 use std::io::{Stderr, Write};
 
 use anstyle::{AnsiColor, Effects, Style};
-use itertools::enumerate;
+use sqruff_lib::Formatter;
+use sqruff_lib::core::linter::linted_file::LintedFile;
 use sqruff_lib_core::errors::SQLBaseError;
 
-use crate::core::linter::linted_file::LintedFile;
+use crate::formatters::utils::{
+    colorize_helper, should_produce_plain_output, split_string_on_spaces,
+};
 
 const LIGHT_GREY: Style = AnsiColor::Black.on_default().effects(Effects::BOLD);
 
-pub trait Formatter: Send + Sync {
-    fn dispatch_file_violations(&self, linted_file: &LintedFile);
-    fn completion_message(&self, count: usize);
-}
-
-pub struct OutputStreamFormatter {
+pub(crate) struct OutputStreamFormatter {
     output_stream: Option<Stderr>,
     plain_output: bool,
     filter_empty: bool,
@@ -45,7 +48,7 @@ impl Formatter for OutputStreamFormatter {
 }
 
 impl OutputStreamFormatter {
-    pub fn new(output_stream: Option<Stderr>, nocolor: bool, verbosity: i32) -> Self {
+    pub(crate) fn new(output_stream: Option<Stderr>, nocolor: bool, verbosity: i32) -> Self {
         Self {
             output_stream,
             plain_output: should_produce_plain_output(nocolor),
@@ -97,8 +100,8 @@ impl OutputStreamFormatter {
         let status = if success { Status::Pass } else { Status::Fail };
 
         let color = match status {
-            Status::Pass | Status::Fixed => AnsiColor::Green,
-            Status::Fail | Status::Error => AnsiColor::Red,
+            Status::Pass => AnsiColor::Green,
+            Status::Fail => AnsiColor::Red,
         }
         .on_default();
 
@@ -124,7 +127,7 @@ impl OutputStreamFormatter {
         let mut section_color = AnsiColor::Blue.on_default();
 
         let mut out_buff = String::new();
-        for (idx, line) in enumerate(split_desc) {
+        for (idx, line) in split_desc.into_iter().enumerate() {
             if idx == 0 {
                 let rule_code = format!("{:>4}", violation.rule_code());
 
@@ -150,20 +153,17 @@ impl OutputStreamFormatter {
 }
 
 #[derive(Clone, Copy)]
-pub enum Status {
+pub(crate) enum Status {
     Pass,
-    Fixed,
+
     Fail,
-    Error,
 }
 
 impl Status {
     fn as_str(self) -> &'static str {
         match self {
             Status::Pass => "PASS",
-            Status::Fixed => "FIXED",
             Status::Fail => "FAIL",
-            Status::Error => "ERROR",
         }
     }
 }
@@ -174,8 +174,7 @@ mod tests {
     use fancy_regex::Regex;
     use sqruff_lib_core::errors::{ErrorStructRule, SQLBaseError};
 
-    use super::OutputStreamFormatter;
-    use crate::cli::formatters::split_string_on_spaces;
+    use crate::formatters::{OutputStreamFormatter, utils::split_string_on_spaces};
 
     #[test]
     fn test_short_string() {

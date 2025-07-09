@@ -1,14 +1,11 @@
 use std::sync::Mutex;
 
-use crate::core::linter::linted_file::LintedFile;
+use sqruff_lib::{Formatter, core::linter::linted_file::LintedFile};
 
-use super::{
-    formatters::Formatter,
-    json_types::{Diagnostic, DiagnosticCollection},
-};
+use super::json_types::{Diagnostic, DiagnosticCollection};
 
 #[derive(Default)]
-pub struct JsonFormatter {
+pub(crate) struct JsonFormatter {
     violations: Mutex<DiagnosticCollection>,
 }
 

@@ -4,7 +4,7 @@ use std::io::{BufRead, BufReader};
 use std::path::{Path, PathBuf};
 use std::sync::{Arc, OnceLock};
 
-use crate::cli::formatters::Formatter;
+use crate::Formatter;
 use crate::core::config::FluffConfig;
 use crate::core::linter::common::{ParsedString, RenderedFile};
 use crate::core::linter::linted_file::LintedFile;

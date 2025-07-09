@@ -1,14 +1,14 @@
 use super::utils::*;
-use crate::core::rules::ErasedRule;
-use crate::rules::rules;
+
 use anstyle::{AnsiColor, Style};
+use sqruff_lib::{core::rules::ErasedRule, rules::rules};
 use std::borrow::Cow;
 
 const BLUE: Style = AnsiColor::Blue.on_default();
 const YELLOW: Style = AnsiColor::Yellow.on_default();
 
 #[derive(Debug)]
-pub struct RulesFormatter {
+pub(crate) struct RulesFormatter {
     rules: Vec<ErasedRule>,
     plain_output: bool,
 }
@@ -23,7 +23,7 @@ impl Default for RulesFormatter {
 }
 
 impl RulesFormatter {
-    pub fn new(nocolor: bool) -> Self {
+    pub(crate) fn new(nocolor: bool) -> Self {
         Self {
             rules: rules(),
             plain_output: should_produce_plain_output(nocolor),
@@ -52,7 +52,7 @@ impl RulesFormatter {
         format!("{code}:\t[{name}] {decription}\n\tgroups: {groups}")
     }
 
-    pub fn rules_info(&self) {
+    pub(crate) fn rules_info(&self) {
         println!("==== sqruff - rules ====");
         for rule in self.rules.clone() {
             let rule_info = self.format_rule(&rule);

@@ -275,12 +275,34 @@ pub fn raw_dialect() -> Dialect {
                 // Multiple variables can be declared with comma separation
                 Delimited::new(vec_of_erased![Sequence::new(vec_of_erased![
                     Ref::new("TsqlVariableSegment"),
-                    Ref::new("DatatypeSegment"),
-                    Sequence::new(vec_of_erased![
-                        Ref::new("AssignmentOperatorSegment"),
-                        Ref::new("ExpressionSegment")
+                    Sequence::new(vec![Ref::keyword("AS").to_matchable()])
+                        .config(|this| this.optional()),
+                    one_of(vec_of_erased![
+                        // Regular variable declaration
+                        Sequence::new(vec_of_erased![
+                            Ref::new("DatatypeSegment"),
+                            Sequence::new(vec_of_erased![
+                                Ref::new("AssignmentOperatorSegment"),
+                                Ref::new("ExpressionSegment")
+                            ])
+                            .config(|this| this.optional())
+                        ]),
+                        // Table variable declaration
+                        Sequence::new(vec_of_erased![
+                            Ref::keyword("TABLE"),
+                            Bracketed::new(vec![
+                                Delimited::new(vec![
+                                    one_of(vec_of_erased![
+                                        Ref::new("TableConstraintSegment"),
+                                        Ref::new("ColumnDefinitionSegment")
+                                    ])
+                                    .to_matchable()
+                                ])
+                                .config(|this| this.allow_trailing())
+                                .to_matchable(),
+                            ]),
+                        ])
                     ])
-                    .config(|this| this.optional())
                 ])])
             ])
             .to_matchable()

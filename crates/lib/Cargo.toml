@@ -52,7 +52,6 @@ enum_dispatch = "0.3.13"
 indexmap.workspace = true
 common-path = "1.0.0"
 configparser = "3.1.0"
-anstyle = "1.0"
 log.workspace = true
 pretty_assertions = "1.4.0"
 ahash.workspace = true

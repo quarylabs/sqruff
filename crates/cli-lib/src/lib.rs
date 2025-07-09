@@ -1,13 +1,7 @@
 use clap::Parser as _;
 use commands::Format;
-use sqruff_lib::cli::formatters::Formatter;
-use sqruff_lib::cli::json::JsonFormatter;
-use sqruff_lib::cli::{
-    formatters::OutputStreamFormatter,
-    github_annotation_native_formatter::GithubAnnotationNativeFormatter,
-};
-use sqruff_lib::core::config::FluffConfig;
 use sqruff_lib::core::linter::core::Linter;
+use sqruff_lib::{Formatter, core::config::FluffConfig};
 use std::path::Path;
 use std::sync::Arc;
 use stdin::is_std_in_flag_input;
@@ -15,6 +9,9 @@ use stdin::is_std_in_flag_input;
 use crate::commands::{Cli, Commands};
 #[cfg(feature = "codegen-docs")]
 use crate::docs::codegen_docs;
+use crate::formatters::OutputStreamFormatter;
+use crate::formatters::github_annotation_native_formatter::GithubAnnotationNativeFormatter;
+use crate::formatters::json::JsonFormatter;
 
 pub mod commands;
 mod commands_fix;
@@ -23,6 +20,7 @@ mod commands_lint;
 mod commands_rules;
 #[cfg(feature = "codegen-docs")]
 mod docs;
+mod formatters;
 mod github_action;
 mod ignore;
 mod logger;

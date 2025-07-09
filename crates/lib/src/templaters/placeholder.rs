@@ -5,7 +5,7 @@ use fancy_regex::Regex;
 use sqruff_lib_core::errors::SQLFluffUserError;
 use sqruff_lib_core::templaters::{RawFileSlice, TemplatedFile, TemplatedFileSlice};
 
-use crate::cli::formatters::Formatter;
+use crate::Formatter;
 use crate::core::config::FluffConfig;
 use crate::templaters::Templater;
 

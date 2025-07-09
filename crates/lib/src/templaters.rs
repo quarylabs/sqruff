@@ -3,7 +3,7 @@ use std::sync::Arc;
 use sqruff_lib_core::errors::SQLFluffUserError;
 use sqruff_lib_core::templaters::TemplatedFile;
 
-use crate::cli::formatters::Formatter;
+use crate::Formatter;
 use crate::core::config::FluffConfig;
 use crate::templaters::placeholder::PlaceholderTemplater;
 use crate::templaters::raw::RawTemplater;

@@ -1575,17 +1575,21 @@ dependencies = [
 name = "sqruff-cli-lib"
 version = "0.28.0"
 dependencies = [
+ "anstyle",
  "assert_cmd",
  "clap",
  "clap-markdown",
  "expect-test",
+ "fancy-regex",
  "fern",
  "ignore",
  "log",
  "minijinja",
  "pyo3",
  "serde",
+ "serde_json",
  "sqruff-lib",
+ "sqruff-lib-core",
  "sqruff-lsp",
  "strum_macros",
  "tempfile",
@@ -1607,7 +1611,6 @@ name = "sqruff-lib"
 version = "0.28.0"
 dependencies = [
  "ahash",
- "anstyle",
  "common-path",
  "configparser",
  "criterion",

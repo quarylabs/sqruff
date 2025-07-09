@@ -15,14 +15,6 @@ impl From<SQLBaseError> for Diagnostic {
             severity: DiagnosticSeverity::Warning,
             source: Some("sqruff".to_string()),
             code,
-            // code: todo!(),
-            // source: Some(value.get_source().to_string()),
-            // code: Some(DiagnosticCode {
-            //     value: value.rule_code().to_string(),
-            //     target: Uri::new("".to_string()),
-            // }),
-            // related_information: Vec::new(),
-            // tags: Vec::new(),
         }
     }
 }
@@ -54,13 +46,13 @@ struct Range {
 
 /// Represents a diagnostic, such as a compiler error or warning. Diagnostic objects are only valid in the scope of a file.
 #[derive(Serialize)]
-pub struct Diagnostic {
+pub(crate) struct Diagnostic {
     /// The range to which this diagnostic applies.
     range: Range,
     /// The human-readable message.
     message: String,
     /// The severity, default is {@link DiagnosticSeverity::Error error}.
-    pub severity: DiagnosticSeverity,
+    pub(crate) severity: DiagnosticSeverity,
     /// A human-readable string describing the source of this diagnostic, e.g. 'typescript' or 'super lint'.
     source: Option<String>,
     // The diagnostic's code, which might appear in the user interface.
@@ -76,7 +68,7 @@ pub struct Diagnostic {
 
 // Structure to capture a description for an error code.
 // #[derive(Serialize)]
-// pub struct CodeDescription {
+// pub(crate) struct CodeDescription {
 //     /// An URI to open with more information about the diagnostic error.
 //     href: String,
 // }
@@ -93,15 +85,9 @@ pub struct Diagnostic {
 
 /// Represents the severity of diagnostics.
 #[derive(Serialize)]
-pub enum DiagnosticSeverity {
-    /// Something not allowed by the rules of a language or other means.
-    Error = 0,
+pub(crate) enum DiagnosticSeverity {
     /// Something suspicious but allowed.
     Warning = 1,
-    /// Something to inform about but not a problem.
-    Information = 2,
-    /// Something to hint to a better way of doing it, like proposing a refactoring.
-    Hint = 3,
 }
 
-pub type DiagnosticCollection = BTreeMap<String, Vec<Diagnostic>>;
+pub(crate) type DiagnosticCollection = BTreeMap<String, Vec<Diagnostic>>;

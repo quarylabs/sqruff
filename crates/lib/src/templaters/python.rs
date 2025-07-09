@@ -5,7 +5,7 @@ use sqruff_lib_core::errors::SQLFluffUserError;
 use sqruff_lib_core::templaters::{RawFileSlice, TemplatedFile, TemplatedFileSlice};
 
 use super::Templater;
-use crate::cli::formatters::Formatter;
+use crate::Formatter;
 use crate::core::config::FluffConfig;
 use crate::templaters::python_shared::PythonFluffConfig;
 use std::sync::Arc;

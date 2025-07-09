@@ -2,11 +2,11 @@ use anstyle::Style;
 use std::borrow::Cow;
 use std::io::IsTerminal;
 
-pub fn should_produce_plain_output(nocolor: bool) -> bool {
+pub(crate) fn should_produce_plain_output(nocolor: bool) -> bool {
     nocolor || !std::io::stdout().is_terminal()
 }
 
-pub fn colorize_helper(nocolor: bool, s: &str, style: Style) -> Cow<'_, str> {
+pub(crate) fn colorize_helper(nocolor: bool, s: &str, style: Style) -> Cow<'_, str> {
     if nocolor {
         s.into()
     } else {
@@ -14,7 +14,7 @@ pub fn colorize_helper(nocolor: bool, s: &str, style: Style) -> Cow<'_, str> {
     }
 }
 
-pub fn split_string_on_spaces(s: &str, line_length: usize) -> Vec<&str> {
+pub(crate) fn split_string_on_spaces(s: &str, line_length: usize) -> Vec<&str> {
     let mut lines = Vec::new();
     let mut line_start = 0;
     let mut last_space = 0;

@@ -1,26 +1,7 @@
--- Simple table variable declaration
-DECLARE @customers TABLE (CustomerId INT);
-
--- Table variable with multiple columns
-DECLARE @employees TABLE (
-    EmployeeId INT PRIMARY KEY,
-    Name VARCHAR(100),
-    Salary DECIMAL(10,2)
+DECLARE @MyTableVar TABLE(
+    EmpID INT NOT NULL,
+    OldVacationHours INT,
+    NewVacationHours INT,
+    ModifiedDate DATETIME,
+    PRIMARY KEY (EmpID)
 );
-
--- Table variable with simple constraints
-DECLARE @orders TABLE (
-    OrderId INT PRIMARY KEY,
-    CustomerId INT NOT NULL,
-    OrderDate DATETIME,
-    Amount DECIMAL(10,2)
-);
-
--- Multiple declarations
-DECLARE @var1 INT = 42,
-        @var2 VARCHAR(50) = 'test',
-        @tableVar TABLE (Id INT, Name VARCHAR(50));
-
--- Using table variables
-INSERT INTO @customers VALUES (1), (2), (3);
-SELECT * FROM @customers;

@@ -825,6 +825,65 @@ pub fn raw_dialect() -> Dialect {
         .into(),
     )]);
 
+    // Add T-SQL IDENTITY constraint support
+    dialect.add([(
+        "IdentityConstraintGrammar".into(),
+        Sequence::new(vec_of_erased![
+            Ref::keyword("IDENTITY"),
+            Bracketed::new(vec_of_erased![
+                Ref::new("NumericLiteralSegment"), // seed
+                Ref::new("CommaSegment"),
+                Ref::new("NumericLiteralSegment")  // increment
+            ]).config(|this| this.optional()) // IDENTITY() can be empty
+        ])
+        .to_matchable()
+        .into(),
+    )]);
+
+    // Extend ColumnConstraintSegment to include T-SQL specific constraints
+    dialect.add([(
+        "ColumnConstraintSegment".into(),
+        NodeMatcher::new(SyntaxKind::ColumnConstraintSegment, |_| {
+            Sequence::new(vec_of_erased![
+                Sequence::new(vec_of_erased![
+                    Ref::keyword("CONSTRAINT"),
+                    Ref::new("ObjectReferenceSegment"), // Constraint name
+                ]).config(|this| this.optional()),
+                one_of(vec_of_erased![
+                    // NOT NULL / NULL
+                    Sequence::new(vec_of_erased![
+                        Ref::keyword("NOT").optional(),
+                        Ref::keyword("NULL"),
+                    ]),
+                    // CHECK constraint
+                    Sequence::new(vec_of_erased![
+                        Ref::keyword("CHECK"),
+                        Bracketed::new(vec_of_erased![Ref::new("ExpressionSegment")]),
+                    ]),
+                    // DEFAULT constraint  
+                    Sequence::new(vec_of_erased![
+                        Ref::keyword("DEFAULT"),
+                        Ref::new("ColumnConstraintDefaultGrammar"),
+                    ]),
+                    Ref::new("PrimaryKeyGrammar"),
+                    Ref::new("UniqueKeyGrammar"),
+                    Ref::new("IdentityConstraintGrammar"), // T-SQL IDENTITY
+                    Ref::new("AutoIncrementGrammar"), // Keep ANSI AUTO_INCREMENT
+                    Ref::new("ReferenceDefinitionGrammar"),
+                    Ref::new("CommentClauseSegment"),
+                    // COLLATE
+                    Sequence::new(vec_of_erased![
+                        Ref::keyword("COLLATE"),
+                        Ref::new("CollationReferenceSegment"),
+                    ]),
+                ]),
+            ])
+            .to_matchable()
+        })
+        .to_matchable()
+        .into(),
+    )]);
+
     // Add T-SQL variable support to LiteralGrammar
     dialect.add([(
         "LiteralGrammar".into(),

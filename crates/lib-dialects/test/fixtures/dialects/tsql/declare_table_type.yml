@@ -1,0 +1,40 @@
+file:
+- statement:
+  - keyword: DECLARE
+  - tsql_variable: '@MyTableVar'
+  - keyword: TABLE
+  - bracketed:
+    - start_bracket: (
+    - column_definition:
+      - naked_identifier: EmpID
+      - data_type:
+        - data_type_identifier: INT
+      - column_constraint_segment:
+        - keyword: NOT
+        - keyword: 'NULL'
+    - comma: ','
+    - column_definition:
+      - naked_identifier: OldVacationHours
+      - data_type:
+        - data_type_identifier: INT
+    - comma: ','
+    - column_definition:
+      - naked_identifier: NewVacationHours
+      - data_type:
+        - data_type_identifier: INT
+    - comma: ','
+    - column_definition:
+      - naked_identifier: ModifiedDate
+      - data_type:
+        - data_type_identifier: DATETIME
+    - comma: ','
+    - table_constraint:
+      - keyword: PRIMARY
+      - keyword: KEY
+      - bracketed:
+        - start_bracket: (
+        - column_reference:
+          - naked_identifier: EmpID
+        - end_bracket: )
+    - end_bracket: )
+- statement_terminator: ;

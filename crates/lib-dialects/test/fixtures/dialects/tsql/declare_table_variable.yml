@@ -1,0 +1,143 @@
+file:
+- statement:
+  - keyword: DECLARE
+  - tsql_variable: '@customers'
+  - keyword: TABLE
+  - bracketed:
+    - start_bracket: (
+    - column_definition:
+      - naked_identifier: CustomerId
+      - data_type:
+        - data_type_identifier: INT
+    - end_bracket: )
+- statement_terminator: ;
+- statement:
+  - keyword: DECLARE
+  - tsql_variable: '@employees'
+  - keyword: TABLE
+  - bracketed:
+    - start_bracket: (
+    - column_definition:
+      - naked_identifier: EmployeeId
+      - data_type:
+        - data_type_identifier: INT
+      - column_constraint_segment:
+        - keyword: PRIMARY
+        - keyword: KEY
+    - comma: ','
+    - column_definition:
+      - naked_identifier: Name
+      - data_type:
+        - data_type_identifier: VARCHAR
+        - bracketed_arguments:
+          - bracketed:
+            - start_bracket: (
+            - numeric_literal: '100'
+            - end_bracket: )
+    - comma: ','
+    - column_definition:
+      - naked_identifier: Salary
+      - data_type:
+        - data_type_identifier: DECIMAL
+        - bracketed_arguments:
+          - bracketed:
+            - start_bracket: (
+            - numeric_literal: '10'
+            - comma: ','
+            - numeric_literal: '2'
+            - end_bracket: )
+    - end_bracket: )
+- statement_terminator: ;
+- statement:
+  - keyword: DECLARE
+  - tsql_variable: '@orders'
+  - data_type:
+    - data_type_identifier: TABLE
+- file:
+  - start_bracket: (
+  - word: OrderId
+  - word: INT
+  - word: IDENTITY
+  - start_bracket: (
+  - numeric_literal: '1'
+  - comma: ','
+  - numeric_literal: '1'
+  - end_bracket: )
+  - word: PRIMARY
+  - word: KEY
+  - comma: ','
+  - word: CustomerId
+  - word: INT
+  - word: NOT
+  - word: 'NULL'
+  - comma: ','
+  - word: OrderDate
+  - word: DATETIME
+  - word: DEFAULT
+  - word: GETDATE
+  - start_bracket: (
+  - end_bracket: )
+  - comma: ','
+  - word: Amount
+  - word: DECIMAL
+  - start_bracket: (
+  - numeric_literal: '10'
+  - comma: ','
+  - numeric_literal: '2'
+  - end_bracket: )
+  - word: CHECK
+  - start_bracket: (
+  - word: Amount
+  - raw_comparison_operator: '>'
+  - numeric_literal: '0'
+  - end_bracket: )
+  - end_bracket: )
+  - semicolon: ;
+  - word: DECLARE
+  - tsql_variable: '@var1'
+  - word: INT
+  - raw_comparison_operator: =
+  - numeric_literal: '42'
+  - comma: ','
+  - tsql_variable: '@var2'
+  - word: VARCHAR
+  - start_bracket: (
+  - numeric_literal: '50'
+  - end_bracket: )
+  - raw_comparison_operator: =
+  - single_quote: '''test'''
+  - comma: ','
+  - tsql_variable: '@tableVar'
+  - word: TABLE
+  - start_bracket: (
+  - word: Id
+  - word: INT
+  - comma: ','
+  - word: Name
+  - word: VARCHAR
+  - start_bracket: (
+  - numeric_literal: '50'
+  - end_bracket: )
+  - end_bracket: )
+  - semicolon: ;
+  - word: INSERT
+  - word: INTO
+  - tsql_variable: '@customers'
+  - word: VALUES
+  - start_bracket: (
+  - numeric_literal: '1'
+  - end_bracket: )
+  - comma: ','
+  - start_bracket: (
+  - numeric_literal: '2'
+  - end_bracket: )
+  - comma: ','
+  - start_bracket: (
+  - numeric_literal: '3'
+  - end_bracket: )
+  - semicolon: ;
+  - word: SELECT
+  - star: '*'
+  - word: FROM
+  - tsql_variable: '@customers'
+  - semicolon: ;

@@ -12,7 +12,7 @@ use sqruff_lib_core::parser::grammar::sequence::{Bracketed, Sequence};
 use sqruff_lib_core::parser::lexer::Matcher;
 use sqruff_lib_core::parser::matchable::MatchableTrait;
 use sqruff_lib_core::parser::node_matcher::NodeMatcher;
-use sqruff_lib_core::parser::parsers::TypedParser;
+use sqruff_lib_core::parser::parsers::{StringParser, TypedParser};
 use sqruff_lib_core::parser::segments::meta::MetaSegment;
 use sqruff_lib_core::parser::types::ParseMode;
 use sqruff_lib_core::vec_of_erased;
@@ -333,6 +333,56 @@ pub fn dialect() -> Dialect {
             ])
             .config(|this| this.optional()),
         ])
+        .to_matchable()
+        .into(),
+    )]);
+
+    clickhouse_dialect.replace_grammar(
+        "DatatypeSegment",
+        one_of(vec_of_erased![
+            Sequence::new(vec_of_erased![
+                StringParser::new("NULLABLE", SyntaxKind::DataTypeIdentifier),
+                Bracketed::new(vec_of_erased![Ref::new("DatatypeSegment")]),
+            ]),
+            Ref::new("TupleTypeSegment"),
+            Ref::new("DatatypeIdentifierSegment"),
+            Ref::new("NumericLiteralSegment"),
+            Sequence::new(vec_of_erased![
+                StringParser::new("DATETIME64", SyntaxKind::DataTypeIdentifier),
+                Bracketed::new(vec_of_erased![
+                    Delimited::new(vec_of_erased![
+                        Ref::new("NumericLiteralSegment"),           // precision
+                        Ref::new("QuotedLiteralSegment").optional(), // timezone
+                    ])
+                    // The brackets might be empty as well
+                    .config(|this| {
+                        this.optional();
+                    }),
+                ])
+                .config(|this| this.optional()),
+            ]),
+        ])
+        .to_matchable(),
+    );
+
+    clickhouse_dialect.add([(
+        "TupleTypeSegment".into(),
+        Sequence::new(vec_of_erased![
+            Ref::keyword("TUPLE"),
+            Ref::new("TupleTypeSchemaSegment"), // Tuple() can't be empty
+        ])
+        .to_matchable()
+        .into(),
+    )]);
+
+    clickhouse_dialect.add([(
+        "TupleTypeSchemaSegment".into(),
+        Bracketed::new(vec_of_erased![Delimited::new(vec_of_erased![
+            Sequence::new(vec_of_erased![
+                Ref::new("SingleIdentifierGrammar"),
+                Ref::new("DatatypeSegment"),
+            ])
+        ])])
         .to_matchable()
         .into(),
     )]);

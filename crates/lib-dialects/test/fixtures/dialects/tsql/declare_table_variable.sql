@@ -8,12 +8,12 @@ DECLARE @employees TABLE (
     Salary DECIMAL(10,2)
 );
 
--- Table variable with constraints
+-- Table variable with simple constraints
 DECLARE @orders TABLE (
-    OrderId INT IDENTITY(1,1) PRIMARY KEY,
+    OrderId INT PRIMARY KEY,
     CustomerId INT NOT NULL,
-    OrderDate DATETIME DEFAULT GETDATE(),
-    Amount DECIMAL(10,2) CHECK (Amount > 0)
+    OrderDate DATETIME,
+    Amount DECIMAL(10,2)
 );
 
 -- Multiple declarations

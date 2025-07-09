@@ -162,7 +162,11 @@ FROM my_table"#
             }
         }
 
-        for idx in to_remove {
+        // Sort indices in reversed order to avoid index shifting issues when removing.
+        // Remove items from the end of the vector first.
+        let mut to_remove_vec: Vec<usize> = to_remove.into_iter().collect();
+        to_remove_vec.sort_by(|a, b| b.cmp(a));
+        for idx in to_remove_vec {
             results.remove(idx);
         }
 

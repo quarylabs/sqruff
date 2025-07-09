@@ -833,8 +833,9 @@ pub fn raw_dialect() -> Dialect {
             Bracketed::new(vec_of_erased![
                 Ref::new("NumericLiteralSegment"), // seed
                 Ref::new("CommaSegment"),
-                Ref::new("NumericLiteralSegment")  // increment
-            ]).config(|this| this.optional()) // IDENTITY() can be empty
+                Ref::new("NumericLiteralSegment") // increment
+            ])
+            .config(|this| this.optional()) // IDENTITY() can be empty
         ])
         .to_matchable()
         .into(),
@@ -848,7 +849,8 @@ pub fn raw_dialect() -> Dialect {
                 Sequence::new(vec_of_erased![
                     Ref::keyword("CONSTRAINT"),
                     Ref::new("ObjectReferenceSegment"), // Constraint name
-                ]).config(|this| this.optional()),
+                ])
+                .config(|this| this.optional()),
                 one_of(vec_of_erased![
                     // NOT NULL / NULL
                     Sequence::new(vec_of_erased![
@@ -860,7 +862,7 @@ pub fn raw_dialect() -> Dialect {
                         Ref::keyword("CHECK"),
                         Bracketed::new(vec_of_erased![Ref::new("ExpressionSegment")]),
                     ]),
-                    // DEFAULT constraint  
+                    // DEFAULT constraint
                     Sequence::new(vec_of_erased![
                         Ref::keyword("DEFAULT"),
                         Ref::new("ColumnConstraintDefaultGrammar"),
@@ -868,7 +870,7 @@ pub fn raw_dialect() -> Dialect {
                     Ref::new("PrimaryKeyGrammar"),
                     Ref::new("UniqueKeyGrammar"),
                     Ref::new("IdentityConstraintGrammar"), // T-SQL IDENTITY
-                    Ref::new("AutoIncrementGrammar"), // Keep ANSI AUTO_INCREMENT
+                    Ref::new("AutoIncrementGrammar"),      // Keep ANSI AUTO_INCREMENT
                     Ref::new("ReferenceDefinitionGrammar"),
                     Ref::new("CommentClauseSegment"),
                     // COLLATE

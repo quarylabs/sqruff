@@ -1,4 +1,5 @@
--- Table variable with constraints from original SQLFluff tests
+-- Table variable with complex constraints (IDENTITY, DEFAULT, CHECK)
+-- Created for testing T-SQL constraint parsing enhancements
 DECLARE @orders TABLE (
     OrderId INT IDENTITY(1,1) PRIMARY KEY,
     CustomerId INT NOT NULL,

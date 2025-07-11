@@ -1288,6 +1288,51 @@ pub fn dialect() -> Dialect {
         ),
     );
 
+    clickhouse_dialect.add([(
+        "LimitClauseComponentSegment".into(),
+        optionally_bracketed(vec_of_erased![one_of(vec_of_erased![
+            Ref::new("NumericLiteralSegment"),
+            Ref::new("ExpressionSegment"),
+        ])])
+        .to_matchable()
+        .into(),
+    )]);
+
+    clickhouse_dialect.replace_grammar(
+        "LimitClauseSegment",
+        Sequence::new(vec_of_erased![
+            Ref::keyword("LIMIT"),
+            MetaSegment::indent(),
+            Sequence::new(vec_of_erased![
+                Ref::new("LimitClauseComponentSegment"),
+                one_of(vec_of_erased![
+                    Sequence::new(vec_of_erased![
+                        Ref::keyword("OFFSET"),
+                        Ref::new("LimitClauseComponentSegment"),
+                    ]),
+                    Sequence::new(vec_of_erased![
+                        // LIMIT 1,2 only accepts constants
+                        // and can't be bracketed like that LIMIT (1, 2)
+                        // but can be bracketed like that LIMIT (1), (2)
+                        Ref::new("CommaSegment"),
+                        Ref::new("LimitClauseComponentSegment"),
+                    ]),
+                ])
+                .config(|this| this.optional()),
+                Sequence::new(vec_of_erased![
+                    Ref::keyword("BY"),
+                    one_of(vec_of_erased![
+                        Ref::new("BracketedColumnReferenceListGrammar"),
+                        Ref::new("ColumnReferenceSegment"),
+                    ]),
+                ])
+                .config(|this| this.optional()),
+            ]),
+            MetaSegment::dedent(),
+        ])
+        .to_matchable(),
+    );
+
     clickhouse_dialect.expand();
     clickhouse_dialect
 }

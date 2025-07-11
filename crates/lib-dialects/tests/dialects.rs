@@ -13,44 +13,17 @@ use sqruff_lib_core::parser::segments::Tables;
 use sqruff_lib_dialects::kind_to_dialect;
 use strum::IntoEnumIterator;
 
-#[derive(Default)]
-pub struct Args {
-    list: bool,
-    ignored: bool,
-    no_capture: bool,
-}
-
-impl Args {
-    fn parse_args(&mut self, iter: impl Iterator<Item = String>) {
-        for arg in iter {
-            if arg == "--" {
-                continue;
-            }
-
-            match arg.as_str() {
-                "--list" => self.list = true,
-                "--ignored" => self.ignored = true,
-                "--no-capture" => self.no_capture = true,
-                _ => {}
-            }
-        }
-    }
-}
-
 fn main() {
-    let mut args = Args::default();
-    args.parse_args(std::env::args().skip(1));
+    let args = std::env::args().skip(1).collect::<Vec<String>>();
 
-    // FIXME: improve support for nextest
-    if args.list {
-        if !args.ignored {
-            println!("rules: test");
-        }
+    let mut arg_dialect = None;
 
-        return;
+    if args.len() == 1 {
+        arg_dialect = Some(DialectKind::from_str(&args[0]).unwrap());
     }
 
     let dialects = DialectKind::iter()
+        .filter(|dialect| arg_dialect.is_none() || &arg_dialect.unwrap() == dialect)
         .map(|dialect| dialect.as_ref().to_string())
         .collect::<HashSet<String>>();
     println!("{dialects:?}");
@@ -75,7 +48,10 @@ fn main() {
         let dialect_dir = dialects_dir.join(dialect);
         assert!(dialects_dirs.contains(&dialect_dir));
     }
-    assert_eq!(dialects_dirs.len(), dialects.len());
+
+    if arg_dialect.is_none() {
+        assert_eq!(dialects_dirs.len(), dialects.len());
+    }
 
     // Go through each of the dialects and check if the files are present
     for dialect_name in &dialects {

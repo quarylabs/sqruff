@@ -526,6 +526,13 @@ pub(crate) fn tsql_additional_unreserved_keywords() -> AHashSet<&'static str> {
         "YDM",
         "MYD",
         "DYM",
+        // BEGIN ATOMIC WITH keywords
+        "ATOMIC",
+        "SERIALIZABLE",
+        "SNAPSHOT",
+        "ISOLATION",
+        "LEVEL",
+        "DELAYED_DURABILITY",
         // Azure Synapse Analytics keywords
         "DISTRIBUTION",
         "ROUND_ROBIN",

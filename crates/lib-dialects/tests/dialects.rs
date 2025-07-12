@@ -18,8 +18,17 @@ fn main() {
 
     let mut arg_dialect = None;
 
-    if args.len() == 1 {
-        arg_dialect = Some(DialectKind::from_str(&args[0]).unwrap());
+    // Filter out arguments that start with -- (cargo test arguments)
+    let dialect_args: Vec<String> = args
+        .into_iter()
+        .filter(|arg| !arg.starts_with("--"))
+        .collect();
+
+    if dialect_args.len() == 1 {
+        // Handle parsing errors gracefully
+        if let Ok(dialect) = DialectKind::from_str(&dialect_args[0]) {
+            arg_dialect = Some(dialect);
+        }
     }
 
     let dialects = DialectKind::iter()

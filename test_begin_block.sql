@@ -1,0 +1,3 @@
+BEGIN
+    SET NOCOUNT ON;
+END

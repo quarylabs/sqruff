@@ -562,7 +562,8 @@ pub fn raw_dialect() -> Dialect {
     dialect.replace_grammar(
         "StatementSegment",
         one_of(vec_of_erased![
-            // T-SQL specific statements
+            // T-SQL specific statements (atomic blocks must come first)
+            Ref::new("AtomicBlockSegment"),
             Ref::new("DeclareStatementGrammar"),
             Ref::new("SetVariableStatementGrammar"),
             Ref::new("PrintStatementGrammar"),
@@ -1162,12 +1163,9 @@ pub fn raw_dialect() -> Dialect {
                     Ref::keyword("NAME"),
                     Ref::new("ObjectReferenceSegment")
                 ]),
-                // Natively compiled procedures with BEGIN ATOMIC WITH
-                Ref::new("AtomicBlockSegment"),
-                // For procedures: capture everything until GO or end of file
-                // Use a very greedy approach to consume all remaining content
+                // For procedures: use ProcedureStatementSegment to handle atomic blocks properly
                 AnyNumberOf::new(vec_of_erased![
-                    Ref::new("StatementSegment")
+                    Ref::new("ProcedureStatementSegment")
                 ])
                 .config(|this| {
                     this.min_times(1);
@@ -1180,6 +1178,11 @@ pub fn raw_dialect() -> Dialect {
             ])
             .to_matchable()
             .into(),
+        ),
+        (
+            "ProcedureStatementSegment".into(),
+            // Just use StatementSegment for now - the ordering should handle precedence
+            Ref::new("StatementSegment").to_matchable().into(),
         ),
         (
             "AtomicBlockSegment".into(),
@@ -1244,6 +1247,7 @@ pub fn raw_dialect() -> Dialect {
             .into(),
         ),
     ]);
+
 
     // T-SQL supports alternative alias syntax: AliasName = Expression
     // The parser distinguishes between column references (table1.column1)

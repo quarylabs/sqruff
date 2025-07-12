@@ -526,6 +526,15 @@ pub(crate) fn tsql_additional_unreserved_keywords() -> AHashSet<&'static str> {
         "YDM",
         "MYD",
         "DYM",
+        // Azure Synapse Analytics keywords
+        "DISTRIBUTION",
+        "ROUND_ROBIN",
+        "REPLICATE",
+        "HASH",
+        "HEAP",
+        "COLUMNSTORE",
+        "PARTITION",
+        "RANGE",
     ]);
     
     keywords

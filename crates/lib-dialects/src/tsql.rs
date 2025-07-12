@@ -405,6 +405,8 @@ pub fn raw_dialect() -> Dialect {
                         Ref::new("InsertStatementSegment"),
                         Ref::new("UpdateStatementSegment"),
                         Ref::new("DeleteStatementSegment"),
+                        Ref::new("CreateTableStatementSegment"),
+                        Ref::new("DropTableStatementSegment"),
                         Ref::new("DeclareStatementSegment"),
                         Ref::new("SetVariableStatementSegment"),
                         Ref::new("PrintStatementSegment"),
@@ -1144,9 +1146,35 @@ pub fn raw_dialect() -> Dialect {
                 ]),
                 // Natively compiled procedures with BEGIN ATOMIC WITH
                 Ref::new("AtomicBlockSegment"),
-                // Regular T-SQL procedures
-                Ref::new("BeginEndBlockGrammar"),
-                Ref::new("StatementSegment")
+                // For procedures: capture everything until GO or end of file
+                AnyNumberOf::new(vec_of_erased![
+                    Sequence::new(vec_of_erased![
+                        Ref::new("StatementSegment"),
+                        Ref::new("DelimiterGrammar").optional()
+                    ])
+                ])
+                .config(|this| {
+                    this.min_times(1);
+                    this.parse_mode = ParseMode::Greedy;
+                    this.terminators = vec_of_erased![
+                        Ref::new("BatchSeparatorGrammar"),
+                        // Also terminate on another CREATE/ALTER/DROP statement
+                        Sequence::new(vec_of_erased![
+                            one_of(vec_of_erased![
+                                Ref::keyword("CREATE"),
+                                Ref::keyword("ALTER"),
+                                Ref::keyword("DROP")
+                            ]),
+                            one_of(vec_of_erased![
+                                Ref::keyword("PROCEDURE"),
+                                Ref::keyword("PROC"),
+                                Ref::keyword("FUNCTION"),
+                                Ref::keyword("TABLE"),
+                                Ref::keyword("VIEW")
+                            ])
+                        ])
+                    ];
+                })
             ])
             .to_matchable()
             .into(),
@@ -1240,6 +1268,7 @@ pub fn raw_dialect() -> Dialect {
         ])
         .to_matchable(),
     );
+
 
     // T-SQL uses + for both arithmetic and string concatenation
     dialect.add([(

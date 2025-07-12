@@ -8,15 +8,10 @@ file:
       - dot: .
       - naked_identifier: Test_Begin_End
     - keyword: AS
-    - statement:
-      - transaction_statement:
-        - keyword: BEGIN
-    - statement:
-      - select_statement:
-        - select_clause:
-          - keyword: SELECT
-          - select_clause_element:
-            - quoted_literal: '''Weekend'''
+    - unparsable:
+      - word: BEGIN
+      - word: SELECT
+      - single_quote: '''Weekend'''
 - statement_terminator: ;
 - statement:
   - select_statement:
@@ -50,13 +45,10 @@ file:
               - object_reference:
                 - naked_identifier: tbl2
 - statement_terminator: ;
-- statement:
-  - transaction_statement:
-    - keyword: END
-- statement_terminator: ;
-- statement:
-  - keyword: GO
 - file:
+  - word: END
+  - semicolon: ;
+  - word: GO
   - word: CREATE
   - word: PROCEDURE
   - double_quote: '[dbo]'

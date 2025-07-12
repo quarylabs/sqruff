@@ -418,19 +418,7 @@ pub fn raw_dialect() -> Dialect {
                 ])])
                 .config(|this| {
                     this.terminators = vec_of_erased![
-                        // Terminate on keywords that start new statements
-                        Ref::keyword("CREATE"),
-                        Ref::keyword("DROP"),
-                        Ref::keyword("ALTER"),
-                        Ref::keyword("SELECT"),
-                        Ref::keyword("INSERT"),
-                        Ref::keyword("UPDATE"),
-                        Ref::keyword("DELETE"),
-                        Ref::keyword("DECLARE"),
-                        Ref::keyword("SET"),
-                        Ref::keyword("IF"),
-                        Ref::keyword("WHILE"),
-                        Ref::keyword("BEGIN"),
+                        // Terminate on END keyword
                         Ref::keyword("END")
                     ];
                 })
@@ -529,6 +517,56 @@ pub fn raw_dialect() -> Dialect {
         ),
     ]);
 
+    // T-SQL Transaction statement - must have TRANSACTION or WORK after BEGIN
+    // This prevents BEGIN from matching when it's part of BEGIN ATOMIC
+    dialect.add([
+        (
+            "TsqlTransactionStatementSegment".into(),
+            NodeMatcher::new(SyntaxKind::TransactionStatement, |_| {
+                one_of(vec_of_erased![
+                    // START TRANSACTION/WORK
+                    Sequence::new(vec_of_erased![
+                        Ref::keyword("START"),
+                        one_of(vec_of_erased![
+                            Ref::keyword("TRANSACTION"),
+                            Ref::keyword("WORK")
+                        ])
+                    ]),
+                    // BEGIN TRANSACTION/WORK (but not BEGIN alone)
+                    Sequence::new(vec_of_erased![
+                        Ref::keyword("BEGIN"),
+                        one_of(vec_of_erased![
+                            Ref::keyword("TRANSACTION"),
+                            Ref::keyword("WORK")
+                        ])
+                    ]),
+                    // COMMIT [TRANSACTION/WORK]
+                    Sequence::new(vec_of_erased![
+                        Ref::keyword("COMMIT"),
+                        one_of(vec_of_erased![
+                            Ref::keyword("TRANSACTION"),
+                            Ref::keyword("WORK")
+                        ])
+                        .config(|this| this.optional())
+                    ]),
+                    // ROLLBACK [TRANSACTION/WORK]
+                    Sequence::new(vec_of_erased![
+                        Ref::keyword("ROLLBACK"),
+                        one_of(vec_of_erased![
+                            Ref::keyword("TRANSACTION"),
+                            Ref::keyword("WORK")
+                        ])
+                        .config(|this| this.optional())
+                    ]),
+                    // END is not used in T-SQL for transactions
+                ])
+                .to_matchable()
+            })
+            .to_matchable()
+            .into(),
+        ),
+    ]);
+
     // GO batch separator - T-SQL uses GO to separate batches
     dialect.add([
         (
@@ -576,7 +614,7 @@ pub fn raw_dialect() -> Dialect {
             Ref::new("SelectableGrammar"),
             Ref::new("MergeStatementSegment"),
             Ref::new("InsertStatementSegment"),
-            Ref::new("TransactionStatementSegment"),
+            Ref::new("TsqlTransactionStatementSegment"),
             Ref::new("DropTableStatementSegment"),
             Ref::new("DropViewStatementSegment"),
             Ref::new("CreateUserStatementSegment"),

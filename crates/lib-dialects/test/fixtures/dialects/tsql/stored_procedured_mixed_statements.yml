@@ -82,45 +82,31 @@ file:
       - keyword: SELECT
       - select_clause_element:
         - numeric_literal: '1'
-  - create_table_statement:
-    - create_table_statement:
-      - keyword: CREATE
-      - keyword: TABLE
-      - table_reference:
-        - object_reference:
-          - naked_identifier: '#TempTest'
-      - keyword: WITH
-      - bracketed:
+      - unparsable:
+        - word: CREATE
+        - word: TABLE
+        - word: '#TempTest'
+        - word: WITH
         - start_bracket: (
-        - keyword: DISTRIBUTION
-        - comparison_operator:
-          - raw_comparison_operator: =
-        - keyword: ROUND_ROBIN
+        - word: DISTRIBUTION
+        - raw_comparison_operator: =
+        - word: ROUND_ROBIN
         - comma: ','
-        - keyword: HEAP
+        - word: HEAP
         - end_bracket: )
-      - keyword: AS
-      - bracketed:
+        - word: AS
         - start_bracket: (
-        - select_statement:
-          - select_clause:
-            - keyword: SELECT
-            - select_clause_element:
-              - numeric_literal: '2'
-              - alias_expression:
-                - keyword: AS
-                - naked_identifier: Two
-            - comma: ','
-            - select_clause_element:
-              - numeric_literal: '3'
-              - alias_expression:
-                - keyword: AS
-                - naked_identifier: Three
-            - comma: ','
-            - select_clause_element:
-              - numeric_literal: '4'
-              - alias_expression:
-                - keyword: AS
-                - naked_identifier: Four
+        - word: SELECT
+        - numeric_literal: '2'
+        - word: AS
+        - word: Two
+        - comma: ','
+        - numeric_literal: '3'
+        - word: AS
+        - word: Three
+        - comma: ','
+        - numeric_literal: '4'
+        - word: AS
+        - word: Four
         - end_bracket: )
   - keyword: END

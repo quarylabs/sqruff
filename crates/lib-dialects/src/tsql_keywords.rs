@@ -360,13 +360,6 @@ pub(crate) fn tsql_future_keywords() -> AHashSet<&'static str> {
         "ORDINALITY",
         "OUT",
         "OUTPUT",
-        "READONLY",
-        "ENCRYPTION",
-        "RECOMPILE",
-        "NATIVE_COMPILATION",
-        "SCHEMABINDING",
-        "CALLER",
-        "OWNER",
         "OVERLAY",
         "PAD",
         "PARAMETER",
@@ -519,13 +512,11 @@ pub(crate) fn tsql_additional_unreserved_keywords() -> AHashSet<&'static str> {
         "DATEFIRST",
         "DATEFORMAT",
         "DELAYED_DURABILITY",
-        
         // Function names that can be used as identifiers
         "NEWID",
-        
         // T-SQL priority and format values
         "LOW",
-        "NORMAL", 
+        "NORMAL",
         "HIGH",
         "MDY",
         "DMY",
@@ -533,13 +524,11 @@ pub(crate) fn tsql_additional_unreserved_keywords() -> AHashSet<&'static str> {
         "YDM",
         "MYD",
         "DYM",
-        
         // Transaction isolation levels
         "SERIALIZABLE",
         "SNAPSHOT",
         "ISOLATION",
         "LEVEL",
-        
         // Azure Synapse Analytics keywords that can be identifiers
         "DISTRIBUTION",
         "ROUND_ROBIN",
@@ -549,9 +538,17 @@ pub(crate) fn tsql_additional_unreserved_keywords() -> AHashSet<&'static str> {
         "COLUMNSTORE",
         "PARTITION",
         "RANGE",
-        
         // Common T-SQL keywords that can be used as identifiers
         "ATOMIC",
+        // Procedure parameter modifiers
+        "READONLY",
+        // CREATE PROCEDURE WITH clause options
+        "ENCRYPTION",
+        "RECOMPILE",
+        "NATIVE_COMPILATION",
+        "SCHEMABINDING",
+        "CALLER",
+        "OWNER",
     ]
     .into_iter()
     .collect()

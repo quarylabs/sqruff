@@ -983,10 +983,29 @@ pub fn raw_dialect() -> Dialect {
         ),
         (
             "ProcedureParameterListGrammar".into(),
-            Delimited::new(vec_of_erased![
-                Ref::new("ProcedureParameterGrammar")
+            Bracketed::new(vec_of_erased![
+                Delimited::new(vec_of_erased![
+                    Ref::new("ProcedureParameterGrammar")
+                ])
+                .config(|this| this.optional())
             ])
-            .config(|this| this.optional())
+            .to_matchable()
+            .into(),
+        ),
+        (
+            "TsqlDatatypeSegment".into(),
+            NodeMatcher::new(SyntaxKind::DataType, |_| {
+                one_of(vec_of_erased![
+                    // Regular data type
+                    Ref::new("DatatypeSegment"),
+                    // Square bracket data type like [int], [varchar](100)
+                    Sequence::new(vec_of_erased![
+                        TypedParser::new(SyntaxKind::DoubleQuote, SyntaxKind::DataTypeIdentifier),
+                        Ref::new("BracketedArguments").optional()
+                    ])
+                ])
+                .to_matchable()
+            })
             .to_matchable()
             .into(),
         ),
@@ -995,7 +1014,7 @@ pub fn raw_dialect() -> Dialect {
             NodeMatcher::new(SyntaxKind::ProcedureParameter, |_| {
                 Sequence::new(vec_of_erased![
                     Ref::new("ParameterNameSegment"),
-                    Ref::new("DatatypeSegment"),
+                    Ref::new("TsqlDatatypeSegment"),
                     // Optional default value
                     Sequence::new(vec_of_erased![
                         Ref::new("EqualsSegment"),

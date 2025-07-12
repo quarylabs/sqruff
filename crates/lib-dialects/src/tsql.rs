@@ -392,40 +392,118 @@ pub fn raw_dialect() -> Dialect {
     dialect.add([
         (
             "BeginEndBlockSegment".into(),
-            Ref::new("BeginEndBlockGrammar").to_matchable().into(),
+            NodeMatcher::new(SyntaxKind::BeginEndBlock, |_| {
+                Sequence::new(vec_of_erased![
+                    Ref::keyword("BEGIN"),
+                    MetaSegment::indent(),
+                    AnyNumberOf::new(vec_of_erased![Sequence::new(vec_of_erased![
+                        one_of(vec_of_erased![
+                            Ref::new("SelectableGrammar"),
+                            Ref::new("InsertStatementSegment"),
+                            Ref::new("UpdateStatementSegment"),
+                            Ref::new("DeleteStatementSegment"),
+                            Ref::new("CreateTableStatementSegment"),
+                            Ref::new("DropTableStatementSegment"),
+                            Ref::new("DeclareStatementSegment"),
+                            Ref::new("SetVariableStatementSegment"),
+                            Ref::new("PrintStatementSegment"),
+                            Ref::new("IfStatementSegment"),
+                            Ref::new("WhileStatementSegment"),
+                            Ref::new("TryBlockSegment"),
+                            Ref::new("GotoStatementSegment"),
+                            Ref::new("LabelSegment"),
+                            Ref::new("BeginEndBlockSegment")
+                        ]),
+                        Ref::new("DelimiterGrammar").optional()
+                    ])])
+                    .config(|this| {
+                        this.terminators = vec_of_erased![
+                            // Terminate on END keyword
+                            Ref::keyword("END")
+                        ];
+                    })
+                    .config(|this| this.min_times(0)),
+                    MetaSegment::dedent(),
+                    Ref::keyword("END")
+                ])
+                .to_matchable()
+            })
+            .to_matchable()
+            .into(),
         ),
         (
             "BeginEndBlockGrammar".into(),
-            Sequence::new(vec_of_erased![
-                Ref::keyword("BEGIN"),
-                MetaSegment::indent(),
-                AnyNumberOf::new(vec_of_erased![Sequence::new(vec_of_erased![
-                    one_of(vec_of_erased![
-                        Ref::new("SelectableGrammar"),
-                        Ref::new("InsertStatementSegment"),
-                        Ref::new("UpdateStatementSegment"),
-                        Ref::new("DeleteStatementSegment"),
-                        Ref::new("CreateTableStatementSegment"),
-                        Ref::new("DropTableStatementSegment"),
-                        Ref::new("DeclareStatementSegment"),
-                        Ref::new("SetVariableStatementSegment"),
-                        Ref::new("PrintStatementSegment"),
-                        Ref::new("IfStatementSegment"),
-                        Ref::new("WhileStatementSegment"),
-                        Ref::new("BeginEndBlockSegment")
-                    ]),
-                    Ref::new("DelimiterGrammar").optional()
-                ])])
-                .config(|this| {
-                    this.terminators = vec_of_erased![
-                        // Terminate on END keyword
-                        Ref::keyword("END")
-                    ];
-                })
-                .config(|this| this.min_times(0)),
-                MetaSegment::dedent(),
-                Ref::keyword("END")
-            ])
+            Ref::new("BeginEndBlockSegment").to_matchable().into(),
+        ),
+    ]);
+
+    // TRY...CATCH blocks
+    dialect.add([
+        (
+            "TryBlockSegment".into(),
+            NodeMatcher::new(SyntaxKind::TryBlock, |_| {
+                Sequence::new(vec_of_erased![
+                    Ref::keyword("BEGIN"),
+                    Ref::keyword("TRY"),
+                    MetaSegment::indent(),
+                    AnyNumberOf::new(vec_of_erased![Sequence::new(vec_of_erased![
+                        Ref::new("StatementSegment"),
+                        Ref::new("DelimiterGrammar").optional()
+                    ])])
+                    .config(|this| {
+                        this.terminators = vec_of_erased![
+                            Ref::keyword("END")
+                        ];
+                    }),
+                    MetaSegment::dedent(),
+                    Ref::keyword("END"),
+                    Ref::keyword("TRY"),
+                    Ref::keyword("BEGIN"),
+                    Ref::keyword("CATCH"),
+                    MetaSegment::indent(),
+                    AnyNumberOf::new(vec_of_erased![Sequence::new(vec_of_erased![
+                        Ref::new("StatementSegment"),
+                        Ref::new("DelimiterGrammar").optional()
+                    ])])
+                    .config(|this| {
+                        this.terminators = vec_of_erased![
+                            Ref::keyword("END")
+                        ];
+                    }),
+                    MetaSegment::dedent(),
+                    Ref::keyword("END"),
+                    Ref::keyword("CATCH")
+                ])
+                .to_matchable()
+            })
+            .to_matchable()
+            .into(),
+        ),
+    ]);
+
+    // GOTO statement and labels
+    dialect.add([
+        (
+            "GotoStatementSegment".into(),
+            NodeMatcher::new(SyntaxKind::GotoStatement, |_| {
+                Sequence::new(vec_of_erased![
+                    Ref::keyword("GOTO"),
+                    Ref::new("NakedIdentifierSegment")  // Label name
+                ])
+                .to_matchable()
+            })
+            .to_matchable()
+            .into(),
+        ),
+        (
+            "LabelSegment".into(),
+            NodeMatcher::new(SyntaxKind::Label, |_| {
+                Sequence::new(vec_of_erased![
+                    Ref::new("NakedIdentifierSegment"),  // Label name
+                    Ref::new("ColonSegment")
+                ])
+                .to_matchable()
+            })
             .to_matchable()
             .into(),
         ),
@@ -517,55 +595,40 @@ pub fn raw_dialect() -> Dialect {
         ),
     ]);
 
-    // T-SQL Transaction statement - must have TRANSACTION or WORK after BEGIN
-    // This prevents BEGIN from matching when it's part of BEGIN ATOMIC
-    dialect.add([
-        (
-            "TsqlTransactionStatementSegment".into(),
-            NodeMatcher::new(SyntaxKind::TransactionStatement, |_| {
+
+    // Override TransactionStatementSegment to require TRANSACTION/WORK after BEGIN
+    // This prevents BEGIN from being parsed as a transaction when it should be a BEGIN...END block
+    dialect.replace_grammar(
+        "TransactionStatementSegment",
+        NodeMatcher::new(SyntaxKind::TransactionStatement, |_| {
+            Sequence::new(vec_of_erased![
                 one_of(vec_of_erased![
-                    // START TRANSACTION/WORK
-                    Sequence::new(vec_of_erased![
-                        Ref::keyword("START"),
-                        one_of(vec_of_erased![
-                            Ref::keyword("TRANSACTION"),
-                            Ref::keyword("WORK")
-                        ])
-                    ]),
-                    // BEGIN TRANSACTION/WORK (but not BEGIN alone)
+                    Ref::keyword("START"),
                     Sequence::new(vec_of_erased![
                         Ref::keyword("BEGIN"),
                         one_of(vec_of_erased![
                             Ref::keyword("TRANSACTION"),
-                            Ref::keyword("WORK")
+                            Ref::keyword("WORK"),
+                            Ref::keyword("TRAN")  // T-SQL also supports TRAN
                         ])
                     ]),
-                    // COMMIT [TRANSACTION/WORK]
-                    Sequence::new(vec_of_erased![
-                        Ref::keyword("COMMIT"),
-                        one_of(vec_of_erased![
-                            Ref::keyword("TRANSACTION"),
-                            Ref::keyword("WORK")
-                        ])
-                        .config(|this| this.optional())
-                    ]),
-                    // ROLLBACK [TRANSACTION/WORK]
-                    Sequence::new(vec_of_erased![
-                        Ref::keyword("ROLLBACK"),
-                        one_of(vec_of_erased![
-                            Ref::keyword("TRANSACTION"),
-                            Ref::keyword("WORK")
-                        ])
-                        .config(|this| this.optional())
-                    ]),
-                    // END is not used in T-SQL for transactions
+                    Ref::keyword("COMMIT"),
+                    Ref::keyword("ROLLBACK"),
+                    Ref::keyword("SAVE")  // T-SQL savepoints
+                ]),
+                one_of(vec_of_erased![
+                    Ref::keyword("TRANSACTION"),
+                    Ref::keyword("WORK"),
+                    Ref::keyword("TRAN")  // T-SQL abbreviation
                 ])
-                .to_matchable()
-            })
+                .config(|this| this.optional()),
+                // Optional transaction/savepoint name
+                Ref::new("SingleIdentifierGrammar").optional()
+            ])
             .to_matchable()
-            .into(),
-        ),
-    ]);
+        })
+        .to_matchable()
+    );
 
     // GO batch separator - T-SQL uses GO to separate batches
     dialect.add([
@@ -600,21 +663,24 @@ pub fn raw_dialect() -> Dialect {
     dialect.replace_grammar(
         "StatementSegment",
         one_of(vec_of_erased![
-            // T-SQL specific statements (atomic blocks must come first)
+            // T-SQL specific statements (BEGIN...END blocks must come first to avoid transaction conflicts)
+            Ref::new("BeginEndBlockGrammar"),
+            Ref::new("TryBlockSegment"),
             Ref::new("AtomicBlockSegment"),
             Ref::new("DeclareStatementGrammar"),
             Ref::new("SetVariableStatementGrammar"),
             Ref::new("PrintStatementGrammar"),
-            Ref::new("BeginEndBlockGrammar"),
             Ref::new("IfStatementGrammar"),
             Ref::new("WhileStatementGrammar"),
+            Ref::new("GotoStatementSegment"),
+            Ref::new("LabelSegment"),
             Ref::new("BatchSeparatorGrammar"),
             Ref::new("UseStatementGrammar"),
             // Include all ANSI statement types
             Ref::new("SelectableGrammar"),
             Ref::new("MergeStatementSegment"),
             Ref::new("InsertStatementSegment"),
-            Ref::new("TsqlTransactionStatementSegment"),
+            Ref::new("TransactionStatementSegment"),
             Ref::new("DropTableStatementSegment"),
             Ref::new("DropViewStatementSegment"),
             Ref::new("CreateUserStatementSegment"),
@@ -1201,12 +1267,19 @@ pub fn raw_dialect() -> Dialect {
                     Ref::keyword("NAME"),
                     Ref::new("ObjectReferenceSegment")
                 ]),
-                // For procedures: use ProcedureStatementSegment to handle atomic blocks properly
+                // Atomic blocks for natively compiled procedures
+                Ref::new("AtomicBlockSegment"),
+                // Single statement or block
+                Ref::new("StatementSegment"),
+                // Multiple statements for procedures without BEGIN...END
                 AnyNumberOf::new(vec_of_erased![
-                    Ref::new("ProcedureStatementSegment")
+                    Sequence::new(vec_of_erased![
+                        Ref::new("StatementSegment"),
+                        Ref::new("DelimiterGrammar").optional()
+                    ])
                 ])
                 .config(|this| {
-                    this.min_times(1);
+                    this.min_times(2);  // At least 2 statements to use this branch
                     this.parse_mode = ParseMode::Greedy;
                     // Don't terminate on delimiters, keep consuming statements
                     this.terminators = vec_of_erased![
@@ -1263,6 +1336,11 @@ pub fn raw_dialect() -> Dialect {
                     Ref::new("QuotedLiteralSegment"),
                     Ref::new("NumericLiteralSegment"),
                     Ref::new("NakedIdentifierSegment"),
+                    // N'string' syntax for Unicode strings
+                    Sequence::new(vec_of_erased![
+                        Ref::new("NakedIdentifierSegment"),  // N prefix
+                        Ref::new("QuotedLiteralSegment")
+                    ]),
                     // Special handling for multi-word isolation levels
                     Sequence::new(vec_of_erased![
                         Ref::keyword("REPEATABLE"),

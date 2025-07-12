@@ -54,59 +54,60 @@ file:
     - quoted_literal: '''LOW'''
 - statement_terminator: ;
 - statement:
-  - keyword: BEGIN
-  - keyword: SET
-  - keyword: NOCOUNT
-  - keyword: ON
-  - keyword: SET
-  - keyword: DEADLOCK_PRIORITY
-  - keyword: LOW
-  - keyword: SET
-  - keyword: DEADLOCK_PRIORITY
-  - keyword: NORMAL
-  - keyword: SET
-  - keyword: DEADLOCK_PRIORITY
-  - keyword: HIGH
-  - keyword: SET
-  - keyword: DEADLOCK_PRIORITY
-  - tsql_variable: '@deadlock_var'
-  - keyword: SET
-  - keyword: DEADLOCK_PRIORITY
-  - numeric_literal: '10'
-  - keyword: SET
-  - keyword: DEADLOCK_PRIORITY
-  - binary_operator: '-'
-  - numeric_literal: '5'
-  - select_statement:
-    - select_clause:
-      - keyword: SELECT
-      - select_clause_element:
-        - numeric_literal: '1'
-      - unparsable:
-        - word: CREATE
-        - word: TABLE
-        - word: '#TempTest'
-        - word: WITH
-        - start_bracket: (
-        - word: DISTRIBUTION
-        - raw_comparison_operator: =
-        - word: ROUND_ROBIN
-        - comma: ','
-        - word: HEAP
-        - end_bracket: )
-        - word: AS
-        - start_bracket: (
-        - word: SELECT
-        - numeric_literal: '2'
-        - word: AS
-        - word: Two
-        - comma: ','
-        - numeric_literal: '3'
-        - word: AS
-        - word: Three
-        - comma: ','
-        - numeric_literal: '4'
-        - word: AS
-        - word: Four
-        - end_bracket: )
-  - keyword: END
+  - begin_end_block:
+    - keyword: BEGIN
+    - keyword: SET
+    - keyword: NOCOUNT
+    - keyword: ON
+    - keyword: SET
+    - keyword: DEADLOCK_PRIORITY
+    - keyword: LOW
+    - keyword: SET
+    - keyword: DEADLOCK_PRIORITY
+    - keyword: NORMAL
+    - keyword: SET
+    - keyword: DEADLOCK_PRIORITY
+    - keyword: HIGH
+    - keyword: SET
+    - keyword: DEADLOCK_PRIORITY
+    - tsql_variable: '@deadlock_var'
+    - keyword: SET
+    - keyword: DEADLOCK_PRIORITY
+    - numeric_literal: '10'
+    - keyword: SET
+    - keyword: DEADLOCK_PRIORITY
+    - binary_operator: '-'
+    - numeric_literal: '5'
+    - select_statement:
+      - select_clause:
+        - keyword: SELECT
+        - select_clause_element:
+          - numeric_literal: '1'
+        - unparsable:
+          - word: CREATE
+          - word: TABLE
+          - word: '#TempTest'
+          - word: WITH
+          - start_bracket: (
+          - word: DISTRIBUTION
+          - raw_comparison_operator: =
+          - word: ROUND_ROBIN
+          - comma: ','
+          - word: HEAP
+          - end_bracket: )
+          - word: AS
+          - start_bracket: (
+          - word: SELECT
+          - numeric_literal: '2'
+          - word: AS
+          - word: Two
+          - comma: ','
+          - numeric_literal: '3'
+          - word: AS
+          - word: Three
+          - comma: ','
+          - numeric_literal: '4'
+          - word: AS
+          - word: Four
+          - end_bracket: )
+    - keyword: END

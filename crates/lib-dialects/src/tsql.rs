@@ -437,7 +437,21 @@ pub fn raw_dialect() -> Dialect {
                     .config(|this| {
                         this.terminators = vec_of_erased![
                             // Terminate on END keyword
-                            Ref::keyword("END")
+                            Ref::keyword("END"),
+                            // Also terminate on statement keywords to help with boundary detection
+                            Ref::keyword("SELECT"),
+                            Ref::keyword("INSERT"),
+                            Ref::keyword("UPDATE"),
+                            Ref::keyword("DELETE"),
+                            Ref::keyword("CREATE"),
+                            Ref::keyword("DROP"),
+                            Ref::keyword("DECLARE"),
+                            Ref::keyword("SET"),
+                            Ref::keyword("PRINT"),
+                            Ref::keyword("IF"),
+                            Ref::keyword("WHILE"),
+                            Ref::keyword("BEGIN"),
+                            Ref::keyword("GOTO")
                         ];
                     })
                     .config(|this| this.min_times(0)),

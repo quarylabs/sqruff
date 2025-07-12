@@ -83,31 +83,45 @@ file:
         - keyword: SELECT
         - select_clause_element:
           - numeric_literal: '1'
-        - unparsable:
-          - word: CREATE
-          - word: TABLE
-          - word: '#TempTest'
-          - word: WITH
+    - create_table_statement:
+      - create_table_statement:
+        - keyword: CREATE
+        - keyword: TABLE
+        - table_reference:
+          - object_reference:
+            - naked_identifier: '#TempTest'
+        - keyword: WITH
+        - bracketed:
           - start_bracket: (
-          - word: DISTRIBUTION
-          - raw_comparison_operator: =
-          - word: ROUND_ROBIN
+          - keyword: DISTRIBUTION
+          - comparison_operator:
+            - raw_comparison_operator: =
+          - keyword: ROUND_ROBIN
           - comma: ','
-          - word: HEAP
+          - keyword: HEAP
           - end_bracket: )
-          - word: AS
+        - keyword: AS
+        - bracketed:
           - start_bracket: (
-          - word: SELECT
-          - numeric_literal: '2'
-          - word: AS
-          - word: Two
-          - comma: ','
-          - numeric_literal: '3'
-          - word: AS
-          - word: Three
-          - comma: ','
-          - numeric_literal: '4'
-          - word: AS
-          - word: Four
+          - select_statement:
+            - select_clause:
+              - keyword: SELECT
+              - select_clause_element:
+                - numeric_literal: '2'
+                - alias_expression:
+                  - keyword: AS
+                  - naked_identifier: Two
+              - comma: ','
+              - select_clause_element:
+                - numeric_literal: '3'
+                - alias_expression:
+                  - keyword: AS
+                  - naked_identifier: Three
+              - comma: ','
+              - select_clause_element:
+                - numeric_literal: '4'
+                - alias_expression:
+                  - keyword: AS
+                  - naked_identifier: Four
           - end_bracket: )
     - keyword: END

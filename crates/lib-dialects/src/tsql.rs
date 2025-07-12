@@ -344,19 +344,42 @@ pub fn raw_dialect() -> Dialect {
                             Ref::new("TsqlVariableSegment")
                         ])
                     ]),
-                    // SET options that can be comma-separated
-                    Delimited::new(vec_of_erased![
+                    // SET options - supports both individual and shared ON/OFF
+                    one_of(vec_of_erased![
+                        // Individual ON/OFF: SET NOCOUNT ON, XACT_ABORT OFF
+                        Delimited::new(vec_of_erased![
+                            Sequence::new(vec_of_erased![
+                                one_of(vec_of_erased![
+                                    Ref::keyword("NOCOUNT"),
+                                    Ref::keyword("XACT_ABORT"),
+                                    Ref::keyword("QUOTED_IDENTIFIER"),
+                                    Ref::keyword("ANSI_NULLS"),
+                                    Ref::keyword("ANSI_PADDING"),
+                                    Ref::keyword("ANSI_WARNINGS"),
+                                    Ref::keyword("ARITHABORT"),
+                                    Ref::keyword("CONCAT_NULL_YIELDS_NULL"),
+                                    Ref::keyword("NUMERIC_ROUNDABORT")
+                                ]),
+                                one_of(vec_of_erased![
+                                    Ref::keyword("ON"),
+                                    Ref::keyword("OFF")
+                                ])
+                            ])
+                        ]),
+                        // Shared ON/OFF: SET NOCOUNT, XACT_ABORT ON
                         Sequence::new(vec_of_erased![
-                            one_of(vec_of_erased![
-                                Ref::keyword("NOCOUNT"),
-                                Ref::keyword("XACT_ABORT"),
-                                Ref::keyword("QUOTED_IDENTIFIER"),
-                                Ref::keyword("ANSI_NULLS"),
-                                Ref::keyword("ANSI_PADDING"),
-                                Ref::keyword("ANSI_WARNINGS"),
-                                Ref::keyword("ARITHABORT"),
-                                Ref::keyword("CONCAT_NULL_YIELDS_NULL"),
-                                Ref::keyword("NUMERIC_ROUNDABORT")
+                            Delimited::new(vec_of_erased![
+                                one_of(vec_of_erased![
+                                    Ref::keyword("NOCOUNT"),
+                                    Ref::keyword("XACT_ABORT"),
+                                    Ref::keyword("QUOTED_IDENTIFIER"),
+                                    Ref::keyword("ANSI_NULLS"),
+                                    Ref::keyword("ANSI_PADDING"),
+                                    Ref::keyword("ANSI_WARNINGS"),
+                                    Ref::keyword("ARITHABORT"),
+                                    Ref::keyword("CONCAT_NULL_YIELDS_NULL"),
+                                    Ref::keyword("NUMERIC_ROUNDABORT")
+                                ])
                             ]),
                             one_of(vec_of_erased![
                                 Ref::keyword("ON"),

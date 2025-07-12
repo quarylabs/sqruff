@@ -737,14 +737,15 @@ file:
       - dot: .
       - naked_identifier: DoSomething
     - keyword: AS
-    - unparsable:
-      - word: BEGIN
-      - word: SET
-      - word: NOCOUNT
-      - comma: ','
-      - word: XACT_ABORT
-      - word: ON
-- statement_terminator: ;
-- file:
-  - word: END
-  - word: GO
+    - statement:
+      - begin_end_block:
+        - keyword: BEGIN
+        - keyword: SET
+        - keyword: NOCOUNT
+        - comma: ','
+        - keyword: XACT_ABORT
+        - keyword: ON
+        - statement_terminator: ;
+        - keyword: END
+- statement:
+  - keyword: GO

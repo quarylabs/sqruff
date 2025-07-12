@@ -98,7 +98,11 @@ pub fn raw_dialect() -> Dialect {
     // 2. Update word pattern to allow # at the beginning (temp tables) and end (SQL Server 2017+ syntax)
     dialect.patch_lexer_matchers(vec![
         Matcher::regex("inline_comment", r"--[^\n]*", SyntaxKind::InlineComment),
-        Matcher::regex("word", r"##?[a-zA-Z0-9_]+|[0-9a-zA-Z_]+#?", SyntaxKind::Word),
+        Matcher::regex(
+            "word",
+            r"##?[a-zA-Z0-9_]+|[0-9a-zA-Z_]+#?",
+            SyntaxKind::Word,
+        ),
     ]);
 
     // Since T-SQL uses square brackets as quoted identifiers and the lexer
@@ -337,7 +341,8 @@ pub fn raw_dialect() -> Dialect {
                             Ref::keyword("NORMAL"),
                             Ref::keyword("HIGH"),
                             Ref::new("NumericLiteralSegment"), // Positive numbers
-                            Sequence::new(vec_of_erased![ // Negative numbers
+                            Sequence::new(vec_of_erased![
+                                // Negative numbers
                                 Ref::new("MinusSegment"),
                                 Ref::new("NumericLiteralSegment")
                             ]),
@@ -347,44 +352,34 @@ pub fn raw_dialect() -> Dialect {
                     // SET options - supports both individual and shared ON/OFF
                     one_of(vec_of_erased![
                         // Individual ON/OFF: SET NOCOUNT ON, XACT_ABORT OFF
-                        Delimited::new(vec_of_erased![
-                            Sequence::new(vec_of_erased![
-                                one_of(vec_of_erased![
-                                    Ref::keyword("NOCOUNT"),
-                                    Ref::keyword("XACT_ABORT"),
-                                    Ref::keyword("QUOTED_IDENTIFIER"),
-                                    Ref::keyword("ANSI_NULLS"),
-                                    Ref::keyword("ANSI_PADDING"),
-                                    Ref::keyword("ANSI_WARNINGS"),
-                                    Ref::keyword("ARITHABORT"),
-                                    Ref::keyword("CONCAT_NULL_YIELDS_NULL"),
-                                    Ref::keyword("NUMERIC_ROUNDABORT")
-                                ]),
-                                one_of(vec_of_erased![
-                                    Ref::keyword("ON"),
-                                    Ref::keyword("OFF")
-                                ])
-                            ])
-                        ]),
+                        Delimited::new(vec_of_erased![Sequence::new(vec_of_erased![
+                            one_of(vec_of_erased![
+                                Ref::keyword("NOCOUNT"),
+                                Ref::keyword("XACT_ABORT"),
+                                Ref::keyword("QUOTED_IDENTIFIER"),
+                                Ref::keyword("ANSI_NULLS"),
+                                Ref::keyword("ANSI_PADDING"),
+                                Ref::keyword("ANSI_WARNINGS"),
+                                Ref::keyword("ARITHABORT"),
+                                Ref::keyword("CONCAT_NULL_YIELDS_NULL"),
+                                Ref::keyword("NUMERIC_ROUNDABORT")
+                            ]),
+                            one_of(vec_of_erased![Ref::keyword("ON"), Ref::keyword("OFF")])
+                        ])]),
                         // Shared ON/OFF: SET NOCOUNT, XACT_ABORT ON
                         Sequence::new(vec_of_erased![
-                            Delimited::new(vec_of_erased![
-                                one_of(vec_of_erased![
-                                    Ref::keyword("NOCOUNT"),
-                                    Ref::keyword("XACT_ABORT"),
-                                    Ref::keyword("QUOTED_IDENTIFIER"),
-                                    Ref::keyword("ANSI_NULLS"),
-                                    Ref::keyword("ANSI_PADDING"),
-                                    Ref::keyword("ANSI_WARNINGS"),
-                                    Ref::keyword("ARITHABORT"),
-                                    Ref::keyword("CONCAT_NULL_YIELDS_NULL"),
-                                    Ref::keyword("NUMERIC_ROUNDABORT")
-                                ])
-                            ]),
-                            one_of(vec_of_erased![
-                                Ref::keyword("ON"),
-                                Ref::keyword("OFF")
-                            ])
+                            Delimited::new(vec_of_erased![one_of(vec_of_erased![
+                                Ref::keyword("NOCOUNT"),
+                                Ref::keyword("XACT_ABORT"),
+                                Ref::keyword("QUOTED_IDENTIFIER"),
+                                Ref::keyword("ANSI_NULLS"),
+                                Ref::keyword("ANSI_PADDING"),
+                                Ref::keyword("ANSI_WARNINGS"),
+                                Ref::keyword("ARITHABORT"),
+                                Ref::keyword("CONCAT_NULL_YIELDS_NULL"),
+                                Ref::keyword("NUMERIC_ROUNDABORT")
+                            ])]),
+                            one_of(vec_of_erased![Ref::keyword("ON"), Ref::keyword("OFF")])
                         ])
                     ])
                 ])
@@ -461,48 +456,42 @@ pub fn raw_dialect() -> Dialect {
     ]);
 
     // TRY...CATCH blocks
-    dialect.add([
-        (
-            "TryBlockSegment".into(),
-            NodeMatcher::new(SyntaxKind::TryBlock, |_| {
-                Sequence::new(vec_of_erased![
-                    Ref::keyword("BEGIN"),
-                    Ref::keyword("TRY"),
-                    MetaSegment::indent(),
-                    AnyNumberOf::new(vec_of_erased![Sequence::new(vec_of_erased![
-                        Ref::new("StatementSegment"),
-                        Ref::new("DelimiterGrammar").optional()
-                    ])])
-                    .config(|this| {
-                        this.terminators = vec_of_erased![
-                            Ref::keyword("END")
-                        ];
-                    }),
-                    MetaSegment::dedent(),
-                    Ref::keyword("END"),
-                    Ref::keyword("TRY"),
-                    Ref::keyword("BEGIN"),
-                    Ref::keyword("CATCH"),
-                    MetaSegment::indent(),
-                    AnyNumberOf::new(vec_of_erased![Sequence::new(vec_of_erased![
-                        Ref::new("StatementSegment"),
-                        Ref::new("DelimiterGrammar").optional()
-                    ])])
-                    .config(|this| {
-                        this.terminators = vec_of_erased![
-                            Ref::keyword("END")
-                        ];
-                    }),
-                    MetaSegment::dedent(),
-                    Ref::keyword("END"),
-                    Ref::keyword("CATCH")
-                ])
-                .to_matchable()
-            })
+    dialect.add([(
+        "TryBlockSegment".into(),
+        NodeMatcher::new(SyntaxKind::TryBlock, |_| {
+            Sequence::new(vec_of_erased![
+                Ref::keyword("BEGIN"),
+                Ref::keyword("TRY"),
+                MetaSegment::indent(),
+                AnyNumberOf::new(vec_of_erased![Sequence::new(vec_of_erased![
+                    Ref::new("StatementSegment"),
+                    Ref::new("DelimiterGrammar").optional()
+                ])])
+                .config(|this| {
+                    this.terminators = vec_of_erased![Ref::keyword("END")];
+                }),
+                MetaSegment::dedent(),
+                Ref::keyword("END"),
+                Ref::keyword("TRY"),
+                Ref::keyword("BEGIN"),
+                Ref::keyword("CATCH"),
+                MetaSegment::indent(),
+                AnyNumberOf::new(vec_of_erased![Sequence::new(vec_of_erased![
+                    Ref::new("StatementSegment"),
+                    Ref::new("DelimiterGrammar").optional()
+                ])])
+                .config(|this| {
+                    this.terminators = vec_of_erased![Ref::keyword("END")];
+                }),
+                MetaSegment::dedent(),
+                Ref::keyword("END"),
+                Ref::keyword("CATCH")
+            ])
             .to_matchable()
-            .into(),
-        ),
-    ]);
+        })
+        .to_matchable()
+        .into(),
+    )]);
 
     // GOTO statement and labels
     dialect.add([
@@ -511,7 +500,7 @@ pub fn raw_dialect() -> Dialect {
             NodeMatcher::new(SyntaxKind::GotoStatement, |_| {
                 Sequence::new(vec_of_erased![
                     Ref::keyword("GOTO"),
-                    Ref::new("NakedIdentifierSegment")  // Label name
+                    Ref::new("NakedIdentifierSegment") // Label name
                 ])
                 .to_matchable()
             })
@@ -522,7 +511,7 @@ pub fn raw_dialect() -> Dialect {
             "LabelSegment".into(),
             NodeMatcher::new(SyntaxKind::Label, |_| {
                 Sequence::new(vec_of_erased![
-                    Ref::new("NakedIdentifierSegment"),  // Label name
+                    Ref::new("NakedIdentifierSegment"), // Label name
                     Ref::new("ColonSegment")
                 ])
                 .to_matchable()
@@ -618,7 +607,6 @@ pub fn raw_dialect() -> Dialect {
         ),
     ]);
 
-
     // Override TransactionStatementSegment to require TRANSACTION/WORK after BEGIN
     // This prevents BEGIN from being parsed as a transaction when it should be a BEGIN...END block
     dialect.replace_grammar(
@@ -632,17 +620,17 @@ pub fn raw_dialect() -> Dialect {
                         one_of(vec_of_erased![
                             Ref::keyword("TRANSACTION"),
                             Ref::keyword("WORK"),
-                            Ref::keyword("TRAN")  // T-SQL also supports TRAN
+                            Ref::keyword("TRAN") // T-SQL also supports TRAN
                         ])
                     ]),
                     Ref::keyword("COMMIT"),
                     Ref::keyword("ROLLBACK"),
-                    Ref::keyword("SAVE")  // T-SQL savepoints
+                    Ref::keyword("SAVE") // T-SQL savepoints
                 ]),
                 one_of(vec_of_erased![
                     Ref::keyword("TRANSACTION"),
                     Ref::keyword("WORK"),
-                    Ref::keyword("TRAN")  // T-SQL abbreviation
+                    Ref::keyword("TRAN") // T-SQL abbreviation
                 ])
                 .config(|this| this.optional()),
                 // Optional transaction/savepoint name
@@ -650,7 +638,7 @@ pub fn raw_dialect() -> Dialect {
             ])
             .to_matchable()
         })
-        .to_matchable()
+        .to_matchable(),
     );
 
     // GO batch separator - T-SQL uses GO to separate batches
@@ -1177,9 +1165,7 @@ pub fn raw_dialect() -> Dialect {
                         Ref::keyword("PROCEDURE")
                     ]),
                     Ref::new("IfExistsGrammar").optional(),
-                    Delimited::new(vec_of_erased![
-                        Ref::new("ObjectReferenceSegment")
-                    ])
+                    Delimited::new(vec_of_erased![Ref::new("ObjectReferenceSegment")])
                 ])
                 .to_matchable()
             })
@@ -1189,10 +1175,8 @@ pub fn raw_dialect() -> Dialect {
         (
             "ProcedureParameterListGrammar".into(),
             Bracketed::new(vec_of_erased![
-                Delimited::new(vec_of_erased![
-                    Ref::new("ProcedureParameterGrammar")
-                ])
-                .config(|this| this.optional())
+                Delimited::new(vec_of_erased![Ref::new("ProcedureParameterGrammar")])
+                    .config(|this| this.optional())
             ])
             .to_matchable()
             .into(),
@@ -1245,13 +1229,11 @@ pub fn raw_dialect() -> Dialect {
                     ])
                     .config(|this| this.optional()),
                     // Optional parameter modifiers (can appear in any order)
-                    AnyNumberOf::new(vec_of_erased![
-                        one_of(vec_of_erased![
-                            Ref::keyword("OUT"),
-                            Ref::keyword("OUTPUT"),
-                            Ref::keyword("READONLY")
-                        ])
-                    ])
+                    AnyNumberOf::new(vec_of_erased![one_of(vec_of_erased![
+                        Ref::keyword("OUT"),
+                        Ref::keyword("OUTPUT"),
+                        Ref::keyword("READONLY")
+                    ])])
                 ])
                 .to_matchable()
             })
@@ -1295,19 +1277,15 @@ pub fn raw_dialect() -> Dialect {
                 // Single statement or block
                 Ref::new("StatementSegment"),
                 // Multiple statements for procedures without BEGIN...END
-                AnyNumberOf::new(vec_of_erased![
-                    Sequence::new(vec_of_erased![
-                        Ref::new("StatementSegment"),
-                        Ref::new("DelimiterGrammar").optional()
-                    ])
-                ])
+                AnyNumberOf::new(vec_of_erased![Sequence::new(vec_of_erased![
+                    Ref::new("StatementSegment"),
+                    Ref::new("DelimiterGrammar").optional()
+                ])])
                 .config(|this| {
-                    this.min_times(2);  // At least 2 statements to use this branch
+                    this.min_times(2); // At least 2 statements to use this branch
                     this.parse_mode = ParseMode::Greedy;
                     // Don't terminate on delimiters, keep consuming statements
-                    this.terminators = vec_of_erased![
-                        Ref::new("BatchSeparatorGrammar")
-                    ];
+                    this.terminators = vec_of_erased![Ref::new("BatchSeparatorGrammar")];
                 })
             ])
             .to_matchable()
@@ -1324,11 +1302,9 @@ pub fn raw_dialect() -> Dialect {
                 Ref::keyword("BEGIN"),
                 Ref::keyword("ATOMIC"),
                 Ref::keyword("WITH"),
-                Bracketed::new(vec_of_erased![
-                    Delimited::new(vec_of_erased![
-                        Ref::new("AtomicBlockOptionGrammar")
-                    ])
-                ]),
+                Bracketed::new(vec_of_erased![Delimited::new(vec_of_erased![Ref::new(
+                    "AtomicBlockOptionGrammar"
+                )])]),
                 MetaSegment::indent(),
                 AnyNumberOf::new(vec_of_erased![
                     Ref::new("StatementSegment"),
@@ -1361,7 +1337,7 @@ pub fn raw_dialect() -> Dialect {
                     Ref::new("NakedIdentifierSegment"),
                     // N'string' syntax for Unicode strings
                     Sequence::new(vec_of_erased![
-                        Ref::new("NakedIdentifierSegment"),  // N prefix
+                        Ref::new("NakedIdentifierSegment"), // N prefix
                         Ref::new("QuotedLiteralSegment")
                     ]),
                     // Special handling for multi-word isolation levels
@@ -1386,7 +1362,6 @@ pub fn raw_dialect() -> Dialect {
             .into(),
         ),
     ]);
-
 
     // T-SQL supports alternative alias syntax: AliasName = Expression
     // The parser distinguishes between column references (table1.column1)
@@ -1414,7 +1389,6 @@ pub fn raw_dialect() -> Dialect {
         .to_matchable(),
     );
 
-
     // T-SQL CREATE TABLE with Azure Synapse Analytics support
     dialect.replace_grammar(
         "CreateTableStatementSegment",
@@ -1428,22 +1402,18 @@ pub fn raw_dialect() -> Dialect {
                     // Regular CREATE TABLE with column definitions
                     Sequence::new(vec_of_erased![
                         Bracketed::new(vec_of_erased![
-                            Delimited::new(vec_of_erased![
-                                one_of(vec_of_erased![
-                                    Ref::new("TableConstraintSegment"),
-                                    Ref::new("ColumnDefinitionSegment")
-                                ])
-                            ])
+                            Delimited::new(vec_of_erased![one_of(vec_of_erased![
+                                Ref::new("TableConstraintSegment"),
+                                Ref::new("ColumnDefinitionSegment")
+                            ])])
                             .config(|this| this.allow_trailing())
                         ]),
                         // Azure Synapse table options
                         Sequence::new(vec_of_erased![
                             Ref::keyword("WITH"),
-                            Bracketed::new(vec_of_erased![
-                                Delimited::new(vec_of_erased![
-                                    Ref::new("TableOptionGrammar")
-                                ])
-                            ])
+                            Bracketed::new(vec_of_erased![Delimited::new(vec_of_erased![
+                                Ref::new("TableOptionGrammar")
+                            ])])
                         ])
                         .config(|this| this.optional())
                     ]),
@@ -1452,17 +1422,13 @@ pub fn raw_dialect() -> Dialect {
                         // Azure Synapse table options (required for CTAS)
                         Sequence::new(vec_of_erased![
                             Ref::keyword("WITH"),
-                            Bracketed::new(vec_of_erased![
-                                Delimited::new(vec_of_erased![
-                                    Ref::new("TableOptionGrammar")
-                                ])
-                            ])
+                            Bracketed::new(vec_of_erased![Delimited::new(vec_of_erased![
+                                Ref::new("TableOptionGrammar")
+                            ])])
                         ])
                         .config(|this| this.optional()),
                         Ref::keyword("AS"),
-                        optionally_bracketed(vec_of_erased![
-                            Ref::new("SelectableGrammar")
-                        ])
+                        optionally_bracketed(vec_of_erased![Ref::new("SelectableGrammar")])
                     ])
                 ])
             ])
@@ -1483,9 +1449,7 @@ pub fn raw_dialect() -> Dialect {
                     Ref::keyword("REPLICATE"),
                     Sequence::new(vec_of_erased![
                         Ref::keyword("HASH"),
-                        Bracketed::new(vec_of_erased![
-                            Ref::new("ColumnReferenceSegment")
-                        ])
+                        Bracketed::new(vec_of_erased![Ref::new("ColumnReferenceSegment")])
                     ])
                 ])
             ]),
@@ -1500,11 +1464,9 @@ pub fn raw_dialect() -> Dialect {
                 Sequence::new(vec_of_erased![
                     Ref::keyword("CLUSTERED"),
                     Ref::keyword("INDEX"),
-                    Bracketed::new(vec_of_erased![
-                        Delimited::new(vec_of_erased![
-                            Ref::new("ColumnReferenceSegment")
-                        ])
-                    ])
+                    Bracketed::new(vec_of_erased![Delimited::new(vec_of_erased![Ref::new(
+                        "ColumnReferenceSegment"
+                    )])])
                 ])
             ]),
             // Other table options
@@ -1513,17 +1475,12 @@ pub fn raw_dialect() -> Dialect {
                 Bracketed::new(vec_of_erased![
                     Ref::new("ColumnReferenceSegment"),
                     Ref::keyword("RANGE"),
-                    one_of(vec_of_erased![
-                        Ref::keyword("LEFT"),
-                        Ref::keyword("RIGHT")
-                    ]),
+                    one_of(vec_of_erased![Ref::keyword("LEFT"), Ref::keyword("RIGHT")]),
                     Ref::keyword("FOR"),
                     Ref::keyword("VALUES"),
-                    Bracketed::new(vec_of_erased![
-                        Delimited::new(vec_of_erased![
-                            Ref::new("ExpressionSegment")
-                        ])
-                    ])
+                    Bracketed::new(vec_of_erased![Delimited::new(vec_of_erased![Ref::new(
+                        "ExpressionSegment"
+                    )])])
                 ])
             ])
         ])
@@ -1539,6 +1496,27 @@ pub fn raw_dialect() -> Dialect {
             Ref::new("PlusSegment"),   // T-SQL + operator for string concatenation
         ])
         .to_matchable()
+        .into(),
+    )]);
+
+    // T-SQL specific data type identifier - allows case-insensitive user-defined types
+    dialect.add([(
+        "DatatypeIdentifierSegment".into(),
+        SegmentGenerator::new(|_| {
+            // Generate the anti template from the set of reserved keywords
+            let anti_template = format!("^({})$", "NOT");
+
+            one_of(vec![
+                // Case-insensitive pattern for T-SQL data type identifiers (including UDTs)
+                RegexParser::new("[A-Za-z_][A-Za-z0-9_]*", SyntaxKind::DataTypeIdentifier)
+                    .anti_template(&anti_template)
+                    .to_matchable(),
+                Ref::new("SingleIdentifierGrammar")
+                    .exclude(Ref::new("NakedIdentifierSegment"))
+                    .to_matchable(),
+            ])
+            .to_matchable()
+        })
         .into(),
     )]);
 

@@ -507,7 +507,7 @@ pub(crate) fn tsql_additional_unreserved_keywords() -> AHashSet<&'static str> {
     // Include all future keywords as unreserved keywords
     // This allows them to be recognized but still used as identifiers
     let mut keywords = tsql_future_keywords();
-    
+
     // Add T-SQL SET options and other keywords not in the future list
     keywords.extend([
         "NOCOUNT",
@@ -551,7 +551,7 @@ pub(crate) fn tsql_additional_unreserved_keywords() -> AHashSet<&'static str> {
         "PARTITION",
         "RANGE",
     ]);
-    
+
     keywords
 }
 

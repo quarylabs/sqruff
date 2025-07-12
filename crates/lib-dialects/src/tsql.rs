@@ -1147,32 +1147,16 @@ pub fn raw_dialect() -> Dialect {
                 // Natively compiled procedures with BEGIN ATOMIC WITH
                 Ref::new("AtomicBlockSegment"),
                 // For procedures: capture everything until GO or end of file
+                // Use a very greedy approach to consume all remaining content
                 AnyNumberOf::new(vec_of_erased![
-                    Sequence::new(vec_of_erased![
-                        Ref::new("StatementSegment"),
-                        Ref::new("DelimiterGrammar").optional()
-                    ])
+                    Ref::new("StatementSegment")
                 ])
                 .config(|this| {
                     this.min_times(1);
                     this.parse_mode = ParseMode::Greedy;
+                    // Don't terminate on delimiters, keep consuming statements
                     this.terminators = vec_of_erased![
-                        Ref::new("BatchSeparatorGrammar"),
-                        // Also terminate on another CREATE/ALTER/DROP statement
-                        Sequence::new(vec_of_erased![
-                            one_of(vec_of_erased![
-                                Ref::keyword("CREATE"),
-                                Ref::keyword("ALTER"),
-                                Ref::keyword("DROP")
-                            ]),
-                            one_of(vec_of_erased![
-                                Ref::keyword("PROCEDURE"),
-                                Ref::keyword("PROC"),
-                                Ref::keyword("FUNCTION"),
-                                Ref::keyword("TABLE"),
-                                Ref::keyword("VIEW")
-                            ])
-                        ])
+                        Ref::new("BatchSeparatorGrammar")
                     ];
                 })
             ])
@@ -1269,6 +1253,122 @@ pub fn raw_dialect() -> Dialect {
         .to_matchable(),
     );
 
+
+    // T-SQL CREATE TABLE with Azure Synapse Analytics support
+    dialect.add([(
+        "CreateTableStatementSegment".into(),
+        NodeMatcher::new(SyntaxKind::CreateTableStatement, |_| {
+            Sequence::new(vec_of_erased![
+                Ref::keyword("CREATE"),
+                Ref::keyword("TABLE"),
+                Ref::new("IfNotExistsGrammar").optional(),
+                Ref::new("TableReferenceSegment"),
+                one_of(vec_of_erased![
+                    // Regular CREATE TABLE with column definitions
+                    Sequence::new(vec_of_erased![
+                        Bracketed::new(vec_of_erased![
+                            Delimited::new(vec_of_erased![
+                                one_of(vec_of_erased![
+                                    Ref::new("TableConstraintSegment"),
+                                    Ref::new("ColumnDefinitionSegment")
+                                ])
+                            ])
+                            .config(|this| this.allow_trailing())
+                        ]),
+                        // Azure Synapse table options
+                        Sequence::new(vec_of_erased![
+                            Ref::keyword("WITH"),
+                            Bracketed::new(vec_of_erased![
+                                Delimited::new(vec_of_erased![
+                                    Ref::new("TableOptionGrammar")
+                                ])
+                            ])
+                        ])
+                        .config(|this| this.optional())
+                    ]),
+                    // CREATE TABLE AS SELECT with optional WITH clause before AS
+                    Sequence::new(vec_of_erased![
+                        // Azure Synapse table options (required for CTAS)
+                        Sequence::new(vec_of_erased![
+                            Ref::keyword("WITH"),
+                            Bracketed::new(vec_of_erased![
+                                Delimited::new(vec_of_erased![
+                                    Ref::new("TableOptionGrammar")
+                                ])
+                            ])
+                        ])
+                        .config(|this| this.optional()),
+                        Ref::keyword("AS"),
+                        optionally_bracketed(vec_of_erased![
+                            Ref::new("SelectableGrammar")
+                        ])
+                    ])
+                ])
+            ])
+            .to_matchable()
+        })
+        .to_matchable()
+        .into(),
+    ),
+    (
+        "TableOptionGrammar".into(),
+        one_of(vec_of_erased![
+            // Azure Synapse distribution options
+            Sequence::new(vec_of_erased![
+                Ref::keyword("DISTRIBUTION"),
+                Ref::new("EqualsSegment"),
+                one_of(vec_of_erased![
+                    Ref::keyword("ROUND_ROBIN"),
+                    Ref::keyword("REPLICATE"),
+                    Sequence::new(vec_of_erased![
+                        Ref::keyword("HASH"),
+                        Bracketed::new(vec_of_erased![
+                            Ref::new("ColumnReferenceSegment")
+                        ])
+                    ])
+                ])
+            ]),
+            // Azure Synapse index options
+            one_of(vec_of_erased![
+                Ref::keyword("HEAP"),
+                Sequence::new(vec_of_erased![
+                    Ref::keyword("CLUSTERED"),
+                    Ref::keyword("COLUMNSTORE"),
+                    Ref::keyword("INDEX")
+                ]),
+                Sequence::new(vec_of_erased![
+                    Ref::keyword("CLUSTERED"),
+                    Ref::keyword("INDEX"),
+                    Bracketed::new(vec_of_erased![
+                        Delimited::new(vec_of_erased![
+                            Ref::new("ColumnReferenceSegment")
+                        ])
+                    ])
+                ])
+            ]),
+            // Other table options
+            Sequence::new(vec_of_erased![
+                Ref::keyword("PARTITION"),
+                Bracketed::new(vec_of_erased![
+                    Ref::new("ColumnReferenceSegment"),
+                    Ref::keyword("RANGE"),
+                    one_of(vec_of_erased![
+                        Ref::keyword("LEFT"),
+                        Ref::keyword("RIGHT")
+                    ]),
+                    Ref::keyword("FOR"),
+                    Ref::keyword("VALUES"),
+                    Bracketed::new(vec_of_erased![
+                        Delimited::new(vec_of_erased![
+                            Ref::new("ExpressionSegment")
+                        ])
+                    ])
+                ])
+            ])
+        ])
+        .to_matchable()
+        .into(),
+    )]);
 
     // T-SQL uses + for both arithmetic and string concatenation
     dialect.add([(

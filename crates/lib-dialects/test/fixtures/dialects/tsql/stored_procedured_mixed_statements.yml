@@ -22,15 +22,15 @@ file:
           - bracketed:
             - start_bracket: (
             - end_bracket: )
-- statement:
-  - drop_table_statement:
-    - keyword: DROP
-    - keyword: TABLE
-    - table_reference:
-      - object_reference:
-        - quoted_identifier: '[Reporting]'
-        - dot: .
-        - quoted_identifier: '[PowerPlan_BASE]'
+    - statement:
+      - drop_table_statement:
+        - keyword: DROP
+        - keyword: TABLE
+        - table_reference:
+          - object_reference:
+            - quoted_identifier: '[Reporting]'
+            - dot: .
+            - quoted_identifier: '[PowerPlan_BASE]'
 - statement_terminator: ;
 - statement:
   - keyword: DECLARE

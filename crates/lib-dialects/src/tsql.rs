@@ -1074,13 +1074,13 @@ pub fn raw_dialect() -> Dialect {
             "TsqlDatatypeSegment".into(),
             NodeMatcher::new(SyntaxKind::DataType, |_| {
                 one_of(vec_of_erased![
-                    // Regular data type
-                    Ref::new("DatatypeSegment"),
                     // Square bracket data type like [int], [varchar](100)
                     Sequence::new(vec_of_erased![
                         TypedParser::new(SyntaxKind::DoubleQuote, SyntaxKind::DataTypeIdentifier),
                         Ref::new("BracketedArguments").optional()
-                    ])
+                    ]),
+                    // Regular data type (includes DatatypeIdentifierSegment for user-defined types)
+                    Ref::new("DatatypeSegment")
                 ])
                 .to_matchable()
             })

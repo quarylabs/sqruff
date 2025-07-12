@@ -15,8 +15,7 @@ file:
         - parameter_name:
           - tsql_variable: '@Apple'
         - data_type:
-          - data_type:
-            - quoted_identifier: '[int]'
+          - data_type_identifier: '[int]'
       - comma: ','
       - procedure_parameter:
         - parameter_name:

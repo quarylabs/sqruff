@@ -1,0 +1,1 @@
+DROP PROCEDURE IF EXISTS dbo.GetUserById, Sales.ProcessOrder

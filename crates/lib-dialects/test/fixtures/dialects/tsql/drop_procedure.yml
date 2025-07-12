@@ -1,0 +1,16 @@
+file:
+- statement:
+  - drop_procedure_statement:
+    - keyword: DROP
+    - keyword: PROCEDURE
+    - keyword: IF
+    - keyword: EXISTS
+    - object_reference:
+      - naked_identifier: dbo
+      - dot: .
+      - naked_identifier: GetUserById
+    - comma: ','
+    - object_reference:
+      - naked_identifier: Sales
+      - dot: .
+      - naked_identifier: ProcessOrder

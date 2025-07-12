@@ -186,6 +186,8 @@ pub enum SyntaxKind {
     ProcedureName,
     ExportStatement,
     ProcedureParameterList,
+    ProcedureParameter,
+    ParameterName,
     ProcedureStatements,
     CallStatement,
     ReturnStatement,

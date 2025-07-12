@@ -524,6 +524,8 @@ pub fn raw_dialect() -> Dialect {
             Ref::new("DropCastStatementSegment"),
             Ref::new("CreateFunctionStatementSegment"),
             Ref::new("DropFunctionStatementSegment"),
+            Ref::new("CreateProcedureStatementSegment"),
+            Ref::new("DropProcedureStatementSegment"),
             Ref::new("CreateModelStatementSegment"),
             Ref::new("DropModelStatementSegment"),
             Ref::new("DescribeStatementSegment"),
@@ -904,6 +906,149 @@ pub fn raw_dialect() -> Dialect {
         .to_matchable()
         .into(),
     )]);
+
+    // T-SQL CREATE PROCEDURE support
+    dialect.add([
+        (
+            "CreateProcedureStatementSegment".into(),
+            NodeMatcher::new(SyntaxKind::CreateProcedureStatement, |_| {
+                Sequence::new(vec_of_erased![
+                    one_of(vec_of_erased![
+                        Ref::keyword("CREATE"),
+                        Ref::keyword("ALTER"),
+                        Sequence::new(vec_of_erased![
+                            Ref::keyword("CREATE"),
+                            Ref::keyword("OR"),
+                            Ref::keyword("ALTER")
+                        ])
+                    ]),
+                    one_of(vec_of_erased![
+                        Ref::keyword("PROC"),
+                        Ref::keyword("PROCEDURE")
+                    ]),
+                    Ref::new("ObjectReferenceSegment"),
+                    // Optional version number
+                    Sequence::new(vec_of_erased![
+                        Ref::new("SemicolonSegment"),
+                        Ref::new("NumericLiteralSegment")
+                    ])
+                    .config(|this| this.optional()),
+                    MetaSegment::indent(),
+                    // Optional parameter list
+                    Ref::new("ProcedureParameterListGrammar").optional(),
+                    // Procedure options
+                    Sequence::new(vec_of_erased![
+                        Ref::keyword("WITH"),
+                        Delimited::new(vec_of_erased![
+                            Ref::keyword("ENCRYPTION"),
+                            Ref::keyword("RECOMPILE"),
+                            Ref::keyword("NATIVE_COMPILATION"),
+                            Ref::keyword("SCHEMABINDING"),
+                            Ref::new("ExecuteAsClauseGrammar")
+                        ])
+                    ])
+                    .config(|this| this.optional()),
+                    Sequence::new(vec_of_erased![
+                        Ref::keyword("FOR"),
+                        Ref::keyword("REPLICATION")
+                    ])
+                    .config(|this| this.optional()),
+                    MetaSegment::dedent(),
+                    Ref::keyword("AS"),
+                    Ref::new("ProcedureDefinitionGrammar")
+                ])
+                .to_matchable()
+            })
+            .to_matchable()
+            .into(),
+        ),
+        (
+            "DropProcedureStatementSegment".into(),
+            NodeMatcher::new(SyntaxKind::DropProcedureStatement, |_| {
+                Sequence::new(vec_of_erased![
+                    Ref::keyword("DROP"),
+                    one_of(vec_of_erased![
+                        Ref::keyword("PROC"),
+                        Ref::keyword("PROCEDURE")
+                    ]),
+                    Ref::new("IfExistsGrammar").optional(),
+                    Delimited::new(vec_of_erased![
+                        Ref::new("ObjectReferenceSegment")
+                    ])
+                ])
+                .to_matchable()
+            })
+            .to_matchable()
+            .into(),
+        ),
+        (
+            "ProcedureParameterListGrammar".into(),
+            Delimited::new(vec_of_erased![
+                Ref::new("ProcedureParameterGrammar")
+            ])
+            .config(|this| this.optional())
+            .to_matchable()
+            .into(),
+        ),
+        (
+            "ProcedureParameterGrammar".into(),
+            NodeMatcher::new(SyntaxKind::ProcedureParameter, |_| {
+                Sequence::new(vec_of_erased![
+                    Ref::new("ParameterNameSegment"),
+                    Ref::new("DatatypeSegment"),
+                    // Optional default value
+                    Sequence::new(vec_of_erased![
+                        Ref::new("EqualsSegment"),
+                        Ref::new("LiteralGrammar")
+                    ])
+                    .config(|this| this.optional()),
+                    // Optional OUT/OUTPUT keyword
+                    one_of(vec_of_erased![
+                        Ref::keyword("OUT"),
+                        Ref::keyword("OUTPUT")
+                    ])
+                    .config(|this| this.optional()),
+                    // Optional READONLY keyword
+                    Ref::keyword("READONLY").optional()
+                ])
+                .to_matchable()
+            })
+            .to_matchable()
+            .into(),
+        ),
+        (
+            "ParameterNameSegment".into(),
+            NodeMatcher::new(SyntaxKind::ParameterName, |_| {
+                Ref::new("TsqlVariableSegment").to_matchable()
+            })
+            .to_matchable()
+            .into(),
+        ),
+        (
+            "ExecuteAsClauseGrammar".into(),
+            Sequence::new(vec_of_erased![
+                Ref::keyword("EXECUTE"),
+                Ref::keyword("AS"),
+                one_of(vec_of_erased![
+                    Ref::keyword("CALLER"),
+                    Ref::keyword("SELF"),
+                    Ref::keyword("OWNER"),
+                    Ref::new("QuotedLiteralSegment") // user name
+                ])
+            ])
+            .to_matchable()
+            .into(),
+        ),
+        (
+            "ProcedureDefinitionGrammar".into(),
+            one_of(vec_of_erased![
+                Ref::new("BeginEndBlockGrammar"),
+                Ref::new("StatementSegment")
+            ])
+            .to_matchable()
+            .into(),
+        ),
+    ]);
 
     // T-SQL supports alternative alias syntax: AliasName = Expression
     // The parser distinguishes between column references (table1.column1)

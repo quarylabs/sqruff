@@ -1,159 +1,292 @@
 file:
-- unparsable:
-  - word: CREATE
-  - word: OR
-  - word: ALTER
-  - word: PROCEDURE
-  - word: DBO
-  - dot: .
-  - word: SP_ECDC_CASES_INTER
-  - start_bracket: (
-  - tsql_variable: '@Apple'
-  - double_quote: '[int]'
-  - comma: ','
-  - tsql_variable: '@Orange'
-  - word: varchar
-  - start_bracket: (
-  - numeric_literal: '100'
-  - end_bracket: )
-  - end_bracket: )
-  - word: AS
-  - word: INSERT
-  - word: INTO
-  - word: INTER
-  - dot: .
-  - word: ECDC_CASES
-  - start_bracket: (
-  - double_quote: '[COUNTRY]'
-  - comma: ','
-  - double_quote: '[COUNTRY_CODE]'
-  - comma: ','
-  - double_quote: '[CONTINENT]'
-  - comma: ','
-  - double_quote: '[POPULATION]'
-  - comma: ','
-  - double_quote: '[INDICATOR]'
-  - comma: ','
-  - double_quote: '[WEEKLY_COUNT]'
-  - comma: ','
-  - double_quote: '[YEAR_WEEK]'
-  - comma: ','
-  - double_quote: '[WEEK_START]'
-  - comma: ','
-  - double_quote: '[WEEK_END]'
-  - comma: ','
-  - double_quote: '[RATE_14_DAY]'
-  - comma: ','
-  - double_quote: '[CUMULATIVE_COUNT]'
-  - comma: ','
-  - double_quote: '[SOURCE]'
-  - end_bracket: )
-  - word: SELECT
-  - double_quote: '[COUNTRY]'
-  - comma: ','
-  - double_quote: '[COUNTRY_CODE]'
-  - comma: ','
-  - double_quote: '[CONTINENT]'
-  - comma: ','
-  - word: CAST
-  - start_bracket: (
-  - double_quote: '[POPULATION]'
-  - word: AS
-  - word: BIGINT
-  - end_bracket: )
-  - word: AS
-  - double_quote: '[POPULATION]'
-  - comma: ','
-  - double_quote: '[INDICATOR]'
-  - comma: ','
-  - word: CAST
-  - start_bracket: (
-  - double_quote: '[WEEKLY_COUNT]'
-  - word: AS
-  - word: BIGINT
-  - end_bracket: )
-  - word: AS
-  - double_quote: '[WEEKLY_COUNT]'
-  - comma: ','
-  - double_quote: '[YEAR_WEEK]'
-  - comma: ','
-  - word: CAST
-  - start_bracket: (
-  - double_quote: '[dbo]'
-  - dot: .
-  - double_quote: '[CONVERT_ISO_WEEK_TO_DATETIME]'
-  - start_bracket: (
-  - word: LEFT
-  - start_bracket: (
-  - word: YEAR_WEEK
-  - comma: ','
-  - numeric_literal: '4'
-  - end_bracket: )
-  - comma: ','
-  - word: RIGHT
-  - start_bracket: (
-  - word: YEAR_WEEK
-  - comma: ','
-  - numeric_literal: '2'
-  - end_bracket: )
-  - end_bracket: )
-  - word: AS
-  - word: DATE
-  - end_bracket: )
-  - word: AS
-  - double_quote: '[WEEK_START]'
-  - comma: ','
-  - word: CAST
-  - start_bracket: (
-  - double_quote: '[dbo]'
-  - dot: .
-  - double_quote: '[WEEK_END]'
-  - start_bracket: (
-  - double_quote: '[dbo]'
-  - dot: .
-  - double_quote: '[CONVERT_ISO_WEEK_TO_DATETIME]'
-  - start_bracket: (
-  - word: LEFT
-  - start_bracket: (
-  - word: YEAR_WEEK
-  - comma: ','
-  - numeric_literal: '4'
-  - end_bracket: )
-  - comma: ','
-  - word: RIGHT
-  - start_bracket: (
-  - word: YEAR_WEEK
-  - comma: ','
-  - numeric_literal: '2'
-  - end_bracket: )
-  - end_bracket: )
-  - end_bracket: )
-  - word: AS
-  - word: DATE
-  - end_bracket: )
-  - word: AS
-  - double_quote: '[WEEK_END]'
-  - comma: ','
-  - word: CAST
-  - start_bracket: (
-  - double_quote: '[RATE_14_DAY]'
-  - word: AS
-  - word: FLOAT
-  - end_bracket: )
-  - word: AS
-  - double_quote: '[RATE_14_DAY]'
-  - comma: ','
-  - word: CAST
-  - start_bracket: (
-  - double_quote: '[CUMULATIVE_COUNT]'
-  - word: AS
-  - word: BIGINT
-  - end_bracket: )
-  - word: AS
-  - double_quote: '[CUMULATIVE_COUNT]'
-  - comma: ','
-  - double_quote: '[SOURCE]'
-  - word: FROM
-  - word: STAGE
-  - dot: .
-  - word: ECDC_CASES
+- statement:
+  - create_procedure_statement:
+    - keyword: CREATE
+    - keyword: OR
+    - keyword: ALTER
+    - keyword: PROCEDURE
+    - object_reference:
+      - naked_identifier: DBO
+      - dot: .
+      - naked_identifier: SP_ECDC_CASES_INTER
+    - bracketed:
+      - start_bracket: (
+      - procedure_parameter:
+        - parameter_name:
+          - tsql_variable: '@Apple'
+        - data_type:
+          - data_type_identifier: '[int]'
+      - comma: ','
+      - procedure_parameter:
+        - parameter_name:
+          - tsql_variable: '@Orange'
+        - data_type:
+          - data_type:
+            - data_type_identifier: varchar
+            - bracketed_arguments:
+              - bracketed:
+                - start_bracket: (
+                - numeric_literal: '100'
+                - end_bracket: )
+      - end_bracket: )
+    - keyword: AS
+    - statement:
+      - insert_statement:
+        - keyword: INSERT
+        - keyword: INTO
+        - table_reference:
+          - object_reference:
+            - naked_identifier: INTER
+            - dot: .
+            - naked_identifier: ECDC_CASES
+        - bracketed:
+          - start_bracket: (
+          - column_reference:
+            - quoted_identifier: '[COUNTRY]'
+          - comma: ','
+          - column_reference:
+            - quoted_identifier: '[COUNTRY_CODE]'
+          - comma: ','
+          - column_reference:
+            - quoted_identifier: '[CONTINENT]'
+          - comma: ','
+          - column_reference:
+            - quoted_identifier: '[POPULATION]'
+          - comma: ','
+          - column_reference:
+            - quoted_identifier: '[INDICATOR]'
+          - comma: ','
+          - column_reference:
+            - quoted_identifier: '[WEEKLY_COUNT]'
+          - comma: ','
+          - column_reference:
+            - quoted_identifier: '[YEAR_WEEK]'
+          - comma: ','
+          - column_reference:
+            - quoted_identifier: '[WEEK_START]'
+          - comma: ','
+          - column_reference:
+            - quoted_identifier: '[WEEK_END]'
+          - comma: ','
+          - column_reference:
+            - quoted_identifier: '[RATE_14_DAY]'
+          - comma: ','
+          - column_reference:
+            - quoted_identifier: '[CUMULATIVE_COUNT]'
+          - comma: ','
+          - column_reference:
+            - quoted_identifier: '[SOURCE]'
+          - end_bracket: )
+        - select_statement:
+          - select_clause:
+            - keyword: SELECT
+            - select_clause_element:
+              - column_reference:
+                - quoted_identifier: '[COUNTRY]'
+            - comma: ','
+            - select_clause_element:
+              - column_reference:
+                - quoted_identifier: '[COUNTRY_CODE]'
+            - comma: ','
+            - select_clause_element:
+              - column_reference:
+                - quoted_identifier: '[CONTINENT]'
+            - comma: ','
+            - select_clause_element:
+              - function:
+                - function_name:
+                  - function_name_identifier: CAST
+                - bracketed:
+                  - start_bracket: (
+                  - expression:
+                    - column_reference:
+                      - quoted_identifier: '[POPULATION]'
+                  - keyword: AS
+                  - data_type:
+                    - data_type_identifier: BIGINT
+                  - end_bracket: )
+              - alias_expression:
+                - keyword: AS
+                - quoted_identifier: '[POPULATION]'
+            - comma: ','
+            - select_clause_element:
+              - column_reference:
+                - quoted_identifier: '[INDICATOR]'
+            - comma: ','
+            - select_clause_element:
+              - function:
+                - function_name:
+                  - function_name_identifier: CAST
+                - bracketed:
+                  - start_bracket: (
+                  - expression:
+                    - column_reference:
+                      - quoted_identifier: '[WEEKLY_COUNT]'
+                  - keyword: AS
+                  - data_type:
+                    - data_type_identifier: BIGINT
+                  - end_bracket: )
+              - alias_expression:
+                - keyword: AS
+                - quoted_identifier: '[WEEKLY_COUNT]'
+            - comma: ','
+            - select_clause_element:
+              - column_reference:
+                - quoted_identifier: '[YEAR_WEEK]'
+            - comma: ','
+            - select_clause_element:
+              - function:
+                - function_name:
+                  - function_name_identifier: CAST
+                - bracketed:
+                  - start_bracket: (
+                  - expression:
+                    - function:
+                      - function_name:
+                        - quoted_identifier: '[dbo]'
+                        - dot: .
+                        - quoted_identifier: '[CONVERT_ISO_WEEK_TO_DATETIME]'
+                      - bracketed:
+                        - start_bracket: (
+                        - expression:
+                          - function:
+                            - function_name:
+                              - function_name_identifier: LEFT
+                            - bracketed:
+                              - start_bracket: (
+                              - expression:
+                                - column_reference:
+                                  - naked_identifier: YEAR_WEEK
+                              - comma: ','
+                              - expression:
+                                - numeric_literal: '4'
+                              - end_bracket: )
+                        - comma: ','
+                        - expression:
+                          - function:
+                            - function_name:
+                              - function_name_identifier: RIGHT
+                            - bracketed:
+                              - start_bracket: (
+                              - expression:
+                                - column_reference:
+                                  - naked_identifier: YEAR_WEEK
+                              - comma: ','
+                              - expression:
+                                - numeric_literal: '2'
+                              - end_bracket: )
+                        - end_bracket: )
+                  - keyword: AS
+                  - data_type:
+                    - data_type_identifier: DATE
+                  - end_bracket: )
+              - alias_expression:
+                - keyword: AS
+                - quoted_identifier: '[WEEK_START]'
+            - comma: ','
+            - select_clause_element:
+              - function:
+                - function_name:
+                  - function_name_identifier: CAST
+                - bracketed:
+                  - start_bracket: (
+                  - expression:
+                    - function:
+                      - function_name:
+                        - quoted_identifier: '[dbo]'
+                        - dot: .
+                        - quoted_identifier: '[WEEK_END]'
+                      - bracketed:
+                        - start_bracket: (
+                        - expression:
+                          - function:
+                            - function_name:
+                              - quoted_identifier: '[dbo]'
+                              - dot: .
+                              - quoted_identifier: '[CONVERT_ISO_WEEK_TO_DATETIME]'
+                            - bracketed:
+                              - start_bracket: (
+                              - expression:
+                                - function:
+                                  - function_name:
+                                    - function_name_identifier: LEFT
+                                  - bracketed:
+                                    - start_bracket: (
+                                    - expression:
+                                      - column_reference:
+                                        - naked_identifier: YEAR_WEEK
+                                    - comma: ','
+                                    - expression:
+                                      - numeric_literal: '4'
+                                    - end_bracket: )
+                              - comma: ','
+                              - expression:
+                                - function:
+                                  - function_name:
+                                    - function_name_identifier: RIGHT
+                                  - bracketed:
+                                    - start_bracket: (
+                                    - expression:
+                                      - column_reference:
+                                        - naked_identifier: YEAR_WEEK
+                                    - comma: ','
+                                    - expression:
+                                      - numeric_literal: '2'
+                                    - end_bracket: )
+                              - end_bracket: )
+                        - end_bracket: )
+                  - keyword: AS
+                  - data_type:
+                    - data_type_identifier: DATE
+                  - end_bracket: )
+              - alias_expression:
+                - keyword: AS
+                - quoted_identifier: '[WEEK_END]'
+            - comma: ','
+            - select_clause_element:
+              - function:
+                - function_name:
+                  - function_name_identifier: CAST
+                - bracketed:
+                  - start_bracket: (
+                  - expression:
+                    - column_reference:
+                      - quoted_identifier: '[RATE_14_DAY]'
+                  - keyword: AS
+                  - data_type:
+                    - data_type_identifier: FLOAT
+                  - end_bracket: )
+              - alias_expression:
+                - keyword: AS
+                - quoted_identifier: '[RATE_14_DAY]'
+            - comma: ','
+            - select_clause_element:
+              - function:
+                - function_name:
+                  - function_name_identifier: CAST
+                - bracketed:
+                  - start_bracket: (
+                  - expression:
+                    - column_reference:
+                      - quoted_identifier: '[CUMULATIVE_COUNT]'
+                  - keyword: AS
+                  - data_type:
+                    - data_type_identifier: BIGINT
+                  - end_bracket: )
+              - alias_expression:
+                - keyword: AS
+                - quoted_identifier: '[CUMULATIVE_COUNT]'
+            - comma: ','
+            - select_clause_element:
+              - column_reference:
+                - quoted_identifier: '[SOURCE]'
+          - from_clause:
+            - keyword: FROM
+            - from_expression:
+              - from_expression_element:
+                - table_expression:
+                  - table_reference:
+                    - object_reference:
+                      - naked_identifier: STAGE
+                      - dot: .
+                      - naked_identifier: ECDC_CASES

@@ -1174,10 +1174,18 @@ pub fn raw_dialect() -> Dialect {
         ),
         (
             "ProcedureParameterListGrammar".into(),
-            Delimited::new(vec_of_erased![Ref::new("ProcedureParameterGrammar")])
-                .config(|this| this.optional())
-                .to_matchable()
-                .into(),
+            one_of(vec_of_erased![
+                // Bracketed parameter list: (param1, param2, param3)
+                Bracketed::new(vec_of_erased![
+                    Delimited::new(vec_of_erased![Ref::new("ProcedureParameterGrammar")])
+                        .config(|this| this.optional())
+                ]),
+                // Unbracketed parameter list: param1, param2, param3
+                Delimited::new(vec_of_erased![Ref::new("ProcedureParameterGrammar")])
+                    .config(|this| this.optional())
+            ])
+            .to_matchable()
+            .into(),
         ),
         (
             "TsqlDatatypeSegment".into(),

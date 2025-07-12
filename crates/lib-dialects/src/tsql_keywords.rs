@@ -504,12 +504,8 @@ pub(crate) fn tsql_future_keywords() -> AHashSet<&'static str> {
 /// These are keywords that can be used as identifiers without quoting
 /// T-SQL additional unreserved keywords (to be added to ANSI keywords)
 pub(crate) fn tsql_additional_unreserved_keywords() -> AHashSet<&'static str> {
-    // Include all future keywords as unreserved keywords
-    // This allows them to be recognized but still used as identifiers
-    let mut keywords = tsql_future_keywords();
-
-    // Add T-SQL SET options and other keywords not in the future list
-    keywords.extend([
+    [
+        // T-SQL SET options that can be used as identifiers
         "NOCOUNT",
         "XACT_ABORT",
         "QUOTED_IDENTIFIER",
@@ -523,10 +519,13 @@ pub(crate) fn tsql_additional_unreserved_keywords() -> AHashSet<&'static str> {
         "DATEFIRST",
         "DATEFORMAT",
         "DELAYED_DURABILITY",
-        "SNAPSHOT",
+        
+        // Function names that can be used as identifiers
         "NEWID",
+        
+        // T-SQL priority and format values
         "LOW",
-        "NORMAL",
+        "NORMAL", 
         "HIGH",
         "MDY",
         "DMY",
@@ -534,14 +533,14 @@ pub(crate) fn tsql_additional_unreserved_keywords() -> AHashSet<&'static str> {
         "YDM",
         "MYD",
         "DYM",
-        // BEGIN ATOMIC WITH keywords
-        "ATOMIC",
+        
+        // Transaction isolation levels
         "SERIALIZABLE",
         "SNAPSHOT",
         "ISOLATION",
         "LEVEL",
-        "DELAYED_DURABILITY",
-        // Azure Synapse Analytics keywords
+        
+        // Azure Synapse Analytics keywords that can be identifiers
         "DISTRIBUTION",
         "ROUND_ROBIN",
         "REPLICATE",
@@ -550,9 +549,12 @@ pub(crate) fn tsql_additional_unreserved_keywords() -> AHashSet<&'static str> {
         "COLUMNSTORE",
         "PARTITION",
         "RANGE",
-    ]);
-
-    keywords
+        
+        // Common T-SQL keywords that can be used as identifiers
+        "ATOMIC",
+    ]
+    .into_iter()
+    .collect()
 }
 
 /// Complete T-SQL reserved keywords (ANSI + T-SQL specific) - for backwards compatibility

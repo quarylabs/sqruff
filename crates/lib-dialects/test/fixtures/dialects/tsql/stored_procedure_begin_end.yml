@@ -51,135 +51,231 @@ file:
 - statement_terminator: ;
 - statement:
   - keyword: GO
-- file:
-  - word: CREATE
-  - word: PROCEDURE
-  - double_quote: '[dbo]'
-  - dot: .
-  - double_quote: '[usp_process_tran_log]'
-  - tsql_variable: '@out_vchCode'
-  - word: uddt_output_code
-  - word: OUTPUT
-  - comma: ','
-  - tsql_variable: '@out_vchMsg'
-  - word: uddt_output_msg
-  - word: OUTPUT
-  - comma: ','
-  - tsql_variable: '@in_debug'
-  - word: INT
-  - raw_comparison_operator: =
-  - numeric_literal: '1'
-  - word: AS
-  - word: SET
-  - word: NOCOUNT
-  - word: ON
-  - semicolon: ;
-  - word: BEGIN
-  - word: SELECT
-  - single_quote: '''8'''
-  - word: END
-  - semicolon: ;
-  - word: GO
-  - word: CREATE
-  - word: OR
-  - word: ALTER
-  - word: PROCEDURE
-  - double_quote: '[dbo]'
-  - dot: .
-  - double_quote: '[usp_process_tran_log]'
-  - tsql_variable: '@out_vchCode'
-  - word: uddt_output_code
-  - word: OUTPUT
-  - comma: ','
-  - tsql_variable: '@out_vchMsg'
-  - word: uddt_output_msg
-  - word: OUT
-  - comma: ','
-  - tsql_variable: '@in_debug'
-  - word: INT
-  - raw_comparison_operator: =
-  - numeric_literal: '1'
-  - word: READONLY
-  - word: AS
-  - word: SET
-  - word: NOCOUNT
-  - word: ON
-  - semicolon: ;
-  - word: BEGIN
-  - word: SELECT
-  - single_quote: '''8'''
-  - word: END
-  - semicolon: ;
-  - word: GO
-  - word: ALTER
-  - word: PROCEDURE
-  - double_quote: '[dbo]'
-  - dot: .
-  - double_quote: '[usp_process_tran_log]'
-  - tsql_variable: '@out_vchCode'
-  - word: uddt_output_code
-  - word: OUTPUT
-  - comma: ','
-  - tsql_variable: '@out_vchMsg'
-  - word: uddt_output_msg
-  - word: OUTPUT
-  - comma: ','
-  - tsql_variable: '@in_debug'
-  - word: INT
-  - raw_comparison_operator: =
-  - numeric_literal: '1'
-  - word: AS
-  - word: SET
-  - word: NOCOUNT
-  - word: ON
-  - semicolon: ;
-  - word: BEGIN
-  - word: BEGIN
-  - word: TRY
-  - word: SELECT
-  - single_quote: '''8'''
-  - semicolon: ;
-  - word: END
-  - word: TRY
-  - word: BEGIN
-  - word: CATCH
-  - word: SET
-  - tsql_variable: '@v_nSysErrorNum'
-  - raw_comparison_operator: =
-  - word: ERROR_NUMBER
-  - start_bracket: (
-  - end_bracket: )
-  - semicolon: ;
-  - word: SET
-  - tsql_variable: '@v_vchCode'
-  - raw_comparison_operator: =
-  - word: ERROR_LINE
-  - start_bracket: (
-  - end_bracket: )
-  - semicolon: ;
-  - word: SET
-  - tsql_variable: '@v_vchMsg'
-  - raw_comparison_operator: =
-  - word: N
-  - single_quote: '''Missing control type.'''
-  - semicolon: ;
-  - word: SET
-  - tsql_variable: '@v_vchMsg'
-  - raw_comparison_operator: =
-  - tsql_variable: '@v_vchMsg'
-  - plus: +
-  - word: N
-  - single_quote: ''' SQL Error = '''
-  - plus: +
-  - word: ERROR_MESSAGE
-  - start_bracket: (
-  - end_bracket: )
-  - semicolon: ;
-  - word: GOTO
-  - word: ERROR_HANDLER
-  - semicolon: ;
-  - word: END
-  - word: CATCH
-  - word: END
-  - semicolon: ;
-  - word: GO
+- statement:
+  - create_procedure_statement:
+    - keyword: CREATE
+    - keyword: PROCEDURE
+    - object_reference:
+      - quoted_identifier: '[dbo]'
+      - dot: .
+      - quoted_identifier: '[usp_process_tran_log]'
+    - procedure_parameter:
+      - parameter_name:
+        - tsql_variable: '@out_vchCode'
+      - data_type:
+        - data_type:
+          - data_type_identifier: uddt_output_code
+      - keyword: OUTPUT
+    - comma: ','
+    - procedure_parameter:
+      - parameter_name:
+        - tsql_variable: '@out_vchMsg'
+      - data_type:
+        - data_type:
+          - data_type_identifier: uddt_output_msg
+      - keyword: OUTPUT
+    - comma: ','
+    - procedure_parameter:
+      - parameter_name:
+        - tsql_variable: '@in_debug'
+      - data_type:
+        - data_type:
+          - data_type_identifier: INT
+      - comparison_operator:
+        - raw_comparison_operator: =
+      - numeric_literal: '1'
+    - keyword: AS
+    - statement:
+      - keyword: SET
+      - keyword: NOCOUNT
+      - keyword: ON
+- statement_terminator: ;
+- statement:
+  - begin_end_block:
+    - keyword: BEGIN
+    - select_statement:
+      - select_clause:
+        - keyword: SELECT
+        - select_clause_element:
+          - quoted_literal: '''8'''
+    - keyword: END
+- statement_terminator: ;
+- statement:
+  - keyword: GO
+- statement:
+  - create_procedure_statement:
+    - keyword: CREATE
+    - keyword: OR
+    - keyword: ALTER
+    - keyword: PROCEDURE
+    - object_reference:
+      - quoted_identifier: '[dbo]'
+      - dot: .
+      - quoted_identifier: '[usp_process_tran_log]'
+    - procedure_parameter:
+      - parameter_name:
+        - tsql_variable: '@out_vchCode'
+      - data_type:
+        - data_type:
+          - data_type_identifier: uddt_output_code
+      - keyword: OUTPUT
+    - comma: ','
+    - procedure_parameter:
+      - parameter_name:
+        - tsql_variable: '@out_vchMsg'
+      - data_type:
+        - data_type:
+          - data_type_identifier: uddt_output_msg
+      - keyword: OUT
+    - comma: ','
+    - procedure_parameter:
+      - parameter_name:
+        - tsql_variable: '@in_debug'
+      - data_type:
+        - data_type:
+          - data_type_identifier: INT
+      - comparison_operator:
+        - raw_comparison_operator: =
+      - numeric_literal: '1'
+      - keyword: READONLY
+    - keyword: AS
+    - statement:
+      - keyword: SET
+      - keyword: NOCOUNT
+      - keyword: ON
+- statement_terminator: ;
+- statement:
+  - begin_end_block:
+    - keyword: BEGIN
+    - select_statement:
+      - select_clause:
+        - keyword: SELECT
+        - select_clause_element:
+          - quoted_literal: '''8'''
+    - keyword: END
+- statement_terminator: ;
+- statement:
+  - keyword: GO
+- statement:
+  - create_procedure_statement:
+    - keyword: ALTER
+    - keyword: PROCEDURE
+    - object_reference:
+      - quoted_identifier: '[dbo]'
+      - dot: .
+      - quoted_identifier: '[usp_process_tran_log]'
+    - procedure_parameter:
+      - parameter_name:
+        - tsql_variable: '@out_vchCode'
+      - data_type:
+        - data_type:
+          - data_type_identifier: uddt_output_code
+      - keyword: OUTPUT
+    - comma: ','
+    - procedure_parameter:
+      - parameter_name:
+        - tsql_variable: '@out_vchMsg'
+      - data_type:
+        - data_type:
+          - data_type_identifier: uddt_output_msg
+      - keyword: OUTPUT
+    - comma: ','
+    - procedure_parameter:
+      - parameter_name:
+        - tsql_variable: '@in_debug'
+      - data_type:
+        - data_type:
+          - data_type_identifier: INT
+      - comparison_operator:
+        - raw_comparison_operator: =
+      - numeric_literal: '1'
+    - keyword: AS
+    - statement:
+      - keyword: SET
+      - keyword: NOCOUNT
+      - keyword: ON
+- statement_terminator: ;
+- statement:
+  - begin_end_block:
+    - keyword: BEGIN
+    - try_block:
+      - keyword: BEGIN
+      - keyword: TRY
+      - statement:
+        - select_statement:
+          - select_clause:
+            - keyword: SELECT
+            - select_clause_element:
+              - quoted_literal: '''8'''
+      - statement_terminator: ;
+      - keyword: END
+      - keyword: TRY
+      - keyword: BEGIN
+      - keyword: CATCH
+      - statement:
+        - keyword: SET
+        - tsql_variable: '@v_nSysErrorNum'
+        - assignment_operator:
+          - raw_comparison_operator: =
+        - expression:
+          - function:
+            - function_name:
+              - function_name_identifier: ERROR_NUMBER
+            - bracketed:
+              - start_bracket: (
+              - end_bracket: )
+      - statement_terminator: ;
+      - statement:
+        - keyword: SET
+        - tsql_variable: '@v_vchCode'
+        - assignment_operator:
+          - raw_comparison_operator: =
+        - expression:
+          - function:
+            - function_name:
+              - function_name_identifier: ERROR_LINE
+            - bracketed:
+              - start_bracket: (
+              - end_bracket: )
+      - statement_terminator: ;
+      - statement:
+        - keyword: SET
+        - tsql_variable: '@v_vchMsg'
+        - assignment_operator:
+          - raw_comparison_operator: =
+        - expression:
+          - data_type:
+            - data_type_identifier: N
+          - quoted_literal: '''Missing control type.'''
+      - statement_terminator: ;
+      - statement:
+        - keyword: SET
+        - tsql_variable: '@v_vchMsg'
+        - assignment_operator:
+          - raw_comparison_operator: =
+        - expression:
+          - parameterized_expression:
+            - tsql_variable: '@v_vchMsg'
+          - binary_operator: +
+          - data_type:
+            - data_type_identifier: N
+          - quoted_literal: ''' SQL Error = '''
+          - binary_operator: +
+          - function:
+            - function_name:
+              - function_name_identifier: ERROR_MESSAGE
+            - bracketed:
+              - start_bracket: (
+              - end_bracket: )
+      - statement_terminator: ;
+      - statement:
+        - goto_statement:
+          - keyword: GOTO
+          - naked_identifier: ERROR_HANDLER
+      - statement_terminator: ;
+      - keyword: END
+      - keyword: CATCH
+    - keyword: END
+- statement_terminator: ;
+- statement:
+  - keyword: GO

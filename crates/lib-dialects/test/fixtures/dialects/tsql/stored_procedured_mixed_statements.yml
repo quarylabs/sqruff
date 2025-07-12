@@ -1,0 +1,71 @@
+file:
+- statement:
+  - create_procedure_statement:
+    - keyword: CREATE
+    - keyword: PROC
+    - object_reference:
+      - quoted_identifier: '[Reporting]'
+      - dot: .
+      - quoted_identifier: '[PowerPlan]'
+    - keyword: AS
+    - statement:
+      - keyword: DECLARE
+      - tsql_variable: '@DATEFUNCTION'
+      - data_type:
+        - data_type_identifier: DATE
+      - assignment_operator:
+        - raw_comparison_operator: =
+      - expression:
+        - function:
+          - function_name:
+            - function_name_identifier: GETDATE
+          - bracketed:
+            - start_bracket: (
+            - end_bracket: )
+- file:
+  - word: DROP
+  - word: TABLE
+  - double_quote: '[Reporting]'
+  - dot: .
+  - double_quote: '[PowerPlan_BASE]'
+  - semicolon: ;
+  - word: DECLARE
+  - tsql_variable: '@deadlock_var'
+  - word: NCHAR
+  - start_bracket: (
+  - numeric_literal: '3'
+  - end_bracket: )
+  - semicolon: ;
+  - word: SET
+  - tsql_variable: '@deadlock_var'
+  - raw_comparison_operator: =
+  - word: N
+  - single_quote: '''LOW'''
+  - semicolon: ;
+  - word: BEGIN
+  - word: SET
+  - word: NOCOUNT
+  - word: ON
+  - word: SET
+  - word: DEADLOCK_PRIORITY
+  - word: LOW
+  - word: SET
+  - word: DEADLOCK_PRIORITY
+  - word: NORMAL
+  - word: SET
+  - word: DEADLOCK_PRIORITY
+  - word: HIGH
+  - word: SET
+  - word: DEADLOCK_PRIORITY
+  - tsql_variable: '@deadlock_var'
+  - word: SET
+  - word: DEADLOCK_PRIORITY
+  - numeric_literal: '10'
+  - word: SET
+  - word: DEADLOCK_PRIORITY
+  - minus: '-'
+  - numeric_literal: '5'
+  - word: SELECT
+  - numeric_literal: '1'
+  - word: CREATE
+  - word: TABLE

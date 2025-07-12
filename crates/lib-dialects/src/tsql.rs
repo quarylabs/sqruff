@@ -416,6 +416,24 @@ pub fn raw_dialect() -> Dialect {
                     ]),
                     Ref::new("DelimiterGrammar").optional()
                 ])])
+                .config(|this| {
+                    this.terminators = vec_of_erased![
+                        // Terminate on keywords that start new statements
+                        Ref::keyword("CREATE"),
+                        Ref::keyword("DROP"),
+                        Ref::keyword("ALTER"),
+                        Ref::keyword("SELECT"),
+                        Ref::keyword("INSERT"),
+                        Ref::keyword("UPDATE"),
+                        Ref::keyword("DELETE"),
+                        Ref::keyword("DECLARE"),
+                        Ref::keyword("SET"),
+                        Ref::keyword("IF"),
+                        Ref::keyword("WHILE"),
+                        Ref::keyword("BEGIN"),
+                        Ref::keyword("END")
+                    ];
+                })
                 .config(|this| this.min_times(0)),
                 MetaSegment::dedent(),
                 Ref::keyword("END")

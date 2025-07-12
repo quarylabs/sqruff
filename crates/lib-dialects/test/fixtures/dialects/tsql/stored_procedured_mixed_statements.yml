@@ -94,3 +94,28 @@ file:
       - unparsable:
         - word: CREATE
         - word: TABLE
+        - word: '#TempTest'
+        - word: WITH
+        - start_bracket: (
+        - word: DISTRIBUTION
+        - raw_comparison_operator: =
+        - word: ROUND_ROBIN
+        - comma: ','
+        - word: HEAP
+        - end_bracket: )
+        - word: AS
+        - start_bracket: (
+        - word: SELECT
+        - numeric_literal: '2'
+        - word: AS
+        - word: Two
+        - comma: ','
+        - numeric_literal: '3'
+        - word: AS
+        - word: Three
+        - comma: ','
+        - numeric_literal: '4'
+        - word: AS
+        - word: Four
+        - end_bracket: )
+        - word: END

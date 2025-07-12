@@ -95,10 +95,10 @@ pub fn raw_dialect() -> Dialect {
 
     // T-SQL specific lexer patches:
     // 1. T-SQL only uses -- for inline comments, not # (which is used in temp table names)
-    // 2. Update word pattern to allow # at the end (SQL Server 2017+ syntax)
+    // 2. Update word pattern to allow # at the beginning (temp tables) and end (SQL Server 2017+ syntax)
     dialect.patch_lexer_matchers(vec![
         Matcher::regex("inline_comment", r"--[^\n]*", SyntaxKind::InlineComment),
-        Matcher::regex("word", r"[0-9a-zA-Z_]+#?", SyntaxKind::Word),
+        Matcher::regex("word", r"##?[a-zA-Z0-9_]+|[0-9a-zA-Z_]+#?", SyntaxKind::Word),
     ]);
 
     // Since T-SQL uses square brackets as quoted identifiers and the lexer
@@ -249,10 +249,10 @@ pub fn raw_dialect() -> Dialect {
 
             // T-SQL pattern: supports both temp tables (#temp, ##global) and identifiers ending with #
             // Pattern explanation:
-            // - ##?[A-Z][A-Z0-9_]*    matches temp tables: #temp or ##global
-            // - [A-Z0-9_]*[A-Z][A-Z0-9_]*#?   matches regular identifiers with optional # at end
+            // - ##?[A-Za-z][A-Za-z0-9_]*    matches temp tables: #temp or ##global (case insensitive)
+            // - [A-Za-z0-9_]*[A-Za-z][A-Za-z0-9_]*#?   matches regular identifiers with optional # at end
             RegexParser::new(
-                "(##?[A-Z][A-Z0-9_]*|[A-Z0-9_]*[A-Z][A-Z0-9_]*#?)",
+                r"(##?[A-Za-z][A-Za-z0-9_]*|[A-Za-z0-9_]*[A-Za-z][A-Za-z0-9_]*#?)",
                 SyntaxKind::NakedIdentifier,
             )
             .anti_template(&anti_template)
@@ -1255,8 +1255,8 @@ pub fn raw_dialect() -> Dialect {
 
 
     // T-SQL CREATE TABLE with Azure Synapse Analytics support
-    dialect.add([(
-        "CreateTableStatementSegment".into(),
+    dialect.replace_grammar(
+        "CreateTableStatementSegment",
         NodeMatcher::new(SyntaxKind::CreateTableStatement, |_| {
             Sequence::new(vec_of_erased![
                 Ref::keyword("CREATE"),
@@ -1307,10 +1307,10 @@ pub fn raw_dialect() -> Dialect {
             ])
             .to_matchable()
         })
-        .to_matchable()
-        .into(),
-    ),
-    (
+        .to_matchable(),
+    );
+
+    dialect.add([(
         "TableOptionGrammar".into(),
         one_of(vec_of_erased![
             // Azure Synapse distribution options

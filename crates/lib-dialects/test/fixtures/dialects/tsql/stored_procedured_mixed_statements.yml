@@ -80,12 +80,17 @@ file:
   - keyword: SET
   - keyword: DEADLOCK_PRIORITY
   - numeric_literal: '10'
-- file:
-  - word: SET
-  - word: DEADLOCK_PRIORITY
-  - minus: '-'
+- statement:
+  - keyword: SET
+  - keyword: DEADLOCK_PRIORITY
+  - binary_operator: '-'
   - numeric_literal: '5'
-  - word: SELECT
-  - numeric_literal: '1'
-  - word: CREATE
-  - word: TABLE
+- statement:
+  - select_statement:
+    - select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+        - numeric_literal: '1'
+      - unparsable:
+        - word: CREATE
+        - word: TABLE

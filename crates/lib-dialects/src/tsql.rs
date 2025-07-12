@@ -322,9 +322,42 @@ pub fn raw_dialect() -> Dialect {
             "SetVariableStatementGrammar".into(),
             Sequence::new(vec_of_erased![
                 Ref::keyword("SET"),
-                Ref::new("TsqlVariableSegment"),
-                Ref::new("AssignmentOperatorSegment"),
-                Ref::new("ExpressionSegment")
+                one_of(vec_of_erased![
+                    // Variable assignment
+                    Sequence::new(vec_of_erased![
+                        Ref::new("TsqlVariableSegment"),
+                        Ref::new("AssignmentOperatorSegment"),
+                        Ref::new("ExpressionSegment")
+                    ]),
+                    // SET options
+                    Sequence::new(vec_of_erased![
+                        Delimited::new(vec_of_erased![
+                            Sequence::new(vec_of_erased![
+                                one_of(vec_of_erased![
+                                    Ref::keyword("NOCOUNT"),
+                                    Ref::keyword("XACT_ABORT"),
+                                    Ref::keyword("QUOTED_IDENTIFIER"),
+                                    Ref::keyword("ANSI_NULLS"),
+                                    Ref::keyword("ANSI_PADDING"),
+                                    Ref::keyword("ANSI_WARNINGS"),
+                                    Ref::keyword("ARITHABORT"),
+                                    Ref::keyword("CONCAT_NULL_YIELDS_NULL"),
+                                    Ref::keyword("NUMERIC_ROUNDABORT"),
+                                    Ref::keyword("DEADLOCK_PRIORITY")
+                                ]),
+                                one_of(vec_of_erased![
+                                    Ref::keyword("ON"),
+                                    Ref::keyword("OFF"),
+                                    Ref::keyword("LOW"),
+                                    Ref::keyword("NORMAL"),
+                                    Ref::keyword("HIGH"),
+                                    Ref::new("NumericLiteralSegment"),
+                                    Ref::new("TsqlVariableSegment")
+                                ])
+                            ])
+                        ])
+                    ])
+                ])
             ])
             .to_matchable()
             .into(),
@@ -469,7 +502,7 @@ pub fn raw_dialect() -> Dialect {
         ),
     ]);
 
-    // GO batch separator
+    // GO batch separator - T-SQL uses GO to separate batches
     dialect.add([
         (
             "BatchSeparatorSegment".into(),
@@ -479,7 +512,24 @@ pub fn raw_dialect() -> Dialect {
             "BatchSeparatorGrammar".into(),
             Ref::keyword("GO").to_matchable().into(),
         ),
+        (
+            "BatchDelimiterGrammar".into(),
+            Ref::new("BatchSeparatorGrammar").to_matchable().into(),
+        ),
     ]);
+
+    // Override FileSegment to handle T-SQL batch separators (GO statements)
+    dialect.replace_grammar(
+        "FileSegment",
+        AnyNumberOf::new(vec_of_erased![
+            one_of(vec_of_erased![
+                Ref::new("StatementSegment"),
+                Ref::new("BatchDelimiterGrammar"),
+            ]),
+            Ref::new("DelimiterGrammar").optional(),
+        ])
+        .to_matchable(),
+    );
 
     // Add T-SQL specific statement types to the statement segment
     dialect.replace_grammar(
@@ -1015,20 +1065,38 @@ pub fn raw_dialect() -> Dialect {
                 Sequence::new(vec_of_erased![
                     Ref::new("ParameterNameSegment"),
                     Ref::new("TsqlDatatypeSegment"),
+                    // Optional VARYING keyword (for cursors and some special types)
+                    Ref::keyword("VARYING").optional(),
+                    // Optional NULL/NOT NULL
+                    Sequence::new(vec_of_erased![
+                        Ref::keyword("NOT").optional(),
+                        Ref::keyword("NULL")
+                    ])
+                    .config(|this| this.optional()),
                     // Optional default value
                     Sequence::new(vec_of_erased![
                         Ref::new("EqualsSegment"),
-                        Ref::new("LiteralGrammar")
+                        one_of(vec_of_erased![
+                            Ref::new("LiteralGrammar"),
+                            Ref::keyword("NULL"),
+                            // Function calls as defaults (e.g., NEWID())
+                            Ref::new("FunctionSegment"),
+                            // String literal with prefix (e.g., N'foo')
+                            Sequence::new(vec_of_erased![
+                                Ref::new("NakedIdentifierSegment"), // N, B, X etc.
+                                Ref::new("QuotedLiteralSegment")
+                            ])
+                        ])
                     ])
                     .config(|this| this.optional()),
-                    // Optional OUT/OUTPUT keyword
-                    one_of(vec_of_erased![
-                        Ref::keyword("OUT"),
-                        Ref::keyword("OUTPUT")
+                    // Optional parameter modifiers (can appear in any order)
+                    AnyNumberOf::new(vec_of_erased![
+                        one_of(vec_of_erased![
+                            Ref::keyword("OUT"),
+                            Ref::keyword("OUTPUT"),
+                            Ref::keyword("READONLY")
+                        ])
                     ])
-                    .config(|this| this.optional()),
-                    // Optional READONLY keyword
-                    Ref::keyword("READONLY").optional()
                 ])
                 .to_matchable()
             })
@@ -1061,8 +1129,79 @@ pub fn raw_dialect() -> Dialect {
         (
             "ProcedureDefinitionGrammar".into(),
             one_of(vec_of_erased![
+                // External CLR procedures (check this first as it's simpler)
+                Sequence::new(vec_of_erased![
+                    Ref::keyword("EXTERNAL"),
+                    Ref::keyword("NAME"),
+                    Ref::new("ObjectReferenceSegment")
+                ]),
+                // Natively compiled procedures with BEGIN ATOMIC WITH
+                Ref::new("AtomicBlockSegment"),
+                // Regular T-SQL procedures
                 Ref::new("BeginEndBlockGrammar"),
                 Ref::new("StatementSegment")
+            ])
+            .to_matchable()
+            .into(),
+        ),
+        (
+            "AtomicBlockSegment".into(),
+            Sequence::new(vec_of_erased![
+                Ref::keyword("BEGIN"),
+                Ref::keyword("ATOMIC"),
+                Ref::keyword("WITH"),
+                Bracketed::new(vec_of_erased![
+                    Delimited::new(vec_of_erased![
+                        Ref::new("AtomicBlockOptionGrammar")
+                    ])
+                ]),
+                MetaSegment::indent(),
+                AnyNumberOf::new(vec_of_erased![
+                    Ref::new("StatementSegment"),
+                    Ref::new("DelimiterGrammar").optional()
+                ]),
+                MetaSegment::dedent(),
+                Ref::keyword("END")
+            ])
+            .to_matchable()
+            .into(),
+        ),
+        (
+            "AtomicBlockOptionGrammar".into(),
+            Sequence::new(vec_of_erased![
+                one_of(vec_of_erased![
+                    Ref::keyword("LANGUAGE"),
+                    Ref::keyword("DATEFIRST"),
+                    Ref::keyword("DATEFORMAT"),
+                    Ref::keyword("DELAYED_DURABILITY"),
+                    Sequence::new(vec_of_erased![
+                        Ref::keyword("TRANSACTION"),
+                        Ref::keyword("ISOLATION"),
+                        Ref::keyword("LEVEL")
+                    ])
+                ]),
+                Ref::new("EqualsSegment"),
+                one_of(vec_of_erased![
+                    Ref::new("QuotedLiteralSegment"),
+                    Ref::new("NumericLiteralSegment"),
+                    Ref::new("NakedIdentifierSegment"),
+                    // Special handling for multi-word isolation levels
+                    Sequence::new(vec_of_erased![
+                        Ref::keyword("REPEATABLE"),
+                        Ref::keyword("READ")
+                    ]),
+                    Ref::keyword("SERIALIZABLE"),
+                    Ref::keyword("SNAPSHOT"),
+                    Ref::keyword("ON"),
+                    Ref::keyword("OFF"),
+                    // Date format values
+                    Ref::keyword("MDY"),
+                    Ref::keyword("DMY"),
+                    Ref::keyword("YMD"),
+                    Ref::keyword("YDM"),
+                    Ref::keyword("MYD"),
+                    Ref::keyword("DYM")
+                ])
             ])
             .to_matchable()
             .into(),

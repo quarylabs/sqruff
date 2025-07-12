@@ -17,246 +17,396 @@ file:
 - statement_terminator: ;
 - statement:
   - keyword: GO
+- statement:
+  - create_procedure_statement:
+    - keyword: CREATE
+    - keyword: PROCEDURE
+    - object_reference:
+      - quoted_identifier: '[dbo]'
+      - dot: .
+      - quoted_identifier: '[TEST]'
+    - keyword: AS
+    - keyword: BEGIN
+    - select_statement:
+      - select_clause:
+        - keyword: SELECT
+        - select_clause_element:
+          - numeric_literal: '1'
+    - statement_terminator: ;
+    - keyword: END
+- statement_terminator: ;
+- statement:
+  - keyword: GO
+- statement:
+  - create_procedure_statement:
+    - keyword: ALTER
+    - keyword: PROC
+    - object_reference:
+      - quoted_identifier: '[PROCEDURE_NAME]'
+    - keyword: AS
+    - keyword: BEGIN
+    - select_statement:
+      - select_clause:
+        - keyword: SELECT
+        - select_clause_element:
+          - numeric_literal: '1'
+    - statement_terminator: ;
+    - keyword: END
+- statement_terminator: ;
+- statement:
+  - keyword: GO
+- statement:
+  - create_procedure_statement:
+    - keyword: ALTER
+    - keyword: PROCEDURE
+    - object_reference:
+      - quoted_identifier: '[PROCEDURE_NAME]'
+    - keyword: AS
+    - keyword: BEGIN
+    - select_statement:
+      - select_clause:
+        - keyword: SELECT
+        - select_clause_element:
+          - numeric_literal: '1'
+    - statement_terminator: ;
+    - keyword: END
+- statement_terminator: ;
+- statement:
+  - keyword: GO
+- statement:
+  - create_procedure_statement:
+    - keyword: CREATE
+    - keyword: OR
+    - keyword: ALTER
+    - keyword: PROC
+    - object_reference:
+      - quoted_identifier: '[PROCEDURE_NAME]'
+    - keyword: AS
+    - keyword: BEGIN
+    - select_statement:
+      - select_clause:
+        - keyword: SELECT
+        - select_clause_element:
+          - numeric_literal: '1'
+    - statement_terminator: ;
+    - keyword: END
+- statement_terminator: ;
+- statement:
+  - keyword: GO
+- statement:
+  - create_procedure_statement:
+    - keyword: CREATE
+    - keyword: OR
+    - keyword: ALTER
+    - keyword: PROCEDURE
+    - object_reference:
+      - quoted_identifier: '[PROCEDURE_NAME]'
+    - keyword: AS
+    - keyword: BEGIN
+    - select_statement:
+      - select_clause:
+        - keyword: SELECT
+        - select_clause_element:
+          - numeric_literal: '1'
+    - statement_terminator: ;
+    - keyword: END
+- statement_terminator: ;
+- statement:
+  - keyword: GO
+- statement:
+  - create_procedure_statement:
+    - keyword: CREATE
+    - keyword: PROCEDURE
+    - object_reference:
+      - quoted_identifier: '[dbo]'
+      - dot: .
+      - quoted_identifier: '[TEST]'
+    - bracketed:
+      - start_bracket: (
+      - procedure_parameter:
+        - parameter_name:
+          - tsql_variable: '@id'
+        - data_type:
+          - data_type:
+            - data_type_identifier: UNIQUEIDENTIFIER
+      - end_bracket: )
+    - keyword: AS
+    - statement:
+      - select_statement:
+        - select_clause:
+          - keyword: SELECT
+          - select_clause_element:
+            - numeric_literal: '1'
+- statement_terminator: ;
+- statement:
+  - keyword: GO
+- statement:
+  - create_procedure_statement:
+    - keyword: CREATE
+    - keyword: PROCEDURE
+    - object_reference:
+      - quoted_identifier: '[dbo]'
+      - dot: .
+      - quoted_identifier: '[TEST]'
+    - bracketed:
+      - start_bracket: (
+      - procedure_parameter:
+        - parameter_name:
+          - tsql_variable: '@id'
+        - data_type:
+          - data_type:
+            - data_type_identifier: UNIQUEIDENTIFIER
+        - keyword: 'NULL'
+        - comparison_operator:
+          - raw_comparison_operator: =
+        - null_literal: 'NULL'
+      - comma: ','
+      - procedure_parameter:
+        - parameter_name:
+          - tsql_variable: '@fooReadonly'
+        - data_type:
+          - data_type:
+            - data_type_identifier: NVARCHAR
+            - bracketed_arguments:
+              - bracketed:
+                - start_bracket: (
+                - numeric_literal: '42'
+                - end_bracket: )
+        - comparison_operator:
+          - raw_comparison_operator: =
+        - naked_identifier: N
+        - quoted_literal: '''foo'''
+        - keyword: READONLY
+      - comma: ','
+      - procedure_parameter:
+        - parameter_name:
+          - tsql_variable: '@bar'
+        - data_type:
+          - data_type:
+            - data_type_identifier: BIT
+        - keyword: VARYING
+        - keyword: 'NULL'
+        - comparison_operator:
+          - raw_comparison_operator: =
+        - null_literal: 'NULL'
+        - keyword: OUTPUT
+      - comma: ','
+      - procedure_parameter:
+        - parameter_name:
+          - tsql_variable: '@output'
+        - data_type:
+          - data_type:
+            - data_type_identifier: TINYINT
+        - keyword: OUT
+      - end_bracket: )
+    - keyword: AS
+    - keyword: BEGIN
+    - keyword: SET
+    - tsql_variable: '@output'
+    - assignment_operator:
+      - raw_comparison_operator: =
+    - expression:
+      - bracketed:
+        - start_bracket: (
+        - expression:
+          - select_statement:
+            - select_clause:
+              - keyword: SELECT
+              - select_clause_element:
+                - column_reference:
+                  - naked_identifier: tinyint_value
+            - from_clause:
+              - keyword: FROM
+              - from_expression:
+                - from_expression_element:
+                  - table_expression:
+                    - table_reference:
+                      - object_reference:
+                        - naked_identifier: dbo
+                        - dot: .
+                        - naked_identifier: TEST
+        - end_bracket: )
+    - statement_terminator: ;
+    - keyword: IF
+    - expression:
+      - parameterized_expression:
+        - tsql_variable: '@id'
+      - keyword: IS
+      - null_literal: 'NULL'
+    - statement:
+      - keyword: BEGIN
+      - select_statement:
+        - select_clause:
+          - keyword: SELECT
+          - select_clause_element:
+            - parameterized_expression:
+              - tsql_variable: '@bar'
+          - comma: ','
+          - select_clause_element:
+            - parameterized_expression:
+              - tsql_variable: '@fooReadonly'
+      - statement_terminator: ;
+      - keyword: END
+    - statement_terminator: ;
+    - keyword: END
+- statement_terminator: ;
+- statement:
+  - keyword: GO
+- statement:
+  - create_procedure_statement:
+    - keyword: CREATE
+    - keyword: PROCEDURE
+    - object_reference:
+      - quoted_identifier: '[dbo]'
+      - dot: .
+      - quoted_identifier: '[TEST]'
+    - bracketed:
+      - start_bracket: (
+      - procedure_parameter:
+        - parameter_name:
+          - tsql_variable: '@id'
+        - data_type:
+          - data_type:
+            - data_type_identifier: UNIQUEIDENTIFIER
+        - keyword: 'NULL'
+        - comparison_operator:
+          - raw_comparison_operator: =
+        - null_literal: 'NULL'
+      - comma: ','
+      - procedure_parameter:
+        - parameter_name:
+          - tsql_variable: '@bar'
+        - data_type:
+          - data_type:
+            - data_type_identifier: NVARCHAR
+            - bracketed_arguments:
+              - bracketed:
+                - start_bracket: (
+                - numeric_literal: '32'
+                - end_bracket: )
+        - keyword: 'NULL'
+        - comparison_operator:
+          - raw_comparison_operator: =
+        - null_literal: 'NULL'
+      - end_bracket: )
+    - keyword: WITH
+    - keyword: ENCRYPTION
+    - comma: ','
+    - keyword: RECOMPILE
+    - comma: ','
+    - keyword: EXECUTE
+    - keyword: AS
+    - quoted_literal: '''sa'''
+    - keyword: AS
+    - keyword: BEGIN
+    - select_statement:
+      - select_clause:
+        - keyword: SELECT
+        - select_clause_element:
+          - numeric_literal: '1'
+    - statement_terminator: ;
+    - keyword: END
+- statement_terminator: ;
+- statement:
+  - keyword: GO
+- statement:
+  - create_procedure_statement:
+    - keyword: CREATE
+    - keyword: PROCEDURE
+    - object_reference:
+      - quoted_identifier: '[dbo]'
+      - dot: .
+      - quoted_identifier: '[TEST]'
+    - bracketed:
+      - start_bracket: (
+      - procedure_parameter:
+        - parameter_name:
+          - tsql_variable: '@id'
+        - data_type:
+          - data_type:
+            - data_type_identifier: UNIQUEIDENTIFIER
+        - keyword: 'NULL'
+        - comparison_operator:
+          - raw_comparison_operator: =
+        - null_literal: 'NULL'
+      - comma: ','
+      - procedure_parameter:
+        - parameter_name:
+          - tsql_variable: '@bar'
+        - data_type:
+          - data_type:
+            - data_type_identifier: NVARCHAR
+            - bracketed_arguments:
+              - bracketed:
+                - start_bracket: (
+                - numeric_literal: '32'
+                - end_bracket: )
+        - keyword: 'NULL'
+        - comparison_operator:
+          - raw_comparison_operator: =
+        - null_literal: 'NULL'
+      - end_bracket: )
+    - keyword: WITH
+    - keyword: ENCRYPTION
+    - comma: ','
+    - keyword: RECOMPILE
+    - comma: ','
+    - keyword: EXECUTE
+    - keyword: AS
+    - quoted_literal: '''sa'''
+    - keyword: FOR
+    - keyword: REPLICATION
+    - keyword: AS
+    - keyword: BEGIN
+    - select_statement:
+      - select_clause:
+        - keyword: SELECT
+        - select_clause_element:
+          - parameterized_expression:
+            - tsql_variable: '@id'
+        - comma: ','
+        - select_clause_element:
+          - parameterized_expression:
+            - tsql_variable: '@bar'
+    - statement_terminator: ;
+    - keyword: END
+- statement_terminator: ;
+- statement:
+  - keyword: GO
+- statement:
+  - create_procedure_statement:
+    - keyword: CREATE
+    - keyword: OR
+    - keyword: ALTER
+    - keyword: PROCEDURE
+    - object_reference:
+      - quoted_identifier: '[dbo]'
+      - dot: .
+      - quoted_identifier: '[TEST]'
+    - bracketed:
+      - start_bracket: (
+      - procedure_parameter:
+        - parameter_name:
+          - tsql_variable: '@id'
+        - data_type:
+          - data_type:
+            - data_type_identifier: INT
+        - keyword: NOT
+        - keyword: 'NULL'
+      - end_bracket: )
+    - keyword: WITH
+    - keyword: NATIVE_COMPILATION
+    - comma: ','
+    - keyword: SCHEMABINDING
+    - comma: ','
+    - keyword: EXECUTE
+    - keyword: AS
+    - keyword: OWNER
+    - keyword: AS
+    - statement:
+      - transaction_statement:
+        - keyword: BEGIN
 - file:
-  - word: CREATE
-  - word: PROCEDURE
-  - double_quote: '[dbo]'
-  - dot: .
-  - double_quote: '[TEST]'
-  - word: AS
-  - word: BEGIN
-  - word: SELECT
-  - numeric_literal: '1'
-  - semicolon: ;
-  - word: END
-  - semicolon: ;
-  - word: GO
-  - word: ALTER
-  - word: PROC
-  - double_quote: '[PROCEDURE_NAME]'
-  - word: AS
-  - word: BEGIN
-  - word: SELECT
-  - numeric_literal: '1'
-  - semicolon: ;
-  - word: END
-  - semicolon: ;
-  - word: GO
-  - word: ALTER
-  - word: PROCEDURE
-  - double_quote: '[PROCEDURE_NAME]'
-  - word: AS
-  - word: BEGIN
-  - word: SELECT
-  - numeric_literal: '1'
-  - semicolon: ;
-  - word: END
-  - semicolon: ;
-  - word: GO
-  - word: CREATE
-  - word: OR
-  - word: ALTER
-  - word: PROC
-  - double_quote: '[PROCEDURE_NAME]'
-  - word: AS
-  - word: BEGIN
-  - word: SELECT
-  - numeric_literal: '1'
-  - semicolon: ;
-  - word: END
-  - semicolon: ;
-  - word: GO
-  - word: CREATE
-  - word: OR
-  - word: ALTER
-  - word: PROCEDURE
-  - double_quote: '[PROCEDURE_NAME]'
-  - word: AS
-  - word: BEGIN
-  - word: SELECT
-  - numeric_literal: '1'
-  - semicolon: ;
-  - word: END
-  - semicolon: ;
-  - word: GO
-  - word: CREATE
-  - word: PROCEDURE
-  - double_quote: '[dbo]'
-  - dot: .
-  - double_quote: '[TEST]'
-  - start_bracket: (
-  - tsql_variable: '@id'
-  - word: UNIQUEIDENTIFIER
-  - end_bracket: )
-  - word: AS
-  - word: SELECT
-  - numeric_literal: '1'
-  - semicolon: ;
-  - word: GO
-  - word: CREATE
-  - word: PROCEDURE
-  - double_quote: '[dbo]'
-  - dot: .
-  - double_quote: '[TEST]'
-  - start_bracket: (
-  - tsql_variable: '@id'
-  - word: UNIQUEIDENTIFIER
-  - word: 'NULL'
-  - raw_comparison_operator: =
-  - word: 'NULL'
-  - comma: ','
-  - tsql_variable: '@fooReadonly'
-  - word: NVARCHAR
-  - start_bracket: (
-  - numeric_literal: '42'
-  - end_bracket: )
-  - raw_comparison_operator: =
-  - word: N
-  - single_quote: '''foo'''
-  - word: READONLY
-  - comma: ','
-  - tsql_variable: '@bar'
-  - word: BIT
-  - word: VARYING
-  - word: 'NULL'
-  - raw_comparison_operator: =
-  - word: 'NULL'
-  - word: OUTPUT
-  - comma: ','
-  - tsql_variable: '@output'
-  - word: TINYINT
-  - word: OUT
-  - end_bracket: )
-  - word: AS
-  - word: BEGIN
-  - word: SET
-  - tsql_variable: '@output'
-  - raw_comparison_operator: =
-  - start_bracket: (
-  - word: SELECT
-  - word: tinyint_value
-  - word: FROM
-  - word: dbo
-  - dot: .
-  - word: TEST
-  - end_bracket: )
-  - semicolon: ;
-  - word: IF
-  - tsql_variable: '@id'
-  - word: IS
-  - word: 'NULL'
-  - word: BEGIN
-  - word: SELECT
-  - tsql_variable: '@bar'
-  - comma: ','
-  - tsql_variable: '@fooReadonly'
-  - semicolon: ;
-  - word: END
-  - semicolon: ;
-  - word: END
-  - semicolon: ;
-  - word: GO
-  - word: CREATE
-  - word: PROCEDURE
-  - double_quote: '[dbo]'
-  - dot: .
-  - double_quote: '[TEST]'
-  - start_bracket: (
-  - tsql_variable: '@id'
-  - word: UNIQUEIDENTIFIER
-  - word: 'NULL'
-  - raw_comparison_operator: =
-  - word: 'NULL'
-  - comma: ','
-  - tsql_variable: '@bar'
-  - word: NVARCHAR
-  - start_bracket: (
-  - numeric_literal: '32'
-  - end_bracket: )
-  - word: 'NULL'
-  - raw_comparison_operator: =
-  - word: 'NULL'
-  - end_bracket: )
-  - word: WITH
-  - word: ENCRYPTION
-  - comma: ','
-  - word: RECOMPILE
-  - comma: ','
-  - word: EXECUTE
-  - word: AS
-  - single_quote: '''sa'''
-  - word: AS
-  - word: BEGIN
-  - word: SELECT
-  - numeric_literal: '1'
-  - semicolon: ;
-  - word: END
-  - semicolon: ;
-  - word: GO
-  - word: CREATE
-  - word: PROCEDURE
-  - double_quote: '[dbo]'
-  - dot: .
-  - double_quote: '[TEST]'
-  - start_bracket: (
-  - tsql_variable: '@id'
-  - word: UNIQUEIDENTIFIER
-  - word: 'NULL'
-  - raw_comparison_operator: =
-  - word: 'NULL'
-  - comma: ','
-  - tsql_variable: '@bar'
-  - word: NVARCHAR
-  - start_bracket: (
-  - numeric_literal: '32'
-  - end_bracket: )
-  - word: 'NULL'
-  - raw_comparison_operator: =
-  - word: 'NULL'
-  - end_bracket: )
-  - word: WITH
-  - word: ENCRYPTION
-  - comma: ','
-  - word: RECOMPILE
-  - comma: ','
-  - word: EXECUTE
-  - word: AS
-  - single_quote: '''sa'''
-  - word: FOR
-  - word: REPLICATION
-  - word: AS
-  - word: BEGIN
-  - word: SELECT
-  - tsql_variable: '@id'
-  - comma: ','
-  - tsql_variable: '@bar'
-  - semicolon: ;
-  - word: END
-  - semicolon: ;
-  - word: GO
-  - word: CREATE
-  - word: OR
-  - word: ALTER
-  - word: PROCEDURE
-  - double_quote: '[dbo]'
-  - dot: .
-  - double_quote: '[TEST]'
-  - start_bracket: (
-  - tsql_variable: '@id'
-  - word: INT
-  - word: NOT
-  - word: 'NULL'
-  - end_bracket: )
-  - word: WITH
-  - word: NATIVE_COMPILATION
-  - comma: ','
-  - word: SCHEMABINDING
-  - comma: ','
-  - word: EXECUTE
-  - word: AS
-  - word: OWNER
-  - word: AS
-  - word: BEGIN
   - word: ATOMIC
   - word: WITH
   - start_bracket: (

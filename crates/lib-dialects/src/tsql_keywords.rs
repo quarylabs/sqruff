@@ -498,7 +498,37 @@ pub(crate) fn tsql_future_keywords() -> AHashSet<&'static str> {
 pub(crate) fn tsql_additional_unreserved_keywords() -> AHashSet<&'static str> {
     // Include all future keywords as unreserved keywords
     // This allows them to be recognized but still used as identifiers
-    tsql_future_keywords()
+    let mut keywords = tsql_future_keywords();
+    
+    // Add T-SQL SET options and other keywords not in the future list
+    keywords.extend([
+        "NOCOUNT",
+        "XACT_ABORT",
+        "QUOTED_IDENTIFIER",
+        "ANSI_NULLS",
+        "ANSI_PADDING",
+        "ANSI_WARNINGS",
+        "ARITHABORT",
+        "CONCAT_NULL_YIELDS_NULL",
+        "NUMERIC_ROUNDABORT",
+        "DEADLOCK_PRIORITY",
+        "DATEFIRST",
+        "DATEFORMAT",
+        "DELAYED_DURABILITY",
+        "SNAPSHOT",
+        "NEWID",
+        "LOW",
+        "NORMAL",
+        "HIGH",
+        "MDY",
+        "DMY",
+        "YMD",
+        "YDM",
+        "MYD",
+        "DYM",
+    ]);
+    
+    keywords
 }
 
 /// Complete T-SQL reserved keywords (ANSI + T-SQL specific) - for backwards compatibility

@@ -22,45 +22,65 @@ file:
           - bracketed:
             - start_bracket: (
             - end_bracket: )
-- file:
-  - word: DROP
-  - word: TABLE
-  - double_quote: '[Reporting]'
-  - dot: .
-  - double_quote: '[PowerPlan_BASE]'
-  - semicolon: ;
-  - word: DECLARE
+- statement:
+  - drop_table_statement:
+    - keyword: DROP
+    - keyword: TABLE
+    - table_reference:
+      - object_reference:
+        - quoted_identifier: '[Reporting]'
+        - dot: .
+        - quoted_identifier: '[PowerPlan_BASE]'
+- statement_terminator: ;
+- statement:
+  - keyword: DECLARE
   - tsql_variable: '@deadlock_var'
-  - word: NCHAR
-  - start_bracket: (
-  - numeric_literal: '3'
-  - end_bracket: )
-  - semicolon: ;
-  - word: SET
+  - data_type:
+    - data_type_identifier: NCHAR
+    - bracketed_arguments:
+      - bracketed:
+        - start_bracket: (
+        - numeric_literal: '3'
+        - end_bracket: )
+- statement_terminator: ;
+- statement:
+  - keyword: SET
   - tsql_variable: '@deadlock_var'
-  - raw_comparison_operator: =
-  - word: N
-  - single_quote: '''LOW'''
-  - semicolon: ;
-  - word: BEGIN
-  - word: SET
-  - word: NOCOUNT
-  - word: ON
-  - word: SET
-  - word: DEADLOCK_PRIORITY
-  - word: LOW
-  - word: SET
-  - word: DEADLOCK_PRIORITY
-  - word: NORMAL
-  - word: SET
-  - word: DEADLOCK_PRIORITY
-  - word: HIGH
-  - word: SET
-  - word: DEADLOCK_PRIORITY
+  - assignment_operator:
+    - raw_comparison_operator: =
+  - expression:
+    - data_type:
+      - data_type_identifier: N
+    - quoted_literal: '''LOW'''
+- statement_terminator: ;
+- statement:
+  - transaction_statement:
+    - keyword: BEGIN
+- statement:
+  - keyword: SET
+  - keyword: NOCOUNT
+  - keyword: ON
+- statement:
+  - keyword: SET
+  - keyword: DEADLOCK_PRIORITY
+  - keyword: LOW
+- statement:
+  - keyword: SET
+  - keyword: DEADLOCK_PRIORITY
+  - keyword: NORMAL
+- statement:
+  - keyword: SET
+  - keyword: DEADLOCK_PRIORITY
+  - keyword: HIGH
+- statement:
+  - keyword: SET
+  - keyword: DEADLOCK_PRIORITY
   - tsql_variable: '@deadlock_var'
-  - word: SET
-  - word: DEADLOCK_PRIORITY
+- statement:
+  - keyword: SET
+  - keyword: DEADLOCK_PRIORITY
   - numeric_literal: '10'
+- file:
   - word: SET
   - word: DEADLOCK_PRIORITY
   - minus: '-'

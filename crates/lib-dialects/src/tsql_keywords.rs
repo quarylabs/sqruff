@@ -208,6 +208,7 @@ pub(crate) fn tsql_additional_reserved_keywords() -> AHashSet<&'static str> {
 
 /// T-SQL future keywords from Microsoft documentation
 /// These are potential reserved keywords in future versions
+#[allow(dead_code)]
 pub(crate) fn tsql_future_keywords() -> AHashSet<&'static str> {
     [
         // Future Keywords (from Microsoft documentation)

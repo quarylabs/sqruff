@@ -89,6 +89,12 @@ pub fn raw_dialect() -> Dialect {
                 r"@@?[a-zA-Z_][a-zA-Z0-9_]*",
                 SyntaxKind::TsqlVariable,
             ),
+            // Unicode string literals: N'text'
+            Matcher::regex(
+                "unicode_single_quote",
+                r"N'([^']|'')*'",
+                SyntaxKind::UnicodeSingleQuote,
+            ),
         ],
         "equals",
     );
@@ -647,11 +653,20 @@ pub fn raw_dialect() -> Dialect {
     dialect.add([
         (
             "BatchSeparatorSegment".into(),
-            Ref::new("BatchSeparatorGrammar").to_matchable().into(),
+            NodeMatcher::new(SyntaxKind::BatchSeparator, |_| {
+                Sequence::new(vec_of_erased![
+                    Ref::keyword("GO"),
+                    // GO can optionally be followed by a count (e.g., GO 10)
+                    Ref::new("NumericLiteralSegment").optional()
+                ])
+                .to_matchable()
+            })
+            .to_matchable()
+            .into(),
         ),
         (
             "BatchSeparatorGrammar".into(),
-            Ref::keyword("GO").to_matchable().into(),
+            Ref::new("BatchSeparatorSegment").to_matchable().into(),
         ),
         (
             "BatchDelimiterGrammar".into(),
@@ -660,14 +675,26 @@ pub fn raw_dialect() -> Dialect {
     ]);
 
     // Override FileSegment to handle T-SQL batch separators (GO statements)
+    // This creates a file structure where GO separates batches of statements
     dialect.replace_grammar(
         "FileSegment",
-        AnyNumberOf::new(vec_of_erased![
-            one_of(vec_of_erased![
-                Ref::new("StatementSegment"),
+        Sequence::new(vec_of_erased![
+            // Allow GO at the start of the file
+            AnyNumberOf::new(vec_of_erased![
                 Ref::new("BatchDelimiterGrammar"),
+                Ref::new("DelimiterGrammar").optional()
             ]),
-            Ref::new("DelimiterGrammar").optional(),
+            // Main content: statements optionally separated by GO
+            AnyNumberOf::new(vec_of_erased![
+                Ref::new("StatementSegment"),
+                Ref::new("DelimiterGrammar").optional(),
+                // GO acts as a batch separator
+                Sequence::new(vec_of_erased![
+                    Ref::new("BatchDelimiterGrammar"),
+                    Ref::new("DelimiterGrammar").optional()
+                ])
+                .config(|this| this.optional())
+            ])
         ])
         .to_matchable(),
     );
@@ -687,7 +714,7 @@ pub fn raw_dialect() -> Dialect {
             Ref::new("WhileStatementGrammar"),
             Ref::new("GotoStatementSegment"),
             Ref::new("LabelSegment"),
-            Ref::new("BatchSeparatorGrammar"),
+            // Note: BatchSeparatorGrammar (GO) removed - handled at file level only
             Ref::new("UseStatementGrammar"),
             // Include all ANSI statement types
             Ref::new("SelectableGrammar"),
@@ -1372,8 +1399,12 @@ pub fn raw_dialect() -> Dialect {
         one_of(vec_of_erased![
             // T-SQL alias equals pattern: AliasName = Expression
             Sequence::new(vec_of_erased![
-                Ref::new("NakedIdentifierSegment"),
-                StringParser::new("=", SyntaxKind::RawComparisonOperator),
+                one_of(vec_of_erased![
+                    Ref::new("NakedIdentifierSegment"),
+                    Ref::new("QuotedIdentifierSegment")
+                ]),
+                // Use AssignmentOperator instead of RawComparisonOperator to distinguish from WHERE clause comparisons
+                StringParser::new("=", SyntaxKind::AssignmentOperator),
                 one_of(vec_of_erased![
                     Ref::new("ColumnReferenceSegment"),
                     Ref::new("BaseExpressionElementGrammar")

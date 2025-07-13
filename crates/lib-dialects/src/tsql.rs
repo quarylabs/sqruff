@@ -707,15 +707,15 @@ pub fn raw_dialect() -> Dialect {
             Ref::new("BeginEndBlockGrammar"),
             Ref::new("TryBlockSegment"),
             Ref::new("AtomicBlockSegment"),
-            Ref::new("DeclareStatementGrammar"),
-            Ref::new("SetVariableStatementGrammar"),
-            Ref::new("PrintStatementGrammar"),
-            Ref::new("IfStatementGrammar"),
-            Ref::new("WhileStatementGrammar"),
+            Ref::new("DeclareStatementSegment"),
+            Ref::new("SetVariableStatementSegment"),
+            Ref::new("PrintStatementSegment"),
+            Ref::new("IfStatementSegment"),
+            Ref::new("WhileStatementSegment"),
             Ref::new("GotoStatementSegment"),
             Ref::new("LabelSegment"),
             // Note: BatchSeparatorGrammar (GO) removed - handled at file level only
-            Ref::new("UseStatementGrammar"),
+            Ref::new("UseStatementSegment"),
             // Include all ANSI statement types
             Ref::new("SelectableGrammar"),
             Ref::new("MergeStatementSegment"),
@@ -1110,11 +1110,20 @@ pub fn raw_dialect() -> Dialect {
         .into(),
     )]);
 
+    // Add Unicode literal segment for N'...' strings
+    dialect.add([(
+        "UnicodeLiteralSegment".into(),
+        TypedParser::new(SyntaxKind::UnicodeSingleQuote, SyntaxKind::QuotedLiteral)
+            .to_matchable()
+            .into(),
+    )]);
+
     // Add T-SQL variable support to LiteralGrammar
     dialect.add([(
         "LiteralGrammar".into(),
         one_of(vec_of_erased![
             Ref::new("QuotedLiteralSegment"),
+            Ref::new("UnicodeLiteralSegment"), // Add Unicode strings
             Ref::new("NumericLiteralSegment"),
             Ref::new("BooleanLiteralGrammar"),
             Ref::new("QualifiedNumericLiteralSegment"),

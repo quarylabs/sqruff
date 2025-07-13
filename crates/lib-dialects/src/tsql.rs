@@ -1370,13 +1370,9 @@ pub fn raw_dialect() -> Dialect {
                 Ref::new("EqualsSegment"),
                 one_of(vec_of_erased![
                     Ref::new("QuotedLiteralSegment"),
+                    Ref::new("UnicodeLiteralSegment"), // Add Unicode literal support
                     Ref::new("NumericLiteralSegment"),
                     Ref::new("NakedIdentifierSegment"),
-                    // N'string' syntax for Unicode strings
-                    Sequence::new(vec_of_erased![
-                        Ref::new("NakedIdentifierSegment"), // N prefix
-                        Ref::new("QuotedLiteralSegment")
-                    ]),
                     // Special handling for multi-word isolation levels
                     Sequence::new(vec_of_erased![
                         Ref::keyword("REPEATABLE"),
@@ -1385,14 +1381,7 @@ pub fn raw_dialect() -> Dialect {
                     Ref::keyword("SERIALIZABLE"),
                     Ref::keyword("SNAPSHOT"),
                     Ref::keyword("ON"),
-                    Ref::keyword("OFF"),
-                    // Date format values
-                    Ref::keyword("MDY"),
-                    Ref::keyword("DMY"),
-                    Ref::keyword("YMD"),
-                    Ref::keyword("YDM"),
-                    Ref::keyword("MYD"),
-                    Ref::keyword("DYM")
+                    Ref::keyword("OFF")
                 ])
             ])
             .to_matchable()

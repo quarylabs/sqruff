@@ -7,15 +7,14 @@ file:
       - quoted_identifier: '[PROCEDURE_NAME]'
     - keyword: AS
     - statement:
-      - begin_end_block:
-        - keyword: BEGIN
-        - select_statement:
-          - select_clause:
-            - keyword: SELECT
-            - select_clause_element:
-              - numeric_literal: '1'
-        - statement_terminator: ;
-        - keyword: END
+      - keyword: BEGIN
+      - select_statement:
+        - select_clause:
+          - keyword: SELECT
+          - select_clause_element:
+            - numeric_literal: '1'
+      - statement_terminator: ;
+      - keyword: END
 - statement_terminator: ;
 - statement:
   - keyword: GO
@@ -29,15 +28,14 @@ file:
       - quoted_identifier: '[TEST]'
     - keyword: AS
     - statement:
-      - begin_end_block:
-        - keyword: BEGIN
-        - select_statement:
-          - select_clause:
-            - keyword: SELECT
-            - select_clause_element:
-              - numeric_literal: '1'
-        - statement_terminator: ;
-        - keyword: END
+      - keyword: BEGIN
+      - select_statement:
+        - select_clause:
+          - keyword: SELECT
+          - select_clause_element:
+            - numeric_literal: '1'
+      - statement_terminator: ;
+      - keyword: END
 - statement_terminator: ;
 - statement:
   - keyword: GO
@@ -49,15 +47,14 @@ file:
       - quoted_identifier: '[PROCEDURE_NAME]'
     - keyword: AS
     - statement:
-      - begin_end_block:
-        - keyword: BEGIN
-        - select_statement:
-          - select_clause:
-            - keyword: SELECT
-            - select_clause_element:
-              - numeric_literal: '1'
-        - statement_terminator: ;
-        - keyword: END
+      - keyword: BEGIN
+      - select_statement:
+        - select_clause:
+          - keyword: SELECT
+          - select_clause_element:
+            - numeric_literal: '1'
+      - statement_terminator: ;
+      - keyword: END
 - statement_terminator: ;
 - statement:
   - keyword: GO
@@ -69,15 +66,14 @@ file:
       - quoted_identifier: '[PROCEDURE_NAME]'
     - keyword: AS
     - statement:
-      - begin_end_block:
-        - keyword: BEGIN
-        - select_statement:
-          - select_clause:
-            - keyword: SELECT
-            - select_clause_element:
-              - numeric_literal: '1'
-        - statement_terminator: ;
-        - keyword: END
+      - keyword: BEGIN
+      - select_statement:
+        - select_clause:
+          - keyword: SELECT
+          - select_clause_element:
+            - numeric_literal: '1'
+      - statement_terminator: ;
+      - keyword: END
 - statement_terminator: ;
 - statement:
   - keyword: GO
@@ -91,15 +87,14 @@ file:
       - quoted_identifier: '[PROCEDURE_NAME]'
     - keyword: AS
     - statement:
-      - begin_end_block:
-        - keyword: BEGIN
-        - select_statement:
-          - select_clause:
-            - keyword: SELECT
-            - select_clause_element:
-              - numeric_literal: '1'
-        - statement_terminator: ;
-        - keyword: END
+      - keyword: BEGIN
+      - select_statement:
+        - select_clause:
+          - keyword: SELECT
+          - select_clause_element:
+            - numeric_literal: '1'
+      - statement_terminator: ;
+      - keyword: END
 - statement_terminator: ;
 - statement:
   - keyword: GO
@@ -113,15 +108,14 @@ file:
       - quoted_identifier: '[PROCEDURE_NAME]'
     - keyword: AS
     - statement:
-      - begin_end_block:
-        - keyword: BEGIN
-        - select_statement:
-          - select_clause:
-            - keyword: SELECT
-            - select_clause_element:
-              - numeric_literal: '1'
-        - statement_terminator: ;
-        - keyword: END
+      - keyword: BEGIN
+      - select_statement:
+        - select_clause:
+          - keyword: SELECT
+          - select_clause_element:
+            - numeric_literal: '1'
+      - statement_terminator: ;
+      - keyword: END
 - statement_terminator: ;
 - statement:
   - keyword: GO
@@ -135,12 +129,10 @@ file:
       - quoted_identifier: '[TEST]'
     - bracketed:
       - start_bracket: (
-      - procedure_parameter:
-        - parameter_name:
-          - tsql_variable: '@id'
+      - tsql_variable: '@id'
+      - data_type:
         - data_type:
-          - data_type:
-            - data_type_identifier: UNIQUEIDENTIFIER
+          - data_type_identifier: UNIQUEIDENTIFIER
       - end_bracket: )
     - keyword: AS
     - statement:
@@ -162,108 +154,98 @@ file:
       - quoted_identifier: '[TEST]'
     - bracketed:
       - start_bracket: (
-      - procedure_parameter:
-        - parameter_name:
-          - tsql_variable: '@id'
+      - tsql_variable: '@id'
+      - data_type:
         - data_type:
-          - data_type:
-            - data_type_identifier: UNIQUEIDENTIFIER
-        - keyword: 'NULL'
-        - comparison_operator:
-          - raw_comparison_operator: =
-        - null_literal: 'NULL'
+          - data_type_identifier: UNIQUEIDENTIFIER
+      - keyword: 'NULL'
+      - comparison_operator:
+        - raw_comparison_operator: =
+      - null_literal: 'NULL'
       - comma: ','
-      - procedure_parameter:
-        - parameter_name:
-          - tsql_variable: '@fooReadonly'
+      - tsql_variable: '@fooReadonly'
+      - data_type:
         - data_type:
-          - data_type:
-            - data_type_identifier: NVARCHAR
-            - bracketed_arguments:
-              - bracketed:
-                - start_bracket: (
-                - numeric_literal: '42'
-                - end_bracket: )
-        - comparison_operator:
-          - raw_comparison_operator: =
-        - naked_identifier: N
-        - quoted_literal: '''foo'''
-        - keyword: READONLY
+          - data_type_identifier: NVARCHAR
+          - bracketed_arguments:
+            - bracketed:
+              - start_bracket: (
+              - numeric_literal: '42'
+              - end_bracket: )
+      - comparison_operator:
+        - raw_comparison_operator: =
+      - naked_identifier: N
+      - quoted_literal: '''foo'''
+      - keyword: READONLY
       - comma: ','
-      - procedure_parameter:
-        - parameter_name:
-          - tsql_variable: '@bar'
+      - tsql_variable: '@bar'
+      - data_type:
         - data_type:
-          - data_type:
-            - data_type_identifier: BIT
-        - keyword: VARYING
-        - keyword: 'NULL'
-        - comparison_operator:
-          - raw_comparison_operator: =
-        - null_literal: 'NULL'
-        - keyword: OUTPUT
+          - data_type_identifier: BIT
+      - keyword: VARYING
+      - keyword: 'NULL'
+      - comparison_operator:
+        - raw_comparison_operator: =
+      - null_literal: 'NULL'
+      - keyword: OUTPUT
       - comma: ','
-      - procedure_parameter:
-        - parameter_name:
-          - tsql_variable: '@output'
+      - tsql_variable: '@output'
+      - data_type:
         - data_type:
-          - data_type:
-            - data_type_identifier: TINYINT
-        - keyword: OUT
+          - data_type_identifier: TINYINT
+      - keyword: OUT
       - end_bracket: )
     - keyword: AS
     - statement:
-      - begin_end_block:
-        - keyword: BEGIN
-        - keyword: SET
-        - tsql_variable: '@output'
-        - assignment_operator:
-          - raw_comparison_operator: =
-        - expression:
-          - bracketed:
-            - start_bracket: (
-            - expression:
-              - select_statement:
-                - select_clause:
-                  - keyword: SELECT
-                  - select_clause_element:
-                    - column_reference:
-                      - naked_identifier: tinyint_value
-                - from_clause:
-                  - keyword: FROM
-                  - from_expression:
-                    - from_expression_element:
-                      - table_expression:
-                        - table_reference:
-                          - object_reference:
-                            - naked_identifier: dbo
-                            - dot: .
-                            - naked_identifier: TEST
-            - end_bracket: )
-        - statement_terminator: ;
-        - keyword: IF
-        - expression:
-          - parameterized_expression:
-            - tsql_variable: '@id'
-          - keyword: IS
-          - null_literal: 'NULL'
-        - statement:
-          - begin_end_block:
-            - keyword: BEGIN
+      - keyword: BEGIN
+      - keyword: SET
+      - tsql_variable: '@output'
+      - assignment_operator:
+        - raw_comparison_operator: =
+      - expression:
+        - bracketed:
+          - start_bracket: (
+          - expression:
             - select_statement:
               - select_clause:
                 - keyword: SELECT
                 - select_clause_element:
-                  - parameterized_expression:
-                    - tsql_variable: '@bar'
-                - comma: ','
-                - select_clause_element:
-                  - parameterized_expression:
-                    - tsql_variable: '@fooReadonly'
-            - statement_terminator: ;
-            - keyword: END
+                  - column_reference:
+                    - naked_identifier: tinyint_value
+              - from_clause:
+                - keyword: FROM
+                - from_expression:
+                  - from_expression_element:
+                    - table_expression:
+                      - table_reference:
+                        - object_reference:
+                          - naked_identifier: dbo
+                          - dot: .
+                          - naked_identifier: TEST
+          - end_bracket: )
+      - statement_terminator: ;
+      - keyword: IF
+      - expression:
+        - parameterized_expression:
+          - tsql_variable: '@id'
+        - keyword: IS
+        - null_literal: 'NULL'
+      - statement:
+        - keyword: BEGIN
+        - select_statement:
+          - select_clause:
+            - keyword: SELECT
+            - select_clause_element:
+              - parameterized_expression:
+                - tsql_variable: '@bar'
+            - comma: ','
+            - select_clause_element:
+              - parameterized_expression:
+                - tsql_variable: '@fooReadonly'
         - statement_terminator: ;
         - keyword: END
+      - statement_terminator: ;
+      - keyword: END
 - statement_terminator: ;
 - statement:
   - keyword: GO
@@ -277,32 +259,28 @@ file:
       - quoted_identifier: '[TEST]'
     - bracketed:
       - start_bracket: (
-      - procedure_parameter:
-        - parameter_name:
-          - tsql_variable: '@id'
+      - tsql_variable: '@id'
+      - data_type:
         - data_type:
-          - data_type:
-            - data_type_identifier: UNIQUEIDENTIFIER
-        - keyword: 'NULL'
-        - comparison_operator:
-          - raw_comparison_operator: =
-        - null_literal: 'NULL'
+          - data_type_identifier: UNIQUEIDENTIFIER
+      - keyword: 'NULL'
+      - comparison_operator:
+        - raw_comparison_operator: =
+      - null_literal: 'NULL'
       - comma: ','
-      - procedure_parameter:
-        - parameter_name:
-          - tsql_variable: '@bar'
+      - tsql_variable: '@bar'
+      - data_type:
         - data_type:
-          - data_type:
-            - data_type_identifier: NVARCHAR
-            - bracketed_arguments:
-              - bracketed:
-                - start_bracket: (
-                - numeric_literal: '32'
-                - end_bracket: )
-        - keyword: 'NULL'
-        - comparison_operator:
-          - raw_comparison_operator: =
-        - null_literal: 'NULL'
+          - data_type_identifier: NVARCHAR
+          - bracketed_arguments:
+            - bracketed:
+              - start_bracket: (
+              - numeric_literal: '32'
+              - end_bracket: )
+      - keyword: 'NULL'
+      - comparison_operator:
+        - raw_comparison_operator: =
+      - null_literal: 'NULL'
       - end_bracket: )
     - keyword: WITH
     - keyword: ENCRYPTION
@@ -314,15 +292,14 @@ file:
     - quoted_literal: '''sa'''
     - keyword: AS
     - statement:
-      - begin_end_block:
-        - keyword: BEGIN
-        - select_statement:
-          - select_clause:
-            - keyword: SELECT
-            - select_clause_element:
-              - numeric_literal: '1'
-        - statement_terminator: ;
-        - keyword: END
+      - keyword: BEGIN
+      - select_statement:
+        - select_clause:
+          - keyword: SELECT
+          - select_clause_element:
+            - numeric_literal: '1'
+      - statement_terminator: ;
+      - keyword: END
 - statement_terminator: ;
 - statement:
   - keyword: GO
@@ -336,32 +313,28 @@ file:
       - quoted_identifier: '[TEST]'
     - bracketed:
       - start_bracket: (
-      - procedure_parameter:
-        - parameter_name:
-          - tsql_variable: '@id'
+      - tsql_variable: '@id'
+      - data_type:
         - data_type:
-          - data_type:
-            - data_type_identifier: UNIQUEIDENTIFIER
-        - keyword: 'NULL'
-        - comparison_operator:
-          - raw_comparison_operator: =
-        - null_literal: 'NULL'
+          - data_type_identifier: UNIQUEIDENTIFIER
+      - keyword: 'NULL'
+      - comparison_operator:
+        - raw_comparison_operator: =
+      - null_literal: 'NULL'
       - comma: ','
-      - procedure_parameter:
-        - parameter_name:
-          - tsql_variable: '@bar'
+      - tsql_variable: '@bar'
+      - data_type:
         - data_type:
-          - data_type:
-            - data_type_identifier: NVARCHAR
-            - bracketed_arguments:
-              - bracketed:
-                - start_bracket: (
-                - numeric_literal: '32'
-                - end_bracket: )
-        - keyword: 'NULL'
-        - comparison_operator:
-          - raw_comparison_operator: =
-        - null_literal: 'NULL'
+          - data_type_identifier: NVARCHAR
+          - bracketed_arguments:
+            - bracketed:
+              - start_bracket: (
+              - numeric_literal: '32'
+              - end_bracket: )
+      - keyword: 'NULL'
+      - comparison_operator:
+        - raw_comparison_operator: =
+      - null_literal: 'NULL'
       - end_bracket: )
     - keyword: WITH
     - keyword: ENCRYPTION
@@ -375,20 +348,19 @@ file:
     - keyword: REPLICATION
     - keyword: AS
     - statement:
-      - begin_end_block:
-        - keyword: BEGIN
-        - select_statement:
-          - select_clause:
-            - keyword: SELECT
-            - select_clause_element:
-              - parameterized_expression:
-                - tsql_variable: '@id'
-            - comma: ','
-            - select_clause_element:
-              - parameterized_expression:
-                - tsql_variable: '@bar'
-        - statement_terminator: ;
-        - keyword: END
+      - keyword: BEGIN
+      - select_statement:
+        - select_clause:
+          - keyword: SELECT
+          - select_clause_element:
+            - parameterized_expression:
+              - tsql_variable: '@id'
+          - comma: ','
+          - select_clause_element:
+            - parameterized_expression:
+              - tsql_variable: '@bar'
+      - statement_terminator: ;
+      - keyword: END
 - statement_terminator: ;
 - statement:
   - keyword: GO
@@ -404,14 +376,12 @@ file:
       - quoted_identifier: '[TEST]'
     - bracketed:
       - start_bracket: (
-      - procedure_parameter:
-        - parameter_name:
-          - tsql_variable: '@id'
+      - tsql_variable: '@id'
+      - data_type:
         - data_type:
-          - data_type:
-            - data_type_identifier: INT
-        - keyword: NOT
-        - keyword: 'NULL'
+          - data_type_identifier: INT
+      - keyword: NOT
+      - keyword: 'NULL'
       - end_bracket: )
     - keyword: WITH
     - keyword: NATIVE_COMPILATION
@@ -478,14 +448,12 @@ file:
       - quoted_identifier: '[TEST]'
     - bracketed:
       - start_bracket: (
-      - procedure_parameter:
-        - parameter_name:
-          - tsql_variable: '@id'
+      - tsql_variable: '@id'
+      - data_type:
         - data_type:
-          - data_type:
-            - data_type_identifier: INT
-        - keyword: NOT
-        - keyword: 'NULL'
+          - data_type_identifier: INT
+      - keyword: NOT
+      - keyword: 'NULL'
       - end_bracket: )
     - keyword: WITH
     - keyword: NATIVE_COMPILATION
@@ -536,14 +504,12 @@ file:
       - quoted_identifier: '[TEST]'
     - bracketed:
       - start_bracket: (
-      - procedure_parameter:
-        - parameter_name:
-          - tsql_variable: '@id'
+      - tsql_variable: '@id'
+      - data_type:
         - data_type:
-          - data_type:
-            - data_type_identifier: INT
-        - keyword: NOT
-        - keyword: 'NULL'
+          - data_type_identifier: INT
+      - keyword: NOT
+      - keyword: 'NULL'
       - end_bracket: )
     - keyword: WITH
     - keyword: NATIVE_COMPILATION
@@ -648,42 +614,36 @@ file:
       - quoted_identifier: '[TEST]'
     - bracketed:
       - start_bracket: (
-      - procedure_parameter:
-        - parameter_name:
-          - tsql_variable: '@id'
+      - tsql_variable: '@id'
+      - data_type:
         - data_type:
-          - data_type:
-            - data_type_identifier: UNIQUEIDENTIFIER
-        - comparison_operator:
-          - raw_comparison_operator: =
-        - function:
-          - function_name:
-            - function_name_identifier: NEWID
-          - bracketed:
-            - start_bracket: (
-            - end_bracket: )
+          - data_type_identifier: UNIQUEIDENTIFIER
+      - comparison_operator:
+        - raw_comparison_operator: =
+      - function:
+        - function_name:
+          - function_name_identifier: NEWID
+        - bracketed:
+          - start_bracket: (
+          - end_bracket: )
       - comma: ','
-      - procedure_parameter:
-        - parameter_name:
-          - tsql_variable: '@output'
+      - tsql_variable: '@output'
+      - data_type:
         - data_type:
-          - data_type:
-            - data_type_identifier: NVARCHAR
-            - bracketed_arguments:
-              - bracketed:
-                - start_bracket: (
-                - numeric_literal: '32'
-                - end_bracket: )
-        - keyword: OUTPUT
+          - data_type_identifier: NVARCHAR
+          - bracketed_arguments:
+            - bracketed:
+              - start_bracket: (
+              - numeric_literal: '32'
+              - end_bracket: )
+      - keyword: OUTPUT
       - comma: ','
-      - procedure_parameter:
-        - parameter_name:
-          - tsql_variable: '@activated'
+      - tsql_variable: '@activated'
+      - data_type:
         - data_type:
-          - data_type:
-            - data_type_identifier: BIT
-        - keyword: OUT
-        - keyword: READONLY
+          - data_type_identifier: BIT
+      - keyword: OUT
+      - keyword: READONLY
       - end_bracket: )
     - keyword: WITH
     - keyword: EXECUTE
@@ -713,17 +673,16 @@ file:
       - naked_identifier: DoSomething
     - keyword: AS
     - statement:
-      - begin_end_block:
-        - keyword: BEGIN
-        - keyword: SET
-        - keyword: NOCOUNT
-        - keyword: ON
-        - statement_terminator: ;
-        - keyword: SET
-        - keyword: XACT_ABORT
-        - keyword: ON
-        - statement_terminator: ;
-        - keyword: END
+      - keyword: BEGIN
+      - keyword: SET
+      - keyword: NOCOUNT
+      - keyword: ON
+      - statement_terminator: ;
+      - keyword: SET
+      - keyword: XACT_ABORT
+      - keyword: ON
+      - statement_terminator: ;
+      - keyword: END
 - statement:
   - keyword: GO
 - statement:
@@ -738,14 +697,13 @@ file:
       - naked_identifier: DoSomething
     - keyword: AS
     - statement:
-      - begin_end_block:
-        - keyword: BEGIN
-        - keyword: SET
-        - keyword: NOCOUNT
-        - comma: ','
-        - keyword: XACT_ABORT
-        - keyword: ON
-        - statement_terminator: ;
-        - keyword: END
+      - keyword: BEGIN
+      - keyword: SET
+      - keyword: NOCOUNT
+      - comma: ','
+      - keyword: XACT_ABORT
+      - keyword: ON
+      - statement_terminator: ;
+      - keyword: END
 - statement:
   - keyword: GO

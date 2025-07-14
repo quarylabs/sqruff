@@ -11,23 +11,19 @@ file:
       - naked_identifier: SP_ECDC_CASES_INTER
     - bracketed:
       - start_bracket: (
-      - procedure_parameter:
-        - parameter_name:
-          - tsql_variable: '@Apple'
-        - data_type:
-          - data_type_identifier: '[int]'
+      - tsql_variable: '@Apple'
+      - data_type:
+        - data_type_identifier: '[int]'
       - comma: ','
-      - procedure_parameter:
-        - parameter_name:
-          - tsql_variable: '@Orange'
+      - tsql_variable: '@Orange'
+      - data_type:
         - data_type:
-          - data_type:
-            - data_type_identifier: varchar
-            - bracketed_arguments:
-              - bracketed:
-                - start_bracket: (
-                - numeric_literal: '100'
-                - end_bracket: )
+          - data_type_identifier: varchar
+          - bracketed_arguments:
+            - bracketed:
+              - start_bracket: (
+              - numeric_literal: '100'
+              - end_bracket: )
       - end_bracket: )
     - keyword: AS
     - statement:

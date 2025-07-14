@@ -9,45 +9,44 @@ file:
       - naked_identifier: Test_Begin_End
     - keyword: AS
     - statement:
-      - begin_end_block:
-        - keyword: BEGIN
-        - select_statement:
-          - select_clause:
-            - keyword: SELECT
-            - select_clause_element:
-              - quoted_literal: '''Weekend'''
-        - statement_terminator: ;
-        - select_statement:
-          - select_clause:
-            - keyword: select
-            - select_clause_element:
-              - column_reference:
-                - naked_identifier: a
-          - from_clause:
-            - keyword: from
-            - from_expression:
-              - from_expression_element:
-                - table_expression:
-                  - table_reference:
-                    - object_reference:
-                      - naked_identifier: tbl1
-        - statement_terminator: ;
-        - select_statement:
-          - select_clause:
-            - keyword: select
-            - select_clause_element:
-              - column_reference:
-                - naked_identifier: b
-          - from_clause:
-            - keyword: from
-            - from_expression:
-              - from_expression_element:
-                - table_expression:
-                  - table_reference:
-                    - object_reference:
-                      - naked_identifier: tbl2
-        - statement_terminator: ;
-        - keyword: END
+      - keyword: BEGIN
+      - select_statement:
+        - select_clause:
+          - keyword: SELECT
+          - select_clause_element:
+            - quoted_literal: '''Weekend'''
+      - statement_terminator: ;
+      - select_statement:
+        - select_clause:
+          - keyword: select
+          - select_clause_element:
+            - column_reference:
+              - naked_identifier: a
+        - from_clause:
+          - keyword: from
+          - from_expression:
+            - from_expression_element:
+              - table_expression:
+                - table_reference:
+                  - object_reference:
+                    - naked_identifier: tbl1
+      - statement_terminator: ;
+      - select_statement:
+        - select_clause:
+          - keyword: select
+          - select_clause_element:
+            - column_reference:
+              - naked_identifier: b
+        - from_clause:
+          - keyword: from
+          - from_expression:
+            - from_expression_element:
+              - table_expression:
+                - table_reference:
+                  - object_reference:
+                    - naked_identifier: tbl2
+      - statement_terminator: ;
+      - keyword: END
 - statement_terminator: ;
 - statement:
   - keyword: GO
@@ -59,31 +58,25 @@ file:
       - quoted_identifier: '[dbo]'
       - dot: .
       - quoted_identifier: '[usp_process_tran_log]'
-    - procedure_parameter:
-      - parameter_name:
-        - tsql_variable: '@out_vchCode'
+    - tsql_variable: '@out_vchCode'
+    - data_type:
       - data_type:
-        - data_type:
-          - data_type_identifier: uddt_output_code
-      - keyword: OUTPUT
+        - data_type_identifier: uddt_output_code
+    - keyword: OUTPUT
     - comma: ','
-    - procedure_parameter:
-      - parameter_name:
-        - tsql_variable: '@out_vchMsg'
+    - tsql_variable: '@out_vchMsg'
+    - data_type:
       - data_type:
-        - data_type:
-          - data_type_identifier: uddt_output_msg
-      - keyword: OUTPUT
+        - data_type_identifier: uddt_output_msg
+    - keyword: OUTPUT
     - comma: ','
-    - procedure_parameter:
-      - parameter_name:
-        - tsql_variable: '@in_debug'
+    - tsql_variable: '@in_debug'
+    - data_type:
       - data_type:
-        - data_type:
-          - data_type_identifier: INT
-      - comparison_operator:
-        - raw_comparison_operator: =
-      - numeric_literal: '1'
+        - data_type_identifier: INT
+    - comparison_operator:
+      - raw_comparison_operator: =
+    - numeric_literal: '1'
     - keyword: AS
     - statement:
       - keyword: SET
@@ -91,14 +84,13 @@ file:
       - keyword: ON
 - statement_terminator: ;
 - statement:
-  - begin_end_block:
-    - keyword: BEGIN
-    - select_statement:
-      - select_clause:
-        - keyword: SELECT
-        - select_clause_element:
-          - quoted_literal: '''8'''
-    - keyword: END
+  - keyword: BEGIN
+  - select_statement:
+    - select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+        - quoted_literal: '''8'''
+  - keyword: END
 - statement_terminator: ;
 - statement:
   - keyword: GO
@@ -112,32 +104,26 @@ file:
       - quoted_identifier: '[dbo]'
       - dot: .
       - quoted_identifier: '[usp_process_tran_log]'
-    - procedure_parameter:
-      - parameter_name:
-        - tsql_variable: '@out_vchCode'
+    - tsql_variable: '@out_vchCode'
+    - data_type:
       - data_type:
-        - data_type:
-          - data_type_identifier: uddt_output_code
-      - keyword: OUTPUT
+        - data_type_identifier: uddt_output_code
+    - keyword: OUTPUT
     - comma: ','
-    - procedure_parameter:
-      - parameter_name:
-        - tsql_variable: '@out_vchMsg'
+    - tsql_variable: '@out_vchMsg'
+    - data_type:
       - data_type:
-        - data_type:
-          - data_type_identifier: uddt_output_msg
-      - keyword: OUT
+        - data_type_identifier: uddt_output_msg
+    - keyword: OUT
     - comma: ','
-    - procedure_parameter:
-      - parameter_name:
-        - tsql_variable: '@in_debug'
+    - tsql_variable: '@in_debug'
+    - data_type:
       - data_type:
-        - data_type:
-          - data_type_identifier: INT
-      - comparison_operator:
-        - raw_comparison_operator: =
-      - numeric_literal: '1'
-      - keyword: READONLY
+        - data_type_identifier: INT
+    - comparison_operator:
+      - raw_comparison_operator: =
+    - numeric_literal: '1'
+    - keyword: READONLY
     - keyword: AS
     - statement:
       - keyword: SET
@@ -145,14 +131,13 @@ file:
       - keyword: ON
 - statement_terminator: ;
 - statement:
-  - begin_end_block:
-    - keyword: BEGIN
-    - select_statement:
-      - select_clause:
-        - keyword: SELECT
-        - select_clause_element:
-          - quoted_literal: '''8'''
-    - keyword: END
+  - keyword: BEGIN
+  - select_statement:
+    - select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+        - quoted_literal: '''8'''
+  - keyword: END
 - statement_terminator: ;
 - statement:
   - keyword: GO
@@ -164,31 +149,25 @@ file:
       - quoted_identifier: '[dbo]'
       - dot: .
       - quoted_identifier: '[usp_process_tran_log]'
-    - procedure_parameter:
-      - parameter_name:
-        - tsql_variable: '@out_vchCode'
+    - tsql_variable: '@out_vchCode'
+    - data_type:
       - data_type:
-        - data_type:
-          - data_type_identifier: uddt_output_code
-      - keyword: OUTPUT
+        - data_type_identifier: uddt_output_code
+    - keyword: OUTPUT
     - comma: ','
-    - procedure_parameter:
-      - parameter_name:
-        - tsql_variable: '@out_vchMsg'
+    - tsql_variable: '@out_vchMsg'
+    - data_type:
       - data_type:
-        - data_type:
-          - data_type_identifier: uddt_output_msg
-      - keyword: OUTPUT
+        - data_type_identifier: uddt_output_msg
+    - keyword: OUTPUT
     - comma: ','
-    - procedure_parameter:
-      - parameter_name:
-        - tsql_variable: '@in_debug'
+    - tsql_variable: '@in_debug'
+    - data_type:
       - data_type:
-        - data_type:
-          - data_type_identifier: INT
-      - comparison_operator:
-        - raw_comparison_operator: =
-      - numeric_literal: '1'
+        - data_type_identifier: INT
+    - comparison_operator:
+      - raw_comparison_operator: =
+    - numeric_literal: '1'
     - keyword: AS
     - statement:
       - keyword: SET
@@ -196,86 +175,83 @@ file:
       - keyword: ON
 - statement_terminator: ;
 - statement:
-  - begin_end_block:
-    - keyword: BEGIN
-    - try_block:
-      - keyword: BEGIN
-      - keyword: TRY
-      - statement:
-        - select_statement:
-          - select_clause:
-            - keyword: SELECT
-            - select_clause_element:
-              - quoted_literal: '''8'''
-      - statement_terminator: ;
-      - keyword: END
-      - keyword: TRY
-      - keyword: BEGIN
-      - keyword: CATCH
-      - statement:
-        - keyword: SET
-        - tsql_variable: '@v_nSysErrorNum'
-        - assignment_operator:
-          - raw_comparison_operator: =
-        - expression:
-          - function:
-            - function_name:
-              - function_name_identifier: ERROR_NUMBER
-            - bracketed:
-              - start_bracket: (
-              - end_bracket: )
-      - statement_terminator: ;
-      - statement:
-        - keyword: SET
-        - tsql_variable: '@v_vchCode'
-        - assignment_operator:
-          - raw_comparison_operator: =
-        - expression:
-          - function:
-            - function_name:
-              - function_name_identifier: ERROR_LINE
-            - bracketed:
-              - start_bracket: (
-              - end_bracket: )
-      - statement_terminator: ;
-      - statement:
-        - keyword: SET
+  - keyword: BEGIN
+  - keyword: BEGIN
+  - keyword: TRY
+  - statement:
+    - select_statement:
+      - select_clause:
+        - keyword: SELECT
+        - select_clause_element:
+          - quoted_literal: '''8'''
+  - statement_terminator: ;
+  - keyword: END
+  - keyword: TRY
+  - keyword: BEGIN
+  - keyword: CATCH
+  - statement:
+    - keyword: SET
+    - tsql_variable: '@v_nSysErrorNum'
+    - assignment_operator:
+      - raw_comparison_operator: =
+    - expression:
+      - function:
+        - function_name:
+          - function_name_identifier: ERROR_NUMBER
+        - bracketed:
+          - start_bracket: (
+          - end_bracket: )
+  - statement_terminator: ;
+  - statement:
+    - keyword: SET
+    - tsql_variable: '@v_vchCode'
+    - assignment_operator:
+      - raw_comparison_operator: =
+    - expression:
+      - function:
+        - function_name:
+          - function_name_identifier: ERROR_LINE
+        - bracketed:
+          - start_bracket: (
+          - end_bracket: )
+  - statement_terminator: ;
+  - statement:
+    - keyword: SET
+    - tsql_variable: '@v_vchMsg'
+    - assignment_operator:
+      - raw_comparison_operator: =
+    - expression:
+      - data_type:
+        - data_type_identifier: N
+      - quoted_literal: '''Missing control type.'''
+  - statement_terminator: ;
+  - statement:
+    - keyword: SET
+    - tsql_variable: '@v_vchMsg'
+    - assignment_operator:
+      - raw_comparison_operator: =
+    - expression:
+      - parameterized_expression:
         - tsql_variable: '@v_vchMsg'
-        - assignment_operator:
-          - raw_comparison_operator: =
-        - expression:
-          - data_type:
-            - data_type_identifier: N
-          - quoted_literal: '''Missing control type.'''
-      - statement_terminator: ;
-      - statement:
-        - keyword: SET
-        - tsql_variable: '@v_vchMsg'
-        - assignment_operator:
-          - raw_comparison_operator: =
-        - expression:
-          - parameterized_expression:
-            - tsql_variable: '@v_vchMsg'
-          - binary_operator: +
-          - data_type:
-            - data_type_identifier: N
-          - quoted_literal: ''' SQL Error = '''
-          - binary_operator: +
-          - function:
-            - function_name:
-              - function_name_identifier: ERROR_MESSAGE
-            - bracketed:
-              - start_bracket: (
-              - end_bracket: )
-      - statement_terminator: ;
-      - statement:
-        - goto_statement:
-          - keyword: GOTO
-          - naked_identifier: ERROR_HANDLER
-      - statement_terminator: ;
-      - keyword: END
-      - keyword: CATCH
-    - keyword: END
+      - binary_operator: +
+      - data_type:
+        - data_type_identifier: N
+      - quoted_literal: ''' SQL Error = '''
+      - binary_operator: +
+      - function:
+        - function_name:
+          - function_name_identifier: ERROR_MESSAGE
+        - bracketed:
+          - start_bracket: (
+          - end_bracket: )
+  - statement_terminator: ;
+  - statement:
+    - keyword: GOTO
+    - naked_identifier: ERROR_HANDLER
+  - statement_terminator: ;
+  - keyword: END
+  - keyword: CATCH
+  - keyword: END
 - statement_terminator: ;
 - statement:
   - keyword: GO

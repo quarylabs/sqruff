@@ -411,49 +411,49 @@ pub fn raw_dialect() -> Dialect {
         (
             "BeginEndBlockSegment".into(),
             Sequence::new(vec_of_erased![
-                    Ref::keyword("BEGIN"),
-                    MetaSegment::indent(),
-                    AnyNumberOf::new(vec_of_erased![Sequence::new(vec_of_erased![
-                        one_of(vec_of_erased![
-                            Ref::new("SelectableGrammar"),
-                            Ref::new("InsertStatementSegment"),
-                            Ref::new("UpdateStatementSegment"),
-                            Ref::new("DeleteStatementSegment"),
-                            Ref::new("CreateTableStatementSegment"),
-                            Ref::new("DropTableStatementSegment"),
-                            Ref::new("DeclareStatementSegment"),
-                            Ref::new("SetVariableStatementSegment"),
-                            Ref::new("PrintStatementSegment"),
-                            Ref::new("IfStatementSegment"),
-                            Ref::new("WhileStatementSegment"),
-                            Ref::new("TryBlockSegment"),
-                            Ref::new("GotoStatementSegment"),
-                            Ref::new("LabelSegment"),
-                            Ref::new("BeginEndBlockSegment")
-                        ]),
-                        Ref::new("DelimiterGrammar").optional()
-                    ])])
-                    .config(|this| {
-                        this.terminators = vec_of_erased![
-                            // Terminate on END keyword
-                            Ref::keyword("END"),
-                            // Also terminate on statement keywords to help with boundary detection
-                            Ref::keyword("SELECT"),
-                            Ref::keyword("INSERT"),
-                            Ref::keyword("UPDATE"),
-                            Ref::keyword("DELETE"),
-                            Ref::keyword("CREATE"),
-                            Ref::keyword("DROP"),
-                            Ref::keyword("DECLARE"),
-                            Ref::keyword("SET"),
-                            Ref::keyword("PRINT"),
-                            Ref::keyword("IF"),
-                            Ref::keyword("WHILE"),
-                            Ref::keyword("BEGIN"),
-                            Ref::keyword("GOTO")
-                        ];
-                    })
-                    .config(|this| this.min_times(0)),
+                Ref::keyword("BEGIN"),
+                MetaSegment::indent(),
+                AnyNumberOf::new(vec_of_erased![Sequence::new(vec_of_erased![
+                    one_of(vec_of_erased![
+                        Ref::new("SelectableGrammar"),
+                        Ref::new("InsertStatementSegment"),
+                        Ref::new("UpdateStatementSegment"),
+                        Ref::new("DeleteStatementSegment"),
+                        Ref::new("CreateTableStatementSegment"),
+                        Ref::new("DropTableStatementSegment"),
+                        Ref::new("DeclareStatementSegment"),
+                        Ref::new("SetVariableStatementSegment"),
+                        Ref::new("PrintStatementSegment"),
+                        Ref::new("IfStatementSegment"),
+                        Ref::new("WhileStatementSegment"),
+                        Ref::new("TryBlockSegment"),
+                        Ref::new("GotoStatementSegment"),
+                        Ref::new("LabelSegment"),
+                        Ref::new("BeginEndBlockSegment")
+                    ]),
+                    Ref::new("DelimiterGrammar").optional()
+                ])])
+                .config(|this| {
+                    this.terminators = vec_of_erased![
+                        // Terminate on END keyword
+                        Ref::keyword("END"),
+                        // Also terminate on statement keywords to help with boundary detection
+                        Ref::keyword("SELECT"),
+                        Ref::keyword("INSERT"),
+                        Ref::keyword("UPDATE"),
+                        Ref::keyword("DELETE"),
+                        Ref::keyword("CREATE"),
+                        Ref::keyword("DROP"),
+                        Ref::keyword("DECLARE"),
+                        Ref::keyword("SET"),
+                        Ref::keyword("PRINT"),
+                        Ref::keyword("IF"),
+                        Ref::keyword("WHILE"),
+                        Ref::keyword("BEGIN"),
+                        Ref::keyword("GOTO")
+                    ];
+                })
+                .config(|this| this.min_times(0)),
                 MetaSegment::dedent(),
                 Ref::keyword("END")
             ])
@@ -470,35 +470,35 @@ pub fn raw_dialect() -> Dialect {
     dialect.add([(
         "TryBlockSegment".into(),
         Sequence::new(vec_of_erased![
-                Ref::keyword("BEGIN"),
-                Ref::keyword("TRY"),
-                MetaSegment::indent(),
-                AnyNumberOf::new(vec_of_erased![Sequence::new(vec_of_erased![
-                    Ref::new("StatementSegment"),
-                    Ref::new("DelimiterGrammar").optional()
-                ])])
-                .config(|this| {
-                    this.terminators = vec_of_erased![Ref::keyword("END")];
-                }),
-                MetaSegment::dedent(),
-                Ref::keyword("END"),
-                Ref::keyword("TRY"),
-                Ref::keyword("BEGIN"),
-                Ref::keyword("CATCH"),
-                MetaSegment::indent(),
-                AnyNumberOf::new(vec_of_erased![Sequence::new(vec_of_erased![
-                    Ref::new("StatementSegment"),
-                    Ref::new("DelimiterGrammar").optional()
-                ])])
-                .config(|this| {
-                    this.terminators = vec_of_erased![Ref::keyword("END")];
-                }),
-                MetaSegment::dedent(),
-                Ref::keyword("END"),
-                Ref::keyword("CATCH")
-            ])
-            .to_matchable()
-            .into(),
+            Ref::keyword("BEGIN"),
+            Ref::keyword("TRY"),
+            MetaSegment::indent(),
+            AnyNumberOf::new(vec_of_erased![Sequence::new(vec_of_erased![
+                Ref::new("StatementSegment"),
+                Ref::new("DelimiterGrammar").optional()
+            ])])
+            .config(|this| {
+                this.terminators = vec_of_erased![Ref::keyword("END")];
+            }),
+            MetaSegment::dedent(),
+            Ref::keyword("END"),
+            Ref::keyword("TRY"),
+            Ref::keyword("BEGIN"),
+            Ref::keyword("CATCH"),
+            MetaSegment::indent(),
+            AnyNumberOf::new(vec_of_erased![Sequence::new(vec_of_erased![
+                Ref::new("StatementSegment"),
+                Ref::new("DelimiterGrammar").optional()
+            ])])
+            .config(|this| {
+                this.terminators = vec_of_erased![Ref::keyword("END")];
+            }),
+            MetaSegment::dedent(),
+            Ref::keyword("END"),
+            Ref::keyword("CATCH")
+        ])
+        .to_matchable()
+        .into(),
     )]);
 
     // GOTO statement and labels
@@ -506,7 +506,7 @@ pub fn raw_dialect() -> Dialect {
         (
             "GotoStatementSegment".into(),
             Sequence::new(vec_of_erased![
-                    Ref::keyword("GOTO"),
+                Ref::keyword("GOTO"),
                 Ref::new("NakedIdentifierSegment") // Label name
             ])
             .to_matchable()
@@ -515,7 +515,7 @@ pub fn raw_dialect() -> Dialect {
         (
             "LabelSegment".into(),
             Sequence::new(vec_of_erased![
-                    Ref::new("NakedIdentifierSegment"), // Label name
+                Ref::new("NakedIdentifierSegment"), // Label name
                 Ref::new("ColonSegment")
             ])
             .to_matchable()
@@ -1209,38 +1209,38 @@ pub fn raw_dialect() -> Dialect {
         (
             "ProcedureParameterGrammar".into(),
             Sequence::new(vec_of_erased![
-                    Ref::new("ParameterNameSegment"),
-                    Ref::new("TsqlDatatypeSegment"),
-                    // Optional VARYING keyword (for cursors and some special types)
-                    Ref::keyword("VARYING").optional(),
-                    // Optional NULL/NOT NULL
-                    Sequence::new(vec_of_erased![
-                        Ref::keyword("NOT").optional(),
-                        Ref::keyword("NULL")
-                    ])
-                    .config(|this| this.optional()),
-                    // Optional default value
-                    Sequence::new(vec_of_erased![
-                        Ref::new("EqualsSegment"),
-                        one_of(vec_of_erased![
-                            Ref::new("LiteralGrammar"),
-                            Ref::keyword("NULL"),
-                            // Function calls as defaults (e.g., NEWID())
-                            Ref::new("FunctionSegment"),
-                            // String literal with prefix (e.g., N'foo')
-                            Sequence::new(vec_of_erased![
-                                Ref::new("NakedIdentifierSegment"), // N, B, X etc.
-                                Ref::new("QuotedLiteralSegment")
-                            ])
+                Ref::new("ParameterNameSegment"),
+                Ref::new("TsqlDatatypeSegment"),
+                // Optional VARYING keyword (for cursors and some special types)
+                Ref::keyword("VARYING").optional(),
+                // Optional NULL/NOT NULL
+                Sequence::new(vec_of_erased![
+                    Ref::keyword("NOT").optional(),
+                    Ref::keyword("NULL")
+                ])
+                .config(|this| this.optional()),
+                // Optional default value
+                Sequence::new(vec_of_erased![
+                    Ref::new("EqualsSegment"),
+                    one_of(vec_of_erased![
+                        Ref::new("LiteralGrammar"),
+                        Ref::keyword("NULL"),
+                        // Function calls as defaults (e.g., NEWID())
+                        Ref::new("FunctionSegment"),
+                        // String literal with prefix (e.g., N'foo')
+                        Sequence::new(vec_of_erased![
+                            Ref::new("NakedIdentifierSegment"), // N, B, X etc.
+                            Ref::new("QuotedLiteralSegment")
                         ])
                     ])
-                    .config(|this| this.optional()),
-                    // Optional parameter modifiers (can appear in any order)
-                    AnyNumberOf::new(vec_of_erased![one_of(vec_of_erased![
-                        Ref::keyword("OUT"),
-                        Ref::keyword("OUTPUT"),
-                        Ref::keyword("READONLY")
-                    ])])
+                ])
+                .config(|this| this.optional()),
+                // Optional parameter modifiers (can appear in any order)
+                AnyNumberOf::new(vec_of_erased![one_of(vec_of_erased![
+                    Ref::keyword("OUT"),
+                    Ref::keyword("OUTPUT"),
+                    Ref::keyword("READONLY")
+                ])])
             ])
             .to_matchable()
             .into(),

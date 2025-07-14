@@ -12,7 +12,7 @@ use sqruff_lib_core::parser::grammar::sequence::{Bracketed, Sequence};
 use sqruff_lib_core::parser::lexer::Matcher;
 use sqruff_lib_core::parser::matchable::MatchableTrait;
 use sqruff_lib_core::parser::node_matcher::NodeMatcher;
-use sqruff_lib_core::parser::parsers::{StringParser, TypedParser};
+use sqruff_lib_core::parser::parsers::{RegexParser, StringParser, TypedParser};
 use sqruff_lib_core::parser::segments::meta::MetaSegment;
 use sqruff_lib_core::parser::types::ParseMode;
 use sqruff_lib_core::vec_of_erased;
@@ -26,6 +26,53 @@ pub fn dialect() -> Dialect {
     clickhouse_dialect
         .sets_mut("unreserved_keywords")
         .extend(UNRESERVED_KEYWORDS);
+
+    clickhouse_dialect.add([
+        (
+            "SelectClauseTerminatorGrammar".into(),
+            clickhouse_dialect
+                .grammar("SelectClauseTerminatorGrammar")
+                .copy(
+                    Some(vec_of_erased![one_of(vec_of_erased![
+                        Ref::keyword("PREWHERE"),
+                        Ref::keyword("INTO"),
+                        Ref::keyword("FORMAT"),
+                    ])]),
+                    None,
+                    Some(Ref::keyword("WHERE").to_matchable()),
+                    None,
+                    Vec::new(),
+                    false,
+                )
+                .into(),
+        ),
+        (
+            "FromClauseTerminatorGrammar".into(),
+            clickhouse_dialect
+                .grammar("FromClauseTerminatorGrammar")
+                .copy(
+                    Some(vec_of_erased![one_of(vec_of_erased![
+                        Ref::keyword("PREWHERE"),
+                        Ref::keyword("INTO"),
+                        Ref::keyword("FORMAT"),
+                    ])]),
+                    None,
+                    Some(Ref::keyword("WHERE").to_matchable()),
+                    None,
+                    Vec::new(),
+                    false,
+                )
+                .copy(
+                    Some(vec_of_erased![Ref::new("SettingsClauseSegment")]),
+                    None,
+                    None,
+                    None,
+                    Vec::new(),
+                    false,
+                )
+                .into(),
+        ),
+    ]);
 
     clickhouse_dialect.replace_grammar(
         "FromExpressionElementSegment",
@@ -153,6 +200,60 @@ pub fn dialect() -> Dialect {
             one_of(vec_of_erased![
                 TypedParser::new(SyntaxKind::SingleQuote, SyntaxKind::QuotedLiteral),
                 TypedParser::new(SyntaxKind::DollarQuote, SyntaxKind::QuotedLiteral),
+            ])
+            .to_matchable()
+            .into(),
+        ),
+    ]);
+
+    clickhouse_dialect.add([(
+        "SettingsClauseSegment".into(),
+        Sequence::new(vec_of_erased![
+            Ref::keyword("SETTINGS"),
+            Delimited::new(vec_of_erased![
+                Sequence::new(vec_of_erased![
+                    Ref::new("NakedIdentifierSegment"),
+                    Ref::new("EqualsSegment"),
+                    one_of(vec_of_erased![
+                        Ref::new("NakedIdentifierSegment"),
+                        Ref::new("NumericLiteralSegment"),
+                        Ref::new("QuotedLiteralSegment"),
+                        Ref::new("BooleanLiteralGrammar"),
+                    ]),
+                ])
+                .config(|this| this.optional()),
+            ]),
+        ])
+        .config(|this| this.optional())
+        .to_matchable()
+        .into(),
+    )]);
+
+    clickhouse_dialect.add([
+        (
+            // https://clickhouse.com/docs/interfaces/formats
+            "FormatValueSegment".into(),
+            RegexParser::new("[a-zA-Z]*", SyntaxKind::Word)
+                .to_matchable()
+                .into(),
+        ),
+        (
+            "IntoOutfileClauseSegment".into(),
+            Sequence::new(vec_of_erased![
+                Ref::keyword("INTO"),
+                Ref::keyword("OUTFILE"),
+                Ref::new("QuotedLiteralSegment"),
+                Ref::new("FormatClauseSegment").optional(),
+            ])
+            .to_matchable()
+            .into(),
+        ),
+        (
+            "FormatClauseSegment".into(),
+            Sequence::new(vec_of_erased![
+                Ref::keyword("FORMAT"),
+                Ref::new("FormatValueSegment"),
+                Ref::new("SettingsClauseSegment").optional(),
             ])
             .to_matchable()
             .into(),
@@ -308,6 +409,22 @@ pub fn dialect() -> Dialect {
             .into(),
         ),
     ]);
+
+    clickhouse_dialect.replace_grammar(
+        "SelectStatementSegment",
+        ansi::select_statement().copy(
+            Some(vec_of_erased![
+                Ref::new("FormatClauseSegment").optional(),
+                Ref::new("IntoOutfileClauseSegment").optional(),
+                Ref::new("SettingsClauseSegment").optional(),
+            ]),
+            None,
+            None,
+            None,
+            Vec::new(),
+            false,
+        ),
+    );
 
     clickhouse_dialect.add([(
         "WithFillSegment".into(),

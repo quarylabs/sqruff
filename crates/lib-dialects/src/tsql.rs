@@ -410,8 +410,7 @@ pub fn raw_dialect() -> Dialect {
     dialect.add([
         (
             "BeginEndBlockSegment".into(),
-            NodeMatcher::new(SyntaxKind::BeginEndBlock, |_| {
-                Sequence::new(vec_of_erased![
+            Sequence::new(vec_of_erased![
                     Ref::keyword("BEGIN"),
                     MetaSegment::indent(),
                     AnyNumberOf::new(vec_of_erased![Sequence::new(vec_of_erased![
@@ -455,11 +454,9 @@ pub fn raw_dialect() -> Dialect {
                         ];
                     })
                     .config(|this| this.min_times(0)),
-                    MetaSegment::dedent(),
-                    Ref::keyword("END")
-                ])
-                .to_matchable()
-            })
+                MetaSegment::dedent(),
+                Ref::keyword("END")
+            ])
             .to_matchable()
             .into(),
         ),
@@ -472,8 +469,7 @@ pub fn raw_dialect() -> Dialect {
     // TRY...CATCH blocks
     dialect.add([(
         "TryBlockSegment".into(),
-        NodeMatcher::new(SyntaxKind::TryBlock, |_| {
-            Sequence::new(vec_of_erased![
+        Sequence::new(vec_of_erased![
                 Ref::keyword("BEGIN"),
                 Ref::keyword("TRY"),
                 MetaSegment::indent(),
@@ -502,34 +498,26 @@ pub fn raw_dialect() -> Dialect {
                 Ref::keyword("CATCH")
             ])
             .to_matchable()
-        })
-        .to_matchable()
-        .into(),
+            .into(),
     )]);
 
     // GOTO statement and labels
     dialect.add([
         (
             "GotoStatementSegment".into(),
-            NodeMatcher::new(SyntaxKind::GotoStatement, |_| {
-                Sequence::new(vec_of_erased![
+            Sequence::new(vec_of_erased![
                     Ref::keyword("GOTO"),
-                    Ref::new("NakedIdentifierSegment") // Label name
-                ])
-                .to_matchable()
-            })
+                Ref::new("NakedIdentifierSegment") // Label name
+            ])
             .to_matchable()
             .into(),
         ),
         (
             "LabelSegment".into(),
-            NodeMatcher::new(SyntaxKind::Label, |_| {
-                Sequence::new(vec_of_erased![
+            Sequence::new(vec_of_erased![
                     Ref::new("NakedIdentifierSegment"), // Label name
-                    Ref::new("ColonSegment")
-                ])
-                .to_matchable()
-            })
+                Ref::new("ColonSegment")
+            ])
             .to_matchable()
             .into(),
         ),
@@ -1220,8 +1208,7 @@ pub fn raw_dialect() -> Dialect {
         ),
         (
             "ProcedureParameterGrammar".into(),
-            NodeMatcher::new(SyntaxKind::ProcedureParameter, |_| {
-                Sequence::new(vec_of_erased![
+            Sequence::new(vec_of_erased![
                     Ref::new("ParameterNameSegment"),
                     Ref::new("TsqlDatatypeSegment"),
                     // Optional VARYING keyword (for cursors and some special types)
@@ -1254,19 +1241,13 @@ pub fn raw_dialect() -> Dialect {
                         Ref::keyword("OUTPUT"),
                         Ref::keyword("READONLY")
                     ])])
-                ])
-                .to_matchable()
-            })
+            ])
             .to_matchable()
             .into(),
         ),
         (
             "ParameterNameSegment".into(),
-            NodeMatcher::new(SyntaxKind::ParameterName, |_| {
-                Ref::new("TsqlVariableSegment").to_matchable()
-            })
-            .to_matchable()
-            .into(),
+            Ref::new("TsqlVariableSegment").to_matchable().into(),
         ),
         (
             "ExecuteAsClauseGrammar".into(),

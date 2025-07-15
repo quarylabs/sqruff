@@ -25,6 +25,7 @@ pub(crate) fn tsql_additional_reserved_keywords() -> AHashSet<&'static str> {
         "BY",
         "CASCADE",
         "CASE",
+        "CATCH",
         "CHECK",
         "CHECKPOINT",
         "CLOSE",
@@ -64,6 +65,12 @@ pub(crate) fn tsql_additional_reserved_keywords() -> AHashSet<&'static str> {
         "ELSE",
         "END",
         "ERRLVL",
+        "ERROR_LINE",
+        "ERROR_MESSAGE",
+        "ERROR_NUMBER",
+        "ERROR_PROCEDURE",
+        "ERROR_SEVERITY",
+        "ERROR_STATE",
         "ESCAPE",
         "EXCEPT",
         "EXEC",
@@ -174,6 +181,7 @@ pub(crate) fn tsql_additional_reserved_keywords() -> AHashSet<&'static str> {
         "TRANSACTION",
         "TRIGGER",
         "TRUNCATE",
+        "TRY",
         "TRY_CONVERT",
         "TSEQUAL",
         "UNION",
@@ -200,6 +208,7 @@ pub(crate) fn tsql_additional_reserved_keywords() -> AHashSet<&'static str> {
 
 /// T-SQL future keywords from Microsoft documentation
 /// These are potential reserved keywords in future versions
+#[allow(dead_code)]
 pub(crate) fn tsql_future_keywords() -> AHashSet<&'static str> {
     [
         // Future Keywords (from Microsoft documentation)
@@ -489,9 +498,61 @@ pub(crate) fn tsql_future_keywords() -> AHashSet<&'static str> {
 /// These are keywords that can be used as identifiers without quoting
 /// T-SQL additional unreserved keywords (to be added to ANSI keywords)
 pub(crate) fn tsql_additional_unreserved_keywords() -> AHashSet<&'static str> {
-    // Include all future keywords as unreserved keywords
-    // This allows them to be recognized but still used as identifiers
-    tsql_future_keywords()
+    [
+        // T-SQL SET options that can be used as identifiers
+        "NOCOUNT",
+        "XACT_ABORT",
+        "QUOTED_IDENTIFIER",
+        "ANSI_NULLS",
+        "ANSI_PADDING",
+        "ANSI_WARNINGS",
+        "ARITHABORT",
+        "CONCAT_NULL_YIELDS_NULL",
+        "NUMERIC_ROUNDABORT",
+        "DEADLOCK_PRIORITY",
+        "DATEFIRST",
+        "DATEFORMAT",
+        "DELAYED_DURABILITY",
+        // Function names that can be used as identifiers
+        "NEWID",
+        // T-SQL priority and format values
+        "LOW",
+        "NORMAL",
+        "HIGH",
+        "MDY",
+        "DMY",
+        "YMD",
+        "YDM",
+        "MYD",
+        "DYM",
+        // Transaction isolation levels
+        "SERIALIZABLE",
+        "SNAPSHOT",
+        "ISOLATION",
+        "LEVEL",
+        // Azure Synapse Analytics keywords that can be identifiers
+        "DISTRIBUTION",
+        "ROUND_ROBIN",
+        "REPLICATE",
+        "HASH",
+        "HEAP",
+        "COLUMNSTORE",
+        "PARTITION",
+        "RANGE",
+        // Common T-SQL keywords that can be used as identifiers
+        "ATOMIC",
+        // Procedure parameter modifiers
+        "READONLY",
+        // CREATE PROCEDURE WITH clause options
+        "ENCRYPTION",
+        "RECOMPILE",
+        "NATIVE_COMPILATION",
+        "SCHEMABINDING",
+        "CALLER",
+        "OWNER",
+    ]
+    .into_iter()
+    .collect()
 }
 
 /// Complete T-SQL reserved keywords (ANSI + T-SQL specific) - for backwards compatibility

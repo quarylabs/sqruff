@@ -1183,8 +1183,6 @@ test_fail_hanging_indents_fix_mixed_indents:
     FROM tbl as a
 
 test_pass_indented_procedure_parameters:
-  # TODO: Fix T-SQL CREATE PROCEDURE parsing
-  ignored: "T-SQL CREATE PROCEDURE syntax not fully supported"
   pass_str: |
     CREATE OR ALTER PROCEDURE some_procedure
         @param1 int
@@ -1194,8 +1192,6 @@ test_pass_indented_procedure_parameters:
       dialect: tsql
 
 test_fail_unindented_procedure_parameters:
-  # TODO: Fix T-SQL CREATE PROCEDURE parsing
-  ignored: "T-SQL CREATE PROCEDURE syntax not fully supported"
   fail_str: |
     CREATE OR ALTER PROCEDURE someOtherProcedure
     @param1 nvarchar(100),
@@ -1214,8 +1210,6 @@ test_tsql_bubble_up_newline_after_fix:
   # Tests issue 3303, where an LT02 fix leaves a newline as the final child
   # segment that has to be "bubbled up" two levels to avoid violating the
   # _is_code_or_meta() check in core/parser/segments/base.py.
-  # TODO: Fix T-SQL CREATE PROCEDURE parsing
-  ignored: "T-SQL CREATE PROCEDURE syntax not fully supported"
   fail_str: |
     create procedure name as
     begin

@@ -1,0 +1,34 @@
+file:
+- statement:
+  - drop_procedure_statement:
+    - keyword: DROP
+    - keyword: PROCEDURE
+    - object_reference:
+      - naked_identifier: procedure_name
+- statement_terminator: ;
+- statement:
+  - drop_procedure_statement:
+    - keyword: DROP
+    - keyword: PROC
+    - object_reference:
+      - naked_identifier: procedure_name
+- statement_terminator: ;
+- statement:
+  - drop_procedure_statement:
+    - keyword: DROP
+    - keyword: PROCEDURE
+    - keyword: IF
+    - keyword: EXISTS
+    - object_reference:
+      - naked_identifier: procedure_name
+- statement_terminator: ;
+- statement:
+  - drop_procedure_statement:
+    - keyword: DROP
+    - keyword: PROCEDURE
+    - object_reference:
+      - naked_identifier: procedure_name1
+    - comma: ','
+    - object_reference:
+      - naked_identifier: procedure_name2
+- statement_terminator: ;

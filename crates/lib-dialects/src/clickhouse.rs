@@ -898,6 +898,46 @@ pub fn dialect() -> Dialect {
         .to_matchable(),
     );
 
+    // https://clickhouse.com/docs/sql-reference/statements/rename
+    clickhouse_dialect.add([(
+        "RenameStatementSegment".into(),
+        NodeMatcher::new(SyntaxKind::RenameTableStatement, |_| {
+            Sequence::new(vec_of_erased![
+                Ref::keyword("RENAME"),
+                one_of(vec_of_erased![
+                    Sequence::new(vec_of_erased![
+                        Ref::keyword("TABLE"),
+                        Delimited::new(vec_of_erased![Sequence::new(vec_of_erased![
+                            Ref::new("TableReferenceSegment"),
+                            Ref::keyword("TO"),
+                            Ref::new("TableReferenceSegment"),
+                        ])]),
+                    ]),
+                    Sequence::new(vec_of_erased![
+                        Ref::keyword("DATABASE"),
+                        Delimited::new(vec_of_erased![Sequence::new(vec_of_erased![
+                            Ref::new("DatabaseReferenceSegment"),
+                            Ref::keyword("TO"),
+                            Ref::new("DatabaseReferenceSegment"),
+                        ])]),
+                    ]),
+                    Sequence::new(vec_of_erased![
+                        Ref::keyword("DICTIONARY"),
+                        Delimited::new(vec_of_erased![Sequence::new(vec_of_erased![
+                            Ref::new("ObjectReferenceSegment"),
+                            Ref::keyword("TO"),
+                            Ref::new("ObjectReferenceSegment"),
+                        ])]),
+                    ]),
+                ]),
+                Ref::new("OnClusterClauseSegment").optional(),
+            ])
+            .to_matchable()
+        })
+        .to_matchable()
+        .into(),
+    )]);
+
     clickhouse_dialect.replace_grammar(
         "CreateTableStatementSegment",
         Sequence::new(vec_of_erased![
@@ -1396,6 +1436,7 @@ pub fn dialect() -> Dialect {
                 Ref::new("DropQuotaStatementSegment"),
                 Ref::new("DropSettingProfileStatementSegment"),
                 Ref::new("SystemStatementSegment"),
+                Ref::new("RenameStatementSegment"),
             ]),
             None,
             None,

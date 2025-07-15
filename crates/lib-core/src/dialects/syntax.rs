@@ -595,6 +595,7 @@ pub enum SyntaxKind {
     MapTypeSchema,
     PrepareStatement,
     ExecuteStatement,
+    RenameTableStatement,
 }
 
 impl SyntaxKind {

@@ -1223,6 +1223,75 @@ pub fn raw_dialect() -> Dialect {
         ),
     ]);
 
+    // CREATE PARTITION FUNCTION statement
+    dialect.add([
+        (
+            "CreatePartitionFunctionSegment".into(),
+            NodeMatcher::new(SyntaxKind::CreateFunctionStatement, |_| {
+                Sequence::new(vec_of_erased![
+                    Ref::keyword("CREATE"),
+                    Ref::keyword("PARTITION"),
+                    Ref::keyword("FUNCTION"),
+                    Ref::new("ObjectReferenceSegment"),
+                    Bracketed::new(vec_of_erased![
+                        Ref::new("DatatypeSegment")
+                    ]),
+                    Ref::keyword("AS"),
+                    Ref::keyword("RANGE"),
+                    one_of(vec_of_erased![
+                        Ref::keyword("LEFT"),
+                        Ref::keyword("RIGHT")
+                    ]),
+                    Ref::keyword("FOR"),
+                    Ref::keyword("VALUES"),
+                    Bracketed::new(vec_of_erased![
+                        Delimited::new(vec_of_erased![
+                            Ref::new("LiteralGrammar")
+                        ])
+                    ])
+                ])
+                .to_matchable()
+            })
+            .to_matchable()
+            .into(),
+        ),
+    ]);
+
+    // ALTER PARTITION FUNCTION statement
+    dialect.add([
+        (
+            "AlterPartitionFunctionSegment".into(),
+            NodeMatcher::new(SyntaxKind::AlterFunctionStatement, |_| {
+                Sequence::new(vec_of_erased![
+                    Ref::keyword("ALTER"),
+                    Ref::keyword("PARTITION"),
+                    Ref::keyword("FUNCTION"),
+                    Ref::new("ObjectReferenceSegment"),
+                    Bracketed::new(vec_of_erased![]), // Empty brackets ()
+                    one_of(vec_of_erased![
+                        Sequence::new(vec_of_erased![
+                            Ref::keyword("SPLIT"),
+                            Ref::keyword("RANGE"),
+                            Bracketed::new(vec_of_erased![
+                                Ref::new("LiteralGrammar")
+                            ])
+                        ]),
+                        Sequence::new(vec_of_erased![
+                            Ref::keyword("MERGE"),
+                            Ref::keyword("RANGE"),
+                            Bracketed::new(vec_of_erased![
+                                Ref::new("LiteralGrammar")
+                            ])
+                        ])
+                    ])
+                ])
+                .to_matchable()
+            })
+            .to_matchable()
+            .into(),
+        ),
+    ]);
+
     // PIVOT and UNPIVOT support
     dialect.add([
         (
@@ -1369,6 +1438,8 @@ pub fn raw_dialect() -> Dialect {
             Ref::new("WaitforStatementSegment"),
             Ref::new("CreateTypeStatementSegment"),
             Ref::new("BulkInsertStatementSegment"),
+            Ref::new("CreatePartitionFunctionSegment"),
+            Ref::new("AlterPartitionFunctionSegment"),
             // Include all ANSI statement types
             Ref::new("SelectableGrammar"),
             Ref::new("MergeStatementSegment"),

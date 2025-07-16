@@ -1,105 +1,134 @@
 file:
-- unparsable:
-  - word: CREATE
-  - word: PARTITION
-  - word: FUNCTION
-  - word: myIntRangePF1
-  - start_bracket: (
-  - word: INT
-  - end_bracket: )
-  - word: AS
-  - word: RANGE
-  - word: LEFT
-  - word: FOR
-  - word: VALUES
-  - start_bracket: (
-  - numeric_literal: '1'
-  - comma: ','
-  - numeric_literal: '100'
-  - comma: ','
-  - numeric_literal: '1000'
-  - end_bracket: )
-  - semicolon: ;
-  - word: CREATE
-  - word: PARTITION
-  - word: FUNCTION
-  - word: myCharRangePF2
-  - start_bracket: (
-  - word: CHAR
-  - start_bracket: (
-  - numeric_literal: '1'
-  - end_bracket: )
-  - end_bracket: )
-  - word: AS
-  - word: RANGE
-  - word: RIGHT
-  - word: FOR
-  - word: VALUES
-  - start_bracket: (
-  - single_quote: '''A'''
-  - comma: ','
-  - single_quote: '''B'''
-  - comma: ','
-  - single_quote: '''C'''
-  - end_bracket: )
-  - semicolon: ;
-  - word: CREATE
-  - word: PARTITION
-  - word: FUNCTION
-  - double_quote: '[myDateRangePF1]'
-  - start_bracket: (
-  - word: date
-  - end_bracket: )
-  - word: AS
-  - word: RANGE
-  - word: RIGHT
-  - word: FOR
-  - word: VALUES
-  - start_bracket: (
-  - single_quote: '''20030201'''
-  - comma: ','
-  - single_quote: '''20030301'''
-  - comma: ','
-  - single_quote: '''20030401'''
-  - comma: ','
-  - single_quote: '''20030501'''
-  - comma: ','
-  - single_quote: '''20030601'''
-  - comma: ','
-  - single_quote: '''20030701'''
-  - comma: ','
-  - single_quote: '''20030801'''
-  - comma: ','
-  - single_quote: '''20030901'''
-  - comma: ','
-  - single_quote: '''20031001'''
-  - comma: ','
-  - single_quote: '''20031101'''
-  - comma: ','
-  - single_quote: '''20031201'''
-  - end_bracket: )
-  - semicolon: ;
-  - word: ALTER
-  - word: PARTITION
-  - word: FUNCTION
-  - word: myIntRangePF1
-  - start_bracket: (
-  - end_bracket: )
-  - word: SPLIT
-  - word: RANGE
-  - start_bracket: (
-  - numeric_literal: '500'
-  - end_bracket: )
-  - semicolon: ;
-  - word: ALTER
-  - word: PARTITION
-  - word: FUNCTION
-  - word: myCharRangePF2
-  - start_bracket: (
-  - end_bracket: )
-  - word: MERGE
-  - word: RANGE
-  - start_bracket: (
-  - single_quote: '''D'''
-  - end_bracket: )
-  - semicolon: ;
+- statement:
+  - create_function_statement:
+    - keyword: CREATE
+    - keyword: PARTITION
+    - keyword: FUNCTION
+    - object_reference:
+      - naked_identifier: myIntRangePF1
+    - bracketed:
+      - start_bracket: (
+      - data_type:
+        - data_type_identifier: INT
+      - end_bracket: )
+    - keyword: AS
+    - keyword: RANGE
+    - keyword: LEFT
+    - keyword: FOR
+    - keyword: VALUES
+    - bracketed:
+      - start_bracket: (
+      - numeric_literal: '1'
+      - comma: ','
+      - numeric_literal: '100'
+      - comma: ','
+      - numeric_literal: '1000'
+      - end_bracket: )
+- statement_terminator: ;
+- statement:
+  - create_function_statement:
+    - keyword: CREATE
+    - keyword: PARTITION
+    - keyword: FUNCTION
+    - object_reference:
+      - naked_identifier: myCharRangePF2
+    - bracketed:
+      - start_bracket: (
+      - data_type:
+        - data_type_identifier: CHAR
+        - bracketed_arguments:
+          - bracketed:
+            - start_bracket: (
+            - numeric_literal: '1'
+            - end_bracket: )
+      - end_bracket: )
+    - keyword: AS
+    - keyword: RANGE
+    - keyword: RIGHT
+    - keyword: FOR
+    - keyword: VALUES
+    - bracketed:
+      - start_bracket: (
+      - quoted_literal: '''A'''
+      - comma: ','
+      - quoted_literal: '''B'''
+      - comma: ','
+      - quoted_literal: '''C'''
+      - end_bracket: )
+- statement_terminator: ;
+- statement:
+  - create_function_statement:
+    - keyword: CREATE
+    - keyword: PARTITION
+    - keyword: FUNCTION
+    - object_reference:
+      - quoted_identifier: '[myDateRangePF1]'
+    - bracketed:
+      - start_bracket: (
+      - data_type:
+        - data_type_identifier: date
+      - end_bracket: )
+    - keyword: AS
+    - keyword: RANGE
+    - keyword: RIGHT
+    - keyword: FOR
+    - keyword: VALUES
+    - bracketed:
+      - start_bracket: (
+      - quoted_literal: '''20030201'''
+      - comma: ','
+      - quoted_literal: '''20030301'''
+      - comma: ','
+      - quoted_literal: '''20030401'''
+      - comma: ','
+      - quoted_literal: '''20030501'''
+      - comma: ','
+      - quoted_literal: '''20030601'''
+      - comma: ','
+      - quoted_literal: '''20030701'''
+      - comma: ','
+      - quoted_literal: '''20030801'''
+      - comma: ','
+      - quoted_literal: '''20030901'''
+      - comma: ','
+      - quoted_literal: '''20031001'''
+      - comma: ','
+      - quoted_literal: '''20031101'''
+      - comma: ','
+      - quoted_literal: '''20031201'''
+      - end_bracket: )
+- statement_terminator: ;
+- statement:
+  - alter_function_statement:
+    - keyword: ALTER
+    - keyword: PARTITION
+    - keyword: FUNCTION
+    - object_reference:
+      - naked_identifier: myIntRangePF1
+    - bracketed:
+      - start_bracket: (
+      - end_bracket: )
+    - keyword: SPLIT
+    - keyword: RANGE
+    - bracketed:
+      - start_bracket: (
+      - numeric_literal: '500'
+      - end_bracket: )
+- statement_terminator: ;
+- statement:
+  - alter_function_statement:
+    - keyword: ALTER
+    - keyword: PARTITION
+    - keyword: FUNCTION
+    - object_reference:
+      - naked_identifier: myCharRangePF2
+    - bracketed:
+      - start_bracket: (
+      - end_bracket: )
+    - keyword: MERGE
+    - keyword: RANGE
+    - bracketed:
+      - start_bracket: (
+      - quoted_literal: '''D'''
+      - end_bracket: )
+- statement_terminator: ;

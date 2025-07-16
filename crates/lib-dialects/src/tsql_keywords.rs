@@ -600,6 +600,11 @@ pub(crate) fn tsql_additional_unreserved_keywords() -> AHashSet<&'static str> {
         "KEEPIDENTITY",
         "KEEPNULLS",
         "TABLOCK",
+        // PARTITION FUNCTION keywords
+        "PARTITION",
+        "SPLIT",
+        "MERGE",
+        "RANGE",
     ]
     .into_iter()
     .collect()

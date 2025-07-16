@@ -4005,6 +4005,110 @@ pub fn raw_dialect() -> Dialect {
         .to_matchable()
         .into(),
     );
+
+    // Override AccessStatementSegment to support T-SQL specific DENY statements and OBJECT:: syntax
+    dialect.add([
+        (
+            "AccessStatementSegment".into(),
+            NodeMatcher::new(SyntaxKind::AccessStatement, |_| {
+                one_of(vec_of_erased![
+                    // GRANT statements
+                    Sequence::new(vec_of_erased![
+                        Ref::keyword("GRANT"),
+                        Ref::new("TsqlPermissionGrammar"),
+                        Ref::keyword("ON"),
+                        Ref::new("TsqlObjectReferenceGrammar"),
+                        Ref::keyword("TO"),
+                        Delimited::new(vec_of_erased![Ref::new("ObjectReferenceSegment")]),
+                        Sequence::new(vec_of_erased![
+                            Ref::keyword("WITH"),
+                            Ref::keyword("GRANT"),
+                            Ref::keyword("OPTION")
+                        ])
+                        .config(|this| this.optional())
+                    ]),
+                    // DENY statements (T-SQL specific)
+                    Sequence::new(vec_of_erased![
+                        Ref::keyword("DENY"),
+                        Ref::new("TsqlPermissionGrammar"),
+                        Ref::keyword("ON"),
+                        Ref::new("TsqlObjectReferenceGrammar"),
+                        Ref::keyword("TO"),
+                        Delimited::new(vec_of_erased![Ref::new("ObjectReferenceSegment")]),
+                        Ref::keyword("CASCADE").optional()
+                    ]),
+                    // REVOKE statements
+                    Sequence::new(vec_of_erased![
+                        Ref::keyword("REVOKE"),
+                        Sequence::new(vec_of_erased![
+                            Ref::keyword("GRANT"),
+                            Ref::keyword("OPTION"),
+                            Ref::keyword("FOR")
+                        ])
+                        .config(|this| this.optional()),
+                        Ref::new("TsqlPermissionGrammar"),
+                        Ref::keyword("ON"),
+                        Ref::new("TsqlObjectReferenceGrammar"),
+                        Ref::keyword("FROM"),
+                        Delimited::new(vec_of_erased![Ref::new("ObjectReferenceSegment")]),
+                        Ref::keyword("CASCADE").optional()
+                    ])
+                ])
+                .to_matchable()
+            })
+            .to_matchable()
+            .into(),
+        ),
+        // T-SQL permission types
+        (
+            "TsqlPermissionGrammar".into(),
+            one_of(vec_of_erased![
+                Ref::keyword("SELECT"),
+                Ref::keyword("INSERT"),
+                Ref::keyword("UPDATE"),
+                Ref::keyword("DELETE"),
+                Ref::keyword("EXECUTE"),
+                Ref::keyword("REFERENCES"),
+                Ref::keyword("ALTER"),
+                Ref::keyword("CONTROL"),
+                Ref::keyword("TAKE"),
+                Ref::keyword("VIEW"),
+                Ref::keyword("IMPERSONATE"),
+                Sequence::new(vec_of_erased![
+                    Ref::keyword("REFERENCES"),
+                    Bracketed::new(vec_of_erased![
+                        Delimited::new(vec_of_erased![Ref::new("ColumnReferenceSegment")])
+                    ])
+                ])
+            ])
+            .to_matchable()
+            .into(),
+        ),
+        // T-SQL object reference with OBJECT:: and SCHEMA:: support
+        (
+            "TsqlObjectReferenceGrammar".into(),
+            one_of(vec_of_erased![
+                // OBJECT::schema.object syntax
+                Sequence::new(vec_of_erased![
+                    Ref::keyword("OBJECT"),
+                    Ref::new("ColonSegment"), // ::
+                    Ref::new("ColonSegment"),
+                    Ref::new("ObjectReferenceSegment")
+                ]),
+                // SCHEMA::schema syntax
+                Sequence::new(vec_of_erased![
+                    Ref::keyword("SCHEMA"),
+                    Ref::new("ColonSegment"), // ::
+                    Ref::new("ColonSegment"),
+                    Ref::new("ObjectReferenceSegment")
+                ]),
+                // Regular object reference
+                Ref::new("ObjectReferenceSegment")
+            ])
+            .to_matchable()
+            .into(),
+        ),
+    ]);
     
     // expand() must be called after all grammar modifications
 

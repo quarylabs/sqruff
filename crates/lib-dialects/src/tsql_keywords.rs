@@ -636,6 +636,8 @@ pub(crate) fn tsql_additional_unreserved_keywords() -> AHashSet<&'static str> {
         "WAIT_AT_LOW_PRIORITY",
         "BLOCKERS",
         "XML_COMPRESSION",
+        "TRUNCATE_TARGET",
+        "SWITCH",
     ]
     .into_iter()
     .collect()

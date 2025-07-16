@@ -1639,6 +1639,74 @@ pub fn raw_dialect() -> Dialect {
         ),
     ]);
 
+    // ALTER TABLE SWITCH statement
+    dialect.add([
+        (
+            "AlterTableSwitchStatementSegment".into(),
+            NodeMatcher::new(SyntaxKind::AlterTableSwitchStatement, |_| {
+                Sequence::new(vec_of_erased![
+                    Ref::keyword("ALTER"),
+                    Ref::keyword("TABLE"),
+                    Ref::new("ObjectReferenceSegment"),
+                    Ref::keyword("SWITCH"),
+                    Sequence::new(vec_of_erased![
+                        Ref::keyword("PARTITION"),
+                        Ref::new("NumericLiteralSegment")
+                    ])
+                    .config(|this| this.optional()),
+                    Ref::keyword("TO"),
+                    Ref::new("ObjectReferenceSegment"),
+                    Sequence::new(vec_of_erased![
+                        Ref::keyword("PARTITION"),
+                        Ref::new("NumericLiteralSegment")
+                    ])
+                    .config(|this| this.optional()),
+                    Sequence::new(vec_of_erased![
+                        Ref::keyword("WITH"),
+                        one_of(vec_of_erased![
+                            // WAIT_AT_LOW_PRIORITY option
+                            Bracketed::new(vec_of_erased![
+                                Ref::keyword("WAIT_AT_LOW_PRIORITY"),
+                                Bracketed::new(vec_of_erased![
+                                    Delimited::new(vec_of_erased![
+                                        Sequence::new(vec_of_erased![
+                                            Ref::keyword("MAX_DURATION"),
+                                            Ref::new("EqualsSegment"),
+                                            Ref::new("NumericLiteralSegment"),
+                                            Ref::keyword("MINUTES").optional()
+                                        ]),
+                                        Sequence::new(vec_of_erased![
+                                            Ref::keyword("ABORT_AFTER_WAIT"),
+                                            Ref::new("EqualsSegment"),
+                                            one_of(vec_of_erased![
+                                                Ref::keyword("NONE"),
+                                                Ref::keyword("SELF"),
+                                                Ref::keyword("BLOCKERS")
+                                            ])
+                                        ])
+                                    ])
+                                ])
+                            ]),
+                            // TRUNCATE_TARGET option (Azure Synapse Analytics)
+                            Bracketed::new(vec_of_erased![
+                                Ref::keyword("TRUNCATE_TARGET"),
+                                Ref::new("EqualsSegment"),
+                                one_of(vec_of_erased![
+                                    Ref::keyword("ON"),
+                                    Ref::keyword("OFF")
+                                ])
+                            ])
+                        ])
+                    ])
+                    .config(|this| this.optional())
+                ])
+                .to_matchable()
+            })
+            .to_matchable()
+            .into(),
+        ),
+    ]);
+
     // PIVOT and UNPIVOT support
     dialect.add([
         (
@@ -1791,6 +1859,7 @@ pub fn raw_dialect() -> Dialect {
             Ref::new("AlterPartitionSchemeSegment"),
             Ref::new("CreateFullTextIndexStatementSegment"),
             Ref::new("AlterIndexStatementSegment"),
+            Ref::new("AlterTableSwitchStatementSegment"),
             // Include all ANSI statement types
             Ref::new("SelectableGrammar"),
             Ref::new("MergeStatementSegment"),

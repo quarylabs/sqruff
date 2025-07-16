@@ -1,99 +1,132 @@
 file:
-- unparsable:
-  - word: ALTER
-  - word: TABLE
-  - double_quote: '[Facility]'
-  - dot: .
-  - double_quote: '[PL_stage]'
-  - word: SWITCH
-  - word: TO
-  - double_quote: '[Facility]'
-  - dot: .
-  - double_quote: '[PL_BASE]'
-  - word: WITH
-  - start_bracket: (
-  - word: TRUNCATE_TARGET
-  - raw_comparison_operator: =
-  - word: ON
-  - end_bracket: )
-  - semicolon: ;
-  - word: ALTER
-  - word: TABLE
-  - double_quote: '[PartitionTable]'
-  - word: SWITCH
-  - word: PARTITION
-  - numeric_literal: '1'
-  - word: TO
-  - word: NonPartitionTable
-  - semicolon: ;
-  - word: ALTER
-  - word: TABLE
-  - word: Orders
-  - word: SWITCH
-  - word: PARTITION
-  - numeric_literal: '2'
-  - word: TO
-  - double_quote: '[OrdersHistory]'
-  - word: PARTITION
-  - numeric_literal: '2'
-  - semicolon: ;
-  - word: ALTER
-  - word: TABLE
-  - word: Orders
-  - word: SWITCH
-  - word: PARTITION
-  - numeric_literal: '3'
-  - word: TO
-  - double_quote: '[OrdersHistory]'
-  - word: PARTITION
-  - numeric_literal: '3'
-  - semicolon: ;
-  - word: ALTER
-  - word: TABLE
-  - word: Orders
-  - word: SWITCH
-  - word: PARTITION
-  - numeric_literal: '4'
-  - word: TO
-  - double_quote: '[OrdersHistory]'
-  - word: PARTITION
-  - numeric_literal: '4'
-  - word: WITH
-  - start_bracket: (
-  - word: WAIT_AT_LOW_PRIORITY
-  - start_bracket: (
-  - word: MAX_DURATION
-  - raw_comparison_operator: =
-  - numeric_literal: '15'
-  - word: MINUTES
-  - comma: ','
-  - word: ABORT_AFTER_WAIT
-  - raw_comparison_operator: =
-  - word: NONE
-  - end_bracket: )
-  - end_bracket: )
-  - semicolon: ;
-  - word: ALTER
-  - word: TABLE
-  - word: Orders
-  - word: SWITCH
-  - word: PARTITION
-  - numeric_literal: '5'
-  - word: TO
-  - double_quote: '[OrdersHistory]'
-  - word: PARTITION
-  - numeric_literal: '5'
-  - word: WITH
-  - start_bracket: (
-  - word: WAIT_AT_LOW_PRIORITY
-  - start_bracket: (
-  - word: MAX_DURATION
-  - raw_comparison_operator: =
-  - numeric_literal: '25'
-  - comma: ','
-  - word: ABORT_AFTER_WAIT
-  - raw_comparison_operator: =
-  - word: SELF
-  - end_bracket: )
-  - end_bracket: )
-  - semicolon: ;
+- statement:
+  - alter_table_switch_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - object_reference:
+      - quoted_identifier: '[Facility]'
+      - dot: .
+      - quoted_identifier: '[PL_stage]'
+    - keyword: SWITCH
+    - keyword: TO
+    - object_reference:
+      - quoted_identifier: '[Facility]'
+      - dot: .
+      - quoted_identifier: '[PL_BASE]'
+    - keyword: WITH
+    - bracketed:
+      - start_bracket: (
+      - keyword: TRUNCATE_TARGET
+      - comparison_operator:
+        - raw_comparison_operator: =
+      - keyword: ON
+      - end_bracket: )
+- statement_terminator: ;
+- statement:
+  - alter_table_switch_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - object_reference:
+      - quoted_identifier: '[PartitionTable]'
+    - keyword: SWITCH
+    - keyword: PARTITION
+    - numeric_literal: '1'
+    - keyword: TO
+    - object_reference:
+      - naked_identifier: NonPartitionTable
+- statement_terminator: ;
+- statement:
+  - alter_table_switch_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - object_reference:
+      - naked_identifier: Orders
+    - keyword: SWITCH
+    - keyword: PARTITION
+    - numeric_literal: '2'
+    - keyword: TO
+    - object_reference:
+      - quoted_identifier: '[OrdersHistory]'
+    - keyword: PARTITION
+    - numeric_literal: '2'
+- statement_terminator: ;
+- statement:
+  - alter_table_switch_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - object_reference:
+      - naked_identifier: Orders
+    - keyword: SWITCH
+    - keyword: PARTITION
+    - numeric_literal: '3'
+    - keyword: TO
+    - object_reference:
+      - quoted_identifier: '[OrdersHistory]'
+    - keyword: PARTITION
+    - numeric_literal: '3'
+- statement_terminator: ;
+- statement:
+  - alter_table_switch_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - object_reference:
+      - naked_identifier: Orders
+    - keyword: SWITCH
+    - keyword: PARTITION
+    - numeric_literal: '4'
+    - keyword: TO
+    - object_reference:
+      - quoted_identifier: '[OrdersHistory]'
+    - keyword: PARTITION
+    - numeric_literal: '4'
+    - keyword: WITH
+    - bracketed:
+      - start_bracket: (
+      - keyword: WAIT_AT_LOW_PRIORITY
+      - bracketed:
+        - start_bracket: (
+        - keyword: MAX_DURATION
+        - comparison_operator:
+          - raw_comparison_operator: =
+        - numeric_literal: '15'
+        - keyword: MINUTES
+        - comma: ','
+        - keyword: ABORT_AFTER_WAIT
+        - comparison_operator:
+          - raw_comparison_operator: =
+        - keyword: NONE
+        - end_bracket: )
+      - end_bracket: )
+- statement_terminator: ;
+- statement:
+  - alter_table_switch_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - object_reference:
+      - naked_identifier: Orders
+    - keyword: SWITCH
+    - keyword: PARTITION
+    - numeric_literal: '5'
+    - keyword: TO
+    - object_reference:
+      - quoted_identifier: '[OrdersHistory]'
+    - keyword: PARTITION
+    - numeric_literal: '5'
+    - keyword: WITH
+    - bracketed:
+      - start_bracket: (
+      - keyword: WAIT_AT_LOW_PRIORITY
+      - bracketed:
+        - start_bracket: (
+        - keyword: MAX_DURATION
+        - comparison_operator:
+          - raw_comparison_operator: =
+        - numeric_literal: '25'
+        - comma: ','
+        - keyword: ABORT_AFTER_WAIT
+        - comparison_operator:
+          - raw_comparison_operator: =
+        - keyword: SELF
+        - end_bracket: )
+      - end_bracket: )
+- statement_terminator: ;

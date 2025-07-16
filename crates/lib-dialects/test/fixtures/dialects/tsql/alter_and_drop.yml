@@ -1,34 +1,48 @@
 file:
-- unparsable:
-  - word: ALTER
-  - word: TABLE
-  - double_quote: '[REPORTING]'
-  - dot: .
-  - double_quote: '[UN_NEW]'
-  - word: SWITCH
-  - word: to
-  - double_quote: '[REPORTING]'
-  - dot: .
-  - double_quote: '[UN_BASE]'
-  - word: WITH
-  - start_bracket: (
-  - word: TRUNCATE_TARGET
-  - raw_comparison_operator: =
-  - word: ON
-  - end_bracket: )
-  - semicolon: ;
-  - word: DROP
-  - word: TABLE
-  - double_quote: '[REPORTING]'
-  - dot: .
-  - double_quote: '[UN_NEW]'
-  - semicolon: ;
-  - word: ALTER
-  - word: TABLE
-  - word: table_name
-  - word: DROP
-  - word: COLUMN
-  - word: column1
+- statement:
+  - alter_table_switch_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - object_reference:
+      - quoted_identifier: '[REPORTING]'
+      - dot: .
+      - quoted_identifier: '[UN_NEW]'
+    - keyword: SWITCH
+    - keyword: to
+    - object_reference:
+      - quoted_identifier: '[REPORTING]'
+      - dot: .
+      - quoted_identifier: '[UN_BASE]'
+    - keyword: WITH
+    - bracketed:
+      - start_bracket: (
+      - keyword: TRUNCATE_TARGET
+      - comparison_operator:
+        - raw_comparison_operator: =
+      - keyword: ON
+      - end_bracket: )
+- statement_terminator: ;
+- statement:
+  - drop_table_statement:
+    - keyword: DROP
+    - keyword: TABLE
+    - table_reference:
+      - object_reference:
+        - quoted_identifier: '[REPORTING]'
+        - dot: .
+        - quoted_identifier: '[UN_NEW]'
+- statement_terminator: ;
+- statement:
+  - alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+      - object_reference:
+        - naked_identifier: table_name
+    - keyword: DROP
+    - keyword: COLUMN
+    - naked_identifier: column1
+- file:
   - comma: ','
   - word: column2
   - semicolon: ;

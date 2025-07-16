@@ -246,6 +246,7 @@ pub enum SyntaxKind {
     IndexElementOptions,
     AlterDefaultPrivilegesRevoke,
     AlterIndexStatement,
+    AlterTableSwitchStatement,
     ReindexStatementSegment,
     AnalyzeStatement,
     AlterTrigger,

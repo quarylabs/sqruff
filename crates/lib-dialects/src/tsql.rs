@@ -422,6 +422,15 @@ pub fn raw_dialect() -> Dialect {
                                 ])
                             ])
                         ])
+                    ]),
+                    // SET IDENTITY_INSERT table_name ON/OFF
+                    Sequence::new(vec_of_erased![
+                        Ref::keyword("IDENTITY_INSERT"),
+                        Ref::new("TableReferenceSegment"),
+                        one_of(vec_of_erased![
+                            Ref::keyword("ON"),
+                            Ref::keyword("OFF")
+                        ])
                     ])
                 ])
             ])

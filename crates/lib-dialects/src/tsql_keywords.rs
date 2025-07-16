@@ -718,6 +718,8 @@ pub(crate) fn tsql_additional_unreserved_keywords() -> AHashSet<&'static str> {
         "ROWS",
         "ROW",
         "TIES",
+        // IDENTITY_INSERT keyword
+        "IDENTITY_INSERT",
     ]
     .into_iter()
     .collect()

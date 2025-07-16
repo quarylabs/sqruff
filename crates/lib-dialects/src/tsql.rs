@@ -2677,11 +2677,13 @@ pub fn raw_dialect() -> Dialect {
         .to_matchable(),
     );
 
-    // Override UnorderedSelectStatementSegment to add FOR clause
+    // Override UnorderedSelectStatementSegment to add INTO clause and FOR clause
     dialect.replace_grammar(
         "UnorderedSelectStatementSegment",
         Sequence::new(vec_of_erased![
             Ref::new("SelectClauseSegment"),
+            // T-SQL specific: INTO clause for SELECT INTO (creates new table)
+            // Ref::new("SelectIntoClauseSegment").optional(),
             MetaSegment::dedent(),
             Ref::new("FromClauseSegment").optional(),
             Ref::new("WhereClauseSegment").optional(),
@@ -4008,6 +4010,22 @@ pub fn raw_dialect() -> Dialect {
         .to_matchable()
         .into(),
     );
+
+    // Add SELECT INTO clause segment for T-SQL
+    dialect.add([
+        (
+            "SelectIntoClauseSegment".into(),
+            NodeMatcher::new(SyntaxKind::SelectIntoClause, |_| {
+                Sequence::new(vec_of_erased![
+                    Ref::keyword("INTO"),
+                    Ref::new("ObjectReferenceSegment")
+                ])
+                .to_matchable()
+            })
+            .to_matchable()
+            .into(),
+        ),
+    ]);
 
     // Add T-SQL specific permission statement segments
     dialect.add([

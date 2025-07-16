@@ -131,6 +131,7 @@ pub enum SyntaxKind {
     ArrayType,
     SizedArrayType,
     SelectStatement,
+    SelectIntoClause,
     OverlapsClause,
     SelectClause,
     Statement,

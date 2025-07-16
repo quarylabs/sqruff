@@ -1064,6 +1064,37 @@ pub fn raw_dialect() -> Dialect {
         ),
     ]);
 
+    // WAITFOR statement
+    dialect.add([
+        (
+            "WaitforStatementSegment".into(),
+            NodeMatcher::new(SyntaxKind::Statement, |_| {
+                Sequence::new(vec_of_erased![
+                    Ref::keyword("WAITFOR"),
+                    one_of(vec_of_erased![
+                        Sequence::new(vec_of_erased![
+                            Ref::keyword("DELAY"),
+                            Ref::new("ExpressionSegment") // Time expression like '02:00'
+                        ]),
+                        Sequence::new(vec_of_erased![
+                            Ref::keyword("TIME"),
+                            Ref::new("ExpressionSegment") // Time expression like '22:20'
+                        ])
+                    ]),
+                    // Optional TIMEOUT
+                    Sequence::new(vec_of_erased![
+                        Ref::keyword("TIMEOUT"),
+                        Ref::new("NumericLiteralSegment")
+                    ])
+                    .config(|this| this.optional())
+                ])
+                .to_matchable()
+            })
+            .to_matchable()
+            .into(),
+        ),
+    ]);
+
     // PIVOT and UNPIVOT support
     dialect.add([
         (
@@ -1207,6 +1238,7 @@ pub fn raw_dialect() -> Dialect {
             Ref::new("LabelSegment"),
             Ref::new("ExecuteStatementGrammar"),
             Ref::new("UseStatementGrammar"),
+            Ref::new("WaitforStatementSegment"),
             // Include all ANSI statement types
             Ref::new("SelectableGrammar"),
             Ref::new("MergeStatementSegment"),

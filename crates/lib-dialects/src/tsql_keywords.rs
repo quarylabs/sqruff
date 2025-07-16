@@ -513,6 +513,8 @@ pub(crate) fn tsql_additional_unreserved_keywords() -> AHashSet<&'static str> {
         "DATEFIRST",
         "DATEFORMAT",
         "DELAYED_DURABILITY",
+        "DELAY",
+        "TIMEOUT",
         // Function names that can be used as identifiers
         "NEWID",
         // T-SQL priority and format values

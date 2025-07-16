@@ -123,54 +123,71 @@ file:
       - naked_identifier: Vendors
 - statement_terminator: ;
 - keyword: GO
-- file:
-  - word: REVOKE
-  - word: SELECT
-  - word: ON
-  - word: SCHEMA
-  - casting_operator: '::'
-  - word: Sales
-  - word: TO
-  - word: Vendors
-  - semicolon: ;
-  - word: GO
-  - word: DENY
-  - word: SELECT
-  - word: ON
-  - word: OBJECT
-  - casting_operator: '::'
-  - word: Person
-  - dot: .
-  - word: Address
-  - word: TO
-  - word: RosaQdM
-  - semicolon: ;
-  - word: GO
-  - word: DENY
-  - word: EXECUTE
-  - word: ON
-  - word: OBJECT
-  - casting_operator: '::'
-  - word: HumanResources
-  - dot: .
-  - word: uspUpdateEmployeeHireInfo
-  - word: TO
-  - word: Recruiting11
-  - semicolon: ;
-  - word: GO
-  - word: DENY
-  - word: REFERENCES
-  - start_bracket: (
-  - word: BusinessEntityID
-  - end_bracket: )
-  - word: ON
-  - word: OBJECT
-  - casting_operator: '::'
-  - word: HumanResources
-  - dot: .
-  - word: vEmployee
-  - word: TO
-  - word: Wanida
-  - word: CASCADE
-  - semicolon: ;
-  - word: GO
+- statement:
+  - access_statement:
+    - keyword: REVOKE
+    - keyword: SELECT
+    - keyword: ON
+    - keyword: SCHEMA
+    - casting_operator: '::'
+    - object_reference:
+      - naked_identifier: Sales
+    - keyword: TO
+    - object_reference:
+      - naked_identifier: Vendors
+- statement_terminator: ;
+- keyword: GO
+- statement:
+  - access_statement:
+    - keyword: DENY
+    - keyword: SELECT
+    - keyword: ON
+    - keyword: OBJECT
+    - casting_operator: '::'
+    - object_reference:
+      - naked_identifier: Person
+      - dot: .
+      - naked_identifier: Address
+    - keyword: TO
+    - object_reference:
+      - naked_identifier: RosaQdM
+- statement_terminator: ;
+- keyword: GO
+- statement:
+  - access_statement:
+    - keyword: DENY
+    - keyword: EXECUTE
+    - keyword: ON
+    - keyword: OBJECT
+    - casting_operator: '::'
+    - object_reference:
+      - naked_identifier: HumanResources
+      - dot: .
+      - naked_identifier: uspUpdateEmployeeHireInfo
+    - keyword: TO
+    - object_reference:
+      - naked_identifier: Recruiting11
+- statement_terminator: ;
+- keyword: GO
+- statement:
+  - access_statement:
+    - keyword: DENY
+    - keyword: REFERENCES
+    - bracketed:
+      - start_bracket: (
+      - column_reference:
+        - naked_identifier: BusinessEntityID
+      - end_bracket: )
+    - keyword: ON
+    - keyword: OBJECT
+    - casting_operator: '::'
+    - object_reference:
+      - naked_identifier: HumanResources
+      - dot: .
+      - naked_identifier: vEmployee
+    - keyword: TO
+    - object_reference:
+      - naked_identifier: Wanida
+    - keyword: CASCADE
+- statement_terminator: ;
+- keyword: GO

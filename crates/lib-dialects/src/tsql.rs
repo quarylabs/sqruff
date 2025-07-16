@@ -1998,6 +1998,10 @@ pub fn raw_dialect() -> Dialect {
             Ref::new("DropSchemaStatementSegment"),
             Ref::new("DropTypeStatementSegment"),
             Ref::new("CreateDatabaseStatementSegment"),
+            Ref::new("CreateDatabaseScopedCredentialStatementSegment"),
+            Ref::new("CreateMasterKeyStatementSegment"),
+            Ref::new("AlterMasterKeyStatementSegment"),
+            Ref::new("DropMasterKeyStatementSegment"),
             Ref::new("DropDatabaseStatementSegment"),
             Ref::new("CreateIndexStatementSegment"),
             Ref::new("DropIndexStatementSegment"),
@@ -4415,6 +4419,117 @@ pub fn raw_dialect() -> Dialect {
                             ])
                         ])
                     ]).config(|this| this.optional())
+                ])
+                .to_matchable()
+            })
+            .to_matchable()
+            .into(),
+        ),
+    ]);
+
+    // Add CREATE DATABASE SCOPED CREDENTIAL statement
+    dialect.add([
+        (
+            "CreateDatabaseScopedCredentialStatementSegment".into(),
+            NodeMatcher::new(SyntaxKind::CreateDatabaseScopedCredentialStatement, |_| {
+                Sequence::new(vec_of_erased![
+                    Ref::keyword("CREATE"),
+                    Ref::keyword("DATABASE"),
+                    Ref::keyword("SCOPED"),
+                    Ref::keyword("CREDENTIAL"),
+                    Ref::new("ObjectReferenceSegment"), // credential_name
+                    Ref::keyword("WITH"),
+                    Ref::new("TsqlCredentialGrammar") // IDENTITY = 'value' [, SECRET = 'value']
+                ])
+                .to_matchable()
+            })
+            .to_matchable()
+            .into(),
+        ),
+        // CREATE MASTER KEY statement
+        (
+            "CreateMasterKeyStatementSegment".into(),
+            NodeMatcher::new(SyntaxKind::CreateMasterKeyStatement, |_| {
+                Sequence::new(vec_of_erased![
+                    Ref::keyword("CREATE"),
+                    Ref::keyword("MASTER"),
+                    Ref::keyword("KEY"),
+                    Sequence::new(vec_of_erased![
+                        Ref::keyword("ENCRYPTION"),
+                        Ref::keyword("BY"),
+                        Ref::keyword("PASSWORD"),
+                        Ref::new("EqualsSegment"),
+                        Ref::new("QuotedLiteralSegment")
+                    ])
+                    .config(|this| this.optional())
+                ])
+                .to_matchable()
+            })
+            .to_matchable()
+            .into(),
+        ),
+        // ALTER MASTER KEY statement
+        (
+            "AlterMasterKeyStatementSegment".into(),
+            NodeMatcher::new(SyntaxKind::AlterMasterKeyStatement, |_| {
+                Sequence::new(vec_of_erased![
+                    Ref::keyword("ALTER"),
+                    Ref::keyword("MASTER"),
+                    Ref::keyword("KEY"),
+                    one_of(vec_of_erased![
+                        // REGENERATE WITH ENCRYPTION BY PASSWORD = 'password'
+                        Sequence::new(vec_of_erased![
+                            Ref::keyword("FORCE").optional(),
+                            Ref::keyword("REGENERATE"),
+                            Ref::keyword("WITH"),
+                            Ref::keyword("ENCRYPTION"),
+                            Ref::keyword("BY"),
+                            Ref::keyword("PASSWORD"),
+                            Ref::new("EqualsSegment"),
+                            Ref::new("QuotedLiteralSegment")
+                        ]),
+                        // ADD ENCRYPTION BY PASSWORD = 'password'
+                        Sequence::new(vec_of_erased![
+                            Ref::keyword("ADD"),
+                            Ref::keyword("ENCRYPTION"),
+                            Ref::keyword("BY"),
+                            one_of(vec_of_erased![
+                                Sequence::new(vec_of_erased![
+                                    Ref::keyword("PASSWORD"),
+                                    Ref::new("EqualsSegment"),
+                                    Ref::new("QuotedLiteralSegment")
+                                ]),
+                                Sequence::new(vec_of_erased![
+                                    Ref::keyword("SERVICE"),
+                                    Ref::keyword("MASTER"),
+                                    Ref::keyword("KEY")
+                                ])
+                            ])
+                        ]),
+                        // DROP ENCRYPTION BY PASSWORD = 'password'
+                        Sequence::new(vec_of_erased![
+                            Ref::keyword("DROP"),
+                            Ref::keyword("ENCRYPTION"),
+                            Ref::keyword("BY"),
+                            Ref::keyword("PASSWORD"),
+                            Ref::new("EqualsSegment"),
+                            Ref::new("QuotedLiteralSegment")
+                        ])
+                    ])
+                ])
+                .to_matchable()
+            })
+            .to_matchable()
+            .into(),
+        ),
+        // DROP MASTER KEY statement
+        (
+            "DropMasterKeyStatementSegment".into(),
+            NodeMatcher::new(SyntaxKind::DropMasterKeyStatement, |_| {
+                Sequence::new(vec_of_erased![
+                    Ref::keyword("DROP"),
+                    Ref::keyword("MASTER"),
+                    Ref::keyword("KEY")
                 ])
                 .to_matchable()
             })

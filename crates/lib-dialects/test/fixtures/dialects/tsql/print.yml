@@ -13,37 +13,21 @@ file:
     - raw_comparison_operator: =
   - expression:
     - quoted_literal: '''Test Print'''
-- statement:
-  - keyword: PRINT
-  - expression:
-    - quoted_literal: '''#Dates'''
-- statement:
-  - keyword: PRINT
-  - expression:
-    - function:
-      - function_name:
-        - function_name_identifier: CAST
-      - bracketed:
-        - start_bracket: (
-        - expression:
-          - function:
-            - function_name:
-              - function_name_identifier: GETDATE
-            - bracketed:
-              - start_bracket: (
-              - end_bracket: )
-        - keyword: AS
-        - data_type:
-          - data_type_identifier: VARCHAR
-          - bracketed_arguments:
-            - bracketed:
-              - start_bracket: (
-              - numeric_literal: '50'
-              - end_bracket: )
-        - end_bracket: )
-- statement_terminator: ;
-- statement:
-  - keyword: PRINT
-  - expression:
-    - parameterized_expression:
-      - tsql_variable: '@TestVal'
+- file:
+  - word: PRINT
+  - single_quote: '''#Dates'''
+  - word: PRINT
+  - word: CAST
+  - start_bracket: (
+  - word: GETDATE
+  - start_bracket: (
+  - end_bracket: )
+  - word: AS
+  - word: VARCHAR
+  - start_bracket: (
+  - numeric_literal: '50'
+  - end_bracket: )
+  - end_bracket: )
+  - semicolon: ;
+  - word: PRINT
+  - tsql_variable: '@TestVal'

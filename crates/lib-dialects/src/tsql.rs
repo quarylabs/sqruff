@@ -668,30 +668,8 @@ pub fn raw_dialect() -> Dialect {
         ),
     ]);
 
-    // Override FileSegment to handle T-SQL batch separators (GO statements)
-    // This creates a file structure where GO separates batches of statements
-    dialect.replace_grammar(
-        "FileSegment",
-        Sequence::new(vec_of_erased![
-            // Allow GO at the start of the file
-            AnyNumberOf::new(vec_of_erased![
-                Ref::new("BatchDelimiterGrammar"),
-                Ref::new("DelimiterGrammar").optional()
-            ]),
-            // Main content: statements optionally separated by GO
-            AnyNumberOf::new(vec_of_erased![
-                Ref::new("StatementSegment"),
-                Ref::new("DelimiterGrammar").optional(),
-                // GO acts as a batch separator
-                Sequence::new(vec_of_erased![
-                    Ref::new("BatchDelimiterGrammar"),
-                    Ref::new("DelimiterGrammar").optional()
-                ])
-                .config(|this| this.optional())
-            ])
-        ])
-        .to_matchable(),
-    );
+    // Don't override FileSegment - use the default ANSI implementation
+    // The ANSI FileSegment already handles multiple statements separated by semicolons correctly
 
     // Add T-SQL specific statement types to the statement segment
     dialect.replace_grammar(

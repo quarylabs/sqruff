@@ -713,6 +713,11 @@ pub(crate) fn tsql_additional_unreserved_keywords() -> AHashSet<&'static str> {
         "TYPE_WARNING",
         // Synonym keyword
         "SYNONYM",
+        // OFFSET/FETCH keywords
+        "OFFSET",
+        "ROWS",
+        "ROW",
+        "TIES",
     ]
     .into_iter()
     .collect()

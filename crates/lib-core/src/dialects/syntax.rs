@@ -586,6 +586,7 @@ pub enum SyntaxKind {
     DeallocateCursorStatement,
     CreateSynonymStatement,
     DropSynonymStatement,
+    OffsetClause,
     CreateDatashareStatement,
     DescDatashareStatement,
     DropDatashareStatement,

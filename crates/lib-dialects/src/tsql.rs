@@ -3828,6 +3828,93 @@ pub fn raw_dialect() -> Dialect {
         .into(),
     )]);
     
+    // OFFSET clause
+    dialect.add([(
+        "OffsetClauseSegment".into(),
+        NodeMatcher::new(SyntaxKind::OffsetClause, |_| {
+            Sequence::new(vec_of_erased![
+                Ref::keyword("OFFSET"),
+                one_of(vec_of_erased![
+                    Ref::new("NumericLiteralSegment"),
+                    Ref::new("ExpressionSegment")
+                ]),
+                one_of(vec_of_erased![
+                    Ref::keyword("ROW"),
+                    Ref::keyword("ROWS")
+                ])
+            ])
+            .to_matchable()
+        })
+        .to_matchable()
+        .into(),
+    )]);
+
+    // FETCH clause
+    dialect.add([(
+        "FetchClauseSegment".into(),
+        NodeMatcher::new(SyntaxKind::FetchClause, |_| {
+            Sequence::new(vec_of_erased![
+                Ref::keyword("FETCH"),
+                one_of(vec_of_erased![
+                    Ref::keyword("FIRST"),
+                    Ref::keyword("NEXT")
+                ]),
+                one_of(vec_of_erased![
+                    Ref::new("NumericLiteralSegment"),
+                    Ref::new("ExpressionSegment")
+                ])
+                .config(|this| this.optional()),
+                one_of(vec_of_erased![
+                    Ref::keyword("ROW"),
+                    Ref::keyword("ROWS")
+                ]),
+                one_of(vec_of_erased![
+                    Ref::keyword("ONLY"),
+                    Sequence::new(vec_of_erased![
+                        Ref::keyword("WITH"),
+                        Ref::keyword("TIES")
+                    ])
+                ])
+            ])
+            .to_matchable()
+        })
+        .to_matchable()
+        .into(),
+    )]);
+
+    // Override OrderByClauseSegment to include OFFSET...FETCH support
+    dialect.replace_grammar(
+        "OrderByClauseSegment",
+        Sequence::new(vec_of_erased![
+            Ref::keyword("ORDER"),
+            Ref::keyword("BY"),
+            MetaSegment::indent(),
+            Delimited::new(vec_of_erased![
+                Sequence::new(vec_of_erased![
+                    one_of(vec_of_erased![
+                        Ref::new("ColumnReferenceSegment"),
+                        Ref::new("NumericLiteralSegment"),
+                        Ref::new("ExpressionSegment")
+                    ]),
+                    one_of(vec_of_erased![
+                        Ref::keyword("ASC"),
+                        Ref::keyword("DESC")
+                    ])
+                    .config(|this| this.optional())
+                ])
+            ])
+            .config(|this| this.allow_trailing()),
+            Sequence::new(vec_of_erased![
+                Ref::new("OffsetClauseSegment"),
+                Ref::new("FetchClauseSegment").optional()
+            ])
+            .config(|this| this.optional()),
+            MetaSegment::dedent()
+        ])
+        .to_matchable()
+        .into(),
+    );
+    
     // expand() must be called after all grammar modifications
 
     dialect

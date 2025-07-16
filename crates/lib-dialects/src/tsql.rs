@@ -1864,6 +1864,10 @@ pub fn raw_dialect() -> Dialect {
             Ref::new("CreateExternalFileFormatStatementSegment"),
             Ref::new("CreateExternalTableStatementSegment"),
             Ref::new("DropExternalTableStatementSegment"),
+            Ref::new("CreateLoginStatementSegment"),
+            Ref::new("CreateSecurityPolicyStatementSegment"),
+            Ref::new("AlterSecurityPolicyStatementSegment"),
+            Ref::new("DropSecurityPolicyStatementSegment"),
             // Include all ANSI statement types
             Ref::new("SelectableGrammar"),
             Ref::new("MergeStatementSegment"),
@@ -3012,6 +3016,440 @@ pub fn raw_dialect() -> Dialect {
                 Ref::keyword("DROP"),
                 Ref::keyword("EXTERNAL"),
                 Ref::keyword("TABLE"),
+                Ref::new("ObjectReferenceSegment")
+            ])
+            .to_matchable()
+        })
+        .to_matchable()
+        .into(),
+    )]);
+
+    // CREATE LOGIN
+    dialect.add([(
+        "CreateLoginStatementSegment".into(),
+        NodeMatcher::new(SyntaxKind::CreateLoginStatement, |_| {
+            Sequence::new(vec_of_erased![
+                Ref::keyword("CREATE"),
+                Ref::keyword("LOGIN"),
+                Ref::new("ObjectReferenceSegment"),
+                one_of(vec_of_erased![
+                    // WITH PASSWORD = 'password' [MUST_CHANGE] [, options]
+                    Sequence::new(vec_of_erased![
+                        Ref::keyword("WITH"),
+                        Ref::keyword("PASSWORD"),
+                        Ref::new("EqualsSegment"),
+                        Ref::new("QuotedLiteralSegment"),
+                        Ref::keyword("MUST_CHANGE").optional(),
+                        // Additional options after MUST_CHANGE
+                        AnyNumberOf::new(vec_of_erased![
+                            Sequence::new(vec_of_erased![
+                                Ref::new("CommaSegment"),
+                                Ref::new("LoginOptionGrammar")
+                            ])
+                        ])
+                    ]),
+                    // FROM WINDOWS
+                    Sequence::new(vec_of_erased![
+                        Ref::keyword("FROM"),
+                        Ref::keyword("WINDOWS")
+                    ]),
+                    // FROM EXTERNAL PROVIDER
+                    Sequence::new(vec_of_erased![
+                        Ref::keyword("FROM"),
+                        Ref::keyword("EXTERNAL"),
+                        Ref::keyword("PROVIDER")
+                    ]),
+                    // FROM CERTIFICATE certificate_name
+                    Sequence::new(vec_of_erased![
+                        Ref::keyword("FROM"),
+                        Ref::keyword("CERTIFICATE"),
+                        Ref::new("ObjectReferenceSegment")
+                    ]),
+                    // FROM ASYMMETRIC KEY key_name
+                    Sequence::new(vec_of_erased![
+                        Ref::keyword("FROM"),
+                        Ref::keyword("ASYMMETRIC"),
+                        Ref::keyword("KEY"),
+                        Ref::new("ObjectReferenceSegment")
+                    ])
+                ])
+                .config(|this| this.optional())
+            ])
+            .to_matchable()
+        })
+        .to_matchable()
+        .into(),
+    )]);
+
+    dialect.add([(
+        "LoginOptionGrammar".into(),
+        one_of(vec_of_erased![
+            // CHECK_EXPIRATION = ON/OFF
+            Sequence::new(vec_of_erased![
+                Ref::keyword("CHECK_EXPIRATION"),
+                Ref::new("EqualsSegment"),
+                one_of(vec_of_erased![
+                    Ref::keyword("ON"),
+                    Ref::keyword("OFF")
+                ])
+            ]),
+            // CHECK_POLICY = ON/OFF
+            Sequence::new(vec_of_erased![
+                Ref::keyword("CHECK_POLICY"),
+                Ref::new("EqualsSegment"),
+                one_of(vec_of_erased![
+                    Ref::keyword("ON"),
+                    Ref::keyword("OFF")
+                ])
+            ]),
+            // DEFAULT_DATABASE = database_name
+            Sequence::new(vec_of_erased![
+                Ref::keyword("DEFAULT_DATABASE"),
+                Ref::new("EqualsSegment"),
+                Ref::new("DatabaseReferenceSegment")
+            ]),
+            // DEFAULT_LANGUAGE = language
+            Sequence::new(vec_of_erased![
+                Ref::keyword("DEFAULT_LANGUAGE"),
+                Ref::new("EqualsSegment"),
+                Ref::new("NakedIdentifierSegment")
+            ]),
+            // SID = 0x...
+            Sequence::new(vec_of_erased![
+                Ref::keyword("SID"),
+                Ref::new("EqualsSegment"),
+                Ref::new("NumericLiteralSegment")
+            ]),
+            // CREDENTIAL = credential_name
+            Sequence::new(vec_of_erased![
+                Ref::keyword("CREDENTIAL"),
+                Ref::new("EqualsSegment"),
+                Ref::new("ObjectReferenceSegment")
+            ])
+        ])
+        .to_matchable()
+        .into(),
+    )]);
+
+    // Override CREATE USER to support T-SQL specific syntax
+    dialect.replace_grammar(
+        "CreateUserStatementSegment",
+        NodeMatcher::new(SyntaxKind::CreateUserStatement, |_| {
+            Sequence::new(vec_of_erased![
+                Ref::keyword("CREATE"),
+                Ref::keyword("USER"),
+                Ref::new("ObjectReferenceSegment"),
+                one_of(vec_of_erased![
+                    // FOR/FROM LOGIN login_name
+                    Sequence::new(vec_of_erased![
+                        one_of(vec_of_erased![
+                            Ref::keyword("FOR"),
+                            Ref::keyword("FROM")
+                        ]),
+                        Ref::keyword("LOGIN"),
+                        Ref::new("ObjectReferenceSegment"),
+                        // Optional WITH options
+                        Sequence::new(vec_of_erased![
+                            Ref::keyword("WITH"),
+                            Delimited::new(vec_of_erased![
+                                Ref::new("UserOptionGrammar")
+                            ])
+                        ])
+                        .config(|this| this.optional())
+                    ]),
+                    // WITH PASSWORD = 'password' [, SID = 0x...]
+                    Sequence::new(vec_of_erased![
+                        Ref::keyword("WITH"),
+                        Delimited::new(vec_of_erased![
+                            Ref::new("UserOptionGrammar")
+                        ])
+                    ]),
+                    // FROM EXTERNAL PROVIDER
+                    Sequence::new(vec_of_erased![
+                        Ref::keyword("FROM"),
+                        Ref::keyword("EXTERNAL"),
+                        Ref::keyword("PROVIDER")
+                    ]),
+                    // WITHOUT LOGIN [WITH DEFAULT_SCHEMA = schema]
+                    Sequence::new(vec_of_erased![
+                        Ref::keyword("WITHOUT"),
+                        Ref::keyword("LOGIN"),
+                        Sequence::new(vec_of_erased![
+                            Ref::keyword("WITH"),
+                            Ref::keyword("DEFAULT_SCHEMA"),
+                            Ref::new("EqualsSegment"),
+                            Ref::new("ObjectReferenceSegment")
+                        ])
+                        .config(|this| this.optional())
+                    ]),
+                    // FOR CERTIFICATE certificate_name
+                    Sequence::new(vec_of_erased![
+                        Ref::keyword("FOR"),
+                        Ref::keyword("CERTIFICATE"),
+                        Ref::new("ObjectReferenceSegment")
+                    ]),
+                    // FOR ASYMMETRIC KEY key_name
+                    Sequence::new(vec_of_erased![
+                        Ref::keyword("FOR"),
+                        Ref::keyword("ASYMMETRIC"),
+                        Ref::keyword("KEY"),
+                        Ref::new("ObjectReferenceSegment")
+                    ])
+                ])
+                .config(|this| this.optional())
+            ])
+            .to_matchable()
+        })
+        .to_matchable(),
+    );
+
+    dialect.add([(
+        "UserOptionGrammar".into(),
+        one_of(vec_of_erased![
+            // PASSWORD = 'password'
+            Sequence::new(vec_of_erased![
+                Ref::keyword("PASSWORD"),
+                Ref::new("EqualsSegment"),
+                Ref::new("QuotedLiteralSegment")
+            ]),
+            // SID = 0x...
+            Sequence::new(vec_of_erased![
+                Ref::keyword("SID"),
+                Ref::new("EqualsSegment"),
+                Ref::new("NumericLiteralSegment")
+            ]),
+            // DEFAULT_SCHEMA = schema_name
+            Sequence::new(vec_of_erased![
+                Ref::keyword("DEFAULT_SCHEMA"),
+                Ref::new("EqualsSegment"),
+                Ref::new("ObjectReferenceSegment")
+            ]),
+            // ALLOW_ENCRYPTED_VALUE_MODIFICATIONS = ON/OFF
+            Sequence::new(vec_of_erased![
+                Ref::keyword("ALLOW_ENCRYPTED_VALUE_MODIFICATIONS"),
+                Ref::new("EqualsSegment"),
+                one_of(vec_of_erased![
+                    Ref::keyword("ON"),
+                    Ref::keyword("OFF")
+                ])
+            ])
+        ])
+        .to_matchable()
+        .into(),
+    )]);
+
+    // Override DROP USER to support T-SQL specific syntax
+    dialect.replace_grammar(
+        "DropUserStatementSegment",
+        NodeMatcher::new(SyntaxKind::DropUserStatement, |_| {
+            Sequence::new(vec_of_erased![
+                Ref::keyword("DROP"),
+                Ref::keyword("USER"),
+                Ref::new("IfExistsGrammar").optional(),
+                Ref::new("ObjectReferenceSegment")
+            ])
+            .to_matchable()
+        })
+        .to_matchable(),
+    );
+
+    // CREATE SECURITY POLICY
+    dialect.add([(
+        "CreateSecurityPolicyStatementSegment".into(),
+        NodeMatcher::new(SyntaxKind::CreateSecurityPolicyStatement, |_| {
+            Sequence::new(vec_of_erased![
+                Ref::keyword("CREATE"),
+                Ref::keyword("SECURITY"),
+                Ref::keyword("POLICY"),
+                Ref::new("ObjectReferenceSegment"),
+                // One or more ADD clauses
+                AnyNumberOf::new(vec_of_erased![
+                    Ref::new("SecurityPolicyAddClause")
+                ])
+                .config(|this| this.min_times(1)),
+                // Optional WITH clause
+                Sequence::new(vec_of_erased![
+                    Ref::keyword("WITH"),
+                    Bracketed::new(vec_of_erased![
+                        Delimited::new(vec_of_erased![
+                            Ref::new("SecurityPolicyOptionGrammar")
+                        ])
+                    ])
+                ])
+                .config(|this| this.optional()),
+                // Optional NOT FOR REPLICATION
+                Sequence::new(vec_of_erased![
+                    Ref::keyword("NOT"),
+                    Ref::keyword("FOR"),
+                    Ref::keyword("REPLICATION")
+                ])
+                .config(|this| this.optional())
+            ])
+            .to_matchable()
+        })
+        .to_matchable()
+        .into(),
+    )]);
+
+    dialect.add([(
+        "SecurityPolicyAddClause".into(),
+        Sequence::new(vec_of_erased![
+            Ref::keyword("ADD"),
+            one_of(vec_of_erased![
+                Ref::keyword("FILTER"),
+                Ref::keyword("BLOCK")
+            ]),
+            Ref::keyword("PREDICATE"),
+            // Function call: schema.function(column)
+            Ref::new("FunctionSegment"),
+            Ref::keyword("ON"),
+            Ref::new("ObjectReferenceSegment"),
+            // Optional AFTER INSERT/UPDATE/DELETE
+            Sequence::new(vec_of_erased![
+                one_of(vec_of_erased![
+                    Ref::keyword("AFTER"),
+                    Ref::keyword("BEFORE")
+                ]),
+                one_of(vec_of_erased![
+                    Ref::keyword("INSERT"),
+                    Ref::keyword("UPDATE"),
+                    Ref::keyword("DELETE")
+                ])
+            ])
+            .config(|this| this.optional()),
+            Ref::new("CommaSegment").optional()
+        ])
+        .to_matchable()
+        .into(),
+    )]);
+
+    dialect.add([(
+        "SecurityPolicyOptionGrammar".into(),
+        one_of(vec_of_erased![
+            // STATE = ON/OFF
+            Sequence::new(vec_of_erased![
+                Ref::keyword("STATE"),
+                Ref::new("EqualsSegment"),
+                one_of(vec_of_erased![
+                    Ref::keyword("ON"),
+                    Ref::keyword("OFF")
+                ])
+            ]),
+            // SCHEMABINDING = ON/OFF
+            Sequence::new(vec_of_erased![
+                Ref::keyword("SCHEMABINDING"),
+                Ref::new("EqualsSegment"),
+                one_of(vec_of_erased![
+                    Ref::keyword("ON"),
+                    Ref::keyword("OFF")
+                ])
+            ])
+        ])
+        .to_matchable()
+        .into(),
+    )]);
+
+    // ALTER SECURITY POLICY
+    dialect.add([(
+        "AlterSecurityPolicyStatementSegment".into(),
+        NodeMatcher::new(SyntaxKind::AlterSecurityPolicyStatement, |_| {
+            Sequence::new(vec_of_erased![
+                Ref::keyword("ALTER"),
+                Ref::keyword("SECURITY"),
+                Ref::keyword("POLICY"),
+                Ref::new("ObjectReferenceSegment"),
+                one_of(vec_of_erased![
+                    // ADD/DROP/ALTER clauses
+                    AnyNumberOf::new(vec_of_erased![
+                        one_of(vec_of_erased![
+                            Ref::new("SecurityPolicyAddClause"),
+                            Ref::new("SecurityPolicyDropClause"),
+                            Ref::new("SecurityPolicyAlterClause")
+                        ])
+                    ])
+                    .config(|this| this.min_times(1)),
+                    // WITH clause only
+                    Sequence::new(vec_of_erased![
+                        Ref::keyword("WITH"),
+                        Bracketed::new(vec_of_erased![
+                            Delimited::new(vec_of_erased![
+                                Ref::new("SecurityPolicyOptionGrammar")
+                            ])
+                        ])
+                    ])
+                ]),
+                // Optional NOT FOR REPLICATION
+                Sequence::new(vec_of_erased![
+                    Ref::keyword("NOT"),
+                    Ref::keyword("FOR"),
+                    Ref::keyword("REPLICATION")
+                ])
+                .config(|this| this.optional())
+            ])
+            .to_matchable()
+        })
+        .to_matchable()
+        .into(),
+    )]);
+
+    dialect.add([(
+        "SecurityPolicyDropClause".into(),
+        Sequence::new(vec_of_erased![
+            Ref::keyword("DROP"),
+            one_of(vec_of_erased![
+                Ref::keyword("FILTER"),
+                Ref::keyword("BLOCK")
+            ]),
+            Ref::keyword("PREDICATE"),
+            Ref::keyword("ON"),
+            Ref::new("ObjectReferenceSegment"),
+            Ref::new("CommaSegment").optional()
+        ])
+        .to_matchable()
+        .into(),
+    )]);
+
+    dialect.add([(
+        "SecurityPolicyAlterClause".into(),
+        Sequence::new(vec_of_erased![
+            Ref::keyword("ALTER"),
+            one_of(vec_of_erased![
+                Ref::keyword("FILTER"),
+                Ref::keyword("BLOCK")
+            ]),
+            Ref::keyword("PREDICATE"),
+            // Function call: schema.function(column)
+            Ref::new("FunctionSegment"),
+            Ref::keyword("ON"),
+            Ref::new("ObjectReferenceSegment"),
+            // Optional AFTER INSERT/UPDATE/DELETE
+            Sequence::new(vec_of_erased![
+                one_of(vec_of_erased![
+                    Ref::keyword("AFTER"),
+                    Ref::keyword("BEFORE")
+                ]),
+                one_of(vec_of_erased![
+                    Ref::keyword("INSERT"),
+                    Ref::keyword("UPDATE"),
+                    Ref::keyword("DELETE")
+                ])
+            ])
+            .config(|this| this.optional()),
+            Ref::new("CommaSegment").optional()
+        ])
+        .to_matchable()
+        .into(),
+    )]);
+
+    // DROP SECURITY POLICY
+    dialect.add([(
+        "DropSecurityPolicyStatementSegment".into(),
+        NodeMatcher::new(SyntaxKind::DropSecurityPolicyStatement, |_| {
+            Sequence::new(vec_of_erased![
+                Ref::keyword("DROP"),
+                Ref::keyword("SECURITY"),
+                Ref::keyword("POLICY"),
+                Ref::new("IfExistsGrammar").optional(),
                 Ref::new("ObjectReferenceSegment")
             ])
             .to_matchable()

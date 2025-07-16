@@ -247,6 +247,8 @@ pub enum SyntaxKind {
     AlterDefaultPrivilegesRevoke,
     AlterIndexStatement,
     AlterTableSwitchStatement,
+    CreateExternalDataSourceStatement,
+    CreateExternalFileFormatStatement,
     ReindexStatementSegment,
     AnalyzeStatement,
     AlterTrigger,

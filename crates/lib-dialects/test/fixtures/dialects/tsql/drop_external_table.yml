@@ -1,23 +1,31 @@
 file:
-- unparsable:
-  - word: DROP
-  - word: EXTERNAL
-  - word: TABLE
-  - word: SalesPerson
-  - semicolon: ;
-  - word: DROP
-  - word: EXTERNAL
-  - word: TABLE
-  - word: dbo
-  - dot: .
-  - word: SalesPerson
-  - semicolon: ;
-  - word: DROP
-  - word: EXTERNAL
-  - word: TABLE
-  - word: EasternDivision
-  - dot: .
-  - word: dbo
-  - dot: .
-  - word: SalesPerson
-  - semicolon: ;
+- statement:
+  - drop_external_table_statement:
+    - keyword: DROP
+    - keyword: EXTERNAL
+    - keyword: TABLE
+    - object_reference:
+      - naked_identifier: SalesPerson
+- statement_terminator: ;
+- statement:
+  - drop_external_table_statement:
+    - keyword: DROP
+    - keyword: EXTERNAL
+    - keyword: TABLE
+    - object_reference:
+      - naked_identifier: dbo
+      - dot: .
+      - naked_identifier: SalesPerson
+- statement_terminator: ;
+- statement:
+  - drop_external_table_statement:
+    - keyword: DROP
+    - keyword: EXTERNAL
+    - keyword: TABLE
+    - object_reference:
+      - naked_identifier: EasternDivision
+      - dot: .
+      - naked_identifier: dbo
+      - dot: .
+      - naked_identifier: SalesPerson
+- statement_terminator: ;

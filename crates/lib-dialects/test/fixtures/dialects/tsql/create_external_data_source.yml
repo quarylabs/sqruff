@@ -1,45 +1,61 @@
 file:
-- unparsable:
-  - word: CREATE
-  - word: EXTERNAL
-  - word: DATA
-  - word: SOURCE
-  - word: MyOracleServer
-  - word: WITH
-  - start_bracket: (
-  - word: LOCATION
-  - raw_comparison_operator: =
-  - single_quote: '''oracle://145.145.145.145:1521'''
-  - comma: ','
-  - word: CREDENTIAL
-  - raw_comparison_operator: =
-  - word: OracleProxyAccount
-  - comma: ','
-  - word: PUSHDOWN
-  - raw_comparison_operator: =
-  - word: ON
-  - end_bracket: )
-  - semicolon: ;
-  - word: CREATE
-  - word: EXTERNAL
-  - word: DATA
-  - word: SOURCE
-  - double_quote: '[OracleSalesSrvr]'
-  - word: WITH
-  - start_bracket: (
-  - word: LOCATION
-  - raw_comparison_operator: =
-  - single_quote: '''oracle://145.145.145.145:1521'''
-  - comma: ','
-  - word: CONNECTION_OPTIONS
-  - raw_comparison_operator: =
-  - single_quote: '''ImpersonateUser=%CURRENT_USER'''
-  - comma: ','
-  - word: CREDENTIAL
-  - raw_comparison_operator: =
-  - double_quote: '[OracleProxyCredential]'
-  - end_bracket: )
-  - semicolon: ;
+- statement:
+  - create_external_data_source_statement:
+    - keyword: CREATE
+    - keyword: EXTERNAL
+    - keyword: DATA
+    - keyword: SOURCE
+    - object_reference:
+      - naked_identifier: MyOracleServer
+    - keyword: WITH
+    - bracketed:
+      - start_bracket: (
+      - keyword: LOCATION
+      - comparison_operator:
+        - raw_comparison_operator: =
+      - quoted_literal: '''oracle://145.145.145.145:1521'''
+      - comma: ','
+      - keyword: CREDENTIAL
+      - comparison_operator:
+        - raw_comparison_operator: =
+      - object_reference:
+        - naked_identifier: OracleProxyAccount
+      - comma: ','
+      - keyword: PUSHDOWN
+      - comparison_operator:
+        - raw_comparison_operator: =
+      - keyword: ON
+      - end_bracket: )
+- statement_terminator: ;
+- statement:
+  - create_external_data_source_statement:
+    - keyword: CREATE
+    - keyword: EXTERNAL
+    - keyword: DATA
+    - keyword: SOURCE
+    - object_reference:
+      - quoted_identifier: '[OracleSalesSrvr]'
+    - keyword: WITH
+    - bracketed:
+      - start_bracket: (
+      - keyword: LOCATION
+      - comparison_operator:
+        - raw_comparison_operator: =
+      - quoted_literal: '''oracle://145.145.145.145:1521'''
+      - comma: ','
+      - keyword: CONNECTION_OPTIONS
+      - comparison_operator:
+        - raw_comparison_operator: =
+      - quoted_literal: '''ImpersonateUser=%CURRENT_USER'''
+      - comma: ','
+      - keyword: CREDENTIAL
+      - comparison_operator:
+        - raw_comparison_operator: =
+      - object_reference:
+        - quoted_identifier: '[OracleProxyCredential]'
+      - end_bracket: )
+- statement_terminator: ;
+- file:
   - word: CREATE
   - word: EXTERNAL
   - word: DATA

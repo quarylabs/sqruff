@@ -1860,6 +1860,10 @@ pub fn raw_dialect() -> Dialect {
             Ref::new("CreateFullTextIndexStatementSegment"),
             Ref::new("AlterIndexStatementSegment"),
             Ref::new("AlterTableSwitchStatementSegment"),
+            Ref::new("CreateExternalDataSourceStatementSegment"),
+            Ref::new("CreateExternalFileFormatStatementSegment"),
+            Ref::new("CreateExternalTableStatementSegment"),
+            Ref::new("DropExternalTableStatementSegment"),
             // Include all ANSI statement types
             Ref::new("SelectableGrammar"),
             Ref::new("MergeStatementSegment"),
@@ -2746,6 +2750,273 @@ pub fn raw_dialect() -> Dialect {
             ])
             .to_matchable()
         })
+        .into(),
+    )]);
+
+    // CREATE EXTERNAL DATA SOURCE
+    dialect.add([(
+        "CreateExternalDataSourceStatementSegment".into(),
+        NodeMatcher::new(SyntaxKind::CreateExternalDataSourceStatement, |_| {
+            Sequence::new(vec_of_erased![
+                Ref::keyword("CREATE"),
+                Ref::keyword("EXTERNAL"),
+                Ref::keyword("DATA"),
+                Ref::keyword("SOURCE"),
+                Ref::new("ObjectReferenceSegment"),
+                Ref::keyword("WITH"),
+                Bracketed::new(vec_of_erased![
+                    Delimited::new(vec_of_erased![
+                        Ref::new("ExternalDataSourceOptionGrammar")
+                    ])
+                ])
+            ])
+            .to_matchable()
+        })
+        .to_matchable()
+        .into(),
+    )]);
+
+    dialect.add([(
+        "ExternalDataSourceOptionGrammar".into(),
+        one_of(vec_of_erased![
+            // LOCATION = 'connection_string'
+            Sequence::new(vec_of_erased![
+                Ref::keyword("LOCATION"),
+                Ref::new("EqualsSegment"),
+                Ref::new("QuotedLiteralSegment")
+            ]),
+            // CREDENTIAL = credential_name
+            Sequence::new(vec_of_erased![
+                Ref::keyword("CREDENTIAL"),
+                Ref::new("EqualsSegment"),
+                Ref::new("ObjectReferenceSegment")
+            ]),
+            // PUSHDOWN = ON/OFF
+            Sequence::new(vec_of_erased![
+                Ref::keyword("PUSHDOWN"),
+                Ref::new("EqualsSegment"),
+                one_of(vec_of_erased![
+                    Ref::keyword("ON"),
+                    Ref::keyword("OFF")
+                ])
+            ]),
+            // CONNECTION_OPTIONS = 'options'
+            Sequence::new(vec_of_erased![
+                Ref::keyword("CONNECTION_OPTIONS"),
+                Ref::new("EqualsSegment"),
+                Ref::new("QuotedLiteralSegment")
+            ])
+        ])
+        .to_matchable()
+        .into(),
+    )]);
+
+    // CREATE EXTERNAL FILE FORMAT
+    dialect.add([(
+        "CreateExternalFileFormatStatementSegment".into(),
+        NodeMatcher::new(SyntaxKind::CreateExternalFileFormatStatement, |_| {
+            Sequence::new(vec_of_erased![
+                Ref::keyword("CREATE"),
+                Ref::keyword("EXTERNAL"),
+                Ref::keyword("FILE"),
+                Ref::keyword("FORMAT"),
+                Ref::new("ObjectReferenceSegment"),
+                Ref::keyword("WITH"),
+                Bracketed::new(vec_of_erased![
+                    Delimited::new(vec_of_erased![
+                        Ref::new("ExternalFileFormatOptionGrammar")
+                    ])
+                ])
+            ])
+            .to_matchable()
+        })
+        .to_matchable()
+        .into(),
+    )]);
+
+    dialect.add([(
+        "ExternalFileFormatOptionGrammar".into(),
+        one_of(vec_of_erased![
+            // FORMAT_TYPE = format_type
+            Sequence::new(vec_of_erased![
+                Ref::keyword("FORMAT_TYPE"),
+                Ref::new("EqualsSegment"),
+                one_of(vec_of_erased![
+                    Ref::keyword("DELIMITEDTEXT"),
+                    Ref::keyword("RCFILE"),
+                    Ref::keyword("ORC"),
+                    Ref::keyword("PARQUET"),
+                    Ref::keyword("JSON"),
+                    Ref::keyword("DELTA")
+                ])
+            ]),
+            // FORMAT_OPTIONS (...)
+            Sequence::new(vec_of_erased![
+                Ref::keyword("FORMAT_OPTIONS"),
+                Bracketed::new(vec_of_erased![
+                    Delimited::new(vec_of_erased![
+                        Ref::new("FormatOptionGrammar")
+                    ])
+                ])
+            ]),
+            // SERDE_METHOD = 'serde_class'
+            Sequence::new(vec_of_erased![
+                Ref::keyword("SERDE_METHOD"),
+                Ref::new("EqualsSegment"),
+                Ref::new("QuotedLiteralSegment")
+            ]),
+            // DATA_COMPRESSION = 'compression_codec'
+            Sequence::new(vec_of_erased![
+                Ref::keyword("DATA_COMPRESSION"),
+                Ref::new("EqualsSegment"),
+                Ref::new("QuotedLiteralSegment")
+            ]),
+            // ENCODING = 'encoding_type'
+            Sequence::new(vec_of_erased![
+                Ref::keyword("ENCODING"),
+                Ref::new("EqualsSegment"),
+                Ref::new("QuotedLiteralSegment")
+            ])
+        ])
+        .to_matchable()
+        .into(),
+    )]);
+
+    dialect.add([(
+        "FormatOptionGrammar".into(),
+        one_of(vec_of_erased![
+            // FIELD_TERMINATOR = 'delimiter'
+            Sequence::new(vec_of_erased![
+                Ref::keyword("FIELD_TERMINATOR"),
+                Ref::new("EqualsSegment"),
+                Ref::new("QuotedLiteralSegment")
+            ]),
+            // STRING_DELIMITER = 'delimiter'
+            Sequence::new(vec_of_erased![
+                Ref::keyword("STRING_DELIMITER"),
+                Ref::new("EqualsSegment"),
+                Ref::new("QuotedLiteralSegment")
+            ]),
+            // FIRST_ROW = number
+            Sequence::new(vec_of_erased![
+                Ref::keyword("FIRST_ROW"),
+                Ref::new("EqualsSegment"),
+                Ref::new("NumericLiteralSegment")
+            ]),
+            // USE_TYPE_DEFAULT = True/False
+            Sequence::new(vec_of_erased![
+                Ref::keyword("USE_TYPE_DEFAULT"),
+                Ref::new("EqualsSegment"),
+                one_of(vec_of_erased![
+                    Ref::keyword("TRUE"),
+                    Ref::keyword("FALSE")
+                ])
+            ]),
+            // DATE_FORMAT = 'format'
+            Sequence::new(vec_of_erased![
+                Ref::keyword("DATE_FORMAT"),
+                Ref::new("EqualsSegment"),
+                Ref::new("QuotedLiteralSegment")
+            ])
+        ])
+        .to_matchable()
+        .into(),
+    )]);
+
+    // CREATE EXTERNAL TABLE
+    dialect.add([(
+        "CreateExternalTableStatementSegment".into(),
+        NodeMatcher::new(SyntaxKind::CreateExternalTableStatement, |_| {
+            Sequence::new(vec_of_erased![
+                Ref::keyword("CREATE"),
+                Ref::keyword("EXTERNAL"),
+                Ref::keyword("TABLE"),
+                Ref::new("ObjectReferenceSegment"),
+                Bracketed::new(vec_of_erased![
+                    Delimited::new(vec_of_erased![
+                        Ref::new("ColumnDefinitionSegment")
+                    ])
+                    .config(|this| this.allow_trailing())
+                ]),
+                Ref::keyword("WITH"),
+                Bracketed::new(vec_of_erased![
+                    Delimited::new(vec_of_erased![
+                        Ref::new("ExternalTableOptionGrammar")
+                    ])
+                ])
+            ])
+            .to_matchable()
+        })
+        .to_matchable()
+        .into(),
+    )]);
+
+    dialect.add([(
+        "ExternalTableOptionGrammar".into(),
+        one_of(vec_of_erased![
+            // LOCATION = 'path'
+            Sequence::new(vec_of_erased![
+                Ref::keyword("LOCATION"),
+                Ref::new("EqualsSegment"),
+                Ref::new("QuotedLiteralSegment")
+            ]),
+            // DATA_SOURCE = data_source_name
+            Sequence::new(vec_of_erased![
+                Ref::keyword("DATA_SOURCE"),
+                Ref::new("EqualsSegment"),
+                Ref::new("ObjectReferenceSegment")
+            ]),
+            // FILE_FORMAT = file_format_name
+            Sequence::new(vec_of_erased![
+                Ref::keyword("FILE_FORMAT"),
+                Ref::new("EqualsSegment"),
+                Ref::new("ObjectReferenceSegment")
+            ]),
+            // REJECT_TYPE = VALUE/PERCENTAGE
+            Sequence::new(vec_of_erased![
+                Ref::keyword("REJECT_TYPE"),
+                Ref::new("EqualsSegment"),
+                one_of(vec_of_erased![
+                    Ref::keyword("VALUE"),
+                    Ref::keyword("PERCENTAGE")
+                ])
+            ]),
+            // REJECT_VALUE = number
+            Sequence::new(vec_of_erased![
+                Ref::keyword("REJECT_VALUE"),
+                Ref::new("EqualsSegment"),
+                Ref::new("NumericLiteralSegment")
+            ]),
+            // REJECT_SAMPLE_VALUE = number
+            Sequence::new(vec_of_erased![
+                Ref::keyword("REJECT_SAMPLE_VALUE"),
+                Ref::new("EqualsSegment"),
+                Ref::new("NumericLiteralSegment")
+            ]),
+            // REJECTED_ROW_LOCATION = 'path'
+            Sequence::new(vec_of_erased![
+                Ref::keyword("REJECTED_ROW_LOCATION"),
+                Ref::new("EqualsSegment"),
+                Ref::new("QuotedLiteralSegment")
+            ])
+        ])
+        .to_matchable()
+        .into(),
+    )]);
+
+    // DROP EXTERNAL TABLE
+    dialect.add([(
+        "DropExternalTableStatementSegment".into(),
+        NodeMatcher::new(SyntaxKind::DropExternalTableStatement, |_| {
+            Sequence::new(vec_of_erased![
+                Ref::keyword("DROP"),
+                Ref::keyword("EXTERNAL"),
+                Ref::keyword("TABLE"),
+                Ref::new("ObjectReferenceSegment")
+            ])
+            .to_matchable()
+        })
+        .to_matchable()
         .into(),
     )]);
 

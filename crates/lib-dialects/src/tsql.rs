@@ -801,6 +801,25 @@ pub fn raw_dialect() -> Dialect {
             .to_matchable()
             .into(),
         ),
+        // SET CONTEXT_INFO statement
+        (
+            "SetContextInfoStatementSegment".into(),
+            NodeMatcher::new(SyntaxKind::SetContextInfoStatement, |_| {
+                Sequence::new(vec_of_erased![
+                    Ref::keyword("SET"),
+                    Ref::keyword("CONTEXT_INFO"),
+                    one_of(vec_of_erased![
+                        Ref::new("NumericLiteralSegment"),
+                        Ref::new("TsqlVariableSegment"),
+                        Ref::new("ExpressionSegment"),
+                        Ref::keyword("NULL")
+                    ])
+                ])
+                .to_matchable()
+            })
+            .to_matchable()
+            .into(),
+        ),
     ]);
 
     // IF...ELSE statement
@@ -2029,6 +2048,7 @@ pub fn raw_dialect() -> Dialect {
             Ref::new("CreateSynonymStatementSegment"),
             Ref::new("DropSynonymStatementSegment"),
             Ref::new("RenameObjectStatementSegment"),
+            Ref::new("SetContextInfoStatementSegment"),
             // Include all ANSI statement types
             Ref::new("SelectableGrammar"),
             Ref::new("MergeStatementSegment"),

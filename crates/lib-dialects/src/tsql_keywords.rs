@@ -38,6 +38,7 @@ pub(crate) fn tsql_additional_reserved_keywords() -> AHashSet<&'static str> {
         "COMPUTE",
         "CONSTRAINT",
         "CONTAINS",
+        "CONTEXT_INFO",
         "CONTAINSTABLE",
         "CONTINUE",
         "CONTROL",

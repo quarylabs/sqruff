@@ -1,42 +1,75 @@
 file:
-- unparsable:
-  - word: SET
-  - word: CONTEXT_INFO
-  - word: '0x01010101'
-  - semicolon: ;
-  - word: DECLARE
+- statement:
+  - set_context_info_statement:
+    - keyword: SET
+    - keyword: CONTEXT_INFO
+    - expression:
+      - column_reference:
+        - naked_identifier: '0x01010101'
+- statement_terminator: ;
+- statement:
+  - keyword: DECLARE
   - tsql_variable: '@BinVar'
-  - word: varbinary
-  - start_bracket: (
-  - numeric_literal: '128'
-  - end_bracket: )
-  - semicolon: ;
-  - word: SET
+  - data_type:
+    - data_type_identifier: varbinary
+    - bracketed_arguments:
+      - bracketed:
+        - start_bracket: (
+        - numeric_literal: '128'
+        - end_bracket: )
+- statement_terminator: ;
+- statement:
+  - keyword: SET
   - tsql_variable: '@BinVar'
-  - raw_comparison_operator: =
-  - word: CAST
-  - start_bracket: (
-  - word: REPLICATE
-  - start_bracket: (
-  - word: '0x20'
-  - comma: ','
-  - numeric_literal: '128'
-  - end_bracket: )
-  - word: AS
-  - word: varbinary
-  - start_bracket: (
-  - numeric_literal: '128'
-  - end_bracket: )
-  - end_bracket: )
-  - semicolon: ;
-  - word: SET
-  - word: CONTEXT_INFO
-  - tsql_variable: '@BinVar'
-  - semicolon: ;
-  - word: SELECT
-  - word: CONTEXT_INFO
-  - start_bracket: (
-  - end_bracket: )
-  - word: AS
-  - word: MyContextInfo
-  - semicolon: ;
+  - assignment_operator:
+    - raw_comparison_operator: =
+  - expression:
+    - function:
+      - function_name:
+        - function_name_identifier: CAST
+      - bracketed:
+        - start_bracket: (
+        - expression:
+          - function:
+            - function_name:
+              - function_name_identifier: REPLICATE
+            - bracketed:
+              - start_bracket: (
+              - expression:
+                - column_reference:
+                  - naked_identifier: '0x20'
+              - comma: ','
+              - expression:
+                - numeric_literal: '128'
+              - end_bracket: )
+        - keyword: AS
+        - data_type:
+          - data_type_identifier: varbinary
+          - bracketed_arguments:
+            - bracketed:
+              - start_bracket: (
+              - numeric_literal: '128'
+              - end_bracket: )
+        - end_bracket: )
+- statement_terminator: ;
+- statement:
+  - set_context_info_statement:
+    - keyword: SET
+    - keyword: CONTEXT_INFO
+    - tsql_variable: '@BinVar'
+- statement_terminator: ;
+- statement:
+  - select_statement:
+    - select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+        - function:
+          - function_name:
+            - function_name_identifier: CONTEXT_INFO
+          - bracketed:
+            - start_bracket: (
+            - end_bracket: )
+        - alias_expression:
+          - keyword: AS
+          - naked_identifier: MyContextInfo
+- statement_terminator: ;

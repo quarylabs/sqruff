@@ -101,6 +101,7 @@ pub enum SyntaxKind {
     DropMasterKeyStatement,
     ReconfigureStatement,
     RenameObjectStatement,
+    SetContextInfoStatement,
     AccessStatement,
     InsertStatement,
     TransactionStatement,

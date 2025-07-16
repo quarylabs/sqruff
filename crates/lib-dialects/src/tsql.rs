@@ -1095,6 +1095,44 @@ pub fn raw_dialect() -> Dialect {
         ),
     ]);
 
+    // CREATE TYPE statement
+    dialect.add([
+        (
+            "CreateTypeStatementSegment".into(),
+            NodeMatcher::new(SyntaxKind::CreateTypeStatement, |_| {
+                Sequence::new(vec_of_erased![
+                    Ref::keyword("CREATE"),
+                    Ref::keyword("TYPE"),
+                    Ref::new("ObjectReferenceSegment"),
+                    one_of(vec_of_erased![
+                        // CREATE TYPE name FROM type
+                        Sequence::new(vec_of_erased![
+                            Ref::keyword("FROM"),
+                            Ref::new("ObjectReferenceSegment")
+                        ]),
+                        // CREATE TYPE name AS TABLE (...)
+                        Sequence::new(vec_of_erased![
+                            Ref::keyword("AS"),
+                            Ref::keyword("TABLE"),
+                            Bracketed::new(vec_of_erased![
+                                Delimited::new(vec_of_erased![
+                                    one_of(vec_of_erased![
+                                        Ref::new("TableConstraintSegment"),
+                                        Ref::new("ColumnDefinitionSegment")
+                                    ])
+                                ])
+                                .config(|this| this.allow_trailing())
+                            ])
+                        ])
+                    ])
+                ])
+                .to_matchable()
+            })
+            .to_matchable()
+            .into(),
+        ),
+    ]);
+
     // PIVOT and UNPIVOT support
     dialect.add([
         (
@@ -1239,6 +1277,7 @@ pub fn raw_dialect() -> Dialect {
             Ref::new("ExecuteStatementGrammar"),
             Ref::new("UseStatementGrammar"),
             Ref::new("WaitforStatementSegment"),
+            Ref::new("CreateTypeStatementSegment"),
             // Include all ANSI statement types
             Ref::new("SelectableGrammar"),
             Ref::new("MergeStatementSegment"),

@@ -107,6 +107,8 @@ pub(crate) fn tsql_additional_reserved_keywords() -> AHashSet<&'static str> {
         "INTO",
         "IS",
         "JOIN",
+        "JSON_ARRAY",
+        "JSON_OBJECT",
         "KEY",
         "KILL",
         "LEFT",

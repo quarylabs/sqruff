@@ -4138,6 +4138,90 @@ pub fn raw_dialect() -> Dialect {
             .to_matchable()
             .into(),
         ),
+        // T-SQL JSON_OBJECT function with key:value syntax
+        (
+            "TsqlJsonObjectSegment".into(),
+            NodeMatcher::new(SyntaxKind::Function, |_| {
+                Sequence::new(vec_of_erased![
+                    Ref::keyword("JSON_OBJECT"),
+                    Bracketed::new(vec_of_erased![
+                        Delimited::new(vec_of_erased![
+                            // Key-value pairs with colon syntax
+                            Sequence::new(vec_of_erased![
+                                Ref::new("ExpressionSegment"), // key
+                                Ref::new("ColonSegment"),       // :
+                                Ref::new("ExpressionSegment")  // value
+                            ])
+                        ]).config(|this| {
+                            this.allow_trailing = true;
+                        })
+                    ])
+                    .config(|this| this.parse_mode(ParseMode::Greedy))
+                ])
+                .to_matchable()
+            })
+            .to_matchable()
+            .into(),
+        ),
+        // T-SQL JSON_ARRAY function 
+        (
+            "TsqlJsonArraySegment".into(),
+            NodeMatcher::new(SyntaxKind::Function, |_| {
+                Sequence::new(vec_of_erased![
+                    Ref::keyword("JSON_ARRAY"),
+                    Bracketed::new(vec_of_erased![
+                        Delimited::new(vec_of_erased![Ref::new("ExpressionSegment")])
+                            .config(|this| {
+                                this.allow_trailing = true;
+                            })
+                    ])
+                    .config(|this| this.parse_mode(ParseMode::Greedy))
+                ])
+                .to_matchable()
+            })
+            .to_matchable()
+            .into(),
+        ),
+    ]);
+
+    // Override FunctionSegment to include T-SQL specific JSON functions
+    dialect.add([
+        (
+            "FunctionSegment".into(),
+            NodeMatcher::new(SyntaxKind::Function, |_| {
+                one_of(vec_of_erased![
+                    Ref::new("TsqlJsonObjectSegment"),
+                    Ref::new("TsqlJsonArraySegment"),
+                    // Fall back to base function grammar
+                    Sequence::new(vec_of_erased![Sequence::new(vec_of_erased![
+                        Ref::new("DatePartFunctionNameSegment"),
+                        Bracketed::new(vec_of_erased![Delimited::new(vec_of_erased![
+                            Ref::new("DatetimeUnitSegment"),
+                            Ref::new("FunctionContentsGrammar").optional()
+                        ])])
+                        .config(|this| this.parse_mode(ParseMode::Greedy))
+                    ])]),
+                    Sequence::new(vec_of_erased![
+                        Sequence::new(vec_of_erased![
+                            Ref::new("FunctionNameSegment").exclude(one_of(vec_of_erased![
+                                Ref::new("DatePartFunctionNameSegment"),
+                                Ref::new("ValuesClauseSegment"),
+                                Ref::keyword("JSON_OBJECT"),
+                                Ref::keyword("JSON_ARRAY")
+                            ])),
+                            Bracketed::new(vec_of_erased![
+                                Ref::new("FunctionContentsGrammar").optional()
+                            ])
+                            .config(|this| this.parse_mode(ParseMode::Greedy))
+                        ]),
+                        Ref::new("PostFunctionGrammar").optional()
+                    ])
+                ])
+                .to_matchable()
+            })
+            .to_matchable()
+            .into(),
+        ),
     ]);
     
     // expand() must be called after all grammar modifications

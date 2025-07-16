@@ -187,14 +187,7 @@ pub enum SyntaxKind {
     ProcedureName,
     ExportStatement,
     ProcedureParameterList,
-    ProcedureParameter,
-    ParameterName,
     ProcedureStatements,
-    BeginEndBlock,
-    TryBlock,
-    GotoStatement,
-    Label,
-    BatchSeparator,
     CallStatement,
     ReturnStatement,
     BreakStatement,
@@ -603,6 +596,7 @@ pub enum SyntaxKind {
     MapTypeSchema,
     PrepareStatement,
     ExecuteStatement,
+    RenameTableStatement,
 }
 
 impl SyntaxKind {

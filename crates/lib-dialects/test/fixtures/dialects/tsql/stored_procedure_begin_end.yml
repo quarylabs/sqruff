@@ -48,8 +48,7 @@ file:
       - statement_terminator: ;
       - keyword: END
 - statement_terminator: ;
-- statement:
-  - keyword: GO
+- keyword: GO
 - statement:
   - create_procedure_statement:
     - keyword: CREATE
@@ -92,8 +91,7 @@ file:
         - quoted_literal: '''8'''
   - keyword: END
 - statement_terminator: ;
-- statement:
-  - keyword: GO
+- keyword: GO
 - statement:
   - create_procedure_statement:
     - keyword: CREATE
@@ -139,8 +137,7 @@ file:
         - quoted_literal: '''8'''
   - keyword: END
 - statement_terminator: ;
-- statement:
-  - keyword: GO
+- keyword: GO
 - statement:
   - create_procedure_statement:
     - keyword: ALTER
@@ -221,9 +218,7 @@ file:
     - assignment_operator:
       - raw_comparison_operator: =
     - expression:
-      - data_type:
-        - data_type_identifier: N
-      - quoted_literal: '''Missing control type.'''
+      - quoted_literal: N'Missing control type.'
   - statement_terminator: ;
   - statement:
     - keyword: SET
@@ -234,9 +229,7 @@ file:
       - parameterized_expression:
         - tsql_variable: '@v_vchMsg'
       - binary_operator: +
-      - data_type:
-        - data_type_identifier: N
-      - quoted_literal: ''' SQL Error = '''
+      - quoted_literal: N' SQL Error = '
       - binary_operator: +
       - function:
         - function_name:
@@ -253,5 +246,4 @@ file:
   - keyword: CATCH
   - keyword: END
 - statement_terminator: ;
-- statement:
-  - keyword: GO
+- keyword: GO

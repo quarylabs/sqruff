@@ -49,9 +49,7 @@ file:
   - assignment_operator:
     - raw_comparison_operator: =
   - expression:
-    - data_type:
-      - data_type_identifier: N
-    - quoted_literal: '''LOW'''
+    - quoted_literal: N'LOW'
 - statement_terminator: ;
 - statement:
   - keyword: BEGIN

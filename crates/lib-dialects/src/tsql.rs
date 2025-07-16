@@ -650,14 +650,11 @@ pub fn raw_dialect() -> Dialect {
     dialect.add([
         (
             "BatchSeparatorSegment".into(),
-            NodeMatcher::new(SyntaxKind::BatchSeparator, |_| {
-                Sequence::new(vec_of_erased![
-                    Ref::keyword("GO"),
-                    // GO can optionally be followed by a count (e.g., GO 10)
-                    Ref::new("NumericLiteralSegment").optional()
-                ])
-                .to_matchable()
-            })
+            Sequence::new(vec_of_erased![
+                Ref::keyword("GO"),
+                // GO can optionally be followed by a count (e.g., GO 10)
+                Ref::new("NumericLiteralSegment").optional()
+            ])
             .to_matchable()
             .into(),
         ),

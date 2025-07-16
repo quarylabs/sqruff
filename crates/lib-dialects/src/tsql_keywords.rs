@@ -696,6 +696,10 @@ pub(crate) fn tsql_additional_unreserved_keywords() -> AHashSet<&'static str> {
         "AFTER",
         "BEFORE",
         "REPLICATION",
+        // RAISERROR keywords
+        "LOG",
+        "NOWAIT",
+        "SETERROR",
     ]
     .into_iter()
     .collect()

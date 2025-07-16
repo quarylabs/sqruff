@@ -1869,6 +1869,7 @@ pub fn raw_dialect() -> Dialect {
             Ref::new("AlterSecurityPolicyStatementSegment"),
             Ref::new("DropSecurityPolicyStatementSegment"),
             Ref::new("DisableTriggerStatementSegment"),
+            Ref::new("RaiserrorStatementSegment"),
             // Include all ANSI statement types
             Ref::new("SelectableGrammar"),
             Ref::new("MergeStatementSegment"),
@@ -3565,6 +3566,53 @@ pub fn raw_dialect() -> Dialect {
                             Ref::keyword("ALL"),
                             Ref::keyword("SERVER")
                         ])
+                    ])
+                ])
+                .config(|this| this.optional())
+            ])
+            .to_matchable()
+        })
+        .to_matchable()
+        .into(),
+    )]);
+
+    // RAISERROR statement
+    dialect.add([(
+        "RaiserrorStatementSegment".into(),
+        NodeMatcher::new(SyntaxKind::Statement, |_| {
+            Sequence::new(vec_of_erased![
+                Ref::keyword("RAISERROR"),
+                Bracketed::new(vec_of_erased![
+                    Delimited::new(vec_of_erased![
+                        // Message: numeric message ID, string literal, or variable
+                        one_of(vec_of_erased![
+                            Ref::new("NumericLiteralSegment"),
+                            Ref::new("QuotedLiteralSegment"),
+                            Ref::new("TsqlVariableSegment")
+                        ]),
+                        // Severity: numeric literal or variable
+                        one_of(vec_of_erased![
+                            Ref::new("NumericLiteralSegment"),
+                            Ref::new("TsqlVariableSegment")
+                        ]),
+                        // State: numeric literal or variable
+                        one_of(vec_of_erased![
+                            Ref::new("NumericLiteralSegment"),
+                            Ref::new("TsqlVariableSegment")
+                        ])
+                    ])
+                    // Optional arguments for message formatting
+                    .config(|this| {
+                        this.allow_trailing();
+                    })
+                ]),
+                // WITH options
+                Sequence::new(vec_of_erased![
+                    Ref::keyword("WITH"),
+                    Delimited::new(vec_of_erased![
+                        Ref::keyword("LOG"),
+                        Ref::keyword("NOWAIT"),
+                        Ref::keyword("SETERROR")
                     ])
                 ])
                 .config(|this| this.optional())

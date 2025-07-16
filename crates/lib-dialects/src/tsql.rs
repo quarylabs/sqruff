@@ -2831,6 +2831,7 @@ pub fn raw_dialect() -> Dialect {
         one_of(vec_of_erased![
             Ref::new("ConcatSegment"), // Standard || operator
             Ref::new("PlusSegment"),   // T-SQL + operator for string concatenation
+            Ref::keyword("COLLATE"),   // T-SQL COLLATE clause for string comparison
         ])
         .to_matchable()
         .into(),

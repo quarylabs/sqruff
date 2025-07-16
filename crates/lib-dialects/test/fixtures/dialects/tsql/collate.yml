@@ -37,9 +37,9 @@ file:
                 - naked_identifier: table2
                 - dot: .
                 - naked_identifier: col
-    - unparsable:
-      - word: COLLATE
-      - word: Latin1_GENERAL_CS_AS
+              - keyword: COLLATE
+              - column_reference:
+                - naked_identifier: Latin1_GENERAL_CS_AS
 - statement_terminator: ;
 - statement:
   - select_statement:
@@ -73,13 +73,15 @@ file:
                 - naked_identifier: table1
                 - dot: .
                 - naked_identifier: col
-    - unparsable:
-      - word: COLLATE
-      - word: Latin1_GENERAL_CS_AS
-      - raw_comparison_operator: =
-      - word: table2
-      - dot: .
-      - word: col
+              - keyword: COLLATE
+              - column_reference:
+                - naked_identifier: Latin1_GENERAL_CS_AS
+              - comparison_operator:
+                - raw_comparison_operator: =
+              - column_reference:
+                - naked_identifier: table2
+                - dot: .
+                - naked_identifier: col
 - statement_terminator: ;
 - statement:
   - select_statement:
@@ -99,23 +101,25 @@ file:
     - orderby_clause:
       - keyword: ORDER
       - keyword: BY
-      - column_reference:
-        - naked_identifier: col
-    - unparsable:
-      - word: COLLATE
-      - word: Latin1_General_CS_AS_KS_WS
-      - word: DESC
+      - expression:
+        - column_reference:
+          - naked_identifier: col
+        - keyword: COLLATE
+        - column_reference:
+          - naked_identifier: Latin1_General_CS_AS_KS_WS
+      - keyword: DESC
 - statement_terminator: ;
 - statement:
   - select_statement:
     - select_clause:
       - keyword: SELECT
       - select_clause_element:
-        - column_reference:
-          - naked_identifier: col
-      - unparsable:
-        - word: COLLATE
-        - word: Latin1_General_CS_AS_KS_WS
+        - expression:
+          - column_reference:
+            - naked_identifier: col
+          - keyword: COLLATE
+          - column_reference:
+            - naked_identifier: Latin1_General_CS_AS_KS_WS
     - from_clause:
       - keyword: FROM
       - from_expression:
@@ -130,11 +134,12 @@ file:
     - select_clause:
       - keyword: SELECT
       - select_clause_element:
-        - column_reference:
-          - naked_identifier: col
-      - unparsable:
-        - word: COLLATE
-        - word: database_default
+        - expression:
+          - column_reference:
+            - naked_identifier: col
+          - keyword: COLLATE
+          - column_reference:
+            - naked_identifier: database_default
     - from_clause:
       - keyword: FROM
       - from_expression:

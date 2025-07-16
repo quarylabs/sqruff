@@ -14,9 +14,11 @@ file:
       - word: NOCOUNT
       - word: ON
 - statement_terminator: ;
+- statement:
+  - statement:
+    - keyword: OPEN
+    - naked_identifier: SYMMETRIC
 - file:
-  - word: OPEN
-  - word: SYMMETRIC
   - word: KEY
   - double_quote: '[Key01]'
   - word: DECRYPTION

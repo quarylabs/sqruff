@@ -40,15 +40,13 @@ file:
     - select_clause:
       - keyword: select
       - select_clause_element:
-        - expression:
-          - parameterized_expression:
-            - tsql_variable: '@userid_parameter'
-          - comparison_operator:
-            - raw_comparison_operator: =
-          - column_reference:
-            - naked_identifier: c
-            - dot: .
-            - naked_identifier: id
+        - tsql_variable: '@userid_parameter'
+        - assignment_operator:
+          - raw_comparison_operator: =
+        - column_reference:
+          - naked_identifier: c
+          - dot: .
+          - naked_identifier: id
     - from_clause:
       - keyword: from
       - from_expression:

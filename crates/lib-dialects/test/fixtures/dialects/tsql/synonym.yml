@@ -1,36 +1,52 @@
 file:
-- unparsable:
-  - word: CREATE
-  - word: SYNONYM
-  - word: my_synonym
-  - word: FOR
-  - word: mytable
-  - semicolon: ;
-  - word: CREATE
-  - word: SYNONYM
-  - word: my_synonym
-  - word: FOR
-  - word: otherdb
-  - dot: .
-  - word: dbo
-  - dot: .
-  - word: mytable
-  - semicolon: ;
-  - word: DROP
-  - word: SYNONYM
-  - word: my_synonym
-  - semicolon: ;
-  - word: DROP
-  - word: SYNONYM
-  - word: IF
-  - word: EXISTS
-  - word: my_synonym
-  - semicolon: ;
-  - word: DROP
-  - word: SYNONYM
-  - word: IF
-  - word: EXISTS
-  - word: dbo
-  - dot: .
-  - word: my_synonym
-  - semicolon: ;
+- statement:
+  - create_synonym_statement:
+    - keyword: CREATE
+    - keyword: SYNONYM
+    - object_reference:
+      - naked_identifier: my_synonym
+    - keyword: FOR
+    - object_reference:
+      - naked_identifier: mytable
+- statement_terminator: ;
+- statement:
+  - create_synonym_statement:
+    - keyword: CREATE
+    - keyword: SYNONYM
+    - object_reference:
+      - naked_identifier: my_synonym
+    - keyword: FOR
+    - object_reference:
+      - naked_identifier: otherdb
+      - dot: .
+      - naked_identifier: dbo
+      - dot: .
+      - naked_identifier: mytable
+- statement_terminator: ;
+- statement:
+  - drop_synonym_statement:
+    - keyword: DROP
+    - keyword: SYNONYM
+    - object_reference:
+      - naked_identifier: my_synonym
+- statement_terminator: ;
+- statement:
+  - drop_synonym_statement:
+    - keyword: DROP
+    - keyword: SYNONYM
+    - keyword: IF
+    - keyword: EXISTS
+    - object_reference:
+      - naked_identifier: my_synonym
+- statement_terminator: ;
+- statement:
+  - drop_synonym_statement:
+    - keyword: DROP
+    - keyword: SYNONYM
+    - keyword: IF
+    - keyword: EXISTS
+    - object_reference:
+      - naked_identifier: dbo
+      - dot: .
+      - naked_identifier: my_synonym
+- statement_terminator: ;

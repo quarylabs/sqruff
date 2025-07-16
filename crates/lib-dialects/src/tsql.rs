@@ -254,15 +254,90 @@ pub fn raw_dialect() -> Dialect {
         .to_matchable(),
     );
 
-    // Add T-SQL assignment operator segment
-    dialect.add([(
-        "AssignmentOperatorSegment".into(),
-        NodeMatcher::new(SyntaxKind::AssignmentOperator, |_| {
-            Ref::new("RawEqualsSegment").to_matchable()
-        })
-        .to_matchable()
-        .into(),
-    )]);
+    // Add T-SQL assignment operator segments
+    dialect.add([
+        (
+            "AssignmentOperatorSegment".into(),
+            NodeMatcher::new(SyntaxKind::AssignmentOperator, |_| {
+                one_of(vec_of_erased![
+                    Ref::new("RawEqualsSegment"),
+                    Ref::new("AdditionAssignmentSegment"),
+                    Ref::new("SubtractionAssignmentSegment"),
+                    Ref::new("MultiplicationAssignmentSegment"),
+                    Ref::new("DivisionAssignmentSegment"),
+                    Ref::new("ModulusAssignmentSegment")
+                ])
+                .to_matchable()
+            })
+            .to_matchable()
+            .into(),
+        ),
+        // Addition assignment (+=)
+        (
+            "AdditionAssignmentSegment".into(),
+            NodeMatcher::new(SyntaxKind::AdditionAssignmentSegment, |_| {
+                Sequence::new(vec_of_erased![
+                    Ref::new("PlusSegment"),
+                    Ref::new("RawEqualsSegment")
+                ])
+                .to_matchable()
+            })
+            .to_matchable()
+            .into(),
+        ),
+        // Subtraction assignment (-=)
+        (
+            "SubtractionAssignmentSegment".into(),
+            NodeMatcher::new(SyntaxKind::SubtractionAssignmentSegment, |_| {
+                Sequence::new(vec_of_erased![
+                    Ref::new("MinusSegment"),
+                    Ref::new("RawEqualsSegment")
+                ])
+                .to_matchable()
+            })
+            .to_matchable()
+            .into(),
+        ),
+        // Multiplication assignment (*=)
+        (
+            "MultiplicationAssignmentSegment".into(),
+            NodeMatcher::new(SyntaxKind::MultiplicationAssignmentSegment, |_| {
+                Sequence::new(vec_of_erased![
+                    Ref::new("MultiplySegment"),
+                    Ref::new("RawEqualsSegment")
+                ])
+                .to_matchable()
+            })
+            .to_matchable()
+            .into(),
+        ),
+        // Division assignment (/=)
+        (
+            "DivisionAssignmentSegment".into(),
+            NodeMatcher::new(SyntaxKind::DivisionAssignmentSegment, |_| {
+                Sequence::new(vec_of_erased![
+                    Ref::new("DivideSegment"),
+                    Ref::new("RawEqualsSegment")
+                ])
+                .to_matchable()
+            })
+            .to_matchable()
+            .into(),
+        ),
+        // Modulus assignment (%=)
+        (
+            "ModulusAssignmentSegment".into(),
+            NodeMatcher::new(SyntaxKind::ModulusAssignmentSegment, |_| {
+                Sequence::new(vec_of_erased![
+                    Ref::new("ModuloSegment"),
+                    Ref::new("RawEqualsSegment")
+                ])
+                .to_matchable()
+            })
+            .to_matchable()
+            .into(),
+        ),
+    ]);
 
     // Override NakedIdentifierSegment to support T-SQL identifiers with # at the end
     // T-SQL allows temporary table names like #temp or ##global
@@ -2581,6 +2656,12 @@ pub fn raw_dialect() -> Dialect {
                     Ref::new("ColumnReferenceSegment"),
                     Ref::new("BaseExpressionElementGrammar")
                 ])
+            ]),
+            // T-SQL variable assignment pattern: @var += value, @var -= value, etc.
+            Sequence::new(vec_of_erased![
+                Ref::new("TsqlVariableSegment"),
+                Ref::new("AssignmentOperatorSegment"), // This includes +=, -=, *=, /=, %=
+                Ref::new("BaseExpressionElementGrammar")
             ]),
             // Wildcard expressions
             Ref::new("WildcardExpressionSegment"),

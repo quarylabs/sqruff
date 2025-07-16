@@ -1,54 +1,76 @@
 file:
-- unparsable:
-  - word: CREATE
-  - word: LOGIN
-  - double_quote: '[MyUserName]'
-  - word: WITH
-  - word: PASSWORD
-  - raw_comparison_operator: =
-  - single_quote: '''<enterStrongPasswordHere>'''
-  - semicolon: ;
-  - word: CREATE
-  - word: LOGIN
-  - double_quote: '[MyUserName]'
-  - word: WITH
-  - word: PASSWORD
-  - raw_comparison_operator: =
-  - single_quote: '''<enterStrongPasswordHere>'''
-  - word: MUST_CHANGE
-  - semicolon: ;
-  - word: CREATE
-  - word: LOGIN
-  - double_quote: '[MyUserName]'
-  - word: WITH
-  - word: PASSWORD
-  - raw_comparison_operator: =
-  - single_quote: '''<enterStrongPasswordHere>'''
-  - comma: ','
-  - word: CHECK_EXPIRATION
-  - raw_comparison_operator: =
-  - word: ON
-  - semicolon: ;
-  - word: CREATE
-  - word: LOGIN
-  - double_quote: '[MyUserName]'
-  - word: WITH
-  - word: PASSWORD
-  - raw_comparison_operator: =
-  - single_quote: '''<enterStrongPasswordHere>'''
-  - word: MUST_CHANGE
-  - comma: ','
-  - word: CHECK_EXPIRATION
-  - raw_comparison_operator: =
-  - word: ON
-  - semicolon: ;
-  - word: CREATE
-  - word: LOGIN
-  - double_quote: '[MyUserName]'
-  - word: WITH
-  - word: PASSWORD
-  - raw_comparison_operator: =
-  - single_quote: '''<enterStrongPasswordHere>'''
+- statement:
+  - create_login_statement:
+    - keyword: CREATE
+    - keyword: LOGIN
+    - object_reference:
+      - quoted_identifier: '[MyUserName]'
+    - keyword: WITH
+    - keyword: PASSWORD
+    - comparison_operator:
+      - raw_comparison_operator: =
+    - quoted_literal: '''<enterStrongPasswordHere>'''
+- statement_terminator: ;
+- statement:
+  - create_login_statement:
+    - keyword: CREATE
+    - keyword: LOGIN
+    - object_reference:
+      - quoted_identifier: '[MyUserName]'
+    - keyword: WITH
+    - keyword: PASSWORD
+    - comparison_operator:
+      - raw_comparison_operator: =
+    - quoted_literal: '''<enterStrongPasswordHere>'''
+    - keyword: MUST_CHANGE
+- statement_terminator: ;
+- statement:
+  - create_login_statement:
+    - keyword: CREATE
+    - keyword: LOGIN
+    - object_reference:
+      - quoted_identifier: '[MyUserName]'
+    - keyword: WITH
+    - keyword: PASSWORD
+    - comparison_operator:
+      - raw_comparison_operator: =
+    - quoted_literal: '''<enterStrongPasswordHere>'''
+    - comma: ','
+    - keyword: CHECK_EXPIRATION
+    - comparison_operator:
+      - raw_comparison_operator: =
+    - keyword: ON
+- statement_terminator: ;
+- statement:
+  - create_login_statement:
+    - keyword: CREATE
+    - keyword: LOGIN
+    - object_reference:
+      - quoted_identifier: '[MyUserName]'
+    - keyword: WITH
+    - keyword: PASSWORD
+    - comparison_operator:
+      - raw_comparison_operator: =
+    - quoted_literal: '''<enterStrongPasswordHere>'''
+    - keyword: MUST_CHANGE
+    - comma: ','
+    - keyword: CHECK_EXPIRATION
+    - comparison_operator:
+      - raw_comparison_operator: =
+    - keyword: ON
+- statement_terminator: ;
+- statement:
+  - create_login_statement:
+    - keyword: CREATE
+    - keyword: LOGIN
+    - object_reference:
+      - quoted_identifier: '[MyUserName]'
+    - keyword: WITH
+    - keyword: PASSWORD
+    - comparison_operator:
+      - raw_comparison_operator: =
+    - quoted_literal: '''<enterStrongPasswordHere>'''
+- file:
   - comma: ','
   - word: DEFAULT_DATABASE
   - raw_comparison_operator: =

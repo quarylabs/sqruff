@@ -1,46 +1,73 @@
 file:
-- unparsable:
-  - word: DECLARE
-  - word: pointy
-  - word: CURSOR
-  - word: LOCAL
-  - word: FORWARD_ONLY
-  - word: READ_ONLY
-  - word: FOR
-  - word: SELECT
-  - word: column_a
-  - comma: ','
-  - word: column_b
-  - word: FROM
-  - word: some_table
-  - word: WHERE
-  - word: column_a
-  - word: IS
-  - word: NOT
-  - word: 'NULL'
-  - word: ORDER
-  - word: BY
-  - word: column_b
-  - word: OPEN
-  - word: pointy
-  - semicolon: ;
-  - word: FETCH
-  - word: FIRST
-  - word: FROM
-  - tsql_variable: '@pointy'
-  - word: into
-  - tsql_variable: '@result'
-  - semicolon: ;
-  - word: FETCH
-  - word: NEXT
-  - word: FROM
-  - word: GLOBAL
-  - word: pointy
-  - semicolon: ;
-  - word: CLOSE
-  - word: GLOBAL
-  - word: pointy
-  - semicolon: ;
-  - word: DEALLOCATE
-  - word: pointy
-  - semicolon: ;
+- statement:
+  - declare_cursor_statement:
+    - keyword: DECLARE
+    - naked_identifier: pointy
+    - keyword: CURSOR
+    - keyword: LOCAL
+    - keyword: FORWARD_ONLY
+    - keyword: READ_ONLY
+    - keyword: FOR
+    - select_statement:
+      - select_clause:
+        - keyword: SELECT
+        - select_clause_element:
+          - column_reference:
+            - naked_identifier: column_a
+        - comma: ','
+        - select_clause_element:
+          - column_reference:
+            - naked_identifier: column_b
+      - from_clause:
+        - keyword: FROM
+        - from_expression:
+          - from_expression_element:
+            - table_expression:
+              - table_reference:
+                - object_reference:
+                  - naked_identifier: some_table
+      - where_clause:
+        - keyword: WHERE
+        - expression:
+          - column_reference:
+            - naked_identifier: column_a
+          - keyword: IS
+          - keyword: NOT
+          - null_literal: 'NULL'
+      - orderby_clause:
+        - keyword: ORDER
+        - keyword: BY
+        - column_reference:
+          - naked_identifier: column_b
+      - unparsable:
+        - word: OPEN
+        - word: pointy
+- statement_terminator: ;
+- statement:
+  - statement:
+    - keyword: FETCH
+    - keyword: FIRST
+    - keyword: FROM
+    - tsql_variable: '@pointy'
+    - keyword: into
+    - tsql_variable: '@result'
+- statement_terminator: ;
+- statement:
+  - statement:
+    - keyword: FETCH
+    - keyword: NEXT
+    - keyword: FROM
+    - keyword: GLOBAL
+    - naked_identifier: pointy
+- statement_terminator: ;
+- statement:
+  - statement:
+    - keyword: CLOSE
+    - keyword: GLOBAL
+    - naked_identifier: pointy
+- statement_terminator: ;
+- statement:
+  - statement:
+    - keyword: DEALLOCATE
+    - naked_identifier: pointy
+- statement_terminator: ;

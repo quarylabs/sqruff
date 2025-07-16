@@ -608,6 +608,17 @@ pub(crate) fn tsql_additional_unreserved_keywords() -> AHashSet<&'static str> {
         "SCHEME",
         "NEXT",
         "USED",
+        // Fulltext index keywords
+        "FULLTEXT",
+        "STATISTICAL_SEMANTICS",
+        "CHANGE_TRACKING",
+        "STOPLIST",
+        "PROPERTY",
+        "POPULATION",
+        "FILEGROUP",
+        "MANUAL",
+        "AUTO",
+        "SYSTEM",
     ]
     .into_iter()
     .collect()

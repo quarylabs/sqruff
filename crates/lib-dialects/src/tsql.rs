@@ -1344,6 +1344,123 @@ pub fn raw_dialect() -> Dialect {
         ),
     ]);
 
+    // CREATE FULLTEXT INDEX statement
+    dialect.add([
+        (
+            "CreateFullTextIndexStatementSegment".into(),
+            NodeMatcher::new(SyntaxKind::CreateIndexStatement, |_| {
+                Sequence::new(vec_of_erased![
+                    Ref::keyword("CREATE"),
+                    Ref::keyword("FULLTEXT"),
+                    Ref::keyword("INDEX"),
+                    Ref::keyword("ON"),
+                    Ref::new("TableReferenceSegment"),
+                    // Column specifications
+                    Bracketed::new(vec_of_erased![
+                        Delimited::new(vec_of_erased![
+                            Sequence::new(vec_of_erased![
+                                Ref::new("ColumnReferenceSegment"),
+                                // Optional column options
+                                Sequence::new(vec_of_erased![
+                                    one_of(vec_of_erased![
+                                        // TYPE COLUMN datatype
+                                        Sequence::new(vec_of_erased![
+                                            Ref::keyword("TYPE"),
+                                            Ref::keyword("COLUMN"),
+                                            Ref::new("DatatypeSegment")
+                                        ]),
+                                        // LANGUAGE (number | 'string' | nothing)
+                                        Sequence::new(vec_of_erased![
+                                            Ref::keyword("LANGUAGE"),
+                                            one_of(vec_of_erased![
+                                                Ref::new("NumericLiteralSegment"),
+                                                Ref::new("QuotedLiteralSegment")
+                                            ])
+                                            .config(|this| this.optional())
+                                        ]),
+                                        // STATISTICAL_SEMANTICS
+                                        Ref::keyword("STATISTICAL_SEMANTICS")
+                                    ])
+                                ])
+                                .config(|this| this.optional())
+                            ])
+                        ])
+                    ]),
+                    // KEY INDEX clause
+                    Sequence::new(vec_of_erased![
+                        Ref::keyword("KEY"),
+                        Ref::keyword("INDEX"),
+                        Ref::new("ObjectReferenceSegment"),
+                        // Optional catalog/filegroup options
+                        Sequence::new(vec_of_erased![
+                            Ref::keyword("ON"),
+                            Delimited::new(vec_of_erased![
+                                one_of(vec_of_erased![
+                                    Ref::new("ObjectReferenceSegment"),
+                                    Sequence::new(vec_of_erased![
+                                        Ref::keyword("FILEGROUP"),
+                                        Ref::new("ObjectReferenceSegment")
+                                    ])
+                                ])
+                            ])
+                            .config(|this| this.allow_trailing())
+                        ])
+                        .config(|this| this.optional())
+                    ]),
+                    // Optional WITH clause
+                    Sequence::new(vec_of_erased![
+                        Ref::keyword("WITH"),
+                        Bracketed::new(vec_of_erased![
+                            Delimited::new(vec_of_erased![
+                                one_of(vec_of_erased![
+                                    // CHANGE_TRACKING [=] (MANUAL | AUTO | OFF [, NO POPULATION])
+                                    Sequence::new(vec_of_erased![
+                                        Ref::keyword("CHANGE_TRACKING"),
+                                        Ref::new("EqualsSegment").optional(),
+                                        one_of(vec_of_erased![
+                                            Ref::keyword("MANUAL"),
+                                            Ref::keyword("AUTO"),
+                                            Sequence::new(vec_of_erased![
+                                                Ref::keyword("OFF"),
+                                                Sequence::new(vec_of_erased![
+                                                    Ref::keyword("NO"),
+                                                    Ref::keyword("POPULATION")
+                                                ])
+                                                .config(|this| this.optional())
+                                            ])
+                                        ])
+                                    ]),
+                                    // STOPLIST [=] (OFF | SYSTEM | stoplist_name)
+                                    Sequence::new(vec_of_erased![
+                                        Ref::keyword("STOPLIST"),
+                                        Ref::new("EqualsSegment").optional(),
+                                        one_of(vec_of_erased![
+                                            Ref::keyword("OFF"),
+                                            Ref::keyword("SYSTEM"),
+                                            Ref::new("ObjectReferenceSegment")
+                                        ])
+                                    ]),
+                                    // SEARCH PROPERTY LIST [=] property_list_name
+                                    Sequence::new(vec_of_erased![
+                                        Ref::keyword("SEARCH"),
+                                        Ref::keyword("PROPERTY"),
+                                        Ref::keyword("LIST"),
+                                        Ref::new("EqualsSegment").optional(),
+                                        Ref::new("ObjectReferenceSegment")
+                                    ])
+                                ])
+                            ])
+                        ])
+                    ])
+                    .config(|this| this.optional())
+                ])
+                .to_matchable()
+            })
+            .to_matchable()
+            .into(),
+        ),
+    ]);
+
     // PIVOT and UNPIVOT support
     dialect.add([
         (
@@ -1494,6 +1611,7 @@ pub fn raw_dialect() -> Dialect {
             Ref::new("AlterPartitionFunctionSegment"),
             Ref::new("CreatePartitionSchemeSegment"),
             Ref::new("AlterPartitionSchemeSegment"),
+            Ref::new("CreateFullTextIndexStatementSegment"),
             // Include all ANSI statement types
             Ref::new("SelectableGrammar"),
             Ref::new("MergeStatementSegment"),

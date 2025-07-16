@@ -301,7 +301,7 @@ pub fn raw_dialect() -> Dialect {
                 Ref::keyword("DECLARE"),
                 // Multiple variables can be declared with comma separation
                 Delimited::new(vec_of_erased![Sequence::new(vec_of_erased![
-                    Ref::new("TsqlVariableSegment"),
+                    Ref::new("ParameterNameSegment"),
                     Sequence::new(vec![Ref::keyword("AS").to_matchable()])
                         .config(|this| this.optional()),
                     one_of(vec_of_erased![
@@ -1870,6 +1870,12 @@ pub fn raw_dialect() -> Dialect {
             Ref::new("DropSecurityPolicyStatementSegment"),
             Ref::new("DisableTriggerStatementSegment"),
             Ref::new("RaiserrorStatementSegment"),
+            // Cursor statements
+            Ref::new("DeclareCursorStatementSegment"),
+            Ref::new("OpenCursorStatementSegment"),
+            Ref::new("FetchCursorStatementSegment"),
+            Ref::new("CloseCursorStatementSegment"),
+            Ref::new("DeallocateCursorStatementSegment"),
             // Include all ANSI statement types
             Ref::new("SelectableGrammar"),
             Ref::new("MergeStatementSegment"),
@@ -3623,6 +3629,150 @@ pub fn raw_dialect() -> Dialect {
         .into(),
     )]);
 
+    // DECLARE CURSOR statement
+    dialect.add([(
+        "DeclareCursorStatementSegment".into(),
+        NodeMatcher::new(SyntaxKind::DeclareCursorStatement, |_| {
+            Sequence::new(vec_of_erased![
+                Ref::keyword("DECLARE"),
+                Ref::new("NakedIdentifierSegment"),
+                Ref::keyword("CURSOR"),
+                // Optional scope
+                one_of(vec_of_erased![
+                    Ref::keyword("LOCAL"),
+                    Ref::keyword("GLOBAL")
+                ])
+                .config(|this| this.optional()),
+                // Optional scroll behavior
+                one_of(vec_of_erased![
+                    Ref::keyword("FORWARD_ONLY"),
+                    Ref::keyword("SCROLL")
+                ])
+                .config(|this| this.optional()),
+                // Optional cursor type
+                one_of(vec_of_erased![
+                    Ref::keyword("STATIC"),
+                    Ref::keyword("KEYSET"),
+                    Ref::keyword("DYNAMIC"),
+                    Ref::keyword("FAST_FORWARD")
+                ])
+                .config(|this| this.optional()),
+                // Optional concurrency
+                one_of(vec_of_erased![
+                    Ref::keyword("READ_ONLY"),
+                    Ref::keyword("SCROLL_LOCKS"),
+                    Ref::keyword("OPTIMISTIC")
+                ])
+                .config(|this| this.optional()),
+                // Optional TYPE_WARNING
+                Ref::keyword("TYPE_WARNING").optional(),
+                Ref::keyword("FOR"),
+                Ref::new("SelectStatementSegment")
+            ])
+            .to_matchable()
+        })
+        .to_matchable()
+        .into(),
+    )]);
+
+    // Cursor name grammar - cursor name can be a variable or identifier
+    dialect.add([(
+        "CursorNameGrammar".into(),
+        one_of(vec_of_erased![
+            Sequence::new(vec_of_erased![
+                Ref::keyword("GLOBAL").optional(),
+                Ref::new("NakedIdentifierSegment")
+            ]),
+            Ref::new("ParameterNameSegment")
+        ])
+        .to_matchable()
+        .into(),
+    )]);
+
+    // OPEN cursor statement
+    dialect.add([(
+        "OpenCursorStatementSegment".into(),
+        NodeMatcher::new(SyntaxKind::Statement, |_| {
+            Sequence::new(vec_of_erased![
+                Ref::keyword("OPEN"),
+                Ref::new("CursorNameGrammar")
+            ])
+            .to_matchable()
+        })
+        .to_matchable()
+        .into(),
+    )]);
+
+    // CLOSE cursor statement
+    dialect.add([(
+        "CloseCursorStatementSegment".into(),
+        NodeMatcher::new(SyntaxKind::Statement, |_| {
+            Sequence::new(vec_of_erased![
+                Ref::keyword("CLOSE"),
+                Ref::new("CursorNameGrammar")
+            ])
+            .to_matchable()
+        })
+        .to_matchable()
+        .into(),
+    )]);
+
+    // DEALLOCATE cursor statement
+    dialect.add([(
+        "DeallocateCursorStatementSegment".into(),
+        NodeMatcher::new(SyntaxKind::Statement, |_| {
+            Sequence::new(vec_of_erased![
+                Ref::keyword("DEALLOCATE"),
+                Ref::new("CursorNameGrammar")
+            ])
+            .to_matchable()
+        })
+        .to_matchable()
+        .into(),
+    )]);
+
+    // FETCH cursor statement
+    dialect.add([(
+        "FetchCursorStatementSegment".into(),
+        NodeMatcher::new(SyntaxKind::Statement, |_| {
+            Sequence::new(vec_of_erased![
+                Ref::keyword("FETCH"),
+                // Optional position
+                one_of(vec_of_erased![
+                    Ref::keyword("NEXT"),
+                    Ref::keyword("PRIOR"),
+                    Ref::keyword("FIRST"),
+                    Ref::keyword("LAST"),
+                    Sequence::new(vec_of_erased![
+                        Ref::keyword("ABSOLUTE"),
+                        Ref::new("NumericLiteralSegment")
+                    ]),
+                    Sequence::new(vec_of_erased![
+                        Ref::keyword("RELATIVE"),
+                        Ref::new("NumericLiteralSegment")
+                    ])
+                ])
+                .config(|this| this.optional()),
+                Ref::keyword("FROM"),
+                Ref::new("CursorNameGrammar"),
+                // Optional INTO clause
+                Sequence::new(vec_of_erased![
+                    Ref::keyword("INTO"),
+                    Delimited::new(vec_of_erased![
+                        Ref::new("ParameterNameSegment")
+                    ])
+                ])
+                .config(|this| this.optional())
+            ])
+            .to_matchable()
+        })
+        .to_matchable()
+        .into(),
+    )]);
+
+    // Add cursor statements to statement list (they're already in the list from before)
+    // Just need to ensure DeclareCursorStatementSegment is recognized as a valid declare variant
+    
     // expand() must be called after all grammar modifications
 
     dialect

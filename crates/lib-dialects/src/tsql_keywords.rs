@@ -700,6 +700,17 @@ pub(crate) fn tsql_additional_unreserved_keywords() -> AHashSet<&'static str> {
         "LOG",
         "NOWAIT",
         "SETERROR",
+        // Cursor keywords
+        "FORWARD_ONLY",
+        "SCROLL",
+        "STATIC",
+        "KEYSET",
+        "DYNAMIC",
+        "FAST_FORWARD",
+        "READ_ONLY",
+        "SCROLL_LOCKS",
+        "OPTIMISTIC",
+        "TYPE_WARNING",
     ]
     .into_iter()
     .collect()

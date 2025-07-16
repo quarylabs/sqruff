@@ -1,8 +1,0 @@
-DECLARE @TestVal VARCHAR(20) = 'Test Print'
-
-
-PRINT '#Dates'
-
-PRINT CAST(GETDATE() AS VARCHAR(50));
-
-PRINT @TestVal

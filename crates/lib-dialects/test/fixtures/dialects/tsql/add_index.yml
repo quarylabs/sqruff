@@ -1,141 +1,251 @@
 file:
-- unparsable:
-  - word: IF
-  - word: NOT
-  - word: EXISTS
-  - start_bracket: (
-  - word: SELECT
-  - star: '*'
-  - word: FROM
-  - word: sys
-  - dot: .
-  - word: indexes
-  - word: WHERE
-  - word: NAME
-  - raw_comparison_operator: =
-  - single_quote: '''IX_INTER_VIMR_INFECTIOUS_PEOPLE'''
-  - end_bracket: )
-  - word: CREATE
-  - word: NONCLUSTERED
-  - word: INDEX
-  - word: IX_INTER_VIMR_INFECTIOUS_PEOPLE
-  - word: ON
-  - word: dbo
-  - dot: .
-  - word: VIMR_INFECTIOUS_PEOPLE
-  - start_bracket: (
-  - word: DATE_LAST_INSERTED
-  - end_bracket: )
-  - semicolon: ;
-  - word: GO
-  - word: IF
-  - word: NOT
-  - word: EXISTS
-  - start_bracket: (
-  - word: SELECT
-  - star: '*'
-  - word: FROM
-  - word: sys
-  - dot: .
-  - word: indexes
-  - word: WHERE
-  - word: NAME
-  - raw_comparison_operator: =
-  - single_quote: '''IX_INTER_FOUNDATION_NICE_IC_INTAKE_COUNT'''
-  - end_bracket: )
-  - word: CREATE
-  - word: NONCLUSTERED
-  - word: INDEX
-  - word: IX_INTER_FOUNDATION_NICE_IC_INTAKE_COUNT
-  - word: ON
-  - word: dbo
-  - dot: .
-  - word: FOUNDATION_NICE_IC_INTAKE_COUNT
-  - start_bracket: (
-  - word: DATE_LAST_INSERTED
-  - end_bracket: )
-  - semicolon: ;
-  - word: GO
-  - word: IF
-  - word: EXISTS
-  - start_bracket: (
-  - word: SELECT
-  - star: '*'
-  - word: FROM
-  - word: sys
-  - dot: .
-  - word: indexes
-  - word: WHERE
-  - word: NAME
-  - raw_comparison_operator: =
-  - single_quote: '''IX_INTER_VIMR_REPRODUCTION_NUMBER'''
-  - end_bracket: )
-  - word: CREATE
-  - word: CLUSTERED
-  - word: INDEX
-  - word: IX_INTER_VIMR_REPRODUCTION_NUMBER
-  - word: ON
-  - word: dbo
-  - dot: .
-  - word: VIMR_INFECTIOUS_PEOPLE
-  - start_bracket: (
-  - word: DATE_LAST_INSERTED
-  - end_bracket: )
-  - semicolon: ;
-  - word: GO
-  - word: CREATE
-  - word: NONCLUSTERED
-  - word: INDEX
-  - double_quote: '[ind_1]'
-  - word: ON
-  - double_quote: '[schema1]'
-  - dot: .
-  - double_quote: '[table1]'
-  - start_bracket: (
-  - double_quote: '[column1]'
-  - word: ASC
-  - end_bracket: )
-  - word: INCLUDE
-  - start_bracket: (
-  - double_quote: '[column2]'
-  - end_bracket: )
-  - word: WHERE
-  - start_bracket: (
-  - double_quote: '[column3]'
-  - word: IS
-  - word: 'NULL'
-  - end_bracket: )
-  - semicolon: ;
-  - word: GO
-  - word: CREATE
-  - word: NONCLUSTERED
-  - word: INDEX
-  - double_quote: '[NI_name]'
-  - word: ON
-  - double_quote: '[schema1]'
-  - dot: .
-  - double_quote: '[table1]'
-  - start_bracket: (
-  - double_quote: '[column1]'
-  - word: DESC
-  - end_bracket: )
-  - word: ON
-  - double_quote: '[PRIMARY]'
-  - semicolon: ;
-  - word: GO
-  - word: CREATE
-  - word: UNIQUE
-  - word: INDEX
-  - double_quote: '[ix_name]'
-  - word: ON
-  - double_quote: '[schema1]'
-  - dot: .
-  - double_quote: '[table1]'
-  - start_bracket: (
-  - double_quote: '[column1]'
-  - comma: ','
-  - double_quote: '[column2]'
-  - end_bracket: )
+- statement:
+  - keyword: IF
+  - expression:
+    - keyword: NOT
+    - keyword: EXISTS
+    - bracketed:
+      - start_bracket: (
+      - select_statement:
+        - select_clause:
+          - keyword: SELECT
+          - select_clause_element:
+            - wildcard_expression:
+              - wildcard_identifier:
+                - star: '*'
+        - from_clause:
+          - keyword: FROM
+          - from_expression:
+            - from_expression_element:
+              - table_expression:
+                - table_reference:
+                  - object_reference:
+                    - naked_identifier: sys
+                    - dot: .
+                    - naked_identifier: indexes
+        - where_clause:
+          - keyword: WHERE
+          - expression:
+            - column_reference:
+              - naked_identifier: NAME
+            - comparison_operator:
+              - raw_comparison_operator: =
+            - quoted_literal: '''IX_INTER_VIMR_INFECTIOUS_PEOPLE'''
+      - end_bracket: )
+  - statement:
+    - create_index_statement:
+      - create_index_statement:
+        - keyword: CREATE
+        - keyword: NONCLUSTERED
+        - keyword: INDEX
+        - database_reference:
+          - naked_identifier: IX_INTER_VIMR_INFECTIOUS_PEOPLE
+        - keyword: ON
+        - table_reference:
+          - object_reference:
+            - naked_identifier: dbo
+            - dot: .
+            - naked_identifier: VIMR_INFECTIOUS_PEOPLE
+        - bracketed:
+          - start_bracket: (
+          - column_reference:
+            - naked_identifier: DATE_LAST_INSERTED
+          - end_bracket: )
+  - statement_terminator: ;
+- keyword: GO
+- statement:
+  - keyword: IF
+  - expression:
+    - keyword: NOT
+    - keyword: EXISTS
+    - bracketed:
+      - start_bracket: (
+      - select_statement:
+        - select_clause:
+          - keyword: SELECT
+          - select_clause_element:
+            - wildcard_expression:
+              - wildcard_identifier:
+                - star: '*'
+        - from_clause:
+          - keyword: FROM
+          - from_expression:
+            - from_expression_element:
+              - table_expression:
+                - table_reference:
+                  - object_reference:
+                    - naked_identifier: sys
+                    - dot: .
+                    - naked_identifier: indexes
+        - where_clause:
+          - keyword: WHERE
+          - expression:
+            - column_reference:
+              - naked_identifier: NAME
+            - comparison_operator:
+              - raw_comparison_operator: =
+            - quoted_literal: '''IX_INTER_FOUNDATION_NICE_IC_INTAKE_COUNT'''
+      - end_bracket: )
+  - statement:
+    - create_index_statement:
+      - create_index_statement:
+        - keyword: CREATE
+        - keyword: NONCLUSTERED
+        - keyword: INDEX
+        - database_reference:
+          - naked_identifier: IX_INTER_FOUNDATION_NICE_IC_INTAKE_COUNT
+        - keyword: ON
+        - table_reference:
+          - object_reference:
+            - naked_identifier: dbo
+            - dot: .
+            - naked_identifier: FOUNDATION_NICE_IC_INTAKE_COUNT
+        - bracketed:
+          - start_bracket: (
+          - column_reference:
+            - naked_identifier: DATE_LAST_INSERTED
+          - end_bracket: )
+  - statement_terminator: ;
+- keyword: GO
+- statement:
+  - keyword: IF
+  - expression:
+    - keyword: EXISTS
+    - bracketed:
+      - start_bracket: (
+      - select_statement:
+        - select_clause:
+          - keyword: SELECT
+          - select_clause_element:
+            - wildcard_expression:
+              - wildcard_identifier:
+                - star: '*'
+        - from_clause:
+          - keyword: FROM
+          - from_expression:
+            - from_expression_element:
+              - table_expression:
+                - table_reference:
+                  - object_reference:
+                    - naked_identifier: sys
+                    - dot: .
+                    - naked_identifier: indexes
+        - where_clause:
+          - keyword: WHERE
+          - expression:
+            - column_reference:
+              - naked_identifier: NAME
+            - comparison_operator:
+              - raw_comparison_operator: =
+            - quoted_literal: '''IX_INTER_VIMR_REPRODUCTION_NUMBER'''
+      - end_bracket: )
+  - statement:
+    - create_index_statement:
+      - create_index_statement:
+        - keyword: CREATE
+        - keyword: CLUSTERED
+        - keyword: INDEX
+        - database_reference:
+          - naked_identifier: IX_INTER_VIMR_REPRODUCTION_NUMBER
+        - keyword: ON
+        - table_reference:
+          - object_reference:
+            - naked_identifier: dbo
+            - dot: .
+            - naked_identifier: VIMR_INFECTIOUS_PEOPLE
+        - bracketed:
+          - start_bracket: (
+          - column_reference:
+            - naked_identifier: DATE_LAST_INSERTED
+          - end_bracket: )
+  - statement_terminator: ;
+- keyword: GO
+- statement:
+  - create_index_statement:
+    - create_index_statement:
+      - keyword: CREATE
+      - keyword: NONCLUSTERED
+      - keyword: INDEX
+      - database_reference:
+        - quoted_identifier: '[ind_1]'
+      - keyword: ON
+      - table_reference:
+        - object_reference:
+          - quoted_identifier: '[schema1]'
+          - dot: .
+          - quoted_identifier: '[table1]'
+      - bracketed:
+        - start_bracket: (
+        - column_reference:
+          - quoted_identifier: '[column1]'
+        - keyword: ASC
+        - end_bracket: )
+      - keyword: INCLUDE
+      - bracketed:
+        - start_bracket: (
+        - column_reference:
+          - quoted_identifier: '[column2]'
+        - end_bracket: )
+      - keyword: WHERE
+      - expression:
+        - bracketed:
+          - start_bracket: (
+          - expression:
+            - column_reference:
+              - quoted_identifier: '[column3]'
+            - keyword: IS
+            - null_literal: 'NULL'
+          - end_bracket: )
+- statement_terminator: ;
+- keyword: GO
+- statement:
+  - create_index_statement:
+    - create_index_statement:
+      - keyword: CREATE
+      - keyword: NONCLUSTERED
+      - keyword: INDEX
+      - database_reference:
+        - quoted_identifier: '[NI_name]'
+      - keyword: ON
+      - table_reference:
+        - object_reference:
+          - quoted_identifier: '[schema1]'
+          - dot: .
+          - quoted_identifier: '[table1]'
+      - bracketed:
+        - start_bracket: (
+        - column_reference:
+          - quoted_identifier: '[column1]'
+        - keyword: DESC
+        - end_bracket: )
+      - keyword: ON
+      - object_reference:
+        - quoted_identifier: '[PRIMARY]'
+- statement_terminator: ;
+- keyword: GO
+- statement:
+  - create_index_statement:
+    - create_index_statement:
+      - keyword: CREATE
+      - keyword: UNIQUE
+      - keyword: INDEX
+      - database_reference:
+        - quoted_identifier: '[ix_name]'
+      - keyword: ON
+      - table_reference:
+        - object_reference:
+          - quoted_identifier: '[schema1]'
+          - dot: .
+          - quoted_identifier: '[table1]'
+      - bracketed:
+        - start_bracket: (
+        - column_reference:
+          - quoted_identifier: '[column1]'
+        - comma: ','
+        - column_reference:
+          - quoted_identifier: '[column2]'
+        - end_bracket: )
+- file:
   - word: WITH
   - word: FILLFACTOR
   - raw_comparison_operator: =

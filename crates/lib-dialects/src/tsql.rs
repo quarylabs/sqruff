@@ -1461,6 +1461,184 @@ pub fn raw_dialect() -> Dialect {
         ),
     ]);
 
+    // ALTER INDEX statement
+    dialect.add([
+        (
+            "AlterIndexStatementSegment".into(),
+            NodeMatcher::new(SyntaxKind::AlterIndexStatement, |_| {
+                Sequence::new(vec_of_erased![
+                    Ref::keyword("ALTER"),
+                    Ref::keyword("INDEX"),
+                    one_of(vec_of_erased![
+                        Ref::new("ObjectReferenceSegment"),
+                        Ref::keyword("ALL")
+                    ]),
+                    Ref::keyword("ON"),
+                    Ref::new("TableReferenceSegment"),
+                    one_of(vec_of_erased![
+                        // REBUILD [PARTITION = partition_number | ALL] [WITH (...)]
+                        Sequence::new(vec_of_erased![
+                            Ref::keyword("REBUILD"),
+                            Sequence::new(vec_of_erased![
+                                Ref::keyword("PARTITION"),
+                                Ref::new("EqualsSegment"),
+                                one_of(vec_of_erased![
+                                    Ref::keyword("ALL"),
+                                    Ref::new("NumericLiteralSegment")
+                                ])
+                            ])
+                            .config(|this| this.optional()),
+                            Sequence::new(vec_of_erased![
+                                Ref::keyword("WITH"),
+                                Bracketed::new(vec_of_erased![
+                                    Delimited::new(vec_of_erased![
+                                        one_of(vec_of_erased![
+                                            Sequence::new(vec_of_erased![
+                                                one_of(vec_of_erased![
+                                                    Ref::keyword("PAD_INDEX"),
+                                                    Ref::keyword("FILLFACTOR"),
+                                                    Ref::keyword("SORT_IN_TEMPDB"),
+                                                    Ref::keyword("IGNORE_DUP_KEY"),
+                                                    Ref::keyword("STATISTICS_NORECOMPUTE"),
+                                                    Ref::keyword("STATISTICS_INCREMENTAL"),
+                                                    Ref::keyword("RESUMABLE"),
+                                                    Ref::keyword("ALLOW_ROW_LOCKS"),
+                                                    Ref::keyword("ALLOW_PAGE_LOCKS"),
+                                                    Ref::keyword("OPTIMIZE_FOR_SEQUENTIAL_KEY")
+                                                ]),
+                                                Ref::new("EqualsSegment"),
+                                                one_of(vec_of_erased![
+                                                    Ref::keyword("ON"),
+                                                    Ref::keyword("OFF")
+                                                ])
+                                            ]),
+                                            Sequence::new(vec_of_erased![
+                                                one_of(vec_of_erased![
+                                                    Ref::keyword("MAXDOP"),
+                                                    Ref::keyword("MAX_DURATION")
+                                                ]),
+                                                Ref::new("EqualsSegment"),
+                                                Ref::new("NumericLiteralSegment"),
+                                                Ref::keyword("MINUTES").optional()
+                                            ]),
+                                            Sequence::new(vec_of_erased![
+                                                Ref::keyword("DATA_COMPRESSION"),
+                                                Ref::new("EqualsSegment"),
+                                                one_of(vec_of_erased![
+                                                    Ref::keyword("NONE"),
+                                                    Ref::keyword("ROW"),
+                                                    Ref::keyword("PAGE"),
+                                                    Ref::keyword("COLUMNSTORE"),
+                                                    Ref::keyword("COLUMNSTORE_ARCHIVE")
+                                                ])
+                                            ]),
+                                            Sequence::new(vec_of_erased![
+                                                Ref::keyword("ONLINE"),
+                                                Ref::new("EqualsSegment"),
+                                                one_of(vec_of_erased![
+                                                    Ref::keyword("ON"),
+                                                    Ref::keyword("OFF")
+                                                ])
+                                            ])
+                                        ])
+                                    ])
+                                ])
+                            ])
+                            .config(|this| this.optional())
+                        ]),
+                        // REORGANIZE [PARTITION = partition_number] [WITH (...)]
+                        Sequence::new(vec_of_erased![
+                            Ref::keyword("REORGANIZE"),
+                            Sequence::new(vec_of_erased![
+                                Ref::keyword("PARTITION"),
+                                Ref::new("EqualsSegment"),
+                                Ref::new("NumericLiteralSegment")
+                            ])
+                            .config(|this| this.optional()),
+                            Sequence::new(vec_of_erased![
+                                Ref::keyword("WITH"),
+                                Bracketed::new(vec_of_erased![
+                                    Delimited::new(vec_of_erased![
+                                        Sequence::new(vec_of_erased![
+                                            one_of(vec_of_erased![
+                                                Ref::keyword("LOB_COMPACTION"),
+                                                Ref::keyword("COMPRESS_ALL_ROW_GROUPS")
+                                            ]),
+                                            Ref::new("EqualsSegment"),
+                                            one_of(vec_of_erased![
+                                                Ref::keyword("ON"),
+                                                Ref::keyword("OFF")
+                                            ])
+                                        ])
+                                    ])
+                                ])
+                            ])
+                            .config(|this| this.optional())
+                        ]),
+                        // SET (option = value, ...)
+                        Sequence::new(vec_of_erased![
+                            Ref::keyword("SET"),
+                            Bracketed::new(vec_of_erased![
+                                Delimited::new(vec_of_erased![
+                                    one_of(vec_of_erased![
+                                        Sequence::new(vec_of_erased![
+                                            one_of(vec_of_erased![
+                                                Ref::keyword("ALLOW_ROW_LOCKS"),
+                                                Ref::keyword("ALLOW_PAGE_LOCKS"),
+                                                Ref::keyword("OPTIMIZE_FOR_SEQUENTIAL_KEY"),
+                                                Ref::keyword("IGNORE_DUP_KEY"),
+                                                Ref::keyword("STATISTICS_NORECOMPUTE")
+                                            ]),
+                                            Ref::new("EqualsSegment"),
+                                            one_of(vec_of_erased![
+                                                Ref::keyword("ON"),
+                                                Ref::keyword("OFF")
+                                            ])
+                                        ]),
+                                        Sequence::new(vec_of_erased![
+                                            Ref::keyword("COMPRESSION_DELAY"),
+                                            Ref::new("EqualsSegment"),
+                                            Ref::new("NumericLiteralSegment"),
+                                            Ref::keyword("MINUTES").optional()
+                                        ])
+                                    ])
+                                ])
+                            ])
+                        ]),
+                        // RESUME [WITH (...)]
+                        Sequence::new(vec_of_erased![
+                            Ref::keyword("RESUME"),
+                            Sequence::new(vec_of_erased![
+                                Ref::keyword("WITH"),
+                                Bracketed::new(vec_of_erased![
+                                    Delimited::new(vec_of_erased![
+                                        Sequence::new(vec_of_erased![
+                                            one_of(vec_of_erased![
+                                                Ref::keyword("MAXDOP"),
+                                                Ref::keyword("MAX_DURATION")
+                                            ]),
+                                            Ref::new("EqualsSegment"),
+                                            Ref::new("NumericLiteralSegment"),
+                                            Ref::keyword("MINUTES").optional()
+                                        ])
+                                    ])
+                                ])
+                            ])
+                            .config(|this| this.optional())
+                        ]),
+                        // Simple operations without options
+                        Ref::keyword("DISABLE"),
+                        Ref::keyword("PAUSE"),
+                        Ref::keyword("ABORT")
+                    ])
+                ])
+                .to_matchable()
+            })
+            .to_matchable()
+            .into(),
+        ),
+    ]);
+
     // PIVOT and UNPIVOT support
     dialect.add([
         (
@@ -1612,6 +1790,7 @@ pub fn raw_dialect() -> Dialect {
             Ref::new("CreatePartitionSchemeSegment"),
             Ref::new("AlterPartitionSchemeSegment"),
             Ref::new("CreateFullTextIndexStatementSegment"),
+            Ref::new("AlterIndexStatementSegment"),
             // Include all ANSI statement types
             Ref::new("SelectableGrammar"),
             Ref::new("MergeStatementSegment"),

@@ -578,6 +578,9 @@ pub(crate) fn tsql_additional_unreserved_keywords() -> AHashSet<&'static str> {
         "RESAMPLE",
         "SAMPLE",
         "NORECOMPUTE",
+        "PAGE",
+        "ROW",
+        "NONE",
         // BULK INSERT options
         "BATCHSIZE",
         "FIRSTROW",
@@ -619,6 +622,20 @@ pub(crate) fn tsql_additional_unreserved_keywords() -> AHashSet<&'static str> {
         "MANUAL",
         "AUTO",
         "SYSTEM",
+        // ALTER INDEX keywords
+        "REBUILD",
+        "REORGANIZE",
+        "DISABLE",
+        "RESUME",
+        "PAUSE",
+        "ABORT",
+        "LOB_COMPACTION",
+        "COMPRESS_ALL_ROW_GROUPS",
+        "COMPRESSION_DELAY",
+        "ABORT_AFTER_WAIT",
+        "WAIT_AT_LOW_PRIORITY",
+        "BLOCKERS",
+        "XML_COMPRESSION",
     ]
     .into_iter()
     .collect()

@@ -1,151 +1,235 @@
 file:
-- unparsable:
-  - word: ALTER
-  - word: INDEX
-  - word: index1
-  - word: ON
-  - word: table1
-  - word: REBUILD
-  - semicolon: ;
-  - word: ALTER
-  - word: INDEX
-  - word: ALL
-  - word: ON
-  - word: table1
-  - word: REBUILD
-  - semicolon: ;
-  - word: ALTER
-  - word: INDEX
-  - word: idxcci_cci_target
-  - word: ON
-  - word: cci_target
-  - word: REORGANIZE
-  - word: WITH
-  - start_bracket: (
-  - word: COMPRESS_ALL_ROW_GROUPS
-  - raw_comparison_operator: =
-  - word: ON
-  - end_bracket: )
-  - semicolon: ;
-  - word: ALTER
-  - word: INDEX
-  - word: cci_FactInternetSales2
-  - word: ON
-  - word: FactInternetSales2
-  - word: REORGANIZE
-  - semicolon: ;
-  - word: ALTER
-  - word: INDEX
-  - word: cci_FactInternetSales2
-  - word: ON
-  - word: FactInternetSales2
-  - word: REORGANIZE
-  - word: PARTITION
-  - raw_comparison_operator: =
-  - numeric_literal: '0'
-  - semicolon: ;
-  - word: ALTER
-  - word: INDEX
-  - word: cci_FactInternetSales2
-  - word: ON
-  - word: FactInternetSales2
-  - word: REORGANIZE
-  - word: WITH
-  - start_bracket: (
-  - word: COMPRESS_ALL_ROW_GROUPS
-  - raw_comparison_operator: =
-  - word: ON
-  - end_bracket: )
-  - semicolon: ;
-  - word: ALTER
-  - word: INDEX
-  - word: cci_FactInternetSales2
-  - word: ON
-  - word: FactInternetSales2
-  - word: REORGANIZE
-  - word: PARTITION
-  - raw_comparison_operator: =
-  - numeric_literal: '0'
-  - word: WITH
-  - start_bracket: (
-  - word: COMPRESS_ALL_ROW_GROUPS
-  - raw_comparison_operator: =
-  - word: ON
-  - end_bracket: )
-  - semicolon: ;
-  - word: ALTER
-  - word: INDEX
-  - word: cci_FactInternetSales2
-  - word: ON
-  - word: FactInternetSales2
-  - word: REORGANIZE
-  - semicolon: ;
-  - word: ALTER
-  - word: INDEX
-  - word: cci_fact3ON
-  - word: ON
-  - word: fact3
-  - word: REBUILD
-  - word: PARTITION
-  - raw_comparison_operator: =
-  - numeric_literal: '12'
-  - semicolon: ;
-  - word: ALTER
-  - word: INDEX
-  - word: cci_SimpleTable
-  - word: ON
-  - word: SimpleTable
-  - word: REBUILD
-  - word: WITH
-  - start_bracket: (
-  - word: DATA_COMPRESSION
-  - raw_comparison_operator: =
-  - word: COLUMNSTORE_ARCHIVE
-  - end_bracket: )
-  - semicolon: ;
-  - word: ALTER
-  - word: INDEX
-  - word: cci_SimpleTable
-  - word: ON
-  - word: SimpleTable
-  - word: REBUILD
-  - word: WITH
-  - start_bracket: (
-  - word: DATA_COMPRESSION
-  - raw_comparison_operator: =
-  - word: COLUMNSTORE
-  - end_bracket: )
-  - semicolon: ;
-  - word: ALTER
-  - word: INDEX
-  - word: PK_ProductPhoto_ProductPhotoID
-  - word: ON
-  - word: Production
-  - dot: .
-  - word: ProductPhoto
-  - word: REORGANIZE
-  - word: WITH
-  - start_bracket: (
-  - word: LOB_COMPACTION
-  - raw_comparison_operator: =
-  - word: ON
-  - end_bracket: )
-  - semicolon: ;
-  - word: ALTER
-  - word: INDEX
-  - word: IX_Employee_ManagerID
-  - word: ON
-  - word: HumanResources
-  - dot: .
-  - word: Employee
-  - word: DISABLE
-  - semicolon: ;
-  - word: ALTER
-  - word: INDEX
-  - word: IX_INDEX1
-  - word: ON
-  - word: T1
-  - word: REBUILD
+- statement:
+  - alter_index_statement:
+    - keyword: ALTER
+    - keyword: INDEX
+    - object_reference:
+      - naked_identifier: index1
+    - keyword: ON
+    - table_reference:
+      - object_reference:
+        - naked_identifier: table1
+    - keyword: REBUILD
+- statement_terminator: ;
+- statement:
+  - alter_index_statement:
+    - keyword: ALTER
+    - keyword: INDEX
+    - keyword: ALL
+    - keyword: ON
+    - table_reference:
+      - object_reference:
+        - naked_identifier: table1
+    - keyword: REBUILD
+- statement_terminator: ;
+- statement:
+  - alter_index_statement:
+    - keyword: ALTER
+    - keyword: INDEX
+    - object_reference:
+      - naked_identifier: idxcci_cci_target
+    - keyword: ON
+    - table_reference:
+      - object_reference:
+        - naked_identifier: cci_target
+    - keyword: REORGANIZE
+    - keyword: WITH
+    - bracketed:
+      - start_bracket: (
+      - keyword: COMPRESS_ALL_ROW_GROUPS
+      - comparison_operator:
+        - raw_comparison_operator: =
+      - keyword: ON
+      - end_bracket: )
+- statement_terminator: ;
+- statement:
+  - alter_index_statement:
+    - keyword: ALTER
+    - keyword: INDEX
+    - object_reference:
+      - naked_identifier: cci_FactInternetSales2
+    - keyword: ON
+    - table_reference:
+      - object_reference:
+        - naked_identifier: FactInternetSales2
+    - keyword: REORGANIZE
+- statement_terminator: ;
+- statement:
+  - alter_index_statement:
+    - keyword: ALTER
+    - keyword: INDEX
+    - object_reference:
+      - naked_identifier: cci_FactInternetSales2
+    - keyword: ON
+    - table_reference:
+      - object_reference:
+        - naked_identifier: FactInternetSales2
+    - keyword: REORGANIZE
+    - keyword: PARTITION
+    - comparison_operator:
+      - raw_comparison_operator: =
+    - numeric_literal: '0'
+- statement_terminator: ;
+- statement:
+  - alter_index_statement:
+    - keyword: ALTER
+    - keyword: INDEX
+    - object_reference:
+      - naked_identifier: cci_FactInternetSales2
+    - keyword: ON
+    - table_reference:
+      - object_reference:
+        - naked_identifier: FactInternetSales2
+    - keyword: REORGANIZE
+    - keyword: WITH
+    - bracketed:
+      - start_bracket: (
+      - keyword: COMPRESS_ALL_ROW_GROUPS
+      - comparison_operator:
+        - raw_comparison_operator: =
+      - keyword: ON
+      - end_bracket: )
+- statement_terminator: ;
+- statement:
+  - alter_index_statement:
+    - keyword: ALTER
+    - keyword: INDEX
+    - object_reference:
+      - naked_identifier: cci_FactInternetSales2
+    - keyword: ON
+    - table_reference:
+      - object_reference:
+        - naked_identifier: FactInternetSales2
+    - keyword: REORGANIZE
+    - keyword: PARTITION
+    - comparison_operator:
+      - raw_comparison_operator: =
+    - numeric_literal: '0'
+    - keyword: WITH
+    - bracketed:
+      - start_bracket: (
+      - keyword: COMPRESS_ALL_ROW_GROUPS
+      - comparison_operator:
+        - raw_comparison_operator: =
+      - keyword: ON
+      - end_bracket: )
+- statement_terminator: ;
+- statement:
+  - alter_index_statement:
+    - keyword: ALTER
+    - keyword: INDEX
+    - object_reference:
+      - naked_identifier: cci_FactInternetSales2
+    - keyword: ON
+    - table_reference:
+      - object_reference:
+        - naked_identifier: FactInternetSales2
+    - keyword: REORGANIZE
+- statement_terminator: ;
+- statement:
+  - alter_index_statement:
+    - keyword: ALTER
+    - keyword: INDEX
+    - object_reference:
+      - naked_identifier: cci_fact3ON
+    - keyword: ON
+    - table_reference:
+      - object_reference:
+        - naked_identifier: fact3
+    - keyword: REBUILD
+    - keyword: PARTITION
+    - comparison_operator:
+      - raw_comparison_operator: =
+    - numeric_literal: '12'
+- statement_terminator: ;
+- statement:
+  - alter_index_statement:
+    - keyword: ALTER
+    - keyword: INDEX
+    - object_reference:
+      - naked_identifier: cci_SimpleTable
+    - keyword: ON
+    - table_reference:
+      - object_reference:
+        - naked_identifier: SimpleTable
+    - keyword: REBUILD
+    - keyword: WITH
+    - bracketed:
+      - start_bracket: (
+      - keyword: DATA_COMPRESSION
+      - comparison_operator:
+        - raw_comparison_operator: =
+      - keyword: COLUMNSTORE_ARCHIVE
+      - end_bracket: )
+- statement_terminator: ;
+- statement:
+  - alter_index_statement:
+    - keyword: ALTER
+    - keyword: INDEX
+    - object_reference:
+      - naked_identifier: cci_SimpleTable
+    - keyword: ON
+    - table_reference:
+      - object_reference:
+        - naked_identifier: SimpleTable
+    - keyword: REBUILD
+    - keyword: WITH
+    - bracketed:
+      - start_bracket: (
+      - keyword: DATA_COMPRESSION
+      - comparison_operator:
+        - raw_comparison_operator: =
+      - keyword: COLUMNSTORE
+      - end_bracket: )
+- statement_terminator: ;
+- statement:
+  - alter_index_statement:
+    - keyword: ALTER
+    - keyword: INDEX
+    - object_reference:
+      - naked_identifier: PK_ProductPhoto_ProductPhotoID
+    - keyword: ON
+    - table_reference:
+      - object_reference:
+        - naked_identifier: Production
+        - dot: .
+        - naked_identifier: ProductPhoto
+    - keyword: REORGANIZE
+    - keyword: WITH
+    - bracketed:
+      - start_bracket: (
+      - keyword: LOB_COMPACTION
+      - comparison_operator:
+        - raw_comparison_operator: =
+      - keyword: ON
+      - end_bracket: )
+- statement_terminator: ;
+- statement:
+  - alter_index_statement:
+    - keyword: ALTER
+    - keyword: INDEX
+    - object_reference:
+      - naked_identifier: IX_Employee_ManagerID
+    - keyword: ON
+    - table_reference:
+      - object_reference:
+        - naked_identifier: HumanResources
+        - dot: .
+        - naked_identifier: Employee
+    - keyword: DISABLE
+- statement_terminator: ;
+- statement:
+  - alter_index_statement:
+    - keyword: ALTER
+    - keyword: INDEX
+    - object_reference:
+      - naked_identifier: IX_INDEX1
+    - keyword: ON
+    - table_reference:
+      - object_reference:
+        - naked_identifier: T1
+    - keyword: REBUILD
+- file:
   - word: WITH
   - start_bracket: (
   - word: XML_COMPRESSION

@@ -5,6 +5,7 @@ use sqruff_lib_core::dialects::Dialect;
 use sqruff_lib_core::dialects::init::DialectKind;
 use sqruff_lib_core::dialects::syntax::SyntaxKind;
 use sqruff_lib_core::helpers::{Config, ToMatchable};
+use sqruff_lib_core::parser::matchable::MatchableTrait;
 use sqruff_lib_core::parser::grammar::Ref;
 use sqruff_lib_core::parser::grammar::anyof::{AnyNumberOf, one_of, optionally_bracketed};
 use sqruff_lib_core::parser::grammar::conditional::Conditional;
@@ -46,6 +47,22 @@ pub fn raw_dialect() -> Dialect {
         "READCOMMITTED",
         "REPEATABLEREAD",
         "SERIALIZABLE",
+        "OPENJSON",
+        "JSON",
+        "XML",
+        "BROWSE",
+        "AUTO",
+        "PATH",
+        "RAW",
+        "EXPLICIT",
+        "ROOT",
+        "INCLUDE_NULL_VALUES",
+        "WITHOUT_ARRAY_WRAPPER",
+        "TYPE",
+        "ELEMENTS",
+        "XSINIL",
+        "ABSENT",
+        "BASE64",
         "READPAST",
         "ROWLOCK",
         "TABLOCK",
@@ -384,6 +401,27 @@ pub fn raw_dialect() -> Dialect {
                             Ref::keyword("NUMERIC_ROUNDABORT")
                         ])]),
                         one_of(vec_of_erased![Ref::keyword("ON"), Ref::keyword("OFF")])
+                    ]),
+                    // SET TRANSACTION ISOLATION LEVEL
+                    Sequence::new(vec_of_erased![
+                        Ref::keyword("TRANSACTION"),
+                        Ref::keyword("ISOLATION"),
+                        Ref::keyword("LEVEL"),
+                        one_of(vec_of_erased![
+                            Ref::keyword("SNAPSHOT"),
+                            Ref::keyword("SERIALIZABLE"),
+                            Sequence::new(vec_of_erased![
+                                Ref::keyword("REPEATABLE"),
+                                Ref::keyword("READ")
+                            ]),
+                            Sequence::new(vec_of_erased![
+                                Ref::keyword("READ"),
+                                one_of(vec_of_erased![
+                                    Ref::keyword("COMMITTED"),
+                                    Ref::keyword("UNCOMMITTED")
+                                ])
+                            ])
+                        ])
                     ])
                 ])
             ])
@@ -432,6 +470,7 @@ pub fn raw_dialect() -> Dialect {
                         Ref::new("TryBlockSegment"),
                         Ref::new("GotoStatementSegment"),
                         Ref::new("LabelSegment"),
+                        Ref::new("ExecuteStatementSegment"),
                         Ref::new("BeginEndBlockSegment")
                     ]),
                     Ref::new("DelimiterGrammar").optional()
@@ -526,6 +565,101 @@ pub fn raw_dialect() -> Dialect {
         ),
     ]);
 
+    // EXECUTE/EXEC statements
+    dialect.add([
+        (
+            "ExecuteStatementSegment".into(),
+            Ref::new("ExecuteStatementGrammar").to_matchable().into(),
+        ),
+        (
+            "ExecuteStatementGrammar".into(),
+            Sequence::new(vec_of_erased![
+                one_of(vec_of_erased![Ref::keyword("EXEC"), Ref::keyword("EXECUTE")]),
+                // Optional return value capture
+                Sequence::new(vec_of_erased![
+                    Ref::new("TsqlVariableSegment"),
+                    Ref::new("AssignmentOperatorSegment")
+                ])
+                .config(|this| this.optional()),
+                // What to execute
+                one_of(vec_of_erased![
+                    // Dynamic SQL (expression in parentheses)
+                    Bracketed::new(vec_of_erased![
+                        Ref::new("ExpressionSegment") // SQL string expression
+                    ]),
+                    // Stored procedure with optional parameters
+                    Sequence::new(vec_of_erased![
+                        Ref::new("ObjectReferenceSegment"), // Procedure name
+                        // Optional parameters
+                        AnyNumberOf::new(vec_of_erased![
+                            one_of(vec_of_erased![
+                                // First parameter doesn't need comma
+                                Sequence::new(vec_of_erased![
+                                    one_of(vec_of_erased![
+                                        // Named parameter: @param = value
+                                        Sequence::new(vec_of_erased![
+                                            Ref::new("TsqlVariableSegment"),
+                                            Ref::new("AssignmentOperatorSegment"),
+                                            Ref::new("ExpressionSegment"),
+                                            // Optional OUTPUT keyword
+                                            Ref::keyword("OUTPUT").optional()
+                                        ]),
+                                        // Positional parameter
+                                        Sequence::new(vec_of_erased![
+                                            Ref::new("ExpressionSegment"),
+                                            // Optional OUTPUT keyword
+                                            Ref::keyword("OUTPUT").optional()
+                                        ])
+                                    ])
+                                ]),
+                                // Subsequent parameters need comma
+                                Sequence::new(vec_of_erased![
+                                    Ref::new("CommaSegment"),
+                                    one_of(vec_of_erased![
+                                        // Named parameter: @param = value
+                                        Sequence::new(vec_of_erased![
+                                            Ref::new("TsqlVariableSegment"),
+                                            Ref::new("AssignmentOperatorSegment"),
+                                            Ref::new("ExpressionSegment"),
+                                            // Optional OUTPUT keyword
+                                            Ref::keyword("OUTPUT").optional()
+                                        ]),
+                                        // Positional parameter
+                                        Sequence::new(vec_of_erased![
+                                            Ref::new("ExpressionSegment"),
+                                            // Optional OUTPUT keyword
+                                            Ref::keyword("OUTPUT").optional()
+                                        ])
+                                    ])
+                                ])
+                            ])
+                        ])
+                    ])
+                ]),
+                // Optional WITH clause for additional options
+                Sequence::new(vec_of_erased![
+                    Ref::keyword("WITH"),
+                    Delimited::new(vec_of_erased![
+                        one_of(vec_of_erased![
+                            Ref::keyword("RECOMPILE"),
+                            Sequence::new(vec_of_erased![
+                                Ref::keyword("RESULT"),
+                                Ref::keyword("SETS"),
+                                one_of(vec_of_erased![
+                                    Ref::keyword("UNDEFINED"),
+                                    Ref::keyword("NONE")
+                                ])
+                            ])
+                        ])
+                    ])
+                ])
+                .config(|this| this.optional())
+            ])
+            .to_matchable()
+            .into(),
+        ),
+    ]);
+
     // IF...ELSE statement
     dialect.add([
         (
@@ -537,10 +671,38 @@ pub fn raw_dialect() -> Dialect {
             Sequence::new(vec_of_erased![
                 Ref::keyword("IF"),
                 Ref::new("ExpressionSegment"),
-                Ref::new("StatementSegment"),
+                MetaSegment::indent(),
+                // Use a constrained statement that terminates on ELSE at the same level
+                one_of(vec_of_erased![
+                    // BEGIN...END block (already handles its own delimiters)
+                    Ref::new("BeginEndBlockSegment"),
+                    // Single statement (with optional delimiter)
+                    Sequence::new(vec_of_erased![
+                        Ref::new("StatementSegment"),
+                        Ref::new("DelimiterGrammar").optional()
+                    ])
+                ])
+                .config(|this| {
+                    this.terminators = vec_of_erased![
+                        Ref::keyword("ELSE"),
+                        // Also terminate on GO batch separator
+                        Ref::new("BatchSeparatorGrammar")
+                    ];
+                }),
+                MetaSegment::dedent(),
                 Sequence::new(vec_of_erased![
                     Ref::keyword("ELSE"),
-                    Ref::new("StatementSegment")
+                    MetaSegment::indent(),
+                    one_of(vec_of_erased![
+                        // BEGIN...END block (already handles its own delimiters)
+                        Ref::new("BeginEndBlockSegment"),
+                        // Single statement (with optional delimiter)
+                        Sequence::new(vec_of_erased![
+                            Ref::new("StatementSegment"),
+                            Ref::new("DelimiterGrammar").optional()
+                        ])
+                    ]),
+                    MetaSegment::dedent()
                 ])
                 .config(|this| this.optional())
             ])
@@ -561,6 +723,149 @@ pub fn raw_dialect() -> Dialect {
                 Ref::keyword("WHILE"),
                 Ref::new("ExpressionSegment"),
                 Ref::new("StatementSegment")
+            ])
+            .to_matchable()
+            .into(),
+        ),
+    ]);
+
+    // FOR JSON/XML/BROWSE clause for SELECT statements
+    dialect.add([
+        (
+            "ForClauseSegment".into(),
+            Sequence::new(vec_of_erased![
+                Ref::keyword("FOR"),
+                one_of(vec_of_erased![
+                    // FOR JSON
+                    Sequence::new(vec_of_erased![
+                        Ref::keyword("JSON"),
+                        one_of(vec_of_erased![
+                            Ref::keyword("AUTO"),
+                            Ref::keyword("PATH")
+                        ]),
+                        // Optional modifiers
+                        AnyNumberOf::new(vec_of_erased![
+                            Sequence::new(vec_of_erased![
+                                Ref::new("CommaSegment"),
+                                one_of(vec_of_erased![
+                                    // ROOT option
+                                    Sequence::new(vec_of_erased![
+                                        Ref::keyword("ROOT"),
+                                        Sequence::new(vec_of_erased![
+                                            Bracketed::new(vec_of_erased![
+                                                Ref::new("QuotedLiteralSegment")
+                                            ])
+                                        ])
+                                        .config(|this| this.optional())
+                                    ]),
+                                    // INCLUDE_NULL_VALUES
+                                    Ref::keyword("INCLUDE_NULL_VALUES"),
+                                    // WITHOUT_ARRAY_WRAPPER
+                                    Ref::keyword("WITHOUT_ARRAY_WRAPPER")
+                                ])
+                            ])
+                        ])
+                    ]),
+                    // FOR XML
+                    Sequence::new(vec_of_erased![
+                        Ref::keyword("XML"),
+                        one_of(vec_of_erased![
+                            Ref::keyword("RAW"),
+                            Ref::keyword("AUTO"),
+                            Ref::keyword("EXPLICIT"),
+                            Sequence::new(vec_of_erased![
+                                Ref::keyword("PATH"),
+                                Sequence::new(vec_of_erased![
+                                    Bracketed::new(vec_of_erased![
+                                        Ref::new("QuotedLiteralSegment")
+                                    ])
+                                ])
+                                .config(|this| this.optional())
+                            ])
+                        ]),
+                        // Optional modifiers
+                        AnyNumberOf::new(vec_of_erased![
+                            Sequence::new(vec_of_erased![
+                                Ref::new("CommaSegment"),
+                                one_of(vec_of_erased![
+                                    // TYPE
+                                    Ref::keyword("TYPE"),
+                                    // ROOT option
+                                    Sequence::new(vec_of_erased![
+                                        Ref::keyword("ROOT"),
+                                        Sequence::new(vec_of_erased![
+                                            Bracketed::new(vec_of_erased![
+                                                Ref::new("QuotedLiteralSegment")
+                                            ])
+                                        ])
+                                        .config(|this| this.optional())
+                                    ]),
+                                    // ELEMENTS
+                                    Sequence::new(vec_of_erased![
+                                        Ref::keyword("ELEMENTS"),
+                                        one_of(vec_of_erased![
+                                            Ref::keyword("XSINIL"),
+                                            Ref::keyword("ABSENT")
+                                        ])
+                                        .config(|this| this.optional())
+                                    ]),
+                                    // BINARY BASE64
+                                    Sequence::new(vec_of_erased![
+                                        Ref::keyword("BINARY"),
+                                        Ref::keyword("BASE64")
+                                    ])
+                                ])
+                            ])
+                        ])
+                    ]),
+                    // FOR BROWSE
+                    Ref::keyword("BROWSE")
+                ])
+            ])
+            .to_matchable()
+            .into(),
+        ),
+    ]);
+
+    // OPENJSON table-valued function
+    dialect.add([
+        (
+            "OpenJsonSegment".into(),
+            Sequence::new(vec_of_erased![
+                Ref::keyword("OPENJSON"),
+                Bracketed::new(vec_of_erased![
+                    Ref::new("ExpressionSegment"), // JSON expression
+                    // Optional path
+                    Sequence::new(vec_of_erased![
+                        Ref::new("CommaSegment"),
+                        Ref::new("QuotedLiteralSegment") // JSON path
+                    ])
+                    .config(|this| this.optional())
+                ]),
+                // Optional WITH clause for schema definition
+                Sequence::new(vec_of_erased![
+                    Ref::keyword("WITH"),
+                    Bracketed::new(vec_of_erased![
+                        Delimited::new(vec_of_erased![
+                            Sequence::new(vec_of_erased![
+                                Ref::new("NakedIdentifierSegment"), // Column name
+                                Ref::new("DatatypeSegment"), // Data type
+                                // Optional JSON path
+                                Sequence::new(vec_of_erased![
+                                    Ref::new("QuotedLiteralSegment")
+                                ])
+                                .config(|this| this.optional()),
+                                // Optional AS JSON
+                                Sequence::new(vec_of_erased![
+                                    Ref::keyword("AS"),
+                                    Ref::keyword("JSON")
+                                ])
+                                .config(|this| this.optional())
+                            ])
+                        ])
+                    ])
+                ])
+                .config(|this| this.optional())
             ])
             .to_matchable()
             .into(),
@@ -708,6 +1013,7 @@ pub fn raw_dialect() -> Dialect {
             Ref::new("WhileStatementGrammar"),
             Ref::new("GotoStatementSegment"),
             Ref::new("LabelSegment"),
+            Ref::new("ExecuteStatementGrammar"),
             Ref::new("UseStatementGrammar"),
             // Include all ANSI statement types
             Ref::new("SelectableGrammar"),
@@ -809,7 +1115,7 @@ pub fn raw_dialect() -> Dialect {
         .to_matchable(),
     );
 
-    // Update TableExpressionSegment to include PIVOT/UNPIVOT
+    // Update TableExpressionSegment to include PIVOT/UNPIVOT and OPENJSON
     dialect.replace_grammar(
         "TableExpressionSegment",
         one_of(vec_of_erased![
@@ -817,6 +1123,7 @@ pub fn raw_dialect() -> Dialect {
             Ref::new("BareFunctionSegment"),
             Ref::new("FunctionSegment"),
             Ref::new("TableReferenceSegment"),
+            Ref::new("OpenJsonSegment"),
             Bracketed::new(vec_of_erased![Ref::new("SelectableGrammar")]),
             Sequence::new(vec_of_erased![
                 Ref::new("TableReferenceSegment"),
@@ -1410,6 +1717,58 @@ pub fn raw_dialect() -> Dialect {
             ]),
         ])
         .to_matchable(),
+    );
+
+    // Override UnorderedSelectStatementSegment to add FOR clause
+    dialect.replace_grammar(
+        "UnorderedSelectStatementSegment",
+        Sequence::new(vec_of_erased![
+            Ref::new("SelectClauseSegment"),
+            MetaSegment::dedent(),
+            Ref::new("FromClauseSegment").optional(),
+            Ref::new("WhereClauseSegment").optional(),
+            Ref::new("GroupByClauseSegment").optional(),
+            Ref::new("HavingClauseSegment").optional(),
+            Ref::new("OverlapsClauseSegment").optional(),
+            Ref::new("NamedWindowSegment").optional(),
+            // T-SQL specific: FOR JSON/XML/BROWSE clause
+            Ref::new("ForClauseSegment").optional()
+        ])
+        .terminators(vec_of_erased![
+            Ref::new("SetOperatorSegment"),
+            Ref::new("WithNoSchemaBindingClauseSegment"),
+            Ref::new("WithDataClauseSegment"),
+            Ref::new("OrderByClauseSegment"),
+            Ref::new("LimitClauseSegment")
+        ])
+        .config(|this| {
+            this.parse_mode(ParseMode::GreedyOnceStarted);
+        })
+        .to_matchable(),
+    );
+
+    // Override SelectStatementSegment to add FOR clause after ORDER BY
+    dialect.replace_grammar(
+        "SelectStatementSegment",
+        crate::ansi::get_unordered_select_statement_segment_grammar().copy(
+            Some(vec_of_erased![
+                Ref::new("OrderByClauseSegment").optional(),
+                Ref::new("FetchClauseSegment").optional(),
+                Ref::new("LimitClauseSegment").optional(),
+                Ref::new("NamedWindowSegment").optional(),
+                // T-SQL specific: FOR JSON/XML/BROWSE clause
+                Ref::new("ForClauseSegment").optional()
+            ]),
+            None,
+            None,
+            None,
+            vec_of_erased![
+                Ref::new("SetOperatorSegment"),
+                Ref::new("WithNoSchemaBindingClauseSegment"),
+                Ref::new("WithDataClauseSegment")
+            ],
+            true,
+        ),
     );
 
     // T-SQL CREATE TABLE with Azure Synapse Analytics support

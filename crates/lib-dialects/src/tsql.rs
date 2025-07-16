@@ -668,9 +668,6 @@ pub fn raw_dialect() -> Dialect {
         ),
     ]);
 
-    // Don't override FileSegment - use the default ANSI implementation
-    // The ANSI FileSegment already handles multiple statements separated by semicolons correctly
-
     // Add T-SQL specific statement types to the statement segment
     dialect.replace_grammar(
         "StatementSegment",
@@ -686,7 +683,6 @@ pub fn raw_dialect() -> Dialect {
             Ref::new("WhileStatementGrammar"),
             Ref::new("GotoStatementSegment"),
             Ref::new("LabelSegment"),
-            // Note: BatchSeparatorGrammar (GO) removed - handled at file level only
             Ref::new("UseStatementGrammar"),
             // Include all ANSI statement types
             Ref::new("SelectableGrammar"),
@@ -1342,7 +1338,7 @@ pub fn raw_dialect() -> Dialect {
                 Ref::new("EqualsSegment"),
                 one_of(vec_of_erased![
                     Ref::new("QuotedLiteralSegment"),
-                    Ref::new("UnicodeLiteralSegment"), // Add Unicode literal support
+                    Ref::new("UnicodeLiteralSegment"),
                     Ref::new("NumericLiteralSegment"),
                     Ref::new("NakedIdentifierSegment"),
                     // Special handling for multi-word isolation levels

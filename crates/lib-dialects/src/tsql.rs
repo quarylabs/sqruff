@@ -773,6 +773,34 @@ pub fn raw_dialect() -> Dialect {
             .to_matchable()
             .into(),
         ),
+        // RENAME OBJECT statement (Azure Synapse Analytics specific)
+        (
+            "RenameObjectStatementSegment".into(),
+            NodeMatcher::new(SyntaxKind::RenameObjectStatement, |_| {
+                Sequence::new(vec_of_erased![
+                    Ref::keyword("RENAME"),
+                    one_of(vec_of_erased![
+                        // RENAME OBJECT syntax
+                        Sequence::new(vec_of_erased![
+                            Ref::keyword("OBJECT"),
+                            Ref::new("ObjectReferenceSegment"),
+                            Ref::keyword("TO"),
+                            Ref::new("ObjectReferenceSegment")
+                        ]),
+                        // RENAME DATABASE syntax
+                        Sequence::new(vec_of_erased![
+                            Ref::keyword("DATABASE"),
+                            Ref::new("ObjectReferenceSegment"),
+                            Ref::keyword("TO"),
+                            Ref::new("ObjectReferenceSegment")
+                        ])
+                    ])
+                ])
+                .to_matchable()
+            })
+            .to_matchable()
+            .into(),
+        ),
     ]);
 
     // IF...ELSE statement
@@ -2000,6 +2028,7 @@ pub fn raw_dialect() -> Dialect {
             Ref::new("OpenSymmetricKeyStatementSegment"),
             Ref::new("CreateSynonymStatementSegment"),
             Ref::new("DropSynonymStatementSegment"),
+            Ref::new("RenameObjectStatementSegment"),
             // Include all ANSI statement types
             Ref::new("SelectableGrammar"),
             Ref::new("MergeStatementSegment"),

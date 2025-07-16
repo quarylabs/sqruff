@@ -1,10 +1,13 @@
 file:
-- unparsable:
-  - word: RENAME
-  - word: OBJECT
-  - double_quote: '[Reporting]'
-  - dot: .
-  - double_quote: '[TABLE_NEW]'
-  - word: to
-  - double_quote: '[TABLE_BASE]'
-  - semicolon: ;
+- statement:
+  - rename_object_statement:
+    - keyword: RENAME
+    - keyword: OBJECT
+    - object_reference:
+      - quoted_identifier: '[Reporting]'
+      - dot: .
+      - quoted_identifier: '[TABLE_NEW]'
+    - keyword: to
+    - object_reference:
+      - quoted_identifier: '[TABLE_BASE]'
+- statement_terminator: ;

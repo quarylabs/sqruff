@@ -1750,7 +1750,7 @@ pub fn raw_dialect() -> Dialect {
     // Override SelectStatementSegment to add FOR clause after ORDER BY
     dialect.replace_grammar(
         "SelectStatementSegment",
-        crate::ansi::get_unordered_select_statement_segment_grammar().copy(
+        ansi::get_unordered_select_statement_segment_grammar().copy(
             Some(vec_of_erased![
                 Ref::new("OrderByClauseSegment").optional(),
                 Ref::new("FetchClauseSegment").optional(),

@@ -5,7 +5,6 @@ use sqruff_lib_core::dialects::Dialect;
 use sqruff_lib_core::dialects::init::DialectKind;
 use sqruff_lib_core::dialects::syntax::SyntaxKind;
 use sqruff_lib_core::helpers::{Config, ToMatchable};
-use sqruff_lib_core::parser::matchable::MatchableTrait;
 use sqruff_lib_core::parser::grammar::Ref;
 use sqruff_lib_core::parser::grammar::anyof::{AnyNumberOf, one_of, optionally_bracketed};
 use sqruff_lib_core::parser::grammar::conditional::Conditional;
@@ -13,6 +12,7 @@ use sqruff_lib_core::parser::grammar::delimited::Delimited;
 use sqruff_lib_core::parser::grammar::sequence::{Bracketed, Sequence};
 use sqruff_lib_core::parser::lexer::Matcher;
 use sqruff_lib_core::parser::lookahead::LookaheadExclude;
+use sqruff_lib_core::parser::matchable::MatchableTrait;
 use sqruff_lib_core::parser::node_matcher::NodeMatcher;
 use sqruff_lib_core::parser::parsers::{RegexParser, StringParser, TypedParser};
 use sqruff_lib_core::parser::segments::generator::SegmentGenerator;
@@ -574,7 +574,10 @@ pub fn raw_dialect() -> Dialect {
         (
             "ExecuteStatementGrammar".into(),
             Sequence::new(vec_of_erased![
-                one_of(vec_of_erased![Ref::keyword("EXEC"), Ref::keyword("EXECUTE")]),
+                one_of(vec_of_erased![
+                    Ref::keyword("EXEC"),
+                    Ref::keyword("EXECUTE")
+                ]),
                 // Optional return value capture
                 Sequence::new(vec_of_erased![
                     Ref::new("TsqlVariableSegment"),
@@ -591,67 +594,61 @@ pub fn raw_dialect() -> Dialect {
                     Sequence::new(vec_of_erased![
                         Ref::new("ObjectReferenceSegment"), // Procedure name
                         // Optional parameters
-                        AnyNumberOf::new(vec_of_erased![
-                            one_of(vec_of_erased![
-                                // First parameter doesn't need comma
+                        AnyNumberOf::new(vec_of_erased![one_of(vec_of_erased![
+                            // First parameter doesn't need comma
+                            Sequence::new(vec_of_erased![one_of(vec_of_erased![
+                                // Named parameter: @param = value
                                 Sequence::new(vec_of_erased![
-                                    one_of(vec_of_erased![
-                                        // Named parameter: @param = value
-                                        Sequence::new(vec_of_erased![
-                                            Ref::new("TsqlVariableSegment"),
-                                            Ref::new("AssignmentOperatorSegment"),
-                                            Ref::new("ExpressionSegment"),
-                                            // Optional OUTPUT keyword
-                                            Ref::keyword("OUTPUT").optional()
-                                        ]),
-                                        // Positional parameter
-                                        Sequence::new(vec_of_erased![
-                                            Ref::new("ExpressionSegment"),
-                                            // Optional OUTPUT keyword
-                                            Ref::keyword("OUTPUT").optional()
-                                        ])
-                                    ])
+                                    Ref::new("TsqlVariableSegment"),
+                                    Ref::new("AssignmentOperatorSegment"),
+                                    Ref::new("ExpressionSegment"),
+                                    // Optional OUTPUT keyword
+                                    Ref::keyword("OUTPUT").optional()
                                 ]),
-                                // Subsequent parameters need comma
+                                // Positional parameter
                                 Sequence::new(vec_of_erased![
-                                    Ref::new("CommaSegment"),
-                                    one_of(vec_of_erased![
-                                        // Named parameter: @param = value
-                                        Sequence::new(vec_of_erased![
-                                            Ref::new("TsqlVariableSegment"),
-                                            Ref::new("AssignmentOperatorSegment"),
-                                            Ref::new("ExpressionSegment"),
-                                            // Optional OUTPUT keyword
-                                            Ref::keyword("OUTPUT").optional()
-                                        ]),
-                                        // Positional parameter
-                                        Sequence::new(vec_of_erased![
-                                            Ref::new("ExpressionSegment"),
-                                            // Optional OUTPUT keyword
-                                            Ref::keyword("OUTPUT").optional()
-                                        ])
+                                    Ref::new("ExpressionSegment"),
+                                    // Optional OUTPUT keyword
+                                    Ref::keyword("OUTPUT").optional()
+                                ])
+                            ])]),
+                            // Subsequent parameters need comma
+                            Sequence::new(vec_of_erased![
+                                Ref::new("CommaSegment"),
+                                one_of(vec_of_erased![
+                                    // Named parameter: @param = value
+                                    Sequence::new(vec_of_erased![
+                                        Ref::new("TsqlVariableSegment"),
+                                        Ref::new("AssignmentOperatorSegment"),
+                                        Ref::new("ExpressionSegment"),
+                                        // Optional OUTPUT keyword
+                                        Ref::keyword("OUTPUT").optional()
+                                    ]),
+                                    // Positional parameter
+                                    Sequence::new(vec_of_erased![
+                                        Ref::new("ExpressionSegment"),
+                                        // Optional OUTPUT keyword
+                                        Ref::keyword("OUTPUT").optional()
                                     ])
                                 ])
                             ])
-                        ])
+                        ])])
                     ])
                 ]),
                 // Optional WITH clause for additional options
                 Sequence::new(vec_of_erased![
                     Ref::keyword("WITH"),
-                    Delimited::new(vec_of_erased![
-                        one_of(vec_of_erased![
-                            Ref::keyword("RECOMPILE"),
-                            Sequence::new(vec_of_erased![
-                                Ref::keyword("RESULT"),
-                                Ref::keyword("SETS"),
-                                one_of(vec_of_erased![
-                                    Ref::keyword("UNDEFINED"),
-                                    Ref::keyword("NONE")
-                                ])
+                    Delimited::new(vec_of_erased![one_of(vec_of_erased![
+                        Ref::keyword("RECOMPILE"),
+                        Sequence::new(vec_of_erased![
+                            Ref::keyword("RESULT"),
+                            Ref::keyword("SETS"),
+                            one_of(vec_of_erased![
+                                Ref::keyword("UNDEFINED"),
+                                Ref::keyword("NONE")
                             ])
                         ])
-                    ])
+                    ])])
                 ])
                 .config(|this| this.optional())
             ])
@@ -730,147 +727,123 @@ pub fn raw_dialect() -> Dialect {
     ]);
 
     // FOR JSON/XML/BROWSE clause for SELECT statements
-    dialect.add([
-        (
-            "ForClauseSegment".into(),
-            Sequence::new(vec_of_erased![
-                Ref::keyword("FOR"),
-                one_of(vec_of_erased![
-                    // FOR JSON
-                    Sequence::new(vec_of_erased![
-                        Ref::keyword("JSON"),
+    dialect.add([(
+        "ForClauseSegment".into(),
+        Sequence::new(vec_of_erased![
+            Ref::keyword("FOR"),
+            one_of(vec_of_erased![
+                // FOR JSON
+                Sequence::new(vec_of_erased![
+                    Ref::keyword("JSON"),
+                    one_of(vec_of_erased![Ref::keyword("AUTO"), Ref::keyword("PATH")]),
+                    // Optional modifiers
+                    AnyNumberOf::new(vec_of_erased![Sequence::new(vec_of_erased![
+                        Ref::new("CommaSegment"),
                         one_of(vec_of_erased![
-                            Ref::keyword("AUTO"),
-                            Ref::keyword("PATH")
-                        ]),
-                        // Optional modifiers
-                        AnyNumberOf::new(vec_of_erased![
+                            // ROOT option
                             Sequence::new(vec_of_erased![
-                                Ref::new("CommaSegment"),
-                                one_of(vec_of_erased![
-                                    // ROOT option
-                                    Sequence::new(vec_of_erased![
-                                        Ref::keyword("ROOT"),
-                                        Sequence::new(vec_of_erased![
-                                            Bracketed::new(vec_of_erased![
-                                                Ref::new("QuotedLiteralSegment")
-                                            ])
-                                        ])
-                                        .config(|this| this.optional())
-                                    ]),
-                                    // INCLUDE_NULL_VALUES
-                                    Ref::keyword("INCLUDE_NULL_VALUES"),
-                                    // WITHOUT_ARRAY_WRAPPER
-                                    Ref::keyword("WITHOUT_ARRAY_WRAPPER")
-                                ])
-                            ])
+                                Ref::keyword("ROOT"),
+                                Sequence::new(vec_of_erased![Bracketed::new(vec_of_erased![
+                                    Ref::new("QuotedLiteralSegment")
+                                ])])
+                                .config(|this| this.optional())
+                            ]),
+                            // INCLUDE_NULL_VALUES
+                            Ref::keyword("INCLUDE_NULL_VALUES"),
+                            // WITHOUT_ARRAY_WRAPPER
+                            Ref::keyword("WITHOUT_ARRAY_WRAPPER")
+                        ])
+                    ])])
+                ]),
+                // FOR XML
+                Sequence::new(vec_of_erased![
+                    Ref::keyword("XML"),
+                    one_of(vec_of_erased![
+                        Ref::keyword("RAW"),
+                        Ref::keyword("AUTO"),
+                        Ref::keyword("EXPLICIT"),
+                        Sequence::new(vec_of_erased![
+                            Ref::keyword("PATH"),
+                            Sequence::new(vec_of_erased![Bracketed::new(vec_of_erased![
+                                Ref::new("QuotedLiteralSegment")
+                            ])])
+                            .config(|this| this.optional())
                         ])
                     ]),
-                    // FOR XML
-                    Sequence::new(vec_of_erased![
-                        Ref::keyword("XML"),
+                    // Optional modifiers
+                    AnyNumberOf::new(vec_of_erased![Sequence::new(vec_of_erased![
+                        Ref::new("CommaSegment"),
                         one_of(vec_of_erased![
-                            Ref::keyword("RAW"),
-                            Ref::keyword("AUTO"),
-                            Ref::keyword("EXPLICIT"),
+                            // TYPE
+                            Ref::keyword("TYPE"),
+                            // ROOT option
                             Sequence::new(vec_of_erased![
-                                Ref::keyword("PATH"),
-                                Sequence::new(vec_of_erased![
-                                    Bracketed::new(vec_of_erased![
-                                        Ref::new("QuotedLiteralSegment")
-                                    ])
+                                Ref::keyword("ROOT"),
+                                Sequence::new(vec_of_erased![Bracketed::new(vec_of_erased![
+                                    Ref::new("QuotedLiteralSegment")
+                                ])])
+                                .config(|this| this.optional())
+                            ]),
+                            // ELEMENTS
+                            Sequence::new(vec_of_erased![
+                                Ref::keyword("ELEMENTS"),
+                                one_of(vec_of_erased![
+                                    Ref::keyword("XSINIL"),
+                                    Ref::keyword("ABSENT")
                                 ])
                                 .config(|this| this.optional())
-                            ])
-                        ]),
-                        // Optional modifiers
-                        AnyNumberOf::new(vec_of_erased![
+                            ]),
+                            // BINARY BASE64
                             Sequence::new(vec_of_erased![
-                                Ref::new("CommaSegment"),
-                                one_of(vec_of_erased![
-                                    // TYPE
-                                    Ref::keyword("TYPE"),
-                                    // ROOT option
-                                    Sequence::new(vec_of_erased![
-                                        Ref::keyword("ROOT"),
-                                        Sequence::new(vec_of_erased![
-                                            Bracketed::new(vec_of_erased![
-                                                Ref::new("QuotedLiteralSegment")
-                                            ])
-                                        ])
-                                        .config(|this| this.optional())
-                                    ]),
-                                    // ELEMENTS
-                                    Sequence::new(vec_of_erased![
-                                        Ref::keyword("ELEMENTS"),
-                                        one_of(vec_of_erased![
-                                            Ref::keyword("XSINIL"),
-                                            Ref::keyword("ABSENT")
-                                        ])
-                                        .config(|this| this.optional())
-                                    ]),
-                                    // BINARY BASE64
-                                    Sequence::new(vec_of_erased![
-                                        Ref::keyword("BINARY"),
-                                        Ref::keyword("BASE64")
-                                    ])
-                                ])
+                                Ref::keyword("BINARY"),
+                                Ref::keyword("BASE64")
                             ])
                         ])
-                    ]),
-                    // FOR BROWSE
-                    Ref::keyword("BROWSE")
-                ])
+                    ])])
+                ]),
+                // FOR BROWSE
+                Ref::keyword("BROWSE")
             ])
-            .to_matchable()
-            .into(),
-        ),
-    ]);
+        ])
+        .to_matchable()
+        .into(),
+    )]);
 
     // OPENJSON table-valued function
-    dialect.add([
-        (
-            "OpenJsonSegment".into(),
-            Sequence::new(vec_of_erased![
-                Ref::keyword("OPENJSON"),
-                Bracketed::new(vec_of_erased![
-                    Ref::new("ExpressionSegment"), // JSON expression
-                    // Optional path
-                    Sequence::new(vec_of_erased![
-                        Ref::new("CommaSegment"),
-                        Ref::new("QuotedLiteralSegment") // JSON path
-                    ])
-                    .config(|this| this.optional())
-                ]),
-                // Optional WITH clause for schema definition
+    dialect.add([(
+        "OpenJsonSegment".into(),
+        Sequence::new(vec_of_erased![
+            Ref::keyword("OPENJSON"),
+            Bracketed::new(vec_of_erased![
+                Ref::new("ExpressionSegment"), // JSON expression
+                // Optional path
                 Sequence::new(vec_of_erased![
-                    Ref::keyword("WITH"),
-                    Bracketed::new(vec_of_erased![
-                        Delimited::new(vec_of_erased![
-                            Sequence::new(vec_of_erased![
-                                Ref::new("NakedIdentifierSegment"), // Column name
-                                Ref::new("DatatypeSegment"), // Data type
-                                // Optional JSON path
-                                Sequence::new(vec_of_erased![
-                                    Ref::new("QuotedLiteralSegment")
-                                ])
-                                .config(|this| this.optional()),
-                                // Optional AS JSON
-                                Sequence::new(vec_of_erased![
-                                    Ref::keyword("AS"),
-                                    Ref::keyword("JSON")
-                                ])
-                                .config(|this| this.optional())
-                            ])
-                        ])
-                    ])
+                    Ref::new("CommaSegment"),
+                    Ref::new("QuotedLiteralSegment") // JSON path
                 ])
                 .config(|this| this.optional())
+            ]),
+            // Optional WITH clause for schema definition
+            Sequence::new(vec_of_erased![
+                Ref::keyword("WITH"),
+                Bracketed::new(vec_of_erased![Delimited::new(vec_of_erased![
+                    Sequence::new(vec_of_erased![
+                        Ref::new("NakedIdentifierSegment"), // Column name
+                        Ref::new("DatatypeSegment"),        // Data type
+                        // Optional JSON path
+                        Sequence::new(vec_of_erased![Ref::new("QuotedLiteralSegment")])
+                            .config(|this| this.optional()),
+                        // Optional AS JSON
+                        Sequence::new(vec_of_erased![Ref::keyword("AS"), Ref::keyword("JSON")])
+                            .config(|this| this.optional())
+                    ])
+                ])])
             ])
-            .to_matchable()
-            .into(),
-        ),
-    ]);
+            .config(|this| this.optional())
+        ])
+        .to_matchable()
+        .into(),
+    )]);
 
     // PIVOT and UNPIVOT support
     dialect.add([

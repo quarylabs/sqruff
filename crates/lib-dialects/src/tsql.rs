@@ -4095,7 +4095,10 @@ pub fn raw_dialect() -> Dialect {
                     Ref::new("TsqlPermissionGrammar"),
                     Ref::keyword("ON"),
                     Ref::new("TsqlObjectReferenceGrammar"),
-                    Ref::keyword("FROM"),
+                    one_of(vec_of_erased![
+                        Ref::keyword("FROM"),
+                        Ref::keyword("TO")
+                    ]),
                     Delimited::new(vec_of_erased![Ref::new("ObjectReferenceSegment")]),
                     Ref::keyword("CASCADE").optional()
                 ])

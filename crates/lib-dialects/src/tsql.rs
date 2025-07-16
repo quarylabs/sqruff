@@ -1876,6 +1876,8 @@ pub fn raw_dialect() -> Dialect {
             Ref::new("FetchCursorStatementSegment"),
             Ref::new("CloseCursorStatementSegment"),
             Ref::new("DeallocateCursorStatementSegment"),
+            Ref::new("CreateSynonymStatementSegment"),
+            Ref::new("DropSynonymStatementSegment"),
             // Include all ANSI statement types
             Ref::new("SelectableGrammar"),
             Ref::new("MergeStatementSegment"),
@@ -3772,6 +3774,59 @@ pub fn raw_dialect() -> Dialect {
 
     // Add cursor statements to statement list (they're already in the list from before)
     // Just need to ensure DeclareCursorStatementSegment is recognized as a valid declare variant
+    
+    // CREATE SYNONYM statement
+    dialect.add([(
+        "CreateSynonymStatementSegment".into(),
+        NodeMatcher::new(SyntaxKind::CreateSynonymStatement, |_| {
+            Sequence::new(vec_of_erased![
+                Ref::keyword("CREATE"),
+                Ref::keyword("SYNONYM"),
+                Ref::new("SynonymReferenceSegment"),
+                Ref::keyword("FOR"),
+                Ref::new("ObjectReferenceSegment")
+            ])
+            .to_matchable()
+        })
+        .to_matchable()
+        .into(),
+    )]);
+
+    // DROP SYNONYM statement
+    dialect.add([(
+        "DropSynonymStatementSegment".into(),
+        NodeMatcher::new(SyntaxKind::DropSynonymStatement, |_| {
+            Sequence::new(vec_of_erased![
+                Ref::keyword("DROP"),
+                Ref::keyword("SYNONYM"),
+                Ref::new("IfExistsGrammar").optional(),
+                Ref::new("SynonymReferenceSegment")
+            ])
+            .to_matchable()
+        })
+        .to_matchable()
+        .into(),
+    )]);
+
+    // Synonym reference segment - can have schema but not database/server
+    dialect.add([(
+        "SynonymReferenceSegment".into(),
+        NodeMatcher::new(SyntaxKind::ObjectReference, |_| {
+            Sequence::new(vec_of_erased![
+                Ref::new("SingleIdentifierGrammar"),
+                AnyNumberOf::new(vec_of_erased![
+                    Sequence::new(vec_of_erased![
+                        Ref::new("DotSegment"),
+                        Ref::new("SingleIdentifierGrammar")
+                    ])
+                ])
+                .config(|this| this.max_times(1)) // Only allow schema.synonym, not server.db.schema.synonym
+            ])
+            .to_matchable()
+        })
+        .to_matchable()
+        .into(),
+    )]);
     
     // expand() must be called after all grammar modifications
 

@@ -584,6 +584,8 @@ pub enum SyntaxKind {
     FetchStatement,
     CloseStatement,
     DeallocateCursorStatement,
+    CreateSynonymStatement,
+    DropSynonymStatement,
     CreateDatashareStatement,
     DescDatashareStatement,
     DropDatashareStatement,

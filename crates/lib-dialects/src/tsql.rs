@@ -1868,6 +1868,7 @@ pub fn raw_dialect() -> Dialect {
             Ref::new("CreateSecurityPolicyStatementSegment"),
             Ref::new("AlterSecurityPolicyStatementSegment"),
             Ref::new("DropSecurityPolicyStatementSegment"),
+            Ref::new("DisableTriggerStatementSegment"),
             // Include all ANSI statement types
             Ref::new("SelectableGrammar"),
             Ref::new("MergeStatementSegment"),
@@ -3451,6 +3452,122 @@ pub fn raw_dialect() -> Dialect {
                 Ref::keyword("POLICY"),
                 Ref::new("IfExistsGrammar").optional(),
                 Ref::new("ObjectReferenceSegment")
+            ])
+            .to_matchable()
+        })
+        .to_matchable()
+        .into(),
+    )]);
+
+    // Override CREATE TRIGGER to support CREATE OR ALTER TRIGGER and T-SQL specific features
+    dialect.add([(
+        "CreateTriggerStatementSegment".into(),
+        NodeMatcher::new(SyntaxKind::CreateTriggerStatement, |_| {
+            Sequence::new(vec_of_erased![
+                Ref::keyword("CREATE"),
+                Sequence::new(vec_of_erased![
+                    Ref::keyword("OR"),
+                    Ref::keyword("ALTER")
+                ])
+                .config(|this| this.optional()),
+                Ref::keyword("TRIGGER"),
+                Ref::new("TriggerReferenceSegment"),
+                Ref::keyword("ON"),
+                one_of(vec_of_erased![
+                    Ref::new("TableReferenceSegment"),
+                    Sequence::new(vec_of_erased![
+                        Ref::keyword("ALL"),
+                        Ref::keyword("SERVER")
+                    ]),
+                    Ref::keyword("DATABASE")
+                ]),
+                // WITH clause for encryption options
+                Sequence::new(vec_of_erased![
+                    Ref::keyword("WITH"),
+                    AnyNumberOf::new(vec_of_erased![
+                        Ref::keyword("ENCRYPTION"),
+                        Ref::keyword("NATIVE_COMPILATION"),
+                        Ref::keyword("SCHEMABINDING")
+                    ]),
+                    Ref::new("ExecuteAsClause").optional()
+                ])
+                .config(|this| this.optional()),
+                // Trigger timing
+                one_of(vec_of_erased![
+                    Sequence::new(vec_of_erased![
+                        Ref::keyword("FOR"),
+                        Delimited::new(vec_of_erased![
+                            Ref::new("SingleIdentifierGrammar")
+                        ])
+                        .config(|this| this.optional())
+                    ]),
+                    Ref::keyword("AFTER"),
+                    Sequence::new(vec_of_erased![
+                        Ref::keyword("INSTEAD"),
+                        Ref::keyword("OF")
+                    ])
+                ])
+                .config(|this| this.optional()),
+                // Trigger events
+                Delimited::new(vec_of_erased![
+                    Ref::keyword("INSERT"),
+                    Ref::keyword("UPDATE"),
+                    Ref::keyword("DELETE"),
+                    // DDL events for DATABASE/ALL SERVER triggers
+                    Ref::new("SingleIdentifierGrammar")
+                ])
+                .config(|this| this.optional()),
+                // Additional options
+                Sequence::new(vec_of_erased![
+                    Ref::keyword("WITH"),
+                    Ref::keyword("APPEND")
+                ])
+                .config(|this| this.optional()),
+                Sequence::new(vec_of_erased![
+                    Ref::keyword("NOT"),
+                    Ref::keyword("FOR"),
+                    Ref::keyword("REPLICATION")
+                ])
+                .config(|this| this.optional()),
+                Ref::keyword("AS"),
+                one_of(vec_of_erased![
+                    // Single statement
+                    Ref::new("StatementSegment"),
+                    // Multiple statements in a BEGIN...END block
+                    Ref::new("BeginEndBlockSegment")
+                ])
+            ])
+            .to_matchable()
+        })
+        .to_matchable()
+        .into(),
+    )]);
+
+    // Add DISABLE TRIGGER statement
+    dialect.add([(
+        "DisableTriggerStatementSegment".into(),
+        NodeMatcher::new(SyntaxKind::Statement, |_| {
+            Sequence::new(vec_of_erased![
+                Ref::keyword("DISABLE"),
+                Ref::keyword("TRIGGER"),
+                one_of(vec_of_erased![
+                    Delimited::new(vec_of_erased![
+                        Ref::new("TriggerReferenceSegment")
+                    ]),
+                    Ref::keyword("ALL")
+                ]),
+                Sequence::new(vec_of_erased![
+                    Ref::keyword("ON"),
+                    one_of(vec_of_erased![
+                        Ref::new("ObjectReferenceSegment"),
+                        Ref::keyword("DATABASE"),
+                        Sequence::new(vec_of_erased![
+                            Ref::keyword("ALL"),
+                            Ref::keyword("SERVER")
+                        ])
+                    ])
+                ])
+                .config(|this| this.optional())
             ])
             .to_matchable()
         })

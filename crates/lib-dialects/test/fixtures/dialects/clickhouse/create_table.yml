@@ -27,16 +27,17 @@ file:
         - bracketed:
           - start_bracket: (
           - end_bracket: )
-      - keyword: order
-      - keyword: by
-      - bracketed:
-        - start_bracket: (
-        - column_reference:
-          - naked_identifier: a
-        - comma: ','
-        - column_reference:
-          - naked_identifier: b
-        - end_bracket: )
+      - merge_tree_order_by_clause:
+        - keyword: order
+        - keyword: by
+        - bracketed:
+          - start_bracket: (
+          - column_reference:
+            - naked_identifier: a
+          - comma: ','
+          - column_reference:
+            - naked_identifier: b
+          - end_bracket: )
 - statement_terminator: ;
 - statement:
   - create_table_statement:
@@ -71,16 +72,17 @@ file:
         - bracketed:
           - start_bracket: (
           - end_bracket: )
-      - keyword: ORDER
-      - keyword: BY
-      - bracketed:
-        - start_bracket: (
-        - column_reference:
-          - naked_identifier: CounterID
-        - comma: ','
-        - column_reference:
-          - naked_identifier: EventDate
-        - end_bracket: )
+      - merge_tree_order_by_clause:
+        - keyword: ORDER
+        - keyword: BY
+        - bracketed:
+          - start_bracket: (
+          - column_reference:
+            - naked_identifier: CounterID
+          - comma: ','
+          - column_reference:
+            - naked_identifier: EventDate
+          - end_bracket: )
       - keyword: PARTITION
       - keyword: BY
       - expression:
@@ -194,16 +196,17 @@ file:
       - expression:
         - column_reference:
           - naked_identifier: date
-      - keyword: ORDER
-      - keyword: BY
-      - bracketed:
-        - start_bracket: (
-        - column_reference:
-          - naked_identifier: UserId
-        - comma: ','
-        - column_reference:
-          - naked_identifier: EventType
-        - end_bracket: )
+      - merge_tree_order_by_clause:
+        - keyword: ORDER
+        - keyword: BY
+        - bracketed:
+          - start_bracket: (
+          - column_reference:
+            - naked_identifier: UserId
+          - comma: ','
+          - column_reference:
+            - naked_identifier: EventType
+          - end_bracket: )
       - keyword: SETTINGS
       - naked_identifier: index_granularity
       - comparison_operator:
@@ -408,10 +411,11 @@ file:
       - table_engine_function:
         - function_name:
           - function_name_identifier: MergeTree
-      - keyword: ORDER
-      - keyword: BY
-      - column_reference:
-        - naked_identifier: x
+      - merge_tree_order_by_clause:
+        - keyword: ORDER
+        - keyword: BY
+        - column_reference:
+          - naked_identifier: x
 - statement_terminator: ;
 - statement:
   - create_table_statement:
@@ -442,10 +446,11 @@ file:
       - table_engine_function:
         - function_name:
           - function_name_identifier: MergeTree
-      - keyword: ORDER
-      - keyword: BY
-      - column_reference:
-        - naked_identifier: n
+      - merge_tree_order_by_clause:
+        - keyword: ORDER
+        - keyword: BY
+        - column_reference:
+          - naked_identifier: n
 - statement_terminator: ;
 - statement:
   - create_table_statement:
@@ -481,10 +486,11 @@ file:
       - table_engine_function:
         - function_name:
           - function_name_identifier: MergeTree
-      - keyword: ORDER
-      - keyword: BY
-      - column_reference:
-        - naked_identifier: n
+      - merge_tree_order_by_clause:
+        - keyword: ORDER
+        - keyword: BY
+        - column_reference:
+          - naked_identifier: n
 - statement_terminator: ;
 - statement:
   - create_table_statement:
@@ -662,10 +668,11 @@ file:
               - column_reference:
                 - naked_identifier: d
             - end_bracket: )
-      - keyword: ORDER
-      - keyword: BY
-      - column_reference:
-        - naked_identifier: d
+      - merge_tree_order_by_clause:
+        - keyword: ORDER
+        - keyword: BY
+        - column_reference:
+          - naked_identifier: d
 - statement_terminator: ;
 - statement:
   - create_table_statement:
@@ -704,10 +711,11 @@ file:
               - column_reference:
                 - naked_identifier: d
             - end_bracket: )
-      - keyword: ORDER
-      - keyword: BY
-      - column_reference:
-        - naked_identifier: d
+      - merge_tree_order_by_clause:
+        - keyword: ORDER
+        - keyword: BY
+        - column_reference:
+          - naked_identifier: d
     - table_ttl_segment:
       - keyword: TTL
       - expression:

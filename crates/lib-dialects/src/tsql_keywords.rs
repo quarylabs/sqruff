@@ -145,6 +145,7 @@ pub(crate) fn tsql_additional_reserved_keywords() -> AHashSet<&'static str> {
         "ORDER",
         "OUTER",
         "OVER",
+        "OVERRIDE",
         "OWNERSHIP",
         "PERCENT",
         "PIVOT",

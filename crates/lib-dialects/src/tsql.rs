@@ -567,6 +567,7 @@ pub fn raw_dialect() -> Dialect {
                         Ref::new("GotoStatementSegment"),
                         Ref::new("LabelSegment"),
                         Ref::new("ExecuteStatementSegment"),
+                        Ref::new("ReconfigureStatementSegment"),
                         Ref::new("BeginEndBlockSegment")
                     ]),
                     Ref::new("DelimiterGrammar").optional()
@@ -588,7 +589,8 @@ pub fn raw_dialect() -> Dialect {
                         Ref::keyword("IF"),
                         Ref::keyword("WHILE"),
                         Ref::keyword("BEGIN"),
-                        Ref::keyword("GOTO")
+                        Ref::keyword("GOTO"),
+                        Ref::keyword("RECONFIGURE")
                     ];
                 })
                 .config(|this| this.min_times(0)),
@@ -748,6 +750,26 @@ pub fn raw_dialect() -> Dialect {
                 ])
                 .config(|this| this.optional())
             ])
+            .to_matchable()
+            .into(),
+        ),
+    ]);
+
+    // RECONFIGURE statement
+    dialect.add([
+        (
+            "ReconfigureStatementSegment".into(),
+            NodeMatcher::new(SyntaxKind::ReconfigureStatement, |_| {
+                Sequence::new(vec_of_erased![
+                    Ref::keyword("RECONFIGURE"),
+                    Sequence::new(vec_of_erased![
+                        Ref::keyword("WITH"),
+                        Ref::keyword("OVERRIDE")
+                    ])
+                    .config(|this| this.optional())
+                ])
+                .to_matchable()
+            })
             .to_matchable()
             .into(),
         ),
@@ -1945,6 +1967,7 @@ pub fn raw_dialect() -> Dialect {
             Ref::new("GotoStatementSegment"),
             Ref::new("LabelSegment"),
             Ref::new("ExecuteStatementGrammar"),
+            Ref::new("ReconfigureStatementSegment"),
             Ref::new("UseStatementGrammar"),
             Ref::new("WaitforStatementSegment"),
             Ref::new("CreateTypeStatementSegment"),

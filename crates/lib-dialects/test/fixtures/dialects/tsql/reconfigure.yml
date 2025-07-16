@@ -1,8 +1,11 @@
 file:
-- unparsable:
-  - word: RECONFIGURE
-  - semicolon: ;
-  - word: RECONFIGURE
-  - word: WITH
-  - word: OVERRIDE
-  - semicolon: ;
+- statement:
+  - reconfigure_statement:
+    - keyword: RECONFIGURE
+- statement_terminator: ;
+- statement:
+  - reconfigure_statement:
+    - keyword: RECONFIGURE
+    - keyword: WITH
+    - keyword: OVERRIDE
+- statement_terminator: ;

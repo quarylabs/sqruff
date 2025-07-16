@@ -1133,6 +1133,96 @@ pub fn raw_dialect() -> Dialect {
         ),
     ]);
 
+    // BULK INSERT statement
+    dialect.add([
+        (
+            "BulkInsertStatementSegment".into(),
+            NodeMatcher::new(SyntaxKind::InsertStatement, |_| {
+                Sequence::new(vec_of_erased![
+                    Ref::keyword("BULK"),
+                    Ref::keyword("INSERT"),
+                    Ref::new("TableReferenceSegment"),
+                    Ref::keyword("FROM"),
+                    Ref::new("QuotedLiteralSegment"),
+                    Ref::new("BulkInsertWithSegment").optional()
+                ])
+                .to_matchable()
+            })
+            .to_matchable()
+            .into(),
+        ),
+        (
+            "BulkInsertWithSegment".into(),
+            NodeMatcher::new(SyntaxKind::WithDataClause, |_| {
+                Sequence::new(vec_of_erased![
+                    Ref::keyword("WITH"),
+                    Bracketed::new(vec_of_erased![
+                        Delimited::new(vec_of_erased![
+                            one_of(vec_of_erased![
+                                // Numeric options: BATCHSIZE = 1024
+                                Sequence::new(vec_of_erased![
+                                    one_of(vec_of_erased![
+                                        Ref::keyword("BATCHSIZE"),
+                                        Ref::keyword("FIRSTROW"),
+                                        Ref::keyword("KILOBYTES_PER_BATCH"),
+                                        Ref::keyword("LASTROW"),
+                                        Ref::keyword("MAXERRORS"),
+                                        Ref::keyword("ROWS_PER_BATCH")
+                                    ]),
+                                    Ref::new("EqualsSegment"),
+                                    Ref::new("NumericLiteralSegment")
+                                ]),
+                                // String options: FORMAT = 'CSV'
+                                Sequence::new(vec_of_erased![
+                                    one_of(vec_of_erased![
+                                        Ref::keyword("CODEPAGE"),
+                                        Ref::keyword("DATAFILETYPE"),
+                                        Ref::keyword("DATA_SOURCE"),
+                                        Ref::keyword("ERRORFILE"),
+                                        Ref::keyword("ERRORFILE_DATA_SOURCE"),
+                                        Ref::keyword("FORMATFILE_DATA_SOURCE"),
+                                        Ref::keyword("ROWTERMINATOR"),
+                                        Ref::keyword("FORMAT"),
+                                        Ref::keyword("FIELDQUOTE"),
+                                        Ref::keyword("FORMATFILE"),
+                                        Ref::keyword("FIELDTERMINATOR")
+                                    ]),
+                                    Ref::new("EqualsSegment"),
+                                    Ref::new("QuotedLiteralSegment")
+                                ]),
+                                // ORDER clause: ORDER (col1 ASC, col2 DESC)
+                                Sequence::new(vec_of_erased![
+                                    Ref::keyword("ORDER"),
+                                    Bracketed::new(vec_of_erased![
+                                        Delimited::new(vec_of_erased![
+                                            Sequence::new(vec_of_erased![
+                                                Ref::new("ColumnReferenceSegment"),
+                                                one_of(vec_of_erased![
+                                                    Ref::keyword("ASC"),
+                                                    Ref::keyword("DESC")
+                                                ])
+                                                .config(|this| this.optional())
+                                            ])
+                                        ])
+                                    ])
+                                ]),
+                                // Boolean flags
+                                Ref::keyword("CHECK_CONSTRAINTS"),
+                                Ref::keyword("FIRE_TRIGGERS"),
+                                Ref::keyword("KEEPIDENTITY"),
+                                Ref::keyword("KEEPNULLS"),
+                                Ref::keyword("TABLOCK")
+                            ])
+                        ])
+                    ])
+                ])
+                .to_matchable()
+            })
+            .to_matchable()
+            .into(),
+        ),
+    ]);
+
     // PIVOT and UNPIVOT support
     dialect.add([
         (
@@ -1278,6 +1368,7 @@ pub fn raw_dialect() -> Dialect {
             Ref::new("UseStatementGrammar"),
             Ref::new("WaitforStatementSegment"),
             Ref::new("CreateTypeStatementSegment"),
+            Ref::new("BulkInsertStatementSegment"),
             // Include all ANSI statement types
             Ref::new("SelectableGrammar"),
             Ref::new("MergeStatementSegment"),

@@ -578,6 +578,28 @@ pub(crate) fn tsql_additional_unreserved_keywords() -> AHashSet<&'static str> {
         "RESAMPLE",
         "SAMPLE",
         "NORECOMPUTE",
+        // BULK INSERT options
+        "BATCHSIZE",
+        "FIRSTROW",
+        "KILOBYTES_PER_BATCH",
+        "LASTROW",
+        "MAXERRORS",
+        "ROWS_PER_BATCH",
+        "CODEPAGE",
+        "DATAFILETYPE",
+        "DATA_SOURCE",
+        "ERRORFILE",
+        "ERRORFILE_DATA_SOURCE",
+        "FORMATFILE_DATA_SOURCE",
+        "ROWTERMINATOR",
+        "FIELDQUOTE",
+        "FORMATFILE",
+        "FIELDTERMINATOR",
+        "CHECK_CONSTRAINTS",
+        "FIRE_TRIGGERS",
+        "KEEPIDENTITY",
+        "KEEPNULLS",
+        "TABLOCK",
     ]
     .into_iter()
     .collect()

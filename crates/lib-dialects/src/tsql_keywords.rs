@@ -605,6 +605,9 @@ pub(crate) fn tsql_additional_unreserved_keywords() -> AHashSet<&'static str> {
         "SPLIT",
         "MERGE",
         "RANGE",
+        "SCHEME",
+        "NEXT",
+        "USED",
     ]
     .into_iter()
     .collect()

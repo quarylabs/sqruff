@@ -1292,6 +1292,58 @@ pub fn raw_dialect() -> Dialect {
         ),
     ]);
 
+    // CREATE PARTITION SCHEME statement
+    dialect.add([
+        (
+            "CreatePartitionSchemeSegment".into(),
+            NodeMatcher::new(SyntaxKind::CreateDatabaseStatement, |_| {
+                Sequence::new(vec_of_erased![
+                    Ref::keyword("CREATE"),
+                    Ref::keyword("PARTITION"),
+                    Ref::keyword("SCHEME"),
+                    Ref::new("ObjectReferenceSegment"),
+                    Ref::keyword("AS"),
+                    Ref::keyword("PARTITION"),
+                    Ref::new("ObjectReferenceSegment"),
+                    Ref::keyword("ALL").optional(),
+                    Ref::keyword("TO"),
+                    Bracketed::new(vec_of_erased![
+                        Delimited::new(vec_of_erased![
+                            one_of(vec_of_erased![
+                                Ref::new("ObjectReferenceSegment"),
+                                Ref::keyword("PRIMARY")
+                            ])
+                        ])
+                    ])
+                ])
+                .to_matchable()
+            })
+            .to_matchable()
+            .into(),
+        ),
+    ]);
+
+    // ALTER PARTITION SCHEME statement
+    dialect.add([
+        (
+            "AlterPartitionSchemeSegment".into(),
+            NodeMatcher::new(SyntaxKind::AlterDatabaseStatement, |_| {
+                Sequence::new(vec_of_erased![
+                    Ref::keyword("ALTER"),
+                    Ref::keyword("PARTITION"),
+                    Ref::keyword("SCHEME"),
+                    Ref::new("ObjectReferenceSegment"),
+                    Ref::keyword("NEXT"),
+                    Ref::keyword("USED"),
+                    Ref::new("ObjectReferenceSegment").optional()
+                ])
+                .to_matchable()
+            })
+            .to_matchable()
+            .into(),
+        ),
+    ]);
+
     // PIVOT and UNPIVOT support
     dialect.add([
         (
@@ -1440,6 +1492,8 @@ pub fn raw_dialect() -> Dialect {
             Ref::new("BulkInsertStatementSegment"),
             Ref::new("CreatePartitionFunctionSegment"),
             Ref::new("AlterPartitionFunctionSegment"),
+            Ref::new("CreatePartitionSchemeSegment"),
+            Ref::new("AlterPartitionSchemeSegment"),
             // Include all ANSI statement types
             Ref::new("SelectableGrammar"),
             Ref::new("MergeStatementSegment"),

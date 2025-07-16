@@ -8,6 +8,7 @@ use crate::ansi_keywords::{ANSI_RESERVED_KEYWORDS, ANSI_UNRESERVED_KEYWORDS};
 pub(crate) fn tsql_additional_reserved_keywords() -> AHashSet<&'static str> {
     [
         // Current T-SQL Reserved Keywords (from Microsoft documentation)
+        "ABSENT",
         "ADD",
         "ALL",
         "ALTER",

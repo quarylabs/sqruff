@@ -4151,6 +4151,24 @@ pub fn raw_dialect() -> Dialect {
             .to_matchable()
             .into(),
         ),
+        // JSON NULL handling clause
+        (
+            "TsqlJsonNullClause".into(),
+            one_of(vec_of_erased![
+                Sequence::new(vec_of_erased![
+                    Ref::keyword("NULL"),
+                    Ref::keyword("ON"),
+                    Ref::keyword("NULL")
+                ]),
+                Sequence::new(vec_of_erased![
+                    Ref::keyword("ABSENT"),
+                    Ref::keyword("ON"),
+                    Ref::keyword("NULL")
+                ])
+            ])
+            .to_matchable()
+            .into(),
+        ),
         // T-SQL JSON_OBJECT function with key:value syntax
         (
             "TsqlJsonObjectSegment".into(),
@@ -4158,16 +4176,24 @@ pub fn raw_dialect() -> Dialect {
                 Sequence::new(vec_of_erased![
                     Ref::keyword("JSON_OBJECT"),
                     Bracketed::new(vec_of_erased![
-                        Delimited::new(vec_of_erased![
-                            // Key-value pairs with colon syntax
+                        one_of(vec_of_erased![
+                            // Just the null clause for JSON_OBJECT(ABSENT ON NULL)
+                            Ref::new("TsqlJsonNullClause"),
+                            // Key-value pairs with optional null clause
                             Sequence::new(vec_of_erased![
-                                Ref::new("ExpressionSegment"), // key
-                                Ref::new("ColonSegment"),       // :
-                                Ref::new("ExpressionSegment")  // value
+                                Delimited::new(vec_of_erased![
+                                    // Key-value pairs with colon syntax
+                                    Sequence::new(vec_of_erased![
+                                        Ref::new("ExpressionSegment"), // key
+                                        Ref::new("ColonSegment"),       // :
+                                        Ref::new("ExpressionSegment")  // value
+                                    ])
+                                ]).config(|this| {
+                                    this.allow_trailing = true;
+                                }),
+                                Ref::new("TsqlJsonNullClause").optional()
                             ])
-                        ]).config(|this| {
-                            this.allow_trailing = true;
-                        })
+                        ])
                     ])
                     .config(|this| this.parse_mode(ParseMode::Greedy))
                 ])
@@ -4183,10 +4209,18 @@ pub fn raw_dialect() -> Dialect {
                 Sequence::new(vec_of_erased![
                     Ref::keyword("JSON_ARRAY"),
                     Bracketed::new(vec_of_erased![
-                        Delimited::new(vec_of_erased![Ref::new("ExpressionSegment")])
-                            .config(|this| {
-                                this.allow_trailing = true;
-                            })
+                        one_of(vec_of_erased![
+                            // Empty with just null clause
+                            Ref::new("TsqlJsonNullClause"),
+                            // Expression list with optional trailing null clause
+                            Sequence::new(vec_of_erased![
+                                Delimited::new(vec_of_erased![Ref::new("ExpressionSegment")])
+                                    .config(|this| {
+                                        this.allow_trailing = true;
+                                    }),
+                                Ref::new("TsqlJsonNullClause").optional()
+                            ])
+                        ])
                     ])
                     .config(|this| this.parse_mode(ParseMode::Greedy))
                 ])

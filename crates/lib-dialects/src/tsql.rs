@@ -4452,7 +4452,7 @@ pub fn raw_dialect() -> Dialect {
             NodeMatcher::new(SyntaxKind::CreateMasterKeyStatement, |_| {
                 Sequence::new(vec_of_erased![
                     Ref::keyword("CREATE"),
-                    Ref::keyword("MASTER"),
+                    StringParser::new("MASTER", SyntaxKind::Keyword),
                     Ref::keyword("KEY"),
                     Sequence::new(vec_of_erased![
                         Ref::keyword("ENCRYPTION"),
@@ -4474,13 +4474,16 @@ pub fn raw_dialect() -> Dialect {
             NodeMatcher::new(SyntaxKind::AlterMasterKeyStatement, |_| {
                 Sequence::new(vec_of_erased![
                     Ref::keyword("ALTER"),
-                    Ref::keyword("MASTER"),
+                    StringParser::new("MASTER", SyntaxKind::Keyword),
                     Ref::keyword("KEY"),
                     one_of(vec_of_erased![
-                        // REGENERATE WITH ENCRYPTION BY PASSWORD = 'password'
+                        // FORCE REGENERATE WITH ENCRYPTION BY PASSWORD = 'password'
                         Sequence::new(vec_of_erased![
-                            Ref::keyword("FORCE").optional(),
-                            Ref::keyword("REGENERATE"),
+                            Sequence::new(vec_of_erased![
+                                StringParser::new("FORCE", SyntaxKind::Keyword),
+                            ])
+                            .config(|this| this.optional()),
+                            StringParser::new("REGENERATE", SyntaxKind::Keyword),
                             Ref::keyword("WITH"),
                             Ref::keyword("ENCRYPTION"),
                             Ref::keyword("BY"),
@@ -4501,7 +4504,7 @@ pub fn raw_dialect() -> Dialect {
                                 ]),
                                 Sequence::new(vec_of_erased![
                                     Ref::keyword("SERVICE"),
-                                    Ref::keyword("MASTER"),
+                                    StringParser::new("MASTER", SyntaxKind::Keyword),
                                     Ref::keyword("KEY")
                                 ])
                             ])
@@ -4528,7 +4531,7 @@ pub fn raw_dialect() -> Dialect {
             NodeMatcher::new(SyntaxKind::DropMasterKeyStatement, |_| {
                 Sequence::new(vec_of_erased![
                     Ref::keyword("DROP"),
-                    Ref::keyword("MASTER"),
+                    StringParser::new("MASTER", SyntaxKind::Keyword),
                     Ref::keyword("KEY")
                 ])
                 .to_matchable()

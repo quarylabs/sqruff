@@ -1,7 +1,3 @@
--- https://learn.microsoft.com/en-us/sql/t-sql/statements/create-master-key-transact-sql
--- https://learn.microsoft.com/en-us/sql/t-sql/statements/alter-master-key-transact-sql
--- https://learn.microsoft.com/en-us/sql/t-sql/statements/drop-master-key-transact-sql
-
 CREATE MASTER KEY ENCRYPTION BY PASSWORD = '<strong password>';
 
 CREATE MASTER KEY;

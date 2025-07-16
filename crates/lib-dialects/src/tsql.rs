@@ -112,6 +112,18 @@ pub fn raw_dialect() -> Dialect {
                 r"N'([^']|'')*'",
                 SyntaxKind::UnicodeSingleQuote,
             ),
+            // Azure Blob Storage URLs for COPY INTO
+            Matcher::regex(
+                "azure_blob_storage_url",
+                r"'https://[^']*\.blob\.core\.windows\.net/[^']*'",
+                SyntaxKind::QuotedLiteral,
+            ),
+            // Azure Data Lake Storage Gen2 URLs for COPY INTO  
+            Matcher::regex(
+                "azure_data_lake_storage_url", 
+                r"'https://[^']*\.dfs\.core\.windows\.net/[^']*'",
+                SyntaxKind::QuotedLiteral,
+            ),
         ],
         "equals",
     );
@@ -1937,6 +1949,7 @@ pub fn raw_dialect() -> Dialect {
             Ref::new("WaitforStatementSegment"),
             Ref::new("CreateTypeStatementSegment"),
             Ref::new("BulkInsertStatementSegment"),
+            Ref::new("TsqlCopyIntoStatementSegment"),
             Ref::new("CreatePartitionFunctionSegment"),
             Ref::new("AlterPartitionFunctionSegment"),
             Ref::new("CreatePartitionSchemeSegment"),
@@ -4216,6 +4229,155 @@ pub fn raw_dialect() -> Dialect {
                         ]),
                         Ref::new("PostFunctionGrammar").optional()
                     ])
+                ])
+                .to_matchable()
+            })
+            .to_matchable()
+            .into(),
+        ),
+    ]);
+
+    // Add COPY INTO statement support for Azure blob storage
+    dialect.add([
+        // Credential grammar for COPY INTO WITH clause
+        (
+            "TsqlCredentialGrammar".into(),
+            Sequence::new(vec_of_erased![
+                Ref::keyword("IDENTITY"),
+                Ref::new("EqualsSegment"),
+                Ref::new("QuotedLiteralSegment"),
+                Sequence::new(vec_of_erased![
+                    Ref::new("CommaSegment"),
+                    Ref::keyword("SECRET"),
+                    Ref::new("EqualsSegment"),
+                    Ref::new("QuotedLiteralSegment")
+                ]).config(|this| this.optional())
+            ])
+            .to_matchable()
+            .into(),
+        ),
+        // Azure storage location segment
+        (
+            "TsqlStorageLocationSegment".into(),
+            one_of(vec_of_erased![
+                Ref::new("QuotedLiteralSegment") // Azure blob URLs handled by lexer
+            ])
+            .to_matchable()
+            .into(),
+        ),
+        // COPY INTO statement
+        (
+            "TsqlCopyIntoStatementSegment".into(),
+            NodeMatcher::new(SyntaxKind::Statement, |_| {
+                Sequence::new(vec_of_erased![
+                    Ref::keyword("COPY"),
+                    Ref::keyword("INTO"),
+                    Ref::new("TableReferenceSegment"),
+                    // Optional column list
+                    Bracketed::new(vec_of_erased![
+                        Delimited::new(vec_of_erased![Ref::new("ColumnReferenceSegment")])
+                    ]).config(|this| this.optional()),
+                    // FROM clause with storage locations
+                    Sequence::new(vec_of_erased![
+                        Ref::keyword("FROM"),
+                        Delimited::new(vec_of_erased![Ref::new("TsqlStorageLocationSegment")])
+                    ]),
+                    // Optional WITH clause
+                    Sequence::new(vec_of_erased![
+                        Ref::keyword("WITH"),
+                        Bracketed::new(vec_of_erased![
+                            Delimited::new(vec_of_erased![
+                                one_of(vec_of_erased![
+                                    // FILE_TYPE = 'CSV'
+                                    Sequence::new(vec_of_erased![
+                                        Ref::keyword("FILE_TYPE"),
+                                        Ref::new("EqualsSegment"),
+                                        Ref::new("QuotedLiteralSegment")
+                                    ]),
+                                    // FILE_FORMAT = object_ref
+                                    Sequence::new(vec_of_erased![
+                                        Ref::keyword("FILE_FORMAT"),
+                                        Ref::new("EqualsSegment"),
+                                        Ref::new("ObjectReferenceSegment")
+                                    ]),
+                                    // CREDENTIAL = (credential_grammar)
+                                    Sequence::new(vec_of_erased![
+                                        Ref::keyword("CREDENTIAL"),
+                                        Ref::new("EqualsSegment"),
+                                        Bracketed::new(vec_of_erased![
+                                            Ref::new("TsqlCredentialGrammar")
+                                        ])
+                                    ]),
+                                    // ERRORFILE = 'path'
+                                    Sequence::new(vec_of_erased![
+                                        Ref::keyword("ERRORFILE"),
+                                        Ref::new("EqualsSegment"),
+                                        Ref::new("QuotedLiteralSegment")
+                                    ]),
+                                    // MAXERRORS = number
+                                    Sequence::new(vec_of_erased![
+                                        Ref::keyword("MAXERRORS"),
+                                        Ref::new("EqualsSegment"),
+                                        Ref::new("NumericLiteralSegment")
+                                    ]),
+                                    // COMPRESSION = 'type'
+                                    Sequence::new(vec_of_erased![
+                                        Ref::keyword("COMPRESSION"),
+                                        Ref::new("EqualsSegment"),
+                                        Ref::new("QuotedLiteralSegment")
+                                    ]),
+                                    // FIELDQUOTE = 'char'
+                                    Sequence::new(vec_of_erased![
+                                        Ref::keyword("FIELDQUOTE"),
+                                        Ref::new("EqualsSegment"),
+                                        Ref::new("QuotedLiteralSegment")
+                                    ]),
+                                    // FIELDTERMINATOR = 'char'
+                                    Sequence::new(vec_of_erased![
+                                        Ref::keyword("FIELDTERMINATOR"),
+                                        Ref::new("EqualsSegment"),
+                                        Ref::new("QuotedLiteralSegment")
+                                    ]),
+                                    // ROWTERMINATOR = 'char'
+                                    Sequence::new(vec_of_erased![
+                                        Ref::keyword("ROWTERMINATOR"),
+                                        Ref::new("EqualsSegment"),
+                                        Ref::new("QuotedLiteralSegment")
+                                    ]),
+                                    // FIRSTROW = number
+                                    Sequence::new(vec_of_erased![
+                                        Ref::keyword("FIRSTROW"),
+                                        Ref::new("EqualsSegment"),
+                                        Ref::new("NumericLiteralSegment")
+                                    ]),
+                                    // DATEFORMAT = 'format'
+                                    Sequence::new(vec_of_erased![
+                                        Ref::keyword("DATEFORMAT"),
+                                        Ref::new("EqualsSegment"),
+                                        Ref::new("QuotedLiteralSegment")
+                                    ]),
+                                    // ENCODING = 'encoding'
+                                    Sequence::new(vec_of_erased![
+                                        Ref::keyword("ENCODING"),
+                                        Ref::new("EqualsSegment"),
+                                        Ref::new("QuotedLiteralSegment")
+                                    ]),
+                                    // IDENTITY_INSERT = 'ON'/'OFF'
+                                    Sequence::new(vec_of_erased![
+                                        Ref::keyword("IDENTITY_INSERT"),
+                                        Ref::new("EqualsSegment"),
+                                        Ref::new("QuotedLiteralSegment")
+                                    ]),
+                                    // AUTO_CREATE_TABLE = 'ON'/'OFF'
+                                    Sequence::new(vec_of_erased![
+                                        Ref::keyword("AUTO_CREATE_TABLE"),
+                                        Ref::new("EqualsSegment"),
+                                        Ref::new("QuotedLiteralSegment")
+                                    ])
+                                ])
+                            ])
+                        ])
+                    ]).config(|this| this.optional())
                 ])
                 .to_matchable()
             })

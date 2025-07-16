@@ -1,94 +1,129 @@
 file:
-- unparsable:
-  - word: GRANT
-  - word: SELECT
-  - word: ON
-  - word: OBJECT
-  - casting_operator: '::'
-  - word: Person
-  - dot: .
-  - word: Address
-  - word: TO
-  - word: RosaQdM
-  - semicolon: ;
-  - word: GO
-  - word: USE
-  - word: AdventureWorks2012
-  - semicolon: ;
-  - word: GRANT
-  - word: EXECUTE
-  - word: ON
-  - word: OBJECT
-  - casting_operator: '::'
-  - word: HumanResources
-  - dot: .
-  - word: uspUpdateEmployeeHireInfo
-  - word: TO
-  - word: Recruiting11
-  - semicolon: ;
-  - word: GO
-  - word: GRANT
-  - word: REFERENCES
-  - start_bracket: (
-  - word: BusinessEntityID
-  - end_bracket: )
-  - word: ON
-  - word: OBJECT
-  - casting_operator: '::'
-  - word: HumanResources
-  - dot: .
-  - word: vEmployee
-  - word: TO
-  - word: Wanida
-  - word: WITH
-  - word: GRANT
-  - word: OPTION
-  - semicolon: ;
-  - word: GO
-  - word: GRANT
-  - word: SELECT
-  - word: ON
-  - word: Person
-  - dot: .
-  - word: Address
-  - word: TO
-  - word: RosaQdM
-  - semicolon: ;
-  - word: GO
-  - word: GRANT
-  - word: SELECT
-  - word: ON
-  - word: Person
-  - dot: .
-  - word: Address
-  - word: TO
-  - double_quote: '[AdventureWorks2012\RosaQdM]'
-  - semicolon: ;
-  - word: GO
-  - word: CREATE
-  - word: ROLE
-  - word: newrole
-  - semicolon: ;
-  - word: GRANT
-  - word: EXECUTE
-  - word: ON
-  - word: dbo
-  - dot: .
-  - word: uspGetBillOfMaterials
-  - word: TO
-  - word: newrole
-  - semicolon: ;
-  - word: GO
-  - word: GRANT
-  - word: SELECT
-  - word: ON
-  - word: SCHEMA
-  - casting_operator: '::'
-  - word: Sales
-  - word: TO
-  - word: Vendors
-  - semicolon: ;
-  - word: GO
+- statement:
+  - access_statement:
+    - keyword: GRANT
+    - keyword: SELECT
+    - keyword: ON
+    - keyword: OBJECT
+    - casting_operator: '::'
+    - object_reference:
+      - naked_identifier: Person
+      - dot: .
+      - naked_identifier: Address
+    - keyword: TO
+    - object_reference:
+      - naked_identifier: RosaQdM
+- statement_terminator: ;
+- keyword: GO
+- statement:
+  - keyword: USE
+  - database_reference:
+    - naked_identifier: AdventureWorks2012
+- statement_terminator: ;
+- statement:
+  - access_statement:
+    - keyword: GRANT
+    - keyword: EXECUTE
+    - keyword: ON
+    - keyword: OBJECT
+    - casting_operator: '::'
+    - object_reference:
+      - naked_identifier: HumanResources
+      - dot: .
+      - naked_identifier: uspUpdateEmployeeHireInfo
+    - keyword: TO
+    - object_reference:
+      - naked_identifier: Recruiting11
+- statement_terminator: ;
+- keyword: GO
+- statement:
+  - access_statement:
+    - keyword: GRANT
+    - keyword: REFERENCES
+    - bracketed:
+      - start_bracket: (
+      - column_reference:
+        - naked_identifier: BusinessEntityID
+      - end_bracket: )
+    - keyword: ON
+    - keyword: OBJECT
+    - casting_operator: '::'
+    - object_reference:
+      - naked_identifier: HumanResources
+      - dot: .
+      - naked_identifier: vEmployee
+    - keyword: TO
+    - object_reference:
+      - naked_identifier: Wanida
+    - keyword: WITH
+    - keyword: GRANT
+    - keyword: OPTION
+- statement_terminator: ;
+- keyword: GO
+- statement:
+  - access_statement:
+    - keyword: GRANT
+    - keyword: SELECT
+    - keyword: ON
+    - object_reference:
+      - naked_identifier: Person
+      - dot: .
+      - naked_identifier: Address
+    - keyword: TO
+    - role_reference:
+      - naked_identifier: RosaQdM
+- statement_terminator: ;
+- keyword: GO
+- statement:
+  - access_statement:
+    - keyword: GRANT
+    - keyword: SELECT
+    - keyword: ON
+    - object_reference:
+      - naked_identifier: Person
+      - dot: .
+      - naked_identifier: Address
+    - keyword: TO
+    - role_reference:
+      - quoted_identifier: '[AdventureWorks2012\RosaQdM]'
+- statement_terminator: ;
+- keyword: GO
+- statement:
+  - create_role_statement:
+    - keyword: CREATE
+    - keyword: ROLE
+    - role_reference:
+      - naked_identifier: newrole
+- statement_terminator: ;
+- statement:
+  - access_statement:
+    - keyword: GRANT
+    - keyword: EXECUTE
+    - keyword: ON
+    - object_reference:
+      - naked_identifier: dbo
+      - dot: .
+      - naked_identifier: uspGetBillOfMaterials
+    - keyword: TO
+    - role_reference:
+      - naked_identifier: newrole
+- statement_terminator: ;
+- keyword: GO
+- statement:
+  - access_statement:
+    - keyword: GRANT
+    - keyword: SELECT
+    - keyword: ON
+    - keyword: SCHEMA
+    - casting_operator: '::'
+    - object_reference:
+      - naked_identifier: Sales
+    - keyword: TO
+    - object_reference:
+      - naked_identifier: Vendors
+- statement_terminator: ;
+- keyword: GO
+- file:
   - word: REVOKE
   - word: SELECT
   - word: ON

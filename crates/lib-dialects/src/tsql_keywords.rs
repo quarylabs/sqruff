@@ -404,6 +404,7 @@ pub(crate) fn tsql_future_keywords() -> AHashSet<&'static str> {
         "REAL",
         "RECURSIVE",
         "REGENERATE",
+        "REPEATABLE",
         "REF",
         "REFERENCING",
         "REGR_AVGX",

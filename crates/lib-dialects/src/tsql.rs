@@ -4599,6 +4599,41 @@ pub fn raw_dialect() -> Dialect {
             .to_matchable()
             .into(),
         ),
+        // Grammar for PERCENT/ROWS in TABLESAMPLE
+        (
+            "PercentRowsGrammar".into(),
+            one_of(vec_of_erased![
+                Ref::keyword("PERCENT"),
+                Ref::keyword("ROWS")
+            ])
+            .to_matchable()
+            .into(),
+        ),
+        // T-SQL-specific TABLESAMPLE clause
+        (
+            "SamplingExpressionSegment".into(),
+            NodeMatcher::new(SyntaxKind::SampleExpression, |_| {
+                Sequence::new(vec_of_erased![
+                    Ref::keyword("TABLESAMPLE"),
+                    // SYSTEM is optional in T-SQL
+                    Ref::keyword("SYSTEM").optional(),
+                    Bracketed::new(vec_of_erased![
+                        Ref::new("NumericLiteralSegment"),
+                        // PERCENT or ROWS is optional (default is ROWS)
+                        Ref::new("PercentRowsGrammar").optional()
+                    ]),
+                    // REPEATABLE clause is optional
+                    Sequence::new(vec_of_erased![
+                        Ref::keyword("REPEATABLE"),
+                        Bracketed::new(vec_of_erased![Ref::new("NumericLiteralSegment")]),
+                    ])
+                    .config(|this| this.optional())
+                ])
+                .to_matchable()
+            })
+            .to_matchable()
+            .into(),
+        ),
     ]);
     
     // expand() must be called after all grammar modifications

@@ -1,0 +1,275 @@
+file:
+- statement:
+  - select_statement:
+    - select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+        - numeric_literal: '1'
+        - alias_expression:
+          - keyword: AS
+          - naked_identifier: RegionCode
+    - from_clause:
+      - keyword: FROM
+      - from_expression:
+        - from_expression_element:
+          - table_expression:
+            - table_reference:
+              - object_reference:
+                - naked_identifier: BA
+        - join_clause:
+          - keyword: LEFT
+          - keyword: OUTER
+          - keyword: JOIN
+          - from_expression_element:
+            - table_expression:
+              - table_reference:
+                - object_reference:
+                  - naked_identifier: I
+        - join_clause:
+          - keyword: LEFT
+          - keyword: OUTER
+          - keyword: JOIN
+          - from_expression_element:
+            - table_expression:
+              - table_reference:
+                - object_reference:
+                  - naked_identifier: P
+          - join_on_condition:
+            - keyword: ON
+            - expression:
+              - column_reference:
+                - naked_identifier: I
+                - dot: .
+                - naked_identifier: Pcd
+              - comparison_operator:
+                - raw_comparison_operator: =
+              - column_reference:
+                - naked_identifier: P
+                - dot: .
+                - naked_identifier: Iid
+    - unparsable:
+      - word: ON
+      - word: BA
+      - dot: .
+      - word: Iid
+      - raw_comparison_operator: =
+      - word: I
+      - dot: .
+      - word: Bcd
+- statement_terminator: ;
+- keyword: GO
+- statement:
+  - select_statement:
+    - select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+        - numeric_literal: '1'
+    - from_clause:
+      - keyword: FROM
+      - from_expression:
+        - from_expression_element:
+          - table_expression:
+            - table_reference:
+              - object_reference:
+                - naked_identifier: BA
+        - join_clause:
+          - keyword: RIGHT
+          - keyword: OUTER
+          - keyword: JOIN
+          - from_expression_element:
+            - table_expression:
+              - table_reference:
+                - object_reference:
+                  - naked_identifier: I
+        - join_clause:
+          - keyword: LEFT
+          - keyword: OUTER
+          - keyword: JOIN
+          - from_expression_element:
+            - table_expression:
+              - table_reference:
+                - object_reference:
+                  - naked_identifier: P
+            - alias_expression:
+              - keyword: AS
+              - naked_identifier: P_1
+        - join_clause:
+          - keyword: LEFT
+          - keyword: OUTER
+          - keyword: JOIN
+          - from_expression_element:
+            - table_expression:
+              - table_reference:
+                - object_reference:
+                  - naked_identifier: IP
+            - alias_expression:
+              - keyword: AS
+              - naked_identifier: IP_1
+          - join_on_condition:
+            - keyword: ON
+            - expression:
+              - column_reference:
+                - naked_identifier: P_1
+                - dot: .
+                - naked_identifier: NID
+              - comparison_operator:
+                - raw_comparison_operator: =
+              - column_reference:
+                - naked_identifier: IP_1
+                - dot: .
+                - naked_identifier: NID
+    - unparsable:
+      - word: ON
+      - word: I
+      - dot: .
+      - word: PID
+      - raw_comparison_operator: =
+      - word: CAST
+      - start_bracket: (
+      - word: P_1
+      - dot: .
+      - word: IDEID
+      - word: AS
+      - word: varchar
+      - end_bracket: )
+      - word: LEFT
+      - word: OUTER
+      - word: JOIN
+      - word: P
+      - word: AS
+      - word: P_2
+      - word: LEFT
+      - word: OUTER
+      - word: JOIN
+      - word: IP
+      - word: AS
+      - word: IP_2
+      - word: ON
+      - word: P_2
+      - dot: .
+      - word: NID
+      - raw_comparison_operator: =
+      - word: IP_2
+      - dot: .
+      - word: NID
+      - word: ON
+      - word: I
+      - dot: .
+      - word: SecondaryPID
+      - raw_comparison_operator: =
+      - word: CAST
+      - start_bracket: (
+      - word: P_2
+      - dot: .
+      - word: IDEID
+      - word: AS
+      - word: varchar
+      - end_bracket: )
+      - word: ON
+      - word: CAST
+      - start_bracket: (
+      - word: BA
+      - dot: .
+      - word: IDEID
+      - word: AS
+      - word: varchar
+      - end_bracket: )
+      - raw_comparison_operator: =
+      - word: I
+      - dot: .
+      - word: BAID
+      - word: SELECT
+      - numeric_literal: '1'
+      - word: AS
+      - word: RegionCode
+      - word: FROM
+      - word: BA
+      - word: LEFT
+      - word: OUTER
+      - word: JOIN
+      - start_bracket: (
+      - word: I
+      - word: JOIN
+      - word: P
+      - word: ON
+      - word: I
+      - dot: .
+      - word: Pcd
+      - raw_comparison_operator: =
+      - word: P
+      - dot: .
+      - word: Iid
+      - end_bracket: )
+      - word: ON
+      - word: BA
+      - dot: .
+      - word: Iid
+      - raw_comparison_operator: =
+      - word: I
+      - dot: .
+      - word: Bcd
+- statement_terminator: ;
+- keyword: GO
+- statement:
+  - select_statement:
+    - select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+        - column_reference:
+          - naked_identifier: tst1
+          - dot: .
+          - naked_identifier: Name
+      - comma: ','
+      - select_clause_element:
+        - column_reference:
+          - naked_identifier: tst2
+          - dot: .
+          - naked_identifier: OtherName
+    - from_clause:
+      - keyword: FROM
+      - from_expression:
+        - from_expression_element:
+          - table_expression:
+            - table_reference:
+              - object_reference:
+                - naked_identifier: dbo
+                - dot: .
+                - naked_identifier: Test1
+          - alias_expression:
+            - keyword: AS
+            - naked_identifier: tst1
+    - unparsable:
+      - word: LEFT
+      - word: OUTER
+      - word: JOIN
+      - start_bracket: (
+      - word: dbo
+      - dot: .
+      - word: Test2
+      - word: AS
+      - word: tst2
+      - word: INNER
+      - word: JOIN
+      - word: dbo
+      - dot: .
+      - word: FilterTable
+      - word: AS
+      - word: fltr1
+      - word: ON
+      - word: tst2
+      - dot: .
+      - word: Id
+      - raw_comparison_operator: =
+      - word: fltr1
+      - dot: .
+      - word: Id
+      - end_bracket: )
+      - word: ON
+      - word: tst1
+      - dot: .
+      - word: id
+      - raw_comparison_operator: =
+      - word: tst2
+      - dot: .
+      - word: id
+- statement_terminator: ;

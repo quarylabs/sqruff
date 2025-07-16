@@ -1,0 +1,726 @@
+file:
+- statement:
+  - select_statement:
+    - select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+        - wildcard_expression:
+          - wildcard_identifier:
+            - star: '*'
+    - from_clause:
+      - keyword: FROM
+      - from_expression:
+        - from_expression_element:
+          - table_expression:
+            - table_reference:
+              - object_reference:
+                - naked_identifier: Employee
+    - unparsable:
+      - word: FOR
+      - word: SYSTEM_TIME
+      - word: BETWEEN
+      - single_quote: '''2021-01-01 00:00:00.0000000'''
+      - word: AND
+      - single_quote: '''2022-01-01 00:00:00.0000000'''
+- statement_terminator: ;
+- statement:
+  - select_statement:
+    - select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+        - wildcard_expression:
+          - wildcard_identifier:
+            - star: '*'
+    - from_clause:
+      - keyword: FROM
+      - from_expression:
+        - from_expression_element:
+          - table_expression:
+            - table_reference:
+              - object_reference:
+                - naked_identifier: Employee
+    - unparsable:
+      - word: FOR
+      - word: SYSTEM_TIME
+      - word: ALL
+- statement_terminator: ;
+- statement:
+  - select_statement:
+    - select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+        - wildcard_expression:
+          - wildcard_identifier:
+            - star: '*'
+    - from_clause:
+      - keyword: FROM
+      - from_expression:
+        - from_expression_element:
+          - table_expression:
+            - table_reference:
+              - object_reference:
+                - naked_identifier: Employee
+    - unparsable:
+      - word: FOR
+      - word: SYSTEM_TIME
+      - word: FROM
+      - single_quote: '''2021-01-01 00:00:00.0000000'''
+      - word: TO
+      - single_quote: '''2022-01-01 00:00:00.0000000'''
+- statement_terminator: ;
+- statement:
+  - select_statement:
+    - select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+        - wildcard_expression:
+          - wildcard_identifier:
+            - star: '*'
+    - from_clause:
+      - keyword: FROM
+      - from_expression:
+        - from_expression_element:
+          - table_expression:
+            - table_reference:
+              - object_reference:
+                - naked_identifier: Employee
+    - unparsable:
+      - word: FOR
+      - word: SYSTEM_TIME
+      - word: AS
+      - word: OF
+      - single_quote: '''2021-01-01 00:00:00.0000000'''
+- statement_terminator: ;
+- statement:
+  - select_statement:
+    - select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+        - wildcard_expression:
+          - wildcard_identifier:
+            - star: '*'
+    - from_clause:
+      - keyword: FROM
+      - from_expression:
+        - from_expression_element:
+          - table_expression:
+            - table_reference:
+              - object_reference:
+                - naked_identifier: Employee
+    - unparsable:
+      - word: FOR
+      - word: SYSTEM_TIME
+      - word: CONTAINED
+      - word: IN
+      - start_bracket: (
+      - single_quote: '''2021-01-01 00:00:00.0000000'''
+      - comma: ','
+      - single_quote: '''2022-01-01 00:00:00.0000000'''
+      - end_bracket: )
+- statement_terminator: ;
+- statement:
+  - keyword: DECLARE
+  - tsql_variable: '@StartTime'
+  - data_type:
+    - data_type_identifier: DATETIME2
+  - assignment_operator:
+    - raw_comparison_operator: =
+  - expression:
+    - quoted_literal: '''2021-01-01 00:00:00'''
+- statement_terminator: ;
+- statement:
+  - keyword: DECLARE
+  - tsql_variable: '@EndTime'
+  - data_type:
+    - data_type_identifier: DATETIME2
+  - assignment_operator:
+    - raw_comparison_operator: =
+  - expression:
+    - quoted_literal: '''2022-01-01 00:00:00'''
+- statement_terminator: ;
+- statement:
+  - select_statement:
+    - select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+        - wildcard_expression:
+          - wildcard_identifier:
+            - star: '*'
+    - from_clause:
+      - keyword: FROM
+      - from_expression:
+        - from_expression_element:
+          - table_expression:
+            - table_reference:
+              - object_reference:
+                - naked_identifier: Employee
+    - unparsable:
+      - word: FOR
+      - word: SYSTEM_TIME
+      - word: FROM
+      - tsql_variable: '@StartTime'
+      - word: TO
+      - tsql_variable: '@EndTime'
+- statement_terminator: ;
+- statement:
+  - keyword: DECLARE
+  - tsql_variable: '@PointInTime'
+  - data_type:
+    - data_type_identifier: DATETIME2
+  - assignment_operator:
+    - raw_comparison_operator: =
+  - expression:
+    - quoted_literal: '''2021-01-01 00:00:00'''
+- statement_terminator: ;
+- statement:
+  - select_statement:
+    - select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+        - wildcard_expression:
+          - wildcard_identifier:
+            - star: '*'
+    - from_clause:
+      - keyword: FROM
+      - from_expression:
+        - from_expression_element:
+          - table_expression:
+            - table_reference:
+              - object_reference:
+                - naked_identifier: Employee
+    - unparsable:
+      - word: FOR
+      - word: SYSTEM_TIME
+      - word: AS
+      - word: OF
+      - tsql_variable: '@PointInTime'
+- statement_terminator: ;
+- statement:
+  - create_table_statement:
+    - create_table_statement:
+      - keyword: CREATE
+      - keyword: TABLE
+      - table_reference:
+        - object_reference:
+          - quoted_identifier: '[dbo]'
+          - dot: .
+          - quoted_identifier: '[EC DC]'
+      - bracketed:
+        - start_bracket: (
+        - column_definition:
+          - quoted_identifier: '[Column B]'
+          - data_type:
+            - quoted_identifier: '[varchar]'
+            - bracketed_arguments:
+              - bracketed:
+                - start_bracket: (
+                - numeric_literal: '100'
+                - end_bracket: )
+        - comma: ','
+        - column_definition:
+          - quoted_identifier: '[ColumnC]'
+          - data_type:
+            - data_type_identifier: varchar
+            - bracketed_arguments:
+              - bracketed:
+                - start_bracket: (
+                - numeric_literal: '100'
+                - end_bracket: )
+        - comma: ','
+        - column_definition:
+          - quoted_identifier: '[ColumnDecimal]'
+          - data_type:
+            - data_type_identifier: decimal
+            - bracketed_arguments:
+              - bracketed:
+                - start_bracket: (
+                - numeric_literal: '10'
+                - comma: ','
+                - numeric_literal: '3'
+                - end_bracket: )
+        - end_bracket: )
+- file:
+  - word: WITH
+  - start_bracket: (
+  - word: SYSTEM_VERSIONING
+  - raw_comparison_operator: =
+  - word: ON
+  - start_bracket: (
+  - word: HISTORY_TABLE
+  - raw_comparison_operator: =
+  - word: dbo
+  - dot: .
+  - word: EmployeeHistory
+  - end_bracket: )
+  - comma: ','
+  - word: DURABILITY
+  - raw_comparison_operator: =
+  - word: SCHEMA_ONLY
+  - end_bracket: )
+  - semicolon: ;
+  - semicolon: ;
+  - word: GO
+  - word: CREATE
+  - word: TABLE
+  - word: Department
+  - start_bracket: (
+  - word: DeptID
+  - word: INT
+  - word: NOT
+  - word: 'NULL'
+  - word: PRIMARY
+  - word: KEY
+  - word: CLUSTERED
+  - comma: ','
+  - word: DeptName
+  - word: VARCHAR
+  - start_bracket: (
+  - numeric_literal: '50'
+  - end_bracket: )
+  - word: NOT
+  - word: 'NULL'
+  - comma: ','
+  - word: ManagerID
+  - word: INT
+  - word: 'NULL'
+  - comma: ','
+  - word: ParentDeptID
+  - word: INT
+  - word: 'NULL'
+  - comma: ','
+  - word: ValidFrom
+  - word: DATETIME2
+  - word: GENERATED
+  - word: ALWAYS
+  - word: AS
+  - word: ROW
+  - word: START
+  - word: NOT
+  - word: 'NULL'
+  - comma: ','
+  - word: ValidTo
+  - word: DATETIME2
+  - word: GENERATED
+  - word: ALWAYS
+  - word: AS
+  - word: ROW
+  - word: END
+  - word: NOT
+  - word: 'NULL'
+  - comma: ','
+  - word: PERIOD
+  - word: FOR
+  - word: SYSTEM_TIME
+  - start_bracket: (
+  - word: ValidFrom
+  - comma: ','
+  - word: ValidTo
+  - end_bracket: )
+  - end_bracket: )
+  - word: WITH
+  - start_bracket: (
+  - word: SYSTEM_VERSIONING
+  - raw_comparison_operator: =
+  - word: ON
+  - start_bracket: (
+  - word: HISTORY_TABLE
+  - raw_comparison_operator: =
+  - word: dbo
+  - dot: .
+  - word: DepartmentHistory
+  - end_bracket: )
+  - end_bracket: )
+  - semicolon: ;
+  - word: GO
+  - word: CREATE
+  - word: TABLE
+  - double_quote: '[dbo]'
+  - dot: .
+  - double_quote: '[EC DC]'
+  - start_bracket: (
+  - double_quote: '[Column B]'
+  - double_quote: '[varchar]'
+  - start_bracket: (
+  - numeric_literal: '100'
+  - end_bracket: )
+  - comma: ','
+  - double_quote: '[ColumnC]'
+  - word: varchar
+  - start_bracket: (
+  - numeric_literal: '100'
+  - end_bracket: )
+  - comma: ','
+  - double_quote: '[ColumnDecimal]'
+  - word: decimal
+  - start_bracket: (
+  - numeric_literal: '10'
+  - comma: ','
+  - numeric_literal: '3'
+  - end_bracket: )
+  - end_bracket: )
+  - word: WITH
+  - start_bracket: (
+  - word: FILETABLE_PRIMARY_KEY_CONSTRAINT_NAME
+  - raw_comparison_operator: =
+  - word: COLUMNC
+  - end_bracket: )
+  - semicolon: ;
+  - semicolon: ;
+  - word: GO
+  - word: CREATE
+  - word: TABLE
+  - double_quote: '[dbo]'
+  - dot: .
+  - double_quote: '[EC DC]'
+  - start_bracket: (
+  - double_quote: '[Column B]'
+  - double_quote: '[varchar]'
+  - start_bracket: (
+  - numeric_literal: '100'
+  - end_bracket: )
+  - comma: ','
+  - double_quote: '[ColumnC]'
+  - word: varchar
+  - start_bracket: (
+  - numeric_literal: '100'
+  - end_bracket: )
+  - comma: ','
+  - double_quote: '[ColumnDecimal]'
+  - word: decimal
+  - start_bracket: (
+  - numeric_literal: '10'
+  - comma: ','
+  - numeric_literal: '3'
+  - end_bracket: )
+  - end_bracket: )
+  - word: WITH
+  - start_bracket: (
+  - word: DATA_DELETION
+  - raw_comparison_operator: =
+  - word: ON
+  - start_bracket: (
+  - word: FILTER_COLUMN
+  - raw_comparison_operator: =
+  - word: ColumnC
+  - comma: ','
+  - word: RETENTION_PERIOD
+  - raw_comparison_operator: =
+  - word: INFINITE
+  - end_bracket: )
+  - end_bracket: )
+  - semicolon: ;
+  - semicolon: ;
+  - word: GO
+  - word: CREATE
+  - word: TABLE
+  - double_quote: '[dbo]'
+  - dot: .
+  - double_quote: '[EC DC]'
+  - start_bracket: (
+  - double_quote: '[Column B]'
+  - double_quote: '[varchar]'
+  - start_bracket: (
+  - numeric_literal: '100'
+  - end_bracket: )
+  - comma: ','
+  - double_quote: '[ColumnC]'
+  - word: varchar
+  - start_bracket: (
+  - numeric_literal: '100'
+  - end_bracket: )
+  - comma: ','
+  - double_quote: '[ColumnDecimal]'
+  - word: decimal
+  - start_bracket: (
+  - numeric_literal: '10'
+  - comma: ','
+  - numeric_literal: '3'
+  - end_bracket: )
+  - end_bracket: )
+  - word: WITH
+  - start_bracket: (
+  - word: MEMORY_OPTIMIZED
+  - raw_comparison_operator: =
+  - word: ON
+  - comma: ','
+  - word: DURABILITY
+  - raw_comparison_operator: =
+  - word: SCHEMA_AND_DATA
+  - comma: ','
+  - word: SYSTEM_VERSIONING
+  - raw_comparison_operator: =
+  - word: ON
+  - start_bracket: (
+  - word: HISTORY_TABLE
+  - raw_comparison_operator: =
+  - word: History
+  - dot: .
+  - word: DepartmentHistory
+  - end_bracket: )
+  - end_bracket: )
+  - semicolon: ;
+  - word: GO
+  - word: CREATE
+  - word: TABLE
+  - double_quote: '[dbo]'
+  - dot: .
+  - double_quote: '[EC DC]'
+  - start_bracket: (
+  - double_quote: '[Column B]'
+  - double_quote: '[varchar]'
+  - start_bracket: (
+  - numeric_literal: '100'
+  - end_bracket: )
+  - comma: ','
+  - double_quote: '[ColumnC]'
+  - word: varchar
+  - start_bracket: (
+  - numeric_literal: '100'
+  - end_bracket: )
+  - comma: ','
+  - double_quote: '[ColumnDecimal]'
+  - word: decimal
+  - start_bracket: (
+  - numeric_literal: '10'
+  - comma: ','
+  - numeric_literal: '3'
+  - end_bracket: )
+  - end_bracket: )
+  - word: WITH
+  - start_bracket: (
+  - word: REMOTE_DATA_ARCHIVE
+  - raw_comparison_operator: =
+  - word: OFF
+  - start_bracket: (
+  - word: MIGRATION_STATE
+  - raw_comparison_operator: =
+  - word: PAUSED
+  - end_bracket: )
+  - comma: ','
+  - word: LEDGER
+  - raw_comparison_operator: =
+  - word: ON
+  - start_bracket: (
+  - word: LEDGER_VIEW
+  - raw_comparison_operator: =
+  - word: dbo
+  - dot: .
+  - word: ABC
+  - start_bracket: (
+  - word: TRANSACTION_ID_COLUMN_NAME
+  - raw_comparison_operator: =
+  - double_quote: '[ColumnC]'
+  - comma: ','
+  - word: SEQUENCE_NUMBER_COLUMN_NAME
+  - raw_comparison_operator: =
+  - double_quote: '[ColumnDecimal]'
+  - end_bracket: )
+  - end_bracket: )
+  - end_bracket: )
+  - semicolon: ;
+  - word: GO
+  - word: CREATE
+  - word: TABLE
+  - double_quote: '[dbo]'
+  - dot: .
+  - double_quote: '[EC DC]'
+  - start_bracket: (
+  - double_quote: '[Column B]'
+  - double_quote: '[varchar]'
+  - start_bracket: (
+  - numeric_literal: '100'
+  - end_bracket: )
+  - comma: ','
+  - double_quote: '[ColumnC]'
+  - word: varchar
+  - start_bracket: (
+  - numeric_literal: '100'
+  - end_bracket: )
+  - comma: ','
+  - double_quote: '[ColumnDecimal]'
+  - word: decimal
+  - start_bracket: (
+  - numeric_literal: '10'
+  - comma: ','
+  - numeric_literal: '3'
+  - end_bracket: )
+  - end_bracket: )
+  - word: WITH
+  - start_bracket: (
+  - word: DATA_COMPRESSION
+  - raw_comparison_operator: =
+  - word: ROW
+  - word: XML_COMPRESSION
+  - raw_comparison_operator: =
+  - word: ON
+  - word: ON
+  - word: PARTITIONS
+  - start_bracket: (
+  - numeric_literal: '2'
+  - end_bracket: )
+  - end_bracket: )
+  - semicolon: ;
+  - word: GO
+  - word: CREATE
+  - word: TABLE
+  - double_quote: '[dbo]'
+  - dot: .
+  - double_quote: '[EC DC]'
+  - start_bracket: (
+  - double_quote: '[Column B]'
+  - double_quote: '[varchar]'
+  - start_bracket: (
+  - numeric_literal: '100'
+  - end_bracket: )
+  - comma: ','
+  - double_quote: '[ColumnC]'
+  - word: varchar
+  - start_bracket: (
+  - numeric_literal: '100'
+  - end_bracket: )
+  - comma: ','
+  - double_quote: '[ColumnDecimal]'
+  - word: decimal
+  - start_bracket: (
+  - numeric_literal: '10'
+  - comma: ','
+  - numeric_literal: '3'
+  - end_bracket: )
+  - end_bracket: )
+  - word: WITH
+  - start_bracket: (
+  - word: DATA_COMPRESSION
+  - raw_comparison_operator: =
+  - word: PAGE
+  - word: ON
+  - word: PARTITIONS
+  - start_bracket: (
+  - numeric_literal: '3'
+  - comma: ','
+  - numeric_literal: '5'
+  - end_bracket: )
+  - word: XML_COMPRESSION
+  - raw_comparison_operator: =
+  - word: OFF
+  - end_bracket: )
+  - semicolon: ;
+  - word: GO
+  - word: CREATE
+  - word: TABLE
+  - double_quote: '[dbo]'
+  - dot: .
+  - double_quote: '[EC DC]'
+  - start_bracket: (
+  - double_quote: '[Column B]'
+  - double_quote: '[varchar]'
+  - start_bracket: (
+  - numeric_literal: '100'
+  - end_bracket: )
+  - comma: ','
+  - double_quote: '[ColumnC]'
+  - word: varchar
+  - start_bracket: (
+  - numeric_literal: '100'
+  - end_bracket: )
+  - comma: ','
+  - double_quote: '[ColumnDecimal]'
+  - word: decimal
+  - start_bracket: (
+  - numeric_literal: '10'
+  - comma: ','
+  - numeric_literal: '3'
+  - end_bracket: )
+  - end_bracket: )
+  - word: WITH
+  - start_bracket: (
+  - word: XML_COMPRESSION
+  - raw_comparison_operator: =
+  - word: ON
+  - word: ON
+  - word: PARTITIONS
+  - start_bracket: (
+  - numeric_literal: '3'
+  - word: TO
+  - numeric_literal: '5'
+  - end_bracket: )
+  - comma: ','
+  - word: FILETABLE_DIRECTORY
+  - raw_comparison_operator: =
+  - single_quote: '''/path1/path2'''
+  - comma: ','
+  - word: FILETABLE_COLLATE_FILENAME
+  - raw_comparison_operator: =
+  - word: constraint1
+  - comma: ','
+  - word: FILETABLE_PRIMARY_KEY_CONSTRAINT_NAME
+  - raw_comparison_operator: =
+  - word: constraint2
+  - comma: ','
+  - word: FILETABLE_STREAMID_UNIQUE_CONSTRAINT_NAME
+  - raw_comparison_operator: =
+  - word: constraint3
+  - comma: ','
+  - word: FILETABLE_FULLPATH_UNIQUE_CONSTRAINT_NAME
+  - raw_comparison_operator: =
+  - word: constraint4
+  - end_bracket: )
+  - semicolon: ;
+  - word: GO
+  - word: CREATE
+  - word: TABLE
+  - double_quote: '[dbo]'
+  - dot: .
+  - double_quote: '[EC DC]'
+  - start_bracket: (
+  - double_quote: '[Column B]'
+  - double_quote: '[varchar]'
+  - start_bracket: (
+  - numeric_literal: '100'
+  - end_bracket: )
+  - comma: ','
+  - double_quote: '[ColumnC]'
+  - word: varchar
+  - start_bracket: (
+  - numeric_literal: '100'
+  - end_bracket: )
+  - comma: ','
+  - double_quote: '[ColumnDecimal]'
+  - word: decimal
+  - start_bracket: (
+  - numeric_literal: '10'
+  - comma: ','
+  - numeric_literal: '3'
+  - end_bracket: )
+  - end_bracket: )
+  - word: WITH
+  - start_bracket: (
+  - word: REMOTE_DATA_ARCHIVE
+  - raw_comparison_operator: =
+  - word: ON
+  - start_bracket: (
+  - word: FILTER_PREDICATE
+  - raw_comparison_operator: =
+  - word: 'NULL'
+  - comma: ','
+  - word: MIGRATION_STATE
+  - raw_comparison_operator: =
+  - word: OUTBOUND
+  - end_bracket: )
+  - comma: ','
+  - word: LEDGER
+  - raw_comparison_operator: =
+  - word: ON
+  - start_bracket: (
+  - word: LEDGER_VIEW
+  - raw_comparison_operator: =
+  - word: dbo
+  - dot: .
+  - word: ABC
+  - comma: ','
+  - word: APPEND_ONLY
+  - raw_comparison_operator: =
+  - word: ON
+  - end_bracket: )
+  - end_bracket: )
+  - semicolon: ;
+  - word: GO

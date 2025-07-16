@@ -1,0 +1,72 @@
+file:
+- unparsable:
+  - word: CREATE
+  - word: MASTER
+  - word: KEY
+  - word: ENCRYPTION
+  - word: BY
+  - word: PASSWORD
+  - raw_comparison_operator: =
+  - single_quote: '''<strong password>'''
+  - semicolon: ;
+  - word: CREATE
+  - word: MASTER
+  - word: KEY
+  - semicolon: ;
+  - word: ALTER
+  - word: MASTER
+  - word: KEY
+  - word: REGENERATE
+  - word: WITH
+  - word: ENCRYPTION
+  - word: BY
+  - word: PASSWORD
+  - raw_comparison_operator: =
+  - single_quote: '''<even stronger password>'''
+  - semicolon: ;
+  - word: ALTER
+  - word: MASTER
+  - word: KEY
+  - word: FORCE
+  - word: REGENERATE
+  - word: WITH
+  - word: ENCRYPTION
+  - word: BY
+  - word: PASSWORD
+  - raw_comparison_operator: =
+  - single_quote: '''<even stronger password>'''
+  - semicolon: ;
+  - word: ALTER
+  - word: MASTER
+  - word: KEY
+  - word: ADD
+  - word: ENCRYPTION
+  - word: BY
+  - word: PASSWORD
+  - raw_comparison_operator: =
+  - single_quote: '''<even stronger password>'''
+  - semicolon: ;
+  - word: ALTER
+  - word: MASTER
+  - word: KEY
+  - word: ADD
+  - word: ENCRYPTION
+  - word: BY
+  - word: SERVICE
+  - word: MASTER
+  - word: KEY
+  - semicolon: ;
+  - word: ALTER
+  - word: MASTER
+  - word: KEY
+  - word: DROP
+  - word: ENCRYPTION
+  - word: BY
+  - word: PASSWORD
+  - raw_comparison_operator: =
+  - single_quote: '''<even stronger password>'''
+  - semicolon: ;
+  - word: DROP
+  - word: MASTER
+  - word: KEY
+  - semicolon: ;

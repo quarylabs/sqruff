@@ -1,0 +1,13 @@
+file:
+- statement:
+  - keyword: BEGIN
+  - keyword: BEGIN
+  - select_statement:
+    - select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+        - quoted_literal: '''Weekend'''
+  - statement_terminator: ;
+  - keyword: END
+  - keyword: END
+- statement_terminator: ;

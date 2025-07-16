@@ -1,0 +1,29 @@
+file:
+- unparsable:
+  - word: WHILE
+  - start_bracket: (
+  - numeric_literal: '1'
+  - raw_comparison_operator: =
+  - numeric_literal: '1'
+  - end_bracket: )
+  - word: BEGIN
+  - word: IF
+  - word: EXISTS
+  - start_bracket: (
+  - word: SELECT
+  - star: '*'
+  - word: FROM
+  - word: '##MyTempTable'
+  - word: WHERE
+  - word: EventCode
+  - raw_comparison_operator: =
+  - single_quote: '''Done'''
+  - end_bracket: )
+  - word: BEGIN
+  - word: BREAK
+  - semicolon: ;
+  - word: END
+  - word: PRINT
+  - unicode_single_quote: N'The other process is not yet done.'
+  - semicolon: ;
+  - word: END

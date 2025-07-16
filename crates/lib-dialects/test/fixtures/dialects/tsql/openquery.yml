@@ -1,0 +1,63 @@
+file:
+- statement:
+  - select_statement:
+    - select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+        - column_reference:
+          - naked_identifier: column1
+      - comma: ','
+      - select_clause_element:
+        - column_reference:
+          - naked_identifier: column2
+    - from_clause:
+      - keyword: FROM
+      - from_expression:
+        - from_expression_element:
+          - table_expression:
+            - function:
+              - function_name:
+                - function_name_identifier: OPENQUERY
+              - bracketed:
+                - start_bracket: (
+                - expression:
+                  - column_reference:
+                    - quoted_identifier: '[testlinkedserver]'
+                - comma: ','
+                - expression:
+                  - quoted_literal: '''select * from table_name'''
+                - end_bracket: )
+- statement_terminator: ;
+- file:
+  - word: UPDATE
+  - word: OPENQUERY
+  - start_bracket: (
+  - word: OracleSvr
+  - comma: ','
+  - single_quote: '''SELECT name FROM joe.titles WHERE id = 101'''
+  - end_bracket: )
+  - word: SET
+  - word: name
+  - raw_comparison_operator: =
+  - single_quote: '''ADifferentName'''
+  - semicolon: ;
+  - word: INSERT
+  - word: OPENQUERY
+  - start_bracket: (
+  - word: OracleSvr
+  - comma: ','
+  - single_quote: '''SELECT name FROM joe.titles'''
+  - end_bracket: )
+  - word: VALUES
+  - start_bracket: (
+  - single_quote: '''NewTitle'''
+  - end_bracket: )
+  - semicolon: ;
+  - word: DELETE
+  - word: OPENQUERY
+  - start_bracket: (
+  - word: OracleSvr
+  - comma: ','
+  - single_quote: '''SELECT name FROM joe.titles WHERE name = ''''NewTitle'''''''
+  - end_bracket: )
+  - semicolon: ;

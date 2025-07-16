@@ -1,0 +1,46 @@
+file:
+- statement:
+  - create_sequence_statement:
+    - keyword: CREATE
+    - keyword: SEQUENCE
+    - column_reference:
+      - naked_identifier: SEQ_MELDER
+    - create_sequence_options_segment:
+      - keyword: START
+      - keyword: WITH
+      - numeric_literal: '1'
+    - create_sequence_options_segment:
+      - keyword: INCREMENT
+      - keyword: BY
+      - numeric_literal: '1'
+- keyword: GO
+- statement:
+  - create_sequence_statement:
+    - keyword: CREATE
+    - keyword: SEQUENCE
+    - column_reference:
+      - naked_identifier: Test
+      - dot: .
+      - naked_identifier: DecSeq
+- file:
+  - word: AS
+  - word: decimal
+  - start_bracket: (
+  - numeric_literal: '3'
+  - comma: ','
+  - numeric_literal: '0'
+  - end_bracket: )
+  - word: START
+  - word: WITH
+  - numeric_literal: '125'
+  - word: INCREMENT
+  - word: BY
+  - numeric_literal: '25'
+  - word: MINVALUE
+  - numeric_literal: '100'
+  - word: MAXVALUE
+  - numeric_literal: '200'
+  - word: CYCLE
+  - word: CACHE
+  - numeric_literal: '3'
+  - semicolon: ;

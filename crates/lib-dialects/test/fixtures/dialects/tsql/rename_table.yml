@@ -1,0 +1,10 @@
+file:
+- unparsable:
+  - word: RENAME
+  - word: OBJECT
+  - double_quote: '[Reporting]'
+  - dot: .
+  - double_quote: '[TABLE_NEW]'
+  - word: to
+  - double_quote: '[TABLE_BASE]'
+  - semicolon: ;

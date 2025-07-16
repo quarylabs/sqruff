@@ -1,57 +1,22 @@
 file:
 - statement:
-  - select_statement:
-    - select_clause:
-      - keyword: SELECT
-      - select_clause_element:
-        - column_reference:
-          - quoted_identifier: '[value]'
-    - from_clause:
-      - keyword: FROM
-      - from_expression:
-        - from_expression_element:
-          - table_expression:
-            - table_reference:
-              - tsql_variable: '@DepartmentCodes'
-- statement_terminator: ;
-- statement:
-  - select_statement:
-    - select_clause:
-      - keyword: SELECT
-      - select_clause_element:
-        - column_reference:
-          - naked_identifier: ids
-          - dot: .
-          - quoted_identifier: '[value]'
-    - from_clause:
-      - keyword: FROM
-      - from_expression:
-        - from_expression_element:
-          - table_expression:
-            - table_reference:
-              - tsql_variable: '@DepartmentCodes'
-          - alias_expression:
-            - keyword: AS
-            - naked_identifier: ids
-- statement_terminator: ;
-- statement:
-  - select_statement:
-    - select_clause:
-      - keyword: SELECT
-      - select_clause_element:
-        - wildcard_expression:
-          - wildcard_identifier:
-            - star: '*'
-    - from_clause:
-      - keyword: FROM
-      - from_expression:
-        - from_expression_element:
-          - table_expression:
-            - table_reference:
-              - tsql_variable: '@TableVariable'
-          - keyword: WITH
+  - keyword: declare
+  - tsql_variable: '@queue'
+  - keyword: table
+  - bracketed:
+    - start_bracket: (
+    - column_definition:
+      - naked_identifier: id
+      - data_type:
+        - data_type_identifier: int
+    - comma: ','
+    - column_definition:
+      - naked_identifier: url
+      - data_type:
+        - data_type_identifier: nvarchar
+        - bracketed_arguments:
           - bracketed:
             - start_bracket: (
-            - keyword: NOLOCK
+            - numeric_literal: '100'
             - end_bracket: )
-- statement_terminator: ;
+    - end_bracket: )

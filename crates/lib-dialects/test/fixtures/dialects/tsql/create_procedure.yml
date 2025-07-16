@@ -222,20 +222,19 @@ file:
           - tsql_variable: '@id'
         - keyword: IS
         - null_literal: 'NULL'
-      - statement:
-        - keyword: BEGIN
-        - select_statement:
-          - select_clause:
-            - keyword: SELECT
-            - select_clause_element:
-              - parameterized_expression:
-                - tsql_variable: '@bar'
-            - comma: ','
-            - select_clause_element:
-              - parameterized_expression:
-                - tsql_variable: '@fooReadonly'
-        - statement_terminator: ;
-        - keyword: END
+      - keyword: BEGIN
+      - select_statement:
+        - select_clause:
+          - keyword: SELECT
+          - select_clause_element:
+            - parameterized_expression:
+              - tsql_variable: '@bar'
+          - comma: ','
+          - select_clause_element:
+            - parameterized_expression:
+              - tsql_variable: '@fooReadonly'
+      - statement_terminator: ;
+      - keyword: END
       - statement_terminator: ;
       - keyword: END
 - statement_terminator: ;

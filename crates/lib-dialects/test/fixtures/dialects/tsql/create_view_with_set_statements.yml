@@ -1,0 +1,128 @@
+file:
+- statement:
+  - keyword: SET
+  - keyword: ANSI_NULLS
+  - keyword: ON
+- keyword: GO
+- statement:
+  - keyword: SET
+  - keyword: QUOTED_IDENTIFIER
+  - keyword: ON
+- keyword: GO
+- statement:
+  - create_view_statement:
+    - keyword: CREATE
+    - keyword: VIEW
+    - table_reference:
+      - object_reference:
+        - quoted_identifier: '[DEST]'
+        - dot: .
+        - quoted_identifier: '[V_DIFFERENCE_NURSING_HOME__INFECTED_LOCATIONS_TOTAL_PER_REGION]'
+    - keyword: AS
+    - select_statement:
+      - select_clause:
+        - keyword: SELECT
+        - select_clause_modifier:
+          - keyword: TOP
+          - expression:
+            - numeric_literal: '1'
+        - select_clause_element:
+          - column_reference:
+            - naked_identifier: DATE_OF_REPORT
+      - from_clause:
+        - keyword: FROM
+        - from_expression:
+          - from_expression_element:
+            - table_expression:
+              - table_reference:
+                - object_reference:
+                  - naked_identifier: BASE_CTE
+- statement_terminator: ;
+- keyword: GO
+- file:
+  - word: CREATE
+  - word: OR
+  - word: ALTER
+  - word: VIEW
+  - double_quote: '[DEST]'
+  - dot: .
+  - double_quote: '[V_DIFFERENCE_NURSING_HOME__INFECTED_LOCATIONS_TOTAL_PER_REGION]'
+  - word: AS
+  - word: SELECT
+  - word: TOP
+  - numeric_literal: '1'
+  - word: DATE_OF_REPORT
+  - word: FROM
+  - word: BASE_CTE
+  - word: ORDER
+  - word: BY
+  - word: DATE_OF_REPORT
+  - semicolon: ;
+  - word: GO
+  - word: ALTER
+  - word: VIEW
+  - double_quote: '[DEST]'
+  - dot: .
+  - double_quote: '[V_DIFFERENCE_NURSING_HOME__INFECTED_LOCATIONS_TOTAL_PER_REGION]'
+  - word: AS
+  - word: SELECT
+  - word: DATE_OF_REPORT
+  - comma: ','
+  - word: NEW_DATE_OF_REPORT_UNIX
+  - word: AS
+  - word: NEW_DATE_UNIX
+  - comma: ','
+  - word: OLD_DATE_OF_REPORT_UNIX
+  - word: AS
+  - word: OLD_DATE_UNIX
+  - comma: ','
+  - word: T1
+  - dot: .
+  - word: VRCODE
+  - comma: ','
+  - word: CASE
+  - word: WHEN
+  - word: OLD_VALUE
+  - word: IS
+  - word: 'NULL'
+  - word: THEN
+  - numeric_literal: '0'
+  - word: ELSE
+  - word: OLD_VALUE
+  - word: END
+  - word: AS
+  - word: OLD_VALUE
+  - comma: ','
+  - word: CASE
+  - word: WHEN
+  - double_quote: '[DIFFERENCE]'
+  - word: IS
+  - word: 'NULL'
+  - word: THEN
+  - numeric_literal: '0'
+  - word: ELSE
+  - double_quote: '[DIFFERENCE]'
+  - word: END
+  - word: AS
+  - double_quote: '[DIFFERENCE]'
+  - word: FROM
+  - word: BASE_CTE
+  - word: T1
+  - word: LEFT
+  - word: JOIN
+  - word: LAST_DATE_OF_REPORT
+  - word: T2
+  - word: ON
+  - word: T1
+  - dot: .
+  - double_quote: '[VRCODE]'
+  - raw_comparison_operator: =
+  - word: T2
+  - dot: .
+  - double_quote: '[VRCODE]'
+  - word: WHERE
+  - word: DATE_OF_REPORT
+  - raw_comparison_operator: =
+  - word: LAST_DATE_OF_REPORT
+  - semicolon: ;
+  - word: GO

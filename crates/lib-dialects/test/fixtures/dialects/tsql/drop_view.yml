@@ -1,0 +1,59 @@
+file:
+- statement:
+  - drop_view_statement:
+    - keyword: drop
+    - keyword: view
+    - table_reference:
+      - object_reference:
+        - naked_identifier: some_view
+- statement_terminator: ;
+- statement:
+  - drop_view_statement:
+    - keyword: drop
+    - keyword: view
+    - keyword: if
+    - keyword: exists
+    - table_reference:
+      - object_reference:
+        - naked_identifier: some_view
+- statement_terminator: ;
+- statement:
+  - drop_view_statement:
+    - keyword: drop
+    - keyword: view
+    - table_reference:
+      - object_reference:
+        - naked_identifier: some_view
+    - keyword: restrict
+- statement_terminator: ;
+- statement:
+  - drop_view_statement:
+    - keyword: drop
+    - keyword: view
+    - keyword: if
+    - keyword: exists
+    - table_reference:
+      - object_reference:
+        - naked_identifier: some_view
+    - keyword: restrict
+- statement_terminator: ;
+- statement:
+  - drop_view_statement:
+    - keyword: drop
+    - keyword: view
+    - table_reference:
+      - object_reference:
+        - naked_identifier: some_view
+    - keyword: cascade
+- statement_terminator: ;
+- statement:
+  - drop_view_statement:
+    - keyword: drop
+    - keyword: view
+    - keyword: if
+    - keyword: exists
+    - table_reference:
+      - object_reference:
+        - naked_identifier: some_view
+    - keyword: cascade
+- statement_terminator: ;

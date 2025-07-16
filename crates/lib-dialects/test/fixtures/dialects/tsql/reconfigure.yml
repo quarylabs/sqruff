@@ -1,0 +1,8 @@
+file:
+- unparsable:
+  - word: RECONFIGURE
+  - semicolon: ;
+  - word: RECONFIGURE
+  - word: WITH
+  - word: OVERRIDE
+  - semicolon: ;

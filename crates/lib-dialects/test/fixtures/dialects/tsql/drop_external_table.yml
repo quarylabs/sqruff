@@ -1,0 +1,23 @@
+file:
+- unparsable:
+  - word: DROP
+  - word: EXTERNAL
+  - word: TABLE
+  - word: SalesPerson
+  - semicolon: ;
+  - word: DROP
+  - word: EXTERNAL
+  - word: TABLE
+  - word: dbo
+  - dot: .
+  - word: SalesPerson
+  - semicolon: ;
+  - word: DROP
+  - word: EXTERNAL
+  - word: TABLE
+  - word: EasternDivision
+  - dot: .
+  - word: dbo
+  - dot: .
+  - word: SalesPerson
+  - semicolon: ;

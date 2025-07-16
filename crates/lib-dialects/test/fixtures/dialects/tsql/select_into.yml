@@ -1,0 +1,53 @@
+file:
+- statement:
+  - select_statement:
+    - select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+        - column_reference:
+          - quoted_identifier: '[ID]'
+      - comma: ','
+      - select_clause_element:
+        - column_reference:
+          - quoted_identifier: '[FIN]'
+      - comma: ','
+      - select_clause_element:
+        - column_reference:
+          - quoted_identifier: '[Unit]'
+      - comma: ','
+      - select_clause_element:
+        - column_reference:
+          - quoted_identifier: '[EventNM]'
+      - comma: ','
+      - select_clause_element:
+        - column_reference:
+          - quoted_identifier: '[Date]'
+      - comma: ','
+      - select_clause_element:
+        - column_reference:
+          - quoted_identifier: '[CHGFlag]'
+      - unparsable:
+        - word: INTO
+        - word: '#CHG'
+    - from_clause:
+      - keyword: FROM
+      - from_expression:
+        - from_expression_element:
+          - table_expression:
+            - table_reference:
+              - object_reference:
+                - naked_identifier: Final
+    - groupby_clause:
+      - keyword: GROUP
+      - keyword: BY
+      - column_reference:
+        - quoted_identifier: '[FIN]'
+      - comma: ','
+      - column_reference:
+        - quoted_identifier: '[EventNM]'
+      - comma: ','
+      - column_reference:
+        - quoted_identifier: '[Unit]'
+      - comma: ','
+      - column_reference:
+        - quoted_identifier: '[Date]'

@@ -1,0 +1,90 @@
+file:
+- statement:
+  - update_statement:
+    - keyword: update
+    - table_reference:
+      - object_reference:
+        - naked_identifier: dbo
+        - dot: .
+        - naked_identifier: Cases
+    - set_clause_list:
+      - keyword: set
+      - set_clause:
+        - column_reference:
+          - quoted_identifier: '[Flg]'
+        - comparison_operator:
+          - raw_comparison_operator: =
+        - numeric_literal: '1'
+    - where_clause:
+      - keyword: where
+      - expression:
+        - column_reference:
+          - naked_identifier: ID
+        - keyword: in
+        - bracketed:
+          - start_bracket: (
+          - select_statement:
+            - select_clause:
+              - keyword: select
+              - select_clause_modifier:
+                - keyword: distinct
+              - select_clause_element:
+                - column_reference:
+                  - quoted_identifier: '[ID]'
+            - from_clause:
+              - keyword: from
+              - from_expression:
+                - from_expression_element:
+                  - table_expression:
+                    - table_reference:
+                      - object_reference:
+                        - naked_identifier: dbo
+                        - dot: .
+                        - naked_identifier: CX
+          - end_bracket: )
+- file:
+  - word: OPTION
+  - start_bracket: (
+  - word: Label
+  - raw_comparison_operator: =
+  - single_quote: '''Cases'''
+  - end_bracket: )
+  - semicolon: ;
+  - word: update
+  - word: tt
+  - word: set
+  - word: tt
+  - dot: .
+  - word: rn
+  - plus: +
+  - raw_comparison_operator: =
+  - numeric_literal: '1'
+  - word: from
+  - word: table1
+  - word: as
+  - word: tt
+  - word: join
+  - word: src
+  - word: on
+  - word: tt
+  - dot: .
+  - word: _id
+  - raw_comparison_operator: =
+  - word: src
+  - dot: .
+  - word: _id
+  - semicolon: ;
+  - word: UPDATE
+  - word: stuff
+  - word: SET
+  - word: deleted
+  - raw_comparison_operator: =
+  - numeric_literal: '1'
+  - word: OUTPUT
+  - star: '*'
+  - word: INTO
+  - word: trash
+  - word: WHERE
+  - word: useless
+  - raw_comparison_operator: =
+  - numeric_literal: '1'

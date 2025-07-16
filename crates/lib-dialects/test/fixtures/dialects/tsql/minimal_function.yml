@@ -1,0 +1,25 @@
+file:
+- unparsable:
+  - word: CREATE
+  - word: OR
+  - word: ALTER
+  - word: FUNCTION
+  - double_quote: '[dbo]'
+  - dot: .
+  - double_quote: '[add]'
+  - start_bracket: (
+  - tsql_variable: '@add_1'
+  - word: int
+  - comma: ','
+  - tsql_variable: '@add_2'
+  - word: int
+  - end_bracket: )
+  - word: RETURNS
+  - word: integer
+  - word: AS
+  - word: BEGIN
+  - word: RETURN
+  - tsql_variable: '@add_1'
+  - plus: +
+  - tsql_variable: '@add_2'
+  - word: END

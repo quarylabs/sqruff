@@ -1,0 +1,27 @@
+file:
+- unparsable:
+  - word: SET
+  - word: IDENTITY_INSERT
+  - word: someTable
+  - word: ON
+  - semicolon: ;
+  - word: INSERT
+  - word: INTO
+  - word: someTable
+  - start_bracket: (
+  - word: ID
+  - comma: ','
+  - word: Value
+  - end_bracket: )
+  - word: VALUES
+  - start_bracket: (
+  - numeric_literal: '1'
+  - comma: ','
+  - numeric_literal: '2'
+  - end_bracket: )
+  - semicolon: ;
+  - word: SET
+  - word: IDENTITY_INSERT
+  - word: someTable
+  - word: OFF
+  - semicolon: ;

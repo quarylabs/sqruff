@@ -1,0 +1,193 @@
+file:
+- statement:
+  - select_statement:
+    - select_clause:
+      - keyword: select
+      - select_clause_element:
+        - column_reference:
+          - quoted_identifier: '[1]'
+      - comma: ','
+      - select_clause_element:
+        - column_reference:
+          - quoted_identifier: '[2]'
+      - comma: ','
+      - select_clause_element:
+        - column_reference:
+          - quoted_identifier: '[3]'
+    - from_clause:
+      - keyword: from
+      - from_expression:
+        - from_expression_element:
+          - table_expression:
+            - table_reference:
+              - object_reference:
+                - naked_identifier: table1
+          - alias_expression:
+            - keyword: as
+            - naked_identifier: t1
+    - unparsable:
+      - word: pivot
+      - start_bracket: (
+      - word: max
+      - start_bracket: (
+      - word: value
+      - end_bracket: )
+      - word: for
+      - word: rn
+      - word: in
+      - start_bracket: (
+      - double_quote: '[1]'
+      - comma: ','
+      - double_quote: '[2]'
+      - comma: ','
+      - double_quote: '[3]'
+      - end_bracket: )
+      - end_bracket: )
+      - word: as
+      - word: pvt
+- statement_terminator: ;
+- statement:
+  - select_statement:
+    - select_clause:
+      - keyword: select
+      - select_clause_element:
+        - column_reference:
+          - quoted_identifier: '[1]'
+      - comma: ','
+      - select_clause_element:
+        - column_reference:
+          - quoted_identifier: '[2]'
+      - comma: ','
+      - select_clause_element:
+        - column_reference:
+          - quoted_identifier: '[3]'
+    - from_clause:
+      - keyword: from
+      - from_expression:
+        - from_expression_element:
+          - table_expression:
+            - table_reference:
+              - object_reference:
+                - naked_identifier: table1
+          - alias_expression:
+            - keyword: as
+            - naked_identifier: t1
+    - unparsable:
+      - word: pivot
+      - start_bracket: (
+      - word: max
+      - start_bracket: (
+      - word: value
+      - end_bracket: )
+      - word: for
+      - word: rn
+      - word: in
+      - start_bracket: (
+      - double_quote: '[1]'
+      - comma: ','
+      - double_quote: '[2]'
+      - comma: ','
+      - double_quote: '[3]'
+      - end_bracket: )
+      - end_bracket: )
+      - word: pvt
+- statement_terminator: ;
+- keyword: GO
+- statement:
+  - select_statement:
+    - select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+        - column_reference:
+          - naked_identifier: unpvt
+          - dot: .
+          - naked_identifier: Program
+      - comma: ','
+      - select_clause_element:
+        - column_reference:
+          - naked_identifier: dd
+          - dot: .
+          - quoted_identifier: '[Month Number]'
+        - alias_expression:
+          - keyword: AS
+          - naked_identifier: Month
+    - from_clause:
+      - keyword: FROM
+      - from_expression:
+        - from_expression_element:
+          - table_expression:
+            - table_reference:
+              - object_reference:
+                - naked_identifier: p
+            - keyword: UNPIVOT
+            - bracketed:
+              - start_bracket: (
+              - column_reference:
+                - naked_identifier: MonthValue
+              - keyword: FOR
+              - column_reference:
+                - naked_identifier: MonthColumn
+              - keyword: IN
+              - bracketed:
+                - start_bracket: (
+                - column_reference:
+                  - naked_identifier: Jan
+                - comma: ','
+                - column_reference:
+                  - naked_identifier: Feb
+                - comma: ','
+                - column_reference:
+                  - naked_identifier: Mar
+                - comma: ','
+                - column_reference:
+                  - naked_identifier: Apr
+                - comma: ','
+                - column_reference:
+                  - naked_identifier: May
+                - comma: ','
+                - column_reference:
+                  - naked_identifier: Jun
+                - comma: ','
+                - column_reference:
+                  - naked_identifier: Jul
+                - comma: ','
+                - column_reference:
+                  - naked_identifier: Aug
+                - comma: ','
+                - column_reference:
+                  - naked_identifier: Sep
+                - comma: ','
+                - column_reference:
+                  - naked_identifier: Oct
+                - comma: ','
+                - column_reference:
+                  - naked_identifier: Nov
+                - comma: ','
+                - column_reference:
+                  - naked_identifier: Dec
+                - end_bracket: )
+              - end_bracket: )
+          - alias_expression:
+            - keyword: AS
+            - naked_identifier: unpvt
+        - join_clause:
+          - keyword: INNER
+          - keyword: JOIN
+          - from_expression_element:
+            - table_expression:
+              - table_reference:
+                - object_reference:
+                  - naked_identifier: d
+          - join_on_condition:
+            - keyword: ON
+            - expression:
+              - column_reference:
+                - quoted_identifier: '[Month Name]'
+              - comparison_operator:
+                - raw_comparison_operator: =
+              - column_reference:
+                - naked_identifier: unpvt
+                - dot: .
+                - naked_identifier: MonthColumn
+- statement_terminator: ;
+- keyword: GO

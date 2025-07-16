@@ -1,0 +1,41 @@
+file:
+- statement:
+  - keyword: EXECUTE
+  - object_reference:
+    - naked_identifier: sp_add_job
+  - tsql_variable: '@job_name'
+  - assignment_operator:
+    - raw_comparison_operator: =
+  - expression:
+    - quoted_literal: '''TestJob'''
+- statement_terminator: ;
+- file:
+  - word: BEGIN
+  - word: WAITFOR
+  - word: TIME
+  - single_quote: '''22:20'''
+  - semicolon: ;
+  - word: EXECUTE
+  - word: sp_update_job
+  - tsql_variable: '@job_name'
+  - raw_comparison_operator: =
+  - single_quote: '''TestJob'''
+  - comma: ','
+  - tsql_variable: '@new_name'
+  - raw_comparison_operator: =
+  - single_quote: '''UpdatedJob'''
+  - semicolon: ;
+  - word: END
+  - semicolon: ;
+  - word: GO
+  - word: BEGIN
+  - word: WAITFOR
+  - word: DELAY
+  - single_quote: '''02:00'''
+  - semicolon: ;
+  - word: EXECUTE
+  - word: sp_helpdb
+  - semicolon: ;
+  - word: END
+  - semicolon: ;
+  - word: GO

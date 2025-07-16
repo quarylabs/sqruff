@@ -1973,6 +1973,8 @@ pub fn raw_dialect() -> Dialect {
             Ref::new("FetchCursorStatementSegment"),
             Ref::new("CloseCursorStatementSegment"),
             Ref::new("DeallocateCursorStatementSegment"),
+            // Symmetric key operations
+            Ref::new("OpenSymmetricKeyStatementSegment"),
             Ref::new("CreateSynonymStatementSegment"),
             Ref::new("DropSynonymStatementSegment"),
             // Include all ANSI statement types
@@ -3878,6 +3880,64 @@ pub fn raw_dialect() -> Dialect {
                     ])
                 ])
                 .config(|this| this.optional())
+            ])
+            .to_matchable()
+        })
+        .to_matchable()
+        .into(),
+    )]);
+
+    // OPEN SYMMETRIC KEY statement
+    dialect.add([(
+        "OpenSymmetricKeyStatementSegment".into(),
+        NodeMatcher::new(SyntaxKind::Statement, |_| {
+            Sequence::new(vec_of_erased![
+                Ref::keyword("OPEN"),
+                Ref::keyword("SYMMETRIC"),
+                Ref::keyword("KEY"),
+                Ref::new("ObjectReferenceSegment"), // Key name
+                Ref::keyword("DECRYPTION"),
+                Ref::keyword("BY"),
+                // Decryption mechanism
+                one_of(vec_of_erased![
+                    // CERTIFICATE certificate_name [WITH PASSWORD = 'password']
+                    Sequence::new(vec_of_erased![
+                        Ref::keyword("CERTIFICATE"),
+                        Ref::new("ObjectReferenceSegment"),
+                        Sequence::new(vec_of_erased![
+                            Ref::keyword("WITH"),
+                            Ref::keyword("PASSWORD"),
+                            Ref::new("EqualsSegment"),
+                            Ref::new("QuotedLiteralSegment")
+                        ])
+                        .config(|this| this.optional())
+                    ]),
+                    // ASYMMETRIC KEY asym_key_name [WITH PASSWORD = 'password']
+                    Sequence::new(vec_of_erased![
+                        Ref::keyword("ASYMMETRIC"),
+                        Ref::keyword("KEY"),
+                        Ref::new("ObjectReferenceSegment"),
+                        Sequence::new(vec_of_erased![
+                            Ref::keyword("WITH"),
+                            Ref::keyword("PASSWORD"),
+                            Ref::new("EqualsSegment"),
+                            Ref::new("QuotedLiteralSegment")
+                        ])
+                        .config(|this| this.optional())
+                    ]),
+                    // SYMMETRIC KEY decrypting_key_name
+                    Sequence::new(vec_of_erased![
+                        Ref::keyword("SYMMETRIC"),
+                        Ref::keyword("KEY"),
+                        Ref::new("ObjectReferenceSegment")
+                    ]),
+                    // PASSWORD = 'password'
+                    Sequence::new(vec_of_erased![
+                        Ref::keyword("PASSWORD"),
+                        Ref::new("EqualsSegment"),
+                        Ref::new("QuotedLiteralSegment")
+                    ])
+                ])
             ])
             .to_matchable()
         })

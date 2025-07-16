@@ -55,6 +55,7 @@ pub(crate) fn tsql_additional_reserved_keywords() -> AHashSet<&'static str> {
         "DBCC",
         "DEALLOCATE",
         "DECLARE",
+        "DECRYPTION",
         "DEFAULT",
         "DELETE",
         "DENY",

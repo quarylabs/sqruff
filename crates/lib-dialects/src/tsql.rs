@@ -975,6 +975,139 @@ pub fn raw_dialect() -> Dialect {
         .into(),
     )]);
 
+    // OPTION clause for query hints
+    dialect.add([(
+        "OptionClauseSegment".into(),
+        Sequence::new(vec_of_erased![
+            Ref::keyword("OPTION"),
+            Bracketed::new(vec_of_erased![
+                Delimited::new(vec_of_erased![
+                    one_of(vec_of_erased![
+                        // Join hints
+                        Sequence::new(vec_of_erased![
+                            Ref::keyword("MERGE"),
+                            Ref::keyword("JOIN")
+                        ]),
+                        Sequence::new(vec_of_erased![
+                            Ref::keyword("HASH"),
+                            Ref::keyword("JOIN")
+                        ]),
+                        Sequence::new(vec_of_erased![
+                            Ref::keyword("LOOP"),
+                            Ref::keyword("JOIN")
+                        ]),
+                        // Union hints
+                        Sequence::new(vec_of_erased![
+                            Ref::keyword("MERGE"),
+                            Ref::keyword("UNION")
+                        ]),
+                        Sequence::new(vec_of_erased![
+                            Ref::keyword("HASH"),
+                            Ref::keyword("UNION")
+                        ]),
+                        Sequence::new(vec_of_erased![
+                            Ref::keyword("CONCAT"),
+                            Ref::keyword("UNION")
+                        ]),
+                        // Group hints
+                        Sequence::new(vec_of_erased![
+                            Ref::keyword("HASH"),
+                            Ref::keyword("GROUP")
+                        ]),
+                        Sequence::new(vec_of_erased![
+                            Ref::keyword("ORDER"),
+                            Ref::keyword("GROUP")
+                        ]),
+                        // FAST n
+                        Sequence::new(vec_of_erased![
+                            Ref::keyword("FAST"),
+                            Ref::new("NumericLiteralSegment")
+                        ]),
+                        // MAXDOP n
+                        Sequence::new(vec_of_erased![
+                            Ref::keyword("MAXDOP"),
+                            Ref::new("NumericLiteralSegment")
+                        ]),
+                        // MAXRECURSION n
+                        Sequence::new(vec_of_erased![
+                            Ref::keyword("MAXRECURSION"),
+                            Ref::new("NumericLiteralSegment")
+                        ]),
+                        // OPTIMIZE FOR
+                        Sequence::new(vec_of_erased![
+                            Ref::keyword("OPTIMIZE"),
+                            Ref::keyword("FOR"),
+                            Bracketed::new(vec_of_erased![
+                                Delimited::new(vec_of_erased![
+                                    Sequence::new(vec_of_erased![
+                                        Ref::new("TsqlVariableSegment"),
+                                        Ref::new("EqualsSegment"),
+                                        one_of(vec_of_erased![
+                                            Ref::new("LiteralGrammar"),
+                                            Ref::keyword("UNKNOWN")
+                                        ])
+                                    ])
+                                ])
+                            ])
+                        ]),
+                        // RECOMPILE
+                        Ref::keyword("RECOMPILE"),
+                        // ROBUST PLAN
+                        Sequence::new(vec_of_erased![
+                            Ref::keyword("ROBUST"),
+                            Ref::keyword("PLAN")
+                        ]),
+                        // FORCE ORDER
+                        Sequence::new(vec_of_erased![
+                            Ref::keyword("FORCE"),
+                            Ref::keyword("ORDER")
+                        ]),
+                        // KEEP PLAN
+                        Sequence::new(vec_of_erased![
+                            Ref::keyword("KEEP"),
+                            Ref::keyword("PLAN")
+                        ]),
+                        // KEEPFIXED PLAN
+                        Sequence::new(vec_of_erased![
+                            Ref::keyword("KEEPFIXED"),
+                            Ref::keyword("PLAN")
+                        ]),
+                        // EXPAND VIEWS
+                        Sequence::new(vec_of_erased![
+                            Ref::keyword("EXPAND"),
+                            Ref::keyword("VIEWS")
+                        ]),
+                        // PARAMETERIZATION SIMPLE/FORCED
+                        Sequence::new(vec_of_erased![
+                            Ref::keyword("PARAMETERIZATION"),
+                            one_of(vec_of_erased![
+                                Ref::keyword("SIMPLE"),
+                                Ref::keyword("FORCED")
+                            ])
+                        ]),
+                        // USE HINT
+                        Sequence::new(vec_of_erased![
+                            Ref::keyword("USE"),
+                            Ref::keyword("HINT"),
+                            Bracketed::new(vec_of_erased![
+                                Delimited::new(vec_of_erased![
+                                    Ref::new("QuotedLiteralSegment")
+                                ])
+                            ])
+                        ]),
+                        // QUERYTRACEON
+                        Sequence::new(vec_of_erased![
+                            Ref::keyword("QUERYTRACEON"),
+                            Ref::new("NumericLiteralSegment")
+                        ])
+                    ])
+                ])
+            ])
+        ])
+        .to_matchable()
+        .into(),
+    )]);
+
     // OPENJSON table-valued function
     dialect.add([(
         "OpenJsonSegment".into(),
@@ -2801,7 +2934,7 @@ pub fn raw_dialect() -> Dialect {
         .to_matchable(),
     );
 
-    // Override SelectStatementSegment to add FOR clause after ORDER BY
+    // Override SelectStatementSegment to add FOR clause and OPTION clause after ORDER BY
     dialect.replace_grammar(
         "SelectStatementSegment",
         ansi::get_unordered_select_statement_segment_grammar().copy(
@@ -2811,7 +2944,9 @@ pub fn raw_dialect() -> Dialect {
                 Ref::new("LimitClauseSegment").optional(),
                 Ref::new("NamedWindowSegment").optional(),
                 // T-SQL specific: FOR JSON/XML/BROWSE clause
-                Ref::new("ForClauseSegment").optional()
+                Ref::new("ForClauseSegment").optional(),
+                // T-SQL specific: OPTION clause for query hints
+                Ref::new("OptionClauseSegment").optional()
             ]),
             None,
             None,

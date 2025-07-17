@@ -54,11 +54,11 @@ file:
         - comparison_operator:
           - raw_comparison_operator: =
         - numeric_literal: '5'
-    - unparsable:
-      - word: OPTION
+    - keyword: OPTION
+    - bracketed:
       - start_bracket: (
-      - word: MERGE
-      - word: JOIN
+      - keyword: MERGE
+      - keyword: JOIN
       - end_bracket: )
 - statement_terminator: ;
 - keyword: GO
@@ -270,10 +270,10 @@ file:
               - table_reference:
                 - object_reference:
                   - naked_identifier: cte
-      - unparsable:
-        - word: OPTION
+      - keyword: OPTION
+      - bracketed:
         - start_bracket: (
-        - word: MAXRECURSION
+        - keyword: MAXRECURSION
         - numeric_literal: '2'
         - end_bracket: )
 - statement_terminator: ;
@@ -389,13 +389,13 @@ file:
       - comma: ','
       - column_reference:
         - naked_identifier: OrderQty
-    - unparsable:
-      - word: OPTION
+    - keyword: OPTION
+    - bracketed:
       - start_bracket: (
-      - word: HASH
-      - word: GROUP
+      - keyword: HASH
+      - keyword: GROUP
       - comma: ','
-      - word: FAST
+      - keyword: FAST
       - numeric_literal: '10'
       - end_bracket: )
 - statement_terminator: ;
@@ -459,10 +459,10 @@ file:
       - comma: ','
       - column_reference:
         - naked_identifier: OrderQty
-    - unparsable:
-      - word: OPTION
+    - keyword: OPTION
+    - bracketed:
       - start_bracket: (
-      - word: MAXDOP
+      - keyword: MAXDOP
       - numeric_literal: '2'
       - end_bracket: )
 - statement_terminator: ;
@@ -499,18 +499,19 @@ file:
         - comparison_operator:
           - raw_comparison_operator: =
         - numeric_literal: '98104'
-    - unparsable:
-      - word: OPTION
+    - keyword: OPTION
+    - bracketed:
       - start_bracket: (
-      - word: RECOMPILE
+      - keyword: RECOMPILE
       - comma: ','
-      - word: USE
-      - word: HINT
-      - start_bracket: (
-      - single_quote: '''ASSUME_MIN_SELECTIVITY_FOR_FILTER_ESTIMATES'''
-      - comma: ','
-      - single_quote: '''DISABLE_PARAMETER_SNIFFING'''
-      - end_bracket: )
+      - keyword: USE
+      - keyword: HINT
+      - bracketed:
+        - start_bracket: (
+        - quoted_literal: '''ASSUME_MIN_SELECTIVITY_FOR_FILTER_ESTIMATES'''
+        - comma: ','
+        - quoted_literal: '''DISABLE_PARAMETER_SNIFFING'''
+        - end_bracket: )
       - end_bracket: )
 - statement_terminator: ;
 - keyword: GO
@@ -546,10 +547,10 @@ file:
         - comparison_operator:
           - raw_comparison_operator: =
         - numeric_literal: '98104'
-    - unparsable:
-      - word: OPTION
+    - keyword: OPTION
+    - bracketed:
       - start_bracket: (
-      - word: QUERYTRACEON
+      - keyword: QUERYTRACEON
       - numeric_literal: '4199'
       - end_bracket: )
 - statement_terminator: ;
@@ -586,13 +587,13 @@ file:
         - comparison_operator:
           - raw_comparison_operator: =
         - numeric_literal: '98104'
-    - unparsable:
-      - word: OPTION
+    - keyword: OPTION
+    - bracketed:
       - start_bracket: (
-      - word: QUERYTRACEON
+      - keyword: QUERYTRACEON
       - numeric_literal: '4199'
       - comma: ','
-      - word: QUERYTRACEON
+      - keyword: QUERYTRACEON
       - numeric_literal: '4137'
       - end_bracket: )
 - statement_terminator: ;

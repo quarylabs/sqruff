@@ -1,1 +1,0 @@
-CREATE VIEW test_view AS SELECT * FROM mytable WITH CHECK OPTION;

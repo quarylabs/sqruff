@@ -52,6 +52,7 @@ pub fn raw_dialect() -> Dialect {
         "XML",
         "BROWSE",
         "AUTO",
+        "OPTION",
         "PATH",
         "RAW",
         "EXPLICIT",
@@ -91,6 +92,11 @@ pub fn raw_dialect() -> Dialect {
         "%=", "&=", "*=", "+=", "-=", "/=", "^=", "|=", // Compound assignment
         "!<", "!>", // Special comparison operators
     ]);
+
+
+
+
+
 
     // T-SQL supports square brackets for identifiers and @ for variables
     // Insert square bracket identifier before individual bracket matchers to ensure it's matched first
@@ -1027,7 +1033,7 @@ pub fn raw_dialect() -> Dialect {
         .into(),
     )]);
 
-    // OPTION clause for query hints
+    // OPTION clause for query hints - simplified for debugging
     dialect.add([(
         "OptionClauseSegment".into(),
         Sequence::new(vec_of_erased![
@@ -1035,31 +1041,31 @@ pub fn raw_dialect() -> Dialect {
             Bracketed::new(vec_of_erased![
                 Delimited::new(vec_of_erased![
                     one_of(vec_of_erased![
-                        // Join hints
-                        Sequence::new(vec_of_erased![
-                            Ref::keyword("MERGE"),
-                            Ref::keyword("JOIN")
-                        ]),
-                        Sequence::new(vec_of_erased![
-                            Ref::keyword("HASH"),
-                            Ref::keyword("JOIN")
-                        ]),
-                        Sequence::new(vec_of_erased![
-                            Ref::keyword("LOOP"),
-                            Ref::keyword("JOIN")
-                        ]),
-                        // Union hints
-                        Sequence::new(vec_of_erased![
-                            Ref::keyword("MERGE"),
-                            Ref::keyword("UNION")
-                        ]),
-                        Sequence::new(vec_of_erased![
-                            Ref::keyword("HASH"),
-                            Ref::keyword("UNION")
-                        ]),
-                        Sequence::new(vec_of_erased![
-                            Ref::keyword("CONCAT"),
-                            Ref::keyword("UNION")
+                            // Join hints
+                            Sequence::new(vec_of_erased![
+                                Ref::keyword("MERGE"),
+                                Ref::keyword("JOIN")
+                            ]),
+                            Sequence::new(vec_of_erased![
+                                Ref::keyword("HASH"),
+                                Ref::keyword("JOIN")
+                            ]),
+                            Sequence::new(vec_of_erased![
+                                Ref::keyword("LOOP"),
+                                Ref::keyword("JOIN")
+                            ]),
+                            // Union hints
+                            Sequence::new(vec_of_erased![
+                                Ref::keyword("MERGE"),
+                                Ref::keyword("UNION")
+                            ]),
+                            Sequence::new(vec_of_erased![
+                                Ref::keyword("HASH"),
+                                Ref::keyword("UNION")
+                            ]),
+                            Sequence::new(vec_of_erased![
+                                Ref::keyword("CONCAT"),
+                                Ref::keyword("UNION")
                         ]),
                         // Group hints
                         Sequence::new(vec_of_erased![
@@ -2205,10 +2211,48 @@ pub fn raw_dialect() -> Dialect {
         .to_matchable(),
     );
 
+    // Add SELECT INTO statement as a separate construct for T-SQL
+    dialect.add([
+        (
+            "SelectIntoStatementSegment".into(),
+            NodeMatcher::new(SyntaxKind::SelectStatement, |_| {
+                Sequence::new(vec_of_erased![
+                    // SELECT clause (without terminators that would stop at INTO)
+                    Sequence::new(vec_of_erased![
+                        Ref::keyword("SELECT"),
+                        Ref::new("SelectClauseModifierSegment").optional(),
+                        MetaSegment::indent(),
+                        Delimited::new(vec_of_erased![Ref::new("SelectClauseElementSegment")])
+                            .config(|this| this.allow_trailing()),
+                    ]),
+                    // INTO clause
+                    Sequence::new(vec_of_erased![
+                        Ref::keyword("INTO"),
+                        Ref::new("TableReferenceSegment")
+                    ]),
+                    MetaSegment::dedent(),
+                    // Rest of SELECT statement
+                    Ref::new("FromClauseSegment").optional(),
+                    Ref::new("WhereClauseSegment").optional(),
+                    Ref::new("GroupByClauseSegment").optional(),
+                    Ref::new("HavingClauseSegment").optional(),
+                    Ref::new("OrderByClauseSegment").optional(),
+                    Ref::new("OptionClauseSegment").optional()
+                ])
+                .to_matchable()
+            })
+            .to_matchable()
+            .into(),
+        ),
+    ]);
+
+
     // Add T-SQL specific statement types to the statement segment
     dialect.replace_grammar(
         "StatementSegment",
         one_of(vec_of_erased![
+            // T-SQL specific SELECT INTO (must come before regular SelectableGrammar)
+            Ref::new("SelectIntoStatementSegment"),
             // T-SQL specific statements (BEGIN...END blocks must come first to avoid transaction conflicts)
             Ref::new("BeginEndBlockSegment"),
             Ref::new("TryBlockSegment"),
@@ -3021,37 +3065,6 @@ pub fn raw_dialect() -> Dialect {
         .to_matchable(),
     );
 
-    // Override UnorderedSelectStatementSegment to add INTO clause and FOR clause
-    dialect.replace_grammar(
-        "UnorderedSelectStatementSegment",
-        Sequence::new(vec_of_erased![
-            Ref::new("SelectClauseSegment"),
-            // T-SQL specific: INTO clause for SELECT INTO (creates new table)
-            // Ref::new("SelectIntoClauseSegment").optional(),
-            MetaSegment::dedent(),
-            Ref::new("FromClauseSegment").optional(),
-            Ref::new("WhereClauseSegment").optional(),
-            Ref::new("GroupByClauseSegment").optional(),
-            Ref::new("HavingClauseSegment").optional(),
-            Ref::new("OverlapsClauseSegment").optional(),
-            Ref::new("NamedWindowSegment").optional(),
-            // T-SQL specific: FOR JSON/XML/BROWSE clause
-            Ref::new("ForClauseSegment").optional()
-        ])
-        .terminators(vec_of_erased![
-            Ref::new("SetOperatorSegment"),
-            Ref::new("WithNoSchemaBindingClauseSegment"),
-            Ref::new("WithDataClauseSegment"),
-            Ref::new("OrderByClauseSegment"),
-            Ref::new("LimitClauseSegment"),
-            // T-SQL specific: GO batch delimiter should terminate statements
-            Ref::new("BatchDelimiterGrammar")
-        ])
-        .config(|this| {
-            this.parse_mode(ParseMode::GreedyOnceStarted);
-        })
-        .to_matchable(),
-    );
 
     // Override SelectStatementSegment to add FOR clause and OPTION clause after ORDER BY
     dialect.replace_grammar(
@@ -3085,6 +3098,55 @@ pub fn raw_dialect() -> Dialect {
             ],
             true,
         ),
+    );
+    
+    // Also add GO as a statement terminator for UnorderedSelectStatementSegment
+    // and add OPTION clause support
+    dialect.replace_grammar(
+        "UnorderedSelectStatementSegment",
+        ansi::get_unordered_select_statement_segment_grammar().copy(
+            Some(vec_of_erased![
+                Ref::new("OrderByClauseSegment").optional(),
+                Ref::new("FetchClauseSegment").optional(),
+                Ref::new("LimitClauseSegment").optional(),
+                Ref::new("NamedWindowSegment").optional(),
+                // T-SQL specific: FOR JSON/XML/BROWSE clause
+                Ref::new("ForClauseSegment").optional(),
+                // T-SQL specific: OPTION clause for query hints
+                Ref::new("OptionClauseSegment").optional()
+            ]),
+            None,
+            None,
+            None,
+            vec_of_erased![
+                Ref::new("SetOperatorSegment"),
+                // T-SQL specific: GO batch delimiter should terminate statements
+                Ref::new("BatchDelimiterGrammar")
+            ],
+            true,
+        ),
+    );
+    
+    // Override SetExpressionSegment to include OPTION clause after UNION/EXCEPT/INTERSECT
+    dialect.replace_grammar(
+        "SetExpressionSegment",
+        NodeMatcher::new(SyntaxKind::SetExpression, |_| {
+            Sequence::new(vec_of_erased![
+                Ref::new("NonSetSelectableGrammar"),
+                AnyNumberOf::new(vec_of_erased![Sequence::new(vec_of_erased![
+                    Ref::new("SetOperatorSegment"),
+                    Ref::new("NonSetSelectableGrammar"),
+                ])])
+                .config(|this| this.min_times(1)),
+                Ref::new("OrderByClauseSegment").optional(),
+                Ref::new("LimitClauseSegment").optional(),
+                Ref::new("NamedWindowSegment").optional(),
+                // T-SQL specific: OPTION clause for query hints
+                Ref::new("OptionClauseSegment").optional()
+            ])
+            .to_matchable()
+        })
+        .to_matchable(),
     );
 
 
@@ -3207,7 +3269,13 @@ pub fn raw_dialect() -> Dialect {
                     Sequence::new(vec_of_erased![
                         Ref::keyword("AS"),
                         Ref::keyword("RETURN"),
-                        Ref::new("SelectStatementSegment")
+                        one_of(vec_of_erased![
+                            Ref::new("SelectStatementSegment"),
+                            // Handle RETURN ( SELECT ... ) pattern
+                            Bracketed::new(vec_of_erased![
+                                Ref::new("SelectStatementSegment")
+                            ])
+                        ])
                     ]),
                     // Multi-statement function with BEGIN...END block
                     Sequence::new(vec_of_erased![
@@ -4729,21 +4797,8 @@ pub fn raw_dialect() -> Dialect {
         .into(),
     );
 
-    // Add SELECT INTO clause segment for T-SQL
-    dialect.add([
-        (
-            "SelectIntoClauseSegment".into(),
-            NodeMatcher::new(SyntaxKind::SelectIntoClause, |_| {
-                Sequence::new(vec_of_erased![
-                    Ref::keyword("INTO"),
-                    Ref::new("ObjectReferenceSegment")
-                ])
-                .to_matchable()
-            })
-            .to_matchable()
-            .into(),
-        ),
-    ]);
+
+
 
     // Add T-SQL specific permission statement segments
     dialect.add([

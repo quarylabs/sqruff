@@ -124,75 +124,139 @@ file:
                 - object_reference:
                   - naked_identifier: tbl_b
 - keyword: GO
-- file:
-  - word: CREATE
-  - word: FUNCTION
-  - word: dbo
-  - dot: .
-  - word: RandDate
-  - start_bracket: (
-  - tsql_variable: '@admit'
-  - word: DATE
-  - end_bracket: )
-  - word: RETURNS
-  - word: TABLE
-  - word: AS
-  - word: RETURN
-  - start_bracket: (
-  - word: SELECT
-  - tsql_variable: '@admit'
-  - word: FROM
-  - word: dbo
-  - dot: .
-  - double_quote: '[RandomDate]'
-  - end_bracket: )
-  - semicolon: ;
-  - word: GO
-  - word: CREATE
-  - word: FUNCTION
-  - word: dbo
-  - dot: .
-  - word: no_paramters
-  - start_bracket: (
-  - end_bracket: )
-  - word: RETURNS
-  - word: INT
-  - word: AS
-  - word: BEGIN
-  - word: RETURN
-  - numeric_literal: '2'
-  - semicolon: ;
-  - word: END
-  - word: GO
-  - word: SELECT
-  - word: a
-  - dot: .
-  - star: '*'
-  - word: FROM
-  - start_bracket: (
-  - word: SELECT
-  - word: FIN
-  - word: FROM
-  - word: enc
-  - end_bracket: )
-  - word: AS
-  - word: a
-  - word: LEFT
-  - word: JOIN
-  - word: b
-  - word: ON
-  - word: a
-  - dot: .
-  - word: FIN
-  - raw_comparison_operator: =
-  - word: b
-  - dot: .
-  - word: FIN
-  - word: WHERE
-  - word: b
-  - dot: .
-  - word: FIN
-  - word: IS
-  - word: 'NULL'
-  - semicolon: ;
-  - word: GO
+- statement:
+  - statement:
+    - create_function_statement:
+      - keyword: CREATE
+      - keyword: FUNCTION
+      - object_reference:
+        - naked_identifier: dbo
+        - dot: .
+        - naked_identifier: RandDate
+      - bracketed:
+        - start_bracket: (
+        - parameter:
+          - tsql_variable: '@admit'
+          - data_type:
+            - data_type_identifier: DATE
+        - end_bracket: )
+      - keyword: RETURNS
+      - data_type:
+        - data_type_identifier: TABLE
+      - keyword: AS
+      - keyword: RETURN
+      - bracketed:
+        - start_bracket: (
+        - select_statement:
+          - select_clause:
+            - keyword: SELECT
+            - select_clause_element:
+              - parameterized_expression:
+                - tsql_variable: '@admit'
+          - from_clause:
+            - keyword: FROM
+            - from_expression:
+              - from_expression_element:
+                - table_expression:
+                  - table_reference:
+                    - object_reference:
+                      - naked_identifier: dbo
+                      - dot: .
+                      - quoted_identifier: '[RandomDate]'
+        - end_bracket: )
+  - statement_terminator: ;
+- keyword: GO
+- statement:
+  - statement:
+    - create_function_statement:
+      - keyword: CREATE
+      - keyword: FUNCTION
+      - object_reference:
+        - naked_identifier: dbo
+        - dot: .
+        - naked_identifier: no_paramters
+      - bracketed:
+        - start_bracket: (
+        - end_bracket: )
+      - keyword: RETURNS
+      - data_type:
+        - data_type_identifier: INT
+      - keyword: AS
+      - begin_end_block:
+        - keyword: BEGIN
+        - statement:
+          - statement:
+            - keyword: RETURN
+            - expression:
+              - numeric_literal: '2'
+        - statement_terminator: ;
+        - keyword: END
+- keyword: GO
+- statement:
+  - statement:
+    - select_statement:
+      - select_clause:
+        - keyword: SELECT
+        - select_clause_element:
+          - wildcard_expression:
+            - wildcard_identifier:
+              - naked_identifier: a
+              - dot: .
+              - star: '*'
+      - from_clause:
+        - keyword: FROM
+        - from_expression:
+          - from_expression_element:
+            - table_expression:
+              - bracketed:
+                - start_bracket: (
+                - select_statement:
+                  - select_clause:
+                    - keyword: SELECT
+                    - select_clause_element:
+                      - column_reference:
+                        - naked_identifier: FIN
+                  - from_clause:
+                    - keyword: FROM
+                    - from_expression:
+                      - from_expression_element:
+                        - table_expression:
+                          - table_reference:
+                            - object_reference:
+                              - naked_identifier: enc
+                - end_bracket: )
+            - alias_expression:
+              - keyword: AS
+              - naked_identifier: a
+          - join_clause:
+            - keyword: LEFT
+            - keyword: JOIN
+            - from_expression_element:
+              - table_expression:
+                - table_reference:
+                  - object_reference:
+                    - naked_identifier: b
+            - join_on_condition:
+              - keyword: ON
+              - expression:
+                - column_reference:
+                  - naked_identifier: a
+                  - dot: .
+                  - naked_identifier: FIN
+                - comparison_operator:
+                  - raw_comparison_operator: =
+                - column_reference:
+                  - naked_identifier: b
+                  - dot: .
+                  - naked_identifier: FIN
+      - where_clause:
+        - keyword: WHERE
+        - expression:
+          - column_reference:
+            - naked_identifier: b
+            - dot: .
+            - naked_identifier: FIN
+          - keyword: IS
+          - null_literal: 'NULL'
+  - statement_terminator: ;
+- keyword: GO

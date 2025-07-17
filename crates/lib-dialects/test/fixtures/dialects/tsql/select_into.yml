@@ -2,34 +2,34 @@ file:
 - statement:
   - statement:
     - select_statement:
-      - select_clause:
-        - keyword: SELECT
-        - select_clause_element:
-          - column_reference:
-            - quoted_identifier: '[ID]'
-        - comma: ','
-        - select_clause_element:
-          - column_reference:
-            - quoted_identifier: '[FIN]'
-        - comma: ','
-        - select_clause_element:
-          - column_reference:
-            - quoted_identifier: '[Unit]'
-        - comma: ','
-        - select_clause_element:
-          - column_reference:
-            - quoted_identifier: '[EventNM]'
-        - comma: ','
-        - select_clause_element:
-          - column_reference:
-            - quoted_identifier: '[Date]'
-        - comma: ','
-        - select_clause_element:
-          - column_reference:
-            - quoted_identifier: '[CHGFlag]'
-        - unparsable:
-          - word: INTO
-          - word: '#CHG'
+      - keyword: SELECT
+      - select_clause_element:
+        - column_reference:
+          - quoted_identifier: '[ID]'
+      - comma: ','
+      - select_clause_element:
+        - column_reference:
+          - quoted_identifier: '[FIN]'
+      - comma: ','
+      - select_clause_element:
+        - column_reference:
+          - quoted_identifier: '[Unit]'
+      - comma: ','
+      - select_clause_element:
+        - column_reference:
+          - quoted_identifier: '[EventNM]'
+      - comma: ','
+      - select_clause_element:
+        - column_reference:
+          - quoted_identifier: '[Date]'
+      - comma: ','
+      - select_clause_element:
+        - column_reference:
+          - quoted_identifier: '[CHGFlag]'
+      - keyword: INTO
+      - table_reference:
+        - object_reference:
+          - naked_identifier: '#CHG'
       - from_clause:
         - keyword: FROM
         - from_expression:

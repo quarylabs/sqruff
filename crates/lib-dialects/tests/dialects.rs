@@ -19,7 +19,7 @@ fn main() {
     let mut arg_dialect = None;
 
     if args.len() == 1 {
-        arg_dialect = Some(DialectKind::from_str(&args[0]).unwrap());
+        arg_dialect = Some(DialectKind::from_str(&args[0].to_lowercase()).unwrap());
     }
 
     let dialects = DialectKind::iter()

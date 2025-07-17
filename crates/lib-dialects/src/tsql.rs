@@ -560,7 +560,7 @@ pub fn raw_dialect() -> Dialect {
                         Ref::new("DelimiterGrammar").optional()
                     ])
                 ])
-                .config(|this| this.min_times(0)),
+                .config(|this| this.min_times(1)),
                 MetaSegment::dedent(),
                 Ref::keyword("END")
             ])

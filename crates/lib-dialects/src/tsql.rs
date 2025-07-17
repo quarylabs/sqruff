@@ -2104,10 +2104,10 @@ pub fn raw_dialect() -> Dialect {
                 Ref::new("BatchDelimiterGrammar"),
                 Ref::new("DelimiterGrammar").optional()
             ]),
-            // Main content: batches separated by GO statements
+            // Main content: Single batch or multiple batches separated by GO statements
             AnyNumberOf::new(vec_of_erased![
                 one_of(vec_of_erased![
-                    // Batch (can contain multiple statements)
+                    // Batch (can contain multiple statements or single statements like BEGIN...END)
                     Ref::new("BatchSegment"),
                     // GO batch delimiter with optional semicolon
                     Sequence::new(vec_of_erased![
@@ -2116,6 +2116,7 @@ pub fn raw_dialect() -> Dialect {
                     ])
                 ])
             ])
+            .config(|this| this.min_times(1))  // At least one element required
         ])
         .to_matchable(),
     );
@@ -2957,7 +2958,9 @@ pub fn raw_dialect() -> Dialect {
             Ref::new("WithNoSchemaBindingClauseSegment"),
             Ref::new("WithDataClauseSegment"),
             Ref::new("OrderByClauseSegment"),
-            Ref::new("LimitClauseSegment")
+            Ref::new("LimitClauseSegment"),
+            // T-SQL specific: GO batch delimiter should terminate statements
+            Ref::new("BatchDelimiterGrammar")
         ])
         .config(|this| {
             this.parse_mode(ParseMode::GreedyOnceStarted);
@@ -2985,7 +2988,9 @@ pub fn raw_dialect() -> Dialect {
             vec_of_erased![
                 Ref::new("SetOperatorSegment"),
                 Ref::new("WithNoSchemaBindingClauseSegment"),
-                Ref::new("WithDataClauseSegment")
+                Ref::new("WithDataClauseSegment"),
+                // T-SQL specific: GO batch delimiter should terminate statements
+                Ref::new("BatchDelimiterGrammar")
             ],
             true,
         ),

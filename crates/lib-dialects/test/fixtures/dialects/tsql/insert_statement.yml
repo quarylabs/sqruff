@@ -273,65 +273,130 @@ file:
                       - naked_identifier: STAGE
                       - dot: .
                       - naked_identifier: ECDC_CASES
-          - unparsable:
-            - word: GO
-            - word: BEGIN
-            - word: INSERT
-            - word: INTO
-            - word: HumanResources
+- keyword: GO
+- statement:
+  - statement:
+    - begin_end_block:
+      - keyword: BEGIN
+      - statement:
+        - insert_statement:
+          - insert_statement:
+            - keyword: INSERT
+            - keyword: INTO
+            - table_reference:
+              - object_reference:
+                - naked_identifier: HumanResources
+                - dot: .
+                - naked_identifier: NewEmployee
+            - select_statement:
+              - select_clause:
+                - keyword: SELECT
+                - select_clause_element:
+                  - column_reference:
+                    - naked_identifier: EmpID
+                - comma: ','
+                - select_clause_element:
+                  - column_reference:
+                    - naked_identifier: LastName
+                - comma: ','
+                - select_clause_element:
+                  - column_reference:
+                    - naked_identifier: FirstName
+                - comma: ','
+                - select_clause_element:
+                  - column_reference:
+                    - naked_identifier: Phone
+                - comma: ','
+                - select_clause_element:
+                  - column_reference:
+                    - naked_identifier: Address
+                - comma: ','
+                - select_clause_element:
+                  - column_reference:
+                    - naked_identifier: City
+                - comma: ','
+                - select_clause_element:
+                  - column_reference:
+                    - naked_identifier: StateProvince
+                - comma: ','
+                - select_clause_element:
+                  - column_reference:
+                    - naked_identifier: PostalCode
+                - comma: ','
+                - select_clause_element:
+                  - column_reference:
+                    - naked_identifier: CurrentFlag
+              - from_clause:
+                - keyword: FROM
+                - from_expression:
+                  - from_expression_element:
+                    - table_expression:
+                      - table_reference:
+                        - object_reference:
+                          - naked_identifier: EmployeeTemp
+      - statement_terminator: ;
+      - keyword: END
+- keyword: GO
+- statement:
+  - statement:
+    - insert_statement:
+      - insert_statement:
+        - keyword: INSERT
+        - keyword: INTO
+        - table_reference:
+          - object_reference:
+            - naked_identifier: HumanResources
             - dot: .
-            - word: NewEmployee
-            - word: SELECT
-            - word: EmpID
+            - naked_identifier: NewEmployee
+        - select_statement:
+          - select_clause:
+            - keyword: SELECT
+            - select_clause_element:
+              - column_reference:
+                - naked_identifier: EmpID
             - comma: ','
-            - word: LastName
+            - select_clause_element:
+              - column_reference:
+                - naked_identifier: LastName
             - comma: ','
-            - word: FirstName
+            - select_clause_element:
+              - column_reference:
+                - naked_identifier: FirstName
             - comma: ','
-            - word: Phone
+            - select_clause_element:
+              - column_reference:
+                - naked_identifier: Phone
             - comma: ','
-            - word: Address
+            - select_clause_element:
+              - column_reference:
+                - naked_identifier: Address
             - comma: ','
-            - word: City
+            - select_clause_element:
+              - column_reference:
+                - naked_identifier: City
             - comma: ','
-            - word: StateProvince
+            - select_clause_element:
+              - column_reference:
+                - naked_identifier: StateProvince
             - comma: ','
-            - word: PostalCode
+            - select_clause_element:
+              - column_reference:
+                - naked_identifier: PostalCode
             - comma: ','
-            - word: CurrentFlag
-            - word: FROM
-            - word: EmployeeTemp
+            - select_clause_element:
+              - column_reference:
+                - naked_identifier: CurrentFlag
+          - from_clause:
+            - keyword: FROM
+            - from_expression:
+              - from_expression_element:
+                - table_expression:
+                  - table_reference:
+                    - object_reference:
+                      - naked_identifier: EmployeeTemp
   - statement_terminator: ;
+- keyword: GO
 - file:
-  - word: END
-  - word: GO
-  - word: INSERT
-  - word: INTO
-  - word: HumanResources
-  - dot: .
-  - word: NewEmployee
-  - word: SELECT
-  - word: EmpID
-  - comma: ','
-  - word: LastName
-  - comma: ','
-  - word: FirstName
-  - comma: ','
-  - word: Phone
-  - comma: ','
-  - word: Address
-  - comma: ','
-  - word: City
-  - comma: ','
-  - word: StateProvince
-  - comma: ','
-  - word: PostalCode
-  - comma: ','
-  - word: CurrentFlag
-  - word: FROM
-  - word: EmployeeTemp
-  - semicolon: ;
-  - word: GO
   - word: INSERT
   - word: INTO
   - word: HumanResources

@@ -958,15 +958,29 @@ file:
               - start_bracket: (
               - keyword: NOLOCK
               - end_bracket: )
-      - unparsable:
-        - word: GO
-        - word: SELECT
-        - word: ID
-        - word: FROM
-        - word: dbo
-        - dot: .
-        - word: tableX
-        - start_bracket: (
-        - word: NOLOCK
-        - end_bracket: )
-        - word: GO
+- keyword: GO
+- statement:
+  - statement:
+    - select_statement:
+      - select_clause:
+        - keyword: SELECT
+        - select_clause_element:
+          - column_reference:
+            - naked_identifier: ID
+      - from_clause:
+        - keyword: FROM
+        - from_expression:
+          - from_expression_element:
+            - table_expression:
+              - function:
+                - function_name:
+                  - naked_identifier: dbo
+                  - dot: .
+                  - function_name_identifier: tableX
+                - bracketed:
+                  - start_bracket: (
+                  - expression:
+                    - column_reference:
+                      - naked_identifier: NOLOCK
+                  - end_bracket: )
+- keyword: GO

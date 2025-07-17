@@ -2140,12 +2140,15 @@ pub fn raw_dialect() -> Dialect {
             // T-SQL specific statements (BEGIN...END blocks must come first to avoid transaction conflicts)
             Ref::new("BeginEndBlockGrammar"),
             Ref::new("TryBlockSegment"),
+            Ref::new("ThrowStatementSegment"),
             Ref::new("AtomicBlockSegment"),
             Ref::new("DeclareStatementGrammar"),
             Ref::new("SetVariableStatementSegment"),
             Ref::new("PrintStatementGrammar"),
             Ref::new("IfStatementGrammar"),
             Ref::new("WhileStatementGrammar"),
+            Ref::new("BreakStatementSegment"),
+            Ref::new("ContinueStatementSegment"),
             Ref::new("GotoStatementSegment"),
             Ref::new("LabelSegment"),
             Ref::new("ExecuteStatementGrammar"),
@@ -2374,7 +2377,7 @@ pub fn raw_dialect() -> Dialect {
         ),
     ]);
 
-    // Define PostTableExpressionGrammar to include T-SQL table hints
+    // Define PostTableExpressionGrammar to include T-SQL table hints and PIVOT/UNPIVOT
     dialect.add([(
         "PostTableExpressionGrammar".into(),
         one_of(vec_of_erased![
@@ -2384,7 +2387,9 @@ pub fn raw_dialect() -> Dialect {
             Bracketed::new(vec_of_erased![
                 Ref::new("TableHintElement")
             ])
-            .config(|this| this.parse_mode = ParseMode::Greedy)
+            .config(|this| this.parse_mode = ParseMode::Greedy),
+            // PIVOT/UNPIVOT
+            Ref::new("PivotUnpivotStatementSegment"),
         ])
         .config(|this| this.optional())
         .to_matchable()
@@ -4998,6 +5003,482 @@ pub fn raw_dialect() -> Dialect {
             .to_matchable()
             .into(),
         ),
+    ]);
+
+    // T-SQL MERGE statement support
+    dialect.add([
+        (
+            "MergeStatementSegment".into(),
+            NodeMatcher::new(SyntaxKind::MergeStatement, |_| {
+                Sequence::new(vec_of_erased![
+                    // MERGE or MERGE INTO
+                    one_of(vec_of_erased![
+                        Ref::keyword("MERGE"),
+                        Sequence::new(vec_of_erased![
+                            Ref::keyword("MERGE"),
+                            Ref::keyword("INTO"),
+                        ]),
+                    ]),
+                    Ref::new("TableReferenceSegment"),
+                    // Table hints
+                    Sequence::new(vec_of_erased![
+                        Ref::keyword("WITH"),
+                        Bracketed::new(vec_of_erased![
+                            Delimited::new(vec_of_erased![
+                                Ref::new("TableHintSegment").optional()
+                            ])
+                        ])
+                    ]).config(|this| this.optional()),
+                    // Alias
+                    Ref::new("AliasExpressionSegment").optional().exclude(Ref::keyword("USING")),
+                    // USING clause
+                    Ref::keyword("USING"),
+                    one_of(vec_of_erased![
+                        Ref::new("TableReferenceSegment"),
+                        Ref::new("AliasedTableReferenceGrammar"),
+                        Sequence::new(vec_of_erased![
+                            Bracketed::new(vec_of_erased![
+                                Ref::new("SelectableGrammar"),
+                            ]),
+                            Ref::new("AliasExpressionSegment").optional(),
+                        ]),
+                    ]),
+                    // ON condition
+                    Ref::new("JoinOnConditionSegment"),
+                    // WHEN clauses
+                    Ref::new("MergeMatchSegment"),
+                    // Optional OUTPUT clause
+                    Ref::new("OutputClauseSegment").optional(),
+                    // Optional OPTION clause
+                    Ref::new("OptionClauseSegment").optional(),
+                    // Delimiter
+                    Ref::new("DelimiterGrammar").optional(),
+                ])
+                .to_matchable()
+            })
+            .to_matchable()
+            .into(),
+        ),
+        (
+            "MergeMatchSegment".into(),
+            NodeMatcher::new(SyntaxKind::MergeMatch, |_| {
+                AnyNumberOf::new(vec_of_erased![
+                    Ref::new("MergeMatchedClauseSegment"),
+                    Ref::new("MergeNotMatchedClauseSegment"),
+                ])
+                .config(|this| this.min_times(1))
+                .to_matchable()
+            })
+            .to_matchable()
+            .into(),
+        ),
+        (
+            "MergeMatchedClauseSegment".into(),
+            NodeMatcher::new(SyntaxKind::MergeWhenMatchedClause, |_| {
+                Sequence::new(vec_of_erased![
+                    Ref::keyword("WHEN"),
+                    Ref::keyword("MATCHED"),
+                    // Optional AND condition
+                    Sequence::new(vec_of_erased![
+                        Ref::keyword("AND"),
+                        Ref::new("ExpressionSegment"),
+                    ]).config(|this| this.optional()),
+                    Ref::keyword("THEN"),
+                    one_of(vec_of_erased![
+                        Ref::new("MergeUpdateClauseSegment"),
+                        Ref::new("MergeDeleteClauseSegment"),
+                    ]),
+                ])
+                .to_matchable()
+            })
+            .to_matchable()
+            .into(),
+        ),
+        (
+            "MergeNotMatchedClauseSegment".into(),
+            NodeMatcher::new(SyntaxKind::MergeWhenNotMatchedClause, |_| {
+                one_of(vec_of_erased![
+                    // WHEN NOT MATCHED [BY TARGET]
+                    Sequence::new(vec_of_erased![
+                        Ref::keyword("WHEN"),
+                        Ref::keyword("NOT"),
+                        Ref::keyword("MATCHED"),
+                        Sequence::new(vec_of_erased![
+                            Ref::keyword("BY"),
+                            Ref::keyword("TARGET"),
+                        ]).config(|this| this.optional()),
+                        // Optional AND condition
+                        Sequence::new(vec_of_erased![
+                            Ref::keyword("AND"),
+                            Ref::new("ExpressionSegment"),
+                        ]).config(|this| this.optional()),
+                        Ref::keyword("THEN"),
+                        Ref::new("MergeInsertClauseSegment"),
+                    ]),
+                    // WHEN NOT MATCHED BY SOURCE
+                    Sequence::new(vec_of_erased![
+                        Ref::keyword("WHEN"),
+                        Ref::keyword("NOT"),
+                        Ref::keyword("MATCHED"),
+                        Ref::keyword("BY"),
+                        Ref::keyword("SOURCE"),
+                        // Optional AND condition
+                        Sequence::new(vec_of_erased![
+                            Ref::keyword("AND"),
+                            Ref::new("ExpressionSegment"),
+                        ]).config(|this| this.optional()),
+                        Ref::keyword("THEN"),
+                        one_of(vec_of_erased![
+                            Ref::new("MergeUpdateClauseSegment"),
+                            Ref::new("MergeDeleteClauseSegment"),
+                        ]),
+                    ]),
+                ])
+                .to_matchable()
+            })
+            .to_matchable()
+            .into(),
+        ),
+        (
+            "MergeInsertClauseSegment".into(),
+            NodeMatcher::new(SyntaxKind::MergeInsertClause, |_| {
+                Sequence::new(vec_of_erased![
+                    Ref::keyword("INSERT"),
+                    // Column list is optional
+                    Ref::new("BracketedColumnReferenceListGrammar").optional(),
+                    Ref::keyword("VALUES"),
+                    one_of(vec_of_erased![
+                        Bracketed::new(vec_of_erased![
+                            Delimited::new(vec_of_erased![
+                                Ref::new("ExpressionSegment"),
+                            ])
+                        ]),
+                        // DEFAULT VALUES
+                        Sequence::new(vec_of_erased![
+                            Ref::keyword("DEFAULT"),
+                            Ref::keyword("VALUES"),
+                        ]),
+                    ]),
+                ])
+                .to_matchable()
+            })
+            .to_matchable()
+            .into(),
+        ),
+        (
+            "MergeUpdateClauseSegment".into(),
+            NodeMatcher::new(SyntaxKind::MergeUpdateClause, |_| {
+                Sequence::new(vec_of_erased![
+                    Ref::keyword("UPDATE"),
+                    Ref::keyword("SET"),
+                    Ref::new("SetClauseListSegment"),
+                ])
+                .to_matchable()
+            })
+            .to_matchable()
+            .into(),
+        ),
+        (
+            "MergeDeleteClauseSegment".into(),
+            NodeMatcher::new(SyntaxKind::MergeDeleteClause, |_| {
+                Ref::keyword("DELETE").to_matchable()
+            })
+            .to_matchable()
+            .into(),
+        ),
+        (
+            "SetClauseListSegment".into(),
+            NodeMatcher::new(SyntaxKind::SetClauseList, |_| {
+                Delimited::new(vec_of_erased![
+                    Ref::new("SetClauseSegment"),
+                ])
+                .to_matchable()
+            })
+            .to_matchable()
+            .into(),
+        ),
+        (
+            "SetClauseSegment".into(),
+            NodeMatcher::new(SyntaxKind::SetClause, |_| {
+                Sequence::new(vec_of_erased![
+                    Ref::new("ColumnReferenceSegment"),
+                    Ref::new("EqualsSegment"),
+                    Ref::new("ExpressionSegment"),
+                ])
+                .to_matchable()
+            })
+            .to_matchable()
+            .into(),
+        ),
+        (
+            "OutputClauseSegment".into(),
+            Sequence::new(vec_of_erased![
+                Ref::keyword("OUTPUT"),
+                Delimited::new(vec_of_erased![
+                    one_of(vec_of_erased![
+                        // $action special column
+                        StringParser::new("$action", SyntaxKind::NakedIdentifier),
+                        // inserted.* or deleted.*
+                        Sequence::new(vec_of_erased![
+                            one_of(vec_of_erased![
+                                Ref::keyword("INSERTED"),
+                                Ref::keyword("DELETED"),
+                            ]),
+                            Ref::new("DotSegment"),
+                            one_of(vec_of_erased![
+                                Ref::new("StarSegment"),
+                                Ref::new("SingleIdentifierGrammar"),
+                            ])
+                        ]),
+                        // Regular expressions
+                        Ref::new("ExpressionSegment"),
+                    ]),
+                ]),
+                // Optional INTO clause
+                Sequence::new(vec_of_erased![
+                    Ref::keyword("INTO"),
+                    Ref::new("TableReferenceSegment"),
+                    // Optional column list
+                    Bracketed::new(vec_of_erased![
+                        Delimited::new(vec_of_erased![
+                            Ref::new("ColumnReferenceSegment"),
+                        ])
+                    ]).config(|this| this.optional()),
+                ]).config(|this| this.optional()),
+            ])
+            .to_matchable()
+            .into(),
+        ),
+    ]);
+
+    // BREAK and CONTINUE statements for loops
+    dialect.add([
+        (
+            "BreakStatementSegment".into(),
+            NodeMatcher::new(SyntaxKind::BreakStatement, |_| {
+                Ref::keyword("BREAK").to_matchable()
+            })
+            .to_matchable()
+            .into(),
+        ),
+        (
+            "ContinueStatementSegment".into(),
+            NodeMatcher::new(SyntaxKind::ContinueStatement, |_| {
+                Ref::keyword("CONTINUE").to_matchable()
+            })
+            .to_matchable()
+            .into(),
+        ),
+    ]);
+
+    // T-SQL PIVOT and UNPIVOT support
+    dialect.add([
+        (
+            "PivotUnpivotStatementSegment".into(),
+            NodeMatcher::new(SyntaxKind::PivotExpression, |_| {
+                Sequence::new(vec_of_erased![
+                    one_of(vec_of_erased![
+                        // PIVOT
+                        Sequence::new(vec_of_erased![
+                            Ref::keyword("PIVOT"),
+                            Bracketed::new(vec_of_erased![
+                                // Aggregate function (e.g., AVG(StandardCost))
+                                Ref::new("FunctionSegment"),
+                                Ref::keyword("FOR"),
+                                // Column to pivot on
+                                Ref::new("ColumnReferenceSegment"),
+                                Ref::keyword("IN"),
+                                // List of values to become column headers
+                                Bracketed::new(vec_of_erased![
+                                    Delimited::new(vec_of_erased![
+                                        Ref::new("PivotColumnReferenceSegment")
+                                    ])
+                                ])
+                            ])
+                        ]),
+                        // UNPIVOT
+                        Sequence::new(vec_of_erased![
+                            Ref::keyword("UNPIVOT"),
+                            Bracketed::new(vec_of_erased![
+                                // Value column (e.g., Quantity)
+                                Ref::new("ColumnReferenceSegment"),
+                                Ref::keyword("FOR"),
+                                // Column that will hold the unpivoted column names
+                                Ref::new("ColumnReferenceSegment"),
+                                Ref::keyword("IN"),
+                                // List of columns to unpivot
+                                Bracketed::new(vec_of_erased![
+                                    Delimited::new(vec_of_erased![
+                                        Ref::new("PivotColumnReferenceSegment")
+                                    ])
+                                ])
+                            ])
+                        ])
+                    ]),
+                    // Optional AS alias after PIVOT/UNPIVOT  
+                    Ref::new("AliasExpressionSegment").optional()
+                ])
+                .to_matchable()
+            })
+            .to_matchable()
+            .into(),
+        ),
+        (
+            "PivotColumnReferenceSegment".into(),
+            NodeMatcher::new(SyntaxKind::PivotColumnReference, |_| {
+                // Can be quoted identifiers like [0], [1] or regular column names
+                one_of(vec_of_erased![
+                    Ref::new("SingleIdentifierGrammar"),
+                    Ref::new("QuotedIdentifierSegment"),
+                ])
+                .to_matchable()
+            })
+            .to_matchable()
+            .into(),
+        ),
+    ]);
+
+    // T-SQL THROW statement support
+    dialect.add([
+        (
+            "ThrowStatementSegment".into(),
+            NodeMatcher::new(SyntaxKind::Statement, |_| {
+                Sequence::new(vec_of_erased![
+                    Ref::keyword("THROW"),
+                    // Optional error number, message and state
+                    Sequence::new(vec_of_erased![
+                        Ref::new("NumericLiteralSegment"),
+                        Ref::new("CommaSegment"),
+                        Ref::new("ExpressionSegment"),
+                        Ref::new("CommaSegment"),
+                        Ref::new("NumericLiteralSegment"),
+                    ]).config(|this| this.optional()),
+                    Ref::new("DelimiterGrammar").optional(),
+                ])
+                .to_matchable()
+            })
+            .to_matchable()
+            .into(),
+        ),
+    ]);
+
+    // T-SQL CREATE FUNCTION statement
+    dialect.add([
+        (
+            "CreateFunctionStatementSegment".into(),
+            NodeMatcher::new(SyntaxKind::CreateFunctionStatement, |_| {
+                Sequence::new(vec_of_erased![
+                    // CREATE [OR ALTER] FUNCTION
+                    one_of(vec_of_erased![
+                        Ref::keyword("CREATE"),
+                        Sequence::new(vec_of_erased![
+                            Ref::keyword("CREATE"),
+                            Ref::keyword("OR"),
+                            Ref::keyword("ALTER"),
+                        ]),
+                        Sequence::new(vec_of_erased![
+                            Ref::keyword("ALTER"),
+                        ])
+                    ]),
+                    Ref::keyword("FUNCTION"),
+                    // Function name (can be schema qualified)
+                    Ref::new("ObjectReferenceSegment"),
+                    // Parameters
+                    Ref::new("FunctionParameterListSegment"),
+                    // RETURNS clause
+                    Ref::keyword("RETURNS"),
+                    one_of(vec_of_erased![
+                        // Scalar return type
+                        Ref::new("DatatypeSegment"), 
+                        // Table-valued function return type
+                        Sequence::new(vec_of_erased![
+                            Ref::new("ParameterNameSegment"),  // @table_variable
+                            Ref::keyword("TABLE"),
+                            Ref::new("BracketedColumnDefinitionListSegment")
+                        ])
+                    ]),
+                    // Optional WITH clauses
+                    AnyNumberOf::new(vec_of_erased![
+                        Sequence::new(vec_of_erased![
+                            Ref::keyword("WITH"),
+                            Delimited::new(vec_of_erased![
+                                one_of(vec_of_erased![
+                                    Sequence::new(vec_of_erased![
+                                        Ref::keyword("EXECUTE"),
+                                        Ref::keyword("AS"),
+                                        one_of(vec_of_erased![
+                                            Ref::keyword("CALLER"),
+                                            Ref::keyword("SELF"),
+                                            Ref::keyword("OWNER"),
+                                            Ref::new("QuotedLiteralSegment")
+                                        ])
+                                    ]),
+                                    Ref::keyword("SCHEMABINDING"),
+                                    Sequence::new(vec_of_erased![
+                                        Ref::keyword("RETURNS"),
+                                        Ref::keyword("NULL"),
+                                        Ref::keyword("ON"),
+                                        Ref::keyword("NULL"),
+                                        Ref::keyword("INPUT")
+                                    ]),
+                                    Sequence::new(vec_of_erased![
+                                        Ref::keyword("CALLED"),
+                                        Ref::keyword("ON"),
+                                        Ref::keyword("NULL"),
+                                        Ref::keyword("INPUT")
+                                    ])
+                                ])
+                            ])
+                        ])
+                    ]),
+                    // AS keyword
+                    Ref::keyword("AS"),
+                    // Function body (BEGIN...END block)
+                    Ref::new("BeginEndBlockSegment")
+                ])
+                .to_matchable()
+            })
+            .to_matchable()
+            .into(),
+        ),
+        (
+            "FunctionParameterListSegment".into(),
+            NodeMatcher::new(SyntaxKind::FunctionParameterList, |_| {
+                Bracketed::new(vec_of_erased![
+                    Delimited::new(vec_of_erased![
+                        Ref::new("FunctionParameterSegment")
+                    ]).config(|this| this.optional())
+                ])
+                .to_matchable()
+            })
+            .to_matchable()
+            .into(),
+        ),
+        (
+            "FunctionParameterSegment".into(),
+            NodeMatcher::new(SyntaxKind::Parameter, |_| {
+                Sequence::new(vec_of_erased![
+                    Ref::new("ParameterNameSegment"),
+                    one_of(vec_of_erased![
+                        // Regular parameter type
+                        Ref::new("DatatypeSegment"),
+                        // User-defined table type with READONLY
+                        Sequence::new(vec_of_erased![
+                            Ref::new("DatatypeSegment"),
+                            Ref::keyword("READONLY")
+                        ])
+                    ]),
+                    // Optional default value
+                    Sequence::new(vec_of_erased![
+                        Ref::new("EqualsSegment"),
+                        Ref::new("ExpressionSegment")
+                    ]).config(|this| this.optional())
+                ])
+                .to_matchable()
+            })
+            .to_matchable()
+            .into(),
+        )
     ]);
     
     // expand() must be called after all grammar modifications

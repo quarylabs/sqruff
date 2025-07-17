@@ -1,48 +1,81 @@
 file:
-- unparsable:
-  - word: BEGIN
-  - word: TRY
-  - word: SELECT
-  - star: '*'
-  - word: FROM
-  - word: NonexistentTable
-  - semicolon: ;
-  - word: END
-  - word: TRY
-  - word: BEGIN
-  - word: CATCH
-  - word: SELECT
-  - word: ERROR_NUMBER
-  - start_bracket: (
-  - end_bracket: )
-  - word: AS
-  - word: ErrorNumber
-  - comma: ','
-  - word: ERROR_MESSAGE
-  - start_bracket: (
-  - end_bracket: )
-  - word: AS
-  - word: ErrorMessage
-  - semicolon: ;
-  - word: THROW
-  - word: END
-  - word: CATCH
-  - word: GO
-  - word: THROW
-  - numeric_literal: '50005'
-  - comma: ','
-  - unicode_single_quote: N'an error occurred'
-  - comma: ','
-  - numeric_literal: '1'
-  - semicolon: ;
-  - word: BEGIN
-  - word: TRY
-  - word: EXEC
-  - word: spSomeProc
-  - word: END
-  - word: TRY
-  - word: BEGIN
-  - word: CATCH
-  - word: END
-  - word: CATCH
-  - semicolon: ;
+- statement:
+  - keyword: BEGIN
+  - keyword: TRY
+  - statement:
+    - select_statement:
+      - select_clause:
+        - keyword: SELECT
+        - select_clause_element:
+          - wildcard_expression:
+            - wildcard_identifier:
+              - star: '*'
+      - from_clause:
+        - keyword: FROM
+        - from_expression:
+          - from_expression_element:
+            - table_expression:
+              - table_reference:
+                - object_reference:
+                  - naked_identifier: NonexistentTable
+  - statement_terminator: ;
+  - keyword: END
+  - keyword: TRY
+  - keyword: BEGIN
+  - keyword: CATCH
+  - statement:
+    - select_statement:
+      - select_clause:
+        - keyword: SELECT
+        - select_clause_element:
+          - function:
+            - function_name:
+              - function_name_identifier: ERROR_NUMBER
+            - bracketed:
+              - start_bracket: (
+              - end_bracket: )
+          - alias_expression:
+            - keyword: AS
+            - naked_identifier: ErrorNumber
+        - comma: ','
+        - select_clause_element:
+          - function:
+            - function_name:
+              - function_name_identifier: ERROR_MESSAGE
+            - bracketed:
+              - start_bracket: (
+              - end_bracket: )
+          - alias_expression:
+            - keyword: AS
+            - naked_identifier: ErrorMessage
+  - statement_terminator: ;
+  - statement:
+    - statement:
+      - keyword: THROW
+  - keyword: END
+  - keyword: CATCH
+- keyword: GO
+- statement:
+  - statement:
+    - keyword: THROW
+    - numeric_literal: '50005'
+    - comma: ','
+    - expression:
+      - quoted_literal: N'an error occurred'
+    - comma: ','
+    - numeric_literal: '1'
+    - statement_terminator: ;
+- statement:
+  - keyword: BEGIN
+  - keyword: TRY
+  - statement:
+    - keyword: EXEC
+    - object_reference:
+      - naked_identifier: spSomeProc
+  - keyword: END
+  - keyword: TRY
+  - keyword: BEGIN
+  - keyword: CATCH
+  - keyword: END
+  - keyword: CATCH
+- statement_terminator: ;

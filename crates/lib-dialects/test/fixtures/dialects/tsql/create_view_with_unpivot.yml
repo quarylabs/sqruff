@@ -66,25 +66,35 @@ file:
                   - end_bracket: )
               - alias_expression:
                 - naked_identifier: p
+              - pivot_expression:
+                - keyword: UNPIVOT
+                - bracketed:
+                  - start_bracket: (
+                  - column_reference:
+                    - naked_identifier: Orders
+                  - keyword: FOR
+                  - column_reference:
+                    - naked_identifier: Employee
+                  - keyword: IN
+                  - bracketed:
+                    - start_bracket: (
+                    - pivot_column_reference:
+                      - naked_identifier: Emp1
+                    - comma: ','
+                    - pivot_column_reference:
+                      - naked_identifier: Emp2
+                    - comma: ','
+                    - pivot_column_reference:
+                      - naked_identifier: Emp3
+                    - comma: ','
+                    - pivot_column_reference:
+                      - naked_identifier: Emp4
+                    - comma: ','
+                    - pivot_column_reference:
+                      - naked_identifier: Emp5
+                    - end_bracket: )
+                  - end_bracket: )
         - unparsable:
-          - word: UNPIVOT
-          - start_bracket: (
-          - word: Orders
-          - word: FOR
-          - word: Employee
-          - word: IN
-          - start_bracket: (
-          - word: Emp1
-          - comma: ','
-          - word: Emp2
-          - comma: ','
-          - word: Emp3
-          - comma: ','
-          - word: Emp4
-          - comma: ','
-          - word: Emp5
-          - end_bracket: )
-          - end_bracket: )
           - word: AS
           - word: unpvt
 - statement_terminator: ;

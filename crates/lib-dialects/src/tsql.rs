@@ -76,6 +76,14 @@ pub fn raw_dialect() -> Dialect {
         "HOLDLOCK",
         "SNAPSHOT",
         "VIEW_METADATA",
+        "SINGLE_BLOB",
+        "SINGLE_CLOB", 
+        "SINGLE_NCLOB",
+        "FORMATFILE",
+        "FIRSTROW",
+        "LASTROW",
+        "MAXERRORS",
+        "CODEPAGE",
     ]);
 
     // T-SQL specific operators
@@ -243,6 +251,82 @@ pub fn raw_dialect() -> Dialect {
         "OPENQUERY",
         "OPENDATASOURCE",
         "OPENXML",
+    ]);
+
+    // Add OPENROWSET segment for T-SQL specific syntax
+    dialect.add([
+        (
+            "OpenRowSetSegment".into(),
+            NodeMatcher::new(SyntaxKind::Function, |_| {
+                Sequence::new(vec_of_erased![
+                    Ref::keyword("OPENROWSET"),
+                    Bracketed::new(vec_of_erased![
+                        one_of(vec_of_erased![
+                            // Provider syntax: OPENROWSET('provider', 'connection_string', 'table_name')
+                            // Connection string can contain semicolons instead of commas
+                            Sequence::new(vec_of_erased![
+                                Ref::new("QuotedLiteralSegment"),
+                                Ref::new("CommaSegment"),
+                                // Connection string that may contain semicolons
+                                one_of(vec_of_erased![
+                                    // Complex connection string with semicolons
+                                    Sequence::new(vec_of_erased![
+                                        Ref::new("QuotedLiteralSegment"),
+                                        Ref::new("SemicolonSegment"),
+                                        Ref::new("QuotedLiteralSegment"),
+                                        Ref::new("SemicolonSegment"),
+                                        Ref::new("QuotedLiteralSegment")
+                                    ]),
+                                    // Simple connection string
+                                    Ref::new("QuotedLiteralSegment")
+                                ]),
+                                Ref::new("CommaSegment"),
+                                one_of(vec_of_erased![
+                                    Ref::new("ObjectReferenceSegment"),
+                                    Ref::new("QuotedLiteralSegment")
+                                ])
+                            ]),
+                            // BULK syntax: OPENROWSET(BULK 'file_path', SINGLE_CLOB)
+                            Sequence::new(vec_of_erased![
+                                Ref::keyword("BULK"),
+                                one_of(vec_of_erased![
+                                    Ref::new("QuotedLiteralSegment"),
+                                    Ref::new("UnicodeLiteralSegment")
+                                ]),
+                                Ref::new("CommaSegment"),
+                                one_of(vec_of_erased![
+                                    Ref::keyword("SINGLE_BLOB"),
+                                    Ref::keyword("SINGLE_CLOB"),
+                                    Ref::keyword("SINGLE_NCLOB"),
+                                    // Format options like FORMATFILE = 'path', FIRSTROW = 2, etc.
+                                    Delimited::new(vec_of_erased![
+                                        Sequence::new(vec_of_erased![
+                                            one_of(vec_of_erased![
+                                                Ref::keyword("FORMATFILE"),
+                                                Ref::keyword("FIRSTROW"),
+                                                Ref::keyword("LASTROW"),
+                                                Ref::keyword("MAXERRORS"),
+                                                Ref::keyword("FORMAT"),
+                                                Ref::keyword("CODEPAGE")
+                                            ]),
+                                            Ref::new("EqualsSegment"),
+                                            one_of(vec_of_erased![
+                                                Ref::new("QuotedLiteralSegment"),
+                                                Ref::new("UnicodeLiteralSegment"),
+                                                Ref::new("NumericLiteralSegment")
+                                            ])
+                                        ])
+                                    ])
+                                ])
+                            ])
+                        ])
+                    ])
+                ])
+                .to_matchable()
+            })
+            .to_matchable()
+            .into(),
+        ),
     ]);
 
     // Add T-SQL specific grammar
@@ -2285,13 +2369,14 @@ pub fn raw_dialect() -> Dialect {
         .to_matchable(),
     );
 
-    // Update TableExpressionSegment to include PIVOT/UNPIVOT and OPENJSON
+    // Update TableExpressionSegment to include PIVOT/UNPIVOT, OPENJSON, and OPENROWSET
     dialect.replace_grammar(
         "TableExpressionSegment",
         one_of(vec_of_erased![
             Ref::new("ValuesClauseSegment"),
             Ref::new("BareFunctionSegment"),
             Ref::new("FunctionSegment"),
+            Ref::new("OpenRowSetSegment"),  // Add OPENROWSET with special syntax support
             Ref::new("TableReferenceSegment"),
             Ref::new("OpenJsonSegment"),
             Bracketed::new(vec_of_erased![Ref::new("SelectableGrammar")]),

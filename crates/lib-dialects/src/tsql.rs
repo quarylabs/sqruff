@@ -2341,7 +2341,22 @@ pub fn raw_dialect() -> Dialect {
                 Ref::keyword("UPDLOCK"),
                 Ref::keyword("XLOCK"),
                 Ref::keyword("NOEXPAND"),
-                Ref::keyword("FORCESEEK"),
+                // FORCESEEK with optional index hint
+                Sequence::new(vec_of_erased![
+                    Ref::keyword("FORCESEEK"),
+                    // Optional index specification
+                    Bracketed::new(vec_of_erased![
+                        Ref::new("NakedIdentifierSegment"),
+                        // Optional column list
+                        Bracketed::new(vec_of_erased![
+                            Delimited::new(vec_of_erased![
+                                Ref::new("NakedIdentifierSegment")
+                            ])
+                        ])
+                        .config(|this| this.optional())
+                    ])
+                    .config(|this| this.optional())
+                ]),
                 Ref::keyword("FORCESCAN"),
                 Ref::keyword("HOLDLOCK"),
                 Ref::keyword("SNAPSHOT"),
@@ -2362,10 +2377,18 @@ pub fn raw_dialect() -> Dialect {
     // Define PostTableExpressionGrammar to include T-SQL table hints
     dialect.add([(
         "PostTableExpressionGrammar".into(),
-        Ref::new("TableHintSegment")
-            .optional()
-            .to_matchable()
-            .into(),
+        one_of(vec_of_erased![
+            // WITH (hints) syntax
+            Ref::new("TableHintSegment"),
+            // Simplified (hint) syntax - just bracketed hints without WITH
+            Bracketed::new(vec_of_erased![
+                Ref::new("TableHintElement")
+            ])
+            .config(|this| this.parse_mode = ParseMode::Greedy)
+        ])
+        .config(|this| this.optional())
+        .to_matchable()
+        .into(),
     )]);
 
     // Override FromExpressionElementSegment to ensure table hints are parsed correctly

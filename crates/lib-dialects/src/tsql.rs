@@ -2079,21 +2079,30 @@ pub fn raw_dialect() -> Dialect {
     dialect.replace_grammar(
         "FileSegment",
         Sequence::new(vec_of_erased![
-            // Allow GO at the start of the file
+            // Allow any number of GO statements at the start of the file
             AnyNumberOf::new(vec_of_erased![
                 Ref::new("BatchDelimiterGrammar"),
                 Ref::new("DelimiterGrammar").optional()
             ]),
-            // Main content: statements optionally separated by GO
+            // Main content: statements separated by GO, with support for consecutive GO statements
             AnyNumberOf::new(vec_of_erased![
-                Ref::new("StatementSegment"),
-                Ref::new("DelimiterGrammar").optional(),
-                // GO acts as a batch separator
-                Sequence::new(vec_of_erased![
-                    Ref::new("BatchDelimiterGrammar"),
-                    Ref::new("DelimiterGrammar").optional()
+                one_of(vec_of_erased![
+                    // Statement followed by optional delimiter and optional GO
+                    Sequence::new(vec_of_erased![
+                        Ref::new("StatementSegment"),
+                        Ref::new("DelimiterGrammar").optional(),
+                        // Allow any number of GO statements after a statement
+                        AnyNumberOf::new(vec_of_erased![
+                            Ref::new("BatchDelimiterGrammar"),
+                            Ref::new("DelimiterGrammar").optional()
+                        ])
+                    ]),
+                    // Just GO statements (for consecutive GO)
+                    Sequence::new(vec_of_erased![
+                        Ref::new("BatchDelimiterGrammar"),
+                        Ref::new("DelimiterGrammar").optional()
+                    ])
                 ])
-                .config(|this| this.optional())
             ])
         ])
         .to_matchable(),
@@ -3621,86 +3630,6 @@ pub fn raw_dialect() -> Dialect {
         .into(),
     )]);
 
-    // CREATE EXTERNAL TABLE
-    dialect.add([(
-        "CreateExternalTableStatementSegment".into(),
-        NodeMatcher::new(SyntaxKind::CreateExternalTableStatement, |_| {
-            Sequence::new(vec_of_erased![
-                Ref::keyword("CREATE"),
-                Ref::keyword("EXTERNAL"),
-                Ref::keyword("TABLE"),
-                Ref::new("ObjectReferenceSegment"),
-                Bracketed::new(vec_of_erased![
-                    Delimited::new(vec_of_erased![
-                        Ref::new("ColumnDefinitionSegment")
-                    ])
-                    .config(|this| this.allow_trailing())
-                ]),
-                Ref::keyword("WITH"),
-                Bracketed::new(vec_of_erased![
-                    Delimited::new(vec_of_erased![
-                        Ref::new("ExternalTableOptionGrammar")
-                    ])
-                ])
-            ])
-            .to_matchable()
-        })
-        .to_matchable()
-        .into(),
-    )]);
-
-    dialect.add([(
-        "ExternalTableOptionGrammar".into(),
-        one_of(vec_of_erased![
-            // LOCATION = 'path'
-            Sequence::new(vec_of_erased![
-                Ref::keyword("LOCATION"),
-                Ref::new("EqualsSegment"),
-                Ref::new("QuotedLiteralSegment")
-            ]),
-            // DATA_SOURCE = data_source_name
-            Sequence::new(vec_of_erased![
-                Ref::keyword("DATA_SOURCE"),
-                Ref::new("EqualsSegment"),
-                Ref::new("ObjectReferenceSegment")
-            ]),
-            // FILE_FORMAT = file_format_name
-            Sequence::new(vec_of_erased![
-                Ref::keyword("FILE_FORMAT"),
-                Ref::new("EqualsSegment"),
-                Ref::new("ObjectReferenceSegment")
-            ]),
-            // REJECT_TYPE = VALUE/PERCENTAGE
-            Sequence::new(vec_of_erased![
-                Ref::keyword("REJECT_TYPE"),
-                Ref::new("EqualsSegment"),
-                one_of(vec_of_erased![
-                    Ref::keyword("VALUE"),
-                    Ref::keyword("PERCENTAGE")
-                ])
-            ]),
-            // REJECT_VALUE = number
-            Sequence::new(vec_of_erased![
-                Ref::keyword("REJECT_VALUE"),
-                Ref::new("EqualsSegment"),
-                Ref::new("NumericLiteralSegment")
-            ]),
-            // REJECT_SAMPLE_VALUE = number
-            Sequence::new(vec_of_erased![
-                Ref::keyword("REJECT_SAMPLE_VALUE"),
-                Ref::new("EqualsSegment"),
-                Ref::new("NumericLiteralSegment")
-            ]),
-            // REJECTED_ROW_LOCATION = 'path'
-            Sequence::new(vec_of_erased![
-                Ref::keyword("REJECTED_ROW_LOCATION"),
-                Ref::new("EqualsSegment"),
-                Ref::new("QuotedLiteralSegment")
-            ])
-        ])
-        .to_matchable()
-        .into(),
-    )]);
 
     // DROP EXTERNAL TABLE
     dialect.add([(

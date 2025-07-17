@@ -24,17 +24,18 @@ file:
                 - object_reference:
                   - naked_identifier: client
       - groupby_clause:
-        - keyword: GROUP
-        - keyword: BY
-        - column_reference:
-          - naked_identifier: client
-          - dot: .
-          - naked_identifier: reference
-        - comma: ','
-        - column_reference:
-          - naked_identifier: client
-          - dot: .
-          - naked_identifier: name
+        - groupby_clause:
+          - keyword: GROUP
+          - keyword: BY
+          - column_reference:
+            - naked_identifier: client
+            - dot: .
+            - naked_identifier: reference
+          - comma: ','
+          - column_reference:
+            - naked_identifier: client
+            - dot: .
+            - naked_identifier: name
       - orderby_clause:
         - keyword: ORDER
         - keyword: BY
@@ -71,17 +72,18 @@ file:
                 - object_reference:
                   - naked_identifier: client
       - groupby_clause:
-        - keyword: GROUP
-        - keyword: BY
-        - column_reference:
-          - naked_identifier: client
-          - dot: .
-          - naked_identifier: reference
-        - comma: ','
-        - column_reference:
-          - naked_identifier: client
-          - dot: .
-          - naked_identifier: name
+        - groupby_clause:
+          - keyword: GROUP
+          - keyword: BY
+          - column_reference:
+            - naked_identifier: client
+            - dot: .
+            - naked_identifier: reference
+          - comma: ','
+          - column_reference:
+            - naked_identifier: client
+            - dot: .
+            - naked_identifier: name
       - orderby_clause:
         - keyword: ORDER
         - keyword: BY

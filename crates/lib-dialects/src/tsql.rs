@@ -364,10 +364,10 @@ pub fn raw_dialect() -> Dialect {
 
             // T-SQL pattern: supports both temp tables (#temp, ##global) and identifiers ending with #
             // Pattern explanation:
-            // - ##?[A-Za-z][A-Za-z0-9_]*    matches temp tables: #temp or ##global (case insensitive)
+            // - ##?[A-Za-z0-9_]+    matches temp tables: #temp, ##global, #3, etc (case insensitive)
             // - [A-Za-z0-9_]*[A-Za-z][A-Za-z0-9_]*#?   matches regular identifiers with optional # at end
             RegexParser::new(
-                r"(##?[A-Za-z][A-Za-z0-9_]*|[A-Za-z0-9_]*[A-Za-z][A-Za-z0-9_]*#?)",
+                r"(##?[A-Za-z0-9_]+|[A-Za-z0-9_]*[A-Za-z][A-Za-z0-9_]*#?)",
                 SyntaxKind::NakedIdentifier,
             )
             .anti_template(&anti_template)
@@ -5562,6 +5562,43 @@ pub fn raw_dialect() -> Dialect {
             .into(),
         ),
     ]);
+
+    // T-SQL specific GROUP BY extensions
+    dialect.replace_grammar(
+        "GroupByClauseSegment",
+        NodeMatcher::new(SyntaxKind::GroupbyClause, |_| {
+            Sequence::new(vec![
+                Ref::keyword("GROUP").to_matchable(),
+                Ref::keyword("BY").to_matchable(),
+                MetaSegment::indent().to_matchable(),
+                one_of(vec_of_erased![
+                    Ref::new("CubeRollupClauseSegment"),
+                    Delimited::new(vec_of_erased![
+                        one_of(vec_of_erased![
+                            Ref::new("ColumnReferenceSegment"),
+                            Ref::new("NumericLiteralSegment"),
+                            Ref::new("ExpressionSegment")
+                        ])
+                    ])
+                ])
+                .config(|this| this.optional())
+                .to_matchable(),
+                MetaSegment::dedent().to_matchable(),
+                // T-SQL specific WITH ROLLUP/CUBE syntax
+                Sequence::new(vec_of_erased![
+                    Ref::keyword("WITH"),
+                    one_of(vec_of_erased![
+                        Ref::keyword("ROLLUP"),
+                        Ref::keyword("CUBE")
+                    ])
+                ])
+                .config(|this| this.optional())
+                .to_matchable()
+            ])
+            .to_matchable()
+        })
+        .to_matchable(),
+    );
 
     // T-SQL PIVOT and UNPIVOT support
     dialect.add([

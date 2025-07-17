@@ -50,10 +50,11 @@ file:
                 - keyword: NOT
                 - null_literal: 'NULL'
             - groupby_clause:
-              - keyword: GROUP
-              - keyword: BY
-              - column_reference:
-                - naked_identifier: SalesPersonID
+              - groupby_clause:
+                - keyword: GROUP
+                - keyword: BY
+                - column_reference:
+                  - naked_identifier: SalesPersonID
           - end_bracket: )
       - select_statement:
         - select_clause:

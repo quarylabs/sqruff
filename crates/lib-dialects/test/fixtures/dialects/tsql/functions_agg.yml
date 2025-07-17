@@ -120,10 +120,11 @@ file:
             - alias_expression:
               - naked_identifier: t
       - groupby_clause:
-        - keyword: group
-        - keyword: by
-        - column_reference:
-          - naked_identifier: employee_id
+        - groupby_clause:
+          - keyword: group
+          - keyword: by
+          - column_reference:
+            - naked_identifier: employee_id
       - having_clause:
         - keyword: HAVING
         - expression:

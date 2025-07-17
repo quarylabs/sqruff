@@ -116,10 +116,11 @@ file:
                 - object_reference:
                   - naked_identifier: Employees
       - groupby_clause:
-        - keyword: GROUP
-        - keyword: BY
-        - column_reference:
-          - naked_identifier: Department
+        - groupby_clause:
+          - keyword: GROUP
+          - keyword: BY
+          - column_reference:
+            - naked_identifier: Department
   - statement_terminator: ;
   - statement:
     - select_statement:
@@ -174,10 +175,11 @@ file:
                 - object_reference:
                   - naked_identifier: Products
       - groupby_clause:
-        - keyword: GROUP
-        - keyword: BY
-        - column_reference:
-          - naked_identifier: CategoryID
+        - groupby_clause:
+          - keyword: GROUP
+          - keyword: BY
+          - column_reference:
+            - naked_identifier: CategoryID
   - statement_terminator: ;
   - statement:
     - select_statement:
@@ -225,10 +227,11 @@ file:
                 - object_reference:
                   - naked_identifier: Cities
       - groupby_clause:
-        - keyword: GROUP
-        - keyword: BY
-        - column_reference:
-          - naked_identifier: Region
+        - groupby_clause:
+          - keyword: GROUP
+          - keyword: BY
+          - column_reference:
+            - naked_identifier: Region
   - statement_terminator: ;
   - statement:
     - select_statement:
@@ -349,10 +352,11 @@ file:
                             - object_reference:
                               - naked_identifier: Employees
                   - groupby_clause:
-                    - keyword: GROUP
-                    - keyword: BY
-                    - column_reference:
-                      - naked_identifier: DepartmentID
+                    - groupby_clause:
+                      - keyword: GROUP
+                      - keyword: BY
+                      - column_reference:
+                        - naked_identifier: DepartmentID
                 - end_bracket: )
             - alias_expression:
               - keyword: AS

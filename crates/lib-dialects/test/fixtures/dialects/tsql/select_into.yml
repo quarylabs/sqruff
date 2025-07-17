@@ -39,16 +39,17 @@ file:
                 - object_reference:
                   - naked_identifier: Final
       - groupby_clause:
-        - keyword: GROUP
-        - keyword: BY
-        - column_reference:
-          - quoted_identifier: '[FIN]'
-        - comma: ','
-        - column_reference:
-          - quoted_identifier: '[EventNM]'
-        - comma: ','
-        - column_reference:
-          - quoted_identifier: '[Unit]'
-        - comma: ','
-        - column_reference:
-          - quoted_identifier: '[Date]'
+        - groupby_clause:
+          - keyword: GROUP
+          - keyword: BY
+          - column_reference:
+            - quoted_identifier: '[FIN]'
+          - comma: ','
+          - column_reference:
+            - quoted_identifier: '[EventNM]'
+          - comma: ','
+          - column_reference:
+            - quoted_identifier: '[Unit]'
+          - comma: ','
+          - column_reference:
+            - quoted_identifier: '[Date]'

@@ -58,12 +58,13 @@ file:
             - alias_expression:
               - naked_identifier: t
       - groupby_clause:
-        - keyword: GROUP
-        - keyword: BY
-        - column_reference:
-          - naked_identifier: t
-          - dot: .
-          - naked_identifier: ActionDTS
+        - groupby_clause:
+          - keyword: GROUP
+          - keyword: BY
+          - column_reference:
+            - naked_identifier: t
+            - dot: .
+            - naked_identifier: ActionDTS
   - statement_terminator: ;
   - statement:
     - drop_table_statement:
@@ -101,12 +102,20 @@ file:
                 - column_reference:
                   - naked_identifier: id
               - end_bracket: )
-      - unparsable:
-        - word: FROM
-        - word: '#3'
-        - word: GROUP
-        - word: BY
-        - word: st
-        - word: WITH
-        - word: ROLLUP
+      - from_clause:
+        - keyword: FROM
+        - from_expression:
+          - from_expression_element:
+            - table_expression:
+              - table_reference:
+                - object_reference:
+                  - naked_identifier: '#3'
+      - groupby_clause:
+        - groupby_clause:
+          - keyword: GROUP
+          - keyword: BY
+          - column_reference:
+            - naked_identifier: st
+          - keyword: WITH
+          - keyword: ROLLUP
   - statement_terminator: ;

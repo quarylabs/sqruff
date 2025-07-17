@@ -379,13 +379,14 @@ file:
             - raw_comparison_operator: <
           - numeric_literal: '5'
       - groupby_clause:
-        - keyword: GROUP
-        - keyword: BY
-        - column_reference:
-          - naked_identifier: ProductID
-        - comma: ','
-        - column_reference:
-          - naked_identifier: OrderQty
+        - groupby_clause:
+          - keyword: GROUP
+          - keyword: BY
+          - column_reference:
+            - naked_identifier: ProductID
+          - comma: ','
+          - column_reference:
+            - naked_identifier: OrderQty
       - orderby_clause:
         - keyword: ORDER
         - keyword: BY
@@ -450,13 +451,14 @@ file:
             - raw_comparison_operator: <
           - numeric_literal: '5'
       - groupby_clause:
-        - keyword: GROUP
-        - keyword: BY
-        - column_reference:
-          - naked_identifier: ProductID
-        - comma: ','
-        - column_reference:
-          - naked_identifier: OrderQty
+        - groupby_clause:
+          - keyword: GROUP
+          - keyword: BY
+          - column_reference:
+            - naked_identifier: ProductID
+          - comma: ','
+          - column_reference:
+            - naked_identifier: OrderQty
       - orderby_clause:
         - keyword: ORDER
         - keyword: BY

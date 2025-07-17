@@ -323,10 +323,11 @@ file:
             - alias_expression:
               - naked_identifier: t
       - groupby_clause:
-        - keyword: GROUP
-        - keyword: BY
-        - column_reference:
-          - naked_identifier: t
-          - dot: .
-          - naked_identifier: col2
+        - groupby_clause:
+          - keyword: GROUP
+          - keyword: BY
+          - column_reference:
+            - naked_identifier: t
+            - dot: .
+            - naked_identifier: col2
   - statement_terminator: ;

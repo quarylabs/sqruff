@@ -75,6 +75,7 @@ pub fn raw_dialect() -> Dialect {
         "FORCESCAN",
         "HOLDLOCK",
         "SNAPSHOT",
+        "VIEW_METADATA",
     ]);
 
     // T-SQL specific operators
@@ -2821,6 +2822,137 @@ pub fn raw_dialect() -> Dialect {
             true,
         ),
     );
+
+    // Override CREATE VIEW to support CREATE OR ALTER VIEW
+    dialect.replace_grammar(
+        "CreateViewStatementSegment",
+        NodeMatcher::new(SyntaxKind::CreateViewStatement, |_| {
+            Sequence::new(vec_of_erased![
+                one_of(vec_of_erased![
+                    Ref::keyword("CREATE"),
+                    Ref::keyword("ALTER"),
+                    Sequence::new(vec_of_erased![
+                        Ref::keyword("CREATE"),
+                        Ref::keyword("OR"),
+                        Ref::keyword("ALTER")
+                    ])
+                ]),
+                Ref::keyword("VIEW"),
+                Ref::new("TableReferenceSegment"),
+                // Optional column list
+                Ref::new("BracketedColumnReferenceListGrammar").optional(),
+                // T-SQL specific view options
+                Sequence::new(vec_of_erased![
+                    Ref::keyword("WITH"),
+                    Delimited::new(vec_of_erased![
+                        Ref::keyword("SCHEMABINDING"),
+                        one_of(vec_of_erased![
+                            Sequence::new(vec_of_erased![
+                                Ref::keyword("VIEW"),
+                                Ref::keyword("METADATA")
+                            ]),
+                            Ref::keyword("VIEW_METADATA")
+                        ]),
+                        Ref::keyword("ENCRYPTION")
+                    ])
+                ])
+                .config(|this| this.optional()),
+                Ref::keyword("AS"),
+                optionally_bracketed(vec_of_erased![Ref::new("SelectableGrammar")]),
+                // WITH CHECK OPTION at the end
+                Sequence::new(vec_of_erased![
+                    Ref::keyword("WITH"),
+                    Ref::keyword("CHECK"),
+                    Ref::keyword("OPTION")
+                ])
+                .config(|this| this.optional())
+            ])
+            .to_matchable()
+        })
+        .to_matchable(),
+    );
+
+    // T-SQL CREATE FUNCTION support with CREATE OR ALTER
+    dialect.add([(
+        "CreateFunctionStatementSegment".into(),
+        NodeMatcher::new(SyntaxKind::CreateFunctionStatement, |_| {
+            Sequence::new(vec_of_erased![
+                one_of(vec_of_erased![
+                    Ref::keyword("CREATE"),
+                    Ref::keyword("ALTER"),
+                    Sequence::new(vec_of_erased![
+                        Ref::keyword("CREATE"),
+                        Ref::keyword("OR"),
+                        Ref::keyword("ALTER")
+                    ])
+                ]),
+                Ref::keyword("FUNCTION"),
+                Ref::new("FunctionNameSegment"),
+                Ref::new("FunctionParameterListGrammar"),
+                Ref::keyword("RETURNS"),
+                one_of(vec_of_erased![
+                    // Table-valued function
+                    Sequence::new(vec_of_erased![
+                        optionally_bracketed(vec_of_erased![
+                            Ref::new("TsqlVariableSegment")
+                        ]),
+                        Ref::keyword("TABLE"),
+                        // Optional table definition for multi-statement table-valued functions
+                        Ref::new("BracketedColumnDefinitionListGrammar").optional()
+                    ]),
+                    // Scalar function
+                    Ref::new("DatatypeSegment")
+                ]),
+                // Function options
+                Sequence::new(vec_of_erased![
+                    Ref::keyword("WITH"),
+                    Delimited::new(vec_of_erased![
+                        Ref::keyword("SCHEMABINDING"),
+                        Ref::keyword("ENCRYPTION"),
+                        Ref::new("ExecuteAsClauseGrammar"),
+                        Sequence::new(vec_of_erased![
+                            Ref::keyword("RETURNS"),
+                            Ref::keyword("NULL"),
+                            Ref::keyword("ON"),
+                            Ref::keyword("NULL"),
+                            Ref::keyword("INPUT")
+                        ]),
+                        Sequence::new(vec_of_erased![
+                            Ref::keyword("CALLED"),
+                            Ref::keyword("ON"),
+                            Ref::keyword("NULL"),
+                            Ref::keyword("INPUT")
+                        ])
+                    ])
+                ])
+                .config(|this| this.optional()),
+                // Function body
+                one_of(vec_of_erased![
+                    // Inline table-valued function
+                    Sequence::new(vec_of_erased![
+                        Ref::keyword("AS"),
+                        Ref::keyword("RETURN"),
+                        Ref::new("SelectStatementSegment")
+                    ]),
+                    // Multi-statement function with BEGIN...END block
+                    Sequence::new(vec_of_erased![
+                        Ref::keyword("AS"),
+                        Ref::new("BeginEndBlockSegment")
+                    ]),
+                    // External CLR function
+                    Sequence::new(vec_of_erased![
+                        Ref::keyword("AS"),
+                        Ref::keyword("EXTERNAL"),
+                        Ref::keyword("NAME"),
+                        Ref::new("ObjectReferenceSegment")
+                    ])
+                ])
+            ])
+            .to_matchable()
+        })
+        .to_matchable()
+        .into(),
+    )]);
 
     // T-SQL CREATE TABLE with Azure Synapse Analytics support
     dialect.replace_grammar(

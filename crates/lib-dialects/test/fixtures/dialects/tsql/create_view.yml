@@ -1,284 +1,544 @@
 file:
-- unparsable:
-  - word: CREATE
-  - word: OR
-  - word: ALTER
-  - word: VIEW
-  - word: Sales
-  - dot: .
-  - word: SalesPersonPerform
-  - word: AS
-  - word: SELECT
-  - word: TOP
-  - start_bracket: (
-  - numeric_literal: '100'
-  - end_bracket: )
-  - word: SalesPersonID
-  - comma: ','
-  - word: SUM
-  - start_bracket: (
-  - word: TotalDue
-  - end_bracket: )
-  - word: AS
-  - word: TotalSales
-  - word: FROM
-  - word: Sales
-  - dot: .
-  - word: SalesOrderHeader
-  - word: WHERE
-  - word: OrderDate
-  - raw_comparison_operator: '>'
-  - word: CONVERT
-  - start_bracket: (
-  - word: DATETIME
-  - comma: ','
-  - single_quote: '''20001231'''
-  - comma: ','
-  - numeric_literal: '101'
-  - end_bracket: )
-  - word: GROUP
-  - word: BY
-  - word: SalesPersonID
-  - semicolon: ;
-  - word: CREATE
-  - word: OR
-  - word: ALTER
-  - word: VIEW
-  - word: Sales
-  - dot: .
-  - word: SalesPersonPerform
-  - word: AS
-  - word: SELECT
-  - word: TOP
-  - start_bracket: (
-  - numeric_literal: '100'
-  - end_bracket: )
-  - word: SalesPersonID
-  - comma: ','
-  - word: SUM
-  - start_bracket: (
-  - word: TotalDue
-  - end_bracket: )
-  - word: AS
-  - word: TotalSales
-  - word: FROM
-  - word: Sales
-  - dot: .
-  - word: SalesOrderHeader
-  - word: WHERE
-  - word: OrderDate
-  - raw_comparison_operator: '>'
-  - word: CONVERT
-  - start_bracket: (
-  - word: DATETIME
-  - comma: ','
-  - single_quote: '''20001231'''
-  - comma: ','
-  - numeric_literal: '101'
-  - end_bracket: )
-  - word: GROUP
-  - word: BY
-  - word: SalesPersonID
-  - semicolon: ;
-  - word: CREATE
-  - word: VIEW
-  - word: Purchasing
-  - dot: .
-  - word: PurchaseOrderReject
-  - word: WITH
-  - word: SCHEMABINDING
-  - word: AS
-  - word: SELECT
-  - word: PurchaseOrderID
-  - comma: ','
-  - word: ReceivedQty
-  - comma: ','
-  - word: RejectedQty
-  - comma: ','
-  - word: RejectedQty
-  - divide: /
-  - word: ReceivedQty
-  - word: AS
-  - word: RejectRatio
-  - comma: ','
-  - word: DueDate
-  - word: FROM
-  - word: Purchasing
-  - dot: .
-  - word: PurchaseOrderDetail
-  - word: WHERE
-  - word: RejectedQty
-  - divide: /
-  - word: ReceivedQty
-  - raw_comparison_operator: '>'
-  - numeric_literal: '0'
-  - word: AND
-  - word: DueDate
-  - raw_comparison_operator: '>'
-  - word: CONVERT
-  - start_bracket: (
-  - word: DATETIME
-  - comma: ','
-  - single_quote: '''20010630'''
-  - comma: ','
-  - numeric_literal: '101'
-  - end_bracket: )
-  - semicolon: ;
-  - word: CREATE
-  - word: VIEW
-  - word: dbo
-  - dot: .
-  - word: SeattleOnly
-  - word: AS
-  - word: SELECT
-  - word: p
-  - dot: .
-  - word: LastName
-  - comma: ','
-  - word: p
-  - dot: .
-  - word: FirstName
-  - comma: ','
-  - word: e
-  - dot: .
-  - word: JobTitle
-  - comma: ','
-  - word: a
-  - dot: .
-  - word: City
-  - comma: ','
-  - word: sp
-  - dot: .
-  - word: StateProvinceCode
-  - word: FROM
-  - word: HumanResources
-  - dot: .
-  - word: Employee
-  - word: e
-  - word: INNER
-  - word: JOIN
-  - word: Person
-  - dot: .
-  - word: Person
-  - word: p
-  - word: ON
-  - word: p
-  - dot: .
-  - word: BusinessEntityID
-  - raw_comparison_operator: =
-  - word: e
-  - dot: .
-  - word: BusinessEntityID
-  - word: INNER
-  - word: JOIN
-  - word: Person
-  - dot: .
-  - word: BusinessEntityAddress
-  - word: bea
-  - word: ON
-  - word: bea
-  - dot: .
-  - word: BusinessEntityID
-  - raw_comparison_operator: =
-  - word: e
-  - dot: .
-  - word: BusinessEntityID
-  - word: INNER
-  - word: JOIN
-  - word: Person
-  - dot: .
-  - word: Address
-  - word: a
-  - word: ON
-  - word: a
-  - dot: .
-  - word: AddressID
-  - raw_comparison_operator: =
-  - word: bea
-  - dot: .
-  - word: AddressID
-  - word: INNER
-  - word: JOIN
-  - word: Person
-  - dot: .
-  - word: StateProvince
-  - word: sp
-  - word: ON
-  - word: sp
-  - dot: .
-  - word: StateProvinceID
-  - raw_comparison_operator: =
-  - word: a
-  - dot: .
-  - word: StateProvinceID
-  - word: WHERE
-  - word: a
-  - dot: .
-  - word: City
-  - raw_comparison_operator: =
-  - single_quote: '''Seattle'''
-  - word: WITH
-  - word: CHECK
-  - word: OPTION
-  - semicolon: ;
-  - word: CREATE
-  - word: VIEW
-  - word: dbo
-  - dot: .
-  - word: all_supplier_view
-  - word: WITH
-  - word: SCHEMABINDING
-  - word: AS
-  - word: SELECT
-  - word: supplyID
-  - comma: ','
-  - word: supplier
-  - word: FROM
-  - word: dbo
-  - dot: .
-  - word: SUPPLY1
-  - word: UNION
-  - word: ALL
-  - word: SELECT
-  - word: supplyID
-  - comma: ','
-  - word: supplier
-  - word: FROM
-  - word: dbo
-  - dot: .
-  - word: SUPPLY2
-  - word: UNION
-  - word: ALL
-  - word: SELECT
-  - word: supplyID
-  - comma: ','
-  - word: supplier
-  - word: FROM
-  - word: dbo
-  - dot: .
-  - word: SUPPLY3
-  - word: UNION
-  - word: ALL
-  - word: SELECT
-  - word: supplyID
-  - comma: ','
-  - word: supplier
-  - word: FROM
-  - word: dbo
-  - dot: .
-  - word: SUPPLY4
-  - semicolon: ;
-  - word: create
-  - word: view
-  - word: vw_view
-  - word: with
-  - word: schemabinding
-  - comma: ','
-  - word: view_metadata
-  - word: as
-  - word: select
-  - word: A
-  - dot: .
-  - word: ID
-  - word: from
-  - word: A
+- statement:
+  - create_view_statement:
+    - create_view_statement:
+      - keyword: CREATE
+      - keyword: OR
+      - keyword: ALTER
+      - keyword: VIEW
+      - table_reference:
+        - object_reference:
+          - naked_identifier: Sales
+          - dot: .
+          - naked_identifier: SalesPersonPerform
+      - keyword: AS
+      - select_statement:
+        - select_clause:
+          - keyword: SELECT
+          - select_clause_modifier:
+            - keyword: TOP
+            - bracketed:
+              - start_bracket: (
+              - expression:
+                - numeric_literal: '100'
+              - end_bracket: )
+          - select_clause_element:
+            - column_reference:
+              - naked_identifier: SalesPersonID
+          - comma: ','
+          - select_clause_element:
+            - function:
+              - function_name:
+                - function_name_identifier: SUM
+              - bracketed:
+                - start_bracket: (
+                - expression:
+                  - column_reference:
+                    - naked_identifier: TotalDue
+                - end_bracket: )
+            - alias_expression:
+              - keyword: AS
+              - naked_identifier: TotalSales
+        - from_clause:
+          - keyword: FROM
+          - from_expression:
+            - from_expression_element:
+              - table_expression:
+                - table_reference:
+                  - object_reference:
+                    - naked_identifier: Sales
+                    - dot: .
+                    - naked_identifier: SalesOrderHeader
+        - where_clause:
+          - keyword: WHERE
+          - expression:
+            - column_reference:
+              - naked_identifier: OrderDate
+            - comparison_operator:
+              - raw_comparison_operator: '>'
+            - function:
+              - function_name:
+                - function_name_identifier: CONVERT
+              - bracketed:
+                - start_bracket: (
+                - expression:
+                  - column_reference:
+                    - naked_identifier: DATETIME
+                - comma: ','
+                - expression:
+                  - quoted_literal: '''20001231'''
+                - comma: ','
+                - expression:
+                  - numeric_literal: '101'
+                - end_bracket: )
+        - groupby_clause:
+          - keyword: GROUP
+          - keyword: BY
+          - column_reference:
+            - naked_identifier: SalesPersonID
+- statement_terminator: ;
+- statement:
+  - create_view_statement:
+    - create_view_statement:
+      - keyword: CREATE
+      - keyword: OR
+      - keyword: ALTER
+      - keyword: VIEW
+      - table_reference:
+        - object_reference:
+          - naked_identifier: Sales
+          - dot: .
+          - naked_identifier: SalesPersonPerform
+      - keyword: AS
+      - select_statement:
+        - select_clause:
+          - keyword: SELECT
+          - select_clause_modifier:
+            - keyword: TOP
+            - bracketed:
+              - start_bracket: (
+              - expression:
+                - numeric_literal: '100'
+              - end_bracket: )
+          - select_clause_element:
+            - column_reference:
+              - naked_identifier: SalesPersonID
+          - comma: ','
+          - select_clause_element:
+            - function:
+              - function_name:
+                - function_name_identifier: SUM
+              - bracketed:
+                - start_bracket: (
+                - expression:
+                  - column_reference:
+                    - naked_identifier: TotalDue
+                - end_bracket: )
+            - alias_expression:
+              - keyword: AS
+              - naked_identifier: TotalSales
+        - from_clause:
+          - keyword: FROM
+          - from_expression:
+            - from_expression_element:
+              - table_expression:
+                - table_reference:
+                  - object_reference:
+                    - naked_identifier: Sales
+                    - dot: .
+                    - naked_identifier: SalesOrderHeader
+        - where_clause:
+          - keyword: WHERE
+          - expression:
+            - column_reference:
+              - naked_identifier: OrderDate
+            - comparison_operator:
+              - raw_comparison_operator: '>'
+            - function:
+              - function_name:
+                - function_name_identifier: CONVERT
+              - bracketed:
+                - start_bracket: (
+                - expression:
+                  - column_reference:
+                    - naked_identifier: DATETIME
+                - comma: ','
+                - expression:
+                  - quoted_literal: '''20001231'''
+                - comma: ','
+                - expression:
+                  - numeric_literal: '101'
+                - end_bracket: )
+        - groupby_clause:
+          - keyword: GROUP
+          - keyword: BY
+          - column_reference:
+            - naked_identifier: SalesPersonID
+- statement_terminator: ;
+- statement:
+  - create_view_statement:
+    - create_view_statement:
+      - keyword: CREATE
+      - keyword: VIEW
+      - table_reference:
+        - object_reference:
+          - naked_identifier: Purchasing
+          - dot: .
+          - naked_identifier: PurchaseOrderReject
+      - keyword: WITH
+      - keyword: SCHEMABINDING
+      - keyword: AS
+      - select_statement:
+        - select_clause:
+          - keyword: SELECT
+          - select_clause_element:
+            - column_reference:
+              - naked_identifier: PurchaseOrderID
+          - comma: ','
+          - select_clause_element:
+            - column_reference:
+              - naked_identifier: ReceivedQty
+          - comma: ','
+          - select_clause_element:
+            - column_reference:
+              - naked_identifier: RejectedQty
+          - comma: ','
+          - select_clause_element:
+            - expression:
+              - column_reference:
+                - naked_identifier: RejectedQty
+              - binary_operator: /
+              - column_reference:
+                - naked_identifier: ReceivedQty
+            - alias_expression:
+              - keyword: AS
+              - naked_identifier: RejectRatio
+          - comma: ','
+          - select_clause_element:
+            - column_reference:
+              - naked_identifier: DueDate
+        - from_clause:
+          - keyword: FROM
+          - from_expression:
+            - from_expression_element:
+              - table_expression:
+                - table_reference:
+                  - object_reference:
+                    - naked_identifier: Purchasing
+                    - dot: .
+                    - naked_identifier: PurchaseOrderDetail
+        - where_clause:
+          - keyword: WHERE
+          - expression:
+            - column_reference:
+              - naked_identifier: RejectedQty
+            - binary_operator: /
+            - column_reference:
+              - naked_identifier: ReceivedQty
+            - comparison_operator:
+              - raw_comparison_operator: '>'
+            - numeric_literal: '0'
+            - binary_operator: AND
+            - column_reference:
+              - naked_identifier: DueDate
+            - comparison_operator:
+              - raw_comparison_operator: '>'
+            - function:
+              - function_name:
+                - function_name_identifier: CONVERT
+              - bracketed:
+                - start_bracket: (
+                - expression:
+                  - column_reference:
+                    - naked_identifier: DATETIME
+                - comma: ','
+                - expression:
+                  - quoted_literal: '''20010630'''
+                - comma: ','
+                - expression:
+                  - numeric_literal: '101'
+                - end_bracket: )
+- statement_terminator: ;
+- statement:
+  - create_view_statement:
+    - create_view_statement:
+      - keyword: CREATE
+      - keyword: VIEW
+      - table_reference:
+        - object_reference:
+          - naked_identifier: dbo
+          - dot: .
+          - naked_identifier: SeattleOnly
+      - keyword: AS
+      - select_statement:
+        - select_clause:
+          - keyword: SELECT
+          - select_clause_element:
+            - column_reference:
+              - naked_identifier: p
+              - dot: .
+              - naked_identifier: LastName
+          - comma: ','
+          - select_clause_element:
+            - column_reference:
+              - naked_identifier: p
+              - dot: .
+              - naked_identifier: FirstName
+          - comma: ','
+          - select_clause_element:
+            - column_reference:
+              - naked_identifier: e
+              - dot: .
+              - naked_identifier: JobTitle
+          - comma: ','
+          - select_clause_element:
+            - column_reference:
+              - naked_identifier: a
+              - dot: .
+              - naked_identifier: City
+          - comma: ','
+          - select_clause_element:
+            - column_reference:
+              - naked_identifier: sp
+              - dot: .
+              - naked_identifier: StateProvinceCode
+        - from_clause:
+          - keyword: FROM
+          - from_expression:
+            - from_expression_element:
+              - table_expression:
+                - table_reference:
+                  - object_reference:
+                    - naked_identifier: HumanResources
+                    - dot: .
+                    - naked_identifier: Employee
+              - alias_expression:
+                - naked_identifier: e
+            - join_clause:
+              - keyword: INNER
+              - keyword: JOIN
+              - from_expression_element:
+                - table_expression:
+                  - table_reference:
+                    - object_reference:
+                      - naked_identifier: Person
+                      - dot: .
+                      - naked_identifier: Person
+                - alias_expression:
+                  - naked_identifier: p
+              - join_on_condition:
+                - keyword: ON
+                - expression:
+                  - column_reference:
+                    - naked_identifier: p
+                    - dot: .
+                    - naked_identifier: BusinessEntityID
+                  - comparison_operator:
+                    - raw_comparison_operator: =
+                  - column_reference:
+                    - naked_identifier: e
+                    - dot: .
+                    - naked_identifier: BusinessEntityID
+            - join_clause:
+              - keyword: INNER
+              - keyword: JOIN
+              - from_expression_element:
+                - table_expression:
+                  - table_reference:
+                    - object_reference:
+                      - naked_identifier: Person
+                      - dot: .
+                      - naked_identifier: BusinessEntityAddress
+                - alias_expression:
+                  - naked_identifier: bea
+              - join_on_condition:
+                - keyword: ON
+                - expression:
+                  - column_reference:
+                    - naked_identifier: bea
+                    - dot: .
+                    - naked_identifier: BusinessEntityID
+                  - comparison_operator:
+                    - raw_comparison_operator: =
+                  - column_reference:
+                    - naked_identifier: e
+                    - dot: .
+                    - naked_identifier: BusinessEntityID
+            - join_clause:
+              - keyword: INNER
+              - keyword: JOIN
+              - from_expression_element:
+                - table_expression:
+                  - table_reference:
+                    - object_reference:
+                      - naked_identifier: Person
+                      - dot: .
+                      - naked_identifier: Address
+                - alias_expression:
+                  - naked_identifier: a
+              - join_on_condition:
+                - keyword: ON
+                - expression:
+                  - column_reference:
+                    - naked_identifier: a
+                    - dot: .
+                    - naked_identifier: AddressID
+                  - comparison_operator:
+                    - raw_comparison_operator: =
+                  - column_reference:
+                    - naked_identifier: bea
+                    - dot: .
+                    - naked_identifier: AddressID
+            - join_clause:
+              - keyword: INNER
+              - keyword: JOIN
+              - from_expression_element:
+                - table_expression:
+                  - table_reference:
+                    - object_reference:
+                      - naked_identifier: Person
+                      - dot: .
+                      - naked_identifier: StateProvince
+                - alias_expression:
+                  - naked_identifier: sp
+              - join_on_condition:
+                - keyword: ON
+                - expression:
+                  - column_reference:
+                    - naked_identifier: sp
+                    - dot: .
+                    - naked_identifier: StateProvinceID
+                  - comparison_operator:
+                    - raw_comparison_operator: =
+                  - column_reference:
+                    - naked_identifier: a
+                    - dot: .
+                    - naked_identifier: StateProvinceID
+        - where_clause:
+          - keyword: WHERE
+          - expression:
+            - column_reference:
+              - naked_identifier: a
+              - dot: .
+              - naked_identifier: City
+            - comparison_operator:
+              - raw_comparison_operator: =
+            - quoted_literal: '''Seattle'''
+        - unparsable:
+          - word: WITH
+          - word: CHECK
+          - word: OPTION
+- statement_terminator: ;
+- statement:
+  - create_view_statement:
+    - create_view_statement:
+      - keyword: CREATE
+      - keyword: VIEW
+      - table_reference:
+        - object_reference:
+          - naked_identifier: dbo
+          - dot: .
+          - naked_identifier: all_supplier_view
+      - keyword: WITH
+      - keyword: SCHEMABINDING
+      - keyword: AS
+      - set_expression:
+        - select_statement:
+          - select_clause:
+            - keyword: SELECT
+            - select_clause_element:
+              - column_reference:
+                - naked_identifier: supplyID
+            - comma: ','
+            - select_clause_element:
+              - column_reference:
+                - naked_identifier: supplier
+          - from_clause:
+            - keyword: FROM
+            - from_expression:
+              - from_expression_element:
+                - table_expression:
+                  - table_reference:
+                    - object_reference:
+                      - naked_identifier: dbo
+                      - dot: .
+                      - naked_identifier: SUPPLY1
+        - set_operator:
+          - keyword: UNION
+          - keyword: ALL
+        - select_statement:
+          - select_clause:
+            - keyword: SELECT
+            - select_clause_element:
+              - column_reference:
+                - naked_identifier: supplyID
+            - comma: ','
+            - select_clause_element:
+              - column_reference:
+                - naked_identifier: supplier
+          - from_clause:
+            - keyword: FROM
+            - from_expression:
+              - from_expression_element:
+                - table_expression:
+                  - table_reference:
+                    - object_reference:
+                      - naked_identifier: dbo
+                      - dot: .
+                      - naked_identifier: SUPPLY2
+        - set_operator:
+          - keyword: UNION
+          - keyword: ALL
+        - select_statement:
+          - select_clause:
+            - keyword: SELECT
+            - select_clause_element:
+              - column_reference:
+                - naked_identifier: supplyID
+            - comma: ','
+            - select_clause_element:
+              - column_reference:
+                - naked_identifier: supplier
+          - from_clause:
+            - keyword: FROM
+            - from_expression:
+              - from_expression_element:
+                - table_expression:
+                  - table_reference:
+                    - object_reference:
+                      - naked_identifier: dbo
+                      - dot: .
+                      - naked_identifier: SUPPLY3
+        - set_operator:
+          - keyword: UNION
+          - keyword: ALL
+        - select_statement:
+          - select_clause:
+            - keyword: SELECT
+            - select_clause_element:
+              - column_reference:
+                - naked_identifier: supplyID
+            - comma: ','
+            - select_clause_element:
+              - column_reference:
+                - naked_identifier: supplier
+          - from_clause:
+            - keyword: FROM
+            - from_expression:
+              - from_expression_element:
+                - table_expression:
+                  - table_reference:
+                    - object_reference:
+                      - naked_identifier: dbo
+                      - dot: .
+                      - naked_identifier: SUPPLY4
+- statement_terminator: ;
+- statement:
+  - create_view_statement:
+    - create_view_statement:
+      - keyword: create
+      - keyword: view
+      - table_reference:
+        - object_reference:
+          - naked_identifier: vw_view
+      - keyword: with
+      - keyword: schemabinding
+      - comma: ','
+      - keyword: view_metadata
+      - keyword: as
+      - select_statement:
+        - select_clause:
+          - keyword: select
+          - select_clause_element:
+            - column_reference:
+              - naked_identifier: A
+              - dot: .
+              - naked_identifier: ID
+        - from_clause:
+          - keyword: from
+          - from_expression:
+            - from_expression_element:
+              - table_expression:
+                - table_reference:
+                  - object_reference:
+                    - naked_identifier: A

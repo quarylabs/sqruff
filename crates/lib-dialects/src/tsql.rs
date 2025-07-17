@@ -2138,7 +2138,7 @@ pub fn raw_dialect() -> Dialect {
         "StatementSegment",
         one_of(vec_of_erased![
             // T-SQL specific statements (BEGIN...END blocks must come first to avoid transaction conflicts)
-            Ref::new("BeginEndBlockGrammar"),
+            Ref::new("BeginEndBlockSegment"),
             Ref::new("TryBlockSegment"),
             Ref::new("ThrowStatementSegment"),
             Ref::new("AtomicBlockSegment"),
@@ -3052,8 +3052,8 @@ pub fn raw_dialect() -> Dialect {
                     ])
                 ]),
                 Ref::keyword("FUNCTION"),
-                Ref::new("FunctionNameSegment"),
-                Ref::new("FunctionParameterListGrammar"),
+                Ref::new("ObjectReferenceSegment"),
+                Ref::new("FunctionParameterListSegment"),
                 Ref::keyword("RETURNS"),
                 one_of(vec_of_erased![
                     // Table-valued function

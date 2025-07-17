@@ -94,7 +94,7 @@ file:
                       - naked_identifier: Emp5
                     - end_bracket: )
                   - end_bracket: )
-        - unparsable:
-          - word: AS
-          - word: unpvt
+                - alias_expression:
+                  - keyword: AS
+                  - naked_identifier: unpvt
 - statement_terminator: ;

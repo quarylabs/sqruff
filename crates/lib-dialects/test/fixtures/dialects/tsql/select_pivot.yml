@@ -54,9 +54,9 @@ file:
                   - quoted_identifier: '[3]'
                 - end_bracket: )
               - end_bracket: )
-    - unparsable:
-      - word: as
-      - word: pvt
+            - alias_expression:
+              - keyword: as
+              - naked_identifier: pvt
 - statement_terminator: ;
 - statement:
   - select_statement:
@@ -113,8 +113,8 @@ file:
                   - quoted_identifier: '[3]'
                 - end_bracket: )
               - end_bracket: )
-    - unparsable:
-      - word: pvt
+            - alias_expression:
+              - naked_identifier: pvt
 - statement_terminator: ;
 - keyword: GO
 - statement:

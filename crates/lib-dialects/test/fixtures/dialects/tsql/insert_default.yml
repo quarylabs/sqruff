@@ -1,11 +1,12 @@
 file:
 - statement:
   - insert_statement:
-    - keyword: INSERT
-    - keyword: INTO
-    - table_reference:
-      - object_reference:
-        - naked_identifier: mytable
-    - keyword: DEFAULT
-    - keyword: VALUES
+    - insert_statement:
+      - keyword: INSERT
+      - keyword: INTO
+      - table_reference:
+        - object_reference:
+          - naked_identifier: mytable
+      - keyword: DEFAULT
+      - keyword: VALUES
 - statement_terminator: ;

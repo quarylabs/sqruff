@@ -144,24 +144,26 @@ file:
 - keyword: GO
 - statement:
   - insert_statement:
-    - keyword: INSERT
-    - keyword: INTO
-    - table_reference:
-      - object_reference:
-        - naked_identifier: dbo
-        - dot: .
-        - naked_identifier: doc_exz
-    - bracketed:
-      - start_bracket: (
-      - column_reference:
-        - naked_identifier: column_a
-      - end_bracket: )
-    - values_clause:
-      - keyword: VALUES
-      - bracketed:
-        - start_bracket: (
-        - numeric_literal: '7'
-        - end_bracket: )
+    - insert_statement:
+      - keyword: INSERT
+      - keyword: INTO
+      - function:
+        - function_name:
+          - naked_identifier: dbo
+          - dot: .
+          - function_name_identifier: doc_exz
+        - bracketed:
+          - start_bracket: (
+          - expression:
+            - column_reference:
+              - naked_identifier: column_a
+          - end_bracket: )
+      - values_clause:
+        - keyword: VALUES
+        - bracketed:
+          - start_bracket: (
+          - numeric_literal: '7'
+          - end_bracket: )
 - statement_terminator: ;
 - keyword: GO
 - file:

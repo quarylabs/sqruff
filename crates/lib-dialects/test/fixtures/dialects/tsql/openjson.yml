@@ -290,76 +290,77 @@ file:
 - statement_terminator: ;
 - statement:
   - insert_statement:
-    - keyword: INSERT
-    - keyword: INTO
-    - table_reference:
-      - object_reference:
-        - naked_identifier: Person
-    - select_statement:
-      - select_clause:
-        - keyword: SELECT
-        - select_clause_element:
-          - wildcard_expression:
-            - wildcard_identifier:
-              - star: '*'
-      - from_clause:
-        - keyword: FROM
-        - from_expression:
-          - from_expression_element:
-            - table_expression:
-              - keyword: OPENJSON
-              - bracketed:
-                - start_bracket: (
-                - expression:
-                  - parameterized_expression:
-                    - tsql_variable: '@json'
-                - end_bracket: )
-              - keyword: WITH
-              - bracketed:
-                - start_bracket: (
-                - naked_identifier: id
-                - data_type:
-                  - data_type_identifier: INT
-                - comma: ','
-                - naked_identifier: firstName
-                - data_type:
-                  - data_type_identifier: NVARCHAR
-                  - bracketed_arguments:
-                    - bracketed:
-                      - start_bracket: (
-                      - numeric_literal: '50'
-                      - end_bracket: )
-                - comma: ','
-                - naked_identifier: lastName
-                - data_type:
-                  - data_type_identifier: NVARCHAR
-                  - bracketed_arguments:
-                    - bracketed:
-                      - start_bracket: (
-                      - numeric_literal: '50'
-                      - end_bracket: )
-                - comma: ','
-                - naked_identifier: isAlive
-                - data_type:
-                  - data_type_identifier: BIT
-                - comma: ','
-                - naked_identifier: age
-                - data_type:
-                  - data_type_identifier: INT
-                - comma: ','
-                - naked_identifier: dateOfBirth
-                - data_type:
-                  - data_type_identifier: DATETIME
-                - comma: ','
-                - naked_identifier: spouse
-                - data_type:
-                  - data_type_identifier: NVARCHAR
-                  - bracketed_arguments:
-                    - bracketed:
-                      - start_bracket: (
-                      - numeric_literal: '50'
-                      - end_bracket: )
-                - end_bracket: )
+    - insert_statement:
+      - keyword: INSERT
+      - keyword: INTO
+      - table_reference:
+        - object_reference:
+          - naked_identifier: Person
+      - select_statement:
+        - select_clause:
+          - keyword: SELECT
+          - select_clause_element:
+            - wildcard_expression:
+              - wildcard_identifier:
+                - star: '*'
+        - from_clause:
+          - keyword: FROM
+          - from_expression:
+            - from_expression_element:
+              - table_expression:
+                - keyword: OPENJSON
+                - bracketed:
+                  - start_bracket: (
+                  - expression:
+                    - parameterized_expression:
+                      - tsql_variable: '@json'
+                  - end_bracket: )
+                - keyword: WITH
+                - bracketed:
+                  - start_bracket: (
+                  - naked_identifier: id
+                  - data_type:
+                    - data_type_identifier: INT
+                  - comma: ','
+                  - naked_identifier: firstName
+                  - data_type:
+                    - data_type_identifier: NVARCHAR
+                    - bracketed_arguments:
+                      - bracketed:
+                        - start_bracket: (
+                        - numeric_literal: '50'
+                        - end_bracket: )
+                  - comma: ','
+                  - naked_identifier: lastName
+                  - data_type:
+                    - data_type_identifier: NVARCHAR
+                    - bracketed_arguments:
+                      - bracketed:
+                        - start_bracket: (
+                        - numeric_literal: '50'
+                        - end_bracket: )
+                  - comma: ','
+                  - naked_identifier: isAlive
+                  - data_type:
+                    - data_type_identifier: BIT
+                  - comma: ','
+                  - naked_identifier: age
+                  - data_type:
+                    - data_type_identifier: INT
+                  - comma: ','
+                  - naked_identifier: dateOfBirth
+                  - data_type:
+                    - data_type_identifier: DATETIME
+                  - comma: ','
+                  - naked_identifier: spouse
+                  - data_type:
+                    - data_type_identifier: NVARCHAR
+                    - bracketed_arguments:
+                      - bracketed:
+                        - start_bracket: (
+                        - numeric_literal: '50'
+                        - end_bracket: )
+                  - end_bracket: )
 - statement_terminator: ;
 - statement:
   - select_statement:

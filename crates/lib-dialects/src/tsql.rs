@@ -5512,6 +5512,72 @@ pub fn raw_dialect() -> Dialect {
         .to_matchable()
     );
 
+    // Override INSERT statement for T-SQL specific features
+    dialect.replace_grammar(
+        "InsertStatementSegment",
+        NodeMatcher::new(SyntaxKind::InsertStatement, |_| {
+            Sequence::new(vec_of_erased![
+                Ref::keyword("INSERT"),
+                Ref::keyword("OVERWRITE").optional(),
+                // T-SQL allows omitting INTO when using OPENQUERY
+                Ref::keyword("INTO").optional(),
+                one_of(vec_of_erased![
+                    Ref::new("TableReferenceSegment"),
+                    // T-SQL specific: OPENQUERY/OPENROWSET support
+                    Ref::new("FunctionSegment"),
+                ]),
+                // T-SQL specific: Table hints
+                Ref::new("PostTableExpressionGrammar").optional(),
+                // T-SQL specific: OUTPUT clause before VALUES/SELECT
+                Ref::new("OutputClauseSegment").optional(),
+                one_of(vec_of_erased![
+                    Ref::new("SelectableGrammar"),
+                    Sequence::new(vec_of_erased![
+                        Ref::new("BracketedColumnReferenceListGrammar"),
+                        // OUTPUT clause can also be here
+                        Ref::new("OutputClauseSegment").optional(),
+                        Ref::new("SelectableGrammar")
+                    ]),
+                    Ref::new("DefaultValuesGrammar")
+                ]),
+                // T-SQL specific: OPTION clause
+                Ref::new("OptionClauseSegment").optional(),
+            ])
+            .to_matchable()
+        })
+        .to_matchable()
+    );
+
+    // Override DELETE statement for T-SQL specific features  
+    dialect.replace_grammar(
+        "DeleteStatementSegment",
+        NodeMatcher::new(SyntaxKind::DeleteStatement, |_| {
+            Sequence::new(vec_of_erased![
+                Ref::keyword("DELETE"),
+                // T-SQL allows omitting FROM when using OPENQUERY
+                Ref::keyword("FROM").optional(),
+                one_of(vec_of_erased![
+                    Ref::new("TableReferenceSegment"),
+                    // T-SQL specific: OPENQUERY/OPENROWSET support
+                    Ref::new("FunctionSegment"),
+                    Ref::new("AliasedTableReferenceGrammar"),
+                ]),
+                // T-SQL specific: Table hints
+                Ref::new("PostTableExpressionGrammar").optional(),
+                // T-SQL specific: OUTPUT clause
+                Ref::new("OutputClauseSegment").optional(),
+                // FROM clause for joins
+                Ref::new("FromClauseSegment").optional(),
+                Ref::new("WhereClauseSegment").optional(),
+                // T-SQL specific: OPTION clause
+                Ref::new("OptionClauseSegment").optional(),
+                Ref::new("DelimiterGrammar").optional()
+            ])
+            .to_matchable()
+        })
+        .to_matchable()
+    );
+
     // BREAK and CONTINUE statements for loops
     dialect.add([
         (

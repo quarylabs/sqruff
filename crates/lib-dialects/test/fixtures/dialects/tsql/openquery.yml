@@ -55,24 +55,43 @@ file:
             - expression:
               - quoted_literal: '''ADifferentName'''
       - statement_terminator: ;
-- file:
-  - word: INSERT
-  - word: OPENQUERY
-  - start_bracket: (
-  - word: OracleSvr
-  - comma: ','
-  - single_quote: '''SELECT name FROM joe.titles'''
-  - end_bracket: )
-  - word: VALUES
-  - start_bracket: (
-  - single_quote: '''NewTitle'''
-  - end_bracket: )
-  - semicolon: ;
-  - word: DELETE
-  - word: OPENQUERY
-  - start_bracket: (
-  - word: OracleSvr
-  - comma: ','
-  - single_quote: '''SELECT name FROM joe.titles WHERE name = ''''NewTitle'''''''
-  - end_bracket: )
-  - semicolon: ;
+- statement:
+  - insert_statement:
+    - insert_statement:
+      - keyword: INSERT
+      - function:
+        - function_name:
+          - function_name_identifier: OPENQUERY
+        - bracketed:
+          - start_bracket: (
+          - expression:
+            - column_reference:
+              - naked_identifier: OracleSvr
+          - comma: ','
+          - expression:
+            - quoted_literal: '''SELECT name FROM joe.titles'''
+          - end_bracket: )
+      - values_clause:
+        - keyword: VALUES
+        - bracketed:
+          - start_bracket: (
+          - quoted_literal: '''NewTitle'''
+          - end_bracket: )
+- statement_terminator: ;
+- statement:
+  - delete_statement:
+    - delete_statement:
+      - keyword: DELETE
+      - function:
+        - function_name:
+          - function_name_identifier: OPENQUERY
+        - bracketed:
+          - start_bracket: (
+          - expression:
+            - column_reference:
+              - naked_identifier: OracleSvr
+          - comma: ','
+          - expression:
+            - quoted_literal: '''SELECT name FROM joe.titles WHERE name = ''''NewTitle'''''''
+          - end_bracket: )
+      - statement_terminator: ;

@@ -1,6 +1,6 @@
 file:
 - statement:
-  - create_function_statement:
+  - statement:
     - keyword: CREATE
     - keyword: PARTITION
     - keyword: FUNCTION
@@ -26,7 +26,7 @@ file:
       - end_bracket: )
 - statement_terminator: ;
 - statement:
-  - create_function_statement:
+  - statement:
     - keyword: CREATE
     - keyword: PARTITION
     - keyword: FUNCTION
@@ -57,7 +57,7 @@ file:
       - end_bracket: )
 - statement_terminator: ;
 - statement:
-  - create_function_statement:
+  - statement:
     - keyword: CREATE
     - keyword: PARTITION
     - keyword: FUNCTION

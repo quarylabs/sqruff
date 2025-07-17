@@ -548,7 +548,8 @@ pub fn raw_dialect() -> Dialect {
     dialect.add([
         (
             "BeginEndBlockSegment".into(),
-            Sequence::new(vec_of_erased![
+            NodeMatcher::new(SyntaxKind::BeginEndBlock, |_| {
+                Sequence::new(vec_of_erased![
                 Ref::keyword("BEGIN"),
                 MetaSegment::indent(),
                 AnyNumberOf::new(vec_of_erased![Sequence::new(vec_of_erased![
@@ -598,6 +599,8 @@ pub fn raw_dialect() -> Dialect {
                 MetaSegment::dedent(),
                 Ref::keyword("END")
             ])
+            .to_matchable()
+            })
             .to_matchable()
             .into(),
         ),
@@ -3158,7 +3161,9 @@ pub fn raw_dialect() -> Dialect {
                         ])
                         .config(|this| this.optional()),
                         Ref::keyword("AS"),
-                        optionally_bracketed(vec_of_erased![Ref::new("SelectableGrammar")])
+                        optionally_bracketed(vec_of_erased![Ref::new("SelectableGrammar")]),
+                        // Azure Synapse specific: OPTION clause after AS SELECT
+                        Ref::new("OptionClauseSegment").optional()
                     ])
                 ])
             ])
@@ -3212,6 +3217,238 @@ pub fn raw_dialect() -> Dialect {
                         "ExpressionSegment"
                     )])])
                 ])
+            ]),
+            // SYSTEM_VERSIONING for temporal tables
+            Sequence::new(vec_of_erased![
+                Ref::keyword("SYSTEM_VERSIONING"),
+                Ref::new("EqualsSegment"),
+                Ref::keyword("ON"),
+                Sequence::new(vec_of_erased![
+                    Bracketed::new(vec_of_erased![
+                        Ref::keyword("HISTORY_TABLE"),
+                        Ref::new("EqualsSegment"),
+                        Ref::new("ObjectReferenceSegment")
+                    ])
+                ])
+                .config(|this| this.optional())
+            ]),
+            // DURABILITY option
+            Sequence::new(vec_of_erased![
+                Ref::keyword("DURABILITY"),
+                Ref::new("EqualsSegment"),
+                one_of(vec_of_erased![
+                    Ref::keyword("SCHEMA_ONLY"),
+                    Ref::keyword("SCHEMA_AND_DATA")
+                ])
+            ]),
+            // MEMORY_OPTIMIZED option
+            Sequence::new(vec_of_erased![
+                Ref::keyword("MEMORY_OPTIMIZED"),
+                Ref::new("EqualsSegment"),
+                one_of(vec_of_erased![
+                    Ref::keyword("ON"),
+                    Ref::keyword("OFF")
+                ])
+            ]),
+            // DATA_DELETION option
+            Sequence::new(vec_of_erased![
+                Ref::keyword("DATA_DELETION"),
+                Ref::new("EqualsSegment"),
+                Ref::keyword("ON"),
+                Bracketed::new(vec_of_erased![
+                    Delimited::new(vec_of_erased![
+                        Sequence::new(vec_of_erased![
+                            Ref::keyword("FILTER_COLUMN"),
+                            Ref::new("EqualsSegment"),
+                            Ref::new("ColumnReferenceSegment")
+                        ]),
+                        Sequence::new(vec_of_erased![
+                            Ref::keyword("RETENTION_PERIOD"),
+                            Ref::new("EqualsSegment"),
+                            one_of(vec_of_erased![
+                                Ref::keyword("INFINITE"),
+                                Sequence::new(vec_of_erased![
+                                    Ref::new("NumericLiteralSegment"),
+                                    one_of(vec_of_erased![
+                                        Ref::keyword("DAY"),
+                                        Ref::keyword("DAYS"),
+                                        Ref::keyword("WEEK"),
+                                        Ref::keyword("WEEKS"),
+                                        Ref::keyword("MONTH"),
+                                        Ref::keyword("MONTHS"),
+                                        Ref::keyword("YEAR"),
+                                        Ref::keyword("YEARS")
+                                    ])
+                                ])
+                            ])
+                        ])
+                    ])
+                ])
+            ]),
+            // FILETABLE options
+            Sequence::new(vec_of_erased![
+                Ref::keyword("FILETABLE_PRIMARY_KEY_CONSTRAINT_NAME"),
+                Ref::new("EqualsSegment"),
+                Ref::new("NakedIdentifierSegment")
+            ]),
+            Sequence::new(vec_of_erased![
+                Ref::keyword("FILETABLE_DIRECTORY"),
+                Ref::new("EqualsSegment"),
+                Ref::new("QuotedLiteralSegment")
+            ]),
+            Sequence::new(vec_of_erased![
+                Ref::keyword("FILETABLE_COLLATE_FILENAME"),
+                Ref::new("EqualsSegment"),
+                Ref::new("NakedIdentifierSegment")
+            ]),
+            Sequence::new(vec_of_erased![
+                Ref::keyword("FILETABLE_STREAMID_UNIQUE_CONSTRAINT_NAME"),
+                Ref::new("EqualsSegment"),
+                Ref::new("NakedIdentifierSegment")
+            ]),
+            Sequence::new(vec_of_erased![
+                Ref::keyword("FILETABLE_FULLPATH_UNIQUE_CONSTRAINT_NAME"),
+                Ref::new("EqualsSegment"),
+                Ref::new("NakedIdentifierSegment")
+            ]),
+            // REMOTE_DATA_ARCHIVE option
+            Sequence::new(vec_of_erased![
+                Ref::keyword("REMOTE_DATA_ARCHIVE"),
+                Ref::new("EqualsSegment"),
+                one_of(vec_of_erased![
+                    Ref::keyword("OFF"),
+                    Sequence::new(vec_of_erased![
+                        Ref::keyword("ON"),
+                        Bracketed::new(vec_of_erased![
+                            Delimited::new(vec_of_erased![
+                                Sequence::new(vec_of_erased![
+                                    Ref::keyword("FILTER_PREDICATE"),
+                                    Ref::new("EqualsSegment"),
+                                    one_of(vec_of_erased![
+                                        Ref::keyword("NULL"),
+                                        Ref::new("FunctionSegment")
+                                    ])
+                                ]),
+                                Sequence::new(vec_of_erased![
+                                    Ref::keyword("MIGRATION_STATE"),
+                                    Ref::new("EqualsSegment"),
+                                    one_of(vec_of_erased![
+                                        Ref::keyword("OUTBOUND"),
+                                        Ref::keyword("INBOUND"),
+                                        Ref::keyword("PAUSED")
+                                    ])
+                                ])
+                            ])
+                        ])
+                        .config(|this| this.optional())
+                    ])
+                ]),
+                Bracketed::new(vec_of_erased![
+                    Sequence::new(vec_of_erased![
+                        Ref::keyword("MIGRATION_STATE"),
+                        Ref::new("EqualsSegment"),
+                        one_of(vec_of_erased![
+                            Ref::keyword("OUTBOUND"),
+                            Ref::keyword("INBOUND"), 
+                            Ref::keyword("PAUSED")
+                        ])
+                    ])
+                ])
+                .config(|this| this.optional())
+            ]),
+            // LEDGER option
+            Sequence::new(vec_of_erased![
+                Ref::keyword("LEDGER"),
+                Ref::new("EqualsSegment"),
+                Ref::keyword("ON"),
+                Bracketed::new(vec_of_erased![
+                    Delimited::new(vec_of_erased![
+                        Sequence::new(vec_of_erased![
+                            Ref::keyword("LEDGER_VIEW"),
+                            Ref::new("EqualsSegment"),
+                            Ref::new("ObjectReferenceSegment"),
+                            Bracketed::new(vec_of_erased![
+                                Delimited::new(vec_of_erased![
+                                    Sequence::new(vec_of_erased![
+                                        Ref::keyword("TRANSACTION_ID_COLUMN_NAME"),
+                                        Ref::new("EqualsSegment"),
+                                        Ref::new("ColumnReferenceSegment")
+                                    ]),
+                                    Sequence::new(vec_of_erased![
+                                        Ref::keyword("SEQUENCE_NUMBER_COLUMN_NAME"),
+                                        Ref::new("EqualsSegment"),
+                                        Ref::new("ColumnReferenceSegment")
+                                    ])
+                                ])
+                            ])
+                            .config(|this| this.optional())
+                        ]),
+                        Sequence::new(vec_of_erased![
+                            Ref::keyword("APPEND_ONLY"),
+                            Ref::new("EqualsSegment"),
+                            one_of(vec_of_erased![
+                                Ref::keyword("ON"),
+                                Ref::keyword("OFF")
+                            ])
+                        ])
+                    ])
+                ])
+                .config(|this| this.optional())
+            ]),
+            // DATA_COMPRESSION option
+            Sequence::new(vec_of_erased![
+                Ref::keyword("DATA_COMPRESSION"),
+                Ref::new("EqualsSegment"),
+                one_of(vec_of_erased![
+                    Ref::keyword("NONE"),
+                    Ref::keyword("ROW"),
+                    Ref::keyword("PAGE"),
+                    Ref::keyword("COLUMNSTORE"),
+                    Ref::keyword("COLUMNSTORE_ARCHIVE")
+                ]),
+                Sequence::new(vec_of_erased![
+                    Ref::keyword("ON"),
+                    Ref::keyword("PARTITIONS"),
+                    Bracketed::new(vec_of_erased![
+                        Delimited::new(vec_of_erased![
+                            one_of(vec_of_erased![
+                                Ref::new("NumericLiteralSegment"),
+                                Sequence::new(vec_of_erased![
+                                    Ref::new("NumericLiteralSegment"),
+                                    Ref::keyword("TO"),
+                                    Ref::new("NumericLiteralSegment")
+                                ])
+                            ])
+                        ])
+                    ])
+                ])
+                .config(|this| this.optional())
+            ]),
+            // XML_COMPRESSION option
+            Sequence::new(vec_of_erased![
+                Ref::keyword("XML_COMPRESSION"),
+                Ref::new("EqualsSegment"),
+                one_of(vec_of_erased![
+                    Ref::keyword("ON"),
+                    Ref::keyword("OFF")
+                ]),
+                Sequence::new(vec_of_erased![
+                    Ref::keyword("ON"),
+                    Ref::keyword("PARTITIONS"),
+                    Bracketed::new(vec_of_erased![
+                        Delimited::new(vec_of_erased![
+                            one_of(vec_of_erased![
+                                Ref::new("NumericLiteralSegment"),
+                                Sequence::new(vec_of_erased![
+                                    Ref::new("NumericLiteralSegment"),
+                                    Ref::keyword("TO"),
+                                    Ref::new("NumericLiteralSegment")
+                                ])
+                            ])
+                        ])
+                    ])
+                ])
+                .config(|this| this.optional())
             ])
         ])
         .to_matchable()

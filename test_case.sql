@@ -1,0 +1,1 @@
+SELECT CASE WHEN 1 = 1 THEN 'True' END

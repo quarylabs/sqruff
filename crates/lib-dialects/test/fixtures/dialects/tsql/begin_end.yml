@@ -1,13 +1,14 @@
 file:
 - statement:
-  - keyword: BEGIN
-  - select_statement:
-    - select_clause:
-      - keyword: SELECT
-      - select_clause_element:
-        - quoted_literal: '''Weekend'''
-  - statement_terminator: ;
-  - keyword: END
+  - begin_end_block:
+    - keyword: BEGIN
+    - select_statement:
+      - select_clause:
+        - keyword: SELECT
+        - select_clause_element:
+          - quoted_literal: '''Weekend'''
+    - statement_terminator: ;
+    - keyword: END
 - file:
   - word: BEGIN
   - semicolon: ;

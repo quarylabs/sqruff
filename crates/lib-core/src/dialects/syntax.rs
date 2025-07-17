@@ -204,6 +204,7 @@ pub enum SyntaxKind {
     LeaveStatement,
     ContinueStatement,
     RaiseStatement,
+    BeginEndBlock,
     PsqlVariable,
     ComparisonOperator,
     DatetimeTypeIdentifier,

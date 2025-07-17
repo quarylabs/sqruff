@@ -251,27 +251,33 @@ file:
                 - numeric_literal: '3'
                 - end_bracket: )
         - end_bracket: )
+      - keyword: WITH
+      - bracketed:
+        - start_bracket: (
+        - keyword: SYSTEM_VERSIONING
+        - comparison_operator:
+          - raw_comparison_operator: =
+        - keyword: ON
+        - bracketed:
+          - start_bracket: (
+          - keyword: HISTORY_TABLE
+          - comparison_operator:
+            - raw_comparison_operator: =
+          - object_reference:
+            - naked_identifier: dbo
+            - dot: .
+            - naked_identifier: EmployeeHistory
+          - end_bracket: )
+        - comma: ','
+        - keyword: DURABILITY
+        - comparison_operator:
+          - raw_comparison_operator: =
+        - keyword: SCHEMA_ONLY
+        - end_bracket: )
+- statement_terminator: ;
+- statement_terminator: ;
+- keyword: GO
 - file:
-  - word: WITH
-  - start_bracket: (
-  - word: SYSTEM_VERSIONING
-  - raw_comparison_operator: =
-  - word: ON
-  - start_bracket: (
-  - word: HISTORY_TABLE
-  - raw_comparison_operator: =
-  - word: dbo
-  - dot: .
-  - word: EmployeeHistory
-  - end_bracket: )
-  - comma: ','
-  - word: DURABILITY
-  - raw_comparison_operator: =
-  - word: SCHEMA_ONLY
-  - end_bracket: )
-  - semicolon: ;
-  - semicolon: ;
-  - word: GO
   - word: CREATE
   - word: TABLE
   - word: Department

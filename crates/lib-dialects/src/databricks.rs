@@ -70,7 +70,8 @@ pub fn dialect() -> Dialect {
             Sequence::new(vec_of_erased![
                 Ref::keyword("ALTER"),
                 Ref::keyword("CATALOG"),
-                one_of(vec_of_erased![Ref::new("SetOwnerGrammar")]),
+                Ref::new("CatalogReferenceSegment"),
+                Ref::new("SetOwnerGrammar"),
             ])
             .to_matchable()
             .into(),

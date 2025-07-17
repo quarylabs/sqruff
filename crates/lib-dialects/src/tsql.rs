@@ -2159,6 +2159,7 @@ pub fn raw_dialect() -> Dialect {
             Ref::new("DropSecurityPolicyStatementSegment"),
             Ref::new("DisableTriggerStatementSegment"),
             Ref::new("RaiserrorStatementSegment"),
+            Ref::new("ReturnStatementSegment"),
             // Cursor statements
             Ref::new("DeclareCursorStatementSegment"),
             Ref::new("OpenCursorStatementSegment"),
@@ -2607,6 +2608,21 @@ pub fn raw_dialect() -> Dialect {
         TypedParser::new(SyntaxKind::UnicodeSingleQuote, SyntaxKind::QuotedLiteral)
             .to_matchable()
             .into(),
+    )]);
+
+    // Add BracketedColumnDefinitionListGrammar for table definitions
+    dialect.add([(
+        "BracketedColumnDefinitionListGrammar".into(),
+        Bracketed::new(vec_of_erased![
+            Delimited::new(vec_of_erased![
+                one_of(vec_of_erased![
+                    Ref::new("TableConstraintSegment"),
+                    Ref::new("ColumnDefinitionSegment")
+                ])
+            ])
+        ])
+        .to_matchable()
+        .into(),
     )]);
 
     // Add T-SQL variable support to LiteralGrammar
@@ -4199,6 +4215,21 @@ pub fn raw_dialect() -> Dialect {
                     ])
                 ])
                 .config(|this| this.optional())
+            ])
+            .to_matchable()
+        })
+        .to_matchable()
+        .into(),
+    )]);
+
+    // RETURN statement (for procedures and functions)
+    dialect.add([(
+        "ReturnStatementSegment".into(),
+        NodeMatcher::new(SyntaxKind::Statement, |_| {
+            Sequence::new(vec_of_erased![
+                Ref::keyword("RETURN"),
+                // Optional return value (for functions)
+                Ref::new("ExpressionSegment").optional()
             ])
             .to_matchable()
         })

@@ -29,10 +29,13 @@ file:
         - raw_comparison_operator: =
       - numeric_literal: '21'
       - keyword: as
-      - unparsable:
-        - word: begin
-        - word: return
-        - numeric_literal: '1'
-  - statement_terminator: ;
-- file:
-  - word: end
+      - statement:
+        - begin_end_block:
+          - keyword: begin
+          - statement:
+            - statement:
+              - keyword: return
+              - expression:
+                - numeric_literal: '1'
+          - statement_terminator: ;
+          - keyword: end

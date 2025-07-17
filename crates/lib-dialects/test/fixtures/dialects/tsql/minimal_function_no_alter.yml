@@ -1,23 +1,38 @@
 file:
-- unparsable:
-  - word: CREATE
-  - word: FUNCTION
-  - double_quote: '[dbo]'
-  - dot: .
-  - double_quote: '[add]'
-  - start_bracket: (
-  - tsql_variable: '@add_1'
-  - word: int
-  - comma: ','
-  - tsql_variable: '@add_2'
-  - word: int
-  - end_bracket: )
-  - word: RETURNS
-  - word: integer
-  - word: AS
-  - word: BEGIN
-  - word: RETURN
-  - tsql_variable: '@add_1'
-  - plus: +
-  - tsql_variable: '@add_2'
-  - word: END
+- batch:
+  - statement:
+    - create_function_statement:
+      - keyword: CREATE
+      - keyword: FUNCTION
+      - object_reference:
+        - quoted_identifier: '[dbo]'
+        - dot: .
+        - quoted_identifier: '[add]'
+      - bracketed:
+        - start_bracket: (
+        - parameter:
+          - tsql_variable: '@add_1'
+          - data_type:
+            - data_type_identifier: int
+        - comma: ','
+        - parameter:
+          - tsql_variable: '@add_2'
+          - data_type:
+            - data_type_identifier: int
+        - end_bracket: )
+      - keyword: RETURNS
+      - data_type:
+        - data_type_identifier: integer
+      - keyword: AS
+      - begin_end_block:
+        - keyword: BEGIN
+        - statement:
+          - statement:
+            - keyword: RETURN
+            - expression:
+              - parameterized_expression:
+                - tsql_variable: '@add_1'
+              - binary_operator: +
+              - parameterized_expression:
+                - tsql_variable: '@add_2'
+        - keyword: END

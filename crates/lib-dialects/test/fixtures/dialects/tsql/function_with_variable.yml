@@ -1,34 +1,55 @@
 file:
-- unparsable:
-  - word: CREATE
-  - word: OR
-  - word: ALTER
-  - word: FUNCTION
-  - double_quote: '[dbo]'
-  - dot: .
-  - double_quote: '[CONVERT_ISO_WEEK_TO_UNIX]'
-  - start_bracket: (
-  - tsql_variable: '@year'
-  - word: INT
-  - comma: ','
-  - tsql_variable: '@week'
-  - word: INT
-  - end_bracket: )
-  - word: RETURNS
-  - word: BIGINT
-  - word: AS
-  - word: BEGIN
-  - word: DECLARE
-  - tsql_variable: '@result'
-  - word: BIGINT
-  - word: SET
-  - tsql_variable: '@result'
-  - raw_comparison_operator: =
-  - numeric_literal: '4'
-  - word: RETURN
-  - tsql_variable: '@result'
-  - plus: +
-  - tsql_variable: '@year'
-  - plus: +
-  - tsql_variable: '@week'
-  - word: END
+- batch:
+  - statement:
+    - create_function_statement:
+      - keyword: CREATE
+      - keyword: OR
+      - keyword: ALTER
+      - keyword: FUNCTION
+      - object_reference:
+        - quoted_identifier: '[dbo]'
+        - dot: .
+        - quoted_identifier: '[CONVERT_ISO_WEEK_TO_UNIX]'
+      - bracketed:
+        - start_bracket: (
+        - parameter:
+          - tsql_variable: '@year'
+          - data_type:
+            - data_type_identifier: INT
+        - comma: ','
+        - parameter:
+          - tsql_variable: '@week'
+          - data_type:
+            - data_type_identifier: INT
+        - end_bracket: )
+      - keyword: RETURNS
+      - data_type:
+        - data_type_identifier: BIGINT
+      - keyword: AS
+      - begin_end_block:
+        - keyword: BEGIN
+        - statement:
+          - keyword: DECLARE
+          - tsql_variable: '@result'
+          - data_type:
+            - data_type_identifier: BIGINT
+        - statement:
+          - keyword: SET
+          - tsql_variable: '@result'
+          - assignment_operator:
+            - raw_comparison_operator: =
+          - expression:
+            - numeric_literal: '4'
+        - statement:
+          - statement:
+            - keyword: RETURN
+            - expression:
+              - parameterized_expression:
+                - tsql_variable: '@result'
+              - binary_operator: +
+              - parameterized_expression:
+                - tsql_variable: '@year'
+              - binary_operator: +
+              - parameterized_expression:
+                - tsql_variable: '@week'
+        - keyword: END

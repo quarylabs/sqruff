@@ -86,107 +86,166 @@ file:
           - quoted_literal: '''Reminder'''
   - statement_terminator: ;
 - keyword: GO
+- batch:
+  - statement:
+    - create_trigger_statement:
+      - keyword: CREATE
+      - keyword: TRIGGER
+      - trigger_reference:
+        - naked_identifier: Purchasing
+        - dot: .
+        - naked_identifier: LowCredit
+      - keyword: ON
+      - table_reference:
+        - object_reference:
+          - naked_identifier: Purchasing
+          - dot: .
+          - naked_identifier: PurchaseOrderHeader
+      - keyword: AFTER
+      - keyword: INSERT
+      - keyword: AS
+      - statement:
+        - keyword: IF
+        - expression:
+          - bracketed:
+            - start_bracket: (
+            - expression:
+              - function:
+                - function_name:
+                  - function_name_identifier: ROWCOUNT_BIG
+                - bracketed:
+                  - start_bracket: (
+                  - end_bracket: )
+              - comparison_operator:
+                - raw_comparison_operator: =
+              - numeric_literal: '0'
+            - end_bracket: )
+        - statement:
+          - statement:
+            - keyword: RETURN
+        - statement_terminator: ;
+  - statement:
+    - keyword: IF
+    - expression:
+      - keyword: EXISTS
+      - bracketed:
+        - start_bracket: (
+        - select_statement:
+          - select_clause:
+            - keyword: SELECT
+            - select_clause_element:
+              - numeric_literal: '1'
+          - unparsable:
+            - word: FROM
+            - word: inserted
+            - word: AS
+            - word: i
+            - word: JOIN
+            - word: Purchasing
+            - dot: .
+            - word: Vendor
+            - word: AS
+            - word: v
+            - word: ON
+            - word: v
+            - dot: .
+            - word: BusinessEntityID
+            - raw_comparison_operator: =
+            - word: i
+            - dot: .
+            - word: VendorID
+            - word: WHERE
+            - word: v
+            - dot: .
+            - word: CreditRating
+            - raw_comparison_operator: =
+            - numeric_literal: '5'
+        - end_bracket: )
+    - begin_end_block:
+      - keyword: BEGIN
+      - statement:
+        - statement:
+          - keyword: RAISERROR
+          - bracketed:
+            - start_bracket: (
+            - expression:
+              - quoted_literal: |-
+                  'A vendor''s credit rating is too low to accept new
+                  purchase orders.'
+            - comma: ','
+            - expression:
+              - numeric_literal: '16'
+            - comma: ','
+            - expression:
+              - numeric_literal: '1'
+            - end_bracket: )
+      - statement_terminator: ;
+      - statement:
+        - transaction_statement:
+          - transaction_statement:
+            - keyword: ROLLBACK
+            - keyword: TRANSACTION
+      - statement_terminator: ;
+      - statement:
+        - statement:
+          - keyword: RETURN
+      - keyword: END
+  - statement_terminator: ;
+- keyword: GO
+- batch:
+  - statement:
+    - create_trigger_statement:
+      - keyword: CREATE
+      - keyword: TRIGGER
+      - trigger_reference:
+        - naked_identifier: safety
+      - keyword: ON
+      - keyword: DATABASE
+      - keyword: FOR
+      - naked_identifier: DROP_SYNONYM
+      - keyword: AS
+      - statement:
+        - keyword: IF
+        - expression:
+          - bracketed:
+            - start_bracket: (
+            - expression:
+              - parameterized_expression:
+                - tsql_variable: '@@ROWCOUNT'
+              - comparison_operator:
+                - raw_comparison_operator: =
+              - numeric_literal: '0'
+            - end_bracket: )
+        - statement:
+          - statement:
+            - keyword: RETURN
+        - statement_terminator: ;
+  - statement:
+    - statement:
+      - keyword: RAISERROR
+      - bracketed:
+        - start_bracket: (
+        - expression:
+          - quoted_literal: '''You must disable Trigger "safety" to remove synonyms!'''
+        - comma: ','
+        - expression:
+          - numeric_literal: '10'
+        - comma: ','
+        - expression:
+          - numeric_literal: '1'
+        - end_bracket: )
+  - statement:
+    - transaction_statement:
+      - transaction_statement:
+        - keyword: ROLLBACK
+        - naked_identifier: GO
+  - statement:
+    - drop_trigger_statement:
+      - keyword: DROP
+      - keyword: TRIGGER
+      - trigger_reference:
+        - naked_identifier: safety
 - file:
-  - word: CREATE
-  - word: TRIGGER
-  - word: Purchasing
-  - dot: .
-  - word: LowCredit
-  - word: ON
-  - word: Purchasing
-  - dot: .
-  - word: PurchaseOrderHeader
-  - word: AFTER
-  - word: INSERT
-  - word: AS
-  - word: IF
-  - start_bracket: (
-  - word: ROWCOUNT_BIG
-  - start_bracket: (
-  - end_bracket: )
-  - raw_comparison_operator: =
-  - numeric_literal: '0'
-  - end_bracket: )
-  - word: RETURN
-  - semicolon: ;
-  - word: IF
-  - word: EXISTS
-  - start_bracket: (
-  - word: SELECT
-  - numeric_literal: '1'
-  - word: FROM
-  - word: inserted
-  - word: AS
-  - word: i
-  - word: JOIN
-  - word: Purchasing
-  - dot: .
-  - word: Vendor
-  - word: AS
-  - word: v
-  - word: ON
-  - word: v
-  - dot: .
-  - word: BusinessEntityID
-  - raw_comparison_operator: =
-  - word: i
-  - dot: .
-  - word: VendorID
-  - word: WHERE
-  - word: v
-  - dot: .
-  - word: CreditRating
-  - raw_comparison_operator: =
-  - numeric_literal: '5'
-  - end_bracket: )
-  - word: BEGIN
-  - word: RAISERROR
-  - start_bracket: (
-  - single_quote: |-
-      'A vendor''s credit rating is too low to accept new
-      purchase orders.'
-  - comma: ','
-  - numeric_literal: '16'
-  - comma: ','
-  - numeric_literal: '1'
-  - end_bracket: )
-  - semicolon: ;
-  - word: ROLLBACK
-  - word: TRANSACTION
-  - semicolon: ;
-  - word: RETURN
-  - word: END
-  - semicolon: ;
-  - word: GO
-  - word: CREATE
-  - word: TRIGGER
-  - word: safety
-  - word: ON
-  - word: DATABASE
-  - word: FOR
-  - word: DROP_SYNONYM
-  - word: AS
-  - word: IF
-  - start_bracket: (
-  - tsql_variable: '@@ROWCOUNT'
-  - raw_comparison_operator: =
-  - numeric_literal: '0'
-  - end_bracket: )
-  - word: RETURN
-  - semicolon: ;
-  - word: RAISERROR
-  - start_bracket: (
-  - single_quote: '''You must disable Trigger "safety" to remove synonyms!'''
-  - comma: ','
-  - numeric_literal: '10'
-  - comma: ','
-  - numeric_literal: '1'
-  - end_bracket: )
-  - word: ROLLBACK
-  - word: GO
-  - word: DROP
-  - word: TRIGGER
-  - word: safety
   - word: ON
   - word: DATABASE
   - semicolon: ;

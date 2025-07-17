@@ -7,5 +7,6 @@ file:
   - statement:
     - naked_identifier: Branch_Three
     - colon: ':'
-- file:
-  - word: RETURN
+  - statement:
+    - statement:
+      - keyword: RETURN

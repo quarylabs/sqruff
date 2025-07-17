@@ -501,13 +501,13 @@ Please implement these changes in the Sqruff dialect."""
             f"Attempting to implement the change in the sqlfluff commit {args.claude_attempt_change} in the sqruff dialect with claude..."
         )
         async for message in query(options=options, prompt=prompt):
-            pass
+            print(message)
 
     print("Done!")
 
 
 options = ClaudeCodeOptions(
-    max_turns=3,
+    max_turns=30,
     cwd=(Path(__file__).parent.parent.parent / "crates" / "lib-dialects"),
     allowed_tools=["Read", "Write"],
     permission_mode="acceptEdits",

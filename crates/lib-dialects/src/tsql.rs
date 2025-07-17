@@ -3072,8 +3072,14 @@ pub fn raw_dialect() -> Dialect {
             None,
             vec_of_erased![
                 Ref::new("SetOperatorSegment"),
-                Ref::new("WithNoSchemaBindingClauseSegment"),
-                Ref::new("WithDataClauseSegment"),
+                // Exclude WITH CHECK OPTION from being consumed by SELECT terminating clauses
+                // This allows CREATE VIEW to handle WITH CHECK OPTION properly
+                Ref::new("WithNoSchemaBindingClauseSegment").exclude(
+                    LookaheadExclude::new("WITH", "CHECK")
+                ),
+                Ref::new("WithDataClauseSegment").exclude(
+                    LookaheadExclude::new("WITH", "CHECK")
+                ),
                 // T-SQL specific: GO batch delimiter should terminate statements
                 Ref::new("BatchDelimiterGrammar")
             ],

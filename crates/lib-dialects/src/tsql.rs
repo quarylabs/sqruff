@@ -3088,6 +3088,21 @@ pub fn raw_dialect() -> Dialect {
     );
 
 
+    // Add T-SQL specific WithCheckOptionSegment
+    dialect.add([(
+        "WithCheckOptionSegment".into(),
+        NodeMatcher::new(SyntaxKind::WithCheckOption, |_| {
+            Sequence::new(vec_of_erased![
+                Ref::keyword("WITH"),
+                Ref::keyword("CHECK"),
+                Ref::keyword("OPTION")
+            ])
+            .to_matchable()
+        })
+        .to_matchable()
+        .into(),
+    )]);
+
     // Override CREATE VIEW to support CREATE OR ALTER VIEW
     dialect.replace_grammar(
         "CreateViewStatementSegment",
@@ -3124,13 +3139,8 @@ pub fn raw_dialect() -> Dialect {
                 .config(|this| this.optional()),
                 Ref::keyword("AS"),
                 optionally_bracketed(vec_of_erased![Ref::new("SelectableGrammar")]),
-                // WITH CHECK OPTION at the end
-                Sequence::new(vec_of_erased![
-                    Ref::keyword("WITH"),
-                    Ref::keyword("CHECK"),
-                    Ref::keyword("OPTION")
-                ])
-                .config(|this| this.optional())
+                // WITH CHECK OPTION at the end using proper segment
+                Ref::new("WithCheckOptionSegment").optional()
             ])
             .to_matchable()
         })

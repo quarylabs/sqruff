@@ -1,75 +1,76 @@
 file:
-- statement:
-  - set_context_info_statement:
+- batch:
+  - statement:
+    - set_context_info_statement:
+      - keyword: SET
+      - keyword: CONTEXT_INFO
+      - expression:
+        - column_reference:
+          - naked_identifier: '0x01010101'
+  - statement_terminator: ;
+  - statement:
+    - keyword: DECLARE
+    - tsql_variable: '@BinVar'
+    - data_type:
+      - data_type_identifier: varbinary
+      - bracketed_arguments:
+        - bracketed:
+          - start_bracket: (
+          - numeric_literal: '128'
+          - end_bracket: )
+  - statement_terminator: ;
+  - statement:
     - keyword: SET
-    - keyword: CONTEXT_INFO
+    - tsql_variable: '@BinVar'
+    - assignment_operator:
+      - raw_comparison_operator: =
     - expression:
-      - column_reference:
-        - naked_identifier: '0x01010101'
-- statement_terminator: ;
-- statement:
-  - keyword: DECLARE
-  - tsql_variable: '@BinVar'
-  - data_type:
-    - data_type_identifier: varbinary
-    - bracketed_arguments:
-      - bracketed:
-        - start_bracket: (
-        - numeric_literal: '128'
-        - end_bracket: )
-- statement_terminator: ;
-- statement:
-  - keyword: SET
-  - tsql_variable: '@BinVar'
-  - assignment_operator:
-    - raw_comparison_operator: =
-  - expression:
-    - function:
-      - function_name:
-        - function_name_identifier: CAST
-      - bracketed:
-        - start_bracket: (
-        - expression:
+      - function:
+        - function_name:
+          - function_name_identifier: CAST
+        - bracketed:
+          - start_bracket: (
+          - expression:
+            - function:
+              - function_name:
+                - function_name_identifier: REPLICATE
+              - bracketed:
+                - start_bracket: (
+                - expression:
+                  - column_reference:
+                    - naked_identifier: '0x20'
+                - comma: ','
+                - expression:
+                  - numeric_literal: '128'
+                - end_bracket: )
+          - keyword: AS
+          - data_type:
+            - data_type_identifier: varbinary
+            - bracketed_arguments:
+              - bracketed:
+                - start_bracket: (
+                - numeric_literal: '128'
+                - end_bracket: )
+          - end_bracket: )
+  - statement_terminator: ;
+  - statement:
+    - set_context_info_statement:
+      - keyword: SET
+      - keyword: CONTEXT_INFO
+      - tsql_variable: '@BinVar'
+  - statement_terminator: ;
+  - statement:
+    - select_statement:
+      - select_clause:
+        - keyword: SELECT
+        - select_clause_element:
           - function:
             - function_name:
-              - function_name_identifier: REPLICATE
+              - function_name_identifier: CONTEXT_INFO
             - bracketed:
               - start_bracket: (
-              - expression:
-                - column_reference:
-                  - naked_identifier: '0x20'
-              - comma: ','
-              - expression:
-                - numeric_literal: '128'
               - end_bracket: )
-        - keyword: AS
-        - data_type:
-          - data_type_identifier: varbinary
-          - bracketed_arguments:
-            - bracketed:
-              - start_bracket: (
-              - numeric_literal: '128'
-              - end_bracket: )
-        - end_bracket: )
-- statement_terminator: ;
-- statement:
-  - set_context_info_statement:
-    - keyword: SET
-    - keyword: CONTEXT_INFO
-    - tsql_variable: '@BinVar'
-- statement_terminator: ;
-- statement:
-  - select_statement:
-    - select_clause:
-      - keyword: SELECT
-      - select_clause_element:
-        - function:
-          - function_name:
-            - function_name_identifier: CONTEXT_INFO
-          - bracketed:
-            - start_bracket: (
-            - end_bracket: )
-        - alias_expression:
-          - keyword: AS
-          - naked_identifier: MyContextInfo
-- statement_terminator: ;
+          - alias_expression:
+            - keyword: AS
+            - naked_identifier: MyContextInfo
+  - statement_terminator: ;

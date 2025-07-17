@@ -1,65 +1,66 @@
 file:
-- statement:
-  - create_procedure_statement:
-    - keyword: CREATE
-    - keyword: PROCEDURE
-    - object_reference:
-      - naked_identifier: findjobs
-    - tsql_variable: '@nm'
-    - data_type:
+- batch:
+  - statement:
+    - create_procedure_statement:
+      - keyword: CREATE
+      - keyword: PROCEDURE
+      - object_reference:
+        - naked_identifier: findjobs
+      - tsql_variable: '@nm'
       - data_type:
-        - data_type_identifier: sysname
-    - comparison_operator:
-      - raw_comparison_operator: =
-    - null_literal: 'NULL'
-    - keyword: AS
-    - unparsable:
-      - word: IF
-      - tsql_variable: '@nm'
-      - word: IS
-      - word: 'NULL'
-      - word: BEGIN
-      - word: PRINT
-      - single_quote: '''You must give a user name'''
-      - word: RETURN
-      - word: END
-      - word: ELSE
-      - word: BEGIN
-      - word: SELECT
-      - word: o
-      - dot: .
-      - word: name
-      - comma: ','
-      - word: o
-      - dot: .
-      - word: id
-      - comma: ','
-      - word: o
-      - dot: .
-      - word: uid
-      - word: FROM
-      - word: sysobjects
-      - word: o
-      - word: INNER
-      - word: JOIN
-      - word: master
-      - dot: .
-      - dot: .
-      - word: syslogins
-      - word: l
-      - word: ON
-      - word: o
-      - dot: .
-      - word: uid
-      - raw_comparison_operator: =
-      - word: l
-      - dot: .
-      - word: sid
-      - word: WHERE
-      - word: l
-      - dot: .
-      - word: name
-      - raw_comparison_operator: =
-      - tsql_variable: '@nm'
-      - word: END
-- statement_terminator: ;
+        - data_type:
+          - data_type_identifier: sysname
+      - comparison_operator:
+        - raw_comparison_operator: =
+      - null_literal: 'NULL'
+      - keyword: AS
+      - unparsable:
+        - word: IF
+        - tsql_variable: '@nm'
+        - word: IS
+        - word: 'NULL'
+        - word: BEGIN
+        - word: PRINT
+        - single_quote: '''You must give a user name'''
+        - word: RETURN
+        - word: END
+        - word: ELSE
+        - word: BEGIN
+        - word: SELECT
+        - word: o
+        - dot: .
+        - word: name
+        - comma: ','
+        - word: o
+        - dot: .
+        - word: id
+        - comma: ','
+        - word: o
+        - dot: .
+        - word: uid
+        - word: FROM
+        - word: sysobjects
+        - word: o
+        - word: INNER
+        - word: JOIN
+        - word: master
+        - dot: .
+        - dot: .
+        - word: syslogins
+        - word: l
+        - word: ON
+        - word: o
+        - dot: .
+        - word: uid
+        - raw_comparison_operator: =
+        - word: l
+        - dot: .
+        - word: sid
+        - word: WHERE
+        - word: l
+        - dot: .
+        - word: name
+        - raw_comparison_operator: =
+        - tsql_variable: '@nm'
+        - word: END
+  - statement_terminator: ;

@@ -1,34 +1,35 @@
 file:
-- statement:
-  - create_table_statement:
+- batch:
+  - statement:
     - create_table_statement:
-      - keyword: CREATE
-      - keyword: TABLE
-      - table_reference:
-        - object_reference:
-          - quoted_identifier: '[dbo]'
-          - dot: .
-          - quoted_identifier: '[Person]'
-      - bracketed:
-        - start_bracket: (
-        - column_definition:
-          - naked_identifier: ID
-          - data_type:
-            - data_type_identifier: INTEGER
-          - column_constraint_segment:
-            - keyword: PRIMARY
-            - keyword: KEY
-        - comma: ','
-        - column_definition:
-          - quoted_identifier: '[name]'
-          - data_type:
-            - data_type_identifier: VARCHAR
-            - bracketed_arguments:
-              - bracketed:
-                - start_bracket: (
-                - numeric_literal: '100'
-                - end_bracket: )
-        - end_bracket: )
+      - create_table_statement:
+        - keyword: CREATE
+        - keyword: TABLE
+        - table_reference:
+          - object_reference:
+            - quoted_identifier: '[dbo]'
+            - dot: .
+            - quoted_identifier: '[Person]'
+        - bracketed:
+          - start_bracket: (
+          - column_definition:
+            - naked_identifier: ID
+            - data_type:
+              - data_type_identifier: INTEGER
+            - column_constraint_segment:
+              - keyword: PRIMARY
+              - keyword: KEY
+          - comma: ','
+          - column_definition:
+            - quoted_identifier: '[name]'
+            - data_type:
+              - data_type_identifier: VARCHAR
+              - bracketed_arguments:
+                - bracketed:
+                  - start_bracket: (
+                  - numeric_literal: '100'
+                  - end_bracket: )
+          - end_bracket: )
 - file:
   - word: AS
   - word: NODE

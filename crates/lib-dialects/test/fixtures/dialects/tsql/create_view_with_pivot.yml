@@ -1,112 +1,113 @@
 file:
-- statement:
-  - create_view_statement:
+- batch:
+  - statement:
     - create_view_statement:
-      - keyword: CREATE
-      - keyword: OR
-      - keyword: ALTER
-      - keyword: VIEW
-      - table_reference:
-        - object_reference:
-          - naked_identifier: DEST
-          - dot: .
-          - naked_identifier: V_HOSPITAL_ADMISSIONS_OVERTIME_BYAGEGROUP
-      - keyword: AS
-      - select_statement:
-        - select_clause:
-          - keyword: SELECT
-          - select_clause_element:
-            - quoted_literal: '''AverageCost'''
-            - alias_expression:
-              - keyword: AS
-              - naked_identifier: Cost_Sorted_By_Production_Days
-          - comma: ','
-          - select_clause_element:
-            - column_reference:
-              - quoted_identifier: '[0]'
-          - comma: ','
-          - select_clause_element:
-            - column_reference:
-              - quoted_identifier: '[1]'
-          - comma: ','
-          - select_clause_element:
-            - column_reference:
-              - quoted_identifier: '[2]'
-          - comma: ','
-          - select_clause_element:
-            - column_reference:
-              - quoted_identifier: '[3]'
-          - comma: ','
-          - select_clause_element:
-            - column_reference:
-              - quoted_identifier: '[4]'
-        - from_clause:
-          - keyword: FROM
-          - from_expression:
-            - from_expression_element:
-              - table_expression:
-                - bracketed:
-                  - start_bracket: (
-                  - select_statement:
-                    - select_clause:
-                      - keyword: SELECT
-                      - select_clause_element:
-                        - column_reference:
-                          - naked_identifier: DaysToManufacture
-                      - comma: ','
-                      - select_clause_element:
-                        - column_reference:
-                          - naked_identifier: StandardCost
-                    - from_clause:
-                      - keyword: FROM
-                      - from_expression:
-                        - from_expression_element:
-                          - table_expression:
-                            - table_reference:
-                              - object_reference:
-                                - naked_identifier: Production
-                                - dot: .
-                                - naked_identifier: Product
-                  - end_bracket: )
+      - create_view_statement:
+        - keyword: CREATE
+        - keyword: OR
+        - keyword: ALTER
+        - keyword: VIEW
+        - table_reference:
+          - object_reference:
+            - naked_identifier: DEST
+            - dot: .
+            - naked_identifier: V_HOSPITAL_ADMISSIONS_OVERTIME_BYAGEGROUP
+        - keyword: AS
+        - select_statement:
+          - select_clause:
+            - keyword: SELECT
+            - select_clause_element:
+              - quoted_literal: '''AverageCost'''
               - alias_expression:
                 - keyword: AS
-                - naked_identifier: SourceTable
-              - pivot_expression:
-                - keyword: PIVOT
-                - bracketed:
-                  - start_bracket: (
-                  - function:
-                    - function_name:
-                      - function_name_identifier: AVG
-                    - bracketed:
-                      - start_bracket: (
-                      - expression:
-                        - column_reference:
-                          - naked_identifier: StandardCost
-                      - end_bracket: )
-                  - keyword: FOR
-                  - column_reference:
-                    - naked_identifier: DaysToManufacture
-                  - keyword: IN
+                - naked_identifier: Cost_Sorted_By_Production_Days
+            - comma: ','
+            - select_clause_element:
+              - column_reference:
+                - quoted_identifier: '[0]'
+            - comma: ','
+            - select_clause_element:
+              - column_reference:
+                - quoted_identifier: '[1]'
+            - comma: ','
+            - select_clause_element:
+              - column_reference:
+                - quoted_identifier: '[2]'
+            - comma: ','
+            - select_clause_element:
+              - column_reference:
+                - quoted_identifier: '[3]'
+            - comma: ','
+            - select_clause_element:
+              - column_reference:
+                - quoted_identifier: '[4]'
+          - from_clause:
+            - keyword: FROM
+            - from_expression:
+              - from_expression_element:
+                - table_expression:
                   - bracketed:
                     - start_bracket: (
-                    - pivot_column_reference:
-                      - quoted_identifier: '[0]'
-                    - comma: ','
-                    - pivot_column_reference:
-                      - quoted_identifier: '[1]'
-                    - comma: ','
-                    - pivot_column_reference:
-                      - quoted_identifier: '[2]'
-                    - comma: ','
-                    - pivot_column_reference:
-                      - quoted_identifier: '[3]'
-                    - comma: ','
-                    - pivot_column_reference:
-                      - quoted_identifier: '[4]'
+                    - select_statement:
+                      - select_clause:
+                        - keyword: SELECT
+                        - select_clause_element:
+                          - column_reference:
+                            - naked_identifier: DaysToManufacture
+                        - comma: ','
+                        - select_clause_element:
+                          - column_reference:
+                            - naked_identifier: StandardCost
+                      - from_clause:
+                        - keyword: FROM
+                        - from_expression:
+                          - from_expression_element:
+                            - table_expression:
+                              - table_reference:
+                                - object_reference:
+                                  - naked_identifier: Production
+                                  - dot: .
+                                  - naked_identifier: Product
                     - end_bracket: )
-                  - end_bracket: )
                 - alias_expression:
                   - keyword: AS
-                  - naked_identifier: PivotTable
-- statement_terminator: ;
+                  - naked_identifier: SourceTable
+                - pivot_expression:
+                  - keyword: PIVOT
+                  - bracketed:
+                    - start_bracket: (
+                    - function:
+                      - function_name:
+                        - function_name_identifier: AVG
+                      - bracketed:
+                        - start_bracket: (
+                        - expression:
+                          - column_reference:
+                            - naked_identifier: StandardCost
+                        - end_bracket: )
+                    - keyword: FOR
+                    - column_reference:
+                      - naked_identifier: DaysToManufacture
+                    - keyword: IN
+                    - bracketed:
+                      - start_bracket: (
+                      - pivot_column_reference:
+                        - quoted_identifier: '[0]'
+                      - comma: ','
+                      - pivot_column_reference:
+                        - quoted_identifier: '[1]'
+                      - comma: ','
+                      - pivot_column_reference:
+                        - quoted_identifier: '[2]'
+                      - comma: ','
+                      - pivot_column_reference:
+                        - quoted_identifier: '[3]'
+                      - comma: ','
+                      - pivot_column_reference:
+                        - quoted_identifier: '[4]'
+                      - end_bracket: )
+                    - end_bracket: )
+                  - alias_expression:
+                    - keyword: AS
+                    - naked_identifier: PivotTable
+  - statement_terminator: ;

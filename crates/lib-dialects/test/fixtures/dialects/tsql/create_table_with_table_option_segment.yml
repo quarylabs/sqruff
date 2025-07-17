@@ -1,24 +1,25 @@
 file:
-- statement:
-  - create_table_statement:
+- batch:
+  - statement:
     - create_table_statement:
-      - keyword: CREATE
-      - keyword: TABLE
-      - table_reference:
-        - object_reference:
-          - quoted_identifier: '[dbo]'
-          - dot: .
-          - quoted_identifier: '[TEST]'
-      - bracketed:
-        - start_bracket: (
-        - column_definition:
-          - quoted_identifier: '[id]'
-          - data_type:
-            - data_type_identifier: INT
-          - column_constraint_segment:
-            - keyword: NOT
-            - keyword: 'NULL'
-        - end_bracket: )
+      - create_table_statement:
+        - keyword: CREATE
+        - keyword: TABLE
+        - table_reference:
+          - object_reference:
+            - quoted_identifier: '[dbo]'
+            - dot: .
+            - quoted_identifier: '[TEST]'
+        - bracketed:
+          - start_bracket: (
+          - column_definition:
+            - quoted_identifier: '[id]'
+            - data_type:
+              - data_type_identifier: INT
+            - column_constraint_segment:
+              - keyword: NOT
+              - keyword: 'NULL'
+          - end_bracket: )
 - file:
   - word: ON
   - double_quote: '[PRIMARY]'

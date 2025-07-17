@@ -1,78 +1,79 @@
 file:
-- statement:
-  - create_database_statement:
-    - keyword: CREATE
-    - keyword: PARTITION
-    - keyword: SCHEME
-    - object_reference:
-      - naked_identifier: myRangePS1
-    - keyword: AS
-    - keyword: PARTITION
-    - object_reference:
-      - naked_identifier: myRangePF1
-    - keyword: TO
-    - bracketed:
-      - start_bracket: (
+- batch:
+  - statement:
+    - create_database_statement:
+      - keyword: CREATE
+      - keyword: PARTITION
+      - keyword: SCHEME
       - object_reference:
-        - naked_identifier: test1fg
-      - comma: ','
+        - naked_identifier: myRangePS1
+      - keyword: AS
+      - keyword: PARTITION
       - object_reference:
-        - quoted_identifier: '[test2fg]'
-      - comma: ','
+        - naked_identifier: myRangePF1
+      - keyword: TO
+      - bracketed:
+        - start_bracket: (
+        - object_reference:
+          - naked_identifier: test1fg
+        - comma: ','
+        - object_reference:
+          - quoted_identifier: '[test2fg]'
+        - comma: ','
+        - object_reference:
+          - naked_identifier: test3fg
+        - comma: ','
+        - object_reference:
+          - naked_identifier: test4fg
+        - end_bracket: )
+  - statement_terminator: ;
+  - statement:
+    - create_database_statement:
+      - keyword: CREATE
+      - keyword: PARTITION
+      - keyword: SCHEME
       - object_reference:
-        - naked_identifier: test3fg
-      - comma: ','
+        - naked_identifier: myRangePS3
+      - keyword: AS
+      - keyword: PARTITION
       - object_reference:
-        - naked_identifier: test4fg
-      - end_bracket: )
-- statement_terminator: ;
-- statement:
-  - create_database_statement:
-    - keyword: CREATE
-    - keyword: PARTITION
-    - keyword: SCHEME
-    - object_reference:
-      - naked_identifier: myRangePS3
-    - keyword: AS
-    - keyword: PARTITION
-    - object_reference:
-      - naked_identifier: myRangePF3
-    - keyword: ALL
-    - keyword: TO
-    - bracketed:
-      - start_bracket: (
+        - naked_identifier: myRangePF3
+      - keyword: ALL
+      - keyword: TO
+      - bracketed:
+        - start_bracket: (
+        - object_reference:
+          - naked_identifier: test1fg
+        - end_bracket: )
+  - statement_terminator: ;
+  - statement:
+    - create_database_statement:
+      - keyword: CREATE
+      - keyword: PARTITION
+      - keyword: SCHEME
       - object_reference:
-        - naked_identifier: test1fg
-      - end_bracket: )
-- statement_terminator: ;
-- statement:
-  - create_database_statement:
-    - keyword: CREATE
-    - keyword: PARTITION
-    - keyword: SCHEME
-    - object_reference:
-      - quoted_identifier: '[myRangePS1]'
-    - keyword: AS
-    - keyword: PARTITION
-    - object_reference:
-      - naked_identifier: myRangePF1
-    - keyword: ALL
-    - keyword: TO
-    - bracketed:
-      - start_bracket: (
+        - quoted_identifier: '[myRangePS1]'
+      - keyword: AS
+      - keyword: PARTITION
       - object_reference:
-        - quoted_identifier: '[PRIMARY]'
-      - end_bracket: )
-- statement_terminator: ;
-- statement:
-  - alter_database_statement:
-    - keyword: ALTER
-    - keyword: PARTITION
-    - keyword: SCHEME
-    - object_reference:
-      - naked_identifier: MyRangePS1
-    - keyword: NEXT
-    - keyword: USED
-    - object_reference:
-      - naked_identifier: test5fg
-- statement_terminator: ;
+        - naked_identifier: myRangePF1
+      - keyword: ALL
+      - keyword: TO
+      - bracketed:
+        - start_bracket: (
+        - object_reference:
+          - quoted_identifier: '[PRIMARY]'
+        - end_bracket: )
+  - statement_terminator: ;
+  - statement:
+    - alter_database_statement:
+      - keyword: ALTER
+      - keyword: PARTITION
+      - keyword: SCHEME
+      - object_reference:
+        - naked_identifier: MyRangePS1
+      - keyword: NEXT
+      - keyword: USED
+      - object_reference:
+        - naked_identifier: test5fg
+  - statement_terminator: ;

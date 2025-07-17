@@ -1,31 +1,32 @@
 file:
-- statement:
-  - drop_external_table_statement:
-    - keyword: DROP
-    - keyword: EXTERNAL
-    - keyword: TABLE
-    - object_reference:
-      - naked_identifier: SalesPerson
-- statement_terminator: ;
-- statement:
-  - drop_external_table_statement:
-    - keyword: DROP
-    - keyword: EXTERNAL
-    - keyword: TABLE
-    - object_reference:
-      - naked_identifier: dbo
-      - dot: .
-      - naked_identifier: SalesPerson
-- statement_terminator: ;
-- statement:
-  - drop_external_table_statement:
-    - keyword: DROP
-    - keyword: EXTERNAL
-    - keyword: TABLE
-    - object_reference:
-      - naked_identifier: EasternDivision
-      - dot: .
-      - naked_identifier: dbo
-      - dot: .
-      - naked_identifier: SalesPerson
-- statement_terminator: ;
+- batch:
+  - statement:
+    - drop_external_table_statement:
+      - keyword: DROP
+      - keyword: EXTERNAL
+      - keyword: TABLE
+      - object_reference:
+        - naked_identifier: SalesPerson
+  - statement_terminator: ;
+  - statement:
+    - drop_external_table_statement:
+      - keyword: DROP
+      - keyword: EXTERNAL
+      - keyword: TABLE
+      - object_reference:
+        - naked_identifier: dbo
+        - dot: .
+        - naked_identifier: SalesPerson
+  - statement_terminator: ;
+  - statement:
+    - drop_external_table_statement:
+      - keyword: DROP
+      - keyword: EXTERNAL
+      - keyword: TABLE
+      - object_reference:
+        - naked_identifier: EasternDivision
+        - dot: .
+        - naked_identifier: dbo
+        - dot: .
+        - naked_identifier: SalesPerson
+  - statement_terminator: ;

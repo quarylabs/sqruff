@@ -1,91 +1,93 @@
 file:
-- statement:
-  - create_procedure_statement:
-    - keyword: CREATE
-    - keyword: PROCEDURE
-    - object_reference:
-      - naked_identifier: dbo
-      - dot: .
-      - naked_identifier: Test_Begin_End
-    - keyword: AS
-    - statement:
-      - begin_end_block:
-        - keyword: BEGIN
-        - statement:
-          - select_statement:
-            - select_clause:
-              - keyword: SELECT
-              - select_clause_element:
-                - quoted_literal: '''Weekend'''
-        - statement_terminator: ;
-        - statement:
-          - select_statement:
-            - select_clause:
-              - keyword: select
-              - select_clause_element:
-                - column_reference:
-                  - naked_identifier: a
-            - from_clause:
-              - keyword: from
-              - from_expression:
-                - from_expression_element:
-                  - table_expression:
-                    - table_reference:
-                      - object_reference:
-                        - naked_identifier: tbl1
-        - statement_terminator: ;
-        - statement:
-          - select_statement:
-            - select_clause:
-              - keyword: select
-              - select_clause_element:
-                - column_reference:
-                  - naked_identifier: b
-            - from_clause:
-              - keyword: from
-              - from_expression:
-                - from_expression_element:
-                  - table_expression:
-                    - table_reference:
-                      - object_reference:
-                        - naked_identifier: tbl2
-        - statement_terminator: ;
-        - keyword: END
-- statement_terminator: ;
+- batch:
+  - statement:
+    - create_procedure_statement:
+      - keyword: CREATE
+      - keyword: PROCEDURE
+      - object_reference:
+        - naked_identifier: dbo
+        - dot: .
+        - naked_identifier: Test_Begin_End
+      - keyword: AS
+      - statement:
+        - begin_end_block:
+          - keyword: BEGIN
+          - statement:
+            - select_statement:
+              - select_clause:
+                - keyword: SELECT
+                - select_clause_element:
+                  - quoted_literal: '''Weekend'''
+          - statement_terminator: ;
+          - statement:
+            - select_statement:
+              - select_clause:
+                - keyword: select
+                - select_clause_element:
+                  - column_reference:
+                    - naked_identifier: a
+              - from_clause:
+                - keyword: from
+                - from_expression:
+                  - from_expression_element:
+                    - table_expression:
+                      - table_reference:
+                        - object_reference:
+                          - naked_identifier: tbl1
+          - statement_terminator: ;
+          - statement:
+            - select_statement:
+              - select_clause:
+                - keyword: select
+                - select_clause_element:
+                  - column_reference:
+                    - naked_identifier: b
+              - from_clause:
+                - keyword: from
+                - from_expression:
+                  - from_expression_element:
+                    - table_expression:
+                      - table_reference:
+                        - object_reference:
+                          - naked_identifier: tbl2
+          - statement_terminator: ;
+          - keyword: END
+  - statement_terminator: ;
 - keyword: GO
-- statement:
-  - create_procedure_statement:
-    - keyword: CREATE
-    - keyword: PROCEDURE
-    - object_reference:
-      - quoted_identifier: '[dbo]'
-      - dot: .
-      - quoted_identifier: '[usp_process_tran_log]'
-    - tsql_variable: '@out_vchCode'
-    - data_type:
+- batch:
+  - statement:
+    - create_procedure_statement:
+      - keyword: CREATE
+      - keyword: PROCEDURE
+      - object_reference:
+        - quoted_identifier: '[dbo]'
+        - dot: .
+        - quoted_identifier: '[usp_process_tran_log]'
+      - tsql_variable: '@out_vchCode'
       - data_type:
-        - data_type_identifier: uddt_output_code
-    - keyword: OUTPUT
-    - comma: ','
-    - tsql_variable: '@out_vchMsg'
-    - data_type:
+        - data_type:
+          - data_type_identifier: uddt_output_code
+      - keyword: OUTPUT
+      - comma: ','
+      - tsql_variable: '@out_vchMsg'
       - data_type:
-        - data_type_identifier: uddt_output_msg
-    - keyword: OUTPUT
-    - comma: ','
-    - tsql_variable: '@in_debug'
-    - data_type:
+        - data_type:
+          - data_type_identifier: uddt_output_msg
+      - keyword: OUTPUT
+      - comma: ','
+      - tsql_variable: '@in_debug'
       - data_type:
-        - data_type_identifier: INT
-    - comparison_operator:
-      - raw_comparison_operator: =
-    - numeric_literal: '1'
-    - keyword: AS
-    - statement:
-      - keyword: SET
-      - keyword: NOCOUNT
-      - keyword: ON
-- statement_terminator: ;
+        - data_type:
+          - data_type_identifier: INT
+      - comparison_operator:
+        - raw_comparison_operator: =
+      - numeric_literal: '1'
+      - keyword: AS
+      - statement:
+        - keyword: SET
+        - keyword: NOCOUNT
+        - keyword: ON
+  - statement_terminator: ;
 - file:
   - word: BEGIN
   - word: SELECT

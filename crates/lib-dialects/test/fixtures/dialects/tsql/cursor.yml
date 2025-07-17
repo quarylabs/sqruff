@@ -1,73 +1,74 @@
 file:
-- statement:
-  - declare_cursor_statement:
-    - keyword: DECLARE
-    - naked_identifier: pointy
-    - keyword: CURSOR
-    - keyword: LOCAL
-    - keyword: FORWARD_ONLY
-    - keyword: READ_ONLY
-    - keyword: FOR
-    - select_statement:
-      - select_clause:
-        - keyword: SELECT
-        - select_clause_element:
-          - column_reference:
-            - naked_identifier: column_a
-        - comma: ','
-        - select_clause_element:
+- batch:
+  - statement:
+    - declare_cursor_statement:
+      - keyword: DECLARE
+      - naked_identifier: pointy
+      - keyword: CURSOR
+      - keyword: LOCAL
+      - keyword: FORWARD_ONLY
+      - keyword: READ_ONLY
+      - keyword: FOR
+      - select_statement:
+        - select_clause:
+          - keyword: SELECT
+          - select_clause_element:
+            - column_reference:
+              - naked_identifier: column_a
+          - comma: ','
+          - select_clause_element:
+            - column_reference:
+              - naked_identifier: column_b
+        - from_clause:
+          - keyword: FROM
+          - from_expression:
+            - from_expression_element:
+              - table_expression:
+                - table_reference:
+                  - object_reference:
+                    - naked_identifier: some_table
+        - where_clause:
+          - keyword: WHERE
+          - expression:
+            - column_reference:
+              - naked_identifier: column_a
+            - keyword: IS
+            - keyword: NOT
+            - null_literal: 'NULL'
+        - orderby_clause:
+          - keyword: ORDER
+          - keyword: BY
           - column_reference:
             - naked_identifier: column_b
-      - from_clause:
-        - keyword: FROM
-        - from_expression:
-          - from_expression_element:
-            - table_expression:
-              - table_reference:
-                - object_reference:
-                  - naked_identifier: some_table
-      - where_clause:
-        - keyword: WHERE
-        - expression:
-          - column_reference:
-            - naked_identifier: column_a
-          - keyword: IS
-          - keyword: NOT
-          - null_literal: 'NULL'
-      - orderby_clause:
-        - keyword: ORDER
-        - keyword: BY
-        - column_reference:
-          - naked_identifier: column_b
-      - unparsable:
-        - word: OPEN
-        - word: pointy
-- statement_terminator: ;
-- statement:
+        - unparsable:
+          - word: OPEN
+          - word: pointy
+  - statement_terminator: ;
   - statement:
-    - keyword: FETCH
-    - keyword: FIRST
-    - keyword: FROM
-    - tsql_variable: '@pointy'
-    - keyword: into
-    - tsql_variable: '@result'
-- statement_terminator: ;
-- statement:
+    - statement:
+      - keyword: FETCH
+      - keyword: FIRST
+      - keyword: FROM
+      - tsql_variable: '@pointy'
+      - keyword: into
+      - tsql_variable: '@result'
+  - statement_terminator: ;
   - statement:
-    - keyword: FETCH
-    - keyword: NEXT
-    - keyword: FROM
-    - keyword: GLOBAL
-    - naked_identifier: pointy
-- statement_terminator: ;
-- statement:
+    - statement:
+      - keyword: FETCH
+      - keyword: NEXT
+      - keyword: FROM
+      - keyword: GLOBAL
+      - naked_identifier: pointy
+  - statement_terminator: ;
   - statement:
-    - keyword: CLOSE
-    - keyword: GLOBAL
-    - naked_identifier: pointy
-- statement_terminator: ;
-- statement:
+    - statement:
+      - keyword: CLOSE
+      - keyword: GLOBAL
+      - naked_identifier: pointy
+  - statement_terminator: ;
   - statement:
-    - keyword: DEALLOCATE
-    - naked_identifier: pointy
-- statement_terminator: ;
+    - statement:
+      - keyword: DEALLOCATE
+      - naked_identifier: pointy
+  - statement_terminator: ;

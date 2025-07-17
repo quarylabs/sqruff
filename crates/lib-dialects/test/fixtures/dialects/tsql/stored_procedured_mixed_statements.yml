@@ -1,56 +1,57 @@
 file:
-- statement:
-  - create_procedure_statement:
-    - keyword: CREATE
-    - keyword: PROC
-    - object_reference:
-      - quoted_identifier: '[Reporting]'
-      - dot: .
-      - quoted_identifier: '[PowerPlan]'
-    - keyword: AS
-    - statement:
-      - keyword: DECLARE
-      - tsql_variable: '@DATEFUNCTION'
-      - data_type:
-        - data_type_identifier: DATE
-      - assignment_operator:
-        - raw_comparison_operator: =
-      - expression:
-        - function:
-          - function_name:
-            - function_name_identifier: GETDATE
-          - bracketed:
-            - start_bracket: (
-            - end_bracket: )
-    - statement:
-      - drop_table_statement:
-        - keyword: DROP
-        - keyword: TABLE
-        - table_reference:
-          - object_reference:
-            - quoted_identifier: '[Reporting]'
-            - dot: .
-            - quoted_identifier: '[PowerPlan_BASE]'
-- statement_terminator: ;
-- statement:
-  - keyword: DECLARE
-  - tsql_variable: '@deadlock_var'
-  - data_type:
-    - data_type_identifier: NCHAR
-    - bracketed_arguments:
-      - bracketed:
-        - start_bracket: (
-        - numeric_literal: '3'
-        - end_bracket: )
-- statement_terminator: ;
-- statement:
-  - keyword: SET
-  - tsql_variable: '@deadlock_var'
-  - assignment_operator:
-    - raw_comparison_operator: =
-  - expression:
-    - quoted_literal: N'LOW'
-- statement_terminator: ;
+- batch:
+  - statement:
+    - create_procedure_statement:
+      - keyword: CREATE
+      - keyword: PROC
+      - object_reference:
+        - quoted_identifier: '[Reporting]'
+        - dot: .
+        - quoted_identifier: '[PowerPlan]'
+      - keyword: AS
+      - statement:
+        - keyword: DECLARE
+        - tsql_variable: '@DATEFUNCTION'
+        - data_type:
+          - data_type_identifier: DATE
+        - assignment_operator:
+          - raw_comparison_operator: =
+        - expression:
+          - function:
+            - function_name:
+              - function_name_identifier: GETDATE
+            - bracketed:
+              - start_bracket: (
+              - end_bracket: )
+      - statement:
+        - drop_table_statement:
+          - keyword: DROP
+          - keyword: TABLE
+          - table_reference:
+            - object_reference:
+              - quoted_identifier: '[Reporting]'
+              - dot: .
+              - quoted_identifier: '[PowerPlan_BASE]'
+  - statement_terminator: ;
+  - statement:
+    - keyword: DECLARE
+    - tsql_variable: '@deadlock_var'
+    - data_type:
+      - data_type_identifier: NCHAR
+      - bracketed_arguments:
+        - bracketed:
+          - start_bracket: (
+          - numeric_literal: '3'
+          - end_bracket: )
+  - statement_terminator: ;
+  - statement:
+    - keyword: SET
+    - tsql_variable: '@deadlock_var'
+    - assignment_operator:
+      - raw_comparison_operator: =
+    - expression:
+      - quoted_literal: N'LOW'
+  - statement_terminator: ;
 - file:
   - word: BEGIN
   - word: SET

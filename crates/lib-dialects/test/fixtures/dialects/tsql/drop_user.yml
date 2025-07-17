@@ -1,19 +1,20 @@
 file:
-- statement:
-  - drop_user_statement:
+- batch:
+  - statement:
     - drop_user_statement:
-      - keyword: drop
-      - keyword: user
-      - object_reference:
-        - naked_identifier: some_user
-- statement_terminator: ;
-- statement:
-  - drop_user_statement:
+      - drop_user_statement:
+        - keyword: drop
+        - keyword: user
+        - object_reference:
+          - naked_identifier: some_user
+  - statement_terminator: ;
+  - statement:
     - drop_user_statement:
-      - keyword: drop
-      - keyword: user
-      - keyword: if
-      - keyword: exists
-      - object_reference:
-        - naked_identifier: some_user
-- statement_terminator: ;
+      - drop_user_statement:
+        - keyword: drop
+        - keyword: user
+        - keyword: if
+        - keyword: exists
+        - object_reference:
+          - naked_identifier: some_user
+  - statement_terminator: ;

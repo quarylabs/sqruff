@@ -1,37 +1,38 @@
 file:
-- statement:
-  - create_procedure_statement:
-    - keyword: create
-    - keyword: or
-    - keyword: alter
-    - keyword: procedure
-    - object_reference:
-      - naked_identifier: name
-    - tsql_variable: '@param1'
-    - data_type:
+- batch:
+  - statement:
+    - create_procedure_statement:
+      - keyword: create
+      - keyword: or
+      - keyword: alter
+      - keyword: procedure
+      - object_reference:
+        - naked_identifier: name
+      - tsql_variable: '@param1'
       - data_type:
-        - data_type_identifier: nvarchar
-        - bracketed_arguments:
-          - bracketed:
-            - start_bracket: (
-            - numeric_literal: '10'
-            - end_bracket: )
-    - comparison_operator:
-      - raw_comparison_operator: =
-    - quoted_literal: '''test'''
-    - comma: ','
-    - tsql_variable: '@param2'
-    - data_type:
+        - data_type:
+          - data_type_identifier: nvarchar
+          - bracketed_arguments:
+            - bracketed:
+              - start_bracket: (
+              - numeric_literal: '10'
+              - end_bracket: )
+      - comparison_operator:
+        - raw_comparison_operator: =
+      - quoted_literal: '''test'''
+      - comma: ','
+      - tsql_variable: '@param2'
       - data_type:
-        - data_type_identifier: int
-    - comparison_operator:
-      - raw_comparison_operator: =
-    - numeric_literal: '21'
-    - keyword: as
-    - unparsable:
-      - word: begin
-      - word: return
-      - numeric_literal: '1'
-- statement_terminator: ;
+        - data_type:
+          - data_type_identifier: int
+      - comparison_operator:
+        - raw_comparison_operator: =
+      - numeric_literal: '21'
+      - keyword: as
+      - unparsable:
+        - word: begin
+        - word: return
+        - numeric_literal: '1'
+  - statement_terminator: ;
 - file:
   - word: end

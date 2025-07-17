@@ -1,27 +1,29 @@
 file:
-- statement:
-  - create_sequence_statement:
-    - keyword: CREATE
-    - keyword: SEQUENCE
-    - column_reference:
-      - naked_identifier: SEQ_MELDER
-    - create_sequence_options_segment:
-      - keyword: START
-      - keyword: WITH
-      - numeric_literal: '1'
-    - create_sequence_options_segment:
-      - keyword: INCREMENT
-      - keyword: BY
-      - numeric_literal: '1'
+- batch:
+  - statement:
+    - create_sequence_statement:
+      - keyword: CREATE
+      - keyword: SEQUENCE
+      - column_reference:
+        - naked_identifier: SEQ_MELDER
+      - create_sequence_options_segment:
+        - keyword: START
+        - keyword: WITH
+        - numeric_literal: '1'
+      - create_sequence_options_segment:
+        - keyword: INCREMENT
+        - keyword: BY
+        - numeric_literal: '1'
 - keyword: GO
-- statement:
-  - create_sequence_statement:
-    - keyword: CREATE
-    - keyword: SEQUENCE
-    - column_reference:
-      - naked_identifier: Test
-      - dot: .
-      - naked_identifier: DecSeq
+- batch:
+  - statement:
+    - create_sequence_statement:
+      - keyword: CREATE
+      - keyword: SEQUENCE
+      - column_reference:
+        - naked_identifier: Test
+        - dot: .
+        - naked_identifier: DecSeq
 - file:
   - word: AS
   - word: decimal

@@ -1,170 +1,178 @@
 file:
-- statement:
-  - create_table_statement:
+- batch:
+  - statement:
     - create_table_statement:
-      - keyword: CREATE
+      - create_table_statement:
+        - keyword: CREATE
+        - keyword: TABLE
+        - table_reference:
+          - object_reference:
+            - naked_identifier: dbo
+            - dot: .
+            - naked_identifier: doc_exa
+        - bracketed:
+          - start_bracket: (
+          - column_definition:
+            - naked_identifier: column_a
+            - data_type:
+              - data_type_identifier: INT
+          - end_bracket: )
+  - statement_terminator: ;
+- keyword: GO
+- batch:
+  - statement:
+    - alter_table_statement:
+      - keyword: ALTER
       - keyword: TABLE
       - table_reference:
         - object_reference:
           - naked_identifier: dbo
           - dot: .
           - naked_identifier: doc_exa
-      - bracketed:
-        - start_bracket: (
-        - column_definition:
-          - naked_identifier: column_a
-          - data_type:
-            - data_type_identifier: INT
-        - end_bracket: )
-- statement_terminator: ;
+      - keyword: ADD
+      - column_definition:
+        - naked_identifier: column_b
+        - data_type:
+          - data_type_identifier: VARCHAR
+          - bracketed_arguments:
+            - bracketed:
+              - start_bracket: (
+              - numeric_literal: '20'
+              - end_bracket: )
+        - column_constraint_segment:
+          - keyword: 'NULL'
+  - statement_terminator: ;
 - keyword: GO
-- statement:
-  - alter_table_statement:
-    - keyword: ALTER
-    - keyword: TABLE
-    - table_reference:
-      - object_reference:
-        - naked_identifier: dbo
-        - dot: .
-        - naked_identifier: doc_exa
-    - keyword: ADD
-    - column_definition:
-      - naked_identifier: column_b
-      - data_type:
-        - data_type_identifier: VARCHAR
-        - bracketed_arguments:
-          - bracketed:
-            - start_bracket: (
-            - numeric_literal: '20'
-            - end_bracket: )
-      - column_constraint_segment:
-        - keyword: 'NULL'
-- statement_terminator: ;
-- keyword: GO
-- statement:
-  - create_table_statement:
+- batch:
+  - statement:
     - create_table_statement:
-      - keyword: CREATE
+      - create_table_statement:
+        - keyword: CREATE
+        - keyword: TABLE
+        - table_reference:
+          - object_reference:
+            - naked_identifier: dbo
+            - dot: .
+            - naked_identifier: doc_exc
+        - bracketed:
+          - start_bracket: (
+          - column_definition:
+            - naked_identifier: column_a
+            - data_type:
+              - data_type_identifier: INT
+          - end_bracket: )
+  - statement_terminator: ;
+- keyword: GO
+- batch:
+  - statement:
+    - alter_table_statement:
+      - keyword: ALTER
       - keyword: TABLE
       - table_reference:
         - object_reference:
           - naked_identifier: dbo
           - dot: .
           - naked_identifier: doc_exc
-      - bracketed:
-        - start_bracket: (
-        - column_definition:
-          - naked_identifier: column_a
-          - data_type:
-            - data_type_identifier: INT
-        - end_bracket: )
-- statement_terminator: ;
+      - keyword: ADD
+      - column_definition:
+        - naked_identifier: column_b
+        - data_type:
+          - data_type_identifier: VARCHAR
+          - bracketed_arguments:
+            - bracketed:
+              - start_bracket: (
+              - numeric_literal: '20'
+              - end_bracket: )
+        - column_constraint_segment:
+          - keyword: 'NULL'
+        - column_constraint_segment:
+          - keyword: CONSTRAINT
+          - object_reference:
+            - naked_identifier: exb_unique
+          - keyword: UNIQUE
+      - comma: ','
+      - keyword: DROP
+      - keyword: COLUMN
+      - naked_identifier: column_a
+      - comma: ','
+      - keyword: DROP
+      - keyword: COLUMN
+      - keyword: IF
+      - keyword: EXISTS
+      - naked_identifier: column_c
+  - statement_terminator: ;
 - keyword: GO
-- statement:
-  - alter_table_statement:
-    - keyword: ALTER
-    - keyword: TABLE
-    - table_reference:
-      - object_reference:
-        - naked_identifier: dbo
-        - dot: .
+- batch:
+  - statement:
+    - keyword: EXEC
+    - object_reference:
+      - naked_identifier: sp_help
+    - expression:
+      - column_reference:
         - naked_identifier: doc_exc
-    - keyword: ADD
-    - column_definition:
-      - naked_identifier: column_b
-      - data_type:
-        - data_type_identifier: VARCHAR
-        - bracketed_arguments:
-          - bracketed:
-            - start_bracket: (
-            - numeric_literal: '20'
-            - end_bracket: )
-      - column_constraint_segment:
-        - keyword: 'NULL'
-      - column_constraint_segment:
-        - keyword: CONSTRAINT
-        - object_reference:
-          - naked_identifier: exb_unique
-        - keyword: UNIQUE
-    - comma: ','
-    - keyword: DROP
-    - keyword: COLUMN
-    - naked_identifier: column_a
-    - comma: ','
-    - keyword: DROP
-    - keyword: COLUMN
-    - keyword: IF
-    - keyword: EXISTS
-    - naked_identifier: column_c
-- statement_terminator: ;
+  - statement_terminator: ;
 - keyword: GO
-- statement:
-  - keyword: EXEC
-  - object_reference:
-    - naked_identifier: sp_help
-  - expression:
-    - column_reference:
-      - naked_identifier: doc_exc
-- statement_terminator: ;
-- keyword: GO
-- statement:
-  - drop_table_statement:
-    - keyword: DROP
-    - keyword: TABLE
-    - table_reference:
-      - object_reference:
-        - naked_identifier: dbo
-        - dot: .
-        - naked_identifier: doc_exc
-- statement_terminator: ;
-- keyword: GO
-- statement:
-  - create_table_statement:
-    - create_table_statement:
-      - keyword: CREATE
+- batch:
+  - statement:
+    - drop_table_statement:
+      - keyword: DROP
       - keyword: TABLE
       - table_reference:
         - object_reference:
           - naked_identifier: dbo
           - dot: .
-          - naked_identifier: doc_exz
-      - bracketed:
-        - start_bracket: (
-        - column_definition:
-          - naked_identifier: column_a
-          - data_type:
-            - data_type_identifier: INT
-        - comma: ','
-        - column_definition:
-          - naked_identifier: column_b
-          - data_type:
-            - data_type_identifier: INT
-        - end_bracket: )
-- statement_terminator: ;
+          - naked_identifier: doc_exc
+  - statement_terminator: ;
 - keyword: GO
-- statement:
-  - insert_statement:
+- batch:
+  - statement:
+    - create_table_statement:
+      - create_table_statement:
+        - keyword: CREATE
+        - keyword: TABLE
+        - table_reference:
+          - object_reference:
+            - naked_identifier: dbo
+            - dot: .
+            - naked_identifier: doc_exz
+        - bracketed:
+          - start_bracket: (
+          - column_definition:
+            - naked_identifier: column_a
+            - data_type:
+              - data_type_identifier: INT
+          - comma: ','
+          - column_definition:
+            - naked_identifier: column_b
+            - data_type:
+              - data_type_identifier: INT
+          - end_bracket: )
+  - statement_terminator: ;
+- keyword: GO
+- batch:
+  - statement:
     - insert_statement:
-      - keyword: INSERT
-      - keyword: INTO
-      - function:
-        - function_name:
-          - naked_identifier: dbo
-          - dot: .
-          - function_name_identifier: doc_exz
-        - bracketed:
-          - start_bracket: (
-          - expression:
-            - column_reference:
-              - naked_identifier: column_a
-          - end_bracket: )
-      - values_clause:
-        - keyword: VALUES
-        - bracketed:
-          - start_bracket: (
-          - numeric_literal: '7'
-          - end_bracket: )
-- statement_terminator: ;
+      - insert_statement:
+        - keyword: INSERT
+        - keyword: INTO
+        - function:
+          - function_name:
+            - naked_identifier: dbo
+            - dot: .
+            - function_name_identifier: doc_exz
+          - bracketed:
+            - start_bracket: (
+            - expression:
+              - column_reference:
+                - naked_identifier: column_a
+            - end_bracket: )
+        - values_clause:
+          - keyword: VALUES
+          - bracketed:
+            - start_bracket: (
+            - numeric_literal: '7'
+            - end_bracket: )
+  - statement_terminator: ;
 - keyword: GO
 - file:
   - word: ALTER

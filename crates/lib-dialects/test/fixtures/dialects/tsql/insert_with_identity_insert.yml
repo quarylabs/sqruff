@@ -1,44 +1,45 @@
 file:
-- statement:
-  - keyword: SET
-  - keyword: IDENTITY_INSERT
-  - table_reference:
-    - object_reference:
-      - naked_identifier: someTable
-  - keyword: ON
-- statement_terminator: ;
-- statement:
-  - insert_statement:
+- batch:
+  - statement:
+    - keyword: SET
+    - keyword: IDENTITY_INSERT
+    - table_reference:
+      - object_reference:
+        - naked_identifier: someTable
+    - keyword: ON
+  - statement_terminator: ;
+  - statement:
     - insert_statement:
-      - keyword: INSERT
-      - keyword: INTO
-      - function:
-        - function_name:
-          - function_name_identifier: someTable
-        - bracketed:
-          - start_bracket: (
-          - expression:
-            - column_reference:
-              - naked_identifier: ID
-          - comma: ','
-          - expression:
-            - column_reference:
-              - naked_identifier: Value
-          - end_bracket: )
-      - values_clause:
-        - keyword: VALUES
-        - bracketed:
-          - start_bracket: (
-          - numeric_literal: '1'
-          - comma: ','
-          - numeric_literal: '2'
-          - end_bracket: )
-- statement_terminator: ;
-- statement:
-  - keyword: SET
-  - keyword: IDENTITY_INSERT
-  - table_reference:
-    - object_reference:
-      - naked_identifier: someTable
-  - keyword: OFF
-- statement_terminator: ;
+      - insert_statement:
+        - keyword: INSERT
+        - keyword: INTO
+        - function:
+          - function_name:
+            - function_name_identifier: someTable
+          - bracketed:
+            - start_bracket: (
+            - expression:
+              - column_reference:
+                - naked_identifier: ID
+            - comma: ','
+            - expression:
+              - column_reference:
+                - naked_identifier: Value
+            - end_bracket: )
+        - values_clause:
+          - keyword: VALUES
+          - bracketed:
+            - start_bracket: (
+            - numeric_literal: '1'
+            - comma: ','
+            - numeric_literal: '2'
+            - end_bracket: )
+  - statement_terminator: ;
+  - statement:
+    - keyword: SET
+    - keyword: IDENTITY_INSERT
+    - table_reference:
+      - object_reference:
+        - naked_identifier: someTable
+    - keyword: OFF
+  - statement_terminator: ;

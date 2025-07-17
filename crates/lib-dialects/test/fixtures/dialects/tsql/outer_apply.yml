@@ -1,59 +1,60 @@
 file:
-- statement:
-  - select_statement:
-    - select_clause:
-      - keyword: SELECT
-      - select_clause_element:
-        - wildcard_expression:
-          - wildcard_identifier:
+- batch:
+  - statement:
+    - select_statement:
+      - select_clause:
+        - keyword: SELECT
+        - select_clause_element:
+          - wildcard_expression:
+            - wildcard_identifier:
+              - naked_identifier: table1
+              - dot: .
+              - star: '*'
+      - from_clause:
+        - keyword: FROM
+        - from_expression:
+          - from_expression_element:
+            - table_expression:
+              - table_reference:
+                - object_reference:
+                  - naked_identifier: table1
+          - join_clause:
+            - keyword: OUTER
+            - keyword: APPLY
+            - from_expression_element:
+              - table_expression:
+                - table_reference:
+                  - object_reference:
+                    - naked_identifier: table2
+          - join_clause:
+            - keyword: INNER
+            - keyword: JOIN
+            - from_expression_element:
+              - table_expression:
+                - table_reference:
+                  - object_reference:
+                    - naked_identifier: table3
+            - join_on_condition:
+              - keyword: ON
+              - expression:
+                - column_reference:
+                  - naked_identifier: table1
+                  - dot: .
+                  - naked_identifier: col
+                - comparison_operator:
+                  - raw_comparison_operator: =
+                - column_reference:
+                  - naked_identifier: table3
+                  - dot: .
+                  - naked_identifier: col
+      - where_clause:
+        - keyword: WHERE
+        - expression:
+          - column_reference:
             - naked_identifier: table1
             - dot: .
-            - star: '*'
-    - from_clause:
-      - keyword: FROM
-      - from_expression:
-        - from_expression_element:
-          - table_expression:
-            - table_reference:
-              - object_reference:
-                - naked_identifier: table1
-        - join_clause:
-          - keyword: OUTER
-          - keyword: APPLY
-          - from_expression_element:
-            - table_expression:
-              - table_reference:
-                - object_reference:
-                  - naked_identifier: table2
-        - join_clause:
-          - keyword: INNER
-          - keyword: JOIN
-          - from_expression_element:
-            - table_expression:
-              - table_reference:
-                - object_reference:
-                  - naked_identifier: table3
-          - join_on_condition:
-            - keyword: ON
-            - expression:
-              - column_reference:
-                - naked_identifier: table1
-                - dot: .
-                - naked_identifier: col
-              - comparison_operator:
-                - raw_comparison_operator: =
-              - column_reference:
-                - naked_identifier: table3
-                - dot: .
-                - naked_identifier: col
-    - where_clause:
-      - keyword: WHERE
-      - expression:
-        - column_reference:
-          - naked_identifier: table1
-          - dot: .
-          - naked_identifier: Column1
-        - comparison_operator:
-          - raw_comparison_operator: =
-        - quoted_literal: '''blah'''
-- statement_terminator: ;
+            - naked_identifier: Column1
+          - comparison_operator:
+            - raw_comparison_operator: =
+          - quoted_literal: '''blah'''
+  - statement_terminator: ;

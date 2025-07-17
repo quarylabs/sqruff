@@ -1,52 +1,53 @@
 file:
-- statement:
-  - create_synonym_statement:
-    - keyword: CREATE
-    - keyword: SYNONYM
-    - object_reference:
-      - naked_identifier: my_synonym
-    - keyword: FOR
-    - object_reference:
-      - naked_identifier: mytable
-- statement_terminator: ;
-- statement:
-  - create_synonym_statement:
-    - keyword: CREATE
-    - keyword: SYNONYM
-    - object_reference:
-      - naked_identifier: my_synonym
-    - keyword: FOR
-    - object_reference:
-      - naked_identifier: otherdb
-      - dot: .
-      - naked_identifier: dbo
-      - dot: .
-      - naked_identifier: mytable
-- statement_terminator: ;
-- statement:
-  - drop_synonym_statement:
-    - keyword: DROP
-    - keyword: SYNONYM
-    - object_reference:
-      - naked_identifier: my_synonym
-- statement_terminator: ;
-- statement:
-  - drop_synonym_statement:
-    - keyword: DROP
-    - keyword: SYNONYM
-    - keyword: IF
-    - keyword: EXISTS
-    - object_reference:
-      - naked_identifier: my_synonym
-- statement_terminator: ;
-- statement:
-  - drop_synonym_statement:
-    - keyword: DROP
-    - keyword: SYNONYM
-    - keyword: IF
-    - keyword: EXISTS
-    - object_reference:
-      - naked_identifier: dbo
-      - dot: .
-      - naked_identifier: my_synonym
-- statement_terminator: ;
+- batch:
+  - statement:
+    - create_synonym_statement:
+      - keyword: CREATE
+      - keyword: SYNONYM
+      - object_reference:
+        - naked_identifier: my_synonym
+      - keyword: FOR
+      - object_reference:
+        - naked_identifier: mytable
+  - statement_terminator: ;
+  - statement:
+    - create_synonym_statement:
+      - keyword: CREATE
+      - keyword: SYNONYM
+      - object_reference:
+        - naked_identifier: my_synonym
+      - keyword: FOR
+      - object_reference:
+        - naked_identifier: otherdb
+        - dot: .
+        - naked_identifier: dbo
+        - dot: .
+        - naked_identifier: mytable
+  - statement_terminator: ;
+  - statement:
+    - drop_synonym_statement:
+      - keyword: DROP
+      - keyword: SYNONYM
+      - object_reference:
+        - naked_identifier: my_synonym
+  - statement_terminator: ;
+  - statement:
+    - drop_synonym_statement:
+      - keyword: DROP
+      - keyword: SYNONYM
+      - keyword: IF
+      - keyword: EXISTS
+      - object_reference:
+        - naked_identifier: my_synonym
+  - statement_terminator: ;
+  - statement:
+    - drop_synonym_statement:
+      - keyword: DROP
+      - keyword: SYNONYM
+      - keyword: IF
+      - keyword: EXISTS
+      - object_reference:
+        - naked_identifier: dbo
+        - dot: .
+        - naked_identifier: my_synonym
+  - statement_terminator: ;

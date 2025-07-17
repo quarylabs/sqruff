@@ -1,95 +1,96 @@
 file:
-- statement:
-  - select_statement:
-    - select_clause:
-      - keyword: SELECT
-      - select_clause_element:
-        - column_reference:
-          - naked_identifier: table1
-          - dot: .
-          - naked_identifier: col
-    - from_clause:
-      - keyword: FROM
-      - from_expression:
-        - from_expression_element:
-          - table_expression:
-            - table_reference:
-              - object_reference:
-                - naked_identifier: table1
-    - unparsable:
-      - word: INNER
-      - word: HASH
-      - word: JOIN
-      - word: table2
-      - word: ON
-      - word: table1
-      - dot: .
-      - word: col
-      - raw_comparison_operator: =
-      - word: table2
-      - dot: .
-      - word: col
-- statement_terminator: ;
-- statement:
-  - select_statement:
-    - select_clause:
-      - keyword: SELECT
-      - select_clause_element:
-        - column_reference:
-          - naked_identifier: table1
-          - dot: .
-          - naked_identifier: col
-    - from_clause:
-      - keyword: FROM
-      - from_expression:
-        - from_expression_element:
-          - table_expression:
-            - table_reference:
-              - object_reference:
-                - naked_identifier: table1
-    - unparsable:
-      - word: FULL
-      - word: OUTER
-      - word: MERGE
-      - word: JOIN
-      - word: table2
-      - word: ON
-      - word: table1
-      - dot: .
-      - word: col
-      - raw_comparison_operator: =
-      - word: table2
-      - dot: .
-      - word: col
-- statement_terminator: ;
-- statement:
-  - select_statement:
-    - select_clause:
-      - keyword: SELECT
-      - select_clause_element:
-        - column_reference:
-          - naked_identifier: table1
-          - dot: .
-          - naked_identifier: col
-    - from_clause:
-      - keyword: FROM
-      - from_expression:
-        - from_expression_element:
-          - table_expression:
-            - table_reference:
-              - object_reference:
-                - naked_identifier: table1
-    - unparsable:
-      - word: LEFT
-      - word: LOOP
-      - word: JOIN
-      - word: table2
-      - word: ON
-      - word: table1
-      - dot: .
-      - word: col
-      - raw_comparison_operator: =
-      - word: table2
-      - dot: .
-      - word: col
-- statement_terminator: ;
+- batch:
+  - statement:
+    - select_statement:
+      - select_clause:
+        - keyword: SELECT
+        - select_clause_element:
+          - column_reference:
+            - naked_identifier: table1
+            - dot: .
+            - naked_identifier: col
+      - from_clause:
+        - keyword: FROM
+        - from_expression:
+          - from_expression_element:
+            - table_expression:
+              - table_reference:
+                - object_reference:
+                  - naked_identifier: table1
+      - unparsable:
+        - word: INNER
+        - word: HASH
+        - word: JOIN
+        - word: table2
+        - word: ON
+        - word: table1
+        - dot: .
+        - word: col
+        - raw_comparison_operator: =
+        - word: table2
+        - dot: .
+        - word: col
+  - statement_terminator: ;
+  - statement:
+    - select_statement:
+      - select_clause:
+        - keyword: SELECT
+        - select_clause_element:
+          - column_reference:
+            - naked_identifier: table1
+            - dot: .
+            - naked_identifier: col
+      - from_clause:
+        - keyword: FROM
+        - from_expression:
+          - from_expression_element:
+            - table_expression:
+              - table_reference:
+                - object_reference:
+                  - naked_identifier: table1
+      - unparsable:
+        - word: FULL
+        - word: OUTER
+        - word: MERGE
+        - word: JOIN
+        - word: table2
+        - word: ON
+        - word: table1
+        - dot: .
+        - word: col
+        - raw_comparison_operator: =
+        - word: table2
+        - dot: .
+        - word: col
+  - statement_terminator: ;
+  - statement:
+    - select_statement:
+      - select_clause:
+        - keyword: SELECT
+        - select_clause_element:
+          - column_reference:
+            - naked_identifier: table1
+            - dot: .
+            - naked_identifier: col
+      - from_clause:
+        - keyword: FROM
+        - from_expression:
+          - from_expression_element:
+            - table_expression:
+              - table_reference:
+                - object_reference:
+                  - naked_identifier: table1
+      - unparsable:
+        - word: LEFT
+        - word: LOOP
+        - word: JOIN
+        - word: table2
+        - word: ON
+        - word: table1
+        - dot: .
+        - word: col
+        - raw_comparison_operator: =
+        - word: table2
+        - dot: .
+        - word: col
+  - statement_terminator: ;

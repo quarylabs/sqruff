@@ -1,12 +1,13 @@
 file:
-- statement:
-  - insert_statement:
+- batch:
+  - statement:
     - insert_statement:
-      - keyword: INSERT
-      - keyword: INTO
-      - table_reference:
-        - object_reference:
-          - naked_identifier: mytable
-      - keyword: DEFAULT
-      - keyword: VALUES
-- statement_terminator: ;
+      - insert_statement:
+        - keyword: INSERT
+        - keyword: INTO
+        - table_reference:
+          - object_reference:
+            - naked_identifier: mytable
+        - keyword: DEFAULT
+        - keyword: VALUES
+  - statement_terminator: ;

@@ -1,42 +1,43 @@
 file:
-- statement:
-  - create_type_statement:
-    - keyword: CREATE
-    - keyword: TYPE
-    - object_reference:
-      - naked_identifier: person
-    - keyword: AS
-    - keyword: TABLE
-    - bracketed:
-      - start_bracket: (
-      - column_definition:
-        - naked_identifier: name
-        - data_type:
-          - data_type_identifier: nvarchar
-          - bracketed_arguments:
-            - bracketed:
-              - start_bracket: (
-              - numeric_literal: '10'
-              - end_bracket: )
-      - comma: ','
-      - column_definition:
-        - naked_identifier: height
-        - data_type:
-          - data_type_identifier: int
-      - comma: ','
-      - column_definition:
-        - naked_identifier: favorite_color
-        - data_type:
-          - data_type_identifier: int
-      - end_bracket: )
-- statement_terminator: ;
-- statement:
-  - create_type_statement:
-    - keyword: CREATE
-    - keyword: TYPE
-    - object_reference:
-      - naked_identifier: weird_int
-    - keyword: FROM
-    - object_reference:
-      - naked_identifier: int
-- statement_terminator: ;
+- batch:
+  - statement:
+    - create_type_statement:
+      - keyword: CREATE
+      - keyword: TYPE
+      - object_reference:
+        - naked_identifier: person
+      - keyword: AS
+      - keyword: TABLE
+      - bracketed:
+        - start_bracket: (
+        - column_definition:
+          - naked_identifier: name
+          - data_type:
+            - data_type_identifier: nvarchar
+            - bracketed_arguments:
+              - bracketed:
+                - start_bracket: (
+                - numeric_literal: '10'
+                - end_bracket: )
+        - comma: ','
+        - column_definition:
+          - naked_identifier: height
+          - data_type:
+            - data_type_identifier: int
+        - comma: ','
+        - column_definition:
+          - naked_identifier: favorite_color
+          - data_type:
+            - data_type_identifier: int
+        - end_bracket: )
+  - statement_terminator: ;
+  - statement:
+    - create_type_statement:
+      - keyword: CREATE
+      - keyword: TYPE
+      - object_reference:
+        - naked_identifier: weird_int
+      - keyword: FROM
+      - object_reference:
+        - naked_identifier: int
+  - statement_terminator: ;

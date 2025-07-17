@@ -1,54 +1,55 @@
 file:
-- statement:
-  - select_statement:
-    - select_clause:
-      - keyword: SELECT
-      - select_clause_element:
-        - function:
-          - function_name:
-            - function_name_identifier: CONVERT
-          - bracketed:
-            - start_bracket: (
-            - expression:
-              - function:
-                - function_name:
-                  - function_name_identifier: nvarchar
-                - bracketed:
-                  - start_bracket: (
-                  - expression:
-                    - numeric_literal: '100'
-                  - end_bracket: )
-            - comma: ','
-            - expression:
-              - column_reference:
-                - naked_identifier: first_column
-            - end_bracket: )
-        - alias_expression:
-          - keyword: as
-          - naked_identifier: first
-      - comma: ','
-      - select_clause_element:
-        - function:
-          - function_name:
-            - function_name_identifier: TRY_CONVERT
-          - bracketed:
-            - start_bracket: (
-            - expression:
-              - column_reference:
-                - naked_identifier: float
-            - comma: ','
-            - expression:
-              - column_reference:
-                - naked_identifier: second_column
-            - end_bracket: )
-        - alias_expression:
-          - keyword: as
-          - naked_identifier: second
-    - from_clause:
-      - keyword: FROM
-      - from_expression:
-        - from_expression_element:
-          - table_expression:
-            - table_reference:
-              - object_reference:
-                - naked_identifier: some_table
+- batch:
+  - statement:
+    - select_statement:
+      - select_clause:
+        - keyword: SELECT
+        - select_clause_element:
+          - function:
+            - function_name:
+              - function_name_identifier: CONVERT
+            - bracketed:
+              - start_bracket: (
+              - expression:
+                - function:
+                  - function_name:
+                    - function_name_identifier: nvarchar
+                  - bracketed:
+                    - start_bracket: (
+                    - expression:
+                      - numeric_literal: '100'
+                    - end_bracket: )
+              - comma: ','
+              - expression:
+                - column_reference:
+                  - naked_identifier: first_column
+              - end_bracket: )
+          - alias_expression:
+            - keyword: as
+            - naked_identifier: first
+        - comma: ','
+        - select_clause_element:
+          - function:
+            - function_name:
+              - function_name_identifier: TRY_CONVERT
+            - bracketed:
+              - start_bracket: (
+              - expression:
+                - column_reference:
+                  - naked_identifier: float
+              - comma: ','
+              - expression:
+                - column_reference:
+                  - naked_identifier: second_column
+              - end_bracket: )
+          - alias_expression:
+            - keyword: as
+            - naked_identifier: second
+      - from_clause:
+        - keyword: FROM
+        - from_expression:
+          - from_expression_element:
+            - table_expression:
+              - table_reference:
+                - object_reference:
+                  - naked_identifier: some_table

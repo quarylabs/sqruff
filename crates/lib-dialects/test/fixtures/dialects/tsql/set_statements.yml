@@ -1,27 +1,28 @@
 file:
-- statement:
-  - keyword: SET
-  - keyword: TRANSACTION
-  - keyword: ISOLATION
-  - keyword: LEVEL
-  - keyword: READ
-  - keyword: UNCOMMITTED
-- statement_terminator: ;
-- statement:
-  - keyword: SET
-  - tsql_variable: '@param1'
-  - assignment_operator:
-    - raw_comparison_operator: =
-  - expression:
-    - numeric_literal: '1'
-- statement_terminator: ;
-- statement:
-  - keyword: SET
-  - tsql_variable: '@param1'
-  - assignment_operator:
-    - raw_comparison_operator: =
-  - expression:
-    - numeric_literal: '1'
+- batch:
+  - statement:
+    - keyword: SET
+    - keyword: TRANSACTION
+    - keyword: ISOLATION
+    - keyword: LEVEL
+    - keyword: READ
+    - keyword: UNCOMMITTED
+  - statement_terminator: ;
+  - statement:
+    - keyword: SET
+    - tsql_variable: '@param1'
+    - assignment_operator:
+      - raw_comparison_operator: =
+    - expression:
+      - numeric_literal: '1'
+  - statement_terminator: ;
+  - statement:
+    - keyword: SET
+    - tsql_variable: '@param1'
+    - assignment_operator:
+      - raw_comparison_operator: =
+    - expression:
+      - numeric_literal: '1'
 - file:
   - comma: ','
   - tsql_variable: '@param2'

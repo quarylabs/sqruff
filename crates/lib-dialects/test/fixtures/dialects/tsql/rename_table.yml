@@ -1,13 +1,14 @@
 file:
-- statement:
-  - rename_object_statement:
-    - keyword: RENAME
-    - keyword: OBJECT
-    - object_reference:
-      - quoted_identifier: '[Reporting]'
-      - dot: .
-      - quoted_identifier: '[TABLE_NEW]'
-    - keyword: to
-    - object_reference:
-      - quoted_identifier: '[TABLE_BASE]'
-- statement_terminator: ;
+- batch:
+  - statement:
+    - rename_object_statement:
+      - keyword: RENAME
+      - keyword: OBJECT
+      - object_reference:
+        - quoted_identifier: '[Reporting]'
+        - dot: .
+        - quoted_identifier: '[TABLE_NEW]'
+      - keyword: to
+      - object_reference:
+        - quoted_identifier: '[TABLE_BASE]'
+  - statement_terminator: ;

@@ -1,64 +1,65 @@
 file:
-- statement:
-  - select_statement:
-    - select_clause:
-      - keyword: SELECT
-      - select_clause_element:
-        - naked_identifier: SimpleAlias
-        - assignment_operator: =
-        - column_reference:
-          - naked_identifier: value
-      - comma: ','
-      - select_clause_element:
-        - naked_identifier: QualifiedAlias
-        - assignment_operator: =
-        - column_reference:
-          - naked_identifier: table1
-          - dot: .
-          - naked_identifier: column1
-      - comma: ','
-      - select_clause_element:
-        - naked_identifier: FullyQualifiedAlias
-        - assignment_operator: =
-        - column_reference:
-          - naked_identifier: dbo
-          - dot: .
-          - naked_identifier: table1
-          - dot: .
-          - naked_identifier: column1
-      - comma: ','
-      - select_clause_element:
-        - naked_identifier: FunctionAlias
-        - assignment_operator: =
-        - function:
-          - function_name:
-            - function_name_identifier: SUM
-          - bracketed:
-            - start_bracket: (
-            - expression:
-              - column_reference:
-                - naked_identifier: quantity
-            - end_bracket: )
-      - comma: ','
-      - select_clause_element:
-        - naked_identifier: ExpressionAlias
-        - assignment_operator: =
-        - expression:
+- batch:
+  - statement:
+    - select_statement:
+      - select_clause:
+        - keyword: SELECT
+        - select_clause_element:
+          - naked_identifier: SimpleAlias
+          - assignment_operator: =
+          - column_reference:
+            - naked_identifier: value
+        - comma: ','
+        - select_clause_element:
+          - naked_identifier: QualifiedAlias
+          - assignment_operator: =
           - column_reference:
             - naked_identifier: table1
             - dot: .
-            - naked_identifier: price
-          - binary_operator: '*'
+            - naked_identifier: column1
+        - comma: ','
+        - select_clause_element:
+          - naked_identifier: FullyQualifiedAlias
+          - assignment_operator: =
           - column_reference:
+            - naked_identifier: dbo
+            - dot: .
             - naked_identifier: table1
             - dot: .
-            - naked_identifier: quantity
-    - from_clause:
-      - keyword: FROM
-      - from_expression:
-        - from_expression_element:
-          - table_expression:
-            - table_reference:
-              - object_reference:
-                - naked_identifier: table1
-- statement_terminator: ;
+            - naked_identifier: column1
+        - comma: ','
+        - select_clause_element:
+          - naked_identifier: FunctionAlias
+          - assignment_operator: =
+          - function:
+            - function_name:
+              - function_name_identifier: SUM
+            - bracketed:
+              - start_bracket: (
+              - expression:
+                - column_reference:
+                  - naked_identifier: quantity
+              - end_bracket: )
+        - comma: ','
+        - select_clause_element:
+          - naked_identifier: ExpressionAlias
+          - assignment_operator: =
+          - expression:
+            - column_reference:
+              - naked_identifier: table1
+              - dot: .
+              - naked_identifier: price
+            - binary_operator: '*'
+            - column_reference:
+              - naked_identifier: table1
+              - dot: .
+              - naked_identifier: quantity
+      - from_clause:
+        - keyword: FROM
+        - from_expression:
+          - from_expression_element:
+            - table_expression:
+              - table_reference:
+                - object_reference:
+                  - naked_identifier: table1
+  - statement_terminator: ;

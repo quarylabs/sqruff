@@ -1,123 +1,200 @@
 file:
-- unparsable:
-  - word: RAISERROR
-  - start_bracket: (
-  - numeric_literal: '15600'
-  - comma: ','
-  - minus: '-'
-  - numeric_literal: '1'
-  - comma: ','
-  - minus: '-'
-  - numeric_literal: '1'
-  - comma: ','
-  - single_quote: '''mysp_CreateCustomer'''
-  - end_bracket: )
-  - semicolon: ;
-  - word: RAISERROR
-  - start_bracket: (
-  - single_quote: '''This is message %s %d.'''
-  - comma: ','
-  - numeric_literal: '10'
-  - comma: ','
-  - numeric_literal: '1'
-  - comma: ','
-  - single_quote: '''number'''
-  - end_bracket: )
-  - semicolon: ;
-  - word: RAISERROR
-  - start_bracket: (
-  - single_quote: '''Error raised in TRY block.'''
-  - comma: ','
-  - numeric_literal: '16'
-  - comma: ','
-  - numeric_literal: '1'
-  - end_bracket: )
-  - semicolon: ;
-  - word: RAISERROR
-  - start_bracket: (
-  - unicode_single_quote: N'Unicode error'
-  - comma: ','
-  - numeric_literal: '16'
-  - comma: ','
-  - numeric_literal: '1'
-  - end_bracket: )
-  - semicolon: ;
-  - word: RAISERROR
-  - start_bracket: (
-  - single_quote: '''WITH option'''
-  - comma: ','
-  - numeric_literal: '16'
-  - comma: ','
-  - numeric_literal: '1'
-  - end_bracket: )
-  - word: WITH
-  - word: LOG
-  - semicolon: ;
-  - word: RAISERROR
-  - start_bracket: (
-  - single_quote: '''Error with lots of arguments %a %b %c %d %e %f %g %h %i %j %k %l %m %n %o %p %q %r %s %t'''
-  - comma: ','
-  - numeric_literal: '16'
-  - comma: ','
-  - numeric_literal: '1'
-  - comma: ','
-  - single_quote: '''a'''
-  - comma: ','
-  - unicode_single_quote: N'b'
-  - comma: ','
-  - tsql_variable: '@c'
-  - comma: ','
-  - numeric_literal: '4'
-  - comma: ','
-  - numeric_literal: '5'
-  - comma: ','
-  - numeric_literal: '6'
-  - comma: ','
-  - numeric_literal: '7'
-  - comma: ','
-  - numeric_literal: '8'
-  - comma: ','
-  - numeric_literal: '9'
-  - comma: ','
-  - numeric_literal: '10'
-  - comma: ','
-  - numeric_literal: '11'
-  - comma: ','
-  - numeric_literal: '12'
-  - comma: ','
-  - numeric_literal: '13'
-  - comma: ','
-  - numeric_literal: '14'
-  - comma: ','
-  - numeric_literal: '15'
-  - comma: ','
-  - numeric_literal: '16'
-  - comma: ','
-  - numeric_literal: '17'
-  - comma: ','
-  - numeric_literal: '18'
-  - comma: ','
-  - numeric_literal: '19'
-  - comma: ','
-  - numeric_literal: '20'
-  - end_bracket: )
-  - semicolon: ;
-  - word: RAISERROR
-  - start_bracket: (
-  - tsql_variable: '@ErrorMessage'
-  - comma: ','
-  - tsql_variable: '@ErrorSeverity'
-  - comma: ','
-  - tsql_variable: '@ErrorState'
-  - end_bracket: )
-  - semicolon: ;
-  - word: RAISERROR
-  - start_bracket: (
-  - single_quote: '''The specified table does not exist. Please enter @tableName in the following format: Schemaname.Tablename OR [Schemaname].[Tablename]'''
-  - comma: ','
-  - numeric_literal: '11'
-  - comma: ','
-  - minus: '-'
-  - numeric_literal: '1'
-  - end_bracket: )
-  - semicolon: ;
+- batch:
+  - statement:
+    - statement:
+      - keyword: RAISERROR
+      - bracketed:
+        - start_bracket: (
+        - expression:
+          - numeric_literal: '15600'
+        - comma: ','
+        - expression:
+          - numeric_literal:
+            - sign_indicator: '-'
+            - numeric_literal: '1'
+        - comma: ','
+        - expression:
+          - numeric_literal:
+            - sign_indicator: '-'
+            - numeric_literal: '1'
+        - comma: ','
+        - expression:
+          - quoted_literal: '''mysp_CreateCustomer'''
+        - end_bracket: )
+  - statement_terminator: ;
+  - statement:
+    - statement:
+      - keyword: RAISERROR
+      - bracketed:
+        - start_bracket: (
+        - expression:
+          - quoted_literal: '''This is message %s %d.'''
+        - comma: ','
+        - expression:
+          - numeric_literal: '10'
+        - comma: ','
+        - expression:
+          - numeric_literal: '1'
+        - comma: ','
+        - expression:
+          - quoted_literal: '''number'''
+        - end_bracket: )
+  - statement_terminator: ;
+  - statement:
+    - statement:
+      - keyword: RAISERROR
+      - bracketed:
+        - start_bracket: (
+        - expression:
+          - quoted_literal: '''Error raised in TRY block.'''
+        - comma: ','
+        - expression:
+          - numeric_literal: '16'
+        - comma: ','
+        - expression:
+          - numeric_literal: '1'
+        - end_bracket: )
+  - statement_terminator: ;
+  - statement:
+    - statement:
+      - keyword: RAISERROR
+      - bracketed:
+        - start_bracket: (
+        - expression:
+          - quoted_literal: N'Unicode error'
+        - comma: ','
+        - expression:
+          - numeric_literal: '16'
+        - comma: ','
+        - expression:
+          - numeric_literal: '1'
+        - end_bracket: )
+  - statement_terminator: ;
+  - statement:
+    - statement:
+      - keyword: RAISERROR
+      - bracketed:
+        - start_bracket: (
+        - expression:
+          - quoted_literal: '''WITH option'''
+        - comma: ','
+        - expression:
+          - numeric_literal: '16'
+        - comma: ','
+        - expression:
+          - numeric_literal: '1'
+        - end_bracket: )
+      - keyword: WITH
+      - keyword: LOG
+  - statement_terminator: ;
+  - statement:
+    - statement:
+      - keyword: RAISERROR
+      - bracketed:
+        - start_bracket: (
+        - expression:
+          - quoted_literal: '''Error with lots of arguments %a %b %c %d %e %f %g %h %i %j %k %l %m %n %o %p %q %r %s %t'''
+        - comma: ','
+        - expression:
+          - numeric_literal: '16'
+        - comma: ','
+        - expression:
+          - numeric_literal: '1'
+        - comma: ','
+        - expression:
+          - quoted_literal: '''a'''
+        - comma: ','
+        - expression:
+          - quoted_literal: N'b'
+        - comma: ','
+        - expression:
+          - parameterized_expression:
+            - tsql_variable: '@c'
+        - comma: ','
+        - expression:
+          - numeric_literal: '4'
+        - comma: ','
+        - expression:
+          - numeric_literal: '5'
+        - comma: ','
+        - expression:
+          - numeric_literal: '6'
+        - comma: ','
+        - expression:
+          - numeric_literal: '7'
+        - comma: ','
+        - expression:
+          - numeric_literal: '8'
+        - comma: ','
+        - expression:
+          - numeric_literal: '9'
+        - comma: ','
+        - expression:
+          - numeric_literal: '10'
+        - comma: ','
+        - expression:
+          - numeric_literal: '11'
+        - comma: ','
+        - expression:
+          - numeric_literal: '12'
+        - comma: ','
+        - expression:
+          - numeric_literal: '13'
+        - comma: ','
+        - expression:
+          - numeric_literal: '14'
+        - comma: ','
+        - expression:
+          - numeric_literal: '15'
+        - comma: ','
+        - expression:
+          - numeric_literal: '16'
+        - comma: ','
+        - expression:
+          - numeric_literal: '17'
+        - comma: ','
+        - expression:
+          - numeric_literal: '18'
+        - comma: ','
+        - expression:
+          - numeric_literal: '19'
+        - comma: ','
+        - expression:
+          - numeric_literal: '20'
+        - end_bracket: )
+  - statement_terminator: ;
+  - statement:
+    - statement:
+      - keyword: RAISERROR
+      - bracketed:
+        - start_bracket: (
+        - expression:
+          - parameterized_expression:
+            - tsql_variable: '@ErrorMessage'
+        - comma: ','
+        - expression:
+          - parameterized_expression:
+            - tsql_variable: '@ErrorSeverity'
+        - comma: ','
+        - expression:
+          - parameterized_expression:
+            - tsql_variable: '@ErrorState'
+        - end_bracket: )
+  - statement_terminator: ;
+  - statement:
+    - statement:
+      - keyword: RAISERROR
+      - bracketed:
+        - start_bracket: (
+        - expression:
+          - quoted_literal: '''The specified table does not exist. Please enter @tableName in the following format: Schemaname.Tablename OR [Schemaname].[Tablename]'''
+        - comma: ','
+        - expression:
+          - numeric_literal: '11'
+        - comma: ','
+        - expression:
+          - numeric_literal:
+            - sign_indicator: '-'
+            - numeric_literal: '1'
+        - end_bracket: )
+  - statement_terminator: ;

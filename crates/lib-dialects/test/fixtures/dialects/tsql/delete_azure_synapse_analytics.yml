@@ -1,119 +1,120 @@
 file:
-- statement:
-  - delete_statement:
+- batch:
+  - statement:
     - delete_statement:
-      - keyword: DELETE
-      - table_reference:
-        - object_reference:
-          - naked_identifier: dbo
-          - dot: .
-          - naked_identifier: Table2
-      - from_clause:
-        - keyword: FROM
-        - from_expression:
-          - from_expression_element:
-            - table_expression:
-              - table_reference:
-                - object_reference:
-                  - naked_identifier: dbo
-                  - dot: .
-                  - naked_identifier: Table2
-          - join_clause:
-            - keyword: INNER
-            - keyword: JOIN
+      - delete_statement:
+        - keyword: DELETE
+        - table_reference:
+          - object_reference:
+            - naked_identifier: dbo
+            - dot: .
+            - naked_identifier: Table2
+        - from_clause:
+          - keyword: FROM
+          - from_expression:
             - from_expression_element:
               - table_expression:
                 - table_reference:
                   - object_reference:
                     - naked_identifier: dbo
                     - dot: .
-                    - naked_identifier: Table1
-            - join_on_condition:
-              - keyword: ON
-              - bracketed:
-                - start_bracket: (
-                - expression:
-                  - column_reference:
-                    - naked_identifier: dbo
-                    - dot: .
                     - naked_identifier: Table2
-                    - dot: .
-                    - naked_identifier: ColA
-                  - comparison_operator:
-                    - raw_comparison_operator: =
-                  - column_reference:
-                    - naked_identifier: dbo
-                    - dot: .
-                    - naked_identifier: Table1
-                    - dot: .
-                    - naked_identifier: ColA
-                - end_bracket: )
-      - where_clause:
-        - keyword: WHERE
+            - join_clause:
+              - keyword: INNER
+              - keyword: JOIN
+              - from_expression_element:
+                - table_expression:
+                  - table_reference:
+                    - object_reference:
+                      - naked_identifier: dbo
+                      - dot: .
+                      - naked_identifier: Table1
+              - join_on_condition:
+                - keyword: ON
+                - bracketed:
+                  - start_bracket: (
+                  - expression:
+                    - column_reference:
+                      - naked_identifier: dbo
+                      - dot: .
+                      - naked_identifier: Table2
+                      - dot: .
+                      - naked_identifier: ColA
+                    - comparison_operator:
+                      - raw_comparison_operator: =
+                    - column_reference:
+                      - naked_identifier: dbo
+                      - dot: .
+                      - naked_identifier: Table1
+                      - dot: .
+                      - naked_identifier: ColA
+                  - end_bracket: )
+        - where_clause:
+          - keyword: WHERE
+          - expression:
+            - column_reference:
+              - naked_identifier: dboTable2
+              - dot: .
+              - naked_identifier: ColA
+            - comparison_operator:
+              - raw_comparison_operator: =
+            - numeric_literal: '1'
+        - statement_terminator: ;
+  - statement:
+    - delete_statement:
+      - delete_statement:
+        - keyword: DELETE
+        - keyword: FROM
+        - table_reference:
+          - object_reference:
+            - naked_identifier: dodos
+        - keyword: WITH
+        - bracketed:
+          - start_bracket: (
+          - keyword: NOLOCK
+          - end_bracket: )
+        - keyword: OUTPUT
         - expression:
           - column_reference:
-            - naked_identifier: dboTable2
-            - dot: .
-            - naked_identifier: ColA
-          - comparison_operator:
-            - raw_comparison_operator: =
-          - numeric_literal: '1'
-      - statement_terminator: ;
-- statement:
-  - delete_statement:
+            - naked_identifier: age
+        - keyword: INTO
+        - table_reference:
+          - object_reference:
+            - naked_identifier: ages
+  - statement:
     - delete_statement:
-      - keyword: DELETE
-      - keyword: FROM
-      - table_reference:
-        - object_reference:
-          - naked_identifier: dodos
-      - keyword: WITH
-      - bracketed:
-        - start_bracket: (
-        - keyword: NOLOCK
-        - end_bracket: )
-      - keyword: OUTPUT
-      - expression:
-        - column_reference:
-          - naked_identifier: age
-      - keyword: INTO
-      - table_reference:
-        - object_reference:
-          - naked_identifier: ages
-- statement:
-  - delete_statement:
+      - delete_statement:
+        - keyword: DELETE
+        - keyword: FROM
+        - table_reference:
+          - object_reference:
+            - naked_identifier: Table1
+        - statement_terminator: ;
+  - statement:
     - delete_statement:
-      - keyword: DELETE
-      - keyword: FROM
-      - table_reference:
-        - object_reference:
-          - naked_identifier: Table1
-      - statement_terminator: ;
-- statement:
-  - delete_statement:
+      - delete_statement:
+        - keyword: DELETE
+        - keyword: FROM
+        - table_reference:
+          - object_reference:
+            - naked_identifier: Table1
+        - where_clause:
+          - keyword: WHERE
+          - expression:
+            - column_reference:
+              - naked_identifier: StandardCost
+            - comparison_operator:
+              - raw_comparison_operator: '>'
+            - numeric_literal: '1000.00'
+        - statement_terminator: ;
+  - statement:
     - delete_statement:
-      - keyword: DELETE
-      - keyword: FROM
-      - table_reference:
-        - object_reference:
-          - naked_identifier: Table1
-      - where_clause:
-        - keyword: WHERE
-        - expression:
-          - column_reference:
-            - naked_identifier: StandardCost
-          - comparison_operator:
-            - raw_comparison_operator: '>'
-          - numeric_literal: '1000.00'
-      - statement_terminator: ;
-- statement:
-  - delete_statement:
-    - delete_statement:
-      - keyword: DELETE
-      - keyword: FROM
-      - table_reference:
-        - object_reference:
-          - naked_identifier: Table1
+      - delete_statement:
+        - keyword: DELETE
+        - keyword: FROM
+        - table_reference:
+          - object_reference:
+            - naked_identifier: Table1
 - file:
   - word: OPTION
   - start_bracket: (

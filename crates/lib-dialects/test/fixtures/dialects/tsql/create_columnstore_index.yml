@@ -1,43 +1,44 @@
 file:
-- statement:
-  - create_index_statement:
+- batch:
+  - statement:
     - create_index_statement:
-      - keyword: CREATE
-      - keyword: CLUSTERED
-      - keyword: COLUMNSTORE
-      - keyword: INDEX
-      - database_reference:
-        - naked_identifier: cci
-      - keyword: ON
-      - table_reference:
-        - object_reference:
-          - naked_identifier: dbo
-          - dot: .
-          - naked_identifier: Orders
-      - keyword: WITH
-      - bracketed:
-        - start_bracket: (
-        - keyword: MAXDOP
-        - assignment_operator:
-          - raw_comparison_operator: =
-        - numeric_literal: '2'
-        - end_bracket: )
-- statement_terminator: ;
-- statement:
-  - create_index_statement:
+      - create_index_statement:
+        - keyword: CREATE
+        - keyword: CLUSTERED
+        - keyword: COLUMNSTORE
+        - keyword: INDEX
+        - database_reference:
+          - naked_identifier: cci
+        - keyword: ON
+        - table_reference:
+          - object_reference:
+            - naked_identifier: dbo
+            - dot: .
+            - naked_identifier: Orders
+        - keyword: WITH
+        - bracketed:
+          - start_bracket: (
+          - keyword: MAXDOP
+          - assignment_operator:
+            - raw_comparison_operator: =
+          - numeric_literal: '2'
+          - end_bracket: )
+  - statement_terminator: ;
+  - statement:
     - create_index_statement:
-      - keyword: CREATE
-      - keyword: CLUSTERED
-      - keyword: COLUMNSTORE
-      - keyword: INDEX
-      - database_reference:
-        - naked_identifier: cci_comp
-      - keyword: ON
-      - table_reference:
-        - object_reference:
-          - naked_identifier: dbo
-          - dot: .
-          - naked_identifier: Compression
+      - create_index_statement:
+        - keyword: CREATE
+        - keyword: CLUSTERED
+        - keyword: COLUMNSTORE
+        - keyword: INDEX
+        - database_reference:
+          - naked_identifier: cci_comp
+        - keyword: ON
+        - table_reference:
+          - object_reference:
+            - naked_identifier: dbo
+            - dot: .
+            - naked_identifier: Compression
 - file:
   - word: WITH
   - start_bracket: (

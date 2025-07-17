@@ -1,97 +1,98 @@
 file:
-- statement:
-  - select_statement:
-    - select_clause:
-      - keyword: SELECT
-      - select_clause_element:
-        - column_reference:
-          - naked_identifier: column1
-      - comma: ','
-      - select_clause_element:
-        - column_reference:
-          - naked_identifier: column2
-    - from_clause:
-      - keyword: FROM
-      - from_expression:
-        - from_expression_element:
-          - table_expression:
-            - function:
-              - function_name:
-                - function_name_identifier: OPENQUERY
-              - bracketed:
-                - start_bracket: (
-                - expression:
-                  - column_reference:
-                    - quoted_identifier: '[testlinkedserver]'
-                - comma: ','
-                - expression:
-                  - quoted_literal: '''select * from table_name'''
-                - end_bracket: )
-- statement_terminator: ;
-- statement:
-  - update_statement:
+- batch:
+  - statement:
+    - select_statement:
+      - select_clause:
+        - keyword: SELECT
+        - select_clause_element:
+          - column_reference:
+            - naked_identifier: column1
+        - comma: ','
+        - select_clause_element:
+          - column_reference:
+            - naked_identifier: column2
+      - from_clause:
+        - keyword: FROM
+        - from_expression:
+          - from_expression_element:
+            - table_expression:
+              - function:
+                - function_name:
+                  - function_name_identifier: OPENQUERY
+                - bracketed:
+                  - start_bracket: (
+                  - expression:
+                    - column_reference:
+                      - quoted_identifier: '[testlinkedserver]'
+                  - comma: ','
+                  - expression:
+                    - quoted_literal: '''select * from table_name'''
+                  - end_bracket: )
+  - statement_terminator: ;
+  - statement:
     - update_statement:
-      - keyword: UPDATE
-      - function:
-        - function_name:
-          - function_name_identifier: OPENQUERY
-        - bracketed:
-          - start_bracket: (
-          - expression:
-            - column_reference:
-              - naked_identifier: OracleSvr
-          - comma: ','
-          - expression:
-            - quoted_literal: '''SELECT name FROM joe.titles WHERE id = 101'''
-          - end_bracket: )
-      - set_clause_list:
-        - keyword: SET
-        - set_clause:
-          - set_clause:
-            - column_reference:
-              - naked_identifier: name
-            - assignment_operator:
-              - raw_comparison_operator: =
+      - update_statement:
+        - keyword: UPDATE
+        - function:
+          - function_name:
+            - function_name_identifier: OPENQUERY
+          - bracketed:
+            - start_bracket: (
             - expression:
-              - quoted_literal: '''ADifferentName'''
-      - statement_terminator: ;
-- statement:
-  - insert_statement:
+              - column_reference:
+                - naked_identifier: OracleSvr
+            - comma: ','
+            - expression:
+              - quoted_literal: '''SELECT name FROM joe.titles WHERE id = 101'''
+            - end_bracket: )
+        - set_clause_list:
+          - keyword: SET
+          - set_clause:
+            - set_clause:
+              - column_reference:
+                - naked_identifier: name
+              - assignment_operator:
+                - raw_comparison_operator: =
+              - expression:
+                - quoted_literal: '''ADifferentName'''
+        - statement_terminator: ;
+  - statement:
     - insert_statement:
-      - keyword: INSERT
-      - function:
-        - function_name:
-          - function_name_identifier: OPENQUERY
-        - bracketed:
-          - start_bracket: (
-          - expression:
-            - column_reference:
-              - naked_identifier: OracleSvr
-          - comma: ','
-          - expression:
-            - quoted_literal: '''SELECT name FROM joe.titles'''
-          - end_bracket: )
-      - values_clause:
-        - keyword: VALUES
-        - bracketed:
-          - start_bracket: (
-          - quoted_literal: '''NewTitle'''
-          - end_bracket: )
-- statement_terminator: ;
-- statement:
-  - delete_statement:
+      - insert_statement:
+        - keyword: INSERT
+        - function:
+          - function_name:
+            - function_name_identifier: OPENQUERY
+          - bracketed:
+            - start_bracket: (
+            - expression:
+              - column_reference:
+                - naked_identifier: OracleSvr
+            - comma: ','
+            - expression:
+              - quoted_literal: '''SELECT name FROM joe.titles'''
+            - end_bracket: )
+        - values_clause:
+          - keyword: VALUES
+          - bracketed:
+            - start_bracket: (
+            - quoted_literal: '''NewTitle'''
+            - end_bracket: )
+  - statement_terminator: ;
+  - statement:
     - delete_statement:
-      - keyword: DELETE
-      - function:
-        - function_name:
-          - function_name_identifier: OPENQUERY
-        - bracketed:
-          - start_bracket: (
-          - expression:
-            - column_reference:
-              - naked_identifier: OracleSvr
-          - comma: ','
-          - expression:
-            - quoted_literal: '''SELECT name FROM joe.titles WHERE name = ''''NewTitle'''''''
-          - end_bracket: )
-      - statement_terminator: ;
+      - delete_statement:
+        - keyword: DELETE
+        - function:
+          - function_name:
+            - function_name_identifier: OPENQUERY
+          - bracketed:
+            - start_bracket: (
+            - expression:
+              - column_reference:
+                - naked_identifier: OracleSvr
+            - comma: ','
+            - expression:
+              - quoted_literal: '''SELECT name FROM joe.titles WHERE name = ''''NewTitle'''''''
+            - end_bracket: )
+        - statement_terminator: ;

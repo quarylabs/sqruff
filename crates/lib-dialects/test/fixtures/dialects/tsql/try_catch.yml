@@ -1,81 +1,83 @@
 file:
-- statement:
-  - keyword: BEGIN
-  - keyword: TRY
+- batch:
   - statement:
-    - select_statement:
-      - select_clause:
-        - keyword: SELECT
-        - select_clause_element:
-          - wildcard_expression:
-            - wildcard_identifier:
-              - star: '*'
-      - from_clause:
-        - keyword: FROM
-        - from_expression:
-          - from_expression_element:
-            - table_expression:
-              - table_reference:
-                - object_reference:
-                  - naked_identifier: NonexistentTable
-  - statement_terminator: ;
-  - keyword: END
-  - keyword: TRY
-  - keyword: BEGIN
-  - keyword: CATCH
-  - statement:
-    - select_statement:
-      - select_clause:
-        - keyword: SELECT
-        - select_clause_element:
-          - function:
-            - function_name:
-              - function_name_identifier: ERROR_NUMBER
-            - bracketed:
-              - start_bracket: (
-              - end_bracket: )
-          - alias_expression:
-            - keyword: AS
-            - naked_identifier: ErrorNumber
-        - comma: ','
-        - select_clause_element:
-          - function:
-            - function_name:
-              - function_name_identifier: ERROR_MESSAGE
-            - bracketed:
-              - start_bracket: (
-              - end_bracket: )
-          - alias_expression:
-            - keyword: AS
-            - naked_identifier: ErrorMessage
-  - statement_terminator: ;
+    - keyword: BEGIN
+    - keyword: TRY
+    - statement:
+      - select_statement:
+        - select_clause:
+          - keyword: SELECT
+          - select_clause_element:
+            - wildcard_expression:
+              - wildcard_identifier:
+                - star: '*'
+        - from_clause:
+          - keyword: FROM
+          - from_expression:
+            - from_expression_element:
+              - table_expression:
+                - table_reference:
+                  - object_reference:
+                    - naked_identifier: NonexistentTable
+    - statement_terminator: ;
+    - keyword: END
+    - keyword: TRY
+    - keyword: BEGIN
+    - keyword: CATCH
+    - statement:
+      - select_statement:
+        - select_clause:
+          - keyword: SELECT
+          - select_clause_element:
+            - function:
+              - function_name:
+                - function_name_identifier: ERROR_NUMBER
+              - bracketed:
+                - start_bracket: (
+                - end_bracket: )
+            - alias_expression:
+              - keyword: AS
+              - naked_identifier: ErrorNumber
+          - comma: ','
+          - select_clause_element:
+            - function:
+              - function_name:
+                - function_name_identifier: ERROR_MESSAGE
+              - bracketed:
+                - start_bracket: (
+                - end_bracket: )
+            - alias_expression:
+              - keyword: AS
+              - naked_identifier: ErrorMessage
+    - statement_terminator: ;
+    - statement:
+      - statement:
+        - keyword: THROW
+    - keyword: END
+    - keyword: CATCH
+- keyword: GO
+- batch:
   - statement:
     - statement:
       - keyword: THROW
-  - keyword: END
-  - keyword: CATCH
-- keyword: GO
-- statement:
+      - numeric_literal: '50005'
+      - comma: ','
+      - expression:
+        - quoted_literal: N'an error occurred'
+      - comma: ','
+      - numeric_literal: '1'
+      - statement_terminator: ;
   - statement:
-    - keyword: THROW
-    - numeric_literal: '50005'
-    - comma: ','
-    - expression:
-      - quoted_literal: N'an error occurred'
-    - comma: ','
-    - numeric_literal: '1'
-    - statement_terminator: ;
-- statement:
-  - keyword: BEGIN
-  - keyword: TRY
-  - statement:
-    - keyword: EXEC
-    - object_reference:
-      - naked_identifier: spSomeProc
-  - keyword: END
-  - keyword: TRY
-  - keyword: BEGIN
-  - keyword: CATCH
-  - keyword: END
-  - keyword: CATCH
-- statement_terminator: ;
+    - keyword: BEGIN
+    - keyword: TRY
+    - statement:
+      - keyword: EXEC
+      - object_reference:
+        - naked_identifier: spSomeProc
+    - keyword: END
+    - keyword: TRY
+    - keyword: BEGIN
+    - keyword: CATCH
+    - keyword: END
+    - keyword: CATCH
+  - statement_terminator: ;

@@ -553,10 +553,12 @@ pub fn raw_dialect() -> Dialect {
                 Ref::keyword("BEGIN"),
                 Ref::new("DelimiterGrammar").optional(),
                 MetaSegment::indent(),
-                // Use a simpler approach like SQLFluff - just allow any number of statements
+                // Allow any number of statements with optional delimiters (like SQLFluff's OneOrMoreStatementsGrammar)
                 AnyNumberOf::new(vec_of_erased![
-                    Ref::new("StatementSegment"),
-                    Ref::new("DelimiterGrammar")
+                    Sequence::new(vec_of_erased![
+                        Ref::new("StatementSegment"),
+                        Ref::new("DelimiterGrammar").optional()
+                    ])
                 ])
                 .config(|this| this.min_times(0)),
                 MetaSegment::dedent(),
@@ -4211,28 +4213,21 @@ pub fn raw_dialect() -> Dialect {
             Sequence::new(vec_of_erased![
                 Ref::keyword("RAISERROR"),
                 Bracketed::new(vec_of_erased![
-                    Delimited::new(vec_of_erased![
-                        // Message: numeric message ID, string literal, or variable
-                        one_of(vec_of_erased![
-                            Ref::new("NumericLiteralSegment"),
-                            Ref::new("QuotedLiteralSegment"),
-                            Ref::new("TsqlVariableSegment")
-                        ]),
-                        // Severity: numeric literal or variable
-                        one_of(vec_of_erased![
-                            Ref::new("NumericLiteralSegment"),
-                            Ref::new("TsqlVariableSegment")
-                        ]),
-                        // State: numeric literal or variable
-                        one_of(vec_of_erased![
-                            Ref::new("NumericLiteralSegment"),
-                            Ref::new("TsqlVariableSegment")
+                    Sequence::new(vec_of_erased![
+                        // Message: expression (numeric ID, string literal, or variable)
+                        Ref::new("ExpressionSegment"),
+                        Ref::new("CommaSegment"),
+                        // Severity: expression (allows negative numbers like -1)
+                        Ref::new("ExpressionSegment"),
+                        Ref::new("CommaSegment"),
+                        // State: expression (allows negative numbers like -1)
+                        Ref::new("ExpressionSegment"),
+                        // Optional additional arguments for message formatting
+                        AnyNumberOf::new(vec_of_erased![
+                            Ref::new("CommaSegment"),
+                            Ref::new("ExpressionSegment")
                         ])
                     ])
-                    // Optional arguments for message formatting
-                    .config(|this| {
-                        this.allow_trailing();
-                    })
                 ]),
                 // WITH options
                 Sequence::new(vec_of_erased![

@@ -1,58 +1,59 @@
 file:
-- statement:
-  - keyword: EXEC
-  - object_reference:
-    - quoted_identifier: '[Reporting]'
-    - dot: .
-    - quoted_identifier: '[Load_CLL]'
-- statement:
-  - keyword: EXECUTE
-  - object_reference:
-    - naked_identifier: dbo
-    - dot: .
-    - naked_identifier: ProcTestDefaults
-  - tsql_variable: '@p2'
-  - assignment_operator:
-    - raw_comparison_operator: =
-  - expression:
-    - quoted_literal: '''A'''
-- statement_terminator: ;
-- statement:
-  - keyword: EXECUTE
-  - object_reference:
-    - naked_identifier: dbo
-    - dot: .
-    - naked_identifier: ProcTestDefaults
-  - expression:
-    - numeric_literal: '68'
-  - comma: ','
-  - expression:
-    - quoted_literal: '''B'''
-- statement_terminator: ;
-- statement:
-  - keyword: EXECUTE
-  - object_reference:
-    - naked_identifier: dbo
-    - dot: .
-    - naked_identifier: ProcTestDefaults
-  - expression:
-    - numeric_literal: '68'
-  - comma: ','
-  - expression:
-    - quoted_literal: '''C'''
-  - comma: ','
-  - expression:
-    - quoted_literal: '''House'''
-- statement_terminator: ;
-- statement:
-  - keyword: EXECUTE
-  - object_reference:
-    - naked_identifier: dbo
-    - dot: .
-    - naked_identifier: ProcTestDefaults
-  - expression:
-    - parameterized_expression:
-      - tsql_variable: '@p1'
+- batch:
+  - statement:
+    - keyword: EXEC
+    - object_reference:
+      - quoted_identifier: '[Reporting]'
+      - dot: .
+      - quoted_identifier: '[Load_CLL]'
+  - statement:
+    - keyword: EXECUTE
+    - object_reference:
+      - naked_identifier: dbo
+      - dot: .
+      - naked_identifier: ProcTestDefaults
+    - tsql_variable: '@p2'
+    - assignment_operator:
+      - raw_comparison_operator: =
+    - expression:
+      - quoted_literal: '''A'''
+  - statement_terminator: ;
+  - statement:
+    - keyword: EXECUTE
+    - object_reference:
+      - naked_identifier: dbo
+      - dot: .
+      - naked_identifier: ProcTestDefaults
+    - expression:
+      - numeric_literal: '68'
+    - comma: ','
+    - expression:
+      - quoted_literal: '''B'''
+  - statement_terminator: ;
+  - statement:
+    - keyword: EXECUTE
+    - object_reference:
+      - naked_identifier: dbo
+      - dot: .
+      - naked_identifier: ProcTestDefaults
+    - expression:
+      - numeric_literal: '68'
+    - comma: ','
+    - expression:
+      - quoted_literal: '''C'''
+    - comma: ','
+    - expression:
+      - quoted_literal: '''House'''
+  - statement_terminator: ;
+  - statement:
+    - keyword: EXECUTE
+    - object_reference:
+      - naked_identifier: dbo
+      - dot: .
+      - naked_identifier: ProcTestDefaults
+    - expression:
+      - parameterized_expression:
+        - tsql_variable: '@p1'
 - file:
   - raw_comparison_operator: =
   - word: DEFAULT

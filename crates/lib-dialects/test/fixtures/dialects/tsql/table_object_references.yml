@@ -1,45 +1,46 @@
 file:
-- statement:
-  - select_statement:
-    - select_clause:
-      - keyword: select
-      - select_clause_element:
-        - column_reference:
-          - naked_identifier: column_1
-    - unparsable:
-      - word: from
-      - dot: .
-      - double_quote: '"#my_table"'
-      - word: select
-      - word: column_1
-      - word: from
-      - dot: .
-      - double_quote: '[#my_table]'
-- statement_terminator: ;
-- statement:
-  - select_statement:
-    - select_clause:
-      - keyword: select
-      - select_clause_element:
-        - column_reference:
-          - naked_identifier: column_1
-    - unparsable:
-      - word: from
-      - dot: .
-      - dot: .
-      - double_quote: '[#my_table]'
-- statement_terminator: ;
-- statement:
-  - select_statement:
-    - select_clause:
-      - keyword: select
-      - select_clause_element:
-        - column_reference:
-          - naked_identifier: column_1
-    - unparsable:
-      - word: from
-      - dot: .
-      - dot: .
-      - dot: .
-      - double_quote: '[#my_table]'
-- statement_terminator: ;
+- batch:
+  - statement:
+    - select_statement:
+      - select_clause:
+        - keyword: select
+        - select_clause_element:
+          - column_reference:
+            - naked_identifier: column_1
+      - unparsable:
+        - word: from
+        - dot: .
+        - double_quote: '"#my_table"'
+        - word: select
+        - word: column_1
+        - word: from
+        - dot: .
+        - double_quote: '[#my_table]'
+  - statement_terminator: ;
+  - statement:
+    - select_statement:
+      - select_clause:
+        - keyword: select
+        - select_clause_element:
+          - column_reference:
+            - naked_identifier: column_1
+      - unparsable:
+        - word: from
+        - dot: .
+        - dot: .
+        - double_quote: '[#my_table]'
+  - statement_terminator: ;
+  - statement:
+    - select_statement:
+      - select_clause:
+        - keyword: select
+        - select_clause_element:
+          - column_reference:
+            - naked_identifier: column_1
+      - unparsable:
+        - word: from
+        - dot: .
+        - dot: .
+        - dot: .
+        - double_quote: '[#my_table]'
+  - statement_terminator: ;

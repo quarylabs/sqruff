@@ -1,88 +1,92 @@
 file:
-- statement:
-  - update_statement:
-    - update_statement:
-      - keyword: UPDATE
-      - table_reference:
-        - object_reference:
-          - naked_identifier: HumanResources
-          - dot: .
-          - naked_identifier: Employee
-      - set_clause_list:
-        - keyword: SET
-        - set_clause:
-          - set_clause:
-            - column_reference:
-              - naked_identifier: JobTitle
-            - assignment_operator:
-              - raw_comparison_operator: =
-            - expression:
-              - quoted_literal: N'Executive'
-      - where_clause:
-        - keyword: WHERE
-        - expression:
-          - column_reference:
-            - naked_identifier: NationalIDNumber
-          - comparison_operator:
-            - raw_comparison_operator: =
-          - numeric_literal: '123456789'
-- statement:
-  - keyword: IF
-  - expression:
-    - parameterized_expression:
-      - tsql_variable: '@@ROWCOUNT'
-    - comparison_operator:
-      - raw_comparison_operator: =
-    - numeric_literal: '0'
+- batch:
   - statement:
-    - keyword: PRINT
+    - update_statement:
+      - update_statement:
+        - keyword: UPDATE
+        - table_reference:
+          - object_reference:
+            - naked_identifier: HumanResources
+            - dot: .
+            - naked_identifier: Employee
+        - set_clause_list:
+          - keyword: SET
+          - set_clause:
+            - set_clause:
+              - column_reference:
+                - naked_identifier: JobTitle
+              - assignment_operator:
+                - raw_comparison_operator: =
+              - expression:
+                - quoted_literal: N'Executive'
+        - where_clause:
+          - keyword: WHERE
+          - expression:
+            - column_reference:
+              - naked_identifier: NationalIDNumber
+            - comparison_operator:
+              - raw_comparison_operator: =
+            - numeric_literal: '123456789'
+  - statement:
+    - keyword: IF
     - expression:
-      - quoted_literal: '''Warning: No rows were updated'''
-  - statement_terminator: ;
-- statement:
-  - keyword: IF
-  - expression:
-    - parameterized_expression:
-      - tsql_variable: '@@ERROR'
-    - comparison_operator:
-      - raw_comparison_operator: =
-    - numeric_literal: '547'
-  - begin_end_block:
-    - keyword: BEGIN
+      - parameterized_expression:
+        - tsql_variable: '@@ROWCOUNT'
+      - comparison_operator:
+        - raw_comparison_operator: =
+      - numeric_literal: '0'
     - statement:
       - keyword: PRINT
       - expression:
-        - quoted_literal: N'A check constraint violation occurred.'
+        - quoted_literal: '''Warning: No rows were updated'''
     - statement_terminator: ;
-    - keyword: END
+  - statement:
+    - keyword: IF
+    - expression:
+      - parameterized_expression:
+        - tsql_variable: '@@ERROR'
+      - comparison_operator:
+        - raw_comparison_operator: =
+      - numeric_literal: '547'
+    - begin_end_block:
+      - keyword: BEGIN
+      - statement:
+        - keyword: PRINT
+        - expression:
+          - quoted_literal: N'A check constraint violation occurred.'
+      - statement_terminator: ;
+      - keyword: END
 - keyword: GO
-- statement:
-  - select_statement:
-    - select_clause:
-      - keyword: SELECT
-      - select_clause_element:
-        - parameterized_expression:
-          - tsql_variable: '@@IDENTITY'
-        - alias_expression:
-          - keyword: AS
-          - quoted_identifier: '''Identity'''
-- statement_terminator: ;
+- batch:
+  - statement:
+    - select_statement:
+      - select_clause:
+        - keyword: SELECT
+        - select_clause_element:
+          - parameterized_expression:
+            - tsql_variable: '@@IDENTITY'
+          - alias_expression:
+            - keyword: AS
+            - quoted_identifier: '''Identity'''
+  - statement_terminator: ;
 - keyword: GO
-- statement:
-  - keyword: PRINT
-  - expression:
-    - parameterized_expression:
-      - tsql_variable: '@@TRANCOUNT'
+- batch:
+  - statement:
+    - keyword: PRINT
+    - expression:
+      - parameterized_expression:
+        - tsql_variable: '@@TRANCOUNT'
 - keyword: GO
-- statement:
-  - select_statement:
-    - select_clause:
-      - keyword: SELECT
-      - select_clause_element:
-        - parameterized_expression:
-          - tsql_variable: '@@PACK_RECEIVED'
-        - alias_expression:
-          - keyword: AS
-          - quoted_identifier: '''Packets Received'''
-- statement_terminator: ;
+- batch:
+  - statement:
+    - select_statement:
+      - select_clause:
+        - keyword: SELECT
+        - select_clause_element:
+          - parameterized_expression:
+            - tsql_variable: '@@PACK_RECEIVED'
+          - alias_expression:
+            - keyword: AS
+            - quoted_identifier: '''Packets Received'''
+  - statement_terminator: ;
 - keyword: GO

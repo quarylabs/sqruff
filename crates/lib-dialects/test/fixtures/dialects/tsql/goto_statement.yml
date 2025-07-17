@@ -1,10 +1,11 @@
 file:
-- statement:
-  - keyword: GOTO
-  - naked_identifier: Branch_Three
-- statement_terminator: ;
-- statement:
-  - naked_identifier: Branch_Three
-  - colon: ':'
+- batch:
+  - statement:
+    - keyword: GOTO
+    - naked_identifier: Branch_Three
+  - statement_terminator: ;
+  - statement:
+    - naked_identifier: Branch_Three
+    - colon: ':'
 - file:
   - word: RETURN

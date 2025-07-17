@@ -1,95 +1,96 @@
 file:
-- statement:
-  - transaction_statement:
+- batch:
+  - statement:
     - transaction_statement:
-      - keyword: BEGIN
-      - keyword: TRANSACTION
-- statement_terminator: ;
-- statement:
-  - delete_statement:
+      - transaction_statement:
+        - keyword: BEGIN
+        - keyword: TRANSACTION
+  - statement_terminator: ;
+  - statement:
     - delete_statement:
-      - keyword: DELETE
-      - keyword: FROM
-      - table_reference:
-        - object_reference:
-          - naked_identifier: HumanResources
-          - dot: .
-          - naked_identifier: JobCandidate
-      - where_clause:
-        - keyword: WHERE
-        - expression:
-          - column_reference:
-            - naked_identifier: JobCandidateID
-          - comparison_operator:
-            - raw_comparison_operator: =
-          - numeric_literal: '13'
-      - statement_terminator: ;
-- statement:
-  - transaction_statement:
+      - delete_statement:
+        - keyword: DELETE
+        - keyword: FROM
+        - table_reference:
+          - object_reference:
+            - naked_identifier: HumanResources
+            - dot: .
+            - naked_identifier: JobCandidate
+        - where_clause:
+          - keyword: WHERE
+          - expression:
+            - column_reference:
+              - naked_identifier: JobCandidateID
+            - comparison_operator:
+              - raw_comparison_operator: =
+            - numeric_literal: '13'
+        - statement_terminator: ;
+  - statement:
     - transaction_statement:
-      - keyword: COMMIT
-- statement_terminator: ;
-- statement:
-  - transaction_statement:
+      - transaction_statement:
+        - keyword: COMMIT
+  - statement_terminator: ;
+  - statement:
     - transaction_statement:
-      - keyword: BEGIN
-      - keyword: TRAN
-- statement_terminator: ;
-- statement:
-  - delete_statement:
+      - transaction_statement:
+        - keyword: BEGIN
+        - keyword: TRAN
+  - statement_terminator: ;
+  - statement:
     - delete_statement:
-      - keyword: DELETE
-      - keyword: FROM
-      - table_reference:
-        - object_reference:
-          - naked_identifier: HumanResources
-          - dot: .
-          - naked_identifier: JobCandidate
-      - where_clause:
-        - keyword: WHERE
-        - expression:
-          - column_reference:
-            - naked_identifier: JobCandidateID
-          - comparison_operator:
-            - raw_comparison_operator: =
-          - numeric_literal: '13'
-      - statement_terminator: ;
-- statement:
-  - transaction_statement:
+      - delete_statement:
+        - keyword: DELETE
+        - keyword: FROM
+        - table_reference:
+          - object_reference:
+            - naked_identifier: HumanResources
+            - dot: .
+            - naked_identifier: JobCandidate
+        - where_clause:
+          - keyword: WHERE
+          - expression:
+            - column_reference:
+              - naked_identifier: JobCandidateID
+            - comparison_operator:
+              - raw_comparison_operator: =
+            - numeric_literal: '13'
+        - statement_terminator: ;
+  - statement:
     - transaction_statement:
-      - keyword: ROLLBACK
-      - keyword: TRAN
-- statement_terminator: ;
-- statement:
-  - transaction_statement:
+      - transaction_statement:
+        - keyword: ROLLBACK
+        - keyword: TRAN
+  - statement_terminator: ;
+  - statement:
     - transaction_statement:
-      - keyword: BEGIN
-      - keyword: TRAN
-- statement_terminator: ;
-- statement:
-  - transaction_statement:
+      - transaction_statement:
+        - keyword: BEGIN
+        - keyword: TRAN
+  - statement_terminator: ;
+  - statement:
     - transaction_statement:
-      - keyword: SAVE
-      - keyword: TRANSACTION
-- statement_terminator: ;
-- statement:
-  - transaction_statement:
+      - transaction_statement:
+        - keyword: SAVE
+        - keyword: TRANSACTION
+  - statement_terminator: ;
+  - statement:
     - transaction_statement:
-      - keyword: BEGIN
-      - keyword: TRAN
-      - naked_identifier: namey
-- statement_terminator: ;
-- statement:
-  - transaction_statement:
+      - transaction_statement:
+        - keyword: BEGIN
+        - keyword: TRAN
+        - naked_identifier: namey
+  - statement_terminator: ;
+  - statement:
     - transaction_statement:
-      - keyword: ROLLBACK
-      - naked_identifier: namey
-- statement_terminator: ;
-- statement:
-  - transaction_statement:
+      - transaction_statement:
+        - keyword: ROLLBACK
+        - naked_identifier: namey
+  - statement_terminator: ;
+  - statement:
     - transaction_statement:
-      - keyword: SAVE
-      - keyword: TRAN
+      - transaction_statement:
+        - keyword: SAVE
+        - keyword: TRAN
 - file:
   - tsql_variable: '@variable'
   - semicolon: ;

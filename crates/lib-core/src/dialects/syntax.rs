@@ -45,6 +45,7 @@ pub enum SyntaxKind {
     MergeInsertClause,
     MergeUpdateClause,
     MergeDeleteClause,
+    MergeTreeOrderByClause,
     SetClauseList,
     TableReference,
     GroupbyClause,

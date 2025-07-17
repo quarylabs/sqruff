@@ -258,6 +258,26 @@ pub fn dialect() -> Dialect {
             .to_matchable()
             .into(),
         ),
+        (
+            "MergeTreesOrderByClauseSegment".into(),
+            NodeMatcher::new(SyntaxKind::MergeTreeOrderByClause, |_| {
+                Sequence::new(vec_of_erased![
+                    Ref::keyword("ORDER"),
+                    Ref::keyword("BY"),
+                    one_of(vec_of_erased![
+                        Sequence::new(vec_of_erased![
+                            Ref::keyword("TUPLE"),
+                            Bracketed::new(vec_of_erased![]), // tuple() not tuple
+                        ]),
+                        Ref::new("BracketedColumnReferenceListGrammar"),
+                        Ref::new("ColumnReferenceSegment"),
+                    ]),
+                ])
+                .to_matchable()
+            })
+            .to_matchable()
+            .into(),
+        ),
     ]);
 
     clickhouse_dialect.insert_lexer_matchers(
@@ -617,18 +637,11 @@ pub fn dialect() -> Dialect {
             NodeMatcher::new(SyntaxKind::Engine, |_| {
                 Sequence::new(vec_of_erased![
                     Ref::keyword("ENGINE"),
-                    Ref::new("EqualsSegment"),
+                    Ref::new("EqualsSegment").optional(),
                     Sequence::new(vec_of_erased![
                         Ref::new("TableEngineFunctionSegment"),
                         any_set_of(vec_of_erased![
-                            Sequence::new(vec_of_erased![
-                                Ref::keyword("ORDER"),
-                                Ref::keyword("BY"),
-                                one_of(vec_of_erased![
-                                    Ref::new("BracketedColumnReferenceListGrammar"),
-                                    Ref::new("ColumnReferenceSegment"),
-                                ]),
-                            ]),
+                            Ref::new("MergeTreesOrderByClauseSegment"),
                             Sequence::new(vec_of_erased![
                                 Ref::keyword("PARTITION"),
                                 Ref::keyword("BY"),
@@ -702,15 +715,7 @@ pub fn dialect() -> Dialect {
                     Sequence::new(vec_of_erased![
                         Ref::new("DatabaseEngineFunctionSegment"),
                         any_set_of(vec_of_erased![
-                            Sequence::new(vec_of_erased![
-                                Ref::keyword("ORDER"),
-                                Ref::keyword("BY"),
-                                one_of(vec_of_erased![
-                                    Ref::new("BracketedColumnReferenceListGrammar"),
-                                    Ref::new("ColumnReferenceSegment"),
-                                ]),
-                            ])
-                            .config(|this| this.optional()),
+                            Ref::new("MergeTreesOrderByClauseSegment"),
                             Sequence::new(vec_of_erased![
                                 Ref::keyword("PARTITION"),
                                 Ref::keyword("BY"),

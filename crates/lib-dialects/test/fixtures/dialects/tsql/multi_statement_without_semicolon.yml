@@ -14,9 +14,8 @@ file:
             - table_reference:
               - object_reference:
                 - naked_identifier: tbl1
-          - alias_expression:
-            - naked_identifier: GO
     - unparsable:
+      - word: GO
       - word: select
       - word: b
       - word: from

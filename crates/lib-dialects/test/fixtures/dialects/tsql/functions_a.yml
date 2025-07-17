@@ -122,9 +122,8 @@ file:
             - table_reference:
               - object_reference:
                 - naked_identifier: tbl_b
-          - alias_expression:
-            - naked_identifier: GO
     - unparsable:
+      - word: GO
       - word: CREATE
       - word: FUNCTION
       - word: dbo

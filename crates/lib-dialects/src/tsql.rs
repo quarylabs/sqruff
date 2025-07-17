@@ -1952,6 +1952,7 @@ pub fn raw_dialect() -> Dialect {
         .to_matchable(),
     );
 
+
     // GO batch separator - T-SQL uses GO to separate batches
     dialect.add([
         (
@@ -2246,7 +2247,8 @@ pub fn raw_dialect() -> Dialect {
                     Ref::new("FromClauseTerminatorGrammar"),
                     Ref::new("SamplingExpressionSegment"),
                     Ref::new("JoinLikeClauseGrammar"),
-                    LookaheadExclude::new("WITH", "(") // Prevents WITH from being parsed as alias when followed by (
+                    LookaheadExclude::new("WITH", "("), // Prevents WITH from being parsed as alias when followed by (
+                    Ref::keyword("GO") // Prevents GO from being parsed as alias (it's a batch separator)
                 ]))
                 .optional(),
             Sequence::new(vec_of_erased![

@@ -137,5 +137,5 @@ file:
                   - table_reference:
                     - object_reference:
                       - naked_identifier: cte
-                - alias_expression:
-                  - naked_identifier: GO
+          - unparsable:
+            - word: GO

@@ -259,9 +259,8 @@ file:
                   - naked_identifier: STAGE
                   - dot: .
                   - naked_identifier: ECDC_CASES
-            - alias_expression:
-              - naked_identifier: GO
       - unparsable:
+        - word: GO
         - word: BEGIN
         - word: INSERT
         - word: INTO

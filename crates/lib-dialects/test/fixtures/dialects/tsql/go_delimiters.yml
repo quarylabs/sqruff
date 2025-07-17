@@ -15,9 +15,8 @@ file:
             - table_reference:
               - object_reference:
                 - naked_identifier: bar
-          - alias_expression:
-            - naked_identifier: GO
     - unparsable:
+      - word: GO
       - word: GO
       - word: SELECT
       - word: foo

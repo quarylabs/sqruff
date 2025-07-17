@@ -598,7 +598,10 @@ pub fn dialect() -> Dialect {
             super::ansi::raw_dialect()
                 .grammar("PostFunctionGrammar")
                 .copy(
-                    Some(vec_of_erased![Ref::new("WithinGroupClauseSegment")]),
+                    Some(vec_of_erased![
+                        Ref::new("WithinGroupClauseSegment"),
+                        Ref::new("WithOrdinalityClauseSegment")
+                    ]),
                     None,
                     None,
                     Some(vec_of_erased![Ref::new("TransactionStatementSegment")]),
@@ -645,6 +648,19 @@ pub fn dialect() -> Dialect {
                 Ref::keyword("GROUP"),
                 Bracketed::new(vec_of_erased![Ref::new("OrderByClauseSegment")]),
                 Ref::new("FilterClauseGrammar").optional(),
+            ])
+            .to_matchable()
+            .into(),
+        ),
+        (
+            // A WITH ORDINALITY clause for CROSS JOIN UNNEST(...).
+            // https://trino.io/docs/current/sql/select.html#unnest
+            // Trino supports an optional WITH ORDINALITY clause on UNNEST, which
+            // adds a numerical ordinality column to the UNNEST result.
+            "WithOrdinalityClauseSegment".into(),
+            Sequence::new(vec_of_erased![
+                Ref::keyword("WITH"),
+                Ref::keyword("ORDINALITY"),
             ])
             .to_matchable()
             .into(),

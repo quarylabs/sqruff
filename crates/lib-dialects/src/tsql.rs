@@ -3087,6 +3087,7 @@ pub fn raw_dialect() -> Dialect {
         ),
     );
 
+
     // Override CREATE VIEW to support CREATE OR ALTER VIEW
     dialect.replace_grammar(
         "CreateViewStatementSegment",

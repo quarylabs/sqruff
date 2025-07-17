@@ -2074,8 +2074,23 @@ pub fn raw_dialect() -> Dialect {
         ),
     ]);
 
+    // Add BatchSegment that contains multiple statements like SQLFluff
+    dialect.add([
+        (
+            "BatchSegment".into(),
+            NodeMatcher::new(SyntaxKind::Batch, |_| {
+                AnyNumberOf::new(vec_of_erased![
+                    Ref::new("StatementSegment"),
+                    Ref::new("DelimiterGrammar").optional()  // Optional semicolons in T-SQL
+                ])
+                .to_matchable()
+            })
+            .to_matchable().into(),
+        ),
+    ]);
+
     // Override FileSegment to handle T-SQL batch separators (GO statements)
-    // This creates a file structure where GO separates batches of statements
+    // This creates a file structure where GO separates batches like SQLFluff
     dialect.replace_grammar(
         "FileSegment",
         Sequence::new(vec_of_erased![
@@ -2084,20 +2099,12 @@ pub fn raw_dialect() -> Dialect {
                 Ref::new("BatchDelimiterGrammar"),
                 Ref::new("DelimiterGrammar").optional()
             ]),
-            // Main content: statements separated by GO, with support for consecutive GO statements
+            // Main content: batches separated by GO statements
             AnyNumberOf::new(vec_of_erased![
                 one_of(vec_of_erased![
-                    // Statement followed by optional delimiter and optional GO
-                    Sequence::new(vec_of_erased![
-                        Ref::new("StatementSegment"),
-                        Ref::new("DelimiterGrammar").optional(),
-                        // Allow any number of GO statements after a statement
-                        AnyNumberOf::new(vec_of_erased![
-                            Ref::new("BatchDelimiterGrammar"),
-                            Ref::new("DelimiterGrammar").optional()
-                        ])
-                    ]),
-                    // Just GO statements (for consecutive GO)
+                    // Batch (can contain multiple statements)
+                    Ref::new("BatchSegment"),
+                    // GO batch delimiter with optional semicolon
                     Sequence::new(vec_of_erased![
                         Ref::new("BatchDelimiterGrammar"),
                         Ref::new("DelimiterGrammar").optional()

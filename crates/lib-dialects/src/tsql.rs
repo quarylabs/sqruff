@@ -5394,7 +5394,11 @@ pub fn raw_dialect() -> Dialect {
                         Sequence::new(vec_of_erased![
                             Ref::new("ParameterNameSegment"),  // @table_variable
                             Ref::keyword("TABLE"),
-                            Ref::new("BracketedColumnDefinitionListSegment")
+                            Bracketed::new(vec_of_erased![
+                                Delimited::new(vec_of_erased![
+                                    Ref::new("ColumnDefinitionSegment")
+                                ]).config(|this| this.optional())
+                            ])
                         ])
                     ]),
                     // Optional WITH clauses
@@ -5476,6 +5480,168 @@ pub fn raw_dialect() -> Dialect {
                 ])
                 .to_matchable()
             })
+            .to_matchable()
+            .into(),
+        )
+    ]);
+
+    // T-SQL CREATE EXTERNAL TABLE statement (Azure Synapse Analytics)
+    dialect.add([
+        (
+            "CreateExternalTableStatementSegment".into(),
+            NodeMatcher::new(SyntaxKind::CreateTableStatement, |_| {
+                Sequence::new(vec_of_erased![
+                    Ref::keyword("CREATE"),
+                    Ref::keyword("EXTERNAL"),
+                    Ref::keyword("TABLE"),
+                    // Table name (can be schema qualified)
+                    Ref::new("TableReferenceSegment"),
+                    // Column definitions  
+                    Bracketed::new(vec_of_erased![
+                        Delimited::new(vec_of_erased![
+                            Ref::new("ColumnDefinitionSegment")
+                        ]).config(|this| this.optional())
+                    ]),
+                    // WITH clause for external table options
+                    Sequence::new(vec_of_erased![
+                        Ref::keyword("WITH"),
+                        Bracketed::new(vec_of_erased![
+                            Delimited::new(vec_of_erased![
+                                Ref::new("ExternalTableOptionSegment")
+                            ])
+                        ])
+                    ])
+                ])
+                .to_matchable()
+            })
+            .to_matchable()
+            .into(),
+        ),
+        (
+            "ExternalTableOptionSegment".into(),
+            NodeMatcher::new(SyntaxKind::TableConstraint, |_| {
+                one_of(vec_of_erased![
+                    // LOCATION = 'path'
+                    Sequence::new(vec_of_erased![
+                        Ref::keyword("LOCATION"),
+                        Ref::new("EqualsSegment"),
+                        Ref::new("QuotedLiteralSegment")
+                    ]),
+                    // DATA_SOURCE = name
+                    Sequence::new(vec_of_erased![
+                        Ref::keyword("DATA_SOURCE"),
+                        Ref::new("EqualsSegment"),
+                        Ref::new("NakedIdentifierSegment")
+                    ]),
+                    // FILE_FORMAT = name  
+                    Sequence::new(vec_of_erased![
+                        Ref::keyword("FILE_FORMAT"),
+                        Ref::new("EqualsSegment"),
+                        Ref::new("NakedIdentifierSegment")
+                    ]),
+                    // REJECT_TYPE = VALUE|PERCENTAGE
+                    Sequence::new(vec_of_erased![
+                        Ref::keyword("REJECT_TYPE"),
+                        Ref::new("EqualsSegment"),
+                        one_of(vec_of_erased![
+                            Ref::keyword("VALUE"),
+                            Ref::keyword("PERCENTAGE")
+                        ])
+                    ]),
+                    // REJECT_VALUE = number
+                    Sequence::new(vec_of_erased![
+                        Ref::keyword("REJECT_VALUE"),
+                        Ref::new("EqualsSegment"),
+                        Ref::new("NumericLiteralSegment")
+                    ]),
+                    // REJECT_SAMPLE_VALUE = number
+                    Sequence::new(vec_of_erased![
+                        Ref::keyword("REJECT_SAMPLE_VALUE"),
+                        Ref::new("EqualsSegment"),
+                        Ref::new("NumericLiteralSegment")
+                    ]),
+                    // REJECTED_ROW_LOCATION = 'path'
+                    Sequence::new(vec_of_erased![
+                        Ref::keyword("REJECTED_ROW_LOCATION"),
+                        Ref::new("EqualsSegment"),
+                        Ref::new("QuotedLiteralSegment")
+                    ])
+                ])
+                .to_matchable()
+            })
+            .to_matchable()
+            .into(),
+        )
+    ]);
+
+    // T-SQL FOR SYSTEM_TIME temporal table queries
+    dialect.add([
+        (
+            "ForSystemTimeClauseSegment".into(),
+            NodeMatcher::new(SyntaxKind::WithDataClause, |_| {
+                Sequence::new(vec_of_erased![
+                    Ref::keyword("FOR"),
+                    Ref::keyword("SYSTEM_TIME"),
+                    one_of(vec_of_erased![
+                        // FOR SYSTEM_TIME ALL
+                        Ref::keyword("ALL"),
+                        // FOR SYSTEM_TIME BETWEEN datetime AND datetime
+                        Sequence::new(vec_of_erased![
+                            Ref::keyword("BETWEEN"),
+                            Ref::new("ExpressionSegment"),
+                            Ref::keyword("AND"),
+                            Ref::new("ExpressionSegment")
+                        ]),
+                        // FOR SYSTEM_TIME FROM datetime TO datetime
+                        Sequence::new(vec_of_erased![
+                            Ref::keyword("FROM"),
+                            Ref::new("ExpressionSegment"),
+                            Ref::keyword("TO"),
+                            Ref::new("ExpressionSegment")
+                        ]),
+                        // FOR SYSTEM_TIME AS OF datetime
+                        Sequence::new(vec_of_erased![
+                            Ref::keyword("AS"),
+                            Ref::keyword("OF"),
+                            Ref::new("ExpressionSegment")
+                        ]),
+                        // FOR SYSTEM_TIME CONTAINED IN (datetime, datetime)
+                        Sequence::new(vec_of_erased![
+                            Ref::keyword("CONTAINED"),
+                            Ref::keyword("IN"),
+                            Bracketed::new(vec_of_erased![
+                                Delimited::new(vec_of_erased![
+                                    Ref::new("ExpressionSegment")
+                                ])
+                            ])
+                        ])
+                    ])
+                ])
+                .to_matchable()
+            })
+            .to_matchable()
+            .into(),
+        )
+    ]);
+
+    // Update PostTableExpressionGrammar to include ForSystemTimeClauseSegment 
+    dialect.add([
+        (
+            "PostTableExpressionGrammar".into(),
+            one_of(vec_of_erased![
+                // WITH (hints) syntax
+                Ref::new("TableHintSegment"),
+                // Simplified (hint) syntax - just bracketed hints without WITH
+                Bracketed::new(vec_of_erased![
+                    Ref::new("TableHintElement")
+                ])
+                .config(|this| this.parse_mode = ParseMode::Greedy),
+                // PIVOT/UNPIVOT
+                Ref::new("PivotUnpivotStatementSegment"),
+                // FOR SYSTEM_TIME temporal table queries
+                Ref::new("ForSystemTimeClauseSegment"),
+            ])
+            .config(|this| this.optional())
             .to_matchable()
             .into(),
         )

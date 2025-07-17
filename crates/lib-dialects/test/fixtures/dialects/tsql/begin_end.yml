@@ -2,30 +2,48 @@ file:
 - statement:
   - begin_end_block:
     - keyword: BEGIN
-    - select_statement:
-      - select_clause:
-        - keyword: SELECT
-        - select_clause_element:
-          - quoted_literal: '''Weekend'''
+    - statement:
+      - select_statement:
+        - select_clause:
+          - keyword: SELECT
+          - select_clause_element:
+            - quoted_literal: '''Weekend'''
     - statement_terminator: ;
     - keyword: END
-- file:
-  - word: BEGIN
-  - semicolon: ;
-  - word: SELECT
-  - single_quote: '''Weekend'''
-  - semicolon: ;
-  - word: END
-  - semicolon: ;
-  - word: BEGIN
-  - semicolon: ;
-  - word: SELECT
-  - single_quote: '''Weekend'''
-  - semicolon: ;
-  - word: END
-  - word: BEGIN
-  - word: SELECT
-  - single_quote: '''Weekend'''
-  - semicolon: ;
-  - word: END
-  - semicolon: ;
+- statement:
+  - begin_end_block:
+    - keyword: BEGIN
+    - statement_terminator: ;
+    - statement:
+      - select_statement:
+        - select_clause:
+          - keyword: SELECT
+          - select_clause_element:
+            - quoted_literal: '''Weekend'''
+    - statement_terminator: ;
+    - keyword: END
+- statement_terminator: ;
+- statement:
+  - begin_end_block:
+    - keyword: BEGIN
+    - statement_terminator: ;
+    - statement:
+      - select_statement:
+        - select_clause:
+          - keyword: SELECT
+          - select_clause_element:
+            - quoted_literal: '''Weekend'''
+    - statement_terminator: ;
+    - keyword: END
+- statement:
+  - begin_end_block:
+    - keyword: BEGIN
+    - statement:
+      - select_statement:
+        - select_clause:
+          - keyword: SELECT
+          - select_clause_element:
+            - quoted_literal: '''Weekend'''
+    - statement_terminator: ;
+    - keyword: END
+- statement_terminator: ;

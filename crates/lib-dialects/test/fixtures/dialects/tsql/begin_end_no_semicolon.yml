@@ -1,10 +1,6 @@
 file:
-- statement:
-  - begin_end_block:
-    - keyword: BEGIN
-    - select_statement:
-      - select_clause:
-        - keyword: SELECT
-        - select_clause_element:
-          - numeric_literal: '1'
-    - keyword: END
+- unparsable:
+  - word: BEGIN
+  - word: SELECT
+  - numeric_literal: '1'
+  - word: END

@@ -1,16 +1,40 @@
 file:
-- unparsable:
-  - word: BEGIN
-  - word: SELECT
-  - star: '*'
-  - word: FROM
-  - word: customers
-  - semicolon: ;
-  - word: UPDATE
-  - word: customers
-  - word: SET
-  - word: status
-  - raw_comparison_operator: =
-  - single_quote: '''Active'''
-  - semicolon: ;
-  - word: END
+- statement:
+  - begin_end_block:
+    - keyword: BEGIN
+    - statement:
+      - select_statement:
+        - select_clause:
+          - keyword: SELECT
+          - select_clause_element:
+            - wildcard_expression:
+              - wildcard_identifier:
+                - star: '*'
+        - from_clause:
+          - keyword: FROM
+          - from_expression:
+            - from_expression_element:
+              - table_expression:
+                - table_reference:
+                  - object_reference:
+                    - naked_identifier: customers
+    - statement_terminator: ;
+    - statement:
+      - update_statement:
+        - update_statement:
+          - keyword: UPDATE
+          - table_reference:
+            - object_reference:
+              - naked_identifier: customers
+          - set_clause_list:
+            - keyword: SET
+            - set_clause:
+              - set_clause:
+                - column_reference:
+                  - naked_identifier: status
+                - assignment_operator:
+                  - raw_comparison_operator: =
+                - expression:
+                  - quoted_literal: '''Active'''
+          - statement_terminator: ;
+    - keyword: END

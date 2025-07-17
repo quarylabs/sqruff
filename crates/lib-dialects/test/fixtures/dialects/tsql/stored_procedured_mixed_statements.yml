@@ -51,75 +51,56 @@ file:
   - expression:
     - quoted_literal: N'LOW'
 - statement_terminator: ;
-- statement:
-  - begin_end_block:
-    - keyword: BEGIN
-    - keyword: SET
-    - keyword: NOCOUNT
-    - keyword: ON
-    - keyword: SET
-    - keyword: DEADLOCK_PRIORITY
-    - keyword: LOW
-    - keyword: SET
-    - keyword: DEADLOCK_PRIORITY
-    - keyword: NORMAL
-    - keyword: SET
-    - keyword: DEADLOCK_PRIORITY
-    - keyword: HIGH
-    - keyword: SET
-    - keyword: DEADLOCK_PRIORITY
-    - tsql_variable: '@deadlock_var'
-    - keyword: SET
-    - keyword: DEADLOCK_PRIORITY
-    - numeric_literal: '10'
-    - keyword: SET
-    - keyword: DEADLOCK_PRIORITY
-    - binary_operator: '-'
-    - numeric_literal: '5'
-    - select_statement:
-      - select_clause:
-        - keyword: SELECT
-        - select_clause_element:
-          - numeric_literal: '1'
-    - create_table_statement:
-      - create_table_statement:
-        - keyword: CREATE
-        - keyword: TABLE
-        - table_reference:
-          - object_reference:
-            - naked_identifier: '#TempTest'
-        - keyword: WITH
-        - bracketed:
-          - start_bracket: (
-          - keyword: DISTRIBUTION
-          - comparison_operator:
-            - raw_comparison_operator: =
-          - keyword: ROUND_ROBIN
-          - comma: ','
-          - keyword: HEAP
-          - end_bracket: )
-        - keyword: AS
-        - bracketed:
-          - start_bracket: (
-          - select_statement:
-            - select_clause:
-              - keyword: SELECT
-              - select_clause_element:
-                - numeric_literal: '2'
-                - alias_expression:
-                  - keyword: AS
-                  - naked_identifier: Two
-              - comma: ','
-              - select_clause_element:
-                - numeric_literal: '3'
-                - alias_expression:
-                  - keyword: AS
-                  - naked_identifier: Three
-              - comma: ','
-              - select_clause_element:
-                - numeric_literal: '4'
-                - alias_expression:
-                  - keyword: AS
-                  - naked_identifier: Four
-          - end_bracket: )
-    - keyword: END
+- file:
+  - word: BEGIN
+  - word: SET
+  - word: NOCOUNT
+  - word: ON
+  - word: SET
+  - word: DEADLOCK_PRIORITY
+  - word: LOW
+  - word: SET
+  - word: DEADLOCK_PRIORITY
+  - word: NORMAL
+  - word: SET
+  - word: DEADLOCK_PRIORITY
+  - word: HIGH
+  - word: SET
+  - word: DEADLOCK_PRIORITY
+  - tsql_variable: '@deadlock_var'
+  - word: SET
+  - word: DEADLOCK_PRIORITY
+  - numeric_literal: '10'
+  - word: SET
+  - word: DEADLOCK_PRIORITY
+  - minus: '-'
+  - numeric_literal: '5'
+  - word: SELECT
+  - numeric_literal: '1'
+  - word: CREATE
+  - word: TABLE
+  - word: '#TempTest'
+  - word: WITH
+  - start_bracket: (
+  - word: DISTRIBUTION
+  - raw_comparison_operator: =
+  - word: ROUND_ROBIN
+  - comma: ','
+  - word: HEAP
+  - end_bracket: )
+  - word: AS
+  - start_bracket: (
+  - word: SELECT
+  - numeric_literal: '2'
+  - word: AS
+  - word: Two
+  - comma: ','
+  - numeric_literal: '3'
+  - word: AS
+  - word: Three
+  - comma: ','
+  - numeric_literal: '4'
+  - word: AS
+  - word: Four
+  - end_bracket: )
+  - word: END

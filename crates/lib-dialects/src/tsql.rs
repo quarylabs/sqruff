@@ -551,50 +551,13 @@ pub fn raw_dialect() -> Dialect {
             NodeMatcher::new(SyntaxKind::BeginEndBlock, |_| {
                 Sequence::new(vec_of_erased![
                 Ref::keyword("BEGIN"),
+                Ref::new("DelimiterGrammar").optional(),
                 MetaSegment::indent(),
-                AnyNumberOf::new(vec_of_erased![Sequence::new(vec_of_erased![
-                    one_of(vec_of_erased![
-                        Ref::new("SelectableGrammar"),
-                        Ref::new("InsertStatementSegment"),
-                        Ref::new("UpdateStatementSegment"),
-                        Ref::new("DeleteStatementSegment"),
-                        Ref::new("CreateTableStatementSegment"),
-                        Ref::new("DropTableStatementSegment"),
-                        Ref::new("DeclareStatementSegment"),
-                        Ref::new("SetVariableStatementSegment"),
-                        Ref::new("PrintStatementSegment"),
-                        Ref::new("IfStatementSegment"),
-                        Ref::new("WhileStatementSegment"),
-                        Ref::new("TryBlockSegment"),
-                        Ref::new("GotoStatementSegment"),
-                        Ref::new("LabelSegment"),
-                        Ref::new("ExecuteStatementSegment"),
-                        Ref::new("ReconfigureStatementSegment"),
-                        Ref::new("BeginEndBlockSegment")
-                    ]),
-                    Ref::new("DelimiterGrammar").optional()
-                ])])
-                .config(|this| {
-                    this.terminators = vec_of_erased![
-                        // Terminate on END keyword
-                        Ref::keyword("END"),
-                        // Also terminate on statement keywords to help with boundary detection
-                        Ref::keyword("SELECT"),
-                        Ref::keyword("INSERT"),
-                        Ref::keyword("UPDATE"),
-                        Ref::keyword("DELETE"),
-                        Ref::keyword("CREATE"),
-                        Ref::keyword("DROP"),
-                        Ref::keyword("DECLARE"),
-                        Ref::keyword("SET"),
-                        Ref::keyword("PRINT"),
-                        Ref::keyword("IF"),
-                        Ref::keyword("WHILE"),
-                        Ref::keyword("BEGIN"),
-                        Ref::keyword("GOTO"),
-                        Ref::keyword("RECONFIGURE")
-                    ];
-                })
+                // Use a simpler approach like SQLFluff - just allow any number of statements
+                AnyNumberOf::new(vec_of_erased![
+                    Ref::new("StatementSegment"),
+                    Ref::new("DelimiterGrammar")
+                ])
                 .config(|this| this.min_times(0)),
                 MetaSegment::dedent(),
                 Ref::keyword("END")
@@ -1529,7 +1492,7 @@ pub fn raw_dialect() -> Dialect {
     dialect.add([
         (
             "CreatePartitionFunctionSegment".into(),
-            NodeMatcher::new(SyntaxKind::CreateFunctionStatement, |_| {
+            NodeMatcher::new(SyntaxKind::Statement, |_| {
                 Sequence::new(vec_of_erased![
                     Ref::keyword("CREATE"),
                     Ref::keyword("PARTITION"),
@@ -3056,7 +3019,7 @@ pub fn raw_dialect() -> Dialect {
                 ]),
                 Ref::keyword("FUNCTION"),
                 Ref::new("ObjectReferenceSegment"),
-                Ref::new("FunctionParameterListSegment"),
+                Ref::new("FunctionParameterListGrammar"),
                 Ref::keyword("RETURNS"),
                 one_of(vec_of_erased![
                     // Table-valued function
@@ -5488,6 +5451,67 @@ pub fn raw_dialect() -> Dialect {
         ),
     ]);
 
+    // Override UPDATE statement for T-SQL specific features
+    dialect.replace_grammar(
+        "UpdateStatementSegment",
+        NodeMatcher::new(SyntaxKind::UpdateStatement, |_| {
+            Sequence::new(vec_of_erased![
+                Ref::keyword("UPDATE"),
+                MetaSegment::indent(),
+                one_of(vec_of_erased![
+                    Ref::new("TableReferenceSegment"),
+                    Ref::new("AliasedTableReferenceGrammar"),
+                    // T-SQL specific: OPENQUERY/OPENROWSET support
+                    Ref::new("FunctionSegment"),
+                ]),
+                // T-SQL specific: Table hints
+                Ref::new("PostTableExpressionGrammar").optional(),
+                MetaSegment::dedent(),
+                Ref::new("SetClauseListSegment"),
+                // T-SQL specific: OUTPUT clause
+                Ref::new("OutputClauseSegment").optional(),
+                Ref::new("FromClauseSegment").optional(),
+                Ref::new("WhereClauseSegment").optional(),
+                // T-SQL specific: OPTION clause
+                Ref::new("OptionClauseSegment").optional(),
+                Ref::new("DelimiterGrammar").optional()
+            ])
+            .to_matchable()
+        })
+        .to_matchable()
+    );
+
+    // Override SetClauseListSegment for T-SQL (without comma delimiting)
+    dialect.replace_grammar(
+        "SetClauseListSegment",
+        Sequence::new(vec_of_erased![
+            Ref::keyword("SET"),
+            MetaSegment::indent(),
+            Ref::new("SetClauseSegment"),
+            AnyNumberOf::new(vec_of_erased![
+                Ref::new("CommaSegment"),
+                Ref::new("SetClauseSegment")
+            ]),
+            MetaSegment::dedent()
+        ])
+        .to_matchable()
+    );
+
+    // Override SetClauseSegment to support T-SQL compound assignment operators
+    dialect.replace_grammar(
+        "SetClauseSegment",
+        NodeMatcher::new(SyntaxKind::SetClause, |_| {
+            Sequence::new(vec_of_erased![
+                Ref::new("ColumnReferenceSegment"),
+                // Use the already-defined AssignmentOperatorSegment which includes compound assignments
+                Ref::new("AssignmentOperatorSegment"),
+                Ref::new("ExpressionSegment"),
+            ])
+            .to_matchable()
+        })
+        .to_matchable()
+    );
+
     // BREAK and CONTINUE statements for loops
     dialect.add([
         (
@@ -5599,99 +5623,15 @@ pub fn raw_dialect() -> Dialect {
         ),
     ]);
 
-    // T-SQL CREATE FUNCTION statement
+    // T-SQL Function Parameter Support
     dialect.add([
         (
-            "CreateFunctionStatementSegment".into(),
-            NodeMatcher::new(SyntaxKind::CreateFunctionStatement, |_| {
-                Sequence::new(vec_of_erased![
-                    // CREATE [OR ALTER] FUNCTION
-                    one_of(vec_of_erased![
-                        Ref::keyword("CREATE"),
-                        Sequence::new(vec_of_erased![
-                            Ref::keyword("CREATE"),
-                            Ref::keyword("OR"),
-                            Ref::keyword("ALTER"),
-                        ]),
-                        Sequence::new(vec_of_erased![
-                            Ref::keyword("ALTER"),
-                        ])
-                    ]),
-                    Ref::keyword("FUNCTION"),
-                    // Function name (can be schema qualified)
-                    Ref::new("ObjectReferenceSegment"),
-                    // Parameters
-                    Ref::new("FunctionParameterListSegment"),
-                    // RETURNS clause
-                    Ref::keyword("RETURNS"),
-                    one_of(vec_of_erased![
-                        // Scalar return type
-                        Ref::new("DatatypeSegment"), 
-                        // Table-valued function return type
-                        Sequence::new(vec_of_erased![
-                            Ref::new("ParameterNameSegment"),  // @table_variable
-                            Ref::keyword("TABLE"),
-                            Bracketed::new(vec_of_erased![
-                                Delimited::new(vec_of_erased![
-                                    Ref::new("ColumnDefinitionSegment")
-                                ]).config(|this| this.optional())
-                            ])
-                        ])
-                    ]),
-                    // Optional WITH clauses
-                    AnyNumberOf::new(vec_of_erased![
-                        Sequence::new(vec_of_erased![
-                            Ref::keyword("WITH"),
-                            Delimited::new(vec_of_erased![
-                                one_of(vec_of_erased![
-                                    Sequence::new(vec_of_erased![
-                                        Ref::keyword("EXECUTE"),
-                                        Ref::keyword("AS"),
-                                        one_of(vec_of_erased![
-                                            Ref::keyword("CALLER"),
-                                            Ref::keyword("SELF"),
-                                            Ref::keyword("OWNER"),
-                                            Ref::new("QuotedLiteralSegment")
-                                        ])
-                                    ]),
-                                    Ref::keyword("SCHEMABINDING"),
-                                    Sequence::new(vec_of_erased![
-                                        Ref::keyword("RETURNS"),
-                                        Ref::keyword("NULL"),
-                                        Ref::keyword("ON"),
-                                        Ref::keyword("NULL"),
-                                        Ref::keyword("INPUT")
-                                    ]),
-                                    Sequence::new(vec_of_erased![
-                                        Ref::keyword("CALLED"),
-                                        Ref::keyword("ON"),
-                                        Ref::keyword("NULL"),
-                                        Ref::keyword("INPUT")
-                                    ])
-                                ])
-                            ])
-                        ])
-                    ]),
-                    // AS keyword
-                    Ref::keyword("AS"),
-                    // Function body (BEGIN...END block)
-                    Ref::new("BeginEndBlockSegment")
-                ])
-                .to_matchable()
-            })
-            .to_matchable()
-            .into(),
-        ),
-        (
-            "FunctionParameterListSegment".into(),
-            NodeMatcher::new(SyntaxKind::FunctionParameterList, |_| {
-                Bracketed::new(vec_of_erased![
-                    Delimited::new(vec_of_erased![
-                        Ref::new("FunctionParameterSegment")
-                    ]).config(|this| this.optional())
-                ])
-                .to_matchable()
-            })
+            "FunctionParameterListGrammar".into(),
+            Bracketed::new(vec_of_erased![
+                Delimited::new(vec_of_erased![
+                    Ref::new("FunctionParameterSegment")
+                ]).config(|this| this.optional())
+            ])
             .to_matchable()
             .into(),
         ),

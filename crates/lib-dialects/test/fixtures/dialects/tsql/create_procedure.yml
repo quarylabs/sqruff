@@ -9,11 +9,12 @@ file:
     - statement:
       - begin_end_block:
         - keyword: BEGIN
-        - select_statement:
-          - select_clause:
-            - keyword: SELECT
-            - select_clause_element:
-              - numeric_literal: '1'
+        - statement:
+          - select_statement:
+            - select_clause:
+              - keyword: SELECT
+              - select_clause_element:
+                - numeric_literal: '1'
         - statement_terminator: ;
         - keyword: END
 - statement_terminator: ;
@@ -30,11 +31,12 @@ file:
     - statement:
       - begin_end_block:
         - keyword: BEGIN
-        - select_statement:
-          - select_clause:
-            - keyword: SELECT
-            - select_clause_element:
-              - numeric_literal: '1'
+        - statement:
+          - select_statement:
+            - select_clause:
+              - keyword: SELECT
+              - select_clause_element:
+                - numeric_literal: '1'
         - statement_terminator: ;
         - keyword: END
 - statement_terminator: ;
@@ -49,11 +51,12 @@ file:
     - statement:
       - begin_end_block:
         - keyword: BEGIN
-        - select_statement:
-          - select_clause:
-            - keyword: SELECT
-            - select_clause_element:
-              - numeric_literal: '1'
+        - statement:
+          - select_statement:
+            - select_clause:
+              - keyword: SELECT
+              - select_clause_element:
+                - numeric_literal: '1'
         - statement_terminator: ;
         - keyword: END
 - statement_terminator: ;
@@ -68,11 +71,12 @@ file:
     - statement:
       - begin_end_block:
         - keyword: BEGIN
-        - select_statement:
-          - select_clause:
-            - keyword: SELECT
-            - select_clause_element:
-              - numeric_literal: '1'
+        - statement:
+          - select_statement:
+            - select_clause:
+              - keyword: SELECT
+              - select_clause_element:
+                - numeric_literal: '1'
         - statement_terminator: ;
         - keyword: END
 - statement_terminator: ;
@@ -89,11 +93,12 @@ file:
     - statement:
       - begin_end_block:
         - keyword: BEGIN
-        - select_statement:
-          - select_clause:
-            - keyword: SELECT
-            - select_clause_element:
-              - numeric_literal: '1'
+        - statement:
+          - select_statement:
+            - select_clause:
+              - keyword: SELECT
+              - select_clause_element:
+                - numeric_literal: '1'
         - statement_terminator: ;
         - keyword: END
 - statement_terminator: ;
@@ -110,11 +115,12 @@ file:
     - statement:
       - begin_end_block:
         - keyword: BEGIN
-        - select_statement:
-          - select_clause:
-            - keyword: SELECT
-            - select_clause_element:
-              - numeric_literal: '1'
+        - statement:
+          - select_statement:
+            - select_clause:
+              - keyword: SELECT
+              - select_clause_element:
+                - numeric_literal: '1'
         - statement_terminator: ;
         - keyword: END
 - statement_terminator: ;
@@ -197,52 +203,55 @@ file:
     - statement:
       - begin_end_block:
         - keyword: BEGIN
-        - keyword: SET
-        - tsql_variable: '@output'
-        - assignment_operator:
-          - raw_comparison_operator: =
-        - expression:
-          - bracketed:
-            - start_bracket: (
-            - expression:
+        - statement:
+          - keyword: SET
+          - tsql_variable: '@output'
+          - assignment_operator:
+            - raw_comparison_operator: =
+          - expression:
+            - bracketed:
+              - start_bracket: (
+              - expression:
+                - select_statement:
+                  - select_clause:
+                    - keyword: SELECT
+                    - select_clause_element:
+                      - column_reference:
+                        - naked_identifier: tinyint_value
+                  - from_clause:
+                    - keyword: FROM
+                    - from_expression:
+                      - from_expression_element:
+                        - table_expression:
+                          - table_reference:
+                            - object_reference:
+                              - naked_identifier: dbo
+                              - dot: .
+                              - naked_identifier: TEST
+              - end_bracket: )
+        - statement_terminator: ;
+        - statement:
+          - keyword: IF
+          - expression:
+            - parameterized_expression:
+              - tsql_variable: '@id'
+            - keyword: IS
+            - null_literal: 'NULL'
+          - begin_end_block:
+            - keyword: BEGIN
+            - statement:
               - select_statement:
                 - select_clause:
                   - keyword: SELECT
                   - select_clause_element:
-                    - column_reference:
-                      - naked_identifier: tinyint_value
-                - from_clause:
-                  - keyword: FROM
-                  - from_expression:
-                    - from_expression_element:
-                      - table_expression:
-                        - table_reference:
-                          - object_reference:
-                            - naked_identifier: dbo
-                            - dot: .
-                            - naked_identifier: TEST
-            - end_bracket: )
-        - statement_terminator: ;
-        - keyword: IF
-        - expression:
-          - parameterized_expression:
-            - tsql_variable: '@id'
-          - keyword: IS
-          - null_literal: 'NULL'
-        - begin_end_block:
-          - keyword: BEGIN
-          - select_statement:
-            - select_clause:
-              - keyword: SELECT
-              - select_clause_element:
-                - parameterized_expression:
-                  - tsql_variable: '@bar'
-              - comma: ','
-              - select_clause_element:
-                - parameterized_expression:
-                  - tsql_variable: '@fooReadonly'
-          - statement_terminator: ;
-          - keyword: END
+                    - parameterized_expression:
+                      - tsql_variable: '@bar'
+                  - comma: ','
+                  - select_clause_element:
+                    - parameterized_expression:
+                      - tsql_variable: '@fooReadonly'
+            - statement_terminator: ;
+            - keyword: END
         - statement_terminator: ;
         - keyword: END
 - statement_terminator: ;
@@ -292,11 +301,12 @@ file:
     - statement:
       - begin_end_block:
         - keyword: BEGIN
-        - select_statement:
-          - select_clause:
-            - keyword: SELECT
-            - select_clause_element:
-              - numeric_literal: '1'
+        - statement:
+          - select_statement:
+            - select_clause:
+              - keyword: SELECT
+              - select_clause_element:
+                - numeric_literal: '1'
         - statement_terminator: ;
         - keyword: END
 - statement_terminator: ;
@@ -348,16 +358,17 @@ file:
     - statement:
       - begin_end_block:
         - keyword: BEGIN
-        - select_statement:
-          - select_clause:
-            - keyword: SELECT
-            - select_clause_element:
-              - parameterized_expression:
-                - tsql_variable: '@id'
-            - comma: ','
-            - select_clause_element:
-              - parameterized_expression:
-                - tsql_variable: '@bar'
+        - statement:
+          - select_statement:
+            - select_clause:
+              - keyword: SELECT
+              - select_clause_element:
+                - parameterized_expression:
+                  - tsql_variable: '@id'
+              - comma: ','
+              - select_clause_element:
+                - parameterized_expression:
+                  - tsql_variable: '@bar'
         - statement_terminator: ;
         - keyword: END
 - statement_terminator: ;
@@ -665,13 +676,15 @@ file:
     - statement:
       - begin_end_block:
         - keyword: BEGIN
-        - keyword: SET
-        - keyword: NOCOUNT
-        - keyword: ON
+        - statement:
+          - keyword: SET
+          - keyword: NOCOUNT
+          - keyword: ON
         - statement_terminator: ;
-        - keyword: SET
-        - keyword: XACT_ABORT
-        - keyword: ON
+        - statement:
+          - keyword: SET
+          - keyword: XACT_ABORT
+          - keyword: ON
         - statement_terminator: ;
         - keyword: END
 - keyword: GO
@@ -689,11 +702,12 @@ file:
     - statement:
       - begin_end_block:
         - keyword: BEGIN
-        - keyword: SET
-        - keyword: NOCOUNT
-        - comma: ','
-        - keyword: XACT_ABORT
-        - keyword: ON
+        - statement:
+          - keyword: SET
+          - keyword: NOCOUNT
+          - comma: ','
+          - keyword: XACT_ABORT
+          - keyword: ON
         - statement_terminator: ;
         - keyword: END
 - keyword: GO

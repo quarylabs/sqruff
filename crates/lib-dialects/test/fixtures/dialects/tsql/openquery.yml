@@ -28,19 +28,34 @@ file:
                   - quoted_literal: '''select * from table_name'''
                 - end_bracket: )
 - statement_terminator: ;
+- statement:
+  - update_statement:
+    - update_statement:
+      - keyword: UPDATE
+      - function:
+        - function_name:
+          - function_name_identifier: OPENQUERY
+        - bracketed:
+          - start_bracket: (
+          - expression:
+            - column_reference:
+              - naked_identifier: OracleSvr
+          - comma: ','
+          - expression:
+            - quoted_literal: '''SELECT name FROM joe.titles WHERE id = 101'''
+          - end_bracket: )
+      - set_clause_list:
+        - keyword: SET
+        - set_clause:
+          - set_clause:
+            - column_reference:
+              - naked_identifier: name
+            - assignment_operator:
+              - raw_comparison_operator: =
+            - expression:
+              - quoted_literal: '''ADifferentName'''
+      - statement_terminator: ;
 - file:
-  - word: UPDATE
-  - word: OPENQUERY
-  - start_bracket: (
-  - word: OracleSvr
-  - comma: ','
-  - single_quote: '''SELECT name FROM joe.titles WHERE id = 101'''
-  - end_bracket: )
-  - word: SET
-  - word: name
-  - raw_comparison_operator: =
-  - single_quote: '''ADifferentName'''
-  - semicolon: ;
   - word: INSERT
   - word: OPENQUERY
   - start_bracket: (

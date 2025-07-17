@@ -1,25 +1,51 @@
 file:
-- unparsable:
-  - word: update
-  - word: dbo
-  - dot: .
-  - word: Cases
-  - word: set
-  - double_quote: '[Flg]'
-  - raw_comparison_operator: =
-  - numeric_literal: '1'
-  - word: where
-  - word: ID
-  - word: in
-  - start_bracket: (
-  - word: select
-  - word: distinct
-  - double_quote: '[ID]'
-  - word: from
-  - word: dbo
-  - dot: .
-  - word: CX
-  - end_bracket: )
+- statement:
+  - update_statement:
+    - update_statement:
+      - keyword: update
+      - table_reference:
+        - object_reference:
+          - naked_identifier: dbo
+          - dot: .
+          - naked_identifier: Cases
+      - set_clause_list:
+        - keyword: set
+        - set_clause:
+          - set_clause:
+            - column_reference:
+              - quoted_identifier: '[Flg]'
+            - assignment_operator:
+              - raw_comparison_operator: =
+            - expression:
+              - numeric_literal: '1'
+      - where_clause:
+        - keyword: where
+        - expression:
+          - column_reference:
+            - naked_identifier: ID
+          - keyword: in
+          - bracketed:
+            - start_bracket: (
+            - select_statement:
+              - select_clause:
+                - keyword: select
+                - select_clause_modifier:
+                  - keyword: distinct
+                - select_clause_element:
+                  - column_reference:
+                    - quoted_identifier: '[ID]'
+              - from_clause:
+                - keyword: from
+                - from_expression:
+                  - from_expression_element:
+                    - table_expression:
+                      - table_reference:
+                        - object_reference:
+                          - naked_identifier: dbo
+                          - dot: .
+                          - naked_identifier: CX
+            - end_bracket: )
+- file:
   - word: OPTION
   - start_bracket: (
   - word: Label

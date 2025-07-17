@@ -11,122 +11,131 @@ file:
     - statement:
       - begin_end_block:
         - keyword: BEGIN
-        - keyword: DECLARE
-        - tsql_variable: '@startdate'
-        - keyword: AS
-        - data_type:
-          - data_type_identifier: DATE
+        - statement:
+          - keyword: DECLARE
+          - tsql_variable: '@startdate'
+          - keyword: AS
+          - data_type:
+            - data_type_identifier: DATE
         - statement_terminator: ;
-        - keyword: DECLARE
-        - tsql_variable: '@DateNow'
-        - data_type:
-          - data_type_identifier: DATE
-        - assignment_operator:
-          - raw_comparison_operator: =
-        - expression:
-          - function:
-            - function_name:
-              - function_name_identifier: GETDATE
-            - bracketed:
-              - start_bracket: (
-              - end_bracket: )
+        - statement:
+          - keyword: DECLARE
+          - tsql_variable: '@DateNow'
+          - data_type:
+            - data_type_identifier: DATE
+          - assignment_operator:
+            - raw_comparison_operator: =
+          - expression:
+            - function:
+              - function_name:
+                - function_name_identifier: GETDATE
+              - bracketed:
+                - start_bracket: (
+                - end_bracket: )
         - statement_terminator: ;
-        - keyword: DECLARE
-        - tsql_variable: '@DateStart'
-        - data_type:
-          - data_type_identifier: DATETIME2
-        - assignment_operator:
-          - raw_comparison_operator: =
-        - expression:
-          - function:
-            - function_name:
-              - function_name_identifier: GETDATE
-            - bracketed:
-              - start_bracket: (
-              - end_bracket: )
-        - comma: ','
-        - tsql_variable: '@DateEnd'
-        - data_type:
-          - data_type_identifier: DATETIME2
-        - assignment_operator:
-          - raw_comparison_operator: =
-        - expression:
-          - function:
-            - function_name:
-              - function_name_identifier: GETDATE
-            - bracketed:
-              - start_bracket: (
-              - end_bracket: )
-        - keyword: DECLARE
-        - tsql_variable: '@EOMONTH'
-        - data_type:
-          - data_type_identifier: DATE
-        - assignment_operator:
-          - raw_comparison_operator: =
-        - expression:
-          - bracketed:
-            - start_bracket: (
-            - expression:
-              - quoted_literal: '''1900-01-01'''
-            - end_bracket: )
-        - keyword: DECLARE
-        - tsql_variable: '@USER'
-        - data_type:
-          - data_type_identifier: DATE
-        - assignment_operator:
-          - raw_comparison_operator: =
-        - expression:
-          - bare_function: SYSTEM_USER
-        - statement_terminator: ;
-        - keyword: DECLARE
-        - tsql_variable: '@CURRENTTIME'
-        - data_type:
-          - data_type_identifier: DATE
-        - assignment_operator:
-          - raw_comparison_operator: =
-        - expression:
-          - bare_function: CURRENT_TIMESTAMP
-        - statement_terminator: ;
-        - keyword: SET
-        - tsql_variable: '@EOMONTH'
-        - assignment_operator:
-          - raw_comparison_operator: =
-        - expression:
-          - bracketed:
-            - start_bracket: (
-            - expression:
-              - quoted_literal: '''2000-01-01'''
-            - end_bracket: )
-        - keyword: SET
-        - tsql_variable: '@EOMONTH'
-        - assignment_operator:
-          - raw_comparison_operator: =
-        - expression:
-          - bracketed:
-            - start_bracket: (
-            - expression:
-              - quoted_literal: '''2001-01-01'''
-            - end_bracket: )
-        - statement_terminator: ;
-        - keyword: IF
-        - expression:
-          - function:
-            - function_name:
-              - function_name_identifier: OBJECT_ID
+        - statement:
+          - keyword: DECLARE
+          - tsql_variable: '@DateStart'
+          - data_type:
+            - data_type_identifier: DATETIME2
+          - assignment_operator:
+            - raw_comparison_operator: =
+          - expression:
+            - function:
+              - function_name:
+                - function_name_identifier: GETDATE
+              - bracketed:
+                - start_bracket: (
+                - end_bracket: )
+          - comma: ','
+          - tsql_variable: '@DateEnd'
+          - data_type:
+            - data_type_identifier: DATETIME2
+          - assignment_operator:
+            - raw_comparison_operator: =
+          - expression:
+            - function:
+              - function_name:
+                - function_name_identifier: GETDATE
+              - bracketed:
+                - start_bracket: (
+                - end_bracket: )
+        - statement:
+          - keyword: DECLARE
+          - tsql_variable: '@EOMONTH'
+          - data_type:
+            - data_type_identifier: DATE
+          - assignment_operator:
+            - raw_comparison_operator: =
+          - expression:
             - bracketed:
               - start_bracket: (
               - expression:
-                - quoted_literal: '''tempdb..#UP'''
+                - quoted_literal: '''1900-01-01'''
               - end_bracket: )
-          - keyword: IS
-          - keyword: NOT
-          - null_literal: 'NULL'
         - statement:
-          - drop_table_statement:
-            - keyword: DROP
-            - keyword: TABLE
-            - table_reference:
-              - object_reference:
-                - naked_identifier: '#UP'
+          - keyword: DECLARE
+          - tsql_variable: '@USER'
+          - data_type:
+            - data_type_identifier: DATE
+          - assignment_operator:
+            - raw_comparison_operator: =
+          - expression:
+            - bare_function: SYSTEM_USER
         - statement_terminator: ;
+        - statement:
+          - keyword: DECLARE
+          - tsql_variable: '@CURRENTTIME'
+          - data_type:
+            - data_type_identifier: DATE
+          - assignment_operator:
+            - raw_comparison_operator: =
+          - expression:
+            - bare_function: CURRENT_TIMESTAMP
+        - statement_terminator: ;
+        - statement:
+          - keyword: SET
+          - tsql_variable: '@EOMONTH'
+          - assignment_operator:
+            - raw_comparison_operator: =
+          - expression:
+            - bracketed:
+              - start_bracket: (
+              - expression:
+                - quoted_literal: '''2000-01-01'''
+              - end_bracket: )
+        - statement:
+          - keyword: SET
+          - tsql_variable: '@EOMONTH'
+          - assignment_operator:
+            - raw_comparison_operator: =
+          - expression:
+            - bracketed:
+              - start_bracket: (
+              - expression:
+                - quoted_literal: '''2001-01-01'''
+              - end_bracket: )
+        - statement_terminator: ;
+        - statement:
+          - keyword: IF
+          - expression:
+            - function:
+              - function_name:
+                - function_name_identifier: OBJECT_ID
+              - bracketed:
+                - start_bracket: (
+                - expression:
+                  - quoted_literal: '''tempdb..#UP'''
+                - end_bracket: )
+            - keyword: IS
+            - keyword: NOT
+            - null_literal: 'NULL'
+          - statement:
+            - drop_table_statement:
+              - keyword: DROP
+              - keyword: TABLE
+              - table_reference:
+                - object_reference:
+                  - naked_identifier: '#UP'
+          - statement_terminator: ;
         - keyword: END

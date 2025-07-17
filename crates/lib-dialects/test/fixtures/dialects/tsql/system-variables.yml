@@ -1,46 +1,88 @@
 file:
-- unparsable:
-  - word: UPDATE
-  - word: HumanResources
-  - dot: .
-  - word: Employee
-  - word: SET
-  - word: JobTitle
-  - raw_comparison_operator: =
-  - unicode_single_quote: N'Executive'
-  - word: WHERE
-  - word: NationalIDNumber
-  - raw_comparison_operator: =
-  - numeric_literal: '123456789'
-  - word: IF
-  - tsql_variable: '@@ROWCOUNT'
-  - raw_comparison_operator: =
-  - numeric_literal: '0'
-  - word: PRINT
-  - single_quote: '''Warning: No rows were updated'''
-  - semicolon: ;
-  - word: IF
-  - tsql_variable: '@@ERROR'
-  - raw_comparison_operator: =
-  - numeric_literal: '547'
-  - word: BEGIN
-  - word: PRINT
-  - unicode_single_quote: N'A check constraint violation occurred.'
-  - semicolon: ;
-  - word: END
-  - word: GO
-  - word: SELECT
-  - tsql_variable: '@@IDENTITY'
-  - word: AS
-  - single_quote: '''Identity'''
-  - semicolon: ;
-  - word: GO
-  - word: PRINT
-  - tsql_variable: '@@TRANCOUNT'
-  - word: GO
-  - word: SELECT
-  - tsql_variable: '@@PACK_RECEIVED'
-  - word: AS
-  - single_quote: '''Packets Received'''
-  - semicolon: ;
-  - word: GO
+- statement:
+  - update_statement:
+    - update_statement:
+      - keyword: UPDATE
+      - table_reference:
+        - object_reference:
+          - naked_identifier: HumanResources
+          - dot: .
+          - naked_identifier: Employee
+      - set_clause_list:
+        - keyword: SET
+        - set_clause:
+          - set_clause:
+            - column_reference:
+              - naked_identifier: JobTitle
+            - assignment_operator:
+              - raw_comparison_operator: =
+            - expression:
+              - quoted_literal: N'Executive'
+      - where_clause:
+        - keyword: WHERE
+        - expression:
+          - column_reference:
+            - naked_identifier: NationalIDNumber
+          - comparison_operator:
+            - raw_comparison_operator: =
+          - numeric_literal: '123456789'
+- statement:
+  - keyword: IF
+  - expression:
+    - parameterized_expression:
+      - tsql_variable: '@@ROWCOUNT'
+    - comparison_operator:
+      - raw_comparison_operator: =
+    - numeric_literal: '0'
+  - statement:
+    - keyword: PRINT
+    - expression:
+      - quoted_literal: '''Warning: No rows were updated'''
+  - statement_terminator: ;
+- statement:
+  - keyword: IF
+  - expression:
+    - parameterized_expression:
+      - tsql_variable: '@@ERROR'
+    - comparison_operator:
+      - raw_comparison_operator: =
+    - numeric_literal: '547'
+  - begin_end_block:
+    - keyword: BEGIN
+    - statement:
+      - keyword: PRINT
+      - expression:
+        - quoted_literal: N'A check constraint violation occurred.'
+    - statement_terminator: ;
+    - keyword: END
+- keyword: GO
+- statement:
+  - select_statement:
+    - select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+        - parameterized_expression:
+          - tsql_variable: '@@IDENTITY'
+        - alias_expression:
+          - keyword: AS
+          - quoted_identifier: '''Identity'''
+- statement_terminator: ;
+- keyword: GO
+- statement:
+  - keyword: PRINT
+  - expression:
+    - parameterized_expression:
+      - tsql_variable: '@@TRANCOUNT'
+- keyword: GO
+- statement:
+  - select_statement:
+    - select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+        - parameterized_expression:
+          - tsql_variable: '@@PACK_RECEIVED'
+        - alias_expression:
+          - keyword: AS
+          - quoted_identifier: '''Packets Received'''
+- statement_terminator: ;
+- keyword: GO

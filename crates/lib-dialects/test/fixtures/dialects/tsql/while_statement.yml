@@ -1,29 +1,58 @@
 file:
-- unparsable:
-  - word: WHILE
-  - start_bracket: (
-  - numeric_literal: '1'
-  - raw_comparison_operator: =
-  - numeric_literal: '1'
-  - end_bracket: )
-  - word: BEGIN
-  - word: IF
-  - word: EXISTS
-  - start_bracket: (
-  - word: SELECT
-  - star: '*'
-  - word: FROM
-  - word: '##MyTempTable'
-  - word: WHERE
-  - word: EventCode
-  - raw_comparison_operator: =
-  - single_quote: '''Done'''
-  - end_bracket: )
-  - word: BEGIN
-  - word: BREAK
-  - semicolon: ;
-  - word: END
-  - word: PRINT
-  - unicode_single_quote: N'The other process is not yet done.'
-  - semicolon: ;
-  - word: END
+- statement:
+  - keyword: WHILE
+  - expression:
+    - bracketed:
+      - start_bracket: (
+      - expression:
+        - numeric_literal: '1'
+        - comparison_operator:
+          - raw_comparison_operator: =
+        - numeric_literal: '1'
+      - end_bracket: )
+  - statement:
+    - begin_end_block:
+      - keyword: BEGIN
+      - statement:
+        - keyword: IF
+        - expression:
+          - keyword: EXISTS
+          - bracketed:
+            - start_bracket: (
+            - select_statement:
+              - select_clause:
+                - keyword: SELECT
+                - select_clause_element:
+                  - wildcard_expression:
+                    - wildcard_identifier:
+                      - star: '*'
+              - from_clause:
+                - keyword: FROM
+                - from_expression:
+                  - from_expression_element:
+                    - table_expression:
+                      - table_reference:
+                        - object_reference:
+                          - naked_identifier: '##MyTempTable'
+              - where_clause:
+                - keyword: WHERE
+                - expression:
+                  - column_reference:
+                    - naked_identifier: EventCode
+                  - comparison_operator:
+                    - raw_comparison_operator: =
+                  - quoted_literal: '''Done'''
+            - end_bracket: )
+        - begin_end_block:
+          - keyword: BEGIN
+          - statement:
+            - break_statement:
+              - keyword: BREAK
+          - statement_terminator: ;
+          - keyword: END
+      - statement:
+        - keyword: PRINT
+        - expression:
+          - quoted_literal: N'The other process is not yet done.'
+      - statement_terminator: ;
+      - keyword: END

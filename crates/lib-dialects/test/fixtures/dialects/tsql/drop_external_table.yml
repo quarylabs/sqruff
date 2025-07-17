@@ -1,5 +1,5 @@
 file:
-- batch:
+- statement:
   - statement:
     - drop_external_table_statement:
       - keyword: DROP

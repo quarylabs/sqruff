@@ -1,5 +1,5 @@
 file:
-- batch:
+- statement:
   - statement:
     - drop_table_statement:
       - keyword: drop

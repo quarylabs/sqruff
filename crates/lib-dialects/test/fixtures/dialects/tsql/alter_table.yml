@@ -1,5 +1,5 @@
 file:
-- batch:
+- statement:
   - statement:
     - create_table_statement:
       - create_table_statement:
@@ -19,7 +19,7 @@ file:
           - end_bracket: )
   - statement_terminator: ;
 - keyword: GO
-- batch:
+- statement:
   - statement:
     - alter_table_statement:
       - keyword: ALTER
@@ -43,7 +43,7 @@ file:
           - keyword: 'NULL'
   - statement_terminator: ;
 - keyword: GO
-- batch:
+- statement:
   - statement:
     - create_table_statement:
       - create_table_statement:
@@ -63,7 +63,7 @@ file:
           - end_bracket: )
   - statement_terminator: ;
 - keyword: GO
-- batch:
+- statement:
   - statement:
     - alter_table_statement:
       - keyword: ALTER
@@ -102,7 +102,7 @@ file:
       - naked_identifier: column_c
   - statement_terminator: ;
 - keyword: GO
-- batch:
+- statement:
   - statement:
     - keyword: EXEC
     - object_reference:
@@ -112,7 +112,7 @@ file:
         - naked_identifier: doc_exc
   - statement_terminator: ;
 - keyword: GO
-- batch:
+- statement:
   - statement:
     - drop_table_statement:
       - keyword: DROP
@@ -124,7 +124,7 @@ file:
           - naked_identifier: doc_exc
   - statement_terminator: ;
 - keyword: GO
-- batch:
+- statement:
   - statement:
     - create_table_statement:
       - create_table_statement:
@@ -149,7 +149,7 @@ file:
           - end_bracket: )
   - statement_terminator: ;
 - keyword: GO
-- batch:
+- statement:
   - statement:
     - insert_statement:
       - insert_statement:

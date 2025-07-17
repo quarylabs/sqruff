@@ -2080,11 +2080,14 @@ pub fn raw_dialect() -> Dialect {
     dialect.add([
         (
             "BatchSegment".into(),
-            NodeMatcher::new(SyntaxKind::Batch, |_| {
+            NodeMatcher::new(SyntaxKind::Statement, |_| {
                 AnyNumberOf::new(vec_of_erased![
-                    Ref::new("StatementSegment"),
-                    Ref::new("DelimiterGrammar").optional()  // Optional semicolons in T-SQL
+                    Sequence::new(vec_of_erased![
+                        Ref::new("StatementSegment"),
+                        Ref::new("DelimiterGrammar").optional()  // Optional semicolons in T-SQL
+                    ])
                 ])
+                .config(|this| this.min_times(1))  // At least one statement required
                 .to_matchable()
             })
             .to_matchable().into(),

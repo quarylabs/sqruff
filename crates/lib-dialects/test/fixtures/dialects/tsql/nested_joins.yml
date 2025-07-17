@@ -1,5 +1,5 @@
 file:
-- batch:
+- statement:
   - statement:
     - select_statement:
       - select_clause:
@@ -59,7 +59,7 @@ file:
         - word: Bcd
   - statement_terminator: ;
 - keyword: GO
-- batch:
+- statement:
   - statement:
     - select_statement:
       - select_clause:
@@ -212,7 +212,7 @@ file:
         - word: Bcd
   - statement_terminator: ;
 - keyword: GO
-- batch:
+- statement:
   - statement:
     - select_statement:
       - select_clause:

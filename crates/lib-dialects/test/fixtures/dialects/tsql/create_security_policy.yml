@@ -1,5 +1,5 @@
 file:
-- batch:
+- statement:
   - statement:
     - create_security_policy_statement:
       - keyword: CREATE

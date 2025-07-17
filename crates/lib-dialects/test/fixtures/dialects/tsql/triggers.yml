@@ -1,5 +1,5 @@
 file:
-- batch:
+- statement:
   - statement:
     - create_trigger_statement:
       - keyword: CREATE
@@ -33,7 +33,7 @@ file:
             - end_bracket: )
   - statement_terminator: ;
 - keyword: GO
-- batch:
+- statement:
   - statement:
     - create_trigger_statement:
       - keyword: CREATE
@@ -86,7 +86,7 @@ file:
           - quoted_literal: '''Reminder'''
   - statement_terminator: ;
 - keyword: GO
-- batch:
+- statement:
   - statement:
     - create_trigger_statement:
       - keyword: CREATE
@@ -192,7 +192,7 @@ file:
       - keyword: END
   - statement_terminator: ;
 - keyword: GO
-- batch:
+- statement:
   - statement:
     - create_trigger_statement:
       - keyword: CREATE

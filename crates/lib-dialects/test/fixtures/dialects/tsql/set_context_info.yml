@@ -1,5 +1,5 @@
 file:
-- batch:
+- statement:
   - statement:
     - set_context_info_statement:
       - keyword: SET

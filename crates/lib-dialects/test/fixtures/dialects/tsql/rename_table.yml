@@ -1,5 +1,5 @@
 file:
-- batch:
+- statement:
   - statement:
     - rename_object_statement:
       - keyword: RENAME

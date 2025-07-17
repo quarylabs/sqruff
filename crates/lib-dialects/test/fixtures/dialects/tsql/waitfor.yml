@@ -1,5 +1,5 @@
 file:
-- batch:
+- statement:
   - statement:
     - keyword: EXECUTE
     - object_reference:
@@ -39,7 +39,7 @@ file:
       - keyword: END
   - statement_terminator: ;
 - keyword: GO
-- batch:
+- statement:
   - statement:
     - begin_end_block:
       - keyword: BEGIN

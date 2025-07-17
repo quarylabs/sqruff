@@ -1,5 +1,5 @@
 file:
-- batch:
+- statement:
   - statement:
     - select_statement:
       - select_clause:

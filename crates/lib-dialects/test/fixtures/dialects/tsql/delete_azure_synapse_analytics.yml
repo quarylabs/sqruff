@@ -1,5 +1,5 @@
 file:
-- batch:
+- statement:
   - statement:
     - delete_statement:
       - delete_statement:

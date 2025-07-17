@@ -1,5 +1,5 @@
 file:
-- batch:
+- statement:
   - statement:
     - access_statement:
       - keyword: GRANT
@@ -16,7 +16,7 @@ file:
         - naked_identifier: RosaQdM
   - statement_terminator: ;
 - keyword: GO
-- batch:
+- statement:
   - statement:
     - keyword: USE
     - database_reference:
@@ -38,7 +38,7 @@ file:
         - naked_identifier: Recruiting11
   - statement_terminator: ;
 - keyword: GO
-- batch:
+- statement:
   - statement:
     - access_statement:
       - keyword: GRANT
@@ -63,7 +63,7 @@ file:
       - keyword: OPTION
   - statement_terminator: ;
 - keyword: GO
-- batch:
+- statement:
   - statement:
     - access_statement:
       - keyword: GRANT
@@ -78,7 +78,7 @@ file:
         - naked_identifier: RosaQdM
   - statement_terminator: ;
 - keyword: GO
-- batch:
+- statement:
   - statement:
     - access_statement:
       - keyword: GRANT
@@ -93,7 +93,7 @@ file:
         - quoted_identifier: '[AdventureWorks2012\RosaQdM]'
   - statement_terminator: ;
 - keyword: GO
-- batch:
+- statement:
   - statement:
     - create_role_statement:
       - keyword: CREATE
@@ -115,7 +115,7 @@ file:
         - naked_identifier: newrole
   - statement_terminator: ;
 - keyword: GO
-- batch:
+- statement:
   - statement:
     - access_statement:
       - keyword: GRANT
@@ -130,7 +130,7 @@ file:
         - naked_identifier: Vendors
   - statement_terminator: ;
 - keyword: GO
-- batch:
+- statement:
   - statement:
     - access_statement:
       - keyword: REVOKE
@@ -145,7 +145,7 @@ file:
         - naked_identifier: Vendors
   - statement_terminator: ;
 - keyword: GO
-- batch:
+- statement:
   - statement:
     - access_statement:
       - keyword: DENY
@@ -162,7 +162,7 @@ file:
         - naked_identifier: RosaQdM
   - statement_terminator: ;
 - keyword: GO
-- batch:
+- statement:
   - statement:
     - access_statement:
       - keyword: DENY
@@ -179,7 +179,7 @@ file:
         - naked_identifier: Recruiting11
   - statement_terminator: ;
 - keyword: GO
-- batch:
+- statement:
   - statement:
     - access_statement:
       - keyword: DENY

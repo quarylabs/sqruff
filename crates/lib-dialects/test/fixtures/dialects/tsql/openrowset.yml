@@ -1,5 +1,5 @@
 file:
-- batch:
+- statement:
   - statement:
     - select_statement:
       - select_clause:
@@ -38,7 +38,7 @@ file:
               - naked_identifier: a
   - statement_terminator: ;
 - keyword: GO
-- batch:
+- statement:
   - statement:
     - select_statement:
       - select_clause:
@@ -74,7 +74,7 @@ file:
               - naked_identifier: d
   - statement_terminator: ;
 - keyword: GO
-- batch:
+- statement:
   - statement:
     - select_statement:
       - select_clause:
@@ -114,7 +114,7 @@ file:
               - naked_identifier: d
   - statement_terminator: ;
 - keyword: GO
-- batch:
+- statement:
   - statement:
     - select_statement:
       - select_clause:
@@ -151,7 +151,7 @@ file:
               - naked_identifier: a
   - statement_terminator: ;
 - keyword: GO
-- batch:
+- statement:
   - statement:
     - select_statement:
       - select_clause:
@@ -184,7 +184,7 @@ file:
               - naked_identifier: DATA
   - statement_terminator: ;
 - keyword: GO
-- batch:
+- statement:
   - statement:
     - select_statement:
       - select_clause:
@@ -214,7 +214,7 @@ file:
               - naked_identifier: Document
   - statement_terminator: ;
 - keyword: GO
-- batch:
+- statement:
   - statement:
     - select_statement:
       - select_clause:
@@ -254,7 +254,7 @@ file:
               - naked_identifier: cars
   - statement_terminator: ;
 - keyword: GO
-- batch:
+- statement:
   - statement:
     - select_statement:
       - select_clause:

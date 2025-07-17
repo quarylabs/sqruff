@@ -1,5 +1,5 @@
 file:
-- batch:
+- statement:
   - statement:
     - drop_view_statement:
       - keyword: drop

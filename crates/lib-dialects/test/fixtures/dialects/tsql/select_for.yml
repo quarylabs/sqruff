@@ -1,5 +1,5 @@
 file:
-- batch:
+- statement:
   - statement:
     - select_statement:
       - select_clause:
@@ -24,7 +24,7 @@ file:
       - keyword: AUTO
   - statement_terminator: ;
 - keyword: GO
-- batch:
+- statement:
   - statement:
     - select_statement:
       - select_clause:
@@ -40,7 +40,7 @@ file:
           - word: PATH
   - statement_terminator: ;
 - keyword: GO
-- batch:
+- statement:
   - statement:
     - select_statement:
       - select_clause:
@@ -117,7 +117,7 @@ file:
       - keyword: AUTO
   - statement_terminator: ;
 - keyword: GO
-- batch:
+- statement:
   - statement:
     - select_statement:
       - select_clause:
@@ -142,7 +142,7 @@ file:
           - word: INCLUDE_NULL_VALUES
   - statement_terminator: ;
 - keyword: GO
-- batch:
+- statement:
   - statement:
     - select_statement:
       - select_clause:

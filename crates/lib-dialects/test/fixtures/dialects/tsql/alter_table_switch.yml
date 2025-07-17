@@ -1,5 +1,5 @@
 file:
-- batch:
+- statement:
   - statement:
     - alter_table_switch_statement:
       - keyword: ALTER

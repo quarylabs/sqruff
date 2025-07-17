@@ -1,5 +1,5 @@
 file:
-- batch:
+- statement:
   - statement:
     - create_procedure_statement:
       - keyword: CREATE
@@ -20,7 +20,7 @@ file:
           - keyword: END
   - statement_terminator: ;
 - keyword: GO
-- batch:
+- statement:
   - statement:
     - create_procedure_statement:
       - keyword: CREATE
@@ -43,7 +43,7 @@ file:
           - keyword: END
   - statement_terminator: ;
 - keyword: GO
-- batch:
+- statement:
   - statement:
     - create_procedure_statement:
       - keyword: ALTER
@@ -64,7 +64,7 @@ file:
           - keyword: END
   - statement_terminator: ;
 - keyword: GO
-- batch:
+- statement:
   - statement:
     - create_procedure_statement:
       - keyword: ALTER
@@ -85,7 +85,7 @@ file:
           - keyword: END
   - statement_terminator: ;
 - keyword: GO
-- batch:
+- statement:
   - statement:
     - create_procedure_statement:
       - keyword: CREATE
@@ -108,7 +108,7 @@ file:
           - keyword: END
   - statement_terminator: ;
 - keyword: GO
-- batch:
+- statement:
   - statement:
     - create_procedure_statement:
       - keyword: CREATE
@@ -131,7 +131,7 @@ file:
           - keyword: END
   - statement_terminator: ;
 - keyword: GO
-- batch:
+- statement:
   - statement:
     - create_procedure_statement:
       - keyword: CREATE
@@ -156,7 +156,7 @@ file:
               - numeric_literal: '1'
   - statement_terminator: ;
 - keyword: GO
-- batch:
+- statement:
   - statement:
     - create_procedure_statement:
       - keyword: CREATE
@@ -264,7 +264,7 @@ file:
           - keyword: END
   - statement_terminator: ;
 - keyword: GO
-- batch:
+- statement:
   - statement:
     - create_procedure_statement:
       - keyword: CREATE
@@ -320,7 +320,7 @@ file:
           - keyword: END
   - statement_terminator: ;
 - keyword: GO
-- batch:
+- statement:
   - statement:
     - create_procedure_statement:
       - keyword: CREATE
@@ -383,7 +383,7 @@ file:
           - keyword: END
   - statement_terminator: ;
 - keyword: GO
-- batch:
+- statement:
   - statement:
     - create_procedure_statement:
       - keyword: CREATE
@@ -454,7 +454,7 @@ file:
       - keyword: END
   - statement_terminator: ;
 - keyword: GO
-- batch:
+- statement:
   - statement:
     - create_procedure_statement:
       - keyword: CREATE
@@ -510,7 +510,7 @@ file:
       - keyword: END
   - statement_terminator: ;
 - keyword: GO
-- batch:
+- statement:
   - statement:
     - create_procedure_statement:
       - keyword: CREATE
@@ -577,7 +577,7 @@ file:
       - keyword: END
   - statement_terminator: ;
 - keyword: GO
-- batch:
+- statement:
   - statement:
     - create_procedure_statement:
       - keyword: CREATE
@@ -597,7 +597,7 @@ file:
         - quoted_identifier: '[static_method]'
   - statement_terminator: ;
 - keyword: GO
-- batch:
+- statement:
   - statement:
     - create_procedure_statement:
       - keyword: CREATE
@@ -619,7 +619,7 @@ file:
         - quoted_identifier: '[static_method]'
   - statement_terminator: ;
 - keyword: GO
-- batch:
+- statement:
   - statement:
     - create_procedure_statement:
       - keyword: CREATE
@@ -678,7 +678,7 @@ file:
         - quoted_identifier: '[static_method]'
   - statement_terminator: ;
 - keyword: GO
-- batch:
+- statement:
   - statement:
     - create_procedure_statement:
       - keyword: CREATE
@@ -705,7 +705,7 @@ file:
           - statement_terminator: ;
           - keyword: END
 - keyword: GO
-- batch:
+- statement:
   - statement:
     - create_procedure_statement:
       - keyword: CREATE

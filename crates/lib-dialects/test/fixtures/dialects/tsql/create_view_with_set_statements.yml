@@ -1,17 +1,17 @@
 file:
-- batch:
+- statement:
   - statement:
     - keyword: SET
     - keyword: ANSI_NULLS
     - keyword: ON
 - keyword: GO
-- batch:
+- statement:
   - statement:
     - keyword: SET
     - keyword: QUOTED_IDENTIFIER
     - keyword: ON
 - keyword: GO
-- batch:
+- statement:
   - statement:
     - create_view_statement:
       - create_view_statement:
@@ -43,7 +43,7 @@ file:
                       - naked_identifier: BASE_CTE
   - statement_terminator: ;
 - keyword: GO
-- batch:
+- statement:
   - statement:
     - create_view_statement:
       - create_view_statement:
@@ -82,7 +82,7 @@ file:
               - naked_identifier: DATE_OF_REPORT
   - statement_terminator: ;
 - keyword: GO
-- batch:
+- statement:
   - statement:
     - create_view_statement:
       - create_view_statement:

@@ -1,5 +1,5 @@
 file:
-- batch:
+- statement:
   - statement:
     - create_schema_statement:
       - keyword: CREATE
@@ -8,7 +8,7 @@ file:
         - object_reference:
           - quoted_identifier: '[Reporting]'
 - keyword: GO
-- batch:
+- statement:
   - statement:
     - create_schema_statement:
       - keyword: CREATE

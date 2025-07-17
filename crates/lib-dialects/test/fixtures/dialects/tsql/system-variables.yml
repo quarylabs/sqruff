@@ -1,5 +1,5 @@
 file:
-- batch:
+- statement:
   - statement:
     - update_statement:
       - update_statement:
@@ -57,7 +57,7 @@ file:
       - statement_terminator: ;
       - keyword: END
 - keyword: GO
-- batch:
+- statement:
   - statement:
     - select_statement:
       - select_clause:
@@ -70,14 +70,14 @@ file:
             - quoted_identifier: '''Identity'''
   - statement_terminator: ;
 - keyword: GO
-- batch:
+- statement:
   - statement:
     - keyword: PRINT
     - expression:
       - parameterized_expression:
         - tsql_variable: '@@TRANCOUNT'
 - keyword: GO
-- batch:
+- statement:
   - statement:
     - select_statement:
       - select_clause:

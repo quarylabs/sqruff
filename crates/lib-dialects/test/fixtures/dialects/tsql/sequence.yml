@@ -1,5 +1,5 @@
 file:
-- batch:
+- statement:
   - statement:
     - create_sequence_statement:
       - keyword: CREATE
@@ -15,7 +15,7 @@ file:
         - keyword: BY
         - numeric_literal: '1'
 - keyword: GO
-- batch:
+- statement:
   - statement:
     - create_sequence_statement:
       - keyword: CREATE

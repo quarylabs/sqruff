@@ -1,5 +1,5 @@
 file:
-- batch:
+- statement:
   - statement:
     - keyword: IF
     - expression:
@@ -54,7 +54,7 @@ file:
             - end_bracket: )
     - statement_terminator: ;
 - keyword: GO
-- batch:
+- statement:
   - statement:
     - keyword: IF
     - expression:
@@ -109,7 +109,7 @@ file:
             - end_bracket: )
     - statement_terminator: ;
 - keyword: GO
-- batch:
+- statement:
   - statement:
     - keyword: IF
     - expression:
@@ -163,7 +163,7 @@ file:
             - end_bracket: )
     - statement_terminator: ;
 - keyword: GO
-- batch:
+- statement:
   - statement:
     - create_index_statement:
       - create_index_statement:
@@ -202,7 +202,7 @@ file:
             - end_bracket: )
   - statement_terminator: ;
 - keyword: GO
-- batch:
+- statement:
   - statement:
     - create_index_statement:
       - create_index_statement:
@@ -228,7 +228,7 @@ file:
           - quoted_identifier: '[PRIMARY]'
   - statement_terminator: ;
 - keyword: GO
-- batch:
+- statement:
   - statement:
     - create_index_statement:
       - create_index_statement:

@@ -1,5 +1,5 @@
 file:
-- batch:
+- statement:
   - statement:
     - drop_function_statement:
       - keyword: DROP

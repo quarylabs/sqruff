@@ -1,5 +1,5 @@
 file:
-- batch:
+- statement:
   - statement:
     - select_statement:
       - select_clause:
@@ -118,7 +118,7 @@ file:
                 - naked_identifier: pvt
   - statement_terminator: ;
 - keyword: GO
-- batch:
+- statement:
   - statement:
     - select_statement:
       - select_clause:

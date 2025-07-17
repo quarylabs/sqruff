@@ -1,5 +1,5 @@
 file:
-- batch:
+- statement:
   - statement:
     - create_view_statement:
       - create_view_statement:

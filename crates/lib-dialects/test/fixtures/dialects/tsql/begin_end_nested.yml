@@ -1,5 +1,5 @@
 file:
-- batch:
+- statement:
   - statement:
     - begin_end_block:
       - keyword: BEGIN

@@ -1,5 +1,5 @@
 file:
-- batch:
+- statement:
   - statement:
     - keyword: declare
     - tsql_variable: '@queue'

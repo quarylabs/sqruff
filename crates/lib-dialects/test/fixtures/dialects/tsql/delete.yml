@@ -1,5 +1,5 @@
 file:
-- batch:
+- statement:
   - statement:
     - delete_statement:
       - delete_statement:
@@ -12,7 +12,7 @@ file:
             - naked_identifier: SalesPersonQuotaHistory
         - statement_terminator: ;
 - keyword: GO
-- batch:
+- statement:
   - statement:
     - delete_statement:
       - delete_statement:
@@ -33,7 +33,7 @@ file:
             - numeric_literal: '1000.00'
         - statement_terminator: ;
 - keyword: GO
-- batch:
+- statement:
   - statement:
     - delete_statement:
       - delete_statement:
@@ -82,7 +82,7 @@ file:
           - end_bracket: )
   - statement_terminator: ;
 - keyword: GO
-- batch:
+- statement:
   - statement:
     - declare_cursor_statement:
       - keyword: DECLARE

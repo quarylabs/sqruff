@@ -1,5 +1,5 @@
 file:
-- batch:
+- statement:
   - statement:
     - keyword: BEGIN
     - keyword: TRY
@@ -56,7 +56,7 @@ file:
     - keyword: END
     - keyword: CATCH
 - keyword: GO
-- batch:
+- statement:
   - statement:
     - statement:
       - keyword: THROW

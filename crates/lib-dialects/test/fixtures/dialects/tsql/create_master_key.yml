@@ -1,5 +1,5 @@
 file:
-- batch:
+- statement:
   - statement:
     - create_master_key_statement:
       - keyword: CREATE

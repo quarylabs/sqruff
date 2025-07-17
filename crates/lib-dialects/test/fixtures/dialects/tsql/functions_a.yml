@@ -1,5 +1,5 @@
 file:
-- batch:
+- statement:
   - statement:
     - select_statement:
       - select_clause:
@@ -148,7 +148,7 @@ file:
         - end_bracket: )
   - statement_terminator: ;
 - keyword: GO
-- batch:
+- statement:
   - statement:
     - create_function_statement:
       - keyword: CREATE
@@ -174,7 +174,7 @@ file:
         - statement_terminator: ;
         - keyword: END
 - keyword: GO
-- batch:
+- statement:
   - statement:
     - select_statement:
       - select_clause:

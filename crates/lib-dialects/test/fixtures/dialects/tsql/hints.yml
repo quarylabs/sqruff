@@ -1,5 +1,5 @@
 file:
-- batch:
+- statement:
   - statement:
     - select_statement:
       - select_clause:
@@ -63,7 +63,7 @@ file:
         - end_bracket: )
   - statement_terminator: ;
 - keyword: GO
-- batch:
+- statement:
   - statement:
     - create_procedure_statement:
       - keyword: CREATE
@@ -142,7 +142,7 @@ file:
             - end_bracket: )
   - statement_terminator: ;
 - keyword: GO
-- batch:
+- statement:
   - statement:
     - with_compound_statement:
       - keyword: WITH
@@ -281,7 +281,7 @@ file:
           - end_bracket: )
   - statement_terminator: ;
 - keyword: GO
-- batch:
+- statement:
   - statement:
     - set_expression:
       - select_statement:
@@ -334,7 +334,7 @@ file:
           - end_bracket: )
   - statement_terminator: ;
 - keyword: GO
-- batch:
+- statement:
   - statement:
     - select_statement:
       - select_clause:
@@ -405,7 +405,7 @@ file:
         - end_bracket: )
   - statement_terminator: ;
 - keyword: GO
-- batch:
+- statement:
   - statement:
     - select_statement:
       - select_clause:
@@ -473,7 +473,7 @@ file:
         - end_bracket: )
   - statement_terminator: ;
 - keyword: GO
-- batch:
+- statement:
   - statement:
     - select_statement:
       - select_clause:
@@ -522,7 +522,7 @@ file:
         - end_bracket: )
   - statement_terminator: ;
 - keyword: GO
-- batch:
+- statement:
   - statement:
     - select_statement:
       - select_clause:
@@ -563,7 +563,7 @@ file:
         - end_bracket: )
   - statement_terminator: ;
 - keyword: GO
-- batch:
+- statement:
   - statement:
     - select_statement:
       - select_clause:
@@ -607,7 +607,7 @@ file:
         - end_bracket: )
   - statement_terminator: ;
 - keyword: GO
-- batch:
+- statement:
   - statement:
     - update_statement:
       - update_statement:
@@ -644,7 +644,7 @@ file:
             - quoted_literal: '''BK-%'''
         - statement_terminator: ;
 - keyword: GO
-- batch:
+- statement:
   - statement:
     - select_statement:
       - select_clause:
@@ -729,7 +729,7 @@ file:
             - end_bracket: )
   - statement_terminator: ;
 - keyword: GO
-- batch:
+- statement:
   - statement:
     - select_statement:
       - select_clause:
@@ -835,7 +835,7 @@ file:
             - end_bracket: )
   - statement_terminator: ;
 - keyword: GO
-- batch:
+- statement:
   - statement:
     - select_statement:
       - select_clause:
@@ -933,7 +933,7 @@ file:
             - end_bracket: )
   - statement_terminator: ;
 - keyword: GO
-- batch:
+- statement:
   - statement:
     - select_statement:
       - select_clause:

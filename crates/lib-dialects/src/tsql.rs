@@ -1816,7 +1816,6 @@ pub fn raw_dialect() -> Dialect {
                                     Sequence::new(vec_of_erased![
                                         one_of(vec_of_erased![
                                             Ref::keyword("PAD_INDEX"),
-                                            Ref::keyword("FILLFACTOR"),
                                             Ref::keyword("SORT_IN_TEMPDB"),
                                             Ref::keyword("IGNORE_DUP_KEY"),
                                             Ref::keyword("STATISTICS_NORECOMPUTE"),
@@ -1831,6 +1830,11 @@ pub fn raw_dialect() -> Dialect {
                                             Ref::keyword("ON"),
                                             Ref::keyword("OFF")
                                         ])
+                                    ]),
+                                    Sequence::new(vec_of_erased![
+                                        Ref::keyword("FILLFACTOR"),
+                                        Ref::new("EqualsSegment"),
+                                        Ref::new("NumericLiteralSegment")
                                     ]),
                                     Sequence::new(vec_of_erased![
                                         one_of(vec_of_erased![

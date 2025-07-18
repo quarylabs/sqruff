@@ -115,11 +115,11 @@ file:
   - word: deleted
   - raw_comparison_operator: =
   - numeric_literal: '1'
-  - word: WHERE
-  - word: useless
-  - raw_comparison_operator: =
-  - numeric_literal: '1'
   - word: OUTPUT
   - star: '*'
   - word: INTO
   - word: trash
+  - word: WHERE
+  - word: useless
+  - raw_comparison_operator: =
+  - numeric_literal: '1'

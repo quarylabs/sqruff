@@ -105,6 +105,8 @@ pub fn raw_dialect() -> Dialect {
         "PERIOD",
         "SYSTEM_TIME",
         "PERSISTED",
+        "GENERATED",
+        "ALWAYS",
         "Partition",
         "LOB_COMPACTION",
         "COMPRESSION_DELAY",
@@ -573,6 +575,35 @@ pub fn raw_dialect() -> Dialect {
             .anti_template(&anti_template)
             .to_matchable()
         })
+        .into(),
+    )]);
+
+    // Override ColumnDefinitionSegment to support T-SQL temporal table columns
+    dialect.add([(
+        "ColumnDefinitionSegment".into(),
+        NodeMatcher::new(SyntaxKind::ColumnDefinition, |_| {
+            Sequence::new(vec_of_erased![
+                Ref::new("SingleIdentifierGrammar"), // Column name
+                Ref::new("DatatypeSegment"),         // Column type
+                // Column size specification like (100) or (10,2) - temporarily removed
+                // Bracketed::new(vec_of_erased![Anything::new()]).config(|this| this.optional()),
+                // GENERATED ALWAYS AS ROW START/END for temporal tables
+                Sequence::new(vec_of_erased![
+                    Ref::keyword("GENERATED"),
+                    Ref::keyword("ALWAYS"),
+                    Ref::keyword("AS"),
+                    Ref::keyword("ROW"),
+                    one_of(vec_of_erased![
+                        Ref::keyword("START"),
+                        Ref::keyword("END")
+                    ])
+                ]).config(|this| this.optional()),
+                AnyNumberOf::new(vec_of_erased![Ref::new("ColumnConstraintSegment")])
+                    .config(|this| this.optional())
+            ])
+            .to_matchable()
+        })
+        .to_matchable()
         .into(),
     )]);
 
@@ -2946,6 +2977,22 @@ pub fn raw_dialect() -> Dialect {
         .into(),
     )]);
 
+    // Extend BaseExpressionElementGrammar to include NEXT VALUE FOR
+    dialect.add([(
+        "BaseExpressionElementGrammar".into(),
+        dialect
+            .grammar("BaseExpressionElementGrammar")
+            .copy(
+                Some(vec_of_erased![Ref::new("NextValueForSegment")]),
+                None,
+                None,
+                None,
+                Vec::new(),
+                false,
+            )
+            .into(),
+    )]);
+
     // Define PostTableExpressionGrammar to include T-SQL table hints and PIVOT/UNPIVOT
     dialect.add([(
         "PostTableExpressionGrammar".into(),
@@ -3261,7 +3308,18 @@ pub fn raw_dialect() -> Dialect {
         Bracketed::new(vec_of_erased![Delimited::new(vec_of_erased![one_of(
             vec_of_erased![
                 Ref::new("TableConstraintSegment"),
-                Ref::new("ColumnDefinitionSegment")
+                Ref::new("ColumnDefinitionSegment"),
+                // PERIOD FOR SYSTEM_TIME for temporal tables
+                Sequence::new(vec_of_erased![
+                    Ref::keyword("PERIOD"),
+                    Ref::keyword("FOR"),
+                    Ref::keyword("SYSTEM_TIME"),
+                    Bracketed::new(vec_of_erased![
+                        Ref::new("ColumnReferenceSegment"),
+                        Ref::new("CommaSegment"),
+                        Ref::new("ColumnReferenceSegment")
+                    ])
+                ])
             ]
         )])])
         .to_matchable()

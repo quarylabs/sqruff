@@ -1715,15 +1715,23 @@ pub fn raw_dialect() -> Dialect {
         ),
         (
             "DropStatisticsStatementSegment".into(),
-            NodeMatcher::new(SyntaxKind::DropTableStatement, |_| {
+            NodeMatcher::new(SyntaxKind::DropIndexStatement, |_| {
                 Sequence::new(vec_of_erased![
                     Ref::keyword("DROP"),
                     Ref::keyword("STATISTICS"),
-                    // Table.StatisticsName format
-                    Sequence::new(vec_of_erased![
-                        Ref::new("TableReferenceSegment"),
-                        Ref::new("DotSegment"),
-                        Ref::new("ObjectReferenceSegment")
+                    // Allow multiple statistics to be dropped (comma-separated)
+                    Delimited::new(vec_of_erased![
+                        // Schema.Table.StatisticsName or Table.StatisticsName format
+                        Sequence::new(vec_of_erased![
+                            Ref::new("ObjectReferenceSegment"), // First part (Schema or Table)
+                            Ref::new("DotSegment"),
+                            Ref::new("ObjectReferenceSegment"), // Second part (Table or StatisticsName)
+                            // Optional third part for Schema.Table.StatisticsName
+                            Sequence::new(vec_of_erased![
+                                Ref::new("DotSegment"),
+                                Ref::new("ObjectReferenceSegment") // StatisticsName
+                            ]).config(|this| this.optional())
+                        ])
                     ])
                 ])
                 .to_matchable()
@@ -1732,6 +1740,23 @@ pub fn raw_dialect() -> Dialect {
             .into(),
         ),
     ]);
+
+    // Override DROP INDEX for T-SQL specific syntax: DROP INDEX index_name ON table_name
+    dialect.replace_grammar(
+        "DropIndexStatementSegment",
+        NodeMatcher::new(SyntaxKind::DropIndexStatement, |_| {
+            Sequence::new(vec_of_erased![
+                Ref::keyword("DROP"),
+                Ref::keyword("INDEX"),
+                Ref::new("ObjectReferenceSegment"), // Index name
+                Ref::keyword("ON"),
+                Ref::new("TableReferenceSegment") // Table name
+            ])
+            .to_matchable()
+        })
+        .to_matchable()
+        .into(),
+    );
 
     // WAITFOR statement
     dialect.add([(
@@ -4534,14 +4559,32 @@ pub fn raw_dialect() -> Dialect {
                 Sequence::new(vec_of_erased![
                     Ref::keyword("CLUSTERED"),
                     Ref::keyword("COLUMNSTORE"),
-                    Ref::keyword("INDEX")
+                    Ref::keyword("INDEX"),
+                    // Optional ORDER clause for columnstore indexes
+                    Sequence::new(vec_of_erased![
+                        Ref::keyword("ORDER"),
+                        Bracketed::new(vec_of_erased![Delimited::new(vec_of_erased![
+                            Sequence::new(vec_of_erased![
+                                Ref::new("ColumnReferenceSegment"),
+                                // Optional ASC/DESC
+                                one_of(vec_of_erased![Ref::keyword("ASC"), Ref::keyword("DESC")])
+                                    .config(|this| this.optional())
+                            ])
+                        ])])
+                    ])
+                    .config(|this| this.optional())
                 ]),
                 Sequence::new(vec_of_erased![
                     Ref::keyword("CLUSTERED"),
                     Ref::keyword("INDEX"),
-                    Bracketed::new(vec_of_erased![Delimited::new(vec_of_erased![Ref::new(
-                        "ColumnReferenceSegment"
-                    )])])
+                    Bracketed::new(vec_of_erased![Delimited::new(vec_of_erased![
+                        Sequence::new(vec_of_erased![
+                            Ref::new("ColumnReferenceSegment"),
+                            // Optional ASC/DESC
+                            one_of(vec_of_erased![Ref::keyword("ASC"), Ref::keyword("DESC")])
+                                .config(|this| this.optional())
+                        ])
+                    ])])
                 ])
             ]),
             // Other table options

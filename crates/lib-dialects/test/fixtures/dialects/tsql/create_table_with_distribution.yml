@@ -408,65 +408,93 @@ file:
                   - numeric_literal: '3'
                   - end_bracket: )
           - end_bracket: )
-- unparsable:
-  - word: WITH
-  - start_bracket: (
-  - word: CLUSTERED
-  - word: COLUMNSTORE
-  - word: INDEX
-  - word: ORDER
-  - start_bracket: (
-  - double_quote: '[Column B]'
-  - end_bracket: )
-  - comma: ','
-  - word: DISTRIBUTION
-  - raw_comparison_operator: =
-  - word: HASH
-  - start_bracket: (
-  - double_quote: '[Column B]'
-  - end_bracket: )
-  - end_bracket: )
-  - semicolon: ;
-  - word: GO
-  - word: DROP
-  - word: TABLE
-  - double_quote: '[dbo]'
-  - dot: .
-  - double_quote: '[EC DC]'
-  - semicolon: ;
-  - word: GO
-  - word: CREATE
-  - word: TABLE
-  - double_quote: '[dbo]'
-  - dot: .
-  - double_quote: '[table]'
-  - start_bracket: (
-  - double_quote: '[name]'
-  - double_quote: '[varchar]'
-  - start_bracket: (
-  - numeric_literal: '100'
-  - end_bracket: )
-  - word: NOT
-  - word: 'NULL'
-  - comma: ','
-  - double_quote: '[month_num]'
-  - double_quote: '[int]'
-  - word: 'NULL'
-  - end_bracket: )
-  - word: WITH
-  - start_bracket: (
-  - word: DISTRIBUTION
-  - raw_comparison_operator: =
-  - word: REPLICATE
-  - comma: ','
-  - word: CLUSTERED
-  - word: INDEX
-  - start_bracket: (
-  - double_quote: '[name]'
-  - word: ASC
-  - comma: ','
-  - double_quote: '[month_num]'
-  - word: ASC
-  - end_bracket: )
-  - end_bracket: )
-  - word: GO
+        - keyword: WITH
+        - bracketed:
+          - start_bracket: (
+          - keyword: CLUSTERED
+          - keyword: COLUMNSTORE
+          - keyword: INDEX
+          - keyword: ORDER
+          - bracketed:
+            - start_bracket: (
+            - column_reference:
+              - quoted_identifier: '[Column B]'
+            - end_bracket: )
+          - comma: ','
+          - keyword: DISTRIBUTION
+          - comparison_operator:
+            - raw_comparison_operator: =
+          - keyword: HASH
+          - bracketed:
+            - start_bracket: (
+            - column_reference:
+              - quoted_identifier: '[Column B]'
+            - end_bracket: )
+          - end_bracket: )
+  - statement_terminator: ;
+  - keyword: GO
+  - statement:
+    - drop_table_statement:
+      - keyword: DROP
+      - keyword: TABLE
+      - table_reference:
+        - object_reference:
+          - quoted_identifier: '[dbo]'
+          - dot: .
+          - quoted_identifier: '[EC DC]'
+  - statement_terminator: ;
+  - keyword: GO
+  - statement:
+    - create_table_statement:
+      - create_table_statement:
+        - keyword: CREATE
+        - keyword: TABLE
+        - table_reference:
+          - object_reference:
+            - quoted_identifier: '[dbo]'
+            - dot: .
+            - quoted_identifier: '[table]'
+        - bracketed:
+          - start_bracket: (
+          - column_definition:
+            - quoted_identifier: '[name]'
+            - data_type:
+              - quoted_identifier: '[varchar]'
+              - bracketed_arguments:
+                - bracketed:
+                  - start_bracket: (
+                  - numeric_literal: '100'
+                  - end_bracket: )
+            - column_constraint_segment:
+              - keyword: NOT
+              - keyword: 'NULL'
+          - comma: ','
+          - column_definition:
+            - quoted_identifier: '[month_num]'
+            - data_type:
+              - quoted_identifier: '[int]'
+            - column_constraint_segment:
+              - keyword: 'NULL'
+          - end_bracket: )
+        - keyword: WITH
+        - bracketed:
+          - start_bracket: (
+          - keyword: DISTRIBUTION
+          - comparison_operator:
+            - raw_comparison_operator: =
+          - keyword: REPLICATE
+          - comma: ','
+          - keyword: CLUSTERED
+          - keyword: INDEX
+          - bracketed:
+            - start_bracket: (
+            - column_reference:
+              - quoted_identifier: '[name]'
+            - keyword: ASC
+            - comma: ','
+            - column_reference:
+              - quoted_identifier: '[month_num]'
+            - keyword: ASC
+            - end_bracket: )
+          - end_bracket: )
+  - keyword: GO

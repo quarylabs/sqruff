@@ -61,8 +61,7 @@ file:
           - keyword: BY
           - numeric_literal: '1'
     - statement_terminator: ;
-- keyword: GO
-- statement:
+  - keyword: GO
   - statement:
     - create_table_statement:
       - create_table_statement:

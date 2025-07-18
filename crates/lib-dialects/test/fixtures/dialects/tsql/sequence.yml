@@ -14,8 +14,7 @@ file:
         - keyword: INCREMENT
         - keyword: BY
         - numeric_literal: '1'
-- keyword: GO
-- statement:
+  - keyword: GO
   - statement:
     - create_sequence_statement:
       - keyword: CREATE

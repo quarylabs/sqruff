@@ -273,8 +273,7 @@ file:
                       - naked_identifier: STAGE
                       - dot: .
                       - naked_identifier: ECDC_CASES
-- keyword: GO
-- statement:
+  - keyword: GO
   - statement:
     - begin_end_block:
       - keyword: BEGIN
@@ -336,8 +335,7 @@ file:
                           - naked_identifier: EmployeeTemp
       - statement_terminator: ;
       - keyword: END
-- keyword: GO
-- statement:
+  - keyword: GO
   - statement:
     - insert_statement:
       - insert_statement:
@@ -395,8 +393,7 @@ file:
                     - object_reference:
                       - naked_identifier: EmployeeTemp
   - statement_terminator: ;
-- keyword: GO
-- statement:
+  - keyword: GO
   - statement:
     - insert_statement:
       - insert_statement:
@@ -456,5 +453,4 @@ file:
             - comma: ','
             - quoted_literal: '''James'''
             - end_bracket: )
-- unparsable:
-  - word: GO
+  - keyword: GO

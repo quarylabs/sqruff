@@ -15,8 +15,7 @@ file:
               - table_reference:
                 - object_reference:
                   - naked_identifier: tbl1
-- keyword: GO
-- statement:
+  - keyword: GO
   - statement:
     - select_statement:
       - select_clause:
@@ -32,5 +31,4 @@ file:
               - table_reference:
                 - object_reference:
                   - naked_identifier: tbl2
-- unparsable:
-  - word: GO
+  - keyword: GO

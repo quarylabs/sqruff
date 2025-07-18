@@ -56,8 +56,7 @@ file:
           - quoted_literal: N'A check constraint violation occurred.'
       - statement_terminator: ;
       - keyword: END
-- keyword: GO
-- statement:
+  - keyword: GO
   - statement:
     - select_statement:
       - select_clause:
@@ -69,15 +68,13 @@ file:
             - keyword: AS
             - quoted_identifier: '''Identity'''
   - statement_terminator: ;
-- keyword: GO
-- statement:
+  - keyword: GO
   - statement:
     - keyword: PRINT
     - expression:
       - parameterized_expression:
         - tsql_variable: '@@TRANCOUNT'
-- keyword: GO
-- statement:
+  - keyword: GO
   - statement:
     - select_statement:
       - select_clause:
@@ -89,5 +86,4 @@ file:
             - keyword: AS
             - quoted_identifier: '''Packets Received'''
   - statement_terminator: ;
-- unparsable:
-  - word: GO
+  - keyword: GO

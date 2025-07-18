@@ -53,8 +53,7 @@ file:
           - statement_terminator: ;
           - keyword: END
   - statement_terminator: ;
-- keyword: GO
-- statement:
+  - keyword: GO
   - statement:
     - create_procedure_statement:
       - keyword: CREATE
@@ -99,8 +98,7 @@ file:
               - quoted_literal: '''8'''
       - keyword: END
   - statement_terminator: ;
-- keyword: GO
-- statement:
+  - keyword: GO
   - statement:
     - create_procedure_statement:
       - keyword: CREATE
@@ -148,8 +146,7 @@ file:
               - quoted_literal: '''8'''
       - keyword: END
   - statement_terminator: ;
-- keyword: GO
-- statement:
+  - keyword: GO
   - statement:
     - create_procedure_statement:
       - keyword: ALTER
@@ -260,5 +257,4 @@ file:
         - keyword: CATCH
       - keyword: END
   - statement_terminator: ;
-- unparsable:
-  - word: GO
+  - keyword: GO

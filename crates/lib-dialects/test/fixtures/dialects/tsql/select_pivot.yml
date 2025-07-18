@@ -117,8 +117,7 @@ file:
               - alias_expression:
                 - naked_identifier: pvt
   - statement_terminator: ;
-- keyword: GO
-- statement:
+  - keyword: GO
   - statement:
     - select_statement:
       - select_clause:
@@ -216,5 +215,4 @@ file:
                   - dot: .
                   - naked_identifier: MonthColumn
   - statement_terminator: ;
-- unparsable:
-  - word: GO
+  - keyword: GO

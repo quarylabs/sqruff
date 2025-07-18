@@ -23,8 +23,7 @@ file:
       - keyword: JSON
       - keyword: AUTO
   - statement_terminator: ;
-- keyword: GO
-- statement:
+  - keyword: GO
   - statement:
     - select_statement:
       - select_clause:
@@ -38,8 +37,7 @@ file:
       - keyword: JSON
       - keyword: PATH
   - statement_terminator: ;
-- keyword: GO
-- statement:
+  - keyword: GO
   - statement:
     - select_statement:
       - select_clause:
@@ -54,8 +52,7 @@ file:
       - keyword: PATH
       - comma: ','
       - keyword: WITHOUT_ARRAY_WRAPPER
-- keyword: GO
-- statement:
+  - keyword: GO
   - statement:
     - select_statement:
       - select_clause:
@@ -122,8 +119,7 @@ file:
       - keyword: JSON
       - keyword: AUTO
   - statement_terminator: ;
-- keyword: GO
-- statement:
+  - keyword: GO
   - statement:
     - select_statement:
       - select_clause:
@@ -147,8 +143,7 @@ file:
       - comma: ','
       - keyword: INCLUDE_NULL_VALUES
   - statement_terminator: ;
-- keyword: GO
-- statement:
+  - keyword: GO
   - statement:
     - select_statement:
       - select_clause:
@@ -301,5 +296,4 @@ file:
             - naked_identifier: a
       - keyword: FOR
       - keyword: BROWSE
-- unparsable:
-  - word: GO
+  - keyword: GO

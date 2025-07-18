@@ -58,8 +58,7 @@ file:
         - dot: .
         - word: Bcd
   - statement_terminator: ;
-- keyword: GO
-- statement:
+  - keyword: GO
   - statement:
     - select_statement:
       - select_clause:
@@ -211,8 +210,7 @@ file:
         - dot: .
         - word: Bcd
   - statement_terminator: ;
-- keyword: GO
-- statement:
+  - keyword: GO
   - statement:
     - select_statement:
       - select_clause:

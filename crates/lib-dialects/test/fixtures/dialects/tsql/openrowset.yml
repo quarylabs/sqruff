@@ -37,8 +37,7 @@ file:
               - keyword: AS
               - naked_identifier: a
   - statement_terminator: ;
-- keyword: GO
-- statement:
+  - keyword: GO
   - statement:
     - select_statement:
       - select_clause:
@@ -73,8 +72,7 @@ file:
               - keyword: AS
               - naked_identifier: d
   - statement_terminator: ;
-- keyword: GO
-- statement:
+  - keyword: GO
   - statement:
     - select_statement:
       - select_clause:
@@ -113,8 +111,7 @@ file:
               - keyword: AS
               - naked_identifier: d
   - statement_terminator: ;
-- keyword: GO
-- statement:
+  - keyword: GO
   - statement:
     - select_statement:
       - select_clause:
@@ -150,8 +147,7 @@ file:
               - keyword: AS
               - naked_identifier: a
   - statement_terminator: ;
-- keyword: GO
-- statement:
+  - keyword: GO
   - statement:
     - select_statement:
       - select_clause:
@@ -183,8 +179,7 @@ file:
               - keyword: AS
               - naked_identifier: DATA
   - statement_terminator: ;
-- keyword: GO
-- statement:
+  - keyword: GO
   - statement:
     - select_statement:
       - select_clause:
@@ -213,8 +208,7 @@ file:
               - keyword: AS
               - naked_identifier: Document
   - statement_terminator: ;
-- keyword: GO
-- statement:
+  - keyword: GO
   - statement:
     - select_statement:
       - select_clause:
@@ -253,8 +247,7 @@ file:
               - keyword: AS
               - naked_identifier: cars
   - statement_terminator: ;
-- keyword: GO
-- statement:
+  - keyword: GO
   - statement:
     - select_statement:
       - select_clause:
@@ -292,8 +285,7 @@ file:
       - unparsable:
         - word: as
         - word: rows
-- keyword: GO
-- statement:
+  - keyword: GO
   - statement:
     - select_statement:
       - select_clause:
@@ -358,8 +350,7 @@ file:
       - unparsable:
         - word: as
         - word: rows
-- keyword: GO
-- statement:
+  - keyword: GO
   - statement:
     - select_statement:
       - select_clause:
@@ -431,5 +422,4 @@ file:
       - unparsable:
         - word: AS
         - double_quote: '[r]'
-- unparsable:
-  - word: GO
+  - keyword: GO

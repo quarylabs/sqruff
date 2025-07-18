@@ -62,8 +62,7 @@ file:
         - keyword: JOIN
         - end_bracket: )
   - statement_terminator: ;
-- keyword: GO
-- statement:
+  - keyword: GO
   - statement:
     - create_procedure_statement:
       - keyword: CREATE
@@ -141,8 +140,7 @@ file:
             - end_bracket: )
             - end_bracket: )
   - statement_terminator: ;
-- keyword: GO
-- statement:
+  - keyword: GO
   - statement:
     - with_compound_statement:
       - keyword: WITH
@@ -281,8 +279,7 @@ file:
           - numeric_literal: '2'
           - end_bracket: )
   - statement_terminator: ;
-- keyword: GO
-- statement:
+  - keyword: GO
   - statement:
     - set_expression:
       - set_expression:
@@ -335,8 +332,7 @@ file:
             - keyword: UNION
             - end_bracket: )
   - statement_terminator: ;
-- keyword: GO
-- statement:
+  - keyword: GO
   - statement:
     - select_statement:
       - select_clause:
@@ -407,8 +403,7 @@ file:
         - numeric_literal: '10'
         - end_bracket: )
   - statement_terminator: ;
-- keyword: GO
-- statement:
+  - keyword: GO
   - statement:
     - select_statement:
       - select_clause:
@@ -476,8 +471,7 @@ file:
         - numeric_literal: '2'
         - end_bracket: )
   - statement_terminator: ;
-- keyword: GO
-- statement:
+  - keyword: GO
   - statement:
     - select_statement:
       - select_clause:
@@ -525,8 +519,7 @@ file:
           - end_bracket: )
         - end_bracket: )
   - statement_terminator: ;
-- keyword: GO
-- statement:
+  - keyword: GO
   - statement:
     - select_statement:
       - select_clause:
@@ -566,8 +559,7 @@ file:
         - numeric_literal: '4199'
         - end_bracket: )
   - statement_terminator: ;
-- keyword: GO
-- statement:
+  - keyword: GO
   - statement:
     - select_statement:
       - select_clause:
@@ -610,8 +602,7 @@ file:
         - numeric_literal: '4137'
         - end_bracket: )
   - statement_terminator: ;
-- keyword: GO
-- statement:
+  - keyword: GO
   - statement:
     - update_statement:
       - update_statement:
@@ -647,8 +638,7 @@ file:
             - keyword: LIKE
             - quoted_literal: '''BK-%'''
         - statement_terminator: ;
-- keyword: GO
-- statement:
+  - keyword: GO
   - statement:
     - select_statement:
       - select_clause:
@@ -732,8 +722,7 @@ file:
               - numeric_literal: '1000.00'
             - end_bracket: )
   - statement_terminator: ;
-- keyword: GO
-- statement:
+  - keyword: GO
   - statement:
     - select_statement:
       - select_clause:
@@ -838,8 +827,7 @@ file:
               - numeric_literal: '1000.00'
             - end_bracket: )
   - statement_terminator: ;
-- keyword: GO
-- statement:
+  - keyword: GO
   - statement:
     - select_statement:
       - select_clause:
@@ -936,8 +924,7 @@ file:
               - numeric_literal: '1000.00'
             - end_bracket: )
   - statement_terminator: ;
-- keyword: GO
-- statement:
+  - keyword: GO
   - statement:
     - select_statement:
       - select_clause:
@@ -960,8 +947,7 @@ file:
               - start_bracket: (
               - keyword: NOLOCK
               - end_bracket: )
-- keyword: GO
-- statement:
+  - keyword: GO
   - statement:
     - select_statement:
       - select_clause:
@@ -985,5 +971,4 @@ file:
                     - column_reference:
                       - naked_identifier: NOLOCK
                   - end_bracket: )
-- unparsable:
-  - word: GO
+  - keyword: GO

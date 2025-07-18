@@ -2782,7 +2782,11 @@ pub fn raw_dialect() -> Dialect {
         NodeMatcher::new(SyntaxKind::Statement, |_| {
             AnyNumberOf::new(vec_of_erased![Sequence::new(vec_of_erased![
                 Ref::new("StatementSegment"),
-                Ref::new("DelimiterGrammar").optional() // Optional semicolons in T-SQL
+                AnyNumberOf::new(vec_of_erased![
+                    Ref::new("DelimiterGrammar"), // Optional semicolons in T-SQL
+                    Ref::new("BatchDelimiterGrammar") // Also allow GO to terminate statements
+                ])
+                .config(|this| this.optional())
             ])])
             .config(|this| this.min_times(1)) // At least one statement required
             .to_matchable()
@@ -2812,6 +2816,11 @@ pub fn raw_dialect() -> Dialect {
                         Ref::new("DelimiterGrammar").optional(),
                         Ref::new("BatchSegment")
                     ])
+                ]),
+                // Allow trailing GO statements at the end of the file
+                AnyNumberOf::new(vec_of_erased![
+                    Ref::new("BatchDelimiterGrammar"),
+                    Ref::new("DelimiterGrammar").optional()
                 ])
             ])
             .config(|this| this.optional()) // The entire content is optional for empty files

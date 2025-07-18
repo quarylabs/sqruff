@@ -4,14 +4,12 @@ file:
     - keyword: SET
     - keyword: ANSI_NULLS
     - keyword: ON
-- keyword: GO
-- statement:
+  - keyword: GO
   - statement:
     - keyword: SET
     - keyword: QUOTED_IDENTIFIER
     - keyword: ON
-- keyword: GO
-- statement:
+  - keyword: GO
   - statement:
     - create_view_statement:
       - create_view_statement:
@@ -42,8 +40,7 @@ file:
                     - object_reference:
                       - naked_identifier: BASE_CTE
   - statement_terminator: ;
-- keyword: GO
-- statement:
+  - keyword: GO
   - statement:
     - create_view_statement:
       - create_view_statement:
@@ -81,8 +78,7 @@ file:
             - column_reference:
               - naked_identifier: DATE_OF_REPORT
   - statement_terminator: ;
-- keyword: GO
-- statement:
+  - keyword: GO
   - statement:
     - create_view_statement:
       - create_view_statement:
@@ -168,5 +164,4 @@ file:
             - raw_comparison_operator: =
             - word: LAST_DATE_OF_REPORT
   - statement_terminator: ;
-- unparsable:
-  - word: GO
+  - keyword: GO

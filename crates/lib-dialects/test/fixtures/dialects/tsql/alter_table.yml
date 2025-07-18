@@ -18,8 +18,7 @@ file:
               - data_type_identifier: INT
           - end_bracket: )
   - statement_terminator: ;
-- keyword: GO
-- statement:
+  - keyword: GO
   - statement:
     - alter_table_statement:
       - keyword: ALTER
@@ -42,8 +41,7 @@ file:
         - column_constraint_segment:
           - keyword: 'NULL'
   - statement_terminator: ;
-- keyword: GO
-- statement:
+  - keyword: GO
   - statement:
     - create_table_statement:
       - create_table_statement:
@@ -62,8 +60,7 @@ file:
               - data_type_identifier: INT
           - end_bracket: )
   - statement_terminator: ;
-- keyword: GO
-- statement:
+  - keyword: GO
   - statement:
     - alter_table_statement:
       - keyword: ALTER

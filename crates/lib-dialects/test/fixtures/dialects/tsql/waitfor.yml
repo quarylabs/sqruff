@@ -38,8 +38,7 @@ file:
       - statement_terminator: ;
       - keyword: END
   - statement_terminator: ;
-- keyword: GO
-- statement:
+  - keyword: GO
   - statement:
     - begin_end_block:
       - keyword: BEGIN
@@ -57,5 +56,4 @@ file:
       - statement_terminator: ;
       - keyword: END
   - statement_terminator: ;
-- unparsable:
-  - word: GO
+  - keyword: GO

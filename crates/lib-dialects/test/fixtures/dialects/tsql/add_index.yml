@@ -53,8 +53,7 @@ file:
               - naked_identifier: DATE_LAST_INSERTED
             - end_bracket: )
     - statement_terminator: ;
-- keyword: GO
-- statement:
+  - keyword: GO
   - statement:
     - keyword: IF
     - expression:
@@ -108,8 +107,7 @@ file:
               - naked_identifier: DATE_LAST_INSERTED
             - end_bracket: )
     - statement_terminator: ;
-- keyword: GO
-- statement:
+  - keyword: GO
   - statement:
     - keyword: IF
     - expression:
@@ -162,8 +160,7 @@ file:
               - naked_identifier: DATE_LAST_INSERTED
             - end_bracket: )
     - statement_terminator: ;
-- keyword: GO
-- statement:
+  - keyword: GO
   - statement:
     - create_index_statement:
       - create_index_statement:
@@ -201,8 +198,7 @@ file:
               - null_literal: 'NULL'
             - end_bracket: )
   - statement_terminator: ;
-- keyword: GO
-- statement:
+  - keyword: GO
   - statement:
     - create_index_statement:
       - create_index_statement:
@@ -227,8 +223,7 @@ file:
         - object_reference:
           - quoted_identifier: '[PRIMARY]'
   - statement_terminator: ;
-- keyword: GO
-- statement:
+  - keyword: GO
   - statement:
     - create_index_statement:
       - create_index_statement:

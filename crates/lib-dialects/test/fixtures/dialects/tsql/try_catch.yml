@@ -55,8 +55,7 @@ file:
         - keyword: THROW
     - keyword: END
     - keyword: CATCH
-- keyword: GO
-- statement:
+  - keyword: GO
   - statement:
     - statement:
       - keyword: THROW

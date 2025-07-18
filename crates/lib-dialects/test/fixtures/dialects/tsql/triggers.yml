@@ -32,8 +32,7 @@ file:
               - numeric_literal: '10'
             - end_bracket: )
   - statement_terminator: ;
-- keyword: GO
-- statement:
+  - keyword: GO
   - statement:
     - create_trigger_statement:
       - keyword: CREATE
@@ -85,8 +84,7 @@ file:
         - expression:
           - quoted_literal: '''Reminder'''
   - statement_terminator: ;
-- keyword: GO
-- statement:
+  - keyword: GO
   - statement:
     - create_trigger_statement:
       - keyword: CREATE
@@ -191,8 +189,7 @@ file:
           - keyword: RETURN
       - keyword: END
   - statement_terminator: ;
-- keyword: GO
-- statement:
+  - keyword: GO
   - statement:
     - create_trigger_statement:
       - keyword: CREATE

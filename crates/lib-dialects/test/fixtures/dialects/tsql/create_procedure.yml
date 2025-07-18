@@ -19,8 +19,7 @@ file:
           - statement_terminator: ;
           - keyword: END
   - statement_terminator: ;
-- keyword: GO
-- statement:
+  - keyword: GO
   - statement:
     - create_procedure_statement:
       - keyword: CREATE
@@ -42,8 +41,7 @@ file:
           - statement_terminator: ;
           - keyword: END
   - statement_terminator: ;
-- keyword: GO
-- statement:
+  - keyword: GO
   - statement:
     - create_procedure_statement:
       - keyword: ALTER
@@ -63,8 +61,7 @@ file:
           - statement_terminator: ;
           - keyword: END
   - statement_terminator: ;
-- keyword: GO
-- statement:
+  - keyword: GO
   - statement:
     - create_procedure_statement:
       - keyword: ALTER
@@ -84,8 +81,7 @@ file:
           - statement_terminator: ;
           - keyword: END
   - statement_terminator: ;
-- keyword: GO
-- statement:
+  - keyword: GO
   - statement:
     - create_procedure_statement:
       - keyword: CREATE
@@ -107,8 +103,7 @@ file:
           - statement_terminator: ;
           - keyword: END
   - statement_terminator: ;
-- keyword: GO
-- statement:
+  - keyword: GO
   - statement:
     - create_procedure_statement:
       - keyword: CREATE
@@ -130,8 +125,7 @@ file:
           - statement_terminator: ;
           - keyword: END
   - statement_terminator: ;
-- keyword: GO
-- statement:
+  - keyword: GO
   - statement:
     - create_procedure_statement:
       - keyword: CREATE
@@ -155,8 +149,7 @@ file:
             - select_clause_element:
               - numeric_literal: '1'
   - statement_terminator: ;
-- keyword: GO
-- statement:
+  - keyword: GO
   - statement:
     - create_procedure_statement:
       - keyword: CREATE
@@ -263,8 +256,7 @@ file:
           - statement_terminator: ;
           - keyword: END
   - statement_terminator: ;
-- keyword: GO
-- statement:
+  - keyword: GO
   - statement:
     - create_procedure_statement:
       - keyword: CREATE
@@ -319,8 +311,7 @@ file:
           - statement_terminator: ;
           - keyword: END
   - statement_terminator: ;
-- keyword: GO
-- statement:
+  - keyword: GO
   - statement:
     - create_procedure_statement:
       - keyword: CREATE
@@ -382,8 +373,7 @@ file:
           - statement_terminator: ;
           - keyword: END
   - statement_terminator: ;
-- keyword: GO
-- statement:
+  - keyword: GO
   - statement:
     - create_procedure_statement:
       - keyword: CREATE
@@ -453,8 +443,7 @@ file:
       - statement_terminator: ;
       - keyword: END
   - statement_terminator: ;
-- keyword: GO
-- statement:
+  - keyword: GO
   - statement:
     - create_procedure_statement:
       - keyword: CREATE
@@ -509,8 +498,7 @@ file:
       - statement_terminator: ;
       - keyword: END
   - statement_terminator: ;
-- keyword: GO
-- statement:
+  - keyword: GO
   - statement:
     - create_procedure_statement:
       - keyword: CREATE
@@ -576,8 +564,7 @@ file:
       - statement_terminator: ;
       - keyword: END
   - statement_terminator: ;
-- keyword: GO
-- statement:
+  - keyword: GO
   - statement:
     - create_procedure_statement:
       - keyword: CREATE
@@ -596,8 +583,7 @@ file:
         - dot: .
         - quoted_identifier: '[static_method]'
   - statement_terminator: ;
-- keyword: GO
-- statement:
+  - keyword: GO
   - statement:
     - create_procedure_statement:
       - keyword: CREATE
@@ -618,8 +604,7 @@ file:
         - dot: .
         - quoted_identifier: '[static_method]'
   - statement_terminator: ;
-- keyword: GO
-- statement:
+  - keyword: GO
   - statement:
     - create_procedure_statement:
       - keyword: CREATE
@@ -677,8 +662,7 @@ file:
         - dot: .
         - quoted_identifier: '[static_method]'
   - statement_terminator: ;
-- keyword: GO
-- statement:
+  - keyword: GO
   - statement:
     - create_procedure_statement:
       - keyword: CREATE
@@ -704,8 +688,7 @@ file:
             - keyword: ON
           - statement_terminator: ;
           - keyword: END
-- keyword: GO
-- statement:
+  - keyword: GO
   - statement:
     - create_procedure_statement:
       - keyword: CREATE
@@ -728,5 +711,4 @@ file:
             - keyword: ON
           - statement_terminator: ;
           - keyword: END
-- unparsable:
-  - word: GO
+  - keyword: GO

@@ -260,8 +260,7 @@ file:
         - statement_terminator: ;
         - keyword: END
   - statement_terminator: ;
-- keyword: GO
-- statement:
+  - keyword: GO
   - statement:
     - create_function_statement:
       - keyword: CREATE
@@ -303,8 +302,7 @@ file:
         - statement_terminator: ;
         - keyword: END
   - statement_terminator: ;
-- keyword: GO
-- statement:
+  - keyword: GO
   - statement:
     - create_function_statement:
       - keyword: CREATE
@@ -334,8 +332,7 @@ file:
               - numeric_literal: '1'
         - keyword: END
   - statement_terminator: ;
-- keyword: GO
-- statement:
+  - keyword: GO
   - statement:
     - create_function_statement:
       - keyword: ALTER
@@ -363,8 +360,7 @@ file:
               - numeric_literal: '0'
         - keyword: END
   - statement_terminator: ;
-- keyword: GO
-- statement:
+  - keyword: GO
   - statement:
     - create_function_statement:
       - keyword: CREATE
@@ -463,8 +459,8 @@ file:
                 - tsql_variable: '@str'
         - keyword: END
   - statement_terminator: ;
+  - keyword: GO
 - unparsable:
-  - word: GO
   - word: create
   - word: function
   - word: my_function

@@ -123,8 +123,7 @@ file:
               - table_reference:
                 - object_reference:
                   - naked_identifier: tbl_b
-- keyword: GO
-- statement:
+  - keyword: GO
   - statement:
     - create_function_statement:
       - keyword: CREATE
@@ -165,8 +164,7 @@ file:
                       - quoted_identifier: '[RandomDate]'
         - end_bracket: )
   - statement_terminator: ;
-- keyword: GO
-- statement:
+  - keyword: GO
   - statement:
     - create_function_statement:
       - keyword: CREATE
@@ -191,8 +189,7 @@ file:
               - numeric_literal: '2'
         - statement_terminator: ;
         - keyword: END
-- keyword: GO
-- statement:
+  - keyword: GO
   - statement:
     - select_statement:
       - select_clause:
@@ -259,5 +256,4 @@ file:
           - keyword: IS
           - null_literal: 'NULL'
   - statement_terminator: ;
-- unparsable:
-  - word: GO
+  - keyword: GO

@@ -8,8 +8,7 @@ file:
         - table_reference:
           - object_reference:
             - quoted_identifier: '[Reporting]'
-- keyword: GO
-- statement:
+  - keyword: GO
   - statement:
     - create_schema_statement:
       - create_schema_statement:

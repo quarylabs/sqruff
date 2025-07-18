@@ -276,12 +276,17 @@ file:
           - keyword: SCHEMA_ONLY
           - end_bracket: )
   - statement_terminator: ;
+  - statement_terminator: ;
+  - keyword: GO
+  - statement:
+    - create_table_statement:
+      - create_table_statement:
+        - keyword: CREATE
+        - keyword: TABLE
+        - table_reference:
+          - object_reference:
+            - naked_identifier: Department
 - unparsable:
-  - semicolon: ;
-  - word: GO
-  - word: CREATE
-  - word: TABLE
-  - word: Department
   - start_bracket: (
   - word: DeptID
   - word: INT

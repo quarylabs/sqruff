@@ -11,8 +11,7 @@ file:
             - dot: .
             - naked_identifier: SalesPersonQuotaHistory
         - statement_terminator: ;
-- keyword: GO
-- statement:
+  - keyword: GO
   - statement:
     - delete_statement:
       - delete_statement:
@@ -32,8 +31,7 @@ file:
               - raw_comparison_operator: '>'
             - numeric_literal: '1000.00'
         - statement_terminator: ;
-- keyword: GO
-- statement:
+  - keyword: GO
   - statement:
     - delete_statement:
       - delete_statement:
@@ -81,8 +79,7 @@ file:
                 - end_bracket: )
           - end_bracket: )
   - statement_terminator: ;
-- keyword: GO
-- statement:
+  - keyword: GO
   - statement:
     - declare_cursor_statement:
       - keyword: DECLARE

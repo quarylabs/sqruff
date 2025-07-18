@@ -106,28 +106,19 @@ file:
                     - naked_identifier: e
                 - join_clause:
                   - keyword: JOIN
-                  - from_expression_element:
-                    - table_expression:
-                      - table_reference:
-                        - object_reference:
-                          - naked_identifier: dbo
-                          - dot: .
-                          - naked_identifier: Finance
-                    - alias_expression:
-                      - naked_identifier: f
-                  - join_on_condition:
-                    - keyword: ON
-                    - expression:
-                      - column_reference:
-                        - naked_identifier: e
-                        - dot: .
-                        - quoted_identifier: '[ID]'
-                      - comparison_operator:
-                        - raw_comparison_operator: =
-                      - column_reference:
-                        - naked_identifier: f
-                        - dot: .
-                        - quoted_identifier: '[ID]'
+            - unparsable:
+              - word: dbo
+              - dot: .
+              - word: Finance
+              - word: f
+              - word: ON
+              - word: e
+              - dot: .
+              - double_quote: '[ID]'
+              - raw_comparison_operator: =
+              - word: f
+              - dot: .
+              - double_quote: '[ID]'
   - statement:
     - drop_table_statement:
       - keyword: DROP
@@ -227,28 +218,19 @@ file:
                   - naked_identifier: e
               - join_clause:
                 - keyword: JOIN
-                - from_expression_element:
-                  - table_expression:
-                    - table_reference:
-                      - object_reference:
-                        - naked_identifier: dbo
-                        - dot: .
-                        - naked_identifier: Finance
-                  - alias_expression:
-                    - naked_identifier: f
-                - join_on_condition:
-                  - keyword: ON
-                  - expression:
-                    - column_reference:
-                      - naked_identifier: e
-                      - dot: .
-                      - quoted_identifier: '[ID]'
-                    - comparison_operator:
-                      - raw_comparison_operator: =
-                    - column_reference:
-                      - naked_identifier: f
-                      - dot: .
-                      - quoted_identifier: '[ID]'
+          - unparsable:
+            - word: dbo
+            - dot: .
+            - word: Finance
+            - word: f
+            - word: ON
+            - word: e
+            - dot: .
+            - double_quote: '[ID]'
+            - raw_comparison_operator: =
+            - word: f
+            - dot: .
+            - double_quote: '[ID]'
   - statement_terminator: ;
   - statement:
     - drop_table_statement:
@@ -352,28 +334,19 @@ file:
                     - naked_identifier: e
                 - join_clause:
                   - keyword: JOIN
-                  - from_expression_element:
-                    - table_expression:
-                      - table_reference:
-                        - object_reference:
-                          - naked_identifier: dbo
-                          - dot: .
-                          - naked_identifier: Finance
-                    - alias_expression:
-                      - naked_identifier: f
-                  - join_on_condition:
-                    - keyword: ON
-                    - expression:
-                      - column_reference:
-                        - naked_identifier: e
-                        - dot: .
-                        - quoted_identifier: '[ID]'
-                      - comparison_operator:
-                        - raw_comparison_operator: =
-                      - column_reference:
-                        - naked_identifier: f
-                        - dot: .
-                        - quoted_identifier: '[ID]'
+            - unparsable:
+              - word: dbo
+              - dot: .
+              - word: Finance
+              - word: f
+              - word: ON
+              - word: e
+              - dot: .
+              - double_quote: '[ID]'
+              - raw_comparison_operator: =
+              - word: f
+              - dot: .
+              - double_quote: '[ID]'
           - end_bracket: )
 - file:
   - word: OPTION

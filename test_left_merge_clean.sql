@@ -1,0 +1,1 @@
+SELECT * FROM TableA a LEFT MERGE JOIN TableB b ON a.id = b.id;

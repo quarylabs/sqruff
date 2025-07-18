@@ -91,9 +91,11 @@ file:
       - transaction_statement:
         - keyword: SAVE
         - keyword: TRAN
-- file:
-  - tsql_variable: '@variable'
-  - semicolon: ;
-  - word: COMMIT
-  - tsql_variable: '@variable'
-  - semicolon: ;
+        - tsql_variable: '@variable'
+  - statement_terminator: ;
+  - statement:
+    - transaction_statement:
+      - transaction_statement:
+        - keyword: COMMIT
+        - tsql_variable: '@variable'
+  - statement_terminator: ;

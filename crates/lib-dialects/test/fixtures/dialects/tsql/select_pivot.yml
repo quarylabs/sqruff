@@ -199,21 +199,13 @@ file:
           - join_clause:
             - keyword: INNER
             - keyword: JOIN
-            - from_expression_element:
-              - table_expression:
-                - table_reference:
-                  - object_reference:
-                    - naked_identifier: d
-            - join_on_condition:
-              - keyword: ON
-              - expression:
-                - column_reference:
-                  - quoted_identifier: '[Month Name]'
-                - comparison_operator:
-                  - raw_comparison_operator: =
-                - column_reference:
-                  - naked_identifier: unpvt
-                  - dot: .
-                  - naked_identifier: MonthColumn
+      - unparsable:
+        - word: d
+        - word: ON
+        - double_quote: '[Month Name]'
+        - raw_comparison_operator: =
+        - word: unpvt
+        - dot: .
+        - word: MonthColumn
   - statement_terminator: ;
 - keyword: GO

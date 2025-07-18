@@ -181,34 +181,20 @@ file:
               - join_clause:
                 - keyword: LEFT
                 - keyword: JOIN
-                - from_expression_element:
-                  - table_expression:
-                    - table_reference:
-                      - object_reference:
-                        - naked_identifier: LAST_DATE_OF_REPORT
-                  - alias_expression:
-                    - naked_identifier: T2
-                - join_on_condition:
-                  - keyword: ON
-                  - expression:
-                    - column_reference:
-                      - naked_identifier: T1
-                      - dot: .
-                      - quoted_identifier: '[VRCODE]'
-                    - comparison_operator:
-                      - raw_comparison_operator: =
-                    - column_reference:
-                      - naked_identifier: T2
-                      - dot: .
-                      - quoted_identifier: '[VRCODE]'
-          - where_clause:
-            - keyword: WHERE
-            - expression:
-              - column_reference:
-                - naked_identifier: DATE_OF_REPORT
-              - comparison_operator:
-                - raw_comparison_operator: =
-              - column_reference:
-                - naked_identifier: LAST_DATE_OF_REPORT
+          - unparsable:
+            - word: LAST_DATE_OF_REPORT
+            - word: T2
+            - word: ON
+            - word: T1
+            - dot: .
+            - double_quote: '[VRCODE]'
+            - raw_comparison_operator: =
+            - word: T2
+            - dot: .
+            - double_quote: '[VRCODE]'
+            - word: WHERE
+            - word: DATE_OF_REPORT
+            - raw_comparison_operator: =
+            - word: LAST_DATE_OF_REPORT
   - statement_terminator: ;
 - keyword: GO

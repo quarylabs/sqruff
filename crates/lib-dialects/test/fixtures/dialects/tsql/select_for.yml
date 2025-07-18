@@ -79,42 +79,30 @@ file:
           - join_clause:
             - keyword: RIGHT
             - keyword: JOIN
-            - from_expression_element:
-              - table_expression:
-                - table_reference:
-                  - object_reference:
-                    - naked_identifier: '#tabStudent'
-              - alias_expression:
-                - keyword: AS
-                - naked_identifier: s
-            - join_on_condition:
-              - keyword: ON
-              - expression:
-                - column_reference:
-                  - naked_identifier: s
-                  - dot: .
-                  - naked_identifier: ClassGuid
-                - comparison_operator:
-                  - raw_comparison_operator: =
-                - column_reference:
-                  - naked_identifier: c
-                  - dot: .
-                  - naked_identifier: ClassGuid
-      - orderby_clause:
-        - keyword: ORDER
-        - keyword: BY
-        - column_reference:
-          - naked_identifier: c
-          - dot: .
-          - naked_identifier: ClassName
+      - unparsable:
+        - word: '#tabStudent'
+        - word: AS
+        - word: s
+        - word: ON
+        - word: s
+        - dot: .
+        - word: ClassGuid
+        - raw_comparison_operator: =
+        - word: c
+        - dot: .
+        - word: ClassGuid
+        - word: ORDER
+        - word: BY
+        - word: c
+        - dot: .
+        - word: ClassName
         - comma: ','
-        - column_reference:
-          - naked_identifier: s
-          - dot: .
-          - naked_identifier: StudentName
-      - keyword: FOR
-      - keyword: JSON
-      - keyword: AUTO
+        - word: s
+        - dot: .
+        - word: StudentName
+        - word: FOR
+        - word: JSON
+        - word: AUTO
   - statement_terminator: ;
 - keyword: GO
 - statement:

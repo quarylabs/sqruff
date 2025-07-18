@@ -46,38 +46,69 @@ file:
                             - dot: .
                             - naked_identifier: CX
               - end_bracket: )
+        - keyword: OPTION
+        - bracketed:
+          - start_bracket: (
+          - keyword: Label
+          - comparison_operator:
+            - raw_comparison_operator: =
+          - quoted_literal: '''Cases'''
+          - end_bracket: )
+        - statement_terminator: ;
+  - statement:
+    - update_statement:
+      - update_statement:
+        - keyword: update
+        - table_reference:
+          - object_reference:
+            - naked_identifier: tt
+        - set_clause_list:
+          - keyword: set
+          - set_clause:
+            - set_clause:
+              - column_reference:
+                - naked_identifier: tt
+                - dot: .
+                - naked_identifier: rn
+              - assignment_operator:
+                - addition_assignment_segment:
+                  - binary_operator: +
+                  - raw_comparison_operator: =
+              - expression:
+                - numeric_literal: '1'
+        - from_clause:
+          - keyword: from
+          - from_expression:
+            - from_expression_element:
+              - table_expression:
+                - table_reference:
+                  - object_reference:
+                    - naked_identifier: table1
+              - alias_expression:
+                - keyword: as
+                - naked_identifier: tt
+            - join_clause:
+              - keyword: join
+              - from_expression_element:
+                - table_expression:
+                  - table_reference:
+                    - object_reference:
+                      - naked_identifier: src
+              - join_on_condition:
+                - keyword: on
+                - expression:
+                  - column_reference:
+                    - naked_identifier: tt
+                    - dot: .
+                    - naked_identifier: _id
+                  - comparison_operator:
+                    - raw_comparison_operator: =
+                  - column_reference:
+                    - naked_identifier: src
+                    - dot: .
+                    - naked_identifier: _id
+        - statement_terminator: ;
 - file:
-  - word: OPTION
-  - start_bracket: (
-  - word: Label
-  - raw_comparison_operator: =
-  - single_quote: '''Cases'''
-  - end_bracket: )
-  - semicolon: ;
-  - word: update
-  - word: tt
-  - word: set
-  - word: tt
-  - dot: .
-  - word: rn
-  - plus: +
-  - raw_comparison_operator: =
-  - numeric_literal: '1'
-  - word: from
-  - word: table1
-  - word: as
-  - word: tt
-  - word: join
-  - word: src
-  - word: on
-  - word: tt
-  - dot: .
-  - word: _id
-  - raw_comparison_operator: =
-  - word: src
-  - dot: .
-  - word: _id
-  - semicolon: ;
   - word: UPDATE
   - word: stuff
   - word: SET

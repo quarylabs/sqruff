@@ -748,6 +748,8 @@ pub(crate) fn tsql_additional_unreserved_keywords() -> AHashSet<&'static str> {
         "LOG",
         "NOWAIT",
         "SETERROR",
+        // Azure Synapse Analytics keywords
+        "LABEL",
         // Cursor keywords
         "FORWARD_ONLY",
         "SCROLL",

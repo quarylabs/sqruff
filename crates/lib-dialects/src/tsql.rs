@@ -1108,6 +1108,12 @@ pub fn raw_dialect() -> Dialect {
                     Sequence::new(vec_of_erased![
                         Ref::keyword("QUERYTRACEON"),
                         Ref::new("NumericLiteralSegment")
+                    ]),
+                    // LABEL = 'label_name' (Azure Synapse Analytics)
+                    Sequence::new(vec_of_erased![
+                        Ref::keyword("LABEL"),
+                        Ref::new("EqualsSegment"),
+                        Ref::new("QuotedLiteralSegment")
                     ])
                 ]
             )])])
@@ -5584,6 +5590,22 @@ pub fn raw_dialect() -> Dialect {
         })
         .to_matchable(),
     );
+
+    // Override SelectableGrammar for T-SQL specific features (includes EXEC statements)
+    dialect.add([(
+        "SelectableGrammar".into(),
+        one_of(vec_of_erased![
+            optionally_bracketed(vec_of_erased![Ref::new("WithCompoundStatementSegment")]),
+            optionally_bracketed(vec_of_erased![Ref::new(
+                "WithCompoundNonSelectStatementSegment"
+            )]),
+            Ref::new("NonWithSelectableGrammar"),
+            // T-SQL specific: EXEC statements can be used as data sources
+            Ref::new("ExecuteStatementSegment"),
+        ])
+        .to_matchable()
+        .into(),
+    )]);
 
     // Override DELETE statement for T-SQL specific features
     dialect.replace_grammar(

@@ -375,10 +375,11 @@ file:
                         - dot: .
                         - quoted_identifier: '[ID]'
           - end_bracket: )
-- file:
-  - word: OPTION
-  - start_bracket: (
-  - word: LABEL
-  - raw_comparison_operator: =
-  - single_quote: '''Test_Label'''
-  - end_bracket: )
+        - keyword: OPTION
+        - bracketed:
+          - start_bracket: (
+          - keyword: LABEL
+          - comparison_operator:
+            - raw_comparison_operator: =
+          - quoted_literal: '''Test_Label'''
+          - end_bracket: )

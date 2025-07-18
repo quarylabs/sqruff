@@ -34,10 +34,9 @@ file:
           - alias_expression:
             - keyword: AS
             - naked_identifier: a
-        - unparsable:
-          - word: FOR
-          - word: JSON
-          - word: PATH
+      - keyword: FOR
+      - keyword: JSON
+      - keyword: PATH
   - statement_terminator: ;
 - keyword: GO
 - statement:
@@ -50,21 +49,28 @@ file:
           - alias_expression:
             - keyword: AS
             - naked_identifier: a
-        - unparsable:
-          - word: FOR
-          - word: JSON
-          - word: PATH
-          - comma: ','
-          - word: WITHOUT_ARRAY_WRAPPER
-          - word: GO
-          - word: SELECT
-          - word: c
-          - dot: .
-          - word: ClassName
-          - comma: ','
-          - word: s
-          - dot: .
-          - word: StudentName
+      - keyword: FOR
+      - keyword: JSON
+      - keyword: PATH
+      - comma: ','
+      - keyword: WITHOUT_ARRAY_WRAPPER
+- keyword: GO
+- statement:
+  - statement:
+    - select_statement:
+      - select_clause:
+        - keyword: SELECT
+        - select_clause_element:
+          - column_reference:
+            - naked_identifier: c
+            - dot: .
+            - naked_identifier: ClassName
+        - comma: ','
+        - select_clause_element:
+          - column_reference:
+            - naked_identifier: s
+            - dot: .
+            - naked_identifier: StudentName
       - from_clause:
         - keyword: FROM
         - from_expression:
@@ -127,19 +133,19 @@ file:
           - alias_expression:
             - keyword: AS
             - naked_identifier: a
-        - unparsable:
-          - word: FOR
-          - word: JSON
-          - word: PATH
-          - comma: ','
-          - word: ROOT
-          - start_bracket: (
-          - single_quote: '''RootName'''
-          - end_bracket: )
-          - comma: ','
-          - word: WITHOUT_ARRAY_WRAPPER
-          - comma: ','
-          - word: INCLUDE_NULL_VALUES
+      - keyword: FOR
+      - keyword: JSON
+      - keyword: PATH
+      - comma: ','
+      - keyword: ROOT
+      - bracketed:
+        - start_bracket: (
+        - quoted_literal: '''RootName'''
+        - end_bracket: )
+      - comma: ','
+      - keyword: WITHOUT_ARRAY_WRAPPER
+      - comma: ','
+      - keyword: INCLUDE_NULL_VALUES
   - statement_terminator: ;
 - keyword: GO
 - statement:
@@ -293,7 +299,6 @@ file:
           - alias_expression:
             - keyword: AS
             - naked_identifier: a
-        - unparsable:
-          - word: FOR
-          - word: BROWSE
-          - word: GO
+      - keyword: FOR
+      - keyword: BROWSE
+- keyword: GO

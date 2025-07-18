@@ -385,6 +385,30 @@ pub fn raw_dialect() -> Dialect {
         .to_matchable(),
     );
 
+    // Override SelectClauseTerminatorGrammar to include FOR as a terminator
+    // This prevents FOR JSON/XML/BROWSE from being parsed as part of SELECT clause
+    dialect.add([(
+        "SelectClauseTerminatorGrammar".into(),
+        one_of(vec_of_erased![
+            Ref::keyword("FROM"),
+            Ref::keyword("WHERE"),
+            Ref::keyword("INTO"),  // T-SQL supports SELECT INTO
+            Sequence::new(vec_of_erased![Ref::keyword("ORDER"), Ref::keyword("BY")]),
+            Ref::keyword("LIMIT"),
+            Ref::keyword("OVERLAPS"),
+            Ref::new("SetOperatorSegment"),
+            Ref::keyword("FETCH"),
+            // T-SQL specific: FOR JSON/XML/BROWSE
+            Ref::keyword("FOR"),
+            // T-SQL specific: GO batch delimiter
+            Ref::new("BatchDelimiterGrammar"),
+            // T-SQL specific: OPTION clause
+            Ref::keyword("OPTION"),
+        ])
+        .to_matchable()
+        .into(),
+    )]);
+
     // Add T-SQL assignment operator segments
     dialect.add([
         (
@@ -3002,6 +3026,74 @@ pub fn raw_dialect() -> Dialect {
         .to_matchable()
         .into(),
     )]);
+
+    // Override CreateSequenceOptionsSegment to support T-SQL AS datatype clause
+    dialect.replace_grammar(
+        "CreateSequenceOptionsSegment",
+        one_of(vec_of_erased![
+            // AS datatype (T-SQL specific, must come first)
+            Sequence::new(vec_of_erased![
+                Ref::keyword("AS"),
+                Ref::new("DatatypeSegment")
+            ]),
+            // START WITH
+            Sequence::new(vec_of_erased![
+                Ref::keyword("START"),
+                Ref::keyword("WITH"),
+                Ref::new("NumericLiteralSegment")
+            ]),
+            // INCREMENT BY
+            Sequence::new(vec_of_erased![
+                Ref::keyword("INCREMENT"),
+                Ref::keyword("BY"),
+                Ref::new("NumericLiteralSegment")
+            ]),
+            // MINVALUE / NO MINVALUE
+            one_of(vec_of_erased![
+                Sequence::new(vec_of_erased![
+                    Ref::keyword("MINVALUE"),
+                    Ref::new("NumericLiteralSegment")
+                ]),
+                Sequence::new(vec_of_erased![
+                    Ref::keyword("NO"),
+                    Ref::keyword("MINVALUE")
+                ])
+            ]),
+            // MAXVALUE / NO MAXVALUE
+            one_of(vec_of_erased![
+                Sequence::new(vec_of_erased![
+                    Ref::keyword("MAXVALUE"),
+                    Ref::new("NumericLiteralSegment")
+                ]),
+                Sequence::new(vec_of_erased![
+                    Ref::keyword("NO"),
+                    Ref::keyword("MAXVALUE")
+                ])
+            ]),
+            // CACHE
+            Sequence::new(vec_of_erased![
+                Ref::keyword("CACHE"),
+                Ref::new("NumericLiteralSegment").optional()
+            ]),
+            // CYCLE / NO CYCLE
+            one_of(vec_of_erased![
+                Ref::keyword("CYCLE"),
+                Sequence::new(vec_of_erased![
+                    Ref::keyword("NO"),
+                    Ref::keyword("CYCLE")
+                ])
+            ]),
+            // ORDER / NO ORDER (T-SQL specific)
+            one_of(vec_of_erased![
+                Ref::keyword("ORDER"),
+                Sequence::new(vec_of_erased![
+                    Ref::keyword("NO"),
+                    Ref::keyword("ORDER")
+                ])
+            ])
+        ])
+        .to_matchable(),
+    );
 
     // Extend ColumnConstraintSegment to include T-SQL specific constraints
     dialect.add([(
@@ -5955,10 +6047,10 @@ pub fn raw_dialect() -> Dialect {
                 Ref::new("PostTableExpressionGrammar").optional(),
                 MetaSegment::dedent(),
                 Ref::new("SetClauseListSegment"),
+                // T-SQL specific: OUTPUT clause (after SET)
+                Ref::new("OutputClauseSegment").optional(),
                 Ref::new("FromClauseSegment").optional(),
                 Ref::new("WhereClauseSegment").optional(),
-                // T-SQL specific: OUTPUT clause (after WHERE)
-                Ref::new("OutputClauseSegment").optional(),
                 // T-SQL specific: OPTION clause
                 Ref::new("OptionClauseSegment").optional(),
                 Ref::new("DelimiterGrammar").optional()

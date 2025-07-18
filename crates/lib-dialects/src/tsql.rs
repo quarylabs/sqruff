@@ -84,6 +84,27 @@ pub fn raw_dialect() -> Dialect {
         "LASTROW",
         "MAXERRORS",
         "CODEPAGE",
+        "XML_COMPRESSION",
+        "WAIT_AT_LOW_PRIORITY",
+        "ABORT_AFTER_WAIT",
+        "COMPRESS_ALL_ROW_GROUPS",
+        "LOB_COMPACTION",
+        "COMPRESSION_DELAY",
+        "OPTIMIZE_FOR_SEQUENTIAL_KEY",
+        "PARTITIONS",
+        "COLUMNSTORE_ARCHIVE",
+        "SYSTEM_VERSIONING",
+        "HISTORY_TABLE",
+        "DATA_CONSISTENCY_CHECK",
+        "HISTORY_RETENTION_PERIOD",
+        "FILESTREAM_ON",
+        "DATA_DELETION",
+        "FILTER_COLUMN",
+        "RETENTION_PERIOD",
+        "INFINITE",
+        "PERIOD",
+        "SYSTEM_TIME",
+        "PERSISTED",
     ]);
 
     // T-SQL specific operators
@@ -1749,14 +1770,22 @@ pub fn raw_dialect() -> Dialect {
                 Ref::keyword("ON"),
                 Ref::new("TableReferenceSegment"),
                 one_of(vec_of_erased![
-                    // REBUILD [PARTITION = partition_number | ALL] [WITH (...)]
+                    // REBUILD [PARTITION = partition_number | ALL] [Partition = N] [WITH (...)]
                     Sequence::new(vec_of_erased![
                         Ref::keyword("REBUILD"),
-                        Sequence::new(vec_of_erased![
-                            Ref::keyword("PARTITION"),
-                            Ref::new("EqualsSegment"),
-                            one_of(vec_of_erased![
-                                Ref::keyword("ALL"),
+                        one_of(vec_of_erased![
+                            Sequence::new(vec_of_erased![
+                                Ref::keyword("PARTITION"),
+                                Ref::new("EqualsSegment"),
+                                one_of(vec_of_erased![
+                                    Ref::keyword("ALL"),
+                                    Ref::new("NumericLiteralSegment")
+                                ])
+                            ]),
+                            // Support "Partition = N" syntax (capitalized Partition)
+                            Sequence::new(vec_of_erased![
+                                Ref::keyword("PARTITION"),
+                                Ref::new("EqualsSegment"),
                                 Ref::new("NumericLiteralSegment")
                             ])
                         ])
@@ -1802,14 +1831,80 @@ pub fn raw_dialect() -> Dialect {
                                             Ref::keyword("PAGE"),
                                             Ref::keyword("COLUMNSTORE"),
                                             Ref::keyword("COLUMNSTORE_ARCHIVE")
-                                        ])
+                                        ]),
+                                        // Support ON PARTITIONS clause
+                                        Sequence::new(vec_of_erased![
+                                            Ref::keyword("ON"),
+                                            Ref::keyword("PARTITIONS"),
+                                            Bracketed::new(vec_of_erased![
+                                                Delimited::new(vec_of_erased![
+                                                    one_of(vec_of_erased![
+                                                        Ref::new("NumericLiteralSegment"),
+                                                        Sequence::new(vec_of_erased![
+                                                            Ref::new("NumericLiteralSegment"),
+                                                            Ref::keyword("TO"),
+                                                            Ref::new("NumericLiteralSegment")
+                                                        ])
+                                                    ])
+                                                ])
+                                            ])
+                                        ]).config(|this| this.optional())
+                                    ]),
+                                    Sequence::new(vec_of_erased![
+                                        Ref::keyword("XML_COMPRESSION"),
+                                        Ref::new("EqualsSegment"),
+                                        one_of(vec_of_erased![
+                                            Ref::keyword("ON"),
+                                            Ref::keyword("OFF")
+                                        ]),
+                                        // Support ON PARTITIONS clause
+                                        Sequence::new(vec_of_erased![
+                                            Ref::keyword("ON"),
+                                            Ref::keyword("PARTITIONS"),
+                                            Bracketed::new(vec_of_erased![
+                                                Delimited::new(vec_of_erased![
+                                                    one_of(vec_of_erased![
+                                                        Ref::new("NumericLiteralSegment"),
+                                                        Sequence::new(vec_of_erased![
+                                                            Ref::new("NumericLiteralSegment"),
+                                                            Ref::keyword("TO"),
+                                                            Ref::new("NumericLiteralSegment")
+                                                        ])
+                                                    ])
+                                                ])
+                                            ])
+                                        ]).config(|this| this.optional())
                                     ]),
                                     Sequence::new(vec_of_erased![
                                         Ref::keyword("ONLINE"),
                                         Ref::new("EqualsSegment"),
                                         one_of(vec_of_erased![
                                             Ref::keyword("ON"),
-                                            Ref::keyword("OFF")
+                                            Ref::keyword("OFF"),
+                                            // Support ONLINE = ON (WAIT_AT_LOW_PRIORITY(...))
+                                            Sequence::new(vec_of_erased![
+                                                Ref::keyword("ON"),
+                                                Bracketed::new(vec_of_erased![
+                                                    Ref::keyword("WAIT_AT_LOW_PRIORITY"),
+                                                    Bracketed::new(vec_of_erased![
+                                                        Delimited::new(vec_of_erased![
+                                                            Sequence::new(vec_of_erased![
+                                                                one_of(vec_of_erased![
+                                                                    Ref::keyword("MAX_DURATION"),
+                                                                    Ref::keyword("ABORT_AFTER_WAIT")
+                                                                ]),
+                                                                Ref::new("EqualsSegment"),
+                                                                one_of(vec_of_erased![
+                                                                    Ref::new("NumericLiteralSegment"),
+                                                                    Ref::keyword("SELF"),
+                                                                    Ref::keyword("BLOCKERS"),
+                                                                    Ref::keyword("NONE")
+                                                                ])
+                                                            ])
+                                                        ])
+                                                    ])
+                                                ])
+                                            ])
                                         ])
                                     ])
                                 ]
@@ -1872,14 +1967,36 @@ pub fn raw_dialect() -> Dialect {
                         Sequence::new(vec_of_erased![
                             Ref::keyword("WITH"),
                             Bracketed::new(vec_of_erased![Delimited::new(vec_of_erased![
-                                Sequence::new(vec_of_erased![
-                                    one_of(vec_of_erased![
-                                        Ref::keyword("MAXDOP"),
-                                        Ref::keyword("MAX_DURATION")
+                                one_of(vec_of_erased![
+                                    Sequence::new(vec_of_erased![
+                                        one_of(vec_of_erased![
+                                            Ref::keyword("MAXDOP"),
+                                            Ref::keyword("MAX_DURATION")
+                                        ]),
+                                        Ref::new("EqualsSegment"),
+                                        Ref::new("NumericLiteralSegment"),
+                                        Ref::keyword("MINUTES").optional()
                                     ]),
-                                    Ref::new("EqualsSegment"),
-                                    Ref::new("NumericLiteralSegment"),
-                                    Ref::keyword("MINUTES").optional()
+                                    Sequence::new(vec_of_erased![
+                                        Ref::keyword("WAIT_AT_LOW_PRIORITY"),
+                                        Bracketed::new(vec_of_erased![
+                                            Delimited::new(vec_of_erased![
+                                                Sequence::new(vec_of_erased![
+                                                    one_of(vec_of_erased![
+                                                        Ref::keyword("MAX_DURATION"),
+                                                        Ref::keyword("ABORT_AFTER_WAIT")
+                                                    ]),
+                                                    Ref::new("EqualsSegment"),
+                                                    one_of(vec_of_erased![
+                                                        Ref::new("NumericLiteralSegment"),
+                                                        Ref::keyword("SELF"),
+                                                        Ref::keyword("BLOCKERS"),
+                                                        Ref::keyword("NONE")
+                                                    ])
+                                                ])
+                                            ])
+                                        ])
+                                    ])
                                 ])
                             ])])
                         ])
@@ -3294,14 +3411,14 @@ pub fn raw_dialect() -> Dialect {
                 Ref::new("TableReferenceSegment"),
                 one_of(vec_of_erased![
                     // Regular CREATE TABLE with column definitions
-                    Sequence::new(vec_of_erased![
-                        Bracketed::new(vec_of_erased![
-                            Delimited::new(vec_of_erased![one_of(vec_of_erased![
-                                Ref::new("TableConstraintSegment"),
-                                Ref::new("ColumnDefinitionSegment")
-                            ])])
-                            .config(|this| this.allow_trailing())
-                        ])
+                    Bracketed::new(vec_of_erased![
+                        Delimited::new(vec_of_erased![one_of(vec_of_erased![
+                            Ref::new("TableConstraintSegment"),
+                            Ref::new("ColumnDefinitionSegment"),
+                            // T-SQL Graph: CONNECTION constraint for edge tables
+                            Ref::new("ConnectionConstraintSegment")
+                        ])])
+                        .config(|this| this.allow_trailing())
                     ]),
                     // CREATE TABLE AS SELECT with optional WITH clause before AS
                     Sequence::new(vec_of_erased![
@@ -3318,7 +3435,8 @@ pub fn raw_dialect() -> Dialect {
                         // Azure Synapse specific: OPTION clause after AS SELECT
                         Ref::new("OptionClauseSegment").optional()
                     ])
-                ]),
+                ])
+                .config(|this| this.optional()),
                 // Optional ON filegroup/partition_scheme clause for both table types
                 Sequence::new(vec_of_erased![
                     Ref::keyword("ON"),
@@ -3335,12 +3453,45 @@ pub fn raw_dialect() -> Dialect {
                         Ref::new("TableOptionGrammar")
                     ])])
                 ])
+                .config(|this| this.optional()),
+                // T-SQL Graph: AS NODE or AS EDGE clause for graph tables
+                Sequence::new(vec_of_erased![
+                    Ref::keyword("AS"),
+                    one_of(vec_of_erased![
+                        Ref::keyword("NODE"),
+                        Ref::keyword("EDGE")
+                    ])
+                ])
                 .config(|this| this.optional())
             ])
             .to_matchable()
         })
         .to_matchable(),
     );
+
+    // T-SQL Graph: CONNECTION constraint for edge tables
+    dialect.add([(
+        "ConnectionConstraintSegment".into(),
+        Sequence::new(vec_of_erased![
+            Ref::keyword("CONSTRAINT"),
+            Ref::new("ObjectReferenceSegment"), // constraint name
+            Ref::keyword("CONNECTION"),
+            Bracketed::new(vec_of_erased![
+                Ref::new("ObjectReferenceSegment"), // from table
+                Ref::keyword("TO"),
+                Ref::new("ObjectReferenceSegment"), // to table
+            ]),
+            // Optional ON DELETE CASCADE
+            Sequence::new(vec_of_erased![
+                Ref::keyword("ON"),
+                Ref::keyword("DELETE"),
+                Ref::keyword("CASCADE")
+            ])
+            .config(|this| this.optional())
+        ])
+        .to_matchable()
+        .into(),
+    )]);
 
     dialect.add([(
         "TableOptionGrammar".into(),
@@ -5856,7 +6007,10 @@ pub fn raw_dialect() -> Dialect {
                     Sequence::new(vec_of_erased![
                         Ref::keyword("LOCATION"),
                         Ref::new("EqualsSegment"),
-                        Ref::new("QuotedLiteralSegment")
+                        one_of(vec_of_erased![
+                            Ref::new("QuotedLiteralSegment"),
+                            Ref::new("UnicodeLiteralSegment")
+                        ])
                     ]),
                     // DATA_SOURCE = name
                     Sequence::new(vec_of_erased![
@@ -5895,7 +6049,10 @@ pub fn raw_dialect() -> Dialect {
                     Sequence::new(vec_of_erased![
                         Ref::keyword("REJECTED_ROW_LOCATION"),
                         Ref::new("EqualsSegment"),
-                        Ref::new("QuotedLiteralSegment")
+                        one_of(vec_of_erased![
+                            Ref::new("QuotedLiteralSegment"),
+                            Ref::new("UnicodeLiteralSegment")
+                        ])
                     ])
                 ])
                 .to_matchable()

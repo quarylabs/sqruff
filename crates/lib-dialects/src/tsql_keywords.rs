@@ -229,6 +229,10 @@ pub(crate) fn tsql_additional_reserved_keywords() -> AHashSet<&'static str> {
         "WITH",
         "WITHIN GROUP",
         "WRITETEXT",
+        // T-SQL Graph database keywords
+        "NODE",
+        "EDGE",
+        "CONNECTION",
     ]
     .into_iter()
     .collect()

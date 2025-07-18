@@ -49,9 +49,10 @@ The following rules are available in this create. This list is generated from th
 | LT09 | [layout.select_targets](#layoutselect_targets) | Select targets should be on a new line unless there is only one select target. | 
 | LT10 | [layout.select_modifiers](#layoutselect_modifiers) | 'SELECT' modifiers (e.g. 'DISTINCT') must be on the same line as 'SELECT'. | 
 | LT11 | [layout.set_operators](#layoutset_operators) | Set operators should be surrounded by newlines. | 
-| LT12 | [layout.end_of_file](#layoutend_of_file) | Files must end with a single trailing newline. | 
-| LT13 | [layout.start_of_file](#layoutstart_of_file) | Files must not begin with newlines or whitespace. | 
-| RF01 | [references.from](#referencesfrom) | References cannot reference objects not present in 'FROM' clause. | 
+| LT12 | [layout.end_of_file](#layoutend_of_file) | Files must end with a single trailing newline. |
+| LT13 | [layout.start_of_file](#layoutstart_of_file) | Files must not begin with newlines or whitespace. |
+| LT15 | [layout.newlines](#layoutnewlines) | Too many consecutive blank lines. |
+| RF01 | [references.from](#referencesfrom) | References cannot reference objects not present in 'FROM' clause. |
 | RF02 | [references.qualification](#referencesqualification) | References should be qualified if select has more than one referenced table/view. | 
 | RF03 | [references.consistent](#referencesconsistent) | References should be consistent in statements with a single table. | 
 | RF04 | [references.keywords](#referenceskeywords) | Keywords should not be used as identifiers. | 
@@ -1795,8 +1796,47 @@ Start file on either code or comment. (The ^ represents the beginning of the fil
  ^--This is a description of my SQL code.
  SELECT
      a
- FROM
-     foo
+FROM
+    foo
+```
+
+
+### layout.newlines
+
+Too many consecutive blank lines.
+
+**Code:** `LT15`
+
+**Groups:** `all`, `layout`
+
+**Fixable:** Yes
+
+**Anti-pattern**
+
+In this example, the maximum number of empty lines inside a statement is set to 0.
+
+```sql
+    SELECT 'a' AS col
+    FROM tab
+
+
+    WHERE x = 4
+    ORDER BY y
+
+
+    LIMIT 5
+    ;
+```
+
+**Best practice**
+
+```sql
+    SELECT 'a' AS col
+    FROM tab
+    WHERE x = 4
+    ORDER BY y
+    LIMIT 5
+    ;
 ```
 
 

@@ -13,6 +13,7 @@ pub mod lt10;
 pub mod lt11;
 pub mod lt12;
 pub mod lt13;
+pub mod lt15;
 
 pub fn rules() -> Vec<ErasedRule> {
     use crate::core::rules::Erased as _;
@@ -31,5 +32,6 @@ pub fn rules() -> Vec<ErasedRule> {
         lt11::RuleLT11.erased(),
         lt12::RuleLT12.erased(),
         lt13::RuleLT13.erased(),
+        lt15::RuleLT15::default().erased(),
     ]
 }

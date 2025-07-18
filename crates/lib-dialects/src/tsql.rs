@@ -634,7 +634,10 @@ pub fn raw_dialect() -> Dialect {
                         Ref::new("StatementSegment"),
                         Ref::new("DelimiterGrammar").optional()
                     ])])
-                    .config(|this| this.min_times(1)),
+                    .config(|this| {
+                        this.min_times(1);
+                        this.terminators = vec_of_erased![Ref::keyword("END")];
+                    }),
                     MetaSegment::dedent(),
                     Ref::keyword("END")
                 ])

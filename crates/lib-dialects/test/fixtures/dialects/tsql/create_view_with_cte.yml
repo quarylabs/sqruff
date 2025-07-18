@@ -91,21 +91,31 @@ file:
                             - table_reference:
                               - object_reference:
                                 - naked_identifier: cte
-                    - unparsable:
-                      - word: JOIN
-                      - word: HumanResources
-                      - dot: .
-                      - word: Employee
-                      - word: AS
-                      - word: e
-                      - word: ON
-                      - word: cte
-                      - dot: .
-                      - word: ManagerID
-                      - raw_comparison_operator: =
-                      - word: e
-                      - dot: .
-                      - word: EmployeeID
+                        - join_clause:
+                          - keyword: JOIN
+                          - from_expression_element:
+                            - table_expression:
+                              - table_reference:
+                                - object_reference:
+                                  - naked_identifier: HumanResources
+                                  - dot: .
+                                  - naked_identifier: Employee
+                            - alias_expression:
+                              - keyword: AS
+                              - naked_identifier: e
+                          - join_on_condition:
+                            - keyword: ON
+                            - expression:
+                              - column_reference:
+                                - naked_identifier: cte
+                                - dot: .
+                                - naked_identifier: ManagerID
+                              - comparison_operator:
+                                - raw_comparison_operator: =
+                              - column_reference:
+                                - naked_identifier: e
+                                - dot: .
+                                - naked_identifier: EmployeeID
               - end_bracket: )
           - select_statement:
             - select_clause:

@@ -226,21 +226,31 @@ file:
                         - table_reference:
                           - object_reference:
                             - naked_identifier: cte
-                - unparsable:
-                  - word: JOIN
-                  - word: Sales
-                  - dot: .
-                  - word: Customer
-                  - word: AS
-                  - word: e
-                  - word: ON
-                  - word: cte
-                  - dot: .
-                  - word: PersonID
-                  - raw_comparison_operator: =
-                  - word: e
-                  - dot: .
-                  - word: CustomerID
+                    - join_clause:
+                      - keyword: JOIN
+                      - from_expression_element:
+                        - table_expression:
+                          - table_reference:
+                            - object_reference:
+                              - naked_identifier: Sales
+                              - dot: .
+                              - naked_identifier: Customer
+                        - alias_expression:
+                          - keyword: AS
+                          - naked_identifier: e
+                      - join_on_condition:
+                        - keyword: ON
+                        - expression:
+                          - column_reference:
+                            - naked_identifier: cte
+                            - dot: .
+                            - naked_identifier: PersonID
+                          - comparison_operator:
+                            - raw_comparison_operator: =
+                          - column_reference:
+                            - naked_identifier: e
+                            - dot: .
+                            - naked_identifier: CustomerID
           - end_bracket: )
       - select_statement:
         - select_clause:

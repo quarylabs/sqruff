@@ -241,10 +241,11 @@ file:
             - alias_expression:
               - keyword: AS
               - naked_identifier: tst1
+          - join_clause:
+            - keyword: LEFT
+            - keyword: OUTER
+            - keyword: JOIN
       - unparsable:
-        - word: LEFT
-        - word: OUTER
-        - word: JOIN
         - start_bracket: (
         - word: dbo
         - dot: .

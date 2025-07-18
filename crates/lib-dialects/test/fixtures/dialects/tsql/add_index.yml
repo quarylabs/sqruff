@@ -246,190 +246,276 @@ file:
           - column_reference:
             - quoted_identifier: '[column2]'
           - end_bracket: )
-- unparsable:
-  - word: WITH
-  - word: FILLFACTOR
-  - raw_comparison_operator: =
-  - numeric_literal: '80'
-  - semicolon: ;
-  - word: GO
-  - word: CREATE
-  - word: UNIQUE
-  - word: INDEX
-  - double_quote: '[ix_name]'
-  - word: ON
-  - double_quote: '[schema1]'
-  - dot: .
-  - double_quote: '[table1]'
-  - start_bracket: (
-  - double_quote: '[column1]'
-  - end_bracket: )
-  - word: WITH
-  - start_bracket: (
-  - word: PAD_INDEX
-  - raw_comparison_operator: =
-  - word: OFF
-  - comma: ','
-  - word: SORT_IN_TEMPDB
-  - raw_comparison_operator: =
-  - word: ON
-  - end_bracket: )
-  - semicolon: ;
-  - word: CREATE
-  - word: UNIQUE
-  - word: INDEX
-  - double_quote: '[ix_name]'
-  - word: ON
-  - double_quote: '[schema1]'
-  - dot: .
-  - double_quote: '[table1]'
-  - start_bracket: (
-  - double_quote: '[column1]'
-  - end_bracket: )
-  - word: WITH
-  - start_bracket: (
-  - word: ONLINE
-  - raw_comparison_operator: =
-  - word: ON
-  - end_bracket: )
-  - semicolon: ;
-  - word: GO
-  - word: CREATE
-  - word: UNIQUE
-  - word: INDEX
-  - double_quote: '[ix_name]'
-  - word: ON
-  - double_quote: '[schema1]'
-  - dot: .
-  - double_quote: '[table1]'
-  - start_bracket: (
-  - double_quote: '[column1]'
-  - end_bracket: )
-  - word: WITH
-  - start_bracket: (
-  - word: ONLINE
-  - raw_comparison_operator: =
-  - word: ON
-  - start_bracket: (
-  - word: WAIT_AT_LOW_PRIORITY
-  - start_bracket: (
-  - word: MAX_DURATION
-  - raw_comparison_operator: =
-  - numeric_literal: '5'
-  - word: MINUTES
-  - comma: ','
-  - word: ABORT_AFTER_WAIT
-  - raw_comparison_operator: =
-  - word: NONE
-  - end_bracket: )
-  - end_bracket: )
-  - end_bracket: )
-  - semicolon: ;
-  - word: GO
-  - word: CREATE
-  - word: UNIQUE
-  - word: INDEX
-  - double_quote: '[ix_name]'
-  - word: ON
-  - double_quote: '[schema1]'
-  - dot: .
-  - double_quote: '[table1]'
-  - start_bracket: (
-  - double_quote: '[column1]'
-  - end_bracket: )
-  - word: WITH
-  - word: DATA_COMPRESSION
-  - raw_comparison_operator: =
-  - word: ROW
-  - word: ON
-  - word: PARTITIONS
-  - start_bracket: (
-  - numeric_literal: '2'
-  - comma: ','
-  - numeric_literal: '4'
-  - comma: ','
-  - numeric_literal: '6'
-  - word: TO
-  - numeric_literal: '8'
-  - end_bracket: )
-  - word: GO
-  - word: CREATE
-  - word: STATISTICS
-  - word: Stats_Population
-  - word: ON
-  - double_quote: '[Reporting]'
-  - dot: .
-  - double_quote: '[Population]'
-  - start_bracket: (
-  - double_quote: '[ID]'
-  - comma: ','
-  - double_quote: '[Facility]'
-  - comma: ','
-  - double_quote: '[Population]'
-  - end_bracket: )
-  - word: GO
-  - word: UPDATE
-  - word: STATISTICS
-  - word: Reporting
-  - dot: .
-  - word: Population
-  - word: Stats_Population
-  - semicolon: ;
-  - word: GO
-  - word: UPDATE
-  - word: STATISTICS
-  - word: Reporting
-  - dot: .
-  - word: Population
-  - start_bracket: (
-  - word: Stats_Facility
-  - comma: ','
-  - word: Stats_Population
-  - end_bracket: )
-  - semicolon: ;
-  - word: GO
-  - word: UPDATE
-  - word: STATISTICS
-  - word: Reporting
-  - dot: .
-  - word: Population
-  - start_bracket: (
-  - word: Stats_Facility
-  - comma: ','
-  - word: Stats_Population
-  - end_bracket: )
-  - word: WITH
-  - word: FULLSCAN
-  - semicolon: ;
-  - word: GO
-  - word: UPDATE
-  - word: STATISTICS
-  - word: Reporting
-  - dot: .
-  - word: Population
-  - start_bracket: (
-  - word: Stats_Facility
-  - comma: ','
-  - word: Stats_Population
-  - end_bracket: )
-  - word: WITH
-  - word: RESAMPLE
-  - semicolon: ;
-  - word: GO
-  - word: DROP
-  - word: STATISTICS
-  - word: Reporting
-  - dot: .
-  - word: Population
-  - dot: .
-  - word: Stats_Population
-  - word: GO
-  - word: DROP
-  - word: INDEX
-  - word: IX_INTER_VIMR_REPRODUCTION_NUMBER
-  - word: ON
-  - word: dbo
-  - dot: .
-  - word: VIMR_INFECTIOUS_PEOPLE
-  - semicolon: ;
-  - word: GO
+        - keyword: WITH
+        - bracketed:
+          - start_bracket: (
+          - keyword: FILLFACTOR
+          - assignment_operator:
+            - raw_comparison_operator: =
+          - numeric_literal: '80'
+          - end_bracket: )
+  - statement_terminator: ;
+  - keyword: GO
+  - statement:
+    - create_index_statement:
+      - create_index_statement:
+        - keyword: CREATE
+        - keyword: UNIQUE
+        - keyword: INDEX
+        - database_reference:
+          - quoted_identifier: '[ix_name]'
+        - keyword: ON
+        - table_reference:
+          - object_reference:
+            - quoted_identifier: '[schema1]'
+            - dot: .
+            - quoted_identifier: '[table1]'
+        - bracketed:
+          - start_bracket: (
+          - column_reference:
+            - quoted_identifier: '[column1]'
+          - end_bracket: )
+        - keyword: WITH
+        - bracketed:
+          - start_bracket: (
+          - keyword: PAD_INDEX
+          - assignment_operator:
+            - raw_comparison_operator: =
+          - keyword: OFF
+          - comma: ','
+          - keyword: SORT_IN_TEMPDB
+          - assignment_operator:
+            - raw_comparison_operator: =
+          - keyword: ON
+          - end_bracket: )
+  - statement_terminator: ;
+  - statement:
+    - create_index_statement:
+      - create_index_statement:
+        - keyword: CREATE
+        - keyword: UNIQUE
+        - keyword: INDEX
+        - database_reference:
+          - quoted_identifier: '[ix_name]'
+        - keyword: ON
+        - table_reference:
+          - object_reference:
+            - quoted_identifier: '[schema1]'
+            - dot: .
+            - quoted_identifier: '[table1]'
+        - bracketed:
+          - start_bracket: (
+          - column_reference:
+            - quoted_identifier: '[column1]'
+          - end_bracket: )
+        - keyword: WITH
+        - bracketed:
+          - start_bracket: (
+          - keyword: ONLINE
+          - assignment_operator:
+            - raw_comparison_operator: =
+          - keyword: ON
+          - end_bracket: )
+  - statement_terminator: ;
+  - keyword: GO
+  - statement:
+    - create_index_statement:
+      - create_index_statement:
+        - keyword: CREATE
+        - keyword: UNIQUE
+        - keyword: INDEX
+        - database_reference:
+          - quoted_identifier: '[ix_name]'
+        - keyword: ON
+        - table_reference:
+          - object_reference:
+            - quoted_identifier: '[schema1]'
+            - dot: .
+            - quoted_identifier: '[table1]'
+        - bracketed:
+          - start_bracket: (
+          - column_reference:
+            - quoted_identifier: '[column1]'
+          - end_bracket: )
+        - keyword: WITH
+        - bracketed:
+          - start_bracket: (
+          - keyword: ONLINE
+          - assignment_operator:
+            - raw_comparison_operator: =
+          - keyword: ON
+          - bracketed:
+            - start_bracket: (
+            - keyword: WAIT_AT_LOW_PRIORITY
+            - bracketed:
+              - start_bracket: (
+              - keyword: MAX_DURATION
+              - assignment_operator:
+                - raw_comparison_operator: =
+              - numeric_literal: '5'
+              - keyword: MINUTES
+              - comma: ','
+              - keyword: ABORT_AFTER_WAIT
+              - assignment_operator:
+                - raw_comparison_operator: =
+              - keyword: NONE
+              - end_bracket: )
+            - end_bracket: )
+          - end_bracket: )
+  - statement_terminator: ;
+  - keyword: GO
+  - statement:
+    - create_index_statement:
+      - create_index_statement:
+        - keyword: CREATE
+        - keyword: UNIQUE
+        - keyword: INDEX
+        - database_reference:
+          - quoted_identifier: '[ix_name]'
+        - keyword: ON
+        - table_reference:
+          - object_reference:
+            - quoted_identifier: '[schema1]'
+            - dot: .
+            - quoted_identifier: '[table1]'
+        - bracketed:
+          - start_bracket: (
+          - column_reference:
+            - quoted_identifier: '[column1]'
+          - end_bracket: )
+        - keyword: WITH
+        - bracketed:
+          - start_bracket: (
+          - keyword: DATA_COMPRESSION
+          - assignment_operator:
+            - raw_comparison_operator: =
+          - keyword: ROW
+          - keyword: ON
+          - keyword: PARTITIONS
+          - bracketed:
+            - start_bracket: (
+            - numeric_literal: '2'
+            - comma: ','
+            - numeric_literal: '4'
+            - comma: ','
+            - numeric_literal: '6'
+            - keyword: TO
+            - numeric_literal: '8'
+            - end_bracket: )
+          - end_bracket: )
+  - keyword: GO
+  - statement:
+    - create_index_statement:
+      - create_index_statement:
+        - keyword: CREATE
+        - keyword: STATISTICS
+        - database_reference:
+          - naked_identifier: Stats_Population
+        - keyword: ON
+        - table_reference:
+          - object_reference:
+            - quoted_identifier: '[Reporting]'
+            - dot: .
+            - quoted_identifier: '[Population]'
+        - bracketed:
+          - start_bracket: (
+          - column_reference:
+            - quoted_identifier: '[ID]'
+          - comma: ','
+          - column_reference:
+            - quoted_identifier: '[Facility]'
+          - comma: ','
+          - column_reference:
+            - quoted_identifier: '[Population]'
+          - end_bracket: )
+  - keyword: GO
+  - statement:
+    - update_statement:
+      - keyword: UPDATE
+      - keyword: STATISTICS
+      - table_reference:
+        - object_reference:
+          - naked_identifier: Reporting
+          - dot: .
+          - naked_identifier: Population
+      - object_reference:
+        - naked_identifier: Stats_Population
+  - statement_terminator: ;
+  - keyword: GO
+  - statement:
+    - update_statement:
+      - keyword: UPDATE
+      - keyword: STATISTICS
+      - table_reference:
+        - object_reference:
+          - naked_identifier: Reporting
+          - dot: .
+          - naked_identifier: Population
+      - bracketed:
+        - start_bracket: (
+        - object_reference:
+          - naked_identifier: Stats_Facility
+        - comma: ','
+        - object_reference:
+          - naked_identifier: Stats_Population
+        - end_bracket: )
+  - statement_terminator: ;
+  - keyword: GO
+  - statement:
+    - update_statement:
+      - keyword: UPDATE
+      - keyword: STATISTICS
+      - table_reference:
+        - object_reference:
+          - naked_identifier: Reporting
+          - dot: .
+          - naked_identifier: Population
+      - bracketed:
+        - start_bracket: (
+        - object_reference:
+          - naked_identifier: Stats_Facility
+        - comma: ','
+        - object_reference:
+          - naked_identifier: Stats_Population
+        - end_bracket: )
+      - keyword: WITH
+      - keyword: FULLSCAN
+  - statement_terminator: ;
+  - keyword: GO
+  - statement:
+    - update_statement:
+      - keyword: UPDATE
+      - keyword: STATISTICS
+      - table_reference:
+        - object_reference:
+          - naked_identifier: Reporting
+          - dot: .
+          - naked_identifier: Population
+      - bracketed:
+        - start_bracket: (
+        - object_reference:
+          - naked_identifier: Stats_Facility
+        - comma: ','
+        - object_reference:
+          - naked_identifier: Stats_Population
+        - end_bracket: )
+      - keyword: WITH
+      - keyword: RESAMPLE
+  - statement_terminator: ;
+  - keyword: GO
+  - keyword: GO
+  - statement:
+    - drop_index_statement:
+      - drop_index_statement:
+        - keyword: DROP
+        - keyword: INDEX
+        - object_reference:
+          - naked_identifier: IX_INTER_VIMR_REPRODUCTION_NUMBER
+        - keyword: ON
+        - table_reference:
+          - object_reference:
+            - naked_identifier: dbo
+            - dot: .
+            - naked_identifier: VIMR_INFECTIOUS_PEOPLE
+  - statement_terminator: ;
+  - keyword: GO

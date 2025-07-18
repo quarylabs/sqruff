@@ -10,25 +10,12 @@ use sqruff_lib_core::dialects::init::DialectKind;
 
 #[derive(Default)]
 pub struct Args {
-    list: bool,
-    ignored: bool,
-    no_capture: bool,
+    file: Option<String>,
 }
 
 impl Args {
     fn parse_args(&mut self, iter: impl Iterator<Item = String>) {
-        for arg in iter {
-            if arg == "--" {
-                continue;
-            }
-
-            match arg.as_str() {
-                "--list" => self.list = true,
-                "--ignored" => self.ignored = true,
-                "--no-capture" => self.no_capture = true,
-                _ => {}
-            }
-        }
+        self.file = iter.skip_while(|arg| arg == "--").next();
     }
 }
 
@@ -67,15 +54,6 @@ fn main() {
     let mut args = Args::default();
     args.parse_args(std::env::args().skip(1));
 
-    // FIXME: improve support for nextest
-    if args.list {
-        if !args.ignored {
-            println!("rules: test");
-        }
-
-        return;
-    }
-
     let mut linter = Linter::new(FluffConfig::default(), None, None, true);
     let mut core = AHashMap::new();
     core.insert(
@@ -83,8 +61,15 @@ fn main() {
         linter.config_mut().raw.get("core").unwrap().clone(),
     );
 
-    for path in glob("test/fixtures/rules/std_rule_cases/*.yml").unwrap() {
+    let pattern = args
+        .file
+        .as_deref()
+        .map(|f| format!("test/fixtures/rules/std_rule_cases/{f}"))
+        .unwrap_or_else(|| "test/fixtures/rules/std_rule_cases/*.yml".to_string());
+
+    for path in glob(&pattern).unwrap() {
         let path = path.unwrap();
+        println!("Processing file: {:?}", path);
         let input = std::fs::read_to_string(path).unwrap();
 
         let file: TestFile = serde_yaml::from_str(&input).unwrap();
@@ -104,6 +89,7 @@ fn main() {
         linter.config_mut().reload_reflow();
 
         for case in file.cases {
+            println!("Processing case: {}", case.name);
             let dialect_name = case
                 .configs
                 .get("core")
@@ -113,17 +99,12 @@ fn main() {
                 .unwrap_or("ansi");
 
             let dialect = DialectKind::from_str(dialect_name);
-            if !args.no_capture {
-                print!("test {}::{}", file.rule, case.name);
-            }
 
             if dialect.is_err() || case.ignored.is_some() {
-                if !args.no_capture {
-                    let message = case.ignored.unwrap_or_else(|| {
-                        format!("ignored, dialect {dialect_name} is not supported")
-                    });
-                    println!(" ignored, {message}");
-                }
+                let message = case
+                    .ignored
+                    .unwrap_or_else(|| format!("ignored, dialect {dialect_name} is not supported"));
+                println!("{message}");
 
                 continue;
             }
@@ -140,10 +121,6 @@ fn main() {
                     template
                 );
                 continue;
-            }
-
-            if !args.no_capture {
-                println!();
             }
 
             let has_config = !case.configs.is_empty();

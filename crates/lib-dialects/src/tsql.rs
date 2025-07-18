@@ -580,11 +580,13 @@ pub fn raw_dialect() -> Dialect {
             Sequence::new(vec_of_erased![
                 Ref::keyword("SET"),
                 one_of(vec_of_erased![
-                    // Variable assignment: SET @var = value
-                    Sequence::new(vec_of_erased![
-                        Ref::new("TsqlVariableSegment"),
-                        Ref::new("AssignmentOperatorSegment"),
-                        Ref::new("ExpressionSegment")
+                    // Variable assignment: SET @var = value or SET @var1 = value1, @var2 = value2
+                    Delimited::new(vec_of_erased![
+                        Sequence::new(vec_of_erased![
+                            Ref::new("TsqlVariableSegment"),
+                            Ref::new("AssignmentOperatorSegment"),
+                            Ref::new("ExpressionSegment")
+                        ])
                     ]),
                     // SET DEADLOCK_PRIORITY
                     Sequence::new(vec_of_erased![

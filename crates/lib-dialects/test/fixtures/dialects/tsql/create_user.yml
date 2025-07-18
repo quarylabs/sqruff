@@ -173,9 +173,9 @@ file:
         - comparison_operator:
           - raw_comparison_operator: =
         - quoted_literal: '''sdjklalie8rew8337!$d'''
-- file:
-  - comma: ','
-  - word: SID
-  - raw_comparison_operator: =
-  - word: '0x241C11948AEEB749B0D22646DB1A19F2'
-  - semicolon: ;
+        - comma: ','
+        - keyword: SID
+        - comparison_operator:
+          - raw_comparison_operator: =
+        - naked_identifier: '0x241C11948AEEB749B0D22646DB1A19F2'
+  - statement_terminator: ;

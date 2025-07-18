@@ -57,4 +57,5 @@ file:
       - statement_terminator: ;
       - keyword: END
   - statement_terminator: ;
-- keyword: GO
+- file:
+  - word: GO

@@ -985,4 +985,5 @@ file:
                     - column_reference:
                       - naked_identifier: NOLOCK
                   - end_bracket: )
-- keyword: GO
+- file:
+  - word: GO

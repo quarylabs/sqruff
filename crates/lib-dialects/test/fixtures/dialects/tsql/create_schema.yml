@@ -2,20 +2,22 @@ file:
 - statement:
   - statement:
     - create_schema_statement:
-      - keyword: CREATE
-      - keyword: SCHEMA
-      - table_reference:
-        - object_reference:
-          - quoted_identifier: '[Reporting]'
+      - create_schema_statement:
+        - keyword: CREATE
+        - keyword: SCHEMA
+        - table_reference:
+          - object_reference:
+            - quoted_identifier: '[Reporting]'
 - keyword: GO
 - statement:
   - statement:
     - create_schema_statement:
-      - keyword: CREATE
-      - keyword: SCHEMA
-      - table_reference:
-        - object_reference:
-          - quoted_identifier: '[Extracts]'
+      - create_schema_statement:
+        - keyword: CREATE
+        - keyword: SCHEMA
+        - table_reference:
+          - object_reference:
+            - quoted_identifier: '[Extracts]'
 - file:
   - word: AUTHORIZATION
   - double_quote: '[dbo]'

@@ -96,10 +96,11 @@ file:
 - statement:
   - statement:
     - create_role_statement:
-      - keyword: CREATE
-      - keyword: ROLE
-      - role_reference:
-        - naked_identifier: newrole
+      - create_role_statement:
+        - keyword: CREATE
+        - keyword: ROLE
+        - role_reference:
+          - naked_identifier: newrole
   - statement_terminator: ;
   - statement:
     - access_statement:
@@ -201,4 +202,5 @@ file:
         - naked_identifier: Wanida
       - keyword: CASCADE
   - statement_terminator: ;
-- keyword: GO
+- file:
+  - word: GO

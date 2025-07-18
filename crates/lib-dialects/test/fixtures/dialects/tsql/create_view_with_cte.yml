@@ -139,4 +139,5 @@ file:
                     - table_reference:
                       - object_reference:
                         - naked_identifier: cte
-- keyword: GO
+- file:
+  - word: GO

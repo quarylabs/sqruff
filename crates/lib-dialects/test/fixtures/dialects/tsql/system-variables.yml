@@ -89,4 +89,5 @@ file:
             - keyword: AS
             - quoted_identifier: '''Packets Received'''
   - statement_terminator: ;
-- keyword: GO
+- file:
+  - word: GO

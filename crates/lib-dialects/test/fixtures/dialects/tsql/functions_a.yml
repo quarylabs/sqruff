@@ -259,4 +259,5 @@ file:
           - keyword: IS
           - null_literal: 'NULL'
   - statement_terminator: ;
-- keyword: GO
+- file:
+  - word: GO

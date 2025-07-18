@@ -168,4 +168,5 @@ file:
             - raw_comparison_operator: =
             - word: LAST_DATE_OF_REPORT
   - statement_terminator: ;
-- keyword: GO
+- file:
+  - word: GO

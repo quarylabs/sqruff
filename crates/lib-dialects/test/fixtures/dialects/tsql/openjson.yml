@@ -104,49 +104,57 @@ file:
         - from_expression:
           - from_expression_element:
             - table_expression:
-              - function:
-                - function_name:
-                  - function_name_identifier: OPENJSON
-                - bracketed:
-                  - start_bracket: (
-                  - expression:
-                    - parameterized_expression:
-                      - tsql_variable: '@json'
-                  - end_bracket: )
-            - keyword: WITH
-            - bracketed:
-              - start_bracket: (
-              - unparsable:
-                - word: Number
-                - word: VARCHAR
+              - keyword: OPENJSON
+              - bracketed:
                 - start_bracket: (
-                - numeric_literal: '200'
+                - expression:
+                  - parameterized_expression:
+                    - tsql_variable: '@json'
                 - end_bracket: )
-                - single_quote: '''$.Order.Number'''
-                - comma: ','
-                - word: Date
-                - word: DATETIME
-                - single_quote: '''$.Order.Date'''
-                - comma: ','
-                - word: Customer
-                - word: VARCHAR
+              - keyword: WITH
+              - bracketed:
                 - start_bracket: (
-                - numeric_literal: '200'
-                - end_bracket: )
-                - single_quote: '''$.AccountNumber'''
+                - naked_identifier: Number
+                - data_type:
+                  - data_type_identifier: VARCHAR
+                  - bracketed_arguments:
+                    - bracketed:
+                      - start_bracket: (
+                      - numeric_literal: '200'
+                      - end_bracket: )
+                - quoted_literal: '''$.Order.Number'''
                 - comma: ','
-                - word: Quantity
-                - word: INT
-                - single_quote: '''$.Item.Quantity'''
+                - naked_identifier: Date
+                - data_type:
+                  - data_type_identifier: DATETIME
+                - quoted_literal: '''$.Order.Date'''
                 - comma: ','
-                - double_quote: '[Order]'
-                - word: NVARCHAR
-                - start_bracket: (
-                - word: MAX
+                - naked_identifier: Customer
+                - data_type:
+                  - data_type_identifier: VARCHAR
+                  - bracketed_arguments:
+                    - bracketed:
+                      - start_bracket: (
+                      - numeric_literal: '200'
+                      - end_bracket: )
+                - quoted_literal: '''$.AccountNumber'''
+                - comma: ','
+                - naked_identifier: Quantity
+                - data_type:
+                  - data_type_identifier: INT
+                - quoted_literal: '''$.Item.Quantity'''
+                - comma: ','
+                - quoted_identifier: '[Order]'
+                - data_type:
+                  - data_type_identifier: NVARCHAR
+                  - bracketed_arguments:
+                    - bracketed:
+                      - start_bracket: (
+                      - keyword: MAX
+                      - end_bracket: )
+                - keyword: AS
+                - keyword: JSON
                 - end_bracket: )
-                - word: AS
-                - word: JSON
-              - end_bracket: )
   - statement_terminator: ;
   - statement:
     - select_statement:

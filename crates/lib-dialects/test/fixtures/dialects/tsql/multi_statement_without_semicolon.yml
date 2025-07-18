@@ -32,4 +32,5 @@ file:
               - table_reference:
                 - object_reference:
                   - naked_identifier: tbl2
-- keyword: GO
+- file:
+  - word: GO

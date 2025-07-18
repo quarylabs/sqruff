@@ -431,4 +431,5 @@ file:
       - unparsable:
         - word: AS
         - double_quote: '[r]'
-- keyword: GO
+- file:
+  - word: GO

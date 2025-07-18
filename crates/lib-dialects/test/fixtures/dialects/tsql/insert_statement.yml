@@ -456,4 +456,5 @@ file:
             - comma: ','
             - quoted_literal: '''James'''
             - end_bracket: )
-- keyword: GO
+- file:
+  - word: GO

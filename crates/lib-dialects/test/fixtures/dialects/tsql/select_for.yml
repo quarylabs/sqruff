@@ -301,4 +301,5 @@ file:
             - naked_identifier: a
       - keyword: FOR
       - keyword: BROWSE
-- keyword: GO
+- file:
+  - word: GO

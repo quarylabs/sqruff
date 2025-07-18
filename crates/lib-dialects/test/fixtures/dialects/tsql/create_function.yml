@@ -304,93 +304,166 @@ file:
         - keyword: END
   - statement_terminator: ;
 - keyword: GO
+- statement:
+  - statement:
+    - create_function_statement:
+      - keyword: CREATE
+      - keyword: OR
+      - keyword: ALTER
+      - keyword: FUNCTION
+      - object_reference:
+        - naked_identifier: F
+      - bracketed:
+        - start_bracket: (
+        - parameter:
+          - tsql_variable: '@DATE'
+          - keyword: as
+          - data_type:
+            - data_type_identifier: datetime
+        - end_bracket: )
+      - keyword: RETURNS
+      - data_type:
+        - data_type_identifier: INT
+      - keyword: AS
+      - begin_end_block:
+        - keyword: BEGIN
+        - statement:
+          - statement:
+            - keyword: RETURN
+            - expression:
+              - numeric_literal: '1'
+        - keyword: END
+  - statement_terminator: ;
+- keyword: GO
+- statement:
+  - statement:
+    - create_function_statement:
+      - keyword: ALTER
+      - keyword: FUNCTION
+      - object_reference:
+        - naked_identifier: F
+      - bracketed:
+        - start_bracket: (
+        - parameter:
+          - tsql_variable: '@DATE'
+          - keyword: as
+          - data_type:
+            - data_type_identifier: datetime
+        - end_bracket: )
+      - keyword: RETURNS
+      - data_type:
+        - data_type_identifier: INT
+      - keyword: AS
+      - begin_end_block:
+        - keyword: BEGIN
+        - statement:
+          - statement:
+            - keyword: RETURN
+            - expression:
+              - numeric_literal: '0'
+        - keyword: END
+  - statement_terminator: ;
+- keyword: GO
+- statement:
+  - statement:
+    - create_function_statement:
+      - keyword: CREATE
+      - keyword: FUNCTION
+      - object_reference:
+        - quoted_identifier: '[UTIL]'
+        - dot: .
+        - quoted_identifier: '[getItemList]'
+      - bracketed:
+        - start_bracket: (
+        - parameter:
+          - tsql_variable: '@list'
+          - data_type:
+            - data_type_identifier: ItemList
+          - keyword: READONLY
+        - end_bracket: )
+      - keyword: RETURNS
+      - data_type:
+        - data_type_identifier: nvarchar
+        - bracketed_arguments:
+          - bracketed:
+            - start_bracket: (
+            - keyword: max
+            - end_bracket: )
+      - keyword: AS
+      - begin_end_block:
+        - keyword: BEGIN
+        - statement:
+          - keyword: DECLARE
+          - tsql_variable: '@str'
+          - data_type:
+            - data_type_identifier: nvarchar
+            - bracketed_arguments:
+              - bracketed:
+                - start_bracket: (
+                - keyword: max
+                - end_bracket: )
+          - assignment_operator:
+            - raw_comparison_operator: =
+          - expression:
+            - quoted_literal: ''''''
+        - statement:
+          - select_statement:
+            - select_clause:
+              - keyword: SELECT
+              - select_clause_element:
+                - tsql_variable: '@str'
+                - assignment_operator:
+                  - raw_comparison_operator: =
+                - expression:
+                  - parameterized_expression:
+                    - tsql_variable: '@str'
+                  - binary_operator: +
+                  - column_reference:
+                    - quoted_identifier: '[item]'
+            - from_clause:
+              - keyword: FROM
+              - from_expression:
+                - from_expression_element:
+                  - table_expression:
+                    - bracketed:
+                      - start_bracket: (
+                      - select_statement:
+                        - select_clause:
+                          - keyword: SELECT
+                          - select_clause_modifier:
+                            - keyword: TOP
+                            - bracketed:
+                              - start_bracket: (
+                              - expression:
+                                - numeric_literal: '9999'
+                              - end_bracket: )
+                          - select_clause_element:
+                            - column_reference:
+                              - quoted_identifier: '[item]'
+                        - from_clause:
+                          - keyword: FROM
+                          - from_expression:
+                            - from_expression_element:
+                              - table_expression:
+                                - table_reference:
+                                  - tsql_variable: '@list'
+                        - orderby_clause:
+                          - keyword: ORDER
+                          - keyword: BY
+                          - column_reference:
+                            - quoted_identifier: '[order]'
+                      - end_bracket: )
+                  - alias_expression:
+                    - naked_identifier: i
+        - statement:
+          - statement:
+            - keyword: RETURN
+            - expression:
+              - parameterized_expression:
+                - tsql_variable: '@str'
+        - keyword: END
+  - statement_terminator: ;
 - file:
-  - word: CREATE
-  - word: OR
-  - word: ALTER
-  - word: FUNCTION
-  - word: F
-  - start_bracket: (
-  - tsql_variable: '@DATE'
-  - word: as
-  - word: datetime
-  - end_bracket: )
-  - word: RETURNS
-  - word: INT
-  - word: AS
-  - word: BEGIN
-  - word: RETURN
-  - numeric_literal: '1'
-  - word: END
-  - semicolon: ;
-  - word: GO
-  - word: ALTER
-  - word: FUNCTION
-  - word: F
-  - start_bracket: (
-  - tsql_variable: '@DATE'
-  - word: as
-  - word: datetime
-  - end_bracket: )
-  - word: RETURNS
-  - word: INT
-  - word: AS
-  - word: BEGIN
-  - word: RETURN
-  - numeric_literal: '0'
-  - word: END
-  - semicolon: ;
-  - word: GO
-  - word: CREATE
-  - word: FUNCTION
-  - double_quote: '[UTIL]'
-  - dot: .
-  - double_quote: '[getItemList]'
-  - start_bracket: (
-  - tsql_variable: '@list'
-  - word: ItemList
-  - word: READONLY
-  - end_bracket: )
-  - word: RETURNS
-  - word: nvarchar
-  - start_bracket: (
-  - word: max
-  - end_bracket: )
-  - word: AS
-  - word: BEGIN
-  - word: DECLARE
-  - tsql_variable: '@str'
-  - word: nvarchar
-  - start_bracket: (
-  - word: max
-  - end_bracket: )
-  - raw_comparison_operator: =
-  - single_quote: ''''''
-  - word: SELECT
-  - tsql_variable: '@str'
-  - raw_comparison_operator: =
-  - tsql_variable: '@str'
-  - plus: +
-  - double_quote: '[item]'
-  - word: FROM
-  - start_bracket: (
-  - word: SELECT
-  - word: TOP
-  - start_bracket: (
-  - numeric_literal: '9999'
-  - end_bracket: )
-  - double_quote: '[item]'
-  - word: FROM
-  - tsql_variable: '@list'
-  - word: ORDER
-  - word: BY
-  - double_quote: '[order]'
-  - end_bracket: )
-  - word: i
-  - word: RETURN
-  - tsql_variable: '@str'
-  - word: END
-  - semicolon: ;
   - word: GO
   - word: create
   - word: function

@@ -1296,7 +1296,7 @@ pub fn raw_dialect() -> Dialect {
                 Ref::keyword("WITH"),
                 Bracketed::new(vec_of_erased![Delimited::new(vec_of_erased![
                     Sequence::new(vec_of_erased![
-                        Ref::new("NakedIdentifierSegment"), // Column name
+                        Ref::new("SingleIdentifierGrammar"), // Column name (naked or bracketed)
                         Ref::new("DatatypeSegment"),        // Data type
                         // Optional JSON path
                         Sequence::new(vec_of_erased![Ref::new("QuotedLiteralSegment")])
@@ -2614,17 +2614,20 @@ pub fn raw_dialect() -> Dialect {
                 Ref::new("BatchDelimiterGrammar"),
                 Ref::new("DelimiterGrammar").optional()
             ]),
-            // Main content: Single batch or multiple batches separated by GO statements
-            AnyNumberOf::new(vec_of_erased![one_of(vec_of_erased![
-                // Batch (can contain multiple statements or single statements like BEGIN...END)
+            // Main content: Batch followed by optional GO-separated batches
+            Sequence::new(vec_of_erased![
+                // First batch
                 Ref::new("BatchSegment"),
-                // GO batch delimiter with optional semicolon
-                Sequence::new(vec_of_erased![
-                    Ref::new("BatchDelimiterGrammar"),
-                    Ref::new("DelimiterGrammar").optional()
+                // Any number of GO-separated batches
+                AnyNumberOf::new(vec_of_erased![
+                    Sequence::new(vec_of_erased![
+                        Ref::new("BatchDelimiterGrammar"),
+                        Ref::new("DelimiterGrammar").optional(),
+                        Ref::new("BatchSegment")
+                    ])
                 ])
-            ])])
-            .config(|this| this.min_times(1)) // At least one element required
+            ])
+            .config(|this| this.optional()) // The entire content is optional for empty files
         ])
         .to_matchable(),
     );
@@ -2757,6 +2760,7 @@ pub fn raw_dialect() -> Dialect {
             Ref::new("CreateCastStatementSegment"),
             Ref::new("DropCastStatementSegment"),
             Ref::new("CreateFunctionStatementSegment"),
+            Ref::new("CreateOrAlterFunctionStatementSegment"),
             Ref::new("AlterFunctionStatementSegment"),
             Ref::new("DropFunctionStatementSegment"),
             Ref::new("CreateProcedureStatementSegment"),
@@ -4014,6 +4018,111 @@ pub fn raw_dialect() -> Dialect {
         .into(),
     )]);
 
+    // T-SQL CREATE OR ALTER FUNCTION statement
+    dialect.add([(
+        "CreateOrAlterFunctionStatementSegment".into(),
+        NodeMatcher::new(SyntaxKind::CreateFunctionStatement, |_| {
+            Sequence::new(vec_of_erased![
+                Ref::keyword("CREATE"),
+                Ref::keyword("OR"),
+                Ref::keyword("ALTER"),
+                Ref::keyword("FUNCTION"),
+                Ref::new("ObjectReferenceSegment"),
+                Ref::new("FunctionParameterListGrammar"),
+                Ref::keyword("RETURNS"),
+                one_of(vec_of_erased![
+                    // Table-valued function
+                    Sequence::new(vec_of_erased![
+                        optionally_bracketed(vec_of_erased![Ref::new("TsqlVariableSegment")]),
+                        Ref::keyword("TABLE"),
+                        // Optional table definition for multi-statement table-valued functions
+                        Ref::new("BracketedColumnDefinitionListGrammar").optional()
+                    ]),
+                    // Scalar function
+                    Ref::new("DatatypeSegment")
+                ]),
+                // Function options
+                Sequence::new(vec_of_erased![
+                    Ref::keyword("WITH"),
+                    Delimited::new(vec_of_erased![
+                        Ref::keyword("SCHEMABINDING"),
+                        Ref::keyword("ENCRYPTION"),
+                        Ref::new("ExecuteAsClauseGrammar"),
+                        Sequence::new(vec_of_erased![
+                            Ref::keyword("RETURNS"),
+                            Ref::keyword("NULL"),
+                            Ref::keyword("ON"),
+                            Ref::keyword("NULL"),
+                            Ref::keyword("INPUT")
+                        ]),
+                        Sequence::new(vec_of_erased![
+                            Ref::keyword("CALLED"),
+                            Ref::keyword("ON"),
+                            Ref::keyword("NULL"),
+                            Ref::keyword("INPUT")
+                        ])
+                    ])
+                ])
+                .config(|this| this.optional()),
+                // Function body
+                Ref::keyword("AS"),
+                one_of(vec_of_erased![
+                    // Single-statement table-valued function
+                    Ref::new("SelectableGrammar"),
+                    // Multi-statement function
+                    Ref::new("BeginEndBlockSegment"),
+                    // Single expression
+                    Ref::new("ExpressionSegment")
+                ])
+            ])
+            .to_matchable()
+        })
+        .to_matchable()
+        .into(),
+    )]);
+
+    // T-SQL CREATE SCHEMA with AUTHORIZATION support
+    dialect.replace_grammar(
+        "CreateSchemaStatementSegment",
+        NodeMatcher::new(SyntaxKind::CreateSchemaStatement, |_| {
+            Sequence::new(vec_of_erased![
+                Ref::keyword("CREATE"),
+                Ref::keyword("SCHEMA"),
+                Ref::new("IfNotExistsGrammar").optional(),
+                Ref::new("SchemaReferenceSegment"),
+                // TODO: Fix optional sequence compilation error
+                // Sequence::new(vec_of_erased![
+                //     Ref::keyword("AUTHORIZATION"),
+                //     Ref::new("ObjectReferenceSegment")
+                // ])
+                // .config(|this| this.optional())
+            ])
+            .to_matchable()
+        })
+        .to_matchable()
+        .into(),
+    );
+
+    // T-SQL CREATE ROLE with AUTHORIZATION support
+    dialect.replace_grammar(
+        "CreateRoleStatementSegment",
+        NodeMatcher::new(SyntaxKind::CreateRoleStatement, |_| {
+            Sequence::new(vec_of_erased![
+                Ref::keyword("CREATE"),
+                Ref::keyword("ROLE"),
+                Ref::new("RoleReferenceSegment"),
+                Sequence::new(vec_of_erased![
+                    Ref::keyword("AUTHORIZATION"),
+                    Ref::new("ObjectReferenceSegment")
+                ])
+                .config(|this| this.optional())
+            ])
+            .to_matchable()
+        })
+        .to_matchable()
+        .into(),
+    );
+
     // T-SQL CREATE TABLE with Azure Synapse Analytics support
     dialect.replace_grammar(
         "CreateTableStatementSegment",
@@ -4793,11 +4902,14 @@ pub fn raw_dialect() -> Dialect {
                 Ref::new("EqualsSegment"),
                 Ref::new("QuotedLiteralSegment")
             ]),
-            // SID = 0x...
+            // SID = 0x... or literal
             Sequence::new(vec_of_erased![
                 Ref::keyword("SID"),
                 Ref::new("EqualsSegment"),
-                Ref::new("NumericLiteralSegment")
+                one_of(vec_of_erased![
+                    Ref::new("NumericLiteralSegment"),
+                    Ref::new("NakedIdentifierSegment") // For hex literals like 0x241C11948AEEB749B0D22646DB1A19F2
+                ])
             ]),
             // DEFAULT_SCHEMA = schema_name
             Sequence::new(vec_of_erased![
@@ -6575,6 +6687,8 @@ pub fn raw_dialect() -> Dialect {
             NodeMatcher::new(SyntaxKind::Parameter, |_| {
                 Sequence::new(vec_of_erased![
                     Ref::new("ParameterNameSegment"),
+                    // Optional AS keyword
+                    Ref::keyword("AS").optional(),
                     one_of(vec_of_erased![
                         // Regular parameter type
                         Ref::new("DatatypeSegment"),

@@ -260,4 +260,5 @@ file:
         - keyword: CATCH
       - keyword: END
   - statement_terminator: ;
-- keyword: GO
+- file:
+  - word: GO

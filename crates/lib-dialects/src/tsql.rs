@@ -2444,14 +2444,21 @@ pub fn raw_dialect() -> Dialect {
         .to_matchable(),
     );
 
-    // Update JoinClauseSegment to handle APPLY syntax properly
+    // Update JoinClauseSegment to handle APPLY syntax and T-SQL join hints
     dialect.replace_grammar(
         "JoinClauseSegment",
         one_of(vec_of_erased![
-            // Standard JOIN syntax
+            // Standard JOIN syntax with T-SQL join hints
             Sequence::new(vec_of_erased![
                 Ref::new("JoinTypeKeywordsGrammar").optional(),
-                Ref::new("JoinKeywordsGrammar"),
+                // T-SQL join hints can appear between join type and JOIN keyword
+                one_of(vec_of_erased![
+                    Ref::keyword("HASH"),
+                    Ref::keyword("MERGE"),
+                    Ref::keyword("LOOP"),
+                ])
+                .config(|this| this.optional()),
+                Ref::keyword("JOIN"),
                 MetaSegment::indent(),
                 Ref::new("FromExpressionElementSegment"),
                 AnyNumberOf::new(vec_of_erased![Ref::new("NestedJoinGrammar")]),
@@ -2477,7 +2484,7 @@ pub fn raw_dialect() -> Dialect {
             // NATURAL JOIN
             Sequence::new(vec_of_erased![
                 Ref::new("NaturalJoinKeywordsGrammar"),
-                Ref::new("JoinKeywordsGrammar"),
+                Ref::keyword("JOIN"),
                 MetaSegment::indent(),
                 Ref::new("FromExpressionElementSegment"),
                 MetaSegment::dedent(),

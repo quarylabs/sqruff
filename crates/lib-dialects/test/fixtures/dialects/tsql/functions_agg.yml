@@ -149,8 +149,11 @@ file:
                 - column_reference:
                   - quoted_identifier: '[DischargeDt]'
               - end_bracket: )
-      - unparsable:
-        - word: DROP
-        - word: TABLE
-        - word: '#Mercury'
+  - statement:
+    - drop_table_statement:
+      - keyword: DROP
+      - keyword: TABLE
+      - table_reference:
+        - object_reference:
+          - naked_identifier: '#Mercury'
   - statement_terminator: ;

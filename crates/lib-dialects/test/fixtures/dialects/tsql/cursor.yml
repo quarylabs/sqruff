@@ -40,9 +40,10 @@ file:
           - keyword: BY
           - column_reference:
             - naked_identifier: column_b
-        - unparsable:
-          - word: OPEN
-          - word: pointy
+  - statement:
+    - statement:
+      - keyword: OPEN
+      - naked_identifier: pointy
   - statement_terminator: ;
   - statement:
     - statement:

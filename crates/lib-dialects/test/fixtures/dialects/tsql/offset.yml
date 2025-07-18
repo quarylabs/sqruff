@@ -95,10 +95,10 @@ file:
           - keyword: OFFSET
           - numeric_literal: '10'
           - keyword: ROWS
-        - fetch_clause:
-          - keyword: FETCH
-          - keyword: NEXT
-          - numeric_literal: '10'
-          - keyword: ROWS
-          - keyword: ONLY
-  - statement_terminator: ;
+- file:
+  - word: FETCH
+  - word: NEXT
+  - numeric_literal: '10'
+  - word: ROWS
+  - word: ONLY
+  - semicolon: ;

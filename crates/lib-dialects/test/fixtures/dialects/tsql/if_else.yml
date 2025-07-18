@@ -108,23 +108,53 @@ file:
             - comparison_operator:
               - raw_comparison_operator: =
             - numeric_literal: '1'
-        - unparsable:
-          - word: if
-          - word: exists
-          - start_bracket: (
-          - word: select
-          - star: '*'
-          - word: from
-          - word: '#a'
-          - word: union
-          - word: all
-          - word: select
-          - star: '*'
-          - word: from
-          - word: '#b'
-          - end_bracket: )
-          - word: set
-          - tsql_variable: '@var'
-          - raw_comparison_operator: =
-          - numeric_literal: '1'
+  - statement:
+    - keyword: if
+    - expression:
+      - keyword: exists
+      - bracketed:
+        - start_bracket: (
+        - set_expression:
+          - set_expression:
+            - select_statement:
+              - select_clause:
+                - keyword: select
+                - select_clause_element:
+                  - wildcard_expression:
+                    - wildcard_identifier:
+                      - star: '*'
+              - from_clause:
+                - keyword: from
+                - from_expression:
+                  - from_expression_element:
+                    - table_expression:
+                      - table_reference:
+                        - object_reference:
+                          - naked_identifier: '#a'
+            - set_operator:
+              - keyword: union
+              - keyword: all
+            - select_statement:
+              - select_clause:
+                - keyword: select
+                - select_clause_element:
+                  - wildcard_expression:
+                    - wildcard_identifier:
+                      - star: '*'
+              - from_clause:
+                - keyword: from
+                - from_expression:
+                  - from_expression_element:
+                    - table_expression:
+                      - table_reference:
+                        - object_reference:
+                          - naked_identifier: '#b'
+        - end_bracket: )
+    - statement:
+      - keyword: set
+      - tsql_variable: '@var'
+      - assignment_operator:
+        - raw_comparison_operator: =
+      - expression:
+        - numeric_literal: '1'
     - statement_terminator: ;

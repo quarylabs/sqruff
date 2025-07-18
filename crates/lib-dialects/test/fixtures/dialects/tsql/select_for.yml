@@ -301,5 +301,5 @@ file:
             - naked_identifier: a
       - keyword: FOR
       - keyword: BROWSE
-- file:
+- unparsable:
   - word: GO

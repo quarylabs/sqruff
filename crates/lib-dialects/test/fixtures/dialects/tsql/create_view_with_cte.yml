@@ -139,5 +139,5 @@ file:
                     - table_reference:
                       - object_reference:
                         - naked_identifier: cte
-- file:
+- unparsable:
   - word: GO

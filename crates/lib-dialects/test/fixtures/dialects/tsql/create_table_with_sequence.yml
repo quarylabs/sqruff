@@ -10,7 +10,7 @@ file:
             - naked_identifier: DEST
             - dot: .
             - naked_identifier: MELDER
-- file:
+- unparsable:
   - start_bracket: (
   - double_quote: '[ID]'
   - word: INT

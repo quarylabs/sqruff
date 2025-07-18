@@ -985,5 +985,5 @@ file:
                     - column_reference:
                       - naked_identifier: NOLOCK
                   - end_bracket: )
-- file:
+- unparsable:
   - word: GO

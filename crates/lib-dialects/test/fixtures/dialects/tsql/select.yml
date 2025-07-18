@@ -239,7 +239,7 @@ file:
         - comma: ','
         - word: Modify
         - comma: ','
-- file:
+- unparsable:
   - word: Minus
   - comma: ','
   - word: ROW_NUMBER

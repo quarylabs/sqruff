@@ -16,7 +16,7 @@ file:
               - table_reference:
                 - object_reference:
                   - naked_identifier: bar
-- file:
+- unparsable:
   - word: GO
   - word: GO
   - word: SELECT

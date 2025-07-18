@@ -115,7 +115,7 @@ file:
         - table_reference:
           - object_reference:
             - naked_identifier: Table1
-- file:
+- unparsable:
   - word: OPTION
   - start_bracket: (
   - word: LABEL

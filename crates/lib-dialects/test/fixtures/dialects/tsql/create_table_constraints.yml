@@ -10,7 +10,7 @@ file:
             - quoted_identifier: '[dbo]'
             - dot: .
             - quoted_identifier: '[example]'
-- file:
+- unparsable:
   - start_bracket: (
   - double_quote: '[Column A]'
   - double_quote: '[int]'

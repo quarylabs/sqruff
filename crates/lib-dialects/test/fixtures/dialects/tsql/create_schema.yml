@@ -18,7 +18,7 @@ file:
         - table_reference:
           - object_reference:
             - quoted_identifier: '[Extracts]'
-- file:
+- unparsable:
   - word: AUTHORIZATION
   - double_quote: '[dbo]'
   - semicolon: ;

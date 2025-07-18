@@ -71,7 +71,7 @@ file:
       - comparison_operator:
         - raw_comparison_operator: =
       - quoted_literal: '''<enterStrongPasswordHere>'''
-- file:
+- unparsable:
   - comma: ','
   - word: DEFAULT_DATABASE
   - raw_comparison_operator: =

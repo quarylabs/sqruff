@@ -126,6 +126,21 @@ pub fn raw_dialect() -> Dialect {
         "SYSTEM_TIME",
         "PERSISTED",
         "Partition",
+        "LIST",
+        "POPULATION",
+        "FILESTREAM",
+        "MASKED",
+        "FUNCTION",
+        "REPLICATION",
+        "ENCRYPTED",
+        "COLUMN_ENCRYPTION_KEY",
+        "ENCRYPTION_TYPE",
+        "RANDOMIZED",
+        "ALGORITHM",
+        "HIDDEN",
+        "START",
+        "END",
+        "ROW",
     ]);
 
     // T-SQL specific operators
@@ -597,7 +612,48 @@ pub fn raw_dialect() -> Dialect {
                                 Ref::new("NumericLiteralSegment")  // increment
                             ]).config(|this| this.optional()) // IDENTITY can be without parameters
                         ]).config(|this| this.optional()),
-                        // GENERATED ALWAYS AS ROW START/END for temporal tables
+                        // FILESTREAM
+                        Ref::keyword("FILESTREAM").optional(),
+                        // MASKED WITH (FUNCTION = '...')
+                        Sequence::new(vec_of_erased![
+                            Ref::keyword("MASKED"),
+                            Ref::keyword("WITH"),
+                            Bracketed::new(vec_of_erased![
+                                Ref::keyword("FUNCTION"),
+                                Ref::new("EqualsSegment"),
+                                Ref::new("QuotedLiteralSegment")
+                            ])
+                        ]).config(|this| this.optional()),
+                        // ENCRYPTED WITH (...)
+                        Sequence::new(vec_of_erased![
+                            Ref::keyword("ENCRYPTED"),
+                            Ref::keyword("WITH"),
+                            Bracketed::new(vec_of_erased![
+                                Delimited::new(vec_of_erased![
+                                    one_of(vec_of_erased![
+                                        // COLUMN_ENCRYPTION_KEY = key_name
+                                        Sequence::new(vec_of_erased![
+                                            Ref::keyword("COLUMN_ENCRYPTION_KEY"),
+                                            Ref::new("EqualsSegment"),
+                                            Ref::new("SingleIdentifierGrammar")
+                                        ]),
+                                        // ENCRYPTION_TYPE = RANDOMIZED
+                                        Sequence::new(vec_of_erased![
+                                            Ref::keyword("ENCRYPTION_TYPE"),
+                                            Ref::new("EqualsSegment"),
+                                            Ref::keyword("RANDOMIZED")
+                                        ]),
+                                        // ALGORITHM = 'algorithm_name'
+                                        Sequence::new(vec_of_erased![
+                                            Ref::keyword("ALGORITHM"),
+                                            Ref::new("EqualsSegment"),
+                                            Ref::new("QuotedLiteralSegment")
+                                        ])
+                                    ])
+                                ])
+                            ])
+                        ]).config(|this| this.optional()),
+                        // GENERATED ALWAYS AS ROW START/END HIDDEN for temporal tables
                         Sequence::new(vec_of_erased![
                             Ref::keyword("GENERATED"),
                             Ref::keyword("ALWAYS"),
@@ -606,7 +662,8 @@ pub fn raw_dialect() -> Dialect {
                             one_of(vec_of_erased![
                                 Ref::keyword("START"),
                                 Ref::keyword("END")
-                            ])
+                            ]),
+                            Ref::keyword("HIDDEN").optional()
                         ]).config(|this| this.optional()),
                         AnyNumberOf::new(vec_of_erased![Ref::new("ColumnConstraintSegment")])
                             .config(|this| this.optional())
@@ -1974,22 +2031,20 @@ pub fn raw_dialect() -> Dialect {
                     Ref::keyword("WITH"),
                     Bracketed::new(vec_of_erased![Delimited::new(vec_of_erased![one_of(
                         vec_of_erased![
-                            // CHANGE_TRACKING [=] (MANUAL | AUTO | OFF [, NO POPULATION])
+                            // CHANGE_TRACKING [=] (MANUAL | AUTO | OFF)
                             Sequence::new(vec_of_erased![
                                 Ref::keyword("CHANGE_TRACKING"),
                                 Ref::new("EqualsSegment").optional(),
                                 one_of(vec_of_erased![
                                     Ref::keyword("MANUAL"),
                                     Ref::keyword("AUTO"),
-                                    Sequence::new(vec_of_erased![
-                                        Ref::keyword("OFF"),
-                                        Sequence::new(vec_of_erased![
-                                            Ref::keyword("NO"),
-                                            Ref::keyword("POPULATION")
-                                        ])
-                                        .config(|this| this.optional())
-                                    ])
+                                    Ref::keyword("OFF")
                                 ])
+                            ]),
+                            // NO POPULATION
+                            Sequence::new(vec_of_erased![
+                                Ref::keyword("NO"),
+                                Ref::keyword("POPULATION")
                             ]),
                             // STOPLIST [=] (OFF | SYSTEM | stoplist_name)
                             Sequence::new(vec_of_erased![
@@ -3396,10 +3451,15 @@ pub fn raw_dialect() -> Dialect {
                 ])
                 .config(|this| this.optional()),
                 one_of(vec_of_erased![
-                    // NOT NULL / NULL
+                    // NOT NULL / NULL [NOT FOR REPLICATION]
                     Sequence::new(vec_of_erased![
                         Ref::keyword("NOT").optional(),
                         Ref::keyword("NULL"),
+                        Sequence::new(vec_of_erased![
+                            Ref::keyword("NOT"),
+                            Ref::keyword("FOR"),
+                            Ref::keyword("REPLICATION")
+                        ]).config(|this| this.optional())
                     ]),
                     // CHECK constraint
                     Sequence::new(vec_of_erased![
@@ -3426,6 +3486,80 @@ pub fn raw_dialect() -> Dialect {
             ])
             .to_matchable()
         })
+        .to_matchable()
+        .into(),
+    )]);
+
+    // Override PrimaryKeyGrammar to support CLUSTERED/NONCLUSTERED
+    dialect.add([(
+        "PrimaryKeyGrammar".into(),
+        Sequence::new(vec_of_erased![
+            Ref::keyword("PRIMARY"),
+            Ref::keyword("KEY"),
+            one_of(vec_of_erased![
+                Ref::keyword("CLUSTERED"),
+                Ref::keyword("NONCLUSTERED")
+            ]).config(|this| this.optional())
+        ])
+        .to_matchable()
+        .into(),
+    )]);
+
+    // Override UniqueKeyGrammar to support CLUSTERED/NONCLUSTERED
+    dialect.add([(
+        "UniqueKeyGrammar".into(),
+        Sequence::new(vec_of_erased![
+            Ref::keyword("UNIQUE"),
+            one_of(vec_of_erased![
+                Ref::keyword("CLUSTERED"),
+                Ref::keyword("NONCLUSTERED")
+            ]).config(|this| this.optional())
+        ])
+        .to_matchable()
+        .into(),
+    )]);
+
+    // Override ReferenceDefinitionGrammar to support optional FOREIGN KEY prefix
+    dialect.add([(
+        "ReferenceDefinitionGrammar".into(),
+        Sequence::new(vec_of_erased![
+            // Optional FOREIGN KEY keywords
+            Sequence::new(vec_of_erased![
+                Ref::keyword("FOREIGN"),
+                Ref::keyword("KEY")
+            ]).config(|this| this.optional()),
+            Ref::keyword("REFERENCES"),
+            Ref::new("TableReferenceSegment"), // Table reference
+            // Optional column list in parentheses
+            Bracketed::new(vec_of_erased![
+                Delimited::new(vec_of_erased![Ref::new("ColumnReferenceSegment")])
+            ]).config(|this| this.optional()),
+            // Optional referential actions
+            AnyNumberOf::new(vec_of_erased![
+                Sequence::new(vec_of_erased![
+                    Ref::keyword("ON"),
+                    one_of(vec_of_erased![
+                        Ref::keyword("DELETE"),
+                        Ref::keyword("UPDATE")
+                    ]),
+                    one_of(vec_of_erased![
+                        Ref::keyword("CASCADE"),
+                        Ref::keyword("RESTRICT"),
+                        Sequence::new(vec_of_erased![
+                            Ref::keyword("SET"),
+                            one_of(vec_of_erased![
+                                Ref::keyword("NULL"),
+                                Ref::keyword("DEFAULT")
+                            ])
+                        ]),
+                        Sequence::new(vec_of_erased![
+                            Ref::keyword("NO"),
+                            Ref::keyword("ACTION")
+                        ])
+                    ])
+                ])
+            ]).config(|this| this.optional())
+        ])
         .to_matchable()
         .into(),
     )]);

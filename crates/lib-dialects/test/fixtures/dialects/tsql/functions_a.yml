@@ -259,5 +259,5 @@ file:
           - keyword: IS
           - null_literal: 'NULL'
   - statement_terminator: ;
-- file:
+- unparsable:
   - word: GO

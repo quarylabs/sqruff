@@ -32,5 +32,5 @@ file:
               - table_reference:
                 - object_reference:
                   - naked_identifier: tbl2
-- file:
+- unparsable:
   - word: GO

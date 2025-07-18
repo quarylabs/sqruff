@@ -168,5 +168,5 @@ file:
             - raw_comparison_operator: =
             - word: LAST_DATE_OF_REPORT
   - statement_terminator: ;
-- file:
+- unparsable:
   - word: GO

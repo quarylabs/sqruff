@@ -728,5 +728,5 @@ file:
             - keyword: ON
           - statement_terminator: ;
           - keyword: END
-- file:
+- unparsable:
   - word: GO

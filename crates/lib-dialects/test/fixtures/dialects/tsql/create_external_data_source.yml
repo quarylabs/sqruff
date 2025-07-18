@@ -56,7 +56,7 @@ file:
           - quoted_identifier: '[OracleProxyCredential]'
         - end_bracket: )
   - statement_terminator: ;
-- file:
+- unparsable:
   - word: CREATE
   - word: EXTERNAL
   - word: DATA

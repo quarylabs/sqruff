@@ -1,0 +1,3 @@
+GO
+SELECT foo FROM bar GO GO
+SELECT foo FROM bar GO

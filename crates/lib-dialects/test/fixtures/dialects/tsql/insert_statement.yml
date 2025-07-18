@@ -456,5 +456,5 @@ file:
             - comma: ','
             - quoted_literal: '''James'''
             - end_bracket: )
-- file:
+- unparsable:
   - word: GO

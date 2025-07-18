@@ -108,7 +108,7 @@ file:
                     - dot: .
                     - naked_identifier: _id
         - statement_terminator: ;
-- file:
+- unparsable:
   - word: UPDATE
   - word: stuff
   - word: SET

@@ -251,7 +251,7 @@ file:
           - column_reference:
             - quoted_identifier: '[column2]'
           - end_bracket: )
-- file:
+- unparsable:
   - word: WITH
   - word: FILLFACTOR
   - raw_comparison_operator: =

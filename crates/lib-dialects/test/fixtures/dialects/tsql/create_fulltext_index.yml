@@ -422,214 +422,295 @@ file:
       - keyword: INDEX
       - object_reference:
         - quoted_identifier: '[PK_IDENTIFIER]'
-- file:
-  - word: WITH
-  - start_bracket: (
-  - word: CHANGE_TRACKING
-  - word: OFF
-  - comma: ','
-  - word: NO
-  - word: POPULATION
-  - end_bracket: )
-  - semicolon: ;
-  - word: CREATE
-  - word: FULLTEXT
-  - word: INDEX
-  - word: ON
-  - double_quote: '[dbo]'
-  - dot: .
-  - double_quote: '[TEST_FULLTEXT_INDEX]'
-  - start_bracket: (
-  - double_quote: '[id]'
-  - word: LANGUAGE
-  - numeric_literal: '1062'
-  - end_bracket: )
-  - word: KEY
-  - word: INDEX
-  - double_quote: '[PK_IDENTIFIER]'
-  - word: WITH
-  - start_bracket: (
-  - word: CHANGE_TRACKING
-  - raw_comparison_operator: =
-  - word: OFF
-  - comma: ','
-  - word: NO
-  - word: POPULATION
-  - end_bracket: )
-  - semicolon: ;
-  - word: CREATE
-  - word: FULLTEXT
-  - word: INDEX
-  - word: ON
-  - double_quote: '[dbo]'
-  - dot: .
-  - double_quote: '[TEST_FULLTEXT_INDEX]'
-  - start_bracket: (
-  - double_quote: '[id]'
-  - word: LANGUAGE
-  - numeric_literal: '1062'
-  - end_bracket: )
-  - word: KEY
-  - word: INDEX
-  - double_quote: '[PK_IDENTIFIER]'
-  - word: WITH
-  - start_bracket: (
-  - word: STOPLIST
-  - word: OFF
-  - end_bracket: )
-  - semicolon: ;
-  - word: CREATE
-  - word: FULLTEXT
-  - word: INDEX
-  - word: ON
-  - double_quote: '[dbo]'
-  - dot: .
-  - double_quote: '[TEST_FULLTEXT_INDEX]'
-  - start_bracket: (
-  - double_quote: '[id]'
-  - word: LANGUAGE
-  - numeric_literal: '1062'
-  - end_bracket: )
-  - word: KEY
-  - word: INDEX
-  - double_quote: '[PK_IDENTIFIER]'
-  - word: WITH
-  - start_bracket: (
-  - word: STOPLIST
-  - raw_comparison_operator: =
-  - word: OFF
-  - end_bracket: )
-  - semicolon: ;
-  - word: CREATE
-  - word: FULLTEXT
-  - word: INDEX
-  - word: ON
-  - double_quote: '[dbo]'
-  - dot: .
-  - double_quote: '[TEST_FULLTEXT_INDEX]'
-  - start_bracket: (
-  - double_quote: '[id]'
-  - word: LANGUAGE
-  - numeric_literal: '1062'
-  - end_bracket: )
-  - word: KEY
-  - word: INDEX
-  - double_quote: '[PK_IDENTIFIER]'
-  - word: WITH
-  - start_bracket: (
-  - word: STOPLIST
-  - word: SYSTEM
-  - end_bracket: )
-  - semicolon: ;
-  - word: CREATE
-  - word: FULLTEXT
-  - word: INDEX
-  - word: ON
-  - double_quote: '[dbo]'
-  - dot: .
-  - double_quote: '[TEST_FULLTEXT_INDEX]'
-  - start_bracket: (
-  - double_quote: '[id]'
-  - word: LANGUAGE
-  - numeric_literal: '1062'
-  - end_bracket: )
-  - word: KEY
-  - word: INDEX
-  - double_quote: '[PK_IDENTIFIER]'
-  - word: WITH
-  - start_bracket: (
-  - word: STOPLIST
-  - raw_comparison_operator: =
-  - word: SYSTEM
-  - end_bracket: )
-  - semicolon: ;
-  - word: CREATE
-  - word: FULLTEXT
-  - word: INDEX
-  - word: ON
-  - double_quote: '[dbo]'
-  - dot: .
-  - double_quote: '[TEST_FULLTEXT_INDEX]'
-  - start_bracket: (
-  - double_quote: '[id]'
-  - word: LANGUAGE
-  - numeric_literal: '1062'
-  - end_bracket: )
-  - word: KEY
-  - word: INDEX
-  - double_quote: '[PK_IDENTIFIER]'
-  - word: WITH
-  - start_bracket: (
-  - word: STOPLIST
-  - double_quote: '[custom_stoplist_name]'
-  - end_bracket: )
-  - semicolon: ;
-  - word: CREATE
-  - word: FULLTEXT
-  - word: INDEX
-  - word: ON
-  - double_quote: '[dbo]'
-  - dot: .
-  - double_quote: '[TEST_FULLTEXT_INDEX]'
-  - start_bracket: (
-  - double_quote: '[id]'
-  - word: LANGUAGE
-  - numeric_literal: '1062'
-  - end_bracket: )
-  - word: KEY
-  - word: INDEX
-  - double_quote: '[PK_IDENTIFIER]'
-  - word: WITH
-  - start_bracket: (
-  - word: STOPLIST
-  - raw_comparison_operator: =
-  - double_quote: '[custom_stoplist_name]'
-  - end_bracket: )
-  - semicolon: ;
-  - word: CREATE
-  - word: FULLTEXT
-  - word: INDEX
-  - word: ON
-  - double_quote: '[dbo]'
-  - dot: .
-  - double_quote: '[TEST_FULLTEXT_INDEX]'
-  - start_bracket: (
-  - double_quote: '[id]'
-  - word: LANGUAGE
-  - numeric_literal: '1062'
-  - end_bracket: )
-  - word: KEY
-  - word: INDEX
-  - double_quote: '[PK_IDENTIFIER]'
-  - word: WITH
-  - start_bracket: (
-  - word: SEARCH
-  - word: PROPERTY
-  - word: LIST
-  - double_quote: '[property_list_name]'
-  - end_bracket: )
-  - semicolon: ;
-  - word: CREATE
-  - word: FULLTEXT
-  - word: INDEX
-  - word: ON
-  - double_quote: '[dbo]'
-  - dot: .
-  - double_quote: '[TEST_FULLTEXT_INDEX]'
-  - start_bracket: (
-  - double_quote: '[id]'
-  - word: LANGUAGE
-  - numeric_literal: '1062'
-  - end_bracket: )
-  - word: KEY
-  - word: INDEX
-  - double_quote: '[PK_IDENTIFIER]'
-  - word: WITH
-  - start_bracket: (
-  - word: SEARCH
-  - word: PROPERTY
-  - word: LIST
-  - raw_comparison_operator: =
-  - double_quote: '[property_list_name]'
-  - end_bracket: )
-  - semicolon: ;
+      - keyword: WITH
+      - bracketed:
+        - start_bracket: (
+        - keyword: CHANGE_TRACKING
+        - keyword: OFF
+        - comma: ','
+        - keyword: NO
+        - keyword: POPULATION
+        - end_bracket: )
+  - statement_terminator: ;
+  - statement:
+    - create_index_statement:
+      - keyword: CREATE
+      - keyword: FULLTEXT
+      - keyword: INDEX
+      - keyword: ON
+      - table_reference:
+        - object_reference:
+          - quoted_identifier: '[dbo]'
+          - dot: .
+          - quoted_identifier: '[TEST_FULLTEXT_INDEX]'
+      - bracketed:
+        - start_bracket: (
+        - column_reference:
+          - quoted_identifier: '[id]'
+        - keyword: LANGUAGE
+        - numeric_literal: '1062'
+        - end_bracket: )
+      - keyword: KEY
+      - keyword: INDEX
+      - object_reference:
+        - quoted_identifier: '[PK_IDENTIFIER]'
+      - keyword: WITH
+      - bracketed:
+        - start_bracket: (
+        - keyword: CHANGE_TRACKING
+        - comparison_operator:
+          - raw_comparison_operator: =
+        - keyword: OFF
+        - comma: ','
+        - keyword: NO
+        - keyword: POPULATION
+        - end_bracket: )
+  - statement_terminator: ;
+  - statement:
+    - create_index_statement:
+      - keyword: CREATE
+      - keyword: FULLTEXT
+      - keyword: INDEX
+      - keyword: ON
+      - table_reference:
+        - object_reference:
+          - quoted_identifier: '[dbo]'
+          - dot: .
+          - quoted_identifier: '[TEST_FULLTEXT_INDEX]'
+      - bracketed:
+        - start_bracket: (
+        - column_reference:
+          - quoted_identifier: '[id]'
+        - keyword: LANGUAGE
+        - numeric_literal: '1062'
+        - end_bracket: )
+      - keyword: KEY
+      - keyword: INDEX
+      - object_reference:
+        - quoted_identifier: '[PK_IDENTIFIER]'
+      - keyword: WITH
+      - bracketed:
+        - start_bracket: (
+        - keyword: STOPLIST
+        - keyword: OFF
+        - end_bracket: )
+  - statement_terminator: ;
+  - statement:
+    - create_index_statement:
+      - keyword: CREATE
+      - keyword: FULLTEXT
+      - keyword: INDEX
+      - keyword: ON
+      - table_reference:
+        - object_reference:
+          - quoted_identifier: '[dbo]'
+          - dot: .
+          - quoted_identifier: '[TEST_FULLTEXT_INDEX]'
+      - bracketed:
+        - start_bracket: (
+        - column_reference:
+          - quoted_identifier: '[id]'
+        - keyword: LANGUAGE
+        - numeric_literal: '1062'
+        - end_bracket: )
+      - keyword: KEY
+      - keyword: INDEX
+      - object_reference:
+        - quoted_identifier: '[PK_IDENTIFIER]'
+      - keyword: WITH
+      - bracketed:
+        - start_bracket: (
+        - keyword: STOPLIST
+        - comparison_operator:
+          - raw_comparison_operator: =
+        - keyword: OFF
+        - end_bracket: )
+  - statement_terminator: ;
+  - statement:
+    - create_index_statement:
+      - keyword: CREATE
+      - keyword: FULLTEXT
+      - keyword: INDEX
+      - keyword: ON
+      - table_reference:
+        - object_reference:
+          - quoted_identifier: '[dbo]'
+          - dot: .
+          - quoted_identifier: '[TEST_FULLTEXT_INDEX]'
+      - bracketed:
+        - start_bracket: (
+        - column_reference:
+          - quoted_identifier: '[id]'
+        - keyword: LANGUAGE
+        - numeric_literal: '1062'
+        - end_bracket: )
+      - keyword: KEY
+      - keyword: INDEX
+      - object_reference:
+        - quoted_identifier: '[PK_IDENTIFIER]'
+      - keyword: WITH
+      - bracketed:
+        - start_bracket: (
+        - keyword: STOPLIST
+        - keyword: SYSTEM
+        - end_bracket: )
+  - statement_terminator: ;
+  - statement:
+    - create_index_statement:
+      - keyword: CREATE
+      - keyword: FULLTEXT
+      - keyword: INDEX
+      - keyword: ON
+      - table_reference:
+        - object_reference:
+          - quoted_identifier: '[dbo]'
+          - dot: .
+          - quoted_identifier: '[TEST_FULLTEXT_INDEX]'
+      - bracketed:
+        - start_bracket: (
+        - column_reference:
+          - quoted_identifier: '[id]'
+        - keyword: LANGUAGE
+        - numeric_literal: '1062'
+        - end_bracket: )
+      - keyword: KEY
+      - keyword: INDEX
+      - object_reference:
+        - quoted_identifier: '[PK_IDENTIFIER]'
+      - keyword: WITH
+      - bracketed:
+        - start_bracket: (
+        - keyword: STOPLIST
+        - comparison_operator:
+          - raw_comparison_operator: =
+        - keyword: SYSTEM
+        - end_bracket: )
+  - statement_terminator: ;
+  - statement:
+    - create_index_statement:
+      - keyword: CREATE
+      - keyword: FULLTEXT
+      - keyword: INDEX
+      - keyword: ON
+      - table_reference:
+        - object_reference:
+          - quoted_identifier: '[dbo]'
+          - dot: .
+          - quoted_identifier: '[TEST_FULLTEXT_INDEX]'
+      - bracketed:
+        - start_bracket: (
+        - column_reference:
+          - quoted_identifier: '[id]'
+        - keyword: LANGUAGE
+        - numeric_literal: '1062'
+        - end_bracket: )
+      - keyword: KEY
+      - keyword: INDEX
+      - object_reference:
+        - quoted_identifier: '[PK_IDENTIFIER]'
+      - keyword: WITH
+      - bracketed:
+        - start_bracket: (
+        - keyword: STOPLIST
+        - object_reference:
+          - quoted_identifier: '[custom_stoplist_name]'
+        - end_bracket: )
+  - statement_terminator: ;
+  - statement:
+    - create_index_statement:
+      - keyword: CREATE
+      - keyword: FULLTEXT
+      - keyword: INDEX
+      - keyword: ON
+      - table_reference:
+        - object_reference:
+          - quoted_identifier: '[dbo]'
+          - dot: .
+          - quoted_identifier: '[TEST_FULLTEXT_INDEX]'
+      - bracketed:
+        - start_bracket: (
+        - column_reference:
+          - quoted_identifier: '[id]'
+        - keyword: LANGUAGE
+        - numeric_literal: '1062'
+        - end_bracket: )
+      - keyword: KEY
+      - keyword: INDEX
+      - object_reference:
+        - quoted_identifier: '[PK_IDENTIFIER]'
+      - keyword: WITH
+      - bracketed:
+        - start_bracket: (
+        - keyword: STOPLIST
+        - comparison_operator:
+          - raw_comparison_operator: =
+        - object_reference:
+          - quoted_identifier: '[custom_stoplist_name]'
+        - end_bracket: )
+  - statement_terminator: ;
+  - statement:
+    - create_index_statement:
+      - keyword: CREATE
+      - keyword: FULLTEXT
+      - keyword: INDEX
+      - keyword: ON
+      - table_reference:
+        - object_reference:
+          - quoted_identifier: '[dbo]'
+          - dot: .
+          - quoted_identifier: '[TEST_FULLTEXT_INDEX]'
+      - bracketed:
+        - start_bracket: (
+        - column_reference:
+          - quoted_identifier: '[id]'
+        - keyword: LANGUAGE
+        - numeric_literal: '1062'
+        - end_bracket: )
+      - keyword: KEY
+      - keyword: INDEX
+      - object_reference:
+        - quoted_identifier: '[PK_IDENTIFIER]'
+      - keyword: WITH
+      - bracketed:
+        - start_bracket: (
+        - keyword: SEARCH
+        - keyword: PROPERTY
+        - keyword: LIST
+        - object_reference:
+          - quoted_identifier: '[property_list_name]'
+        - end_bracket: )
+  - statement_terminator: ;
+  - statement:
+    - create_index_statement:
+      - keyword: CREATE
+      - keyword: FULLTEXT
+      - keyword: INDEX
+      - keyword: ON
+      - table_reference:
+        - object_reference:
+          - quoted_identifier: '[dbo]'
+          - dot: .
+          - quoted_identifier: '[TEST_FULLTEXT_INDEX]'
+      - bracketed:
+        - start_bracket: (
+        - column_reference:
+          - quoted_identifier: '[id]'
+        - keyword: LANGUAGE
+        - numeric_literal: '1062'
+        - end_bracket: )
+      - keyword: KEY
+      - keyword: INDEX
+      - object_reference:
+        - quoted_identifier: '[PK_IDENTIFIER]'
+      - keyword: WITH
+      - bracketed:
+        - start_bracket: (
+        - keyword: SEARCH
+        - keyword: PROPERTY
+        - keyword: LIST
+        - comparison_operator:
+          - raw_comparison_operator: =
+        - object_reference:
+          - quoted_identifier: '[property_list_name]'
+        - end_bracket: )
+  - statement_terminator: ;

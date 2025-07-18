@@ -463,7 +463,7 @@ file:
                 - tsql_variable: '@str'
         - keyword: END
   - statement_terminator: ;
-- file:
+- unparsable:
   - word: GO
   - word: create
   - word: function

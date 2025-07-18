@@ -245,7 +245,7 @@ file:
       - keyword: TRIGGER
       - trigger_reference:
         - naked_identifier: safety
-- file:
+- unparsable:
   - word: ON
   - word: DATABASE
   - semicolon: ;

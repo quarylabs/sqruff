@@ -216,5 +216,5 @@ file:
                   - dot: .
                   - naked_identifier: MonthColumn
   - statement_terminator: ;
-- file:
+- unparsable:
   - word: GO

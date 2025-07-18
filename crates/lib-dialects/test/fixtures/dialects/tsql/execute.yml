@@ -54,7 +54,7 @@ file:
     - expression:
       - parameterized_expression:
         - tsql_variable: '@p1'
-- file:
+- unparsable:
   - raw_comparison_operator: =
   - word: DEFAULT
   - comma: ','

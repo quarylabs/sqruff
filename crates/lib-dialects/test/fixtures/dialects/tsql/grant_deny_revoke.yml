@@ -202,5 +202,5 @@ file:
         - naked_identifier: Wanida
       - keyword: CASCADE
   - statement_terminator: ;
-- file:
+- unparsable:
   - word: GO

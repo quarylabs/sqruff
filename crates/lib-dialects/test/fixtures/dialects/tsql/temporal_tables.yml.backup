@@ -276,7 +276,7 @@ file:
           - keyword: SCHEMA_ONLY
           - end_bracket: )
   - statement_terminator: ;
-- unparsable:
+- file:
   - semicolon: ;
   - word: GO
   - word: CREATE

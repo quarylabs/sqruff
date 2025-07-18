@@ -60,7 +60,7 @@ file:
       - unparsable:
         - word: FULL
         - word: OUTER
-- file:
+- unparsable:
   - word: MERGE
   - word: JOIN
   - word: table2

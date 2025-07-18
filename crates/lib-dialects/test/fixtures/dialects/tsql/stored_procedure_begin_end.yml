@@ -260,5 +260,5 @@ file:
         - keyword: CATCH
       - keyword: END
   - statement_terminator: ;
-- file:
+- unparsable:
   - word: GO

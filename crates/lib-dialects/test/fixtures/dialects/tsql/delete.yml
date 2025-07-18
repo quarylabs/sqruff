@@ -183,7 +183,7 @@ file:
             - naked_identifier: HumanResources
             - dot: .
             - naked_identifier: EmployeePayHistory
-- file:
+- unparsable:
   - word: WHERE
   - word: CURRENT
   - word: OF

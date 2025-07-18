@@ -404,6 +404,22 @@ pub fn raw_dialect() -> Dialect {
             Ref::new("BatchDelimiterGrammar"),
             // T-SQL specific: OPTION clause
             Ref::keyword("OPTION"),
+            // T-SQL specific: Statement keywords that should terminate SELECT clause
+            Ref::keyword("CREATE"),
+            Ref::keyword("DROP"),
+            Ref::keyword("ALTER"),
+            Ref::keyword("INSERT"),
+            Ref::keyword("UPDATE"),
+            Ref::keyword("DELETE"),
+            Ref::keyword("MERGE"),
+            Ref::keyword("DECLARE"),
+            Ref::keyword("SET"),
+            Ref::keyword("BEGIN"),
+            Ref::keyword("END"),
+            Ref::keyword("IF"),
+            Ref::keyword("WHILE"),
+            Ref::keyword("EXEC"),
+            Ref::keyword("EXECUTE"),
         ])
         .to_matchable()
         .into(),

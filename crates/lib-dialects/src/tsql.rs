@@ -143,6 +143,13 @@ pub fn raw_dialect() -> Dialect {
         "ROW",
         "DEFAULT_DATABASE",
         "DEFAULT_LANGUAGE",
+        "USER_DB",
+        "DW_BIN_TEMP",
+        "LOCATION",
+        "DISTRIBUTION",
+        "ROUND_ROBIN",
+        "REPLICATE",
+        "HASH",
     ]);
 
     // T-SQL specific operators
@@ -2856,6 +2863,7 @@ pub fn raw_dialect() -> Dialect {
             Ref::new("TryBlockSegment"),
             Ref::new("ThrowStatementSegment"),
             Ref::new("AtomicBlockSegment"),
+            Ref::new("BatchSeparatorSegment"), // GO statements
             Ref::new("DeclareStatementGrammar"),
             Ref::new("SetVariableStatementSegment"),
             Ref::new("PrintStatementGrammar"),
@@ -4499,6 +4507,16 @@ pub fn raw_dialect() -> Dialect {
                         Ref::keyword("HASH"),
                         Bracketed::new(vec_of_erased![Ref::new("ColumnReferenceSegment")])
                     ])
+                ])
+            ]),
+            // Azure Synapse location options
+            Sequence::new(vec_of_erased![
+                Ref::keyword("LOCATION"),
+                Ref::new("EqualsSegment"),
+                one_of(vec_of_erased![
+                    Ref::keyword("USER_DB"),
+                    Ref::keyword("DW_BIN_TEMP"),
+                    Ref::new("ObjectReferenceSegment")
                 ])
             ]),
             // Azure Synapse index options

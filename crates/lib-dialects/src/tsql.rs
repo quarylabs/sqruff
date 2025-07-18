@@ -1454,6 +1454,13 @@ pub fn raw_dialect() -> Dialect {
                                         ])
                                     ])
                                 ])
+                            ]),
+                            // COMPRESSION_DELAY option
+                            Sequence::new(vec_of_erased![
+                                Ref::keyword("COMPRESSION_DELAY"),
+                                Ref::new("AssignmentOperatorSegment"),
+                                Ref::new("NumericLiteralSegment"),
+                                Ref::keyword("MINUTES").optional()
                             ])
                         ]
                     )])])
@@ -2750,6 +2757,7 @@ pub fn raw_dialect() -> Dialect {
             Ref::new("CreateCastStatementSegment"),
             Ref::new("DropCastStatementSegment"),
             Ref::new("CreateFunctionStatementSegment"),
+            Ref::new("AlterFunctionStatementSegment"),
             Ref::new("DropFunctionStatementSegment"),
             Ref::new("CreateProcedureStatementSegment"),
             Ref::new("DropProcedureStatementSegment"),
@@ -2978,6 +2986,7 @@ pub fn raw_dialect() -> Dialect {
     )]);
 
     // Extend BaseExpressionElementGrammar to include NEXT VALUE FOR
+    // Put NextValueForSegment first to prioritize it over column references
     dialect.add([(
         "BaseExpressionElementGrammar".into(),
         dialect
@@ -2988,7 +2997,7 @@ pub fn raw_dialect() -> Dialect {
                 None,
                 None,
                 Vec::new(),
-                false,
+                true, // prepend to prioritize NEXT VALUE FOR
             )
             .into(),
     )]);
@@ -3315,9 +3324,9 @@ pub fn raw_dialect() -> Dialect {
                     Ref::keyword("FOR"),
                     Ref::keyword("SYSTEM_TIME"),
                     Bracketed::new(vec_of_erased![
-                        Ref::new("ColumnReferenceSegment"),
+                        Ref::new("SingleIdentifierGrammar"),
                         Ref::new("CommaSegment"),
-                        Ref::new("ColumnReferenceSegment")
+                        Ref::new("SingleIdentifierGrammar")
                     ])
                 ])
             ]
@@ -3944,6 +3953,67 @@ pub fn raw_dialect() -> Dialect {
         .into(),
     )]);
 
+    // T-SQL ALTER FUNCTION statement
+    dialect.add([(
+        "AlterFunctionStatementSegment".into(),
+        NodeMatcher::new(SyntaxKind::AlterFunctionStatement, |_| {
+            Sequence::new(vec_of_erased![
+                Ref::keyword("ALTER"),
+                Ref::keyword("FUNCTION"),
+                Ref::new("ObjectReferenceSegment"),
+                Ref::new("FunctionParameterListGrammar"),
+                Ref::keyword("RETURNS"),
+                one_of(vec_of_erased![
+                    // Table-valued function
+                    Sequence::new(vec_of_erased![
+                        optionally_bracketed(vec_of_erased![Ref::new("TsqlVariableSegment")]),
+                        Ref::keyword("TABLE"),
+                        // Optional table definition for multi-statement table-valued functions
+                        Ref::new("BracketedColumnDefinitionListGrammar").optional()
+                    ]),
+                    // Scalar function
+                    Ref::new("DatatypeSegment")
+                ]),
+                // Function options
+                Sequence::new(vec_of_erased![
+                    Ref::keyword("WITH"),
+                    Delimited::new(vec_of_erased![
+                        Ref::keyword("SCHEMABINDING"),
+                        Ref::keyword("ENCRYPTION"),
+                        Ref::new("ExecuteAsClauseGrammar"),
+                        Sequence::new(vec_of_erased![
+                            Ref::keyword("RETURNS"),
+                            Ref::keyword("NULL"),
+                            Ref::keyword("ON"),
+                            Ref::keyword("NULL"),
+                            Ref::keyword("INPUT")
+                        ]),
+                        Sequence::new(vec_of_erased![
+                            Ref::keyword("CALLED"),
+                            Ref::keyword("ON"),
+                            Ref::keyword("NULL"),
+                            Ref::keyword("INPUT")
+                        ])
+                    ])
+                ])
+                .config(|this| this.optional()),
+                // Function body
+                Ref::keyword("AS"),
+                one_of(vec_of_erased![
+                    // Single-statement table-valued function
+                    Ref::new("SelectableGrammar"),
+                    // Multi-statement function
+                    Ref::new("BeginEndBlockSegment"),
+                    // Single expression
+                    Ref::new("ExpressionSegment")
+                ])
+            ])
+            .to_matchable()
+        })
+        .to_matchable()
+        .into(),
+    )]);
+
     // T-SQL CREATE TABLE with Azure Synapse Analytics support
     dialect.replace_grammar(
         "CreateTableStatementSegment",
@@ -3955,14 +4025,24 @@ pub fn raw_dialect() -> Dialect {
                 Ref::new("TableReferenceSegment"),
                 one_of(vec_of_erased![
                     // Regular CREATE TABLE with column definitions
-                    Bracketed::new(vec_of_erased![
-                        Delimited::new(vec_of_erased![one_of(vec_of_erased![
-                            Ref::new("TableConstraintSegment"),
-                            Ref::new("ColumnDefinitionSegment"),
-                            // T-SQL Graph: CONNECTION constraint for edge tables
-                            Ref::new("ConnectionConstraintSegment")
-                        ])])
-                        .config(|this| this.allow_trailing())
+                    Sequence::new(vec_of_erased![
+                        Bracketed::new(vec_of_erased![
+                            Delimited::new(vec_of_erased![one_of(vec_of_erased![
+                                Ref::new("TableConstraintSegment"),
+                                Ref::new("ColumnDefinitionSegment"),
+                                // T-SQL Graph: CONNECTION constraint for edge tables
+                                Ref::new("ConnectionConstraintSegment")
+                            ])])
+                            .config(|this| this.allow_trailing())
+                        ]),
+                        // Optional WITH clause for table options (after column definitions)
+                        Sequence::new(vec_of_erased![
+                            Ref::keyword("WITH"),
+                            Bracketed::new(vec_of_erased![Delimited::new(vec_of_erased![
+                                Ref::new("TableOptionGrammar")
+                            ])])
+                        ])
+                        .config(|this| this.optional())
                     ]),
                     // CREATE TABLE AS SELECT with optional WITH clause before AS
                     Sequence::new(vec_of_erased![
@@ -4619,11 +4699,14 @@ pub fn raw_dialect() -> Dialect {
                 Ref::new("EqualsSegment"),
                 Ref::new("NakedIdentifierSegment")
             ]),
-            // SID = 0x...
+            // SID = 0x... or literal
             Sequence::new(vec_of_erased![
                 Ref::keyword("SID"),
                 Ref::new("EqualsSegment"),
-                Ref::new("NumericLiteralSegment")
+                one_of(vec_of_erased![
+                    Ref::new("NumericLiteralSegment"),
+                    Ref::new("NakedIdentifierSegment") // For hex literals like 0x241C11948AEEB749B0D22646DB1A19F2
+                ])
             ]),
             // CREDENTIAL = credential_name
             Sequence::new(vec_of_erased![

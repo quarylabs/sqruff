@@ -19,7 +19,12 @@ fn main() {
     let mut arg_dialect = None;
 
     if args.len() == 1 {
-        arg_dialect = Some(DialectKind::from_str(&args[0]).unwrap());
+        // Skip if the argument is from cargo test naming (like "dialects")
+        if let Ok(dialect) = DialectKind::from_str(&args[0]) {
+            arg_dialect = Some(dialect);
+        } else {
+            println!("Skipping invalid dialect argument: {}", &args[0]);
+        }
     }
 
     let dialects = DialectKind::iter()

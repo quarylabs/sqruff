@@ -2495,6 +2495,35 @@ pub fn raw_dialect() -> Dialect {
         ),
     ]);
 
+    // Override DropFunctionStatementSegment to support comma-delimited function names in T-SQL
+    dialect.add([(
+        "DropFunctionStatementSegment".into(),
+        NodeMatcher::new(SyntaxKind::DropFunctionStatement, |_| {
+            Sequence::new(vec_of_erased![
+                Ref::keyword("DROP"),
+                Ref::keyword("FUNCTION"),
+                Ref::new("IfExistsGrammar").optional(),
+                Delimited::new(vec_of_erased![Ref::new("FunctionNameSegment")])
+            ])
+            .to_matchable()
+        })
+        .to_matchable()
+        .into(),
+    )]);
+
+    // Override AlterTableDropColumnGrammar to support comma-delimited column names in T-SQL
+    dialect.add([(
+        "AlterTableDropColumnGrammar".into(),
+        Sequence::new(vec_of_erased![
+            Ref::keyword("DROP"),
+            Ref::keyword("COLUMN"),
+            Ref::new("IfExistsGrammar").optional(),
+            Delimited::new(vec_of_erased![Ref::new("SingleIdentifierGrammar")])
+        ])
+        .to_matchable()
+        .into(),
+    )]);
+
     // Define PostTableExpressionGrammar to include T-SQL table hints and PIVOT/UNPIVOT
     dialect.add([(
         "PostTableExpressionGrammar".into(),

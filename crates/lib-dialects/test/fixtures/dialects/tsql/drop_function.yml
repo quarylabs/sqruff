@@ -17,7 +17,7 @@ file:
       - keyword: EXISTS
       - function_name:
         - function_name_identifier: sales
-- file:
-  - comma: ','
-  - word: sales2
-  - semicolon: ;
+      - comma: ','
+      - function_name:
+        - function_name_identifier: sales2
+  - statement_terminator: ;

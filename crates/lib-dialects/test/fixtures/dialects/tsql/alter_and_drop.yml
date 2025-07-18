@@ -43,7 +43,6 @@ file:
       - keyword: DROP
       - keyword: COLUMN
       - naked_identifier: column1
-- file:
-  - comma: ','
-  - word: column2
-  - semicolon: ;
+      - comma: ','
+      - naked_identifier: column2
+  - statement_terminator: ;

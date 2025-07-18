@@ -2115,7 +2115,10 @@ pub fn raw_dialect() -> Dialect {
                 Sequence::new(vec_of_erased![
                     Ref::new("SingleIdentifierGrammar")
                         .optional()
-                        .exclude(Ref::keyword("PARTITION")),
+                        .exclude(one_of(vec_of_erased![
+                            Ref::keyword("PARTITION"),
+                            Ref::keyword("ORDER")
+                        ])),
                     Ref::new("PartitionClauseSegment").optional(),
                     Ref::new("OrderByClauseSegment").optional(),
                     Ref::new("FrameClauseSegment").optional()

@@ -5474,6 +5474,8 @@ pub fn raw_dialect() -> Dialect {
                             Ref::new("SingleIdentifierGrammar"),
                         ])
                     ]),
+                    // Star for all columns (OUTPUT *)
+                    Ref::new("StarSegment"),
                     // Regular expressions
                     Ref::new("ExpressionSegment"),
                 ]),]),

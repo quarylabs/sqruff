@@ -940,8 +940,7 @@ pub fn raw_dialect() -> Dialect {
     dialect.add([(
         "ForClauseSegment".into(),
         Sequence::new(vec_of_erased![
-            Ref::keyword("FOR")
-                .exclude(LookaheadExclude::new("FOR", "SYSTEM_TIME")),
+            Ref::keyword("FOR"),
             one_of(vec_of_erased![
                 // FOR JSON
                 Sequence::new(vec_of_erased![
@@ -2983,7 +2982,9 @@ pub fn raw_dialect() -> Dialect {
                 Ref::new("LimitClauseSegment").optional(),
                 Ref::new("NamedWindowSegment").optional(),
                 // T-SQL specific: FOR JSON/XML/BROWSE clause
-                Ref::new("ForClauseSegment").optional(),
+                Ref::new("ForClauseSegment")
+                    .exclude(LookaheadExclude::new("FOR", "SYSTEM_TIME"))
+                    .optional(),
                 // T-SQL specific: OPTION clause for query hints
                 Ref::new("OptionClauseSegment").optional()
             ]),
@@ -3057,7 +3058,9 @@ pub fn raw_dialect() -> Dialect {
                 Ref::new("LimitClauseSegment").optional(),
                 Ref::new("NamedWindowSegment").optional(),
                 // T-SQL specific: FOR JSON/XML/BROWSE clause
-                Ref::new("ForClauseSegment").optional(),
+                Ref::new("ForClauseSegment")
+                    .exclude(LookaheadExclude::new("FOR", "SYSTEM_TIME"))
+                    .optional(),
                 // T-SQL specific: OPTION clause for query hints
                 Ref::new("OptionClauseSegment").optional()
             ]),
@@ -5915,9 +5918,9 @@ pub fn raw_dialect() -> Dialect {
                     // FOR SYSTEM_TIME BETWEEN datetime AND datetime
                     Sequence::new(vec_of_erased![
                         Ref::keyword("BETWEEN"),
-                        Ref::new("ExpressionSegment"),
+                        Ref::new("LiteralGrammar"),
                         Ref::keyword("AND"),
-                        Ref::new("ExpressionSegment")
+                        Ref::new("LiteralGrammar")
                     ]),
                     // FOR SYSTEM_TIME FROM datetime TO datetime
                     Sequence::new(vec_of_erased![

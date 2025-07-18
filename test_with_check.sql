@@ -1,3 +1,0 @@
-CREATE VIEW test_view AS
-SELECT id FROM table1
-WITH CHECK OPTION

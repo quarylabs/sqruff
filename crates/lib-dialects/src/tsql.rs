@@ -2780,7 +2780,7 @@ pub fn raw_dialect() -> Dialect {
     ]);
 
     // Add T-SQL specific ObjectReferenceSegment that supports dot-prefixed references
-    dialect.add(vec![(
+    dialect.add([(
         "TsqlDotPrefixedReferenceSegment".into(),
         NodeMatcher::new(SyntaxKind::ObjectReference, |_| {
             Sequence::new(vec_of_erased![
@@ -2802,11 +2802,6 @@ pub fn raw_dialect() -> Dialect {
                 ]),
                 // Table identifier
                 Ref::new("SingleIdentifierGrammar"),
-                // Optional additional parts (e.g., for .[db].[table])
-                Sequence::new(vec_of_erased![
-                    Ref::new("DotSegment"),
-                    Ref::new("SingleIdentifierGrammar"),
-                ]).optional(),
             ])
             .to_matchable()
         })
@@ -2931,6 +2926,22 @@ pub fn raw_dialect() -> Dialect {
             Ref::new("IfExistsGrammar").optional(),
             Delimited::new(vec_of_erased![Ref::new("SingleIdentifierGrammar")])
         ])
+        .to_matchable()
+        .into(),
+    )]);
+
+    // T-SQL NEXT VALUE FOR sequence syntax
+    dialect.add([(
+        "NextValueForSegment".into(),
+        NodeMatcher::new(SyntaxKind::Expression, |_| {
+            Sequence::new(vec_of_erased![
+                Ref::keyword("NEXT"),
+                Ref::keyword("VALUE"),
+                Ref::keyword("FOR"),
+                Ref::new("ObjectReferenceSegment")
+            ])
+            .to_matchable()
+        })
         .to_matchable()
         .into(),
     )]);

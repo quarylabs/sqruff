@@ -44,6 +44,6 @@ file:
                   - numeric_literal: '3'
                   - end_bracket: )
           - end_bracket: )
-- file:
-  - word: ON
-  - word: MyFileGroup
+        - keyword: ON
+        - object_reference:
+          - naked_identifier: MyFileGroup

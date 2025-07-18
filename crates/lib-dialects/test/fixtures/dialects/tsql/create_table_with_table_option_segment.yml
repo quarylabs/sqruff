@@ -20,9 +20,10 @@ file:
               - keyword: NOT
               - keyword: 'NULL'
           - end_bracket: )
+        - keyword: ON
+        - object_reference:
+          - quoted_identifier: '[PRIMARY]'
 - file:
-  - word: ON
-  - double_quote: '[PRIMARY]'
   - word: WITH
   - start_bracket: (
   - word: SYSTEM_VERSIONING

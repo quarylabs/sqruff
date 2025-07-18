@@ -2451,7 +2451,7 @@ pub fn raw_dialect() -> Dialect {
         .to_matchable(),
     );
 
-    // Define T-SQL join hints as a separate grammar
+    // Add TsqlJoinHintGrammar for T-SQL join hints
     dialect.add([(
         "TsqlJoinHintGrammar".into(),
         one_of(vec_of_erased![
@@ -2463,7 +2463,52 @@ pub fn raw_dialect() -> Dialect {
         .into(),
     )]);
 
-    // Update JoinClauseSegment to handle APPLY syntax and T-SQL join hints
+    // Override JoinTypeKeywordsGrammar to include T-SQL join hints following SQLFluff's approach
+    dialect.add([(
+        "JoinTypeKeywordsGrammar".into(),
+        one_of(vec_of_erased![
+            // CROSS [HASH|MERGE|LOOP]
+            Sequence::new(vec_of_erased![
+                Ref::keyword("CROSS"),
+                one_of(vec_of_erased![
+                    Ref::keyword("HASH"),
+                    Ref::keyword("MERGE"),
+                    Ref::keyword("LOOP"),
+                ])
+                .config(|this| this.optional())
+            ]),
+            // INNER [HASH|MERGE|LOOP]
+            Sequence::new(vec_of_erased![
+                Ref::keyword("INNER"),
+                one_of(vec_of_erased![
+                    Ref::keyword("HASH"),
+                    Ref::keyword("MERGE"),
+                    Ref::keyword("LOOP"),
+                ])
+                .config(|this| this.optional())
+            ]),
+            // FULL/LEFT/RIGHT [OUTER] [HASH|MERGE|LOOP]
+            Sequence::new(vec_of_erased![
+                one_of(vec_of_erased![
+                    Ref::keyword("FULL"),
+                    Ref::keyword("LEFT"),
+                    Ref::keyword("RIGHT"),
+                ]),
+                Ref::keyword("OUTER").optional(),
+                one_of(vec_of_erased![
+                    Ref::keyword("HASH"),
+                    Ref::keyword("MERGE"),
+                    Ref::keyword("LOOP"),
+                ])
+                .config(|this| this.optional())
+            ]),
+        ])
+        .config(|this| this.optional())
+        .to_matchable()
+        .into(),
+    )]);
+
+    // Update JoinClauseSegment to handle APPLY syntax - simplified approach
     dialect.replace_grammar(
         "JoinClauseSegment",
         one_of(vec_of_erased![
@@ -3443,7 +3488,16 @@ pub fn raw_dialect() -> Dialect {
                         // Azure Synapse specific: OPTION clause after AS SELECT
                         Ref::new("OptionClauseSegment").optional()
                     ])
+                ]),
+                // Optional ON filegroup/partition_scheme clause for both table types
+                Sequence::new(vec_of_erased![
+                    Ref::keyword("ON"),
+                    one_of(vec_of_erased![
+                        Ref::new("ObjectReferenceSegment"), // filegroup or partition scheme
+                        Ref::keyword("PRIMARY")
+                    ])
                 ])
+                .config(|this| this.optional())
             ])
             .to_matchable()
         })

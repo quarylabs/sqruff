@@ -6115,26 +6115,40 @@ pub fn raw_dialect() -> Dialect {
             .to_matchable()
             .into(),
         ),
+        // Grammar for JSON_ARRAY function contents
+        (
+            "TsqlJsonArrayContentsGrammar".into(),
+            one_of(vec_of_erased![
+                // Just null clause
+                Ref::new("TsqlJsonNullClause"),
+                // Expression list with null clause after last expression (no comma)
+                Sequence::new(vec_of_erased![
+                    Delimited::new(vec_of_erased![
+                        Ref::new("ExpressionSegment")
+                    ]).config(|this| {
+                        this.allow_trailing = true;
+                    }),
+                    Ref::new("TsqlJsonNullClause")
+                ]),
+                // Just expression list without null clause
+                Delimited::new(vec_of_erased![
+                    Ref::new("ExpressionSegment")
+                ]).config(|this| {
+                    this.allow_trailing = true;
+                })
+            ])
+            .to_matchable()
+            .into(),
+        ),
         // T-SQL JSON_ARRAY function
         (
             "TsqlJsonArraySegment".into(),
             NodeMatcher::new(SyntaxKind::Function, |_| {
                 Sequence::new(vec_of_erased![
                     Ref::keyword("JSON_ARRAY"),
-                    Bracketed::new(vec_of_erased![one_of(vec_of_erased![
-                        // Empty with just null clause
-                        Ref::new("TsqlJsonNullClause"),
-                        // Expression list with optional trailing null clause
-                        Sequence::new(vec_of_erased![
-                            Delimited::new(vec_of_erased![Ref::new("ExpressionSegment")]).config(
-                                |this| {
-                                    this.allow_trailing = true;
-                                }
-                            ),
-                            Ref::new("TsqlJsonNullClause").optional()
-                        ])
-                    ])])
-                    .config(|this| this.parse_mode(ParseMode::Greedy))
+                    Bracketed::new(vec_of_erased![
+                        Ref::new("TsqlJsonArrayContentsGrammar").optional()
+                    ]).config(|this| this.parse_mode(ParseMode::Greedy))
                 ])
                 .to_matchable()
             })
@@ -6142,6 +6156,86 @@ pub fn raw_dialect() -> Dialect {
             .into(),
         ),
     ]);
+
+    // Override FunctionContentsGrammar to handle T-SQL JSON functions with special syntax
+    dialect.add([(
+        "FunctionContentsGrammar".into(),
+        AnyNumberOf::new(vec![
+            // Standard expressions (which will include functions via BaseExpressionElementGrammar)
+            Ref::new("ExpressionSegment").to_matchable(),
+            // A Cast-like function
+            Sequence::new(vec![
+                Ref::new("ExpressionSegment").to_matchable(),
+                Ref::keyword("AS").to_matchable(),
+                Ref::new("DatatypeSegment").to_matchable(),
+            ])
+            .to_matchable(),
+            // Trim function
+            Sequence::new(vec![
+                Ref::new("TrimParametersGrammar").to_matchable(),
+                Ref::new("ExpressionSegment")
+                    .optional()
+                    .exclude(Ref::keyword("FROM"))
+                    .to_matchable(),
+                Ref::keyword("FROM").to_matchable(),
+                Ref::new("ExpressionSegment").to_matchable(),
+            ])
+            .to_matchable(),
+            // An extract-like or substring-like function
+            Sequence::new(vec![
+                one_of(vec![
+                    Ref::new("DatetimeUnitSegment").to_matchable(),
+                    Ref::new("ExpressionSegment").to_matchable(),
+                ])
+                .to_matchable(),
+                Ref::keyword("FROM").to_matchable(),
+                Ref::new("ExpressionSegment").to_matchable(),
+            ])
+            .to_matchable(),
+            Sequence::new(vec![
+                // Allow an optional distinct keyword here.
+                Ref::keyword("DISTINCT").optional().to_matchable(),
+                one_of(vec![
+                    // For COUNT(*) or similar
+                    Ref::new("StarSegment").to_matchable(),
+                    Delimited::new(vec![
+                        Ref::new("FunctionContentsExpressionGrammar").to_matchable(),
+                    ])
+                    .to_matchable(),
+                ])
+                .to_matchable(),
+            ])
+            .to_matchable(),
+            Ref::new("AggregateOrderByClause").to_matchable(),
+            Sequence::new(vec![
+                Ref::keyword("SEPARATOR").to_matchable(),
+                Ref::new("LiteralGrammar").to_matchable(),
+            ])
+            .to_matchable(),
+            // Position-like function
+            Sequence::new(vec![
+                one_of(vec![
+                    Ref::new("QuotedLiteralSegment").to_matchable(),
+                    Ref::new("SingleIdentifierGrammar").to_matchable(),
+                    Ref::new("ColumnReferenceSegment").to_matchable(),
+                ])
+                .to_matchable(),
+                Ref::keyword("IN").to_matchable(),
+                one_of(vec![
+                    Ref::new("QuotedLiteralSegment").to_matchable(),
+                    Ref::new("SingleIdentifierGrammar").to_matchable(),
+                    Ref::new("ColumnReferenceSegment").to_matchable(),
+                ])
+                .to_matchable(),
+            ])
+            .to_matchable(),
+            Ref::new("IgnoreRespectNullsGrammar").to_matchable(),
+            Ref::new("IndexColumnDefinitionSegment").to_matchable(),
+            Ref::new("EmptyStructLiteralSegment").to_matchable(),
+        ])
+        .to_matchable()
+        .into(),
+    )]);
 
     // Override FunctionSegment to include T-SQL specific JSON functions
     dialect.add([(

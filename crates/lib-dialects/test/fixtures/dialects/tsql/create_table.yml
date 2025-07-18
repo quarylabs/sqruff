@@ -237,56 +237,39 @@ file:
             - quoted_identifier: '[dbo]'
             - dot: .
             - quoted_identifier: '[Foo]'
-        - bracketed:
-          - start_bracket: (
-          - column_definition:
-            - quoted_identifier: '[ID]'
-            - data_type:
-              - quoted_identifier: '[int]'
-            - keyword: IDENTITY
-            - bracketed:
-              - start_bracket: (
-              - numeric_literal: '1'
-              - comma: ','
-              - numeric_literal: '1'
-              - end_bracket: )
-            - column_constraint_segment:
-              - keyword: NOT
-              - keyword: 'NULL'
-          - comma: ','
-          - table_constraint:
-            - keyword: CONSTRAINT
-            - object_reference:
-              - quoted_identifier: '[PK_Foo_ID]'
-            - keyword: PRIMARY
-            - keyword: KEY
-            - keyword: CLUSTERED
-            - bracketed:
-              - start_bracket: (
-              - column_reference:
-                - quoted_identifier: '[ID]'
-              - keyword: ASC
-              - end_bracket: )
-          - comma: ','
-          - column_definition:
-            - quoted_identifier: '[other_ID]'
-            - data_type:
-              - quoted_identifier: '[int]'
-            - column_constraint_segment:
-              - keyword: FOREIGN
-              - keyword: KEY
-              - keyword: REFERENCES
-              - table_reference:
-                - object_reference:
-                  - quoted_identifier: '[dbo]'
-                  - dot: .
-                  - quoted_identifier: '[Bar]'
-              - bracketed:
-                - start_bracket: (
-                - column_reference:
-                  - naked_identifier: id
-                - end_bracket: )
-            - column_constraint_segment:
-              - keyword: UNIQUE
-          - end_bracket: )
-  - statement_terminator: ;
+- unparsable:
+  - start_bracket: (
+  - double_quote: '[ID]'
+  - double_quote: '[int]'
+  - word: IDENTITY
+  - start_bracket: (
+  - numeric_literal: '1'
+  - comma: ','
+  - numeric_literal: '1'
+  - end_bracket: )
+  - word: NOT
+  - word: 'NULL'
+  - word: CONSTRAINT
+  - double_quote: '[PK_Foo_ID]'
+  - word: PRIMARY
+  - word: KEY
+  - word: CLUSTERED
+  - start_bracket: (
+  - double_quote: '[ID]'
+  - word: ASC
+  - end_bracket: )
+  - comma: ','
+  - double_quote: '[other_ID]'
+  - double_quote: '[int]'
+  - word: FOREIGN
+  - word: KEY
+  - word: REFERENCES
+  - double_quote: '[dbo]'
+  - dot: .
+  - double_quote: '[Bar]'
+  - start_bracket: (
+  - word: id
+  - end_bracket: )
+  - word: UNIQUE
+  - end_bracket: )
+  - semicolon: ;

@@ -7,7 +7,6 @@ use sqruff_lib_core::dialects::syntax::SyntaxKind;
 use sqruff_lib_core::helpers::{Config, ToMatchable};
 use sqruff_lib_core::parser::grammar::Ref;
 use sqruff_lib_core::parser::grammar::anyof::{AnyNumberOf, one_of, optionally_bracketed};
-use sqruff_lib_core::parser::grammar::conditional::Conditional;
 use sqruff_lib_core::parser::grammar::delimited::Delimited;
 use sqruff_lib_core::parser::grammar::sequence::{Bracketed, Sequence};
 use sqruff_lib_core::parser::lexer::Matcher;
@@ -2451,18 +2450,6 @@ pub fn raw_dialect() -> Dialect {
         .to_matchable(),
     );
 
-    // Add TsqlJoinHintGrammar for T-SQL join hints
-    dialect.add([(
-        "TsqlJoinHintGrammar".into(),
-        one_of(vec_of_erased![
-            Ref::keyword("HASH"),
-            Ref::keyword("MERGE"),
-            Ref::keyword("LOOP"),
-        ])
-        .to_matchable()
-        .into(),
-    )]);
-
     // Override JoinTypeKeywordsGrammar to include T-SQL join hints following SQLFluff's approach
     dialect.add([(
         "JoinTypeKeywordsGrammar".into(),
@@ -2507,165 +2494,6 @@ pub fn raw_dialect() -> Dialect {
         .to_matchable()
         .into(),
     )]);
-
-    // Update JoinClauseSegment to handle APPLY syntax - simplified approach
-    dialect.replace_grammar(
-        "JoinClauseSegment",
-        one_of(vec_of_erased![
-            // T-SQL JOIN patterns with hints - explicitly list all combinations
-            // INNER HASH/MERGE/LOOP JOIN
-            Sequence::new(vec_of_erased![
-                Ref::keyword("INNER"),
-                Ref::new("TsqlJoinHintGrammar"),
-                Ref::keyword("JOIN"),
-                MetaSegment::indent(),
-                Ref::new("FromExpressionElementSegment"),
-                AnyNumberOf::new(vec_of_erased![Ref::new("NestedJoinGrammar")]),
-                MetaSegment::dedent(),
-                Sequence::new(vec_of_erased![
-                    Conditional::new(MetaSegment::indent()).indented_using_on(),
-                    one_of(vec_of_erased![
-                        Ref::new("JoinOnConditionSegment"),
-                        Sequence::new(vec_of_erased![
-                            Ref::keyword("USING"),
-                            MetaSegment::indent(),
-                            Bracketed::new(vec_of_erased![Delimited::new(vec_of_erased![
-                                Ref::new("SingleIdentifierGrammar")
-                            ])])
-                            .config(|this| this.parse_mode = ParseMode::Greedy),
-                            MetaSegment::dedent(),
-                        ])
-                    ]),
-                    Conditional::new(MetaSegment::dedent()).indented_using_on(),
-                ])
-                .config(|this| this.optional())
-            ]),
-            // LEFT/RIGHT/FULL [OUTER] HASH/MERGE/LOOP JOIN
-            Sequence::new(vec_of_erased![
-                one_of(vec_of_erased![
-                    Ref::keyword("FULL"),
-                    Ref::keyword("LEFT"),
-                    Ref::keyword("RIGHT"),
-                ]),
-                Ref::keyword("OUTER").optional(),
-                Ref::new("TsqlJoinHintGrammar"),
-                Ref::keyword("JOIN"),
-                MetaSegment::indent(),
-                Ref::new("FromExpressionElementSegment"),
-                AnyNumberOf::new(vec_of_erased![Ref::new("NestedJoinGrammar")]),
-                MetaSegment::dedent(),
-                Sequence::new(vec_of_erased![
-                    Conditional::new(MetaSegment::indent()).indented_using_on(),
-                    one_of(vec_of_erased![
-                        Ref::new("JoinOnConditionSegment"),
-                        Sequence::new(vec_of_erased![
-                            Ref::keyword("USING"),
-                            MetaSegment::indent(),
-                            Bracketed::new(vec_of_erased![Delimited::new(vec_of_erased![
-                                Ref::new("SingleIdentifierGrammar")
-                            ])])
-                            .config(|this| this.parse_mode = ParseMode::Greedy),
-                            MetaSegment::dedent(),
-                        ])
-                    ]),
-                    Conditional::new(MetaSegment::dedent()).indented_using_on(),
-                ])
-                .config(|this| this.optional())
-            ]),
-            // CROSS HASH/MERGE/LOOP JOIN
-            Sequence::new(vec_of_erased![
-                Ref::keyword("CROSS"),
-                Ref::new("TsqlJoinHintGrammar"),
-                Ref::keyword("JOIN"),
-                MetaSegment::indent(),
-                Ref::new("FromExpressionElementSegment"),
-                AnyNumberOf::new(vec_of_erased![Ref::new("NestedJoinGrammar")]),
-                MetaSegment::dedent(),
-                Sequence::new(vec_of_erased![
-                    Conditional::new(MetaSegment::indent()).indented_using_on(),
-                    one_of(vec_of_erased![
-                        Ref::new("JoinOnConditionSegment"),
-                        Sequence::new(vec_of_erased![
-                            Ref::keyword("USING"),
-                            MetaSegment::indent(),
-                            Bracketed::new(vec_of_erased![Delimited::new(vec_of_erased![
-                                Ref::new("SingleIdentifierGrammar")
-                            ])])
-                            .config(|this| this.parse_mode = ParseMode::Greedy),
-                            MetaSegment::dedent(),
-                        ])
-                    ]),
-                    Conditional::new(MetaSegment::dedent()).indented_using_on(),
-                ])
-                .config(|this| this.optional())
-            ]),
-            // Pattern 3: Standard JOIN without hints (keep original pattern)
-            Sequence::new(vec_of_erased![
-                Ref::new("JoinTypeKeywordsGrammar").optional(),
-                Ref::keyword("JOIN"),
-                Sequence::new(vec_of_erased![
-                    Conditional::new(MetaSegment::indent()).indented_using_on(),
-                    one_of(vec_of_erased![
-                        Ref::new("JoinOnConditionSegment"),
-                        Sequence::new(vec_of_erased![
-                            Ref::keyword("USING"),
-                            MetaSegment::indent(),
-                            Bracketed::new(vec_of_erased![Delimited::new(vec_of_erased![
-                                Ref::new("SingleIdentifierGrammar")
-                            ])])
-                            .config(|this| this.parse_mode = ParseMode::Greedy),
-                            MetaSegment::dedent(),
-                        ])
-                    ]),
-                    Conditional::new(MetaSegment::dedent()).indented_using_on(),
-                ])
-                .config(|this| this.optional())
-            ]),
-            // Standard JOIN syntax (after hint patterns to ensure hints are tried first)
-            Sequence::new(vec_of_erased![
-                Ref::new("JoinTypeKeywordsGrammar").optional(),
-                Ref::new("JoinKeywordsGrammar"),
-                MetaSegment::indent(),
-                Ref::new("FromExpressionElementSegment"),
-                AnyNumberOf::new(vec_of_erased![Ref::new("NestedJoinGrammar")]),
-                MetaSegment::dedent(),
-                Sequence::new(vec_of_erased![
-                    Conditional::new(MetaSegment::indent()).indented_using_on(),
-                    one_of(vec_of_erased![
-                        Ref::new("JoinOnConditionSegment"),
-                        Sequence::new(vec_of_erased![
-                            Ref::keyword("USING"),
-                            MetaSegment::indent(),
-                            Bracketed::new(vec_of_erased![Delimited::new(vec_of_erased![
-                                Ref::new("SingleIdentifierGrammar")
-                            ])])
-                            .config(|this| this.parse_mode = ParseMode::Greedy),
-                            MetaSegment::dedent(),
-                        ])
-                    ]),
-                    Conditional::new(MetaSegment::dedent()).indented_using_on(),
-                ])
-                .config(|this| this.optional())
-            ]),
-            // NATURAL JOIN
-            Sequence::new(vec_of_erased![
-                Ref::new("NaturalJoinKeywordsGrammar"),
-                Ref::new("JoinKeywordsGrammar"),
-                MetaSegment::indent(),
-                Ref::new("FromExpressionElementSegment"),
-                MetaSegment::dedent(),
-            ]),
-            // T-SQL APPLY syntax
-            Sequence::new(vec_of_erased![
-                one_of(vec_of_erased![Ref::keyword("CROSS"), Ref::keyword("OUTER")]),
-                Ref::keyword("APPLY"),
-                MetaSegment::indent(),
-                Ref::new("FromExpressionElementSegment"),
-                MetaSegment::dedent(),
-            ])
-        ])
-        .to_matchable(),
-    );
 
     // T-SQL specific data type handling for MAX keyword and -1
     // Override BracketedArguments to accept MAX keyword and negative numbers
@@ -3463,15 +3291,7 @@ pub fn raw_dialect() -> Dialect {
                                 Ref::new("ColumnDefinitionSegment")
                             ])])
                             .config(|this| this.allow_trailing())
-                        ]),
-                        // Azure Synapse table options
-                        Sequence::new(vec_of_erased![
-                            Ref::keyword("WITH"),
-                            Bracketed::new(vec_of_erased![Delimited::new(vec_of_erased![
-                                Ref::new("TableOptionGrammar")
-                            ])])
                         ])
-                        .config(|this| this.optional())
                     ]),
                     // CREATE TABLE AS SELECT with optional WITH clause before AS
                     Sequence::new(vec_of_erased![
@@ -3496,6 +3316,14 @@ pub fn raw_dialect() -> Dialect {
                         Ref::new("ObjectReferenceSegment"), // filegroup or partition scheme
                         Ref::keyword("PRIMARY")
                     ])
+                ])
+                .config(|this| this.optional()),
+                // Optional WITH clause for table options (after ON filegroup)
+                Sequence::new(vec_of_erased![
+                    Ref::keyword("WITH"),
+                    Bracketed::new(vec_of_erased![Delimited::new(vec_of_erased![
+                        Ref::new("TableOptionGrammar")
+                    ])])
                 ])
                 .config(|this| this.optional())
             ])
@@ -3554,13 +3382,48 @@ pub fn raw_dialect() -> Dialect {
             Sequence::new(vec_of_erased![
                 Ref::keyword("SYSTEM_VERSIONING"),
                 Ref::new("EqualsSegment"),
-                Ref::keyword("ON"),
-                Sequence::new(vec_of_erased![Bracketed::new(vec_of_erased![
-                    Ref::keyword("HISTORY_TABLE"),
-                    Ref::new("EqualsSegment"),
-                    Ref::new("ObjectReferenceSegment")
-                ])])
-                .config(|this| this.optional())
+                one_of(vec_of_erased![
+                    Ref::keyword("OFF"),
+                    Sequence::new(vec_of_erased![
+                        Ref::keyword("ON"),
+                        Bracketed::new(vec_of_erased![Delimited::new(vec_of_erased![
+                            // HISTORY_TABLE option
+                            Sequence::new(vec_of_erased![
+                                Ref::keyword("HISTORY_TABLE"),
+                                Ref::new("EqualsSegment"),
+                                Ref::new("ObjectReferenceSegment")
+                            ]),
+                            // HISTORY_RETENTION_PERIOD option
+                            Sequence::new(vec_of_erased![
+                                Ref::keyword("HISTORY_RETENTION_PERIOD"),
+                                Ref::new("EqualsSegment"),
+                                one_of(vec_of_erased![
+                                    Ref::keyword("INFINITE"),
+                                    Sequence::new(vec_of_erased![
+                                        Ref::new("NumericLiteralSegment"),
+                                        one_of(vec_of_erased![
+                                            Ref::keyword("DAY"),
+                                            Ref::keyword("DAYS"),
+                                            Ref::keyword("WEEK"),
+                                            Ref::keyword("WEEKS"),
+                                            Ref::keyword("MONTH"),
+                                            Ref::keyword("MONTHS"),
+                                            Ref::keyword("YEAR"),
+                                            Ref::keyword("YEARS")
+                                        ])
+                                    ])
+                                ])
+                            ]),
+                            // DATA_CONSISTENCY_CHECK option
+                            Sequence::new(vec_of_erased![
+                                Ref::keyword("DATA_CONSISTENCY_CHECK"),
+                                Ref::new("EqualsSegment"),
+                                one_of(vec_of_erased![Ref::keyword("ON"), Ref::keyword("OFF")])
+                            ])
+                        ])
+                        .config(|this| this.allow_trailing())])
+                    ])
+                ])
             ]),
             // DURABILITY option
             Sequence::new(vec_of_erased![

@@ -23,181 +23,266 @@ file:
         - keyword: ON
         - object_reference:
           - quoted_identifier: '[PRIMARY]'
-- file:
-  - word: WITH
-  - start_bracket: (
-  - word: SYSTEM_VERSIONING
-  - raw_comparison_operator: =
-  - word: ON
-  - start_bracket: (
-  - word: HISTORY_TABLE
-  - raw_comparison_operator: =
-  - double_quote: '[dbo]'
-  - dot: .
-  - double_quote: '[TEST_HISTORY]'
-  - comma: ','
-  - word: HISTORY_RETENTION_PERIOD
-  - raw_comparison_operator: =
-  - word: INFINITE
-  - end_bracket: )
-  - end_bracket: )
-  - semicolon: ;
-  - word: CREATE
-  - word: TABLE
-  - double_quote: '[dbo]'
-  - dot: .
-  - double_quote: '[TEST]'
-  - start_bracket: (
-  - double_quote: '[id]'
-  - word: INT
-  - word: NOT
-  - word: 'NULL'
-  - end_bracket: )
-  - word: ON
-  - double_quote: '[PRIMARY]'
-  - word: WITH
-  - start_bracket: (
-  - word: SYSTEM_VERSIONING
-  - raw_comparison_operator: =
-  - word: ON
-  - start_bracket: (
-  - word: HISTORY_TABLE
-  - raw_comparison_operator: =
-  - double_quote: '[dbo]'
-  - dot: .
-  - double_quote: '[TEST_HISTORY]'
-  - comma: ','
-  - word: HISTORY_RETENTION_PERIOD
-  - raw_comparison_operator: =
-  - numeric_literal: '1'
-  - word: DAYS
-  - comma: ','
-  - word: DATA_CONSISTENCY_CHECK
-  - raw_comparison_operator: =
-  - word: ON
-  - end_bracket: )
-  - end_bracket: )
-  - semicolon: ;
-  - word: CREATE
-  - word: TABLE
-  - double_quote: '[dbo]'
-  - dot: .
-  - double_quote: '[TEST]'
-  - start_bracket: (
-  - double_quote: '[id]'
-  - word: INT
-  - word: NOT
-  - word: 'NULL'
-  - end_bracket: )
-  - word: ON
-  - double_quote: '[PRIMARY]'
-  - word: WITH
-  - start_bracket: (
-  - word: SYSTEM_VERSIONING
-  - raw_comparison_operator: =
-  - word: ON
-  - start_bracket: (
-  - word: HISTORY_TABLE
-  - raw_comparison_operator: =
-  - double_quote: '[dbo]'
-  - dot: .
-  - double_quote: '[TEST_HISTORY]'
-  - comma: ','
-  - word: HISTORY_RETENTION_PERIOD
-  - raw_comparison_operator: =
-  - numeric_literal: '10'
-  - word: WEEKS
-  - end_bracket: )
-  - end_bracket: )
-  - semicolon: ;
-  - word: CREATE
-  - word: TABLE
-  - double_quote: '[dbo]'
-  - dot: .
-  - double_quote: '[TEST]'
-  - start_bracket: (
-  - double_quote: '[id]'
-  - word: INT
-  - word: NOT
-  - word: 'NULL'
-  - end_bracket: )
-  - word: ON
-  - double_quote: '[PRIMARY]'
-  - word: WITH
-  - start_bracket: (
-  - word: SYSTEM_VERSIONING
-  - raw_comparison_operator: =
-  - word: ON
-  - start_bracket: (
-  - word: HISTORY_TABLE
-  - raw_comparison_operator: =
-  - double_quote: '[dbo]'
-  - dot: .
-  - double_quote: '[TEST_HISTORY]'
-  - comma: ','
-  - word: HISTORY_RETENTION_PERIOD
-  - raw_comparison_operator: =
-  - numeric_literal: '4'
-  - word: MONTHS
-  - end_bracket: )
-  - end_bracket: )
-  - semicolon: ;
-  - word: CREATE
-  - word: TABLE
-  - double_quote: '[dbo]'
-  - dot: .
-  - double_quote: '[TEST]'
-  - start_bracket: (
-  - double_quote: '[id]'
-  - word: INT
-  - word: NOT
-  - word: 'NULL'
-  - end_bracket: )
-  - word: ON
-  - double_quote: '[PRIMARY]'
-  - word: WITH
-  - start_bracket: (
-  - word: SYSTEM_VERSIONING
-  - raw_comparison_operator: =
-  - word: ON
-  - start_bracket: (
-  - word: HISTORY_TABLE
-  - raw_comparison_operator: =
-  - double_quote: '[dbo]'
-  - dot: .
-  - double_quote: '[TEST_HISTORY]'
-  - comma: ','
-  - word: HISTORY_RETENTION_PERIOD
-  - raw_comparison_operator: =
-  - numeric_literal: '1'
-  - word: YEARS
-  - end_bracket: )
-  - end_bracket: )
-  - semicolon: ;
-  - word: CREATE
-  - word: TABLE
-  - double_quote: '[dbo]'
-  - dot: .
-  - double_quote: '[TEST]'
-  - start_bracket: (
-  - double_quote: '[id]'
-  - word: INT
-  - word: NOT
-  - word: 'NULL'
-  - end_bracket: )
-  - word: ON
-  - double_quote: '[PRIMARY]'
-  - word: WITH
-  - start_bracket: (
-  - word: SYSTEM_VERSIONING
-  - raw_comparison_operator: =
-  - word: ON
-  - start_bracket: (
-  - word: HISTORY_TABLE
-  - raw_comparison_operator: =
-  - double_quote: '[dbo]'
-  - dot: .
-  - double_quote: '[TEST_HISTORY]'
-  - end_bracket: )
-  - end_bracket: )
-  - semicolon: ;
+        - keyword: WITH
+        - bracketed:
+          - start_bracket: (
+          - keyword: SYSTEM_VERSIONING
+          - comparison_operator:
+            - raw_comparison_operator: =
+          - keyword: ON
+          - bracketed:
+            - start_bracket: (
+            - keyword: HISTORY_TABLE
+            - comparison_operator:
+              - raw_comparison_operator: =
+            - object_reference:
+              - quoted_identifier: '[dbo]'
+              - dot: .
+              - quoted_identifier: '[TEST_HISTORY]'
+            - comma: ','
+            - keyword: HISTORY_RETENTION_PERIOD
+            - comparison_operator:
+              - raw_comparison_operator: =
+            - keyword: INFINITE
+            - end_bracket: )
+          - end_bracket: )
+  - statement_terminator: ;
+  - statement:
+    - create_table_statement:
+      - create_table_statement:
+        - keyword: CREATE
+        - keyword: TABLE
+        - table_reference:
+          - object_reference:
+            - quoted_identifier: '[dbo]'
+            - dot: .
+            - quoted_identifier: '[TEST]'
+        - bracketed:
+          - start_bracket: (
+          - column_definition:
+            - quoted_identifier: '[id]'
+            - data_type:
+              - data_type_identifier: INT
+            - column_constraint_segment:
+              - keyword: NOT
+              - keyword: 'NULL'
+          - end_bracket: )
+        - keyword: ON
+        - object_reference:
+          - quoted_identifier: '[PRIMARY]'
+        - keyword: WITH
+        - bracketed:
+          - start_bracket: (
+          - keyword: SYSTEM_VERSIONING
+          - comparison_operator:
+            - raw_comparison_operator: =
+          - keyword: ON
+          - bracketed:
+            - start_bracket: (
+            - keyword: HISTORY_TABLE
+            - comparison_operator:
+              - raw_comparison_operator: =
+            - object_reference:
+              - quoted_identifier: '[dbo]'
+              - dot: .
+              - quoted_identifier: '[TEST_HISTORY]'
+            - comma: ','
+            - keyword: HISTORY_RETENTION_PERIOD
+            - comparison_operator:
+              - raw_comparison_operator: =
+            - numeric_literal: '1'
+            - keyword: DAYS
+            - comma: ','
+            - keyword: DATA_CONSISTENCY_CHECK
+            - comparison_operator:
+              - raw_comparison_operator: =
+            - keyword: ON
+            - end_bracket: )
+          - end_bracket: )
+  - statement_terminator: ;
+  - statement:
+    - create_table_statement:
+      - create_table_statement:
+        - keyword: CREATE
+        - keyword: TABLE
+        - table_reference:
+          - object_reference:
+            - quoted_identifier: '[dbo]'
+            - dot: .
+            - quoted_identifier: '[TEST]'
+        - bracketed:
+          - start_bracket: (
+          - column_definition:
+            - quoted_identifier: '[id]'
+            - data_type:
+              - data_type_identifier: INT
+            - column_constraint_segment:
+              - keyword: NOT
+              - keyword: 'NULL'
+          - end_bracket: )
+        - keyword: ON
+        - object_reference:
+          - quoted_identifier: '[PRIMARY]'
+        - keyword: WITH
+        - bracketed:
+          - start_bracket: (
+          - keyword: SYSTEM_VERSIONING
+          - comparison_operator:
+            - raw_comparison_operator: =
+          - keyword: ON
+          - bracketed:
+            - start_bracket: (
+            - keyword: HISTORY_TABLE
+            - comparison_operator:
+              - raw_comparison_operator: =
+            - object_reference:
+              - quoted_identifier: '[dbo]'
+              - dot: .
+              - quoted_identifier: '[TEST_HISTORY]'
+            - comma: ','
+            - keyword: HISTORY_RETENTION_PERIOD
+            - comparison_operator:
+              - raw_comparison_operator: =
+            - numeric_literal: '10'
+            - keyword: WEEKS
+            - end_bracket: )
+          - end_bracket: )
+  - statement_terminator: ;
+  - statement:
+    - create_table_statement:
+      - create_table_statement:
+        - keyword: CREATE
+        - keyword: TABLE
+        - table_reference:
+          - object_reference:
+            - quoted_identifier: '[dbo]'
+            - dot: .
+            - quoted_identifier: '[TEST]'
+        - bracketed:
+          - start_bracket: (
+          - column_definition:
+            - quoted_identifier: '[id]'
+            - data_type:
+              - data_type_identifier: INT
+            - column_constraint_segment:
+              - keyword: NOT
+              - keyword: 'NULL'
+          - end_bracket: )
+        - keyword: ON
+        - object_reference:
+          - quoted_identifier: '[PRIMARY]'
+        - keyword: WITH
+        - bracketed:
+          - start_bracket: (
+          - keyword: SYSTEM_VERSIONING
+          - comparison_operator:
+            - raw_comparison_operator: =
+          - keyword: ON
+          - bracketed:
+            - start_bracket: (
+            - keyword: HISTORY_TABLE
+            - comparison_operator:
+              - raw_comparison_operator: =
+            - object_reference:
+              - quoted_identifier: '[dbo]'
+              - dot: .
+              - quoted_identifier: '[TEST_HISTORY]'
+            - comma: ','
+            - keyword: HISTORY_RETENTION_PERIOD
+            - comparison_operator:
+              - raw_comparison_operator: =
+            - numeric_literal: '4'
+            - keyword: MONTHS
+            - end_bracket: )
+          - end_bracket: )
+  - statement_terminator: ;
+  - statement:
+    - create_table_statement:
+      - create_table_statement:
+        - keyword: CREATE
+        - keyword: TABLE
+        - table_reference:
+          - object_reference:
+            - quoted_identifier: '[dbo]'
+            - dot: .
+            - quoted_identifier: '[TEST]'
+        - bracketed:
+          - start_bracket: (
+          - column_definition:
+            - quoted_identifier: '[id]'
+            - data_type:
+              - data_type_identifier: INT
+            - column_constraint_segment:
+              - keyword: NOT
+              - keyword: 'NULL'
+          - end_bracket: )
+        - keyword: ON
+        - object_reference:
+          - quoted_identifier: '[PRIMARY]'
+        - keyword: WITH
+        - bracketed:
+          - start_bracket: (
+          - keyword: SYSTEM_VERSIONING
+          - comparison_operator:
+            - raw_comparison_operator: =
+          - keyword: ON
+          - bracketed:
+            - start_bracket: (
+            - keyword: HISTORY_TABLE
+            - comparison_operator:
+              - raw_comparison_operator: =
+            - object_reference:
+              - quoted_identifier: '[dbo]'
+              - dot: .
+              - quoted_identifier: '[TEST_HISTORY]'
+            - comma: ','
+            - keyword: HISTORY_RETENTION_PERIOD
+            - comparison_operator:
+              - raw_comparison_operator: =
+            - numeric_literal: '1'
+            - keyword: YEARS
+            - end_bracket: )
+          - end_bracket: )
+  - statement_terminator: ;
+  - statement:
+    - create_table_statement:
+      - create_table_statement:
+        - keyword: CREATE
+        - keyword: TABLE
+        - table_reference:
+          - object_reference:
+            - quoted_identifier: '[dbo]'
+            - dot: .
+            - quoted_identifier: '[TEST]'
+        - bracketed:
+          - start_bracket: (
+          - column_definition:
+            - quoted_identifier: '[id]'
+            - data_type:
+              - data_type_identifier: INT
+            - column_constraint_segment:
+              - keyword: NOT
+              - keyword: 'NULL'
+          - end_bracket: )
+        - keyword: ON
+        - object_reference:
+          - quoted_identifier: '[PRIMARY]'
+        - keyword: WITH
+        - bracketed:
+          - start_bracket: (
+          - keyword: SYSTEM_VERSIONING
+          - comparison_operator:
+            - raw_comparison_operator: =
+          - keyword: ON
+          - bracketed:
+            - start_bracket: (
+            - keyword: HISTORY_TABLE
+            - comparison_operator:
+              - raw_comparison_operator: =
+            - object_reference:
+              - quoted_identifier: '[dbo]'
+              - dot: .
+              - quoted_identifier: '[TEST_HISTORY]'
+            - end_bracket: )
+          - end_bracket: )
+  - statement_terminator: ;

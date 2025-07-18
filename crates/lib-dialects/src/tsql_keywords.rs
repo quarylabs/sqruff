@@ -771,6 +771,8 @@ pub(crate) fn tsql_additional_unreserved_keywords() -> AHashSet<&'static str> {
         // Temporal table and advanced table options
         "SYSTEM_VERSIONING",
         "HISTORY_TABLE",
+        "HISTORY_RETENTION_PERIOD",
+        "DATA_CONSISTENCY_CHECK",
         "DURABILITY",
         "SCHEMA_ONLY",
         "SCHEMA_AND_DATA",

@@ -1,10 +1,16 @@
 file:
-- unparsable:
-  - word: CREATE
-  - word: TABLE
-  - double_quote: '[dbo]'
-  - dot: .
-  - double_quote: '[example]'
+- statement:
+  - statement:
+    - create_table_statement:
+      - create_table_statement:
+        - keyword: CREATE
+        - keyword: TABLE
+        - table_reference:
+          - object_reference:
+            - quoted_identifier: '[dbo]'
+            - dot: .
+            - quoted_identifier: '[example]'
+- file:
   - start_bracket: (
   - double_quote: '[Column A]'
   - double_quote: '[int]'

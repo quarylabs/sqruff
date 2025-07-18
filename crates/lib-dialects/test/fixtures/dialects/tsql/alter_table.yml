@@ -90,91 +90,59 @@ file:
           - object_reference:
             - naked_identifier: exb_unique
           - keyword: UNIQUE
-      - comma: ','
-      - keyword: DROP
-      - keyword: COLUMN
-      - naked_identifier: column_a
-      - comma: ','
-      - keyword: DROP
-      - keyword: COLUMN
-      - keyword: IF
-      - keyword: EXISTS
-      - naked_identifier: column_c
-  - statement_terminator: ;
-- keyword: GO
-- statement:
-  - statement:
-    - keyword: EXEC
-    - object_reference:
-      - naked_identifier: sp_help
-    - expression:
-      - column_reference:
-        - naked_identifier: doc_exc
-  - statement_terminator: ;
-- keyword: GO
-- statement:
-  - statement:
-    - drop_table_statement:
-      - keyword: DROP
-      - keyword: TABLE
-      - table_reference:
-        - object_reference:
-          - naked_identifier: dbo
-          - dot: .
-          - naked_identifier: doc_exc
-  - statement_terminator: ;
-- keyword: GO
-- statement:
-  - statement:
-    - create_table_statement:
-      - create_table_statement:
-        - keyword: CREATE
-        - keyword: TABLE
-        - table_reference:
-          - object_reference:
-            - naked_identifier: dbo
-            - dot: .
-            - naked_identifier: doc_exz
-        - bracketed:
-          - start_bracket: (
-          - column_definition:
-            - naked_identifier: column_a
-            - data_type:
-              - data_type_identifier: INT
-          - comma: ','
-          - column_definition:
-            - naked_identifier: column_b
-            - data_type:
-              - data_type_identifier: INT
-          - end_bracket: )
-  - statement_terminator: ;
-- keyword: GO
-- statement:
-  - statement:
-    - insert_statement:
-      - insert_statement:
-        - keyword: INSERT
-        - keyword: INTO
-        - function:
-          - function_name:
-            - naked_identifier: dbo
-            - dot: .
-            - function_name_identifier: doc_exz
-          - bracketed:
-            - start_bracket: (
-            - expression:
-              - column_reference:
-                - naked_identifier: column_a
-            - end_bracket: )
-        - values_clause:
-          - keyword: VALUES
-          - bracketed:
-            - start_bracket: (
-            - numeric_literal: '7'
-            - end_bracket: )
-  - statement_terminator: ;
-- keyword: GO
 - file:
+  - comma: ','
+  - word: DROP
+  - word: COLUMN
+  - word: column_a
+  - comma: ','
+  - word: DROP
+  - word: COLUMN
+  - word: IF
+  - word: EXISTS
+  - word: column_c
+  - semicolon: ;
+  - word: GO
+  - word: EXEC
+  - word: sp_help
+  - word: doc_exc
+  - semicolon: ;
+  - word: GO
+  - word: DROP
+  - word: TABLE
+  - word: dbo
+  - dot: .
+  - word: doc_exc
+  - semicolon: ;
+  - word: GO
+  - word: CREATE
+  - word: TABLE
+  - word: dbo
+  - dot: .
+  - word: doc_exz
+  - start_bracket: (
+  - word: column_a
+  - word: INT
+  - comma: ','
+  - word: column_b
+  - word: INT
+  - end_bracket: )
+  - semicolon: ;
+  - word: GO
+  - word: INSERT
+  - word: INTO
+  - word: dbo
+  - dot: .
+  - word: doc_exz
+  - start_bracket: (
+  - word: column_a
+  - end_bracket: )
+  - word: VALUES
+  - start_bracket: (
+  - numeric_literal: '7'
+  - end_bracket: )
+  - semicolon: ;
+  - word: GO
   - word: ALTER
   - word: TABLE
   - word: dbo

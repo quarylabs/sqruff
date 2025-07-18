@@ -1,10 +1,16 @@
 file:
-- unparsable:
-  - word: CREATE
-  - word: TABLE
-  - word: DEST
-  - dot: .
-  - word: MELDER
+- statement:
+  - statement:
+    - create_table_statement:
+      - create_table_statement:
+        - keyword: CREATE
+        - keyword: TABLE
+        - table_reference:
+          - object_reference:
+            - naked_identifier: DEST
+            - dot: .
+            - naked_identifier: MELDER
+- file:
   - start_bracket: (
   - double_quote: '[ID]'
   - word: INT

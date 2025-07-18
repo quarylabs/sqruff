@@ -96,12 +96,17 @@ file:
               - quoted_identifier: '[custom udt]'
           - end_bracket: )
   - statement_terminator: ;
+  - statement:
+    - create_table_statement:
+      - create_table_statement:
+        - keyword: CREATE
+        - keyword: TABLE
+        - table_reference:
+          - object_reference:
+            - naked_identifier: dbo
+            - dot: .
+            - naked_identifier: Products
 - file:
-  - word: CREATE
-  - word: TABLE
-  - word: dbo
-  - dot: .
-  - word: Products
   - start_bracket: (
   - word: ProductID
   - word: int

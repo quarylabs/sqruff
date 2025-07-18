@@ -42,7 +42,9 @@ file:
           - naked_identifier: table_name
       - keyword: DROP
       - keyword: COLUMN
-      - naked_identifier: column1
+      - column_reference:
+        - naked_identifier: column1
       - comma: ','
-      - naked_identifier: column2
+      - column_reference:
+        - naked_identifier: column2
   - statement_terminator: ;

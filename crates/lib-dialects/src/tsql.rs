@@ -141,6 +141,8 @@ pub fn raw_dialect() -> Dialect {
         "START",
         "END",
         "ROW",
+        "DEFAULT_DATABASE",
+        "DEFAULT_LANGUAGE",
     ]);
 
     // T-SQL specific operators

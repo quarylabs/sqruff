@@ -2779,32 +2779,47 @@ pub fn raw_dialect() -> Dialect {
         ),
     ]);
 
+    // Add T-SQL specific ObjectReferenceSegment that supports dot-prefixed references
+    dialect.add(vec![(
+        "TsqlDotPrefixedReferenceSegment".into(),
+        NodeMatcher::new(SyntaxKind::ObjectReference, |_| {
+            Sequence::new(vec_of_erased![
+                // One or more leading dots
+                one_of(vec_of_erased![
+                    // Three dots: ...[table]
+                    Sequence::new(vec_of_erased![
+                        Ref::new("DotSegment"),
+                        Ref::new("DotSegment"),
+                        Ref::new("DotSegment"),
+                    ]),
+                    // Two dots: ..[table]
+                    Sequence::new(vec_of_erased![
+                        Ref::new("DotSegment"),
+                        Ref::new("DotSegment"),
+                    ]),
+                    // One dot: .[table]
+                    Ref::new("DotSegment"),
+                ]),
+                // Table identifier
+                Ref::new("SingleIdentifierGrammar"),
+                // Optional additional parts (e.g., for .[db].[table])
+                Sequence::new(vec_of_erased![
+                    Ref::new("DotSegment"),
+                    Ref::new("SingleIdentifierGrammar"),
+                ]).optional(),
+            ])
+            .to_matchable()
+        })
+        .to_matchable()
+        .into(),
+    )]);
+    
     // Update TableReferenceSegment to support T-SQL table variables and dot-prefixed references
     // Temp tables are now handled as regular ObjectReferenceSegment since they use word tokens
     dialect.replace_grammar(
         "TableReferenceSegment",
         one_of(vec_of_erased![
-            // T-SQL specific: table references starting with dots (e.g., .[table], ..[table], ...[table])
-            Sequence::new(vec_of_erased![
-                // One or more dots (up to 3 for server.database.schema.table)
-                one_of(vec_of_erased![
-                    // Three dots: ...[table] (server.database.schema.table with defaults)
-                    Sequence::new(vec_of_erased![
-                        Ref::new("DotSegment"),
-                        Ref::new("DotSegment"),
-                        Ref::new("DotSegment"),
-                    ]),
-                    // Two dots: ..[table] (database.schema.table with defaults)
-                    Sequence::new(vec_of_erased![
-                        Ref::new("DotSegment"),
-                        Ref::new("DotSegment"),
-                    ]),
-                    // One dot: .[table] (schema.table with default schema)
-                    Ref::new("DotSegment"),
-                ]),
-                // Table identifier (can be quoted)
-                Ref::new("SingleIdentifierGrammar"),
-            ]),
+            Ref::new("TsqlDotPrefixedReferenceSegment"),
             Ref::new("ObjectReferenceSegment"),
             Ref::new("TsqlVariableSegment"),
         ])

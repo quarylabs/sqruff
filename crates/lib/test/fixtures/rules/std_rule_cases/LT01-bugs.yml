@@ -1,0 +1,9 @@
+rule: LT01
+
+# Fix issue: https://github.com/quarylabs/sqruff/issues/1786
+test_pass_comment_is_remove_essential_space:
+  pass_str: |
+    COMMENT ON FUNCTION test IS 'just say yes';
+  configs:
+    core:
+      dialect: postgres

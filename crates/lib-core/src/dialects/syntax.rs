@@ -22,6 +22,7 @@ pub enum SyntaxKind {
     Expression,
     WildcardIdentifier,
     Function,
+    FunctionContents,
     HavingClause,
     PathSegment,
     LimitClause,

@@ -1,0 +1,48 @@
+file:
+- statement:
+  - statement:
+    - create_table_statement:
+      - create_table_statement:
+        - keyword: CREATE
+        - keyword: TABLE
+        - table_reference:
+          - object_reference:
+            - naked_identifier: DEST
+            - dot: .
+            - naked_identifier: MELDER
+- unparsable:
+  - start_bracket: (
+  - double_quote: '[ID]'
+  - word: INT
+  - word: PRIMARY
+  - word: KEY
+  - word: NOT
+  - word: 'NULL'
+  - word: DEFAULT
+  - word: NEXT
+  - word: VALUE
+  - word: FOR
+  - double_quote: '[dbo]'
+  - dot: .
+  - double_quote: '[SEQ_MELDER]'
+  - comma: ','
+  - double_quote: '[DOWNLOADED_TOTAL]'
+  - word: INT
+  - word: 'NULL'
+  - comma: ','
+  - double_quote: '[WARNED_DAILY]'
+  - word: INT
+  - word: 'NULL'
+  - comma: ','
+  - double_quote: '[DATE_OF_REPORT]'
+  - word: DATETIME
+  - word: 'NULL'
+  - comma: ','
+  - word: DATE_LAST_INSERTED
+  - word: DATETIME
+  - word: DEFAULT
+  - word: GETDATE
+  - start_bracket: (
+  - end_bracket: )
+  - end_bracket: )
+  - semicolon: ;

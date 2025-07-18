@@ -5955,10 +5955,10 @@ pub fn raw_dialect() -> Dialect {
                 Ref::new("PostTableExpressionGrammar").optional(),
                 MetaSegment::dedent(),
                 Ref::new("SetClauseListSegment"),
-                // T-SQL specific: OUTPUT clause
-                Ref::new("OutputClauseSegment").optional(),
                 Ref::new("FromClauseSegment").optional(),
                 Ref::new("WhereClauseSegment").optional(),
+                // T-SQL specific: OUTPUT clause (after WHERE)
+                Ref::new("OutputClauseSegment").optional(),
                 // T-SQL specific: OPTION clause
                 Ref::new("OptionClauseSegment").optional(),
                 Ref::new("DelimiterGrammar").optional()

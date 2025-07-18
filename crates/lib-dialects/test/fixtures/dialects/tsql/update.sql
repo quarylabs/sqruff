@@ -15,5 +15,5 @@ join
 
 UPDATE stuff SET
   deleted = 1
-OUTPUT * INTO trash
 WHERE useless = 1
+OUTPUT * INTO trash

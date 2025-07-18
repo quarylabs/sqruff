@@ -1,0 +1,2 @@
+SELECT 1 HAVING 1=1
+DROP TABLE #Mercury;

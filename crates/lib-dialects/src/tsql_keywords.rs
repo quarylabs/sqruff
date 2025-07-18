@@ -651,6 +651,7 @@ pub(crate) fn tsql_additional_unreserved_keywords() -> AHashSet<&'static str> {
         // PARTITION FUNCTION keywords
         "PARTITION",
         "SPLIT",
+        "MERGE",
         "RANGE",
         "SCHEME",
         "NEXT",

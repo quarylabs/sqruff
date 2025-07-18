@@ -420,7 +420,10 @@ pub fn raw_dialect() -> Dialect {
                     Ref::new("SubtractionAssignmentSegment"),
                     Ref::new("MultiplicationAssignmentSegment"),
                     Ref::new("DivisionAssignmentSegment"),
-                    Ref::new("ModulusAssignmentSegment")
+                    Ref::new("ModulusAssignmentSegment"),
+                    Ref::new("BitwiseXorAssignmentSegment"),
+                    Ref::new("BitwiseAndAssignmentSegment"),
+                    Ref::new("BitwiseOrAssignmentSegment")
                 ])
                 .to_matchable()
             })
@@ -485,6 +488,45 @@ pub fn raw_dialect() -> Dialect {
             NodeMatcher::new(SyntaxKind::ModulusAssignmentSegment, |_| {
                 Sequence::new(vec_of_erased![
                     Ref::new("ModuloSegment"),
+                    Ref::new("RawEqualsSegment")
+                ])
+                .to_matchable()
+            })
+            .to_matchable()
+            .into(),
+        ),
+        // Bitwise XOR assignment (^=)
+        (
+            "BitwiseXorAssignmentSegment".into(),
+            NodeMatcher::new(SyntaxKind::AssignmentOperator, |_| {
+                Sequence::new(vec_of_erased![
+                    Ref::new("BitwiseXorSegment"),
+                    Ref::new("RawEqualsSegment")
+                ])
+                .to_matchable()
+            })
+            .to_matchable()
+            .into(),
+        ),
+        // Bitwise AND assignment (&=)
+        (
+            "BitwiseAndAssignmentSegment".into(),
+            NodeMatcher::new(SyntaxKind::AssignmentOperator, |_| {
+                Sequence::new(vec_of_erased![
+                    Ref::new("BitwiseAndSegment"),
+                    Ref::new("RawEqualsSegment")
+                ])
+                .to_matchable()
+            })
+            .to_matchable()
+            .into(),
+        ),
+        // Bitwise OR assignment (|=)
+        (
+            "BitwiseOrAssignmentSegment".into(),
+            NodeMatcher::new(SyntaxKind::AssignmentOperator, |_| {
+                Sequence::new(vec_of_erased![
+                    Ref::new("BitwiseOrSegment"),
                     Ref::new("RawEqualsSegment")
                 ])
                 .to_matchable()
@@ -2721,11 +2763,32 @@ pub fn raw_dialect() -> Dialect {
         ),
     ]);
 
-    // Update TableReferenceSegment to support T-SQL table variables
+    // Update TableReferenceSegment to support T-SQL table variables and dot-prefixed references
     // Temp tables are now handled as regular ObjectReferenceSegment since they use word tokens
     dialect.replace_grammar(
         "TableReferenceSegment",
         one_of(vec_of_erased![
+            // T-SQL specific: table references starting with dots (e.g., .[table], ..[table], ...[table])
+            Sequence::new(vec_of_erased![
+                // One or more dots (up to 3 for server.database.schema.table)
+                one_of(vec_of_erased![
+                    // Three dots: ...[table] (server.database.schema.table with defaults)
+                    Sequence::new(vec_of_erased![
+                        Ref::new("DotSegment"),
+                        Ref::new("DotSegment"),
+                        Ref::new("DotSegment"),
+                    ]),
+                    // Two dots: ..[table] (database.schema.table with defaults)
+                    Sequence::new(vec_of_erased![
+                        Ref::new("DotSegment"),
+                        Ref::new("DotSegment"),
+                    ]),
+                    // One dot: .[table] (schema.table with default schema)
+                    Ref::new("DotSegment"),
+                ]),
+                // Table identifier (can be quoted)
+                Ref::new("SingleIdentifierGrammar"),
+            ]),
             Ref::new("ObjectReferenceSegment"),
             Ref::new("TsqlVariableSegment"),
         ])

@@ -23,84 +23,133 @@ file:
       - raw_comparison_operator: =
     - expression:
       - numeric_literal: '1'
-- file:
-  - comma: ','
-  - tsql_variable: '@param2'
-  - raw_comparison_operator: =
-  - numeric_literal: '2'
-  - semicolon: ;
-  - word: SET
-  - tsql_variable: '@param1'
-  - raw_comparison_operator: =
-  - double_quote: '"test, test"'
-  - comma: ','
-  - tsql_variable: '@param2'
-  - raw_comparison_operator: =
-  - numeric_literal: '2'
-  - semicolon: ;
-  - word: SET
-  - tsql_variable: '@param1'
-  - raw_comparison_operator: =
-  - start_bracket: (
-  - double_quote: '"test"'
-  - comma: ','
-  - double_quote: '"test"'
-  - end_bracket: )
-  - comma: ','
-  - tsql_variable: '@param2'
-  - raw_comparison_operator: =
-  - numeric_literal: '2'
-  - semicolon: ;
-  - word: SET
-  - tsql_variable: '@param1'
-  - plus: +
-  - raw_comparison_operator: =
-  - numeric_literal: '1'
-  - comma: ','
-  - tsql_variable: '@param2'
-  - minus: '-'
-  - raw_comparison_operator: =
-  - numeric_literal: '2'
-  - comma: ','
-  - tsql_variable: '@param3'
-  - star: '*'
-  - raw_comparison_operator: =
-  - numeric_literal: '3'
-  - comma: ','
-  - tsql_variable: '@param4'
-  - divide: /
-  - raw_comparison_operator: =
-  - numeric_literal: '4'
-  - comma: ','
-  - tsql_variable: '@param5'
-  - percent: '%'
-  - raw_comparison_operator: =
-  - numeric_literal: '5'
-  - comma: ','
-  - tsql_variable: '@param5'
-  - caret: ^
-  - raw_comparison_operator: =
-  - numeric_literal: '6'
-  - comma: ','
-  - tsql_variable: '@param5'
-  - ampersand: '&'
-  - raw_comparison_operator: =
-  - numeric_literal: '7'
-  - comma: ','
-  - tsql_variable: '@param5'
-  - vertical_bar: '|'
-  - raw_comparison_operator: =
-  - numeric_literal: '8'
-  - semicolon: ;
-  - word: SET
-  - tsql_variable: '@param1'
-  - raw_comparison_operator: =
-  - start_bracket: (
-  - word: NEXT
-  - word: VALUE
-  - word: FOR
-  - double_quote: '[dbo]'
-  - dot: .
-  - double_quote: '[SEQUENCE_NAME]'
-  - end_bracket: )
-  - semicolon: ;
+    - comma: ','
+    - tsql_variable: '@param2'
+    - assignment_operator:
+      - raw_comparison_operator: =
+    - expression:
+      - numeric_literal: '2'
+  - statement_terminator: ;
+  - statement:
+    - keyword: SET
+    - tsql_variable: '@param1'
+    - assignment_operator:
+      - raw_comparison_operator: =
+    - expression:
+      - column_reference:
+        - quoted_identifier: '"test, test"'
+    - comma: ','
+    - tsql_variable: '@param2'
+    - assignment_operator:
+      - raw_comparison_operator: =
+    - expression:
+      - numeric_literal: '2'
+  - statement_terminator: ;
+  - statement:
+    - keyword: SET
+    - tsql_variable: '@param1'
+    - assignment_operator:
+      - raw_comparison_operator: =
+    - expression:
+      - bracketed:
+        - start_bracket: (
+        - column_reference:
+          - quoted_identifier: '"test"'
+        - comma: ','
+        - column_reference:
+          - quoted_identifier: '"test"'
+        - end_bracket: )
+    - comma: ','
+    - tsql_variable: '@param2'
+    - assignment_operator:
+      - raw_comparison_operator: =
+    - expression:
+      - numeric_literal: '2'
+  - statement_terminator: ;
+  - statement:
+    - keyword: SET
+    - tsql_variable: '@param1'
+    - assignment_operator:
+      - addition_assignment_segment:
+        - binary_operator: +
+        - raw_comparison_operator: =
+    - expression:
+      - numeric_literal: '1'
+    - comma: ','
+    - tsql_variable: '@param2'
+    - assignment_operator:
+      - subtraction_assignment_segment:
+        - binary_operator: '-'
+        - raw_comparison_operator: =
+    - expression:
+      - numeric_literal: '2'
+    - comma: ','
+    - tsql_variable: '@param3'
+    - assignment_operator:
+      - multiplication_assignment_segment:
+        - binary_operator: '*'
+        - raw_comparison_operator: =
+    - expression:
+      - numeric_literal: '3'
+    - comma: ','
+    - tsql_variable: '@param4'
+    - assignment_operator:
+      - division_assignment_segment:
+        - binary_operator: /
+        - raw_comparison_operator: =
+    - expression:
+      - numeric_literal: '4'
+    - comma: ','
+    - tsql_variable: '@param5'
+    - assignment_operator:
+      - modulus_assignment_segment:
+        - binary_operator: '%'
+        - raw_comparison_operator: =
+    - expression:
+      - numeric_literal: '5'
+    - comma: ','
+    - tsql_variable: '@param5'
+    - assignment_operator:
+      - assignment_operator:
+        - binary_operator: ^
+        - raw_comparison_operator: =
+    - expression:
+      - numeric_literal: '6'
+    - comma: ','
+    - tsql_variable: '@param5'
+    - assignment_operator:
+      - assignment_operator:
+        - comparison_operator:
+          - ampersand: '&'
+        - raw_comparison_operator: =
+    - expression:
+      - numeric_literal: '7'
+    - comma: ','
+    - tsql_variable: '@param5'
+    - assignment_operator:
+      - assignment_operator:
+        - comparison_operator:
+          - pipe: '|'
+        - raw_comparison_operator: =
+    - expression:
+      - numeric_literal: '8'
+  - statement_terminator: ;
+  - statement:
+    - keyword: SET
+    - tsql_variable: '@param1'
+    - assignment_operator:
+      - raw_comparison_operator: =
+    - expression:
+      - bracketed:
+        - start_bracket: (
+        - expression:
+          - column_reference:
+            - naked_identifier: NEXT
+        - unparsable:
+          - word: VALUE
+          - word: FOR
+          - double_quote: '[dbo]'
+          - dot: .
+          - double_quote: '[SEQUENCE_NAME]'
+        - end_bracket: )
+  - statement_terminator: ;

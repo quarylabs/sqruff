@@ -1,2 +1,0 @@
--- Simple SELECT with OPTION
-SELECT 1 OPTION (MAXDOP 1);

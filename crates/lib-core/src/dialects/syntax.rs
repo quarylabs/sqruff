@@ -533,6 +533,7 @@ pub enum SyntaxKind {
     EscapedSingleQuote,
     UnicodeDoubleQuote,
     JsonOperator,
+    JsonNullClause,
     At,
     BitStringLiteral,
     DollarNumericLiteral,

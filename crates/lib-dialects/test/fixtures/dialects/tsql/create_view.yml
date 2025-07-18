@@ -426,95 +426,96 @@ file:
         - keyword: SCHEMABINDING
         - keyword: AS
         - set_expression:
-          - select_statement:
-            - select_clause:
-              - keyword: SELECT
-              - select_clause_element:
-                - column_reference:
-                  - naked_identifier: supplyID
-              - comma: ','
-              - select_clause_element:
-                - column_reference:
-                  - naked_identifier: supplier
-            - from_clause:
-              - keyword: FROM
-              - from_expression:
-                - from_expression_element:
-                  - table_expression:
-                    - table_reference:
-                      - object_reference:
-                        - naked_identifier: dbo
-                        - dot: .
-                        - naked_identifier: SUPPLY1
-          - set_operator:
-            - keyword: UNION
-            - keyword: ALL
-          - select_statement:
-            - select_clause:
-              - keyword: SELECT
-              - select_clause_element:
-                - column_reference:
-                  - naked_identifier: supplyID
-              - comma: ','
-              - select_clause_element:
-                - column_reference:
-                  - naked_identifier: supplier
-            - from_clause:
-              - keyword: FROM
-              - from_expression:
-                - from_expression_element:
-                  - table_expression:
-                    - table_reference:
-                      - object_reference:
-                        - naked_identifier: dbo
-                        - dot: .
-                        - naked_identifier: SUPPLY2
-          - set_operator:
-            - keyword: UNION
-            - keyword: ALL
-          - select_statement:
-            - select_clause:
-              - keyword: SELECT
-              - select_clause_element:
-                - column_reference:
-                  - naked_identifier: supplyID
-              - comma: ','
-              - select_clause_element:
-                - column_reference:
-                  - naked_identifier: supplier
-            - from_clause:
-              - keyword: FROM
-              - from_expression:
-                - from_expression_element:
-                  - table_expression:
-                    - table_reference:
-                      - object_reference:
-                        - naked_identifier: dbo
-                        - dot: .
-                        - naked_identifier: SUPPLY3
-          - set_operator:
-            - keyword: UNION
-            - keyword: ALL
-          - select_statement:
-            - select_clause:
-              - keyword: SELECT
-              - select_clause_element:
-                - column_reference:
-                  - naked_identifier: supplyID
-              - comma: ','
-              - select_clause_element:
-                - column_reference:
-                  - naked_identifier: supplier
-            - from_clause:
-              - keyword: FROM
-              - from_expression:
-                - from_expression_element:
-                  - table_expression:
-                    - table_reference:
-                      - object_reference:
-                        - naked_identifier: dbo
-                        - dot: .
-                        - naked_identifier: SUPPLY4
+          - set_expression:
+            - select_statement:
+              - select_clause:
+                - keyword: SELECT
+                - select_clause_element:
+                  - column_reference:
+                    - naked_identifier: supplyID
+                - comma: ','
+                - select_clause_element:
+                  - column_reference:
+                    - naked_identifier: supplier
+              - from_clause:
+                - keyword: FROM
+                - from_expression:
+                  - from_expression_element:
+                    - table_expression:
+                      - table_reference:
+                        - object_reference:
+                          - naked_identifier: dbo
+                          - dot: .
+                          - naked_identifier: SUPPLY1
+            - set_operator:
+              - keyword: UNION
+              - keyword: ALL
+            - select_statement:
+              - select_clause:
+                - keyword: SELECT
+                - select_clause_element:
+                  - column_reference:
+                    - naked_identifier: supplyID
+                - comma: ','
+                - select_clause_element:
+                  - column_reference:
+                    - naked_identifier: supplier
+              - from_clause:
+                - keyword: FROM
+                - from_expression:
+                  - from_expression_element:
+                    - table_expression:
+                      - table_reference:
+                        - object_reference:
+                          - naked_identifier: dbo
+                          - dot: .
+                          - naked_identifier: SUPPLY2
+            - set_operator:
+              - keyword: UNION
+              - keyword: ALL
+            - select_statement:
+              - select_clause:
+                - keyword: SELECT
+                - select_clause_element:
+                  - column_reference:
+                    - naked_identifier: supplyID
+                - comma: ','
+                - select_clause_element:
+                  - column_reference:
+                    - naked_identifier: supplier
+              - from_clause:
+                - keyword: FROM
+                - from_expression:
+                  - from_expression_element:
+                    - table_expression:
+                      - table_reference:
+                        - object_reference:
+                          - naked_identifier: dbo
+                          - dot: .
+                          - naked_identifier: SUPPLY3
+            - set_operator:
+              - keyword: UNION
+              - keyword: ALL
+            - select_statement:
+              - select_clause:
+                - keyword: SELECT
+                - select_clause_element:
+                  - column_reference:
+                    - naked_identifier: supplyID
+                - comma: ','
+                - select_clause_element:
+                  - column_reference:
+                    - naked_identifier: supplier
+              - from_clause:
+                - keyword: FROM
+                - from_expression:
+                  - from_expression_element:
+                    - table_expression:
+                      - table_reference:
+                        - object_reference:
+                          - naked_identifier: dbo
+                          - dot: .
+                          - naked_identifier: SUPPLY4
   - statement_terminator: ;
   - statement:
     - create_view_statement:

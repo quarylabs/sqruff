@@ -10,9 +10,10 @@ file:
               - keyword: JSON_OBJECT
               - bracketed:
                 - start_bracket: (
-                - keyword: ABSENT
-                - keyword: ON
-                - keyword: 'NULL'
+                - json_null_clause:
+                  - keyword: ABSENT
+                  - keyword: ON
+                  - keyword: 'NULL'
                 - end_bracket: )
   - statement_terminator: ;
   - statement:
@@ -111,9 +112,10 @@ file:
                 - colon: ':'
                 - expression:
                   - null_literal: 'NULL'
-                - keyword: ABSENT
-                - keyword: ON
-                - keyword: 'NULL'
+                - json_null_clause:
+                  - keyword: ABSENT
+                  - keyword: ON
+                  - keyword: 'NULL'
                 - end_bracket: )
         - unparsable:
           - word: SELECT
@@ -365,9 +367,10 @@ file:
                         - comma: ','
                         - expression:
                           - numeric_literal: '2'
-                        - keyword: 'NULL'
-                        - keyword: ON
-                        - keyword: 'NULL'
+                        - json_null_clause:
+                          - keyword: 'NULL'
+                          - keyword: ON
+                          - keyword: 'NULL'
                         - end_bracket: )
                 - end_bracket: )
   - statement_terminator: ;

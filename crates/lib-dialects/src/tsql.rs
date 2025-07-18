@@ -4932,6 +4932,27 @@ pub fn raw_dialect() -> Dialect {
             .to_matchable()
             .into(),
         ),
+        // T-SQL JSON null handling clause for JSON_ARRAY and JSON_OBJECT
+        (
+            "TsqlJsonNullClause".into(),
+            NodeMatcher::new(SyntaxKind::JsonNullClause, |_| {
+                one_of(vec_of_erased![
+                    Sequence::new(vec_of_erased![
+                        Ref::keyword("NULL"),
+                        Ref::keyword("ON"),
+                        Ref::keyword("NULL")
+                    ]),
+                    Sequence::new(vec_of_erased![
+                        Ref::keyword("ABSENT"),
+                        Ref::keyword("ON"),
+                        Ref::keyword("NULL")
+                    ])
+                ])
+                .to_matchable()
+            })
+            .to_matchable()
+            .into(),
+        ),
         // T-SQL JSON_OBJECT function with key:value syntax
         (
             "TsqlJsonObjectSegment".into(),

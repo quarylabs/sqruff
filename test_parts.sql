@@ -1,5 +1,0 @@
--- Test 1: UNION works
-SELECT 1 UNION SELECT 2;
-
--- Test 2: OPTION doesn't work
-SELECT 1 OPTION (MAXDOP 1);

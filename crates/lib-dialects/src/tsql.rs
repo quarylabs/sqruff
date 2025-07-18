@@ -105,6 +105,7 @@ pub fn raw_dialect() -> Dialect {
         "PERIOD",
         "SYSTEM_TIME",
         "PERSISTED",
+        "Partition",
     ]);
 
     // T-SQL specific operators
@@ -2006,6 +2007,270 @@ pub fn raw_dialect() -> Dialect {
                     Ref::keyword("DISABLE"),
                     Ref::keyword("PAUSE"),
                     Ref::keyword("ABORT")
+                ])
+            ])
+            .to_matchable()
+        })
+        .to_matchable()
+        .into(),
+    )]);
+
+    // Override ALTER TABLE statement to support TSQL-specific features
+    dialect.add([(
+        "AlterTableStatementSegment".into(),
+        NodeMatcher::new(SyntaxKind::AlterTableStatement, |_| {
+            Sequence::new(vec_of_erased![
+                Ref::keyword("ALTER"),
+                Ref::keyword("TABLE"),
+                Ref::new("TableReferenceSegment"),
+                one_of(vec_of_erased![
+                    // ADD clauses
+                    Sequence::new(vec_of_erased![
+                        Ref::keyword("ADD"),
+                        one_of(vec_of_erased![
+                            // ADD column_definition
+                            Ref::new("ColumnDefinitionSegment"),
+                            // ADD CONSTRAINT
+                            Sequence::new(vec_of_erased![
+                                Ref::keyword("CONSTRAINT"),
+                                Ref::new("ObjectReferenceSegment"),
+                                one_of(vec_of_erased![
+                                    // DEFAULT constraint
+                                    Sequence::new(vec_of_erased![
+                                        Ref::keyword("DEFAULT"),
+                                        Ref::new("ExpressionSegment"),
+                                        Ref::keyword("FOR"),
+                                        Ref::new("ColumnReferenceSegment")
+                                    ]),
+                                    // PRIMARY KEY
+                                    Sequence::new(vec_of_erased![
+                                        Ref::keyword("PRIMARY"),
+                                        Ref::keyword("KEY"),
+                                        Ref::keyword("CLUSTERED").optional(),
+                                        Ref::new("BracketedColumnReferenceListGrammar")
+                                    ]),
+                                    // FOREIGN KEY
+                                    Sequence::new(vec_of_erased![
+                                        Ref::keyword("FOREIGN"),
+                                        Ref::keyword("KEY"),
+                                        Ref::new("BracketedColumnReferenceListGrammar"),
+                                        Ref::keyword("REFERENCES"),
+                                        Ref::new("TableReferenceSegment"),
+                                        Ref::new("BracketedColumnReferenceListGrammar"),
+                                        // ON UPDATE/DELETE actions
+                                        AnyNumberOf::new(vec_of_erased![
+                                            Sequence::new(vec_of_erased![
+                                                Ref::keyword("ON"),
+                                                one_of(vec_of_erased![
+                                                    Ref::keyword("UPDATE"),
+                                                    Ref::keyword("DELETE")
+                                                ]),
+                                                one_of(vec_of_erased![
+                                                    Ref::keyword("CASCADE"),
+                                                    Ref::keyword("RESTRICT"),
+                                                    Ref::keyword("SET"),
+                                                    Ref::keyword("NO")
+                                                ]),
+                                                one_of(vec_of_erased![
+                                                    Ref::keyword("NULL"),
+                                                    Ref::keyword("DEFAULT"),
+                                                    Ref::keyword("ACTION")
+                                                ]).config(|this| this.optional())
+                                            ])
+                                        ])
+                                    ])
+                                ])
+                            ]),
+                            // ADD computed column
+                            Sequence::new(vec_of_erased![
+                                Ref::new("NakedIdentifierSegment"),
+                                Ref::keyword("AS"),
+                                Ref::new("ExpressionSegment"),
+                                Ref::keyword("PERSISTED").optional(),
+                                Sequence::new(vec_of_erased![
+                                    Ref::keyword("NOT"),
+                                    Ref::keyword("NULL")
+                                ]).config(|this| this.optional())
+                            ]),
+                            // ADD PERIOD FOR SYSTEM_TIME
+                            Sequence::new(vec_of_erased![
+                                Ref::keyword("PERIOD"),
+                                Ref::keyword("FOR"),
+                                Ref::keyword("SYSTEM_TIME"),
+                                Bracketed::new(vec_of_erased![
+                                    Delimited::new(vec_of_erased![
+                                        Ref::new("ColumnReferenceSegment")
+                                    ])
+                                ])
+                            ])
+                        ])
+                    ]),
+                    // ALTER COLUMN
+                    Sequence::new(vec_of_erased![
+                        Ref::keyword("ALTER"),
+                        Ref::keyword("COLUMN"),
+                        Ref::new("ColumnReferenceSegment"),
+                        Ref::new("DatatypeSegment")
+                    ]),
+                    // DROP clauses
+                    Sequence::new(vec_of_erased![
+                        Ref::keyword("DROP"),
+                        one_of(vec_of_erased![
+                            // DROP COLUMN [IF EXISTS] column_list
+                            Sequence::new(vec_of_erased![
+                                Ref::keyword("COLUMN"),
+                                Sequence::new(vec_of_erased![
+                                    Ref::keyword("IF"),
+                                    Ref::keyword("EXISTS")
+                                ]).config(|this| this.optional()),
+                                Delimited::new(vec_of_erased![
+                                    Ref::new("ColumnReferenceSegment")
+                                ])
+                            ]),
+                            // DROP CONSTRAINT [IF EXISTS] constraint_name
+                            Sequence::new(vec_of_erased![
+                                Ref::keyword("CONSTRAINT"),
+                                Sequence::new(vec_of_erased![
+                                    Ref::keyword("IF"),
+                                    Ref::keyword("EXISTS")
+                                ]).config(|this| this.optional()),
+                                Ref::new("ObjectReferenceSegment")
+                            ]),
+                            // DROP PERIOD FOR SYSTEM_TIME
+                            Sequence::new(vec_of_erased![
+                                Ref::keyword("PERIOD"),
+                                Ref::keyword("FOR"),
+                                Ref::keyword("SYSTEM_TIME")
+                            ])
+                        ])
+                    ]),
+                    // SET options
+                    Sequence::new(vec_of_erased![
+                        Ref::keyword("SET"),
+                        Bracketed::new(vec_of_erased![
+                            Delimited::new(vec_of_erased![
+                                one_of(vec_of_erased![
+                                    // SYSTEM_VERSIONING
+                                    Sequence::new(vec_of_erased![
+                                        Ref::keyword("SYSTEM_VERSIONING"),
+                                        Ref::new("EqualsSegment"),
+                                        one_of(vec_of_erased![
+                                            Ref::keyword("ON"),
+                                            Ref::keyword("OFF"),
+                                            // OFF with options
+                                            Sequence::new(vec_of_erased![
+                                                Ref::keyword("OFF"),
+                                                Bracketed::new(vec_of_erased![
+                                                    Delimited::new(vec_of_erased![
+                                                        one_of(vec_of_erased![
+                                                            Sequence::new(vec_of_erased![
+                                                                Ref::keyword("HISTORY_TABLE"),
+                                                                Ref::new("EqualsSegment"),
+                                                                Ref::new("ObjectReferenceSegment")
+                                                            ]),
+                                                            Sequence::new(vec_of_erased![
+                                                                Ref::keyword("DATA_CONSISTENCY_CHECK"),
+                                                                Ref::new("EqualsSegment"),
+                                                                one_of(vec_of_erased![
+                                                                    Ref::keyword("ON"),
+                                                                    Ref::keyword("OFF")
+                                                                ])
+                                                            ]),
+                                                            Sequence::new(vec_of_erased![
+                                                                Ref::keyword("HISTORY_RETENTION_PERIOD"),
+                                                                Ref::new("EqualsSegment"),
+                                                                one_of(vec_of_erased![
+                                                                    Ref::keyword("INFINITE"),
+                                                                    Sequence::new(vec_of_erased![
+                                                                        Ref::new("NumericLiteralSegment"),
+                                                                        one_of(vec_of_erased![
+                                                                            Ref::keyword("YEAR"),
+                                                                            Ref::keyword("YEARS"),
+                                                                            Ref::keyword("MONTH"),
+                                                                            Ref::keyword("MONTHS"),
+                                                                            Ref::keyword("DAY"),
+                                                                            Ref::keyword("DAYS")
+                                                                        ])
+                                                                    ])
+                                                                ])
+                                                            ])
+                                                        ])
+                                                    ])
+                                                ]).config(|this| this.optional())
+                                            ])
+                                        ])
+                                    ]),
+                                    // FILESTREAM_ON
+                                    Sequence::new(vec_of_erased![
+                                        Ref::keyword("FILESTREAM_ON"),
+                                        Ref::new("EqualsSegment"),
+                                        one_of(vec_of_erased![
+                                            Ref::new("QuotedLiteralSegment"),
+                                            Ref::new("NakedIdentifierSegment")
+                                        ])
+                                    ]),
+                                    // DATA_DELETION
+                                    Sequence::new(vec_of_erased![
+                                        Ref::keyword("DATA_DELETION"),
+                                        Ref::new("EqualsSegment"),
+                                        one_of(vec_of_erased![
+                                            Ref::keyword("ON"),
+                                            Sequence::new(vec_of_erased![
+                                                Ref::keyword("OFF"),
+                                                Bracketed::new(vec_of_erased![
+                                                    Delimited::new(vec_of_erased![
+                                                        one_of(vec_of_erased![
+                                                            Sequence::new(vec_of_erased![
+                                                                Ref::keyword("FILTER_COLUMN"),
+                                                                Ref::new("EqualsSegment"),
+                                                                Ref::new("ColumnReferenceSegment")
+                                                            ]),
+                                                            Sequence::new(vec_of_erased![
+                                                                Ref::keyword("RETENTION_PERIOD"),
+                                                                Ref::new("EqualsSegment"),
+                                                                one_of(vec_of_erased![
+                                                                    Ref::keyword("INFINITE"),
+                                                                    Sequence::new(vec_of_erased![
+                                                                        Ref::new("NumericLiteralSegment"),
+                                                                        one_of(vec_of_erased![
+                                                                            Ref::keyword("YEAR"),
+                                                                            Ref::keyword("YEARS"),
+                                                                            Ref::keyword("DAY"),
+                                                                            Ref::keyword("DAYS")
+                                                                        ])
+                                                                    ])
+                                                                ])
+                                                            ])
+                                                        ])
+                                                    ])
+                                                ]).config(|this| this.optional())
+                                            ])
+                                        ])
+                                    ])
+                                ])
+                            ])
+                        ])
+                    ]),
+                    // WITH CHECK ADD CONSTRAINT (for foreign keys)
+                    Sequence::new(vec_of_erased![
+                        Ref::keyword("WITH"),
+                        Ref::keyword("CHECK"),
+                        Ref::keyword("ADD"),
+                        Ref::keyword("CONSTRAINT"),
+                        Ref::new("ObjectReferenceSegment"),
+                        Ref::keyword("FOREIGN"),
+                        Ref::keyword("KEY"),
+                        Ref::new("BracketedColumnReferenceListGrammar"),
+                        Ref::keyword("REFERENCES"),
+                        Ref::new("TableReferenceSegment"),
+                        Ref::new("BracketedColumnReferenceListGrammar")
+                    ]),
+                    // CHECK CONSTRAINT
+                    Sequence::new(vec_of_erased![
+                        Ref::keyword("CHECK"),
+                        Ref::keyword("CONSTRAINT"),
+                        Ref::new("ObjectReferenceSegment")
+                    ])
                 ])
             ])
             .to_matchable()

@@ -1,209 +1,336 @@
 file:
-- unparsable:
-  - word: CREATE
-  - word: EXTERNAL
-  - word: TABLE
-  - word: schema_name
-  - dot: .
-  - word: table_name
-  - start_bracket: (
-  - word: column_name_1
-  - word: VARCHAR
-  - start_bracket: (
-  - numeric_literal: '50'
-  - end_bracket: )
-  - comma: ','
-  - word: column_name_2
-  - word: VARCHAR
-  - start_bracket: (
-  - numeric_literal: '50'
-  - end_bracket: )
-  - word: 'NULL'
-  - comma: ','
-  - word: column_name_3
-  - word: VARCHAR
-  - start_bracket: (
-  - numeric_literal: '50'
-  - end_bracket: )
-  - word: NOT
-  - word: 'NULL'
-  - end_bracket: )
-  - word: WITH
-  - start_bracket: (
-  - word: LOCATION
-  - raw_comparison_operator: =
-  - unicode_single_quote: N'/path/to/folder/'
-  - comma: ','
-  - word: DATA_SOURCE
-  - raw_comparison_operator: =
-  - word: external_data_source
-  - comma: ','
-  - word: FILE_FORMAT
-  - raw_comparison_operator: =
-  - word: parquetfileformat
-  - comma: ','
-  - word: REJECT_TYPE
-  - raw_comparison_operator: =
-  - word: VALUE
-  - comma: ','
-  - word: REJECT_VALUE
-  - raw_comparison_operator: =
-  - numeric_literal: '0'
-  - comma: ','
-  - word: REJECTED_ROW_LOCATION
-  - raw_comparison_operator: =
-  - single_quote: '''/REJECT_Directory'''
-  - end_bracket: )
-  - word: CREATE
-  - word: EXTERNAL
-  - word: TABLE
-  - word: schema_name
-  - dot: .
-  - word: table_name
-  - start_bracket: (
-  - word: column_name_1
-  - word: VARCHAR
-  - start_bracket: (
-  - numeric_literal: '50'
-  - end_bracket: )
-  - comma: ','
-  - word: column_name_2
-  - word: VARCHAR
-  - start_bracket: (
-  - numeric_literal: '50'
-  - end_bracket: )
-  - word: 'NULL'
-  - comma: ','
-  - word: column_name_3
-  - word: VARCHAR
-  - start_bracket: (
-  - numeric_literal: '50'
-  - end_bracket: )
-  - word: NOT
-  - word: 'NULL'
-  - end_bracket: )
-  - word: WITH
-  - start_bracket: (
-  - word: LOCATION
-  - raw_comparison_operator: =
-  - unicode_single_quote: N'/path/to/folder/'
-  - comma: ','
-  - word: DATA_SOURCE
-  - raw_comparison_operator: =
-  - word: external_data_source
-  - comma: ','
-  - word: FILE_FORMAT
-  - raw_comparison_operator: =
-  - word: parquetfileformat
-  - comma: ','
-  - word: REJECT_TYPE
-  - raw_comparison_operator: =
-  - word: PERCENTAGE
-  - comma: ','
-  - word: REJECT_VALUE
-  - raw_comparison_operator: =
-  - numeric_literal: '0'
-  - comma: ','
-  - word: REJECT_SAMPLE_VALUE
-  - raw_comparison_operator: =
-  - numeric_literal: '0'
-  - comma: ','
-  - word: REJECTED_ROW_LOCATION
-  - raw_comparison_operator: =
-  - single_quote: '''/REJECT_DIRECTORY'''
-  - end_bracket: )
-  - word: CREATE
-  - word: EXTERNAL
-  - word: TABLE
-  - word: customers
-  - start_bracket: (
-  - word: o_orderkey
-  - word: DECIMAL
-  - start_bracket: (
-  - numeric_literal: '38'
-  - end_bracket: )
-  - word: NOT
-  - word: 'NULL'
-  - comma: ','
-  - word: o_custkey
-  - word: DECIMAL
-  - start_bracket: (
-  - numeric_literal: '38'
-  - end_bracket: )
-  - word: NOT
-  - word: 'NULL'
-  - comma: ','
-  - word: o_orderstatus
-  - word: CHAR
-  - word: COLLATE
-  - word: latin1_general_bin
-  - word: NOT
-  - word: 'NULL'
-  - comma: ','
-  - word: o_totalprice
-  - word: DECIMAL
-  - start_bracket: (
-  - numeric_literal: '15'
-  - comma: ','
-  - numeric_literal: '2'
-  - end_bracket: )
-  - word: NOT
-  - word: 'NULL'
-  - comma: ','
-  - word: o_orderdate
-  - word: DATETIME2
-  - start_bracket: (
-  - numeric_literal: '0'
-  - end_bracket: )
-  - word: NOT
-  - word: 'NULL'
-  - comma: ','
-  - word: o_orderpriority
-  - word: CHAR
-  - start_bracket: (
-  - numeric_literal: '15'
-  - end_bracket: )
-  - word: COLLATE
-  - word: latin1_general_bin
-  - word: NOT
-  - word: 'NULL'
-  - comma: ','
-  - word: o_clerk
-  - word: CHAR
-  - start_bracket: (
-  - numeric_literal: '15'
-  - end_bracket: )
-  - word: COLLATE
-  - word: latin1_general_bin
-  - word: NOT
-  - word: 'NULL'
-  - comma: ','
-  - word: o_shippriority
-  - word: DECIMAL
-  - start_bracket: (
-  - numeric_literal: '38'
-  - end_bracket: )
-  - word: NOT
-  - word: 'NULL'
-  - comma: ','
-  - word: o_comment
-  - word: VARCHAR
-  - start_bracket: (
-  - numeric_literal: '79'
-  - end_bracket: )
-  - word: COLLATE
-  - word: latin1_general_bin
-  - word: NOT
-  - word: 'NULL'
-  - end_bracket: )
-  - word: WITH
-  - start_bracket: (
-  - word: LOCATION
-  - raw_comparison_operator: =
-  - single_quote: '''DB1.mySchema.customer'''
-  - comma: ','
-  - word: DATA_SOURCE
-  - raw_comparison_operator: =
-  - word: external_data_source_name
-  - end_bracket: )
-  - semicolon: ;
+- statement:
+  - statement:
+    - create_table_statement:
+      - keyword: CREATE
+      - keyword: EXTERNAL
+      - keyword: TABLE
+      - table_reference:
+        - object_reference:
+          - naked_identifier: schema_name
+          - dot: .
+          - naked_identifier: table_name
+      - bracketed:
+        - start_bracket: (
+        - column_definition:
+          - naked_identifier: column_name_1
+          - data_type:
+            - data_type_identifier: VARCHAR
+            - bracketed_arguments:
+              - bracketed:
+                - start_bracket: (
+                - numeric_literal: '50'
+                - end_bracket: )
+        - comma: ','
+        - column_definition:
+          - naked_identifier: column_name_2
+          - data_type:
+            - data_type_identifier: VARCHAR
+            - bracketed_arguments:
+              - bracketed:
+                - start_bracket: (
+                - numeric_literal: '50'
+                - end_bracket: )
+          - column_constraint_segment:
+            - keyword: 'NULL'
+        - comma: ','
+        - column_definition:
+          - naked_identifier: column_name_3
+          - data_type:
+            - data_type_identifier: VARCHAR
+            - bracketed_arguments:
+              - bracketed:
+                - start_bracket: (
+                - numeric_literal: '50'
+                - end_bracket: )
+          - column_constraint_segment:
+            - keyword: NOT
+            - keyword: 'NULL'
+        - end_bracket: )
+      - keyword: WITH
+      - bracketed:
+        - start_bracket: (
+        - table_constraint:
+          - keyword: LOCATION
+          - comparison_operator:
+            - raw_comparison_operator: =
+          - quoted_literal: N'/path/to/folder/'
+        - comma: ','
+        - table_constraint:
+          - keyword: DATA_SOURCE
+          - comparison_operator:
+            - raw_comparison_operator: =
+          - naked_identifier: external_data_source
+        - comma: ','
+        - table_constraint:
+          - keyword: FILE_FORMAT
+          - comparison_operator:
+            - raw_comparison_operator: =
+          - naked_identifier: parquetfileformat
+        - comma: ','
+        - table_constraint:
+          - keyword: REJECT_TYPE
+          - comparison_operator:
+            - raw_comparison_operator: =
+          - keyword: VALUE
+        - comma: ','
+        - table_constraint:
+          - keyword: REJECT_VALUE
+          - comparison_operator:
+            - raw_comparison_operator: =
+          - numeric_literal: '0'
+        - comma: ','
+        - table_constraint:
+          - keyword: REJECTED_ROW_LOCATION
+          - comparison_operator:
+            - raw_comparison_operator: =
+          - quoted_literal: '''/REJECT_Directory'''
+        - end_bracket: )
+  - statement:
+    - create_table_statement:
+      - keyword: CREATE
+      - keyword: EXTERNAL
+      - keyword: TABLE
+      - table_reference:
+        - object_reference:
+          - naked_identifier: schema_name
+          - dot: .
+          - naked_identifier: table_name
+      - bracketed:
+        - start_bracket: (
+        - column_definition:
+          - naked_identifier: column_name_1
+          - data_type:
+            - data_type_identifier: VARCHAR
+            - bracketed_arguments:
+              - bracketed:
+                - start_bracket: (
+                - numeric_literal: '50'
+                - end_bracket: )
+        - comma: ','
+        - column_definition:
+          - naked_identifier: column_name_2
+          - data_type:
+            - data_type_identifier: VARCHAR
+            - bracketed_arguments:
+              - bracketed:
+                - start_bracket: (
+                - numeric_literal: '50'
+                - end_bracket: )
+          - column_constraint_segment:
+            - keyword: 'NULL'
+        - comma: ','
+        - column_definition:
+          - naked_identifier: column_name_3
+          - data_type:
+            - data_type_identifier: VARCHAR
+            - bracketed_arguments:
+              - bracketed:
+                - start_bracket: (
+                - numeric_literal: '50'
+                - end_bracket: )
+          - column_constraint_segment:
+            - keyword: NOT
+            - keyword: 'NULL'
+        - end_bracket: )
+      - keyword: WITH
+      - bracketed:
+        - start_bracket: (
+        - table_constraint:
+          - keyword: LOCATION
+          - comparison_operator:
+            - raw_comparison_operator: =
+          - quoted_literal: N'/path/to/folder/'
+        - comma: ','
+        - table_constraint:
+          - keyword: DATA_SOURCE
+          - comparison_operator:
+            - raw_comparison_operator: =
+          - naked_identifier: external_data_source
+        - comma: ','
+        - table_constraint:
+          - keyword: FILE_FORMAT
+          - comparison_operator:
+            - raw_comparison_operator: =
+          - naked_identifier: parquetfileformat
+        - comma: ','
+        - table_constraint:
+          - keyword: REJECT_TYPE
+          - comparison_operator:
+            - raw_comparison_operator: =
+          - keyword: PERCENTAGE
+        - comma: ','
+        - table_constraint:
+          - keyword: REJECT_VALUE
+          - comparison_operator:
+            - raw_comparison_operator: =
+          - numeric_literal: '0'
+        - comma: ','
+        - table_constraint:
+          - keyword: REJECT_SAMPLE_VALUE
+          - comparison_operator:
+            - raw_comparison_operator: =
+          - numeric_literal: '0'
+        - comma: ','
+        - table_constraint:
+          - keyword: REJECTED_ROW_LOCATION
+          - comparison_operator:
+            - raw_comparison_operator: =
+          - quoted_literal: '''/REJECT_DIRECTORY'''
+        - end_bracket: )
+  - statement:
+    - create_table_statement:
+      - keyword: CREATE
+      - keyword: EXTERNAL
+      - keyword: TABLE
+      - table_reference:
+        - object_reference:
+          - naked_identifier: customers
+      - bracketed:
+        - start_bracket: (
+        - column_definition:
+          - naked_identifier: o_orderkey
+          - data_type:
+            - data_type_identifier: DECIMAL
+            - bracketed_arguments:
+              - bracketed:
+                - start_bracket: (
+                - numeric_literal: '38'
+                - end_bracket: )
+          - column_constraint_segment:
+            - keyword: NOT
+            - keyword: 'NULL'
+        - comma: ','
+        - column_definition:
+          - naked_identifier: o_custkey
+          - data_type:
+            - data_type_identifier: DECIMAL
+            - bracketed_arguments:
+              - bracketed:
+                - start_bracket: (
+                - numeric_literal: '38'
+                - end_bracket: )
+          - column_constraint_segment:
+            - keyword: NOT
+            - keyword: 'NULL'
+        - comma: ','
+        - column_definition:
+          - naked_identifier: o_orderstatus
+          - data_type:
+            - data_type_identifier: CHAR
+          - column_constraint_segment:
+            - keyword: COLLATE
+            - collation_reference:
+              - naked_identifier: latin1_general_bin
+          - column_constraint_segment:
+            - keyword: NOT
+            - keyword: 'NULL'
+        - comma: ','
+        - column_definition:
+          - naked_identifier: o_totalprice
+          - data_type:
+            - data_type_identifier: DECIMAL
+            - bracketed_arguments:
+              - bracketed:
+                - start_bracket: (
+                - numeric_literal: '15'
+                - comma: ','
+                - numeric_literal: '2'
+                - end_bracket: )
+          - column_constraint_segment:
+            - keyword: NOT
+            - keyword: 'NULL'
+        - comma: ','
+        - column_definition:
+          - naked_identifier: o_orderdate
+          - data_type:
+            - data_type_identifier: DATETIME2
+            - bracketed_arguments:
+              - bracketed:
+                - start_bracket: (
+                - numeric_literal: '0'
+                - end_bracket: )
+          - column_constraint_segment:
+            - keyword: NOT
+            - keyword: 'NULL'
+        - comma: ','
+        - column_definition:
+          - naked_identifier: o_orderpriority
+          - data_type:
+            - data_type_identifier: CHAR
+            - bracketed_arguments:
+              - bracketed:
+                - start_bracket: (
+                - numeric_literal: '15'
+                - end_bracket: )
+          - column_constraint_segment:
+            - keyword: COLLATE
+            - collation_reference:
+              - naked_identifier: latin1_general_bin
+          - column_constraint_segment:
+            - keyword: NOT
+            - keyword: 'NULL'
+        - comma: ','
+        - column_definition:
+          - naked_identifier: o_clerk
+          - data_type:
+            - data_type_identifier: CHAR
+            - bracketed_arguments:
+              - bracketed:
+                - start_bracket: (
+                - numeric_literal: '15'
+                - end_bracket: )
+          - column_constraint_segment:
+            - keyword: COLLATE
+            - collation_reference:
+              - naked_identifier: latin1_general_bin
+          - column_constraint_segment:
+            - keyword: NOT
+            - keyword: 'NULL'
+        - comma: ','
+        - column_definition:
+          - naked_identifier: o_shippriority
+          - data_type:
+            - data_type_identifier: DECIMAL
+            - bracketed_arguments:
+              - bracketed:
+                - start_bracket: (
+                - numeric_literal: '38'
+                - end_bracket: )
+          - column_constraint_segment:
+            - keyword: NOT
+            - keyword: 'NULL'
+        - comma: ','
+        - column_definition:
+          - naked_identifier: o_comment
+          - data_type:
+            - data_type_identifier: VARCHAR
+            - bracketed_arguments:
+              - bracketed:
+                - start_bracket: (
+                - numeric_literal: '79'
+                - end_bracket: )
+          - column_constraint_segment:
+            - keyword: COLLATE
+            - collation_reference:
+              - naked_identifier: latin1_general_bin
+          - column_constraint_segment:
+            - keyword: NOT
+            - keyword: 'NULL'
+        - end_bracket: )
+      - keyword: WITH
+      - bracketed:
+        - start_bracket: (
+        - table_constraint:
+          - keyword: LOCATION
+          - comparison_operator:
+            - raw_comparison_operator: =
+          - quoted_literal: '''DB1.mySchema.customer'''
+        - comma: ','
+        - table_constraint:
+          - keyword: DATA_SOURCE
+          - comparison_operator:
+            - raw_comparison_operator: =
+          - naked_identifier: external_data_source_name
+        - end_bracket: )
+  - statement_terminator: ;

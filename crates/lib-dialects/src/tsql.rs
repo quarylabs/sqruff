@@ -940,7 +940,8 @@ pub fn raw_dialect() -> Dialect {
     dialect.add([(
         "ForClauseSegment".into(),
         Sequence::new(vec_of_erased![
-            Ref::keyword("FOR"),
+            Ref::keyword("FOR")
+                .exclude(LookaheadExclude::new("FOR", "SYSTEM_TIME")),
             one_of(vec_of_erased![
                 // FOR JSON
                 Sequence::new(vec_of_erased![
@@ -5827,11 +5828,10 @@ pub fn raw_dialect() -> Dialect {
                     Ref::keyword("TABLE"),
                     // Table name (can be schema qualified)
                     Ref::new("TableReferenceSegment"),
-                    // Column definitions
+                    // Column definitions (optional)
                     Bracketed::new(vec_of_erased![
                         Delimited::new(vec_of_erased![Ref::new("ColumnDefinitionSegment")])
-                            .config(|this| this.optional())
-                    ]),
+                    ]).config(|this| this.optional()),
                     // WITH clause for external table options
                     Sequence::new(vec_of_erased![
                         Ref::keyword("WITH"),

@@ -10,14 +10,13 @@ file:
         - naked_identifier: OrderId
         - data_type:
           - data_type_identifier: INT
-        - column_constraint_segment:
-          - keyword: IDENTITY
-          - bracketed:
-            - start_bracket: (
-            - numeric_literal: '1'
-            - comma: ','
-            - numeric_literal: '1'
-            - end_bracket: )
+        - keyword: IDENTITY
+        - bracketed:
+          - start_bracket: (
+          - numeric_literal: '1'
+          - comma: ','
+          - numeric_literal: '1'
+          - end_bracket: )
         - column_constraint_segment:
           - keyword: PRIMARY
           - keyword: KEY

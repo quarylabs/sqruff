@@ -578,28 +578,151 @@ pub fn raw_dialect() -> Dialect {
         .into(),
     )]);
 
-    // Override ColumnDefinitionSegment to support T-SQL temporal table columns
+    // Override ColumnDefinitionSegment to support T-SQL specific features
     dialect.add([(
         "ColumnDefinitionSegment".into(),
         NodeMatcher::new(SyntaxKind::ColumnDefinition, |_| {
             Sequence::new(vec_of_erased![
                 Ref::new("SingleIdentifierGrammar"), // Column name
-                Ref::new("DatatypeSegment"),         // Column type
-                // Column size specification like (100) or (10,2) - temporarily removed
-                // Bracketed::new(vec_of_erased![Anything::new()]).config(|this| this.optional()),
-                // GENERATED ALWAYS AS ROW START/END for temporal tables
-                Sequence::new(vec_of_erased![
-                    Ref::keyword("GENERATED"),
-                    Ref::keyword("ALWAYS"),
-                    Ref::keyword("AS"),
-                    Ref::keyword("ROW"),
-                    one_of(vec_of_erased![
-                        Ref::keyword("START"),
-                        Ref::keyword("END")
+                one_of(vec_of_erased![
+                    // Regular column: datatype [IDENTITY] [constraints]
+                    Sequence::new(vec_of_erased![
+                        Ref::new("DatatypeSegment"), // Column type
+                        // IDENTITY specification
+                        Sequence::new(vec_of_erased![
+                            Ref::keyword("IDENTITY"),
+                            Bracketed::new(vec_of_erased![
+                                Ref::new("NumericLiteralSegment"), // seed
+                                Ref::new("CommaSegment"),
+                                Ref::new("NumericLiteralSegment")  // increment
+                            ]).config(|this| this.optional()) // IDENTITY can be without parameters
+                        ]).config(|this| this.optional()),
+                        // GENERATED ALWAYS AS ROW START/END for temporal tables
+                        Sequence::new(vec_of_erased![
+                            Ref::keyword("GENERATED"),
+                            Ref::keyword("ALWAYS"),
+                            Ref::keyword("AS"),
+                            Ref::keyword("ROW"),
+                            one_of(vec_of_erased![
+                                Ref::keyword("START"),
+                                Ref::keyword("END")
+                            ])
+                        ]).config(|this| this.optional()),
+                        AnyNumberOf::new(vec_of_erased![Ref::new("ColumnConstraintSegment")])
+                            .config(|this| this.optional())
+                    ]),
+                    // Computed column: AS expression [PERSISTED] [constraints]
+                    Sequence::new(vec_of_erased![
+                        Ref::keyword("AS"),
+                        optionally_bracketed(vec_of_erased![Ref::new("ExpressionSegment")]),
+                        Ref::keyword("PERSISTED").optional(),
+                        AnyNumberOf::new(vec_of_erased![Ref::new("ColumnConstraintSegment")])
+                            .config(|this| this.optional())
                     ])
+                ])
+            ])
+            .to_matchable()
+        })
+        .to_matchable()
+        .into(),
+    )]);
+
+    // Override TableConstraintSegment to support T-SQL specific features
+    dialect.add([(
+        "TableConstraintSegment".into(),
+        NodeMatcher::new(SyntaxKind::TableConstraint, |_| {
+            Sequence::new(vec_of_erased![
+                // Optional constraint name
+                Sequence::new(vec_of_erased![
+                    Ref::keyword("CONSTRAINT"),
+                    Ref::new("ObjectReferenceSegment")
                 ]).config(|this| this.optional()),
-                AnyNumberOf::new(vec_of_erased![Ref::new("ColumnConstraintSegment")])
-                    .config(|this| this.optional())
+                one_of(vec_of_erased![
+                    // PRIMARY KEY constraint
+                    Sequence::new(vec_of_erased![
+                        Ref::keyword("PRIMARY"),
+                        Ref::keyword("KEY"),
+                        one_of(vec_of_erased![
+                            Ref::keyword("CLUSTERED"),
+                            Ref::keyword("NONCLUSTERED")
+                        ]).config(|this| this.optional()),
+                        Bracketed::new(vec_of_erased![
+                            Delimited::new(vec_of_erased![
+                                Sequence::new(vec_of_erased![
+                                    Ref::new("ColumnReferenceSegment"),
+                                    one_of(vec_of_erased![
+                                        Ref::keyword("ASC"),
+                                        Ref::keyword("DESC")
+                                    ]).config(|this| this.optional())
+                                ])
+                            ])
+                        ])
+                    ]),
+                    // UNIQUE constraint
+                    Sequence::new(vec_of_erased![
+                        Ref::keyword("UNIQUE"),
+                        one_of(vec_of_erased![
+                            Ref::keyword("CLUSTERED"),
+                            Ref::keyword("NONCLUSTERED")
+                        ]).config(|this| this.optional()),
+                        Bracketed::new(vec_of_erased![
+                            Delimited::new(vec_of_erased![
+                                Sequence::new(vec_of_erased![
+                                    Ref::new("ColumnReferenceSegment"),
+                                    one_of(vec_of_erased![
+                                        Ref::keyword("ASC"),
+                                        Ref::keyword("DESC")
+                                    ]).config(|this| this.optional())
+                                ])
+                            ])
+                        ])
+                    ]),
+                    // FOREIGN KEY constraint
+                    Sequence::new(vec_of_erased![
+                        Ref::keyword("FOREIGN"),
+                        Ref::keyword("KEY"),
+                        Bracketed::new(vec_of_erased![
+                            Delimited::new(vec_of_erased![Ref::new("ColumnReferenceSegment")])
+                        ]),
+                        Ref::keyword("REFERENCES"),
+                        Ref::new("TableReferenceSegment"),
+                        Bracketed::new(vec_of_erased![
+                            Delimited::new(vec_of_erased![Ref::new("ColumnReferenceSegment")])
+                        ]),
+                        // Optional ON DELETE/UPDATE actions
+                        AnyNumberOf::new(vec_of_erased![
+                            Sequence::new(vec_of_erased![
+                                Ref::keyword("ON"),
+                                one_of(vec_of_erased![
+                                    Ref::keyword("DELETE"),
+                                    Ref::keyword("UPDATE")
+                                ]),
+                                one_of(vec_of_erased![
+                                    Ref::keyword("CASCADE"),
+                                    Ref::keyword("RESTRICT"),
+                                    Sequence::new(vec_of_erased![
+                                        Ref::keyword("SET"),
+                                        one_of(vec_of_erased![
+                                            Ref::keyword("NULL"),
+                                            Ref::keyword("DEFAULT")
+                                        ])
+                                    ]),
+                                    Sequence::new(vec_of_erased![
+                                        Ref::keyword("NO"),
+                                        Ref::keyword("ACTION")
+                                    ])
+                                ])
+                            ])
+                        ]).config(|this| this.optional()),
+                        // Optional UNIQUE keyword (for foreign key constraints)
+                        Ref::keyword("UNIQUE").optional()
+                    ]),
+                    // CHECK constraint
+                    Sequence::new(vec_of_erased![
+                        Ref::keyword("CHECK"),
+                        Bracketed::new(vec_of_erased![Ref::new("ExpressionSegment")])
+                    ])
+                ])
             ])
             .to_matchable()
         })

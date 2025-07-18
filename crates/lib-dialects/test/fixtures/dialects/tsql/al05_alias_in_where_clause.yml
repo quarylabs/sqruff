@@ -33,67 +33,98 @@ file:
           - join_clause:
             - keyword: INNER
             - keyword: JOIN
-      - unparsable:
-        - word: schema1
-        - dot: .
-        - word: TBL_POS_DATA
-        - word: AS
-        - word: Position
-        - word: WITH
-        - start_bracket: (
-        - word: NOLOCK
-        - end_bracket: )
-        - word: ON
-        - word: Position
-        - dot: .
-        - word: I_POS_ID
-        - raw_comparison_operator: =
-        - word: op2ref
-        - dot: .
-        - word: i_position_id
-        - word: INNER
-        - word: JOIN
-        - word: schema1
-        - dot: .
-        - word: TBL_POS_DATA
-        - word: AS
-        - word: PositionRef
-        - word: WITH
-        - start_bracket: (
-        - word: NOLOCK
-        - end_bracket: )
-        - word: ON
-        - word: PositionRef
-        - dot: .
-        - word: I_POS_ID
-        - raw_comparison_operator: =
-        - word: op2ref
-        - dot: .
-        - word: i_positionref_id
-        - word: WHERE
-        - word: OrderPositions
-        - dot: .
-        - word: I_POS_ID
-        - word: IN
-        - start_bracket: (
-        - word: op2ref
-        - dot: .
-        - word: i_position_id
-        - comma: ','
-        - word: op2ref
-        - dot: .
-        - word: i_positionref_id
-        - end_bracket: )
-        - word: AND
-        - word: op2ref
-        - dot: .
-        - word: i_referencetype_id
-        - raw_comparison_operator: =
-        - numeric_literal: '1'
-        - word: AND
-        - word: op2ref
-        - dot: .
-        - word: dt_deleted
-        - word: IS
-        - word: 'NULL'
+            - from_expression_element:
+              - table_expression:
+                - table_reference:
+                  - object_reference:
+                    - naked_identifier: schema1
+                    - dot: .
+                    - naked_identifier: TBL_POS_DATA
+              - alias_expression:
+                - keyword: AS
+                - naked_identifier: Position
+              - keyword: WITH
+              - bracketed:
+                - start_bracket: (
+                - keyword: NOLOCK
+                - end_bracket: )
+            - join_on_condition:
+              - keyword: ON
+              - expression:
+                - column_reference:
+                  - naked_identifier: Position
+                  - dot: .
+                  - naked_identifier: I_POS_ID
+                - comparison_operator:
+                  - raw_comparison_operator: =
+                - column_reference:
+                  - naked_identifier: op2ref
+                  - dot: .
+                  - naked_identifier: i_position_id
+          - join_clause:
+            - keyword: INNER
+            - keyword: JOIN
+            - from_expression_element:
+              - table_expression:
+                - table_reference:
+                  - object_reference:
+                    - naked_identifier: schema1
+                    - dot: .
+                    - naked_identifier: TBL_POS_DATA
+              - alias_expression:
+                - keyword: AS
+                - naked_identifier: PositionRef
+              - keyword: WITH
+              - bracketed:
+                - start_bracket: (
+                - keyword: NOLOCK
+                - end_bracket: )
+            - join_on_condition:
+              - keyword: ON
+              - expression:
+                - column_reference:
+                  - naked_identifier: PositionRef
+                  - dot: .
+                  - naked_identifier: I_POS_ID
+                - comparison_operator:
+                  - raw_comparison_operator: =
+                - column_reference:
+                  - naked_identifier: op2ref
+                  - dot: .
+                  - naked_identifier: i_positionref_id
+      - where_clause:
+        - keyword: WHERE
+        - expression:
+          - column_reference:
+            - naked_identifier: OrderPositions
+            - dot: .
+            - naked_identifier: I_POS_ID
+          - keyword: IN
+          - bracketed:
+            - start_bracket: (
+            - column_reference:
+              - naked_identifier: op2ref
+              - dot: .
+              - naked_identifier: i_position_id
+            - comma: ','
+            - column_reference:
+              - naked_identifier: op2ref
+              - dot: .
+              - naked_identifier: i_positionref_id
+            - end_bracket: )
+          - binary_operator: AND
+          - column_reference:
+            - naked_identifier: op2ref
+            - dot: .
+            - naked_identifier: i_referencetype_id
+          - comparison_operator:
+            - raw_comparison_operator: =
+          - numeric_literal: '1'
+          - binary_operator: AND
+          - column_reference:
+            - naked_identifier: op2ref
+            - dot: .
+            - naked_identifier: dt_deleted
+          - keyword: IS
+          - null_literal: 'NULL'
   - statement_terminator: ;

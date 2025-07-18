@@ -29,20 +29,32 @@ file:
           - join_clause:
             - keyword: INNER
             - keyword: JOIN
-      - unparsable:
-        - word: table3
-        - word: ON
-        - word: table1
-        - dot: .
-        - word: col
-        - raw_comparison_operator: =
-        - word: table3
-        - dot: .
-        - word: col
-        - word: WHERE
-        - word: table1
-        - dot: .
-        - word: Column1
-        - raw_comparison_operator: =
-        - single_quote: '''blah'''
+            - from_expression_element:
+              - table_expression:
+                - table_reference:
+                  - object_reference:
+                    - naked_identifier: table3
+            - join_on_condition:
+              - keyword: ON
+              - expression:
+                - column_reference:
+                  - naked_identifier: table1
+                  - dot: .
+                  - naked_identifier: col
+                - comparison_operator:
+                  - raw_comparison_operator: =
+                - column_reference:
+                  - naked_identifier: table3
+                  - dot: .
+                  - naked_identifier: col
+      - where_clause:
+        - keyword: WHERE
+        - expression:
+          - column_reference:
+            - naked_identifier: table1
+            - dot: .
+            - naked_identifier: Column1
+          - comparison_operator:
+            - raw_comparison_operator: =
+          - quoted_literal: '''blah'''
   - statement_terminator: ;

@@ -2573,10 +2573,36 @@ pub fn raw_dialect() -> Dialect {
                 ])
                 .config(|this| this.optional())
             ]),
+            // Standard JOIN syntax (after hint patterns to ensure hints are tried first)
+            Sequence::new(vec_of_erased![
+                Ref::new("JoinTypeKeywordsGrammar").optional(),
+                Ref::new("JoinKeywordsGrammar"),
+                MetaSegment::indent(),
+                Ref::new("FromExpressionElementSegment"),
+                AnyNumberOf::new(vec_of_erased![Ref::new("NestedJoinGrammar")]),
+                MetaSegment::dedent(),
+                Sequence::new(vec_of_erased![
+                    Conditional::new(MetaSegment::indent()).indented_using_on(),
+                    one_of(vec_of_erased![
+                        Ref::new("JoinOnConditionSegment"),
+                        Sequence::new(vec_of_erased![
+                            Ref::keyword("USING"),
+                            MetaSegment::indent(),
+                            Bracketed::new(vec_of_erased![Delimited::new(vec_of_erased![
+                                Ref::new("SingleIdentifierGrammar")
+                            ])])
+                            .config(|this| this.parse_mode = ParseMode::Greedy),
+                            MetaSegment::dedent(),
+                        ])
+                    ]),
+                    Conditional::new(MetaSegment::dedent()).indented_using_on(),
+                ])
+                .config(|this| this.optional())
+            ]),
             // NATURAL JOIN
             Sequence::new(vec_of_erased![
                 Ref::new("NaturalJoinKeywordsGrammar"),
-                Ref::keyword("JOIN"),
+                Ref::new("JoinKeywordsGrammar"),
                 MetaSegment::indent(),
                 Ref::new("FromExpressionElementSegment"),
                 MetaSegment::dedent(),

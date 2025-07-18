@@ -104,9 +104,8 @@ file:
                         - naked_identifier: Encounter
                   - alias_expression:
                     - naked_identifier: e
-                - join_clause:
-                  - keyword: JOIN
             - unparsable:
+              - word: JOIN
               - word: dbo
               - dot: .
               - word: Finance
@@ -216,9 +215,8 @@ file:
                       - naked_identifier: Encounter
                 - alias_expression:
                   - naked_identifier: e
-              - join_clause:
-                - keyword: JOIN
           - unparsable:
+            - word: JOIN
             - word: dbo
             - dot: .
             - word: Finance
@@ -332,9 +330,8 @@ file:
                         - naked_identifier: Encounter
                   - alias_expression:
                     - naked_identifier: e
-                - join_clause:
-                  - keyword: JOIN
             - unparsable:
+              - word: JOIN
               - word: dbo
               - dot: .
               - word: Finance

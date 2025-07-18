@@ -231,21 +231,32 @@ file:
           - join_clause:
             - keyword: LEFT
             - keyword: JOIN
-      - unparsable:
-        - word: b
-        - word: ON
-        - word: a
-        - dot: .
-        - word: FIN
-        - raw_comparison_operator: =
-        - word: b
-        - dot: .
-        - word: FIN
-        - word: WHERE
-        - word: b
-        - dot: .
-        - word: FIN
-        - word: IS
-        - word: 'NULL'
+            - from_expression_element:
+              - table_expression:
+                - table_reference:
+                  - object_reference:
+                    - naked_identifier: b
+            - join_on_condition:
+              - keyword: ON
+              - expression:
+                - column_reference:
+                  - naked_identifier: a
+                  - dot: .
+                  - naked_identifier: FIN
+                - comparison_operator:
+                  - raw_comparison_operator: =
+                - column_reference:
+                  - naked_identifier: b
+                  - dot: .
+                  - naked_identifier: FIN
+      - where_clause:
+        - keyword: WHERE
+        - expression:
+          - column_reference:
+            - naked_identifier: b
+            - dot: .
+            - naked_identifier: FIN
+          - keyword: IS
+          - null_literal: 'NULL'
   - statement_terminator: ;
 - keyword: GO

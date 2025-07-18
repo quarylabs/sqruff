@@ -91,9 +91,8 @@ file:
                             - table_reference:
                               - object_reference:
                                 - naked_identifier: cte
-                        - join_clause:
-                          - keyword: JOIN
                     - unparsable:
+                      - word: JOIN
                       - word: HumanResources
                       - dot: .
                       - word: Employee

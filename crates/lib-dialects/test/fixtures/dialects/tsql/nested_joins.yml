@@ -21,20 +21,34 @@ file:
             - keyword: LEFT
             - keyword: OUTER
             - keyword: JOIN
+            - from_expression_element:
+              - table_expression:
+                - table_reference:
+                  - object_reference:
+                    - naked_identifier: I
+          - join_clause:
+            - keyword: LEFT
+            - keyword: OUTER
+            - keyword: JOIN
+            - from_expression_element:
+              - table_expression:
+                - table_reference:
+                  - object_reference:
+                    - naked_identifier: P
+            - join_on_condition:
+              - keyword: ON
+              - expression:
+                - column_reference:
+                  - naked_identifier: I
+                  - dot: .
+                  - naked_identifier: Pcd
+                - comparison_operator:
+                  - raw_comparison_operator: =
+                - column_reference:
+                  - naked_identifier: P
+                  - dot: .
+                  - naked_identifier: Iid
       - unparsable:
-        - word: I
-        - word: LEFT
-        - word: OUTER
-        - word: JOIN
-        - word: P
-        - word: ON
-        - word: I
-        - dot: .
-        - word: Pcd
-        - raw_comparison_operator: =
-        - word: P
-        - dot: .
-        - word: Iid
         - word: ON
         - word: BA
         - dot: .
@@ -64,28 +78,49 @@ file:
             - keyword: RIGHT
             - keyword: OUTER
             - keyword: JOIN
+            - from_expression_element:
+              - table_expression:
+                - table_reference:
+                  - object_reference:
+                    - naked_identifier: I
+          - join_clause:
+            - keyword: LEFT
+            - keyword: OUTER
+            - keyword: JOIN
+            - from_expression_element:
+              - table_expression:
+                - table_reference:
+                  - object_reference:
+                    - naked_identifier: P
+              - alias_expression:
+                - keyword: AS
+                - naked_identifier: P_1
+          - join_clause:
+            - keyword: LEFT
+            - keyword: OUTER
+            - keyword: JOIN
+            - from_expression_element:
+              - table_expression:
+                - table_reference:
+                  - object_reference:
+                    - naked_identifier: IP
+              - alias_expression:
+                - keyword: AS
+                - naked_identifier: IP_1
+            - join_on_condition:
+              - keyword: ON
+              - expression:
+                - column_reference:
+                  - naked_identifier: P_1
+                  - dot: .
+                  - naked_identifier: NID
+                - comparison_operator:
+                  - raw_comparison_operator: =
+                - column_reference:
+                  - naked_identifier: IP_1
+                  - dot: .
+                  - naked_identifier: NID
       - unparsable:
-        - word: I
-        - word: LEFT
-        - word: OUTER
-        - word: JOIN
-        - word: P
-        - word: AS
-        - word: P_1
-        - word: LEFT
-        - word: OUTER
-        - word: JOIN
-        - word: IP
-        - word: AS
-        - word: IP_1
-        - word: ON
-        - word: P_1
-        - dot: .
-        - word: NID
-        - raw_comparison_operator: =
-        - word: IP_1
-        - dot: .
-        - word: NID
         - word: ON
         - word: I
         - dot: .
@@ -206,11 +241,10 @@ file:
             - alias_expression:
               - keyword: AS
               - naked_identifier: tst1
-          - join_clause:
-            - keyword: LEFT
-            - keyword: OUTER
-            - keyword: JOIN
       - unparsable:
+        - word: LEFT
+        - word: OUTER
+        - word: JOIN
         - start_bracket: (
         - word: dbo
         - dot: .

@@ -3028,7 +3028,8 @@ pub fn raw_dialect() -> Dialect {
                 Ref::keyword("TRY"),
                 Ref::keyword("OPEN"),
                 Ref::keyword("CLOSE"),
-                Ref::keyword("FETCH"),
+                // Note: FETCH removed as terminator because it's used in OFFSET/FETCH clause
+                // and should only terminate when used as cursor operation
                 Ref::keyword("DEALLOCATE"),
                 Ref::keyword("DISABLE"),
                 Ref::keyword("ENABLE"),
@@ -3096,7 +3097,8 @@ pub fn raw_dialect() -> Dialect {
                 Ref::keyword("TRY"),
                 Ref::keyword("OPEN"),
                 Ref::keyword("CLOSE"),
-                Ref::keyword("FETCH"),
+                // Note: FETCH removed as terminator because it's used in OFFSET/FETCH clause
+                // and should only terminate when used as cursor operation
                 Ref::keyword("DEALLOCATE"),
                 Ref::keyword("DISABLE"),
                 Ref::keyword("ENABLE"),

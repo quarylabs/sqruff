@@ -648,6 +648,8 @@ pub(crate) fn tsql_additional_unreserved_keywords() -> AHashSet<&'static str> {
         "KEEPIDENTITY",
         "KEEPNULLS",
         "TABLOCK",
+        // Keywords that need to be in both reserved and unreserved for parsing
+        "BEGIN",
         // PARTITION FUNCTION keywords
         "PARTITION",
         "SPLIT",

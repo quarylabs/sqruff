@@ -1476,7 +1476,7 @@ pub fn raw_dialect() -> Dialect {
                 // Optional path
                 Sequence::new(vec_of_erased![
                     Ref::new("CommaSegment"),
-                    Ref::new("QuotedLiteralSegment") // JSON path
+                    Ref::new("LiteralGrammar") // JSON path - supports Unicode strings
                 ])
                 .config(|this| this.optional())
             ]),
@@ -4909,7 +4909,7 @@ pub fn raw_dialect() -> Dialect {
             Sequence::new(vec_of_erased![
                 Ref::keyword("LOCATION"),
                 Ref::new("EqualsSegment"),
-                Ref::new("QuotedLiteralSegment")
+                Ref::new("LiteralGrammar")  // Changed to support Unicode strings
             ]),
             // CREDENTIAL = credential_name
             Sequence::new(vec_of_erased![
@@ -4927,7 +4927,7 @@ pub fn raw_dialect() -> Dialect {
             Sequence::new(vec_of_erased![
                 Ref::keyword("CONNECTION_OPTIONS"),
                 Ref::new("EqualsSegment"),
-                Ref::new("QuotedLiteralSegment")
+                Ref::new("LiteralGrammar")  // Changed to support Unicode strings
             ])
         ])
         .to_matchable()
@@ -5008,13 +5008,13 @@ pub fn raw_dialect() -> Dialect {
             Sequence::new(vec_of_erased![
                 Ref::keyword("FIELD_TERMINATOR"),
                 Ref::new("EqualsSegment"),
-                Ref::new("QuotedLiteralSegment")
+                Ref::new("LiteralGrammar")  // Support Unicode strings
             ]),
             // STRING_DELIMITER = 'delimiter'
             Sequence::new(vec_of_erased![
                 Ref::keyword("STRING_DELIMITER"),
                 Ref::new("EqualsSegment"),
-                Ref::new("QuotedLiteralSegment")
+                Ref::new("LiteralGrammar")  // Support Unicode strings
             ]),
             // FIRST_ROW = number
             Sequence::new(vec_of_erased![
@@ -6299,7 +6299,7 @@ pub fn raw_dialect() -> Dialect {
         (
             "TsqlStorageLocationSegment".into(),
             one_of(vec_of_erased![
-                Ref::new("QuotedLiteralSegment") // Azure blob URLs handled by lexer
+                Ref::new("LiteralGrammar") // Azure blob URLs - supports Unicode strings
             ])
             .to_matchable()
             .into(),
@@ -6331,7 +6331,7 @@ pub fn raw_dialect() -> Dialect {
                                 Sequence::new(vec_of_erased![
                                     Ref::keyword("FILE_TYPE"),
                                     Ref::new("EqualsSegment"),
-                                    Ref::new("QuotedLiteralSegment")
+                                    Ref::new("LiteralGrammar")  // Support Unicode strings
                                 ]),
                                 // FILE_FORMAT = object_ref
                                 Sequence::new(vec_of_erased![

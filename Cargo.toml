@@ -32,5 +32,5 @@ sqruff-lib-dialects = { version = "0.28.2", path = "crates/lib-dialects" }
 wasm-bindgen = "0.2"
 wasm-pack = "0.13.1"
 
-strum = "0.27.1"
+strum = "0.27.2"
 strum_macros = "0.27.1"

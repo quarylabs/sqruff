@@ -26,6 +26,11 @@ from claude_code_sdk import query, ClaudeCodeOptions
 import anyio
 
 
+def normalize_sql_content(content: str) -> str:
+    """Return content with all whitespace at beginning or end removed."""
+    return content.strip()
+
+
 def run_command(cmd: List[str], cwd: Optional[str] = None) -> Tuple[int, str, str]:
     """Run a command and return exit code, stdout, and stderr."""
     try:
@@ -43,10 +48,16 @@ def get_sql_files(directory: Path) -> List[Path]:
 
 
 def copy_sql_files(src_dir: Path, dst_dir: Path) -> List[Path]:
-    """Copy all .sql files from src_dir to dst_dir."""
+    """Copy all .sql files from src_dir to dst_dir, ignoring whitespace-only changes."""
     copied_files = []
     for sql_file in get_sql_files(src_dir):
         dst_file = dst_dir / sql_file.name
+        if dst_file.exists():
+            with open(sql_file, "r") as src, open(dst_file, "r") as dst:
+                if normalize_sql_content(src.read()) == normalize_sql_content(
+                    dst.read()
+                ):
+                    continue
         shutil.copy2(sql_file, dst_file)
         copied_files.append(dst_file)
         print(f"Copied: {sql_file.name}")
@@ -57,6 +68,7 @@ def compare_directories(sqruff_dir: Path, sqlfluff_dir: Path) -> bool:
     """
     Compare sqruff vs sqlfluff directories for differences in .sql files.
     Returns True if there are differences that indicate sqlfluff has moved ahead of sqruff.
+    Whitespace-only changes in SQL files are ignored.
 
     Differences that matter:
     - Files in sqlfluff but not in sqruff (missing in sqruff)
@@ -74,7 +86,8 @@ def compare_directories(sqruff_dir: Path, sqlfluff_dir: Path) -> bool:
         print(f"Files missing in sqruff: {missing_in_sqruff}")
         return True
 
-    # Compare content of files that exist in both
+    # Compare content of files that exist in both. Whitespace-only differences
+    # are ignored to avoid false positives when only formatting changed.
     for filename in sqlfluff_files:
         if filename in sqruff_files:
             sqlfluff_file = sqlfluff_files[filename]
@@ -82,7 +95,11 @@ def compare_directories(sqruff_dir: Path, sqlfluff_dir: Path) -> bool:
 
             try:
                 with open(sqruff_file, "r") as f1, open(sqlfluff_file, "r") as f2:
-                    if f1.read() != f2.read():
+                    sqruff_content = f1.read()
+                    sqlfluff_content = f2.read()
+                    if normalize_sql_content(sqruff_content) != normalize_sql_content(
+                        sqlfluff_content
+                    ):
                         print(f"Content differs for file: {filename}")
                         return True
             except Exception as e:
@@ -289,13 +306,21 @@ def copy_from_commit(sqlfluff_path: Path, dialect: str, commit_hash: str) -> Lis
             print(f"Error: dialect directory not found in commit {commit_hash}")
             return []
 
-        # Copy only the SQL files that were changed
+        # Copy only the SQL files that were changed. Skip files where the change
+        # is only whitespace.
         copied_files = []
         for sql_file_name in sql_files_to_copy:
             src_file = commit_dialect_dir / sql_file_name
             dst_file = sqruff_dialect_dir / sql_file_name
 
             if src_file.exists():
+                if dst_file.exists():
+                    with open(src_file, "r") as src, open(dst_file, "r") as dst:
+                        if normalize_sql_content(src.read()) == normalize_sql_content(
+                            dst.read()
+                        ):
+                            print(f"Skipped {sql_file_name} (whitespace only changes)")
+                            continue
                 shutil.copy2(src_file, dst_file)
                 copied_files.append(dst_file)
                 print(f"Copied: {sql_file_name}")

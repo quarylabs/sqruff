@@ -339,7 +339,10 @@ pub fn dialect() -> Dialect {
                             Ref::keyword("TUPLE"),
                             Bracketed::new(vec_of_erased![]), // tuple() not tuple
                         ]),
-                        Ref::new("BracketedColumnReferenceListGrammar"),
+                        Bracketed::new(vec_of_erased![Delimited::new(vec_of_erased![
+                            Ref::new("ColumnReferenceSegment"),
+                            Ref::new("ExpressionSegment"),
+                        ])]),
                         Ref::new("ColumnReferenceSegment"),
                     ]),
                 ])

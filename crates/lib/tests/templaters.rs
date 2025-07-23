@@ -8,35 +8,7 @@ use sqruff_lib_core::parser::Parser;
 use sqruff_lib_core::parser::lexer::Lexer;
 use sqruff_lib_core::parser::segments::Tables;
 
-#[derive(Default)]
-pub struct Args {
-    list: bool,
-    ignored: bool,
-    no_capture: bool,
-}
-
-impl Args {
-    fn parse_args(&mut self, iter: impl Iterator<Item = String>) {
-        for arg in iter {
-            if arg == "--" {
-                continue;
-            }
-
-            match arg.as_str() {
-                "--list" => self.list = true,
-                "--ignored" => self.ignored = true,
-                "--no-capture" => self.no_capture = true,
-                _ => {}
-            }
-        }
-    }
-}
-
-// FIXME: Simplify FluffConfig handling. It's quite chaotic right now.
 fn main() {
-    let mut args = Args::default();
-    args.parse_args(std::env::args().skip(1));
-
     let templaters_folder = std::path::Path::new("test/fixtures/templaters");
     let templaters_folders = templaters_folder
         .read_dir()

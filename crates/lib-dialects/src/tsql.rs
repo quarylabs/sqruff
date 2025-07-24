@@ -7,6 +7,7 @@ use sqruff_lib_core::dialects::syntax::SyntaxKind;
 use sqruff_lib_core::helpers::{Config, ToMatchable};
 use sqruff_lib_core::parser::grammar::Ref;
 use sqruff_lib_core::parser::grammar::anyof::{AnyNumberOf, one_of, optionally_bracketed};
+use sqruff_lib_core::parser::grammar::conditional::Conditional;
 use sqruff_lib_core::parser::grammar::delimited::Delimited;
 use sqruff_lib_core::parser::grammar::sequence::{Bracketed, Sequence};
 use sqruff_lib_core::parser::lexer::Matcher;
@@ -317,6 +318,93 @@ pub fn raw_dialect() -> Dialect {
         "OPENQUERY",
         "OPENDATASOURCE",
         "OPENXML",
+    ]);
+
+    // Add CASE expression segments to support CASE WHEN expressions
+    dialect.add([
+        (
+            "CaseExpressionSegment".into(),
+            NodeMatcher::new(SyntaxKind::CaseExpression, |_| {
+                one_of(vec_of_erased![
+                    // Simple CASE expression (CASE WHEN ... THEN ... END)
+                    Sequence::new(vec_of_erased![
+                        Ref::keyword("CASE"),
+                        MetaSegment::implicit_indent(),
+                        AnyNumberOf::new(vec_of_erased![Ref::new("WhenClauseSegment")]).config(
+                            |this| {
+                                this.reset_terminators = true;
+                                this.terminators =
+                                    vec_of_erased![Ref::keyword("ELSE"), Ref::keyword("END")];
+                            }
+                        ),
+                        Ref::new("ElseClauseSegment").optional(),
+                        MetaSegment::dedent(),
+                        Ref::keyword("END"),
+                    ]),
+                    // Searched CASE expression (CASE expr WHEN ... THEN ... END)
+                    Sequence::new(vec_of_erased![
+                        Ref::keyword("CASE"),
+                        Ref::new("ExpressionSegment"),
+                        MetaSegment::implicit_indent(),
+                        AnyNumberOf::new(vec_of_erased![Ref::new("WhenClauseSegment")]).config(
+                            |this| {
+                                this.reset_terminators = true;
+                                this.terminators =
+                                    vec_of_erased![Ref::keyword("ELSE"), Ref::keyword("END")];
+                            }
+                        ),
+                        Ref::new("ElseClauseSegment").optional(),
+                        MetaSegment::dedent(),
+                        Ref::keyword("END"),
+                    ]),
+                ])
+                .config(|this| {
+                    this.terminators = vec_of_erased![
+                        Ref::new("CommaSegment"),
+                        Ref::new("BinaryOperatorGrammar")
+                    ]
+                })
+                .to_matchable()
+            })
+            .to_matchable()
+            .into(),
+        ),
+        (
+            "WhenClauseSegment".into(),
+            NodeMatcher::new(SyntaxKind::WhenClause, |_| {
+                Sequence::new(vec_of_erased![
+                    Ref::keyword("WHEN"),
+                    Sequence::new(vec_of_erased![
+                        MetaSegment::implicit_indent(),
+                        Ref::new("ExpressionSegment"),
+                        MetaSegment::dedent(),
+                    ]),
+                    Conditional::new(MetaSegment::indent()).indented_then(),
+                    Ref::keyword("THEN"),
+                    Conditional::new(MetaSegment::implicit_indent()).indented_then_contents(),
+                    Ref::new("ExpressionSegment"),
+                    Conditional::new(MetaSegment::dedent()).indented_then_contents(),
+                    Conditional::new(MetaSegment::dedent()).indented_then(),
+                ])
+                .to_matchable()
+            })
+            .to_matchable()
+            .into(),
+        ),
+        (
+            "ElseClauseSegment".into(),
+            NodeMatcher::new(SyntaxKind::ElseClause, |_| {
+                Sequence::new(vec![
+                    Ref::keyword("ELSE").to_matchable(),
+                    MetaSegment::implicit_indent().to_matchable(),
+                    Ref::new("ExpressionSegment").to_matchable(),
+                    MetaSegment::dedent().to_matchable(),
+                ])
+                .to_matchable()
+            })
+            .to_matchable()
+            .into(),
+        ),
     ]);
 
     // Add OPENROWSET segment for T-SQL specific syntax
@@ -3357,19 +3445,22 @@ pub fn raw_dialect() -> Dialect {
         .into(),
     )]);
 
-    // Extend BaseExpressionElementGrammar to include NEXT VALUE FOR
+    // Extend BaseExpressionElementGrammar to include NEXT VALUE FOR and CaseExpressionSegment
     // Put NextValueForSegment first to prioritize it over column references
     dialect.add([(
         "BaseExpressionElementGrammar".into(),
         dialect
             .grammar("BaseExpressionElementGrammar")
             .copy(
-                Some(vec_of_erased![Ref::new("NextValueForSegment")]),
+                Some(vec_of_erased![
+                    Ref::new("NextValueForSegment"),
+                    Ref::new("CaseExpressionSegment")
+                ]),
                 None,
                 None,
                 None,
                 Vec::new(),
-                true, // prepend to prioritize NEXT VALUE FOR
+                true, // prepend to prioritize NEXT VALUE FOR and CASE
             )
             .into(),
     )]);

@@ -180,188 +180,347 @@ file:
             - naked_identifier: HumanResources
             - dot: .
             - naked_identifier: EmployeePayHistory
+        - where_clause:
+          - keyword: WHERE
+          - keyword: CURRENT
+          - keyword: OF
+          - object_reference:
+            - naked_identifier: complex_cursor
+        - statement_terminator: ;
+  - statement:
+    - statement:
+      - keyword: CLOSE
+      - naked_identifier: complex_cursor
+  - statement_terminator: ;
+  - statement:
+    - statement:
+      - keyword: DEALLOCATE
+      - naked_identifier: complex_cursor
+  - statement_terminator: ;
+  - keyword: GO
+  - statement:
+    - delete_statement:
+      - delete_statement:
+        - keyword: DELETE
+        - keyword: FROM
+        - table_reference:
+          - object_reference:
+            - naked_identifier: Sales
+            - dot: .
+            - naked_identifier: SalesPersonQuotaHistory
+        - where_clause:
+          - keyword: WHERE
+          - expression:
+            - column_reference:
+              - naked_identifier: BusinessEntityID
+            - keyword: IN
+            - bracketed:
+              - start_bracket: (
+              - select_statement:
+                - select_clause:
+                  - keyword: SELECT
+                  - select_clause_element:
+                    - column_reference:
+                      - naked_identifier: BusinessEntityID
+                - from_clause:
+                  - keyword: FROM
+                  - from_expression:
+                    - from_expression_element:
+                      - table_expression:
+                        - table_reference:
+                          - object_reference:
+                            - naked_identifier: Sales
+                            - dot: .
+                            - naked_identifier: SalesPerson
+                - where_clause:
+                  - keyword: WHERE
+                  - expression:
+                    - column_reference:
+                      - naked_identifier: SalesYTD
+                    - comparison_operator:
+                      - raw_comparison_operator: '>'
+                    - numeric_literal: '2500000.00'
+              - end_bracket: )
+        - statement_terminator: ;
+  - keyword: GO
+  - statement:
+    - delete_statement:
+      - delete_statement:
+        - keyword: DELETE
+        - keyword: FROM
+        - table_reference:
+          - object_reference:
+            - naked_identifier: Sales
+            - dot: .
+            - naked_identifier: SalesPersonQuotaHistory
+        - from_clause:
+          - keyword: FROM
+          - from_expression:
+            - from_expression_element:
+              - table_expression:
+                - table_reference:
+                  - object_reference:
+                    - naked_identifier: Sales
+                    - dot: .
+                    - naked_identifier: SalesPersonQuotaHistory
+              - alias_expression:
+                - keyword: AS
+                - naked_identifier: spqh
+            - join_clause:
+              - keyword: INNER
+              - keyword: JOIN
+              - from_expression_element:
+                - table_expression:
+                  - table_reference:
+                    - object_reference:
+                      - naked_identifier: Sales
+                      - dot: .
+                      - naked_identifier: SalesPerson
+                - alias_expression:
+                  - keyword: AS
+                  - naked_identifier: sp
+              - join_on_condition:
+                - keyword: ON
+                - expression:
+                  - column_reference:
+                    - naked_identifier: spqh
+                    - dot: .
+                    - naked_identifier: BusinessEntityID
+                  - comparison_operator:
+                    - raw_comparison_operator: =
+                  - column_reference:
+                    - naked_identifier: sp
+                    - dot: .
+                    - naked_identifier: BusinessEntityID
+        - where_clause:
+          - keyword: WHERE
+          - expression:
+            - column_reference:
+              - naked_identifier: sp
+              - dot: .
+              - naked_identifier: SalesYTD
+            - comparison_operator:
+              - raw_comparison_operator: '>'
+            - numeric_literal: '2500000.00'
+        - statement_terminator: ;
+  - keyword: GO
+  - statement:
+    - delete_statement:
+      - delete_statement:
+        - keyword: DELETE
+        - table_reference:
+          - object_reference:
+            - naked_identifier: spqh
+        - from_clause:
+          - keyword: FROM
+          - from_expression:
+            - from_expression_element:
+              - table_expression:
+                - table_reference:
+                  - object_reference:
+                    - naked_identifier: Sales
+                    - dot: .
+                    - naked_identifier: SalesPersonQuotaHistory
+              - alias_expression:
+                - keyword: AS
+                - naked_identifier: spqh
+            - join_clause:
+              - keyword: INNER
+              - keyword: JOIN
+              - from_expression_element:
+                - table_expression:
+                  - table_reference:
+                    - object_reference:
+                      - naked_identifier: Sales
+                      - dot: .
+                      - naked_identifier: SalesPerson
+                - alias_expression:
+                  - keyword: AS
+                  - naked_identifier: sp
+              - join_on_condition:
+                - keyword: ON
+                - expression:
+                  - column_reference:
+                    - naked_identifier: spqh
+                    - dot: .
+                    - naked_identifier: BusinessEntityID
+                  - comparison_operator:
+                    - raw_comparison_operator: =
+                  - column_reference:
+                    - naked_identifier: sp
+                    - dot: .
+                    - naked_identifier: BusinessEntityID
+        - where_clause:
+          - keyword: WHERE
+          - expression:
+            - column_reference:
+              - naked_identifier: sp
+              - dot: .
+              - naked_identifier: SalesYTD
+            - comparison_operator:
+              - raw_comparison_operator: '>'
+            - numeric_literal: '2500000.00'
+        - statement_terminator: ;
+  - statement:
+    - delete_statement:
+      - delete_statement:
+        - keyword: DELETE
+        - function:
+          - function_name:
+            - function_name_identifier: TOP
+          - bracketed:
+            - start_bracket: (
+            - expression:
+              - numeric_literal: '20'
+            - end_bracket: )
+        - from_clause:
+          - keyword: FROM
+          - from_expression:
+            - from_expression_element:
+              - table_expression:
+                - table_reference:
+                  - object_reference:
+                    - naked_identifier: Purchasing
+                    - dot: .
+                    - naked_identifier: PurchaseOrderDetail
+        - where_clause:
+          - keyword: WHERE
+          - expression:
+            - column_reference:
+              - naked_identifier: DueDate
+            - comparison_operator:
+              - raw_comparison_operator: <
+            - quoted_literal: '''20020701'''
+        - statement_terminator: ;
+  - keyword: GO
+  - statement:
+    - delete_statement:
+      - delete_statement:
+        - keyword: DELETE
+        - keyword: FROM
+        - table_reference:
+          - object_reference:
+            - naked_identifier: Purchasing
+            - dot: .
+            - naked_identifier: PurchaseOrderDetail
+        - where_clause:
+          - keyword: WHERE
+          - expression:
+            - column_reference:
+              - naked_identifier: PurchaseOrderDetailID
+            - keyword: IN
+            - bracketed:
+              - start_bracket: (
+              - select_statement:
+                - select_clause:
+                  - keyword: SELECT
+                  - select_clause_modifier:
+                    - keyword: TOP
+                    - expression:
+                      - numeric_literal: '10'
+                  - select_clause_element:
+                    - column_reference:
+                      - naked_identifier: PurchaseOrderDetailID
+                - from_clause:
+                  - keyword: FROM
+                  - from_expression:
+                    - from_expression_element:
+                      - table_expression:
+                        - table_reference:
+                          - object_reference:
+                            - naked_identifier: Purchasing
+                            - dot: .
+                            - naked_identifier: PurchaseOrderDetail
+                - orderby_clause:
+                  - keyword: ORDER
+                  - keyword: BY
+                  - column_reference:
+                    - naked_identifier: DueDate
+                  - keyword: ASC
+              - end_bracket: )
+        - statement_terminator: ;
+  - keyword: GO
+  - statement:
+    - delete_statement:
+      - delete_statement:
+        - keyword: DELETE
+        - table_reference:
+          - object_reference:
+            - naked_identifier: MyLinkServer
+            - dot: .
+            - naked_identifier: AdventureWorks2012
+            - dot: .
+            - naked_identifier: HumanResources
+            - dot: .
+            - naked_identifier: Department
+        - where_clause:
+          - keyword: WHERE
+          - expression:
+            - column_reference:
+              - naked_identifier: DepartmentID
+            - comparison_operator:
+              - raw_comparison_operator: '>'
+            - numeric_literal: '16'
+        - statement_terminator: ;
+  - keyword: GO
+  - statement:
+    - delete_statement:
+      - delete_statement:
+        - keyword: DELETE
+        - function:
+          - function_name:
+            - function_name_identifier: OPENQUERY
+          - bracketed:
+            - start_bracket: (
+            - expression:
+              - column_reference:
+                - naked_identifier: MyLinkServer
+            - comma: ','
+            - expression:
+              - quoted_literal: |-
+                  'SELECT Name, GroupName
+                  FROM AdventureWorks2012.HumanResources.Department
+                  WHERE DepartmentID = 18'
+            - end_bracket: )
+        - statement_terminator: ;
+  - keyword: GO
+  - statement:
+    - delete_statement:
+      - delete_statement:
+        - keyword: DELETE
+        - function:
+          - function_name:
+            - function_name_identifier: OPENROWSET
+          - bracketed:
+            - start_bracket: (
+            - expression:
+              - quoted_literal: '''SQLNCLI'''
+            - comma: ','
+            - expression:
+              - quoted_literal: '''Server=Seattle1;Trusted_Connection=yes;'''
+            - comma: ','
+            - expression:
+              - column_reference:
+                - naked_identifier: Department
+            - end_bracket: )
+  - keyword: GO
+  - statement:
+    - delete_statement:
+      - delete_statement:
+        - keyword: DELETE
+        - keyword: FROM
+        - function:
+          - function_name:
+            - function_name_identifier: OPENDATASOURCE
+          - bracketed:
+            - start_bracket: (
+            - expression:
+              - quoted_literal: '''SQLNCLI'''
+            - comma: ','
+            - expression:
+              - quoted_literal: '''Data Source= <server_name>; Integrated Security=SSPI'''
+            - end_bracket: )
 - unparsable:
-  - word: WHERE
-  - word: CURRENT
-  - word: OF
-  - word: complex_cursor
-  - semicolon: ;
-  - word: CLOSE
-  - word: complex_cursor
-  - semicolon: ;
-  - word: DEALLOCATE
-  - word: complex_cursor
-  - semicolon: ;
-  - word: GO
-  - word: DELETE
-  - word: FROM
-  - word: Sales
-  - dot: .
-  - word: SalesPersonQuotaHistory
-  - word: WHERE
-  - word: BusinessEntityID
-  - word: IN
-  - start_bracket: (
-  - word: SELECT
-  - word: BusinessEntityID
-  - word: FROM
-  - word: Sales
-  - dot: .
-  - word: SalesPerson
-  - word: WHERE
-  - word: SalesYTD
-  - raw_comparison_operator: '>'
-  - numeric_literal: '2500000.00'
-  - end_bracket: )
-  - semicolon: ;
-  - word: GO
-  - word: DELETE
-  - word: FROM
-  - word: Sales
-  - dot: .
-  - word: SalesPersonQuotaHistory
-  - word: FROM
-  - word: Sales
-  - dot: .
-  - word: SalesPersonQuotaHistory
-  - word: AS
-  - word: spqh
-  - word: INNER
-  - word: JOIN
-  - word: Sales
-  - dot: .
-  - word: SalesPerson
-  - word: AS
-  - word: sp
-  - word: ON
-  - word: spqh
-  - dot: .
-  - word: BusinessEntityID
-  - raw_comparison_operator: =
-  - word: sp
-  - dot: .
-  - word: BusinessEntityID
-  - word: WHERE
-  - word: sp
-  - dot: .
-  - word: SalesYTD
-  - raw_comparison_operator: '>'
-  - numeric_literal: '2500000.00'
-  - semicolon: ;
-  - word: GO
-  - word: DELETE
-  - word: spqh
-  - word: FROM
-  - word: Sales
-  - dot: .
-  - word: SalesPersonQuotaHistory
-  - word: AS
-  - word: spqh
-  - word: INNER
-  - word: JOIN
-  - word: Sales
-  - dot: .
-  - word: SalesPerson
-  - word: AS
-  - word: sp
-  - word: ON
-  - word: spqh
-  - dot: .
-  - word: BusinessEntityID
-  - raw_comparison_operator: =
-  - word: sp
-  - dot: .
-  - word: BusinessEntityID
-  - word: WHERE
-  - word: sp
-  - dot: .
-  - word: SalesYTD
-  - raw_comparison_operator: '>'
-  - numeric_literal: '2500000.00'
-  - semicolon: ;
-  - word: DELETE
-  - word: TOP
-  - start_bracket: (
-  - numeric_literal: '20'
-  - end_bracket: )
-  - word: FROM
-  - word: Purchasing
-  - dot: .
-  - word: PurchaseOrderDetail
-  - word: WHERE
-  - word: DueDate
-  - raw_comparison_operator: <
-  - single_quote: '''20020701'''
-  - semicolon: ;
-  - word: GO
-  - word: DELETE
-  - word: FROM
-  - word: Purchasing
-  - dot: .
-  - word: PurchaseOrderDetail
-  - word: WHERE
-  - word: PurchaseOrderDetailID
-  - word: IN
-  - start_bracket: (
-  - word: SELECT
-  - word: TOP
-  - numeric_literal: '10'
-  - word: PurchaseOrderDetailID
-  - word: FROM
-  - word: Purchasing
-  - dot: .
-  - word: PurchaseOrderDetail
-  - word: ORDER
-  - word: BY
-  - word: DueDate
-  - word: ASC
-  - end_bracket: )
-  - semicolon: ;
-  - word: GO
-  - word: DELETE
-  - word: MyLinkServer
-  - dot: .
-  - word: AdventureWorks2012
-  - dot: .
-  - word: HumanResources
-  - dot: .
-  - word: Department
-  - word: WHERE
-  - word: DepartmentID
-  - raw_comparison_operator: '>'
-  - numeric_literal: '16'
-  - semicolon: ;
-  - word: GO
-  - word: DELETE
-  - word: OPENQUERY
-  - start_bracket: (
-  - word: MyLinkServer
-  - comma: ','
-  - single_quote: |-
-      'SELECT Name, GroupName
-      FROM AdventureWorks2012.HumanResources.Department
-      WHERE DepartmentID = 18'
-  - end_bracket: )
-  - semicolon: ;
-  - word: GO
-  - word: DELETE
-  - word: OPENROWSET
-  - start_bracket: (
-  - single_quote: '''SQLNCLI'''
-  - comma: ','
-  - single_quote: '''Server=Seattle1;Trusted_Connection=yes;'''
-  - comma: ','
-  - word: Department
-  - end_bracket: )
-  - word: GO
-  - word: DELETE
-  - word: FROM
-  - word: OPENDATASOURCE
-  - start_bracket: (
-  - single_quote: '''SQLNCLI'''
-  - comma: ','
-  - single_quote: '''Data Source= <server_name>; Integrated Security=SSPI'''
-  - end_bracket: )
   - dot: .
   - word: AdventureWorks2012
   - dot: .

@@ -7099,6 +7099,27 @@ pub fn raw_dialect() -> Dialect {
         .to_matchable(),
     );
 
+    // Override WhereClauseSegment to support T-SQL CURRENT OF clause
+    dialect.replace_grammar(
+        "WhereClauseSegment",
+        Sequence::new(vec_of_erased![
+            Ref::keyword("WHERE"),
+            MetaSegment::indent(),
+            one_of(vec_of_erased![
+                // Regular WHERE with expression
+                Ref::new("ExpressionSegment"),
+                // T-SQL CURRENT OF clause for cursors
+                Sequence::new(vec_of_erased![
+                    Ref::keyword("CURRENT"),
+                    Ref::keyword("OF"),
+                    Ref::new("ObjectReferenceSegment") // cursor name
+                ])
+            ]),
+            MetaSegment::dedent()
+        ])
+        .to_matchable(),
+    );
+
     // BREAK and CONTINUE statements for loops
     dialect.add([
         (

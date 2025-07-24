@@ -1073,10 +1073,12 @@ pub fn raw_dialect() -> Dialect {
                 .config(|this| this.optional()),
                 // What to execute
                 one_of(vec_of_erased![
-                    // Dynamic SQL (expression in parentheses)
+                    // Dynamic SQL (expression or parameterized query in parentheses)
                     Bracketed::new(vec_of_erased![
-                        Ref::new("ExpressionSegment") // SQL string expression
+                        Delimited::new(vec_of_erased![Ref::new("ExpressionSegment")])
                     ]),
+                    // Execute stored procedure variable
+                    Ref::new("TsqlVariableSegment"),
                     // Stored procedure with optional parameters
                     Sequence::new(vec_of_erased![
                         Ref::new("ObjectReferenceSegment"), // Procedure name
@@ -1088,13 +1090,19 @@ pub fn raw_dialect() -> Dialect {
                                 Sequence::new(vec_of_erased![
                                     Ref::new("TsqlVariableSegment"),
                                     Ref::new("AssignmentOperatorSegment"),
-                                    Ref::new("ExpressionSegment"),
+                                    one_of(vec_of_erased![
+                                        Ref::new("ExpressionSegment"),
+                                        Ref::keyword("DEFAULT")
+                                    ]),
                                     // Optional OUTPUT keyword
                                     Ref::keyword("OUTPUT").optional()
                                 ]),
                                 // Positional parameter
                                 Sequence::new(vec_of_erased![
-                                    Ref::new("ExpressionSegment"),
+                                    one_of(vec_of_erased![
+                                        Ref::new("ExpressionSegment"),
+                                        Ref::keyword("DEFAULT")
+                                    ]),
                                     // Optional OUTPUT keyword
                                     Ref::keyword("OUTPUT").optional()
                                 ])
@@ -1107,13 +1115,19 @@ pub fn raw_dialect() -> Dialect {
                                     Sequence::new(vec_of_erased![
                                         Ref::new("TsqlVariableSegment"),
                                         Ref::new("AssignmentOperatorSegment"),
-                                        Ref::new("ExpressionSegment"),
+                                        one_of(vec_of_erased![
+                                            Ref::new("ExpressionSegment"),
+                                            Ref::keyword("DEFAULT")
+                                        ]),
                                         // Optional OUTPUT keyword
                                         Ref::keyword("OUTPUT").optional()
                                     ]),
                                     // Positional parameter
                                     Sequence::new(vec_of_erased![
-                                        Ref::new("ExpressionSegment"),
+                                        one_of(vec_of_erased![
+                                            Ref::new("ExpressionSegment"),
+                                            Ref::keyword("DEFAULT")
+                                        ]),
                                         // Optional OUTPUT keyword
                                         Ref::keyword("OUTPUT").optional()
                                     ])
@@ -1255,12 +1269,138 @@ pub fn raw_dialect() -> Dialect {
                     ]),
                     MetaSegment::dedent()
                 ])
+                .config(|this| this.optional()),
+                // Optional AT clause for linked server execution
+                Sequence::new(vec_of_erased![
+                    Ref::keyword("AT"),
+                    one_of(vec_of_erased![
+                        Ref::new("ObjectReferenceSegment"), // Server name
+                        Sequence::new(vec_of_erased![
+                            Ref::keyword("DATA_SOURCE"),
+                            Ref::new("ObjectReferenceSegment") // Data source name
+                        ])
+                    ])
+                ])
+                .config(|this| this.optional()),
+                // Optional WITH clause
+                Sequence::new(vec_of_erased![
+                    Ref::keyword("WITH"),
+                    one_of(vec_of_erased![
+                        Ref::keyword("RECOMPILE"),
+                        // RESULT SETS clause
+                        Sequence::new(vec_of_erased![
+                            Ref::keyword("RESULT"),
+                            Ref::keyword("SETS"),
+                            one_of(vec_of_erased![
+                                Ref::keyword("UNDEFINED"),
+                                Ref::keyword("NONE"),
+                                // Result set definitions
+                                Bracketed::new(vec_of_erased![
+                                    Delimited::new(vec_of_erased![
+                                        Bracketed::new(vec_of_erased![
+                                            Delimited::new(vec_of_erased![
+                                                Sequence::new(vec_of_erased![
+                                                    Ref::new("ColumnReferenceSegment"),
+                                                    Ref::new("DatatypeSegment"),
+                                                    Ref::keyword("NOT").optional(),
+                                                    Ref::keyword("NULL").optional()
+                                                ])
+                                            ])
+                                        ])
+                                    ])
+                                ])
+                            ])
+                        ])
+                    ])
+                ])
+                .config(|this| this.optional()),
+                // Optional AS clause (for EXECUTE AS)
+                Sequence::new(vec_of_erased![
+                    Ref::keyword("AS"),
+                    one_of(vec_of_erased![
+                        Ref::keyword("CALLER"),
+                        Ref::keyword("SELF"),
+                        Ref::keyword("OWNER"),
+                        Sequence::new(vec_of_erased![
+                            Ref::keyword("USER"),
+                            Ref::new("AssignmentOperatorSegment"),
+                            Ref::new("QuotedLiteralSegment")
+                        ]),
+                        Sequence::new(vec_of_erased![
+                            Ref::keyword("LOGIN"),
+                            Ref::new("AssignmentOperatorSegment"),
+                            Ref::new("QuotedLiteralSegment")
+                        ])
+                    ])
+                ])
                 .config(|this| this.optional())
             ])
             .to_matchable()
             .into(),
         ),
     ]);
+
+    // Bare procedure call (without EXECUTE keyword)
+    dialect.add([(
+        "BareProcedureCallStatementSegment".into(),
+        Sequence::new(vec_of_erased![
+            Ref::new("ObjectReferenceSegment"), // Procedure name
+            // Optional parameters (same as ExecuteStatementGrammar)
+            AnyNumberOf::new(vec_of_erased![one_of(vec_of_erased![
+                // First parameter doesn't need comma
+                Sequence::new(vec_of_erased![one_of(vec_of_erased![
+                    // Named parameter: @param = value
+                    Sequence::new(vec_of_erased![
+                        Ref::new("TsqlVariableSegment"),
+                        Ref::new("AssignmentOperatorSegment"),
+                        one_of(vec_of_erased![
+                            Ref::new("ExpressionSegment"),
+                            Ref::keyword("DEFAULT")
+                        ]),
+                        // Optional OUTPUT keyword
+                        Ref::keyword("OUTPUT").optional()
+                    ]),
+                    // Positional parameter
+                    Sequence::new(vec_of_erased![
+                        one_of(vec_of_erased![
+                            Ref::new("ExpressionSegment"),
+                            Ref::keyword("DEFAULT")
+                        ]),
+                        // Optional OUTPUT keyword
+                        Ref::keyword("OUTPUT").optional()
+                    ])
+                ])]),
+                // Subsequent parameters need comma
+                Sequence::new(vec_of_erased![
+                    Ref::new("CommaSegment"),
+                    one_of(vec_of_erased![
+                        // Named parameter: @param = value
+                        Sequence::new(vec_of_erased![
+                            Ref::new("TsqlVariableSegment"),
+                            Ref::new("AssignmentOperatorSegment"),
+                            one_of(vec_of_erased![
+                                Ref::new("ExpressionSegment"),
+                                Ref::keyword("DEFAULT")
+                            ]),
+                            // Optional OUTPUT keyword
+                            Ref::keyword("OUTPUT").optional()
+                        ]),
+                        // Positional parameter
+                        Sequence::new(vec_of_erased![
+                            one_of(vec_of_erased![
+                                Ref::new("ExpressionSegment"),
+                                Ref::keyword("DEFAULT")
+                            ]),
+                            // Optional OUTPUT keyword
+                            Ref::keyword("OUTPUT").optional()
+                        ])
+                    ])
+                ])
+            ])])
+        ])
+        .to_matchable()
+        .into(),
+    )]);
 
     // WHILE loop
     dialect.add([
@@ -2999,7 +3139,9 @@ pub fn raw_dialect() -> Dialect {
             Ref::new("AlterSequenceStatementSegment"),
             Ref::new("DropSequenceStatementSegment"),
             Ref::new("CreateTriggerStatementSegment"),
-            Ref::new("DropTriggerStatementSegment")
+            Ref::new("DropTriggerStatementSegment"),
+            // Bare procedure call (without EXECUTE) - must come after other statements to avoid conflicts
+            Ref::new("BareProcedureCallStatementSegment")
         ])
         .config(|this| this.terminators = vec_of_erased![Ref::new("DelimiterGrammar")])
         .to_matchable(),
@@ -4122,14 +4264,11 @@ pub fn raw_dialect() -> Dialect {
     // Add T-SQL specific WithCheckOptionSegment
     dialect.add([(
         "WithCheckOptionSegment".into(),
-        NodeMatcher::new(SyntaxKind::WithCheckOption, |_| {
-            Sequence::new(vec_of_erased![
-                Ref::keyword("WITH"),
-                Ref::keyword("CHECK"),
-                Ref::keyword("OPTION")
-            ])
-            .to_matchable()
-        })
+        Sequence::new(vec_of_erased![
+            Ref::keyword("WITH"),
+            Ref::keyword("CHECK"),
+            Ref::keyword("OPTION")
+        ])
         .to_matchable()
         .into(),
     )]);

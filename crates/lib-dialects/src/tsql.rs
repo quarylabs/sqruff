@@ -2379,13 +2379,16 @@ pub fn raw_dialect() -> Dialect {
                 Ref::keyword("ALTER"),
                 Ref::keyword("TABLE"),
                 Ref::new("TableReferenceSegment"),
-                one_of(vec_of_erased![
+                Delimited::new(vec_of_erased![
+                    one_of(vec_of_erased![
                     // ADD clauses
                     Sequence::new(vec_of_erased![
                         Ref::keyword("ADD"),
                         one_of(vec_of_erased![
-                            // ADD column_definition
-                            Ref::new("ColumnDefinitionSegment"),
+                            // ADD column_definition(s) - can be multiple separated by commas
+                            Delimited::new(vec_of_erased![
+                                Ref::new("ColumnDefinitionSegment")
+                            ]),
                             // ADD CONSTRAINT
                             Sequence::new(vec_of_erased![
                                 Ref::keyword("CONSTRAINT"),
@@ -2627,6 +2630,7 @@ pub fn raw_dialect() -> Dialect {
                         Ref::keyword("CONSTRAINT"),
                         Ref::new("ObjectReferenceSegment")
                     ])
+                ])
                 ])
             ])
             .to_matchable()
@@ -4391,17 +4395,15 @@ pub fn raw_dialect() -> Dialect {
                 Ref::keyword("SCHEMA"),
                 Ref::new("IfNotExistsGrammar").optional(),
                 Ref::new("SchemaReferenceSegment"),
-                // TODO: Fix optional sequence compilation error
-                // Sequence::new(vec_of_erased![
-                //     Ref::keyword("AUTHORIZATION"),
-                //     Ref::new("ObjectReferenceSegment")
-                // ])
-                // .config(|this| this.optional())
+                Sequence::new(vec_of_erased![
+                    Ref::keyword("AUTHORIZATION"),
+                    Ref::new("ObjectReferenceSegment")
+                ])
+                .config(|this| this.optional())
             ])
             .to_matchable()
         })
-        .to_matchable()
-        .into(),
+        .to_matchable(),
     );
 
     // T-SQL CREATE ROLE with AUTHORIZATION support
@@ -5064,7 +5066,7 @@ pub fn raw_dialect() -> Dialect {
                 Ref::keyword("LOGIN"),
                 Ref::new("ObjectReferenceSegment"),
                 one_of(vec_of_erased![
-                    // WITH PASSWORD = 'password' [MUST_CHANGE] [, options]
+                    // WITH PASSWORD = 'password' [MUST_CHANGE] [, options] [FROM WINDOWS]
                     Sequence::new(vec_of_erased![
                         Ref::keyword("WITH"),
                         Ref::keyword("PASSWORD"),
@@ -5075,7 +5077,12 @@ pub fn raw_dialect() -> Dialect {
                         AnyNumberOf::new(vec_of_erased![Sequence::new(vec_of_erased![
                             Ref::new("CommaSegment"),
                             Ref::new("LoginOptionGrammar")
-                        ])])
+                        ])]),
+                        // Optional FROM WINDOWS after password options
+                        Sequence::new(vec_of_erased![
+                            Ref::keyword("FROM"),
+                            Ref::keyword("WINDOWS")
+                        ]).config(|this| this.optional())
                     ]),
                     // FROM WINDOWS
                     Sequence::new(vec_of_erased![
@@ -5129,7 +5136,10 @@ pub fn raw_dialect() -> Dialect {
             Sequence::new(vec_of_erased![
                 Ref::keyword("DEFAULT_DATABASE"),
                 Ref::new("EqualsSegment"),
-                Ref::new("DatabaseReferenceSegment")
+                one_of(vec_of_erased![
+                    Ref::new("QuotedLiteralSegment"),
+                    Ref::new("NakedIdentifierSegment")
+                ])
             ]),
             // DEFAULT_LANGUAGE = language
             Sequence::new(vec_of_erased![
@@ -5141,10 +5151,7 @@ pub fn raw_dialect() -> Dialect {
             Sequence::new(vec_of_erased![
                 Ref::keyword("SID"),
                 Ref::new("EqualsSegment"),
-                one_of(vec_of_erased![
-                    Ref::new("NumericLiteralSegment"),
-                    Ref::new("NakedIdentifierSegment") // For hex literals like 0x241C11948AEEB749B0D22646DB1A19F2
-                ])
+                Ref::new("LiteralGrammar")
             ]),
             // CREDENTIAL = credential_name
             Sequence::new(vec_of_erased![
@@ -5235,10 +5242,7 @@ pub fn raw_dialect() -> Dialect {
             Sequence::new(vec_of_erased![
                 Ref::keyword("SID"),
                 Ref::new("EqualsSegment"),
-                one_of(vec_of_erased![
-                    Ref::new("NumericLiteralSegment"),
-                    Ref::new("NakedIdentifierSegment") // For hex literals like 0x241C11948AEEB749B0D22646DB1A19F2
-                ])
+                Ref::new("LiteralGrammar")
             ]),
             // DEFAULT_SCHEMA = schema_name
             Sequence::new(vec_of_erased![

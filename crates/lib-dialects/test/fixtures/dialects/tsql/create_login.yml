@@ -71,19 +71,24 @@ file:
       - comparison_operator:
         - raw_comparison_operator: =
       - quoted_literal: '''<enterStrongPasswordHere>'''
+      - comma: ','
+      - keyword: DEFAULT_DATABASE
+      - comparison_operator:
+        - raw_comparison_operator: =
+      - quoted_literal: '''TestDb'''
+  - statement_terminator: ;
+  - statement:
+    - create_login_statement:
+      - keyword: CREATE
+      - keyword: LOGIN
+      - object_reference:
+        - quoted_identifier: '[MyUserName]'
+      - keyword: WITH
+      - keyword: PASSWORD
+      - comparison_operator:
+        - raw_comparison_operator: =
+      - quoted_literal: '''<enterStrongPasswordHere>'''
 - unparsable:
-  - comma: ','
-  - word: DEFAULT_DATABASE
-  - raw_comparison_operator: =
-  - single_quote: '''TestDb'''
-  - semicolon: ;
-  - word: CREATE
-  - word: LOGIN
-  - double_quote: '[MyUserName]'
-  - word: WITH
-  - word: PASSWORD
-  - raw_comparison_operator: =
-  - single_quote: '''<enterStrongPasswordHere>'''
   - comma: ','
   - word: SID
   - raw_comparison_operator: =

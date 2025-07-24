@@ -17,8 +17,8 @@ file:
         - table_reference:
           - object_reference:
             - quoted_identifier: '[Extracts]'
-- unparsable:
-  - word: AUTHORIZATION
-  - double_quote: '[dbo]'
-  - semicolon: ;
-  - word: GO
+        - keyword: AUTHORIZATION
+        - object_reference:
+          - quoted_identifier: '[dbo]'
+  - statement_terminator: ;
+  - keyword: GO

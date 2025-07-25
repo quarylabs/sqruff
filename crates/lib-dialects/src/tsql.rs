@@ -316,6 +316,7 @@ pub fn raw_dialect() -> Dialect {
         "SPACE",
         "STR",
         "UNICODE",
+        "CONVERT",  // T-SQL conversion function
     ]);
 
     // T-SQL specific value table functions
@@ -716,7 +717,7 @@ pub fn raw_dialect() -> Dialect {
                 one_of(vec_of_erased![
                     // Regular column: datatype [IDENTITY] [constraints]
                     Sequence::new(vec_of_erased![
-                        Ref::new("DatatypeSegment"), // Column type
+                        Ref::new("TsqlDatatypeSegment"), // Column type
                         // IDENTITY specification
                         Sequence::new(vec_of_erased![
                             Ref::keyword("IDENTITY"),
@@ -1748,7 +1749,7 @@ pub fn raw_dialect() -> Dialect {
                 Bracketed::new(vec_of_erased![Delimited::new(vec_of_erased![
                     Sequence::new(vec_of_erased![
                         Ref::new("SingleIdentifierGrammar"), // Column name (naked or bracketed)
-                        Ref::new("DatatypeSegment"),        // Data type
+                        Ref::new("TsqlDatatypeSegment"),        // Data type
                         // Optional JSON path
                         Sequence::new(vec_of_erased![Ref::new("QuotedLiteralSegment")])
                             .config(|this| this.optional()),
@@ -3459,12 +3460,22 @@ pub fn raw_dialect() -> Dialect {
             Ref::new("BareFunctionSegment"),
             Ref::new("FunctionSegment"),
             Ref::new("OpenRowSetSegment"), // Add OPENROWSET with special syntax support
+            Ref::new("OpenQuerySegment"),    // Add OPENQUERY support
+            Ref::new("OpenDataSourceSegment"), // Add OPENDATASOURCE support
             Ref::new("TableReferenceSegment"),
             Ref::new("OpenJsonSegment"),
             Bracketed::new(vec_of_erased![Ref::new("SelectableGrammar")]),
             Sequence::new(vec_of_erased![
                 Ref::new("TableReferenceSegment"),
                 Ref::new("PivotUnpivotGrammar")
+            ]),
+            // Table-valued function calls (e.g., dbo.GetReports(123))
+            Sequence::new(vec_of_erased![
+                Ref::new("ObjectReferenceSegment"),
+                Bracketed::new(vec_of_erased![
+                    Ref::new("FunctionContentsGrammar").optional()
+                ])
+                .config(|this| this.parse_mode(ParseMode::Greedy))
             ])
         ])
         .to_matchable(),
@@ -3603,8 +3614,7 @@ pub fn raw_dialect() -> Dialect {
             // WITH (hints) syntax
             Ref::new("TableHintSegment"),
             // Simplified (hint) syntax - just bracketed hints without WITH
-            Bracketed::new(vec_of_erased![Ref::new("TableHintElement")])
-                .config(|this| this.parse_mode = ParseMode::Greedy),
+            Bracketed::new(vec_of_erased![Delimited::new(vec_of_erased![Ref::new("TableHintElement")])]),
             // PIVOT/UNPIVOT
             Ref::new("PivotUnpivotStatementSegment"),
         ])
@@ -3726,7 +3736,15 @@ pub fn raw_dialect() -> Dialect {
                         Ref::keyword("JOIN")
                     ]),
                     // Just JOIN (no type, no hints)
-                    Ref::keyword("JOIN")
+                    Ref::keyword("JOIN"),
+                    // CROSS APPLY and OUTER APPLY
+                    Sequence::new(vec_of_erased![
+                        one_of(vec_of_erased![
+                            Ref::keyword("CROSS"),
+                            Ref::keyword("OUTER"),
+                        ]),
+                        Ref::keyword("APPLY")
+                    ])
                 ]),
                 MetaSegment::indent(),
                 Ref::new("FromExpressionElementSegment"),
@@ -3994,7 +4012,7 @@ pub fn raw_dialect() -> Dialect {
     )]);
 
 
-    // Override PrimaryKeyGrammar to support CLUSTERED/NONCLUSTERED
+    // Override PrimaryKeyGrammar to support CLUSTERED/NONCLUSTERED and column lists
     dialect.add([(
         "PrimaryKeyGrammar".into(),
         Sequence::new(vec_of_erased![
@@ -4003,13 +4021,25 @@ pub fn raw_dialect() -> Dialect {
             one_of(vec_of_erased![
                 Ref::keyword("CLUSTERED"),
                 Ref::keyword("NONCLUSTERED")
+            ]).config(|this| this.optional()),
+            // Optional column list with ASC/DESC for T-SQL
+            Bracketed::new(vec_of_erased![
+                Delimited::new(vec_of_erased![
+                    Sequence::new(vec_of_erased![
+                        Ref::new("ColumnReferenceSegment"),
+                        one_of(vec_of_erased![
+                            Ref::keyword("ASC"),
+                            Ref::keyword("DESC")
+                        ]).config(|this| this.optional())
+                    ])
+                ])
             ]).config(|this| this.optional())
         ])
         .to_matchable()
         .into(),
     )]);
 
-    // Override UniqueKeyGrammar to support CLUSTERED/NONCLUSTERED
+    // Override UniqueKeyGrammar to support CLUSTERED/NONCLUSTERED and column lists
     dialect.add([(
         "UniqueKeyGrammar".into(),
         Sequence::new(vec_of_erased![
@@ -4017,6 +4047,18 @@ pub fn raw_dialect() -> Dialect {
             one_of(vec_of_erased![
                 Ref::keyword("CLUSTERED"),
                 Ref::keyword("NONCLUSTERED")
+            ]).config(|this| this.optional()),
+            // Optional column list with ASC/DESC for T-SQL
+            Bracketed::new(vec_of_erased![
+                Delimited::new(vec_of_erased![
+                    Sequence::new(vec_of_erased![
+                        Ref::new("ColumnReferenceSegment"),
+                        one_of(vec_of_erased![
+                            Ref::keyword("ASC"),
+                            Ref::keyword("DESC")
+                        ]).config(|this| this.optional())
+                    ])
+                ])
             ]).config(|this| this.optional())
         ])
         .to_matchable()
@@ -4950,7 +4992,7 @@ pub fn raw_dialect() -> Dialect {
                 Ref::new("IfNotExistsGrammar").optional(),
                 Ref::new("TableReferenceSegment"),
                 one_of(vec_of_erased![
-                    // Regular CREATE TABLE with column definitions
+                    // Regular CREATE TABLE with column definitions (not graph tables)
                     Sequence::new(vec_of_erased![
                         Bracketed::new(vec_of_erased![
                             Delimited::new(vec_of_erased![
@@ -4969,6 +5011,15 @@ pub fn raw_dialect() -> Dialect {
                                 Ref::new("TableOptionGrammar")
                             ])])
                         ])
+                        .config(|this| this.optional()),
+                        // Optional AS NODE/EDGE for graph tables with column definitions
+                        Sequence::new(vec_of_erased![
+                            Ref::keyword("AS"),
+                            one_of(vec_of_erased![
+                                Ref::keyword("NODE"),
+                                Ref::keyword("EDGE")
+                            ])
+                        ])
                         .config(|this| this.optional())
                     ]),
                     // CREATE TABLE AS SELECT with optional WITH clause before AS
@@ -4985,6 +5036,14 @@ pub fn raw_dialect() -> Dialect {
                         optionally_bracketed(vec_of_erased![Ref::new("SelectableGrammar")]),
                         // Azure Synapse specific: OPTION clause after AS SELECT
                         Ref::new("OptionClauseSegment").optional()
+                    ]),
+                    // T-SQL Graph: Simple graph table without column definitions (CREATE TABLE name AS NODE/EDGE)
+                    Sequence::new(vec_of_erased![
+                        Ref::keyword("AS"),
+                        one_of(vec_of_erased![
+                            Ref::keyword("NODE"),
+                            Ref::keyword("EDGE")
+                        ])
                     ])
                 ]),
                 // Optional ON filegroup/partition_scheme clause for both table types
@@ -5002,15 +5061,6 @@ pub fn raw_dialect() -> Dialect {
                     Bracketed::new(vec_of_erased![Delimited::new(vec_of_erased![
                         Ref::new("TableOptionGrammar")
                     ])])
-                ])
-                .config(|this| this.optional()),
-                // T-SQL Graph: AS NODE or AS EDGE clause for graph tables
-                Sequence::new(vec_of_erased![
-                    Ref::keyword("AS"),
-                    one_of(vec_of_erased![
-                        Ref::keyword("NODE"),
-                        Ref::keyword("EDGE")
-                    ])
                 ])
                 .config(|this| this.optional())
             ])
@@ -7142,7 +7192,25 @@ pub fn raw_dialect() -> Dialect {
                 one_of(vec_of_erased![
                     Ref::new("TableReferenceSegment"),
                     Ref::new("AliasedTableReferenceGrammar"),
-                    // T-SQL specific: OPENQUERY/OPENROWSET support
+                    // T-SQL specific: OPENQUERY/OPENROWSET/OPENDATASOURCE support
+                    Ref::new("OpenQuerySegment"),
+                    Ref::new("OpenRowSetSegment"),
+                    Ref::new("OpenDataSourceSegment"),
+                    // Allow OPENDATASOURCE/OPENROWSET/OPENQUERY with chained object references
+                    Sequence::new(vec_of_erased![
+                        one_of(vec_of_erased![
+                            Ref::new("OpenQuerySegment"),
+                            Ref::new("OpenDataSourceSegment"),
+                            Ref::new("OpenRowSetSegment")
+                        ]),
+                        // Allow .database.schema.table after OPENDATASOURCE/OPENROWSET/OPENQUERY
+                        AnyNumberOf::new(vec_of_erased![
+                            Sequence::new(vec_of_erased![
+                                Ref::new("DotSegment"),
+                                Ref::new("SingleIdentifierGrammar")
+                            ])
+                        ]).config(|this| this.min_times(1))
+                    ]),
                     Ref::new("FunctionSegment"),
                 ]),
                 // T-SQL specific: Table hints
@@ -7206,21 +7274,38 @@ pub fn raw_dialect() -> Dialect {
                 Ref::keyword("INTO").optional(),
                 one_of(vec_of_erased![
                     Ref::new("TableReferenceSegment"),
-                    // T-SQL specific: OPENQUERY/OPENROWSET support
-                    Ref::new("FunctionSegment"),
+                    // T-SQL specific: OPENQUERY/OPENROWSET/OPENDATASOURCE support
+                    Ref::new("OpenQuerySegment"),
+                    Ref::new("OpenRowSetSegment"),
+                    Ref::new("OpenDataSourceSegment"),
+                    // Allow OPENDATASOURCE/OPENROWSET/OPENQUERY with chained object references
+                    Sequence::new(vec_of_erased![
+                        one_of(vec_of_erased![
+                            Ref::new("OpenQuerySegment"),
+                            Ref::new("OpenDataSourceSegment"),
+                            Ref::new("OpenRowSetSegment")
+                        ]),
+                        // Allow .database.schema.table after OPENDATASOURCE/OPENROWSET/OPENQUERY
+                        AnyNumberOf::new(vec_of_erased![
+                            Sequence::new(vec_of_erased![
+                                Ref::new("DotSegment"),
+                                Ref::new("SingleIdentifierGrammar")
+                            ])
+                        ]).config(|this| this.min_times(1))
+                    ]),
                 ]),
                 // T-SQL specific: Table hints
                 Ref::new("PostTableExpressionGrammar").optional(),
                 // T-SQL specific: OUTPUT clause before VALUES/SELECT
                 Ref::new("OutputClauseSegment").optional(),
                 one_of(vec_of_erased![
-                    Ref::new("SelectableGrammar"),
                     Sequence::new(vec_of_erased![
                         Ref::new("BracketedColumnReferenceListGrammar"),
                         // OUTPUT clause can also be here
                         Ref::new("OutputClauseSegment").optional(),
                         Ref::new("SelectableGrammar")
                     ]),
+                    Ref::new("SelectableGrammar"),
                     Ref::new("DefaultValuesGrammar")
                 ]),
                 // T-SQL specific: OPTION clause
@@ -7258,10 +7343,33 @@ pub fn raw_dialect() -> Dialect {
                 // T-SQL allows omitting FROM when using OPENQUERY
                 Ref::keyword("FROM").optional(),
                 one_of(vec_of_erased![
-                    Ref::new("TableReferenceSegment"),
-                    // T-SQL specific: OPENQUERY/OPENROWSET support
+                    // Handle table with alias (but exclude OUTPUT as alias)
+                    Sequence::new(vec_of_erased![
+                        Ref::new("TableReferenceSegment"),
+                        Ref::new("AliasExpressionSegment")
+                            .exclude(Ref::keyword("OUTPUT"))
+                            .optional()
+                    ]),
+                    // T-SQL specific: OPENQUERY/OPENROWSET/OPENDATASOURCE support
+                    Ref::new("OpenQuerySegment"),
+                    Ref::new("OpenRowSetSegment"),
+                    Ref::new("OpenDataSourceSegment"),
+                    // Allow OPENDATASOURCE/OPENROWSET/OPENQUERY with chained object references
+                    Sequence::new(vec_of_erased![
+                        one_of(vec_of_erased![
+                            Ref::new("OpenQuerySegment"),
+                            Ref::new("OpenDataSourceSegment"),
+                            Ref::new("OpenRowSetSegment")
+                        ]),
+                        // Allow .database.schema.table after OPENDATASOURCE/OPENROWSET/OPENQUERY
+                        AnyNumberOf::new(vec_of_erased![
+                            Sequence::new(vec_of_erased![
+                                Ref::new("DotSegment"),
+                                Ref::new("SingleIdentifierGrammar")
+                            ])
+                        ]).config(|this| this.min_times(1))
+                    ]),
                     Ref::new("FunctionSegment"),
-                    Ref::new("AliasedTableReferenceGrammar"),
                 ]),
                 // T-SQL specific: Table hints
                 Ref::new("PostTableExpressionGrammar").optional(),
@@ -7623,8 +7731,7 @@ pub fn raw_dialect() -> Dialect {
             // WITH (hints) syntax
             Ref::new("TableHintSegment"),
             // Simplified (hint) syntax - just bracketed hints without WITH
-            Bracketed::new(vec_of_erased![Ref::new("TableHintElement")])
-                .config(|this| this.parse_mode = ParseMode::Greedy),
+            Bracketed::new(vec_of_erased![Delimited::new(vec_of_erased![Ref::new("TableHintElement")])]),
             // PIVOT/UNPIVOT
             Ref::new("PivotUnpivotStatementSegment"),
             // FOR SYSTEM_TIME temporal table queries
@@ -7645,7 +7752,7 @@ pub fn raw_dialect() -> Dialect {
                     Ref::keyword("ALTER")
                 ]).config(|this| this.optional()),
                 Ref::keyword("FUNCTION"),
-                Ref::new("FunctionNameSegment"),
+                Ref::new("ObjectReferenceSegment"),  // T-SQL functions can have schema names
                 Ref::new("FunctionParameterListGrammar"),
                 // RETURNS clause - can be simple type or table type
                 Sequence::new(vec_of_erased![
@@ -7776,7 +7883,7 @@ pub fn raw_dialect() -> Dialect {
                 // Regular column definition
                 Sequence::new(vec_of_erased![
                     Ref::new("ColumnReferenceSegment"),
-                    Ref::new("DatatypeSegment"),
+                    Ref::new("TsqlDatatypeSegment"),
                     // Add IDENTITY support
                     Sequence::new(vec_of_erased![
                         Ref::keyword("IDENTITY"),
@@ -7785,6 +7892,18 @@ pub fn raw_dialect() -> Dialect {
                             Ref::new("CommaSegment"),
                             Ref::new("NumericLiteralSegment")
                         ]).config(|this| this.optional())
+                    ]).config(|this| this.optional()),
+                    // FILESTREAM
+                    Ref::keyword("FILESTREAM").optional(),
+                    // MASKED WITH (FUNCTION = '...')
+                    Sequence::new(vec_of_erased![
+                        Ref::keyword("MASKED"),
+                        Ref::keyword("WITH"),
+                        Bracketed::new(vec_of_erased![
+                            Ref::keyword("FUNCTION"),
+                            Ref::new("EqualsSegment"),
+                            Ref::new("QuotedLiteralSegment")
+                        ])
                     ]).config(|this| this.optional()),
                     // Column constraints
                     AnyNumberOf::new(vec_of_erased![Ref::new("ColumnConstraintSegment")])
@@ -7836,6 +7955,29 @@ pub fn raw_dialect() -> Dialect {
         .into(),
     )]);
 
+    // Add OPENQUERY support
+    dialect.add([(
+        "OpenQuerySegment".into(),
+        NodeMatcher::new(SyntaxKind::TableReference, |_| {
+            Sequence::new(vec_of_erased![
+                Ref::keyword("OPENQUERY"),
+                Bracketed::new(vec_of_erased![
+                    // Linked server name
+                    one_of(vec_of_erased![
+                        Ref::new("NakedIdentifierSegment"),
+                        Ref::new("QuotedIdentifierSegment")
+                    ]),
+                    Ref::new("CommaSegment"),
+                    // Query string
+                    Ref::new("QuotedLiteralSegment")
+                ])
+            ])
+            .to_matchable()
+        })
+        .to_matchable()
+        .into(),
+    )]);
+    
     // Add OPENDATASOURCE support
     dialect.add([(
         "OpenDataSourceSegment".into(),
@@ -7893,15 +8035,17 @@ pub fn raw_dialect() -> Dialect {
                     optionally_bracketed(vec_of_erased![Ref::new("TableExpressionSegment")]),
                     Ref::new("JoinClauseSegment"),
                     Ref::new("PivotUnpivotStatementSegment"),
+                    Ref::new("OpenQuerySegment"),
                     Ref::new("OpenDataSourceSegment"),
                     Ref::new("OpenRowsetSegment"),
-                    // Allow OPENDATASOURCE/OPENROWSET with chained object references
+                    // Allow OPENDATASOURCE/OPENROWSET/OPENQUERY with chained object references
                     Sequence::new(vec_of_erased![
                         one_of(vec_of_erased![
+                            Ref::new("OpenQuerySegment"),
                             Ref::new("OpenDataSourceSegment"),
                             Ref::new("OpenRowsetSegment")
                         ]),
-                        // Allow .database.schema.table after OPENDATASOURCE/OPENROWSET
+                        // Allow .database.schema.table after OPENDATASOURCE/OPENROWSET/OPENQUERY
                         AnyNumberOf::new(vec_of_erased![
                             Sequence::new(vec_of_erased![
                                 Ref::new("DotSegment"),
@@ -7985,6 +8129,120 @@ pub fn raw_dialect() -> Dialect {
         "ISJSON",
         "JSON_PATH_EXISTS",
     ]);
+
+    // Add datetime unit segment for date part functions
+    dialect.add([(
+        "DatetimeUnitSegment".into(),
+        NodeMatcher::new(SyntaxKind::DatetimeTypeIdentifier, |_| {
+            one_of(vec_of_erased![
+                // Standard date parts
+                StringParser::new("year", SyntaxKind::DatetimeTypeIdentifier),
+                StringParser::new("yy", SyntaxKind::DatetimeTypeIdentifier),
+                StringParser::new("yyyy", SyntaxKind::DatetimeTypeIdentifier),
+                StringParser::new("quarter", SyntaxKind::DatetimeTypeIdentifier),
+                StringParser::new("qq", SyntaxKind::DatetimeTypeIdentifier),
+                StringParser::new("q", SyntaxKind::DatetimeTypeIdentifier),
+                StringParser::new("month", SyntaxKind::DatetimeTypeIdentifier),
+                StringParser::new("mm", SyntaxKind::DatetimeTypeIdentifier),
+                StringParser::new("m", SyntaxKind::DatetimeTypeIdentifier),
+                StringParser::new("dayofyear", SyntaxKind::DatetimeTypeIdentifier),
+                StringParser::new("dy", SyntaxKind::DatetimeTypeIdentifier),
+                StringParser::new("y", SyntaxKind::DatetimeTypeIdentifier),
+                StringParser::new("day", SyntaxKind::DatetimeTypeIdentifier),
+                StringParser::new("dd", SyntaxKind::DatetimeTypeIdentifier),
+                StringParser::new("d", SyntaxKind::DatetimeTypeIdentifier),
+                StringParser::new("week", SyntaxKind::DatetimeTypeIdentifier),
+                StringParser::new("wk", SyntaxKind::DatetimeTypeIdentifier),
+                StringParser::new("ww", SyntaxKind::DatetimeTypeIdentifier),
+                StringParser::new("weekday", SyntaxKind::DatetimeTypeIdentifier),
+                StringParser::new("dw", SyntaxKind::DatetimeTypeIdentifier),
+                StringParser::new("hour", SyntaxKind::DatetimeTypeIdentifier),
+                StringParser::new("hh", SyntaxKind::DatetimeTypeIdentifier),
+                StringParser::new("minute", SyntaxKind::DatetimeTypeIdentifier),
+                StringParser::new("mi", SyntaxKind::DatetimeTypeIdentifier),
+                StringParser::new("n", SyntaxKind::DatetimeTypeIdentifier),
+                StringParser::new("second", SyntaxKind::DatetimeTypeIdentifier),
+                StringParser::new("ss", SyntaxKind::DatetimeTypeIdentifier),
+                StringParser::new("s", SyntaxKind::DatetimeTypeIdentifier),
+                StringParser::new("millisecond", SyntaxKind::DatetimeTypeIdentifier),
+                StringParser::new("ms", SyntaxKind::DatetimeTypeIdentifier),
+                StringParser::new("microsecond", SyntaxKind::DatetimeTypeIdentifier),
+                StringParser::new("mcs", SyntaxKind::DatetimeTypeIdentifier),
+                StringParser::new("nanosecond", SyntaxKind::DatetimeTypeIdentifier),
+                StringParser::new("ns", SyntaxKind::DatetimeTypeIdentifier),
+            ]).to_matchable()
+        })
+        .to_matchable()
+        .into(),
+    )]);
+
+    // Add date part function names for proper function recognition
+    dialect.add([(
+        "DatePartFunctionNameSegment".into(),
+        NodeMatcher::new(SyntaxKind::FunctionName, |_| {
+            one_of(vec_of_erased![
+                StringParser::new("DATEADD", SyntaxKind::FunctionNameIdentifier),
+                StringParser::new("DATEDIFF", SyntaxKind::FunctionNameIdentifier),
+                StringParser::new("DATENAME", SyntaxKind::FunctionNameIdentifier),
+                StringParser::new("DATEPART", SyntaxKind::FunctionNameIdentifier),
+            ]).to_matchable()
+        })
+        .to_matchable()
+        .into(),
+    )]);
+
+    // Add CAST function name for proper function recognition
+    dialect.add([(
+        "CastFunctionNameSegment".into(),
+        NodeMatcher::new(SyntaxKind::FunctionName, |_| {
+            StringParser::new("CAST", SyntaxKind::FunctionNameIdentifier).to_matchable()
+        })
+        .to_matchable()
+        .into(),
+    )]);
+
+    // Override FunctionSegment to prioritize CAST function
+    dialect.replace_grammar("FunctionSegment", {
+        NodeMatcher::new(SyntaxKind::Function, |_| {
+            one_of(vec_of_erased![
+                // CAST function with special AS syntax
+                Sequence::new(vec_of_erased![
+                    Ref::new("CastFunctionNameSegment"),
+                    Bracketed::new(vec_of_erased![
+                        Ref::new("ExpressionSegment"),
+                        Ref::keyword("AS"),
+                        Ref::new("TsqlDatatypeSegment")
+                    ])
+                ]),
+                // JSON functions
+                Ref::new("TsqlJsonObjectSegment"),
+                Ref::new("TsqlJsonArraySegment"),
+                // Date part functions  
+                Sequence::new(vec_of_erased![
+                    Ref::new("DatePartFunctionNameSegment"),
+                    Bracketed::new(vec_of_erased![
+                        Ref::new("DatetimeUnitSegment"),
+                        Ref::new("CommaSegment"),
+                        Ref::new("ExpressionSegment")
+                    ])
+                ]),
+                // General function pattern
+                Sequence::new(vec_of_erased![
+                    Ref::new("FunctionNameSegment").exclude(one_of(vec_of_erased![
+                        Ref::new("DatePartFunctionNameSegment"),
+                        Ref::new("CastFunctionNameSegment"),
+                        Ref::new("ValuesClauseSegment")
+                    ])),
+                    Bracketed::new(vec_of_erased![
+                        Ref::new("FunctionContentsGrammar").optional()
+                    ])
+                    .config(|this| this.parse_mode(ParseMode::Greedy))
+                ])
+            ])
+            .to_matchable()
+        })
+        .to_matchable()
+    });
 
     // expand() must be called after all grammar modifications
 

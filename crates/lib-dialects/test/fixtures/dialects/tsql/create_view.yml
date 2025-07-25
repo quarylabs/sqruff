@@ -28,14 +28,19 @@ file:
                 - naked_identifier: SalesPersonID
             - comma: ','
             - select_clause_element:
-              - column_reference:
-                - naked_identifier: SUM
-            - unparsable:
-              - start_bracket: (
-              - word: TotalDue
-              - end_bracket: )
-              - word: AS
-              - word: TotalSales
+              - function:
+                - function:
+                  - function_name:
+                    - function_name_identifier: SUM
+                  - bracketed:
+                    - start_bracket: (
+                    - expression:
+                      - column_reference:
+                        - naked_identifier: TotalDue
+                    - end_bracket: )
+              - alias_expression:
+                - keyword: AS
+                - naked_identifier: TotalSales
           - from_clause:
             - keyword: FROM
             - from_expression:
@@ -52,19 +57,30 @@ file:
             - expression:
               - column_reference:
                 - naked_identifier: OrderDate
-          - unparsable:
-            - raw_comparison_operator: '>'
-            - word: CONVERT
-            - start_bracket: (
-            - word: DATETIME
-            - comma: ','
-            - single_quote: '''20001231'''
-            - comma: ','
-            - numeric_literal: '101'
-            - end_bracket: )
-            - word: GROUP
-            - word: BY
-            - word: SalesPersonID
+              - comparison_operator:
+                - raw_comparison_operator: '>'
+              - function:
+                - function:
+                  - function_name:
+                    - function_name_identifier: CONVERT
+                  - bracketed:
+                    - start_bracket: (
+                    - expression:
+                      - column_reference:
+                        - naked_identifier: DATETIME
+                    - comma: ','
+                    - expression:
+                      - quoted_literal: '''20001231'''
+                    - comma: ','
+                    - expression:
+                      - numeric_literal: '101'
+                    - end_bracket: )
+          - groupby_clause:
+            - groupby_clause:
+              - keyword: GROUP
+              - keyword: BY
+              - column_reference:
+                - naked_identifier: SalesPersonID
   - statement_terminator: ;
   - statement:
     - create_view_statement:
@@ -94,14 +110,19 @@ file:
                 - naked_identifier: SalesPersonID
             - comma: ','
             - select_clause_element:
-              - column_reference:
-                - naked_identifier: SUM
-            - unparsable:
-              - start_bracket: (
-              - word: TotalDue
-              - end_bracket: )
-              - word: AS
-              - word: TotalSales
+              - function:
+                - function:
+                  - function_name:
+                    - function_name_identifier: SUM
+                  - bracketed:
+                    - start_bracket: (
+                    - expression:
+                      - column_reference:
+                        - naked_identifier: TotalDue
+                    - end_bracket: )
+              - alias_expression:
+                - keyword: AS
+                - naked_identifier: TotalSales
           - from_clause:
             - keyword: FROM
             - from_expression:
@@ -118,19 +139,30 @@ file:
             - expression:
               - column_reference:
                 - naked_identifier: OrderDate
-          - unparsable:
-            - raw_comparison_operator: '>'
-            - word: CONVERT
-            - start_bracket: (
-            - word: DATETIME
-            - comma: ','
-            - single_quote: '''20001231'''
-            - comma: ','
-            - numeric_literal: '101'
-            - end_bracket: )
-            - word: GROUP
-            - word: BY
-            - word: SalesPersonID
+              - comparison_operator:
+                - raw_comparison_operator: '>'
+              - function:
+                - function:
+                  - function_name:
+                    - function_name_identifier: CONVERT
+                  - bracketed:
+                    - start_bracket: (
+                    - expression:
+                      - column_reference:
+                        - naked_identifier: DATETIME
+                    - comma: ','
+                    - expression:
+                      - quoted_literal: '''20001231'''
+                    - comma: ','
+                    - expression:
+                      - numeric_literal: '101'
+                    - end_bracket: )
+          - groupby_clause:
+            - groupby_clause:
+              - keyword: GROUP
+              - keyword: BY
+              - column_reference:
+                - naked_identifier: SalesPersonID
   - statement_terminator: ;
   - statement:
     - create_view_statement:
@@ -199,16 +231,24 @@ file:
               - binary_operator: AND
               - column_reference:
                 - naked_identifier: DueDate
-          - unparsable:
-            - raw_comparison_operator: '>'
-            - word: CONVERT
-            - start_bracket: (
-            - word: DATETIME
-            - comma: ','
-            - single_quote: '''20010630'''
-            - comma: ','
-            - numeric_literal: '101'
-            - end_bracket: )
+              - comparison_operator:
+                - raw_comparison_operator: '>'
+              - function:
+                - function:
+                  - function_name:
+                    - function_name_identifier: CONVERT
+                  - bracketed:
+                    - start_bracket: (
+                    - expression:
+                      - column_reference:
+                        - naked_identifier: DATETIME
+                    - comma: ','
+                    - expression:
+                      - quoted_literal: '''20010630'''
+                    - comma: ','
+                    - expression:
+                      - numeric_literal: '101'
+                    - end_bracket: )
   - statement_terminator: ;
   - statement:
     - create_view_statement:

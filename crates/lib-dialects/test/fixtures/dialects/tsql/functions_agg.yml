@@ -5,17 +5,24 @@ file:
       - select_clause:
         - keyword: SELECT
         - select_clause_element:
-          - column_reference:
-            - naked_identifier: string_agg
+          - function:
+            - function:
+              - function_name:
+                - function_name_identifier: string_agg
+              - bracketed:
+                - start_bracket: (
+                - expression:
+                  - column_reference:
+                    - naked_identifier: t
+                    - dot: .
+                    - naked_identifier: v
+                - comma: ','
+                - expression:
+                  - quoted_literal: '''; '''
+                - end_bracket: )
+          - alias_expression:
+            - naked_identifier: within
         - unparsable:
-          - start_bracket: (
-          - word: t
-          - dot: .
-          - word: v
-          - comma: ','
-          - single_quote: '''; '''
-          - end_bracket: )
-          - word: within
           - word: group
           - start_bracket: (
           - word: order
@@ -88,18 +95,29 @@ file:
       - having_clause:
         - keyword: HAVING
         - expression:
-          - column_reference:
-            - naked_identifier: MIN
-      - unparsable:
-        - start_bracket: (
-        - double_quote: '[ArrivalDt]'
-        - end_bracket: )
-        - raw_comparison_operator: <
-        - raw_comparison_operator: =
-        - word: MAX
-        - start_bracket: (
-        - double_quote: '[DischargeDt]'
-        - end_bracket: )
+          - function:
+            - function:
+              - function_name:
+                - function_name_identifier: MIN
+              - bracketed:
+                - start_bracket: (
+                - expression:
+                  - column_reference:
+                    - quoted_identifier: '[ArrivalDt]'
+                - end_bracket: )
+          - comparison_operator:
+            - raw_comparison_operator: <
+            - raw_comparison_operator: =
+          - function:
+            - function:
+              - function_name:
+                - function_name_identifier: MAX
+              - bracketed:
+                - start_bracket: (
+                - expression:
+                  - column_reference:
+                    - quoted_identifier: '[DischargeDt]'
+                - end_bracket: )
   - statement:
     - drop_table_statement:
       - keyword: DROP

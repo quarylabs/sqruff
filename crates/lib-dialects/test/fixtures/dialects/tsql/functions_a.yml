@@ -5,44 +5,82 @@ file:
       - select_clause:
         - keyword: SELECT
         - select_clause_element:
+          - function:
+            - function:
+              - function_name:
+                - function_name_identifier: DATE
+              - bracketed:
+                - start_bracket: (
+                - expression:
+                  - column_reference:
+                    - naked_identifier: t
+                - end_bracket: )
+          - alias_expression:
+            - keyword: AS
+            - naked_identifier: t_date
+        - comma: ','
+        - select_clause_element:
+          - function:
+            - function:
+              - function_name:
+                - function_name_identifier: ROUND
+              - bracketed:
+                - start_bracket: (
+                - expression:
+                  - column_reference:
+                    - naked_identifier: b
+                - comma: ','
+                - expression:
+                  - numeric_literal: '2'
+                - end_bracket: )
+          - alias_expression:
+            - keyword: AS
+            - naked_identifier: b_round
+        - comma: ','
+        - select_clause_element:
+          - function:
+            - function:
+              - function_name:
+                - function_name_identifier: LEFT
+              - bracketed:
+                - start_bracket: (
+                - expression:
+                  - function:
+                    - function:
+                      - function_name:
+                        - function_name_identifier: RIGHT
+                      - bracketed:
+                        - start_bracket: (
+                        - expression:
+                          - column_reference:
+                            - naked_identifier: s
+                        - comma: ','
+                        - expression:
+                          - numeric_literal: '5'
+                        - end_bracket: )
+                - comma: ','
+                - expression:
+                  - function:
+                    - function:
+                      - function_name:
+                        - function_name_identifier: LEN
+                      - bracketed:
+                        - start_bracket: (
+                        - expression:
+                          - column_reference:
+                            - naked_identifier: s
+                          - binary_operator: +
+                          - numeric_literal: '6'
+                        - end_bracket: )
+                - end_bracket: )
+          - alias_expression:
+            - keyword: AS
+            - naked_identifier: compound
+        - comma: ','
+        - select_clause_element:
           - column_reference:
-            - naked_identifier: DATE
+            - naked_identifier: DATEADD
         - unparsable:
-          - start_bracket: (
-          - word: t
-          - end_bracket: )
-          - word: AS
-          - word: t_date
-          - comma: ','
-          - word: ROUND
-          - start_bracket: (
-          - word: b
-          - comma: ','
-          - numeric_literal: '2'
-          - end_bracket: )
-          - word: AS
-          - word: b_round
-          - comma: ','
-          - word: LEFT
-          - start_bracket: (
-          - word: RIGHT
-          - start_bracket: (
-          - word: s
-          - comma: ','
-          - numeric_literal: '5'
-          - end_bracket: )
-          - comma: ','
-          - word: LEN
-          - start_bracket: (
-          - word: s
-          - plus: +
-          - numeric_literal: '6'
-          - end_bracket: )
-          - end_bracket: )
-          - word: AS
-          - word: compound
-          - comma: ','
-          - word: DATEADD
           - start_bracket: (
           - word: month
           - comma: ','
@@ -81,10 +119,10 @@ file:
       - create_function_statement:
         - keyword: CREATE
         - keyword: FUNCTION
-        - function_name:
+        - object_reference:
           - naked_identifier: dbo
           - dot: .
-          - function_name_identifier: RandDate
+          - naked_identifier: RandDate
         - bracketed:
           - start_bracket: (
           - parameter:
@@ -128,10 +166,10 @@ file:
       - create_function_statement:
         - keyword: CREATE
         - keyword: FUNCTION
-        - function_name:
+        - object_reference:
           - naked_identifier: dbo
           - dot: .
-          - function_name_identifier: no_paramters
+          - naked_identifier: no_paramters
         - bracketed:
           - start_bracket: (
           - end_bracket: )

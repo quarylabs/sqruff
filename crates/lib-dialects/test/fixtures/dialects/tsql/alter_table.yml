@@ -17,7 +17,8 @@ file:
               - column_reference:
                 - naked_identifier: column_a
               - data_type:
-                - data_type_identifier: INT
+                - data_type:
+                  - data_type_identifier: INT
           - end_bracket: )
   - statement_terminator: ;
   - keyword: GO
@@ -36,12 +37,13 @@ file:
           - column_reference:
             - naked_identifier: column_b
           - data_type:
-            - data_type_identifier: VARCHAR
-            - bracketed_arguments:
-              - bracketed:
-                - start_bracket: (
-                - numeric_literal: '20'
-                - end_bracket: )
+            - data_type:
+              - data_type_identifier: VARCHAR
+              - bracketed_arguments:
+                - bracketed:
+                  - start_bracket: (
+                  - numeric_literal: '20'
+                  - end_bracket: )
           - column_constraint_segment:
             - keyword: 'NULL'
   - statement_terminator: ;
@@ -63,7 +65,8 @@ file:
               - column_reference:
                 - naked_identifier: column_a
               - data_type:
-                - data_type_identifier: INT
+                - data_type:
+                  - data_type_identifier: INT
           - end_bracket: )
   - statement_terminator: ;
   - keyword: GO
@@ -82,12 +85,13 @@ file:
           - column_reference:
             - naked_identifier: column_b
           - data_type:
-            - data_type_identifier: VARCHAR
-            - bracketed_arguments:
-              - bracketed:
-                - start_bracket: (
-                - numeric_literal: '20'
-                - end_bracket: )
+            - data_type:
+              - data_type_identifier: VARCHAR
+              - bracketed_arguments:
+                - bracketed:
+                  - start_bracket: (
+                  - numeric_literal: '20'
+                  - end_bracket: )
           - column_constraint_segment:
             - keyword: 'NULL'
           - column_constraint_segment:
@@ -146,14 +150,16 @@ file:
               - column_reference:
                 - naked_identifier: column_a
               - data_type:
-                - data_type_identifier: INT
+                - data_type:
+                  - data_type_identifier: INT
           - comma: ','
           - column_definition:
             - column_definition:
               - column_reference:
                 - naked_identifier: column_b
               - data_type:
-                - data_type_identifier: INT
+                - data_type:
+                  - data_type_identifier: INT
           - end_bracket: )
   - statement_terminator: ;
   - keyword: GO
@@ -169,8 +175,8 @@ file:
             - naked_identifier: doc_exz
         - bracketed:
           - start_bracket: (
-          - unparsable:
-            - word: column_a
+          - column_reference:
+            - naked_identifier: column_a
           - end_bracket: )
         - values_clause:
           - keyword: VALUES
@@ -213,8 +219,8 @@ file:
             - naked_identifier: doc_exz
         - bracketed:
           - start_bracket: (
-          - unparsable:
-            - word: column_a
+          - column_reference:
+            - naked_identifier: column_a
           - end_bracket: )
         - values_clause:
           - keyword: VALUES
@@ -388,14 +394,16 @@ file:
           - column_reference:
             - naked_identifier: my_col_1
           - data_type:
-            - data_type_identifier: INT
+            - data_type:
+              - data_type_identifier: INT
       - comma: ','
       - column_definition:
         - column_definition:
           - column_reference:
             - naked_identifier: my_col_2
           - data_type:
-            - data_type_identifier: INT
+            - data_type:
+              - data_type_identifier: INT
   - keyword: GO
   - statement:
     - alter_table_statement:
@@ -884,68 +892,100 @@ file:
             - naked_identifier: InventoyDate
           - keyword: AS
           - expression:
-            - column_reference:
-              - naked_identifier: CAST
+            - function:
+              - function:
+                - function_name:
+                  - function_name_identifier: CAST
+                - bracketed:
+                  - start_bracket: (
+                  - expression:
+                    - column_reference:
+                      - quoted_identifier: '[InventoryTs]'
+                  - keyword: AS
+                  - data_type:
+                    - data_type:
+                      - data_type_identifier: date
+                  - end_bracket: )
+  - statement_terminator: ;
+  - keyword: GO
+  - statement:
+    - alter_table_statement:
+      - keyword: ALTER
+      - keyword: TABLE
+      - table_reference:
+        - object_reference:
+          - quoted_identifier: '[HangFire]'
+          - dot: .
+          - quoted_identifier: '[JobParameter]'
+      - keyword: ADD
+      - keyword: CONSTRAINT
+      - object_reference:
+        - quoted_identifier: '[FK_HangFire_JobParameter_Job]'
+      - keyword: FOREIGN
+      - keyword: KEY
+      - bracketed:
+        - start_bracket: (
+        - column_reference:
+          - quoted_identifier: '[JobId]'
+        - end_bracket: )
+      - keyword: REFERENCES
+      - table_reference:
+        - object_reference:
+          - quoted_identifier: '[HangFire]'
+          - dot: .
+          - quoted_identifier: '[Job]'
+      - bracketed:
+        - start_bracket: (
+        - column_reference:
+          - quoted_identifier: '[Id]'
+        - end_bracket: )
+      - keyword: ON
+      - keyword: UPDATE
+      - keyword: CASCADE
+      - keyword: ON
+      - keyword: DELETE
+      - keyword: CASCADE
+  - statement_terminator: ;
+  - keyword: GO
+  - statement:
+    - alter_table_statement:
+      - keyword: ALTER
+      - keyword: TABLE
+      - table_reference:
+        - object_reference:
+          - naked_identifier: UserData
+      - keyword: DROP
+      - keyword: COLUMN
+      - column_reference:
+        - quoted_identifier: '[StrSkill]'
+      - comma: ','
+      - column_reference:
+        - quoted_identifier: '[StrItem]'
+      - comma: ','
+      - column_reference:
+        - quoted_identifier: '[StrSerial]'
+  - statement_terminator: ;
+  - statement:
+    - alter_table_statement:
+      - keyword: ALTER
+      - keyword: TABLE
+      - table_reference:
+        - object_reference:
+          - naked_identifier: UserData
+      - keyword: DROP
+      - keyword: COLUMN
+      - keyword: IF
+      - keyword: EXISTS
+      - column_reference:
+        - naked_identifier: StrSkill
+      - comma: ','
+      - column_reference:
+        - naked_identifier: StrItem
+      - comma: ','
+      - column_reference:
+        - naked_identifier: StrSerial
+  - statement_terminator: ;
 - unparsable:
-  - start_bracket: (
-  - double_quote: '[InventoryTs]'
-  - word: AS
-  - word: date
-  - end_bracket: )
-  - semicolon: ;
-  - word: GO
-  - word: ALTER
-  - word: TABLE
-  - double_quote: '[HangFire]'
-  - dot: .
-  - double_quote: '[JobParameter]'
-  - word: ADD
-  - word: CONSTRAINT
-  - double_quote: '[FK_HangFire_JobParameter_Job]'
-  - word: FOREIGN
-  - word: KEY
-  - start_bracket: (
-  - double_quote: '[JobId]'
-  - end_bracket: )
-  - word: REFERENCES
-  - double_quote: '[HangFire]'
-  - dot: .
-  - double_quote: '[Job]'
-  - start_bracket: (
-  - double_quote: '[Id]'
-  - end_bracket: )
-  - word: ON
-  - word: UPDATE
-  - word: CASCADE
-  - word: ON
-  - word: DELETE
-  - word: CASCADE
-  - semicolon: ;
-  - word: GO
-  - word: ALTER
-  - word: TABLE
-  - word: UserData
-  - word: DROP
-  - word: COLUMN
-  - double_quote: '[StrSkill]'
-  - comma: ','
-  - double_quote: '[StrItem]'
-  - comma: ','
-  - double_quote: '[StrSerial]'
-  - semicolon: ;
-  - word: ALTER
-  - word: TABLE
-  - word: UserData
-  - word: DROP
-  - word: COLUMN
-  - word: IF
-  - word: EXISTS
-  - word: StrSkill
-  - comma: ','
-  - word: StrItem
-  - comma: ','
-  - word: StrSerial
-  - semicolon: ;
   - word: CREATE
   - word: TABLE
   - double_quote: '[dbo]'

@@ -12,29 +12,21 @@ file:
               - bracketed:
                 - start_bracket: (
                 - end_bracket: )
-              - over_clause:
-                - keyword: OVER
-                - bracketed:
-                  - start_bracket: (
-                  - window_specification:
-                    - partitionby_clause:
-                      - keyword: PARTITION
-                      - keyword: BY
-                      - expression:
-                        - column_reference:
-                          - naked_identifier: t
-                          - dot: .
-                          - naked_identifier: col1
-                    - orderby_clause:
-                      - keyword: ORDER
-                      - keyword: BY
-                      - column_reference:
-                        - naked_identifier: t
-                        - dot: .
-                        - naked_identifier: col2
-                  - end_bracket: )
-          - alias_expression:
-            - naked_identifier: rn
+        - unparsable:
+          - word: OVER
+          - start_bracket: (
+          - word: PARTITION
+          - word: BY
+          - word: t
+          - dot: .
+          - word: col1
+          - word: ORDER
+          - word: BY
+          - word: t
+          - dot: .
+          - word: col2
+          - end_bracket: )
+          - word: rn
       - from_clause:
         - keyword: FROM
         - from_expression:
@@ -59,26 +51,19 @@ file:
               - bracketed:
                 - start_bracket: (
                 - end_bracket: )
-              - over_clause:
-                - keyword: OVER
-                - bracketed:
-                  - start_bracket: (
-                  - window_specification:
-                    - partitionby_clause:
-                      - keyword: PARTITION
-                      - keyword: BY
-                      - expression:
-                        - numeric_literal: '1'
-                    - orderby_clause:
-                      - keyword: ORDER
-                      - keyword: BY
-                      - column_reference:
-                        - naked_identifier: t
-                        - dot: .
-                        - naked_identifier: col2
-                  - end_bracket: )
-          - alias_expression:
-            - naked_identifier: rn
+        - unparsable:
+          - word: OVER
+          - start_bracket: (
+          - word: PARTITION
+          - word: BY
+          - numeric_literal: '1'
+          - word: ORDER
+          - word: BY
+          - word: t
+          - dot: .
+          - word: col2
+          - end_bracket: )
+          - word: rn
       - from_clause:
         - keyword: FROM
         - from_expression:
@@ -103,41 +88,28 @@ file:
               - bracketed:
                 - start_bracket: (
                 - end_bracket: )
-              - over_clause:
-                - keyword: OVER
-                - bracketed:
-                  - start_bracket: (
-                  - window_specification:
-                    - partitionby_clause:
-                      - keyword: PARTITION
-                      - keyword: BY
-                      - expression:
-                        - case_expression:
-                          - keyword: CASE
-                          - when_clause:
-                            - keyword: WHEN
-                            - expression:
-                              - column_reference:
-                                - naked_identifier: t
-                                - dot: .
-                                - naked_identifier: col1
-                              - comparison_operator:
-                                - raw_comparison_operator: =
-                              - quoted_literal: '''value'''
-                            - keyword: THEN
-                            - expression:
-                              - numeric_literal: '1'
-                          - keyword: END
-                    - orderby_clause:
-                      - keyword: ORDER
-                      - keyword: BY
-                      - column_reference:
-                        - naked_identifier: t
-                        - dot: .
-                        - naked_identifier: col2
-                  - end_bracket: )
-          - alias_expression:
-            - naked_identifier: rn
+        - unparsable:
+          - word: OVER
+          - start_bracket: (
+          - word: PARTITION
+          - word: BY
+          - word: CASE
+          - word: WHEN
+          - word: t
+          - dot: .
+          - word: col1
+          - raw_comparison_operator: =
+          - single_quote: '''value'''
+          - word: THEN
+          - numeric_literal: '1'
+          - word: END
+          - word: ORDER
+          - word: BY
+          - word: t
+          - dot: .
+          - word: col2
+          - end_bracket: )
+          - word: rn
       - from_clause:
         - keyword: FROM
         - from_expression:
@@ -162,53 +134,36 @@ file:
               - bracketed:
                 - start_bracket: (
                 - end_bracket: )
-              - over_clause:
-                - keyword: OVER
-                - bracketed:
-                  - start_bracket: (
-                  - window_specification:
-                    - partitionby_clause:
-                      - keyword: PARTITION
-                      - keyword: BY
-                      - expression:
-                        - column_reference:
-                          - naked_identifier: t
-                          - dot: .
-                          - naked_identifier: col3
-                      - comma: ','
-                      - expression:
-                        - case_expression:
-                          - keyword: CASE
-                          - when_clause:
-                            - keyword: WHEN
-                            - expression:
-                              - column_reference:
-                                - naked_identifier: t
-                                - dot: .
-                                - naked_identifier: col1
-                              - comparison_operator:
-                                - raw_comparison_operator: =
-                              - quoted_literal: '''value'''
-                            - keyword: THEN
-                            - expression:
-                              - numeric_literal: '1'
-                          - keyword: END
-                      - comma: ','
-                      - expression:
-                        - column_reference:
-                          - naked_identifier: t
-                          - dot: .
-                          - naked_identifier: col4
-                    - orderby_clause:
-                      - keyword: ORDER
-                      - keyword: BY
-                      - column_reference:
-                        - naked_identifier: t
-                        - dot: .
-                        - naked_identifier: col2
-                  - end_bracket: )
-          - alias_expression:
-            - naked_identifier: rn
+        - unparsable:
+          - word: OVER
+          - start_bracket: (
+          - word: PARTITION
+          - word: BY
+          - word: t
+          - dot: .
+          - word: col3
+          - comma: ','
+          - word: CASE
+          - word: WHEN
+          - word: t
+          - dot: .
+          - word: col1
+          - raw_comparison_operator: =
+          - single_quote: '''value'''
+          - word: THEN
+          - numeric_literal: '1'
+          - word: END
+          - comma: ','
+          - word: t
+          - dot: .
+          - word: col4
+          - word: ORDER
+          - word: BY
+          - word: t
+          - dot: .
+          - word: col2
+          - end_bracket: )
+          - word: rn
       - from_clause:
         - keyword: FROM
         - from_expression:
@@ -233,43 +188,24 @@ file:
               - bracketed:
                 - start_bracket: (
                 - end_bracket: )
-              - over_clause:
-                - keyword: OVER
-                - bracketed:
-                  - start_bracket: (
-                  - window_specification:
-                    - partitionby_clause:
-                      - keyword: PARTITION
-                      - keyword: BY
-                      - bracketed:
-                        - start_bracket: (
-                        - expression:
-                          - select_statement:
-                            - select_clause:
-                              - keyword: SELECT
-                              - select_clause_element:
-                                - column_reference:
-                                  - naked_identifier: col1
-                            - from_clause:
-                              - keyword: FROM
-                              - from_expression:
-                                - from_expression_element:
-                                  - from_expression_element:
-                                    - table_expression:
-                                      - table_reference:
-                                        - object_reference:
-                                          - naked_identifier: othertable
-                        - end_bracket: )
-                    - orderby_clause:
-                      - keyword: ORDER
-                      - keyword: BY
-                      - column_reference:
-                        - naked_identifier: t
-                        - dot: .
-                        - naked_identifier: col2
-                  - end_bracket: )
-          - alias_expression:
-            - naked_identifier: rn
+        - unparsable:
+          - word: OVER
+          - start_bracket: (
+          - word: PARTITION
+          - word: BY
+          - start_bracket: (
+          - word: SELECT
+          - word: col1
+          - word: FROM
+          - word: othertable
+          - end_bracket: )
+          - word: ORDER
+          - word: BY
+          - word: t
+          - dot: .
+          - word: col2
+          - end_bracket: )
+          - word: rn
       - from_clause:
         - keyword: FROM
         - from_expression:
@@ -294,31 +230,24 @@ file:
               - bracketed:
                 - start_bracket: (
                 - end_bracket: )
-              - over_clause:
-                - keyword: OVER
-                - bracketed:
-                  - start_bracket: (
-                  - window_specification:
-                    - partitionby_clause:
-                      - keyword: PARTITION
-                      - keyword: BY
-                      - expression:
-                        - column_reference:
-                          - naked_identifier: SUM
-                  - unparsable:
-                    - start_bracket: (
-                    - word: t
-                    - dot: .
-                    - word: col1
-                    - end_bracket: )
-                    - word: ORDER
-                    - word: BY
-                    - word: t
-                    - dot: .
-                    - word: col2
-                  - end_bracket: )
-          - alias_expression:
-            - naked_identifier: rn
+        - unparsable:
+          - word: OVER
+          - start_bracket: (
+          - word: PARTITION
+          - word: BY
+          - word: SUM
+          - start_bracket: (
+          - word: t
+          - dot: .
+          - word: col1
+          - end_bracket: )
+          - word: ORDER
+          - word: BY
+          - word: t
+          - dot: .
+          - word: col2
+          - end_bracket: )
+          - word: rn
       - from_clause:
         - keyword: FROM
         - from_expression:

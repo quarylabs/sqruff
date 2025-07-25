@@ -12,30 +12,23 @@ file:
               - bracketed:
                 - start_bracket: (
                 - end_bracket: )
-              - over_clause:
-                - keyword: OVER
-                - naked_identifier: win
-          - alias_expression:
-            - keyword: AS
-            - quoted_identifier: '[Row Number]'
-        - comma: ','
-        - select_clause_element:
-          - column_reference:
-            - naked_identifier: p
-            - dot: .
-            - naked_identifier: LastName
-        - comma: ','
-        - select_clause_element:
-          - column_reference:
-            - naked_identifier: s
-            - dot: .
-            - naked_identifier: SalesYTD
-        - comma: ','
-        - select_clause_element:
-          - column_reference:
-            - naked_identifier: a
-            - dot: .
-            - naked_identifier: PostalCode
+        - unparsable:
+          - word: OVER
+          - word: win
+          - word: AS
+          - double_quote: '[Row Number]'
+          - comma: ','
+          - word: p
+          - dot: .
+          - word: LastName
+          - comma: ','
+          - word: s
+          - dot: .
+          - word: SalesYTD
+          - comma: ','
+          - word: a
+          - dot: .
+          - word: PostalCode
       - from_clause:
         - keyword: FROM
         - from_expression:
@@ -165,12 +158,17 @@ file:
             - naked_identifier: OrderQty
         - comma: ','
         - select_clause_element:
-          - column_reference:
-            - naked_identifier: SUM
+          - function:
+            - function:
+              - function_name:
+                - function_name_identifier: SUM
+              - bracketed:
+                - start_bracket: (
+                - expression:
+                  - column_reference:
+                    - naked_identifier: OrderQty
+                - end_bracket: )
         - unparsable:
-          - start_bracket: (
-          - word: OrderQty
-          - end_bracket: )
           - word: OVER
           - word: win
           - word: AS
@@ -273,12 +271,17 @@ file:
             - naked_identifier: Qty
         - comma: ','
         - select_clause_element:
-          - column_reference:
-            - naked_identifier: SUM
+          - function:
+            - function:
+              - function_name:
+                - function_name_identifier: SUM
+              - bracketed:
+                - start_bracket: (
+                - expression:
+                  - column_reference:
+                    - naked_identifier: OrderQty
+                - end_bracket: )
         - unparsable:
-          - start_bracket: (
-          - word: OrderQty
-          - end_bracket: )
           - word: OVER
           - word: win
           - word: AS
@@ -384,12 +387,17 @@ file:
             - naked_identifier: Qty
         - comma: ','
         - select_clause_element:
-          - column_reference:
-            - naked_identifier: SUM
+          - function:
+            - function:
+              - function_name:
+                - function_name_identifier: SUM
+              - bracketed:
+                - start_bracket: (
+                - expression:
+                  - column_reference:
+                    - naked_identifier: OrderQty
+                - end_bracket: )
         - unparsable:
-          - start_bracket: (
-          - word: OrderQty
-          - end_bracket: )
           - word: OVER
           - word: win2
           - word: AS
@@ -485,12 +493,11 @@ file:
               - bracketed:
                 - start_bracket: (
                 - end_bracket: )
-              - over_clause:
-                - keyword: over
-                - naked_identifier: win
-          - alias_expression:
-            - keyword: as
-            - naked_identifier: x
+        - unparsable:
+          - word: over
+          - word: win
+          - word: as
+          - word: x
       - from_clause:
         - keyword: from
         - from_expression:

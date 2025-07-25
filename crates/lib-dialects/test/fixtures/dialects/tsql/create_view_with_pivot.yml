@@ -74,28 +74,43 @@ file:
                   - alias_expression:
                     - keyword: AS
                     - naked_identifier: SourceTable
-          - unparsable:
-            - word: PIVOT
-            - start_bracket: (
-            - word: AVG
-            - start_bracket: (
-            - word: StandardCost
-            - end_bracket: )
-            - word: FOR
-            - word: DaysToManufacture
-            - word: IN
-            - start_bracket: (
-            - double_quote: '[0]'
-            - comma: ','
-            - double_quote: '[1]'
-            - comma: ','
-            - double_quote: '[2]'
-            - comma: ','
-            - double_quote: '[3]'
-            - comma: ','
-            - double_quote: '[4]'
-            - end_bracket: )
-            - end_bracket: )
-            - word: AS
-            - word: PivotTable
+                  - pivot_expression:
+                    - keyword: PIVOT
+                    - bracketed:
+                      - start_bracket: (
+                      - function:
+                        - function:
+                          - function_name:
+                            - function_name_identifier: AVG
+                          - bracketed:
+                            - start_bracket: (
+                            - expression:
+                              - column_reference:
+                                - naked_identifier: StandardCost
+                            - end_bracket: )
+                      - keyword: FOR
+                      - column_reference:
+                        - naked_identifier: DaysToManufacture
+                      - keyword: IN
+                      - bracketed:
+                        - start_bracket: (
+                        - pivot_column_reference:
+                          - quoted_identifier: '[0]'
+                        - comma: ','
+                        - pivot_column_reference:
+                          - quoted_identifier: '[1]'
+                        - comma: ','
+                        - pivot_column_reference:
+                          - quoted_identifier: '[2]'
+                        - comma: ','
+                        - pivot_column_reference:
+                          - quoted_identifier: '[3]'
+                        - comma: ','
+                        - pivot_column_reference:
+                          - quoted_identifier: '[4]'
+                        - end_bracket: )
+                      - end_bracket: )
+                    - alias_expression:
+                      - keyword: AS
+                      - naked_identifier: PivotTable
   - statement_terminator: ;

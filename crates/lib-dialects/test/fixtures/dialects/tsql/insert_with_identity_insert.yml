@@ -18,10 +18,11 @@ file:
             - naked_identifier: someTable
         - bracketed:
           - start_bracket: (
-          - unparsable:
-            - word: ID
-            - comma: ','
-            - word: Value
+          - column_reference:
+            - naked_identifier: ID
+          - comma: ','
+          - column_reference:
+            - naked_identifier: Value
           - end_bracket: )
         - values_clause:
           - keyword: VALUES

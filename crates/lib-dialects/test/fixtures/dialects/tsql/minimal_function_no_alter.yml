@@ -5,7 +5,7 @@ file:
       - create_function_statement:
         - keyword: CREATE
         - keyword: FUNCTION
-        - function_name:
+        - object_reference:
           - quoted_identifier: '[dbo]'
           - dot: .
           - quoted_identifier: '[add]'

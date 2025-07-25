@@ -27,26 +27,39 @@ file:
               - alias_expression:
                 - keyword: as
                 - naked_identifier: t1
-      - unparsable:
-        - word: pivot
-        - start_bracket: (
-        - word: max
-        - start_bracket: (
-        - word: value
-        - end_bracket: )
-        - word: for
-        - word: rn
-        - word: in
-        - start_bracket: (
-        - double_quote: '[1]'
-        - comma: ','
-        - double_quote: '[2]'
-        - comma: ','
-        - double_quote: '[3]'
-        - end_bracket: )
-        - end_bracket: )
-        - word: as
-        - word: pvt
+              - pivot_expression:
+                - keyword: pivot
+                - bracketed:
+                  - start_bracket: (
+                  - function:
+                    - function:
+                      - function_name:
+                        - function_name_identifier: max
+                      - bracketed:
+                        - start_bracket: (
+                        - expression:
+                          - column_reference:
+                            - naked_identifier: value
+                        - end_bracket: )
+                  - keyword: for
+                  - column_reference:
+                    - naked_identifier: rn
+                  - keyword: in
+                  - bracketed:
+                    - start_bracket: (
+                    - pivot_column_reference:
+                      - quoted_identifier: '[1]'
+                    - comma: ','
+                    - pivot_column_reference:
+                      - quoted_identifier: '[2]'
+                    - comma: ','
+                    - pivot_column_reference:
+                      - quoted_identifier: '[3]'
+                    - end_bracket: )
+                  - end_bracket: )
+                - alias_expression:
+                  - keyword: as
+                  - naked_identifier: pvt
   - statement_terminator: ;
   - statement:
     - select_statement:
@@ -75,25 +88,38 @@ file:
               - alias_expression:
                 - keyword: as
                 - naked_identifier: t1
-      - unparsable:
-        - word: pivot
-        - start_bracket: (
-        - word: max
-        - start_bracket: (
-        - word: value
-        - end_bracket: )
-        - word: for
-        - word: rn
-        - word: in
-        - start_bracket: (
-        - double_quote: '[1]'
-        - comma: ','
-        - double_quote: '[2]'
-        - comma: ','
-        - double_quote: '[3]'
-        - end_bracket: )
-        - end_bracket: )
-        - word: pvt
+              - pivot_expression:
+                - keyword: pivot
+                - bracketed:
+                  - start_bracket: (
+                  - function:
+                    - function:
+                      - function_name:
+                        - function_name_identifier: max
+                      - bracketed:
+                        - start_bracket: (
+                        - expression:
+                          - column_reference:
+                            - naked_identifier: value
+                        - end_bracket: )
+                  - keyword: for
+                  - column_reference:
+                    - naked_identifier: rn
+                  - keyword: in
+                  - bracketed:
+                    - start_bracket: (
+                    - pivot_column_reference:
+                      - quoted_identifier: '[1]'
+                    - comma: ','
+                    - pivot_column_reference:
+                      - quoted_identifier: '[2]'
+                    - comma: ','
+                    - pivot_column_reference:
+                      - quoted_identifier: '[3]'
+                    - end_bracket: )
+                  - end_bracket: )
+                - alias_expression:
+                  - naked_identifier: pvt
   - statement_terminator: ;
   - keyword: GO
   - statement:

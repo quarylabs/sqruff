@@ -39,23 +39,26 @@ file:
               - alias_expression:
                 - naked_identifier: d
           - join_clause:
-            - keyword: CROSS
-            - keyword: APPLY
-            - from_expression_element:
+            - join_clause:
+              - keyword: CROSS
+              - keyword: APPLY
               - from_expression_element:
-                - table_expression:
-                  - table_reference:
-                    - object_reference:
-                      - naked_identifier: dbo
-                      - dot: .
-                      - naked_identifier: GetReports
-                - bracketed:
-                  - start_bracket: (
-                  - unparsable:
-                    - word: d
-                    - dot: .
-                    - word: DeptMgrID
-                  - end_bracket: )
+                - from_expression_element:
+                  - table_expression:
+                    - function:
+                      - function:
+                        - function_name:
+                          - naked_identifier: dbo
+                          - dot: .
+                          - function_name_identifier: GetReports
+                        - bracketed:
+                          - start_bracket: (
+                          - expression:
+                            - column_reference:
+                              - naked_identifier: d
+                              - dot: .
+                              - naked_identifier: DeptMgrID
+                          - end_bracket: )
   - statement_terminator: ;
   - statement:
     - select_statement:
@@ -107,32 +110,39 @@ file:
                 - keyword: AS
                 - naked_identifier: d
           - join_clause:
-            - keyword: CROSS
-            - keyword: APPLY
-            - from_expression_element:
+            - join_clause:
+              - keyword: CROSS
+              - keyword: APPLY
               - from_expression_element:
-                - table_expression:
-                  - table_reference:
-                    - object_reference:
-                      - naked_identifier: dbo
-                      - dot: .
-                      - naked_identifier: GetReports
-                - bracketed:
-                  - start_bracket: (
-                  - unparsable:
-                    - word: d
-                    - dot: .
-                    - word: DeptMgrID
-                  - end_bracket: )
-      - unparsable:
-        - word: AS
-        - word: reps
-        - word: WHERE
-        - word: d
-        - dot: .
-        - word: DeptMgrID
-        - raw_comparison_operator: =
-        - numeric_literal: '10'
+                - from_expression_element:
+                  - table_expression:
+                    - function:
+                      - function:
+                        - function_name:
+                          - naked_identifier: dbo
+                          - dot: .
+                          - function_name_identifier: GetReports
+                        - bracketed:
+                          - start_bracket: (
+                          - expression:
+                            - column_reference:
+                              - naked_identifier: d
+                              - dot: .
+                              - naked_identifier: DeptMgrID
+                          - end_bracket: )
+                  - alias_expression:
+                    - keyword: AS
+                    - naked_identifier: reps
+      - where_clause:
+        - keyword: WHERE
+        - expression:
+          - column_reference:
+            - naked_identifier: d
+            - dot: .
+            - naked_identifier: DeptMgrID
+          - comparison_operator:
+            - raw_comparison_operator: =
+          - numeric_literal: '10'
   - statement_terminator: ;
   - statement:
     - select_statement:
@@ -154,23 +164,26 @@ file:
               - alias_expression:
                 - naked_identifier: D
           - join_clause:
-            - keyword: OUTER
-            - keyword: APPLY
-            - from_expression_element:
+            - join_clause:
+              - keyword: OUTER
+              - keyword: APPLY
               - from_expression_element:
-                - table_expression:
-                  - table_reference:
-                    - object_reference:
-                      - naked_identifier: dbo
-                      - dot: .
-                      - naked_identifier: fn_GetAllEmployeeOfADepartment
-                - bracketed:
-                  - start_bracket: (
-                  - unparsable:
-                    - word: D
-                    - dot: .
-                    - word: DepartmentID
-                  - end_bracket: )
+                - from_expression_element:
+                  - table_expression:
+                    - function:
+                      - function:
+                        - function_name:
+                          - naked_identifier: dbo
+                          - dot: .
+                          - function_name_identifier: fn_GetAllEmployeeOfADepartment
+                        - bracketed:
+                          - start_bracket: (
+                          - expression:
+                            - column_reference:
+                              - naked_identifier: D
+                              - dot: .
+                              - naked_identifier: DepartmentID
+                          - end_bracket: )
   - statement_terminator: ;
   - statement:
     - select_statement:
@@ -192,32 +205,39 @@ file:
               - alias_expression:
                 - naked_identifier: D
           - join_clause:
-            - keyword: OUTER
-            - keyword: APPLY
-            - from_expression_element:
+            - join_clause:
+              - keyword: OUTER
+              - keyword: APPLY
               - from_expression_element:
-                - table_expression:
-                  - table_reference:
-                    - object_reference:
-                      - naked_identifier: dbo
-                      - dot: .
-                      - naked_identifier: fn_GetAllEmployeeOfADepartment
-                - bracketed:
-                  - start_bracket: (
-                  - unparsable:
-                    - word: D
-                    - dot: .
-                    - word: DepartmentID
-                  - end_bracket: )
-      - unparsable:
-        - word: AS
-        - word: AllEmp
-        - word: WHERE
-        - word: D
-        - dot: .
-        - word: DepartmentId
-        - raw_comparison_operator: =
-        - numeric_literal: '10'
+                - from_expression_element:
+                  - table_expression:
+                    - function:
+                      - function:
+                        - function_name:
+                          - naked_identifier: dbo
+                          - dot: .
+                          - function_name_identifier: fn_GetAllEmployeeOfADepartment
+                        - bracketed:
+                          - start_bracket: (
+                          - expression:
+                            - column_reference:
+                              - naked_identifier: D
+                              - dot: .
+                              - naked_identifier: DepartmentID
+                          - end_bracket: )
+                  - alias_expression:
+                    - keyword: AS
+                    - naked_identifier: AllEmp
+      - where_clause:
+        - keyword: WHERE
+        - expression:
+          - column_reference:
+            - naked_identifier: D
+            - dot: .
+            - naked_identifier: DepartmentId
+          - comparison_operator:
+            - raw_comparison_operator: =
+          - numeric_literal: '10'
   - statement_terminator: ;
   - statement:
     - select_statement:
@@ -247,31 +267,42 @@ file:
                 - keyword: as
                 - naked_identifier: s
           - join_clause:
-            - keyword: cross
-            - keyword: apply
-            - from_expression_element:
+            - join_clause:
+              - keyword: cross
+              - keyword: apply
               - from_expression_element:
-                - table_expression:
-                  - table_reference:
-                    - object_reference:
-                      - naked_identifier: string_split
-                - bracketed:
-                  - start_bracket: (
-                  - unparsable:
-                    - word: replace
-                    - start_bracket: (
-                    - word: s
-                    - dot: .
-                    - word: some_path
-                    - comma: ','
-                    - single_quote: '''->'''
-                    - comma: ','
-                    - single_quote: '''{'''
-                    - end_bracket: )
-                    - comma: ','
-                    - single_quote: '''{'''
-                  - end_bracket: )
-      - unparsable:
-        - word: as
-        - word: sp
+                - from_expression_element:
+                  - table_expression:
+                    - function:
+                      - function:
+                        - function_name:
+                          - function_name_identifier: string_split
+                        - bracketed:
+                          - start_bracket: (
+                          - expression:
+                            - function:
+                              - function:
+                                - function_name:
+                                  - function_name_identifier: replace
+                                - bracketed:
+                                  - start_bracket: (
+                                  - expression:
+                                    - column_reference:
+                                      - naked_identifier: s
+                                      - dot: .
+                                      - naked_identifier: some_path
+                                  - comma: ','
+                                  - expression:
+                                    - quoted_literal: '''->'''
+                                  - comma: ','
+                                  - expression:
+                                    - quoted_literal: '''{'''
+                                  - end_bracket: )
+                          - comma: ','
+                          - expression:
+                            - quoted_literal: '''{'''
+                          - end_bracket: )
+                  - alias_expression:
+                    - keyword: as
+                    - naked_identifier: sp
   - statement_terminator: ;

@@ -85,18 +85,27 @@ file:
             - naked_identifier: st
         - comma: ','
         - select_clause_element:
-          - column_reference:
-            - naked_identifier: count
-        - unparsable:
-          - start_bracket: (
-          - star: '*'
-          - end_bracket: )
-          - comma: ','
-          - word: count
-          - start_bracket: (
-          - word: DISTINCT
-          - word: id
-          - end_bracket: )
+          - function:
+            - function:
+              - function_name:
+                - function_name_identifier: count
+              - bracketed:
+                - start_bracket: (
+                - star: '*'
+                - end_bracket: )
+        - comma: ','
+        - select_clause_element:
+          - function:
+            - function:
+              - function_name:
+                - function_name_identifier: count
+              - bracketed:
+                - start_bracket: (
+                - keyword: DISTINCT
+                - expression:
+                  - column_reference:
+                    - naked_identifier: id
+                - end_bracket: )
       - from_clause:
         - keyword: FROM
         - from_expression:

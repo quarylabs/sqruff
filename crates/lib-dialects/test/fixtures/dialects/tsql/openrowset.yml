@@ -17,20 +17,24 @@ file:
             - from_expression_element:
               - table_expression:
                 - function:
-                  - keyword: OPENROWSET
-                  - bracketed:
-                    - start_bracket: (
-                    - quoted_literal: '''Microsoft.Jet.OLEDB.4.0'''
-                    - comma: ','
-                    - quoted_literal: '''C:\SAMPLES\Northwind.mdb'''
-                    - statement_terminator: ;
-                    - quoted_literal: '''admin'''
-                    - statement_terminator: ;
-                    - quoted_literal: '''password'''
-                    - comma: ','
-                    - object_reference:
-                      - naked_identifier: Customers
-                    - end_bracket: )
+                  - function:
+                    - function_name:
+                      - function_name_identifier: OPENROWSET
+                    - bracketed:
+                      - start_bracket: (
+                      - expression:
+                        - quoted_literal: '''Microsoft.Jet.OLEDB.4.0'''
+                      - comma: ','
+                      - expression:
+                        - quoted_literal: '''C:\SAMPLES\Northwind.mdb'''
+                      - unparsable:
+                        - semicolon: ;
+                        - single_quote: '''admin'''
+                        - semicolon: ;
+                        - single_quote: '''password'''
+                        - comma: ','
+                        - word: Customers
+                      - end_bracket: )
               - alias_expression:
                 - keyword: AS
                 - naked_identifier: a
@@ -53,16 +57,21 @@ file:
             - from_expression_element:
               - table_expression:
                 - function:
-                  - keyword: OPENROWSET
-                  - bracketed:
-                    - start_bracket: (
-                    - quoted_literal: '''SQLNCLI'''
-                    - comma: ','
-                    - quoted_literal: '''Server=Seattle1;Trusted_Connection=yes;'''
-                    - comma: ','
-                    - object_reference:
-                      - naked_identifier: Department
-                    - end_bracket: )
+                  - function:
+                    - function_name:
+                      - function_name_identifier: OPENROWSET
+                    - bracketed:
+                      - start_bracket: (
+                      - expression:
+                        - quoted_literal: '''SQLNCLI'''
+                      - comma: ','
+                      - expression:
+                        - quoted_literal: '''Server=Seattle1;Trusted_Connection=yes;'''
+                      - comma: ','
+                      - expression:
+                        - column_reference:
+                          - naked_identifier: Department
+                      - end_bracket: )
               - alias_expression:
                 - keyword: AS
                 - naked_identifier: d
@@ -85,20 +94,25 @@ file:
             - from_expression_element:
               - table_expression:
                 - function:
-                  - keyword: OPENROWSET
-                  - bracketed:
-                    - start_bracket: (
-                    - quoted_literal: '''SQLNCLI'''
-                    - comma: ','
-                    - quoted_literal: '''Server=Seattle1;Trusted_Connection=yes;'''
-                    - comma: ','
-                    - object_reference:
-                      - naked_identifier: AdventureWorks2012
-                      - dot: .
-                      - naked_identifier: HumanResources
-                      - dot: .
-                      - naked_identifier: Department
-                    - end_bracket: )
+                  - function:
+                    - function_name:
+                      - function_name_identifier: OPENROWSET
+                    - bracketed:
+                      - start_bracket: (
+                      - expression:
+                        - quoted_literal: '''SQLNCLI'''
+                      - comma: ','
+                      - expression:
+                        - quoted_literal: '''Server=Seattle1;Trusted_Connection=yes;'''
+                      - comma: ','
+                      - expression:
+                        - column_reference:
+                          - naked_identifier: AdventureWorks2012
+                          - dot: .
+                          - naked_identifier: HumanResources
+                          - dot: .
+                          - naked_identifier: Department
+                      - end_bracket: )
               - alias_expression:
                 - keyword: AS
                 - naked_identifier: d
@@ -121,17 +135,22 @@ file:
             - from_expression_element:
               - table_expression:
                 - function:
-                  - keyword: OPENROWSET
-                  - bracketed:
-                    - start_bracket: (
-                    - quoted_literal: '''SQLNCLI'''
-                    - comma: ','
-                    - quoted_literal: '''Server=Seattle1;Trusted_Connection=yes;'''
-                    - comma: ','
-                    - quoted_literal: |-
-                        'SELECT TOP 10 GroupName, Name
-                             FROM AdventureWorks2012.HumanResources.Department'
-                    - end_bracket: )
+                  - function:
+                    - function_name:
+                      - function_name_identifier: OPENROWSET
+                    - bracketed:
+                      - start_bracket: (
+                      - expression:
+                        - quoted_literal: '''SQLNCLI'''
+                      - comma: ','
+                      - expression:
+                        - quoted_literal: '''Server=Seattle1;Trusted_Connection=yes;'''
+                      - comma: ','
+                      - expression:
+                        - quoted_literal: |-
+                            'SELECT TOP 10 GroupName, Name
+                                 FROM AdventureWorks2012.HumanResources.Department'
+                      - end_bracket: )
               - alias_expression:
                 - keyword: AS
                 - naked_identifier: a
@@ -152,14 +171,20 @@ file:
             - from_expression_element:
               - table_expression:
                 - function:
-                  - keyword: OPENROWSET
-                  - bracketed:
-                    - start_bracket: (
-                    - keyword: BULK
-                    - quoted_literal: '''C:\DATA\inv-2017-01-19.csv'''
-                    - comma: ','
-                    - keyword: SINGLE_CLOB
-                    - end_bracket: )
+                  - function:
+                    - function_name:
+                      - function_name_identifier: OPENROWSET
+                    - bracketed:
+                      - start_bracket: (
+                      - expression:
+                        - data_type:
+                          - data_type_identifier: BULK
+                        - quoted_literal: '''C:\DATA\inv-2017-01-19.csv'''
+                      - comma: ','
+                      - expression:
+                        - column_reference:
+                          - naked_identifier: SINGLE_CLOB
+                      - end_bracket: )
               - alias_expression:
                 - keyword: AS
                 - naked_identifier: DATA
@@ -180,14 +205,17 @@ file:
             - from_expression_element:
               - table_expression:
                 - function:
-                  - keyword: OPENROWSET
-                  - bracketed:
-                    - start_bracket: (
-                    - keyword: BULK
-                    - quoted_literal: N'C:\Text1.txt'
-                    - comma: ','
-                    - keyword: SINGLE_NCLOB
-                    - end_bracket: )
+                  - function:
+                    - function_name:
+                      - function_name_identifier: OPENROWSET
+                    - bracketed:
+                      - start_bracket: (
+                      - unparsable:
+                        - word: BULK
+                        - unicode_single_quote: N'C:\Text1.txt'
+                        - comma: ','
+                        - word: SINGLE_NCLOB
+                      - end_bracket: )
               - alias_expression:
                 - keyword: AS
                 - naked_identifier: Document
@@ -208,27 +236,27 @@ file:
             - from_expression_element:
               - table_expression:
                 - function:
-                  - keyword: OPENROWSET
-                  - bracketed:
-                    - start_bracket: (
-                    - keyword: BULK
-                    - quoted_literal: N'D:\XChange\test-csv.csv'
-                    - comma: ','
-                    - keyword: FORMATFILE
-                    - comparison_operator:
-                      - raw_comparison_operator: =
-                    - quoted_literal: N'D:\XChange\test-csv.fmt'
-                    - comma: ','
-                    - keyword: FIRSTROW
-                    - comparison_operator:
-                      - raw_comparison_operator: =
-                    - numeric_literal: '2'
-                    - comma: ','
-                    - keyword: FORMAT
-                    - comparison_operator:
-                      - raw_comparison_operator: =
-                    - quoted_literal: '''CSV'''
-                    - end_bracket: )
+                  - function:
+                    - function_name:
+                      - function_name_identifier: OPENROWSET
+                    - bracketed:
+                      - start_bracket: (
+                      - unparsable:
+                        - word: BULK
+                        - unicode_single_quote: N'D:\XChange\test-csv.csv'
+                        - comma: ','
+                        - word: FORMATFILE
+                        - raw_comparison_operator: =
+                        - unicode_single_quote: N'D:\XChange\test-csv.fmt'
+                        - comma: ','
+                        - word: FIRSTROW
+                        - raw_comparison_operator: =
+                        - numeric_literal: '2'
+                        - comma: ','
+                        - word: FORMAT
+                        - raw_comparison_operator: =
+                        - single_quote: '''CSV'''
+                      - end_bracket: )
               - alias_expression:
                 - keyword: AS
                 - naked_identifier: cars
@@ -253,17 +281,23 @@ file:
             - from_expression_element:
               - table_expression:
                 - function:
-                  - keyword: OPENROWSET
-                  - bracketed:
-                    - start_bracket: (
-                    - keyword: BULK
-                    - quoted_literal: '''https://pandemicdatalake.blob.core.windows.net/public/curated/covid-19/ecdc_cases/latest/ecdc_cases.parquet'''
-                    - comma: ','
-                    - keyword: FORMAT
-                    - comparison_operator:
-                      - raw_comparison_operator: =
-                    - quoted_literal: '''PARQUET'''
-                    - end_bracket: )
+                  - function:
+                    - function_name:
+                      - function_name_identifier: OPENROWSET
+                    - bracketed:
+                      - start_bracket: (
+                      - expression:
+                        - data_type:
+                          - data_type_identifier: BULK
+                        - quoted_literal: '''https://pandemicdatalake.blob.core.windows.net/public/curated/covid-19/ecdc_cases/latest/ecdc_cases.parquet'''
+                      - comma: ','
+                      - expression:
+                        - column_reference:
+                          - naked_identifier: FORMAT
+                        - comparison_operator:
+                          - raw_comparison_operator: =
+                        - quoted_literal: '''PARQUET'''
+                      - end_bracket: )
       - unparsable:
         - word: as
         - word: rows
@@ -287,17 +321,23 @@ file:
             - from_expression_element:
               - table_expression:
                 - function:
-                  - keyword: OPENROWSET
-                  - bracketed:
-                    - start_bracket: (
-                    - keyword: BULK
-                    - quoted_literal: '''https://pandemicdatalake.blob.core.windows.net/public/curated/covid-19/ecdc_cases/latest/ecdc_cases.parquet'''
-                    - comma: ','
-                    - keyword: FORMAT
-                    - comparison_operator:
-                      - raw_comparison_operator: =
-                    - quoted_literal: '''PARQUET'''
-                    - end_bracket: )
+                  - function:
+                    - function_name:
+                      - function_name_identifier: OPENROWSET
+                    - bracketed:
+                      - start_bracket: (
+                      - expression:
+                        - data_type:
+                          - data_type_identifier: BULK
+                        - quoted_literal: '''https://pandemicdatalake.blob.core.windows.net/public/curated/covid-19/ecdc_cases/latest/ecdc_cases.parquet'''
+                      - comma: ','
+                      - expression:
+                        - column_reference:
+                          - naked_identifier: FORMAT
+                        - comparison_operator:
+                          - raw_comparison_operator: =
+                        - quoted_literal: '''PARQUET'''
+                      - end_bracket: )
               - keyword: WITH
               - bracketed:
                 - start_bracket: (
@@ -348,17 +388,23 @@ file:
             - from_expression_element:
               - table_expression:
                 - function:
-                  - keyword: OPENROWSET
-                  - bracketed:
-                    - start_bracket: (
-                    - keyword: BULK
-                    - quoted_literal: '''https://azureopendatastorage.blob.core.windows.net/censusdatacontainer/release/us_population_county/year=20*/*.parquet'''
-                    - comma: ','
-                    - keyword: FORMAT
-                    - comparison_operator:
-                      - raw_comparison_operator: =
-                    - quoted_literal: '''PARQUET'''
-                    - end_bracket: )
+                  - function:
+                    - function_name:
+                      - function_name_identifier: OPENROWSET
+                    - bracketed:
+                      - start_bracket: (
+                      - expression:
+                        - data_type:
+                          - data_type_identifier: BULK
+                        - quoted_literal: '''https://azureopendatastorage.blob.core.windows.net/censusdatacontainer/release/us_population_county/year=20*/*.parquet'''
+                      - comma: ','
+                      - expression:
+                        - column_reference:
+                          - naked_identifier: FORMAT
+                        - comparison_operator:
+                          - raw_comparison_operator: =
+                        - quoted_literal: '''PARQUET'''
+                      - end_bracket: )
               - keyword: WITH
               - bracketed:
                 - start_bracket: (

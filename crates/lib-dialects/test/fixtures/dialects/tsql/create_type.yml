@@ -15,26 +15,29 @@ file:
             - column_reference:
               - naked_identifier: name
             - data_type:
-              - data_type_identifier: nvarchar
-              - bracketed_arguments:
-                - bracketed:
-                  - start_bracket: (
-                  - numeric_literal: '10'
-                  - end_bracket: )
+              - data_type:
+                - data_type_identifier: nvarchar
+                - bracketed_arguments:
+                  - bracketed:
+                    - start_bracket: (
+                    - numeric_literal: '10'
+                    - end_bracket: )
         - comma: ','
         - column_definition:
           - column_definition:
             - column_reference:
               - naked_identifier: height
             - data_type:
-              - data_type_identifier: int
+              - data_type:
+                - data_type_identifier: int
         - comma: ','
         - column_definition:
           - column_definition:
             - column_reference:
               - naked_identifier: favorite_color
             - data_type:
-              - data_type_identifier: int
+              - data_type:
+                - data_type_identifier: int
         - end_bracket: )
   - statement_terminator: ;
   - statement:

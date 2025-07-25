@@ -32,16 +32,21 @@ file:
                 - naked_identifier: object_id
               - comparison_operator:
                 - raw_comparison_operator: =
+              - function:
+                - function:
+                  - function_name:
+                    - function_name_identifier: OBJECT_ID
+                  - bracketed:
+                    - start_bracket: (
+                    - expression:
+                      - quoted_literal: N'[dbo].[SEQ_SCHEMA_NAME_TABLE_NAME]'
+                    - end_bracket: )
+              - binary_operator: AND
               - column_reference:
-                - naked_identifier: OBJECT_ID
-          - unparsable:
-            - start_bracket: (
-            - unicode_single_quote: N'[dbo].[SEQ_SCHEMA_NAME_TABLE_NAME]'
-            - end_bracket: )
-            - word: AND
-            - word: type
-            - raw_comparison_operator: =
-            - single_quote: '''SO'''
+                - naked_identifier: type
+              - comparison_operator:
+                - raw_comparison_operator: =
+              - quoted_literal: '''SO'''
         - end_bracket: )
     - statement:
       - create_sequence_statement:

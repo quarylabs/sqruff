@@ -7,7 +7,7 @@ file:
         - keyword: OR
         - keyword: ALTER
         - keyword: FUNCTION
-        - function_name:
+        - object_reference:
           - quoted_identifier: '[dbo]'
           - dot: .
           - quoted_identifier: '[CONVERT_ISO_WEEK_TO_UNIX]'

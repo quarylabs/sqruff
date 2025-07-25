@@ -3,48 +3,28 @@ file:
   - statement:
     - keyword: DECLARE
     - tsql_variable: '@MyTableVar'
-    - keyword: TABLE
-    - bracketed:
-      - start_bracket: (
-      - column_definition:
-        - column_definition:
-          - column_reference:
-            - naked_identifier: EmpID
-          - data_type:
-            - data_type_identifier: INT
-          - column_constraint_segment:
-            - keyword: NOT
-            - keyword: 'NULL'
-      - comma: ','
-      - column_definition:
-        - column_definition:
-          - column_reference:
-            - naked_identifier: OldVacationHours
-          - data_type:
-            - data_type_identifier: INT
-      - comma: ','
-      - column_definition:
-        - column_definition:
-          - column_reference:
-            - naked_identifier: NewVacationHours
-          - data_type:
-            - data_type_identifier: INT
-      - comma: ','
-      - column_definition:
-        - column_definition:
-          - column_reference:
-            - naked_identifier: ModifiedDate
-          - data_type:
-            - data_type_identifier: DATETIME
-      - comma: ','
-      - table_constraint:
-        - table_constraint:
-          - keyword: PRIMARY
-          - keyword: KEY
-          - bracketed:
-            - start_bracket: (
-            - column_reference:
-              - naked_identifier: EmpID
-            - end_bracket: )
-      - end_bracket: )
-  - statement_terminator: ;
+    - data_type:
+      - data_type_identifier: TABLE
+- unparsable:
+  - start_bracket: (
+  - word: EmpID
+  - word: INT
+  - word: NOT
+  - word: 'NULL'
+  - comma: ','
+  - word: OldVacationHours
+  - word: INT
+  - comma: ','
+  - word: NewVacationHours
+  - word: INT
+  - comma: ','
+  - word: ModifiedDate
+  - word: DATETIME
+  - comma: ','
+  - word: PRIMARY
+  - word: KEY
+  - start_bracket: (
+  - word: EmpID
+  - end_bracket: )
+  - end_bracket: )
+  - semicolon: ;

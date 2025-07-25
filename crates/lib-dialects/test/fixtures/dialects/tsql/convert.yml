@@ -4,27 +4,50 @@ file:
     - select_statement:
       - select_clause:
         - keyword: SELECT
-        - unparsable:
-          - word: CONVERT
-          - start_bracket: (
-          - word: nvarchar
-          - start_bracket: (
-          - numeric_literal: '100'
-          - end_bracket: )
-          - comma: ','
-          - word: first_column
-          - end_bracket: )
-          - word: as
-          - word: first
-          - comma: ','
-          - word: TRY_CONVERT
-          - start_bracket: (
-          - word: float
-          - comma: ','
-          - word: second_column
-          - end_bracket: )
-          - word: as
-          - word: second
+        - select_clause_element:
+          - function:
+            - function:
+              - function_name:
+                - function_name_identifier: CONVERT
+              - bracketed:
+                - start_bracket: (
+                - expression:
+                  - function:
+                    - function:
+                      - function_name:
+                        - function_name_identifier: nvarchar
+                      - bracketed:
+                        - start_bracket: (
+                        - expression:
+                          - numeric_literal: '100'
+                        - end_bracket: )
+                - comma: ','
+                - expression:
+                  - column_reference:
+                    - naked_identifier: first_column
+                - end_bracket: )
+          - alias_expression:
+            - keyword: as
+            - naked_identifier: first
+        - comma: ','
+        - select_clause_element:
+          - function:
+            - function:
+              - function_name:
+                - function_name_identifier: TRY_CONVERT
+              - bracketed:
+                - start_bracket: (
+                - expression:
+                  - column_reference:
+                    - naked_identifier: float
+                - comma: ','
+                - expression:
+                  - column_reference:
+                    - naked_identifier: second_column
+                - end_bracket: )
+          - alias_expression:
+            - keyword: as
+            - naked_identifier: second
       - from_clause:
         - keyword: FROM
         - from_expression:

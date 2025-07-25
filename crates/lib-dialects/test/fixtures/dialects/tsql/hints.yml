@@ -359,14 +359,19 @@ file:
             - naked_identifier: OrderQty
         - comma: ','
         - select_clause_element:
-          - column_reference:
-            - naked_identifier: SUM
-        - unparsable:
-          - start_bracket: (
-          - word: LineTotal
-          - end_bracket: )
-          - word: AS
-          - word: Total
+          - function:
+            - function:
+              - function_name:
+                - function_name_identifier: SUM
+              - bracketed:
+                - start_bracket: (
+                - expression:
+                  - column_reference:
+                    - naked_identifier: LineTotal
+                - end_bracket: )
+          - alias_expression:
+            - keyword: AS
+            - naked_identifier: Total
       - from_clause:
         - keyword: FROM
         - from_expression:
@@ -427,14 +432,19 @@ file:
             - naked_identifier: OrderQty
         - comma: ','
         - select_clause_element:
-          - column_reference:
-            - naked_identifier: SUM
-        - unparsable:
-          - start_bracket: (
-          - word: LineTotal
-          - end_bracket: )
-          - word: AS
-          - word: Total
+          - function:
+            - function:
+              - function_name:
+                - function_name_identifier: SUM
+              - bracketed:
+                - start_bracket: (
+                - expression:
+                  - column_reference:
+                    - naked_identifier: LineTotal
+                - end_bracket: )
+          - alias_expression:
+            - keyword: AS
+            - naked_identifier: Total
       - from_clause:
         - keyword: FROM
         - from_expression:
@@ -981,13 +991,16 @@ file:
           - from_expression_element:
             - from_expression_element:
               - table_expression:
-                - table_reference:
-                  - object_reference:
-                    - naked_identifier: dbo
-                    - dot: .
-                    - naked_identifier: tableX
-              - bracketed:
-                - start_bracket: (
-                - keyword: NOLOCK
-                - end_bracket: )
+                - function:
+                  - function:
+                    - function_name:
+                      - naked_identifier: dbo
+                      - dot: .
+                      - function_name_identifier: tableX
+                    - bracketed:
+                      - start_bracket: (
+                      - expression:
+                        - column_reference:
+                          - naked_identifier: NOLOCK
+                      - end_bracket: )
   - keyword: GO

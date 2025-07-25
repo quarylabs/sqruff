@@ -274,6 +274,17 @@ pub fn dialect() -> Dialect {
             .to_matchable()
             .into(),
         ),
+        (
+            "TupleSegment".into(),
+            NodeMatcher::new(SyntaxKind::Tuple, |_| {
+                Bracketed::new(vec_of_erased![Delimited::new(vec_of_erased![Ref::new(
+                    "BaseExpressionElementGrammar"
+                )])])
+                .to_matchable()
+            })
+            .to_matchable()
+            .into(),
+        ),
     ]);
 
     clickhouse_dialect.add([(
@@ -490,13 +501,16 @@ pub fn dialect() -> Dialect {
                 Ref::keyword("NOT").optional(),
                 Ref::keyword("IN"),
                 one_of(vec_of_erased![
-                    Bracketed::new(vec_of_erased![one_of(vec_of_erased![
-                        Delimited::new(vec_of_erased![Ref::new("Expression_A_Grammar"),]),
+                    Ref::new("FunctionSegment"),         // IN tuple(1, 2)
+                    Ref::new("ArrayLiteralSegment"),     // IN [1, 2]
+                    Ref::new("TupleSegment"),            // IN (1, 2)
+                    Ref::new("SingleIdentifierGrammar"), // IN TABLE, IN CTE
+                    Bracketed::new(vec_of_erased![
+                        Delimited::new(vec_of_erased![Ref::new("Expression_A_Grammar")]),
                         Ref::new("SelectableGrammar"),
-                    ])])
+                    ])
                     .config(|this| this.parse_mode(ParseMode::Greedy)),
-                    Ref::new("FunctionSegment"), // E.g. UNNEST() or tuple()
-                ])
+                ]),
             ])
             .to_matchable()
             .into(),

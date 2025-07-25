@@ -399,7 +399,7 @@ file:
           - end_bracket: )
   - keyword: GO
   - statement:
-    - create_index_statement:
+    - create_table_statement:
       - keyword: CREATE
       - keyword: STATISTICS
       - object_reference:

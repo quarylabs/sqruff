@@ -7622,6 +7622,132 @@ pub fn raw_dialect() -> Dialect {
         .into(),
     )]);
 
+    // Override CREATE FUNCTION for T-SQL specific features
+    dialect.replace_grammar("CreateFunctionStatementSegment", {
+        NodeMatcher::new(SyntaxKind::CreateFunctionStatement, |_| {
+            Sequence::new(vec_of_erased![
+                Ref::keyword("CREATE"),
+                Sequence::new(vec_of_erased![
+                    Ref::keyword("OR"),
+                    Ref::keyword("ALTER")
+                ]).config(|this| this.optional()),
+                Ref::keyword("FUNCTION"),
+                Ref::new("FunctionNameSegment"),
+                Ref::new("FunctionParameterListGrammar"),
+                // RETURNS clause - can be simple type or table type
+                Sequence::new(vec_of_erased![
+                    Ref::keyword("RETURNS"),
+                    one_of(vec_of_erased![
+                        // Table variable: RETURNS @var TABLE (...)
+                        Sequence::new(vec_of_erased![
+                            Ref::new("TsqlVariableSegment"),
+                            Ref::keyword("TABLE"),
+                            Bracketed::new(vec_of_erased![
+                                Delimited::new(vec_of_erased![
+                                    Sequence::new(vec_of_erased![
+                                        Ref::new("ColumnReferenceSegment"),
+                                        Ref::new("DatatypeSegment")
+                                    ])
+                                ])
+                            ])
+                        ]),
+                        // Simple data type
+                        Ref::new("DatatypeSegment")
+                    ])
+                ]),
+                // Optional WITH clauses
+                Sequence::new(vec_of_erased![
+                    Ref::keyword("WITH"),
+                    Delimited::new(vec_of_erased![
+                        one_of(vec_of_erased![
+                            Ref::keyword("SCHEMABINDING"),
+                            Sequence::new(vec_of_erased![
+                                Ref::keyword("RETURNS"),
+                                Ref::keyword("NULL"),
+                                Ref::keyword("ON"),
+                                Ref::keyword("NULL"),
+                                Ref::keyword("INPUT")
+                            ]),
+                            Sequence::new(vec_of_erased![
+                                Ref::keyword("EXECUTE"),
+                                Ref::keyword("AS"),
+                                one_of(vec_of_erased![
+                                    Ref::keyword("CALLER"),
+                                    Ref::keyword("SELF"),
+                                    Ref::keyword("OWNER"),
+                                    Ref::new("QuotedLiteralSegment")
+                                ])
+                            ])
+                        ])
+                    ])
+                ]).config(|this| this.optional()),
+                // Function body
+                one_of(vec_of_erased![
+                    // AS BEGIN ... END
+                    Sequence::new(vec_of_erased![
+                        Ref::keyword("AS"),
+                        Ref::keyword("BEGIN"),
+                        AnyNumberOf::new(vec_of_erased![
+                            Ref::new("StatementSegment")
+                        ]),
+                        Ref::keyword("END")
+                    ]),
+                    // Just AS for inline functions 
+                    Sequence::new(vec_of_erased![
+                        Ref::keyword("AS"),
+                        Ref::new("StatementSegment")
+                    ])
+                ])
+            ])
+            .to_matchable()
+        })
+        .to_matchable()
+    });
+
+    // Override MERGE NOT MATCHED clause to support "BY TARGET" and "BY SOURCE"
+    dialect.replace_grammar("MergeNotMatchedClauseSegment", {
+        NodeMatcher::new(SyntaxKind::MergeWhenNotMatchedClause, |_| {
+            Sequence::new(vec_of_erased![
+                Ref::keyword("WHEN"),
+                Ref::keyword("NOT"),
+                Ref::keyword("MATCHED"),
+                // Optional BY TARGET or BY SOURCE
+                Sequence::new(vec_of_erased![
+                    Ref::keyword("BY"),
+                    one_of(vec_of_erased![
+                        Ref::keyword("TARGET"),
+                        Ref::keyword("SOURCE")
+                    ])
+                ]).config(|this| this.optional()),
+                // Optional AND condition
+                Sequence::new(vec_of_erased![
+                    Ref::keyword("AND"),
+                    Ref::new("ExpressionSegment")
+                ]).config(|this| this.optional()),
+                Ref::keyword("THEN"),
+                MetaSegment::indent(),
+                one_of(vec_of_erased![
+                    Ref::new("MergeInsertClauseSegment"),
+                    Ref::new("MergeDeleteClauseSegment")
+                ]),
+                MetaSegment::dedent(),
+            ])
+            .to_matchable()
+        })
+        .to_matchable()
+    });
+
+    // Add MergeDeleteClauseSegment for DELETE in MERGE
+    dialect.add([(
+        "MergeDeleteClauseSegment".into(),
+        NodeMatcher::new(SyntaxKind::DeleteStatement, |_| {
+            Ref::keyword("DELETE")
+            .to_matchable()
+        })
+        .to_matchable()
+        .into(),
+    )]);
+
     // expand() must be called after all grammar modifications
 
     dialect

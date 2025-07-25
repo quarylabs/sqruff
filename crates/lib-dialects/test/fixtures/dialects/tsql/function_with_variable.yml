@@ -2,31 +2,31 @@ file:
 - statement:
   - statement:
     - create_function_statement:
-      - keyword: CREATE
-      - keyword: OR
-      - keyword: ALTER
-      - keyword: FUNCTION
-      - object_reference:
-        - quoted_identifier: '[dbo]'
-        - dot: .
-        - quoted_identifier: '[CONVERT_ISO_WEEK_TO_UNIX]'
-      - bracketed:
-        - start_bracket: (
-        - parameter:
-          - tsql_variable: '@year'
-          - data_type:
-            - data_type_identifier: INT
-        - comma: ','
-        - parameter:
-          - tsql_variable: '@week'
-          - data_type:
-            - data_type_identifier: INT
-        - end_bracket: )
-      - keyword: RETURNS
-      - data_type:
-        - data_type_identifier: BIGINT
-      - keyword: AS
-      - begin_end_block:
+      - create_function_statement:
+        - keyword: CREATE
+        - keyword: OR
+        - keyword: ALTER
+        - keyword: FUNCTION
+        - function_name:
+          - quoted_identifier: '[dbo]'
+          - dot: .
+          - quoted_identifier: '[CONVERT_ISO_WEEK_TO_UNIX]'
+        - bracketed:
+          - start_bracket: (
+          - parameter:
+            - tsql_variable: '@year'
+            - data_type:
+              - data_type_identifier: INT
+          - comma: ','
+          - parameter:
+            - tsql_variable: '@week'
+            - data_type:
+              - data_type_identifier: INT
+          - end_bracket: )
+        - keyword: RETURNS
+        - data_type:
+          - data_type_identifier: BIGINT
+        - keyword: AS
         - keyword: BEGIN
         - statement:
           - keyword: DECLARE

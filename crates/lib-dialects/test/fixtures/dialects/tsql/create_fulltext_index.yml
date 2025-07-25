@@ -1,7 +1,7 @@
 file:
 - statement:
   - statement:
-    - create_index_statement:
+    - create_table_statement:
       - keyword: CREATE
       - keyword: FULLTEXT
       - keyword: INDEX
@@ -28,7 +28,7 @@ file:
         - quoted_identifier: '[KEY_INDEX]'
   - statement_terminator: ;
   - statement:
-    - create_index_statement:
+    - create_table_statement:
       - keyword: CREATE
       - keyword: FULLTEXT
       - keyword: INDEX
@@ -51,7 +51,7 @@ file:
         - quoted_identifier: '[KEY_INDEX]'
   - statement_terminator: ;
   - statement:
-    - create_index_statement:
+    - create_table_statement:
       - keyword: CREATE
       - keyword: FULLTEXT
       - keyword: INDEX
@@ -73,7 +73,7 @@ file:
         - quoted_identifier: '[KEY_INDEX]'
   - statement_terminator: ;
   - statement:
-    - create_index_statement:
+    - create_table_statement:
       - keyword: CREATE
       - keyword: FULLTEXT
       - keyword: INDEX
@@ -95,7 +95,7 @@ file:
         - quoted_identifier: '[KEY_INDEX]'
   - statement_terminator: ;
   - statement:
-    - create_index_statement:
+    - create_table_statement:
       - keyword: CREATE
       - keyword: FULLTEXT
       - keyword: INDEX
@@ -121,7 +121,7 @@ file:
         - quoted_identifier: '[ft_catalog_name]'
   - statement_terminator: ;
   - statement:
-    - create_index_statement:
+    - create_table_statement:
       - keyword: CREATE
       - keyword: FULLTEXT
       - keyword: INDEX
@@ -151,7 +151,7 @@ file:
         - quoted_identifier: '[filegroup_name]'
   - statement_terminator: ;
   - statement:
-    - create_index_statement:
+    - create_table_statement:
       - keyword: CREATE
       - keyword: FULLTEXT
       - keyword: INDEX
@@ -182,7 +182,7 @@ file:
       - comma: ','
   - statement_terminator: ;
   - statement:
-    - create_index_statement:
+    - create_table_statement:
       - keyword: CREATE
       - keyword: FULLTEXT
       - keyword: INDEX
@@ -209,7 +209,7 @@ file:
         - quoted_identifier: '[filegroup_name]'
   - statement_terminator: ;
   - statement:
-    - create_index_statement:
+    - create_table_statement:
       - keyword: CREATE
       - keyword: FULLTEXT
       - keyword: INDEX
@@ -241,7 +241,7 @@ file:
         - end_bracket: )
   - statement_terminator: ;
   - statement:
-    - create_index_statement:
+    - create_table_statement:
       - keyword: CREATE
       - keyword: FULLTEXT
       - keyword: INDEX
@@ -275,7 +275,7 @@ file:
         - end_bracket: )
   - statement_terminator: ;
   - statement:
-    - create_index_statement:
+    - create_table_statement:
       - keyword: CREATE
       - keyword: FULLTEXT
       - keyword: INDEX
@@ -307,7 +307,7 @@ file:
         - end_bracket: )
   - statement_terminator: ;
   - statement:
-    - create_index_statement:
+    - create_table_statement:
       - keyword: CREATE
       - keyword: FULLTEXT
       - keyword: INDEX
@@ -341,7 +341,7 @@ file:
         - end_bracket: )
   - statement_terminator: ;
   - statement:
-    - create_index_statement:
+    - create_table_statement:
       - keyword: CREATE
       - keyword: FULLTEXT
       - keyword: INDEX
@@ -370,7 +370,7 @@ file:
         - end_bracket: )
   - statement_terminator: ;
   - statement:
-    - create_index_statement:
+    - create_table_statement:
       - keyword: CREATE
       - keyword: FULLTEXT
       - keyword: INDEX
@@ -401,7 +401,7 @@ file:
         - end_bracket: )
   - statement_terminator: ;
   - statement:
-    - create_index_statement:
+    - create_table_statement:
       - keyword: CREATE
       - keyword: FULLTEXT
       - keyword: INDEX
@@ -433,7 +433,7 @@ file:
         - end_bracket: )
   - statement_terminator: ;
   - statement:
-    - create_index_statement:
+    - create_table_statement:
       - keyword: CREATE
       - keyword: FULLTEXT
       - keyword: INDEX
@@ -467,7 +467,7 @@ file:
         - end_bracket: )
   - statement_terminator: ;
   - statement:
-    - create_index_statement:
+    - create_table_statement:
       - keyword: CREATE
       - keyword: FULLTEXT
       - keyword: INDEX
@@ -496,7 +496,7 @@ file:
         - end_bracket: )
   - statement_terminator: ;
   - statement:
-    - create_index_statement:
+    - create_table_statement:
       - keyword: CREATE
       - keyword: FULLTEXT
       - keyword: INDEX
@@ -527,7 +527,7 @@ file:
         - end_bracket: )
   - statement_terminator: ;
   - statement:
-    - create_index_statement:
+    - create_table_statement:
       - keyword: CREATE
       - keyword: FULLTEXT
       - keyword: INDEX
@@ -556,7 +556,7 @@ file:
         - end_bracket: )
   - statement_terminator: ;
   - statement:
-    - create_index_statement:
+    - create_table_statement:
       - keyword: CREATE
       - keyword: FULLTEXT
       - keyword: INDEX
@@ -587,7 +587,7 @@ file:
         - end_bracket: )
   - statement_terminator: ;
   - statement:
-    - create_index_statement:
+    - create_table_statement:
       - keyword: CREATE
       - keyword: FULLTEXT
       - keyword: INDEX
@@ -617,7 +617,7 @@ file:
         - end_bracket: )
   - statement_terminator: ;
   - statement:
-    - create_index_statement:
+    - create_table_statement:
       - keyword: CREATE
       - keyword: FULLTEXT
       - keyword: INDEX
@@ -649,7 +649,7 @@ file:
         - end_bracket: )
   - statement_terminator: ;
   - statement:
-    - create_index_statement:
+    - create_table_statement:
       - keyword: CREATE
       - keyword: FULLTEXT
       - keyword: INDEX
@@ -681,7 +681,7 @@ file:
         - end_bracket: )
   - statement_terminator: ;
   - statement:
-    - create_index_statement:
+    - create_table_statement:
       - keyword: CREATE
       - keyword: FULLTEXT
       - keyword: INDEX

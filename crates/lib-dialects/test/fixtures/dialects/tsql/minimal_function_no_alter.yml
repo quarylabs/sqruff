@@ -2,29 +2,29 @@ file:
 - statement:
   - statement:
     - create_function_statement:
-      - keyword: CREATE
-      - keyword: FUNCTION
-      - object_reference:
-        - quoted_identifier: '[dbo]'
-        - dot: .
-        - quoted_identifier: '[add]'
-      - bracketed:
-        - start_bracket: (
-        - parameter:
-          - tsql_variable: '@add_1'
-          - data_type:
-            - data_type_identifier: int
-        - comma: ','
-        - parameter:
-          - tsql_variable: '@add_2'
-          - data_type:
-            - data_type_identifier: int
-        - end_bracket: )
-      - keyword: RETURNS
-      - data_type:
-        - data_type_identifier: integer
-      - keyword: AS
-      - begin_end_block:
+      - create_function_statement:
+        - keyword: CREATE
+        - keyword: FUNCTION
+        - function_name:
+          - quoted_identifier: '[dbo]'
+          - dot: .
+          - quoted_identifier: '[add]'
+        - bracketed:
+          - start_bracket: (
+          - parameter:
+            - tsql_variable: '@add_1'
+            - data_type:
+              - data_type_identifier: int
+          - comma: ','
+          - parameter:
+            - tsql_variable: '@add_2'
+            - data_type:
+              - data_type_identifier: int
+          - end_bracket: )
+        - keyword: RETURNS
+        - data_type:
+          - data_type_identifier: integer
+        - keyword: AS
         - keyword: BEGIN
         - statement:
           - statement:

@@ -208,39 +208,40 @@ file:
                         - dot: .
                         - naked_identifier: cc_description
           - merge_when_not_matched_clause:
-            - keyword: when
-            - keyword: not
-            - keyword: matched
-            - keyword: then
-            - merge_insert_clause:
-              - keyword: insert
-              - bracketed:
-                - start_bracket: (
-                - column_reference:
-                  - naked_identifier: cc_id
-                - comma: ','
-                - column_reference:
-                  - naked_identifier: cc_name
-                - comma: ','
-                - column_reference:
-                  - naked_identifier: cc_description
-                - end_bracket: )
-              - values_clause:
-                - keyword: values
+            - merge_when_not_matched_clause:
+              - keyword: when
+              - keyword: not
+              - keyword: matched
+              - keyword: then
+              - merge_insert_clause:
+                - keyword: insert
                 - bracketed:
                   - start_bracket: (
-                  - expression:
-                    - column_reference:
-                      - naked_identifier: cc_id
+                  - column_reference:
+                    - naked_identifier: cc_id
                   - comma: ','
-                  - expression:
-                    - column_reference:
-                      - naked_identifier: cc_name
+                  - column_reference:
+                    - naked_identifier: cc_name
                   - comma: ','
-                  - expression:
-                    - column_reference:
-                      - naked_identifier: cc_description
+                  - column_reference:
+                    - naked_identifier: cc_description
                   - end_bracket: )
+                - values_clause:
+                  - keyword: values
+                  - bracketed:
+                    - start_bracket: (
+                    - expression:
+                      - column_reference:
+                        - naked_identifier: cc_id
+                    - comma: ','
+                    - expression:
+                      - column_reference:
+                        - naked_identifier: cc_name
+                    - comma: ','
+                    - expression:
+                      - column_reference:
+                        - naked_identifier: cc_description
+                    - end_bracket: )
   - statement_terminator: ;
   - keyword: go
   - statement:
@@ -339,54 +340,77 @@ file:
                       - naked_identifier: src
                       - dot: .
                       - naked_identifier: col2
+        - merge_when_not_matched_clause:
+          - merge_when_not_matched_clause:
+            - keyword: when
+            - keyword: not
+            - keyword: matched
+            - keyword: by
+            - keyword: target
+            - keyword: and
+            - expression:
+              - column_reference:
+                - naked_identifier: src
+                - dot: .
+                - naked_identifier: c_id
+              - keyword: is
+              - keyword: not
+              - null_literal: 'null'
+            - keyword: then
+            - merge_insert_clause:
+              - keyword: insert
+              - bracketed:
+                - start_bracket: (
+                - column_reference:
+                  - naked_identifier: s_id
+                - comma: ','
+                - column_reference:
+                  - naked_identifier: c_id
+                - comma: ','
+                - column_reference:
+                  - naked_identifier: c_name
+                - comma: ','
+                - column_reference:
+                  - naked_identifier: col1
+                - comma: ','
+                - column_reference:
+                  - naked_identifier: col2
+                - end_bracket: )
+              - values_clause:
+                - keyword: values
+                - bracketed:
+                  - start_bracket: (
+                  - expression:
+                    - column_reference:
+                      - naked_identifier: src
+                      - dot: .
+                      - naked_identifier: s_id
+                  - comma: ','
+                  - expression:
+                    - column_reference:
+                      - naked_identifier: src
+                      - dot: .
+                      - naked_identifier: c_id
+                  - comma: ','
+                  - expression:
+                    - column_reference:
+                      - naked_identifier: src
+                      - dot: .
+                      - naked_identifier: c_name
+                  - comma: ','
+                  - expression:
+                    - column_reference:
+                      - naked_identifier: src
+                      - dot: .
+                      - naked_identifier: col1
+                  - comma: ','
+                  - expression:
+                    - column_reference:
+                      - naked_identifier: src
+                      - dot: .
+                      - naked_identifier: col2
+                  - end_bracket: )
 - unparsable:
-  - word: when
-  - word: not
-  - word: matched
-  - word: by
-  - word: target
-  - word: and
-  - word: src
-  - dot: .
-  - word: c_id
-  - word: is
-  - word: not
-  - word: 'null'
-  - word: then
-  - word: insert
-  - start_bracket: (
-  - word: s_id
-  - comma: ','
-  - word: c_id
-  - comma: ','
-  - word: c_name
-  - comma: ','
-  - word: col1
-  - comma: ','
-  - word: col2
-  - end_bracket: )
-  - word: values
-  - start_bracket: (
-  - word: src
-  - dot: .
-  - word: s_id
-  - comma: ','
-  - word: src
-  - dot: .
-  - word: c_id
-  - comma: ','
-  - word: src
-  - dot: .
-  - word: c_name
-  - comma: ','
-  - word: src
-  - dot: .
-  - word: col1
-  - comma: ','
-  - word: src
-  - dot: .
-  - word: col2
-  - end_bracket: )
   - word: when
   - word: not
   - word: matched

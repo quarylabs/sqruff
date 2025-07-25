@@ -1746,10 +1746,7 @@ pub fn raw_dialect() -> Dialect {
                 .config(|this| this.optional()),
                 // COLUMNSTORE (for columnstore indexes)
                 Ref::keyword("COLUMNSTORE").optional(),
-                one_of(vec_of_erased![
-                    Ref::keyword("INDEX"),
-                    Ref::keyword("STATISTICS")
-                ]),
+                Ref::keyword("INDEX"),
                 Ref::new("IndexReferenceSegment"),
                 Ref::keyword("ON"),
                 Ref::new("TableReferenceSegment"),
@@ -1780,9 +1777,11 @@ pub fn raw_dialect() -> Dialect {
                 // Optional WITH clause
                 Sequence::new(vec_of_erased![
                     Ref::keyword("WITH"),
-                    Bracketed::new(vec_of_erased![Delimited::new(vec_of_erased![one_of(
-                        vec_of_erased![
-                            // Simple options
+                    one_of(vec_of_erased![
+                        // WITH (option = value, ...) - bracketed form
+                        Bracketed::new(vec_of_erased![Delimited::new(vec_of_erased![one_of(
+                            vec_of_erased![
+                                // Simple options
                             Sequence::new(vec_of_erased![
                                 one_of(vec_of_erased![
                                     Ref::keyword("PAD_INDEX"),
@@ -1880,7 +1879,42 @@ pub fn raw_dialect() -> Dialect {
                                 Ref::keyword("MINUTES").optional()
                             ])
                         ]
-                    )])])
+                    )])]),
+                        // WITH option = value - non-bracketed form (single option only)
+                        Sequence::new(vec_of_erased![
+                            one_of(vec_of_erased![
+                                Ref::keyword("FILLFACTOR"),
+                                Ref::keyword("DATA_COMPRESSION")
+                            ]),
+                            Ref::new("AssignmentOperatorSegment"),
+                            one_of(vec_of_erased![
+                                Ref::new("NumericLiteralSegment"),
+                                Ref::keyword("NONE"),
+                                Ref::keyword("ROW"),
+                                Ref::keyword("PAGE"),
+                                Ref::keyword("COLUMNSTORE"),
+                                Ref::keyword("COLUMNSTORE_ARCHIVE")
+                            ]),
+                            // Optional ON PARTITIONS for DATA_COMPRESSION
+                            Sequence::new(vec_of_erased![
+                                Ref::keyword("ON"),
+                                Ref::keyword("PARTITIONS"),
+                                Bracketed::new(vec_of_erased![Delimited::new(vec_of_erased![
+                                    one_of(vec_of_erased![
+                                        // Single partition number
+                                        Ref::new("NumericLiteralSegment"),
+                                        // Range of partitions
+                                        Sequence::new(vec_of_erased![
+                                            Ref::new("NumericLiteralSegment"),
+                                            Ref::keyword("TO"),
+                                            Ref::new("NumericLiteralSegment")
+                                        ])
+                                    ])
+                                ])])
+                            ])
+                            .config(|this| this.optional())
+                        ])
+                    ])
                 ])
                 .config(|this| this.optional()),
                 // Optional ON filegroup/partition_scheme
@@ -1898,8 +1932,53 @@ pub fn raw_dialect() -> Dialect {
         .to_matchable(),
     );
 
-    // Add UPDATE/DROP STATISTICS statements
+    // Add CREATE/UPDATE/DROP STATISTICS statements
     dialect.add([
+        (
+            "CreateStatisticsStatementSegment".into(),
+            NodeMatcher::new(SyntaxKind::CreateIndexStatement, |_| {
+                Sequence::new(vec_of_erased![
+                    Ref::keyword("CREATE"),
+                    Ref::keyword("STATISTICS"),
+                    Ref::new("ObjectReferenceSegment"), // Statistics name
+                    Ref::keyword("ON"),
+                    Ref::new("TableReferenceSegment"),
+                    // Column list in parentheses
+                    Bracketed::new(vec_of_erased![
+                        Delimited::new(vec_of_erased![
+                            Ref::new("ColumnReferenceSegment")
+                        ])
+                    ]),
+                    // Optional WITH options
+                    Sequence::new(vec_of_erased![
+                        Ref::keyword("WITH"),
+                        Delimited::new(vec_of_erased![
+                            one_of(vec_of_erased![
+                                Ref::keyword("FULLSCAN"),
+                                Ref::keyword("NORECOMPUTE"),
+                                Sequence::new(vec_of_erased![
+                                    Ref::keyword("SAMPLE"),
+                                    Ref::new("NumericLiteralSegment"),
+                                    one_of(vec_of_erased![
+                                        Ref::keyword("PERCENT"),
+                                        Ref::keyword("ROWS")
+                                    ])
+                                ]),
+                                Sequence::new(vec_of_erased![
+                                    Ref::keyword("STATS_STREAM"),
+                                    Ref::new("EqualsSegment"),
+                                    Ref::new("ExpressionSegment")
+                                ])
+                            ])
+                        ])
+                    ])
+                    .config(|this| this.optional())
+                ])
+                .to_matchable()
+            })
+            .to_matchable()
+            .into(),
+        ),
         (
             "UpdateStatisticsStatementSegment".into(),
             NodeMatcher::new(SyntaxKind::UpdateStatement, |_| {
@@ -1949,17 +2028,8 @@ pub fn raw_dialect() -> Dialect {
                     Ref::keyword("STATISTICS"),
                     // Allow multiple statistics to be dropped (comma-separated)
                     Delimited::new(vec_of_erased![
-                        // Schema.Table.StatisticsName or Table.StatisticsName format
-                        Sequence::new(vec_of_erased![
-                            Ref::new("ObjectReferenceSegment"), // First part (Schema or Table)
-                            Ref::new("DotSegment"),
-                            Ref::new("ObjectReferenceSegment"), // Second part (Table or StatisticsName)
-                            // Optional third part for Schema.Table.StatisticsName
-                            Sequence::new(vec_of_erased![
-                                Ref::new("DotSegment"),
-                                Ref::new("ObjectReferenceSegment") // StatisticsName
-                            ]).config(|this| this.optional())
-                        ])
+                        // Just use ObjectReferenceSegment which handles multi-part names
+                        Ref::new("ObjectReferenceSegment")
                     ])
                 ])
                 .to_matchable()
@@ -3206,6 +3276,7 @@ pub fn raw_dialect() -> Dialect {
             Ref::new("DropDatabaseStatementSegment"),
             Ref::new("CreateIndexStatementSegment"),
             Ref::new("DropIndexStatementSegment"),
+            Ref::new("CreateStatisticsStatementSegment"),
             Ref::new("UpdateStatisticsStatementSegment"),
             Ref::new("DropStatisticsStatementSegment"),
             Ref::new("CreateViewStatementSegment"),

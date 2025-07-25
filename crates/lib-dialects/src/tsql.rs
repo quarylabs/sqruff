@@ -486,21 +486,32 @@ pub fn raw_dialect() -> Dialect {
     // Add T-SQL specific grammar
 
     // TOP clause support (e.g., SELECT TOP 10, TOP (10) PERCENT, TOP 5 WITH TIES)
+    
+    // Define TopClauseSegment for reuse in SELECT, DELETE, UPDATE, INSERT
+    dialect.add([(
+        "TopClauseSegment".into(),
+        Sequence::new(vec_of_erased![
+            // https://docs.microsoft.com/en-us/sql/t-sql/queries/top-transact-sql
+            Ref::keyword("TOP"),
+            optionally_bracketed(vec_of_erased![Ref::new("ExpressionSegment")]),
+            Ref::keyword("PERCENT").optional(),
+            // WITH TIES is only valid in SELECT, not in DELETE/UPDATE/INSERT
+            Sequence::new(vec_of_erased![
+                Ref::keyword("WITH"),
+                Ref::keyword("TIES")
+            ]).config(|this| this.optional())
+        ])
+        .to_matchable()
+        .into(),
+    )]);
+    
     // T-SQL allows DISTINCT/ALL followed by TOP
     dialect.replace_grammar(
         "SelectClauseModifierSegment",
         AnyNumberOf::new(vec_of_erased![
             Ref::keyword("DISTINCT"),
             Ref::keyword("ALL"),
-            // TOP alone
-            Sequence::new(vec_of_erased![
-                // https://docs.microsoft.com/en-us/sql/t-sql/queries/top-transact-sql
-                Ref::keyword("TOP"),
-                optionally_bracketed(vec_of_erased![Ref::new("ExpressionSegment")]),
-                Ref::keyword("PERCENT").optional(),
-                Ref::keyword("WITH").optional(),
-                Ref::keyword("TIES").optional()
-            ]),
+            Ref::new("TopClauseSegment")
         ])
         .to_matchable(),
     );
@@ -7125,6 +7136,8 @@ pub fn raw_dialect() -> Dialect {
         NodeMatcher::new(SyntaxKind::UpdateStatement, |_| {
             Sequence::new(vec_of_erased![
                 Ref::keyword("UPDATE"),
+                // T-SQL specific: TOP clause for UPDATE
+                Ref::new("TopClauseSegment").optional(),
                 MetaSegment::indent(),
                 one_of(vec_of_erased![
                     Ref::new("TableReferenceSegment"),
@@ -7186,6 +7199,8 @@ pub fn raw_dialect() -> Dialect {
         NodeMatcher::new(SyntaxKind::InsertStatement, |_| {
             Sequence::new(vec_of_erased![
                 Ref::keyword("INSERT"),
+                // T-SQL specific: TOP clause for INSERT
+                Ref::new("TopClauseSegment").optional(),
                 Ref::keyword("OVERWRITE").optional(),
                 // T-SQL allows omitting INTO when using OPENQUERY
                 Ref::keyword("INTO").optional(),
@@ -7238,6 +7253,8 @@ pub fn raw_dialect() -> Dialect {
         NodeMatcher::new(SyntaxKind::DeleteStatement, |_| {
             Sequence::new(vec_of_erased![
                 Ref::keyword("DELETE"),
+                // T-SQL specific: TOP clause for DELETE
+                Ref::new("TopClauseSegment").optional(),
                 // T-SQL allows omitting FROM when using OPENQUERY
                 Ref::keyword("FROM").optional(),
                 one_of(vec_of_erased![

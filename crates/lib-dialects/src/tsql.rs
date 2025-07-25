@@ -3853,7 +3853,17 @@ pub fn raw_dialect() -> Dialect {
                     // DEFAULT constraint
                     Sequence::new(vec_of_erased![
                         Ref::keyword("DEFAULT"),
-                        Ref::new("ColumnConstraintDefaultGrammar"),
+                        one_of(vec_of_erased![
+                            // NEXT VALUE FOR sequence_name
+                            Sequence::new(vec_of_erased![
+                                Ref::keyword("NEXT"),
+                                Ref::keyword("VALUE"),
+                                Ref::keyword("FOR"),
+                                Ref::new("ObjectReferenceSegment") // sequence name
+                            ]),
+                            // Standard default values
+                            Ref::new("ColumnConstraintDefaultGrammar"),
+                        ]),
                     ]),
                     Ref::new("PrimaryKeyGrammar"),
                     Ref::new("UniqueKeyGrammar"),
@@ -3874,26 +3884,6 @@ pub fn raw_dialect() -> Dialect {
         .into(),
     )]);
 
-    // Override ColumnConstraintDefaultGrammar to support NEXT VALUE FOR
-    dialect.add([(
-        "ColumnConstraintDefaultGrammar".into(),
-        one_of(vec_of_erased![
-            // NEXT VALUE FOR sequence_name
-            Sequence::new(vec_of_erased![
-                Ref::keyword("NEXT"),
-                Ref::keyword("VALUE"),
-                Ref::keyword("FOR"),
-                Ref::new("ObjectReferenceSegment") // sequence name
-            ]),
-            // All the ANSI defaults
-            Ref::new("ShorthandCastSegment"),
-            Ref::new("LiteralGrammar"),
-            Ref::new("FunctionSegment"),
-            Ref::new("BareFunctionSegment"),
-        ])
-        .to_matchable()
-        .into(),
-    )]);
 
     // Override PrimaryKeyGrammar to support CLUSTERED/NONCLUSTERED
     dialect.add([(

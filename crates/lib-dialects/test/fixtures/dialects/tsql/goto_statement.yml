@@ -1,0 +1,12 @@
+file:
+- statement:
+  - statement:
+    - keyword: GOTO
+    - naked_identifier: Branch_Three
+  - statement_terminator: ;
+  - statement:
+    - naked_identifier: Branch_Three
+    - colon: ':'
+  - statement:
+    - statement:
+      - keyword: RETURN

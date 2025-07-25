@@ -1,0 +1,694 @@
+file:
+- statement:
+  - statement:
+    - keyword: EXEC
+    - object_reference:
+      - quoted_identifier: '[Reporting]'
+      - dot: .
+      - quoted_identifier: '[Load_CLL]'
+  - statement:
+    - keyword: EXECUTE
+    - object_reference:
+      - naked_identifier: dbo
+      - dot: .
+      - naked_identifier: ProcTestDefaults
+    - tsql_variable: '@p2'
+    - assignment_operator:
+      - raw_comparison_operator: =
+    - expression:
+      - quoted_literal: '''A'''
+  - statement_terminator: ;
+  - statement:
+    - keyword: EXECUTE
+    - object_reference:
+      - naked_identifier: dbo
+      - dot: .
+      - naked_identifier: ProcTestDefaults
+    - expression:
+      - numeric_literal: '68'
+    - comma: ','
+    - expression:
+      - quoted_literal: '''B'''
+  - statement_terminator: ;
+  - statement:
+    - keyword: EXECUTE
+    - object_reference:
+      - naked_identifier: dbo
+      - dot: .
+      - naked_identifier: ProcTestDefaults
+    - expression:
+      - numeric_literal: '68'
+    - comma: ','
+    - expression:
+      - quoted_literal: '''C'''
+    - comma: ','
+    - expression:
+      - quoted_literal: '''House'''
+  - statement_terminator: ;
+  - statement:
+    - keyword: EXECUTE
+    - object_reference:
+      - naked_identifier: dbo
+      - dot: .
+      - naked_identifier: ProcTestDefaults
+    - tsql_variable: '@p1'
+    - assignment_operator:
+      - raw_comparison_operator: =
+    - keyword: DEFAULT
+    - comma: ','
+    - tsql_variable: '@p2'
+    - assignment_operator:
+      - raw_comparison_operator: =
+    - expression:
+      - quoted_literal: '''D'''
+  - statement_terminator: ;
+  - statement:
+    - keyword: EXECUTE
+    - object_reference:
+      - naked_identifier: dbo
+      - dot: .
+      - naked_identifier: ProcTestDefaults
+    - keyword: DEFAULT
+    - comma: ','
+    - tsql_variable: '@p3'
+    - assignment_operator:
+      - raw_comparison_operator: =
+    - expression:
+      - quoted_literal: '''Local'''
+    - comma: ','
+    - tsql_variable: '@p2'
+    - assignment_operator:
+      - raw_comparison_operator: =
+    - expression:
+      - quoted_literal: '''E'''
+  - statement_terminator: ;
+  - statement:
+    - keyword: EXECUTE
+    - object_reference:
+      - naked_identifier: dbo
+      - dot: .
+      - naked_identifier: ProcTestDefaults
+    - keyword: DEFAULT
+    - comma: ','
+    - expression:
+      - quoted_literal: '''H'''
+    - comma: ','
+    - keyword: DEFAULT
+  - statement_terminator: ;
+  - statement:
+    - keyword: EXECUTE
+    - object_reference:
+      - naked_identifier: dbo
+      - dot: .
+      - naked_identifier: ProcTestDefaults
+    - keyword: DEFAULT
+    - comma: ','
+    - expression:
+      - quoted_literal: '''I'''
+    - comma: ','
+    - tsql_variable: '@p3'
+    - assignment_operator:
+      - raw_comparison_operator: =
+    - keyword: DEFAULT
+  - statement_terminator: ;
+  - statement:
+    - keyword: EXECUTE
+    - object_reference:
+      - naked_identifier: sp_addextendedproperty
+    - tsql_variable: '@name'
+    - assignment_operator:
+      - raw_comparison_operator: =
+    - expression:
+      - quoted_literal: N'MS_Description'
+    - comma: ','
+    - tsql_variable: '@value'
+    - assignment_operator:
+      - raw_comparison_operator: =
+    - expression:
+      - quoted_literal: '''my text description'''
+    - comma: ','
+    - tsql_variable: '@level0type'
+    - assignment_operator:
+      - raw_comparison_operator: =
+    - expression:
+      - quoted_literal: N'SCHEMA'
+    - comma: ','
+    - tsql_variable: '@level0name'
+    - assignment_operator:
+      - raw_comparison_operator: =
+    - expression:
+      - quoted_literal: N'my_schema_name'
+    - comma: ','
+    - tsql_variable: '@level1type'
+    - assignment_operator:
+      - raw_comparison_operator: =
+    - expression:
+      - quoted_literal: N'my_object_type'
+    - comma: ','
+    - tsql_variable: '@level1name'
+    - assignment_operator:
+      - raw_comparison_operator: =
+    - expression:
+      - quoted_literal: N'my_object_name'
+  - statement:
+    - keyword: EXEC
+    - tsql_variable: '@pRes'
+    - assignment_operator:
+      - raw_comparison_operator: =
+    - object_reference:
+      - naked_identifier: dbo
+      - dot: .
+      - naked_identifier: ProcTestDefaults
+  - statement_terminator: ;
+  - statement:
+    - keyword: EXEC
+    - tsql_variable: '@pRes'
+    - assignment_operator:
+      - raw_comparison_operator: =
+    - object_reference:
+      - naked_identifier: dbo
+      - dot: .
+      - naked_identifier: ProcTestDefaults
+    - tsql_variable: '@p1'
+    - assignment_operator:
+      - raw_comparison_operator: =
+    - keyword: DEFAULT
+  - statement_terminator: ;
+  - statement:
+    - keyword: EXECUTE
+    - tsql_variable: '@pRes'
+    - assignment_operator:
+      - raw_comparison_operator: =
+    - object_reference:
+      - naked_identifier: dbo
+      - dot: .
+      - naked_identifier: ProcTestDefaults
+  - statement_terminator: ;
+  - statement:
+    - keyword: EXECUTE
+    - tsql_variable: '@pRes'
+    - assignment_operator:
+      - raw_comparison_operator: =
+    - object_reference:
+      - naked_identifier: dbo
+      - dot: .
+      - naked_identifier: ProcTestDefaults
+    - tsql_variable: '@p1'
+    - assignment_operator:
+      - raw_comparison_operator: =
+    - keyword: DEFAULT
+  - statement_terminator: ;
+  - statement:
+    - keyword: DECLARE
+    - tsql_variable: '@statement'
+    - data_type:
+      - data_type_identifier: nvarchar
+      - bracketed_arguments:
+        - bracketed:
+          - start_bracket: (
+          - keyword: max
+          - end_bracket: )
+    - assignment_operator:
+      - raw_comparison_operator: =
+    - expression:
+      - quoted_literal: '''SELECT 1'''
+  - statement:
+    - keyword: EXEC
+    - bracketed:
+      - start_bracket: (
+      - expression:
+        - parameterized_expression:
+          - tsql_variable: '@statement'
+      - end_bracket: )
+  - statement_terminator: ;
+  - statement:
+    - keyword: EXEC
+    - bracketed:
+      - start_bracket: (
+      - expression:
+        - quoted_literal: '''DROP TABLE BoardInventory.BoardInventoryFact_Stage;'''
+      - end_bracket: )
+  - statement_terminator: ;
+  - statement:
+    - keyword: DECLARE
+    - tsql_variable: '@s1'
+    - keyword: AS
+    - data_type:
+      - data_type_identifier: varchar
+      - bracketed_arguments:
+        - bracketed:
+          - start_bracket: (
+          - numeric_literal: '10'
+          - end_bracket: )
+    - assignment_operator:
+      - raw_comparison_operator: =
+    - expression:
+      - null_literal: 'NULL'
+  - statement_terminator: ;
+  - statement:
+    - keyword: DECLARE
+    - tsql_variable: '@s2'
+    - data_type:
+      - data_type_identifier: varchar
+      - bracketed_arguments:
+        - bracketed:
+          - start_bracket: (
+          - numeric_literal: '10'
+          - end_bracket: )
+    - assignment_operator:
+      - raw_comparison_operator: =
+    - expression:
+      - null_literal: 'NULL'
+  - statement_terminator: ;
+  - statement:
+    - keyword: SET
+    - tsql_variable: '@s1'
+    - assignment_operator:
+      - raw_comparison_operator: =
+    - expression:
+      - quoted_literal: '''select '''
+  - statement_terminator: ;
+  - statement:
+    - keyword: SET
+    - tsql_variable: '@s2'
+    - assignment_operator:
+      - raw_comparison_operator: =
+    - expression:
+      - quoted_literal: '''123'''
+  - statement_terminator: ;
+  - statement:
+    - keyword: EXECUTE
+    - bracketed:
+      - start_bracket: (
+      - expression:
+        - parameterized_expression:
+          - tsql_variable: '@s1'
+        - binary_operator: +
+        - parameterized_expression:
+          - tsql_variable: '@s2'
+      - end_bracket: )
+  - statement_terminator: ;
+  - statement:
+    - keyword: EXEC
+    - bracketed:
+      - start_bracket: (
+      - expression:
+        - quoted_literal: '''select '''
+        - binary_operator: +
+        - quoted_literal: '''123'''
+      - end_bracket: )
+  - statement_terminator: ;
+  - statement:
+    - keyword: EXECUTE
+    - bracketed:
+      - start_bracket: (
+      - expression:
+        - quoted_literal: '''USE AdventureWorks2022; SELECT BusinessEntityID, JobTitle FROM HumanResources.Employee;'''
+      - end_bracket: )
+  - statement_terminator: ;
+  - statement:
+    - keyword: EXECUTE
+    - object_reference:
+      - naked_identifier: dbo
+      - dot: .
+      - naked_identifier: uspGetEmployeeManagers
+    - expression:
+      - numeric_literal: '6'
+  - statement_terminator: ;
+  - statement:
+    - keyword: EXECUTE
+    - object_reference:
+      - naked_identifier: dbo
+      - dot: .
+      - naked_identifier: uspGetEmployeeManagers
+    - tsql_variable: '@EmployeeID'
+    - assignment_operator:
+      - raw_comparison_operator: =
+    - expression:
+      - numeric_literal: '6'
+  - statement_terminator: ;
+  - statement:
+    - keyword: EXECUTE
+    - object_reference:
+      - naked_identifier: dbo
+      - dot: .
+      - naked_identifier: uspGetEmployeeManagers
+    - expression:
+      - parameterized_expression:
+        - tsql_variable: '@EmployeeID'
+    - comma: ','
+    - expression:
+      - parameterized_expression:
+        - tsql_variable: '@ManagerID'
+    - keyword: OUTPUT
+  - statement_terminator: ;
+  - keyword: GO
+  - statement:
+    - object_reference:
+      - naked_identifier: dbo
+      - dot: .
+      - naked_identifier: uspGetEmployeeManagers
+    - tsql_variable: '@EmployeeID'
+    - assignment_operator:
+      - raw_comparison_operator: =
+    - expression:
+      - numeric_literal: '6'
+  - statement_terminator: ;
+  - keyword: GO
+  - statement:
+    - keyword: DECLARE
+    - tsql_variable: '@CheckDate'
+    - keyword: AS
+    - data_type:
+      - data_type_identifier: DATETIME
+    - assignment_operator:
+      - raw_comparison_operator: =
+    - expression:
+      - function:
+        - function_name:
+          - function_name_identifier: GETDATE
+        - bracketed:
+          - start_bracket: (
+          - end_bracket: )
+  - statement_terminator: ;
+  - statement:
+    - keyword: EXECUTE
+    - object_reference:
+      - naked_identifier: dbo
+      - dot: .
+      - naked_identifier: uspGetWhereUsedProductID
+    - expression:
+      - numeric_literal: '819'
+    - comma: ','
+    - expression:
+      - parameterized_expression:
+        - tsql_variable: '@CheckDate'
+  - statement_terminator: ;
+  - statement:
+    - keyword: DECLARE
+    - tsql_variable: '@schemaname'
+    - keyword: AS
+    - data_type:
+      - data_type_identifier: sysname
+  - statement_terminator: ;
+  - statement:
+    - keyword: DECLARE
+    - tsql_variable: '@tablename'
+    - keyword: AS
+    - data_type:
+      - data_type_identifier: sysname
+  - statement_terminator: ;
+  - statement:
+    - keyword: EXECUTE
+    - bracketed:
+      - start_bracket: (
+      - expression:
+        - quoted_literal: '''ALTER INDEX ALL ON '''
+        - binary_operator: +
+        - parameterized_expression:
+          - tsql_variable: '@schemaname'
+        - binary_operator: +
+        - quoted_literal: '''.'''
+        - binary_operator: +
+        - parameterized_expression:
+          - tsql_variable: '@tablename'
+        - binary_operator: +
+        - quoted_literal: ''' REBUILD;'''
+      - end_bracket: )
+  - statement_terminator: ;
+  - statement:
+    - keyword: DECLARE
+    - tsql_variable: '@retstat'
+    - keyword: AS
+    - data_type:
+      - data_type_identifier: INT
+  - statement_terminator: ;
+  - statement:
+    - keyword: EXECUTE
+    - tsql_variable: '@retstat'
+    - assignment_operator:
+      - raw_comparison_operator: =
+    - object_reference:
+      - naked_identifier: SQLSERVER1
+      - dot: .
+      - naked_identifier: AdventureWorks2022
+      - dot: .
+      - naked_identifier: dbo
+      - dot: .
+      - naked_identifier: uspGetEmployeeManagers
+    - tsql_variable: '@BusinessEntityID'
+    - assignment_operator:
+      - raw_comparison_operator: =
+    - expression:
+      - numeric_literal: '6'
+  - statement_terminator: ;
+  - statement:
+    - keyword: DECLARE
+    - tsql_variable: '@proc_name'
+    - keyword: AS
+    - data_type:
+      - data_type_identifier: VARCHAR
+      - bracketed_arguments:
+        - bracketed:
+          - start_bracket: (
+          - numeric_literal: '30'
+          - end_bracket: )
+    - assignment_operator:
+      - raw_comparison_operator: =
+    - expression:
+      - quoted_literal: '''sys.sp_who'''
+  - statement_terminator: ;
+  - statement:
+    - keyword: EXECUTE
+    - tsql_variable: '@proc_name'
+  - statement_terminator: ;
+  - statement:
+    - keyword: EXECUTE
+    - object_reference:
+      - naked_identifier: dbo
+      - dot: .
+      - naked_identifier: ProcTestDefaults
+    - tsql_variable: '@p1'
+    - assignment_operator:
+      - raw_comparison_operator: =
+    - keyword: DEFAULT
+    - comma: ','
+    - tsql_variable: '@p2'
+    - assignment_operator:
+      - raw_comparison_operator: =
+    - expression:
+      - quoted_literal: '''D'''
+  - statement_terminator: ;
+  - statement:
+    - keyword: EXECUTE
+    - object_reference:
+      - naked_identifier: dbo
+      - dot: .
+      - naked_identifier: ProcTestDefaults
+    - keyword: DEFAULT
+    - comma: ','
+    - expression:
+      - quoted_literal: '''H'''
+    - comma: ','
+    - keyword: DEFAULT
+  - statement_terminator: ;
+  - statement:
+    - keyword: EXECUTE
+    - object_reference:
+      - naked_identifier: dbo
+      - dot: .
+      - naked_identifier: ProcTestDefaults
+    - keyword: DEFAULT
+    - comma: ','
+    - expression:
+      - quoted_literal: '''I'''
+    - comma: ','
+    - tsql_variable: '@p3'
+    - assignment_operator:
+      - raw_comparison_operator: =
+    - keyword: DEFAULT
+  - statement_terminator: ;
+  - statement:
+    - keyword: EXECUTE
+    - bracketed:
+      - start_bracket: (
+      - expression:
+        - quoted_literal: |-
+            'CREATE TABLE AdventureWorks2022.dbo.SalesTbl
+            (SalesID INT, SalesName VARCHAR(10)); '
+      - end_bracket: )
+  - statement:
+    - object_reference:
+      - naked_identifier: AT
+    - expression:
+      - column_reference:
+        - naked_identifier: SeattleSales
+  - statement_terminator: ;
+  - statement:
+    - keyword: EXECUTE
+    - bracketed:
+      - start_bracket: (
+      - expression:
+        - quoted_literal: '''SELECT * FROM scott.emp WHERE MGR = ?'''
+      - comma: ','
+      - expression:
+        - numeric_literal: '7902'
+      - end_bracket: )
+  - statement:
+    - object_reference:
+      - naked_identifier: AT
+    - expression:
+      - column_reference:
+        - naked_identifier: ORACLE
+  - statement_terminator: ;
+  - statement:
+    - keyword: EXECUTE
+    - object_reference:
+      - naked_identifier: dbo
+      - dot: .
+      - naked_identifier: Proc_Test_Defaults
+    - tsql_variable: '@p2'
+    - assignment_operator:
+      - raw_comparison_operator: =
+    - expression:
+      - quoted_literal: '''A'''
+    - keyword: WITH
+    - keyword: RECOMPILE
+  - statement_terminator: ;
+  - statement:
+    - keyword: DECLARE
+    - tsql_variable: '@returnstatus'
+    - keyword: AS
+    - data_type:
+      - data_type_identifier: NVARCHAR
+      - bracketed_arguments:
+        - bracketed:
+          - start_bracket: (
+          - numeric_literal: '15'
+          - end_bracket: )
+  - statement_terminator: ;
+  - statement:
+    - keyword: EXECUTE
+    - tsql_variable: '@returnstatus'
+    - assignment_operator:
+      - raw_comparison_operator: =
+    - object_reference:
+      - naked_identifier: dbo
+      - dot: .
+      - naked_identifier: ufnGetSalesOrderStatusText
+    - tsql_variable: '@Status'
+    - assignment_operator:
+      - raw_comparison_operator: =
+    - expression:
+      - numeric_literal: '2'
+  - statement_terminator: ;
+  - statement:
+    - keyword: EXECUTE
+    - bracketed:
+      - start_bracket: (
+      - expression:
+        - quoted_literal: '''CREATE TABLE Sales.SalesTable (SalesID INT, SalesName VARCHAR(10));'''
+      - end_bracket: )
+- unparsable:
+  - word: AS
+  - word: USER
+  - raw_comparison_operator: =
+  - single_quote: '''User1'''
+  - semicolon: ;
+  - word: EXECUTE
+  - word: uspGetEmployeeManagers
+  - numeric_literal: '16'
+  - word: WITH
+  - word: RESULT
+  - word: SETS
+  - start_bracket: (
+  - start_bracket: (
+  - double_quote: '[Reporting Level]'
+  - word: INT
+  - word: NOT
+  - word: 'NULL'
+  - comma: ','
+  - double_quote: '[ID of Employee]'
+  - word: INT
+  - word: NOT
+  - word: 'NULL'
+  - comma: ','
+  - double_quote: '[Employee First Name]'
+  - word: NVARCHAR
+  - start_bracket: (
+  - numeric_literal: '50'
+  - end_bracket: )
+  - word: NOT
+  - word: 'NULL'
+  - comma: ','
+  - double_quote: '[Employee Last Name]'
+  - word: NVARCHAR
+  - start_bracket: (
+  - numeric_literal: '50'
+  - end_bracket: )
+  - word: NOT
+  - word: 'NULL'
+  - comma: ','
+  - double_quote: '[Employee ID of Manager]'
+  - word: NVARCHAR
+  - start_bracket: (
+  - word: MAX
+  - end_bracket: )
+  - word: NOT
+  - word: 'NULL'
+  - comma: ','
+  - double_quote: '[Manager First Name]'
+  - word: NVARCHAR
+  - start_bracket: (
+  - numeric_literal: '50'
+  - end_bracket: )
+  - word: NOT
+  - word: 'NULL'
+  - comma: ','
+  - double_quote: '[Manager Last Name]'
+  - word: NVARCHAR
+  - start_bracket: (
+  - numeric_literal: '50'
+  - end_bracket: )
+  - word: NOT
+  - word: 'NULL'
+  - end_bracket: )
+  - end_bracket: )
+  - semicolon: ;
+  - word: EXECUTE
+  - word: Production
+  - dot: .
+  - word: ProductList
+  - single_quote: '''%tire%'''
+  - word: WITH
+  - word: RESULT
+  - word: SETS
+  - start_bracket: (
+  - start_bracket: (
+  - word: ProductID
+  - word: INT
+  - comma: ','
+  - double_quote: '[Name]'
+  - word: NAME
+  - comma: ','
+  - word: ListPrice
+  - word: MONEY
+  - end_bracket: )
+  - comma: ','
+  - start_bracket: (
+  - double_quote: '[Name]'
+  - word: NAME
+  - comma: ','
+  - word: NumberOfOrders
+  - word: INT
+  - end_bracket: )
+  - end_bracket: )
+  - semicolon: ;
+  - word: EXECUTE
+  - start_bracket: (
+  - single_quote: '''SELECT @@SERVERNAME'''
+  - end_bracket: )
+  - word: AT
+  - word: DATA_SOURCE
+  - word: my_sql_server
+  - semicolon: ;

@@ -18,8 +18,8 @@ file:
                 - table_reference:
                   - object_reference:
                     - naked_identifier: orders#
-      - unparsable:
-        - word: o#
+              - alias_expression:
+                - naked_identifier: o#
   - statement_terminator: ;
   - statement:
     - select_statement:

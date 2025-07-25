@@ -30,18 +30,27 @@ file:
                 - table_reference:
                   - object_reference:
                     - naked_identifier: Products
+              - alias_expression:
+                - naked_identifier: p
+          - join_clause:
+            - keyword: CROSS
+            - keyword: APPLY
+            - from_expression_element:
+              - from_expression_element:
+                - table_expression:
+                  - table_reference:
+                    - object_reference:
+                      - naked_identifier: dbo
+                      - dot: .
+                      - naked_identifier: GetCurrentStock
+                - bracketed:
+                  - start_bracket: (
+                  - unparsable:
+                    - word: p
+                    - dot: .
+                    - word: ProductID
+                  - end_bracket: )
       - unparsable:
-        - word: p
-        - word: CROSS
-        - word: APPLY
-        - word: dbo
-        - dot: .
-        - word: GetCurrentStock
-        - start_bracket: (
-        - word: p
-        - dot: .
-        - word: ProductID
-        - end_bracket: )
         - word: s
         - word: WHERE
         - word: s

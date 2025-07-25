@@ -5,29 +5,21 @@ file:
       - select_clause:
         - keyword: SELECT
         - select_clause_element:
-          - function:
-            - function_name:
-              - function_name_identifier: STRING_AGG
-            - bracketed:
-              - start_bracket: (
-              - expression:
-                - column_reference:
-                  - naked_identifier: FirstName
-              - comma: ','
-              - expression:
-                - quoted_literal: ''', '''
-              - end_bracket: )
-            - withingroup_clause:
-              - keyword: WITHIN
-              - keyword: GROUP
-              - bracketed:
-                - start_bracket: (
-                - orderby_clause:
-                  - keyword: ORDER
-                  - keyword: BY
-                  - column_reference:
-                    - naked_identifier: FirstName
-                - end_bracket: )
+          - column_reference:
+            - naked_identifier: STRING_AGG
+        - unparsable:
+          - start_bracket: (
+          - word: FirstName
+          - comma: ','
+          - single_quote: ''', '''
+          - end_bracket: )
+          - word: WITHIN
+          - word: GROUP
+          - start_bracket: (
+          - word: ORDER
+          - word: BY
+          - word: FirstName
+          - end_bracket: )
       - from_clause:
         - keyword: FROM
         - from_expression:
@@ -43,30 +35,22 @@ file:
       - select_clause:
         - keyword: SELECT
         - select_clause_element:
-          - function:
-            - function_name:
-              - function_name_identifier: STRING_AGG
-            - bracketed:
-              - start_bracket: (
-              - expression:
-                - column_reference:
-                  - naked_identifier: ProductName
-              - comma: ','
-              - expression:
-                - quoted_literal: ''' | '''
-              - end_bracket: )
-            - withingroup_clause:
-              - keyword: WITHIN
-              - keyword: GROUP
-              - bracketed:
-                - start_bracket: (
-                - orderby_clause:
-                  - keyword: ORDER
-                  - keyword: BY
-                  - column_reference:
-                    - naked_identifier: Price
-                  - keyword: DESC
-                - end_bracket: )
+          - column_reference:
+            - naked_identifier: STRING_AGG
+        - unparsable:
+          - start_bracket: (
+          - word: ProductName
+          - comma: ','
+          - single_quote: ''' | '''
+          - end_bracket: )
+          - word: WITHIN
+          - word: GROUP
+          - start_bracket: (
+          - word: ORDER
+          - word: BY
+          - word: Price
+          - word: DESC
+          - end_bracket: )
       - from_clause:
         - keyword: FROM
         - from_expression:
@@ -86,29 +70,21 @@ file:
             - naked_identifier: Department
         - comma: ','
         - select_clause_element:
-          - function:
-            - function_name:
-              - function_name_identifier: STRING_AGG
-            - bracketed:
-              - start_bracket: (
-              - expression:
-                - column_reference:
-                  - naked_identifier: EmployeeName
-              - comma: ','
-              - expression:
-                - quoted_literal: ''', '''
-              - end_bracket: )
-            - withingroup_clause:
-              - keyword: WITHIN
-              - keyword: GROUP
-              - bracketed:
-                - start_bracket: (
-                - orderby_clause:
-                  - keyword: ORDER
-                  - keyword: BY
-                  - column_reference:
-                    - naked_identifier: HireDate
-                - end_bracket: )
+          - column_reference:
+            - naked_identifier: STRING_AGG
+        - unparsable:
+          - start_bracket: (
+          - word: EmployeeName
+          - comma: ','
+          - single_quote: ''', '''
+          - end_bracket: )
+          - word: WITHIN
+          - word: GROUP
+          - start_bracket: (
+          - word: ORDER
+          - word: BY
+          - word: HireDate
+          - end_bracket: )
       - from_clause:
         - keyword: FROM
         - from_expression:
@@ -134,41 +110,28 @@ file:
             - naked_identifier: CategoryID
         - comma: ','
         - select_clause_element:
-          - function:
-            - function_name:
-              - function_name_identifier: STRING_AGG
-            - bracketed:
-              - start_bracket: (
-              - expression:
-                - column_reference:
-                  - naked_identifier: ProductName
-              - comma: ','
-              - expression:
-                - quoted_literal: ''', '''
-              - end_bracket: )
-            - withingroup_clause:
-              - keyword: WITHIN
-              - keyword: GROUP
-              - bracketed:
-                - start_bracket: (
-                - orderby_clause:
-                  - keyword: ORDER
-                  - keyword: BY
-                  - column_reference:
-                    - naked_identifier: ProductName
-                - end_bracket: )
-        - comma: ','
-        - select_clause_element:
-          - function:
-            - function_name:
-              - function_name_identifier: COUNT
-            - bracketed:
-              - start_bracket: (
-              - star: '*'
-              - end_bracket: )
-          - alias_expression:
-            - keyword: as
-            - naked_identifier: ProductCount
+          - column_reference:
+            - naked_identifier: STRING_AGG
+        - unparsable:
+          - start_bracket: (
+          - word: ProductName
+          - comma: ','
+          - single_quote: ''', '''
+          - end_bracket: )
+          - word: WITHIN
+          - word: GROUP
+          - start_bracket: (
+          - word: ORDER
+          - word: BY
+          - word: ProductName
+          - end_bracket: )
+          - comma: ','
+          - word: COUNT
+          - start_bracket: (
+          - star: '*'
+          - end_bracket: )
+          - word: as
+          - word: ProductCount
       - from_clause:
         - keyword: FROM
         - from_expression:
@@ -194,34 +157,25 @@ file:
             - naked_identifier: Region
         - comma: ','
         - select_clause_element:
-          - function:
-            - function_name:
-              - function_name_identifier: STRING_AGG
-            - bracketed:
-              - start_bracket: (
-              - expression:
-                - column_reference:
-                  - naked_identifier: City
-              - comma: ','
-              - expression:
-                - quoted_literal: ''', '''
-              - end_bracket: )
-            - withingroup_clause:
-              - keyword: WITHIN
-              - keyword: GROUP
-              - bracketed:
-                - start_bracket: (
-                - orderby_clause:
-                  - keyword: ORDER
-                  - keyword: BY
-                  - column_reference:
-                    - naked_identifier: Population
-                  - keyword: DESC
-                  - comma: ','
-                  - column_reference:
-                    - naked_identifier: City
-                  - keyword: ASC
-                - end_bracket: )
+          - column_reference:
+            - naked_identifier: STRING_AGG
+        - unparsable:
+          - start_bracket: (
+          - word: City
+          - comma: ','
+          - single_quote: ''', '''
+          - end_bracket: )
+          - word: WITHIN
+          - word: GROUP
+          - start_bracket: (
+          - word: ORDER
+          - word: BY
+          - word: Population
+          - word: DESC
+          - comma: ','
+          - word: City
+          - word: ASC
+          - end_bracket: )
       - from_clause:
         - keyword: FROM
         - from_expression:
@@ -243,44 +197,29 @@ file:
       - select_clause:
         - keyword: SELECT
         - select_clause_element:
-          - function:
-            - function_name:
-              - function_name_identifier: STRING_AGG
-            - bracketed:
-              - start_bracket: (
-              - expression:
-                - function:
-                  - function_name:
-                    - function_name_identifier: CAST
-                  - bracketed:
-                    - start_bracket: (
-                    - expression:
-                      - column_reference:
-                        - naked_identifier: ProductID
-                    - keyword: AS
-                    - data_type:
-                      - data_type_identifier: VARCHAR
-                      - bracketed_arguments:
-                        - bracketed:
-                          - start_bracket: (
-                          - numeric_literal: '10'
-                          - end_bracket: )
-                    - end_bracket: )
-              - comma: ','
-              - expression:
-                - quoted_literal: '''-'''
-              - end_bracket: )
-            - withingroup_clause:
-              - keyword: WITHIN
-              - keyword: GROUP
-              - bracketed:
-                - start_bracket: (
-                - orderby_clause:
-                  - keyword: ORDER
-                  - keyword: BY
-                  - column_reference:
-                    - naked_identifier: ProductID
-                - end_bracket: )
+          - column_reference:
+            - naked_identifier: STRING_AGG
+        - unparsable:
+          - start_bracket: (
+          - word: CAST
+          - start_bracket: (
+          - word: ProductID
+          - word: AS
+          - word: VARCHAR
+          - start_bracket: (
+          - numeric_literal: '10'
+          - end_bracket: )
+          - end_bracket: )
+          - comma: ','
+          - single_quote: '''-'''
+          - end_bracket: )
+          - word: WITHIN
+          - word: GROUP
+          - start_bracket: (
+          - word: ORDER
+          - word: BY
+          - word: ProductID
+          - end_bracket: )
       - from_clause:
         - keyword: FROM
         - from_expression:
@@ -323,33 +262,24 @@ file:
                           - naked_identifier: DepartmentID
                       - comma: ','
                       - select_clause_element:
-                        - function:
-                          - function_name:
-                            - function_name_identifier: STRING_AGG
-                          - bracketed:
-                            - start_bracket: (
-                            - expression:
-                              - column_reference:
-                                - naked_identifier: EmployeeName
-                            - comma: ','
-                            - expression:
-                              - quoted_literal: ''', '''
-                            - end_bracket: )
-                          - withingroup_clause:
-                            - keyword: WITHIN
-                            - keyword: GROUP
-                            - bracketed:
-                              - start_bracket: (
-                              - orderby_clause:
-                                - keyword: ORDER
-                                - keyword: BY
-                                - column_reference:
-                                  - naked_identifier: Salary
-                                - keyword: DESC
-                              - end_bracket: )
-                        - alias_expression:
-                          - keyword: as
-                          - naked_identifier: TopEarners
+                        - column_reference:
+                          - naked_identifier: STRING_AGG
+                      - unparsable:
+                        - start_bracket: (
+                        - word: EmployeeName
+                        - comma: ','
+                        - single_quote: ''', '''
+                        - end_bracket: )
+                        - word: WITHIN
+                        - word: GROUP
+                        - start_bracket: (
+                        - word: ORDER
+                        - word: BY
+                        - word: Salary
+                        - word: DESC
+                        - end_bracket: )
+                        - word: as
+                        - word: TopEarners
                     - from_clause:
                       - keyword: FROM
                       - from_expression:
@@ -366,7 +296,7 @@ file:
                         - column_reference:
                           - naked_identifier: DepartmentID
                   - end_bracket: )
-      - unparsable:
-        - word: AS
-        - word: DeptSummary
+              - alias_expression:
+                - keyword: AS
+                - naked_identifier: DeptSummary
   - statement_terminator: ;

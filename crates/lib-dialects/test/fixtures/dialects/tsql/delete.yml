@@ -62,22 +62,22 @@ file:
       - quoted_literal: '''Number of rows deleted is '''
       - binary_operator: +
       - function:
-        - function_name:
-          - function_name_identifier: CAST
-        - bracketed:
-          - start_bracket: (
-          - expression:
-            - parameterized_expression:
+        - function:
+          - function_name:
+            - function_name_identifier: CAST
+          - bracketed:
+            - start_bracket: (
+            - parameter:
               - tsql_variable: '@@ROWCOUNT'
-          - keyword: as
-          - data_type:
-            - data_type_identifier: char
-            - bracketed_arguments:
-              - bracketed:
-                - start_bracket: (
-                - numeric_literal: '3'
-                - end_bracket: )
-          - end_bracket: )
+              - keyword: as
+              - data_type:
+                - data_type_identifier: char
+                - bracketed_arguments:
+                  - bracketed:
+                    - start_bracket: (
+                    - numeric_literal: '3'
+                    - end_bracket: )
+            - end_bracket: )
   - statement_terminator: ;
   - keyword: GO
   - statement:
@@ -105,34 +105,58 @@ file:
                       - naked_identifier: HumanResources
                       - dot: .
                       - naked_identifier: EmployeePayHistory
-        - unparsable:
-          - word: AS
-          - word: a
-          - word: WHERE
-          - word: RateChangeDate
-          - raw_comparison_operator: <
-          - raw_comparison_operator: '>'
-          - start_bracket: (
-          - word: SELECT
-          - word: MAX
-          - start_bracket: (
-          - word: RateChangeDate
-          - end_bracket: )
-          - word: FROM
-          - word: HumanResources
-          - dot: .
-          - word: EmployeePayHistory
-          - word: AS
-          - word: b
-          - word: WHERE
-          - word: a
-          - dot: .
-          - word: BusinessEntityID
-          - raw_comparison_operator: =
-          - word: b
-          - dot: .
-          - word: BusinessEntityID
-          - end_bracket: )
+                - alias_expression:
+                  - keyword: AS
+                  - naked_identifier: a
+        - where_clause:
+          - keyword: WHERE
+          - expression:
+            - column_reference:
+              - naked_identifier: RateChangeDate
+            - comparison_operator:
+              - raw_comparison_operator: <
+              - raw_comparison_operator: '>'
+            - bracketed:
+              - start_bracket: (
+              - expression:
+                - select_statement:
+                  - select_clause:
+                    - keyword: SELECT
+                    - select_clause_element:
+                      - column_reference:
+                        - naked_identifier: MAX
+                    - unparsable:
+                      - start_bracket: (
+                      - word: RateChangeDate
+                      - end_bracket: )
+                  - from_clause:
+                    - keyword: FROM
+                    - from_expression:
+                      - from_expression_element:
+                        - from_expression_element:
+                          - table_expression:
+                            - table_reference:
+                              - object_reference:
+                                - naked_identifier: HumanResources
+                                - dot: .
+                                - naked_identifier: EmployeePayHistory
+                          - alias_expression:
+                            - keyword: AS
+                            - naked_identifier: b
+                  - where_clause:
+                    - keyword: WHERE
+                    - expression:
+                      - column_reference:
+                        - naked_identifier: a
+                        - dot: .
+                        - naked_identifier: BusinessEntityID
+                      - comparison_operator:
+                        - raw_comparison_operator: =
+                      - column_reference:
+                        - naked_identifier: b
+                        - dot: .
+                        - naked_identifier: BusinessEntityID
+              - end_bracket: )
   - statement_terminator: ;
   - statement:
     - statement:
@@ -240,62 +264,110 @@ file:
                       - naked_identifier: Sales
                       - dot: .
                       - naked_identifier: SalesPersonQuotaHistory
+                - alias_expression:
+                  - keyword: AS
+                  - naked_identifier: spqh
+            - join_clause:
+              - join_clause:
+                - keyword: INNER
+                - keyword: JOIN
+                - from_expression_element:
+                  - from_expression_element:
+                    - table_expression:
+                      - table_reference:
+                        - object_reference:
+                          - naked_identifier: Sales
+                          - dot: .
+                          - naked_identifier: SalesPerson
+                    - alias_expression:
+                      - keyword: AS
+                      - naked_identifier: sp
+                - join_on_condition:
+                  - keyword: ON
+                  - expression:
+                    - column_reference:
+                      - naked_identifier: spqh
+                      - dot: .
+                      - naked_identifier: BusinessEntityID
+                    - comparison_operator:
+                      - raw_comparison_operator: =
+                    - column_reference:
+                      - naked_identifier: sp
+                      - dot: .
+                      - naked_identifier: BusinessEntityID
+        - where_clause:
+          - keyword: WHERE
+          - expression:
+            - column_reference:
+              - naked_identifier: sp
+              - dot: .
+              - naked_identifier: SalesYTD
+            - comparison_operator:
+              - raw_comparison_operator: '>'
+            - numeric_literal: '2500000.00'
+        - statement_terminator: ;
+  - keyword: GO
+  - statement:
+    - delete_statement:
+      - delete_statement:
+        - keyword: DELETE
+        - table_reference:
+          - object_reference:
+            - naked_identifier: spqh
+        - from_clause:
+          - keyword: FROM
+          - from_expression:
+            - from_expression_element:
+              - from_expression_element:
+                - table_expression:
+                  - table_reference:
+                    - object_reference:
+                      - naked_identifier: Sales
+                      - dot: .
+                      - naked_identifier: SalesPersonQuotaHistory
+                - alias_expression:
+                  - keyword: AS
+                  - naked_identifier: spqh
+            - join_clause:
+              - join_clause:
+                - keyword: INNER
+                - keyword: JOIN
+                - from_expression_element:
+                  - from_expression_element:
+                    - table_expression:
+                      - table_reference:
+                        - object_reference:
+                          - naked_identifier: Sales
+                          - dot: .
+                          - naked_identifier: SalesPerson
+                    - alias_expression:
+                      - keyword: AS
+                      - naked_identifier: sp
+                - join_on_condition:
+                  - keyword: ON
+                  - expression:
+                    - column_reference:
+                      - naked_identifier: spqh
+                      - dot: .
+                      - naked_identifier: BusinessEntityID
+                    - comparison_operator:
+                      - raw_comparison_operator: =
+                    - column_reference:
+                      - naked_identifier: sp
+                      - dot: .
+                      - naked_identifier: BusinessEntityID
+        - where_clause:
+          - keyword: WHERE
+          - expression:
+            - column_reference:
+              - naked_identifier: sp
+              - dot: .
+              - naked_identifier: SalesYTD
+            - comparison_operator:
+              - raw_comparison_operator: '>'
+            - numeric_literal: '2500000.00'
+        - statement_terminator: ;
 - unparsable:
-  - word: AS
-  - word: spqh
-  - word: INNER
-  - word: JOIN
-  - word: Sales
-  - dot: .
-  - word: SalesPerson
-  - word: AS
-  - word: sp
-  - word: ON
-  - word: spqh
-  - dot: .
-  - word: BusinessEntityID
-  - raw_comparison_operator: =
-  - word: sp
-  - dot: .
-  - word: BusinessEntityID
-  - word: WHERE
-  - word: sp
-  - dot: .
-  - word: SalesYTD
-  - raw_comparison_operator: '>'
-  - numeric_literal: '2500000.00'
-  - semicolon: ;
-  - word: GO
-  - word: DELETE
-  - word: spqh
-  - word: FROM
-  - word: Sales
-  - dot: .
-  - word: SalesPersonQuotaHistory
-  - word: AS
-  - word: spqh
-  - word: INNER
-  - word: JOIN
-  - word: Sales
-  - dot: .
-  - word: SalesPerson
-  - word: AS
-  - word: sp
-  - word: ON
-  - word: spqh
-  - dot: .
-  - word: BusinessEntityID
-  - raw_comparison_operator: =
-  - word: sp
-  - dot: .
-  - word: BusinessEntityID
-  - word: WHERE
-  - word: sp
-  - dot: .
-  - word: SalesYTD
-  - raw_comparison_operator: '>'
-  - numeric_literal: '2500000.00'
-  - semicolon: ;
   - word: DELETE
   - word: TOP
   - start_bracket: (

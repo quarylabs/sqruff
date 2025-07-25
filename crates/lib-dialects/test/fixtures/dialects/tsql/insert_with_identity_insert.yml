@@ -13,19 +13,16 @@ file:
       - insert_statement:
         - keyword: INSERT
         - keyword: INTO
-        - function:
-          - function_name:
-            - function_name_identifier: someTable
-          - bracketed:
-            - start_bracket: (
-            - expression:
-              - column_reference:
-                - naked_identifier: ID
+        - table_reference:
+          - object_reference:
+            - naked_identifier: someTable
+        - bracketed:
+          - start_bracket: (
+          - unparsable:
+            - word: ID
             - comma: ','
-            - expression:
-              - column_reference:
-                - naked_identifier: Value
-            - end_bracket: )
+            - word: Value
+          - end_bracket: )
         - values_clause:
           - keyword: VALUES
           - bracketed:

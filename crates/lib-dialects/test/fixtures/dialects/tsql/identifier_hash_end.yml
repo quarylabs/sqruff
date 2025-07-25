@@ -37,9 +37,9 @@ file:
                 - table_reference:
                   - object_reference:
                     - naked_identifier: orders#
-      - unparsable:
-        - word: AS
-        - word: o#
+              - alias_expression:
+                - keyword: AS
+                - naked_identifier: o#
   - statement_terminator: ;
   - statement:
     - select_statement:

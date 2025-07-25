@@ -13,8 +13,9 @@ file:
             - keyword: SELECT
             - select_clause_element:
               - function:
-                - function_name:
-                  - function_name_identifier: DB_NAME
-                - bracketed:
-                  - start_bracket: (
-                  - end_bracket: )
+                - function:
+                  - function_name:
+                    - function_name_identifier: DB_NAME
+                  - bracketed:
+                    - start_bracket: (
+                    - end_bracket: )

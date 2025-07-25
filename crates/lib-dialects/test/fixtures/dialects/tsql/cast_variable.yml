@@ -8,107 +8,58 @@ file:
     - assignment_operator:
       - raw_comparison_operator: =
     - expression:
-      - function:
-        - function_name:
-          - function_name_identifier: ISNULL
-        - bracketed:
-          - start_bracket: (
-          - expression:
-            - function:
-              - function_name:
-                - naked_identifier: Shared
-                - dot: .
-                - function_name_identifier: GetESTDateTime
-              - bracketed:
-                - start_bracket: (
-                - expression:
-                  - function:
-                    - function_name:
-                      - function_name_identifier: GETDATE
-                    - bracketed:
-                      - start_bracket: (
-                      - end_bracket: )
-                - end_bracket: )
-          - comma: ','
-          - expression:
-            - function:
-              - function_name:
-                - function_name_identifier: GETDATE
-              - bracketed:
-                - start_bracket: (
-                - end_bracket: )
-          - end_bracket: )
-  - statement:
-    - select_statement:
-      - select_clause:
-        - keyword: select
-        - select_clause_element:
-          - column_reference:
-            - naked_identifier: enc
-            - dot: .
-            - naked_identifier: personid
-          - alias_expression:
-            - keyword: as
-            - naked_identifier: personid
-        - comma: ','
-        - select_clause_element:
-          - function:
-            - function_name:
-              - function_name_identifier: cast
-            - bracketed:
-              - start_bracket: (
-              - expression:
-                - quoted_literal: '''1900-01-01'''
-              - keyword: as
-              - data_type:
-                - data_type_identifier: datetime2
-                - bracketed_arguments:
-                  - bracketed:
-                    - start_bracket: (
-                    - numeric_literal: '7'
-                    - end_bracket: )
-              - end_bracket: )
-          - alias_expression:
-            - keyword: as
-            - naked_identifier: DataRefreshDate
-      - from_clause:
-        - keyword: from
-        - from_expression:
-          - from_expression_element:
-            - from_expression_element:
-              - table_expression:
-                - table_reference:
-                  - object_reference:
-                    - naked_identifier: encounter
-      - unparsable:
-        - word: enc
-  - statement_terminator: ;
-  - statement:
-    - keyword: declare
-    - tsql_variable: '@sample'
-    - data_type:
-      - data_type_identifier: nvarchar
-      - bracketed_arguments:
-        - bracketed:
-          - start_bracket: (
-          - keyword: max
-          - end_bracket: )
-    - assignment_operator:
-      - raw_comparison_operator: =
-    - expression:
-      - function:
-        - function_name:
-          - function_name_identifier: cast
-        - bracketed:
-          - start_bracket: (
-          - expression:
-            - numeric_literal: '100'
-          - keyword: as
-          - data_type:
-            - data_type_identifier: nvarchar
-            - bracketed_arguments:
-              - bracketed:
-                - start_bracket: (
-                - keyword: max
-                - end_bracket: )
-          - end_bracket: )
+      - column_reference:
+        - naked_identifier: ISNULL
+- unparsable:
+  - start_bracket: (
+  - word: Shared
+  - dot: .
+  - word: GetESTDateTime
+  - start_bracket: (
+  - word: GETDATE
+  - start_bracket: (
+  - end_bracket: )
+  - end_bracket: )
+  - comma: ','
+  - word: GETDATE
+  - start_bracket: (
+  - end_bracket: )
+  - end_bracket: )
+  - word: select
+  - word: enc
+  - dot: .
+  - word: personid
+  - word: as
+  - word: personid
+  - comma: ','
+  - word: cast
+  - start_bracket: (
+  - single_quote: '''1900-01-01'''
+  - word: as
+  - word: datetime2
+  - start_bracket: (
+  - numeric_literal: '7'
+  - end_bracket: )
+  - end_bracket: )
+  - word: as
+  - word: DataRefreshDate
+  - word: from
+  - word: encounter
+  - word: enc
+  - semicolon: ;
+  - word: declare
+  - tsql_variable: '@sample'
+  - word: nvarchar
+  - start_bracket: (
+  - word: max
+  - end_bracket: )
+  - raw_comparison_operator: =
+  - word: cast
+  - start_bracket: (
+  - numeric_literal: '100'
+  - word: as
+  - word: nvarchar
+  - start_bracket: (
+  - word: max
+  - end_bracket: )
+  - end_bracket: )

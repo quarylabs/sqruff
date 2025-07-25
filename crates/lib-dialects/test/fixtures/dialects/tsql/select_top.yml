@@ -29,14 +29,16 @@ file:
                     - naked_identifier: t2
                     - dot: .
                     - naked_identifier: table_name
-      - unparsable:
-        - word: t
-        - word: order
-        - word: by
-        - word: t
-        - dot: .
-        - word: column1
-        - word: desc
+              - alias_expression:
+                - naked_identifier: t
+      - orderby_clause:
+        - keyword: order
+        - keyword: by
+        - column_reference:
+          - naked_identifier: t
+          - dot: .
+          - naked_identifier: column1
+        - keyword: desc
   - statement_terminator: ;
   - statement:
     - select_statement:
@@ -195,41 +197,69 @@ file:
                     - naked_identifier: Person
                     - dot: .
                     - naked_identifier: Person
-      - unparsable:
-        - word: AS
-        - word: pp
-        - word: INNER
-        - word: JOIN
-        - word: HumanResources
-        - dot: .
-        - word: Employee
-        - word: AS
-        - word: e
-        - word: ON
-        - word: pp
-        - dot: .
-        - word: BusinessEntityID
-        - raw_comparison_operator: =
-        - word: e
-        - dot: .
-        - word: BusinessEntityID
-        - word: INNER
-        - word: JOIN
-        - word: HumanResources
-        - dot: .
-        - word: EmployeePayHistory
-        - word: AS
-        - word: r
-        - word: ON
-        - word: r
-        - dot: .
-        - word: BusinessEntityID
-        - raw_comparison_operator: =
-        - word: e
-        - dot: .
-        - word: BusinessEntityID
-        - word: ORDER
-        - word: BY
-        - word: Rate
-        - word: DESC
+              - alias_expression:
+                - keyword: AS
+                - naked_identifier: pp
+          - join_clause:
+            - join_clause:
+              - keyword: INNER
+              - keyword: JOIN
+              - from_expression_element:
+                - from_expression_element:
+                  - table_expression:
+                    - table_reference:
+                      - object_reference:
+                        - naked_identifier: HumanResources
+                        - dot: .
+                        - naked_identifier: Employee
+                  - alias_expression:
+                    - keyword: AS
+                    - naked_identifier: e
+              - join_on_condition:
+                - keyword: ON
+                - expression:
+                  - column_reference:
+                    - naked_identifier: pp
+                    - dot: .
+                    - naked_identifier: BusinessEntityID
+                  - comparison_operator:
+                    - raw_comparison_operator: =
+                  - column_reference:
+                    - naked_identifier: e
+                    - dot: .
+                    - naked_identifier: BusinessEntityID
+          - join_clause:
+            - join_clause:
+              - keyword: INNER
+              - keyword: JOIN
+              - from_expression_element:
+                - from_expression_element:
+                  - table_expression:
+                    - table_reference:
+                      - object_reference:
+                        - naked_identifier: HumanResources
+                        - dot: .
+                        - naked_identifier: EmployeePayHistory
+                  - alias_expression:
+                    - keyword: AS
+                    - naked_identifier: r
+              - join_on_condition:
+                - keyword: ON
+                - expression:
+                  - column_reference:
+                    - naked_identifier: r
+                    - dot: .
+                    - naked_identifier: BusinessEntityID
+                  - comparison_operator:
+                    - raw_comparison_operator: =
+                  - column_reference:
+                    - naked_identifier: e
+                    - dot: .
+                    - naked_identifier: BusinessEntityID
+      - orderby_clause:
+        - keyword: ORDER
+        - keyword: BY
+        - column_reference:
+          - naked_identifier: Rate
+        - keyword: DESC
   - statement_terminator: ;

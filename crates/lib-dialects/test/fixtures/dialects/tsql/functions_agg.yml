@@ -5,110 +5,69 @@ file:
       - select_clause:
         - keyword: SELECT
         - select_clause_element:
-          - function:
-            - function_name:
-              - function_name_identifier: string_agg
-            - bracketed:
-              - start_bracket: (
-              - expression:
-                - column_reference:
-                  - naked_identifier: t
-                  - dot: .
-                  - naked_identifier: v
-              - comma: ','
-              - expression:
-                - quoted_literal: '''; '''
-              - end_bracket: )
-            - withingroup_clause:
-              - keyword: within
-              - keyword: group
-              - bracketed:
-                - start_bracket: (
-                - orderby_clause:
-                  - keyword: order
-                  - keyword: by
-                  - column_reference:
-                    - naked_identifier: v
-                - end_bracket: )
-          - alias_expression:
-            - keyword: as
-            - naked_identifier: column_name1
-        - comma: ','
-        - select_clause_element:
-          - function:
-            - function_name:
-              - function_name_identifier: PERCENTILE_CONT
-            - bracketed:
-              - start_bracket: (
-              - expression:
-                - numeric_literal: '0.5'
-              - end_bracket: )
-            - withingroup_clause:
-              - keyword: WITHIN
-              - keyword: GROUP
-              - bracketed:
-                - start_bracket: (
-                - orderby_clause:
-                  - keyword: ORDER
-                  - keyword: BY
-                  - column_reference:
-                    - naked_identifier: t
-                    - dot: .
-                    - naked_identifier: Rate
-                - end_bracket: )
-            - over_clause:
-              - keyword: OVER
-              - bracketed:
-                - start_bracket: (
-                - window_specification:
-                  - partitionby_clause:
-                    - keyword: PARTITION
-                    - keyword: BY
-                    - expression:
-                      - column_reference:
-                        - naked_identifier: Name
-                - end_bracket: )
-          - alias_expression:
-            - keyword: AS
-            - naked_identifier: MedianCont
-        - comma: ','
-        - select_clause_element:
-          - function:
-            - function_name:
-              - function_name_identifier: PERCENTILE_DISC
-            - bracketed:
-              - start_bracket: (
-              - expression:
-                - numeric_literal: '0.5'
-              - end_bracket: )
-            - withingroup_clause:
-              - keyword: WITHIN
-              - keyword: GROUP
-              - bracketed:
-                - start_bracket: (
-                - orderby_clause:
-                  - keyword: ORDER
-                  - keyword: BY
-                  - column_reference:
-                    - naked_identifier: t
-                    - dot: .
-                    - naked_identifier: Rate
-                - end_bracket: )
-            - over_clause:
-              - keyword: OVER
-              - bracketed:
-                - start_bracket: (
-                - window_specification:
-                  - partitionby_clause:
-                    - keyword: PARTITION
-                    - keyword: BY
-                    - expression:
-                      - column_reference:
-                        - naked_identifier: Name
-                - end_bracket: )
-          - alias_expression:
-            - keyword: AS
-            - naked_identifier: MedianDisc
+          - column_reference:
+            - naked_identifier: string_agg
+        - unparsable:
+          - start_bracket: (
+          - word: t
+          - dot: .
+          - word: v
+          - comma: ','
+          - single_quote: '''; '''
+          - end_bracket: )
+          - word: within
+          - word: group
+          - start_bracket: (
+          - word: order
+          - word: by
+          - word: v
+          - end_bracket: )
+          - word: as
+          - word: column_name1
+          - comma: ','
+          - word: PERCENTILE_CONT
+          - start_bracket: (
+          - numeric_literal: '0.5'
+          - end_bracket: )
+          - word: WITHIN
+          - word: GROUP
+          - start_bracket: (
+          - word: ORDER
+          - word: BY
+          - word: t
+          - dot: .
+          - word: Rate
+          - end_bracket: )
+          - word: OVER
+          - start_bracket: (
+          - word: PARTITION
+          - word: BY
+          - word: Name
+          - end_bracket: )
+          - word: AS
+          - word: MedianCont
+          - comma: ','
+          - word: PERCENTILE_DISC
+          - start_bracket: (
+          - numeric_literal: '0.5'
+          - end_bracket: )
+          - word: WITHIN
+          - word: GROUP
+          - start_bracket: (
+          - word: ORDER
+          - word: BY
+          - word: t
+          - dot: .
+          - word: Rate
+          - end_bracket: )
+          - word: OVER
+          - start_bracket: (
+          - word: PARTITION
+          - word: BY
+          - word: Name
+          - end_bracket: )
+          - word: AS
+          - word: MedianDisc
       - from_clause:
         - keyword: from
         - from_expression:
@@ -118,13 +77,20 @@ file:
                 - table_reference:
                   - object_reference:
                     - naked_identifier: table1
+              - alias_expression:
+                - naked_identifier: t
+      - groupby_clause:
+        - groupby_clause:
+          - keyword: group
+          - keyword: by
+          - column_reference:
+            - naked_identifier: employee_id
+      - having_clause:
+        - keyword: HAVING
+        - expression:
+          - column_reference:
+            - naked_identifier: MIN
       - unparsable:
-        - word: t
-        - word: group
-        - word: by
-        - word: employee_id
-        - word: HAVING
-        - word: MIN
         - start_bracket: (
         - double_quote: '[ArrivalDt]'
         - end_bracket: )

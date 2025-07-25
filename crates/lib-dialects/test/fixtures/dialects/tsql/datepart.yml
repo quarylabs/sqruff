@@ -6,18 +6,19 @@ file:
         - keyword: SELECT
         - select_clause_element:
           - function:
-            - function_name:
-              - function_name_identifier: DATEPART
-            - bracketed:
-              - start_bracket: (
-              - date_part: DW
-              - comma: ','
-              - expression:
-                - column_reference:
-                  - naked_identifier: my_table
-                  - dot: .
-                  - naked_identifier: date
-              - end_bracket: )
+            - function:
+              - function_name:
+                - function_name_identifier: DATEPART
+              - bracketed:
+                - start_bracket: (
+                - date_part: DW
+                - comma: ','
+                - expression:
+                  - column_reference:
+                    - naked_identifier: my_table
+                    - dot: .
+                    - naked_identifier: date
+                - end_bracket: )
           - alias_expression:
             - keyword: AS
             - naked_identifier: dayofweek

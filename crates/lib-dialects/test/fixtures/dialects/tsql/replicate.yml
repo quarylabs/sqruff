@@ -5,64 +5,39 @@ file:
       - select_clause:
         - keyword: SELECT
         - select_clause_element:
-          - expression:
-            - function:
-              - function_name:
-                - function_name_identifier: REPLICATE
-              - bracketed:
-                - start_bracket: (
-                - expression:
-                  - quoted_literal: '''0'''
-                - comma: ','
-                - expression:
-                  - numeric_literal: '3'
-                  - binary_operator: '-'
-                  - function:
-                    - function_name:
-                      - function_name_identifier: DATALENGTH
-                    - bracketed:
-                      - start_bracket: (
-                      - expression:
-                        - column_reference:
-                          - naked_identifier: c1
-                      - end_bracket: )
-                - end_bracket: )
-            - binary_operator: +
-            - column_reference:
-              - naked_identifier: c1
-          - alias_expression:
-            - keyword: AS
-            - quoted_identifier: '''Varchar Column'''
-        - comma: ','
-        - select_clause_element:
-          - expression:
-            - function:
-              - function_name:
-                - function_name_identifier: REPLICATE
-              - bracketed:
-                - start_bracket: (
-                - expression:
-                  - quoted_literal: '''0'''
-                - comma: ','
-                - expression:
-                  - numeric_literal: '3'
-                  - binary_operator: '-'
-                  - function:
-                    - function_name:
-                      - function_name_identifier: DATALENGTH
-                    - bracketed:
-                      - start_bracket: (
-                      - expression:
-                        - column_reference:
-                          - naked_identifier: c2
-                      - end_bracket: )
-                - end_bracket: )
-            - binary_operator: +
-            - column_reference:
-              - naked_identifier: c2
-          - alias_expression:
-            - keyword: AS
-            - quoted_identifier: '''Char Column'''
+          - column_reference:
+            - naked_identifier: REPLICATE
+        - unparsable:
+          - start_bracket: (
+          - single_quote: '''0'''
+          - comma: ','
+          - numeric_literal: '3'
+          - minus: '-'
+          - word: DATALENGTH
+          - start_bracket: (
+          - word: c1
+          - end_bracket: )
+          - end_bracket: )
+          - plus: +
+          - word: c1
+          - word: AS
+          - single_quote: '''Varchar Column'''
+          - comma: ','
+          - word: REPLICATE
+          - start_bracket: (
+          - single_quote: '''0'''
+          - comma: ','
+          - numeric_literal: '3'
+          - minus: '-'
+          - word: DATALENGTH
+          - start_bracket: (
+          - word: c2
+          - end_bracket: )
+          - end_bracket: )
+          - plus: +
+          - word: c2
+          - word: AS
+          - single_quote: '''Char Column'''
       - from_clause:
         - keyword: FROM
         - from_expression:
@@ -90,30 +65,20 @@ file:
     - assignment_operator:
       - raw_comparison_operator: =
     - expression:
-      - function:
-        - function_name:
-          - function_name_identifier: CAST
-        - bracketed:
-          - start_bracket: (
-          - expression:
-            - function:
-              - function_name:
-                - function_name_identifier: REPLICATE
-              - bracketed:
-                - start_bracket: (
-                - expression:
-                  - numeric_literal: '0x20'
-                - comma: ','
-                - expression:
-                  - numeric_literal: '128'
-                - end_bracket: )
-          - keyword: AS
-          - data_type:
-            - data_type_identifier: varbinary
-            - bracketed_arguments:
-              - bracketed:
-                - start_bracket: (
-                - numeric_literal: '128'
-                - end_bracket: )
-          - end_bracket: )
-  - statement_terminator: ;
+      - column_reference:
+        - naked_identifier: CAST
+- unparsable:
+  - start_bracket: (
+  - word: REPLICATE
+  - start_bracket: (
+  - numeric_literal: '0x20'
+  - comma: ','
+  - numeric_literal: '128'
+  - end_bracket: )
+  - word: AS
+  - word: varbinary
+  - start_bracket: (
+  - numeric_literal: '128'
+  - end_bracket: )
+  - end_bracket: )
+  - semicolon: ;

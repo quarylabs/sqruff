@@ -24,14 +24,18 @@ file:
                     - naked_identifier: myschema
                     - dot: .
                     - naked_identifier: customer
-      - unparsable:
-        - word: c
-        - word: where
-        - word: c
-        - dot: .
-        - word: name
-        - raw_comparison_operator: =
-        - single_quote: '''drjwelch'''
+              - alias_expression:
+                - naked_identifier: c
+      - where_clause:
+        - keyword: where
+        - expression:
+          - column_reference:
+            - naked_identifier: c
+            - dot: .
+            - naked_identifier: name
+          - comparison_operator:
+            - raw_comparison_operator: =
+          - quoted_literal: '''drjwelch'''
   - statement_terminator: ;
   - statement:
     - select_statement:
@@ -58,12 +62,16 @@ file:
                     - naked_identifier: myschema
                     - dot: .
                     - naked_identifier: customer
-      - unparsable:
-        - word: c
-        - word: where
-        - word: c
-        - dot: .
-        - word: name
-        - raw_comparison_operator: =
-        - single_quote: '''drjwelch'''
+              - alias_expression:
+                - naked_identifier: c
+      - where_clause:
+        - keyword: where
+        - expression:
+          - column_reference:
+            - naked_identifier: c
+            - dot: .
+            - naked_identifier: name
+          - comparison_operator:
+            - raw_comparison_operator: =
+          - quoted_literal: '''drjwelch'''
   - statement_terminator: ;

@@ -206,11 +206,12 @@ file:
             - raw_comparison_operator: =
           - expression:
             - function:
-              - function_name:
-                - function_name_identifier: ERROR_NUMBER
-              - bracketed:
-                - start_bracket: (
-                - end_bracket: )
+              - function:
+                - function_name:
+                  - function_name_identifier: ERROR_NUMBER
+                - bracketed:
+                  - start_bracket: (
+                  - end_bracket: )
         - statement_terminator: ;
         - statement:
           - keyword: SET
@@ -219,11 +220,12 @@ file:
             - raw_comparison_operator: =
           - expression:
             - function:
-              - function_name:
-                - function_name_identifier: ERROR_LINE
-              - bracketed:
-                - start_bracket: (
-                - end_bracket: )
+              - function:
+                - function_name:
+                  - function_name_identifier: ERROR_LINE
+                - bracketed:
+                  - start_bracket: (
+                  - end_bracket: )
         - statement_terminator: ;
         - statement:
           - keyword: SET
@@ -245,11 +247,12 @@ file:
             - quoted_literal: N' SQL Error = '
             - binary_operator: +
             - function:
-              - function_name:
-                - function_name_identifier: ERROR_MESSAGE
-              - bracketed:
-                - start_bracket: (
-                - end_bracket: )
+              - function:
+                - function_name:
+                  - function_name_identifier: ERROR_MESSAGE
+                - bracketed:
+                  - start_bracket: (
+                  - end_bracket: )
         - statement_terminator: ;
         - statement:
           - keyword: GOTO

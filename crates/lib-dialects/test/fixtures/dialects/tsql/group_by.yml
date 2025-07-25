@@ -36,8 +36,8 @@ file:
                       - table_reference:
                         - object_reference:
                           - naked_identifier: Orders_Action
-            - unparsable:
-              - word: acto
+                    - alias_expression:
+                      - naked_identifier: acto
           - end_bracket: )
   - statement:
     - select_statement:
@@ -57,13 +57,16 @@ file:
                 - table_reference:
                   - object_reference:
                     - naked_identifier: '#n'
-      - unparsable:
-        - word: t
-        - word: GROUP
-        - word: BY
-        - word: t
-        - dot: .
-        - word: ActionDTS
+              - alias_expression:
+                - naked_identifier: t
+      - groupby_clause:
+        - groupby_clause:
+          - keyword: GROUP
+          - keyword: BY
+          - column_reference:
+            - naked_identifier: t
+            - dot: .
+            - naked_identifier: ActionDTS
   - statement_terminator: ;
   - statement:
     - drop_table_statement:
@@ -82,25 +85,18 @@ file:
             - naked_identifier: st
         - comma: ','
         - select_clause_element:
-          - function:
-            - function_name:
-              - function_name_identifier: count
-            - bracketed:
-              - start_bracket: (
-              - star: '*'
-              - end_bracket: )
-        - comma: ','
-        - select_clause_element:
-          - function:
-            - function_name:
-              - function_name_identifier: count
-            - bracketed:
-              - start_bracket: (
-              - keyword: DISTINCT
-              - expression:
-                - column_reference:
-                  - naked_identifier: id
-              - end_bracket: )
+          - column_reference:
+            - naked_identifier: count
+        - unparsable:
+          - start_bracket: (
+          - star: '*'
+          - end_bracket: )
+          - comma: ','
+          - word: count
+          - start_bracket: (
+          - word: DISTINCT
+          - word: id
+          - end_bracket: )
       - from_clause:
         - keyword: FROM
         - from_expression:

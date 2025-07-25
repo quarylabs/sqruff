@@ -6728,8 +6728,7 @@ pub fn raw_dialect() -> Dialect {
     )]);
 
     // Override FunctionSegment to include T-SQL specific JSON functions
-    dialect.add([(
-        "FunctionSegment".into(),
+    dialect.replace_grammar("FunctionSegment", {
         NodeMatcher::new(SyntaxKind::Function, |_| {
             one_of(vec_of_erased![
                 Ref::new("TsqlJsonObjectSegment"),
@@ -6747,9 +6746,7 @@ pub fn raw_dialect() -> Dialect {
                     Sequence::new(vec_of_erased![
                         Ref::new("FunctionNameSegment").exclude(one_of(vec_of_erased![
                             Ref::new("DatePartFunctionNameSegment"),
-                            Ref::new("ValuesClauseSegment"),
-                            Ref::keyword("JSON_OBJECT"),
-                            Ref::keyword("JSON_ARRAY")
+                            Ref::new("ValuesClauseSegment")
                         ])),
                         Bracketed::new(vec_of_erased![
                             Ref::new("FunctionContentsGrammar").optional()
@@ -6762,8 +6759,7 @@ pub fn raw_dialect() -> Dialect {
             .to_matchable()
         })
         .to_matchable()
-        .into(),
-    )]);
+    });
 
     // Add COPY INTO statement support for Azure blob storage
     dialect.add([
@@ -7756,23 +7752,35 @@ pub fn raw_dialect() -> Dialect {
         .into(),
     )]);
 
-    // Override ColumnDefinitionSegment to support IDENTITY
+    // Override ColumnDefinitionSegment to support IDENTITY and computed columns
     dialect.replace_grammar("ColumnDefinitionSegment", {
         NodeMatcher::new(SyntaxKind::ColumnDefinition, |_| {
-            Sequence::new(vec_of_erased![
-                Ref::new("ColumnReferenceSegment"),
-                Ref::new("DatatypeSegment"),
-                // Add IDENTITY support
+            one_of(vec_of_erased![
+                // Regular column definition
                 Sequence::new(vec_of_erased![
-                    Ref::keyword("IDENTITY"),
-                    Bracketed::new(vec_of_erased![
-                        Ref::new("NumericLiteralSegment"),
-                        Ref::new("CommaSegment"),
-                        Ref::new("NumericLiteralSegment")
-                    ]).config(|this| this.optional())
-                ]).config(|this| this.optional()),
-                // Column constraints
-                AnyNumberOf::new(vec_of_erased![Ref::new("ColumnConstraintSegment")])
+                    Ref::new("ColumnReferenceSegment"),
+                    Ref::new("DatatypeSegment"),
+                    // Add IDENTITY support
+                    Sequence::new(vec_of_erased![
+                        Ref::keyword("IDENTITY"),
+                        Bracketed::new(vec_of_erased![
+                            Ref::new("NumericLiteralSegment"),
+                            Ref::new("CommaSegment"),
+                            Ref::new("NumericLiteralSegment")
+                        ]).config(|this| this.optional())
+                    ]).config(|this| this.optional()),
+                    // Column constraints
+                    AnyNumberOf::new(vec_of_erased![Ref::new("ColumnConstraintSegment")])
+                ]),
+                // Computed column: column AS expression [PERSISTED]
+                Sequence::new(vec_of_erased![
+                    Ref::new("ColumnReferenceSegment"),
+                    Ref::keyword("AS"),
+                    Ref::new("ExpressionSegment"),
+                    Ref::keyword("PERSISTED").optional(),
+                    // Column constraints after PERSISTED
+                    AnyNumberOf::new(vec_of_erased![Ref::new("ColumnConstraintSegment")])
+                ])
             ])
             .to_matchable()
         })
@@ -7862,31 +7870,104 @@ pub fn raw_dialect() -> Dialect {
     // Override FromExpressionElementSegment to include OPENDATASOURCE/OPENROWSET
     dialect.replace_grammar("FromExpressionElementSegment", {
         NodeMatcher::new(SyntaxKind::FromExpressionElement, |_| {
-            one_of(vec_of_erased![
-                Ref::new("TableExpressionSegment"),
-                Ref::new("JoinClauseSegment"),
-                Ref::new("PivotUnpivotStatementSegment"),
-                Ref::new("OpenDataSourceSegment"),
-                Ref::new("OpenRowsetSegment"),
-                // Allow OPENDATASOURCE/OPENROWSET with chained object references
-                Sequence::new(vec_of_erased![
-                    one_of(vec_of_erased![
-                        Ref::new("OpenDataSourceSegment"),
-                        Ref::new("OpenRowsetSegment")
-                    ]),
-                    // Allow .database.schema.table after OPENDATASOURCE/OPENROWSET
-                    AnyNumberOf::new(vec_of_erased![
-                        Sequence::new(vec_of_erased![
-                            Ref::new("DotSegment"),
-                            Ref::new("SingleIdentifierGrammar")
-                        ])
-                    ]).config(|this| this.min_times(1))
-                ])
+            Sequence::new(vec_of_erased![
+                Ref::new("PreTableFunctionKeywordsGrammar").optional(),
+                one_of(vec_of_erased![
+                    optionally_bracketed(vec_of_erased![Ref::new("TableExpressionSegment")]),
+                    Ref::new("JoinClauseSegment"),
+                    Ref::new("PivotUnpivotStatementSegment"),
+                    Ref::new("OpenDataSourceSegment"),
+                    Ref::new("OpenRowsetSegment"),
+                    // Allow OPENDATASOURCE/OPENROWSET with chained object references
+                    Sequence::new(vec_of_erased![
+                        one_of(vec_of_erased![
+                            Ref::new("OpenDataSourceSegment"),
+                            Ref::new("OpenRowsetSegment")
+                        ]),
+                        // Allow .database.schema.table after OPENDATASOURCE/OPENROWSET
+                        AnyNumberOf::new(vec_of_erased![
+                            Sequence::new(vec_of_erased![
+                                Ref::new("DotSegment"),
+                                Ref::new("SingleIdentifierGrammar")
+                            ])
+                        ]).config(|this| this.min_times(1))
+                    ])
+                ]),
+                // Add alias support
+                Ref::new("AliasExpressionSegment")
+                    .exclude(one_of(vec_of_erased![
+                        Ref::new("FromClauseTerminatorGrammar"),
+                        Ref::new("SamplingExpressionSegment"),
+                        Ref::new("JoinLikeClauseGrammar")
+                    ]))
+                    .optional(),
+                Ref::new("SamplingExpressionSegment").optional(),
+                Ref::new("PostTableExpressionGrammar").optional()
             ])
             .to_matchable()
         })
         .to_matchable()
     });
+
+    // Add JSON NULL clause support
+    dialect.add([(
+        "JsonNullClauseSegment".into(),
+        NodeMatcher::new(SyntaxKind::Expression, |_| {
+            one_of(vec_of_erased![
+                Sequence::new(vec_of_erased![
+                    Ref::keyword("NULL"),
+                    Ref::keyword("ON"),
+                    Ref::keyword("NULL")
+                ]),
+                Sequence::new(vec_of_erased![
+                    Ref::keyword("ABSENT"),
+                    Ref::keyword("ON"),
+                    Ref::keyword("NULL")
+                ])
+            ])
+            .to_matchable()
+        })
+        .to_matchable()
+        .into(),
+    )]);
+
+    // Override FunctionSegment to add JSON NULL clause support
+    dialect.replace_grammar("FunctionSegment", {
+        NodeMatcher::new(SyntaxKind::Function, |_| {
+            Sequence::new(vec_of_erased![
+                one_of(vec_of_erased![
+                    Sequence::new(vec_of_erased![
+                        Ref::new("DatePartFunctionNameSegment"),
+                        Bracketed::new(vec_of_erased![
+                            Ref::new("DatetimeUnitSegment"),
+                            Ref::new("CommaSegment"),
+                            Ref::new("ExpressionSegment")
+                        ])
+                    ]),
+                    Sequence::new(vec_of_erased![
+                        Ref::new("FunctionNameSegment"),
+                        Ref::new("FunctionParameterListGrammar")
+                    ])
+                ]),
+                Ref::new("PostFunctionGrammar").optional(),
+                // Add JSON NULL clause support
+                Ref::new("JsonNullClauseSegment").optional()
+            ])
+            .to_matchable()
+        })
+        .to_matchable()
+    });
+
+    // Add JSON function names to T-SQL as a set
+    dialect.sets_mut("json_function_names").extend([
+        "JSON_OBJECT",
+        "JSON_ARRAY",
+        "JSON_VALUE",
+        "JSON_QUERY",
+        "JSON_MODIFY",
+        "ISJSON",
+        "JSON_PATH_EXISTS",
+    ]);
 
     // expand() must be called after all grammar modifications
 

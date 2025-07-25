@@ -1,502 +1,290 @@
 file:
-- statement:
-  - statement:
-    - create_function_statement:
-      - create_function_statement:
-        - keyword: CREATE
-        - keyword: FUNCTION
-        - function_name:
-          - naked_identifier: dbo
-          - dot: .
-          - function_name_identifier: ISOweek
-        - bracketed:
-          - start_bracket: (
-          - parameter:
-            - tsql_variable: '@DATE'
-            - data_type:
-              - data_type_identifier: datetime
-          - end_bracket: )
-        - keyword: RETURNS
-        - data_type:
-          - data_type_identifier: int
-        - keyword: WITH
-        - keyword: EXECUTE
-        - keyword: AS
-        - keyword: CALLER
-        - keyword: AS
-        - statement:
-          - begin_end_block:
-            - keyword: BEGIN
-            - statement:
-              - keyword: DECLARE
-              - tsql_variable: '@ISOweek'
-              - data_type:
-                - data_type_identifier: int
-            - statement_terminator: ;
-            - statement:
-              - keyword: SET
-              - tsql_variable: '@ISOweek'
-              - assignment_operator:
-                - raw_comparison_operator: =
-              - expression:
-                - function:
-                  - function_name:
-                    - function_name_identifier: DATEPART
-                  - bracketed:
-                    - start_bracket: (
-                    - date_part: wk
-                    - comma: ','
-                    - expression:
-                      - parameterized_expression:
-                        - tsql_variable: '@DATE'
-                    - end_bracket: )
-                - binary_operator: +
-                - numeric_literal: '1'
-                - binary_operator: '-'
-                - function:
-                  - function_name:
-                    - function_name_identifier: DATEPART
-                  - bracketed:
-                    - start_bracket: (
-                    - date_part: wk
-                    - comma: ','
-                    - expression:
-                      - function:
-                        - function_name:
-                          - function_name_identifier: CAST
-                        - bracketed:
-                          - start_bracket: (
-                          - expression:
-                            - function:
-                              - function_name:
-                                - function_name_identifier: DATEPART
-                              - bracketed:
-                                - start_bracket: (
-                                - date_part: yy
-                                - comma: ','
-                                - expression:
-                                  - parameterized_expression:
-                                    - tsql_variable: '@DATE'
-                                - end_bracket: )
-                          - keyword: as
-                          - data_type:
-                            - data_type_identifier: CHAR
-                            - bracketed_arguments:
-                              - bracketed:
-                                - start_bracket: (
-                                - numeric_literal: '4'
-                                - end_bracket: )
-                          - end_bracket: )
-                      - binary_operator: +
-                      - quoted_literal: '''0104'''
-                    - end_bracket: )
-            - statement_terminator: ;
-            - statement:
-              - keyword: IF
-              - expression:
-                - bracketed:
-                  - start_bracket: (
-                  - expression:
-                    - parameterized_expression:
-                      - tsql_variable: '@ISOweek'
-                    - comparison_operator:
-                      - raw_comparison_operator: =
-                    - numeric_literal: '0'
-                  - end_bracket: )
-              - statement:
-                - keyword: SET
-                - tsql_variable: '@ISOweek'
-                - assignment_operator:
-                  - raw_comparison_operator: =
-                - expression:
-                  - function:
-                    - function_name:
-                      - naked_identifier: dbo
-                      - dot: .
-                      - function_name_identifier: ISOweek
-                    - bracketed:
-                      - start_bracket: (
-                      - expression:
-                        - function:
-                          - function_name:
-                            - function_name_identifier: CAST
-                          - bracketed:
-                            - start_bracket: (
-                            - expression:
-                              - function:
-                                - function_name:
-                                  - function_name_identifier: DATEPART
-                                - bracketed:
-                                  - start_bracket: (
-                                  - date_part: yy
-                                  - comma: ','
-                                  - expression:
-                                    - parameterized_expression:
-                                      - tsql_variable: '@DATE'
-                                  - end_bracket: )
-                              - binary_operator: '-'
-                              - numeric_literal: '1'
-                            - keyword: AS
-                            - data_type:
-                              - data_type_identifier: CHAR
-                              - bracketed_arguments:
-                                - bracketed:
-                                  - start_bracket: (
-                                  - numeric_literal: '4'
-                                  - end_bracket: )
-                            - end_bracket: )
-                        - binary_operator: +
-                        - quoted_literal: '''12'''
-                        - binary_operator: +
-                        - function:
-                          - function_name:
-                            - function_name_identifier: CAST
-                          - bracketed:
-                            - start_bracket: (
-                            - expression:
-                              - numeric_literal: '24'
-                              - binary_operator: +
-                              - function:
-                                - function_name:
-                                  - function_name_identifier: DATEPART
-                                - bracketed:
-                                  - start_bracket: (
-                                  - date_part: DAY
-                                  - comma: ','
-                                  - expression:
-                                    - parameterized_expression:
-                                      - tsql_variable: '@DATE'
-                                  - end_bracket: )
-                            - keyword: AS
-                            - data_type:
-                              - data_type_identifier: CHAR
-                              - bracketed_arguments:
-                                - bracketed:
-                                  - start_bracket: (
-                                  - numeric_literal: '2'
-                                  - end_bracket: )
-                            - end_bracket: )
-                      - end_bracket: )
-                  - binary_operator: +
-                  - numeric_literal: '1'
-              - statement_terminator: ;
-            - statement:
-              - keyword: IF
-              - expression:
-                - bracketed:
-                  - start_bracket: (
-                  - expression:
-                    - bracketed:
-                      - start_bracket: (
-                      - expression:
-                        - function:
-                          - function_name:
-                            - function_name_identifier: DATEPART
-                          - bracketed:
-                            - start_bracket: (
-                            - date_part: mm
-                            - comma: ','
-                            - expression:
-                              - parameterized_expression:
-                                - tsql_variable: '@DATE'
-                            - end_bracket: )
-                        - comparison_operator:
-                          - raw_comparison_operator: =
-                        - numeric_literal: '12'
-                      - end_bracket: )
-                    - binary_operator: AND
-                    - bracketed:
-                      - start_bracket: (
-                      - expression:
-                        - bracketed:
-                          - start_bracket: (
-                          - expression:
-                            - function:
-                              - function_name:
-                                - function_name_identifier: DATEPART
-                              - bracketed:
-                                - start_bracket: (
-                                - date_part: dd
-                                - comma: ','
-                                - expression:
-                                  - parameterized_expression:
-                                    - tsql_variable: '@DATE'
-                                - end_bracket: )
-                            - binary_operator: '-'
-                            - function:
-                              - function_name:
-                                - function_name_identifier: DATEPART
-                              - bracketed:
-                                - start_bracket: (
-                                - date_part: dw
-                                - comma: ','
-                                - expression:
-                                  - parameterized_expression:
-                                    - tsql_variable: '@DATE'
-                                - end_bracket: )
-                          - end_bracket: )
-                        - comparison_operator:
-                          - raw_comparison_operator: '>'
-                          - raw_comparison_operator: =
-                        - numeric_literal: '28'
-                      - end_bracket: )
-                  - end_bracket: )
-              - statement:
-                - keyword: SET
-                - tsql_variable: '@ISOweek'
-                - assignment_operator:
-                  - raw_comparison_operator: =
-                - expression:
-                  - numeric_literal: '1'
-              - statement_terminator: ;
-            - statement:
-              - statement:
-                - keyword: RETURN
-                - expression:
-                  - bracketed:
-                    - start_bracket: (
-                    - expression:
-                      - parameterized_expression:
-                        - tsql_variable: '@ISOweek'
-                    - end_bracket: )
-            - statement_terminator: ;
-            - keyword: END
-  - statement_terminator: ;
-  - keyword: GO
-  - statement:
-    - create_function_statement:
-      - create_function_statement:
-        - keyword: CREATE
-        - keyword: FUNCTION
-        - function_name:
-          - function_name_identifier: f
-        - bracketed:
-          - start_bracket: (
-          - end_bracket: )
-        - keyword: RETURNS
-        - tsql_variable: '@t'
-        - keyword: TABLE
-        - bracketed:
-          - start_bracket: (
-          - column_reference:
-            - naked_identifier: i
-          - data_type:
-            - data_type_identifier: int
-          - end_bracket: )
-        - keyword: AS
-        - statement:
-          - begin_end_block:
-            - keyword: BEGIN
-            - statement:
-              - insert_statement:
-                - insert_statement:
-                  - keyword: INSERT
-                  - keyword: INTO
-                  - table_reference:
-                    - tsql_variable: '@t'
-                  - select_statement:
-                    - select_clause:
-                      - keyword: SELECT
-                      - select_clause_element:
-                        - numeric_literal: '1'
-            - statement_terminator: ;
-            - statement:
-              - statement:
-                - keyword: RETURN
-            - statement_terminator: ;
-            - keyword: END
-  - statement_terminator: ;
-  - keyword: GO
-  - statement:
-    - create_function_statement:
-      - create_function_statement:
-        - keyword: CREATE
-        - keyword: OR
-        - keyword: ALTER
-        - keyword: FUNCTION
-        - function_name:
-          - function_name_identifier: F
-        - bracketed:
-          - start_bracket: (
-          - parameter:
-            - tsql_variable: '@DATE'
-            - keyword: as
-            - data_type:
-              - data_type_identifier: datetime
-          - end_bracket: )
-        - keyword: RETURNS
-        - data_type:
-          - data_type_identifier: INT
-        - keyword: AS
-        - keyword: BEGIN
-        - statement:
-          - statement:
-            - keyword: RETURN
-            - expression:
-              - numeric_literal: '1'
-        - keyword: END
-  - statement_terminator: ;
-  - keyword: GO
-  - statement:
-    - alter_function_statement:
-      - keyword: ALTER
-      - keyword: FUNCTION
-      - object_reference:
-        - naked_identifier: F
-      - bracketed:
-        - start_bracket: (
-        - parameter:
-          - tsql_variable: '@DATE'
-          - keyword: as
-          - data_type:
-            - data_type_identifier: datetime
-        - end_bracket: )
-      - keyword: RETURNS
-      - data_type:
-        - data_type_identifier: INT
-      - keyword: AS
-      - begin_end_block:
-        - keyword: BEGIN
-        - statement:
-          - statement:
-            - keyword: RETURN
-            - expression:
-              - numeric_literal: '0'
-        - keyword: END
-  - statement_terminator: ;
-  - keyword: GO
-  - statement:
-    - create_function_statement:
-      - create_function_statement:
-        - keyword: CREATE
-        - keyword: FUNCTION
-        - function_name:
-          - quoted_identifier: '[UTIL]'
-          - dot: .
-          - quoted_identifier: '[getItemList]'
-        - bracketed:
-          - start_bracket: (
-          - parameter:
-            - tsql_variable: '@list'
-            - data_type:
-              - data_type_identifier: ItemList
-            - keyword: READONLY
-          - end_bracket: )
-        - keyword: RETURNS
-        - data_type:
-          - data_type_identifier: nvarchar
-          - bracketed_arguments:
-            - bracketed:
-              - start_bracket: (
-              - keyword: max
-              - end_bracket: )
-        - keyword: AS
-        - keyword: BEGIN
-        - statement:
-          - keyword: DECLARE
-          - tsql_variable: '@str'
-          - data_type:
-            - data_type_identifier: nvarchar
-            - bracketed_arguments:
-              - bracketed:
-                - start_bracket: (
-                - keyword: max
-                - end_bracket: )
-          - assignment_operator:
-            - raw_comparison_operator: =
-          - expression:
-            - quoted_literal: ''''''
-        - statement:
-          - select_statement:
-            - select_clause:
-              - keyword: SELECT
-              - select_clause_element:
-                - tsql_variable: '@str'
-                - assignment_operator:
-                  - raw_comparison_operator: =
-                - expression:
-                  - parameterized_expression:
-                    - tsql_variable: '@str'
-                  - binary_operator: +
-                  - column_reference:
-                    - quoted_identifier: '[item]'
-            - from_clause:
-              - keyword: FROM
-              - from_expression:
-                - from_expression_element:
-                  - from_expression_element:
-                    - table_expression:
-                      - bracketed:
-                        - start_bracket: (
-                        - select_statement:
-                          - select_clause:
-                            - keyword: SELECT
-                            - select_clause_modifier:
-                              - keyword: TOP
-                              - bracketed:
-                                - start_bracket: (
-                                - expression:
-                                  - numeric_literal: '9999'
-                                - end_bracket: )
-                            - select_clause_element:
-                              - column_reference:
-                                - quoted_identifier: '[item]'
-                          - from_clause:
-                            - keyword: FROM
-                            - from_expression:
-                              - from_expression_element:
-                                - from_expression_element:
-                                  - table_expression:
-                                    - table_reference:
-                                      - tsql_variable: '@list'
-                          - orderby_clause:
-                            - keyword: ORDER
-                            - keyword: BY
-                            - column_reference:
-                              - quoted_identifier: '[order]'
-                        - end_bracket: )
-            - unparsable:
-              - word: i
-        - statement:
-          - statement:
-            - keyword: RETURN
-            - expression:
-              - parameterized_expression:
-                - tsql_variable: '@str'
-        - keyword: END
-  - statement_terminator: ;
-  - keyword: GO
-  - statement:
-    - create_function_statement:
-      - create_function_statement:
-        - keyword: create
-        - keyword: function
-        - function_name:
-          - function_name_identifier: my_function
-        - bracketed:
-          - start_bracket: (
-          - parameter:
-            - tsql_variable: '@my_parameter'
-            - data_type:
-              - data_type_identifier: int
-          - end_bracket: )
-        - keyword: returns
-        - data_type:
-          - data_type_identifier: int
-        - keyword: with
-        - keyword: schemabinding
-        - comma: ','
-        - keyword: returns
-        - keyword: 'null'
-        - keyword: on
-        - keyword: 'null'
-        - keyword: input
-        - keyword: begin
-        - statement:
-          - statement:
-            - keyword: return
-            - expression:
-              - parameterized_expression:
-                - tsql_variable: '@my_parameter'
-        - keyword: end
-  - keyword: go
+- unparsable:
+  - word: CREATE
+  - word: FUNCTION
+  - word: dbo
+  - dot: .
+  - word: ISOweek
+  - start_bracket: (
+  - tsql_variable: '@DATE'
+  - word: datetime
+  - end_bracket: )
+  - word: RETURNS
+  - word: int
+  - word: WITH
+  - word: EXECUTE
+  - word: AS
+  - word: CALLER
+  - word: AS
+  - word: BEGIN
+  - word: DECLARE
+  - tsql_variable: '@ISOweek'
+  - word: int
+  - semicolon: ;
+  - word: SET
+  - tsql_variable: '@ISOweek'
+  - raw_comparison_operator: =
+  - word: DATEPART
+  - start_bracket: (
+  - word: wk
+  - comma: ','
+  - tsql_variable: '@DATE'
+  - end_bracket: )
+  - plus: +
+  - numeric_literal: '1'
+  - minus: '-'
+  - word: DATEPART
+  - start_bracket: (
+  - word: wk
+  - comma: ','
+  - word: CAST
+  - start_bracket: (
+  - word: DATEPART
+  - start_bracket: (
+  - word: yy
+  - comma: ','
+  - tsql_variable: '@DATE'
+  - end_bracket: )
+  - word: as
+  - word: CHAR
+  - start_bracket: (
+  - numeric_literal: '4'
+  - end_bracket: )
+  - end_bracket: )
+  - plus: +
+  - single_quote: '''0104'''
+  - end_bracket: )
+  - semicolon: ;
+  - word: IF
+  - start_bracket: (
+  - tsql_variable: '@ISOweek'
+  - raw_comparison_operator: =
+  - numeric_literal: '0'
+  - end_bracket: )
+  - word: SET
+  - tsql_variable: '@ISOweek'
+  - raw_comparison_operator: =
+  - word: dbo
+  - dot: .
+  - word: ISOweek
+  - start_bracket: (
+  - word: CAST
+  - start_bracket: (
+  - word: DATEPART
+  - start_bracket: (
+  - word: yy
+  - comma: ','
+  - tsql_variable: '@DATE'
+  - end_bracket: )
+  - minus: '-'
+  - numeric_literal: '1'
+  - word: AS
+  - word: CHAR
+  - start_bracket: (
+  - numeric_literal: '4'
+  - end_bracket: )
+  - end_bracket: )
+  - plus: +
+  - single_quote: '''12'''
+  - plus: +
+  - word: CAST
+  - start_bracket: (
+  - numeric_literal: '24'
+  - plus: +
+  - word: DATEPART
+  - start_bracket: (
+  - word: DAY
+  - comma: ','
+  - tsql_variable: '@DATE'
+  - end_bracket: )
+  - word: AS
+  - word: CHAR
+  - start_bracket: (
+  - numeric_literal: '2'
+  - end_bracket: )
+  - end_bracket: )
+  - end_bracket: )
+  - plus: +
+  - numeric_literal: '1'
+  - semicolon: ;
+  - word: IF
+  - start_bracket: (
+  - start_bracket: (
+  - word: DATEPART
+  - start_bracket: (
+  - word: mm
+  - comma: ','
+  - tsql_variable: '@DATE'
+  - end_bracket: )
+  - raw_comparison_operator: =
+  - numeric_literal: '12'
+  - end_bracket: )
+  - word: AND
+  - start_bracket: (
+  - start_bracket: (
+  - word: DATEPART
+  - start_bracket: (
+  - word: dd
+  - comma: ','
+  - tsql_variable: '@DATE'
+  - end_bracket: )
+  - minus: '-'
+  - word: DATEPART
+  - start_bracket: (
+  - word: dw
+  - comma: ','
+  - tsql_variable: '@DATE'
+  - end_bracket: )
+  - end_bracket: )
+  - raw_comparison_operator: '>'
+  - raw_comparison_operator: =
+  - numeric_literal: '28'
+  - end_bracket: )
+  - end_bracket: )
+  - word: SET
+  - tsql_variable: '@ISOweek'
+  - raw_comparison_operator: =
+  - numeric_literal: '1'
+  - semicolon: ;
+  - word: RETURN
+  - start_bracket: (
+  - tsql_variable: '@ISOweek'
+  - end_bracket: )
+  - semicolon: ;
+  - word: END
+  - semicolon: ;
+  - word: GO
+  - word: CREATE
+  - word: FUNCTION
+  - word: f
+  - start_bracket: (
+  - end_bracket: )
+  - word: RETURNS
+  - tsql_variable: '@t'
+  - word: TABLE
+  - start_bracket: (
+  - word: i
+  - word: int
+  - end_bracket: )
+  - word: AS
+  - word: BEGIN
+  - word: INSERT
+  - word: INTO
+  - tsql_variable: '@t'
+  - word: SELECT
+  - numeric_literal: '1'
+  - semicolon: ;
+  - word: RETURN
+  - semicolon: ;
+  - word: END
+  - semicolon: ;
+  - word: GO
+  - word: CREATE
+  - word: OR
+  - word: ALTER
+  - word: FUNCTION
+  - word: F
+  - start_bracket: (
+  - tsql_variable: '@DATE'
+  - word: as
+  - word: datetime
+  - end_bracket: )
+  - word: RETURNS
+  - word: INT
+  - word: AS
+  - word: BEGIN
+  - word: RETURN
+  - numeric_literal: '1'
+  - word: END
+  - semicolon: ;
+  - word: GO
+  - word: ALTER
+  - word: FUNCTION
+  - word: F
+  - start_bracket: (
+  - tsql_variable: '@DATE'
+  - word: as
+  - word: datetime
+  - end_bracket: )
+  - word: RETURNS
+  - word: INT
+  - word: AS
+  - word: BEGIN
+  - word: RETURN
+  - numeric_literal: '0'
+  - word: END
+  - semicolon: ;
+  - word: GO
+  - word: CREATE
+  - word: FUNCTION
+  - double_quote: '[UTIL]'
+  - dot: .
+  - double_quote: '[getItemList]'
+  - start_bracket: (
+  - tsql_variable: '@list'
+  - word: ItemList
+  - word: READONLY
+  - end_bracket: )
+  - word: RETURNS
+  - word: nvarchar
+  - start_bracket: (
+  - word: max
+  - end_bracket: )
+  - word: AS
+  - word: BEGIN
+  - word: DECLARE
+  - tsql_variable: '@str'
+  - word: nvarchar
+  - start_bracket: (
+  - word: max
+  - end_bracket: )
+  - raw_comparison_operator: =
+  - single_quote: ''''''
+  - word: SELECT
+  - tsql_variable: '@str'
+  - raw_comparison_operator: =
+  - tsql_variable: '@str'
+  - plus: +
+  - double_quote: '[item]'
+  - word: FROM
+  - start_bracket: (
+  - word: SELECT
+  - word: TOP
+  - start_bracket: (
+  - numeric_literal: '9999'
+  - end_bracket: )
+  - double_quote: '[item]'
+  - word: FROM
+  - tsql_variable: '@list'
+  - word: ORDER
+  - word: BY
+  - double_quote: '[order]'
+  - end_bracket: )
+  - word: i
+  - word: RETURN
+  - tsql_variable: '@str'
+  - word: END
+  - semicolon: ;
+  - word: GO
+  - word: create
+  - word: function
+  - word: my_function
+  - start_bracket: (
+  - tsql_variable: '@my_parameter'
+  - word: int
+  - end_bracket: )
+  - word: returns
+  - word: int
+  - word: with
+  - word: schemabinding
+  - comma: ','
+  - word: returns
+  - word: 'null'
+  - word: on
+  - word: 'null'
+  - word: input
+  - word: begin
+  - word: return
+  - tsql_variable: '@my_parameter'
+  - word: end
+  - word: go

@@ -24,25 +24,28 @@ file:
               - from_expression_element:
                 - from_expression_element:
                   - table_expression:
-                    - function:
-                      - function_name:
-                        - function_name_identifier: OPENJSON
-                      - bracketed:
-                        - start_bracket: (
-                        - expression:
-                          - quoted_literal: N'[1,2,3,4]'
-                        - end_bracket: )
-      - unparsable:
-        - word: AS
-        - word: productTypes
-        - word: ON
-        - word: product
-        - dot: .
-        - word: productTypeID
-        - raw_comparison_operator: =
-        - word: productTypes
-        - dot: .
-        - word: value
+                    - keyword: OPENJSON
+                    - bracketed:
+                      - start_bracket: (
+                      - expression:
+                        - quoted_literal: N'[1,2,3,4]'
+                      - end_bracket: )
+                  - alias_expression:
+                    - keyword: AS
+                    - naked_identifier: productTypes
+              - join_on_condition:
+                - keyword: ON
+                - expression:
+                  - column_reference:
+                    - naked_identifier: product
+                    - dot: .
+                    - naked_identifier: productTypeID
+                  - comparison_operator:
+                    - raw_comparison_operator: =
+                  - column_reference:
+                    - naked_identifier: productTypes
+                    - dot: .
+                    - naked_identifier: value
   - statement_terminator: ;
   - statement:
     - select_statement:
@@ -86,9 +89,9 @@ file:
                     - data_type_identifier: tinyint
                   - quoted_literal: '''$.sql:identity()'''
                   - end_bracket: )
-      - unparsable:
-        - word: as
-        - word: months
+              - alias_expression:
+                - keyword: as
+                - naked_identifier: months
   - statement_terminator: ;
   - statement:
     - select_statement:
@@ -297,9 +300,9 @@ file:
                       - data_type_identifier: int
                     - quoted_literal: '''$.geo.latitude'''
                     - end_bracket: )
-      - unparsable:
-        - word: AS
-        - word: location
+                - alias_expression:
+                  - keyword: AS
+                  - naked_identifier: location
   - statement_terminator: ;
   - statement:
     - insert_statement:
@@ -406,26 +409,32 @@ file:
           - from_expression_element:
             - from_expression_element:
               - table_expression:
-                - function:
-                  - function_name:
-                    - function_name_identifier: OPENJSON
+                - keyword: OPENJSON
+                - bracketed:
+                  - start_bracket: (
+                  - expression:
+                    - parameterized_expression:
+                      - tsql_variable: '@JSON'
+                  - end_bracket: )
+              - alias_expression:
+                - keyword: AS
+                - naked_identifier: root
+          - join_clause:
+            - keyword: CROSS
+            - keyword: APPLY
+            - from_expression_element:
+              - from_expression_element:
+                - table_expression:
+                  - keyword: OPENJSON
                   - bracketed:
                     - start_bracket: (
                     - expression:
-                      - parameterized_expression:
-                        - tsql_variable: '@JSON'
+                      - column_reference:
+                        - naked_identifier: root
+                        - dot: .
+                        - naked_identifier: value
                     - end_bracket: )
-      - unparsable:
-        - word: AS
-        - word: root
-        - word: CROSS
-        - word: APPLY
-        - word: OPENJSON
-        - start_bracket: (
-        - word: root
-        - dot: .
-        - word: value
-        - end_bracket: )
-        - word: AS
-        - word: TheValues
+                - alias_expression:
+                  - keyword: AS
+                  - naked_identifier: TheValues
   - statement_terminator: ;

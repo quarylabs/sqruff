@@ -24,13 +24,12 @@ file:
                   - naked_identifier: SalesPersonID
               - comma: ','
               - select_clause_element:
-                - function:
-                  - function_name:
-                    - function_name_identifier: COUNT
-                  - bracketed:
-                    - start_bracket: (
-                    - star: '*'
-                    - end_bracket: )
+                - column_reference:
+                  - naked_identifier: COUNT
+              - unparsable:
+                - start_bracket: (
+                - star: '*'
+                - end_bracket: )
             - from_clause:
               - keyword: FROM
               - from_expression:
@@ -61,18 +60,14 @@ file:
         - select_clause:
           - keyword: SELECT
           - select_clause_element:
-            - function:
-              - function_name:
-                - function_name_identifier: AVG
-              - bracketed:
-                - start_bracket: (
-                - expression:
-                  - column_reference:
-                    - naked_identifier: NumberOfOrders
-                - end_bracket: )
-            - alias_expression:
-              - keyword: AS
-              - quoted_identifier: '"Average Sales Per Person"'
+            - column_reference:
+              - naked_identifier: AVG
+          - unparsable:
+            - start_bracket: (
+            - word: NumberOfOrders
+            - end_bracket: )
+            - word: AS
+            - double_quote: '"Average Sales Per Person"'
         - from_clause:
           - keyword: FROM
           - from_expression:

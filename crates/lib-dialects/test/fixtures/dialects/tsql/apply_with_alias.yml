@@ -30,39 +30,67 @@ file:
                 - table_reference:
                   - object_reference:
                     - naked_identifier: Customers
-      - unparsable:
-        - word: AS
-        - word: c
-        - word: OUTER
-        - word: APPLY
-        - start_bracket: (
-        - word: SELECT
-        - word: TotalAmount
-        - raw_comparison_operator: =
-        - word: SUM
-        - start_bracket: (
-        - word: o
-        - dot: .
-        - word: Amount
-        - end_bracket: )
-        - word: FROM
-        - word: Orders
-        - word: AS
-        - word: o
-        - word: WHERE
-        - word: o
-        - dot: .
-        - word: CustomerID
-        - raw_comparison_operator: =
-        - word: c
-        - dot: .
-        - word: CustomerID
-        - end_bracket: )
-        - word: AS
-        - word: Orders
-        - word: WHERE
-        - word: c
-        - dot: .
-        - word: Active
-        - raw_comparison_operator: =
-        - numeric_literal: '1'
+              - alias_expression:
+                - keyword: AS
+                - naked_identifier: c
+          - join_clause:
+            - keyword: OUTER
+            - keyword: APPLY
+            - from_expression_element:
+              - from_expression_element:
+                - table_expression:
+                  - bracketed:
+                    - start_bracket: (
+                    - select_statement:
+                      - select_clause:
+                        - keyword: SELECT
+                        - select_clause_element:
+                          - naked_identifier: TotalAmount
+                          - assignment_operator: =
+                          - column_reference:
+                            - naked_identifier: SUM
+                        - unparsable:
+                          - start_bracket: (
+                          - word: o
+                          - dot: .
+                          - word: Amount
+                          - end_bracket: )
+                      - from_clause:
+                        - keyword: FROM
+                        - from_expression:
+                          - from_expression_element:
+                            - from_expression_element:
+                              - table_expression:
+                                - table_reference:
+                                  - object_reference:
+                                    - naked_identifier: Orders
+                              - alias_expression:
+                                - keyword: AS
+                                - naked_identifier: o
+                      - where_clause:
+                        - keyword: WHERE
+                        - expression:
+                          - column_reference:
+                            - naked_identifier: o
+                            - dot: .
+                            - naked_identifier: CustomerID
+                          - comparison_operator:
+                            - raw_comparison_operator: =
+                          - column_reference:
+                            - naked_identifier: c
+                            - dot: .
+                            - naked_identifier: CustomerID
+                    - end_bracket: )
+                - alias_expression:
+                  - keyword: AS
+                  - naked_identifier: Orders
+      - where_clause:
+        - keyword: WHERE
+        - expression:
+          - column_reference:
+            - naked_identifier: c
+            - dot: .
+            - naked_identifier: Active
+          - comparison_operator:
+            - raw_comparison_operator: =
+          - numeric_literal: '1'

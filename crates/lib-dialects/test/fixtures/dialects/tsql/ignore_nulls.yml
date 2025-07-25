@@ -5,40 +5,27 @@ file:
       - select_clause:
         - keyword: SELECT
         - select_clause_element:
-          - function:
-            - function_name:
-              - function_name_identifier: FIRST_VALUE
-            - bracketed:
-              - start_bracket: (
-              - expression:
-                - column_reference:
-                  - quoted_identifier: '[entrypunt]'
-              - end_bracket: )
-            - over_clause:
-              - keyword: IGNORE
-              - keyword: NULLS
-              - keyword: OVER
-              - bracketed:
-                - start_bracket: (
-                - window_specification:
-                  - partitionby_clause:
-                    - keyword: PARTITION
-                    - keyword: BY
-                    - bracketed:
-                      - start_bracket: (
-                      - expression:
-                        - column_reference:
-                          - quoted_identifier: '[reisnummer]'
-                      - end_bracket: )
-                  - orderby_clause:
-                    - keyword: ORDER
-                    - keyword: BY
-                    - column_reference:
-                      - quoted_identifier: '[reismutatie starttijdstip]'
-                - end_bracket: )
-          - alias_expression:
-            - keyword: AS
-            - quoted_identifier: '[entrypunt]'
+          - column_reference:
+            - naked_identifier: FIRST_VALUE
+        - unparsable:
+          - start_bracket: (
+          - double_quote: '[entrypunt]'
+          - end_bracket: )
+          - word: IGNORE
+          - word: NULLS
+          - word: OVER
+          - start_bracket: (
+          - word: PARTITION
+          - word: BY
+          - start_bracket: (
+          - double_quote: '[reisnummer]'
+          - end_bracket: )
+          - word: ORDER
+          - word: BY
+          - double_quote: '[reismutatie starttijdstip]'
+          - end_bracket: )
+          - word: AS
+          - double_quote: '[entrypunt]'
       - from_clause:
         - keyword: FROM
         - from_expression:

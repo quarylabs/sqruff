@@ -71,9 +71,10 @@ file:
                                       - dot: .
                                       - naked_identifier: Product
                       - end_bracket: )
+                  - alias_expression:
+                    - keyword: AS
+                    - naked_identifier: SourceTable
           - unparsable:
-            - word: AS
-            - word: SourceTable
             - word: PIVOT
             - start_bracket: (
             - word: AVG

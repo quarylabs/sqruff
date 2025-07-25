@@ -19,32 +19,50 @@ file:
                     - naked_identifier: Sales
                     - dot: .
                     - naked_identifier: Customer
-      - unparsable:
-        - word: AS
-        - word: c
-        - word: INNER
-        - word: JOIN
-        - word: Sales
-        - dot: .
-        - word: CustomerAddress
-        - word: AS
-        - word: ca
-        - word: ON
-        - word: c
-        - dot: .
-        - word: CustomerID
-        - raw_comparison_operator: =
-        - word: ca
-        - dot: .
-        - word: CustomerID
-        - word: WHERE
-        - word: TerritoryID
-        - raw_comparison_operator: =
-        - numeric_literal: '5'
-        - word: OPTION
+              - alias_expression:
+                - keyword: AS
+                - naked_identifier: c
+          - join_clause:
+            - join_clause:
+              - keyword: INNER
+              - keyword: JOIN
+              - from_expression_element:
+                - from_expression_element:
+                  - table_expression:
+                    - table_reference:
+                      - object_reference:
+                        - naked_identifier: Sales
+                        - dot: .
+                        - naked_identifier: CustomerAddress
+                  - alias_expression:
+                    - keyword: AS
+                    - naked_identifier: ca
+              - join_on_condition:
+                - keyword: ON
+                - expression:
+                  - column_reference:
+                    - naked_identifier: c
+                    - dot: .
+                    - naked_identifier: CustomerID
+                  - comparison_operator:
+                    - raw_comparison_operator: =
+                  - column_reference:
+                    - naked_identifier: ca
+                    - dot: .
+                    - naked_identifier: CustomerID
+      - where_clause:
+        - keyword: WHERE
+        - expression:
+          - column_reference:
+            - naked_identifier: TerritoryID
+          - comparison_operator:
+            - raw_comparison_operator: =
+          - numeric_literal: '5'
+      - keyword: OPTION
+      - bracketed:
         - start_bracket: (
-        - word: MERGE
-        - word: JOIN
+        - keyword: MERGE
+        - keyword: JOIN
         - end_bracket: )
   - statement_terminator: ;
   - keyword: GO
@@ -225,17 +243,22 @@ file:
                                   - naked_identifier: Sales
                                   - dot: .
                                   - naked_identifier: Customer
-                - unparsable:
-                  - word: AS
-                  - word: e
-                  - word: ON
-                  - word: cte
-                  - dot: .
-                  - word: PersonID
-                  - raw_comparison_operator: =
-                  - word: e
-                  - dot: .
-                  - word: CustomerID
+                            - alias_expression:
+                              - keyword: AS
+                              - naked_identifier: e
+                        - join_on_condition:
+                          - keyword: ON
+                          - expression:
+                            - column_reference:
+                              - naked_identifier: cte
+                              - dot: .
+                              - naked_identifier: PersonID
+                            - comparison_operator:
+                              - raw_comparison_operator: =
+                            - column_reference:
+                              - naked_identifier: e
+                              - dot: .
+                              - naked_identifier: CustomerID
           - end_bracket: )
       - select_statement:
         - select_clause:
@@ -289,9 +312,9 @@ file:
                         - naked_identifier: HumanResources
                         - dot: .
                         - naked_identifier: Employee
-          - unparsable:
-            - word: AS
-            - word: e1
+                  - alias_expression:
+                    - keyword: AS
+                    - naked_identifier: e1
         - set_operator:
           - keyword: UNION
         - select_statement:
@@ -312,13 +335,14 @@ file:
                         - naked_identifier: HumanResources
                         - dot: .
                         - naked_identifier: Employee
-          - unparsable:
-            - word: AS
-            - word: e2
-            - word: OPTION
+                  - alias_expression:
+                    - keyword: AS
+                    - naked_identifier: e2
+          - keyword: OPTION
+          - bracketed:
             - start_bracket: (
-            - word: MERGE
-            - word: UNION
+            - keyword: MERGE
+            - keyword: UNION
             - end_bracket: )
   - statement_terminator: ;
   - keyword: GO
@@ -335,18 +359,14 @@ file:
             - naked_identifier: OrderQty
         - comma: ','
         - select_clause_element:
-          - function:
-            - function_name:
-              - function_name_identifier: SUM
-            - bracketed:
-              - start_bracket: (
-              - expression:
-                - column_reference:
-                  - naked_identifier: LineTotal
-              - end_bracket: )
-          - alias_expression:
-            - keyword: AS
-            - naked_identifier: Total
+          - column_reference:
+            - naked_identifier: SUM
+        - unparsable:
+          - start_bracket: (
+          - word: LineTotal
+          - end_bracket: )
+          - word: AS
+          - word: Total
       - from_clause:
         - keyword: FROM
         - from_expression:
@@ -407,18 +427,14 @@ file:
             - naked_identifier: OrderQty
         - comma: ','
         - select_clause_element:
-          - function:
-            - function_name:
-              - function_name_identifier: SUM
-            - bracketed:
-              - start_bracket: (
-              - expression:
-                - column_reference:
-                  - naked_identifier: LineTotal
-              - end_bracket: )
-          - alias_expression:
-            - keyword: AS
-            - naked_identifier: Total
+          - column_reference:
+            - naked_identifier: SUM
+        - unparsable:
+          - start_bracket: (
+          - word: LineTotal
+          - end_bracket: )
+          - word: AS
+          - word: Total
       - from_clause:
         - keyword: FROM
         - from_expression:
@@ -652,48 +668,72 @@ file:
                     - naked_identifier: Sales
                     - dot: .
                     - naked_identifier: SalesOrderHeader
-      - unparsable:
-        - word: AS
-        - word: h
-        - word: INNER
-        - word: JOIN
-        - word: Sales
-        - dot: .
-        - word: SalesOrderDetail
-        - word: AS
-        - word: d
-        - word: WITH
-        - start_bracket: (
-        - word: FORCESEEK
-        - end_bracket: )
-        - word: ON
-        - word: h
-        - dot: .
-        - word: SalesOrderID
-        - raw_comparison_operator: =
-        - word: d
-        - dot: .
-        - word: SalesOrderID
-        - word: WHERE
-        - word: h
-        - dot: .
-        - word: TotalDue
-        - raw_comparison_operator: '>'
-        - numeric_literal: '100'
-        - word: AND
-        - start_bracket: (
-        - word: d
-        - dot: .
-        - word: OrderQty
-        - raw_comparison_operator: '>'
-        - numeric_literal: '5'
-        - word: OR
-        - word: d
-        - dot: .
-        - word: LineTotal
-        - raw_comparison_operator: <
-        - numeric_literal: '1000.00'
-        - end_bracket: )
+              - alias_expression:
+                - keyword: AS
+                - naked_identifier: h
+          - join_clause:
+            - join_clause:
+              - keyword: INNER
+              - keyword: JOIN
+              - from_expression_element:
+                - from_expression_element:
+                  - table_expression:
+                    - table_reference:
+                      - object_reference:
+                        - naked_identifier: Sales
+                        - dot: .
+                        - naked_identifier: SalesOrderDetail
+                  - alias_expression:
+                    - keyword: AS
+                    - naked_identifier: d
+                  - keyword: WITH
+                  - bracketed:
+                    - start_bracket: (
+                    - keyword: FORCESEEK
+                    - end_bracket: )
+              - join_on_condition:
+                - keyword: ON
+                - expression:
+                  - column_reference:
+                    - naked_identifier: h
+                    - dot: .
+                    - naked_identifier: SalesOrderID
+                  - comparison_operator:
+                    - raw_comparison_operator: =
+                  - column_reference:
+                    - naked_identifier: d
+                    - dot: .
+                    - naked_identifier: SalesOrderID
+      - where_clause:
+        - keyword: WHERE
+        - expression:
+          - column_reference:
+            - naked_identifier: h
+            - dot: .
+            - naked_identifier: TotalDue
+          - comparison_operator:
+            - raw_comparison_operator: '>'
+          - numeric_literal: '100'
+          - binary_operator: AND
+          - bracketed:
+            - start_bracket: (
+            - expression:
+              - column_reference:
+                - naked_identifier: d
+                - dot: .
+                - naked_identifier: OrderQty
+              - comparison_operator:
+                - raw_comparison_operator: '>'
+              - numeric_literal: '5'
+              - binary_operator: OR
+              - column_reference:
+                - naked_identifier: d
+                - dot: .
+                - naked_identifier: LineTotal
+              - comparison_operator:
+                - raw_comparison_operator: <
+              - numeric_literal: '1000.00'
+            - end_bracket: )
   - statement_terminator: ;
   - keyword: GO
   - statement:
@@ -728,54 +768,80 @@ file:
                     - naked_identifier: Sales
                     - dot: .
                     - naked_identifier: SalesOrderHeader
-      - unparsable:
-        - word: AS
-        - word: h
-        - word: INNER
-        - word: JOIN
-        - word: Sales
-        - dot: .
-        - word: SalesOrderDetail
-        - word: AS
-        - word: d
-        - word: WITH
-        - start_bracket: (
-        - word: FORCESEEK
-        - start_bracket: (
-        - word: PK_SalesOrderDetail_SalesOrderID_SalesOrderDetailID
-        - start_bracket: (
-        - word: SalesOrderID
-        - end_bracket: )
-        - end_bracket: )
-        - end_bracket: )
-        - word: ON
-        - word: h
-        - dot: .
-        - word: SalesOrderID
-        - raw_comparison_operator: =
-        - word: d
-        - dot: .
-        - word: SalesOrderID
-        - word: WHERE
-        - word: h
-        - dot: .
-        - word: TotalDue
-        - raw_comparison_operator: '>'
-        - numeric_literal: '100'
-        - word: AND
-        - start_bracket: (
-        - word: d
-        - dot: .
-        - word: OrderQty
-        - raw_comparison_operator: '>'
-        - numeric_literal: '5'
-        - word: OR
-        - word: d
-        - dot: .
-        - word: LineTotal
-        - raw_comparison_operator: <
-        - numeric_literal: '1000.00'
-        - end_bracket: )
+              - alias_expression:
+                - keyword: AS
+                - naked_identifier: h
+          - join_clause:
+            - join_clause:
+              - keyword: INNER
+              - keyword: JOIN
+              - from_expression_element:
+                - from_expression_element:
+                  - table_expression:
+                    - table_reference:
+                      - object_reference:
+                        - naked_identifier: Sales
+                        - dot: .
+                        - naked_identifier: SalesOrderDetail
+                  - alias_expression:
+                    - keyword: AS
+                    - naked_identifier: d
+                  - keyword: WITH
+                  - bracketed:
+                    - start_bracket: (
+                    - keyword: FORCESEEK
+                    - bracketed:
+                      - start_bracket: (
+                      - naked_identifier: PK_SalesOrderDetail_SalesOrderID_SalesOrderDetailID
+                      - bracketed:
+                        - start_bracket: (
+                        - naked_identifier: SalesOrderID
+                        - end_bracket: )
+                      - end_bracket: )
+                    - end_bracket: )
+              - join_on_condition:
+                - keyword: ON
+                - expression:
+                  - column_reference:
+                    - naked_identifier: h
+                    - dot: .
+                    - naked_identifier: SalesOrderID
+                  - comparison_operator:
+                    - raw_comparison_operator: =
+                  - column_reference:
+                    - naked_identifier: d
+                    - dot: .
+                    - naked_identifier: SalesOrderID
+      - where_clause:
+        - keyword: WHERE
+        - expression:
+          - column_reference:
+            - naked_identifier: h
+            - dot: .
+            - naked_identifier: TotalDue
+          - comparison_operator:
+            - raw_comparison_operator: '>'
+          - numeric_literal: '100'
+          - binary_operator: AND
+          - bracketed:
+            - start_bracket: (
+            - expression:
+              - column_reference:
+                - naked_identifier: d
+                - dot: .
+                - naked_identifier: OrderQty
+              - comparison_operator:
+                - raw_comparison_operator: '>'
+              - numeric_literal: '5'
+              - binary_operator: OR
+              - column_reference:
+                - naked_identifier: d
+                - dot: .
+                - naked_identifier: LineTotal
+              - comparison_operator:
+                - raw_comparison_operator: <
+              - numeric_literal: '1000.00'
+            - end_bracket: )
   - statement_terminator: ;
   - keyword: GO
   - statement:
@@ -810,48 +876,72 @@ file:
                     - naked_identifier: Sales
                     - dot: .
                     - naked_identifier: SalesOrderHeader
-      - unparsable:
-        - word: AS
-        - word: h
-        - word: INNER
-        - word: JOIN
-        - word: Sales
-        - dot: .
-        - word: SalesOrderDetail
-        - word: AS
-        - word: d
-        - word: WITH
-        - start_bracket: (
-        - word: FORCESCAN
-        - end_bracket: )
-        - word: ON
-        - word: h
-        - dot: .
-        - word: SalesOrderID
-        - raw_comparison_operator: =
-        - word: d
-        - dot: .
-        - word: SalesOrderID
-        - word: WHERE
-        - word: h
-        - dot: .
-        - word: TotalDue
-        - raw_comparison_operator: '>'
-        - numeric_literal: '100'
-        - word: AND
-        - start_bracket: (
-        - word: d
-        - dot: .
-        - word: OrderQty
-        - raw_comparison_operator: '>'
-        - numeric_literal: '5'
-        - word: OR
-        - word: d
-        - dot: .
-        - word: LineTotal
-        - raw_comparison_operator: <
-        - numeric_literal: '1000.00'
-        - end_bracket: )
+              - alias_expression:
+                - keyword: AS
+                - naked_identifier: h
+          - join_clause:
+            - join_clause:
+              - keyword: INNER
+              - keyword: JOIN
+              - from_expression_element:
+                - from_expression_element:
+                  - table_expression:
+                    - table_reference:
+                      - object_reference:
+                        - naked_identifier: Sales
+                        - dot: .
+                        - naked_identifier: SalesOrderDetail
+                  - alias_expression:
+                    - keyword: AS
+                    - naked_identifier: d
+                  - keyword: WITH
+                  - bracketed:
+                    - start_bracket: (
+                    - keyword: FORCESCAN
+                    - end_bracket: )
+              - join_on_condition:
+                - keyword: ON
+                - expression:
+                  - column_reference:
+                    - naked_identifier: h
+                    - dot: .
+                    - naked_identifier: SalesOrderID
+                  - comparison_operator:
+                    - raw_comparison_operator: =
+                  - column_reference:
+                    - naked_identifier: d
+                    - dot: .
+                    - naked_identifier: SalesOrderID
+      - where_clause:
+        - keyword: WHERE
+        - expression:
+          - column_reference:
+            - naked_identifier: h
+            - dot: .
+            - naked_identifier: TotalDue
+          - comparison_operator:
+            - raw_comparison_operator: '>'
+          - numeric_literal: '100'
+          - binary_operator: AND
+          - bracketed:
+            - start_bracket: (
+            - expression:
+              - column_reference:
+                - naked_identifier: d
+                - dot: .
+                - naked_identifier: OrderQty
+              - comparison_operator:
+                - raw_comparison_operator: '>'
+              - numeric_literal: '5'
+              - binary_operator: OR
+              - column_reference:
+                - naked_identifier: d
+                - dot: .
+                - naked_identifier: LineTotal
+              - comparison_operator:
+                - raw_comparison_operator: <
+              - numeric_literal: '1000.00'
+            - end_bracket: )
   - statement_terminator: ;
   - keyword: GO
   - statement:
@@ -872,11 +962,11 @@ file:
                     - naked_identifier: dbo
                     - dot: .
                     - naked_identifier: tableX
-      - unparsable:
-        - word: WITH
-        - start_bracket: (
-        - word: NOLOCK
-        - end_bracket: )
+              - keyword: WITH
+              - bracketed:
+                - start_bracket: (
+                - keyword: NOLOCK
+                - end_bracket: )
   - keyword: GO
   - statement:
     - select_statement:
@@ -891,15 +981,13 @@ file:
           - from_expression_element:
             - from_expression_element:
               - table_expression:
-                - function:
-                  - function_name:
+                - table_reference:
+                  - object_reference:
                     - naked_identifier: dbo
                     - dot: .
-                    - function_name_identifier: tableX
-                  - bracketed:
-                    - start_bracket: (
-                    - expression:
-                      - column_reference:
-                        - naked_identifier: NOLOCK
-                    - end_bracket: )
+                    - naked_identifier: tableX
+              - bracketed:
+                - start_bracket: (
+                - keyword: NOLOCK
+                - end_bracket: )
   - keyword: GO

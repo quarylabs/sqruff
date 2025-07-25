@@ -4,49 +4,31 @@ file:
     - select_statement:
       - select_clause:
         - keyword: select
-        - select_clause_element:
-          - function:
-            - function_name:
-              - function_name_identifier: convert
-            - bracketed:
-              - start_bracket: (
-              - expression:
-                - column_reference:
-                  - naked_identifier: date
-              - comma: ','
-              - expression:
-                - function:
-                  - function_name:
-                    - function_name_identifier: dateadd
-                  - bracketed:
-                    - start_bracket: (
-                    - date_part: month
-                    - comma: ','
-                    - expression:
-                      - function:
-                        - function_name:
-                          - function_name_identifier: datediff
-                        - bracketed:
-                          - start_bracket: (
-                          - date_part: month
-                          - comma: ','
-                          - expression:
-                            - numeric_literal: '0'
-                          - comma: ','
-                          - expression:
-                            - column_reference:
-                              - naked_identifier: t
-                              - dot: .
-                              - naked_identifier: valid_from_date
-                          - end_bracket: )
-                    - comma: ','
-                    - expression:
-                      - numeric_literal: '0'
-                    - end_bracket: )
-              - end_bracket: )
-          - alias_expression:
-            - keyword: as
-            - naked_identifier: valid_from_date
+        - unparsable:
+          - word: convert
+          - start_bracket: (
+          - word: date
+          - comma: ','
+          - word: dateadd
+          - start_bracket: (
+          - word: month
+          - comma: ','
+          - word: datediff
+          - start_bracket: (
+          - word: month
+          - comma: ','
+          - numeric_literal: '0'
+          - comma: ','
+          - word: t
+          - dot: .
+          - word: valid_from_date
+          - end_bracket: )
+          - comma: ','
+          - numeric_literal: '0'
+          - end_bracket: )
+          - end_bracket: )
+          - word: as
+          - word: valid_from_date
       - from_clause:
         - keyword: from
         - from_expression:
@@ -56,13 +38,17 @@ file:
                 - table_reference:
                   - object_reference:
                     - naked_identifier: t
+              - alias_expression:
+                - keyword: as
+                - naked_identifier: t
+      - where_clause:
+        - keyword: where
+        - expression:
+          - column_reference:
+            - naked_identifier: t
+            - dot: .
+            - naked_identifier: activity_month
       - unparsable:
-        - word: as
-        - word: t
-        - word: where
-        - word: t
-        - dot: .
-        - word: activity_month
         - raw_comparison_operator: '>'
         - raw_comparison_operator: =
         - word: convert

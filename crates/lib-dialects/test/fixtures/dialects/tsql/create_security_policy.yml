@@ -1,323 +1,224 @@
 file:
-- statement:
-  - statement:
-    - create_security_policy_statement:
-      - keyword: CREATE
-      - keyword: SECURITY
-      - keyword: POLICY
-      - object_reference:
-        - quoted_identifier: '[FederatedSecurityPolicy]'
-      - keyword: ADD
-      - keyword: FILTER
-      - keyword: PREDICATE
-      - function:
-        - function_name:
-          - quoted_identifier: '[rls]'
-          - dot: .
-          - quoted_identifier: '[fn_securitypredicate]'
-        - bracketed:
-          - start_bracket: (
-          - expression:
-            - column_reference:
-              - quoted_identifier: '[CustomerId]'
-          - end_bracket: )
-      - keyword: ON
-      - object_reference:
-        - quoted_identifier: '[dbo]'
-        - dot: .
-        - quoted_identifier: '[Customer]'
-  - statement_terminator: ;
-  - statement:
-    - create_security_policy_statement:
-      - keyword: CREATE
-      - keyword: SECURITY
-      - keyword: POLICY
-      - object_reference:
-        - quoted_identifier: '[FederatedSecurityPolicy]'
-      - keyword: ADD
-      - keyword: FILTER
-      - keyword: PREDICATE
-      - function:
-        - function_name:
-          - quoted_identifier: '[rls]'
-          - dot: .
-          - quoted_identifier: '[fn_securitypredicate1]'
-        - bracketed:
-          - start_bracket: (
-          - expression:
-            - column_reference:
-              - quoted_identifier: '[CustomerId]'
-          - end_bracket: )
-      - keyword: ON
-      - object_reference:
-        - quoted_identifier: '[dbo]'
-        - dot: .
-        - quoted_identifier: '[Customer]'
-      - comma: ','
-      - keyword: ADD
-      - keyword: FILTER
-      - keyword: PREDICATE
-      - function:
-        - function_name:
-          - quoted_identifier: '[rls]'
-          - dot: .
-          - quoted_identifier: '[fn_securitypredicate1]'
-        - bracketed:
-          - start_bracket: (
-          - expression:
-            - column_reference:
-              - quoted_identifier: '[VendorId]'
-          - end_bracket: )
-      - keyword: ON
-      - object_reference:
-        - quoted_identifier: '[dbo]'
-        - dot: .
-        - quoted_identifier: '[Vendor]'
-      - comma: ','
-      - keyword: ADD
-      - keyword: FILTER
-      - keyword: PREDICATE
-      - function:
-        - function_name:
-          - quoted_identifier: '[rls]'
-          - dot: .
-          - quoted_identifier: '[fn_securitypredicate2]'
-        - bracketed:
-          - start_bracket: (
-          - expression:
-            - column_reference:
-              - quoted_identifier: '[WingId]'
-          - end_bracket: )
-      - keyword: ON
-      - object_reference:
-        - quoted_identifier: '[dbo]'
-        - dot: .
-        - quoted_identifier: '[Patient]'
-      - keyword: WITH
-      - bracketed:
-        - start_bracket: (
-        - keyword: STATE
-        - comparison_operator:
-          - raw_comparison_operator: =
-        - keyword: ON
-        - end_bracket: )
-  - statement_terminator: ;
-  - statement:
-    - create_security_policy_statement:
-      - keyword: CREATE
-      - keyword: SECURITY
-      - keyword: POLICY
-      - object_reference:
-        - naked_identifier: rls
-        - dot: .
-        - naked_identifier: SecPol
-      - keyword: ADD
-      - keyword: FILTER
-      - keyword: PREDICATE
-      - function:
-        - function_name:
-          - naked_identifier: rls
-          - dot: .
-          - function_name_identifier: tenantAccessPredicate
-        - bracketed:
-          - start_bracket: (
-          - expression:
-            - column_reference:
-              - naked_identifier: TenantId
-          - end_bracket: )
-      - keyword: ON
-      - object_reference:
-        - naked_identifier: dbo
-        - dot: .
-        - naked_identifier: Sales
-      - comma: ','
-      - keyword: ADD
-      - keyword: BLOCK
-      - keyword: PREDICATE
-      - function:
-        - function_name:
-          - naked_identifier: rls
-          - dot: .
-          - function_name_identifier: tenantAccessPredicate
-        - bracketed:
-          - start_bracket: (
-          - expression:
-            - column_reference:
-              - naked_identifier: TenantId
-          - end_bracket: )
-      - keyword: ON
-      - object_reference:
-        - naked_identifier: dbo
-        - dot: .
-        - naked_identifier: Sales
-      - keyword: AFTER
-      - keyword: INSERT
-  - statement_terminator: ;
-  - statement:
-    - alter_security_policy_statement:
-      - keyword: ALTER
-      - keyword: SECURITY
-      - keyword: POLICY
-      - object_reference:
-        - naked_identifier: pol1
-      - keyword: ADD
-      - keyword: FILTER
-      - keyword: PREDICATE
-      - function:
-        - function_name:
-          - naked_identifier: schema_preds
-          - dot: .
-          - function_name_identifier: SecPredicate
-        - bracketed:
-          - start_bracket: (
-          - expression:
-            - column_reference:
-              - naked_identifier: column1
-          - end_bracket: )
-      - keyword: ON
-      - object_reference:
-        - naked_identifier: myschema
-        - dot: .
-        - naked_identifier: mytable
-  - statement_terminator: ;
-  - statement:
-    - alter_security_policy_statement:
-      - keyword: ALTER
-      - keyword: SECURITY
-      - keyword: POLICY
-      - object_reference:
-        - naked_identifier: pol1
-      - keyword: WITH
-      - bracketed:
-        - start_bracket: (
-        - keyword: STATE
-        - comparison_operator:
-          - raw_comparison_operator: =
-        - keyword: ON
-        - end_bracket: )
-  - statement_terminator: ;
-  - statement:
-    - alter_security_policy_statement:
-      - keyword: ALTER
-      - keyword: SECURITY
-      - keyword: POLICY
-      - object_reference:
-        - naked_identifier: pol1
-      - keyword: ADD
-      - keyword: FILTER
-      - keyword: PREDICATE
-      - function:
-        - function_name:
-          - naked_identifier: schema_preds
-          - dot: .
-          - function_name_identifier: SecPredicate1
-        - bracketed:
-          - start_bracket: (
-          - expression:
-            - column_reference:
-              - naked_identifier: column1
-          - end_bracket: )
-      - keyword: ON
-      - object_reference:
-        - naked_identifier: myschema
-        - dot: .
-        - naked_identifier: mytable1
-      - comma: ','
-      - keyword: DROP
-      - keyword: FILTER
-      - keyword: PREDICATE
-      - keyword: ON
-      - object_reference:
-        - naked_identifier: myschema
-        - dot: .
-        - naked_identifier: mytable2
-      - comma: ','
-      - keyword: ADD
-      - keyword: FILTER
-      - keyword: PREDICATE
-      - function:
-        - function_name:
-          - naked_identifier: schema_preds
-          - dot: .
-          - function_name_identifier: SecPredicate2
-        - bracketed:
-          - start_bracket: (
-          - expression:
-            - column_reference:
-              - naked_identifier: column2
-          - comma: ','
-          - expression:
-            - numeric_literal: '1'
-          - end_bracket: )
-      - keyword: ON
-      - object_reference:
-        - naked_identifier: myschema
-        - dot: .
-        - naked_identifier: mytable3
-  - statement_terminator: ;
-  - statement:
-    - alter_security_policy_statement:
-      - keyword: ALTER
-      - keyword: SECURITY
-      - keyword: POLICY
-      - object_reference:
-        - naked_identifier: pol1
-      - keyword: ALTER
-      - keyword: FILTER
-      - keyword: PREDICATE
-      - function:
-        - function_name:
-          - naked_identifier: schema_preds
-          - dot: .
-          - function_name_identifier: SecPredicate2
-        - bracketed:
-          - start_bracket: (
-          - expression:
-            - column_reference:
-              - naked_identifier: column1
-          - end_bracket: )
-      - keyword: ON
-      - object_reference:
-        - naked_identifier: myschema
-        - dot: .
-        - naked_identifier: mytable
-  - statement_terminator: ;
-  - statement:
-    - alter_security_policy_statement:
-      - keyword: ALTER
-      - keyword: SECURITY
-      - keyword: POLICY
-      - object_reference:
-        - naked_identifier: rls
-        - dot: .
-        - naked_identifier: SecPol
-      - keyword: ALTER
-      - keyword: BLOCK
-      - keyword: PREDICATE
-      - function:
-        - function_name:
-          - naked_identifier: rls
-          - dot: .
-          - function_name_identifier: tenantAccessPredicate_v2
-        - bracketed:
-          - start_bracket: (
-          - expression:
-            - column_reference:
-              - naked_identifier: TenantId
-          - end_bracket: )
-      - keyword: ON
-      - object_reference:
-        - naked_identifier: dbo
-        - dot: .
-        - naked_identifier: Sales
-      - keyword: AFTER
-      - keyword: INSERT
-  - statement_terminator: ;
-  - statement:
-    - drop_security_policy_statement:
-      - keyword: DROP
-      - keyword: SECURITY
-      - keyword: POLICY
-      - object_reference:
-        - naked_identifier: secPolicy
-  - statement_terminator: ;
+- unparsable:
+  - word: CREATE
+  - word: SECURITY
+  - word: POLICY
+  - double_quote: '[FederatedSecurityPolicy]'
+  - word: ADD
+  - word: FILTER
+  - word: PREDICATE
+  - double_quote: '[rls]'
+  - dot: .
+  - double_quote: '[fn_securitypredicate]'
+  - start_bracket: (
+  - double_quote: '[CustomerId]'
+  - end_bracket: )
+  - word: ON
+  - double_quote: '[dbo]'
+  - dot: .
+  - double_quote: '[Customer]'
+  - semicolon: ;
+  - word: CREATE
+  - word: SECURITY
+  - word: POLICY
+  - double_quote: '[FederatedSecurityPolicy]'
+  - word: ADD
+  - word: FILTER
+  - word: PREDICATE
+  - double_quote: '[rls]'
+  - dot: .
+  - double_quote: '[fn_securitypredicate1]'
+  - start_bracket: (
+  - double_quote: '[CustomerId]'
+  - end_bracket: )
+  - word: ON
+  - double_quote: '[dbo]'
+  - dot: .
+  - double_quote: '[Customer]'
+  - comma: ','
+  - word: ADD
+  - word: FILTER
+  - word: PREDICATE
+  - double_quote: '[rls]'
+  - dot: .
+  - double_quote: '[fn_securitypredicate1]'
+  - start_bracket: (
+  - double_quote: '[VendorId]'
+  - end_bracket: )
+  - word: ON
+  - double_quote: '[dbo]'
+  - dot: .
+  - double_quote: '[Vendor]'
+  - comma: ','
+  - word: ADD
+  - word: FILTER
+  - word: PREDICATE
+  - double_quote: '[rls]'
+  - dot: .
+  - double_quote: '[fn_securitypredicate2]'
+  - start_bracket: (
+  - double_quote: '[WingId]'
+  - end_bracket: )
+  - word: ON
+  - double_quote: '[dbo]'
+  - dot: .
+  - double_quote: '[Patient]'
+  - word: WITH
+  - start_bracket: (
+  - word: STATE
+  - raw_comparison_operator: =
+  - word: ON
+  - end_bracket: )
+  - semicolon: ;
+  - word: CREATE
+  - word: SECURITY
+  - word: POLICY
+  - word: rls
+  - dot: .
+  - word: SecPol
+  - word: ADD
+  - word: FILTER
+  - word: PREDICATE
+  - word: rls
+  - dot: .
+  - word: tenantAccessPredicate
+  - start_bracket: (
+  - word: TenantId
+  - end_bracket: )
+  - word: ON
+  - word: dbo
+  - dot: .
+  - word: Sales
+  - comma: ','
+  - word: ADD
+  - word: BLOCK
+  - word: PREDICATE
+  - word: rls
+  - dot: .
+  - word: tenantAccessPredicate
+  - start_bracket: (
+  - word: TenantId
+  - end_bracket: )
+  - word: ON
+  - word: dbo
+  - dot: .
+  - word: Sales
+  - word: AFTER
+  - word: INSERT
+  - semicolon: ;
+  - word: ALTER
+  - word: SECURITY
+  - word: POLICY
+  - word: pol1
+  - word: ADD
+  - word: FILTER
+  - word: PREDICATE
+  - word: schema_preds
+  - dot: .
+  - word: SecPredicate
+  - start_bracket: (
+  - word: column1
+  - end_bracket: )
+  - word: ON
+  - word: myschema
+  - dot: .
+  - word: mytable
+  - semicolon: ;
+  - word: ALTER
+  - word: SECURITY
+  - word: POLICY
+  - word: pol1
+  - word: WITH
+  - start_bracket: (
+  - word: STATE
+  - raw_comparison_operator: =
+  - word: ON
+  - end_bracket: )
+  - semicolon: ;
+  - word: ALTER
+  - word: SECURITY
+  - word: POLICY
+  - word: pol1
+  - word: ADD
+  - word: FILTER
+  - word: PREDICATE
+  - word: schema_preds
+  - dot: .
+  - word: SecPredicate1
+  - start_bracket: (
+  - word: column1
+  - end_bracket: )
+  - word: ON
+  - word: myschema
+  - dot: .
+  - word: mytable1
+  - comma: ','
+  - word: DROP
+  - word: FILTER
+  - word: PREDICATE
+  - word: ON
+  - word: myschema
+  - dot: .
+  - word: mytable2
+  - comma: ','
+  - word: ADD
+  - word: FILTER
+  - word: PREDICATE
+  - word: schema_preds
+  - dot: .
+  - word: SecPredicate2
+  - start_bracket: (
+  - word: column2
+  - comma: ','
+  - numeric_literal: '1'
+  - end_bracket: )
+  - word: ON
+  - word: myschema
+  - dot: .
+  - word: mytable3
+  - semicolon: ;
+  - word: ALTER
+  - word: SECURITY
+  - word: POLICY
+  - word: pol1
+  - word: ALTER
+  - word: FILTER
+  - word: PREDICATE
+  - word: schema_preds
+  - dot: .
+  - word: SecPredicate2
+  - start_bracket: (
+  - word: column1
+  - end_bracket: )
+  - word: ON
+  - word: myschema
+  - dot: .
+  - word: mytable
+  - semicolon: ;
+  - word: ALTER
+  - word: SECURITY
+  - word: POLICY
+  - word: rls
+  - dot: .
+  - word: SecPol
+  - word: ALTER
+  - word: BLOCK
+  - word: PREDICATE
+  - word: rls
+  - dot: .
+  - word: tenantAccessPredicate_v2
+  - start_bracket: (
+  - word: TenantId
+  - end_bracket: )
+  - word: ON
+  - word: dbo
+  - dot: .
+  - word: Sales
+  - word: AFTER
+  - word: INSERT
+  - semicolon: ;
+  - word: DROP
+  - word: SECURITY
+  - word: POLICY
+  - word: secPolicy
+  - semicolon: ;

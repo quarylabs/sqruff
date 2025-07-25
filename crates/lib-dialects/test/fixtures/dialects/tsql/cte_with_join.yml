@@ -51,14 +51,19 @@ file:
                       - table_reference:
                         - object_reference:
                           - naked_identifier: bu2ic
-        - unparsable:
-          - word: AS
-          - word: BU2IC
-          - word: ON
-          - word: BU2IC
-          - dot: .
-          - word: ItemCategoryID
-          - raw_comparison_operator: =
-          - word: NxItem
-          - dot: .
-          - word: i_category_id
+                    - alias_expression:
+                      - keyword: AS
+                      - naked_identifier: BU2IC
+                - join_on_condition:
+                  - keyword: ON
+                  - expression:
+                    - column_reference:
+                      - naked_identifier: BU2IC
+                      - dot: .
+                      - naked_identifier: ItemCategoryID
+                    - comparison_operator:
+                      - raw_comparison_operator: =
+                    - column_reference:
+                      - naked_identifier: NxItem
+                      - dot: .
+                      - naked_identifier: i_category_id

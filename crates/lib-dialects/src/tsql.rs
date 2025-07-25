@@ -3861,24 +3861,8 @@ pub fn raw_dialect() -> Dialect {
         .into(),
     )]);
 
-    // Simplified OverClauseSegment for T-SQL (debug - just OVER keyword)
-    dialect.add([(
-        "OverClauseSegment".into(),
-        NodeMatcher::new(SyntaxKind::OverClause, |_| {
-            Sequence::new(vec_of_erased![
-                Ref::keyword("OVER"),
-                Bracketed::new(vec_of_erased![
-                    // Simplified: just allow any expression for now
-                    AnyNumberOf::new(vec_of_erased![
-                        Ref::new("ExpressionSegment")
-                    ])
-                ])
-            ])
-            .to_matchable()
-        })
-        .to_matchable()
-        .into(),
-    )]);
+    // Remove custom OverClauseSegment definition - rely on ANSI inheritance
+    // The ANSI version should work with proper WindowSpecificationSegment
 
     // Override PostFunctionGrammar to include WITHIN GROUP and support sequences
     dialect.add([(
@@ -8147,8 +8131,10 @@ pub fn raw_dialect() -> Dialect {
                 ]),
                 // Regular functions with PostFunctionGrammar support
                 Sequence::new(vec_of_erased![
-                    Ref::new("FunctionNameSegment"),
-                    Ref::new("FunctionParameterListGrammar"),
+                    Sequence::new(vec_of_erased![
+                        Ref::new("FunctionNameSegment"),
+                        Ref::new("FunctionParameterListGrammar")
+                    ]),
                     Ref::new("PostFunctionGrammar").optional()
                 ]),
                 // JSON functions with NULL clause support  

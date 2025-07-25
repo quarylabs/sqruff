@@ -6,11 +6,11 @@ SELECT JSON_ARRAY('a', 1, NULL, 2, NULL ON NULL);
 
 SELECT JSON_OBJECT('name': 'value', 'new': 1);
 
-SELECT JSON_OBJECT('name': 'value', 'type': NULL ABSENT ON NULL)
+SELECT JSON_OBJECT('name': 'value', 'type': NULL ABSENT ON NULL);
 
-SELECT JSON_OBJECT('name': 'value', 'type': JSON_ARRAY(1, 2))
+SELECT JSON_OBJECT('name': 'value', 'type': JSON_ARRAY(1, 2));
 
-SELECT JSON_OBJECT('name': 'value', 'type': JSON_OBJECT('type_id': 1, 'name': 'a'))
+SELECT JSON_OBJECT('name': 'value', 'type': JSON_OBJECT('type_id': 1, 'name': 'a'));
 
 DECLARE @id_key nvarchar(10) = N'id', @id_value nvarchar(64) = NEWID();
 SELECT JSON_OBJECT('user_name': USER_NAME(), @id_key: @id_value, 'sid': (SELECT @@SPID));

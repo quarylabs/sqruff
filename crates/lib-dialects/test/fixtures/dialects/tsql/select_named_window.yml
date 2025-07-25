@@ -49,57 +49,59 @@ file:
               - keyword: AS
               - naked_identifier: s
           - join_clause:
-            - keyword: INNER
-            - keyword: JOIN
-            - from_expression_element:
-              - table_expression:
-                - table_reference:
-                  - object_reference:
-                    - naked_identifier: Person
-                    - dot: .
-                    - naked_identifier: Person
-              - alias_expression:
-                - keyword: AS
-                - naked_identifier: p
-            - join_on_condition:
-              - keyword: ON
-              - expression:
-                - column_reference:
-                  - naked_identifier: s
-                  - dot: .
-                  - naked_identifier: BusinessEntityID
-                - comparison_operator:
-                  - raw_comparison_operator: =
-                - column_reference:
+            - join_clause:
+              - keyword: INNER
+              - keyword: JOIN
+              - from_expression_element:
+                - table_expression:
+                  - table_reference:
+                    - object_reference:
+                      - naked_identifier: Person
+                      - dot: .
+                      - naked_identifier: Person
+                - alias_expression:
+                  - keyword: AS
                   - naked_identifier: p
-                  - dot: .
-                  - naked_identifier: BusinessEntityID
+              - join_on_condition:
+                - keyword: ON
+                - expression:
+                  - column_reference:
+                    - naked_identifier: s
+                    - dot: .
+                    - naked_identifier: BusinessEntityID
+                  - comparison_operator:
+                    - raw_comparison_operator: =
+                  - column_reference:
+                    - naked_identifier: p
+                    - dot: .
+                    - naked_identifier: BusinessEntityID
           - join_clause:
-            - keyword: INNER
-            - keyword: JOIN
-            - from_expression_element:
-              - table_expression:
-                - table_reference:
-                  - object_reference:
-                    - naked_identifier: Person
-                    - dot: .
-                    - naked_identifier: Address
-              - alias_expression:
-                - keyword: AS
-                - naked_identifier: a
-            - join_on_condition:
-              - keyword: ON
-              - expression:
-                - column_reference:
+            - join_clause:
+              - keyword: INNER
+              - keyword: JOIN
+              - from_expression_element:
+                - table_expression:
+                  - table_reference:
+                    - object_reference:
+                      - naked_identifier: Person
+                      - dot: .
+                      - naked_identifier: Address
+                - alias_expression:
+                  - keyword: AS
                   - naked_identifier: a
-                  - dot: .
-                  - naked_identifier: AddressID
-                - comparison_operator:
-                  - raw_comparison_operator: =
-                - column_reference:
-                  - naked_identifier: p
-                  - dot: .
-                  - naked_identifier: BusinessEntityID
+              - join_on_condition:
+                - keyword: ON
+                - expression:
+                  - column_reference:
+                    - naked_identifier: a
+                    - dot: .
+                    - naked_identifier: AddressID
+                  - comparison_operator:
+                    - raw_comparison_operator: =
+                  - column_reference:
+                    - naked_identifier: p
+                    - dot: .
+                    - naked_identifier: BusinessEntityID
       - where_clause:
         - keyword: WHERE
         - expression:

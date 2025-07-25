@@ -17,34 +17,35 @@ file:
                 - object_reference:
                   - naked_identifier: products
           - join_clause:
-            - keyword: INNER
-            - keyword: JOIN
-            - from_expression_element:
-              - table_expression:
-                - function:
-                  - function_name:
-                    - function_name_identifier: OPENJSON
-                  - bracketed:
-                    - start_bracket: (
-                    - expression:
-                      - quoted_literal: N'[1,2,3,4]'
-                    - end_bracket: )
-              - alias_expression:
-                - keyword: AS
-                - naked_identifier: productTypes
-            - join_on_condition:
-              - keyword: ON
-              - expression:
-                - column_reference:
-                  - naked_identifier: product
-                  - dot: .
-                  - naked_identifier: productTypeID
-                - comparison_operator:
-                  - raw_comparison_operator: =
-                - column_reference:
+            - join_clause:
+              - keyword: INNER
+              - keyword: JOIN
+              - from_expression_element:
+                - table_expression:
+                  - function:
+                    - function_name:
+                      - function_name_identifier: OPENJSON
+                    - bracketed:
+                      - start_bracket: (
+                      - expression:
+                        - quoted_literal: N'[1,2,3,4]'
+                      - end_bracket: )
+                - alias_expression:
+                  - keyword: AS
                   - naked_identifier: productTypes
-                  - dot: .
-                  - naked_identifier: value
+              - join_on_condition:
+                - keyword: ON
+                - expression:
+                  - column_reference:
+                    - naked_identifier: product
+                    - dot: .
+                    - naked_identifier: productTypeID
+                  - comparison_operator:
+                    - raw_comparison_operator: =
+                  - column_reference:
+                    - naked_identifier: productTypes
+                    - dot: .
+                    - naked_identifier: value
   - statement_terminator: ;
   - statement:
     - select_statement:

@@ -66,31 +66,32 @@ file:
                     - alias_expression:
                       - naked_identifier: o
                   - join_clause:
-                    - keyword: INNER
-                    - keyword: JOIN
-                    - from_expression_element:
-                      - table_expression:
-                        - table_reference:
-                          - object_reference:
-                            - naked_identifier: master
-                            - dot: .
-                            - dot: .
-                            - naked_identifier: syslogins
-                      - alias_expression:
-                        - naked_identifier: l
-                    - join_on_condition:
-                      - keyword: ON
-                      - expression:
-                        - column_reference:
-                          - naked_identifier: o
-                          - dot: .
-                          - naked_identifier: uid
-                        - comparison_operator:
-                          - raw_comparison_operator: =
-                        - column_reference:
+                    - join_clause:
+                      - keyword: INNER
+                      - keyword: JOIN
+                      - from_expression_element:
+                        - table_expression:
+                          - table_reference:
+                            - object_reference:
+                              - naked_identifier: master
+                              - dot: .
+                              - dot: .
+                              - naked_identifier: syslogins
+                        - alias_expression:
                           - naked_identifier: l
-                          - dot: .
-                          - naked_identifier: sid
+                      - join_on_condition:
+                        - keyword: ON
+                        - expression:
+                          - column_reference:
+                            - naked_identifier: o
+                            - dot: .
+                            - naked_identifier: uid
+                          - comparison_operator:
+                            - raw_comparison_operator: =
+                          - column_reference:
+                            - naked_identifier: l
+                            - dot: .
+                            - naked_identifier: sid
               - where_clause:
                 - keyword: WHERE
                 - expression:

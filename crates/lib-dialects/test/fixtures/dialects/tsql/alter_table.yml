@@ -1003,18 +1003,19 @@ file:
               - keyword: 'NULL'
           - comma: ','
           - table_constraint:
-            - keyword: CONSTRAINT
-            - object_reference:
-              - naked_identifier: PK_UserData
-            - keyword: PRIMARY
-            - keyword: KEY
-            - keyword: CLUSTERED
-            - bracketed:
-              - start_bracket: (
-              - column_reference:
-                - quoted_identifier: '[strUserId]'
-              - keyword: ASC
-              - end_bracket: )
+            - table_constraint:
+              - keyword: CONSTRAINT
+              - object_reference:
+                - naked_identifier: PK_UserData
+              - keyword: PRIMARY
+              - keyword: KEY
+              - keyword: CLUSTERED
+              - bracketed:
+                - start_bracket: (
+                - column_reference:
+                  - quoted_identifier: '[strUserId]'
+                - keyword: ASC
+                - end_bracket: )
           - end_bracket: )
   - statement_terminator: ;
   - statement:

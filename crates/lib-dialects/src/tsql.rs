@@ -1640,9 +1640,13 @@ pub fn raw_dialect() -> Dialect {
                         Bracketed::new(vec_of_erased![Delimited::new(vec_of_erased![
                             Sequence::new(vec_of_erased![
                                 Ref::new("TsqlVariableSegment"),
-                                Ref::new("EqualsSegment"),
                                 one_of(vec_of_erased![
-                                    Ref::new("LiteralGrammar"),
+                                    // @parameter = value
+                                    Sequence::new(vec_of_erased![
+                                        Ref::new("EqualsSegment"),
+                                        Ref::new("LiteralGrammar")
+                                    ]),
+                                    // @parameter UNKNOWN
                                     Ref::keyword("UNKNOWN")
                                 ])
                             ])
@@ -1691,7 +1695,10 @@ pub fn raw_dialect() -> Dialect {
                     Sequence::new(vec_of_erased![
                         Ref::keyword("LABEL"),
                         Ref::new("EqualsSegment"),
-                        Ref::new("QuotedLiteralSegment")
+                        one_of(vec_of_erased![
+                            Ref::new("QuotedLiteralSegment"),
+                            Ref::new("UnicodeLiteralSegment")
+                        ])
                     ])
                 ]
             )])])
@@ -3613,50 +3620,119 @@ pub fn raw_dialect() -> Dialect {
         .to_matchable(),
     );
 
-    // Override JoinTypeKeywordsGrammar to include T-SQL join hints following SQLFluff's approach
-    dialect.add([(
-        "JoinTypeKeywordsGrammar".into(),
-        one_of(vec_of_erased![
-            // CROSS [HASH|MERGE|LOOP]
+    // Override JoinClauseSegment to include T-SQL join hints
+    dialect.replace_grammar(
+        "JoinClauseSegment",
+        NodeMatcher::new(SyntaxKind::JoinClause, |_| {
             Sequence::new(vec_of_erased![
-                Ref::keyword("CROSS"),
+                // T-SQL join type with hints: [INNER|FULL|LEFT|RIGHT] [OUTER] [HASH|MERGE|LOOP] JOIN
+                // Order matters: more specific patterns first
                 one_of(vec_of_erased![
-                    Ref::keyword("HASH"),
-                    Ref::keyword("MERGE"),
-                    Ref::keyword("LOOP"),
-                ])
-                .config(|this| this.optional())
-            ]),
-            // INNER [HASH|MERGE|LOOP]
-            Sequence::new(vec_of_erased![
-                Ref::keyword("INNER"),
-                one_of(vec_of_erased![
-                    Ref::keyword("HASH"),
-                    Ref::keyword("MERGE"),
-                    Ref::keyword("LOOP"),
-                ])
-                .config(|this| this.optional())
-            ]),
-            // FULL/LEFT/RIGHT [OUTER] [HASH|MERGE|LOOP]
-            Sequence::new(vec_of_erased![
-                one_of(vec_of_erased![
-                    Ref::keyword("FULL"),
-                    Ref::keyword("LEFT"),
-                    Ref::keyword("RIGHT"),
+                    // FULL/LEFT/RIGHT OUTER [HASH|MERGE|LOOP] JOIN (most specific)
+                    Sequence::new(vec_of_erased![
+                        one_of(vec_of_erased![
+                            Ref::keyword("FULL"),
+                            Ref::keyword("LEFT"),
+                            Ref::keyword("RIGHT"),
+                        ]),
+                        Ref::keyword("OUTER"),
+                        one_of(vec_of_erased![
+                            Ref::keyword("HASH"),
+                            Ref::keyword("MERGE"),
+                            Ref::keyword("LOOP"),
+                        ]),
+                        Ref::keyword("JOIN")
+                    ]),
+                    // FULL/LEFT/RIGHT [HASH|MERGE|LOOP] JOIN (without OUTER but with hint)
+                    Sequence::new(vec_of_erased![
+                        one_of(vec_of_erased![
+                            Ref::keyword("FULL"),
+                            Ref::keyword("LEFT"),
+                            Ref::keyword("RIGHT"),
+                        ]),
+                        one_of(vec_of_erased![
+                            Ref::keyword("HASH"),
+                            Ref::keyword("MERGE"),
+                            Ref::keyword("LOOP"),
+                        ]),
+                        Ref::keyword("JOIN")
+                    ]),
+                    // CROSS [HASH|MERGE|LOOP] JOIN
+                    Sequence::new(vec_of_erased![
+                        Ref::keyword("CROSS"),
+                        one_of(vec_of_erased![
+                            Ref::keyword("HASH"),
+                            Ref::keyword("MERGE"),
+                            Ref::keyword("LOOP"),
+                        ]),
+                        Ref::keyword("JOIN")
+                    ]),
+                    // INNER [HASH|MERGE|LOOP] JOIN  
+                    Sequence::new(vec_of_erased![
+                        Ref::keyword("INNER"),
+                        one_of(vec_of_erased![
+                            Ref::keyword("HASH"),
+                            Ref::keyword("MERGE"),
+                            Ref::keyword("LOOP"),
+                        ]),
+                        Ref::keyword("JOIN")
+                    ]),
+                    // FULL/LEFT/RIGHT OUTER JOIN (without hints)
+                    Sequence::new(vec_of_erased![
+                        one_of(vec_of_erased![
+                            Ref::keyword("FULL"),
+                            Ref::keyword("LEFT"),
+                            Ref::keyword("RIGHT"),
+                        ]),
+                        Ref::keyword("OUTER"),
+                        Ref::keyword("JOIN")
+                    ]),
+                    // FULL/LEFT/RIGHT JOIN (without OUTER or hints)
+                    Sequence::new(vec_of_erased![
+                        one_of(vec_of_erased![
+                            Ref::keyword("FULL"),
+                            Ref::keyword("LEFT"),
+                            Ref::keyword("RIGHT"),
+                        ]),
+                        Ref::keyword("JOIN")
+                    ]),
+                    // CROSS JOIN, INNER JOIN
+                    Sequence::new(vec_of_erased![
+                        one_of(vec_of_erased![
+                            Ref::keyword("CROSS"),
+                            Ref::keyword("INNER"),
+                        ]),
+                        Ref::keyword("JOIN")
+                    ]),
+                    // Just JOIN (no type, no hints)
+                    Ref::keyword("JOIN")
                 ]),
-                Ref::keyword("OUTER").optional(),
-                one_of(vec_of_erased![
-                    Ref::keyword("HASH"),
-                    Ref::keyword("MERGE"),
-                    Ref::keyword("LOOP"),
+                MetaSegment::indent(),
+                Ref::new("FromExpressionElementSegment"),
+                MetaSegment::dedent(),
+                // Optional ON condition
+                Sequence::new(vec_of_erased![
+                    Conditional::new(MetaSegment::indent()).indented_using_on(),
+                    one_of(vec_of_erased![
+                        Ref::new("JoinOnConditionSegment"),
+                        Sequence::new(vec_of_erased![
+                            Ref::keyword("USING"),
+                            MetaSegment::indent(),
+                            Bracketed::new(vec_of_erased![Delimited::new(vec_of_erased![
+                                Ref::new("SingleIdentifierGrammar")
+                            ])])
+                            .config(|this| this.parse_mode = ParseMode::Greedy),
+                            MetaSegment::dedent(),
+                        ])
+                    ]),
+                    Conditional::new(MetaSegment::dedent()).indented_using_on(),
                 ])
                 .config(|this| this.optional())
-            ]),
-        ])
-        .config(|this| this.optional())
-        .to_matchable()
-        .into(),
-    )]);
+            ])
+            .to_matchable()
+        })
+        .to_matchable(),
+    );
 
     // T-SQL specific data type handling for MAX keyword and -1
     // Override BracketedArguments to accept MAX keyword and negative numbers
@@ -3870,6 +3946,18 @@ pub fn raw_dialect() -> Dialect {
                     Ref::new("IdentityConstraintGrammar"), // T-SQL IDENTITY
                     Ref::new("AutoIncrementGrammar"),      // Keep ANSI AUTO_INCREMENT
                     Ref::new("ReferenceDefinitionGrammar"),
+                    // Inline FOREIGN KEY without constraint name
+                    Sequence::new(vec_of_erased![
+                        Ref::keyword("FOREIGN"),
+                        Ref::keyword("KEY"),
+                        Ref::keyword("REFERENCES"),
+                        Ref::new("TableReferenceSegment"),
+                        Bracketed::new(vec_of_erased![
+                            Delimited::new(vec_of_erased![Ref::new("ColumnReferenceSegment")])
+                        ])
+                    ]),
+                    // Simple UNIQUE without parentheses (for inline column constraint)
+                    Ref::keyword("UNIQUE"),
                     Ref::new("CommentClauseSegment"),
                     // COLLATE
                     Sequence::new(vec_of_erased![
@@ -3913,6 +4001,63 @@ pub fn raw_dialect() -> Dialect {
         .to_matchable()
         .into(),
     )]);
+
+    // Override TableConstraintSegment to support T-SQL specific syntax
+    dialect.replace_grammar(
+        "TableConstraintSegment",
+        NodeMatcher::new(SyntaxKind::TableConstraint, |_| {
+            Sequence::new(vec_of_erased![
+                Sequence::new(vec_of_erased![
+                    Ref::keyword("CONSTRAINT"),
+                    Ref::new("ObjectReferenceSegment")
+                ])
+                .config(|this| this.optional()),
+                one_of(vec_of_erased![
+                    Sequence::new(vec_of_erased![
+                        Ref::keyword("UNIQUE"),
+                        one_of(vec_of_erased![
+                            Ref::keyword("CLUSTERED"),
+                            Ref::keyword("NONCLUSTERED")
+                        ]).config(|this| this.optional()),
+                        // T-SQL supports column list with ASC/DESC
+                        Bracketed::new(vec_of_erased![
+                            Delimited::new(vec_of_erased![
+                                Sequence::new(vec_of_erased![
+                                    Ref::new("ColumnReferenceSegment"),
+                                    one_of(vec_of_erased![
+                                        Ref::keyword("ASC"),
+                                        Ref::keyword("DESC")
+                                    ]).config(|this| this.optional())
+                                ])
+                            ])
+                        ])
+                    ]),
+                    Sequence::new(vec_of_erased![
+                        Ref::new("PrimaryKeyGrammar"),
+                        // T-SQL supports column list with ASC/DESC
+                        Bracketed::new(vec_of_erased![
+                            Delimited::new(vec_of_erased![
+                                Sequence::new(vec_of_erased![
+                                    Ref::new("ColumnReferenceSegment"),
+                                    one_of(vec_of_erased![
+                                        Ref::keyword("ASC"),
+                                        Ref::keyword("DESC")
+                                    ]).config(|this| this.optional())
+                                ])
+                            ])
+                        ])
+                    ]),
+                    Sequence::new(vec_of_erased![
+                        Ref::new("ForeignKeyGrammar"),
+                        Ref::new("BracketedColumnReferenceListGrammar"),
+                        Ref::new("ReferenceDefinitionGrammar")
+                    ])
+                ])
+            ])
+            .to_matchable()
+        })
+        .to_matchable()
+    );
 
     // Override ReferenceDefinitionGrammar to support optional FOREIGN KEY prefix
     dialect.add([(
@@ -4470,11 +4615,14 @@ pub fn raw_dialect() -> Dialect {
     // Add T-SQL specific WithCheckOptionSegment
     dialect.add([(
         "WithCheckOptionSegment".into(),
-        Sequence::new(vec_of_erased![
-            Ref::keyword("WITH"),
-            Ref::keyword("CHECK"),
-            Ref::keyword("OPTION")
-        ])
+        NodeMatcher::new(SyntaxKind::WithDataClause, |_| {
+            Sequence::new(vec_of_erased![
+                Ref::keyword("WITH"),
+                Ref::keyword("CHECK"),
+                Ref::keyword("OPTION")
+            ])
+            .to_matchable()
+        })
         .to_matchable()
         .into(),
     )]);
@@ -4784,13 +4932,14 @@ pub fn raw_dialect() -> Dialect {
                     // Regular CREATE TABLE with column definitions
                     Sequence::new(vec_of_erased![
                         Bracketed::new(vec_of_erased![
-                            Delimited::new(vec_of_erased![one_of(vec_of_erased![
-                                Ref::new("TableConstraintSegment"),
-                                Ref::new("ColumnDefinitionSegment"),
-                                // T-SQL Graph: CONNECTION constraint for edge tables
-                                Ref::new("ConnectionConstraintSegment")
-                            ])])
-                            .config(|this| this.allow_trailing())
+                            Delimited::new(vec_of_erased![
+                                one_of(vec_of_erased![
+                                    Ref::new("ColumnDefinitionSegment"),
+                                    Ref::new("TableConstraintSegment"),
+                                    // T-SQL Graph: CONNECTION constraint for edge tables
+                                    Ref::new("ConnectionConstraintSegment")
+                                ])
+                            ])
                         ]),
                         // Optional WITH clause for table options (after column definitions)
                         Sequence::new(vec_of_erased![
@@ -6392,24 +6541,6 @@ pub fn raw_dialect() -> Dialect {
             .to_matchable()
             .into(),
         ),
-        // JSON NULL handling clause
-        (
-            "TsqlJsonNullClause".into(),
-            one_of(vec_of_erased![
-                Sequence::new(vec_of_erased![
-                    Ref::keyword("NULL"),
-                    Ref::keyword("ON"),
-                    Ref::keyword("NULL")
-                ]),
-                Sequence::new(vec_of_erased![
-                    Ref::keyword("ABSENT"),
-                    Ref::keyword("ON"),
-                    Ref::keyword("NULL")
-                ])
-            ])
-            .to_matchable()
-            .into(),
-        ),
         // T-SQL JSON null handling clause for JSON_ARRAY and JSON_OBJECT
         (
             "TsqlJsonNullClause".into(),
@@ -6463,24 +6594,25 @@ pub fn raw_dialect() -> Dialect {
             .to_matchable()
             .into(),
         ),
-        // Grammar for JSON_ARRAY function contents
+        // Custom element for JSON_ARRAY that can be an expression or null clause
+        (
+            "TsqlJsonArrayElementGrammar".into(),
+            one_of(vec_of_erased![
+                Ref::new("ExpressionSegment"),
+                Ref::new("TsqlJsonNullClause")
+            ])
+            .to_matchable()
+            .into(),
+        ),
+        // Grammar for JSON_ARRAY function contents  
         (
             "TsqlJsonArrayContentsGrammar".into(),
             one_of(vec_of_erased![
-                // Just null clause
+                // Just null clause for JSON_ARRAY(NULL ON NULL) or JSON_ARRAY(ABSENT ON NULL)
                 Ref::new("TsqlJsonNullClause"),
-                // Expression list with null clause after last expression (no comma)
-                Sequence::new(vec_of_erased![
-                    Delimited::new(vec_of_erased![
-                        Ref::new("ExpressionSegment")
-                    ]).config(|this| {
-                        this.allow_trailing = true;
-                    }),
-                    Ref::new("TsqlJsonNullClause")
-                ]),
-                // Just expression list without null clause
+                // List of expressions and/or null clauses
                 Delimited::new(vec_of_erased![
-                    Ref::new("ExpressionSegment")
+                    Ref::new("TsqlJsonArrayElementGrammar")
                 ]).config(|this| {
                     this.allow_trailing = true;
                 })
@@ -6925,6 +7057,27 @@ pub fn raw_dialect() -> Dialect {
 
     // T-SQL MERGE statement support
     dialect.add([
+        // Missing AliasedTableReferenceGrammar for MERGE statements
+        (
+            "AliasedTableReferenceGrammar".into(),
+            Sequence::new(vec_of_erased![
+                Ref::new("TableReferenceSegment"),
+                Ref::new("AliasExpressionSegment").optional()
+            ])
+            .to_matchable()
+            .into(),
+        ),
+        // Missing BracketedColumnReferenceListGrammar for INSERT clauses
+        (
+            "BracketedColumnReferenceListGrammar".into(),
+            Bracketed::new(vec_of_erased![
+                Delimited::new(vec_of_erased![
+                    Ref::new("ColumnReferenceSegment")
+                ])
+            ])
+            .to_matchable()
+            .into(),
+        ),
         (
             "MergeStatementSegment".into(),
             NodeMatcher::new(SyntaxKind::MergeStatement, |_| {

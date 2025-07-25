@@ -30,12 +30,13 @@ file:
           - data_type_identifier: DATETIME
       - comma: ','
       - table_constraint:
-        - keyword: PRIMARY
-        - keyword: KEY
-        - bracketed:
-          - start_bracket: (
-          - column_reference:
-            - naked_identifier: EmpID
-          - end_bracket: )
+        - table_constraint:
+          - keyword: PRIMARY
+          - keyword: KEY
+          - bracketed:
+            - start_bracket: (
+            - column_reference:
+              - naked_identifier: EmpID
+            - end_bracket: )
       - end_bracket: )
   - statement_terminator: ;

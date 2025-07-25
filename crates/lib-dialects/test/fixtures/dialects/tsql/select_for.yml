@@ -80,29 +80,30 @@ file:
               - keyword: AS
               - naked_identifier: c
           - join_clause:
-            - keyword: RIGHT
-            - keyword: JOIN
-            - from_expression_element:
-              - table_expression:
-                - table_reference:
-                  - object_reference:
-                    - naked_identifier: '#tabStudent'
-              - alias_expression:
-                - keyword: AS
-                - naked_identifier: s
-            - join_on_condition:
-              - keyword: ON
-              - expression:
-                - column_reference:
+            - join_clause:
+              - keyword: RIGHT
+              - keyword: JOIN
+              - from_expression_element:
+                - table_expression:
+                  - table_reference:
+                    - object_reference:
+                      - naked_identifier: '#tabStudent'
+                - alias_expression:
+                  - keyword: AS
                   - naked_identifier: s
-                  - dot: .
-                  - naked_identifier: ClassGuid
-                - comparison_operator:
-                  - raw_comparison_operator: =
-                - column_reference:
-                  - naked_identifier: c
-                  - dot: .
-                  - naked_identifier: ClassGuid
+              - join_on_condition:
+                - keyword: ON
+                - expression:
+                  - column_reference:
+                    - naked_identifier: s
+                    - dot: .
+                    - naked_identifier: ClassGuid
+                  - comparison_operator:
+                    - raw_comparison_operator: =
+                  - column_reference:
+                    - naked_identifier: c
+                    - dot: .
+                    - naked_identifier: ClassGuid
       - orderby_clause:
         - keyword: ORDER
         - keyword: BY

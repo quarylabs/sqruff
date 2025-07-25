@@ -61,11 +61,10 @@ file:
                 - expression:
                   - numeric_literal: '2'
                 - comma: ','
-                - expression:
-                  - null_literal: 'NULL'
-                - unparsable:
-                  - word: ON
-                  - word: 'NULL'
+                - json_null_clause:
+                  - keyword: 'NULL'
+                  - keyword: ON
+                  - keyword: 'NULL'
                 - end_bracket: )
   - statement_terminator: ;
   - statement:
@@ -117,43 +116,79 @@ file:
                   - keyword: ON
                   - keyword: 'NULL'
                 - end_bracket: )
-        - unparsable:
-          - word: SELECT
-          - word: JSON_OBJECT
-          - start_bracket: (
-          - single_quote: '''name'''
-          - colon: ':'
-          - single_quote: '''value'''
-          - comma: ','
-          - single_quote: '''type'''
-          - colon: ':'
-          - word: JSON_ARRAY
-          - start_bracket: (
-          - numeric_literal: '1'
-          - comma: ','
-          - numeric_literal: '2'
-          - end_bracket: )
-          - end_bracket: )
-          - word: SELECT
-          - word: JSON_OBJECT
-          - start_bracket: (
-          - single_quote: '''name'''
-          - colon: ':'
-          - single_quote: '''value'''
-          - comma: ','
-          - single_quote: '''type'''
-          - colon: ':'
-          - word: JSON_OBJECT
-          - start_bracket: (
-          - single_quote: '''type_id'''
-          - colon: ':'
-          - numeric_literal: '1'
-          - comma: ','
-          - single_quote: '''name'''
-          - colon: ':'
-          - single_quote: '''a'''
-          - end_bracket: )
-          - end_bracket: )
+  - statement_terminator: ;
+  - statement:
+    - select_statement:
+      - select_clause:
+        - keyword: SELECT
+        - select_clause_element:
+          - function:
+            - function:
+              - keyword: JSON_OBJECT
+              - bracketed:
+                - start_bracket: (
+                - expression:
+                  - quoted_literal: '''name'''
+                - colon: ':'
+                - expression:
+                  - quoted_literal: '''value'''
+                - comma: ','
+                - expression:
+                  - quoted_literal: '''type'''
+                - colon: ':'
+                - expression:
+                  - function:
+                    - function:
+                      - keyword: JSON_ARRAY
+                      - bracketed:
+                        - start_bracket: (
+                        - expression:
+                          - numeric_literal: '1'
+                        - comma: ','
+                        - expression:
+                          - numeric_literal: '2'
+                        - end_bracket: )
+                - end_bracket: )
+  - statement_terminator: ;
+  - statement:
+    - select_statement:
+      - select_clause:
+        - keyword: SELECT
+        - select_clause_element:
+          - function:
+            - function:
+              - keyword: JSON_OBJECT
+              - bracketed:
+                - start_bracket: (
+                - expression:
+                  - quoted_literal: '''name'''
+                - colon: ':'
+                - expression:
+                  - quoted_literal: '''value'''
+                - comma: ','
+                - expression:
+                  - quoted_literal: '''type'''
+                - colon: ':'
+                - expression:
+                  - function:
+                    - function:
+                      - keyword: JSON_OBJECT
+                      - bracketed:
+                        - start_bracket: (
+                        - expression:
+                          - quoted_literal: '''type_id'''
+                        - colon: ':'
+                        - expression:
+                          - numeric_literal: '1'
+                        - comma: ','
+                        - expression:
+                          - quoted_literal: '''name'''
+                        - colon: ':'
+                        - expression:
+                          - quoted_literal: '''a'''
+                        - end_bracket: )
+                - end_bracket: )
+  - statement_terminator: ;
   - statement:
     - keyword: DECLARE
     - tsql_variable: '@id_key'
@@ -381,10 +416,10 @@ file:
                         - comma: ','
                         - expression:
                           - numeric_literal: '2'
-                        - json_null_clause:
-                          - keyword: 'NULL'
-                          - keyword: ON
-                          - keyword: 'NULL'
+                        - unparsable:
+                          - word: 'NULL'
+                          - word: ON
+                          - word: 'NULL'
                         - end_bracket: )
                 - end_bracket: )
   - statement_terminator: ;

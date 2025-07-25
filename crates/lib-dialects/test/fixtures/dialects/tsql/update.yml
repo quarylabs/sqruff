@@ -88,25 +88,26 @@ file:
                 - keyword: as
                 - naked_identifier: tt
             - join_clause:
-              - keyword: join
-              - from_expression_element:
-                - table_expression:
-                  - table_reference:
-                    - object_reference:
+              - join_clause:
+                - keyword: join
+                - from_expression_element:
+                  - table_expression:
+                    - table_reference:
+                      - object_reference:
+                        - naked_identifier: src
+                - join_on_condition:
+                  - keyword: on
+                  - expression:
+                    - column_reference:
+                      - naked_identifier: tt
+                      - dot: .
+                      - naked_identifier: _id
+                    - comparison_operator:
+                      - raw_comparison_operator: =
+                    - column_reference:
                       - naked_identifier: src
-              - join_on_condition:
-                - keyword: on
-                - expression:
-                  - column_reference:
-                    - naked_identifier: tt
-                    - dot: .
-                    - naked_identifier: _id
-                  - comparison_operator:
-                    - raw_comparison_operator: =
-                  - column_reference:
-                    - naked_identifier: src
-                    - dot: .
-                    - naked_identifier: _id
+                      - dot: .
+                      - naked_identifier: _id
         - statement_terminator: ;
 - unparsable:
   - word: UPDATE

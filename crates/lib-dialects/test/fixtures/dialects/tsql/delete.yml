@@ -267,31 +267,32 @@ file:
                 - keyword: AS
                 - naked_identifier: spqh
             - join_clause:
-              - keyword: INNER
-              - keyword: JOIN
-              - from_expression_element:
-                - table_expression:
-                  - table_reference:
-                    - object_reference:
-                      - naked_identifier: Sales
-                      - dot: .
-                      - naked_identifier: SalesPerson
-                - alias_expression:
-                  - keyword: AS
-                  - naked_identifier: sp
-              - join_on_condition:
-                - keyword: ON
-                - expression:
-                  - column_reference:
-                    - naked_identifier: spqh
-                    - dot: .
-                    - naked_identifier: BusinessEntityID
-                  - comparison_operator:
-                    - raw_comparison_operator: =
-                  - column_reference:
+              - join_clause:
+                - keyword: INNER
+                - keyword: JOIN
+                - from_expression_element:
+                  - table_expression:
+                    - table_reference:
+                      - object_reference:
+                        - naked_identifier: Sales
+                        - dot: .
+                        - naked_identifier: SalesPerson
+                  - alias_expression:
+                    - keyword: AS
                     - naked_identifier: sp
-                    - dot: .
-                    - naked_identifier: BusinessEntityID
+                - join_on_condition:
+                  - keyword: ON
+                  - expression:
+                    - column_reference:
+                      - naked_identifier: spqh
+                      - dot: .
+                      - naked_identifier: BusinessEntityID
+                    - comparison_operator:
+                      - raw_comparison_operator: =
+                    - column_reference:
+                      - naked_identifier: sp
+                      - dot: .
+                      - naked_identifier: BusinessEntityID
         - where_clause:
           - keyword: WHERE
           - expression:
@@ -325,31 +326,32 @@ file:
                 - keyword: AS
                 - naked_identifier: spqh
             - join_clause:
-              - keyword: INNER
-              - keyword: JOIN
-              - from_expression_element:
-                - table_expression:
-                  - table_reference:
-                    - object_reference:
-                      - naked_identifier: Sales
-                      - dot: .
-                      - naked_identifier: SalesPerson
-                - alias_expression:
-                  - keyword: AS
-                  - naked_identifier: sp
-              - join_on_condition:
-                - keyword: ON
-                - expression:
-                  - column_reference:
-                    - naked_identifier: spqh
-                    - dot: .
-                    - naked_identifier: BusinessEntityID
-                  - comparison_operator:
-                    - raw_comparison_operator: =
-                  - column_reference:
+              - join_clause:
+                - keyword: INNER
+                - keyword: JOIN
+                - from_expression_element:
+                  - table_expression:
+                    - table_reference:
+                      - object_reference:
+                        - naked_identifier: Sales
+                        - dot: .
+                        - naked_identifier: SalesPerson
+                  - alias_expression:
+                    - keyword: AS
                     - naked_identifier: sp
-                    - dot: .
-                    - naked_identifier: BusinessEntityID
+                - join_on_condition:
+                  - keyword: ON
+                  - expression:
+                    - column_reference:
+                      - naked_identifier: spqh
+                      - dot: .
+                      - naked_identifier: BusinessEntityID
+                    - comparison_operator:
+                      - raw_comparison_operator: =
+                    - column_reference:
+                      - naked_identifier: sp
+                      - dot: .
+                      - naked_identifier: BusinessEntityID
         - where_clause:
           - keyword: WHERE
           - expression:

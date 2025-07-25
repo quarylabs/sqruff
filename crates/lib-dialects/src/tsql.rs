@@ -1230,6 +1230,14 @@ pub fn raw_dialect() -> Dialect {
                         ])])
                     ])
                 ]),
+                // Optional AS USER clause
+                Sequence::new(vec_of_erased![
+                    Ref::keyword("AS"),
+                    Ref::keyword("USER"),
+                    Ref::new("EqualsSegment"),
+                    Ref::new("QuotedLiteralSegment")
+                ])
+                .config(|this| this.optional()),
                 // Optional WITH clause for additional options
                 Sequence::new(vec_of_erased![
                     Ref::keyword("WITH"),
@@ -1244,6 +1252,12 @@ pub fn raw_dialect() -> Dialect {
                             ])
                         ])
                     ])])
+                ])
+                .config(|this| this.optional()),
+                // Optional AT linked_server clause
+                Sequence::new(vec_of_erased![
+                    Ref::keyword("AT"),
+                    Ref::new("SingleIdentifierGrammar")
                 ])
                 .config(|this| this.optional())
             ])

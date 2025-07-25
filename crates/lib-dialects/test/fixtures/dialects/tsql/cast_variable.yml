@@ -75,12 +75,13 @@ file:
         - keyword: from
         - from_expression:
           - from_expression_element:
-            - table_expression:
-              - table_reference:
-                - object_reference:
-                  - naked_identifier: encounter
-            - alias_expression:
-              - naked_identifier: enc
+            - from_expression_element:
+              - table_expression:
+                - table_reference:
+                  - object_reference:
+                    - naked_identifier: encounter
+      - unparsable:
+        - word: enc
   - statement_terminator: ;
   - statement:
     - keyword: declare

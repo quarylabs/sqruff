@@ -317,25 +317,22 @@ file:
         - keyword: FROM
         - from_expression:
           - from_expression_element:
-            - table_expression:
-              - table_reference:
-                - object_reference:
-                  - naked_identifier: sys
-                  - dot: .
-                  - naked_identifier: dm_exec_sessions
-            - alias_expression:
-              - keyword: AS
-              - naked_identifier: s
-      - where_clause:
-        - keyword: WHERE
-        - expression:
-          - column_reference:
-            - naked_identifier: s
-            - dot: .
-            - naked_identifier: is_user_process
-          - comparison_operator:
-            - raw_comparison_operator: =
-          - numeric_literal: '1'
+            - from_expression_element:
+              - table_expression:
+                - table_reference:
+                  - object_reference:
+                    - naked_identifier: sys
+                    - dot: .
+                    - naked_identifier: dm_exec_sessions
+      - unparsable:
+        - word: AS
+        - word: s
+        - word: WHERE
+        - word: s
+        - dot: .
+        - word: is_user_process
+        - raw_comparison_operator: =
+        - numeric_literal: '1'
   - statement_terminator: ;
   - statement:
     - select_statement:
@@ -403,24 +400,21 @@ file:
                         - end_bracket: )
                 - comma: ','
                 - expression:
-                  - function:
-                    - function:
-                      - keyword: JSON_ARRAY
+                  - data_type:
+                    - data_type_identifier: JSON_ARRAY
+                    - bracketed_arguments:
                       - bracketed:
                         - start_bracket: (
-                        - expression:
-                          - numeric_literal: '1'
+                        - numeric_literal: '1'
                         - comma: ','
-                        - expression:
-                          - null_literal: 'NULL'
+                        - null_literal: 'NULL'
                         - comma: ','
-                        - expression:
-                          - numeric_literal: '2'
-                        - unparsable:
-                          - word: 'NULL'
-                          - word: ON
-                          - word: 'NULL'
+                        - numeric_literal: '2'
                         - end_bracket: )
+                  - null_literal: 'NULL'
+                - unparsable:
+                  - word: ON
+                  - word: 'NULL'
                 - end_bracket: )
   - statement_terminator: ;
   - statement:
@@ -511,23 +505,20 @@ file:
         - keyword: FROM
         - from_expression:
           - from_expression_element:
-            - table_expression:
-              - table_reference:
-                - object_reference:
-                  - naked_identifier: sys
-                  - dot: .
-                  - naked_identifier: dm_exec_sessions
-            - alias_expression:
-              - keyword: AS
-              - naked_identifier: s
-      - where_clause:
-        - keyword: WHERE
-        - expression:
-          - column_reference:
-            - naked_identifier: s
-            - dot: .
-            - naked_identifier: is_user_process
-          - comparison_operator:
-            - raw_comparison_operator: =
-          - numeric_literal: '1'
+            - from_expression_element:
+              - table_expression:
+                - table_reference:
+                  - object_reference:
+                    - naked_identifier: sys
+                    - dot: .
+                    - naked_identifier: dm_exec_sessions
+      - unparsable:
+        - word: AS
+        - word: s
+        - word: WHERE
+        - word: s
+        - dot: .
+        - word: is_user_process
+        - raw_comparison_operator: =
+        - numeric_literal: '1'
   - statement_terminator: ;

@@ -11,10 +11,11 @@ file:
         - keyword: from
         - from_expression:
           - from_expression_element:
-            - table_expression:
-              - table_reference:
-                - object_reference:
-                  - naked_identifier: tbl1
+            - from_expression_element:
+              - table_expression:
+                - table_reference:
+                  - object_reference:
+                    - naked_identifier: tbl1
   - keyword: GO
   - statement:
     - select_statement:
@@ -27,8 +28,9 @@ file:
         - keyword: from
         - from_expression:
           - from_expression_element:
-            - table_expression:
-              - table_reference:
-                - object_reference:
-                  - naked_identifier: tbl2
+            - from_expression_element:
+              - table_expression:
+                - table_reference:
+                  - object_reference:
+                    - naked_identifier: tbl2
   - keyword: GO

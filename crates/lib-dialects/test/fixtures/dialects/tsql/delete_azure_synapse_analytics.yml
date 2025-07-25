@@ -13,23 +13,25 @@ file:
           - keyword: FROM
           - from_expression:
             - from_expression_element:
-              - table_expression:
-                - table_reference:
-                  - object_reference:
-                    - naked_identifier: dbo
-                    - dot: .
-                    - naked_identifier: Table2
+              - from_expression_element:
+                - table_expression:
+                  - table_reference:
+                    - object_reference:
+                      - naked_identifier: dbo
+                      - dot: .
+                      - naked_identifier: Table2
             - join_clause:
               - join_clause:
                 - keyword: INNER
                 - keyword: JOIN
                 - from_expression_element:
-                  - table_expression:
-                    - table_reference:
-                      - object_reference:
-                        - naked_identifier: dbo
-                        - dot: .
-                        - naked_identifier: Table1
+                  - from_expression_element:
+                    - table_expression:
+                      - table_reference:
+                        - object_reference:
+                          - naked_identifier: dbo
+                          - dot: .
+                          - naked_identifier: Table1
                 - join_on_condition:
                   - keyword: ON
                   - bracketed:
@@ -155,49 +157,34 @@ file:
                   - keyword: FROM
                   - from_expression:
                     - from_expression_element:
-                      - table_expression:
-                        - table_reference:
-                          - object_reference:
-                            - naked_identifier: dbo
-                            - dot: .
-                            - naked_identifier: DimProduct
-                      - alias_expression:
-                        - naked_identifier: T1
-                    - join_clause:
-                      - join_clause:
-                        - keyword: JOIN
-                        - from_expression_element:
-                          - table_expression:
-                            - table_reference:
-                              - object_reference:
-                                - naked_identifier: dbo
-                                - dot: .
-                                - naked_identifier: DimProductSubcategory
-                          - alias_expression:
-                            - naked_identifier: T2
-                        - join_on_condition:
-                          - keyword: ON
-                          - expression:
-                            - column_reference:
-                              - naked_identifier: T1
+                      - from_expression_element:
+                        - table_expression:
+                          - table_reference:
+                            - object_reference:
+                              - naked_identifier: dbo
                               - dot: .
-                              - naked_identifier: ProductSubcategoryKey
-                            - comparison_operator:
-                              - raw_comparison_operator: =
-                            - column_reference:
-                              - naked_identifier: T2
-                              - dot: .
-                              - naked_identifier: ProductSubcategoryKey
-                - where_clause:
-                  - keyword: WHERE
-                  - expression:
-                    - column_reference:
-                      - naked_identifier: T2
-                      - dot: .
-                      - naked_identifier: EnglishProductSubcategoryName
-                    - comparison_operator:
-                      - raw_comparison_operator: =
-                    - quoted_literal: '''Road Bikes'''
+                              - naked_identifier: DimProduct
+                - unparsable:
+                  - word: T1
+                  - word: JOIN
+                  - word: dbo
+                  - dot: .
+                  - word: DimProductSubcategory
+                  - word: T2
+                  - word: ON
+                  - word: T1
+                  - dot: .
+                  - word: ProductSubcategoryKey
+                  - raw_comparison_operator: =
+                  - word: T2
+                  - dot: .
+                  - word: ProductSubcategoryKey
+                  - word: WHERE
+                  - word: T2
+                  - dot: .
+                  - word: EnglishProductSubcategoryName
+                  - raw_comparison_operator: =
+                  - single_quote: '''Road Bikes'''
               - end_bracket: )
         - keyword: OPTION
         - bracketed:
@@ -237,25 +224,21 @@ file:
                   - keyword: FROM
                   - from_expression:
                     - from_expression_element:
-                      - table_expression:
-                        - table_reference:
-                          - object_reference:
-                            - naked_identifier: tableB
-                      - alias_expression:
-                        - naked_identifier: tb
-                - where_clause:
-                  - keyword: WHERE
-                  - expression:
-                    - column_reference:
-                      - naked_identifier: tb
-                      - dot: .
-                      - naked_identifier: col1
-                    - comparison_operator:
-                      - raw_comparison_operator: =
-                    - column_reference:
-                      - naked_identifier: tableA
-                      - dot: .
-                      - naked_identifier: col1
+                      - from_expression_element:
+                        - table_expression:
+                          - table_reference:
+                            - object_reference:
+                              - naked_identifier: tableB
+                - unparsable:
+                  - word: tb
+                  - word: WHERE
+                  - word: tb
+                  - dot: .
+                  - word: col1
+                  - raw_comparison_operator: =
+                  - word: tableA
+                  - dot: .
+                  - word: col1
               - end_bracket: )
   - statement:
     - delete_statement:
@@ -270,23 +253,25 @@ file:
           - keyword: FROM
           - from_expression:
             - from_expression_element:
-              - table_expression:
-                - table_reference:
-                  - object_reference:
-                    - naked_identifier: dbo
-                    - dot: .
-                    - naked_identifier: Table2
+              - from_expression_element:
+                - table_expression:
+                  - table_reference:
+                    - object_reference:
+                      - naked_identifier: dbo
+                      - dot: .
+                      - naked_identifier: Table2
             - join_clause:
               - join_clause:
                 - keyword: INNER
                 - keyword: JOIN
                 - from_expression_element:
-                  - table_expression:
-                    - table_reference:
-                      - object_reference:
-                        - naked_identifier: dbo
-                        - dot: .
-                        - naked_identifier: Table1
+                  - from_expression_element:
+                    - table_expression:
+                      - table_reference:
+                        - object_reference:
+                          - naked_identifier: dbo
+                          - dot: .
+                          - naked_identifier: Table1
                 - join_on_condition:
                   - keyword: ON
                   - bracketed:

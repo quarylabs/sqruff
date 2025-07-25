@@ -7696,6 +7696,14 @@ pub fn raw_dialect() -> Dialect {
                     Sequence::new(vec_of_erased![
                         Ref::keyword("AS"),
                         Ref::new("StatementSegment")
+                    ]),
+                    // BEGIN ... END without AS (T-SQL allows this)
+                    Sequence::new(vec_of_erased![
+                        Ref::keyword("BEGIN"),
+                        AnyNumberOf::new(vec_of_erased![
+                            Ref::new("StatementSegment")
+                        ]),
+                        Ref::keyword("END")
                     ])
                 ])
             ])
@@ -7747,6 +7755,138 @@ pub fn raw_dialect() -> Dialect {
         .to_matchable()
         .into(),
     )]);
+
+    // Override ColumnDefinitionSegment to support IDENTITY
+    dialect.replace_grammar("ColumnDefinitionSegment", {
+        NodeMatcher::new(SyntaxKind::ColumnDefinition, |_| {
+            Sequence::new(vec_of_erased![
+                Ref::new("ColumnReferenceSegment"),
+                Ref::new("DatatypeSegment"),
+                // Add IDENTITY support
+                Sequence::new(vec_of_erased![
+                    Ref::keyword("IDENTITY"),
+                    Bracketed::new(vec_of_erased![
+                        Ref::new("NumericLiteralSegment"),
+                        Ref::new("CommaSegment"),
+                        Ref::new("NumericLiteralSegment")
+                    ]).config(|this| this.optional())
+                ]).config(|this| this.optional()),
+                // Column constraints
+                AnyNumberOf::new(vec_of_erased![Ref::new("ColumnConstraintSegment")])
+            ])
+            .to_matchable()
+        })
+        .to_matchable()
+    });
+
+    // Add NEXT VALUE FOR sequence expression support
+    dialect.add([(
+        "NextValueForSegment".into(),
+        NodeMatcher::new(SyntaxKind::Expression, |_| {
+            Sequence::new(vec_of_erased![
+                Ref::keyword("NEXT"),
+                Ref::keyword("VALUE"),
+                Ref::keyword("FOR"),
+                Ref::new("ObjectReferenceSegment")
+            ])
+            .to_matchable()
+        })
+        .to_matchable()
+        .into(),
+    )]);
+
+    // Add NextValueForSegment to BaseExpressionElementGrammar
+    dialect.add([(
+        "BaseExpressionElementGrammar".into(),
+        one_of(vec_of_erased![
+            Ref::new("LiteralGrammar"),
+            Ref::new("BareFunctionSegment"),
+            Ref::new("FunctionSegment"),
+            Ref::new("ColumnReferenceSegment"),
+            Ref::new("ExpressionSegment"),
+            Ref::new("CaseExpressionSegment"),
+            Ref::new("NextValueForSegment")  // Add NEXT VALUE FOR
+        ])
+        .to_matchable()
+        .into(),
+    )]);
+
+    // Add OPENDATASOURCE support
+    dialect.add([(
+        "OpenDataSourceSegment".into(),
+        NodeMatcher::new(SyntaxKind::TableReference, |_| {
+            Sequence::new(vec_of_erased![
+                Ref::keyword("OPENDATASOURCE"),
+                Bracketed::new(vec_of_erased![
+                    // Provider name
+                    Ref::new("QuotedLiteralSegment"),
+                    Ref::new("CommaSegment"),
+                    // Connection string
+                    Ref::new("QuotedLiteralSegment")
+                ])
+            ])
+            .to_matchable()
+        })
+        .to_matchable()
+        .into(),
+    )]);
+
+    // Add OPENROWSET support  
+    dialect.add([(
+        "OpenRowsetSegment".into(),
+        NodeMatcher::new(SyntaxKind::TableReference, |_| {
+            Sequence::new(vec_of_erased![
+                Ref::keyword("OPENROWSET"),
+                Bracketed::new(vec_of_erased![
+                    // Provider name
+                    Ref::new("QuotedLiteralSegment"),
+                    Ref::new("CommaSegment"),
+                    // Connection string or data source
+                    Ref::new("QuotedLiteralSegment"),
+                    // Optional third parameter (query or object)
+                    Sequence::new(vec_of_erased![
+                        Ref::new("CommaSegment"),
+                        one_of(vec_of_erased![
+                            Ref::new("QuotedLiteralSegment"),
+                            Ref::new("ObjectReferenceSegment")
+                        ])
+                    ]).config(|this| this.optional())
+                ])
+            ])
+            .to_matchable()
+        })
+        .to_matchable()
+        .into(),
+    )]);
+
+    // Override FromExpressionElementSegment to include OPENDATASOURCE/OPENROWSET
+    dialect.replace_grammar("FromExpressionElementSegment", {
+        NodeMatcher::new(SyntaxKind::FromExpressionElement, |_| {
+            one_of(vec_of_erased![
+                Ref::new("TableExpressionSegment"),
+                Ref::new("JoinClauseSegment"),
+                Ref::new("PivotUnpivotStatementSegment"),
+                Ref::new("OpenDataSourceSegment"),
+                Ref::new("OpenRowsetSegment"),
+                // Allow OPENDATASOURCE/OPENROWSET with chained object references
+                Sequence::new(vec_of_erased![
+                    one_of(vec_of_erased![
+                        Ref::new("OpenDataSourceSegment"),
+                        Ref::new("OpenRowsetSegment")
+                    ]),
+                    // Allow .database.schema.table after OPENDATASOURCE/OPENROWSET
+                    AnyNumberOf::new(vec_of_erased![
+                        Sequence::new(vec_of_erased![
+                            Ref::new("DotSegment"),
+                            Ref::new("SingleIdentifierGrammar")
+                        ])
+                    ]).config(|this| this.min_times(1))
+                ])
+            ])
+            .to_matchable()
+        })
+        .to_matchable()
+    });
 
     // expand() must be called after all grammar modifications
 

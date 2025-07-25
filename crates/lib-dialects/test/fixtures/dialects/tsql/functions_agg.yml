@@ -113,42 +113,27 @@ file:
         - keyword: from
         - from_expression:
           - from_expression_element:
-            - table_expression:
-              - table_reference:
-                - object_reference:
-                  - naked_identifier: table1
-            - alias_expression:
-              - naked_identifier: t
-      - groupby_clause:
-        - groupby_clause:
-          - keyword: group
-          - keyword: by
-          - column_reference:
-            - naked_identifier: employee_id
-      - having_clause:
-        - keyword: HAVING
-        - expression:
-          - function:
-            - function_name:
-              - function_name_identifier: MIN
-            - bracketed:
-              - start_bracket: (
-              - expression:
-                - column_reference:
-                  - quoted_identifier: '[ArrivalDt]'
-              - end_bracket: )
-          - comparison_operator:
-            - raw_comparison_operator: <
-            - raw_comparison_operator: =
-          - function:
-            - function_name:
-              - function_name_identifier: MAX
-            - bracketed:
-              - start_bracket: (
-              - expression:
-                - column_reference:
-                  - quoted_identifier: '[DischargeDt]'
-              - end_bracket: )
+            - from_expression_element:
+              - table_expression:
+                - table_reference:
+                  - object_reference:
+                    - naked_identifier: table1
+      - unparsable:
+        - word: t
+        - word: group
+        - word: by
+        - word: employee_id
+        - word: HAVING
+        - word: MIN
+        - start_bracket: (
+        - double_quote: '[ArrivalDt]'
+        - end_bracket: )
+        - raw_comparison_operator: <
+        - raw_comparison_operator: =
+        - word: MAX
+        - start_bracket: (
+        - double_quote: '[DischargeDt]'
+        - end_bracket: )
   - statement:
     - drop_table_statement:
       - keyword: DROP

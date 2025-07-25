@@ -13,22 +13,26 @@ file:
         - bracketed:
           - start_bracket: (
           - column_definition:
-            - naked_identifier: ID
-            - data_type:
-              - data_type_identifier: INTEGER
-            - column_constraint_segment:
-              - keyword: PRIMARY
-              - keyword: KEY
+            - column_definition:
+              - column_reference:
+                - naked_identifier: ID
+              - data_type:
+                - data_type_identifier: INTEGER
+              - column_constraint_segment:
+                - keyword: PRIMARY
+                - keyword: KEY
           - comma: ','
           - column_definition:
-            - quoted_identifier: '[name]'
-            - data_type:
-              - data_type_identifier: VARCHAR
-              - bracketed_arguments:
-                - bracketed:
-                  - start_bracket: (
-                  - numeric_literal: '100'
-                  - end_bracket: )
+            - column_definition:
+              - column_reference:
+                - quoted_identifier: '[name]'
+              - data_type:
+                - data_type_identifier: VARCHAR
+                - bracketed_arguments:
+                  - bracketed:
+                    - start_bracket: (
+                    - numeric_literal: '100'
+                    - end_bracket: )
           - end_bracket: )
         - keyword: AS
         - keyword: NODE
@@ -44,17 +48,21 @@ file:
         - bracketed:
           - start_bracket: (
           - column_definition:
-            - naked_identifier: id
-            - data_type:
-              - data_type_identifier: INTEGER
-            - column_constraint_segment:
-              - keyword: PRIMARY
-              - keyword: KEY
+            - column_definition:
+              - column_reference:
+                - naked_identifier: id
+              - data_type:
+                - data_type_identifier: INTEGER
+              - column_constraint_segment:
+                - keyword: PRIMARY
+                - keyword: KEY
           - comma: ','
           - column_definition:
-            - naked_identifier: start_date
-            - data_type:
-              - data_type_identifier: DATE
+            - column_definition:
+              - column_reference:
+                - naked_identifier: start_date
+              - data_type:
+                - data_type_identifier: DATE
           - end_bracket: )
         - keyword: AS
         - keyword: EDGE

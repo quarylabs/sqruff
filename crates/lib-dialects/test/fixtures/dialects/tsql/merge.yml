@@ -109,14 +109,15 @@ file:
               - keyword: from
               - from_expression:
                 - from_expression_element:
-                  - table_expression:
-                    - table_reference:
-                      - object_reference:
-                        - naked_identifier: DW
-                        - dot: .
-                        - naked_identifier: sch1
-                        - dot: .
-                        - naked_identifier: tbl1
+                  - from_expression_element:
+                    - table_expression:
+                      - table_reference:
+                        - object_reference:
+                          - naked_identifier: DW
+                          - dot: .
+                          - naked_identifier: sch1
+                          - dot: .
+                          - naked_identifier: tbl1
             - where_clause:
               - keyword: where
               - expression:

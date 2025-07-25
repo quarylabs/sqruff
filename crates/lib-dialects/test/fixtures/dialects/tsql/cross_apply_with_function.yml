@@ -25,39 +25,27 @@ file:
         - keyword: FROM
         - from_expression:
           - from_expression_element:
-            - table_expression:
-              - table_reference:
-                - object_reference:
-                  - naked_identifier: Products
-            - alias_expression:
-              - naked_identifier: p
-          - join_clause:
-            - keyword: CROSS
-            - keyword: APPLY
             - from_expression_element:
               - table_expression:
-                - function:
-                  - function_name:
-                    - naked_identifier: dbo
-                    - dot: .
-                    - function_name_identifier: GetCurrentStock
-                  - bracketed:
-                    - start_bracket: (
-                    - expression:
-                      - column_reference:
-                        - naked_identifier: p
-                        - dot: .
-                        - naked_identifier: ProductID
-                    - end_bracket: )
-              - alias_expression:
-                - naked_identifier: s
-      - where_clause:
-        - keyword: WHERE
-        - expression:
-          - column_reference:
-            - naked_identifier: s
-            - dot: .
-            - naked_identifier: StockLevel
-          - comparison_operator:
-            - raw_comparison_operator: <
-          - numeric_literal: '10'
+                - table_reference:
+                  - object_reference:
+                    - naked_identifier: Products
+      - unparsable:
+        - word: p
+        - word: CROSS
+        - word: APPLY
+        - word: dbo
+        - dot: .
+        - word: GetCurrentStock
+        - start_bracket: (
+        - word: p
+        - dot: .
+        - word: ProductID
+        - end_bracket: )
+        - word: s
+        - word: WHERE
+        - word: s
+        - dot: .
+        - word: StockLevel
+        - raw_comparison_operator: <
+        - numeric_literal: '10'

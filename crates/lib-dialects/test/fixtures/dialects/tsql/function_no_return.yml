@@ -59,49 +59,33 @@ file:
                 - keyword: FROM
                 - from_expression:
                   - from_expression_element:
-                    - table_expression:
-                      - table_reference:
-                        - object_reference:
-                          - naked_identifier: sysobjects
-                    - alias_expression:
-                      - naked_identifier: o
-                  - join_clause:
-                    - join_clause:
-                      - keyword: INNER
-                      - keyword: JOIN
-                      - from_expression_element:
-                        - table_expression:
-                          - table_reference:
-                            - object_reference:
-                              - naked_identifier: master
-                              - dot: .
-                              - dot: .
-                              - naked_identifier: syslogins
-                        - alias_expression:
-                          - naked_identifier: l
-                      - join_on_condition:
-                        - keyword: ON
-                        - expression:
-                          - column_reference:
-                            - naked_identifier: o
-                            - dot: .
-                            - naked_identifier: uid
-                          - comparison_operator:
-                            - raw_comparison_operator: =
-                          - column_reference:
-                            - naked_identifier: l
-                            - dot: .
-                            - naked_identifier: sid
-              - where_clause:
-                - keyword: WHERE
-                - expression:
-                  - column_reference:
-                    - naked_identifier: l
-                    - dot: .
-                    - naked_identifier: name
-                  - comparison_operator:
-                    - raw_comparison_operator: =
-                  - parameterized_expression:
-                    - tsql_variable: '@nm'
+                    - from_expression_element:
+                      - table_expression:
+                        - table_reference:
+                          - object_reference:
+                            - naked_identifier: sysobjects
+              - unparsable:
+                - word: o
+                - word: INNER
+                - word: JOIN
+                - word: master
+                - dot: .
+                - dot: .
+                - word: syslogins
+                - word: l
+                - word: ON
+                - word: o
+                - dot: .
+                - word: uid
+                - raw_comparison_operator: =
+                - word: l
+                - dot: .
+                - word: sid
+                - word: WHERE
+                - word: l
+                - dot: .
+                - word: name
+                - raw_comparison_operator: =
+                - tsql_variable: '@nm'
           - keyword: END
   - statement_terminator: ;

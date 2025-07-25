@@ -13,9 +13,11 @@ file:
         - bracketed:
           - start_bracket: (
           - column_definition:
-            - naked_identifier: column_a
-            - data_type:
-              - data_type_identifier: INT
+            - column_definition:
+              - column_reference:
+                - naked_identifier: column_a
+              - data_type:
+                - data_type_identifier: INT
           - end_bracket: )
   - statement_terminator: ;
   - keyword: GO
@@ -30,16 +32,18 @@ file:
           - naked_identifier: doc_exa
       - keyword: ADD
       - column_definition:
-        - naked_identifier: column_b
-        - data_type:
-          - data_type_identifier: VARCHAR
-          - bracketed_arguments:
-            - bracketed:
-              - start_bracket: (
-              - numeric_literal: '20'
-              - end_bracket: )
-        - column_constraint_segment:
-          - keyword: 'NULL'
+        - column_definition:
+          - column_reference:
+            - naked_identifier: column_b
+          - data_type:
+            - data_type_identifier: VARCHAR
+            - bracketed_arguments:
+              - bracketed:
+                - start_bracket: (
+                - numeric_literal: '20'
+                - end_bracket: )
+          - column_constraint_segment:
+            - keyword: 'NULL'
   - statement_terminator: ;
   - keyword: GO
   - statement:
@@ -55,9 +59,11 @@ file:
         - bracketed:
           - start_bracket: (
           - column_definition:
-            - naked_identifier: column_a
-            - data_type:
-              - data_type_identifier: INT
+            - column_definition:
+              - column_reference:
+                - naked_identifier: column_a
+              - data_type:
+                - data_type_identifier: INT
           - end_bracket: )
   - statement_terminator: ;
   - keyword: GO
@@ -72,21 +78,23 @@ file:
           - naked_identifier: doc_exc
       - keyword: ADD
       - column_definition:
-        - naked_identifier: column_b
-        - data_type:
-          - data_type_identifier: VARCHAR
-          - bracketed_arguments:
-            - bracketed:
-              - start_bracket: (
-              - numeric_literal: '20'
-              - end_bracket: )
-        - column_constraint_segment:
-          - keyword: 'NULL'
-        - column_constraint_segment:
-          - keyword: CONSTRAINT
-          - object_reference:
-            - naked_identifier: exb_unique
-          - keyword: UNIQUE
+        - column_definition:
+          - column_reference:
+            - naked_identifier: column_b
+          - data_type:
+            - data_type_identifier: VARCHAR
+            - bracketed_arguments:
+              - bracketed:
+                - start_bracket: (
+                - numeric_literal: '20'
+                - end_bracket: )
+          - column_constraint_segment:
+            - keyword: 'NULL'
+          - column_constraint_segment:
+            - keyword: CONSTRAINT
+            - object_reference:
+              - naked_identifier: exb_unique
+            - keyword: UNIQUE
       - comma: ','
       - keyword: DROP
       - keyword: COLUMN
@@ -134,14 +142,18 @@ file:
         - bracketed:
           - start_bracket: (
           - column_definition:
-            - naked_identifier: column_a
-            - data_type:
-              - data_type_identifier: INT
+            - column_definition:
+              - column_reference:
+                - naked_identifier: column_a
+              - data_type:
+                - data_type_identifier: INT
           - comma: ','
           - column_definition:
-            - naked_identifier: column_b
-            - data_type:
-              - data_type_identifier: INT
+            - column_definition:
+              - column_reference:
+                - naked_identifier: column_b
+              - data_type:
+                - data_type_identifier: INT
           - end_bracket: )
   - statement_terminator: ;
   - keyword: GO
@@ -226,12 +238,13 @@ file:
         - keyword: FROM
         - from_expression:
           - from_expression_element:
-            - table_expression:
-              - table_reference:
-                - object_reference:
-                  - naked_identifier: dbo
-                  - dot: .
-                  - naked_identifier: doc_exz
+            - from_expression_element:
+              - table_expression:
+                - table_reference:
+                  - object_reference:
+                    - naked_identifier: dbo
+                    - dot: .
+                    - naked_identifier: doc_exz
   - statement_terminator: ;
   - keyword: GO
   - statement:
@@ -373,14 +386,18 @@ file:
           - naked_identifier: my_table
       - keyword: ADD
       - column_definition:
-        - naked_identifier: my_col_1
-        - data_type:
-          - data_type_identifier: INT
+        - column_definition:
+          - column_reference:
+            - naked_identifier: my_col_1
+          - data_type:
+            - data_type_identifier: INT
       - comma: ','
       - column_definition:
-        - naked_identifier: my_col_2
-        - data_type:
-          - data_type_identifier: INT
+        - column_definition:
+          - column_reference:
+            - naked_identifier: my_col_2
+          - data_type:
+            - data_type_identifier: INT
   - keyword: GO
   - statement:
     - alter_table_statement:
@@ -804,18 +821,17 @@ file:
           - dot: .
           - naked_identifier: Products
       - keyword: ADD
-      - column_definition:
-        - naked_identifier: RetailValue
-        - keyword: AS
-        - expression:
-          - column_reference:
-            - quoted_identifier: '[QtyAvailable]'
-          - binary_operator: '*'
-          - column_reference:
-            - naked_identifier: UnitPrice
-          - binary_operator: '*'
-          - numeric_literal: '1.5'
-        - keyword: PERSISTED
+      - naked_identifier: RetailValue
+      - keyword: AS
+      - expression:
+        - column_reference:
+          - quoted_identifier: '[QtyAvailable]'
+        - binary_operator: '*'
+        - column_reference:
+          - naked_identifier: UnitPrice
+        - binary_operator: '*'
+        - numeric_literal: '1.5'
+      - keyword: PERSISTED
   - statement_terminator: ;
   - keyword: GO
   - statement:
@@ -828,9 +844,9 @@ file:
           - dot: .
           - naked_identifier: Products
       - keyword: ADD
-      - column_definition:
-        - naked_identifier: RetailValue
-        - keyword: AS
+      - naked_identifier: RetailValue
+      - keyword: AS
+      - expression:
         - bracketed:
           - start_bracket: (
           - expression:
@@ -842,10 +858,9 @@ file:
             - binary_operator: '*'
             - numeric_literal: '1.5'
           - end_bracket: )
-        - keyword: PERSISTED
-        - column_constraint_segment:
-          - keyword: NOT
-          - keyword: 'NULL'
+      - keyword: PERSISTED
+      - keyword: NOT
+      - keyword: 'NULL'
   - statement_terminator: ;
   - keyword: GO
   - statement:
@@ -858,22 +873,21 @@ file:
           - dot: .
           - naked_identifier: Products
       - keyword: ADD
-      - column_definition:
-        - naked_identifier: InventoyDate
-        - keyword: AS
-        - expression:
-          - function:
-            - function_name:
-              - function_name_identifier: CAST
-            - bracketed:
-              - start_bracket: (
-              - expression:
-                - column_reference:
-                  - quoted_identifier: '[InventoryTs]'
-              - keyword: AS
-              - data_type:
-                - data_type_identifier: date
-              - end_bracket: )
+      - naked_identifier: InventoyDate
+      - keyword: AS
+      - expression:
+        - function:
+          - function_name:
+            - function_name_identifier: CAST
+          - bracketed:
+            - start_bracket: (
+            - expression:
+              - column_reference:
+                - quoted_identifier: '[InventoryTs]'
+            - keyword: AS
+            - data_type:
+              - data_type_identifier: date
+            - end_bracket: )
   - statement_terminator: ;
   - keyword: GO
   - statement:
@@ -966,41 +980,47 @@ file:
         - bracketed:
           - start_bracket: (
           - column_definition:
-            - quoted_identifier: '[strUserId]'
-            - data_type:
-              - quoted_identifier: '[char]'
-              - bracketed_arguments:
-                - bracketed:
-                  - start_bracket: (
-                  - numeric_literal: '21'
-                  - end_bracket: )
-            - column_constraint_segment:
-              - keyword: NOT
-              - keyword: 'NULL'
+            - column_definition:
+              - column_reference:
+                - quoted_identifier: '[strUserId]'
+              - data_type:
+                - quoted_identifier: '[char]'
+                - bracketed_arguments:
+                  - bracketed:
+                    - start_bracket: (
+                    - numeric_literal: '21'
+                    - end_bracket: )
+              - column_constraint_segment:
+                - keyword: NOT
+                - keyword: 'NULL'
           - comma: ','
           - column_definition:
-            - quoted_identifier: '[strItem]'
-            - data_type:
-              - quoted_identifier: '[binary]'
-              - bracketed_arguments:
-                - bracketed:
-                  - start_bracket: (
-                  - numeric_literal: '400'
-                  - end_bracket: )
-            - column_constraint_segment:
-              - keyword: 'NULL'
+            - column_definition:
+              - column_reference:
+                - quoted_identifier: '[strItem]'
+              - data_type:
+                - quoted_identifier: '[binary]'
+                - bracketed_arguments:
+                  - bracketed:
+                    - start_bracket: (
+                    - numeric_literal: '400'
+                    - end_bracket: )
+              - column_constraint_segment:
+                - keyword: 'NULL'
           - comma: ','
           - column_definition:
-            - quoted_identifier: '[strSkill]'
-            - data_type:
-              - quoted_identifier: '[binary]'
-              - bracketed_arguments:
-                - bracketed:
-                  - start_bracket: (
-                  - numeric_literal: '400'
-                  - end_bracket: )
-            - column_constraint_segment:
-              - keyword: 'NULL'
+            - column_definition:
+              - column_reference:
+                - quoted_identifier: '[strSkill]'
+              - data_type:
+                - quoted_identifier: '[binary]'
+                - bracketed_arguments:
+                  - bracketed:
+                    - start_bracket: (
+                    - numeric_literal: '400'
+                    - end_bracket: )
+              - column_constraint_segment:
+                - keyword: 'NULL'
           - comma: ','
           - table_constraint:
             - table_constraint:

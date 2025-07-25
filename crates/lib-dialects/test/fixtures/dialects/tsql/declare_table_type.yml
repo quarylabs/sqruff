@@ -7,27 +7,35 @@ file:
     - bracketed:
       - start_bracket: (
       - column_definition:
-        - naked_identifier: EmpID
-        - data_type:
-          - data_type_identifier: INT
-        - column_constraint_segment:
-          - keyword: NOT
-          - keyword: 'NULL'
+        - column_definition:
+          - column_reference:
+            - naked_identifier: EmpID
+          - data_type:
+            - data_type_identifier: INT
+          - column_constraint_segment:
+            - keyword: NOT
+            - keyword: 'NULL'
       - comma: ','
       - column_definition:
-        - naked_identifier: OldVacationHours
-        - data_type:
-          - data_type_identifier: INT
+        - column_definition:
+          - column_reference:
+            - naked_identifier: OldVacationHours
+          - data_type:
+            - data_type_identifier: INT
       - comma: ','
       - column_definition:
-        - naked_identifier: NewVacationHours
-        - data_type:
-          - data_type_identifier: INT
+        - column_definition:
+          - column_reference:
+            - naked_identifier: NewVacationHours
+          - data_type:
+            - data_type_identifier: INT
       - comma: ','
       - column_definition:
-        - naked_identifier: ModifiedDate
-        - data_type:
-          - data_type_identifier: DATETIME
+        - column_definition:
+          - column_reference:
+            - naked_identifier: ModifiedDate
+          - data_type:
+            - data_type_identifier: DATETIME
       - comma: ','
       - table_constraint:
         - table_constraint:

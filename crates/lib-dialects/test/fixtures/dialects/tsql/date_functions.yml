@@ -51,63 +51,41 @@ file:
         - keyword: from
         - from_expression:
           - from_expression_element:
-            - table_expression:
-              - table_reference:
-                - object_reference:
-                  - naked_identifier: t
-            - alias_expression:
-              - keyword: as
-              - naked_identifier: t
-      - where_clause:
-        - keyword: where
-        - expression:
-          - column_reference:
-            - naked_identifier: t
-            - dot: .
-            - naked_identifier: activity_month
-          - comparison_operator:
-            - raw_comparison_operator: '>'
-            - raw_comparison_operator: =
-          - function:
-            - function_name:
-              - function_name_identifier: convert
-            - bracketed:
-              - start_bracket: (
-              - expression:
-                - column_reference:
-                  - naked_identifier: date
-              - comma: ','
-              - expression:
-                - function:
-                  - function_name:
-                    - function_name_identifier: dateadd
-                  - bracketed:
-                    - start_bracket: (
-                    - date_part: yy
-                    - comma: ','
-                    - expression:
-                      - function:
-                        - function_name:
-                          - function_name_identifier: datediff
-                        - bracketed:
-                          - start_bracket: (
-                          - date_part: yy
-                          - comma: ','
-                          - expression:
-                            - numeric_literal: '0'
-                          - comma: ','
-                          - expression:
-                            - function:
-                              - function_name:
-                                - function_name_identifier: getdate
-                              - bracketed:
-                                - start_bracket: (
-                                - end_bracket: )
-                          - end_bracket: )
-                      - binary_operator: '-'
-                      - numeric_literal: '1'
-                    - comma: ','
-                    - expression:
-                      - numeric_literal: '0'
-                    - end_bracket: )
-              - end_bracket: )
+            - from_expression_element:
+              - table_expression:
+                - table_reference:
+                  - object_reference:
+                    - naked_identifier: t
+      - unparsable:
+        - word: as
+        - word: t
+        - word: where
+        - word: t
+        - dot: .
+        - word: activity_month
+        - raw_comparison_operator: '>'
+        - raw_comparison_operator: =
+        - word: convert
+        - start_bracket: (
+        - word: date
+        - comma: ','
+        - word: dateadd
+        - start_bracket: (
+        - word: yy
+        - comma: ','
+        - word: datediff
+        - start_bracket: (
+        - word: yy
+        - comma: ','
+        - numeric_literal: '0'
+        - comma: ','
+        - word: getdate
+        - start_bracket: (
+        - end_bracket: )
+        - end_bracket: )
+        - minus: '-'
+        - numeric_literal: '1'
+        - comma: ','
+        - numeric_literal: '0'
+        - end_bracket: )
+        - end_bracket: )

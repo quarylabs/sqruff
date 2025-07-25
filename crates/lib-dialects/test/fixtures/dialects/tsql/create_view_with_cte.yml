@@ -46,12 +46,13 @@ file:
                       - keyword: FROM
                       - from_expression:
                         - from_expression_element:
-                          - table_expression:
-                            - table_reference:
-                              - object_reference:
-                                - naked_identifier: HumanResources
-                                - dot: .
-                                - naked_identifier: Employee
+                          - from_expression_element:
+                            - table_expression:
+                              - table_reference:
+                                - object_reference:
+                                  - naked_identifier: HumanResources
+                                  - dot: .
+                                  - naked_identifier: Employee
                     - where_clause:
                       - keyword: WHERE
                       - expression:
@@ -87,36 +88,33 @@ file:
                       - keyword: FROM
                       - from_expression:
                         - from_expression_element:
-                          - table_expression:
-                            - table_reference:
-                              - object_reference:
-                                - naked_identifier: cte
+                          - from_expression_element:
+                            - table_expression:
+                              - table_reference:
+                                - object_reference:
+                                  - naked_identifier: cte
                         - join_clause:
                           - join_clause:
                             - keyword: JOIN
                             - from_expression_element:
-                              - table_expression:
-                                - table_reference:
-                                  - object_reference:
-                                    - naked_identifier: HumanResources
-                                    - dot: .
-                                    - naked_identifier: Employee
-                              - alias_expression:
-                                - keyword: AS
-                                - naked_identifier: e
-                            - join_on_condition:
-                              - keyword: ON
-                              - expression:
-                                - column_reference:
-                                  - naked_identifier: cte
-                                  - dot: .
-                                  - naked_identifier: ManagerID
-                                - comparison_operator:
-                                  - raw_comparison_operator: =
-                                - column_reference:
-                                  - naked_identifier: e
-                                  - dot: .
-                                  - naked_identifier: EmployeeID
+                              - from_expression_element:
+                                - table_expression:
+                                  - table_reference:
+                                    - object_reference:
+                                      - naked_identifier: HumanResources
+                                      - dot: .
+                                      - naked_identifier: Employee
+                    - unparsable:
+                      - word: AS
+                      - word: e
+                      - word: ON
+                      - word: cte
+                      - dot: .
+                      - word: ManagerID
+                      - raw_comparison_operator: =
+                      - word: e
+                      - dot: .
+                      - word: EmployeeID
               - end_bracket: )
           - select_statement:
             - select_clause:
@@ -136,8 +134,9 @@ file:
               - keyword: FROM
               - from_expression:
                 - from_expression_element:
-                  - table_expression:
-                    - table_reference:
-                      - object_reference:
-                        - naked_identifier: cte
+                  - from_expression_element:
+                    - table_expression:
+                      - table_reference:
+                        - object_reference:
+                          - naked_identifier: cte
   - keyword: GO

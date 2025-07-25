@@ -424,37 +424,39 @@ file:
               - keyword: FROM
               - from_expression:
                 - from_expression_element:
-                  - table_expression:
-                    - bracketed:
-                      - start_bracket: (
-                      - select_statement:
-                        - select_clause:
-                          - keyword: SELECT
-                          - select_clause_modifier:
-                            - keyword: TOP
-                            - bracketed:
-                              - start_bracket: (
-                              - expression:
-                                - numeric_literal: '9999'
-                              - end_bracket: )
-                          - select_clause_element:
+                  - from_expression_element:
+                    - table_expression:
+                      - bracketed:
+                        - start_bracket: (
+                        - select_statement:
+                          - select_clause:
+                            - keyword: SELECT
+                            - select_clause_modifier:
+                              - keyword: TOP
+                              - bracketed:
+                                - start_bracket: (
+                                - expression:
+                                  - numeric_literal: '9999'
+                                - end_bracket: )
+                            - select_clause_element:
+                              - column_reference:
+                                - quoted_identifier: '[item]'
+                          - from_clause:
+                            - keyword: FROM
+                            - from_expression:
+                              - from_expression_element:
+                                - from_expression_element:
+                                  - table_expression:
+                                    - table_reference:
+                                      - tsql_variable: '@list'
+                          - orderby_clause:
+                            - keyword: ORDER
+                            - keyword: BY
                             - column_reference:
-                              - quoted_identifier: '[item]'
-                        - from_clause:
-                          - keyword: FROM
-                          - from_expression:
-                            - from_expression_element:
-                              - table_expression:
-                                - table_reference:
-                                  - tsql_variable: '@list'
-                        - orderby_clause:
-                          - keyword: ORDER
-                          - keyword: BY
-                          - column_reference:
-                            - quoted_identifier: '[order]'
-                      - end_bracket: )
-                  - alias_expression:
-                    - naked_identifier: i
+                              - quoted_identifier: '[order]'
+                        - end_bracket: )
+            - unparsable:
+              - word: i
         - statement:
           - statement:
             - keyword: RETURN
@@ -464,26 +466,37 @@ file:
         - keyword: END
   - statement_terminator: ;
   - keyword: GO
-- unparsable:
-  - word: create
-  - word: function
-  - word: my_function
-  - start_bracket: (
-  - tsql_variable: '@my_parameter'
-  - word: int
-  - end_bracket: )
-  - word: returns
-  - word: int
-  - word: with
-  - word: schemabinding
-  - comma: ','
-  - word: returns
-  - word: 'null'
-  - word: on
-  - word: 'null'
-  - word: input
-  - word: begin
-  - word: return
-  - tsql_variable: '@my_parameter'
-  - word: end
-  - word: go
+  - statement:
+    - create_function_statement:
+      - create_function_statement:
+        - keyword: create
+        - keyword: function
+        - function_name:
+          - function_name_identifier: my_function
+        - bracketed:
+          - start_bracket: (
+          - parameter:
+            - tsql_variable: '@my_parameter'
+            - data_type:
+              - data_type_identifier: int
+          - end_bracket: )
+        - keyword: returns
+        - data_type:
+          - data_type_identifier: int
+        - keyword: with
+        - keyword: schemabinding
+        - comma: ','
+        - keyword: returns
+        - keyword: 'null'
+        - keyword: on
+        - keyword: 'null'
+        - keyword: input
+        - keyword: begin
+        - statement:
+          - statement:
+            - keyword: return
+            - expression:
+              - parameterized_expression:
+                - tsql_variable: '@my_parameter'
+        - keyword: end
+  - keyword: go

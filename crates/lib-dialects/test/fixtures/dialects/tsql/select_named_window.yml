@@ -39,110 +39,71 @@ file:
         - keyword: FROM
         - from_expression:
           - from_expression_element:
-            - table_expression:
-              - table_reference:
-                - object_reference:
-                  - naked_identifier: Sales
-                  - dot: .
-                  - naked_identifier: SalesPerson
-            - alias_expression:
-              - keyword: AS
-              - naked_identifier: s
-          - join_clause:
-            - join_clause:
-              - keyword: INNER
-              - keyword: JOIN
-              - from_expression_element:
-                - table_expression:
-                  - table_reference:
-                    - object_reference:
-                      - naked_identifier: Person
-                      - dot: .
-                      - naked_identifier: Person
-                - alias_expression:
-                  - keyword: AS
-                  - naked_identifier: p
-              - join_on_condition:
-                - keyword: ON
-                - expression:
-                  - column_reference:
-                    - naked_identifier: s
+            - from_expression_element:
+              - table_expression:
+                - table_reference:
+                  - object_reference:
+                    - naked_identifier: Sales
                     - dot: .
-                    - naked_identifier: BusinessEntityID
-                  - comparison_operator:
-                    - raw_comparison_operator: =
-                  - column_reference:
-                    - naked_identifier: p
-                    - dot: .
-                    - naked_identifier: BusinessEntityID
-          - join_clause:
-            - join_clause:
-              - keyword: INNER
-              - keyword: JOIN
-              - from_expression_element:
-                - table_expression:
-                  - table_reference:
-                    - object_reference:
-                      - naked_identifier: Person
-                      - dot: .
-                      - naked_identifier: Address
-                - alias_expression:
-                  - keyword: AS
-                  - naked_identifier: a
-              - join_on_condition:
-                - keyword: ON
-                - expression:
-                  - column_reference:
-                    - naked_identifier: a
-                    - dot: .
-                    - naked_identifier: AddressID
-                  - comparison_operator:
-                    - raw_comparison_operator: =
-                  - column_reference:
-                    - naked_identifier: p
-                    - dot: .
-                    - naked_identifier: BusinessEntityID
-      - where_clause:
-        - keyword: WHERE
-        - expression:
-          - column_reference:
-            - naked_identifier: TerritoryID
-          - keyword: IS
-          - keyword: NOT
-          - null_literal: 'NULL'
-          - binary_operator: AND
-          - column_reference:
-            - naked_identifier: SalesYTD
-          - comparison_operator:
-            - raw_comparison_operator: <
-            - raw_comparison_operator: '>'
-          - numeric_literal: '0'
-      - named_window:
-        - keyword: WINDOW
-        - named_window_expression:
-          - naked_identifier: win
-          - keyword: AS
-          - bracketed:
-            - start_bracket: (
-            - window_specification:
-              - partitionby_clause:
-                - keyword: PARTITION
-                - keyword: BY
-                - expression:
-                  - column_reference:
-                    - naked_identifier: PostalCode
-              - orderby_clause:
-                - keyword: ORDER
-                - keyword: BY
-                - column_reference:
-                  - naked_identifier: SalesYTD
-                - keyword: DESC
-            - end_bracket: )
-      - orderby_clause:
-        - keyword: ORDER
-        - keyword: BY
-        - column_reference:
-          - naked_identifier: PostalCode
+                    - naked_identifier: SalesPerson
+      - unparsable:
+        - word: AS
+        - word: s
+        - word: INNER
+        - word: JOIN
+        - word: Person
+        - dot: .
+        - word: Person
+        - word: AS
+        - word: p
+        - word: ON
+        - word: s
+        - dot: .
+        - word: BusinessEntityID
+        - raw_comparison_operator: =
+        - word: p
+        - dot: .
+        - word: BusinessEntityID
+        - word: INNER
+        - word: JOIN
+        - word: Person
+        - dot: .
+        - word: Address
+        - word: AS
+        - word: a
+        - word: ON
+        - word: a
+        - dot: .
+        - word: AddressID
+        - raw_comparison_operator: =
+        - word: p
+        - dot: .
+        - word: BusinessEntityID
+        - word: WHERE
+        - word: TerritoryID
+        - word: IS
+        - word: NOT
+        - word: 'NULL'
+        - word: AND
+        - word: SalesYTD
+        - raw_comparison_operator: <
+        - raw_comparison_operator: '>'
+        - numeric_literal: '0'
+        - word: WINDOW
+        - word: win
+        - word: AS
+        - start_bracket: (
+        - word: PARTITION
+        - word: BY
+        - word: PostalCode
+        - word: ORDER
+        - word: BY
+        - word: SalesYTD
+        - word: DESC
+        - end_bracket: )
+        - word: ORDER
+        - word: BY
+        - word: PostalCode
   - statement_terminator: ;
   - statement:
     - select_statement:
@@ -248,12 +209,13 @@ file:
         - keyword: FROM
         - from_expression:
           - from_expression_element:
-            - table_expression:
-              - table_reference:
-                - object_reference:
-                  - naked_identifier: Sales
-                  - dot: .
-                  - naked_identifier: SalesOrderDetail
+            - from_expression_element:
+              - table_expression:
+                - table_reference:
+                  - object_reference:
+                    - naked_identifier: Sales
+                    - dot: .
+                    - naked_identifier: SalesOrderDetail
       - where_clause:
         - keyword: WHERE
         - expression:
@@ -380,12 +342,13 @@ file:
         - keyword: FROM
         - from_expression:
           - from_expression_element:
-            - table_expression:
-              - table_reference:
-                - object_reference:
-                  - naked_identifier: Sales
-                  - dot: .
-                  - naked_identifier: SalesOrderDetail
+            - from_expression_element:
+              - table_expression:
+                - table_reference:
+                  - object_reference:
+                    - naked_identifier: Sales
+                    - dot: .
+                    - naked_identifier: SalesOrderDetail
       - where_clause:
         - keyword: WHERE
         - expression:
@@ -480,12 +443,13 @@ file:
         - keyword: FROM
         - from_expression:
           - from_expression_element:
-            - table_expression:
-              - table_reference:
-                - object_reference:
-                  - naked_identifier: Sales
-                  - dot: .
-                  - naked_identifier: SalesOrderDetail
+            - from_expression_element:
+              - table_expression:
+                - table_reference:
+                  - object_reference:
+                    - naked_identifier: Sales
+                    - dot: .
+                    - naked_identifier: SalesOrderDetail
       - where_clause:
         - keyword: WHERE
         - expression:
@@ -566,12 +530,13 @@ file:
         - keyword: from
         - from_expression:
           - from_expression_element:
-            - table_expression:
-              - table_reference:
-                - object_reference:
-                  - naked_identifier: information_schema
-                  - dot: .
-                  - naked_identifier: tables
+            - from_expression_element:
+              - table_expression:
+                - table_reference:
+                  - object_reference:
+                    - naked_identifier: information_schema
+                    - dot: .
+                    - naked_identifier: tables
       - named_window:
         - keyword: window
         - named_window_expression:

@@ -20,10 +20,11 @@ file:
               - keyword: from
               - from_expression:
                 - from_expression_element:
-                  - table_expression:
-                    - table_reference:
-                      - object_reference:
-                        - naked_identifier: DimProduct
+                  - from_expression_element:
+                    - table_expression:
+                      - table_reference:
+                        - object_reference:
+                          - naked_identifier: DimProduct
             - where_clause:
               - keyword: WHERE
               - expression:
@@ -60,10 +61,11 @@ file:
             - keyword: FROM
             - from_expression:
               - from_expression_element:
-                - table_expression:
-                  - table_reference:
-                    - object_reference:
-                      - naked_identifier: DimProduct
+                - from_expression_element:
+                  - table_expression:
+                    - table_reference:
+                      - object_reference:
+                        - naked_identifier: DimProduct
           - where_clause:
             - keyword: WHERE
             - expression:
@@ -101,10 +103,11 @@ file:
             - keyword: FROM
             - from_expression:
               - from_expression_element:
-                - table_expression:
-                  - table_reference:
-                    - object_reference:
-                      - naked_identifier: DimProduct
+                - from_expression_element:
+                  - table_expression:
+                    - table_reference:
+                      - object_reference:
+                        - naked_identifier: DimProduct
           - where_clause:
             - keyword: WHERE
             - expression:

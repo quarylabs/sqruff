@@ -31,12 +31,13 @@ file:
               - keyword: FROM
               - from_expression:
                 - from_expression_element:
-                  - table_expression:
-                    - table_reference:
-                      - object_reference:
-                        - naked_identifier: Orders_Action
-                  - alias_expression:
-                    - naked_identifier: acto
+                  - from_expression_element:
+                    - table_expression:
+                      - table_reference:
+                        - object_reference:
+                          - naked_identifier: Orders_Action
+            - unparsable:
+              - word: acto
           - end_bracket: )
   - statement:
     - select_statement:
@@ -51,20 +52,18 @@ file:
         - keyword: FROM
         - from_expression:
           - from_expression_element:
-            - table_expression:
-              - table_reference:
-                - object_reference:
-                  - naked_identifier: '#n'
-            - alias_expression:
-              - naked_identifier: t
-      - groupby_clause:
-        - groupby_clause:
-          - keyword: GROUP
-          - keyword: BY
-          - column_reference:
-            - naked_identifier: t
-            - dot: .
-            - naked_identifier: ActionDTS
+            - from_expression_element:
+              - table_expression:
+                - table_reference:
+                  - object_reference:
+                    - naked_identifier: '#n'
+      - unparsable:
+        - word: t
+        - word: GROUP
+        - word: BY
+        - word: t
+        - dot: .
+        - word: ActionDTS
   - statement_terminator: ;
   - statement:
     - drop_table_statement:
@@ -106,10 +105,11 @@ file:
         - keyword: FROM
         - from_expression:
           - from_expression_element:
-            - table_expression:
-              - table_reference:
-                - object_reference:
-                  - naked_identifier: '#3'
+            - from_expression_element:
+              - table_expression:
+                - table_reference:
+                  - object_reference:
+                    - naked_identifier: '#3'
       - groupby_clause:
         - groupby_clause:
           - keyword: GROUP

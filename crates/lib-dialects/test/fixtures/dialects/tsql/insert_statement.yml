@@ -267,12 +267,13 @@ file:
             - keyword: FROM
             - from_expression:
               - from_expression_element:
-                - table_expression:
-                  - table_reference:
-                    - object_reference:
-                      - naked_identifier: STAGE
-                      - dot: .
-                      - naked_identifier: ECDC_CASES
+                - from_expression_element:
+                  - table_expression:
+                    - table_reference:
+                      - object_reference:
+                        - naked_identifier: STAGE
+                        - dot: .
+                        - naked_identifier: ECDC_CASES
   - keyword: GO
   - statement:
     - begin_end_block:
@@ -329,10 +330,11 @@ file:
                 - keyword: FROM
                 - from_expression:
                   - from_expression_element:
-                    - table_expression:
-                      - table_reference:
-                        - object_reference:
-                          - naked_identifier: EmployeeTemp
+                    - from_expression_element:
+                      - table_expression:
+                        - table_reference:
+                          - object_reference:
+                            - naked_identifier: EmployeeTemp
       - statement_terminator: ;
       - keyword: END
   - keyword: GO
@@ -388,10 +390,11 @@ file:
             - keyword: FROM
             - from_expression:
               - from_expression_element:
-                - table_expression:
-                  - table_reference:
-                    - object_reference:
-                      - naked_identifier: EmployeeTemp
+                - from_expression_element:
+                  - table_expression:
+                    - table_reference:
+                      - object_reference:
+                        - naked_identifier: EmployeeTemp
   - statement_terminator: ;
   - keyword: GO
   - statement:

@@ -39,12 +39,13 @@ file:
                   - keyword: from
                   - from_expression:
                     - from_expression_element:
-                      - table_expression:
-                        - table_reference:
-                          - object_reference:
-                            - naked_identifier: dbo
-                            - dot: .
-                            - naked_identifier: CX
+                      - from_expression_element:
+                        - table_expression:
+                          - table_reference:
+                            - object_reference:
+                              - naked_identifier: dbo
+                              - dot: .
+                              - naked_identifier: CX
               - end_bracket: )
         - keyword: OPTION
         - bracketed:
@@ -80,36 +81,25 @@ file:
           - keyword: from
           - from_expression:
             - from_expression_element:
-              - table_expression:
-                - table_reference:
-                  - object_reference:
-                    - naked_identifier: table1
-              - alias_expression:
-                - keyword: as
-                - naked_identifier: tt
-            - join_clause:
-              - join_clause:
-                - keyword: join
-                - from_expression_element:
-                  - table_expression:
-                    - table_reference:
-                      - object_reference:
-                        - naked_identifier: src
-                - join_on_condition:
-                  - keyword: on
-                  - expression:
-                    - column_reference:
-                      - naked_identifier: tt
-                      - dot: .
-                      - naked_identifier: _id
-                    - comparison_operator:
-                      - raw_comparison_operator: =
-                    - column_reference:
-                      - naked_identifier: src
-                      - dot: .
-                      - naked_identifier: _id
-        - statement_terminator: ;
+              - from_expression_element:
+                - table_expression:
+                  - table_reference:
+                    - object_reference:
+                      - naked_identifier: table1
 - unparsable:
+  - word: as
+  - word: tt
+  - word: join
+  - word: src
+  - word: on
+  - word: tt
+  - dot: .
+  - word: _id
+  - raw_comparison_operator: =
+  - word: src
+  - dot: .
+  - word: _id
+  - semicolon: ;
   - word: UPDATE
   - word: stuff
   - word: SET

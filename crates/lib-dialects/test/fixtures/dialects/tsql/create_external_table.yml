@@ -13,39 +13,45 @@ file:
       - bracketed:
         - start_bracket: (
         - column_definition:
-          - naked_identifier: column_name_1
-          - data_type:
-            - data_type_identifier: VARCHAR
-            - bracketed_arguments:
-              - bracketed:
-                - start_bracket: (
-                - numeric_literal: '50'
-                - end_bracket: )
+          - column_definition:
+            - column_reference:
+              - naked_identifier: column_name_1
+            - data_type:
+              - data_type_identifier: VARCHAR
+              - bracketed_arguments:
+                - bracketed:
+                  - start_bracket: (
+                  - numeric_literal: '50'
+                  - end_bracket: )
         - comma: ','
         - column_definition:
-          - naked_identifier: column_name_2
-          - data_type:
-            - data_type_identifier: VARCHAR
-            - bracketed_arguments:
-              - bracketed:
-                - start_bracket: (
-                - numeric_literal: '50'
-                - end_bracket: )
-          - column_constraint_segment:
-            - keyword: 'NULL'
+          - column_definition:
+            - column_reference:
+              - naked_identifier: column_name_2
+            - data_type:
+              - data_type_identifier: VARCHAR
+              - bracketed_arguments:
+                - bracketed:
+                  - start_bracket: (
+                  - numeric_literal: '50'
+                  - end_bracket: )
+            - column_constraint_segment:
+              - keyword: 'NULL'
         - comma: ','
         - column_definition:
-          - naked_identifier: column_name_3
-          - data_type:
-            - data_type_identifier: VARCHAR
-            - bracketed_arguments:
-              - bracketed:
-                - start_bracket: (
-                - numeric_literal: '50'
-                - end_bracket: )
-          - column_constraint_segment:
-            - keyword: NOT
-            - keyword: 'NULL'
+          - column_definition:
+            - column_reference:
+              - naked_identifier: column_name_3
+            - data_type:
+              - data_type_identifier: VARCHAR
+              - bracketed_arguments:
+                - bracketed:
+                  - start_bracket: (
+                  - numeric_literal: '50'
+                  - end_bracket: )
+            - column_constraint_segment:
+              - keyword: NOT
+              - keyword: 'NULL'
         - end_bracket: )
       - keyword: WITH
       - bracketed:
@@ -99,39 +105,45 @@ file:
       - bracketed:
         - start_bracket: (
         - column_definition:
-          - naked_identifier: column_name_1
-          - data_type:
-            - data_type_identifier: VARCHAR
-            - bracketed_arguments:
-              - bracketed:
-                - start_bracket: (
-                - numeric_literal: '50'
-                - end_bracket: )
+          - column_definition:
+            - column_reference:
+              - naked_identifier: column_name_1
+            - data_type:
+              - data_type_identifier: VARCHAR
+              - bracketed_arguments:
+                - bracketed:
+                  - start_bracket: (
+                  - numeric_literal: '50'
+                  - end_bracket: )
         - comma: ','
         - column_definition:
-          - naked_identifier: column_name_2
-          - data_type:
-            - data_type_identifier: VARCHAR
-            - bracketed_arguments:
-              - bracketed:
-                - start_bracket: (
-                - numeric_literal: '50'
-                - end_bracket: )
-          - column_constraint_segment:
-            - keyword: 'NULL'
+          - column_definition:
+            - column_reference:
+              - naked_identifier: column_name_2
+            - data_type:
+              - data_type_identifier: VARCHAR
+              - bracketed_arguments:
+                - bracketed:
+                  - start_bracket: (
+                  - numeric_literal: '50'
+                  - end_bracket: )
+            - column_constraint_segment:
+              - keyword: 'NULL'
         - comma: ','
         - column_definition:
-          - naked_identifier: column_name_3
-          - data_type:
-            - data_type_identifier: VARCHAR
-            - bracketed_arguments:
-              - bracketed:
-                - start_bracket: (
-                - numeric_literal: '50'
-                - end_bracket: )
-          - column_constraint_segment:
-            - keyword: NOT
-            - keyword: 'NULL'
+          - column_definition:
+            - column_reference:
+              - naked_identifier: column_name_3
+            - data_type:
+              - data_type_identifier: VARCHAR
+              - bracketed_arguments:
+                - bracketed:
+                  - start_bracket: (
+                  - numeric_literal: '50'
+                  - end_bracket: )
+            - column_constraint_segment:
+              - keyword: NOT
+              - keyword: 'NULL'
         - end_bracket: )
       - keyword: WITH
       - bracketed:
@@ -189,134 +201,152 @@ file:
       - bracketed:
         - start_bracket: (
         - column_definition:
-          - naked_identifier: o_orderkey
-          - data_type:
-            - data_type_identifier: DECIMAL
-            - bracketed_arguments:
-              - bracketed:
-                - start_bracket: (
-                - numeric_literal: '38'
-                - end_bracket: )
-          - column_constraint_segment:
-            - keyword: NOT
-            - keyword: 'NULL'
+          - column_definition:
+            - column_reference:
+              - naked_identifier: o_orderkey
+            - data_type:
+              - data_type_identifier: DECIMAL
+              - bracketed_arguments:
+                - bracketed:
+                  - start_bracket: (
+                  - numeric_literal: '38'
+                  - end_bracket: )
+            - column_constraint_segment:
+              - keyword: NOT
+              - keyword: 'NULL'
         - comma: ','
         - column_definition:
-          - naked_identifier: o_custkey
-          - data_type:
-            - data_type_identifier: DECIMAL
-            - bracketed_arguments:
-              - bracketed:
-                - start_bracket: (
-                - numeric_literal: '38'
-                - end_bracket: )
-          - column_constraint_segment:
-            - keyword: NOT
-            - keyword: 'NULL'
+          - column_definition:
+            - column_reference:
+              - naked_identifier: o_custkey
+            - data_type:
+              - data_type_identifier: DECIMAL
+              - bracketed_arguments:
+                - bracketed:
+                  - start_bracket: (
+                  - numeric_literal: '38'
+                  - end_bracket: )
+            - column_constraint_segment:
+              - keyword: NOT
+              - keyword: 'NULL'
         - comma: ','
         - column_definition:
-          - naked_identifier: o_orderstatus
-          - data_type:
-            - data_type_identifier: CHAR
-          - column_constraint_segment:
-            - keyword: COLLATE
-            - collation_reference:
-              - naked_identifier: latin1_general_bin
-          - column_constraint_segment:
-            - keyword: NOT
-            - keyword: 'NULL'
+          - column_definition:
+            - column_reference:
+              - naked_identifier: o_orderstatus
+            - data_type:
+              - data_type_identifier: CHAR
+            - column_constraint_segment:
+              - keyword: COLLATE
+              - collation_reference:
+                - naked_identifier: latin1_general_bin
+            - column_constraint_segment:
+              - keyword: NOT
+              - keyword: 'NULL'
         - comma: ','
         - column_definition:
-          - naked_identifier: o_totalprice
-          - data_type:
-            - data_type_identifier: DECIMAL
-            - bracketed_arguments:
-              - bracketed:
-                - start_bracket: (
-                - numeric_literal: '15'
-                - comma: ','
-                - numeric_literal: '2'
-                - end_bracket: )
-          - column_constraint_segment:
-            - keyword: NOT
-            - keyword: 'NULL'
+          - column_definition:
+            - column_reference:
+              - naked_identifier: o_totalprice
+            - data_type:
+              - data_type_identifier: DECIMAL
+              - bracketed_arguments:
+                - bracketed:
+                  - start_bracket: (
+                  - numeric_literal: '15'
+                  - comma: ','
+                  - numeric_literal: '2'
+                  - end_bracket: )
+            - column_constraint_segment:
+              - keyword: NOT
+              - keyword: 'NULL'
         - comma: ','
         - column_definition:
-          - naked_identifier: o_orderdate
-          - data_type:
-            - data_type_identifier: DATETIME2
-            - bracketed_arguments:
-              - bracketed:
-                - start_bracket: (
-                - numeric_literal: '0'
-                - end_bracket: )
-          - column_constraint_segment:
-            - keyword: NOT
-            - keyword: 'NULL'
+          - column_definition:
+            - column_reference:
+              - naked_identifier: o_orderdate
+            - data_type:
+              - data_type_identifier: DATETIME2
+              - bracketed_arguments:
+                - bracketed:
+                  - start_bracket: (
+                  - numeric_literal: '0'
+                  - end_bracket: )
+            - column_constraint_segment:
+              - keyword: NOT
+              - keyword: 'NULL'
         - comma: ','
         - column_definition:
-          - naked_identifier: o_orderpriority
-          - data_type:
-            - data_type_identifier: CHAR
-            - bracketed_arguments:
-              - bracketed:
-                - start_bracket: (
-                - numeric_literal: '15'
-                - end_bracket: )
-          - column_constraint_segment:
-            - keyword: COLLATE
-            - collation_reference:
-              - naked_identifier: latin1_general_bin
-          - column_constraint_segment:
-            - keyword: NOT
-            - keyword: 'NULL'
+          - column_definition:
+            - column_reference:
+              - naked_identifier: o_orderpriority
+            - data_type:
+              - data_type_identifier: CHAR
+              - bracketed_arguments:
+                - bracketed:
+                  - start_bracket: (
+                  - numeric_literal: '15'
+                  - end_bracket: )
+            - column_constraint_segment:
+              - keyword: COLLATE
+              - collation_reference:
+                - naked_identifier: latin1_general_bin
+            - column_constraint_segment:
+              - keyword: NOT
+              - keyword: 'NULL'
         - comma: ','
         - column_definition:
-          - naked_identifier: o_clerk
-          - data_type:
-            - data_type_identifier: CHAR
-            - bracketed_arguments:
-              - bracketed:
-                - start_bracket: (
-                - numeric_literal: '15'
-                - end_bracket: )
-          - column_constraint_segment:
-            - keyword: COLLATE
-            - collation_reference:
-              - naked_identifier: latin1_general_bin
-          - column_constraint_segment:
-            - keyword: NOT
-            - keyword: 'NULL'
+          - column_definition:
+            - column_reference:
+              - naked_identifier: o_clerk
+            - data_type:
+              - data_type_identifier: CHAR
+              - bracketed_arguments:
+                - bracketed:
+                  - start_bracket: (
+                  - numeric_literal: '15'
+                  - end_bracket: )
+            - column_constraint_segment:
+              - keyword: COLLATE
+              - collation_reference:
+                - naked_identifier: latin1_general_bin
+            - column_constraint_segment:
+              - keyword: NOT
+              - keyword: 'NULL'
         - comma: ','
         - column_definition:
-          - naked_identifier: o_shippriority
-          - data_type:
-            - data_type_identifier: DECIMAL
-            - bracketed_arguments:
-              - bracketed:
-                - start_bracket: (
-                - numeric_literal: '38'
-                - end_bracket: )
-          - column_constraint_segment:
-            - keyword: NOT
-            - keyword: 'NULL'
+          - column_definition:
+            - column_reference:
+              - naked_identifier: o_shippriority
+            - data_type:
+              - data_type_identifier: DECIMAL
+              - bracketed_arguments:
+                - bracketed:
+                  - start_bracket: (
+                  - numeric_literal: '38'
+                  - end_bracket: )
+            - column_constraint_segment:
+              - keyword: NOT
+              - keyword: 'NULL'
         - comma: ','
         - column_definition:
-          - naked_identifier: o_comment
-          - data_type:
-            - data_type_identifier: VARCHAR
-            - bracketed_arguments:
-              - bracketed:
-                - start_bracket: (
-                - numeric_literal: '79'
-                - end_bracket: )
-          - column_constraint_segment:
-            - keyword: COLLATE
-            - collation_reference:
-              - naked_identifier: latin1_general_bin
-          - column_constraint_segment:
-            - keyword: NOT
-            - keyword: 'NULL'
+          - column_definition:
+            - column_reference:
+              - naked_identifier: o_comment
+            - data_type:
+              - data_type_identifier: VARCHAR
+              - bracketed_arguments:
+                - bracketed:
+                  - start_bracket: (
+                  - numeric_literal: '79'
+                  - end_bracket: )
+            - column_constraint_segment:
+              - keyword: COLLATE
+              - collation_reference:
+                - naked_identifier: latin1_general_bin
+            - column_constraint_segment:
+              - keyword: NOT
+              - keyword: 'NULL'
         - end_bracket: )
       - keyword: WITH
       - bracketed:

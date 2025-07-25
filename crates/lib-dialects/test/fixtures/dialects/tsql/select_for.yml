@@ -15,10 +15,11 @@ file:
         - keyword: FROM
         - from_expression:
           - from_expression_element:
-            - table_expression:
-              - table_reference:
-                - object_reference:
-                  - naked_identifier: emp
+            - from_expression_element:
+              - table_expression:
+                - table_reference:
+                  - object_reference:
+                    - naked_identifier: emp
       - keyword: FOR
       - keyword: JSON
       - keyword: AUTO
@@ -72,53 +73,39 @@ file:
         - keyword: FROM
         - from_expression:
           - from_expression_element:
-            - table_expression:
-              - table_reference:
-                - object_reference:
-                  - naked_identifier: '#tabClass'
-            - alias_expression:
-              - keyword: AS
-              - naked_identifier: c
-          - join_clause:
-            - join_clause:
-              - keyword: RIGHT
-              - keyword: JOIN
-              - from_expression_element:
-                - table_expression:
-                  - table_reference:
-                    - object_reference:
-                      - naked_identifier: '#tabStudent'
-                - alias_expression:
-                  - keyword: AS
-                  - naked_identifier: s
-              - join_on_condition:
-                - keyword: ON
-                - expression:
-                  - column_reference:
-                    - naked_identifier: s
-                    - dot: .
-                    - naked_identifier: ClassGuid
-                  - comparison_operator:
-                    - raw_comparison_operator: =
-                  - column_reference:
-                    - naked_identifier: c
-                    - dot: .
-                    - naked_identifier: ClassGuid
-      - orderby_clause:
-        - keyword: ORDER
-        - keyword: BY
-        - column_reference:
-          - naked_identifier: c
-          - dot: .
-          - naked_identifier: ClassName
+            - from_expression_element:
+              - table_expression:
+                - table_reference:
+                  - object_reference:
+                    - naked_identifier: '#tabClass'
+      - unparsable:
+        - word: AS
+        - word: c
+        - word: RIGHT
+        - word: JOIN
+        - word: '#tabStudent'
+        - word: AS
+        - word: s
+        - word: ON
+        - word: s
+        - dot: .
+        - word: ClassGuid
+        - raw_comparison_operator: =
+        - word: c
+        - dot: .
+        - word: ClassGuid
+        - word: ORDER
+        - word: BY
+        - word: c
+        - dot: .
+        - word: ClassName
         - comma: ','
-        - column_reference:
-          - naked_identifier: s
-          - dot: .
-          - naked_identifier: StudentName
-      - keyword: FOR
-      - keyword: JSON
-      - keyword: AUTO
+        - word: s
+        - dot: .
+        - word: StudentName
+        - word: FOR
+        - word: JSON
+        - word: AUTO
   - statement_terminator: ;
   - keyword: GO
   - statement:
@@ -160,12 +147,13 @@ file:
         - keyword: FROM
         - from_expression:
           - from_expression_element:
-            - table_expression:
-              - table_reference:
-                - object_reference:
-                  - naked_identifier: Production
-                  - dot: .
-                  - naked_identifier: ProductModel
+            - from_expression_element:
+              - table_expression:
+                - table_reference:
+                  - object_reference:
+                    - naked_identifier: Production
+                    - dot: .
+                    - naked_identifier: ProductModel
       - where_clause:
         - keyword: WHERE
         - expression:
@@ -199,12 +187,13 @@ file:
         - keyword: FROM
         - from_expression:
           - from_expression_element:
-            - table_expression:
-              - table_reference:
-                - object_reference:
-                  - naked_identifier: Production
-                  - dot: .
-                  - naked_identifier: ProductPhoto
+            - from_expression_element:
+              - table_expression:
+                - table_reference:
+                  - object_reference:
+                    - naked_identifier: Production
+                    - dot: .
+                    - naked_identifier: ProductPhoto
       - where_clause:
         - keyword: WHERE
         - expression:
@@ -230,18 +219,19 @@ file:
         - keyword: FROM
         - from_expression:
           - from_expression_element:
-            - table_expression:
-              - table_reference:
-                - object_reference:
-                  - naked_identifier: HumanResources
-                  - dot: .
-                  - naked_identifier: Employee
-            - alias_expression:
-              - keyword: AS
-              - naked_identifier: E
-      - keyword: FOR
-      - keyword: XML
-      - keyword: EXPLICIT
+            - from_expression_element:
+              - table_expression:
+                - table_reference:
+                  - object_reference:
+                    - naked_identifier: HumanResources
+                    - dot: .
+                    - naked_identifier: Employee
+      - unparsable:
+        - word: AS
+        - word: E
+        - word: FOR
+        - word: XML
+        - word: EXPLICIT
   - statement_terminator: ;
   - statement:
     - select_statement:
@@ -258,12 +248,13 @@ file:
         - keyword: FROM
         - from_expression:
           - from_expression_element:
-            - table_expression:
-              - table_reference:
-                - object_reference:
-                  - naked_identifier: Production
-                  - dot: .
-                  - naked_identifier: ProductModel
+            - from_expression_element:
+              - table_expression:
+                - table_reference:
+                  - object_reference:
+                    - naked_identifier: Production
+                    - dot: .
+                    - naked_identifier: ProductModel
       - where_clause:
         - keyword: WHERE
         - expression:

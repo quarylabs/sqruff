@@ -8139,8 +8139,11 @@ pub fn raw_dialect() -> Dialect {
                     Bracketed::new(vec_of_erased![
                         Ref::new("DatetimeUnitSegment"),
                         Ref::new("CommaSegment"),
+                        Ref::new("ExpressionSegment"),
+                        Ref::new("CommaSegment"),
                         Ref::new("ExpressionSegment")
                     ])
+                    .config(|this| this.parse_mode(ParseMode::Greedy))
                 ]),
                 // Regular functions with PostFunctionGrammar support
                 Sequence::new(vec_of_erased![
@@ -8218,12 +8221,11 @@ pub fn raw_dialect() -> Dialect {
     )]);
 
     // Add date part function names for proper function recognition
+    // Note: Removing DATEADD/DATEDIFF from here so they use regular function pattern
     dialect.add([(
         "DatePartFunctionNameSegment".into(),
         NodeMatcher::new(SyntaxKind::FunctionName, |_| {
             one_of(vec_of_erased![
-                StringParser::new("DATEADD", SyntaxKind::FunctionNameIdentifier),
-                StringParser::new("DATEDIFF", SyntaxKind::FunctionNameIdentifier),
                 StringParser::new("DATENAME", SyntaxKind::FunctionNameIdentifier),
                 StringParser::new("DATEPART", SyntaxKind::FunctionNameIdentifier),
             ]).to_matchable()

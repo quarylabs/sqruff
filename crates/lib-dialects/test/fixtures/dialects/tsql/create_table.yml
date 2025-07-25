@@ -227,17 +227,12 @@ file:
                   - end_bracket: )
           - end_bracket: )
   - statement_terminator: ;
-  - statement:
-    - create_table_statement:
-      - create_table_statement:
-        - keyword: CREATE
-        - keyword: TABLE
-        - table_reference:
-          - object_reference:
-            - quoted_identifier: '[dbo]'
-            - dot: .
-            - quoted_identifier: '[Foo]'
 - unparsable:
+  - word: CREATE
+  - word: TABLE
+  - double_quote: '[dbo]'
+  - dot: .
+  - double_quote: '[Foo]'
   - start_bracket: (
   - double_quote: '[ID]'
   - double_quote: '[int]'

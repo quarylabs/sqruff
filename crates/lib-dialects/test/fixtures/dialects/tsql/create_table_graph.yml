@@ -59,81 +59,57 @@ file:
         - keyword: AS
         - keyword: EDGE
   - statement_terminator: ;
-  - statement:
-    - create_table_statement:
-      - create_table_statement:
-        - keyword: CREATE
-        - keyword: TABLE
-        - table_reference:
-          - object_reference:
-            - naked_identifier: likes
-        - keyword: AS
-        - keyword: EDGE
-  - statement_terminator: ;
-  - statement:
-    - create_table_statement:
-      - create_table_statement:
-        - keyword: CREATE
-        - keyword: TABLE
-        - table_reference:
-          - object_reference:
-            - naked_identifier: dbo
-            - dot: .
-            - naked_identifier: FriendOf
-        - bracketed:
-          - start_bracket: (
-          - keyword: CONSTRAINT
-          - object_reference:
-            - naked_identifier: cnt_Person_FriendOf_Person
-          - keyword: CONNECTION
-          - bracketed:
-            - start_bracket: (
-            - object_reference:
-              - naked_identifier: dbo
-              - dot: .
-              - naked_identifier: Person
-            - keyword: TO
-            - object_reference:
-              - naked_identifier: dbo
-              - dot: .
-              - naked_identifier: Person
-            - end_bracket: )
-          - end_bracket: )
-        - keyword: AS
-        - keyword: EDGE
-  - statement_terminator: ;
-  - statement:
-    - create_table_statement:
-      - create_table_statement:
-        - keyword: CREATE
-        - keyword: TABLE
-        - table_reference:
-          - object_reference:
-            - naked_identifier: dbo
-            - dot: .
-            - naked_identifier: FriendOf
-        - bracketed:
-          - start_bracket: (
-          - keyword: CONSTRAINT
-          - object_reference:
-            - naked_identifier: cnt_Person_FriendOf_Person
-          - keyword: CONNECTION
-          - bracketed:
-            - start_bracket: (
-            - object_reference:
-              - naked_identifier: dbo
-              - dot: .
-              - naked_identifier: Person
-            - keyword: TO
-            - object_reference:
-              - naked_identifier: dbo
-              - dot: .
-              - naked_identifier: Person
-            - end_bracket: )
-          - keyword: ON
-          - keyword: DELETE
-          - keyword: CASCADE
-          - end_bracket: )
-        - keyword: AS
-        - keyword: EDGE
-  - statement_terminator: ;
+- unparsable:
+  - word: CREATE
+  - word: TABLE
+  - word: likes
+  - word: AS
+  - word: EDGE
+  - semicolon: ;
+  - word: CREATE
+  - word: TABLE
+  - word: dbo
+  - dot: .
+  - word: FriendOf
+  - start_bracket: (
+  - word: CONSTRAINT
+  - word: cnt_Person_FriendOf_Person
+  - word: CONNECTION
+  - start_bracket: (
+  - word: dbo
+  - dot: .
+  - word: Person
+  - word: TO
+  - word: dbo
+  - dot: .
+  - word: Person
+  - end_bracket: )
+  - end_bracket: )
+  - word: AS
+  - word: EDGE
+  - semicolon: ;
+  - word: CREATE
+  - word: TABLE
+  - word: dbo
+  - dot: .
+  - word: FriendOf
+  - start_bracket: (
+  - word: CONSTRAINT
+  - word: cnt_Person_FriendOf_Person
+  - word: CONNECTION
+  - start_bracket: (
+  - word: dbo
+  - dot: .
+  - word: Person
+  - word: TO
+  - word: dbo
+  - dot: .
+  - word: Person
+  - end_bracket: )
+  - word: ON
+  - word: DELETE
+  - word: CASCADE
+  - end_bracket: )
+  - word: AS
+  - word: EDGE
+  - semicolon: ;

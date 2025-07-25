@@ -62,17 +62,12 @@ file:
           - numeric_literal: '1'
     - statement_terminator: ;
   - keyword: GO
-  - statement:
-    - create_table_statement:
-      - create_table_statement:
-        - keyword: CREATE
-        - keyword: TABLE
-        - table_reference:
-          - object_reference:
-            - naked_identifier: SCHEMA_NAME
-            - dot: .
-            - naked_identifier: TABLE_NAME
 - unparsable:
+  - word: CREATE
+  - word: TABLE
+  - word: SCHEMA_NAME
+  - dot: .
+  - word: TABLE_NAME
   - start_bracket: (
   - double_quote: '[ID]'
   - word: INT

@@ -3771,6 +3771,27 @@ pub fn raw_dialect() -> Dialect {
         .into(),
     )]);
 
+    // Override ColumnConstraintDefaultGrammar to support NEXT VALUE FOR
+    dialect.add([(
+        "ColumnConstraintDefaultGrammar".into(),
+        one_of(vec_of_erased![
+            // NEXT VALUE FOR sequence_name
+            Sequence::new(vec_of_erased![
+                Ref::keyword("NEXT"),
+                Ref::keyword("VALUE"),
+                Ref::keyword("FOR"),
+                Ref::new("ObjectReferenceSegment") // sequence name
+            ]),
+            // All the ANSI defaults
+            Ref::new("ShorthandCastSegment"),
+            Ref::new("LiteralGrammar"),
+            Ref::new("FunctionSegment"),
+            Ref::new("BareFunctionSegment"),
+        ])
+        .to_matchable()
+        .into(),
+    )]);
+
     // Override PrimaryKeyGrammar to support CLUSTERED/NONCLUSTERED
     dialect.add([(
         "PrimaryKeyGrammar".into(),
@@ -3896,6 +3917,7 @@ pub fn raw_dialect() -> Dialect {
         .to_matchable()
         .into(),
     )]);
+
 
     // T-SQL CREATE PROCEDURE support
     dialect.add([
@@ -4701,8 +4723,7 @@ pub fn raw_dialect() -> Dialect {
                         // Azure Synapse specific: OPTION clause after AS SELECT
                         Ref::new("OptionClauseSegment").optional()
                     ])
-                ])
-                .config(|this| this.optional()),
+                ]),
                 // Optional ON filegroup/partition_scheme clause for both table types
                 Sequence::new(vec_of_erased![
                     Ref::keyword("ON"),

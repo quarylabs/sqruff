@@ -3861,6 +3861,25 @@ pub fn raw_dialect() -> Dialect {
         .into(),
     )]);
 
+    // Simplified OverClauseSegment for T-SQL (debug - just OVER keyword)
+    dialect.add([(
+        "OverClauseSegment".into(),
+        NodeMatcher::new(SyntaxKind::OverClause, |_| {
+            Sequence::new(vec_of_erased![
+                Ref::keyword("OVER"),
+                Bracketed::new(vec_of_erased![
+                    // Simplified: just allow any expression for now
+                    AnyNumberOf::new(vec_of_erased![
+                        Ref::new("ExpressionSegment")
+                    ])
+                ])
+            ])
+            .to_matchable()
+        })
+        .to_matchable()
+        .into(),
+    )]);
+
     // Override PostFunctionGrammar to include WITHIN GROUP and support sequences
     dialect.add([(
         "PostFunctionGrammar".into(),
@@ -8113,24 +8132,28 @@ pub fn raw_dialect() -> Dialect {
     // Override FunctionSegment to add JSON NULL clause support
     dialect.replace_grammar("FunctionSegment", {
         NodeMatcher::new(SyntaxKind::Function, |_| {
-            Sequence::new(vec_of_erased![
-                one_of(vec_of_erased![
-                    Sequence::new(vec_of_erased![
-                        Ref::new("DatePartFunctionNameSegment"),
-                        Bracketed::new(vec_of_erased![
-                            Ref::new("DatetimeUnitSegment"),
-                            Ref::new("CommaSegment"),
-                            Ref::new("ExpressionSegment")
-                        ])
-                    ]),
-                    Sequence::new(vec_of_erased![
-                        Ref::new("FunctionNameSegment"),
-                        Ref::new("FunctionParameterListGrammar")
+            one_of(vec_of_erased![
+                // Date part functions (DATEADD, DATEDIFF, etc.)
+                Sequence::new(vec_of_erased![
+                    Ref::new("DatePartFunctionNameSegment"),
+                    Bracketed::new(vec_of_erased![
+                        Ref::new("DatetimeUnitSegment"),
+                        Ref::new("CommaSegment"),
+                        Ref::new("ExpressionSegment")
                     ])
                 ]),
-                Ref::new("PostFunctionGrammar").optional(),
-                // Add JSON NULL clause support
-                Ref::new("JsonNullClauseSegment").optional()
+                // Regular functions with PostFunctionGrammar support
+                Sequence::new(vec_of_erased![
+                    Ref::new("FunctionNameSegment"),
+                    Ref::new("FunctionParameterListGrammar"),
+                    Ref::new("PostFunctionGrammar").optional()
+                ]),
+                // JSON functions with NULL clause support  
+                Sequence::new(vec_of_erased![
+                    Ref::new("FunctionNameSegment"),
+                    Ref::new("FunctionParameterListGrammar"),
+                    Ref::new("JsonNullClauseSegment")
+                ])
             ])
             .to_matchable()
         })

@@ -45,7 +45,8 @@ file:
                       - function_name_identifier: DATEPART
                     - bracketed:
                       - start_bracket: (
-                      - date_part: wk
+                      - datetime_type_identifier:
+                        - datetime_type_identifier: wk
                       - comma: ','
                       - expression:
                         - parameterized_expression:
@@ -60,7 +61,8 @@ file:
                       - function_name_identifier: DATEPART
                     - bracketed:
                       - start_bracket: (
-                      - date_part: wk
+                      - datetime_type_identifier:
+                        - datetime_type_identifier: wk
                       - comma: ','
                       - expression:
                         - function:
@@ -76,7 +78,8 @@ file:
                                       - function_name_identifier: DATEPART
                                     - bracketed:
                                       - start_bracket: (
-                                      - date_part: yy
+                                      - datetime_type_identifier:
+                                        - datetime_type_identifier: yy
                                       - comma: ','
                                       - expression:
                                         - parameterized_expression:
@@ -136,7 +139,8 @@ file:
                                         - function_name_identifier: DATEPART
                                       - bracketed:
                                         - start_bracket: (
-                                        - date_part: yy
+                                        - datetime_type_identifier:
+                                          - datetime_type_identifier: yy
                                         - comma: ','
                                         - expression:
                                           - parameterized_expression:
@@ -172,7 +176,8 @@ file:
                                         - function_name_identifier: DATEPART
                                       - bracketed:
                                         - start_bracket: (
-                                        - date_part: DAY
+                                        - datetime_type_identifier:
+                                          - datetime_type_identifier: DAY
                                         - comma: ','
                                         - expression:
                                           - parameterized_expression:
@@ -207,7 +212,8 @@ file:
                               - function_name_identifier: DATEPART
                             - bracketed:
                               - start_bracket: (
-                              - date_part: mm
+                              - datetime_type_identifier:
+                                - datetime_type_identifier: mm
                               - comma: ','
                               - expression:
                                 - parameterized_expression:
@@ -230,7 +236,8 @@ file:
                                   - function_name_identifier: DATEPART
                                 - bracketed:
                                   - start_bracket: (
-                                  - date_part: dd
+                                  - datetime_type_identifier:
+                                    - datetime_type_identifier: dd
                                   - comma: ','
                                   - expression:
                                     - parameterized_expression:
@@ -243,7 +250,8 @@ file:
                                   - function_name_identifier: DATEPART
                                 - bracketed:
                                   - start_bracket: (
-                                  - date_part: dw
+                                  - datetime_type_identifier:
+                                    - datetime_type_identifier: dw
                                   - comma: ','
                                   - expression:
                                     - parameterized_expression:

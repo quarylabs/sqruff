@@ -11,7 +11,8 @@ file:
                 - function_name_identifier: DATEPART
               - bracketed:
                 - start_bracket: (
-                - date_part: DW
+                - datetime_type_identifier:
+                  - datetime_type_identifier: DW
                 - comma: ','
                 - expression:
                   - column_reference:

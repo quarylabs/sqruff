@@ -517,12 +517,8 @@ file:
             'CREATE TABLE AdventureWorks2022.dbo.SalesTbl
             (SalesID INT, SalesName VARCHAR(10)); '
       - end_bracket: )
-  - statement:
-    - object_reference:
-      - naked_identifier: AT
-    - expression:
-      - column_reference:
-        - naked_identifier: SeattleSales
+    - keyword: AT
+    - naked_identifier: SeattleSales
   - statement_terminator: ;
   - statement:
     - keyword: EXECUTE
@@ -534,12 +530,8 @@ file:
       - expression:
         - numeric_literal: '7902'
       - end_bracket: )
-  - statement:
-    - object_reference:
-      - naked_identifier: AT
-    - expression:
-      - column_reference:
-        - naked_identifier: ORACLE
+    - keyword: AT
+    - naked_identifier: ORACLE
   - statement_terminator: ;
   - statement:
     - keyword: EXECUTE
@@ -589,15 +581,19 @@ file:
       - expression:
         - quoted_literal: '''CREATE TABLE Sales.SalesTable (SalesID INT, SalesName VARCHAR(10));'''
       - end_bracket: )
+    - keyword: AS
+    - keyword: USER
+    - comparison_operator:
+      - raw_comparison_operator: =
+    - quoted_literal: '''User1'''
+  - statement_terminator: ;
+  - statement:
+    - keyword: EXECUTE
+    - object_reference:
+      - naked_identifier: uspGetEmployeeManagers
+    - expression:
+      - numeric_literal: '16'
 - unparsable:
-  - word: AS
-  - word: USER
-  - raw_comparison_operator: =
-  - single_quote: '''User1'''
-  - semicolon: ;
-  - word: EXECUTE
-  - word: uspGetEmployeeManagers
-  - numeric_literal: '16'
   - word: WITH
   - word: RESULT
   - word: SETS

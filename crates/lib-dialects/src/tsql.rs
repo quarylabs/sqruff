@@ -1246,10 +1246,7 @@ pub fn raw_dialect() -> Dialect {
                         Sequence::new(vec_of_erased![
                             Ref::keyword("RESULT"),
                             Ref::keyword("SETS"),
-                            one_of(vec_of_erased![
-                                Ref::keyword("UNDEFINED"),
-                                Ref::keyword("NONE")
-                            ])
+                            Ref::keyword("NONE")
                         ])
                     ])])
                 ])
@@ -1400,7 +1397,6 @@ pub fn raw_dialect() -> Dialect {
                             Ref::keyword("RESULT"),
                             Ref::keyword("SETS"),
                             one_of(vec_of_erased![
-                                Ref::keyword("UNDEFINED"),
                                 Ref::keyword("NONE"),
                                 // Result set definitions
                                 Bracketed::new(vec_of_erased![
@@ -1963,7 +1959,7 @@ pub fn raw_dialect() -> Dialect {
     dialect.add([
         (
             "CreateStatisticsStatementSegment".into(),
-            NodeMatcher::new(SyntaxKind::CreateIndexStatement, |_| {
+            NodeMatcher::new(SyntaxKind::CreateTableStatement, |_| {
                 Sequence::new(vec_of_erased![
                     Ref::keyword("CREATE"),
                     Ref::keyword("STATISTICS"),
@@ -2332,7 +2328,7 @@ pub fn raw_dialect() -> Dialect {
     // CREATE FULLTEXT INDEX statement
     dialect.add([(
         "CreateFullTextIndexStatementSegment".into(),
-        NodeMatcher::new(SyntaxKind::CreateIndexStatement, |_| {
+        NodeMatcher::new(SyntaxKind::CreateTableStatement, |_| {
             Sequence::new(vec_of_erased![
                 Ref::keyword("CREATE"),
                 Ref::keyword("FULLTEXT"),

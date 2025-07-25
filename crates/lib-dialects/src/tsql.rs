@@ -3539,10 +3539,10 @@ pub fn raw_dialect() -> Dialect {
         .into(),
     )]);
 
-    // T-SQL NEXT VALUE FOR sequence syntax
+    // T-SQL NEXT VALUE FOR sequence syntax  
     dialect.add([(
         "NextValueForSegment".into(),
-        NodeMatcher::new(SyntaxKind::Expression, |_| {
+        NodeMatcher::new(SyntaxKind::Function, |_| {
             Sequence::new(vec_of_erased![
                 Ref::keyword("NEXT"),
                 Ref::keyword("VALUE"),
@@ -7055,224 +7055,23 @@ pub fn raw_dialect() -> Dialect {
         ),
     ]);
 
-    // T-SQL MERGE statement support
+    // T-SQL MERGE statement support - override to support both MERGE and MERGE INTO
     dialect.add([
-        // Missing AliasedTableReferenceGrammar for MERGE statements
         (
-            "AliasedTableReferenceGrammar".into(),
-            Sequence::new(vec_of_erased![
-                Ref::new("TableReferenceSegment"),
-                Ref::new("AliasExpressionSegment").optional()
+            "MergeIntoLiteralGrammar".into(),
+            one_of(vec_of_erased![
+                // Just MERGE (T-SQL specific)
+                Ref::keyword("MERGE"),
+                // MERGE INTO (standard SQL)
+                Sequence::new(vec_of_erased![
+                    Ref::keyword("MERGE"),
+                    Ref::keyword("INTO"),
+                ]),
             ])
             .to_matchable()
             .into(),
         ),
-        // Missing BracketedColumnReferenceListGrammar for INSERT clauses
-        (
-            "BracketedColumnReferenceListGrammar".into(),
-            Bracketed::new(vec_of_erased![
-                Delimited::new(vec_of_erased![
-                    Ref::new("ColumnReferenceSegment")
-                ])
-            ])
-            .to_matchable()
-            .into(),
-        ),
-        (
-            "MergeStatementSegment".into(),
-            NodeMatcher::new(SyntaxKind::MergeStatement, |_| {
-                Sequence::new(vec_of_erased![
-                    // MERGE or MERGE INTO
-                    one_of(vec_of_erased![
-                        Ref::keyword("MERGE"),
-                        Sequence::new(vec_of_erased![Ref::keyword("MERGE"), Ref::keyword("INTO"),]),
-                    ]),
-                    Ref::new("TableReferenceSegment"),
-                    // Table hints
-                    Sequence::new(vec_of_erased![
-                        Ref::keyword("WITH"),
-                        Bracketed::new(vec_of_erased![Delimited::new(vec_of_erased![
-                            Ref::new("TableHintSegment").optional()
-                        ])])
-                    ])
-                    .config(|this| this.optional()),
-                    // Alias
-                    Ref::new("AliasExpressionSegment")
-                        .optional()
-                        .exclude(Ref::keyword("USING")),
-                    // USING clause
-                    Ref::keyword("USING"),
-                    one_of(vec_of_erased![
-                        Ref::new("TableReferenceSegment"),
-                        Ref::new("AliasedTableReferenceGrammar"),
-                        Sequence::new(vec_of_erased![
-                            Bracketed::new(vec_of_erased![Ref::new("SelectableGrammar"),]),
-                            Ref::new("AliasExpressionSegment").optional(),
-                        ]),
-                    ]),
-                    // ON condition
-                    Ref::new("JoinOnConditionSegment"),
-                    // WHEN clauses
-                    Ref::new("MergeMatchSegment"),
-                    // Optional OUTPUT clause
-                    Ref::new("OutputClauseSegment").optional(),
-                    // Optional OPTION clause
-                    Ref::new("OptionClauseSegment").optional(),
-                    // Delimiter
-                    Ref::new("DelimiterGrammar").optional(),
-                ])
-                .to_matchable()
-            })
-            .to_matchable()
-            .into(),
-        ),
-        (
-            "MergeMatchSegment".into(),
-            NodeMatcher::new(SyntaxKind::MergeMatch, |_| {
-                AnyNumberOf::new(vec_of_erased![
-                    Ref::new("MergeMatchedClauseSegment"),
-                    Ref::new("MergeNotMatchedClauseSegment"),
-                ])
-                .config(|this| this.min_times(1))
-                .to_matchable()
-            })
-            .to_matchable()
-            .into(),
-        ),
-        (
-            "MergeMatchedClauseSegment".into(),
-            NodeMatcher::new(SyntaxKind::MergeWhenMatchedClause, |_| {
-                Sequence::new(vec_of_erased![
-                    Ref::keyword("WHEN"),
-                    Ref::keyword("MATCHED"),
-                    // Optional AND condition
-                    Sequence::new(vec_of_erased![
-                        Ref::keyword("AND"),
-                        Ref::new("ExpressionSegment"),
-                    ])
-                    .config(|this| this.optional()),
-                    Ref::keyword("THEN"),
-                    one_of(vec_of_erased![
-                        Ref::new("MergeUpdateClauseSegment"),
-                        Ref::new("MergeDeleteClauseSegment"),
-                    ]),
-                ])
-                .to_matchable()
-            })
-            .to_matchable()
-            .into(),
-        ),
-        (
-            "MergeNotMatchedClauseSegment".into(),
-            NodeMatcher::new(SyntaxKind::MergeWhenNotMatchedClause, |_| {
-                one_of(vec_of_erased![
-                    // WHEN NOT MATCHED [BY TARGET]
-                    Sequence::new(vec_of_erased![
-                        Ref::keyword("WHEN"),
-                        Ref::keyword("NOT"),
-                        Ref::keyword("MATCHED"),
-                        Sequence::new(vec_of_erased![Ref::keyword("BY"), Ref::keyword("TARGET"),])
-                            .config(|this| this.optional()),
-                        // Optional AND condition
-                        Sequence::new(vec_of_erased![
-                            Ref::keyword("AND"),
-                            Ref::new("ExpressionSegment"),
-                        ])
-                        .config(|this| this.optional()),
-                        Ref::keyword("THEN"),
-                        Ref::new("MergeInsertClauseSegment"),
-                    ]),
-                    // WHEN NOT MATCHED BY SOURCE
-                    Sequence::new(vec_of_erased![
-                        Ref::keyword("WHEN"),
-                        Ref::keyword("NOT"),
-                        Ref::keyword("MATCHED"),
-                        Ref::keyword("BY"),
-                        Ref::keyword("SOURCE"),
-                        // Optional AND condition
-                        Sequence::new(vec_of_erased![
-                            Ref::keyword("AND"),
-                            Ref::new("ExpressionSegment"),
-                        ])
-                        .config(|this| this.optional()),
-                        Ref::keyword("THEN"),
-                        one_of(vec_of_erased![
-                            Ref::new("MergeUpdateClauseSegment"),
-                            Ref::new("MergeDeleteClauseSegment"),
-                        ]),
-                    ]),
-                ])
-                .to_matchable()
-            })
-            .to_matchable()
-            .into(),
-        ),
-        (
-            "MergeInsertClauseSegment".into(),
-            NodeMatcher::new(SyntaxKind::MergeInsertClause, |_| {
-                Sequence::new(vec_of_erased![
-                    Ref::keyword("INSERT"),
-                    // Column list is optional
-                    Ref::new("BracketedColumnReferenceListGrammar").optional(),
-                    Ref::keyword("VALUES"),
-                    one_of(vec_of_erased![
-                        Bracketed::new(vec_of_erased![Delimited::new(vec_of_erased![Ref::new(
-                            "ExpressionSegment"
-                        ),])]),
-                        // DEFAULT VALUES
-                        Sequence::new(vec_of_erased![
-                            Ref::keyword("DEFAULT"),
-                            Ref::keyword("VALUES"),
-                        ]),
-                    ]),
-                ])
-                .to_matchable()
-            })
-            .to_matchable()
-            .into(),
-        ),
-        (
-            "MergeUpdateClauseSegment".into(),
-            NodeMatcher::new(SyntaxKind::MergeUpdateClause, |_| {
-                Sequence::new(vec_of_erased![
-                    Ref::keyword("UPDATE"),
-                    Ref::keyword("SET"),
-                    Ref::new("SetClauseListSegment"),
-                ])
-                .to_matchable()
-            })
-            .to_matchable()
-            .into(),
-        ),
-        (
-            "MergeDeleteClauseSegment".into(),
-            NodeMatcher::new(SyntaxKind::MergeDeleteClause, |_| {
-                Ref::keyword("DELETE").to_matchable()
-            })
-            .to_matchable()
-            .into(),
-        ),
-        (
-            "SetClauseListSegment".into(),
-            NodeMatcher::new(SyntaxKind::SetClauseList, |_| {
-                Delimited::new(vec_of_erased![Ref::new("SetClauseSegment"),]).to_matchable()
-            })
-            .to_matchable()
-            .into(),
-        ),
-        (
-            "SetClauseSegment".into(),
-            NodeMatcher::new(SyntaxKind::SetClause, |_| {
-                Sequence::new(vec_of_erased![
-                    Ref::new("ColumnReferenceSegment"),
-                    Ref::new("EqualsSegment"),
-                    Ref::new("ExpressionSegment"),
-                ])
-                .to_matchable()
-            })
-            .to_matchable()
-            .into(),
-        ),
+        // T-SQL OUTPUT clause needed by INSERT, UPDATE, DELETE, MERGE statements
         (
             "OutputClauseSegment".into(),
             Sequence::new(vec_of_erased![

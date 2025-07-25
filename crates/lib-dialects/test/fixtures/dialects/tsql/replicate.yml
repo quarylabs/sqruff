@@ -101,8 +101,7 @@ file:
               - bracketed:
                 - start_bracket: (
                 - expression:
-                  - column_reference:
-                    - naked_identifier: '0x20'
+                  - numeric_literal: '0x20'
                 - comma: ','
                 - expression:
                   - numeric_literal: '128'

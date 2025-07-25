@@ -188,6 +188,12 @@ pub fn raw_dialect() -> Dialect {
                 r"N'([^']|'')*'",
                 SyntaxKind::UnicodeSingleQuote,
             ),
+            // Hexadecimal literals: 0x123ABC
+            Matcher::regex(
+                "hex_literal",
+                r"0x[0-9a-fA-F]+",
+                SyntaxKind::NumericLiteral,
+            ),
             // Azure Blob Storage URLs for COPY INTO
             Matcher::regex(
                 "azure_blob_storage_url",
@@ -2740,9 +2746,13 @@ pub fn raw_dialect() -> Dialect {
                             ]),
                             // ADD computed column
                             Sequence::new(vec_of_erased![
-                                Ref::new("NakedIdentifierSegment"),
+                                Ref::new("SingleIdentifierGrammar"),
                                 Ref::keyword("AS"),
-                                Ref::new("ExpressionSegment"),
+                                one_of(vec_of_erased![
+                                    Ref::new("ExpressionSegment"),
+                                    // Support both bracketed and non-bracketed expressions
+                                    Bracketed::new(vec_of_erased![Ref::new("ExpressionSegment")])
+                                ]),
                                 Ref::keyword("PERSISTED").optional(),
                                 Sequence::new(vec_of_erased![
                                     Ref::keyword("NOT"),
@@ -2863,6 +2873,7 @@ pub fn raw_dialect() -> Dialect {
                                         Ref::new("EqualsSegment"),
                                         one_of(vec_of_erased![
                                             Ref::new("QuotedLiteralSegment"),
+                                            Ref::new("QuotedIdentifierSegment"), // Handle double-quoted values
                                             Ref::new("NakedIdentifierSegment")
                                         ])
                                     ]),
@@ -2920,7 +2931,28 @@ pub fn raw_dialect() -> Dialect {
                         Ref::new("BracketedColumnReferenceListGrammar"),
                         Ref::keyword("REFERENCES"),
                         Ref::new("TableReferenceSegment"),
-                        Ref::new("BracketedColumnReferenceListGrammar")
+                        Ref::new("BracketedColumnReferenceListGrammar"),
+                        // ON UPDATE/DELETE actions
+                        AnyNumberOf::new(vec_of_erased![
+                            Sequence::new(vec_of_erased![
+                                Ref::keyword("ON"),
+                                one_of(vec_of_erased![
+                                    Ref::keyword("UPDATE"),
+                                    Ref::keyword("DELETE")
+                                ]),
+                                one_of(vec_of_erased![
+                                    Ref::keyword("CASCADE"),
+                                    Ref::keyword("RESTRICT"),
+                                    Ref::keyword("SET"),
+                                    Ref::keyword("NO")
+                                ]),
+                                one_of(vec_of_erased![
+                                    Ref::keyword("NULL"),
+                                    Ref::keyword("DEFAULT"),
+                                    Ref::keyword("ACTION")
+                                ]).config(|this| this.optional())
+                            ])
+                        ])
                     ]),
                     // CHECK CONSTRAINT
                     Sequence::new(vec_of_erased![

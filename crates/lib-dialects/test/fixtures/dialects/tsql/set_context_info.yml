@@ -4,9 +4,7 @@ file:
     - set_context_info_statement:
       - keyword: SET
       - keyword: CONTEXT_INFO
-      - expression:
-        - column_reference:
-          - naked_identifier: '0x01010101'
+      - numeric_literal: '0x01010101'
   - statement_terminator: ;
   - statement:
     - keyword: DECLARE
@@ -37,8 +35,7 @@ file:
               - bracketed:
                 - start_bracket: (
                 - expression:
-                  - column_reference:
-                    - naked_identifier: '0x20'
+                  - numeric_literal: '0x20'
                 - comma: ','
                 - expression:
                   - numeric_literal: '128'

@@ -88,61 +88,84 @@ file:
       - comparison_operator:
         - raw_comparison_operator: =
       - quoted_literal: '''<enterStrongPasswordHere>'''
-- unparsable:
-  - comma: ','
-  - word: SID
-  - raw_comparison_operator: =
-  - word: '0x241C11948AEEB749B0D22646DB1A19F2'
-  - semicolon: ;
-  - word: CREATE
-  - word: LOGIN
-  - double_quote: '[MyUserName]'
-  - word: WITH
-  - word: PASSWORD
-  - raw_comparison_operator: =
-  - single_quote: '''<enterStrongPasswordHere>'''
-  - word: FROM
-  - word: WINDOWS
-  - semicolon: ;
-  - word: CREATE
-  - word: LOGIN
-  - double_quote: '[MyUserName]'
-  - word: WITH
-  - word: PASSWORD
-  - raw_comparison_operator: =
-  - single_quote: '''<enterStrongPasswordHere>'''
-  - comma: ','
-  - word: CHECK_EXPIRATION
-  - raw_comparison_operator: =
-  - word: ON
-  - comma: ','
-  - word: CHECK_POLICY
-  - raw_comparison_operator: =
-  - word: ON
-  - comma: ','
-  - word: CREDENTIAL
-  - raw_comparison_operator: =
-  - double_quote: '[MyCredential]'
-  - semicolon: ;
-  - word: CREATE
-  - word: LOGIN
-  - double_quote: '[myapp]'
-  - word: FROM
-  - word: EXTERNAL
-  - word: PROVIDER
-  - semicolon: ;
-  - word: CREATE
-  - word: LOGIN
-  - double_quote: '[myapp]'
-  - word: FROM
-  - word: CERTIFICATE
-  - double_quote: '[MyCert]'
-  - semicolon: ;
-  - word: CREATE
-  - word: LOGIN
-  - double_quote: '[myapp]'
-  - word: FROM
-  - word: ASYMMETRIC
-  - word: KEY
-  - double_quote: '[MyAsymKey]'
-  - semicolon: ;
+      - comma: ','
+      - keyword: SID
+      - comparison_operator:
+        - raw_comparison_operator: =
+      - numeric_literal: '0x241C11948AEEB749B0D22646DB1A19F2'
+  - statement_terminator: ;
+  - statement:
+    - create_login_statement:
+      - keyword: CREATE
+      - keyword: LOGIN
+      - object_reference:
+        - quoted_identifier: '[MyUserName]'
+      - keyword: WITH
+      - keyword: PASSWORD
+      - comparison_operator:
+        - raw_comparison_operator: =
+      - quoted_literal: '''<enterStrongPasswordHere>'''
+      - keyword: FROM
+      - keyword: WINDOWS
+  - statement_terminator: ;
+  - statement:
+    - create_login_statement:
+      - keyword: CREATE
+      - keyword: LOGIN
+      - object_reference:
+        - quoted_identifier: '[MyUserName]'
+      - keyword: WITH
+      - keyword: PASSWORD
+      - comparison_operator:
+        - raw_comparison_operator: =
+      - quoted_literal: '''<enterStrongPasswordHere>'''
+      - comma: ','
+      - keyword: CHECK_EXPIRATION
+      - comparison_operator:
+        - raw_comparison_operator: =
+      - keyword: ON
+      - comma: ','
+      - keyword: CHECK_POLICY
+      - comparison_operator:
+        - raw_comparison_operator: =
+      - keyword: ON
+      - comma: ','
+      - keyword: CREDENTIAL
+      - comparison_operator:
+        - raw_comparison_operator: =
+      - object_reference:
+        - quoted_identifier: '[MyCredential]'
+  - statement_terminator: ;
+  - statement:
+    - create_login_statement:
+      - keyword: CREATE
+      - keyword: LOGIN
+      - object_reference:
+        - quoted_identifier: '[myapp]'
+      - keyword: FROM
+      - keyword: EXTERNAL
+      - keyword: PROVIDER
+  - statement_terminator: ;
+  - statement:
+    - create_login_statement:
+      - keyword: CREATE
+      - keyword: LOGIN
+      - object_reference:
+        - quoted_identifier: '[myapp]'
+      - keyword: FROM
+      - keyword: CERTIFICATE
+      - object_reference:
+        - quoted_identifier: '[MyCert]'
+  - statement_terminator: ;
+  - statement:
+    - create_login_statement:
+      - keyword: CREATE
+      - keyword: LOGIN
+      - object_reference:
+        - quoted_identifier: '[myapp]'
+      - keyword: FROM
+      - keyword: ASYMMETRIC
+      - keyword: KEY
+      - object_reference:
+        - quoted_identifier: '[MyAsymKey]'
+  - statement_terminator: ;

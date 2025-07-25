@@ -298,7 +298,7 @@ pub fn raw_dialect() -> Dialect {
         "SYSDATETIMEOFFSET",
     ]);
 
-    // Add T-SQL string functions
+    // Add T-SQL string and date functions
     dialect.sets_mut("scalar_functions").extend([
         "SUBSTRING",
         "CHARINDEX",
@@ -317,6 +317,24 @@ pub fn raw_dialect() -> Dialect {
         "STR",
         "UNICODE",
         "CONVERT",  // T-SQL conversion function
+        "DATEADD",  // T-SQL date functions
+        "DATEDIFF",
+        "DATENAME",
+        "DATEPART",
+        "GETDATE",
+        "GETUTCDATE",
+        "SYSDATETIME",
+        "SYSUTCDATETIME",
+        "SYSDATETIMEOFFSET",
+        // T-SQL window functions
+        "ROW_NUMBER",
+        "RANK",
+        "DENSE_RANK", 
+        "NTILE",
+        "LAG",
+        "LEAD",
+        "FIRST_VALUE",
+        "LAST_VALUE",
     ]);
 
     // T-SQL specific value table functions
@@ -3843,13 +3861,13 @@ pub fn raw_dialect() -> Dialect {
         .into(),
     )]);
 
-    // Override PostFunctionGrammar to include WITHIN GROUP
+    // Override PostFunctionGrammar to include WITHIN GROUP and support sequences
     dialect.add([(
         "PostFunctionGrammar".into(),
-        AnyNumberOf::new(vec_of_erased![
-            Ref::new("WithinGroupClauseSegment"),
-            Ref::new("OverClauseSegment"),
-            Ref::new("FilterClauseGrammar")
+        Sequence::new(vec_of_erased![
+            Ref::new("WithinGroupClauseSegment").optional(),
+            Ref::new("OverClauseSegment").optional(),
+            Ref::new("FilterClauseGrammar").optional()
         ])
         .to_matchable()
         .into(),

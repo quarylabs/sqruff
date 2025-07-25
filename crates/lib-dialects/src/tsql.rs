@@ -4522,7 +4522,17 @@ pub fn raw_dialect() -> Dialect {
             // Everything else
             Sequence::new(vec_of_erased![
                 Ref::new("BaseExpressionElementGrammar"),
-                Ref::new("AliasExpressionSegment").optional(),
+                // Check for PostFunctionGrammar patterns before alias
+                one_of(vec_of_erased![
+                    // If we see WITHIN GROUP, OVER, etc., don't treat as alias
+                    Sequence::new(vec_of_erased![
+                        Ref::new("PostFunctionGrammar"),
+                        Ref::new("AliasExpressionSegment").optional()
+                    ]),
+                    // Otherwise, check for alias
+                    Ref::new("AliasExpressionSegment")
+                ])
+                .config(|this| this.optional()),
             ]),
         ])
         .to_matchable(),

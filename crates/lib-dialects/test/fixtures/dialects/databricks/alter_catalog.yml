@@ -1,0 +1,20 @@
+file:
+- statement:
+  - keyword: ALTER
+  - keyword: CATALOG
+  - object_reference:
+    - naked_identifier: some_cat
+  - keyword: OWNER
+  - keyword: TO
+  - quoted_identifier: '`alf@melmak.et`'
+- statement_terminator: ;
+- statement:
+  - keyword: ALTER
+  - keyword: CATALOG
+  - object_reference:
+    - naked_identifier: some_cat
+  - keyword: SET
+  - keyword: OWNER
+  - keyword: TO
+  - quoted_identifier: '`alf@melmak.et`'
+- statement_terminator: ;

@@ -84,6 +84,7 @@ pub(crate) const UNRESERVED_KEYWORDS: &[&str] = &[
     "INF",
     "INJECTIVE",
     "INSERT",
+    "INTERVAL",
     "INTO",
     "IS",
     "IS_OBJECT_ID",

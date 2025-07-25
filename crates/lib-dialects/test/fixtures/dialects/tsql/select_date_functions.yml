@@ -9,22 +9,37 @@ file:
             - quoted_identifier: '[hello]'
         - comma: ','
         - select_clause_element:
+          - function:
+            - function:
+              - function_name:
+                - function_name_identifier: DATEDIFF
+              - bracketed:
+                - start_bracket: (
+                - expression:
+                  - column_reference:
+                    - naked_identifier: day
+                - comma: ','
+                - expression:
+                  - column_reference:
+                    - quoted_identifier: '[mydate]'
+                - comma: ','
+                - expression:
+                  - function:
+                    - function:
+                      - function_name:
+                        - function_name_identifier: GETDATE
+                      - bracketed:
+                        - start_bracket: (
+                        - end_bracket: )
+                - end_bracket: )
+          - alias_expression:
+            - keyword: AS
+            - quoted_identifier: '[test]'
+        - comma: ','
+        - select_clause_element:
           - column_reference:
-            - naked_identifier: DATEDIFF
+            - naked_identifier: DATEPART
         - unparsable:
-          - start_bracket: (
-          - word: day
-          - comma: ','
-          - double_quote: '[mydate]'
-          - comma: ','
-          - word: GETDATE
-          - start_bracket: (
-          - end_bracket: )
-          - end_bracket: )
-          - word: AS
-          - double_quote: '[test]'
-          - comma: ','
-          - word: DATEPART
           - start_bracket: (
           - word: day
           - comma: ','

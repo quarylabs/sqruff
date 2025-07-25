@@ -78,32 +78,52 @@ file:
             - naked_identifier: compound
         - comma: ','
         - select_clause_element:
-          - column_reference:
-            - naked_identifier: DATEADD
-        - unparsable:
-          - start_bracket: (
-          - word: month
-          - comma: ','
-          - minus: '-'
-          - numeric_literal: '1'
-          - comma: ','
-          - word: column1
-          - end_bracket: )
-          - word: AS
-          - word: column1_lastmonth
-          - comma: ','
-          - word: convert
-          - start_bracket: (
-          - word: varchar
-          - comma: ','
-          - word: tbl_b
-          - dot: .
-          - word: column1
-          - comma: ','
-          - numeric_literal: '23'
-          - end_bracket: )
-          - word: AS
-          - word: column1_varchar
+          - function:
+            - function:
+              - function_name:
+                - function_name_identifier: DATEADD
+              - bracketed:
+                - start_bracket: (
+                - expression:
+                  - column_reference:
+                    - naked_identifier: month
+                - comma: ','
+                - expression:
+                  - numeric_literal:
+                    - sign_indicator: '-'
+                    - numeric_literal: '1'
+                - comma: ','
+                - expression:
+                  - column_reference:
+                    - naked_identifier: column1
+                - end_bracket: )
+          - alias_expression:
+            - keyword: AS
+            - naked_identifier: column1_lastmonth
+        - comma: ','
+        - select_clause_element:
+          - function:
+            - function:
+              - function_name:
+                - function_name_identifier: convert
+              - bracketed:
+                - start_bracket: (
+                - expression:
+                  - column_reference:
+                    - naked_identifier: varchar
+                - comma: ','
+                - expression:
+                  - column_reference:
+                    - naked_identifier: tbl_b
+                    - dot: .
+                    - naked_identifier: column1
+                - comma: ','
+                - expression:
+                  - numeric_literal: '23'
+                - end_bracket: )
+          - alias_expression:
+            - keyword: AS
+            - naked_identifier: column1_varchar
       - from_clause:
         - keyword: FROM
         - from_expression:

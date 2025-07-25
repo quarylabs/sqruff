@@ -21,7 +21,7 @@ WHERE s.is_user_process = 1;
 
 SELECT JSON_ARRAY('a', JSON_OBJECT('name': 'value', 'type': 1));
 
-SELECT JSON_ARRAY('a', JSON_OBJECT('name': 'value', 'type': 1), JSON_ARRAY(1, NULL, 2 NULL ON NULL));
+SELECT JSON_ARRAY('a', JSON_OBJECT('name': 'value', 'type': 1), JSON_ARRAY(1, NULL, 2) NULL ON NULL);
 
 DECLARE @id_value nvarchar(64) = NEWID();
 SELECT JSON_ARRAY(1, @id_value, (SELECT @@SPID));

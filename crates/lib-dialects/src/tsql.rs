@@ -77,6 +77,7 @@ pub fn raw_dialect() -> Dialect {
         "HOLDLOCK",
         "SNAPSHOT",
         "VIEW_METADATA",
+        "ROWS", // Allow 'AS rows' alias
         "SINGLE_BLOB",
         "SINGLE_CLOB",
         "SINGLE_NCLOB",
@@ -107,6 +108,7 @@ pub fn raw_dialect() -> Dialect {
         "SYSTEM_TIME",
         "PERSISTED",
         "GENERATED",
+        "UNDEFINED",
         "ALWAYS",
         "Partition",
         "LOB_COMPACTION",
@@ -439,59 +441,73 @@ pub fn raw_dialect() -> Dialect {
             Sequence::new(vec_of_erased![
                 Ref::keyword("OPENROWSET"),
                 Bracketed::new(vec_of_erased![one_of(vec_of_erased![
-                    // Provider syntax: OPENROWSET('provider', 'connection_string', 'table_name')
-                    // Connection string can contain semicolons instead of commas
-                    Sequence::new(vec_of_erased![
-                        Ref::new("QuotedLiteralSegment"),
-                        Ref::new("CommaSegment"),
-                        // Connection string that may contain semicolons
-                        one_of(vec_of_erased![
-                            // Complex connection string with semicolons
-                            Sequence::new(vec_of_erased![
-                                Ref::new("QuotedLiteralSegment"),
-                                Ref::new("SemicolonSegment"),
-                                Ref::new("QuotedLiteralSegment"),
-                                Ref::new("SemicolonSegment"),
-                                Ref::new("QuotedLiteralSegment")
-                            ]),
-                            // Simple connection string
-                            Ref::new("QuotedLiteralSegment")
-                        ]),
-                        Ref::new("CommaSegment"),
-                        one_of(vec_of_erased![
-                            Ref::new("ObjectReferenceSegment"),
-                            Ref::new("QuotedLiteralSegment")
-                        ])
-                    ]),
-                    // BULK syntax: OPENROWSET(BULK 'file_path', SINGLE_CLOB)
+                    // BULK syntax: OPENROWSET(BULK 'file_path', ...) - Check this first
                     Sequence::new(vec_of_erased![
                         Ref::keyword("BULK"),
                         one_of(vec_of_erased![
                             Ref::new("QuotedLiteralSegment"),
                             Ref::new("UnicodeLiteralSegment")
                         ]),
+                        // Optional parameters after file path
+                        AnyNumberOf::new(vec_of_erased![
+                            Sequence::new(vec_of_erased![
+                                Ref::new("CommaSegment"),
+                                one_of(vec_of_erased![
+                                    // Simple keywords like SINGLE_BLOB, SINGLE_CLOB, etc.
+                                    Ref::keyword("SINGLE_BLOB"),
+                                    Ref::keyword("SINGLE_CLOB"), 
+                                    Ref::keyword("SINGLE_NCLOB"),
+                                    // Named parameters: PARAM = value
+                                    Sequence::new(vec_of_erased![
+                                        one_of(vec_of_erased![
+                                            Ref::keyword("FORMATFILE"),
+                                            Ref::keyword("FIRSTROW"),
+                                            Ref::keyword("LASTROW"),
+                                            Ref::keyword("MAXERRORS"),
+                                            Ref::keyword("FORMAT"),
+                                            Ref::keyword("CODEPAGE"),
+                                            Ref::keyword("ERRORFILE"),
+                                            Ref::keyword("FIELDTERMINATOR"),
+                                            Ref::keyword("ROWTERMINATOR"),
+                                            Ref::keyword("FIELDQUOTE"),
+                                            Ref::keyword("DATA_SOURCE")
+                                        ]),
+                                        Ref::new("EqualsSegment"),
+                                        one_of(vec_of_erased![
+                                            Ref::new("QuotedLiteralSegment"),
+                                            Ref::new("UnicodeLiteralSegment"),
+                                            Ref::new("NumericLiteralSegment")
+                                        ])
+                                    ])
+                                ])
+                            ])
+                        ])
+                    ]),
+                    // Provider syntax: OPENROWSET('provider', 'connection_string', 'table_name')
+                    // Connection string can contain semicolons instead of commas
+                    Sequence::new(vec_of_erased![
+                        Ref::new("QuotedLiteralSegment"),
+                        Ref::new("CommaSegment"),
+                        // Flexible connection string that may contain semicolons
+                        // Can be: 'simple_string' or 'part1';'part2';'part3'[;...]
+                        one_of(vec_of_erased![
+                            // Simple connection string without semicolons
+                            Ref::new("QuotedLiteralSegment"),
+                            // Complex connection string with semicolons (flexible number of parts)
+                            Sequence::new(vec_of_erased![
+                                Ref::new("QuotedLiteralSegment"),
+                                AnyNumberOf::new(vec_of_erased![
+                                    Sequence::new(vec_of_erased![
+                                        Ref::new("SemicolonSegment"),
+                                        Ref::new("QuotedLiteralSegment")
+                                    ])
+                                ]).config(|this| this.min_times(1))
+                            ])
+                        ]),
                         Ref::new("CommaSegment"),
                         one_of(vec_of_erased![
-                            Ref::keyword("SINGLE_BLOB"),
-                            Ref::keyword("SINGLE_CLOB"),
-                            Ref::keyword("SINGLE_NCLOB"),
-                            // Format options like FORMATFILE = 'path', FIRSTROW = 2, etc.
-                            Delimited::new(vec_of_erased![Sequence::new(vec_of_erased![
-                                one_of(vec_of_erased![
-                                    Ref::keyword("FORMATFILE"),
-                                    Ref::keyword("FIRSTROW"),
-                                    Ref::keyword("LASTROW"),
-                                    Ref::keyword("MAXERRORS"),
-                                    Ref::keyword("FORMAT"),
-                                    Ref::keyword("CODEPAGE")
-                                ]),
-                                Ref::new("EqualsSegment"),
-                                one_of(vec_of_erased![
-                                    Ref::new("QuotedLiteralSegment"),
-                                    Ref::new("UnicodeLiteralSegment"),
-                                    Ref::new("NumericLiteralSegment")
-                                ])
-                            ])])
+                            Ref::new("ObjectReferenceSegment"),
+                            Ref::new("QuotedLiteralSegment")
                         ])
                     ])
                 ])])
@@ -733,71 +749,94 @@ pub fn raw_dialect() -> Dialect {
             Sequence::new(vec_of_erased![
                 Ref::new("SingleIdentifierGrammar"), // Column name
                 one_of(vec_of_erased![
-                    // Regular column: datatype [IDENTITY] [constraints]
+                    // Regular column: datatype [column modifiers] [constraints]
                     Sequence::new(vec_of_erased![
                         Ref::new("TsqlDatatypeSegment"), // Column type
-                        // IDENTITY specification
-                        Sequence::new(vec_of_erased![
-                            Ref::keyword("IDENTITY"),
-                            Bracketed::new(vec_of_erased![
-                                Ref::new("NumericLiteralSegment"), // seed
-                                Ref::new("CommaSegment"),
-                                Ref::new("NumericLiteralSegment")  // increment
-                            ]).config(|this| this.optional()) // IDENTITY can be without parameters
-                        ]).config(|this| this.optional()),
-                        // FILESTREAM
-                        Ref::keyword("FILESTREAM").optional(),
-                        // MASKED WITH (FUNCTION = '...')
-                        Sequence::new(vec_of_erased![
-                            Ref::keyword("MASKED"),
-                            Ref::keyword("WITH"),
-                            Bracketed::new(vec_of_erased![
-                                Ref::keyword("FUNCTION"),
-                                Ref::new("EqualsSegment"),
-                                Ref::new("QuotedLiteralSegment")
-                            ])
-                        ]).config(|this| this.optional()),
-                        // ENCRYPTED WITH (...)
-                        Sequence::new(vec_of_erased![
-                            Ref::keyword("ENCRYPTED"),
-                            Ref::keyword("WITH"),
-                            Bracketed::new(vec_of_erased![
-                                Delimited::new(vec_of_erased![
+                        // Flexible column modifiers in any order
+                        AnyNumberOf::new(vec_of_erased![
+                            one_of(vec_of_erased![
+                                // IDENTITY specification
+                                Sequence::new(vec_of_erased![
+                                    Ref::keyword("IDENTITY"),
+                                    Bracketed::new(vec_of_erased![
+                                        Ref::new("NumericLiteralSegment"), // seed
+                                        Ref::new("CommaSegment"),
+                                        Ref::new("NumericLiteralSegment")  // increment
+                                    ]).config(|this| this.optional()) // IDENTITY can be without parameters
+                                ]),
+                                // DEFAULT constraint
+                                Sequence::new(vec_of_erased![
+                                    Ref::keyword("DEFAULT"),
                                     one_of(vec_of_erased![
-                                        // COLUMN_ENCRYPTION_KEY = key_name
-                                        Sequence::new(vec_of_erased![
-                                            Ref::keyword("COLUMN_ENCRYPTION_KEY"),
-                                            Ref::new("EqualsSegment"),
-                                            Ref::new("SingleIdentifierGrammar")
+                                        // Parenthesized expressions: DEFAULT (expression)
+                                        Bracketed::new(vec_of_erased![
+                                            Ref::new("ExpressionSegment")
                                         ]),
-                                        // ENCRYPTION_TYPE = RANDOMIZED
-                                        Sequence::new(vec_of_erased![
-                                            Ref::keyword("ENCRYPTION_TYPE"),
-                                            Ref::new("EqualsSegment"),
-                                            Ref::keyword("RANDOMIZED")
-                                        ]),
-                                        // ALGORITHM = 'algorithm_name'
-                                        Sequence::new(vec_of_erased![
-                                            Ref::keyword("ALGORITHM"),
-                                            Ref::new("EqualsSegment"),
-                                            Ref::new("QuotedLiteralSegment")
+                                        // Direct expression: DEFAULT expression  
+                                        Ref::new("ExpressionSegment")
+                                    ])
+                                ]),
+                                // FILESTREAM
+                                Ref::keyword("FILESTREAM"),
+                                // MASKED WITH (FUNCTION = '...')
+                                Sequence::new(vec_of_erased![
+                                    Ref::keyword("MASKED"),
+                                    Ref::keyword("WITH"),
+                                    Bracketed::new(vec_of_erased![
+                                        Ref::keyword("FUNCTION"),
+                                        Ref::new("EqualsSegment"),
+                                        Ref::new("QuotedLiteralSegment")
+                                    ])
+                                ]),
+                                // ENCRYPTED WITH (...)
+                                Sequence::new(vec_of_erased![
+                                    Ref::keyword("ENCRYPTED"),
+                                    Ref::keyword("WITH"),
+                                    Bracketed::new(vec_of_erased![
+                                        Delimited::new(vec_of_erased![
+                                            one_of(vec_of_erased![
+                                                // COLUMN_ENCRYPTION_KEY = key_name
+                                                Sequence::new(vec_of_erased![
+                                                    Ref::keyword("COLUMN_ENCRYPTION_KEY"),
+                                                    Ref::new("EqualsSegment"),
+                                                    Ref::new("SingleIdentifierGrammar")
+                                                ]),
+                                                // ENCRYPTION_TYPE = RANDOMIZED
+                                                Sequence::new(vec_of_erased![
+                                                    Ref::keyword("ENCRYPTION_TYPE"),
+                                                    Ref::new("EqualsSegment"),
+                                                    Ref::keyword("RANDOMIZED")
+                                                ]),
+                                                // ALGORITHM = 'algorithm_name'
+                                                Sequence::new(vec_of_erased![
+                                                    Ref::keyword("ALGORITHM"),
+                                                    Ref::new("EqualsSegment"),
+                                                    Ref::new("QuotedLiteralSegment")
+                                                ])
+                                            ])
                                         ])
                                     ])
+                                ]),
+                                // GENERATED ALWAYS AS ROW START/END HIDDEN for temporal tables
+                                Sequence::new(vec_of_erased![
+                                    Ref::keyword("GENERATED"),
+                                    Ref::keyword("ALWAYS"),
+                                    Ref::keyword("AS"),
+                                    Ref::keyword("ROW"),
+                                    one_of(vec_of_erased![
+                                        Ref::keyword("START"),
+                                        Ref::keyword("END")
+                                    ]),
+                                    Ref::keyword("HIDDEN").optional()
+                                ]),
+                                // COLLATE clause
+                                Sequence::new(vec_of_erased![
+                                    Ref::keyword("COLLATE"),
+                                    Ref::new("SingleIdentifierGrammar")
                                 ])
                             ])
                         ]).config(|this| this.optional()),
-                        // GENERATED ALWAYS AS ROW START/END HIDDEN for temporal tables
-                        Sequence::new(vec_of_erased![
-                            Ref::keyword("GENERATED"),
-                            Ref::keyword("ALWAYS"),
-                            Ref::keyword("AS"),
-                            Ref::keyword("ROW"),
-                            one_of(vec_of_erased![
-                                Ref::keyword("START"),
-                                Ref::keyword("END")
-                            ]),
-                            Ref::keyword("HIDDEN").optional()
-                        ]).config(|this| this.optional()),
+                        // Column constraints
                         AnyNumberOf::new(vec_of_erased![Ref::new("ColumnConstraintSegment")])
                             .config(|this| this.optional())
                     ]),
@@ -1268,17 +1307,38 @@ pub fn raw_dialect() -> Dialect {
                     Ref::new("QuotedLiteralSegment")
                 ])
                 .config(|this| this.optional()),
-                // Optional WITH clause for additional options
+                // Optional WITH RECOMPILE clause
                 Sequence::new(vec_of_erased![
                     Ref::keyword("WITH"),
-                    Delimited::new(vec_of_erased![one_of(vec_of_erased![
-                        Ref::keyword("RECOMPILE"),
-                        Sequence::new(vec_of_erased![
-                            Ref::keyword("RESULT"),
-                            Ref::keyword("SETS"),
-                            Ref::keyword("NONE")
+                    Ref::keyword("RECOMPILE")
+                ])
+                .config(|this| this.optional()),
+                // Optional WITH RESULT SETS clause
+                Sequence::new(vec_of_erased![
+                    Ref::keyword("WITH"),
+                    Ref::keyword("RESULT"),
+                    Ref::keyword("SETS"),
+                    one_of(vec_of_erased![
+                        Ref::keyword("NONE"),
+                        Ref::keyword("UNDEFINED"),
+                        // One or more result set definitions
+                        Bracketed::new(vec_of_erased![
+                            // Result set column definitions
+                            Delimited::new(vec_of_erased![
+                                Ref::new("ColumnDefinitionSegment")
+                            ])
+                        ]),
+                        // Multiple result sets
+                        Bracketed::new(vec_of_erased![
+                            Delimited::new(vec_of_erased![
+                                Bracketed::new(vec_of_erased![
+                                    Delimited::new(vec_of_erased![
+                                        Ref::new("ColumnDefinitionSegment")
+                                    ])
+                                ])
+                            ])
                         ])
-                    ])])
+                    ])
                 ])
                 .config(|this| this.optional()),
                 // Optional AT linked_server clause
@@ -3470,16 +3530,61 @@ pub fn raw_dialect() -> Dialect {
         .to_matchable(),
     );
 
+    // Add CollationSegment for COLLATE clauses
+    dialect.add([(
+        "CollationSegment".into(),
+        NodeMatcher::new(SyntaxKind::Identifier, |_| {
+            Ref::new("SingleIdentifierGrammar").to_matchable()
+        })
+        .to_matchable()
+        .into(),
+    )]);
+
+    // Add OpenRowSetTableExpression to handle OPENROWSET with optional WITH clause
+    dialect.add([(
+        "OpenRowSetTableExpression".into(),
+        NodeMatcher::new(SyntaxKind::TableExpression, |_| {
+            Sequence::new(vec_of_erased![
+                Ref::new("OpenRowSetSegment"),
+                // Optional WITH clause for schema definition
+                Sequence::new(vec_of_erased![
+                    Ref::keyword("WITH"),
+                    Bracketed::new(vec_of_erased![Delimited::new(vec_of_erased![
+                        Sequence::new(vec_of_erased![
+                            Ref::new("SingleIdentifierGrammar"), // Column name (can be bracketed)
+                            Ref::new("TsqlDatatypeSegment"),     // Data type
+                            // Optional COLLATE clause
+                            Sequence::new(vec_of_erased![
+                                Ref::keyword("COLLATE"),
+                                Ref::new("CollationSegment")
+                            ])
+                            .config(|this| this.optional()),
+                            // Optional ordinal position (for positional column mapping)
+                            Ref::new("NumericLiteralSegment").optional(),
+                            // Optional JSON path (like in OPENJSON)
+                            Ref::new("QuotedLiteralSegment").optional()
+                        ])
+                    ])])
+                ])
+                .config(|this| this.optional())
+            ])
+            .to_matchable()
+        })
+        .to_matchable()
+        .into(),
+    )]);
+
     // Update TableExpressionSegment to include PIVOT/UNPIVOT, OPENJSON, and OPENROWSET
     dialect.replace_grammar(
         "TableExpressionSegment",
         one_of(vec_of_erased![
             Ref::new("ValuesClauseSegment"),
             Ref::new("BareFunctionSegment"),
-            Ref::new("FunctionSegment"),
-            Ref::new("OpenRowSetSegment"), // Add OPENROWSET with special syntax support
+            // T-SQL specific functions must come before generic FunctionSegment
+            Ref::new("OpenRowSetTableExpression"), // OPENROWSET with optional WITH clause
             Ref::new("OpenQuerySegment"),    // Add OPENQUERY support
             Ref::new("OpenDataSourceSegment"), // Add OPENDATASOURCE support
+            Ref::new("FunctionSegment"),
             Ref::new("TableReferenceSegment"),
             Ref::new("OpenJsonSegment"),
             Bracketed::new(vec_of_erased![Ref::new("SelectableGrammar")]),
@@ -3645,27 +3750,30 @@ pub fn raw_dialect() -> Dialect {
     // The LookaheadExclude prevents WITH from being parsed as an alias when followed by (
     dialect.replace_grammar(
         "FromExpressionElementSegment",
-        Sequence::new(vec_of_erased![
-            Ref::new("PreTableFunctionKeywordsGrammar").optional(),
-            optionally_bracketed(vec_of_erased![Ref::new("TableExpressionSegment")]),
-            Ref::new("AliasExpressionSegment")
-                .exclude(one_of(vec_of_erased![
-                    Ref::new("FromClauseTerminatorGrammar"),
-                    Ref::new("SamplingExpressionSegment"),
-                    Ref::new("JoinLikeClauseGrammar"),
-                    LookaheadExclude::new("WITH", "("), // Prevents WITH from being parsed as alias when followed by (
-                    Ref::keyword("GO") // Prevents GO from being parsed as alias (it's a batch separator)
-                ]))
-                .optional(),
+        NodeMatcher::new(SyntaxKind::FromExpressionElement, |_| {
             Sequence::new(vec_of_erased![
-                Ref::keyword("WITH"),
-                Ref::keyword("OFFSET"),
+                Ref::new("PreTableFunctionKeywordsGrammar").optional(),
+                optionally_bracketed(vec_of_erased![Ref::new("TableExpressionSegment")]),
                 Ref::new("AliasExpressionSegment")
+                    .exclude(one_of(vec_of_erased![
+                        Ref::new("FromClauseTerminatorGrammar"),
+                        Ref::new("SamplingExpressionSegment"),
+                        Ref::new("JoinLikeClauseGrammar"),
+                        LookaheadExclude::new("WITH", "("), // Prevents WITH from being parsed as alias when followed by (
+                        Ref::keyword("GO") // Prevents GO from being parsed as alias (it's a batch separator)
+                    ]))
+                    .optional(),
+                Sequence::new(vec_of_erased![
+                    Ref::keyword("WITH"),
+                    Ref::keyword("OFFSET"),
+                    Ref::new("AliasExpressionSegment")
+                ])
+                .config(|this| this.optional()),
+                Ref::new("SamplingExpressionSegment").optional(),
+                Ref::new("PostTableExpressionGrammar").optional() // T-SQL table hints
             ])
-            .config(|this| this.optional()),
-            Ref::new("SamplingExpressionSegment").optional(),
-            Ref::new("PostTableExpressionGrammar").optional() // T-SQL table hints
-        ])
+            .to_matchable()
+        })
         .to_matchable(),
     );
 
@@ -3677,6 +3785,24 @@ pub fn raw_dialect() -> Dialect {
                 // T-SQL join type with hints: [INNER|FULL|LEFT|RIGHT] [OUTER] [HASH|MERGE|LOOP] JOIN
                 // Order matters: more specific patterns first
                 one_of(vec_of_erased![
+                    // NATURAL [INNER|FULL|LEFT|RIGHT] [OUTER] JOIN
+                    Sequence::new(vec_of_erased![
+                        Ref::keyword("NATURAL"),
+                        one_of(vec_of_erased![
+                            Ref::keyword("INNER"),
+                            Ref::keyword("FULL"),
+                            Ref::keyword("LEFT"),
+                            Ref::keyword("RIGHT"),
+                        ])
+                        .config(|this| this.optional()),
+                        Ref::keyword("OUTER").optional(),
+                        Ref::keyword("JOIN")
+                    ]),
+                    // NATURAL JOIN (no type specified)
+                    Sequence::new(vec_of_erased![
+                        Ref::keyword("NATURAL"),
+                        Ref::keyword("JOIN")
+                    ]),
                     // FULL/LEFT/RIGHT OUTER [HASH|MERGE|LOOP] JOIN (most specific)
                     Sequence::new(vec_of_erased![
                         one_of(vec_of_erased![
@@ -4332,9 +4458,23 @@ pub fn raw_dialect() -> Dialect {
             "TsqlDatatypeSegment".into(),
             NodeMatcher::new(SyntaxKind::DataType, |_| {
                 one_of(vec_of_erased![
+                    // TABLE type with inline table definition
+                    Sequence::new(vec_of_erased![
+                        StringParser::new("TABLE", SyntaxKind::DataTypeIdentifier),
+                        Bracketed::new(vec_of_erased![
+                            Delimited::new(vec_of_erased![
+                                one_of(vec_of_erased![
+                                    // Column definition
+                                    Ref::new("ColumnDefinitionSegment"),
+                                    // Table constraint
+                                    Ref::new("TableConstraintSegment")
+                                ])
+                            ])
+                        ])
+                    ]),
                     // Square bracket data type like [int], [varchar](100)
                     Sequence::new(vec_of_erased![
-                        TypedParser::new(SyntaxKind::DoubleQuote, SyntaxKind::DataTypeIdentifier),
+                        Ref::new("QuotedIdentifierSegment"), // Bracketed data type name
                         Ref::new("BracketedArguments").optional()
                     ]),
                     // Regular data type (includes DatatypeIdentifierSegment for user-defined types)
@@ -4499,9 +4639,18 @@ pub fn raw_dialect() -> Dialect {
         "SelectClauseElementSegment",
         one_of(vec_of_erased![
             // T-SQL alias equals pattern: AliasName = Expression
+            // Must exclude keywords to avoid matching "CASE = ..." patterns
             Sequence::new(vec_of_erased![
                 one_of(vec_of_erased![
-                    Ref::new("NakedIdentifierSegment"),
+                    Ref::new("NakedIdentifierSegment")
+                        .exclude(one_of(vec_of_erased![
+                            // Exclude keywords that could start expressions
+                            Ref::keyword("CASE"),
+                            Ref::keyword("CAST"),
+                            Ref::keyword("EXISTS"),
+                            Ref::keyword("NOT"),
+                            Ref::keyword("NULL")
+                        ])),
                     Ref::new("QuotedIdentifierSegment")
                 ]),
                 // Use AssignmentOperator instead of RawComparisonOperator to distinguish from WHERE clause comparisons
@@ -4519,7 +4668,7 @@ pub fn raw_dialect() -> Dialect {
             ]),
             // Wildcard expressions
             Ref::new("WildcardExpressionSegment"),
-            // Everything else
+            // Everything else (including CASE expressions)
             Sequence::new(vec_of_erased![
                 Ref::new("BaseExpressionElementGrammar"),
                 // Check for PostFunctionGrammar patterns before alias
@@ -5034,6 +5183,7 @@ pub fn raw_dialect() -> Dialect {
                                     Ref::new("ConnectionConstraintSegment")
                                 ])
                             ])
+                            .config(|this| this.allow_trailing())
                         ]),
                         // Optional WITH clause for table options (after column definitions)
                         Sequence::new(vec_of_erased![
@@ -6669,7 +6819,10 @@ pub fn raw_dialect() -> Dialect {
             "TsqlJsonObjectSegment".into(),
             NodeMatcher::new(SyntaxKind::Function, |_| {
                 Sequence::new(vec_of_erased![
-                    Ref::keyword("JSON_OBJECT"),
+                    NodeMatcher::new(SyntaxKind::FunctionName, |_| {
+                        StringParser::new("JSON_OBJECT", SyntaxKind::FunctionNameIdentifier)
+                            .to_matchable()
+                    }),
                     Bracketed::new(vec_of_erased![one_of(vec_of_erased![
                         // Just the null clause for JSON_OBJECT(ABSENT ON NULL)
                         Ref::new("TsqlJsonNullClause"),
@@ -6712,12 +6865,19 @@ pub fn raw_dialect() -> Dialect {
             one_of(vec_of_erased![
                 // Just null clause for JSON_ARRAY(NULL ON NULL) or JSON_ARRAY(ABSENT ON NULL)
                 Ref::new("TsqlJsonNullClause"),
-                // List of expressions and/or null clauses
-                Delimited::new(vec_of_erased![
-                    Ref::new("TsqlJsonArrayElementGrammar")
-                ]).config(|this| {
-                    this.allow_trailing = true;
-                })
+                // List of expressions followed by optional null clause
+                Sequence::new(vec_of_erased![
+                    Delimited::new(vec_of_erased![
+                        Ref::new("ExpressionSegment")
+                    ]).config(|this| {
+                        this.allow_trailing = true;
+                    }),
+                    // Allow the NULL ON NULL clause after the expressions
+                    Sequence::new(vec_of_erased![
+                        Ref::new("CommaSegment").optional(), // Comma is optional before NULL ON NULL
+                        Ref::new("TsqlJsonNullClause")
+                    ]).config(|this| this.optional())
+                ])
             ])
             .to_matchable()
             .into(),
@@ -6727,9 +6887,12 @@ pub fn raw_dialect() -> Dialect {
             "TsqlJsonArraySegment".into(),
             NodeMatcher::new(SyntaxKind::Function, |_| {
                 Sequence::new(vec_of_erased![
-                    Ref::keyword("JSON_ARRAY"),
+                    NodeMatcher::new(SyntaxKind::FunctionName, |_| {
+                        StringParser::new("JSON_ARRAY", SyntaxKind::FunctionNameIdentifier)
+                            .to_matchable()
+                    }),
                     Bracketed::new(vec_of_erased![
-                        Ref::new("TsqlJsonArrayContentsGrammar").optional()
+                        Ref::new("TsqlJsonArrayContentsGrammar")
                     ]).config(|this| this.parse_mode(ParseMode::Greedy))
                 ])
                 .to_matchable()
@@ -7225,14 +7388,14 @@ pub fn raw_dialect() -> Dialect {
                     Ref::new("AliasedTableReferenceGrammar"),
                     // T-SQL specific: OPENQUERY/OPENROWSET/OPENDATASOURCE support
                     Ref::new("OpenQuerySegment"),
-                    Ref::new("OpenRowSetSegment"),
+                    Ref::new("OpenRowSetTableExpression"),
                     Ref::new("OpenDataSourceSegment"),
                     // Allow OPENDATASOURCE/OPENROWSET/OPENQUERY with chained object references
                     Sequence::new(vec_of_erased![
                         one_of(vec_of_erased![
                             Ref::new("OpenQuerySegment"),
                             Ref::new("OpenDataSourceSegment"),
-                            Ref::new("OpenRowSetSegment")
+                            Ref::new("OpenRowSetTableExpression")
                         ]),
                         // Allow .database.schema.table after OPENDATASOURCE/OPENROWSET/OPENQUERY
                         AnyNumberOf::new(vec_of_erased![
@@ -7307,14 +7470,14 @@ pub fn raw_dialect() -> Dialect {
                     Ref::new("TableReferenceSegment"),
                     // T-SQL specific: OPENQUERY/OPENROWSET/OPENDATASOURCE support
                     Ref::new("OpenQuerySegment"),
-                    Ref::new("OpenRowSetSegment"),
+                    Ref::new("OpenRowSetTableExpression"),
                     Ref::new("OpenDataSourceSegment"),
                     // Allow OPENDATASOURCE/OPENROWSET/OPENQUERY with chained object references
                     Sequence::new(vec_of_erased![
                         one_of(vec_of_erased![
                             Ref::new("OpenQuerySegment"),
                             Ref::new("OpenDataSourceSegment"),
-                            Ref::new("OpenRowSetSegment")
+                            Ref::new("OpenRowSetTableExpression")
                         ]),
                         // Allow .database.schema.table after OPENDATASOURCE/OPENROWSET/OPENQUERY
                         AnyNumberOf::new(vec_of_erased![
@@ -7383,14 +7546,14 @@ pub fn raw_dialect() -> Dialect {
                     ]),
                     // T-SQL specific: OPENQUERY/OPENROWSET/OPENDATASOURCE support
                     Ref::new("OpenQuerySegment"),
-                    Ref::new("OpenRowSetSegment"),
+                    Ref::new("OpenRowSetTableExpression"),
                     Ref::new("OpenDataSourceSegment"),
                     // Allow OPENDATASOURCE/OPENROWSET/OPENQUERY with chained object references
                     Sequence::new(vec_of_erased![
                         one_of(vec_of_erased![
                             Ref::new("OpenQuerySegment"),
                             Ref::new("OpenDataSourceSegment"),
-                            Ref::new("OpenRowSetSegment")
+                            Ref::new("OpenRowSetTableExpression")
                         ]),
                         // Allow .database.schema.table after OPENDATASOURCE/OPENROWSET/OPENQUERY
                         AnyNumberOf::new(vec_of_erased![
@@ -7913,7 +8076,7 @@ pub fn raw_dialect() -> Dialect {
             one_of(vec_of_erased![
                 // Regular column definition
                 Sequence::new(vec_of_erased![
-                    Ref::new("ColumnReferenceSegment"),
+                    Ref::new("SingleIdentifierGrammar"),
                     Ref::new("TsqlDatatypeSegment"),
                     // Add IDENTITY support
                     Sequence::new(vec_of_erased![
@@ -7941,7 +8104,7 @@ pub fn raw_dialect() -> Dialect {
                 ]),
                 // Computed column: column AS expression [PERSISTED]
                 Sequence::new(vec_of_erased![
-                    Ref::new("ColumnReferenceSegment"),
+                    Ref::new("SingleIdentifierGrammar"),
                     Ref::keyword("AS"),
                     Ref::new("ExpressionSegment"),
                     Ref::keyword("PERSISTED").optional(),
@@ -8029,77 +8192,9 @@ pub fn raw_dialect() -> Dialect {
         .into(),
     )]);
 
-    // Add OPENROWSET support  
-    dialect.add([(
-        "OpenRowsetSegment".into(),
-        NodeMatcher::new(SyntaxKind::TableReference, |_| {
-            Sequence::new(vec_of_erased![
-                Ref::keyword("OPENROWSET"),
-                Bracketed::new(vec_of_erased![
-                    // Provider name
-                    Ref::new("QuotedLiteralSegment"),
-                    Ref::new("CommaSegment"),
-                    // Connection string or data source
-                    Ref::new("QuotedLiteralSegment"),
-                    // Optional third parameter (query or object)
-                    Sequence::new(vec_of_erased![
-                        Ref::new("CommaSegment"),
-                        one_of(vec_of_erased![
-                            Ref::new("QuotedLiteralSegment"),
-                            Ref::new("ObjectReferenceSegment")
-                        ])
-                    ]).config(|this| this.optional())
-                ])
-            ])
-            .to_matchable()
-        })
-        .to_matchable()
-        .into(),
-    )]);
+    // (Removed duplicate OpenRowsetSegment - using the better one defined earlier)
 
-    // Override FromExpressionElementSegment to include OPENDATASOURCE/OPENROWSET
-    dialect.replace_grammar("FromExpressionElementSegment", {
-        NodeMatcher::new(SyntaxKind::FromExpressionElement, |_| {
-            Sequence::new(vec_of_erased![
-                Ref::new("PreTableFunctionKeywordsGrammar").optional(),
-                one_of(vec_of_erased![
-                    optionally_bracketed(vec_of_erased![Ref::new("TableExpressionSegment")]),
-                    Ref::new("JoinClauseSegment"),
-                    Ref::new("PivotUnpivotStatementSegment"),
-                    Ref::new("OpenQuerySegment"),
-                    Ref::new("OpenDataSourceSegment"),
-                    Ref::new("OpenRowsetSegment"),
-                    // Allow OPENDATASOURCE/OPENROWSET/OPENQUERY with chained object references
-                    Sequence::new(vec_of_erased![
-                        one_of(vec_of_erased![
-                            Ref::new("OpenQuerySegment"),
-                            Ref::new("OpenDataSourceSegment"),
-                            Ref::new("OpenRowsetSegment")
-                        ]),
-                        // Allow .database.schema.table after OPENDATASOURCE/OPENROWSET/OPENQUERY
-                        AnyNumberOf::new(vec_of_erased![
-                            Sequence::new(vec_of_erased![
-                                Ref::new("DotSegment"),
-                                Ref::new("SingleIdentifierGrammar")
-                            ])
-                        ]).config(|this| this.min_times(1))
-                    ])
-                ]),
-                // Add alias support
-                Ref::new("AliasExpressionSegment")
-                    .exclude(one_of(vec_of_erased![
-                        Ref::new("FromClauseTerminatorGrammar"),
-                        Ref::new("SamplingExpressionSegment"),
-                        Ref::new("JoinLikeClauseGrammar")
-                    ]))
-                    .optional(),
-                Ref::new("SamplingExpressionSegment").optional(),
-                Ref::new("PostTableExpressionGrammar").optional()
-            ])
-            .to_matchable()
-        })
-        .to_matchable()
-    });
+    // (Removed duplicate FromExpressionElementSegment - using the better one defined earlier)
 
     // Add JSON NULL clause support
     dialect.add([(

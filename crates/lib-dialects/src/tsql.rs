@@ -3798,11 +3798,6 @@ pub fn raw_dialect() -> Dialect {
                         Ref::keyword("OUTER").optional(),
                         Ref::keyword("JOIN")
                     ]),
-                    // NATURAL JOIN (no type specified)
-                    Sequence::new(vec_of_erased![
-                        Ref::keyword("NATURAL"),
-                        Ref::keyword("JOIN")
-                    ]),
                     // FULL/LEFT/RIGHT OUTER [HASH|MERGE|LOOP] JOIN (most specific)
                     Sequence::new(vec_of_erased![
                         one_of(vec_of_erased![

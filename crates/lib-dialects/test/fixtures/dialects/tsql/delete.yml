@@ -367,60 +367,104 @@ file:
               - raw_comparison_operator: '>'
             - numeric_literal: '2500000.00'
         - statement_terminator: ;
+  - statement:
+    - delete_statement:
+      - delete_statement:
+        - keyword: DELETE
+        - keyword: TOP
+        - bracketed:
+          - start_bracket: (
+          - expression:
+            - numeric_literal: '20'
+          - end_bracket: )
+        - keyword: FROM
+        - table_reference:
+          - object_reference:
+            - naked_identifier: Purchasing
+            - dot: .
+            - naked_identifier: PurchaseOrderDetail
+        - where_clause:
+          - keyword: WHERE
+          - expression:
+            - column_reference:
+              - naked_identifier: DueDate
+            - comparison_operator:
+              - raw_comparison_operator: <
+            - quoted_literal: '''20020701'''
+        - statement_terminator: ;
+  - keyword: GO
+  - statement:
+    - delete_statement:
+      - delete_statement:
+        - keyword: DELETE
+        - keyword: FROM
+        - table_reference:
+          - object_reference:
+            - naked_identifier: Purchasing
+            - dot: .
+            - naked_identifier: PurchaseOrderDetail
+        - where_clause:
+          - keyword: WHERE
+          - expression:
+            - column_reference:
+              - naked_identifier: PurchaseOrderDetailID
+            - keyword: IN
+            - bracketed:
+              - start_bracket: (
+              - select_statement:
+                - select_clause:
+                  - keyword: SELECT
+                  - select_clause_modifier:
+                    - keyword: TOP
+                    - expression:
+                      - numeric_literal: '10'
+                  - select_clause_element:
+                    - column_reference:
+                      - naked_identifier: PurchaseOrderDetailID
+                - from_clause:
+                  - keyword: FROM
+                  - from_expression:
+                    - from_expression_element:
+                      - from_expression_element:
+                        - table_expression:
+                          - table_reference:
+                            - object_reference:
+                              - naked_identifier: Purchasing
+                              - dot: .
+                              - naked_identifier: PurchaseOrderDetail
+                - orderby_clause:
+                  - keyword: ORDER
+                  - keyword: BY
+                  - column_reference:
+                    - naked_identifier: DueDate
+                  - keyword: ASC
+              - end_bracket: )
+        - statement_terminator: ;
+  - keyword: GO
+  - statement:
+    - delete_statement:
+      - delete_statement:
+        - keyword: DELETE
+        - table_reference:
+          - object_reference:
+            - naked_identifier: MyLinkServer
+            - dot: .
+            - naked_identifier: AdventureWorks2012
+            - dot: .
+            - naked_identifier: HumanResources
+            - dot: .
+            - naked_identifier: Department
+        - where_clause:
+          - keyword: WHERE
+          - expression:
+            - column_reference:
+              - naked_identifier: DepartmentID
+            - comparison_operator:
+              - raw_comparison_operator: '>'
+            - numeric_literal: '16'
+        - statement_terminator: ;
+  - keyword: GO
 - unparsable:
-  - word: DELETE
-  - word: TOP
-  - start_bracket: (
-  - numeric_literal: '20'
-  - end_bracket: )
-  - word: FROM
-  - word: Purchasing
-  - dot: .
-  - word: PurchaseOrderDetail
-  - word: WHERE
-  - word: DueDate
-  - raw_comparison_operator: <
-  - single_quote: '''20020701'''
-  - semicolon: ;
-  - word: GO
-  - word: DELETE
-  - word: FROM
-  - word: Purchasing
-  - dot: .
-  - word: PurchaseOrderDetail
-  - word: WHERE
-  - word: PurchaseOrderDetailID
-  - word: IN
-  - start_bracket: (
-  - word: SELECT
-  - word: TOP
-  - numeric_literal: '10'
-  - word: PurchaseOrderDetailID
-  - word: FROM
-  - word: Purchasing
-  - dot: .
-  - word: PurchaseOrderDetail
-  - word: ORDER
-  - word: BY
-  - word: DueDate
-  - word: ASC
-  - end_bracket: )
-  - semicolon: ;
-  - word: GO
-  - word: DELETE
-  - word: MyLinkServer
-  - dot: .
-  - word: AdventureWorks2012
-  - dot: .
-  - word: HumanResources
-  - dot: .
-  - word: Department
-  - word: WHERE
-  - word: DepartmentID
-  - raw_comparison_operator: '>'
-  - numeric_literal: '16'
-  - semicolon: ;
-  - word: GO
   - word: DELETE
   - word: OPENQUERY
   - start_bracket: (

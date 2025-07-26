@@ -35,11 +35,12 @@ file:
             - function:
               - function_name:
                 - function_name_identifier: is_role_in_session
-              - bracketed:
-                - start_bracket: (
-                - expression:
-                  - quoted_literal: '''SNOWFLAKE_PII'''
-                - end_bracket: )
+              - function_contents:
+                - bracketed:
+                  - start_bracket: (
+                  - expression:
+                    - quoted_literal: '''SNOWFLAKE_PII'''
+                  - end_bracket: )
           - keyword: THEN
           - expression:
             - column_reference:
@@ -86,9 +87,10 @@ file:
             - function:
               - function_name:
                 - function_name_identifier: current_role
-              - bracketed:
-                - start_bracket: (
-                - end_bracket: )
+              - function_contents:
+                - bracketed:
+                  - start_bracket: (
+                  - end_bracket: )
             - keyword: in
             - bracketed:
               - start_bracket: (
@@ -136,9 +138,10 @@ file:
             - function:
               - function_name:
                 - function_name_identifier: current_account
-              - bracketed:
-                - start_bracket: (
-                - end_bracket: )
+              - function_contents:
+                - bracketed:
+                  - start_bracket: (
+                  - end_bracket: )
             - keyword: in
             - bracketed:
               - start_bracket: (
@@ -186,9 +189,10 @@ file:
             - function:
               - function_name:
                 - function_name_identifier: current_role
-              - bracketed:
-                - start_bracket: (
-                - end_bracket: )
+              - function_contents:
+                - bracketed:
+                  - start_bracket: (
+                  - end_bracket: )
             - keyword: IN
             - bracketed:
               - start_bracket: (
@@ -236,9 +240,10 @@ file:
             - function:
               - function_name:
                 - function_name_identifier: current_role
-              - bracketed:
-                - start_bracket: (
-                - end_bracket: )
+              - function_contents:
+                - bracketed:
+                  - start_bracket: (
+                  - end_bracket: )
             - keyword: in
             - bracketed:
               - start_bracket: (
@@ -286,9 +291,10 @@ file:
             - function:
               - function_name:
                 - function_name_identifier: current_role
-              - bracketed:
-                - start_bracket: (
-                - end_bracket: )
+              - function_contents:
+                - bracketed:
+                  - start_bracket: (
+                  - end_bracket: )
             - keyword: in
             - bracketed:
               - start_bracket: (
@@ -304,12 +310,13 @@ file:
             - function:
               - function_name:
                 - function_name_identifier: sha2
-              - bracketed:
-                - start_bracket: (
-                - expression:
-                  - column_reference:
-                    - naked_identifier: val
-                - end_bracket: )
+              - function_contents:
+                - bracketed:
+                  - start_bracket: (
+                  - expression:
+                    - column_reference:
+                      - naked_identifier: val
+                  - end_bracket: )
         - keyword: end
 - statement_terminator: ;
 - statement:
@@ -344,9 +351,10 @@ file:
             - function:
               - function_name:
                 - function_name_identifier: current_role
-              - bracketed:
-                - start_bracket: (
-                - end_bracket: )
+              - function_contents:
+                - bracketed:
+                  - start_bracket: (
+                  - end_bracket: )
             - keyword: in
             - bracketed:
               - start_bracket: (
@@ -362,9 +370,10 @@ file:
             - function:
               - function_name:
                 - function_name_identifier: current_role
-              - bracketed:
-                - start_bracket: (
-                - end_bracket: )
+              - function_contents:
+                - bracketed:
+                  - start_bracket: (
+                  - end_bracket: )
             - keyword: in
             - bracketed:
               - start_bracket: (
@@ -375,18 +384,19 @@ file:
             - function:
               - function_name:
                 - function_name_identifier: regexp_replace
-              - bracketed:
-                - start_bracket: (
-                - expression:
-                  - column_reference:
-                    - naked_identifier: val
-                - comma: ','
-                - expression:
-                  - quoted_literal: '''.+\@'''
-                - comma: ','
-                - expression:
-                  - quoted_literal: '''*****@'''
-                - end_bracket: )
+              - function_contents:
+                - bracketed:
+                  - start_bracket: (
+                  - expression:
+                    - column_reference:
+                      - naked_identifier: val
+                  - comma: ','
+                  - expression:
+                    - quoted_literal: '''.+\@'''
+                  - comma: ','
+                  - expression:
+                    - quoted_literal: '''*****@'''
+                  - end_bracket: )
         - else_clause:
           - keyword: else
           - expression:
@@ -425,9 +435,10 @@ file:
             - function:
               - function_name:
                 - function_name_identifier: current_role
-              - bracketed:
-                - start_bracket: (
-                - end_bracket: )
+              - function_contents:
+                - bracketed:
+                  - start_bracket: (
+                  - end_bracket: )
             - keyword: in
             - bracketed:
               - start_bracket: (
@@ -444,17 +455,18 @@ file:
               - function:
                 - function_name:
                   - function_name_identifier: date_from_parts
-                - bracketed:
-                  - start_bracket: (
-                  - expression:
-                    - numeric_literal: '0001'
-                  - comma: ','
-                  - expression:
-                    - numeric_literal: '01'
-                  - comma: ','
-                  - expression:
-                    - numeric_literal: '01'
-                  - end_bracket: )
+                - function_contents:
+                  - bracketed:
+                    - start_bracket: (
+                    - expression:
+                      - numeric_literal: '0001'
+                    - comma: ','
+                    - expression:
+                      - numeric_literal: '01'
+                    - comma: ','
+                    - expression:
+                      - numeric_literal: '01'
+                    - end_bracket: )
               - casting_operator: '::'
               - data_type:
                 - data_type_identifier: timestamp_ntz
@@ -492,9 +504,10 @@ file:
             - function:
               - function_name:
                 - function_name_identifier: current_role
-              - bracketed:
-                - start_bracket: (
-                - end_bracket: )
+              - function_contents:
+                - bracketed:
+                  - start_bracket: (
+                  - end_bracket: )
             - keyword: in
             - bracketed:
               - start_bracket: (
@@ -510,12 +523,13 @@ file:
             - function:
               - function_name:
                 - function_name_identifier: mask_udf
-              - bracketed:
-                - start_bracket: (
-                - expression:
-                  - column_reference:
-                    - naked_identifier: val
-                - end_bracket: )
+              - function_contents:
+                - bracketed:
+                  - start_bracket: (
+                  - expression:
+                    - column_reference:
+                      - naked_identifier: val
+                  - end_bracket: )
         - keyword: end
 - statement_terminator: ;
 - statement:
@@ -550,9 +564,10 @@ file:
             - function:
               - function_name:
                 - function_name_identifier: current_role
-              - bracketed:
-                - start_bracket: (
-                - end_bracket: )
+              - function_contents:
+                - bracketed:
+                  - start_bracket: (
+                  - end_bracket: )
             - keyword: in
             - bracketed:
               - start_bracket: (
@@ -568,20 +583,21 @@ file:
             - function:
               - function_name:
                 - function_name_identifier: object_insert
-              - bracketed:
-                - start_bracket: (
-                - expression:
-                  - column_reference:
-                    - naked_identifier: val
-                - comma: ','
-                - expression:
-                  - quoted_literal: '''USER_IPADDRESS'''
-                - comma: ','
-                - expression:
-                  - quoted_literal: '''****'''
-                - comma: ','
-                - expression:
-                  - boolean_literal: 'true'
-                - end_bracket: )
+              - function_contents:
+                - bracketed:
+                  - start_bracket: (
+                  - expression:
+                    - column_reference:
+                      - naked_identifier: val
+                  - comma: ','
+                  - expression:
+                    - quoted_literal: '''USER_IPADDRESS'''
+                  - comma: ','
+                  - expression:
+                    - quoted_literal: '''****'''
+                  - comma: ','
+                  - expression:
+                    - boolean_literal: 'true'
+                  - end_bracket: )
         - keyword: end
 - statement_terminator: ;

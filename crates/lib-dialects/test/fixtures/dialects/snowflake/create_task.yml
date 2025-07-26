@@ -206,12 +206,13 @@ file:
               - function:
                 - function_name:
                   - function_name_identifier: sum
-                - bracketed:
-                  - start_bracket: (
-                  - expression:
-                    - column_reference:
-                      - naked_identifier: break
-                  - end_bracket: )
+                - function_contents:
+                  - bracketed:
+                    - start_bracket: (
+                    - expression:
+                      - column_reference:
+                        - naked_identifier: break
+                    - end_bracket: )
                 - over_clause:
                   - keyword: OVER
                   - bracketed:
@@ -323,12 +324,13 @@ file:
                               - function:
                                 - function_name:
                                   - function_name_identifier: sum
-                                - bracketed:
-                                  - start_bracket: (
-                                  - expression:
-                                    - column_reference:
-                                      - naked_identifier: break
-                                  - end_bracket: )
+                                - function_contents:
+                                  - bracketed:
+                                    - start_bracket: (
+                                    - expression:
+                                      - column_reference:
+                                        - naked_identifier: break
+                                    - end_bracket: )
                                 - over_clause:
                                   - keyword: OVER
                                   - bracketed:
@@ -429,9 +431,10 @@ file:
             - naked_identifier: sch
             - dot: .
             - function_name_identifier: session_agg_insert
-          - bracketed:
-            - start_bracket: (
-            - end_bracket: )
+          - function_contents:
+            - bracketed:
+              - start_bracket: (
+              - end_bracket: )
 - statement_terminator: ;
 - statement:
   - create_task_statement:
@@ -457,9 +460,10 @@ file:
         - function:
           - function_name:
             - function_name_identifier: auto_device_insert
-          - bracketed:
-            - start_bracket: (
-            - end_bracket: )
+          - function_contents:
+            - bracketed:
+              - start_bracket: (
+              - end_bracket: )
 - statement_terminator: ;
 - statement:
   - create_task_statement:
@@ -506,7 +510,8 @@ file:
             - naked_identifier: SCH
             - dot: .
             - function_name_identifier: MY_SPROC
-          - bracketed:
-            - start_bracket: (
-            - end_bracket: )
+          - function_contents:
+            - bracketed:
+              - start_bracket: (
+              - end_bracket: )
 - statement_terminator: ;

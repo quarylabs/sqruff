@@ -11,54 +11,58 @@ file:
               - function:
                 - function_name:
                   - function_name_identifier: POW
-                - bracketed:
-                  - start_bracket: (
-                  - expression:
-                    - column_reference:
-                      - naked_identifier: sd2
-                  - comma: ','
-                  - expression:
-                    - numeric_literal: '2'
-                  - end_bracket: )
+                - function_contents:
+                  - bracketed:
+                    - start_bracket: (
+                    - expression:
+                      - column_reference:
+                        - naked_identifier: sd2
+                    - comma: ','
+                    - expression:
+                      - numeric_literal: '2'
+                    - end_bracket: )
               - binary_operator: +
               - function:
                 - function_name:
                   - function_name_identifier: POW
-                - bracketed:
-                  - start_bracket: (
-                  - expression:
-                    - column_reference:
-                      - naked_identifier: sd3
-                  - comma: ','
-                  - expression:
-                    - numeric_literal: '2'
-                  - end_bracket: )
+                - function_contents:
+                  - bracketed:
+                    - start_bracket: (
+                    - expression:
+                      - column_reference:
+                        - naked_identifier: sd3
+                    - comma: ','
+                    - expression:
+                      - numeric_literal: '2'
+                    - end_bracket: )
               - binary_operator: +
               - function:
                 - function_name:
                   - function_name_identifier: POW
-                - bracketed:
-                  - start_bracket: (
-                  - expression:
-                    - column_reference:
-                      - naked_identifier: sd4
-                  - comma: ','
-                  - expression:
-                    - numeric_literal: '2'
-                  - end_bracket: )
+                - function_contents:
+                  - bracketed:
+                    - start_bracket: (
+                    - expression:
+                      - column_reference:
+                        - naked_identifier: sd4
+                    - comma: ','
+                    - expression:
+                      - numeric_literal: '2'
+                    - end_bracket: )
               - binary_operator: +
               - function:
                 - function_name:
                   - function_name_identifier: POW
-                - bracketed:
-                  - start_bracket: (
-                  - expression:
-                    - column_reference:
-                      - naked_identifier: sd4
-                  - comma: ','
-                  - expression:
-                    - numeric_literal: '2'
-                  - end_bracket: )
+                - function_contents:
+                  - bracketed:
+                    - start_bracket: (
+                    - expression:
+                      - column_reference:
+                        - naked_identifier: sd4
+                    - comma: ','
+                    - expression:
+                      - numeric_literal: '2'
+                    - end_bracket: )
             - end_bracket: )
         - alias_expression:
           - naked_identifier: w1

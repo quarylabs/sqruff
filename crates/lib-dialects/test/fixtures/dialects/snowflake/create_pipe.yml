@@ -91,9 +91,10 @@ file:
               - function:
                 - function_name:
                   - function_name_identifier: current_timestamp
-                - bracketed:
-                  - start_bracket: (
-                  - end_bracket: )
+                - function_contents:
+                  - bracketed:
+                    - start_bracket: (
+                    - end_bracket: )
               - alias_expression:
                 - keyword: as
                 - naked_identifier: column2
@@ -150,9 +151,10 @@ file:
               - function:
                 - function_name:
                   - function_name_identifier: current_timestamp
-                - bracketed:
-                  - start_bracket: (
-                  - end_bracket: )
+                - function_contents:
+                  - bracketed:
+                    - start_bracket: (
+                    - end_bracket: )
               - alias_expression:
                 - keyword: as
                 - naked_identifier: column2

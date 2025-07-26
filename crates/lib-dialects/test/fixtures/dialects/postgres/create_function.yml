@@ -323,11 +323,12 @@ file:
             - function:
               - function_name:
                 - function_name_identifier: dup
-              - bracketed:
-                - start_bracket: (
-                - expression:
-                  - numeric_literal: '42'
-                - end_bracket: )
+              - function_contents:
+                - bracketed:
+                  - start_bracket: (
+                  - expression:
+                    - numeric_literal: '42'
+                  - end_bracket: )
 - statement_terminator: ;
 - statement:
   - create_type_statement:
@@ -387,11 +388,12 @@ file:
             - function:
               - function_name:
                 - function_name_identifier: dup
-              - bracketed:
-                - start_bracket: (
-                - expression:
-                  - numeric_literal: '42'
-                - end_bracket: )
+              - function_contents:
+                - bracketed:
+                  - start_bracket: (
+                  - expression:
+                    - numeric_literal: '42'
+                  - end_bracket: )
 - statement_terminator: ;
 - statement:
   - create_function_statement:
@@ -475,11 +477,12 @@ file:
             - function:
               - function_name:
                 - function_name_identifier: dup
-              - bracketed:
-                - start_bracket: (
-                - expression:
-                  - numeric_literal: '42'
-                - end_bracket: )
+              - function_contents:
+                - bracketed:
+                  - start_bracket: (
+                  - expression:
+                    - numeric_literal: '42'
+                  - end_bracket: )
 - statement_terminator: ;
 - statement:
   - create_function_statement:

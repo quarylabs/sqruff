@@ -10,17 +10,18 @@ file:
             - function:
               - function_name:
                 - function_name_identifier: select
-              - bracketed:
-                - start_bracket: (
-                - expression:
-                  - numeric_literal: '1'
-                - comma: ','
-                - expression:
-                  - numeric_literal: '2'
-                - comma: ','
-                - expression:
-                  - numeric_literal: '3'
-                - end_bracket: )
+              - function_contents:
+                - bracketed:
+                  - start_bracket: (
+                  - expression:
+                    - numeric_literal: '1'
+                  - comma: ','
+                  - expression:
+                    - numeric_literal: '2'
+                  - comma: ','
+                  - expression:
+                    - numeric_literal: '3'
+                  - end_bracket: )
           - end_bracket: )
       - keyword: as
       - naked_identifier: in_arr_cte
@@ -147,20 +148,21 @@ file:
           - function:
             - function_name:
               - function_name_identifier: if
-            - bracketed:
-              - start_bracket: (
-              - expression:
-                - column_reference:
-                  - naked_identifier: int_col
-                - keyword: in
-                - naked_identifier: int_arr
-              - comma: ','
-              - expression:
-                - numeric_literal: '1'
-              - comma: ','
-              - expression:
-                - numeric_literal: '0'
-              - end_bracket: )
+            - function_contents:
+              - bracketed:
+                - start_bracket: (
+                - expression:
+                  - column_reference:
+                    - naked_identifier: int_col
+                  - keyword: in
+                  - naked_identifier: int_arr
+                - comma: ','
+                - expression:
+                  - numeric_literal: '1'
+                - comma: ','
+                - expression:
+                  - numeric_literal: '0'
+                - end_bracket: )
           - alias_expression:
             - keyword: as
             - naked_identifier: in_array_flag

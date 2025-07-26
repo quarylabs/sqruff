@@ -47,14 +47,15 @@ file:
                       - function:
                         - function_name:
                           - function_name_identifier: SUM
-                        - bracketed:
-                          - start_bracket: (
-                          - expression:
-                            - column_reference:
-                              - naked_identifier: o
-                              - dot: .
-                              - naked_identifier: Amount
-                          - end_bracket: )
+                        - function_contents:
+                          - bracketed:
+                            - start_bracket: (
+                            - expression:
+                              - column_reference:
+                                - naked_identifier: o
+                                - dot: .
+                                - naked_identifier: Amount
+                            - end_bracket: )
                   - from_clause:
                     - keyword: FROM
                     - from_expression:

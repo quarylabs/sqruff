@@ -123,14 +123,15 @@ file:
             - function:
               - function_name:
                 - function_name_identifier: flatten
-              - bracketed:
-                - start_bracket: (
-                - snowflake_keyword_expression:
-                  - parameter: INPUT
-                  - parameter_assigner: =>
-                  - column_reference:
-                    - naked_identifier: custom_fields
-                - end_bracket: )
+              - function_contents:
+                - bracketed:
+                  - start_bracket: (
+                  - snowflake_keyword_expression:
+                    - parameter: INPUT
+                    - parameter_assigner: =>
+                    - column_reference:
+                      - naked_identifier: custom_fields
+                  - end_bracket: )
 - statement_terminator: ;
 - statement:
   - select_statement:

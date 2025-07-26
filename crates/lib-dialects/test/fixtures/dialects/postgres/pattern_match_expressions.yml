@@ -152,19 +152,20 @@ file:
         - function:
           - function_name:
             - function_name_identifier: COALESCE
-          - bracketed:
-            - start_bracket: (
-            - expression:
-              - column_reference:
-                - naked_identifier: family
-              - keyword: LIKE
-              - quoted_literal: '''%ursidae%'''
-              - keyword: ESCAPE
-              - quoted_literal: '''\\'''
-            - comma: ','
-            - expression:
-              - boolean_literal: 'FALSE'
-            - end_bracket: )
+          - function_contents:
+            - bracketed:
+              - start_bracket: (
+              - expression:
+                - column_reference:
+                  - naked_identifier: family
+                - keyword: LIKE
+                - quoted_literal: '''%ursidae%'''
+                - keyword: ESCAPE
+                - quoted_literal: '''\\'''
+              - comma: ','
+              - expression:
+                - boolean_literal: 'FALSE'
+              - end_bracket: )
         - alias_expression:
           - keyword: AS
           - naked_identifier: is_bear
@@ -335,20 +336,21 @@ file:
         - function:
           - function_name:
             - function_name_identifier: COALESCE
-          - bracketed:
-            - start_bracket: (
-            - expression:
-              - column_reference:
-                - naked_identifier: family
-              - keyword: SIMILAR
-              - keyword: TO
-              - quoted_literal: '''%ursidae%'''
-              - keyword: ESCAPE
-              - quoted_literal: '''\\'''
-            - comma: ','
-            - expression:
-              - boolean_literal: 'FALSE'
-            - end_bracket: )
+          - function_contents:
+            - bracketed:
+              - start_bracket: (
+              - expression:
+                - column_reference:
+                  - naked_identifier: family
+                - keyword: SIMILAR
+                - keyword: TO
+                - quoted_literal: '''%ursidae%'''
+                - keyword: ESCAPE
+                - quoted_literal: '''\\'''
+              - comma: ','
+              - expression:
+                - boolean_literal: 'FALSE'
+              - end_bracket: )
         - alias_expression:
           - keyword: AS
           - naked_identifier: is_bear
@@ -379,32 +381,33 @@ file:
               - function:
                 - function_name:
                   - function_name_identifier: TO_NUMBER
-                - bracketed:
-                  - start_bracket: (
-                  - expression:
-                    - case_expression:
-                      - keyword: CASE
-                      - when_clause:
-                        - keyword: WHEN
-                        - expression:
-                          - column_reference:
-                            - naked_identifier: honey_numerical_code
-                          - keyword: SIMILAR
-                          - keyword: TO
-                          - quoted_literal: '''[0-9]{0,7}.?[0-9]{0,2}'''
-                        - keyword: THEN
-                        - expression:
-                          - column_reference:
-                            - naked_identifier: honey_numerical_code
-                      - else_clause:
-                        - keyword: ELSE
-                        - expression:
-                          - null_literal: 'NULL'
-                      - keyword: END
-                  - comma: ','
-                  - expression:
-                    - quoted_literal: '''24601'''
-                  - end_bracket: )
+                - function_contents:
+                  - bracketed:
+                    - start_bracket: (
+                    - expression:
+                      - case_expression:
+                        - keyword: CASE
+                        - when_clause:
+                          - keyword: WHEN
+                          - expression:
+                            - column_reference:
+                              - naked_identifier: honey_numerical_code
+                            - keyword: SIMILAR
+                            - keyword: TO
+                            - quoted_literal: '''[0-9]{0,7}.?[0-9]{0,2}'''
+                          - keyword: THEN
+                          - expression:
+                            - column_reference:
+                              - naked_identifier: honey_numerical_code
+                        - else_clause:
+                          - keyword: ELSE
+                          - expression:
+                            - null_literal: 'NULL'
+                        - keyword: END
+                    - comma: ','
+                    - expression:
+                      - quoted_literal: '''24601'''
+                    - end_bracket: )
               - alias_expression:
                 - keyword: AS
                 - naked_identifier: honey_numerical_code

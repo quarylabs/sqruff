@@ -40,11 +40,12 @@ file:
           - function:
             - function_name:
               - function_name_identifier: count
-            - bracketed:
-              - start_bracket: (
-              - expression:
-                - numeric_literal: '1'
-              - end_bracket: )
+            - function_contents:
+              - bracketed:
+                - start_bracket: (
+                - expression:
+                  - numeric_literal: '1'
+                - end_bracket: )
       - from_clause:
         - keyword: from
         - from_expression:
@@ -72,11 +73,12 @@ file:
           - function:
             - function_name:
               - function_name_identifier: count
-            - bracketed:
-              - start_bracket: (
-              - expression:
-                - numeric_literal: '1'
-              - end_bracket: )
+            - function_contents:
+              - bracketed:
+                - start_bracket: (
+                - expression:
+                  - numeric_literal: '1'
+                - end_bracket: )
           - comparison_operator:
             - raw_comparison_operator: '>'
           - numeric_literal: '10'

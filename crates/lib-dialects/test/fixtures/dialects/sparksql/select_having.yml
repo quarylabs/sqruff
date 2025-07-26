@@ -11,12 +11,13 @@ file:
         - function:
           - function_name:
             - function_name_identifier: sum
-          - bracketed:
-            - start_bracket: (
-            - expression:
-              - column_reference:
-                - naked_identifier: quantity
-            - end_bracket: )
+          - function_contents:
+            - bracketed:
+              - start_bracket: (
+              - expression:
+                - column_reference:
+                  - naked_identifier: quantity
+              - end_bracket: )
         - alias_expression:
           - keyword: AS
           - naked_identifier: sum_quantity
@@ -53,12 +54,13 @@ file:
         - function:
           - function_name:
             - function_name_identifier: sum
-          - bracketed:
-            - start_bracket: (
-            - expression:
-              - column_reference:
-                - naked_identifier: quantity
-            - end_bracket: )
+          - function_contents:
+            - bracketed:
+              - start_bracket: (
+              - expression:
+                - column_reference:
+                  - naked_identifier: quantity
+              - end_bracket: )
         - alias_expression:
           - keyword: AS
           - naked_identifier: sum_quantity
@@ -80,12 +82,13 @@ file:
         - function:
           - function_name:
             - function_name_identifier: sum
-          - bracketed:
-            - start_bracket: (
-            - expression:
-              - column_reference:
-                - naked_identifier: quantity
-            - end_bracket: )
+          - function_contents:
+            - bracketed:
+              - start_bracket: (
+              - expression:
+                - column_reference:
+                  - naked_identifier: quantity
+              - end_bracket: )
         - comparison_operator:
           - raw_comparison_operator: '>'
         - numeric_literal: '15'
@@ -102,12 +105,13 @@ file:
         - function:
           - function_name:
             - function_name_identifier: sum
-          - bracketed:
-            - start_bracket: (
-            - expression:
-              - column_reference:
-                - naked_identifier: quantity
-            - end_bracket: )
+          - function_contents:
+            - bracketed:
+              - start_bracket: (
+              - expression:
+                - column_reference:
+                  - naked_identifier: quantity
+              - end_bracket: )
         - alias_expression:
           - keyword: AS
           - naked_identifier: sum_quantity
@@ -144,12 +148,13 @@ file:
         - function:
           - function_name:
             - function_name_identifier: sum
-          - bracketed:
-            - start_bracket: (
-            - expression:
-              - column_reference:
-                - naked_identifier: quantity
-            - end_bracket: )
+          - function_contents:
+            - bracketed:
+              - start_bracket: (
+              - expression:
+                - column_reference:
+                  - naked_identifier: quantity
+              - end_bracket: )
         - alias_expression:
           - keyword: AS
           - naked_identifier: sum_quantity
@@ -171,12 +176,13 @@ file:
         - function:
           - function_name:
             - function_name_identifier: max
-          - bracketed:
-            - start_bracket: (
-            - expression:
-              - column_reference:
-                - naked_identifier: quantity
-            - end_bracket: )
+          - function_contents:
+            - bracketed:
+              - start_bracket: (
+              - expression:
+                - column_reference:
+                  - naked_identifier: quantity
+              - end_bracket: )
         - comparison_operator:
           - raw_comparison_operator: '>'
         - numeric_literal: '15'
@@ -193,12 +199,13 @@ file:
         - function:
           - function_name:
             - function_name_identifier: sum
-          - bracketed:
-            - start_bracket: (
-            - expression:
-              - column_reference:
-                - naked_identifier: quantity
-            - end_bracket: )
+          - function_contents:
+            - bracketed:
+              - start_bracket: (
+              - expression:
+                - column_reference:
+                  - naked_identifier: quantity
+              - end_bracket: )
         - alias_expression:
           - keyword: AS
           - naked_identifier: sum_quantity
@@ -235,12 +242,13 @@ file:
         - function:
           - function_name:
             - function_name_identifier: sum
-          - bracketed:
-            - start_bracket: (
-            - expression:
-              - column_reference:
-                - naked_identifier: quantity
-            - end_bracket: )
+          - function_contents:
+            - bracketed:
+              - start_bracket: (
+              - expression:
+                - column_reference:
+                  - naked_identifier: quantity
+              - end_bracket: )
         - alias_expression:
           - keyword: AS
           - naked_identifier: sum_quantity
@@ -257,12 +265,13 @@ file:
         - function:
           - function_name:
             - function_name_identifier: sum
-          - bracketed:
-            - start_bracket: (
-            - expression:
-              - column_reference:
-                - naked_identifier: quantity
-            - end_bracket: )
+          - function_contents:
+            - bracketed:
+              - start_bracket: (
+              - expression:
+                - column_reference:
+                  - naked_identifier: quantity
+              - end_bracket: )
         - comparison_operator:
           - raw_comparison_operator: '>'
         - numeric_literal: '10'

@@ -15,16 +15,17 @@ file:
         - function:
           - function_name:
             - function_name_identifier: grouping
-          - bracketed:
-            - start_bracket: (
-            - expression:
-              - column_reference:
-                - naked_identifier: region
-            - comma: ','
-            - expression:
-              - column_reference:
-                - naked_identifier: city
-            - end_bracket: )
+          - function_contents:
+            - bracketed:
+              - start_bracket: (
+              - expression:
+                - column_reference:
+                  - naked_identifier: region
+              - comma: ','
+              - expression:
+                - column_reference:
+                  - naked_identifier: city
+              - end_bracket: )
         - alias_expression:
           - keyword: AS
           - naked_identifier: grp_idx
@@ -33,13 +34,14 @@ file:
         - function:
           - function_name:
             - function_name_identifier: count
-          - bracketed:
-            - start_bracket: (
-            - keyword: DISTINCT
-            - expression:
-              - column_reference:
-                - naked_identifier: id
-            - end_bracket: )
+          - function_contents:
+            - bracketed:
+              - start_bracket: (
+              - keyword: DISTINCT
+              - expression:
+                - column_reference:
+                  - naked_identifier: id
+              - end_bracket: )
         - alias_expression:
           - keyword: AS
           - naked_identifier: num_total
@@ -48,13 +50,14 @@ file:
         - function:
           - function_name:
             - function_name_identifier: count
-          - bracketed:
-            - start_bracket: (
-            - keyword: DISTINCT
-            - expression:
-              - column_reference:
-                - naked_identifier: id
-            - end_bracket: )
+          - function_contents:
+            - bracketed:
+              - start_bracket: (
+              - keyword: DISTINCT
+              - expression:
+                - column_reference:
+                  - naked_identifier: id
+              - end_bracket: )
           - keyword: FILTER
           - bracketed:
             - start_bracket: (
@@ -71,13 +74,14 @@ file:
         - function:
           - function_name:
             - function_name_identifier: count
-          - bracketed:
-            - start_bracket: (
-            - keyword: DISTINCT
-            - expression:
-              - column_reference:
-                - naked_identifier: id
-            - end_bracket: )
+          - function_contents:
+            - bracketed:
+              - start_bracket: (
+              - keyword: DISTINCT
+              - expression:
+                - column_reference:
+                  - naked_identifier: id
+              - end_bracket: )
           - keyword: FILTER
           - bracketed:
             - start_bracket: (
@@ -153,16 +157,17 @@ file:
         - function:
           - function_name:
             - function_name_identifier: grouping
-          - bracketed:
-            - start_bracket: (
-            - expression:
-              - column_reference:
-                - naked_identifier: region
-            - comma: ','
-            - expression:
-              - column_reference:
-                - naked_identifier: city
-            - end_bracket: )
+          - function_contents:
+            - bracketed:
+              - start_bracket: (
+              - expression:
+                - column_reference:
+                  - naked_identifier: region
+              - comma: ','
+              - expression:
+                - column_reference:
+                  - naked_identifier: city
+              - end_bracket: )
         - alias_expression:
           - keyword: AS
           - naked_identifier: grp_idx
@@ -171,13 +176,14 @@ file:
         - function:
           - function_name:
             - function_name_identifier: count
-          - bracketed:
-            - start_bracket: (
-            - keyword: DISTINCT
-            - expression:
-              - column_reference:
-                - naked_identifier: id
-            - end_bracket: )
+          - function_contents:
+            - bracketed:
+              - start_bracket: (
+              - keyword: DISTINCT
+              - expression:
+                - column_reference:
+                  - naked_identifier: id
+              - end_bracket: )
         - alias_expression:
           - keyword: AS
           - naked_identifier: num_total
@@ -186,13 +192,14 @@ file:
         - function:
           - function_name:
             - function_name_identifier: count
-          - bracketed:
-            - start_bracket: (
-            - keyword: DISTINCT
-            - expression:
-              - column_reference:
-                - naked_identifier: id
-            - end_bracket: )
+          - function_contents:
+            - bracketed:
+              - start_bracket: (
+              - keyword: DISTINCT
+              - expression:
+                - column_reference:
+                  - naked_identifier: id
+              - end_bracket: )
           - keyword: FILTER
           - bracketed:
             - start_bracket: (
@@ -209,13 +216,14 @@ file:
         - function:
           - function_name:
             - function_name_identifier: count
-          - bracketed:
-            - start_bracket: (
-            - keyword: DISTINCT
-            - expression:
-              - column_reference:
-                - naked_identifier: id
-            - end_bracket: )
+          - function_contents:
+            - bracketed:
+              - start_bracket: (
+              - keyword: DISTINCT
+              - expression:
+                - column_reference:
+                  - naked_identifier: id
+              - end_bracket: )
           - keyword: FILTER
           - bracketed:
             - start_bracket: (
@@ -276,16 +284,17 @@ file:
         - function:
           - function_name:
             - function_name_identifier: grouping
-          - bracketed:
-            - start_bracket: (
-            - expression:
-              - column_reference:
-                - naked_identifier: region
-            - comma: ','
-            - expression:
-              - column_reference:
-                - naked_identifier: city
-            - end_bracket: )
+          - function_contents:
+            - bracketed:
+              - start_bracket: (
+              - expression:
+                - column_reference:
+                  - naked_identifier: region
+              - comma: ','
+              - expression:
+                - column_reference:
+                  - naked_identifier: city
+              - end_bracket: )
         - alias_expression:
           - keyword: AS
           - naked_identifier: grp_idx
@@ -294,13 +303,14 @@ file:
         - function:
           - function_name:
             - function_name_identifier: count
-          - bracketed:
-            - start_bracket: (
-            - keyword: DISTINCT
-            - expression:
-              - column_reference:
-                - naked_identifier: id
-            - end_bracket: )
+          - function_contents:
+            - bracketed:
+              - start_bracket: (
+              - keyword: DISTINCT
+              - expression:
+                - column_reference:
+                  - naked_identifier: id
+              - end_bracket: )
         - alias_expression:
           - keyword: AS
           - naked_identifier: num_total
@@ -309,13 +319,14 @@ file:
         - function:
           - function_name:
             - function_name_identifier: count
-          - bracketed:
-            - start_bracket: (
-            - keyword: DISTINCT
-            - expression:
-              - column_reference:
-                - naked_identifier: id
-            - end_bracket: )
+          - function_contents:
+            - bracketed:
+              - start_bracket: (
+              - keyword: DISTINCT
+              - expression:
+                - column_reference:
+                  - naked_identifier: id
+              - end_bracket: )
           - keyword: FILTER
           - bracketed:
             - start_bracket: (
@@ -332,13 +343,14 @@ file:
         - function:
           - function_name:
             - function_name_identifier: count
-          - bracketed:
-            - start_bracket: (
-            - keyword: DISTINCT
-            - expression:
-              - column_reference:
-                - naked_identifier: id
-            - end_bracket: )
+          - function_contents:
+            - bracketed:
+              - start_bracket: (
+              - keyword: DISTINCT
+              - expression:
+                - column_reference:
+                  - naked_identifier: id
+              - end_bracket: )
           - keyword: FILTER
           - bracketed:
             - start_bracket: (

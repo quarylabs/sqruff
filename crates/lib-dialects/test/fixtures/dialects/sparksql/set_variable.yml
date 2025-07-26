@@ -24,12 +24,13 @@ file:
             - function:
               - function_name:
                 - function_name_identifier: max
-              - bracketed:
-                - start_bracket: (
-                - expression:
-                  - column_reference:
-                    - naked_identifier: c1
-                - end_bracket: )
+              - function_contents:
+                - bracketed:
+                  - start_bracket: (
+                  - expression:
+                    - column_reference:
+                      - naked_identifier: c1
+                  - end_bracket: )
         - from_clause:
           - keyword: FROM
           - from_expression:
@@ -87,34 +88,37 @@ file:
             - function:
               - function_name:
                 - function_name_identifier: max
-              - bracketed:
-                - start_bracket: (
-                - expression:
-                  - column_reference:
-                    - naked_identifier: c1
-                - end_bracket: )
+              - function_contents:
+                - bracketed:
+                  - start_bracket: (
+                  - expression:
+                    - column_reference:
+                      - naked_identifier: c1
+                  - end_bracket: )
           - comma: ','
           - select_clause_element:
             - function:
               - function_name:
                 - function_name_identifier: CAST
-              - bracketed:
-                - start_bracket: (
-                - expression:
-                  - function:
-                    - function_name:
-                      - function_name_identifier: min
-                    - bracketed:
-                      - start_bracket: (
-                      - expression:
-                        - column_reference:
-                          - naked_identifier: c1
-                      - end_bracket: )
-                - keyword: AS
-                - data_type:
-                  - primitive_type:
-                    - keyword: STRING
-                - end_bracket: )
+              - function_contents:
+                - bracketed:
+                  - start_bracket: (
+                  - expression:
+                    - function:
+                      - function_name:
+                        - function_name_identifier: min
+                      - function_contents:
+                        - bracketed:
+                          - start_bracket: (
+                          - expression:
+                            - column_reference:
+                              - naked_identifier: c1
+                          - end_bracket: )
+                  - keyword: AS
+                  - data_type:
+                    - primitive_type:
+                      - keyword: STRING
+                  - end_bracket: )
         - from_clause:
           - keyword: FROM
           - from_expression:

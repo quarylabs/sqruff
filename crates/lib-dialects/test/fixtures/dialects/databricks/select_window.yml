@@ -7,12 +7,13 @@ file:
         - function:
           - function_name:
             - function_name_identifier: lag
-          - bracketed:
-            - start_bracket: (
-            - expression:
-              - column_reference:
-                - naked_identifier: test
-            - end_bracket: )
+          - function_contents:
+            - bracketed:
+              - start_bracket: (
+              - expression:
+                - column_reference:
+                  - naked_identifier: test
+              - end_bracket: )
           - over_clause:
             - keyword: over
             - bracketed:
@@ -42,12 +43,13 @@ file:
         - function:
           - function_name:
             - function_name_identifier: lag
-          - bracketed:
-            - start_bracket: (
-            - expression:
-              - column_reference:
-                - naked_identifier: test
-            - end_bracket: )
+          - function_contents:
+            - bracketed:
+              - start_bracket: (
+              - expression:
+                - column_reference:
+                  - naked_identifier: test
+              - end_bracket: )
           - over_clause:
             - keyword: over
             - bracketed:

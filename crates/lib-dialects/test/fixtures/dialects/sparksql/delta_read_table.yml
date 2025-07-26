@@ -71,10 +71,11 @@ file:
         - function:
           - function_name:
             - function_name_identifier: count
-          - bracketed:
-            - start_bracket: (
-            - star: '*'
-            - end_bracket: )
+          - function_contents:
+            - bracketed:
+              - start_bracket: (
+              - star: '*'
+              - end_bracket: )
     - from_clause:
       - keyword: FROM
       - from_expression:
@@ -93,10 +94,11 @@ file:
         - function:
           - function_name:
             - function_name_identifier: count
-          - bracketed:
-            - start_bracket: (
-            - star: '*'
-            - end_bracket: )
+          - function_contents:
+            - bracketed:
+              - start_bracket: (
+              - star: '*'
+              - end_bracket: )
     - from_clause:
       - keyword: FROM
       - from_expression:
@@ -119,10 +121,11 @@ file:
         - function:
           - function_name:
             - function_name_identifier: count
-          - bracketed:
-            - start_bracket: (
-            - star: '*'
-            - end_bracket: )
+          - function_contents:
+            - bracketed:
+              - start_bracket: (
+              - star: '*'
+              - end_bracket: )
     - from_clause:
       - keyword: FROM
       - from_expression:
@@ -145,10 +148,11 @@ file:
         - function:
           - function_name:
             - function_name_identifier: count
-          - bracketed:
-            - start_bracket: (
-            - star: '*'
-            - end_bracket: )
+          - function_contents:
+            - bracketed:
+              - start_bracket: (
+              - star: '*'
+              - end_bracket: )
     - from_clause:
       - keyword: FROM
       - from_expression:
@@ -164,19 +168,21 @@ file:
             - function:
               - function_name:
                 - function_name_identifier: date_sub
-              - bracketed:
-                - start_bracket: (
-                - expression:
-                  - function:
-                    - function_name:
-                      - function_name_identifier: current_date
-                    - bracketed:
-                      - start_bracket: (
-                      - end_bracket: )
-                - comma: ','
-                - expression:
-                  - numeric_literal: '1'
-                - end_bracket: )
+              - function_contents:
+                - bracketed:
+                  - start_bracket: (
+                  - expression:
+                    - function:
+                      - function_name:
+                        - function_name_identifier: current_date
+                      - function_contents:
+                        - bracketed:
+                          - start_bracket: (
+                          - end_bracket: )
+                  - comma: ','
+                  - expression:
+                    - numeric_literal: '1'
+                  - end_bracket: )
 - statement_terminator: ;
 - statement:
   - select_statement:
@@ -186,10 +192,11 @@ file:
         - function:
           - function_name:
             - function_name_identifier: count
-          - bracketed:
-            - start_bracket: (
-            - star: '*'
-            - end_bracket: )
+          - function_contents:
+            - bracketed:
+              - start_bracket: (
+              - star: '*'
+              - end_bracket: )
     - from_clause:
       - keyword: FROM
       - from_expression:
@@ -234,10 +241,11 @@ file:
         - function:
           - function_name:
             - function_name_identifier: count
-          - bracketed:
-            - start_bracket: (
-            - star: '*'
-            - end_bracket: )
+          - function_contents:
+            - bracketed:
+              - start_bracket: (
+              - star: '*'
+              - end_bracket: )
     - from_clause:
       - keyword: FROM
       - from_expression:
@@ -260,10 +268,11 @@ file:
         - function:
           - function_name:
             - function_name_identifier: count
-          - bracketed:
-            - start_bracket: (
-            - star: '*'
-            - end_bracket: )
+          - function_contents:
+            - bracketed:
+              - start_bracket: (
+              - star: '*'
+              - end_bracket: )
     - from_clause:
       - keyword: FROM
       - from_expression:
@@ -283,10 +292,11 @@ file:
         - function:
           - function_name:
             - function_name_identifier: count
-          - bracketed:
-            - start_bracket: (
-            - star: '*'
-            - end_bracket: )
+          - function_contents:
+            - bracketed:
+              - start_bracket: (
+              - star: '*'
+              - end_bracket: )
     - from_clause:
       - keyword: FROM
       - from_expression:
@@ -305,10 +315,11 @@ file:
         - function:
           - function_name:
             - function_name_identifier: count
-          - bracketed:
-            - start_bracket: (
-            - star: '*'
-            - end_bracket: )
+          - function_contents:
+            - bracketed:
+              - start_bracket: (
+              - star: '*'
+              - end_bracket: )
     - from_clause:
       - keyword: FROM
       - from_expression:

@@ -7,15 +7,16 @@ file:
         - function:
           - function_name:
             - function_name_identifier: listagg
-          - bracketed:
-            - start_bracket: (
-            - expression:
-              - column_reference:
-                - naked_identifier: value
-            - comma: ','
-            - expression:
-              - quoted_literal: ''','''
-            - end_bracket: )
+          - function_contents:
+            - bracketed:
+              - start_bracket: (
+              - expression:
+                - column_reference:
+                  - naked_identifier: value
+              - comma: ','
+              - expression:
+                - quoted_literal: ''','''
+              - end_bracket: )
           - keyword: WITHIN
           - keyword: GROUP
           - bracketed:
@@ -62,18 +63,19 @@ file:
         - function:
           - function_name:
             - function_name_identifier: listagg
-          - bracketed:
-            - start_bracket: (
-            - expression:
-              - column_reference:
-                - naked_identifier: value
-            - comma: ','
-            - expression:
-              - quoted_literal: ''','''
-            - keyword: ON
-            - keyword: OVERFLOW
-            - keyword: ERROR
-            - end_bracket: )
+          - function_contents:
+            - bracketed:
+              - start_bracket: (
+              - expression:
+                - column_reference:
+                  - naked_identifier: value
+              - comma: ','
+              - expression:
+                - quoted_literal: ''','''
+              - keyword: ON
+              - keyword: OVERFLOW
+              - keyword: ERROR
+              - end_bracket: )
           - keyword: WITHIN
           - keyword: GROUP
           - bracketed:
@@ -120,21 +122,22 @@ file:
         - function:
           - function_name:
             - function_name_identifier: LISTAGG
-          - bracketed:
-            - start_bracket: (
-            - expression:
-              - column_reference:
-                - naked_identifier: value
-            - comma: ','
-            - expression:
-              - quoted_literal: ''','''
-            - keyword: ON
-            - keyword: OVERFLOW
-            - keyword: TRUNCATE
-            - quoted_identifier: '''.....'''
-            - keyword: WITH
-            - keyword: COUNT
-            - end_bracket: )
+          - function_contents:
+            - bracketed:
+              - start_bracket: (
+              - expression:
+                - column_reference:
+                  - naked_identifier: value
+              - comma: ','
+              - expression:
+                - quoted_literal: ''','''
+              - keyword: ON
+              - keyword: OVERFLOW
+              - keyword: TRUNCATE
+              - quoted_identifier: '''.....'''
+              - keyword: WITH
+              - keyword: COUNT
+              - end_bracket: )
           - keyword: WITHIN
           - keyword: GROUP
           - bracketed:
@@ -183,15 +186,16 @@ file:
         - function:
           - function_name:
             - function_name_identifier: LISTAGG
-          - bracketed:
-            - start_bracket: (
-            - expression:
-              - column_reference:
-                - naked_identifier: value
-            - comma: ','
-            - expression:
-              - quoted_literal: ''','''
-            - end_bracket: )
+          - function_contents:
+            - bracketed:
+              - start_bracket: (
+              - expression:
+                - column_reference:
+                  - naked_identifier: value
+              - comma: ','
+              - expression:
+                - quoted_literal: ''','''
+              - end_bracket: )
           - keyword: WITHIN
           - keyword: GROUP
           - bracketed:
@@ -277,15 +281,16 @@ file:
         - function:
           - function_name:
             - function_name_identifier: LISTAGG
-          - bracketed:
-            - start_bracket: (
-            - expression:
-              - column_reference:
-                - naked_identifier: value
-            - comma: ','
-            - expression:
-              - quoted_literal: ''','''
-            - end_bracket: )
+          - function_contents:
+            - bracketed:
+              - start_bracket: (
+              - expression:
+                - column_reference:
+                  - naked_identifier: value
+              - comma: ','
+              - expression:
+                - quoted_literal: ''','''
+              - end_bracket: )
           - keyword: WITHIN
           - keyword: GROUP
           - bracketed:

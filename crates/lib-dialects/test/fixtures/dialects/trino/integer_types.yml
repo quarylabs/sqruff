@@ -7,14 +7,15 @@ file:
         - function:
           - function_name:
             - function_name_identifier: CAST
-          - bracketed:
-            - start_bracket: (
-            - expression:
-              - numeric_literal: '1'
-            - keyword: AS
-            - data_type:
-              - keyword: TINYINT
-            - end_bracket: )
+          - function_contents:
+            - bracketed:
+              - start_bracket: (
+              - expression:
+                - numeric_literal: '1'
+              - keyword: AS
+              - data_type:
+                - keyword: TINYINT
+              - end_bracket: )
 - statement_terminator: ;
 - statement:
   - select_statement:
@@ -24,14 +25,15 @@ file:
         - function:
           - function_name:
             - function_name_identifier: CAST
-          - bracketed:
-            - start_bracket: (
-            - expression:
-              - numeric_literal: '2'
-            - keyword: AS
-            - data_type:
-              - keyword: SMALLINT
-            - end_bracket: )
+          - function_contents:
+            - bracketed:
+              - start_bracket: (
+              - expression:
+                - numeric_literal: '2'
+              - keyword: AS
+              - data_type:
+                - keyword: SMALLINT
+              - end_bracket: )
 - statement_terminator: ;
 - statement:
   - select_statement:
@@ -41,14 +43,15 @@ file:
         - function:
           - function_name:
             - function_name_identifier: CAST
-          - bracketed:
-            - start_bracket: (
-            - expression:
-              - numeric_literal: '3'
-            - keyword: AS
-            - data_type:
-              - keyword: INTEGER
-            - end_bracket: )
+          - function_contents:
+            - bracketed:
+              - start_bracket: (
+              - expression:
+                - numeric_literal: '3'
+              - keyword: AS
+              - data_type:
+                - keyword: INTEGER
+              - end_bracket: )
 - statement_terminator: ;
 - statement:
   - select_statement:
@@ -58,14 +61,15 @@ file:
         - function:
           - function_name:
             - function_name_identifier: CAST
-          - bracketed:
-            - start_bracket: (
-            - expression:
-              - numeric_literal: '4'
-            - keyword: AS
-            - data_type:
-              - keyword: INT
-            - end_bracket: )
+          - function_contents:
+            - bracketed:
+              - start_bracket: (
+              - expression:
+                - numeric_literal: '4'
+              - keyword: AS
+              - data_type:
+                - keyword: INT
+              - end_bracket: )
 - statement_terminator: ;
 - statement:
   - select_statement:
@@ -75,12 +79,13 @@ file:
         - function:
           - function_name:
             - function_name_identifier: CAST
-          - bracketed:
-            - start_bracket: (
-            - expression:
-              - numeric_literal: '5'
-            - keyword: AS
-            - data_type:
-              - keyword: BIGINT
-            - end_bracket: )
+          - function_contents:
+            - bracketed:
+              - start_bracket: (
+              - expression:
+                - numeric_literal: '5'
+              - keyword: AS
+              - data_type:
+                - keyword: BIGINT
+              - end_bracket: )
 - statement_terminator: ;

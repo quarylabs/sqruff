@@ -112,12 +112,13 @@ file:
         - function:
           - function_name:
             - function_name_identifier: max
-          - bracketed:
-            - start_bracket: (
-            - expression:
-              - column_reference:
-                - naked_identifier: c
-            - end_bracket: )
+          - function_contents:
+            - bracketed:
+              - start_bracket: (
+              - expression:
+                - column_reference:
+                  - naked_identifier: c
+              - end_bracket: )
     - from_clause:
       - keyword: FROM
       - from_expression:

@@ -59,12 +59,13 @@ file:
         - function:
           - function_name:
             - function_name_identifier: accounts_is_excluded_full_name
-          - bracketed:
-            - start_bracket: (
-            - expression:
-              - column_reference:
-                - naked_identifier: full_name
-            - end_bracket: )
+          - function_contents:
+            - bracketed:
+              - start_bracket: (
+              - expression:
+                - column_reference:
+                  - naked_identifier: full_name
+              - end_bracket: )
       - end_bracket: )
 - statement_terminator: ;
 - statement:

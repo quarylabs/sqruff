@@ -28,14 +28,15 @@ file:
             - function:
               - function_name:
                 - function_name_identifier: STREAM
-              - bracketed:
-                - start_bracket: (
-                - expression:
-                  - column_reference:
-                    - naked_identifier: cdc_data
-                    - dot: .
-                    - naked_identifier: users
-                - end_bracket: )
+              - function_contents:
+                - bracketed:
+                  - start_bracket: (
+                  - expression:
+                    - column_reference:
+                      - naked_identifier: cdc_data
+                      - dot: .
+                      - naked_identifier: users
+                  - end_bracket: )
     - keyword: KEYS
     - bracketed:
       - start_bracket: (
@@ -110,14 +111,15 @@ file:
             - function:
               - function_name:
                 - function_name_identifier: STREAM
-              - bracketed:
-                - start_bracket: (
-                - expression:
-                  - column_reference:
-                    - naked_identifier: cdc_data
-                    - dot: .
-                    - naked_identifier: users
-                - end_bracket: )
+              - function_contents:
+                - bracketed:
+                  - start_bracket: (
+                  - expression:
+                    - column_reference:
+                      - naked_identifier: cdc_data
+                      - dot: .
+                      - naked_identifier: users
+                  - end_bracket: )
     - keyword: KEYS
     - bracketed:
       - start_bracket: (
@@ -183,14 +185,15 @@ file:
             - function:
               - function_name:
                 - function_name_identifier: STREAM
-              - bracketed:
-                - start_bracket: (
-                - expression:
-                  - column_reference:
-                    - naked_identifier: cdc_data
-                    - dot: .
-                    - naked_identifier: users
-                - end_bracket: )
+              - function_contents:
+                - bracketed:
+                  - start_bracket: (
+                  - expression:
+                    - column_reference:
+                      - naked_identifier: cdc_data
+                      - dot: .
+                      - naked_identifier: users
+                  - end_bracket: )
     - keyword: KEYS
     - bracketed:
       - start_bracket: (
@@ -242,14 +245,15 @@ file:
             - function:
               - function_name:
                 - function_name_identifier: STREAM
-              - bracketed:
-                - start_bracket: (
-                - expression:
-                  - column_reference:
-                    - naked_identifier: cdc_data
-                    - dot: .
-                    - naked_identifier: users
-                - end_bracket: )
+              - function_contents:
+                - bracketed:
+                  - start_bracket: (
+                  - expression:
+                    - column_reference:
+                      - naked_identifier: cdc_data
+                      - dot: .
+                      - naked_identifier: users
+                  - end_bracket: )
     - keyword: KEYS
     - bracketed:
       - start_bracket: (
@@ -335,14 +339,15 @@ file:
             - function:
               - function_name:
                 - function_name_identifier: STREAM
-              - bracketed:
-                - start_bracket: (
-                - expression:
-                  - column_reference:
-                    - naked_identifier: cdc_data
-                    - dot: .
-                    - naked_identifier: users
-                - end_bracket: )
+              - function_contents:
+                - bracketed:
+                  - start_bracket: (
+                  - expression:
+                    - column_reference:
+                      - naked_identifier: cdc_data
+                      - dot: .
+                      - naked_identifier: users
+                  - end_bracket: )
     - keyword: KEYS
     - bracketed:
       - start_bracket: (
@@ -383,14 +388,15 @@ file:
             - function:
               - function_name:
                 - function_name_identifier: STREAM
-              - bracketed:
-                - start_bracket: (
-                - expression:
-                  - column_reference:
-                    - naked_identifier: cdc_data
-                    - dot: .
-                    - naked_identifier: users
-                - end_bracket: )
+              - function_contents:
+                - bracketed:
+                  - start_bracket: (
+                  - expression:
+                    - column_reference:
+                      - naked_identifier: cdc_data
+                      - dot: .
+                      - naked_identifier: users
+                  - end_bracket: )
     - keyword: KEYS
     - bracketed:
       - start_bracket: (
@@ -481,14 +487,15 @@ file:
             - function:
               - function_name:
                 - function_name_identifier: STREAM
-              - bracketed:
-                - start_bracket: (
-                - expression:
-                  - column_reference:
-                    - naked_identifier: cdc_data
-                    - dot: .
-                    - naked_identifier: users
-                - end_bracket: )
+              - function_contents:
+                - bracketed:
+                  - start_bracket: (
+                  - expression:
+                    - column_reference:
+                      - naked_identifier: cdc_data
+                      - dot: .
+                      - naked_identifier: users
+                  - end_bracket: )
     - keyword: KEYS
     - bracketed:
       - start_bracket: (

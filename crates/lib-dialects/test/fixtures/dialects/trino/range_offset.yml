@@ -15,10 +15,11 @@ file:
         - function:
           - function_name:
             - function_name_identifier: count
-          - bracketed:
-            - start_bracket: (
-            - star: '*'
-            - end_bracket: )
+          - function_contents:
+            - bracketed:
+              - start_bracket: (
+              - star: '*'
+              - end_bracket: )
           - over_clause:
             - keyword: OVER
             - bracketed:
@@ -57,12 +58,13 @@ file:
         - function:
           - function_name:
             - function_name_identifier: avg
-          - bracketed:
-            - start_bracket: (
-            - expression:
-              - column_reference:
-                - naked_identifier: totalprice
-            - end_bracket: )
+          - function_contents:
+            - bracketed:
+              - start_bracket: (
+              - expression:
+                - column_reference:
+                  - naked_identifier: totalprice
+              - end_bracket: )
           - over_clause:
             - keyword: OVER
             - bracketed:
@@ -110,12 +112,13 @@ file:
         - function:
           - function_name:
             - function_name_identifier: avg
-          - bracketed:
-            - start_bracket: (
-            - expression:
-              - column_reference:
-                - naked_identifier: totalprice
-            - end_bracket: )
+          - function_contents:
+            - bracketed:
+              - start_bracket: (
+              - expression:
+                - column_reference:
+                  - naked_identifier: totalprice
+              - end_bracket: )
           - over_clause:
             - keyword: OVER
             - naked_identifier: w
@@ -124,12 +127,13 @@ file:
         - function:
           - function_name:
             - function_name_identifier: sum
-          - bracketed:
-            - start_bracket: (
-            - expression:
-              - column_reference:
-                - naked_identifier: totalprice
-            - end_bracket: )
+          - function_contents:
+            - bracketed:
+              - start_bracket: (
+              - expression:
+                - column_reference:
+                  - naked_identifier: totalprice
+              - end_bracket: )
           - over_clause:
             - keyword: OVER
             - naked_identifier: w
@@ -138,12 +142,13 @@ file:
         - function:
           - function_name:
             - function_name_identifier: max
-          - bracketed:
-            - start_bracket: (
-            - expression:
-              - column_reference:
-                - naked_identifier: totalprice
-            - end_bracket: )
+          - function_contents:
+            - bracketed:
+              - start_bracket: (
+              - expression:
+                - column_reference:
+                  - naked_identifier: totalprice
+              - end_bracket: )
           - over_clause:
             - keyword: OVER
             - naked_identifier: w

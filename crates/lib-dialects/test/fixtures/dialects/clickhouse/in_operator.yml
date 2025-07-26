@@ -7,12 +7,13 @@ file:
         - function:
           - function_name:
             - function_name_identifier: uniq
-          - bracketed:
-            - start_bracket: (
-            - expression:
-              - column_reference:
-                - naked_identifier: col1
-            - end_bracket: )
+          - function_contents:
+            - bracketed:
+              - start_bracket: (
+              - expression:
+                - column_reference:
+                  - naked_identifier: col1
+              - end_bracket: )
     - from_clause:
       - keyword: FROM
       - from_expression:
@@ -61,12 +62,13 @@ file:
         - function:
           - function_name:
             - function_name_identifier: uniq
-          - bracketed:
-            - start_bracket: (
-            - expression:
-              - column_reference:
-                - naked_identifier: col1
-            - end_bracket: )
+          - function_contents:
+            - bracketed:
+              - start_bracket: (
+              - expression:
+                - column_reference:
+                  - naked_identifier: col1
+              - end_bracket: )
     - from_clause:
       - keyword: FROM
       - from_expression:
@@ -116,12 +118,13 @@ file:
         - function:
           - function_name:
             - function_name_identifier: uniq
-          - bracketed:
-            - start_bracket: (
-            - expression:
-              - column_reference:
-                - naked_identifier: col1
-            - end_bracket: )
+          - function_contents:
+            - bracketed:
+              - start_bracket: (
+              - expression:
+                - column_reference:
+                  - naked_identifier: col1
+              - end_bracket: )
     - from_clause:
       - keyword: FROM
       - from_expression:
@@ -171,12 +174,13 @@ file:
         - function:
           - function_name:
             - function_name_identifier: uniq
-          - bracketed:
-            - start_bracket: (
-            - expression:
-              - column_reference:
-                - naked_identifier: col1
-            - end_bracket: )
+          - function_contents:
+            - bracketed:
+              - start_bracket: (
+              - expression:
+                - column_reference:
+                  - naked_identifier: col1
+              - end_bracket: )
     - from_clause:
       - keyword: FROM
       - from_expression:
@@ -227,12 +231,13 @@ file:
         - function:
           - function_name:
             - function_name_identifier: uniq
-          - bracketed:
-            - start_bracket: (
-            - expression:
-              - column_reference:
-                - naked_identifier: col1
-            - end_bracket: )
+          - function_contents:
+            - bracketed:
+              - start_bracket: (
+              - expression:
+                - column_reference:
+                  - naked_identifier: col1
+              - end_bracket: )
     - from_clause:
       - keyword: FROM
       - from_expression:
@@ -249,14 +254,15 @@ file:
         - function:
           - function_name:
             - function_name_identifier: tuple
-          - bracketed:
-            - start_bracket: (
-            - expression:
-              - numeric_literal: '1'
-            - comma: ','
-            - expression:
-              - numeric_literal: '2'
-            - end_bracket: )
+          - function_contents:
+            - bracketed:
+              - start_bracket: (
+              - expression:
+                - numeric_literal: '1'
+              - comma: ','
+              - expression:
+                - numeric_literal: '2'
+              - end_bracket: )
 - statement_terminator: ;
 - statement:
   - select_statement:
@@ -266,12 +272,13 @@ file:
         - function:
           - function_name:
             - function_name_identifier: uniq
-          - bracketed:
-            - start_bracket: (
-            - expression:
-              - column_reference:
-                - naked_identifier: col1
-            - end_bracket: )
+          - function_contents:
+            - bracketed:
+              - start_bracket: (
+              - expression:
+                - column_reference:
+                  - naked_identifier: col1
+              - end_bracket: )
     - from_clause:
       - keyword: FROM
       - from_expression:
@@ -289,14 +296,15 @@ file:
         - function:
           - function_name:
             - function_name_identifier: tuple
-          - bracketed:
-            - start_bracket: (
-            - expression:
-              - numeric_literal: '1'
-            - comma: ','
-            - expression:
-              - numeric_literal: '2'
-            - end_bracket: )
+          - function_contents:
+            - bracketed:
+              - start_bracket: (
+              - expression:
+                - numeric_literal: '1'
+              - comma: ','
+              - expression:
+                - numeric_literal: '2'
+              - end_bracket: )
 - statement_terminator: ;
 - statement:
   - select_statement:
@@ -306,12 +314,13 @@ file:
         - function:
           - function_name:
             - function_name_identifier: uniq
-          - bracketed:
-            - start_bracket: (
-            - expression:
-              - column_reference:
-                - naked_identifier: col1
-            - end_bracket: )
+          - function_contents:
+            - bracketed:
+              - start_bracket: (
+              - expression:
+                - column_reference:
+                  - naked_identifier: col1
+              - end_bracket: )
     - from_clause:
       - keyword: FROM
       - from_expression:
@@ -329,14 +338,15 @@ file:
         - function:
           - function_name:
             - function_name_identifier: tuple
-          - bracketed:
-            - start_bracket: (
-            - expression:
-              - numeric_literal: '1'
-            - comma: ','
-            - expression:
-              - numeric_literal: '2'
-            - end_bracket: )
+          - function_contents:
+            - bracketed:
+              - start_bracket: (
+              - expression:
+                - numeric_literal: '1'
+              - comma: ','
+              - expression:
+                - numeric_literal: '2'
+              - end_bracket: )
 - statement_terminator: ;
 - statement:
   - select_statement:
@@ -346,12 +356,13 @@ file:
         - function:
           - function_name:
             - function_name_identifier: uniq
-          - bracketed:
-            - start_bracket: (
-            - expression:
-              - column_reference:
-                - naked_identifier: col1
-            - end_bracket: )
+          - function_contents:
+            - bracketed:
+              - start_bracket: (
+              - expression:
+                - column_reference:
+                  - naked_identifier: col1
+              - end_bracket: )
     - from_clause:
       - keyword: FROM
       - from_expression:
@@ -370,12 +381,13 @@ file:
         - function:
           - function_name:
             - function_name_identifier: tuple
-          - bracketed:
-            - start_bracket: (
-            - expression:
-              - numeric_literal: '1'
-            - comma: ','
-            - expression:
-              - numeric_literal: '2'
-            - end_bracket: )
+          - function_contents:
+            - bracketed:
+              - start_bracket: (
+              - expression:
+                - numeric_literal: '1'
+              - comma: ','
+              - expression:
+                - numeric_literal: '2'
+              - end_bracket: )
 - statement_terminator: ;

@@ -15,10 +15,11 @@ file:
         - function:
           - function_name:
             - function_name_identifier: count
-          - bracketed:
-            - start_bracket: (
-            - star: '*'
-            - end_bracket: )
+          - function_contents:
+            - bracketed:
+              - start_bracket: (
+              - star: '*'
+              - end_bracket: )
         - alias_expression:
           - keyword: AS
           - naked_identifier: record_count
@@ -58,10 +59,11 @@ file:
         - function:
           - function_name:
             - function_name_identifier: count
-          - bracketed:
-            - start_bracket: (
-            - star: '*'
-            - end_bracket: )
+          - function_contents:
+            - bracketed:
+              - start_bracket: (
+              - star: '*'
+              - end_bracket: )
         - alias_expression:
           - keyword: AS
           - naked_identifier: record_count

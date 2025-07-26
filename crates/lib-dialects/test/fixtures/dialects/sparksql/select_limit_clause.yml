@@ -81,9 +81,10 @@ file:
       - function:
         - function_name:
           - function_name_identifier: length
-        - bracketed:
-          - start_bracket: (
-          - expression:
-            - quoted_literal: '''SPARK'''
-          - end_bracket: )
+        - function_contents:
+          - bracketed:
+            - start_bracket: (
+            - expression:
+              - quoted_literal: '''SPARK'''
+            - end_bracket: )
 - statement_terminator: ;

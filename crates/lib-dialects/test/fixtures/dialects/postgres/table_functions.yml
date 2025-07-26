@@ -15,19 +15,20 @@ file:
             - function:
               - function_name:
                 - function_name_identifier: unnest
-              - bracketed:
-                - start_bracket: (
-                - expression:
-                  - typed_array_literal:
-                    - array_type:
-                      - keyword: array
-                    - array_literal:
-                      - start_square_bracket: '['
-                      - quoted_literal: '''123'''
-                      - comma: ','
-                      - quoted_literal: '''456'''
-                      - end_square_bracket: ']'
-                - end_bracket: )
+              - function_contents:
+                - bracketed:
+                  - start_bracket: (
+                  - expression:
+                    - typed_array_literal:
+                      - array_type:
+                        - keyword: array
+                      - array_literal:
+                        - start_square_bracket: '['
+                        - quoted_literal: '''123'''
+                        - comma: ','
+                        - quoted_literal: '''456'''
+                        - end_square_bracket: ']'
+                  - end_bracket: )
 - statement_terminator: ;
 - statement:
   - select_statement:
@@ -45,19 +46,20 @@ file:
             - function:
               - function_name:
                 - function_name_identifier: unnest
-              - bracketed:
-                - start_bracket: (
-                - expression:
-                  - typed_array_literal:
-                    - array_type:
-                      - keyword: array
-                    - array_literal:
-                      - start_square_bracket: '['
-                      - quoted_literal: '''123'''
-                      - comma: ','
-                      - quoted_literal: '''456'''
-                      - end_square_bracket: ']'
-                - end_bracket: )
+              - function_contents:
+                - bracketed:
+                  - start_bracket: (
+                  - expression:
+                    - typed_array_literal:
+                      - array_type:
+                        - keyword: array
+                      - array_literal:
+                        - start_square_bracket: '['
+                        - quoted_literal: '''123'''
+                        - comma: ','
+                        - quoted_literal: '''456'''
+                        - end_square_bracket: ']'
+                  - end_bracket: )
           - alias_expression:
             - keyword: as
             - naked_identifier: a
@@ -85,19 +87,20 @@ file:
             - function:
               - function_name:
                 - function_name_identifier: unnest
-              - bracketed:
-                - start_bracket: (
-                - expression:
-                  - typed_array_literal:
-                    - array_type:
-                      - keyword: array
-                    - array_literal:
-                      - start_square_bracket: '['
-                      - quoted_literal: '''123'''
-                      - comma: ','
-                      - quoted_literal: '''456'''
-                      - end_square_bracket: ']'
-                - end_bracket: )
+              - function_contents:
+                - bracketed:
+                  - start_bracket: (
+                  - expression:
+                    - typed_array_literal:
+                      - array_type:
+                        - keyword: array
+                      - array_literal:
+                        - start_square_bracket: '['
+                        - quoted_literal: '''123'''
+                        - comma: ','
+                        - quoted_literal: '''456'''
+                        - end_square_bracket: ']'
+                  - end_bracket: )
             - keyword: with
             - keyword: ordinality
 - statement_terminator: ;
@@ -117,19 +120,20 @@ file:
             - function:
               - function_name:
                 - function_name_identifier: unnest
-              - bracketed:
-                - start_bracket: (
-                - expression:
-                  - typed_array_literal:
-                    - array_type:
-                      - keyword: array
-                    - array_literal:
-                      - start_square_bracket: '['
-                      - quoted_literal: '''123'''
-                      - comma: ','
-                      - quoted_literal: '''456'''
-                      - end_square_bracket: ']'
-                - end_bracket: )
+              - function_contents:
+                - bracketed:
+                  - start_bracket: (
+                  - expression:
+                    - typed_array_literal:
+                      - array_type:
+                        - keyword: array
+                      - array_literal:
+                        - start_square_bracket: '['
+                        - quoted_literal: '''123'''
+                        - comma: ','
+                        - quoted_literal: '''456'''
+                        - end_square_bracket: ']'
+                  - end_bracket: )
             - keyword: with
             - keyword: ordinality
           - alias_expression:

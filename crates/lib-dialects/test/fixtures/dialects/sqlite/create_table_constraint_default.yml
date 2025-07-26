@@ -50,11 +50,12 @@ file:
             - function:
               - function_name:
                 - function_name_identifier: datetime
-              - bracketed:
-                - start_bracket: (
-                - expression:
-                  - quoted_literal: '''now'''
-                - end_bracket: )
+              - function_contents:
+                - bracketed:
+                  - start_bracket: (
+                  - expression:
+                    - quoted_literal: '''now'''
+                  - end_bracket: )
       - end_bracket: )
 - statement_terminator: ;
 - statement:
@@ -78,11 +79,12 @@ file:
                 - function:
                   - function_name:
                     - function_name_identifier: datetime
-                  - bracketed:
-                    - start_bracket: (
-                    - expression:
-                      - quoted_literal: '''now'''
-                    - end_bracket: )
+                  - function_contents:
+                    - bracketed:
+                      - start_bracket: (
+                      - expression:
+                        - quoted_literal: '''now'''
+                      - end_bracket: )
               - end_bracket: )
       - end_bracket: )
 - statement_terminator: ;

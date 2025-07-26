@@ -7,34 +7,36 @@ file:
         - function:
           - function_name:
             - function_name_identifier: CAST
-          - bracketed:
-            - start_bracket: (
-            - expression:
-              - function:
-                - function_name:
-                  - function_name_identifier: JSON_PARSE
-                - bracketed:
-                  - start_bracket: (
-                  - expression:
-                    - column_reference:
-                      - naked_identifier: table_name
-                      - dot: .
-                      - naked_identifier: column_name
-                  - end_bracket: )
-            - keyword: AS
-            - data_type:
-              - map_type:
-                - keyword: MAP
-                - map_type_schema:
-                  - start_angle_bracket: <
-                  - primitive_type:
-                    - keyword: VARCHAR
-                  - comma: ','
-                  - data_type:
+          - function_contents:
+            - bracketed:
+              - start_bracket: (
+              - expression:
+                - function:
+                  - function_name:
+                    - function_name_identifier: JSON_PARSE
+                  - function_contents:
+                    - bracketed:
+                      - start_bracket: (
+                      - expression:
+                        - column_reference:
+                          - naked_identifier: table_name
+                          - dot: .
+                          - naked_identifier: column_name
+                      - end_bracket: )
+              - keyword: AS
+              - data_type:
+                - map_type:
+                  - keyword: MAP
+                  - map_type_schema:
+                    - start_angle_bracket: <
                     - primitive_type:
                       - keyword: VARCHAR
-                  - end_angle_bracket: '>'
-            - end_bracket: )
+                    - comma: ','
+                    - data_type:
+                      - primitive_type:
+                        - keyword: VARCHAR
+                    - end_angle_bracket: '>'
+              - end_bracket: )
         - alias_expression:
           - keyword: AS
           - naked_identifier: json_map
@@ -86,29 +88,30 @@ file:
           - function:
             - function_name:
               - function_name_identifier: MAP
-            - bracketed:
-              - start_bracket: (
-              - expression:
-                - typed_array_literal:
-                  - array_type:
-                    - keyword: ARRAY
-                  - array_literal:
-                    - start_square_bracket: '['
-                    - quoted_literal: '''foo'''
-                    - comma: ','
-                    - quoted_literal: '''bar'''
-                    - end_square_bracket: ']'
-              - comma: ','
-              - expression:
-                - typed_array_literal:
-                  - array_type:
-                    - keyword: ARRAY
-                  - array_literal:
-                    - start_square_bracket: '['
-                    - numeric_literal: '1'
-                    - comma: ','
-                    - numeric_literal: '2'
-                    - end_square_bracket: ']'
-              - end_bracket: )
+            - function_contents:
+              - bracketed:
+                - start_bracket: (
+                - expression:
+                  - typed_array_literal:
+                    - array_type:
+                      - keyword: ARRAY
+                    - array_literal:
+                      - start_square_bracket: '['
+                      - quoted_literal: '''foo'''
+                      - comma: ','
+                      - quoted_literal: '''bar'''
+                      - end_square_bracket: ']'
+                - comma: ','
+                - expression:
+                  - typed_array_literal:
+                    - array_type:
+                      - keyword: ARRAY
+                    - array_literal:
+                      - start_square_bracket: '['
+                      - numeric_literal: '1'
+                      - comma: ','
+                      - numeric_literal: '2'
+                      - end_square_bracket: ']'
+                - end_bracket: )
         - end_bracket: )
 - statement_terminator: ;

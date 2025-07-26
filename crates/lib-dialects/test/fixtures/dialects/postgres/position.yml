@@ -57,15 +57,16 @@ file:
               - function:
                 - function_name:
                   - function_name_identifier: position
-                - bracketed:
-                  - start_bracket: (
-                  - quoted_literal: '''@domain'''
-                  - keyword: in
-                  - column_reference:
-                    - naked_identifier: u
-                    - dot: .
-                    - naked_identifier: user_email
-                  - end_bracket: )
+                - function_contents:
+                  - bracketed:
+                    - start_bracket: (
+                    - quoted_literal: '''@domain'''
+                    - keyword: in
+                    - column_reference:
+                      - naked_identifier: u
+                      - dot: .
+                      - naked_identifier: user_email
+                    - end_bracket: )
               - comparison_operator:
                 - raw_comparison_operator: =
               - numeric_literal: '0'

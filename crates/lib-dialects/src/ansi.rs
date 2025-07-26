@@ -4521,31 +4521,8 @@ pub fn raw_dialect() -> Dialect {
                             Ref::new("Tail_Recurse_Expression_A_Grammar").to_matchable(),
                         ])
                         .to_matchable(),
-                        // IN grammar with NOT and brackets
-                        Sequence::new(vec![
-                            Ref::keyword("NOT").optional().to_matchable(),
-                            Ref::keyword("IN").to_matchable(),
-                            Bracketed::new(vec![
-                                one_of(vec![
-                                    Delimited::new(vec![
-                                        Ref::new("Expression_A_Grammar").to_matchable(),
-                                    ])
-                                    .to_matchable(),
-                                    Ref::new("SelectableGrammar").to_matchable(),
-                                ])
-                                .to_matchable(),
-                            ])
-                            .config(|this| this.parse_mode(ParseMode::Greedy))
-                            .to_matchable(),
-                        ])
-                        .to_matchable(),
-                        // IN grammar with function segment
-                        Sequence::new(vec![
-                            Ref::keyword("NOT").optional().to_matchable(),
-                            Ref::keyword("IN").to_matchable(),
-                            Ref::new("FunctionSegment").to_matchable(),
-                        ])
-                        .to_matchable(),
+                        // IN grammar
+                        Ref::new("InOperatorGrammar").to_matchable(),
                         // IS grammar
                         Sequence::new(vec![
                             Ref::keyword("IS").to_matchable(),

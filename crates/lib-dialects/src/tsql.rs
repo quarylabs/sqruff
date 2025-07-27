@@ -350,7 +350,7 @@ pub fn raw_dialect() -> Dialect {
     // NOTE: T-SQL CASE expressions currently have a fundamental parsing issue in SELECT clauses
     // CASE works in WHERE clauses but fails in SELECT due to parser architecture limitations
     // with how T-SQL lexes keywords as Word tokens vs ANSI's Keyword tokens.
-    // This is documented as a known limitation.
+    // This is a known limitation that requires architectural changes to fix properly.
         
     // Add other T-SQL specific segments
     dialect.add([
@@ -3903,6 +3903,11 @@ pub fn raw_dialect() -> Dialect {
                         Ref::new("TsqlJoinTypeSegment"),
                         Ref::keyword("JOIN")
                     ]),
+                    // JOIN with just hint (no type): HASH JOIN, MERGE JOIN, LOOP JOIN
+                    Sequence::new(vec_of_erased![
+                        Ref::new("TsqlJoinHintSegment"),
+                        Ref::keyword("JOIN")
+                    ]),
                     // Plain JOIN
                     Ref::keyword("JOIN")
                 ]),
@@ -3981,11 +3986,16 @@ pub fn raw_dialect() -> Dialect {
         .into(),
     )]);
 
-    // Add JoinLikeClauseGrammar for T-SQL to include APPLY
-    // This allows APPLY to be used wherever joins are allowed
+    // Override JoinLikeClauseGrammar for T-SQL to include both regular JOINs and APPLY
+    // This allows both JOIN clauses and APPLY to be used wherever joins are allowed
     dialect.add([(
         "JoinLikeClauseGrammar".into(),
-        Ref::new("ApplyClauseSegment").to_matchable().into(),
+        one_of(vec_of_erased![
+            Ref::new("JoinClauseSegment"),
+            Ref::new("ApplyClauseSegment")
+        ])
+        .to_matchable()
+        .into(),
     )]);
 
     // WITHIN GROUP support for ordered set aggregate functions
@@ -4839,7 +4849,7 @@ pub fn raw_dialect() -> Dialect {
     // Add T-SQL specific WithCheckOptionSegment
     dialect.add([(
         "WithCheckOptionSegment".into(),
-        NodeMatcher::new(SyntaxKind::WithDataClause, |_| {
+        NodeMatcher::new(SyntaxKind::WithCheckOption, |_| {
             Sequence::new(vec_of_erased![
                 Ref::keyword("WITH"),
                 Ref::keyword("CHECK"),

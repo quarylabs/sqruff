@@ -33,7 +33,7 @@ CREATE TABLE dbo.Products (
 
 -- issue #6340
 CREATE TABLE [dbo].[Foo](
-    [ID] [int] IDENTITY(1,1) NOT NULL
+    [ID] [int] IDENTITY(1,1) NOT NULL,
     CONSTRAINT [PK_Foo_ID] PRIMARY KEY CLUSTERED ([ID] ASC),
     [other_ID] [int] FOREIGN KEY REFERENCES [dbo].[Bar] (id) UNIQUE
 );

@@ -1,0 +1,1 @@
+SELECT * FROM table1 INNER HASH JOIN table2 ON table1.id = table2.id;

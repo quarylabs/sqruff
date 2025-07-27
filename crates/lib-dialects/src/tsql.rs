@@ -4580,16 +4580,11 @@ pub fn raw_dialect() -> Dialect {
     ]);
 
     // T-SQL supports alternative alias syntax: AliasName = Expression
-    // IMPORTANT: This is currently commented out because it's causing CASE expressions
-    // to be unparsable in SELECT clauses. The issue is that CASE is being lexed as a
-    // word token and not converted to a keyword token during parsing.
-    // TODO: Fix this by ensuring keyword matching happens before identifier matching
-    /*
-    dialect.replace_grammar(
-        "SelectClauseElementSegment",
-        ...
-    );
-    */
+    // We need to be careful to ensure CASE expressions can be parsed
+    //
+    // IMPORTANT: Do NOT add custom grammars here. Instead, override AliasExpressionSegment
+    // to support T-SQL's alias = expression syntax.
+    // For now, just use ANSI's SelectClauseElementSegment which properly handles CASE
 
     // Override SelectStatementSegment to add FOR clause and OPTION clause after ORDER BY
     dialect.replace_grammar(

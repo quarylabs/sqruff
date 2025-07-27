@@ -54,6 +54,27 @@ pub mod tsql;
 #[cfg(feature = "tsql")]
 mod tsql_keywords;
 
+#[cfg(all(test, feature = "tsql"))]
+mod test_case_lex_debug;
+
+#[cfg(all(test, feature = "tsql"))]
+mod debug_case;
+
+#[cfg(all(test, feature = "tsql"))]
+mod test_case_matching;
+
+#[cfg(all(test, feature = "tsql"))]
+mod test_select_case;
+
+#[cfg(all(test, feature = "tsql"))]
+mod debug_tsql_case;
+
+#[cfg(all(test, feature = "tsql"))]
+mod test_keyword_in_select;
+
+#[cfg(all(test, feature = "tsql"))]
+mod test_case_keyword_debug;
+
 pub fn kind_to_dialect(kind: &DialectKind) -> Option<Dialect> {
     #[allow(unreachable_patterns)]
     Some(match kind {
@@ -87,3 +108,8 @@ pub fn kind_to_dialect(kind: &DialectKind) -> Option<Dialect> {
         _ => return None,
     })
 }
+
+#[cfg(test)]
+mod test_case_debug;
+#[cfg(test)]
+mod test_case_keyword;

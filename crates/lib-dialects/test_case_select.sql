@@ -1,0 +1,1 @@
+SELECT CASE WHEN Status = 'Active' THEN 'A' ELSE 'U' END AS StatusCode FROM Users;

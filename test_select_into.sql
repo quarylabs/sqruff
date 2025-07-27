@@ -1,0 +1,1 @@
+SELECT CASE WHEN 1=1 THEN 'A' END INTO TempTable FROM Users;

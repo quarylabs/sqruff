@@ -3736,26 +3736,52 @@ pub fn raw_dialect() -> Dialect {
         .into(),
     )]);
 
-    // T-SQL NEXT VALUE FOR sequence syntax  
-    dialect.add([(
-        "NextValueForSegment".into(),
-        NodeMatcher::new(SyntaxKind::Function, |_| {
-            Sequence::new(vec_of_erased![
-                Ref::keyword("NEXT"),
-                Ref::keyword("VALUE"),
-                Ref::keyword("FOR"),
-                Ref::new("ObjectReferenceSegment")
-            ])
-            .to_matchable()
-        })
-        .to_matchable()
-        .into(),
-    )]);
-
     // Note: We intentionally do NOT override BaseExpressionElementGrammar here
     // because it would break CASE expression parsing. ANSI's BaseExpressionElementGrammar
     // includes ExpressionSegment which provides CASE support through Expression_C_Grammar.
-    // NextValueForSegment is added to expression grammars elsewhere.
+    
+    // Override Expression_D_Grammar to include T-SQL specific expressions like NEXT VALUE FOR
+    dialect.add([(
+        "Expression_D_Grammar".into(),
+        one_of(vec![
+            // Add NEXT VALUE FOR before other expressions
+            Ref::new("NextValueForSegment").to_matchable(),
+            Ref::new("BareFunctionSegment").to_matchable(),
+            Ref::new("FunctionSegment").to_matchable(),
+            Bracketed::new(vec![
+                one_of(vec![
+                    Ref::new("ExpressionSegment").to_matchable(),
+                    Ref::new("SelectableGrammar").to_matchable(),
+                    Delimited::new(vec![
+                        Ref::new("ColumnReferenceSegment").to_matchable(),
+                        Ref::new("FunctionSegment").to_matchable(),
+                        Ref::new("LiteralGrammar").to_matchable(),
+                        Ref::new("LocalAliasSegment").to_matchable(),
+                    ])
+                    .to_matchable(),
+                ])
+                .to_matchable(),
+            ])
+            .config(|this| this.parse_mode(ParseMode::Greedy))
+            .to_matchable(),
+            Ref::new("SelectStatementSegment").to_matchable(),
+            Ref::new("LiteralGrammar").to_matchable(),
+            Ref::new("IntervalExpressionSegment").to_matchable(),
+            Ref::new("TypedStructLiteralSegment").to_matchable(),
+            Ref::new("ArrayExpressionSegment").to_matchable(),
+            Ref::new("ColumnReferenceSegment").to_matchable(),
+            Sequence::new(vec![
+                Ref::new("SingleIdentifierGrammar").to_matchable(),
+                Ref::new("ObjectReferenceDelimiterGrammar").to_matchable(),
+                Ref::new("StarSegment").to_matchable(),
+            ])
+            .to_matchable(),
+            Ref::new("LocalAliasSegment").to_matchable(),
+        ])
+        .config(|this| this.terminators = vec_of_erased![Ref::new("CommaSegment")])
+        .to_matchable()
+        .into(),
+    )]);
 
     // Define PostTableExpressionGrammar to include T-SQL table hints and PIVOT/UNPIVOT
     dialect.add([(

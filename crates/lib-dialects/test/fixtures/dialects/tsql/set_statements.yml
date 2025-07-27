@@ -143,13 +143,13 @@ file:
       - bracketed:
         - start_bracket: (
         - expression:
-          - column_reference:
-            - naked_identifier: NEXT
-        - unparsable:
-          - word: VALUE
-          - word: FOR
-          - double_quote: '[dbo]'
-          - dot: .
-          - double_quote: '[SEQUENCE_NAME]'
+          - expression:
+            - keyword: NEXT
+            - keyword: VALUE
+            - keyword: FOR
+            - object_reference:
+              - quoted_identifier: '[dbo]'
+              - dot: .
+              - quoted_identifier: '[SEQUENCE_NAME]'
         - end_bracket: )
   - statement_terminator: ;

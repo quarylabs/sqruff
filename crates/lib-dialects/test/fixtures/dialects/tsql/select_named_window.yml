@@ -12,23 +12,30 @@ file:
               - bracketed:
                 - start_bracket: (
                 - end_bracket: )
-        - unparsable:
-          - word: OVER
-          - word: win
-          - word: AS
-          - double_quote: '[Row Number]'
-          - comma: ','
-          - word: p
-          - dot: .
-          - word: LastName
-          - comma: ','
-          - word: s
-          - dot: .
-          - word: SalesYTD
-          - comma: ','
-          - word: a
-          - dot: .
-          - word: PostalCode
+              - over_clause:
+                - keyword: OVER
+                - naked_identifier: win
+          - alias_expression:
+            - keyword: AS
+            - quoted_identifier: '[Row Number]'
+        - comma: ','
+        - select_clause_element:
+          - column_reference:
+            - naked_identifier: p
+            - dot: .
+            - naked_identifier: LastName
+        - comma: ','
+        - select_clause_element:
+          - column_reference:
+            - naked_identifier: s
+            - dot: .
+            - naked_identifier: SalesYTD
+        - comma: ','
+        - select_clause_element:
+          - column_reference:
+            - naked_identifier: a
+            - dot: .
+            - naked_identifier: PostalCode
       - from_clause:
         - keyword: FROM
         - from_expression:
@@ -168,47 +175,84 @@ file:
                   - column_reference:
                     - naked_identifier: OrderQty
                 - end_bracket: )
-        - unparsable:
-          - word: OVER
-          - word: win
-          - word: AS
-          - double_quote: '[Total]'
-          - comma: ','
-          - word: AVG
-          - start_bracket: (
-          - word: OrderQty
-          - end_bracket: )
-          - word: OVER
-          - word: win
-          - word: AS
-          - double_quote: '[Avg]'
-          - comma: ','
-          - word: COUNT
-          - start_bracket: (
-          - word: OrderQty
-          - end_bracket: )
-          - word: OVER
-          - word: win
-          - word: AS
-          - double_quote: '[Count]'
-          - comma: ','
-          - word: MIN
-          - start_bracket: (
-          - word: OrderQty
-          - end_bracket: )
-          - word: OVER
-          - word: win
-          - word: AS
-          - double_quote: '[Min]'
-          - comma: ','
-          - word: MAX
-          - start_bracket: (
-          - word: OrderQty
-          - end_bracket: )
-          - word: OVER
-          - word: win
-          - word: AS
-          - double_quote: '[Max]'
+              - over_clause:
+                - keyword: OVER
+                - naked_identifier: win
+          - alias_expression:
+            - keyword: AS
+            - quoted_identifier: '[Total]'
+        - comma: ','
+        - select_clause_element:
+          - function:
+            - function:
+              - function_name:
+                - function_name_identifier: AVG
+              - bracketed:
+                - start_bracket: (
+                - expression:
+                  - column_reference:
+                    - naked_identifier: OrderQty
+                - end_bracket: )
+              - over_clause:
+                - keyword: OVER
+                - naked_identifier: win
+          - alias_expression:
+            - keyword: AS
+            - quoted_identifier: '[Avg]'
+        - comma: ','
+        - select_clause_element:
+          - function:
+            - function:
+              - function_name:
+                - function_name_identifier: COUNT
+              - bracketed:
+                - start_bracket: (
+                - expression:
+                  - column_reference:
+                    - naked_identifier: OrderQty
+                - end_bracket: )
+              - over_clause:
+                - keyword: OVER
+                - naked_identifier: win
+          - alias_expression:
+            - keyword: AS
+            - quoted_identifier: '[Count]'
+        - comma: ','
+        - select_clause_element:
+          - function:
+            - function:
+              - function_name:
+                - function_name_identifier: MIN
+              - bracketed:
+                - start_bracket: (
+                - expression:
+                  - column_reference:
+                    - naked_identifier: OrderQty
+                - end_bracket: )
+              - over_clause:
+                - keyword: OVER
+                - naked_identifier: win
+          - alias_expression:
+            - keyword: AS
+            - quoted_identifier: '[Min]'
+        - comma: ','
+        - select_clause_element:
+          - function:
+            - function:
+              - function_name:
+                - function_name_identifier: MAX
+              - bracketed:
+                - start_bracket: (
+                - expression:
+                  - column_reference:
+                    - naked_identifier: OrderQty
+                - end_bracket: )
+              - over_clause:
+                - keyword: OVER
+                - naked_identifier: win
+          - alias_expression:
+            - keyword: AS
+            - quoted_identifier: '[Max]'
       - from_clause:
         - keyword: FROM
         - from_expression:
@@ -281,43 +325,70 @@ file:
                   - column_reference:
                     - naked_identifier: OrderQty
                 - end_bracket: )
-        - unparsable:
-          - word: OVER
-          - word: win
-          - word: AS
-          - word: Total
-          - comma: ','
-          - word: AVG
-          - start_bracket: (
-          - word: OrderQty
-          - end_bracket: )
-          - word: OVER
-          - start_bracket: (
-          - word: win
-          - word: PARTITION
-          - word: BY
-          - word: SalesOrderID
-          - end_bracket: )
-          - word: AS
-          - word: Avg
-          - comma: ','
-          - word: COUNT
-          - start_bracket: (
-          - word: OrderQty
-          - end_bracket: )
-          - word: OVER
-          - start_bracket: (
-          - word: win
-          - word: ROWS
-          - word: BETWEEN
-          - word: UNBOUNDED
-          - word: PRECEDING
-          - word: AND
-          - numeric_literal: '1'
-          - word: FOLLOWING
-          - end_bracket: )
-          - word: AS
-          - word: Count
+              - over_clause:
+                - keyword: OVER
+                - naked_identifier: win
+          - alias_expression:
+            - keyword: AS
+            - naked_identifier: Total
+        - comma: ','
+        - select_clause_element:
+          - function:
+            - function:
+              - function_name:
+                - function_name_identifier: AVG
+              - bracketed:
+                - start_bracket: (
+                - expression:
+                  - column_reference:
+                    - naked_identifier: OrderQty
+                - end_bracket: )
+              - over_clause:
+                - keyword: OVER
+                - bracketed:
+                  - start_bracket: (
+                  - window_specification:
+                    - naked_identifier: win
+                    - partitionby_clause:
+                      - keyword: PARTITION
+                      - keyword: BY
+                      - expression:
+                        - column_reference:
+                          - naked_identifier: SalesOrderID
+                  - end_bracket: )
+          - alias_expression:
+            - keyword: AS
+            - naked_identifier: Avg
+        - comma: ','
+        - select_clause_element:
+          - function:
+            - function:
+              - function_name:
+                - function_name_identifier: COUNT
+              - bracketed:
+                - start_bracket: (
+                - expression:
+                  - column_reference:
+                    - naked_identifier: OrderQty
+                - end_bracket: )
+              - over_clause:
+                - keyword: OVER
+                - bracketed:
+                  - start_bracket: (
+                  - window_specification:
+                    - naked_identifier: win
+                    - frame_clause:
+                      - keyword: ROWS
+                      - keyword: BETWEEN
+                      - keyword: UNBOUNDED
+                      - keyword: PRECEDING
+                      - keyword: AND
+                      - numeric_literal: '1'
+                      - keyword: FOLLOWING
+                  - end_bracket: )
+          - alias_expression:
+            - keyword: AS
+            - naked_identifier: Count
       - from_clause:
         - keyword: FROM
         - from_expression:
@@ -397,20 +468,30 @@ file:
                   - column_reference:
                     - naked_identifier: OrderQty
                 - end_bracket: )
-        - unparsable:
-          - word: OVER
-          - word: win2
-          - word: AS
-          - word: Total
-          - comma: ','
-          - word: AVG
-          - start_bracket: (
-          - word: OrderQty
-          - end_bracket: )
-          - word: OVER
-          - word: win1
-          - word: AS
-          - word: Avg
+              - over_clause:
+                - keyword: OVER
+                - naked_identifier: win2
+          - alias_expression:
+            - keyword: AS
+            - naked_identifier: Total
+        - comma: ','
+        - select_clause_element:
+          - function:
+            - function:
+              - function_name:
+                - function_name_identifier: AVG
+              - bracketed:
+                - start_bracket: (
+                - expression:
+                  - column_reference:
+                    - naked_identifier: OrderQty
+                - end_bracket: )
+              - over_clause:
+                - keyword: OVER
+                - naked_identifier: win1
+          - alias_expression:
+            - keyword: AS
+            - naked_identifier: Avg
       - from_clause:
         - keyword: FROM
         - from_expression:
@@ -493,11 +574,12 @@ file:
               - bracketed:
                 - start_bracket: (
                 - end_bracket: )
-        - unparsable:
-          - word: over
-          - word: win
-          - word: as
-          - word: x
+              - over_clause:
+                - keyword: over
+                - naked_identifier: win
+          - alias_expression:
+            - keyword: as
+            - naked_identifier: x
       - from_clause:
         - keyword: from
         - from_expression:

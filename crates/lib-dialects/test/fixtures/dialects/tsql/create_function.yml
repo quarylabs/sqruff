@@ -436,10 +436,11 @@ file:
             - select_clause:
               - keyword: SELECT
               - select_clause_element:
-                - tsql_variable: '@str'
-                - assignment_operator:
-                  - raw_comparison_operator: =
                 - expression:
+                  - parameterized_expression:
+                    - tsql_variable: '@str'
+                  - comparison_operator:
+                    - raw_comparison_operator: =
                   - parameterized_expression:
                     - tsql_variable: '@str'
                   - binary_operator: +

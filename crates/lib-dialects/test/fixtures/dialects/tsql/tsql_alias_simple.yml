@@ -5,10 +5,13 @@ file:
       - select_clause:
         - keyword: SELECT
         - select_clause_element:
-          - naked_identifier: TsqlAlias
-          - assignment_operator: =
-          - column_reference:
-            - naked_identifier: value
+          - expression:
+            - column_reference:
+              - naked_identifier: TsqlAlias
+            - comparison_operator:
+              - raw_comparison_operator: =
+            - column_reference:
+              - naked_identifier: value
       - from_clause:
         - keyword: FROM
         - from_expression:

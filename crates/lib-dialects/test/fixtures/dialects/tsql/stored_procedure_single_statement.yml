@@ -14,7 +14,7 @@ file:
         - start_bracket: (
         - tsql_variable: '@Apple'
         - data_type:
-          - data_type_identifier: '[int]'
+          - quoted_identifier: '[int]'
         - comma: ','
         - tsql_variable: '@Orange'
         - data_type:

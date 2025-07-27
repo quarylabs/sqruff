@@ -347,10 +347,10 @@ pub fn raw_dialect() -> Dialect {
         "OPENXML",
     ]);
 
-    // NOTE: T-SQL CASE expressions currently have a fundamental parsing issue in SELECT clauses
-    // CASE works in WHERE clauses but fails in SELECT due to parser architecture limitations
-    // with how T-SQL lexes keywords as Word tokens vs ANSI's Keyword tokens.
-    // This is a known limitation that requires architectural changes to fix properly.
+    // NOTE: T-SQL CASE expressions are now supported in SELECT clauses via TsqlCaseExpressionSegment
+    // The previous parsing issue was resolved by creating T-SQL specific CASE expressions that use
+    // StringParser instead of Ref::keyword to handle T-SQL's lexing behavior where CASE, WHEN, 
+    // THEN, ELSE are lexed as Word tokens in SELECT contexts but Keyword tokens in WHERE contexts.
         
     // Add other T-SQL specific segments
     dialect.add([
@@ -478,6 +478,99 @@ pub fn raw_dialect() -> Dialect {
         .into(),
     )]);
 
+    // T-SQL specific CASE expression segments
+    // These use StringParser instead of Ref::keyword to handle T-SQL's lexing behavior
+    // where CASE, WHEN, THEN, ELSE are lexed as Word tokens in SELECT contexts
+    dialect.add([
+        (
+            "TsqlCaseExpressionSegment".into(),
+            NodeMatcher::new(SyntaxKind::CaseExpression, |_| {
+                one_of(vec_of_erased![
+                    // Simple CASE: CASE expression WHEN value THEN result ... END
+                    Sequence::new(vec_of_erased![
+                        StringParser::new("CASE", SyntaxKind::Keyword),
+                        Ref::new("ExpressionSegment"),
+                        MetaSegment::implicit_indent(),
+                        AnyNumberOf::new(vec_of_erased![Ref::new("TsqlWhenClauseSegment")],).config(
+                            |this| {
+                                this.reset_terminators = true;
+                                this.terminators = vec_of_erased![
+                                    StringParser::new("ELSE", SyntaxKind::Keyword),
+                                    StringParser::new("END", SyntaxKind::Keyword)
+                                ];
+                            }
+                        ),
+                        Ref::new("TsqlElseClauseSegment").optional(),
+                        MetaSegment::dedent(),
+                        StringParser::new("END", SyntaxKind::Keyword),
+                    ]),
+                    // Searched CASE: CASE WHEN condition THEN result ... END
+                    Sequence::new(vec_of_erased![
+                        StringParser::new("CASE", SyntaxKind::Keyword),
+                        MetaSegment::implicit_indent(),
+                        AnyNumberOf::new(vec_of_erased![Ref::new("TsqlWhenClauseSegment")],).config(
+                            |this| {
+                                this.reset_terminators = true;
+                                this.terminators = vec_of_erased![
+                                    StringParser::new("ELSE", SyntaxKind::Keyword),
+                                    StringParser::new("END", SyntaxKind::Keyword)
+                                ];
+                            }
+                        ),
+                        Ref::new("TsqlElseClauseSegment").optional(),
+                        MetaSegment::dedent(),
+                        StringParser::new("END", SyntaxKind::Keyword),
+                    ]),
+                ])
+                .config(|this| {
+                    this.terminators = vec_of_erased![
+                        Ref::new("ComparisonOperatorGrammar"),
+                        Ref::new("CommaSegment"),
+                        Ref::new("BinaryOperatorGrammar")
+                    ]
+                })
+                .to_matchable()
+            })
+            .to_matchable()
+            .into(),
+        ),
+        (
+            "TsqlWhenClauseSegment".into(),
+            NodeMatcher::new(SyntaxKind::WhenClause, |_| {
+                Sequence::new(vec_of_erased![
+                    StringParser::new("WHEN", SyntaxKind::Keyword),
+                    Sequence::new(vec_of_erased![
+                        MetaSegment::implicit_indent(),
+                        Ref::new("ExpressionSegment"),
+                        MetaSegment::dedent(),
+                    ]),
+                    Conditional::new(MetaSegment::indent()).indented_then(),
+                    StringParser::new("THEN", SyntaxKind::Keyword),
+                    Conditional::new(MetaSegment::implicit_indent()).indented_then_contents(),
+                    Ref::new("ExpressionSegment"),
+                    Conditional::new(MetaSegment::dedent()).indented_then_contents(),
+                    Conditional::new(MetaSegment::dedent()).indented_then(),
+                ])
+                .to_matchable()
+            })
+            .to_matchable()
+            .into(),
+        ),
+        (
+            "TsqlElseClauseSegment".into(),
+            NodeMatcher::new(SyntaxKind::ElseClause, |_| {
+                Sequence::new(vec![
+                    StringParser::new("ELSE", SyntaxKind::Keyword).to_matchable(),
+                    MetaSegment::implicit_indent().to_matchable(),
+                    Ref::new("ExpressionSegment").to_matchable(),
+                    MetaSegment::dedent().to_matchable(),
+                ])
+                .to_matchable()
+            })
+            .to_matchable()
+            .into(),
+        ),
+    ]);
 
     // Add OPENROWSET segment for T-SQL specific syntax
     dialect.add([(
@@ -3706,6 +3799,38 @@ pub fn raw_dialect() -> Dialect {
     // Note: We intentionally do NOT override BaseExpressionElementGrammar here
     // because it would break CASE expression parsing. ANSI's BaseExpressionElementGrammar
     // includes ExpressionSegment which provides CASE support through Expression_C_Grammar.
+    // However, we DO override Expression_C_Grammar to use T-SQL specific CASE expressions.
+    
+    // Override Expression_C_Grammar to use T-SQL specific CASE expressions
+    dialect.add([(
+        "Expression_C_Grammar".into(),
+        one_of(vec![
+            // Sequence for "EXISTS" with a bracketed selectable grammar
+            Sequence::new(vec![
+                Ref::keyword("EXISTS").to_matchable(),
+                Bracketed::new(vec![Ref::new("SelectableGrammar").to_matchable()])
+                    .to_matchable(),
+            ])
+            .to_matchable(),
+            // Sequence for Expression_D_Grammar or T-SQL specific CaseExpressionSegment
+            // followed by any number of TimeZoneGrammar
+            Sequence::new(vec![
+                one_of(vec![
+                    Ref::new("Expression_D_Grammar").to_matchable(),
+                    Ref::new("TsqlCaseExpressionSegment").to_matchable(),
+                ])
+                .to_matchable(),
+                AnyNumberOf::new(vec![Ref::new("TimeZoneGrammar").to_matchable()])
+                    .config(|this| this.optional())
+                    .to_matchable(),
+            ])
+            .to_matchable(),
+            Ref::new("ShorthandCastSegment").to_matchable(),
+        ])
+        .config(|this| this.terminators = vec_of_erased![Ref::new("CommaSegment")])
+        .to_matchable()
+        .into(),
+    )]);
     
     // Override Expression_D_Grammar to include T-SQL specific expressions like NEXT VALUE FOR
     dialect.add([(
@@ -7531,14 +7656,14 @@ pub fn raw_dialect() -> Dialect {
                     ]),
                     // T-SQL specific: OPENQUERY/OPENROWSET/OPENDATASOURCE support
                     Ref::new("OpenQuerySegment"),
-                    Ref::new("OpenRowSetTableExpression"),
+                    Ref::new("OpenRowSetSegment"),
                     Ref::new("OpenDataSourceSegment"),
                     // Allow OPENDATASOURCE/OPENROWSET/OPENQUERY with chained object references
                     Sequence::new(vec_of_erased![
                         one_of(vec_of_erased![
                             Ref::new("OpenQuerySegment"),
                             Ref::new("OpenDataSourceSegment"),
-                            Ref::new("OpenRowSetTableExpression")
+                            Ref::new("OpenRowSetSegment")
                         ]),
                         // Allow .database.schema.table after OPENDATASOURCE/OPENROWSET/OPENQUERY
                         AnyNumberOf::new(vec_of_erased![

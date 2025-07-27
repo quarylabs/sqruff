@@ -14,8 +14,7 @@ file:
           - start_bracket: (
           - column_definition:
             - column_definition:
-              - column_reference:
-                - naked_identifier: column_a
+              - naked_identifier: column_a
               - data_type:
                 - data_type:
                   - data_type_identifier: INT
@@ -34,8 +33,7 @@ file:
       - keyword: ADD
       - column_definition:
         - column_definition:
-          - column_reference:
-            - naked_identifier: column_b
+          - naked_identifier: column_b
           - data_type:
             - data_type:
               - data_type_identifier: VARCHAR
@@ -62,8 +60,7 @@ file:
           - start_bracket: (
           - column_definition:
             - column_definition:
-              - column_reference:
-                - naked_identifier: column_a
+              - naked_identifier: column_a
               - data_type:
                 - data_type:
                   - data_type_identifier: INT
@@ -82,8 +79,7 @@ file:
       - keyword: ADD
       - column_definition:
         - column_definition:
-          - column_reference:
-            - naked_identifier: column_b
+          - naked_identifier: column_b
           - data_type:
             - data_type:
               - data_type_identifier: VARCHAR
@@ -147,16 +143,14 @@ file:
           - start_bracket: (
           - column_definition:
             - column_definition:
-              - column_reference:
-                - naked_identifier: column_a
+              - naked_identifier: column_a
               - data_type:
                 - data_type:
                   - data_type_identifier: INT
           - comma: ','
           - column_definition:
             - column_definition:
-              - column_reference:
-                - naked_identifier: column_b
+              - naked_identifier: column_b
               - data_type:
                 - data_type:
                   - data_type_identifier: INT
@@ -391,16 +385,14 @@ file:
       - keyword: ADD
       - column_definition:
         - column_definition:
-          - column_reference:
-            - naked_identifier: my_col_1
+          - naked_identifier: my_col_1
           - data_type:
             - data_type:
               - data_type_identifier: INT
       - comma: ','
       - column_definition:
         - column_definition:
-          - column_reference:
-            - naked_identifier: my_col_2
+          - naked_identifier: my_col_2
           - data_type:
             - data_type:
               - data_type_identifier: INT
@@ -829,8 +821,7 @@ file:
       - keyword: ADD
       - column_definition:
         - column_definition:
-          - column_reference:
-            - naked_identifier: RetailValue
+          - naked_identifier: RetailValue
           - keyword: AS
           - expression:
             - column_reference:
@@ -855,8 +846,7 @@ file:
       - keyword: ADD
       - column_definition:
         - column_definition:
-          - column_reference:
-            - naked_identifier: RetailValue
+          - naked_identifier: RetailValue
           - keyword: AS
           - expression:
             - bracketed:
@@ -888,8 +878,7 @@ file:
       - keyword: ADD
       - column_definition:
         - column_definition:
-          - column_reference:
-            - naked_identifier: InventoyDate
+          - naked_identifier: InventoyDate
           - keyword: AS
           - expression:
             - function:
@@ -985,80 +974,128 @@ file:
       - column_reference:
         - naked_identifier: StrSerial
   - statement_terminator: ;
-- unparsable:
-  - word: CREATE
-  - word: TABLE
-  - double_quote: '[dbo]'
-  - dot: .
-  - double_quote: '[UserData]'
-  - start_bracket: (
-  - double_quote: '[strUserId]'
-  - double_quote: '[char]'
-  - start_bracket: (
-  - numeric_literal: '21'
-  - end_bracket: )
-  - word: NOT
-  - word: 'NULL'
-  - comma: ','
-  - double_quote: '[strItem]'
-  - double_quote: '[binary]'
-  - start_bracket: (
-  - numeric_literal: '400'
-  - end_bracket: )
-  - word: 'NULL'
-  - comma: ','
-  - double_quote: '[strSkill]'
-  - double_quote: '[binary]'
-  - start_bracket: (
-  - numeric_literal: '400'
-  - end_bracket: )
-  - word: 'NULL'
-  - comma: ','
-  - word: CONSTRAINT
-  - word: PK_UserData
-  - word: PRIMARY
-  - word: KEY
-  - word: CLUSTERED
-  - start_bracket: (
-  - double_quote: '[strUserId]'
-  - word: ASC
-  - end_bracket: )
-  - end_bracket: )
-  - semicolon: ;
-  - word: ALTER
-  - word: TABLE
-  - double_quote: '[dbo]'
-  - dot: .
-  - double_quote: '[UserData]'
-  - word: ADD
-  - word: CONSTRAINT
-  - double_quote: '[DF_UserData_strSkill]'
-  - word: DEFAULT
-  - start_bracket: (
-  - numeric_literal: '0x00'
-  - end_bracket: )
-  - word: FOR
-  - double_quote: '[strSkill]'
-  - semicolon: ;
-  - word: GO
-  - word: ALTER
-  - word: TABLE
-  - double_quote: '[TestTable]'
-  - word: DROP
-  - word: PERIOD
-  - word: FOR
-  - word: SYSTEM_TIME
-  - semicolon: ;
-  - word: ALTER
-  - word: TABLE
-  - double_quote: '[TestTable]'
-  - word: ADD
-  - word: PERIOD
-  - word: FOR
-  - word: SYSTEM_TIME
-  - start_bracket: (
-  - word: StartDate
-  - comma: ','
-  - word: EndDate
-  - end_bracket: )
-  - semicolon: ;
+  - statement:
+    - create_table_statement:
+      - create_table_statement:
+        - keyword: CREATE
+        - keyword: TABLE
+        - table_reference:
+          - object_reference:
+            - quoted_identifier: '[dbo]'
+            - dot: .
+            - quoted_identifier: '[UserData]'
+        - bracketed:
+          - start_bracket: (
+          - column_definition:
+            - column_definition:
+              - quoted_identifier: '[strUserId]'
+              - data_type:
+                - quoted_identifier: '[char]'
+                - bracketed_arguments:
+                  - bracketed:
+                    - start_bracket: (
+                    - numeric_literal: '21'
+                    - end_bracket: )
+              - column_constraint_segment:
+                - keyword: NOT
+                - keyword: 'NULL'
+          - comma: ','
+          - column_definition:
+            - column_definition:
+              - quoted_identifier: '[strItem]'
+              - data_type:
+                - quoted_identifier: '[binary]'
+                - bracketed_arguments:
+                  - bracketed:
+                    - start_bracket: (
+                    - numeric_literal: '400'
+                    - end_bracket: )
+              - column_constraint_segment:
+                - keyword: 'NULL'
+          - comma: ','
+          - column_definition:
+            - column_definition:
+              - quoted_identifier: '[strSkill]'
+              - data_type:
+                - quoted_identifier: '[binary]'
+                - bracketed_arguments:
+                  - bracketed:
+                    - start_bracket: (
+                    - numeric_literal: '400'
+                    - end_bracket: )
+              - column_constraint_segment:
+                - keyword: 'NULL'
+          - comma: ','
+          - table_constraint:
+            - table_constraint:
+              - keyword: CONSTRAINT
+              - object_reference:
+                - naked_identifier: PK_UserData
+              - keyword: PRIMARY
+              - keyword: KEY
+              - keyword: CLUSTERED
+              - bracketed:
+                - start_bracket: (
+                - column_reference:
+                  - quoted_identifier: '[strUserId]'
+                - keyword: ASC
+                - end_bracket: )
+          - end_bracket: )
+  - statement_terminator: ;
+  - statement:
+    - alter_table_statement:
+      - keyword: ALTER
+      - keyword: TABLE
+      - table_reference:
+        - object_reference:
+          - quoted_identifier: '[dbo]'
+          - dot: .
+          - quoted_identifier: '[UserData]'
+      - keyword: ADD
+      - keyword: CONSTRAINT
+      - object_reference:
+        - quoted_identifier: '[DF_UserData_strSkill]'
+      - keyword: DEFAULT
+      - expression:
+        - bracketed:
+          - start_bracket: (
+          - expression:
+            - numeric_literal: '0x00'
+          - end_bracket: )
+      - keyword: FOR
+      - column_reference:
+        - quoted_identifier: '[strSkill]'
+  - statement_terminator: ;
+  - keyword: GO
+  - statement:
+    - alter_table_statement:
+      - keyword: ALTER
+      - keyword: TABLE
+      - table_reference:
+        - object_reference:
+          - quoted_identifier: '[TestTable]'
+      - keyword: DROP
+      - keyword: PERIOD
+      - keyword: FOR
+      - keyword: SYSTEM_TIME
+  - statement_terminator: ;
+  - statement:
+    - alter_table_statement:
+      - keyword: ALTER
+      - keyword: TABLE
+      - table_reference:
+        - object_reference:
+          - quoted_identifier: '[TestTable]'
+      - keyword: ADD
+      - keyword: PERIOD
+      - keyword: FOR
+      - keyword: SYSTEM_TIME
+      - bracketed:
+        - start_bracket: (
+        - column_reference:
+          - naked_identifier: StartDate
+        - comma: ','
+        - column_reference:
+          - naked_identifier: EndDate
+        - end_bracket: )
+  - statement_terminator: ;

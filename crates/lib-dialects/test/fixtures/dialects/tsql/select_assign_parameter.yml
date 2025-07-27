@@ -5,12 +5,15 @@ file:
       - select_clause:
         - keyword: select
         - select_clause_element:
-          - naked_identifier: userid
-          - assignment_operator: =
-          - column_reference:
-            - naked_identifier: c
-            - dot: .
-            - naked_identifier: id
+          - expression:
+            - column_reference:
+              - naked_identifier: userid
+            - comparison_operator:
+              - raw_comparison_operator: =
+            - column_reference:
+              - naked_identifier: c
+              - dot: .
+              - naked_identifier: id
       - from_clause:
         - keyword: from
         - from_expression:

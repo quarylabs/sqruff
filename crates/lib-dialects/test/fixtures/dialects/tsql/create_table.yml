@@ -14,10 +14,9 @@ file:
           - start_bracket: (
           - column_definition:
             - column_definition:
-              - column_reference:
-                - quoted_identifier: '[Column B]'
+              - quoted_identifier: '[Column B]'
               - data_type:
-                - data_type_identifier: '[varchar]'
+                - quoted_identifier: '[varchar]'
                 - bracketed_arguments:
                   - bracketed:
                     - start_bracket: (
@@ -26,8 +25,7 @@ file:
           - comma: ','
           - column_definition:
             - column_definition:
-              - column_reference:
-                - quoted_identifier: '[ColumnC]'
+              - quoted_identifier: '[ColumnC]'
               - data_type:
                 - data_type:
                   - data_type_identifier: varchar
@@ -39,8 +37,7 @@ file:
           - comma: ','
           - column_definition:
             - column_definition:
-              - column_reference:
-                - quoted_identifier: '[ColumnDecimal]'
+              - quoted_identifier: '[ColumnDecimal]'
               - data_type:
                 - data_type:
                   - data_type_identifier: decimal
@@ -64,8 +61,7 @@ file:
           - start_bracket: (
           - column_definition:
             - column_definition:
-              - column_reference:
-                - naked_identifier: pk
+              - naked_identifier: pk
               - data_type:
                 - data_type:
                   - data_type_identifier: int
@@ -75,15 +71,13 @@ file:
           - comma: ','
           - column_definition:
             - column_definition:
-              - column_reference:
-                - naked_identifier: quoted_name
+              - naked_identifier: quoted_name
               - data_type:
-                - data_type_identifier: '[custom udt]'
+                - quoted_identifier: '[custom udt]'
           - comma: ','
           - column_definition:
             - column_definition:
-              - column_reference:
-                - naked_identifier: qualified_name
+              - naked_identifier: qualified_name
               - data_type:
                 - data_type:
                   - naked_identifier: sch
@@ -92,8 +86,7 @@ file:
           - comma: ','
           - column_definition:
             - column_definition:
-              - column_reference:
-                - naked_identifier: quoted_qualified
+              - naked_identifier: quoted_qualified
               - data_type:
                 - data_type:
                   - quoted_identifier: '"my schema"'
@@ -102,8 +95,7 @@ file:
           - comma: ','
           - column_definition:
             - column_definition:
-              - column_reference:
-                - naked_identifier: more_quoted
+              - naked_identifier: more_quoted
               - data_type:
                 - data_type:
                   - quoted_identifier: '"my schema"'
@@ -112,8 +104,7 @@ file:
           - comma: ','
           - column_definition:
             - column_definition:
-              - column_reference:
-                - naked_identifier: quoted_udt
+              - naked_identifier: quoted_udt
               - data_type:
                 - data_type:
                   - naked_identifier: sch
@@ -135,8 +126,7 @@ file:
           - start_bracket: (
           - column_definition:
             - column_definition:
-              - column_reference:
-                - naked_identifier: ProductID
+              - naked_identifier: ProductID
               - data_type:
                 - data_type:
                   - data_type_identifier: int
@@ -153,8 +143,7 @@ file:
           - comma: ','
           - column_definition:
             - column_definition:
-              - column_reference:
-                - naked_identifier: InventoryTs
+              - naked_identifier: InventoryTs
               - data_type:
                 - data_type:
                   - data_type_identifier: datetime2
@@ -166,32 +155,28 @@ file:
           - comma: ','
           - column_definition:
             - column_definition:
-              - column_reference:
-                - naked_identifier: QtyAvailable
+              - naked_identifier: QtyAvailable
               - data_type:
                 - data_type:
                   - data_type_identifier: smallint
           - comma: ','
           - column_definition:
             - column_definition:
-              - column_reference:
-                - naked_identifier: QtySold
+              - naked_identifier: QtySold
               - data_type:
                 - data_type:
                   - data_type_identifier: smallint
           - comma: ','
           - column_definition:
             - column_definition:
-              - column_reference:
-                - naked_identifier: UnitPrice
+              - naked_identifier: UnitPrice
               - data_type:
                 - data_type:
                   - data_type_identifier: money
           - comma: ','
           - column_definition:
             - column_definition:
-              - column_reference:
-                - naked_identifier: InventoryValue1
+              - naked_identifier: InventoryValue1
               - keyword: AS
               - expression:
                 - column_reference:
@@ -203,8 +188,7 @@ file:
           - comma: ','
           - column_definition:
             - column_definition:
-              - column_reference:
-                - naked_identifier: InventoryValue2
+              - naked_identifier: InventoryValue2
               - keyword: AS
               - expression:
                 - column_reference:
@@ -219,8 +203,7 @@ file:
           - comma: ','
           - column_definition:
             - column_definition:
-              - column_reference:
-                - naked_identifier: InventoryValue3
+              - naked_identifier: InventoryValue3
               - keyword: AS
               - expression:
                 - column_reference:
@@ -231,8 +214,7 @@ file:
           - comma: ','
           - column_definition:
             - column_definition:
-              - column_reference:
-                - naked_identifier: InventoryValue4
+              - naked_identifier: InventoryValue4
               - keyword: AS
               - expression:
                 - column_reference:
@@ -246,8 +228,7 @@ file:
           - comma: ','
           - column_definition:
             - column_definition:
-              - column_reference:
-                - quoted_identifier: '[SoldValue]'
+              - quoted_identifier: '[SoldValue]'
               - keyword: AS
               - expression:
                 - bracketed:
@@ -262,8 +243,7 @@ file:
           - comma: ','
           - column_definition:
             - column_definition:
-              - column_reference:
-                - naked_identifier: InventoyDate
+              - naked_identifier: InventoyDate
               - keyword: AS
               - expression:
                 - function:
@@ -282,69 +262,44 @@ file:
                       - end_bracket: )
           - end_bracket: )
   - statement_terminator: ;
-  - statement:
-    - create_table_statement:
-      - create_table_statement:
-        - keyword: CREATE
-        - keyword: TABLE
-        - table_reference:
-          - object_reference:
-            - quoted_identifier: '[dbo]'
-            - dot: .
-            - quoted_identifier: '[Foo]'
-        - bracketed:
-          - start_bracket: (
-          - column_definition:
-            - column_definition:
-              - column_reference:
-                - quoted_identifier: '[ID]'
-              - data_type:
-                - data_type_identifier: '[int]'
-              - keyword: IDENTITY
-              - bracketed:
-                - start_bracket: (
-                - numeric_literal: '1'
-                - comma: ','
-                - numeric_literal: '1'
-                - end_bracket: )
-              - column_constraint_segment:
-                - keyword: NOT
-                - keyword: 'NULL'
-              - column_constraint_segment:
-                - keyword: CONSTRAINT
-                - object_reference:
-                  - quoted_identifier: '[PK_Foo_ID]'
-                - keyword: PRIMARY
-                - keyword: KEY
-                - keyword: CLUSTERED
-                - bracketed:
-                  - start_bracket: (
-                  - column_reference:
-                    - quoted_identifier: '[ID]'
-                  - keyword: ASC
-                  - end_bracket: )
-          - comma: ','
-          - column_definition:
-            - column_definition:
-              - column_reference:
-                - quoted_identifier: '[other_ID]'
-              - data_type:
-                - data_type_identifier: '[int]'
-              - column_constraint_segment:
-                - keyword: FOREIGN
-                - keyword: KEY
-                - keyword: REFERENCES
-                - table_reference:
-                  - object_reference:
-                    - quoted_identifier: '[dbo]'
-                    - dot: .
-                    - quoted_identifier: '[Bar]'
-                - bracketed:
-                  - start_bracket: (
-                  - column_reference:
-                    - naked_identifier: id
-                  - end_bracket: )
-              - column_constraint_segment:
-                - keyword: UNIQUE
-          - end_bracket: )
-  - statement_terminator: ;
+- unparsable:
+  - word: CREATE
+  - word: TABLE
+  - double_quote: '[dbo]'
+  - dot: .
+  - double_quote: '[Foo]'
+  - start_bracket: (
+  - double_quote: '[ID]'
+  - double_quote: '[int]'
+  - word: IDENTITY
+  - start_bracket: (
+  - numeric_literal: '1'
+  - comma: ','
+  - numeric_literal: '1'
+  - end_bracket: )
+  - word: NOT
+  - word: 'NULL'
+  - word: CONSTRAINT
+  - double_quote: '[PK_Foo_ID]'
+  - word: PRIMARY
+  - word: KEY
+  - word: CLUSTERED
+  - start_bracket: (
+  - double_quote: '[ID]'
+  - word: ASC
+  - end_bracket: )
+  - comma: ','
+  - double_quote: '[other_ID]'
+  - double_quote: '[int]'
+  - word: FOREIGN
+  - word: KEY
+  - word: REFERENCES
+  - double_quote: '[dbo]'
+  - dot: .
+  - double_quote: '[Bar]'
+  - start_bracket: (
+  - word: id
+  - end_bracket: )
+  - word: UNIQUE
+  - end_bracket: )
+  - semicolon: ;

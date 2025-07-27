@@ -8,7 +8,8 @@ file:
           - function:
             - function:
               - function:
-                - keyword: JSON_OBJECT
+                - function_name:
+                  - function_name_identifier: JSON_OBJECT
                 - bracketed:
                   - start_bracket: (
                   - json_null_clause:
@@ -25,7 +26,8 @@ file:
           - function:
             - function:
               - function:
-                - keyword: JSON_ARRAY
+                - function_name:
+                  - function_name_identifier: JSON_ARRAY
                 - bracketed:
                   - start_bracket: (
                   - expression:
@@ -49,7 +51,8 @@ file:
           - function:
             - function:
               - function:
-                - keyword: JSON_ARRAY
+                - function_name:
+                  - function_name_identifier: JSON_ARRAY
                 - bracketed:
                   - start_bracket: (
                   - expression:
@@ -64,10 +67,11 @@ file:
                   - expression:
                     - numeric_literal: '2'
                   - comma: ','
-                  - json_null_clause:
-                    - keyword: 'NULL'
-                    - keyword: ON
-                    - keyword: 'NULL'
+                  - expression:
+                    - null_literal: 'NULL'
+                  - unparsable:
+                    - word: ON
+                    - word: 'NULL'
                   - end_bracket: )
   - statement_terminator: ;
   - statement:
@@ -78,7 +82,8 @@ file:
           - function:
             - function:
               - function:
-                - keyword: JSON_OBJECT
+                - function_name:
+                  - function_name_identifier: JSON_OBJECT
                 - bracketed:
                   - start_bracket: (
                   - expression:
@@ -102,7 +107,8 @@ file:
           - function:
             - function:
               - function:
-                - keyword: JSON_OBJECT
+                - function_name:
+                  - function_name_identifier: JSON_OBJECT
                 - bracketed:
                   - start_bracket: (
                   - expression:
@@ -130,7 +136,8 @@ file:
           - function:
             - function:
               - function:
-                - keyword: JSON_OBJECT
+                - function_name:
+                  - function_name_identifier: JSON_OBJECT
                 - bracketed:
                   - start_bracket: (
                   - expression:
@@ -146,7 +153,8 @@ file:
                     - function:
                       - function:
                         - function:
-                          - keyword: JSON_ARRAY
+                          - function_name:
+                            - function_name_identifier: JSON_ARRAY
                           - bracketed:
                             - start_bracket: (
                             - expression:
@@ -165,7 +173,8 @@ file:
           - function:
             - function:
               - function:
-                - keyword: JSON_OBJECT
+                - function_name:
+                  - function_name_identifier: JSON_OBJECT
                 - bracketed:
                   - start_bracket: (
                   - expression:
@@ -181,7 +190,8 @@ file:
                     - function:
                       - function:
                         - function:
-                          - keyword: JSON_OBJECT
+                          - function_name:
+                            - function_name_identifier: JSON_OBJECT
                           - bracketed:
                             - start_bracket: (
                             - expression:
@@ -199,38 +209,39 @@ file:
                   - end_bracket: )
   - statement_terminator: ;
   - statement:
-    - keyword: DECLARE
-    - tsql_variable: '@id_key'
-    - data_type:
-      - data_type_identifier: nvarchar
-      - bracketed_arguments:
-        - bracketed:
-          - start_bracket: (
-          - numeric_literal: '10'
-          - end_bracket: )
-    - assignment_operator:
-      - raw_comparison_operator: =
-    - expression:
-      - quoted_literal: N'id'
-    - comma: ','
-    - tsql_variable: '@id_value'
-    - data_type:
-      - data_type_identifier: nvarchar
-      - bracketed_arguments:
-        - bracketed:
-          - start_bracket: (
-          - numeric_literal: '64'
-          - end_bracket: )
-    - assignment_operator:
-      - raw_comparison_operator: =
-    - expression:
-      - function:
-        - function:
-          - function_name:
-            - function_name_identifier: NEWID
+    - declare_statement:
+      - keyword: DECLARE
+      - tsql_variable: '@id_key'
+      - data_type:
+        - data_type_identifier: nvarchar
+        - bracketed_arguments:
           - bracketed:
             - start_bracket: (
+            - numeric_literal: '10'
             - end_bracket: )
+      - assignment_operator:
+        - raw_comparison_operator: =
+      - expression:
+        - quoted_literal: N'id'
+      - comma: ','
+      - tsql_variable: '@id_value'
+      - data_type:
+        - data_type_identifier: nvarchar
+        - bracketed_arguments:
+          - bracketed:
+            - start_bracket: (
+            - numeric_literal: '64'
+            - end_bracket: )
+      - assignment_operator:
+        - raw_comparison_operator: =
+      - expression:
+        - function:
+          - function:
+            - function_name:
+              - function_name_identifier: NEWID
+            - bracketed:
+              - start_bracket: (
+              - end_bracket: )
   - statement_terminator: ;
   - statement:
     - select_statement:
@@ -240,7 +251,8 @@ file:
           - function:
             - function:
               - function:
-                - keyword: JSON_OBJECT
+                - function_name:
+                  - function_name_identifier: JSON_OBJECT
                 - bracketed:
                   - start_bracket: (
                   - expression:
@@ -293,7 +305,8 @@ file:
           - function:
             - function:
               - function:
-                - keyword: JSON_OBJECT
+                - function_name:
+                  - function_name_identifier: JSON_OBJECT
                 - bracketed:
                   - start_bracket: (
                   - expression:
@@ -359,7 +372,8 @@ file:
           - function:
             - function:
               - function:
-                - keyword: JSON_ARRAY
+                - function_name:
+                  - function_name_identifier: JSON_ARRAY
                 - bracketed:
                   - start_bracket: (
                   - expression:
@@ -369,7 +383,8 @@ file:
                     - function:
                       - function:
                         - function:
-                          - keyword: JSON_OBJECT
+                          - function_name:
+                            - function_name_identifier: JSON_OBJECT
                           - bracketed:
                             - start_bracket: (
                             - expression:
@@ -394,7 +409,8 @@ file:
           - function:
             - function:
               - function:
-                - keyword: JSON_ARRAY
+                - function_name:
+                  - function_name_identifier: JSON_ARRAY
                 - bracketed:
                   - start_bracket: (
                   - expression:
@@ -404,7 +420,8 @@ file:
                     - function:
                       - function:
                         - function:
-                          - keyword: JSON_OBJECT
+                          - function_name:
+                            - function_name_identifier: JSON_OBJECT
                           - bracketed:
                             - start_bracket: (
                             - expression:
@@ -439,25 +456,26 @@ file:
                   - end_bracket: )
   - statement_terminator: ;
   - statement:
-    - keyword: DECLARE
-    - tsql_variable: '@id_value'
-    - data_type:
-      - data_type_identifier: nvarchar
-      - bracketed_arguments:
-        - bracketed:
-          - start_bracket: (
-          - numeric_literal: '64'
-          - end_bracket: )
-    - assignment_operator:
-      - raw_comparison_operator: =
-    - expression:
-      - function:
-        - function:
-          - function_name:
-            - function_name_identifier: NEWID
+    - declare_statement:
+      - keyword: DECLARE
+      - tsql_variable: '@id_value'
+      - data_type:
+        - data_type_identifier: nvarchar
+        - bracketed_arguments:
           - bracketed:
             - start_bracket: (
+            - numeric_literal: '64'
             - end_bracket: )
+      - assignment_operator:
+        - raw_comparison_operator: =
+      - expression:
+        - function:
+          - function:
+            - function_name:
+              - function_name_identifier: NEWID
+            - bracketed:
+              - start_bracket: (
+              - end_bracket: )
   - statement_terminator: ;
   - statement:
     - select_statement:
@@ -467,7 +485,8 @@ file:
           - function:
             - function:
               - function:
-                - keyword: JSON_ARRAY
+                - function_name:
+                  - function_name_identifier: JSON_ARRAY
                 - bracketed:
                   - start_bracket: (
                   - expression:
@@ -504,7 +523,8 @@ file:
           - function:
             - function:
               - function:
-                - keyword: JSON_ARRAY
+                - function_name:
+                  - function_name_identifier: JSON_ARRAY
                 - bracketed:
                   - start_bracket: (
                   - expression:

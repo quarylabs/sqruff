@@ -14,10 +14,9 @@ file:
           - start_bracket: (
           - column_definition:
             - column_definition:
-              - column_reference:
-                - quoted_identifier: '[Column B]'
+              - quoted_identifier: '[Column B]'
               - data_type:
-                - data_type_identifier: '[varchar]'
+                - quoted_identifier: '[varchar]'
                 - bracketed_arguments:
                   - bracketed:
                     - start_bracket: (
@@ -26,8 +25,7 @@ file:
           - comma: ','
           - column_definition:
             - column_definition:
-              - column_reference:
-                - quoted_identifier: '[ColumnC]'
+              - quoted_identifier: '[ColumnC]'
               - data_type:
                 - data_type:
                   - data_type_identifier: varchar
@@ -39,8 +37,7 @@ file:
           - comma: ','
           - column_definition:
             - column_definition:
-              - column_reference:
-                - quoted_identifier: '[ColumnDecimal]'
+              - quoted_identifier: '[ColumnDecimal]'
               - data_type:
                 - data_type:
                   - data_type_identifier: decimal
@@ -90,10 +87,9 @@ file:
           - start_bracket: (
           - column_definition:
             - column_definition:
-              - column_reference:
-                - quoted_identifier: '[Column B]'
+              - quoted_identifier: '[Column B]'
               - data_type:
-                - data_type_identifier: '[varchar]'
+                - quoted_identifier: '[varchar]'
                 - bracketed_arguments:
                   - bracketed:
                     - start_bracket: (
@@ -102,8 +98,7 @@ file:
           - comma: ','
           - column_definition:
             - column_definition:
-              - column_reference:
-                - quoted_identifier: '[ColumnC]'
+              - quoted_identifier: '[ColumnC]'
               - data_type:
                 - data_type:
                   - data_type_identifier: varchar
@@ -115,8 +110,7 @@ file:
           - comma: ','
           - column_definition:
             - column_definition:
-              - column_reference:
-                - quoted_identifier: '[ColumnDecimal]'
+              - quoted_identifier: '[ColumnDecimal]'
               - data_type:
                 - data_type:
                   - data_type_identifier: decimal
@@ -164,10 +158,9 @@ file:
           - start_bracket: (
           - column_definition:
             - column_definition:
-              - column_reference:
-                - quoted_identifier: '[Column B]'
+              - quoted_identifier: '[Column B]'
               - data_type:
-                - data_type_identifier: '[varchar]'
+                - quoted_identifier: '[varchar]'
                 - bracketed_arguments:
                   - bracketed:
                     - start_bracket: (
@@ -176,8 +169,7 @@ file:
           - comma: ','
           - column_definition:
             - column_definition:
-              - column_reference:
-                - quoted_identifier: '[ColumnC]'
+              - quoted_identifier: '[ColumnC]'
               - data_type:
                 - data_type:
                   - data_type_identifier: varchar
@@ -189,8 +181,7 @@ file:
           - comma: ','
           - column_definition:
             - column_definition:
-              - column_reference:
-                - quoted_identifier: '[ColumnDecimal]'
+              - quoted_identifier: '[ColumnDecimal]'
               - data_type:
                 - data_type:
                   - data_type_identifier: decimal
@@ -246,10 +237,9 @@ file:
           - start_bracket: (
           - column_definition:
             - column_definition:
-              - column_reference:
-                - quoted_identifier: '[Column B]'
+              - quoted_identifier: '[Column B]'
               - data_type:
-                - data_type_identifier: '[varchar]'
+                - quoted_identifier: '[varchar]'
                 - bracketed_arguments:
                   - bracketed:
                     - start_bracket: (
@@ -258,8 +248,7 @@ file:
           - comma: ','
           - column_definition:
             - column_definition:
-              - column_reference:
-                - quoted_identifier: '[ColumnC]'
+              - quoted_identifier: '[ColumnC]'
               - data_type:
                 - data_type:
                   - data_type_identifier: varchar
@@ -271,8 +260,7 @@ file:
           - comma: ','
           - column_definition:
             - column_definition:
-              - column_reference:
-                - quoted_identifier: '[ColumnDecimal]'
+              - quoted_identifier: '[ColumnDecimal]'
               - data_type:
                 - data_type:
                   - data_type_identifier: decimal
@@ -332,10 +320,9 @@ file:
           - start_bracket: (
           - column_definition:
             - column_definition:
-              - column_reference:
-                - quoted_identifier: '[Column B]'
+              - quoted_identifier: '[Column B]'
               - data_type:
-                - data_type_identifier: '[varchar]'
+                - quoted_identifier: '[varchar]'
                 - bracketed_arguments:
                   - bracketed:
                     - start_bracket: (
@@ -344,8 +331,7 @@ file:
           - comma: ','
           - column_definition:
             - column_definition:
-              - column_reference:
-                - quoted_identifier: '[ColumnC]'
+              - quoted_identifier: '[ColumnC]'
               - data_type:
                 - data_type:
                   - data_type_identifier: varchar
@@ -357,8 +343,7 @@ file:
           - comma: ','
           - column_definition:
             - column_definition:
-              - column_reference:
-                - quoted_identifier: '[ColumnDecimal]'
+              - quoted_identifier: '[ColumnDecimal]'
               - data_type:
                 - data_type:
                   - data_type_identifier: decimal
@@ -418,10 +403,9 @@ file:
           - start_bracket: (
           - column_definition:
             - column_definition:
-              - column_reference:
-                - quoted_identifier: '[Column B]'
+              - quoted_identifier: '[Column B]'
               - data_type:
-                - data_type_identifier: '[varchar]'
+                - quoted_identifier: '[varchar]'
                 - bracketed_arguments:
                   - bracketed:
                     - start_bracket: (
@@ -430,8 +414,7 @@ file:
           - comma: ','
           - column_definition:
             - column_definition:
-              - column_reference:
-                - quoted_identifier: '[ColumnC]'
+              - quoted_identifier: '[ColumnC]'
               - data_type:
                 - data_type:
                   - data_type_identifier: varchar
@@ -443,8 +426,7 @@ file:
           - comma: ','
           - column_definition:
             - column_definition:
-              - column_reference:
-                - quoted_identifier: '[ColumnDecimal]'
+              - quoted_identifier: '[ColumnDecimal]'
               - data_type:
                 - data_type:
                   - data_type_identifier: decimal
@@ -506,10 +488,9 @@ file:
           - start_bracket: (
           - column_definition:
             - column_definition:
-              - column_reference:
-                - quoted_identifier: '[name]'
+              - quoted_identifier: '[name]'
               - data_type:
-                - data_type_identifier: '[varchar]'
+                - quoted_identifier: '[varchar]'
                 - bracketed_arguments:
                   - bracketed:
                     - start_bracket: (
@@ -521,10 +502,9 @@ file:
           - comma: ','
           - column_definition:
             - column_definition:
-              - column_reference:
-                - quoted_identifier: '[month_num]'
+              - quoted_identifier: '[month_num]'
               - data_type:
-                - data_type_identifier: '[int]'
+                - quoted_identifier: '[int]'
               - column_constraint_segment:
                 - keyword: 'NULL'
           - end_bracket: )

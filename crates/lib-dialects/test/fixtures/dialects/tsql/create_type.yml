@@ -12,8 +12,7 @@ file:
         - start_bracket: (
         - column_definition:
           - column_definition:
-            - column_reference:
-              - naked_identifier: name
+            - naked_identifier: name
             - data_type:
               - data_type:
                 - data_type_identifier: nvarchar
@@ -25,16 +24,14 @@ file:
         - comma: ','
         - column_definition:
           - column_definition:
-            - column_reference:
-              - naked_identifier: height
+            - naked_identifier: height
             - data_type:
               - data_type:
                 - data_type_identifier: int
         - comma: ','
         - column_definition:
           - column_definition:
-            - column_reference:
-              - naked_identifier: favorite_color
+            - naked_identifier: favorite_color
             - data_type:
               - data_type:
                 - data_type_identifier: int

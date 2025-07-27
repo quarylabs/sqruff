@@ -251,24 +251,28 @@ file:
           - bracketed:
             - start_bracket: (
             - end_bracket: )
-    - expression:
-      - function:
-        - function:
-          - function_name:
-            - function_name_identifier: OVER
-          - bracketed:
-            - start_bracket: (
-            - unparsable:
-              - word: PARTITION
-              - word: BY
-              - double_quote: '[EventNM]'
-              - comma: ','
-              - double_quote: '[PersonID]'
-              - word: ORDER
-              - word: BY
-              - double_quote: '[DateofEvent]'
-              - word: desc
-            - end_bracket: )
+          - over_clause:
+            - keyword: OVER
+            - bracketed:
+              - start_bracket: (
+              - window_specification:
+                - partitionby_clause:
+                  - keyword: PARTITION
+                  - keyword: BY
+                  - expression:
+                    - column_reference:
+                      - quoted_identifier: '[EventNM]'
+                  - comma: ','
+                  - expression:
+                    - column_reference:
+                      - quoted_identifier: '[PersonID]'
+                - orderby_clause:
+                  - keyword: ORDER
+                  - keyword: BY
+                  - column_reference:
+                    - quoted_identifier: '[DateofEvent]'
+                  - keyword: desc
+              - end_bracket: )
 - unparsable:
   - word: AS
   - double_quote: '[RN]'

@@ -1,1 +1,0 @@
-SELECT col1 = table1.column1 FROM table1

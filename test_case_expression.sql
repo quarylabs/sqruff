@@ -1,1 +1,0 @@
-SELECT CASE WHEN Status = 'Active' THEN 'A' END AS StatusCode

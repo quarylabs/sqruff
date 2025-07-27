@@ -1,81 +1,78 @@
 file:
 - statement:
   - statement:
-    - keyword: DECLARE
-    - tsql_variable: '@orders'
-    - keyword: TABLE
-    - bracketed:
-      - start_bracket: (
-      - column_definition:
+    - declare_statement:
+      - keyword: DECLARE
+      - tsql_variable: '@orders'
+      - keyword: TABLE
+      - bracketed:
+        - start_bracket: (
         - column_definition:
-          - column_reference:
+          - column_definition:
             - naked_identifier: OrderId
-          - data_type:
             - data_type:
-              - data_type_identifier: INT
-          - keyword: IDENTITY
-          - bracketed:
-            - start_bracket: (
-            - numeric_literal: '1'
-            - comma: ','
-            - numeric_literal: '1'
-            - end_bracket: )
-          - column_constraint_segment:
-            - keyword: PRIMARY
-            - keyword: KEY
-      - comma: ','
-      - column_definition:
-        - column_definition:
-          - column_reference:
-            - naked_identifier: CustomerId
-          - data_type:
-            - data_type:
-              - data_type_identifier: INT
-          - column_constraint_segment:
-            - keyword: NOT
-            - keyword: 'NULL'
-      - comma: ','
-      - column_definition:
-        - column_definition:
-          - column_reference:
-            - naked_identifier: OrderDate
-          - data_type:
-            - data_type:
-              - data_type_identifier: DATETIME
-          - column_constraint_segment:
-            - keyword: DEFAULT
-            - function:
-              - function:
-                - function_name:
-                  - function_name_identifier: GETDATE
-                - bracketed:
-                  - start_bracket: (
-                  - end_bracket: )
-      - comma: ','
-      - column_definition:
-        - column_definition:
-          - column_reference:
-            - naked_identifier: Amount
-          - data_type:
-            - data_type:
-              - data_type_identifier: DECIMAL
-              - bracketed_arguments:
-                - bracketed:
-                  - start_bracket: (
-                  - numeric_literal: '10'
-                  - comma: ','
-                  - numeric_literal: '2'
-                  - end_bracket: )
-          - column_constraint_segment:
-            - keyword: CHECK
+              - data_type:
+                - data_type_identifier: INT
+            - keyword: IDENTITY
             - bracketed:
               - start_bracket: (
-              - expression:
-                - column_reference:
-                  - naked_identifier: Amount
-                - comparison_operator:
-                  - raw_comparison_operator: '>'
-                - numeric_literal: '0'
+              - numeric_literal: '1'
+              - comma: ','
+              - numeric_literal: '1'
               - end_bracket: )
-      - end_bracket: )
+            - column_constraint_segment:
+              - keyword: PRIMARY
+              - keyword: KEY
+        - comma: ','
+        - column_definition:
+          - column_definition:
+            - naked_identifier: CustomerId
+            - data_type:
+              - data_type:
+                - data_type_identifier: INT
+            - column_constraint_segment:
+              - keyword: NOT
+              - keyword: 'NULL'
+        - comma: ','
+        - column_definition:
+          - column_definition:
+            - naked_identifier: OrderDate
+            - data_type:
+              - data_type:
+                - data_type_identifier: DATETIME
+            - column_constraint_segment:
+              - keyword: DEFAULT
+              - function:
+                - function:
+                  - function_name:
+                    - function_name_identifier: GETDATE
+                  - bracketed:
+                    - start_bracket: (
+                    - end_bracket: )
+        - comma: ','
+        - column_definition:
+          - column_definition:
+            - naked_identifier: Amount
+            - data_type:
+              - data_type:
+                - data_type_identifier: DECIMAL
+                - bracketed_arguments:
+                  - bracketed:
+                    - start_bracket: (
+                    - numeric_literal: '10'
+                    - comma: ','
+                    - numeric_literal: '2'
+                    - end_bracket: )
+            - column_constraint_segment:
+              - keyword: CHECK
+              - bracketed:
+                - start_bracket: (
+                - expression:
+                  - column_reference:
+                    - naked_identifier: Amount
+                  - comparison_operator:
+                    - raw_comparison_operator: '>'
+                  - numeric_literal: '0'
+                - end_bracket: )
+        - end_bracket: )
   - statement_terminator: ;

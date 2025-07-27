@@ -17,19 +17,14 @@ file:
           - from_expression_element:
             - from_expression_element:
               - table_expression:
-                - function:
-                  - function:
-                    - function_name:
-                      - function_name_identifier: OPENQUERY
-                    - bracketed:
-                      - start_bracket: (
-                      - expression:
-                        - column_reference:
-                          - quoted_identifier: '[testlinkedserver]'
-                      - comma: ','
-                      - expression:
-                        - quoted_literal: '''select * from table_name'''
-                      - end_bracket: )
+                - table_reference:
+                  - keyword: OPENQUERY
+                  - bracketed:
+                    - start_bracket: (
+                    - quoted_identifier: '[testlinkedserver]'
+                    - comma: ','
+                    - quoted_literal: '''select * from table_name'''
+                    - end_bracket: )
   - statement_terminator: ;
   - statement:
     - update_statement:

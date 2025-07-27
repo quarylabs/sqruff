@@ -14,8 +14,7 @@ file:
         - start_bracket: (
         - column_definition:
           - column_definition:
-            - column_reference:
-              - naked_identifier: column_name_1
+            - naked_identifier: column_name_1
             - data_type:
               - data_type:
                 - data_type_identifier: VARCHAR
@@ -27,8 +26,7 @@ file:
         - comma: ','
         - column_definition:
           - column_definition:
-            - column_reference:
-              - naked_identifier: column_name_2
+            - naked_identifier: column_name_2
             - data_type:
               - data_type:
                 - data_type_identifier: VARCHAR
@@ -42,8 +40,7 @@ file:
         - comma: ','
         - column_definition:
           - column_definition:
-            - column_reference:
-              - naked_identifier: column_name_3
+            - naked_identifier: column_name_3
             - data_type:
               - data_type:
                 - data_type_identifier: VARCHAR
@@ -109,8 +106,7 @@ file:
         - start_bracket: (
         - column_definition:
           - column_definition:
-            - column_reference:
-              - naked_identifier: column_name_1
+            - naked_identifier: column_name_1
             - data_type:
               - data_type:
                 - data_type_identifier: VARCHAR
@@ -122,8 +118,7 @@ file:
         - comma: ','
         - column_definition:
           - column_definition:
-            - column_reference:
-              - naked_identifier: column_name_2
+            - naked_identifier: column_name_2
             - data_type:
               - data_type:
                 - data_type_identifier: VARCHAR
@@ -137,8 +132,7 @@ file:
         - comma: ','
         - column_definition:
           - column_definition:
-            - column_reference:
-              - naked_identifier: column_name_3
+            - naked_identifier: column_name_3
             - data_type:
               - data_type:
                 - data_type_identifier: VARCHAR
@@ -208,8 +202,7 @@ file:
         - start_bracket: (
         - column_definition:
           - column_definition:
-            - column_reference:
-              - naked_identifier: o_orderkey
+            - naked_identifier: o_orderkey
             - data_type:
               - data_type:
                 - data_type_identifier: DECIMAL
@@ -224,8 +217,7 @@ file:
         - comma: ','
         - column_definition:
           - column_definition:
-            - column_reference:
-              - naked_identifier: o_custkey
+            - naked_identifier: o_custkey
             - data_type:
               - data_type:
                 - data_type_identifier: DECIMAL
@@ -240,8 +232,7 @@ file:
         - comma: ','
         - column_definition:
           - column_definition:
-            - column_reference:
-              - naked_identifier: o_orderstatus
+            - naked_identifier: o_orderstatus
             - data_type:
               - data_type:
                 - data_type_identifier: CHAR
@@ -255,8 +246,7 @@ file:
         - comma: ','
         - column_definition:
           - column_definition:
-            - column_reference:
-              - naked_identifier: o_totalprice
+            - naked_identifier: o_totalprice
             - data_type:
               - data_type:
                 - data_type_identifier: DECIMAL
@@ -273,8 +263,7 @@ file:
         - comma: ','
         - column_definition:
           - column_definition:
-            - column_reference:
-              - naked_identifier: o_orderdate
+            - naked_identifier: o_orderdate
             - data_type:
               - data_type:
                 - data_type_identifier: DATETIME2
@@ -289,8 +278,7 @@ file:
         - comma: ','
         - column_definition:
           - column_definition:
-            - column_reference:
-              - naked_identifier: o_orderpriority
+            - naked_identifier: o_orderpriority
             - data_type:
               - data_type:
                 - data_type_identifier: CHAR
@@ -309,8 +297,7 @@ file:
         - comma: ','
         - column_definition:
           - column_definition:
-            - column_reference:
-              - naked_identifier: o_clerk
+            - naked_identifier: o_clerk
             - data_type:
               - data_type:
                 - data_type_identifier: CHAR
@@ -329,8 +316,7 @@ file:
         - comma: ','
         - column_definition:
           - column_definition:
-            - column_reference:
-              - naked_identifier: o_shippriority
+            - naked_identifier: o_shippriority
             - data_type:
               - data_type:
                 - data_type_identifier: DECIMAL
@@ -345,8 +331,7 @@ file:
         - comma: ','
         - column_definition:
           - column_definition:
-            - column_reference:
-              - naked_identifier: o_comment
+            - naked_identifier: o_comment
             - data_type:
               - data_type:
                 - data_type_identifier: VARCHAR

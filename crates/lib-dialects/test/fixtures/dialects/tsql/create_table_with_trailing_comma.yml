@@ -1,15 +1,26 @@
 file:
-- unparsable:
-  - word: CREATE
-  - word: TABLE
-  - double_quote: '[dbo]'
-  - dot: .
-  - double_quote: '[test]'
-  - start_bracket: (
-  - double_quote: '[Column B]'
-  - double_quote: '[varchar]'
-  - start_bracket: (
-  - numeric_literal: '100'
-  - end_bracket: )
-  - comma: ','
-  - end_bracket: )
+- statement:
+  - statement:
+    - create_table_statement:
+      - create_table_statement:
+        - keyword: CREATE
+        - keyword: TABLE
+        - table_reference:
+          - object_reference:
+            - quoted_identifier: '[dbo]'
+            - dot: .
+            - quoted_identifier: '[test]'
+        - bracketed:
+          - start_bracket: (
+          - column_definition:
+            - column_definition:
+              - quoted_identifier: '[Column B]'
+              - data_type:
+                - quoted_identifier: '[varchar]'
+                - bracketed_arguments:
+                  - bracketed:
+                    - start_bracket: (
+                    - numeric_literal: '100'
+                    - end_bracket: )
+          - comma: ','
+          - end_bracket: )

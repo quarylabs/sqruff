@@ -199,19 +199,20 @@ file:
     - keyword: DEFAULT
   - statement_terminator: ;
   - statement:
-    - keyword: DECLARE
-    - tsql_variable: '@statement'
-    - data_type:
-      - data_type_identifier: nvarchar
-      - bracketed_arguments:
-        - bracketed:
-          - start_bracket: (
-          - keyword: max
-          - end_bracket: )
-    - assignment_operator:
-      - raw_comparison_operator: =
-    - expression:
-      - quoted_literal: '''SELECT 1'''
+    - declare_statement:
+      - keyword: DECLARE
+      - tsql_variable: '@statement'
+      - data_type:
+        - data_type_identifier: nvarchar
+        - bracketed_arguments:
+          - bracketed:
+            - start_bracket: (
+            - keyword: max
+            - end_bracket: )
+      - assignment_operator:
+        - raw_comparison_operator: =
+      - expression:
+        - quoted_literal: '''SELECT 1'''
   - statement:
     - keyword: EXEC
     - bracketed:
@@ -230,35 +231,37 @@ file:
       - end_bracket: )
   - statement_terminator: ;
   - statement:
-    - keyword: DECLARE
-    - tsql_variable: '@s1'
-    - keyword: AS
-    - data_type:
-      - data_type_identifier: varchar
-      - bracketed_arguments:
-        - bracketed:
-          - start_bracket: (
-          - numeric_literal: '10'
-          - end_bracket: )
-    - assignment_operator:
-      - raw_comparison_operator: =
-    - expression:
-      - null_literal: 'NULL'
+    - declare_statement:
+      - keyword: DECLARE
+      - tsql_variable: '@s1'
+      - keyword: AS
+      - data_type:
+        - data_type_identifier: varchar
+        - bracketed_arguments:
+          - bracketed:
+            - start_bracket: (
+            - numeric_literal: '10'
+            - end_bracket: )
+      - assignment_operator:
+        - raw_comparison_operator: =
+      - expression:
+        - null_literal: 'NULL'
   - statement_terminator: ;
   - statement:
-    - keyword: DECLARE
-    - tsql_variable: '@s2'
-    - data_type:
-      - data_type_identifier: varchar
-      - bracketed_arguments:
-        - bracketed:
-          - start_bracket: (
-          - numeric_literal: '10'
-          - end_bracket: )
-    - assignment_operator:
-      - raw_comparison_operator: =
-    - expression:
-      - null_literal: 'NULL'
+    - declare_statement:
+      - keyword: DECLARE
+      - tsql_variable: '@s2'
+      - data_type:
+        - data_type_identifier: varchar
+        - bracketed_arguments:
+          - bracketed:
+            - start_bracket: (
+            - numeric_literal: '10'
+            - end_bracket: )
+      - assignment_operator:
+        - raw_comparison_operator: =
+      - expression:
+        - null_literal: 'NULL'
   - statement_terminator: ;
   - statement:
     - keyword: SET
@@ -356,21 +359,22 @@ file:
   - statement_terminator: ;
   - keyword: GO
   - statement:
-    - keyword: DECLARE
-    - tsql_variable: '@CheckDate'
-    - keyword: AS
-    - data_type:
-      - data_type_identifier: DATETIME
-    - assignment_operator:
-      - raw_comparison_operator: =
-    - expression:
-      - function:
+    - declare_statement:
+      - keyword: DECLARE
+      - tsql_variable: '@CheckDate'
+      - keyword: AS
+      - data_type:
+        - data_type_identifier: DATETIME
+      - assignment_operator:
+        - raw_comparison_operator: =
+      - expression:
         - function:
-          - function_name:
-            - function_name_identifier: GETDATE
-          - bracketed:
-            - start_bracket: (
-            - end_bracket: )
+          - function:
+            - function_name:
+              - function_name_identifier: GETDATE
+            - bracketed:
+              - start_bracket: (
+              - end_bracket: )
   - statement_terminator: ;
   - statement:
     - keyword: EXECUTE
@@ -386,18 +390,20 @@ file:
         - tsql_variable: '@CheckDate'
   - statement_terminator: ;
   - statement:
-    - keyword: DECLARE
-    - tsql_variable: '@schemaname'
-    - keyword: AS
-    - data_type:
-      - data_type_identifier: sysname
+    - declare_statement:
+      - keyword: DECLARE
+      - tsql_variable: '@schemaname'
+      - keyword: AS
+      - data_type:
+        - data_type_identifier: sysname
   - statement_terminator: ;
   - statement:
-    - keyword: DECLARE
-    - tsql_variable: '@tablename'
-    - keyword: AS
-    - data_type:
-      - data_type_identifier: sysname
+    - declare_statement:
+      - keyword: DECLARE
+      - tsql_variable: '@tablename'
+      - keyword: AS
+      - data_type:
+        - data_type_identifier: sysname
   - statement_terminator: ;
   - statement:
     - keyword: EXECUTE
@@ -418,11 +424,12 @@ file:
       - end_bracket: )
   - statement_terminator: ;
   - statement:
-    - keyword: DECLARE
-    - tsql_variable: '@retstat'
-    - keyword: AS
-    - data_type:
-      - data_type_identifier: INT
+    - declare_statement:
+      - keyword: DECLARE
+      - tsql_variable: '@retstat'
+      - keyword: AS
+      - data_type:
+        - data_type_identifier: INT
   - statement_terminator: ;
   - statement:
     - keyword: EXECUTE
@@ -444,20 +451,21 @@ file:
       - numeric_literal: '6'
   - statement_terminator: ;
   - statement:
-    - keyword: DECLARE
-    - tsql_variable: '@proc_name'
-    - keyword: AS
-    - data_type:
-      - data_type_identifier: VARCHAR
-      - bracketed_arguments:
-        - bracketed:
-          - start_bracket: (
-          - numeric_literal: '30'
-          - end_bracket: )
-    - assignment_operator:
-      - raw_comparison_operator: =
-    - expression:
-      - quoted_literal: '''sys.sp_who'''
+    - declare_statement:
+      - keyword: DECLARE
+      - tsql_variable: '@proc_name'
+      - keyword: AS
+      - data_type:
+        - data_type_identifier: VARCHAR
+        - bracketed_arguments:
+          - bracketed:
+            - start_bracket: (
+            - numeric_literal: '30'
+            - end_bracket: )
+      - assignment_operator:
+        - raw_comparison_operator: =
+      - expression:
+        - quoted_literal: '''sys.sp_who'''
   - statement_terminator: ;
   - statement:
     - keyword: EXECUTE
@@ -549,16 +557,17 @@ file:
     - keyword: RECOMPILE
   - statement_terminator: ;
   - statement:
-    - keyword: DECLARE
-    - tsql_variable: '@returnstatus'
-    - keyword: AS
-    - data_type:
-      - data_type_identifier: NVARCHAR
-      - bracketed_arguments:
-        - bracketed:
-          - start_bracket: (
-          - numeric_literal: '15'
-          - end_bracket: )
+    - declare_statement:
+      - keyword: DECLARE
+      - tsql_variable: '@returnstatus'
+      - keyword: AS
+      - data_type:
+        - data_type_identifier: NVARCHAR
+        - bracketed_arguments:
+          - bracketed:
+            - start_bracket: (
+            - numeric_literal: '15'
+            - end_bracket: )
   - statement_terminator: ;
   - statement:
     - keyword: EXECUTE
@@ -594,98 +603,175 @@ file:
       - naked_identifier: uspGetEmployeeManagers
     - expression:
       - numeric_literal: '16'
-- unparsable:
-  - word: WITH
-  - word: RESULT
-  - word: SETS
-  - start_bracket: (
-  - start_bracket: (
-  - double_quote: '[Reporting Level]'
-  - word: INT
-  - word: NOT
-  - word: 'NULL'
-  - comma: ','
-  - double_quote: '[ID of Employee]'
-  - word: INT
-  - word: NOT
-  - word: 'NULL'
-  - comma: ','
-  - double_quote: '[Employee First Name]'
-  - word: NVARCHAR
-  - start_bracket: (
-  - numeric_literal: '50'
-  - end_bracket: )
-  - word: NOT
-  - word: 'NULL'
-  - comma: ','
-  - double_quote: '[Employee Last Name]'
-  - word: NVARCHAR
-  - start_bracket: (
-  - numeric_literal: '50'
-  - end_bracket: )
-  - word: NOT
-  - word: 'NULL'
-  - comma: ','
-  - double_quote: '[Employee ID of Manager]'
-  - word: NVARCHAR
-  - start_bracket: (
-  - word: MAX
-  - end_bracket: )
-  - word: NOT
-  - word: 'NULL'
-  - comma: ','
-  - double_quote: '[Manager First Name]'
-  - word: NVARCHAR
-  - start_bracket: (
-  - numeric_literal: '50'
-  - end_bracket: )
-  - word: NOT
-  - word: 'NULL'
-  - comma: ','
-  - double_quote: '[Manager Last Name]'
-  - word: NVARCHAR
-  - start_bracket: (
-  - numeric_literal: '50'
-  - end_bracket: )
-  - word: NOT
-  - word: 'NULL'
-  - end_bracket: )
-  - end_bracket: )
-  - semicolon: ;
-  - word: EXECUTE
-  - word: Production
-  - dot: .
-  - word: ProductList
-  - single_quote: '''%tire%'''
-  - word: WITH
-  - word: RESULT
-  - word: SETS
-  - start_bracket: (
-  - start_bracket: (
-  - word: ProductID
-  - word: INT
-  - comma: ','
-  - double_quote: '[Name]'
-  - word: NAME
-  - comma: ','
-  - word: ListPrice
-  - word: MONEY
-  - end_bracket: )
-  - comma: ','
-  - start_bracket: (
-  - double_quote: '[Name]'
-  - word: NAME
-  - comma: ','
-  - word: NumberOfOrders
-  - word: INT
-  - end_bracket: )
-  - end_bracket: )
-  - semicolon: ;
-  - word: EXECUTE
-  - start_bracket: (
-  - single_quote: '''SELECT @@SERVERNAME'''
-  - end_bracket: )
-  - word: AT
-  - word: DATA_SOURCE
-  - word: my_sql_server
-  - semicolon: ;
+    - keyword: WITH
+    - keyword: RESULT
+    - keyword: SETS
+    - bracketed:
+      - start_bracket: (
+      - bracketed:
+        - start_bracket: (
+        - column_definition:
+          - column_definition:
+            - quoted_identifier: '[Reporting Level]'
+            - data_type:
+              - data_type:
+                - data_type_identifier: INT
+            - column_constraint_segment:
+              - keyword: NOT
+              - keyword: 'NULL'
+        - comma: ','
+        - column_definition:
+          - column_definition:
+            - quoted_identifier: '[ID of Employee]'
+            - data_type:
+              - data_type:
+                - data_type_identifier: INT
+            - column_constraint_segment:
+              - keyword: NOT
+              - keyword: 'NULL'
+        - comma: ','
+        - column_definition:
+          - column_definition:
+            - quoted_identifier: '[Employee First Name]'
+            - data_type:
+              - data_type:
+                - data_type_identifier: NVARCHAR
+                - bracketed_arguments:
+                  - bracketed:
+                    - start_bracket: (
+                    - numeric_literal: '50'
+                    - end_bracket: )
+            - column_constraint_segment:
+              - keyword: NOT
+              - keyword: 'NULL'
+        - comma: ','
+        - column_definition:
+          - column_definition:
+            - quoted_identifier: '[Employee Last Name]'
+            - data_type:
+              - data_type:
+                - data_type_identifier: NVARCHAR
+                - bracketed_arguments:
+                  - bracketed:
+                    - start_bracket: (
+                    - numeric_literal: '50'
+                    - end_bracket: )
+            - column_constraint_segment:
+              - keyword: NOT
+              - keyword: 'NULL'
+        - comma: ','
+        - column_definition:
+          - column_definition:
+            - quoted_identifier: '[Employee ID of Manager]'
+            - data_type:
+              - data_type:
+                - data_type_identifier: NVARCHAR
+                - bracketed_arguments:
+                  - bracketed:
+                    - start_bracket: (
+                    - keyword: MAX
+                    - end_bracket: )
+            - column_constraint_segment:
+              - keyword: NOT
+              - keyword: 'NULL'
+        - comma: ','
+        - column_definition:
+          - column_definition:
+            - quoted_identifier: '[Manager First Name]'
+            - data_type:
+              - data_type:
+                - data_type_identifier: NVARCHAR
+                - bracketed_arguments:
+                  - bracketed:
+                    - start_bracket: (
+                    - numeric_literal: '50'
+                    - end_bracket: )
+            - column_constraint_segment:
+              - keyword: NOT
+              - keyword: 'NULL'
+        - comma: ','
+        - column_definition:
+          - column_definition:
+            - quoted_identifier: '[Manager Last Name]'
+            - data_type:
+              - data_type:
+                - data_type_identifier: NVARCHAR
+                - bracketed_arguments:
+                  - bracketed:
+                    - start_bracket: (
+                    - numeric_literal: '50'
+                    - end_bracket: )
+            - column_constraint_segment:
+              - keyword: NOT
+              - keyword: 'NULL'
+        - end_bracket: )
+      - end_bracket: )
+  - statement_terminator: ;
+  - statement:
+    - keyword: EXECUTE
+    - object_reference:
+      - naked_identifier: Production
+      - dot: .
+      - naked_identifier: ProductList
+    - expression:
+      - quoted_literal: '''%tire%'''
+    - keyword: WITH
+    - keyword: RESULT
+    - keyword: SETS
+    - bracketed:
+      - start_bracket: (
+      - bracketed:
+        - start_bracket: (
+        - column_definition:
+          - column_definition:
+            - naked_identifier: ProductID
+            - data_type:
+              - data_type:
+                - data_type_identifier: INT
+        - comma: ','
+        - column_definition:
+          - column_definition:
+            - quoted_identifier: '[Name]'
+            - data_type:
+              - data_type:
+                - data_type_identifier: NAME
+        - comma: ','
+        - column_definition:
+          - column_definition:
+            - naked_identifier: ListPrice
+            - data_type:
+              - data_type:
+                - data_type_identifier: MONEY
+        - end_bracket: )
+      - comma: ','
+      - bracketed:
+        - start_bracket: (
+        - column_definition:
+          - column_definition:
+            - quoted_identifier: '[Name]'
+            - data_type:
+              - data_type:
+                - data_type_identifier: NAME
+        - comma: ','
+        - column_definition:
+          - column_definition:
+            - naked_identifier: NumberOfOrders
+            - data_type:
+              - data_type:
+                - data_type_identifier: INT
+        - end_bracket: )
+      - end_bracket: )
+  - statement_terminator: ;
+  - statement:
+    - keyword: EXECUTE
+    - bracketed:
+      - start_bracket: (
+      - expression:
+        - quoted_literal: '''SELECT @@SERVERNAME'''
+      - end_bracket: )
+    - keyword: AT
+    - naked_identifier: DATA_SOURCE
+  - statement:
+    - object_reference:
+      - naked_identifier: my_sql_server
+  - statement_terminator: ;

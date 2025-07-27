@@ -14,8 +14,7 @@ file:
           - start_bracket: (
           - column_definition:
             - column_definition:
-              - column_reference:
-                - naked_identifier: ID
+              - naked_identifier: ID
               - data_type:
                 - data_type:
                   - data_type_identifier: INTEGER
@@ -25,8 +24,7 @@ file:
           - comma: ','
           - column_definition:
             - column_definition:
-              - column_reference:
-                - quoted_identifier: '[name]'
+              - quoted_identifier: '[name]'
               - data_type:
                 - data_type:
                   - data_type_identifier: VARCHAR
@@ -51,8 +49,7 @@ file:
           - start_bracket: (
           - column_definition:
             - column_definition:
-              - column_reference:
-                - naked_identifier: id
+              - naked_identifier: id
               - data_type:
                 - data_type:
                   - data_type_identifier: INTEGER
@@ -62,8 +59,7 @@ file:
           - comma: ','
           - column_definition:
             - column_definition:
-              - column_reference:
-                - naked_identifier: start_date
+              - naked_identifier: start_date
               - data_type:
                 - data_type:
                   - data_type_identifier: DATE

@@ -1,47 +1,48 @@
 file:
 - statement:
   - statement:
-    - keyword: DECLARE
-    - tsql_variable: '@DateNow'
-    - data_type:
-      - data_type_identifier: date
-    - assignment_operator:
-      - raw_comparison_operator: =
-    - expression:
-      - function:
+    - declare_statement:
+      - keyword: DECLARE
+      - tsql_variable: '@DateNow'
+      - data_type:
+        - data_type_identifier: date
+      - assignment_operator:
+        - raw_comparison_operator: =
+      - expression:
         - function:
-          - function_name:
-            - function_name_identifier: ISNULL
-          - bracketed:
-            - start_bracket: (
-            - expression:
-              - function:
+          - function:
+            - function_name:
+              - function_name_identifier: ISNULL
+            - bracketed:
+              - start_bracket: (
+              - expression:
                 - function:
-                  - function_name:
-                    - naked_identifier: Shared
-                    - dot: .
-                    - function_name_identifier: GetESTDateTime
-                  - bracketed:
-                    - start_bracket: (
-                    - expression:
-                      - function:
+                  - function:
+                    - function_name:
+                      - naked_identifier: Shared
+                      - dot: .
+                      - function_name_identifier: GetESTDateTime
+                    - bracketed:
+                      - start_bracket: (
+                      - expression:
                         - function:
-                          - function_name:
-                            - function_name_identifier: GETDATE
-                          - bracketed:
-                            - start_bracket: (
-                            - end_bracket: )
-                    - end_bracket: )
-            - comma: ','
-            - expression:
-              - function:
+                          - function:
+                            - function_name:
+                              - function_name_identifier: GETDATE
+                            - bracketed:
+                              - start_bracket: (
+                              - end_bracket: )
+                      - end_bracket: )
+              - comma: ','
+              - expression:
                 - function:
-                  - function_name:
-                    - function_name_identifier: GETDATE
-                  - bracketed:
-                    - start_bracket: (
-                    - end_bracket: )
-            - end_bracket: )
+                  - function:
+                    - function_name:
+                      - function_name_identifier: GETDATE
+                    - bracketed:
+                      - start_bracket: (
+                      - end_bracket: )
+              - end_bracket: )
   - statement:
     - select_statement:
       - select_clause:
@@ -90,33 +91,34 @@ file:
                 - naked_identifier: enc
   - statement_terminator: ;
   - statement:
-    - keyword: declare
-    - tsql_variable: '@sample'
-    - data_type:
-      - data_type_identifier: nvarchar
-      - bracketed_arguments:
-        - bracketed:
-          - start_bracket: (
-          - keyword: max
-          - end_bracket: )
-    - assignment_operator:
-      - raw_comparison_operator: =
-    - expression:
-      - function:
-        - function:
-          - function_name:
-            - function_name_identifier: cast
+    - declare_statement:
+      - keyword: declare
+      - tsql_variable: '@sample'
+      - data_type:
+        - data_type_identifier: nvarchar
+        - bracketed_arguments:
           - bracketed:
             - start_bracket: (
-            - expression:
-              - numeric_literal: '100'
-            - keyword: as
-            - data_type:
-              - data_type:
-                - data_type_identifier: nvarchar
-                - bracketed_arguments:
-                  - bracketed:
-                    - start_bracket: (
-                    - keyword: max
-                    - end_bracket: )
+            - keyword: max
             - end_bracket: )
+      - assignment_operator:
+        - raw_comparison_operator: =
+      - expression:
+        - function:
+          - function:
+            - function_name:
+              - function_name_identifier: cast
+            - bracketed:
+              - start_bracket: (
+              - expression:
+                - numeric_literal: '100'
+              - keyword: as
+              - data_type:
+                - data_type:
+                  - data_type_identifier: nvarchar
+                  - bracketed_arguments:
+                    - bracketed:
+                      - start_bracket: (
+                      - keyword: max
+                      - end_bracket: )
+              - end_bracket: )

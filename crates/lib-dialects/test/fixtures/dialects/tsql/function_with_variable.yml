@@ -29,10 +29,11 @@ file:
         - keyword: AS
         - keyword: BEGIN
         - statement:
-          - keyword: DECLARE
-          - tsql_variable: '@result'
-          - data_type:
-            - data_type_identifier: BIGINT
+          - declare_statement:
+            - keyword: DECLARE
+            - tsql_variable: '@result'
+            - data_type:
+              - data_type_identifier: BIGINT
         - statement:
           - keyword: SET
           - tsql_variable: '@result'

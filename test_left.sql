@@ -1,1 +1,0 @@
-SELECT * FROM table1 LEFT LOOP JOIN table2 ON table1.id = table2.id;

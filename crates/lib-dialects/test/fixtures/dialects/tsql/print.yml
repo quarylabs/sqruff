@@ -1,19 +1,20 @@
 file:
 - statement:
   - statement:
-    - keyword: DECLARE
-    - tsql_variable: '@TestVal'
-    - data_type:
-      - data_type_identifier: VARCHAR
-      - bracketed_arguments:
-        - bracketed:
-          - start_bracket: (
-          - numeric_literal: '20'
-          - end_bracket: )
-    - assignment_operator:
-      - raw_comparison_operator: =
-    - expression:
-      - quoted_literal: '''Test Print'''
+    - declare_statement:
+      - keyword: DECLARE
+      - tsql_variable: '@TestVal'
+      - data_type:
+        - data_type_identifier: VARCHAR
+        - bracketed_arguments:
+          - bracketed:
+            - start_bracket: (
+            - numeric_literal: '20'
+            - end_bracket: )
+      - assignment_operator:
+        - raw_comparison_operator: =
+      - expression:
+        - quoted_literal: '''Test Print'''
   - statement:
     - keyword: PRINT
     - expression:

@@ -14,8 +14,7 @@ file:
           - start_bracket: (
           - column_definition:
             - column_definition:
-              - column_reference:
-                - quoted_identifier: '[ID]'
+              - quoted_identifier: '[ID]'
               - data_type:
                 - data_type:
                   - data_type_identifier: INT
@@ -37,8 +36,7 @@ file:
           - comma: ','
           - column_definition:
             - column_definition:
-              - column_reference:
-                - quoted_identifier: '[DOWNLOADED_TOTAL]'
+              - quoted_identifier: '[DOWNLOADED_TOTAL]'
               - data_type:
                 - data_type:
                   - data_type_identifier: INT
@@ -47,8 +45,7 @@ file:
           - comma: ','
           - column_definition:
             - column_definition:
-              - column_reference:
-                - quoted_identifier: '[WARNED_DAILY]'
+              - quoted_identifier: '[WARNED_DAILY]'
               - data_type:
                 - data_type:
                   - data_type_identifier: INT
@@ -57,8 +54,7 @@ file:
           - comma: ','
           - column_definition:
             - column_definition:
-              - column_reference:
-                - quoted_identifier: '[DATE_OF_REPORT]'
+              - quoted_identifier: '[DATE_OF_REPORT]'
               - data_type:
                 - data_type:
                   - data_type_identifier: DATETIME
@@ -67,8 +63,7 @@ file:
           - comma: ','
           - column_definition:
             - column_definition:
-              - column_reference:
-                - naked_identifier: DATE_LAST_INSERTED
+              - naked_identifier: DATE_LAST_INSERTED
               - data_type:
                 - data_type:
                   - data_type_identifier: DATETIME

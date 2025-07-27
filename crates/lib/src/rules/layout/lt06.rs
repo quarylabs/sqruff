@@ -56,16 +56,22 @@ FROM foo
         let segment = FunctionalContext::new(context).segment();
         let children = segment.children(None);
 
-        let function_name = children
+        let mut function_name_vec = children
             .find_first(Some(|segment: &ErasedSegment| {
                 segment.is_type(SyntaxKind::FunctionName)
-            }))
-            .pop();
-        let start_bracket = children
+            }));
+        let mut start_bracket_vec = children
             .find_first(Some(|segment: &ErasedSegment| {
                 segment.is_type(SyntaxKind::Bracketed)
-            }))
-            .pop();
+            }));
+
+        // Safety check: if either Vec is empty, skip processing
+        if function_name_vec.is_empty() || start_bracket_vec.is_empty() {
+            return vec![];
+        }
+
+        let function_name = function_name_vec.pop();
+        let start_bracket = start_bracket_vec.pop();
 
         let mut intermediate_segments = children.select::<fn(&ErasedSegment) -> bool>(
             None,

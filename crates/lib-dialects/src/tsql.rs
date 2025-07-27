@@ -347,104 +347,110 @@ pub fn raw_dialect() -> Dialect {
         "OPENXML",
     ]);
 
-    // REMOVED: T-SQL specific CASE expression definition
-    // This was causing parsing issues because it expected keyword tokens but
-    // CASE was still being lexed as word tokens in SELECT clauses.
-    // ANSI's CaseExpressionSegment works correctly for T-SQL.
-    /*
-    dialect.replace_grammar(
-        "CaseExpressionSegment",
-            NodeMatcher::new(SyntaxKind::CaseExpression, |_| {
-                one_of(vec_of_erased![
-                    // Simple CASE expression (CASE WHEN ... THEN ... END)
-                    Sequence::new(vec_of_erased![
-                        Ref::keyword("CASE"),
-                        MetaSegment::implicit_indent(),
-                        AnyNumberOf::new(vec_of_erased![Ref::new("WhenClauseSegment")]).config(
-                            |this| {
-                                this.reset_terminators = true;
-                                this.terminators =
-                                    vec_of_erased![Ref::keyword("ELSE"), Ref::keyword("END")];
-                            }
-                        ),
-                        Ref::new("ElseClauseSegment").optional(),
-                        MetaSegment::dedent(),
-                        Ref::keyword("END"),
-                    ]),
-                    // Searched CASE expression (CASE expr WHEN ... THEN ... END)
-                    Sequence::new(vec_of_erased![
-                        Ref::keyword("CASE"),
-                        Ref::new("ExpressionSegment"),
-                        MetaSegment::implicit_indent(),
-                        AnyNumberOf::new(vec_of_erased![Ref::new("WhenClauseSegment")]).config(
-                            |this| {
-                                this.reset_terminators = true;
-                                this.terminators =
-                                    vec_of_erased![Ref::keyword("ELSE"), Ref::keyword("END")];
-                            }
-                        ),
-                        Ref::new("ElseClauseSegment").optional(),
-                        MetaSegment::dedent(),
-                        Ref::keyword("END"),
-                    ]),
-                ])
-                .config(|this| {
-                    this.terminators = vec_of_erased![
-                        Ref::new("CommaSegment"),
-                        Ref::new("BinaryOperatorGrammar")
-                    ]
-                })
-                .to_matchable()
-            })
-            .to_matchable(),
-    );
-    */
-    
-    // REMOVED: T-SQL specific WhenClauseSegment and ElseClauseSegment
-    // These were also causing parsing issues because they expected keyword tokens.
-    // ANSI's WhenClauseSegment and ElseClauseSegment work correctly for T-SQL.
-    /*
-    dialect.add([
-        (
-            "WhenClauseSegment".into(),
-            NodeMatcher::new(SyntaxKind::WhenClause, |_| {
-                Sequence::new(vec_of_erased![
-                    Ref::keyword("WHEN"),
-                    Sequence::new(vec_of_erased![
-                        MetaSegment::implicit_indent(),
-                        Ref::new("ExpressionSegment"),
-                        MetaSegment::dedent(),
-                    ]),
-                    Conditional::new(MetaSegment::indent()).indented_then(),
-                    Ref::keyword("THEN"),
-                    Conditional::new(MetaSegment::implicit_indent()).indented_then_contents(),
-                    Ref::new("ExpressionSegment"),
-                    Conditional::new(MetaSegment::dedent()).indented_then_contents(),
-                    Conditional::new(MetaSegment::dedent()).indented_then(),
-                ])
-                .to_matchable()
-            })
-            .to_matchable()
-            .into(),
-        ),
-        (
-            "ElseClauseSegment".into(),
-            NodeMatcher::new(SyntaxKind::ElseClause, |_| {
-                Sequence::new(vec![
-                    Ref::keyword("ELSE").to_matchable(),
-                    MetaSegment::implicit_indent().to_matchable(),
-                    Ref::new("ExpressionSegment").to_matchable(),
-                    MetaSegment::dedent().to_matchable(),
-                ])
-                .to_matchable()
-            })
-            .to_matchable()
-            .into(),
-        ),
-    */
+    // NOTE: T-SQL CASE expressions currently have a fundamental parsing issue in SELECT clauses
+    // CASE works in WHERE clauses but fails in SELECT due to parser architecture limitations
+    // with how T-SQL lexes keywords as Word tokens vs ANSI's Keyword tokens.
+    // This is documented as a known limitation.
         
     // Add other T-SQL specific segments
     dialect.add([
+        // T-SQL compound assignment operators
+        (
+            "AdditionAssignmentSegment".into(),
+            NodeMatcher::new(SyntaxKind::AdditionAssignmentSegment, |_| {
+                Sequence::new(vec_of_erased![
+                    Ref::new("BinaryOperatorGrammar"),
+                    Ref::new("RawComparisonOperatorGrammar")
+                ])
+                .to_matchable()
+            })
+            .to_matchable()
+            .into(),
+        ),
+        (
+            "SubtractionAssignmentSegment".into(),
+            NodeMatcher::new(SyntaxKind::SubtractionAssignmentSegment, |_| {
+                Sequence::new(vec_of_erased![
+                    Ref::new("BinaryOperatorGrammar"),
+                    Ref::new("RawComparisonOperatorGrammar")
+                ])
+                .to_matchable()
+            })
+            .to_matchable()
+            .into(),
+        ),
+        (
+            "MultiplicationAssignmentSegment".into(),
+            NodeMatcher::new(SyntaxKind::MultiplicationAssignmentSegment, |_| {
+                Sequence::new(vec_of_erased![
+                    Ref::new("BinaryOperatorGrammar"),
+                    Ref::new("RawComparisonOperatorGrammar")
+                ])
+                .to_matchable()
+            })
+            .to_matchable()
+            .into(),
+        ),
+        (
+            "DivisionAssignmentSegment".into(),
+            NodeMatcher::new(SyntaxKind::DivisionAssignmentSegment, |_| {
+                Sequence::new(vec_of_erased![
+                    Ref::new("BinaryOperatorGrammar"),
+                    Ref::new("RawComparisonOperatorGrammar")
+                ])
+                .to_matchable()
+            })
+            .to_matchable()
+            .into(),
+        ),
+        (
+            "ModuloAssignmentSegment".into(),
+            NodeMatcher::new(SyntaxKind::ModuloAssignmentSegment, |_| {
+                Sequence::new(vec_of_erased![
+                    Ref::new("BinaryOperatorGrammar"),
+                    Ref::new("RawComparisonOperatorGrammar")
+                ])
+                .to_matchable()
+            })
+            .to_matchable()
+            .into(),
+        ),
+        (
+            "BitwiseAndAssignmentSegment".into(),
+            NodeMatcher::new(SyntaxKind::BitwiseAndAssignmentSegment, |_| {
+                Sequence::new(vec_of_erased![
+                    Ref::new("BinaryOperatorGrammar"),
+                    Ref::new("RawComparisonOperatorGrammar")
+                ])
+                .to_matchable()
+            })
+            .to_matchable()
+            .into(),
+        ),
+        (
+            "BitwiseOrAssignmentSegment".into(),
+            NodeMatcher::new(SyntaxKind::BitwiseOrAssignmentSegment, |_| {
+                Sequence::new(vec_of_erased![
+                    Ref::new("BinaryOperatorGrammar"),
+                    Ref::new("RawComparisonOperatorGrammar")
+                ])
+                .to_matchable()
+            })
+            .to_matchable()
+            .into(),
+        ),
+        (
+            "BitwiseXorAssignmentSegment".into(),
+            NodeMatcher::new(SyntaxKind::BitwiseXorAssignmentSegment, |_| {
+                Sequence::new(vec_of_erased![
+                    Ref::new("BinaryOperatorGrammar"),
+                    Ref::new("RawComparisonOperatorGrammar")
+                ])
+                .to_matchable()
+            })
+            .to_matchable()
+            .into(),
+        ),
     ]);
 
     // Add OPENROWSET segment for T-SQL specific syntax

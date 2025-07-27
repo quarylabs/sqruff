@@ -491,17 +491,18 @@ file:
     - delete_statement:
       - delete_statement:
         - keyword: DELETE
-        - function:
-          - keyword: OPENROWSET
-          - bracketed:
-            - start_bracket: (
-            - quoted_literal: '''SQLNCLI'''
-            - comma: ','
-            - quoted_literal: '''Server=Seattle1;Trusted_Connection=yes;'''
-            - comma: ','
-            - object_reference:
-              - naked_identifier: Department
-            - end_bracket: )
+        - table_expression:
+          - function:
+            - keyword: OPENROWSET
+            - bracketed:
+              - start_bracket: (
+              - quoted_literal: '''SQLNCLI'''
+              - comma: ','
+              - quoted_literal: '''Server=Seattle1;Trusted_Connection=yes;'''
+              - comma: ','
+              - object_reference:
+                - naked_identifier: Department
+              - end_bracket: )
   - keyword: GO
   - statement:
     - delete_statement:
@@ -554,60 +555,57 @@ file:
             - numeric_literal: '20621'
         - statement_terminator: ;
   - statement:
-    - keyword: DECLARE
-    - tsql_variable: '@MyTableVar'
-    - keyword: table
-    - bracketed:
-      - start_bracket: (
-      - column_definition:
+    - declare_statement:
+      - keyword: DECLARE
+      - tsql_variable: '@MyTableVar'
+      - keyword: table
+      - bracketed:
+        - start_bracket: (
         - column_definition:
-          - column_reference:
+          - column_definition:
             - naked_identifier: ProductID
-          - data_type:
             - data_type:
-              - data_type_identifier: int
-          - column_constraint_segment:
-            - keyword: NOT
-            - keyword: 'NULL'
-      - comma: ','
-      - column_definition:
+              - data_type:
+                - data_type_identifier: int
+            - column_constraint_segment:
+              - keyword: NOT
+              - keyword: 'NULL'
+        - comma: ','
         - column_definition:
-          - column_reference:
+          - column_definition:
             - naked_identifier: ProductName
-          - data_type:
             - data_type:
-              - data_type_identifier: nvarchar
-              - bracketed_arguments:
-                - bracketed:
-                  - start_bracket: (
-                  - numeric_literal: '50'
-                  - end_bracket: )
-          - column_constraint_segment:
-            - keyword: NOT
-            - keyword: 'NULL'
-      - comma: ','
-      - column_definition:
+              - data_type:
+                - data_type_identifier: nvarchar
+                - bracketed_arguments:
+                  - bracketed:
+                    - start_bracket: (
+                    - numeric_literal: '50'
+                    - end_bracket: )
+            - column_constraint_segment:
+              - keyword: NOT
+              - keyword: 'NULL'
+        - comma: ','
         - column_definition:
-          - column_reference:
+          - column_definition:
             - naked_identifier: ProductModelID
-          - data_type:
             - data_type:
-              - data_type_identifier: int
-          - column_constraint_segment:
-            - keyword: NOT
-            - keyword: 'NULL'
-      - comma: ','
-      - column_definition:
+              - data_type:
+                - data_type_identifier: int
+            - column_constraint_segment:
+              - keyword: NOT
+              - keyword: 'NULL'
+        - comma: ','
         - column_definition:
-          - column_reference:
+          - column_definition:
             - naked_identifier: PhotoID
-          - data_type:
             - data_type:
-              - data_type_identifier: int
-          - column_constraint_segment:
-            - keyword: NOT
-            - keyword: 'NULL'
-      - end_bracket: )
+              - data_type:
+                - data_type_identifier: int
+            - column_constraint_segment:
+              - keyword: NOT
+              - keyword: 'NULL'
+        - end_bracket: )
   - statement_terminator: ;
   - statement:
     - delete_statement:

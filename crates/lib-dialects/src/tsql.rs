@@ -347,10 +347,13 @@ pub fn raw_dialect() -> Dialect {
         "OPENXML",
     ]);
 
-    // Add CASE expression segments to support CASE WHEN expressions
-    dialect.add([
-        (
-            "CaseExpressionSegment".into(),
+    // REMOVED: T-SQL specific CASE expression definition
+    // This was causing parsing issues because it expected keyword tokens but
+    // CASE was still being lexed as word tokens in SELECT clauses.
+    // ANSI's CaseExpressionSegment works correctly for T-SQL.
+    /*
+    dialect.replace_grammar(
+        "CaseExpressionSegment",
             NodeMatcher::new(SyntaxKind::CaseExpression, |_| {
                 one_of(vec_of_erased![
                     // Simple CASE expression (CASE WHEN ... THEN ... END)
@@ -393,9 +396,15 @@ pub fn raw_dialect() -> Dialect {
                 })
                 .to_matchable()
             })
-            .to_matchable()
-            .into(),
-        ),
+            .to_matchable(),
+    );
+    */
+    
+    // REMOVED: T-SQL specific WhenClauseSegment and ElseClauseSegment
+    // These were also causing parsing issues because they expected keyword tokens.
+    // ANSI's WhenClauseSegment and ElseClauseSegment work correctly for T-SQL.
+    /*
+    dialect.add([
         (
             "WhenClauseSegment".into(),
             NodeMatcher::new(SyntaxKind::WhenClause, |_| {
@@ -432,6 +441,10 @@ pub fn raw_dialect() -> Dialect {
             .to_matchable()
             .into(),
         ),
+    */
+        
+    // Add other T-SQL specific segments
+    dialect.add([
     ]);
 
     // Add OPENROWSET segment for T-SQL specific syntax
@@ -968,41 +981,45 @@ pub fn raw_dialect() -> Dialect {
         ),
         (
             "DeclareStatementGrammar".into(),
-            Sequence::new(vec_of_erased![
-                Ref::keyword("DECLARE"),
-                // Multiple variables can be declared with comma separation
-                Delimited::new(vec_of_erased![Sequence::new(vec_of_erased![
-                    Ref::new("ParameterNameSegment"),
-                    Sequence::new(vec![Ref::keyword("AS").to_matchable()])
-                        .config(|this| this.optional()),
-                    one_of(vec_of_erased![
-                        // Regular variable declaration
-                        Sequence::new(vec_of_erased![
-                            Ref::new("DatatypeSegment"),
+            NodeMatcher::new(SyntaxKind::DeclareStatement, |_| {
+                Sequence::new(vec_of_erased![
+                    Ref::keyword("DECLARE"),
+                    // Multiple variables can be declared with comma separation
+                    Delimited::new(vec_of_erased![Sequence::new(vec_of_erased![
+                        Ref::new("ParameterNameSegment"),
+                        Sequence::new(vec![Ref::keyword("AS").to_matchable()])
+                            .config(|this| this.optional()),
+                        one_of(vec_of_erased![
+                            // Table variable declaration - MUST come before DatatypeSegment
                             Sequence::new(vec_of_erased![
-                                Ref::new("AssignmentOperatorSegment"),
-                                Ref::new("ExpressionSegment")
-                            ])
-                            .config(|this| this.optional())
-                        ]),
-                        // Table variable declaration
-                        Sequence::new(vec_of_erased![
-                            Ref::keyword("TABLE"),
-                            Bracketed::new(vec![
-                                Delimited::new(vec![
-                                    one_of(vec_of_erased![
-                                        Ref::new("TableConstraintSegment"),
-                                        Ref::new("ColumnDefinitionSegment")
+                                Ref::keyword("TABLE"),
+                                Bracketed::new(vec![
+                                    Delimited::new(vec![
+                                        one_of(vec_of_erased![
+                                            Ref::new("TableConstraintSegment"),
+                                            Ref::new("ColumnDefinitionSegment")
+                                        ])
+                                        .to_matchable()
                                     ])
-                                    .to_matchable()
+                                    .config(|this| this.allow_trailing())
+                                    .to_matchable(),
                                 ])
-                                .config(|this| this.allow_trailing())
-                                .to_matchable(),
+                                .config(|this| this.parse_mode = ParseMode::Greedy),
                             ]),
+                            // Regular variable declaration - excluding TABLE keyword
+                            Sequence::new(vec_of_erased![
+                                Ref::new("DatatypeSegment"),
+                                Sequence::new(vec_of_erased![
+                                    Ref::new("AssignmentOperatorSegment"),
+                                    Ref::new("ExpressionSegment")
+                                ])
+                                .config(|this| this.optional())
+                            ])
                         ])
-                    ])
-                ])])
-            ])
+                    ])])
+                ])
+                .to_matchable()
+            })
             .to_matchable()
             .into(),
         ),
@@ -3299,20 +3316,13 @@ pub fn raw_dialect() -> Dialect {
         "SelectIntoStatementSegment".into(),
         NodeMatcher::new(SyntaxKind::SelectStatement, |_| {
             Sequence::new(vec_of_erased![
-                // SELECT clause (without terminators that would stop at INTO)
-                Sequence::new(vec_of_erased![
-                    Ref::keyword("SELECT"),
-                    Ref::new("SelectClauseModifierSegment").optional(),
-                    MetaSegment::indent(),
-                    Delimited::new(vec_of_erased![Ref::new("SelectClauseElementSegment")])
-                        .config(|this| this.allow_trailing()),
-                ]),
+                // Use the standard SelectClauseSegment which has proper parsing
+                Ref::new("SelectClauseSegment"),
                 // INTO clause
                 Sequence::new(vec_of_erased![
                     Ref::keyword("INTO"),
                     Ref::new("TableReferenceSegment")
                 ]),
-                MetaSegment::dedent(),
                 // Rest of SELECT statement
                 Ref::new("FromClauseSegment").optional(),
                 Ref::new("WhereClauseSegment").optional(),
@@ -3710,25 +3720,10 @@ pub fn raw_dialect() -> Dialect {
         .into(),
     )]);
 
-    // Extend BaseExpressionElementGrammar to include NEXT VALUE FOR and CaseExpressionSegment
-    // Put NextValueForSegment first to prioritize it over column references
-    dialect.add([(
-        "BaseExpressionElementGrammar".into(),
-        dialect
-            .grammar("BaseExpressionElementGrammar")
-            .copy(
-                Some(vec_of_erased![
-                    Ref::new("NextValueForSegment"),
-                    Ref::new("CaseExpressionSegment")
-                ]),
-                None,
-                None,
-                None,
-                Vec::new(),
-                true, // prepend to prioritize NEXT VALUE FOR and CASE
-            )
-            .into(),
-    )]);
+    // Note: We intentionally do NOT override BaseExpressionElementGrammar here
+    // because it would break CASE expression parsing. ANSI's BaseExpressionElementGrammar
+    // includes ExpressionSegment which provides CASE support through Expression_C_Grammar.
+    // NextValueForSegment is added to expression grammars elsewhere.
 
     // Define PostTableExpressionGrammar to include T-SQL table hints and PIVOT/UNPIVOT
     dialect.add([(
@@ -3778,112 +3773,80 @@ pub fn raw_dialect() -> Dialect {
     );
 
     // Override JoinClauseSegment to include T-SQL join hints
+    // Define T-SQL join type components as separate grammars for composability
+    dialect.add([
+        (
+            "TsqlJoinTypeSegment".into(),
+            one_of(vec_of_erased![
+                Ref::keyword("INNER"),
+                Ref::keyword("FULL"),
+                Ref::keyword("LEFT"),
+                Ref::keyword("RIGHT"),
+                Ref::keyword("CROSS")
+            ])
+            .to_matchable()
+            .into(),
+        ),
+        (
+            "TsqlJoinHintSegment".into(),
+            one_of(vec_of_erased![
+                Ref::keyword("HASH"),
+                Ref::keyword("MERGE"),
+                Ref::keyword("LOOP")
+            ])
+            .to_matchable()
+            .into(),
+        ),
+    ]);
+
     dialect.replace_grammar(
         "JoinClauseSegment",
         NodeMatcher::new(SyntaxKind::JoinClause, |_| {
             Sequence::new(vec_of_erased![
-                // T-SQL join type with hints: [INNER|FULL|LEFT|RIGHT] [OUTER] [HASH|MERGE|LOOP] JOIN
+                // T-SQL compositional join grammar similar to SQLFluff
                 // Order matters: more specific patterns first
                 one_of(vec_of_erased![
-                    // NATURAL [INNER|FULL|LEFT|RIGHT] [OUTER] JOIN
-                    Sequence::new(vec_of_erased![
-                        Ref::keyword("NATURAL"),
-                        one_of(vec_of_erased![
-                            Ref::keyword("INNER"),
-                            Ref::keyword("FULL"),
-                            Ref::keyword("LEFT"),
-                            Ref::keyword("RIGHT"),
-                        ])
-                        .config(|this| this.optional()),
-                        Ref::keyword("OUTER").optional(),
-                        Ref::keyword("JOIN")
-                    ]),
-                    // FULL/LEFT/RIGHT OUTER [HASH|MERGE|LOOP] JOIN (most specific)
-                    Sequence::new(vec_of_erased![
-                        one_of(vec_of_erased![
-                            Ref::keyword("FULL"),
-                            Ref::keyword("LEFT"),
-                            Ref::keyword("RIGHT"),
-                        ]),
-                        Ref::keyword("OUTER"),
-                        one_of(vec_of_erased![
-                            Ref::keyword("HASH"),
-                            Ref::keyword("MERGE"),
-                            Ref::keyword("LOOP"),
-                        ]),
-                        Ref::keyword("JOIN")
-                    ]),
-                    // FULL/LEFT/RIGHT [HASH|MERGE|LOOP] JOIN (without OUTER but with hint)
-                    Sequence::new(vec_of_erased![
-                        one_of(vec_of_erased![
-                            Ref::keyword("FULL"),
-                            Ref::keyword("LEFT"),
-                            Ref::keyword("RIGHT"),
-                        ]),
-                        one_of(vec_of_erased![
-                            Ref::keyword("HASH"),
-                            Ref::keyword("MERGE"),
-                            Ref::keyword("LOOP"),
-                        ]),
-                        Ref::keyword("JOIN")
-                    ]),
-                    // CROSS [HASH|MERGE|LOOP] JOIN
-                    Sequence::new(vec_of_erased![
-                        Ref::keyword("CROSS"),
-                        one_of(vec_of_erased![
-                            Ref::keyword("HASH"),
-                            Ref::keyword("MERGE"),
-                            Ref::keyword("LOOP"),
-                        ]),
-                        Ref::keyword("JOIN")
-                    ]),
-                    // INNER [HASH|MERGE|LOOP] JOIN  
-                    Sequence::new(vec_of_erased![
-                        Ref::keyword("INNER"),
-                        one_of(vec_of_erased![
-                            Ref::keyword("HASH"),
-                            Ref::keyword("MERGE"),
-                            Ref::keyword("LOOP"),
-                        ]),
-                        Ref::keyword("JOIN")
-                    ]),
-                    // FULL/LEFT/RIGHT OUTER JOIN (without hints)
-                    Sequence::new(vec_of_erased![
-                        one_of(vec_of_erased![
-                            Ref::keyword("FULL"),
-                            Ref::keyword("LEFT"),
-                            Ref::keyword("RIGHT"),
-                        ]),
-                        Ref::keyword("OUTER"),
-                        Ref::keyword("JOIN")
-                    ]),
-                    // FULL/LEFT/RIGHT JOIN (without OUTER or hints)
-                    Sequence::new(vec_of_erased![
-                        one_of(vec_of_erased![
-                            Ref::keyword("FULL"),
-                            Ref::keyword("LEFT"),
-                            Ref::keyword("RIGHT"),
-                        ]),
-                        Ref::keyword("JOIN")
-                    ]),
-                    // CROSS JOIN, INNER JOIN
-                    Sequence::new(vec_of_erased![
-                        one_of(vec_of_erased![
-                            Ref::keyword("CROSS"),
-                            Ref::keyword("INNER"),
-                        ]),
-                        Ref::keyword("JOIN")
-                    ]),
-                    // Just JOIN (no type, no hints)
-                    Ref::keyword("JOIN"),
-                    // CROSS APPLY and OUTER APPLY
+                    // APPLY operations (CROSS APPLY, OUTER APPLY) - must come first to avoid CROSS conflict
                     Sequence::new(vec_of_erased![
                         one_of(vec_of_erased![
                             Ref::keyword("CROSS"),
                             Ref::keyword("OUTER"),
                         ]),
                         Ref::keyword("APPLY")
-                    ])
+                    ]),
+                    // NATURAL [INNER|FULL|LEFT|RIGHT] [OUTER] JOIN
+                    Sequence::new(vec_of_erased![
+                        Ref::keyword("NATURAL"),
+                        Ref::new("TsqlJoinTypeSegment").optional(),
+                        Ref::keyword("OUTER").optional(),
+                        Ref::keyword("JOIN")
+                    ]),
+                    // JOIN with type, OUTER, and hint: FULL OUTER MERGE JOIN
+                    Sequence::new(vec_of_erased![
+                        Ref::new("TsqlJoinTypeSegment"),
+                        Ref::keyword("OUTER"),
+                        Ref::new("TsqlJoinHintSegment"),
+                        Ref::keyword("JOIN")
+                    ]),
+                    // JOIN with type and hint (no OUTER): FULL MERGE JOIN  
+                    Sequence::new(vec_of_erased![
+                        Ref::new("TsqlJoinTypeSegment"),
+                        Ref::new("TsqlJoinHintSegment"),
+                        Ref::keyword("JOIN")
+                    ]),
+                    // JOIN with type and OUTER (no hint): FULL OUTER JOIN
+                    Sequence::new(vec_of_erased![
+                        Ref::new("TsqlJoinTypeSegment"),
+                        Ref::keyword("OUTER"),
+                        Ref::keyword("JOIN")
+                    ]),
+                    // JOIN with just type: FULL JOIN, INNER JOIN
+                    Sequence::new(vec_of_erased![
+                        Ref::new("TsqlJoinTypeSegment"),
+                        Ref::keyword("JOIN")
+                    ]),
+                    // Plain JOIN
+                    Ref::keyword("JOIN")
                 ]),
                 MetaSegment::indent(),
                 Ref::new("FromExpressionElementSegment"),
@@ -4154,7 +4117,8 @@ pub fn raw_dialect() -> Dialect {
     )]);
 
 
-    // Override PrimaryKeyGrammar to support CLUSTERED/NONCLUSTERED and column lists
+    // Override PrimaryKeyGrammar to support CLUSTERED/NONCLUSTERED
+    // Note: Column list is handled by TableConstraintSegment, not here
     dialect.add([(
         "PrimaryKeyGrammar".into(),
         Sequence::new(vec_of_erased![
@@ -4163,18 +4127,6 @@ pub fn raw_dialect() -> Dialect {
             one_of(vec_of_erased![
                 Ref::keyword("CLUSTERED"),
                 Ref::keyword("NONCLUSTERED")
-            ]).config(|this| this.optional()),
-            // Optional column list with ASC/DESC for T-SQL
-            Bracketed::new(vec_of_erased![
-                Delimited::new(vec_of_erased![
-                    Sequence::new(vec_of_erased![
-                        Ref::new("ColumnReferenceSegment"),
-                        one_of(vec_of_erased![
-                            Ref::keyword("ASC"),
-                            Ref::keyword("DESC")
-                        ]).config(|this| this.optional())
-                    ])
-                ])
             ]).config(|this| this.optional())
         ])
         .to_matchable()
@@ -4628,59 +4580,16 @@ pub fn raw_dialect() -> Dialect {
     ]);
 
     // T-SQL supports alternative alias syntax: AliasName = Expression
-    // The parser distinguishes between column references (table1.column1)
-    // and alias assignments (AliasName = table1.column1)
+    // IMPORTANT: This is currently commented out because it's causing CASE expressions
+    // to be unparsable in SELECT clauses. The issue is that CASE is being lexed as a
+    // word token and not converted to a keyword token during parsing.
+    // TODO: Fix this by ensuring keyword matching happens before identifier matching
+    /*
     dialect.replace_grammar(
         "SelectClauseElementSegment",
-        one_of(vec_of_erased![
-            // T-SQL alias equals pattern: AliasName = Expression
-            // Must exclude keywords to avoid matching "CASE = ..." patterns
-            Sequence::new(vec_of_erased![
-                one_of(vec_of_erased![
-                    Ref::new("NakedIdentifierSegment")
-                        .exclude(one_of(vec_of_erased![
-                            // Exclude keywords that could start expressions
-                            Ref::keyword("CASE"),
-                            Ref::keyword("CAST"),
-                            Ref::keyword("EXISTS"),
-                            Ref::keyword("NOT"),
-                            Ref::keyword("NULL")
-                        ])),
-                    Ref::new("QuotedIdentifierSegment")
-                ]),
-                // Use AssignmentOperator instead of RawComparisonOperator to distinguish from WHERE clause comparisons
-                StringParser::new("=", SyntaxKind::AssignmentOperator),
-                one_of(vec_of_erased![
-                    Ref::new("ColumnReferenceSegment"),
-                    Ref::new("BaseExpressionElementGrammar")
-                ])
-            ]),
-            // T-SQL variable assignment pattern: @var += value, @var -= value, etc.
-            Sequence::new(vec_of_erased![
-                Ref::new("TsqlVariableSegment"),
-                Ref::new("AssignmentOperatorSegment"), // This includes +=, -=, *=, /=, %=
-                Ref::new("BaseExpressionElementGrammar")
-            ]),
-            // Wildcard expressions
-            Ref::new("WildcardExpressionSegment"),
-            // Everything else (including CASE expressions)
-            Sequence::new(vec_of_erased![
-                Ref::new("BaseExpressionElementGrammar"),
-                // Check for PostFunctionGrammar patterns before alias
-                one_of(vec_of_erased![
-                    // If we see WITHIN GROUP, OVER, etc., don't treat as alias
-                    Sequence::new(vec_of_erased![
-                        Ref::new("PostFunctionGrammar"),
-                        Ref::new("AliasExpressionSegment").optional()
-                    ]),
-                    // Otherwise, check for alias
-                    Ref::new("AliasExpressionSegment")
-                ])
-                .config(|this| this.optional()),
-            ]),
-        ])
-        .to_matchable(),
+        ...
     );
+    */
 
     // Override SelectStatementSegment to add FOR clause and OPTION clause after ORDER BY
     dialect.replace_grammar(
@@ -8021,6 +7930,19 @@ pub fn raw_dialect() -> Dialect {
         .to_matchable()
     });
 
+    // Override MergeMatchSegment to allow multiple MERGE clauses including T-SQL specific syntax
+    dialect.replace_grammar("MergeMatchSegment", {
+        NodeMatcher::new(SyntaxKind::MergeMatch, |_| {
+            AnyNumberOf::new(vec_of_erased![
+                Ref::new("MergeMatchedClauseSegment"),
+                Ref::new("MergeNotMatchedClauseSegment")
+            ])
+            .config(|this| this.min_times(1))
+            .to_matchable()
+        })
+        .to_matchable()
+    });
+
     // Override MERGE NOT MATCHED clause to support "BY TARGET" and "BY SOURCE"
     dialect.replace_grammar("MergeNotMatchedClauseSegment", {
         NodeMatcher::new(SyntaxKind::MergeWhenNotMatchedClause, |_| {
@@ -8045,7 +7967,8 @@ pub fn raw_dialect() -> Dialect {
                 MetaSegment::indent(),
                 one_of(vec_of_erased![
                     Ref::new("MergeInsertClauseSegment"),
-                    Ref::new("MergeDeleteClauseSegment")
+                    Ref::new("MergeDeleteClauseSegment"),
+                    Ref::new("MergeUpdateClauseSegment")
                 ]),
                 MetaSegment::dedent(),
             ])
@@ -8128,21 +8051,6 @@ pub fn raw_dialect() -> Dialect {
         .into(),
     )]);
 
-    // Add NextValueForSegment to BaseExpressionElementGrammar
-    dialect.add([(
-        "BaseExpressionElementGrammar".into(),
-        one_of(vec_of_erased![
-            Ref::new("LiteralGrammar"),
-            Ref::new("BareFunctionSegment"),
-            Ref::new("FunctionSegment"),
-            Ref::new("ColumnReferenceSegment"),
-            Ref::new("ExpressionSegment"),
-            Ref::new("CaseExpressionSegment"),
-            Ref::new("NextValueForSegment")  // Add NEXT VALUE FOR
-        ])
-        .to_matchable()
-        .into(),
-    )]);
 
     // Add OPENQUERY support
     dialect.add([(
@@ -8330,7 +8238,7 @@ pub fn raw_dialect() -> Dialect {
         .into(),
     )]);
 
-    // Override FunctionSegment to prioritize CAST function
+    // Override FunctionSegment to prioritize CAST function and include PostFunctionGrammar
     dialect.replace_grammar("FunctionSegment", {
         NodeMatcher::new(SyntaxKind::Function, |_| {
             one_of(vec_of_erased![
@@ -8346,26 +8254,32 @@ pub fn raw_dialect() -> Dialect {
                 // JSON functions
                 Ref::new("TsqlJsonObjectSegment"),
                 Ref::new("TsqlJsonArraySegment"),
-                // Date part functions  
+                // Date part functions with optional PostFunctionGrammar
                 Sequence::new(vec_of_erased![
-                    Ref::new("DatePartFunctionNameSegment"),
-                    Bracketed::new(vec_of_erased![
-                        Ref::new("DatetimeUnitSegment"),
-                        Ref::new("CommaSegment"),
-                        Ref::new("ExpressionSegment")
-                    ])
-                ]),
-                // General function pattern
-                Sequence::new(vec_of_erased![
-                    Ref::new("FunctionNameSegment").exclude(one_of(vec_of_erased![
+                    Sequence::new(vec_of_erased![
                         Ref::new("DatePartFunctionNameSegment"),
-                        Ref::new("CastFunctionNameSegment"),
-                        Ref::new("ValuesClauseSegment")
-                    ])),
-                    Bracketed::new(vec_of_erased![
-                        Ref::new("FunctionContentsGrammar").optional()
-                    ])
-                    .config(|this| this.parse_mode(ParseMode::Greedy))
+                        Bracketed::new(vec_of_erased![
+                            Ref::new("DatetimeUnitSegment"),
+                            Ref::new("CommaSegment"),
+                            Ref::new("ExpressionSegment")
+                        ])
+                    ]),
+                    Ref::new("PostFunctionGrammar").optional()
+                ]),
+                // General function pattern with PostFunctionGrammar
+                Sequence::new(vec_of_erased![
+                    Sequence::new(vec_of_erased![
+                        Ref::new("FunctionNameSegment").exclude(one_of(vec_of_erased![
+                            Ref::new("DatePartFunctionNameSegment"),
+                            Ref::new("CastFunctionNameSegment"),
+                            Ref::new("ValuesClauseSegment")
+                        ])),
+                        Bracketed::new(vec_of_erased![
+                            Ref::new("FunctionContentsGrammar").optional()
+                        ])
+                        .config(|this| this.parse_mode(ParseMode::Greedy))
+                    ]),
+                    Ref::new("PostFunctionGrammar").optional()
                 ])
             ])
             .to_matchable()

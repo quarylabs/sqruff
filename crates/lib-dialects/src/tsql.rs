@@ -4643,6 +4643,30 @@ pub fn raw_dialect() -> Dialect {
     // IMPORTANT: Do NOT add custom grammars here. Instead, override AliasExpressionSegment
     // to support T-SQL's alias = expression syntax.
     // For now, just use ANSI's SelectClauseElementSegment which properly handles CASE
+    
+    // Override SelectClauseElementSegment to support T-SQL variable assignment
+    dialect.add([(
+        "SelectClauseElementSegment".into(),
+        NodeMatcher::new(SyntaxKind::SelectClauseElement, |_| {
+            one_of(vec_of_erased![
+                // T-SQL variable assignment: @var = expression or @var += expression
+                Sequence::new(vec_of_erased![
+                    Ref::new("TsqlVariableSegment"),
+                    Ref::new("AssignmentOperatorSegment"),
+                    Ref::new("ExpressionSegment")
+                ]),
+                // Standard ANSI select clause elements
+                Ref::new("WildcardExpressionSegment"),
+                Sequence::new(vec_of_erased![
+                    Ref::new("BaseExpressionElementGrammar"),
+                    Ref::new("AliasExpressionSegment").optional(),
+                ]),
+            ])
+            .to_matchable()
+        })
+        .to_matchable()
+        .into(),
+    )]);
 
     // Override SelectStatementSegment to add FOR clause and OPTION clause after ORDER BY
     dialect.replace_grammar(

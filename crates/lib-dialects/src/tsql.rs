@@ -404,8 +404,8 @@ pub fn raw_dialect() -> Dialect {
             .into(),
         ),
         (
-            "ModuloAssignmentSegment".into(),
-            NodeMatcher::new(SyntaxKind::ModuloAssignmentSegment, |_| {
+            "ModulusAssignmentSegment".into(),
+            NodeMatcher::new(SyntaxKind::ModulusAssignmentSegment, |_| {
                 Sequence::new(vec_of_erased![
                     Ref::new("BinaryOperatorGrammar"),
                     Ref::new("RawComparisonOperatorGrammar")
@@ -415,12 +415,14 @@ pub fn raw_dialect() -> Dialect {
             .to_matchable()
             .into(),
         ),
+        // Note: The test file shows ^=, &=, |= just use generic assignment_operator
+        // We'll use AssignmentOperator SyntaxKind for these
         (
             "BitwiseAndAssignmentSegment".into(),
-            NodeMatcher::new(SyntaxKind::BitwiseAndAssignmentSegment, |_| {
+            NodeMatcher::new(SyntaxKind::AssignmentOperator, |_| {
                 Sequence::new(vec_of_erased![
-                    Ref::new("BinaryOperatorGrammar"),
-                    Ref::new("RawComparisonOperatorGrammar")
+                    StringParser::new("&", SyntaxKind::ComparisonOperator),
+                    Ref::new("RawEqualsSegment")
                 ])
                 .to_matchable()
             })
@@ -429,10 +431,10 @@ pub fn raw_dialect() -> Dialect {
         ),
         (
             "BitwiseOrAssignmentSegment".into(),
-            NodeMatcher::new(SyntaxKind::BitwiseOrAssignmentSegment, |_| {
+            NodeMatcher::new(SyntaxKind::AssignmentOperator, |_| {
                 Sequence::new(vec_of_erased![
-                    Ref::new("BinaryOperatorGrammar"),
-                    Ref::new("RawComparisonOperatorGrammar")
+                    StringParser::new("|", SyntaxKind::ComparisonOperator),
+                    Ref::new("RawEqualsSegment")
                 ])
                 .to_matchable()
             })
@@ -441,10 +443,10 @@ pub fn raw_dialect() -> Dialect {
         ),
         (
             "BitwiseXorAssignmentSegment".into(),
-            NodeMatcher::new(SyntaxKind::BitwiseXorAssignmentSegment, |_| {
+            NodeMatcher::new(SyntaxKind::AssignmentOperator, |_| {
                 Sequence::new(vec_of_erased![
-                    Ref::new("BinaryOperatorGrammar"),
-                    Ref::new("RawComparisonOperatorGrammar")
+                    StringParser::new("^", SyntaxKind::BinaryOperator),
+                    Ref::new("RawEqualsSegment")
                 ])
                 .to_matchable()
             })
@@ -452,6 +454,30 @@ pub fn raw_dialect() -> Dialect {
             .into(),
         ),
     ]);
+
+    // Override AssignmentOperatorSegment to include compound assignment operators
+    dialect.add([(
+        "AssignmentOperatorSegment".into(),
+        NodeMatcher::new(SyntaxKind::AssignmentOperator, |_| {
+            one_of(vec_of_erased![
+                // Standard assignment
+                Ref::new("RawEqualsSegment"),
+                // Compound assignment operators
+                Ref::new("AdditionAssignmentSegment"),
+                Ref::new("SubtractionAssignmentSegment"),
+                Ref::new("MultiplicationAssignmentSegment"),
+                Ref::new("DivisionAssignmentSegment"),
+                Ref::new("ModulusAssignmentSegment"),
+                Ref::new("BitwiseAndAssignmentSegment"),
+                Ref::new("BitwiseOrAssignmentSegment"),
+                Ref::new("BitwiseXorAssignmentSegment"),
+            ])
+            .to_matchable()
+        })
+        .to_matchable()
+        .into(),
+    )]);
+
 
     // Add OPENROWSET segment for T-SQL specific syntax
     dialect.add([(

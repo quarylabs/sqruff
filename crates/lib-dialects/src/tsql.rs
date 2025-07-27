@@ -3582,39 +3582,6 @@ pub fn raw_dialect() -> Dialect {
         .into(),
     )]);
 
-    // Add OpenRowSetTableExpression to handle OPENROWSET with optional WITH clause
-    dialect.add([(
-        "OpenRowSetTableExpression".into(),
-        NodeMatcher::new(SyntaxKind::TableExpression, |_| {
-            Sequence::new(vec_of_erased![
-                Ref::new("OpenRowSetSegment"),
-                // Optional WITH clause for schema definition
-                Sequence::new(vec_of_erased![
-                    Ref::keyword("WITH"),
-                    Bracketed::new(vec_of_erased![Delimited::new(vec_of_erased![
-                        Sequence::new(vec_of_erased![
-                            Ref::new("SingleIdentifierGrammar"), // Column name (can be bracketed)
-                            Ref::new("TsqlDatatypeSegment"),     // Data type
-                            // Optional COLLATE clause
-                            Sequence::new(vec_of_erased![
-                                Ref::keyword("COLLATE"),
-                                Ref::new("CollationSegment")
-                            ])
-                            .config(|this| this.optional()),
-                            // Optional ordinal position (for positional column mapping)
-                            Ref::new("NumericLiteralSegment").optional(),
-                            // Optional JSON path (like in OPENJSON)
-                            Ref::new("QuotedLiteralSegment").optional()
-                        ])
-                    ])])
-                ])
-                .config(|this| this.optional())
-            ])
-            .to_matchable()
-        })
-        .to_matchable()
-        .into(),
-    )]);
 
     // Update TableExpressionSegment to include PIVOT/UNPIVOT, OPENJSON, and OPENROWSET
     dialect.replace_grammar(
@@ -3623,7 +3590,7 @@ pub fn raw_dialect() -> Dialect {
             Ref::new("ValuesClauseSegment"),
             Ref::new("BareFunctionSegment"),
             // T-SQL specific functions must come before generic FunctionSegment
-            Ref::new("OpenRowSetTableExpression"), // OPENROWSET with optional WITH clause
+            Ref::new("OpenRowSetSegment"),   // OPENROWSET function (alias handled by FromExpressionElementSegment)
             Ref::new("OpenQuerySegment"),    // Add OPENQUERY support
             Ref::new("OpenDataSourceSegment"), // Add OPENDATASOURCE support
             Ref::new("FunctionSegment"),
@@ -3816,6 +3783,33 @@ pub fn raw_dialect() -> Dialect {
                         Ref::keyword("GO") // Prevents GO from being parsed as alias (it's a batch separator)
                     ]))
                     .optional(),
+                // OPENROWSET schema WITH clause for column definitions
+                Sequence::new(vec_of_erased![
+                    Ref::keyword("WITH"),
+                    Bracketed::new(vec_of_erased![Delimited::new(vec_of_erased![
+                        Sequence::new(vec_of_erased![
+                            Ref::new("SingleIdentifierGrammar"), // Column name (can be bracketed)
+                            Ref::new("TsqlDatatypeSegment"),     // Data type
+                            // Optional COLLATE clause
+                            Sequence::new(vec_of_erased![
+                                Ref::keyword("COLLATE"),
+                                Ref::new("CollationSegment")
+                            ])
+                            .config(|this| this.optional()),
+                            // Optional ordinal position or JSON path (for positional/JSON column mapping)
+                            one_of(vec_of_erased![
+                                Ref::new("NumericLiteralSegment"), // Ordinal position
+                                Ref::new("QuotedLiteralSegment"),  // JSON path like '$.path'
+                                Sequence::new(vec_of_erased![      // strict JSON path like 'strict $.path'
+                                    Ref::keyword("STRICT"),
+                                    Ref::new("QuotedLiteralSegment")
+                                ])
+                            ])
+                            .config(|this| this.optional())
+                        ])
+                    ])])
+                ])
+                .config(|this| this.optional()),
                 Sequence::new(vec_of_erased![
                     Ref::keyword("WITH"),
                     Ref::keyword("OFFSET"),
@@ -7379,14 +7373,14 @@ pub fn raw_dialect() -> Dialect {
                     Ref::new("AliasedTableReferenceGrammar"),
                     // T-SQL specific: OPENQUERY/OPENROWSET/OPENDATASOURCE support
                     Ref::new("OpenQuerySegment"),
-                    Ref::new("OpenRowSetTableExpression"),
+                    Ref::new("OpenRowSetSegment"),
                     Ref::new("OpenDataSourceSegment"),
                     // Allow OPENDATASOURCE/OPENROWSET/OPENQUERY with chained object references
                     Sequence::new(vec_of_erased![
                         one_of(vec_of_erased![
                             Ref::new("OpenQuerySegment"),
                             Ref::new("OpenDataSourceSegment"),
-                            Ref::new("OpenRowSetTableExpression")
+                            Ref::new("OpenRowSetSegment")
                         ]),
                         // Allow .database.schema.table after OPENDATASOURCE/OPENROWSET/OPENQUERY
                         AnyNumberOf::new(vec_of_erased![
@@ -7461,14 +7455,14 @@ pub fn raw_dialect() -> Dialect {
                     Ref::new("TableReferenceSegment"),
                     // T-SQL specific: OPENQUERY/OPENROWSET/OPENDATASOURCE support
                     Ref::new("OpenQuerySegment"),
-                    Ref::new("OpenRowSetTableExpression"),
+                    Ref::new("OpenRowSetSegment"),
                     Ref::new("OpenDataSourceSegment"),
                     // Allow OPENDATASOURCE/OPENROWSET/OPENQUERY with chained object references
                     Sequence::new(vec_of_erased![
                         one_of(vec_of_erased![
                             Ref::new("OpenQuerySegment"),
                             Ref::new("OpenDataSourceSegment"),
-                            Ref::new("OpenRowSetTableExpression")
+                            Ref::new("OpenRowSetSegment")
                         ]),
                         // Allow .database.schema.table after OPENDATASOURCE/OPENROWSET/OPENQUERY
                         AnyNumberOf::new(vec_of_erased![

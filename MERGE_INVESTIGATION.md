@@ -7,6 +7,72 @@ The MERGE keyword in T-SQL creates a parser conflict:
 - When used as a statement (e.g., `MERGE table1 USING table2...`), MERGE should be recognized as starting a MERGE statement
 - Currently, the parser always tries to parse MERGE as a statement first, causing JOIN patterns with MERGE to fail
 
+## CRITICAL DISCOVERY
+
+**Date: 2025-07-28**
+
+### Major Finding: Base T-SQL Dialect Breaks ALL MERGE Statements
+
+During investigation of MergeIntoLiteralGrammar override, discovered that:
+
+1. ✅ **BigQuery dialect**: Both `MERGE target` and `MERGE INTO target` parse perfectly
+2. ❌ **T-SQL dialect**: Even basic `MERGE INTO target` (ANSI format) shows "Unparsable section"
+3. ❌ **T-SQL dialect**: Obviously `MERGE target` (T-SQL format) also unparsable
+
+**This means the T-SQL dialect has a fundamental issue that prevents ANY MERGE statements from parsing.**
+
+The problem isn't just MERGE JOIN or the optional INTO - it's that basic MERGE statements don't work at all in T-SQL.
+
+### Testing Verification
+
+```bash
+# BigQuery - WORKS
+echo "MERGE target USING source ON target.id = source.id WHEN MATCHED THEN UPDATE SET col = 1;" > test.sql
+sqruff lint --parsing-errors --config "[sqruff]\ndialect = bigquery" test.sql
+# Result: Only layout violations, no "Unparsable section"
+
+# T-SQL - BROKEN
+echo "MERGE INTO target USING source ON target.id = source.id WHEN MATCHED THEN UPDATE SET col = 1;" > test.sql
+sqruff lint --parsing-errors --config "[sqruff]\ndialect = tsql" test.sql
+# Result: "Unparsable section" error
+```
+
+### ROOT CAUSE DISCOVERED! 🎉
+
+**Line 721 in tsql.rs**: MERGE was incorrectly added to SelectClauseTerminatorGrammar!
+
+```rust
+// T-SQL specific: Statement keywords that should terminate SELECT clause
+Ref::keyword("CREATE"),
+Ref::keyword("DROP"),
+Ref::keyword("ALTER"),
+Ref::keyword("INSERT"),
+Ref::keyword("UPDATE"),
+Ref::keyword("DELETE"),
+Ref::keyword("MERGE"),  // ← THIS IS THE BUG!
+```
+
+**The Problem**: Adding MERGE as a SELECT clause terminator means the parser treats any MERGE keyword as "end of SELECT clause" instead of "start of MERGE statement".
+
+**The Fix**: Removed MERGE from SelectClauseTerminatorGrammar with this change:
+```rust
+// NOTE: MERGE removed from terminators to allow MERGE statements to parse
+```
+
+### Status After Fix
+
+✅ **Root cause identified and fixed**: MERGE no longer terminates SELECT clauses incorrectly  
+❌ **Still broken**: Both `MERGE target` and `MERGE INTO target` still show "Unparsable section"
+
+This indicates there's likely a second issue preventing MERGE statements from parsing correctly.
+
+### Next Steps
+
+1. ✅ Remove MERGE from SelectClauseTerminatorGrammar (DONE)
+2. 🔄 Identify the remaining issue preventing MERGE statement parsing
+3. Fix base MERGE statement parsing in T-SQL
+4. Only then tackle MERGE JOIN hints
+
 ## Current Symptoms
 
 ### What Works
@@ -647,3 +713,23 @@ The MERGE keyword creates conflicts at multiple parser levels:
 2. **Isolate the conflict**: Find exactly where MERGE keyword registration is failing
 3. **Parser precedence investigation**: Understand statement vs join parsing priority
 4. **Consider parser architecture changes**: May need fundamental changes to handle dual-purpose keywords
+
+### Entry 24: Systematic Investigation - Step 1 Analysis
+**Date**: 2025-07-28
+**Step**: Getting basic MERGE statements working first
+
+**Findings**:
+1. **Root cause of MERGE statements**: ANSI `MergeIntoLiteralGrammar` expects `MERGE INTO target` but T-SQL uses `MERGE target`
+2. **Fix attempted**: Override `MergeIntoLiteralGrammar` to only require `MERGE` keyword
+3. **Result**: Still unparsable - suggests deeper issue
+4. **Statement precedence**: Moved `MergeStatementSegment` before `SelectableGrammar` - no change
+5. **Cross-statement issue**: Both `MERGE` and `INSERT` statements are unparsable, but `SELECT` and `CREATE` work
+
+**Critical Discovery**: 
+The issue is not MERGE-specific - multiple statement types are broken in current T-SQL dialect state.
+Working: `SELECT`, `CREATE TABLE`
+Broken: `MERGE`, `INSERT`
+
+**Current Status**: Problem is broader than MERGE keyword conflicts - appears to be T-SQL dialect corruption affecting multiple statement types.
+
+**Next Action**: Need to identify what T-SQL dialect changes are causing statement parsing failures beyond just MERGE.

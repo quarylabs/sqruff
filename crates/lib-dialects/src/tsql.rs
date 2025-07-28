@@ -163,6 +163,7 @@ pub fn raw_dialect() -> Dialect {
         "!<", "!>", // Special comparison operators
     ]);
 
+
     // T-SQL supports square brackets for identifiers and @ for variables
     // Insert square bracket identifier before individual bracket matchers to ensure it's matched first
     dialect.insert_lexer_matchers(
@@ -717,7 +718,7 @@ pub fn raw_dialect() -> Dialect {
             Ref::keyword("INSERT"),
             Ref::keyword("UPDATE"),
             Ref::keyword("DELETE"),
-            Ref::keyword("MERGE"),
+            // NOTE: MERGE removed from terminators to allow MERGE statements to parse
             Ref::keyword("DECLARE"),
             Ref::keyword("SET"),
             Ref::keyword("BEGIN"),
@@ -3989,6 +3990,7 @@ pub fn raw_dialect() -> Dialect {
         .to_matchable()
         .into(),
     )]);
+
 
     // Use default ANSI JoinClauseSegment for now to avoid breaking MERGE statements
     // TODO: Implement proper MERGE JOIN support without breaking MERGE statements
@@ -8464,6 +8466,7 @@ pub fn raw_dialect() -> Dialect {
         })
         .to_matchable()
     });
+
 
     // expand() must be called after all grammar modifications
 

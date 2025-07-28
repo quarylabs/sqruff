@@ -8468,6 +8468,19 @@ pub fn raw_dialect() -> Dialect {
     });
 
 
+    // Override MergeIntoLiteralGrammar for T-SQL (INTO is optional, like BigQuery)
+    dialect.add([
+        (
+            "MergeIntoLiteralGrammar".into(),
+            Sequence::new(vec_of_erased![
+                Ref::keyword("MERGE"),
+                Ref::keyword("INTO").optional()
+            ])
+            .to_matchable()
+            .into(),
+        ),
+    ]);
+
     // expand() must be called after all grammar modifications
 
     dialect

@@ -8115,18 +8115,13 @@ pub fn raw_dialect() -> Dialect {
         .to_matchable()
     });
 
-    // Override MergeIntoLiteralGrammar for T-SQL (INTO is optional, like BigQuery)
-    dialect.add([
+    // REMOVE T-SQL MergeIntoLiteralGrammar override to test ANSI behavior
+    /*dialect.add([
         (
             "MergeIntoLiteralGrammar".into(),
-            Sequence::new(vec_of_erased![
-                Ref::keyword("MERGE"),
-                Ref::keyword("INTO").optional()
-            ])
-            .to_matchable()
-            .into(),
+            Ref::keyword("MERGE").to_matchable().into(),
         ),
-    ]);
+    ]);*/
 
     // NOTE: Attempted T-SQL-specific MergeStatementSegment override but it still fails at position 7
     // The issue appears to be deeper than grammar-level fixes can address

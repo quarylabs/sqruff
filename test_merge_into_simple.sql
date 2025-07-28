@@ -1,0 +1,1 @@
+merge into target using source on 1=1 when matched then update set col = 1;

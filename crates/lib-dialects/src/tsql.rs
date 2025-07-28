@@ -8128,6 +8128,9 @@ pub fn raw_dialect() -> Dialect {
         ),
     ]);
 
+    // NOTE: Attempted T-SQL-specific MergeStatementSegment override but it still fails at position 7
+    // The issue appears to be deeper than grammar-level fixes can address
+
     // Override MERGE NOT MATCHED clause to support "BY TARGET" and "BY SOURCE"
     dialect.replace_grammar("MergeNotMatchedClauseSegment", {
         NodeMatcher::new(SyntaxKind::MergeWhenNotMatchedClause, |_| {

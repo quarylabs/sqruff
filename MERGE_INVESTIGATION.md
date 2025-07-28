@@ -927,3 +927,33 @@ The fact that both formats fail at position 7 (where table reference parsing beg
 3. There could be a conflict with other T-SQL-specific parsing rules
 
 **Critical Discovery**: Even with identical MergeIntoLiteralGrammar as BigQuery, T-SQL fails while BigQuery works. This points to a fundamental difference in how the two dialects handle parsing flow.
+
+### Entry 32: All Other Dialects Work - Only T-SQL Fails
+**Date**: 2025-07-28
+**Status**: Confirmed T-SQL is uniquely broken
+
+**Test Results Across Dialects**:
+1. ✅ **BigQuery**: MERGE statements parse perfectly
+2. ✅ **Snowflake**: MERGE statements parse perfectly  
+3. ✅ **Postgres**: MERGE statements parse perfectly
+4. ❌ **T-SQL**: Fails at position 7 with "Unparsable section"
+
+**Critical Finding**: Every other dialect that supports MERGE works correctly. Only T-SQL fails, despite using the same ANSI base implementation.
+
+### Entry 33: Custom MergeStatementSegment Override Fails
+**Date**: 2025-07-28
+**Status**: Even direct override doesn't fix T-SQL
+
+**Attempted Fix**: Created T-SQL-specific MergeStatementSegment override that:
+- Removed MetaSegment::indent() (suspected cause)
+- Simplified the grammar structure
+- Directly specified the expected sequence
+
+**Result**: STILL FAILS at position 7!
+
+**Conclusion**: The issue is not with:
+- MergeIntoLiteralGrammar (identical to working dialects)
+- MergeStatementSegment structure (custom override still fails)
+- MetaSegment::indent() (removed, still fails)
+
+The problem must be at a deeper level in T-SQL's parsing infrastructure.

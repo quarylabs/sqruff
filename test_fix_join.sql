@@ -1,0 +1,4 @@
+-- Test that should work after fix
+SELECT * 
+FROM table1 
+FULL OUTER MERGE JOIN table2 ON table1.id = table2.id;

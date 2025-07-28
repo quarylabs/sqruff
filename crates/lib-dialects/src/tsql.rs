@@ -7,6 +7,7 @@ use sqruff_lib_core::dialects::syntax::SyntaxKind;
 use sqruff_lib_core::helpers::{Config, ToMatchable};
 use sqruff_lib_core::parser::grammar::Ref;
 use sqruff_lib_core::parser::grammar::anyof::{AnyNumberOf, one_of, optionally_bracketed};
+use sqruff_lib_core::parser::grammar::Nothing;
 use sqruff_lib_core::parser::grammar::conditional::Conditional;
 use sqruff_lib_core::parser::grammar::delimited::Delimited;
 use sqruff_lib_core::parser::grammar::sequence::{Bracketed, Sequence};
@@ -3950,160 +3951,142 @@ pub fn raw_dialect() -> Dialect {
         .to_matchable(),
     );
 
-    // Override JoinClauseSegment to include T-SQL join hints
-    // Following SQLFluff's approach: join hints are part of join type keywords
-    dialect.add([
-        (
-            "TsqlJoinTypeKeywordsGrammar".into(),
-            Sequence::new(vec_of_erased![
-                // Join type: INNER or FULL/LEFT/RIGHT [OUTER]
-                one_of(vec_of_erased![
-                    Ref::keyword("INNER"),
-                    Sequence::new(vec_of_erased![
-                        one_of(vec_of_erased![
-                            Ref::keyword("FULL"),
-                            Ref::keyword("LEFT"),
-                            Ref::keyword("RIGHT")
-                        ]),
-                        Ref::keyword("OUTER").optional()
-                    ])
+    // Override JoinTypeKeywordsGrammar to include T-SQL join hints
+    // This approach follows ANSI pattern but extends it with join hints
+    dialect.add([(
+        "JoinTypeKeywordsGrammar".into(),
+        one_of(vec![
+            // CROSS (for CROSS JOIN and CROSS APPLY)
+            Ref::keyword("CROSS").to_matchable(),
+            // T-SQL join patterns with hints - MOST SPECIFIC FIRST
+            // FULL OUTER MERGE, FULL OUTER HASH, FULL OUTER LOOP
+            Sequence::new(vec![
+                Ref::keyword("FULL").to_matchable(),
+                Ref::keyword("OUTER").to_matchable(),
+                one_of(vec![
+                    StringParser::new("MERGE", SyntaxKind::Keyword).to_matchable(),
+                    Ref::keyword("HASH").to_matchable(),
+                    Ref::keyword("LOOP").to_matchable()
                 ])
-                .config(|this| this.optional()),
-                // Join hint: LOOP/HASH/MERGE (optional)
-                one_of(vec_of_erased![
-                    Ref::keyword("LOOP"),
-                    Ref::keyword("HASH"),
-                    Ref::keyword("MERGE")
-                ])
-                .config(|this| this.optional())
+                .to_matchable()
             ])
-            .to_matchable()
-            .into(),
-        ),
-    ]);
+            .to_matchable(),
+            // LEFT OUTER MERGE, LEFT OUTER HASH, LEFT OUTER LOOP  
+            Sequence::new(vec![
+                Ref::keyword("LEFT").to_matchable(),
+                Ref::keyword("OUTER").to_matchable(),
+                one_of(vec![
+                    StringParser::new("MERGE", SyntaxKind::Keyword).to_matchable(),
+                    Ref::keyword("HASH").to_matchable(),
+                    Ref::keyword("LOOP").to_matchable()
+                ])
+                .to_matchable()
+            ])
+            .to_matchable(),
+            // RIGHT OUTER MERGE, RIGHT OUTER HASH, RIGHT OUTER LOOP
+            Sequence::new(vec![
+                Ref::keyword("RIGHT").to_matchable(),
+                Ref::keyword("OUTER").to_matchable(),
+                one_of(vec![
+                    StringParser::new("MERGE", SyntaxKind::Keyword).to_matchable(),
+                    Ref::keyword("HASH").to_matchable(),
+                    Ref::keyword("LOOP").to_matchable()
+                ])
+                .to_matchable()
+            ])
+            .to_matchable(),
+            // FULL MERGE, FULL HASH, FULL LOOP (without OUTER)
+            Sequence::new(vec![
+                Ref::keyword("FULL").to_matchable(),
+                one_of(vec![
+                    StringParser::new("MERGE", SyntaxKind::Keyword).to_matchable(),
+                    Ref::keyword("HASH").to_matchable(),
+                    Ref::keyword("LOOP").to_matchable()
+                ])
+                .to_matchable()
+            ])
+            .to_matchable(),
+            // LEFT MERGE, LEFT HASH, LEFT LOOP (without OUTER)
+            Sequence::new(vec![
+                Ref::keyword("LEFT").to_matchable(),
+                one_of(vec![
+                    StringParser::new("MERGE", SyntaxKind::Keyword).to_matchable(),
+                    Ref::keyword("HASH").to_matchable(),
+                    Ref::keyword("LOOP").to_matchable()
+                ])
+                .to_matchable()
+            ])
+            .to_matchable(),
+            // RIGHT MERGE, RIGHT HASH, RIGHT LOOP (without OUTER) 
+            Sequence::new(vec![
+                Ref::keyword("RIGHT").to_matchable(),
+                one_of(vec![
+                    StringParser::new("MERGE", SyntaxKind::Keyword).to_matchable(),
+                    Ref::keyword("HASH").to_matchable(),
+                    Ref::keyword("LOOP").to_matchable()
+                ])
+                .to_matchable()
+            ])
+            .to_matchable(),
+            // INNER MERGE, INNER HASH, INNER LOOP
+            Sequence::new(vec![
+                Ref::keyword("INNER").to_matchable(),
+                one_of(vec![
+                    StringParser::new("MERGE", SyntaxKind::Keyword).to_matchable(),
+                    Ref::keyword("HASH").to_matchable(),
+                    Ref::keyword("LOOP").to_matchable()
+                ])
+                .to_matchable()
+            ])
+            .to_matchable(),
+            // Just join hints: MERGE, HASH, LOOP
+            StringParser::new("MERGE", SyntaxKind::Keyword).to_matchable(),
+            Ref::keyword("HASH").to_matchable(),
+            Ref::keyword("LOOP").to_matchable(),
+            // Standard ANSI join types - LESS SPECIFIC PATTERNS LAST
+            Ref::keyword("INNER").to_matchable(),
+            Sequence::new(vec![
+                Ref::keyword("FULL").to_matchable(),
+                Ref::keyword("OUTER").to_matchable()
+            ])
+            .to_matchable(),
+            Sequence::new(vec![
+                Ref::keyword("LEFT").to_matchable(),
+                Ref::keyword("OUTER").to_matchable()
+            ])
+            .to_matchable(),
+            Sequence::new(vec![
+                Ref::keyword("RIGHT").to_matchable(),
+                Ref::keyword("OUTER").to_matchable()
+            ])
+            .to_matchable(),
+            Ref::keyword("FULL").to_matchable(),
+            Ref::keyword("LEFT").to_matchable(),
+            Ref::keyword("RIGHT").to_matchable()
+        ])
+        .to_matchable()
+        .into(),
+    )]);
 
-    dialect.replace_grammar(
-        "JoinClauseSegment",
-        NodeMatcher::new(SyntaxKind::JoinClause, |_| {
-            Sequence::new(vec_of_erased![
-                // T-SQL join grammar - handle all combinations explicitly
-                one_of(vec_of_erased![
-                    // APPLY operations (CROSS APPLY, OUTER APPLY)
-                    Sequence::new(vec_of_erased![
-                        one_of(vec_of_erased![
-                            Ref::keyword("CROSS"),
-                            Ref::keyword("OUTER"),
-                        ]),
-                        Ref::keyword("APPLY")
-                    ]),
-                    // NATURAL joins
-                    Sequence::new(vec_of_erased![
-                        Ref::keyword("NATURAL"),
-                        one_of(vec_of_erased![
-                            Ref::keyword("INNER"),
-                            Ref::keyword("FULL"),
-                            Ref::keyword("LEFT"),
-                            Ref::keyword("RIGHT")
-                        ]).config(|this| this.optional()),
-                        Ref::keyword("OUTER").optional(),
-                        Ref::keyword("JOIN")
-                    ]),
-                    // CROSS JOIN (special case)
-                    Sequence::new(vec_of_erased![
-                        Ref::keyword("CROSS"),
-                        Ref::keyword("JOIN")
-                    ]),
-                    // Explicit patterns for join hints to ensure MERGE is recognized
-                    // Type + OUTER + hint + JOIN (e.g., FULL OUTER MERGE JOIN)
-                    Sequence::new(vec_of_erased![
-                        one_of(vec_of_erased![
-                            Ref::keyword("INNER"),
-                            Ref::keyword("FULL"),
-                            Ref::keyword("LEFT"),
-                            Ref::keyword("RIGHT")
-                        ]),
-                        Ref::keyword("OUTER"),
-                        one_of(vec_of_erased![
-                            Ref::keyword("HASH"),
-                            Ref::keyword("MERGE"),
-                            Ref::keyword("LOOP")
-                        ]),
-                        Ref::keyword("JOIN")
-                    ]),
-                    // Type + hint + JOIN (e.g., INNER HASH JOIN)
-                    Sequence::new(vec_of_erased![
-                        one_of(vec_of_erased![
-                            Ref::keyword("INNER"),
-                            Ref::keyword("FULL"),
-                            Ref::keyword("LEFT"),
-                            Ref::keyword("RIGHT")
-                        ]),
-                        one_of(vec_of_erased![
-                            Ref::keyword("HASH"),
-                            Ref::keyword("MERGE"),
-                            Ref::keyword("LOOP")
-                        ]),
-                        Ref::keyword("JOIN")
-                    ]),
-                    // Just hint + JOIN (e.g., HASH JOIN, MERGE JOIN)
-                    Sequence::new(vec_of_erased![
-                        one_of(vec_of_erased![
-                            Ref::keyword("HASH"),
-                            Ref::keyword("MERGE"),
-                            Ref::keyword("LOOP")
-                        ]),
-                        Ref::keyword("JOIN")
-                    ]),
-                    // Type + OUTER + JOIN (e.g., FULL OUTER JOIN)
-                    Sequence::new(vec_of_erased![
-                        one_of(vec_of_erased![
-                            Ref::keyword("INNER"),
-                            Ref::keyword("FULL"),
-                            Ref::keyword("LEFT"),
-                            Ref::keyword("RIGHT")
-                        ]),
-                        Ref::keyword("OUTER"),
-                        Ref::keyword("JOIN")
-                    ]),
-                    // Type + JOIN (e.g., INNER JOIN, LEFT JOIN)
-                    Sequence::new(vec_of_erased![
-                        one_of(vec_of_erased![
-                            Ref::keyword("INNER"),
-                            Ref::keyword("FULL"),
-                            Ref::keyword("LEFT"),
-                            Ref::keyword("RIGHT")
-                        ]),
-                        Ref::keyword("JOIN")
-                    ]),
-                    // Plain JOIN
-                    Ref::keyword("JOIN")
-                ]),
-                MetaSegment::indent(),
-                Ref::new("FromExpressionElementSegment"),
-                MetaSegment::dedent(),
-                // Optional ON condition
-                Sequence::new(vec_of_erased![
-                    Conditional::new(MetaSegment::indent()).indented_using_on(),
-                    one_of(vec_of_erased![
-                        Ref::new("JoinOnConditionSegment"),
-                        Sequence::new(vec_of_erased![
-                            Ref::keyword("USING"),
-                            MetaSegment::indent(),
-                            Bracketed::new(vec_of_erased![Delimited::new(vec_of_erased![
-                                Ref::new("SingleIdentifierGrammar")
-                            ])])
-                            .config(|this| this.parse_mode = ParseMode::Greedy),
-                            MetaSegment::dedent(),
-                        ])
-                    ]),
-                    Conditional::new(MetaSegment::dedent()).indented_using_on(),
-                ])
-                .config(|this| this.optional())
-            ])
-            .to_matchable()
-        })
-        .to_matchable(),
-    );
+    // Override JoinKeywordsGrammar to handle T-SQL APPLY syntax as well as JOIN
+    dialect.add([(
+        "JoinKeywordsGrammar".into(), 
+        one_of(vec![
+            Ref::keyword("JOIN").to_matchable(),
+            Ref::keyword("APPLY").to_matchable()  // T-SQL specific
+        ])
+        .to_matchable()
+        .into(),
+    )]);
+
+    // Keep the natural join override to disable it for T-SQL
+    dialect.add([(
+        "NaturalJoinKeywordsGrammar".into(),
+        Nothing::new().to_matchable().into(),
+    )]);
+
+    // Use standard ANSI JoinClauseSegment which should now work with our enhanced grammars
+    // No need to override JoinClauseSegment - let ANSI handle the structure
 
     // T-SQL specific data type handling for MAX keyword and -1
     // Override BracketedArguments to accept MAX keyword and negative numbers
@@ -7519,23 +7502,8 @@ pub fn raw_dialect() -> Dialect {
         ),
     ]);
 
-    // T-SQL MERGE statement support - override to support both MERGE and MERGE INTO
+    // T-SQL OUTPUT clause needed by INSERT, UPDATE, DELETE, MERGE statements
     dialect.add([
-        (
-            "MergeIntoLiteralGrammar".into(),
-            one_of(vec_of_erased![
-                // Just MERGE (T-SQL specific)
-                Ref::keyword("MERGE"),
-                // MERGE INTO (standard SQL)
-                Sequence::new(vec_of_erased![
-                    Ref::keyword("MERGE"),
-                    Ref::keyword("INTO"),
-                ]),
-            ])
-            .to_matchable()
-            .into(),
-        ),
-        // T-SQL OUTPUT clause needed by INSERT, UPDATE, DELETE, MERGE statements
         (
             "OutputClauseSegment".into(),
             Sequence::new(vec_of_erased![

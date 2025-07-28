@@ -3951,76 +3951,47 @@ pub fn raw_dialect() -> Dialect {
         .to_matchable(),
     );
 
-    // For T-SQL, we need to override the JoinClauseSegment to handle join hints properly
-    // T-SQL syntax: [join_type] [join_hint] JOIN
-    // Examples: INNER HASH JOIN, FULL OUTER MERGE JOIN, LOOP JOIN
-    dialect.replace_grammar(
-        "JoinClauseSegment",
-        NodeMatcher::new(SyntaxKind::JoinClause, |_| {
-            one_of(vec_of_erased![
-                Sequence::new(vec_of_erased![
-                    // Optional join type (INNER, LEFT, RIGHT, FULL, etc.)
-                    one_of(vec_of_erased![
-                        Ref::keyword("CROSS"),
-                        Ref::keyword("INNER"),
-                        Sequence::new(vec_of_erased![
-                            Ref::keyword("FULL"),
-                            Ref::keyword("OUTER").optional()
-                        ]),
-                        Sequence::new(vec_of_erased![
-                            Ref::keyword("LEFT"),
-                            Ref::keyword("OUTER").optional()
-                        ]),
-                        Sequence::new(vec_of_erased![
-                            Ref::keyword("RIGHT"), 
-                            Ref::keyword("OUTER").optional()
-                        ])
-                    ])
-                    .config(|this| this.optional()),
-                    // Optional join hint (HASH, MERGE, LOOP)
-                    one_of(vec_of_erased![
-                        StringParser::new("MERGE", SyntaxKind::Keyword),
-                        Ref::keyword("HASH"),
-                        Ref::keyword("LOOP")
-                    ])
-                    .config(|this| this.optional()),
-                    // Required JOIN keyword
-                    Ref::keyword("JOIN"),
-                    MetaSegment::indent(),
-                    Ref::new("FromExpressionElementSegment"),
-                    AnyNumberOf::new(vec_of_erased![Ref::new("NestedJoinGrammar")]),
-                    MetaSegment::dedent(),
-                    Sequence::new(vec_of_erased![
-                        Conditional::new(MetaSegment::indent()).indented_using_on(),
-                        one_of(vec_of_erased![
-                            Ref::new("JoinOnConditionSegment"),
-                            Sequence::new(vec_of_erased![
-                                Ref::keyword("USING"),
-                                MetaSegment::indent(),
-                                Bracketed::new(vec_of_erased![Delimited::new(vec_of_erased![
-                                    Ref::new("SingleIdentifierGrammar")
-                                ])])
-                                .config(|this| this.parse_mode = ParseMode::Greedy),
-                                MetaSegment::dedent(),
-                            ])
-                        ]),
-                        Conditional::new(MetaSegment::dedent()).indented_using_on(),
-                    ])
-                    .config(|this| this.optional()),
-                ]),
-                Sequence::new(vec_of_erased![
-                    Ref::new("NaturalJoinKeywordsGrammar").optional(),
-                    Ref::new("JoinKeywordsGrammar"),
-                    MetaSegment::indent(),
-                    Ref::new("FromExpressionElementSegment"),
-                    MetaSegment::dedent(),
-                ])
-            ])
-            .to_matchable()
-        })
+    // T-SQL Join Hints Grammar
+    // T-SQL supports join hints: HASH, MERGE, LOOP
+    // These can be combined with any join type
+    dialect.add([(
+        "TsqlJoinHintGrammar".into(),
+        one_of(vec_of_erased![
+            Ref::keyword("HASH"),
+            Ref::keyword("MERGE"), 
+            Ref::keyword("LOOP")
+        ])
         .to_matchable()
         .into(),
-    );
+    )]);
+
+    // Add T-SQL specific join type grammar with hints - flattened for robustness
+    // T-SQL syntax: [join_type] [join_hint] JOIN
+    // Examples: INNER HASH JOIN, FULL OUTER MERGE JOIN, LOOP JOIN
+    dialect.add([(
+        "TsqlJoinTypeKeywordsGrammar".into(),
+        Sequence::new(vec_of_erased![
+            // Optional join type - all combinations explicitly listed for robustness
+            one_of(vec_of_erased![
+                // Simple join types
+                Ref::keyword("INNER"),
+                Ref::keyword("LEFT"),
+                Ref::keyword("RIGHT"),
+                Ref::keyword("FULL"),
+                // Explicit OUTER combinations
+                Sequence::new(vec_of_erased![Ref::keyword("LEFT"), Ref::keyword("OUTER")]),
+                Sequence::new(vec_of_erased![Ref::keyword("RIGHT"), Ref::keyword("OUTER")]),
+                Sequence::new(vec_of_erased![Ref::keyword("FULL"), Ref::keyword("OUTER")])
+            ]).config(|this| this.optional()),
+            // Optional join hint (HASH, MERGE, LOOP)
+            Ref::new("TsqlJoinHintGrammar").optional()
+        ])
+        .to_matchable()
+        .into(),
+    )]);
+
+    // Use default ANSI JoinClauseSegment for now to avoid breaking MERGE statements
+    // TODO: Implement proper MERGE JOIN support without breaking MERGE statements
 
     // Keep the natural join override to disable it for T-SQL
     dialect.add([(

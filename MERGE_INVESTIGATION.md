@@ -358,3 +358,27 @@ These test fixtures need to be regenerated to reflect the current parser capabil
 1. Trace how dialect.expand() interacts with replace_grammar() calls
 2. Check if the test harness builds the dialect differently
 3. Verify the JoinClauseSegment pattern is complete and handles all cases
+
+## Summary of Current State
+
+### What Works
+✅ MERGE JOIN patterns parse correctly in the CLI linter
+✅ All join hint patterns (HASH, MERGE, LOOP) work with the linter
+✅ The JoinClauseSegment implementation correctly handles T-SQL syntax
+
+### What Doesn't Work
+❌ Test fixture regeneration still shows MERGE JOIN as unparsable
+❌ The dialect test harness seems to use a different parser initialization
+❌ 17 T-SQL test files still have unparsable sections
+
+### Root Cause (Hypothesis)
+The test harness parser stops parsing after the first table in the FROM clause and doesn't attempt to parse join clauses. This suggests:
+1. The FromExpressionSegment might be terminating early in the test environment
+2. There may be a difference in how the dialect is expanded between CLI and tests
+3. The parser context or configuration might differ between the two environments
+
+### Next Actions Required
+1. Deep dive into the test harness initialization code
+2. Compare Parser/Lexer initialization between CLI and test contexts
+3. Check if dialect.expand() is overwriting custom grammar rules
+4. Consider alternative approaches to fix the test regeneration issue

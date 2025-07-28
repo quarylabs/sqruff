@@ -1,1 +1,0 @@
-SELECT * FROM a FULL OUTER MERGE JOIN b ON a.id = b.id

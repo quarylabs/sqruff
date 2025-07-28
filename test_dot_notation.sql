@@ -1,1 +1,0 @@
-SELECT column_1 FROM .[#my_table];

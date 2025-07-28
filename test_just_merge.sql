@@ -1,1 +1,0 @@
-SELECT * FROM table1 MERGE JOIN table2 ON table1.id = table2.id;

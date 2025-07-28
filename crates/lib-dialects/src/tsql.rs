@@ -78,6 +78,7 @@ pub fn raw_dialect() -> Dialect {
         "SNAPSHOT",
         "VIEW_METADATA",
         "ROWS", // Allow 'AS rows' alias
+        "R", // Allow 'AS r' alias
         "SINGLE_BLOB",
         "SINGLE_CLOB",
         "SINGLE_NCLOB",
@@ -4116,6 +4117,51 @@ pub fn raw_dialect() -> Dialect {
         .to_matchable()
         .into(),
     )]);
+
+    // Override FromExpressionSegment to ensure T-SQL join patterns are properly recognized
+    // This is needed because T-SQL has different join syntax (e.g., FULL OUTER MERGE JOIN)
+    dialect.replace_grammar(
+        "FromExpressionSegment",
+        NodeMatcher::new(SyntaxKind::FromExpression, |_| {
+            optionally_bracketed(vec_of_erased![Sequence::new(vec_of_erased![
+                MetaSegment::indent(),
+                one_of(vec_of_erased![
+                    Ref::new("FromExpressionElementSegment"),
+                    Bracketed::new(vec_of_erased![Ref::new("FromExpressionSegment")])
+                ])
+                .config(|this| this.terminators = vec_of_erased![
+                    Sequence::new(vec_of_erased![Ref::keyword("ORDER"), Ref::keyword("BY")]),
+                    Sequence::new(vec_of_erased![Ref::keyword("GROUP"), Ref::keyword("BY")]),
+                ]),
+                MetaSegment::dedent(),
+                Conditional::new(MetaSegment::indent()).indented_joins(),
+                AnyNumberOf::new(vec_of_erased![
+                    // Use JoinLikeClauseGrammar which includes both JoinClauseSegment and ApplyClauseSegment
+                    Ref::new("JoinLikeClauseGrammar")
+                ])
+                .config(|this| {
+                    this.optional();
+                    this.terminators = vec_of_erased![
+                        Sequence::new(vec_of_erased![Ref::keyword("ORDER"), Ref::keyword("BY")]),
+                        Sequence::new(vec_of_erased![Ref::keyword("GROUP"), Ref::keyword("BY")]),
+                        Ref::keyword("LIMIT"),
+                        Ref::keyword("WHERE"),
+                        Ref::keyword("PIVOT"),
+                        Ref::keyword("UNPIVOT"),
+                        Ref::keyword("FOR"),
+                        Ref::keyword("OPTION"),
+                        Ref::new("SetOperatorSegment"),
+                        Ref::new("WithNoSchemaBindingClauseSegment"),
+                        Ref::new("DelimiterGrammar")
+                    ];
+                }),
+                Conditional::new(MetaSegment::dedent()).indented_joins(),
+                Ref::new("PostTableExpressionGrammar").optional()
+            ])])
+            .to_matchable()
+        })
+        .to_matchable(),
+    );
 
     // WITHIN GROUP support for ordered set aggregate functions
     dialect.add([(

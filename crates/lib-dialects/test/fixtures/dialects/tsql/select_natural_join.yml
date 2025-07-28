@@ -11,22 +11,23 @@ file:
       - from_clause:
         - keyword: FROM
         - from_expression:
-          - from_expression_element:
+          - from_expression:
             - from_expression_element:
-              - table_expression:
-                - table_reference:
-                  - object_reference:
-                    - naked_identifier: table1
-          - join_clause:
-            - join_clause:
-              - keyword: natural
-              - keyword: JOIN
               - from_expression_element:
+                - table_expression:
+                  - table_reference:
+                    - object_reference:
+                      - naked_identifier: table1
+            - join_clause:
+              - join_clause:
+                - keyword: natural
+                - keyword: JOIN
                 - from_expression_element:
-                  - table_expression:
-                    - table_reference:
-                      - object_reference:
-                        - naked_identifier: table2
+                  - from_expression_element:
+                    - table_expression:
+                      - table_reference:
+                        - object_reference:
+                          - naked_identifier: table2
   - statement_terminator: ;
   - statement:
     - select_statement:
@@ -39,21 +40,22 @@ file:
       - from_clause:
         - keyword: FROM
         - from_expression:
-          - from_expression_element:
+          - from_expression:
             - from_expression_element:
-              - table_expression:
-                - table_reference:
-                  - object_reference:
-                    - naked_identifier: table1
-          - join_clause:
-            - join_clause:
-              - keyword: natural
-              - keyword: INNER
-              - keyword: JOIN
               - from_expression_element:
+                - table_expression:
+                  - table_reference:
+                    - object_reference:
+                      - naked_identifier: table1
+            - join_clause:
+              - join_clause:
+                - keyword: natural
+                - keyword: INNER
+                - keyword: JOIN
                 - from_expression_element:
-                  - table_expression:
-                    - table_reference:
-                      - object_reference:
-                        - naked_identifier: table2
+                  - from_expression_element:
+                    - table_expression:
+                      - table_reference:
+                        - object_reference:
+                          - naked_identifier: table2
   - statement_terminator: ;

@@ -44,73 +44,75 @@ file:
           - from_clause:
             - keyword: FROM
             - from_expression:
-              - from_expression_element:
+              - from_expression:
                 - from_expression_element:
-                  - table_expression:
-                    - bracketed:
-                      - start_bracket: (
-                      - select_statement:
-                        - select_clause:
-                          - keyword: SELECT
-                          - select_clause_element:
-                            - column_reference:
-                              - naked_identifier: DaysToManufacture
-                          - comma: ','
-                          - select_clause_element:
-                            - column_reference:
-                              - naked_identifier: StandardCost
-                        - from_clause:
-                          - keyword: FROM
-                          - from_expression:
-                            - from_expression_element:
-                              - from_expression_element:
-                                - table_expression:
-                                  - table_reference:
-                                    - object_reference:
-                                      - naked_identifier: Production
-                                      - dot: .
-                                      - naked_identifier: Product
-                      - end_bracket: )
-                  - alias_expression:
-                    - keyword: AS
-                    - naked_identifier: SourceTable
-                  - pivot_expression:
-                    - keyword: PIVOT
-                    - bracketed:
-                      - start_bracket: (
-                      - function:
-                        - function:
-                          - function_name:
-                            - function_name_identifier: AVG
-                          - bracketed:
-                            - start_bracket: (
-                            - expression:
-                              - column_reference:
-                                - naked_identifier: StandardCost
-                            - end_bracket: )
-                      - keyword: FOR
-                      - column_reference:
-                        - naked_identifier: DaysToManufacture
-                      - keyword: IN
+                  - from_expression_element:
+                    - table_expression:
                       - bracketed:
                         - start_bracket: (
-                        - pivot_column_reference:
-                          - quoted_identifier: '[0]'
-                        - comma: ','
-                        - pivot_column_reference:
-                          - quoted_identifier: '[1]'
-                        - comma: ','
-                        - pivot_column_reference:
-                          - quoted_identifier: '[2]'
-                        - comma: ','
-                        - pivot_column_reference:
-                          - quoted_identifier: '[3]'
-                        - comma: ','
-                        - pivot_column_reference:
-                          - quoted_identifier: '[4]'
+                        - select_statement:
+                          - select_clause:
+                            - keyword: SELECT
+                            - select_clause_element:
+                              - column_reference:
+                                - naked_identifier: DaysToManufacture
+                            - comma: ','
+                            - select_clause_element:
+                              - column_reference:
+                                - naked_identifier: StandardCost
+                          - from_clause:
+                            - keyword: FROM
+                            - from_expression:
+                              - from_expression:
+                                - from_expression_element:
+                                  - from_expression_element:
+                                    - table_expression:
+                                      - table_reference:
+                                        - object_reference:
+                                          - naked_identifier: Production
+                                          - dot: .
+                                          - naked_identifier: Product
                         - end_bracket: )
-                      - end_bracket: )
                     - alias_expression:
                       - keyword: AS
-                      - naked_identifier: PivotTable
+                      - naked_identifier: SourceTable
+                    - pivot_expression:
+                      - keyword: PIVOT
+                      - bracketed:
+                        - start_bracket: (
+                        - function:
+                          - function:
+                            - function_name:
+                              - function_name_identifier: AVG
+                            - bracketed:
+                              - start_bracket: (
+                              - expression:
+                                - column_reference:
+                                  - naked_identifier: StandardCost
+                              - end_bracket: )
+                        - keyword: FOR
+                        - column_reference:
+                          - naked_identifier: DaysToManufacture
+                        - keyword: IN
+                        - bracketed:
+                          - start_bracket: (
+                          - pivot_column_reference:
+                            - quoted_identifier: '[0]'
+                          - comma: ','
+                          - pivot_column_reference:
+                            - quoted_identifier: '[1]'
+                          - comma: ','
+                          - pivot_column_reference:
+                            - quoted_identifier: '[2]'
+                          - comma: ','
+                          - pivot_column_reference:
+                            - quoted_identifier: '[3]'
+                          - comma: ','
+                          - pivot_column_reference:
+                            - quoted_identifier: '[4]'
+                          - end_bracket: )
+                        - end_bracket: )
+                      - alias_expression:
+                        - keyword: AS
+                        - naked_identifier: PivotTable
   - statement_terminator: ;

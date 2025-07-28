@@ -35,14 +35,15 @@ file:
             - from_clause:
               - keyword: FROM
               - from_expression:
-                - from_expression_element:
+                - from_expression:
                   - from_expression_element:
-                    - table_expression:
-                      - table_reference:
-                        - object_reference:
-                          - naked_identifier: Sales
-                          - dot: .
-                          - naked_identifier: SalesOrderHeader
+                    - from_expression_element:
+                      - table_expression:
+                        - table_reference:
+                          - object_reference:
+                            - naked_identifier: Sales
+                            - dot: .
+                            - naked_identifier: SalesOrderHeader
             - where_clause:
               - keyword: WHERE
               - expression:
@@ -78,10 +79,11 @@ file:
         - from_clause:
           - keyword: FROM
           - from_expression:
-            - from_expression_element:
+            - from_expression:
               - from_expression_element:
-                - table_expression:
-                  - table_reference:
-                    - object_reference:
-                      - naked_identifier: Sales_CTE
+                - from_expression_element:
+                  - table_expression:
+                    - table_reference:
+                      - object_reference:
+                        - naked_identifier: Sales_CTE
   - statement_terminator: ;

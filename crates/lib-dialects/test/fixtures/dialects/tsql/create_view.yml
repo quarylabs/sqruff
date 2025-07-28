@@ -44,14 +44,15 @@ file:
           - from_clause:
             - keyword: FROM
             - from_expression:
-              - from_expression_element:
+              - from_expression:
                 - from_expression_element:
-                  - table_expression:
-                    - table_reference:
-                      - object_reference:
-                        - naked_identifier: Sales
-                        - dot: .
-                        - naked_identifier: SalesOrderHeader
+                  - from_expression_element:
+                    - table_expression:
+                      - table_reference:
+                        - object_reference:
+                          - naked_identifier: Sales
+                          - dot: .
+                          - naked_identifier: SalesOrderHeader
           - where_clause:
             - keyword: WHERE
             - expression:
@@ -126,14 +127,15 @@ file:
           - from_clause:
             - keyword: FROM
             - from_expression:
-              - from_expression_element:
+              - from_expression:
                 - from_expression_element:
-                  - table_expression:
-                    - table_reference:
-                      - object_reference:
-                        - naked_identifier: Sales
-                        - dot: .
-                        - naked_identifier: SalesOrderHeader
+                  - from_expression_element:
+                    - table_expression:
+                      - table_reference:
+                        - object_reference:
+                          - naked_identifier: Sales
+                          - dot: .
+                          - naked_identifier: SalesOrderHeader
           - where_clause:
             - keyword: WHERE
             - expression:
@@ -209,14 +211,15 @@ file:
           - from_clause:
             - keyword: FROM
             - from_expression:
-              - from_expression_element:
+              - from_expression:
                 - from_expression_element:
-                  - table_expression:
-                    - table_reference:
-                      - object_reference:
-                        - naked_identifier: Purchasing
-                        - dot: .
-                        - naked_identifier: PurchaseOrderDetail
+                  - from_expression_element:
+                    - table_expression:
+                      - table_reference:
+                        - object_reference:
+                          - naked_identifier: Purchasing
+                          - dot: .
+                          - naked_identifier: PurchaseOrderDetail
           - where_clause:
             - keyword: WHERE
             - expression:
@@ -296,124 +299,125 @@ file:
           - from_clause:
             - keyword: FROM
             - from_expression:
-              - from_expression_element:
+              - from_expression:
                 - from_expression_element:
-                  - table_expression:
-                    - table_reference:
-                      - object_reference:
-                        - naked_identifier: HumanResources
-                        - dot: .
-                        - naked_identifier: Employee
-                  - alias_expression:
-                    - naked_identifier: e
-              - join_clause:
-                - join_clause:
-                  - keyword: INNER
-                  - keyword: JOIN
                   - from_expression_element:
-                    - from_expression_element:
-                      - table_expression:
-                        - table_reference:
-                          - object_reference:
-                            - naked_identifier: Person
-                            - dot: .
-                            - naked_identifier: Person
-                      - alias_expression:
-                        - naked_identifier: p
-                  - join_on_condition:
-                    - keyword: ON
-                    - expression:
-                      - column_reference:
-                        - naked_identifier: p
-                        - dot: .
-                        - naked_identifier: BusinessEntityID
-                      - comparison_operator:
-                        - raw_comparison_operator: =
-                      - column_reference:
-                        - naked_identifier: e
-                        - dot: .
-                        - naked_identifier: BusinessEntityID
-              - join_clause:
+                    - table_expression:
+                      - table_reference:
+                        - object_reference:
+                          - naked_identifier: HumanResources
+                          - dot: .
+                          - naked_identifier: Employee
+                    - alias_expression:
+                      - naked_identifier: e
                 - join_clause:
-                  - keyword: INNER
-                  - keyword: JOIN
-                  - from_expression_element:
+                  - join_clause:
+                    - keyword: INNER
+                    - keyword: JOIN
                     - from_expression_element:
-                      - table_expression:
-                        - table_reference:
-                          - object_reference:
-                            - naked_identifier: Person
-                            - dot: .
-                            - naked_identifier: BusinessEntityAddress
-                      - alias_expression:
-                        - naked_identifier: bea
-                  - join_on_condition:
-                    - keyword: ON
-                    - expression:
-                      - column_reference:
-                        - naked_identifier: bea
-                        - dot: .
-                        - naked_identifier: BusinessEntityID
-                      - comparison_operator:
-                        - raw_comparison_operator: =
-                      - column_reference:
-                        - naked_identifier: e
-                        - dot: .
-                        - naked_identifier: BusinessEntityID
-              - join_clause:
+                      - from_expression_element:
+                        - table_expression:
+                          - table_reference:
+                            - object_reference:
+                              - naked_identifier: Person
+                              - dot: .
+                              - naked_identifier: Person
+                        - alias_expression:
+                          - naked_identifier: p
+                    - join_on_condition:
+                      - keyword: ON
+                      - expression:
+                        - column_reference:
+                          - naked_identifier: p
+                          - dot: .
+                          - naked_identifier: BusinessEntityID
+                        - comparison_operator:
+                          - raw_comparison_operator: =
+                        - column_reference:
+                          - naked_identifier: e
+                          - dot: .
+                          - naked_identifier: BusinessEntityID
                 - join_clause:
-                  - keyword: INNER
-                  - keyword: JOIN
-                  - from_expression_element:
+                  - join_clause:
+                    - keyword: INNER
+                    - keyword: JOIN
                     - from_expression_element:
-                      - table_expression:
-                        - table_reference:
-                          - object_reference:
-                            - naked_identifier: Person
-                            - dot: .
-                            - naked_identifier: Address
-                      - alias_expression:
-                        - naked_identifier: a
-                  - join_on_condition:
-                    - keyword: ON
-                    - expression:
-                      - column_reference:
-                        - naked_identifier: a
-                        - dot: .
-                        - naked_identifier: AddressID
-                      - comparison_operator:
-                        - raw_comparison_operator: =
-                      - column_reference:
-                        - naked_identifier: bea
-                        - dot: .
-                        - naked_identifier: AddressID
-              - join_clause:
+                      - from_expression_element:
+                        - table_expression:
+                          - table_reference:
+                            - object_reference:
+                              - naked_identifier: Person
+                              - dot: .
+                              - naked_identifier: BusinessEntityAddress
+                        - alias_expression:
+                          - naked_identifier: bea
+                    - join_on_condition:
+                      - keyword: ON
+                      - expression:
+                        - column_reference:
+                          - naked_identifier: bea
+                          - dot: .
+                          - naked_identifier: BusinessEntityID
+                        - comparison_operator:
+                          - raw_comparison_operator: =
+                        - column_reference:
+                          - naked_identifier: e
+                          - dot: .
+                          - naked_identifier: BusinessEntityID
                 - join_clause:
-                  - keyword: INNER
-                  - keyword: JOIN
-                  - from_expression_element:
+                  - join_clause:
+                    - keyword: INNER
+                    - keyword: JOIN
                     - from_expression_element:
-                      - table_expression:
-                        - table_reference:
-                          - object_reference:
-                            - naked_identifier: Person
-                            - dot: .
-                            - naked_identifier: StateProvince
-                      - alias_expression:
-                        - naked_identifier: sp
-                  - join_on_condition:
-                    - keyword: ON
-                    - expression:
-                      - column_reference:
-                        - naked_identifier: sp
-                        - dot: .
-                        - naked_identifier: StateProvinceID
-                      - comparison_operator:
-                        - raw_comparison_operator: =
-                      - column_reference:
-                        - naked_identifier: a
-                        - dot: .
-                        - naked_identifier: StateProvinceID
+                      - from_expression_element:
+                        - table_expression:
+                          - table_reference:
+                            - object_reference:
+                              - naked_identifier: Person
+                              - dot: .
+                              - naked_identifier: Address
+                        - alias_expression:
+                          - naked_identifier: a
+                    - join_on_condition:
+                      - keyword: ON
+                      - expression:
+                        - column_reference:
+                          - naked_identifier: a
+                          - dot: .
+                          - naked_identifier: AddressID
+                        - comparison_operator:
+                          - raw_comparison_operator: =
+                        - column_reference:
+                          - naked_identifier: bea
+                          - dot: .
+                          - naked_identifier: AddressID
+                - join_clause:
+                  - join_clause:
+                    - keyword: INNER
+                    - keyword: JOIN
+                    - from_expression_element:
+                      - from_expression_element:
+                        - table_expression:
+                          - table_reference:
+                            - object_reference:
+                              - naked_identifier: Person
+                              - dot: .
+                              - naked_identifier: StateProvince
+                        - alias_expression:
+                          - naked_identifier: sp
+                    - join_on_condition:
+                      - keyword: ON
+                      - expression:
+                        - column_reference:
+                          - naked_identifier: sp
+                          - dot: .
+                          - naked_identifier: StateProvinceID
+                        - comparison_operator:
+                          - raw_comparison_operator: =
+                        - column_reference:
+                          - naked_identifier: a
+                          - dot: .
+                          - naked_identifier: StateProvinceID
           - where_clause:
             - keyword: WHERE
             - expression:
@@ -457,14 +461,15 @@ file:
               - from_clause:
                 - keyword: FROM
                 - from_expression:
-                  - from_expression_element:
+                  - from_expression:
                     - from_expression_element:
-                      - table_expression:
-                        - table_reference:
-                          - object_reference:
-                            - naked_identifier: dbo
-                            - dot: .
-                            - naked_identifier: SUPPLY1
+                      - from_expression_element:
+                        - table_expression:
+                          - table_reference:
+                            - object_reference:
+                              - naked_identifier: dbo
+                              - dot: .
+                              - naked_identifier: SUPPLY1
             - set_operator:
               - keyword: UNION
               - keyword: ALL
@@ -481,14 +486,15 @@ file:
               - from_clause:
                 - keyword: FROM
                 - from_expression:
-                  - from_expression_element:
+                  - from_expression:
                     - from_expression_element:
-                      - table_expression:
-                        - table_reference:
-                          - object_reference:
-                            - naked_identifier: dbo
-                            - dot: .
-                            - naked_identifier: SUPPLY2
+                      - from_expression_element:
+                        - table_expression:
+                          - table_reference:
+                            - object_reference:
+                              - naked_identifier: dbo
+                              - dot: .
+                              - naked_identifier: SUPPLY2
             - set_operator:
               - keyword: UNION
               - keyword: ALL
@@ -505,14 +511,15 @@ file:
               - from_clause:
                 - keyword: FROM
                 - from_expression:
-                  - from_expression_element:
+                  - from_expression:
                     - from_expression_element:
-                      - table_expression:
-                        - table_reference:
-                          - object_reference:
-                            - naked_identifier: dbo
-                            - dot: .
-                            - naked_identifier: SUPPLY3
+                      - from_expression_element:
+                        - table_expression:
+                          - table_reference:
+                            - object_reference:
+                              - naked_identifier: dbo
+                              - dot: .
+                              - naked_identifier: SUPPLY3
             - set_operator:
               - keyword: UNION
               - keyword: ALL
@@ -529,14 +536,15 @@ file:
               - from_clause:
                 - keyword: FROM
                 - from_expression:
-                  - from_expression_element:
+                  - from_expression:
                     - from_expression_element:
-                      - table_expression:
-                        - table_reference:
-                          - object_reference:
-                            - naked_identifier: dbo
-                            - dot: .
-                            - naked_identifier: SUPPLY4
+                      - from_expression_element:
+                        - table_expression:
+                          - table_reference:
+                            - object_reference:
+                              - naked_identifier: dbo
+                              - dot: .
+                              - naked_identifier: SUPPLY4
   - statement_terminator: ;
   - statement:
     - create_view_statement:
@@ -562,9 +570,10 @@ file:
           - from_clause:
             - keyword: from
             - from_expression:
-              - from_expression_element:
+              - from_expression:
                 - from_expression_element:
-                  - table_expression:
-                    - table_reference:
-                      - object_reference:
-                        - naked_identifier: A
+                  - from_expression_element:
+                    - table_expression:
+                      - table_reference:
+                        - object_reference:
+                          - naked_identifier: A

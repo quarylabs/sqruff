@@ -11,67 +11,19 @@ file:
       - from_clause:
         - keyword: FROM
         - from_expression:
-          - from_expression_element:
+          - from_expression:
             - from_expression_element:
-              - table_expression:
-                - table_reference:
-                  - object_reference:
-                    - naked_identifier: Employee
-              - with_data_clause:
-                - keyword: FOR
-                - keyword: SYSTEM_TIME
-                - keyword: BETWEEN
-                - quoted_literal: '''2021-01-01 00:00:00.0000000'''
-                - keyword: AND
-                - quoted_literal: '''2022-01-01 00:00:00.0000000'''
-  - statement_terminator: ;
-  - statement:
-    - select_statement:
-      - select_clause:
-        - keyword: SELECT
-        - select_clause_element:
-          - wildcard_expression:
-            - wildcard_identifier:
-              - star: '*'
-      - from_clause:
-        - keyword: FROM
-        - from_expression:
-          - from_expression_element:
-            - from_expression_element:
-              - table_expression:
-                - table_reference:
-                  - object_reference:
-                    - naked_identifier: Employee
-              - with_data_clause:
-                - keyword: FOR
-                - keyword: SYSTEM_TIME
-                - keyword: ALL
-  - statement_terminator: ;
-  - statement:
-    - select_statement:
-      - select_clause:
-        - keyword: SELECT
-        - select_clause_element:
-          - wildcard_expression:
-            - wildcard_identifier:
-              - star: '*'
-      - from_clause:
-        - keyword: FROM
-        - from_expression:
-          - from_expression_element:
-            - from_expression_element:
-              - table_expression:
-                - table_reference:
-                  - object_reference:
-                    - naked_identifier: Employee
-              - with_data_clause:
-                - keyword: FOR
-                - keyword: SYSTEM_TIME
-                - keyword: FROM
-                - expression:
+              - from_expression_element:
+                - table_expression:
+                  - table_reference:
+                    - object_reference:
+                      - naked_identifier: Employee
+                - with_data_clause:
+                  - keyword: FOR
+                  - keyword: SYSTEM_TIME
+                  - keyword: BETWEEN
                   - quoted_literal: '''2021-01-01 00:00:00.0000000'''
-                - keyword: TO
-                - expression:
+                  - keyword: AND
                   - quoted_literal: '''2022-01-01 00:00:00.0000000'''
   - statement_terminator: ;
   - statement:
@@ -85,19 +37,17 @@ file:
       - from_clause:
         - keyword: FROM
         - from_expression:
-          - from_expression_element:
+          - from_expression:
             - from_expression_element:
-              - table_expression:
-                - table_reference:
-                  - object_reference:
-                    - naked_identifier: Employee
-              - with_data_clause:
-                - keyword: FOR
-                - keyword: SYSTEM_TIME
-                - keyword: AS
-                - keyword: OF
-                - expression:
-                  - quoted_literal: '''2021-01-01 00:00:00.0000000'''
+              - from_expression_element:
+                - table_expression:
+                  - table_reference:
+                    - object_reference:
+                      - naked_identifier: Employee
+                - with_data_clause:
+                  - keyword: FOR
+                  - keyword: SYSTEM_TIME
+                  - keyword: ALL
   - statement_terminator: ;
   - statement:
     - select_statement:
@@ -110,25 +60,80 @@ file:
       - from_clause:
         - keyword: FROM
         - from_expression:
-          - from_expression_element:
+          - from_expression:
             - from_expression_element:
-              - table_expression:
-                - table_reference:
-                  - object_reference:
-                    - naked_identifier: Employee
-              - with_data_clause:
-                - keyword: FOR
-                - keyword: SYSTEM_TIME
-                - keyword: CONTAINED
-                - keyword: IN
-                - bracketed:
-                  - start_bracket: (
+              - from_expression_element:
+                - table_expression:
+                  - table_reference:
+                    - object_reference:
+                      - naked_identifier: Employee
+                - with_data_clause:
+                  - keyword: FOR
+                  - keyword: SYSTEM_TIME
+                  - keyword: FROM
                   - expression:
                     - quoted_literal: '''2021-01-01 00:00:00.0000000'''
-                  - comma: ','
+                  - keyword: TO
                   - expression:
                     - quoted_literal: '''2022-01-01 00:00:00.0000000'''
-                  - end_bracket: )
+  - statement_terminator: ;
+  - statement:
+    - select_statement:
+      - select_clause:
+        - keyword: SELECT
+        - select_clause_element:
+          - wildcard_expression:
+            - wildcard_identifier:
+              - star: '*'
+      - from_clause:
+        - keyword: FROM
+        - from_expression:
+          - from_expression:
+            - from_expression_element:
+              - from_expression_element:
+                - table_expression:
+                  - table_reference:
+                    - object_reference:
+                      - naked_identifier: Employee
+                - with_data_clause:
+                  - keyword: FOR
+                  - keyword: SYSTEM_TIME
+                  - keyword: AS
+                  - keyword: OF
+                  - expression:
+                    - quoted_literal: '''2021-01-01 00:00:00.0000000'''
+  - statement_terminator: ;
+  - statement:
+    - select_statement:
+      - select_clause:
+        - keyword: SELECT
+        - select_clause_element:
+          - wildcard_expression:
+            - wildcard_identifier:
+              - star: '*'
+      - from_clause:
+        - keyword: FROM
+        - from_expression:
+          - from_expression:
+            - from_expression_element:
+              - from_expression_element:
+                - table_expression:
+                  - table_reference:
+                    - object_reference:
+                      - naked_identifier: Employee
+                - with_data_clause:
+                  - keyword: FOR
+                  - keyword: SYSTEM_TIME
+                  - keyword: CONTAINED
+                  - keyword: IN
+                  - bracketed:
+                    - start_bracket: (
+                    - expression:
+                      - quoted_literal: '''2021-01-01 00:00:00.0000000'''
+                    - comma: ','
+                    - expression:
+                      - quoted_literal: '''2022-01-01 00:00:00.0000000'''
+                    - end_bracket: )
   - statement_terminator: ;
   - statement:
     - declare_statement:
@@ -163,23 +168,24 @@ file:
       - from_clause:
         - keyword: FROM
         - from_expression:
-          - from_expression_element:
+          - from_expression:
             - from_expression_element:
-              - table_expression:
-                - table_reference:
-                  - object_reference:
-                    - naked_identifier: Employee
-              - with_data_clause:
-                - keyword: FOR
-                - keyword: SYSTEM_TIME
-                - keyword: FROM
-                - expression:
-                  - parameterized_expression:
-                    - tsql_variable: '@StartTime'
-                - keyword: TO
-                - expression:
-                  - parameterized_expression:
-                    - tsql_variable: '@EndTime'
+              - from_expression_element:
+                - table_expression:
+                  - table_reference:
+                    - object_reference:
+                      - naked_identifier: Employee
+                - with_data_clause:
+                  - keyword: FOR
+                  - keyword: SYSTEM_TIME
+                  - keyword: FROM
+                  - expression:
+                    - parameterized_expression:
+                      - tsql_variable: '@StartTime'
+                  - keyword: TO
+                  - expression:
+                    - parameterized_expression:
+                      - tsql_variable: '@EndTime'
   - statement_terminator: ;
   - statement:
     - declare_statement:
@@ -203,20 +209,21 @@ file:
       - from_clause:
         - keyword: FROM
         - from_expression:
-          - from_expression_element:
+          - from_expression:
             - from_expression_element:
-              - table_expression:
-                - table_reference:
-                  - object_reference:
-                    - naked_identifier: Employee
-              - with_data_clause:
-                - keyword: FOR
-                - keyword: SYSTEM_TIME
-                - keyword: AS
-                - keyword: OF
-                - expression:
-                  - parameterized_expression:
-                    - tsql_variable: '@PointInTime'
+              - from_expression_element:
+                - table_expression:
+                  - table_reference:
+                    - object_reference:
+                      - naked_identifier: Employee
+                - with_data_clause:
+                  - keyword: FOR
+                  - keyword: SYSTEM_TIME
+                  - keyword: AS
+                  - keyword: OF
+                  - expression:
+                    - parameterized_expression:
+                      - tsql_variable: '@PointInTime'
   - statement_terminator: ;
   - statement:
     - create_table_statement:

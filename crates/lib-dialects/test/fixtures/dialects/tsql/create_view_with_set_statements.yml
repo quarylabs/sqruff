@@ -34,12 +34,13 @@ file:
           - from_clause:
             - keyword: FROM
             - from_expression:
-              - from_expression_element:
+              - from_expression:
                 - from_expression_element:
-                  - table_expression:
-                    - table_reference:
-                      - object_reference:
-                        - naked_identifier: BASE_CTE
+                  - from_expression_element:
+                    - table_expression:
+                      - table_reference:
+                        - object_reference:
+                          - naked_identifier: BASE_CTE
   - statement_terminator: ;
   - keyword: GO
   - statement:
@@ -68,12 +69,13 @@ file:
           - from_clause:
             - keyword: FROM
             - from_expression:
-              - from_expression_element:
+              - from_expression:
                 - from_expression_element:
-                  - table_expression:
-                    - table_reference:
-                      - object_reference:
-                        - naked_identifier: BASE_CTE
+                  - from_expression_element:
+                    - table_expression:
+                      - table_reference:
+                        - object_reference:
+                          - naked_identifier: BASE_CTE
           - orderby_clause:
             - keyword: ORDER
             - keyword: BY

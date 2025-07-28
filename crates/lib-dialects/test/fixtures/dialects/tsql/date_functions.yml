@@ -57,15 +57,16 @@ file:
       - from_clause:
         - keyword: from
         - from_expression:
-          - from_expression_element:
+          - from_expression:
             - from_expression_element:
-              - table_expression:
-                - table_reference:
-                  - object_reference:
-                    - naked_identifier: t
-              - alias_expression:
-                - keyword: as
-                - naked_identifier: t
+              - from_expression_element:
+                - table_expression:
+                  - table_reference:
+                    - object_reference:
+                      - naked_identifier: t
+                - alias_expression:
+                  - keyword: as
+                  - naked_identifier: t
       - where_clause:
         - keyword: where
         - expression:

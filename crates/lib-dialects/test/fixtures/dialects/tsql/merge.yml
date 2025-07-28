@@ -109,16 +109,17 @@ file:
             - from_clause:
               - keyword: from
               - from_expression:
-                - from_expression_element:
+                - from_expression:
                   - from_expression_element:
-                    - table_expression:
-                      - table_reference:
-                        - object_reference:
-                          - naked_identifier: DW
-                          - dot: .
-                          - naked_identifier: sch1
-                          - dot: .
-                          - naked_identifier: tbl1
+                    - from_expression_element:
+                      - table_expression:
+                        - table_reference:
+                          - object_reference:
+                            - naked_identifier: DW
+                            - dot: .
+                            - naked_identifier: sch1
+                            - dot: .
+                            - naked_identifier: tbl1
             - where_clause:
               - keyword: where
               - expression:
@@ -440,16 +441,17 @@ file:
                     - from_clause:
                       - keyword: from
                       - from_expression:
-                        - from_expression_element:
+                        - from_expression:
                           - from_expression_element:
-                            - table_expression:
-                              - table_reference:
-                                - object_reference:
-                                  - naked_identifier: LA
-                                  - dot: .
-                                  - naked_identifier: g
-                                  - dot: .
-                                  - naked_identifier: tbl3
+                            - from_expression_element:
+                              - table_expression:
+                                - table_reference:
+                                  - object_reference:
+                                    - naked_identifier: LA
+                                    - dot: .
+                                    - naked_identifier: g
+                                    - dot: .
+                                    - naked_identifier: tbl3
                   - end_bracket: )
               - keyword: then
               - merge_update_clause:

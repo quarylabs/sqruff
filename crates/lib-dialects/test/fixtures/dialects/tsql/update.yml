@@ -38,14 +38,15 @@ file:
                 - from_clause:
                   - keyword: from
                   - from_expression:
-                    - from_expression_element:
+                    - from_expression:
                       - from_expression_element:
-                        - table_expression:
-                          - table_reference:
-                            - object_reference:
-                              - naked_identifier: dbo
-                              - dot: .
-                              - naked_identifier: CX
+                        - from_expression_element:
+                          - table_expression:
+                            - table_reference:
+                              - object_reference:
+                                - naked_identifier: dbo
+                                - dot: .
+                                - naked_identifier: CX
               - end_bracket: )
         - keyword: OPTION
         - bracketed:
@@ -80,37 +81,38 @@ file:
         - from_clause:
           - keyword: from
           - from_expression:
-            - from_expression_element:
+            - from_expression:
               - from_expression_element:
-                - table_expression:
-                  - table_reference:
-                    - object_reference:
-                      - naked_identifier: table1
-                - alias_expression:
-                  - keyword: as
-                  - naked_identifier: tt
-            - join_clause:
-              - join_clause:
-                - keyword: join
                 - from_expression_element:
+                  - table_expression:
+                    - table_reference:
+                      - object_reference:
+                        - naked_identifier: table1
+                  - alias_expression:
+                    - keyword: as
+                    - naked_identifier: tt
+              - join_clause:
+                - join_clause:
+                  - keyword: join
                   - from_expression_element:
-                    - table_expression:
-                      - table_reference:
-                        - object_reference:
-                          - naked_identifier: src
-                - join_on_condition:
-                  - keyword: on
-                  - expression:
-                    - column_reference:
-                      - naked_identifier: tt
-                      - dot: .
-                      - naked_identifier: _id
-                    - comparison_operator:
-                      - raw_comparison_operator: =
-                    - column_reference:
-                      - naked_identifier: src
-                      - dot: .
-                      - naked_identifier: _id
+                    - from_expression_element:
+                      - table_expression:
+                        - table_reference:
+                          - object_reference:
+                            - naked_identifier: src
+                  - join_on_condition:
+                    - keyword: on
+                    - expression:
+                      - column_reference:
+                        - naked_identifier: tt
+                        - dot: .
+                        - naked_identifier: _id
+                      - comparison_operator:
+                        - raw_comparison_operator: =
+                      - column_reference:
+                        - naked_identifier: src
+                        - dot: .
+                        - naked_identifier: _id
         - statement_terminator: ;
 - unparsable:
   - word: UPDATE

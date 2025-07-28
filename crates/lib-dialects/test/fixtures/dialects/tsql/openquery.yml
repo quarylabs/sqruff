@@ -14,17 +14,18 @@ file:
       - from_clause:
         - keyword: FROM
         - from_expression:
-          - from_expression_element:
+          - from_expression:
             - from_expression_element:
-              - table_expression:
-                - table_reference:
-                  - keyword: OPENQUERY
-                  - bracketed:
-                    - start_bracket: (
-                    - quoted_identifier: '[testlinkedserver]'
-                    - comma: ','
-                    - quoted_literal: '''select * from table_name'''
-                    - end_bracket: )
+              - from_expression_element:
+                - table_expression:
+                  - table_reference:
+                    - keyword: OPENQUERY
+                    - bracketed:
+                      - start_bracket: (
+                      - quoted_identifier: '[testlinkedserver]'
+                      - comma: ','
+                      - quoted_literal: '''select * from table_name'''
+                      - end_bracket: )
   - statement_terminator: ;
   - statement:
     - update_statement:

@@ -17,18 +17,19 @@ file:
       - from_clause:
         - keyword: from
         - from_expression:
-          - from_expression_element:
+          - from_expression:
             - from_expression_element:
-              - table_expression:
-                - table_reference:
-                  - object_reference:
-                    - naked_identifier: mydb
-                    - dot: .
-                    - naked_identifier: myschema
-                    - dot: .
-                    - naked_identifier: customer
-              - alias_expression:
-                - naked_identifier: c
+              - from_expression_element:
+                - table_expression:
+                  - table_reference:
+                    - object_reference:
+                      - naked_identifier: mydb
+                      - dot: .
+                      - naked_identifier: myschema
+                      - dot: .
+                      - naked_identifier: customer
+                - alias_expression:
+                  - naked_identifier: c
       - where_clause:
         - keyword: where
         - expression:
@@ -56,18 +57,19 @@ file:
       - from_clause:
         - keyword: from
         - from_expression:
-          - from_expression_element:
+          - from_expression:
             - from_expression_element:
-              - table_expression:
-                - table_reference:
-                  - object_reference:
-                    - naked_identifier: mydb
-                    - dot: .
-                    - naked_identifier: myschema
-                    - dot: .
-                    - naked_identifier: customer
-              - alias_expression:
-                - naked_identifier: c
+              - from_expression_element:
+                - table_expression:
+                  - table_reference:
+                    - object_reference:
+                      - naked_identifier: mydb
+                      - dot: .
+                      - naked_identifier: myschema
+                      - dot: .
+                      - naked_identifier: customer
+                - alias_expression:
+                  - naked_identifier: c
       - where_clause:
         - keyword: where
         - expression:

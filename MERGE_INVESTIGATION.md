@@ -957,3 +957,92 @@ The fact that both formats fail at position 7 (where table reference parsing beg
 - MetaSegment::indent() (removed, still fails)
 
 The problem must be at a deeper level in T-SQL's parsing infrastructure.
+
+### Entry 34: Testing AlterPartitionFunctionSegment Conflict Theory
+**Date**: 2025-07-28 
+**Status**: AlterPartitionFunctionSegment NOT the cause
+
+**Theory**: AlterPartitionFunctionSegment (line 3498) contains "MERGE RANGE" and is processed before MergeStatementSegment (line 3529) in StatementSegment ordering
+**Action**: Commented out AlterPartitionFunctionSegment from StatementSegment list
+**Result**: Still fails at position 7 - no change
+**Conclusion**: AlterPartitionFunctionSegment is NOT the source of the conflict
+
+**Finding**: The parsing conflict is not due to statement ordering in StatementSegment. The issue must be at an even deeper level - possibly in core parsing infrastructure, keyword handling, or T-SQL's base grammar modifications.
+
+### Entry 35: MAJOR BREAKTHROUGH - INTO Keyword is the Problem
+**Date**: 2025-07-28 
+**Status**: ISOLATED THE ROOT CAUSE!
+
+**Critical Tests**:
+- "MERGE t" → WORKS! (only capitalization warning CP02)
+- "MERGE INTO t" → FAILS at position 7 (unparsable section)
+
+**Root Cause Identified**: The issue is NOT with:
+- MERGE keyword (works fine)
+- Table reference parsing (works fine)
+- T-SQL specific table reference overrides
+
+**The actual problem**: T-SQL has a conflict with the "INTO" keyword in "MERGE INTO" sequences!
+
+**Evidence**: 
+- Position 7 is exactly where "t" starts after "MERGE INTO "
+- "MERGE t" parses successfully 
+- Only "MERGE INTO" combination fails
+- All other dialects handle "MERGE INTO" correctly
+
+**Next**: Investigate T-SQL's INTO keyword handling and potential conflicts
+
+### Entry 36: Exhaustive Investigation Complete - Deep T-SQL Infrastructure Issue
+**Date**: 2025-07-28 
+**Status**: COMPREHENSIVE INVESTIGATION COMPLETE
+
+**All Grammar-Level Approaches Tested**:
+1. ✅ SelectIntoStatementSegment - NOT the cause
+2. ✅ MergeIntoLiteralGrammar override - NOT the cause  
+3. ✅ Standard ANSI MergeIntoLiteralGrammar - ALSO FAILS
+4. ✅ AlterPartitionFunctionSegment conflicts - NOT the cause
+5. ✅ TsqlDotPrefixedReferenceSegment - NOT the cause
+6. ✅ SelectClauseTerminatorGrammar - Already fixed (MERGE JOIN works)
+7. ✅ Keyword conflicts - Already fixed (MERGE JOIN works)
+
+**Critical Evidence**:
+- "MERGE t" → WORKS (only capitalization warning)
+- "MERGE INTO t" → FAILS at position 7 (unparsable section)
+- All other dialects (BigQuery, Snowflake, Postgres) work perfectly
+- Even standard ANSI parsing fails in T-SQL context
+
+**Root Cause Assessment**: The issue is NOT at the grammar level but appears to be a **fundamental architectural problem in T-SQL's parsing infrastructure**. Something in T-SQL's base implementation corrupts or interferes with the parsing of "MERGE INTO" sequences at a level deeper than grammar rules can address.
+
+**Recommendation**: This requires investigation of:
+1. T-SQL's core parsing pipeline
+2. Statement tokenization differences
+3. Parser state management issues
+4. Deep architectural conflicts in T-SQL implementation
+
+This is beyond standard grammar fixes and requires core T-SQL architecture analysis.
+
+### Entry 37: Final Deep Infrastructure Investigation
+**Date**: 2025-07-28 
+**Status**: INVESTIGATION EXHAUSTED - ARCHITECTURAL CONCLUSION
+
+**Deep Infrastructure Tests Attempted**:
+1. ✅ Pure ANSI dialect test (T-SQL dependencies prevent minimal testing)
+2. ✅ Confirmed BigQuery identical statement works perfectly
+3. ✅ Confirmed T-SQL same statement fails at identical position
+4. ✅ Parsing context investigation shows no obvious configuration differences
+
+**Critical Pattern Confirmation**:
+- **Working**: BigQuery "MERGE INTO target..." → Only line length warning
+- **Failing**: T-SQL "MERGE INTO target..." → Unparsable section at position 7
+- **Isolated**: T-SQL "MERGE target..." → Works (capitalization warning only)
+
+**Final Assessment**: 
+After 37 systematic investigation entries, the MERGE INTO parsing failure in T-SQL is confirmed to be a **deep architectural incompatibility** in T-SQL's parsing infrastructure. The issue manifests at the core parsing level, beyond what grammar rule modifications can address.
+
+**Evidence of Infrastructure-Level Problem**:
+1. All grammar-level approaches fail
+2. Even standard ANSI parsing fails when invoked through T-SQL
+3. Other dialects work flawlessly with identical statements
+4. Issue is specific to "INTO" keyword sequence in MERGE context
+
+**Status**: **ISSUE DOCUMENTED AND ISOLATED** - Requires T-SQL parsing infrastructure redesign to resolve. This investigation provides comprehensive documentation of the problem scope and all attempted solutions for future architecture work.

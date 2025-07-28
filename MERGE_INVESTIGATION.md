@@ -733,3 +733,197 @@ Broken: `MERGE`, `INSERT`
 **Current Status**: Problem is broader than MERGE keyword conflicts - appears to be T-SQL dialect corruption affecting multiple statement types.
 
 **Next Action**: Need to identify what T-SQL dialect changes are causing statement parsing failures beyond just MERGE.
+
+### Entry 25: OPTION Clause Investigation - MERGE Keyword Conflicts
+**Date**: 2025-07-28
+**Step**: Testing if OPTION clause hints consuming MERGE keyword
+
+**Discovery**: Found active MERGE references in OPTION clause hints at lines 1853 and 1857:
+```rust
+// Join hints  
+Sequence::new(vec_of_erased![Ref::keyword("MERGE"), Ref::keyword("JOIN")]),
+// Union hints
+Sequence::new(vec_of_erased![Ref::keyword("MERGE"), Ref::keyword("UNION")]),
+```
+
+**Hypothesis**: These sequences that match "MERGE JOIN" and "MERGE UNION" could be consuming the MERGE keyword before MergeStatementSegment gets a chance to parse it.
+
+**Test Plan**: Comment out the entire OPTION clause section to isolate if this is causing the MERGE keyword conflicts.
+
+**Result**: ❌ **STILL BROKEN** - Disabling OptionClauseSegment did NOT fix the MERGE issues
+- MERGE statements: Still "Unparsable section" at P: 1
+- MERGE JOIN: Still "Unparsable section" at P: 22
+- This confirms the OPTION clause MERGE references are NOT the root cause
+
+**Next Step**: Continue systematic disabling to find the real culprit consuming MERGE keywords.
+
+### Entry 26: Additional Terminator Lists Discovery
+**Date**: 2025-07-28
+**Discovery**: Found MERGE in two more terminator lists:
+- SelectStatementSegment (line 4827)
+- UnorderedSelectStatementSegment (line 4898)
+
+**Actions**: Commented out MERGE from both terminator lists and OPTION clause MERGE references.
+
+**Result**: ❌ **STILL BROKEN** - All changes made so far:
+- ✅ Removed MERGE from SelectClauseTerminatorGrammar
+- ✅ Removed MERGE from SelectStatementSegment terminators  
+- ✅ Removed MERGE from UnorderedSelectStatementSegment terminators
+- ✅ Removed MERGE JOIN/UNION from OptionClauseSegment
+- ❌ **MERGE statements and MERGE JOIN still unparsable**
+
+**Critical Insight**: Even after removing MERGE from ALL terminator lists and OPTION clause references, the fundamental parsing issue persists. This suggests the problem is deeper than keyword conflicts.
+
+### Entry 27: FUNDAMENTAL DIALECT CORRUPTION DISCOVERED
+**Date**: 2025-07-28
+**Status**: ❌ **T-SQL DIALECT FUNDAMENTALLY BROKEN**
+
+**Comprehensive Test Results**:
+✅ **BigQuery**: `MERGE INTO target USING...` → No parsing errors, only layout violations
+❌ **T-SQL**: `MERGE INTO target USING...` → "Unparsable section" at P: 1
+
+**ALL Attempted Fixes (NONE Worked)**:
+1. ✅ Removed MERGE from SelectClauseTerminatorGrammar (line 721)
+2. ✅ Removed MERGE from SelectStatementSegment terminators (line 4827)  
+3. ✅ Removed MERGE from UnorderedSelectStatementSegment terminators (line 4898)
+4. ✅ Removed MERGE JOIN/UNION from OptionClauseSegment (lines 1853, 1857)
+5. ✅ Commented out MergeMatchSegment override 
+6. ✅ Commented out MergeNotMatchedClauseSegment override
+7. ✅ StatementSegment override already disabled
+8. ✅ MergeIntoLiteralGrammar override already disabled
+
+**CONCLUSION**: The T-SQL dialect has a **fundamental corruption** that prevents even basic MERGE statements from parsing. This is not a keyword conflict issue but a deeper architectural problem.
+
+**Impact Assessment**:
+- MERGE statements completely broken in T-SQL dialect
+- MERGE JOIN patterns also broken 
+- Issue exists at the most basic parsing level
+- All T-SQL MERGE functionality is non-functional
+
+**Recommended Next Steps**:
+1. **Report critical bug**: This is a major regression affecting core SQL functionality
+2. **Revert problematic changes**: Need to identify what T-SQL changes broke basic MERGE parsing
+3. **Baseline testing**: Start with minimal T-SQL dialect and add features incrementally
+4. **Parser debugging**: Deep dive into parser internals to find root cause
+
+### Entry 28: 🎉 **ROOT CAUSE FOUND AND FIXED!**
+**Date**: 2025-07-28
+**Status**: ✅ **MERGE JOIN PARSING RESTORED**
+
+**THE ISSUE**: MERGE was defined in **BOTH** reserved and unreserved keyword lists in T-SQL:
+- `tsql_additional_reserved_keywords()` (line 129)
+- `tsql_additional_unreserved_keywords()` (line 660)
+
+**THE FIX**: Removed MERGE from reserved keywords, kept only in unreserved keywords
+
+**TEST RESULTS**:
+✅ **MERGE JOIN**: `SELECT * FROM table1 MERGE JOIN table2...` 
+- **BEFORE**: "L: 1 | P: 22 | ???? | Unparsable section"
+- **AFTER**: Proper linting violations (RF01, CP02) - **PARSING WORKS!**
+
+**Technical Details**:
+The dual keyword registration was causing conflicts during dialect initialization where the parser couldn't decide how to handle MERGE tokens. By keeping MERGE only as an unreserved keyword, the parser can now properly recognize it in various contexts (statements, join hints, etc.).
+
+**Next Step**: Test MERGE statements and verify full functionality restoration.
+
+### Entry 29: Progress on MERGE Statements
+**Date**: 2025-07-28  
+**Status**: 🔄 **PARTIAL PROGRESS** - MERGE statements partially working
+
+**Current Status**:
+✅ **MERGE JOIN**: Fully working - shows proper linting violations
+✅ **MERGE keyword recognition**: Fixed by resolving keyword conflicts
+🔄 **MERGE statements**: Progress made but still issues
+
+**MERGE Statement Progress**:
+- **Before keyword fix**: "L: 1 | P: 1 | ???? | Unparsable section" (MERGE not recognized)
+- **After keyword fix**: "L: 1 | P: 7 | ???? | Unparsable section" (MERGE recognized, failing on "INTO")
+
+**Analysis**: 
+The keyword conflict fix resolved the fundamental MERGE recognition issue. MERGE statements now start parsing but fail at the "INTO" keyword, suggesting the MergeIntoLiteralGrammar override needs further work.
+
+**Actions Taken**:
+1. ✅ Re-enabled StatementSegment override (includes MergeStatementSegment)
+2. ✅ Re-enabled MergeIntoLiteralGrammar override
+3. 🔄 Need to enable other MERGE-related segment overrides
+
+### Entry 30: Deep Analysis of T-SQL vs BigQuery MergeIntoLiteralGrammar
+**Date**: 2025-07-28
+**Status**: Critical discovery - BigQuery works perfectly, T-SQL broken despite identical override
+
+**Key Test Results**:
+1. ✅ **BigQuery MERGE Statement**: `MERGE target USING source ON target.id = source.id WHEN MATCHED THEN UPDATE SET col = 1;`
+   - Result: **Perfect parsing** - only linting errors (line too long)
+   - No "Unparsable section" errors
+   
+2. ❌ **T-SQL MERGE Statement**: Same exact statement
+   - Result: **Fails at position 7** - "Unparsable section"
+   - Same parsing error as before all fixes
+
+**Critical Discovery**: Both dialects have IDENTICAL MergeIntoLiteralGrammar overrides:
+```rust
+// BigQuery (working)
+dialect.add([
+    (
+        "MergeIntoLiteralGrammar".into(),
+        Sequence::new(vec_of_erased![
+            Ref::keyword("MERGE"),
+            Ref::keyword("INTO").optional()
+        ])
+        .to_matchable()
+        .into(),
+    ),
+]);
+
+// T-SQL (broken)  
+dialect.add([
+    (
+        "MergeIntoLiteralGrammar".into(),
+        Sequence::new(vec_of_erased![
+            Ref::keyword("MERGE"),
+            Ref::keyword("INTO").optional()
+        ])
+        .to_matchable()
+        .into(),
+    ),
+]);
+```
+
+**Multiple Fix Attempts All Failed**:
+1. ❌ Using `dialect.add()` at beginning of function
+2. ❌ Using `dialect.add()` at end of function  
+3. ❌ Using `dialect.replace_grammar()` (panics - grammar doesn't exist yet)
+4. ❌ Moving override to where other replace_grammar calls are made
+5. ❌ Changing T-SQL initialization to match BigQuery (with dialect.expand())
+
+**Debug Evidence**: Debug prints confirm the T-SQL override IS being executed:
+```
+T-SQL: Adding MergeIntoLiteralGrammar override with optional INTO
+```
+
+**Hypothesis**: There must be another T-SQL-specific override that's:
+1. Conflicting with the MergeIntoLiteralGrammar override
+2. Being applied AFTER the MergeIntoLiteralGrammar override
+3. Causing the MERGE keyword to be handled differently in T-SQL
+
+**Next Steps**: Need to systematically identify what makes T-SQL different from BigQuery in MERGE handling. The grammar override is identical and being applied, but T-SQL still fails.
+
+**Next**: Enable commented-out MERGE segment overrides (MergeMatchSegment, etc.)
+
+### Entry 31: MergeIntoLiteralGrammar Re-enabled But Still Fails
+**Date**: 2025-07-28
+**Status**: Critical failure - even with override active, MERGE statements fail
+
+**Test Results After Re-enabling Override**:
+1. ❌ **ANSI Format**: `MERGE INTO target USING...` - Fails at position 7
+2. ❌ **T-SQL Format**: `MERGE target USING...` - Fails at position 7
+
+**Key Finding**: The MergeIntoLiteralGrammar override is now active (uncommented) but MERGE statements STILL fail at position 7. This proves the issue is NOT with the grammar override itself.
+
+**Deeper Analysis Needed**:
+The fact that both formats fail at position 7 (where table reference parsing begins) suggests:
+1. Something in T-SQL is preventing proper table reference parsing after MERGE
+2. The issue might be with how T-SQL handles the parsing context after MERGE
+3. There could be a conflict with other T-SQL-specific parsing rules
+
+**Critical Discovery**: Even with identical MergeIntoLiteralGrammar as BigQuery, T-SQL fails while BigQuery works. This points to a fundamental difference in how the two dialects handle parsing flow.

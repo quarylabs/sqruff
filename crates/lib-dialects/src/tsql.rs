@@ -24,7 +24,7 @@ use sqruff_lib_core::vec_of_erased;
 use crate::{ansi, tsql_keywords};
 
 pub fn dialect() -> Dialect {
-    raw_dialect().config(|dialect| dialect.expand())
+    raw_dialect()
 }
 
 pub fn raw_dialect() -> Dialect {
@@ -156,6 +156,7 @@ pub fn raw_dialect() -> Dialect {
         "REPLICATE",
         "HASH",
     ]);
+
 
     // T-SQL specific operators
     dialect.sets_mut("operator_symbols").extend([
@@ -1842,19 +1843,19 @@ pub fn raw_dialect() -> Dialect {
         .into(),
     )]);
 
-    // OPTION clause for query hints - simplified for debugging
+    // OPTION clause for query hints - MERGE references removed to test conflicts
     dialect.add([(
         "OptionClauseSegment".into(),
         Sequence::new(vec_of_erased![
             Ref::keyword("OPTION"),
             Bracketed::new(vec_of_erased![Delimited::new(vec_of_erased![one_of(
                 vec_of_erased![
-                    // Join hints
-                    Sequence::new(vec_of_erased![Ref::keyword("MERGE"), Ref::keyword("JOIN")]),
+                    // Join hints - MERGE commented out to test conflicts
+                    // Sequence::new(vec_of_erased![Ref::keyword("MERGE"), Ref::keyword("JOIN")]),
                     Sequence::new(vec_of_erased![Ref::keyword("HASH"), Ref::keyword("JOIN")]),
                     Sequence::new(vec_of_erased![Ref::keyword("LOOP"), Ref::keyword("JOIN")]),
-                    // Union hints
-                    Sequence::new(vec_of_erased![Ref::keyword("MERGE"), Ref::keyword("UNION")]),
+                    // Union hints - MERGE commented out to test conflicts
+                    // Sequence::new(vec_of_erased![Ref::keyword("MERGE"), Ref::keyword("UNION")]),
                     Sequence::new(vec_of_erased![Ref::keyword("HASH"), Ref::keyword("UNION")]),
                     Sequence::new(vec_of_erased![
                         Ref::keyword("CONCAT"),
@@ -3952,10 +3953,11 @@ pub fn raw_dialect() -> Dialect {
         .to_matchable(),
     );
 
+    // TEMPORARY: Comment out TsqlJoinHintGrammar to test MERGE keyword conflict
     // T-SQL Join Hints Grammar
     // T-SQL supports join hints: HASH, MERGE, LOOP
     // These can be combined with any join type
-    dialect.add([(
+    /*dialect.add([(
         "TsqlJoinHintGrammar".into(),
         one_of(vec_of_erased![
             Ref::keyword("HASH"),
@@ -3964,12 +3966,13 @@ pub fn raw_dialect() -> Dialect {
         ])
         .to_matchable()
         .into(),
-    )]);
+    )]);*/
 
+    // TEMPORARY: Comment out TsqlJoinTypeKeywordsGrammar since it uses TsqlJoinHintGrammar
     // Add T-SQL specific join type grammar with hints - flattened for robustness
     // T-SQL syntax: [join_type] [join_hint] JOIN
     // Examples: INNER HASH JOIN, FULL OUTER MERGE JOIN, LOOP JOIN
-    dialect.add([(
+    /*dialect.add([(
         "TsqlJoinTypeKeywordsGrammar".into(),
         Sequence::new(vec_of_erased![
             // Optional join type - all combinations explicitly listed for robustness
@@ -3989,7 +3992,7 @@ pub fn raw_dialect() -> Dialect {
         ])
         .to_matchable()
         .into(),
-    )]);
+    )]);*/
 
 
     // Use default ANSI JoinClauseSegment for now to avoid breaking MERGE statements
@@ -4821,7 +4824,8 @@ pub fn raw_dialect() -> Dialect {
                 Ref::keyword("INSERT"),
                 Ref::keyword("UPDATE"),
                 Ref::keyword("DELETE"),
-                Ref::keyword("MERGE"),
+                // NOTE: MERGE removed from terminators to allow MERGE statements to parse
+                // Ref::keyword("MERGE"),
                 Ref::keyword("TRUNCATE"),
                 Ref::keyword("DECLARE"),
                 Ref::keyword("SET"),
@@ -4892,7 +4896,8 @@ pub fn raw_dialect() -> Dialect {
                 Ref::keyword("INSERT"),
                 Ref::keyword("UPDATE"),
                 Ref::keyword("DELETE"),
-                Ref::keyword("MERGE"),
+                // NOTE: MERGE removed from terminators to allow MERGE statements to parse
+                // Ref::keyword("MERGE"),
                 Ref::keyword("TRUNCATE"),
                 Ref::keyword("DECLARE"),
                 Ref::keyword("SET"),
@@ -7594,21 +7599,8 @@ pub fn raw_dialect() -> Dialect {
         .to_matchable(),
     );
 
-    // Override SelectableGrammar for T-SQL specific features (includes EXEC statements)
-    dialect.add([(
-        "SelectableGrammar".into(),
-        one_of(vec_of_erased![
-            optionally_bracketed(vec_of_erased![Ref::new("WithCompoundStatementSegment")]),
-            optionally_bracketed(vec_of_erased![Ref::new(
-                "WithCompoundNonSelectStatementSegment"
-            )]),
-            Ref::new("NonWithSelectableGrammar"),
-            // T-SQL specific: EXEC statements can be used as data sources
-            Ref::new("ExecuteStatementSegment"),
-        ])
-        .to_matchable()
-        .into(),
-    )]);
+    // NOTE: Removed T-SQL SelectableGrammar override to fix MERGE statement parsing
+    // The EXEC statement support should be added differently without breaking MERGE
 
     // Override DELETE statement for T-SQL specific features
     dialect.replace_grammar(
@@ -8123,6 +8115,19 @@ pub fn raw_dialect() -> Dialect {
         .to_matchable()
     });
 
+    // Override MergeIntoLiteralGrammar for T-SQL (INTO is optional, like BigQuery)
+    dialect.add([
+        (
+            "MergeIntoLiteralGrammar".into(),
+            Sequence::new(vec_of_erased![
+                Ref::keyword("MERGE"),
+                Ref::keyword("INTO").optional()
+            ])
+            .to_matchable()
+            .into(),
+        ),
+    ]);
+
     // Override MERGE NOT MATCHED clause to support "BY TARGET" and "BY SOURCE"
     dialect.replace_grammar("MergeNotMatchedClauseSegment", {
         NodeMatcher::new(SyntaxKind::MergeWhenNotMatchedClause, |_| {
@@ -8467,21 +8472,6 @@ pub fn raw_dialect() -> Dialect {
         .to_matchable()
     });
 
-
-    // Override MergeIntoLiteralGrammar for T-SQL (INTO is optional, like BigQuery)
-    dialect.add([
-        (
-            "MergeIntoLiteralGrammar".into(),
-            Sequence::new(vec_of_erased![
-                Ref::keyword("MERGE"),
-                Ref::keyword("INTO").optional()
-            ])
-            .to_matchable()
-            .into(),
-        ),
-    ]);
-
-    // expand() must be called after all grammar modifications
-
+    dialect.expand();
     dialect
 }

@@ -126,7 +126,8 @@ pub(crate) fn tsql_additional_reserved_keywords() -> AHashSet<&'static str> {
         "LIKE",
         "LINENO",
         "LOAD",
-        "MERGE",
+        // NOTE: MERGE removed from reserved to avoid conflict with unreserved keywords
+        // "MERGE",
         "NATIONAL",
         "NOCHECK",
         "NONCLUSTERED",

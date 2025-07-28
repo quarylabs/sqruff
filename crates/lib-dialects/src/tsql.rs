@@ -7463,6 +7463,41 @@ pub fn raw_dialect() -> Dialect {
         ),
     ]);
 
+    // Override MergeStatementSegment for T-SQL specific features (OUTPUT clause support)
+    dialect.replace_grammar(
+        "MergeStatementSegment",
+        NodeMatcher::new(SyntaxKind::MergeStatement, |_| {
+            Sequence::new(vec_of_erased![
+                Ref::new("MergeIntoLiteralGrammar"),
+                MetaSegment::indent(),
+                one_of(vec_of_erased![
+                    Ref::new("TableReferenceSegment"),
+                    Ref::new("AliasedTableReferenceGrammar"),
+                ]),
+                MetaSegment::dedent(),
+                Ref::keyword("USING"),
+                MetaSegment::indent(),
+                one_of(vec_of_erased![
+                    Ref::new("TableReferenceSegment"),
+                    Ref::new("AliasedTableReferenceGrammar"),
+                    Sequence::new(vec_of_erased![
+                        Bracketed::new(vec_of_erased![Ref::new("SelectableGrammar")]),
+                        Ref::new("AliasExpressionSegment").optional(),
+                    ])
+                ]),
+                MetaSegment::dedent(),
+                Conditional::new(MetaSegment::indent()).indented_using_on(),
+                Ref::new("JoinOnConditionSegment"),
+                Conditional::new(MetaSegment::dedent()).indented_using_on(),
+                Ref::new("MergeMatchSegment"),
+                // T-SQL specific: OUTPUT clause support
+                Ref::new("OutputClauseSegment").optional(),
+            ])
+            .to_matchable()
+        })
+        .to_matchable(),
+    );
+
     // Override UPDATE statement for T-SQL specific features
     dialect.replace_grammar(
         "UpdateStatementSegment",
@@ -8115,16 +8150,41 @@ pub fn raw_dialect() -> Dialect {
         .to_matchable()
     });
 
-    // REMOVE T-SQL MergeIntoLiteralGrammar override to test ANSI behavior
-    /*dialect.add([
+    // T-SQL MergeIntoLiteralGrammar override - INTO is optional in T-SQL
+    dialect.add([
         (
             "MergeIntoLiteralGrammar".into(),
             Ref::keyword("MERGE").to_matchable().into(),
         ),
-    ]);*/
+    ]);
 
-    // NOTE: Attempted T-SQL-specific MergeStatementSegment override but it still fails at position 7
-    // The issue appears to be deeper than grammar-level fixes can address
+    // T-SQL AliasedTableReferenceGrammar override - support inline aliases without indentation
+    // This fixes MERGE statements like "MERGE table alias" where alias is on same line
+    dialect.add([
+        (
+            "AliasedTableReferenceGrammar".into(),
+            Sequence::new(vec_of_erased![
+                Ref::new("TableReferenceSegment"),
+                // T-SQL specific inline alias support (no indent requirement)
+                NodeMatcher::new(SyntaxKind::AliasExpression, |_| {
+                    Sequence::new(vec_of_erased![
+                        Ref::keyword("AS").optional(),
+                        one_of(vec_of_erased![
+                            Sequence::new(vec_of_erased![
+                                Ref::new("SingleIdentifierGrammar"),
+                                Bracketed::new(vec_of_erased![Ref::new("SingleIdentifierListSegment")])
+                                    .config(|this| this.optional())
+                            ]),
+                            Ref::new("SingleQuotedIdentifierSegment")
+                        ]),
+                    ])
+                    .to_matchable()
+                }),
+            ])
+            .to_matchable()
+            .into(),
+        ),
+    ]);
 
     // Override MERGE NOT MATCHED clause to support "BY TARGET" and "BY SOURCE"
     dialect.replace_grammar("MergeNotMatchedClauseSegment", {

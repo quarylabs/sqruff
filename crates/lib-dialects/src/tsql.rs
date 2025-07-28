@@ -3951,26 +3951,31 @@ pub fn raw_dialect() -> Dialect {
     );
 
     // Override JoinClauseSegment to include T-SQL join hints
-    // Define T-SQL join type components as separate grammars for composability
+    // Following SQLFluff's approach: join hints are part of join type keywords
     dialect.add([
         (
-            "TsqlJoinTypeSegment".into(),
-            one_of(vec_of_erased![
-                Ref::keyword("INNER"),
-                Ref::keyword("FULL"),
-                Ref::keyword("LEFT"),
-                Ref::keyword("RIGHT"),
-                Ref::keyword("CROSS")
-            ])
-            .to_matchable()
-            .into(),
-        ),
-        (
-            "TsqlJoinHintSegment".into(),
-            one_of(vec_of_erased![
-                Ref::keyword("HASH"),
-                Ref::keyword("MERGE"),
-                Ref::keyword("LOOP")
+            "TsqlJoinTypeKeywordsGrammar".into(),
+            Sequence::new(vec_of_erased![
+                // Join type: INNER or FULL/LEFT/RIGHT [OUTER]
+                one_of(vec_of_erased![
+                    Ref::keyword("INNER"),
+                    Sequence::new(vec_of_erased![
+                        one_of(vec_of_erased![
+                            Ref::keyword("FULL"),
+                            Ref::keyword("LEFT"),
+                            Ref::keyword("RIGHT")
+                        ]),
+                        Ref::keyword("OUTER").optional()
+                    ])
+                ])
+                .config(|this| this.optional()),
+                // Join hint: LOOP/HASH/MERGE (optional)
+                one_of(vec_of_erased![
+                    Ref::keyword("LOOP"),
+                    Ref::keyword("HASH"),
+                    Ref::keyword("MERGE")
+                ])
+                .config(|this| this.optional())
             ])
             .to_matchable()
             .into(),
@@ -3981,10 +3986,9 @@ pub fn raw_dialect() -> Dialect {
         "JoinClauseSegment",
         NodeMatcher::new(SyntaxKind::JoinClause, |_| {
             Sequence::new(vec_of_erased![
-                // T-SQL compositional join grammar similar to SQLFluff
-                // Order matters: more specific patterns first
+                // T-SQL join grammar - handle all combinations explicitly
                 one_of(vec_of_erased![
-                    // APPLY operations (CROSS APPLY, OUTER APPLY) - must come first to avoid CROSS conflict
+                    // APPLY operations (CROSS APPLY, OUTER APPLY)
                     Sequence::new(vec_of_erased![
                         one_of(vec_of_erased![
                             Ref::keyword("CROSS"),
@@ -3992,40 +3996,83 @@ pub fn raw_dialect() -> Dialect {
                         ]),
                         Ref::keyword("APPLY")
                     ]),
-                    // NATURAL [INNER|FULL|LEFT|RIGHT] [OUTER] JOIN
+                    // NATURAL joins
                     Sequence::new(vec_of_erased![
                         Ref::keyword("NATURAL"),
-                        Ref::new("TsqlJoinTypeSegment").optional(),
+                        one_of(vec_of_erased![
+                            Ref::keyword("INNER"),
+                            Ref::keyword("FULL"),
+                            Ref::keyword("LEFT"),
+                            Ref::keyword("RIGHT")
+                        ]).config(|this| this.optional()),
                         Ref::keyword("OUTER").optional(),
                         Ref::keyword("JOIN")
                     ]),
-                    // JOIN with type, OUTER, and hint: FULL OUTER MERGE JOIN
+                    // CROSS JOIN (special case)
                     Sequence::new(vec_of_erased![
-                        Ref::new("TsqlJoinTypeSegment"),
+                        Ref::keyword("CROSS"),
+                        Ref::keyword("JOIN")
+                    ]),
+                    // Explicit patterns for join hints to ensure MERGE is recognized
+                    // Type + OUTER + hint + JOIN (e.g., FULL OUTER MERGE JOIN)
+                    Sequence::new(vec_of_erased![
+                        one_of(vec_of_erased![
+                            Ref::keyword("INNER"),
+                            Ref::keyword("FULL"),
+                            Ref::keyword("LEFT"),
+                            Ref::keyword("RIGHT")
+                        ]),
                         Ref::keyword("OUTER"),
-                        Ref::new("TsqlJoinHintSegment"),
+                        one_of(vec_of_erased![
+                            Ref::keyword("HASH"),
+                            Ref::keyword("MERGE"),
+                            Ref::keyword("LOOP")
+                        ]),
                         Ref::keyword("JOIN")
                     ]),
-                    // JOIN with type and hint (no OUTER): FULL MERGE JOIN  
+                    // Type + hint + JOIN (e.g., INNER HASH JOIN)
                     Sequence::new(vec_of_erased![
-                        Ref::new("TsqlJoinTypeSegment"),
-                        Ref::new("TsqlJoinHintSegment"),
+                        one_of(vec_of_erased![
+                            Ref::keyword("INNER"),
+                            Ref::keyword("FULL"),
+                            Ref::keyword("LEFT"),
+                            Ref::keyword("RIGHT")
+                        ]),
+                        one_of(vec_of_erased![
+                            Ref::keyword("HASH"),
+                            Ref::keyword("MERGE"),
+                            Ref::keyword("LOOP")
+                        ]),
                         Ref::keyword("JOIN")
                     ]),
-                    // JOIN with type and OUTER (no hint): FULL OUTER JOIN
+                    // Just hint + JOIN (e.g., HASH JOIN, MERGE JOIN)
                     Sequence::new(vec_of_erased![
-                        Ref::new("TsqlJoinTypeSegment"),
+                        one_of(vec_of_erased![
+                            Ref::keyword("HASH"),
+                            Ref::keyword("MERGE"),
+                            Ref::keyword("LOOP")
+                        ]),
+                        Ref::keyword("JOIN")
+                    ]),
+                    // Type + OUTER + JOIN (e.g., FULL OUTER JOIN)
+                    Sequence::new(vec_of_erased![
+                        one_of(vec_of_erased![
+                            Ref::keyword("INNER"),
+                            Ref::keyword("FULL"),
+                            Ref::keyword("LEFT"),
+                            Ref::keyword("RIGHT")
+                        ]),
                         Ref::keyword("OUTER"),
                         Ref::keyword("JOIN")
                     ]),
-                    // JOIN with just type: FULL JOIN, INNER JOIN
+                    // Type + JOIN (e.g., INNER JOIN, LEFT JOIN)
                     Sequence::new(vec_of_erased![
-                        Ref::new("TsqlJoinTypeSegment"),
-                        Ref::keyword("JOIN")
-                    ]),
-                    // JOIN with just hint (no type): HASH JOIN, MERGE JOIN, LOOP JOIN
-                    Sequence::new(vec_of_erased![
-                        Ref::new("TsqlJoinHintSegment"),
+                        one_of(vec_of_erased![
+                            Ref::keyword("INNER"),
+                            Ref::keyword("FULL"),
+                            Ref::keyword("LEFT"),
+                            Ref::keyword("RIGHT")
+                        ]),
                         Ref::keyword("JOIN")
                     ]),
                     // Plain JOIN
@@ -4106,7 +4153,7 @@ pub fn raw_dialect() -> Dialect {
         .into(),
     )]);
 
-    // Override JoinLikeClauseGrammar for T-SQL to include both regular JOINs and APPLY
+    // Define JoinLikeClauseGrammar for T-SQL to include both regular JOINs and APPLY
     // This allows both JOIN clauses and APPLY to be used wherever joins are allowed
     dialect.add([(
         "JoinLikeClauseGrammar".into(),

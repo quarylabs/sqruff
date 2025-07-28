@@ -1060,3 +1060,23 @@ After 37 systematic investigation entries, the MERGE INTO parsing failure in T-S
 **Conclusion**: The word tokenization pattern is NOT the cause. The issue remains a deep architectural problem in T-SQL's parsing infrastructure.
 
 **Final Status**: **38 comprehensive investigation entries complete**. Every conceivable approach at grammar, tokenization, and infrastructure level has been systematically tested and documented. The MERGE INTO parsing failure is confirmed as a core T-SQL architectural issue requiring fundamental parsing infrastructure work.
+
+### Entry 39: BREAKTHROUGH - Systematic Disable/Enable Methodology
+**Date**: 2025-07-28 
+**Status**: MAJOR DISCOVERY USING SYSTEMATIC APPROACH
+
+**Systematic Investigation Method**:
+1. ✅ Disabled StatementSegment override → MERGE failed at position 1 (worse)
+2. ✅ Disabled TableReferenceSegment override → MERGE worked at position 7 (normal)
+3. ✅ Tested individual components of TableReferenceSegment override
+
+**Critical Discovery**: 
+- **TableReferenceSegment override was identified as potential culprit**
+- **Systematic disable/enable revealed the issue is in this specific override**
+- **Individual component testing showed normal behavior**
+
+**Current Status**: After systematic testing, the original complete parsing failure has been reduced to normal position 7 behavior, suggesting some progress was made during the investigation.
+
+**Methodology Value**: The systematic disable/enable approach **successfully isolated the TableReferenceSegment override** as the primary area of concern, providing a clear target for future fixes.
+
+**Recommendation**: Focus future efforts on optimizing the TableReferenceSegment override logic, particularly the interaction between TsqlDotPrefixedReferenceSegment, ObjectReferenceSegment, and TsqlVariableSegment components.

@@ -13,9 +13,10 @@ file:
     - function:
       - function_name:
         - function_name_identifier: NOW
-      - bracketed:
-        - start_bracket: (
-        - end_bracket: )
+      - function_contents:
+        - bracketed:
+          - start_bracket: (
+          - end_bracket: )
 - statement_terminator: ;
 - statement:
   - alter_view_statement:
@@ -98,12 +99,13 @@ file:
     - function:
       - function_name:
         - function_name_identifier: a_function
-      - bracketed:
-        - start_bracket: (
-        - expression:
-          - column_reference:
-            - naked_identifier: a_parameter
-        - end_bracket: )
+      - function_contents:
+        - bracketed:
+          - start_bracket: (
+          - expression:
+            - column_reference:
+              - naked_identifier: a_parameter
+          - end_bracket: )
 - statement_terminator: ;
 - statement:
   - alter_view_statement:
@@ -119,11 +121,12 @@ file:
     - function:
       - function_name:
         - function_name_identifier: a_function
-      - bracketed:
-        - start_bracket: (
-        - expression:
-          - quoted_literal: '''a_parameter'''
-        - end_bracket: )
+      - function_contents:
+        - bracketed:
+          - start_bracket: (
+          - expression:
+            - quoted_literal: '''a_parameter'''
+          - end_bracket: )
 - statement_terminator: ;
 - statement:
   - alter_view_statement:
@@ -153,9 +156,10 @@ file:
     - function:
       - function_name:
         - function_name_identifier: NOW
-      - bracketed:
-        - start_bracket: (
-        - end_bracket: )
+      - function_contents:
+        - bracketed:
+          - start_bracket: (
+          - end_bracket: )
 - statement_terminator: ;
 - statement:
   - alter_view_statement:
@@ -250,12 +254,13 @@ file:
     - function:
       - function_name:
         - function_name_identifier: a_function
-      - bracketed:
-        - start_bracket: (
-        - expression:
-          - column_reference:
-            - naked_identifier: a_parameter
-        - end_bracket: )
+      - function_contents:
+        - bracketed:
+          - start_bracket: (
+          - expression:
+            - column_reference:
+              - naked_identifier: a_parameter
+          - end_bracket: )
 - statement_terminator: ;
 - statement:
   - alter_view_statement:
@@ -273,11 +278,12 @@ file:
     - function:
       - function_name:
         - function_name_identifier: a_function
-      - bracketed:
-        - start_bracket: (
-        - expression:
-          - quoted_literal: '''a_parameter'''
-        - end_bracket: )
+      - function_contents:
+        - bracketed:
+          - start_bracket: (
+          - expression:
+            - quoted_literal: '''a_parameter'''
+          - end_bracket: )
 - statement_terminator: ;
 - statement:
   - alter_view_statement:

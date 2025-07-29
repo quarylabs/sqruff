@@ -24,12 +24,13 @@ file:
         - function:
           - function_name:
             - function_name_identifier: DATE
-          - bracketed:
-            - start_bracket: (
-            - expression:
-              - column_reference:
-                - naked_identifier: x
-            - end_bracket: )
+          - function_contents:
+            - bracketed:
+              - start_bracket: (
+              - expression:
+                - column_reference:
+                  - naked_identifier: x
+              - end_bracket: )
     - cluster_by_segment:
       - keyword: CLUSTER
       - keyword: BY

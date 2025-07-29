@@ -8,14 +8,15 @@ file:
           - function:
             - function_name:
               - function_name_identifier: PARSE_JSON
-            - bracketed:
-              - start_bracket: (
-              - expression:
-                - column_reference:
-                  - naked_identifier: t
-                  - dot: .
-                  - naked_identifier: metadata
-              - end_bracket: )
+            - function_contents:
+              - bracketed:
+                - start_bracket: (
+                - expression:
+                  - column_reference:
+                    - naked_identifier: t
+                    - dot: .
+                    - naked_identifier: metadata
+                - end_bracket: )
           - array_accessor:
             - start_square_bracket: '['
             - expression:
@@ -34,14 +35,15 @@ file:
           - function:
             - function_name:
               - function_name_identifier: PARSE_JSON
-            - bracketed:
-              - start_bracket: (
-              - expression:
-                - column_reference:
-                  - naked_identifier: t
-                  - dot: .
-                  - naked_identifier: metadata
-              - end_bracket: )
+            - function_contents:
+              - bracketed:
+                - start_bracket: (
+                - expression:
+                  - column_reference:
+                    - naked_identifier: t
+                    - dot: .
+                    - naked_identifier: metadata
+                - end_bracket: )
           - semi_structured_expression:
             - colon: ':'
             - semi_structured_element: customer_id

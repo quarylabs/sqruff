@@ -60,11 +60,12 @@ file:
               - function:
                 - function_name:
                   - function_name_identifier: g
-                - bracketed:
-                  - start_bracket: (
-                  - expression:
-                    - quoted_literal: '''blah'''
-                  - end_bracket: )
+                - function_contents:
+                  - bracketed:
+                    - start_bracket: (
+                    - expression:
+                      - quoted_literal: '''blah'''
+                    - end_bracket: )
             - alias_expression:
               - keyword: as
               - naked_identifier: tbl_func

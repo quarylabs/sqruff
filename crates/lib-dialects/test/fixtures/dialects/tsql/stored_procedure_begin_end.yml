@@ -198,9 +198,10 @@ file:
       - function:
         - function_name:
           - function_name_identifier: ERROR_NUMBER
-        - bracketed:
-          - start_bracket: (
-          - end_bracket: )
+        - function_contents:
+          - bracketed:
+            - start_bracket: (
+            - end_bracket: )
   - statement_terminator: ;
   - statement:
     - keyword: SET
@@ -211,9 +212,10 @@ file:
       - function:
         - function_name:
           - function_name_identifier: ERROR_LINE
-        - bracketed:
-          - start_bracket: (
-          - end_bracket: )
+        - function_contents:
+          - bracketed:
+            - start_bracket: (
+            - end_bracket: )
   - statement_terminator: ;
   - statement:
     - keyword: SET
@@ -241,9 +243,10 @@ file:
       - function:
         - function_name:
           - function_name_identifier: ERROR_MESSAGE
-        - bracketed:
-          - start_bracket: (
-          - end_bracket: )
+        - function_contents:
+          - bracketed:
+            - start_bracket: (
+            - end_bracket: )
   - statement_terminator: ;
   - statement:
     - keyword: GOTO

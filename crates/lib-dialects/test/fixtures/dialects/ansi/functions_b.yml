@@ -7,22 +7,24 @@ file:
         - function:
           - function_name:
             - function_name_identifier: SPLIT
-          - bracketed:
-            - start_bracket: (
-            - expression:
-              - function:
-                - function_name:
-                  - function_name_identifier: LOWER
-                - bracketed:
-                  - start_bracket: (
-                  - expression:
-                    - column_reference:
-                      - naked_identifier: text
-                  - end_bracket: )
-            - comma: ','
-            - expression:
-              - quoted_literal: ''' '''
-            - end_bracket: )
+          - function_contents:
+            - bracketed:
+              - start_bracket: (
+              - expression:
+                - function:
+                  - function_name:
+                    - function_name_identifier: LOWER
+                  - function_contents:
+                    - bracketed:
+                      - start_bracket: (
+                      - expression:
+                        - column_reference:
+                          - naked_identifier: text
+                      - end_bracket: )
+              - comma: ','
+              - expression:
+                - quoted_literal: ''' '''
+              - end_bracket: )
         - alias_expression:
           - keyword: AS
           - naked_identifier: text

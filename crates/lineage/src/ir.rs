@@ -709,6 +709,8 @@ pub(crate) fn lower_inner(
                 .to_string();
 
             let args = segment
+                .child(const { &SyntaxSet::single(SyntaxKind::FunctionContents) })
+                .unwrap()
                 .child(const { &SyntaxSet::single(SyntaxKind::Bracketed) })
                 .unwrap();
             let args: Vec<_> = args

@@ -21,12 +21,13 @@ file:
             - function:
               - function_name:
                 - function_name_identifier: min
-              - bracketed:
-                - start_bracket: (
-                - expression:
-                  - column_reference:
-                    - naked_identifier: f_val
-                - end_bracket: )
+              - function_contents:
+                - bracketed:
+                  - start_bracket: (
+                  - expression:
+                    - column_reference:
+                      - naked_identifier: f_val
+                  - end_bracket: )
             - keyword: FOR
             - naked_identifier: f_id
             - keyword: IN

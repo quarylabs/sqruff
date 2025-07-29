@@ -201,9 +201,10 @@ file:
         - function:
           - function_name:
             - function_name_identifier: speed_of_light
-          - bracketed:
-            - start_bracket: (
-            - end_bracket: )
+          - function_contents:
+            - bracketed:
+              - start_bracket: (
+              - end_bracket: )
 - statement_terminator: ;
 - statement:
   - select_statement:
@@ -217,9 +218,10 @@ file:
               - start_bracket: (
               - variable: $my_function_name
               - end_bracket: )
-          - bracketed:
-            - start_bracket: (
-            - end_bracket: )
+          - function_contents:
+            - bracketed:
+              - start_bracket: (
+              - end_bracket: )
 - statement_terminator: ;
 - statement:
   - select_statement:
@@ -233,9 +235,10 @@ file:
               - start_bracket: (
               - quoted_identifier: '''my_function_name'''
               - end_bracket: )
-          - bracketed:
-            - start_bracket: (
-            - end_bracket: )
+          - function_contents:
+            - bracketed:
+              - start_bracket: (
+              - end_bracket: )
 - statement_terminator: ;
 - statement:
   - select_statement:
@@ -249,15 +252,16 @@ file:
               - start_bracket: (
               - quoted_identifier: '''my_function_name'''
               - end_bracket: )
-          - bracketed:
-            - start_bracket: (
-            - expression:
-              - numeric_literal: '1'
-            - comma: ','
-            - expression:
-              - numeric_literal: '2'
-            - comma: ','
-            - expression:
-              - numeric_literal: '3'
-            - end_bracket: )
+          - function_contents:
+            - bracketed:
+              - start_bracket: (
+              - expression:
+                - numeric_literal: '1'
+              - comma: ','
+              - expression:
+                - numeric_literal: '2'
+              - comma: ','
+              - expression:
+                - numeric_literal: '3'
+              - end_bracket: )
 - statement_terminator: ;

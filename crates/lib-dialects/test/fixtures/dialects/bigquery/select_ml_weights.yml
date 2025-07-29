@@ -17,15 +17,16 @@ file:
                 - naked_identifier: ML
                 - dot: .
                 - function_name_identifier: WEIGHTS
-              - bracketed:
-                - start_bracket: (
-                - expression:
-                  - column_reference:
-                    - naked_identifier: MODEL
-                - expression:
-                  - column_reference:
-                    - quoted_identifier: '`project.dataset.model`'
-                - end_bracket: )
+              - function_contents:
+                - bracketed:
+                  - start_bracket: (
+                  - expression:
+                    - column_reference:
+                      - naked_identifier: MODEL
+                  - expression:
+                    - column_reference:
+                      - quoted_identifier: '`project.dataset.model`'
+                  - end_bracket: )
     - orderby_clause:
       - keyword: ORDER
       - keyword: BY

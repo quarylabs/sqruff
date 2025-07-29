@@ -27,11 +27,12 @@ file:
                   - function:
                     - function_name:
                       - function_name_identifier: OFFSET
-                    - bracketed:
-                      - start_bracket: (
-                      - expression:
-                        - numeric_literal: '0'
-                      - end_bracket: )
+                    - function_contents:
+                      - bracketed:
+                        - start_bracket: (
+                        - expression:
+                          - numeric_literal: '0'
+                        - end_bracket: )
                 - end_square_bracket: ']'
               - binary_operator: +
               - column_reference:
@@ -45,11 +46,12 @@ file:
                   - function:
                     - function_name:
                       - function_name_identifier: OFFSET
-                    - bracketed:
-                      - start_bracket: (
-                      - expression:
-                        - numeric_literal: '1'
-                      - end_bracket: )
+                    - function_contents:
+                      - bracketed:
+                        - start_bracket: (
+                        - expression:
+                          - numeric_literal: '1'
+                        - end_bracket: )
                 - end_square_bracket: ']'
               - binary_operator: +
               - column_reference:
@@ -63,11 +65,12 @@ file:
                   - function:
                     - function_name:
                       - function_name_identifier: OFFSET
-                    - bracketed:
-                      - start_bracket: (
-                      - expression:
-                        - numeric_literal: '2'
-                      - end_bracket: )
+                    - function_contents:
+                      - bracketed:
+                        - start_bracket: (
+                        - expression:
+                          - numeric_literal: '2'
+                        - end_bracket: )
                 - end_square_bracket: ']'
               - binary_operator: +
               - column_reference:
@@ -81,11 +84,12 @@ file:
                   - function:
                     - function_name:
                       - function_name_identifier: OFFSET
-                    - bracketed:
-                      - start_bracket: (
-                      - expression:
-                        - numeric_literal: '3'
-                      - end_bracket: )
+                    - function_contents:
+                      - bracketed:
+                        - start_bracket: (
+                        - expression:
+                          - numeric_literal: '3'
+                        - end_bracket: )
                 - end_square_bracket: ']'
               - binary_operator: +
               - column_reference:
@@ -99,11 +103,12 @@ file:
                   - function:
                     - function_name:
                       - function_name_identifier: OFFSET
-                    - bracketed:
-                      - start_bracket: (
-                      - expression:
-                        - numeric_literal: '4'
-                      - end_bracket: )
+                    - function_contents:
+                      - bracketed:
+                        - start_bracket: (
+                        - expression:
+                          - numeric_literal: '4'
+                        - end_bracket: )
                 - end_square_bracket: ']'
               - binary_operator: +
               - column_reference:
@@ -117,11 +122,12 @@ file:
                   - function:
                     - function_name:
                       - function_name_identifier: OFFSET
-                    - bracketed:
-                      - start_bracket: (
-                      - expression:
-                        - numeric_literal: '5'
-                      - end_bracket: )
+                    - function_contents:
+                      - bracketed:
+                        - start_bracket: (
+                        - expression:
+                          - numeric_literal: '5'
+                        - end_bracket: )
                 - end_square_bracket: ']'
             - end_bracket: )
           - binary_operator: /

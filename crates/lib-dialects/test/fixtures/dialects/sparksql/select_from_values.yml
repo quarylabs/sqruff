@@ -273,27 +273,29 @@ file:
                   - function:
                     - function_name:
                       - function_name_identifier: least
-                    - bracketed:
-                      - start_bracket: (
-                      - expression:
-                        - numeric_literal: '2'
-                      - comma: ','
-                      - expression:
-                        - numeric_literal: '3'
-                      - end_bracket: )
+                    - function_contents:
+                      - bracketed:
+                        - start_bracket: (
+                        - expression:
+                          - numeric_literal: '2'
+                        - comma: ','
+                        - expression:
+                          - numeric_literal: '3'
+                        - end_bracket: )
                 - comma: ','
                 - expression:
                   - function:
                     - function_name:
                       - function_name_identifier: greatest
-                    - bracketed:
-                      - start_bracket: (
-                      - expression:
-                        - numeric_literal: '4'
-                      - comma: ','
-                      - expression:
-                        - numeric_literal: '5'
-                      - end_bracket: )
+                    - function_contents:
+                      - bracketed:
+                        - start_bracket: (
+                        - expression:
+                          - numeric_literal: '4'
+                        - comma: ','
+                        - expression:
+                          - numeric_literal: '5'
+                        - end_bracket: )
           - end_bracket: )
 - statement_terminator: ;
 - statement:

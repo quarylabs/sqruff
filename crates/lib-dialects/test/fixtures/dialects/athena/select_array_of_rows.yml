@@ -13,28 +13,30 @@ file:
               - function:
                 - function_name:
                   - function_name_identifier: CAST
-                - bracketed:
-                  - start_bracket: (
-                  - expression:
-                    - function:
-                      - function_name:
-                        - function_name_identifier: ROW
+                - function_contents:
+                  - bracketed:
+                    - start_bracket: (
+                    - expression:
+                      - function:
+                        - function_name:
+                          - function_name_identifier: ROW
+                        - function_contents:
+                          - bracketed:
+                            - start_bracket: (
+                            - expression:
+                              - numeric_literal: '1'
+                            - end_bracket: )
+                    - keyword: AS
+                    - data_type:
+                      - keyword: ROW
                       - bracketed:
                         - start_bracket: (
-                        - expression:
-                          - numeric_literal: '1'
+                        - naked_identifier: x
+                        - data_type:
+                          - primitive_type:
+                            - keyword: INT
                         - end_bracket: )
-                  - keyword: AS
-                  - data_type:
-                    - keyword: ROW
-                    - bracketed:
-                      - start_bracket: (
-                      - naked_identifier: x
-                      - data_type:
-                        - primitive_type:
-                          - keyword: INT
-                      - end_bracket: )
-                  - end_bracket: )
+                    - end_bracket: )
               - end_square_bracket: ']'
           - array_accessor:
             - start_square_bracket: '['

@@ -59,27 +59,29 @@ file:
         - function:
           - function_name:
             - function_name_identifier: greatest
-          - bracketed:
-            - start_bracket: (
-            - expression:
-              - numeric_literal: '5'
-            - comma: ','
-            - expression:
-              - numeric_literal: '6'
-            - end_bracket: )
+          - function_contents:
+            - bracketed:
+              - start_bracket: (
+              - expression:
+                - numeric_literal: '5'
+              - comma: ','
+              - expression:
+                - numeric_literal: '6'
+              - end_bracket: )
       - comma: ','
       - expression:
         - function:
           - function_name:
             - function_name_identifier: least
-          - bracketed:
-            - start_bracket: (
-            - expression:
-              - numeric_literal: '7'
-            - comma: ','
-            - expression:
-              - numeric_literal: '8'
-            - end_bracket: )
+          - function_contents:
+            - bracketed:
+              - start_bracket: (
+              - expression:
+                - numeric_literal: '7'
+              - comma: ','
+              - expression:
+                - numeric_literal: '8'
+              - end_bracket: )
       - end_bracket: )
 - statement_terminator: ;
 - statement:

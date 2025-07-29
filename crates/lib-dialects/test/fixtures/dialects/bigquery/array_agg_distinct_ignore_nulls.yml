@@ -7,15 +7,16 @@ file:
         - function:
           - function_name:
             - function_name_identifier: ARRAY_AGG
-          - bracketed:
-            - start_bracket: (
-            - keyword: DISTINCT
-            - expression:
-              - column_reference:
-                - naked_identifier: x
-            - keyword: IGNORE
-            - keyword: NULLS
-            - end_bracket: )
+          - function_contents:
+            - bracketed:
+              - start_bracket: (
+              - keyword: DISTINCT
+              - expression:
+                - column_reference:
+                  - naked_identifier: x
+              - keyword: IGNORE
+              - keyword: NULLS
+              - end_bracket: )
         - alias_expression:
           - keyword: AS
           - naked_identifier: array_agg

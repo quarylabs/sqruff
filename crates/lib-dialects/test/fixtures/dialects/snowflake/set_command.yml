@@ -54,10 +54,11 @@ file:
                 - function:
                   - function_name:
                     - function_name_identifier: count
-                  - bracketed:
-                    - start_bracket: (
-                    - star: '*'
-                    - end_bracket: )
+                  - function_contents:
+                    - bracketed:
+                      - start_bracket: (
+                      - star: '*'
+                      - end_bracket: )
             - from_clause:
               - keyword: from
               - from_expression:
@@ -121,7 +122,8 @@ file:
       - function:
         - function_name:
           - function_name_identifier: CURRENT_ROLE
-        - bracketed:
-          - start_bracket: (
-          - end_bracket: )
+        - function_contents:
+          - bracketed:
+            - start_bracket: (
+            - end_bracket: )
 - statement_terminator: ;

@@ -39,10 +39,11 @@ file:
         - function:
           - function_name:
             - function_name_identifier: count
-          - bracketed:
-            - start_bracket: (
-            - star: '*'
-            - end_bracket: )
+          - function_contents:
+            - bracketed:
+              - start_bracket: (
+              - star: '*'
+              - end_bracket: )
       - comma: ','
       - select_clause_element:
         - column_reference:
@@ -80,10 +81,11 @@ file:
         - function:
           - function_name:
             - function_name_identifier: count
-          - bracketed:
-            - start_bracket: (
-            - star: '*'
-            - end_bracket: )
+          - function_contents:
+            - bracketed:
+              - start_bracket: (
+              - star: '*'
+              - end_bracket: )
       - comma: ','
       - select_clause_element:
         - column_reference:

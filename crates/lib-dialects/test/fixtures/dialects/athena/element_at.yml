@@ -7,46 +7,49 @@ file:
         - function:
           - function_name:
             - function_name_identifier: COALESCE
-          - bracketed:
-            - start_bracket: (
-            - expression:
-              - function:
-                - function_name:
-                  - function_name_identifier: element_at
-                - bracketed:
-                  - start_bracket: (
-                  - expression:
-                    - column_reference:
-                      - naked_identifier: rq
-                      - dot: .
-                      - naked_identifier: hiring_managers
-                  - comma: ','
-                  - expression:
-                    - numeric_literal: '1'
-                  - end_bracket: )
-            - comma: ','
-            - expression:
-              - function:
-                - function_name:
-                  - function_name_identifier: element_at
-                - bracketed:
-                  - start_bracket: (
-                  - expression:
-                    - column_reference:
-                      - naked_identifier: rq
-                      - dot: .
-                      - naked_identifier: hiring_managers
-                  - comma: ','
-                  - expression:
-                    - numeric_literal: '2'
-                  - end_bracket: )
-            - comma: ','
-            - expression:
-              - column_reference:
-                - naked_identifier: rq
-                - dot: .
-                - naked_identifier: creator_id
-            - end_bracket: )
+          - function_contents:
+            - bracketed:
+              - start_bracket: (
+              - expression:
+                - function:
+                  - function_name:
+                    - function_name_identifier: element_at
+                  - function_contents:
+                    - bracketed:
+                      - start_bracket: (
+                      - expression:
+                        - column_reference:
+                          - naked_identifier: rq
+                          - dot: .
+                          - naked_identifier: hiring_managers
+                      - comma: ','
+                      - expression:
+                        - numeric_literal: '1'
+                      - end_bracket: )
+              - comma: ','
+              - expression:
+                - function:
+                  - function_name:
+                    - function_name_identifier: element_at
+                  - function_contents:
+                    - bracketed:
+                      - start_bracket: (
+                      - expression:
+                        - column_reference:
+                          - naked_identifier: rq
+                          - dot: .
+                          - naked_identifier: hiring_managers
+                      - comma: ','
+                      - expression:
+                        - numeric_literal: '2'
+                      - end_bracket: )
+              - comma: ','
+              - expression:
+                - column_reference:
+                  - naked_identifier: rq
+                  - dot: .
+                  - naked_identifier: creator_id
+              - end_bracket: )
         - alias_expression:
           - keyword: AS
           - naked_identifier: part1
@@ -56,17 +59,18 @@ file:
           - function:
             - function_name:
               - function_name_identifier: element_at
-            - bracketed:
-              - start_bracket: (
-              - expression:
-                - column_reference:
-                  - naked_identifier: pl
-                  - dot: .
-                  - naked_identifier: hiring_managers
-              - comma: ','
-              - expression:
-                - numeric_literal: '1'
-              - end_bracket: )
+            - function_contents:
+              - bracketed:
+                - start_bracket: (
+                - expression:
+                  - column_reference:
+                    - naked_identifier: pl
+                    - dot: .
+                    - naked_identifier: hiring_managers
+                - comma: ','
+                - expression:
+                  - numeric_literal: '1'
+                - end_bracket: )
           - dot: .
           - object_reference:
             - naked_identifier: id
@@ -79,17 +83,18 @@ file:
           - function:
             - function_name:
               - function_name_identifier: element_at
-            - bracketed:
-              - start_bracket: (
-              - expression:
-                - column_reference:
-                  - naked_identifier: pl
-                  - dot: .
-                  - naked_identifier: hiring_managers
-              - comma: ','
-              - expression:
-                - numeric_literal: '2'
-              - end_bracket: )
+            - function_contents:
+              - bracketed:
+                - start_bracket: (
+                - expression:
+                  - column_reference:
+                    - naked_identifier: pl
+                    - dot: .
+                    - naked_identifier: hiring_managers
+                - comma: ','
+                - expression:
+                  - numeric_literal: '2'
+                - end_bracket: )
           - dot: .
           - object_reference:
             - naked_identifier: id

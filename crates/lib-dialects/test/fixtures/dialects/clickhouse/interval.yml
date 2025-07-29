@@ -55,25 +55,27 @@ file:
         - function:
           - function_name:
             - function_name_identifier: date_add
-          - bracketed:
-            - start_bracket: (
-            - expression:
-              - function:
-                - function_name:
-                  - function_name_identifier: today
-                - bracketed:
-                  - start_bracket: (
-                  - end_bracket: )
-            - comma: ','
-            - expression:
-              - interval_expression:
-                - keyword: INTERVAL
-                - expression:
-                  - numeric_literal:
-                    - sign_indicator: '-'
-                    - numeric_literal: '30'
-                - date_part: DAY
-            - end_bracket: )
+          - function_contents:
+            - bracketed:
+              - start_bracket: (
+              - expression:
+                - function:
+                  - function_name:
+                    - function_name_identifier: today
+                  - function_contents:
+                    - bracketed:
+                      - start_bracket: (
+                      - end_bracket: )
+              - comma: ','
+              - expression:
+                - interval_expression:
+                  - keyword: INTERVAL
+                  - expression:
+                    - numeric_literal:
+                      - sign_indicator: '-'
+                      - numeric_literal: '30'
+                  - date_part: DAY
+              - end_bracket: )
 - statement_terminator: ;
 - statement:
   - select_statement:
@@ -83,24 +85,26 @@ file:
         - function:
           - function_name:
             - function_name_identifier: subDate
-          - bracketed:
-            - start_bracket: (
-            - expression:
-              - function:
-                - function_name:
-                  - function_name_identifier: toDate
-                - bracketed:
-                  - start_bracket: (
-                  - expression:
-                    - quoted_literal: '''2008-01-02'''
-                  - end_bracket: )
-            - comma: ','
-            - expression:
-              - interval_expression:
-                - keyword: INTERVAL
-                - numeric_literal: '31'
-                - date_part: DAY
-            - end_bracket: )
+          - function_contents:
+            - bracketed:
+              - start_bracket: (
+              - expression:
+                - function:
+                  - function_name:
+                    - function_name_identifier: toDate
+                  - function_contents:
+                    - bracketed:
+                      - start_bracket: (
+                      - expression:
+                        - quoted_literal: '''2008-01-02'''
+                      - end_bracket: )
+              - comma: ','
+              - expression:
+                - interval_expression:
+                  - keyword: INTERVAL
+                  - numeric_literal: '31'
+                  - date_part: DAY
+              - end_bracket: )
 - statement_terminator: ;
 - statement:
   - select_statement:
@@ -110,25 +114,27 @@ file:
         - function:
           - function_name:
             - function_name_identifier: addDate
-          - bracketed:
-            - start_bracket: (
-            - expression:
-              - function:
-                - function_name:
-                  - function_name_identifier: today
-                - bracketed:
-                  - start_bracket: (
-                  - end_bracket: )
-            - comma: ','
-            - expression:
-              - interval_expression:
-                - keyword: INTERVAL
-                - expression:
-                  - numeric_literal:
-                    - sign_indicator: '-'
-                    - numeric_literal: '30'
-                - date_part: day
-            - end_bracket: )
+          - function_contents:
+            - bracketed:
+              - start_bracket: (
+              - expression:
+                - function:
+                  - function_name:
+                    - function_name_identifier: today
+                  - function_contents:
+                    - bracketed:
+                      - start_bracket: (
+                      - end_bracket: )
+              - comma: ','
+              - expression:
+                - interval_expression:
+                  - keyword: INTERVAL
+                  - expression:
+                    - numeric_literal:
+                      - sign_indicator: '-'
+                      - numeric_literal: '30'
+                  - date_part: day
+              - end_bracket: )
 - statement_terminator: ;
 - statement:
   - select_statement:
@@ -138,24 +144,26 @@ file:
         - function:
           - function_name:
             - function_name_identifier: date_sub
-          - bracketed:
-            - start_bracket: (
-            - expression:
-              - function:
-                - function_name:
-                  - function_name_identifier: toDate
-                - bracketed:
-                  - start_bracket: (
-                  - expression:
-                    - quoted_literal: '''2018-01-01'''
-                  - end_bracket: )
-            - comma: ','
-            - expression:
-              - interval_expression:
-                - keyword: INTERVAL
-                - numeric_literal: '3'
-                - date_part: YEAR
-            - end_bracket: )
+          - function_contents:
+            - bracketed:
+              - start_bracket: (
+              - expression:
+                - function:
+                  - function_name:
+                    - function_name_identifier: toDate
+                  - function_contents:
+                    - bracketed:
+                      - start_bracket: (
+                      - expression:
+                        - quoted_literal: '''2018-01-01'''
+                      - end_bracket: )
+              - comma: ','
+              - expression:
+                - interval_expression:
+                  - keyword: INTERVAL
+                  - numeric_literal: '3'
+                  - date_part: YEAR
+              - end_bracket: )
 - statement_terminator: ;
 - statement:
   - select_statement:
@@ -165,24 +173,26 @@ file:
         - function:
           - function_name:
             - function_name_identifier: date_add
-          - bracketed:
-            - start_bracket: (
-            - expression:
-              - function:
-                - function_name:
-                  - function_name_identifier: toDate
-                - bracketed:
-                  - start_bracket: (
-                  - expression:
-                    - quoted_literal: '''2018-01-01'''
-                  - end_bracket: )
-            - comma: ','
-            - expression:
-              - interval_expression:
-                - keyword: INTERVAL
-                - numeric_literal: '3'
-                - date_part: YYYY
-            - end_bracket: )
+          - function_contents:
+            - bracketed:
+              - start_bracket: (
+              - expression:
+                - function:
+                  - function_name:
+                    - function_name_identifier: toDate
+                  - function_contents:
+                    - bracketed:
+                      - start_bracket: (
+                      - expression:
+                        - quoted_literal: '''2018-01-01'''
+                      - end_bracket: )
+              - comma: ','
+              - expression:
+                - interval_expression:
+                  - keyword: INTERVAL
+                  - numeric_literal: '3'
+                  - date_part: YYYY
+              - end_bracket: )
 - statement_terminator: ;
 - statement:
   - select_statement:
@@ -192,25 +202,27 @@ file:
         - function:
           - function_name:
             - function_name_identifier: date_add
-          - bracketed:
-            - start_bracket: (
-            - expression:
-              - function:
-                - function_name:
-                  - function_name_identifier: today
-                - bracketed:
-                  - start_bracket: (
-                  - end_bracket: )
-            - comma: ','
-            - expression:
-              - interval_expression:
-                - keyword: interval
-                - expression:
-                  - numeric_literal: '7'
-                  - binary_operator: '*'
-                  - numeric_literal: '4'
-                - date_part: days
-            - end_bracket: )
+          - function_contents:
+            - bracketed:
+              - start_bracket: (
+              - expression:
+                - function:
+                  - function_name:
+                    - function_name_identifier: today
+                  - function_contents:
+                    - bracketed:
+                      - start_bracket: (
+                      - end_bracket: )
+              - comma: ','
+              - expression:
+                - interval_expression:
+                  - keyword: interval
+                  - expression:
+                    - numeric_literal: '7'
+                    - binary_operator: '*'
+                    - numeric_literal: '4'
+                  - date_part: days
+              - end_bracket: )
 - statement_terminator: ;
 - statement:
   - select_statement:
@@ -220,24 +232,26 @@ file:
         - function:
           - function_name:
             - function_name_identifier: addDate
-          - bracketed:
-            - start_bracket: (
-            - expression:
-              - function:
-                - function_name:
-                  - function_name_identifier: today
-                - bracketed:
-                  - start_bracket: (
-                  - end_bracket: )
-            - comma: ','
-            - expression:
-              - interval_expression:
-                - keyword: INTERVAL
-                - expression:
-                  - column_reference:
-                    - naked_identifier: col1
-                - date_part: DAY
-            - end_bracket: )
+          - function_contents:
+            - bracketed:
+              - start_bracket: (
+              - expression:
+                - function:
+                  - function_name:
+                    - function_name_identifier: today
+                  - function_contents:
+                    - bracketed:
+                      - start_bracket: (
+                      - end_bracket: )
+              - comma: ','
+              - expression:
+                - interval_expression:
+                  - keyword: INTERVAL
+                  - expression:
+                    - column_reference:
+                      - naked_identifier: col1
+                  - date_part: DAY
+              - end_bracket: )
     - from_clause:
       - keyword: FROM
       - from_expression:
@@ -254,27 +268,29 @@ file:
         - function:
           - function_name:
             - function_name_identifier: subDate
-          - bracketed:
-            - start_bracket: (
-            - expression:
-              - function:
-                - function_name:
-                  - function_name_identifier: today
-                - bracketed:
-                  - start_bracket: (
-                  - end_bracket: )
-            - comma: ','
-            - expression:
-              - interval_expression:
-                - keyword: INTERVAL
-                - expression:
-                  - column_reference:
-                    - naked_identifier: col1
-                  - binary_operator: +
-                  - column_reference:
-                    - naked_identifier: col2
-                - date_part: DAY
-            - end_bracket: )
+          - function_contents:
+            - bracketed:
+              - start_bracket: (
+              - expression:
+                - function:
+                  - function_name:
+                    - function_name_identifier: today
+                  - function_contents:
+                    - bracketed:
+                      - start_bracket: (
+                      - end_bracket: )
+              - comma: ','
+              - expression:
+                - interval_expression:
+                  - keyword: INTERVAL
+                  - expression:
+                    - column_reference:
+                      - naked_identifier: col1
+                    - binary_operator: +
+                    - column_reference:
+                      - naked_identifier: col2
+                  - date_part: DAY
+              - end_bracket: )
     - from_clause:
       - keyword: FROM
       - from_expression:
@@ -291,35 +307,36 @@ file:
         - function:
           - function_name:
             - function_name_identifier: formatDateTime
-          - bracketed:
-            - start_bracket: (
-            - expression:
-              - column_reference:
-                - naked_identifier: db1
-                - dot: .
-                - naked_identifier: tbl1
-                - dot: .
-                - naked_identifier: col1
-              - binary_operator: +
-              - interval_expression:
-                - keyword: INTERVAL
-                - expression:
-                  - column_reference:
-                    - naked_identifier: db1
-                    - dot: .
-                    - naked_identifier: tbl1
-                    - dot: .
-                    - naked_identifier: col2
-                  - binary_operator: +
-                  - column_reference:
-                    - naked_identifier: db2_tbl2
-                    - dot: .
-                    - naked_identifier: col2
-                - date_part: DAY
-            - comma: ','
-            - expression:
-              - quoted_literal: '''%F %T'''
-            - end_bracket: )
+          - function_contents:
+            - bracketed:
+              - start_bracket: (
+              - expression:
+                - column_reference:
+                  - naked_identifier: db1
+                  - dot: .
+                  - naked_identifier: tbl1
+                  - dot: .
+                  - naked_identifier: col1
+                - binary_operator: +
+                - interval_expression:
+                  - keyword: INTERVAL
+                  - expression:
+                    - column_reference:
+                      - naked_identifier: db1
+                      - dot: .
+                      - naked_identifier: tbl1
+                      - dot: .
+                      - naked_identifier: col2
+                    - binary_operator: +
+                    - column_reference:
+                      - naked_identifier: db2_tbl2
+                      - dot: .
+                      - naked_identifier: col2
+                  - date_part: DAY
+              - comma: ','
+              - expression:
+                - quoted_literal: '''%F %T'''
+              - end_bracket: )
     - from_clause:
       - keyword: FROM
       - from_expression:

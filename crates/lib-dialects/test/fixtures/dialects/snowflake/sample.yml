@@ -45,9 +45,10 @@ file:
               - function:
                 - function_name:
                   - function_name_identifier: SEQ4
-                - bracketed:
-                  - start_bracket: (
-                  - end_bracket: )
+                - function_contents:
+                  - bracketed:
+                    - start_bracket: (
+                    - end_bracket: )
               - alias_expression:
                 - keyword: AS
                 - naked_identifier: row_number
@@ -59,20 +60,22 @@ file:
                   - function:
                     - function_name:
                       - function_name_identifier: TABLE
-                    - bracketed:
-                      - start_bracket: (
-                      - expression:
-                        - function:
-                          - function_name:
-                            - function_name_identifier: GENERATOR
-                          - bracketed:
-                            - start_bracket: (
-                            - snowflake_keyword_expression:
-                              - parameter: rowcount
-                              - parameter_assigner: =>
-                              - numeric_literal: '1000'
-                            - end_bracket: )
-                      - end_bracket: )
+                    - function_contents:
+                      - bracketed:
+                        - start_bracket: (
+                        - expression:
+                          - function:
+                            - function_name:
+                              - function_name_identifier: GENERATOR
+                            - function_contents:
+                              - bracketed:
+                                - start_bracket: (
+                                - snowflake_keyword_expression:
+                                  - parameter: rowcount
+                                  - parameter_assigner: =>
+                                  - numeric_literal: '1000'
+                                - end_bracket: )
+                        - end_bracket: )
           - orderby_clause:
             - keyword: ORDER
             - keyword: BY

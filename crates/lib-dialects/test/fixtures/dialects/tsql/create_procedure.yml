@@ -623,9 +623,10 @@ file:
       - function:
         - function_name:
           - function_name_identifier: NEWID
-        - bracketed:
-          - start_bracket: (
-          - end_bracket: )
+        - function_contents:
+          - bracketed:
+            - start_bracket: (
+            - end_bracket: )
       - comma: ','
       - tsql_variable: '@output'
       - data_type:

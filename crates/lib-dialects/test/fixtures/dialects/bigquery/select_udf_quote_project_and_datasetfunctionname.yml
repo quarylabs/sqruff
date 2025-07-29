@@ -9,14 +9,15 @@ file:
             - quoted_identifier: '`another-gcp-project`'
             - dot: .
             - function_name_identifier: '`functions.timestamp_parsing`'
-          - bracketed:
-            - start_bracket: (
-            - expression:
-              - column_reference:
-                - naked_identifier: log_tbl
-                - dot: .
-                - naked_identifier: first_move
-            - end_bracket: )
+          - function_contents:
+            - bracketed:
+              - start_bracket: (
+              - expression:
+                - column_reference:
+                  - naked_identifier: log_tbl
+                  - dot: .
+                  - naked_identifier: first_move
+              - end_bracket: )
         - alias_expression:
           - keyword: AS
           - naked_identifier: first_move

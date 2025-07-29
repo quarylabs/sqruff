@@ -393,33 +393,34 @@ file:
         - function:
           - function_name:
             - function_name_identifier: array_dims
-          - bracketed:
-            - start_bracket: (
-            - expression:
-              - typed_array_literal:
-                - array_type:
-                  - keyword: ARRAY
-                - array_literal:
-                  - start_square_bracket: '['
-                  - numeric_literal: '1'
-                  - comma: ','
-                  - numeric_literal: '2'
-                  - end_square_bracket: ']'
-              - binary_operator:
-                - pipe: '|'
-                - pipe: '|'
-              - typed_array_literal:
-                - array_type:
-                  - keyword: ARRAY
-                - array_literal:
-                  - start_square_bracket: '['
-                  - numeric_literal: '3'
-                  - comma: ','
-                  - numeric_literal: '4'
-                  - comma: ','
-                  - numeric_literal: '5'
-                  - end_square_bracket: ']'
-            - end_bracket: )
+          - function_contents:
+            - bracketed:
+              - start_bracket: (
+              - expression:
+                - typed_array_literal:
+                  - array_type:
+                    - keyword: ARRAY
+                  - array_literal:
+                    - start_square_bracket: '['
+                    - numeric_literal: '1'
+                    - comma: ','
+                    - numeric_literal: '2'
+                    - end_square_bracket: ']'
+                - binary_operator:
+                  - pipe: '|'
+                  - pipe: '|'
+                - typed_array_literal:
+                  - array_type:
+                    - keyword: ARRAY
+                  - array_literal:
+                    - start_square_bracket: '['
+                    - numeric_literal: '3'
+                    - comma: ','
+                    - numeric_literal: '4'
+                    - comma: ','
+                    - numeric_literal: '5'
+                    - end_square_bracket: ']'
+              - end_bracket: )
 - statement_terminator: ;
 - statement:
   - select_statement:
@@ -429,41 +430,42 @@ file:
         - function:
           - function_name:
             - function_name_identifier: array_dims
-          - bracketed:
-            - start_bracket: (
-            - expression:
-              - typed_array_literal:
-                - array_type:
-                  - keyword: ARRAY
-                - array_literal:
-                  - start_square_bracket: '['
-                  - numeric_literal: '1'
-                  - comma: ','
-                  - numeric_literal: '2'
-                  - end_square_bracket: ']'
-              - binary_operator:
-                - pipe: '|'
-                - pipe: '|'
-              - typed_array_literal:
-                - array_type:
-                  - keyword: ARRAY
-                - array_literal:
-                  - start_square_bracket: '['
+          - function_contents:
+            - bracketed:
+              - start_bracket: (
+              - expression:
+                - typed_array_literal:
+                  - array_type:
+                    - keyword: ARRAY
                   - array_literal:
                     - start_square_bracket: '['
-                    - numeric_literal: '3'
+                    - numeric_literal: '1'
                     - comma: ','
-                    - numeric_literal: '4'
+                    - numeric_literal: '2'
                     - end_square_bracket: ']'
-                  - comma: ','
+                - binary_operator:
+                  - pipe: '|'
+                  - pipe: '|'
+                - typed_array_literal:
+                  - array_type:
+                    - keyword: ARRAY
                   - array_literal:
                     - start_square_bracket: '['
-                    - numeric_literal: '5'
+                    - array_literal:
+                      - start_square_bracket: '['
+                      - numeric_literal: '3'
+                      - comma: ','
+                      - numeric_literal: '4'
+                      - end_square_bracket: ']'
                     - comma: ','
-                    - numeric_literal: '6'
+                    - array_literal:
+                      - start_square_bracket: '['
+                      - numeric_literal: '5'
+                      - comma: ','
+                      - numeric_literal: '6'
+                      - end_square_bracket: ']'
                     - end_square_bracket: ']'
-                  - end_square_bracket: ']'
-            - end_bracket: )
+              - end_bracket: )
 - statement_terminator: ;
 - statement:
   - select_statement:
@@ -493,32 +495,33 @@ file:
         - function:
           - function_name:
             - function_name_identifier: array_position
-          - bracketed:
-            - start_bracket: (
-            - expression:
-              - typed_array_literal:
-                - array_type:
-                  - keyword: ARRAY
-                - array_literal:
-                  - start_square_bracket: '['
-                  - quoted_literal: '''sun'''
-                  - comma: ','
-                  - quoted_literal: '''mon'''
-                  - comma: ','
-                  - quoted_literal: '''tue'''
-                  - comma: ','
-                  - quoted_literal: '''wed'''
-                  - comma: ','
-                  - quoted_literal: '''thu'''
-                  - comma: ','
-                  - quoted_literal: '''fri'''
-                  - comma: ','
-                  - quoted_literal: '''sat'''
-                  - end_square_bracket: ']'
-            - comma: ','
-            - expression:
-              - quoted_literal: '''mon'''
-            - end_bracket: )
+          - function_contents:
+            - bracketed:
+              - start_bracket: (
+              - expression:
+                - typed_array_literal:
+                  - array_type:
+                    - keyword: ARRAY
+                  - array_literal:
+                    - start_square_bracket: '['
+                    - quoted_literal: '''sun'''
+                    - comma: ','
+                    - quoted_literal: '''mon'''
+                    - comma: ','
+                    - quoted_literal: '''tue'''
+                    - comma: ','
+                    - quoted_literal: '''wed'''
+                    - comma: ','
+                    - quoted_literal: '''thu'''
+                    - comma: ','
+                    - quoted_literal: '''fri'''
+                    - comma: ','
+                    - quoted_literal: '''sat'''
+                    - end_square_bracket: ']'
+              - comma: ','
+              - expression:
+                - quoted_literal: '''mon'''
+              - end_bracket: )
 - statement_terminator: ;
 - statement:
   - select_statement:
@@ -640,29 +643,30 @@ file:
           - function:
             - function_name:
               - function_name_identifier: SUM
-            - bracketed:
-              - start_bracket: (
-              - expression:
-                - case_expression:
-                  - keyword: CASE
-                  - when_clause:
-                    - keyword: WHEN
-                    - expression:
-                      - column_reference:
-                        - naked_identifier: direction
-                      - comparison_operator:
-                        - raw_comparison_operator: =
-                      - quoted_literal: '''forward'''
-                    - keyword: THEN
-                    - expression:
-                      - column_reference:
-                        - naked_identifier: unit
-                  - else_clause:
-                    - keyword: ELSE
-                    - expression:
-                      - numeric_literal: '0'
-                  - keyword: END
-              - end_bracket: )
+            - function_contents:
+              - bracketed:
+                - start_bracket: (
+                - expression:
+                  - case_expression:
+                    - keyword: CASE
+                    - when_clause:
+                      - keyword: WHEN
+                      - expression:
+                        - column_reference:
+                          - naked_identifier: direction
+                        - comparison_operator:
+                          - raw_comparison_operator: =
+                        - quoted_literal: '''forward'''
+                      - keyword: THEN
+                      - expression:
+                        - column_reference:
+                          - naked_identifier: unit
+                    - else_clause:
+                      - keyword: ELSE
+                      - expression:
+                        - numeric_literal: '0'
+                    - keyword: END
+                - end_bracket: )
           - binary_operator: '*'
           - bracketed:
             - start_bracket: (
@@ -670,21 +674,22 @@ file:
               - function:
                 - function_name:
                   - function_name_identifier: MAX
-                - bracketed:
-                  - start_bracket: (
-                  - expression:
-                    - typed_array_literal:
-                      - array_type:
-                        - keyword: ARRAY
-                      - array_literal:
-                        - start_square_bracket: '['
-                        - column_reference:
-                          - naked_identifier: id
-                        - comma: ','
-                        - column_reference:
-                          - naked_identifier: vertical
-                        - end_square_bracket: ']'
-                  - end_bracket: )
+                - function_contents:
+                  - bracketed:
+                    - start_bracket: (
+                    - expression:
+                      - typed_array_literal:
+                        - array_type:
+                          - keyword: ARRAY
+                        - array_literal:
+                          - start_square_bracket: '['
+                          - column_reference:
+                            - naked_identifier: id
+                          - comma: ','
+                          - column_reference:
+                            - naked_identifier: vertical
+                          - end_square_bracket: ']'
+                    - end_bracket: )
             - end_bracket: )
           - array_accessor:
             - start_square_bracket: '['

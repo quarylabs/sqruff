@@ -13,12 +13,13 @@ file:
     - keyword: EXECUTE
     - keyword: PROCEDURE
     - function_name_identifier: proc
-    - bracketed:
-      - start_bracket: (
-      - expression:
-        - column_reference:
-          - naked_identifier: args
-      - end_bracket: )
+    - function_contents:
+      - bracketed:
+        - start_bracket: (
+        - expression:
+          - column_reference:
+            - naked_identifier: args
+        - end_bracket: )
 - statement_terminator: ;
 - statement:
   - create_trigger_statement:
@@ -34,12 +35,13 @@ file:
     - keyword: EXECUTE
     - keyword: PROCEDURE
     - function_name_identifier: proc
-    - bracketed:
-      - start_bracket: (
-      - expression:
-        - column_reference:
-          - naked_identifier: args
-      - end_bracket: )
+    - function_contents:
+      - bracketed:
+        - start_bracket: (
+        - expression:
+          - column_reference:
+            - naked_identifier: args
+        - end_bracket: )
 - statement_terminator: ;
 - statement:
   - create_trigger_statement:
@@ -61,12 +63,13 @@ file:
     - keyword: EXECUTE
     - keyword: PROCEDURE
     - function_name_identifier: proc
-    - bracketed:
-      - start_bracket: (
-      - expression:
-        - column_reference:
-          - naked_identifier: args
-      - end_bracket: )
+    - function_contents:
+      - bracketed:
+        - start_bracket: (
+        - expression:
+          - column_reference:
+            - naked_identifier: args
+        - end_bracket: )
 - statement_terminator: ;
 - statement:
   - create_trigger_statement:
@@ -92,12 +95,13 @@ file:
     - keyword: EXECUTE
     - keyword: PROCEDURE
     - function_name_identifier: proc
-    - bracketed:
-      - start_bracket: (
-      - expression:
-        - column_reference:
-          - naked_identifier: args
-      - end_bracket: )
+    - function_contents:
+      - bracketed:
+        - start_bracket: (
+        - expression:
+          - column_reference:
+            - naked_identifier: args
+        - end_bracket: )
 - statement_terminator: ;
 - statement:
   - create_trigger_statement:
@@ -124,10 +128,11 @@ file:
     - keyword: EXECUTE
     - keyword: PROCEDURE
     - function_name_identifier: proc
-    - bracketed:
-      - start_bracket: (
-      - expression:
-        - column_reference:
-          - naked_identifier: args
-      - end_bracket: )
+    - function_contents:
+      - bracketed:
+        - start_bracket: (
+        - expression:
+          - column_reference:
+            - naked_identifier: args
+        - end_bracket: )
 - statement_terminator: ;

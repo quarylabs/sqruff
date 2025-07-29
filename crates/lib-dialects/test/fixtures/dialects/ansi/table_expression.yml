@@ -17,21 +17,23 @@ file:
             - function:
               - function_name:
                 - function_name_identifier: UNNEST
-              - bracketed:
-                - start_bracket: (
-                - expression:
-                  - function:
-                    - function_name:
-                      - function_name_identifier: GENERATE_ARRAY
-                    - bracketed:
-                      - start_bracket: (
-                      - expression:
-                        - numeric_literal: '1'
-                      - comma: ','
-                      - expression:
-                        - numeric_literal: '53'
-                      - end_bracket: )
-                - end_bracket: )
+              - function_contents:
+                - bracketed:
+                  - start_bracket: (
+                  - expression:
+                    - function:
+                      - function_name:
+                        - function_name_identifier: GENERATE_ARRAY
+                      - function_contents:
+                        - bracketed:
+                          - start_bracket: (
+                          - expression:
+                            - numeric_literal: '1'
+                          - comma: ','
+                          - expression:
+                            - numeric_literal: '53'
+                          - end_bracket: )
+                  - end_bracket: )
           - alias_expression:
             - keyword: AS
             - naked_identifier: y
@@ -55,18 +57,19 @@ file:
             - function:
               - function_name:
                 - function_name_identifier: UNNEST
-              - bracketed:
-                - start_bracket: (
-                - expression:
-                  - array_literal:
-                    - start_square_bracket: '['
-                    - numeric_literal: '1'
-                    - comma: ','
-                    - numeric_literal: '2'
-                    - comma: ','
-                    - numeric_literal: '3'
-                    - end_square_bracket: ']'
-                - end_bracket: )
+              - function_contents:
+                - bracketed:
+                  - start_bracket: (
+                  - expression:
+                    - array_literal:
+                      - start_square_bracket: '['
+                      - numeric_literal: '1'
+                      - comma: ','
+                      - numeric_literal: '2'
+                      - comma: ','
+                      - numeric_literal: '3'
+                      - end_square_bracket: ']'
+                  - end_bracket: )
           - alias_expression:
             - naked_identifier: id
           - keyword: WITH
@@ -80,18 +83,19 @@ file:
             - function:
               - function_name:
                 - function_name_identifier: UNNEST
-              - bracketed:
-                - start_bracket: (
-                - expression:
-                  - array_literal:
-                    - start_square_bracket: '['
-                    - quoted_literal: '''a'''
-                    - comma: ','
-                    - quoted_literal: '''b'''
-                    - comma: ','
-                    - quoted_literal: '''c'''
-                    - end_square_bracket: ']'
-                - end_bracket: )
+              - function_contents:
+                - bracketed:
+                  - start_bracket: (
+                  - expression:
+                    - array_literal:
+                      - start_square_bracket: '['
+                      - quoted_literal: '''a'''
+                      - comma: ','
+                      - quoted_literal: '''b'''
+                      - comma: ','
+                      - quoted_literal: '''c'''
+                      - end_square_bracket: ']'
+                  - end_bracket: )
           - alias_expression:
             - naked_identifier: name
           - keyword: WITH

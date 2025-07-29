@@ -7,33 +7,35 @@ file:
         - function:
           - function_name:
             - function_name_identifier: DATEADD
-          - bracketed:
-            - start_bracket: (
-            - date_part: DAY
-            - comma: ','
-            - expression:
-              - function:
-                - function_name:
-                  - function_name_identifier: ROW_NUMBER
-                - bracketed:
-                  - start_bracket: (
-                  - end_bracket: )
-                - over_clause:
-                  - keyword: OVER
-                  - bracketed:
-                    - start_bracket: (
-                    - window_specification:
-                      - orderby_clause:
-                        - keyword: ORDER
-                        - keyword: BY
-                        - column_reference:
-                          - naked_identifier: DateCD
-                        - keyword: ASC
-                    - end_bracket: )
-            - comma: ','
-            - expression:
-              - quoted_literal: '''2014-01-01'''
-            - end_bracket: )
+          - function_contents:
+            - bracketed:
+              - start_bracket: (
+              - date_part: DAY
+              - comma: ','
+              - expression:
+                - function:
+                  - function_name:
+                    - function_name_identifier: ROW_NUMBER
+                  - function_contents:
+                    - bracketed:
+                      - start_bracket: (
+                      - end_bracket: )
+                  - over_clause:
+                    - keyword: OVER
+                    - bracketed:
+                      - start_bracket: (
+                      - window_specification:
+                        - orderby_clause:
+                          - keyword: ORDER
+                          - keyword: BY
+                          - column_reference:
+                            - naked_identifier: DateCD
+                          - keyword: ASC
+                      - end_bracket: )
+              - comma: ','
+              - expression:
+                - quoted_literal: '''2014-01-01'''
+              - end_bracket: )
         - alias_expression:
           - keyword: AS
           - naked_identifier: dt

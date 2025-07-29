@@ -19,9 +19,10 @@ file:
         - function:
           - function_name:
             - function_name_identifier: GETDATE
-          - bracketed:
-            - start_bracket: (
-            - end_bracket: )
+          - function_contents:
+            - bracketed:
+              - start_bracket: (
+              - end_bracket: )
     - statement:
       - drop_table_statement:
         - keyword: DROP

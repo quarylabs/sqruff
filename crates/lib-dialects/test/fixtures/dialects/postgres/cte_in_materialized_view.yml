@@ -30,12 +30,13 @@ file:
                 - function:
                   - function_name:
                     - function_name_identifier: SUM
-                  - bracketed:
-                    - start_bracket: (
-                    - expression:
-                      - column_reference:
-                        - naked_identifier: amount
-                    - end_bracket: )
+                  - function_contents:
+                    - bracketed:
+                      - start_bracket: (
+                      - expression:
+                        - column_reference:
+                          - naked_identifier: amount
+                      - end_bracket: )
                 - alias_expression:
                   - keyword: AS
                   - naked_identifier: total_sales
@@ -89,12 +90,13 @@ file:
                             - function:
                               - function_name:
                                 - function_name_identifier: SUM
-                              - bracketed:
-                                - start_bracket: (
-                                - expression:
-                                  - column_reference:
-                                    - naked_identifier: total_sales
-                                - end_bracket: )
+                              - function_contents:
+                                - bracketed:
+                                  - start_bracket: (
+                                  - expression:
+                                    - column_reference:
+                                      - naked_identifier: total_sales
+                                  - end_bracket: )
                             - binary_operator: /
                             - numeric_literal: '10'
                       - from_clause:
@@ -121,12 +123,13 @@ file:
             - function:
               - function_name:
                 - function_name_identifier: SUM
-              - bracketed:
-                - start_bracket: (
-                - expression:
-                  - column_reference:
-                    - naked_identifier: quantity
-                - end_bracket: )
+              - function_contents:
+                - bracketed:
+                  - start_bracket: (
+                  - expression:
+                    - column_reference:
+                      - naked_identifier: quantity
+                  - end_bracket: )
             - alias_expression:
               - keyword: AS
               - naked_identifier: product_units
@@ -135,12 +138,13 @@ file:
             - function:
               - function_name:
                 - function_name_identifier: SUM
-              - bracketed:
-                - start_bracket: (
-                - expression:
-                  - column_reference:
-                    - naked_identifier: amount
-                - end_bracket: )
+              - function_contents:
+                - bracketed:
+                  - start_bracket: (
+                  - expression:
+                    - column_reference:
+                      - naked_identifier: amount
+                  - end_bracket: )
             - alias_expression:
               - keyword: AS
               - naked_identifier: product_sales

@@ -53,15 +53,16 @@ file:
         - function:
           - function_name:
             - function_name_identifier: sys_connect_by_path
-          - bracketed:
-            - start_bracket: (
-            - expression:
-              - column_reference:
-                - naked_identifier: title
-            - comma: ','
-            - expression:
-              - quoted_literal: ''' -> '''
-            - end_bracket: )
+          - function_contents:
+            - bracketed:
+              - start_bracket: (
+              - expression:
+                - column_reference:
+                  - naked_identifier: title
+              - comma: ','
+              - expression:
+                - quoted_literal: ''' -> '''
+              - end_bracket: )
       - comma: ','
       - select_clause_element:
         - column_reference:
@@ -129,15 +130,16 @@ file:
         - function:
           - function_name:
             - function_name_identifier: sys_connect_by_path
-          - bracketed:
-            - start_bracket: (
-            - expression:
-              - column_reference:
-                - naked_identifier: component_id
-            - comma: ','
-            - expression:
-              - quoted_literal: ''' -> '''
-            - end_bracket: )
+          - function_contents:
+            - bracketed:
+              - start_bracket: (
+              - expression:
+                - column_reference:
+                  - naked_identifier: component_id
+              - comma: ','
+              - expression:
+                - quoted_literal: ''' -> '''
+              - end_bracket: )
         - alias_expression:
           - keyword: as
           - naked_identifier: path

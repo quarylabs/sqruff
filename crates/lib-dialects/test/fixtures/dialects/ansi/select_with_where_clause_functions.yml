@@ -33,30 +33,34 @@ file:
           - function:
             - function_name:
               - function_name_identifier: year
-            - bracketed:
-              - start_bracket: (
-              - expression:
-                - function:
-                  - function_name:
-                    - function_name_identifier: getdate
-                  - bracketed:
-                    - start_bracket: (
-                    - end_bracket: )
-              - end_bracket: )
+            - function_contents:
+              - bracketed:
+                - start_bracket: (
+                - expression:
+                  - function:
+                    - function_name:
+                      - function_name_identifier: getdate
+                    - function_contents:
+                      - bracketed:
+                        - start_bracket: (
+                        - end_bracket: )
+                - end_bracket: )
           - comma: ','
           - function:
             - function_name:
               - function_name_identifier: year
-            - bracketed:
-              - start_bracket: (
-              - expression:
-                - function:
-                  - function_name:
-                    - function_name_identifier: getdate
-                  - bracketed:
-                    - start_bracket: (
-                    - end_bracket: )
-              - end_bracket: )
+            - function_contents:
+              - bracketed:
+                - start_bracket: (
+                - expression:
+                  - function:
+                    - function_name:
+                      - function_name_identifier: getdate
+                    - function_contents:
+                      - bracketed:
+                        - start_bracket: (
+                        - end_bracket: )
+                - end_bracket: )
           - binary_operator: '-'
           - numeric_literal: '1'
           - end_bracket: )

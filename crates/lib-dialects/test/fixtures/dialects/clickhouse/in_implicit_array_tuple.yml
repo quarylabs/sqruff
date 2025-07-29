@@ -113,19 +113,21 @@ file:
           - function:
             - function_name:
               - function_name_identifier: toUUID
-            - bracketed:
-              - start_bracket: (
-              - expression:
-                - quoted_literal: '''a'''
-              - end_bracket: )
+            - function_contents:
+              - bracketed:
+                - start_bracket: (
+                - expression:
+                  - quoted_literal: '''a'''
+                - end_bracket: )
           - comma: ','
           - function:
             - function_name:
               - function_name_identifier: toUUID
-            - bracketed:
-              - start_bracket: (
-              - expression:
-                - quoted_literal: '''b'''
-              - end_bracket: )
+            - function_contents:
+              - bracketed:
+                - start_bracket: (
+                - expression:
+                  - quoted_literal: '''b'''
+                - end_bracket: )
           - end_square_bracket: ']'
 - statement_terminator: ;

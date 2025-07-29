@@ -36,12 +36,13 @@ file:
             - function:
               - function_name:
                 - function_name_identifier: SUM
-              - bracketed:
-                - start_bracket: (
-                - expression:
-                  - column_reference:
-                    - naked_identifier: sales
-                - end_bracket: )
+              - function_contents:
+                - bracketed:
+                  - start_bracket: (
+                  - expression:
+                    - column_reference:
+                      - naked_identifier: sales
+                  - end_bracket: )
             - keyword: FOR
             - pivot_for_clause:
               - column_reference:
@@ -99,12 +100,13 @@ file:
             - function:
               - function_name:
                 - function_name_identifier: SUM
-              - bracketed:
-                - start_bracket: (
-                - expression:
-                  - column_reference:
-                    - naked_identifier: sales
-                - end_bracket: )
+              - function_contents:
+                - bracketed:
+                  - start_bracket: (
+                  - expression:
+                    - column_reference:
+                      - naked_identifier: sales
+                  - end_bracket: )
             - keyword: FOR
             - pivot_for_clause:
               - column_reference:
@@ -159,12 +161,13 @@ file:
             - function:
               - function_name:
                 - function_name_identifier: SUM
-              - bracketed:
-                - start_bracket: (
-                - expression:
-                  - column_reference:
-                    - naked_identifier: sales
-                - end_bracket: )
+              - function_contents:
+                - bracketed:
+                  - start_bracket: (
+                  - expression:
+                    - column_reference:
+                      - naked_identifier: sales
+                  - end_bracket: )
             - keyword: FOR
             - pivot_for_clause:
               - column_reference:
@@ -220,12 +223,13 @@ file:
             - function:
               - function_name:
                 - function_name_identifier: SUM
-              - bracketed:
-                - start_bracket: (
-                - expression:
-                  - column_reference:
-                    - naked_identifier: sales
-                - end_bracket: )
+              - function_contents:
+                - bracketed:
+                  - start_bracket: (
+                  - expression:
+                    - column_reference:
+                      - naked_identifier: sales
+                  - end_bracket: )
             - keyword: FOR
             - pivot_for_clause:
               - column_reference:
@@ -281,22 +285,24 @@ file:
             - function:
               - function_name:
                 - function_name_identifier: SUM
-              - bracketed:
-                - start_bracket: (
-                - expression:
-                  - column_reference:
-                    - naked_identifier: sales
-                - end_bracket: )
+              - function_contents:
+                - bracketed:
+                  - start_bracket: (
+                  - expression:
+                    - column_reference:
+                      - naked_identifier: sales
+                  - end_bracket: )
             - comma: ','
             - function:
               - function_name:
                 - function_name_identifier: COUNT
-              - bracketed:
-                - start_bracket: (
-                - expression:
-                  - column_reference:
-                    - naked_identifier: sales
-                - end_bracket: )
+              - function_contents:
+                - bracketed:
+                  - start_bracket: (
+                  - expression:
+                    - column_reference:
+                      - naked_identifier: sales
+                  - end_bracket: )
             - keyword: FOR
             - pivot_for_clause:
               - column_reference:
@@ -337,36 +343,39 @@ file:
             - function:
               - function_name:
                 - function_name_identifier: SUM
-              - bracketed:
-                - start_bracket: (
-                - expression:
-                  - column_reference:
-                    - quoted_identifier: '`grand_total`'
-                - end_bracket: )
+              - function_contents:
+                - bracketed:
+                  - start_bracket: (
+                  - expression:
+                    - column_reference:
+                      - quoted_identifier: '`grand_total`'
+                  - end_bracket: )
             - keyword: FOR
             - pivot_for_clause:
               - function:
                 - function_name:
                   - function_name_identifier: REPLACE
-                - bracketed:
-                  - start_bracket: (
-                  - expression:
-                    - function:
-                      - function_name:
-                        - function_name_identifier: LOWER
-                      - bracketed:
-                        - start_bracket: (
-                        - expression:
-                          - column_reference:
-                            - quoted_identifier: '`media_type`'
-                        - end_bracket: )
-                  - comma: ','
-                  - expression:
-                    - quoted_literal: '" "'
-                  - comma: ','
-                  - expression:
-                    - quoted_literal: '"_"'
-                  - end_bracket: )
+                - function_contents:
+                  - bracketed:
+                    - start_bracket: (
+                    - expression:
+                      - function:
+                        - function_name:
+                          - function_name_identifier: LOWER
+                        - function_contents:
+                          - bracketed:
+                            - start_bracket: (
+                            - expression:
+                              - column_reference:
+                                - quoted_identifier: '`media_type`'
+                            - end_bracket: )
+                    - comma: ','
+                    - expression:
+                      - quoted_literal: '" "'
+                    - comma: ','
+                    - expression:
+                      - quoted_literal: '"_"'
+                    - end_bracket: )
             - keyword: IN
             - bracketed:
               - start_bracket: (
@@ -413,12 +422,13 @@ file:
             - function:
               - function_name:
                 - function_name_identifier: SUM
-              - bracketed:
-                - start_bracket: (
-                - expression:
-                  - column_reference:
-                    - quoted_identifier: '`grand_total`'
-                - end_bracket: )
+              - function_contents:
+                - bracketed:
+                  - start_bracket: (
+                  - expression:
+                    - column_reference:
+                      - quoted_identifier: '`grand_total`'
+                  - end_bracket: )
             - keyword: FOR
             - pivot_for_clause:
               - column_reference:
@@ -469,12 +479,13 @@ file:
             - function:
               - function_name:
                 - function_name_identifier: SUM
-              - bracketed:
-                - start_bracket: (
-                - expression:
-                  - column_reference:
-                    - quoted_identifier: '`grand_total`'
-                - end_bracket: )
+              - function_contents:
+                - bracketed:
+                  - start_bracket: (
+                  - expression:
+                    - column_reference:
+                      - quoted_identifier: '`grand_total`'
+                  - end_bracket: )
             - keyword: FOR
             - pivot_for_clause:
               - expression:

@@ -86,12 +86,13 @@ file:
             - function:
               - function_name:
                 - function_name_identifier: lower
-              - bracketed:
-                - start_bracket: (
-                - expression:
-                  - column_reference:
-                    - naked_identifier: title
-                - end_bracket: )
+              - function_contents:
+                - bracketed:
+                  - start_bracket: (
+                  - expression:
+                    - column_reference:
+                      - naked_identifier: title
+                  - end_bracket: )
           - end_bracket: )
       - end_bracket: )
 - statement_terminator: ;
@@ -246,16 +247,17 @@ file:
         - function:
           - function_name:
             - function_name_identifier: box
-          - bracketed:
-            - start_bracket: (
-            - expression:
-              - column_reference:
-                - naked_identifier: location
-            - comma: ','
-            - expression:
-              - column_reference:
-                - naked_identifier: location
-            - end_bracket: )
+          - function_contents:
+            - bracketed:
+              - start_bracket: (
+              - expression:
+                - column_reference:
+                  - naked_identifier: location
+              - comma: ','
+              - expression:
+                - column_reference:
+                  - naked_identifier: location
+              - end_bracket: )
       - end_bracket: )
 - statement_terminator: ;
 - statement:

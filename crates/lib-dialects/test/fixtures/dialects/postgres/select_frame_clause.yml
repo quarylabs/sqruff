@@ -19,14 +19,15 @@ file:
         - function:
           - function_name:
             - function_name_identifier: first_value
-          - bracketed:
-            - start_bracket: (
-            - expression:
-              - column_reference:
-                - naked_identifier: venuename
-            - keyword: ignore
-            - keyword: nulls
-            - end_bracket: )
+          - function_contents:
+            - bracketed:
+              - start_bracket: (
+              - expression:
+                - column_reference:
+                  - naked_identifier: venuename
+              - keyword: ignore
+              - keyword: nulls
+              - end_bracket: )
           - over_clause:
             - keyword: over
             - bracketed:
@@ -72,9 +73,10 @@ file:
         - function:
           - function_name:
             - function_name_identifier: rank
-          - bracketed:
-            - start_bracket: (
-            - end_bracket: )
+          - function_contents:
+            - bracketed:
+              - start_bracket: (
+              - end_bracket: )
           - over_clause:
             - keyword: OVER
             - bracketed:
@@ -106,9 +108,10 @@ file:
         - function:
           - function_name:
             - function_name_identifier: rank
-          - bracketed:
-            - start_bracket: (
-            - end_bracket: )
+          - function_contents:
+            - bracketed:
+              - start_bracket: (
+              - end_bracket: )
           - over_clause:
             - keyword: OVER
             - bracketed:
@@ -135,9 +138,10 @@ file:
         - function:
           - function_name:
             - function_name_identifier: rank
-          - bracketed:
-            - start_bracket: (
-            - end_bracket: )
+          - function_contents:
+            - bracketed:
+              - start_bracket: (
+              - end_bracket: )
           - over_clause:
             - keyword: OVER
             - bracketed:

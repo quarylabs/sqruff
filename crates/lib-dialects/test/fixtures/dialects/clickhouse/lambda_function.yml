@@ -7,30 +7,31 @@ file:
         - function:
           - function_name:
             - function_name_identifier: arrayFirst
-          - bracketed:
-            - start_bracket: (
-            - expression:
-              - column_reference:
-                - naked_identifier: x
-              - lambda: ->
-              - column_reference:
-                - naked_identifier: x
-              - comparison_operator:
-                - raw_comparison_operator: =
-              - numeric_literal: '2'
-            - comma: ','
-            - expression:
-              - array_literal:
-                - start_square_bracket: '['
-                - numeric_literal: '1'
-                - comma: ','
-                - numeric_literal: '1'
-                - comma: ','
+          - function_contents:
+            - bracketed:
+              - start_bracket: (
+              - expression:
+                - column_reference:
+                  - naked_identifier: x
+                - lambda: ->
+                - column_reference:
+                  - naked_identifier: x
+                - comparison_operator:
+                  - raw_comparison_operator: =
                 - numeric_literal: '2'
-                - comma: ','
-                - numeric_literal: '2'
-                - end_square_bracket: ']'
-            - end_bracket: )
+              - comma: ','
+              - expression:
+                - array_literal:
+                  - start_square_bracket: '['
+                  - numeric_literal: '1'
+                  - comma: ','
+                  - numeric_literal: '1'
+                  - comma: ','
+                  - numeric_literal: '2'
+                  - comma: ','
+                  - numeric_literal: '2'
+                  - end_square_bracket: ']'
+              - end_bracket: )
 - statement_terminator: ;
 - statement:
   - select_statement:
@@ -40,46 +41,47 @@ file:
         - function:
           - function_name:
             - function_name_identifier: arrayFirst
-          - bracketed:
-            - start_bracket: (
-            - expression:
-              - column_reference:
-                - naked_identifier: x
-            - comma: ','
-            - expression:
-              - column_reference:
-                - naked_identifier: y
-              - lambda: ->
-              - column_reference:
-                - naked_identifier: x
-              - comparison_operator:
-                - raw_comparison_operator: '!'
-                - raw_comparison_operator: =
-              - column_reference:
-                - naked_identifier: y
-            - comma: ','
-            - expression:
-              - array_literal:
-                - start_square_bracket: '['
-                - numeric_literal: '1'
-                - comma: ','
-                - numeric_literal: '1'
-                - comma: ','
-                - numeric_literal: '2'
-                - comma: ','
-                - numeric_literal: '2'
-                - end_square_bracket: ']'
-            - comma: ','
-            - expression:
-              - array_literal:
-                - start_square_bracket: '['
-                - numeric_literal: '1'
-                - comma: ','
-                - numeric_literal: '2'
-                - comma: ','
-                - numeric_literal: '2'
-                - comma: ','
-                - numeric_literal: '3'
-                - end_square_bracket: ']'
-            - end_bracket: )
+          - function_contents:
+            - bracketed:
+              - start_bracket: (
+              - expression:
+                - column_reference:
+                  - naked_identifier: x
+              - comma: ','
+              - expression:
+                - column_reference:
+                  - naked_identifier: y
+                - lambda: ->
+                - column_reference:
+                  - naked_identifier: x
+                - comparison_operator:
+                  - raw_comparison_operator: '!'
+                  - raw_comparison_operator: =
+                - column_reference:
+                  - naked_identifier: y
+              - comma: ','
+              - expression:
+                - array_literal:
+                  - start_square_bracket: '['
+                  - numeric_literal: '1'
+                  - comma: ','
+                  - numeric_literal: '1'
+                  - comma: ','
+                  - numeric_literal: '2'
+                  - comma: ','
+                  - numeric_literal: '2'
+                  - end_square_bracket: ']'
+              - comma: ','
+              - expression:
+                - array_literal:
+                  - start_square_bracket: '['
+                  - numeric_literal: '1'
+                  - comma: ','
+                  - numeric_literal: '2'
+                  - comma: ','
+                  - numeric_literal: '2'
+                  - comma: ','
+                  - numeric_literal: '3'
+                  - end_square_bracket: ']'
+              - end_bracket: )
 - statement_terminator: ;

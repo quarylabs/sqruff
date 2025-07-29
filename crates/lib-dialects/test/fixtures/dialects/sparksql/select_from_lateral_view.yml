@@ -43,21 +43,23 @@ file:
             - function:
               - function_name:
                 - function_name_identifier: EXPLODE
-              - bracketed:
-                - start_bracket: (
-                - expression:
-                  - function:
-                    - function_name:
-                      - function_name_identifier: ARRAY
-                    - bracketed:
-                      - start_bracket: (
-                      - expression:
-                        - numeric_literal: '30'
-                      - comma: ','
-                      - expression:
-                        - numeric_literal: '60'
-                      - end_bracket: )
-                - end_bracket: )
+              - function_contents:
+                - bracketed:
+                  - start_bracket: (
+                  - expression:
+                    - function:
+                      - function_name:
+                        - function_name_identifier: ARRAY
+                      - function_contents:
+                        - bracketed:
+                          - start_bracket: (
+                          - expression:
+                            - numeric_literal: '30'
+                          - comma: ','
+                          - expression:
+                            - numeric_literal: '60'
+                          - end_bracket: )
+                  - end_bracket: )
             - naked_identifier: tbl_name
             - keyword: AS
             - naked_identifier: c_age
@@ -67,21 +69,23 @@ file:
             - function:
               - function_name:
                 - function_name_identifier: EXPLODE
-              - bracketed:
-                - start_bracket: (
-                - expression:
-                  - function:
-                    - function_name:
-                      - function_name_identifier: ARRAY
-                    - bracketed:
-                      - start_bracket: (
-                      - expression:
-                        - numeric_literal: '40'
-                      - comma: ','
-                      - expression:
-                        - numeric_literal: '80'
-                      - end_bracket: )
-                - end_bracket: )
+              - function_contents:
+                - bracketed:
+                  - start_bracket: (
+                  - expression:
+                    - function:
+                      - function_name:
+                        - function_name_identifier: ARRAY
+                      - function_contents:
+                        - bracketed:
+                          - start_bracket: (
+                          - expression:
+                            - numeric_literal: '40'
+                          - comma: ','
+                          - expression:
+                            - numeric_literal: '80'
+                          - end_bracket: )
+                  - end_bracket: )
             - keyword: AS
             - naked_identifier: d_age
 - statement_terminator: ;
@@ -97,10 +101,11 @@ file:
         - function:
           - function_name:
             - function_name_identifier: COUNT
-          - bracketed:
-            - start_bracket: (
-            - star: '*'
-            - end_bracket: )
+          - function_contents:
+            - bracketed:
+              - start_bracket: (
+              - star: '*'
+              - end_bracket: )
         - alias_expression:
           - keyword: AS
           - naked_identifier: record_count
@@ -117,21 +122,23 @@ file:
             - function:
               - function_name:
                 - function_name_identifier: EXPLODE
-              - bracketed:
-                - start_bracket: (
-                - expression:
-                  - function:
-                    - function_name:
-                      - function_name_identifier: ARRAY
-                    - bracketed:
-                      - start_bracket: (
-                      - expression:
-                        - numeric_literal: '30'
-                      - comma: ','
-                      - expression:
-                        - numeric_literal: '60'
-                      - end_bracket: )
-                - end_bracket: )
+              - function_contents:
+                - bracketed:
+                  - start_bracket: (
+                  - expression:
+                    - function:
+                      - function_name:
+                        - function_name_identifier: ARRAY
+                      - function_contents:
+                        - bracketed:
+                          - start_bracket: (
+                          - expression:
+                            - numeric_literal: '30'
+                          - comma: ','
+                          - expression:
+                            - numeric_literal: '60'
+                          - end_bracket: )
+                  - end_bracket: )
             - keyword: AS
             - naked_identifier: c_age
           - lateral_view_clause:
@@ -140,21 +147,23 @@ file:
             - function:
               - function_name:
                 - function_name_identifier: EXPLODE
-              - bracketed:
-                - start_bracket: (
-                - expression:
-                  - function:
-                    - function_name:
-                      - function_name_identifier: ARRAY
-                    - bracketed:
-                      - start_bracket: (
-                      - expression:
-                        - numeric_literal: '40'
-                      - comma: ','
-                      - expression:
-                        - numeric_literal: '80'
-                      - end_bracket: )
-                - end_bracket: )
+              - function_contents:
+                - bracketed:
+                  - start_bracket: (
+                  - expression:
+                    - function:
+                      - function_name:
+                        - function_name_identifier: ARRAY
+                      - function_contents:
+                        - bracketed:
+                          - start_bracket: (
+                          - expression:
+                            - numeric_literal: '40'
+                          - comma: ','
+                          - expression:
+                            - numeric_literal: '80'
+                          - end_bracket: )
+                  - end_bracket: )
             - keyword: AS
             - naked_identifier: d_age
     - groupby_clause:
@@ -207,16 +216,18 @@ file:
             - function:
               - function_name:
                 - function_name_identifier: EXPLODE
-              - bracketed:
-                - start_bracket: (
-                - expression:
-                  - function:
-                    - function_name:
-                      - function_name_identifier: ARRAY
-                    - bracketed:
-                      - start_bracket: (
-                      - end_bracket: )
-                - end_bracket: )
+              - function_contents:
+                - bracketed:
+                  - start_bracket: (
+                  - expression:
+                    - function:
+                      - function_name:
+                        - function_name_identifier: ARRAY
+                      - function_contents:
+                        - bracketed:
+                          - start_bracket: (
+                          - end_bracket: )
+                  - end_bracket: )
             - naked_identifier: tbl_name
             - keyword: AS
             - naked_identifier: c_age
@@ -266,16 +277,18 @@ file:
             - function:
               - function_name:
                 - function_name_identifier: EXPLODE
-              - bracketed:
-                - start_bracket: (
-                - expression:
-                  - function:
-                    - function_name:
-                      - function_name_identifier: ARRAY
-                    - bracketed:
-                      - start_bracket: (
-                      - end_bracket: )
-                - end_bracket: )
+              - function_contents:
+                - bracketed:
+                  - start_bracket: (
+                  - expression:
+                    - function:
+                      - function_name:
+                        - function_name_identifier: ARRAY
+                      - function_contents:
+                        - bracketed:
+                          - start_bracket: (
+                          - end_bracket: )
+                  - end_bracket: )
             - naked_identifier: tbl_name
             - keyword: AS
             - naked_identifier: c_age
@@ -325,16 +338,18 @@ file:
             - function:
               - function_name:
                 - function_name_identifier: EXPLODE
-              - bracketed:
-                - start_bracket: (
-                - expression:
-                  - function:
-                    - function_name:
-                      - function_name_identifier: ARRAY
-                    - bracketed:
-                      - start_bracket: (
-                      - end_bracket: )
-                - end_bracket: )
+              - function_contents:
+                - bracketed:
+                  - start_bracket: (
+                  - expression:
+                    - function:
+                      - function_name:
+                        - function_name_identifier: ARRAY
+                      - function_contents:
+                        - bracketed:
+                          - start_bracket: (
+                          - end_bracket: )
+                  - end_bracket: )
             - naked_identifier: tbl_name
             - naked_identifier: c_age
 - statement_terminator: ;
@@ -383,16 +398,18 @@ file:
             - function:
               - function_name:
                 - function_name_identifier: EXPLODE
-              - bracketed:
-                - start_bracket: (
-                - expression:
-                  - function:
-                    - function_name:
-                      - function_name_identifier: ARRAY
-                    - bracketed:
-                      - start_bracket: (
-                      - end_bracket: )
-                - end_bracket: )
+              - function_contents:
+                - bracketed:
+                  - start_bracket: (
+                  - expression:
+                    - function:
+                      - function_name:
+                        - function_name_identifier: ARRAY
+                      - function_contents:
+                        - bracketed:
+                          - start_bracket: (
+                          - end_bracket: )
+                  - end_bracket: )
             - naked_identifier: c_age
 - statement_terminator: ;
 - statement:
@@ -435,12 +452,13 @@ file:
             - function:
               - function_name:
                 - function_name_identifier: INLINE
-              - bracketed:
-                - start_bracket: (
-                - expression:
-                  - column_reference:
-                    - naked_identifier: array_of_structs
-                - end_bracket: )
+              - function_contents:
+                - bracketed:
+                  - start_bracket: (
+                  - expression:
+                    - column_reference:
+                      - naked_identifier: array_of_structs
+                  - end_bracket: )
             - naked_identifier: exploded_people
             - keyword: AS
             - naked_identifier: name
@@ -492,12 +510,13 @@ file:
             - function:
               - function_name:
                 - function_name_identifier: INLINE
-              - bracketed:
-                - start_bracket: (
-                - expression:
-                  - column_reference:
-                    - naked_identifier: array_of_structs
-                - end_bracket: )
+              - function_contents:
+                - bracketed:
+                  - start_bracket: (
+                  - expression:
+                    - column_reference:
+                      - naked_identifier: array_of_structs
+                  - end_bracket: )
             - naked_identifier: exploded_people
             - keyword: AS
             - naked_identifier: name
@@ -549,12 +568,13 @@ file:
             - function:
               - function_name:
                 - function_name_identifier: INLINE
-              - bracketed:
-                - start_bracket: (
-                - expression:
-                  - column_reference:
-                    - naked_identifier: array_of_structs
-                - end_bracket: )
+              - function_contents:
+                - bracketed:
+                  - start_bracket: (
+                  - expression:
+                    - column_reference:
+                      - naked_identifier: array_of_structs
+                  - end_bracket: )
             - naked_identifier: exploded_people
 - statement_terminator: ;
 - statement:
@@ -600,12 +620,13 @@ file:
             - function:
               - function_name:
                 - function_name_identifier: INLINE
-              - bracketed:
-                - start_bracket: (
-                - expression:
-                  - column_reference:
-                    - naked_identifier: array_of_structs
-                - end_bracket: )
+              - function_contents:
+                - bracketed:
+                  - start_bracket: (
+                  - expression:
+                    - column_reference:
+                      - naked_identifier: array_of_structs
+                  - end_bracket: )
             - naked_identifier: exploded_people
             - naked_identifier: name
             - comma: ','
@@ -656,12 +677,13 @@ file:
             - function:
               - function_name:
                 - function_name_identifier: INLINE
-              - bracketed:
-                - start_bracket: (
-                - expression:
-                  - column_reference:
-                    - naked_identifier: array_of_structs
-                - end_bracket: )
+              - function_contents:
+                - bracketed:
+                  - start_bracket: (
+                  - expression:
+                    - column_reference:
+                      - naked_identifier: array_of_structs
+                  - end_bracket: )
             - keyword: AS
             - naked_identifier: name
             - comma: ','
@@ -683,33 +705,35 @@ file:
         - function:
           - function_name:
             - function_name_identifier: CAST
-          - bracketed:
-            - start_bracket: (
-            - expression:
-              - function:
-                - function_name:
-                  - function_name_identifier: GET_JSON_OBJECT
-                - bracketed:
-                  - start_bracket: (
-                  - expression:
-                    - column_reference:
-                      - naked_identifier: things
-                  - comma: ','
-                  - expression:
-                    - quoted_literal: '''$.percentage'''
-                  - end_bracket: )
-            - keyword: AS
-            - data_type:
-              - primitive_type:
-                - keyword: DECIMAL
-                - bracketed_arguments:
-                  - bracketed:
-                    - start_bracket: (
-                    - numeric_literal: '16'
-                    - comma: ','
-                    - numeric_literal: '8'
-                    - end_bracket: )
-            - end_bracket: )
+          - function_contents:
+            - bracketed:
+              - start_bracket: (
+              - expression:
+                - function:
+                  - function_name:
+                    - function_name_identifier: GET_JSON_OBJECT
+                  - function_contents:
+                    - bracketed:
+                      - start_bracket: (
+                      - expression:
+                        - column_reference:
+                          - naked_identifier: things
+                      - comma: ','
+                      - expression:
+                        - quoted_literal: '''$.percentage'''
+                      - end_bracket: )
+              - keyword: AS
+              - data_type:
+                - primitive_type:
+                  - keyword: DECIMAL
+                  - bracketed_arguments:
+                    - bracketed:
+                      - start_bracket: (
+                      - numeric_literal: '16'
+                      - comma: ','
+                      - numeric_literal: '8'
+                      - end_bracket: )
+              - end_bracket: )
         - alias_expression:
           - keyword: AS
           - naked_identifier: ptc
@@ -761,14 +785,15 @@ file:
           - function:
             - function_name:
               - function_name_identifier: EXPLODE
-            - bracketed:
-              - start_bracket: (
-              - expression:
-                - column_reference:
-                  - naked_identifier: t2
-                  - dot: .
-                  - naked_identifier: column2
-              - end_bracket: )
+            - function_contents:
+              - bracketed:
+                - start_bracket: (
+                - expression:
+                  - column_reference:
+                    - naked_identifier: t2
+                    - dot: .
+                    - naked_identifier: column2
+                - end_bracket: )
           - keyword: AS
           - naked_identifier: things
 - statement_terminator: ;

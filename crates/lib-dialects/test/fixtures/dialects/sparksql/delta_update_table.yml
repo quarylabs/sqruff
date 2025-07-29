@@ -82,12 +82,13 @@ file:
                   - function:
                     - function_name:
                       - function_name_identifier: min
-                    - bracketed:
-                      - start_bracket: (
-                      - expression:
-                        - column_reference:
-                          - naked_identifier: session_time
-                      - end_bracket: )
+                    - function_contents:
+                      - bracketed:
+                        - start_bracket: (
+                        - expression:
+                          - column_reference:
+                            - naked_identifier: session_time
+                        - end_bracket: )
               - from_clause:
                 - keyword: FROM
                 - from_expression:

@@ -54,12 +54,13 @@ file:
           - function:
             - function_name:
               - function_name_identifier: LENGTH
-            - bracketed:
-              - start_bracket: (
-              - expression:
-                - column_reference:
-                  - naked_identifier: value
-              - end_bracket: )
+            - function_contents:
+              - bracketed:
+                - start_bracket: (
+                - expression:
+                  - column_reference:
+                    - naked_identifier: value
+                - end_bracket: )
           - comparison_operator:
             - raw_comparison_operator: '>'
           - numeric_literal: '0'
@@ -75,12 +76,13 @@ file:
           - function:
             - function_name:
               - function_name_identifier: LENGTH
-            - bracketed:
-              - start_bracket: (
-              - expression:
-                - column_reference:
-                  - naked_identifier: value
-              - end_bracket: )
+            - function_contents:
+              - bracketed:
+                - start_bracket: (
+                - expression:
+                  - column_reference:
+                    - naked_identifier: value
+                - end_bracket: )
           - comparison_operator:
             - raw_comparison_operator: <
             - raw_comparison_operator: =

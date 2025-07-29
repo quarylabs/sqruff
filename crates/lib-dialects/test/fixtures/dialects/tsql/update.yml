@@ -73,9 +73,7 @@ file:
                 - dot: .
                 - naked_identifier: rn
               - assignment_operator:
-                - addition_assignment_segment:
-                  - binary_operator: +
-                  - raw_comparison_operator: =
+                - addition_assignment_segment: +=
               - expression:
                 - numeric_literal: '1'
         - from_clause:

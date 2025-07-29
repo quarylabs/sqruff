@@ -116,19 +116,18 @@ file:
                       - expression:
                         - case_expression:
                           - keyword: CASE
-                          - when_clause:
-                            - keyword: WHEN
-                            - expression:
-                              - column_reference:
-                                - naked_identifier: t
-                                - dot: .
-                                - naked_identifier: col1
-                              - comparison_operator:
-                                - raw_comparison_operator: =
-                              - quoted_literal: '''value'''
-                            - keyword: THEN
-                            - expression:
-                              - numeric_literal: '1'
+                          - keyword: WHEN
+                          - expression:
+                            - column_reference:
+                              - naked_identifier: t
+                              - dot: .
+                              - naked_identifier: col1
+                            - comparison_operator:
+                              - raw_comparison_operator: =
+                            - quoted_literal: '''value'''
+                          - keyword: THEN
+                          - expression:
+                            - numeric_literal: '1'
                           - keyword: END
                     - orderby_clause:
                       - keyword: ORDER
@@ -182,19 +181,18 @@ file:
                       - expression:
                         - case_expression:
                           - keyword: CASE
-                          - when_clause:
-                            - keyword: WHEN
-                            - expression:
-                              - column_reference:
-                                - naked_identifier: t
-                                - dot: .
-                                - naked_identifier: col1
-                              - comparison_operator:
-                                - raw_comparison_operator: =
-                              - quoted_literal: '''value'''
-                            - keyword: THEN
-                            - expression:
-                              - numeric_literal: '1'
+                          - keyword: WHEN
+                          - expression:
+                            - column_reference:
+                              - naked_identifier: t
+                              - dot: .
+                              - naked_identifier: col1
+                            - comparison_operator:
+                              - raw_comparison_operator: =
+                            - quoted_literal: '''value'''
+                          - keyword: THEN
+                          - expression:
+                            - numeric_literal: '1'
                           - keyword: END
                       - comma: ','
                       - expression:

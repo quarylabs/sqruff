@@ -70,41 +70,31 @@ file:
     - keyword: SET
     - tsql_variable: '@param1'
     - assignment_operator:
-      - addition_assignment_segment:
-        - binary_operator: +
-        - raw_comparison_operator: =
+      - addition_assignment_segment: +=
     - expression:
       - numeric_literal: '1'
     - comma: ','
     - tsql_variable: '@param2'
     - assignment_operator:
-      - subtraction_assignment_segment:
-        - binary_operator: '-'
-        - raw_comparison_operator: =
+      - subtraction_assignment_segment: -=
     - expression:
       - numeric_literal: '2'
     - comma: ','
     - tsql_variable: '@param3'
     - assignment_operator:
-      - multiplication_assignment_segment:
-        - binary_operator: '*'
-        - raw_comparison_operator: =
+      - multiplication_assignment_segment: '*='
     - expression:
       - numeric_literal: '3'
     - comma: ','
     - tsql_variable: '@param4'
     - assignment_operator:
-      - division_assignment_segment:
-        - binary_operator: /
-        - raw_comparison_operator: =
+      - division_assignment_segment: /=
     - expression:
       - numeric_literal: '4'
     - comma: ','
     - tsql_variable: '@param5'
     - assignment_operator:
-      - modulus_assignment_segment:
-        - binary_operator: '%'
-        - raw_comparison_operator: =
+      - modulus_assignment_segment: '%='
     - expression:
       - numeric_literal: '5'
     - comma: ','

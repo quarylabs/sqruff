@@ -27,12 +27,11 @@ file:
       - select_clause:
         - keyword: SELECT
         - select_clause_element:
-          - parameterized_expression:
-            - tsql_variable: '@I'
-        - unparsable:
-          - plus: +
-          - raw_comparison_operator: =
-          - numeric_literal: '2'
+          - tsql_variable: '@I'
+          - assignment_operator:
+            - addition_assignment_segment: +=
+          - expression:
+            - numeric_literal: '2'
   - statement_terminator: ;
   - statement:
     - select_statement:
@@ -50,12 +49,11 @@ file:
       - select_clause:
         - keyword: SELECT
         - select_clause_element:
-          - parameterized_expression:
-            - tsql_variable: '@I'
-        - unparsable:
-          - minus: '-'
-          - raw_comparison_operator: =
-          - numeric_literal: '4'
+          - tsql_variable: '@I'
+          - assignment_operator:
+            - subtraction_assignment_segment: -=
+          - expression:
+            - numeric_literal: '4'
   - statement_terminator: ;
   - statement:
     - select_statement:
@@ -73,12 +71,11 @@ file:
       - select_clause:
         - keyword: SELECT
         - select_clause_element:
-          - parameterized_expression:
-            - tsql_variable: '@I'
-        - unparsable:
-          - star: '*'
-          - raw_comparison_operator: =
-          - numeric_literal: '6'
+          - tsql_variable: '@I'
+          - assignment_operator:
+            - multiplication_assignment_segment: '*='
+          - expression:
+            - numeric_literal: '6'
   - statement_terminator: ;
   - statement:
     - select_statement:
@@ -96,12 +93,11 @@ file:
       - select_clause:
         - keyword: SELECT
         - select_clause_element:
-          - parameterized_expression:
-            - tsql_variable: '@I'
-        - unparsable:
-          - divide: /
-          - raw_comparison_operator: =
-          - numeric_literal: '8'
+          - tsql_variable: '@I'
+          - assignment_operator:
+            - division_assignment_segment: /=
+          - expression:
+            - numeric_literal: '8'
   - statement_terminator: ;
   - statement:
     - select_statement:
@@ -119,10 +115,9 @@ file:
       - select_clause:
         - keyword: SELECT
         - select_clause_element:
-          - parameterized_expression:
-            - tsql_variable: '@I'
-        - unparsable:
-          - percent: '%'
-          - raw_comparison_operator: =
-          - numeric_literal: '10'
+          - tsql_variable: '@I'
+          - assignment_operator:
+            - modulus_assignment_segment: '%='
+          - expression:
+            - numeric_literal: '10'
   - statement_terminator: ;

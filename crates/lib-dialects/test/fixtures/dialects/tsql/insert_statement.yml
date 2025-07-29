@@ -407,39 +407,64 @@ file:
                           - naked_identifier: EmployeeTemp
   - statement_terminator: ;
   - keyword: GO
-- unparsable:
-  - word: INSERT
-  - word: INTO
-  - word: HumanResources
-  - dot: .
-  - word: NewEmployee
-  - word: WITH
-  - start_bracket: (
-  - word: TABLOCK
-  - end_bracket: )
-  - word: OUTPUT
-  - star: '*'
-  - word: INTO
-  - word: Results
-  - word: EXEC
-  - word: FindEmployeesFunc
-  - tsql_variable: '@lastName'
-  - raw_comparison_operator: =
-  - single_quote: '''Picard'''
-  - word: GO
-  - word: INSERT
-  - word: HumanResources
-  - dot: .
-  - word: NewEmployee
-  - start_bracket: (
-  - word: LastName
-  - comma: ','
-  - word: FirstName
-  - end_bracket: )
-  - word: values
-  - start_bracket: (
-  - single_quote: '''Kirk'''
-  - comma: ','
-  - single_quote: '''James'''
-  - end_bracket: )
-  - word: GO
+  - statement:
+    - insert_statement:
+      - insert_statement:
+        - keyword: INSERT
+        - keyword: INTO
+        - table_reference:
+          - object_reference:
+            - naked_identifier: HumanResources
+            - dot: .
+            - naked_identifier: NewEmployee
+        - keyword: WITH
+        - bracketed:
+          - start_bracket: (
+          - keyword: TABLOCK
+          - end_bracket: )
+        - keyword: OUTPUT
+        - select_clause_element:
+          - wildcard_expression:
+            - wildcard_identifier:
+              - star: '*'
+        - keyword: INTO
+        - table_reference:
+          - object_reference:
+            - naked_identifier: Results
+        - keyword: EXEC
+        - object_reference:
+          - naked_identifier: FindEmployeesFunc
+        - tsql_variable: '@lastName'
+        - assignment_operator:
+          - raw_comparison_operator: =
+        - expression:
+          - quoted_literal: '''Picard'''
+        - expression:
+          - column_reference:
+            - naked_identifier: GO
+  - statement:
+    - insert_statement:
+      - insert_statement:
+        - keyword: INSERT
+        - table_reference:
+          - object_reference:
+            - naked_identifier: HumanResources
+            - dot: .
+            - naked_identifier: NewEmployee
+        - bracketed:
+          - start_bracket: (
+          - column_reference:
+            - naked_identifier: LastName
+          - comma: ','
+          - column_reference:
+            - naked_identifier: FirstName
+          - end_bracket: )
+        - values_clause:
+          - keyword: values
+          - bracketed:
+            - start_bracket: (
+            - quoted_literal: '''Kirk'''
+            - comma: ','
+            - quoted_literal: '''James'''
+            - end_bracket: )
+  - keyword: GO

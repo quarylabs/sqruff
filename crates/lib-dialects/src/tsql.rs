@@ -7,15 +7,15 @@ use sqruff_lib_core::dialects::syntax::SyntaxKind;
 use sqruff_lib_core::helpers::{Config, ToMatchable};
 use sqruff_lib_core::parser::grammar::Ref;
 use sqruff_lib_core::parser::grammar::anyof::{AnyNumberOf, one_of, optionally_bracketed};
-use sqruff_lib_core::parser::grammar::Nothing;
 use sqruff_lib_core::parser::grammar::conditional::Conditional;
+use sqruff_lib_core::parser::grammar::Nothing;
 use sqruff_lib_core::parser::grammar::delimited::Delimited;
 use sqruff_lib_core::parser::grammar::sequence::{Bracketed, Sequence};
 use sqruff_lib_core::parser::lexer::Matcher;
 use sqruff_lib_core::parser::lookahead::LookaheadExclude;
 use sqruff_lib_core::parser::matchable::MatchableTrait;
 use sqruff_lib_core::parser::node_matcher::NodeMatcher;
-use sqruff_lib_core::parser::parsers::{RegexParser, StringParser, TypedParser};
+use sqruff_lib_core::parser::parsers::{MultiStringParser, RegexParser, StringParser, TypedParser};
 use sqruff_lib_core::parser::segments::generator::SegmentGenerator;
 use sqruff_lib_core::parser::segments::meta::MetaSegment;
 use sqruff_lib_core::parser::types::ParseMode;
@@ -218,6 +218,12 @@ pub fn raw_dialect() -> Dialect {
                 r"'https://[^']*\.dfs\.core\.windows\.net/[^']*'",
                 SyntaxKind::QuotedLiteral,
             ),
+            // Compound assignment operators - must come before individual operators
+            Matcher::string("addition_assignment", "+=", SyntaxKind::AdditionAssignmentSegment),
+            Matcher::string("subtraction_assignment", "-=", SyntaxKind::SubtractionAssignmentSegment),
+            Matcher::string("multiplication_assignment", "*=", SyntaxKind::MultiplicationAssignmentSegment),
+            Matcher::string("division_assignment", "/=", SyntaxKind::DivisionAssignmentSegment),
+            Matcher::string("modulus_assignment", "%=", SyntaxKind::ModulusAssignmentSegment),
         ],
         "equals",
     );
@@ -362,125 +368,44 @@ pub fn raw_dialect() -> Dialect {
     // StringParser instead of Ref::keyword to handle T-SQL's lexing behavior where CASE, WHEN, 
     // THEN, ELSE are lexed as Word tokens in SELECT contexts but Keyword tokens in WHERE contexts.
         
-    // Add other T-SQL specific segments
-    dialect.add([
-        // T-SQL compound assignment operators
-        (
-            "AdditionAssignmentSegment".into(),
-            NodeMatcher::new(SyntaxKind::AdditionAssignmentSegment, |_| {
-                Sequence::new(vec_of_erased![
-                    Ref::new("BinaryOperatorGrammar"),
-                    Ref::new("RawComparisonOperatorGrammar")
-                ])
-                .to_matchable()
-            })
-            .to_matchable()
-            .into(),
-        ),
-        (
-            "SubtractionAssignmentSegment".into(),
-            NodeMatcher::new(SyntaxKind::SubtractionAssignmentSegment, |_| {
-                Sequence::new(vec_of_erased![
-                    Ref::new("BinaryOperatorGrammar"),
-                    Ref::new("RawComparisonOperatorGrammar")
-                ])
-                .to_matchable()
-            })
-            .to_matchable()
-            .into(),
-        ),
-        (
-            "MultiplicationAssignmentSegment".into(),
-            NodeMatcher::new(SyntaxKind::MultiplicationAssignmentSegment, |_| {
-                Sequence::new(vec_of_erased![
-                    Ref::new("BinaryOperatorGrammar"),
-                    Ref::new("RawComparisonOperatorGrammar")
-                ])
-                .to_matchable()
-            })
-            .to_matchable()
-            .into(),
-        ),
-        (
-            "DivisionAssignmentSegment".into(),
-            NodeMatcher::new(SyntaxKind::DivisionAssignmentSegment, |_| {
-                Sequence::new(vec_of_erased![
-                    Ref::new("BinaryOperatorGrammar"),
-                    Ref::new("RawComparisonOperatorGrammar")
-                ])
-                .to_matchable()
-            })
-            .to_matchable()
-            .into(),
-        ),
-        (
-            "ModulusAssignmentSegment".into(),
-            NodeMatcher::new(SyntaxKind::ModulusAssignmentSegment, |_| {
-                Sequence::new(vec_of_erased![
-                    Ref::new("BinaryOperatorGrammar"),
-                    Ref::new("RawComparisonOperatorGrammar")
-                ])
-                .to_matchable()
-            })
-            .to_matchable()
-            .into(),
-        ),
-        // Note: The test file shows ^=, &=, |= just use generic assignment_operator
-        // We'll use AssignmentOperator SyntaxKind for these
-        (
-            "BitwiseAndAssignmentSegment".into(),
-            NodeMatcher::new(SyntaxKind::AssignmentOperator, |_| {
-                Sequence::new(vec_of_erased![
-                    StringParser::new("&", SyntaxKind::ComparisonOperator),
-                    Ref::new("RawEqualsSegment")
-                ])
-                .to_matchable()
-            })
-            .to_matchable()
-            .into(),
-        ),
-        (
-            "BitwiseOrAssignmentSegment".into(),
-            NodeMatcher::new(SyntaxKind::AssignmentOperator, |_| {
-                Sequence::new(vec_of_erased![
-                    StringParser::new("|", SyntaxKind::ComparisonOperator),
-                    Ref::new("RawEqualsSegment")
-                ])
-                .to_matchable()
-            })
-            .to_matchable()
-            .into(),
-        ),
-        (
-            "BitwiseXorAssignmentSegment".into(),
-            NodeMatcher::new(SyntaxKind::AssignmentOperator, |_| {
-                Sequence::new(vec_of_erased![
-                    StringParser::new("^", SyntaxKind::BinaryOperator),
-                    Ref::new("RawEqualsSegment")
-                ])
-                .to_matchable()
-            })
-            .to_matchable()
-            .into(),
-        ),
-    ]);
 
-    // Override AssignmentOperatorSegment to include compound assignment operators
+
+    // T-SQL specific CASE expression - handle T-SQL's unique lexing behavior where CASE/WHEN/THEN/ELSE/END 
+    // are lexed as 'word' in SELECT contexts but 'keyword' in WHERE contexts
     dialect.add([(
-        "AssignmentOperatorSegment".into(),
-        NodeMatcher::new(SyntaxKind::AssignmentOperator, |_| {
+        "CaseExpressionSegment".into(),
+        NodeMatcher::new(SyntaxKind::CaseExpression, |_| {
             one_of(vec_of_erased![
-                // Standard assignment
-                Ref::new("RawEqualsSegment"),
-                // Compound assignment operators
-                Ref::new("AdditionAssignmentSegment"),
-                Ref::new("SubtractionAssignmentSegment"),
-                Ref::new("MultiplicationAssignmentSegment"),
-                Ref::new("DivisionAssignmentSegment"),
-                Ref::new("ModulusAssignmentSegment"),
-                Ref::new("BitwiseAndAssignmentSegment"),
-                Ref::new("BitwiseOrAssignmentSegment"),
-                Ref::new("BitwiseXorAssignmentSegment"),
+                // Searched CASE: CASE WHEN condition THEN result [WHEN condition THEN result]... [ELSE result] END
+                Sequence::new(vec_of_erased![
+                    // Use MultiStringParser to match "CASE" regardless of whether it's lexed as word or keyword
+                    MultiStringParser::new(vec!["CASE".to_string()], SyntaxKind::Keyword),
+                    AnyNumberOf::new(vec_of_erased![
+                        Sequence::new(vec_of_erased![
+                            MultiStringParser::new(vec!["WHEN".to_string()], SyntaxKind::Keyword),
+                            Ref::new("ExpressionSegment"),
+                            MultiStringParser::new(vec!["THEN".to_string()], SyntaxKind::Keyword),
+                            Ref::new("ExpressionSegment")
+                        ])
+                    ]),
+                    Ref::new("ElseClauseSegment").optional(),
+                    MultiStringParser::new(vec!["END".to_string()], SyntaxKind::Keyword)
+                ]),
+                // Simple CASE: CASE expression WHEN value THEN result [WHEN value THEN result]... [ELSE result] END
+                Sequence::new(vec_of_erased![
+                    MultiStringParser::new(vec!["CASE".to_string()], SyntaxKind::Keyword),
+                    Ref::new("ExpressionSegment"),
+                    AnyNumberOf::new(vec_of_erased![
+                        Sequence::new(vec_of_erased![
+                            MultiStringParser::new(vec!["WHEN".to_string()], SyntaxKind::Keyword),
+                            Ref::new("ExpressionSegment"),
+                            MultiStringParser::new(vec!["THEN".to_string()], SyntaxKind::Keyword),
+                            Ref::new("ExpressionSegment")
+                        ])
+                    ]),
+                    Ref::new("ElseClauseSegment").optional(),
+                    MultiStringParser::new(vec!["END".to_string()], SyntaxKind::Keyword)
+                ])
             ])
             .to_matchable()
         })
@@ -488,10 +413,48 @@ pub fn raw_dialect() -> Dialect {
         .into(),
     )]);
 
-    // DISABLED: T-SQL specific CASE expression segments - trying ANSI version first
-    // These use StringParser instead of Ref::keyword to handle T-SQL's lexing behavior
-    // where CASE, WHEN, THEN, ELSE are lexed as Word tokens in SELECT contexts
-    // DISABLED: Let T-SQL use ANSI's CaseExpressionSegment for now
+    // Override ColumnReferenceSegment to exclude CASE keywords that should be parsed as CaseExpressionSegment
+    dialect.add([(
+        "ColumnReferenceSegment".into(),
+        NodeMatcher::new(SyntaxKind::ColumnReference, |_| {
+            Delimited::new(vec![
+                // Exclude CASE keywords from being parsed as column references
+                // Use MultiStringParser in exclude to handle both 'word' and 'keyword' tokens
+                Ref::new("SingleIdentifierGrammar")
+                    .exclude(MultiStringParser::new(vec!["CASE".to_string()], SyntaxKind::Keyword))
+                    .exclude(MultiStringParser::new(vec!["WHEN".to_string()], SyntaxKind::Keyword))
+                    .exclude(MultiStringParser::new(vec!["THEN".to_string()], SyntaxKind::Keyword))
+                    .exclude(MultiStringParser::new(vec!["ELSE".to_string()], SyntaxKind::Keyword))
+                    .exclude(MultiStringParser::new(vec!["END".to_string()], SyntaxKind::Keyword))
+                    .to_matchable()
+            ])
+            .config(|this| this.delimiter(Ref::new("ObjectReferenceDelimiterGrammar")))
+            .to_matchable()
+        })
+        .to_matchable()
+        .into(),
+    )]);
+
+    // Override Expression_C_Grammar to prioritize CaseExpressionSegment over Expression_D_Grammar
+    dialect.add([(
+        "Expression_C_Grammar".into(), 
+        one_of(vec_of_erased![
+            // Put CaseExpressionSegment FIRST
+            Ref::new("CaseExpressionSegment"),
+            Ref::new("Expression_D_Grammar"),
+        ])
+        .to_matchable()
+        .into(),
+    )]);
+
+    // INVESTIGATION RESULT: Grammar replacement approach failed
+    // The issue is that ANSI Expression_C_Grammar, Expression_D_Grammar, and BaseExpressionElementGrammar
+    // are all inherited by T-SQL but not redefined in T-SQL's own library.
+    // replace_grammar() can only work on grammars that exist in the current dialect's library.
+    
+    // NEXT APPROACH: Test if the CaseExpressionSegment override actually works in isolation
+    // by creating a simple test case without the complex grammar hierarchy.
+
     // dialect.add([
     //     (
     //         "CaseExpressionSegment".into(),
@@ -660,6 +623,25 @@ pub fn raw_dialect() -> Dialect {
                         ])
                     ])
                 ])])
+                .config(|this| this.parse_mode(ParseMode::Greedy)),
+                // Optional WITH clause for column definitions (moved here from FromExpressionElementSegment)
+                Sequence::new(vec_of_erased![
+                    Ref::keyword("WITH"),
+                    Bracketed::new(vec_of_erased![Delimited::new(vec_of_erased![
+                        Sequence::new(vec_of_erased![
+                            Ref::new("SingleIdentifierGrammar"), // Column name (can be bracketed)
+                            Ref::new("TsqlDatatypeSegment"),     // Data type
+                            // Optional COLLATE clause
+                            Sequence::new(vec_of_erased![
+                                Ref::keyword("COLLATE"),
+                                Ref::new("CollationSegment")
+                            ]).config(|this| this.optional()),
+                            // Optional JSON path expression for JSON data
+                            Ref::new("QuotedLiteralSegment").optional()
+                        ])
+                    ])])
+                    .config(|this| this.parse_mode(ParseMode::Greedy))
+                ]).config(|this| this.optional())
             ])
             .to_matchable()
         })
@@ -761,70 +743,40 @@ pub fn raw_dialect() -> Dialect {
             .to_matchable()
             .into(),
         ),
-        // Addition assignment (+=)
+        // Addition assignment (+=) - uses lexer token
         (
             "AdditionAssignmentSegment".into(),
-            NodeMatcher::new(SyntaxKind::AdditionAssignmentSegment, |_| {
-                Sequence::new(vec_of_erased![
-                    Ref::new("PlusSegment"),
-                    Ref::new("RawEqualsSegment")
-                ])
+            TypedParser::new(SyntaxKind::AdditionAssignmentSegment, SyntaxKind::AdditionAssignmentSegment)
                 .to_matchable()
-            })
-            .to_matchable()
-            .into(),
+                .into(),
         ),
-        // Subtraction assignment (-=)
+        // Subtraction assignment (-=) - uses lexer token
         (
             "SubtractionAssignmentSegment".into(),
-            NodeMatcher::new(SyntaxKind::SubtractionAssignmentSegment, |_| {
-                Sequence::new(vec_of_erased![
-                    Ref::new("MinusSegment"),
-                    Ref::new("RawEqualsSegment")
-                ])
+            TypedParser::new(SyntaxKind::SubtractionAssignmentSegment, SyntaxKind::SubtractionAssignmentSegment)
                 .to_matchable()
-            })
-            .to_matchable()
-            .into(),
+                .into(),
         ),
-        // Multiplication assignment (*=)
+        // Multiplication assignment (*=) - uses lexer token
         (
             "MultiplicationAssignmentSegment".into(),
-            NodeMatcher::new(SyntaxKind::MultiplicationAssignmentSegment, |_| {
-                Sequence::new(vec_of_erased![
-                    Ref::new("MultiplySegment"),
-                    Ref::new("RawEqualsSegment")
-                ])
+            TypedParser::new(SyntaxKind::MultiplicationAssignmentSegment, SyntaxKind::MultiplicationAssignmentSegment)
                 .to_matchable()
-            })
-            .to_matchable()
-            .into(),
+                .into(),
         ),
-        // Division assignment (/=)
+        // Division assignment (/=) - uses lexer token
         (
             "DivisionAssignmentSegment".into(),
-            NodeMatcher::new(SyntaxKind::DivisionAssignmentSegment, |_| {
-                Sequence::new(vec_of_erased![
-                    Ref::new("DivideSegment"),
-                    Ref::new("RawEqualsSegment")
-                ])
+            TypedParser::new(SyntaxKind::DivisionAssignmentSegment, SyntaxKind::DivisionAssignmentSegment)
                 .to_matchable()
-            })
-            .to_matchable()
-            .into(),
+                .into(),
         ),
-        // Modulus assignment (%=)
+        // Modulus assignment (%=) - uses lexer token
         (
             "ModulusAssignmentSegment".into(),
-            NodeMatcher::new(SyntaxKind::ModulusAssignmentSegment, |_| {
-                Sequence::new(vec_of_erased![
-                    Ref::new("ModuloSegment"),
-                    Ref::new("RawEqualsSegment")
-                ])
+            TypedParser::new(SyntaxKind::ModulusAssignmentSegment, SyntaxKind::ModulusAssignmentSegment)
                 .to_matchable()
-            })
-            .to_matchable()
-            .into(),
+                .into(),
         ),
         // Bitwise XOR assignment (^=)
         (
@@ -3940,33 +3892,6 @@ pub fn raw_dialect() -> Dialect {
                         Ref::keyword("GO") // Prevents GO from being parsed as alias (it's a batch separator)
                     ]))
                     .optional(),
-                // OPENROWSET schema WITH clause for column definitions
-                Sequence::new(vec_of_erased![
-                    Ref::keyword("WITH"),
-                    Bracketed::new(vec_of_erased![Delimited::new(vec_of_erased![
-                        Sequence::new(vec_of_erased![
-                            Ref::new("SingleIdentifierGrammar"), // Column name (can be bracketed)
-                            Ref::new("TsqlDatatypeSegment"),     // Data type
-                            // Optional COLLATE clause
-                            Sequence::new(vec_of_erased![
-                                Ref::keyword("COLLATE"),
-                                Ref::new("CollationSegment")
-                            ])
-                            .config(|this| this.optional()),
-                            // Optional ordinal position or JSON path (for positional/JSON column mapping)
-                            one_of(vec_of_erased![
-                                Ref::new("NumericLiteralSegment"), // Ordinal position
-                                Ref::new("QuotedLiteralSegment"),  // JSON path like '$.path'
-                                Sequence::new(vec_of_erased![      // strict JSON path like 'strict $.path'
-                                    Ref::keyword("STRICT"),
-                                    Ref::new("QuotedLiteralSegment")
-                                ])
-                            ])
-                            .config(|this| this.optional())
-                        ])
-                    ])])
-                ])
-                .config(|this| this.optional()),
                 Sequence::new(vec_of_erased![
                     Ref::keyword("WITH"),
                     Ref::keyword("OFFSET"),
@@ -4793,29 +4718,35 @@ pub fn raw_dialect() -> Dialect {
     // to support T-SQL's alias = expression syntax.
     // For now, just use ANSI's SelectClauseElementSegment which properly handles CASE
     
-    // TEMPORARILY DISABLED: Override SelectClauseElementSegment to support T-SQL variable assignment
-    // dialect.add([(
-    //     "SelectClauseElementSegment".into(),
-    //     NodeMatcher::new(SyntaxKind::SelectClauseElement, |_| {
-    //         one_of(vec_of_erased![
-    //             // T-SQL variable assignment: @var = expression or @var += expression
-    //             Sequence::new(vec_of_erased![
-    //                 Ref::new("TsqlVariableSegment"),
-    //                 Ref::new("AssignmentOperatorSegment"),
-    //                 Ref::new("ExpressionSegment")
-    //             ]),
-    //             // Standard ANSI select clause elements
-    //             Ref::new("WildcardExpressionSegment"),
-    //             Sequence::new(vec_of_erased![
-    //                 Ref::new("BaseExpressionElementGrammar"),
-    //                 Ref::new("AliasExpressionSegment").optional(),
-    //             ]),
-    //         ])
-    //         .to_matchable()
-    //     })
-    //     .to_matchable()
-    //     .into(),
-    // )]);
+    // Override SelectClauseElementSegment to support T-SQL variable assignment AND prioritize CASE expressions
+    dialect.add([(
+        "SelectClauseElementSegment".into(),
+        NodeMatcher::new(SyntaxKind::SelectClauseElement, |_| {
+            one_of(vec_of_erased![
+                // T-SQL variable assignment: @var = expression or @var += expression
+                Sequence::new(vec_of_erased![
+                    Ref::new("TsqlVariableSegment"),
+                    Ref::new("AssignmentOperatorSegment"),
+                    Ref::new("ExpressionSegment")
+                ]),
+                // Standard ANSI select clause elements
+                Ref::new("WildcardExpressionSegment"),
+                // CRITICAL: Try CaseExpressionSegment FIRST to handle T-SQL CASE expressions correctly
+                Sequence::new(vec_of_erased![
+                    Ref::new("CaseExpressionSegment"),
+                    Ref::new("AliasExpressionSegment").optional(),
+                ]),
+                // Then fallback to standard BaseExpressionElementGrammar for other expressions
+                Sequence::new(vec_of_erased![
+                    Ref::new("BaseExpressionElementGrammar"),
+                    Ref::new("AliasExpressionSegment").optional(),
+                ]),
+            ])
+            .to_matchable()
+        })
+        .to_matchable()
+        .into(),
+    )]);
 
     // Override SelectStatementSegment to add FOR clause and OPTION clause after ORDER BY
     dialect.replace_grammar(
@@ -6997,18 +6928,15 @@ pub fn raw_dialect() -> Dialect {
             one_of(vec_of_erased![
                 // Just null clause for JSON_ARRAY(NULL ON NULL) or JSON_ARRAY(ABSENT ON NULL)
                 Ref::new("TsqlJsonNullClause"),
-                // List of expressions followed by optional null clause
+                // List of expressions followed by optional null clause (without comma)
                 Sequence::new(vec_of_erased![
                     Delimited::new(vec_of_erased![
                         Ref::new("ExpressionSegment")
                     ]).config(|this| {
-                        this.allow_trailing = true;
+                        this.allow_trailing = false; // Don't allow trailing comma before null clause
                     }),
-                    // Allow the NULL ON NULL clause after the expressions
-                    Sequence::new(vec_of_erased![
-                        Ref::new("CommaSegment").optional(), // Comma is optional before NULL ON NULL
-                        Ref::new("TsqlJsonNullClause")
-                    ]).config(|this| this.optional())
+                    // Allow the NULL ON NULL clause directly after the expressions
+                    Ref::new("TsqlJsonNullClause").optional()
                 ])
             ])
             .to_matchable()
@@ -7641,7 +7569,9 @@ pub fn raw_dialect() -> Dialect {
                         Ref::new("SelectableGrammar")
                     ]),
                     Ref::new("SelectableGrammar"),
-                    Ref::new("DefaultValuesGrammar")
+                    Ref::new("DefaultValuesGrammar"),
+                    // T-SQL specific: EXEC/EXECUTE for INSERT...EXEC
+                    Ref::new("ExecuteStatementGrammar")
                 ]),
                 // T-SQL specific: OPTION clause
                 Ref::new("OptionClauseSegment").optional(),

@@ -225,44 +225,48 @@ file:
         - where_clause:
           - keyword: WHERE
           - expression:
-            - keyword: EXISTS
-            - bracketed:
-              - start_bracket: (
-              - select_statement:
-                - select_clause:
-                  - keyword: SELECT
-                  - select_clause_modifier:
-                    - keyword: TOP
-                    - expression:
-                      - numeric_literal: '1'
-                  - select_clause_element:
-                    - numeric_literal: '1'
-                - from_clause:
-                  - keyword: FROM
-                  - from_expression:
-                    - from_expression:
-                      - from_expression_element:
-                        - from_expression_element:
-                          - table_expression:
-                            - table_reference:
-                              - object_reference:
-                                - naked_identifier: tableB
-                          - alias_expression:
-                            - naked_identifier: tb
-                - where_clause:
-                  - keyword: WHERE
+            - function:
+              - function:
+                - function_name:
+                  - function_name_identifier: EXISTS
+                - bracketed:
+                  - start_bracket: (
                   - expression:
-                    - column_reference:
-                      - naked_identifier: tb
-                      - dot: .
-                      - naked_identifier: col1
-                    - comparison_operator:
-                      - raw_comparison_operator: =
-                    - column_reference:
-                      - naked_identifier: tableA
-                      - dot: .
-                      - naked_identifier: col1
-              - end_bracket: )
+                    - select_statement:
+                      - select_clause:
+                        - keyword: SELECT
+                        - select_clause_modifier:
+                          - keyword: TOP
+                          - expression:
+                            - numeric_literal: '1'
+                        - select_clause_element:
+                          - numeric_literal: '1'
+                      - from_clause:
+                        - keyword: FROM
+                        - from_expression:
+                          - from_expression:
+                            - from_expression_element:
+                              - from_expression_element:
+                                - table_expression:
+                                  - table_reference:
+                                    - object_reference:
+                                      - naked_identifier: tableB
+                                - alias_expression:
+                                  - naked_identifier: tb
+                      - where_clause:
+                        - keyword: WHERE
+                        - expression:
+                          - column_reference:
+                            - naked_identifier: tb
+                            - dot: .
+                            - naked_identifier: col1
+                          - comparison_operator:
+                            - raw_comparison_operator: =
+                          - column_reference:
+                            - naked_identifier: tableA
+                            - dot: .
+                            - naked_identifier: col1
+                  - end_bracket: )
   - statement:
     - delete_statement:
       - delete_statement:

@@ -66,17 +66,16 @@ file:
         - expression:
           - case_expression:
             - keyword: CASE
-            - when_clause:
-              - keyword: WHEN
-              - expression:
-                - column_reference:
-                  - naked_identifier: col2
-                - comparison_operator:
-                  - raw_comparison_operator: =
-                - numeric_literal: '1'
-              - keyword: THEN
-              - expression:
-                - numeric_literal: '1'
+            - keyword: WHEN
+            - expression:
+              - column_reference:
+                - naked_identifier: col2
+              - comparison_operator:
+                - raw_comparison_operator: =
+              - numeric_literal: '1'
+            - keyword: THEN
+            - expression:
+              - numeric_literal: '1'
             - else_clause:
               - keyword: ELSE
               - expression:

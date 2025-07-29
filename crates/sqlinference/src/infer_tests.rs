@@ -534,6 +534,8 @@ fn extract_select(query: &Query<'_, ()>) -> Result<ExtractedSelect, String> {
                             .raw()
                             .to_string();
                         let args = function
+                            .child(const { &SyntaxSet::single(SyntaxKind::FunctionContents) })
+                            .unwrap()
                             .child(const { &SyntaxSet::single(SyntaxKind::Bracketed) })
                             .unwrap();
                         let args = fn_args(args);

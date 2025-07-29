@@ -1551,3 +1551,92 @@ Sequence::new(vec_of_erased![Ref::keyword("MERGE"), Ref::keyword("UNION")]),
 - Established systematic debugging methodology
 
 This investigation successfully transformed completely broken T-SQL MERGE functionality into production-ready parsing while extending to related JOIN functionality!
+
+---
+
+## 🔄 **POST-COMPLETION UPDATES**
+
+### Entry 54: Continuing MERGE Investigation - Remaining Issues (2025-07-29)
+**Status**: 🚧 **IN PROGRESS** - Further MERGE edge cases identified
+**Context**: User requested continued investigation after initial completion
+
+🔍 **Current Status Check**:
+```bash
+./.hacking/scripts/check_for_unparsable.sh
+```
+Result: 18 files still have unparsable sections (including merge.yml)
+
+**Remaining MERGE Issues in merge.yml**:
+1. **Line 1077**: MERGE in subquery context - `from (merge sch1.table1 ...)`
+2. **Line 1139**: Table hint PAGLOCK - `WITH (PAGLOCK)`  
+3. **Line 1276**: Complex table hints - `WITH (ROWLOCK, INDEX(myindex, myindex2))`
+4. **Line 1491**: Simple MERGE INTO completely unparsable
+
+### Entry 55: Critical MERGE INTO Grammar Fix (2025-07-29)
+**Status**: 🔧 **FIXING** - MergeIntoLiteralGrammar override issue
+**Discovery**: Made INTO optional but used wrong method
+
+🔍 **Root Cause**:
+- Used `dialect.add()` instead of `dialect.replace_grammar()`
+- MergeIntoLiteralGrammar already exists in ANSI dialect
+- Need to override existing grammar, not add duplicate
+
+📝 **Fix Applied**:
+```rust
+// Changed from dialect.add to dialect.replace_grammar
+dialect.replace_grammar(
+    "MergeIntoLiteralGrammar",
+    Sequence::new(vec![
+        Ref::keyword("MERGE").to_matchable(),
+        Ref::keyword("INTO").optional().to_matchable(),
+    ])
+    .to_matchable()
+);
+```
+
+**Next**: Test simple MERGE INTO statement to verify fix
+
+### Entry 56: MergeIntoLiteralGrammar Override Removal - Still Failing (2025-07-29)
+**Status**: ❌ **STILL BROKEN** - Different approach needed
+**Actions Taken**:
+1. First tried `dialect.replace_grammar()` - caused panic (grammar doesn't exist at that point)
+2. Commented out the override entirely based on Entry 43 findings
+3. Tested various MERGE patterns
+
+**Test Results**:
+- ❌ `MERGE INTO dbo.target ...` - Unparsable at position 7 (at "INTO")
+- ❌ `MERGE dbo.target ...` - Unparsable at position 10 (after "dbo")
+- ❌ `MERGE target ...` - Unparsable at position 7 (at "target")
+- ✅ `MERGE` (keyword alone) - Parses fine
+- ❌ `MERGE INTO` - Unparsable at position 7 (at "INTO")
+
+**Critical Finding**: 
+The issue is NOT with the MergeIntoLiteralGrammar override. Even with ANSI default grammar, MERGE statements fail to parse in T-SQL. The problem appears to be that the MERGE statement is not being recognized as a statement at all when followed by other tokens.
+
+**Hypothesis**:
+Something in T-SQL's parsing infrastructure is preventing MergeStatementSegment from being matched when MERGE is followed by INTO or a table reference.
+
+**Next Investigation**: Check if MergeStatementSegment is properly included in StatementSegment and if there are any parsing precedence issues.
+
+### Entry 57: CRITICAL DISCOVERY - Schema Names Broken Throughout T-SQL! (2025-07-29)
+**Status**: 🚨 **FUNDAMENTAL ISSUE** - Not MERGE-specific
+**Discovery**: The issue is NOT with MERGE statements but with schema-qualified table names!
+
+**Test Results**:
+- ✅ `MERGE INTO t2 ...` - WORKS (simple table name)
+- ❌ `MERGE INTO dbo.target ...` - FAILS (schema-qualified name)
+- ✅ `SELECT * FROM t1;` - WORKS (simple table name)
+- ❌ `SELECT * FROM dbo.target;` - FAILS at position 18 (schema-qualified name)
+
+**Root Cause**: 
+Schema-qualified table references like `dbo.table` are completely broken in T-SQL dialect. This affects ALL statements (SELECT, MERGE, etc.) that use schema.table syntax.
+
+**Impact**:
+- This explains why many T-SQL tests fail - schema names are ubiquitous in T-SQL
+- The MERGE issue is just a symptom of this deeper problem
+- This is likely why 18 files have unparsable sections
+
+**Hypothesis**:
+The ObjectReferenceSegment or its T-SQL override is not properly handling multi-part identifiers (schema.table).
+
+**Next**: Investigate ObjectReferenceSegment and how it handles dot-separated identifiers.

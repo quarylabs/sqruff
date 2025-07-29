@@ -7475,7 +7475,12 @@ pub fn raw_dialect() -> Dialect {
                 Ref::new("MergeIntoLiteralGrammar"),
                 MetaSegment::indent(),
                 one_of(vec_of_erased![
-                    Ref::new("TableReferenceSegment"),
+                    // T-SQL specific: Table reference with optional hints
+                    Sequence::new(vec_of_erased![
+                        Ref::new("TableReferenceSegment"),
+                        Ref::new("TableHintSegment").optional(),
+                        Ref::new("AliasExpressionSegment").optional(),
+                    ]),
                     Ref::new("AliasedTableReferenceGrammar"),
                 ]),
                 MetaSegment::dedent(),
@@ -8155,12 +8160,16 @@ pub fn raw_dialect() -> Dialect {
     });
 
     // T-SQL MergeIntoLiteralGrammar override - INTO is optional in T-SQL
-    dialect.add([
-        (
-            "MergeIntoLiteralGrammar".into(),
-            Ref::keyword("MERGE").to_matchable().into(),
-        ),
-    ]);
+    // NOTE: Based on Entry 43 of MERGE_INVESTIGATION.md, removing this override
+    // actually makes MERGE statements parse better. The ANSI grammar handles it correctly.
+    // dialect.replace_grammar(
+    //     "MergeIntoLiteralGrammar",
+    //     Sequence::new(vec![
+    //         Ref::keyword("MERGE").to_matchable(),
+    //         Ref::keyword("INTO").optional().to_matchable(),
+    //     ])
+    //     .to_matchable()
+    // );
 
     // T-SQL specific JOIN hints grammar - add HASH/MERGE/LOOP hints to JoinTypeKeywordsGrammar
     dialect.add([

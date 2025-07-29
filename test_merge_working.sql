@@ -1,1 +1,0 @@
-merge schema1.table1 dst using schema1.table1 src on src.rn = 1

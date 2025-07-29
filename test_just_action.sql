@@ -1,1 +1,0 @@
-OUTPUT column1, $action

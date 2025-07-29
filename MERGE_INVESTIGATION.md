@@ -1640,3 +1640,35 @@ Schema-qualified table references like `dbo.table` are completely broken in T-SQ
 The ObjectReferenceSegment or its T-SQL override is not properly handling multi-part identifiers (schema.table).
 
 **Next**: Investigate ObjectReferenceSegment and how it handles dot-separated identifiers.
+
+### Entry 58: FIXED - Schema-qualified names (dbo.table) 
+*2025-07-29*
+
+**Root Cause Found**: TARGET and SOURCE were reserved keywords in T-SQL, preventing their use as table names.
+
+**Fix Applied**: Moved TARGET and SOURCE from reserved keywords to unreserved keywords in tsql_keywords.rs.
+
+**Result**: ✓ Schema-qualified names now parse correctly!
+- `SELECT * FROM dbo.target` ✓
+- `SELECT * FROM dbo.source` ✓  
+- `MERGE INTO dbo.target USING dbo.source ON ...` ✓
+
+This was the fundamental issue blocking MERGE parsing with schema names.
+
+### Entry 59: MERGE Without INTO Still Fails
+*2025-07-29*
+
+**Current Status**: 
+- MERGE with schema names now works ✓
+- But `MERGE table` without INTO still fails (line 3 in merge.sql)
+
+**Issue**: The first statement in merge.sql is `MERGE schema1.table1 dst USING ...` without INTO
+- This is valid T-SQL syntax (INTO is optional)
+- But it fails to parse at line 3 position 1 ("using" unparsable)
+
+**Attempted Fix**: 
+- Tried to re-enable MergeIntoLiteralGrammar override to make INTO optional
+- But got panic: `called Option::unwrap() on a None value` at line 8165
+- This suggests replace_grammar is failing to find the grammar
+
+**Status**: Needs investigation into why replace_grammar fails for MergeIntoLiteralGrammar

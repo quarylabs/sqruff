@@ -1,1 +1,0 @@
-OUTPUT deleted.*, $action, inserted.*

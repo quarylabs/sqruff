@@ -215,8 +215,7 @@ pub(crate) fn tsql_additional_reserved_keywords() -> AHashSet<&'static str> {
         "UPDATETEXT",
         "USE",
         "HINT",
-        "TARGET",
-        "SOURCE",
+        // NOTE: TARGET and SOURCE moved to unreserved to allow use as table names
         // NOTE: INSERTED and DELETED moved to unreserved to allow use as table prefixes in OUTPUT clauses
         // "INSERTED",
         // "DELETED",
@@ -823,6 +822,9 @@ pub(crate) fn tsql_additional_unreserved_keywords() -> AHashSet<&'static str> {
         // OUTPUT clause special identifiers (moved from reserved keywords)
         "INSERTED",
         "DELETED",
+        // MERGE keywords (moved from reserved to allow use as table names)
+        "TARGET",
+        "SOURCE",
     ]
     .into_iter()
     .collect()

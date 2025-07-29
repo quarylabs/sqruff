@@ -1,7 +1,0 @@
-MERGE t1
-USING t2 ON t1.id = t2.id
-WHEN MATCHED THEN 
-    UPDATE SET col = 1
-WHEN NOT MATCHED THEN 
-    INSERT (col) VALUES (1)
-OUTPUT $action, inserted.*;

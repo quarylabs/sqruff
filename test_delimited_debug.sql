@@ -1,1 +1,0 @@
-OUTPUT deleted.column1, $action

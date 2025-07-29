@@ -8160,8 +8160,8 @@ pub fn raw_dialect() -> Dialect {
     });
 
     // T-SQL MergeIntoLiteralGrammar override - INTO is optional in T-SQL
-    // NOTE: Based on Entry 43 of MERGE_INVESTIGATION.md, removing this override
-    // actually makes MERGE statements parse better. The ANSI grammar handles it correctly.
+    // NOTE: MergeIntoLiteralGrammar is defined in ANSI, but replace_grammar is failing
+    // This needs more investigation. For now, keeping it commented out.
     // dialect.replace_grammar(
     //     "MergeIntoLiteralGrammar",
     //     Sequence::new(vec![

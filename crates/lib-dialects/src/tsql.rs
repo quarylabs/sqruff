@@ -8160,16 +8160,16 @@ pub fn raw_dialect() -> Dialect {
     });
 
     // T-SQL MergeIntoLiteralGrammar override - INTO is optional in T-SQL
-    // NOTE: MergeIntoLiteralGrammar is defined in ANSI, but replace_grammar is failing
-    // This needs more investigation. For now, keeping it commented out.
-    // dialect.replace_grammar(
-    //     "MergeIntoLiteralGrammar",
-    //     Sequence::new(vec![
-    //         Ref::keyword("MERGE").to_matchable(),
-    //         Ref::keyword("INTO").optional().to_matchable(),
-    //     ])
-    //     .to_matchable()
-    // );
+    // Try to add it first in case ANSI doesn't have it
+    dialect.add([(
+        "MergeIntoLiteralGrammar".into(),
+        Sequence::new(vec![
+            Ref::keyword("MERGE").to_matchable(),
+            Ref::keyword("INTO").optional().to_matchable(),
+        ])
+        .to_matchable()
+        .into(),
+    )]);
 
     // T-SQL specific JOIN hints grammar - add HASH/MERGE/LOOP hints to JoinTypeKeywordsGrammar
     dialect.add([

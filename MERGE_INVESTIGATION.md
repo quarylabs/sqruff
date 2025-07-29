@@ -1715,3 +1715,33 @@ This was the fundamental issue blocking MERGE parsing with schema names.
 5. Various other T-SQL-specific features
 
 **Note**: The MERGE fix was narrowly successful but didn't broadly impact other files.
+
+## Entry 62: MERGE Parsing 100% Complete! 🎉🎉🎉
+
+**Date**: 2025-01-29
+
+**Summary**: Successfully fixed all remaining MERGE parsing issues:
+
+1. **PAGLOCK hint**:
+   - Added PAGLOCK to TableHintElement
+   - Added all table hints to unreserved keywords
+
+2. **INDEX hint with multiple indexes**:
+   - Updated to accept comma-delimited indexes
+   - Changed from single value to Delimited list
+
+3. **MERGE in subquery**:
+   - Added MergeStatementSegment to TableExpressionSegment
+   - Allows MERGE with OUTPUT in FROM clause
+
+**Results**:
+- merge.yml now parses 100% successfully
+- No unparsable sections remaining in MERGE
+- T-SQL unparsable files reduced from 18 to 17
+
+**Technical Details**:
+- Table hints (NOLOCK, ROWLOCK, PAGLOCK, etc.) added as unreserved keywords
+- INDEX hint grammar: `INDEX(Delimited<identifier|number>)`
+- MERGE allowed in bracketed table expressions for subqueries
+
+**Mission Accomplished**: After 62 investigation entries and countless attempts, T-SQL MERGE statement parsing is fully functional!

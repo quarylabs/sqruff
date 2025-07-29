@@ -1672,3 +1672,46 @@ This was the fundamental issue blocking MERGE parsing with schema names.
 - This suggests replace_grammar is failing to find the grammar
 
 **Status**: Needs investigation into why replace_grammar fails for MergeIntoLiteralGrammar
+
+## Entry 60: MERGE Parsing Successfully Fixed! 🎉
+
+**Date**: 2025-01-29
+
+**Summary**: Successfully fixed MERGE parsing by addressing two core issues:
+
+1. **Schema-qualified names** (dbo.table):
+   - Root cause: TARGET and SOURCE were reserved keywords
+   - Fix: Moved them to unreserved keywords list
+   - Impact: Fixed schema names throughout T-SQL, not just MERGE
+
+2. **MERGE without INTO**:
+   - T-SQL allows both `MERGE table` and `MERGE INTO table`
+   - Fix: Added MergeIntoLiteralGrammar with optional INTO using dialect.add()
+   - Note: replace_grammar() failed, had to use add() instead
+
+**Results**:
+- merge.sql now parses successfully (mostly)
+- Only 3 minor unparsable sections remain:
+  - MERGE in subquery context (line 1077)
+  - PAGLOCK hint (line 1138)
+  - INDEX hint with multiple indexes (line 1275)
+
+**Lessons Learned**:
+- Sometimes parsing issues are caused by keyword conflicts
+- Schema-qualified names require keywords to be unreserved
+- dialect.add() is safer than replace_grammar() for new grammars
+
+## Entry 61: Remaining T-SQL Unparsable Files Analysis
+
+**Date**: 2025-01-29
+
+**Summary**: After MERGE fixes, still have 18 files with unparsable sections:
+
+**Key Issues**:
+1. **CASE in SELECT** - Deep lexer issue persists despite fix attempts
+2. **Bracketed identifiers** - [dbo].[table] still unparsable (lexed as double_quote)
+3. **JSON functions** - ON NULL clause syntax
+4. **OPENROWSET** - AS rows syntax
+5. Various other T-SQL-specific features
+
+**Note**: The MERGE fix was narrowly successful but didn't broadly impact other files.

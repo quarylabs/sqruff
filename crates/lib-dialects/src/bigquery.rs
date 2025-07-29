@@ -943,6 +943,57 @@ pub fn dialect() -> Dialect {
 
     dialect.add([
         (
+            "DateTimeFunctionContentsSegment".into(),
+            NodeMatcher::new(SyntaxKind::FunctionContents, |_| {
+                Bracketed::new(vec_of_erased![Delimited::new(vec_of_erased![
+                    Ref::new("DatetimeUnitSegment"),
+                    Ref::new("DatePartWeekSegment"),
+                    Ref::new("FunctionContentsGrammar")
+                ])])
+                .to_matchable()
+            })
+            .to_matchable()
+            .into(),
+        ),
+        (
+            "ExtractFunctionContentsSegment".into(),
+            NodeMatcher::new(SyntaxKind::FunctionContents, |_| {
+                Bracketed::new(vec_of_erased![
+                    one_of(vec_of_erased![
+                        Ref::new("DatetimeUnitSegment"),
+                        Ref::new("DatePartWeekSegment"),
+                        Ref::new("ExtendedDatetimeUnitSegment")
+                    ]),
+                    Ref::keyword("FROM"),
+                    Ref::new("ExpressionSegment")
+                ])
+                .to_matchable()
+            })
+            .to_matchable()
+            .into(),
+        ),
+        (
+            "NormalizeFunctionContentsSegment".into(),
+            NodeMatcher::new(SyntaxKind::FunctionContents, |_| {
+                Bracketed::new(vec_of_erased![
+                    Ref::new("ExpressionSegment"),
+                    Sequence::new(vec_of_erased![
+                        Ref::new("CommaSegment"),
+                        one_of(vec_of_erased![
+                            Ref::keyword("NFC"),
+                            Ref::keyword("NFKC"),
+                            Ref::keyword("NFD"),
+                            Ref::keyword("NFKD")
+                        ])
+                    ])
+                    .config(|this| this.optional())
+                ])
+                .to_matchable()
+            })
+            .to_matchable()
+            .into(),
+        ),
+        (
             "ExtractFunctionNameSegment".into(),
             NodeMatcher::new(SyntaxKind::FunctionName, |_| {
                 StringParser::new("EXTRACT", SyntaxKind::FunctionNameIdentifier).to_matchable()
@@ -1023,41 +1074,18 @@ pub fn dialect() -> Dialect {
             Sequence::new(vec_of_erased![
                 // BigQuery EXTRACT allows optional TimeZone
                 Ref::new("ExtractFunctionNameSegment"),
-                Bracketed::new(vec_of_erased![
-                    one_of(vec_of_erased![
-                        Ref::new("DatetimeUnitSegment"),
-                        Ref::new("DatePartWeekSegment"),
-                        Ref::new("ExtendedDatetimeUnitSegment")
-                    ]),
-                    Ref::keyword("FROM"),
-                    Ref::new("ExpressionSegment")
-                ])
+                Ref::new("ExtractFunctionContentsSegment")
             ]),
             Sequence::new(vec_of_erased![
+                // BigQuery NORMALIZE allows optional normalization_mode
                 Ref::new("NormalizeFunctionNameSegment"),
-                Bracketed::new(vec_of_erased![
-                    Ref::new("ExpressionSegment"),
-                    Sequence::new(vec_of_erased![
-                        Ref::new("CommaSegment"),
-                        one_of(vec_of_erased![
-                            Ref::keyword("NFC"),
-                            Ref::keyword("NFKC"),
-                            Ref::keyword("NFD"),
-                            Ref::keyword("NFKD")
-                        ])
-                    ])
-                    .config(|this| this.optional())
-                ])
+                Ref::new("NormalizeFunctionContentsSegment")
             ]),
             Sequence::new(vec_of_erased![
+                // Treat functions which take date parts separately
                 Ref::new("DatePartFunctionNameSegment")
                     .exclude(Ref::new("ExtractFunctionNameSegment")),
-                Bracketed::new(vec_of_erased![Delimited::new(vec_of_erased![
-                    Ref::new("DatetimeUnitSegment"),
-                    Ref::new("DatePartWeekSegment"),
-                    Ref::new("FunctionContentsGrammar")
-                ])])
-                .config(|this| this.parse_mode(ParseMode::Greedy))
+                Ref::new("DateTimeFunctionContentsSegment")
             ]),
             Sequence::new(vec_of_erased![
                 Sequence::new(vec_of_erased![
@@ -1066,10 +1094,7 @@ pub fn dialect() -> Dialect {
                         Ref::new("NormalizeFunctionNameSegment"),
                         Ref::new("ValuesClauseSegment"),
                     ])),
-                    Bracketed::new(vec_of_erased![
-                        Ref::new("FunctionContentsGrammar").optional()
-                    ])
-                    .config(|this| this.parse_mode(ParseMode::Greedy))
+                    Ref::new("FunctionContentsSegment")
                 ]),
                 Ref::new("ArrayAccessorSegment").optional(),
                 Ref::new("SemiStructuredAccessorSegment").optional(),
@@ -1216,11 +1241,20 @@ pub fn dialect() -> Dialect {
         .into(),
     )]);
 
+    dialect.add([(
+        "ArrayFunctionContentsSegment".into(),
+        NodeMatcher::new(SyntaxKind::FunctionContents, |_| {
+            Bracketed::new(vec_of_erased![Ref::new("SelectableGrammar")]).to_matchable()
+        })
+        .to_matchable()
+        .into(),
+    )]);
+
     dialect.replace_grammar(
         "ArrayExpressionSegment",
         Sequence::new(vec_of_erased![
             Ref::new("ArrayFunctionNameSegment"),
-            Bracketed::new(vec_of_erased![Ref::new("SelectableGrammar")]),
+            Ref::new("ArrayFunctionContentsSegment"),
         ])
         .to_matchable(),
     );

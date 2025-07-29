@@ -61,9 +61,9 @@ FROM foo
                 segment.is_type(SyntaxKind::FunctionName)
             }))
             .pop();
-        let start_bracket = children
+        let function_contents = children
             .find_first(Some(|segment: &ErasedSegment| {
-                segment.is_type(SyntaxKind::Bracketed)
+                segment.is_type(SyntaxKind::FunctionContents)
             }))
             .pop();
 
@@ -71,7 +71,7 @@ FROM foo
             None,
             None,
             Some(&function_name),
-            Some(&start_bracket),
+            Some(&function_contents),
         );
 
         if !intermediate_segments.is_empty() {

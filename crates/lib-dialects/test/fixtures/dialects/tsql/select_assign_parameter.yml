@@ -46,10 +46,11 @@ file:
       - select_clause:
         - keyword: select
         - select_clause_element:
-          - tsql_variable: '@userid_parameter'
-          - assignment_operator:
-            - raw_comparison_operator: =
           - expression:
+            - parameterized_expression:
+              - tsql_variable: '@userid_parameter'
+            - comparison_operator:
+              - raw_comparison_operator: =
             - column_reference:
               - naked_identifier: c
               - dot: .

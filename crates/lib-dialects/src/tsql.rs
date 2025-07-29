@@ -188,6 +188,12 @@ pub fn raw_dialect() -> Dialect {
                 r"@@?[a-zA-Z_][a-zA-Z0-9_]*",
                 SyntaxKind::TsqlVariable,
             ),
+            // Special T-SQL $action variable for MERGE OUTPUT clause
+            Matcher::regex(
+                "tsql_action_variable",
+                r"\$action",
+                SyntaxKind::TsqlVariable,
+            ),
             // Unicode string literals: N'text'
             Matcher::regex(
                 "unicode_single_quote",
@@ -482,99 +488,100 @@ pub fn raw_dialect() -> Dialect {
         .into(),
     )]);
 
-    // T-SQL specific CASE expression segments
+    // DISABLED: T-SQL specific CASE expression segments - trying ANSI version first
     // These use StringParser instead of Ref::keyword to handle T-SQL's lexing behavior
     // where CASE, WHEN, THEN, ELSE are lexed as Word tokens in SELECT contexts
-    dialect.add([
-        (
-            "TsqlCaseExpressionSegment".into(),
-            NodeMatcher::new(SyntaxKind::CaseExpression, |_| {
-                one_of(vec_of_erased![
-                    // Simple CASE: CASE expression WHEN value THEN result ... END
-                    Sequence::new(vec_of_erased![
-                        StringParser::new("CASE", SyntaxKind::Keyword),
-                        Ref::new("ExpressionSegment"),
-                        MetaSegment::implicit_indent(),
-                        AnyNumberOf::new(vec_of_erased![Ref::new("TsqlWhenClauseSegment")],).config(
-                            |this| {
-                                this.reset_terminators = true;
-                                this.terminators = vec_of_erased![
-                                    StringParser::new("ELSE", SyntaxKind::Keyword),
-                                    StringParser::new("END", SyntaxKind::Keyword)
-                                ];
-                            }
-                        ),
-                        Ref::new("TsqlElseClauseSegment").optional(),
-                        MetaSegment::dedent(),
-                        StringParser::new("END", SyntaxKind::Keyword),
-                    ]),
-                    // Searched CASE: CASE WHEN condition THEN result ... END
-                    Sequence::new(vec_of_erased![
-                        StringParser::new("CASE", SyntaxKind::Keyword),
-                        MetaSegment::implicit_indent(),
-                        AnyNumberOf::new(vec_of_erased![Ref::new("TsqlWhenClauseSegment")],).config(
-                            |this| {
-                                this.reset_terminators = true;
-                                this.terminators = vec_of_erased![
-                                    StringParser::new("ELSE", SyntaxKind::Keyword),
-                                    StringParser::new("END", SyntaxKind::Keyword)
-                                ];
-                            }
-                        ),
-                        Ref::new("TsqlElseClauseSegment").optional(),
-                        MetaSegment::dedent(),
-                        StringParser::new("END", SyntaxKind::Keyword),
-                    ]),
-                ])
-                .config(|this| {
-                    this.terminators = vec_of_erased![
-                        Ref::new("ComparisonOperatorGrammar"),
-                        Ref::new("CommaSegment"),
-                        Ref::new("BinaryOperatorGrammar")
-                    ]
-                })
-                .to_matchable()
-            })
-            .to_matchable()
-            .into(),
-        ),
-        (
-            "TsqlWhenClauseSegment".into(),
-            NodeMatcher::new(SyntaxKind::WhenClause, |_| {
-                Sequence::new(vec_of_erased![
-                    StringParser::new("WHEN", SyntaxKind::Keyword),
-                    Sequence::new(vec_of_erased![
-                        MetaSegment::implicit_indent(),
-                        Ref::new("ExpressionSegment"),
-                        MetaSegment::dedent(),
-                    ]),
-                    Conditional::new(MetaSegment::indent()).indented_then(),
-                    StringParser::new("THEN", SyntaxKind::Keyword),
-                    Conditional::new(MetaSegment::implicit_indent()).indented_then_contents(),
-                    Ref::new("ExpressionSegment"),
-                    Conditional::new(MetaSegment::dedent()).indented_then_contents(),
-                    Conditional::new(MetaSegment::dedent()).indented_then(),
-                ])
-                .to_matchable()
-            })
-            .to_matchable()
-            .into(),
-        ),
-        (
-            "TsqlElseClauseSegment".into(),
-            NodeMatcher::new(SyntaxKind::ElseClause, |_| {
-                Sequence::new(vec![
-                    StringParser::new("ELSE", SyntaxKind::Keyword).to_matchable(),
-                    MetaSegment::implicit_indent().to_matchable(),
-                    Ref::new("ExpressionSegment").to_matchable(),
-                    MetaSegment::dedent().to_matchable(),
-                ])
-                .to_matchable()
-            })
-            .to_matchable()
-            .into(),
-        ),
-    ]);
+    // DISABLED: Let T-SQL use ANSI's CaseExpressionSegment for now
+    // dialect.add([
+    //     (
+    //         "CaseExpressionSegment".into(),
+    //         NodeMatcher::new(SyntaxKind::CaseExpression, |_| {
+    //             one_of(vec_of_erased![
+    //                 // Simple CASE: CASE expression WHEN value THEN result ... END
+    //                 Sequence::new(vec_of_erased![
+    //                     StringParser::new("CASE", SyntaxKind::Keyword),
+    //                     Ref::new("ExpressionSegment"),
+    //                     MetaSegment::implicit_indent(),
+    //                     AnyNumberOf::new(vec_of_erased![Ref::new("WhenClauseSegment")],).config(
+    //                         |this| {
+    //                             this.reset_terminators = true;
+    //                             this.terminators = vec_of_erased![
+    //                                 StringParser::new("ELSE", SyntaxKind::Keyword),
+    //                                 StringParser::new("END", SyntaxKind::Keyword)
+    //                             ];
+    //                         }
+    //                     ),
+    //                     Ref::new("ElseClauseSegment").optional(),
+    //                     MetaSegment::dedent(),
+    //                     StringParser::new("END", SyntaxKind::Keyword),
+    //                 ]),
+    //                 // Searched CASE: CASE WHEN condition THEN result ... END
+    //                 Sequence::new(vec_of_erased![
+    //                     StringParser::new("CASE", SyntaxKind::Keyword),
+    //                     MetaSegment::implicit_indent(),
+    //                     AnyNumberOf::new(vec_of_erased![Ref::new("WhenClauseSegment")],).config(
+    //                         |this| {
+    //                             this.reset_terminators = true;
+    //                             this.terminators = vec_of_erased![
+    //                                 StringParser::new("ELSE", SyntaxKind::Keyword),
+    //                                 StringParser::new("END", SyntaxKind::Keyword)
+    //                             ];
+    //                         }
+    //                     ),
+    //                     Ref::new("ElseClauseSegment").optional(),
+    //                     MetaSegment::dedent(),
+    //                     StringParser::new("END", SyntaxKind::Keyword),
+    //                 ]),
+    //             ])
+    //             .config(|this| {
+    //                 this.terminators = vec_of_erased![
+    //                     Ref::new("ComparisonOperatorGrammar"),
+    //                     Ref::new("CommaSegment"),
+    //                     Ref::new("BinaryOperatorGrammar")
+    //                 ]
+    //             })
+    //             .to_matchable()
+    //         })
+    //         .to_matchable()
+    //         .into(),
+    //     ),
+    //     (
+    //         "TsqlWhenClauseSegment".into(),
+    //         NodeMatcher::new(SyntaxKind::WhenClause, |_| {
+    //             Sequence::new(vec_of_erased![
+    //                 StringParser::new("WHEN", SyntaxKind::Keyword),
+    //                 Sequence::new(vec_of_erased![
+    //                     MetaSegment::implicit_indent(),
+    //                     Ref::new("ExpressionSegment"),
+    //                     MetaSegment::dedent(),
+    //                 ]),
+    //                 Conditional::new(MetaSegment::indent()).indented_then(),
+    //                 StringParser::new("THEN", SyntaxKind::Keyword),
+    //                 Conditional::new(MetaSegment::implicit_indent()).indented_then_contents(),
+    //                 Ref::new("ExpressionSegment"),
+    //                 Conditional::new(MetaSegment::dedent()).indented_then_contents(),
+    //                 Conditional::new(MetaSegment::dedent()).indented_then(),
+    //             ])
+    //             .to_matchable()
+    //         })
+    //         .to_matchable()
+    //         .into(),
+    //     ),
+    //     (
+    //         "TsqlElseClauseSegment".into(),
+    //         NodeMatcher::new(SyntaxKind::ElseClause, |_| {
+    //             Sequence::new(vec![
+    //                 StringParser::new("ELSE", SyntaxKind::Keyword).to_matchable(),
+    //                 MetaSegment::implicit_indent().to_matchable(),
+    //                 Ref::new("ExpressionSegment").to_matchable(),
+    //                 MetaSegment::dedent().to_matchable(),
+    //             ])
+    //             .to_matchable()
+    //         })
+    //         .to_matchable()
+    //         .into(),
+    //     ),
+    // ]);
 
     // Add OPENROWSET segment for T-SQL specific syntax
     dialect.add([(
@@ -1850,12 +1857,12 @@ pub fn raw_dialect() -> Dialect {
             Ref::keyword("OPTION"),
             Bracketed::new(vec_of_erased![Delimited::new(vec_of_erased![one_of(
                 vec_of_erased![
-                    // Join hints - MERGE commented out to test conflicts
-                    // Sequence::new(vec_of_erased![Ref::keyword("MERGE"), Ref::keyword("JOIN")]),
+                    // Join hints - MERGE re-enabled after resolving keyword conflicts
+                    Sequence::new(vec_of_erased![Ref::keyword("MERGE"), Ref::keyword("JOIN")]),
                     Sequence::new(vec_of_erased![Ref::keyword("HASH"), Ref::keyword("JOIN")]),
                     Sequence::new(vec_of_erased![Ref::keyword("LOOP"), Ref::keyword("JOIN")]),
-                    // Union hints - MERGE commented out to test conflicts
-                    // Sequence::new(vec_of_erased![Ref::keyword("MERGE"), Ref::keyword("UNION")]),
+                    // Union hints - MERGE re-enabled after resolving keyword conflicts
+                    Sequence::new(vec_of_erased![Ref::keyword("MERGE"), Ref::keyword("UNION")]),
                     Sequence::new(vec_of_erased![Ref::keyword("HASH"), Ref::keyword("UNION")]),
                     Sequence::new(vec_of_erased![
                         Ref::keyword("CONCAT"),
@@ -3610,9 +3617,20 @@ pub fn raw_dialect() -> Dialect {
                 .into(),
         ),
         (
+            "TsqlActionVariableSegment".into(),
+            // Match $action token specifically (lexer now tokenizes it as TsqlVariable)
+            StringParser::new("$action", SyntaxKind::TsqlVariable)
+                .to_matchable()
+                .into(),
+        ),
+        (
             "ParameterizedSegment".into(),
             NodeMatcher::new(SyntaxKind::ParameterizedExpression, |_| {
-                Ref::new("TsqlVariableSegment").to_matchable()
+                one_of(vec_of_erased![
+                    Ref::new("TsqlVariableSegment"),
+                    Ref::new("TsqlActionVariableSegment"),
+                ])
+                .to_matchable()
             })
             .to_matchable()
             .into(),
@@ -3626,6 +3644,7 @@ pub fn raw_dialect() -> Dialect {
             .into(),
         ),
     ]);
+
 
     // Add T-SQL specific ObjectReferenceSegment that supports dot-prefixed references
     dialect.add([(
@@ -3805,79 +3824,80 @@ pub fn raw_dialect() -> Dialect {
     // includes ExpressionSegment which provides CASE support through Expression_C_Grammar.
     // However, we DO override Expression_C_Grammar to use T-SQL specific CASE expressions.
     
-    // Override Expression_C_Grammar to use T-SQL specific CASE expressions
-    dialect.add([(
-        "Expression_C_Grammar".into(),
-        one_of(vec![
-            // Sequence for "EXISTS" with a bracketed selectable grammar
-            Sequence::new(vec![
-                Ref::keyword("EXISTS").to_matchable(),
-                Bracketed::new(vec![Ref::new("SelectableGrammar").to_matchable()])
-                    .to_matchable(),
-            ])
-            .to_matchable(),
-            // Sequence for Expression_D_Grammar or T-SQL specific CaseExpressionSegment
-            // followed by any number of TimeZoneGrammar
-            Sequence::new(vec![
-                one_of(vec![
-                    Ref::new("Expression_D_Grammar").to_matchable(),
-                    Ref::new("TsqlCaseExpressionSegment").to_matchable(),
-                ])
-                .to_matchable(),
-                AnyNumberOf::new(vec![Ref::new("TimeZoneGrammar").to_matchable()])
-                    .config(|this| this.optional())
-                    .to_matchable(),
-            ])
-            .to_matchable(),
-            Ref::new("ShorthandCastSegment").to_matchable(),
-        ])
-        .config(|this| this.terminators = vec_of_erased![Ref::new("CommaSegment")])
-        .to_matchable()
-        .into(),
-    )]);
+    // DISABLED: Override Expression_C_Grammar to use T-SQL specific CASE expressions
+    // Let T-SQL use ANSI's Expression_C_Grammar with overridden CaseExpressionSegment
+    // dialect.add([(
+    //     "Expression_C_Grammar".into(),
+    //     one_of(vec![
+    //         // Sequence for "EXISTS" with a bracketed selectable grammar
+    //         Sequence::new(vec![
+    //             Ref::keyword("EXISTS").to_matchable(),
+    //             Bracketed::new(vec![Ref::new("SelectableGrammar").to_matchable()])
+    //                 .to_matchable(),
+    //         ])
+    //         .to_matchable(),
+    //         // Sequence for Expression_D_Grammar or T-SQL specific CaseExpressionSegment
+    //         // followed by any number of TimeZoneGrammar
+    //         Sequence::new(vec![
+    //             one_of(vec![
+    //                 Ref::new("Expression_D_Grammar").to_matchable(),
+    //                 Ref::new("CaseExpressionSegment").to_matchable(),
+    //             ])
+    //             .to_matchable(),
+    //             AnyNumberOf::new(vec![Ref::new("TimeZoneGrammar").to_matchable()])
+    //                 .config(|this| this.optional())
+    //                 .to_matchable(),
+    //         ])
+    //         .to_matchable(),
+    //         Ref::new("ShorthandCastSegment").to_matchable(),
+    //     ])
+    //     .config(|this| this.terminators = vec_of_erased![Ref::new("CommaSegment")])
+    //     .to_matchable()
+    //     .into(),
+    // )]);
     
-    // Override Expression_D_Grammar to include T-SQL specific expressions like NEXT VALUE FOR
-    dialect.add([(
-        "Expression_D_Grammar".into(),
-        one_of(vec![
-            // Add NEXT VALUE FOR before other expressions
-            Ref::new("NextValueForSegment").to_matchable(),
-            Ref::new("BareFunctionSegment").to_matchable(),
-            Ref::new("FunctionSegment").to_matchable(),
-            Bracketed::new(vec![
-                one_of(vec![
-                    Ref::new("ExpressionSegment").to_matchable(),
-                    Ref::new("SelectableGrammar").to_matchable(),
-                    Delimited::new(vec![
-                        Ref::new("ColumnReferenceSegment").to_matchable(),
-                        Ref::new("FunctionSegment").to_matchable(),
-                        Ref::new("LiteralGrammar").to_matchable(),
-                        Ref::new("LocalAliasSegment").to_matchable(),
-                    ])
-                    .to_matchable(),
-                ])
-                .to_matchable(),
-            ])
-            .config(|this| this.parse_mode(ParseMode::Greedy))
-            .to_matchable(),
-            Ref::new("SelectStatementSegment").to_matchable(),
-            Ref::new("LiteralGrammar").to_matchable(),
-            Ref::new("IntervalExpressionSegment").to_matchable(),
-            Ref::new("TypedStructLiteralSegment").to_matchable(),
-            Ref::new("ArrayExpressionSegment").to_matchable(),
-            Ref::new("ColumnReferenceSegment").to_matchable(),
-            Sequence::new(vec![
-                Ref::new("SingleIdentifierGrammar").to_matchable(),
-                Ref::new("ObjectReferenceDelimiterGrammar").to_matchable(),
-                Ref::new("StarSegment").to_matchable(),
-            ])
-            .to_matchable(),
-            Ref::new("LocalAliasSegment").to_matchable(),
-        ])
-        .config(|this| this.terminators = vec_of_erased![Ref::new("CommaSegment")])
-        .to_matchable()
-        .into(),
-    )]);
+    // TEMPORARILY DISABLED: Override Expression_D_Grammar to include T-SQL specific expressions like NEXT VALUE FOR
+    // dialect.add([(
+    //     "Expression_D_Grammar".into(),
+    //     one_of(vec![
+    //         // Add NEXT VALUE FOR before other expressions
+    //         Ref::new("NextValueForSegment").to_matchable(),
+    //         Ref::new("BareFunctionSegment").to_matchable(),
+    //         Ref::new("FunctionSegment").to_matchable(),
+    //         Bracketed::new(vec![
+    //             one_of(vec![
+    //                 Ref::new("ExpressionSegment").to_matchable(),
+    //                 Ref::new("SelectableGrammar").to_matchable(),
+    //                 Delimited::new(vec![
+    //                     Ref::new("ColumnReferenceSegment").to_matchable(),
+    //                     Ref::new("FunctionSegment").to_matchable(),
+    //                     Ref::new("LiteralGrammar").to_matchable(),
+    //                     Ref::new("LocalAliasSegment").to_matchable(),
+    //                 ])
+    //                 .to_matchable(),
+    //             ])
+    //             .to_matchable(),
+    //         ])
+    //         .config(|this| this.parse_mode(ParseMode::Greedy))
+    //         .to_matchable(),
+    //         Ref::new("SelectStatementSegment").to_matchable(),
+    //         Ref::new("LiteralGrammar").to_matchable(),
+    //         Ref::new("IntervalExpressionSegment").to_matchable(),
+    //         Ref::new("TypedStructLiteralSegment").to_matchable(),
+    //         Ref::new("ArrayExpressionSegment").to_matchable(),
+    //         Ref::new("ColumnReferenceSegment").to_matchable(),
+    //         Sequence::new(vec![
+    //             Ref::new("SingleIdentifierGrammar").to_matchable(),
+    //             Ref::new("ObjectReferenceDelimiterGrammar").to_matchable(),
+    //             Ref::new("StarSegment").to_matchable(),
+    //         ])
+    //         .to_matchable(),
+    //         Ref::new("LocalAliasSegment").to_matchable(),
+    //     ])
+    //     .config(|this| this.terminators = vec_of_erased![Ref::new("CommaSegment")])
+    //     .to_matchable()
+    //     .into(),
+    // )]);
 
     // Define PostTableExpressionGrammar to include T-SQL table hints and PIVOT/UNPIVOT
     dialect.add([(
@@ -4765,29 +4785,29 @@ pub fn raw_dialect() -> Dialect {
     // to support T-SQL's alias = expression syntax.
     // For now, just use ANSI's SelectClauseElementSegment which properly handles CASE
     
-    // Override SelectClauseElementSegment to support T-SQL variable assignment
-    dialect.add([(
-        "SelectClauseElementSegment".into(),
-        NodeMatcher::new(SyntaxKind::SelectClauseElement, |_| {
-            one_of(vec_of_erased![
-                // T-SQL variable assignment: @var = expression or @var += expression
-                Sequence::new(vec_of_erased![
-                    Ref::new("TsqlVariableSegment"),
-                    Ref::new("AssignmentOperatorSegment"),
-                    Ref::new("ExpressionSegment")
-                ]),
-                // Standard ANSI select clause elements
-                Ref::new("WildcardExpressionSegment"),
-                Sequence::new(vec_of_erased![
-                    Ref::new("BaseExpressionElementGrammar"),
-                    Ref::new("AliasExpressionSegment").optional(),
-                ]),
-            ])
-            .to_matchable()
-        })
-        .to_matchable()
-        .into(),
-    )]);
+    // TEMPORARILY DISABLED: Override SelectClauseElementSegment to support T-SQL variable assignment
+    // dialect.add([(
+    //     "SelectClauseElementSegment".into(),
+    //     NodeMatcher::new(SyntaxKind::SelectClauseElement, |_| {
+    //         one_of(vec_of_erased![
+    //             // T-SQL variable assignment: @var = expression or @var += expression
+    //             Sequence::new(vec_of_erased![
+    //                 Ref::new("TsqlVariableSegment"),
+    //                 Ref::new("AssignmentOperatorSegment"),
+    //                 Ref::new("ExpressionSegment")
+    //             ]),
+    //             // Standard ANSI select clause elements
+    //             Ref::new("WildcardExpressionSegment"),
+    //             Sequence::new(vec_of_erased![
+    //                 Ref::new("BaseExpressionElementGrammar"),
+    //                 Ref::new("AliasExpressionSegment").optional(),
+    //             ]),
+    //         ])
+    //         .to_matchable()
+    //     })
+    //     .to_matchable()
+    //     .into(),
+    // )]);
 
     // Override SelectStatementSegment to add FOR clause and OPTION clause after ORDER BY
     dialect.replace_grammar(
@@ -7426,26 +7446,10 @@ pub fn raw_dialect() -> Dialect {
             "OutputClauseSegment".into(),
             Sequence::new(vec_of_erased![
                 Ref::keyword("OUTPUT"),
-                Delimited::new(vec_of_erased![one_of(vec_of_erased![
-                    // $action special column
-                    StringParser::new("$action", SyntaxKind::NakedIdentifier),
-                    // inserted.* or deleted.*
-                    Sequence::new(vec_of_erased![
-                        one_of(vec_of_erased![
-                            Ref::keyword("INSERTED"),
-                            Ref::keyword("DELETED"),
-                        ]),
-                        Ref::new("DotSegment"),
-                        one_of(vec_of_erased![
-                            Ref::new("StarSegment"),
-                            Ref::new("SingleIdentifierGrammar"),
-                        ])
-                    ]),
-                    // Star for all columns (OUTPUT *)
-                    Ref::new("StarSegment"),
-                    // Regular expressions
-                    Ref::new("ExpressionSegment"),
-                ]),]),
+                Delimited::new(vec_of_erased![
+                    // Use SelectClauseElementSegment which already handles expressions with aliases
+                    Ref::new("SelectClauseElementSegment"),
+                ]),
                 // Optional INTO clause
                 Sequence::new(vec_of_erased![
                     Ref::keyword("INTO"),
@@ -8155,6 +8159,39 @@ pub fn raw_dialect() -> Dialect {
         (
             "MergeIntoLiteralGrammar".into(),
             Ref::keyword("MERGE").to_matchable().into(),
+        ),
+    ]);
+
+    // T-SQL specific JOIN hints grammar - add HASH/MERGE/LOOP hints to JoinTypeKeywordsGrammar
+    dialect.add([
+        (
+            "JoinTypeKeywordsGrammar".into(),
+            one_of(vec![
+                Ref::keyword("CROSS").to_matchable(),
+                // T-SQL specific: INNER with optional hints
+                Sequence::new(vec![
+                    Ref::keyword("INNER").to_matchable(),
+                    one_of(vec![
+                        Ref::keyword("HASH").to_matchable(),
+                        Ref::keyword("MERGE").to_matchable(), 
+                        Ref::keyword("LOOP").to_matchable(),
+                    ]).config(|this| this.optional()).to_matchable(),
+                ]).to_matchable(),
+                // T-SQL specific: OUTER joins with optional hints
+                Sequence::new(vec![
+                    one_of(vec![
+                        Ref::keyword("FULL").to_matchable(),
+                        Ref::keyword("LEFT").to_matchable(),
+                        Ref::keyword("RIGHT").to_matchable(),
+                    ]).to_matchable(),
+                    Ref::keyword("OUTER").optional().to_matchable(),
+                    one_of(vec![
+                        Ref::keyword("HASH").to_matchable(),
+                        Ref::keyword("MERGE").to_matchable(), 
+                        Ref::keyword("LOOP").to_matchable(),
+                    ]).config(|this| this.optional()).to_matchable(),
+                ]).to_matchable(),
+            ]).config(|this| this.optional()).to_matchable().into()
         ),
     ]);
 

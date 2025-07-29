@@ -204,25 +204,24 @@ file:
                   - keyword: AS
                   - naked_identifier: unpvt
             - join_clause:
-              - join_clause:
-                - keyword: INNER
-                - keyword: JOIN
+              - keyword: INNER
+              - keyword: JOIN
+              - from_expression_element:
                 - from_expression_element:
-                  - from_expression_element:
-                    - table_expression:
-                      - table_reference:
-                        - object_reference:
-                          - naked_identifier: d
-                - join_on_condition:
-                  - keyword: ON
-                  - expression:
-                    - column_reference:
-                      - quoted_identifier: '[Month Name]'
-                    - comparison_operator:
-                      - raw_comparison_operator: =
-                    - column_reference:
-                      - naked_identifier: unpvt
-                      - dot: .
-                      - naked_identifier: MonthColumn
+                  - table_expression:
+                    - table_reference:
+                      - object_reference:
+                        - naked_identifier: d
+              - join_on_condition:
+                - keyword: ON
+                - expression:
+                  - column_reference:
+                    - quoted_identifier: '[Month Name]'
+                  - comparison_operator:
+                    - raw_comparison_operator: =
+                  - column_reference:
+                    - naked_identifier: unpvt
+                    - dot: .
+                    - naked_identifier: MonthColumn
   - statement_terminator: ;
   - keyword: GO

@@ -7,14 +7,15 @@ file:
         - function:
           - function_name:
             - function_name_identifier: ST_GEOGFROMGEOJSON
-          - bracketed:
-            - start_bracket: (
-            - expression:
-              - quoted_literal: '''{"type":"LineString","coordinates":[[1,2],[4,5]]}'''
-            - comma: ','
-            - named_argument:
-              - naked_identifier: make_valid
-              - right_arrow: =>
+          - function_contents:
+            - bracketed:
+              - start_bracket: (
               - expression:
-                - boolean_literal: 'true'
-            - end_bracket: )
+                - quoted_literal: '''{"type":"LineString","coordinates":[[1,2],[4,5]]}'''
+              - comma: ','
+              - named_argument:
+                - naked_identifier: make_valid
+                - right_arrow: =>
+                - expression:
+                  - boolean_literal: 'true'
+              - end_bracket: )

@@ -19,12 +19,13 @@ file:
         - function:
           - function_name:
             - function_name_identifier: LAST_VALUE
-          - bracketed:
-            - start_bracket: (
-            - expression:
-              - column_reference:
-                - naked_identifier: item
-            - end_bracket: )
+          - function_contents:
+            - bracketed:
+              - start_bracket: (
+              - expression:
+                - column_reference:
+                  - naked_identifier: item
+              - end_bracket: )
           - over_clause:
             - keyword: OVER
             - bracketed:
@@ -91,12 +92,13 @@ file:
         - function:
           - function_name:
             - function_name_identifier: LAST_VALUE
-          - bracketed:
-            - start_bracket: (
-            - expression:
-              - column_reference:
-                - naked_identifier: item
-            - end_bracket: )
+          - function_contents:
+            - bracketed:
+              - start_bracket: (
+              - expression:
+                - column_reference:
+                  - naked_identifier: item
+              - end_bracket: )
           - over_clause:
             - keyword: OVER
             - bracketed:
@@ -190,12 +192,13 @@ file:
         - function:
           - function_name:
             - function_name_identifier: LAST_VALUE
-          - bracketed:
-            - start_bracket: (
-            - expression:
-              - column_reference:
-                - naked_identifier: item
-            - end_bracket: )
+          - function_contents:
+            - bracketed:
+              - start_bracket: (
+              - expression:
+                - column_reference:
+                  - naked_identifier: item
+              - end_bracket: )
           - over_clause:
             - keyword: OVER
             - bracketed:
@@ -270,12 +273,13 @@ file:
           - function:
             - function_name:
               - function_name_identifier: max
-            - bracketed:
-              - start_bracket: (
-              - expression:
-                - column_reference:
-                  - naked_identifier: x
-              - end_bracket: )
+            - function_contents:
+              - bracketed:
+                - start_bracket: (
+                - expression:
+                  - column_reference:
+                    - naked_identifier: x
+                - end_bracket: )
             - over_clause:
               - keyword: over
               - bracketed:
@@ -323,12 +327,13 @@ file:
           - function:
             - function_name:
               - function_name_identifier: max
-            - bracketed:
-              - start_bracket: (
-              - expression:
-                - column_reference:
-                  - naked_identifier: x
-              - end_bracket: )
+            - function_contents:
+              - bracketed:
+                - start_bracket: (
+                - expression:
+                  - column_reference:
+                    - naked_identifier: x
+                - end_bracket: )
             - over_clause:
               - keyword: over
               - bracketed:

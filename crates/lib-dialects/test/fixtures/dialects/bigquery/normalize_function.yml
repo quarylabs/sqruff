@@ -11,13 +11,14 @@ file:
         - function:
           - function_name:
             - function_name_identifier: NORMALIZE
-          - bracketed:
-            - start_bracket: (
-            - expression:
-              - quoted_literal: '''\u00ea'''
-            - comma: ','
-            - keyword: NFD
-            - end_bracket: )
+          - function_contents:
+            - bracketed:
+              - start_bracket: (
+              - expression:
+                - quoted_literal: '''\u00ea'''
+              - comma: ','
+              - keyword: NFD
+              - end_bracket: )
         - alias_expression:
           - keyword: AS
           - naked_identifier: a
@@ -26,13 +27,14 @@ file:
         - function:
           - function_name:
             - function_name_identifier: NORMALIZE
-          - bracketed:
-            - start_bracket: (
-            - expression:
-              - quoted_literal: '''\u0065\u0302'''
-            - comma: ','
-            - keyword: NFD
-            - end_bracket: )
+          - function_contents:
+            - bracketed:
+              - start_bracket: (
+              - expression:
+                - quoted_literal: '''\u0065\u0302'''
+              - comma: ','
+              - keyword: NFD
+              - end_bracket: )
         - alias_expression:
           - keyword: AS
           - naked_identifier: b
@@ -41,13 +43,14 @@ file:
         - function:
           - function_name:
             - function_name_identifier: NORMALIZE_AND_CASEFOLD
-          - bracketed:
-            - start_bracket: (
-            - expression:
-              - quoted_literal: '''\u00ea'''
-            - comma: ','
-            - keyword: NFD
-            - end_bracket: )
+          - function_contents:
+            - bracketed:
+              - start_bracket: (
+              - expression:
+                - quoted_literal: '''\u00ea'''
+              - comma: ','
+              - keyword: NFD
+              - end_bracket: )
         - alias_expression:
           - keyword: AS
           - naked_identifier: c
@@ -56,13 +59,14 @@ file:
         - function:
           - function_name:
             - function_name_identifier: NORMALIZE_AND_CASEFOLD
-          - bracketed:
-            - start_bracket: (
-            - expression:
-              - quoted_literal: '''\u0065\u0302'''
-            - comma: ','
-            - keyword: NFD
-            - end_bracket: )
+          - function_contents:
+            - bracketed:
+              - start_bracket: (
+              - expression:
+                - quoted_literal: '''\u0065\u0302'''
+              - comma: ','
+              - keyword: NFD
+              - end_bracket: )
         - alias_expression:
           - keyword: AS
           - naked_identifier: d
@@ -104,11 +108,12 @@ file:
                     - function:
                       - function_name:
                         - function_name_identifier: NORMALIZE
-                      - bracketed:
-                        - start_bracket: (
-                        - expression:
-                          - quoted_literal: '''\u00ea'''
-                        - end_bracket: )
+                      - function_contents:
+                        - bracketed:
+                          - start_bracket: (
+                          - expression:
+                            - quoted_literal: '''\u00ea'''
+                          - end_bracket: )
                     - alias_expression:
                       - keyword: as
                       - naked_identifier: a
@@ -117,11 +122,12 @@ file:
                     - function:
                       - function_name:
                         - function_name_identifier: NORMALIZE
-                      - bracketed:
-                        - start_bracket: (
-                        - expression:
-                          - quoted_literal: '''\u0065\u0302'''
-                        - end_bracket: )
+                      - function_contents:
+                        - bracketed:
+                          - start_bracket: (
+                          - expression:
+                            - quoted_literal: '''\u0065\u0302'''
+                          - end_bracket: )
                     - alias_expression:
                       - keyword: as
                       - naked_identifier: b
@@ -149,22 +155,23 @@ file:
                   - function:
                     - function_name:
                       - function_name_identifier: UNNEST
-                    - bracketed:
-                      - start_bracket: (
-                      - expression:
-                        - array_literal:
-                          - start_square_bracket: '['
-                          - quoted_literal: '''Jane\u2004Doe'''
-                          - comma: ','
-                          - quoted_literal: '''John\u2004Smith'''
-                          - comma: ','
-                          - quoted_literal: '''Jane\u2005Doe'''
-                          - comma: ','
-                          - quoted_literal: '''Jane\u2006Doe'''
-                          - comma: ','
-                          - quoted_literal: '''John Smith'''
-                          - end_square_bracket: ']'
-                      - end_bracket: )
+                    - function_contents:
+                      - bracketed:
+                        - start_bracket: (
+                        - expression:
+                          - array_literal:
+                            - start_square_bracket: '['
+                            - quoted_literal: '''Jane\u2004Doe'''
+                            - comma: ','
+                            - quoted_literal: '''John\u2004Smith'''
+                            - comma: ','
+                            - quoted_literal: '''Jane\u2005Doe'''
+                            - comma: ','
+                            - quoted_literal: '''Jane\u2006Doe'''
+                            - comma: ','
+                            - quoted_literal: '''John Smith'''
+                            - end_square_bracket: ']'
+                        - end_bracket: )
                 - alias_expression:
                   - keyword: AS
                   - naked_identifier: name
@@ -176,14 +183,15 @@ file:
           - function:
             - function_name:
               - function_name_identifier: NORMALIZE
-            - bracketed:
-              - start_bracket: (
-              - expression:
-                - column_reference:
-                  - naked_identifier: name
-              - comma: ','
-              - keyword: NFKC
-              - end_bracket: )
+            - function_contents:
+              - bracketed:
+                - start_bracket: (
+                - expression:
+                  - column_reference:
+                    - naked_identifier: name
+                - comma: ','
+                - keyword: NFKC
+                - end_bracket: )
           - alias_expression:
             - keyword: AS
             - naked_identifier: normalized_name
@@ -192,10 +200,11 @@ file:
           - function:
             - function_name:
               - function_name_identifier: COUNT
-            - bracketed:
-              - start_bracket: (
-              - star: '*'
-              - end_bracket: )
+            - function_contents:
+              - bracketed:
+                - start_bracket: (
+                - star: '*'
+                - end_bracket: )
           - alias_expression:
             - keyword: AS
             - naked_identifier: name_count
@@ -228,23 +237,25 @@ file:
           - function:
             - function_name:
               - function_name_identifier: NORMALIZE
-            - bracketed:
-              - start_bracket: (
-              - expression:
-                - column_reference:
-                  - naked_identifier: a
-              - end_bracket: )
+            - function_contents:
+              - bracketed:
+                - start_bracket: (
+                - expression:
+                  - column_reference:
+                    - naked_identifier: a
+                - end_bracket: )
           - comparison_operator:
             - raw_comparison_operator: =
           - function:
             - function_name:
               - function_name_identifier: NORMALIZE
-            - bracketed:
-              - start_bracket: (
-              - expression:
-                - column_reference:
-                  - naked_identifier: b
-              - end_bracket: )
+            - function_contents:
+              - bracketed:
+                - start_bracket: (
+                - expression:
+                  - column_reference:
+                    - naked_identifier: b
+                - end_bracket: )
         - alias_expression:
           - keyword: as
           - naked_identifier: normalized
@@ -254,23 +265,25 @@ file:
           - function:
             - function_name:
               - function_name_identifier: NORMALIZE_AND_CASEFOLD
-            - bracketed:
-              - start_bracket: (
-              - expression:
-                - column_reference:
-                  - naked_identifier: a
-              - end_bracket: )
+            - function_contents:
+              - bracketed:
+                - start_bracket: (
+                - expression:
+                  - column_reference:
+                    - naked_identifier: a
+                - end_bracket: )
           - comparison_operator:
             - raw_comparison_operator: =
           - function:
             - function_name:
               - function_name_identifier: NORMALIZE_AND_CASEFOLD
-            - bracketed:
-              - start_bracket: (
-              - expression:
-                - column_reference:
-                  - naked_identifier: b
-              - end_bracket: )
+            - function_contents:
+              - bracketed:
+                - start_bracket: (
+                - expression:
+                  - column_reference:
+                    - naked_identifier: b
+                - end_bracket: )
         - alias_expression:
           - keyword: as
           - naked_identifier: normalized_with_case_folding
@@ -314,27 +327,29 @@ file:
           - function:
             - function_name:
               - function_name_identifier: NORMALIZE_AND_CASEFOLD
-            - bracketed:
-              - start_bracket: (
-              - expression:
-                - column_reference:
-                  - naked_identifier: a
-              - comma: ','
-              - keyword: NFD
-              - end_bracket: )
+            - function_contents:
+              - bracketed:
+                - start_bracket: (
+                - expression:
+                  - column_reference:
+                    - naked_identifier: a
+                - comma: ','
+                - keyword: NFD
+                - end_bracket: )
           - comparison_operator:
             - raw_comparison_operator: =
           - function:
             - function_name:
               - function_name_identifier: NORMALIZE_AND_CASEFOLD
-            - bracketed:
-              - start_bracket: (
-              - expression:
-                - column_reference:
-                  - naked_identifier: b
-              - comma: ','
-              - keyword: NFD
-              - end_bracket: )
+            - function_contents:
+              - bracketed:
+                - start_bracket: (
+                - expression:
+                  - column_reference:
+                    - naked_identifier: b
+                - comma: ','
+                - keyword: NFD
+                - end_bracket: )
         - alias_expression:
           - keyword: AS
           - naked_identifier: nfd
@@ -344,27 +359,29 @@ file:
           - function:
             - function_name:
               - function_name_identifier: NORMALIZE_AND_CASEFOLD
-            - bracketed:
-              - start_bracket: (
-              - expression:
-                - column_reference:
-                  - naked_identifier: a
-              - comma: ','
-              - keyword: NFC
-              - end_bracket: )
+            - function_contents:
+              - bracketed:
+                - start_bracket: (
+                - expression:
+                  - column_reference:
+                    - naked_identifier: a
+                - comma: ','
+                - keyword: NFC
+                - end_bracket: )
           - comparison_operator:
             - raw_comparison_operator: =
           - function:
             - function_name:
               - function_name_identifier: NORMALIZE_AND_CASEFOLD
-            - bracketed:
-              - start_bracket: (
-              - expression:
-                - column_reference:
-                  - naked_identifier: b
-              - comma: ','
-              - keyword: NFC
-              - end_bracket: )
+            - function_contents:
+              - bracketed:
+                - start_bracket: (
+                - expression:
+                  - column_reference:
+                    - naked_identifier: b
+                - comma: ','
+                - keyword: NFC
+                - end_bracket: )
         - alias_expression:
           - keyword: AS
           - naked_identifier: nfc
@@ -374,27 +391,29 @@ file:
           - function:
             - function_name:
               - function_name_identifier: NORMALIZE_AND_CASEFOLD
-            - bracketed:
-              - start_bracket: (
-              - expression:
-                - column_reference:
-                  - naked_identifier: a
-              - comma: ','
-              - keyword: NFKD
-              - end_bracket: )
+            - function_contents:
+              - bracketed:
+                - start_bracket: (
+                - expression:
+                  - column_reference:
+                    - naked_identifier: a
+                - comma: ','
+                - keyword: NFKD
+                - end_bracket: )
           - comparison_operator:
             - raw_comparison_operator: =
           - function:
             - function_name:
               - function_name_identifier: NORMALIZE_AND_CASEFOLD
-            - bracketed:
-              - start_bracket: (
-              - expression:
-                - column_reference:
-                  - naked_identifier: b
-              - comma: ','
-              - keyword: NFKD
-              - end_bracket: )
+            - function_contents:
+              - bracketed:
+                - start_bracket: (
+                - expression:
+                  - column_reference:
+                    - naked_identifier: b
+                - comma: ','
+                - keyword: NFKD
+                - end_bracket: )
         - alias_expression:
           - keyword: AS
           - naked_identifier: nkfd
@@ -404,27 +423,29 @@ file:
           - function:
             - function_name:
               - function_name_identifier: NORMALIZE_AND_CASEFOLD
-            - bracketed:
-              - start_bracket: (
-              - expression:
-                - column_reference:
-                  - naked_identifier: a
-              - comma: ','
-              - keyword: NFKC
-              - end_bracket: )
+            - function_contents:
+              - bracketed:
+                - start_bracket: (
+                - expression:
+                  - column_reference:
+                    - naked_identifier: a
+                - comma: ','
+                - keyword: NFKC
+                - end_bracket: )
           - comparison_operator:
             - raw_comparison_operator: =
           - function:
             - function_name:
               - function_name_identifier: NORMALIZE_AND_CASEFOLD
-            - bracketed:
-              - start_bracket: (
-              - expression:
-                - column_reference:
-                  - naked_identifier: b
-              - comma: ','
-              - keyword: NFKC
-              - end_bracket: )
+            - function_contents:
+              - bracketed:
+                - start_bracket: (
+                - expression:
+                  - column_reference:
+                    - naked_identifier: b
+                - comma: ','
+                - keyword: NFKC
+                - end_bracket: )
         - alias_expression:
           - keyword: AS
           - naked_identifier: nkfc

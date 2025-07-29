@@ -7,47 +7,48 @@ file:
         - function:
           - function_name:
             - function_name_identifier: IF
-          - bracketed:
-            - start_bracket: (
-            - expression:
-              - boolean_literal: 'TRUE'
-            - comma: ','
-            - expression:
-              - typed_struct_literal:
-                - struct_type:
-                  - keyword: STRUCT
-                - struct_literal:
-                  - bracketed:
-                    - start_bracket: (
-                    - quoted_literal: '''hello'''
-                    - alias_expression:
-                      - keyword: AS
-                      - naked_identifier: greeting
-                    - comma: ','
-                    - quoted_literal: '''world'''
-                    - alias_expression:
-                      - keyword: AS
-                      - naked_identifier: subject
-                    - end_bracket: )
-            - comma: ','
-            - expression:
-              - typed_struct_literal:
-                - struct_type:
-                  - keyword: STRUCT
-                - struct_literal:
-                  - bracketed:
-                    - start_bracket: (
-                    - quoted_literal: '''hi'''
-                    - alias_expression:
-                      - keyword: AS
-                      - naked_identifier: greeting
-                    - comma: ','
-                    - quoted_literal: '''there'''
-                    - alias_expression:
-                      - keyword: AS
-                      - naked_identifier: subject
-                    - end_bracket: )
-            - end_bracket: )
+          - function_contents:
+            - bracketed:
+              - start_bracket: (
+              - expression:
+                - boolean_literal: 'TRUE'
+              - comma: ','
+              - expression:
+                - typed_struct_literal:
+                  - struct_type:
+                    - keyword: STRUCT
+                  - struct_literal:
+                    - bracketed:
+                      - start_bracket: (
+                      - quoted_literal: '''hello'''
+                      - alias_expression:
+                        - keyword: AS
+                        - naked_identifier: greeting
+                      - comma: ','
+                      - quoted_literal: '''world'''
+                      - alias_expression:
+                        - keyword: AS
+                        - naked_identifier: subject
+                      - end_bracket: )
+              - comma: ','
+              - expression:
+                - typed_struct_literal:
+                  - struct_type:
+                    - keyword: STRUCT
+                  - struct_literal:
+                    - bracketed:
+                      - start_bracket: (
+                      - quoted_literal: '''hi'''
+                      - alias_expression:
+                        - keyword: AS
+                        - naked_identifier: greeting
+                      - comma: ','
+                      - quoted_literal: '''there'''
+                      - alias_expression:
+                        - keyword: AS
+                        - naked_identifier: subject
+                      - end_bracket: )
+              - end_bracket: )
         - alias_expression:
           - keyword: AS
           - naked_identifier: salute

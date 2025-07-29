@@ -124,11 +124,12 @@ file:
                 - function:
                   - function_name:
                     - function_name_identifier: safe_offset
-                  - bracketed:
-                    - start_bracket: (
-                    - expression:
-                      - numeric_literal: '1'
-                    - end_bracket: )
+                  - function_contents:
+                    - bracketed:
+                      - start_bracket: (
+                      - expression:
+                        - numeric_literal: '1'
+                      - end_bracket: )
               - end_square_bracket: ']'
             - dot: .
             - naked_identifier: a

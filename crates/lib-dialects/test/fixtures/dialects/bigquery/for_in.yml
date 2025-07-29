@@ -163,10 +163,11 @@ file:
             - function:
               - function_name:
                 - function_name_identifier: count
-              - bracketed:
-                - start_bracket: (
-                - star: '*'
-                - end_bracket: )
+              - function_contents:
+                - bracketed:
+                  - start_bracket: (
+                  - star: '*'
+                  - end_bracket: )
             - alias_expression:
               - keyword: as
               - naked_identifier: count

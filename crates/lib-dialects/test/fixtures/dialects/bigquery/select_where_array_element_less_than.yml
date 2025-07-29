@@ -25,11 +25,12 @@ file:
             - function:
               - function_name:
                 - function_name_identifier: ORDINAL
-              - bracketed:
-                - start_bracket: (
-                - expression:
-                  - numeric_literal: '1'
-                - end_bracket: )
+              - function_contents:
+                - bracketed:
+                  - start_bracket: (
+                  - expression:
+                    - numeric_literal: '1'
+                  - end_bracket: )
           - end_square_bracket: ']'
         - comparison_operator:
           - raw_comparison_operator: <
@@ -41,11 +42,12 @@ file:
             - function:
               - function_name:
                 - function_name_identifier: ORDINAL
-              - bracketed:
-                - start_bracket: (
-                - expression:
-                  - numeric_literal: '1'
-                  - binary_operator: +
-                  - numeric_literal: '1'
-                - end_bracket: )
+              - function_contents:
+                - bracketed:
+                  - start_bracket: (
+                  - expression:
+                    - numeric_literal: '1'
+                    - binary_operator: +
+                    - numeric_literal: '1'
+                  - end_bracket: )
           - end_square_bracket: ']'

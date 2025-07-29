@@ -19,12 +19,13 @@ file:
         - function:
           - function_name:
             - function_name_identifier: SUM
-          - bracketed:
-            - start_bracket: (
-            - expression:
-              - column_reference:
-                - naked_identifier: total_number_of_affected_accounts
-            - end_bracket: )
+          - function_contents:
+            - bracketed:
+              - start_bracket: (
+              - expression:
+                - column_reference:
+                  - naked_identifier: total_number_of_affected_accounts
+              - end_bracket: )
           - over_clause:
             - keyword: OVER
             - bracketed:

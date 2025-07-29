@@ -7,12 +7,13 @@ file:
         - function:
           - function_name:
             - function_name_identifier: testFunction
-          - bracketed:
-            - start_bracket: (
-            - expression:
-              - column_reference:
-                - naked_identifier: a
-            - end_bracket: )
+          - function_contents:
+            - bracketed:
+              - start_bracket: (
+              - expression:
+                - column_reference:
+                  - naked_identifier: a
+              - end_bracket: )
           - semi_structured_expression:
             - dot: .
             - naked_identifier: b
@@ -24,12 +25,13 @@ file:
         - function:
           - function_name:
             - function_name_identifier: testFunction
-          - bracketed:
-            - start_bracket: (
-            - expression:
-              - column_reference:
-                - naked_identifier: a
-            - end_bracket: )
+          - function_contents:
+            - bracketed:
+              - start_bracket: (
+              - expression:
+                - column_reference:
+                  - naked_identifier: a
+              - end_bracket: )
           - semi_structured_expression:
             - dot: .
             - star: '*'
@@ -41,12 +43,13 @@ file:
         - function:
           - function_name:
             - function_name_identifier: testFunction
-          - bracketed:
-            - start_bracket: (
-            - expression:
-              - column_reference:
-                - naked_identifier: a
-            - end_bracket: )
+          - function_contents:
+            - bracketed:
+              - start_bracket: (
+              - expression:
+                - column_reference:
+                  - naked_identifier: a
+              - end_bracket: )
           - semi_structured_expression:
             - dot: .
             - naked_identifier: b
@@ -60,12 +63,13 @@ file:
         - function:
           - function_name:
             - function_name_identifier: testFunction
-          - bracketed:
-            - start_bracket: (
-            - expression:
-              - column_reference:
-                - naked_identifier: a
-            - end_bracket: )
+          - function_contents:
+            - bracketed:
+              - start_bracket: (
+              - expression:
+                - column_reference:
+                  - naked_identifier: a
+              - end_bracket: )
           - semi_structured_expression:
             - dot: .
             - naked_identifier: b
@@ -79,23 +83,25 @@ file:
         - function:
           - function_name:
             - function_name_identifier: testFunction
-          - bracketed:
-            - start_bracket: (
-            - expression:
-              - column_reference:
-                - naked_identifier: a
-            - end_bracket: )
+          - function_contents:
+            - bracketed:
+              - start_bracket: (
+              - expression:
+                - column_reference:
+                  - naked_identifier: a
+              - end_bracket: )
           - array_accessor:
             - start_square_bracket: '['
             - expression:
               - function:
                 - function_name:
                   - function_name_identifier: OFFSET
-                - bracketed:
-                  - start_bracket: (
-                  - expression:
-                    - numeric_literal: '0'
-                  - end_bracket: )
+                - function_contents:
+                  - bracketed:
+                    - start_bracket: (
+                    - expression:
+                      - numeric_literal: '0'
+                    - end_bracket: )
             - end_square_bracket: ']'
           - semi_structured_expression:
             - dot: .
@@ -108,23 +114,25 @@ file:
         - function:
           - function_name:
             - function_name_identifier: testFunction
-          - bracketed:
-            - start_bracket: (
-            - expression:
-              - column_reference:
-                - naked_identifier: a
-            - end_bracket: )
+          - function_contents:
+            - bracketed:
+              - start_bracket: (
+              - expression:
+                - column_reference:
+                  - naked_identifier: a
+              - end_bracket: )
           - array_accessor:
             - start_square_bracket: '['
             - expression:
               - function:
                 - function_name:
                   - function_name_identifier: SAFE_OFFSET
-                - bracketed:
-                  - start_bracket: (
-                  - expression:
-                    - numeric_literal: '0'
-                  - end_bracket: )
+                - function_contents:
+                  - bracketed:
+                    - start_bracket: (
+                    - expression:
+                      - numeric_literal: '0'
+                    - end_bracket: )
             - end_square_bracket: ']'
           - semi_structured_expression:
             - dot: .
@@ -137,23 +145,25 @@ file:
         - function:
           - function_name:
             - function_name_identifier: testFunction
-          - bracketed:
-            - start_bracket: (
-            - expression:
-              - column_reference:
-                - naked_identifier: a
-            - end_bracket: )
+          - function_contents:
+            - bracketed:
+              - start_bracket: (
+              - expression:
+                - column_reference:
+                  - naked_identifier: a
+              - end_bracket: )
           - array_accessor:
             - start_square_bracket: '['
             - expression:
               - function:
                 - function_name:
                   - function_name_identifier: ORDINAL
-                - bracketed:
-                  - start_bracket: (
-                  - expression:
-                    - numeric_literal: '1'
-                  - end_bracket: )
+                - function_contents:
+                  - bracketed:
+                    - start_bracket: (
+                    - expression:
+                      - numeric_literal: '1'
+                    - end_bracket: )
             - end_square_bracket: ']'
           - semi_structured_expression:
             - dot: .
@@ -166,23 +176,25 @@ file:
         - function:
           - function_name:
             - function_name_identifier: testFunction
-          - bracketed:
-            - start_bracket: (
-            - expression:
-              - column_reference:
-                - naked_identifier: a
-            - end_bracket: )
+          - function_contents:
+            - bracketed:
+              - start_bracket: (
+              - expression:
+                - column_reference:
+                  - naked_identifier: a
+              - end_bracket: )
           - array_accessor:
             - start_square_bracket: '['
             - expression:
               - function:
                 - function_name:
                   - function_name_identifier: ORDINAL
-                - bracketed:
-                  - start_bracket: (
-                  - expression:
-                    - numeric_literal: '1'
-                  - end_bracket: )
+                - function_contents:
+                  - bracketed:
+                    - start_bracket: (
+                    - expression:
+                      - numeric_literal: '1'
+                    - end_bracket: )
             - end_square_bracket: ']'
           - semi_structured_expression:
             - dot: .

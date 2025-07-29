@@ -7,21 +7,22 @@ file:
         - function:
           - function_name:
             - function_name_identifier: STRING_AGG
-          - bracketed:
-            - start_bracket: (
-            - expression:
-              - column_reference:
-                - naked_identifier: a
-            - aggregate_order_by_clause:
-              - orderby_clause:
-                - keyword: ORDER
-                - keyword: BY
+          - function_contents:
+            - bracketed:
+              - start_bracket: (
+              - expression:
                 - column_reference:
-                  - naked_identifier: b
-                - comma: ','
-                - column_reference:
-                  - naked_identifier: c
-            - end_bracket: )
+                  - naked_identifier: a
+              - aggregate_order_by_clause:
+                - orderby_clause:
+                  - keyword: ORDER
+                  - keyword: BY
+                  - column_reference:
+                    - naked_identifier: b
+                  - comma: ','
+                  - column_reference:
+                    - naked_identifier: c
+              - end_bracket: )
     - from_clause:
       - keyword: FROM
       - from_expression:

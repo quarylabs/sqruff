@@ -11,14 +11,15 @@ file:
             - naked_identifier: functions
             - dot: .
             - function_name_identifier: timestamp_parsing
-          - bracketed:
-            - start_bracket: (
-            - expression:
-              - column_reference:
-                - naked_identifier: log_tbl
-                - dot: .
-                - naked_identifier: orderdate
-            - end_bracket: )
+          - function_contents:
+            - bracketed:
+              - start_bracket: (
+              - expression:
+                - column_reference:
+                  - naked_identifier: log_tbl
+                  - dot: .
+                  - naked_identifier: orderdate
+              - end_bracket: )
         - alias_expression:
           - keyword: AS
           - naked_identifier: orderdate

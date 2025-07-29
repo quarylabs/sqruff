@@ -95,18 +95,19 @@ file:
           - start_bracket: (
           - select_statement:
             - select_clause:
-              - keyword: select
-              - select_clause_element:
-                - column_reference:
-                  - naked_identifier: cc_id
-              - comma: ','
-              - select_clause_element:
-                - column_reference:
-                  - naked_identifier: cc_name
-              - comma: ','
-              - select_clause_element:
-                - column_reference:
-                  - naked_identifier: cc_description
+              - select_clause:
+                - keyword: select
+                - select_clause_element:
+                  - column_reference:
+                    - naked_identifier: cc_id
+                - comma: ','
+                - select_clause_element:
+                  - column_reference:
+                    - naked_identifier: cc_name
+                - comma: ','
+                - select_clause_element:
+                  - column_reference:
+                    - naked_identifier: cc_description
             - from_clause:
               - keyword: from
               - from_expression:
@@ -437,10 +438,11 @@ file:
                     - start_bracket: (
                     - select_statement:
                       - select_clause:
-                        - keyword: select
-                        - select_clause_element:
-                          - column_reference:
-                            - naked_identifier: s_id
+                        - select_clause:
+                          - keyword: select
+                          - select_clause_element:
+                            - column_reference:
+                              - naked_identifier: s_id
                       - from_clause:
                         - keyword: from
                         - from_expression:
@@ -502,14 +504,15 @@ file:
           - start_bracket: (
           - select_statement:
             - select_clause:
-              - keyword: SELECT
-              - select_clause_element:
-                - parameterized_expression:
-                  - tsql_variable: '@UnitMeasureCode'
-              - comma: ','
-              - select_clause_element:
-                - parameterized_expression:
-                  - tsql_variable: '@Name'
+              - select_clause:
+                - keyword: SELECT
+                - select_clause_element:
+                  - parameterized_expression:
+                    - tsql_variable: '@UnitMeasureCode'
+                - comma: ','
+                - select_clause_element:
+                  - parameterized_expression:
+                    - tsql_variable: '@Name'
           - end_bracket: )
         - alias_expression:
           - keyword: as
@@ -631,22 +634,23 @@ file:
           - start_bracket: (
           - select_statement:
             - select_clause:
-              - keyword: SELECT
-              - select_clause_element:
-                - column_reference:
-                  - naked_identifier: ProductID
-              - comma: ','
-              - select_clause_element:
-                - function:
+              - select_clause:
+                - keyword: SELECT
+                - select_clause_element:
+                  - column_reference:
+                    - naked_identifier: ProductID
+                - comma: ','
+                - select_clause_element:
                   - function:
-                    - function_name:
-                      - function_name_identifier: SUM
-                    - bracketed:
-                      - start_bracket: (
-                      - expression:
-                        - column_reference:
-                          - naked_identifier: OrderQty
-                      - end_bracket: )
+                    - function:
+                      - function_name:
+                        - function_name_identifier: SUM
+                      - bracketed:
+                        - start_bracket: (
+                        - expression:
+                          - column_reference:
+                            - naked_identifier: OrderQty
+                        - end_bracket: )
             - from_clause:
               - keyword: FROM
               - from_expression:
@@ -855,22 +859,23 @@ file:
           - start_bracket: (
           - select_statement:
             - select_clause:
-              - keyword: SELECT
-              - select_clause_element:
-                - column_reference:
-                  - naked_identifier: ProductID
-              - comma: ','
-              - select_clause_element:
-                - function:
+              - select_clause:
+                - keyword: SELECT
+                - select_clause_element:
+                  - column_reference:
+                    - naked_identifier: ProductID
+                - comma: ','
+                - select_clause_element:
                   - function:
-                    - function_name:
-                      - function_name_identifier: SUM
-                    - bracketed:
-                      - start_bracket: (
-                      - expression:
-                        - column_reference:
-                          - naked_identifier: OrderQty
-                      - end_bracket: )
+                    - function:
+                      - function_name:
+                        - function_name_identifier: SUM
+                      - bracketed:
+                        - start_bracket: (
+                        - expression:
+                          - column_reference:
+                            - naked_identifier: OrderQty
+                        - end_bracket: )
             - from_clause:
               - keyword: FROM
               - from_expression:
@@ -1068,12 +1073,13 @@ file:
           - end_bracket: )
         - select_statement:
           - select_clause:
-            - keyword: select
-            - select_clause_element:
-              - column_reference:
-                - naked_identifier: upd
-                - dot: .
-                - naked_identifier: columnC
+            - select_clause:
+              - keyword: select
+              - select_clause_element:
+                - column_reference:
+                  - naked_identifier: upd
+                  - dot: .
+                  - naked_identifier: columnC
           - from_clause:
             - keyword: from
             - from_expression:
@@ -1098,12 +1104,13 @@ file:
                               - start_bracket: (
                               - select_statement:
                                 - select_clause:
-                                  - keyword: select
-                                  - select_clause_element:
-                                    - column_reference:
-                                      - naked_identifier: gr
-                                      - dot: .
-                                      - naked_identifier: columnC
+                                  - select_clause:
+                                    - keyword: select
+                                    - select_clause_element:
+                                      - column_reference:
+                                        - naked_identifier: gr
+                                        - dot: .
+                                        - naked_identifier: columnC
                                 - from_clause:
                                   - keyword: from
                                   - from_expression:
@@ -1190,14 +1197,15 @@ file:
           - start_bracket: (
           - select_statement:
             - select_clause:
-              - keyword: SELECT
-              - select_clause_element:
-                - parameterized_expression:
-                  - tsql_variable: '@UnitMeasureCode'
-              - comma: ','
-              - select_clause_element:
-                - parameterized_expression:
-                  - tsql_variable: '@Name'
+              - select_clause:
+                - keyword: SELECT
+                - select_clause_element:
+                  - parameterized_expression:
+                    - tsql_variable: '@UnitMeasureCode'
+                - comma: ','
+                - select_clause_element:
+                  - parameterized_expression:
+                    - tsql_variable: '@Name'
           - end_bracket: )
         - alias_expression:
           - keyword: as
@@ -1333,22 +1341,23 @@ file:
           - start_bracket: (
           - select_statement:
             - select_clause:
-              - keyword: SELECT
-              - select_clause_element:
-                - column_reference:
-                  - naked_identifier: ProductID
-              - comma: ','
-              - select_clause_element:
-                - function:
+              - select_clause:
+                - keyword: SELECT
+                - select_clause_element:
+                  - column_reference:
+                    - naked_identifier: ProductID
+                - comma: ','
+                - select_clause_element:
                   - function:
-                    - function_name:
-                      - function_name_identifier: SUM
-                    - bracketed:
-                      - start_bracket: (
-                      - expression:
-                        - column_reference:
-                          - naked_identifier: OrderQty
-                      - end_bracket: )
+                    - function:
+                      - function_name:
+                        - function_name_identifier: SUM
+                      - bracketed:
+                        - start_bracket: (
+                        - expression:
+                          - column_reference:
+                            - naked_identifier: OrderQty
+                        - end_bracket: )
             - from_clause:
               - keyword: FROM
               - from_expression:
@@ -1544,12 +1553,13 @@ file:
           - start_bracket: (
           - select_statement:
             - select_clause:
-              - keyword: SELECT
-              - select_clause_element:
-                - numeric_literal: '1'
-                - alias_expression:
-                  - keyword: AS
-                  - naked_identifier: i
+              - select_clause:
+                - keyword: SELECT
+                - select_clause_element:
+                  - numeric_literal: '1'
+                  - alias_expression:
+                    - keyword: AS
+                    - naked_identifier: i
           - end_bracket: )
         - alias_expression:
           - keyword: AS

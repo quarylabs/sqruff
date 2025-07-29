@@ -3,13 +3,14 @@ file:
   - statement:
     - select_statement:
       - select_clause:
-        - keyword: SELECT
-        - select_clause_element:
-          - wildcard_expression:
-            - wildcard_identifier:
-              - naked_identifier: table1
-              - dot: .
-              - star: '*'
+        - select_clause:
+          - keyword: SELECT
+          - select_clause_element:
+            - wildcard_expression:
+              - wildcard_identifier:
+                - naked_identifier: table1
+                - dot: .
+                - star: '*'
       - from_clause:
         - keyword: FROM
         - from_expression:

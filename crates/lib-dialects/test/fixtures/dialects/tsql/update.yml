@@ -29,12 +29,13 @@ file:
               - start_bracket: (
               - select_statement:
                 - select_clause:
-                  - keyword: select
-                  - select_clause_modifier:
-                    - keyword: distinct
-                  - select_clause_element:
-                    - column_reference:
-                      - quoted_identifier: '[ID]'
+                  - select_clause:
+                    - keyword: select
+                    - select_clause_modifier:
+                      - keyword: distinct
+                    - select_clause_element:
+                      - column_reference:
+                        - quoted_identifier: '[ID]'
                 - from_clause:
                   - keyword: from
                   - from_expression:

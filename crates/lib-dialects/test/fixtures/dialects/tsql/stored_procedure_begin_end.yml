@@ -15,17 +15,19 @@ file:
           - statement:
             - select_statement:
               - select_clause:
-                - keyword: SELECT
-                - select_clause_element:
-                  - quoted_literal: '''Weekend'''
+                - select_clause:
+                  - keyword: SELECT
+                  - select_clause_element:
+                    - quoted_literal: '''Weekend'''
           - statement_terminator: ;
           - statement:
             - select_statement:
               - select_clause:
-                - keyword: select
-                - select_clause_element:
-                  - column_reference:
-                    - naked_identifier: a
+                - select_clause:
+                  - keyword: select
+                  - select_clause_element:
+                    - column_reference:
+                      - naked_identifier: a
               - from_clause:
                 - keyword: from
                 - from_expression:
@@ -40,10 +42,11 @@ file:
           - statement:
             - select_statement:
               - select_clause:
-                - keyword: select
-                - select_clause_element:
-                  - column_reference:
-                    - naked_identifier: b
+                - select_clause:
+                  - keyword: select
+                  - select_clause_element:
+                    - column_reference:
+                      - naked_identifier: b
               - from_clause:
                 - keyword: from
                 - from_expression:
@@ -97,9 +100,10 @@ file:
       - statement:
         - select_statement:
           - select_clause:
-            - keyword: SELECT
-            - select_clause_element:
-              - quoted_literal: '''8'''
+            - select_clause:
+              - keyword: SELECT
+              - select_clause_element:
+                - quoted_literal: '''8'''
       - keyword: END
   - statement_terminator: ;
   - keyword: GO
@@ -145,9 +149,10 @@ file:
       - statement:
         - select_statement:
           - select_clause:
-            - keyword: SELECT
-            - select_clause_element:
-              - quoted_literal: '''8'''
+            - select_clause:
+              - keyword: SELECT
+              - select_clause_element:
+                - quoted_literal: '''8'''
       - keyword: END
   - statement_terminator: ;
   - keyword: GO
@@ -193,9 +198,10 @@ file:
         - statement:
           - select_statement:
             - select_clause:
-              - keyword: SELECT
-              - select_clause_element:
-                - quoted_literal: '''8'''
+              - select_clause:
+                - keyword: SELECT
+                - select_clause_element:
+                  - quoted_literal: '''8'''
         - statement_terminator: ;
         - keyword: END
         - keyword: TRY

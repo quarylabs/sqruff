@@ -3,10 +3,11 @@ file:
   - statement:
     - select_statement:
       - select_clause:
-        - keyword: SELECT
-        - select_clause_element:
-          - column_reference:
-            - quoted_identifier: '[value]'
+        - select_clause:
+          - keyword: SELECT
+          - select_clause_element:
+            - column_reference:
+              - quoted_identifier: '[value]'
       - from_clause:
         - keyword: FROM
         - from_expression:

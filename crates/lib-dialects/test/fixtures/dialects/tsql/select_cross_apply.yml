@@ -3,30 +3,31 @@ file:
   - statement:
     - select_statement:
       - select_clause:
-        - keyword: SELECT
-        - select_clause_element:
-          - column_reference:
-            - naked_identifier: DeptID
-        - comma: ','
-        - select_clause_element:
-          - column_reference:
-            - naked_identifier: DeptName
-        - comma: ','
-        - select_clause_element:
-          - column_reference:
-            - naked_identifier: DeptMgrID
-        - comma: ','
-        - select_clause_element:
-          - column_reference:
-            - naked_identifier: EmpID
-        - comma: ','
-        - select_clause_element:
-          - column_reference:
-            - naked_identifier: EmpLastName
-        - comma: ','
-        - select_clause_element:
-          - column_reference:
-            - naked_identifier: EmpSalary
+        - select_clause:
+          - keyword: SELECT
+          - select_clause_element:
+            - column_reference:
+              - naked_identifier: DeptID
+          - comma: ','
+          - select_clause_element:
+            - column_reference:
+              - naked_identifier: DeptName
+          - comma: ','
+          - select_clause_element:
+            - column_reference:
+              - naked_identifier: DeptMgrID
+          - comma: ','
+          - select_clause_element:
+            - column_reference:
+              - naked_identifier: EmpID
+          - comma: ','
+          - select_clause_element:
+            - column_reference:
+              - naked_identifier: EmpLastName
+          - comma: ','
+          - select_clause_element:
+            - column_reference:
+              - naked_identifier: EmpSalary
       - from_clause:
         - keyword: FROM
         - from_expression:
@@ -63,40 +64,41 @@ file:
   - statement:
     - select_statement:
       - select_clause:
-        - keyword: SELECT
-        - select_clause_element:
-          - column_reference:
-            - naked_identifier: d
-            - dot: .
-            - naked_identifier: DeptID
-        - comma: ','
-        - select_clause_element:
-          - column_reference:
-            - naked_identifier: d
-            - dot: .
-            - naked_identifier: DeptName
-        - comma: ','
-        - select_clause_element:
-          - column_reference:
-            - naked_identifier: DeptMgrID
-        - comma: ','
-        - select_clause_element:
-          - column_reference:
-            - naked_identifier: reps
-            - dot: .
-            - naked_identifier: EmpID
-        - comma: ','
-        - select_clause_element:
-          - column_reference:
-            - naked_identifier: reps
-            - dot: .
-            - naked_identifier: EmpLastName
-        - comma: ','
-        - select_clause_element:
-          - column_reference:
-            - naked_identifier: reps
-            - dot: .
-            - naked_identifier: EmpSalary
+        - select_clause:
+          - keyword: SELECT
+          - select_clause_element:
+            - column_reference:
+              - naked_identifier: d
+              - dot: .
+              - naked_identifier: DeptID
+          - comma: ','
+          - select_clause_element:
+            - column_reference:
+              - naked_identifier: d
+              - dot: .
+              - naked_identifier: DeptName
+          - comma: ','
+          - select_clause_element:
+            - column_reference:
+              - naked_identifier: DeptMgrID
+          - comma: ','
+          - select_clause_element:
+            - column_reference:
+              - naked_identifier: reps
+              - dot: .
+              - naked_identifier: EmpID
+          - comma: ','
+          - select_clause_element:
+            - column_reference:
+              - naked_identifier: reps
+              - dot: .
+              - naked_identifier: EmpLastName
+          - comma: ','
+          - select_clause_element:
+            - column_reference:
+              - naked_identifier: reps
+              - dot: .
+              - naked_identifier: EmpSalary
       - from_clause:
         - keyword: FROM
         - from_expression:
@@ -147,11 +149,12 @@ file:
   - statement:
     - select_statement:
       - select_clause:
-        - keyword: SELECT
-        - select_clause_element:
-          - wildcard_expression:
-            - wildcard_identifier:
-              - star: '*'
+        - select_clause:
+          - keyword: SELECT
+          - select_clause_element:
+            - wildcard_expression:
+              - wildcard_identifier:
+                - star: '*'
       - from_clause:
         - keyword: FROM
         - from_expression:
@@ -188,11 +191,12 @@ file:
   - statement:
     - select_statement:
       - select_clause:
-        - keyword: SELECT
-        - select_clause_element:
-          - wildcard_expression:
-            - wildcard_identifier:
-              - star: '*'
+        - select_clause:
+          - keyword: SELECT
+          - select_clause_element:
+            - wildcard_expression:
+              - wildcard_identifier:
+                - star: '*'
       - from_clause:
         - keyword: FROM
         - from_expression:
@@ -242,18 +246,19 @@ file:
   - statement:
     - select_statement:
       - select_clause:
-        - keyword: select
-        - select_clause_element:
-          - column_reference:
-            - naked_identifier: s
-            - dot: .
-            - naked_identifier: column_id
-        - comma: ','
-        - select_clause_element:
-          - column_reference:
-            - naked_identifier: sp
-            - dot: .
-            - naked_identifier: value
+        - select_clause:
+          - keyword: select
+          - select_clause_element:
+            - column_reference:
+              - naked_identifier: s
+              - dot: .
+              - naked_identifier: column_id
+          - comma: ','
+          - select_clause_element:
+            - column_reference:
+              - naked_identifier: sp
+              - dot: .
+              - naked_identifier: value
       - from_clause:
         - keyword: from
         - from_expression:

@@ -3,57 +3,58 @@ file:
   - statement:
     - select_statement:
       - select_clause:
-        - keyword: select
-        - select_clause_element:
-          - function:
+        - select_clause:
+          - keyword: select
+          - select_clause_element:
             - function:
-              - function_name:
-                - function_name_identifier: convert
-              - bracketed:
-                - start_bracket: (
-                - expression:
-                  - column_reference:
-                    - naked_identifier: date
-                - comma: ','
-                - expression:
-                  - function:
+              - function:
+                - function_name:
+                  - function_name_identifier: convert
+                - bracketed:
+                  - start_bracket: (
+                  - expression:
+                    - column_reference:
+                      - naked_identifier: date
+                  - comma: ','
+                  - expression:
                     - function:
-                      - function_name:
-                        - function_name_identifier: dateadd
-                      - bracketed:
-                        - start_bracket: (
-                        - expression:
-                          - column_reference:
-                            - naked_identifier: month
-                        - comma: ','
-                        - expression:
-                          - function:
+                      - function:
+                        - function_name:
+                          - function_name_identifier: dateadd
+                        - bracketed:
+                          - start_bracket: (
+                          - expression:
+                            - column_reference:
+                              - naked_identifier: month
+                          - comma: ','
+                          - expression:
                             - function:
-                              - function_name:
-                                - function_name_identifier: datediff
-                              - bracketed:
-                                - start_bracket: (
-                                - expression:
-                                  - column_reference:
-                                    - naked_identifier: month
-                                - comma: ','
-                                - expression:
-                                  - numeric_literal: '0'
-                                - comma: ','
-                                - expression:
-                                  - column_reference:
-                                    - naked_identifier: t
-                                    - dot: .
-                                    - naked_identifier: valid_from_date
-                                - end_bracket: )
-                        - comma: ','
-                        - expression:
-                          - numeric_literal: '0'
-                        - end_bracket: )
-                - end_bracket: )
-          - alias_expression:
-            - keyword: as
-            - naked_identifier: valid_from_date
+                              - function:
+                                - function_name:
+                                  - function_name_identifier: datediff
+                                - bracketed:
+                                  - start_bracket: (
+                                  - expression:
+                                    - column_reference:
+                                      - naked_identifier: month
+                                  - comma: ','
+                                  - expression:
+                                    - numeric_literal: '0'
+                                  - comma: ','
+                                  - expression:
+                                    - column_reference:
+                                      - naked_identifier: t
+                                      - dot: .
+                                      - naked_identifier: valid_from_date
+                                  - end_bracket: )
+                          - comma: ','
+                          - expression:
+                            - numeric_literal: '0'
+                          - end_bracket: )
+                  - end_bracket: )
+            - alias_expression:
+              - keyword: as
+              - naked_identifier: valid_from_date
       - from_clause:
         - keyword: from
         - from_expression:

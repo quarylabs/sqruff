@@ -3,17 +3,18 @@ file:
   - statement:
     - select_statement:
       - select_clause:
-        - keyword: select
-        - select_clause_element:
-          - expression:
-            - column_reference:
-              - naked_identifier: userid
-            - comparison_operator:
-              - raw_comparison_operator: =
-            - column_reference:
-              - naked_identifier: c
-              - dot: .
-              - naked_identifier: id
+        - select_clause:
+          - keyword: select
+          - select_clause_element:
+            - expression:
+              - column_reference:
+                - naked_identifier: userid
+              - comparison_operator:
+                - raw_comparison_operator: =
+              - column_reference:
+                - naked_identifier: c
+                - dot: .
+                - naked_identifier: id
       - from_clause:
         - keyword: from
         - from_expression:
@@ -44,16 +45,17 @@ file:
   - statement:
     - select_statement:
       - select_clause:
-        - keyword: select
-        - select_clause_element:
-          - tsql_variable: '@userid_parameter'
-          - assignment_operator:
-            - raw_comparison_operator: =
-          - expression:
-            - column_reference:
-              - naked_identifier: c
-              - dot: .
-              - naked_identifier: id
+        - select_clause:
+          - keyword: select
+          - select_clause_element:
+            - tsql_variable: '@userid_parameter'
+            - assignment_operator:
+              - raw_comparison_operator: =
+            - expression:
+              - column_reference:
+                - naked_identifier: c
+                - dot: .
+                - naked_identifier: id
       - from_clause:
         - keyword: from
         - from_expression:

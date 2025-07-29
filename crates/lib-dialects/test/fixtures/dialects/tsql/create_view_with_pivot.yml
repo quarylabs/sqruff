@@ -15,32 +15,33 @@ file:
         - keyword: AS
         - select_statement:
           - select_clause:
-            - keyword: SELECT
-            - select_clause_element:
-              - quoted_literal: '''AverageCost'''
-              - alias_expression:
-                - keyword: AS
-                - naked_identifier: Cost_Sorted_By_Production_Days
-            - comma: ','
-            - select_clause_element:
-              - column_reference:
-                - quoted_identifier: '[0]'
-            - comma: ','
-            - select_clause_element:
-              - column_reference:
-                - quoted_identifier: '[1]'
-            - comma: ','
-            - select_clause_element:
-              - column_reference:
-                - quoted_identifier: '[2]'
-            - comma: ','
-            - select_clause_element:
-              - column_reference:
-                - quoted_identifier: '[3]'
-            - comma: ','
-            - select_clause_element:
-              - column_reference:
-                - quoted_identifier: '[4]'
+            - select_clause:
+              - keyword: SELECT
+              - select_clause_element:
+                - quoted_literal: '''AverageCost'''
+                - alias_expression:
+                  - keyword: AS
+                  - naked_identifier: Cost_Sorted_By_Production_Days
+              - comma: ','
+              - select_clause_element:
+                - column_reference:
+                  - quoted_identifier: '[0]'
+              - comma: ','
+              - select_clause_element:
+                - column_reference:
+                  - quoted_identifier: '[1]'
+              - comma: ','
+              - select_clause_element:
+                - column_reference:
+                  - quoted_identifier: '[2]'
+              - comma: ','
+              - select_clause_element:
+                - column_reference:
+                  - quoted_identifier: '[3]'
+              - comma: ','
+              - select_clause_element:
+                - column_reference:
+                  - quoted_identifier: '[4]'
           - from_clause:
             - keyword: FROM
             - from_expression:
@@ -52,14 +53,15 @@ file:
                         - start_bracket: (
                         - select_statement:
                           - select_clause:
-                            - keyword: SELECT
-                            - select_clause_element:
-                              - column_reference:
-                                - naked_identifier: DaysToManufacture
-                            - comma: ','
-                            - select_clause_element:
-                              - column_reference:
-                                - naked_identifier: StandardCost
+                            - select_clause:
+                              - keyword: SELECT
+                              - select_clause_element:
+                                - column_reference:
+                                  - naked_identifier: DaysToManufacture
+                              - comma: ','
+                              - select_clause_element:
+                                - column_reference:
+                                  - naked_identifier: StandardCost
                           - from_clause:
                             - keyword: FROM
                             - from_expression:

@@ -3,21 +3,22 @@ file:
   - statement:
     - select_statement:
       - select_clause:
-        - keyword: SELECT
-        - select_clause_element:
-          - function:
+        - select_clause:
+          - keyword: SELECT
+          - select_clause_element:
             - function:
-              - function_name:
-                - function_name_identifier: SUM
-              - bracketed:
-                - start_bracket: (
-                - expression:
-                  - column_reference:
-                    - naked_identifier: quantity
-                - end_bracket: )
-          - alias_expression:
-            - keyword: AS
-            - naked_identifier: StandardAlias
+              - function:
+                - function_name:
+                  - function_name_identifier: SUM
+                - bracketed:
+                  - start_bracket: (
+                  - expression:
+                    - column_reference:
+                      - naked_identifier: quantity
+                  - end_bracket: )
+            - alias_expression:
+              - keyword: AS
+              - naked_identifier: StandardAlias
       - from_clause:
         - keyword: FROM
         - from_expression:

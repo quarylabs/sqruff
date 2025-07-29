@@ -3,12 +3,13 @@ file:
   - statement:
     - select_statement:
       - select_clause:
-        - keyword: SELECT
-        - select_clause_element:
-          - numeric_literal: '1'
-          - alias_expression:
-            - keyword: AS
-            - naked_identifier: RegionCode
+        - select_clause:
+          - keyword: SELECT
+          - select_clause_element:
+            - numeric_literal: '1'
+            - alias_expression:
+              - keyword: AS
+              - naked_identifier: RegionCode
       - from_clause:
         - keyword: FROM
         - from_expression:
@@ -66,9 +67,10 @@ file:
   - statement:
     - select_statement:
       - select_clause:
-        - keyword: SELECT
-        - select_clause_element:
-          - numeric_literal: '1'
+        - select_clause:
+          - keyword: SELECT
+          - select_clause_element:
+            - numeric_literal: '1'
       - from_clause:
         - keyword: FROM
         - from_expression:
@@ -223,18 +225,19 @@ file:
   - statement:
     - select_statement:
       - select_clause:
-        - keyword: SELECT
-        - select_clause_element:
-          - column_reference:
-            - naked_identifier: tst1
-            - dot: .
-            - naked_identifier: Name
-        - comma: ','
-        - select_clause_element:
-          - column_reference:
-            - naked_identifier: tst2
-            - dot: .
-            - naked_identifier: OtherName
+        - select_clause:
+          - keyword: SELECT
+          - select_clause_element:
+            - column_reference:
+              - naked_identifier: tst1
+              - dot: .
+              - naked_identifier: Name
+          - comma: ','
+          - select_clause_element:
+            - column_reference:
+              - naked_identifier: tst2
+              - dot: .
+              - naked_identifier: OtherName
       - from_clause:
         - keyword: FROM
         - from_expression:

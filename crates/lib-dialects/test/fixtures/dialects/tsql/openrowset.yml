@@ -3,13 +3,14 @@ file:
   - statement:
     - select_statement:
       - select_clause:
-        - keyword: SELECT
-        - select_clause_element:
-          - wildcard_expression:
-            - wildcard_identifier:
-              - naked_identifier: a
-              - dot: .
-              - star: '*'
+        - select_clause:
+          - keyword: SELECT
+          - select_clause_element:
+            - wildcard_expression:
+              - wildcard_identifier:
+                - naked_identifier: a
+                - dot: .
+                - star: '*'
       - from_clause:
         - keyword: FROM
         - from_expression:
@@ -40,13 +41,14 @@ file:
   - statement:
     - select_statement:
       - select_clause:
-        - keyword: SELECT
-        - select_clause_element:
-          - wildcard_expression:
-            - wildcard_identifier:
-              - naked_identifier: d
-              - dot: .
-              - star: '*'
+        - select_clause:
+          - keyword: SELECT
+          - select_clause_element:
+            - wildcard_expression:
+              - wildcard_identifier:
+                - naked_identifier: d
+                - dot: .
+                - star: '*'
       - from_clause:
         - keyword: FROM
         - from_expression:
@@ -73,13 +75,14 @@ file:
   - statement:
     - select_statement:
       - select_clause:
-        - keyword: SELECT
-        - select_clause_element:
-          - wildcard_expression:
-            - wildcard_identifier:
-              - naked_identifier: d
-              - dot: .
-              - star: '*'
+        - select_clause:
+          - keyword: SELECT
+          - select_clause_element:
+            - wildcard_expression:
+              - wildcard_identifier:
+                - naked_identifier: d
+                - dot: .
+                - star: '*'
       - from_clause:
         - keyword: FROM
         - from_expression:
@@ -110,13 +113,14 @@ file:
   - statement:
     - select_statement:
       - select_clause:
-        - keyword: SELECT
-        - select_clause_element:
-          - wildcard_expression:
-            - wildcard_identifier:
-              - naked_identifier: a
-              - dot: .
-              - star: '*'
+        - select_clause:
+          - keyword: SELECT
+          - select_clause_element:
+            - wildcard_expression:
+              - wildcard_identifier:
+                - naked_identifier: a
+                - dot: .
+                - star: '*'
       - from_clause:
         - keyword: FROM
         - from_expression:
@@ -144,11 +148,12 @@ file:
   - statement:
     - select_statement:
       - select_clause:
-        - keyword: SELECT
-        - select_clause_element:
-          - wildcard_expression:
-            - wildcard_identifier:
-              - star: '*'
+        - select_clause:
+          - keyword: SELECT
+          - select_clause_element:
+            - wildcard_expression:
+              - wildcard_identifier:
+                - star: '*'
       - from_clause:
         - keyword: FROM
         - from_expression:
@@ -173,11 +178,12 @@ file:
   - statement:
     - select_statement:
       - select_clause:
-        - keyword: SELECT
-        - select_clause_element:
-          - wildcard_expression:
-            - wildcard_identifier:
-              - star: '*'
+        - select_clause:
+          - keyword: SELECT
+          - select_clause_element:
+            - wildcard_expression:
+              - wildcard_identifier:
+                - star: '*'
       - from_clause:
         - keyword: FROM
         - from_expression:
@@ -202,11 +208,12 @@ file:
   - statement:
     - select_statement:
       - select_clause:
-        - keyword: SELECT
-        - select_clause_element:
-          - wildcard_expression:
-            - wildcard_identifier:
-              - star: '*'
+        - select_clause:
+          - keyword: SELECT
+          - select_clause_element:
+            - wildcard_expression:
+              - wildcard_identifier:
+                - star: '*'
       - from_clause:
         - keyword: FROM
         - from_expression:
@@ -244,15 +251,16 @@ file:
   - statement:
     - select_statement:
       - select_clause:
-        - keyword: SELECT
-        - select_clause_modifier:
-          - keyword: TOP
-          - expression:
-            - numeric_literal: '10'
-        - select_clause_element:
-          - wildcard_expression:
-            - wildcard_identifier:
-              - star: '*'
+        - select_clause:
+          - keyword: SELECT
+          - select_clause_modifier:
+            - keyword: TOP
+            - expression:
+              - numeric_literal: '10'
+          - select_clause_element:
+            - wildcard_expression:
+              - wildcard_identifier:
+                - star: '*'
       - from_clause:
         - keyword: from
         - from_expression:
@@ -279,15 +287,16 @@ file:
   - statement:
     - select_statement:
       - select_clause:
-        - keyword: SELECT
-        - select_clause_modifier:
-          - keyword: TOP
-          - expression:
-            - numeric_literal: '10'
-        - select_clause_element:
-          - wildcard_expression:
-            - wildcard_identifier:
-              - star: '*'
+        - select_clause:
+          - keyword: SELECT
+          - select_clause_modifier:
+            - keyword: TOP
+            - expression:
+              - numeric_literal: '10'
+          - select_clause_element:
+            - wildcard_expression:
+              - wildcard_identifier:
+                - star: '*'
       - from_clause:
         - keyword: FROM
         - from_expression:
@@ -351,15 +360,16 @@ file:
   - statement:
     - select_statement:
       - select_clause:
-        - keyword: SELECT
-        - select_clause_modifier:
-          - keyword: TOP
-          - expression:
-            - numeric_literal: '1'
-        - select_clause_element:
-          - wildcard_expression:
-            - wildcard_identifier:
-              - star: '*'
+        - select_clause:
+          - keyword: SELECT
+          - select_clause_modifier:
+            - keyword: TOP
+            - expression:
+              - numeric_literal: '1'
+          - select_clause_element:
+            - wildcard_expression:
+              - wildcard_identifier:
+                - star: '*'
       - from_clause:
         - keyword: FROM
         - from_expression:

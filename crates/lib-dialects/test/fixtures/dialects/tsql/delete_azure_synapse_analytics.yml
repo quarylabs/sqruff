@@ -147,12 +147,13 @@ file:
               - start_bracket: (
               - select_statement:
                 - select_clause:
-                  - keyword: SELECT
-                  - select_clause_element:
-                    - column_reference:
-                      - naked_identifier: T1
-                      - dot: .
-                      - naked_identifier: ProductKey
+                  - select_clause:
+                    - keyword: SELECT
+                    - select_clause_element:
+                      - column_reference:
+                        - naked_identifier: T1
+                        - dot: .
+                        - naked_identifier: ProductKey
                 - from_clause:
                   - keyword: FROM
                   - from_expression:
@@ -234,13 +235,14 @@ file:
                   - expression:
                     - select_statement:
                       - select_clause:
-                        - keyword: SELECT
-                        - select_clause_modifier:
-                          - keyword: TOP
-                          - expression:
+                        - select_clause:
+                          - keyword: SELECT
+                          - select_clause_modifier:
+                            - keyword: TOP
+                            - expression:
+                              - numeric_literal: '1'
+                          - select_clause_element:
                             - numeric_literal: '1'
-                        - select_clause_element:
-                          - numeric_literal: '1'
                       - from_clause:
                         - keyword: FROM
                         - from_expression:

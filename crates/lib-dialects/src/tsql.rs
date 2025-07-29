@@ -684,6 +684,8 @@ pub fn raw_dialect() -> Dialect {
 
     // Override SelectClauseTerminatorGrammar to include FOR as a terminator
     // This prevents FOR JSON/XML/BROWSE from being parsed as part of SELECT clause
+    // IMPORTANT: END is excluded from terminators to allow CASE expressions to parse correctly.
+    // The custom SelectClauseSegment above handles procedural constructs differently.
     dialect.add([(
         "SelectClauseTerminatorGrammar".into(),
         one_of(vec_of_erased![
@@ -712,7 +714,7 @@ pub fn raw_dialect() -> Dialect {
             Ref::keyword("DECLARE"),
             Ref::keyword("SET"),
             Ref::keyword("BEGIN"),
-            Ref::keyword("END"),
+            // END is excluded to allow CASE expressions to parse
             Ref::keyword("IF"),
             Ref::keyword("WHILE"),
             Ref::keyword("EXEC"),
@@ -4747,6 +4749,56 @@ pub fn raw_dialect() -> Dialect {
         .to_matchable()
         .into(),
     )]);
+    
+    // Override SelectClause to handle CASE expressions properly by using a custom parsing approach
+    // that doesn't terminate on END when inside a CASE expression
+    dialect.replace_grammar(
+        "SelectClauseSegment",
+        NodeMatcher::new(SyntaxKind::SelectClause, |_| {
+            Sequence::new(vec_of_erased![
+                Ref::keyword("SELECT"),
+                Ref::new("SelectClauseModifierSegment").optional(),
+                MetaSegment::indent(),
+                Delimited::new(vec_of_erased![Ref::new("SelectClauseElementSegment")])
+                    .config(|this| this.allow_trailing()),
+            ])
+            .terminators(vec_of_erased![
+                // Use all standard terminators except END
+                Ref::keyword("FROM"),
+                Ref::keyword("WHERE"),
+                Ref::keyword("INTO"),
+                Sequence::new(vec_of_erased![Ref::keyword("ORDER"), Ref::keyword("BY")]),
+                Ref::keyword("LIMIT"),
+                Ref::keyword("OVERLAPS"),
+                Ref::new("SetOperatorSegment"),
+                Ref::keyword("FETCH"),
+                Ref::keyword("FOR"),
+                Ref::new("BatchDelimiterGrammar"),
+                Ref::keyword("OPTION"),
+                // Statement keywords that should terminate SELECT clause
+                Ref::keyword("CREATE"),
+                Ref::keyword("DROP"),
+                Ref::keyword("ALTER"),
+                Ref::keyword("INSERT"),
+                Ref::keyword("UPDATE"),
+                Ref::keyword("DELETE"),
+                Ref::keyword("DECLARE"),
+                Ref::keyword("SET"),
+                Ref::keyword("BEGIN"),
+                // Exclude END here - it will be handled differently
+                Ref::keyword("IF"),
+                Ref::keyword("WHILE"),
+                Ref::keyword("EXEC"),
+                Ref::keyword("EXECUTE"),
+            ])
+            .config(|this| {
+                this.parse_mode(ParseMode::GreedyOnceStarted);
+            })
+            .to_matchable()
+        })
+        .to_matchable()
+        .into(),
+    );
 
     // Override SelectStatementSegment to add FOR clause and OPTION clause after ORDER BY
     dialect.replace_grammar(

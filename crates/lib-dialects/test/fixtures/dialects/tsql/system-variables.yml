@@ -60,13 +60,14 @@ file:
   - statement:
     - select_statement:
       - select_clause:
-        - keyword: SELECT
-        - select_clause_element:
-          - parameterized_expression:
-            - tsql_variable: '@@IDENTITY'
-          - alias_expression:
-            - keyword: AS
-            - quoted_identifier: '''Identity'''
+        - select_clause:
+          - keyword: SELECT
+          - select_clause_element:
+            - parameterized_expression:
+              - tsql_variable: '@@IDENTITY'
+            - alias_expression:
+              - keyword: AS
+              - quoted_identifier: '''Identity'''
   - statement_terminator: ;
   - keyword: GO
   - statement:
@@ -78,12 +79,13 @@ file:
   - statement:
     - select_statement:
       - select_clause:
-        - keyword: SELECT
-        - select_clause_element:
-          - parameterized_expression:
-            - tsql_variable: '@@PACK_RECEIVED'
-          - alias_expression:
-            - keyword: AS
-            - quoted_identifier: '''Packets Received'''
+        - select_clause:
+          - keyword: SELECT
+          - select_clause_element:
+            - parameterized_expression:
+              - tsql_variable: '@@PACK_RECEIVED'
+            - alias_expression:
+              - keyword: AS
+              - quoted_identifier: '''Packets Received'''
   - statement_terminator: ;
   - keyword: GO

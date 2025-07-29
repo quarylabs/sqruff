@@ -90,9 +90,10 @@ file:
       - statement:
         - select_statement:
           - select_clause:
-            - keyword: SELECT
-            - select_clause_element:
-              - numeric_literal: '1'
+            - select_clause:
+              - keyword: SELECT
+              - select_clause_element:
+                - numeric_literal: '1'
       - statement:
         - create_table_statement:
           - create_table_statement:
@@ -116,23 +117,24 @@ file:
               - start_bracket: (
               - select_statement:
                 - select_clause:
-                  - keyword: SELECT
-                  - select_clause_element:
-                    - numeric_literal: '2'
-                    - alias_expression:
-                      - keyword: AS
-                      - naked_identifier: Two
-                  - comma: ','
-                  - select_clause_element:
-                    - numeric_literal: '3'
-                    - alias_expression:
-                      - keyword: AS
-                      - naked_identifier: Three
-                  - comma: ','
-                  - select_clause_element:
-                    - numeric_literal: '4'
-                    - alias_expression:
-                      - keyword: AS
-                      - naked_identifier: Four
+                  - select_clause:
+                    - keyword: SELECT
+                    - select_clause_element:
+                      - numeric_literal: '2'
+                      - alias_expression:
+                        - keyword: AS
+                        - naked_identifier: Two
+                    - comma: ','
+                    - select_clause_element:
+                      - numeric_literal: '3'
+                      - alias_expression:
+                        - keyword: AS
+                        - naked_identifier: Three
+                    - comma: ','
+                    - select_clause_element:
+                      - numeric_literal: '4'
+                      - alias_expression:
+                        - keyword: AS
+                        - naked_identifier: Four
               - end_bracket: )
       - keyword: END

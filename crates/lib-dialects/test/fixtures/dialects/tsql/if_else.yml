@@ -12,10 +12,11 @@ file:
         - expression:
           - select_statement:
             - select_clause:
-              - keyword: SELECT
-              - select_clause_element:
-                - column_reference:
-                  - naked_identifier: Weight
+              - select_clause:
+                - keyword: SELECT
+                - select_clause_element:
+                  - column_reference:
+                    - naked_identifier: Weight
             - from_clause:
               - keyword: from
               - from_expression:
@@ -38,24 +39,25 @@ file:
     - statement:
       - select_statement:
         - select_clause:
-          - keyword: SELECT
-          - select_clause_element:
-            - column_reference:
-              - naked_identifier: ProductKey
-          - comma: ','
-          - select_clause_element:
-            - column_reference:
-              - naked_identifier: EnglishDescription
-          - comma: ','
-          - select_clause_element:
-            - column_reference:
-              - naked_identifier: Weight
-          - comma: ','
-          - select_clause_element:
-            - quoted_literal: '''This product is too heavy to ship and is only available for pickup.'''
-            - alias_expression:
-              - keyword: AS
-              - naked_identifier: ShippingStatus
+          - select_clause:
+            - keyword: SELECT
+            - select_clause_element:
+              - column_reference:
+                - naked_identifier: ProductKey
+            - comma: ','
+            - select_clause_element:
+              - column_reference:
+                - naked_identifier: EnglishDescription
+            - comma: ','
+            - select_clause_element:
+              - column_reference:
+                - naked_identifier: Weight
+            - comma: ','
+            - select_clause_element:
+              - quoted_literal: '''This product is too heavy to ship and is only available for pickup.'''
+              - alias_expression:
+                - keyword: AS
+                - naked_identifier: ShippingStatus
         - from_clause:
           - keyword: FROM
           - from_expression:
@@ -78,24 +80,25 @@ file:
     - statement:
       - select_statement:
         - select_clause:
-          - keyword: SELECT
-          - select_clause_element:
-            - column_reference:
-              - naked_identifier: ProductKey
-          - comma: ','
-          - select_clause_element:
-            - column_reference:
-              - naked_identifier: EnglishDescription
-          - comma: ','
-          - select_clause_element:
-            - column_reference:
-              - naked_identifier: Weight
-          - comma: ','
-          - select_clause_element:
-            - quoted_literal: '''This product is available for shipping or pickup.'''
-            - alias_expression:
-              - keyword: AS
-              - naked_identifier: ShippingStatus
+          - select_clause:
+            - keyword: SELECT
+            - select_clause_element:
+              - column_reference:
+                - naked_identifier: ProductKey
+            - comma: ','
+            - select_clause_element:
+              - column_reference:
+                - naked_identifier: EnglishDescription
+            - comma: ','
+            - select_clause_element:
+              - column_reference:
+                - naked_identifier: Weight
+            - comma: ','
+            - select_clause_element:
+              - quoted_literal: '''This product is available for shipping or pickup.'''
+              - alias_expression:
+                - keyword: AS
+                - naked_identifier: ShippingStatus
         - from_clause:
           - keyword: FROM
           - from_expression:
@@ -126,11 +129,12 @@ file:
             - expression:
               - select_statement:
                 - select_clause:
-                  - keyword: select
-                  - select_clause_element:
-                    - wildcard_expression:
-                      - wildcard_identifier:
-                        - star: '*'
+                  - select_clause:
+                    - keyword: select
+                    - select_clause_element:
+                      - wildcard_expression:
+                        - wildcard_identifier:
+                          - star: '*'
                 - from_clause:
                   - keyword: from
                   - from_expression:

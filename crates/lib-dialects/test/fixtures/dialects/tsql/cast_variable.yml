@@ -46,38 +46,39 @@ file:
   - statement:
     - select_statement:
       - select_clause:
-        - keyword: select
-        - select_clause_element:
-          - column_reference:
-            - naked_identifier: enc
-            - dot: .
-            - naked_identifier: personid
-          - alias_expression:
-            - keyword: as
-            - naked_identifier: personid
-        - comma: ','
-        - select_clause_element:
-          - function:
+        - select_clause:
+          - keyword: select
+          - select_clause_element:
+            - column_reference:
+              - naked_identifier: enc
+              - dot: .
+              - naked_identifier: personid
+            - alias_expression:
+              - keyword: as
+              - naked_identifier: personid
+          - comma: ','
+          - select_clause_element:
             - function:
-              - function_name:
-                - function_name_identifier: cast
-              - bracketed:
-                - start_bracket: (
-                - expression:
-                  - quoted_literal: '''1900-01-01'''
-                - keyword: as
-                - data_type:
+              - function:
+                - function_name:
+                  - function_name_identifier: cast
+                - bracketed:
+                  - start_bracket: (
+                  - expression:
+                    - quoted_literal: '''1900-01-01'''
+                  - keyword: as
                   - data_type:
-                    - data_type_identifier: datetime2
-                    - bracketed_arguments:
-                      - bracketed:
-                        - start_bracket: (
-                        - numeric_literal: '7'
-                        - end_bracket: )
-                - end_bracket: )
-          - alias_expression:
-            - keyword: as
-            - naked_identifier: DataRefreshDate
+                    - data_type:
+                      - data_type_identifier: datetime2
+                      - bracketed_arguments:
+                        - bracketed:
+                          - start_bracket: (
+                          - numeric_literal: '7'
+                          - end_bracket: )
+                  - end_bracket: )
+            - alias_expression:
+              - keyword: as
+              - naked_identifier: DataRefreshDate
       - from_clause:
         - keyword: from
         - from_expression:

@@ -3,39 +3,40 @@ file:
   - statement:
     - select_statement:
       - select_clause:
-        - keyword: SELECT
-        - select_clause_element:
-          - function:
+        - select_clause:
+          - keyword: SELECT
+          - select_clause_element:
             - function:
-              - function_name:
-                - function_name_identifier: ROW_NUMBER
-              - bracketed:
-                - start_bracket: (
-                - end_bracket: )
-              - over_clause:
-                - keyword: OVER
-                - naked_identifier: win
-          - alias_expression:
-            - keyword: AS
-            - quoted_identifier: '[Row Number]'
-        - comma: ','
-        - select_clause_element:
-          - column_reference:
-            - naked_identifier: p
-            - dot: .
-            - naked_identifier: LastName
-        - comma: ','
-        - select_clause_element:
-          - column_reference:
-            - naked_identifier: s
-            - dot: .
-            - naked_identifier: SalesYTD
-        - comma: ','
-        - select_clause_element:
-          - column_reference:
-            - naked_identifier: a
-            - dot: .
-            - naked_identifier: PostalCode
+              - function:
+                - function_name:
+                  - function_name_identifier: ROW_NUMBER
+                - bracketed:
+                  - start_bracket: (
+                  - end_bracket: )
+                - over_clause:
+                  - keyword: OVER
+                  - naked_identifier: win
+            - alias_expression:
+              - keyword: AS
+              - quoted_identifier: '[Row Number]'
+          - comma: ','
+          - select_clause_element:
+            - column_reference:
+              - naked_identifier: p
+              - dot: .
+              - naked_identifier: LastName
+          - comma: ','
+          - select_clause_element:
+            - column_reference:
+              - naked_identifier: s
+              - dot: .
+              - naked_identifier: SalesYTD
+          - comma: ','
+          - select_clause_element:
+            - column_reference:
+              - naked_identifier: a
+              - dot: .
+              - naked_identifier: PostalCode
       - from_clause:
         - keyword: FROM
         - from_expression:
@@ -150,108 +151,109 @@ file:
   - statement:
     - select_statement:
       - select_clause:
-        - keyword: SELECT
-        - select_clause_element:
-          - column_reference:
-            - naked_identifier: SalesOrderID
-        - comma: ','
-        - select_clause_element:
-          - column_reference:
-            - naked_identifier: ProductID
-        - comma: ','
-        - select_clause_element:
-          - column_reference:
-            - naked_identifier: OrderQty
-        - comma: ','
-        - select_clause_element:
-          - function:
+        - select_clause:
+          - keyword: SELECT
+          - select_clause_element:
+            - column_reference:
+              - naked_identifier: SalesOrderID
+          - comma: ','
+          - select_clause_element:
+            - column_reference:
+              - naked_identifier: ProductID
+          - comma: ','
+          - select_clause_element:
+            - column_reference:
+              - naked_identifier: OrderQty
+          - comma: ','
+          - select_clause_element:
             - function:
-              - function_name:
-                - function_name_identifier: SUM
-              - bracketed:
-                - start_bracket: (
-                - expression:
-                  - column_reference:
-                    - naked_identifier: OrderQty
-                - end_bracket: )
-              - over_clause:
-                - keyword: OVER
-                - naked_identifier: win
-          - alias_expression:
-            - keyword: AS
-            - quoted_identifier: '[Total]'
-        - comma: ','
-        - select_clause_element:
-          - function:
+              - function:
+                - function_name:
+                  - function_name_identifier: SUM
+                - bracketed:
+                  - start_bracket: (
+                  - expression:
+                    - column_reference:
+                      - naked_identifier: OrderQty
+                  - end_bracket: )
+                - over_clause:
+                  - keyword: OVER
+                  - naked_identifier: win
+            - alias_expression:
+              - keyword: AS
+              - quoted_identifier: '[Total]'
+          - comma: ','
+          - select_clause_element:
             - function:
-              - function_name:
-                - function_name_identifier: AVG
-              - bracketed:
-                - start_bracket: (
-                - expression:
-                  - column_reference:
-                    - naked_identifier: OrderQty
-                - end_bracket: )
-              - over_clause:
-                - keyword: OVER
-                - naked_identifier: win
-          - alias_expression:
-            - keyword: AS
-            - quoted_identifier: '[Avg]'
-        - comma: ','
-        - select_clause_element:
-          - function:
+              - function:
+                - function_name:
+                  - function_name_identifier: AVG
+                - bracketed:
+                  - start_bracket: (
+                  - expression:
+                    - column_reference:
+                      - naked_identifier: OrderQty
+                  - end_bracket: )
+                - over_clause:
+                  - keyword: OVER
+                  - naked_identifier: win
+            - alias_expression:
+              - keyword: AS
+              - quoted_identifier: '[Avg]'
+          - comma: ','
+          - select_clause_element:
             - function:
-              - function_name:
-                - function_name_identifier: COUNT
-              - bracketed:
-                - start_bracket: (
-                - expression:
-                  - column_reference:
-                    - naked_identifier: OrderQty
-                - end_bracket: )
-              - over_clause:
-                - keyword: OVER
-                - naked_identifier: win
-          - alias_expression:
-            - keyword: AS
-            - quoted_identifier: '[Count]'
-        - comma: ','
-        - select_clause_element:
-          - function:
+              - function:
+                - function_name:
+                  - function_name_identifier: COUNT
+                - bracketed:
+                  - start_bracket: (
+                  - expression:
+                    - column_reference:
+                      - naked_identifier: OrderQty
+                  - end_bracket: )
+                - over_clause:
+                  - keyword: OVER
+                  - naked_identifier: win
+            - alias_expression:
+              - keyword: AS
+              - quoted_identifier: '[Count]'
+          - comma: ','
+          - select_clause_element:
             - function:
-              - function_name:
-                - function_name_identifier: MIN
-              - bracketed:
-                - start_bracket: (
-                - expression:
-                  - column_reference:
-                    - naked_identifier: OrderQty
-                - end_bracket: )
-              - over_clause:
-                - keyword: OVER
-                - naked_identifier: win
-          - alias_expression:
-            - keyword: AS
-            - quoted_identifier: '[Min]'
-        - comma: ','
-        - select_clause_element:
-          - function:
+              - function:
+                - function_name:
+                  - function_name_identifier: MIN
+                - bracketed:
+                  - start_bracket: (
+                  - expression:
+                    - column_reference:
+                      - naked_identifier: OrderQty
+                  - end_bracket: )
+                - over_clause:
+                  - keyword: OVER
+                  - naked_identifier: win
+            - alias_expression:
+              - keyword: AS
+              - quoted_identifier: '[Min]'
+          - comma: ','
+          - select_clause_element:
             - function:
-              - function_name:
-                - function_name_identifier: MAX
-              - bracketed:
-                - start_bracket: (
-                - expression:
-                  - column_reference:
-                    - naked_identifier: OrderQty
-                - end_bracket: )
-              - over_clause:
-                - keyword: OVER
-                - naked_identifier: win
-          - alias_expression:
-            - keyword: AS
-            - quoted_identifier: '[Max]'
+              - function:
+                - function_name:
+                  - function_name_identifier: MAX
+                - bracketed:
+                  - start_bracket: (
+                  - expression:
+                    - column_reference:
+                      - naked_identifier: OrderQty
+                  - end_bracket: )
+                - over_clause:
+                  - keyword: OVER
+                  - naked_identifier: win
+            - alias_expression:
+              - keyword: AS
+              - quoted_identifier: '[Max]'
       - from_clause:
         - keyword: FROM
         - from_expression:
@@ -295,100 +297,101 @@ file:
   - statement:
     - select_statement:
       - select_clause:
-        - keyword: SELECT
-        - select_clause_element:
-          - column_reference:
-            - naked_identifier: SalesOrderID
-          - alias_expression:
-            - keyword: AS
-            - naked_identifier: OrderNumber
-        - comma: ','
-        - select_clause_element:
-          - column_reference:
-            - naked_identifier: ProductID
-        - comma: ','
-        - select_clause_element:
-          - column_reference:
-            - naked_identifier: OrderQty
-          - alias_expression:
-            - keyword: AS
-            - naked_identifier: Qty
-        - comma: ','
-        - select_clause_element:
-          - function:
+        - select_clause:
+          - keyword: SELECT
+          - select_clause_element:
+            - column_reference:
+              - naked_identifier: SalesOrderID
+            - alias_expression:
+              - keyword: AS
+              - naked_identifier: OrderNumber
+          - comma: ','
+          - select_clause_element:
+            - column_reference:
+              - naked_identifier: ProductID
+          - comma: ','
+          - select_clause_element:
+            - column_reference:
+              - naked_identifier: OrderQty
+            - alias_expression:
+              - keyword: AS
+              - naked_identifier: Qty
+          - comma: ','
+          - select_clause_element:
             - function:
-              - function_name:
-                - function_name_identifier: SUM
-              - bracketed:
-                - start_bracket: (
-                - expression:
-                  - column_reference:
-                    - naked_identifier: OrderQty
-                - end_bracket: )
-              - over_clause:
-                - keyword: OVER
-                - naked_identifier: win
-          - alias_expression:
-            - keyword: AS
-            - naked_identifier: Total
-        - comma: ','
-        - select_clause_element:
-          - function:
-            - function:
-              - function_name:
-                - function_name_identifier: AVG
-              - bracketed:
-                - start_bracket: (
-                - expression:
-                  - column_reference:
-                    - naked_identifier: OrderQty
-                - end_bracket: )
-              - over_clause:
-                - keyword: OVER
+              - function:
+                - function_name:
+                  - function_name_identifier: SUM
                 - bracketed:
                   - start_bracket: (
-                  - window_specification:
-                    - naked_identifier: win
-                    - partitionby_clause:
-                      - keyword: PARTITION
-                      - keyword: BY
-                      - expression:
-                        - column_reference:
-                          - naked_identifier: SalesOrderID
+                  - expression:
+                    - column_reference:
+                      - naked_identifier: OrderQty
                   - end_bracket: )
-          - alias_expression:
-            - keyword: AS
-            - naked_identifier: Avg
-        - comma: ','
-        - select_clause_element:
-          - function:
+                - over_clause:
+                  - keyword: OVER
+                  - naked_identifier: win
+            - alias_expression:
+              - keyword: AS
+              - naked_identifier: Total
+          - comma: ','
+          - select_clause_element:
             - function:
-              - function_name:
-                - function_name_identifier: COUNT
-              - bracketed:
-                - start_bracket: (
-                - expression:
-                  - column_reference:
-                    - naked_identifier: OrderQty
-                - end_bracket: )
-              - over_clause:
-                - keyword: OVER
+              - function:
+                - function_name:
+                  - function_name_identifier: AVG
                 - bracketed:
                   - start_bracket: (
-                  - window_specification:
-                    - naked_identifier: win
-                    - frame_clause:
-                      - keyword: ROWS
-                      - keyword: BETWEEN
-                      - keyword: UNBOUNDED
-                      - keyword: PRECEDING
-                      - keyword: AND
-                      - numeric_literal: '1'
-                      - keyword: FOLLOWING
+                  - expression:
+                    - column_reference:
+                      - naked_identifier: OrderQty
                   - end_bracket: )
-          - alias_expression:
-            - keyword: AS
-            - naked_identifier: Count
+                - over_clause:
+                  - keyword: OVER
+                  - bracketed:
+                    - start_bracket: (
+                    - window_specification:
+                      - naked_identifier: win
+                      - partitionby_clause:
+                        - keyword: PARTITION
+                        - keyword: BY
+                        - expression:
+                          - column_reference:
+                            - naked_identifier: SalesOrderID
+                    - end_bracket: )
+            - alias_expression:
+              - keyword: AS
+              - naked_identifier: Avg
+          - comma: ','
+          - select_clause_element:
+            - function:
+              - function:
+                - function_name:
+                  - function_name_identifier: COUNT
+                - bracketed:
+                  - start_bracket: (
+                  - expression:
+                    - column_reference:
+                      - naked_identifier: OrderQty
+                  - end_bracket: )
+                - over_clause:
+                  - keyword: OVER
+                  - bracketed:
+                    - start_bracket: (
+                    - window_specification:
+                      - naked_identifier: win
+                      - frame_clause:
+                        - keyword: ROWS
+                        - keyword: BETWEEN
+                        - keyword: UNBOUNDED
+                        - keyword: PRECEDING
+                        - keyword: AND
+                        - numeric_literal: '1'
+                        - keyword: FOLLOWING
+                    - end_bracket: )
+            - alias_expression:
+              - keyword: AS
+              - naked_identifier: Count
       - from_clause:
         - keyword: FROM
         - from_expression:
@@ -439,60 +442,61 @@ file:
   - statement:
     - select_statement:
       - select_clause:
-        - keyword: SELECT
-        - select_clause_element:
-          - column_reference:
-            - naked_identifier: SalesOrderID
-          - alias_expression:
-            - keyword: AS
-            - naked_identifier: OrderNumber
-        - comma: ','
-        - select_clause_element:
-          - column_reference:
-            - naked_identifier: ProductID
-        - comma: ','
-        - select_clause_element:
-          - column_reference:
-            - naked_identifier: OrderQty
-          - alias_expression:
-            - keyword: AS
-            - naked_identifier: Qty
-        - comma: ','
-        - select_clause_element:
-          - function:
+        - select_clause:
+          - keyword: SELECT
+          - select_clause_element:
+            - column_reference:
+              - naked_identifier: SalesOrderID
+            - alias_expression:
+              - keyword: AS
+              - naked_identifier: OrderNumber
+          - comma: ','
+          - select_clause_element:
+            - column_reference:
+              - naked_identifier: ProductID
+          - comma: ','
+          - select_clause_element:
+            - column_reference:
+              - naked_identifier: OrderQty
+            - alias_expression:
+              - keyword: AS
+              - naked_identifier: Qty
+          - comma: ','
+          - select_clause_element:
             - function:
-              - function_name:
-                - function_name_identifier: SUM
-              - bracketed:
-                - start_bracket: (
-                - expression:
-                  - column_reference:
-                    - naked_identifier: OrderQty
-                - end_bracket: )
-              - over_clause:
-                - keyword: OVER
-                - naked_identifier: win2
-          - alias_expression:
-            - keyword: AS
-            - naked_identifier: Total
-        - comma: ','
-        - select_clause_element:
-          - function:
+              - function:
+                - function_name:
+                  - function_name_identifier: SUM
+                - bracketed:
+                  - start_bracket: (
+                  - expression:
+                    - column_reference:
+                      - naked_identifier: OrderQty
+                  - end_bracket: )
+                - over_clause:
+                  - keyword: OVER
+                  - naked_identifier: win2
+            - alias_expression:
+              - keyword: AS
+              - naked_identifier: Total
+          - comma: ','
+          - select_clause_element:
             - function:
-              - function_name:
-                - function_name_identifier: AVG
-              - bracketed:
-                - start_bracket: (
-                - expression:
-                  - column_reference:
-                    - naked_identifier: OrderQty
-                - end_bracket: )
-              - over_clause:
-                - keyword: OVER
-                - naked_identifier: win1
-          - alias_expression:
-            - keyword: AS
-            - naked_identifier: Avg
+              - function:
+                - function_name:
+                  - function_name_identifier: AVG
+                - bracketed:
+                  - start_bracket: (
+                  - expression:
+                    - column_reference:
+                      - naked_identifier: OrderQty
+                  - end_bracket: )
+                - over_clause:
+                  - keyword: OVER
+                  - naked_identifier: win1
+            - alias_expression:
+              - keyword: AS
+              - naked_identifier: Avg
       - from_clause:
         - keyword: FROM
         - from_expression:
@@ -567,21 +571,22 @@ file:
   - statement:
     - select_statement:
       - select_clause:
-        - keyword: select
-        - select_clause_element:
-          - function:
+        - select_clause:
+          - keyword: select
+          - select_clause_element:
             - function:
-              - function_name:
-                - function_name_identifier: row_number
-              - bracketed:
-                - start_bracket: (
-                - end_bracket: )
-              - over_clause:
-                - keyword: over
-                - naked_identifier: win
-          - alias_expression:
-            - keyword: as
-            - naked_identifier: x
+              - function:
+                - function_name:
+                  - function_name_identifier: row_number
+                - bracketed:
+                  - start_bracket: (
+                  - end_bracket: )
+                - over_clause:
+                  - keyword: over
+                  - naked_identifier: win
+            - alias_expression:
+              - keyword: as
+              - naked_identifier: x
       - from_clause:
         - keyword: from
         - from_expression:

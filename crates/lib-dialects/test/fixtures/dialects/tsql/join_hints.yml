@@ -3,12 +3,13 @@ file:
   - statement:
     - select_statement:
       - select_clause:
-        - keyword: SELECT
-        - select_clause_element:
-          - column_reference:
-            - naked_identifier: table1
-            - dot: .
-            - naked_identifier: col
+        - select_clause:
+          - keyword: SELECT
+          - select_clause_element:
+            - column_reference:
+              - naked_identifier: table1
+              - dot: .
+              - naked_identifier: col
       - from_clause:
         - keyword: FROM
         - from_expression:
@@ -46,12 +47,13 @@ file:
   - statement:
     - select_statement:
       - select_clause:
-        - keyword: SELECT
-        - select_clause_element:
-          - column_reference:
-            - naked_identifier: table1
-            - dot: .
-            - naked_identifier: col
+        - select_clause:
+          - keyword: SELECT
+          - select_clause_element:
+            - column_reference:
+              - naked_identifier: table1
+              - dot: .
+              - naked_identifier: col
       - from_clause:
         - keyword: FROM
         - from_expression:
@@ -90,12 +92,13 @@ file:
   - statement:
     - select_statement:
       - select_clause:
-        - keyword: SELECT
-        - select_clause_element:
-          - column_reference:
-            - naked_identifier: table1
-            - dot: .
-            - naked_identifier: col
+        - select_clause:
+          - keyword: SELECT
+          - select_clause_element:
+            - column_reference:
+              - naked_identifier: table1
+              - dot: .
+              - naked_identifier: col
       - from_clause:
         - keyword: FROM
         - from_expression:

@@ -6,9 +6,10 @@ file:
       - statement:
         - select_statement:
           - select_clause:
-            - keyword: SELECT
-            - select_clause_element:
-              - quoted_literal: '''Weekend'''
+            - select_clause:
+              - keyword: SELECT
+              - select_clause_element:
+                - quoted_literal: '''Weekend'''
       - statement_terminator: ;
       - keyword: END
   - statement:
@@ -18,9 +19,10 @@ file:
       - statement:
         - select_statement:
           - select_clause:
-            - keyword: SELECT
-            - select_clause_element:
-              - quoted_literal: '''Weekend'''
+            - select_clause:
+              - keyword: SELECT
+              - select_clause_element:
+                - quoted_literal: '''Weekend'''
       - statement_terminator: ;
       - keyword: END
   - statement_terminator: ;
@@ -31,9 +33,10 @@ file:
       - statement:
         - select_statement:
           - select_clause:
-            - keyword: SELECT
-            - select_clause_element:
-              - quoted_literal: '''Weekend'''
+            - select_clause:
+              - keyword: SELECT
+              - select_clause_element:
+                - quoted_literal: '''Weekend'''
       - statement_terminator: ;
       - keyword: END
   - statement:
@@ -42,9 +45,10 @@ file:
       - statement:
         - select_statement:
           - select_clause:
-            - keyword: SELECT
-            - select_clause_element:
-              - quoted_literal: '''Weekend'''
+            - select_clause:
+              - keyword: SELECT
+              - select_clause_element:
+                - quoted_literal: '''Weekend'''
       - statement_terminator: ;
       - keyword: END
   - statement_terminator: ;

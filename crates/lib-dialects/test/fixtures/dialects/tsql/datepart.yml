@@ -3,26 +3,27 @@ file:
   - statement:
     - select_statement:
       - select_clause:
-        - keyword: SELECT
-        - select_clause_element:
-          - function:
+        - select_clause:
+          - keyword: SELECT
+          - select_clause_element:
             - function:
-              - function_name:
-                - function_name_identifier: DATEPART
-              - bracketed:
-                - start_bracket: (
-                - datetime_type_identifier:
-                  - datetime_type_identifier: DW
-                - comma: ','
-                - expression:
-                  - column_reference:
-                    - naked_identifier: my_table
-                    - dot: .
-                    - naked_identifier: date
-                - end_bracket: )
-          - alias_expression:
-            - keyword: AS
-            - naked_identifier: dayofweek
+              - function:
+                - function_name:
+                  - function_name_identifier: DATEPART
+                - bracketed:
+                  - start_bracket: (
+                  - datetime_type_identifier:
+                    - datetime_type_identifier: DW
+                  - comma: ','
+                  - expression:
+                    - column_reference:
+                      - naked_identifier: my_table
+                      - dot: .
+                      - naked_identifier: date
+                  - end_bracket: )
+            - alias_expression:
+              - keyword: AS
+              - naked_identifier: dayofweek
       - from_clause:
         - keyword: FROM
         - from_expression:

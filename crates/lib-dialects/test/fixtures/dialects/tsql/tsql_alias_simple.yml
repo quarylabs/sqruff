@@ -3,15 +3,16 @@ file:
   - statement:
     - select_statement:
       - select_clause:
-        - keyword: SELECT
-        - select_clause_element:
-          - expression:
-            - column_reference:
-              - naked_identifier: TsqlAlias
-            - comparison_operator:
-              - raw_comparison_operator: =
-            - column_reference:
-              - naked_identifier: value
+        - select_clause:
+          - keyword: SELECT
+          - select_clause_element:
+            - expression:
+              - column_reference:
+                - naked_identifier: TsqlAlias
+              - comparison_operator:
+                - raw_comparison_operator: =
+              - column_reference:
+                - naked_identifier: value
       - from_clause:
         - keyword: FROM
         - from_expression:

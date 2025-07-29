@@ -3,127 +3,128 @@ file:
   - statement:
     - select_statement:
       - select_clause:
-        - keyword: SELECT
-        - select_clause_element:
-          - function:
+        - select_clause:
+          - keyword: SELECT
+          - select_clause_element:
             - function:
-              - function_name:
-                - function_name_identifier: DATE
-              - bracketed:
-                - start_bracket: (
-                - expression:
-                  - column_reference:
-                    - naked_identifier: t
-                - end_bracket: )
-          - alias_expression:
-            - keyword: AS
-            - naked_identifier: t_date
-        - comma: ','
-        - select_clause_element:
-          - function:
+              - function:
+                - function_name:
+                  - function_name_identifier: DATE
+                - bracketed:
+                  - start_bracket: (
+                  - expression:
+                    - column_reference:
+                      - naked_identifier: t
+                  - end_bracket: )
+            - alias_expression:
+              - keyword: AS
+              - naked_identifier: t_date
+          - comma: ','
+          - select_clause_element:
             - function:
-              - function_name:
-                - function_name_identifier: ROUND
-              - bracketed:
-                - start_bracket: (
-                - expression:
-                  - column_reference:
-                    - naked_identifier: b
-                - comma: ','
-                - expression:
-                  - numeric_literal: '2'
-                - end_bracket: )
-          - alias_expression:
-            - keyword: AS
-            - naked_identifier: b_round
-        - comma: ','
-        - select_clause_element:
-          - function:
+              - function:
+                - function_name:
+                  - function_name_identifier: ROUND
+                - bracketed:
+                  - start_bracket: (
+                  - expression:
+                    - column_reference:
+                      - naked_identifier: b
+                  - comma: ','
+                  - expression:
+                    - numeric_literal: '2'
+                  - end_bracket: )
+            - alias_expression:
+              - keyword: AS
+              - naked_identifier: b_round
+          - comma: ','
+          - select_clause_element:
             - function:
-              - function_name:
-                - function_name_identifier: LEFT
-              - bracketed:
-                - start_bracket: (
-                - expression:
-                  - function:
+              - function:
+                - function_name:
+                  - function_name_identifier: LEFT
+                - bracketed:
+                  - start_bracket: (
+                  - expression:
                     - function:
-                      - function_name:
-                        - function_name_identifier: RIGHT
-                      - bracketed:
-                        - start_bracket: (
-                        - expression:
-                          - column_reference:
-                            - naked_identifier: s
-                        - comma: ','
-                        - expression:
-                          - numeric_literal: '5'
-                        - end_bracket: )
-                - comma: ','
-                - expression:
-                  - function:
+                      - function:
+                        - function_name:
+                          - function_name_identifier: RIGHT
+                        - bracketed:
+                          - start_bracket: (
+                          - expression:
+                            - column_reference:
+                              - naked_identifier: s
+                          - comma: ','
+                          - expression:
+                            - numeric_literal: '5'
+                          - end_bracket: )
+                  - comma: ','
+                  - expression:
                     - function:
-                      - function_name:
-                        - function_name_identifier: LEN
-                      - bracketed:
-                        - start_bracket: (
-                        - expression:
-                          - column_reference:
-                            - naked_identifier: s
-                          - binary_operator: +
-                          - numeric_literal: '6'
-                        - end_bracket: )
-                - end_bracket: )
-          - alias_expression:
-            - keyword: AS
-            - naked_identifier: compound
-        - comma: ','
-        - select_clause_element:
-          - function:
+                      - function:
+                        - function_name:
+                          - function_name_identifier: LEN
+                        - bracketed:
+                          - start_bracket: (
+                          - expression:
+                            - column_reference:
+                              - naked_identifier: s
+                            - binary_operator: +
+                            - numeric_literal: '6'
+                          - end_bracket: )
+                  - end_bracket: )
+            - alias_expression:
+              - keyword: AS
+              - naked_identifier: compound
+          - comma: ','
+          - select_clause_element:
             - function:
-              - function_name:
-                - function_name_identifier: DATEADD
-              - bracketed:
-                - start_bracket: (
-                - expression:
-                  - column_reference:
-                    - naked_identifier: month
-                - comma: ','
-                - expression:
-                  - numeric_literal:
-                    - sign_indicator: '-'
-                    - numeric_literal: '1'
-                - comma: ','
-                - expression:
-                  - column_reference:
-                    - naked_identifier: column1
-                - end_bracket: )
-          - alias_expression:
-            - keyword: AS
-            - naked_identifier: column1_lastmonth
-        - comma: ','
-        - select_clause_element:
-          - function:
+              - function:
+                - function_name:
+                  - function_name_identifier: DATEADD
+                - bracketed:
+                  - start_bracket: (
+                  - expression:
+                    - column_reference:
+                      - naked_identifier: month
+                  - comma: ','
+                  - expression:
+                    - numeric_literal:
+                      - sign_indicator: '-'
+                      - numeric_literal: '1'
+                  - comma: ','
+                  - expression:
+                    - column_reference:
+                      - naked_identifier: column1
+                  - end_bracket: )
+            - alias_expression:
+              - keyword: AS
+              - naked_identifier: column1_lastmonth
+          - comma: ','
+          - select_clause_element:
             - function:
-              - function_name:
-                - function_name_identifier: convert
-              - bracketed:
-                - start_bracket: (
-                - expression:
-                  - column_reference:
-                    - naked_identifier: varchar
-                - comma: ','
-                - expression:
-                  - column_reference:
-                    - naked_identifier: tbl_b
-                    - dot: .
-                    - naked_identifier: column1
-                - comma: ','
-                - expression:
-                  - numeric_literal: '23'
-                - end_bracket: )
-          - alias_expression:
-            - keyword: AS
-            - naked_identifier: column1_varchar
+              - function:
+                - function_name:
+                  - function_name_identifier: convert
+                - bracketed:
+                  - start_bracket: (
+                  - expression:
+                    - column_reference:
+                      - naked_identifier: varchar
+                  - comma: ','
+                  - expression:
+                    - column_reference:
+                      - naked_identifier: tbl_b
+                      - dot: .
+                      - naked_identifier: column1
+                  - comma: ','
+                  - expression:
+                    - numeric_literal: '23'
+                  - end_bracket: )
+            - alias_expression:
+              - keyword: AS
+              - naked_identifier: column1_varchar
       - from_clause:
         - keyword: FROM
         - from_expression:
@@ -164,10 +165,11 @@ file:
                 - expression:
                   - select_statement:
                     - select_clause:
-                      - keyword: SELECT
-                      - select_clause_element:
-                        - parameterized_expression:
-                          - tsql_variable: '@admit'
+                      - select_clause:
+                        - keyword: SELECT
+                        - select_clause_element:
+                          - parameterized_expression:
+                            - tsql_variable: '@admit'
                     - from_clause:
                       - keyword: FROM
                       - from_expression:
@@ -213,13 +215,14 @@ file:
   - statement:
     - select_statement:
       - select_clause:
-        - keyword: SELECT
-        - select_clause_element:
-          - wildcard_expression:
-            - wildcard_identifier:
-              - naked_identifier: a
-              - dot: .
-              - star: '*'
+        - select_clause:
+          - keyword: SELECT
+          - select_clause_element:
+            - wildcard_expression:
+              - wildcard_identifier:
+                - naked_identifier: a
+                - dot: .
+                - star: '*'
       - from_clause:
         - keyword: FROM
         - from_expression:
@@ -231,10 +234,11 @@ file:
                     - start_bracket: (
                     - select_statement:
                       - select_clause:
-                        - keyword: SELECT
-                        - select_clause_element:
-                          - column_reference:
-                            - naked_identifier: FIN
+                        - select_clause:
+                          - keyword: SELECT
+                          - select_clause_element:
+                            - column_reference:
+                              - naked_identifier: FIN
                       - from_clause:
                         - keyword: FROM
                         - from_expression:

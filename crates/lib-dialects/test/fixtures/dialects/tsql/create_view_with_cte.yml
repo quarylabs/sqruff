@@ -30,18 +30,19 @@ file:
                 - set_expression:
                   - select_statement:
                     - select_clause:
-                      - keyword: SELECT
-                      - select_clause_element:
-                        - column_reference:
-                          - naked_identifier: EmployeeID
-                      - comma: ','
-                      - select_clause_element:
-                        - column_reference:
-                          - naked_identifier: ManagerID
-                      - comma: ','
-                      - select_clause_element:
-                        - column_reference:
-                          - naked_identifier: Title
+                      - select_clause:
+                        - keyword: SELECT
+                        - select_clause_element:
+                          - column_reference:
+                            - naked_identifier: EmployeeID
+                        - comma: ','
+                        - select_clause_element:
+                          - column_reference:
+                            - naked_identifier: ManagerID
+                        - comma: ','
+                        - select_clause_element:
+                          - column_reference:
+                            - naked_identifier: Title
                     - from_clause:
                       - keyword: FROM
                       - from_expression:
@@ -67,24 +68,25 @@ file:
                     - keyword: ALL
                   - select_statement:
                     - select_clause:
-                      - keyword: SELECT
-                      - select_clause_element:
-                        - column_reference:
-                          - naked_identifier: cte
-                          - dot: .
-                          - naked_identifier: EmployeeID
-                      - comma: ','
-                      - select_clause_element:
-                        - column_reference:
-                          - naked_identifier: cte
-                          - dot: .
-                          - naked_identifier: ManagerID
-                      - comma: ','
-                      - select_clause_element:
-                        - column_reference:
-                          - naked_identifier: cte
-                          - dot: .
-                          - naked_identifier: Title
+                      - select_clause:
+                        - keyword: SELECT
+                        - select_clause_element:
+                          - column_reference:
+                            - naked_identifier: cte
+                            - dot: .
+                            - naked_identifier: EmployeeID
+                        - comma: ','
+                        - select_clause_element:
+                          - column_reference:
+                            - naked_identifier: cte
+                            - dot: .
+                            - naked_identifier: ManagerID
+                        - comma: ','
+                        - select_clause_element:
+                          - column_reference:
+                            - naked_identifier: cte
+                            - dot: .
+                            - naked_identifier: Title
                     - from_clause:
                       - keyword: FROM
                       - from_expression:
@@ -124,18 +126,19 @@ file:
               - end_bracket: )
           - select_statement:
             - select_clause:
-              - keyword: SELECT
-              - select_clause_element:
-                - column_reference:
-                  - naked_identifier: EmployeeID
-              - comma: ','
-              - select_clause_element:
-                - column_reference:
-                  - naked_identifier: ManagerID
-              - comma: ','
-              - select_clause_element:
-                - column_reference:
-                  - naked_identifier: Title
+              - select_clause:
+                - keyword: SELECT
+                - select_clause_element:
+                  - column_reference:
+                    - naked_identifier: EmployeeID
+                - comma: ','
+                - select_clause_element:
+                  - column_reference:
+                    - naked_identifier: ManagerID
+                - comma: ','
+                - select_clause_element:
+                  - column_reference:
+                    - naked_identifier: Title
             - from_clause:
               - keyword: FROM
               - from_expression:

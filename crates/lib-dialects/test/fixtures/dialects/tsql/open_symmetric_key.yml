@@ -33,10 +33,11 @@ file:
           - statement:
             - select_statement:
               - select_clause:
-                - keyword: SELECT
-                - select_clause_element:
-                  - column_reference:
-                    - naked_identifier: column1
+                - select_clause:
+                  - keyword: SELECT
+                  - select_clause_element:
+                    - column_reference:
+                      - naked_identifier: column1
               - from_clause:
                 - keyword: FROM
                 - from_expression:

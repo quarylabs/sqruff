@@ -3,24 +3,25 @@ file:
   - statement:
     - select_statement:
       - select_clause:
-        - keyword: SELECT
-        - select_clause_element:
-          - column_reference:
-            - naked_identifier: p
-            - dot: .
-            - naked_identifier: ProductID
-        - comma: ','
-        - select_clause_element:
-          - column_reference:
-            - naked_identifier: p
-            - dot: .
-            - naked_identifier: ProductName
-        - comma: ','
-        - select_clause_element:
-          - column_reference:
-            - naked_identifier: s
-            - dot: .
-            - naked_identifier: StockLevel
+        - select_clause:
+          - keyword: SELECT
+          - select_clause_element:
+            - column_reference:
+              - naked_identifier: p
+              - dot: .
+              - naked_identifier: ProductID
+          - comma: ','
+          - select_clause_element:
+            - column_reference:
+              - naked_identifier: p
+              - dot: .
+              - naked_identifier: ProductName
+          - comma: ','
+          - select_clause_element:
+            - column_reference:
+              - naked_identifier: s
+              - dot: .
+              - naked_identifier: StockLevel
       - from_clause:
         - keyword: FROM
         - from_expression:

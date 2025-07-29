@@ -3,18 +3,19 @@ file:
   - statement:
     - select_statement:
       - select_clause:
-        - keyword: SELECT
-        - select_clause_element:
-          - column_reference:
-            - naked_identifier: client
-            - dot: .
-            - naked_identifier: reference
-        - comma: ','
-        - select_clause_element:
-          - column_reference:
-            - naked_identifier: client
-            - dot: .
-            - naked_identifier: name
+        - select_clause:
+          - keyword: SELECT
+          - select_clause_element:
+            - column_reference:
+              - naked_identifier: client
+              - dot: .
+              - naked_identifier: reference
+          - comma: ','
+          - select_clause_element:
+            - column_reference:
+              - naked_identifier: client
+              - dot: .
+              - naked_identifier: name
       - from_clause:
         - keyword: FROM
         - from_expression:
@@ -53,18 +54,19 @@ file:
   - statement:
     - select_statement:
       - select_clause:
-        - keyword: SELECT
-        - select_clause_element:
-          - column_reference:
-            - naked_identifier: client
-            - dot: .
-            - naked_identifier: reference
-        - comma: ','
-        - select_clause_element:
-          - column_reference:
-            - naked_identifier: client
-            - dot: .
-            - naked_identifier: name
+        - select_clause:
+          - keyword: SELECT
+          - select_clause_element:
+            - column_reference:
+              - naked_identifier: client
+              - dot: .
+              - naked_identifier: reference
+          - comma: ','
+          - select_clause_element:
+            - column_reference:
+              - naked_identifier: client
+              - dot: .
+              - naked_identifier: name
       - from_clause:
         - keyword: FROM
         - from_expression:

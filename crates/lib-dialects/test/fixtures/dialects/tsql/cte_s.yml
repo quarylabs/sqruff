@@ -18,20 +18,21 @@ file:
           - start_bracket: (
           - select_statement:
             - select_clause:
-              - keyword: SELECT
-              - select_clause_element:
-                - column_reference:
-                  - naked_identifier: SalesPersonID
-              - comma: ','
-              - select_clause_element:
-                - function:
+              - select_clause:
+                - keyword: SELECT
+                - select_clause_element:
+                  - column_reference:
+                    - naked_identifier: SalesPersonID
+                - comma: ','
+                - select_clause_element:
                   - function:
-                    - function_name:
-                      - function_name_identifier: COUNT
-                    - bracketed:
-                      - start_bracket: (
-                      - star: '*'
-                      - end_bracket: )
+                    - function:
+                      - function_name:
+                        - function_name_identifier: COUNT
+                      - bracketed:
+                        - start_bracket: (
+                        - star: '*'
+                        - end_bracket: )
             - from_clause:
               - keyword: FROM
               - from_expression:
@@ -61,21 +62,22 @@ file:
           - end_bracket: )
       - select_statement:
         - select_clause:
-          - keyword: SELECT
-          - select_clause_element:
-            - function:
+          - select_clause:
+            - keyword: SELECT
+            - select_clause_element:
               - function:
-                - function_name:
-                  - function_name_identifier: AVG
-                - bracketed:
-                  - start_bracket: (
-                  - expression:
-                    - column_reference:
-                      - naked_identifier: NumberOfOrders
-                  - end_bracket: )
-            - alias_expression:
-              - keyword: AS
-              - quoted_identifier: '"Average Sales Per Person"'
+                - function:
+                  - function_name:
+                    - function_name_identifier: AVG
+                  - bracketed:
+                    - start_bracket: (
+                    - expression:
+                      - column_reference:
+                        - naked_identifier: NumberOfOrders
+                    - end_bracket: )
+              - alias_expression:
+                - keyword: AS
+                - quoted_identifier: '"Average Sales Per Person"'
         - from_clause:
           - keyword: FROM
           - from_expression:

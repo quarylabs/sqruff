@@ -15,32 +15,33 @@ file:
         - keyword: AS
         - select_statement:
           - select_clause:
-            - keyword: SELECT
-            - select_clause_modifier:
-              - keyword: TOP
-              - bracketed:
-                - start_bracket: (
-                - expression:
-                  - numeric_literal: '100'
-                - end_bracket: )
-            - select_clause_element:
-              - column_reference:
-                - naked_identifier: SalesPersonID
-            - comma: ','
-            - select_clause_element:
-              - function:
+            - select_clause:
+              - keyword: SELECT
+              - select_clause_modifier:
+                - keyword: TOP
+                - bracketed:
+                  - start_bracket: (
+                  - expression:
+                    - numeric_literal: '100'
+                  - end_bracket: )
+              - select_clause_element:
+                - column_reference:
+                  - naked_identifier: SalesPersonID
+              - comma: ','
+              - select_clause_element:
                 - function:
-                  - function_name:
-                    - function_name_identifier: SUM
-                  - bracketed:
-                    - start_bracket: (
-                    - expression:
-                      - column_reference:
-                        - naked_identifier: TotalDue
-                    - end_bracket: )
-              - alias_expression:
-                - keyword: AS
-                - naked_identifier: TotalSales
+                  - function:
+                    - function_name:
+                      - function_name_identifier: SUM
+                    - bracketed:
+                      - start_bracket: (
+                      - expression:
+                        - column_reference:
+                          - naked_identifier: TotalDue
+                      - end_bracket: )
+                - alias_expression:
+                  - keyword: AS
+                  - naked_identifier: TotalSales
           - from_clause:
             - keyword: FROM
             - from_expression:
@@ -98,32 +99,33 @@ file:
         - keyword: AS
         - select_statement:
           - select_clause:
-            - keyword: SELECT
-            - select_clause_modifier:
-              - keyword: TOP
-              - bracketed:
-                - start_bracket: (
-                - expression:
-                  - numeric_literal: '100'
-                - end_bracket: )
-            - select_clause_element:
-              - column_reference:
-                - naked_identifier: SalesPersonID
-            - comma: ','
-            - select_clause_element:
-              - function:
+            - select_clause:
+              - keyword: SELECT
+              - select_clause_modifier:
+                - keyword: TOP
+                - bracketed:
+                  - start_bracket: (
+                  - expression:
+                    - numeric_literal: '100'
+                  - end_bracket: )
+              - select_clause_element:
+                - column_reference:
+                  - naked_identifier: SalesPersonID
+              - comma: ','
+              - select_clause_element:
                 - function:
-                  - function_name:
-                    - function_name_identifier: SUM
-                  - bracketed:
-                    - start_bracket: (
-                    - expression:
-                      - column_reference:
-                        - naked_identifier: TotalDue
-                    - end_bracket: )
-              - alias_expression:
-                - keyword: AS
-                - naked_identifier: TotalSales
+                  - function:
+                    - function_name:
+                      - function_name_identifier: SUM
+                    - bracketed:
+                      - start_bracket: (
+                      - expression:
+                        - column_reference:
+                          - naked_identifier: TotalDue
+                      - end_bracket: )
+                - alias_expression:
+                  - keyword: AS
+                  - naked_identifier: TotalSales
           - from_clause:
             - keyword: FROM
             - from_expression:
@@ -181,33 +183,34 @@ file:
         - keyword: AS
         - select_statement:
           - select_clause:
-            - keyword: SELECT
-            - select_clause_element:
-              - column_reference:
-                - naked_identifier: PurchaseOrderID
-            - comma: ','
-            - select_clause_element:
-              - column_reference:
-                - naked_identifier: ReceivedQty
-            - comma: ','
-            - select_clause_element:
-              - column_reference:
-                - naked_identifier: RejectedQty
-            - comma: ','
-            - select_clause_element:
-              - expression:
+            - select_clause:
+              - keyword: SELECT
+              - select_clause_element:
                 - column_reference:
-                  - naked_identifier: RejectedQty
-                - binary_operator: /
+                  - naked_identifier: PurchaseOrderID
+              - comma: ','
+              - select_clause_element:
                 - column_reference:
                   - naked_identifier: ReceivedQty
-              - alias_expression:
-                - keyword: AS
-                - naked_identifier: RejectRatio
-            - comma: ','
-            - select_clause_element:
-              - column_reference:
-                - naked_identifier: DueDate
+              - comma: ','
+              - select_clause_element:
+                - column_reference:
+                  - naked_identifier: RejectedQty
+              - comma: ','
+              - select_clause_element:
+                - expression:
+                  - column_reference:
+                    - naked_identifier: RejectedQty
+                  - binary_operator: /
+                  - column_reference:
+                    - naked_identifier: ReceivedQty
+                - alias_expression:
+                  - keyword: AS
+                  - naked_identifier: RejectRatio
+              - comma: ','
+              - select_clause_element:
+                - column_reference:
+                  - naked_identifier: DueDate
           - from_clause:
             - keyword: FROM
             - from_expression:
@@ -266,36 +269,37 @@ file:
         - keyword: AS
         - select_statement:
           - select_clause:
-            - keyword: SELECT
-            - select_clause_element:
-              - column_reference:
-                - naked_identifier: p
-                - dot: .
-                - naked_identifier: LastName
-            - comma: ','
-            - select_clause_element:
-              - column_reference:
-                - naked_identifier: p
-                - dot: .
-                - naked_identifier: FirstName
-            - comma: ','
-            - select_clause_element:
-              - column_reference:
-                - naked_identifier: e
-                - dot: .
-                - naked_identifier: JobTitle
-            - comma: ','
-            - select_clause_element:
-              - column_reference:
-                - naked_identifier: a
-                - dot: .
-                - naked_identifier: City
-            - comma: ','
-            - select_clause_element:
-              - column_reference:
-                - naked_identifier: sp
-                - dot: .
-                - naked_identifier: StateProvinceCode
+            - select_clause:
+              - keyword: SELECT
+              - select_clause_element:
+                - column_reference:
+                  - naked_identifier: p
+                  - dot: .
+                  - naked_identifier: LastName
+              - comma: ','
+              - select_clause_element:
+                - column_reference:
+                  - naked_identifier: p
+                  - dot: .
+                  - naked_identifier: FirstName
+              - comma: ','
+              - select_clause_element:
+                - column_reference:
+                  - naked_identifier: e
+                  - dot: .
+                  - naked_identifier: JobTitle
+              - comma: ','
+              - select_clause_element:
+                - column_reference:
+                  - naked_identifier: a
+                  - dot: .
+                  - naked_identifier: City
+              - comma: ','
+              - select_clause_element:
+                - column_reference:
+                  - naked_identifier: sp
+                  - dot: .
+                  - naked_identifier: StateProvinceCode
           - from_clause:
             - keyword: FROM
             - from_expression:
@@ -446,14 +450,15 @@ file:
           - set_expression:
             - select_statement:
               - select_clause:
-                - keyword: SELECT
-                - select_clause_element:
-                  - column_reference:
-                    - naked_identifier: supplyID
-                - comma: ','
-                - select_clause_element:
-                  - column_reference:
-                    - naked_identifier: supplier
+                - select_clause:
+                  - keyword: SELECT
+                  - select_clause_element:
+                    - column_reference:
+                      - naked_identifier: supplyID
+                  - comma: ','
+                  - select_clause_element:
+                    - column_reference:
+                      - naked_identifier: supplier
               - from_clause:
                 - keyword: FROM
                 - from_expression:
@@ -471,14 +476,15 @@ file:
               - keyword: ALL
             - select_statement:
               - select_clause:
-                - keyword: SELECT
-                - select_clause_element:
-                  - column_reference:
-                    - naked_identifier: supplyID
-                - comma: ','
-                - select_clause_element:
-                  - column_reference:
-                    - naked_identifier: supplier
+                - select_clause:
+                  - keyword: SELECT
+                  - select_clause_element:
+                    - column_reference:
+                      - naked_identifier: supplyID
+                  - comma: ','
+                  - select_clause_element:
+                    - column_reference:
+                      - naked_identifier: supplier
               - from_clause:
                 - keyword: FROM
                 - from_expression:
@@ -496,14 +502,15 @@ file:
               - keyword: ALL
             - select_statement:
               - select_clause:
-                - keyword: SELECT
-                - select_clause_element:
-                  - column_reference:
-                    - naked_identifier: supplyID
-                - comma: ','
-                - select_clause_element:
-                  - column_reference:
-                    - naked_identifier: supplier
+                - select_clause:
+                  - keyword: SELECT
+                  - select_clause_element:
+                    - column_reference:
+                      - naked_identifier: supplyID
+                  - comma: ','
+                  - select_clause_element:
+                    - column_reference:
+                      - naked_identifier: supplier
               - from_clause:
                 - keyword: FROM
                 - from_expression:
@@ -521,14 +528,15 @@ file:
               - keyword: ALL
             - select_statement:
               - select_clause:
-                - keyword: SELECT
-                - select_clause_element:
-                  - column_reference:
-                    - naked_identifier: supplyID
-                - comma: ','
-                - select_clause_element:
-                  - column_reference:
-                    - naked_identifier: supplier
+                - select_clause:
+                  - keyword: SELECT
+                  - select_clause_element:
+                    - column_reference:
+                      - naked_identifier: supplyID
+                  - comma: ','
+                  - select_clause_element:
+                    - column_reference:
+                      - naked_identifier: supplier
               - from_clause:
                 - keyword: FROM
                 - from_expression:
@@ -557,12 +565,13 @@ file:
         - keyword: as
         - select_statement:
           - select_clause:
-            - keyword: select
-            - select_clause_element:
-              - column_reference:
-                - naked_identifier: A
-                - dot: .
-                - naked_identifier: ID
+            - select_clause:
+              - keyword: select
+              - select_clause_element:
+                - column_reference:
+                  - naked_identifier: A
+                  - dot: .
+                  - naked_identifier: ID
           - from_clause:
             - keyword: from
             - from_expression:

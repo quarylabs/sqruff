@@ -3,18 +3,19 @@ file:
   - statement:
     - select_statement:
       - select_clause:
-        - keyword: SELECT
-        - select_clause_element:
-          - column_reference:
-            - naked_identifier: a
-        - comma: ','
-        - select_clause_element:
-          - column_reference:
-            - naked_identifier: b
-        - comma: ','
-        - select_clause_element:
-          - column_reference:
-            - naked_identifier: c
+        - select_clause:
+          - keyword: SELECT
+          - select_clause_element:
+            - column_reference:
+              - naked_identifier: a
+          - comma: ','
+          - select_clause_element:
+            - column_reference:
+              - naked_identifier: b
+          - comma: ','
+          - select_clause_element:
+            - column_reference:
+              - naked_identifier: c
       - from_clause:
         - keyword: FROM
         - from_expression:
@@ -29,18 +30,19 @@ file:
   - statement:
     - select_statement:
       - select_clause:
-        - keyword: Select
-        - select_clause_element:
-          - column_reference:
-            - naked_identifier: d
-        - comma: ','
-        - select_clause_element:
-          - column_reference:
-            - naked_identifier: e
-        - comma: ','
-        - select_clause_element:
-          - column_reference:
-            - naked_identifier: f
+        - select_clause:
+          - keyword: Select
+          - select_clause_element:
+            - column_reference:
+              - naked_identifier: d
+          - comma: ','
+          - select_clause_element:
+            - column_reference:
+              - naked_identifier: e
+          - comma: ','
+          - select_clause_element:
+            - column_reference:
+              - naked_identifier: f
       - from_clause:
         - keyword: FROM
         - from_expression:

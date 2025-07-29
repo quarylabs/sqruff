@@ -14,110 +14,120 @@ file:
   - statement:
     - select_statement:
       - select_clause:
-        - keyword: SELECT
-        - select_clause_element:
-          - expression:
-            - parameterized_expression:
-              - tsql_variable: '@I'
-            - binary_operator: +
-            - numeric_literal: '1'
+        - select_clause:
+          - keyword: SELECT
+          - select_clause_element:
+            - expression:
+              - parameterized_expression:
+                - tsql_variable: '@I'
+              - binary_operator: +
+              - numeric_literal: '1'
   - statement_terminator: ;
   - statement:
     - select_statement:
       - select_clause:
-        - keyword: SELECT
-        - select_clause_element:
-          - tsql_variable: '@I'
-          - assignment_operator:
-            - addition_assignment_segment: +=
-          - expression:
-            - numeric_literal: '2'
+        - select_clause:
+          - keyword: SELECT
+          - select_clause_element:
+            - tsql_variable: '@I'
+            - assignment_operator:
+              - addition_assignment_segment: +=
+            - expression:
+              - numeric_literal: '2'
   - statement_terminator: ;
   - statement:
     - select_statement:
       - select_clause:
-        - keyword: SELECT
-        - select_clause_element:
-          - expression:
-            - parameterized_expression:
-              - tsql_variable: '@I'
-            - binary_operator: '-'
-            - numeric_literal: '3'
+        - select_clause:
+          - keyword: SELECT
+          - select_clause_element:
+            - expression:
+              - parameterized_expression:
+                - tsql_variable: '@I'
+              - binary_operator: '-'
+              - numeric_literal: '3'
   - statement_terminator: ;
   - statement:
     - select_statement:
       - select_clause:
-        - keyword: SELECT
-        - select_clause_element:
-          - tsql_variable: '@I'
-          - assignment_operator:
-            - subtraction_assignment_segment: -=
-          - expression:
-            - numeric_literal: '4'
+        - select_clause:
+          - keyword: SELECT
+          - select_clause_element:
+            - tsql_variable: '@I'
+            - assignment_operator:
+              - subtraction_assignment_segment: -=
+            - expression:
+              - numeric_literal: '4'
   - statement_terminator: ;
   - statement:
     - select_statement:
       - select_clause:
-        - keyword: SELECT
-        - select_clause_element:
-          - expression:
-            - parameterized_expression:
-              - tsql_variable: '@I'
-            - binary_operator: '*'
-            - numeric_literal: '5'
+        - select_clause:
+          - keyword: SELECT
+          - select_clause_element:
+            - expression:
+              - parameterized_expression:
+                - tsql_variable: '@I'
+              - binary_operator: '*'
+              - numeric_literal: '5'
   - statement_terminator: ;
   - statement:
     - select_statement:
       - select_clause:
-        - keyword: SELECT
-        - select_clause_element:
-          - tsql_variable: '@I'
-          - assignment_operator:
-            - multiplication_assignment_segment: '*='
-          - expression:
-            - numeric_literal: '6'
+        - select_clause:
+          - keyword: SELECT
+          - select_clause_element:
+            - tsql_variable: '@I'
+            - assignment_operator:
+              - multiplication_assignment_segment: '*='
+            - expression:
+              - numeric_literal: '6'
   - statement_terminator: ;
   - statement:
     - select_statement:
       - select_clause:
-        - keyword: SELECT
-        - select_clause_element:
-          - expression:
-            - parameterized_expression:
-              - tsql_variable: '@I'
-            - binary_operator: /
-            - numeric_literal: '7'
+        - select_clause:
+          - keyword: SELECT
+          - select_clause_element:
+            - expression:
+              - parameterized_expression:
+                - tsql_variable: '@I'
+              - binary_operator: /
+              - numeric_literal: '7'
   - statement_terminator: ;
   - statement:
     - select_statement:
       - select_clause:
-        - keyword: SELECT
-        - select_clause_element:
-          - tsql_variable: '@I'
-          - assignment_operator:
-            - division_assignment_segment: /=
-          - expression:
-            - numeric_literal: '8'
+        - select_clause:
+          - keyword: SELECT
+          - select_clause_element:
+            - tsql_variable: '@I'
+            - assignment_operator:
+              - division_assignment_segment: /=
+            - expression:
+              - numeric_literal: '8'
   - statement_terminator: ;
   - statement:
     - select_statement:
       - select_clause:
-        - keyword: SELECT
-        - select_clause_element:
-          - expression:
-            - parameterized_expression:
-              - tsql_variable: '@I'
-            - binary_operator: '%'
-            - numeric_literal: '9'
+        - select_clause:
+          - keyword: SELECT
+          - select_clause_element:
+            - expression:
+              - parameterized_expression:
+                - tsql_variable: '@I'
+              - binary_operator: '%'
+              - numeric_literal: '9'
   - statement_terminator: ;
   - statement:
     - select_statement:
       - select_clause:
-        - keyword: SELECT
-        - select_clause_element:
-          - tsql_variable: '@I'
-          - assignment_operator:
-            - modulus_assignment_segment: '%='
-          - expression:
-            - numeric_literal: '10'
+        - select_clause:
+          - keyword: SELECT
+          - select_clause_element:
+            - tsql_variable: '@I'
+            - assignment_operator:
+              - modulus_assignment_segment: '%='
+            - expression:
+              - numeric_literal: '10'
   - statement_terminator: ;

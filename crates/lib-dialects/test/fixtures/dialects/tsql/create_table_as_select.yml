@@ -35,63 +35,65 @@ file:
               - start_bracket: (
               - select_statement:
                 - select_clause:
-                  - keyword: SELECT
-                  - select_clause_element:
-                    - quoted_literal: '''Program'''
-                    - alias_expression:
-                      - keyword: AS
-                      - naked_identifier: Program
+                  - select_clause:
+                    - keyword: SELECT
+                    - select_clause_element:
+                      - quoted_literal: '''Program'''
+                      - alias_expression:
+                        - keyword: AS
+                        - naked_identifier: Program
               - end_bracket: )
           - select_statement:
             - select_clause:
-              - keyword: SELECT
-              - select_clause_element:
-                - column_reference:
-                  - naked_identifier: e
-                  - dot: .
-                  - quoted_identifier: '[ID]'
-              - comma: ','
-              - select_clause_element:
-                - column_reference:
-                  - naked_identifier: e
-                  - dot: .
-                  - quoted_identifier: '[ArriveDate]'
-              - comma: ','
-              - select_clause_element:
-                - column_reference:
-                  - naked_identifier: e
-                  - dot: .
-                  - quoted_identifier: '[Contribution]'
-              - comma: ','
-              - select_clause_element:
-                - column_reference:
-                  - naked_identifier: e
-                  - dot: .
-                  - quoted_identifier: '[DischargeDate]'
-              - comma: ','
-              - select_clause_element:
-                - column_reference:
-                  - naked_identifier: e
-                  - dot: .
-                  - quoted_identifier: '[Encounter]'
-              - comma: ','
-              - select_clause_element:
-                - column_reference:
-                  - naked_identifier: e
-                  - dot: .
-                  - quoted_identifier: '[Facility]'
-              - comma: ','
-              - select_clause_element:
-                - column_reference:
-                  - naked_identifier: e
-                  - dot: .
-                  - quoted_identifier: '[Region]'
-              - comma: ','
-              - select_clause_element:
-                - column_reference:
-                  - naked_identifier: e
-                  - dot: .
-                  - quoted_identifier: '[LOS]'
+              - select_clause:
+                - keyword: SELECT
+                - select_clause_element:
+                  - column_reference:
+                    - naked_identifier: e
+                    - dot: .
+                    - quoted_identifier: '[ID]'
+                - comma: ','
+                - select_clause_element:
+                  - column_reference:
+                    - naked_identifier: e
+                    - dot: .
+                    - quoted_identifier: '[ArriveDate]'
+                - comma: ','
+                - select_clause_element:
+                  - column_reference:
+                    - naked_identifier: e
+                    - dot: .
+                    - quoted_identifier: '[Contribution]'
+                - comma: ','
+                - select_clause_element:
+                  - column_reference:
+                    - naked_identifier: e
+                    - dot: .
+                    - quoted_identifier: '[DischargeDate]'
+                - comma: ','
+                - select_clause_element:
+                  - column_reference:
+                    - naked_identifier: e
+                    - dot: .
+                    - quoted_identifier: '[Encounter]'
+                - comma: ','
+                - select_clause_element:
+                  - column_reference:
+                    - naked_identifier: e
+                    - dot: .
+                    - quoted_identifier: '[Facility]'
+                - comma: ','
+                - select_clause_element:
+                  - column_reference:
+                    - naked_identifier: e
+                    - dot: .
+                    - quoted_identifier: '[Region]'
+                - comma: ','
+                - select_clause_element:
+                  - column_reference:
+                    - naked_identifier: e
+                    - dot: .
+                    - quoted_identifier: '[LOS]'
             - from_clause:
               - keyword: FROM
               - from_expression:
@@ -168,54 +170,55 @@ file:
         - keyword: AS
         - select_statement:
           - select_clause:
-            - keyword: SELECT
-            - select_clause_element:
-              - column_reference:
-                - naked_identifier: e
-                - dot: .
-                - quoted_identifier: '[ID]'
-            - comma: ','
-            - select_clause_element:
-              - column_reference:
-                - naked_identifier: e
-                - dot: .
-                - quoted_identifier: '[ArriveDate]'
-            - comma: ','
-            - select_clause_element:
-              - column_reference:
-                - naked_identifier: e
-                - dot: .
-                - quoted_identifier: '[Contribution]'
-            - comma: ','
-            - select_clause_element:
-              - column_reference:
-                - naked_identifier: e
-                - dot: .
-                - quoted_identifier: '[DischargeDate]'
-            - comma: ','
-            - select_clause_element:
-              - column_reference:
-                - naked_identifier: e
-                - dot: .
-                - quoted_identifier: '[Encounter]'
-            - comma: ','
-            - select_clause_element:
-              - column_reference:
-                - naked_identifier: e
-                - dot: .
-                - quoted_identifier: '[Facility]'
-            - comma: ','
-            - select_clause_element:
-              - column_reference:
-                - naked_identifier: e
-                - dot: .
-                - quoted_identifier: '[Region]'
-            - comma: ','
-            - select_clause_element:
-              - column_reference:
-                - naked_identifier: e
-                - dot: .
-                - quoted_identifier: '[LOS]'
+            - select_clause:
+              - keyword: SELECT
+              - select_clause_element:
+                - column_reference:
+                  - naked_identifier: e
+                  - dot: .
+                  - quoted_identifier: '[ID]'
+              - comma: ','
+              - select_clause_element:
+                - column_reference:
+                  - naked_identifier: e
+                  - dot: .
+                  - quoted_identifier: '[ArriveDate]'
+              - comma: ','
+              - select_clause_element:
+                - column_reference:
+                  - naked_identifier: e
+                  - dot: .
+                  - quoted_identifier: '[Contribution]'
+              - comma: ','
+              - select_clause_element:
+                - column_reference:
+                  - naked_identifier: e
+                  - dot: .
+                  - quoted_identifier: '[DischargeDate]'
+              - comma: ','
+              - select_clause_element:
+                - column_reference:
+                  - naked_identifier: e
+                  - dot: .
+                  - quoted_identifier: '[Encounter]'
+              - comma: ','
+              - select_clause_element:
+                - column_reference:
+                  - naked_identifier: e
+                  - dot: .
+                  - quoted_identifier: '[Facility]'
+              - comma: ','
+              - select_clause_element:
+                - column_reference:
+                  - naked_identifier: e
+                  - dot: .
+                  - quoted_identifier: '[Region]'
+              - comma: ','
+              - select_clause_element:
+                - column_reference:
+                  - naked_identifier: e
+                  - dot: .
+                  - quoted_identifier: '[LOS]'
           - from_clause:
             - keyword: FROM
             - from_expression:
@@ -296,54 +299,55 @@ file:
           - start_bracket: (
           - select_statement:
             - select_clause:
-              - keyword: SELECT
-              - select_clause_element:
-                - column_reference:
-                  - naked_identifier: e
-                  - dot: .
-                  - quoted_identifier: '[ID]'
-              - comma: ','
-              - select_clause_element:
-                - column_reference:
-                  - naked_identifier: e
-                  - dot: .
-                  - quoted_identifier: '[ArriveDate]'
-              - comma: ','
-              - select_clause_element:
-                - column_reference:
-                  - naked_identifier: e
-                  - dot: .
-                  - quoted_identifier: '[Contribution]'
-              - comma: ','
-              - select_clause_element:
-                - column_reference:
-                  - naked_identifier: e
-                  - dot: .
-                  - quoted_identifier: '[DischargeDate]'
-              - comma: ','
-              - select_clause_element:
-                - column_reference:
-                  - naked_identifier: e
-                  - dot: .
-                  - quoted_identifier: '[Encounter]'
-              - comma: ','
-              - select_clause_element:
-                - column_reference:
-                  - naked_identifier: e
-                  - dot: .
-                  - quoted_identifier: '[Facility]'
-              - comma: ','
-              - select_clause_element:
-                - column_reference:
-                  - naked_identifier: e
-                  - dot: .
-                  - quoted_identifier: '[Region]'
-              - comma: ','
-              - select_clause_element:
-                - column_reference:
-                  - naked_identifier: e
-                  - dot: .
-                  - quoted_identifier: '[LOS]'
+              - select_clause:
+                - keyword: SELECT
+                - select_clause_element:
+                  - column_reference:
+                    - naked_identifier: e
+                    - dot: .
+                    - quoted_identifier: '[ID]'
+                - comma: ','
+                - select_clause_element:
+                  - column_reference:
+                    - naked_identifier: e
+                    - dot: .
+                    - quoted_identifier: '[ArriveDate]'
+                - comma: ','
+                - select_clause_element:
+                  - column_reference:
+                    - naked_identifier: e
+                    - dot: .
+                    - quoted_identifier: '[Contribution]'
+                - comma: ','
+                - select_clause_element:
+                  - column_reference:
+                    - naked_identifier: e
+                    - dot: .
+                    - quoted_identifier: '[DischargeDate]'
+                - comma: ','
+                - select_clause_element:
+                  - column_reference:
+                    - naked_identifier: e
+                    - dot: .
+                    - quoted_identifier: '[Encounter]'
+                - comma: ','
+                - select_clause_element:
+                  - column_reference:
+                    - naked_identifier: e
+                    - dot: .
+                    - quoted_identifier: '[Facility]'
+                - comma: ','
+                - select_clause_element:
+                  - column_reference:
+                    - naked_identifier: e
+                    - dot: .
+                    - quoted_identifier: '[Region]'
+                - comma: ','
+                - select_clause_element:
+                  - column_reference:
+                    - naked_identifier: e
+                    - dot: .
+                    - quoted_identifier: '[LOS]'
             - from_clause:
               - keyword: FROM
               - from_expression:

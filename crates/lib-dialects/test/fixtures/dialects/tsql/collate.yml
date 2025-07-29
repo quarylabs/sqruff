@@ -3,12 +3,13 @@ file:
   - statement:
     - select_statement:
       - select_clause:
-        - keyword: SELECT
-        - select_clause_element:
-          - column_reference:
-            - naked_identifier: table1
-            - dot: .
-            - naked_identifier: col
+        - select_clause:
+          - keyword: SELECT
+          - select_clause_element:
+            - column_reference:
+              - naked_identifier: table1
+              - dot: .
+              - naked_identifier: col
       - from_clause:
         - keyword: FROM
         - from_expression:
@@ -48,12 +49,13 @@ file:
   - statement:
     - select_statement:
       - select_clause:
-        - keyword: SELECT
-        - select_clause_element:
-          - column_reference:
-            - naked_identifier: table1
-            - dot: .
-            - naked_identifier: col
+        - select_clause:
+          - keyword: SELECT
+          - select_clause_element:
+            - column_reference:
+              - naked_identifier: table1
+              - dot: .
+              - naked_identifier: col
       - from_clause:
         - keyword: FROM
         - from_expression:
@@ -93,10 +95,11 @@ file:
   - statement:
     - select_statement:
       - select_clause:
-        - keyword: SELECT
-        - select_clause_element:
-          - column_reference:
-            - naked_identifier: col
+        - select_clause:
+          - keyword: SELECT
+          - select_clause_element:
+            - column_reference:
+              - naked_identifier: col
       - from_clause:
         - keyword: FROM
         - from_expression:
@@ -121,14 +124,15 @@ file:
   - statement:
     - select_statement:
       - select_clause:
-        - keyword: SELECT
-        - select_clause_element:
-          - expression:
-            - column_reference:
-              - naked_identifier: col
-            - keyword: COLLATE
-            - column_reference:
-              - naked_identifier: Latin1_General_CS_AS_KS_WS
+        - select_clause:
+          - keyword: SELECT
+          - select_clause_element:
+            - expression:
+              - column_reference:
+                - naked_identifier: col
+              - keyword: COLLATE
+              - column_reference:
+                - naked_identifier: Latin1_General_CS_AS_KS_WS
       - from_clause:
         - keyword: FROM
         - from_expression:
@@ -143,14 +147,15 @@ file:
   - statement:
     - select_statement:
       - select_clause:
-        - keyword: SELECT
-        - select_clause_element:
-          - expression:
-            - column_reference:
-              - naked_identifier: col
-            - keyword: COLLATE
-            - column_reference:
-              - naked_identifier: database_default
+        - select_clause:
+          - keyword: SELECT
+          - select_clause_element:
+            - expression:
+              - column_reference:
+                - naked_identifier: col
+              - keyword: COLLATE
+              - column_reference:
+                - naked_identifier: database_default
       - from_clause:
         - keyword: FROM
         - from_expression:

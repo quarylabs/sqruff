@@ -3,12 +3,13 @@ file:
   - statement:
     - select_statement:
       - select_clause:
-        - keyword: SELECT
-        - select_clause_element:
-          - column_reference:
-            - naked_identifier: orders#
-            - dot: .
-            - naked_identifier: id#
+        - select_clause:
+          - keyword: SELECT
+          - select_clause_element:
+            - column_reference:
+              - naked_identifier: orders#
+              - dot: .
+              - naked_identifier: id#
       - from_clause:
         - keyword: FROM
         - from_expression:
@@ -23,12 +24,13 @@ file:
   - statement:
     - select_statement:
       - select_clause:
-        - keyword: SELECT
-        - select_clause_element:
-          - column_reference:
-            - naked_identifier: o#
-            - dot: .
-            - naked_identifier: total#
+        - select_clause:
+          - keyword: SELECT
+          - select_clause_element:
+            - column_reference:
+              - naked_identifier: o#
+              - dot: .
+              - naked_identifier: total#
       - from_clause:
         - keyword: FROM
         - from_expression:
@@ -46,13 +48,14 @@ file:
   - statement:
     - select_statement:
       - select_clause:
-        - keyword: SELECT
-        - select_clause_element:
-          - column_reference:
-            - naked_identifier: total
-          - alias_expression:
-            - keyword: AS
-            - naked_identifier: amount#
+        - select_clause:
+          - keyword: SELECT
+          - select_clause_element:
+            - column_reference:
+              - naked_identifier: total
+            - alias_expression:
+              - keyword: AS
+              - naked_identifier: amount#
       - from_clause:
         - keyword: FROM
         - from_expression:

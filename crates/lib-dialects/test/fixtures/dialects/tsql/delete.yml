@@ -90,12 +90,13 @@ file:
       - keyword: FOR
       - select_statement:
         - select_clause:
-          - keyword: SELECT
-          - select_clause_element:
-            - column_reference:
-              - naked_identifier: a
-              - dot: .
-              - naked_identifier: BusinessEntityID
+          - select_clause:
+            - keyword: SELECT
+            - select_clause_element:
+              - column_reference:
+                - naked_identifier: a
+                - dot: .
+                - naked_identifier: BusinessEntityID
         - from_clause:
           - keyword: FROM
           - from_expression:
@@ -124,18 +125,19 @@ file:
               - expression:
                 - select_statement:
                   - select_clause:
-                    - keyword: SELECT
-                    - select_clause_element:
-                      - function:
+                    - select_clause:
+                      - keyword: SELECT
+                      - select_clause_element:
                         - function:
-                          - function_name:
-                            - function_name_identifier: MAX
-                          - bracketed:
-                            - start_bracket: (
-                            - expression:
-                              - column_reference:
-                                - naked_identifier: RateChangeDate
-                            - end_bracket: )
+                          - function:
+                            - function_name:
+                              - function_name_identifier: MAX
+                            - bracketed:
+                              - start_bracket: (
+                              - expression:
+                                - column_reference:
+                                  - naked_identifier: RateChangeDate
+                              - end_bracket: )
                   - from_clause:
                     - keyword: FROM
                     - from_expression:
@@ -225,10 +227,11 @@ file:
               - start_bracket: (
               - select_statement:
                 - select_clause:
-                  - keyword: SELECT
-                  - select_clause_element:
-                    - column_reference:
-                      - naked_identifier: BusinessEntityID
+                  - select_clause:
+                    - keyword: SELECT
+                    - select_clause_element:
+                      - column_reference:
+                        - naked_identifier: BusinessEntityID
                 - from_clause:
                   - keyword: FROM
                   - from_expression:
@@ -422,14 +425,15 @@ file:
               - start_bracket: (
               - select_statement:
                 - select_clause:
-                  - keyword: SELECT
-                  - select_clause_modifier:
-                    - keyword: TOP
-                    - expression:
-                      - numeric_literal: '10'
-                  - select_clause_element:
-                    - column_reference:
-                      - naked_identifier: PurchaseOrderDetailID
+                  - select_clause:
+                    - keyword: SELECT
+                    - select_clause_modifier:
+                      - keyword: TOP
+                      - expression:
+                        - numeric_literal: '10'
+                    - select_clause_element:
+                      - column_reference:
+                        - naked_identifier: PurchaseOrderDetailID
                 - from_clause:
                   - keyword: FROM
                   - from_expression:

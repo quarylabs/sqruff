@@ -21,12 +21,13 @@ file:
           - start_bracket: (
           - select_statement:
             - select_clause:
-              - keyword: Select
-              - select_clause_element:
-                - column_reference:
-                  - naked_identifier: acto
-                  - dot: .
-                  - naked_identifier: ActionDTS
+              - select_clause:
+                - keyword: Select
+                - select_clause_element:
+                  - column_reference:
+                    - naked_identifier: acto
+                    - dot: .
+                    - naked_identifier: ActionDTS
             - from_clause:
               - keyword: FROM
               - from_expression:
@@ -43,12 +44,13 @@ file:
   - statement:
     - select_statement:
       - select_clause:
-        - keyword: SELECT
-        - select_clause_element:
-          - column_reference:
-            - naked_identifier: t
-            - dot: .
-            - naked_identifier: actiondts
+        - select_clause:
+          - keyword: SELECT
+          - select_clause_element:
+            - column_reference:
+              - naked_identifier: t
+              - dot: .
+              - naked_identifier: actiondts
       - from_clause:
         - keyword: FROM
         - from_expression:
@@ -81,33 +83,34 @@ file:
   - statement:
     - select_statement:
       - select_clause:
-        - keyword: SELECT
-        - select_clause_element:
-          - column_reference:
-            - naked_identifier: st
-        - comma: ','
-        - select_clause_element:
-          - function:
+        - select_clause:
+          - keyword: SELECT
+          - select_clause_element:
+            - column_reference:
+              - naked_identifier: st
+          - comma: ','
+          - select_clause_element:
             - function:
-              - function_name:
-                - function_name_identifier: count
-              - bracketed:
-                - start_bracket: (
-                - star: '*'
-                - end_bracket: )
-        - comma: ','
-        - select_clause_element:
-          - function:
+              - function:
+                - function_name:
+                  - function_name_identifier: count
+                - bracketed:
+                  - start_bracket: (
+                  - star: '*'
+                  - end_bracket: )
+          - comma: ','
+          - select_clause_element:
             - function:
-              - function_name:
-                - function_name_identifier: count
-              - bracketed:
-                - start_bracket: (
-                - keyword: DISTINCT
-                - expression:
-                  - column_reference:
-                    - naked_identifier: id
-                - end_bracket: )
+              - function:
+                - function_name:
+                  - function_name_identifier: count
+                - bracketed:
+                  - start_bracket: (
+                  - keyword: DISTINCT
+                  - expression:
+                    - column_reference:
+                      - naked_identifier: id
+                  - end_bracket: )
       - from_clause:
         - keyword: FROM
         - from_expression:

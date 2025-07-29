@@ -3,18 +3,19 @@ file:
   - statement:
     - select_statement:
       - select_clause:
-        - keyword: select
-        - select_clause_element:
-          - column_reference:
-            - quoted_identifier: '[1]'
-        - comma: ','
-        - select_clause_element:
-          - column_reference:
-            - quoted_identifier: '[2]'
-        - comma: ','
-        - select_clause_element:
-          - column_reference:
-            - quoted_identifier: '[3]'
+        - select_clause:
+          - keyword: select
+          - select_clause_element:
+            - column_reference:
+              - quoted_identifier: '[1]'
+          - comma: ','
+          - select_clause_element:
+            - column_reference:
+              - quoted_identifier: '[2]'
+          - comma: ','
+          - select_clause_element:
+            - column_reference:
+              - quoted_identifier: '[3]'
       - from_clause:
         - keyword: from
         - from_expression:
@@ -65,18 +66,19 @@ file:
   - statement:
     - select_statement:
       - select_clause:
-        - keyword: select
-        - select_clause_element:
-          - column_reference:
-            - quoted_identifier: '[1]'
-        - comma: ','
-        - select_clause_element:
-          - column_reference:
-            - quoted_identifier: '[2]'
-        - comma: ','
-        - select_clause_element:
-          - column_reference:
-            - quoted_identifier: '[3]'
+        - select_clause:
+          - keyword: select
+          - select_clause_element:
+            - column_reference:
+              - quoted_identifier: '[1]'
+          - comma: ','
+          - select_clause_element:
+            - column_reference:
+              - quoted_identifier: '[2]'
+          - comma: ','
+          - select_clause_element:
+            - column_reference:
+              - quoted_identifier: '[3]'
       - from_clause:
         - keyword: from
         - from_expression:
@@ -127,21 +129,22 @@ file:
   - statement:
     - select_statement:
       - select_clause:
-        - keyword: SELECT
-        - select_clause_element:
-          - column_reference:
-            - naked_identifier: unpvt
-            - dot: .
-            - naked_identifier: Program
-        - comma: ','
-        - select_clause_element:
-          - column_reference:
-            - naked_identifier: dd
-            - dot: .
-            - quoted_identifier: '[Month Number]'
-          - alias_expression:
-            - keyword: AS
-            - naked_identifier: Month
+        - select_clause:
+          - keyword: SELECT
+          - select_clause_element:
+            - column_reference:
+              - naked_identifier: unpvt
+              - dot: .
+              - naked_identifier: Program
+          - comma: ','
+          - select_clause_element:
+            - column_reference:
+              - naked_identifier: dd
+              - dot: .
+              - quoted_identifier: '[Month Number]'
+            - alias_expression:
+              - keyword: AS
+              - naked_identifier: Month
       - from_clause:
         - keyword: FROM
         - from_expression:

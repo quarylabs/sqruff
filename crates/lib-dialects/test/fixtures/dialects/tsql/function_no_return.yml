@@ -37,24 +37,25 @@ file:
           - statement:
             - select_statement:
               - select_clause:
-                - keyword: SELECT
-                - select_clause_element:
-                  - column_reference:
-                    - naked_identifier: o
-                    - dot: .
-                    - naked_identifier: name
-                - comma: ','
-                - select_clause_element:
-                  - column_reference:
-                    - naked_identifier: o
-                    - dot: .
-                    - naked_identifier: id
-                - comma: ','
-                - select_clause_element:
-                  - column_reference:
-                    - naked_identifier: o
-                    - dot: .
-                    - naked_identifier: uid
+                - select_clause:
+                  - keyword: SELECT
+                  - select_clause_element:
+                    - column_reference:
+                      - naked_identifier: o
+                      - dot: .
+                      - naked_identifier: name
+                  - comma: ','
+                  - select_clause_element:
+                    - column_reference:
+                      - naked_identifier: o
+                      - dot: .
+                      - naked_identifier: id
+                  - comma: ','
+                  - select_clause_element:
+                    - column_reference:
+                      - naked_identifier: o
+                      - dot: .
+                      - naked_identifier: uid
               - from_clause:
                 - keyword: FROM
                 - from_expression:

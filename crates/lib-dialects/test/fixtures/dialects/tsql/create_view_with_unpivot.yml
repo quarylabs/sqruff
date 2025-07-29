@@ -11,18 +11,19 @@ file:
         - keyword: AS
         - select_statement:
           - select_clause:
-            - keyword: SELECT
-            - select_clause_element:
-              - column_reference:
-                - naked_identifier: VendorID
-            - comma: ','
-            - select_clause_element:
-              - column_reference:
-                - naked_identifier: Employee
-            - comma: ','
-            - select_clause_element:
-              - column_reference:
-                - naked_identifier: Orders
+            - select_clause:
+              - keyword: SELECT
+              - select_clause_element:
+                - column_reference:
+                  - naked_identifier: VendorID
+              - comma: ','
+              - select_clause_element:
+                - column_reference:
+                  - naked_identifier: Employee
+              - comma: ','
+              - select_clause_element:
+                - column_reference:
+                  - naked_identifier: Orders
           - from_clause:
             - keyword: FROM
             - from_expression:
@@ -34,30 +35,31 @@ file:
                         - start_bracket: (
                         - select_statement:
                           - select_clause:
-                            - keyword: SELECT
-                            - select_clause_element:
-                              - column_reference:
-                                - naked_identifier: VendorID
-                            - comma: ','
-                            - select_clause_element:
-                              - column_reference:
-                                - naked_identifier: Emp1
-                            - comma: ','
-                            - select_clause_element:
-                              - column_reference:
-                                - naked_identifier: Emp2
-                            - comma: ','
-                            - select_clause_element:
-                              - column_reference:
-                                - naked_identifier: Emp3
-                            - comma: ','
-                            - select_clause_element:
-                              - column_reference:
-                                - naked_identifier: Emp4
-                            - comma: ','
-                            - select_clause_element:
-                              - column_reference:
-                                - naked_identifier: Emp5
+                            - select_clause:
+                              - keyword: SELECT
+                              - select_clause_element:
+                                - column_reference:
+                                  - naked_identifier: VendorID
+                              - comma: ','
+                              - select_clause_element:
+                                - column_reference:
+                                  - naked_identifier: Emp1
+                              - comma: ','
+                              - select_clause_element:
+                                - column_reference:
+                                  - naked_identifier: Emp2
+                              - comma: ','
+                              - select_clause_element:
+                                - column_reference:
+                                  - naked_identifier: Emp3
+                              - comma: ','
+                              - select_clause_element:
+                                - column_reference:
+                                  - naked_identifier: Emp4
+                              - comma: ','
+                              - select_clause_element:
+                                - column_reference:
+                                  - naked_identifier: Emp5
                           - from_clause:
                             - keyword: FROM
                             - from_expression:

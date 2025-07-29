@@ -3,11 +3,12 @@ file:
   - statement:
     - select_statement:
       - select_clause:
-        - keyword: SELECT
-        - select_clause_element:
-          - wildcard_expression:
-            - wildcard_identifier:
-              - star: '*'
+        - select_clause:
+          - keyword: SELECT
+          - select_clause_element:
+            - wildcard_expression:
+              - wildcard_identifier:
+                - star: '*'
       - from_clause:
         - keyword: FROM
         - from_expression:
@@ -97,11 +98,12 @@ file:
       - statement:
         - select_statement:
           - select_clause:
-            - keyword: SELECT
-            - select_clause_element:
-              - wildcard_expression:
-                - wildcard_identifier:
-                  - star: '*'
+            - select_clause:
+              - keyword: SELECT
+              - select_clause_element:
+                - wildcard_expression:
+                  - wildcard_identifier:
+                    - star: '*'
           - from_clause:
             - keyword: FROM
             - from_expression:
@@ -170,18 +172,19 @@ file:
             - set_expression:
               - select_statement:
                 - select_clause:
-                  - keyword: SELECT
-                  - select_clause_element:
-                    - column_reference:
-                      - naked_identifier: CustomerID
-                  - comma: ','
-                  - select_clause_element:
-                    - column_reference:
-                      - naked_identifier: PersonID
-                  - comma: ','
-                  - select_clause_element:
-                    - column_reference:
-                      - naked_identifier: StoreID
+                  - select_clause:
+                    - keyword: SELECT
+                    - select_clause_element:
+                      - column_reference:
+                        - naked_identifier: CustomerID
+                    - comma: ','
+                    - select_clause_element:
+                      - column_reference:
+                        - naked_identifier: PersonID
+                    - comma: ','
+                    - select_clause_element:
+                      - column_reference:
+                        - naked_identifier: StoreID
                 - from_clause:
                   - keyword: FROM
                   - from_expression:
@@ -207,24 +210,25 @@ file:
                 - keyword: ALL
               - select_statement:
                 - select_clause:
-                  - keyword: SELECT
-                  - select_clause_element:
-                    - column_reference:
-                      - naked_identifier: cte
-                      - dot: .
-                      - naked_identifier: CustomerID
-                  - comma: ','
-                  - select_clause_element:
-                    - column_reference:
-                      - naked_identifier: cte
-                      - dot: .
-                      - naked_identifier: PersonID
-                  - comma: ','
-                  - select_clause_element:
-                    - column_reference:
-                      - naked_identifier: cte
-                      - dot: .
-                      - naked_identifier: StoreID
+                  - select_clause:
+                    - keyword: SELECT
+                    - select_clause_element:
+                      - column_reference:
+                        - naked_identifier: cte
+                        - dot: .
+                        - naked_identifier: CustomerID
+                    - comma: ','
+                    - select_clause_element:
+                      - column_reference:
+                        - naked_identifier: cte
+                        - dot: .
+                        - naked_identifier: PersonID
+                    - comma: ','
+                    - select_clause_element:
+                      - column_reference:
+                        - naked_identifier: cte
+                        - dot: .
+                        - naked_identifier: StoreID
                 - from_clause:
                   - keyword: FROM
                   - from_expression:
@@ -264,18 +268,19 @@ file:
           - end_bracket: )
       - select_statement:
         - select_clause:
-          - keyword: SELECT
-          - select_clause_element:
-            - column_reference:
-              - naked_identifier: CustomerID
-          - comma: ','
-          - select_clause_element:
-            - column_reference:
-              - naked_identifier: PersonID
-          - comma: ','
-          - select_clause_element:
-            - column_reference:
-              - naked_identifier: StoreID
+          - select_clause:
+            - keyword: SELECT
+            - select_clause_element:
+              - column_reference:
+                - naked_identifier: CustomerID
+            - comma: ','
+            - select_clause_element:
+              - column_reference:
+                - naked_identifier: PersonID
+            - comma: ','
+            - select_clause_element:
+              - column_reference:
+                - naked_identifier: StoreID
         - from_clause:
           - keyword: FROM
           - from_expression:
@@ -299,11 +304,12 @@ file:
       - set_expression:
         - select_statement:
           - select_clause:
-            - keyword: SELECT
-            - select_clause_element:
-              - wildcard_expression:
-                - wildcard_identifier:
-                  - star: '*'
+            - select_clause:
+              - keyword: SELECT
+              - select_clause_element:
+                - wildcard_expression:
+                  - wildcard_identifier:
+                    - star: '*'
           - from_clause:
             - keyword: FROM
             - from_expression:
@@ -323,11 +329,12 @@ file:
           - keyword: UNION
         - select_statement:
           - select_clause:
-            - keyword: SELECT
-            - select_clause_element:
-              - wildcard_expression:
-                - wildcard_identifier:
-                  - star: '*'
+            - select_clause:
+              - keyword: SELECT
+              - select_clause_element:
+                - wildcard_expression:
+                  - wildcard_identifier:
+                    - star: '*'
           - from_clause:
             - keyword: FROM
             - from_expression:
@@ -354,29 +361,30 @@ file:
   - statement:
     - select_statement:
       - select_clause:
-        - keyword: SELECT
-        - select_clause_element:
-          - column_reference:
-            - naked_identifier: ProductID
-        - comma: ','
-        - select_clause_element:
-          - column_reference:
-            - naked_identifier: OrderQty
-        - comma: ','
-        - select_clause_element:
-          - function:
+        - select_clause:
+          - keyword: SELECT
+          - select_clause_element:
+            - column_reference:
+              - naked_identifier: ProductID
+          - comma: ','
+          - select_clause_element:
+            - column_reference:
+              - naked_identifier: OrderQty
+          - comma: ','
+          - select_clause_element:
             - function:
-              - function_name:
-                - function_name_identifier: SUM
-              - bracketed:
-                - start_bracket: (
-                - expression:
-                  - column_reference:
-                    - naked_identifier: LineTotal
-                - end_bracket: )
-          - alias_expression:
-            - keyword: AS
-            - naked_identifier: Total
+              - function:
+                - function_name:
+                  - function_name_identifier: SUM
+                - bracketed:
+                  - start_bracket: (
+                  - expression:
+                    - column_reference:
+                      - naked_identifier: LineTotal
+                  - end_bracket: )
+            - alias_expression:
+              - keyword: AS
+              - naked_identifier: Total
       - from_clause:
         - keyword: FROM
         - from_expression:
@@ -428,29 +436,30 @@ file:
   - statement:
     - select_statement:
       - select_clause:
-        - keyword: SELECT
-        - select_clause_element:
-          - column_reference:
-            - naked_identifier: ProductID
-        - comma: ','
-        - select_clause_element:
-          - column_reference:
-            - naked_identifier: OrderQty
-        - comma: ','
-        - select_clause_element:
-          - function:
+        - select_clause:
+          - keyword: SELECT
+          - select_clause_element:
+            - column_reference:
+              - naked_identifier: ProductID
+          - comma: ','
+          - select_clause_element:
+            - column_reference:
+              - naked_identifier: OrderQty
+          - comma: ','
+          - select_clause_element:
             - function:
-              - function_name:
-                - function_name_identifier: SUM
-              - bracketed:
-                - start_bracket: (
-                - expression:
-                  - column_reference:
-                    - naked_identifier: LineTotal
-                - end_bracket: )
-          - alias_expression:
-            - keyword: AS
-            - naked_identifier: Total
+              - function:
+                - function_name:
+                  - function_name_identifier: SUM
+                - bracketed:
+                  - start_bracket: (
+                  - expression:
+                    - column_reference:
+                      - naked_identifier: LineTotal
+                  - end_bracket: )
+            - alias_expression:
+              - keyword: AS
+              - naked_identifier: Total
       - from_clause:
         - keyword: FROM
         - from_expression:
@@ -499,11 +508,12 @@ file:
   - statement:
     - select_statement:
       - select_clause:
-        - keyword: SELECT
-        - select_clause_element:
-          - wildcard_expression:
-            - wildcard_identifier:
-              - star: '*'
+        - select_clause:
+          - keyword: SELECT
+          - select_clause_element:
+            - wildcard_expression:
+              - wildcard_identifier:
+                - star: '*'
       - from_clause:
         - keyword: FROM
         - from_expression:
@@ -549,11 +559,12 @@ file:
   - statement:
     - select_statement:
       - select_clause:
-        - keyword: SELECT
-        - select_clause_element:
-          - wildcard_expression:
-            - wildcard_identifier:
-              - star: '*'
+        - select_clause:
+          - keyword: SELECT
+          - select_clause_element:
+            - wildcard_expression:
+              - wildcard_identifier:
+                - star: '*'
       - from_clause:
         - keyword: FROM
         - from_expression:
@@ -591,11 +602,12 @@ file:
   - statement:
     - select_statement:
       - select_clause:
-        - keyword: SELECT
-        - select_clause_element:
-          - wildcard_expression:
-            - wildcard_identifier:
-              - star: '*'
+        - select_clause:
+          - keyword: SELECT
+          - select_clause_element:
+            - wildcard_expression:
+              - wildcard_identifier:
+                - star: '*'
       - from_clause:
         - keyword: FROM
         - from_expression:
@@ -672,11 +684,12 @@ file:
   - statement:
     - select_statement:
       - select_clause:
-        - keyword: SELECT
-        - select_clause_element:
-          - wildcard_expression:
-            - wildcard_identifier:
-              - star: '*'
+        - select_clause:
+          - keyword: SELECT
+          - select_clause_element:
+            - wildcard_expression:
+              - wildcard_identifier:
+                - star: '*'
       - from_clause:
         - keyword: FROM
         - from_expression:
@@ -759,24 +772,25 @@ file:
   - statement:
     - select_statement:
       - select_clause:
-        - keyword: SELECT
-        - select_clause_element:
-          - column_reference:
-            - naked_identifier: h
-            - dot: .
-            - naked_identifier: SalesOrderID
-        - comma: ','
-        - select_clause_element:
-          - column_reference:
-            - naked_identifier: h
-            - dot: .
-            - naked_identifier: TotalDue
-        - comma: ','
-        - select_clause_element:
-          - column_reference:
-            - naked_identifier: d
-            - dot: .
-            - naked_identifier: OrderQty
+        - select_clause:
+          - keyword: SELECT
+          - select_clause_element:
+            - column_reference:
+              - naked_identifier: h
+              - dot: .
+              - naked_identifier: SalesOrderID
+          - comma: ','
+          - select_clause_element:
+            - column_reference:
+              - naked_identifier: h
+              - dot: .
+              - naked_identifier: TotalDue
+          - comma: ','
+          - select_clause_element:
+            - column_reference:
+              - naked_identifier: d
+              - dot: .
+              - naked_identifier: OrderQty
       - from_clause:
         - keyword: FROM
         - from_expression:
@@ -867,24 +881,25 @@ file:
   - statement:
     - select_statement:
       - select_clause:
-        - keyword: SELECT
-        - select_clause_element:
-          - column_reference:
-            - naked_identifier: h
-            - dot: .
-            - naked_identifier: SalesOrderID
-        - comma: ','
-        - select_clause_element:
-          - column_reference:
-            - naked_identifier: h
-            - dot: .
-            - naked_identifier: TotalDue
-        - comma: ','
-        - select_clause_element:
-          - column_reference:
-            - naked_identifier: d
-            - dot: .
-            - naked_identifier: OrderQty
+        - select_clause:
+          - keyword: SELECT
+          - select_clause_element:
+            - column_reference:
+              - naked_identifier: h
+              - dot: .
+              - naked_identifier: SalesOrderID
+          - comma: ','
+          - select_clause_element:
+            - column_reference:
+              - naked_identifier: h
+              - dot: .
+              - naked_identifier: TotalDue
+          - comma: ','
+          - select_clause_element:
+            - column_reference:
+              - naked_identifier: d
+              - dot: .
+              - naked_identifier: OrderQty
       - from_clause:
         - keyword: FROM
         - from_expression:
@@ -967,10 +982,11 @@ file:
   - statement:
     - select_statement:
       - select_clause:
-        - keyword: SELECT
-        - select_clause_element:
-          - column_reference:
-            - naked_identifier: ID
+        - select_clause:
+          - keyword: SELECT
+          - select_clause_element:
+            - column_reference:
+              - naked_identifier: ID
       - from_clause:
         - keyword: FROM
         - from_expression:
@@ -992,10 +1008,11 @@ file:
   - statement:
     - select_statement:
       - select_clause:
-        - keyword: SELECT
-        - select_clause_element:
-          - column_reference:
-            - naked_identifier: ID
+        - select_clause:
+          - keyword: SELECT
+          - select_clause_element:
+            - column_reference:
+              - naked_identifier: ID
       - from_clause:
         - keyword: FROM
         - from_expression:

@@ -825,6 +825,24 @@ pub(crate) fn tsql_additional_unreserved_keywords() -> AHashSet<&'static str> {
         // MERGE keywords (moved from reserved to allow use as table names)
         "TARGET",
         "SOURCE",
+        // Table hint keywords
+        "NOLOCK",
+        "READUNCOMMITTED",
+        "READCOMMITTED",
+        "REPEATABLEREAD",
+        "SERIALIZABLE",
+        "READPAST",
+        "ROWLOCK",
+        "PAGLOCK",
+        "TABLOCK",
+        "TABLOCKX",
+        "UPDLOCK",
+        "XLOCK",
+        "NOEXPAND",
+        "FORCESEEK",
+        "FORCESCAN",
+        "HOLDLOCK",
+        "SNAPSHOT",
     ]
     .into_iter()
     .collect()

@@ -3712,7 +3712,10 @@ pub fn raw_dialect() -> Dialect {
             Ref::new("FunctionSegment"),
             Ref::new("TableReferenceSegment"),
             Ref::new("OpenJsonSegment"),
-            Bracketed::new(vec_of_erased![Ref::new("SelectableGrammar")]),
+            Bracketed::new(vec_of_erased![one_of(vec_of_erased![
+                Ref::new("SelectableGrammar"),
+                Ref::new("MergeStatementSegment") // MERGE can be used in subquery with OUTPUT
+            ])]),
             Sequence::new(vec_of_erased![
                 Ref::new("TableReferenceSegment"),
                 Ref::new("PivotUnpivotGrammar")
@@ -3754,6 +3757,7 @@ pub fn raw_dialect() -> Dialect {
                 Ref::keyword("SERIALIZABLE"),
                 Ref::keyword("READPAST"),
                 Ref::keyword("ROWLOCK"),
+                Ref::keyword("PAGLOCK"),
                 Ref::keyword("TABLOCK"),
                 Ref::keyword("TABLOCKX"),
                 Ref::keyword("UPDLOCK"),
@@ -3776,13 +3780,17 @@ pub fn raw_dialect() -> Dialect {
                 Ref::keyword("FORCESCAN"),
                 Ref::keyword("HOLDLOCK"),
                 Ref::keyword("SNAPSHOT"),
-                // INDEX hint with parameter
+                // INDEX hint with parameter(s) - can specify multiple indexes
                 Sequence::new(vec_of_erased![
                     Ref::keyword("INDEX"),
-                    Bracketed::new(vec_of_erased![one_of(vec_of_erased![
-                        Ref::new("NumericLiteralSegment"),
-                        Ref::new("NakedIdentifierSegment")
-                    ])])
+                    Bracketed::new(vec_of_erased![
+                        Delimited::new(vec_of_erased![
+                            one_of(vec_of_erased![
+                                Ref::new("NumericLiteralSegment"),
+                                Ref::new("NakedIdentifierSegment")
+                            ])
+                        ])
+                    ])
                 ])
             ])
             .to_matchable()

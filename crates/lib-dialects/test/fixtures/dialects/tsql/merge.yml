@@ -1074,53 +1074,98 @@ file:
                 - naked_identifier: upd
                 - dot: .
                 - naked_identifier: columnC
-          - unparsable:
-            - word: from
-            - start_bracket: (
-            - word: merge
-            - word: sch1
-            - dot: .
-            - word: table1
-            - word: trg
-            - word: using
-            - start_bracket: (
-            - word: select
-            - word: gr
-            - dot: .
-            - word: columnC
-            - word: from
-            - word: sch2
-            - dot: .
-            - word: table2
-            - word: as
-            - word: gr
-            - end_bracket: )
-            - word: src
-            - word: on
-            - word: trg
-            - dot: .
-            - word: columnC
-            - raw_comparison_operator: =
-            - word: src
-            - dot: .
-            - word: columnC
-            - word: when
-            - word: matched
-            - word: then
-            - word: update
-            - word: set
-            - word: columnC
-            - raw_comparison_operator: =
-            - word: src
-            - dot: .
-            - word: columnC
-            - word: output
-            - word: inserted
-            - dot: .
-            - word: columnC
-            - end_bracket: )
-            - word: as
-            - word: upd
+          - from_clause:
+            - keyword: from
+            - from_expression:
+              - from_expression:
+                - from_expression_element:
+                  - from_expression_element:
+                    - table_expression:
+                      - bracketed:
+                        - start_bracket: (
+                        - merge_statement:
+                          - merge_statement:
+                            - keyword: merge
+                            - table_reference:
+                              - object_reference:
+                                - naked_identifier: sch1
+                                - dot: .
+                                - naked_identifier: table1
+                            - alias_expression:
+                              - naked_identifier: trg
+                            - keyword: using
+                            - bracketed:
+                              - start_bracket: (
+                              - select_statement:
+                                - select_clause:
+                                  - keyword: select
+                                  - select_clause_element:
+                                    - column_reference:
+                                      - naked_identifier: gr
+                                      - dot: .
+                                      - naked_identifier: columnC
+                                - from_clause:
+                                  - keyword: from
+                                  - from_expression:
+                                    - from_expression:
+                                      - from_expression_element:
+                                        - from_expression_element:
+                                          - table_expression:
+                                            - table_reference:
+                                              - object_reference:
+                                                - naked_identifier: sch2
+                                                - dot: .
+                                                - naked_identifier: table2
+                                          - alias_expression:
+                                            - keyword: as
+                                            - naked_identifier: gr
+                              - end_bracket: )
+                            - alias_expression:
+                              - naked_identifier: src
+                            - join_on_condition:
+                              - keyword: on
+                              - expression:
+                                - column_reference:
+                                  - naked_identifier: trg
+                                  - dot: .
+                                  - naked_identifier: columnC
+                                - comparison_operator:
+                                  - raw_comparison_operator: =
+                                - column_reference:
+                                  - naked_identifier: src
+                                  - dot: .
+                                  - naked_identifier: columnC
+                            - merge_match:
+                              - merge_match:
+                                - merge_when_matched_clause:
+                                  - keyword: when
+                                  - keyword: matched
+                                  - keyword: then
+                                  - merge_update_clause:
+                                    - keyword: update
+                                    - set_clause_list:
+                                      - keyword: set
+                                      - set_clause:
+                                        - set_clause:
+                                          - column_reference:
+                                            - naked_identifier: columnC
+                                          - assignment_operator:
+                                            - raw_comparison_operator: =
+                                          - expression:
+                                            - column_reference:
+                                              - naked_identifier: src
+                                              - dot: .
+                                              - naked_identifier: columnC
+                            - keyword: output
+                            - select_clause_element:
+                              - column_reference:
+                                - naked_identifier: inserted
+                                - dot: .
+                                - naked_identifier: columnC
+                        - end_bracket: )
+                    - alias_expression:
+                      - keyword: as
+                      - naked_identifier: upd
   - statement_terminator: ;
   - keyword: GO
   - statement:
@@ -1135,8 +1180,7 @@ file:
         - keyword: WITH
         - bracketed:
           - start_bracket: (
-          - unparsable:
-            - word: PAGLOCK
+          - keyword: PAGLOCK
           - end_bracket: )
         - alias_expression:
           - keyword: AS
@@ -1272,13 +1316,13 @@ file:
         - bracketed:
           - start_bracket: (
           - keyword: ROWLOCK
-          - unparsable:
-            - comma: ','
-            - word: INDEX
+          - comma: ','
+          - keyword: INDEX
+          - bracketed:
             - start_bracket: (
-            - word: myindex
+            - naked_identifier: myindex
             - comma: ','
-            - word: myindex2
+            - naked_identifier: myindex2
             - end_bracket: )
           - end_bracket: )
         - alias_expression:

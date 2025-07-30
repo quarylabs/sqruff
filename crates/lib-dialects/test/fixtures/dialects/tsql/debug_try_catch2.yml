@@ -1,0 +1,26 @@
+file:
+- statement:
+  - statement:
+    - statement:
+      - keyword: BEGIN
+      - keyword: TRY
+      - statement:
+        - select_statement:
+          - select_clause:
+            - select_clause:
+              - keyword: SELECT
+              - select_clause_element:
+                - numeric_literal: '1'
+      - keyword: END
+      - keyword: TRY
+      - keyword: BEGIN
+      - keyword: CATCH
+      - statement:
+        - select_statement:
+          - select_clause:
+            - select_clause:
+              - keyword: SELECT
+              - select_clause_element:
+                - numeric_literal: '2'
+      - keyword: END
+      - keyword: CATCH

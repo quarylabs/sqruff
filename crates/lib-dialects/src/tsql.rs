@@ -1255,11 +1255,21 @@ pub fn raw_dialect() -> Dialect {
 
     // TRY...CATCH blocks
     dialect.add([(
+        // Create a specific grammar for BEGIN TRY sequence
+        "BeginTryGrammar".into(),
+        Sequence::new(vec_of_erased![
+            Ref::keyword("BEGIN"),
+            Ref::keyword("TRY")
+        ])
+        .to_matchable()
+        .into(),
+    )]);
+    
+    dialect.add([(
         "TryBlockSegment".into(),
-        NodeMatcher::new(SyntaxKind::TryBlock, |_| {
+        NodeMatcher::new(SyntaxKind::Statement, |_| {
             Sequence::new(vec_of_erased![
-                Ref::keyword("BEGIN"),
-                Ref::keyword("TRY"),
+                Ref::new("BeginTryGrammar"),
                 MetaSegment::indent(),
                 AnyNumberOf::new(vec_of_erased![Sequence::new(vec_of_erased![
                     Ref::new("StatementSegment"),
@@ -1317,7 +1327,11 @@ pub fn raw_dialect() -> Dialect {
     dialect.add([
         (
             "ExecuteStatementSegment".into(),
-            Ref::new("ExecuteStatementGrammar").to_matchable().into(),
+            NodeMatcher::new(SyntaxKind::Statement, |_| {
+                Ref::new("ExecuteStatementGrammar").to_matchable()
+            })
+            .to_matchable()
+            .into(),
         ),
         (
             "ExecuteStatementGrammar".into(),
@@ -3363,9 +3377,10 @@ pub fn raw_dialect() -> Dialect {
         one_of(vec_of_erased![
             // T-SQL specific SELECT INTO (must come before regular SelectableGrammar)
             Ref::new("SelectIntoStatementSegment"),
-            // T-SQL specific statements (BEGIN...END blocks must come first to avoid transaction conflicts)
-            Ref::new("BeginEndBlockSegment"),
+            // T-SQL specific statements (TryBlockSegment must come before BeginEndBlockSegment)
+            // because both start with BEGIN and we need to match "BEGIN TRY" first
             Ref::new("TryBlockSegment"),
+            Ref::new("BeginEndBlockSegment"),
             Ref::new("ThrowStatementSegment"),
             Ref::new("AtomicBlockSegment"),
             Ref::new("BatchSeparatorSegment"), // GO statements

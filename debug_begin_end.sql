@@ -1,3 +1,0 @@
-BEGIN
-    SELECT 'Weekend';
-END;

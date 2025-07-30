@@ -1,1 +1,0 @@
-EXECUTE test WITH RESULT SETS ((col1 INT));

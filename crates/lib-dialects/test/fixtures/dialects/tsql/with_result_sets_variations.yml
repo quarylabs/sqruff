@@ -1,102 +1,107 @@
 file:
 - statement:
   - statement:
-    - keyword: EXECUTE
-    - object_reference:
-      - naked_identifier: test
-    - keyword: WITH
-    - keyword: RESULT
-    - keyword: SETS
-    - keyword: NONE
+    - statement:
+      - keyword: EXECUTE
+      - object_reference:
+        - naked_identifier: test
+      - keyword: WITH
+      - keyword: RESULT
+      - keyword: SETS
+      - keyword: NONE
   - statement_terminator: ;
   - statement:
-    - keyword: EXECUTE
-    - object_reference:
-      - naked_identifier: test
-    - keyword: WITH
-    - keyword: RESULT
-    - keyword: SETS
-    - keyword: UNDEFINED
+    - statement:
+      - keyword: EXECUTE
+      - object_reference:
+        - naked_identifier: test
+      - keyword: WITH
+      - keyword: RESULT
+      - keyword: SETS
+      - keyword: UNDEFINED
   - statement_terminator: ;
   - statement:
-    - keyword: EXECUTE
-    - object_reference:
-      - naked_identifier: test
-    - keyword: WITH
-    - keyword: RESULT
-    - keyword: SETS
-    - bracketed:
-      - start_bracket: (
+    - statement:
+      - keyword: EXECUTE
+      - object_reference:
+        - naked_identifier: test
+      - keyword: WITH
+      - keyword: RESULT
+      - keyword: SETS
       - bracketed:
         - start_bracket: (
-        - column_definition:
-          - naked_identifier: col1
-          - data_type:
+        - bracketed:
+          - start_bracket: (
+          - column_definition:
+            - naked_identifier: col1
             - data_type:
-              - data_type_identifier: INT
+              - data_type:
+                - data_type_identifier: INT
+          - end_bracket: )
         - end_bracket: )
-      - end_bracket: )
   - statement_terminator: ;
   - statement:
-    - keyword: EXECUTE
-    - object_reference:
-      - naked_identifier: test
-    - keyword: WITH
-    - keyword: RESULT
-    - keyword: SETS
-    - bracketed:
-      - start_bracket: (
+    - statement:
+      - keyword: EXECUTE
+      - object_reference:
+        - naked_identifier: test
+      - keyword: WITH
+      - keyword: RESULT
+      - keyword: SETS
       - bracketed:
         - start_bracket: (
-        - column_definition:
-          - naked_identifier: col1
-          - data_type:
+        - bracketed:
+          - start_bracket: (
+          - column_definition:
+            - naked_identifier: col1
             - data_type:
-              - data_type_identifier: INT
+              - data_type:
+                - data_type_identifier: INT
+          - comma: ','
+          - column_definition:
+            - naked_identifier: col2
+            - data_type:
+              - data_type:
+                - data_type_identifier: VARCHAR
+                - bracketed_arguments:
+                  - bracketed:
+                    - start_bracket: (
+                    - numeric_literal: '50'
+                    - end_bracket: )
+          - end_bracket: )
+        - end_bracket: )
+  - statement_terminator: ;
+  - statement:
+    - statement:
+      - keyword: EXECUTE
+      - object_reference:
+        - naked_identifier: test
+      - keyword: WITH
+      - keyword: RESULT
+      - keyword: SETS
+      - bracketed:
+        - start_bracket: (
+        - bracketed:
+          - start_bracket: (
+          - column_definition:
+            - naked_identifier: col1
+            - data_type:
+              - data_type:
+                - data_type_identifier: INT
+          - end_bracket: )
         - comma: ','
-        - column_definition:
-          - naked_identifier: col2
-          - data_type:
+        - bracketed:
+          - start_bracket: (
+          - column_definition:
+            - naked_identifier: col2
             - data_type:
-              - data_type_identifier: VARCHAR
-              - bracketed_arguments:
-                - bracketed:
-                  - start_bracket: (
-                  - numeric_literal: '50'
-                  - end_bracket: )
+              - data_type:
+                - data_type_identifier: VARCHAR
+                - bracketed_arguments:
+                  - bracketed:
+                    - start_bracket: (
+                    - numeric_literal: '50'
+                    - end_bracket: )
+          - end_bracket: )
         - end_bracket: )
-      - end_bracket: )
-  - statement_terminator: ;
-  - statement:
-    - keyword: EXECUTE
-    - object_reference:
-      - naked_identifier: test
-    - keyword: WITH
-    - keyword: RESULT
-    - keyword: SETS
-    - bracketed:
-      - start_bracket: (
-      - bracketed:
-        - start_bracket: (
-        - column_definition:
-          - naked_identifier: col1
-          - data_type:
-            - data_type:
-              - data_type_identifier: INT
-        - end_bracket: )
-      - comma: ','
-      - bracketed:
-        - start_bracket: (
-        - column_definition:
-          - naked_identifier: col2
-          - data_type:
-            - data_type:
-              - data_type_identifier: VARCHAR
-              - bracketed_arguments:
-                - bracketed:
-                  - start_bracket: (
-                  - numeric_literal: '50'
-                  - end_bracket: )
-        - end_bracket: )
-      - end_bracket: )
   - statement_terminator: ;

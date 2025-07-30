@@ -1,3 +1,0 @@
-BEGIN
-    PRINT 'test'
-END

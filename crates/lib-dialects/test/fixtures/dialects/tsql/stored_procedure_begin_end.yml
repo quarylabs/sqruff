@@ -193,81 +193,82 @@ file:
     - begin_end_block:
       - keyword: BEGIN
       - statement:
-        - keyword: BEGIN
-        - keyword: TRY
         - statement:
-          - select_statement:
-            - select_clause:
+          - keyword: BEGIN
+          - keyword: TRY
+          - statement:
+            - select_statement:
               - select_clause:
-                - keyword: SELECT
-                - select_clause_element:
-                  - quoted_literal: '''8'''
-        - statement_terminator: ;
-        - keyword: END
-        - keyword: TRY
-        - keyword: BEGIN
-        - keyword: CATCH
-        - statement:
-          - keyword: SET
-          - tsql_variable: '@v_nSysErrorNum'
-          - assignment_operator:
-            - raw_comparison_operator: =
-          - expression:
-            - function:
+                - select_clause:
+                  - keyword: SELECT
+                  - select_clause_element:
+                    - quoted_literal: '''8'''
+          - statement_terminator: ;
+          - keyword: END
+          - keyword: TRY
+          - keyword: BEGIN
+          - keyword: CATCH
+          - statement:
+            - keyword: SET
+            - tsql_variable: '@v_nSysErrorNum'
+            - assignment_operator:
+              - raw_comparison_operator: =
+            - expression:
               - function:
-                - function_name:
-                  - function_name_identifier: ERROR_NUMBER
-                - bracketed:
-                  - start_bracket: (
-                  - end_bracket: )
-        - statement_terminator: ;
-        - statement:
-          - keyword: SET
-          - tsql_variable: '@v_vchCode'
-          - assignment_operator:
-            - raw_comparison_operator: =
-          - expression:
-            - function:
+                - function:
+                  - function_name:
+                    - function_name_identifier: ERROR_NUMBER
+                  - bracketed:
+                    - start_bracket: (
+                    - end_bracket: )
+          - statement_terminator: ;
+          - statement:
+            - keyword: SET
+            - tsql_variable: '@v_vchCode'
+            - assignment_operator:
+              - raw_comparison_operator: =
+            - expression:
               - function:
-                - function_name:
-                  - function_name_identifier: ERROR_LINE
-                - bracketed:
-                  - start_bracket: (
-                  - end_bracket: )
-        - statement_terminator: ;
-        - statement:
-          - keyword: SET
-          - tsql_variable: '@v_vchMsg'
-          - assignment_operator:
-            - raw_comparison_operator: =
-          - expression:
-            - quoted_literal: N'Missing control type.'
-        - statement_terminator: ;
-        - statement:
-          - keyword: SET
-          - tsql_variable: '@v_vchMsg'
-          - assignment_operator:
-            - raw_comparison_operator: =
-          - expression:
-            - parameterized_expression:
-              - tsql_variable: '@v_vchMsg'
-            - binary_operator: +
-            - quoted_literal: N' SQL Error = '
-            - binary_operator: +
-            - function:
+                - function:
+                  - function_name:
+                    - function_name_identifier: ERROR_LINE
+                  - bracketed:
+                    - start_bracket: (
+                    - end_bracket: )
+          - statement_terminator: ;
+          - statement:
+            - keyword: SET
+            - tsql_variable: '@v_vchMsg'
+            - assignment_operator:
+              - raw_comparison_operator: =
+            - expression:
+              - quoted_literal: N'Missing control type.'
+          - statement_terminator: ;
+          - statement:
+            - keyword: SET
+            - tsql_variable: '@v_vchMsg'
+            - assignment_operator:
+              - raw_comparison_operator: =
+            - expression:
+              - parameterized_expression:
+                - tsql_variable: '@v_vchMsg'
+              - binary_operator: +
+              - quoted_literal: N' SQL Error = '
+              - binary_operator: +
               - function:
-                - function_name:
-                  - function_name_identifier: ERROR_MESSAGE
-                - bracketed:
-                  - start_bracket: (
-                  - end_bracket: )
-        - statement_terminator: ;
-        - statement:
-          - keyword: GOTO
-          - naked_identifier: ERROR_HANDLER
-        - statement_terminator: ;
-        - keyword: END
-        - keyword: CATCH
+                - function:
+                  - function_name:
+                    - function_name_identifier: ERROR_MESSAGE
+                  - bracketed:
+                    - start_bracket: (
+                    - end_bracket: )
+          - statement_terminator: ;
+          - statement:
+            - keyword: GOTO
+            - naked_identifier: ERROR_HANDLER
+          - statement_terminator: ;
+          - keyword: END
+          - keyword: CATCH
       - keyword: END
   - statement_terminator: ;
   - keyword: GO

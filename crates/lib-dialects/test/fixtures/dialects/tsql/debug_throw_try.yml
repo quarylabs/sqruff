@@ -1,0 +1,24 @@
+file:
+- statement:
+  - statement:
+    - statement:
+      - keyword: THROW
+      - numeric_literal: '50005'
+      - comma: ','
+      - expression:
+        - quoted_literal: N'an error occurred'
+      - comma: ','
+      - numeric_literal: '1'
+      - statement_terminator: ;
+- unparsable:
+  - word: BEGIN
+  - word: TRY
+  - word: EXEC
+  - word: spSomeProc
+  - word: END
+  - word: TRY
+  - word: BEGIN
+  - word: CATCH
+  - word: END
+  - word: CATCH
+  - semicolon: ;

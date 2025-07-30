@@ -1,4 +1,0 @@
-CREATE PROCEDURE test
-AS
-IF 1 = 1
-    PRINT 'True';

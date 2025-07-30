@@ -1,0 +1,13 @@
+file:
+- unparsable:
+  - word: BEGIN
+  - word: TRY
+  - word: EXEC
+  - word: spSomeProc
+  - word: END
+  - word: TRY
+  - word: BEGIN
+  - word: CATCH
+  - word: END
+  - word: CATCH
+  - semicolon: ;

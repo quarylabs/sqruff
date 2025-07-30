@@ -1,4 +1,3 @@
-use ahash::AHashMap;
 use itertools::Itertools;
 use sqruff_lib_core::dialects::syntax::{SyntaxKind, SyntaxSet};
 use sqruff_lib_core::edit_type::EditType;
@@ -6,57 +5,46 @@ use sqruff_lib_core::helpers::IndexMap;
 use sqruff_lib_core::lint_fix::LintFix;
 use sqruff_lib_core::parser::segments::SegmentBuilder;
 
-use crate::core::config::Value;
 use crate::core::rules::context::RuleContext;
-use crate::core::rules::crawlers::{Crawler, SegmentSeekerCrawler};
-use crate::core::rules::{Erased, ErasedRule, LintResult, Rule, RuleGroups};
+use crate::core::rules::crawlers::SegmentSeekerCrawler;
+use crate::core::rules::{Erased, LintResult, RuleGroups};
+use crate::define_rule;
 
-#[derive(Debug, Default, Clone)]
-pub struct RuleLT08;
+define_rule!(
+    /// **Anti-pattern**
+    ///
+    /// There is no blank line after the CTE closing bracket. In queries with many CTEs, this hinders readability.
+    ///
+    /// ```sql
+    /// WITH plop AS (
+    ///     SELECT * FROM foo
+    /// )
+    /// SELECT a FROM plop
+    /// ```
+    ///
+    /// **Best practice**
+    ///
+    /// Add a blank line.
+    ///
+    /// ```sql
+    /// WITH plop AS (
+    ///     SELECT * FROM foo
+    /// )
+    ///
+    /// SELECT a FROM plop
+    /// ```
+    pub struct RuleLT08 {};
 
-impl Rule for RuleLT08 {
-    fn load_from_config(&self, _config: &AHashMap<String, Value>) -> Result<ErasedRule, String> {
-        Ok(RuleLT08.erased())
-    }
-    fn name(&self) -> &'static str {
-        "layout.cte_newline"
-    }
+    name = "layout.cte_newline";
+    description = "Blank line expected but not found after CTE closing bracket.";
+    groups = [RuleGroups::All, RuleGroups::Core, RuleGroups::Layout];
+    eval = eval;
+    load_from_config = load_from_config;
+    is_fix_compatible = true;
+    crawl_behaviour = SegmentSeekerCrawler::new(const { SyntaxSet::new(&[SyntaxKind::WithCompoundStatement]) });
+);
 
-    fn description(&self) -> &'static str {
-        "Blank line expected but not found after CTE closing bracket."
-    }
-
-    fn long_description(&self) -> &'static str {
-        r#"
-**Anti-pattern**
-
-There is no blank line after the CTE closing bracket. In queries with many CTEs, this hinders readability.
-
-```sql
-WITH plop AS (
-    SELECT * FROM foo
-)
-SELECT a FROM plop
-```
-
-**Best practice**
-
-Add a blank line.
-
-```sql
-WITH plop AS (
-    SELECT * FROM foo
-)
-
-SELECT a FROM plop
-```
-"#
-    }
-
-    fn groups(&self) -> &'static [RuleGroups] {
-        &[RuleGroups::All, RuleGroups::Core, RuleGroups::Layout]
-    }
-    fn eval(&self, context: &RuleContext) -> Vec<LintResult> {
+fn eval(context: &RuleContext) -> Vec<LintResult> {
         let mut error_buffer = Vec::new();
         let global_comma_style = context.config.raw["layout"]["type"]["comma"]["line_position"]
             .as_string()
@@ -214,14 +202,10 @@ SELECT a FROM plop
         }
 
         error_buffer
-    }
+}
 
-    fn is_fix_compatible(&self) -> bool {
-        true
-    }
-
-    fn crawl_behaviour(&self) -> Crawler {
-        SegmentSeekerCrawler::new(const { SyntaxSet::new(&[SyntaxKind::WithCompoundStatement]) })
-            .into()
-    }
+fn load_from_config(
+    _config: &ahash::AHashMap<String, crate::core::config::Value>,
+) -> Result<crate::core::rules::ErasedRule, String> {
+    Ok(RuleLT08 {}.erased())
 }

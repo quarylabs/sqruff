@@ -1,58 +1,46 @@
-use ahash::AHashMap;
 use itertools::Itertools;
 use sqruff_lib_core::dialects::syntax::{SyntaxKind, SyntaxSet};
 use sqruff_lib_core::lint_fix::LintFix;
 use sqruff_lib_core::parser::segments::ErasedSegment;
 
-use crate::core::config::Value;
 use crate::core::rules::context::RuleContext;
-use crate::core::rules::crawlers::{Crawler, SegmentSeekerCrawler};
-use crate::core::rules::{Erased, ErasedRule, LintResult, Rule, RuleGroups};
+use crate::core::rules::crawlers::SegmentSeekerCrawler;
+use crate::core::rules::{Erased, LintResult, RuleGroups};
+use crate::define_rule;
 use crate::utils::functional::context::FunctionalContext;
 
-#[derive(Debug, Default, Clone)]
-pub struct RuleLT06;
+define_rule!(
+    /// **Anti-pattern**
+    ///
+    /// In this example, there is a space between the function and the parenthesis.
+    ///
+    /// ```sql
+    /// SELECT
+    ///     sum (a)
+    /// FROM foo
+    /// ```
+    ///
+    /// **Best practice**
+    ///
+    /// Remove the space between the function and the parenthesis.
+    ///
+    /// ```sql
+    /// SELECT
+    ///     sum(a)
+    /// FROM foo
+    /// ```
+    pub struct RuleLT06 {};
 
-impl Rule for RuleLT06 {
-    fn load_from_config(&self, _config: &AHashMap<String, Value>) -> Result<ErasedRule, String> {
-        Ok(RuleLT06.erased())
-    }
-    fn name(&self) -> &'static str {
-        "layout.functions"
-    }
+    name = "layout.functions";
+    description = "Function name not immediately followed by parenthesis.";
+    groups = [RuleGroups::All, RuleGroups::Core, RuleGroups::Layout];
+    eval = eval;
+    load_from_config = load_from_config;
+    is_fix_compatible = true;
+    crawl_behaviour = SegmentSeekerCrawler::new(const { SyntaxSet::new(&[SyntaxKind::Function]) });
+);
 
-    fn description(&self) -> &'static str {
-        "Function name not immediately followed by parenthesis."
-    }
-
-    fn long_description(&self) -> &'static str {
-        r#"
-**Anti-pattern**
-
-In this example, there is a space between the function and the parenthesis.
-
-```sql
-SELECT
-    sum (a)
-FROM foo
-```
-
-**Best practice**
-
-Remove the space between the function and the parenthesis.
-
-```sql
-SELECT
-    sum(a)
-FROM foo
-```
-"#
-    }
-
-    fn groups(&self) -> &'static [RuleGroups] {
-        &[RuleGroups::All, RuleGroups::Core, RuleGroups::Layout]
-    }
-    fn eval(&self, context: &RuleContext) -> Vec<LintResult> {
+fn eval(context: &RuleContext) -> Vec<LintResult> {
         let segment = FunctionalContext::new(context).segment();
         let children = segment.children(None);
 
@@ -98,13 +86,10 @@ FROM foo
         }
 
         vec![]
-    }
+}
 
-    fn is_fix_compatible(&self) -> bool {
-        true
-    }
-
-    fn crawl_behaviour(&self) -> Crawler {
-        SegmentSeekerCrawler::new(const { SyntaxSet::new(&[SyntaxKind::Function]) }).into()
-    }
+fn load_from_config(
+    _config: &ahash::AHashMap<String, crate::core::config::Value>,
+) -> Result<crate::core::rules::ErasedRule, String> {
+    Ok(RuleLT06 {}.erased())
 }

@@ -1264,30 +1264,29 @@ Inappropriate Spacing.
 **Groups:** `all`, `core`, `layout`
 
 **Fixable:** Yes
+ **Anti-pattern**
 
-**Anti-pattern**
+ In this example, spacing is all over the place and is represented by `•`.
 
-In this example, spacing is all over the place and is represented by `•`.
+ ```sql
+ SELECT
+     a,        b(c) as d••
+ FROM foo••••
+ JOIN bar USING(a)
+ ```
 
-```sql
-SELECT
-    a,        b(c) as d••
-FROM foo••••
-JOIN bar USING(a)
-```
+ **Best practice**
 
-**Best practice**
+ - Unless an indent or preceding a comment, whitespace should be a single space.
+ - There should also be no trailing whitespace at the ends of lines.
+ - There should be a space after USING so that it’s not confused for a function.
 
-- Unless an indent or preceding a comment, whitespace should be a single space.
-- There should also be no trailing whitespace at the ends of lines.
-- There should be a space after USING so that it’s not confused for a function.
-
-```sql
-SELECT
-    a, b(c) as d
-FROM foo
-JOIN bar USING (a)
-```
+ ```sql
+ SELECT
+     a, b(c) as d
+ FROM foo
+ JOIN bar USING (a)
+ ```
 
 
 ### layout.indent

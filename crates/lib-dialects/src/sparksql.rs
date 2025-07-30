@@ -2256,6 +2256,8 @@ pub fn raw_dialect() -> Dialect {
     );
 
     sparksql_dialect.replace_grammar(
+        // Enhance `GROUP BY` clause like in `SELECT` for 'CUBE' and 'ROLLUP`.
+        // https://spark.apache.org/docs/latest/sql-ref-syntax-qry-select-groupby.html
         "GroupByClauseSegment",
         Sequence::new(vec_of_erased![
             Ref::keyword("GROUP"),
@@ -2263,10 +2265,10 @@ pub fn raw_dialect() -> Dialect {
             MetaSegment::indent(),
             one_of(vec_of_erased![
                 Delimited::new(vec_of_erased![
-                    Ref::new("ColumnReferenceSegment"),
-                    Ref::new("NumericLiteralSegment"),
                     Ref::new("CubeRollupClauseSegment"),
                     Ref::new("GroupingSetsClauseSegment"),
+                    Ref::new("ColumnReferenceSegment"),
+                    Ref::new("NumericLiteralSegment"),
                     Ref::new("ExpressionSegment")
                 ]),
                 Sequence::new(vec_of_erased![

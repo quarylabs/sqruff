@@ -72,9 +72,9 @@ file:
                     - comma: ','
                     - expression:
                       - null_literal: 'NULL'
-                    - unparsable:
-                      - word: ON
-                      - word: 'NULL'
+                    - json_null_clause:
+                      - keyword: ON
+                      - keyword: 'NULL'
                     - end_bracket: )
   - statement_terminator: ;
   - statement:
@@ -451,21 +451,26 @@ file:
                               - end_bracket: )
                     - comma: ','
                     - expression:
-                      - data_type:
-                        - data_type_identifier: JSON_ARRAY
-                        - bracketed_arguments:
-                          - bracketed:
-                            - start_bracket: (
-                            - numeric_literal: '1'
-                            - comma: ','
-                            - null_literal: 'NULL'
-                            - comma: ','
-                            - numeric_literal: '2'
-                            - end_bracket: )
-                      - null_literal: 'NULL'
-                    - unparsable:
-                      - word: ON
-                      - word: 'NULL'
+                      - function:
+                        - function:
+                          - function:
+                            - function_name:
+                              - function_name_identifier: JSON_ARRAY
+                            - bracketed:
+                              - start_bracket: (
+                              - expression:
+                                - numeric_literal: '1'
+                              - comma: ','
+                              - expression:
+                                - null_literal: 'NULL'
+                              - comma: ','
+                              - expression:
+                                - numeric_literal: '2'
+                              - end_bracket: )
+                    - json_null_clause:
+                      - keyword: 'NULL'
+                      - keyword: ON
+                      - keyword: 'NULL'
                     - end_bracket: )
   - statement_terminator: ;
   - statement:

@@ -8,7 +8,6 @@ use sqruff_lib_core::helpers::{Config, ToMatchable};
 use sqruff_lib_core::parser::grammar::Ref;
 use sqruff_lib_core::parser::grammar::anyof::{AnyNumberOf, one_of, optionally_bracketed};
 use sqruff_lib_core::parser::grammar::conditional::Conditional;
-use sqruff_lib_core::parser::grammar::Nothing;
 use sqruff_lib_core::parser::grammar::delimited::Delimited;
 use sqruff_lib_core::parser::grammar::sequence::{Bracketed, Sequence};
 use sqruff_lib_core::parser::lexer::Matcher;
@@ -435,11 +434,16 @@ pub fn raw_dialect() -> Dialect {
         .into(),
     )]);
 
-    // Override Expression_C_Grammar to prioritize CaseExpressionSegment over Expression_D_Grammar
+    // Override Expression_C_Grammar to handle EXISTS functions and prioritize CaseExpressionSegment
     dialect.add([(
         "Expression_C_Grammar".into(), 
         one_of(vec_of_erased![
-            // Put CaseExpressionSegment FIRST
+            // Sequence for "EXISTS" with a bracketed selectable grammar (from ANSI)
+            Sequence::new(vec_of_erased![
+                Ref::keyword("EXISTS"),
+                Bracketed::new(vec_of_erased![Ref::new("SelectableGrammar")])
+            ]),
+            // Put CaseExpressionSegment SECOND
             Ref::new("CaseExpressionSegment"),
             Ref::new("Expression_D_Grammar"),
         ])
@@ -623,25 +627,8 @@ pub fn raw_dialect() -> Dialect {
                         ])
                     ])
                 ])])
-                .config(|this| this.parse_mode(ParseMode::Greedy)),
-                // Optional WITH clause for column definitions (moved here from FromExpressionElementSegment)
-                Sequence::new(vec_of_erased![
-                    Ref::keyword("WITH"),
-                    Bracketed::new(vec_of_erased![Delimited::new(vec_of_erased![
-                        Sequence::new(vec_of_erased![
-                            Ref::new("SingleIdentifierGrammar"), // Column name (can be bracketed)
-                            Ref::new("TsqlDatatypeSegment"),     // Data type
-                            // Optional COLLATE clause
-                            Sequence::new(vec_of_erased![
-                                Ref::keyword("COLLATE"),
-                                Ref::new("CollationSegment")
-                            ]).config(|this| this.optional()),
-                            // Optional JSON path expression for JSON data
-                            Ref::new("QuotedLiteralSegment").optional()
-                        ])
-                    ])])
-                    .config(|this| this.parse_mode(ParseMode::Greedy))
-                ]).config(|this| this.optional())
+                .config(|this| this.parse_mode(ParseMode::Greedy))
+                // WITH clause removed - now handled by FromExpressionElementSegment
             ])
             .to_matchable()
         })
@@ -3621,8 +3608,11 @@ pub fn raw_dialect() -> Dialect {
                     // One dot: .[table]
                     Ref::new("DotSegment"),
                 ]),
-                // Table identifier
-                Ref::new("SingleIdentifierGrammar"),
+                // Table identifier (supports both naked/quoted and square-bracketed identifiers)
+                one_of(vec_of_erased![
+                    Ref::new("SingleIdentifierGrammar"),
+                    Ref::new("QuotedIdentifierSegment"),
+                ]),
             ])
             .to_matchable()
         })
@@ -3781,10 +3771,50 @@ pub fn raw_dialect() -> Dialect {
         .into(),
     )]);
 
-    // Note: We intentionally do NOT override BaseExpressionElementGrammar here
-    // because it would break CASE expression parsing. ANSI's BaseExpressionElementGrammar
-    // includes ExpressionSegment which provides CASE support through Expression_C_Grammar.
-    // However, we DO override Expression_C_Grammar to use T-SQL specific CASE expressions.
+    // Override BaseExpressionElementGrammar to prioritize CaseExpressionSegment over DatatypeSegment
+    // The ANSI version includes DatatypeSegment which was matching "CASE" as a data type
+    dialect.add([(
+        "BaseExpressionElementGrammar".into(),
+        one_of(vec_of_erased![
+            Ref::new("LiteralGrammar"),
+            Ref::new("BareFunctionSegment"),
+            Ref::new("IntervalExpressionSegment"),
+            Ref::new("FunctionSegment"),
+            Ref::new("ColumnReferenceSegment"),
+            // CRITICAL: Try CaseExpressionSegment BEFORE ExpressionSegment to prevent data type matching
+            Ref::new("CaseExpressionSegment"),
+            Ref::new("ExpressionSegment"),
+            Sequence::new(vec_of_erased![
+                Ref::new("DatatypeSegment"),
+                Ref::new("LiteralGrammar"),
+            ])
+        ])
+        .config(|this| {
+            // These terminators allow better performance by giving a signal
+            // of a likely complete match if they come after a match.
+            this.terminators = vec_of_erased![
+                Ref::keyword("AS"),
+                Ref::keyword("FROM"),
+                Ref::keyword("WHERE"),
+                Ref::keyword("ORDER"),
+                Ref::keyword("GROUP"),
+                Ref::keyword("HAVING"),
+                Ref::keyword("UNION"),
+                Ref::keyword("EXCEPT"),
+                Ref::keyword("INTERSECT"),
+                Ref::keyword("INTO"),
+                Ref::keyword("SET"),
+                Ref::keyword("VALUES"),
+                Ref::keyword("WITH"),
+                Ref::new("CommaSegment"),
+                Ref::new("SemicolonSegment"),
+                Ref::new("StartBracketSegment"),
+                Bracketed::new(vec_of_erased![Ref::keyword("SELECT")]),
+            ];
+        })
+        .to_matchable()
+        .into(),
+    )]);
     
     // DISABLED: Override Expression_C_Grammar to use T-SQL specific CASE expressions
     // Let T-SQL use ANSI's Expression_C_Grammar with overridden CaseExpressionSegment
@@ -3818,48 +3848,39 @@ pub fn raw_dialect() -> Dialect {
     //     .into(),
     // )]);
     
-    // TEMPORARILY DISABLED: Override Expression_D_Grammar to include T-SQL specific expressions like NEXT VALUE FOR
-    // dialect.add([(
-    //     "Expression_D_Grammar".into(),
-    //     one_of(vec![
-    //         // Add NEXT VALUE FOR before other expressions
-    //         Ref::new("NextValueForSegment").to_matchable(),
-    //         Ref::new("BareFunctionSegment").to_matchable(),
-    //         Ref::new("FunctionSegment").to_matchable(),
-    //         Bracketed::new(vec![
-    //             one_of(vec![
-    //                 Ref::new("ExpressionSegment").to_matchable(),
-    //                 Ref::new("SelectableGrammar").to_matchable(),
-    //                 Delimited::new(vec![
-    //                     Ref::new("ColumnReferenceSegment").to_matchable(),
-    //                     Ref::new("FunctionSegment").to_matchable(),
-    //                     Ref::new("LiteralGrammar").to_matchable(),
-    //                     Ref::new("LocalAliasSegment").to_matchable(),
-    //                 ])
-    //                 .to_matchable(),
-    //             ])
-    //             .to_matchable(),
-    //         ])
-    //         .config(|this| this.parse_mode(ParseMode::Greedy))
-    //         .to_matchable(),
-    //         Ref::new("SelectStatementSegment").to_matchable(),
-    //         Ref::new("LiteralGrammar").to_matchable(),
-    //         Ref::new("IntervalExpressionSegment").to_matchable(),
-    //         Ref::new("TypedStructLiteralSegment").to_matchable(),
-    //         Ref::new("ArrayExpressionSegment").to_matchable(),
-    //         Ref::new("ColumnReferenceSegment").to_matchable(),
-    //         Sequence::new(vec![
-    //             Ref::new("SingleIdentifierGrammar").to_matchable(),
-    //             Ref::new("ObjectReferenceDelimiterGrammar").to_matchable(),
-    //             Ref::new("StarSegment").to_matchable(),
-    //         ])
-    //         .to_matchable(),
-    //         Ref::new("LocalAliasSegment").to_matchable(),
-    //     ])
-    //     .config(|this| this.terminators = vec_of_erased![Ref::new("CommaSegment")])
-    //     .to_matchable()
-    //     .into(),
-    // )]);
+    // Override Expression_D_Grammar to include T-SQL specific expressions like NEXT VALUE FOR
+    dialect.add([(
+        "Expression_D_Grammar".into(),
+        Sequence::new(vec_of_erased![
+            one_of(vec_of_erased![
+                // Add NEXT VALUE FOR before other expressions
+                Ref::new("NextValueForSegment"),
+                Ref::new("BareFunctionSegment"),
+                Ref::new("FunctionSegment"),
+                Bracketed::new(vec_of_erased![
+                    one_of(vec_of_erased![
+                        Ref::new("ExpressionSegment"),
+                        Ref::new("SelectableGrammar"),
+                        Delimited::new(vec_of_erased![
+                            Ref::new("ColumnReferenceSegment")
+                        ])
+                    ])
+                ])
+                .config(|this| this.parse_mode(ParseMode::Greedy)),
+                Ref::new("SelectStatementSegment"),
+                Ref::new("LiteralGrammar"),
+                Ref::new("IntervalExpressionSegment"),
+                Ref::new("TypedStructLiteralSegment"),
+                Ref::new("ColumnReferenceSegment"),
+                Ref::new("DatatypeSegment")
+            ]),
+            AnyNumberOf::new(vec_of_erased![
+                Ref::new("ArrayAccessorSegment")
+            ])
+        ])
+        .to_matchable()
+        .into(),
+    )]);
 
     // Define PostTableExpressionGrammar to include T-SQL table hints and PIVOT/UNPIVOT
     dialect.add([(
@@ -3885,6 +3906,33 @@ pub fn raw_dialect() -> Dialect {
             Sequence::new(vec_of_erased![
                 Ref::new("PreTableFunctionKeywordsGrammar").optional(),
                 optionally_bracketed(vec_of_erased![Ref::new("TableExpressionSegment")]),
+                // Support both WITH OFFSET and OPENROWSET WITH column definitions
+                Sequence::new(vec_of_erased![
+                    Ref::keyword("WITH"),
+                    one_of(vec_of_erased![
+                        // ANSI WITH OFFSET syntax
+                        Sequence::new(vec_of_erased![
+                            Ref::keyword("OFFSET"),
+                            Ref::new("AliasExpressionSegment")
+                        ]),
+                        // OPENROWSET WITH column definitions syntax
+                        Bracketed::new(vec_of_erased![Delimited::new(vec_of_erased![
+                            Sequence::new(vec_of_erased![
+                                Ref::new("SingleIdentifierGrammar"), // Column name (can be bracketed)
+                                Ref::new("TsqlDatatypeSegment"),     // Data type
+                                // Optional COLLATE clause
+                                Sequence::new(vec_of_erased![
+                                    Ref::keyword("COLLATE"),
+                                    Ref::new("CollationSegment")
+                                ]).config(|this| this.optional()),
+                                // Optional JSON path expression for JSON data
+                                Ref::new("QuotedLiteralSegment").optional()
+                            ])
+                        ])])
+                    ])
+                ])
+                .config(|this| this.optional()),
+                // Alias can come either before or after WITH clause
                 Ref::new("AliasExpressionSegment")
                     .exclude(one_of(vec_of_erased![
                         Ref::new("FromClauseTerminatorGrammar"),
@@ -3894,12 +3942,6 @@ pub fn raw_dialect() -> Dialect {
                         Ref::keyword("GO") // Prevents GO from being parsed as alias (it's a batch separator)
                     ]))
                     .optional(),
-                Sequence::new(vec_of_erased![
-                    Ref::keyword("WITH"),
-                    Ref::keyword("OFFSET"),
-                    Ref::new("AliasExpressionSegment")
-                ])
-                .config(|this| this.optional()),
                 Ref::new("SamplingExpressionSegment").optional(),
                 Ref::new("PostTableExpressionGrammar").optional() // T-SQL table hints
             ])
@@ -3953,11 +3995,7 @@ pub fn raw_dialect() -> Dialect {
     // Use default ANSI JoinClauseSegment for now to avoid breaking MERGE statements
     // TODO: Implement proper MERGE JOIN support without breaking MERGE statements
 
-    // Keep the natural join override to disable it for T-SQL
-    dialect.add([(
-        "NaturalJoinKeywordsGrammar".into(),
-        Nothing::new().to_matchable().into(),
-    )]);
+    // Enable NATURAL JOIN support for T-SQL (inherits ANSI implementation)
 
     // T-SQL specific data type handling for MAX keyword and -1
     // Override BracketedArguments to accept MAX keyword and negative numbers
@@ -4242,6 +4280,51 @@ pub fn raw_dialect() -> Dialect {
                         Ref::keyword("COLLATE"),
                         Ref::new("CollationReferenceSegment"),
                     ]),
+                    // FILESTREAM
+                    Ref::keyword("FILESTREAM"),
+                    // MASKED WITH (FUNCTION = 'function_name')
+                    Sequence::new(vec_of_erased![
+                        Ref::keyword("MASKED"),
+                        Ref::keyword("WITH"),
+                        Bracketed::new(vec_of_erased![
+                            Ref::keyword("FUNCTION"),
+                            Ref::new("EqualsSegment"),
+                            Ref::new("QuotedLiteralSegment")
+                        ])
+                    ]),
+                    // GENERATED ALWAYS AS ROW START/END HIDDEN
+                    Sequence::new(vec_of_erased![
+                        Ref::keyword("GENERATED"),
+                        Ref::keyword("ALWAYS"),
+                        Ref::keyword("AS"),
+                        Ref::keyword("ROW"),
+                        one_of(vec_of_erased![
+                            Ref::keyword("START"),
+                            Ref::keyword("END")
+                        ]),
+                        Ref::keyword("HIDDEN").optional()
+                    ]),
+                    // ENCRYPTED WITH (encryption parameters)
+                    Sequence::new(vec_of_erased![
+                        Ref::keyword("ENCRYPTED"),
+                        Ref::keyword("WITH"),
+                        Bracketed::new(vec_of_erased![
+                            Delimited::new(vec_of_erased![
+                                Sequence::new(vec_of_erased![
+                                    one_of(vec_of_erased![
+                                        Ref::keyword("COLUMN_ENCRYPTION_KEY"),
+                                        Ref::keyword("ENCRYPTION_TYPE"),
+                                        Ref::keyword("ALGORITHM")
+                                    ]),
+                                    Ref::new("EqualsSegment"),
+                                    one_of(vec_of_erased![
+                                        Ref::new("QuotedLiteralSegment"),
+                                        Ref::new("NakedIdentifierSegment")
+                                    ])
+                                ])
+                            ])
+                        ])
+                    ]),
                 ]),
             ])
             .to_matchable()
@@ -4250,6 +4333,23 @@ pub fn raw_dialect() -> Dialect {
         .into(),
     )]);
 
+
+    // Override ColumnConstraintDefaultGrammar to support T-SQL expressions
+    dialect.add([(
+        "ColumnConstraintDefaultGrammar".into(),
+        one_of(vec_of_erased![
+            Ref::new("ShorthandCastSegment"),
+            Ref::new("LiteralGrammar"),
+            Ref::new("FunctionSegment"),
+            Ref::new("BareFunctionSegment"),
+            // Add ExpressionSegment for complex expressions like ((-1))
+            Ref::new("ExpressionSegment"),
+            // Add bracketed expressions
+            Bracketed::new(vec_of_erased![Ref::new("ExpressionSegment")])
+        ])
+        .to_matchable()
+        .into(),
+    )]);
 
     // Override PrimaryKeyGrammar to support CLUSTERED/NONCLUSTERED
     // Note: Column list is handled by TableConstraintSegment, not here
@@ -4942,7 +5042,9 @@ pub fn raw_dialect() -> Dialect {
                 Ref::keyword("BREAK"),
                 Ref::keyword("CONTINUE"),
                 Ref::keyword("DBCC"),
-                Ref::keyword("RENAME")
+                Ref::keyword("RENAME"),
+                // T-SQL specific: WITH CHECK OPTION terminator for CREATE VIEW
+                Ref::new("WithCheckOptionSegment")
             ],
             true,
         ),
@@ -5028,7 +5130,6 @@ pub fn raw_dialect() -> Dialect {
         })
         .to_matchable(),
     );
-
     // T-SQL CREATE FUNCTION support with CREATE OR ALTER
     dialect.add([(
         "CreateFunctionStatementSegment".into(),
@@ -5295,7 +5396,18 @@ pub fn raw_dialect() -> Dialect {
                                     Ref::new("ColumnDefinitionSegment"),
                                     Ref::new("TableConstraintSegment"),
                                     // T-SQL Graph: CONNECTION constraint for edge tables
-                                    Ref::new("ConnectionConstraintSegment")
+                                    Ref::new("ConnectionConstraintSegment"),
+                                    // PERIOD FOR SYSTEM_TIME for temporal tables
+                                    Sequence::new(vec_of_erased![
+                                        Ref::keyword("PERIOD"),
+                                        Ref::keyword("FOR"),
+                                        Ref::keyword("SYSTEM_TIME"),
+                                        Bracketed::new(vec_of_erased![
+                                            Ref::new("SingleIdentifierGrammar"),
+                                            Ref::new("CommaSegment"),
+                                            Ref::new("SingleIdentifierGrammar")
+                                        ])
+                                    ])
                                 ])
                             ])
                             .config(|this| this.allow_trailing())
@@ -5727,7 +5839,8 @@ pub fn raw_dialect() -> Dialect {
         "DatatypeIdentifierSegment".into(),
         SegmentGenerator::new(|_| {
             // Generate the anti template from the set of reserved keywords
-            let anti_template = format!("^({})$", "NOT");
+            // Exclude keywords that should not be parsed as data types
+            let anti_template = format!("^({})$", "NOT|EXECUTE|EXEC");
 
             one_of(vec![
                 // Case-insensitive pattern for T-SQL data type identifiers (including UDTs)
@@ -6922,6 +7035,11 @@ pub fn raw_dialect() -> Dialect {
                         Ref::keyword("ABSENT"),
                         Ref::keyword("ON"),
                         Ref::keyword("NULL")
+                    ]),
+                    // Just ON NULL by itself
+                    Sequence::new(vec_of_erased![
+                        Ref::keyword("ON"),
+                        Ref::keyword("NULL")
                     ])
                 ])
                 .to_matchable()
@@ -7698,8 +7816,9 @@ pub fn raw_dialect() -> Dialect {
             Ref::keyword("WHERE"),
             MetaSegment::indent(),
             one_of(vec_of_erased![
-                // Regular WHERE with expression
-                Ref::new("ExpressionSegment"),
+                // Regular WHERE with expression - exclude WITH CHECK OPTION
+                Ref::new("ExpressionSegment")
+                    .exclude(LookaheadExclude::new("WITH", "CHECK")),
                 // T-SQL CURRENT OF clause for cursors
                 Sequence::new(vec_of_erased![
                     Ref::keyword("CURRENT"),

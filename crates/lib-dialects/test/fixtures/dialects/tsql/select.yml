@@ -5,8 +5,11 @@ file:
       - select_clause:
         - select_clause:
           - keyword: SELECT
+          - select_clause_element:
+            - expression:
+              - data_type:
+                - data_type_identifier: CASE
           - unparsable:
-            - word: CASE
             - word: WHEN
             - numeric_literal: '1'
             - raw_comparison_operator: =
@@ -273,298 +276,593 @@ file:
                     - quoted_identifier: '[DateofEvent]'
                   - keyword: desc
               - end_bracket: )
-- unparsable:
-  - word: AS
-  - double_quote: '[RN]'
-  - comma: ','
-  - word: RANK
-  - start_bracket: (
-  - end_bracket: )
-  - word: OVER
-  - start_bracket: (
-  - word: PARTITION
-  - word: BY
-  - double_quote: '[EventNM]'
-  - word: ORDER
-  - word: BY
-  - double_quote: '[DateofEvent]'
-  - word: desc
-  - end_bracket: )
-  - word: AS
-  - double_quote: '[R]'
-  - comma: ','
-  - word: DENSE_RANK
-  - start_bracket: (
-  - end_bracket: )
-  - word: OVER
-  - start_bracket: (
-  - word: PARTITION
-  - word: BY
-  - double_quote: '[EventNM]'
-  - word: ORDER
-  - word: BY
-  - double_quote: '[DateofEvent]'
-  - word: desc
-  - end_bracket: )
-  - word: AS
-  - double_quote: '[DR]'
-  - comma: ','
-  - word: NTILE
-  - start_bracket: (
-  - numeric_literal: '5'
-  - end_bracket: )
-  - word: OVER
-  - start_bracket: (
-  - word: PARTITION
-  - word: BY
-  - double_quote: '[EventNM]'
-  - word: ORDER
-  - word: BY
-  - double_quote: '[DateofEvent]'
-  - word: desc
-  - end_bracket: )
-  - word: AS
-  - double_quote: '[NT]'
-  - comma: ','
-  - word: sum
-  - start_bracket: (
-  - word: t
-  - dot: .
-  - word: col1
-  - end_bracket: )
-  - word: over
-  - start_bracket: (
-  - word: partition
-  - word: by
-  - word: t
-  - dot: .
-  - word: col2
-  - comma: ','
-  - word: t
-  - dot: .
-  - word: col3
-  - end_bracket: )
-  - comma: ','
-  - word: ROW_NUMBER
-  - start_bracket: (
-  - end_bracket: )
-  - word: OVER
-  - start_bracket: (
-  - word: PARTITION
-  - word: BY
-  - start_bracket: (
-  - word: SELECT
-  - word: mediaty
-  - word: FROM
-  - word: dbo
-  - dot: .
-  - word: MediaTypes
-  - word: ms
-  - word: WHERE
-  - word: ms
-  - dot: .
-  - word: MediaTypeID
-  - raw_comparison_operator: =
-  - word: f
-  - dot: .
-  - word: mediatypeid
-  - end_bracket: )
-  - word: ORDER
-  - word: BY
-  - word: AdjustedPriorityScore
-  - word: DESC
-  - end_bracket: )
-  - word: AS
-  - word: Subselect_Partition
-  - comma: ','
-  - word: ROW_NUMBER
-  - start_bracket: (
-  - end_bracket: )
-  - word: OVER
-  - start_bracket: (
-  - word: PARTITION
-  - word: BY
-  - word: COALESCE
-  - start_bracket: (
-  - word: NPI1
-  - comma: ','
-  - word: NPI2
-  - end_bracket: )
-  - word: ORDER
-  - word: BY
-  - word: COALESCE
-  - start_bracket: (
-  - word: SystemEffectiveDTS1
-  - comma: ','
-  - word: SystemEffectiveDTS2
-  - end_bracket: )
-  - word: DESC
-  - end_bracket: )
-  - word: AS
-  - word: Coalesce_Partition
-  - comma: ','
-  - word: ROW_NUMBER
-  - start_bracket: (
-  - end_bracket: )
-  - word: OVER
-  - start_bracket: (
-  - word: PARTITION
-  - word: BY
-  - start_bracket: (
-  - word: DayInMonth
-  - end_bracket: )
-  - comma: ','
-  - start_bracket: (
-  - word: DaySuffix
-  - end_bracket: )
-  - word: ORDER
-  - word: BY
-  - word: Month
-  - word: ASC
-  - end_bracket: )
-  - comma: ','
-  - word: COUNT
-  - start_bracket: (
-  - star: '*'
-  - end_bracket: )
-  - word: OVER
-  - start_bracket: (
-  - word: PARTITION
-  - word: BY
-  - word: 'NULL'
-  - end_bracket: )
-  - comma: ','
-  - double_quote: '[preceding]'
-  - raw_comparison_operator: =
-  - word: count
-  - start_bracket: (
-  - star: '*'
-  - end_bracket: )
-  - word: over
-  - start_bracket: (
-  - word: order
-  - word: by
-  - word: object_id
-  - word: ROWS
-  - word: BETWEEN
-  - word: UNBOUNDED
-  - word: PRECEDING
-  - word: AND
-  - word: CURRENT
-  - word: ROW
-  - end_bracket: )
-  - comma: ','
-  - double_quote: '[central]'
-  - raw_comparison_operator: =
-  - word: count
-  - start_bracket: (
-  - star: '*'
-  - end_bracket: )
-  - word: over
-  - start_bracket: (
-  - word: order
-  - word: by
-  - word: object_id
-  - word: ROWS
-  - word: BETWEEN
-  - numeric_literal: '2'
-  - word: PRECEDING
-  - word: AND
-  - numeric_literal: '2'
-  - word: FOLLOWING
-  - end_bracket: )
-  - comma: ','
-  - double_quote: '[following]'
-  - raw_comparison_operator: =
-  - word: count
-  - start_bracket: (
-  - star: '*'
-  - end_bracket: )
-  - word: over
-  - start_bracket: (
-  - word: order
-  - word: by
-  - word: object_id
-  - word: ROWS
-  - word: BETWEEN
-  - word: CURRENT
-  - word: ROW
-  - word: AND
-  - word: UNBOUNDED
-  - word: FOLLOWING
-  - end_bracket: )
-  - comma: ','
-  - word: EqualsAlias
-  - raw_comparison_operator: =
-  - word: ColumnName
-  - comma: ','
-  - word: OtherColumnName
-  - word: AS
-  - word: AsAlias
-  - comma: ','
-  - word: cast
-  - start_bracket: (
-  - numeric_literal: '1'
-  - word: as
-  - word: character
-  - word: varying
-  - start_bracket: (
-  - numeric_literal: '1'
-  - end_bracket: )
-  - end_bracket: )
-  - comma: ','
-  - word: cast
-  - start_bracket: (
-  - double_quote: '[central]'
-  - word: as
-  - word: int
-  - end_bracket: )
-  - comma: ','
-  - word: CURRENT_TIMESTAMP
-  - comma: ','
-  - word: CURRENT_USER
-  - comma: ','
-  - word: SESSION_USER
-  - comma: ','
-  - word: SYSTEM_USER
-  - comma: ','
-  - word: USER
-  - comma: ','
-  - word: test
-  - start_bracket: (
-  - word: default
-  - comma: ','
-  - numeric_literal: '2'
-  - end_bracket: )
-  - word: FROM
-  - word: dbo
-  - dot: .
-  - word: all_pop
-  - semicolon: ;
-  - word: SELECT
-  - word: DISTINCT
-  - word: TOP
-  - numeric_literal: '5'
-  - word: some_value
-  - word: FROM
-  - word: some_table
-  - semicolon: ;
-  - word: select
-  - single_quote: '''Tabellen'''
-  - word: as
-  - word: Objekt
-  - comma: ','
-  - word: Count
-  - start_bracket: (
-  - star: '*'
-  - end_bracket: )
-  - word: as
-  - word: Anzahl
-  - word: from
-  - word: dbo
-  - dot: .
-  - word: sql_modules
-  - semicolon: ;
-  - word: select
-  - word: field1
-  - word: AS
+    - expression:
+      - data_type:
+        - data_type_identifier: AS
+    - expression:
+      - column_reference:
+        - quoted_identifier: '[RN]'
+    - comma: ','
+    - expression:
+      - function:
+        - function:
+          - function_name:
+            - function_name_identifier: RANK
+          - bracketed:
+            - start_bracket: (
+            - end_bracket: )
+          - over_clause:
+            - keyword: OVER
+            - bracketed:
+              - start_bracket: (
+              - window_specification:
+                - partitionby_clause:
+                  - keyword: PARTITION
+                  - keyword: BY
+                  - expression:
+                    - column_reference:
+                      - quoted_identifier: '[EventNM]'
+                - orderby_clause:
+                  - keyword: ORDER
+                  - keyword: BY
+                  - column_reference:
+                    - quoted_identifier: '[DateofEvent]'
+                  - keyword: desc
+              - end_bracket: )
+    - expression:
+      - data_type:
+        - data_type_identifier: AS
+    - expression:
+      - column_reference:
+        - quoted_identifier: '[R]'
+    - comma: ','
+    - expression:
+      - function:
+        - function:
+          - function_name:
+            - function_name_identifier: DENSE_RANK
+          - bracketed:
+            - start_bracket: (
+            - end_bracket: )
+          - over_clause:
+            - keyword: OVER
+            - bracketed:
+              - start_bracket: (
+              - window_specification:
+                - partitionby_clause:
+                  - keyword: PARTITION
+                  - keyword: BY
+                  - expression:
+                    - column_reference:
+                      - quoted_identifier: '[EventNM]'
+                - orderby_clause:
+                  - keyword: ORDER
+                  - keyword: BY
+                  - column_reference:
+                    - quoted_identifier: '[DateofEvent]'
+                  - keyword: desc
+              - end_bracket: )
+    - expression:
+      - data_type:
+        - data_type_identifier: AS
+    - expression:
+      - column_reference:
+        - quoted_identifier: '[DR]'
+    - comma: ','
+    - expression:
+      - function:
+        - function:
+          - function_name:
+            - function_name_identifier: NTILE
+          - bracketed:
+            - start_bracket: (
+            - expression:
+              - numeric_literal: '5'
+            - end_bracket: )
+          - over_clause:
+            - keyword: OVER
+            - bracketed:
+              - start_bracket: (
+              - window_specification:
+                - partitionby_clause:
+                  - keyword: PARTITION
+                  - keyword: BY
+                  - expression:
+                    - column_reference:
+                      - quoted_identifier: '[EventNM]'
+                - orderby_clause:
+                  - keyword: ORDER
+                  - keyword: BY
+                  - column_reference:
+                    - quoted_identifier: '[DateofEvent]'
+                  - keyword: desc
+              - end_bracket: )
+    - expression:
+      - data_type:
+        - data_type_identifier: AS
+    - expression:
+      - column_reference:
+        - quoted_identifier: '[NT]'
+    - comma: ','
+    - expression:
+      - function:
+        - function:
+          - function_name:
+            - function_name_identifier: sum
+          - bracketed:
+            - start_bracket: (
+            - expression:
+              - column_reference:
+                - naked_identifier: t
+                - dot: .
+                - naked_identifier: col1
+            - end_bracket: )
+          - over_clause:
+            - keyword: over
+            - bracketed:
+              - start_bracket: (
+              - window_specification:
+                - partitionby_clause:
+                  - keyword: partition
+                  - keyword: by
+                  - expression:
+                    - column_reference:
+                      - naked_identifier: t
+                      - dot: .
+                      - naked_identifier: col2
+                  - comma: ','
+                  - expression:
+                    - column_reference:
+                      - naked_identifier: t
+                      - dot: .
+                      - naked_identifier: col3
+              - end_bracket: )
+    - comma: ','
+    - expression:
+      - function:
+        - function:
+          - function_name:
+            - function_name_identifier: ROW_NUMBER
+          - bracketed:
+            - start_bracket: (
+            - end_bracket: )
+          - over_clause:
+            - keyword: OVER
+            - bracketed:
+              - start_bracket: (
+              - window_specification:
+                - partitionby_clause:
+                  - keyword: PARTITION
+                  - keyword: BY
+                  - bracketed:
+                    - start_bracket: (
+                    - expression:
+                      - select_statement:
+                        - select_clause:
+                          - select_clause:
+                            - keyword: SELECT
+                            - select_clause_element:
+                              - column_reference:
+                                - naked_identifier: mediaty
+                        - from_clause:
+                          - keyword: FROM
+                          - from_expression:
+                            - from_expression:
+                              - from_expression_element:
+                                - from_expression_element:
+                                  - table_expression:
+                                    - table_reference:
+                                      - object_reference:
+                                        - naked_identifier: dbo
+                                        - dot: .
+                                        - naked_identifier: MediaTypes
+                                  - alias_expression:
+                                    - naked_identifier: ms
+                        - where_clause:
+                          - keyword: WHERE
+                          - expression:
+                            - column_reference:
+                              - naked_identifier: ms
+                              - dot: .
+                              - naked_identifier: MediaTypeID
+                            - comparison_operator:
+                              - raw_comparison_operator: =
+                            - column_reference:
+                              - naked_identifier: f
+                              - dot: .
+                              - naked_identifier: mediatypeid
+                    - end_bracket: )
+                - orderby_clause:
+                  - keyword: ORDER
+                  - keyword: BY
+                  - column_reference:
+                    - naked_identifier: AdjustedPriorityScore
+                  - keyword: DESC
+              - end_bracket: )
+    - expression:
+      - data_type:
+        - data_type_identifier: AS
+    - expression:
+      - column_reference:
+        - naked_identifier: Subselect_Partition
+    - comma: ','
+    - expression:
+      - function:
+        - function:
+          - function_name:
+            - function_name_identifier: ROW_NUMBER
+          - bracketed:
+            - start_bracket: (
+            - end_bracket: )
+          - over_clause:
+            - keyword: OVER
+            - bracketed:
+              - start_bracket: (
+              - window_specification:
+                - partitionby_clause:
+                  - keyword: PARTITION
+                  - keyword: BY
+                  - expression:
+                    - function:
+                      - function:
+                        - function_name:
+                          - function_name_identifier: COALESCE
+                        - bracketed:
+                          - start_bracket: (
+                          - expression:
+                            - column_reference:
+                              - naked_identifier: NPI1
+                          - comma: ','
+                          - expression:
+                            - column_reference:
+                              - naked_identifier: NPI2
+                          - end_bracket: )
+                - orderby_clause:
+                  - keyword: ORDER
+                  - keyword: BY
+                  - expression:
+                    - function:
+                      - function:
+                        - function_name:
+                          - function_name_identifier: COALESCE
+                        - bracketed:
+                          - start_bracket: (
+                          - expression:
+                            - column_reference:
+                              - naked_identifier: SystemEffectiveDTS1
+                          - comma: ','
+                          - expression:
+                            - column_reference:
+                              - naked_identifier: SystemEffectiveDTS2
+                          - end_bracket: )
+                  - keyword: DESC
+              - end_bracket: )
+    - expression:
+      - data_type:
+        - data_type_identifier: AS
+    - expression:
+      - column_reference:
+        - naked_identifier: Coalesce_Partition
+    - comma: ','
+    - expression:
+      - function:
+        - function:
+          - function_name:
+            - function_name_identifier: ROW_NUMBER
+          - bracketed:
+            - start_bracket: (
+            - end_bracket: )
+          - over_clause:
+            - keyword: OVER
+            - bracketed:
+              - start_bracket: (
+              - window_specification:
+                - partitionby_clause:
+                  - keyword: PARTITION
+                  - keyword: BY
+                  - expression:
+                    - bracketed:
+                      - start_bracket: (
+                      - expression:
+                        - column_reference:
+                          - naked_identifier: DayInMonth
+                      - end_bracket: )
+                  - comma: ','
+                  - expression:
+                    - bracketed:
+                      - start_bracket: (
+                      - expression:
+                        - column_reference:
+                          - naked_identifier: DaySuffix
+                      - end_bracket: )
+                - orderby_clause:
+                  - keyword: ORDER
+                  - keyword: BY
+                  - column_reference:
+                    - naked_identifier: Month
+                  - keyword: ASC
+              - end_bracket: )
+    - comma: ','
+    - expression:
+      - function:
+        - function:
+          - function_name:
+            - function_name_identifier: COUNT
+          - bracketed:
+            - start_bracket: (
+            - star: '*'
+            - end_bracket: )
+          - over_clause:
+            - keyword: OVER
+            - bracketed:
+              - start_bracket: (
+              - window_specification:
+                - partitionby_clause:
+                  - keyword: PARTITION
+                  - keyword: BY
+                  - expression:
+                    - null_literal: 'NULL'
+              - end_bracket: )
+    - comma: ','
+    - expression:
+      - column_reference:
+        - quoted_identifier: '[preceding]'
+      - comparison_operator:
+        - raw_comparison_operator: =
+      - function:
+        - function:
+          - function_name:
+            - function_name_identifier: count
+          - bracketed:
+            - start_bracket: (
+            - star: '*'
+            - end_bracket: )
+          - over_clause:
+            - keyword: over
+            - bracketed:
+              - start_bracket: (
+              - window_specification:
+                - orderby_clause:
+                  - keyword: order
+                  - keyword: by
+                  - column_reference:
+                    - naked_identifier: object_id
+                - frame_clause:
+                  - keyword: ROWS
+                  - keyword: BETWEEN
+                  - keyword: UNBOUNDED
+                  - keyword: PRECEDING
+                  - keyword: AND
+                  - keyword: CURRENT
+                  - keyword: ROW
+              - end_bracket: )
+    - comma: ','
+    - expression:
+      - column_reference:
+        - quoted_identifier: '[central]'
+      - comparison_operator:
+        - raw_comparison_operator: =
+      - function:
+        - function:
+          - function_name:
+            - function_name_identifier: count
+          - bracketed:
+            - start_bracket: (
+            - star: '*'
+            - end_bracket: )
+          - over_clause:
+            - keyword: over
+            - bracketed:
+              - start_bracket: (
+              - window_specification:
+                - orderby_clause:
+                  - keyword: order
+                  - keyword: by
+                  - column_reference:
+                    - naked_identifier: object_id
+                - frame_clause:
+                  - keyword: ROWS
+                  - keyword: BETWEEN
+                  - numeric_literal: '2'
+                  - keyword: PRECEDING
+                  - keyword: AND
+                  - numeric_literal: '2'
+                  - keyword: FOLLOWING
+              - end_bracket: )
+    - comma: ','
+    - expression:
+      - column_reference:
+        - quoted_identifier: '[following]'
+      - comparison_operator:
+        - raw_comparison_operator: =
+      - function:
+        - function:
+          - function_name:
+            - function_name_identifier: count
+          - bracketed:
+            - start_bracket: (
+            - star: '*'
+            - end_bracket: )
+          - over_clause:
+            - keyword: over
+            - bracketed:
+              - start_bracket: (
+              - window_specification:
+                - orderby_clause:
+                  - keyword: order
+                  - keyword: by
+                  - column_reference:
+                    - naked_identifier: object_id
+                - frame_clause:
+                  - keyword: ROWS
+                  - keyword: BETWEEN
+                  - keyword: CURRENT
+                  - keyword: ROW
+                  - keyword: AND
+                  - keyword: UNBOUNDED
+                  - keyword: FOLLOWING
+              - end_bracket: )
+    - comma: ','
+    - expression:
+      - column_reference:
+        - naked_identifier: EqualsAlias
+      - comparison_operator:
+        - raw_comparison_operator: =
+      - column_reference:
+        - naked_identifier: ColumnName
+    - comma: ','
+    - expression:
+      - column_reference:
+        - naked_identifier: OtherColumnName
+    - expression:
+      - data_type:
+        - data_type_identifier: AS
+    - expression:
+      - column_reference:
+        - naked_identifier: AsAlias
+    - comma: ','
+    - expression:
+      - function:
+        - function:
+          - function_name:
+            - function_name_identifier: cast
+          - bracketed:
+            - start_bracket: (
+            - expression:
+              - numeric_literal: '1'
+            - keyword: as
+            - data_type:
+              - data_type:
+                - keyword: character
+                - keyword: varying
+                - bracketed_arguments:
+                  - bracketed:
+                    - start_bracket: (
+                    - numeric_literal: '1'
+                    - end_bracket: )
+            - end_bracket: )
+    - comma: ','
+    - expression:
+      - function:
+        - function:
+          - function_name:
+            - function_name_identifier: cast
+          - bracketed:
+            - start_bracket: (
+            - expression:
+              - column_reference:
+                - quoted_identifier: '[central]'
+            - keyword: as
+            - data_type:
+              - data_type:
+                - data_type_identifier: int
+            - end_bracket: )
+    - comma: ','
+    - expression:
+      - bare_function: CURRENT_TIMESTAMP
+    - comma: ','
+    - expression:
+      - bare_function: CURRENT_USER
+    - comma: ','
+    - expression:
+      - bare_function: SESSION_USER
+    - comma: ','
+    - expression:
+      - bare_function: SYSTEM_USER
+    - comma: ','
+    - expression:
+      - bare_function: USER
+    - comma: ','
+    - expression:
+      - function:
+        - function:
+          - function_name:
+            - function_name_identifier: test
+          - bracketed:
+            - start_bracket: (
+            - expression:
+              - data_type:
+                - data_type_identifier: default
+            - comma: ','
+            - expression:
+              - numeric_literal: '2'
+            - end_bracket: )
+    - expression:
+      - data_type:
+        - data_type_identifier: FROM
+    - expression:
+      - column_reference:
+        - naked_identifier: dbo
+        - dot: .
+        - naked_identifier: all_pop
+  - statement_terminator: ;
+  - statement:
+    - select_statement:
+      - select_clause:
+        - select_clause:
+          - keyword: SELECT
+          - select_clause_modifier:
+            - keyword: DISTINCT
+            - keyword: TOP
+            - expression:
+              - numeric_literal: '5'
+          - select_clause_element:
+            - column_reference:
+              - naked_identifier: some_value
+      - from_clause:
+        - keyword: FROM
+        - from_expression:
+          - from_expression:
+            - from_expression_element:
+              - from_expression_element:
+                - table_expression:
+                  - table_reference:
+                    - object_reference:
+                      - naked_identifier: some_table
+  - statement_terminator: ;
+  - statement:
+    - select_statement:
+      - select_clause:
+        - select_clause:
+          - keyword: select
+          - select_clause_element:
+            - quoted_literal: '''Tabellen'''
+            - alias_expression:
+              - keyword: as
+              - naked_identifier: Objekt
+          - comma: ','
+          - select_clause_element:
+            - function:
+              - function:
+                - function_name:
+                  - function_name_identifier: Count
+                - bracketed:
+                  - start_bracket: (
+                  - star: '*'
+                  - end_bracket: )
+            - alias_expression:
+              - keyword: as
+              - naked_identifier: Anzahl
+      - from_clause:
+        - keyword: from
+        - from_expression:
+          - from_expression:
+            - from_expression_element:
+              - from_expression_element:
+                - table_expression:
+                  - table_reference:
+                    - object_reference:
+                      - naked_identifier: dbo
+                      - dot: .
+                      - naked_identifier: sql_modules
+  - statement_terminator: ;
+  - statement:
+    - select_statement:
+      - select_clause:
+        - select_clause:
+          - keyword: select
+          - select_clause_element:
+            - column_reference:
+              - naked_identifier: field1
+          - unparsable:
+            - word: AS

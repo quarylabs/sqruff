@@ -72,17 +72,15 @@ file:
       - comma: ','
       - numeric_literal: '1'
       - statement_terminator: ;
-  - statement:
-    - keyword: BEGIN
-    - keyword: TRY
-    - statement:
-      - keyword: EXEC
-      - object_reference:
-        - naked_identifier: spSomeProc
-    - keyword: END
-    - keyword: TRY
-    - keyword: BEGIN
-    - keyword: CATCH
-    - keyword: END
-    - keyword: CATCH
-  - statement_terminator: ;
+- unparsable:
+  - word: BEGIN
+  - word: TRY
+  - word: EXEC
+  - word: spSomeProc
+  - word: END
+  - word: TRY
+  - word: BEGIN
+  - word: CATCH
+  - word: END
+  - word: CATCH
+  - semicolon: ;

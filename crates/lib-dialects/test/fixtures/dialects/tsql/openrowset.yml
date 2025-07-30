@@ -316,43 +316,33 @@ file:
                         - raw_comparison_operator: =
                       - quoted_literal: '''PARQUET'''
                       - end_bracket: )
-                    - keyword: WITH
-                    - bracketed:
-                      - start_bracket: (
-                      - quoted_identifier: '[country_code]'
-                      - data_type:
-                        - data_type:
-                          - data_type_identifier: VARCHAR
-                          - bracketed_arguments:
-                            - bracketed:
-                              - start_bracket: (
-                              - numeric_literal: '5'
-                              - end_bracket: )
-                      - keyword: COLLATE
-                      - identifier:
-                        - naked_identifier: Latin1_General_BIN2
-                      - comma: ','
-                      - quoted_identifier: '[country_name]'
-                      - data_type:
-                        - data_type:
-                          - data_type_identifier: VARCHAR
-                          - bracketed_arguments:
-                            - bracketed:
-                              - start_bracket: (
-                              - numeric_literal: '100'
-                              - end_bracket: )
-                      - keyword: COLLATE
-                      - identifier:
-                        - naked_identifier: Latin1_General_BIN2
-                      - unparsable:
-                        - numeric_literal: '2'
-                        - comma: ','
-                        - double_quote: '[year]'
-                        - word: smallint
-                        - comma: ','
-                        - double_quote: '[population]'
-                        - word: bigint
-                      - end_bracket: )
+                - keyword: WITH
+                - bracketed:
+                  - start_bracket: (
+                  - unparsable:
+                    - double_quote: '[country_code]'
+                    - word: VARCHAR
+                    - start_bracket: (
+                    - numeric_literal: '5'
+                    - end_bracket: )
+                    - word: COLLATE
+                    - word: Latin1_General_BIN2
+                    - comma: ','
+                    - double_quote: '[country_name]'
+                    - word: VARCHAR
+                    - start_bracket: (
+                    - numeric_literal: '100'
+                    - end_bracket: )
+                    - word: COLLATE
+                    - word: Latin1_General_BIN2
+                    - numeric_literal: '2'
+                    - comma: ','
+                    - double_quote: '[year]'
+                    - word: smallint
+                    - comma: ','
+                    - double_quote: '[population]'
+                    - word: bigint
+                  - end_bracket: )
       - unparsable:
         - word: as
         - word: rows
@@ -389,57 +379,57 @@ file:
                         - raw_comparison_operator: =
                       - quoted_literal: '''PARQUET'''
                       - end_bracket: )
-                    - keyword: WITH
-                    - bracketed:
-                      - start_bracket: (
-                      - quoted_identifier: '[stateName]'
-                      - data_type:
-                        - data_type:
-                          - data_type_identifier: VARCHAR
-                          - bracketed_arguments:
-                            - bracketed:
-                              - start_bracket: (
-                              - numeric_literal: '50'
-                              - end_bracket: )
-                      - comma: ','
-                      - quoted_identifier: '[stateName_explicit_path]'
-                      - data_type:
-                        - data_type:
-                          - data_type_identifier: VARCHAR
-                          - bracketed_arguments:
-                            - bracketed:
-                              - start_bracket: (
-                              - numeric_literal: '50'
-                              - end_bracket: )
-                      - quoted_literal: '''$.stateName'''
-                      - comma: ','
-                      - quoted_identifier: '[COUNTYNAME]'
-                      - data_type:
-                        - data_type:
-                          - data_type_identifier: VARCHAR
-                          - bracketed_arguments:
-                            - bracketed:
-                              - start_bracket: (
-                              - numeric_literal: '50'
-                              - end_bracket: )
-                      - comma: ','
-                      - quoted_identifier: '[countyName_explicit_path]'
-                      - data_type:
-                        - data_type:
-                          - data_type_identifier: VARCHAR
-                          - bracketed_arguments:
-                            - bracketed:
-                              - start_bracket: (
-                              - numeric_literal: '50'
-                              - end_bracket: )
-                      - quoted_literal: '''$.COUNTYNAME'''
-                      - comma: ','
-                      - quoted_identifier: '[population]'
-                      - data_type:
-                        - data_type:
-                          - data_type_identifier: bigint
-                      - quoted_literal: '''strict $.population'''
-                      - end_bracket: )
+                - keyword: WITH
+                - bracketed:
+                  - start_bracket: (
+                  - quoted_identifier: '[stateName]'
+                  - data_type:
+                    - data_type:
+                      - data_type_identifier: VARCHAR
+                      - bracketed_arguments:
+                        - bracketed:
+                          - start_bracket: (
+                          - numeric_literal: '50'
+                          - end_bracket: )
+                  - comma: ','
+                  - quoted_identifier: '[stateName_explicit_path]'
+                  - data_type:
+                    - data_type:
+                      - data_type_identifier: VARCHAR
+                      - bracketed_arguments:
+                        - bracketed:
+                          - start_bracket: (
+                          - numeric_literal: '50'
+                          - end_bracket: )
+                  - quoted_literal: '''$.stateName'''
+                  - comma: ','
+                  - quoted_identifier: '[COUNTYNAME]'
+                  - data_type:
+                    - data_type:
+                      - data_type_identifier: VARCHAR
+                      - bracketed_arguments:
+                        - bracketed:
+                          - start_bracket: (
+                          - numeric_literal: '50'
+                          - end_bracket: )
+                  - comma: ','
+                  - quoted_identifier: '[countyName_explicit_path]'
+                  - data_type:
+                    - data_type:
+                      - data_type_identifier: VARCHAR
+                      - bracketed_arguments:
+                        - bracketed:
+                          - start_bracket: (
+                          - numeric_literal: '50'
+                          - end_bracket: )
+                  - quoted_literal: '''$.COUNTYNAME'''
+                  - comma: ','
+                  - quoted_identifier: '[population]'
+                  - data_type:
+                    - data_type:
+                      - data_type_identifier: bigint
+                  - quoted_literal: '''strict $.population'''
+                  - end_bracket: )
                 - alias_expression:
                   - keyword: AS
                   - quoted_identifier: '[r]'

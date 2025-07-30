@@ -1,7 +1,7 @@
 SELECT
     [hello],
     DATEDIFF(day, [mydate], GETDATE()) AS [test],
-    DATEPART(day, [mydate], GETDATE()) AS [test2],
+    DATEPART(day, [mydate]) AS [test2],
     DATEDIFF(year,        '2005-12-31 23:59:59.9999999', '2006-01-01 00:00:00.0000000'),
     DATEDIFF(quarter,     '2005-12-31 23:59:59.9999999', '2006-01-01 00:00:00.0000000'),
     DATEDIFF(month,       '2005-12-31 23:59:59.9999999', '2006-01-01 00:00:00.0000000'),

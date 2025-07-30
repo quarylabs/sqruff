@@ -151,6 +151,7 @@ pub(crate) fn tsql_additional_reserved_keywords() -> AHashSet<&'static str> {
         "OVERRIDE",
         "OWNERSHIP",
         "PERCENT",
+        "PERIOD",
         "PIVOT",
         "PLAN",
         "PRECISION",
@@ -234,6 +235,8 @@ pub(crate) fn tsql_additional_reserved_keywords() -> AHashSet<&'static str> {
         "NODE",
         "EDGE",
         "CONNECTION",
+        // JOIN keywords
+        "NATURAL",
     ]
     .into_iter()
     .collect()
@@ -843,6 +846,21 @@ pub(crate) fn tsql_additional_unreserved_keywords() -> AHashSet<&'static str> {
         "FORCESCAN",
         "HOLDLOCK",
         "SNAPSHOT",
+        // Advanced column constraint keywords
+        "FILESTREAM",
+        "MASKED",
+        "FUNCTION",
+        "GENERATED",
+        "ALWAYS",
+        "START",
+        "END",
+        "HIDDEN",
+        "ENCRYPTED",
+        "COLUMN_ENCRYPTION_KEY",
+        "ENCRYPTION_TYPE", 
+        "ALGORITHM",
+        "RANDOMIZED",
+        "DETERMINISTIC",
     ]
     .into_iter()
     .collect()

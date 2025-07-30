@@ -54,7 +54,9 @@ file:
     - tsql_variable: '@p1'
     - assignment_operator:
       - raw_comparison_operator: =
-    - keyword: DEFAULT
+    - expression:
+      - data_type:
+        - data_type_identifier: DEFAULT
     - comma: ','
     - tsql_variable: '@p2'
     - assignment_operator:
@@ -68,7 +70,9 @@ file:
       - naked_identifier: dbo
       - dot: .
       - naked_identifier: ProcTestDefaults
-    - keyword: DEFAULT
+    - expression:
+      - data_type:
+        - data_type_identifier: DEFAULT
     - comma: ','
     - tsql_variable: '@p3'
     - assignment_operator:
@@ -88,12 +92,16 @@ file:
       - naked_identifier: dbo
       - dot: .
       - naked_identifier: ProcTestDefaults
-    - keyword: DEFAULT
+    - expression:
+      - data_type:
+        - data_type_identifier: DEFAULT
     - comma: ','
     - expression:
       - quoted_literal: '''H'''
     - comma: ','
-    - keyword: DEFAULT
+    - expression:
+      - data_type:
+        - data_type_identifier: DEFAULT
   - statement_terminator: ;
   - statement:
     - keyword: EXECUTE
@@ -101,7 +109,9 @@ file:
       - naked_identifier: dbo
       - dot: .
       - naked_identifier: ProcTestDefaults
-    - keyword: DEFAULT
+    - expression:
+      - data_type:
+        - data_type_identifier: DEFAULT
     - comma: ','
     - expression:
       - quoted_literal: '''I'''
@@ -109,7 +119,9 @@ file:
     - tsql_variable: '@p3'
     - assignment_operator:
       - raw_comparison_operator: =
-    - keyword: DEFAULT
+    - expression:
+      - data_type:
+        - data_type_identifier: DEFAULT
   - statement_terminator: ;
   - statement:
     - keyword: EXECUTE
@@ -172,7 +184,9 @@ file:
     - tsql_variable: '@p1'
     - assignment_operator:
       - raw_comparison_operator: =
-    - keyword: DEFAULT
+    - expression:
+      - data_type:
+        - data_type_identifier: DEFAULT
   - statement_terminator: ;
   - statement:
     - keyword: EXECUTE
@@ -196,7 +210,9 @@ file:
     - tsql_variable: '@p1'
     - assignment_operator:
       - raw_comparison_operator: =
-    - keyword: DEFAULT
+    - expression:
+      - data_type:
+        - data_type_identifier: DEFAULT
   - statement_terminator: ;
   - statement:
     - declare_statement:
@@ -480,7 +496,9 @@ file:
     - tsql_variable: '@p1'
     - assignment_operator:
       - raw_comparison_operator: =
-    - keyword: DEFAULT
+    - expression:
+      - data_type:
+        - data_type_identifier: DEFAULT
     - comma: ','
     - tsql_variable: '@p2'
     - assignment_operator:
@@ -494,12 +512,16 @@ file:
       - naked_identifier: dbo
       - dot: .
       - naked_identifier: ProcTestDefaults
-    - keyword: DEFAULT
+    - expression:
+      - data_type:
+        - data_type_identifier: DEFAULT
     - comma: ','
     - expression:
       - quoted_literal: '''H'''
     - comma: ','
-    - keyword: DEFAULT
+    - expression:
+      - data_type:
+        - data_type_identifier: DEFAULT
   - statement_terminator: ;
   - statement:
     - keyword: EXECUTE
@@ -507,7 +529,9 @@ file:
       - naked_identifier: dbo
       - dot: .
       - naked_identifier: ProcTestDefaults
-    - keyword: DEFAULT
+    - expression:
+      - data_type:
+        - data_type_identifier: DEFAULT
     - comma: ','
     - expression:
       - quoted_literal: '''I'''
@@ -515,7 +539,9 @@ file:
     - tsql_variable: '@p3'
     - assignment_operator:
       - raw_comparison_operator: =
-    - keyword: DEFAULT
+    - expression:
+      - data_type:
+        - data_type_identifier: DEFAULT
   - statement_terminator: ;
   - statement:
     - keyword: EXECUTE
@@ -553,8 +579,12 @@ file:
       - raw_comparison_operator: =
     - expression:
       - quoted_literal: '''A'''
-    - keyword: WITH
-    - keyword: RECOMPILE
+    - expression:
+      - data_type:
+        - data_type_identifier: WITH
+    - expression:
+      - column_reference:
+        - naked_identifier: RECOMPILE
   - statement_terminator: ;
   - statement:
     - declare_statement:
@@ -603,109 +633,76 @@ file:
       - naked_identifier: uspGetEmployeeManagers
     - expression:
       - numeric_literal: '16'
-    - keyword: WITH
-    - keyword: RESULT
-    - keyword: SETS
-    - bracketed:
-      - start_bracket: (
-      - bracketed:
-        - start_bracket: (
-        - column_definition:
-          - column_definition:
-            - quoted_identifier: '[Reporting Level]'
-            - data_type:
-              - data_type:
-                - data_type_identifier: INT
-            - column_constraint_segment:
-              - keyword: NOT
-              - keyword: 'NULL'
-        - comma: ','
-        - column_definition:
-          - column_definition:
-            - quoted_identifier: '[ID of Employee]'
-            - data_type:
-              - data_type:
-                - data_type_identifier: INT
-            - column_constraint_segment:
-              - keyword: NOT
-              - keyword: 'NULL'
-        - comma: ','
-        - column_definition:
-          - column_definition:
-            - quoted_identifier: '[Employee First Name]'
-            - data_type:
-              - data_type:
-                - data_type_identifier: NVARCHAR
-                - bracketed_arguments:
-                  - bracketed:
-                    - start_bracket: (
-                    - numeric_literal: '50'
-                    - end_bracket: )
-            - column_constraint_segment:
-              - keyword: NOT
-              - keyword: 'NULL'
-        - comma: ','
-        - column_definition:
-          - column_definition:
-            - quoted_identifier: '[Employee Last Name]'
-            - data_type:
-              - data_type:
-                - data_type_identifier: NVARCHAR
-                - bracketed_arguments:
-                  - bracketed:
-                    - start_bracket: (
-                    - numeric_literal: '50'
-                    - end_bracket: )
-            - column_constraint_segment:
-              - keyword: NOT
-              - keyword: 'NULL'
-        - comma: ','
-        - column_definition:
-          - column_definition:
-            - quoted_identifier: '[Employee ID of Manager]'
-            - data_type:
-              - data_type:
-                - data_type_identifier: NVARCHAR
-                - bracketed_arguments:
-                  - bracketed:
-                    - start_bracket: (
-                    - keyword: MAX
-                    - end_bracket: )
-            - column_constraint_segment:
-              - keyword: NOT
-              - keyword: 'NULL'
-        - comma: ','
-        - column_definition:
-          - column_definition:
-            - quoted_identifier: '[Manager First Name]'
-            - data_type:
-              - data_type:
-                - data_type_identifier: NVARCHAR
-                - bracketed_arguments:
-                  - bracketed:
-                    - start_bracket: (
-                    - numeric_literal: '50'
-                    - end_bracket: )
-            - column_constraint_segment:
-              - keyword: NOT
-              - keyword: 'NULL'
-        - comma: ','
-        - column_definition:
-          - column_definition:
-            - quoted_identifier: '[Manager Last Name]'
-            - data_type:
-              - data_type:
-                - data_type_identifier: NVARCHAR
-                - bracketed_arguments:
-                  - bracketed:
-                    - start_bracket: (
-                    - numeric_literal: '50'
-                    - end_bracket: )
-            - column_constraint_segment:
-              - keyword: NOT
-              - keyword: 'NULL'
-        - end_bracket: )
-      - end_bracket: )
+    - expression:
+      - data_type:
+        - data_type_identifier: WITH
+    - expression:
+      - column_reference:
+        - naked_identifier: RESULT
+    - expression:
+      - function:
+        - function:
+          - function_name:
+            - function_name_identifier: SETS
+          - bracketed:
+            - start_bracket: (
+            - expression:
+              - bracketed:
+                - start_bracket: (
+                - expression:
+                  - column_reference:
+                    - quoted_identifier: '[Reporting Level]'
+                - unparsable:
+                  - word: INT
+                  - word: NOT
+                  - word: 'NULL'
+                  - comma: ','
+                  - double_quote: '[ID of Employee]'
+                  - word: INT
+                  - word: NOT
+                  - word: 'NULL'
+                  - comma: ','
+                  - double_quote: '[Employee First Name]'
+                  - word: NVARCHAR
+                  - start_bracket: (
+                  - numeric_literal: '50'
+                  - end_bracket: )
+                  - word: NOT
+                  - word: 'NULL'
+                  - comma: ','
+                  - double_quote: '[Employee Last Name]'
+                  - word: NVARCHAR
+                  - start_bracket: (
+                  - numeric_literal: '50'
+                  - end_bracket: )
+                  - word: NOT
+                  - word: 'NULL'
+                  - comma: ','
+                  - double_quote: '[Employee ID of Manager]'
+                  - word: NVARCHAR
+                  - start_bracket: (
+                  - word: MAX
+                  - end_bracket: )
+                  - word: NOT
+                  - word: 'NULL'
+                  - comma: ','
+                  - double_quote: '[Manager First Name]'
+                  - word: NVARCHAR
+                  - start_bracket: (
+                  - numeric_literal: '50'
+                  - end_bracket: )
+                  - word: NOT
+                  - word: 'NULL'
+                  - comma: ','
+                  - double_quote: '[Manager Last Name]'
+                  - word: NVARCHAR
+                  - start_bracket: (
+                  - numeric_literal: '50'
+                  - end_bracket: )
+                  - word: NOT
+                  - word: 'NULL'
+                - end_bracket: )
+            - end_bracket: )
   - statement_terminator: ;
   - statement:
     - keyword: EXECUTE
@@ -715,52 +712,48 @@ file:
       - naked_identifier: ProductList
     - expression:
       - quoted_literal: '''%tire%'''
-    - keyword: WITH
-    - keyword: RESULT
-    - keyword: SETS
-    - bracketed:
-      - start_bracket: (
-      - bracketed:
-        - start_bracket: (
-        - column_definition:
-          - column_definition:
-            - naked_identifier: ProductID
-            - data_type:
-              - data_type:
-                - data_type_identifier: INT
-        - comma: ','
-        - column_definition:
-          - column_definition:
-            - quoted_identifier: '[Name]'
-            - data_type:
-              - data_type:
-                - data_type_identifier: NAME
-        - comma: ','
-        - column_definition:
-          - column_definition:
-            - naked_identifier: ListPrice
-            - data_type:
-              - data_type:
-                - data_type_identifier: MONEY
-        - end_bracket: )
-      - comma: ','
-      - bracketed:
-        - start_bracket: (
-        - column_definition:
-          - column_definition:
-            - quoted_identifier: '[Name]'
-            - data_type:
-              - data_type:
-                - data_type_identifier: NAME
-        - comma: ','
-        - column_definition:
-          - column_definition:
-            - naked_identifier: NumberOfOrders
-            - data_type:
-              - data_type:
-                - data_type_identifier: INT
-        - end_bracket: )
-      - end_bracket: )
+    - expression:
+      - data_type:
+        - data_type_identifier: WITH
+    - expression:
+      - column_reference:
+        - naked_identifier: RESULT
+    - expression:
+      - function:
+        - function:
+          - function_name:
+            - function_name_identifier: SETS
+          - bracketed:
+            - start_bracket: (
+            - expression:
+              - bracketed:
+                - start_bracket: (
+                - expression:
+                  - column_reference:
+                    - naked_identifier: ProductID
+                - unparsable:
+                  - word: INT
+                  - comma: ','
+                  - double_quote: '[Name]'
+                  - word: NAME
+                  - comma: ','
+                  - word: ListPrice
+                  - word: MONEY
+                - end_bracket: )
+            - comma: ','
+            - expression:
+              - bracketed:
+                - start_bracket: (
+                - expression:
+                  - column_reference:
+                    - quoted_identifier: '[Name]'
+                - unparsable:
+                  - word: NAME
+                  - comma: ','
+                  - word: NumberOfOrders
+                  - word: INT
+                - end_bracket: )
+            - end_bracket: )
   - statement_terminator: ;
   - statement:
     - keyword: EXECUTE

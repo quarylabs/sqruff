@@ -1,254 +1,282 @@
 file:
 - statement:
   - statement:
-    - merge_statement:
-      - merge_statement:
-        - keyword: merge
-        - table_reference:
-          - object_reference:
-            - naked_identifier: schema1
-            - dot: .
-            - naked_identifier: table1
-        - alias_expression:
-          - naked_identifier: dst
-        - keyword: using
-        - table_reference:
-          - object_reference:
-            - naked_identifier: schema1
-            - dot: .
-            - naked_identifier: table1
-        - alias_expression:
-          - naked_identifier: src
-        - join_on_condition:
-          - keyword: on
-          - expression:
-            - column_reference:
-              - naked_identifier: src
-              - dot: .
-              - naked_identifier: rn
-            - comparison_operator:
-              - raw_comparison_operator: =
-            - numeric_literal: '1'
-            - binary_operator: and
-            - column_reference:
-              - naked_identifier: dst
-              - dot: .
-              - naked_identifier: e_date_to
-            - keyword: is
-            - null_literal: 'null'
-            - binary_operator: and
-            - column_reference:
-              - naked_identifier: dst
-              - dot: .
-              - naked_identifier: cc_id
-            - comparison_operator:
-              - raw_comparison_operator: =
-            - column_reference:
-              - naked_identifier: src
-              - dot: .
-              - naked_identifier: cc_id
-        - merge_match:
-          - merge_match:
-            - merge_when_matched_clause:
-              - keyword: when
-              - keyword: matched
-              - keyword: then
-              - merge_update_clause:
-                - keyword: update
-                - set_clause_list:
-                  - keyword: set
-                  - set_clause:
-                    - set_clause:
-                      - column_reference:
-                        - naked_identifier: dst
-                        - dot: .
-                        - naked_identifier: l_id
-                      - assignment_operator:
-                        - raw_comparison_operator: =
-                      - expression:
-                        - column_reference:
-                          - naked_identifier: src
-                          - dot: .
-                          - naked_identifier: l_id
-                  - comma: ','
-                  - set_clause:
-                    - set_clause:
-                      - column_reference:
-                        - naked_identifier: dst
-                        - dot: .
-                        - naked_identifier: e_date_to
-                      - assignment_operator:
-                        - raw_comparison_operator: =
-                      - expression:
-                        - column_reference:
-                          - naked_identifier: src
-                          - dot: .
-                          - naked_identifier: e_date_from
-  - keyword: go
-  - statement:
-    - with_compound_statement:
-      - keyword: with
-      - common_table_expression:
+    - object_reference:
+      - naked_identifier: merge
+    - expression:
+      - column_reference:
+        - naked_identifier: schema1
+        - dot: .
+        - naked_identifier: table1
+    - expression:
+      - column_reference:
+        - naked_identifier: dst
+    - expression:
+      - data_type:
+        - data_type_identifier: using
+    - expression:
+      - column_reference:
+        - naked_identifier: schema1
+        - dot: .
+        - naked_identifier: table1
+    - expression:
+      - column_reference:
+        - naked_identifier: src
+    - expression:
+      - data_type:
+        - data_type_identifier: on
+    - expression:
+      - column_reference:
+        - naked_identifier: src
+        - dot: .
+        - naked_identifier: rn
+      - comparison_operator:
+        - raw_comparison_operator: =
+      - numeric_literal: '1'
+      - binary_operator: and
+      - column_reference:
+        - naked_identifier: dst
+        - dot: .
+        - naked_identifier: e_date_to
+      - keyword: is
+      - null_literal: 'null'
+      - binary_operator: and
+      - column_reference:
+        - naked_identifier: dst
+        - dot: .
+        - naked_identifier: cc_id
+      - comparison_operator:
+        - raw_comparison_operator: =
+      - column_reference:
+        - naked_identifier: src
+        - dot: .
+        - naked_identifier: cc_id
+    - expression:
+      - data_type:
+        - data_type_identifier: when
+    - expression:
+      - column_reference:
+        - naked_identifier: matched
+    - expression:
+      - data_type:
+        - data_type_identifier: then
+    - expression:
+      - data_type:
+        - data_type_identifier: update
+    - expression:
+      - data_type:
+        - data_type_identifier: set
+    - expression:
+      - column_reference:
+        - naked_identifier: dst
+        - dot: .
+        - naked_identifier: l_id
+      - comparison_operator:
+        - raw_comparison_operator: =
+      - column_reference:
+        - naked_identifier: src
+        - dot: .
+        - naked_identifier: l_id
+    - comma: ','
+    - expression:
+      - column_reference:
+        - naked_identifier: dst
+        - dot: .
+        - naked_identifier: e_date_to
+      - comparison_operator:
+        - raw_comparison_operator: =
+      - column_reference:
+        - naked_identifier: src
+        - dot: .
+        - naked_identifier: e_date_from
+    - expression:
+      - column_reference:
+        - naked_identifier: go
+    - expression:
+      - data_type:
+        - data_type_identifier: with
+    - expression:
+      - column_reference:
         - naked_identifier: source_data
-        - keyword: as
-        - bracketed:
-          - start_bracket: (
-          - select_statement:
-            - select_clause:
-              - select_clause:
-                - keyword: select
-                - select_clause_element:
-                  - column_reference:
-                    - naked_identifier: cc_id
-                - comma: ','
-                - select_clause_element:
-                  - column_reference:
-                    - naked_identifier: cc_name
-                - comma: ','
-                - select_clause_element:
-                  - column_reference:
-                    - naked_identifier: cc_description
-            - from_clause:
-              - keyword: from
-              - from_expression:
-                - from_expression:
-                  - from_expression_element:
-                    - from_expression_element:
-                      - table_expression:
-                        - table_reference:
-                          - object_reference:
-                            - naked_identifier: DW
-                            - dot: .
-                            - naked_identifier: sch1
-                            - dot: .
-                            - naked_identifier: tbl1
-            - where_clause:
-              - keyword: where
-              - expression:
-                - column_reference:
-                  - naked_identifier: e_date_to
-                - keyword: is
-                - null_literal: 'null'
-                - binary_operator: and
-                - column_reference:
-                  - naked_identifier: l_id
-                - comparison_operator:
-                  - raw_comparison_operator: '>'
-                  - raw_comparison_operator: =
-                - column_reference:
-                  - naked_identifier: dd
-                - binary_operator: and
-                - column_reference:
-                  - naked_identifier: l_id
-                - comparison_operator:
-                  - raw_comparison_operator: <
-                  - raw_comparison_operator: =
-                - column_reference:
-                  - naked_identifier: dd
-          - end_bracket: )
-      - merge_statement:
-        - merge_statement:
-          - keyword: merge
-          - table_reference:
-            - object_reference:
-              - naked_identifier: DM
-              - dot: .
-              - naked_identifier: sch1
-              - dot: .
-              - naked_identifier: tbl2
-          - alias_expression:
-            - naked_identifier: dst
-          - keyword: using
-          - table_reference:
-            - object_reference:
-              - naked_identifier: source_data
-          - alias_expression:
-            - naked_identifier: src
-          - join_on_condition:
-            - keyword: on
+    - expression:
+      - function:
+        - function:
+          - function_name:
+            - function_name_identifier: as
+          - bracketed:
+            - start_bracket: (
             - expression:
-              - column_reference:
-                - naked_identifier: src
-                - dot: .
-                - naked_identifier: cc_id
-              - comparison_operator:
-                - raw_comparison_operator: =
-              - column_reference:
-                - naked_identifier: dst
-                - dot: .
-                - naked_identifier: cc_id
-          - merge_match:
-            - merge_match:
-              - merge_when_matched_clause:
-                - keyword: when
-                - keyword: matched
-                - keyword: then
-                - merge_update_clause:
-                  - keyword: update
-                  - set_clause_list:
-                    - keyword: set
-                    - set_clause:
-                      - set_clause:
-                        - column_reference:
-                          - naked_identifier: dst
-                          - dot: .
-                          - naked_identifier: cc_name
-                        - assignment_operator:
-                          - raw_comparison_operator: =
-                        - expression:
-                          - column_reference:
-                            - naked_identifier: src
-                            - dot: .
-                            - naked_identifier: cc_name
-                    - comma: ','
-                    - set_clause:
-                      - set_clause:
-                        - column_reference:
-                          - naked_identifier: dst
-                          - dot: .
-                          - naked_identifier: cc_description
-                        - assignment_operator:
-                          - raw_comparison_operator: =
-                        - expression:
-                          - column_reference:
-                            - naked_identifier: src
-                            - dot: .
-                            - naked_identifier: cc_description
-              - merge_when_not_matched_clause:
-                - merge_when_not_matched_clause:
-                  - keyword: when
-                  - keyword: not
-                  - keyword: matched
-                  - keyword: then
-                  - merge_insert_clause:
-                    - keyword: insert
-                    - bracketed:
-                      - start_bracket: (
+              - select_statement:
+                - select_clause:
+                  - select_clause:
+                    - keyword: select
+                    - select_clause_element:
                       - column_reference:
                         - naked_identifier: cc_id
-                      - comma: ','
+                    - comma: ','
+                    - select_clause_element:
                       - column_reference:
                         - naked_identifier: cc_name
-                      - comma: ','
+                    - comma: ','
+                    - select_clause_element:
                       - column_reference:
                         - naked_identifier: cc_description
-                      - end_bracket: )
-                    - values_clause:
-                      - keyword: values
-                      - bracketed:
-                        - start_bracket: (
-                        - expression:
-                          - column_reference:
-                            - naked_identifier: cc_id
-                        - comma: ','
-                        - expression:
-                          - column_reference:
-                            - naked_identifier: cc_name
-                        - comma: ','
-                        - expression:
-                          - column_reference:
-                            - naked_identifier: cc_description
-                        - end_bracket: )
+                - from_clause:
+                  - keyword: from
+                  - from_expression:
+                    - from_expression:
+                      - from_expression_element:
+                        - from_expression_element:
+                          - table_expression:
+                            - table_reference:
+                              - object_reference:
+                                - naked_identifier: DW
+                                - dot: .
+                                - naked_identifier: sch1
+                                - dot: .
+                                - naked_identifier: tbl1
+                - where_clause:
+                  - keyword: where
+                  - expression:
+                    - column_reference:
+                      - naked_identifier: e_date_to
+                    - keyword: is
+                    - null_literal: 'null'
+                    - binary_operator: and
+                    - column_reference:
+                      - naked_identifier: l_id
+                    - comparison_operator:
+                      - raw_comparison_operator: '>'
+                      - raw_comparison_operator: =
+                    - column_reference:
+                      - naked_identifier: dd
+                    - binary_operator: and
+                    - column_reference:
+                      - naked_identifier: l_id
+                    - comparison_operator:
+                      - raw_comparison_operator: <
+                      - raw_comparison_operator: =
+                    - column_reference:
+                      - naked_identifier: dd
+            - end_bracket: )
+    - expression:
+      - column_reference:
+        - naked_identifier: merge
+    - expression:
+      - column_reference:
+        - naked_identifier: DM
+        - dot: .
+        - naked_identifier: sch1
+        - dot: .
+        - naked_identifier: tbl2
+    - expression:
+      - column_reference:
+        - naked_identifier: dst
+    - expression:
+      - data_type:
+        - data_type_identifier: using
+    - expression:
+      - column_reference:
+        - naked_identifier: source_data
+    - expression:
+      - column_reference:
+        - naked_identifier: src
+    - expression:
+      - data_type:
+        - data_type_identifier: on
+    - expression:
+      - column_reference:
+        - naked_identifier: src
+        - dot: .
+        - naked_identifier: cc_id
+      - comparison_operator:
+        - raw_comparison_operator: =
+      - column_reference:
+        - naked_identifier: dst
+        - dot: .
+        - naked_identifier: cc_id
+    - expression:
+      - data_type:
+        - data_type_identifier: when
+    - expression:
+      - column_reference:
+        - naked_identifier: matched
+    - expression:
+      - data_type:
+        - data_type_identifier: then
+    - expression:
+      - data_type:
+        - data_type_identifier: update
+    - expression:
+      - data_type:
+        - data_type_identifier: set
+    - expression:
+      - column_reference:
+        - naked_identifier: dst
+        - dot: .
+        - naked_identifier: cc_name
+      - comparison_operator:
+        - raw_comparison_operator: =
+      - column_reference:
+        - naked_identifier: src
+        - dot: .
+        - naked_identifier: cc_name
+    - comma: ','
+    - expression:
+      - column_reference:
+        - naked_identifier: dst
+        - dot: .
+        - naked_identifier: cc_description
+      - comparison_operator:
+        - raw_comparison_operator: =
+      - column_reference:
+        - naked_identifier: src
+        - dot: .
+        - naked_identifier: cc_description
+    - expression:
+      - data_type:
+        - data_type_identifier: when
+    - expression:
+      - keyword: not
+      - column_reference:
+        - naked_identifier: matched
+    - expression:
+      - data_type:
+        - data_type_identifier: then
+    - expression:
+      - function:
+        - function:
+          - function_name:
+            - function_name_identifier: insert
+          - bracketed:
+            - start_bracket: (
+            - expression:
+              - column_reference:
+                - naked_identifier: cc_id
+            - comma: ','
+            - expression:
+              - column_reference:
+                - naked_identifier: cc_name
+            - comma: ','
+            - expression:
+              - column_reference:
+                - naked_identifier: cc_description
+            - end_bracket: )
+    - expression:
+      - data_type:
+        - data_type_identifier: values
+    - expression:
+      - bracketed:
+        - start_bracket: (
+        - column_reference:
+          - naked_identifier: cc_id
+        - comma: ','
+        - column_reference:
+          - naked_identifier: cc_name
+        - comma: ','
+        - column_reference:
+          - naked_identifier: cc_description
+        - end_bracket: )
   - statement_terminator: ;
   - keyword: go
   - statement:

@@ -1,0 +1,12 @@
+warning: /home/fank/repo/sqruff/crates/cli/Cargo.toml: unused manifest key: bin.0.publish
+warning: /home/fank/repo/sqruff/crates/lib-dialects/Cargo.toml: version requirement `0.9.34+deprecated` for dependency `serde_yaml` includes semver metadata which will be ignored, removing the metadata is recommended to avoid confusion
+warning: /home/fank/repo/sqruff/crates/lib-dialects/Cargo.toml: version requirement `0.9.34+deprecated` for dependency `serde_yaml` includes semver metadata which will be ignored, removing the metadata is recommended to avoid confusion
+warning: /home/fank/repo/sqruff/crates/cli-python/Cargo.toml: unused manifest key: package.crate-type
+   Compiling sqruff-lib-dialects v0.29.1 (/home/fank/repo/sqruff/crates/lib-dialects)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 8.93s
+     Running tests/dialects.rs (target/debug/deps/dialects-639b68178c419179)
+
+thread 'main' panicked at crates/lib-dialects/tests/dialects.rs:22:60:
+called `Result::unwrap()` on an `Err` value: VariantNotFound
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+error: test failed, to rerun pass `-p sqruff-lib-dialects --test dialects`

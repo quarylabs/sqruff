@@ -161,6 +161,8 @@ pub fn raw_dialect() -> Dialect {
     dialect.sets_mut("operator_symbols").extend([
         "%=", "&=", "*=", "+=", "-=", "/=", "^=", "|=", // Compound assignment
         "!<", "!>", // Special comparison operators
+        "! <", "! >", "! =", // Spaced versions of special operators  
+        "> =", "< =", "< >", // Spaced versions of standard operators
     ]);
 
 
@@ -1422,14 +1424,9 @@ pub fn raw_dialect() -> Dialect {
                     one_of(vec_of_erased![
                         Ref::keyword("NONE"),
                         Ref::keyword("UNDEFINED"),
-                        // One or more result set definitions
-                        Bracketed::new(vec_of_erased![
-                            // Result set column definitions
-                            Delimited::new(vec_of_erased![
-                                Ref::new("ResultSetColumnDefinitionSegment")
-                            ])
-                        ]),
-                        // Multiple result sets
+                        // T-SQL WITH RESULT SETS patterns:
+                        // Single result set: ((column definitions))
+                        // Multiple result sets: ( (result_set_1), (result_set_2) )
                         Bracketed::new(vec_of_erased![
                             Delimited::new(vec_of_erased![
                                 Bracketed::new(vec_of_erased![
@@ -5109,18 +5106,19 @@ pub fn raw_dialect() -> Dialect {
         .into(),
     )]);
 
-    // Add ResultSetColumnDefinitionSegment for simplified column definitions in WITH RESULT SETS
+    // Add ResultSetColumnDefinitionSegment for simple column definitions in WITH RESULT SETS
+    // This is much simpler than ColumnDefinitionSegment which includes IDENTITY, FILESTREAM, etc.
     dialect.add([(
         "ResultSetColumnDefinitionSegment".into(),
         NodeMatcher::new(SyntaxKind::ColumnDefinition, |_| {
             Sequence::new(vec_of_erased![
                 // Column name (can be naked or bracketed identifier)
                 one_of(vec_of_erased![
-                    Ref::new("NakedIdentifierSegment"),
+                    Ref::new("SingleIdentifierGrammar"),
                     Ref::new("QuotedIdentifierSegment")
                 ]),
-                // Data type
-                Ref::new("TsqlDatatypeSegment"),
+                // Data type (use simpler DataTypeIdentifierSegment instead of full TsqlDatatypeSegment)
+                Ref::new("DataTypeIdentifierSegment"),
                 // Optional NULL/NOT NULL constraint
                 one_of(vec_of_erased![
                     Ref::keyword("NULL"),

@@ -65,12 +65,13 @@ file:
             - function:
               - function_name:
                 - function_name_identifier: toStartOfDay
-              - bracketed:
-                - start_bracket: (
-                - expression:
-                  - column_reference:
-                    - naked_identifier: timestamp
-                - end_bracket: )
+              - function_contents:
+                - bracketed:
+                  - start_bracket: (
+                  - expression:
+                    - column_reference:
+                      - naked_identifier: timestamp
+                  - end_bracket: )
           - comma: ','
           - column_reference:
             - naked_identifier: event

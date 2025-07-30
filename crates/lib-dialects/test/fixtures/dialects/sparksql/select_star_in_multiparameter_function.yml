@@ -7,14 +7,15 @@ file:
         - function:
           - function_name:
             - function_name_identifier: my_function
-          - bracketed:
-            - start_bracket: (
-            - star: '*'
-            - comma: ','
-            - expression:
-              - column_reference:
-                - naked_identifier: col2
-            - end_bracket: )
+          - function_contents:
+            - bracketed:
+              - start_bracket: (
+              - star: '*'
+              - comma: ','
+              - expression:
+                - column_reference:
+                  - naked_identifier: col2
+              - end_bracket: )
     - from_clause:
       - keyword: FROM
       - from_expression:
@@ -31,14 +32,15 @@ file:
         - function:
           - function_name:
             - function_name_identifier: my_function
-          - bracketed:
-            - start_bracket: (
-            - expression:
-              - column_reference:
-                - naked_identifier: col1
-            - comma: ','
-            - star: '*'
-            - end_bracket: )
+          - function_contents:
+            - bracketed:
+              - start_bracket: (
+              - expression:
+                - column_reference:
+                  - naked_identifier: col1
+              - comma: ','
+              - star: '*'
+              - end_bracket: )
     - from_clause:
       - keyword: FROM
       - from_expression:

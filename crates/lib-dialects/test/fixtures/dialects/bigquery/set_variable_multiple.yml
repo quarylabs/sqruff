@@ -28,12 +28,13 @@ file:
       - function:
         - function_name:
           - function_name_identifier: DATE_TRUNC
-        - bracketed:
-          - start_bracket: (
-          - expression:
-            - quoted_literal: '"2000-01-01"'
-          - comma: ','
-          - date_part: month
-          - end_bracket: )
+        - function_contents:
+          - bracketed:
+            - start_bracket: (
+            - expression:
+              - quoted_literal: '"2000-01-01"'
+            - comma: ','
+            - date_part: month
+            - end_bracket: )
       - end_bracket: )
 - statement_terminator: ;

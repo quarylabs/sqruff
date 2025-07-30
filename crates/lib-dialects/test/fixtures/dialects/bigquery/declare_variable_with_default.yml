@@ -9,9 +9,10 @@ file:
     - function:
       - function_name:
         - function_name_identifier: CURRENT_DATE
-      - bracketed:
-        - start_bracket: (
-        - end_bracket: )
+      - function_contents:
+        - bracketed:
+          - start_bracket: (
+          - end_bracket: )
 - statement_terminator: ;
 - statement:
   - declare_segment:

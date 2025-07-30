@@ -1,30 +1,26 @@
 file:
 - statement:
-  - statement:
-    - select_statement:
-      - select_clause:
-        - select_clause:
-          - keyword: SELECT
-          - select_clause_element:
-            - function:
-              - function:
-                - function_name:
-                  - function_name_identifier: SUM
-                - bracketed:
-                  - start_bracket: (
-                  - expression:
-                    - column_reference:
-                      - naked_identifier: col1
-                  - end_bracket: )
-            - alias_expression:
-              - naked_identifier: implicit_alias
-      - from_clause:
-        - keyword: FROM
-        - from_expression:
-          - from_expression:
-            - from_expression_element:
-              - from_expression_element:
-                - table_expression:
-                  - table_reference:
-                    - object_reference:
-                      - naked_identifier: table1
+  - select_statement:
+    - select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+        - function:
+          - function_name:
+            - function_name_identifier: SUM
+          - function_contents:
+            - bracketed:
+              - start_bracket: (
+              - expression:
+                - column_reference:
+                  - naked_identifier: col1
+              - end_bracket: )
+        - alias_expression:
+          - naked_identifier: implicit_alias
+    - from_clause:
+      - keyword: FROM
+      - from_expression:
+        - from_expression_element:
+          - table_expression:
+            - table_reference:
+              - object_reference:
+                - naked_identifier: table1

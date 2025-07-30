@@ -141,8 +141,9 @@ SELECT DISTINCT a, b FROM foo
                 None,
             );
             let function_name = selected_functions.first();
-            let bracketed =
-                children.find_first(Some(|it: &ErasedSegment| it.is_type(SyntaxKind::Bracketed)));
+            let bracketed = children.find_first(Some(|it: &ErasedSegment| {
+                it.is_type(SyntaxKind::FunctionContents)
+            }));
 
             if function_name.is_none()
                 || !function_name
@@ -154,7 +155,7 @@ SELECT DISTINCT a, b FROM foo
                 return Vec::new();
             }
 
-            let bracketed = &bracketed[0];
+            let bracketed = &bracketed.children(None)[0];
             let mut edits = vec![
                 SegmentBuilder::token(
                     context.tables.next_id(),

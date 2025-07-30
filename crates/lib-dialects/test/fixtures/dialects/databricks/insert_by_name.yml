@@ -14,20 +14,21 @@ file:
           - function:
             - function_name:
               - function_name_identifier: named_struct
-            - bracketed:
-              - start_bracket: (
-              - expression:
-                - quoted_literal: '''b'''
-              - comma: ','
-              - expression:
-                - numeric_literal: '2'
-              - comma: ','
-              - expression:
-                - quoted_literal: '''a'''
-              - comma: ','
-              - expression:
-                - numeric_literal: '1'
-              - end_bracket: )
+            - function_contents:
+              - bracketed:
+                - start_bracket: (
+                - expression:
+                  - quoted_literal: '''b'''
+                - comma: ','
+                - expression:
+                  - numeric_literal: '2'
+                - comma: ','
+                - expression:
+                  - quoted_literal: '''a'''
+                - comma: ','
+                - expression:
+                  - numeric_literal: '1'
+                - end_bracket: )
           - alias_expression:
             - keyword: AS
             - naked_identifier: s
@@ -59,27 +60,29 @@ file:
           - function:
             - function_name:
               - function_name_identifier: array
-            - bracketed:
-              - start_bracket: (
-              - expression:
-                - function:
-                  - function_name:
-                    - function_name_identifier: named_struct
-                  - bracketed:
-                    - start_bracket: (
-                    - expression:
-                      - quoted_literal: '''b'''
-                    - comma: ','
-                    - expression:
-                      - numeric_literal: '2'
-                    - comma: ','
-                    - expression:
-                      - quoted_literal: '''a'''
-                    - comma: ','
-                    - expression:
-                      - numeric_literal: '1'
-                    - end_bracket: )
-              - end_bracket: )
+            - function_contents:
+              - bracketed:
+                - start_bracket: (
+                - expression:
+                  - function:
+                    - function_name:
+                      - function_name_identifier: named_struct
+                    - function_contents:
+                      - bracketed:
+                        - start_bracket: (
+                        - expression:
+                          - quoted_literal: '''b'''
+                        - comma: ','
+                        - expression:
+                          - numeric_literal: '2'
+                        - comma: ','
+                        - expression:
+                          - quoted_literal: '''a'''
+                        - comma: ','
+                        - expression:
+                          - numeric_literal: '1'
+                        - end_bracket: )
+                - end_bracket: )
           - alias_expression:
             - keyword: AS
             - naked_identifier: arr
@@ -105,27 +108,29 @@ file:
           - function:
             - function_name:
               - function_name_identifier: array
-            - bracketed:
-              - start_bracket: (
-              - expression:
-                - function:
-                  - function_name:
-                    - function_name_identifier: named_struct
-                  - bracketed:
-                    - start_bracket: (
-                    - expression:
-                      - quoted_literal: '''b'''
-                    - comma: ','
-                    - expression:
-                      - numeric_literal: '2'
-                    - comma: ','
-                    - expression:
-                      - quoted_literal: '''a'''
-                    - comma: ','
-                    - expression:
-                      - numeric_literal: '1'
-                    - end_bracket: )
-              - end_bracket: )
+            - function_contents:
+              - bracketed:
+                - start_bracket: (
+                - expression:
+                  - function:
+                    - function_name:
+                      - function_name_identifier: named_struct
+                    - function_contents:
+                      - bracketed:
+                        - start_bracket: (
+                        - expression:
+                          - quoted_literal: '''b'''
+                        - comma: ','
+                        - expression:
+                          - numeric_literal: '2'
+                        - comma: ','
+                        - expression:
+                          - quoted_literal: '''a'''
+                        - comma: ','
+                        - expression:
+                          - numeric_literal: '1'
+                        - end_bracket: )
+                - end_bracket: )
           - alias_expression:
             - keyword: AS
             - naked_identifier: arr
@@ -145,27 +150,29 @@ file:
           - function:
             - function_name:
               - function_name_identifier: array
-            - bracketed:
-              - start_bracket: (
-              - expression:
-                - function:
-                  - function_name:
-                    - function_name_identifier: named_struct
-                  - bracketed:
-                    - start_bracket: (
-                    - expression:
-                      - quoted_literal: '''b'''
-                    - comma: ','
-                    - expression:
-                      - numeric_literal: '2'
-                    - comma: ','
-                    - expression:
-                      - quoted_literal: '''a'''
-                    - comma: ','
-                    - expression:
-                      - numeric_literal: '1'
-                    - end_bracket: )
-              - end_bracket: )
+            - function_contents:
+              - bracketed:
+                - start_bracket: (
+                - expression:
+                  - function:
+                    - function_name:
+                      - function_name_identifier: named_struct
+                    - function_contents:
+                      - bracketed:
+                        - start_bracket: (
+                        - expression:
+                          - quoted_literal: '''b'''
+                        - comma: ','
+                        - expression:
+                          - numeric_literal: '2'
+                        - comma: ','
+                        - expression:
+                          - quoted_literal: '''a'''
+                        - comma: ','
+                        - expression:
+                          - numeric_literal: '1'
+                        - end_bracket: )
+                - end_bracket: )
           - alias_expression:
             - keyword: AS
             - naked_identifier: arr
@@ -191,27 +198,29 @@ file:
           - function:
             - function_name:
               - function_name_identifier: array
-            - bracketed:
-              - start_bracket: (
-              - expression:
-                - function:
-                  - function_name:
-                    - function_name_identifier: named_struct
-                  - bracketed:
-                    - start_bracket: (
-                    - expression:
-                      - quoted_literal: '''b'''
-                    - comma: ','
-                    - expression:
-                      - numeric_literal: '2'
-                    - comma: ','
-                    - expression:
-                      - quoted_literal: '''a'''
-                    - comma: ','
-                    - expression:
-                      - numeric_literal: '1'
-                    - end_bracket: )
-              - end_bracket: )
+            - function_contents:
+              - bracketed:
+                - start_bracket: (
+                - expression:
+                  - function:
+                    - function_name:
+                      - function_name_identifier: named_struct
+                    - function_contents:
+                      - bracketed:
+                        - start_bracket: (
+                        - expression:
+                          - quoted_literal: '''b'''
+                        - comma: ','
+                        - expression:
+                          - numeric_literal: '2'
+                        - comma: ','
+                        - expression:
+                          - quoted_literal: '''a'''
+                        - comma: ','
+                        - expression:
+                          - numeric_literal: '1'
+                        - end_bracket: )
+                - end_bracket: )
           - alias_expression:
             - keyword: AS
             - naked_identifier: arr

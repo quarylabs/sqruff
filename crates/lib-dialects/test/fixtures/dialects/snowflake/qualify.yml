@@ -23,9 +23,10 @@ file:
         - function:
           - function_name:
             - function_name_identifier: row_number
-          - bracketed:
-            - start_bracket: (
-            - end_bracket: )
+          - function_contents:
+            - bracketed:
+              - start_bracket: (
+              - end_bracket: )
           - over_clause:
             - keyword: over
             - bracketed:

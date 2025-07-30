@@ -15,9 +15,10 @@ file:
         - function:
           - function_name:
             - function_name_identifier: RANK
-          - bracketed:
-            - start_bracket: (
-            - end_bracket: )
+          - function_contents:
+            - bracketed:
+              - start_bracket: (
+              - end_bracket: )
           - over_clause:
             - keyword: OVER
             - bracketed:
@@ -62,9 +63,10 @@ file:
         - function:
           - function_name:
             - function_name_identifier: DENSE_RANK
-          - bracketed:
-            - start_bracket: (
-            - end_bracket: )
+          - function_contents:
+            - bracketed:
+              - start_bracket: (
+              - end_bracket: )
           - over_clause:
             - keyword: OVER
             - bracketed:
@@ -121,9 +123,10 @@ file:
         - function:
           - function_name:
             - function_name_identifier: CUME_DIST
-          - bracketed:
-            - start_bracket: (
-            - end_bracket: )
+          - function_contents:
+            - bracketed:
+              - start_bracket: (
+              - end_bracket: )
           - over_clause:
             - keyword: OVER
             - bracketed:
@@ -180,12 +183,13 @@ file:
         - function:
           - function_name:
             - function_name_identifier: MIN
-          - bracketed:
-            - start_bracket: (
-            - expression:
-              - column_reference:
-                - naked_identifier: salary
-            - end_bracket: )
+          - function_contents:
+            - bracketed:
+              - start_bracket: (
+              - expression:
+                - column_reference:
+                  - naked_identifier: salary
+              - end_bracket: )
           - over_clause:
             - keyword: OVER
             - bracketed:
@@ -230,12 +234,13 @@ file:
         - function:
           - function_name:
             - function_name_identifier: LAG
-          - bracketed:
-            - start_bracket: (
-            - expression:
-              - column_reference:
-                - naked_identifier: salary
-            - end_bracket: )
+          - function_contents:
+            - bracketed:
+              - start_bracket: (
+              - expression:
+                - column_reference:
+                  - naked_identifier: salary
+              - end_bracket: )
           - over_clause:
             - keyword: OVER
             - bracketed:
@@ -261,18 +266,19 @@ file:
         - function:
           - function_name:
             - function_name_identifier: LEAD
-          - bracketed:
-            - start_bracket: (
-            - expression:
-              - column_reference:
-                - naked_identifier: salary
-            - comma: ','
-            - expression:
-              - numeric_literal: '1'
-            - comma: ','
-            - expression:
-              - numeric_literal: '0'
-            - end_bracket: )
+          - function_contents:
+            - bracketed:
+              - start_bracket: (
+              - expression:
+                - column_reference:
+                  - naked_identifier: salary
+              - comma: ','
+              - expression:
+                - numeric_literal: '1'
+              - comma: ','
+              - expression:
+                - numeric_literal: '0'
+              - end_bracket: )
           - over_clause:
             - keyword: OVER
             - bracketed:
@@ -317,12 +323,13 @@ file:
         - function:
           - function_name:
             - function_name_identifier: LAG
-          - bracketed:
-            - start_bracket: (
-            - expression:
-              - column_reference:
-                - naked_identifier: salary
-            - end_bracket: )
+          - function_contents:
+            - bracketed:
+              - start_bracket: (
+              - expression:
+                - column_reference:
+                  - naked_identifier: salary
+              - end_bracket: )
           - over_clause:
             - keyword: IGNORE
             - keyword: NULLS
@@ -350,18 +357,19 @@ file:
         - function:
           - function_name:
             - function_name_identifier: LEAD
-          - bracketed:
-            - start_bracket: (
-            - expression:
-              - column_reference:
-                - naked_identifier: salary
-            - comma: ','
-            - expression:
-              - numeric_literal: '1'
-            - comma: ','
-            - expression:
-              - numeric_literal: '0'
-            - end_bracket: )
+          - function_contents:
+            - bracketed:
+              - start_bracket: (
+              - expression:
+                - column_reference:
+                  - naked_identifier: salary
+              - comma: ','
+              - expression:
+                - numeric_literal: '1'
+              - comma: ','
+              - expression:
+                - numeric_literal: '0'
+              - end_bracket: )
           - over_clause:
             - keyword: IGNORE
             - keyword: NULLS
@@ -408,12 +416,13 @@ file:
         - function:
           - function_name:
             - function_name_identifier: LAG
-          - bracketed:
-            - start_bracket: (
-            - expression:
-              - column_reference:
-                - naked_identifier: salary
-            - end_bracket: )
+          - function_contents:
+            - bracketed:
+              - start_bracket: (
+              - expression:
+                - column_reference:
+                  - naked_identifier: salary
+              - end_bracket: )
           - over_clause:
             - keyword: RESPECT
             - keyword: NULLS
@@ -441,18 +450,19 @@ file:
         - function:
           - function_name:
             - function_name_identifier: LEAD
-          - bracketed:
-            - start_bracket: (
-            - expression:
-              - column_reference:
-                - naked_identifier: salary
-            - comma: ','
-            - expression:
-              - numeric_literal: '1'
-            - comma: ','
-            - expression:
-              - numeric_literal: '0'
-            - end_bracket: )
+          - function_contents:
+            - bracketed:
+              - start_bracket: (
+              - expression:
+                - column_reference:
+                  - naked_identifier: salary
+              - comma: ','
+              - expression:
+                - numeric_literal: '1'
+              - comma: ','
+              - expression:
+                - numeric_literal: '0'
+              - end_bracket: )
           - over_clause:
             - keyword: RESPECT
             - keyword: NULLS
@@ -499,15 +509,16 @@ file:
         - function:
           - function_name:
             - function_name_identifier: LEAD
-          - bracketed:
-            - start_bracket: (
-            - expression:
-              - column_reference:
-                - naked_identifier: v
-            - comma: ','
-            - expression:
-              - numeric_literal: '0'
-            - end_bracket: )
+          - function_contents:
+            - bracketed:
+              - start_bracket: (
+              - expression:
+                - column_reference:
+                  - naked_identifier: v
+              - comma: ','
+              - expression:
+                - numeric_literal: '0'
+              - end_bracket: )
           - over_clause:
             - keyword: IGNORE
             - keyword: NULLS
@@ -521,15 +532,16 @@ file:
         - function:
           - function_name:
             - function_name_identifier: LAG
-          - bracketed:
-            - start_bracket: (
-            - expression:
-              - column_reference:
-                - naked_identifier: v
-            - comma: ','
-            - expression:
-              - numeric_literal: '0'
-            - end_bracket: )
+          - function_contents:
+            - bracketed:
+              - start_bracket: (
+              - expression:
+                - column_reference:
+                  - naked_identifier: v
+              - comma: ','
+              - expression:
+                - numeric_literal: '0'
+              - end_bracket: )
           - over_clause:
             - keyword: IGNORE
             - keyword: NULLS
@@ -543,15 +555,16 @@ file:
         - function:
           - function_name:
             - function_name_identifier: NTH_VALUE
-          - bracketed:
-            - start_bracket: (
-            - expression:
-              - column_reference:
-                - naked_identifier: v
-            - comma: ','
-            - expression:
-              - numeric_literal: '2'
-            - end_bracket: )
+          - function_contents:
+            - bracketed:
+              - start_bracket: (
+              - expression:
+                - column_reference:
+                  - naked_identifier: v
+              - comma: ','
+              - expression:
+                - numeric_literal: '2'
+              - end_bracket: )
           - over_clause:
             - keyword: IGNORE
             - keyword: NULLS
@@ -565,12 +578,13 @@ file:
         - function:
           - function_name:
             - function_name_identifier: FIRST_VALUE
-          - bracketed:
-            - start_bracket: (
-            - expression:
-              - column_reference:
-                - naked_identifier: v
-            - end_bracket: )
+          - function_contents:
+            - bracketed:
+              - start_bracket: (
+              - expression:
+                - column_reference:
+                  - naked_identifier: v
+              - end_bracket: )
           - over_clause:
             - keyword: IGNORE
             - keyword: NULLS
@@ -584,12 +598,13 @@ file:
         - function:
           - function_name:
             - function_name_identifier: LAST_VALUE
-          - bracketed:
-            - start_bracket: (
-            - expression:
-              - column_reference:
-                - naked_identifier: v
-            - end_bracket: )
+          - function_contents:
+            - bracketed:
+              - start_bracket: (
+              - expression:
+                - column_reference:
+                  - naked_identifier: v
+              - end_bracket: )
           - over_clause:
             - keyword: IGNORE
             - keyword: NULLS
@@ -641,15 +656,16 @@ file:
         - function:
           - function_name:
             - function_name_identifier: LEAD
-          - bracketed:
-            - start_bracket: (
-            - expression:
-              - column_reference:
-                - naked_identifier: v
-            - comma: ','
-            - expression:
-              - numeric_literal: '0'
-            - end_bracket: )
+          - function_contents:
+            - bracketed:
+              - start_bracket: (
+              - expression:
+                - column_reference:
+                  - naked_identifier: v
+              - comma: ','
+              - expression:
+                - numeric_literal: '0'
+              - end_bracket: )
           - over_clause:
             - keyword: RESPECT
             - keyword: NULLS
@@ -663,15 +679,16 @@ file:
         - function:
           - function_name:
             - function_name_identifier: LAG
-          - bracketed:
-            - start_bracket: (
-            - expression:
-              - column_reference:
-                - naked_identifier: v
-            - comma: ','
-            - expression:
-              - numeric_literal: '0'
-            - end_bracket: )
+          - function_contents:
+            - bracketed:
+              - start_bracket: (
+              - expression:
+                - column_reference:
+                  - naked_identifier: v
+              - comma: ','
+              - expression:
+                - numeric_literal: '0'
+              - end_bracket: )
           - over_clause:
             - keyword: RESPECT
             - keyword: NULLS
@@ -685,15 +702,16 @@ file:
         - function:
           - function_name:
             - function_name_identifier: NTH_VALUE
-          - bracketed:
-            - start_bracket: (
-            - expression:
-              - column_reference:
-                - naked_identifier: v
-            - comma: ','
-            - expression:
-              - numeric_literal: '2'
-            - end_bracket: )
+          - function_contents:
+            - bracketed:
+              - start_bracket: (
+              - expression:
+                - column_reference:
+                  - naked_identifier: v
+              - comma: ','
+              - expression:
+                - numeric_literal: '2'
+              - end_bracket: )
           - over_clause:
             - keyword: RESPECT
             - keyword: NULLS
@@ -707,12 +725,13 @@ file:
         - function:
           - function_name:
             - function_name_identifier: FIRST_VALUE
-          - bracketed:
-            - start_bracket: (
-            - expression:
-              - column_reference:
-                - naked_identifier: v
-            - end_bracket: )
+          - function_contents:
+            - bracketed:
+              - start_bracket: (
+              - expression:
+                - column_reference:
+                  - naked_identifier: v
+              - end_bracket: )
           - over_clause:
             - keyword: RESPECT
             - keyword: NULLS
@@ -726,12 +745,13 @@ file:
         - function:
           - function_name:
             - function_name_identifier: LAST_VALUE
-          - bracketed:
-            - start_bracket: (
-            - expression:
-              - column_reference:
-                - naked_identifier: v
-            - end_bracket: )
+          - function_contents:
+            - bracketed:
+              - start_bracket: (
+              - expression:
+                - column_reference:
+                  - naked_identifier: v
+              - end_bracket: )
           - over_clause:
             - keyword: RESPECT
             - keyword: NULLS
@@ -787,17 +807,18 @@ file:
         - function:
           - function_name:
             - function_name_identifier: LEAD
-          - bracketed:
-            - start_bracket: (
-            - expression:
-              - column_reference:
-                - naked_identifier: ignore_nulls
-                - dot: .
-                - naked_identifier: v
-            - comma: ','
-            - expression:
-              - numeric_literal: '0'
-            - end_bracket: )
+          - function_contents:
+            - bracketed:
+              - start_bracket: (
+              - expression:
+                - column_reference:
+                  - naked_identifier: ignore_nulls
+                  - dot: .
+                  - naked_identifier: v
+              - comma: ','
+              - expression:
+                - numeric_literal: '0'
+              - end_bracket: )
           - over_clause:
             - keyword: RESPECT
             - keyword: NULLS
@@ -811,17 +832,18 @@ file:
         - function:
           - function_name:
             - function_name_identifier: LAG
-          - bracketed:
-            - start_bracket: (
-            - expression:
-              - column_reference:
-                - naked_identifier: ignore_nulls
-                - dot: .
-                - naked_identifier: v
-            - comma: ','
-            - expression:
-              - numeric_literal: '0'
-            - end_bracket: )
+          - function_contents:
+            - bracketed:
+              - start_bracket: (
+              - expression:
+                - column_reference:
+                  - naked_identifier: ignore_nulls
+                  - dot: .
+                  - naked_identifier: v
+              - comma: ','
+              - expression:
+                - numeric_literal: '0'
+              - end_bracket: )
           - over_clause:
             - keyword: RESPECT
             - keyword: NULLS
@@ -835,17 +857,18 @@ file:
         - function:
           - function_name:
             - function_name_identifier: NTH_VALUE
-          - bracketed:
-            - start_bracket: (
-            - expression:
-              - column_reference:
-                - naked_identifier: ignore_nulls
-                - dot: .
-                - naked_identifier: v
-            - comma: ','
-            - expression:
-              - numeric_literal: '2'
-            - end_bracket: )
+          - function_contents:
+            - bracketed:
+              - start_bracket: (
+              - expression:
+                - column_reference:
+                  - naked_identifier: ignore_nulls
+                  - dot: .
+                  - naked_identifier: v
+              - comma: ','
+              - expression:
+                - numeric_literal: '2'
+              - end_bracket: )
           - over_clause:
             - keyword: RESPECT
             - keyword: NULLS
@@ -859,14 +882,15 @@ file:
         - function:
           - function_name:
             - function_name_identifier: FIRST_VALUE
-          - bracketed:
-            - start_bracket: (
-            - expression:
-              - column_reference:
-                - naked_identifier: ignore_nulls
-                - dot: .
-                - naked_identifier: v
-            - end_bracket: )
+          - function_contents:
+            - bracketed:
+              - start_bracket: (
+              - expression:
+                - column_reference:
+                  - naked_identifier: ignore_nulls
+                  - dot: .
+                  - naked_identifier: v
+              - end_bracket: )
           - over_clause:
             - keyword: RESPECT
             - keyword: NULLS
@@ -880,14 +904,15 @@ file:
         - function:
           - function_name:
             - function_name_identifier: LAST_VALUE
-          - bracketed:
-            - start_bracket: (
-            - expression:
-              - column_reference:
-                - naked_identifier: ignore_nulls
-                - dot: .
-                - naked_identifier: v
-            - end_bracket: )
+          - function_contents:
+            - bracketed:
+              - start_bracket: (
+              - expression:
+                - column_reference:
+                  - naked_identifier: ignore_nulls
+                  - dot: .
+                  - naked_identifier: v
+              - end_bracket: )
           - over_clause:
             - keyword: RESPECT
             - keyword: NULLS
@@ -950,17 +975,18 @@ file:
         - function:
           - function_name:
             - function_name_identifier: LEAD
-          - bracketed:
-            - start_bracket: (
-            - expression:
-              - column_reference:
-                - naked_identifier: ignore_nulls
-                - dot: .
-                - naked_identifier: v
-            - comma: ','
-            - expression:
-              - numeric_literal: '0'
-            - end_bracket: )
+          - function_contents:
+            - bracketed:
+              - start_bracket: (
+              - expression:
+                - column_reference:
+                  - naked_identifier: ignore_nulls
+                  - dot: .
+                  - naked_identifier: v
+              - comma: ','
+              - expression:
+                - numeric_literal: '0'
+              - end_bracket: )
           - over_clause:
             - keyword: RESPECT
             - keyword: NULLS
@@ -974,17 +1000,18 @@ file:
         - function:
           - function_name:
             - function_name_identifier: LAG
-          - bracketed:
-            - start_bracket: (
-            - expression:
-              - column_reference:
-                - naked_identifier: ignore_nulls
-                - dot: .
-                - naked_identifier: v
-            - comma: ','
-            - expression:
-              - numeric_literal: '0'
-            - end_bracket: )
+          - function_contents:
+            - bracketed:
+              - start_bracket: (
+              - expression:
+                - column_reference:
+                  - naked_identifier: ignore_nulls
+                  - dot: .
+                  - naked_identifier: v
+              - comma: ','
+              - expression:
+                - numeric_literal: '0'
+              - end_bracket: )
           - over_clause:
             - keyword: RESPECT
             - keyword: NULLS
@@ -998,17 +1025,18 @@ file:
         - function:
           - function_name:
             - function_name_identifier: NTH_VALUE
-          - bracketed:
-            - start_bracket: (
-            - expression:
-              - column_reference:
-                - naked_identifier: ignore_nulls
-                - dot: .
-                - naked_identifier: v
-            - comma: ','
-            - expression:
-              - numeric_literal: '2'
-            - end_bracket: )
+          - function_contents:
+            - bracketed:
+              - start_bracket: (
+              - expression:
+                - column_reference:
+                  - naked_identifier: ignore_nulls
+                  - dot: .
+                  - naked_identifier: v
+              - comma: ','
+              - expression:
+                - numeric_literal: '2'
+              - end_bracket: )
           - over_clause:
             - keyword: RESPECT
             - keyword: NULLS
@@ -1022,14 +1050,15 @@ file:
         - function:
           - function_name:
             - function_name_identifier: FIRST_VALUE
-          - bracketed:
-            - start_bracket: (
-            - expression:
-              - column_reference:
-                - naked_identifier: ignore_nulls
-                - dot: .
-                - naked_identifier: v
-            - end_bracket: )
+          - function_contents:
+            - bracketed:
+              - start_bracket: (
+              - expression:
+                - column_reference:
+                  - naked_identifier: ignore_nulls
+                  - dot: .
+                  - naked_identifier: v
+              - end_bracket: )
           - over_clause:
             - keyword: RESPECT
             - keyword: NULLS
@@ -1043,14 +1072,15 @@ file:
         - function:
           - function_name:
             - function_name_identifier: LAST_VALUE
-          - bracketed:
-            - start_bracket: (
-            - expression:
-              - column_reference:
-                - naked_identifier: ignore_nulls
-                - dot: .
-                - naked_identifier: v
-            - end_bracket: )
+          - function_contents:
+            - bracketed:
+              - start_bracket: (
+              - expression:
+                - column_reference:
+                  - naked_identifier: ignore_nulls
+                  - dot: .
+                  - naked_identifier: v
+              - end_bracket: )
           - over_clause:
             - keyword: RESPECT
             - keyword: NULLS

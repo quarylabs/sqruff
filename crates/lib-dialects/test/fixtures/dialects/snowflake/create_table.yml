@@ -104,12 +104,13 @@ file:
     - function:
       - function_name:
         - function_name_identifier: LINEAR
-      - bracketed:
-        - start_bracket: (
-        - expression:
-          - column_reference:
-            - naked_identifier: amount
-        - end_bracket: )
+      - function_contents:
+        - bracketed:
+          - start_bracket: (
+          - expression:
+            - column_reference:
+              - naked_identifier: amount
+          - end_bracket: )
 - statement_terminator: ;
 - statement:
   - create_table_statement:
@@ -144,12 +145,13 @@ file:
     - function:
       - function_name:
         - function_name_identifier: LINEAR
-      - bracketed:
-        - start_bracket: (
-        - expression:
-          - column_reference:
-            - naked_identifier: amount
-        - end_bracket: )
+      - function_contents:
+        - bracketed:
+          - start_bracket: (
+          - expression:
+            - column_reference:
+              - naked_identifier: amount
+          - end_bracket: )
     - bracketed:
       - start_bracket: (
       - column_definition:
@@ -592,17 +594,19 @@ file:
             - function:
               - function_name:
                 - function_name_identifier: array_agg
-              - bracketed:
-                - start_bracket: (
-                - expression:
-                  - function:
-                    - function_name:
-                      - function_name_identifier: object_construct
-                    - bracketed:
-                      - start_bracket: (
-                      - star: '*'
-                      - end_bracket: )
-                - end_bracket: )
+              - function_contents:
+                - bracketed:
+                  - start_bracket: (
+                  - expression:
+                    - function:
+                      - function_name:
+                        - function_name_identifier: object_construct
+                      - function_contents:
+                        - bracketed:
+                          - start_bracket: (
+                          - star: '*'
+                          - end_bracket: )
+                  - end_bracket: )
         - from_clause:
           - keyword: from
           - from_expression:
@@ -611,25 +615,27 @@ file:
                 - function:
                   - function_name:
                     - function_name_identifier: table
-                  - bracketed:
-                    - start_bracket: (
-                    - expression:
-                      - function:
-                        - function_name:
-                          - function_name_identifier: infer_schema
-                        - bracketed:
-                          - start_bracket: (
-                          - snowflake_keyword_expression:
-                            - parameter: location
-                            - parameter_assigner: =>
-                            - quoted_literal: '''@mystage'''
-                          - comma: ','
-                          - snowflake_keyword_expression:
-                            - parameter: file_format
-                            - parameter_assigner: =>
-                            - quoted_literal: '''my_parquet_format'''
-                          - end_bracket: )
-                    - end_bracket: )
+                  - function_contents:
+                    - bracketed:
+                      - start_bracket: (
+                      - expression:
+                        - function:
+                          - function_name:
+                            - function_name_identifier: infer_schema
+                          - function_contents:
+                            - bracketed:
+                              - start_bracket: (
+                              - snowflake_keyword_expression:
+                                - parameter: location
+                                - parameter_assigner: =>
+                                - quoted_literal: '''@mystage'''
+                              - comma: ','
+                              - snowflake_keyword_expression:
+                                - parameter: file_format
+                                - parameter_assigner: =>
+                                - quoted_literal: '''my_parquet_format'''
+                              - end_bracket: )
+                      - end_bracket: )
       - end_bracket: )
 - statement_terminator: ;
 - statement:

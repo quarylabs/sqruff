@@ -260,9 +260,10 @@ file:
         - function:
           - function_name:
             - function_name_identifier: current_date
-          - bracketed:
-            - start_bracket: (
-            - end_bracket: )
+          - function_contents:
+            - bracketed:
+              - start_bracket: (
+              - end_bracket: )
         - binary_operator: '-'
         - interval_expression:
           - keyword: INTERVAL
@@ -285,9 +286,10 @@ file:
           - function:
             - function_name:
               - function_name_identifier: current_date
-            - bracketed:
-              - start_bracket: (
-              - end_bracket: )
+            - function_contents:
+              - bracketed:
+                - start_bracket: (
+                - end_bracket: )
           - binary_operator: '-'
           - interval_expression:
             - keyword: INTERVAL
@@ -573,27 +575,29 @@ file:
                         - function:
                           - function_name:
                             - function_name_identifier: max
-                          - bracketed:
-                            - start_bracket: (
-                            - expression:
-                              - function:
-                                - function_name:
-                                  - function_name_identifier: struct
-                                - bracketed:
-                                  - start_bracket: (
-                                  - expression:
-                                    - column_reference:
-                                      - naked_identifier: change_time
-                                  - comma: ','
-                                  - expression:
-                                    - column_reference:
-                                      - naked_identifier: new_value
-                                  - comma: ','
-                                  - expression:
-                                    - column_reference:
-                                      - naked_identifier: deleted
-                                  - end_bracket: )
-                            - end_bracket: )
+                          - function_contents:
+                            - bracketed:
+                              - start_bracket: (
+                              - expression:
+                                - function:
+                                  - function_name:
+                                    - function_name_identifier: struct
+                                  - function_contents:
+                                    - bracketed:
+                                      - start_bracket: (
+                                      - expression:
+                                        - column_reference:
+                                          - naked_identifier: change_time
+                                      - comma: ','
+                                      - expression:
+                                        - column_reference:
+                                          - naked_identifier: new_value
+                                      - comma: ','
+                                      - expression:
+                                        - column_reference:
+                                          - naked_identifier: deleted
+                                      - end_bracket: )
+                              - end_bracket: )
                         - alias_expression:
                           - keyword: AS
                           - naked_identifier: latest

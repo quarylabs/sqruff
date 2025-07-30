@@ -39,28 +39,29 @@ file:
         - function:
           - function_name:
             - function_name_identifier: ARRAY_AGG
-          - bracketed:
-            - start_bracket: (
-            - expression:
-              - typed_struct_literal:
-                - struct_type:
-                  - keyword: STRUCT
-                - struct_literal:
-                  - bracketed:
-                    - start_bracket: (
-                    - column_reference:
-                      - naked_identifier: a
-                    - alias_expression:
-                      - keyword: AS
-                      - naked_identifier: a
-                    - comma: ','
-                    - column_reference:
-                      - naked_identifier: b
-                    - alias_expression:
-                      - keyword: AS
-                      - naked_identifier: b
-                    - end_bracket: )
-            - end_bracket: )
+          - function_contents:
+            - bracketed:
+              - start_bracket: (
+              - expression:
+                - typed_struct_literal:
+                  - struct_type:
+                    - keyword: STRUCT
+                  - struct_literal:
+                    - bracketed:
+                      - start_bracket: (
+                      - column_reference:
+                        - naked_identifier: a
+                      - alias_expression:
+                        - keyword: AS
+                        - naked_identifier: a
+                      - comma: ','
+                      - column_reference:
+                        - naked_identifier: b
+                      - alias_expression:
+                        - keyword: AS
+                        - naked_identifier: b
+                      - end_bracket: )
+              - end_bracket: )
     - from_clause:
       - keyword: FROM
       - from_expression:

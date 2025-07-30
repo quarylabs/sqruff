@@ -274,6 +274,17 @@ pub fn dialect() -> Dialect {
             .to_matchable()
             .into(),
         ),
+        (
+            "TupleSegment".into(),
+            NodeMatcher::new(SyntaxKind::Tuple, |_| {
+                Bracketed::new(vec_of_erased![Delimited::new(vec_of_erased![Ref::new(
+                    "BaseExpressionElementGrammar"
+                )])])
+                .to_matchable()
+            })
+            .to_matchable()
+            .into(),
+        ),
     ]);
 
     clickhouse_dialect.add([(
@@ -490,13 +501,16 @@ pub fn dialect() -> Dialect {
                 Ref::keyword("NOT").optional(),
                 Ref::keyword("IN"),
                 one_of(vec_of_erased![
-                    Bracketed::new(vec_of_erased![one_of(vec_of_erased![
-                        Delimited::new(vec_of_erased![Ref::new("Expression_A_Grammar"),]),
+                    Ref::new("FunctionSegment"),         // IN tuple(1, 2)
+                    Ref::new("ArrayLiteralSegment"),     // IN [1, 2]
+                    Ref::new("TupleSegment"),            // IN (1, 2)
+                    Ref::new("SingleIdentifierGrammar"), // IN TABLE, IN CTE
+                    Bracketed::new(vec_of_erased![
+                        Delimited::new(vec_of_erased![Ref::new("Expression_A_Grammar")]),
                         Ref::new("SelectableGrammar"),
-                    ])])
+                    ])
                     .config(|this| this.parse_mode(ParseMode::Greedy)),
-                    Ref::new("FunctionSegment"), // E.g. UNNEST() or tuple()
-                ])
+                ]),
             ])
             .to_matchable()
             .into(),
@@ -571,6 +585,10 @@ pub fn dialect() -> Dialect {
                 ])
                 .config(|this| this.optional()),
             ]),
+            Sequence::new(vec_of_erased![
+                StringParser::new("ARRAY", SyntaxKind::DataTypeIdentifier),
+                Bracketed::new(vec_of_erased![Ref::new("DatatypeSegment"),]),
+            ])
         ])
         .to_matchable(),
     );
@@ -698,7 +716,11 @@ pub fn dialect() -> Dialect {
                 Sequence::new(vec_of_erased![
                     Ref::keyword("ON"),
                     Ref::keyword("CLUSTER"),
-                    Ref::new("SingleIdentifierGrammar"),
+                    one_of(vec_of_erased![
+                        Ref::new("SingleIdentifierGrammar"),
+                        // Support for placeholders like '{cluster}'
+                        Ref::new("QuotedLiteralSegment"),
+                    ]),
                 ])
                 .to_matchable()
             })
@@ -1505,6 +1527,278 @@ pub fn dialect() -> Dialect {
         ),
     ]);
 
+    // https://clickhouse.com/docs/sql-reference/statements/alter
+    clickhouse_dialect.replace_grammar(
+        "AlterTableStatementSegment",
+        Sequence::new(vec_of_erased![
+            Ref::keyword("ALTER"),
+            Ref::keyword("TABLE"),
+            Ref::new("IfExistsGrammar").optional(),
+            Ref::new("TableReferenceSegment"),
+            Ref::new("OnClusterClauseSegment").optional(),
+            one_of(vec_of_erased![
+                // ALTER TABLE ... DROP COLUMN [IF EXISTS] name
+                Sequence::new(vec_of_erased![
+                    Ref::keyword("DROP"),
+                    Ref::keyword("COLUMN"),
+                    Ref::new("IfExistsGrammar").optional(),
+                    Ref::new("SingleIdentifierGrammar"),
+                ]),
+                // ALTER TABLE ... ADD COLUMN [IF NOT EXISTS] name [type]
+                Sequence::new(vec_of_erased![
+                    Ref::keyword("ADD"),
+                    Ref::keyword("COLUMN"),
+                    Ref::new("IfNotExistsGrammar").optional(),
+                    Ref::new("SingleIdentifierGrammar"),
+                    one_of(vec_of_erased![
+                        // Regular column with type
+                        Sequence::new(vec_of_erased![
+                            Ref::new("DatatypeSegment"),
+                            Sequence::new(vec_of_erased![
+                                Ref::keyword("DEFAULT"),
+                                Ref::new("ExpressionSegment"),
+                            ])
+                            .config(|this| this.optional()),
+                            Sequence::new(vec_of_erased![
+                                Ref::keyword("MATERIALIZED"),
+                                Ref::new("ExpressionSegment"),
+                            ])
+                            .config(|this| this.optional()),
+                            Sequence::new(vec_of_erased![
+                                Ref::keyword("CODEC"),
+                                Bracketed::new(vec_of_erased![Delimited::new(vec_of_erased![
+                                    one_of(vec_of_erased![
+                                        Ref::new("FunctionSegment"),
+                                        Ref::new("SingleIdentifierGrammar"),
+                                    ])
+                                ])]),
+                            ])
+                            .config(|this| this.optional()),
+                        ]),
+                        // Alias column with type
+                        Sequence::new(vec_of_erased![
+                            Ref::new("DatatypeSegment"),
+                            Ref::keyword("ALIAS"),
+                            Ref::new("ExpressionSegment"),
+                        ]),
+                        // Alias column without type
+                        Sequence::new(vec_of_erased![
+                            Ref::keyword("ALIAS"),
+                            Ref::new("ExpressionSegment"),
+                        ]),
+                        // Default could also be used without type
+                        Sequence::new(vec_of_erased![
+                            Ref::keyword("DEFAULT"),
+                            Ref::new("ExpressionSegment"),
+                        ]),
+                        // Materialized could also be used without type
+                        Sequence::new(vec_of_erased![
+                            Ref::keyword("MATERIALIZED"),
+                            Ref::new("ExpressionSegment"),
+                        ]),
+                    ])
+                    .config(|this| this.optional()),
+                    one_of(vec_of_erased![
+                        Sequence::new(vec_of_erased![
+                            Ref::keyword("AFTER"),
+                            Ref::new("SingleIdentifierGrammar"),
+                        ]),
+                        Ref::keyword("FIRST"),
+                    ])
+                    .config(|this| this.optional()),
+                ]),
+                // ALTER TABLE ... ADD ALIAS name FOR column_name
+                Sequence::new(vec_of_erased![
+                    Ref::keyword("ADD"),
+                    Ref::keyword("ALIAS"),
+                    Ref::new("IfNotExistsGrammar").optional(),
+                    Ref::new("SingleIdentifierGrammar"),
+                    Ref::keyword("FOR"),
+                    Ref::new("SingleIdentifierGrammar"),
+                ]),
+                // ALTER TABLE ... RENAME COLUMN [IF EXISTS] name to new_name
+                Sequence::new(vec_of_erased![
+                    Ref::keyword("RENAME"),
+                    Ref::keyword("COLUMN"),
+                    Ref::new("IfExistsGrammar").optional(),
+                    Ref::new("SingleIdentifierGrammar"),
+                    Ref::keyword("TO"),
+                    Ref::new("SingleIdentifierGrammar"),
+                ]),
+                // ALTER TABLE ... COMMENT COLUMN [IF EXISTS] name 'Text comment'
+                Sequence::new(vec_of_erased![
+                    Ref::keyword("COMMENT"),
+                    Ref::keyword("COLUMN"),
+                    Ref::new("IfExistsGrammar").optional(),
+                    Ref::new("SingleIdentifierGrammar"),
+                    Ref::new("QuotedLiteralSegment"),
+                ]),
+                // ALTER TABLE ... COMMENT 'Text comment'
+                Sequence::new(vec_of_erased![
+                    Ref::keyword("COMMENT"),
+                    Ref::new("QuotedLiteralSegment"),
+                ]),
+                // ALTER TABLE ... MODIFY COMMENT 'Text comment'
+                Sequence::new(vec_of_erased![
+                    Ref::keyword("MODIFY"),
+                    Ref::keyword("COMMENT"),
+                    Ref::new("QuotedLiteralSegment"),
+                ]),
+                // ALTER TABLE ... MODIFY COLUMN [IF EXISTS] name [TYPE] [type]
+                Sequence::new(vec_of_erased![
+                    Ref::keyword("MODIFY"),
+                    Ref::keyword("COLUMN"),
+                    Ref::new("IfExistsGrammar").optional(),
+                    Ref::new("SingleIdentifierGrammar"),
+                    one_of(vec_of_erased![
+                        // Type modification with explicit TYPE keyword
+                        Sequence::new(vec_of_erased![
+                            Ref::keyword("TYPE"),
+                            Ref::new("DatatypeSegment"),
+                            Sequence::new(vec_of_erased![
+                                Ref::keyword("DEFAULT"),
+                                Ref::new("ExpressionSegment"),
+                            ])
+                            .config(|this| this.optional()),
+                            Sequence::new(vec_of_erased![
+                                Ref::keyword("MATERIALIZED"),
+                                Ref::new("ExpressionSegment"),
+                            ])
+                            .config(|this| this.optional()),
+                            Sequence::new(vec_of_erased![
+                                Ref::keyword("CODEC"),
+                                Bracketed::new(vec_of_erased![Delimited::new(vec_of_erased![
+                                    one_of(vec_of_erased![
+                                        Ref::new("FunctionSegment"),
+                                        Ref::new("SingleIdentifierGrammar"),
+                                    ])
+                                ])]),
+                            ])
+                            .config(|this| this.optional()),
+                        ]),
+                        // Type modification without TYPE keyword
+                        Sequence::new(vec_of_erased![
+                            Ref::new("DatatypeSegment").optional(),
+                            Sequence::new(vec_of_erased![
+                                Ref::keyword("DEFAULT"),
+                                Ref::new("ExpressionSegment"),
+                            ])
+                            .config(|this| this.optional()),
+                            Sequence::new(vec_of_erased![
+                                Ref::keyword("MATERIALIZED"),
+                                Ref::new("ExpressionSegment"),
+                            ])
+                            .config(|this| this.optional()),
+                            Sequence::new(vec_of_erased![
+                                Ref::keyword("CODEC"),
+                                Bracketed::new(vec_of_erased![Delimited::new(vec_of_erased![
+                                    one_of(vec_of_erased![
+                                        Ref::new("FunctionSegment"),
+                                        Ref::new("SingleIdentifierGrammar"),
+                                    ])
+                                ])]),
+                            ])
+                            .config(|this| this.optional()),
+                        ]),
+                        // Alias modification
+                        Sequence::new(vec_of_erased![
+                            Ref::keyword("ALIAS"),
+                            Ref::new("ExpressionSegment"),
+                        ]),
+                        // Remove property
+                        Sequence::new(vec_of_erased![
+                            Ref::keyword("REMOVE"),
+                            one_of(vec_of_erased![
+                                Ref::keyword("ALIAS"),
+                                Ref::keyword("DEFAULT"),
+                                Ref::keyword("MATERIALIZED"),
+                                Ref::keyword("CODEC"),
+                                Ref::keyword("COMMENT"),
+                                Ref::keyword("TTL"),
+                            ]),
+                        ]),
+                        // Modify setting
+                        Sequence::new(vec_of_erased![
+                            Ref::keyword("MODIFY"),
+                            Ref::keyword("SETTING"),
+                            Ref::new("SingleIdentifierGrammar"),
+                            Ref::new("EqualsSegment"),
+                            Ref::new("LiteralGrammar"),
+                        ]),
+                        // Reset setting
+                        Sequence::new(vec_of_erased![
+                            Ref::keyword("RESET"),
+                            Ref::keyword("SETTING"),
+                            Ref::new("SingleIdentifierGrammar"),
+                        ]),
+                    ])
+                    .config(|this| this.optional()),
+                    one_of(vec_of_erased![
+                        Sequence::new(vec_of_erased![
+                            Ref::keyword("AFTER"),
+                            Ref::new("SingleIdentifierGrammar"),
+                        ]),
+                        Ref::keyword("FIRST"),
+                    ])
+                    .config(|this| this.optional()),
+                ]),
+                // ALTER TABLE ... ALTER COLUMN name [TYPE] [type]
+                Sequence::new(vec_of_erased![
+                    Ref::keyword("ALTER"),
+                    Ref::keyword("COLUMN"),
+                    Ref::new("IfExistsGrammar").optional(),
+                    Ref::new("SingleIdentifierGrammar"),
+                    one_of(vec_of_erased![
+                        // With TYPE keyword
+                        Sequence::new(vec_of_erased![
+                            Ref::keyword("TYPE"),
+                            Ref::new("DatatypeSegment"),
+                        ]),
+                        Ref::new("DatatypeSegment"),
+                    ]),
+                    // Without TYPE keyword
+                    one_of(vec_of_erased![
+                        Sequence::new(vec_of_erased![
+                            Ref::keyword("AFTER"),
+                            Ref::new("SingleIdentifierGrammar"),
+                        ]),
+                        Ref::keyword("FIRST"),
+                    ])
+                    .config(|this| this.optional()),
+                ]),
+                // ALTER TABLE ... REMOVE TTL
+                Sequence::new(vec_of_erased![Ref::keyword("REMOVE"), Ref::keyword("TTL"),]),
+                // ALTER TABLE ... MODIFY TTL expression
+                Sequence::new(vec_of_erased![
+                    Ref::keyword("MODIFY"),
+                    Ref::keyword("TTL"),
+                    Ref::new("ExpressionSegment"),
+                ]),
+                // ALTER TABLE ... MATERIALIZE COLUMN col
+                Sequence::new(vec_of_erased![
+                    Ref::keyword("MATERIALIZE"),
+                    Ref::keyword("COLUMN"),
+                    Ref::new("SingleIdentifierGrammar"),
+                    one_of(vec_of_erased![
+                        Sequence::new(vec_of_erased![
+                            Ref::keyword("IN"),
+                            Ref::keyword("PARTITION"),
+                            Ref::new("SingleIdentifierGrammar"),
+                        ]),
+                        Sequence::new(vec_of_erased![
+                            Ref::keyword("IN"),
+                            Ref::keyword("PARTITION"),
+                            Ref::keyword("ID"),
+                            Ref::new("QuotedLiteralSegment"),
+                        ]),
+                    ])
+                    .config(|this| this.optional()),
+                ]),
+            ]),
+        ])
+        .to_matchable(),
+    );
+
     clickhouse_dialect.replace_grammar(
         "StatementSegment",
         ansi::statement_segment().copy(
@@ -1515,6 +1809,7 @@ pub fn dialect() -> Dialect {
                 Ref::new("DropSettingProfileStatementSegment"),
                 Ref::new("SystemStatementSegment"),
                 Ref::new("RenameStatementSegment"),
+                Ref::new("AlterTableStatementSegment"),
             ]),
             None,
             None,

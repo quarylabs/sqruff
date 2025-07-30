@@ -33,12 +33,13 @@ file:
         - function:
           - function_name:
             - function_name_identifier: DATE
-          - bracketed:
-            - start_bracket: (
-            - expression:
-              - column_reference:
-                - naked_identifier: date_col_b
-            - end_bracket: )
+          - function_contents:
+            - bracketed:
+              - start_bracket: (
+              - expression:
+                - column_reference:
+                  - naked_identifier: date_col_b
+              - end_bracket: )
         - comparison_operator:
           - raw_comparison_operator: '>'
           - raw_comparison_operator: =
@@ -47,12 +48,13 @@ file:
         - function:
           - function_name:
             - function_name_identifier: length
-          - bracketed:
-            - start_bracket: (
-            - expression:
-              - column_reference:
-                - naked_identifier: col_a
-            - end_bracket: )
+          - function_contents:
+            - bracketed:
+              - start_bracket: (
+              - expression:
+                - column_reference:
+                  - naked_identifier: col_a
+              - end_bracket: )
         - comparison_operator:
           - raw_comparison_operator: =
         - numeric_literal: '4'

@@ -34,29 +34,31 @@ file:
           - function:
             - function_name:
               - function_name_identifier: to_date
-            - bracketed:
-              - start_bracket: (
-              - expression:
-                - column_reference:
-                  - naked_identifier: c1
-              - end_bracket: )
+            - function_contents:
+              - bracketed:
+                - start_bracket: (
+                - expression:
+                  - column_reference:
+                    - naked_identifier: c1
+                - end_bracket: )
         - comma: ','
         - expression:
           - function:
             - function_name:
               - function_name_identifier: substring
-            - bracketed:
-              - start_bracket: (
-              - expression:
-                - column_reference:
-                  - naked_identifier: c2
-              - comma: ','
-              - expression:
-                - numeric_literal: '0'
-              - comma: ','
-              - expression:
-                - numeric_literal: '10'
-              - end_bracket: )
+            - function_contents:
+              - bracketed:
+                - start_bracket: (
+                - expression:
+                  - column_reference:
+                    - naked_identifier: c2
+                - comma: ','
+                - expression:
+                  - numeric_literal: '0'
+                - comma: ','
+                - expression:
+                  - numeric_literal: '10'
+                - end_bracket: )
         - end_bracket: )
 - statement_terminator: ;
 - statement:

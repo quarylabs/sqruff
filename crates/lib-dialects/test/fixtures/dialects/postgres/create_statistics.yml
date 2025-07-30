@@ -13,29 +13,31 @@ file:
     - function:
       - function_name:
         - function_name_identifier: date_trunc
-      - bracketed:
-        - start_bracket: (
-        - expression:
-          - quoted_literal: '''month'''
-        - comma: ','
-        - expression:
-          - column_reference:
-            - naked_identifier: a
-        - end_bracket: )
+      - function_contents:
+        - bracketed:
+          - start_bracket: (
+          - expression:
+            - quoted_literal: '''month'''
+          - comma: ','
+          - expression:
+            - column_reference:
+              - naked_identifier: a
+          - end_bracket: )
   - comma: ','
   - expression:
     - function:
       - function_name:
         - function_name_identifier: date_trunc
-      - bracketed:
-        - start_bracket: (
-        - expression:
-          - quoted_literal: '''day'''
-        - comma: ','
-        - expression:
-          - column_reference:
-            - naked_identifier: a
-        - end_bracket: )
+      - function_contents:
+        - bracketed:
+          - start_bracket: (
+          - expression:
+            - quoted_literal: '''day'''
+          - comma: ','
+          - expression:
+            - column_reference:
+              - naked_identifier: a
+          - end_bracket: )
   - keyword: FROM
   - table_reference:
     - naked_identifier: t3
@@ -80,29 +82,31 @@ file:
     - function:
       - function_name:
         - function_name_identifier: date_trunc
-      - bracketed:
-        - start_bracket: (
-        - expression:
-          - quoted_literal: '''month'''
-        - comma: ','
-        - expression:
-          - column_reference:
-            - naked_identifier: a
-        - end_bracket: )
+      - function_contents:
+        - bracketed:
+          - start_bracket: (
+          - expression:
+            - quoted_literal: '''month'''
+          - comma: ','
+          - expression:
+            - column_reference:
+              - naked_identifier: a
+          - end_bracket: )
   - comma: ','
   - expression:
     - function:
       - function_name:
         - function_name_identifier: date_trunc
-      - bracketed:
-        - start_bracket: (
-        - expression:
-          - quoted_literal: '''day'''
-        - comma: ','
-        - expression:
-          - column_reference:
-            - naked_identifier: a
-        - end_bracket: )
+      - function_contents:
+        - bracketed:
+          - start_bracket: (
+          - expression:
+            - quoted_literal: '''day'''
+          - comma: ','
+          - expression:
+            - column_reference:
+              - naked_identifier: a
+          - end_bracket: )
   - keyword: FROM
   - table_reference:
     - naked_identifier: t3

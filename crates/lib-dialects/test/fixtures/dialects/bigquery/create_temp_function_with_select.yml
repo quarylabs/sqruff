@@ -37,22 +37,24 @@ file:
                         - function:
                           - function_name:
                             - function_name_identifier: UNNEST
-                          - bracketed:
-                            - start_bracket: (
-                            - expression:
-                              - function:
-                                - function_name:
-                                  - function_name_identifier: REGEXP_EXTRACT_ALL
-                                - bracketed:
-                                  - start_bracket: (
-                                  - expression:
-                                    - column_reference:
-                                      - naked_identifier: url
-                                  - comma: ','
-                                  - expression:
-                                    - quoted_literal: r"%[0-9a-fA-F]{2}|[^%]+"
-                                  - end_bracket: )
-                            - end_bracket: )
+                          - function_contents:
+                            - bracketed:
+                              - start_bracket: (
+                              - expression:
+                                - function:
+                                  - function_name:
+                                    - function_name_identifier: REGEXP_EXTRACT_ALL
+                                  - function_contents:
+                                    - bracketed:
+                                      - start_bracket: (
+                                      - expression:
+                                        - column_reference:
+                                          - naked_identifier: url
+                                      - comma: ','
+                                      - expression:
+                                        - quoted_literal: r"%[0-9a-fA-F]{2}|[^%]+"
+                                      - end_bracket: )
+                              - end_bracket: )
                       - alias_expression:
                         - keyword: AS
                         - naked_identifier: y

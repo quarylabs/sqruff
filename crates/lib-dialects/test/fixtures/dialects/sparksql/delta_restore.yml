@@ -42,19 +42,21 @@ file:
     - function:
       - function_name:
         - function_name_identifier: date_sub
-      - bracketed:
-        - start_bracket: (
-        - expression:
-          - function:
-            - function_name:
-              - function_name_identifier: current_date
-            - bracketed:
-              - start_bracket: (
-              - end_bracket: )
-        - comma: ','
-        - expression:
-          - numeric_literal: '1'
-        - end_bracket: )
+      - function_contents:
+        - bracketed:
+          - start_bracket: (
+          - expression:
+            - function:
+              - function_name:
+                - function_name_identifier: current_date
+              - function_contents:
+                - bracketed:
+                  - start_bracket: (
+                  - end_bracket: )
+          - comma: ','
+          - expression:
+            - numeric_literal: '1'
+          - end_bracket: )
 - statement_terminator: ;
 - statement:
   - restore_table_statement:

@@ -19,9 +19,10 @@ file:
         - function:
           - function_name:
             - function_name_identifier: rank
-          - bracketed:
-            - start_bracket: (
-            - end_bracket: )
+          - function_contents:
+            - bracketed:
+              - start_bracket: (
+              - end_bracket: )
           - over_clause:
             - keyword: OVER
             - bracketed:
@@ -83,12 +84,13 @@ file:
         - function:
           - function_name:
             - function_name_identifier: sum
-          - bracketed:
-            - start_bracket: (
-            - expression:
-              - column_reference:
-                - naked_identifier: totalprice
-            - end_bracket: )
+          - function_contents:
+            - bracketed:
+              - start_bracket: (
+              - expression:
+                - column_reference:
+                  - naked_identifier: totalprice
+              - end_bracket: )
           - over_clause:
             - keyword: OVER
             - bracketed:

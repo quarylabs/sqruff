@@ -7,10 +7,11 @@ file:
         - function:
           - function_name:
             - function_name_identifier: COUNT
-          - bracketed:
-            - start_bracket: (
-            - star: '*'
-            - end_bracket: )
+          - function_contents:
+            - bracketed:
+              - start_bracket: (
+              - star: '*'
+              - end_bracket: )
           - keyword: FILTER
           - bracketed:
             - start_bracket: (

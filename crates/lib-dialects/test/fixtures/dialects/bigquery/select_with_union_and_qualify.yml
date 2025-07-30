@@ -12,9 +12,10 @@ file:
           - function:
             - function_name:
               - function_name_identifier: RANK
-            - bracketed:
-              - start_bracket: (
-              - end_bracket: )
+            - function_contents:
+              - bracketed:
+                - start_bracket: (
+                - end_bracket: )
             - over_clause:
               - keyword: OVER
               - bracketed:
@@ -76,9 +77,10 @@ file:
           - function:
             - function_name:
               - function_name_identifier: RANK
-            - bracketed:
-              - start_bracket: (
-              - end_bracket: )
+            - function_contents:
+              - bracketed:
+                - start_bracket: (
+                - end_bracket: )
             - over_clause:
               - keyword: OVER
               - bracketed:

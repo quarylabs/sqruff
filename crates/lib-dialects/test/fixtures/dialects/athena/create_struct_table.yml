@@ -48,39 +48,41 @@ file:
           - function:
             - function_name:
               - function_name_identifier: CAST
-            - bracketed:
-              - start_bracket: (
-              - expression:
-                - function:
-                  - function_name:
-                    - function_name_identifier: ROW
+            - function_contents:
+              - bracketed:
+                - start_bracket: (
+                - expression:
+                  - function:
+                    - function_name:
+                      - function_name_identifier: ROW
+                    - function_contents:
+                      - bracketed:
+                        - start_bracket: (
+                        - expression:
+                          - quoted_literal: '''Bob'''
+                        - comma: ','
+                        - expression:
+                          - numeric_literal: '38'
+                        - end_bracket: )
+                - keyword: AS
+                - data_type:
+                  - keyword: ROW
                   - bracketed:
                     - start_bracket: (
-                    - expression:
-                      - quoted_literal: '''Bob'''
+                    - naked_identifier: name
+                    - data_type:
+                      - primitive_type:
+                        - keyword: VARCHAR
+                        - bracketed_arguments:
+                          - bracketed:
+                            - start_bracket: (
+                            - numeric_literal: '10'
+                            - end_bracket: )
                     - comma: ','
-                    - expression:
-                      - numeric_literal: '38'
+                    - naked_identifier: age
+                    - data_type:
+                      - primitive_type:
+                        - keyword: INTEGER
                     - end_bracket: )
-              - keyword: AS
-              - data_type:
-                - keyword: ROW
-                - bracketed:
-                  - start_bracket: (
-                  - naked_identifier: name
-                  - data_type:
-                    - primitive_type:
-                      - keyword: VARCHAR
-                      - bracketed_arguments:
-                        - bracketed:
-                          - start_bracket: (
-                          - numeric_literal: '10'
-                          - end_bracket: )
-                  - comma: ','
-                  - naked_identifier: age
-                  - data_type:
-                    - primitive_type:
-                      - keyword: INTEGER
-                  - end_bracket: )
-              - end_bracket: )
+                - end_bracket: )
 - statement_terminator: ;

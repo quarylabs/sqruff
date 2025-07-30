@@ -19,22 +19,23 @@ file:
         - function:
           - function_name:
             - function_name_identifier: IF
-          - bracketed:
-            - start_bracket: (
-            - expression:
-              - column_reference:
-                - naked_identifier: _cdn_provider
-              - comparison_operator:
-                - raw_comparison_operator: '!'
-                - raw_comparison_operator: =
-              - quoted_literal: ''''''
-            - comma: ','
-            - expression:
-              - quoted_literal: '''CDN'''
-            - comma: ','
-            - expression:
-              - quoted_literal: '''Origin'''
-            - end_bracket: )
+          - function_contents:
+            - bracketed:
+              - start_bracket: (
+              - expression:
+                - column_reference:
+                  - naked_identifier: _cdn_provider
+                - comparison_operator:
+                  - raw_comparison_operator: '!'
+                  - raw_comparison_operator: =
+                - quoted_literal: ''''''
+              - comma: ','
+              - expression:
+                - quoted_literal: '''CDN'''
+              - comma: ','
+              - expression:
+                - quoted_literal: '''Origin'''
+              - end_bracket: )
         - alias_expression:
           - keyword: AS
           - naked_identifier: source
@@ -43,11 +44,12 @@ file:
         - function:
           - function_name:
             - function_name_identifier: COUNT
-          - bracketed:
-            - start_bracket: (
-            - expression:
-              - numeric_literal: '0'
-            - end_bracket: )
+          - function_contents:
+            - bracketed:
+              - start_bracket: (
+              - expression:
+                - numeric_literal: '0'
+              - end_bracket: )
         - alias_expression:
           - keyword: AS
           - naked_identifier: total
@@ -65,55 +67,60 @@ file:
             - function:
               - function_name:
                 - function_name_identifier: UNNEST
-              - bracketed:
-                - start_bracket: (
-                - expression:
-                  - function:
-                    - function_name:
-                      - function_name_identifier: split
-                    - bracketed:
-                      - start_bracket: (
-                      - expression:
-                        - function:
-                          - function_name:
-                            - function_name_identifier: REGEXP_REPLACE
-                          - bracketed:
-                            - start_bracket: (
-                            - expression:
-                              - function:
-                                - function_name:
-                                  - function_name_identifier: REGEXP_REPLACE
+              - function_contents:
+                - bracketed:
+                  - start_bracket: (
+                  - expression:
+                    - function:
+                      - function_name:
+                        - function_name_identifier: split
+                      - function_contents:
+                        - bracketed:
+                          - start_bracket: (
+                          - expression:
+                            - function:
+                              - function_name:
+                                - function_name_identifier: REGEXP_REPLACE
+                              - function_contents:
                                 - bracketed:
                                   - start_bracket: (
                                   - expression:
                                     - function:
                                       - function_name:
-                                        - function_name_identifier: LOWER
-                                      - bracketed:
-                                        - start_bracket: (
-                                        - expression:
-                                          - column_reference:
-                                            - naked_identifier: resp_vary
-                                        - end_bracket: )
+                                        - function_name_identifier: REGEXP_REPLACE
+                                      - function_contents:
+                                        - bracketed:
+                                          - start_bracket: (
+                                          - expression:
+                                            - function:
+                                              - function_name:
+                                                - function_name_identifier: LOWER
+                                              - function_contents:
+                                                - bracketed:
+                                                  - start_bracket: (
+                                                  - expression:
+                                                    - column_reference:
+                                                      - naked_identifier: resp_vary
+                                                  - end_bracket: )
+                                          - comma: ','
+                                          - expression:
+                                            - quoted_literal: '''\"'''
+                                          - comma: ','
+                                          - expression:
+                                            - quoted_literal: ''''''
+                                          - end_bracket: )
                                   - comma: ','
                                   - expression:
-                                    - quoted_literal: '''\"'''
+                                    - quoted_literal: '''[, ]+|\\\\0'''
                                   - comma: ','
                                   - expression:
-                                    - quoted_literal: ''''''
+                                    - quoted_literal: ''','''
                                   - end_bracket: )
-                            - comma: ','
-                            - expression:
-                              - quoted_literal: '''[, ]+|\\\\0'''
-                            - comma: ','
-                            - expression:
-                              - quoted_literal: ''','''
-                            - end_bracket: )
-                      - comma: ','
-                      - expression:
-                        - quoted_literal: ''','''
-                      - end_bracket: )
-                - end_bracket: )
+                          - comma: ','
+                          - expression:
+                            - quoted_literal: ''','''
+                          - end_bracket: )
+                  - end_bracket: )
           - alias_expression:
             - keyword: AS
             - naked_identifier: vary

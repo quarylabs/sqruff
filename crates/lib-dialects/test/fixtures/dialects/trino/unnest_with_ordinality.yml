@@ -55,14 +55,15 @@ file:
                 - function:
                   - function_name:
                     - function_name_identifier: UNNEST
-                  - bracketed:
-                    - start_bracket: (
-                    - expression:
-                      - column_reference:
-                        - naked_identifier: t
-                        - dot: .
-                        - naked_identifier: array_column
-                    - end_bracket: )
+                  - function_contents:
+                    - bracketed:
+                      - start_bracket: (
+                      - expression:
+                        - column_reference:
+                          - naked_identifier: t
+                          - dot: .
+                          - naked_identifier: array_column
+                      - end_bracket: )
                   - keyword: WITH
                   - keyword: ORDINALITY
               - alias_expression:
@@ -132,14 +133,15 @@ file:
                 - function:
                   - function_name:
                     - function_name_identifier: UNNEST
-                  - bracketed:
-                    - start_bracket: (
-                    - expression:
-                      - column_reference:
-                        - naked_identifier: t
-                        - dot: .
-                        - naked_identifier: array_column
-                    - end_bracket: )
+                  - function_contents:
+                    - bracketed:
+                      - start_bracket: (
+                      - expression:
+                        - column_reference:
+                          - naked_identifier: t
+                          - dot: .
+                          - naked_identifier: array_column
+                      - end_bracket: )
                   - keyword: WITH
                   - keyword: ORDINALITY
               - alias_expression:
@@ -208,14 +210,15 @@ file:
                 - function:
                   - function_name:
                     - function_name_identifier: UNNEST
-                  - bracketed:
-                    - start_bracket: (
-                    - expression:
-                      - column_reference:
-                        - naked_identifier: t
-                        - dot: .
-                        - naked_identifier: array_column
-                    - end_bracket: )
+                  - function_contents:
+                    - bracketed:
+                      - start_bracket: (
+                      - expression:
+                        - column_reference:
+                          - naked_identifier: t
+                          - dot: .
+                          - naked_identifier: array_column
+                      - end_bracket: )
                   - keyword: WITH
                   - keyword: ORDINALITY
               - alias_expression:
@@ -304,20 +307,21 @@ file:
                 - function:
                   - function_name:
                     - function_name_identifier: UNNEST
-                  - bracketed:
-                    - start_bracket: (
-                    - expression:
-                      - column_reference:
-                        - naked_identifier: t
-                        - dot: .
-                        - naked_identifier: array_column1
-                    - comma: ','
-                    - expression:
-                      - column_reference:
-                        - naked_identifier: t
-                        - dot: .
-                        - naked_identifier: array_column2
-                    - end_bracket: )
+                  - function_contents:
+                    - bracketed:
+                      - start_bracket: (
+                      - expression:
+                        - column_reference:
+                          - naked_identifier: t
+                          - dot: .
+                          - naked_identifier: array_column1
+                      - comma: ','
+                      - expression:
+                        - column_reference:
+                          - naked_identifier: t
+                          - dot: .
+                          - naked_identifier: array_column2
+                      - end_bracket: )
                   - keyword: WITH
                   - keyword: ORDINALITY
               - alias_expression:
@@ -381,14 +385,15 @@ file:
                 - function:
                   - function_name:
                     - function_name_identifier: UNNEST
-                  - bracketed:
-                    - start_bracket: (
-                    - expression:
-                      - column_reference:
-                        - naked_identifier: t
-                        - dot: .
-                        - naked_identifier: array_column
-                    - end_bracket: )
+                  - function_contents:
+                    - bracketed:
+                      - start_bracket: (
+                      - expression:
+                        - column_reference:
+                          - naked_identifier: t
+                          - dot: .
+                          - naked_identifier: array_column
+                      - end_bracket: )
               - alias_expression:
                 - keyword: AS
                 - naked_identifier: u

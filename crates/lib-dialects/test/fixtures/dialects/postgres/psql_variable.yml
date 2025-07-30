@@ -97,27 +97,28 @@ file:
         - function:
           - function_name:
             - function_name_identifier: lpad
-          - bracketed:
-            - start_bracket: (
-            - expression:
-              - cast_expression:
-                - bracketed:
-                  - start_bracket: (
-                  - expression:
-                    - psql_variable:
-                      - colon: ':'
-                      - parameter: a
-                  - end_bracket: )
-                - casting_operator: '::'
-                - data_type:
-                  - keyword: text
-            - comma: ','
-            - expression:
-              - numeric_literal: '10'
-            - comma: ','
-            - expression:
-              - quoted_literal: '''0'''
-            - end_bracket: )
+          - function_contents:
+            - bracketed:
+              - start_bracket: (
+              - expression:
+                - cast_expression:
+                  - bracketed:
+                    - start_bracket: (
+                    - expression:
+                      - psql_variable:
+                        - colon: ':'
+                        - parameter: a
+                    - end_bracket: )
+                  - casting_operator: '::'
+                  - data_type:
+                    - keyword: text
+              - comma: ','
+              - expression:
+                - numeric_literal: '10'
+              - comma: ','
+              - expression:
+                - quoted_literal: '''0'''
+              - end_bracket: )
 - statement_terminator: ;
 - statement:
   - select_statement:
@@ -209,17 +210,18 @@ file:
         - function:
           - function_name:
             - function_name_identifier: lpad
-          - bracketed:
-            - start_bracket: (
-            - expression:
-              - psql_variable:
-                - colon: ':'
-                - quoted_literal: '''a'''
-            - comma: ','
-            - expression:
-              - numeric_literal: '10'
-            - comma: ','
-            - expression:
-              - quoted_literal: '''0'''
-            - end_bracket: )
+          - function_contents:
+            - bracketed:
+              - start_bracket: (
+              - expression:
+                - psql_variable:
+                  - colon: ':'
+                  - quoted_literal: '''a'''
+              - comma: ','
+              - expression:
+                - numeric_literal: '10'
+              - comma: ','
+              - expression:
+                - quoted_literal: '''0'''
+              - end_bracket: )
 - statement_terminator: ;

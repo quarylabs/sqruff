@@ -80,6 +80,9 @@ from table_a
         if function_name.raw().eq_ignore_ascii_case("COUNT") {
             let f_content = FunctionalContext::new(context)
                 .segment()
+                .children(Some(|it: &ErasedSegment| {
+                    it.is_type(SyntaxKind::FunctionContents)
+                }))
                 .children(Some(|it: &ErasedSegment| it.is_type(SyntaxKind::Bracketed)))
                 .children(Some(|it: &ErasedSegment| {
                     !it.is_meta()

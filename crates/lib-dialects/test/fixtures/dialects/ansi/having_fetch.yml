@@ -11,12 +11,13 @@ file:
         - function:
           - function_name:
             - function_name_identifier: COUNT
-          - bracketed:
-            - start_bracket: (
-            - expression:
-              - column_reference:
-                - naked_identifier: person_id
-            - end_bracket: )
+          - function_contents:
+            - bracketed:
+              - start_bracket: (
+              - expression:
+                - column_reference:
+                  - naked_identifier: person_id
+              - end_bracket: )
     - from_clause:
       - keyword: FROM
       - from_expression:
@@ -35,12 +36,13 @@ file:
         - function:
           - function_name:
             - function_name_identifier: COUNT
-          - bracketed:
-            - start_bracket: (
-            - expression:
-              - column_reference:
-                - naked_identifier: person_id
-            - end_bracket: )
+          - function_contents:
+            - bracketed:
+              - start_bracket: (
+              - expression:
+                - column_reference:
+                  - naked_identifier: person_id
+              - end_bracket: )
         - comparison_operator:
           - raw_comparison_operator: '>'
         - numeric_literal: '10'

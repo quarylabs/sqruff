@@ -39,29 +39,30 @@ file:
           - function:
             - function_name:
               - function_name_identifier: MAP
-            - bracketed:
-              - start_bracket: (
-              - expression:
-                - typed_array_literal:
-                  - array_type:
-                    - keyword: ARRAY
-                  - array_literal:
-                    - start_square_bracket: '['
-                    - quoted_literal: '''foo'''
-                    - comma: ','
-                    - quoted_literal: '''bar'''
-                    - end_square_bracket: ']'
-              - comma: ','
-              - expression:
-                - typed_array_literal:
-                  - array_type:
-                    - keyword: ARRAY
-                  - array_literal:
-                    - start_square_bracket: '['
-                    - numeric_literal: '1'
-                    - comma: ','
-                    - numeric_literal: '2'
-                    - end_square_bracket: ']'
-              - end_bracket: )
+            - function_contents:
+              - bracketed:
+                - start_bracket: (
+                - expression:
+                  - typed_array_literal:
+                    - array_type:
+                      - keyword: ARRAY
+                    - array_literal:
+                      - start_square_bracket: '['
+                      - quoted_literal: '''foo'''
+                      - comma: ','
+                      - quoted_literal: '''bar'''
+                      - end_square_bracket: ']'
+                - comma: ','
+                - expression:
+                  - typed_array_literal:
+                    - array_type:
+                      - keyword: ARRAY
+                    - array_literal:
+                      - start_square_bracket: '['
+                      - numeric_literal: '1'
+                      - comma: ','
+                      - numeric_literal: '2'
+                      - end_square_bracket: ']'
+                - end_bracket: )
         - end_bracket: )
 - statement_terminator: ;

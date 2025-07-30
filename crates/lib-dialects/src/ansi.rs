@@ -1304,27 +1304,51 @@ pub fn raw_dialect() -> Dialect {
             .into(),
         ),
         (
+            // DateTimeFunctionContentsSegment(BaseSegment):
+            //     """Datetime function contents."""
+            //
+            //     type = "function_contents"
+            //
+            //     match_grammar = Sequence(
+            //         Bracketed(
+            //             Delimited(
+            //                 Ref("DatetimeUnitSegment"),
+            //                 Ref(
+            //                     "FunctionContentsGrammar",
+            //                     # The brackets might be empty for some functions...
+            //                     optional=True,
+            //                 ),
+            //             ),
+            //         ),
+            //     )
+            "DateTimeFunctionContentsSegment".into(),
+            NodeMatcher::new(SyntaxKind::FunctionContents, |_| {
+                Sequence::new(vec_of_erased![Bracketed::new(vec_of_erased![
+                    Delimited::new(vec_of_erased![
+                        Ref::new("DatetimeUnitSegment"),
+                        Ref::new("FunctionContentsGrammar").optional()
+                    ])
+                ])])
+                .to_matchable()
+            })
+            .to_matchable()
+            .into(),
+        ),
+        (
             "FunctionSegment".into(),
             NodeMatcher::new(SyntaxKind::Function, |_| {
                 one_of(vec_of_erased![
-                    Sequence::new(vec_of_erased![Sequence::new(vec_of_erased![
+                    Sequence::new(vec_of_erased![
                         Ref::new("DatePartFunctionNameSegment"),
-                        Bracketed::new(vec_of_erased![Delimited::new(vec_of_erased![
-                            Ref::new("DatetimeUnitSegment"),
-                            Ref::new("FunctionContentsGrammar").optional()
-                        ])])
-                        .config(|this| this.parse_mode(ParseMode::Greedy))
-                    ])]),
+                        Ref::new("DateTimeFunctionContentsSegment"),
+                    ]),
                     Sequence::new(vec_of_erased![
                         Sequence::new(vec_of_erased![
                             Ref::new("FunctionNameSegment").exclude(one_of(vec_of_erased![
                                 Ref::new("DatePartFunctionNameSegment"),
                                 Ref::new("ValuesClauseSegment")
                             ])),
-                            Bracketed::new(vec_of_erased![
-                                Ref::new("FunctionContentsGrammar").optional()
-                            ])
-                            .config(|this| this.parse_mode(ParseMode::Greedy))
+                            Ref::new("FunctionContentsSegment"),
                         ]),
                         Ref::new("PostFunctionGrammar").optional()
                     ])
@@ -2386,12 +2410,7 @@ pub fn raw_dialect() -> Dialect {
                         Ref::keyword("EXECUTE").to_matchable(),
                         Ref::keyword("PROCEDURE").to_matchable(),
                         Ref::new("FunctionNameIdentifierSegment").to_matchable(),
-                        Bracketed::new(vec![
-                            Ref::new("FunctionContentsGrammar")
-                                .optional()
-                                .to_matchable(),
-                        ])
-                        .to_matchable(),
+                        Ref::new("FunctionContentsSegment").to_matchable(),
                     ])
                     .config(|this| this.optional())
                     .to_matchable(),
@@ -4331,6 +4350,19 @@ pub fn raw_dialect() -> Dialect {
     )]);
 
     ansi_dialect.add([
+        (
+            "FunctionContentsSegment".into(),
+            NodeMatcher::new(SyntaxKind::FunctionContents, |_| {
+                Sequence::new(vec![
+                    Bracketed::new(vec![Ref::new("FunctionContentsGrammar").to_matchable()])
+                        .config(|this| this.optional())
+                        .to_matchable(),
+                ])
+                .to_matchable()
+            })
+            .to_matchable()
+            .into(),
+        ),
         // FunctionContentsExpressionGrammar intended as a hook to override in other dialects.
         (
             "FunctionContentsExpressionGrammar".into(),
@@ -4521,31 +4553,8 @@ pub fn raw_dialect() -> Dialect {
                             Ref::new("Tail_Recurse_Expression_A_Grammar").to_matchable(),
                         ])
                         .to_matchable(),
-                        // IN grammar with NOT and brackets
-                        Sequence::new(vec![
-                            Ref::keyword("NOT").optional().to_matchable(),
-                            Ref::keyword("IN").to_matchable(),
-                            Bracketed::new(vec![
-                                one_of(vec![
-                                    Delimited::new(vec![
-                                        Ref::new("Expression_A_Grammar").to_matchable(),
-                                    ])
-                                    .to_matchable(),
-                                    Ref::new("SelectableGrammar").to_matchable(),
-                                ])
-                                .to_matchable(),
-                            ])
-                            .config(|this| this.parse_mode(ParseMode::Greedy))
-                            .to_matchable(),
-                        ])
-                        .to_matchable(),
-                        // IN grammar with function segment
-                        Sequence::new(vec![
-                            Ref::keyword("NOT").optional().to_matchable(),
-                            Ref::keyword("IN").to_matchable(),
-                            Ref::new("FunctionSegment").to_matchable(),
-                        ])
-                        .to_matchable(),
+                        // IN grammar
+                        Ref::new("InOperatorGrammar").to_matchable(),
                         // IS grammar
                         Sequence::new(vec![
                             Ref::keyword("IS").to_matchable(),

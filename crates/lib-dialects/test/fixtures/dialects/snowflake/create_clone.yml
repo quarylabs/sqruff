@@ -48,15 +48,16 @@ file:
           - function:
             - function_name:
               - function_name_identifier: TO_TIMESTAMP
-            - bracketed:
-              - start_bracket: (
-              - expression:
-                - numeric_literal: '40'
-                - binary_operator: '*'
-                - numeric_literal: '365'
-                - binary_operator: '*'
-                - numeric_literal: '86400'
-              - end_bracket: )
+            - function_contents:
+              - bracketed:
+                - start_bracket: (
+                - expression:
+                  - numeric_literal: '40'
+                  - binary_operator: '*'
+                  - numeric_literal: '365'
+                  - binary_operator: '*'
+                  - numeric_literal: '86400'
+                - end_bracket: )
         - end_bracket: )
 - statement_terminator: ;
 - statement:
@@ -78,14 +79,15 @@ file:
           - function:
             - function_name:
               - function_name_identifier: TO_TIMESTAMP_TZ
-            - bracketed:
-              - start_bracket: (
-              - expression:
-                - quoted_literal: '''04/05/2013 01:02:03'''
-              - comma: ','
-              - expression:
-                - quoted_literal: '''mm/dd/yyyy hh24:mi:ss'''
-              - end_bracket: )
+            - function_contents:
+              - bracketed:
+                - start_bracket: (
+                - expression:
+                  - quoted_literal: '''04/05/2013 01:02:03'''
+                - comma: ','
+                - expression:
+                  - quoted_literal: '''mm/dd/yyyy hh24:mi:ss'''
+                - end_bracket: )
         - end_bracket: )
 - statement_terminator: ;
 - statement:

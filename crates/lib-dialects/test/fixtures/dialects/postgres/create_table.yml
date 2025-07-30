@@ -263,11 +263,12 @@ file:
         - function:
           - function_name:
             - function_name_identifier: nextval
-          - bracketed:
-            - start_bracket: (
-            - expression:
-              - quoted_literal: '''distributors_serial'''
-            - end_bracket: )
+          - function_contents:
+            - bracketed:
+              - start_bracket: (
+              - expression:
+                - quoted_literal: '''distributors_serial'''
+              - end_bracket: )
       - comma: ','
       - column_reference:
         - naked_identifier: modtime
@@ -569,26 +570,28 @@ file:
       - function:
         - function_name:
           - function_name_identifier: EXTRACT
-        - bracketed:
-          - start_bracket: (
-          - date_part: YEAR
-          - keyword: FROM
-          - expression:
-            - column_reference:
-              - naked_identifier: logdate
-          - end_bracket: )
+        - function_contents:
+          - bracketed:
+            - start_bracket: (
+            - date_part: YEAR
+            - keyword: FROM
+            - expression:
+              - column_reference:
+                - naked_identifier: logdate
+            - end_bracket: )
       - comma: ','
       - function:
         - function_name:
           - function_name_identifier: EXTRACT
-        - bracketed:
-          - start_bracket: (
-          - date_part: MONTH
-          - keyword: FROM
-          - expression:
-            - column_reference:
-              - naked_identifier: logdate
-          - end_bracket: )
+        - function_contents:
+          - bracketed:
+            - start_bracket: (
+            - date_part: MONTH
+            - keyword: FROM
+            - expression:
+              - column_reference:
+                - naked_identifier: logdate
+            - end_bracket: )
       - end_bracket: )
 - statement_terminator: ;
 - statement:
@@ -628,22 +631,24 @@ file:
       - function:
         - function_name:
           - function_name_identifier: left
-        - bracketed:
-          - start_bracket: (
-          - expression:
-            - function:
-              - function_name:
-                - function_name_identifier: lower
-              - bracketed:
-                - start_bracket: (
-                - expression:
-                  - column_reference:
-                    - naked_identifier: name
-                - end_bracket: )
-          - comma: ','
-          - expression:
-            - numeric_literal: '1'
-          - end_bracket: )
+        - function_contents:
+          - bracketed:
+            - start_bracket: (
+            - expression:
+              - function:
+                - function_name:
+                  - function_name_identifier: lower
+                - function_contents:
+                  - bracketed:
+                    - start_bracket: (
+                    - expression:
+                      - column_reference:
+                        - naked_identifier: name
+                    - end_bracket: )
+            - comma: ','
+            - expression:
+              - numeric_literal: '1'
+            - end_bracket: )
       - end_bracket: )
 - statement_terminator: ;
 - statement:
@@ -1397,15 +1402,16 @@ file:
         - function:
           - function_name:
             - function_name_identifier: NEXTVAL
-          - bracketed:
-            - start_bracket: (
-            - expression:
-              - cast_expression:
-                - quoted_literal: '''orders_id_seq'''
-                - casting_operator: '::'
-                - data_type:
-                  - data_type_identifier: regclass
-            - end_bracket: )
+          - function_contents:
+            - bracketed:
+              - start_bracket: (
+              - expression:
+                - cast_expression:
+                  - quoted_literal: '''orders_id_seq'''
+                  - casting_operator: '::'
+                  - data_type:
+                    - data_type_identifier: regclass
+              - end_bracket: )
       - comma: ','
       - column_reference:
         - naked_identifier: constraint_collate_constraints
@@ -2159,16 +2165,17 @@ file:
               - function:
                 - function_name:
                   - function_name_identifier: myfunc
-                - bracketed:
-                  - start_bracket: (
-                  - expression:
-                    - column_reference:
-                      - naked_identifier: a
-                  - comma: ','
-                  - expression:
-                    - column_reference:
-                      - naked_identifier: b
-                  - end_bracket: )
+                - function_contents:
+                  - bracketed:
+                    - start_bracket: (
+                    - expression:
+                      - column_reference:
+                        - naked_identifier: a
+                    - comma: ','
+                    - expression:
+                      - column_reference:
+                        - naked_identifier: b
+                    - end_bracket: )
             - keyword: WITH
             - comparison_operator:
               - raw_comparison_operator: =
@@ -2178,16 +2185,17 @@ file:
               - function:
                 - function_name:
                   - function_name_identifier: myfunc_opclass
-                - bracketed:
-                  - start_bracket: (
-                  - expression:
-                    - column_reference:
-                      - naked_identifier: a
-                  - comma: ','
-                  - expression:
-                    - column_reference:
-                      - naked_identifier: b
-                  - end_bracket: )
+                - function_contents:
+                  - bracketed:
+                    - start_bracket: (
+                    - expression:
+                      - column_reference:
+                        - naked_identifier: a
+                    - comma: ','
+                    - expression:
+                      - column_reference:
+                        - naked_identifier: b
+                    - end_bracket: )
               - index_element_options:
                 - operator_class_reference:
                   - naked_identifier: fop

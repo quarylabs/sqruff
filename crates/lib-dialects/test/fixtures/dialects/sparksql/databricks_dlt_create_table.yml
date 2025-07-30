@@ -88,14 +88,15 @@ file:
               - function:
                 - function_name:
                   - function_name_identifier: CLOUD_FILES
-                - bracketed:
-                  - start_bracket: (
-                  - expression:
-                    - quoted_literal: '"/databricks-datasets/retail-org/customers/"'
-                  - comma: ','
-                  - expression:
-                    - quoted_literal: '"csv"'
-                  - end_bracket: )
+                - function_contents:
+                  - bracketed:
+                    - start_bracket: (
+                    - expression:
+                      - quoted_literal: '"/databricks-datasets/retail-org/customers/"'
+                    - comma: ','
+                    - expression:
+                      - quoted_literal: '"csv"'
+                    - end_bracket: )
 - statement_terminator: ;
 - statement:
   - create_table_statement:
@@ -126,14 +127,15 @@ file:
               - function:
                 - function_name:
                   - function_name_identifier: STREAM
-                - bracketed:
-                  - start_bracket: (
-                  - expression:
-                    - column_reference:
-                      - naked_identifier: live
-                      - dot: .
-                      - naked_identifier: customers_bronze
-                  - end_bracket: )
+                - function_contents:
+                  - bracketed:
+                    - start_bracket: (
+                    - expression:
+                      - column_reference:
+                        - naked_identifier: live
+                        - dot: .
+                        - naked_identifier: customers_bronze
+                    - end_bracket: )
 - statement_terminator: ;
 - statement:
   - create_table_statement:
@@ -196,14 +198,15 @@ file:
               - function:
                 - function_name:
                   - function_name_identifier: STREAM
-                - bracketed:
-                  - start_bracket: (
-                  - expression:
-                    - column_reference:
-                      - naked_identifier: live
-                      - dot: .
-                      - naked_identifier: customers_bronze
-                  - end_bracket: )
+                - function_contents:
+                  - bracketed:
+                    - start_bracket: (
+                    - expression:
+                      - column_reference:
+                        - naked_identifier: live
+                        - dot: .
+                        - naked_identifier: customers_bronze
+                    - end_bracket: )
 - statement_terminator: ;
 - statement:
   - create_table_statement:

@@ -15,12 +15,13 @@ file:
         - function:
           - function_name:
             - function_name_identifier: sum
-          - bracketed:
-            - start_bracket: (
-            - expression:
-              - column_reference:
-                - naked_identifier: total_count
-            - end_bracket: )
+          - function_contents:
+            - bracketed:
+              - start_bracket: (
+              - expression:
+                - column_reference:
+                  - naked_identifier: total_count
+              - end_bracket: )
         - alias_expression:
           - keyword: as
           - naked_identifier: cnt
@@ -65,12 +66,13 @@ file:
         - function:
           - function_name:
             - function_name_identifier: sum
-          - bracketed:
-            - start_bracket: (
-            - expression:
-              - column_reference:
-                - naked_identifier: total_count
-            - end_bracket: )
+          - function_contents:
+            - bracketed:
+              - start_bracket: (
+              - expression:
+                - column_reference:
+                  - naked_identifier: total_count
+              - end_bracket: )
         - alias_expression:
           - keyword: as
           - naked_identifier: cnt
@@ -115,12 +117,13 @@ file:
         - function:
           - function_name:
             - function_name_identifier: sum
-          - bracketed:
-            - start_bracket: (
-            - expression:
-              - column_reference:
-                - naked_identifier: total_count
-            - end_bracket: )
+          - function_contents:
+            - bracketed:
+              - start_bracket: (
+              - expression:
+                - column_reference:
+                  - naked_identifier: total_count
+              - end_bracket: )
         - alias_expression:
           - keyword: as
           - naked_identifier: cnt
@@ -165,12 +168,13 @@ file:
         - function:
           - function_name:
             - function_name_identifier: sum
-          - bracketed:
-            - start_bracket: (
-            - expression:
-              - column_reference:
-                - naked_identifier: total_count
-            - end_bracket: )
+          - function_contents:
+            - bracketed:
+              - start_bracket: (
+              - expression:
+                - column_reference:
+                  - naked_identifier: total_count
+              - end_bracket: )
         - alias_expression:
           - keyword: as
           - naked_identifier: cnt
@@ -236,12 +240,13 @@ file:
         - function:
           - function_name:
             - function_name_identifier: sum
-          - bracketed:
-            - start_bracket: (
-            - expression:
-              - column_reference:
-                - naked_identifier: total_count
-            - end_bracket: )
+          - function_contents:
+            - bracketed:
+              - start_bracket: (
+              - expression:
+                - column_reference:
+                  - naked_identifier: total_count
+              - end_bracket: )
         - alias_expression:
           - keyword: as
           - naked_identifier: cnt

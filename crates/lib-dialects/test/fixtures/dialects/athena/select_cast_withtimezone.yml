@@ -7,35 +7,37 @@ file:
         - function:
           - function_name:
             - function_name_identifier: cast
-          - bracketed:
-            - start_bracket: (
-            - expression:
-              - column_reference:
-                - naked_identifier: field_1
-            - keyword: as
-            - data_type:
-              - keyword: time
-              - keyword: with
-              - keyword: time
-              - keyword: zone
-            - end_bracket: )
+          - function_contents:
+            - bracketed:
+              - start_bracket: (
+              - expression:
+                - column_reference:
+                  - naked_identifier: field_1
+              - keyword: as
+              - data_type:
+                - keyword: time
+                - keyword: with
+                - keyword: time
+                - keyword: zone
+              - end_bracket: )
       - comma: ','
       - select_clause_element:
         - function:
           - function_name:
             - function_name_identifier: cast
-          - bracketed:
-            - start_bracket: (
-            - expression:
-              - column_reference:
-                - naked_identifier: field_2
-            - keyword: as
-            - data_type:
-              - keyword: timestamp
-              - keyword: with
-              - keyword: time
-              - keyword: zone
-            - end_bracket: )
+          - function_contents:
+            - bracketed:
+              - start_bracket: (
+              - expression:
+                - column_reference:
+                  - naked_identifier: field_2
+              - keyword: as
+              - data_type:
+                - keyword: timestamp
+                - keyword: with
+                - keyword: time
+                - keyword: zone
+              - end_bracket: )
     - from_clause:
       - keyword: FROM
       - from_expression:

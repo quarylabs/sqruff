@@ -3777,16 +3777,17 @@ pub fn raw_dialect() -> Dialect {
 
     // Override BaseExpressionElementGrammar to prioritize CaseExpressionSegment over DatatypeSegment
     // The ANSI version includes DatatypeSegment which was matching "CASE" as a data type
+    // Use add() with explicit precedence - this will override the base version
     dialect.add([(
         "BaseExpressionElementGrammar".into(),
         one_of(vec_of_erased![
+            // CRITICAL: Put CaseExpressionSegment FIRST to ensure it matches before any data type parsing
+            Ref::new("CaseExpressionSegment"),
             Ref::new("LiteralGrammar"),
             Ref::new("BareFunctionSegment"),
             Ref::new("IntervalExpressionSegment"),
             Ref::new("FunctionSegment"),
             Ref::new("ColumnReferenceSegment"),
-            // CRITICAL: Try CaseExpressionSegment BEFORE ExpressionSegment to prevent data type matching
-            Ref::new("CaseExpressionSegment"),
             Ref::new("ExpressionSegment"),
             Sequence::new(vec_of_erased![
                 Ref::new("DatatypeSegment"),

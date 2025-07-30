@@ -184,7 +184,7 @@ pub fn raw_dialect() -> Dialect {
             // Variables: @MyVar (local) or @@ROWCOUNT (global/system)
             Matcher::regex(
                 "tsql_variable",
-                r"@@?[a-zA-Z_][a-zA-Z0-9_]*",
+                r"@@?[\p{L}_][\p{L}\p{N}_]*",
                 SyntaxKind::TsqlVariable,
             ),
             // Special T-SQL $action variable for MERGE OUTPUT clause
@@ -234,7 +234,7 @@ pub fn raw_dialect() -> Dialect {
         Matcher::regex("inline_comment", r"--[^\n]*", SyntaxKind::InlineComment),
         Matcher::regex(
             "word",
-            r"##?[a-zA-Z0-9_]+|[0-9a-zA-Z_]+#?",
+            r"##?[\p{L}\p{N}_]+|[\p{N}\p{L}_]+#?",
             SyntaxKind::Word,
         ),
     ]);

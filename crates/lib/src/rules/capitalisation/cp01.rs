@@ -221,15 +221,10 @@ pub fn handle_segment(
         if segment_raw.as_str() != segment_raw.to_uppercase() {
             refuted_cases.insert("upper");
         }
-        if segment_raw.as_str()
-            != segment_raw
-                .to_uppercase()
-                .chars()
-                .next()
-                .unwrap()
-                .to_string()
-                + segment_raw[1..].to_lowercase().as_str()
-        {
+        let mut chars = segment_raw.chars();
+        let first_char_upper = chars.next().unwrap().to_uppercase().to_string();
+        let rest_chars_lower = chars.collect::<String>().to_lowercase();
+        if segment_raw.as_str() != (first_char_upper + &rest_chars_lower) {
             refuted_cases.insert("capitalise");
         }
         if !segment_raw.chars().all(|c| c.is_alphanumeric()) {

@@ -1026,5 +1026,7 @@ file:
           - select_clause_element:
             - column_reference:
               - naked_identifier: field1
-          - unparsable:
-            - word: AS
+            - alias_expression:
+              - keyword: AS
+              - naked_identifier: 日期差多少天
+  - statement_terminator: ;

@@ -1256,34 +1256,37 @@ pub fn raw_dialect() -> Dialect {
     // TRY...CATCH blocks
     dialect.add([(
         "TryBlockSegment".into(),
-        Sequence::new(vec_of_erased![
-            Ref::keyword("BEGIN"),
-            Ref::keyword("TRY"),
-            MetaSegment::indent(),
-            AnyNumberOf::new(vec_of_erased![Sequence::new(vec_of_erased![
-                Ref::new("StatementSegment"),
-                Ref::new("DelimiterGrammar").optional()
-            ])])
-            .config(|this| {
-                this.terminators = vec_of_erased![Ref::keyword("END")];
-            }),
-            MetaSegment::dedent(),
-            Ref::keyword("END"),
-            Ref::keyword("TRY"),
-            Ref::keyword("BEGIN"),
-            Ref::keyword("CATCH"),
-            MetaSegment::indent(),
-            AnyNumberOf::new(vec_of_erased![Sequence::new(vec_of_erased![
-                Ref::new("StatementSegment"),
-                Ref::new("DelimiterGrammar").optional()
-            ])])
-            .config(|this| {
-                this.terminators = vec_of_erased![Ref::keyword("END")];
-            }),
-            MetaSegment::dedent(),
-            Ref::keyword("END"),
-            Ref::keyword("CATCH")
-        ])
+        NodeMatcher::new(SyntaxKind::TryBlock, |_| {
+            Sequence::new(vec_of_erased![
+                Ref::keyword("BEGIN"),
+                Ref::keyword("TRY"),
+                MetaSegment::indent(),
+                AnyNumberOf::new(vec_of_erased![Sequence::new(vec_of_erased![
+                    Ref::new("StatementSegment"),
+                    Ref::new("DelimiterGrammar").optional()
+                ])])
+                .config(|this| {
+                    this.terminators = vec_of_erased![Ref::keyword("END")];
+                }),
+                MetaSegment::dedent(),
+                Ref::keyword("END"),
+                Ref::keyword("TRY"),
+                Ref::keyword("BEGIN"),
+                Ref::keyword("CATCH"),
+                MetaSegment::indent(),
+                AnyNumberOf::new(vec_of_erased![Sequence::new(vec_of_erased![
+                    Ref::new("StatementSegment"),
+                    Ref::new("DelimiterGrammar").optional()
+                ])])
+                .config(|this| {
+                    this.terminators = vec_of_erased![Ref::keyword("END")];
+                }),
+                MetaSegment::dedent(),
+                Ref::keyword("END"),
+                Ref::keyword("CATCH")
+            ])
+            .to_matchable()
+        })
         .to_matchable()
         .into(),
     )]);
@@ -1560,69 +1563,6 @@ pub fn raw_dialect() -> Dialect {
                         ])
                     ]),
                     MetaSegment::dedent()
-                ])
-                .config(|this| this.optional()),
-                // Optional AT clause for linked server execution
-                Sequence::new(vec_of_erased![
-                    Ref::keyword("AT"),
-                    one_of(vec_of_erased![
-                        Ref::new("ObjectReferenceSegment"), // Server name
-                        Sequence::new(vec_of_erased![
-                            Ref::keyword("DATA_SOURCE"),
-                            Ref::new("ObjectReferenceSegment") // Data source name
-                        ])
-                    ])
-                ])
-                .config(|this| this.optional()),
-                // Optional WITH clause
-                Sequence::new(vec_of_erased![
-                    Ref::keyword("WITH"),
-                    one_of(vec_of_erased![
-                        Ref::keyword("RECOMPILE"),
-                        // RESULT SETS clause
-                        Sequence::new(vec_of_erased![
-                            Ref::keyword("RESULT"),
-                            Ref::keyword("SETS"),
-                            one_of(vec_of_erased![
-                                Ref::keyword("NONE"),
-                                // Result set definitions
-                                Bracketed::new(vec_of_erased![
-                                    Delimited::new(vec_of_erased![
-                                        Bracketed::new(vec_of_erased![
-                                            Delimited::new(vec_of_erased![
-                                                Sequence::new(vec_of_erased![
-                                                    Ref::new("ColumnReferenceSegment"),
-                                                    Ref::new("DatatypeSegment"),
-                                                    Ref::keyword("NOT").optional(),
-                                                    Ref::keyword("NULL").optional()
-                                                ])
-                                            ])
-                                        ])
-                                    ])
-                                ])
-                            ])
-                        ])
-                    ])
-                ])
-                .config(|this| this.optional()),
-                // Optional AS clause (for EXECUTE AS)
-                Sequence::new(vec_of_erased![
-                    Ref::keyword("AS"),
-                    one_of(vec_of_erased![
-                        Ref::keyword("CALLER"),
-                        Ref::keyword("SELF"),
-                        Ref::keyword("OWNER"),
-                        Sequence::new(vec_of_erased![
-                            Ref::keyword("USER"),
-                            Ref::new("AssignmentOperatorSegment"),
-                            Ref::new("QuotedLiteralSegment")
-                        ]),
-                        Sequence::new(vec_of_erased![
-                            Ref::keyword("LOGIN"),
-                            Ref::new("AssignmentOperatorSegment"),
-                            Ref::new("QuotedLiteralSegment")
-                        ])
-                    ])
                 ])
                 .config(|this| this.optional())
             ])
@@ -3429,18 +3369,18 @@ pub fn raw_dialect() -> Dialect {
             Ref::new("ThrowStatementSegment"),
             Ref::new("AtomicBlockSegment"),
             Ref::new("BatchSeparatorSegment"), // GO statements
-            Ref::new("DeclareStatementGrammar"),
+            Ref::new("DeclareStatementSegment"),
             Ref::new("SetVariableStatementSegment"),
-            Ref::new("PrintStatementGrammar"),
-            Ref::new("IfStatementGrammar"),
-            Ref::new("WhileStatementGrammar"),
+            Ref::new("PrintStatementSegment"),
+            Ref::new("IfStatementSegment"),
+            Ref::new("WhileStatementSegment"),
             Ref::new("BreakStatementSegment"),
             Ref::new("ContinueStatementSegment"),
             Ref::new("GotoStatementSegment"),
             Ref::new("LabelSegment"),
-            Ref::new("ExecuteStatementGrammar"),
+            Ref::new("ExecuteStatementSegment"),
             Ref::new("ReconfigureStatementSegment"),
-            Ref::new("UseStatementGrammar"),
+            Ref::new("UseStatementSegment"),
             Ref::new("WaitforStatementSegment"),
             Ref::new("CreateTypeStatementSegment"),
             Ref::new("BulkInsertStatementSegment"),

@@ -1,0 +1,21 @@
+file:
+- statement:
+  - statement:
+    - keyword: EXECUTE
+    - object_reference:
+      - naked_identifier: test
+    - keyword: WITH
+    - keyword: RESULT
+    - keyword: SETS
+    - bracketed:
+      - start_bracket: (
+      - bracketed:
+        - start_bracket: (
+        - column_definition:
+          - naked_identifier: col1
+          - data_type:
+            - data_type:
+              - data_type_identifier: INT
+        - end_bracket: )
+      - end_bracket: )
+  - statement_terminator: ;

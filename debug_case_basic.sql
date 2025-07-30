@@ -1,1 +1,0 @@
-SELECT CASE WHEN 1 >= 1 THEN 'True' ELSE 'False' END;

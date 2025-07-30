@@ -1,0 +1,4 @@
+CREATE PROCEDURE test
+AS
+IF 1 = 1
+    SELECT 1

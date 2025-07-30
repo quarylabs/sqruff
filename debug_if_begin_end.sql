@@ -1,0 +1,6 @@
+CREATE PROCEDURE test
+AS
+IF 1 = 1
+BEGIN
+    PRINT 'True'
+END;

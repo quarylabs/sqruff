@@ -1,0 +1,3 @@
+CREATE PROCEDURE test
+AS
+PRINT 'Hello';

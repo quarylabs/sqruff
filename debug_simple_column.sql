@@ -1,1 +1,0 @@
-EXECUTE uspGetEmployeeManagers 16 WITH RESULT SETS (([Test] INT));

@@ -1,0 +1,9 @@
+file:
+- statement:
+  - statement:
+    - keyword: EXECUTE
+    - object_reference:
+      - naked_identifier: test
+    - keyword: WITH
+    - keyword: RECOMPILE
+  - statement_terminator: ;

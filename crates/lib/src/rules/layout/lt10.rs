@@ -1,60 +1,48 @@
-use ahash::AHashMap;
 use itertools::chain;
 use sqruff_lib_core::dialects::syntax::{SyntaxKind, SyntaxSet};
 use sqruff_lib_core::lint_fix::LintFix;
 use sqruff_lib_core::parser::segments::{ErasedSegment, SegmentBuilder};
 
-use crate::core::config::Value;
 use crate::core::rules::context::RuleContext;
-use crate::core::rules::crawlers::{Crawler, SegmentSeekerCrawler};
-use crate::core::rules::{Erased, ErasedRule, LintResult, Rule, RuleGroups};
+use crate::core::rules::crawlers::SegmentSeekerCrawler;
+use crate::core::rules::{Erased, LintResult, RuleGroups};
+use crate::define_rule;
 use crate::utils::functional::context::FunctionalContext;
 
-#[derive(Debug, Default, Clone)]
-pub struct RuleLT10;
+define_rule!(
+    /// **Anti-pattern**
+    ///
+    /// In this example, the `DISTINCT` modifier is on the next line after the `SELECT` keyword.
+    ///
+    /// ```sql
+    /// select
+    ///     distinct a,
+    ///     b
+    /// from x
+    /// ```
+    ///
+    /// **Best practice**
+    ///
+    /// Move the `DISTINCT` modifier to the same line as the `SELECT` keyword.
+    ///
+    /// ```sql
+    /// select distinct
+    ///     a,
+    ///     b
+    /// from x
+    /// ```
+    pub struct RuleLT10 {};
 
-impl Rule for RuleLT10 {
-    fn load_from_config(&self, _config: &AHashMap<String, Value>) -> Result<ErasedRule, String> {
-        Ok(RuleLT10.erased())
-    }
-    fn name(&self) -> &'static str {
-        "layout.select_modifiers"
-    }
+    name = "layout.select_modifiers";
+    description = "'SELECT' modifiers (e.g. 'DISTINCT') must be on the same line as 'SELECT'.";
+    groups = [RuleGroups::All, RuleGroups::Core, RuleGroups::Layout];
+    eval = eval;
+    load_from_config = load_from_config;
+    is_fix_compatible = true;
+    crawl_behaviour = SegmentSeekerCrawler::new(const { SyntaxSet::new(&[SyntaxKind::SelectClause]) });
+);
 
-    fn description(&self) -> &'static str {
-        "'SELECT' modifiers (e.g. 'DISTINCT') must be on the same line as 'SELECT'."
-    }
-
-    fn long_description(&self) -> &'static str {
-        r#"
-**Anti-pattern**
-
-In this example, the `DISTINCT` modifier is on the next line after the `SELECT` keyword.
-
-```sql
-select
-    distinct a,
-    b
-from x
-```
-
-**Best practice**
-
-Move the `DISTINCT` modifier to the same line as the `SELECT` keyword.
-
-```sql
-select distinct
-    a,
-    b
-from x
-```
-"#
-    }
-
-    fn groups(&self) -> &'static [RuleGroups] {
-        &[RuleGroups::All, RuleGroups::Core, RuleGroups::Layout]
-    }
-    fn eval(&self, context: &RuleContext) -> Vec<LintResult> {
+fn eval(context: &RuleContext) -> Vec<LintResult> {
         // Get children of select_clause and the corresponding select keyword.
         let child_segments = FunctionalContext::new(context).segment().children(None);
         let select_keyword = child_segments.first().unwrap();
@@ -153,13 +141,10 @@ from x
             None,
             None,
         )]
-    }
+}
 
-    fn is_fix_compatible(&self) -> bool {
-        true
-    }
-
-    fn crawl_behaviour(&self) -> Crawler {
-        SegmentSeekerCrawler::new(const { SyntaxSet::new(&[SyntaxKind::SelectClause]) }).into()
-    }
+fn load_from_config(
+    _config: &ahash::AHashMap<String, crate::core::config::Value>,
+) -> Result<crate::core::rules::ErasedRule, String> {
+    Ok(RuleLT10 {}.erased())
 }

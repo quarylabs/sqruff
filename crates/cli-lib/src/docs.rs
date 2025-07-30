@@ -84,7 +84,7 @@ struct Rule {
     pub code: &'static str,
     pub description: &'static str,
     pub fixable: bool,
-    pub long_description: String,
+    pub long_description: &'static str,
     pub groups: Vec<&'static str>,
     pub has_dialects: bool,
     pub dialects: Vec<&'static str>,
@@ -98,16 +98,7 @@ impl From<ErasedRule> for Rule {
             code: value.code(),
             fixable: value.is_fix_compatible(),
             description: value.description(),
-            long_description: value
-                .long_description()
-                .lines()
-                .map(|line| {
-                    line.strip_prefix(char::is_whitespace)
-                        .unwrap_or(line)
-                        .trim_end()
-                })
-                .collect::<Vec<_>>()
-                .join("\n"),
+            long_description: value.long_description(),
             groups: value.groups().iter().map(|g| g.as_ref()).collect(),
             has_dialects: !value.dialect_skip().is_empty(),
             dialects: value

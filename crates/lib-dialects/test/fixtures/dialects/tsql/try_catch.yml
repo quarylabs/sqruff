@@ -72,7 +72,7 @@ file:
         - quoted_literal: N'an error occurred'
       - comma: ','
       - numeric_literal: '1'
-      - statement_terminator: ;
+  - statement_terminator: ;
 - unparsable:
   - word: BEGIN
   - word: TRY

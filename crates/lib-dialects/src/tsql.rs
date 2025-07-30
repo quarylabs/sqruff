@@ -8114,8 +8114,7 @@ pub fn raw_dialect() -> Dialect {
                     Ref::new("CommaSegment"),
                     Ref::new("NumericLiteralSegment"),
                 ])
-                .config(|this| this.optional()),
-                Ref::new("DelimiterGrammar").optional(),
+                .config(|this| this.optional())
             ])
             .to_matchable()
         })

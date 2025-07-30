@@ -160,9 +160,7 @@ pub fn raw_dialect() -> Dialect {
     // T-SQL specific operators
     dialect.sets_mut("operator_symbols").extend([
         "%=", "&=", "*=", "+=", "-=", "/=", "^=", "|=", // Compound assignment
-        "!<", "!>", // Special comparison operators
-        "! <", "! >", "! =", // Spaced versions of special operators  
-        "> =", "< =", "< >", // Spaced versions of standard operators
+        "!<", "!>", // Special comparison operators (non-spaced versions)
     ]);
 
 
@@ -5914,6 +5912,121 @@ pub fn raw_dialect() -> Dialect {
             Ref::new("ConcatSegment"), // Standard || operator
             Ref::new("PlusSegment"),   // T-SQL + operator for string concatenation
             Ref::keyword("COLLATE"),   // T-SQL COLLATE clause for string comparison
+        ])
+        .to_matchable()
+        .into(),
+    )]);
+
+    // T-SQL specific comparison operators that allow flexible whitespace
+    dialect.add([
+        // T-SQL >= with flexible spacing: >= or > =
+        (
+            "TsqlGreaterThanOrEqualToSegment".into(),
+            NodeMatcher::new(SyntaxKind::ComparisonOperator, |_| {
+                Sequence::new(vec_of_erased![
+                    Ref::new("RawGreaterThanSegment"),
+                    Ref::new("RawEqualsSegment"),
+                ])
+                .allow_gaps(true) // Allow whitespace between > and =
+                .to_matchable()
+            })
+            .to_matchable()
+            .into(),
+        ),
+        // T-SQL <= with flexible spacing: <= or < =
+        (
+            "TsqlLessThanOrEqualToSegment".into(),
+            NodeMatcher::new(SyntaxKind::ComparisonOperator, |_| {
+                Sequence::new(vec_of_erased![
+                    Ref::new("RawLessThanSegment"),
+                    Ref::new("RawEqualsSegment"),
+                ])
+                .allow_gaps(true) // Allow whitespace between < and =
+                .to_matchable()
+            })
+            .to_matchable()
+            .into(),
+        ),
+        // T-SQL <> with flexible spacing: <> or < >
+        (
+            "TsqlNotEqualToSegment".into(),
+            NodeMatcher::new(SyntaxKind::ComparisonOperator, |_| {
+                Sequence::new(vec_of_erased![
+                    Ref::new("RawLessThanSegment"),
+                    Ref::new("RawGreaterThanSegment"),
+                ])
+                .allow_gaps(true) // Allow whitespace between < and >
+                .to_matchable()
+            })
+            .to_matchable()
+            .into(),
+        ),
+        // T-SQL != with flexible spacing: != or ! =
+        (
+            "TsqlNotEqualsSegment".into(),
+            NodeMatcher::new(SyntaxKind::ComparisonOperator, |_| {
+                Sequence::new(vec_of_erased![
+                    Ref::new("RawNotSegment"),
+                    Ref::new("RawEqualsSegment"),
+                ])
+                .allow_gaps(true) // Allow whitespace between ! and =
+                .to_matchable()
+            })
+            .to_matchable()
+            .into(),
+        ),
+        // T-SQL !< with flexible spacing: !< or ! <
+        (
+            "TsqlNotLessThanSegment".into(),
+            NodeMatcher::new(SyntaxKind::ComparisonOperator, |_| {
+                Sequence::new(vec_of_erased![
+                    Ref::new("RawNotSegment"),
+                    Ref::new("RawLessThanSegment"),
+                ])
+                .allow_gaps(true) // Allow whitespace between ! and <
+                .to_matchable()
+            })
+            .to_matchable()
+            .into(),
+        ),
+        // T-SQL !> with flexible spacing: !> or ! >
+        (
+            "TsqlNotGreaterThanSegment".into(),
+            NodeMatcher::new(SyntaxKind::ComparisonOperator, |_| {
+                Sequence::new(vec_of_erased![
+                    Ref::new("RawNotSegment"),
+                    Ref::new("RawGreaterThanSegment"),
+                ])
+                .allow_gaps(true) // Allow whitespace between ! and >
+                .to_matchable()
+            })
+            .to_matchable()
+            .into(),
+        ),
+    ]);
+
+    // Override ComparisonOperatorGrammar to include T-SQL specific flexible operators
+    dialect.add([(
+        "ComparisonOperatorGrammar".into(),
+        one_of(vec_of_erased![
+            // T-SQL specific operators with flexible spacing - put these FIRST for priority
+            Ref::new("TsqlGreaterThanOrEqualToSegment"),
+            Ref::new("TsqlLessThanOrEqualToSegment"),
+            Ref::new("TsqlNotEqualToSegment"),
+            Ref::new("TsqlNotEqualsSegment"),
+            Ref::new("TsqlNotLessThanSegment"),
+            Ref::new("TsqlNotGreaterThanSegment"),
+            // Standard operators (fallback for non-spaced versions)
+            Ref::new("EqualsSegment"),
+            Ref::new("GreaterThanSegment"),
+            Ref::new("LessThanSegment"),
+            Ref::new("LikeOperatorSegment"),
+            Sequence::new(vec_of_erased![
+                Ref::keyword("IS"),
+                Ref::keyword("NOT").optional(),
+                Ref::keyword("DISTINCT"),
+                Ref::keyword("FROM")
+            ])
         ])
         .to_matchable()
         .into(),

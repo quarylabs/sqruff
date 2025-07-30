@@ -820,10 +820,11 @@ pub fn raw_dialect() -> Dialect {
 
             // T-SQL pattern: supports both temp tables (#temp, ##global) and identifiers ending with #
             // Pattern explanation:
-            // - ##?[A-Za-z0-9_]+    matches temp tables: #temp, ##global, #3, etc (case insensitive)
-            // - [A-Za-z0-9_]*[A-Za-z][A-Za-z0-9_]*#?   matches regular identifiers with optional # at end
+            // - ##?[A-Za-z0-9_\u{0080}-\u{FFFF}]+    matches temp tables: #temp, ##global, #3, etc (with Unicode support)
+            // - [A-Za-z0-9_\u{0080}-\u{FFFF}]*[A-Za-z\u{0080}-\u{FFFF}][A-Za-z0-9_\u{0080}-\u{FFFF}]*#?   matches regular identifiers with optional # at end (with Unicode support)
+            // Unicode range \u{0080}-\u{FFFF} covers most common Unicode characters
             RegexParser::new(
-                r"(##?[A-Za-z0-9_]+|[A-Za-z0-9_]*[A-Za-z][A-Za-z0-9_]*#?)",
+                r"(##?[A-Za-z0-9_\u{0080}-\u{FFFF}]+|[A-Za-z0-9_\u{0080}-\u{FFFF}]*[A-Za-z\u{0080}-\u{FFFF}][A-Za-z0-9_\u{0080}-\u{FFFF}]*#?)",
                 SyntaxKind::NakedIdentifier,
             )
             .anti_template(&anti_template)

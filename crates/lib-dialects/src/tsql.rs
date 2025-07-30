@@ -5117,8 +5117,8 @@ pub fn raw_dialect() -> Dialect {
                     Ref::new("SingleIdentifierGrammar"),
                     Ref::new("QuotedIdentifierSegment")
                 ]),
-                // Data type (use simpler DataTypeIdentifierSegment instead of full TsqlDatatypeSegment)
-                Ref::new("DataTypeIdentifierSegment"),
+                // Data type (use TsqlDatatypeSegment for T-SQL specific types like INT)
+                Ref::new("TsqlDatatypeSegment"),
                 // Optional NULL/NOT NULL constraint
                 one_of(vec_of_erased![
                     Ref::keyword("NULL"),
@@ -6039,7 +6039,7 @@ pub fn raw_dialect() -> Dialect {
         SegmentGenerator::new(|_| {
             // Generate the anti template from the set of reserved keywords
             // Exclude keywords that should not be parsed as data types
-            let anti_template = format!("^({})$", "NOT|EXECUTE|EXEC");
+            let anti_template = format!("^({})$", "NOT|EXECUTE|EXEC|WITH");
 
             one_of(vec![
                 // Case-insensitive pattern for T-SQL data type identifiers (including UDTs)

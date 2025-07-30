@@ -1390,7 +1390,14 @@ pub fn raw_dialect() -> Dialect {
                                     ])
                                 ])
                             ])
-                        ])])
+                        ])]).config(|this| {
+                            // Stop parsing parameters when we encounter optional clauses
+                            this.terminators = vec_of_erased![
+                                Ref::keyword("AS"),     // AS USER clause
+                                Ref::keyword("WITH"),   // WITH RECOMPILE or WITH RESULT SETS
+                                Ref::keyword("AT")      // AT linked_server clause
+                            ];
+                        })
                     ])
                 ]),
                 // Optional AS USER clause
@@ -1419,7 +1426,7 @@ pub fn raw_dialect() -> Dialect {
                         Bracketed::new(vec_of_erased![
                             // Result set column definitions
                             Delimited::new(vec_of_erased![
-                                Ref::new("ColumnDefinitionSegment")
+                                Ref::new("ResultSetColumnDefinitionSegment")
                             ])
                         ]),
                         // Multiple result sets
@@ -1427,7 +1434,7 @@ pub fn raw_dialect() -> Dialect {
                             Delimited::new(vec_of_erased![
                                 Bracketed::new(vec_of_erased![
                                     Delimited::new(vec_of_erased![
-                                        Ref::new("ColumnDefinitionSegment")
+                                        Ref::new("ResultSetColumnDefinitionSegment")
                                     ])
                                 ])
                             ])
@@ -4900,6 +4907,21 @@ pub fn raw_dialect() -> Dialect {
         .into(),
     );
 
+    // Add T-SQL specific WithCheckOptionSegment - must be defined before use
+    dialect.add([(
+        "WithCheckOptionSegment".into(),
+        NodeMatcher::new(SyntaxKind::WithCheckOption, |_| {
+            Sequence::new(vec_of_erased![
+                Ref::keyword("WITH"),
+                Ref::keyword("CHECK"),
+                Ref::keyword("OPTION")
+            ])
+            .to_matchable()
+        })
+        .to_matchable()
+        .into(),
+    )]);
+
     // Override SelectStatementSegment to add FOR clause and OPTION clause after ORDER BY
     dialect.replace_grammar(
         "SelectStatementSegment",
@@ -5087,6 +5109,62 @@ pub fn raw_dialect() -> Dialect {
         .into(),
     )]);
 
+    // Add ResultSetColumnDefinitionSegment for simplified column definitions in WITH RESULT SETS
+    dialect.add([(
+        "ResultSetColumnDefinitionSegment".into(),
+        NodeMatcher::new(SyntaxKind::ColumnDefinition, |_| {
+            Sequence::new(vec_of_erased![
+                // Column name (can be naked or bracketed identifier)
+                one_of(vec_of_erased![
+                    Ref::new("NakedIdentifierSegment"),
+                    Ref::new("QuotedIdentifierSegment")
+                ]),
+                // Data type
+                Ref::new("TsqlDatatypeSegment"),
+                // Optional NULL/NOT NULL constraint
+                one_of(vec_of_erased![
+                    Ref::keyword("NULL"),
+                    Sequence::new(vec_of_erased![
+                        Ref::keyword("NOT"),
+                        Ref::keyword("NULL")
+                    ])
+                ]).config(|this| this.optional())
+            ])
+            .to_matchable()
+        })
+        .to_matchable()
+        .into(),
+    )]);
+
+    // Create a custom grammar for SELECT statements within CREATE VIEW
+    // This ensures WITH CHECK OPTION is not consumed by the SELECT parser
+    dialect.add([(
+        "CreateViewSelectableGrammar".into(),
+        one_of(vec_of_erased![
+            // CTE with SELECT - exclude WITH CHECK pattern
+            Sequence::new(vec_of_erased![
+                Ref::keyword("WITH")
+                    .exclude(LookaheadExclude::new("WITH", "CHECK")),
+                Ref::keyword("RECURSIVE").optional(),
+                Conditional::new(MetaSegment::indent()).indented_ctes(),
+                Delimited::new(vec_of_erased![Ref::new("CTEDefinitionSegment")]).config(
+                    |this| {
+                        this.terminators = vec_of_erased![Ref::keyword("SELECT")];
+                        this.allow_trailing();
+                    }
+                ),
+                Conditional::new(MetaSegment::dedent()).indented_ctes(),
+                Ref::new("NonWithSelectableGrammar"),
+            ]),
+            // Regular SELECT without CTE
+            Ref::new("NonWithSelectableGrammar"),
+            // Bracketed selectable
+            Bracketed::new(vec_of_erased![Ref::new("CreateViewSelectableGrammar")]),
+        ])
+        .to_matchable()
+        .into(),
+    )]);
+
     // Override CREATE VIEW to support CREATE OR ALTER VIEW
     dialect.replace_grammar(
         "CreateViewStatementSegment",
@@ -5122,9 +5200,17 @@ pub fn raw_dialect() -> Dialect {
                 ])
                 .config(|this| this.optional()),
                 Ref::keyword("AS"),
-                optionally_bracketed(vec_of_erased![Ref::new("SelectableGrammar")]),
-                // WITH CHECK OPTION at the end using proper segment
-                Ref::new("WithCheckOptionSegment").optional()
+                // Parse the SELECT statement, but lookahead to preserve WITH CHECK OPTION
+                Sequence::new(vec_of_erased![
+                    optionally_bracketed(vec_of_erased![Ref::new("SelectableGrammar")])
+                        .config(|this| {
+                            this.terminators = vec_of_erased![
+                                Ref::new("WithCheckOptionSegment")
+                            ];
+                        }),
+                    // WITH CHECK OPTION at the end using proper segment
+                    Ref::new("WithCheckOptionSegment").optional()
+                ])
             ])
             .to_matchable()
         })

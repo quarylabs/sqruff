@@ -428,10 +428,10 @@ file:
               - comparison_operator:
                 - raw_comparison_operator: =
               - quoted_literal: '''Seattle'''
-          - unparsable:
-            - word: WITH
-            - word: CHECK
-            - word: OPTION
+        - with_check_option:
+          - keyword: WITH
+          - keyword: CHECK
+          - keyword: OPTION
   - statement_terminator: ;
   - statement:
     - create_view_statement:

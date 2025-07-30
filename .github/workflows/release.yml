@@ -204,7 +204,6 @@ jobs:
         with:
           command: publish
           args: --token ${{ secrets.CARGO_API_TOKEN }} -p sqruff-lsp
-
       - name: Publish sqruff-cli-lib to Cargo
         uses: actions-rs/cargo@844f36862e911db73fe0815f00a4a2602c279505 # ratchet:actions-rs/cargo@v1
         with:
@@ -215,6 +214,11 @@ jobs:
         with:
           command: publish
           args: --token ${{ secrets.CARGO_API_TOKEN }} -p sqruff
+      - name: Publish sqruff-sqlinference to Cargo
+        uses: actions-rs/cargo@844f36862e911db73fe0815f00a4a2602c279505 # ratchet:actions-rs/cargo@v1
+        with:
+          command: publish
+          args: --token ${{ secrets.CARGO_API_TOKEN }} -p sqruff-sqlinference
   publish-to-marketplace:
     name: Publish VSIX to VSCode Marketplace
     runs-on: ubuntu-latest

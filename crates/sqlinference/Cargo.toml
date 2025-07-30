@@ -1,5 +1,6 @@
 [package]
 name = "sqruff-sqlinference"
+description = "A high-speed SQL linter inference library."
 version.workspace = true
 repository.workspace = true
 edition.workspace = true

@@ -1586,6 +1586,7 @@ pub fn raw_dialect() -> Dialect {
         ),
     ]);
 
+
     // IF...ELSE statement
     // Handle T-SQL's lexing behavior where IF/ELSE can be lexed as words in procedure contexts
     dialect.add([(
@@ -1594,58 +1595,49 @@ pub fn raw_dialect() -> Dialect {
             Sequence::new(vec_of_erased![
                 Ref::keyword("IF"),
                 Ref::new("ExpressionSegment"),
-                MetaSegment::indent(),
-                // Use a constrained statement that terminates on ELSE at the same level
+                // Try AnyNumberOf pattern like BeginEndBlockSegment to handle statement boundaries better
                 one_of(vec_of_erased![
-                    // BEGIN...END block (already handles its own delimiters)
+                    // BEGIN...END block (already handles its own delimiters and indentation)
                     Ref::new("BeginEndBlockSegment"),
-                    // Single statement (with optional delimiter)
-                    Sequence::new(vec_of_erased![
+                    // Follow SQLFluff's flexible approach - remove artificial constraints
+                    AnyNumberOf::new(vec_of_erased![Sequence::new(vec_of_erased![
                         Ref::new("StatementSegment"),
                         Ref::new("DelimiterGrammar").optional()
-                    ])
-                ])
-                .config(|this| {
-                    this.terminators = vec_of_erased![
-                        Ref::keyword("ELSE"),
-                        // Also terminate on GO batch separator
-                        Ref::new("BatchSeparatorGrammar"),
-                        // Terminate on other statement keywords to handle multi-statement files
-                        Ref::keyword("IF"),
-                        Ref::keyword("SELECT"),
-                        Ref::keyword("INSERT"),
-                        Ref::keyword("UPDATE"),
-                        Ref::keyword("DELETE"),
-                        Ref::keyword("CREATE"),
-                        Ref::keyword("DROP"),
-                        Ref::keyword("ALTER"),
-                        Ref::keyword("DECLARE"),
-                        Ref::keyword("SET"),
-                        Ref::keyword("PRINT"),
-                        Ref::keyword("WHILE"),
-                        Ref::keyword("BREAK"),
-                        Ref::keyword("CONTINUE"),
-                        Ref::keyword("GOTO"),
-                        Ref::keyword("EXECUTE"),
-                        Ref::keyword("EXEC")
-                    ];
-                }),
-                MetaSegment::dedent(),
+                    ])])
+                    .config(|this| {
+                        this.min_times(1);
+                        // Remove max_times constraint - let it be flexible like SQLFluff
+                        this.terminators = vec_of_erased![
+                            Ref::keyword("ELSE"),
+                            // Add more terminators that could end an IF block
+                            Ref::keyword("IF"), // Next IF statement
+                            Ref::new("BatchSeparatorGrammar") // GO statement
+                        ];
+                    })
+                ]),
                 Sequence::new(vec_of_erased![
                     Ref::keyword("ELSE"),
-                    MetaSegment::indent(),
                     one_of(vec_of_erased![
-                        // BEGIN...END block (already handles its own delimiters)
+                        // BEGIN...END block (already handles its own delimiters and indentation)
                         Ref::new("BeginEndBlockSegment"),
-                        // Single statement (with optional delimiter)
-                        Sequence::new(vec_of_erased![
+                        // Use flexible AnyNumberOf for ELSE body like SQLFluff
+                        AnyNumberOf::new(vec_of_erased![Sequence::new(vec_of_erased![
                             Ref::new("StatementSegment"),
                             Ref::new("DelimiterGrammar").optional()
-                        ])
-                    ]),
-                    MetaSegment::dedent()
+                        ])])
+                        .config(|this| {
+                            this.min_times(1);
+                            // Remove max_times constraint for ELSE body too
+                            this.terminators = vec_of_erased![
+                                Ref::keyword("IF"), // Next IF statement
+                                Ref::new("BatchSeparatorGrammar") // GO statement
+                            ];
+                        })
+                    ])
                 ])
-                .config(|this| this.optional())
+                .config(|this| this.optional()),
+                // Optional delimiter for the entire IF statement to handle multi-statement files
+                Ref::new("DelimiterGrammar").optional()
             ])
             .to_matchable()
         })

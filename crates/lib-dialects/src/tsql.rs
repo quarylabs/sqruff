@@ -6809,16 +6809,11 @@ pub fn raw_dialect() -> Dialect {
                     Sequence::new(vec_of_erased![Ref::keyword("INSTEAD"), Ref::keyword("OF")])
                 ])
                 .config(|this| this.optional()),
-                // Trigger events - for DML and DDL triggers
-                one_of(vec_of_erased![
-                    // DML events (for table triggers)
-                    Delimited::new(vec_of_erased![
-                        Ref::keyword("INSERT"),
-                        Ref::keyword("UPDATE"),
-                        Ref::keyword("DELETE")
-                    ]),
-                    // DDL events (for DATABASE/ALL SERVER triggers) - allow multiple events
-                    Delimited::new(vec_of_erased![Ref::new("SingleIdentifierGrammar")])
+                // Trigger events - only for DML table triggers (not used for DATABASE/ALL SERVER)
+                Delimited::new(vec_of_erased![
+                    Ref::keyword("INSERT"),
+                    Ref::keyword("UPDATE"),
+                    Ref::keyword("DELETE")
                 ])
                 .config(|this| this.optional()),
                 // Additional options

@@ -231,72 +231,133 @@ file:
           - data_type_identifier: END
   - statement_terminator: ;
   - keyword: GO
+  - statement:
+    - create_trigger_statement:
+      - keyword: CREATE
+      - keyword: TRIGGER
+      - trigger_reference:
+        - naked_identifier: safety
+      - keyword: ON
+      - table_reference:
+        - object_reference:
+          - object_reference:
+            - naked_identifier: DATABASE
+      - keyword: FOR
+      - keyword: DROP_SYNONYM
+      - keyword: AS
+      - statement:
+        - if_statement:
+          - keyword: IF
+          - expression:
+            - bracketed:
+              - start_bracket: (
+              - expression:
+                - parameterized_expression:
+                  - tsql_variable: '@@ROWCOUNT'
+                - comparison_operator:
+                  - raw_comparison_operator: =
+                - numeric_literal: '0'
+              - end_bracket: )
+          - statement:
+            - statement:
+              - keyword: RETURN
+          - statement_terminator: ;
+  - statement:
+    - object_reference:
+      - object_reference:
+        - naked_identifier: RAISERROR
+    - expression:
+      - bracketed:
+        - start_bracket: (
+        - expression:
+          - quoted_literal: '''You must disable Trigger "safety" to remove synonyms!'''
+        - unparsable:
+          - comma: ','
+          - numeric_literal: '10'
+          - comma: ','
+          - numeric_literal: '1'
+        - end_bracket: )
+    - expression:
+      - column_reference:
+        - naked_identifier: ROLLBACK
+    - expression:
+      - data_type:
+        - data_type_identifier: GO
+    - expression:
+      - data_type:
+        - data_type_identifier: DROP
+    - expression:
+      - column_reference:
+        - naked_identifier: TRIGGER
+    - expression:
+      - column_reference:
+        - naked_identifier: safety
+    - expression:
+      - data_type:
+        - data_type_identifier: ON
+    - expression:
+      - column_reference:
+        - naked_identifier: DATABASE
+  - statement_terminator: ;
+  - keyword: GO
+  - statement:
+    - create_trigger_statement:
+      - keyword: CREATE
+      - keyword: TRIGGER
+      - trigger_reference:
+        - naked_identifier: ddl_trig_database
+      - keyword: ON
+      - keyword: ALL
+      - keyword: SERVER
+      - keyword: FOR
+      - keyword: CREATE_DATABASE
+      - keyword: AS
+      - statement:
+        - statement:
+          - keyword: PRINT
+          - expression:
+            - quoted_literal: '''Database Created.'''
+  - statement:
+    - select_statement:
+      - select_clause:
+        - select_clause:
+          - keyword: SELECT
+          - select_clause_element:
+            - numeric_literal: '1'
+  - keyword: GO
+  - statement:
+    - create_trigger_statement:
+      - keyword: CREATE
+      - keyword: TRIGGER
+      - trigger_reference:
+        - naked_identifier: ddl_trig_database
+      - keyword: ON
+      - keyword: ALL
+      - keyword: SERVER
+      - keyword: FOR
+      - keyword: CREATE_DATABASE
+      - keyword: AS
+      - statement:
+        - statement:
+          - keyword: PRINT
+          - expression:
+            - quoted_literal: '''Database Created.'''
+  - statement_terminator: ;
+  - statement:
+    - select_statement:
+      - select_clause:
+        - select_clause:
+          - keyword: SELECT
+          - select_clause_element:
+            - numeric_literal: '1'
+  - keyword: GO
+  - statement:
+    - drop_trigger_statement:
+      - keyword: DROP
+      - keyword: TRIGGER
+      - trigger_reference:
+        - naked_identifier: ddl_trig_database
 - unparsable:
-  - word: CREATE
-  - word: TRIGGER
-  - word: safety
-  - word: ON
-  - word: DATABASE
-  - word: FOR
-  - word: DROP_SYNONYM
-  - word: AS
-  - word: IF
-  - start_bracket: (
-  - tsql_variable: '@@ROWCOUNT'
-  - raw_comparison_operator: =
-  - numeric_literal: '0'
-  - end_bracket: )
-  - word: RETURN
-  - semicolon: ;
-  - word: RAISERROR
-  - start_bracket: (
-  - single_quote: '''You must disable Trigger "safety" to remove synonyms!'''
-  - comma: ','
-  - numeric_literal: '10'
-  - comma: ','
-  - numeric_literal: '1'
-  - end_bracket: )
-  - word: ROLLBACK
-  - word: GO
-  - word: DROP
-  - word: TRIGGER
-  - word: safety
-  - word: ON
-  - word: DATABASE
-  - semicolon: ;
-  - word: GO
-  - word: CREATE
-  - word: TRIGGER
-  - word: ddl_trig_database
-  - word: ON
-  - word: ALL
-  - word: SERVER
-  - word: FOR
-  - word: CREATE_DATABASE
-  - word: AS
-  - word: PRINT
-  - single_quote: '''Database Created.'''
-  - word: SELECT
-  - numeric_literal: '1'
-  - word: GO
-  - word: CREATE
-  - word: TRIGGER
-  - word: ddl_trig_database
-  - word: ON
-  - word: ALL
-  - word: SERVER
-  - word: FOR
-  - word: CREATE_DATABASE
-  - word: AS
-  - word: PRINT
-  - single_quote: '''Database Created.'''
-  - semicolon: ;
-  - word: SELECT
-  - numeric_literal: '1'
-  - word: GO
-  - word: DROP
-  - word: TRIGGER
-  - word: ddl_trig_database
   - word: ON
   - word: ALL
   - word: SERVER

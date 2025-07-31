@@ -91,6 +91,11 @@ impl Wasm {
         let edits = self.0.format(uri);
         serde_wasm_bindgen::to_value(&edits).unwrap()
     }
+
+    #[wasm_bindgen(js_name = formatSource)]
+    pub fn format_source(&mut self, source: &str) -> String {
+        self.0.format_source(source)
+    }
 }
 
 impl LanguageServer {
@@ -118,10 +123,18 @@ impl LanguageServer {
     }
 
     fn format(&mut self, uri: Uri) -> Vec<lsp_types::TextEdit> {
-        let text = &self.documents[&uri];
-        let tree = self.linter.lint_string(text, None, true);
+        let text = self.documents.get(&uri).cloned().unwrap();
+        let new_text = self.format_source(&text);
+        self.documents.insert(uri.clone(), new_text.clone());
+        Self::build_edits(new_text)
+    }
 
-        let new_text = tree.fix_string();
+    fn format_source(&mut self, source: &str) -> String {
+        let tree = self.linter.lint_string(source, None, true);
+        tree.fix_string()
+    }
+
+    fn build_edits(new_text: String) -> Vec<lsp_types::TextEdit> {
         let start_position = Position {
             line: 0,
             character: 0,
@@ -131,11 +144,10 @@ impl LanguageServer {
             character: new_text.chars().count() as u32,
         };
 
-        let result = vec![lsp_types::TextEdit {
+        vec![lsp_types::TextEdit {
             range: lsp_types::Range::new(start_position, end_position),
             new_text,
-        }];
-        result
+        }]
     }
 
     pub fn on_notification(&mut self, method: &str, params: Value) {

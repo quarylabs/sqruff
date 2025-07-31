@@ -1,178 +1,157 @@
 file:
 - statement:
   - statement:
-    - object_reference:
-      - object_reference:
-        - naked_identifier: CREATE
-    - expression:
-      - column_reference:
-        - naked_identifier: VIEW
-    - expression:
-      - column_reference:
-        - naked_identifier: vwCTE
-    - expression:
-      - column_reference:
-        - naked_identifier: AS
-    - expression:
-      - column_reference:
-        - naked_identifier: WITH
-    - expression:
-      - function:
-        - function:
-          - function_name:
-            - function_name_identifier: cte
-          - bracketed:
-            - start_bracket: (
-            - expression:
-              - column_reference:
-                - naked_identifier: EmployeeID
-            - comma: ','
-            - expression:
-              - column_reference:
-                - naked_identifier: ManagerID
-            - comma: ','
-            - expression:
-              - column_reference:
-                - naked_identifier: Title
-            - end_bracket: )
-    - expression:
-      - function:
-        - function:
-          - function_name:
-            - function_name_identifier: AS
-          - bracketed:
-            - start_bracket: (
-            - expression:
-              - select_statement:
-                - select_clause:
-                  - select_clause:
-                    - keyword: SELECT
-                    - select_clause_element:
-                      - column_reference:
-                        - naked_identifier: EmployeeID
-                    - comma: ','
-                    - select_clause_element:
-                      - column_reference:
-                        - naked_identifier: ManagerID
-                    - comma: ','
-                    - select_clause_element:
-                      - column_reference:
-                        - naked_identifier: Title
-                - from_clause:
-                  - keyword: FROM
-                  - from_expression:
-                    - from_expression:
-                      - from_expression_element:
-                        - from_expression_element:
-                          - table_expression:
-                            - table_reference:
-                              - object_reference:
-                                - object_reference:
-                                  - naked_identifier: HumanResources
-                                  - dot: .
-                                  - naked_identifier: Employee
-                - where_clause:
-                  - keyword: WHERE
-                  - expression:
-                    - column_reference:
-                      - naked_identifier: ManagerID
-                    - keyword: IS
-                    - keyword: NOT
-                    - null_literal: 'NULL'
-            - expression:
-              - data_type:
-                - data_type_identifier: UNION
-            - expression:
-              - column_reference:
-                - naked_identifier: ALL
-            - expression:
-              - select_statement:
-                - select_clause:
-                  - select_clause:
-                    - keyword: SELECT
-                    - select_clause_element:
-                      - column_reference:
-                        - naked_identifier: cte
-                        - dot: .
-                        - naked_identifier: EmployeeID
-                    - comma: ','
-                    - select_clause_element:
-                      - column_reference:
-                        - naked_identifier: cte
-                        - dot: .
-                        - naked_identifier: ManagerID
-                    - comma: ','
-                    - select_clause_element:
-                      - column_reference:
-                        - naked_identifier: cte
-                        - dot: .
-                        - naked_identifier: Title
-                - from_clause:
-                  - keyword: FROM
-                  - from_expression:
-                    - from_expression:
-                      - from_expression_element:
-                        - from_expression_element:
-                          - table_expression:
-                            - table_reference:
-                              - object_reference:
-                                - object_reference:
-                                  - naked_identifier: cte
-                      - join_clause:
-                        - keyword: JOIN
-                        - from_expression_element:
+    - create_view_statement:
+      - create_view_statement:
+        - keyword: CREATE
+        - keyword: VIEW
+        - table_reference:
+          - object_reference:
+            - object_reference:
+              - naked_identifier: vwCTE
+        - keyword: AS
+        - with_compound_statement:
+          - keyword: WITH
+          - common_table_expression:
+            - naked_identifier: cte
+            - cte_column_list:
+              - bracketed:
+                - start_bracket: (
+                - identifier_list:
+                  - naked_identifier: EmployeeID
+                  - comma: ','
+                  - naked_identifier: ManagerID
+                  - comma: ','
+                  - naked_identifier: Title
+                - end_bracket: )
+            - keyword: AS
+            - bracketed:
+              - start_bracket: (
+              - set_expression:
+                - set_expression:
+                  - select_statement:
+                    - select_clause:
+                      - select_clause:
+                        - keyword: SELECT
+                        - select_clause_element:
+                          - column_reference:
+                            - naked_identifier: EmployeeID
+                        - comma: ','
+                        - select_clause_element:
+                          - column_reference:
+                            - naked_identifier: ManagerID
+                        - comma: ','
+                        - select_clause_element:
+                          - column_reference:
+                            - naked_identifier: Title
+                    - from_clause:
+                      - keyword: FROM
+                      - from_expression:
+                        - from_expression:
                           - from_expression_element:
-                            - table_expression:
-                              - table_reference:
-                                - object_reference:
+                            - from_expression_element:
+                              - table_expression:
+                                - table_reference:
                                   - object_reference:
-                                    - naked_identifier: HumanResources
-                                    - dot: .
-                                    - naked_identifier: Employee
-                            - alias_expression:
-                              - keyword: AS
-                              - naked_identifier: e
-                        - join_on_condition:
-                          - keyword: ON
-                          - expression:
-                            - column_reference:
+                                    - object_reference:
+                                      - naked_identifier: HumanResources
+                                      - dot: .
+                                      - naked_identifier: Employee
+                    - where_clause:
+                      - keyword: WHERE
+                      - expression:
+                        - column_reference:
+                          - naked_identifier: ManagerID
+                        - keyword: IS
+                        - keyword: NOT
+                        - null_literal: 'NULL'
+                  - set_operator:
+                    - keyword: UNION
+                    - keyword: ALL
+                  - select_statement:
+                    - select_clause:
+                      - select_clause:
+                        - keyword: SELECT
+                        - select_clause_element:
+                          - column_reference:
+                            - naked_identifier: cte
+                            - dot: .
+                            - naked_identifier: EmployeeID
+                        - comma: ','
+                        - select_clause_element:
+                          - column_reference:
+                            - naked_identifier: cte
+                            - dot: .
+                            - naked_identifier: ManagerID
+                        - comma: ','
+                        - select_clause_element:
+                          - column_reference:
+                            - naked_identifier: cte
+                            - dot: .
+                            - naked_identifier: Title
+                    - from_clause:
+                      - keyword: FROM
+                      - from_expression:
+                        - from_expression:
+                          - from_expression_element:
+                            - from_expression_element:
+                              - table_expression:
+                                - table_reference:
+                                  - object_reference:
+                                    - object_reference:
+                                      - naked_identifier: cte
+                          - join_clause:
+                            - keyword: JOIN
+                            - from_expression_element:
+                              - from_expression_element:
+                                - table_expression:
+                                  - table_reference:
+                                    - object_reference:
+                                      - object_reference:
+                                        - naked_identifier: HumanResources
+                                        - dot: .
+                                        - naked_identifier: Employee
+                                - alias_expression:
+                                  - keyword: AS
+                                  - naked_identifier: e
+                            - join_on_condition:
+                              - keyword: ON
+                              - expression:
+                                - column_reference:
+                                  - naked_identifier: cte
+                                  - dot: .
+                                  - naked_identifier: ManagerID
+                                - comparison_operator:
+                                  - raw_comparison_operator: =
+                                - column_reference:
+                                  - naked_identifier: e
+                                  - dot: .
+                                  - naked_identifier: EmployeeID
+              - end_bracket: )
+          - select_statement:
+            - select_clause:
+              - select_clause:
+                - keyword: SELECT
+                - select_clause_element:
+                  - column_reference:
+                    - naked_identifier: EmployeeID
+                - comma: ','
+                - select_clause_element:
+                  - column_reference:
+                    - naked_identifier: ManagerID
+                - comma: ','
+                - select_clause_element:
+                  - column_reference:
+                    - naked_identifier: Title
+            - from_clause:
+              - keyword: FROM
+              - from_expression:
+                - from_expression:
+                  - from_expression_element:
+                    - from_expression_element:
+                      - table_expression:
+                        - table_reference:
+                          - object_reference:
+                            - object_reference:
                               - naked_identifier: cte
-                              - dot: .
-                              - naked_identifier: ManagerID
-                            - comparison_operator:
-                              - raw_comparison_operator: =
-                            - column_reference:
-                              - naked_identifier: e
-                              - dot: .
-                              - naked_identifier: EmployeeID
-            - end_bracket: )
-    - expression:
-      - select_statement:
-        - select_clause:
-          - select_clause:
-            - keyword: SELECT
-            - select_clause_element:
-              - column_reference:
-                - naked_identifier: EmployeeID
-            - comma: ','
-            - select_clause_element:
-              - column_reference:
-                - naked_identifier: ManagerID
-            - comma: ','
-            - select_clause_element:
-              - column_reference:
-                - naked_identifier: Title
-        - from_clause:
-          - keyword: FROM
-          - from_expression:
-            - from_expression:
-              - from_expression_element:
-                - from_expression_element:
-                  - table_expression:
-                    - table_reference:
-                      - object_reference:
-                        - object_reference:
-                          - naked_identifier: cte
-    - expression:
-      - column_reference:
-        - naked_identifier: GO
+  - keyword: GO

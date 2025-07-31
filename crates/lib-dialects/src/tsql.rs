@@ -62,6 +62,7 @@ pub fn raw_dialect() -> Dialect {
         "TYPE",
         "ELEMENTS",
         "XSINIL",
+        "STRICT",
         "ABSENT",
         "BASE64",
         "READPAST",
@@ -1608,7 +1609,25 @@ pub fn raw_dialect() -> Dialect {
                     this.terminators = vec_of_erased![
                         Ref::keyword("ELSE"),
                         // Also terminate on GO batch separator
-                        Ref::new("BatchSeparatorGrammar")
+                        Ref::new("BatchSeparatorGrammar"),
+                        // Terminate on other statement keywords to handle multi-statement files
+                        Ref::keyword("IF"),
+                        Ref::keyword("SELECT"),
+                        Ref::keyword("INSERT"),
+                        Ref::keyword("UPDATE"),
+                        Ref::keyword("DELETE"),
+                        Ref::keyword("CREATE"),
+                        Ref::keyword("DROP"),
+                        Ref::keyword("ALTER"),
+                        Ref::keyword("DECLARE"),
+                        Ref::keyword("SET"),
+                        Ref::keyword("PRINT"),
+                        Ref::keyword("WHILE"),
+                        Ref::keyword("BREAK"),
+                        Ref::keyword("CONTINUE"),
+                        Ref::keyword("GOTO"),
+                        Ref::keyword("EXECUTE"),
+                        Ref::keyword("EXEC")
                     ];
                 }),
                 MetaSegment::dedent(),
@@ -3535,7 +3554,13 @@ pub fn raw_dialect() -> Dialect {
             // Bare procedure call (without EXECUTE) - must come after other statements to avoid conflicts
             Ref::new("BareProcedureCallStatementSegment")
         ])
-        .config(|this| this.terminators = vec_of_erased![Ref::new("DelimiterGrammar")])
+        .config(|this| this.terminators = vec_of_erased![
+            Ref::new("DelimiterGrammar"),
+            Ref::new("BatchSeparatorGrammar"), // Ensure GO terminates statements
+            Ref::keyword("CREATE"), // Ensure CREATE starts new statements
+            Ref::keyword("DROP"),   // Ensure DROP starts new statements
+            Ref::keyword("ALTER")   // Ensure ALTER starts new statements
+        ])
         .to_matchable(),
     );
 
@@ -3934,7 +3959,17 @@ pub fn raw_dialect() -> Dialect {
                                     Ref::new("CollationSegment")
                                 ]).config(|this| this.optional()),
                                 // Optional JSON path expression for JSON data
-                                Ref::new("QuotedLiteralSegment").optional()
+                                Sequence::new(vec_of_erased![
+                                    Ref::keyword("STRICT").optional(),
+                                    Ref::new("QuotedLiteralSegment")
+                                ]).config(|this| this.optional()),
+                                // Handle erroneous trailing tokens (like numbers) in column definitions
+                                AnyNumberOf::new(vec_of_erased![
+                                    one_of(vec_of_erased![
+                                        Ref::new("NumericLiteralSegment"),
+                                        Ref::new("SingleIdentifierGrammar")
+                                    ])
+                                ]).config(|this| this.max_times(5)) // Limit to prevent runaway parsing
                             ])
                         ])])
                     ])
@@ -3947,7 +3982,8 @@ pub fn raw_dialect() -> Dialect {
                         Ref::new("SamplingExpressionSegment"),
                         Ref::new("JoinLikeClauseGrammar"),
                         LookaheadExclude::new("WITH", "("), // Prevents WITH from being parsed as alias when followed by (
-                        Ref::keyword("GO") // Prevents GO from being parsed as alias (it's a batch separator)
+                        Ref::keyword("GO"), // Prevents GO from being parsed as alias (it's a batch separator)
+                        Ref::keyword("FOR") // Prevents FOR from being parsed as alias (FOR JSON/XML/BROWSE clauses)
                     ]))
                     .optional(),
                 Ref::new("SamplingExpressionSegment").optional(),
@@ -4147,6 +4183,10 @@ pub fn raw_dialect() -> Dialect {
                 .config(|this| this.terminators = vec_of_erased![
                     Sequence::new(vec_of_erased![Ref::keyword("ORDER"), Ref::keyword("BY")]),
                     Sequence::new(vec_of_erased![Ref::keyword("GROUP"), Ref::keyword("BY")]),
+                    Ref::keyword("WHERE"),
+                    Ref::keyword("HAVING"),
+                    Ref::keyword("FOR"), // Fix for FOR JSON/XML/BROWSE clauses
+                    Ref::keyword("OPTION"), // T-SQL OPTION clause
                 ]),
                 MetaSegment::dedent(),
                 Conditional::new(MetaSegment::indent()).indented_joins(),
@@ -6742,20 +6782,43 @@ pub fn raw_dialect() -> Dialect {
                 one_of(vec_of_erased![
                     Sequence::new(vec_of_erased![
                         Ref::keyword("FOR"),
-                        Delimited::new(vec_of_erased![Ref::new("SingleIdentifierGrammar")])
-                            .config(|this| this.optional())
+                        Delimited::new(vec_of_erased![
+                            one_of(vec_of_erased![
+                                // Common DDL events for DATABASE/ALL SERVER triggers
+                                Ref::keyword("CREATE_TABLE"),
+                                Ref::keyword("ALTER_TABLE"),
+                                Ref::keyword("DROP_TABLE"),
+                                Ref::keyword("CREATE_INDEX"),
+                                Ref::keyword("DROP_INDEX"),
+                                Ref::keyword("CREATE_VIEW"),
+                                Ref::keyword("DROP_VIEW"),
+                                Ref::keyword("CREATE_PROCEDURE"),
+                                Ref::keyword("DROP_PROCEDURE"),
+                                Ref::keyword("CREATE_FUNCTION"),
+                                Ref::keyword("DROP_FUNCTION"),
+                                Ref::keyword("CREATE_SYNONYM"),
+                                Ref::keyword("DROP_SYNONYM"),
+                                Ref::keyword("CREATE_DATABASE"),
+                                Ref::keyword("DROP_DATABASE"),
+                                // Fallback for other DDL events as identifiers
+                                Ref::new("SingleIdentifierGrammar")
+                            ])
+                        ])
                     ]),
                     Ref::keyword("AFTER"),
                     Sequence::new(vec_of_erased![Ref::keyword("INSTEAD"), Ref::keyword("OF")])
                 ])
                 .config(|this| this.optional()),
-                // Trigger events
-                Delimited::new(vec_of_erased![
-                    Ref::keyword("INSERT"),
-                    Ref::keyword("UPDATE"),
-                    Ref::keyword("DELETE"),
-                    // DDL events for DATABASE/ALL SERVER triggers
-                    Ref::new("SingleIdentifierGrammar")
+                // Trigger events - for DML and DDL triggers
+                one_of(vec_of_erased![
+                    // DML events (for table triggers)
+                    Delimited::new(vec_of_erased![
+                        Ref::keyword("INSERT"),
+                        Ref::keyword("UPDATE"),
+                        Ref::keyword("DELETE")
+                    ]),
+                    // DDL events (for DATABASE/ALL SERVER triggers) - allow multiple events
+                    Delimited::new(vec_of_erased![Ref::new("SingleIdentifierGrammar")])
                 ])
                 .config(|this| this.optional()),
                 // Additional options
@@ -6769,11 +6832,15 @@ pub fn raw_dialect() -> Dialect {
                 .config(|this| this.optional()),
                 Ref::keyword("AS"),
                 one_of(vec_of_erased![
-                    // Single statement
-                    Ref::new("StatementSegment"),
                     // Multiple statements in a BEGIN...END block
-                    Ref::new("BeginEndBlockSegment")
+                    Ref::new("BeginEndBlockSegment"),
+                    // Single statement
+                    Ref::new("StatementSegment")
                 ])
+            ])
+            .config(|this| this.terminators = vec_of_erased![
+                Ref::new("BatchSeparatorGrammar"), // GO terminates the trigger definition
+                Ref::new("DelimiterGrammar")       // Semicolon also terminates
             ])
             .to_matchable()
         })

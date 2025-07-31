@@ -516,64 +516,37 @@ file:
   - statement_terminator: ;
   - keyword: GO
   - statement:
-    - object_reference:
-      - object_reference:
-        - naked_identifier: create
-    - expression:
-      - column_reference:
-        - naked_identifier: function
-    - expression:
-      - function:
-        - function:
-          - function_name:
-            - function_name_identifier: my_function
-          - bracketed:
-            - start_bracket: (
+    - create_function_statement:
+      - create_function_statement:
+        - keyword: create
+        - keyword: function
+        - object_reference:
+          - object_reference:
+            - naked_identifier: my_function
+        - bracketed:
+          - start_bracket: (
+          - parameter:
+            - tsql_variable: '@my_parameter'
+            - data_type:
+              - data_type_identifier: int
+          - end_bracket: )
+        - keyword: returns
+        - data_type:
+          - data_type_identifier: int
+        - keyword: with
+        - keyword: schemabinding
+        - comma: ','
+        - keyword: returns
+        - keyword: 'null'
+        - keyword: on
+        - keyword: 'null'
+        - keyword: input
+        - keyword: begin
+        - statement:
+          - statement:
+            - keyword: return
             - expression:
               - parameterized_expression:
                 - tsql_variable: '@my_parameter'
-            - expression:
-              - column_reference:
-                - naked_identifier: int
-            - end_bracket: )
-    - expression:
-      - column_reference:
-        - naked_identifier: returns
-    - expression:
-      - column_reference:
-        - naked_identifier: int
-    - expression:
-      - column_reference:
-        - naked_identifier: with
-    - expression:
-      - column_reference:
-        - naked_identifier: schemabinding
-    - comma: ','
-    - expression:
-      - column_reference:
-        - naked_identifier: returns
-    - expression:
-      - null_literal: 'null'
-    - expression:
-      - data_type:
-        - data_type_identifier: on
-    - expression:
-      - null_literal: 'null'
-    - expression:
-      - column_reference:
-        - naked_identifier: input
-    - expression:
-      - column_reference:
-        - naked_identifier: begin
-    - expression:
-      - column_reference:
-        - naked_identifier: return
-    - expression:
-      - parameterized_expression:
-        - tsql_variable: '@my_parameter'
-    - expression:
-      - data_type:
-        - data_type_identifier: end
-    - expression:
-      - column_reference:
-        - naked_identifier: go
+        - keyword: end
+  - keyword: go

@@ -1,61 +1,39 @@
 file:
 - statement:
   - statement:
-    - object_reference:
-      - object_reference:
-        - naked_identifier: CREATE
-    - expression:
-      - column_reference:
-        - naked_identifier: TABLE
-    - expression:
-      - column_reference:
-        - quoted_identifier: '[dbo]'
-        - dot: .
-        - quoted_identifier: '[PL_stage]'
-    - expression:
-      - function:
-        - function:
-          - function_name:
-            - function_name_identifier: WITH
+    - create_table_statement:
+      - create_table_statement:
+        - keyword: CREATE
+        - keyword: TABLE
+        - table_reference:
+          - object_reference:
+            - object_reference:
+              - quoted_identifier: '[dbo]'
+              - dot: .
+              - quoted_identifier: '[PL_stage]'
+        - keyword: WITH
+        - bracketed:
+          - start_bracket: (
+          - keyword: DISTRIBUTION
+          - comparison_operator:
+            - raw_comparison_operator: =
+          - keyword: HASH
           - bracketed:
             - start_bracket: (
-            - expression:
-              - column_reference:
-                - naked_identifier: DISTRIBUTION
-              - comparison_operator:
-                - raw_comparison_operator: =
-              - function:
-                - function:
-                  - function_name:
-                    - function_name_identifier: HASH
-                  - bracketed:
-                    - start_bracket: (
-                    - expression:
-                      - column_reference:
-                        - quoted_identifier: '[ID]'
-                    - end_bracket: )
-            - comma: ','
-            - expression:
-              - column_reference:
-                - naked_identifier: HEAP
+            - column_reference:
+              - quoted_identifier: '[ID]'
             - end_bracket: )
-    - expression:
-      - column_reference:
-        - naked_identifier: AS
-    - expression:
-      - column_reference:
-        - naked_identifier: WITH
-    - expression:
-      - column_reference:
-        - naked_identifier: CommentsTracking
-    - expression:
-      - function:
-        - function:
-          - function_name:
-            - function_name_identifier: AS
-          - bracketed:
-            - start_bracket: (
-            - expression:
+          - comma: ','
+          - keyword: HEAP
+          - end_bracket: )
+        - keyword: AS
+        - with_compound_statement:
+          - keyword: WITH
+          - common_table_expression:
+            - naked_identifier: CommentsTracking
+            - keyword: AS
+            - bracketed:
+              - start_bracket: (
               - select_statement:
                 - select_clause:
                   - select_clause:
@@ -65,221 +43,191 @@ file:
                       - alias_expression:
                         - keyword: AS
                         - naked_identifier: Program
-            - end_bracket: )
-    - expression:
-      - select_statement:
-        - select_clause:
-          - select_clause:
-            - keyword: SELECT
-            - select_clause_element:
-              - column_reference:
-                - naked_identifier: e
-                - dot: .
-                - quoted_identifier: '[ID]'
-            - comma: ','
-            - select_clause_element:
-              - column_reference:
-                - naked_identifier: e
-                - dot: .
-                - quoted_identifier: '[ArriveDate]'
-            - comma: ','
-            - select_clause_element:
-              - column_reference:
-                - naked_identifier: e
-                - dot: .
-                - quoted_identifier: '[Contribution]'
-            - comma: ','
-            - select_clause_element:
-              - column_reference:
-                - naked_identifier: e
-                - dot: .
-                - quoted_identifier: '[DischargeDate]'
-            - comma: ','
-            - select_clause_element:
-              - column_reference:
-                - naked_identifier: e
-                - dot: .
-                - quoted_identifier: '[Encounter]'
-            - comma: ','
-            - select_clause_element:
-              - column_reference:
-                - naked_identifier: e
-                - dot: .
-                - quoted_identifier: '[Facility]'
-            - comma: ','
-            - select_clause_element:
-              - column_reference:
-                - naked_identifier: e
-                - dot: .
-                - quoted_identifier: '[Region]'
-            - comma: ','
-            - select_clause_element:
-              - column_reference:
-                - naked_identifier: e
-                - dot: .
-                - quoted_identifier: '[LOS]'
-        - from_clause:
-          - keyword: FROM
-          - from_expression:
-            - from_expression:
-              - from_expression_element:
-                - from_expression_element:
-                  - table_expression:
-                    - table_reference:
-                      - object_reference:
-                        - object_reference:
-                          - naked_identifier: dbo
-                          - dot: .
-                          - naked_identifier: Encounter
-                  - alias_expression:
+              - end_bracket: )
+          - select_statement:
+            - select_clause:
+              - select_clause:
+                - keyword: SELECT
+                - select_clause_element:
+                  - column_reference:
                     - naked_identifier: e
-              - join_clause:
-                - keyword: JOIN
-                - from_expression_element:
+                    - dot: .
+                    - quoted_identifier: '[ID]'
+                - comma: ','
+                - select_clause_element:
+                  - column_reference:
+                    - naked_identifier: e
+                    - dot: .
+                    - quoted_identifier: '[ArriveDate]'
+                - comma: ','
+                - select_clause_element:
+                  - column_reference:
+                    - naked_identifier: e
+                    - dot: .
+                    - quoted_identifier: '[Contribution]'
+                - comma: ','
+                - select_clause_element:
+                  - column_reference:
+                    - naked_identifier: e
+                    - dot: .
+                    - quoted_identifier: '[DischargeDate]'
+                - comma: ','
+                - select_clause_element:
+                  - column_reference:
+                    - naked_identifier: e
+                    - dot: .
+                    - quoted_identifier: '[Encounter]'
+                - comma: ','
+                - select_clause_element:
+                  - column_reference:
+                    - naked_identifier: e
+                    - dot: .
+                    - quoted_identifier: '[Facility]'
+                - comma: ','
+                - select_clause_element:
+                  - column_reference:
+                    - naked_identifier: e
+                    - dot: .
+                    - quoted_identifier: '[Region]'
+                - comma: ','
+                - select_clause_element:
+                  - column_reference:
+                    - naked_identifier: e
+                    - dot: .
+                    - quoted_identifier: '[LOS]'
+            - from_clause:
+              - keyword: FROM
+              - from_expression:
+                - from_expression:
                   - from_expression_element:
-                    - table_expression:
-                      - table_reference:
-                        - object_reference:
+                    - from_expression_element:
+                      - table_expression:
+                        - table_reference:
                           - object_reference:
-                            - naked_identifier: dbo
-                            - dot: .
-                            - naked_identifier: Finance
-                    - alias_expression:
-                      - naked_identifier: f
-                - join_on_condition:
-                  - keyword: ON
-                  - expression:
-                    - column_reference:
-                      - naked_identifier: e
-                      - dot: .
-                      - quoted_identifier: '[ID]'
-                    - comparison_operator:
-                      - raw_comparison_operator: =
-                    - column_reference:
-                      - naked_identifier: f
-                      - dot: .
-                      - quoted_identifier: '[ID]'
-    - expression:
-      - column_reference:
-        - naked_identifier: DROP
-    - expression:
-      - column_reference:
-        - naked_identifier: TABLE
-    - expression:
-      - column_reference:
-        - quoted_identifier: '[dbo]'
-        - dot: .
-        - quoted_identifier: '[PL_stage]'
-    - expression:
-      - column_reference:
-        - naked_identifier: CREATE
-    - expression:
-      - column_reference:
-        - naked_identifier: TABLE
-    - expression:
-      - column_reference:
-        - quoted_identifier: '[dbo]'
-        - dot: .
-        - quoted_identifier: '[PL_stage]'
-    - expression:
-      - function:
-        - function:
-          - function_name:
-            - function_name_identifier: WITH
+                            - object_reference:
+                              - naked_identifier: dbo
+                              - dot: .
+                              - naked_identifier: Encounter
+                      - alias_expression:
+                        - naked_identifier: e
+                  - join_clause:
+                    - keyword: JOIN
+                    - from_expression_element:
+                      - from_expression_element:
+                        - table_expression:
+                          - table_reference:
+                            - object_reference:
+                              - object_reference:
+                                - naked_identifier: dbo
+                                - dot: .
+                                - naked_identifier: Finance
+                        - alias_expression:
+                          - naked_identifier: f
+                    - join_on_condition:
+                      - keyword: ON
+                      - expression:
+                        - column_reference:
+                          - naked_identifier: e
+                          - dot: .
+                          - quoted_identifier: '[ID]'
+                        - comparison_operator:
+                          - raw_comparison_operator: =
+                        - column_reference:
+                          - naked_identifier: f
+                          - dot: .
+                          - quoted_identifier: '[ID]'
+  - statement:
+    - drop_table_statement:
+      - keyword: DROP
+      - keyword: TABLE
+      - table_reference:
+        - object_reference:
+          - object_reference:
+            - quoted_identifier: '[dbo]'
+            - dot: .
+            - quoted_identifier: '[PL_stage]'
+  - statement:
+    - create_table_statement:
+      - create_table_statement:
+        - keyword: CREATE
+        - keyword: TABLE
+        - table_reference:
+          - object_reference:
+            - object_reference:
+              - quoted_identifier: '[dbo]'
+              - dot: .
+              - quoted_identifier: '[PL_stage]'
+        - keyword: WITH
+        - bracketed:
+          - start_bracket: (
+          - keyword: DISTRIBUTION
+          - comparison_operator:
+            - raw_comparison_operator: =
+          - keyword: HASH
           - bracketed:
             - start_bracket: (
-            - expression:
-              - column_reference:
-                - naked_identifier: DISTRIBUTION
-              - comparison_operator:
-                - raw_comparison_operator: =
-              - function:
-                - function:
-                  - function_name:
-                    - function_name_identifier: HASH
-                  - bracketed:
-                    - start_bracket: (
-                    - expression:
-                      - column_reference:
-                        - quoted_identifier: '[ID]'
-                    - end_bracket: )
-            - comma: ','
-            - expression:
-              - column_reference:
-                - naked_identifier: HEAP
+            - column_reference:
+              - quoted_identifier: '[ID]'
             - end_bracket: )
-    - expression:
-      - column_reference:
-        - naked_identifier: AS
-    - expression:
-      - select_statement:
-        - select_clause:
+          - comma: ','
+          - keyword: HEAP
+          - end_bracket: )
+        - keyword: AS
+        - select_statement:
           - select_clause:
-            - keyword: SELECT
-            - select_clause_element:
-              - column_reference:
-                - naked_identifier: e
-                - dot: .
-                - quoted_identifier: '[ID]'
-            - comma: ','
-            - select_clause_element:
-              - column_reference:
-                - naked_identifier: e
-                - dot: .
-                - quoted_identifier: '[ArriveDate]'
-            - comma: ','
-            - select_clause_element:
-              - column_reference:
-                - naked_identifier: e
-                - dot: .
-                - quoted_identifier: '[Contribution]'
-            - comma: ','
-            - select_clause_element:
-              - column_reference:
-                - naked_identifier: e
-                - dot: .
-                - quoted_identifier: '[DischargeDate]'
-            - comma: ','
-            - select_clause_element:
-              - column_reference:
-                - naked_identifier: e
-                - dot: .
-                - quoted_identifier: '[Encounter]'
-            - comma: ','
-            - select_clause_element:
-              - column_reference:
-                - naked_identifier: e
-                - dot: .
-                - quoted_identifier: '[Facility]'
-            - comma: ','
-            - select_clause_element:
-              - column_reference:
-                - naked_identifier: e
-                - dot: .
-                - quoted_identifier: '[Region]'
-            - comma: ','
-            - select_clause_element:
-              - column_reference:
-                - naked_identifier: e
-                - dot: .
-                - quoted_identifier: '[LOS]'
-        - from_clause:
-          - keyword: FROM
-          - from_expression:
+            - select_clause:
+              - keyword: SELECT
+              - select_clause_element:
+                - column_reference:
+                  - naked_identifier: e
+                  - dot: .
+                  - quoted_identifier: '[ID]'
+              - comma: ','
+              - select_clause_element:
+                - column_reference:
+                  - naked_identifier: e
+                  - dot: .
+                  - quoted_identifier: '[ArriveDate]'
+              - comma: ','
+              - select_clause_element:
+                - column_reference:
+                  - naked_identifier: e
+                  - dot: .
+                  - quoted_identifier: '[Contribution]'
+              - comma: ','
+              - select_clause_element:
+                - column_reference:
+                  - naked_identifier: e
+                  - dot: .
+                  - quoted_identifier: '[DischargeDate]'
+              - comma: ','
+              - select_clause_element:
+                - column_reference:
+                  - naked_identifier: e
+                  - dot: .
+                  - quoted_identifier: '[Encounter]'
+              - comma: ','
+              - select_clause_element:
+                - column_reference:
+                  - naked_identifier: e
+                  - dot: .
+                  - quoted_identifier: '[Facility]'
+              - comma: ','
+              - select_clause_element:
+                - column_reference:
+                  - naked_identifier: e
+                  - dot: .
+                  - quoted_identifier: '[Region]'
+              - comma: ','
+              - select_clause_element:
+                - column_reference:
+                  - naked_identifier: e
+                  - dot: .
+                  - quoted_identifier: '[LOS]'
+          - from_clause:
+            - keyword: FROM
             - from_expression:
-              - from_expression_element:
-                - from_expression_element:
-                  - table_expression:
-                    - table_reference:
-                      - object_reference:
-                        - object_reference:
-                          - naked_identifier: dbo
-                          - dot: .
-                          - naked_identifier: Encounter
-                  - alias_expression:
-                    - naked_identifier: e
-              - join_clause:
-                - keyword: JOIN
+              - from_expression:
                 - from_expression_element:
                   - from_expression_element:
                     - table_expression:
@@ -288,22 +236,35 @@ file:
                           - object_reference:
                             - naked_identifier: dbo
                             - dot: .
-                            - naked_identifier: Finance
+                            - naked_identifier: Encounter
                     - alias_expression:
-                      - naked_identifier: f
-                - join_on_condition:
-                  - keyword: ON
-                  - expression:
-                    - column_reference:
                       - naked_identifier: e
-                      - dot: .
-                      - quoted_identifier: '[ID]'
-                    - comparison_operator:
-                      - raw_comparison_operator: =
-                    - column_reference:
-                      - naked_identifier: f
-                      - dot: .
-                      - quoted_identifier: '[ID]'
+                - join_clause:
+                  - keyword: JOIN
+                  - from_expression_element:
+                    - from_expression_element:
+                      - table_expression:
+                        - table_reference:
+                          - object_reference:
+                            - object_reference:
+                              - naked_identifier: dbo
+                              - dot: .
+                              - naked_identifier: Finance
+                      - alias_expression:
+                        - naked_identifier: f
+                  - join_on_condition:
+                    - keyword: ON
+                    - expression:
+                      - column_reference:
+                        - naked_identifier: e
+                        - dot: .
+                        - quoted_identifier: '[ID]'
+                      - comparison_operator:
+                        - raw_comparison_operator: =
+                      - column_reference:
+                        - naked_identifier: f
+                        - dot: .
+                        - quoted_identifier: '[ID]'
   - statement_terminator: ;
   - statement:
     - drop_table_statement:

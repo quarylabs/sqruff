@@ -487,113 +487,82 @@ file:
   - statement_terminator: ;
   - keyword: GO
   - statement:
-    - object_reference:
-      - object_reference:
-        - naked_identifier: CREATE
-    - expression:
-      - column_reference:
-        - naked_identifier: CLUSTERED
-    - expression:
-      - column_reference:
-        - naked_identifier: INDEX
-    - expression:
-      - column_reference:
-        - naked_identifier: CI_DLI_STAGE_CBS_POPULATION_BASE
-    - expression:
-      - data_type:
-        - data_type_identifier: ON
-    - expression:
-      - function:
-        - function:
-          - function_name:
-            - naked_identifier: STAGE
-            - dot: .
-            - function_name_identifier: CBS_POPULATION_BASE
-          - bracketed:
-            - start_bracket: (
-            - expression:
-              - column_reference:
-                - naked_identifier: DATE_LAST_INSERTED
-            - end_bracket: )
-    - expression:
-      - column_reference:
-        - naked_identifier: GO
-    - expression:
-      - column_reference:
-        - naked_identifier: CREATE
-    - expression:
-      - column_reference:
-        - naked_identifier: NONCLUSTERED
-    - expression:
-      - column_reference:
-        - naked_identifier: INDEX
-    - expression:
-      - column_reference:
-        - naked_identifier: NCI_DLI_STAGE_CIMS_VACCINATED_AGE_GROUP
-    - expression:
-      - data_type:
-        - data_type_identifier: ON
-    - expression:
-      - function:
-        - function:
-          - function_name:
-            - naked_identifier: STAGE
-            - dot: .
-            - function_name_identifier: CBS_POPULATION_BASE
-          - bracketed:
-            - start_bracket: (
-            - expression:
-              - column_reference:
-                - naked_identifier: DATE_LAST_INSERTED
-            - comma: ','
-            - expression:
-              - column_reference:
-                - naked_identifier: GEMEENTE_CODE
-            - comma: ','
-            - expression:
-              - column_reference:
-                - naked_identifier: GEMEENTE
-            - comma: ','
-            - expression:
-              - column_reference:
-                - naked_identifier: LEEFTIJD
-            - comma: ','
-            - expression:
-              - column_reference:
-                - naked_identifier: GESLACHT
-            - comma: ','
-            - expression:
-              - column_reference:
-                - naked_identifier: DATUM_PEILING
-            - comma: ','
-            - expression:
-              - column_reference:
-                - naked_identifier: POPULATIE
-            - comma: ','
-            - expression:
-              - column_reference:
-                - naked_identifier: VEILIGHEIDSREGIO_CODE
-            - comma: ','
-            - expression:
-              - column_reference:
-                - naked_identifier: VEILIGHEIDSREGIO_NAAM
-            - comma: ','
-            - expression:
-              - column_reference:
-                - naked_identifier: PROVINCIE_CODE
-            - comma: ','
-            - expression:
-              - column_reference:
-                - naked_identifier: PROVINCIE_NAAM
-            - comma: ','
-            - expression:
-              - column_reference:
-                - naked_identifier: GGD_CODE
-            - comma: ','
-            - expression:
-              - column_reference:
-                - naked_identifier: GGD_NAAM
-            - end_bracket: )
+    - create_index_statement:
+      - create_index_statement:
+        - keyword: CREATE
+        - keyword: CLUSTERED
+        - keyword: INDEX
+        - database_reference:
+          - naked_identifier: CI_DLI_STAGE_CBS_POPULATION_BASE
+        - keyword: ON
+        - table_reference:
+          - object_reference:
+            - object_reference:
+              - naked_identifier: STAGE
+              - dot: .
+              - naked_identifier: CBS_POPULATION_BASE
+        - bracketed:
+          - start_bracket: (
+          - column_reference:
+            - naked_identifier: DATE_LAST_INSERTED
+          - end_bracket: )
+  - keyword: GO
+  - statement:
+    - create_index_statement:
+      - create_index_statement:
+        - keyword: CREATE
+        - keyword: NONCLUSTERED
+        - keyword: INDEX
+        - database_reference:
+          - naked_identifier: NCI_DLI_STAGE_CIMS_VACCINATED_AGE_GROUP
+        - keyword: ON
+        - table_reference:
+          - object_reference:
+            - object_reference:
+              - naked_identifier: STAGE
+              - dot: .
+              - naked_identifier: CBS_POPULATION_BASE
+        - bracketed:
+          - start_bracket: (
+          - column_reference:
+            - naked_identifier: DATE_LAST_INSERTED
+          - comma: ','
+          - column_reference:
+            - naked_identifier: GEMEENTE_CODE
+          - comma: ','
+          - column_reference:
+            - naked_identifier: GEMEENTE
+          - comma: ','
+          - column_reference:
+            - naked_identifier: LEEFTIJD
+          - comma: ','
+          - column_reference:
+            - naked_identifier: GESLACHT
+          - comma: ','
+          - column_reference:
+            - naked_identifier: DATUM_PEILING
+          - comma: ','
+          - column_reference:
+            - naked_identifier: POPULATIE
+          - comma: ','
+          - column_reference:
+            - naked_identifier: VEILIGHEIDSREGIO_CODE
+          - comma: ','
+          - column_reference:
+            - naked_identifier: VEILIGHEIDSREGIO_NAAM
+          - comma: ','
+          - column_reference:
+            - naked_identifier: PROVINCIE_CODE
+          - comma: ','
+          - column_reference:
+            - naked_identifier: PROVINCIE_NAAM
+          - comma: ','
+          - column_reference:
+            - naked_identifier: GGD_CODE
+          - comma: ','
+          - column_reference:
+            - naked_identifier: GGD_NAAM
+          - end_bracket: )
   - statement_terminator: ;
   - statement:
     - create_table_statement:

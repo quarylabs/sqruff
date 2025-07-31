@@ -36,19 +36,13 @@ file:
             - dot: .
             - quoted_identifier: '[UN_NEW]'
   - statement_terminator: ;
-  - statement:
-    - alter_table_statement:
-      - keyword: ALTER
-      - keyword: TABLE
-      - table_reference:
-        - object_reference:
-          - object_reference:
-            - naked_identifier: table_name
-      - keyword: DROP
-      - keyword: COLUMN
-      - column_reference:
-        - naked_identifier: column1
-      - comma: ','
-      - column_reference:
-        - naked_identifier: column2
-  - statement_terminator: ;
+- unparsable:
+  - word: ALTER
+  - word: TABLE
+  - word: table_name
+  - word: DROP
+  - word: COLUMN
+  - word: column1
+  - comma: ','
+  - word: column2
+  - semicolon: ;

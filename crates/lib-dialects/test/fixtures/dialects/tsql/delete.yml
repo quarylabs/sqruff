@@ -538,67 +538,50 @@ file:
         - statement_terminator: ;
   - keyword: GO
   - statement:
-    - object_reference:
-      - object_reference:
-        - naked_identifier: DELETE
-    - expression:
-      - function:
+    - delete_statement:
+      - delete_statement:
+        - keyword: DELETE
         - function:
-          - function_name:
-            - function_name_identifier: OPENROWSET
+          - keyword: OPENROWSET
           - bracketed:
             - start_bracket: (
-            - expression:
-              - quoted_literal: '''SQLNCLI'''
+            - quoted_literal: '''SQLNCLI'''
             - comma: ','
-            - expression:
-              - quoted_literal: '''Server=Seattle1;Trusted_Connection=yes;'''
+            - quoted_literal: '''Server=Seattle1;Trusted_Connection=yes;'''
             - comma: ','
-            - expression:
-              - column_reference:
+            - object_reference:
+              - object_reference:
                 - naked_identifier: Department
             - end_bracket: )
-    - expression:
-      - column_reference:
-        - naked_identifier: GO
-    - expression:
-      - column_reference:
-        - naked_identifier: DELETE
-    - expression:
-      - column_reference:
-        - naked_identifier: FROM
-    - expression:
-      - function:
-        - function:
-          - function_name:
-            - function_name_identifier: OPENDATASOURCE
+  - keyword: GO
+  - statement:
+    - delete_statement:
+      - delete_statement:
+        - keyword: DELETE
+        - keyword: FROM
+        - table_reference:
+          - keyword: OPENDATASOURCE
           - bracketed:
             - start_bracket: (
-            - expression:
-              - quoted_literal: '''SQLNCLI'''
+            - quoted_literal: '''SQLNCLI'''
             - comma: ','
-            - expression:
-              - quoted_literal: '''Data Source= <server_name>; Integrated Security=SSPI'''
+            - quoted_literal: '''Data Source= <server_name>; Integrated Security=SSPI'''
             - end_bracket: )
-  - statement:
-    - object_reference:
-      - object_reference:
         - dot: .
         - naked_identifier: AdventureWorks2012
         - dot: .
         - naked_identifier: HumanResources
         - dot: .
         - naked_identifier: Department
-    - expression:
-      - column_reference:
-        - naked_identifier: WHERE
-    - expression:
-      - column_reference:
-        - naked_identifier: DepartmentID
-      - comparison_operator:
-        - raw_comparison_operator: =
-      - numeric_literal: '17'
-  - statement_terminator: ;
+        - where_clause:
+          - keyword: WHERE
+          - expression:
+            - column_reference:
+              - naked_identifier: DepartmentID
+            - comparison_operator:
+              - raw_comparison_operator: =
+            - numeric_literal: '17'
+        - statement_terminator: ;
   - statement:
     - delete_statement:
       - delete_statement:

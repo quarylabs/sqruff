@@ -74,25 +74,22 @@ file:
   - statement_terminator: ;
   - keyword: GO
   - statement:
-    - object_reference:
-      - object_reference:
-        - naked_identifier: PRINT
-    - expression:
-      - parameterized_expression:
-        - tsql_variable: '@@TRANCOUNT'
-    - expression:
-      - column_reference:
-        - naked_identifier: GO
-    - expression:
-      - select_statement:
+    - statement:
+      - keyword: PRINT
+      - expression:
+        - parameterized_expression:
+          - tsql_variable: '@@TRANCOUNT'
+  - keyword: GO
+  - statement:
+    - select_statement:
+      - select_clause:
         - select_clause:
-          - select_clause:
-            - keyword: SELECT
-            - select_clause_element:
-              - parameterized_expression:
-                - tsql_variable: '@@PACK_RECEIVED'
-              - alias_expression:
-                - keyword: AS
-                - quoted_identifier: '''Packets Received'''
+          - keyword: SELECT
+          - select_clause_element:
+            - parameterized_expression:
+              - tsql_variable: '@@PACK_RECEIVED'
+            - alias_expression:
+              - keyword: AS
+              - quoted_identifier: '''Packets Received'''
   - statement_terminator: ;
   - keyword: GO

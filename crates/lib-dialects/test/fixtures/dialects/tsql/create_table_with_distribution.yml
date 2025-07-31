@@ -65,440 +65,326 @@ file:
   - statement_terminator: ;
   - keyword: GO
   - statement:
-    - object_reference:
-      - object_reference:
-        - naked_identifier: DROP
-    - expression:
-      - column_reference:
-        - naked_identifier: TABLE
-    - expression:
-      - column_reference:
-        - quoted_identifier: '[dbo]'
-        - dot: .
-        - quoted_identifier: '[EC DC]'
-    - expression:
-      - column_reference:
-        - naked_identifier: GO
-    - expression:
-      - column_reference:
-        - naked_identifier: CREATE
-    - expression:
-      - column_reference:
-        - naked_identifier: TABLE
-    - expression:
-      - function:
-        - function:
-          - function_name:
+    - drop_table_statement:
+      - keyword: DROP
+      - keyword: TABLE
+      - table_reference:
+        - object_reference:
+          - object_reference:
             - quoted_identifier: '[dbo]'
             - dot: .
             - quoted_identifier: '[EC DC]'
-          - bracketed:
-            - start_bracket: (
-            - expression:
-              - column_reference:
-                - quoted_identifier: '[Column B]'
-            - expression:
-              - function:
-                - function:
-                  - function_name:
-                    - quoted_identifier: '[varchar]'
+  - keyword: GO
+  - statement:
+    - create_table_statement:
+      - create_table_statement:
+        - keyword: CREATE
+        - keyword: TABLE
+        - table_reference:
+          - object_reference:
+            - object_reference:
+              - quoted_identifier: '[dbo]'
+              - dot: .
+              - quoted_identifier: '[EC DC]'
+        - bracketed:
+          - start_bracket: (
+          - column_definition:
+            - column_definition:
+              - quoted_identifier: '[Column B]'
+              - data_type:
+                - quoted_identifier: '[varchar]'
+                - bracketed_arguments:
                   - bracketed:
                     - start_bracket: (
-                    - expression:
-                      - numeric_literal: '100'
+                    - numeric_literal: '100'
                     - end_bracket: )
-            - comma: ','
-            - expression:
-              - column_reference:
-                - quoted_identifier: '[ColumnC]'
-            - expression:
-              - function:
-                - function:
-                  - function_name:
-                    - function_name_identifier: varchar
-                  - bracketed:
-                    - start_bracket: (
-                    - expression:
+          - comma: ','
+          - column_definition:
+            - column_definition:
+              - quoted_identifier: '[ColumnC]'
+              - data_type:
+                - data_type:
+                  - data_type_identifier: varchar
+                  - bracketed_arguments:
+                    - bracketed:
+                      - start_bracket: (
                       - numeric_literal: '100'
-                    - end_bracket: )
-            - comma: ','
-            - expression:
-              - column_reference:
-                - quoted_identifier: '[ColumnDecimal]'
-            - expression:
-              - function:
-                - function:
-                  - function_name:
-                    - function_name_identifier: decimal
-                  - bracketed:
-                    - start_bracket: (
-                    - expression:
+                      - end_bracket: )
+          - comma: ','
+          - column_definition:
+            - column_definition:
+              - quoted_identifier: '[ColumnDecimal]'
+              - data_type:
+                - data_type:
+                  - data_type_identifier: decimal
+                  - bracketed_arguments:
+                    - bracketed:
+                      - start_bracket: (
                       - numeric_literal: '10'
-                    - comma: ','
-                    - expression:
+                      - comma: ','
                       - numeric_literal: '3'
-                    - end_bracket: )
-            - end_bracket: )
-    - expression:
-      - function:
-        - function:
-          - function_name:
-            - function_name_identifier: WITH
-          - bracketed:
-            - start_bracket: (
-            - expression:
-              - column_reference:
-                - naked_identifier: HEAP
-            - comma: ','
-            - expression:
-              - column_reference:
-                - naked_identifier: DISTRIBUTION
-              - comparison_operator:
-                - raw_comparison_operator: =
-              - column_reference:
-                - naked_identifier: REPLICATE
-            - end_bracket: )
+                      - end_bracket: )
+          - end_bracket: )
+        - keyword: WITH
+        - bracketed:
+          - start_bracket: (
+          - keyword: HEAP
+          - comma: ','
+          - keyword: DISTRIBUTION
+          - comparison_operator:
+            - raw_comparison_operator: =
+          - keyword: REPLICATE
+          - end_bracket: )
   - statement_terminator: ;
   - keyword: GO
   - statement:
-    - object_reference:
-      - object_reference:
-        - naked_identifier: DROP
-    - expression:
-      - column_reference:
-        - naked_identifier: TABLE
-    - expression:
-      - column_reference:
-        - quoted_identifier: '[dbo]'
-        - dot: .
-        - quoted_identifier: '[EC DC]'
-    - expression:
-      - column_reference:
-        - naked_identifier: GO
-    - expression:
-      - column_reference:
-        - naked_identifier: CREATE
-    - expression:
-      - column_reference:
-        - naked_identifier: TABLE
-    - expression:
-      - function:
-        - function:
-          - function_name:
+    - drop_table_statement:
+      - keyword: DROP
+      - keyword: TABLE
+      - table_reference:
+        - object_reference:
+          - object_reference:
             - quoted_identifier: '[dbo]'
             - dot: .
             - quoted_identifier: '[EC DC]'
-          - bracketed:
-            - start_bracket: (
-            - expression:
-              - column_reference:
-                - quoted_identifier: '[Column B]'
-            - expression:
-              - function:
-                - function:
-                  - function_name:
-                    - quoted_identifier: '[varchar]'
+  - keyword: GO
+  - statement:
+    - create_table_statement:
+      - create_table_statement:
+        - keyword: CREATE
+        - keyword: TABLE
+        - table_reference:
+          - object_reference:
+            - object_reference:
+              - quoted_identifier: '[dbo]'
+              - dot: .
+              - quoted_identifier: '[EC DC]'
+        - bracketed:
+          - start_bracket: (
+          - column_definition:
+            - column_definition:
+              - quoted_identifier: '[Column B]'
+              - data_type:
+                - quoted_identifier: '[varchar]'
+                - bracketed_arguments:
                   - bracketed:
                     - start_bracket: (
-                    - expression:
-                      - numeric_literal: '100'
+                    - numeric_literal: '100'
                     - end_bracket: )
-            - comma: ','
-            - expression:
-              - column_reference:
-                - quoted_identifier: '[ColumnC]'
-            - expression:
-              - function:
-                - function:
-                  - function_name:
-                    - function_name_identifier: varchar
-                  - bracketed:
-                    - start_bracket: (
-                    - expression:
+          - comma: ','
+          - column_definition:
+            - column_definition:
+              - quoted_identifier: '[ColumnC]'
+              - data_type:
+                - data_type:
+                  - data_type_identifier: varchar
+                  - bracketed_arguments:
+                    - bracketed:
+                      - start_bracket: (
                       - numeric_literal: '100'
-                    - end_bracket: )
-            - comma: ','
-            - expression:
-              - column_reference:
-                - quoted_identifier: '[ColumnDecimal]'
-            - expression:
-              - function:
-                - function:
-                  - function_name:
-                    - function_name_identifier: decimal
-                  - bracketed:
-                    - start_bracket: (
-                    - expression:
+                      - end_bracket: )
+          - comma: ','
+          - column_definition:
+            - column_definition:
+              - quoted_identifier: '[ColumnDecimal]'
+              - data_type:
+                - data_type:
+                  - data_type_identifier: decimal
+                  - bracketed_arguments:
+                    - bracketed:
+                      - start_bracket: (
                       - numeric_literal: '10'
-                    - comma: ','
-                    - expression:
+                      - comma: ','
                       - numeric_literal: '3'
-                    - end_bracket: )
-            - end_bracket: )
-    - expression:
-      - function:
-        - function:
-          - function_name:
-            - function_name_identifier: WITH
+                      - end_bracket: )
+          - end_bracket: )
+        - keyword: WITH
+        - bracketed:
+          - start_bracket: (
+          - keyword: LOCATION
+          - comparison_operator:
+            - raw_comparison_operator: =
+          - keyword: USER_DB
+          - comma: ','
+          - keyword: DISTRIBUTION
+          - comparison_operator:
+            - raw_comparison_operator: =
+          - keyword: HASH
           - bracketed:
             - start_bracket: (
-            - expression:
-              - column_reference:
-                - naked_identifier: LOCATION
-              - comparison_operator:
-                - raw_comparison_operator: =
-              - column_reference:
-                - naked_identifier: USER_DB
-            - comma: ','
-            - expression:
-              - column_reference:
-                - naked_identifier: DISTRIBUTION
-              - comparison_operator:
-                - raw_comparison_operator: =
-              - function:
-                - function:
-                  - function_name:
-                    - function_name_identifier: HASH
-                  - bracketed:
-                    - start_bracket: (
-                    - expression:
-                      - column_reference:
-                        - quoted_identifier: '[Column B]'
-                    - end_bracket: )
+            - column_reference:
+              - quoted_identifier: '[Column B]'
             - end_bracket: )
+          - end_bracket: )
   - statement_terminator: ;
   - keyword: GO
   - statement:
-    - object_reference:
-      - object_reference:
-        - naked_identifier: DROP
-    - expression:
-      - column_reference:
-        - naked_identifier: TABLE
-    - expression:
-      - column_reference:
-        - quoted_identifier: '[dbo]'
-        - dot: .
-        - quoted_identifier: '[EC DC]'
-    - expression:
-      - column_reference:
-        - naked_identifier: GO
-    - expression:
-      - column_reference:
-        - naked_identifier: CREATE
-    - expression:
-      - column_reference:
-        - naked_identifier: TABLE
-    - expression:
-      - function:
-        - function:
-          - function_name:
+    - drop_table_statement:
+      - keyword: DROP
+      - keyword: TABLE
+      - table_reference:
+        - object_reference:
+          - object_reference:
             - quoted_identifier: '[dbo]'
             - dot: .
             - quoted_identifier: '[EC DC]'
-          - bracketed:
-            - start_bracket: (
-            - expression:
-              - column_reference:
-                - quoted_identifier: '[Column B]'
-            - expression:
-              - function:
-                - function:
-                  - function_name:
-                    - quoted_identifier: '[varchar]'
+  - keyword: GO
+  - statement:
+    - create_table_statement:
+      - create_table_statement:
+        - keyword: CREATE
+        - keyword: TABLE
+        - table_reference:
+          - object_reference:
+            - object_reference:
+              - quoted_identifier: '[dbo]'
+              - dot: .
+              - quoted_identifier: '[EC DC]'
+        - bracketed:
+          - start_bracket: (
+          - column_definition:
+            - column_definition:
+              - quoted_identifier: '[Column B]'
+              - data_type:
+                - quoted_identifier: '[varchar]'
+                - bracketed_arguments:
                   - bracketed:
                     - start_bracket: (
-                    - expression:
-                      - numeric_literal: '100'
+                    - numeric_literal: '100'
                     - end_bracket: )
-            - comma: ','
-            - expression:
-              - column_reference:
-                - quoted_identifier: '[ColumnC]'
-            - expression:
-              - function:
-                - function:
-                  - function_name:
-                    - function_name_identifier: varchar
-                  - bracketed:
-                    - start_bracket: (
-                    - expression:
+          - comma: ','
+          - column_definition:
+            - column_definition:
+              - quoted_identifier: '[ColumnC]'
+              - data_type:
+                - data_type:
+                  - data_type_identifier: varchar
+                  - bracketed_arguments:
+                    - bracketed:
+                      - start_bracket: (
                       - numeric_literal: '100'
-                    - end_bracket: )
-            - comma: ','
-            - expression:
-              - column_reference:
-                - quoted_identifier: '[ColumnDecimal]'
-            - expression:
-              - function:
-                - function:
-                  - function_name:
-                    - function_name_identifier: decimal
-                  - bracketed:
-                    - start_bracket: (
-                    - expression:
+                      - end_bracket: )
+          - comma: ','
+          - column_definition:
+            - column_definition:
+              - quoted_identifier: '[ColumnDecimal]'
+              - data_type:
+                - data_type:
+                  - data_type_identifier: decimal
+                  - bracketed_arguments:
+                    - bracketed:
+                      - start_bracket: (
                       - numeric_literal: '10'
-                    - comma: ','
-                    - expression:
+                      - comma: ','
                       - numeric_literal: '3'
-                    - end_bracket: )
-            - end_bracket: )
-    - expression:
-      - function:
-        - function:
-          - function_name:
-            - function_name_identifier: WITH
+                      - end_bracket: )
+          - end_bracket: )
+        - keyword: WITH
+        - bracketed:
+          - start_bracket: (
+          - keyword: CLUSTERED
+          - keyword: COLUMNSTORE
+          - keyword: INDEX
+          - comma: ','
+          - keyword: LOCATION
+          - comparison_operator:
+            - raw_comparison_operator: =
+          - keyword: USER_DB
+          - comma: ','
+          - keyword: DISTRIBUTION
+          - comparison_operator:
+            - raw_comparison_operator: =
+          - keyword: HASH
           - bracketed:
             - start_bracket: (
-            - expression:
-              - column_reference:
-                - naked_identifier: CLUSTERED
-            - expression:
-              - column_reference:
-                - naked_identifier: COLUMNSTORE
-            - expression:
-              - column_reference:
-                - naked_identifier: INDEX
-            - comma: ','
-            - expression:
-              - column_reference:
-                - naked_identifier: LOCATION
-              - comparison_operator:
-                - raw_comparison_operator: =
-              - column_reference:
-                - naked_identifier: USER_DB
-            - comma: ','
-            - expression:
-              - column_reference:
-                - naked_identifier: DISTRIBUTION
-              - comparison_operator:
-                - raw_comparison_operator: =
-              - function:
-                - function:
-                  - function_name:
-                    - function_name_identifier: HASH
-                  - bracketed:
-                    - start_bracket: (
-                    - expression:
-                      - column_reference:
-                        - quoted_identifier: '[Column B]'
-                    - end_bracket: )
+            - column_reference:
+              - quoted_identifier: '[Column B]'
             - end_bracket: )
+          - end_bracket: )
   - statement_terminator: ;
   - keyword: GO
   - statement:
-    - object_reference:
-      - object_reference:
-        - naked_identifier: DROP
-    - expression:
-      - column_reference:
-        - naked_identifier: TABLE
-    - expression:
-      - column_reference:
-        - quoted_identifier: '[dbo]'
-        - dot: .
-        - quoted_identifier: '[EC DC]'
-    - expression:
-      - column_reference:
-        - naked_identifier: GO
-    - expression:
-      - column_reference:
-        - naked_identifier: CREATE
-    - expression:
-      - column_reference:
-        - naked_identifier: TABLE
-    - expression:
-      - function:
-        - function:
-          - function_name:
+    - drop_table_statement:
+      - keyword: DROP
+      - keyword: TABLE
+      - table_reference:
+        - object_reference:
+          - object_reference:
             - quoted_identifier: '[dbo]'
             - dot: .
             - quoted_identifier: '[EC DC]'
-          - bracketed:
-            - start_bracket: (
-            - expression:
-              - column_reference:
-                - quoted_identifier: '[Column B]'
-            - expression:
-              - function:
-                - function:
-                  - function_name:
-                    - quoted_identifier: '[varchar]'
+  - keyword: GO
+  - statement:
+    - create_table_statement:
+      - create_table_statement:
+        - keyword: CREATE
+        - keyword: TABLE
+        - table_reference:
+          - object_reference:
+            - object_reference:
+              - quoted_identifier: '[dbo]'
+              - dot: .
+              - quoted_identifier: '[EC DC]'
+        - bracketed:
+          - start_bracket: (
+          - column_definition:
+            - column_definition:
+              - quoted_identifier: '[Column B]'
+              - data_type:
+                - quoted_identifier: '[varchar]'
+                - bracketed_arguments:
                   - bracketed:
                     - start_bracket: (
-                    - expression:
-                      - numeric_literal: '100'
+                    - numeric_literal: '100'
                     - end_bracket: )
-            - comma: ','
-            - expression:
-              - column_reference:
-                - quoted_identifier: '[ColumnC]'
-            - expression:
-              - function:
-                - function:
-                  - function_name:
-                    - function_name_identifier: varchar
-                  - bracketed:
-                    - start_bracket: (
-                    - expression:
+          - comma: ','
+          - column_definition:
+            - column_definition:
+              - quoted_identifier: '[ColumnC]'
+              - data_type:
+                - data_type:
+                  - data_type_identifier: varchar
+                  - bracketed_arguments:
+                    - bracketed:
+                      - start_bracket: (
                       - numeric_literal: '100'
-                    - end_bracket: )
-            - comma: ','
-            - expression:
-              - column_reference:
-                - quoted_identifier: '[ColumnDecimal]'
-            - expression:
-              - function:
-                - function:
-                  - function_name:
-                    - function_name_identifier: decimal
-                  - bracketed:
-                    - start_bracket: (
-                    - expression:
+                      - end_bracket: )
+          - comma: ','
+          - column_definition:
+            - column_definition:
+              - quoted_identifier: '[ColumnDecimal]'
+              - data_type:
+                - data_type:
+                  - data_type_identifier: decimal
+                  - bracketed_arguments:
+                    - bracketed:
+                      - start_bracket: (
                       - numeric_literal: '10'
-                    - comma: ','
-                    - expression:
+                      - comma: ','
                       - numeric_literal: '3'
-                    - end_bracket: )
-            - end_bracket: )
-    - expression:
-      - function:
-        - function:
-          - function_name:
-            - function_name_identifier: WITH
+                      - end_bracket: )
+          - end_bracket: )
+        - keyword: WITH
+        - bracketed:
+          - start_bracket: (
+          - keyword: CLUSTERED
+          - keyword: INDEX
           - bracketed:
             - start_bracket: (
-            - expression:
-              - column_reference:
-                - naked_identifier: CLUSTERED
-            - expression:
-              - function:
-                - function:
-                  - function_name:
-                    - function_name_identifier: INDEX
-                  - bracketed:
-                    - start_bracket: (
-                    - expression:
-                      - column_reference:
-                        - quoted_identifier: '[Column B]'
-                    - end_bracket: )
-            - comma: ','
-            - expression:
-              - column_reference:
-                - naked_identifier: DISTRIBUTION
-              - comparison_operator:
-                - raw_comparison_operator: =
-              - function:
-                - function:
-                  - function_name:
-                    - function_name_identifier: HASH
-                  - bracketed:
-                    - start_bracket: (
-                    - expression:
-                      - column_reference:
-                        - quoted_identifier: '[Column B]'
-                    - end_bracket: )
+            - column_reference:
+              - quoted_identifier: '[Column B]'
             - end_bracket: )
+          - comma: ','
+          - keyword: DISTRIBUTION
+          - comparison_operator:
+            - raw_comparison_operator: =
+          - keyword: HASH
+          - bracketed:
+            - start_bracket: (
+            - column_reference:
+              - quoted_identifier: '[Column B]'
+            - end_bracket: )
+          - end_bracket: )
   - statement_terminator: ;
   - keyword: GO
   - statement:
@@ -656,5 +542,4 @@ file:
             - keyword: ASC
             - end_bracket: )
           - end_bracket: )
-  - statement_terminator: ;
   - keyword: GO

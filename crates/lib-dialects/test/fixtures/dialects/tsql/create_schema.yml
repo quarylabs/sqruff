@@ -1,32 +1,27 @@
 file:
 - statement:
   - statement:
-    - object_reference:
-      - object_reference:
-        - naked_identifier: CREATE
-    - expression:
-      - column_reference:
-        - naked_identifier: SCHEMA
-    - expression:
-      - column_reference:
-        - quoted_identifier: '[Reporting]'
-    - expression:
-      - column_reference:
-        - naked_identifier: GO
-    - expression:
-      - column_reference:
-        - naked_identifier: CREATE
-    - expression:
-      - column_reference:
-        - naked_identifier: SCHEMA
-    - expression:
-      - column_reference:
-        - quoted_identifier: '[Extracts]'
-    - expression:
-      - column_reference:
-        - naked_identifier: AUTHORIZATION
-    - expression:
-      - column_reference:
-        - quoted_identifier: '[dbo]'
+    - create_schema_statement:
+      - create_schema_statement:
+        - keyword: CREATE
+        - keyword: SCHEMA
+        - table_reference:
+          - object_reference:
+            - object_reference:
+              - quoted_identifier: '[Reporting]'
+  - keyword: GO
+  - statement:
+    - create_schema_statement:
+      - create_schema_statement:
+        - keyword: CREATE
+        - keyword: SCHEMA
+        - table_reference:
+          - object_reference:
+            - object_reference:
+              - quoted_identifier: '[Extracts]'
+        - keyword: AUTHORIZATION
+        - object_reference:
+          - object_reference:
+            - quoted_identifier: '[dbo]'
   - statement_terminator: ;
   - keyword: GO

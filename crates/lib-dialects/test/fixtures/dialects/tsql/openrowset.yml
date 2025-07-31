@@ -347,6 +347,7 @@ file:
                   - keyword: COLLATE
                   - identifier:
                     - naked_identifier: Latin1_General_BIN2
+                  - numeric_literal: '2'
                   - comma: ','
                   - quoted_identifier: '[year]'
                   - data_type:

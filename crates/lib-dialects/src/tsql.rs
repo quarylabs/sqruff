@@ -3551,7 +3551,7 @@ pub fn raw_dialect() -> Dialect {
             Ref::new("DropSequenceStatementSegment"),
             Ref::new("CreateTriggerStatementSegment"),
             Ref::new("DropTriggerStatementSegment"),
-            // Bare procedure call (without EXECUTE) - must come after other statements to avoid conflicts
+            // Bare procedure call (without EXECUTE) - MUST be last to avoid conflicts
             Ref::new("BareProcedureCallStatementSegment")
         ])
         .config(|this| this.terminators = vec_of_erased![

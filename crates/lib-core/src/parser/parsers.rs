@@ -272,7 +272,7 @@ impl MatchableTrait for MultiStringParser {
     }
 
     fn is_optional(&self) -> bool {
-        false
+        todo!()
     }
 
     fn simple(

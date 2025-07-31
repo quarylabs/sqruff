@@ -295,6 +295,15 @@ pub fn dialect() -> Dialect {
             .into(),
         ),
         (
+            "MergeIntoLiteralGrammar".into(),
+            Sequence::new(vec_of_erased![
+                Ref::keyword("MERGE"),
+                Ref::keyword("INTO").optional()
+            ])
+            .to_matchable()
+            .into(),
+        ),
+        (
             "PrimaryKeyGrammar".into(),
             Nothing::new().to_matchable().into(),
         ),
@@ -2190,20 +2199,6 @@ pub fn dialect() -> Dialect {
                 RegexParser::new("[A-Z_][A-Z0-9_]*", SyntaxKind::FunctionNameIdentifier)
                     .anti_template("^(STRUCT|ARRAY)$"),
                 RegexParser::new("`[^`]*`", SyntaxKind::FunctionNameIdentifier),
-            ])
-            .to_matchable()
-            .into(),
-        ),
-    ]);
-
-    // Override MergeIntoLiteralGrammar for BigQuery (INTO is optional)
-    // Use add() to override since this is part of the raw grammar modifications
-    dialect.add([
-        (
-            "MergeIntoLiteralGrammar".into(),
-            Sequence::new(vec_of_erased![
-                Ref::keyword("MERGE"),
-                Ref::keyword("INTO").optional()
             ])
             .to_matchable()
             .into(),

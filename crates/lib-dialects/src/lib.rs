@@ -54,7 +54,6 @@ pub mod tsql;
 #[cfg(feature = "tsql")]
 mod tsql_keywords;
 
-
 pub fn kind_to_dialect(kind: &DialectKind) -> Option<Dialect> {
     #[allow(unreachable_patterns)]
     Some(match kind {
@@ -88,4 +87,3 @@ pub fn kind_to_dialect(kind: &DialectKind) -> Option<Dialect> {
         _ => return None,
     })
 }
-

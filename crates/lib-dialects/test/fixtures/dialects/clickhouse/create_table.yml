@@ -345,29 +345,21 @@ file:
         - naked_identifier: timestamp
         - data_type:
           - data_type_identifier: DateTime
-        - column_constraint_segment:
-          - keyword: CODEC
-          - expression:
-            - bracketed:
-              - start_bracket: (
-              - expression:
-                - column_reference:
-                  - naked_identifier: DoubleDelta
-              - end_bracket: )
+        - keyword: CODEC
+        - bracketed:
+          - start_bracket: (
+          - naked_identifier: DoubleDelta
+          - end_bracket: )
       - comma: ','
       - column_definition:
         - naked_identifier: slow_values
         - data_type:
           - data_type_identifier: Float32
-        - column_constraint_segment:
-          - keyword: CODEC
-          - expression:
-            - bracketed:
-              - start_bracket: (
-              - expression:
-                - column_reference:
-                  - naked_identifier: Gorilla
-              - end_bracket: )
+        - keyword: CODEC
+        - bracketed:
+          - start_bracket: (
+          - naked_identifier: Gorilla
+          - end_bracket: )
       - end_bracket: )
     - engine:
       - keyword: ENGINE
@@ -392,20 +384,15 @@ file:
         - naked_identifier: x
         - data_type:
           - data_type_identifier: String
-        - column_constraint_segment:
-          - keyword: Codec
-          - expression:
-            - bracketed:
-              - start_bracket: (
-              - column_reference:
-                - naked_identifier: Delta
-              - comma: ','
-              - column_reference:
-                - naked_identifier: LZ4
-              - comma: ','
-              - column_reference:
-                - naked_identifier: AES_128_GCM_SIV
-              - end_bracket: )
+        - keyword: Codec
+        - bracketed:
+          - start_bracket: (
+          - naked_identifier: Delta
+          - comma: ','
+          - naked_identifier: LZ4
+          - comma: ','
+          - naked_identifier: AES_128_GCM_SIV
+          - end_bracket: )
       - end_bracket: )
     - engine:
       - keyword: ENGINE

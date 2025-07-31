@@ -46,9 +46,10 @@ file:
                 - table_expression:
                   - table_reference:
                     - object_reference:
-                      - naked_identifier: Sales
-                      - dot: .
-                      - naked_identifier: SalesPerson
+                      - object_reference:
+                        - naked_identifier: Sales
+                        - dot: .
+                        - naked_identifier: SalesPerson
                 - alias_expression:
                   - keyword: AS
                   - naked_identifier: s
@@ -60,9 +61,10 @@ file:
                   - table_expression:
                     - table_reference:
                       - object_reference:
-                        - naked_identifier: Person
-                        - dot: .
-                        - naked_identifier: Person
+                        - object_reference:
+                          - naked_identifier: Person
+                          - dot: .
+                          - naked_identifier: Person
                   - alias_expression:
                     - keyword: AS
                     - naked_identifier: p
@@ -87,9 +89,10 @@ file:
                   - table_expression:
                     - table_reference:
                       - object_reference:
-                        - naked_identifier: Person
-                        - dot: .
-                        - naked_identifier: Address
+                        - object_reference:
+                          - naked_identifier: Person
+                          - dot: .
+                          - naked_identifier: Address
                   - alias_expression:
                     - keyword: AS
                     - naked_identifier: a
@@ -263,9 +266,10 @@ file:
                 - table_expression:
                   - table_reference:
                     - object_reference:
-                      - naked_identifier: Sales
-                      - dot: .
-                      - naked_identifier: SalesOrderDetail
+                      - object_reference:
+                        - naked_identifier: Sales
+                        - dot: .
+                        - naked_identifier: SalesOrderDetail
       - where_clause:
         - keyword: WHERE
         - expression:
@@ -401,9 +405,10 @@ file:
                 - table_expression:
                   - table_reference:
                     - object_reference:
-                      - naked_identifier: Sales
-                      - dot: .
-                      - naked_identifier: SalesOrderDetail
+                      - object_reference:
+                        - naked_identifier: Sales
+                        - dot: .
+                        - naked_identifier: SalesOrderDetail
       - where_clause:
         - keyword: WHERE
         - expression:
@@ -506,9 +511,10 @@ file:
                 - table_expression:
                   - table_reference:
                     - object_reference:
-                      - naked_identifier: Sales
-                      - dot: .
-                      - naked_identifier: SalesOrderDetail
+                      - object_reference:
+                        - naked_identifier: Sales
+                        - dot: .
+                        - naked_identifier: SalesOrderDetail
       - where_clause:
         - keyword: WHERE
         - expression:
@@ -596,9 +602,10 @@ file:
                 - table_expression:
                   - table_reference:
                     - object_reference:
-                      - naked_identifier: information_schema
-                      - dot: .
-                      - naked_identifier: tables
+                      - object_reference:
+                        - naked_identifier: information_schema
+                        - dot: .
+                        - naked_identifier: tables
       - named_window:
         - keyword: window
         - named_window_expression:

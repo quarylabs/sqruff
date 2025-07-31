@@ -18,9 +18,10 @@ file:
                 - table_expression:
                   - table_reference:
                     - object_reference:
-                      - naked_identifier: Sales
-                      - dot: .
-                      - naked_identifier: Customer
+                      - object_reference:
+                        - naked_identifier: Sales
+                        - dot: .
+                        - naked_identifier: Customer
                 - alias_expression:
                   - keyword: AS
                   - naked_identifier: c
@@ -32,9 +33,10 @@ file:
                   - table_expression:
                     - table_reference:
                       - object_reference:
-                        - naked_identifier: Sales
-                        - dot: .
-                        - naked_identifier: CustomerAddress
+                        - object_reference:
+                          - naked_identifier: Sales
+                          - dot: .
+                          - naked_identifier: CustomerAddress
                   - alias_expression:
                     - keyword: AS
                     - naked_identifier: ca
@@ -72,9 +74,10 @@ file:
       - keyword: CREATE
       - keyword: PROCEDURE
       - object_reference:
-        - naked_identifier: dbo
-        - dot: .
-        - naked_identifier: RetrievePersonAddress
+        - object_reference:
+          - naked_identifier: dbo
+          - dot: .
+          - naked_identifier: RetrievePersonAddress
       - tsql_variable: '@city_name'
       - data_type:
         - data_type:
@@ -113,9 +116,10 @@ file:
                     - table_expression:
                       - table_reference:
                         - object_reference:
-                          - naked_identifier: Person
-                          - dot: .
-                          - naked_identifier: Address
+                          - object_reference:
+                            - naked_identifier: Person
+                            - dot: .
+                            - naked_identifier: Address
           - where_clause:
             - keyword: WHERE
             - expression:
@@ -194,9 +198,10 @@ file:
                           - table_expression:
                             - table_reference:
                               - object_reference:
-                                - naked_identifier: Sales
-                                - dot: .
-                                - naked_identifier: Customer
+                                - object_reference:
+                                  - naked_identifier: Sales
+                                  - dot: .
+                                  - naked_identifier: Customer
                 - where_clause:
                   - keyword: WHERE
                   - expression:
@@ -238,7 +243,8 @@ file:
                           - table_expression:
                             - table_reference:
                               - object_reference:
-                                - naked_identifier: cte
+                                - object_reference:
+                                  - naked_identifier: cte
                       - join_clause:
                         - keyword: JOIN
                         - from_expression_element:
@@ -246,9 +252,10 @@ file:
                             - table_expression:
                               - table_reference:
                                 - object_reference:
-                                  - naked_identifier: Sales
-                                  - dot: .
-                                  - naked_identifier: Customer
+                                  - object_reference:
+                                    - naked_identifier: Sales
+                                    - dot: .
+                                    - naked_identifier: Customer
                             - alias_expression:
                               - keyword: AS
                               - naked_identifier: e
@@ -290,7 +297,8 @@ file:
                   - table_expression:
                     - table_reference:
                       - object_reference:
-                        - naked_identifier: cte
+                        - object_reference:
+                          - naked_identifier: cte
         - keyword: OPTION
         - bracketed:
           - start_bracket: (
@@ -319,9 +327,10 @@ file:
                     - table_expression:
                       - table_reference:
                         - object_reference:
-                          - naked_identifier: HumanResources
-                          - dot: .
-                          - naked_identifier: Employee
+                          - object_reference:
+                            - naked_identifier: HumanResources
+                            - dot: .
+                            - naked_identifier: Employee
                     - alias_expression:
                       - keyword: AS
                       - naked_identifier: e1
@@ -344,9 +353,10 @@ file:
                     - table_expression:
                       - table_reference:
                         - object_reference:
-                          - naked_identifier: HumanResources
-                          - dot: .
-                          - naked_identifier: Employee
+                          - object_reference:
+                            - naked_identifier: HumanResources
+                            - dot: .
+                            - naked_identifier: Employee
                     - alias_expression:
                       - keyword: AS
                       - naked_identifier: e2
@@ -394,9 +404,10 @@ file:
                 - table_expression:
                   - table_reference:
                     - object_reference:
-                      - naked_identifier: Sales
-                      - dot: .
-                      - naked_identifier: SalesOrderDetail
+                      - object_reference:
+                        - naked_identifier: Sales
+                        - dot: .
+                        - naked_identifier: SalesOrderDetail
       - where_clause:
         - keyword: WHERE
         - expression:
@@ -469,9 +480,10 @@ file:
                 - table_expression:
                   - table_reference:
                     - object_reference:
-                      - naked_identifier: Sales
-                      - dot: .
-                      - naked_identifier: SalesOrderDetail
+                      - object_reference:
+                        - naked_identifier: Sales
+                        - dot: .
+                        - naked_identifier: SalesOrderDetail
       - where_clause:
         - keyword: WHERE
         - expression:
@@ -523,9 +535,10 @@ file:
                 - table_expression:
                   - table_reference:
                     - object_reference:
-                      - naked_identifier: Person
-                      - dot: .
-                      - naked_identifier: Address
+                      - object_reference:
+                        - naked_identifier: Person
+                        - dot: .
+                        - naked_identifier: Address
       - where_clause:
         - keyword: WHERE
         - expression:
@@ -574,9 +587,10 @@ file:
                 - table_expression:
                   - table_reference:
                     - object_reference:
-                      - naked_identifier: Person
-                      - dot: .
-                      - naked_identifier: Address
+                      - object_reference:
+                        - naked_identifier: Person
+                        - dot: .
+                        - naked_identifier: Address
       - where_clause:
         - keyword: WHERE
         - expression:
@@ -617,9 +631,10 @@ file:
                 - table_expression:
                   - table_reference:
                     - object_reference:
-                      - naked_identifier: Person
-                      - dot: .
-                      - naked_identifier: Address
+                      - object_reference:
+                        - naked_identifier: Person
+                        - dot: .
+                        - naked_identifier: Address
       - where_clause:
         - keyword: WHERE
         - expression:
@@ -651,9 +666,10 @@ file:
         - keyword: UPDATE
         - table_reference:
           - object_reference:
-            - naked_identifier: Production
-            - dot: .
-            - naked_identifier: Product
+            - object_reference:
+              - naked_identifier: Production
+              - dot: .
+              - naked_identifier: Product
         - keyword: WITH
         - bracketed:
           - start_bracket: (
@@ -699,9 +715,10 @@ file:
                 - table_expression:
                   - table_reference:
                     - object_reference:
-                      - naked_identifier: Sales
-                      - dot: .
-                      - naked_identifier: SalesOrderHeader
+                      - object_reference:
+                        - naked_identifier: Sales
+                        - dot: .
+                        - naked_identifier: SalesOrderHeader
                 - alias_expression:
                   - keyword: AS
                   - naked_identifier: h
@@ -713,9 +730,10 @@ file:
                   - table_expression:
                     - table_reference:
                       - object_reference:
-                        - naked_identifier: Sales
-                        - dot: .
-                        - naked_identifier: SalesOrderDetail
+                        - object_reference:
+                          - naked_identifier: Sales
+                          - dot: .
+                          - naked_identifier: SalesOrderDetail
                   - alias_expression:
                     - keyword: AS
                     - naked_identifier: d
@@ -800,9 +818,10 @@ file:
                 - table_expression:
                   - table_reference:
                     - object_reference:
-                      - naked_identifier: Sales
-                      - dot: .
-                      - naked_identifier: SalesOrderHeader
+                      - object_reference:
+                        - naked_identifier: Sales
+                        - dot: .
+                        - naked_identifier: SalesOrderHeader
                 - alias_expression:
                   - keyword: AS
                   - naked_identifier: h
@@ -814,9 +833,10 @@ file:
                   - table_expression:
                     - table_reference:
                       - object_reference:
-                        - naked_identifier: Sales
-                        - dot: .
-                        - naked_identifier: SalesOrderDetail
+                        - object_reference:
+                          - naked_identifier: Sales
+                          - dot: .
+                          - naked_identifier: SalesOrderDetail
                   - alias_expression:
                     - keyword: AS
                     - naked_identifier: d
@@ -909,9 +929,10 @@ file:
                 - table_expression:
                   - table_reference:
                     - object_reference:
-                      - naked_identifier: Sales
-                      - dot: .
-                      - naked_identifier: SalesOrderHeader
+                      - object_reference:
+                        - naked_identifier: Sales
+                        - dot: .
+                        - naked_identifier: SalesOrderHeader
                 - alias_expression:
                   - keyword: AS
                   - naked_identifier: h
@@ -923,9 +944,10 @@ file:
                   - table_expression:
                     - table_reference:
                       - object_reference:
-                        - naked_identifier: Sales
-                        - dot: .
-                        - naked_identifier: SalesOrderDetail
+                        - object_reference:
+                          - naked_identifier: Sales
+                          - dot: .
+                          - naked_identifier: SalesOrderDetail
                   - alias_expression:
                     - keyword: AS
                     - naked_identifier: d
@@ -996,9 +1018,10 @@ file:
                 - table_expression:
                   - table_reference:
                     - object_reference:
-                      - naked_identifier: dbo
-                      - dot: .
-                      - naked_identifier: tableX
+                      - object_reference:
+                        - naked_identifier: dbo
+                        - dot: .
+                        - naked_identifier: tableX
                 - keyword: WITH
                 - bracketed:
                   - start_bracket: (

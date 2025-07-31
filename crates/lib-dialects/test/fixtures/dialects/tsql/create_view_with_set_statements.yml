@@ -17,9 +17,10 @@ file:
         - keyword: VIEW
         - table_reference:
           - object_reference:
-            - quoted_identifier: '[DEST]'
-            - dot: .
-            - quoted_identifier: '[V_DIFFERENCE_NURSING_HOME__INFECTED_LOCATIONS_TOTAL_PER_REGION]'
+            - object_reference:
+              - quoted_identifier: '[DEST]'
+              - dot: .
+              - quoted_identifier: '[V_DIFFERENCE_NURSING_HOME__INFECTED_LOCATIONS_TOTAL_PER_REGION]'
         - keyword: AS
         - select_statement:
           - select_clause:
@@ -41,7 +42,8 @@ file:
                     - table_expression:
                       - table_reference:
                         - object_reference:
-                          - naked_identifier: BASE_CTE
+                          - object_reference:
+                            - naked_identifier: BASE_CTE
   - statement_terminator: ;
   - keyword: GO
   - statement:
@@ -53,9 +55,10 @@ file:
         - keyword: VIEW
         - table_reference:
           - object_reference:
-            - quoted_identifier: '[DEST]'
-            - dot: .
-            - quoted_identifier: '[V_DIFFERENCE_NURSING_HOME__INFECTED_LOCATIONS_TOTAL_PER_REGION]'
+            - object_reference:
+              - quoted_identifier: '[DEST]'
+              - dot: .
+              - quoted_identifier: '[V_DIFFERENCE_NURSING_HOME__INFECTED_LOCATIONS_TOTAL_PER_REGION]'
         - keyword: AS
         - select_statement:
           - select_clause:
@@ -77,7 +80,8 @@ file:
                     - table_expression:
                       - table_reference:
                         - object_reference:
-                          - naked_identifier: BASE_CTE
+                          - object_reference:
+                            - naked_identifier: BASE_CTE
           - orderby_clause:
             - keyword: ORDER
             - keyword: BY
@@ -92,9 +96,10 @@ file:
         - keyword: VIEW
         - table_reference:
           - object_reference:
-            - quoted_identifier: '[DEST]'
-            - dot: .
-            - quoted_identifier: '[V_DIFFERENCE_NURSING_HOME__INFECTED_LOCATIONS_TOTAL_PER_REGION]'
+            - object_reference:
+              - quoted_identifier: '[DEST]'
+              - dot: .
+              - quoted_identifier: '[V_DIFFERENCE_NURSING_HOME__INFECTED_LOCATIONS_TOTAL_PER_REGION]'
         - keyword: AS
         - select_statement:
           - select_clause:
@@ -176,7 +181,8 @@ file:
                     - table_expression:
                       - table_reference:
                         - object_reference:
-                          - naked_identifier: BASE_CTE
+                          - object_reference:
+                            - naked_identifier: BASE_CTE
                     - alias_expression:
                       - naked_identifier: T1
                 - join_clause:
@@ -187,7 +193,8 @@ file:
                       - table_expression:
                         - table_reference:
                           - object_reference:
-                            - naked_identifier: LAST_DATE_OF_REPORT
+                            - object_reference:
+                              - naked_identifier: LAST_DATE_OF_REPORT
                       - alias_expression:
                         - naked_identifier: T2
                   - join_on_condition:

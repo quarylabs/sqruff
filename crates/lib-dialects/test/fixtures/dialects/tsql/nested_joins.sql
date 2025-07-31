@@ -1,36 +1,27 @@
+-- Test nested JOIN structures in T-SQL
 SELECT 1 AS RegionCode
 FROM BA
 LEFT OUTER JOIN I
     LEFT OUTER JOIN P
         ON I.Pcd = P.Iid
     ON BA.Iid = I.Bcd;
-GO
 
-SELECT 1
-FROM BA
-RIGHT OUTER JOIN I
-    LEFT OUTER JOIN P AS P_1
-        LEFT OUTER JOIN IP AS IP_1
-            ON P_1.NID = IP_1.NID
-        ON I.PID = CAST(P_1.IDEID AS varchar)
-    LEFT OUTER JOIN P AS P_2
-        LEFT OUTER JOIN IP AS IP_2
-            ON P_2.NID = IP_2.NID
-        ON I.SecondaryPID = CAST(P_2.IDEID AS varchar)
-    ON CAST(BA.IDEID AS varchar) = I.BAID
+-- Test complex nested JOINs
+SELECT *
+FROM Orders o
+LEFT OUTER JOIN OrderDetails od
+    INNER JOIN Products p
+        ON od.ProductID = p.ProductID
+    ON o.OrderID = od.OrderID
+LEFT OUTER JOIN Customers c
+    ON o.CustomerID = c.CustomerID;
 
-SELECT 1 AS RegionCode
-FROM BA
-LEFT OUTER JOIN (
-    I JOIN P
-        ON I.Pcd = P.Iid
-) ON BA.Iid = I.Bcd;
-GO
-
-SELECT
-    tst1.Name, tst2.OtherName
-FROM dbo.Test1 AS tst1
-    LEFT OUTER JOIN (dbo.Test2       AS tst2
-                          INNER JOIN dbo.FilterTable AS fltr1
-                              ON tst2.Id = fltr1.Id)
-        ON tst1.id = tst2.id;
+-- Test nested JOINs with T-SQL algorithm hints
+SELECT *
+FROM table1 t1
+LEFT OUTER HASH JOIN table2 t2
+    INNER MERGE JOIN table3 t3
+        ON t2.id = t3.t2_id
+    ON t1.id = t2.t1_id
+FULL OUTER LOOP JOIN table4 t4
+    ON t1.id = t4.t1_id;

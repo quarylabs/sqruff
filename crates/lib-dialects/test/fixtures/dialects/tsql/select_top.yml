@@ -26,11 +26,12 @@ file:
                 - table_expression:
                   - table_reference:
                     - object_reference:
-                      - naked_identifier: t1
-                      - dot: .
-                      - naked_identifier: t2
-                      - dot: .
-                      - naked_identifier: table_name
+                      - object_reference:
+                        - naked_identifier: t1
+                        - dot: .
+                        - naked_identifier: t2
+                        - dot: .
+                        - naked_identifier: table_name
                 - alias_expression:
                   - naked_identifier: t
       - orderby_clause:
@@ -70,9 +71,10 @@ file:
                 - table_expression:
                   - table_reference:
                     - object_reference:
-                      - naked_identifier: HumanResources
-                      - dot: .
-                      - naked_identifier: Employee
+                      - object_reference:
+                        - naked_identifier: HumanResources
+                        - dot: .
+                        - naked_identifier: Employee
   - statement_terminator: ;
   - statement:
     - select_statement:
@@ -102,9 +104,10 @@ file:
                 - table_expression:
                   - table_reference:
                     - object_reference:
-                      - naked_identifier: HumanResources
-                      - dot: .
-                      - naked_identifier: Employee
+                      - object_reference:
+                        - naked_identifier: HumanResources
+                        - dot: .
+                        - naked_identifier: Employee
       - orderby_clause:
         - keyword: ORDER
         - keyword: BY
@@ -141,9 +144,10 @@ file:
                 - table_expression:
                   - table_reference:
                     - object_reference:
-                      - naked_identifier: HumanResources
-                      - dot: .
-                      - naked_identifier: Employee
+                      - object_reference:
+                        - naked_identifier: HumanResources
+                        - dot: .
+                        - naked_identifier: Employee
       - orderby_clause:
         - keyword: ORDER
         - keyword: BY
@@ -204,9 +208,10 @@ file:
                 - table_expression:
                   - table_reference:
                     - object_reference:
-                      - naked_identifier: Person
-                      - dot: .
-                      - naked_identifier: Person
+                      - object_reference:
+                        - naked_identifier: Person
+                        - dot: .
+                        - naked_identifier: Person
                 - alias_expression:
                   - keyword: AS
                   - naked_identifier: pp
@@ -218,9 +223,10 @@ file:
                   - table_expression:
                     - table_reference:
                       - object_reference:
-                        - naked_identifier: HumanResources
-                        - dot: .
-                        - naked_identifier: Employee
+                        - object_reference:
+                          - naked_identifier: HumanResources
+                          - dot: .
+                          - naked_identifier: Employee
                   - alias_expression:
                     - keyword: AS
                     - naked_identifier: e
@@ -245,9 +251,10 @@ file:
                   - table_expression:
                     - table_reference:
                       - object_reference:
-                        - naked_identifier: HumanResources
-                        - dot: .
-                        - naked_identifier: EmployeePayHistory
+                        - object_reference:
+                          - naked_identifier: HumanResources
+                          - dot: .
+                          - naked_identifier: EmployeePayHistory
                   - alias_expression:
                     - keyword: AS
                     - naked_identifier: r

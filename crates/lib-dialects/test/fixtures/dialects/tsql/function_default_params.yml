@@ -7,7 +7,8 @@ file:
       - keyword: alter
       - keyword: procedure
       - object_reference:
-        - naked_identifier: name
+        - object_reference:
+          - naked_identifier: name
       - tsql_variable: '@param1'
       - data_type:
         - data_type:

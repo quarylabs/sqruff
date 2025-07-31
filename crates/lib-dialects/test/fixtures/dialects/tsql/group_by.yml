@@ -7,7 +7,8 @@ file:
         - keyword: TABLE
         - table_reference:
           - object_reference:
-            - naked_identifier: '#n'
+            - object_reference:
+              - naked_identifier: '#n'
         - keyword: WITH
         - bracketed:
           - start_bracket: (
@@ -37,7 +38,8 @@ file:
                       - table_expression:
                         - table_reference:
                           - object_reference:
-                            - naked_identifier: Orders_Action
+                            - object_reference:
+                              - naked_identifier: Orders_Action
                       - alias_expression:
                         - naked_identifier: acto
           - end_bracket: )
@@ -60,7 +62,8 @@ file:
                 - table_expression:
                   - table_reference:
                     - object_reference:
-                      - naked_identifier: '#n'
+                      - object_reference:
+                        - naked_identifier: '#n'
                 - alias_expression:
                   - naked_identifier: t
       - groupby_clause:
@@ -78,7 +81,8 @@ file:
       - keyword: TABLE
       - table_reference:
         - object_reference:
-          - naked_identifier: '#n'
+          - object_reference:
+            - naked_identifier: '#n'
   - statement_terminator: ;
   - statement:
     - select_statement:
@@ -120,7 +124,8 @@ file:
                 - table_expression:
                   - table_reference:
                     - object_reference:
-                      - naked_identifier: '#3'
+                      - object_reference:
+                        - naked_identifier: '#3'
       - groupby_clause:
         - groupby_clause:
           - keyword: GROUP

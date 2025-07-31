@@ -5,15 +5,17 @@ file:
       - keyword: ALTER
       - keyword: TABLE
       - object_reference:
-        - quoted_identifier: '[REPORTING]'
-        - dot: .
-        - quoted_identifier: '[UN_NEW]'
+        - object_reference:
+          - quoted_identifier: '[REPORTING]'
+          - dot: .
+          - quoted_identifier: '[UN_NEW]'
       - keyword: SWITCH
       - keyword: to
       - object_reference:
-        - quoted_identifier: '[REPORTING]'
-        - dot: .
-        - quoted_identifier: '[UN_BASE]'
+        - object_reference:
+          - quoted_identifier: '[REPORTING]'
+          - dot: .
+          - quoted_identifier: '[UN_BASE]'
       - keyword: WITH
       - bracketed:
         - start_bracket: (
@@ -29,9 +31,10 @@ file:
       - keyword: TABLE
       - table_reference:
         - object_reference:
-          - quoted_identifier: '[REPORTING]'
-          - dot: .
-          - quoted_identifier: '[UN_NEW]'
+          - object_reference:
+            - quoted_identifier: '[REPORTING]'
+            - dot: .
+            - quoted_identifier: '[UN_NEW]'
   - statement_terminator: ;
   - statement:
     - alter_table_statement:
@@ -39,7 +42,8 @@ file:
       - keyword: TABLE
       - table_reference:
         - object_reference:
-          - naked_identifier: table_name
+          - object_reference:
+            - naked_identifier: table_name
       - keyword: DROP
       - keyword: COLUMN
       - column_reference:

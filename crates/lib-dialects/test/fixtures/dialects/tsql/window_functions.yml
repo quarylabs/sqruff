@@ -45,7 +45,8 @@ file:
                 - table_expression:
                   - table_reference:
                     - object_reference:
-                      - naked_identifier: mytable
+                      - object_reference:
+                        - naked_identifier: mytable
                 - alias_expression:
                   - naked_identifier: t
   - statement_terminator: ;
@@ -91,7 +92,8 @@ file:
                 - table_expression:
                   - table_reference:
                     - object_reference:
-                      - naked_identifier: mytable
+                      - object_reference:
+                        - naked_identifier: mytable
                 - alias_expression:
                   - naked_identifier: t
   - statement_terminator: ;
@@ -151,7 +153,8 @@ file:
                 - table_expression:
                   - table_reference:
                     - object_reference:
-                      - naked_identifier: mytable
+                      - object_reference:
+                        - naked_identifier: mytable
                 - alias_expression:
                   - naked_identifier: t
   - statement_terminator: ;
@@ -223,7 +226,8 @@ file:
                 - table_expression:
                   - table_reference:
                     - object_reference:
-                      - naked_identifier: mytable
+                      - object_reference:
+                        - naked_identifier: mytable
                 - alias_expression:
                   - naked_identifier: t
   - statement_terminator: ;
@@ -267,7 +271,8 @@ file:
                                         - table_expression:
                                           - table_reference:
                                             - object_reference:
-                                              - naked_identifier: othertable
+                                              - object_reference:
+                                                - naked_identifier: othertable
                           - end_bracket: )
                       - orderby_clause:
                         - keyword: ORDER
@@ -288,7 +293,8 @@ file:
                 - table_expression:
                   - table_reference:
                     - object_reference:
-                      - naked_identifier: mytable
+                      - object_reference:
+                        - naked_identifier: mytable
                 - alias_expression:
                   - naked_identifier: t
   - statement_terminator: ;
@@ -345,7 +351,8 @@ file:
                 - table_expression:
                   - table_reference:
                     - object_reference:
-                      - naked_identifier: mytable
+                      - object_reference:
+                        - naked_identifier: mytable
                 - alias_expression:
                   - naked_identifier: t
       - groupby_clause:

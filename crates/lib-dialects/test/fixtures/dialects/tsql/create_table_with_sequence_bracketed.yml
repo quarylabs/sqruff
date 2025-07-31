@@ -1,70 +1,72 @@
 file:
 - statement:
   - statement:
-    - keyword: IF
-    - expression:
-      - keyword: NOT
-      - keyword: EXISTS
-      - bracketed:
-        - start_bracket: (
-        - select_statement:
-          - select_clause:
+    - if_statement:
+      - keyword: IF
+      - expression:
+        - keyword: NOT
+        - keyword: EXISTS
+        - bracketed:
+          - start_bracket: (
+          - select_statement:
             - select_clause:
-              - keyword: SELECT
-              - select_clause_element:
-                - wildcard_expression:
-                  - wildcard_identifier:
-                    - star: '*'
-          - from_clause:
-            - keyword: FROM
-            - from_expression:
+              - select_clause:
+                - keyword: SELECT
+                - select_clause_element:
+                  - wildcard_expression:
+                    - wildcard_identifier:
+                      - star: '*'
+            - from_clause:
+              - keyword: FROM
               - from_expression:
-                - from_expression_element:
+                - from_expression:
                   - from_expression_element:
-                    - table_expression:
-                      - table_reference:
-                        - object_reference:
-                          - naked_identifier: sys
-                          - dot: .
-                          - naked_identifier: sequences
-          - where_clause:
-            - keyword: WHERE
-            - expression:
-              - column_reference:
-                - naked_identifier: object_id
-              - comparison_operator:
-                - raw_comparison_operator: =
-              - function:
+                    - from_expression_element:
+                      - table_expression:
+                        - table_reference:
+                          - object_reference:
+                            - object_reference:
+                              - naked_identifier: sys
+                              - dot: .
+                              - naked_identifier: sequences
+            - where_clause:
+              - keyword: WHERE
+              - expression:
+                - column_reference:
+                  - naked_identifier: object_id
+                - comparison_operator:
+                  - raw_comparison_operator: =
                 - function:
-                  - function_name:
-                    - function_name_identifier: OBJECT_ID
-                  - bracketed:
-                    - start_bracket: (
-                    - expression:
-                      - quoted_literal: N'[dbo].[SEQ_SCHEMA_NAME_TABLE_NAME]'
-                    - end_bracket: )
-              - binary_operator: AND
-              - column_reference:
-                - naked_identifier: type
-              - comparison_operator:
-                - raw_comparison_operator: =
-              - quoted_literal: '''SO'''
-        - end_bracket: )
-    - statement:
-      - create_sequence_statement:
-        - keyword: CREATE
-        - keyword: SEQUENCE
-        - column_reference:
-          - naked_identifier: SEQ_SCHEMA_NAME_TABLE_NAME
-        - create_sequence_options_segment:
-          - keyword: START
-          - keyword: WITH
-          - numeric_literal: '1'
-        - create_sequence_options_segment:
-          - keyword: INCREMENT
-          - keyword: BY
-          - numeric_literal: '1'
-    - statement_terminator: ;
+                  - function:
+                    - function_name:
+                      - function_name_identifier: OBJECT_ID
+                    - bracketed:
+                      - start_bracket: (
+                      - expression:
+                        - quoted_literal: N'[dbo].[SEQ_SCHEMA_NAME_TABLE_NAME]'
+                      - end_bracket: )
+                - binary_operator: AND
+                - column_reference:
+                  - naked_identifier: type
+                - comparison_operator:
+                  - raw_comparison_operator: =
+                - quoted_literal: '''SO'''
+          - end_bracket: )
+      - statement:
+        - create_sequence_statement:
+          - keyword: CREATE
+          - keyword: SEQUENCE
+          - column_reference:
+            - naked_identifier: SEQ_SCHEMA_NAME_TABLE_NAME
+          - create_sequence_options_segment:
+            - keyword: START
+            - keyword: WITH
+            - numeric_literal: '1'
+          - create_sequence_options_segment:
+            - keyword: INCREMENT
+            - keyword: BY
+            - numeric_literal: '1'
+      - statement_terminator: ;
   - keyword: GO
   - statement:
     - create_table_statement:
@@ -73,9 +75,10 @@ file:
         - keyword: TABLE
         - table_reference:
           - object_reference:
-            - naked_identifier: SCHEMA_NAME
-            - dot: .
-            - naked_identifier: TABLE_NAME
+            - object_reference:
+              - naked_identifier: SCHEMA_NAME
+              - dot: .
+              - naked_identifier: TABLE_NAME
         - bracketed:
           - start_bracket: (
           - column_definition:
@@ -101,9 +104,10 @@ file:
                         - keyword: VALUE
                         - keyword: FOR
                         - object_reference:
-                          - quoted_identifier: '[dbo]'
-                          - dot: .
-                          - quoted_identifier: '[SEQ_SCHEMA_NAME_TABLE_NAME]'
+                          - object_reference:
+                            - quoted_identifier: '[dbo]'
+                            - dot: .
+                            - quoted_identifier: '[SEQ_SCHEMA_NAME_TABLE_NAME]'
                     - end_bracket: )
           - comma: ','
           - column_definition:
@@ -186,70 +190,72 @@ file:
           - end_bracket: )
   - statement_terminator: ;
   - statement:
-    - keyword: IF
-    - expression:
-      - keyword: NOT
-      - keyword: EXISTS
-      - bracketed:
-        - start_bracket: (
-        - select_statement:
-          - select_clause:
+    - if_statement:
+      - keyword: IF
+      - expression:
+        - keyword: NOT
+        - keyword: EXISTS
+        - bracketed:
+          - start_bracket: (
+          - select_statement:
             - select_clause:
-              - keyword: SELECT
-              - select_clause_element:
-                - wildcard_expression:
-                  - wildcard_identifier:
-                    - star: '*'
-          - from_clause:
-            - keyword: FROM
-            - from_expression:
+              - select_clause:
+                - keyword: SELECT
+                - select_clause_element:
+                  - wildcard_expression:
+                    - wildcard_identifier:
+                      - star: '*'
+            - from_clause:
+              - keyword: FROM
               - from_expression:
-                - from_expression_element:
+                - from_expression:
                   - from_expression_element:
-                    - table_expression:
-                      - table_reference:
-                        - object_reference:
-                          - naked_identifier: sys
-                          - dot: .
-                          - naked_identifier: sequences
-          - where_clause:
-            - keyword: WHERE
-            - expression:
-              - column_reference:
-                - naked_identifier: object_id
-              - comparison_operator:
-                - raw_comparison_operator: =
-              - function:
+                    - from_expression_element:
+                      - table_expression:
+                        - table_reference:
+                          - object_reference:
+                            - object_reference:
+                              - naked_identifier: sys
+                              - dot: .
+                              - naked_identifier: sequences
+            - where_clause:
+              - keyword: WHERE
+              - expression:
+                - column_reference:
+                  - naked_identifier: object_id
+                - comparison_operator:
+                  - raw_comparison_operator: =
                 - function:
-                  - function_name:
-                    - function_name_identifier: OBJECT_ID
-                  - bracketed:
-                    - start_bracket: (
-                    - expression:
-                      - quoted_literal: N'[dbo].[SEQ_STAGE_CBS_POPULATION_BASE]'
-                    - end_bracket: )
-              - binary_operator: AND
-              - column_reference:
-                - naked_identifier: type
-              - comparison_operator:
-                - raw_comparison_operator: =
-              - quoted_literal: '''SO'''
-        - end_bracket: )
-    - statement:
-      - create_sequence_statement:
-        - keyword: CREATE
-        - keyword: SEQUENCE
-        - column_reference:
-          - naked_identifier: SEQ_STAGE_CBS_POPULATION_BASE
-        - create_sequence_options_segment:
-          - keyword: START
-          - keyword: WITH
-          - numeric_literal: '1'
-        - create_sequence_options_segment:
-          - keyword: INCREMENT
-          - keyword: BY
-          - numeric_literal: '1'
-    - statement_terminator: ;
+                  - function:
+                    - function_name:
+                      - function_name_identifier: OBJECT_ID
+                    - bracketed:
+                      - start_bracket: (
+                      - expression:
+                        - quoted_literal: N'[dbo].[SEQ_STAGE_CBS_POPULATION_BASE]'
+                      - end_bracket: )
+                - binary_operator: AND
+                - column_reference:
+                  - naked_identifier: type
+                - comparison_operator:
+                  - raw_comparison_operator: =
+                - quoted_literal: '''SO'''
+          - end_bracket: )
+      - statement:
+        - create_sequence_statement:
+          - keyword: CREATE
+          - keyword: SEQUENCE
+          - column_reference:
+            - naked_identifier: SEQ_STAGE_CBS_POPULATION_BASE
+          - create_sequence_options_segment:
+            - keyword: START
+            - keyword: WITH
+            - numeric_literal: '1'
+          - create_sequence_options_segment:
+            - keyword: INCREMENT
+            - keyword: BY
+            - numeric_literal: '1'
+      - statement_terminator: ;
   - keyword: GO
   - statement:
     - create_table_statement:
@@ -258,9 +264,10 @@ file:
         - keyword: TABLE
         - table_reference:
           - object_reference:
-            - naked_identifier: STAGE
-            - dot: .
-            - naked_identifier: CBS_POPULATION_BASE
+            - object_reference:
+              - naked_identifier: STAGE
+              - dot: .
+              - naked_identifier: CBS_POPULATION_BASE
         - bracketed:
           - start_bracket: (
           - column_definition:
@@ -287,9 +294,10 @@ file:
                         - keyword: VALUE
                         - keyword: FOR
                         - object_reference:
-                          - quoted_identifier: '[dbo]'
-                          - dot: .
-                          - quoted_identifier: '[SEQ_STAGE_CBS_POPULATION_BASE]'
+                          - object_reference:
+                            - quoted_identifier: '[dbo]'
+                            - dot: .
+                            - quoted_identifier: '[SEQ_STAGE_CBS_POPULATION_BASE]'
                     - end_bracket: )
           - comma: ','
           - column_definition:
@@ -489,9 +497,10 @@ file:
         - keyword: ON
         - table_reference:
           - object_reference:
-            - naked_identifier: STAGE
-            - dot: .
-            - naked_identifier: CBS_POPULATION_BASE
+            - object_reference:
+              - naked_identifier: STAGE
+              - dot: .
+              - naked_identifier: CBS_POPULATION_BASE
         - bracketed:
           - start_bracket: (
           - column_reference:
@@ -509,9 +518,10 @@ file:
         - keyword: ON
         - table_reference:
           - object_reference:
-            - naked_identifier: STAGE
-            - dot: .
-            - naked_identifier: CBS_POPULATION_BASE
+            - object_reference:
+              - naked_identifier: STAGE
+              - dot: .
+              - naked_identifier: CBS_POPULATION_BASE
         - bracketed:
           - start_bracket: (
           - column_reference:
@@ -561,9 +571,10 @@ file:
         - keyword: TABLE
         - table_reference:
           - object_reference:
-            - naked_identifier: DEST
-            - dot: .
-            - naked_identifier: POSITIVE_TESTED_PEOPLE
+            - object_reference:
+              - naked_identifier: DEST
+              - dot: .
+              - naked_identifier: POSITIVE_TESTED_PEOPLE
         - bracketed:
           - start_bracket: (
           - column_definition:
@@ -589,9 +600,10 @@ file:
                         - keyword: VALUE
                         - keyword: FOR
                         - object_reference:
-                          - quoted_identifier: '[dbo]'
-                          - dot: .
-                          - quoted_identifier: '[SEQ_DEST_POSITIVE_TESTED_PEOPLE]'
+                          - object_reference:
+                            - quoted_identifier: '[dbo]'
+                            - dot: .
+                            - quoted_identifier: '[SEQ_DEST_POSITIVE_TESTED_PEOPLE]'
                     - end_bracket: )
           - comma: ','
           - column_definition:

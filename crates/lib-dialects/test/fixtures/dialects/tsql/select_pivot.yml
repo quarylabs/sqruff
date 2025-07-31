@@ -25,7 +25,8 @@ file:
                 - table_expression:
                   - table_reference:
                     - object_reference:
-                      - naked_identifier: table1
+                      - object_reference:
+                        - naked_identifier: table1
                 - alias_expression:
                   - keyword: as
                   - naked_identifier: t1
@@ -88,7 +89,8 @@ file:
                 - table_expression:
                   - table_reference:
                     - object_reference:
-                      - naked_identifier: table1
+                      - object_reference:
+                        - naked_identifier: table1
                 - alias_expression:
                   - keyword: as
                   - naked_identifier: t1
@@ -154,7 +156,8 @@ file:
                 - table_expression:
                   - table_reference:
                     - object_reference:
-                      - naked_identifier: p
+                      - object_reference:
+                        - naked_identifier: p
                   - keyword: UNPIVOT
                   - bracketed:
                     - start_bracket: (
@@ -214,7 +217,8 @@ file:
                   - table_expression:
                     - table_reference:
                       - object_reference:
-                        - naked_identifier: d
+                        - object_reference:
+                          - naked_identifier: d
               - join_on_condition:
                 - keyword: ON
                 - expression:

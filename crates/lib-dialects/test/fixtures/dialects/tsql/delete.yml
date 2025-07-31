@@ -7,9 +7,10 @@ file:
         - keyword: FROM
         - table_reference:
           - object_reference:
-            - naked_identifier: Sales
-            - dot: .
-            - naked_identifier: SalesPersonQuotaHistory
+            - object_reference:
+              - naked_identifier: Sales
+              - dot: .
+              - naked_identifier: SalesPersonQuotaHistory
         - statement_terminator: ;
   - keyword: GO
   - statement:
@@ -19,9 +20,10 @@ file:
         - keyword: FROM
         - table_reference:
           - object_reference:
-            - naked_identifier: Production
-            - dot: .
-            - naked_identifier: ProductCostHistory
+            - object_reference:
+              - naked_identifier: Production
+              - dot: .
+              - naked_identifier: ProductCostHistory
         - where_clause:
           - keyword: WHERE
           - expression:
@@ -38,9 +40,10 @@ file:
         - keyword: DELETE
         - table_reference:
           - object_reference:
-            - naked_identifier: Production
-            - dot: .
-            - naked_identifier: ProductCostHistory
+            - object_reference:
+              - naked_identifier: Production
+              - dot: .
+              - naked_identifier: ProductCostHistory
         - where_clause:
           - keyword: WHERE
           - expression:
@@ -57,29 +60,30 @@ file:
             - null_literal: 'NULL'
         - statement_terminator: ;
   - statement:
-    - keyword: PRINT
-    - expression:
-      - quoted_literal: '''Number of rows deleted is '''
-      - binary_operator: +
-      - function:
+    - statement:
+      - keyword: PRINT
+      - expression:
+        - quoted_literal: '''Number of rows deleted is '''
+        - binary_operator: +
         - function:
-          - function_name:
-            - function_name_identifier: CAST
-          - bracketed:
-            - start_bracket: (
-            - expression:
-              - parameterized_expression:
-                - tsql_variable: '@@ROWCOUNT'
-            - keyword: as
-            - data_type:
+          - function:
+            - function_name:
+              - function_name_identifier: CAST
+            - bracketed:
+              - start_bracket: (
+              - expression:
+                - parameterized_expression:
+                  - tsql_variable: '@@ROWCOUNT'
+              - keyword: as
               - data_type:
-                - data_type_identifier: char
-                - bracketed_arguments:
-                  - bracketed:
-                    - start_bracket: (
-                    - numeric_literal: '3'
-                    - end_bracket: )
-            - end_bracket: )
+                - data_type:
+                  - data_type_identifier: char
+                  - bracketed_arguments:
+                    - bracketed:
+                      - start_bracket: (
+                      - numeric_literal: '3'
+                      - end_bracket: )
+              - end_bracket: )
   - statement_terminator: ;
   - keyword: GO
   - statement:
@@ -106,9 +110,10 @@ file:
                   - table_expression:
                     - table_reference:
                       - object_reference:
-                        - naked_identifier: HumanResources
-                        - dot: .
-                        - naked_identifier: EmployeePayHistory
+                        - object_reference:
+                          - naked_identifier: HumanResources
+                          - dot: .
+                          - naked_identifier: EmployeePayHistory
                   - alias_expression:
                     - keyword: AS
                     - naked_identifier: a
@@ -147,9 +152,10 @@ file:
                             - table_expression:
                               - table_reference:
                                 - object_reference:
-                                  - naked_identifier: HumanResources
-                                  - dot: .
-                                  - naked_identifier: EmployeePayHistory
+                                  - object_reference:
+                                    - naked_identifier: HumanResources
+                                    - dot: .
+                                    - naked_identifier: EmployeePayHistory
                             - alias_expression:
                               - keyword: AS
                               - naked_identifier: b
@@ -186,15 +192,17 @@ file:
         - keyword: FROM
         - table_reference:
           - object_reference:
-            - naked_identifier: HumanResources
-            - dot: .
-            - naked_identifier: EmployeePayHistory
+            - object_reference:
+              - naked_identifier: HumanResources
+              - dot: .
+              - naked_identifier: EmployeePayHistory
         - where_clause:
           - keyword: WHERE
           - keyword: CURRENT
           - keyword: OF
           - object_reference:
-            - naked_identifier: complex_cursor
+            - object_reference:
+              - naked_identifier: complex_cursor
         - statement_terminator: ;
   - statement:
     - statement:
@@ -214,9 +222,10 @@ file:
         - keyword: FROM
         - table_reference:
           - object_reference:
-            - naked_identifier: Sales
-            - dot: .
-            - naked_identifier: SalesPersonQuotaHistory
+            - object_reference:
+              - naked_identifier: Sales
+              - dot: .
+              - naked_identifier: SalesPersonQuotaHistory
         - where_clause:
           - keyword: WHERE
           - expression:
@@ -241,9 +250,10 @@ file:
                           - table_expression:
                             - table_reference:
                               - object_reference:
-                                - naked_identifier: Sales
-                                - dot: .
-                                - naked_identifier: SalesPerson
+                                - object_reference:
+                                  - naked_identifier: Sales
+                                  - dot: .
+                                  - naked_identifier: SalesPerson
                 - where_clause:
                   - keyword: WHERE
                   - expression:
@@ -262,9 +272,10 @@ file:
         - keyword: FROM
         - table_reference:
           - object_reference:
-            - naked_identifier: Sales
-            - dot: .
-            - naked_identifier: SalesPersonQuotaHistory
+            - object_reference:
+              - naked_identifier: Sales
+              - dot: .
+              - naked_identifier: SalesPersonQuotaHistory
         - from_clause:
           - keyword: FROM
           - from_expression:
@@ -274,9 +285,10 @@ file:
                   - table_expression:
                     - table_reference:
                       - object_reference:
-                        - naked_identifier: Sales
-                        - dot: .
-                        - naked_identifier: SalesPersonQuotaHistory
+                        - object_reference:
+                          - naked_identifier: Sales
+                          - dot: .
+                          - naked_identifier: SalesPersonQuotaHistory
                   - alias_expression:
                     - keyword: AS
                     - naked_identifier: spqh
@@ -288,9 +300,10 @@ file:
                     - table_expression:
                       - table_reference:
                         - object_reference:
-                          - naked_identifier: Sales
-                          - dot: .
-                          - naked_identifier: SalesPerson
+                          - object_reference:
+                            - naked_identifier: Sales
+                            - dot: .
+                            - naked_identifier: SalesPerson
                     - alias_expression:
                       - keyword: AS
                       - naked_identifier: sp
@@ -325,7 +338,8 @@ file:
         - keyword: DELETE
         - table_reference:
           - object_reference:
-            - naked_identifier: spqh
+            - object_reference:
+              - naked_identifier: spqh
         - from_clause:
           - keyword: FROM
           - from_expression:
@@ -335,9 +349,10 @@ file:
                   - table_expression:
                     - table_reference:
                       - object_reference:
-                        - naked_identifier: Sales
-                        - dot: .
-                        - naked_identifier: SalesPersonQuotaHistory
+                        - object_reference:
+                          - naked_identifier: Sales
+                          - dot: .
+                          - naked_identifier: SalesPersonQuotaHistory
                   - alias_expression:
                     - keyword: AS
                     - naked_identifier: spqh
@@ -349,9 +364,10 @@ file:
                     - table_expression:
                       - table_reference:
                         - object_reference:
-                          - naked_identifier: Sales
-                          - dot: .
-                          - naked_identifier: SalesPerson
+                          - object_reference:
+                            - naked_identifier: Sales
+                            - dot: .
+                            - naked_identifier: SalesPerson
                     - alias_expression:
                       - keyword: AS
                       - naked_identifier: sp
@@ -392,9 +408,10 @@ file:
         - keyword: FROM
         - table_reference:
           - object_reference:
-            - naked_identifier: Purchasing
-            - dot: .
-            - naked_identifier: PurchaseOrderDetail
+            - object_reference:
+              - naked_identifier: Purchasing
+              - dot: .
+              - naked_identifier: PurchaseOrderDetail
         - where_clause:
           - keyword: WHERE
           - expression:
@@ -412,9 +429,10 @@ file:
         - keyword: FROM
         - table_reference:
           - object_reference:
-            - naked_identifier: Purchasing
-            - dot: .
-            - naked_identifier: PurchaseOrderDetail
+            - object_reference:
+              - naked_identifier: Purchasing
+              - dot: .
+              - naked_identifier: PurchaseOrderDetail
         - where_clause:
           - keyword: WHERE
           - expression:
@@ -443,9 +461,10 @@ file:
                           - table_expression:
                             - table_reference:
                               - object_reference:
-                                - naked_identifier: Purchasing
-                                - dot: .
-                                - naked_identifier: PurchaseOrderDetail
+                                - object_reference:
+                                  - naked_identifier: Purchasing
+                                  - dot: .
+                                  - naked_identifier: PurchaseOrderDetail
                 - orderby_clause:
                   - keyword: ORDER
                   - keyword: BY
@@ -461,13 +480,14 @@ file:
         - keyword: DELETE
         - table_reference:
           - object_reference:
-            - naked_identifier: MyLinkServer
-            - dot: .
-            - naked_identifier: AdventureWorks2012
-            - dot: .
-            - naked_identifier: HumanResources
-            - dot: .
-            - naked_identifier: Department
+            - object_reference:
+              - naked_identifier: MyLinkServer
+              - dot: .
+              - naked_identifier: AdventureWorks2012
+              - dot: .
+              - naked_identifier: HumanResources
+              - dot: .
+              - naked_identifier: Department
         - where_clause:
           - keyword: WHERE
           - expression:
@@ -508,7 +528,8 @@ file:
             - quoted_literal: '''Server=Seattle1;Trusted_Connection=yes;'''
             - comma: ','
             - object_reference:
-              - naked_identifier: Department
+              - object_reference:
+                - naked_identifier: Department
             - end_bracket: )
   - keyword: GO
   - statement:
@@ -545,9 +566,10 @@ file:
         - keyword: DELETE
         - table_reference:
           - object_reference:
-            - naked_identifier: Sales
-            - dot: .
-            - naked_identifier: ShoppingCartItem
+            - object_reference:
+              - naked_identifier: Sales
+              - dot: .
+              - naked_identifier: ShoppingCartItem
         - keyword: OUTPUT
         - select_clause_element:
           - wildcard_expression:
@@ -623,9 +645,10 @@ file:
         - keyword: DELETE
         - table_reference:
           - object_reference:
-            - naked_identifier: Production
-            - dot: .
-            - naked_identifier: ProductProductPhoto
+            - object_reference:
+              - naked_identifier: Production
+              - dot: .
+              - naked_identifier: ProductProductPhoto
         - keyword: OUTPUT
         - select_clause_element:
           - column_reference:
@@ -662,9 +685,10 @@ file:
                   - table_expression:
                     - table_reference:
                       - object_reference:
-                        - naked_identifier: Production
-                        - dot: .
-                        - naked_identifier: ProductProductPhoto
+                        - object_reference:
+                          - naked_identifier: Production
+                          - dot: .
+                          - naked_identifier: ProductProductPhoto
                   - alias_expression:
                     - keyword: AS
                     - naked_identifier: ph
@@ -675,9 +699,10 @@ file:
                     - table_expression:
                       - table_reference:
                         - object_reference:
-                          - naked_identifier: Production
-                          - dot: .
-                          - naked_identifier: Product
+                          - object_reference:
+                            - naked_identifier: Production
+                            - dot: .
+                            - naked_identifier: Product
                     - alias_expression:
                       - keyword: as
                       - naked_identifier: p

@@ -5,9 +5,10 @@ file:
       - keyword: CREATE
       - keyword: PROC
       - object_reference:
-        - naked_identifier: Reporting
-        - dot: .
-        - naked_identifier: DeclareProblem
+        - object_reference:
+          - naked_identifier: Reporting
+          - dot: .
+          - naked_identifier: DeclareProblem
       - keyword: AS
       - statement:
         - begin_end_block:
@@ -127,26 +128,28 @@ file:
                 - end_bracket: )
           - statement_terminator: ;
           - statement:
-            - keyword: IF
-            - expression:
-              - function:
+            - if_statement:
+              - keyword: IF
+              - expression:
                 - function:
-                  - function_name:
-                    - function_name_identifier: OBJECT_ID
-                  - bracketed:
-                    - start_bracket: (
-                    - expression:
-                      - quoted_literal: '''tempdb..#UP'''
-                    - end_bracket: )
-              - keyword: IS
-              - keyword: NOT
-              - null_literal: 'NULL'
-            - statement:
-              - drop_table_statement:
-                - keyword: DROP
-                - keyword: TABLE
-                - table_reference:
-                  - object_reference:
-                    - naked_identifier: '#UP'
-            - statement_terminator: ;
+                  - function:
+                    - function_name:
+                      - function_name_identifier: OBJECT_ID
+                    - bracketed:
+                      - start_bracket: (
+                      - expression:
+                        - quoted_literal: '''tempdb..#UP'''
+                      - end_bracket: )
+                - keyword: IS
+                - keyword: NOT
+                - null_literal: 'NULL'
+              - statement:
+                - drop_table_statement:
+                  - keyword: DROP
+                  - keyword: TABLE
+                  - table_reference:
+                    - object_reference:
+                      - object_reference:
+                        - naked_identifier: '#UP'
+              - statement_terminator: ;
           - keyword: END

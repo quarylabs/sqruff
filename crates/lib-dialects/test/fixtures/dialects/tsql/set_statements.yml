@@ -138,8 +138,9 @@ file:
             - keyword: VALUE
             - keyword: FOR
             - object_reference:
-              - quoted_identifier: '[dbo]'
-              - dot: .
-              - quoted_identifier: '[SEQUENCE_NAME]'
+              - object_reference:
+                - quoted_identifier: '[dbo]'
+                - dot: .
+                - quoted_identifier: '[SEQUENCE_NAME]'
         - end_bracket: )
   - statement_terminator: ;

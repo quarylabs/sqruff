@@ -15,48 +15,51 @@ file:
       - begin_end_block:
         - keyword: BEGIN
         - statement:
-          - keyword: IF
-          - expression:
-            - keyword: EXISTS
-            - bracketed:
-              - start_bracket: (
-              - select_statement:
-                - select_clause:
+          - if_statement:
+            - keyword: IF
+            - expression:
+              - keyword: EXISTS
+              - bracketed:
+                - start_bracket: (
+                - select_statement:
                   - select_clause:
-                    - keyword: SELECT
-                    - select_clause_element:
-                      - wildcard_expression:
-                        - wildcard_identifier:
-                          - star: '*'
-                - from_clause:
-                  - keyword: FROM
-                  - from_expression:
+                    - select_clause:
+                      - keyword: SELECT
+                      - select_clause_element:
+                        - wildcard_expression:
+                          - wildcard_identifier:
+                            - star: '*'
+                  - from_clause:
+                    - keyword: FROM
                     - from_expression:
-                      - from_expression_element:
+                      - from_expression:
                         - from_expression_element:
-                          - table_expression:
-                            - table_reference:
-                              - object_reference:
-                                - naked_identifier: '##MyTempTable'
-                - where_clause:
-                  - keyword: WHERE
-                  - expression:
-                    - column_reference:
-                      - naked_identifier: EventCode
-                    - comparison_operator:
-                      - raw_comparison_operator: =
-                    - quoted_literal: '''Done'''
-              - end_bracket: )
-          - begin_end_block:
-            - keyword: BEGIN
-            - statement:
-              - break_statement:
-                - keyword: BREAK
-            - statement_terminator: ;
-            - keyword: END
+                          - from_expression_element:
+                            - table_expression:
+                              - table_reference:
+                                - object_reference:
+                                  - object_reference:
+                                    - naked_identifier: '##MyTempTable'
+                  - where_clause:
+                    - keyword: WHERE
+                    - expression:
+                      - column_reference:
+                        - naked_identifier: EventCode
+                      - comparison_operator:
+                        - raw_comparison_operator: =
+                      - quoted_literal: '''Done'''
+                - end_bracket: )
+            - begin_end_block:
+              - keyword: BEGIN
+              - statement:
+                - break_statement:
+                  - keyword: BREAK
+              - statement_terminator: ;
+              - keyword: END
         - statement:
-          - keyword: PRINT
-          - expression:
-            - quoted_literal: N'The other process is not yet done.'
+          - statement:
+            - keyword: PRINT
+            - expression:
+              - quoted_literal: N'The other process is not yet done.'
         - statement_terminator: ;
         - keyword: END

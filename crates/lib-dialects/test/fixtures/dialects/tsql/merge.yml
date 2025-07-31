@@ -2,7 +2,8 @@ file:
 - statement:
   - statement:
     - object_reference:
-      - naked_identifier: merge
+      - object_reference:
+        - naked_identifier: merge
     - expression:
       - column_reference:
         - naked_identifier: schema1
@@ -124,11 +125,12 @@ file:
                       - table_expression:
                         - table_reference:
                           - object_reference:
-                            - naked_identifier: DW
-                            - dot: .
-                            - naked_identifier: sch1
-                            - dot: .
-                            - naked_identifier: tbl1
+                            - object_reference:
+                              - naked_identifier: DW
+                              - dot: .
+                              - naked_identifier: sch1
+                              - dot: .
+                              - naked_identifier: tbl1
             - where_clause:
               - keyword: where
               - expression:
@@ -158,17 +160,19 @@ file:
           - keyword: merge
           - table_reference:
             - object_reference:
-              - naked_identifier: DM
-              - dot: .
-              - naked_identifier: sch1
-              - dot: .
-              - naked_identifier: tbl2
+              - object_reference:
+                - naked_identifier: DM
+                - dot: .
+                - naked_identifier: sch1
+                - dot: .
+                - naked_identifier: tbl2
           - alias_expression:
             - naked_identifier: dst
           - keyword: using
           - table_reference:
             - object_reference:
-              - naked_identifier: source_data
+              - object_reference:
+                - naked_identifier: source_data
           - alias_expression:
             - naked_identifier: src
           - join_on_condition:
@@ -264,21 +268,23 @@ file:
         - keyword: merge
         - table_reference:
           - object_reference:
-            - naked_identifier: DW
-            - dot: .
-            - naked_identifier: tt
-            - dot: .
-            - naked_identifier: dd
+            - object_reference:
+              - naked_identifier: DW
+              - dot: .
+              - naked_identifier: tt
+              - dot: .
+              - naked_identifier: dd
         - alias_expression:
           - naked_identifier: dst
         - keyword: using
         - table_reference:
           - object_reference:
-            - naked_identifier: LA
-            - dot: .
-            - naked_identifier: tt
-            - dot: .
-            - naked_identifier: dd
+            - object_reference:
+              - naked_identifier: LA
+              - dot: .
+              - naked_identifier: tt
+              - dot: .
+              - naked_identifier: dd
         - alias_expression:
           - naked_identifier: src
         - join_on_condition:
@@ -459,11 +465,12 @@ file:
                                 - table_expression:
                                   - table_reference:
                                     - object_reference:
-                                      - naked_identifier: LA
-                                      - dot: .
-                                      - naked_identifier: g
-                                      - dot: .
-                                      - naked_identifier: tbl3
+                                      - object_reference:
+                                        - naked_identifier: LA
+                                        - dot: .
+                                        - naked_identifier: g
+                                        - dot: .
+                                        - naked_identifier: tbl3
                     - end_bracket: )
                 - keyword: then
                 - merge_update_clause:
@@ -500,9 +507,10 @@ file:
         - keyword: MERGE
         - table_reference:
           - object_reference:
-            - naked_identifier: Production
-            - dot: .
-            - naked_identifier: UnitMeasure
+            - object_reference:
+              - naked_identifier: Production
+              - dot: .
+              - naked_identifier: UnitMeasure
         - alias_expression:
           - keyword: AS
           - naked_identifier: tgt
@@ -621,7 +629,8 @@ file:
         - keyword: INTO
         - table_reference:
           - object_reference:
-            - naked_identifier: '#MyTempTable'
+            - object_reference:
+              - naked_identifier: '#MyTempTable'
   - statement_terminator: ;
   - keyword: GO
   - statement:
@@ -630,9 +639,10 @@ file:
         - keyword: MERGE
         - table_reference:
           - object_reference:
-            - naked_identifier: Production
-            - dot: .
-            - naked_identifier: ProductInventory
+            - object_reference:
+              - naked_identifier: Production
+              - dot: .
+              - naked_identifier: ProductInventory
         - alias_expression:
           - keyword: AS
           - naked_identifier: tgt
@@ -667,9 +677,10 @@ file:
                       - table_expression:
                         - table_reference:
                           - object_reference:
-                            - naked_identifier: Sales
-                            - dot: .
-                            - naked_identifier: SalesOrderDetail
+                            - object_reference:
+                              - naked_identifier: Sales
+                              - dot: .
+                              - naked_identifier: SalesOrderDetail
                       - alias_expression:
                         - keyword: AS
                         - naked_identifier: sod
@@ -680,9 +691,10 @@ file:
                         - table_expression:
                           - table_reference:
                             - object_reference:
-                              - naked_identifier: Sales
-                              - dot: .
-                              - naked_identifier: SalesOrderHeader
+                              - object_reference:
+                                - naked_identifier: Sales
+                                - dot: .
+                                - naked_identifier: SalesOrderHeader
                         - alias_expression:
                           - keyword: AS
                           - naked_identifier: soh
@@ -855,9 +867,10 @@ file:
         - keyword: MERGE
         - table_reference:
           - object_reference:
-            - naked_identifier: Production
-            - dot: .
-            - naked_identifier: ProductInventory
+            - object_reference:
+              - naked_identifier: Production
+              - dot: .
+              - naked_identifier: ProductInventory
         - alias_expression:
           - keyword: AS
           - naked_identifier: pi
@@ -892,9 +905,10 @@ file:
                       - table_expression:
                         - table_reference:
                           - object_reference:
-                            - naked_identifier: Sales
-                            - dot: .
-                            - naked_identifier: SalesOrderDetail
+                            - object_reference:
+                              - naked_identifier: Sales
+                              - dot: .
+                              - naked_identifier: SalesOrderDetail
                       - alias_expression:
                         - keyword: AS
                         - naked_identifier: sod
@@ -905,9 +919,10 @@ file:
                         - table_expression:
                           - table_reference:
                             - object_reference:
-                              - naked_identifier: Sales
-                              - dot: .
-                              - naked_identifier: SalesOrderHeader
+                              - object_reference:
+                                - naked_identifier: Sales
+                                - dot: .
+                                - naked_identifier: SalesOrderHeader
                         - alias_expression:
                           - keyword: AS
                           - naked_identifier: soh
@@ -1070,9 +1085,10 @@ file:
         - keyword: into
         - table_reference:
           - object_reference:
-            - naked_identifier: sch1
-            - dot: .
-            - naked_identifier: table1
+            - object_reference:
+              - naked_identifier: sch1
+              - dot: .
+              - naked_identifier: table1
         - bracketed:
           - start_bracket: (
           - column_reference:
@@ -1101,9 +1117,10 @@ file:
                             - keyword: merge
                             - table_reference:
                               - object_reference:
-                                - naked_identifier: sch1
-                                - dot: .
-                                - naked_identifier: table1
+                                - object_reference:
+                                  - naked_identifier: sch1
+                                  - dot: .
+                                  - naked_identifier: table1
                             - alias_expression:
                               - naked_identifier: trg
                             - keyword: using
@@ -1127,9 +1144,10 @@ file:
                                           - table_expression:
                                             - table_reference:
                                               - object_reference:
-                                                - naked_identifier: sch2
-                                                - dot: .
-                                                - naked_identifier: table2
+                                                - object_reference:
+                                                  - naked_identifier: sch2
+                                                  - dot: .
+                                                  - naked_identifier: table2
                                           - alias_expression:
                                             - keyword: as
                                             - naked_identifier: gr
@@ -1188,9 +1206,10 @@ file:
         - keyword: MERGE
         - table_reference:
           - object_reference:
-            - naked_identifier: Production
-            - dot: .
-            - naked_identifier: UnitMeasure
+            - object_reference:
+              - naked_identifier: Production
+              - dot: .
+              - naked_identifier: UnitMeasure
         - keyword: WITH
         - bracketed:
           - start_bracket: (
@@ -1314,7 +1333,8 @@ file:
         - keyword: INTO
         - table_reference:
           - object_reference:
-            - naked_identifier: '#MyTempTable'
+            - object_reference:
+              - naked_identifier: '#MyTempTable'
   - statement_terminator: ;
   - keyword: GO
   - statement:
@@ -1324,9 +1344,10 @@ file:
         - keyword: INTO
         - table_reference:
           - object_reference:
-            - naked_identifier: Production
-            - dot: .
-            - naked_identifier: ProductInventory
+            - object_reference:
+              - naked_identifier: Production
+              - dot: .
+              - naked_identifier: ProductInventory
         - keyword: WITH
         - bracketed:
           - start_bracket: (
@@ -1374,9 +1395,10 @@ file:
                       - table_expression:
                         - table_reference:
                           - object_reference:
-                            - naked_identifier: Sales
-                            - dot: .
-                            - naked_identifier: SalesOrderDetail
+                            - object_reference:
+                              - naked_identifier: Sales
+                              - dot: .
+                              - naked_identifier: SalesOrderDetail
                       - alias_expression:
                         - keyword: AS
                         - naked_identifier: sod
@@ -1387,9 +1409,10 @@ file:
                         - table_expression:
                           - table_reference:
                             - object_reference:
-                              - naked_identifier: Sales
-                              - dot: .
-                              - naked_identifier: SalesOrderHeader
+                              - object_reference:
+                                - naked_identifier: Sales
+                                - dot: .
+                                - naked_identifier: SalesOrderHeader
                         - alias_expression:
                           - keyword: AS
                           - naked_identifier: soh
@@ -1552,9 +1575,10 @@ file:
         - keyword: INTO
         - table_reference:
           - object_reference:
-            - naked_identifier: dbo
-            - dot: .
-            - naked_identifier: target
+            - object_reference:
+              - naked_identifier: dbo
+              - dot: .
+              - naked_identifier: target
         - keyword: USING
         - bracketed:
           - start_bracket: (

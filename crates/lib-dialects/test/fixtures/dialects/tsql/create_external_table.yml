@@ -7,9 +7,10 @@ file:
       - keyword: TABLE
       - table_reference:
         - object_reference:
-          - naked_identifier: schema_name
-          - dot: .
-          - naked_identifier: table_name
+          - object_reference:
+            - naked_identifier: schema_name
+            - dot: .
+            - naked_identifier: table_name
       - bracketed:
         - start_bracket: (
         - column_definition:
@@ -99,9 +100,10 @@ file:
       - keyword: TABLE
       - table_reference:
         - object_reference:
-          - naked_identifier: schema_name
-          - dot: .
-          - naked_identifier: table_name
+          - object_reference:
+            - naked_identifier: schema_name
+            - dot: .
+            - naked_identifier: table_name
       - bracketed:
         - start_bracket: (
         - column_definition:
@@ -197,7 +199,8 @@ file:
       - keyword: TABLE
       - table_reference:
         - object_reference:
-          - naked_identifier: customers
+          - object_reference:
+            - naked_identifier: customers
       - bracketed:
         - start_bracket: (
         - column_definition:

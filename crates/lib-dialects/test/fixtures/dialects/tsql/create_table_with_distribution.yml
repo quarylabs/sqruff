@@ -7,9 +7,10 @@ file:
         - keyword: TABLE
         - table_reference:
           - object_reference:
-            - quoted_identifier: '[dbo]'
-            - dot: .
-            - quoted_identifier: '[EC DC]'
+            - object_reference:
+              - quoted_identifier: '[dbo]'
+              - dot: .
+              - quoted_identifier: '[EC DC]'
         - bracketed:
           - start_bracket: (
           - column_definition:
@@ -69,9 +70,10 @@ file:
       - keyword: TABLE
       - table_reference:
         - object_reference:
-          - quoted_identifier: '[dbo]'
-          - dot: .
-          - quoted_identifier: '[EC DC]'
+          - object_reference:
+            - quoted_identifier: '[dbo]'
+            - dot: .
+            - quoted_identifier: '[EC DC]'
   - keyword: GO
   - statement:
     - create_table_statement:
@@ -80,9 +82,10 @@ file:
         - keyword: TABLE
         - table_reference:
           - object_reference:
-            - quoted_identifier: '[dbo]'
-            - dot: .
-            - quoted_identifier: '[EC DC]'
+            - object_reference:
+              - quoted_identifier: '[dbo]'
+              - dot: .
+              - quoted_identifier: '[EC DC]'
         - bracketed:
           - start_bracket: (
           - column_definition:
@@ -140,9 +143,10 @@ file:
       - keyword: TABLE
       - table_reference:
         - object_reference:
-          - quoted_identifier: '[dbo]'
-          - dot: .
-          - quoted_identifier: '[EC DC]'
+          - object_reference:
+            - quoted_identifier: '[dbo]'
+            - dot: .
+            - quoted_identifier: '[EC DC]'
   - keyword: GO
   - statement:
     - create_table_statement:
@@ -151,9 +155,10 @@ file:
         - keyword: TABLE
         - table_reference:
           - object_reference:
-            - quoted_identifier: '[dbo]'
-            - dot: .
-            - quoted_identifier: '[EC DC]'
+            - object_reference:
+              - quoted_identifier: '[dbo]'
+              - dot: .
+              - quoted_identifier: '[EC DC]'
         - bracketed:
           - start_bracket: (
           - column_definition:
@@ -219,9 +224,10 @@ file:
       - keyword: TABLE
       - table_reference:
         - object_reference:
-          - quoted_identifier: '[dbo]'
-          - dot: .
-          - quoted_identifier: '[EC DC]'
+          - object_reference:
+            - quoted_identifier: '[dbo]'
+            - dot: .
+            - quoted_identifier: '[EC DC]'
   - keyword: GO
   - statement:
     - create_table_statement:
@@ -230,9 +236,10 @@ file:
         - keyword: TABLE
         - table_reference:
           - object_reference:
-            - quoted_identifier: '[dbo]'
-            - dot: .
-            - quoted_identifier: '[EC DC]'
+            - object_reference:
+              - quoted_identifier: '[dbo]'
+              - dot: .
+              - quoted_identifier: '[EC DC]'
         - bracketed:
           - start_bracket: (
           - column_definition:
@@ -302,9 +309,10 @@ file:
       - keyword: TABLE
       - table_reference:
         - object_reference:
-          - quoted_identifier: '[dbo]'
-          - dot: .
-          - quoted_identifier: '[EC DC]'
+          - object_reference:
+            - quoted_identifier: '[dbo]'
+            - dot: .
+            - quoted_identifier: '[EC DC]'
   - keyword: GO
   - statement:
     - create_table_statement:
@@ -313,9 +321,10 @@ file:
         - keyword: TABLE
         - table_reference:
           - object_reference:
-            - quoted_identifier: '[dbo]'
-            - dot: .
-            - quoted_identifier: '[EC DC]'
+            - object_reference:
+              - quoted_identifier: '[dbo]'
+              - dot: .
+              - quoted_identifier: '[EC DC]'
         - bracketed:
           - start_bracket: (
           - column_definition:
@@ -384,9 +393,10 @@ file:
       - keyword: TABLE
       - table_reference:
         - object_reference:
-          - quoted_identifier: '[dbo]'
-          - dot: .
-          - quoted_identifier: '[EC DC]'
+          - object_reference:
+            - quoted_identifier: '[dbo]'
+            - dot: .
+            - quoted_identifier: '[EC DC]'
   - statement_terminator: ;
   - keyword: GO
   - statement:
@@ -396,9 +406,10 @@ file:
         - keyword: TABLE
         - table_reference:
           - object_reference:
-            - quoted_identifier: '[dbo]'
-            - dot: .
-            - quoted_identifier: '[EC DC]'
+            - object_reference:
+              - quoted_identifier: '[dbo]'
+              - dot: .
+              - quoted_identifier: '[EC DC]'
         - bracketed:
           - start_bracket: (
           - column_definition:
@@ -469,9 +480,10 @@ file:
       - keyword: TABLE
       - table_reference:
         - object_reference:
-          - quoted_identifier: '[dbo]'
-          - dot: .
-          - quoted_identifier: '[EC DC]'
+          - object_reference:
+            - quoted_identifier: '[dbo]'
+            - dot: .
+            - quoted_identifier: '[EC DC]'
   - statement_terminator: ;
   - keyword: GO
   - statement:
@@ -481,9 +493,10 @@ file:
         - keyword: TABLE
         - table_reference:
           - object_reference:
-            - quoted_identifier: '[dbo]'
-            - dot: .
-            - quoted_identifier: '[table]'
+            - object_reference:
+              - quoted_identifier: '[dbo]'
+              - dot: .
+              - quoted_identifier: '[table]'
         - bracketed:
           - start_bracket: (
           - column_definition:

@@ -7,9 +7,10 @@ file:
         - keyword: TABLE
         - table_reference:
           - object_reference:
-            - quoted_identifier: '[dbo]'
-            - dot: .
-            - quoted_identifier: '[TEST]'
+            - object_reference:
+              - quoted_identifier: '[dbo]'
+              - dot: .
+              - quoted_identifier: '[TEST]'
         - bracketed:
           - start_bracket: (
           - column_definition:
@@ -24,7 +25,8 @@ file:
           - end_bracket: )
         - keyword: ON
         - object_reference:
-          - quoted_identifier: '[PRIMARY]'
+          - object_reference:
+            - quoted_identifier: '[PRIMARY]'
         - keyword: WITH
         - bracketed:
           - start_bracket: (
@@ -38,9 +40,10 @@ file:
             - comparison_operator:
               - raw_comparison_operator: =
             - object_reference:
-              - quoted_identifier: '[dbo]'
-              - dot: .
-              - quoted_identifier: '[TEST_HISTORY]'
+              - object_reference:
+                - quoted_identifier: '[dbo]'
+                - dot: .
+                - quoted_identifier: '[TEST_HISTORY]'
             - comma: ','
             - keyword: HISTORY_RETENTION_PERIOD
             - comparison_operator:
@@ -56,9 +59,10 @@ file:
         - keyword: TABLE
         - table_reference:
           - object_reference:
-            - quoted_identifier: '[dbo]'
-            - dot: .
-            - quoted_identifier: '[TEST]'
+            - object_reference:
+              - quoted_identifier: '[dbo]'
+              - dot: .
+              - quoted_identifier: '[TEST]'
         - bracketed:
           - start_bracket: (
           - column_definition:
@@ -73,7 +77,8 @@ file:
           - end_bracket: )
         - keyword: ON
         - object_reference:
-          - quoted_identifier: '[PRIMARY]'
+          - object_reference:
+            - quoted_identifier: '[PRIMARY]'
         - keyword: WITH
         - bracketed:
           - start_bracket: (
@@ -87,9 +92,10 @@ file:
             - comparison_operator:
               - raw_comparison_operator: =
             - object_reference:
-              - quoted_identifier: '[dbo]'
-              - dot: .
-              - quoted_identifier: '[TEST_HISTORY]'
+              - object_reference:
+                - quoted_identifier: '[dbo]'
+                - dot: .
+                - quoted_identifier: '[TEST_HISTORY]'
             - comma: ','
             - keyword: HISTORY_RETENTION_PERIOD
             - comparison_operator:
@@ -111,9 +117,10 @@ file:
         - keyword: TABLE
         - table_reference:
           - object_reference:
-            - quoted_identifier: '[dbo]'
-            - dot: .
-            - quoted_identifier: '[TEST]'
+            - object_reference:
+              - quoted_identifier: '[dbo]'
+              - dot: .
+              - quoted_identifier: '[TEST]'
         - bracketed:
           - start_bracket: (
           - column_definition:
@@ -128,7 +135,8 @@ file:
           - end_bracket: )
         - keyword: ON
         - object_reference:
-          - quoted_identifier: '[PRIMARY]'
+          - object_reference:
+            - quoted_identifier: '[PRIMARY]'
         - keyword: WITH
         - bracketed:
           - start_bracket: (
@@ -142,9 +150,10 @@ file:
             - comparison_operator:
               - raw_comparison_operator: =
             - object_reference:
-              - quoted_identifier: '[dbo]'
-              - dot: .
-              - quoted_identifier: '[TEST_HISTORY]'
+              - object_reference:
+                - quoted_identifier: '[dbo]'
+                - dot: .
+                - quoted_identifier: '[TEST_HISTORY]'
             - comma: ','
             - keyword: HISTORY_RETENTION_PERIOD
             - comparison_operator:
@@ -161,9 +170,10 @@ file:
         - keyword: TABLE
         - table_reference:
           - object_reference:
-            - quoted_identifier: '[dbo]'
-            - dot: .
-            - quoted_identifier: '[TEST]'
+            - object_reference:
+              - quoted_identifier: '[dbo]'
+              - dot: .
+              - quoted_identifier: '[TEST]'
         - bracketed:
           - start_bracket: (
           - column_definition:
@@ -178,7 +188,8 @@ file:
           - end_bracket: )
         - keyword: ON
         - object_reference:
-          - quoted_identifier: '[PRIMARY]'
+          - object_reference:
+            - quoted_identifier: '[PRIMARY]'
         - keyword: WITH
         - bracketed:
           - start_bracket: (
@@ -192,9 +203,10 @@ file:
             - comparison_operator:
               - raw_comparison_operator: =
             - object_reference:
-              - quoted_identifier: '[dbo]'
-              - dot: .
-              - quoted_identifier: '[TEST_HISTORY]'
+              - object_reference:
+                - quoted_identifier: '[dbo]'
+                - dot: .
+                - quoted_identifier: '[TEST_HISTORY]'
             - comma: ','
             - keyword: HISTORY_RETENTION_PERIOD
             - comparison_operator:
@@ -211,9 +223,10 @@ file:
         - keyword: TABLE
         - table_reference:
           - object_reference:
-            - quoted_identifier: '[dbo]'
-            - dot: .
-            - quoted_identifier: '[TEST]'
+            - object_reference:
+              - quoted_identifier: '[dbo]'
+              - dot: .
+              - quoted_identifier: '[TEST]'
         - bracketed:
           - start_bracket: (
           - column_definition:
@@ -228,7 +241,8 @@ file:
           - end_bracket: )
         - keyword: ON
         - object_reference:
-          - quoted_identifier: '[PRIMARY]'
+          - object_reference:
+            - quoted_identifier: '[PRIMARY]'
         - keyword: WITH
         - bracketed:
           - start_bracket: (
@@ -242,9 +256,10 @@ file:
             - comparison_operator:
               - raw_comparison_operator: =
             - object_reference:
-              - quoted_identifier: '[dbo]'
-              - dot: .
-              - quoted_identifier: '[TEST_HISTORY]'
+              - object_reference:
+                - quoted_identifier: '[dbo]'
+                - dot: .
+                - quoted_identifier: '[TEST_HISTORY]'
             - comma: ','
             - keyword: HISTORY_RETENTION_PERIOD
             - comparison_operator:
@@ -261,9 +276,10 @@ file:
         - keyword: TABLE
         - table_reference:
           - object_reference:
-            - quoted_identifier: '[dbo]'
-            - dot: .
-            - quoted_identifier: '[TEST]'
+            - object_reference:
+              - quoted_identifier: '[dbo]'
+              - dot: .
+              - quoted_identifier: '[TEST]'
         - bracketed:
           - start_bracket: (
           - column_definition:
@@ -278,7 +294,8 @@ file:
           - end_bracket: )
         - keyword: ON
         - object_reference:
-          - quoted_identifier: '[PRIMARY]'
+          - object_reference:
+            - quoted_identifier: '[PRIMARY]'
         - keyword: WITH
         - bracketed:
           - start_bracket: (
@@ -292,9 +309,10 @@ file:
             - comparison_operator:
               - raw_comparison_operator: =
             - object_reference:
-              - quoted_identifier: '[dbo]'
-              - dot: .
-              - quoted_identifier: '[TEST_HISTORY]'
+              - object_reference:
+                - quoted_identifier: '[dbo]'
+                - dot: .
+                - quoted_identifier: '[TEST_HISTORY]'
             - end_bracket: )
           - end_bracket: )
   - statement_terminator: ;

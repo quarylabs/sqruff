@@ -362,6 +362,52 @@ pub fn raw_dialect() -> Dialect {
         "OPENXML",
     ]);
 
+    // Override ObjectReferenceSegment to support T-SQL's leading dots syntax
+    // In T-SQL:
+    // - .table means current_database.current_schema.table
+    // - ..table means current_database..table (default schema)
+    // - ...table means current_server.current_database..table (default schema)
+    dialect.replace_grammar(
+        "ObjectReferenceSegment",
+        NodeMatcher::new(SyntaxKind::ObjectReference, |_| {
+            one_of(vec_of_erased![
+                // T-SQL syntax with leading dots
+                Sequence::new(vec_of_erased![
+                    // At least one leading dot
+                    one_of(vec_of_erased![
+                        Sequence::new(vec_of_erased![
+                            Ref::new("DotSegment"),
+                            Ref::new("DotSegment"),
+                            Ref::new("DotSegment")
+                        ]),  // ...table
+                        Sequence::new(vec_of_erased![
+                            Ref::new("DotSegment"),
+                            Ref::new("DotSegment")
+                        ]),  // ..table
+                        Ref::new("DotSegment")  // .table
+                    ]),
+                    // Then the identifier parts
+                    Delimited::new(vec_of_erased![Ref::new("SingleIdentifierGrammar")])
+                        .config(|this| {
+                            this.delimiter(Ref::new("DotSegment"));
+                            this.disallow_gaps();
+                            this.terminators = vec_of_erased![Ref::new("ObjectReferenceTerminatorGrammar")];
+                        })
+                ]),
+                // Standard object reference (no leading dots)
+                Delimited::new(vec_of_erased![Ref::new("SingleIdentifierGrammar")])
+                    .config(|this| {
+                        this.delimiter(Ref::new("DotSegment"));
+                        this.disallow_gaps();
+                        this.terminators = vec_of_erased![Ref::new("ObjectReferenceTerminatorGrammar")];
+                    })
+            ])
+            .to_matchable()
+        })
+        .to_matchable()
+        .into(),
+    );
+
     // NOTE: T-SQL CASE expressions are now supported in SELECT clauses via TsqlCaseExpressionSegment
     // The previous parsing issue was resolved by creating T-SQL specific CASE expressions that use
     // StringParser instead of Ref::keyword to handle T-SQL's lexing behavior where CASE, WHEN, 
@@ -1205,21 +1251,20 @@ pub fn raw_dialect() -> Dialect {
     ]);
 
     // PRINT statement
-    dialect.add([
-        (
-            "PrintStatementSegment".into(),
-            Ref::new("PrintStatementGrammar").to_matchable().into(),
-        ),
-        (
-            "PrintStatementGrammar".into(),
+    // Handle T-SQL's lexing behavior where PRINT can be lexed as word in procedure contexts
+    dialect.add([(
+        "PrintStatementSegment".into(),
+        NodeMatcher::new(SyntaxKind::Statement, |_| {
             Sequence::new(vec_of_erased![
-                Ref::keyword("PRINT"),
+                // Use MultiStringParser to match "PRINT" regardless of lexing
+                MultiStringParser::new(vec!["PRINT".to_string()], SyntaxKind::Keyword),
                 Ref::new("ExpressionSegment")
             ])
             .to_matchable()
-            .into(),
-        ),
-    ]);
+        })
+        .to_matchable()
+        .into(),
+    )]);
 
     // BEGIN...END blocks for grouping multiple statements
     dialect.add([
@@ -1253,23 +1298,13 @@ pub fn raw_dialect() -> Dialect {
         ),
     ]);
 
-    // TRY...CATCH blocks
-    dialect.add([(
-        // Create a specific grammar for BEGIN TRY sequence
-        "BeginTryGrammar".into(),
-        Sequence::new(vec_of_erased![
-            Ref::keyword("BEGIN"),
-            Ref::keyword("TRY")
-        ])
-        .to_matchable()
-        .into(),
-    )]);
-    
+    // TRY...CATCH blocks - full implementation with correct structure
     dialect.add([(
         "TryBlockSegment".into(),
         NodeMatcher::new(SyntaxKind::Statement, |_| {
             Sequence::new(vec_of_erased![
-                Ref::new("BeginTryGrammar"),
+                Ref::keyword("BEGIN"),
+                Ref::keyword("TRY"),
                 MetaSegment::indent(),
                 AnyNumberOf::new(vec_of_erased![Sequence::new(vec_of_erased![
                     Ref::new("StatementSegment"),
@@ -1535,15 +1570,13 @@ pub fn raw_dialect() -> Dialect {
     ]);
 
     // IF...ELSE statement
-    dialect.add([
-        (
-            "IfStatementSegment".into(),
-            Ref::new("IfStatementGrammar").to_matchable().into(),
-        ),
-        (
-            "IfStatementGrammar".into(),
+    // Handle T-SQL's lexing behavior where IF/ELSE can be lexed as words in procedure contexts
+    dialect.add([(
+        "IfStatementSegment".into(),
+        NodeMatcher::new(SyntaxKind::IfStatement, |_| {
             Sequence::new(vec_of_erased![
-                Ref::keyword("IF"),
+                // Use MultiStringParser to match "IF" regardless of lexing
+                MultiStringParser::new(vec!["IF".to_string()], SyntaxKind::Keyword),
                 Ref::new("ExpressionSegment"),
                 MetaSegment::indent(),
                 // Use a constrained statement that terminates on ELSE at the same level
@@ -1558,14 +1591,16 @@ pub fn raw_dialect() -> Dialect {
                 ])
                 .config(|this| {
                     this.terminators = vec_of_erased![
-                        Ref::keyword("ELSE"),
+                        // Use MultiStringParser for ELSE too
+                        MultiStringParser::new(vec!["ELSE".to_string()], SyntaxKind::Keyword),
                         // Also terminate on GO batch separator
                         Ref::new("BatchSeparatorGrammar")
                     ];
                 }),
                 MetaSegment::dedent(),
                 Sequence::new(vec_of_erased![
-                    Ref::keyword("ELSE"),
+                    // Use MultiStringParser for ELSE as well
+                    MultiStringParser::new(vec!["ELSE".to_string()], SyntaxKind::Keyword),
                     MetaSegment::indent(),
                     one_of(vec_of_erased![
                         // BEGIN...END block (already handles its own delimiters)
@@ -1581,9 +1616,10 @@ pub fn raw_dialect() -> Dialect {
                 .config(|this| this.optional())
             ])
             .to_matchable()
-            .into(),
-        ),
-    ]);
+        })
+        .to_matchable()
+        .into(),
+    )]);
 
     // Bare procedure call (without EXECUTE keyword)
     dialect.add([(
@@ -3375,11 +3411,11 @@ pub fn raw_dialect() -> Dialect {
     dialect.replace_grammar(
         "StatementSegment",
         one_of(vec_of_erased![
+            // TryBlockSegment MUST be first to prevent BeginEndBlockSegment from matching "BEGIN TRY"
+            Ref::new("TryBlockSegment"),
             // T-SQL specific SELECT INTO (must come before regular SelectableGrammar)
             Ref::new("SelectIntoStatementSegment"),
-            // T-SQL specific statements (TryBlockSegment must come before BeginEndBlockSegment)
-            // because both start with BEGIN and we need to match "BEGIN TRY" first
-            Ref::new("TryBlockSegment"),
+            // Other T-SQL specific statements
             Ref::new("BeginEndBlockSegment"),
             Ref::new("ThrowStatementSegment"),
             Ref::new("AtomicBlockSegment"),
@@ -3909,11 +3945,11 @@ pub fn raw_dialect() -> Dialect {
         .to_matchable(),
     );
 
-    // TEMPORARY: Comment out TsqlJoinHintGrammar to test MERGE keyword conflict
-    // T-SQL Join Hints Grammar
+    // T-SQL Join Hints Grammar - now enabled for SQLFluff compatibility
     // T-SQL supports join hints: HASH, MERGE, LOOP
     // These can be combined with any join type
-    /*dialect.add([(
+    // Examples: INNER HASH JOIN, LEFT OUTER MERGE JOIN, LOOP JOIN
+    dialect.add([(
         "TsqlJoinHintGrammar".into(),
         one_of(vec_of_erased![
             Ref::keyword("HASH"),
@@ -3922,13 +3958,12 @@ pub fn raw_dialect() -> Dialect {
         ])
         .to_matchable()
         .into(),
-    )]);*/
+    )]);
 
-    // TEMPORARY: Comment out TsqlJoinTypeKeywordsGrammar since it uses TsqlJoinHintGrammar
-    // Add T-SQL specific join type grammar with hints - flattened for robustness
+    // T-SQL specific join type grammar with hints - now enabled for SQLFluff compatibility
     // T-SQL syntax: [join_type] [join_hint] JOIN
     // Examples: INNER HASH JOIN, FULL OUTER MERGE JOIN, LOOP JOIN
-    /*dialect.add([(
+    dialect.add([(
         "TsqlJoinTypeKeywordsGrammar".into(),
         Sequence::new(vec_of_erased![
             // Optional join type - all combinations explicitly listed for robustness
@@ -3948,11 +3983,63 @@ pub fn raw_dialect() -> Dialect {
         ])
         .to_matchable()
         .into(),
-    )]);*/
+    )]);
 
 
-    // Use default ANSI JoinClauseSegment for now to avoid breaking MERGE statements
-    // TODO: Implement proper MERGE JOIN support without breaking MERGE statements
+    // T-SQL specific JoinClauseSegment with algorithm hints support
+    // This replaces the ANSI JoinClauseSegment to support T-SQL JOIN hints
+    // Examples: INNER HASH JOIN, FULL OUTER MERGE JOIN, LOOP JOIN
+    dialect.add([(
+        "JoinClauseSegment".into(),
+        NodeMatcher::new(SyntaxKind::JoinClause, |_| {
+            one_of(vec_of_erased![
+                // Standard JOIN with optional T-SQL hints
+                Sequence::new(vec_of_erased![
+                    Ref::new("TsqlJoinTypeKeywordsGrammar").optional(),
+                    Ref::new("JoinKeywordsGrammar"),
+                    MetaSegment::indent(),
+                    Ref::new("FromExpressionElementSegment"),
+                    AnyNumberOf::new(vec_of_erased![Ref::new("NestedJoinGrammar")]),
+                    MetaSegment::dedent(),
+                    Sequence::new(vec_of_erased![
+                        Conditional::new(MetaSegment::indent()).indented_using_on(),
+                        one_of(vec_of_erased![
+                            Ref::new("JoinOnConditionSegment"),
+                            Sequence::new(vec_of_erased![
+                                Ref::keyword("USING"),
+                                MetaSegment::indent(),
+                                Bracketed::new(vec_of_erased![Delimited::new(vec_of_erased![
+                                    Ref::new("SingleIdentifierGrammar")
+                                ])])
+                                .config(|this| this.parse_mode = ParseMode::Greedy),
+                                MetaSegment::dedent(),
+                            ])
+                        ]),
+                        Conditional::new(MetaSegment::dedent()).indented_using_on(),
+                    ])
+                    .config(|this| this.optional())
+                ]),
+                // Natural JOIN (fallback to ANSI)
+                Sequence::new(vec_of_erased![
+                    Ref::new("NaturalJoinKeywordsGrammar"),
+                    Ref::new("JoinKeywordsGrammar"),
+                    MetaSegment::indent(),
+                    Ref::new("FromExpressionElementSegment"),
+                    MetaSegment::dedent(),
+                ]),
+                // Extended Natural JOIN (fallback to ANSI)
+                Sequence::new(vec_of_erased![
+                    Ref::new("ExtendedNaturalJoinKeywordsGrammar"),
+                    MetaSegment::indent(),
+                    Ref::new("FromExpressionElementSegment"),
+                    MetaSegment::dedent(),
+                ])
+            ])
+            .to_matchable()
+        })
+        .to_matchable()
+        .into(),
+    )]);
 
     // Enable NATURAL JOIN support for T-SQL (inherits ANSI implementation)
 
@@ -3981,6 +4068,23 @@ pub fn raw_dialect() -> Dialect {
         ])
         .to_matchable(),
     );
+
+    // T-SQL Nested JOIN Grammar - enables parsing of nested JOIN structures
+    // This is critical for parsing constructs like:
+    // FROM table1 LEFT JOIN table2 LEFT JOIN table3 ON ... ON ...
+    // Based on SQLFluff's implementation which uses recursive JOIN structures
+    // Override the empty NestedJoinGrammar from ANSI dialect
+    dialect.add([(
+        "NestedJoinGrammar".into(),
+        one_of(vec_of_erased![
+            // Self-referencing JoinClauseSegment allows recursion
+            Ref::new("JoinClauseSegment"),
+            // Also support APPLY clauses in nested contexts
+            Ref::new("ApplyClauseSegment")
+        ])
+        .to_matchable()
+        .into(),
+    )]);
 
     // APPLY clause support (CROSS APPLY and OUTER APPLY)
     // APPLY invokes a table-valued function for each row of the outer table
@@ -6692,11 +6796,13 @@ pub fn raw_dialect() -> Dialect {
     )]);
 
     // RETURN statement (for procedures and functions)
+    // Handle T-SQL's lexing behavior where RETURN can be lexed as word in procedure contexts
     dialect.add([(
         "ReturnStatementSegment".into(),
         NodeMatcher::new(SyntaxKind::Statement, |_| {
             Sequence::new(vec_of_erased![
-                Ref::keyword("RETURN"),
+                // Use MultiStringParser to match "RETURN" regardless of lexing
+                MultiStringParser::new(vec!["RETURN".to_string()], SyntaxKind::Keyword),
                 // Optional return value (for functions)
                 Ref::new("ExpressionSegment").optional()
             ])

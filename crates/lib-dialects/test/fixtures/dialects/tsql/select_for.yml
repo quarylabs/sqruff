@@ -21,7 +21,8 @@ file:
                 - table_expression:
                   - table_reference:
                     - object_reference:
-                      - naked_identifier: emp
+                      - object_reference:
+                        - naked_identifier: emp
       - keyword: FOR
       - keyword: JSON
       - keyword: AUTO
@@ -83,7 +84,8 @@ file:
                 - table_expression:
                   - table_reference:
                     - object_reference:
-                      - naked_identifier: '#tabClass'
+                      - object_reference:
+                        - naked_identifier: '#tabClass'
                 - alias_expression:
                   - keyword: AS
                   - naked_identifier: c
@@ -95,7 +97,8 @@ file:
                   - table_expression:
                     - table_reference:
                       - object_reference:
-                        - naked_identifier: '#tabStudent'
+                        - object_reference:
+                          - naked_identifier: '#tabStudent'
                   - alias_expression:
                     - keyword: AS
                     - naked_identifier: s
@@ -175,9 +178,10 @@ file:
                 - table_expression:
                   - table_reference:
                     - object_reference:
-                      - naked_identifier: Production
-                      - dot: .
-                      - naked_identifier: ProductModel
+                      - object_reference:
+                        - naked_identifier: Production
+                        - dot: .
+                        - naked_identifier: ProductModel
       - where_clause:
         - keyword: WHERE
         - expression:
@@ -217,9 +221,10 @@ file:
                 - table_expression:
                   - table_reference:
                     - object_reference:
-                      - naked_identifier: Production
-                      - dot: .
-                      - naked_identifier: ProductPhoto
+                      - object_reference:
+                        - naked_identifier: Production
+                        - dot: .
+                        - naked_identifier: ProductPhoto
       - where_clause:
         - keyword: WHERE
         - expression:
@@ -251,9 +256,10 @@ file:
                 - table_expression:
                   - table_reference:
                     - object_reference:
-                      - naked_identifier: HumanResources
-                      - dot: .
-                      - naked_identifier: Employee
+                      - object_reference:
+                        - naked_identifier: HumanResources
+                        - dot: .
+                        - naked_identifier: Employee
                 - alias_expression:
                   - keyword: AS
                   - naked_identifier: E
@@ -282,9 +288,10 @@ file:
                 - table_expression:
                   - table_reference:
                     - object_reference:
-                      - naked_identifier: Production
-                      - dot: .
-                      - naked_identifier: ProductModel
+                      - object_reference:
+                        - naked_identifier: Production
+                        - dot: .
+                        - naked_identifier: ProductModel
       - where_clause:
         - keyword: WHERE
         - expression:

@@ -4,7 +4,8 @@ file:
     - statement:
       - keyword: EXECUTE
       - object_reference:
-        - naked_identifier: test
+        - object_reference:
+          - naked_identifier: test
       - keyword: WITH
       - keyword: RESULT
       - keyword: SETS
@@ -24,7 +25,8 @@ file:
     - statement:
       - keyword: EXECUTE
       - object_reference:
-        - naked_identifier: test
+        - object_reference:
+          - naked_identifier: test
       - keyword: WITH
       - keyword: RESULT
       - keyword: SETS
@@ -68,7 +70,8 @@ file:
     - statement:
       - keyword: EXECUTE
       - object_reference:
-        - naked_identifier: test
+        - object_reference:
+          - naked_identifier: test
       - keyword: WITH
       - keyword: RESULT
       - keyword: SETS
@@ -102,7 +105,8 @@ file:
     - statement:
       - keyword: EXECUTE
       - object_reference:
-        - naked_identifier: test
+        - object_reference:
+          - naked_identifier: test
       - keyword: WITH
       - keyword: RESULT
       - keyword: SETS
@@ -153,7 +157,8 @@ file:
     - statement:
       - keyword: EXECUTE
       - object_reference:
-        - naked_identifier: test
+        - object_reference:
+          - naked_identifier: test
       - keyword: WITH
       - keyword: RESULT
       - keyword: SETS
@@ -184,7 +189,8 @@ file:
     - statement:
       - keyword: EXECUTE
       - object_reference:
-        - naked_identifier: test
+        - object_reference:
+          - naked_identifier: test
       - keyword: WITH
       - keyword: RESULT
       - keyword: SETS
@@ -194,7 +200,8 @@ file:
     - statement:
       - keyword: EXECUTE
       - object_reference:
-        - naked_identifier: test
+        - object_reference:
+          - naked_identifier: test
       - keyword: WITH
       - keyword: RESULT
       - keyword: SETS

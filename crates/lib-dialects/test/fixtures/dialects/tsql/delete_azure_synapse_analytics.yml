@@ -6,9 +6,10 @@ file:
         - keyword: DELETE
         - table_reference:
           - object_reference:
-            - naked_identifier: dbo
-            - dot: .
-            - naked_identifier: Table2
+            - object_reference:
+              - naked_identifier: dbo
+              - dot: .
+              - naked_identifier: Table2
         - from_clause:
           - keyword: FROM
           - from_expression:
@@ -18,9 +19,10 @@ file:
                   - table_expression:
                     - table_reference:
                       - object_reference:
-                        - naked_identifier: dbo
-                        - dot: .
-                        - naked_identifier: Table2
+                        - object_reference:
+                          - naked_identifier: dbo
+                          - dot: .
+                          - naked_identifier: Table2
               - join_clause:
                 - keyword: INNER
                 - keyword: JOIN
@@ -29,9 +31,10 @@ file:
                     - table_expression:
                       - table_reference:
                         - object_reference:
-                          - naked_identifier: dbo
-                          - dot: .
-                          - naked_identifier: Table1
+                          - object_reference:
+                            - naked_identifier: dbo
+                            - dot: .
+                            - naked_identifier: Table1
                 - join_on_condition:
                   - keyword: ON
                   - bracketed:
@@ -70,7 +73,8 @@ file:
         - keyword: FROM
         - table_reference:
           - object_reference:
-            - naked_identifier: dodos
+            - object_reference:
+              - naked_identifier: dodos
         - keyword: WITH
         - bracketed:
           - start_bracket: (
@@ -83,7 +87,8 @@ file:
         - keyword: INTO
         - table_reference:
           - object_reference:
-            - naked_identifier: ages
+            - object_reference:
+              - naked_identifier: ages
   - statement:
     - delete_statement:
       - delete_statement:
@@ -91,7 +96,8 @@ file:
         - keyword: FROM
         - table_reference:
           - object_reference:
-            - naked_identifier: Table1
+            - object_reference:
+              - naked_identifier: Table1
         - statement_terminator: ;
   - statement:
     - delete_statement:
@@ -100,7 +106,8 @@ file:
         - keyword: FROM
         - table_reference:
           - object_reference:
-            - naked_identifier: Table1
+            - object_reference:
+              - naked_identifier: Table1
         - where_clause:
           - keyword: WHERE
           - expression:
@@ -117,7 +124,8 @@ file:
         - keyword: FROM
         - table_reference:
           - object_reference:
-            - naked_identifier: Table1
+            - object_reference:
+              - naked_identifier: Table1
         - keyword: OPTION
         - bracketed:
           - start_bracket: (
@@ -134,9 +142,10 @@ file:
         - keyword: FROM
         - table_reference:
           - object_reference:
-            - naked_identifier: dbo
-            - dot: .
-            - naked_identifier: FactInternetSales
+            - object_reference:
+              - naked_identifier: dbo
+              - dot: .
+              - naked_identifier: FactInternetSales
         - where_clause:
           - keyword: WHERE
           - expression:
@@ -163,9 +172,10 @@ file:
                           - table_expression:
                             - table_reference:
                               - object_reference:
-                                - naked_identifier: dbo
-                                - dot: .
-                                - naked_identifier: DimProduct
+                                - object_reference:
+                                  - naked_identifier: dbo
+                                  - dot: .
+                                  - naked_identifier: DimProduct
                           - alias_expression:
                             - naked_identifier: T1
                       - join_clause:
@@ -175,9 +185,10 @@ file:
                             - table_expression:
                               - table_reference:
                                 - object_reference:
-                                  - naked_identifier: dbo
-                                  - dot: .
-                                  - naked_identifier: DimProductSubcategory
+                                  - object_reference:
+                                    - naked_identifier: dbo
+                                    - dot: .
+                                    - naked_identifier: DimProductSubcategory
                             - alias_expression:
                               - naked_identifier: T2
                         - join_on_condition:
@@ -222,7 +233,8 @@ file:
         - keyword: DELETE
         - table_reference:
           - object_reference:
-            - naked_identifier: tableA
+            - object_reference:
+              - naked_identifier: tableA
         - where_clause:
           - keyword: WHERE
           - expression:
@@ -248,7 +260,8 @@ file:
                           - table_expression:
                             - table_reference:
                               - object_reference:
-                                - naked_identifier: tableB
+                                - object_reference:
+                                  - naked_identifier: tableB
                           - alias_expression:
                             - naked_identifier: tb
                 - where_clause:
@@ -271,9 +284,10 @@ file:
         - keyword: DELETE
         - table_reference:
           - object_reference:
-            - naked_identifier: dbo
-            - dot: .
-            - naked_identifier: Table2
+            - object_reference:
+              - naked_identifier: dbo
+              - dot: .
+              - naked_identifier: Table2
         - from_clause:
           - keyword: FROM
           - from_expression:
@@ -283,9 +297,10 @@ file:
                   - table_expression:
                     - table_reference:
                       - object_reference:
-                        - naked_identifier: dbo
-                        - dot: .
-                        - naked_identifier: Table2
+                        - object_reference:
+                          - naked_identifier: dbo
+                          - dot: .
+                          - naked_identifier: Table2
               - join_clause:
                 - keyword: INNER
                 - keyword: JOIN
@@ -294,9 +309,10 @@ file:
                     - table_expression:
                       - table_reference:
                         - object_reference:
-                          - naked_identifier: dbo
-                          - dot: .
-                          - naked_identifier: Table1
+                          - object_reference:
+                            - naked_identifier: dbo
+                            - dot: .
+                            - naked_identifier: Table1
                 - join_on_condition:
                   - keyword: ON
                   - bracketed:

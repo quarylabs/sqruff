@@ -6,7 +6,8 @@ file:
         - keyword: drop
         - keyword: user
         - object_reference:
-          - naked_identifier: some_user
+          - object_reference:
+            - naked_identifier: some_user
   - statement_terminator: ;
   - statement:
     - drop_user_statement:
@@ -16,5 +17,6 @@ file:
         - keyword: if
         - keyword: exists
         - object_reference:
-          - naked_identifier: some_user
+          - object_reference:
+            - naked_identifier: some_user
   - statement_terminator: ;

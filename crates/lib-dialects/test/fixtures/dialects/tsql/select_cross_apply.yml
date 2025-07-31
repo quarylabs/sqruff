@@ -37,7 +37,8 @@ file:
                 - table_expression:
                   - table_reference:
                     - object_reference:
-                      - naked_identifier: Departments
+                      - object_reference:
+                        - naked_identifier: Departments
                 - alias_expression:
                   - naked_identifier: d
             - join_clause:
@@ -108,7 +109,8 @@ file:
                 - table_expression:
                   - table_reference:
                     - object_reference:
-                      - naked_identifier: Departments
+                      - object_reference:
+                        - naked_identifier: Departments
                 - alias_expression:
                   - keyword: AS
                   - naked_identifier: d
@@ -164,7 +166,8 @@ file:
                 - table_expression:
                   - table_reference:
                     - object_reference:
-                      - naked_identifier: Department
+                      - object_reference:
+                        - naked_identifier: Department
                 - alias_expression:
                   - naked_identifier: D
             - join_clause:
@@ -206,7 +209,8 @@ file:
                 - table_expression:
                   - table_reference:
                     - object_reference:
-                      - naked_identifier: Department
+                      - object_reference:
+                        - naked_identifier: Department
                 - alias_expression:
                   - naked_identifier: D
             - join_clause:
@@ -268,7 +272,8 @@ file:
                 - table_expression:
                   - table_reference:
                     - object_reference:
-                      - naked_identifier: table1
+                      - object_reference:
+                        - naked_identifier: table1
                 - alias_expression:
                   - keyword: as
                   - naked_identifier: s

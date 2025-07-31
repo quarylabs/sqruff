@@ -18,7 +18,8 @@ file:
                 - table_expression:
                   - table_reference:
                     - object_reference:
-                      - naked_identifier: Employee
+                      - object_reference:
+                        - naked_identifier: Employee
                 - with_data_clause:
                   - keyword: FOR
                   - keyword: SYSTEM_TIME
@@ -45,7 +46,8 @@ file:
                 - table_expression:
                   - table_reference:
                     - object_reference:
-                      - naked_identifier: Employee
+                      - object_reference:
+                        - naked_identifier: Employee
                 - with_data_clause:
                   - keyword: FOR
                   - keyword: SYSTEM_TIME
@@ -69,7 +71,8 @@ file:
                 - table_expression:
                   - table_reference:
                     - object_reference:
-                      - naked_identifier: Employee
+                      - object_reference:
+                        - naked_identifier: Employee
                 - with_data_clause:
                   - keyword: FOR
                   - keyword: SYSTEM_TIME
@@ -98,7 +101,8 @@ file:
                 - table_expression:
                   - table_reference:
                     - object_reference:
-                      - naked_identifier: Employee
+                      - object_reference:
+                        - naked_identifier: Employee
                 - with_data_clause:
                   - keyword: FOR
                   - keyword: SYSTEM_TIME
@@ -125,7 +129,8 @@ file:
                 - table_expression:
                   - table_reference:
                     - object_reference:
-                      - naked_identifier: Employee
+                      - object_reference:
+                        - naked_identifier: Employee
                 - with_data_clause:
                   - keyword: FOR
                   - keyword: SYSTEM_TIME
@@ -180,7 +185,8 @@ file:
                 - table_expression:
                   - table_reference:
                     - object_reference:
-                      - naked_identifier: Employee
+                      - object_reference:
+                        - naked_identifier: Employee
                 - with_data_clause:
                   - keyword: FOR
                   - keyword: SYSTEM_TIME
@@ -222,7 +228,8 @@ file:
                 - table_expression:
                   - table_reference:
                     - object_reference:
-                      - naked_identifier: Employee
+                      - object_reference:
+                        - naked_identifier: Employee
                 - with_data_clause:
                   - keyword: FOR
                   - keyword: SYSTEM_TIME
@@ -239,9 +246,10 @@ file:
         - keyword: TABLE
         - table_reference:
           - object_reference:
-            - quoted_identifier: '[dbo]'
-            - dot: .
-            - quoted_identifier: '[EC DC]'
+            - object_reference:
+              - quoted_identifier: '[dbo]'
+              - dot: .
+              - quoted_identifier: '[EC DC]'
         - bracketed:
           - start_bracket: (
           - column_definition:
@@ -294,9 +302,10 @@ file:
             - comparison_operator:
               - raw_comparison_operator: =
             - object_reference:
-              - naked_identifier: dbo
-              - dot: .
-              - naked_identifier: EmployeeHistory
+              - object_reference:
+                - naked_identifier: dbo
+                - dot: .
+                - naked_identifier: EmployeeHistory
             - end_bracket: )
           - comma: ','
           - keyword: DURABILITY
@@ -314,7 +323,8 @@ file:
         - keyword: TABLE
         - table_reference:
           - object_reference:
-            - naked_identifier: Department
+            - object_reference:
+              - naked_identifier: Department
         - bracketed:
           - start_bracket: (
           - column_definition:
@@ -419,9 +429,10 @@ file:
             - comparison_operator:
               - raw_comparison_operator: =
             - object_reference:
-              - naked_identifier: dbo
-              - dot: .
-              - naked_identifier: DepartmentHistory
+              - object_reference:
+                - naked_identifier: dbo
+                - dot: .
+                - naked_identifier: DepartmentHistory
             - end_bracket: )
           - end_bracket: )
   - statement_terminator: ;
@@ -433,9 +444,10 @@ file:
         - keyword: TABLE
         - table_reference:
           - object_reference:
-            - quoted_identifier: '[dbo]'
-            - dot: .
-            - quoted_identifier: '[EC DC]'
+            - object_reference:
+              - quoted_identifier: '[dbo]'
+              - dot: .
+              - quoted_identifier: '[EC DC]'
         - bracketed:
           - start_bracket: (
           - column_definition:
@@ -493,9 +505,10 @@ file:
         - keyword: TABLE
         - table_reference:
           - object_reference:
-            - quoted_identifier: '[dbo]'
-            - dot: .
-            - quoted_identifier: '[EC DC]'
+            - object_reference:
+              - quoted_identifier: '[dbo]'
+              - dot: .
+              - quoted_identifier: '[EC DC]'
         - bracketed:
           - start_bracket: (
           - column_definition:
@@ -566,9 +579,10 @@ file:
         - keyword: TABLE
         - table_reference:
           - object_reference:
-            - quoted_identifier: '[dbo]'
-            - dot: .
-            - quoted_identifier: '[EC DC]'
+            - object_reference:
+              - quoted_identifier: '[dbo]'
+              - dot: .
+              - quoted_identifier: '[EC DC]'
         - bracketed:
           - start_bracket: (
           - column_definition:
@@ -631,9 +645,10 @@ file:
             - comparison_operator:
               - raw_comparison_operator: =
             - object_reference:
-              - naked_identifier: History
-              - dot: .
-              - naked_identifier: DepartmentHistory
+              - object_reference:
+                - naked_identifier: History
+                - dot: .
+                - naked_identifier: DepartmentHistory
             - end_bracket: )
           - end_bracket: )
   - statement_terminator: ;
@@ -645,9 +660,10 @@ file:
         - keyword: TABLE
         - table_reference:
           - object_reference:
-            - quoted_identifier: '[dbo]'
-            - dot: .
-            - quoted_identifier: '[EC DC]'
+            - object_reference:
+              - quoted_identifier: '[dbo]'
+              - dot: .
+              - quoted_identifier: '[EC DC]'
         - bracketed:
           - start_bracket: (
           - column_definition:
@@ -712,9 +728,10 @@ file:
             - comparison_operator:
               - raw_comparison_operator: =
             - object_reference:
-              - naked_identifier: dbo
-              - dot: .
-              - naked_identifier: ABC
+              - object_reference:
+                - naked_identifier: dbo
+                - dot: .
+                - naked_identifier: ABC
             - bracketed:
               - start_bracket: (
               - keyword: TRANSACTION_ID_COLUMN_NAME
@@ -740,9 +757,10 @@ file:
         - keyword: TABLE
         - table_reference:
           - object_reference:
-            - quoted_identifier: '[dbo]'
-            - dot: .
-            - quoted_identifier: '[EC DC]'
+            - object_reference:
+              - quoted_identifier: '[dbo]'
+              - dot: .
+              - quoted_identifier: '[EC DC]'
         - bracketed:
           - start_bracket: (
           - column_definition:

@@ -7,7 +7,8 @@ file:
         - keyword: VIEW
         - table_reference:
           - object_reference:
-            - naked_identifier: vwCTE
+            - object_reference:
+              - naked_identifier: vwCTE
         - keyword: AS
         - with_compound_statement:
           - keyword: WITH
@@ -52,9 +53,10 @@ file:
                               - table_expression:
                                 - table_reference:
                                   - object_reference:
-                                    - naked_identifier: HumanResources
-                                    - dot: .
-                                    - naked_identifier: Employee
+                                    - object_reference:
+                                      - naked_identifier: HumanResources
+                                      - dot: .
+                                      - naked_identifier: Employee
                     - where_clause:
                       - keyword: WHERE
                       - expression:
@@ -96,7 +98,8 @@ file:
                               - table_expression:
                                 - table_reference:
                                   - object_reference:
-                                    - naked_identifier: cte
+                                    - object_reference:
+                                      - naked_identifier: cte
                           - join_clause:
                             - keyword: JOIN
                             - from_expression_element:
@@ -104,9 +107,10 @@ file:
                                 - table_expression:
                                   - table_reference:
                                     - object_reference:
-                                      - naked_identifier: HumanResources
-                                      - dot: .
-                                      - naked_identifier: Employee
+                                      - object_reference:
+                                        - naked_identifier: HumanResources
+                                        - dot: .
+                                        - naked_identifier: Employee
                                 - alias_expression:
                                   - keyword: AS
                                   - naked_identifier: e
@@ -148,5 +152,6 @@ file:
                       - table_expression:
                         - table_reference:
                           - object_reference:
-                            - naked_identifier: cte
+                            - object_reference:
+                              - naked_identifier: cte
   - keyword: GO

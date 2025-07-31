@@ -6,9 +6,10 @@ file:
         - keyword: CREATE
         - keyword: FUNCTION
         - object_reference:
-          - quoted_identifier: '[dbo]'
-          - dot: .
-          - quoted_identifier: '[add]'
+          - object_reference:
+            - quoted_identifier: '[dbo]'
+            - dot: .
+            - quoted_identifier: '[add]'
         - bracketed:
           - start_bracket: (
           - parameter:

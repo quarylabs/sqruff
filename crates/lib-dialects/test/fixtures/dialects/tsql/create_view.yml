@@ -9,9 +9,10 @@ file:
         - keyword: VIEW
         - table_reference:
           - object_reference:
-            - naked_identifier: Sales
-            - dot: .
-            - naked_identifier: SalesPersonPerform
+            - object_reference:
+              - naked_identifier: Sales
+              - dot: .
+              - naked_identifier: SalesPersonPerform
         - keyword: AS
         - select_statement:
           - select_clause:
@@ -51,9 +52,10 @@ file:
                     - table_expression:
                       - table_reference:
                         - object_reference:
-                          - naked_identifier: Sales
-                          - dot: .
-                          - naked_identifier: SalesOrderHeader
+                          - object_reference:
+                            - naked_identifier: Sales
+                            - dot: .
+                            - naked_identifier: SalesOrderHeader
           - where_clause:
             - keyword: WHERE
             - expression:
@@ -93,9 +95,10 @@ file:
         - keyword: VIEW
         - table_reference:
           - object_reference:
-            - naked_identifier: Sales
-            - dot: .
-            - naked_identifier: SalesPersonPerform
+            - object_reference:
+              - naked_identifier: Sales
+              - dot: .
+              - naked_identifier: SalesPersonPerform
         - keyword: AS
         - select_statement:
           - select_clause:
@@ -135,9 +138,10 @@ file:
                     - table_expression:
                       - table_reference:
                         - object_reference:
-                          - naked_identifier: Sales
-                          - dot: .
-                          - naked_identifier: SalesOrderHeader
+                          - object_reference:
+                            - naked_identifier: Sales
+                            - dot: .
+                            - naked_identifier: SalesOrderHeader
           - where_clause:
             - keyword: WHERE
             - expression:
@@ -175,9 +179,10 @@ file:
         - keyword: VIEW
         - table_reference:
           - object_reference:
-            - naked_identifier: Purchasing
-            - dot: .
-            - naked_identifier: PurchaseOrderReject
+            - object_reference:
+              - naked_identifier: Purchasing
+              - dot: .
+              - naked_identifier: PurchaseOrderReject
         - keyword: WITH
         - keyword: SCHEMABINDING
         - keyword: AS
@@ -220,9 +225,10 @@ file:
                     - table_expression:
                       - table_reference:
                         - object_reference:
-                          - naked_identifier: Purchasing
-                          - dot: .
-                          - naked_identifier: PurchaseOrderDetail
+                          - object_reference:
+                            - naked_identifier: Purchasing
+                            - dot: .
+                            - naked_identifier: PurchaseOrderDetail
           - where_clause:
             - keyword: WHERE
             - expression:
@@ -263,9 +269,10 @@ file:
         - keyword: VIEW
         - table_reference:
           - object_reference:
-            - naked_identifier: dbo
-            - dot: .
-            - naked_identifier: SeattleOnly
+            - object_reference:
+              - naked_identifier: dbo
+              - dot: .
+              - naked_identifier: SeattleOnly
         - keyword: AS
         - select_statement:
           - select_clause:
@@ -309,9 +316,10 @@ file:
                     - table_expression:
                       - table_reference:
                         - object_reference:
-                          - naked_identifier: HumanResources
-                          - dot: .
-                          - naked_identifier: Employee
+                          - object_reference:
+                            - naked_identifier: HumanResources
+                            - dot: .
+                            - naked_identifier: Employee
                     - alias_expression:
                       - naked_identifier: e
                 - join_clause:
@@ -322,9 +330,10 @@ file:
                       - table_expression:
                         - table_reference:
                           - object_reference:
-                            - naked_identifier: Person
-                            - dot: .
-                            - naked_identifier: Person
+                            - object_reference:
+                              - naked_identifier: Person
+                              - dot: .
+                              - naked_identifier: Person
                       - alias_expression:
                         - naked_identifier: p
                   - join_on_condition:
@@ -348,9 +357,10 @@ file:
                       - table_expression:
                         - table_reference:
                           - object_reference:
-                            - naked_identifier: Person
-                            - dot: .
-                            - naked_identifier: BusinessEntityAddress
+                            - object_reference:
+                              - naked_identifier: Person
+                              - dot: .
+                              - naked_identifier: BusinessEntityAddress
                       - alias_expression:
                         - naked_identifier: bea
                   - join_on_condition:
@@ -374,9 +384,10 @@ file:
                       - table_expression:
                         - table_reference:
                           - object_reference:
-                            - naked_identifier: Person
-                            - dot: .
-                            - naked_identifier: Address
+                            - object_reference:
+                              - naked_identifier: Person
+                              - dot: .
+                              - naked_identifier: Address
                       - alias_expression:
                         - naked_identifier: a
                   - join_on_condition:
@@ -400,9 +411,10 @@ file:
                       - table_expression:
                         - table_reference:
                           - object_reference:
-                            - naked_identifier: Person
-                            - dot: .
-                            - naked_identifier: StateProvince
+                            - object_reference:
+                              - naked_identifier: Person
+                              - dot: .
+                              - naked_identifier: StateProvince
                       - alias_expression:
                         - naked_identifier: sp
                   - join_on_condition:
@@ -440,9 +452,10 @@ file:
         - keyword: VIEW
         - table_reference:
           - object_reference:
-            - naked_identifier: dbo
-            - dot: .
-            - naked_identifier: all_supplier_view
+            - object_reference:
+              - naked_identifier: dbo
+              - dot: .
+              - naked_identifier: all_supplier_view
         - keyword: WITH
         - keyword: SCHEMABINDING
         - keyword: AS
@@ -468,9 +481,10 @@ file:
                         - table_expression:
                           - table_reference:
                             - object_reference:
-                              - naked_identifier: dbo
-                              - dot: .
-                              - naked_identifier: SUPPLY1
+                              - object_reference:
+                                - naked_identifier: dbo
+                                - dot: .
+                                - naked_identifier: SUPPLY1
             - set_operator:
               - keyword: UNION
               - keyword: ALL
@@ -494,9 +508,10 @@ file:
                         - table_expression:
                           - table_reference:
                             - object_reference:
-                              - naked_identifier: dbo
-                              - dot: .
-                              - naked_identifier: SUPPLY2
+                              - object_reference:
+                                - naked_identifier: dbo
+                                - dot: .
+                                - naked_identifier: SUPPLY2
             - set_operator:
               - keyword: UNION
               - keyword: ALL
@@ -520,9 +535,10 @@ file:
                         - table_expression:
                           - table_reference:
                             - object_reference:
-                              - naked_identifier: dbo
-                              - dot: .
-                              - naked_identifier: SUPPLY3
+                              - object_reference:
+                                - naked_identifier: dbo
+                                - dot: .
+                                - naked_identifier: SUPPLY3
             - set_operator:
               - keyword: UNION
               - keyword: ALL
@@ -546,9 +562,10 @@ file:
                         - table_expression:
                           - table_reference:
                             - object_reference:
-                              - naked_identifier: dbo
-                              - dot: .
-                              - naked_identifier: SUPPLY4
+                              - object_reference:
+                                - naked_identifier: dbo
+                                - dot: .
+                                - naked_identifier: SUPPLY4
   - statement_terminator: ;
   - statement:
     - create_view_statement:
@@ -557,7 +574,8 @@ file:
         - keyword: view
         - table_reference:
           - object_reference:
-            - naked_identifier: vw_view
+            - object_reference:
+              - naked_identifier: vw_view
         - keyword: with
         - keyword: schemabinding
         - comma: ','
@@ -581,4 +599,5 @@ file:
                     - table_expression:
                       - table_reference:
                         - object_reference:
-                          - naked_identifier: A
+                          - object_reference:
+                            - naked_identifier: A

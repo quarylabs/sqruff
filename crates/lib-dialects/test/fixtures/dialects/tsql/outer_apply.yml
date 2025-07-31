@@ -20,7 +20,8 @@ file:
                 - table_expression:
                   - table_reference:
                     - object_reference:
-                      - naked_identifier: table1
+                      - object_reference:
+                        - naked_identifier: table1
             - join_clause:
               - keyword: OUTER
               - keyword: APPLY
@@ -29,7 +30,8 @@ file:
                   - table_expression:
                     - table_reference:
                       - object_reference:
-                        - naked_identifier: table2
+                        - object_reference:
+                          - naked_identifier: table2
             - join_clause:
               - keyword: INNER
               - keyword: JOIN
@@ -38,7 +40,8 @@ file:
                   - table_expression:
                     - table_reference:
                       - object_reference:
-                        - naked_identifier: table3
+                        - object_reference:
+                          - naked_identifier: table3
               - join_on_condition:
                 - keyword: ON
                 - expression:

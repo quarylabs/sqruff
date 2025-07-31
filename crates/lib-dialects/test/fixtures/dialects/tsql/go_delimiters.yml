@@ -18,7 +18,8 @@ file:
                 - table_expression:
                   - table_reference:
                     - object_reference:
-                      - naked_identifier: bar
+                      - object_reference:
+                        - naked_identifier: bar
   - keyword: GO
   - keyword: GO
   - statement:
@@ -38,7 +39,8 @@ file:
                 - table_expression:
                   - table_reference:
                     - object_reference:
-                      - naked_identifier: bar
+                      - object_reference:
+                        - naked_identifier: bar
   - keyword: GO
   - keyword: GO
   - keyword: GO
@@ -59,5 +61,6 @@ file:
                 - table_expression:
                   - table_reference:
                     - object_reference:
-                      - naked_identifier: bar
+                      - object_reference:
+                        - naked_identifier: bar
   - keyword: GO

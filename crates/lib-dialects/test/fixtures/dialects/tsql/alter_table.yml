@@ -7,9 +7,10 @@ file:
         - keyword: TABLE
         - table_reference:
           - object_reference:
-            - naked_identifier: dbo
-            - dot: .
-            - naked_identifier: doc_exa
+            - object_reference:
+              - naked_identifier: dbo
+              - dot: .
+              - naked_identifier: doc_exa
         - bracketed:
           - start_bracket: (
           - column_definition:
@@ -27,9 +28,10 @@ file:
       - keyword: TABLE
       - table_reference:
         - object_reference:
-          - naked_identifier: dbo
-          - dot: .
-          - naked_identifier: doc_exa
+          - object_reference:
+            - naked_identifier: dbo
+            - dot: .
+            - naked_identifier: doc_exa
       - keyword: ADD
       - column_definition:
         - column_definition:
@@ -53,9 +55,10 @@ file:
         - keyword: TABLE
         - table_reference:
           - object_reference:
-            - naked_identifier: dbo
-            - dot: .
-            - naked_identifier: doc_exc
+            - object_reference:
+              - naked_identifier: dbo
+              - dot: .
+              - naked_identifier: doc_exc
         - bracketed:
           - start_bracket: (
           - column_definition:
@@ -73,9 +76,10 @@ file:
       - keyword: TABLE
       - table_reference:
         - object_reference:
-          - naked_identifier: dbo
-          - dot: .
-          - naked_identifier: doc_exc
+          - object_reference:
+            - naked_identifier: dbo
+            - dot: .
+            - naked_identifier: doc_exc
       - keyword: ADD
       - column_definition:
         - column_definition:
@@ -93,7 +97,8 @@ file:
           - column_constraint_segment:
             - keyword: CONSTRAINT
             - object_reference:
-              - naked_identifier: exb_unique
+              - object_reference:
+                - naked_identifier: exb_unique
             - keyword: UNIQUE
       - comma: ','
       - keyword: DROP
@@ -113,7 +118,8 @@ file:
     - statement:
       - keyword: EXEC
       - object_reference:
-        - naked_identifier: sp_help
+        - object_reference:
+          - naked_identifier: sp_help
       - expression:
         - column_reference:
           - naked_identifier: doc_exc
@@ -125,9 +131,10 @@ file:
       - keyword: TABLE
       - table_reference:
         - object_reference:
-          - naked_identifier: dbo
-          - dot: .
-          - naked_identifier: doc_exc
+          - object_reference:
+            - naked_identifier: dbo
+            - dot: .
+            - naked_identifier: doc_exc
   - statement_terminator: ;
   - keyword: GO
   - statement:
@@ -137,9 +144,10 @@ file:
         - keyword: TABLE
         - table_reference:
           - object_reference:
-            - naked_identifier: dbo
-            - dot: .
-            - naked_identifier: doc_exz
+            - object_reference:
+              - naked_identifier: dbo
+              - dot: .
+              - naked_identifier: doc_exz
         - bracketed:
           - start_bracket: (
           - column_definition:
@@ -165,9 +173,10 @@ file:
         - keyword: INTO
         - table_reference:
           - object_reference:
-            - naked_identifier: dbo
-            - dot: .
-            - naked_identifier: doc_exz
+            - object_reference:
+              - naked_identifier: dbo
+              - dot: .
+              - naked_identifier: doc_exz
         - bracketed:
           - start_bracket: (
           - column_reference:
@@ -187,13 +196,15 @@ file:
       - keyword: TABLE
       - table_reference:
         - object_reference:
-          - naked_identifier: dbo
-          - dot: .
-          - naked_identifier: doc_exz
+          - object_reference:
+            - naked_identifier: dbo
+            - dot: .
+            - naked_identifier: doc_exz
       - keyword: ADD
       - keyword: CONSTRAINT
       - object_reference:
-        - naked_identifier: col_b_def
+        - object_reference:
+          - naked_identifier: col_b_def
       - keyword: DEFAULT
       - expression:
         - numeric_literal: '50'
@@ -209,9 +220,10 @@ file:
         - keyword: INTO
         - table_reference:
           - object_reference:
-            - naked_identifier: dbo
-            - dot: .
-            - naked_identifier: doc_exz
+            - object_reference:
+              - naked_identifier: dbo
+              - dot: .
+              - naked_identifier: doc_exz
         - bracketed:
           - start_bracket: (
           - column_reference:
@@ -243,9 +255,10 @@ file:
                 - table_expression:
                   - table_reference:
                     - object_reference:
-                      - naked_identifier: dbo
-                      - dot: .
-                      - naked_identifier: doc_exz
+                      - object_reference:
+                        - naked_identifier: dbo
+                        - dot: .
+                        - naked_identifier: doc_exz
   - statement_terminator: ;
   - keyword: GO
   - statement:
@@ -254,9 +267,10 @@ file:
       - keyword: TABLE
       - table_reference:
         - object_reference:
-          - naked_identifier: dbo
-          - dot: .
-          - naked_identifier: doc_exz
+          - object_reference:
+            - naked_identifier: dbo
+            - dot: .
+            - naked_identifier: doc_exz
   - statement_terminator: ;
   - keyword: GO
   - statement:
@@ -265,13 +279,15 @@ file:
       - keyword: TABLE
       - table_reference:
         - object_reference:
-          - naked_identifier: Production
-          - dot: .
-          - naked_identifier: TransactionHistoryArchive
+          - object_reference:
+            - naked_identifier: Production
+            - dot: .
+            - naked_identifier: TransactionHistoryArchive
       - keyword: ADD
       - keyword: CONSTRAINT
       - object_reference:
-        - naked_identifier: PK_TransactionHistoryArchive_TransactionID
+        - object_reference:
+          - naked_identifier: PK_TransactionHistoryArchive_TransactionID
       - keyword: PRIMARY
       - keyword: KEY
       - keyword: CLUSTERED
@@ -287,9 +303,10 @@ file:
       - keyword: TABLE
       - table_reference:
         - object_reference:
-          - naked_identifier: Production
-          - dot: .
-          - naked_identifier: TransactionHistoryArchive
+          - object_reference:
+            - naked_identifier: Production
+            - dot: .
+            - naked_identifier: TransactionHistoryArchive
       - keyword: ALTER
       - keyword: COLUMN
       - column_reference:
@@ -308,43 +325,49 @@ file:
       - keyword: TABLE
       - table_reference:
         - object_reference:
-          - naked_identifier: Production
-          - dot: .
-          - naked_identifier: TransactionHistoryArchive
+          - object_reference:
+            - naked_identifier: Production
+            - dot: .
+            - naked_identifier: TransactionHistoryArchive
       - keyword: DROP
       - keyword: CONSTRAINT
       - object_reference:
-        - naked_identifier: PK_TransactionHistoryArchive_TransactionID
+        - object_reference:
+          - naked_identifier: PK_TransactionHistoryArchive_TransactionID
   - statement:
     - alter_table_statement:
       - keyword: ALTER
       - keyword: TABLE
       - table_reference:
         - object_reference:
-          - naked_identifier: Production
-          - dot: .
-          - naked_identifier: TransactionHistoryArchive
+          - object_reference:
+            - naked_identifier: Production
+            - dot: .
+            - naked_identifier: TransactionHistoryArchive
       - keyword: DROP
       - keyword: CONSTRAINT
       - keyword: IF
       - keyword: EXISTS
       - object_reference:
-        - naked_identifier: PK_TransactionHistoryArchive_TransactionID
+        - object_reference:
+          - naked_identifier: PK_TransactionHistoryArchive_TransactionID
   - statement:
     - alter_table_statement:
       - keyword: ALTER
       - keyword: TABLE
       - table_reference:
         - object_reference:
-          - quoted_identifier: '[Production]'
-          - dot: .
-          - quoted_identifier: '[ProductCostHistory]'
+          - object_reference:
+            - quoted_identifier: '[Production]'
+            - dot: .
+            - quoted_identifier: '[ProductCostHistory]'
       - keyword: WITH
       - keyword: CHECK
       - keyword: ADD
       - keyword: CONSTRAINT
       - object_reference:
-        - quoted_identifier: '[FK_ProductCostHistory_Product_ProductID]'
+        - object_reference:
+          - quoted_identifier: '[FK_ProductCostHistory_Product_ProductID]'
       - keyword: FOREIGN
       - keyword: KEY
       - bracketed:
@@ -355,9 +378,10 @@ file:
       - keyword: REFERENCES
       - table_reference:
         - object_reference:
-          - quoted_identifier: '[Production]'
-          - dot: .
-          - quoted_identifier: '[Product]'
+          - object_reference:
+            - quoted_identifier: '[Production]'
+            - dot: .
+            - quoted_identifier: '[Product]'
       - bracketed:
         - start_bracket: (
         - column_reference:
@@ -370,13 +394,15 @@ file:
       - keyword: TABLE
       - table_reference:
         - object_reference:
-          - quoted_identifier: '[Production]'
-          - dot: .
-          - quoted_identifier: '[ProductCostHistory]'
+          - object_reference:
+            - quoted_identifier: '[Production]'
+            - dot: .
+            - quoted_identifier: '[ProductCostHistory]'
       - keyword: CHECK
       - keyword: CONSTRAINT
       - object_reference:
-        - quoted_identifier: '[FK_ProductCostHistory_Product_ProductID]'
+        - object_reference:
+          - quoted_identifier: '[FK_ProductCostHistory_Product_ProductID]'
   - keyword: GO
   - statement:
     - alter_table_statement:
@@ -384,7 +410,8 @@ file:
       - keyword: TABLE
       - table_reference:
         - object_reference:
-          - naked_identifier: my_table
+          - object_reference:
+            - naked_identifier: my_table
       - keyword: ADD
       - column_definition:
         - column_definition:
@@ -406,7 +433,8 @@ file:
       - keyword: TABLE
       - table_reference:
         - object_reference:
-          - naked_identifier: TestTable
+          - object_reference:
+            - naked_identifier: TestTable
       - keyword: SET
       - bracketed:
         - start_bracket: (
@@ -423,7 +451,8 @@ file:
       - keyword: TABLE
       - table_reference:
         - object_reference:
-          - naked_identifier: TestTable
+          - object_reference:
+            - naked_identifier: TestTable
       - keyword: SET
       - bracketed:
         - start_bracket: (
@@ -440,7 +469,8 @@ file:
       - keyword: TABLE
       - table_reference:
         - object_reference:
-          - naked_identifier: TestTable
+          - object_reference:
+            - naked_identifier: TestTable
       - keyword: SET
       - bracketed:
         - start_bracket: (
@@ -454,7 +484,8 @@ file:
           - comparison_operator:
             - raw_comparison_operator: =
           - object_reference:
-            - naked_identifier: TestTableHistory
+            - object_reference:
+              - naked_identifier: TestTableHistory
           - end_bracket: )
         - end_bracket: )
   - statement_terminator: ;
@@ -465,7 +496,8 @@ file:
       - keyword: TABLE
       - table_reference:
         - object_reference:
-          - naked_identifier: TestTable
+          - object_reference:
+            - naked_identifier: TestTable
       - keyword: SET
       - bracketed:
         - start_bracket: (
@@ -479,7 +511,8 @@ file:
           - comparison_operator:
             - raw_comparison_operator: =
           - object_reference:
-            - naked_identifier: TestTableHistory
+            - object_reference:
+              - naked_identifier: TestTableHistory
           - comma: ','
           - keyword: DATA_CONSISTENCY_CHECK
           - comparison_operator:
@@ -495,7 +528,8 @@ file:
       - keyword: TABLE
       - table_reference:
         - object_reference:
-          - naked_identifier: TestTable
+          - object_reference:
+            - naked_identifier: TestTable
       - keyword: SET
       - bracketed:
         - start_bracket: (
@@ -509,7 +543,8 @@ file:
           - comparison_operator:
             - raw_comparison_operator: =
           - object_reference:
-            - naked_identifier: TestTableHistory
+            - object_reference:
+              - naked_identifier: TestTableHistory
           - comma: ','
           - keyword: DATA_CONSISTENCY_CHECK
           - comparison_operator:
@@ -530,7 +565,8 @@ file:
       - keyword: TABLE
       - table_reference:
         - object_reference:
-          - naked_identifier: TestTable
+          - object_reference:
+            - naked_identifier: TestTable
       - keyword: SET
       - bracketed:
         - start_bracket: (
@@ -544,7 +580,8 @@ file:
           - comparison_operator:
             - raw_comparison_operator: =
           - object_reference:
-            - naked_identifier: TestTableHistory
+            - object_reference:
+              - naked_identifier: TestTableHistory
           - comma: ','
           - keyword: DATA_CONSISTENCY_CHECK
           - comparison_operator:
@@ -566,7 +603,8 @@ file:
       - keyword: TABLE
       - table_reference:
         - object_reference:
-          - naked_identifier: TestTable
+          - object_reference:
+            - naked_identifier: TestTable
       - keyword: SET
       - bracketed:
         - start_bracket: (
@@ -580,7 +618,8 @@ file:
           - comparison_operator:
             - raw_comparison_operator: =
           - object_reference:
-            - naked_identifier: TestTableHistory
+            - object_reference:
+              - naked_identifier: TestTableHistory
           - comma: ','
           - keyword: DATA_CONSISTENCY_CHECK
           - comparison_operator:
@@ -602,7 +641,8 @@ file:
       - keyword: TABLE
       - table_reference:
         - object_reference:
-          - naked_identifier: TestTable
+          - object_reference:
+            - naked_identifier: TestTable
       - keyword: SET
       - bracketed:
         - start_bracket: (
@@ -619,7 +659,8 @@ file:
       - keyword: TABLE
       - table_reference:
         - object_reference:
-          - naked_identifier: TestTable
+          - object_reference:
+            - naked_identifier: TestTable
       - keyword: SET
       - bracketed:
         - start_bracket: (
@@ -636,7 +677,8 @@ file:
       - keyword: TABLE
       - table_reference:
         - object_reference:
-          - naked_identifier: TestTable
+          - object_reference:
+            - naked_identifier: TestTable
       - keyword: SET
       - bracketed:
         - start_bracket: (
@@ -653,7 +695,8 @@ file:
       - keyword: TABLE
       - table_reference:
         - object_reference:
-          - naked_identifier: TestTable
+          - object_reference:
+            - naked_identifier: TestTable
       - keyword: SET
       - bracketed:
         - start_bracket: (
@@ -670,7 +713,8 @@ file:
       - keyword: TABLE
       - table_reference:
         - object_reference:
-          - naked_identifier: TestTable
+          - object_reference:
+            - naked_identifier: TestTable
       - keyword: SET
       - bracketed:
         - start_bracket: (
@@ -695,7 +739,8 @@ file:
       - keyword: TABLE
       - table_reference:
         - object_reference:
-          - naked_identifier: TestTable
+          - object_reference:
+            - naked_identifier: TestTable
       - keyword: SET
       - bracketed:
         - start_bracket: (
@@ -726,7 +771,8 @@ file:
       - keyword: TABLE
       - table_reference:
         - object_reference:
-          - naked_identifier: TestTable
+          - object_reference:
+            - naked_identifier: TestTable
       - keyword: SET
       - bracketed:
         - start_bracket: (
@@ -756,7 +802,8 @@ file:
       - keyword: TABLE
       - table_reference:
         - object_reference:
-          - naked_identifier: TestTable
+          - object_reference:
+            - naked_identifier: TestTable
       - keyword: SET
       - bracketed:
         - start_bracket: (
@@ -787,7 +834,8 @@ file:
       - keyword: TABLE
       - table_reference:
         - object_reference:
-          - naked_identifier: TestTable
+          - object_reference:
+            - naked_identifier: TestTable
       - keyword: SET
       - bracketed:
         - start_bracket: (
@@ -818,9 +866,10 @@ file:
       - keyword: TABLE
       - table_reference:
         - object_reference:
-          - naked_identifier: dbo
-          - dot: .
-          - naked_identifier: Products
+          - object_reference:
+            - naked_identifier: dbo
+            - dot: .
+            - naked_identifier: Products
       - keyword: ADD
       - column_definition:
         - column_definition:
@@ -843,9 +892,10 @@ file:
       - keyword: TABLE
       - table_reference:
         - object_reference:
-          - naked_identifier: dbo
-          - dot: .
-          - naked_identifier: Products
+          - object_reference:
+            - naked_identifier: dbo
+            - dot: .
+            - naked_identifier: Products
       - keyword: ADD
       - column_definition:
         - column_definition:
@@ -875,9 +925,10 @@ file:
       - keyword: TABLE
       - table_reference:
         - object_reference:
-          - naked_identifier: dbo
-          - dot: .
-          - naked_identifier: Products
+          - object_reference:
+            - naked_identifier: dbo
+            - dot: .
+            - naked_identifier: Products
       - keyword: ADD
       - column_definition:
         - column_definition:
@@ -906,13 +957,15 @@ file:
       - keyword: TABLE
       - table_reference:
         - object_reference:
-          - quoted_identifier: '[HangFire]'
-          - dot: .
-          - quoted_identifier: '[JobParameter]'
+          - object_reference:
+            - quoted_identifier: '[HangFire]'
+            - dot: .
+            - quoted_identifier: '[JobParameter]'
       - keyword: ADD
       - keyword: CONSTRAINT
       - object_reference:
-        - quoted_identifier: '[FK_HangFire_JobParameter_Job]'
+        - object_reference:
+          - quoted_identifier: '[FK_HangFire_JobParameter_Job]'
       - keyword: FOREIGN
       - keyword: KEY
       - bracketed:
@@ -923,9 +976,10 @@ file:
       - keyword: REFERENCES
       - table_reference:
         - object_reference:
-          - quoted_identifier: '[HangFire]'
-          - dot: .
-          - quoted_identifier: '[Job]'
+          - object_reference:
+            - quoted_identifier: '[HangFire]'
+            - dot: .
+            - quoted_identifier: '[Job]'
       - bracketed:
         - start_bracket: (
         - column_reference:
@@ -945,7 +999,8 @@ file:
       - keyword: TABLE
       - table_reference:
         - object_reference:
-          - naked_identifier: UserData
+          - object_reference:
+            - naked_identifier: UserData
       - keyword: DROP
       - keyword: COLUMN
       - column_reference:
@@ -963,7 +1018,8 @@ file:
       - keyword: TABLE
       - table_reference:
         - object_reference:
-          - naked_identifier: UserData
+          - object_reference:
+            - naked_identifier: UserData
       - keyword: DROP
       - keyword: COLUMN
       - keyword: IF
@@ -984,9 +1040,10 @@ file:
         - keyword: TABLE
         - table_reference:
           - object_reference:
-            - quoted_identifier: '[dbo]'
-            - dot: .
-            - quoted_identifier: '[UserData]'
+            - object_reference:
+              - quoted_identifier: '[dbo]'
+              - dot: .
+              - quoted_identifier: '[UserData]'
         - bracketed:
           - start_bracket: (
           - column_definition:
@@ -1033,7 +1090,8 @@ file:
             - table_constraint:
               - keyword: CONSTRAINT
               - object_reference:
-                - naked_identifier: PK_UserData
+                - object_reference:
+                  - naked_identifier: PK_UserData
               - keyword: PRIMARY
               - keyword: KEY
               - keyword: CLUSTERED
@@ -1051,13 +1109,15 @@ file:
       - keyword: TABLE
       - table_reference:
         - object_reference:
-          - quoted_identifier: '[dbo]'
-          - dot: .
-          - quoted_identifier: '[UserData]'
+          - object_reference:
+            - quoted_identifier: '[dbo]'
+            - dot: .
+            - quoted_identifier: '[UserData]'
       - keyword: ADD
       - keyword: CONSTRAINT
       - object_reference:
-        - quoted_identifier: '[DF_UserData_strSkill]'
+        - object_reference:
+          - quoted_identifier: '[DF_UserData_strSkill]'
       - keyword: DEFAULT
       - expression:
         - bracketed:
@@ -1076,7 +1136,8 @@ file:
       - keyword: TABLE
       - table_reference:
         - object_reference:
-          - quoted_identifier: '[TestTable]'
+          - object_reference:
+            - quoted_identifier: '[TestTable]'
       - keyword: DROP
       - keyword: PERIOD
       - keyword: FOR
@@ -1088,7 +1149,8 @@ file:
       - keyword: TABLE
       - table_reference:
         - object_reference:
-          - quoted_identifier: '[TestTable]'
+          - object_reference:
+            - quoted_identifier: '[TestTable]'
       - keyword: ADD
       - keyword: PERIOD
       - keyword: FOR

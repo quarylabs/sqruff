@@ -19,7 +19,8 @@ file:
                 - table_expression:
                   - table_reference:
                     - object_reference:
-                      - naked_identifier: table1
+                      - object_reference:
+                        - naked_identifier: table1
             - join_clause:
               - keyword: INNER
               - keyword: JOIN
@@ -28,7 +29,8 @@ file:
                   - table_expression:
                     - table_reference:
                       - object_reference:
-                        - naked_identifier: table2
+                        - object_reference:
+                          - naked_identifier: table2
               - join_on_condition:
                 - keyword: ON
                 - expression:
@@ -65,7 +67,8 @@ file:
                 - table_expression:
                   - table_reference:
                     - object_reference:
-                      - naked_identifier: table1
+                      - object_reference:
+                        - naked_identifier: table1
             - join_clause:
               - keyword: INNER
               - keyword: JOIN
@@ -74,7 +77,8 @@ file:
                   - table_expression:
                     - table_reference:
                       - object_reference:
-                        - naked_identifier: table2
+                        - object_reference:
+                          - naked_identifier: table2
               - join_on_condition:
                 - keyword: ON
                 - expression:
@@ -109,7 +113,8 @@ file:
                 - table_expression:
                   - table_reference:
                     - object_reference:
-                      - naked_identifier: my_table
+                      - object_reference:
+                        - naked_identifier: my_table
       - orderby_clause:
         - keyword: ORDER
         - keyword: BY
@@ -142,7 +147,8 @@ file:
                 - table_expression:
                   - table_reference:
                     - object_reference:
-                      - naked_identifier: my_table
+                      - object_reference:
+                        - naked_identifier: my_table
   - statement_terminator: ;
   - statement:
     - select_statement:
@@ -165,5 +171,6 @@ file:
                 - table_expression:
                   - table_reference:
                     - object_reference:
-                      - naked_identifier: my_table
+                      - object_reference:
+                        - naked_identifier: my_table
   - statement_terminator: ;

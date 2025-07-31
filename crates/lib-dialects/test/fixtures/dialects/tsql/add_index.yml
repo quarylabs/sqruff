@@ -1,174 +1,183 @@
 file:
 - statement:
   - statement:
-    - keyword: IF
-    - expression:
-      - keyword: NOT
-      - keyword: EXISTS
-      - bracketed:
-        - start_bracket: (
-        - select_statement:
-          - select_clause:
+    - if_statement:
+      - keyword: IF
+      - expression:
+        - keyword: NOT
+        - keyword: EXISTS
+        - bracketed:
+          - start_bracket: (
+          - select_statement:
             - select_clause:
-              - keyword: SELECT
-              - select_clause_element:
-                - wildcard_expression:
-                  - wildcard_identifier:
-                    - star: '*'
-          - from_clause:
-            - keyword: FROM
-            - from_expression:
+              - select_clause:
+                - keyword: SELECT
+                - select_clause_element:
+                  - wildcard_expression:
+                    - wildcard_identifier:
+                      - star: '*'
+            - from_clause:
+              - keyword: FROM
               - from_expression:
-                - from_expression_element:
+                - from_expression:
                   - from_expression_element:
-                    - table_expression:
-                      - table_reference:
-                        - object_reference:
-                          - naked_identifier: sys
-                          - dot: .
-                          - naked_identifier: indexes
-          - where_clause:
-            - keyword: WHERE
-            - expression:
-              - column_reference:
-                - naked_identifier: NAME
-              - comparison_operator:
-                - raw_comparison_operator: =
-              - quoted_literal: '''IX_INTER_VIMR_INFECTIOUS_PEOPLE'''
-        - end_bracket: )
-    - statement:
-      - create_index_statement:
+                    - from_expression_element:
+                      - table_expression:
+                        - table_reference:
+                          - object_reference:
+                            - object_reference:
+                              - naked_identifier: sys
+                              - dot: .
+                              - naked_identifier: indexes
+            - where_clause:
+              - keyword: WHERE
+              - expression:
+                - column_reference:
+                  - naked_identifier: NAME
+                - comparison_operator:
+                  - raw_comparison_operator: =
+                - quoted_literal: '''IX_INTER_VIMR_INFECTIOUS_PEOPLE'''
+          - end_bracket: )
+      - statement:
         - create_index_statement:
-          - keyword: CREATE
-          - keyword: NONCLUSTERED
-          - keyword: INDEX
-          - database_reference:
-            - naked_identifier: IX_INTER_VIMR_INFECTIOUS_PEOPLE
-          - keyword: ON
-          - table_reference:
-            - object_reference:
-              - naked_identifier: dbo
-              - dot: .
-              - naked_identifier: VIMR_INFECTIOUS_PEOPLE
-          - bracketed:
-            - start_bracket: (
-            - column_reference:
-              - naked_identifier: DATE_LAST_INSERTED
-            - end_bracket: )
-    - statement_terminator: ;
+          - create_index_statement:
+            - keyword: CREATE
+            - keyword: NONCLUSTERED
+            - keyword: INDEX
+            - database_reference:
+              - naked_identifier: IX_INTER_VIMR_INFECTIOUS_PEOPLE
+            - keyword: ON
+            - table_reference:
+              - object_reference:
+                - object_reference:
+                  - naked_identifier: dbo
+                  - dot: .
+                  - naked_identifier: VIMR_INFECTIOUS_PEOPLE
+            - bracketed:
+              - start_bracket: (
+              - column_reference:
+                - naked_identifier: DATE_LAST_INSERTED
+              - end_bracket: )
+      - statement_terminator: ;
   - keyword: GO
   - statement:
-    - keyword: IF
-    - expression:
-      - keyword: NOT
-      - keyword: EXISTS
-      - bracketed:
-        - start_bracket: (
-        - select_statement:
-          - select_clause:
+    - if_statement:
+      - keyword: IF
+      - expression:
+        - keyword: NOT
+        - keyword: EXISTS
+        - bracketed:
+          - start_bracket: (
+          - select_statement:
             - select_clause:
-              - keyword: SELECT
-              - select_clause_element:
-                - wildcard_expression:
-                  - wildcard_identifier:
-                    - star: '*'
-          - from_clause:
-            - keyword: FROM
-            - from_expression:
+              - select_clause:
+                - keyword: SELECT
+                - select_clause_element:
+                  - wildcard_expression:
+                    - wildcard_identifier:
+                      - star: '*'
+            - from_clause:
+              - keyword: FROM
               - from_expression:
-                - from_expression_element:
+                - from_expression:
                   - from_expression_element:
-                    - table_expression:
-                      - table_reference:
-                        - object_reference:
-                          - naked_identifier: sys
-                          - dot: .
-                          - naked_identifier: indexes
-          - where_clause:
-            - keyword: WHERE
-            - expression:
-              - column_reference:
-                - naked_identifier: NAME
-              - comparison_operator:
-                - raw_comparison_operator: =
-              - quoted_literal: '''IX_INTER_FOUNDATION_NICE_IC_INTAKE_COUNT'''
-        - end_bracket: )
-    - statement:
-      - create_index_statement:
+                    - from_expression_element:
+                      - table_expression:
+                        - table_reference:
+                          - object_reference:
+                            - object_reference:
+                              - naked_identifier: sys
+                              - dot: .
+                              - naked_identifier: indexes
+            - where_clause:
+              - keyword: WHERE
+              - expression:
+                - column_reference:
+                  - naked_identifier: NAME
+                - comparison_operator:
+                  - raw_comparison_operator: =
+                - quoted_literal: '''IX_INTER_FOUNDATION_NICE_IC_INTAKE_COUNT'''
+          - end_bracket: )
+      - statement:
         - create_index_statement:
-          - keyword: CREATE
-          - keyword: NONCLUSTERED
-          - keyword: INDEX
-          - database_reference:
-            - naked_identifier: IX_INTER_FOUNDATION_NICE_IC_INTAKE_COUNT
-          - keyword: ON
-          - table_reference:
-            - object_reference:
-              - naked_identifier: dbo
-              - dot: .
-              - naked_identifier: FOUNDATION_NICE_IC_INTAKE_COUNT
-          - bracketed:
-            - start_bracket: (
-            - column_reference:
-              - naked_identifier: DATE_LAST_INSERTED
-            - end_bracket: )
-    - statement_terminator: ;
+          - create_index_statement:
+            - keyword: CREATE
+            - keyword: NONCLUSTERED
+            - keyword: INDEX
+            - database_reference:
+              - naked_identifier: IX_INTER_FOUNDATION_NICE_IC_INTAKE_COUNT
+            - keyword: ON
+            - table_reference:
+              - object_reference:
+                - object_reference:
+                  - naked_identifier: dbo
+                  - dot: .
+                  - naked_identifier: FOUNDATION_NICE_IC_INTAKE_COUNT
+            - bracketed:
+              - start_bracket: (
+              - column_reference:
+                - naked_identifier: DATE_LAST_INSERTED
+              - end_bracket: )
+      - statement_terminator: ;
   - keyword: GO
   - statement:
-    - keyword: IF
-    - expression:
-      - keyword: EXISTS
-      - bracketed:
-        - start_bracket: (
-        - select_statement:
-          - select_clause:
+    - if_statement:
+      - keyword: IF
+      - expression:
+        - keyword: EXISTS
+        - bracketed:
+          - start_bracket: (
+          - select_statement:
             - select_clause:
-              - keyword: SELECT
-              - select_clause_element:
-                - wildcard_expression:
-                  - wildcard_identifier:
-                    - star: '*'
-          - from_clause:
-            - keyword: FROM
-            - from_expression:
+              - select_clause:
+                - keyword: SELECT
+                - select_clause_element:
+                  - wildcard_expression:
+                    - wildcard_identifier:
+                      - star: '*'
+            - from_clause:
+              - keyword: FROM
               - from_expression:
-                - from_expression_element:
+                - from_expression:
                   - from_expression_element:
-                    - table_expression:
-                      - table_reference:
-                        - object_reference:
-                          - naked_identifier: sys
-                          - dot: .
-                          - naked_identifier: indexes
-          - where_clause:
-            - keyword: WHERE
-            - expression:
-              - column_reference:
-                - naked_identifier: NAME
-              - comparison_operator:
-                - raw_comparison_operator: =
-              - quoted_literal: '''IX_INTER_VIMR_REPRODUCTION_NUMBER'''
-        - end_bracket: )
-    - statement:
-      - create_index_statement:
+                    - from_expression_element:
+                      - table_expression:
+                        - table_reference:
+                          - object_reference:
+                            - object_reference:
+                              - naked_identifier: sys
+                              - dot: .
+                              - naked_identifier: indexes
+            - where_clause:
+              - keyword: WHERE
+              - expression:
+                - column_reference:
+                  - naked_identifier: NAME
+                - comparison_operator:
+                  - raw_comparison_operator: =
+                - quoted_literal: '''IX_INTER_VIMR_REPRODUCTION_NUMBER'''
+          - end_bracket: )
+      - statement:
         - create_index_statement:
-          - keyword: CREATE
-          - keyword: CLUSTERED
-          - keyword: INDEX
-          - database_reference:
-            - naked_identifier: IX_INTER_VIMR_REPRODUCTION_NUMBER
-          - keyword: ON
-          - table_reference:
-            - object_reference:
-              - naked_identifier: dbo
-              - dot: .
-              - naked_identifier: VIMR_INFECTIOUS_PEOPLE
-          - bracketed:
-            - start_bracket: (
-            - column_reference:
-              - naked_identifier: DATE_LAST_INSERTED
-            - end_bracket: )
-    - statement_terminator: ;
+          - create_index_statement:
+            - keyword: CREATE
+            - keyword: CLUSTERED
+            - keyword: INDEX
+            - database_reference:
+              - naked_identifier: IX_INTER_VIMR_REPRODUCTION_NUMBER
+            - keyword: ON
+            - table_reference:
+              - object_reference:
+                - object_reference:
+                  - naked_identifier: dbo
+                  - dot: .
+                  - naked_identifier: VIMR_INFECTIOUS_PEOPLE
+            - bracketed:
+              - start_bracket: (
+              - column_reference:
+                - naked_identifier: DATE_LAST_INSERTED
+              - end_bracket: )
+      - statement_terminator: ;
   - keyword: GO
   - statement:
     - create_index_statement:
@@ -181,9 +190,10 @@ file:
         - keyword: ON
         - table_reference:
           - object_reference:
-            - quoted_identifier: '[schema1]'
-            - dot: .
-            - quoted_identifier: '[table1]'
+            - object_reference:
+              - quoted_identifier: '[schema1]'
+              - dot: .
+              - quoted_identifier: '[table1]'
         - bracketed:
           - start_bracket: (
           - column_reference:
@@ -219,9 +229,10 @@ file:
         - keyword: ON
         - table_reference:
           - object_reference:
-            - quoted_identifier: '[schema1]'
-            - dot: .
-            - quoted_identifier: '[table1]'
+            - object_reference:
+              - quoted_identifier: '[schema1]'
+              - dot: .
+              - quoted_identifier: '[table1]'
         - bracketed:
           - start_bracket: (
           - column_reference:
@@ -230,7 +241,8 @@ file:
           - end_bracket: )
         - keyword: ON
         - object_reference:
-          - quoted_identifier: '[PRIMARY]'
+          - object_reference:
+            - quoted_identifier: '[PRIMARY]'
   - statement_terminator: ;
   - keyword: GO
   - statement:
@@ -244,9 +256,10 @@ file:
         - keyword: ON
         - table_reference:
           - object_reference:
-            - quoted_identifier: '[schema1]'
-            - dot: .
-            - quoted_identifier: '[table1]'
+            - object_reference:
+              - quoted_identifier: '[schema1]'
+              - dot: .
+              - quoted_identifier: '[table1]'
         - bracketed:
           - start_bracket: (
           - column_reference:
@@ -273,9 +286,10 @@ file:
         - keyword: ON
         - table_reference:
           - object_reference:
-            - quoted_identifier: '[schema1]'
-            - dot: .
-            - quoted_identifier: '[table1]'
+            - object_reference:
+              - quoted_identifier: '[schema1]'
+              - dot: .
+              - quoted_identifier: '[table1]'
         - bracketed:
           - start_bracket: (
           - column_reference:
@@ -306,9 +320,10 @@ file:
         - keyword: ON
         - table_reference:
           - object_reference:
-            - quoted_identifier: '[schema1]'
-            - dot: .
-            - quoted_identifier: '[table1]'
+            - object_reference:
+              - quoted_identifier: '[schema1]'
+              - dot: .
+              - quoted_identifier: '[table1]'
         - bracketed:
           - start_bracket: (
           - column_reference:
@@ -335,9 +350,10 @@ file:
         - keyword: ON
         - table_reference:
           - object_reference:
-            - quoted_identifier: '[schema1]'
-            - dot: .
-            - quoted_identifier: '[table1]'
+            - object_reference:
+              - quoted_identifier: '[schema1]'
+              - dot: .
+              - quoted_identifier: '[table1]'
         - bracketed:
           - start_bracket: (
           - column_reference:
@@ -381,9 +397,10 @@ file:
         - keyword: ON
         - table_reference:
           - object_reference:
-            - quoted_identifier: '[schema1]'
-            - dot: .
-            - quoted_identifier: '[table1]'
+            - object_reference:
+              - quoted_identifier: '[schema1]'
+              - dot: .
+              - quoted_identifier: '[table1]'
         - bracketed:
           - start_bracket: (
           - column_reference:
@@ -412,13 +429,15 @@ file:
       - keyword: CREATE
       - keyword: STATISTICS
       - object_reference:
-        - naked_identifier: Stats_Population
+        - object_reference:
+          - naked_identifier: Stats_Population
       - keyword: ON
       - table_reference:
         - object_reference:
-          - quoted_identifier: '[Reporting]'
-          - dot: .
-          - quoted_identifier: '[Population]'
+          - object_reference:
+            - quoted_identifier: '[Reporting]'
+            - dot: .
+            - quoted_identifier: '[Population]'
       - bracketed:
         - start_bracket: (
         - column_reference:
@@ -437,11 +456,13 @@ file:
       - keyword: STATISTICS
       - table_reference:
         - object_reference:
-          - naked_identifier: Reporting
-          - dot: .
-          - naked_identifier: Population
+          - object_reference:
+            - naked_identifier: Reporting
+            - dot: .
+            - naked_identifier: Population
       - object_reference:
-        - naked_identifier: Stats_Population
+        - object_reference:
+          - naked_identifier: Stats_Population
   - statement_terminator: ;
   - keyword: GO
   - statement:
@@ -450,16 +471,19 @@ file:
       - keyword: STATISTICS
       - table_reference:
         - object_reference:
-          - naked_identifier: Reporting
-          - dot: .
-          - naked_identifier: Population
+          - object_reference:
+            - naked_identifier: Reporting
+            - dot: .
+            - naked_identifier: Population
       - bracketed:
         - start_bracket: (
         - object_reference:
-          - naked_identifier: Stats_Facility
+          - object_reference:
+            - naked_identifier: Stats_Facility
         - comma: ','
         - object_reference:
-          - naked_identifier: Stats_Population
+          - object_reference:
+            - naked_identifier: Stats_Population
         - end_bracket: )
   - statement_terminator: ;
   - keyword: GO
@@ -469,16 +493,19 @@ file:
       - keyword: STATISTICS
       - table_reference:
         - object_reference:
-          - naked_identifier: Reporting
-          - dot: .
-          - naked_identifier: Population
+          - object_reference:
+            - naked_identifier: Reporting
+            - dot: .
+            - naked_identifier: Population
       - bracketed:
         - start_bracket: (
         - object_reference:
-          - naked_identifier: Stats_Facility
+          - object_reference:
+            - naked_identifier: Stats_Facility
         - comma: ','
         - object_reference:
-          - naked_identifier: Stats_Population
+          - object_reference:
+            - naked_identifier: Stats_Population
         - end_bracket: )
       - keyword: WITH
       - keyword: FULLSCAN
@@ -490,16 +517,19 @@ file:
       - keyword: STATISTICS
       - table_reference:
         - object_reference:
-          - naked_identifier: Reporting
-          - dot: .
-          - naked_identifier: Population
+          - object_reference:
+            - naked_identifier: Reporting
+            - dot: .
+            - naked_identifier: Population
       - bracketed:
         - start_bracket: (
         - object_reference:
-          - naked_identifier: Stats_Facility
+          - object_reference:
+            - naked_identifier: Stats_Facility
         - comma: ','
         - object_reference:
-          - naked_identifier: Stats_Population
+          - object_reference:
+            - naked_identifier: Stats_Population
         - end_bracket: )
       - keyword: WITH
       - keyword: RESAMPLE
@@ -510,11 +540,12 @@ file:
       - keyword: DROP
       - keyword: STATISTICS
       - object_reference:
-        - naked_identifier: Reporting
-        - dot: .
-        - naked_identifier: Population
-        - dot: .
-        - naked_identifier: Stats_Population
+        - object_reference:
+          - naked_identifier: Reporting
+          - dot: .
+          - naked_identifier: Population
+          - dot: .
+          - naked_identifier: Stats_Population
   - keyword: GO
   - statement:
     - drop_index_statement:
@@ -522,12 +553,14 @@ file:
         - keyword: DROP
         - keyword: INDEX
         - object_reference:
-          - naked_identifier: IX_INTER_VIMR_REPRODUCTION_NUMBER
+          - object_reference:
+            - naked_identifier: IX_INTER_VIMR_REPRODUCTION_NUMBER
         - keyword: ON
         - table_reference:
           - object_reference:
-            - naked_identifier: dbo
-            - dot: .
-            - naked_identifier: VIMR_INFECTIOUS_PEOPLE
+            - object_reference:
+              - naked_identifier: dbo
+              - dot: .
+              - naked_identifier: VIMR_INFECTIOUS_PEOPLE
   - statement_terminator: ;
   - keyword: GO

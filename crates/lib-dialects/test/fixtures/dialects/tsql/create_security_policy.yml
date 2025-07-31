@@ -6,7 +6,8 @@ file:
       - keyword: SECURITY
       - keyword: POLICY
       - object_reference:
-        - quoted_identifier: '[FederatedSecurityPolicy]'
+        - object_reference:
+          - quoted_identifier: '[FederatedSecurityPolicy]'
       - keyword: ADD
       - keyword: FILTER
       - keyword: PREDICATE
@@ -24,9 +25,10 @@ file:
             - end_bracket: )
       - keyword: ON
       - object_reference:
-        - quoted_identifier: '[dbo]'
-        - dot: .
-        - quoted_identifier: '[Customer]'
+        - object_reference:
+          - quoted_identifier: '[dbo]'
+          - dot: .
+          - quoted_identifier: '[Customer]'
   - statement_terminator: ;
   - statement:
     - create_security_policy_statement:
@@ -34,7 +36,8 @@ file:
       - keyword: SECURITY
       - keyword: POLICY
       - object_reference:
-        - quoted_identifier: '[FederatedSecurityPolicy]'
+        - object_reference:
+          - quoted_identifier: '[FederatedSecurityPolicy]'
       - keyword: ADD
       - keyword: FILTER
       - keyword: PREDICATE
@@ -52,9 +55,10 @@ file:
             - end_bracket: )
       - keyword: ON
       - object_reference:
-        - quoted_identifier: '[dbo]'
-        - dot: .
-        - quoted_identifier: '[Customer]'
+        - object_reference:
+          - quoted_identifier: '[dbo]'
+          - dot: .
+          - quoted_identifier: '[Customer]'
       - comma: ','
       - keyword: ADD
       - keyword: FILTER
@@ -73,9 +77,10 @@ file:
             - end_bracket: )
       - keyword: ON
       - object_reference:
-        - quoted_identifier: '[dbo]'
-        - dot: .
-        - quoted_identifier: '[Vendor]'
+        - object_reference:
+          - quoted_identifier: '[dbo]'
+          - dot: .
+          - quoted_identifier: '[Vendor]'
       - comma: ','
       - keyword: ADD
       - keyword: FILTER
@@ -94,9 +99,10 @@ file:
             - end_bracket: )
       - keyword: ON
       - object_reference:
-        - quoted_identifier: '[dbo]'
-        - dot: .
-        - quoted_identifier: '[Patient]'
+        - object_reference:
+          - quoted_identifier: '[dbo]'
+          - dot: .
+          - quoted_identifier: '[Patient]'
       - keyword: WITH
       - bracketed:
         - start_bracket: (
@@ -112,9 +118,10 @@ file:
       - keyword: SECURITY
       - keyword: POLICY
       - object_reference:
-        - naked_identifier: rls
-        - dot: .
-        - naked_identifier: SecPol
+        - object_reference:
+          - naked_identifier: rls
+          - dot: .
+          - naked_identifier: SecPol
       - keyword: ADD
       - keyword: FILTER
       - keyword: PREDICATE
@@ -132,9 +139,10 @@ file:
             - end_bracket: )
       - keyword: ON
       - object_reference:
-        - naked_identifier: dbo
-        - dot: .
-        - naked_identifier: Sales
+        - object_reference:
+          - naked_identifier: dbo
+          - dot: .
+          - naked_identifier: Sales
       - comma: ','
       - keyword: ADD
       - keyword: BLOCK
@@ -153,9 +161,10 @@ file:
             - end_bracket: )
       - keyword: ON
       - object_reference:
-        - naked_identifier: dbo
-        - dot: .
-        - naked_identifier: Sales
+        - object_reference:
+          - naked_identifier: dbo
+          - dot: .
+          - naked_identifier: Sales
       - keyword: AFTER
       - keyword: INSERT
   - statement_terminator: ;
@@ -165,7 +174,8 @@ file:
       - keyword: SECURITY
       - keyword: POLICY
       - object_reference:
-        - naked_identifier: pol1
+        - object_reference:
+          - naked_identifier: pol1
       - keyword: ADD
       - keyword: FILTER
       - keyword: PREDICATE
@@ -183,9 +193,10 @@ file:
             - end_bracket: )
       - keyword: ON
       - object_reference:
-        - naked_identifier: myschema
-        - dot: .
-        - naked_identifier: mytable
+        - object_reference:
+          - naked_identifier: myschema
+          - dot: .
+          - naked_identifier: mytable
   - statement_terminator: ;
   - statement:
     - alter_security_policy_statement:
@@ -193,7 +204,8 @@ file:
       - keyword: SECURITY
       - keyword: POLICY
       - object_reference:
-        - naked_identifier: pol1
+        - object_reference:
+          - naked_identifier: pol1
       - keyword: WITH
       - bracketed:
         - start_bracket: (
@@ -209,7 +221,8 @@ file:
       - keyword: SECURITY
       - keyword: POLICY
       - object_reference:
-        - naked_identifier: pol1
+        - object_reference:
+          - naked_identifier: pol1
       - keyword: ADD
       - keyword: FILTER
       - keyword: PREDICATE
@@ -227,18 +240,20 @@ file:
             - end_bracket: )
       - keyword: ON
       - object_reference:
-        - naked_identifier: myschema
-        - dot: .
-        - naked_identifier: mytable1
+        - object_reference:
+          - naked_identifier: myschema
+          - dot: .
+          - naked_identifier: mytable1
       - comma: ','
       - keyword: DROP
       - keyword: FILTER
       - keyword: PREDICATE
       - keyword: ON
       - object_reference:
-        - naked_identifier: myschema
-        - dot: .
-        - naked_identifier: mytable2
+        - object_reference:
+          - naked_identifier: myschema
+          - dot: .
+          - naked_identifier: mytable2
       - comma: ','
       - keyword: ADD
       - keyword: FILTER
@@ -260,9 +275,10 @@ file:
             - end_bracket: )
       - keyword: ON
       - object_reference:
-        - naked_identifier: myschema
-        - dot: .
-        - naked_identifier: mytable3
+        - object_reference:
+          - naked_identifier: myschema
+          - dot: .
+          - naked_identifier: mytable3
   - statement_terminator: ;
   - statement:
     - alter_security_policy_statement:
@@ -270,7 +286,8 @@ file:
       - keyword: SECURITY
       - keyword: POLICY
       - object_reference:
-        - naked_identifier: pol1
+        - object_reference:
+          - naked_identifier: pol1
       - keyword: ALTER
       - keyword: FILTER
       - keyword: PREDICATE
@@ -288,9 +305,10 @@ file:
             - end_bracket: )
       - keyword: ON
       - object_reference:
-        - naked_identifier: myschema
-        - dot: .
-        - naked_identifier: mytable
+        - object_reference:
+          - naked_identifier: myschema
+          - dot: .
+          - naked_identifier: mytable
   - statement_terminator: ;
   - statement:
     - alter_security_policy_statement:
@@ -298,9 +316,10 @@ file:
       - keyword: SECURITY
       - keyword: POLICY
       - object_reference:
-        - naked_identifier: rls
-        - dot: .
-        - naked_identifier: SecPol
+        - object_reference:
+          - naked_identifier: rls
+          - dot: .
+          - naked_identifier: SecPol
       - keyword: ALTER
       - keyword: BLOCK
       - keyword: PREDICATE
@@ -318,9 +337,10 @@ file:
             - end_bracket: )
       - keyword: ON
       - object_reference:
-        - naked_identifier: dbo
-        - dot: .
-        - naked_identifier: Sales
+        - object_reference:
+          - naked_identifier: dbo
+          - dot: .
+          - naked_identifier: Sales
       - keyword: AFTER
       - keyword: INSERT
   - statement_terminator: ;
@@ -330,5 +350,6 @@ file:
       - keyword: SECURITY
       - keyword: POLICY
       - object_reference:
-        - naked_identifier: secPolicy
+        - object_reference:
+          - naked_identifier: secPolicy
   - statement_terminator: ;

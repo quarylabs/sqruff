@@ -7,9 +7,10 @@ file:
         - keyword: TABLE
         - table_reference:
           - object_reference:
-            - quoted_identifier: '[dbo]'
-            - dot: .
-            - quoted_identifier: '[EC DC]'
+            - object_reference:
+              - quoted_identifier: '[dbo]'
+              - dot: .
+              - quoted_identifier: '[EC DC]'
         - bracketed:
           - start_bracket: (
           - column_definition:
@@ -56,7 +57,8 @@ file:
         - keyword: TABLE
         - table_reference:
           - object_reference:
-            - naked_identifier: foo
+            - object_reference:
+              - naked_identifier: foo
         - bracketed:
           - start_bracket: (
           - column_definition:
@@ -119,9 +121,10 @@ file:
         - keyword: TABLE
         - table_reference:
           - object_reference:
-            - naked_identifier: dbo
-            - dot: .
-            - naked_identifier: Products
+            - object_reference:
+              - naked_identifier: dbo
+              - dot: .
+              - naked_identifier: Products
         - bracketed:
           - start_bracket: (
           - column_definition:
@@ -269,9 +272,10 @@ file:
         - keyword: TABLE
         - table_reference:
           - object_reference:
-            - quoted_identifier: '[dbo]'
-            - dot: .
-            - quoted_identifier: '[Foo]'
+            - object_reference:
+              - quoted_identifier: '[dbo]'
+              - dot: .
+              - quoted_identifier: '[Foo]'
         - bracketed:
           - start_bracket: (
           - column_definition:
@@ -294,7 +298,8 @@ file:
             - table_constraint:
               - keyword: CONSTRAINT
               - object_reference:
-                - quoted_identifier: '[PK_Foo_ID]'
+                - object_reference:
+                  - quoted_identifier: '[PK_Foo_ID]'
               - keyword: PRIMARY
               - keyword: KEY
               - keyword: CLUSTERED
@@ -316,9 +321,10 @@ file:
                 - keyword: REFERENCES
                 - table_reference:
                   - object_reference:
-                    - quoted_identifier: '[dbo]'
-                    - dot: .
-                    - quoted_identifier: '[Bar]'
+                    - object_reference:
+                      - quoted_identifier: '[dbo]'
+                      - dot: .
+                      - quoted_identifier: '[Bar]'
                 - bracketed:
                   - start_bracket: (
                   - column_reference:

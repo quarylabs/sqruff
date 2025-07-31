@@ -19,7 +19,8 @@ file:
                 - table_expression:
                   - table_reference:
                     - object_reference:
-                      - naked_identifier: BA
+                      - object_reference:
+                        - naked_identifier: BA
             - join_clause:
               - keyword: LEFT
               - keyword: OUTER
@@ -29,48 +30,55 @@ file:
                   - table_expression:
                     - table_reference:
                       - object_reference:
-                        - naked_identifier: I
-            - join_clause:
-              - keyword: LEFT
-              - keyword: OUTER
-              - keyword: JOIN
-              - from_expression_element:
+                        - object_reference:
+                          - naked_identifier: I
+              - join_clause:
+                - keyword: LEFT
+                - keyword: OUTER
+                - keyword: JOIN
                 - from_expression_element:
-                  - table_expression:
-                    - table_reference:
-                      - object_reference:
-                        - naked_identifier: P
+                  - from_expression_element:
+                    - table_expression:
+                      - table_reference:
+                        - object_reference:
+                          - object_reference:
+                            - naked_identifier: P
+                - join_on_condition:
+                  - keyword: ON
+                  - expression:
+                    - column_reference:
+                      - naked_identifier: I
+                      - dot: .
+                      - naked_identifier: Pcd
+                    - comparison_operator:
+                      - raw_comparison_operator: =
+                    - column_reference:
+                      - naked_identifier: P
+                      - dot: .
+                      - naked_identifier: Iid
               - join_on_condition:
                 - keyword: ON
                 - expression:
+                  - column_reference:
+                    - naked_identifier: BA
+                    - dot: .
+                    - naked_identifier: Iid
+                  - comparison_operator:
+                    - raw_comparison_operator: =
                   - column_reference:
                     - naked_identifier: I
                     - dot: .
-                    - naked_identifier: Pcd
-                  - comparison_operator:
-                    - raw_comparison_operator: =
-                  - column_reference:
-                    - naked_identifier: P
-                    - dot: .
-                    - naked_identifier: Iid
-      - unparsable:
-        - word: ON
-        - word: BA
-        - dot: .
-        - word: Iid
-        - raw_comparison_operator: =
-        - word: I
-        - dot: .
-        - word: Bcd
+                    - naked_identifier: Bcd
   - statement_terminator: ;
-  - keyword: GO
   - statement:
     - select_statement:
       - select_clause:
         - select_clause:
           - keyword: SELECT
           - select_clause_element:
-            - numeric_literal: '1'
+            - wildcard_expression:
+              - wildcard_identifier:
+                - star: '*'
       - from_clause:
         - keyword: FROM
         - from_expression:
@@ -80,17 +88,10 @@ file:
                 - table_expression:
                   - table_reference:
                     - object_reference:
-                      - naked_identifier: BA
-            - join_clause:
-              - keyword: RIGHT
-              - keyword: OUTER
-              - keyword: JOIN
-              - from_expression_element:
-                - from_expression_element:
-                  - table_expression:
-                    - table_reference:
                       - object_reference:
-                        - naked_identifier: I
+                        - naked_identifier: Orders
+                - alias_expression:
+                  - naked_identifier: o
             - join_clause:
               - keyword: LEFT
               - keyword: OUTER
@@ -100,144 +101,84 @@ file:
                   - table_expression:
                     - table_reference:
                       - object_reference:
-                        - naked_identifier: P
+                        - object_reference:
+                          - naked_identifier: OrderDetails
                   - alias_expression:
-                    - keyword: AS
-                    - naked_identifier: P_1
-            - join_clause:
-              - keyword: LEFT
-              - keyword: OUTER
-              - keyword: JOIN
-              - from_expression_element:
+                    - naked_identifier: od
+              - join_clause:
+                - keyword: INNER
+                - keyword: JOIN
                 - from_expression_element:
-                  - table_expression:
-                    - table_reference:
-                      - object_reference:
-                        - naked_identifier: IP
-                  - alias_expression:
-                    - keyword: AS
-                    - naked_identifier: IP_1
+                  - from_expression_element:
+                    - table_expression:
+                      - table_reference:
+                        - object_reference:
+                          - object_reference:
+                            - naked_identifier: Products
+                    - alias_expression:
+                      - naked_identifier: p
+                - join_on_condition:
+                  - keyword: ON
+                  - expression:
+                    - column_reference:
+                      - naked_identifier: od
+                      - dot: .
+                      - naked_identifier: ProductID
+                    - comparison_operator:
+                      - raw_comparison_operator: =
+                    - column_reference:
+                      - naked_identifier: p
+                      - dot: .
+                      - naked_identifier: ProductID
               - join_on_condition:
                 - keyword: ON
                 - expression:
                   - column_reference:
-                    - naked_identifier: P_1
+                    - naked_identifier: o
                     - dot: .
-                    - naked_identifier: NID
+                    - naked_identifier: OrderID
                   - comparison_operator:
                     - raw_comparison_operator: =
                   - column_reference:
-                    - naked_identifier: IP_1
+                    - naked_identifier: od
                     - dot: .
-                    - naked_identifier: NID
-      - unparsable:
-        - word: ON
-        - word: I
-        - dot: .
-        - word: PID
-        - raw_comparison_operator: =
-        - word: CAST
-        - start_bracket: (
-        - word: P_1
-        - dot: .
-        - word: IDEID
-        - word: AS
-        - word: varchar
-        - end_bracket: )
-        - word: LEFT
-        - word: OUTER
-        - word: JOIN
-        - word: P
-        - word: AS
-        - word: P_2
-        - word: LEFT
-        - word: OUTER
-        - word: JOIN
-        - word: IP
-        - word: AS
-        - word: IP_2
-        - word: ON
-        - word: P_2
-        - dot: .
-        - word: NID
-        - raw_comparison_operator: =
-        - word: IP_2
-        - dot: .
-        - word: NID
-        - word: ON
-        - word: I
-        - dot: .
-        - word: SecondaryPID
-        - raw_comparison_operator: =
-        - word: CAST
-        - start_bracket: (
-        - word: P_2
-        - dot: .
-        - word: IDEID
-        - word: AS
-        - word: varchar
-        - end_bracket: )
-        - word: ON
-        - word: CAST
-        - start_bracket: (
-        - word: BA
-        - dot: .
-        - word: IDEID
-        - word: AS
-        - word: varchar
-        - end_bracket: )
-        - raw_comparison_operator: =
-        - word: I
-        - dot: .
-        - word: BAID
-        - word: SELECT
-        - numeric_literal: '1'
-        - word: AS
-        - word: RegionCode
-        - word: FROM
-        - word: BA
-        - word: LEFT
-        - word: OUTER
-        - word: JOIN
-        - start_bracket: (
-        - word: I
-        - word: JOIN
-        - word: P
-        - word: ON
-        - word: I
-        - dot: .
-        - word: Pcd
-        - raw_comparison_operator: =
-        - word: P
-        - dot: .
-        - word: Iid
-        - end_bracket: )
-        - word: ON
-        - word: BA
-        - dot: .
-        - word: Iid
-        - raw_comparison_operator: =
-        - word: I
-        - dot: .
-        - word: Bcd
+                    - naked_identifier: OrderID
+            - join_clause:
+              - keyword: LEFT
+              - keyword: OUTER
+              - keyword: JOIN
+              - from_expression_element:
+                - from_expression_element:
+                  - table_expression:
+                    - table_reference:
+                      - object_reference:
+                        - object_reference:
+                          - naked_identifier: Customers
+                  - alias_expression:
+                    - naked_identifier: c
+              - join_on_condition:
+                - keyword: ON
+                - expression:
+                  - column_reference:
+                    - naked_identifier: o
+                    - dot: .
+                    - naked_identifier: CustomerID
+                  - comparison_operator:
+                    - raw_comparison_operator: =
+                  - column_reference:
+                    - naked_identifier: c
+                    - dot: .
+                    - naked_identifier: CustomerID
   - statement_terminator: ;
-  - keyword: GO
   - statement:
     - select_statement:
       - select_clause:
         - select_clause:
           - keyword: SELECT
           - select_clause_element:
-            - column_reference:
-              - naked_identifier: tst1
-              - dot: .
-              - naked_identifier: Name
-          - comma: ','
-          - select_clause_element:
-            - column_reference:
-              - naked_identifier: tst2
-              - dot: .
-              - naked_identifier: OtherName
+            - wildcard_expression:
+              - wildcard_identifier:
+                - star: '*'
       - from_clause:
         - keyword: FROM
         - from_expression:
@@ -247,44 +188,88 @@ file:
                 - table_expression:
                   - table_reference:
                     - object_reference:
-                      - naked_identifier: dbo
-                      - dot: .
-                      - naked_identifier: Test1
+                      - object_reference:
+                        - naked_identifier: table1
                 - alias_expression:
-                  - keyword: AS
-                  - naked_identifier: tst1
-      - unparsable:
-        - word: LEFT
-        - word: OUTER
-        - word: JOIN
-        - start_bracket: (
-        - word: dbo
-        - dot: .
-        - word: Test2
-        - word: AS
-        - word: tst2
-        - word: INNER
-        - word: JOIN
-        - word: dbo
-        - dot: .
-        - word: FilterTable
-        - word: AS
-        - word: fltr1
-        - word: ON
-        - word: tst2
-        - dot: .
-        - word: Id
-        - raw_comparison_operator: =
-        - word: fltr1
-        - dot: .
-        - word: Id
-        - end_bracket: )
-        - word: ON
-        - word: tst1
-        - dot: .
-        - word: id
-        - raw_comparison_operator: =
-        - word: tst2
-        - dot: .
-        - word: id
+                  - naked_identifier: t1
+            - join_clause:
+              - keyword: LEFT
+              - keyword: OUTER
+              - keyword: HASH
+              - keyword: JOIN
+              - from_expression_element:
+                - from_expression_element:
+                  - table_expression:
+                    - table_reference:
+                      - object_reference:
+                        - object_reference:
+                          - naked_identifier: table2
+                  - alias_expression:
+                    - naked_identifier: t2
+              - join_clause:
+                - keyword: INNER
+                - keyword: MERGE
+                - keyword: JOIN
+                - from_expression_element:
+                  - from_expression_element:
+                    - table_expression:
+                      - table_reference:
+                        - object_reference:
+                          - object_reference:
+                            - naked_identifier: table3
+                    - alias_expression:
+                      - naked_identifier: t3
+                - join_on_condition:
+                  - keyword: ON
+                  - expression:
+                    - column_reference:
+                      - naked_identifier: t2
+                      - dot: .
+                      - naked_identifier: id
+                    - comparison_operator:
+                      - raw_comparison_operator: =
+                    - column_reference:
+                      - naked_identifier: t3
+                      - dot: .
+                      - naked_identifier: t2_id
+              - join_on_condition:
+                - keyword: ON
+                - expression:
+                  - column_reference:
+                    - naked_identifier: t1
+                    - dot: .
+                    - naked_identifier: id
+                  - comparison_operator:
+                    - raw_comparison_operator: =
+                  - column_reference:
+                    - naked_identifier: t2
+                    - dot: .
+                    - naked_identifier: t1_id
+            - join_clause:
+              - keyword: FULL
+              - keyword: OUTER
+              - keyword: LOOP
+              - keyword: JOIN
+              - from_expression_element:
+                - from_expression_element:
+                  - table_expression:
+                    - table_reference:
+                      - object_reference:
+                        - object_reference:
+                          - naked_identifier: table4
+                  - alias_expression:
+                    - naked_identifier: t4
+              - join_on_condition:
+                - keyword: ON
+                - expression:
+                  - column_reference:
+                    - naked_identifier: t1
+                    - dot: .
+                    - naked_identifier: id
+                  - comparison_operator:
+                    - raw_comparison_operator: =
+                  - column_reference:
+                    - naked_identifier: t4
+                    - dot: .
+                    - naked_identifier: t1_id
   - statement_terminator: ;

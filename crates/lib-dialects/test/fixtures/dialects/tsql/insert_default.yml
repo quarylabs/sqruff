@@ -7,7 +7,8 @@ file:
         - keyword: INTO
         - table_reference:
           - object_reference:
-            - naked_identifier: mytable
+            - object_reference:
+              - naked_identifier: mytable
         - keyword: DEFAULT
         - keyword: VALUES
   - statement_terminator: ;

@@ -6,9 +6,10 @@ file:
         - keyword: update
         - table_reference:
           - object_reference:
-            - naked_identifier: dbo
-            - dot: .
-            - naked_identifier: Cases
+            - object_reference:
+              - naked_identifier: dbo
+              - dot: .
+              - naked_identifier: Cases
         - set_clause_list:
           - keyword: set
           - set_clause:
@@ -45,9 +46,10 @@ file:
                           - table_expression:
                             - table_reference:
                               - object_reference:
-                                - naked_identifier: dbo
-                                - dot: .
-                                - naked_identifier: CX
+                                - object_reference:
+                                  - naked_identifier: dbo
+                                  - dot: .
+                                  - naked_identifier: CX
               - end_bracket: )
         - keyword: OPTION
         - bracketed:
@@ -64,7 +66,8 @@ file:
         - keyword: update
         - table_reference:
           - object_reference:
-            - naked_identifier: tt
+            - object_reference:
+              - naked_identifier: tt
         - set_clause_list:
           - keyword: set
           - set_clause:
@@ -86,7 +89,8 @@ file:
                   - table_expression:
                     - table_reference:
                       - object_reference:
-                        - naked_identifier: table1
+                        - object_reference:
+                          - naked_identifier: table1
                   - alias_expression:
                     - keyword: as
                     - naked_identifier: tt
@@ -97,7 +101,8 @@ file:
                     - table_expression:
                       - table_reference:
                         - object_reference:
-                          - naked_identifier: src
+                          - object_reference:
+                            - naked_identifier: src
                 - join_on_condition:
                   - keyword: on
                   - expression:
@@ -118,7 +123,8 @@ file:
         - keyword: UPDATE
         - table_reference:
           - object_reference:
-            - naked_identifier: stuff
+            - object_reference:
+              - naked_identifier: stuff
         - set_clause_list:
           - keyword: SET
           - set_clause:
@@ -137,7 +143,8 @@ file:
         - keyword: INTO
         - table_reference:
           - object_reference:
-            - naked_identifier: trash
+            - object_reference:
+              - naked_identifier: trash
         - where_clause:
           - keyword: WHERE
           - expression:

@@ -13,9 +13,10 @@ file:
         - keyword: FROM
         - table_reference:
           - object_reference:
-            - naked_identifier: HumanResources
-            - dot: .
-            - naked_identifier: JobCandidate
+            - object_reference:
+              - naked_identifier: HumanResources
+              - dot: .
+              - naked_identifier: JobCandidate
         - where_clause:
           - keyword: WHERE
           - expression:
@@ -43,9 +44,10 @@ file:
         - keyword: FROM
         - table_reference:
           - object_reference:
-            - naked_identifier: HumanResources
-            - dot: .
-            - naked_identifier: JobCandidate
+            - object_reference:
+              - naked_identifier: HumanResources
+              - dot: .
+              - naked_identifier: JobCandidate
         - where_clause:
           - keyword: WHERE
           - expression:

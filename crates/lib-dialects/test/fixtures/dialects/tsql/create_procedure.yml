@@ -5,7 +5,8 @@ file:
       - keyword: CREATE
       - keyword: PROC
       - object_reference:
-        - quoted_identifier: '[PROCEDURE_NAME]'
+        - object_reference:
+          - quoted_identifier: '[PROCEDURE_NAME]'
       - keyword: AS
       - statement:
         - begin_end_block:
@@ -26,9 +27,10 @@ file:
       - keyword: CREATE
       - keyword: PROCEDURE
       - object_reference:
-        - quoted_identifier: '[dbo]'
-        - dot: .
-        - quoted_identifier: '[TEST]'
+        - object_reference:
+          - quoted_identifier: '[dbo]'
+          - dot: .
+          - quoted_identifier: '[TEST]'
       - keyword: AS
       - statement:
         - begin_end_block:
@@ -49,7 +51,8 @@ file:
       - keyword: ALTER
       - keyword: PROC
       - object_reference:
-        - quoted_identifier: '[PROCEDURE_NAME]'
+        - object_reference:
+          - quoted_identifier: '[PROCEDURE_NAME]'
       - keyword: AS
       - statement:
         - begin_end_block:
@@ -70,7 +73,8 @@ file:
       - keyword: ALTER
       - keyword: PROCEDURE
       - object_reference:
-        - quoted_identifier: '[PROCEDURE_NAME]'
+        - object_reference:
+          - quoted_identifier: '[PROCEDURE_NAME]'
       - keyword: AS
       - statement:
         - begin_end_block:
@@ -93,7 +97,8 @@ file:
       - keyword: ALTER
       - keyword: PROC
       - object_reference:
-        - quoted_identifier: '[PROCEDURE_NAME]'
+        - object_reference:
+          - quoted_identifier: '[PROCEDURE_NAME]'
       - keyword: AS
       - statement:
         - begin_end_block:
@@ -116,7 +121,8 @@ file:
       - keyword: ALTER
       - keyword: PROCEDURE
       - object_reference:
-        - quoted_identifier: '[PROCEDURE_NAME]'
+        - object_reference:
+          - quoted_identifier: '[PROCEDURE_NAME]'
       - keyword: AS
       - statement:
         - begin_end_block:
@@ -137,9 +143,10 @@ file:
       - keyword: CREATE
       - keyword: PROCEDURE
       - object_reference:
-        - quoted_identifier: '[dbo]'
-        - dot: .
-        - quoted_identifier: '[TEST]'
+        - object_reference:
+          - quoted_identifier: '[dbo]'
+          - dot: .
+          - quoted_identifier: '[TEST]'
       - bracketed:
         - start_bracket: (
         - tsql_variable: '@id'
@@ -162,9 +169,10 @@ file:
       - keyword: CREATE
       - keyword: PROCEDURE
       - object_reference:
-        - quoted_identifier: '[dbo]'
-        - dot: .
-        - quoted_identifier: '[TEST]'
+        - object_reference:
+          - quoted_identifier: '[dbo]'
+          - dot: .
+          - quoted_identifier: '[TEST]'
       - bracketed:
         - start_bracket: (
         - tsql_variable: '@id'
@@ -236,34 +244,36 @@ file:
                               - table_expression:
                                 - table_reference:
                                   - object_reference:
-                                    - naked_identifier: dbo
-                                    - dot: .
-                                    - naked_identifier: TEST
+                                    - object_reference:
+                                      - naked_identifier: dbo
+                                      - dot: .
+                                      - naked_identifier: TEST
                 - end_bracket: )
           - statement_terminator: ;
           - statement:
-            - keyword: IF
-            - expression:
-              - parameterized_expression:
-                - tsql_variable: '@id'
-              - keyword: IS
-              - null_literal: 'NULL'
-            - begin_end_block:
-              - keyword: BEGIN
-              - statement:
-                - select_statement:
-                  - select_clause:
+            - if_statement:
+              - keyword: IF
+              - expression:
+                - parameterized_expression:
+                  - tsql_variable: '@id'
+                - keyword: IS
+                - null_literal: 'NULL'
+              - begin_end_block:
+                - keyword: BEGIN
+                - statement:
+                  - select_statement:
                     - select_clause:
-                      - keyword: SELECT
-                      - select_clause_element:
-                        - parameterized_expression:
-                          - tsql_variable: '@bar'
-                      - comma: ','
-                      - select_clause_element:
-                        - parameterized_expression:
-                          - tsql_variable: '@fooReadonly'
-              - statement_terminator: ;
-              - keyword: END
+                      - select_clause:
+                        - keyword: SELECT
+                        - select_clause_element:
+                          - parameterized_expression:
+                            - tsql_variable: '@bar'
+                        - comma: ','
+                        - select_clause_element:
+                          - parameterized_expression:
+                            - tsql_variable: '@fooReadonly'
+                - statement_terminator: ;
+                - keyword: END
           - statement_terminator: ;
           - keyword: END
   - statement_terminator: ;
@@ -273,9 +283,10 @@ file:
       - keyword: CREATE
       - keyword: PROCEDURE
       - object_reference:
-        - quoted_identifier: '[dbo]'
-        - dot: .
-        - quoted_identifier: '[TEST]'
+        - object_reference:
+          - quoted_identifier: '[dbo]'
+          - dot: .
+          - quoted_identifier: '[TEST]'
       - bracketed:
         - start_bracket: (
         - tsql_variable: '@id'
@@ -329,9 +340,10 @@ file:
       - keyword: CREATE
       - keyword: PROCEDURE
       - object_reference:
-        - quoted_identifier: '[dbo]'
-        - dot: .
-        - quoted_identifier: '[TEST]'
+        - object_reference:
+          - quoted_identifier: '[dbo]'
+          - dot: .
+          - quoted_identifier: '[TEST]'
       - bracketed:
         - start_bracket: (
         - tsql_variable: '@id'
@@ -394,9 +406,10 @@ file:
       - keyword: ALTER
       - keyword: PROCEDURE
       - object_reference:
-        - quoted_identifier: '[dbo]'
-        - dot: .
-        - quoted_identifier: '[TEST]'
+        - object_reference:
+          - quoted_identifier: '[dbo]'
+          - dot: .
+          - quoted_identifier: '[TEST]'
       - bracketed:
         - start_bracket: (
         - tsql_variable: '@id'
@@ -465,9 +478,10 @@ file:
       - keyword: ALTER
       - keyword: PROCEDURE
       - object_reference:
-        - quoted_identifier: '[dbo]'
-        - dot: .
-        - quoted_identifier: '[TEST]'
+        - object_reference:
+          - quoted_identifier: '[dbo]'
+          - dot: .
+          - quoted_identifier: '[TEST]'
       - bracketed:
         - start_bracket: (
         - tsql_variable: '@id'
@@ -521,9 +535,10 @@ file:
       - keyword: ALTER
       - keyword: PROCEDURE
       - object_reference:
-        - quoted_identifier: '[dbo]'
-        - dot: .
-        - quoted_identifier: '[TEST]'
+        - object_reference:
+          - quoted_identifier: '[dbo]'
+          - dot: .
+          - quoted_identifier: '[TEST]'
       - bracketed:
         - start_bracket: (
         - tsql_variable: '@id'
@@ -586,18 +601,20 @@ file:
       - keyword: CREATE
       - keyword: PROCEDURE
       - object_reference:
-        - quoted_identifier: '[dbo]'
-        - dot: .
-        - quoted_identifier: '[TEST]'
+        - object_reference:
+          - quoted_identifier: '[dbo]'
+          - dot: .
+          - quoted_identifier: '[TEST]'
       - keyword: AS
       - keyword: EXTERNAL
       - keyword: NAME
       - object_reference:
-        - quoted_identifier: '[dbo]'
-        - dot: .
-        - quoted_identifier: '[class_name]'
-        - dot: .
-        - quoted_identifier: '[static_method]'
+        - object_reference:
+          - quoted_identifier: '[dbo]'
+          - dot: .
+          - quoted_identifier: '[class_name]'
+          - dot: .
+          - quoted_identifier: '[static_method]'
   - statement_terminator: ;
   - keyword: GO
   - statement:
@@ -605,20 +622,22 @@ file:
       - keyword: CREATE
       - keyword: PROCEDURE
       - object_reference:
-        - quoted_identifier: '[dbo]'
-        - dot: .
-        - quoted_identifier: '[TEST]'
+        - object_reference:
+          - quoted_identifier: '[dbo]'
+          - dot: .
+          - quoted_identifier: '[TEST]'
       - statement_terminator: ;
       - numeric_literal: '1064'
       - keyword: AS
       - keyword: EXTERNAL
       - keyword: NAME
       - object_reference:
-        - quoted_identifier: '[dbo]'
-        - dot: .
-        - quoted_identifier: '[class_name]'
-        - dot: .
-        - quoted_identifier: '[static_method]'
+        - object_reference:
+          - quoted_identifier: '[dbo]'
+          - dot: .
+          - quoted_identifier: '[class_name]'
+          - dot: .
+          - quoted_identifier: '[static_method]'
   - statement_terminator: ;
   - keyword: GO
   - statement:
@@ -628,9 +647,10 @@ file:
       - keyword: ALTER
       - keyword: PROCEDURE
       - object_reference:
-        - quoted_identifier: '[dbo]'
-        - dot: .
-        - quoted_identifier: '[TEST]'
+        - object_reference:
+          - quoted_identifier: '[dbo]'
+          - dot: .
+          - quoted_identifier: '[TEST]'
       - bracketed:
         - start_bracket: (
         - tsql_variable: '@id'
@@ -673,11 +693,12 @@ file:
       - keyword: EXTERNAL
       - keyword: NAME
       - object_reference:
-        - quoted_identifier: '[dbo]'
-        - dot: .
-        - quoted_identifier: '[class_name]'
-        - dot: .
-        - quoted_identifier: '[static_method]'
+        - object_reference:
+          - quoted_identifier: '[dbo]'
+          - dot: .
+          - quoted_identifier: '[class_name]'
+          - dot: .
+          - quoted_identifier: '[static_method]'
   - statement_terminator: ;
   - keyword: GO
   - statement:
@@ -687,9 +708,10 @@ file:
       - keyword: ALTER
       - keyword: PROCEDURE
       - object_reference:
-        - naked_identifier: dbo
-        - dot: .
-        - naked_identifier: DoSomething
+        - object_reference:
+          - naked_identifier: dbo
+          - dot: .
+          - naked_identifier: DoSomething
       - keyword: AS
       - statement:
         - begin_end_block:
@@ -713,9 +735,10 @@ file:
       - keyword: ALTER
       - keyword: PROCEDURE
       - object_reference:
-        - naked_identifier: dbo
-        - dot: .
-        - naked_identifier: DoSomething
+        - object_reference:
+          - naked_identifier: dbo
+          - dot: .
+          - naked_identifier: DoSomething
       - keyword: AS
       - statement:
         - begin_end_block:

@@ -8,9 +8,10 @@ file:
       - keyword: ON
       - table_reference:
         - object_reference:
-          - quoted_identifier: '[dbo]'
-          - dot: .
-          - quoted_identifier: '[TEST_FULLTEXT_INDEX]'
+          - object_reference:
+            - quoted_identifier: '[dbo]'
+            - dot: .
+            - quoted_identifier: '[TEST_FULLTEXT_INDEX]'
       - bracketed:
         - start_bracket: (
         - column_reference:
@@ -25,7 +26,8 @@ file:
       - keyword: KEY
       - keyword: INDEX
       - object_reference:
-        - quoted_identifier: '[KEY_INDEX]'
+        - object_reference:
+          - quoted_identifier: '[KEY_INDEX]'
   - statement_terminator: ;
   - statement:
     - create_table_statement:
@@ -35,9 +37,10 @@ file:
       - keyword: ON
       - table_reference:
         - object_reference:
-          - quoted_identifier: '[dbo]'
-          - dot: .
-          - quoted_identifier: '[TEST_FULLTEXT_INDEX]'
+          - object_reference:
+            - quoted_identifier: '[dbo]'
+            - dot: .
+            - quoted_identifier: '[TEST_FULLTEXT_INDEX]'
       - bracketed:
         - start_bracket: (
         - column_reference:
@@ -48,7 +51,8 @@ file:
       - keyword: KEY
       - keyword: INDEX
       - object_reference:
-        - quoted_identifier: '[KEY_INDEX]'
+        - object_reference:
+          - quoted_identifier: '[KEY_INDEX]'
   - statement_terminator: ;
   - statement:
     - create_table_statement:
@@ -58,9 +62,10 @@ file:
       - keyword: ON
       - table_reference:
         - object_reference:
-          - quoted_identifier: '[dbo]'
-          - dot: .
-          - quoted_identifier: '[TEST_FULLTEXT_INDEX]'
+          - object_reference:
+            - quoted_identifier: '[dbo]'
+            - dot: .
+            - quoted_identifier: '[TEST_FULLTEXT_INDEX]'
       - bracketed:
         - start_bracket: (
         - column_reference:
@@ -70,7 +75,8 @@ file:
       - keyword: KEY
       - keyword: INDEX
       - object_reference:
-        - quoted_identifier: '[KEY_INDEX]'
+        - object_reference:
+          - quoted_identifier: '[KEY_INDEX]'
   - statement_terminator: ;
   - statement:
     - create_table_statement:
@@ -80,9 +86,10 @@ file:
       - keyword: ON
       - table_reference:
         - object_reference:
-          - quoted_identifier: '[dbo]'
-          - dot: .
-          - quoted_identifier: '[TEST_FULLTEXT_INDEX]'
+          - object_reference:
+            - quoted_identifier: '[dbo]'
+            - dot: .
+            - quoted_identifier: '[TEST_FULLTEXT_INDEX]'
       - bracketed:
         - start_bracket: (
         - column_reference:
@@ -92,7 +99,8 @@ file:
       - keyword: KEY
       - keyword: INDEX
       - object_reference:
-        - quoted_identifier: '[KEY_INDEX]'
+        - object_reference:
+          - quoted_identifier: '[KEY_INDEX]'
   - statement_terminator: ;
   - statement:
     - create_table_statement:
@@ -102,35 +110,10 @@ file:
       - keyword: ON
       - table_reference:
         - object_reference:
-          - quoted_identifier: '[dbo]'
-          - dot: .
-          - quoted_identifier: '[TEST_FULLTEXT_INDEX]'
-      - bracketed:
-        - start_bracket: (
-        - column_reference:
-          - quoted_identifier: '[id]'
-        - keyword: LANGUAGE
-        - numeric_literal: '1062'
-        - end_bracket: )
-      - keyword: KEY
-      - keyword: INDEX
-      - object_reference:
-        - quoted_identifier: '[PK_IDENTIFIER]'
-      - keyword: ON
-      - object_reference:
-        - quoted_identifier: '[ft_catalog_name]'
-  - statement_terminator: ;
-  - statement:
-    - create_table_statement:
-      - keyword: CREATE
-      - keyword: FULLTEXT
-      - keyword: INDEX
-      - keyword: ON
-      - table_reference:
-        - object_reference:
-          - quoted_identifier: '[dbo]'
-          - dot: .
-          - quoted_identifier: '[TEST_FULLTEXT_INDEX]'
+          - object_reference:
+            - quoted_identifier: '[dbo]'
+            - dot: .
+            - quoted_identifier: '[TEST_FULLTEXT_INDEX]'
       - bracketed:
         - start_bracket: (
         - column_reference:
@@ -141,14 +124,46 @@ file:
       - keyword: KEY
       - keyword: INDEX
       - object_reference:
-        - quoted_identifier: '[PK_IDENTIFIER]'
+        - object_reference:
+          - quoted_identifier: '[PK_IDENTIFIER]'
       - keyword: ON
       - object_reference:
-        - quoted_identifier: '[ft_catalog_name]'
+        - object_reference:
+          - quoted_identifier: '[ft_catalog_name]'
+  - statement_terminator: ;
+  - statement:
+    - create_table_statement:
+      - keyword: CREATE
+      - keyword: FULLTEXT
+      - keyword: INDEX
+      - keyword: ON
+      - table_reference:
+        - object_reference:
+          - object_reference:
+            - quoted_identifier: '[dbo]'
+            - dot: .
+            - quoted_identifier: '[TEST_FULLTEXT_INDEX]'
+      - bracketed:
+        - start_bracket: (
+        - column_reference:
+          - quoted_identifier: '[id]'
+        - keyword: LANGUAGE
+        - numeric_literal: '1062'
+        - end_bracket: )
+      - keyword: KEY
+      - keyword: INDEX
+      - object_reference:
+        - object_reference:
+          - quoted_identifier: '[PK_IDENTIFIER]'
+      - keyword: ON
+      - object_reference:
+        - object_reference:
+          - quoted_identifier: '[ft_catalog_name]'
       - comma: ','
       - keyword: FILEGROUP
       - object_reference:
-        - quoted_identifier: '[filegroup_name]'
+        - object_reference:
+          - quoted_identifier: '[filegroup_name]'
   - statement_terminator: ;
   - statement:
     - create_table_statement:
@@ -158,9 +173,10 @@ file:
       - keyword: ON
       - table_reference:
         - object_reference:
-          - quoted_identifier: '[dbo]'
-          - dot: .
-          - quoted_identifier: '[TEST_FULLTEXT_INDEX]'
+          - object_reference:
+            - quoted_identifier: '[dbo]'
+            - dot: .
+            - quoted_identifier: '[TEST_FULLTEXT_INDEX]'
       - bracketed:
         - start_bracket: (
         - column_reference:
@@ -171,14 +187,17 @@ file:
       - keyword: KEY
       - keyword: INDEX
       - object_reference:
-        - quoted_identifier: '[PK_IDENTIFIER]'
+        - object_reference:
+          - quoted_identifier: '[PK_IDENTIFIER]'
       - keyword: ON
       - keyword: FILEGROUP
       - object_reference:
-        - quoted_identifier: '[filegroup_name]'
+        - object_reference:
+          - quoted_identifier: '[filegroup_name]'
       - comma: ','
       - object_reference:
-        - quoted_identifier: '[ft_catalog_name]'
+        - object_reference:
+          - quoted_identifier: '[ft_catalog_name]'
       - comma: ','
   - statement_terminator: ;
   - statement:
@@ -189,9 +208,10 @@ file:
       - keyword: ON
       - table_reference:
         - object_reference:
-          - quoted_identifier: '[dbo]'
-          - dot: .
-          - quoted_identifier: '[TEST_FULLTEXT_INDEX]'
+          - object_reference:
+            - quoted_identifier: '[dbo]'
+            - dot: .
+            - quoted_identifier: '[TEST_FULLTEXT_INDEX]'
       - bracketed:
         - start_bracket: (
         - column_reference:
@@ -202,11 +222,13 @@ file:
       - keyword: KEY
       - keyword: INDEX
       - object_reference:
-        - quoted_identifier: '[PK_IDENTIFIER]'
+        - object_reference:
+          - quoted_identifier: '[PK_IDENTIFIER]'
       - keyword: ON
       - keyword: FILEGROUP
       - object_reference:
-        - quoted_identifier: '[filegroup_name]'
+        - object_reference:
+          - quoted_identifier: '[filegroup_name]'
   - statement_terminator: ;
   - statement:
     - create_table_statement:
@@ -216,9 +238,10 @@ file:
       - keyword: ON
       - table_reference:
         - object_reference:
-          - quoted_identifier: '[dbo]'
-          - dot: .
-          - quoted_identifier: '[TEST_FULLTEXT_INDEX]'
+          - object_reference:
+            - quoted_identifier: '[dbo]'
+            - dot: .
+            - quoted_identifier: '[TEST_FULLTEXT_INDEX]'
       - bracketed:
         - start_bracket: (
         - column_reference:
@@ -229,10 +252,12 @@ file:
       - keyword: KEY
       - keyword: INDEX
       - object_reference:
-        - quoted_identifier: '[PK_IDENTIFIER]'
+        - object_reference:
+          - quoted_identifier: '[PK_IDENTIFIER]'
       - keyword: ON
       - object_reference:
-        - quoted_identifier: '[ft_catalog_name]'
+        - object_reference:
+          - quoted_identifier: '[ft_catalog_name]'
       - keyword: WITH
       - bracketed:
         - start_bracket: (
@@ -248,9 +273,10 @@ file:
       - keyword: ON
       - table_reference:
         - object_reference:
-          - quoted_identifier: '[dbo]'
-          - dot: .
-          - quoted_identifier: '[TEST_FULLTEXT_INDEX]'
+          - object_reference:
+            - quoted_identifier: '[dbo]'
+            - dot: .
+            - quoted_identifier: '[TEST_FULLTEXT_INDEX]'
       - bracketed:
         - start_bracket: (
         - column_reference:
@@ -261,10 +287,12 @@ file:
       - keyword: KEY
       - keyword: INDEX
       - object_reference:
-        - quoted_identifier: '[PK_IDENTIFIER]'
+        - object_reference:
+          - quoted_identifier: '[PK_IDENTIFIER]'
       - keyword: ON
       - object_reference:
-        - quoted_identifier: '[ft_catalog_name]'
+        - object_reference:
+          - quoted_identifier: '[ft_catalog_name]'
       - keyword: WITH
       - bracketed:
         - start_bracket: (
@@ -282,9 +310,10 @@ file:
       - keyword: ON
       - table_reference:
         - object_reference:
-          - quoted_identifier: '[dbo]'
-          - dot: .
-          - quoted_identifier: '[TEST_FULLTEXT_INDEX]'
+          - object_reference:
+            - quoted_identifier: '[dbo]'
+            - dot: .
+            - quoted_identifier: '[TEST_FULLTEXT_INDEX]'
       - bracketed:
         - start_bracket: (
         - column_reference:
@@ -295,10 +324,12 @@ file:
       - keyword: KEY
       - keyword: INDEX
       - object_reference:
-        - quoted_identifier: '[PK_IDENTIFIER]'
+        - object_reference:
+          - quoted_identifier: '[PK_IDENTIFIER]'
       - keyword: ON
       - object_reference:
-        - quoted_identifier: '[ft_catalog_name]'
+        - object_reference:
+          - quoted_identifier: '[ft_catalog_name]'
       - keyword: WITH
       - bracketed:
         - start_bracket: (
@@ -314,9 +345,10 @@ file:
       - keyword: ON
       - table_reference:
         - object_reference:
-          - quoted_identifier: '[dbo]'
-          - dot: .
-          - quoted_identifier: '[TEST_FULLTEXT_INDEX]'
+          - object_reference:
+            - quoted_identifier: '[dbo]'
+            - dot: .
+            - quoted_identifier: '[TEST_FULLTEXT_INDEX]'
       - bracketed:
         - start_bracket: (
         - column_reference:
@@ -327,10 +359,12 @@ file:
       - keyword: KEY
       - keyword: INDEX
       - object_reference:
-        - quoted_identifier: '[PK_IDENTIFIER]'
+        - object_reference:
+          - quoted_identifier: '[PK_IDENTIFIER]'
       - keyword: ON
       - object_reference:
-        - quoted_identifier: '[ft_catalog_name]'
+        - object_reference:
+          - quoted_identifier: '[ft_catalog_name]'
       - keyword: WITH
       - bracketed:
         - start_bracket: (
@@ -348,9 +382,10 @@ file:
       - keyword: ON
       - table_reference:
         - object_reference:
-          - quoted_identifier: '[dbo]'
-          - dot: .
-          - quoted_identifier: '[TEST_FULLTEXT_INDEX]'
+          - object_reference:
+            - quoted_identifier: '[dbo]'
+            - dot: .
+            - quoted_identifier: '[TEST_FULLTEXT_INDEX]'
       - bracketed:
         - start_bracket: (
         - column_reference:
@@ -361,7 +396,8 @@ file:
       - keyword: KEY
       - keyword: INDEX
       - object_reference:
-        - quoted_identifier: '[PK_IDENTIFIER]'
+        - object_reference:
+          - quoted_identifier: '[PK_IDENTIFIER]'
       - keyword: WITH
       - bracketed:
         - start_bracket: (
@@ -377,9 +413,10 @@ file:
       - keyword: ON
       - table_reference:
         - object_reference:
-          - quoted_identifier: '[dbo]'
-          - dot: .
-          - quoted_identifier: '[TEST_FULLTEXT_INDEX]'
+          - object_reference:
+            - quoted_identifier: '[dbo]'
+            - dot: .
+            - quoted_identifier: '[TEST_FULLTEXT_INDEX]'
       - bracketed:
         - start_bracket: (
         - column_reference:
@@ -390,7 +427,8 @@ file:
       - keyword: KEY
       - keyword: INDEX
       - object_reference:
-        - quoted_identifier: '[PK_IDENTIFIER]'
+        - object_reference:
+          - quoted_identifier: '[PK_IDENTIFIER]'
       - keyword: WITH
       - bracketed:
         - start_bracket: (
@@ -408,9 +446,10 @@ file:
       - keyword: ON
       - table_reference:
         - object_reference:
-          - quoted_identifier: '[dbo]'
-          - dot: .
-          - quoted_identifier: '[TEST_FULLTEXT_INDEX]'
+          - object_reference:
+            - quoted_identifier: '[dbo]'
+            - dot: .
+            - quoted_identifier: '[TEST_FULLTEXT_INDEX]'
       - bracketed:
         - start_bracket: (
         - column_reference:
@@ -421,7 +460,8 @@ file:
       - keyword: KEY
       - keyword: INDEX
       - object_reference:
-        - quoted_identifier: '[PK_IDENTIFIER]'
+        - object_reference:
+          - quoted_identifier: '[PK_IDENTIFIER]'
       - keyword: WITH
       - bracketed:
         - start_bracket: (
@@ -440,9 +480,10 @@ file:
       - keyword: ON
       - table_reference:
         - object_reference:
-          - quoted_identifier: '[dbo]'
-          - dot: .
-          - quoted_identifier: '[TEST_FULLTEXT_INDEX]'
+          - object_reference:
+            - quoted_identifier: '[dbo]'
+            - dot: .
+            - quoted_identifier: '[TEST_FULLTEXT_INDEX]'
       - bracketed:
         - start_bracket: (
         - column_reference:
@@ -453,7 +494,8 @@ file:
       - keyword: KEY
       - keyword: INDEX
       - object_reference:
-        - quoted_identifier: '[PK_IDENTIFIER]'
+        - object_reference:
+          - quoted_identifier: '[PK_IDENTIFIER]'
       - keyword: WITH
       - bracketed:
         - start_bracket: (
@@ -474,9 +516,10 @@ file:
       - keyword: ON
       - table_reference:
         - object_reference:
-          - quoted_identifier: '[dbo]'
-          - dot: .
-          - quoted_identifier: '[TEST_FULLTEXT_INDEX]'
+          - object_reference:
+            - quoted_identifier: '[dbo]'
+            - dot: .
+            - quoted_identifier: '[TEST_FULLTEXT_INDEX]'
       - bracketed:
         - start_bracket: (
         - column_reference:
@@ -487,7 +530,8 @@ file:
       - keyword: KEY
       - keyword: INDEX
       - object_reference:
-        - quoted_identifier: '[PK_IDENTIFIER]'
+        - object_reference:
+          - quoted_identifier: '[PK_IDENTIFIER]'
       - keyword: WITH
       - bracketed:
         - start_bracket: (
@@ -503,9 +547,10 @@ file:
       - keyword: ON
       - table_reference:
         - object_reference:
-          - quoted_identifier: '[dbo]'
-          - dot: .
-          - quoted_identifier: '[TEST_FULLTEXT_INDEX]'
+          - object_reference:
+            - quoted_identifier: '[dbo]'
+            - dot: .
+            - quoted_identifier: '[TEST_FULLTEXT_INDEX]'
       - bracketed:
         - start_bracket: (
         - column_reference:
@@ -516,7 +561,8 @@ file:
       - keyword: KEY
       - keyword: INDEX
       - object_reference:
-        - quoted_identifier: '[PK_IDENTIFIER]'
+        - object_reference:
+          - quoted_identifier: '[PK_IDENTIFIER]'
       - keyword: WITH
       - bracketed:
         - start_bracket: (
@@ -534,9 +580,10 @@ file:
       - keyword: ON
       - table_reference:
         - object_reference:
-          - quoted_identifier: '[dbo]'
-          - dot: .
-          - quoted_identifier: '[TEST_FULLTEXT_INDEX]'
+          - object_reference:
+            - quoted_identifier: '[dbo]'
+            - dot: .
+            - quoted_identifier: '[TEST_FULLTEXT_INDEX]'
       - bracketed:
         - start_bracket: (
         - column_reference:
@@ -547,7 +594,8 @@ file:
       - keyword: KEY
       - keyword: INDEX
       - object_reference:
-        - quoted_identifier: '[PK_IDENTIFIER]'
+        - object_reference:
+          - quoted_identifier: '[PK_IDENTIFIER]'
       - keyword: WITH
       - bracketed:
         - start_bracket: (
@@ -563,9 +611,10 @@ file:
       - keyword: ON
       - table_reference:
         - object_reference:
-          - quoted_identifier: '[dbo]'
-          - dot: .
-          - quoted_identifier: '[TEST_FULLTEXT_INDEX]'
+          - object_reference:
+            - quoted_identifier: '[dbo]'
+            - dot: .
+            - quoted_identifier: '[TEST_FULLTEXT_INDEX]'
       - bracketed:
         - start_bracket: (
         - column_reference:
@@ -576,7 +625,8 @@ file:
       - keyword: KEY
       - keyword: INDEX
       - object_reference:
-        - quoted_identifier: '[PK_IDENTIFIER]'
+        - object_reference:
+          - quoted_identifier: '[PK_IDENTIFIER]'
       - keyword: WITH
       - bracketed:
         - start_bracket: (
@@ -594,9 +644,10 @@ file:
       - keyword: ON
       - table_reference:
         - object_reference:
-          - quoted_identifier: '[dbo]'
-          - dot: .
-          - quoted_identifier: '[TEST_FULLTEXT_INDEX]'
+          - object_reference:
+            - quoted_identifier: '[dbo]'
+            - dot: .
+            - quoted_identifier: '[TEST_FULLTEXT_INDEX]'
       - bracketed:
         - start_bracket: (
         - column_reference:
@@ -607,13 +658,15 @@ file:
       - keyword: KEY
       - keyword: INDEX
       - object_reference:
-        - quoted_identifier: '[PK_IDENTIFIER]'
+        - object_reference:
+          - quoted_identifier: '[PK_IDENTIFIER]'
       - keyword: WITH
       - bracketed:
         - start_bracket: (
         - keyword: STOPLIST
         - object_reference:
-          - quoted_identifier: '[custom_stoplist_name]'
+          - object_reference:
+            - quoted_identifier: '[custom_stoplist_name]'
         - end_bracket: )
   - statement_terminator: ;
   - statement:
@@ -624,9 +677,10 @@ file:
       - keyword: ON
       - table_reference:
         - object_reference:
-          - quoted_identifier: '[dbo]'
-          - dot: .
-          - quoted_identifier: '[TEST_FULLTEXT_INDEX]'
+          - object_reference:
+            - quoted_identifier: '[dbo]'
+            - dot: .
+            - quoted_identifier: '[TEST_FULLTEXT_INDEX]'
       - bracketed:
         - start_bracket: (
         - column_reference:
@@ -637,7 +691,8 @@ file:
       - keyword: KEY
       - keyword: INDEX
       - object_reference:
-        - quoted_identifier: '[PK_IDENTIFIER]'
+        - object_reference:
+          - quoted_identifier: '[PK_IDENTIFIER]'
       - keyword: WITH
       - bracketed:
         - start_bracket: (
@@ -645,7 +700,8 @@ file:
         - comparison_operator:
           - raw_comparison_operator: =
         - object_reference:
-          - quoted_identifier: '[custom_stoplist_name]'
+          - object_reference:
+            - quoted_identifier: '[custom_stoplist_name]'
         - end_bracket: )
   - statement_terminator: ;
   - statement:
@@ -656,9 +712,10 @@ file:
       - keyword: ON
       - table_reference:
         - object_reference:
-          - quoted_identifier: '[dbo]'
-          - dot: .
-          - quoted_identifier: '[TEST_FULLTEXT_INDEX]'
+          - object_reference:
+            - quoted_identifier: '[dbo]'
+            - dot: .
+            - quoted_identifier: '[TEST_FULLTEXT_INDEX]'
       - bracketed:
         - start_bracket: (
         - column_reference:
@@ -669,7 +726,8 @@ file:
       - keyword: KEY
       - keyword: INDEX
       - object_reference:
-        - quoted_identifier: '[PK_IDENTIFIER]'
+        - object_reference:
+          - quoted_identifier: '[PK_IDENTIFIER]'
       - keyword: WITH
       - bracketed:
         - start_bracket: (
@@ -677,7 +735,8 @@ file:
         - keyword: PROPERTY
         - keyword: LIST
         - object_reference:
-          - quoted_identifier: '[property_list_name]'
+          - object_reference:
+            - quoted_identifier: '[property_list_name]'
         - end_bracket: )
   - statement_terminator: ;
   - statement:
@@ -688,9 +747,10 @@ file:
       - keyword: ON
       - table_reference:
         - object_reference:
-          - quoted_identifier: '[dbo]'
-          - dot: .
-          - quoted_identifier: '[TEST_FULLTEXT_INDEX]'
+          - object_reference:
+            - quoted_identifier: '[dbo]'
+            - dot: .
+            - quoted_identifier: '[TEST_FULLTEXT_INDEX]'
       - bracketed:
         - start_bracket: (
         - column_reference:
@@ -701,7 +761,8 @@ file:
       - keyword: KEY
       - keyword: INDEX
       - object_reference:
-        - quoted_identifier: '[PK_IDENTIFIER]'
+        - object_reference:
+          - quoted_identifier: '[PK_IDENTIFIER]'
       - keyword: WITH
       - bracketed:
         - start_bracket: (
@@ -711,6 +772,7 @@ file:
         - comparison_operator:
           - raw_comparison_operator: =
         - object_reference:
-          - quoted_identifier: '[property_list_name]'
+          - object_reference:
+            - quoted_identifier: '[property_list_name]'
         - end_bracket: )
   - statement_terminator: ;

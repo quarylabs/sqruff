@@ -6,9 +6,10 @@ file:
       - keyword: INSERT
       - table_reference:
         - object_reference:
-          - naked_identifier: my_schema
-          - dot: .
-          - naked_identifier: my_table
+          - object_reference:
+            - naked_identifier: my_schema
+            - dot: .
+            - naked_identifier: my_table
       - keyword: FROM
       - quoted_literal: '''data.csv'''
   - statement_terminator: ;
@@ -18,9 +19,10 @@ file:
       - keyword: INSERT
       - table_reference:
         - object_reference:
-          - naked_identifier: my_schema
-          - dot: .
-          - naked_identifier: my_table
+          - object_reference:
+            - naked_identifier: my_schema
+            - dot: .
+            - naked_identifier: my_table
       - keyword: FROM
       - quoted_literal: '''data.csv'''
       - with_data_clause:

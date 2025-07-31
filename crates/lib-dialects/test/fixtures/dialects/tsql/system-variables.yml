@@ -6,9 +6,10 @@ file:
         - keyword: UPDATE
         - table_reference:
           - object_reference:
-            - naked_identifier: HumanResources
-            - dot: .
-            - naked_identifier: Employee
+            - object_reference:
+              - naked_identifier: HumanResources
+              - dot: .
+              - naked_identifier: Employee
         - set_clause_list:
           - keyword: SET
           - set_clause:
@@ -28,34 +29,38 @@ file:
               - raw_comparison_operator: =
             - numeric_literal: '123456789'
   - statement:
-    - keyword: IF
-    - expression:
-      - parameterized_expression:
-        - tsql_variable: '@@ROWCOUNT'
-      - comparison_operator:
-        - raw_comparison_operator: =
-      - numeric_literal: '0'
-    - statement:
-      - keyword: PRINT
+    - if_statement:
+      - keyword: IF
       - expression:
-        - quoted_literal: '''Warning: No rows were updated'''
-    - statement_terminator: ;
-  - statement:
-    - keyword: IF
-    - expression:
-      - parameterized_expression:
-        - tsql_variable: '@@ERROR'
-      - comparison_operator:
-        - raw_comparison_operator: =
-      - numeric_literal: '547'
-    - begin_end_block:
-      - keyword: BEGIN
+        - parameterized_expression:
+          - tsql_variable: '@@ROWCOUNT'
+        - comparison_operator:
+          - raw_comparison_operator: =
+        - numeric_literal: '0'
       - statement:
-        - keyword: PRINT
-        - expression:
-          - quoted_literal: N'A check constraint violation occurred.'
+        - statement:
+          - keyword: PRINT
+          - expression:
+            - quoted_literal: '''Warning: No rows were updated'''
       - statement_terminator: ;
-      - keyword: END
+  - statement:
+    - if_statement:
+      - keyword: IF
+      - expression:
+        - parameterized_expression:
+          - tsql_variable: '@@ERROR'
+        - comparison_operator:
+          - raw_comparison_operator: =
+        - numeric_literal: '547'
+      - begin_end_block:
+        - keyword: BEGIN
+        - statement:
+          - statement:
+            - keyword: PRINT
+            - expression:
+              - quoted_literal: N'A check constraint violation occurred.'
+        - statement_terminator: ;
+        - keyword: END
   - keyword: GO
   - statement:
     - select_statement:
@@ -71,10 +76,11 @@ file:
   - statement_terminator: ;
   - keyword: GO
   - statement:
-    - keyword: PRINT
-    - expression:
-      - parameterized_expression:
-        - tsql_variable: '@@TRANCOUNT'
+    - statement:
+      - keyword: PRINT
+      - expression:
+        - parameterized_expression:
+          - tsql_variable: '@@TRANCOUNT'
   - keyword: GO
   - statement:
     - select_statement:

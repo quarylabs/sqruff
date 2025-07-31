@@ -18,9 +18,10 @@ file:
                 - table_expression:
                   - table_reference:
                     - object_reference:
-                      - naked_identifier: Sales
-                      - dot: .
-                      - naked_identifier: Customer
+                      - object_reference:
+                        - naked_identifier: Sales
+                        - dot: .
+                        - naked_identifier: Customer
                 - sample_expression:
                   - keyword: TABLESAMPLE
                   - keyword: SYSTEM
@@ -48,9 +49,10 @@ file:
                 - table_expression:
                   - table_reference:
                     - object_reference:
-                      - naked_identifier: Sales
-                      - dot: .
-                      - naked_identifier: Customer
+                      - object_reference:
+                        - naked_identifier: Sales
+                        - dot: .
+                        - naked_identifier: Customer
                 - sample_expression:
                   - keyword: TABLESAMPLE
                   - bracketed:
@@ -77,9 +79,10 @@ file:
                 - table_expression:
                   - table_reference:
                     - object_reference:
-                      - naked_identifier: Sales
-                      - dot: .
-                      - naked_identifier: Customer
+                      - object_reference:
+                        - naked_identifier: Sales
+                        - dot: .
+                        - naked_identifier: Customer
                 - sample_expression:
                   - keyword: TABLESAMPLE
                   - bracketed:
@@ -105,9 +108,10 @@ file:
                 - table_expression:
                   - table_reference:
                     - object_reference:
-                      - naked_identifier: Sales
-                      - dot: .
-                      - naked_identifier: Customer
+                      - object_reference:
+                        - naked_identifier: Sales
+                        - dot: .
+                        - naked_identifier: Customer
                 - sample_expression:
                   - keyword: TABLESAMPLE
                   - keyword: SYSTEM

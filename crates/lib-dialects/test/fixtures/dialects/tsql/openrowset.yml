@@ -31,7 +31,8 @@ file:
                       - quoted_literal: '''password'''
                       - comma: ','
                       - object_reference:
-                        - naked_identifier: Customers
+                        - object_reference:
+                          - naked_identifier: Customers
                       - end_bracket: )
                 - alias_expression:
                   - keyword: AS
@@ -65,7 +66,8 @@ file:
                       - quoted_literal: '''Server=Seattle1;Trusted_Connection=yes;'''
                       - comma: ','
                       - object_reference:
-                        - naked_identifier: Department
+                        - object_reference:
+                          - naked_identifier: Department
                       - end_bracket: )
                 - alias_expression:
                   - keyword: AS
@@ -99,11 +101,12 @@ file:
                       - quoted_literal: '''Server=Seattle1;Trusted_Connection=yes;'''
                       - comma: ','
                       - object_reference:
-                        - naked_identifier: AdventureWorks2012
-                        - dot: .
-                        - naked_identifier: HumanResources
-                        - dot: .
-                        - naked_identifier: Department
+                        - object_reference:
+                          - naked_identifier: AdventureWorks2012
+                          - dot: .
+                          - naked_identifier: HumanResources
+                          - dot: .
+                          - naked_identifier: Department
                       - end_bracket: )
                 - alias_expression:
                   - keyword: AS

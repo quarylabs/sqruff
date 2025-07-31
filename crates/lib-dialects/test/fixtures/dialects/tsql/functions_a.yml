@@ -134,7 +134,8 @@ file:
                 - table_expression:
                   - table_reference:
                     - object_reference:
-                      - naked_identifier: tbl_b
+                      - object_reference:
+                        - naked_identifier: tbl_b
   - keyword: GO
   - statement:
     - create_function_statement:
@@ -142,9 +143,10 @@ file:
         - keyword: CREATE
         - keyword: FUNCTION
         - object_reference:
-          - naked_identifier: dbo
-          - dot: .
-          - naked_identifier: RandDate
+          - object_reference:
+            - naked_identifier: dbo
+            - dot: .
+            - naked_identifier: RandDate
         - bracketed:
           - start_bracket: (
           - parameter:
@@ -179,9 +181,10 @@ file:
                               - table_expression:
                                 - table_reference:
                                   - object_reference:
-                                    - naked_identifier: dbo
-                                    - dot: .
-                                    - quoted_identifier: '[RandomDate]'
+                                    - object_reference:
+                                      - naked_identifier: dbo
+                                      - dot: .
+                                      - quoted_identifier: '[RandomDate]'
                 - end_bracket: )
   - statement_terminator: ;
   - keyword: GO
@@ -191,9 +194,10 @@ file:
         - keyword: CREATE
         - keyword: FUNCTION
         - object_reference:
-          - naked_identifier: dbo
-          - dot: .
-          - naked_identifier: no_paramters
+          - object_reference:
+            - naked_identifier: dbo
+            - dot: .
+            - naked_identifier: no_paramters
         - bracketed:
           - start_bracket: (
           - end_bracket: )
@@ -248,7 +252,8 @@ file:
                                 - table_expression:
                                   - table_reference:
                                     - object_reference:
-                                      - naked_identifier: enc
+                                      - object_reference:
+                                        - naked_identifier: enc
                     - end_bracket: )
                 - alias_expression:
                   - keyword: AS
@@ -261,7 +266,8 @@ file:
                   - table_expression:
                     - table_reference:
                       - object_reference:
-                        - naked_identifier: b
+                        - object_reference:
+                          - naked_identifier: b
               - join_on_condition:
                 - keyword: ON
                 - expression:

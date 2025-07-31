@@ -406,7 +406,8 @@ file:
           - comma: ','
   - statement:
     - object_reference:
-      - naked_identifier: Minus
+      - object_reference:
+        - naked_identifier: Minus
     - comma: ','
     - expression:
       - function:
@@ -615,9 +616,10 @@ file:
                                   - table_expression:
                                     - table_reference:
                                       - object_reference:
-                                        - naked_identifier: dbo
-                                        - dot: .
-                                        - naked_identifier: MediaTypes
+                                        - object_reference:
+                                          - naked_identifier: dbo
+                                          - dot: .
+                                          - naked_identifier: MediaTypes
                                   - alias_expression:
                                     - naked_identifier: ms
                         - where_clause:
@@ -980,7 +982,8 @@ file:
                 - table_expression:
                   - table_reference:
                     - object_reference:
-                      - naked_identifier: some_table
+                      - object_reference:
+                        - naked_identifier: some_table
   - statement_terminator: ;
   - statement:
     - select_statement:
@@ -1014,9 +1017,10 @@ file:
                 - table_expression:
                   - table_reference:
                     - object_reference:
-                      - naked_identifier: dbo
-                      - dot: .
-                      - naked_identifier: sql_modules
+                      - object_reference:
+                        - naked_identifier: dbo
+                        - dot: .
+                        - naked_identifier: sql_modules
   - statement_terminator: ;
   - statement:
     - select_statement:

@@ -42,9 +42,10 @@ file:
                       - table_expression:
                         - table_reference:
                           - object_reference:
-                            - naked_identifier: Sales
-                            - dot: .
-                            - naked_identifier: SalesOrderHeader
+                            - object_reference:
+                              - naked_identifier: Sales
+                              - dot: .
+                              - naked_identifier: SalesOrderHeader
             - where_clause:
               - keyword: WHERE
               - expression:
@@ -87,5 +88,6 @@ file:
                   - table_expression:
                     - table_reference:
                       - object_reference:
-                        - naked_identifier: Sales_CTE
+                        - object_reference:
+                          - naked_identifier: Sales_CTE
   - statement_terminator: ;

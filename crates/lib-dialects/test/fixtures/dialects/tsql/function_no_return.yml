@@ -28,8 +28,8 @@ file:
               - object_reference:
                 - naked_identifier: BEGIN
             - expression:
-              - data_type:
-                - data_type_identifier: PRINT
+              - column_reference:
+                - naked_identifier: PRINT
             - expression:
               - quoted_literal: '''You must give a user name'''
             - expression:
@@ -39,8 +39,8 @@ file:
               - data_type:
                 - data_type_identifier: END
             - expression:
-              - data_type:
-                - data_type_identifier: ELSE
+              - column_reference:
+                - naked_identifier: ELSE
             - expression:
               - column_reference:
                 - naked_identifier: BEGIN
@@ -118,6 +118,7 @@ file:
                       - raw_comparison_operator: =
                     - parameterized_expression:
                       - tsql_variable: '@nm'
-                - unparsable:
-                  - word: END
+            - expression:
+              - data_type:
+                - data_type_identifier: END
           - statement_terminator: ;

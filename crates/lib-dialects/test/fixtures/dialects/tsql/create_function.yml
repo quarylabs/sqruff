@@ -200,34 +200,10 @@ file:
                     - binary_operator: +
                     - numeric_literal: '1'
                 - statement_terminator: ;
-            - statement:
-              - if_statement:
-                - keyword: IF
-                - expression:
-                  - bracketed:
-                    - start_bracket: (
+                - statement:
+                  - if_statement:
+                    - keyword: IF
                     - expression:
-                      - bracketed:
-                        - start_bracket: (
-                        - expression:
-                          - function:
-                            - function:
-                              - function_name:
-                                - function_name_identifier: DATEPART
-                              - bracketed:
-                                - start_bracket: (
-                                - datetime_type_identifier:
-                                  - datetime_type_identifier: mm
-                                - comma: ','
-                                - expression:
-                                  - parameterized_expression:
-                                    - tsql_variable: '@DATE'
-                                - end_bracket: )
-                          - comparison_operator:
-                            - raw_comparison_operator: =
-                          - numeric_literal: '12'
-                        - end_bracket: )
-                      - binary_operator: AND
                       - bracketed:
                         - start_bracket: (
                         - expression:
@@ -241,52 +217,76 @@ file:
                                   - bracketed:
                                     - start_bracket: (
                                     - datetime_type_identifier:
-                                      - datetime_type_identifier: dd
+                                      - datetime_type_identifier: mm
                                     - comma: ','
                                     - expression:
                                       - parameterized_expression:
                                         - tsql_variable: '@DATE'
                                     - end_bracket: )
-                              - binary_operator: '-'
-                              - function:
-                                - function:
-                                  - function_name:
-                                    - function_name_identifier: DATEPART
-                                  - bracketed:
-                                    - start_bracket: (
-                                    - datetime_type_identifier:
-                                      - datetime_type_identifier: dw
-                                    - comma: ','
-                                    - expression:
-                                      - parameterized_expression:
-                                        - tsql_variable: '@DATE'
-                                    - end_bracket: )
+                              - comparison_operator:
+                                - raw_comparison_operator: =
+                              - numeric_literal: '12'
                             - end_bracket: )
-                          - comparison_operator:
-                            - raw_comparison_operator: '>'
-                            - raw_comparison_operator: =
-                          - numeric_literal: '28'
+                          - binary_operator: AND
+                          - bracketed:
+                            - start_bracket: (
+                            - expression:
+                              - bracketed:
+                                - start_bracket: (
+                                - expression:
+                                  - function:
+                                    - function:
+                                      - function_name:
+                                        - function_name_identifier: DATEPART
+                                      - bracketed:
+                                        - start_bracket: (
+                                        - datetime_type_identifier:
+                                          - datetime_type_identifier: dd
+                                        - comma: ','
+                                        - expression:
+                                          - parameterized_expression:
+                                            - tsql_variable: '@DATE'
+                                        - end_bracket: )
+                                  - binary_operator: '-'
+                                  - function:
+                                    - function:
+                                      - function_name:
+                                        - function_name_identifier: DATEPART
+                                      - bracketed:
+                                        - start_bracket: (
+                                        - datetime_type_identifier:
+                                          - datetime_type_identifier: dw
+                                        - comma: ','
+                                        - expression:
+                                          - parameterized_expression:
+                                            - tsql_variable: '@DATE'
+                                        - end_bracket: )
+                                - end_bracket: )
+                              - comparison_operator:
+                                - raw_comparison_operator: '>'
+                                - raw_comparison_operator: =
+                              - numeric_literal: '28'
+                            - end_bracket: )
                         - end_bracket: )
-                    - end_bracket: )
-                - statement:
-                  - keyword: SET
-                  - tsql_variable: '@ISOweek'
-                  - assignment_operator:
-                    - raw_comparison_operator: =
-                  - expression:
-                    - numeric_literal: '1'
-                - statement_terminator: ;
-            - statement:
-              - statement:
-                - keyword: RETURN
-                - expression:
-                  - bracketed:
-                    - start_bracket: (
-                    - expression:
-                      - parameterized_expression:
-                        - tsql_variable: '@ISOweek'
-                    - end_bracket: )
-            - statement_terminator: ;
+                    - statement:
+                      - keyword: SET
+                      - tsql_variable: '@ISOweek'
+                      - assignment_operator:
+                        - raw_comparison_operator: =
+                      - expression:
+                        - numeric_literal: '1'
+                    - statement_terminator: ;
+                    - statement:
+                      - statement:
+                        - keyword: RETURN
+                        - expression:
+                          - bracketed:
+                            - start_bracket: (
+                            - expression:
+                              - parameterized_expression:
+                                - tsql_variable: '@ISOweek'
+                            - end_bracket: )
+                    - statement_terminator: ;
             - keyword: END
   - statement_terminator: ;
   - keyword: GO

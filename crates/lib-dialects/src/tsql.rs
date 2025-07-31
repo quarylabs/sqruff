@@ -2893,9 +2893,98 @@ pub fn raw_dialect() -> Dialect {
         .into(),
     )]);
 
-    // Override ALTER TABLE statement to support TSQL-specific features
-    dialect.add([(
-        "AlterTableStatementSegment".into(),
+    // Override ALTER TABLE statement to support TSQL-specific features with comma-separated operations
+    dialect.replace_grammar(
+        "AlterTableStatementSegment",
+        NodeMatcher::new(SyntaxKind::AlterTableStatement, |_| {
+            Sequence::new(vec_of_erased![
+                Ref::keyword("ALTER"),
+                Ref::keyword("TABLE"),
+                Ref::new("TableReferenceSegment"),
+                // Support comma-separated ALTER TABLE operations
+                Delimited::new(vec_of_erased![
+                    one_of(vec_of_erased![
+                        // ADD clauses
+                        Sequence::new(vec_of_erased![
+                            Ref::keyword("ADD"),
+                            one_of(vec_of_erased![
+                                // ADD single column with optional constraint
+                                Ref::new("ColumnDefinitionSegment"),
+                                // ADD CONSTRAINT  
+                                Sequence::new(vec_of_erased![
+                                    Ref::keyword("CONSTRAINT"),
+                                    Ref::new("ObjectReferenceSegment"),
+                                    one_of(vec_of_erased![
+                                        // DEFAULT constraint
+                                        Sequence::new(vec_of_erased![
+                                            Ref::keyword("DEFAULT"),
+                                            Ref::new("ExpressionSegment"),
+                                            Ref::keyword("FOR"),
+                                            Ref::new("ColumnReferenceSegment")
+                                        ]),
+                                        // PRIMARY KEY
+                                        Sequence::new(vec_of_erased![
+                                            Ref::keyword("PRIMARY"),
+                                            Ref::keyword("KEY"),
+                                            one_of(vec_of_erased![
+                                                Ref::keyword("CLUSTERED"),
+                                                Ref::keyword("NONCLUSTERED")
+                                            ]).config(|this| this.optional()),
+                                            Bracketed::new(vec_of_erased![
+                                                Delimited::new(vec_of_erased![
+                                                    Ref::new("ColumnReferenceSegment")
+                                                ])
+                                            ])
+                                        ])
+                                    ])
+                                ])
+                            ])
+                        ]),
+                        // ALTER COLUMN
+                        Sequence::new(vec_of_erased![
+                            Ref::keyword("ALTER"),
+                            Ref::keyword("COLUMN"),
+                            Ref::new("ColumnReferenceSegment"),
+                            Ref::new("DatatypeSegment")
+                        ]),
+                        // DROP clauses
+                        Sequence::new(vec_of_erased![
+                            Ref::keyword("DROP"),
+                            one_of(vec_of_erased![
+                                // DROP COLUMN with support for multiple columns and IF EXISTS
+                                Sequence::new(vec_of_erased![
+                                    Ref::keyword("COLUMN"),
+                                    Sequence::new(vec_of_erased![
+                                        Ref::keyword("IF"),
+                                        Ref::keyword("EXISTS")
+                                    ]).config(|this| this.optional()),
+                                    Delimited::new(vec_of_erased![
+                                        Ref::new("ColumnReferenceSegment")
+                                    ])
+                                ]),
+                                // DROP CONSTRAINT
+                                Sequence::new(vec_of_erased![
+                                    Ref::keyword("CONSTRAINT"),
+                                    Sequence::new(vec_of_erased![
+                                        Ref::keyword("IF"),
+                                        Ref::keyword("EXISTS")
+                                    ]).config(|this| this.optional()),
+                                    Ref::new("ObjectReferenceSegment")
+                                ])
+                            ])
+                        ])
+                    ])
+                ])
+            ])
+            .to_matchable()
+        })
+        .to_matchable(),
+    );
+
+    // Backup: Original complex T-SQL ALTER TABLE grammar (commented out for debugging)
+    /*
+    dialect.replace_grammar(
+        "AlterTableStatementSegmentComplex",
         NodeMatcher::new(SyntaxKind::AlterTableStatement, |_| {
             Sequence::new(vec_of_erased![
                 Ref::keyword("ALTER"),
@@ -3001,16 +3090,10 @@ pub fn raw_dialect() -> Dialect {
                     Sequence::new(vec_of_erased![
                         Ref::keyword("DROP"),
                         one_of(vec_of_erased![
-                            // DROP COLUMN [IF EXISTS] column_list
+                            // DROP COLUMN - simplified version matching ANSI structure
                             Sequence::new(vec_of_erased![
                                 Ref::keyword("COLUMN"),
-                                Sequence::new(vec_of_erased![
-                                    Ref::keyword("IF"),
-                                    Ref::keyword("EXISTS")
-                                ]).config(|this| this.optional()),
-                                Delimited::new(vec_of_erased![
-                                    Ref::new("ColumnReferenceSegment")
-                                ])
+                                Ref::new("SingleIdentifierGrammar")
                             ]),
                             // DROP CONSTRAINT [IF EXISTS] constraint_name
                             Sequence::new(vec_of_erased![
@@ -3183,9 +3266,9 @@ pub fn raw_dialect() -> Dialect {
             ])
             .to_matchable()
         })
-        .to_matchable()
-        .into(),
-    )]);
+        .to_matchable(),
+    );
+    */
 
     // ALTER TABLE SWITCH statement
     dialect.add([(
@@ -3194,7 +3277,7 @@ pub fn raw_dialect() -> Dialect {
             Sequence::new(vec_of_erased![
                 Ref::keyword("ALTER"),
                 Ref::keyword("TABLE"),
-                Ref::new("ObjectReferenceSegment"),
+                Ref::new("TableReferenceSegment"),
                 Ref::keyword("SWITCH"),
                 Sequence::new(vec_of_erased![
                     Ref::keyword("PARTITION"),
@@ -4485,6 +4568,7 @@ pub fn raw_dialect() -> Dialect {
                 Ref::keyword("NONCLUSTERED")
             ]).config(|this| this.optional()),
             // Optional column list with ASC/DESC for T-SQL
+            // This is truly optional to allow standalone UNIQUE constraints
             Bracketed::new(vec_of_erased![
                 Delimited::new(vec_of_erased![
                     Sequence::new(vec_of_erased![

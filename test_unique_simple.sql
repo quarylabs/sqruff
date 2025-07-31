@@ -1,0 +1,1 @@
+ALTER TABLE dbo.doc_exc ADD column_b VARCHAR(20) CONSTRAINT exb_unique UNIQUE

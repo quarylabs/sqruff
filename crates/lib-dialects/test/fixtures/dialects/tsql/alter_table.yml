@@ -24,28 +24,29 @@ file:
   - keyword: GO
   - statement:
     - alter_table_statement:
-      - keyword: ALTER
-      - keyword: TABLE
-      - table_reference:
-        - object_reference:
+      - alter_table_statement:
+        - keyword: ALTER
+        - keyword: TABLE
+        - table_reference:
           - object_reference:
-            - naked_identifier: dbo
-            - dot: .
-            - naked_identifier: doc_exa
-      - keyword: ADD
-      - column_definition:
+            - object_reference:
+              - naked_identifier: dbo
+              - dot: .
+              - naked_identifier: doc_exa
+        - keyword: ADD
         - column_definition:
-          - naked_identifier: column_b
-          - data_type:
+          - column_definition:
+            - naked_identifier: column_b
             - data_type:
-              - data_type_identifier: VARCHAR
-              - bracketed_arguments:
-                - bracketed:
-                  - start_bracket: (
-                  - numeric_literal: '20'
-                  - end_bracket: )
-          - column_constraint_segment:
-            - keyword: 'NULL'
+              - data_type:
+                - data_type_identifier: VARCHAR
+                - bracketed_arguments:
+                  - bracketed:
+                    - start_bracket: (
+                    - numeric_literal: '20'
+                    - end_bracket: )
+            - column_constraint_segment:
+              - keyword: 'NULL'
   - statement_terminator: ;
   - keyword: GO
   - statement:
@@ -72,35 +73,36 @@ file:
   - keyword: GO
   - statement:
     - alter_table_statement:
-      - keyword: ALTER
-      - keyword: TABLE
-      - table_reference:
-        - object_reference:
+      - alter_table_statement:
+        - keyword: ALTER
+        - keyword: TABLE
+        - table_reference:
           - object_reference:
-            - naked_identifier: dbo
-            - dot: .
-            - naked_identifier: doc_exc
-      - keyword: ADD
-      - column_definition:
-        - column_definition:
-          - naked_identifier: column_b
-          - data_type:
-            - data_type:
-              - data_type_identifier: VARCHAR
-              - bracketed_arguments:
-                - bracketed:
-                  - start_bracket: (
-                  - numeric_literal: '20'
-                  - end_bracket: )
-          - column_constraint_segment:
-            - keyword: 'NULL'
-          - column_constraint_segment:
-            - keyword: CONSTRAINT
             - object_reference:
+              - naked_identifier: dbo
+              - dot: .
+              - naked_identifier: doc_exc
+        - keyword: ADD
+        - column_definition:
+          - column_definition:
+            - naked_identifier: column_b
+            - data_type:
+              - data_type:
+                - data_type_identifier: VARCHAR
+                - bracketed_arguments:
+                  - bracketed:
+                    - start_bracket: (
+                    - numeric_literal: '20'
+                    - end_bracket: )
+            - column_constraint_segment:
+              - keyword: 'NULL'
+            - column_constraint_segment:
+              - keyword: CONSTRAINT
               - object_reference:
-                - naked_identifier: exb_unique
-            - keyword: UNIQUE
-- unparsable:
+                - object_reference:
+                  - naked_identifier: exb_unique
+              - keyword: UNIQUE
+- file:
   - comma: ','
   - word: DROP
   - word: COLUMN

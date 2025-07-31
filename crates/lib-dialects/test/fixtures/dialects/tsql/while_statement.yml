@@ -49,17 +49,18 @@ file:
                         - raw_comparison_operator: =
                       - quoted_literal: '''Done'''
                 - end_bracket: )
-            - begin_end_block:
-              - keyword: BEGIN
+            - statement:
+              - begin_end_block:
+                - keyword: BEGIN
+                - statement:
+                  - break_statement:
+                    - keyword: BREAK
+                - statement_terminator: ;
+                - keyword: END
+            - statement:
               - statement:
-                - break_statement:
-                  - keyword: BREAK
-              - statement_terminator: ;
-              - keyword: END
-        - statement:
-          - statement:
-            - keyword: PRINT
-            - expression:
-              - quoted_literal: N'The other process is not yet done.'
-        - statement_terminator: ;
+                - keyword: PRINT
+                - expression:
+                  - quoted_literal: N'The other process is not yet done.'
+            - statement_terminator: ;
         - keyword: END

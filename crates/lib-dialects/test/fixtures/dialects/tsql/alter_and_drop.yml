@@ -4,11 +4,12 @@ file:
     - alter_table_switch_statement:
       - keyword: ALTER
       - keyword: TABLE
-      - object_reference:
+      - table_reference:
         - object_reference:
-          - quoted_identifier: '[REPORTING]'
-          - dot: .
-          - quoted_identifier: '[UN_NEW]'
+          - object_reference:
+            - quoted_identifier: '[REPORTING]'
+            - dot: .
+            - quoted_identifier: '[UN_NEW]'
       - keyword: SWITCH
       - keyword: to
       - object_reference:
@@ -36,7 +37,7 @@ file:
             - dot: .
             - quoted_identifier: '[UN_NEW]'
   - statement_terminator: ;
-- unparsable:
+- file:
   - word: ALTER
   - word: TABLE
   - word: table_name

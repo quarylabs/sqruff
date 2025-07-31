@@ -1,160 +1,182 @@
 file:
 - statement:
   - statement:
-    - object_reference:
-      - object_reference:
-        - naked_identifier: IF
-    - expression:
-      - numeric_literal: '1'
-      - comparison_operator:
-        - raw_comparison_operator: <
-        - raw_comparison_operator: =
-      - bracketed:
-        - start_bracket: (
-        - expression:
-          - select_statement:
-            - select_clause:
+    - if_statement:
+      - keyword: IF
+      - expression:
+        - numeric_literal: '1'
+        - comparison_operator:
+          - raw_comparison_operator: <
+          - raw_comparison_operator: =
+        - bracketed:
+          - start_bracket: (
+          - expression:
+            - select_statement:
               - select_clause:
-                - keyword: SELECT
-                - select_clause_element:
-                  - column_reference:
-                    - naked_identifier: Weight
-            - from_clause:
-              - keyword: from
-              - from_expression:
+                - select_clause:
+                  - keyword: SELECT
+                  - select_clause_element:
+                    - column_reference:
+                      - naked_identifier: Weight
+              - from_clause:
+                - keyword: from
                 - from_expression:
-                  - from_expression_element:
+                  - from_expression:
                     - from_expression_element:
-                      - table_expression:
-                        - table_reference:
-                          - object_reference:
+                      - from_expression_element:
+                        - table_expression:
+                          - table_reference:
                             - object_reference:
-                              - naked_identifier: DimProduct
-            - where_clause:
-              - keyword: WHERE
-              - expression:
+                              - object_reference:
+                                - naked_identifier: DimProduct
+              - where_clause:
+                - keyword: WHERE
+                - expression:
+                  - column_reference:
+                    - naked_identifier: ProductKey
+                  - comparison_operator:
+                    - raw_comparison_operator: =
+                  - numeric_literal: '1'
+          - end_bracket: )
+      - statement:
+        - select_statement:
+          - select_clause:
+            - select_clause:
+              - keyword: SELECT
+              - select_clause_element:
                 - column_reference:
                   - naked_identifier: ProductKey
-                - comparison_operator:
-                  - raw_comparison_operator: =
-                - numeric_literal: '1'
-        - end_bracket: )
-    - expression:
-      - select_statement:
-        - select_clause:
-          - select_clause:
-            - keyword: SELECT
-            - select_clause_element:
+              - comma: ','
+              - select_clause_element:
+                - column_reference:
+                  - naked_identifier: EnglishDescription
+              - comma: ','
+              - select_clause_element:
+                - column_reference:
+                  - naked_identifier: Weight
+              - comma: ','
+              - select_clause_element:
+                - quoted_literal: '''This product is too heavy to ship and is only available for pickup.'''
+                - alias_expression:
+                  - keyword: AS
+                  - naked_identifier: ShippingStatus
+          - from_clause:
+            - keyword: FROM
+            - from_expression:
+              - from_expression:
+                - from_expression_element:
+                  - from_expression_element:
+                    - table_expression:
+                      - table_reference:
+                        - object_reference:
+                          - object_reference:
+                            - naked_identifier: DimProduct
+          - where_clause:
+            - keyword: WHERE
+            - expression:
               - column_reference:
                 - naked_identifier: ProductKey
-            - comma: ','
-            - select_clause_element:
-              - column_reference:
-                - naked_identifier: EnglishDescription
-            - comma: ','
-            - select_clause_element:
-              - column_reference:
-                - naked_identifier: Weight
-            - comma: ','
-            - select_clause_element:
-              - quoted_literal: '''This product is too heavy to ship and is only available for pickup.'''
-              - alias_expression:
-                - keyword: AS
-                - naked_identifier: ShippingStatus
-        - from_clause:
-          - keyword: FROM
-          - from_expression:
+              - comparison_operator:
+                - raw_comparison_operator: =
+              - numeric_literal: '1'
+      - keyword: ELSE
+      - statement:
+        - select_statement:
+          - select_clause:
+            - select_clause:
+              - keyword: SELECT
+              - select_clause_element:
+                - column_reference:
+                  - naked_identifier: ProductKey
+              - comma: ','
+              - select_clause_element:
+                - column_reference:
+                  - naked_identifier: EnglishDescription
+              - comma: ','
+              - select_clause_element:
+                - column_reference:
+                  - naked_identifier: Weight
+              - comma: ','
+              - select_clause_element:
+                - quoted_literal: '''This product is available for shipping or pickup.'''
+                - alias_expression:
+                  - keyword: AS
+                  - naked_identifier: ShippingStatus
+          - from_clause:
+            - keyword: FROM
             - from_expression:
-              - from_expression_element:
+              - from_expression:
                 - from_expression_element:
-                  - table_expression:
-                    - table_reference:
-                      - object_reference:
+                  - from_expression_element:
+                    - table_expression:
+                      - table_reference:
                         - object_reference:
-                          - naked_identifier: DimProduct
-        - where_clause:
-          - keyword: WHERE
+                          - object_reference:
+                            - naked_identifier: DimProduct
+          - where_clause:
+            - keyword: WHERE
+            - expression:
+              - column_reference:
+                - naked_identifier: ProductKey
+              - comparison_operator:
+                - raw_comparison_operator: =
+              - numeric_literal: '1'
+      - statement:
+        - if_statement:
+          - keyword: if
           - expression:
-            - column_reference:
-              - naked_identifier: ProductKey
-            - comparison_operator:
+            - keyword: exists
+            - bracketed:
+              - start_bracket: (
+              - set_expression:
+                - set_expression:
+                  - select_statement:
+                    - select_clause:
+                      - select_clause:
+                        - keyword: select
+                        - select_clause_element:
+                          - wildcard_expression:
+                            - wildcard_identifier:
+                              - star: '*'
+                    - from_clause:
+                      - keyword: from
+                      - from_expression:
+                        - from_expression:
+                          - from_expression_element:
+                            - from_expression_element:
+                              - table_expression:
+                                - table_reference:
+                                  - object_reference:
+                                    - object_reference:
+                                      - naked_identifier: '#a'
+                  - set_operator:
+                    - keyword: union
+                    - keyword: all
+                  - select_statement:
+                    - select_clause:
+                      - select_clause:
+                        - keyword: select
+                        - select_clause_element:
+                          - wildcard_expression:
+                            - wildcard_identifier:
+                              - star: '*'
+                    - from_clause:
+                      - keyword: from
+                      - from_expression:
+                        - from_expression:
+                          - from_expression_element:
+                            - from_expression_element:
+                              - table_expression:
+                                - table_reference:
+                                  - object_reference:
+                                    - object_reference:
+                                      - naked_identifier: '#b'
+              - end_bracket: )
+          - statement:
+            - keyword: set
+            - tsql_variable: '@var'
+            - assignment_operator:
               - raw_comparison_operator: =
-            - numeric_literal: '1'
-        - unparsable:
-          - word: ELSE
-          - word: SELECT
-          - word: ProductKey
-          - comma: ','
-          - word: EnglishDescription
-          - comma: ','
-          - word: Weight
-          - comma: ','
-          - single_quote: '''This product is available for shipping or pickup.'''
-          - word: AS
-          - word: ShippingStatus
-          - word: FROM
-          - word: DimProduct
-          - word: WHERE
-          - word: ProductKey
-          - raw_comparison_operator: =
-          - numeric_literal: '1'
-    - expression:
-      - column_reference:
-        - naked_identifier: if
-    - expression:
-      - keyword: exists
-      - bracketed:
-        - start_bracket: (
-        - set_expression:
-          - set_expression:
-            - select_statement:
-              - select_clause:
-                - select_clause:
-                  - keyword: select
-                  - select_clause_element:
-                    - wildcard_expression:
-                      - wildcard_identifier:
-                        - star: '*'
-              - from_clause:
-                - keyword: from
-                - from_expression:
-                  - from_expression:
-                    - from_expression_element:
-                      - from_expression_element:
-                        - table_expression:
-                          - table_reference:
-                            - object_reference:
-                              - object_reference:
-                                - naked_identifier: '#a'
-            - set_operator:
-              - keyword: union
-              - keyword: all
-            - select_statement:
-              - select_clause:
-                - select_clause:
-                  - keyword: select
-                  - select_clause_element:
-                    - wildcard_expression:
-                      - wildcard_identifier:
-                        - star: '*'
-              - from_clause:
-                - keyword: from
-                - from_expression:
-                  - from_expression:
-                    - from_expression_element:
-                      - from_expression_element:
-                        - table_expression:
-                          - table_reference:
-                            - object_reference:
-                              - object_reference:
-                                - naked_identifier: '#b'
-        - end_bracket: )
-    - expression:
-      - data_type:
-        - data_type_identifier: set
-    - tsql_variable: '@var'
-    - assignment_operator:
-      - raw_comparison_operator: =
-    - expression:
-      - numeric_literal: '1'
-  - statement_terminator: ;
+            - expression:
+              - numeric_literal: '1'
+          - statement_terminator: ;

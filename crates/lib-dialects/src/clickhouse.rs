@@ -564,9 +564,113 @@ pub fn dialect() -> Dialect {
     clickhouse_dialect.replace_grammar(
         "DatatypeSegment",
         one_of(vec_of_erased![
+            // Nullable(Type)
             Sequence::new(vec_of_erased![
                 StringParser::new("NULLABLE", SyntaxKind::DataTypeIdentifier),
                 Bracketed::new(vec_of_erased![Ref::new("DatatypeSegment")]),
+            ]),
+            // LowCardinality(Type)
+            Sequence::new(vec_of_erased![
+                StringParser::new("LOWCARDINALITY", SyntaxKind::DataTypeIdentifier),
+                Bracketed::new(vec_of_erased![Ref::new("DatatypeSegment")]),
+            ]),
+            // DateTime64(precision, 'timezone')
+            Sequence::new(vec_of_erased![
+                StringParser::new("DATETIME64", SyntaxKind::DataTypeIdentifier),
+                Bracketed::new(vec_of_erased![
+                    Delimited::new(vec_of_erased![one_of(vec_of_erased![
+                        Ref::new("NumericLiteralSegment"), // precision
+                        Ref::new("QuotedLiteralSegment"),  // timezone
+                    ])])
+                    .config(|this| {
+                        this.optional();
+                    }),
+                ]),
+            ]),
+            // DateTime('timezone')
+            Sequence::new(vec_of_erased![
+                StringParser::new("DATETIME", SyntaxKind::DataTypeIdentifier),
+                Bracketed::new(vec_of_erased![Ref::new("QuotedLiteralSegment")])
+                    .config(|this| this.optional()),
+            ]),
+            // FixedString(length)
+            Sequence::new(vec_of_erased![
+                StringParser::new("FIXEDSTRING", SyntaxKind::DataTypeIdentifier),
+                Bracketed::new(vec_of_erased![Ref::new("NumericLiteralSegment")]),
+            ]),
+            // Array(Type)
+            Sequence::new(vec_of_erased![
+                StringParser::new("ARRAY", SyntaxKind::DataTypeIdentifier),
+                Bracketed::new(vec_of_erased![Ref::new("DatatypeSegment")]),
+            ]),
+            // Map(KeyType, ValueType)
+            Sequence::new(vec_of_erased![
+                StringParser::new("MAP", SyntaxKind::DataTypeIdentifier),
+                Bracketed::new(vec_of_erased![Delimited::new(vec_of_erased![Ref::new(
+                    "DatatypeSegment"
+                )])]),
+            ]),
+            // Tuple(Type1, Type2) or Tuple(name1 Type1, ...)
+            Sequence::new(vec_of_erased![
+                StringParser::new("TUPLE", SyntaxKind::DataTypeIdentifier),
+                Bracketed::new(vec_of_erased![Delimited::new(vec_of_erased![one_of(
+                    vec_of_erased![
+                        // Named tuple element: name Type
+                        Sequence::new(vec_of_erased![
+                            one_of(vec_of_erased![
+                                Ref::new("SingleIdentifierGrammar"),
+                                Ref::new("QuotedIdentifierSegment"),
+                            ]),
+                            Ref::new("DatatypeSegment"),
+                        ]),
+                        // Regular tuple element: just Type
+                        Ref::new("DatatypeSegment"),
+                    ]
+                )]),]),
+            ]),
+            // Nested(name1 Type1, name2 Type2)
+            Sequence::new(vec_of_erased![
+                StringParser::new("NESTED", SyntaxKind::DataTypeIdentifier),
+                Bracketed::new(vec_of_erased![Delimited::new(vec_of_erased![
+                    Sequence::new(vec_of_erased![
+                        Ref::new("SingleIdentifierGrammar"),
+                        Ref::new("DatatypeSegment"),
+                    ])
+                ]),]),
+            ]),
+            // JSON data type
+            StringParser::new("JSON", SyntaxKind::DataTypeIdentifier),
+            // Enum8('val1' = 1, 'val2' = 2)
+            Sequence::new(vec_of_erased![
+                one_of(vec_of_erased![
+                    StringParser::new("ENUM8", SyntaxKind::DataTypeIdentifier),
+                    StringParser::new("ENUM16", SyntaxKind::DataTypeIdentifier),
+                ]),
+                Bracketed::new(vec_of_erased![Delimited::new(vec_of_erased![
+                    Sequence::new(vec_of_erased![
+                        Ref::new("QuotedLiteralSegment"),
+                        Ref::new("EqualsSegment"),
+                        Ref::new("NumericLiteralSegment"),
+                    ])
+                ]),]),
+            ]),
+            // double args
+            Sequence::new(vec_of_erased![
+                one_of(vec_of_erased![
+                    StringParser::new("DECIMAL", SyntaxKind::DataTypeIdentifier),
+                    StringParser::new("NUMERIC", SyntaxKind::DataTypeIdentifier),
+                ]),
+                Ref::new("BracketedArguments").optional(),
+            ]),
+            // single args
+            Sequence::new(vec_of_erased![
+                one_of(vec_of_erased![
+                    StringParser::new("DECIMAL32", SyntaxKind::DataTypeIdentifier),
+                    StringParser::new("DECIMAL64", SyntaxKind::DataTypeIdentifier),
+                    StringParser::new("DECIMAL128", SyntaxKind::DataTypeIdentifier),
+                    StringParser::new("DECIMAL256", SyntaxKind::DataTypeIdentifier),
+                ]),
+                Bracketed::new(vec_of_erased![Ref::new("NumericLiteralSegment"),]),
             ]),
             Ref::new("TupleTypeSegment"),
             Ref::new("DatatypeIdentifierSegment"),
@@ -1131,10 +1235,28 @@ pub fn dialect() -> Dialect {
                     Sequence::new(vec_of_erased![
                         Ref::keyword("TO"),
                         Ref::new("TableReferenceSegment"),
+                        // Add support for column list in TO clause
+                        Bracketed::new(vec_of_erased![Delimited::new(vec_of_erased![Ref::new(
+                            "SingleIdentifierGrammar"
+                        ),])])
+                        .config(|this| this.optional()),
                         Ref::new("TableEngineSegment").optional(),
                     ]),
                     Sequence::new(vec_of_erased![
                         Ref::new("TableEngineSegment").optional(),
+                        // Add support for PARTITION BY clause
+                        Sequence::new(vec_of_erased![
+                            Ref::keyword("PARTITION"),
+                            Ref::keyword("BY"),
+                            Ref::new("ExpressionSegment"),
+                        ])
+                        .config(|this| this.optional()),
+                        // Add support for ORDER BY clause
+                        Ref::new("MergeTreesOrderByClauseSegment").optional(),
+                        // Add support for TTL clause
+                        Ref::new("TableTTLSegment").optional(),
+                        // Add support for SETTINGS clause
+                        Ref::new("SettingsClauseSegment").optional(),
                         Ref::keyword("POPULATE").optional(),
                     ]),
                 ]),
@@ -1690,6 +1812,11 @@ pub fn dialect() -> Dialect {
                             ])
                             .config(|this| this.optional()),
                             Sequence::new(vec_of_erased![
+                                Ref::keyword("ALIAS"),
+                                Ref::new("ExpressionSegment"),
+                            ])
+                            .config(|this| this.optional()),
+                            Sequence::new(vec_of_erased![
                                 Ref::keyword("CODEC"),
                                 Bracketed::new(vec_of_erased![Delimited::new(vec_of_erased![
                                     one_of(vec_of_erased![
@@ -1705,6 +1832,8 @@ pub fn dialect() -> Dialect {
                             Ref::keyword("ALIAS"),
                             Ref::new("ExpressionSegment"),
                         ]),
+                        // Remove alias
+                        Sequence::new(vec_of_erased![Ref::keyword("REMOVE"), Ref::new("ALIAS"),]),
                         // Remove property
                         Sequence::new(vec_of_erased![
                             Ref::keyword("REMOVE"),
@@ -1773,6 +1902,12 @@ pub fn dialect() -> Dialect {
                     Ref::keyword("MODIFY"),
                     Ref::keyword("TTL"),
                     Ref::new("ExpressionSegment"),
+                ]),
+                // ALTER TABLE ... MODIFY QUERY select_statement
+                Sequence::new(vec_of_erased![
+                    Ref::keyword("MODIFY"),
+                    Ref::keyword("QUERY"),
+                    Ref::new("SelectStatementSegment"),
                 ]),
                 // ALTER TABLE ... MATERIALIZE COLUMN col
                 Sequence::new(vec_of_erased![
@@ -1889,6 +2024,55 @@ pub fn dialect() -> Dialect {
                     Ref::new("DatetimeUnitSegment"),
                 ]),
             ]),
+        ])
+        .to_matchable(),
+    );
+
+    clickhouse_dialect.replace_grammar(
+        "ColumnDefinitionSegment",
+        Sequence::new(vec_of_erased![
+            one_of(vec_of_erased![
+                Ref::new("SingleIdentifierGrammar"),
+                Ref::new("QuotedIdentifierSegment"),
+            ]),
+            Ref::new("DatatypeSegment"),
+            AnyNumberOf::new(vec_of_erased![one_of(vec_of_erased![
+                // DEFAULT expression
+                Sequence::new(vec_of_erased![
+                    Ref::keyword("DEFAULT"),
+                    one_of(vec_of_erased![
+                        Ref::new("LiteralGrammar"),
+                        Ref::new("FunctionSegment"),
+                        Ref::new("ExpressionSegment"),
+                    ]),
+                ]),
+                // ALIAS expression
+                Sequence::new(vec_of_erased![
+                    Ref::keyword("ALIAS"),
+                    Ref::new("ExpressionSegment"),
+                ]),
+                // MATERIALIZED expression
+                Sequence::new(vec_of_erased![
+                    Ref::keyword("MATERIALIZED"),
+                    Ref::new("ExpressionSegment"),
+                ]),
+                // CODEC(...)
+                Sequence::new(vec_of_erased![
+                    Ref::keyword("CODEC"),
+                    Bracketed::new(vec_of_erased![Delimited::new(vec_of_erased![
+                        Ref::new("FunctionSegment"),
+                        Ref::new("SingleIdentifierGrammar"),
+                    ]),]),
+                ]),
+                // COMMENT 'text'
+                Sequence::new(vec_of_erased![
+                    Ref::keyword("COMMENT"),
+                    Ref::new("QuotedLiteralSegment"),
+                ]),
+                // Column constraint
+                Ref::new("ColumnConstraintSegment"),
+            ])])
+            .config(|this| this.optional()),
         ])
         .to_matchable(),
     );

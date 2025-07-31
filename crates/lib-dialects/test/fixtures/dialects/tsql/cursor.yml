@@ -1,14 +1,28 @@
 file:
 - statement:
   - statement:
-    - declare_cursor_statement:
-      - keyword: DECLARE
-      - naked_identifier: pointy
-      - keyword: CURSOR
-      - keyword: LOCAL
-      - keyword: FORWARD_ONLY
-      - keyword: READ_ONLY
-      - keyword: FOR
+    - object_reference:
+      - object_reference:
+        - naked_identifier: DECLARE
+    - expression:
+      - column_reference:
+        - naked_identifier: pointy
+    - expression:
+      - column_reference:
+        - naked_identifier: CURSOR
+    - expression:
+      - column_reference:
+        - naked_identifier: LOCAL
+    - expression:
+      - column_reference:
+        - naked_identifier: FORWARD_ONLY
+    - expression:
+      - column_reference:
+        - naked_identifier: READ_ONLY
+    - expression:
+      - column_reference:
+        - naked_identifier: FOR
+    - expression:
       - select_statement:
         - select_clause:
           - select_clause:
@@ -44,10 +58,12 @@ file:
           - keyword: BY
           - column_reference:
             - naked_identifier: column_b
-  - statement:
-    - statement:
-      - keyword: OPEN
-      - naked_identifier: pointy
+    - expression:
+      - column_reference:
+        - naked_identifier: OPEN
+    - expression:
+      - column_reference:
+        - naked_identifier: pointy
   - statement_terminator: ;
   - statement:
     - statement:

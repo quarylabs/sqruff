@@ -400,7 +400,20 @@ pub fn raw_dialect() -> Dialect {
                         this.delimiter(Ref::new("DotSegment"));
                         this.disallow_gaps();
                         this.terminators = vec_of_erased![Ref::new("ObjectReferenceTerminatorGrammar")];
-                    })
+                    }),
+                // T-SQL double-dot syntax: server..table, database..table (default schema)
+                Sequence::new(vec_of_erased![
+                    Ref::new("SingleIdentifierGrammar"), // server/database name
+                    Ref::new("DotSegment"),
+                    Ref::new("DotSegment"), 
+                    // Then the remaining identifier parts
+                    Delimited::new(vec_of_erased![Ref::new("SingleIdentifierGrammar")])
+                        .config(|this| {
+                            this.delimiter(Ref::new("DotSegment"));
+                            this.disallow_gaps();
+                            this.terminators = vec_of_erased![Ref::new("ObjectReferenceTerminatorGrammar")];
+                        })
+                ])
             ])
             .to_matchable()
         })
@@ -643,31 +656,32 @@ pub fn raw_dialect() -> Dialect {
                             ])
                         ])
                     ]),
-                    // Provider syntax: OPENROWSET('provider', 'connection_string', 'table_name')
-                    // Connection string can contain semicolons instead of commas
+                    // Provider syntax: OPENROWSET('provider', ...)
+                    // Can use either commas or semicolons as separators
                     Sequence::new(vec_of_erased![
-                        Ref::new("QuotedLiteralSegment"),
-                        Ref::new("CommaSegment"),
-                        // Flexible connection string that may contain semicolons
-                        // Can be: 'simple_string' or 'part1';'part2';'part3'[;...]
+                        Ref::new("QuotedLiteralSegment"), // Provider name
                         one_of(vec_of_erased![
-                            // Simple connection string without semicolons
-                            Ref::new("QuotedLiteralSegment"),
-                            // Complex connection string with semicolons (flexible number of parts)
+                            // Standard comma-separated syntax
                             Sequence::new(vec_of_erased![
-                                Ref::new("QuotedLiteralSegment"),
-                                AnyNumberOf::new(vec_of_erased![
-                                    Sequence::new(vec_of_erased![
-                                        Ref::new("SemicolonSegment"),
-                                        Ref::new("QuotedLiteralSegment")
-                                    ])
-                                ]).config(|this| this.min_times(1))
+                                Ref::new("CommaSegment"),
+                                Ref::new("QuotedLiteralSegment"), // Connection string
+                                Ref::new("CommaSegment"),
+                                one_of(vec_of_erased![
+                                    Ref::new("ObjectReferenceSegment"), // Table/view name
+                                    Ref::new("QuotedLiteralSegment")    // Query string
+                                ])
+                            ]),
+                            // Semicolon-separated syntax (e.g., for Jet OLEDB provider)
+                            Sequence::new(vec_of_erased![
+                                Ref::new("CommaSegment"),
+                                Ref::new("QuotedLiteralSegment"), // Data source
+                                Ref::new("SemicolonSegment"),
+                                Ref::new("QuotedLiteralSegment"), // User ID
+                                Ref::new("SemicolonSegment"), 
+                                Ref::new("QuotedLiteralSegment"), // Password
+                                Ref::new("CommaSegment"),
+                                Ref::new("ObjectReferenceSegment") // Table name
                             ])
-                        ]),
-                        Ref::new("CommaSegment"),
-                        one_of(vec_of_erased![
-                            Ref::new("ObjectReferenceSegment"),
-                            Ref::new("QuotedLiteralSegment")
                         ])
                     ])
                 ])])
@@ -857,9 +871,14 @@ pub fn raw_dialect() -> Dialect {
     dialect.add([(
         "NakedIdentifierSegment".into(),
         SegmentGenerator::new(|dialect| {
-            // Generate the anti template from the set of reserved keywords
+            // Generate the anti template from truly reserved keywords (reserved - unreserved)
+            // This allows unreserved keywords like ROWS to be used as identifiers
             let reserved_keywords = dialect.sets("reserved_keywords");
-            let pattern = reserved_keywords.iter().join("|");
+            let unreserved_keywords = dialect.sets("unreserved_keywords");
+            let truly_reserved: std::collections::HashSet<_> = reserved_keywords
+                .difference(&unreserved_keywords)
+                .collect();
+            let pattern = truly_reserved.iter().join("|");
             let anti_template = format!("^({pattern})$");
 
             // T-SQL pattern: supports both temp tables (#temp, ##global) and identifiers ending with #
@@ -6716,7 +6735,7 @@ pub fn raw_dialect() -> Dialect {
                         Ref::keyword("NATIVE_COMPILATION"),
                         Ref::keyword("SCHEMABINDING")
                     ]),
-                    Ref::new("ExecuteAsClause").optional()
+                    Ref::new("ExecuteAsClauseGrammar").optional()
                 ])
                 .config(|this| this.optional()),
                 // Trigger timing

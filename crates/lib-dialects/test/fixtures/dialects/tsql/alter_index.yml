@@ -18,7 +18,9 @@ file:
     - alter_index_statement:
       - keyword: ALTER
       - keyword: INDEX
-      - keyword: ALL
+      - object_reference:
+        - object_reference:
+          - naked_identifier: ALL
       - keyword: ON
       - table_reference:
         - object_reference:
@@ -270,7 +272,9 @@ file:
     - alter_index_statement:
       - keyword: ALTER
       - keyword: INDEX
-      - keyword: ALL
+      - object_reference:
+        - object_reference:
+          - naked_identifier: ALL
       - keyword: ON
       - table_reference:
         - object_reference:

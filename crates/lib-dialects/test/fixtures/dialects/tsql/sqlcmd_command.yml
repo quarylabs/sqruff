@@ -1,0 +1,20 @@
+file:
+- unparsable:
+  - colon: ':'
+  - word: r
+  - word: script
+  - dot: .
+  - word: sql
+  - colon: ':'
+  - word: r
+  - word: script#
+  - word: 01_a
+  - minus: '-'
+  - word: b
+  - dot: .
+  - word: sql
+  - colon: ':'
+  - word: r
+  - dot: .
+  - dot: .
+  - dot: .

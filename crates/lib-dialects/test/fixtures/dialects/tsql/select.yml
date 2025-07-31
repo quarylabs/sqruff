@@ -267,14 +267,12 @@ file:
               - naked_identifier: DEADLOCK_PRIORITY
           - comma: ','
           - select_clause_element:
-            - expression:
-              - data_type:
-                - data_type_identifier: DISK
+            - column_reference:
+              - naked_identifier: DISK
           - comma: ','
           - select_clause_element:
-            - expression:
-              - data_type:
-                - data_type_identifier: DUMP
+            - column_reference:
+              - naked_identifier: DUMP
           - comma: ','
           - select_clause_element:
             - column_reference:
@@ -293,9 +291,8 @@ file:
               - naked_identifier: IMPLICIT_TRANSACTIONS
           - comma: ','
           - select_clause_element:
-            - expression:
-              - data_type:
-                - data_type_identifier: LOAD
+            - column_reference:
+              - naked_identifier: LOAD
           - comma: ','
           - select_clause_element:
             - column_reference:
@@ -318,9 +315,8 @@ file:
               - naked_identifier: PARSEONLY
           - comma: ','
           - select_clause_element:
-            - expression:
-              - data_type:
-                - data_type_identifier: PRECISION
+            - column_reference:
+              - naked_identifier: PRECISION
           - comma: ','
           - select_clause_element:
             - column_reference:
@@ -360,9 +356,8 @@ file:
               - naked_identifier: XACT_ABORT
           - comma: ','
           - select_clause_element:
-            - expression:
-              - data_type:
-                - data_type_identifier: Rows
+            - column_reference:
+              - naked_identifier: Rows
           - comma: ','
           - select_clause_element:
             - column_reference:
@@ -440,8 +435,8 @@ file:
                   - keyword: desc
               - end_bracket: )
     - expression:
-      - data_type:
-        - data_type_identifier: AS
+      - column_reference:
+        - naked_identifier: AS
     - expression:
       - column_reference:
         - quoted_identifier: '[RN]'
@@ -473,8 +468,8 @@ file:
                   - keyword: desc
               - end_bracket: )
     - expression:
-      - data_type:
-        - data_type_identifier: AS
+      - column_reference:
+        - naked_identifier: AS
     - expression:
       - column_reference:
         - quoted_identifier: '[R]'
@@ -506,8 +501,8 @@ file:
                   - keyword: desc
               - end_bracket: )
     - expression:
-      - data_type:
-        - data_type_identifier: AS
+      - column_reference:
+        - naked_identifier: AS
     - expression:
       - column_reference:
         - quoted_identifier: '[DR]'
@@ -541,8 +536,8 @@ file:
                   - keyword: desc
               - end_bracket: )
     - expression:
-      - data_type:
-        - data_type_identifier: AS
+      - column_reference:
+        - naked_identifier: AS
     - expression:
       - column_reference:
         - quoted_identifier: '[NT]'
@@ -644,8 +639,8 @@ file:
                   - keyword: DESC
               - end_bracket: )
     - expression:
-      - data_type:
-        - data_type_identifier: AS
+      - column_reference:
+        - naked_identifier: AS
     - expression:
       - column_reference:
         - naked_identifier: Subselect_Partition
@@ -702,8 +697,8 @@ file:
                   - keyword: DESC
               - end_bracket: )
     - expression:
-      - data_type:
-        - data_type_identifier: AS
+      - column_reference:
+        - naked_identifier: AS
     - expression:
       - column_reference:
         - naked_identifier: Coalesce_Partition
@@ -879,8 +874,8 @@ file:
       - column_reference:
         - naked_identifier: OtherColumnName
     - expression:
-      - data_type:
-        - data_type_identifier: AS
+      - column_reference:
+        - naked_identifier: AS
     - expression:
       - column_reference:
         - naked_identifier: AsAlias
@@ -945,15 +940,15 @@ file:
           - bracketed:
             - start_bracket: (
             - expression:
-              - data_type:
-                - data_type_identifier: default
+              - column_reference:
+                - naked_identifier: default
             - comma: ','
             - expression:
               - numeric_literal: '2'
             - end_bracket: )
     - expression:
-      - data_type:
-        - data_type_identifier: FROM
+      - column_reference:
+        - naked_identifier: FROM
     - expression:
       - column_reference:
         - naked_identifier: dbo

@@ -23,9 +23,11 @@ file:
                     - object_reference:
                       - object_reference:
                         - naked_identifier: emp
-      - keyword: FOR
-      - keyword: JSON
-      - keyword: AUTO
+                - alias_expression:
+                  - naked_identifier: FOR
+      - unparsable:
+        - word: JSON
+        - word: AUTO
   - statement_terminator: ;
   - keyword: GO
   - statement:

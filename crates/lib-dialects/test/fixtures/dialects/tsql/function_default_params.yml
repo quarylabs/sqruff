@@ -30,12 +30,13 @@ file:
         - raw_comparison_operator: =
       - numeric_literal: '21'
       - keyword: as
-      - begin_end_block:
-        - keyword: begin
-        - statement:
+      - statement:
+        - begin_end_block:
+          - keyword: begin
           - statement:
-            - keyword: return
-            - expression:
-              - numeric_literal: '1'
-        - statement_terminator: ;
-        - keyword: end
+            - statement:
+              - keyword: return
+              - expression:
+                - numeric_literal: '1'
+          - statement_terminator: ;
+          - keyword: end

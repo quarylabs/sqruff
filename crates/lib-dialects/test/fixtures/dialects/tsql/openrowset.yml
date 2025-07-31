@@ -283,9 +283,9 @@ file:
                         - raw_comparison_operator: =
                       - quoted_literal: '''PARQUET'''
                       - end_bracket: )
-      - unparsable:
-        - word: as
-        - word: rows
+                - alias_expression:
+                  - keyword: as
+                  - naked_identifier: rows
   - keyword: GO
   - statement:
     - select_statement:
@@ -322,33 +322,45 @@ file:
                 - keyword: WITH
                 - bracketed:
                   - start_bracket: (
-                  - unparsable:
-                    - double_quote: '[country_code]'
-                    - word: VARCHAR
-                    - start_bracket: (
-                    - numeric_literal: '5'
-                    - end_bracket: )
-                    - word: COLLATE
-                    - word: Latin1_General_BIN2
-                    - comma: ','
-                    - double_quote: '[country_name]'
-                    - word: VARCHAR
-                    - start_bracket: (
-                    - numeric_literal: '100'
-                    - end_bracket: )
-                    - word: COLLATE
-                    - word: Latin1_General_BIN2
-                    - numeric_literal: '2'
-                    - comma: ','
-                    - double_quote: '[year]'
-                    - word: smallint
-                    - comma: ','
-                    - double_quote: '[population]'
-                    - word: bigint
+                  - quoted_identifier: '[country_code]'
+                  - data_type:
+                    - data_type:
+                      - data_type_identifier: VARCHAR
+                      - bracketed_arguments:
+                        - bracketed:
+                          - start_bracket: (
+                          - numeric_literal: '5'
+                          - end_bracket: )
+                  - keyword: COLLATE
+                  - identifier:
+                    - naked_identifier: Latin1_General_BIN2
+                  - comma: ','
+                  - quoted_identifier: '[country_name]'
+                  - data_type:
+                    - data_type:
+                      - data_type_identifier: VARCHAR
+                      - bracketed_arguments:
+                        - bracketed:
+                          - start_bracket: (
+                          - numeric_literal: '100'
+                          - end_bracket: )
+                  - keyword: COLLATE
+                  - identifier:
+                    - naked_identifier: Latin1_General_BIN2
+                  - comma: ','
+                  - quoted_identifier: '[year]'
+                  - data_type:
+                    - data_type:
+                      - data_type_identifier: smallint
+                  - comma: ','
+                  - quoted_identifier: '[population]'
+                  - data_type:
+                    - data_type:
+                      - data_type_identifier: bigint
                   - end_bracket: )
-      - unparsable:
-        - word: as
-        - word: rows
+                - alias_expression:
+                  - keyword: as
+                  - naked_identifier: rows
   - keyword: GO
   - statement:
     - select_statement:

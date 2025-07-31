@@ -8,11 +8,11 @@ file:
           - quoted_identifier: '[Reporting]'
           - dot: .
           - quoted_identifier: '[Load_CLL]'
-  - statement:
-    - statement:
-      - keyword: EXECUTE
-      - object_reference:
-        - object_reference:
+      - expression:
+        - column_reference:
+          - naked_identifier: EXECUTE
+      - expression:
+        - column_reference:
           - naked_identifier: dbo
           - dot: .
           - naked_identifier: ProcTestDefaults
@@ -65,8 +65,8 @@ file:
       - assignment_operator:
         - raw_comparison_operator: =
       - expression:
-        - data_type:
-          - data_type_identifier: DEFAULT
+        - column_reference:
+          - naked_identifier: DEFAULT
       - comma: ','
       - tsql_variable: '@p2'
       - assignment_operator:
@@ -83,8 +83,8 @@ file:
           - dot: .
           - naked_identifier: ProcTestDefaults
       - expression:
-        - data_type:
-          - data_type_identifier: DEFAULT
+        - column_reference:
+          - naked_identifier: DEFAULT
       - comma: ','
       - tsql_variable: '@p3'
       - assignment_operator:
@@ -107,15 +107,15 @@ file:
           - dot: .
           - naked_identifier: ProcTestDefaults
       - expression:
-        - data_type:
-          - data_type_identifier: DEFAULT
+        - column_reference:
+          - naked_identifier: DEFAULT
       - comma: ','
       - expression:
         - quoted_literal: '''H'''
       - comma: ','
       - expression:
-        - data_type:
-          - data_type_identifier: DEFAULT
+        - column_reference:
+          - naked_identifier: DEFAULT
   - statement_terminator: ;
   - statement:
     - statement:
@@ -126,8 +126,8 @@ file:
           - dot: .
           - naked_identifier: ProcTestDefaults
       - expression:
-        - data_type:
-          - data_type_identifier: DEFAULT
+        - column_reference:
+          - naked_identifier: DEFAULT
       - comma: ','
       - expression:
         - quoted_literal: '''I'''
@@ -136,8 +136,8 @@ file:
       - assignment_operator:
         - raw_comparison_operator: =
       - expression:
-        - data_type:
-          - data_type_identifier: DEFAULT
+        - column_reference:
+          - naked_identifier: DEFAULT
   - statement_terminator: ;
   - statement:
     - statement:
@@ -180,14 +180,14 @@ file:
         - raw_comparison_operator: =
       - expression:
         - quoted_literal: N'my_object_name'
-  - statement:
-    - statement:
-      - keyword: EXEC
+      - expression:
+        - column_reference:
+          - naked_identifier: EXEC
       - tsql_variable: '@pRes'
       - assignment_operator:
         - raw_comparison_operator: =
-      - object_reference:
-        - object_reference:
+      - expression:
+        - column_reference:
           - naked_identifier: dbo
           - dot: .
           - naked_identifier: ProcTestDefaults
@@ -207,8 +207,8 @@ file:
       - assignment_operator:
         - raw_comparison_operator: =
       - expression:
-        - data_type:
-          - data_type_identifier: DEFAULT
+        - column_reference:
+          - naked_identifier: DEFAULT
   - statement_terminator: ;
   - statement:
     - statement:
@@ -237,33 +237,41 @@ file:
       - assignment_operator:
         - raw_comparison_operator: =
       - expression:
-        - data_type:
-          - data_type_identifier: DEFAULT
+        - column_reference:
+          - naked_identifier: DEFAULT
   - statement_terminator: ;
   - statement:
-    - declare_statement:
-      - keyword: DECLARE
-      - tsql_variable: '@statement'
-      - data_type:
-        - data_type_identifier: nvarchar
-        - bracketed_arguments:
+    - object_reference:
+      - object_reference:
+        - naked_identifier: DECLARE
+    - expression:
+      - parameterized_expression:
+        - tsql_variable: '@statement'
+    - expression:
+      - function:
+        - function:
+          - function_name:
+            - function_name_identifier: nvarchar
           - bracketed:
             - start_bracket: (
-            - keyword: max
+            - expression:
+              - column_reference:
+                - naked_identifier: max
             - end_bracket: )
-      - assignment_operator:
+      - comparison_operator:
         - raw_comparison_operator: =
-      - expression:
-        - quoted_literal: '''SELECT 1'''
-  - statement:
-    - statement:
-      - keyword: EXEC
-      - bracketed:
-        - start_bracket: (
-        - expression:
-          - parameterized_expression:
-            - tsql_variable: '@statement'
-        - end_bracket: )
+      - quoted_literal: '''SELECT 1'''
+    - expression:
+      - function:
+        - function:
+          - function_name:
+            - function_name_identifier: EXEC
+          - bracketed:
+            - start_bracket: (
+            - expression:
+              - parameterized_expression:
+                - tsql_variable: '@statement'
+            - end_bracket: )
   - statement_terminator: ;
   - statement:
     - statement:
@@ -543,8 +551,8 @@ file:
       - assignment_operator:
         - raw_comparison_operator: =
       - expression:
-        - data_type:
-          - data_type_identifier: DEFAULT
+        - column_reference:
+          - naked_identifier: DEFAULT
       - comma: ','
       - tsql_variable: '@p2'
       - assignment_operator:
@@ -561,15 +569,15 @@ file:
           - dot: .
           - naked_identifier: ProcTestDefaults
       - expression:
-        - data_type:
-          - data_type_identifier: DEFAULT
+        - column_reference:
+          - naked_identifier: DEFAULT
       - comma: ','
       - expression:
         - quoted_literal: '''H'''
       - comma: ','
       - expression:
-        - data_type:
-          - data_type_identifier: DEFAULT
+        - column_reference:
+          - naked_identifier: DEFAULT
   - statement_terminator: ;
   - statement:
     - statement:
@@ -580,8 +588,8 @@ file:
           - dot: .
           - naked_identifier: ProcTestDefaults
       - expression:
-        - data_type:
-          - data_type_identifier: DEFAULT
+        - column_reference:
+          - naked_identifier: DEFAULT
       - comma: ','
       - expression:
         - quoted_literal: '''I'''
@@ -590,8 +598,8 @@ file:
       - assignment_operator:
         - raw_comparison_operator: =
       - expression:
-        - data_type:
-          - data_type_identifier: DEFAULT
+        - column_reference:
+          - naked_identifier: DEFAULT
   - statement_terminator: ;
   - statement:
     - statement:
@@ -831,17 +839,22 @@ file:
         - end_bracket: )
   - statement_terminator: ;
   - statement:
-    - statement:
-      - keyword: EXECUTE
+    - object_reference:
+      - object_reference:
+        - naked_identifier: EXECUTE
+    - expression:
       - bracketed:
         - start_bracket: (
         - expression:
           - quoted_literal: '''SELECT @@SERVERNAME'''
         - end_bracket: )
-      - keyword: AT
-      - naked_identifier: DATA_SOURCE
-  - statement:
-    - object_reference:
-      - object_reference:
+    - expression:
+      - column_reference:
+        - naked_identifier: AT
+    - expression:
+      - column_reference:
+        - naked_identifier: DATA_SOURCE
+    - expression:
+      - column_reference:
         - naked_identifier: my_sql_server
   - statement_terminator: ;

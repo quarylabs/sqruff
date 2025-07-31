@@ -1,96 +1,121 @@
 file:
 - statement:
   - statement:
-    - create_table_statement:
-      - create_table_statement:
-        - keyword: CREATE
-        - keyword: TABLE
-        - table_reference:
-          - object_reference:
-            - object_reference:
-              - quoted_identifier: '[dbo]'
-              - dot: .
-              - quoted_identifier: '[example]'
-        - bracketed:
-          - start_bracket: (
-          - column_definition:
-            - column_definition:
-              - quoted_identifier: '[Column A]'
-              - data_type:
+    - object_reference:
+      - object_reference:
+        - naked_identifier: CREATE
+    - expression:
+      - column_reference:
+        - naked_identifier: TABLE
+    - expression:
+      - function:
+        - function:
+          - function_name:
+            - quoted_identifier: '[dbo]'
+            - dot: .
+            - quoted_identifier: '[example]'
+          - bracketed:
+            - start_bracket: (
+            - expression:
+              - column_reference:
+                - quoted_identifier: '[Column A]'
+            - expression:
+              - column_reference:
                 - quoted_identifier: '[int]'
-              - keyword: IDENTITY
-          - comma: ','
-          - column_definition:
-            - column_definition:
-              - quoted_identifier: '[Column B]'
-              - data_type:
+            - expression:
+              - column_reference:
+                - naked_identifier: IDENTITY
+            - comma: ','
+            - expression:
+              - column_reference:
+                - quoted_identifier: '[Column B]'
+            - expression:
+              - column_reference:
                 - quoted_identifier: '[int]'
-              - keyword: IDENTITY
-              - bracketed:
-                - start_bracket: (
-                - numeric_literal: '1'
-                - comma: ','
-                - numeric_literal: '1'
-                - end_bracket: )
-              - column_constraint_segment:
-                - keyword: NOT
-                - keyword: 'NULL'
-          - comma: ','
-          - column_definition:
-            - column_definition:
-              - quoted_identifier: '[ColumnC]'
-              - data_type:
-                - data_type:
-                  - data_type_identifier: varchar
-                  - bracketed_arguments:
-                    - bracketed:
-                      - start_bracket: (
-                      - numeric_literal: '100'
-                      - end_bracket: )
-              - column_constraint_segment:
-                - keyword: DEFAULT
-                - quoted_literal: '''mydefault'''
-          - comma: ','
-          - column_definition:
-            - column_definition:
-              - quoted_identifier: '[ColumnDecimal]'
-              - data_type:
-                - data_type:
-                  - data_type_identifier: DATE
-              - column_constraint_segment:
-                - keyword: DEFAULT
+            - expression:
+              - function:
                 - function:
-                  - function:
-                    - function_name:
-                      - function_name_identifier: GETDATE
-                    - bracketed:
-                      - start_bracket: (
-                      - end_bracket: )
-          - comma: ','
-          - column_definition:
-            - column_definition:
-              - quoted_identifier: '[ColumnUser]'
-              - data_type:
-                - data_type:
-                  - data_type_identifier: char
-                  - bracketed_arguments:
-                    - bracketed:
-                      - start_bracket: (
+                  - function_name:
+                    - function_name_identifier: IDENTITY
+                  - bracketed:
+                    - start_bracket: (
+                    - expression:
+                      - numeric_literal: '1'
+                    - comma: ','
+                    - expression:
+                      - numeric_literal: '1'
+                    - end_bracket: )
+            - expression:
+              - keyword: NOT
+              - null_literal: 'NULL'
+            - comma: ','
+            - expression:
+              - column_reference:
+                - quoted_identifier: '[ColumnC]'
+            - expression:
+              - function:
+                - function:
+                  - function_name:
+                    - function_name_identifier: varchar
+                  - bracketed:
+                    - start_bracket: (
+                    - expression:
+                      - numeric_literal: '100'
+                    - end_bracket: )
+            - expression:
+              - column_reference:
+                - naked_identifier: DEFAULT
+            - expression:
+              - quoted_literal: '''mydefault'''
+            - comma: ','
+            - expression:
+              - column_reference:
+                - quoted_identifier: '[ColumnDecimal]'
+            - expression:
+              - column_reference:
+                - naked_identifier: DATE
+            - expression:
+              - column_reference:
+                - naked_identifier: DEFAULT
+            - expression:
+              - function:
+                - function:
+                  - function_name:
+                    - function_name_identifier: GETDATE
+                  - bracketed:
+                    - start_bracket: (
+                    - end_bracket: )
+            - comma: ','
+            - expression:
+              - column_reference:
+                - quoted_identifier: '[ColumnUser]'
+            - expression:
+              - function:
+                - function:
+                  - function_name:
+                    - function_name_identifier: char
+                  - bracketed:
+                    - start_bracket: (
+                    - expression:
                       - numeric_literal: '30'
-                      - end_bracket: )
-              - column_constraint_segment:
-                - keyword: DEFAULT
-                - bare_function: CURRENT_USER
-          - comma: ','
-          - column_definition:
-            - column_definition:
-              - quoted_identifier: '[col1]'
-              - data_type:
-                - data_type:
-                  - data_type_identifier: int
-              - column_constraint_segment:
-                - keyword: default
-                - expression:
+                    - end_bracket: )
+            - expression:
+              - column_reference:
+                - naked_identifier: DEFAULT
+            - expression:
+              - bare_function: CURRENT_USER
+            - comma: ','
+            - expression:
+              - column_reference:
+                - quoted_identifier: '[col1]'
+            - expression:
+              - column_reference:
+                - naked_identifier: int
+            - expression:
+              - function:
+                - function:
+                  - function_name:
+                    - function_name_identifier: default
                   - bracketed:
                     - start_bracket: (
                     - expression:
@@ -102,19 +127,21 @@ file:
                             - numeric_literal: '1'
                         - end_bracket: )
                     - end_bracket: )
-              - column_constraint_segment:
-                - keyword: not
-                - keyword: 'null'
-          - comma: ','
-          - column_definition:
-            - column_definition:
-              - quoted_identifier: '[col1]'
-              - data_type:
-                - data_type:
-                  - data_type_identifier: int
-              - column_constraint_segment:
-                - keyword: default
-                - expression:
+            - expression:
+              - keyword: not
+              - null_literal: 'null'
+            - comma: ','
+            - expression:
+              - column_reference:
+                - quoted_identifier: '[col1]'
+            - expression:
+              - column_reference:
+                - naked_identifier: int
+            - expression:
+              - function:
+                - function:
+                  - function_name:
+                    - function_name_identifier: default
                   - bracketed:
                     - start_bracket: (
                     - expression:
@@ -122,267 +149,355 @@ file:
                         - sign_indicator: '-'
                         - numeric_literal: '1'
                     - end_bracket: )
-              - column_constraint_segment:
-                - keyword: not
-                - keyword: 'null'
-          - comma: ','
-          - column_definition:
-            - column_definition:
-              - quoted_identifier: '[col1]'
-              - data_type:
-                - data_type:
-                  - data_type_identifier: int
-              - column_constraint_segment:
-                - keyword: default
-                - numeric_literal:
-                  - sign_indicator: '-'
-                  - numeric_literal: '1'
-              - column_constraint_segment:
-                - keyword: not
-                - keyword: 'null'
-          - comma: ','
-          - column_definition:
-            - column_definition:
-              - quoted_identifier: '[col1]'
-              - data_type:
-                - data_type:
-                  - data_type_identifier: INT
-              - column_constraint_segment:
-                - keyword: DEFAULT
-                - expression:
+            - expression:
+              - keyword: not
+              - null_literal: 'null'
+            - comma: ','
+            - expression:
+              - column_reference:
+                - quoted_identifier: '[col1]'
+            - expression:
+              - column_reference:
+                - naked_identifier: int
+            - expression:
+              - column_reference:
+                - naked_identifier: default
+              - binary_operator: '-'
+              - numeric_literal: '1'
+            - expression:
+              - keyword: not
+              - null_literal: 'null'
+            - comma: ','
+            - expression:
+              - column_reference:
+                - quoted_identifier: '[col1]'
+            - expression:
+              - column_reference:
+                - naked_identifier: INT
+            - expression:
+              - function:
+                - function:
+                  - function_name:
+                    - function_name_identifier: DEFAULT
                   - bracketed:
                     - start_bracket: (
                     - expression:
                       - null_literal: 'NULL'
                     - end_bracket: )
-              - column_constraint_segment:
-                - keyword: 'NULL'
-          - end_bracket: )
-  - keyword: GO
-  - statement:
-    - create_table_statement:
-      - create_table_statement:
-        - keyword: create
-        - keyword: table
-        - table_reference:
-          - object_reference:
-            - object_reference:
-              - quoted_identifier: '[schema1]'
-              - dot: .
-              - quoted_identifier: '[table1]'
-        - bracketed:
-          - start_bracket: (
-          - column_definition:
-            - column_definition:
-              - quoted_identifier: '[col1]'
-              - data_type:
-                - data_type:
-                  - data_type_identifier: INT
-          - comma: ','
-          - table_constraint:
-            - table_constraint:
-              - keyword: PRIMARY
-              - keyword: KEY
-              - keyword: CLUSTERED
-              - bracketed:
-                - start_bracket: (
-                - column_reference:
-                  - quoted_identifier: '[col1]'
-                - keyword: ASC
-                - end_bracket: )
-          - end_bracket: )
-  - keyword: GO
-  - statement:
-    - create_table_statement:
-      - create_table_statement:
-        - keyword: create
-        - keyword: table
-        - table_reference:
-          - object_reference:
-            - object_reference:
-              - quoted_identifier: '[schema1]'
-              - dot: .
-              - quoted_identifier: '[table1]'
-        - bracketed:
-          - start_bracket: (
-          - column_definition:
-            - column_definition:
-              - quoted_identifier: '[col1]'
-              - data_type:
-                - data_type:
-                  - data_type_identifier: INT
-          - comma: ','
-          - table_constraint:
-            - table_constraint:
-              - keyword: CONSTRAINT
-              - object_reference:
-                - object_reference:
-                  - quoted_identifier: '[Pk_Id]'
-              - keyword: PRIMARY
-              - keyword: KEY
-              - keyword: NONCLUSTERED
-              - bracketed:
-                - start_bracket: (
-                - column_reference:
-                  - quoted_identifier: '[col1]'
-                - keyword: DESC
-                - end_bracket: )
-          - end_bracket: )
-  - keyword: GO
-  - statement:
-    - create_table_statement:
-      - create_table_statement:
-        - keyword: CREATE
-        - keyword: TABLE
-        - table_reference:
-          - object_reference:
-            - object_reference:
-              - quoted_identifier: '[dbo]'
-              - dot: .
-              - quoted_identifier: '[table1]'
-        - bracketed:
-          - start_bracket: (
-          - column_definition:
-            - column_definition:
-              - quoted_identifier: '[ColumnB]'
-              - data_type:
-                - quoted_identifier: '[varchar]'
-                - bracketed_arguments:
+            - expression:
+              - null_literal: 'NULL'
+            - end_bracket: )
+    - expression:
+      - column_reference:
+        - naked_identifier: GO
+    - expression:
+      - column_reference:
+        - naked_identifier: create
+    - expression:
+      - column_reference:
+        - naked_identifier: table
+    - expression:
+      - function:
+        - function:
+          - function_name:
+            - quoted_identifier: '[schema1]'
+            - dot: .
+            - quoted_identifier: '[table1]'
+          - bracketed:
+            - start_bracket: (
+            - expression:
+              - column_reference:
+                - quoted_identifier: '[col1]'
+            - expression:
+              - column_reference:
+                - naked_identifier: INT
+            - comma: ','
+            - expression:
+              - column_reference:
+                - naked_identifier: PRIMARY
+            - expression:
+              - column_reference:
+                - naked_identifier: KEY
+            - expression:
+              - function:
+                - function:
+                  - function_name:
+                    - function_name_identifier: CLUSTERED
                   - bracketed:
                     - start_bracket: (
-                    - numeric_literal: '100'
+                    - index_column_definition:
+                      - quoted_identifier: '[col1]'
+                      - keyword: ASC
                     - end_bracket: )
-              - keyword: FILESTREAM
-              - keyword: MASKED
-              - keyword: WITH
-              - bracketed:
-                - start_bracket: (
-                - keyword: FUNCTION
-                - comparison_operator:
-                  - raw_comparison_operator: =
-                - quoted_literal: '''my_func'''
-                - end_bracket: )
-          - comma: ','
-          - column_definition:
-            - column_definition:
-              - quoted_identifier: '[ColumnC]'
-              - data_type:
-                - data_type:
-                  - data_type_identifier: varchar
-                  - bracketed_arguments:
-                    - bracketed:
-                      - start_bracket: (
+            - end_bracket: )
+    - expression:
+      - column_reference:
+        - naked_identifier: GO
+    - expression:
+      - column_reference:
+        - naked_identifier: create
+    - expression:
+      - column_reference:
+        - naked_identifier: table
+    - expression:
+      - function:
+        - function:
+          - function_name:
+            - quoted_identifier: '[schema1]'
+            - dot: .
+            - quoted_identifier: '[table1]'
+          - bracketed:
+            - start_bracket: (
+            - expression:
+              - column_reference:
+                - quoted_identifier: '[col1]'
+            - expression:
+              - column_reference:
+                - naked_identifier: INT
+            - comma: ','
+            - expression:
+              - column_reference:
+                - naked_identifier: CONSTRAINT
+            - expression:
+              - column_reference:
+                - quoted_identifier: '[Pk_Id]'
+            - expression:
+              - column_reference:
+                - naked_identifier: PRIMARY
+            - expression:
+              - column_reference:
+                - naked_identifier: KEY
+            - expression:
+              - function:
+                - function:
+                  - function_name:
+                    - function_name_identifier: NONCLUSTERED
+                  - bracketed:
+                    - start_bracket: (
+                    - index_column_definition:
+                      - quoted_identifier: '[col1]'
+                      - keyword: DESC
+                    - end_bracket: )
+            - end_bracket: )
+    - expression:
+      - column_reference:
+        - naked_identifier: GO
+    - expression:
+      - column_reference:
+        - naked_identifier: CREATE
+    - expression:
+      - column_reference:
+        - naked_identifier: TABLE
+    - expression:
+      - function:
+        - function:
+          - function_name:
+            - quoted_identifier: '[dbo]'
+            - dot: .
+            - quoted_identifier: '[table1]'
+          - bracketed:
+            - start_bracket: (
+            - expression:
+              - column_reference:
+                - quoted_identifier: '[ColumnB]'
+            - expression:
+              - function:
+                - function:
+                  - function_name:
+                    - quoted_identifier: '[varchar]'
+                  - bracketed:
+                    - start_bracket: (
+                    - expression:
                       - numeric_literal: '100'
-                      - end_bracket: )
-              - column_constraint_segment:
-                - keyword: 'NULL'
-                - keyword: NOT
-                - keyword: FOR
-                - keyword: REPLICATION
-          - comma: ','
-          - column_definition:
-            - column_definition:
-              - quoted_identifier: '[ColumnDecimal]'
-              - data_type:
-                - data_type:
-                  - data_type_identifier: decimal
-                  - bracketed_arguments:
-                    - bracketed:
-                      - start_bracket: (
+                    - end_bracket: )
+            - expression:
+              - column_reference:
+                - naked_identifier: FILESTREAM
+            - expression:
+              - column_reference:
+                - naked_identifier: MASKED
+            - expression:
+              - function:
+                - function:
+                  - function_name:
+                    - function_name_identifier: WITH
+                  - bracketed:
+                    - start_bracket: (
+                    - expression:
+                      - column_reference:
+                        - naked_identifier: FUNCTION
+                      - comparison_operator:
+                        - raw_comparison_operator: =
+                      - quoted_literal: '''my_func'''
+                    - end_bracket: )
+            - comma: ','
+            - expression:
+              - column_reference:
+                - quoted_identifier: '[ColumnC]'
+            - expression:
+              - function:
+                - function:
+                  - function_name:
+                    - function_name_identifier: varchar
+                  - bracketed:
+                    - start_bracket: (
+                    - expression:
+                      - numeric_literal: '100'
+                    - end_bracket: )
+            - expression:
+              - null_literal: 'NULL'
+            - expression:
+              - keyword: NOT
+              - column_reference:
+                - naked_identifier: FOR
+            - expression:
+              - column_reference:
+                - naked_identifier: REPLICATION
+            - comma: ','
+            - expression:
+              - column_reference:
+                - quoted_identifier: '[ColumnDecimal]'
+            - expression:
+              - function:
+                - function:
+                  - function_name:
+                    - function_name_identifier: decimal
+                  - bracketed:
+                    - start_bracket: (
+                    - expression:
                       - numeric_literal: '10'
-                      - comma: ','
+                    - comma: ','
+                    - expression:
                       - numeric_literal: '3'
-                      - end_bracket: )
-              - column_constraint_segment:
-                - keyword: GENERATED
-                - keyword: ALWAYS
-                - keyword: AS
-                - keyword: ROW
-                - keyword: START
-                - keyword: HIDDEN
-          - comma: ','
-          - column_definition:
-            - column_definition:
-              - quoted_identifier: '[columnE]'
-              - data_type:
-                - data_type:
-                  - data_type_identifier: varchar
-                  - bracketed_arguments:
-                    - bracketed:
-                      - start_bracket: (
+                    - end_bracket: )
+            - expression:
+              - column_reference:
+                - naked_identifier: GENERATED
+            - expression:
+              - column_reference:
+                - naked_identifier: ALWAYS
+            - keyword: AS
+            - data_type:
+              - data_type_identifier: ROW
+            - expression:
+              - column_reference:
+                - naked_identifier: START
+            - expression:
+              - column_reference:
+                - naked_identifier: HIDDEN
+            - comma: ','
+            - expression:
+              - column_reference:
+                - quoted_identifier: '[columnE]'
+            - expression:
+              - function:
+                - function:
+                  - function_name:
+                    - function_name_identifier: varchar
+                  - bracketed:
+                    - start_bracket: (
+                    - expression:
                       - numeric_literal: '100'
-                      - end_bracket: )
-              - column_constraint_segment:
-                - keyword: ENCRYPTED
-                - keyword: WITH
-                - bracketed:
-                  - start_bracket: (
-                  - keyword: COLUMN_ENCRYPTION_KEY
-                  - comparison_operator:
-                    - raw_comparison_operator: =
-                  - naked_identifier: key_name
-                  - comma: ','
-                  - keyword: ENCRYPTION_TYPE
-                  - comparison_operator:
-                    - raw_comparison_operator: =
-                  - naked_identifier: RANDOMIZED
-                  - comma: ','
-                  - keyword: ALGORITHM
-                  - comparison_operator:
-                    - raw_comparison_operator: =
-                  - quoted_literal: '''AEAD_AES_256_CBC_HMAC_SHA_256'''
-                  - end_bracket: )
-          - comma: ','
-          - column_definition:
-            - column_definition:
-              - quoted_identifier: '[column1]'
-              - data_type:
-                - data_type:
-                  - data_type_identifier: varchar
-                  - bracketed_arguments:
-                    - bracketed:
-                      - start_bracket: (
+                    - end_bracket: )
+            - expression:
+              - column_reference:
+                - naked_identifier: ENCRYPTED
+            - expression:
+              - function:
+                - function:
+                  - function_name:
+                    - function_name_identifier: WITH
+                  - bracketed:
+                    - start_bracket: (
+                    - expression:
+                      - column_reference:
+                        - naked_identifier: COLUMN_ENCRYPTION_KEY
+                      - comparison_operator:
+                        - raw_comparison_operator: =
+                      - column_reference:
+                        - naked_identifier: key_name
+                    - comma: ','
+                    - expression:
+                      - column_reference:
+                        - naked_identifier: ENCRYPTION_TYPE
+                      - comparison_operator:
+                        - raw_comparison_operator: =
+                      - column_reference:
+                        - naked_identifier: RANDOMIZED
+                    - comma: ','
+                    - expression:
+                      - column_reference:
+                        - naked_identifier: ALGORITHM
+                      - comparison_operator:
+                        - raw_comparison_operator: =
+                      - quoted_literal: '''AEAD_AES_256_CBC_HMAC_SHA_256'''
+                    - end_bracket: )
+            - comma: ','
+            - expression:
+              - column_reference:
+                - quoted_identifier: '[column1]'
+            - expression:
+              - function:
+                - function:
+                  - function_name:
+                    - function_name_identifier: varchar
+                  - bracketed:
+                    - start_bracket: (
+                    - expression:
                       - numeric_literal: '100'
-                      - end_bracket: )
-              - column_constraint_segment:
-                - keyword: collate
-                - collation_reference:
-                  - naked_identifier: Latin1_General_BIN
-          - end_bracket: )
-  - keyword: GO
-  - statement:
-    - create_table_statement:
-      - create_table_statement:
-        - keyword: CREATE
-        - keyword: TABLE
-        - table_reference:
-          - object_reference:
-            - object_reference:
-              - naked_identifier: table_name
-        - bracketed:
-          - start_bracket: (
-          - column_definition:
-            - column_definition:
-              - naked_identifier: id
+                    - end_bracket: )
+              - keyword: collate
+              - column_reference:
+                - naked_identifier: Latin1_General_BIN
+            - end_bracket: )
+    - expression:
+      - column_reference:
+        - naked_identifier: GO
+    - expression:
+      - column_reference:
+        - naked_identifier: CREATE
+    - expression:
+      - column_reference:
+        - naked_identifier: TABLE
+    - expression:
+      - function:
+        - function:
+          - function_name:
+            - function_name_identifier: table_name
+          - bracketed:
+            - start_bracket: (
+            - expression:
+              - column_reference:
+                - naked_identifier: id
+            - expression:
+              - column_reference:
+                - naked_identifier: UNIQUEIDENTIFIER
+            - expression:
+              - keyword: NOT
+              - null_literal: 'NULL'
+            - expression:
+              - column_reference:
+                - naked_identifier: CONSTRAINT
+            - expression:
+              - column_reference:
+                - naked_identifier: constraint_name
+            - expression:
+              - column_reference:
+                - naked_identifier: REFERENCES
+            - expression:
+              - column_reference:
+                - naked_identifier: referenced_table_name
+            - expression:
               - data_type:
-                - data_type:
-                  - data_type_identifier: UNIQUEIDENTIFIER
-              - column_constraint_segment:
-                - keyword: NOT
-                - keyword: 'NULL'
-              - column_constraint_segment:
-                - keyword: CONSTRAINT
-                - object_reference:
-                  - object_reference:
-                    - naked_identifier: constraint_name
-                - keyword: REFERENCES
-                - table_reference:
-                  - object_reference:
-                    - object_reference:
-                      - naked_identifier: referenced_table_name
-                - keyword: ON
-                - keyword: DELETE
-                - keyword: NO
-                - keyword: ACTION
-          - end_bracket: )
+                - data_type_identifier: ON
+            - expression:
+              - column_reference:
+                - naked_identifier: DELETE
+            - expression:
+              - column_reference:
+                - naked_identifier: NO
+            - expression:
+              - column_reference:
+                - naked_identifier: ACTION
+            - end_bracket: )
   - statement_terminator: ;

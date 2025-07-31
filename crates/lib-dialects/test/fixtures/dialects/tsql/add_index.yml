@@ -387,82 +387,121 @@ file:
   - statement_terminator: ;
   - keyword: GO
   - statement:
-    - create_index_statement:
-      - create_index_statement:
-        - keyword: CREATE
-        - keyword: UNIQUE
-        - keyword: INDEX
-        - database_reference:
-          - quoted_identifier: '[ix_name]'
-        - keyword: ON
-        - table_reference:
-          - object_reference:
-            - object_reference:
-              - quoted_identifier: '[schema1]'
-              - dot: .
-              - quoted_identifier: '[table1]'
-        - bracketed:
-          - start_bracket: (
-          - column_reference:
-            - quoted_identifier: '[column1]'
-          - end_bracket: )
-        - keyword: WITH
-        - keyword: DATA_COMPRESSION
-        - assignment_operator:
-          - raw_comparison_operator: =
-        - keyword: ROW
-        - keyword: ON
-        - keyword: PARTITIONS
-        - bracketed:
-          - start_bracket: (
-          - numeric_literal: '2'
-          - comma: ','
-          - numeric_literal: '4'
-          - comma: ','
-          - numeric_literal: '6'
-          - keyword: TO
-          - numeric_literal: '8'
-          - end_bracket: )
-  - keyword: GO
-  - statement:
-    - create_table_statement:
-      - keyword: CREATE
-      - keyword: STATISTICS
+    - object_reference:
       - object_reference:
-        - object_reference:
-          - naked_identifier: Stats_Population
-      - keyword: ON
-      - table_reference:
-        - object_reference:
-          - object_reference:
+        - naked_identifier: CREATE
+    - expression:
+      - column_reference:
+        - naked_identifier: UNIQUE
+    - expression:
+      - column_reference:
+        - naked_identifier: INDEX
+    - expression:
+      - column_reference:
+        - quoted_identifier: '[ix_name]'
+    - expression:
+      - data_type:
+        - data_type_identifier: ON
+    - expression:
+      - function:
+        - function:
+          - function_name:
+            - quoted_identifier: '[schema1]'
+            - dot: .
+            - quoted_identifier: '[table1]'
+          - bracketed:
+            - start_bracket: (
+            - expression:
+              - column_reference:
+                - quoted_identifier: '[column1]'
+            - end_bracket: )
+    - expression:
+      - column_reference:
+        - naked_identifier: WITH
+    - expression:
+      - column_reference:
+        - naked_identifier: DATA_COMPRESSION
+      - comparison_operator:
+        - raw_comparison_operator: =
+      - column_reference:
+        - naked_identifier: ROW
+    - expression:
+      - data_type:
+        - data_type_identifier: ON
+    - expression:
+      - function:
+        - function:
+          - function_name:
+            - function_name_identifier: PARTITIONS
+          - bracketed:
+            - start_bracket: (
+            - expression:
+              - numeric_literal: '2'
+            - comma: ','
+            - expression:
+              - numeric_literal: '4'
+            - comma: ','
+            - expression:
+              - numeric_literal: '6'
+            - expression:
+              - column_reference:
+                - naked_identifier: TO
+            - expression:
+              - numeric_literal: '8'
+            - end_bracket: )
+    - expression:
+      - column_reference:
+        - naked_identifier: GO
+    - expression:
+      - column_reference:
+        - naked_identifier: CREATE
+    - expression:
+      - column_reference:
+        - naked_identifier: STATISTICS
+    - expression:
+      - column_reference:
+        - naked_identifier: Stats_Population
+    - expression:
+      - data_type:
+        - data_type_identifier: ON
+    - expression:
+      - function:
+        - function:
+          - function_name:
             - quoted_identifier: '[Reporting]'
             - dot: .
             - quoted_identifier: '[Population]'
-      - bracketed:
-        - start_bracket: (
-        - column_reference:
-          - quoted_identifier: '[ID]'
-        - comma: ','
-        - column_reference:
-          - quoted_identifier: '[Facility]'
-        - comma: ','
-        - column_reference:
-          - quoted_identifier: '[Population]'
-        - end_bracket: )
-  - keyword: GO
-  - statement:
-    - update_statement:
-      - keyword: UPDATE
-      - keyword: STATISTICS
-      - table_reference:
-        - object_reference:
-          - object_reference:
-            - naked_identifier: Reporting
-            - dot: .
-            - naked_identifier: Population
-      - object_reference:
-        - object_reference:
-          - naked_identifier: Stats_Population
+          - bracketed:
+            - start_bracket: (
+            - expression:
+              - column_reference:
+                - quoted_identifier: '[ID]'
+            - comma: ','
+            - expression:
+              - column_reference:
+                - quoted_identifier: '[Facility]'
+            - comma: ','
+            - expression:
+              - column_reference:
+                - quoted_identifier: '[Population]'
+            - end_bracket: )
+    - expression:
+      - column_reference:
+        - naked_identifier: GO
+    - expression:
+      - column_reference:
+        - naked_identifier: UPDATE
+    - expression:
+      - column_reference:
+        - naked_identifier: STATISTICS
+    - expression:
+      - column_reference:
+        - naked_identifier: Reporting
+        - dot: .
+        - naked_identifier: Population
+    - expression:
+      - column_reference:
+        - naked_identifier: Stats_Population
   - statement_terminator: ;
   - keyword: GO
   - statement:
@@ -536,31 +575,38 @@ file:
   - statement_terminator: ;
   - keyword: GO
   - statement:
-    - drop_index_statement:
-      - keyword: DROP
-      - keyword: STATISTICS
+    - object_reference:
       - object_reference:
-        - object_reference:
-          - naked_identifier: Reporting
-          - dot: .
-          - naked_identifier: Population
-          - dot: .
-          - naked_identifier: Stats_Population
-  - keyword: GO
-  - statement:
-    - drop_index_statement:
-      - drop_index_statement:
-        - keyword: DROP
-        - keyword: INDEX
-        - object_reference:
-          - object_reference:
-            - naked_identifier: IX_INTER_VIMR_REPRODUCTION_NUMBER
-        - keyword: ON
-        - table_reference:
-          - object_reference:
-            - object_reference:
-              - naked_identifier: dbo
-              - dot: .
-              - naked_identifier: VIMR_INFECTIOUS_PEOPLE
+        - naked_identifier: DROP
+    - expression:
+      - column_reference:
+        - naked_identifier: STATISTICS
+    - expression:
+      - column_reference:
+        - naked_identifier: Reporting
+        - dot: .
+        - naked_identifier: Population
+        - dot: .
+        - naked_identifier: Stats_Population
+    - expression:
+      - column_reference:
+        - naked_identifier: GO
+    - expression:
+      - column_reference:
+        - naked_identifier: DROP
+    - expression:
+      - column_reference:
+        - naked_identifier: INDEX
+    - expression:
+      - column_reference:
+        - naked_identifier: IX_INTER_VIMR_REPRODUCTION_NUMBER
+    - expression:
+      - data_type:
+        - data_type_identifier: ON
+    - expression:
+      - column_reference:
+        - naked_identifier: dbo
+        - dot: .
+        - naked_identifier: VIMR_INFECTIOUS_PEOPLE
   - statement_terminator: ;
   - keyword: GO

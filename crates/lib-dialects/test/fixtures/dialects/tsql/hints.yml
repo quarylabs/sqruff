@@ -299,10 +299,11 @@ file:
                       - object_reference:
                         - object_reference:
                           - naked_identifier: cte
-        - keyword: OPTION
-        - bracketed:
+                  - alias_expression:
+                    - naked_identifier: OPTION
+        - unparsable:
           - start_bracket: (
-          - keyword: MAXRECURSION
+          - word: MAXRECURSION
           - numeric_literal: '2'
           - end_bracket: )
   - statement_terminator: ;
@@ -670,11 +671,13 @@ file:
               - naked_identifier: Production
               - dot: .
               - naked_identifier: Product
-        - keyword: WITH
-        - bracketed:
-          - start_bracket: (
-          - keyword: TABLOCK
-          - end_bracket: )
+        - alias_expression:
+          - naked_identifier: WITH
+          - bracketed:
+            - start_bracket: (
+            - identifier_list:
+              - naked_identifier: TABLOCK
+            - end_bracket: )
         - set_clause_list:
           - keyword: SET
           - set_clause:

@@ -79,6 +79,7 @@ file:
               - comparison_operator:
                 - raw_comparison_operator: =
               - numeric_literal: '1'
+      - statement_terminator: ;
       - keyword: ELSE
       - statement:
         - select_statement:
@@ -121,6 +122,7 @@ file:
               - comparison_operator:
                 - raw_comparison_operator: =
               - numeric_literal: '1'
+      - statement_terminator: ;
   - statement:
     - if_statement:
       - keyword: if

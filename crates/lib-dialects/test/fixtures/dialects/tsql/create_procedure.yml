@@ -428,47 +428,76 @@ file:
       - keyword: AS
       - keyword: OWNER
       - keyword: AS
-      - keyword: BEGIN
-      - keyword: ATOMIC
-      - keyword: WITH
-      - bracketed:
-        - start_bracket: (
-        - keyword: LANGUAGE
-        - comparison_operator:
-          - raw_comparison_operator: =
-        - quoted_literal: N'us_english'
-        - comma: ','
-        - keyword: TRANSACTION
-        - keyword: ISOLATION
-        - keyword: LEVEL
-        - comparison_operator:
-          - raw_comparison_operator: =
-        - naked_identifier: SERIALIZABLE
-        - comma: ','
-        - keyword: DATEFIRST
-        - comparison_operator:
-          - raw_comparison_operator: =
-        - numeric_literal: '10'
-        - comma: ','
-        - keyword: DATEFORMAT
-        - comparison_operator:
-          - raw_comparison_operator: =
-        - naked_identifier: dym
-        - comma: ','
-        - keyword: DELAYED_DURABILITY
-        - comparison_operator:
-          - raw_comparison_operator: =
-        - keyword: ON
-        - end_bracket: )
       - statement:
-        - select_statement:
-          - select_clause:
+        - object_reference:
+          - object_reference:
+            - naked_identifier: BEGIN
+        - expression:
+          - column_reference:
+            - naked_identifier: ATOMIC
+        - expression:
+          - function:
+            - function:
+              - function_name:
+                - function_name_identifier: WITH
+              - bracketed:
+                - start_bracket: (
+                - expression:
+                  - column_reference:
+                    - naked_identifier: LANGUAGE
+                  - comparison_operator:
+                    - raw_comparison_operator: =
+                  - quoted_literal: N'us_english'
+                - comma: ','
+                - expression:
+                  - column_reference:
+                    - naked_identifier: TRANSACTION
+                - expression:
+                  - column_reference:
+                    - naked_identifier: ISOLATION
+                - expression:
+                  - column_reference:
+                    - naked_identifier: LEVEL
+                  - comparison_operator:
+                    - raw_comparison_operator: =
+                  - column_reference:
+                    - naked_identifier: SERIALIZABLE
+                - comma: ','
+                - expression:
+                  - column_reference:
+                    - naked_identifier: DATEFIRST
+                  - comparison_operator:
+                    - raw_comparison_operator: =
+                  - numeric_literal: '10'
+                - comma: ','
+                - expression:
+                  - column_reference:
+                    - naked_identifier: DATEFORMAT
+                  - comparison_operator:
+                    - raw_comparison_operator: =
+                  - column_reference:
+                    - naked_identifier: dym
+                - comma: ','
+                - expression:
+                  - column_reference:
+                    - naked_identifier: DELAYED_DURABILITY
+                  - comparison_operator:
+                    - raw_comparison_operator: =
+                  - data_type:
+                    - data_type_identifier: ON
+                - end_bracket: )
+        - expression:
+          - select_statement:
             - select_clause:
-              - keyword: SELECT
-              - select_clause_element:
-                - numeric_literal: '1'
-      - statement_terminator: ;
-      - keyword: END
+              - select_clause:
+                - keyword: SELECT
+                - select_clause_element:
+                  - numeric_literal: '1'
+  - statement_terminator: ;
+  - statement:
+    - object_reference:
+      - object_reference:
+        - naked_identifier: END
   - statement_terminator: ;
   - keyword: GO
   - statement:
@@ -500,32 +529,53 @@ file:
       - keyword: AS
       - keyword: OWNER
       - keyword: AS
-      - keyword: BEGIN
-      - keyword: ATOMIC
-      - keyword: WITH
-      - bracketed:
-        - start_bracket: (
-        - keyword: TRANSACTION
-        - keyword: ISOLATION
-        - keyword: LEVEL
-        - comparison_operator:
-          - raw_comparison_operator: =
-        - naked_identifier: SNAPSHOT
-        - comma: ','
-        - keyword: LANGUAGE
-        - comparison_operator:
-          - raw_comparison_operator: =
-        - quoted_literal: '''us_english'''
-        - end_bracket: )
       - statement:
-        - select_statement:
-          - select_clause:
+        - object_reference:
+          - object_reference:
+            - naked_identifier: BEGIN
+        - expression:
+          - column_reference:
+            - naked_identifier: ATOMIC
+        - expression:
+          - function:
+            - function:
+              - function_name:
+                - function_name_identifier: WITH
+              - bracketed:
+                - start_bracket: (
+                - expression:
+                  - column_reference:
+                    - naked_identifier: TRANSACTION
+                - expression:
+                  - column_reference:
+                    - naked_identifier: ISOLATION
+                - expression:
+                  - column_reference:
+                    - naked_identifier: LEVEL
+                  - comparison_operator:
+                    - raw_comparison_operator: =
+                  - column_reference:
+                    - naked_identifier: SNAPSHOT
+                - comma: ','
+                - expression:
+                  - column_reference:
+                    - naked_identifier: LANGUAGE
+                  - comparison_operator:
+                    - raw_comparison_operator: =
+                  - quoted_literal: '''us_english'''
+                - end_bracket: )
+        - expression:
+          - select_statement:
             - select_clause:
-              - keyword: SELECT
-              - select_clause_element:
-                - numeric_literal: '1'
-      - statement_terminator: ;
-      - keyword: END
+              - select_clause:
+                - keyword: SELECT
+                - select_clause_element:
+                  - numeric_literal: '1'
+  - statement_terminator: ;
+  - statement:
+    - object_reference:
+      - object_reference:
+        - naked_identifier: END
   - statement_terminator: ;
   - keyword: GO
   - statement:
@@ -557,43 +607,72 @@ file:
       - keyword: AS
       - keyword: OWNER
       - keyword: AS
-      - keyword: BEGIN
-      - keyword: ATOMIC
-      - keyword: WITH
-      - bracketed:
-        - start_bracket: (
-        - keyword: TRANSACTION
-        - keyword: ISOLATION
-        - keyword: LEVEL
-        - comparison_operator:
-          - raw_comparison_operator: =
-        - keyword: REPEATABLE
-        - keyword: READ
-        - comma: ','
-        - keyword: LANGUAGE
-        - comparison_operator:
-          - raw_comparison_operator: =
-        - quoted_literal: N'us_english'
-        - comma: ','
-        - keyword: DELAYED_DURABILITY
-        - comparison_operator:
-          - raw_comparison_operator: =
-        - keyword: OFF
-        - comma: ','
-        - keyword: DATEFORMAT
-        - comparison_operator:
-          - raw_comparison_operator: =
-        - naked_identifier: myd
-        - end_bracket: )
       - statement:
-        - select_statement:
-          - select_clause:
+        - object_reference:
+          - object_reference:
+            - naked_identifier: BEGIN
+        - expression:
+          - column_reference:
+            - naked_identifier: ATOMIC
+        - expression:
+          - function:
+            - function:
+              - function_name:
+                - function_name_identifier: WITH
+              - bracketed:
+                - start_bracket: (
+                - expression:
+                  - column_reference:
+                    - naked_identifier: TRANSACTION
+                - expression:
+                  - column_reference:
+                    - naked_identifier: ISOLATION
+                - expression:
+                  - column_reference:
+                    - naked_identifier: LEVEL
+                  - comparison_operator:
+                    - raw_comparison_operator: =
+                  - column_reference:
+                    - naked_identifier: REPEATABLE
+                - expression:
+                  - column_reference:
+                    - naked_identifier: READ
+                - comma: ','
+                - expression:
+                  - column_reference:
+                    - naked_identifier: LANGUAGE
+                  - comparison_operator:
+                    - raw_comparison_operator: =
+                  - quoted_literal: N'us_english'
+                - comma: ','
+                - expression:
+                  - column_reference:
+                    - naked_identifier: DELAYED_DURABILITY
+                  - comparison_operator:
+                    - raw_comparison_operator: =
+                  - column_reference:
+                    - naked_identifier: OFF
+                - comma: ','
+                - expression:
+                  - column_reference:
+                    - naked_identifier: DATEFORMAT
+                  - comparison_operator:
+                    - raw_comparison_operator: =
+                  - column_reference:
+                    - naked_identifier: myd
+                - end_bracket: )
+        - expression:
+          - select_statement:
             - select_clause:
-              - keyword: SELECT
-              - select_clause_element:
-                - numeric_literal: '1'
-      - statement_terminator: ;
-      - keyword: END
+              - select_clause:
+                - keyword: SELECT
+                - select_clause_element:
+                  - numeric_literal: '1'
+  - statement_terminator: ;
+  - statement:
+    - object_reference:
+      - object_reference:
+        - naked_identifier: END
   - statement_terminator: ;
   - keyword: GO
   - statement:

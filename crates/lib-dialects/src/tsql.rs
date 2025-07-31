@@ -14,7 +14,7 @@ use sqruff_lib_core::parser::lexer::Matcher;
 use sqruff_lib_core::parser::lookahead::LookaheadExclude;
 use sqruff_lib_core::parser::matchable::MatchableTrait;
 use sqruff_lib_core::parser::node_matcher::NodeMatcher;
-use sqruff_lib_core::parser::parsers::{MultiStringParser, RegexParser, StringParser, TypedParser};
+use sqruff_lib_core::parser::parsers::{RegexParser, StringParser, TypedParser};
 use sqruff_lib_core::parser::segments::generator::SegmentGenerator;
 use sqruff_lib_core::parser::segments::meta::MetaSegment;
 use sqruff_lib_core::parser::types::ParseMode;
@@ -423,33 +423,32 @@ pub fn raw_dialect() -> Dialect {
             one_of(vec_of_erased![
                 // Searched CASE: CASE WHEN condition THEN result [WHEN condition THEN result]... [ELSE result] END
                 Sequence::new(vec_of_erased![
-                    // Use MultiStringParser to match "CASE" regardless of whether it's lexed as word or keyword
-                    MultiStringParser::new(vec!["CASE".to_string()], SyntaxKind::Keyword),
+                    Ref::keyword("CASE"),
                     AnyNumberOf::new(vec_of_erased![
                         Sequence::new(vec_of_erased![
-                            MultiStringParser::new(vec!["WHEN".to_string()], SyntaxKind::Keyword),
+                            Ref::keyword("WHEN"),
                             Ref::new("ExpressionSegment"),
-                            MultiStringParser::new(vec!["THEN".to_string()], SyntaxKind::Keyword),
+                            Ref::keyword("THEN"),
                             Ref::new("ExpressionSegment")
                         ])
                     ]),
                     Ref::new("ElseClauseSegment").optional(),
-                    MultiStringParser::new(vec!["END".to_string()], SyntaxKind::Keyword)
+                    Ref::keyword("END")
                 ]),
                 // Simple CASE: CASE expression WHEN value THEN result [WHEN value THEN result]... [ELSE result] END
                 Sequence::new(vec_of_erased![
-                    MultiStringParser::new(vec!["CASE".to_string()], SyntaxKind::Keyword),
+                    Ref::keyword("CASE"),
                     Ref::new("ExpressionSegment"),
                     AnyNumberOf::new(vec_of_erased![
                         Sequence::new(vec_of_erased![
-                            MultiStringParser::new(vec!["WHEN".to_string()], SyntaxKind::Keyword),
+                            Ref::keyword("WHEN"),
                             Ref::new("ExpressionSegment"),
-                            MultiStringParser::new(vec!["THEN".to_string()], SyntaxKind::Keyword),
+                            Ref::keyword("THEN"),
                             Ref::new("ExpressionSegment")
                         ])
                     ]),
                     Ref::new("ElseClauseSegment").optional(),
-                    MultiStringParser::new(vec!["END".to_string()], SyntaxKind::Keyword)
+                    Ref::keyword("END")
                 ])
             ])
             .to_matchable()
@@ -464,13 +463,12 @@ pub fn raw_dialect() -> Dialect {
         NodeMatcher::new(SyntaxKind::ColumnReference, |_| {
             Delimited::new(vec![
                 // Exclude CASE keywords from being parsed as column references
-                // Use MultiStringParser in exclude to handle both 'word' and 'keyword' tokens
                 Ref::new("SingleIdentifierGrammar")
-                    .exclude(MultiStringParser::new(vec!["CASE".to_string()], SyntaxKind::Keyword))
-                    .exclude(MultiStringParser::new(vec!["WHEN".to_string()], SyntaxKind::Keyword))
-                    .exclude(MultiStringParser::new(vec!["THEN".to_string()], SyntaxKind::Keyword))
-                    .exclude(MultiStringParser::new(vec!["ELSE".to_string()], SyntaxKind::Keyword))
-                    .exclude(MultiStringParser::new(vec!["END".to_string()], SyntaxKind::Keyword))
+                    .exclude(Ref::keyword("CASE"))
+                    .exclude(Ref::keyword("WHEN"))
+                    .exclude(Ref::keyword("THEN"))
+                    .exclude(Ref::keyword("ELSE"))
+                    .exclude(Ref::keyword("END"))
                     .to_matchable()
             ])
             .config(|this| this.delimiter(Ref::new("ObjectReferenceDelimiterGrammar")))
@@ -1256,8 +1254,7 @@ pub fn raw_dialect() -> Dialect {
         "PrintStatementSegment".into(),
         NodeMatcher::new(SyntaxKind::Statement, |_| {
             Sequence::new(vec_of_erased![
-                // Use MultiStringParser to match "PRINT" regardless of lexing
-                MultiStringParser::new(vec!["PRINT".to_string()], SyntaxKind::Keyword),
+                Ref::keyword("PRINT"),
                 Ref::new("ExpressionSegment")
             ])
             .to_matchable()
@@ -1575,8 +1572,7 @@ pub fn raw_dialect() -> Dialect {
         "IfStatementSegment".into(),
         NodeMatcher::new(SyntaxKind::IfStatement, |_| {
             Sequence::new(vec_of_erased![
-                // Use MultiStringParser to match "IF" regardless of lexing
-                MultiStringParser::new(vec!["IF".to_string()], SyntaxKind::Keyword),
+                Ref::keyword("IF"),
                 Ref::new("ExpressionSegment"),
                 MetaSegment::indent(),
                 // Use a constrained statement that terminates on ELSE at the same level
@@ -1591,16 +1587,14 @@ pub fn raw_dialect() -> Dialect {
                 ])
                 .config(|this| {
                     this.terminators = vec_of_erased![
-                        // Use MultiStringParser for ELSE too
-                        MultiStringParser::new(vec!["ELSE".to_string()], SyntaxKind::Keyword),
+                        Ref::keyword("ELSE"),
                         // Also terminate on GO batch separator
                         Ref::new("BatchSeparatorGrammar")
                     ];
                 }),
                 MetaSegment::dedent(),
                 Sequence::new(vec_of_erased![
-                    // Use MultiStringParser for ELSE as well
-                    MultiStringParser::new(vec!["ELSE".to_string()], SyntaxKind::Keyword),
+                    Ref::keyword("ELSE"),
                     MetaSegment::indent(),
                     one_of(vec_of_erased![
                         // BEGIN...END block (already handles its own delimiters)
@@ -6801,8 +6795,7 @@ pub fn raw_dialect() -> Dialect {
         "ReturnStatementSegment".into(),
         NodeMatcher::new(SyntaxKind::Statement, |_| {
             Sequence::new(vec_of_erased![
-                // Use MultiStringParser to match "RETURN" regardless of lexing
-                MultiStringParser::new(vec!["RETURN".to_string()], SyntaxKind::Keyword),
+                Ref::keyword("RETURN"),
                 // Optional return value (for functions)
                 Ref::new("ExpressionSegment").optional()
             ])

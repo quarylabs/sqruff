@@ -3849,7 +3849,7 @@ pub fn raw_dialect() -> Dialect {
             Ref::new("BeginEndBlockSegment"),
             Ref::new("ThrowStatementSegment"),
             Ref::new("AtomicBlockSegment"),
-            Ref::new("BatchSeparatorSegment"), // GO statements
+            // Removed BatchSeparatorSegment - GO should be a batch separator, not a statement
             Ref::new("DeclareStatementSegment"),
             Ref::new("SetVariableStatementSegment"),
             Ref::new("PrintStatementSegment"),

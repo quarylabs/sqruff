@@ -99,4 +99,4 @@ file:
                     - quoted_identifier: '''Packets Received'''
       - statement_terminator: ;
       - statement:
-        - keyword: GO
+        - naked_identifier: GO

@@ -1217,3 +1217,22 @@ The regression was introduced in commit 275fecbe (DELETE statement fix):
 
 ### Next Steps
 Need to investigate why the DELETE fix caused these regressions and potentially revert or fix it properly.
+
+## Update: Statement Parsing in Procedure Bodies (2025-08-01)
+
+### Issue Found
+After removing DROP/ALTER/CREATE from statement terminators, keywords in procedure bodies are being parsed as `naked_identifier` instead of `keyword`:
+- IF, BEGIN, END, TRY, CATCH are not recognized as keywords
+- This happens in contexts after AS in CREATE PROCEDURE/FUNCTION
+
+### Investigation
+1. `ProcedureDefinitionGrammar` uses `StatementSegment` which should handle these keywords
+2. The issue appears to be that the parser isn't properly recognizing statement boundaries in procedure contexts
+3. Current state: 5 files with unparsable sections (down from 7)
+
+### Remaining Issues
+1. **delete_azure_synapse_analytics.yml**: OPTION clause not supported in DELETE statement
+2. **function_no_return.yml**: IF/BEGIN keywords not recognized after AS
+3. **if_else_begin_end.yml**: END keyword not recognized
+4. **triggers.yml**: IF EXISTS and RAISERROR parameters
+5. **try_catch.yml**: BEGIN TRY keywords not recognized

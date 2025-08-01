@@ -1,0 +1,9 @@
+CREATE TRIGGER test_trigger ON test_table
+AFTER INSERT
+AS
+IF (ROWCOUNT_BIG() = 0)
+RETURN;
+IF EXISTS (SELECT 1 FROM inserted)
+BEGIN
+    PRINT 'Has rows';
+END;

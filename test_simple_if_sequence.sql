@@ -1,0 +1,4 @@
+IF (1 = 0)
+RETURN;
+IF EXISTS (SELECT 1)
+PRINT 'Found';

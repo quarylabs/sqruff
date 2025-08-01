@@ -1,0 +1,8 @@
+CREATE TRIGGER test_trigger ON test_table
+AFTER INSERT
+AS
+IF (1 = 0)
+RETURN;
+IF EXISTS (SELECT 1)
+PRINT 'Found';
+GO

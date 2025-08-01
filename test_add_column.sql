@@ -1,0 +1,1 @@
+ALTER TABLE table_name ADD column1 INT;

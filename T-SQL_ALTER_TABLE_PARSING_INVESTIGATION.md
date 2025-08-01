@@ -1257,9 +1257,26 @@ After removing DROP/ALTER/CREATE from statement terminators, keywords in procedu
 
 2. **try_catch.yml**: Second BEGIN TRY block fails while first one works
    - First BEGIN TRY parses correctly
-   - Second BEGIN TRY after THROW statement becomes unparsable
+   - Second BEGIN TRY after THROW statement becomes unparsable (all keywords as words)
    - Suggests context or state issue after THROW
 
 3. **function_no_return.yml**: Keywords after AS in stored procedure not recognized
-   - IF, BEGIN, END are parsed as naked_identifiers
-   - Procedure body parsing context issue
+   - ALL keywords are parsed as words: IS, NULL, BEGIN, PRINT, RETURN, END, ELSE, SELECT, FROM, etc.
+   - Complete failure of keyword recognition in procedure context
+   - ProcedureDefinitionGrammar expects StatementSegment which should work
+
+### Common Pattern Discovered
+
+All three issues involve keywords being lexed as 'word' tokens instead of 'keyword' tokens in certain contexts:
+- After AS in procedures
+- After END in IF statements  
+- After semicolon following THROW
+
+This is similar to a known T-SQL lexing behavior documented in the code where CASE/WHEN/THEN/ELSE are lexed differently in SELECT vs WHERE contexts. The attempted solution was to use StringParser instead of Ref::keyword, but this approach appears to have been abandoned (code is commented out).
+
+### Next Steps
+
+This appears to be a fundamental lexer/parser issue where keyword recognition fails in certain contexts. Possible approaches:
+1. Investigate if we can fix the lexer to properly recognize keywords in these contexts
+2. Use StringParser approach similar to the commented-out CASE expression handling
+3. Find an alternative grammar structure that avoids the lexing ambiguity

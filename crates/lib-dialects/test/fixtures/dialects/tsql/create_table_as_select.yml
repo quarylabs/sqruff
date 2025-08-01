@@ -169,8 +169,8 @@ file:
         - dot: .
         - quoted_identifier: '[PL_stage]'
     - expression:
-      - data_type:
-        - data_type_identifier: CREATE
+      - column_reference:
+        - naked_identifier: CREATE
     - expression:
       - column_reference:
         - naked_identifier: TABLE

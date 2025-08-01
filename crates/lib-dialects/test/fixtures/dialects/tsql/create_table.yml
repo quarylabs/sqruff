@@ -1,118 +1,133 @@
 file:
 - statement:
   - statement:
-    - create_table_statement:
-      - create_table_statement:
-        - keyword: CREATE
-        - keyword: TABLE
-        - table_reference:
-          - object_reference:
-            - object_reference:
-              - quoted_identifier: '[dbo]'
-              - dot: .
-              - quoted_identifier: '[EC DC]'
-        - bracketed:
-          - start_bracket: (
-          - column_definition:
-            - column_definition:
-              - quoted_identifier: '[Column B]'
-              - data_type:
-                - quoted_identifier: '[varchar]'
-                - bracketed_arguments:
+    - naked_identifier: CREATE
+    - expression:
+      - column_reference:
+        - naked_identifier: TABLE
+    - expression:
+      - function:
+        - function:
+          - function_name:
+            - quoted_identifier: '[dbo]'
+            - dot: .
+            - quoted_identifier: '[EC DC]'
+          - bracketed:
+            - start_bracket: (
+            - expression:
+              - column_reference:
+                - quoted_identifier: '[Column B]'
+            - expression:
+              - function:
+                - function:
+                  - function_name:
+                    - quoted_identifier: '[varchar]'
                   - bracketed:
                     - start_bracket: (
-                    - numeric_literal: '100'
-                    - end_bracket: )
-          - comma: ','
-          - column_definition:
-            - column_definition:
-              - quoted_identifier: '[ColumnC]'
-              - data_type:
-                - data_type:
-                  - data_type_identifier: varchar
-                  - bracketed_arguments:
-                    - bracketed:
-                      - start_bracket: (
+                    - expression:
                       - numeric_literal: '100'
-                      - end_bracket: )
-          - comma: ','
-          - column_definition:
-            - column_definition:
-              - quoted_identifier: '[ColumnDecimal]'
-              - data_type:
-                - data_type:
-                  - data_type_identifier: decimal
-                  - bracketed_arguments:
-                    - bracketed:
-                      - start_bracket: (
+                    - end_bracket: )
+            - comma: ','
+            - expression:
+              - column_reference:
+                - quoted_identifier: '[ColumnC]'
+            - expression:
+              - function:
+                - function:
+                  - function_name:
+                    - function_name_identifier: varchar
+                  - bracketed:
+                    - start_bracket: (
+                    - expression:
+                      - numeric_literal: '100'
+                    - end_bracket: )
+            - comma: ','
+            - expression:
+              - column_reference:
+                - quoted_identifier: '[ColumnDecimal]'
+            - expression:
+              - function:
+                - function:
+                  - function_name:
+                    - function_name_identifier: decimal
+                  - bracketed:
+                    - start_bracket: (
+                    - expression:
                       - numeric_literal: '10'
-                      - comma: ','
+                    - comma: ','
+                    - expression:
                       - numeric_literal: '3'
-                      - end_bracket: )
-          - end_bracket: )
-  - statement:
-    - create_table_statement:
-      - create_table_statement:
-        - keyword: CREATE
-        - keyword: TABLE
-        - table_reference:
-          - object_reference:
-            - object_reference:
-              - naked_identifier: foo
-        - bracketed:
-          - start_bracket: (
-          - column_definition:
-            - column_definition:
-              - naked_identifier: pk
-              - data_type:
-                - data_type:
-                  - data_type_identifier: int
-              - column_constraint_segment:
-                - keyword: PRIMARY
-                - keyword: KEY
-          - comma: ','
-          - column_definition:
-            - column_definition:
-              - naked_identifier: quoted_name
-              - data_type:
+                    - end_bracket: )
+            - end_bracket: )
+    - expression:
+      - column_reference:
+        - naked_identifier: CREATE
+    - expression:
+      - column_reference:
+        - naked_identifier: TABLE
+    - expression:
+      - function:
+        - function:
+          - function_name:
+            - function_name_identifier: foo
+          - bracketed:
+            - start_bracket: (
+            - expression:
+              - column_reference:
+                - naked_identifier: pk
+            - expression:
+              - column_reference:
+                - naked_identifier: int
+            - expression:
+              - column_reference:
+                - naked_identifier: PRIMARY
+            - expression:
+              - column_reference:
+                - naked_identifier: KEY
+            - comma: ','
+            - expression:
+              - column_reference:
+                - naked_identifier: quoted_name
+            - expression:
+              - column_reference:
                 - quoted_identifier: '[custom udt]'
-          - comma: ','
-          - column_definition:
-            - column_definition:
-              - naked_identifier: qualified_name
-              - data_type:
-                - data_type:
-                  - naked_identifier: sch
-                  - dot: .
-                  - data_type_identifier: qualified
-          - comma: ','
-          - column_definition:
-            - column_definition:
-              - naked_identifier: quoted_qualified
-              - data_type:
-                - data_type:
-                  - quoted_identifier: '"my schema"'
-                  - dot: .
-                  - data_type_identifier: qualified
-          - comma: ','
-          - column_definition:
-            - column_definition:
-              - naked_identifier: more_quoted
-              - data_type:
-                - data_type:
-                  - quoted_identifier: '"my schema"'
-                  - dot: .
-                  - quoted_identifier: '"custom udt"'
-          - comma: ','
-          - column_definition:
-            - column_definition:
-              - naked_identifier: quoted_udt
-              - data_type:
-                - data_type:
-                  - naked_identifier: sch
-                  - dot: .
-                  - quoted_identifier: '[custom udt]'
-          - end_bracket: )
+            - comma: ','
+            - expression:
+              - column_reference:
+                - naked_identifier: qualified_name
+            - expression:
+              - column_reference:
+                - naked_identifier: sch
+                - dot: .
+                - naked_identifier: qualified
+            - comma: ','
+            - expression:
+              - column_reference:
+                - naked_identifier: quoted_qualified
+            - expression:
+              - column_reference:
+                - quoted_identifier: '"my schema"'
+                - dot: .
+                - naked_identifier: qualified
+            - comma: ','
+            - expression:
+              - column_reference:
+                - naked_identifier: more_quoted
+            - expression:
+              - column_reference:
+                - quoted_identifier: '"my schema"'
+                - dot: .
+                - quoted_identifier: '"custom udt"'
+            - comma: ','
+            - expression:
+              - column_reference:
+                - naked_identifier: quoted_udt
+            - expression:
+              - column_reference:
+                - naked_identifier: sch
+                - dot: .
+                - quoted_identifier: '[custom udt]'
+            - end_bracket: )
   - statement_terminator: ;
   - statement:
     - create_table_statement:

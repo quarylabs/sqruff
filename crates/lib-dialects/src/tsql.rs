@@ -3954,8 +3954,7 @@ pub fn raw_dialect() -> Dialect {
         ])
         .config(|this| this.terminators = vec_of_erased![
             Ref::new("DelimiterGrammar"),
-            Ref::new("BatchSeparatorGrammar"), // Ensure GO terminates statements
-            Ref::keyword("CREATE") // CREATE truly starts new statements
+            Ref::new("BatchSeparatorGrammar") // Ensure GO terminates statements
         ])
         .to_matchable(),
     );

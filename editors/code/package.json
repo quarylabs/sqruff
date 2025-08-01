@@ -35,7 +35,7 @@
     "check-types": "tsc --noEmit",
     "lint": "eslint src --max-warnings 0",
     "test": "vscode-test",
-    "run-in-browser": "vscode-test-web --browserType=chromium --extensionDevelopmentPath=. ../../crates/lib/test/fixtures/dialects/ansi"
+    "run-in-browser": "vscode-test-web --browserType=chromium --extensionDevelopmentPath=. ../../crates/lib-dialects/test/fixtures/dialects/ansi"
   },
   "dependencies": {
     "vscode-languageclient": "^9.0.1",

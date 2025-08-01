@@ -1,58 +1,53 @@
 file:
 - statement:
   - statement:
-    - object_reference:
-      - object_reference:
-        - naked_identifier: DECLARE
-    - expression:
-      - parameterized_expression:
-        - tsql_variable: '@TestVal'
-    - expression:
-      - function:
-        - function:
-          - function_name:
-            - function_name_identifier: VARCHAR
+    - declare_statement:
+      - keyword: DECLARE
+      - tsql_variable: '@TestVal'
+      - data_type:
+        - data_type_identifier: VARCHAR
+        - bracketed_arguments:
           - bracketed:
             - start_bracket: (
-            - expression:
-              - numeric_literal: '20'
+            - numeric_literal: '20'
             - end_bracket: )
-      - comparison_operator:
+      - assignment_operator:
         - raw_comparison_operator: =
-      - quoted_literal: '''Test Print'''
-    - expression:
-      - column_reference:
-        - naked_identifier: PRINT
-    - expression:
-      - quoted_literal: '''#Dates'''
-    - expression:
-      - column_reference:
-        - naked_identifier: PRINT
-    - expression:
-      - function:
+      - expression:
+        - quoted_literal: '''Test Print'''
+  - statement:
+    - statement:
+      - keyword: PRINT
+      - expression:
+        - quoted_literal: '''#Dates'''
+  - statement:
+    - statement:
+      - keyword: PRINT
+      - expression:
         - function:
-          - function_name:
-            - function_name_identifier: CAST
-          - bracketed:
-            - start_bracket: (
-            - expression:
-              - function:
+          - function:
+            - function_name:
+              - function_name_identifier: CAST
+            - bracketed:
+              - start_bracket: (
+              - expression:
                 - function:
-                  - function_name:
-                    - function_name_identifier: GETDATE
-                  - bracketed:
-                    - start_bracket: (
-                    - end_bracket: )
-            - keyword: AS
-            - data_type:
+                  - function:
+                    - function_name:
+                      - function_name_identifier: GETDATE
+                    - bracketed:
+                      - start_bracket: (
+                      - end_bracket: )
+              - keyword: AS
               - data_type:
-                - data_type_identifier: VARCHAR
-                - bracketed_arguments:
-                  - bracketed:
-                    - start_bracket: (
-                    - numeric_literal: '50'
-                    - end_bracket: )
-            - end_bracket: )
+                - data_type:
+                  - data_type_identifier: VARCHAR
+                  - bracketed_arguments:
+                    - bracketed:
+                      - start_bracket: (
+                      - numeric_literal: '50'
+                      - end_bracket: )
+              - end_bracket: )
   - statement_terminator: ;
   - statement:
     - statement:

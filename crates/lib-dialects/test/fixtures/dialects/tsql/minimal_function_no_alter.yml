@@ -26,16 +26,14 @@ file:
         - data_type:
           - data_type_identifier: integer
         - keyword: AS
+        - keyword: BEGIN
         - statement:
-          - begin_end_block:
-            - keyword: BEGIN
-            - statement:
-              - statement:
-                - keyword: RETURN
-                - expression:
-                  - parameterized_expression:
-                    - tsql_variable: '@add_1'
-                  - binary_operator: +
-                  - parameterized_expression:
-                    - tsql_variable: '@add_2'
-            - keyword: END
+          - statement:
+            - keyword: RETURN
+            - expression:
+              - parameterized_expression:
+                - tsql_variable: '@add_1'
+              - binary_operator: +
+              - parameterized_expression:
+                - tsql_variable: '@add_2'
+        - keyword: END

@@ -1,0 +1,1 @@
+RAISERROR ('message', 10, 1)

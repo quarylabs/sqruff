@@ -32,353 +32,220 @@ file:
             - expression:
               - numeric_literal: '10'
             - end_bracket: )
-  - statement_terminator: ;
-  - keyword: GO
-  - statement:
-    - create_trigger_statement:
-      - keyword: CREATE
-      - keyword: TRIGGER
-      - trigger_reference:
-        - naked_identifier: reminder2
-      - keyword: ON
-      - table_reference:
-        - object_reference:
-          - object_reference:
-            - naked_identifier: Sales
-            - dot: .
-            - naked_identifier: Customer
-      - keyword: AFTER
-      - keyword: INSERT
-      - comma: ','
-      - keyword: UPDATE
-      - comma: ','
-      - keyword: DELETE
-      - keyword: AS
+      - statement_terminator: ;
       - statement:
-        - statement:
-          - keyword: EXEC
-          - object_reference:
+        - keyword: GO
+      - statement:
+        - create_trigger_statement:
+          - keyword: CREATE
+          - keyword: TRIGGER
+          - trigger_reference:
+            - naked_identifier: reminder2
+          - keyword: ON
+          - table_reference:
             - object_reference:
-              - naked_identifier: msdb
-              - dot: .
-              - naked_identifier: dbo
-              - dot: .
-              - naked_identifier: sp_send_dbmail
-          - tsql_variable: '@profile_name'
-          - assignment_operator:
-            - raw_comparison_operator: =
-          - expression:
-            - quoted_literal: '''AdventureWorks2012 Administrator'''
+              - object_reference:
+                - naked_identifier: Sales
+                - dot: .
+                - naked_identifier: Customer
+          - keyword: AFTER
+          - keyword: INSERT
           - comma: ','
-          - tsql_variable: '@recipients'
-          - assignment_operator:
-            - raw_comparison_operator: =
-          - expression:
-            - quoted_literal: '''danw@Adventure-Works.com'''
+          - keyword: UPDATE
           - comma: ','
-          - tsql_variable: '@body'
-          - assignment_operator:
-            - raw_comparison_operator: =
-          - expression:
-            - quoted_literal: '''Don''''t forget to print a report for the sales force.'''
-          - comma: ','
-          - tsql_variable: '@subject'
-          - assignment_operator:
-            - raw_comparison_operator: =
-          - expression:
-            - quoted_literal: '''Reminder'''
-  - statement_terminator: ;
-  - keyword: GO
-  - statement:
-    - create_trigger_statement:
-      - keyword: CREATE
-      - keyword: TRIGGER
-      - trigger_reference:
-        - naked_identifier: Purchasing
-        - dot: .
-        - naked_identifier: LowCredit
-      - keyword: ON
-      - table_reference:
-        - object_reference:
-          - object_reference:
-            - naked_identifier: Purchasing
-            - dot: .
-            - naked_identifier: PurchaseOrderHeader
-      - keyword: AFTER
-      - keyword: INSERT
-      - keyword: AS
-      - statement:
-        - if_statement:
-          - keyword: IF
-          - expression:
-            - bracketed:
-              - start_bracket: (
-              - expression:
-                - function:
-                  - function:
-                    - function_name:
-                      - function_name_identifier: ROWCOUNT_BIG
-                    - bracketed:
-                      - start_bracket: (
-                      - end_bracket: )
-                - comparison_operator:
-                  - raw_comparison_operator: =
-                - numeric_literal: '0'
-              - end_bracket: )
+          - keyword: DELETE
+          - keyword: AS
           - statement:
             - statement:
-              - keyword: RETURN
+              - keyword: EXEC
+              - object_reference:
+                - object_reference:
+                  - naked_identifier: msdb
+                  - dot: .
+                  - naked_identifier: dbo
+                  - dot: .
+                  - naked_identifier: sp_send_dbmail
+              - tsql_variable: '@profile_name'
+              - assignment_operator:
+                - raw_comparison_operator: =
+              - expression:
+                - quoted_literal: '''AdventureWorks2012 Administrator'''
+              - comma: ','
+              - tsql_variable: '@recipients'
+              - assignment_operator:
+                - raw_comparison_operator: =
+              - expression:
+                - quoted_literal: '''danw@Adventure-Works.com'''
+              - comma: ','
+              - tsql_variable: '@body'
+              - assignment_operator:
+                - raw_comparison_operator: =
+              - expression:
+                - quoted_literal: '''Don''''t forget to print a report for the sales force.'''
+              - comma: ','
+              - tsql_variable: '@subject'
+              - assignment_operator:
+                - raw_comparison_operator: =
+              - expression:
+                - quoted_literal: '''Reminder'''
           - statement_terminator: ;
           - statement:
-            - if_statement:
-              - keyword: IF
-              - expression:
-                - keyword: EXISTS
-                - bracketed:
-                  - start_bracket: (
-                  - select_statement:
-                    - select_clause:
-                      - select_clause:
-                        - keyword: SELECT
-                        - select_clause_element:
-                          - numeric_literal: '1'
-                    - from_clause:
-                      - keyword: FROM
-                      - from_expression:
-                        - from_expression:
-                          - from_expression_element:
-                            - from_expression_element:
-                              - table_expression:
-                                - table_reference:
-                                  - object_reference:
-                                    - object_reference:
-                                      - naked_identifier: inserted
-                              - alias_expression:
-                                - keyword: AS
-                                - naked_identifier: i
-                          - join_clause:
-                            - keyword: JOIN
-                            - from_expression_element:
-                              - from_expression_element:
-                                - table_expression:
-                                  - table_reference:
-                                    - object_reference:
-                                      - object_reference:
-                                        - naked_identifier: Purchasing
-                                        - dot: .
-                                        - naked_identifier: Vendor
-                                - alias_expression:
-                                  - keyword: AS
-                                  - naked_identifier: v
-                            - join_on_condition:
-                              - keyword: ON
-                              - expression:
-                                - column_reference:
-                                  - naked_identifier: v
-                                  - dot: .
-                                  - naked_identifier: BusinessEntityID
-                                - comparison_operator:
-                                  - raw_comparison_operator: =
-                                - column_reference:
-                                  - naked_identifier: i
-                                  - dot: .
-                                  - naked_identifier: VendorID
-                    - where_clause:
-                      - keyword: WHERE
-                      - expression:
-                        - column_reference:
-                          - naked_identifier: v
-                          - dot: .
-                          - naked_identifier: CreditRating
-                        - comparison_operator:
-                          - raw_comparison_operator: =
-                        - numeric_literal: '5'
-                  - end_bracket: )
-              - statement:
+            - keyword: GO
+          - statement:
+            - create_trigger_statement:
+              - keyword: CREATE
+              - keyword: TRIGGER
+              - trigger_reference:
+                - naked_identifier: Purchasing
+                - dot: .
+                - naked_identifier: LowCredit
+              - keyword: ON
+              - table_reference:
                 - object_reference:
                   - object_reference:
-                    - naked_identifier: BEGIN
-                - expression:
-                  - function:
-                    - function:
-                      - function_name:
-                        - function_name_identifier: RAISERROR
-                      - bracketed:
-                        - start_bracket: (
-                        - expression:
-                          - quoted_literal: |-
-                              'A vendor''s credit rating is too low to accept new
-                              purchase orders.'
-                        - comma: ','
-                        - expression:
-                          - numeric_literal: '16'
-                        - comma: ','
-                        - expression:
-                          - numeric_literal: '1'
-                        - end_bracket: )
-              - statement_terminator: ;
+                    - naked_identifier: Purchasing
+                    - dot: .
+                    - naked_identifier: PurchaseOrderHeader
+              - keyword: AFTER
+              - keyword: INSERT
+              - keyword: AS
               - statement:
-                - transaction_statement:
-                  - transaction_statement:
-                    - keyword: ROLLBACK
-                    - keyword: TRANSACTION
-              - statement_terminator: ;
-              - statement:
-                - statement:
-                  - keyword: RETURN
+                - if_statement:
+                  - keyword: IF
                   - expression:
-                    - data_type:
-                      - data_type_identifier: END
-              - statement_terminator: ;
-              - statement:
-                - keyword: GO
-              - statement:
-                - create_trigger_statement:
-                  - keyword: CREATE
-                  - keyword: TRIGGER
-                  - trigger_reference:
-                    - naked_identifier: safety
-                  - keyword: ON
-                  - table_reference:
-                    - object_reference:
-                      - object_reference:
-                        - naked_identifier: DATABASE
-                  - keyword: FOR
-                  - keyword: DROP_SYNONYM
-                  - keyword: AS
-                  - statement:
-                    - if_statement:
-                      - keyword: IF
+                    - bracketed:
+                      - start_bracket: (
                       - expression:
-                        - bracketed:
-                          - start_bracket: (
-                          - expression:
-                            - parameterized_expression:
-                              - tsql_variable: '@@ROWCOUNT'
-                            - comparison_operator:
-                              - raw_comparison_operator: =
-                            - numeric_literal: '0'
-                          - end_bracket: )
-                      - statement:
-                        - statement:
-                          - keyword: RETURN
-                      - statement_terminator: ;
-                      - statement:
-                        - object_reference:
-                          - object_reference:
-                            - naked_identifier: RAISERROR
-                        - expression:
-                          - bracketed:
-                            - start_bracket: (
-                            - expression:
-                              - quoted_literal: '''You must disable Trigger "safety" to remove synonyms!'''
-                            - unparsable:
-                              - comma: ','
-                              - numeric_literal: '10'
-                              - comma: ','
-                              - numeric_literal: '1'
-                            - end_bracket: )
-                        - expression:
-                          - column_reference:
-                            - naked_identifier: ROLLBACK
-                        - expression:
-                          - data_type:
-                            - data_type_identifier: GO
-                        - expression:
-                          - data_type:
-                            - data_type_identifier: DROP
-                        - expression:
-                          - column_reference:
-                            - naked_identifier: TRIGGER
-                        - expression:
-                          - column_reference:
-                            - naked_identifier: safety
-                        - expression:
-                          - data_type:
-                            - data_type_identifier: ON
-                        - expression:
-                          - column_reference:
-                            - naked_identifier: DATABASE
-                      - statement_terminator: ;
-                      - statement:
-                        - keyword: GO
-                      - statement:
-                        - create_trigger_statement:
-                          - keyword: CREATE
-                          - keyword: TRIGGER
-                          - trigger_reference:
-                            - naked_identifier: ddl_trig_database
-                          - keyword: ON
-                          - keyword: ALL
-                          - keyword: SERVER
-                          - keyword: FOR
-                          - keyword: CREATE_DATABASE
-                          - keyword: AS
-                          - statement:
-                            - object_reference:
-                              - object_reference:
-                                - naked_identifier: PRINT
-                            - expression:
-                              - quoted_literal: '''Database Created.'''
-                            - expression:
-                              - select_statement:
-                                - select_clause:
-                                  - select_clause:
-                                    - keyword: SELECT
-                                    - select_clause_element:
-                                      - numeric_literal: '1'
-                            - expression:
-                              - data_type:
-                                - data_type_identifier: GO
-                            - expression:
-                              - data_type:
-                                - data_type_identifier: CREATE
-                            - expression:
-                              - column_reference:
-                                - naked_identifier: TRIGGER
-                            - expression:
-                              - column_reference:
-                                - naked_identifier: ddl_trig_database
-                            - expression:
-                              - data_type:
-                                - data_type_identifier: ON
-                            - expression:
-                              - column_reference:
-                                - naked_identifier: ALL
-                            - expression:
-                              - column_reference:
-                                - naked_identifier: SERVER
-                            - expression:
-                              - column_reference:
-                                - naked_identifier: FOR
-                            - expression:
-                              - column_reference:
-                                - naked_identifier: CREATE_DATABASE
-                            - expression:
-                              - column_reference:
-                                - naked_identifier: AS
-                            - expression:
-                              - column_reference:
-                                - naked_identifier: PRINT
-                            - expression:
-                              - quoted_literal: '''Database Created.'''
-                      - statement_terminator: ;
-                      - statement:
-                        - select_statement:
-                          - select_clause:
-                            - select_clause:
-                              - keyword: SELECT
-                              - select_clause_element:
-                                - numeric_literal: '1'
-                      - statement:
-                        - keyword: GO
-                      - statement:
-                        - drop_trigger_statement:
-                          - keyword: DROP
-                          - keyword: TRIGGER
-                          - trigger_reference:
-                            - naked_identifier: ddl_trig_database
-- file:
+                        - function:
+                          - function:
+                            - function_name:
+                              - function_name_identifier: ROWCOUNT_BIG
+                            - bracketed:
+                              - start_bracket: (
+                              - end_bracket: )
+                        - comparison_operator:
+                          - raw_comparison_operator: =
+                        - numeric_literal: '0'
+                      - end_bracket: )
+                  - statement:
+                    - statement:
+                      - keyword: RETURN
+                  - statement_terminator: ;
+- unparsable:
+  - word: IF
+  - word: EXISTS
+  - start_bracket: (
+  - word: SELECT
+  - numeric_literal: '1'
+  - word: FROM
+  - word: inserted
+  - word: AS
+  - word: i
+  - word: JOIN
+  - word: Purchasing
+  - dot: .
+  - word: Vendor
+  - word: AS
+  - word: v
+  - word: ON
+  - word: v
+  - dot: .
+  - word: BusinessEntityID
+  - raw_comparison_operator: =
+  - word: i
+  - dot: .
+  - word: VendorID
+  - word: WHERE
+  - word: v
+  - dot: .
+  - word: CreditRating
+  - raw_comparison_operator: =
+  - numeric_literal: '5'
+  - end_bracket: )
+  - word: BEGIN
+  - word: RAISERROR
+  - start_bracket: (
+  - single_quote: |-
+      'A vendor''s credit rating is too low to accept new
+      purchase orders.'
+  - comma: ','
+  - numeric_literal: '16'
+  - comma: ','
+  - numeric_literal: '1'
+  - end_bracket: )
+  - semicolon: ;
+  - word: ROLLBACK
+  - word: TRANSACTION
+  - semicolon: ;
+  - word: RETURN
+  - word: END
+  - semicolon: ;
+  - word: GO
+  - word: CREATE
+  - word: TRIGGER
+  - word: safety
+  - word: ON
+  - word: DATABASE
+  - word: FOR
+  - word: DROP_SYNONYM
+  - word: AS
+  - word: IF
+  - start_bracket: (
+  - tsql_variable: '@@ROWCOUNT'
+  - raw_comparison_operator: =
+  - numeric_literal: '0'
+  - end_bracket: )
+  - word: RETURN
+  - semicolon: ;
+  - word: RAISERROR
+  - start_bracket: (
+  - single_quote: '''You must disable Trigger "safety" to remove synonyms!'''
+  - comma: ','
+  - numeric_literal: '10'
+  - comma: ','
+  - numeric_literal: '1'
+  - end_bracket: )
+  - word: ROLLBACK
+  - word: GO
+  - word: DROP
+  - word: TRIGGER
+  - word: safety
+  - word: ON
+  - word: DATABASE
+  - semicolon: ;
+  - word: GO
+  - word: CREATE
+  - word: TRIGGER
+  - word: ddl_trig_database
+  - word: ON
+  - word: ALL
+  - word: SERVER
+  - word: FOR
+  - word: CREATE_DATABASE
+  - word: AS
+  - word: PRINT
+  - single_quote: '''Database Created.'''
+  - word: SELECT
+  - numeric_literal: '1'
+  - word: GO
+  - word: CREATE
+  - word: TRIGGER
+  - word: ddl_trig_database
+  - word: ON
+  - word: ALL
+  - word: SERVER
+  - word: FOR
+  - word: CREATE_DATABASE
+  - word: AS
+  - word: PRINT
+  - single_quote: '''Database Created.'''
+  - semicolon: ;
+  - word: SELECT
+  - numeric_literal: '1'
+  - word: GO
+  - word: DROP
+  - word: TRIGGER
+  - word: ddl_trig_database
   - word: ON
   - word: ALL
   - word: SERVER

@@ -72,9 +72,7 @@ file:
   - statement_terminator: ;
   - keyword: GO
   - statement:
-    - object_reference:
-      - object_reference:
-        - naked_identifier: ALTER
+    - naked_identifier: ALTER
     - expression:
       - column_reference:
         - naked_identifier: TABLE
@@ -347,9 +345,7 @@ file:
               - end_bracket: )
   - keyword: GO
   - statement:
-    - object_reference:
-      - object_reference:
-        - naked_identifier: ALTER
+    - naked_identifier: ALTER
     - expression:
       - column_reference:
         - naked_identifier: TABLE
@@ -530,9 +526,7 @@ file:
   - statement_terminator: ;
   - keyword: GO
   - statement:
-    - object_reference:
-      - object_reference:
-        - naked_identifier: ALTER
+    - naked_identifier: ALTER
     - expression:
       - column_reference:
         - naked_identifier: TABLE
@@ -557,9 +551,7 @@ file:
   - statement_terminator: ;
   - keyword: GO
   - statement:
-    - object_reference:
-      - object_reference:
-        - naked_identifier: ALTER
+    - naked_identifier: ALTER
     - expression:
       - column_reference:
         - naked_identifier: TABLE
@@ -596,9 +588,7 @@ file:
   - statement_terminator: ;
   - keyword: GO
   - statement:
-    - object_reference:
-      - object_reference:
-        - naked_identifier: ALTER
+    - naked_identifier: ALTER
     - expression:
       - column_reference:
         - naked_identifier: TABLE
@@ -643,9 +633,7 @@ file:
   - statement_terminator: ;
   - keyword: GO
   - statement:
-    - object_reference:
-      - object_reference:
-        - naked_identifier: ALTER
+    - naked_identifier: ALTER
     - expression:
       - column_reference:
         - naked_identifier: TABLE
@@ -698,9 +686,7 @@ file:
   - statement_terminator: ;
   - keyword: GO
   - statement:
-    - object_reference:
-      - object_reference:
-        - naked_identifier: ALTER
+    - naked_identifier: ALTER
     - expression:
       - column_reference:
         - naked_identifier: TABLE
@@ -755,9 +741,7 @@ file:
   - statement_terminator: ;
   - keyword: GO
   - statement:
-    - object_reference:
-      - object_reference:
-        - naked_identifier: ALTER
+    - naked_identifier: ALTER
     - expression:
       - column_reference:
         - naked_identifier: TABLE
@@ -812,9 +796,7 @@ file:
   - statement_terminator: ;
   - keyword: GO
   - statement:
-    - object_reference:
-      - object_reference:
-        - naked_identifier: ALTER
+    - naked_identifier: ALTER
     - expression:
       - column_reference:
         - naked_identifier: TABLE
@@ -839,9 +821,7 @@ file:
   - statement_terminator: ;
   - keyword: GO
   - statement:
-    - object_reference:
-      - object_reference:
-        - naked_identifier: ALTER
+    - naked_identifier: ALTER
     - expression:
       - column_reference:
         - naked_identifier: TABLE
@@ -866,9 +846,7 @@ file:
   - statement_terminator: ;
   - keyword: GO
   - statement:
-    - object_reference:
-      - object_reference:
-        - naked_identifier: ALTER
+    - naked_identifier: ALTER
     - expression:
       - column_reference:
         - naked_identifier: TABLE
@@ -893,9 +871,7 @@ file:
   - statement_terminator: ;
   - keyword: GO
   - statement:
-    - object_reference:
-      - object_reference:
-        - naked_identifier: ALTER
+    - naked_identifier: ALTER
     - expression:
       - column_reference:
         - naked_identifier: TABLE
@@ -920,9 +896,7 @@ file:
   - statement_terminator: ;
   - keyword: GO
   - statement:
-    - object_reference:
-      - object_reference:
-        - naked_identifier: ALTER
+    - naked_identifier: ALTER
     - expression:
       - column_reference:
         - naked_identifier: TABLE
@@ -959,9 +933,7 @@ file:
   - statement_terminator: ;
   - keyword: GO
   - statement:
-    - object_reference:
-      - object_reference:
-        - naked_identifier: ALTER
+    - naked_identifier: ALTER
     - expression:
       - column_reference:
         - naked_identifier: TABLE
@@ -1008,9 +980,7 @@ file:
   - statement_terminator: ;
   - keyword: GO
   - statement:
-    - object_reference:
-      - object_reference:
-        - naked_identifier: ALTER
+    - naked_identifier: ALTER
     - expression:
       - column_reference:
         - naked_identifier: TABLE
@@ -1055,9 +1025,7 @@ file:
   - statement_terminator: ;
   - keyword: GO
   - statement:
-    - object_reference:
-      - object_reference:
-        - naked_identifier: ALTER
+    - naked_identifier: ALTER
     - expression:
       - column_reference:
         - naked_identifier: TABLE
@@ -1104,9 +1072,7 @@ file:
   - statement_terminator: ;
   - keyword: GO
   - statement:
-    - object_reference:
-      - object_reference:
-        - naked_identifier: ALTER
+    - naked_identifier: ALTER
     - expression:
       - column_reference:
         - naked_identifier: TABLE
@@ -1247,9 +1213,7 @@ file:
   - statement_terminator: ;
   - keyword: GO
   - statement:
-    - object_reference:
-      - object_reference:
-        - naked_identifier: ALTER
+    - naked_identifier: ALTER
     - expression:
       - column_reference:
         - naked_identifier: TABLE
@@ -1452,9 +1416,7 @@ file:
   - statement_terminator: ;
   - keyword: GO
   - statement:
-    - object_reference:
-      - object_reference:
-        - naked_identifier: ALTER
+    - naked_identifier: ALTER
     - expression:
       - column_reference:
         - naked_identifier: TABLE
@@ -1475,9 +1437,7 @@ file:
         - naked_identifier: SYSTEM_TIME
   - statement_terminator: ;
   - statement:
-    - object_reference:
-      - object_reference:
-        - naked_identifier: ALTER
+    - naked_identifier: ALTER
     - expression:
       - column_reference:
         - naked_identifier: TABLE

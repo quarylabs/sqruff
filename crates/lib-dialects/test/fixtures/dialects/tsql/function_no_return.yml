@@ -15,110 +15,53 @@ file:
         - raw_comparison_operator: =
       - null_literal: 'NULL'
       - keyword: AS
-      - statement:
-        - if_statement:
-          - keyword: IF
-          - expression:
-            - parameterized_expression:
-              - tsql_variable: '@nm'
-            - keyword: IS
-            - null_literal: 'NULL'
-          - statement:
-            - object_reference:
-              - object_reference:
-                - naked_identifier: BEGIN
-            - expression:
-              - column_reference:
-                - naked_identifier: PRINT
-            - expression:
-              - quoted_literal: '''You must give a user name'''
-            - expression:
-              - column_reference:
-                - naked_identifier: RETURN
-            - expression:
-              - data_type:
-                - data_type_identifier: END
-            - expression:
-              - column_reference:
-                - naked_identifier: ELSE
-            - expression:
-              - column_reference:
-                - naked_identifier: BEGIN
-            - expression:
-              - select_statement:
-                - select_clause:
-                  - select_clause:
-                    - keyword: SELECT
-                    - select_clause_element:
-                      - column_reference:
-                        - naked_identifier: o
-                        - dot: .
-                        - naked_identifier: name
-                    - comma: ','
-                    - select_clause_element:
-                      - column_reference:
-                        - naked_identifier: o
-                        - dot: .
-                        - naked_identifier: id
-                    - comma: ','
-                    - select_clause_element:
-                      - column_reference:
-                        - naked_identifier: o
-                        - dot: .
-                        - naked_identifier: uid
-                - from_clause:
-                  - keyword: FROM
-                  - from_expression:
-                    - from_expression:
-                      - from_expression_element:
-                        - from_expression_element:
-                          - table_expression:
-                            - table_reference:
-                              - object_reference:
-                                - object_reference:
-                                  - naked_identifier: sysobjects
-                          - alias_expression:
-                            - naked_identifier: o
-                      - join_clause:
-                        - keyword: INNER
-                        - keyword: JOIN
-                        - from_expression_element:
-                          - from_expression_element:
-                            - table_expression:
-                              - table_reference:
-                                - object_reference:
-                                  - object_reference:
-                                    - naked_identifier: master
-                                    - dot: .
-                                    - dot: .
-                                    - naked_identifier: syslogins
-                            - alias_expression:
-                              - naked_identifier: l
-                        - join_on_condition:
-                          - keyword: ON
-                          - expression:
-                            - column_reference:
-                              - naked_identifier: o
-                              - dot: .
-                              - naked_identifier: uid
-                            - comparison_operator:
-                              - raw_comparison_operator: =
-                            - column_reference:
-                              - naked_identifier: l
-                              - dot: .
-                              - naked_identifier: sid
-                - where_clause:
-                  - keyword: WHERE
-                  - expression:
-                    - column_reference:
-                      - naked_identifier: l
-                      - dot: .
-                      - naked_identifier: name
-                    - comparison_operator:
-                      - raw_comparison_operator: =
-                    - parameterized_expression:
-                      - tsql_variable: '@nm'
-            - expression:
-              - data_type:
-                - data_type_identifier: END
-          - statement_terminator: ;
+      - unparsable:
+        - word: IF
+        - tsql_variable: '@nm'
+        - word: IS
+        - word: 'NULL'
+        - word: BEGIN
+        - word: PRINT
+        - single_quote: '''You must give a user name'''
+        - word: RETURN
+        - word: END
+        - word: ELSE
+        - word: BEGIN
+        - word: SELECT
+        - word: o
+        - dot: .
+        - word: name
+        - comma: ','
+        - word: o
+        - dot: .
+        - word: id
+        - comma: ','
+        - word: o
+        - dot: .
+        - word: uid
+        - word: FROM
+        - word: sysobjects
+        - word: o
+        - word: INNER
+        - word: JOIN
+        - word: master
+        - dot: .
+        - dot: .
+        - word: syslogins
+        - word: l
+        - word: ON
+        - word: o
+        - dot: .
+        - word: uid
+        - raw_comparison_operator: =
+        - word: l
+        - dot: .
+        - word: sid
+        - word: WHERE
+        - word: l
+        - dot: .
+        - word: name
+        - raw_comparison_operator: =
+        - tsql_variable: '@nm'
+        - word: END
+  - statement_terminator: ;

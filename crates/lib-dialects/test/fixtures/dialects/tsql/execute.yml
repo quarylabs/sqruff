@@ -241,37 +241,29 @@ file:
           - naked_identifier: DEFAULT
   - statement_terminator: ;
   - statement:
-    - object_reference:
-      - object_reference:
-        - naked_identifier: DECLARE
-    - expression:
-      - parameterized_expression:
-        - tsql_variable: '@statement'
-    - expression:
-      - function:
-        - function:
-          - function_name:
-            - function_name_identifier: nvarchar
+    - declare_statement:
+      - keyword: DECLARE
+      - tsql_variable: '@statement'
+      - data_type:
+        - data_type_identifier: nvarchar
+        - bracketed_arguments:
           - bracketed:
             - start_bracket: (
-            - expression:
-              - column_reference:
-                - naked_identifier: max
+            - keyword: max
             - end_bracket: )
-      - comparison_operator:
+      - assignment_operator:
         - raw_comparison_operator: =
-      - quoted_literal: '''SELECT 1'''
-    - expression:
-      - function:
-        - function:
-          - function_name:
-            - function_name_identifier: EXEC
-          - bracketed:
-            - start_bracket: (
-            - expression:
-              - parameterized_expression:
-                - tsql_variable: '@statement'
-            - end_bracket: )
+      - expression:
+        - quoted_literal: '''SELECT 1'''
+  - statement:
+    - statement:
+      - keyword: EXEC
+      - bracketed:
+        - start_bracket: (
+        - expression:
+          - parameterized_expression:
+            - tsql_variable: '@statement'
+        - end_bracket: )
   - statement_terminator: ;
   - statement:
     - statement:
@@ -408,11 +400,9 @@ file:
   - statement_terminator: ;
   - keyword: GO
   - statement:
-    - object_reference:
-      - object_reference:
-        - naked_identifier: dbo
-        - dot: .
-        - naked_identifier: uspGetEmployeeManagers
+    - naked_identifier: dbo
+    - dot: .
+    - naked_identifier: uspGetEmployeeManagers
     - tsql_variable: '@EmployeeID'
     - assignment_operator:
       - raw_comparison_operator: =
@@ -839,9 +829,7 @@ file:
         - end_bracket: )
   - statement_terminator: ;
   - statement:
-    - object_reference:
-      - object_reference:
-        - naked_identifier: EXECUTE
+    - naked_identifier: EXECUTE
     - expression:
       - bracketed:
         - start_bracket: (

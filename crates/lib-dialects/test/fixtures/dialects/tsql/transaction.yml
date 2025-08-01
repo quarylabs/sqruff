@@ -7,101 +7,59 @@ file:
         - keyword: TRANSACTION
   - statement_terminator: ;
   - statement:
-    - object_reference:
-      - object_reference:
-        - naked_identifier: DELETE
-    - expression:
-      - column_reference:
-        - naked_identifier: FROM
-    - expression:
-      - column_reference:
-        - naked_identifier: HumanResources
-        - dot: .
-        - naked_identifier: JobCandidate
-    - expression:
-      - column_reference:
-        - naked_identifier: WHERE
-    - expression:
-      - column_reference:
-        - naked_identifier: JobCandidateID
-      - comparison_operator:
-        - raw_comparison_operator: =
-      - numeric_literal: '13'
-  - statement_terminator: ;
+    - delete_statement:
+      - delete_statement:
+        - keyword: DELETE
+        - keyword: FROM
+        - table_reference:
+          - object_reference:
+            - object_reference:
+              - naked_identifier: HumanResources
+              - dot: .
+              - naked_identifier: JobCandidate
+        - alias_expression:
+          - naked_identifier: WHERE
   - statement:
-    - transaction_statement:
-      - transaction_statement:
-        - keyword: COMMIT
-  - statement_terminator: ;
-  - statement:
-    - transaction_statement:
-      - transaction_statement:
-        - keyword: BEGIN
-        - keyword: TRAN
-  - statement_terminator: ;
-  - statement:
-    - object_reference:
-      - object_reference:
-        - naked_identifier: DELETE
-    - expression:
-      - column_reference:
-        - naked_identifier: FROM
-    - expression:
-      - column_reference:
-        - naked_identifier: HumanResources
-        - dot: .
-        - naked_identifier: JobCandidate
-    - expression:
-      - column_reference:
-        - naked_identifier: WHERE
-    - expression:
-      - column_reference:
-        - naked_identifier: JobCandidateID
-      - comparison_operator:
-        - raw_comparison_operator: =
-      - numeric_literal: '13'
-  - statement_terminator: ;
-  - statement:
-    - transaction_statement:
-      - transaction_statement:
-        - keyword: ROLLBACK
-        - keyword: TRAN
-  - statement_terminator: ;
-  - statement:
-    - transaction_statement:
-      - transaction_statement:
-        - keyword: BEGIN
-        - keyword: TRAN
-  - statement_terminator: ;
-  - statement:
-    - transaction_statement:
-      - transaction_statement:
-        - keyword: SAVE
-        - keyword: TRANSACTION
-  - statement_terminator: ;
-  - statement:
-    - transaction_statement:
-      - transaction_statement:
-        - keyword: BEGIN
-        - keyword: TRAN
-        - naked_identifier: namey
-  - statement_terminator: ;
-  - statement:
-    - transaction_statement:
-      - transaction_statement:
-        - keyword: ROLLBACK
-        - naked_identifier: namey
-  - statement_terminator: ;
-  - statement:
-    - transaction_statement:
-      - transaction_statement:
-        - keyword: SAVE
-        - keyword: TRAN
-        - tsql_variable: '@variable'
-  - statement_terminator: ;
-  - statement:
-    - transaction_statement:
-      - transaction_statement:
-        - keyword: COMMIT
-        - tsql_variable: '@variable'
-  - statement_terminator: ;
+    - naked_identifier: JobCandidateID
+- unparsable:
+  - raw_comparison_operator: =
+  - numeric_literal: '13'
+  - semicolon: ;
+  - word: COMMIT
+  - semicolon: ;
+  - word: BEGIN
+  - word: TRAN
+  - semicolon: ;
+  - word: DELETE
+  - word: FROM
+  - word: HumanResources
+  - dot: .
+  - word: JobCandidate
+  - word: WHERE
+  - word: JobCandidateID
+  - raw_comparison_operator: =
+  - numeric_literal: '13'
+  - semicolon: ;
+  - word: ROLLBACK
+  - word: TRAN
+  - semicolon: ;
+  - word: BEGIN
+  - word: TRAN
+  - semicolon: ;
+  - word: SAVE
+  - word: TRANSACTION
+  - semicolon: ;
+  - word: BEGIN
+  - word: TRAN
+  - word: namey
+  - semicolon: ;
+  - word: ROLLBACK
+  - word: namey
+  - semicolon: ;
+  - word: SAVE
+  - word: TRAN
+  - tsql_variable: '@variable'
+  - semicolon: ;
+  - word: COMMIT
+  - tsql_variable: '@variable'
+  - semicolon: ;

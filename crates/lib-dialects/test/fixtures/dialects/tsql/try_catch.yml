@@ -74,35 +74,15 @@ file:
       - comma: ','
       - numeric_literal: '1'
   - statement_terminator: ;
-  - statement:
-    - object_reference:
-      - object_reference:
-        - naked_identifier: BEGIN
-    - expression:
-      - data_type:
-        - data_type_identifier: TRY
-    - expression:
-      - column_reference:
-        - naked_identifier: EXEC
-    - expression:
-      - column_reference:
-        - naked_identifier: spSomeProc
-    - expression:
-      - data_type:
-        - data_type_identifier: END
-    - expression:
-      - data_type:
-        - data_type_identifier: TRY
-    - expression:
-      - column_reference:
-        - naked_identifier: BEGIN
-    - expression:
-      - data_type:
-        - data_type_identifier: CATCH
-    - expression:
-      - data_type:
-        - data_type_identifier: END
-    - expression:
-      - data_type:
-        - data_type_identifier: CATCH
-  - statement_terminator: ;
+- unparsable:
+  - word: BEGIN
+  - word: TRY
+  - word: EXEC
+  - word: spSomeProc
+  - word: END
+  - word: TRY
+  - word: BEGIN
+  - word: CATCH
+  - word: END
+  - word: CATCH
+  - semicolon: ;

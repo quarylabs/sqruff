@@ -28,39 +28,30 @@ file:
         - data_type:
           - data_type_identifier: BIGINT
         - keyword: AS
+        - keyword: BEGIN
         - statement:
-          - object_reference:
-            - object_reference:
-              - naked_identifier: BEGIN
-          - expression:
-            - column_reference:
-              - naked_identifier: DECLARE
-          - expression:
-            - parameterized_expression:
-              - tsql_variable: '@result'
-          - expression:
-            - column_reference:
-              - naked_identifier: BIGINT
-          - expression:
+          - declare_statement:
+            - keyword: DECLARE
+            - tsql_variable: '@result'
             - data_type:
-              - data_type_identifier: SET
+              - data_type_identifier: BIGINT
+        - statement:
+          - keyword: SET
           - tsql_variable: '@result'
           - assignment_operator:
             - raw_comparison_operator: =
           - expression:
             - numeric_literal: '4'
-          - expression:
-            - column_reference:
-              - naked_identifier: RETURN
-          - expression:
-            - parameterized_expression:
-              - tsql_variable: '@result'
-            - binary_operator: +
-            - parameterized_expression:
-              - tsql_variable: '@year'
-            - binary_operator: +
-            - parameterized_expression:
-              - tsql_variable: '@week'
-          - expression:
-            - data_type:
-              - data_type_identifier: END
+        - statement:
+          - statement:
+            - keyword: RETURN
+            - expression:
+              - parameterized_expression:
+                - tsql_variable: '@result'
+              - binary_operator: +
+              - parameterized_expression:
+                - tsql_variable: '@year'
+              - binary_operator: +
+              - parameterized_expression:
+                - tsql_variable: '@week'
+        - keyword: END

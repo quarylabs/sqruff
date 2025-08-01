@@ -400,9 +400,7 @@ file:
               - naked_identifier: Modify
           - comma: ','
   - statement:
-    - object_reference:
-      - object_reference:
-        - naked_identifier: Minus
+    - naked_identifier: Minus
     - comma: ','
     - expression:
       - function:

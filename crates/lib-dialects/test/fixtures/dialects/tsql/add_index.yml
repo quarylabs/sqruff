@@ -459,124 +459,147 @@ file:
                       - quoted_identifier: '[Population]'
                     - end_bracket: )
               - statement:
-                - keyword: GO
-              - statement:
-                - update_statement:
-                  - keyword: UPDATE
-                  - keyword: STATISTICS
-                  - table_reference:
-                    - object_reference:
-                      - object_reference:
-                        - naked_identifier: Reporting
-                        - dot: .
-                        - naked_identifier: Population
-                  - object_reference:
-                    - object_reference:
-                      - naked_identifier: Stats_Population
+                - naked_identifier: GO
+                - expression:
+                  - column_reference:
+                    - naked_identifier: UPDATE
+                - expression:
+                  - column_reference:
+                    - naked_identifier: STATISTICS
+                - expression:
+                  - column_reference:
+                    - naked_identifier: Reporting
+                    - dot: .
+                    - naked_identifier: Population
+                - expression:
+                  - column_reference:
+                    - naked_identifier: Stats_Population
               - statement_terminator: ;
               - statement:
-                - keyword: GO
-              - statement:
-                - update_statement:
-                  - keyword: UPDATE
-                  - keyword: STATISTICS
-                  - table_reference:
-                    - object_reference:
-                      - object_reference:
+                - naked_identifier: GO
+                - expression:
+                  - column_reference:
+                    - naked_identifier: UPDATE
+                - expression:
+                  - column_reference:
+                    - naked_identifier: STATISTICS
+                - expression:
+                  - function:
+                    - function:
+                      - function_name:
                         - naked_identifier: Reporting
                         - dot: .
-                        - naked_identifier: Population
-                  - bracketed:
-                    - start_bracket: (
-                    - object_reference:
-                      - object_reference:
-                        - naked_identifier: Stats_Facility
-                    - comma: ','
-                    - object_reference:
-                      - object_reference:
-                        - naked_identifier: Stats_Population
-                    - end_bracket: )
+                        - function_name_identifier: Population
+                      - bracketed:
+                        - start_bracket: (
+                        - expression:
+                          - column_reference:
+                            - naked_identifier: Stats_Facility
+                        - comma: ','
+                        - expression:
+                          - column_reference:
+                            - naked_identifier: Stats_Population
+                        - end_bracket: )
               - statement_terminator: ;
               - statement:
-                - keyword: GO
-              - statement:
-                - update_statement:
-                  - keyword: UPDATE
-                  - keyword: STATISTICS
-                  - table_reference:
-                    - object_reference:
-                      - object_reference:
+                - naked_identifier: GO
+                - expression:
+                  - column_reference:
+                    - naked_identifier: UPDATE
+                - expression:
+                  - column_reference:
+                    - naked_identifier: STATISTICS
+                - expression:
+                  - function:
+                    - function:
+                      - function_name:
                         - naked_identifier: Reporting
                         - dot: .
-                        - naked_identifier: Population
-                  - bracketed:
-                    - start_bracket: (
-                    - object_reference:
-                      - object_reference:
-                        - naked_identifier: Stats_Facility
-                    - comma: ','
-                    - object_reference:
-                      - object_reference:
-                        - naked_identifier: Stats_Population
-                    - end_bracket: )
-                  - keyword: WITH
-                  - keyword: FULLSCAN
+                        - function_name_identifier: Population
+                      - bracketed:
+                        - start_bracket: (
+                        - expression:
+                          - column_reference:
+                            - naked_identifier: Stats_Facility
+                        - comma: ','
+                        - expression:
+                          - column_reference:
+                            - naked_identifier: Stats_Population
+                        - end_bracket: )
+                - expression:
+                  - column_reference:
+                    - naked_identifier: WITH
+                - expression:
+                  - column_reference:
+                    - naked_identifier: FULLSCAN
               - statement_terminator: ;
               - statement:
-                - keyword: GO
-              - statement:
-                - update_statement:
-                  - keyword: UPDATE
-                  - keyword: STATISTICS
-                  - table_reference:
-                    - object_reference:
-                      - object_reference:
+                - naked_identifier: GO
+                - expression:
+                  - column_reference:
+                    - naked_identifier: UPDATE
+                - expression:
+                  - column_reference:
+                    - naked_identifier: STATISTICS
+                - expression:
+                  - function:
+                    - function:
+                      - function_name:
                         - naked_identifier: Reporting
                         - dot: .
-                        - naked_identifier: Population
-                  - bracketed:
-                    - start_bracket: (
-                    - object_reference:
-                      - object_reference:
-                        - naked_identifier: Stats_Facility
-                    - comma: ','
-                    - object_reference:
-                      - object_reference:
-                        - naked_identifier: Stats_Population
-                    - end_bracket: )
-                  - keyword: WITH
-                  - keyword: RESAMPLE
+                        - function_name_identifier: Population
+                      - bracketed:
+                        - start_bracket: (
+                        - expression:
+                          - column_reference:
+                            - naked_identifier: Stats_Facility
+                        - comma: ','
+                        - expression:
+                          - column_reference:
+                            - naked_identifier: Stats_Population
+                        - end_bracket: )
+                - expression:
+                  - column_reference:
+                    - naked_identifier: WITH
+                - expression:
+                  - column_reference:
+                    - naked_identifier: RESAMPLE
               - statement_terminator: ;
               - statement:
-                - keyword: GO
-              - statement:
-                - drop_index_statement:
-                  - keyword: DROP
-                  - keyword: STATISTICS
-                  - object_reference:
-                    - object_reference:
-                      - naked_identifier: Reporting
-                      - dot: .
-                      - naked_identifier: Population
-                      - dot: .
-                      - naked_identifier: Stats_Population
-              - statement:
-                - keyword: GO
-              - statement:
-                - drop_index_statement:
-                  - drop_index_statement:
-                    - keyword: DROP
-                    - keyword: INDEX
-                    - object_reference:
-                      - object_reference:
-                        - naked_identifier: IX_INTER_VIMR_REPRODUCTION_NUMBER
-                    - keyword: ON
-                    - table_reference:
-                      - object_reference:
-                        - object_reference:
-                          - naked_identifier: dbo
-                          - dot: .
-                          - naked_identifier: VIMR_INFECTIOUS_PEOPLE
+                - naked_identifier: GO
+                - expression:
+                  - column_reference:
+                    - naked_identifier: DROP
+                - expression:
+                  - column_reference:
+                    - naked_identifier: STATISTICS
+                - expression:
+                  - column_reference:
+                    - naked_identifier: Reporting
+                    - dot: .
+                    - naked_identifier: Population
+                    - dot: .
+                    - naked_identifier: Stats_Population
+                - expression:
+                  - data_type:
+                    - data_type_identifier: GO
+                - expression:
+                  - column_reference:
+                    - naked_identifier: DROP
+                - expression:
+                  - column_reference:
+                    - naked_identifier: INDEX
+                - expression:
+                  - column_reference:
+                    - naked_identifier: IX_INTER_VIMR_REPRODUCTION_NUMBER
+                - expression:
+                  - data_type:
+                    - data_type_identifier: ON
+                - expression:
+                  - column_reference:
+                    - naked_identifier: dbo
+                    - dot: .
+                    - naked_identifier: VIMR_INFECTIOUS_PEOPLE
               - statement_terminator: ;
               - statement:
                 - keyword: GO

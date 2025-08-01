@@ -1645,11 +1645,45 @@ pub fn raw_dialect() -> Dialect {
         .into(),
     )]);
 
+    // Special identifier segment for bare procedure names that excludes statement keywords
+    dialect.add([(
+        "BareProcedureIdentifierSegment".into(),
+        // Match any identifier except statement keywords (case-insensitive)
+        RegexParser::new(
+            r"[A-Za-z_@#][A-Za-z0-9_@$#]*",
+            SyntaxKind::NakedIdentifier,
+        )
+        .anti_template(
+            "(?i)^(RAISERROR|PRINT|RETURN|THROW|WAITFOR|ROLLBACK|COMMIT|SAVE|BEGIN|END|IF|WHILE|BREAK|CONTINUE|GOTO|TRY|CATCH|DECLARE|SET|SELECT|INSERT|UPDATE|DELETE|MERGE)$"
+        )
+        .to_matchable()
+        .into(),
+    )]);
+    
     // Bare procedure call (without EXECUTE keyword)
+    // This matches: sp_help 'table' or dbo.myproc @param = 1
+    // But should NOT match: RAISERROR (...) or other statement keywords
     dialect.add([(
         "BareProcedureCallStatementSegment".into(),
         Sequence::new(vec_of_erased![
-            Ref::new("ObjectReferenceSegment"), // Procedure name
+            // Match object reference but ensure it's not a single keyword like RAISERROR
+            one_of(vec_of_erased![
+                // Multi-part object references are always valid (e.g., dbo.sp_help)
+                Sequence::new(vec_of_erased![
+                    Ref::new("SingleIdentifierGrammar"),
+                    Ref::new("DotSegment"),
+                    Ref::new("SingleIdentifierGrammar"),
+                    // Optional additional parts
+                    AnyNumberOf::new(vec_of_erased![
+                        Sequence::new(vec_of_erased![
+                            Ref::new("DotSegment"),
+                            Ref::new("SingleIdentifierGrammar")
+                        ])
+                    ])
+                ]),
+                // Single identifier that is NOT a statement keyword
+                Ref::new("BareProcedureIdentifierSegment")
+            ]),
             // Optional parameters (same as ExecuteStatementGrammar)
             AnyNumberOf::new(vec_of_erased![one_of(vec_of_erased![
                 // First parameter doesn't need comma
@@ -7182,13 +7216,24 @@ pub fn raw_dialect() -> Dialect {
                 one_of(vec_of_erased![
                     // Multiple statements in a BEGIN...END block
                     Ref::new("BeginEndBlockSegment"),
-                    // Single statement
-                    Ref::new("StatementSegment")
+                    // Multiple statements without BEGIN...END (T-SQL allows this)
+                    AnyNumberOf::new(vec_of_erased![Sequence::new(vec_of_erased![
+                        Ref::new("StatementSegment"),
+                        Ref::new("DelimiterGrammar").optional()
+                    ])])
+                    .config(|this| {
+                        this.min_times(1);
+                        this.terminators = vec_of_erased![
+                            Ref::new("BatchSeparatorGrammar"), // GO terminates the trigger
+                            Ref::keyword("DROP"), // Next DROP TRIGGER might follow
+                            Ref::keyword("CREATE"), // Next CREATE statement might follow
+                        ];
+                    })
                 ])
             ])
             .config(|this| this.terminators = vec_of_erased![
-                Ref::new("BatchSeparatorGrammar"), // GO terminates the trigger definition
-                Ref::new("DelimiterGrammar")       // Semicolon also terminates
+                Ref::new("BatchSeparatorGrammar") // GO terminates the trigger definition
+                // Removed DelimiterGrammar - semicolons should NOT terminate the entire trigger body
             ])
             .to_matchable()
         })
@@ -8476,11 +8521,14 @@ pub fn raw_dialect() -> Dialect {
                 // T-SQL allows omitting FROM when using OPENQUERY
                 Ref::keyword("FROM").optional(),
                 one_of(vec_of_erased![
-                    // Handle table with alias (but exclude OUTPUT as alias)
+                    // Handle table with alias (but exclude OUTPUT and WHERE as aliases)
                     Sequence::new(vec_of_erased![
                         Ref::new("TableReferenceSegment"),
                         Ref::new("AliasExpressionSegment")
-                            .exclude(Ref::keyword("OUTPUT"))
+                            .exclude(one_of(vec_of_erased![
+                                Ref::keyword("OUTPUT"),
+                                Ref::keyword("WHERE")
+                            ]))
                             .optional()
                     ]),
                     // T-SQL specific: OPENQUERY/OPENROWSET/OPENDATASOURCE support

@@ -109,6 +109,15 @@ WHERE a IS NULL
             return Vec::new();
         }
 
+        // Check if this is T-SQL's alternative alias syntax in SELECT clause (e.g., name = value)
+        // We need to check parent stack for SelectClauseElement
+        for parent in &context.parent_stack {
+            if parent.is_type(SyntaxKind::SelectClauseElement) {
+                // In T-SQL, "alias = expression" is valid alias syntax, not a comparison
+                return Vec::new();
+            }
+        }
+
         let raw_consist = context.segment.raw();
         if !["=", "!=", "<>"].contains(&raw_consist.as_str()) {
             return Vec::new();

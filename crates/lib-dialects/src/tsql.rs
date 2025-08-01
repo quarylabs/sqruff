@@ -2893,34 +2893,271 @@ pub fn raw_dialect() -> Dialect {
         .into(),
     )]);
 
-    // Minimal ALTER TABLE statement for debugging
-    dialect.replace_grammar(
-        "AlterTableStatementSegment",
-        NodeMatcher::new(SyntaxKind::AlterTableStatement, |_| {
+    // Define specialized ALTER TABLE column addition for mixed operations  
+    dialect.add([(
+        "AlterTableAddColumnSegment".into(),
+        NodeMatcher::new(SyntaxKind::AlterTableActionSegment, |_| {
+            Sequence::new(vec_of_erased![
+                Ref::keyword("ADD"),
+                Ref::new("SingleIdentifierGrammar"), // Column name
+                Ref::new("TsqlDatatypeSegment"), // Column type
+                // Column modifiers and constraints
+                AnyNumberOf::new(vec_of_erased![
+                    one_of(vec_of_erased![
+                        // Nullability
+                        Ref::keyword("NULL"),
+                        Sequence::new(vec_of_erased![Ref::keyword("NOT"), Ref::keyword("NULL")]),
+                        // IDENTITY specification
+                        Sequence::new(vec_of_erased![
+                            Ref::keyword("IDENTITY"),
+                            Bracketed::new(vec_of_erased![
+                                Ref::new("NumericLiteralSegment"), // seed
+                                Ref::new("CommaSegment"),
+                                Ref::new("NumericLiteralSegment")  // increment
+                            ]).config(|this| this.optional())
+                        ]),
+                        // DEFAULT constraint
+                        Sequence::new(vec_of_erased![
+                            Ref::keyword("DEFAULT"),
+                            one_of(vec_of_erased![
+                                Bracketed::new(vec_of_erased![Ref::new("ExpressionSegment")]),
+                                Ref::new("ExpressionSegment")
+                            ])
+                        ]),
+                        // Named constraint: CONSTRAINT name constraint_type
+                        Sequence::new(vec_of_erased![
+                            Ref::keyword("CONSTRAINT"),
+                            Ref::new("SingleIdentifierGrammar"), // constraint name
+                            one_of(vec_of_erased![
+                                Ref::keyword("UNIQUE"),
+                                Ref::keyword("PRIMARY"), // Will be followed by KEY
+                                Sequence::new(vec_of_erased![Ref::keyword("PRIMARY"), Ref::keyword("KEY")]),
+                                // FOREIGN KEY references
+                                Sequence::new(vec_of_erased![
+                                    Ref::keyword("FOREIGN"),
+                                    Ref::keyword("KEY"),
+                                    Ref::keyword("REFERENCES"),
+                                    Ref::new("TableReferenceSegment"),
+                                    Bracketed::new(vec_of_erased![
+                                        Delimited::new(vec_of_erased![Ref::new("ColumnReferenceSegment")])
+                                    ]).config(|this| this.optional())
+                                ])
+                            ])
+                        ]),
+                        // COLLATE clause
+                        Sequence::new(vec_of_erased![
+                            Ref::keyword("COLLATE"),
+                            Ref::new("SingleIdentifierGrammar")
+                        ]),
+                        // FILESTREAM
+                        Ref::keyword("FILESTREAM")
+                    ])
+                ]).config(|this| this.optional())
+            ])
+            .to_matchable()
+        })
+        .to_matchable()
+        .into(),
+    )]);
+
+    // T-SQL DROP COLUMN list segment - simple pattern without NodeMatcher
+    dialect.add([(
+        "TsqlDropColumnListSegment".into(),
+        Delimited::new(vec_of_erased![
+            Ref::new("SingleIdentifierGrammar")
+        ])
+        .to_matchable()
+        .into(),
+    )]);
+
+    // T-SQL ALTER TABLE DROP COLUMN support (standalone grammar)
+    // T-SQL supports: DROP COLUMN col1, col2, col3
+    dialect.add([(
+        "AlterTableDropColumnGrammar".into(),
+        Sequence::new(vec_of_erased![
+            Ref::keyword("DROP"),
+            Ref::keyword("COLUMN"),
+            Ref::new("IfExistsGrammar").optional(),
+            Ref::new("TsqlDropColumnListSegment")
+        ])
+        .to_matchable()
+        .into(),
+    )]);
+
+    // Define individual ALTER TABLE operations for reuse (keep existing for compatibility)
+    dialect.add([(
+        "TsqlAlterTableOperationGrammar".into(),
+        one_of(vec_of_erased![
+            // ADD column (constraints are handled within ColumnDefinitionSegment)
+            Sequence::new(vec_of_erased![
+                Ref::keyword("ADD"),
+                Ref::new("ColumnDefinitionSegment")
+            ]),
+            // ADD CONSTRAINT with DEFAULT, PRIMARY KEY, FOREIGN KEY, etc.
+            Sequence::new(vec_of_erased![
+                Ref::keyword("ADD"),
+                Ref::keyword("CONSTRAINT"),
+                Ref::new("ObjectReferenceSegment"),
+                one_of(vec_of_erased![
+                    // DEFAULT constraint
+                    Sequence::new(vec_of_erased![
+                        Ref::keyword("DEFAULT"),
+                        Ref::new("ExpressionSegment"),
+                        Ref::keyword("FOR"),
+                        Ref::new("ColumnReferenceSegment")
+                    ]),
+                    // PRIMARY KEY CLUSTERED
+                    Sequence::new(vec_of_erased![
+                        Ref::keyword("PRIMARY"),
+                        Ref::keyword("KEY"),
+                        Ref::keyword("CLUSTERED").optional(),
+                        Bracketed::new(vec_of_erased![
+                            Delimited::new(vec_of_erased![Ref::new("ColumnReferenceSegment")])
+                        ])
+                    ]),
+                    // FOREIGN KEY ... REFERENCES ... with ON UPDATE/DELETE actions
+                    Sequence::new(vec_of_erased![
+                        Ref::keyword("FOREIGN"),
+                        Ref::keyword("KEY"),
+                        Bracketed::new(vec_of_erased![
+                            Delimited::new(vec_of_erased![Ref::new("ColumnReferenceSegment")])
+                        ]),
+                        Ref::keyword("REFERENCES"),
+                        Ref::new("TableReferenceSegment"),
+                        Bracketed::new(vec_of_erased![
+                            Delimited::new(vec_of_erased![Ref::new("ColumnReferenceSegment")])
+                        ]),
+                        // Optional ON UPDATE/DELETE actions
+                        AnyNumberOf::new(vec_of_erased![
+                            Sequence::new(vec_of_erased![
+                                Ref::keyword("ON"),
+                                one_of(vec_of_erased![
+                                    Ref::keyword("UPDATE"),
+                                    Ref::keyword("DELETE")
+                                ]),
+                                one_of(vec_of_erased![
+                                    Ref::keyword("CASCADE"),
+                                    Ref::keyword("RESTRICT"),
+                                    Sequence::new(vec_of_erased![
+                                        Ref::keyword("SET"),
+                                        one_of(vec_of_erased![
+                                            Ref::keyword("NULL"),
+                                            Ref::keyword("DEFAULT")
+                                        ])
+                                    ]),
+                                    Sequence::new(vec_of_erased![
+                                        Ref::keyword("NO"),
+                                        Ref::keyword("ACTION")
+                                    ])
+                                ])
+                            ])
+                        ]).config(|this| this.optional())
+                    ])
+                ])
+            ]),
+            // WITH CHECK ADD CONSTRAINT ... FOREIGN KEY
+            Sequence::new(vec_of_erased![
+                Ref::keyword("WITH"),
+                Ref::keyword("CHECK"),
+                Ref::keyword("ADD"),
+                Ref::keyword("CONSTRAINT"),
+                Ref::new("ObjectReferenceSegment"),
+                Ref::keyword("FOREIGN"),
+                Ref::keyword("KEY"),
+                Bracketed::new(vec_of_erased![
+                    Delimited::new(vec_of_erased![Ref::new("ColumnReferenceSegment")])
+                ]),
+                Ref::keyword("REFERENCES"),
+                Ref::new("TableReferenceSegment"),
+                Bracketed::new(vec_of_erased![
+                    Delimited::new(vec_of_erased![Ref::new("ColumnReferenceSegment")])
+                ])
+            ]),
+            // CHECK CONSTRAINT constraint_name
+            Sequence::new(vec_of_erased![
+                Ref::keyword("CHECK"),
+                Ref::keyword("CONSTRAINT"),
+                Ref::new("ObjectReferenceSegment")
+            ]),
+            // DROP COLUMN with IF EXISTS and multi-column support (matching SQLFluff)
+            Sequence::new(vec_of_erased![
+                Ref::keyword("DROP"),
+                Ref::keyword("COLUMN"),
+                Ref::new("IfExistsGrammar").optional(),
+                Ref::new("TsqlDropColumnListSegment")
+            ]),
+            // DROP PERIOD FOR SYSTEM_TIME
+            Sequence::new(vec_of_erased![
+                Ref::keyword("DROP"),
+                Ref::keyword("PERIOD"),
+                Ref::keyword("FOR"),
+                Ref::keyword("SYSTEM_TIME")
+            ]),
+            // ADD PERIOD FOR SYSTEM_TIME (column1, column2)
+            Sequence::new(vec_of_erased![
+                Ref::keyword("ADD"),
+                Ref::keyword("PERIOD"),
+                Ref::keyword("FOR"),
+                Ref::keyword("SYSTEM_TIME"),
+                Bracketed::new(vec_of_erased![
+                    Delimited::new(vec_of_erased![Ref::new("ColumnReferenceSegment")])
+                ])
+            ]),
+            // ALTER COLUMN
             Sequence::new(vec_of_erased![
                 Ref::keyword("ALTER"),
-                Ref::keyword("TABLE"),
-                Ref::new("TableReferenceSegment"),
-                one_of(vec_of_erased![
-                    // ADD column (known to work)
-                    Sequence::new(vec_of_erased![
-                        Ref::keyword("ADD"),
-                        Ref::new("ColumnDefinitionSegment")
-                    ]),
-                    // DROP COLUMN with multi-column support
-                    Sequence::new(vec_of_erased![
-                        Ref::keyword("DROP"),
-                        Ref::keyword("COLUMN"),
-                        Delimited::new(vec_of_erased![
-                            Ref::new("ColumnReferenceSegment")
+                Ref::keyword("COLUMN"),
+                Ref::new("ColumnReferenceSegment"),
+                Ref::new("DatatypeSegment")
+            ]),
+            // SET (option = value, ...)
+            Sequence::new(vec_of_erased![
+                Ref::keyword("SET"),
+                Bracketed::new(vec_of_erased![
+                    Delimited::new(vec_of_erased![
+                        Sequence::new(vec_of_erased![
+                            Ref::new("NakedIdentifierSegment"), // option name like SYSTEM_VERSIONING
+                            Ref::new("EqualsSegment"),
+                            one_of(vec_of_erased![
+                                Ref::keyword("ON"),
+                                Ref::keyword("OFF"),
+                                Ref::new("LiteralGrammar"),
+                                Ref::new("ObjectReferenceSegment"),
+                                Ref::new("QuotedLiteralSegment"),
+                                // Handle complex option values like OFF(HISTORY_TABLE = ...)
+                                Bracketed::new(vec_of_erased![
+                                    Delimited::new(vec_of_erased![
+                                        Sequence::new(vec_of_erased![
+                                            Ref::new("NakedIdentifierSegment"),
+                                            Ref::new("EqualsSegment"),
+                                            one_of(vec_of_erased![
+                                                Ref::new("LiteralGrammar"),
+                                                Ref::new("ObjectReferenceSegment"),
+                                                Ref::keyword("INFINITE"),
+                                                Sequence::new(vec_of_erased![
+                                                    Ref::new("NumericLiteralSegment"),
+                                                    one_of(vec_of_erased![
+                                                        Ref::keyword("YEAR"),
+                                                        Ref::keyword("YEARS"),
+                                                        Ref::keyword("MONTH"),
+                                                        Ref::keyword("MONTHS"),
+                                                        Ref::keyword("DAY"),
+                                                        Ref::keyword("DAYS")
+                                                    ])
+                                                ])
+                                            ])
+                                        ])
+                                    ])
+                                ])
+                            ])
                         ])
                     ])
                 ])
             ])
-            .to_matchable()
-        })
-        .to_matchable(),
-    );
+        ])
+        .to_matchable()
+        .into(),
+    )]);
 
     // Backup: Original complex T-SQL ALTER TABLE grammar (commented out for debugging)
     /*
@@ -3211,6 +3448,136 @@ pub fn raw_dialect() -> Dialect {
     );
     */
 
+
+    // T-SQL ALTER TABLE OPTIONS GRAMMAR
+    // Define the grammar for individual ALTER TABLE operations
+    dialect.add([(
+        "TsqlAlterTableOptionsGrammar".into(),
+        one_of(vec_of_erased![
+            // ADD operations (column or constraint)
+            Sequence::new(vec_of_erased![
+                Ref::keyword("ADD"),
+                one_of(vec_of_erased![
+                    // ADD COLUMN
+                    Sequence::new(vec_of_erased![
+                        Ref::keyword("COLUMN").optional(),
+                        Ref::new("ColumnDefinitionSegment")
+                    ]),
+                    // ADD CONSTRAINT
+                    Sequence::new(vec_of_erased![
+                        Ref::keyword("CONSTRAINT"),
+                        Ref::new("ObjectReferenceSegment"),
+                        one_of(vec_of_erased![
+                            // PRIMARY KEY
+                            Sequence::new(vec_of_erased![
+                                Ref::keyword("PRIMARY"),
+                                Ref::keyword("KEY"),
+                                Ref::keyword("CLUSTERED").optional(),
+                                Ref::new("BracketedColumnReferenceListGrammar")
+                            ]),
+                            // UNIQUE
+                            Sequence::new(vec_of_erased![
+                                Ref::keyword("UNIQUE"),
+                                Ref::keyword("CLUSTERED").optional(),
+                                Ref::new("BracketedColumnReferenceListGrammar")
+                            ]),
+                            // DEFAULT
+                            Sequence::new(vec_of_erased![
+                                Ref::keyword("DEFAULT"),
+                                Ref::new("ExpressionSegment"),
+                                Ref::keyword("FOR"),
+                                Ref::new("ColumnReferenceSegment")
+                            ]),
+                            // FOREIGN KEY
+                            Sequence::new(vec_of_erased![
+                                Ref::keyword("FOREIGN"),
+                                Ref::keyword("KEY"),
+                                Ref::new("BracketedColumnReferenceListGrammar"),
+                                Ref::keyword("REFERENCES"),
+                                Ref::new("TableReferenceSegment"),
+                                Ref::new("BracketedColumnReferenceListGrammar")
+                            ])
+                        ])
+                    ])
+                ])
+            ]),
+            // DROP operations
+            Sequence::new(vec_of_erased![
+                Ref::keyword("DROP"),
+                one_of(vec_of_erased![
+                    // DROP COLUMN - single column works, multi-column has parser limitation
+                    Sequence::new(vec_of_erased![
+                        Ref::keyword("COLUMN"),
+                        Ref::new("IfExistsGrammar").optional(),
+                        Ref::new("TsqlDropColumnListSegment")
+                    ]),
+                    // DROP CONSTRAINT
+                    Sequence::new(vec_of_erased![
+                        Ref::keyword("CONSTRAINT"),
+                        Sequence::new(vec_of_erased![
+                            Ref::keyword("IF"),
+                            Ref::keyword("EXISTS")
+                        ]).config(|this| this.optional()),
+                        Ref::new("ObjectReferenceSegment")
+                    ])
+                ])
+            ]),
+            // ALTER COLUMN
+            Sequence::new(vec_of_erased![
+                Ref::keyword("ALTER"),
+                Ref::keyword("COLUMN"),
+                Ref::new("ColumnReferenceSegment"),
+                Ref::new("DatatypeSegment")
+            ]),
+            // RENAME operations
+            Sequence::new(vec_of_erased![
+                Ref::keyword("RENAME"),
+                one_of(vec_of_erased![Ref::keyword("AS"), Ref::keyword("TO")])
+                    .config(|this| this.optional()),
+                Ref::new("TableReferenceSegment")
+            ])
+        ])
+        .to_matchable()
+        .into(),
+    )]);
+
+    // T-SQL ALTER TABLE STATEMENT SEGMENT - Restored with documented limitation
+    dialect.replace_grammar(
+        "AlterTableStatementSegment",
+        NodeMatcher::new(SyntaxKind::AlterTableStatement, |_| {
+            Sequence::new(vec_of_erased![
+                Ref::keyword("ALTER"),
+                Ref::keyword("TABLE"),
+                Ref::new("TableReferenceSegment"),
+                // Support multiple operations separated by commas
+                // NOTE: Multi-column DROP COLUMN has parser engine limitation
+                Delimited::new(vec_of_erased![
+                    Ref::new("TsqlAlterTableOptionsGrammar")
+                ])
+            ])
+            .to_matchable()
+        })
+        .to_matchable(),
+    );
+
+    // Override ANSI ALTER TABLE statement to use T-SQL specific grammar
+    dialect.replace_grammar(
+        "AlterTableStatementSegment",
+        NodeMatcher::new(SyntaxKind::AlterTableStatement, |_| {
+            Sequence::new(vec_of_erased![
+                Ref::keyword("ALTER"),
+                Ref::keyword("TABLE"),
+                Ref::new("TableReferenceSegment"),
+                // Use T-SQL specific options grammar instead of ANSI
+                Delimited::new(vec_of_erased![
+                    Ref::new("TsqlAlterTableOptionsGrammar")
+                ])
+            ])
+            .to_matchable()
+        })
+        .to_matchable(),
+    );
+
     // ALTER TABLE SWITCH statement
     dialect.add([(
         "AlterTableSwitchStatementSegment".into(),
@@ -3490,7 +3857,6 @@ pub fn raw_dialect() -> Dialect {
             Ref::new("AlterPartitionSchemeSegment"),
             Ref::new("CreateFullTextIndexStatementSegment"),
             Ref::new("AlterIndexStatementSegment"),
-            Ref::new("AlterTableSwitchStatementSegment"),
             Ref::new("CreateExternalDataSourceStatementSegment"),
             Ref::new("CreateExternalFileFormatStatementSegment"),
             Ref::new("CreateExternalTableStatementSegment"),
@@ -3532,6 +3898,7 @@ pub fn raw_dialect() -> Dialect {
             Ref::new("CreateRoleStatementSegment"),
             Ref::new("DropRoleStatementSegment"),
             Ref::new("AlterTableStatementSegment"),
+            Ref::new("AlterTableSwitchStatementSegment"),
             Ref::new("CreateSchemaStatementSegment"),
             Ref::new("SetSchemaStatementSegment"),
             Ref::new("DropSchemaStatementSegment"),
@@ -3802,19 +4169,6 @@ pub fn raw_dialect() -> Dialect {
             ])
             .to_matchable()
         })
-        .to_matchable()
-        .into(),
-    )]);
-
-    // Override AlterTableDropColumnGrammar to support comma-delimited column names in T-SQL
-    dialect.add([(
-        "AlterTableDropColumnGrammar".into(),
-        Sequence::new(vec_of_erased![
-            Ref::keyword("DROP"),
-            Ref::keyword("COLUMN"),
-            Ref::new("IfExistsGrammar").optional(),
-            Delimited::new(vec_of_erased![Ref::new("SingleIdentifierGrammar")])
-        ])
         .to_matchable()
         .into(),
     )]);
@@ -6860,6 +7214,29 @@ pub fn raw_dialect() -> Dialect {
         .to_matchable()
         .into(),
     )]);
+
+    // Override DROP TRIGGER to support T-SQL server/database level triggers
+    dialect.replace_grammar(
+        "DropTriggerStatementSegment",
+        NodeMatcher::new(SyntaxKind::DropTriggerStatement, |_| {
+            Sequence::new(vec_of_erased![
+                Ref::keyword("DROP"),
+                Ref::keyword("TRIGGER"),
+                Ref::new("IfExistsGrammar").optional(),
+                Ref::new("TriggerReferenceSegment"),
+                // Optional ON clause for server/database level triggers
+                Sequence::new(vec_of_erased![
+                    Ref::keyword("ON"),
+                    one_of(vec_of_erased![
+                        Sequence::new(vec_of_erased![Ref::keyword("ALL"), Ref::keyword("SERVER")]),
+                        Ref::keyword("DATABASE")
+                    ])
+                ]).config(|this| this.optional())
+            ])
+            .to_matchable()
+        })
+        .to_matchable(),
+    );
 
     // Add DISABLE TRIGGER statement
     dialect.add([(

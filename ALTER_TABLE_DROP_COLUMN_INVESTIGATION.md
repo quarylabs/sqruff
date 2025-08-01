@@ -125,7 +125,31 @@ dialect.replace_grammar(
 - [x] `ALTER TABLE table_name DROP COLUMN column1` - **WORKS**
 - [x] `ALTER TABLE table_name DROP COLUMN column1, column2` - **WORKS**  
 - [x] `ALTER TABLE table_name ADD column1 INT` - **WORKS**
+- [x] `ALTER TABLE table_name ADD column1 INT CONSTRAINT name UNIQUE` - **WORKS**
+- [x] alter_and_drop.yml - **COMPLETELY FIXED**
 - [x] No regressions in basic parsing
 
+## CURRENT STATUS: Session 2 Progress ✅
+
+### Major Achievement
+**Successfully restored working ALTER TABLE grammar and fixed alter_and_drop.yml completely!**
+
+### Files Fixed
+- ✅ **alter_and_drop.yml** - All multi-column DROP COLUMN statements now parse correctly
+- 🔄 **alter_table.yml** - Basic operations work, complex mixed operations remain unparsable
+
+### Remaining Challenge: Mixed Operations
+The current grammar handles either:
+- ADD operations: `ALTER TABLE t ADD col1 INT`
+- DROP COLUMN operations: `ALTER TABLE t DROP COLUMN col1, col2`
+
+But not mixed operations in a single statement:
+```sql
+ALTER TABLE dbo.doc_exc ADD column_b VARCHAR(20) NULL CONSTRAINT exb_unique UNIQUE, 
+    DROP COLUMN column_a, DROP COLUMN IF EXISTS column_c
+```
+
+This requires extending the grammar to support `Delimited` list of different operation types, which is a more complex architectural challenge.
+
 ## Next Steps (Optional Enhancement)
-The current simplified implementation supports core ADD and DROP COLUMN functionality. To restore full T-SQL ALTER TABLE feature support, the grammar can be gradually expanded while maintaining the simpler structural pattern that works.
+The current simplified implementation successfully handles the majority of ALTER TABLE cases. The remaining complex mixed operations case requires a more sophisticated grammar structure that can handle comma-separated lists of different operation types while avoiding the nested parsing conflicts that caused the original issues.

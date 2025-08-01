@@ -1,6 +1,0 @@
-[sqruff]
-dialect = tsql
-rules = AL07
-
-[sqruff:rules:aliasing.forbid]
-force_enable = true

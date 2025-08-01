@@ -1,8 +1,0 @@
-CREATE TRIGGER test_trigger ON test_table
-AFTER INSERT
-AS
-IF (ROWCOUNT_BIG() = 0)
-RETURN;
-IF EXISTS (SELECT 1)
-PRINT 'Found';
-GO

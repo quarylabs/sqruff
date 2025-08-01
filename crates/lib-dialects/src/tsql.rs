@@ -8524,7 +8524,8 @@ pub fn raw_dialect() -> Dialect {
                         Ref::new("AliasExpressionSegment")
                             .exclude(one_of(vec_of_erased![
                                 Ref::keyword("OUTPUT"),
-                                Ref::keyword("WHERE")
+                                Ref::keyword("WHERE"),
+                                Ref::keyword("OPTION")
                             ]))
                             .optional()
                     ]),

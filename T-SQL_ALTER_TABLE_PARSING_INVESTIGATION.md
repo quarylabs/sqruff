@@ -1236,3 +1236,30 @@ After removing DROP/ALTER/CREATE from statement terminators, keywords in procedu
 3. **if_else_begin_end.yml**: END keyword not recognized
 4. **triggers.yml**: IF EXISTS and RAISERROR parameters
 5. **try_catch.yml**: BEGIN TRY keywords not recognized
+
+## Current Status (2025-08-01 15:45)
+
+### PROGRESS: Down to 3 unparsable files from 5
+- **FIXED**: 
+  - triggers.yml ✅ (removed GO from StatementSegment)
+  - delete_azure_synapse_analytics.yml ✅ (added OPTION to DELETE exclude list)
+- **REMAINING**:
+  - function_no_return.yml (IF/BEGIN/END after AS in procedure)
+  - if_else_begin_end.yml (ELSE not recognized after IF's END)
+  - try_catch.yml (second BEGIN TRY block unparsable)
+
+### Analysis of Remaining Issues
+
+1. **if_else_begin_end.yml**: ELSE appears after IF's END but is parsed as a naked_identifier starting a new statement
+   - IF statement completes with END, then ELSE starts as a separate statement
+   - This suggests the IF statement parser isn't continuing to look for the optional ELSE clause
+   - The ELSE clause is marked as optional in the IF grammar
+
+2. **try_catch.yml**: Second BEGIN TRY block fails while first one works
+   - First BEGIN TRY parses correctly
+   - Second BEGIN TRY after THROW statement becomes unparsable
+   - Suggests context or state issue after THROW
+
+3. **function_no_return.yml**: Keywords after AS in stored procedure not recognized
+   - IF, BEGIN, END are parsed as naked_identifiers
+   - Procedure body parsing context issue

@@ -3541,25 +3541,6 @@ pub fn raw_dialect() -> Dialect {
         .into(),
     )]);
 
-    // T-SQL ALTER TABLE STATEMENT SEGMENT - Restored with documented limitation
-    dialect.replace_grammar(
-        "AlterTableStatementSegment",
-        NodeMatcher::new(SyntaxKind::AlterTableStatement, |_| {
-            Sequence::new(vec_of_erased![
-                Ref::keyword("ALTER"),
-                Ref::keyword("TABLE"),
-                Ref::new("TableReferenceSegment"),
-                // Support multiple operations separated by commas
-                // NOTE: Multi-column DROP COLUMN has parser engine limitation
-                Delimited::new(vec_of_erased![
-                    Ref::new("TsqlAlterTableOptionsGrammar")
-                ])
-            ])
-            .to_matchable()
-        })
-        .to_matchable(),
-    );
-
     // Override ANSI ALTER TABLE statement to use T-SQL specific grammar
     dialect.replace_grammar(
         "AlterTableStatementSegment",
@@ -3940,9 +3921,9 @@ pub fn raw_dialect() -> Dialect {
         .config(|this| this.terminators = vec_of_erased![
             Ref::new("DelimiterGrammar"),
             Ref::new("BatchSeparatorGrammar"), // Ensure GO terminates statements
-            Ref::keyword("CREATE"), // Ensure CREATE starts new statements
-            Ref::keyword("DROP"),   // Ensure DROP starts new statements
-            Ref::keyword("ALTER")   // Ensure ALTER starts new statements
+            // Removed DROP and ALTER as terminators - they can appear within statements
+            // Only keep CREATE as it truly starts new statements
+            Ref::keyword("CREATE") // Ensure CREATE starts new statements
         ])
         .to_matchable(),
     );

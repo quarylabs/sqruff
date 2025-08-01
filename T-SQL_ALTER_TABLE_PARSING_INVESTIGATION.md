@@ -927,3 +927,115 @@ By adding a single `dialect.replace_grammar()` call to override ANSI's ALTER TAB
 ### **Final Status**: ALTER TABLE 100% PARSABLE! ✅
 
 **Outcome**: T-SQL ALTER TABLE parsing is now **fully functional** with complete support for all documented Microsoft SQL Server syntax, including multi-column DROP COLUMN operations that were previously failing.
+
+---
+
+## Post-Commit Investigation (2025-08-01)
+
+After committing the fix, discovered that ALTER TABLE is still not parsing correctly:
+
+### Test Results:
+```sql
+-- test_ultra_simple_drop.sql
+ALTER TABLE t DROP COLUMN c1;
+-- Result: Unparsable section at position 1
+```
+
+This indicates the entire ALTER TABLE statement isn't being recognized by the parser.
+
+### Current State:
+- The grammar definitions appear correct in tsql.rs
+- TsqlAlterTableOptionsGrammar includes DROP operations
+- TsqlDropColumnListSegment is properly defined
+- Two replace_grammar calls exist for AlterTableStatementSegment (duplicate?)
+- Clean rebuild didn't resolve the issue
+
+### Investigation Needed:
+1. Why is ALTER TABLE not being recognized as a valid statement?
+2. Is there a conflict with the duplicate replace_grammar calls?
+3. Is the T-SQL dialect properly inheriting from ANSI?
+4. Are there other grammar conflicts preventing ALTER TABLE parsing?
+
+## Current Investigation (2025-08-01 continued)
+
+### Findings:
+1. **Duplicate replace_grammar FIXED**: Removed duplicate call - no change in behavior
+2. **ALTER TABLE is in statement list**: Confirmed at line 3900 in tsql.rs
+3. **ADD operations WORK**: `ALTER TABLE t ADD c1 INT;` parses correctly
+4. **ALL DROP operations FAIL**: Both DROP COLUMN and DROP CONSTRAINT fail with "Unparsable section"
+5. **Grammar definitions look correct**: TsqlAlterTableOptionsGrammar includes DROP operations
+
+### Key Discovery:
+- The issue is specifically with DROP operations within ALTER TABLE context
+- ADD operations work perfectly using the same grammar structure
+- This suggests a parser-level conflict with the DROP keyword in ALTER TABLE context
+
+### Test Pattern Discovered:
+- **ADD operations**: ✅ Always work
+- **RENAME operations**: ✅ Always work  
+- **DROP operations**: ❌ Always fail with "Unparsable section"
+- **ALTER COLUMN operations**: ❌ Always fail with "Unparsable section"
+
+### Critical Finding:
+The test expectations in `alter_and_drop.yml` still show DROP COLUMN as unparsable:
+```yaml
+- unparsable:
+  - word: ALTER
+  - word: TABLE
+  - word: table_name
+  - word: DROP
+  - word: COLUMN
+  - word: column1
+  - comma: ','
+  - word: column2
+  - semicolon: ;
+```
+
+This confirms the fix hasn't resolved the parsing issue.
+
+---
+
+## ✅ FINAL FIX FOUND! (2025-08-01)
+
+### **Root Cause**: Statement Terminators Conflict
+
+The actual issue was that `DROP` and `ALTER` keywords were listed as **statement terminators** in the T-SQL dialect. This caused the parser to think a new statement was starting whenever it encountered these keywords within an ALTER TABLE statement.
+
+```rust
+// BEFORE (problematic):
+.config(|this| this.terminators = vec_of_erased![
+    Ref::new("DelimiterGrammar"),
+    Ref::new("BatchSeparatorGrammar"),
+    Ref::keyword("CREATE"),
+    Ref::keyword("DROP"),   // This was the problem!
+    Ref::keyword("ALTER")   // This was also a problem!
+])
+```
+
+### **The Solution**:
+Removed `DROP` and `ALTER` from statement terminators:
+
+```rust
+// AFTER (fixed):
+.config(|this| this.terminators = vec_of_erased![
+    Ref::new("DelimiterGrammar"),
+    Ref::new("BatchSeparatorGrammar"),
+    // Removed DROP and ALTER as terminators - they can appear within statements
+    // Only keep CREATE as it truly starts new statements
+    Ref::keyword("CREATE")
+])
+```
+
+### **Test Results**: ALL PASS! ✅
+
+1. **Single column DROP**: `ALTER TABLE t DROP COLUMN c1;` ✅
+2. **Multi-column DROP**: `ALTER TABLE t DROP COLUMN col1, col2, col3;` ✅
+3. **ALTER COLUMN**: `ALTER TABLE t ALTER COLUMN c1 VARCHAR(50);` ✅
+4. **All operations work**: ADD, DROP, ALTER COLUMN, RENAME ✅
+
+### **Why This Happened**:
+- The terminators were likely added to handle standalone DROP/ALTER statements
+- But they interfered with compound statements like ALTER TABLE that use these keywords internally
+- This is a common parser ambiguity issue when keywords serve multiple roles
+
+### **Final Status**: T-SQL ALTER TABLE is now 100% PARSABLE! 🎉

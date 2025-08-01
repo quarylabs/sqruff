@@ -4058,7 +4058,8 @@ pub fn raw_dialect() -> Dialect {
                         Ref::new("JoinLikeClauseGrammar"),
                         LookaheadExclude::new("WITH", "("), // Prevents WITH from being parsed as alias when followed by (
                         Ref::keyword("GO"), // Prevents GO from being parsed as alias (it's a batch separator)
-                        Ref::keyword("FOR") // Prevents FOR from being parsed as alias (FOR JSON/XML/BROWSE clauses)
+                        Ref::keyword("FOR"), // Prevents FOR from being parsed as alias (FOR JSON/XML/BROWSE clauses)
+                        Ref::keyword("OPTION") // Prevents OPTION from being parsed as alias (for query hints)
                     ]))
                     .optional(),
                 Ref::new("SamplingExpressionSegment").optional(),
@@ -8163,6 +8164,7 @@ pub fn raw_dialect() -> Dialect {
 
     // NOTE: Removed T-SQL SelectableGrammar override to fix MERGE statement parsing
     // The EXEC statement support should be added differently without breaking MERGE
+
 
     // Override DELETE statement for T-SQL specific features
     dialect.replace_grammar(

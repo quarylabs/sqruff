@@ -299,11 +299,10 @@ file:
                       - object_reference:
                         - object_reference:
                           - naked_identifier: cte
-                  - alias_expression:
-                    - naked_identifier: OPTION
-        - unparsable:
+        - keyword: OPTION
+        - bracketed:
           - start_bracket: (
-          - word: MAXRECURSION
+          - keyword: MAXRECURSION
           - numeric_literal: '2'
           - end_bracket: )
   - statement_terminator: ;

@@ -5,6 +5,7 @@ use sqruff_lib_core::parser::grammar::anyof::one_of;
 use sqruff_lib_core::parser::grammar::delimited::Delimited;
 use sqruff_lib_core::parser::grammar::sequence::Bracketed;
 use sqruff_lib_core::parser::matchable::MatchableTrait;
+use sqruff_lib_core::parser::segments::meta::MetaSegment;
 use sqruff_lib_core::{
     dialects::{Dialect, init::DialectKind},
     helpers::ToMatchable,
@@ -578,6 +579,44 @@ pub fn dialect() -> Dialect {
                 Vec::new(),
                 false,
             ),
+    );
+
+    // Enhance `GROUP BY` clause like in `SELECT` for `CUBE`, `ROLLUP`, and `ALL`.
+    // https://docs.databricks.com/en/sql/language-manual/sql-ref-syntax-qry-select-groupby.html
+    databricks.replace_grammar(
+        "GroupByClauseSegment",
+        Sequence::new(vec_of_erased![
+            Ref::keyword("GROUP"),
+            Ref::keyword("BY"),
+            MetaSegment::indent(),
+            one_of(vec_of_erased![
+                Ref::keyword("ALL"),
+                Delimited::new(vec_of_erased![
+                    Ref::new("CubeRollupClauseSegment"),
+                    Ref::new("GroupingSetsClauseSegment"),
+                    Ref::new("ColumnReferenceSegment"),
+                    // Can `GROUP BY 1`
+                    Ref::new("NumericLiteralSegment").optional(),
+                    // Can `GROUP BY coalesce(col, 1)`
+                    Ref::new("ExpressionSegment").optional(),
+                ]),
+                Sequence::new(vec_of_erased![
+                    Delimited::new(vec_of_erased![
+                        Ref::new("ColumnReferenceSegment"),
+                        // Can `GROUP BY 1`
+                        Ref::new("NumericLiteralSegment").optional(),
+                        // Can `GROUP BY coalesce(col, 1)`
+                        Ref::new("ExpressionSegment").optional(),
+                    ]),
+                    one_of(vec_of_erased![
+                        Ref::new("WithCubeRollupClauseSegment"),
+                        Ref::new("GroupingSetsClauseSegment"),
+                    ]),
+                ]),
+            ]),
+            MetaSegment::dedent(),
+        ])
+        .to_matchable(),
     );
 
     databricks.expand();

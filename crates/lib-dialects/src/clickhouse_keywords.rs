@@ -134,6 +134,7 @@ pub(crate) const UNRESERVED_KEYWORDS: &[&str] = &[
     "PROFILE",
     "PROJECTION",
     "QUARTER",
+    "QUERY",
     "QUOTA",
     "QUEUES",
     "RANGE",

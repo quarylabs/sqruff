@@ -1156,3 +1156,64 @@ This fix resolved regressions in multiple test files:
 
 ### Final Status
 **100% of T-SQL test files are now parsable!** 🎉
+
+## Regression from Statement Terminator Changes (2025-08-01 continued)
+
+### Issue Discovered
+After removing DROP/ALTER from statement terminators (commit 87f431d5), several T-SQL test files show unparsable sections:
+- function_no_return.yml - IF statement in procedure body parsed as words instead of keywords
+- if_else_begin_end.yml - Similar IF/ELSE parsing issues
+- delete_azure_synapse_analytics.yml - Unparsable sections
+- triggers.yml - Trigger body parsing issues
+- try_catch.yml - TRY/CATCH block parsing issues
+
+### Root Cause Analysis
+The removal of DROP/ALTER as statement terminators had an unintended side effect:
+1. Statement terminators help the parser recognize statement boundaries
+2. Without them, keywords like IF, ELSE, BEGIN, END are being lexed as regular words in procedure bodies
+3. This breaks the parsing of control flow structures within stored procedures and triggers
+
+### Investigation Focus
+Currently investigating why IF statements are being lexed as words instead of keywords within procedure bodies. The comment in tsql.rs mentions "IF/ELSE can be lexed as words in procedure contexts" which suggests this is a known issue that needs proper handling.
+
+### Key Finding
+The issue is more complex than initially thought:
+1. When DROP/ALTER are removed from statement terminators, procedure bodies parse incorrectly (keywords become words)
+2. When DROP/ALTER are added as statement terminators, ALTER TABLE fails to parse DROP COLUMN operations
+3. Attempting to configure terminators specifically for ALTER TABLE's Delimited construct helps ALTER TABLE but doesn't fix the procedure parsing
+
+This is a catch-22 situation:
+- Need DROP/ALTER as terminators for proper statement boundary detection in procedures
+- Can't have DROP/ALTER as terminators because it breaks ALTER TABLE parsing
+
+### Current State
+- ALTER TABLE parsing: WORKS (after removing DROP/ALTER from terminators)
+- Procedure body parsing: BROKEN (keywords lexed as words)
+- Multiple test files showing regressions in statement parsing
+
+## Update: Wrong Test Command Issue (2025-08-01)
+
+### Key Discovery
+I was using the wrong command to regenerate test expectations throughout the investigation:
+- **Wrong**: `env UPDATE_EXPECT=1 cargo test -p sqruff-lib --test rules`
+- **Correct**: `env UPDATE_EXPECT=1 cargo test -p sqruff-lib-dialects --test dialects`
+
+### Actual State at Commit 87f431d5
+After checking the worktree at `/home/fank/work/sqruff-1783`:
+- Only **1 file** had unparsable sections: `triggers.yml`
+- This means the ALTER TABLE fix in commit 87f431d5 was mostly successful
+- The current regression (5 unparsable files) was introduced later
+
+### Regression Source
+The regression was introduced in commit 275fecbe (DELETE statement fix):
+- Changed DELETE statement parsing to fix WHERE clause exclusion
+- This affected many test files and introduced parsing issues
+- Current unparsable files:
+  1. delete_azure_synapse_analytics.yml
+  2. function_no_return.yml
+  3. if_else_begin_end.yml
+  4. triggers.yml
+  5. try_catch.yml
+
+### Next Steps
+Need to investigate why the DELETE fix caused these regressions and potentially revert or fix it properly.

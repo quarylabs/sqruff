@@ -1,0 +1,477 @@
+file:
+- statement:
+  - statement:
+    - create_trigger_statement:
+      - keyword: CREATE
+      - keyword: TRIGGER
+      - trigger_reference:
+        - naked_identifier: reminder1
+      - keyword: ON
+      - table_reference:
+        - object_reference:
+          - object_reference:
+            - naked_identifier: Sales
+            - dot: .
+            - naked_identifier: Customer
+      - keyword: AFTER
+      - keyword: INSERT
+      - comma: ','
+      - keyword: UPDATE
+      - keyword: AS
+      - statement:
+        - statement:
+          - keyword: RAISERROR
+          - bracketed:
+            - start_bracket: (
+            - expression:
+              - quoted_literal: '''Notify Customer Relations'''
+            - comma: ','
+            - expression:
+              - numeric_literal: '16'
+            - comma: ','
+            - expression:
+              - numeric_literal: '10'
+            - end_bracket: )
+      - statement_terminator: ;
+      - statement:
+        - keyword: GO
+      - statement:
+        - create_trigger_statement:
+          - keyword: CREATE
+          - keyword: TRIGGER
+          - trigger_reference:
+            - naked_identifier: reminder2
+          - keyword: ON
+          - table_reference:
+            - object_reference:
+              - object_reference:
+                - naked_identifier: Sales
+                - dot: .
+                - naked_identifier: Customer
+          - keyword: AFTER
+          - keyword: INSERT
+          - comma: ','
+          - keyword: UPDATE
+          - comma: ','
+          - keyword: DELETE
+          - keyword: AS
+          - statement:
+            - statement:
+              - keyword: EXEC
+              - object_reference:
+                - object_reference:
+                  - naked_identifier: msdb
+                  - dot: .
+                  - naked_identifier: dbo
+                  - dot: .
+                  - naked_identifier: sp_send_dbmail
+              - tsql_variable: '@profile_name'
+              - assignment_operator:
+                - raw_comparison_operator: =
+              - expression:
+                - quoted_literal: '''AdventureWorks2012 Administrator'''
+              - comma: ','
+              - tsql_variable: '@recipients'
+              - assignment_operator:
+                - raw_comparison_operator: =
+              - expression:
+                - quoted_literal: '''danw@Adventure-Works.com'''
+              - comma: ','
+              - tsql_variable: '@body'
+              - assignment_operator:
+                - raw_comparison_operator: =
+              - expression:
+                - quoted_literal: '''Don''''t forget to print a report for the sales force.'''
+              - comma: ','
+              - tsql_variable: '@subject'
+              - assignment_operator:
+                - raw_comparison_operator: =
+              - expression:
+                - quoted_literal: '''Reminder'''
+          - statement_terminator: ;
+          - statement:
+            - keyword: GO
+          - statement:
+            - create_trigger_statement:
+              - keyword: CREATE
+              - keyword: TRIGGER
+              - trigger_reference:
+                - naked_identifier: Purchasing
+                - dot: .
+                - naked_identifier: LowCredit
+              - keyword: ON
+              - table_reference:
+                - object_reference:
+                  - object_reference:
+                    - naked_identifier: Purchasing
+                    - dot: .
+                    - naked_identifier: PurchaseOrderHeader
+              - keyword: AFTER
+              - keyword: INSERT
+              - keyword: AS
+              - statement:
+                - if_statement:
+                  - keyword: IF
+                  - expression:
+                    - bracketed:
+                      - start_bracket: (
+                      - expression:
+                        - function:
+                          - function:
+                            - function_name:
+                              - function_name_identifier: ROWCOUNT_BIG
+                            - bracketed:
+                              - start_bracket: (
+                              - end_bracket: )
+                        - comparison_operator:
+                          - raw_comparison_operator: =
+                        - numeric_literal: '0'
+                      - end_bracket: )
+                  - statement:
+                    - statement:
+                      - keyword: RETURN
+                  - statement_terminator: ;
+- unparsable:
+  - word: IF
+  - word: EXISTS
+  - start_bracket: (
+  - word: SELECT
+  - numeric_literal: '1'
+  - word: FROM
+  - word: inserted
+  - word: AS
+  - word: i
+  - word: JOIN
+  - word: Purchasing
+  - dot: .
+  - word: Vendor
+  - word: AS
+  - word: v
+  - word: ON
+  - word: v
+  - dot: .
+  - word: BusinessEntityID
+  - raw_comparison_operator: =
+  - word: i
+  - dot: .
+  - word: VendorID
+  - word: WHERE
+  - word: v
+  - dot: .
+  - word: CreditRating
+  - raw_comparison_operator: =
+  - numeric_literal: '5'
+  - end_bracket: )
+  - word: BEGIN
+  - word: RAISERROR
+  - start_bracket: (
+  - single_quote: |-
+      'A vendor''s credit rating is too low to accept new
+      purchase orders.'
+  - comma: ','
+  - numeric_literal: '16'
+  - comma: ','
+  - numeric_literal: '1'
+  - end_bracket: )
+  - semicolon: ;
+  - word: ROLLBACK
+  - word: TRANSACTION
+  - semicolon: ;
+  - word: RETURN
+  - word: END
+  - semicolon: ;
+  - word: GO
+  - word: CREATE
+  - word: TRIGGER
+  - word: safety
+  - word: ON
+  - word: DATABASE
+  - word: FOR
+  - word: DROP_SYNONYM
+  - word: AS
+  - word: IF
+  - start_bracket: (
+  - tsql_variable: '@@ROWCOUNT'
+  - raw_comparison_operator: =
+  - numeric_literal: '0'
+  - end_bracket: )
+  - word: RETURN
+  - semicolon: ;
+  - word: RAISERROR
+  - start_bracket: (
+  - single_quote: '''You must disable Trigger "safety" to remove synonyms!'''
+  - comma: ','
+  - numeric_literal: '10'
+  - comma: ','
+  - numeric_literal: '1'
+  - end_bracket: )
+  - word: ROLLBACK
+  - word: GO
+  - word: DROP
+  - word: TRIGGER
+  - word: safety
+  - word: ON
+  - word: DATABASE
+  - semicolon: ;
+  - word: GO
+  - word: CREATE
+  - word: TRIGGER
+  - word: ddl_trig_database
+  - word: ON
+  - word: ALL
+  - word: SERVER
+  - word: FOR
+  - word: CREATE_DATABASE
+  - word: AS
+  - word: PRINT
+  - single_quote: '''Database Created.'''
+  - word: SELECT
+  - numeric_literal: '1'
+  - word: GO
+  - word: CREATE
+  - word: TRIGGER
+  - word: ddl_trig_database
+  - word: ON
+  - word: ALL
+  - word: SERVER
+  - word: FOR
+  - word: CREATE_DATABASE
+  - word: AS
+  - word: PRINT
+  - single_quote: '''Database Created.'''
+  - semicolon: ;
+  - word: SELECT
+  - numeric_literal: '1'
+  - word: GO
+  - word: DROP
+  - word: TRIGGER
+  - word: ddl_trig_database
+  - word: ON
+  - word: ALL
+  - word: SERVER
+  - semicolon: ;
+  - word: GO
+  - word: CREATE
+  - word: TRIGGER
+  - word: connection_limit_trigger
+  - word: ON
+  - word: ALL
+  - word: SERVER
+  - word: WITH
+  - word: EXECUTE
+  - word: AS
+  - single_quote: '''login_test'''
+  - word: FOR
+  - word: LOGON
+  - word: AS
+  - word: BEGIN
+  - word: IF
+  - word: ORIGINAL_LOGIN
+  - start_bracket: (
+  - end_bracket: )
+  - raw_comparison_operator: =
+  - single_quote: '''login_test'''
+  - word: AND
+  - start_bracket: (
+  - word: SELECT
+  - word: COUNT
+  - start_bracket: (
+  - star: '*'
+  - end_bracket: )
+  - word: FROM
+  - word: sys
+  - dot: .
+  - word: dm_exec_sessions
+  - word: WHERE
+  - word: is_user_process
+  - raw_comparison_operator: =
+  - numeric_literal: '1'
+  - word: AND
+  - word: original_login_name
+  - raw_comparison_operator: =
+  - single_quote: '''login_test'''
+  - end_bracket: )
+  - raw_comparison_operator: '>'
+  - numeric_literal: '3'
+  - word: ROLLBACK
+  - semicolon: ;
+  - word: END
+  - semicolon: ;
+  - word: GO
+  - word: Create
+  - word: TRIGGER
+  - word: dbo
+  - dot: .
+  - word: tr_SP_BALS_L2_ATTRIBUTES
+  - word: ON
+  - word: dbo
+  - dot: .
+  - word: SP_BALS_L2_ATTRIBUTES
+  - word: AFTER
+  - word: UPDATE
+  - word: AS
+  - word: UPDATE
+  - word: dbo
+  - dot: .
+  - word: SP_BALS_L2_ATTRIBUTES
+  - word: SET
+  - word: PDW_LAST_UPDATED
+  - raw_comparison_operator: =
+  - word: Getdate
+  - start_bracket: (
+  - end_bracket: )
+  - word: FROM
+  - word: dbo
+  - dot: .
+  - word: SP_BALS_L2_ATTRIBUTES
+  - word: o
+  - word: INNER
+  - word: JOIN
+  - word: Inserted
+  - word: i
+  - word: ON
+  - word: o
+  - dot: .
+  - word: PK_L2_BALS
+  - raw_comparison_operator: =
+  - word: i
+  - dot: .
+  - word: PK_L2_BALS
+  - word: go
+  - word: disable
+  - word: trigger
+  - word: dbo
+  - dot: .
+  - word: tr_SP_BALS_L2_ATTRIBUTES
+  - word: on
+  - word: dbo
+  - dot: .
+  - word: SP_BALS_L2_ATTRIBUTES
+  - word: go
+  - word: Create
+  - word: TRIGGER
+  - word: dbo
+  - dot: .
+  - word: tr_u_SP_BALS_L2_ATTRIBUTES
+  - word: ON
+  - word: dbo
+  - dot: .
+  - word: SP_BALS_L2_ATTRIBUTES
+  - word: AFTER
+  - word: UPDATE
+  - word: AS
+  - word: UPDATE
+  - word: dbo
+  - dot: .
+  - word: SP_BALS_L2_ATTRIBUTES
+  - word: SET
+  - word: PDW_LAST_UPDATED
+  - raw_comparison_operator: =
+  - word: sysdatetime
+  - start_bracket: (
+  - end_bracket: )
+  - word: FROM
+  - word: dbo
+  - dot: .
+  - word: SP_BALS_L2_ATTRIBUTES
+  - word: o
+  - word: INNER
+  - word: JOIN
+  - word: Inserted
+  - word: i
+  - word: ON
+  - word: o
+  - dot: .
+  - word: PK_L2_BALS
+  - raw_comparison_operator: =
+  - word: i
+  - dot: .
+  - word: PK_L2_BALS
+  - word: GO
+  - word: DROP
+  - word: TRIGGER
+  - word: employee_insupd
+  - semicolon: ;
+  - word: GO
+  - word: DROP
+  - word: TRIGGER
+  - word: safety
+  - word: ON
+  - word: DATABASE
+  - semicolon: ;
+  - word: GO
+  - word: disable
+  - word: trigger
+  - word: dbo
+  - dot: .
+  - word: tr_u_SP_BALS_L2_ATTRIBUTES
+  - word: on
+  - word: dbo
+  - dot: .
+  - word: SP_BALS_L2_ATTRIBUTES
+  - word: GO
+  - word: DISABLE
+  - word: TRIGGER
+  - word: safety
+  - word: ON
+  - word: DATABASE
+  - semicolon: ;
+  - word: GO
+  - word: CREATE
+  - word: OR
+  - word: ALTER
+  - word: TRIGGER
+  - word: reminder1
+  - word: ON
+  - word: Sales
+  - dot: .
+  - word: Customer
+  - word: AFTER
+  - word: INSERT
+  - comma: ','
+  - word: UPDATE
+  - word: AS
+  - word: RAISERROR
+  - start_bracket: (
+  - single_quote: '''Notify Customer Relations'''
+  - comma: ','
+  - numeric_literal: '16'
+  - comma: ','
+  - numeric_literal: '10'
+  - end_bracket: )
+  - semicolon: ;
+  - word: GO
+  - word: CREATE
+  - word: TRIGGER
+  - word: reminder
+  - word: ON
+  - word: person
+  - dot: .
+  - word: address
+  - word: AFTER
+  - word: UPDATE
+  - word: AS
+  - word: IF
+  - start_bracket: (
+  - word: UPDATE
+  - start_bracket: (
+  - word: stateprovinceid
+  - end_bracket: )
+  - word: OR
+  - word: UPDATE
+  - start_bracket: (
+  - word: postalcode
+  - end_bracket: )
+  - end_bracket: )
+  - word: BEGIN
+  - word: RAISERROR
+  - start_bracket: (
+  - numeric_literal: '50009'
+  - comma: ','
+  - numeric_literal: '16'
+  - comma: ','
+  - numeric_literal: '10'
+  - end_bracket: )
+  - word: END
+  - semicolon: ;
+  - word: GO

@@ -1,0 +1,86 @@
+file:
+- statement:
+  - statement:
+    - select_statement:
+      - select_clause:
+        - select_clause:
+          - keyword: SELECT
+          - select_clause_element:
+            - column_reference:
+              - naked_identifier: column1
+          - comma: ','
+          - select_clause_element:
+            - column_reference:
+              - naked_identifier: column2
+      - from_clause:
+        - from_clause:
+          - keyword: FROM
+          - from_expression:
+            - from_expression:
+              - from_expression_element:
+                - from_expression_element:
+                  - table_expression:
+                    - table_reference:
+                      - keyword: OPENQUERY
+                      - bracketed:
+                        - start_bracket: (
+                        - quoted_identifier: '[testlinkedserver]'
+                        - comma: ','
+                        - quoted_literal: '''select * from table_name'''
+                        - end_bracket: )
+  - statement_terminator: ;
+  - statement:
+    - update_statement:
+      - update_statement:
+        - keyword: UPDATE
+        - table_reference:
+          - keyword: OPENQUERY
+          - bracketed:
+            - start_bracket: (
+            - naked_identifier: OracleSvr
+            - comma: ','
+            - quoted_literal: '''SELECT name FROM joe.titles WHERE id = 101'''
+            - end_bracket: )
+        - set_clause_list:
+          - keyword: SET
+          - set_clause:
+            - set_clause:
+              - column_reference:
+                - naked_identifier: name
+              - assignment_operator:
+                - raw_comparison_operator: =
+              - expression:
+                - quoted_literal: '''ADifferentName'''
+        - statement_terminator: ;
+  - statement:
+    - insert_statement:
+      - insert_statement:
+        - keyword: INSERT
+        - table_reference:
+          - keyword: OPENQUERY
+          - bracketed:
+            - start_bracket: (
+            - naked_identifier: OracleSvr
+            - comma: ','
+            - quoted_literal: '''SELECT name FROM joe.titles'''
+            - end_bracket: )
+        - values_clause:
+          - keyword: VALUES
+          - bracketed:
+            - start_bracket: (
+            - quoted_literal: '''NewTitle'''
+            - end_bracket: )
+  - statement_terminator: ;
+  - statement:
+    - delete_statement:
+      - delete_statement:
+        - keyword: DELETE
+        - table_reference:
+          - keyword: OPENQUERY
+          - bracketed:
+            - start_bracket: (
+            - naked_identifier: OracleSvr
+            - comma: ','
+            - quoted_literal: '''SELECT name FROM joe.titles WHERE name = ''''NewTitle'''''''
+            - end_bracket: )
+        - statement_terminator: ;

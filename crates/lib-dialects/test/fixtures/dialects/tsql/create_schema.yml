@@ -1,0 +1,27 @@
+file:
+- statement:
+  - statement:
+    - create_schema_statement:
+      - create_schema_statement:
+        - keyword: CREATE
+        - keyword: SCHEMA
+        - table_reference:
+          - object_reference:
+            - object_reference:
+              - quoted_identifier: '[Reporting]'
+  - keyword: GO
+  - statement:
+    - create_schema_statement:
+      - create_schema_statement:
+        - keyword: CREATE
+        - keyword: SCHEMA
+        - table_reference:
+          - object_reference:
+            - object_reference:
+              - quoted_identifier: '[Extracts]'
+        - keyword: AUTHORIZATION
+        - object_reference:
+          - object_reference:
+            - quoted_identifier: '[dbo]'
+  - statement_terminator: ;
+  - keyword: GO

@@ -1,0 +1,22 @@
+file:
+- statement:
+  - statement:
+    - drop_user_statement:
+      - drop_user_statement:
+        - keyword: drop
+        - keyword: user
+        - object_reference:
+          - object_reference:
+            - naked_identifier: some_user
+  - statement_terminator: ;
+  - statement:
+    - drop_user_statement:
+      - drop_user_statement:
+        - keyword: drop
+        - keyword: user
+        - keyword: if
+        - keyword: exists
+        - object_reference:
+          - object_reference:
+            - naked_identifier: some_user
+  - statement_terminator: ;

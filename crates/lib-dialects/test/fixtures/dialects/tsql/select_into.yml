@@ -34,16 +34,17 @@ file:
           - object_reference:
             - naked_identifier: '#CHG'
       - from_clause:
-        - keyword: FROM
-        - from_expression:
+        - from_clause:
+          - keyword: FROM
           - from_expression:
-            - from_expression_element:
+            - from_expression:
               - from_expression_element:
-                - table_expression:
-                  - table_reference:
-                    - object_reference:
+                - from_expression_element:
+                  - table_expression:
+                    - table_reference:
                       - object_reference:
-                        - naked_identifier: Final
+                        - object_reference:
+                          - naked_identifier: Final
       - groupby_clause:
         - groupby_clause:
           - keyword: GROUP

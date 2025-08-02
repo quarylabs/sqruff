@@ -10,16 +10,17 @@ file:
             - column_reference:
               - naked_identifier: foo
       - from_clause:
-        - keyword: FROM
-        - from_expression:
+        - from_clause:
+          - keyword: FROM
           - from_expression:
-            - from_expression_element:
+            - from_expression:
               - from_expression_element:
-                - table_expression:
-                  - table_reference:
-                    - object_reference:
+                - from_expression_element:
+                  - table_expression:
+                    - table_reference:
                       - object_reference:
-                        - naked_identifier: bar
+                        - object_reference:
+                          - naked_identifier: bar
   - keyword: GO
   - keyword: GO
   - statement:
@@ -31,16 +32,17 @@ file:
             - column_reference:
               - naked_identifier: foo
       - from_clause:
-        - keyword: FROM
-        - from_expression:
+        - from_clause:
+          - keyword: FROM
           - from_expression:
-            - from_expression_element:
+            - from_expression:
               - from_expression_element:
-                - table_expression:
-                  - table_reference:
-                    - object_reference:
+                - from_expression_element:
+                  - table_expression:
+                    - table_reference:
                       - object_reference:
-                        - naked_identifier: bar
+                        - object_reference:
+                          - naked_identifier: bar
   - keyword: GO
   - keyword: GO
   - keyword: GO
@@ -53,14 +55,15 @@ file:
             - column_reference:
               - naked_identifier: foo
       - from_clause:
-        - keyword: FROM
-        - from_expression:
+        - from_clause:
+          - keyword: FROM
           - from_expression:
-            - from_expression_element:
+            - from_expression:
               - from_expression_element:
-                - table_expression:
-                  - table_reference:
-                    - object_reference:
+                - from_expression_element:
+                  - table_expression:
+                    - table_reference:
                       - object_reference:
-                        - naked_identifier: bar
+                        - object_reference:
+                          - naked_identifier: bar
   - keyword: GO

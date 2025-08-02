@@ -16,16 +16,17 @@ file:
                   - column_reference:
                     - naked_identifier: ItemCategoryID
             - from_clause:
-              - keyword: FROM
-              - from_expression:
+              - from_clause:
+                - keyword: FROM
                 - from_expression:
-                  - from_expression_element:
+                  - from_expression:
                     - from_expression_element:
-                      - table_expression:
-                        - table_reference:
-                          - object_reference:
+                      - from_expression_element:
+                        - table_expression:
+                          - table_reference:
                             - object_reference:
-                              - naked_identifier: table1
+                              - object_reference:
+                                - naked_identifier: table1
           - end_bracket: )
       - select_statement:
         - select_clause:
@@ -36,40 +37,42 @@ file:
                 - wildcard_identifier:
                   - star: '*'
         - from_clause:
-          - keyword: FROM
-          - from_expression:
+          - from_clause:
+            - keyword: FROM
             - from_expression:
-              - from_expression_element:
-                - from_expression_element:
-                  - table_expression:
-                    - table_reference:
-                      - object_reference:
-                        - object_reference:
-                          - naked_identifier: NxItem
-              - join_clause:
-                - keyword: LEFT
-                - keyword: OUTER
-                - keyword: JOIN
+              - from_expression:
                 - from_expression_element:
                   - from_expression_element:
                     - table_expression:
                       - table_reference:
                         - object_reference:
                           - object_reference:
-                            - naked_identifier: bu2ic
-                    - alias_expression:
-                      - keyword: AS
-                      - naked_identifier: BU2IC
-                - join_on_condition:
-                  - keyword: ON
-                  - expression:
-                    - column_reference:
-                      - naked_identifier: BU2IC
-                      - dot: .
-                      - naked_identifier: ItemCategoryID
-                    - comparison_operator:
-                      - raw_comparison_operator: =
-                    - column_reference:
-                      - naked_identifier: NxItem
-                      - dot: .
-                      - naked_identifier: i_category_id
+                            - naked_identifier: NxItem
+                - join_clause:
+                  - keyword: LEFT
+                  - keyword: OUTER
+                  - keyword: JOIN
+                  - from_expression_element:
+                    - from_expression_element:
+                      - table_expression:
+                        - table_reference:
+                          - object_reference:
+                            - object_reference:
+                              - naked_identifier: bu2ic
+                      - alias_expression:
+                        - keyword: AS
+                        - naked_identifier: BU2IC
+                  - join_on_condition:
+                    - join_on_condition:
+                      - keyword: ON
+                      - expression:
+                        - column_reference:
+                          - naked_identifier: BU2IC
+                          - dot: .
+                          - naked_identifier: ItemCategoryID
+                        - comparison_operator:
+                          - raw_comparison_operator: =
+                        - column_reference:
+                          - naked_identifier: NxItem
+                          - dot: .
+                          - naked_identifier: i_category_id

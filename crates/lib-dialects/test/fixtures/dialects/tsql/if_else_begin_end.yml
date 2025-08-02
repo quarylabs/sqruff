@@ -19,24 +19,26 @@ file:
                     - column_reference:
                       - naked_identifier: Weight
               - from_clause:
-                - keyword: from
-                - from_expression:
+                - from_clause:
+                  - keyword: from
                   - from_expression:
-                    - from_expression_element:
+                    - from_expression:
                       - from_expression_element:
-                        - table_expression:
-                          - table_reference:
-                            - object_reference:
+                        - from_expression_element:
+                          - table_expression:
+                            - table_reference:
                               - object_reference:
-                                - naked_identifier: DimProduct
+                                - object_reference:
+                                  - naked_identifier: DimProduct
               - where_clause:
-                - keyword: WHERE
-                - expression:
-                  - column_reference:
-                    - naked_identifier: ProductKey
-                  - comparison_operator:
-                    - raw_comparison_operator: =
-                  - numeric_literal: '1'
+                - where_clause:
+                  - keyword: WHERE
+                  - expression:
+                    - column_reference:
+                      - naked_identifier: ProductKey
+                    - comparison_operator:
+                      - raw_comparison_operator: =
+                    - numeric_literal: '1'
           - end_bracket: )
       - begin_end_block:
         - keyword: BEGIN
@@ -63,24 +65,26 @@ file:
                     - keyword: AS
                     - naked_identifier: ShippingStatus
             - from_clause:
-              - keyword: FROM
-              - from_expression:
+              - from_clause:
+                - keyword: FROM
                 - from_expression:
-                  - from_expression_element:
+                  - from_expression:
                     - from_expression_element:
-                      - table_expression:
-                        - table_reference:
-                          - object_reference:
+                      - from_expression_element:
+                        - table_expression:
+                          - table_reference:
                             - object_reference:
-                              - naked_identifier: DimProduct
+                              - object_reference:
+                                - naked_identifier: DimProduct
             - where_clause:
-              - keyword: WHERE
-              - expression:
-                - column_reference:
-                  - naked_identifier: ProductKey
-                - comparison_operator:
-                  - raw_comparison_operator: =
-                - numeric_literal: '1'
+              - where_clause:
+                - keyword: WHERE
+                - expression:
+                  - column_reference:
+                    - naked_identifier: ProductKey
+                  - comparison_operator:
+                    - raw_comparison_operator: =
+                  - numeric_literal: '1'
         - keyword: END
       - keyword: ELSE
       - begin_end_block:
@@ -108,22 +112,24 @@ file:
                     - keyword: AS
                     - naked_identifier: ShippingStatus
             - from_clause:
-              - keyword: FROM
-              - from_expression:
+              - from_clause:
+                - keyword: FROM
                 - from_expression:
-                  - from_expression_element:
+                  - from_expression:
                     - from_expression_element:
-                      - table_expression:
-                        - table_reference:
-                          - object_reference:
+                      - from_expression_element:
+                        - table_expression:
+                          - table_reference:
                             - object_reference:
-                              - naked_identifier: DimProduct
+                              - object_reference:
+                                - naked_identifier: DimProduct
             - where_clause:
-              - keyword: WHERE
-              - expression:
-                - column_reference:
-                  - naked_identifier: ProductKey
-                - comparison_operator:
-                  - raw_comparison_operator: =
-                - numeric_literal: '1'
+              - where_clause:
+                - keyword: WHERE
+                - expression:
+                  - column_reference:
+                    - naked_identifier: ProductKey
+                  - comparison_operator:
+                    - raw_comparison_operator: =
+                  - numeric_literal: '1'
         - keyword: END

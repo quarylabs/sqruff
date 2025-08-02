@@ -17,26 +17,28 @@ file:
                     - wildcard_identifier:
                       - star: '*'
             - from_clause:
-              - keyword: FROM
-              - from_expression:
+              - from_clause:
+                - keyword: FROM
                 - from_expression:
-                  - from_expression_element:
+                  - from_expression:
                     - from_expression_element:
-                      - table_expression:
-                        - table_reference:
-                          - object_reference:
+                      - from_expression_element:
+                        - table_expression:
+                          - table_reference:
                             - object_reference:
-                              - naked_identifier: sys
-                              - dot: .
-                              - naked_identifier: indexes
+                              - object_reference:
+                                - naked_identifier: sys
+                                - dot: .
+                                - naked_identifier: indexes
             - where_clause:
-              - keyword: WHERE
-              - expression:
-                - column_reference:
-                  - naked_identifier: NAME
-                - comparison_operator:
-                  - raw_comparison_operator: =
-                - quoted_literal: '''IX_INTER_VIMR_INFECTIOUS_PEOPLE'''
+              - where_clause:
+                - keyword: WHERE
+                - expression:
+                  - column_reference:
+                    - naked_identifier: NAME
+                  - comparison_operator:
+                    - raw_comparison_operator: =
+                  - quoted_literal: '''IX_INTER_VIMR_INFECTIOUS_PEOPLE'''
           - end_bracket: )
       - statement:
         - create_index_statement:
@@ -78,26 +80,28 @@ file:
                       - wildcard_identifier:
                         - star: '*'
               - from_clause:
-                - keyword: FROM
-                - from_expression:
+                - from_clause:
+                  - keyword: FROM
                   - from_expression:
-                    - from_expression_element:
+                    - from_expression:
                       - from_expression_element:
-                        - table_expression:
-                          - table_reference:
-                            - object_reference:
+                        - from_expression_element:
+                          - table_expression:
+                            - table_reference:
                               - object_reference:
-                                - naked_identifier: sys
-                                - dot: .
-                                - naked_identifier: indexes
+                                - object_reference:
+                                  - naked_identifier: sys
+                                  - dot: .
+                                  - naked_identifier: indexes
               - where_clause:
-                - keyword: WHERE
-                - expression:
-                  - column_reference:
-                    - naked_identifier: NAME
-                  - comparison_operator:
-                    - raw_comparison_operator: =
-                  - quoted_literal: '''IX_INTER_FOUNDATION_NICE_IC_INTAKE_COUNT'''
+                - where_clause:
+                  - keyword: WHERE
+                  - expression:
+                    - column_reference:
+                      - naked_identifier: NAME
+                    - comparison_operator:
+                      - raw_comparison_operator: =
+                    - quoted_literal: '''IX_INTER_FOUNDATION_NICE_IC_INTAKE_COUNT'''
             - end_bracket: )
         - expression:
           - column_reference:
@@ -146,26 +150,28 @@ file:
                       - wildcard_identifier:
                         - star: '*'
               - from_clause:
-                - keyword: FROM
-                - from_expression:
+                - from_clause:
+                  - keyword: FROM
                   - from_expression:
-                    - from_expression_element:
+                    - from_expression:
                       - from_expression_element:
-                        - table_expression:
-                          - table_reference:
-                            - object_reference:
+                        - from_expression_element:
+                          - table_expression:
+                            - table_reference:
                               - object_reference:
-                                - naked_identifier: sys
-                                - dot: .
-                                - naked_identifier: indexes
+                                - object_reference:
+                                  - naked_identifier: sys
+                                  - dot: .
+                                  - naked_identifier: indexes
               - where_clause:
-                - keyword: WHERE
-                - expression:
-                  - column_reference:
-                    - naked_identifier: NAME
-                  - comparison_operator:
-                    - raw_comparison_operator: =
-                  - quoted_literal: '''IX_INTER_VIMR_REPRODUCTION_NUMBER'''
+                - where_clause:
+                  - keyword: WHERE
+                  - expression:
+                    - column_reference:
+                      - naked_identifier: NAME
+                    - comparison_operator:
+                      - raw_comparison_operator: =
+                    - quoted_literal: '''IX_INTER_VIMR_REPRODUCTION_NUMBER'''
             - end_bracket: )
         - expression:
           - column_reference:

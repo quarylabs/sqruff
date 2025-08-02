@@ -34,16 +34,17 @@ file:
                 - column_reference:
                   - naked_identifier: DATE_OF_REPORT
           - from_clause:
-            - keyword: FROM
-            - from_expression:
+            - from_clause:
+              - keyword: FROM
               - from_expression:
-                - from_expression_element:
+                - from_expression:
                   - from_expression_element:
-                    - table_expression:
-                      - table_reference:
-                        - object_reference:
+                    - from_expression_element:
+                      - table_expression:
+                        - table_reference:
                           - object_reference:
-                            - naked_identifier: BASE_CTE
+                            - object_reference:
+                              - naked_identifier: BASE_CTE
   - statement_terminator: ;
   - keyword: GO
   - statement:
@@ -72,16 +73,17 @@ file:
                 - column_reference:
                   - naked_identifier: DATE_OF_REPORT
           - from_clause:
-            - keyword: FROM
-            - from_expression:
+            - from_clause:
+              - keyword: FROM
               - from_expression:
-                - from_expression_element:
+                - from_expression:
                   - from_expression_element:
-                    - table_expression:
-                      - table_reference:
-                        - object_reference:
+                    - from_expression_element:
+                      - table_expression:
+                        - table_reference:
                           - object_reference:
-                            - naked_identifier: BASE_CTE
+                            - object_reference:
+                              - naked_identifier: BASE_CTE
           - orderby_clause:
             - keyword: ORDER
             - keyword: BY
@@ -173,51 +175,54 @@ file:
                   - keyword: AS
                   - quoted_identifier: '[DIFFERENCE]'
           - from_clause:
-            - keyword: FROM
-            - from_expression:
+            - from_clause:
+              - keyword: FROM
               - from_expression:
-                - from_expression_element:
-                  - from_expression_element:
-                    - table_expression:
-                      - table_reference:
-                        - object_reference:
-                          - object_reference:
-                            - naked_identifier: BASE_CTE
-                    - alias_expression:
-                      - naked_identifier: T1
-                - join_clause:
-                  - keyword: LEFT
-                  - keyword: JOIN
+                - from_expression:
                   - from_expression_element:
                     - from_expression_element:
                       - table_expression:
                         - table_reference:
                           - object_reference:
                             - object_reference:
-                              - naked_identifier: LAST_DATE_OF_REPORT
+                              - naked_identifier: BASE_CTE
                       - alias_expression:
-                        - naked_identifier: T2
-                  - join_on_condition:
-                    - keyword: ON
-                    - expression:
-                      - column_reference:
                         - naked_identifier: T1
-                        - dot: .
-                        - quoted_identifier: '[VRCODE]'
-                      - comparison_operator:
-                        - raw_comparison_operator: =
-                      - column_reference:
-                        - naked_identifier: T2
-                        - dot: .
-                        - quoted_identifier: '[VRCODE]'
+                  - join_clause:
+                    - keyword: LEFT
+                    - keyword: JOIN
+                    - from_expression_element:
+                      - from_expression_element:
+                        - table_expression:
+                          - table_reference:
+                            - object_reference:
+                              - object_reference:
+                                - naked_identifier: LAST_DATE_OF_REPORT
+                        - alias_expression:
+                          - naked_identifier: T2
+                    - join_on_condition:
+                      - join_on_condition:
+                        - keyword: ON
+                        - expression:
+                          - column_reference:
+                            - naked_identifier: T1
+                            - dot: .
+                            - quoted_identifier: '[VRCODE]'
+                          - comparison_operator:
+                            - raw_comparison_operator: =
+                          - column_reference:
+                            - naked_identifier: T2
+                            - dot: .
+                            - quoted_identifier: '[VRCODE]'
           - where_clause:
-            - keyword: WHERE
-            - expression:
-              - column_reference:
-                - naked_identifier: DATE_OF_REPORT
-              - comparison_operator:
-                - raw_comparison_operator: =
-              - column_reference:
-                - naked_identifier: LAST_DATE_OF_REPORT
+            - where_clause:
+              - keyword: WHERE
+              - expression:
+                - column_reference:
+                  - naked_identifier: DATE_OF_REPORT
+                - comparison_operator:
+                  - raw_comparison_operator: =
+                - column_reference:
+                  - naked_identifier: LAST_DATE_OF_REPORT
   - statement_terminator: ;
   - keyword: GO

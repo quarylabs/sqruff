@@ -22,6 +22,14 @@ use sqruff_lib_core::vec_of_erased;
 
 use crate::{ansi, tsql_keywords};
 
+// Helper function to create a matcher that accepts both keyword and word tokens
+// This is needed because T-SQL lexes keywords as word tokens in certain contexts
+fn keyword_or_word(keyword: &'static str) -> AnyNumberOf {
+    one_of(vec_of_erased![
+        Ref::keyword(keyword),
+        StringParser::new(keyword, SyntaxKind::Word)
+    ])
+}
 
 pub fn dialect() -> Dialect {
     raw_dialect()
@@ -244,12 +252,8 @@ pub fn raw_dialect() -> Dialect {
     // NOTE: Keyword matching is handled differently in Sqruff's architecture.
     // Keywords are NOT matched during lexing - they are identified during parsing.
     // The lexer produces word tokens, and the parser uses StringParser to match
-    // keywords based on their text content.
-    // 
-    // NOTE: T-SQL has known limitations where keywords are lexed as word tokens
-    // in certain contexts (e.g., inside procedure bodies after AS, after THROW
-    // statements). This affects ~1.26% of T-SQL code. See docs/tsql_limitations.md
-    // for details and workarounds.
+    // keywords based on their text content. This is why we need the keyword_or_word
+    // helper throughout the grammar.
     // 
     // Adding keyword matchers to the lexer would require significant architectural 
     // changes and static keyword definitions, which conflicts with the dynamic
@@ -1357,32 +1361,32 @@ pub fn raw_dialect() -> Dialect {
         "TryBlockSegment".into(),
         NodeMatcher::new(SyntaxKind::Statement, |_| {
             Sequence::new(vec_of_erased![
-                Ref::keyword("BEGIN"),
-                Ref::keyword("TRY"),
+                keyword_or_word("BEGIN"),
+                keyword_or_word("TRY"),
                 MetaSegment::indent(),
                 AnyNumberOf::new(vec_of_erased![Sequence::new(vec_of_erased![
                     Ref::new("StatementSegment"),
                     Ref::new("DelimiterGrammar").optional()
                 ])])
                 .config(|this| {
-                    this.terminators = vec_of_erased![Ref::keyword("END")];
+                    this.terminators = vec_of_erased![keyword_or_word("END")];
                 }),
                 MetaSegment::dedent(),
-                Ref::keyword("END"),
-                Ref::keyword("TRY"),
-                Ref::keyword("BEGIN"),
-                Ref::keyword("CATCH"),
+                keyword_or_word("END"),
+                keyword_or_word("TRY"),
+                keyword_or_word("BEGIN"),
+                keyword_or_word("CATCH"),
                 MetaSegment::indent(),
                 AnyNumberOf::new(vec_of_erased![Sequence::new(vec_of_erased![
                     Ref::new("StatementSegment"),
                     Ref::new("DelimiterGrammar").optional()
                 ])])
                 .config(|this| {
-                    this.terminators = vec_of_erased![Ref::keyword("END")];
+                    this.terminators = vec_of_erased![keyword_or_word("END")];
                 }),
                 MetaSegment::dedent(),
-                Ref::keyword("END"),
-                Ref::keyword("CATCH")
+                keyword_or_word("END"),
+                keyword_or_word("CATCH")
             ])
             .to_matchable()
         })
@@ -1426,8 +1430,8 @@ pub fn raw_dialect() -> Dialect {
             "ExecuteStatementGrammar".into(),
             Sequence::new(vec_of_erased![
                 one_of(vec_of_erased![
-                    Ref::keyword("EXEC"),
-                    Ref::keyword("EXECUTE")
+                    keyword_or_word("EXEC"),
+                    keyword_or_word("EXECUTE")
                 ]).config(|this| this.terminators = vec![]),
                 // Optional return value capture
                 Sequence::new(vec_of_erased![

@@ -38,92 +38,96 @@ file:
               - dot: .
               - naked_identifier: PostalCode
       - from_clause:
-        - keyword: FROM
-        - from_expression:
+        - from_clause:
+          - keyword: FROM
           - from_expression:
-            - from_expression_element:
-              - from_expression_element:
-                - table_expression:
-                  - table_reference:
-                    - object_reference:
-                      - object_reference:
-                        - naked_identifier: Sales
-                        - dot: .
-                        - naked_identifier: SalesPerson
-                - alias_expression:
-                  - keyword: AS
-                  - naked_identifier: s
-            - join_clause:
-              - keyword: INNER
-              - keyword: JOIN
+            - from_expression:
               - from_expression_element:
                 - from_expression_element:
                   - table_expression:
                     - table_reference:
                       - object_reference:
                         - object_reference:
-                          - naked_identifier: Person
+                          - naked_identifier: Sales
                           - dot: .
-                          - naked_identifier: Person
+                          - naked_identifier: SalesPerson
                   - alias_expression:
                     - keyword: AS
-                    - naked_identifier: p
-              - join_on_condition:
-                - keyword: ON
-                - expression:
-                  - column_reference:
                     - naked_identifier: s
-                    - dot: .
-                    - naked_identifier: BusinessEntityID
-                  - comparison_operator:
-                    - raw_comparison_operator: =
-                  - column_reference:
-                    - naked_identifier: p
-                    - dot: .
-                    - naked_identifier: BusinessEntityID
-            - join_clause:
-              - keyword: INNER
-              - keyword: JOIN
-              - from_expression_element:
+              - join_clause:
+                - keyword: INNER
+                - keyword: JOIN
                 - from_expression_element:
-                  - table_expression:
-                    - table_reference:
-                      - object_reference:
+                  - from_expression_element:
+                    - table_expression:
+                      - table_reference:
                         - object_reference:
-                          - naked_identifier: Person
-                          - dot: .
-                          - naked_identifier: Address
-                  - alias_expression:
-                    - keyword: AS
-                    - naked_identifier: a
-              - join_on_condition:
-                - keyword: ON
-                - expression:
-                  - column_reference:
-                    - naked_identifier: a
-                    - dot: .
-                    - naked_identifier: AddressID
-                  - comparison_operator:
-                    - raw_comparison_operator: =
-                  - column_reference:
-                    - naked_identifier: p
-                    - dot: .
-                    - naked_identifier: BusinessEntityID
+                          - object_reference:
+                            - naked_identifier: Person
+                            - dot: .
+                            - naked_identifier: Person
+                    - alias_expression:
+                      - keyword: AS
+                      - naked_identifier: p
+                - join_on_condition:
+                  - join_on_condition:
+                    - keyword: ON
+                    - expression:
+                      - column_reference:
+                        - naked_identifier: s
+                        - dot: .
+                        - naked_identifier: BusinessEntityID
+                      - comparison_operator:
+                        - raw_comparison_operator: =
+                      - column_reference:
+                        - naked_identifier: p
+                        - dot: .
+                        - naked_identifier: BusinessEntityID
+              - join_clause:
+                - keyword: INNER
+                - keyword: JOIN
+                - from_expression_element:
+                  - from_expression_element:
+                    - table_expression:
+                      - table_reference:
+                        - object_reference:
+                          - object_reference:
+                            - naked_identifier: Person
+                            - dot: .
+                            - naked_identifier: Address
+                    - alias_expression:
+                      - keyword: AS
+                      - naked_identifier: a
+                - join_on_condition:
+                  - join_on_condition:
+                    - keyword: ON
+                    - expression:
+                      - column_reference:
+                        - naked_identifier: a
+                        - dot: .
+                        - naked_identifier: AddressID
+                      - comparison_operator:
+                        - raw_comparison_operator: =
+                      - column_reference:
+                        - naked_identifier: p
+                        - dot: .
+                        - naked_identifier: BusinessEntityID
       - where_clause:
-        - keyword: WHERE
-        - expression:
-          - column_reference:
-            - naked_identifier: TerritoryID
-          - keyword: IS
-          - keyword: NOT
-          - null_literal: 'NULL'
-          - binary_operator: AND
-          - column_reference:
-            - naked_identifier: SalesYTD
-          - comparison_operator:
-            - raw_comparison_operator: <
-            - raw_comparison_operator: '>'
-          - numeric_literal: '0'
+        - where_clause:
+          - keyword: WHERE
+          - expression:
+            - column_reference:
+              - naked_identifier: TerritoryID
+            - keyword: IS
+            - keyword: NOT
+            - null_literal: 'NULL'
+            - binary_operator: AND
+            - column_reference:
+              - naked_identifier: SalesYTD
+            - comparison_operator:
+              - raw_comparison_operator: <
+              - raw_comparison_operator: '>'
+            - numeric_literal: '0'
       - named_window:
         - keyword: WINDOW
         - named_window_expression:
@@ -258,30 +262,32 @@ file:
               - keyword: AS
               - quoted_identifier: '[Max]'
       - from_clause:
-        - keyword: FROM
-        - from_expression:
+        - from_clause:
+          - keyword: FROM
           - from_expression:
-            - from_expression_element:
+            - from_expression:
               - from_expression_element:
-                - table_expression:
-                  - table_reference:
-                    - object_reference:
+                - from_expression_element:
+                  - table_expression:
+                    - table_reference:
                       - object_reference:
-                        - naked_identifier: Sales
-                        - dot: .
-                        - naked_identifier: SalesOrderDetail
+                        - object_reference:
+                          - naked_identifier: Sales
+                          - dot: .
+                          - naked_identifier: SalesOrderDetail
       - where_clause:
-        - keyword: WHERE
-        - expression:
-          - column_reference:
-            - naked_identifier: SalesOrderID
-          - keyword: IN
-          - bracketed:
-            - start_bracket: (
-            - numeric_literal: '43659'
-            - comma: ','
-            - numeric_literal: '43664'
-            - end_bracket: )
+        - where_clause:
+          - keyword: WHERE
+          - expression:
+            - column_reference:
+              - naked_identifier: SalesOrderID
+            - keyword: IN
+            - bracketed:
+              - start_bracket: (
+              - numeric_literal: '43659'
+              - comma: ','
+              - numeric_literal: '43664'
+              - end_bracket: )
       - named_window:
         - keyword: WINDOW
         - named_window_expression:
@@ -397,35 +403,37 @@ file:
               - keyword: AS
               - naked_identifier: Count
       - from_clause:
-        - keyword: FROM
-        - from_expression:
+        - from_clause:
+          - keyword: FROM
           - from_expression:
-            - from_expression_element:
+            - from_expression:
               - from_expression_element:
-                - table_expression:
-                  - table_reference:
-                    - object_reference:
+                - from_expression_element:
+                  - table_expression:
+                    - table_reference:
                       - object_reference:
-                        - naked_identifier: Sales
-                        - dot: .
-                        - naked_identifier: SalesOrderDetail
+                        - object_reference:
+                          - naked_identifier: Sales
+                          - dot: .
+                          - naked_identifier: SalesOrderDetail
       - where_clause:
-        - keyword: WHERE
-        - expression:
-          - column_reference:
-            - naked_identifier: SalesOrderID
-          - keyword: IN
-          - bracketed:
-            - start_bracket: (
-            - numeric_literal: '43659'
-            - comma: ','
-            - numeric_literal: '43664'
-            - end_bracket: )
-          - binary_operator: AND
-          - column_reference:
-            - naked_identifier: ProductID
-          - keyword: LIKE
-          - quoted_literal: '''71%'''
+        - where_clause:
+          - keyword: WHERE
+          - expression:
+            - column_reference:
+              - naked_identifier: SalesOrderID
+            - keyword: IN
+            - bracketed:
+              - start_bracket: (
+              - numeric_literal: '43659'
+              - comma: ','
+              - numeric_literal: '43664'
+              - end_bracket: )
+            - binary_operator: AND
+            - column_reference:
+              - naked_identifier: ProductID
+            - keyword: LIKE
+            - quoted_literal: '''71%'''
       - named_window:
         - keyword: WINDOW
         - named_window_expression:
@@ -503,35 +511,37 @@ file:
               - keyword: AS
               - naked_identifier: Avg
       - from_clause:
-        - keyword: FROM
-        - from_expression:
+        - from_clause:
+          - keyword: FROM
           - from_expression:
-            - from_expression_element:
+            - from_expression:
               - from_expression_element:
-                - table_expression:
-                  - table_reference:
-                    - object_reference:
+                - from_expression_element:
+                  - table_expression:
+                    - table_reference:
                       - object_reference:
-                        - naked_identifier: Sales
-                        - dot: .
-                        - naked_identifier: SalesOrderDetail
+                        - object_reference:
+                          - naked_identifier: Sales
+                          - dot: .
+                          - naked_identifier: SalesOrderDetail
       - where_clause:
-        - keyword: WHERE
-        - expression:
-          - column_reference:
-            - naked_identifier: SalesOrderID
-          - keyword: IN
-          - bracketed:
-            - start_bracket: (
-            - numeric_literal: '43659'
-            - comma: ','
-            - numeric_literal: '43664'
-            - end_bracket: )
-          - binary_operator: AND
-          - column_reference:
-            - naked_identifier: ProductID
-          - keyword: LIKE
-          - quoted_literal: '''71%'''
+        - where_clause:
+          - keyword: WHERE
+          - expression:
+            - column_reference:
+              - naked_identifier: SalesOrderID
+            - keyword: IN
+            - bracketed:
+              - start_bracket: (
+              - numeric_literal: '43659'
+              - comma: ','
+              - numeric_literal: '43664'
+              - end_bracket: )
+            - binary_operator: AND
+            - column_reference:
+              - naked_identifier: ProductID
+            - keyword: LIKE
+            - quoted_literal: '''71%'''
       - named_window:
         - keyword: WINDOW
         - named_window_expression:
@@ -594,18 +604,19 @@ file:
               - keyword: as
               - naked_identifier: x
       - from_clause:
-        - keyword: from
-        - from_expression:
+        - from_clause:
+          - keyword: from
           - from_expression:
-            - from_expression_element:
+            - from_expression:
               - from_expression_element:
-                - table_expression:
-                  - table_reference:
-                    - object_reference:
+                - from_expression_element:
+                  - table_expression:
+                    - table_reference:
                       - object_reference:
-                        - naked_identifier: information_schema
-                        - dot: .
-                        - naked_identifier: tables
+                        - object_reference:
+                          - naked_identifier: information_schema
+                          - dot: .
+                          - naked_identifier: tables
       - named_window:
         - keyword: window
         - named_window_expression:

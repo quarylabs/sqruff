@@ -273,18 +273,19 @@ file:
                 - column_reference:
                   - quoted_identifier: '[SOURCE]'
           - from_clause:
-            - keyword: FROM
-            - from_expression:
+            - from_clause:
+              - keyword: FROM
               - from_expression:
-                - from_expression_element:
+                - from_expression:
                   - from_expression_element:
-                    - table_expression:
-                      - table_reference:
-                        - object_reference:
+                    - from_expression_element:
+                      - table_expression:
+                        - table_reference:
                           - object_reference:
-                            - naked_identifier: STAGE
-                            - dot: .
-                            - naked_identifier: ECDC_CASES
+                            - object_reference:
+                              - naked_identifier: STAGE
+                              - dot: .
+                              - naked_identifier: ECDC_CASES
   - keyword: GO
   - statement:
     - begin_end_block:
@@ -340,16 +341,17 @@ file:
                     - column_reference:
                       - naked_identifier: CurrentFlag
               - from_clause:
-                - keyword: FROM
-                - from_expression:
+                - from_clause:
+                  - keyword: FROM
                   - from_expression:
-                    - from_expression_element:
+                    - from_expression:
                       - from_expression_element:
-                        - table_expression:
-                          - table_reference:
-                            - object_reference:
+                        - from_expression_element:
+                          - table_expression:
+                            - table_reference:
                               - object_reference:
-                                - naked_identifier: EmployeeTemp
+                                - object_reference:
+                                  - naked_identifier: EmployeeTemp
       - statement_terminator: ;
       - keyword: END
   - keyword: GO
@@ -404,16 +406,17 @@ file:
                 - column_reference:
                   - naked_identifier: CurrentFlag
           - from_clause:
-            - keyword: FROM
-            - from_expression:
+            - from_clause:
+              - keyword: FROM
               - from_expression:
-                - from_expression_element:
+                - from_expression:
                   - from_expression_element:
-                    - table_expression:
-                      - table_reference:
-                        - object_reference:
+                    - from_expression_element:
+                      - table_expression:
+                        - table_reference:
                           - object_reference:
-                            - naked_identifier: EmployeeTemp
+                            - object_reference:
+                              - naked_identifier: EmployeeTemp
   - statement_terminator: ;
   - keyword: GO
   - statement:

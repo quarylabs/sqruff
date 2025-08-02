@@ -9,23 +9,24 @@ file:
             - column_reference:
               - naked_identifier: a
       - from_clause:
-        - keyword: FROM
-        - from_expression:
+        - from_clause:
+          - keyword: FROM
           - from_expression:
-            - from_expression_element:
-              - from_expression_element:
-                - table_expression:
-                  - table_reference:
-                    - object_reference:
-                      - object_reference:
-                        - naked_identifier: t1
-            - join_clause:
-              - keyword: CROSS
-              - keyword: APPLY
+            - from_expression:
               - from_expression_element:
                 - from_expression_element:
                   - table_expression:
                     - table_reference:
                       - object_reference:
                         - object_reference:
-                          - naked_identifier: t2
+                          - naked_identifier: t1
+              - join_clause:
+                - keyword: CROSS
+                - keyword: APPLY
+                - from_expression_element:
+                  - from_expression_element:
+                    - table_expression:
+                      - table_reference:
+                        - object_reference:
+                          - object_reference:
+                            - naked_identifier: t2

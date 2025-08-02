@@ -9,16 +9,17 @@ file:
             - column_reference:
               - naked_identifier: a
       - from_clause:
-        - keyword: from
-        - from_expression:
+        - from_clause:
+          - keyword: from
           - from_expression:
-            - from_expression_element:
+            - from_expression:
               - from_expression_element:
-                - table_expression:
-                  - table_reference:
-                    - object_reference:
+                - from_expression_element:
+                  - table_expression:
+                    - table_reference:
                       - object_reference:
-                        - naked_identifier: tbl1
+                        - object_reference:
+                          - naked_identifier: tbl1
   - keyword: GO
   - statement:
     - select_statement:
@@ -29,14 +30,15 @@ file:
             - column_reference:
               - naked_identifier: b
       - from_clause:
-        - keyword: from
-        - from_expression:
+        - from_clause:
+          - keyword: from
           - from_expression:
-            - from_expression_element:
+            - from_expression:
               - from_expression_element:
-                - table_expression:
-                  - table_reference:
-                    - object_reference:
+                - from_expression_element:
+                  - table_expression:
+                    - table_reference:
                       - object_reference:
-                        - naked_identifier: tbl2
+                        - object_reference:
+                          - naked_identifier: tbl2
   - keyword: GO

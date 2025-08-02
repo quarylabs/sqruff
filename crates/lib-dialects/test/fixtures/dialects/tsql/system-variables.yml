@@ -21,13 +21,14 @@ file:
               - expression:
                 - quoted_literal: N'Executive'
         - where_clause:
-          - keyword: WHERE
-          - expression:
-            - column_reference:
-              - naked_identifier: NationalIDNumber
-            - comparison_operator:
-              - raw_comparison_operator: =
-            - numeric_literal: '123456789'
+          - where_clause:
+            - keyword: WHERE
+            - expression:
+              - column_reference:
+                - naked_identifier: NationalIDNumber
+              - comparison_operator:
+                - raw_comparison_operator: =
+              - numeric_literal: '123456789'
   - statement:
     - if_statement:
       - keyword: IF

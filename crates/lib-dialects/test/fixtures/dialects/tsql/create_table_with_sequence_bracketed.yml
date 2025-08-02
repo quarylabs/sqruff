@@ -17,40 +17,42 @@ file:
                     - wildcard_identifier:
                       - star: '*'
             - from_clause:
-              - keyword: FROM
-              - from_expression:
+              - from_clause:
+                - keyword: FROM
                 - from_expression:
-                  - from_expression_element:
+                  - from_expression:
                     - from_expression_element:
-                      - table_expression:
-                        - table_reference:
-                          - object_reference:
+                      - from_expression_element:
+                        - table_expression:
+                          - table_reference:
                             - object_reference:
-                              - naked_identifier: sys
-                              - dot: .
-                              - naked_identifier: sequences
+                              - object_reference:
+                                - naked_identifier: sys
+                                - dot: .
+                                - naked_identifier: sequences
             - where_clause:
-              - keyword: WHERE
-              - expression:
-                - column_reference:
-                  - naked_identifier: object_id
-                - comparison_operator:
-                  - raw_comparison_operator: =
-                - function:
+              - where_clause:
+                - keyword: WHERE
+                - expression:
+                  - column_reference:
+                    - naked_identifier: object_id
+                  - comparison_operator:
+                    - raw_comparison_operator: =
                   - function:
-                    - function_name:
-                      - function_name_identifier: OBJECT_ID
-                    - bracketed:
-                      - start_bracket: (
-                      - expression:
-                        - quoted_literal: N'[dbo].[SEQ_SCHEMA_NAME_TABLE_NAME]'
-                      - end_bracket: )
-                - binary_operator: AND
-                - column_reference:
-                  - naked_identifier: type
-                - comparison_operator:
-                  - raw_comparison_operator: =
-                - quoted_literal: '''SO'''
+                    - function:
+                      - function_name:
+                        - function_name_identifier: OBJECT_ID
+                      - bracketed:
+                        - start_bracket: (
+                        - expression:
+                          - quoted_literal: N'[dbo].[SEQ_SCHEMA_NAME_TABLE_NAME]'
+                        - end_bracket: )
+                  - binary_operator: AND
+                  - column_reference:
+                    - naked_identifier: type
+                  - comparison_operator:
+                    - raw_comparison_operator: =
+                  - quoted_literal: '''SO'''
           - end_bracket: )
       - statement:
         - create_sequence_statement:
@@ -221,40 +223,42 @@ file:
                         - wildcard_identifier:
                           - star: '*'
                 - from_clause:
-                  - keyword: FROM
-                  - from_expression:
+                  - from_clause:
+                    - keyword: FROM
                     - from_expression:
-                      - from_expression_element:
+                      - from_expression:
                         - from_expression_element:
-                          - table_expression:
-                            - table_reference:
-                              - object_reference:
+                          - from_expression_element:
+                            - table_expression:
+                              - table_reference:
                                 - object_reference:
-                                  - naked_identifier: sys
-                                  - dot: .
-                                  - naked_identifier: sequences
+                                  - object_reference:
+                                    - naked_identifier: sys
+                                    - dot: .
+                                    - naked_identifier: sequences
                 - where_clause:
-                  - keyword: WHERE
-                  - expression:
-                    - column_reference:
-                      - naked_identifier: object_id
-                    - comparison_operator:
-                      - raw_comparison_operator: =
-                    - function:
+                  - where_clause:
+                    - keyword: WHERE
+                    - expression:
+                      - column_reference:
+                        - naked_identifier: object_id
+                      - comparison_operator:
+                        - raw_comparison_operator: =
                       - function:
-                        - function_name:
-                          - function_name_identifier: OBJECT_ID
-                        - bracketed:
-                          - start_bracket: (
-                          - expression:
-                            - quoted_literal: N'[dbo].[SEQ_STAGE_CBS_POPULATION_BASE]'
-                          - end_bracket: )
-                    - binary_operator: AND
-                    - column_reference:
-                      - naked_identifier: type
-                    - comparison_operator:
-                      - raw_comparison_operator: =
-                    - quoted_literal: '''SO'''
+                        - function:
+                          - function_name:
+                            - function_name_identifier: OBJECT_ID
+                          - bracketed:
+                            - start_bracket: (
+                            - expression:
+                              - quoted_literal: N'[dbo].[SEQ_STAGE_CBS_POPULATION_BASE]'
+                            - end_bracket: )
+                      - binary_operator: AND
+                      - column_reference:
+                        - naked_identifier: type
+                      - comparison_operator:
+                        - raw_comparison_operator: =
+                      - quoted_literal: '''SO'''
               - end_bracket: )
           - statement:
             - create_sequence_statement:

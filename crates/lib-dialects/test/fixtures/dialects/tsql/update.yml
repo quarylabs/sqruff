@@ -21,36 +21,38 @@ file:
               - expression:
                 - numeric_literal: '1'
         - where_clause:
-          - keyword: where
-          - expression:
-            - column_reference:
-              - naked_identifier: ID
-            - keyword: in
-            - bracketed:
-              - start_bracket: (
-              - select_statement:
-                - select_clause:
+          - where_clause:
+            - keyword: where
+            - expression:
+              - column_reference:
+                - naked_identifier: ID
+              - keyword: in
+              - bracketed:
+                - start_bracket: (
+                - select_statement:
                   - select_clause:
-                    - keyword: select
-                    - select_clause_modifier:
-                      - keyword: distinct
-                    - select_clause_element:
-                      - column_reference:
-                        - quoted_identifier: '[ID]'
-                - from_clause:
-                  - keyword: from
-                  - from_expression:
-                    - from_expression:
-                      - from_expression_element:
-                        - from_expression_element:
-                          - table_expression:
-                            - table_reference:
-                              - object_reference:
-                                - object_reference:
-                                  - naked_identifier: dbo
-                                  - dot: .
-                                  - naked_identifier: CX
-              - end_bracket: )
+                    - select_clause:
+                      - keyword: select
+                      - select_clause_modifier:
+                        - keyword: distinct
+                      - select_clause_element:
+                        - column_reference:
+                          - quoted_identifier: '[ID]'
+                  - from_clause:
+                    - from_clause:
+                      - keyword: from
+                      - from_expression:
+                        - from_expression:
+                          - from_expression_element:
+                            - from_expression_element:
+                              - table_expression:
+                                - table_reference:
+                                  - object_reference:
+                                    - object_reference:
+                                      - naked_identifier: dbo
+                                      - dot: .
+                                      - naked_identifier: CX
+                - end_bracket: )
         - keyword: OPTION
         - bracketed:
           - start_bracket: (
@@ -81,41 +83,43 @@ file:
               - expression:
                 - numeric_literal: '1'
         - from_clause:
-          - keyword: from
-          - from_expression:
+          - from_clause:
+            - keyword: from
             - from_expression:
-              - from_expression_element:
-                - from_expression_element:
-                  - table_expression:
-                    - table_reference:
-                      - object_reference:
-                        - object_reference:
-                          - naked_identifier: table1
-                  - alias_expression:
-                    - keyword: as
-                    - naked_identifier: tt
-              - join_clause:
-                - keyword: join
+              - from_expression:
                 - from_expression_element:
                   - from_expression_element:
                     - table_expression:
                       - table_reference:
                         - object_reference:
                           - object_reference:
-                            - naked_identifier: src
-                - join_on_condition:
-                  - keyword: on
-                  - expression:
-                    - column_reference:
+                            - naked_identifier: table1
+                    - alias_expression:
+                      - keyword: as
                       - naked_identifier: tt
-                      - dot: .
-                      - naked_identifier: _id
-                    - comparison_operator:
-                      - raw_comparison_operator: =
-                    - column_reference:
-                      - naked_identifier: src
-                      - dot: .
-                      - naked_identifier: _id
+                - join_clause:
+                  - keyword: join
+                  - from_expression_element:
+                    - from_expression_element:
+                      - table_expression:
+                        - table_reference:
+                          - object_reference:
+                            - object_reference:
+                              - naked_identifier: src
+                  - join_on_condition:
+                    - join_on_condition:
+                      - keyword: on
+                      - expression:
+                        - column_reference:
+                          - naked_identifier: tt
+                          - dot: .
+                          - naked_identifier: _id
+                        - comparison_operator:
+                          - raw_comparison_operator: =
+                        - column_reference:
+                          - naked_identifier: src
+                          - dot: .
+                          - naked_identifier: _id
         - statement_terminator: ;
   - statement:
     - update_statement:
@@ -146,10 +150,11 @@ file:
             - object_reference:
               - naked_identifier: trash
         - where_clause:
-          - keyword: WHERE
-          - expression:
-            - column_reference:
-              - naked_identifier: useless
-            - comparison_operator:
-              - raw_comparison_operator: =
-            - numeric_literal: '1'
+          - where_clause:
+            - keyword: WHERE
+            - expression:
+              - column_reference:
+                - naked_identifier: useless
+              - comparison_operator:
+                - raw_comparison_operator: =
+              - numeric_literal: '1'

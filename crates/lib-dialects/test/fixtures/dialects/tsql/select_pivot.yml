@@ -17,52 +17,53 @@ file:
             - column_reference:
               - quoted_identifier: '[3]'
       - from_clause:
-        - keyword: from
-        - from_expression:
+        - from_clause:
+          - keyword: from
           - from_expression:
-            - from_expression_element:
+            - from_expression:
               - from_expression_element:
-                - table_expression:
-                  - table_reference:
-                    - object_reference:
+                - from_expression_element:
+                  - table_expression:
+                    - table_reference:
                       - object_reference:
-                        - naked_identifier: table1
-                - alias_expression:
-                  - keyword: as
-                  - naked_identifier: t1
-                - pivot_expression:
-                  - keyword: pivot
-                  - bracketed:
-                    - start_bracket: (
-                    - function:
-                      - function:
-                        - function_name:
-                          - function_name_identifier: max
-                        - bracketed:
-                          - start_bracket: (
-                          - expression:
-                            - column_reference:
-                              - naked_identifier: value
-                          - end_bracket: )
-                    - keyword: for
-                    - column_reference:
-                      - naked_identifier: rn
-                    - keyword: in
-                    - bracketed:
-                      - start_bracket: (
-                      - pivot_column_reference:
-                        - quoted_identifier: '[1]'
-                      - comma: ','
-                      - pivot_column_reference:
-                        - quoted_identifier: '[2]'
-                      - comma: ','
-                      - pivot_column_reference:
-                        - quoted_identifier: '[3]'
-                      - end_bracket: )
-                    - end_bracket: )
+                        - object_reference:
+                          - naked_identifier: table1
                   - alias_expression:
                     - keyword: as
-                    - naked_identifier: pvt
+                    - naked_identifier: t1
+                  - pivot_expression:
+                    - keyword: pivot
+                    - bracketed:
+                      - start_bracket: (
+                      - function:
+                        - function:
+                          - function_name:
+                            - function_name_identifier: max
+                          - bracketed:
+                            - start_bracket: (
+                            - expression:
+                              - column_reference:
+                                - naked_identifier: value
+                            - end_bracket: )
+                      - keyword: for
+                      - column_reference:
+                        - naked_identifier: rn
+                      - keyword: in
+                      - bracketed:
+                        - start_bracket: (
+                        - pivot_column_reference:
+                          - quoted_identifier: '[1]'
+                        - comma: ','
+                        - pivot_column_reference:
+                          - quoted_identifier: '[2]'
+                        - comma: ','
+                        - pivot_column_reference:
+                          - quoted_identifier: '[3]'
+                        - end_bracket: )
+                      - end_bracket: )
+                    - alias_expression:
+                      - keyword: as
+                      - naked_identifier: pvt
   - statement_terminator: ;
   - statement:
     - select_statement:
@@ -81,51 +82,52 @@ file:
             - column_reference:
               - quoted_identifier: '[3]'
       - from_clause:
-        - keyword: from
-        - from_expression:
+        - from_clause:
+          - keyword: from
           - from_expression:
-            - from_expression_element:
+            - from_expression:
               - from_expression_element:
-                - table_expression:
-                  - table_reference:
-                    - object_reference:
+                - from_expression_element:
+                  - table_expression:
+                    - table_reference:
                       - object_reference:
-                        - naked_identifier: table1
-                - alias_expression:
-                  - keyword: as
-                  - naked_identifier: t1
-                - pivot_expression:
-                  - keyword: pivot
-                  - bracketed:
-                    - start_bracket: (
-                    - function:
-                      - function:
-                        - function_name:
-                          - function_name_identifier: max
-                        - bracketed:
-                          - start_bracket: (
-                          - expression:
-                            - column_reference:
-                              - naked_identifier: value
-                          - end_bracket: )
-                    - keyword: for
-                    - column_reference:
-                      - naked_identifier: rn
-                    - keyword: in
+                        - object_reference:
+                          - naked_identifier: table1
+                  - alias_expression:
+                    - keyword: as
+                    - naked_identifier: t1
+                  - pivot_expression:
+                    - keyword: pivot
                     - bracketed:
                       - start_bracket: (
-                      - pivot_column_reference:
-                        - quoted_identifier: '[1]'
-                      - comma: ','
-                      - pivot_column_reference:
-                        - quoted_identifier: '[2]'
-                      - comma: ','
-                      - pivot_column_reference:
-                        - quoted_identifier: '[3]'
+                      - function:
+                        - function:
+                          - function_name:
+                            - function_name_identifier: max
+                          - bracketed:
+                            - start_bracket: (
+                            - expression:
+                              - column_reference:
+                                - naked_identifier: value
+                            - end_bracket: )
+                      - keyword: for
+                      - column_reference:
+                        - naked_identifier: rn
+                      - keyword: in
+                      - bracketed:
+                        - start_bracket: (
+                        - pivot_column_reference:
+                          - quoted_identifier: '[1]'
+                        - comma: ','
+                        - pivot_column_reference:
+                          - quoted_identifier: '[2]'
+                        - comma: ','
+                        - pivot_column_reference:
+                          - quoted_identifier: '[3]'
+                        - end_bracket: )
                       - end_bracket: )
-                    - end_bracket: )
-                  - alias_expression:
-                    - naked_identifier: pvt
+                    - alias_expression:
+                      - naked_identifier: pvt
   - statement_terminator: ;
   - keyword: GO
   - statement:
@@ -148,87 +150,89 @@ file:
               - keyword: AS
               - naked_identifier: Month
       - from_clause:
-        - keyword: FROM
-        - from_expression:
+        - from_clause:
+          - keyword: FROM
           - from_expression:
-            - from_expression_element:
-              - from_expression_element:
-                - table_expression:
-                  - table_reference:
-                    - object_reference:
-                      - object_reference:
-                        - naked_identifier: p
-                  - keyword: UNPIVOT
-                  - bracketed:
-                    - start_bracket: (
-                    - column_reference:
-                      - naked_identifier: MonthValue
-                    - keyword: FOR
-                    - column_reference:
-                      - naked_identifier: MonthColumn
-                    - keyword: IN
-                    - bracketed:
-                      - start_bracket: (
-                      - column_reference:
-                        - naked_identifier: Jan
-                      - comma: ','
-                      - column_reference:
-                        - naked_identifier: Feb
-                      - comma: ','
-                      - column_reference:
-                        - naked_identifier: Mar
-                      - comma: ','
-                      - column_reference:
-                        - naked_identifier: Apr
-                      - comma: ','
-                      - column_reference:
-                        - naked_identifier: May
-                      - comma: ','
-                      - column_reference:
-                        - naked_identifier: Jun
-                      - comma: ','
-                      - column_reference:
-                        - naked_identifier: Jul
-                      - comma: ','
-                      - column_reference:
-                        - naked_identifier: Aug
-                      - comma: ','
-                      - column_reference:
-                        - naked_identifier: Sep
-                      - comma: ','
-                      - column_reference:
-                        - naked_identifier: Oct
-                      - comma: ','
-                      - column_reference:
-                        - naked_identifier: Nov
-                      - comma: ','
-                      - column_reference:
-                        - naked_identifier: Dec
-                      - end_bracket: )
-                    - end_bracket: )
-                - alias_expression:
-                  - keyword: AS
-                  - naked_identifier: unpvt
-            - join_clause:
-              - keyword: INNER
-              - keyword: JOIN
+            - from_expression:
               - from_expression_element:
                 - from_expression_element:
                   - table_expression:
                     - table_reference:
                       - object_reference:
                         - object_reference:
-                          - naked_identifier: d
-              - join_on_condition:
-                - keyword: ON
-                - expression:
-                  - column_reference:
-                    - quoted_identifier: '[Month Name]'
-                  - comparison_operator:
-                    - raw_comparison_operator: =
-                  - column_reference:
+                          - naked_identifier: p
+                    - keyword: UNPIVOT
+                    - bracketed:
+                      - start_bracket: (
+                      - column_reference:
+                        - naked_identifier: MonthValue
+                      - keyword: FOR
+                      - column_reference:
+                        - naked_identifier: MonthColumn
+                      - keyword: IN
+                      - bracketed:
+                        - start_bracket: (
+                        - column_reference:
+                          - naked_identifier: Jan
+                        - comma: ','
+                        - column_reference:
+                          - naked_identifier: Feb
+                        - comma: ','
+                        - column_reference:
+                          - naked_identifier: Mar
+                        - comma: ','
+                        - column_reference:
+                          - naked_identifier: Apr
+                        - comma: ','
+                        - column_reference:
+                          - naked_identifier: May
+                        - comma: ','
+                        - column_reference:
+                          - naked_identifier: Jun
+                        - comma: ','
+                        - column_reference:
+                          - naked_identifier: Jul
+                        - comma: ','
+                        - column_reference:
+                          - naked_identifier: Aug
+                        - comma: ','
+                        - column_reference:
+                          - naked_identifier: Sep
+                        - comma: ','
+                        - column_reference:
+                          - naked_identifier: Oct
+                        - comma: ','
+                        - column_reference:
+                          - naked_identifier: Nov
+                        - comma: ','
+                        - column_reference:
+                          - naked_identifier: Dec
+                        - end_bracket: )
+                      - end_bracket: )
+                  - alias_expression:
+                    - keyword: AS
                     - naked_identifier: unpvt
-                    - dot: .
-                    - naked_identifier: MonthColumn
+              - join_clause:
+                - keyword: INNER
+                - keyword: JOIN
+                - from_expression_element:
+                  - from_expression_element:
+                    - table_expression:
+                      - table_reference:
+                        - object_reference:
+                          - object_reference:
+                            - naked_identifier: d
+                - join_on_condition:
+                  - join_on_condition:
+                    - keyword: ON
+                    - expression:
+                      - column_reference:
+                        - quoted_identifier: '[Month Name]'
+                      - comparison_operator:
+                        - raw_comparison_operator: =
+                      - column_reference:
+                        - naked_identifier: unpvt
+                        - dot: .
+                        - naked_identifier: MonthColumn
   - statement_terminator: ;
   - keyword: GO

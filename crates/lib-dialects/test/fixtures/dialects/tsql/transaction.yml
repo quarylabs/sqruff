@@ -18,13 +18,14 @@ file:
               - dot: .
               - naked_identifier: JobCandidate
         - where_clause:
-          - keyword: WHERE
-          - expression:
-            - column_reference:
-              - naked_identifier: JobCandidateID
-            - comparison_operator:
-              - raw_comparison_operator: =
-            - numeric_literal: '13'
+          - where_clause:
+            - keyword: WHERE
+            - expression:
+              - column_reference:
+                - naked_identifier: JobCandidateID
+              - comparison_operator:
+                - raw_comparison_operator: =
+              - numeric_literal: '13'
         - statement_terminator: ;
   - statement:
     - transaction_statement:
@@ -49,13 +50,14 @@ file:
               - dot: .
               - naked_identifier: JobCandidate
         - where_clause:
-          - keyword: WHERE
-          - expression:
-            - column_reference:
-              - naked_identifier: JobCandidateID
-            - comparison_operator:
-              - raw_comparison_operator: =
-            - numeric_literal: '13'
+          - where_clause:
+            - keyword: WHERE
+            - expression:
+              - column_reference:
+                - naked_identifier: JobCandidateID
+              - comparison_operator:
+                - raw_comparison_operator: =
+              - numeric_literal: '13'
         - statement_terminator: ;
   - statement:
     - transaction_statement:

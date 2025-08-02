@@ -10,47 +10,101 @@ file:
               - wildcard_identifier:
                 - star: '*'
       - from_clause:
-        - keyword: FROM
-        - from_expression:
+        - from_clause:
+          - keyword: FROM
           - from_expression:
-            - from_expression_element:
-              - from_expression_element:
-                - table_expression:
-                  - table_reference:
-                    - object_reference:
-                      - object_reference:
-                        - naked_identifier: products
-            - join_clause:
-              - keyword: INNER
-              - keyword: JOIN
+            - from_expression:
               - from_expression_element:
                 - from_expression_element:
                   - table_expression:
-                    - function:
+                    - table_reference:
+                      - object_reference:
+                        - object_reference:
+                          - naked_identifier: products
+              - join_clause:
+                - keyword: INNER
+                - keyword: JOIN
+                - from_expression_element:
+                  - from_expression_element:
+                    - table_expression:
                       - function:
-                        - function_name:
-                          - function_name_identifier: OPENJSON
-                        - bracketed:
-                          - start_bracket: (
-                          - expression:
-                            - quoted_literal: N'[1,2,3,4]'
-                          - end_bracket: )
+                        - function:
+                          - function_name:
+                            - function_name_identifier: OPENJSON
+                          - bracketed:
+                            - start_bracket: (
+                            - expression:
+                              - quoted_literal: N'[1,2,3,4]'
+                            - end_bracket: )
+                    - alias_expression:
+                      - keyword: AS
+                      - naked_identifier: productTypes
+                - join_on_condition:
+                  - join_on_condition:
+                    - keyword: ON
+                    - expression:
+                      - column_reference:
+                        - naked_identifier: product
+                        - dot: .
+                        - naked_identifier: productTypeID
+                      - comparison_operator:
+                        - raw_comparison_operator: =
+                      - column_reference:
+                        - naked_identifier: productTypes
+                        - dot: .
+                        - naked_identifier: value
+  - statement_terminator: ;
+  - statement:
+    - select_statement:
+      - select_clause:
+        - select_clause:
+          - keyword: SELECT
+          - select_clause_element:
+            - wildcard_expression:
+              - wildcard_identifier:
+                - star: '*'
+      - from_clause:
+        - from_clause:
+          - keyword: FROM
+          - from_expression:
+            - from_expression:
+              - from_expression_element:
+                - from_expression_element:
+                  - table_expression:
+                    - keyword: OPENJSON
+                    - bracketed:
+                      - start_bracket: (
+                      - expression:
+                        - parameterized_expression:
+                          - tsql_variable: '@json'
+                      - end_bracket: )
+                    - keyword: WITH
+                    - bracketed:
+                      - start_bracket: (
+                      - naked_identifier: month
+                      - data_type:
+                        - data_type:
+                          - data_type_identifier: VARCHAR
+                          - bracketed_arguments:
+                            - bracketed:
+                              - start_bracket: (
+                              - numeric_literal: '3'
+                              - end_bracket: )
+                      - comma: ','
+                      - naked_identifier: temp
+                      - data_type:
+                        - data_type:
+                          - data_type_identifier: int
+                      - comma: ','
+                      - naked_identifier: month_id
+                      - data_type:
+                        - data_type:
+                          - data_type_identifier: tinyint
+                      - quoted_literal: '''$.sql:identity()'''
+                      - end_bracket: )
                   - alias_expression:
-                    - keyword: AS
-                    - naked_identifier: productTypes
-              - join_on_condition:
-                - keyword: ON
-                - expression:
-                  - column_reference:
-                    - naked_identifier: product
-                    - dot: .
-                    - naked_identifier: productTypeID
-                  - comparison_operator:
-                    - raw_comparison_operator: =
-                  - column_reference:
-                    - naked_identifier: productTypes
-                    - dot: .
-                    - naked_identifier: value
+                    - keyword: as
+                    - naked_identifier: months
   - statement_terminator: ;
   - statement:
     - select_statement:
@@ -62,119 +116,69 @@ file:
               - wildcard_identifier:
                 - star: '*'
       - from_clause:
-        - keyword: FROM
-        - from_expression:
+        - from_clause:
+          - keyword: FROM
           - from_expression:
-            - from_expression_element:
+            - from_expression:
               - from_expression_element:
-                - table_expression:
-                  - keyword: OPENJSON
-                  - bracketed:
-                    - start_bracket: (
-                    - expression:
-                      - parameterized_expression:
-                        - tsql_variable: '@json'
-                    - end_bracket: )
-                  - keyword: WITH
-                  - bracketed:
-                    - start_bracket: (
-                    - naked_identifier: month
-                    - data_type:
+                - from_expression_element:
+                  - table_expression:
+                    - keyword: OPENJSON
+                    - bracketed:
+                      - start_bracket: (
+                      - expression:
+                        - parameterized_expression:
+                          - tsql_variable: '@json'
+                      - end_bracket: )
+                    - keyword: WITH
+                    - bracketed:
+                      - start_bracket: (
+                      - naked_identifier: Number
                       - data_type:
-                        - data_type_identifier: VARCHAR
-                        - bracketed_arguments:
-                          - bracketed:
-                            - start_bracket: (
-                            - numeric_literal: '3'
-                            - end_bracket: )
-                    - comma: ','
-                    - naked_identifier: temp
-                    - data_type:
+                        - data_type:
+                          - data_type_identifier: VARCHAR
+                          - bracketed_arguments:
+                            - bracketed:
+                              - start_bracket: (
+                              - numeric_literal: '200'
+                              - end_bracket: )
+                      - quoted_literal: '''$.Order.Number'''
+                      - comma: ','
+                      - naked_identifier: Date
                       - data_type:
-                        - data_type_identifier: int
-                    - comma: ','
-                    - naked_identifier: month_id
-                    - data_type:
+                        - data_type:
+                          - data_type_identifier: DATETIME
+                      - quoted_literal: '''$.Order.Date'''
+                      - comma: ','
+                      - naked_identifier: Customer
                       - data_type:
-                        - data_type_identifier: tinyint
-                    - quoted_literal: '''$.sql:identity()'''
-                    - end_bracket: )
-                - alias_expression:
-                  - keyword: as
-                  - naked_identifier: months
-  - statement_terminator: ;
-  - statement:
-    - select_statement:
-      - select_clause:
-        - select_clause:
-          - keyword: SELECT
-          - select_clause_element:
-            - wildcard_expression:
-              - wildcard_identifier:
-                - star: '*'
-      - from_clause:
-        - keyword: FROM
-        - from_expression:
-          - from_expression:
-            - from_expression_element:
-              - from_expression_element:
-                - table_expression:
-                  - keyword: OPENJSON
-                  - bracketed:
-                    - start_bracket: (
-                    - expression:
-                      - parameterized_expression:
-                        - tsql_variable: '@json'
-                    - end_bracket: )
-                  - keyword: WITH
-                  - bracketed:
-                    - start_bracket: (
-                    - naked_identifier: Number
-                    - data_type:
+                        - data_type:
+                          - data_type_identifier: VARCHAR
+                          - bracketed_arguments:
+                            - bracketed:
+                              - start_bracket: (
+                              - numeric_literal: '200'
+                              - end_bracket: )
+                      - quoted_literal: '''$.AccountNumber'''
+                      - comma: ','
+                      - naked_identifier: Quantity
                       - data_type:
-                        - data_type_identifier: VARCHAR
-                        - bracketed_arguments:
-                          - bracketed:
-                            - start_bracket: (
-                            - numeric_literal: '200'
-                            - end_bracket: )
-                    - quoted_literal: '''$.Order.Number'''
-                    - comma: ','
-                    - naked_identifier: Date
-                    - data_type:
+                        - data_type:
+                          - data_type_identifier: INT
+                      - quoted_literal: '''$.Item.Quantity'''
+                      - comma: ','
+                      - quoted_identifier: '[Order]'
                       - data_type:
-                        - data_type_identifier: DATETIME
-                    - quoted_literal: '''$.Order.Date'''
-                    - comma: ','
-                    - naked_identifier: Customer
-                    - data_type:
-                      - data_type:
-                        - data_type_identifier: VARCHAR
-                        - bracketed_arguments:
-                          - bracketed:
-                            - start_bracket: (
-                            - numeric_literal: '200'
-                            - end_bracket: )
-                    - quoted_literal: '''$.AccountNumber'''
-                    - comma: ','
-                    - naked_identifier: Quantity
-                    - data_type:
-                      - data_type:
-                        - data_type_identifier: INT
-                    - quoted_literal: '''$.Item.Quantity'''
-                    - comma: ','
-                    - quoted_identifier: '[Order]'
-                    - data_type:
-                      - data_type:
-                        - data_type_identifier: NVARCHAR
-                        - bracketed_arguments:
-                          - bracketed:
-                            - start_bracket: (
-                            - keyword: MAX
-                            - end_bracket: )
-                    - keyword: AS
-                    - keyword: JSON
-                    - end_bracket: )
+                        - data_type:
+                          - data_type_identifier: NVARCHAR
+                          - bracketed_arguments:
+                            - bracketed:
+                              - start_bracket: (
+                              - keyword: MAX
+                              - end_bracket: )
+                      - keyword: AS
+                      - keyword: JSON
+                      - end_bracket: )
   - statement_terminator: ;
   - statement:
     - select_statement:
@@ -196,45 +200,46 @@ file:
               - keyword: AS
               - naked_identifier: Reason
       - from_clause:
-        - keyword: FROM
-        - from_expression:
+        - from_clause:
+          - keyword: FROM
           - from_expression:
-            - from_expression_element:
-              - from_expression_element:
-                - table_expression:
-                  - table_reference:
-                    - object_reference:
-                      - object_reference:
-                        - naked_identifier: Sales
-                        - dot: .
-                        - naked_identifier: SalesOrderHeader
-            - join_clause:
-              - keyword: CROSS
-              - keyword: APPLY
+            - from_expression:
               - from_expression_element:
                 - from_expression_element:
                   - table_expression:
-                    - keyword: OPENJSON
-                    - bracketed:
-                      - start_bracket: (
-                      - expression:
-                        - column_reference:
-                          - naked_identifier: SalesReasons
-                      - end_bracket: )
-                    - keyword: WITH
-                    - bracketed:
-                      - start_bracket: (
-                      - naked_identifier: value
-                      - data_type:
+                    - table_reference:
+                      - object_reference:
+                        - object_reference:
+                          - naked_identifier: Sales
+                          - dot: .
+                          - naked_identifier: SalesOrderHeader
+              - join_clause:
+                - keyword: CROSS
+                - keyword: APPLY
+                - from_expression_element:
+                  - from_expression_element:
+                    - table_expression:
+                      - keyword: OPENJSON
+                      - bracketed:
+                        - start_bracket: (
+                        - expression:
+                          - column_reference:
+                            - naked_identifier: SalesReasons
+                        - end_bracket: )
+                      - keyword: WITH
+                      - bracketed:
+                        - start_bracket: (
+                        - naked_identifier: value
                         - data_type:
-                          - data_type_identifier: NVARCHAR
-                          - bracketed_arguments:
-                            - bracketed:
-                              - start_bracket: (
-                              - numeric_literal: '100'
-                              - end_bracket: )
-                      - quoted_literal: '''$'''
-                      - end_bracket: )
+                          - data_type:
+                            - data_type_identifier: NVARCHAR
+                            - bracketed_arguments:
+                              - bracketed:
+                                - start_bracket: (
+                                - numeric_literal: '100'
+                                - end_bracket: )
+                        - quoted_literal: '''$'''
+                        - end_bracket: )
   - statement_terminator: ;
   - statement:
     - select_statement:
@@ -265,72 +270,73 @@ file:
               - dot: .
               - naked_identifier: long
       - from_clause:
-        - keyword: FROM
-        - from_expression:
+        - from_clause:
+          - keyword: FROM
           - from_expression:
-            - from_expression_element:
-              - from_expression_element:
-                - table_expression:
-                  - table_reference:
-                    - object_reference:
-                      - object_reference:
-                        - naked_identifier: store
-            - join_clause:
-              - keyword: CROSS
-              - keyword: APPLY
+            - from_expression:
               - from_expression_element:
                 - from_expression_element:
                   - table_expression:
-                    - keyword: OPENJSON
-                    - bracketed:
-                      - start_bracket: (
-                      - expression:
-                        - column_reference:
+                    - table_reference:
+                      - object_reference:
+                        - object_reference:
                           - naked_identifier: store
-                          - dot: .
-                          - naked_identifier: jsonCol
-                      - comma: ','
-                      - quoted_literal: '''lax $.location'''
-                      - end_bracket: )
-                    - keyword: WITH
-                    - bracketed:
-                      - start_bracket: (
-                      - naked_identifier: street
-                      - data_type:
+              - join_clause:
+                - keyword: CROSS
+                - keyword: APPLY
+                - from_expression_element:
+                  - from_expression_element:
+                    - table_expression:
+                      - keyword: OPENJSON
+                      - bracketed:
+                        - start_bracket: (
+                        - expression:
+                          - column_reference:
+                            - naked_identifier: store
+                            - dot: .
+                            - naked_identifier: jsonCol
+                        - comma: ','
+                        - quoted_literal: '''lax $.location'''
+                        - end_bracket: )
+                      - keyword: WITH
+                      - bracketed:
+                        - start_bracket: (
+                        - naked_identifier: street
                         - data_type:
-                          - data_type_identifier: VARCHAR
-                          - bracketed_arguments:
-                            - bracketed:
-                              - start_bracket: (
-                              - numeric_literal: '500'
-                              - end_bracket: )
-                      - comma: ','
-                      - naked_identifier: postcode
-                      - data_type:
+                          - data_type:
+                            - data_type_identifier: VARCHAR
+                            - bracketed_arguments:
+                              - bracketed:
+                                - start_bracket: (
+                                - numeric_literal: '500'
+                                - end_bracket: )
+                        - comma: ','
+                        - naked_identifier: postcode
                         - data_type:
-                          - data_type_identifier: VARCHAR
-                          - bracketed_arguments:
-                            - bracketed:
-                              - start_bracket: (
-                              - numeric_literal: '500'
-                              - end_bracket: )
-                      - quoted_literal: '''$.postcode'''
-                      - comma: ','
-                      - naked_identifier: lon
-                      - data_type:
+                          - data_type:
+                            - data_type_identifier: VARCHAR
+                            - bracketed_arguments:
+                              - bracketed:
+                                - start_bracket: (
+                                - numeric_literal: '500'
+                                - end_bracket: )
+                        - quoted_literal: '''$.postcode'''
+                        - comma: ','
+                        - naked_identifier: lon
                         - data_type:
-                          - data_type_identifier: int
-                      - quoted_literal: '''$.geo.longitude'''
-                      - comma: ','
-                      - naked_identifier: lat
-                      - data_type:
+                          - data_type:
+                            - data_type_identifier: int
+                        - quoted_literal: '''$.geo.longitude'''
+                        - comma: ','
+                        - naked_identifier: lat
                         - data_type:
-                          - data_type_identifier: int
-                      - quoted_literal: '''$.geo.latitude'''
-                      - end_bracket: )
-                  - alias_expression:
-                    - keyword: AS
-                    - naked_identifier: location
+                          - data_type:
+                            - data_type_identifier: int
+                        - quoted_literal: '''$.geo.latitude'''
+                        - end_bracket: )
+                    - alias_expression:
+                      - keyword: AS
+                      - naked_identifier: location
   - statement_terminator: ;
   - statement:
     - insert_statement:
@@ -350,72 +356,73 @@ file:
                   - wildcard_identifier:
                     - star: '*'
           - from_clause:
-            - keyword: FROM
-            - from_expression:
+            - from_clause:
+              - keyword: FROM
               - from_expression:
-                - from_expression_element:
+                - from_expression:
                   - from_expression_element:
-                    - table_expression:
-                      - keyword: OPENJSON
-                      - bracketed:
-                        - start_bracket: (
-                        - expression:
-                          - parameterized_expression:
-                            - tsql_variable: '@json'
-                        - end_bracket: )
-                      - keyword: WITH
-                      - bracketed:
-                        - start_bracket: (
-                        - naked_identifier: id
-                        - data_type:
+                    - from_expression_element:
+                      - table_expression:
+                        - keyword: OPENJSON
+                        - bracketed:
+                          - start_bracket: (
+                          - expression:
+                            - parameterized_expression:
+                              - tsql_variable: '@json'
+                          - end_bracket: )
+                        - keyword: WITH
+                        - bracketed:
+                          - start_bracket: (
+                          - naked_identifier: id
                           - data_type:
-                            - data_type_identifier: INT
-                        - comma: ','
-                        - naked_identifier: firstName
-                        - data_type:
+                            - data_type:
+                              - data_type_identifier: INT
+                          - comma: ','
+                          - naked_identifier: firstName
                           - data_type:
-                            - data_type_identifier: NVARCHAR
-                            - bracketed_arguments:
-                              - bracketed:
-                                - start_bracket: (
-                                - numeric_literal: '50'
-                                - end_bracket: )
-                        - comma: ','
-                        - naked_identifier: lastName
-                        - data_type:
+                            - data_type:
+                              - data_type_identifier: NVARCHAR
+                              - bracketed_arguments:
+                                - bracketed:
+                                  - start_bracket: (
+                                  - numeric_literal: '50'
+                                  - end_bracket: )
+                          - comma: ','
+                          - naked_identifier: lastName
                           - data_type:
-                            - data_type_identifier: NVARCHAR
-                            - bracketed_arguments:
-                              - bracketed:
-                                - start_bracket: (
-                                - numeric_literal: '50'
-                                - end_bracket: )
-                        - comma: ','
-                        - naked_identifier: isAlive
-                        - data_type:
+                            - data_type:
+                              - data_type_identifier: NVARCHAR
+                              - bracketed_arguments:
+                                - bracketed:
+                                  - start_bracket: (
+                                  - numeric_literal: '50'
+                                  - end_bracket: )
+                          - comma: ','
+                          - naked_identifier: isAlive
                           - data_type:
-                            - data_type_identifier: BIT
-                        - comma: ','
-                        - naked_identifier: age
-                        - data_type:
+                            - data_type:
+                              - data_type_identifier: BIT
+                          - comma: ','
+                          - naked_identifier: age
                           - data_type:
-                            - data_type_identifier: INT
-                        - comma: ','
-                        - naked_identifier: dateOfBirth
-                        - data_type:
+                            - data_type:
+                              - data_type_identifier: INT
+                          - comma: ','
+                          - naked_identifier: dateOfBirth
                           - data_type:
-                            - data_type_identifier: DATETIME
-                        - comma: ','
-                        - naked_identifier: spouse
-                        - data_type:
+                            - data_type:
+                              - data_type_identifier: DATETIME
+                          - comma: ','
+                          - naked_identifier: spouse
                           - data_type:
-                            - data_type_identifier: NVARCHAR
-                            - bracketed_arguments:
-                              - bracketed:
-                                - start_bracket: (
-                                - numeric_literal: '50'
-                                - end_bracket: )
-                        - end_bracket: )
+                            - data_type:
+                              - data_type_identifier: NVARCHAR
+                              - bracketed_arguments:
+                                - bracketed:
+                                  - start_bracket: (
+                                  - numeric_literal: '50'
+                                  - end_bracket: )
+                          - end_bracket: )
   - statement_terminator: ;
   - statement:
     - select_statement:
@@ -443,28 +450,10 @@ file:
               - dot: .
               - quoted_identifier: '[value]'
       - from_clause:
-        - keyword: FROM
-        - from_expression:
+        - from_clause:
+          - keyword: FROM
           - from_expression:
-            - from_expression_element:
-              - from_expression_element:
-                - table_expression:
-                  - function:
-                    - function:
-                      - function_name:
-                        - function_name_identifier: OPENJSON
-                      - bracketed:
-                        - start_bracket: (
-                        - expression:
-                          - parameterized_expression:
-                            - tsql_variable: '@JSON'
-                        - end_bracket: )
-                - alias_expression:
-                  - keyword: AS
-                  - naked_identifier: root
-            - join_clause:
-              - keyword: CROSS
-              - keyword: APPLY
+            - from_expression:
               - from_expression_element:
                 - from_expression_element:
                   - table_expression:
@@ -475,12 +464,31 @@ file:
                         - bracketed:
                           - start_bracket: (
                           - expression:
-                            - column_reference:
-                              - naked_identifier: root
-                              - dot: .
-                              - naked_identifier: value
+                            - parameterized_expression:
+                              - tsql_variable: '@JSON'
                           - end_bracket: )
                   - alias_expression:
                     - keyword: AS
-                    - naked_identifier: TheValues
+                    - naked_identifier: root
+              - join_clause:
+                - keyword: CROSS
+                - keyword: APPLY
+                - from_expression_element:
+                  - from_expression_element:
+                    - table_expression:
+                      - function:
+                        - function:
+                          - function_name:
+                            - function_name_identifier: OPENJSON
+                          - bracketed:
+                            - start_bracket: (
+                            - expression:
+                              - column_reference:
+                                - naked_identifier: root
+                                - dot: .
+                                - naked_identifier: value
+                            - end_bracket: )
+                    - alias_expression:
+                      - keyword: AS
+                      - naked_identifier: TheValues
   - statement_terminator: ;

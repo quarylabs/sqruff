@@ -30,24 +30,26 @@ file:
                           - wildcard_identifier:
                             - star: '*'
                   - from_clause:
-                    - keyword: FROM
-                    - from_expression:
+                    - from_clause:
+                      - keyword: FROM
                       - from_expression:
-                        - from_expression_element:
+                        - from_expression:
                           - from_expression_element:
-                            - table_expression:
-                              - table_reference:
-                                - object_reference:
+                            - from_expression_element:
+                              - table_expression:
+                                - table_reference:
                                   - object_reference:
-                                    - naked_identifier: '##MyTempTable'
+                                    - object_reference:
+                                      - naked_identifier: '##MyTempTable'
                   - where_clause:
-                    - keyword: WHERE
-                    - expression:
-                      - column_reference:
-                        - naked_identifier: EventCode
-                      - comparison_operator:
-                        - raw_comparison_operator: =
-                      - quoted_literal: '''Done'''
+                    - where_clause:
+                      - keyword: WHERE
+                      - expression:
+                        - column_reference:
+                          - naked_identifier: EventCode
+                        - comparison_operator:
+                          - raw_comparison_operator: =
+                        - quoted_literal: '''Done'''
                 - end_bracket: )
             - statement:
               - begin_end_block:

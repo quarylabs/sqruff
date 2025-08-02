@@ -126,16 +126,17 @@ file:
               - keyword: AS
               - naked_identifier: column1_varchar
       - from_clause:
-        - keyword: FROM
-        - from_expression:
+        - from_clause:
+          - keyword: FROM
           - from_expression:
-            - from_expression_element:
+            - from_expression:
               - from_expression_element:
-                - table_expression:
-                  - table_reference:
-                    - object_reference:
+                - from_expression_element:
+                  - table_expression:
+                    - table_reference:
                       - object_reference:
-                        - naked_identifier: tbl_b
+                        - object_reference:
+                          - naked_identifier: tbl_b
   - keyword: GO
   - statement:
     - create_function_statement:
@@ -173,18 +174,19 @@ file:
                           - parameterized_expression:
                             - tsql_variable: '@admit'
                     - from_clause:
-                      - keyword: FROM
-                      - from_expression:
+                      - from_clause:
+                        - keyword: FROM
                         - from_expression:
-                          - from_expression_element:
+                          - from_expression:
                             - from_expression_element:
-                              - table_expression:
-                                - table_reference:
-                                  - object_reference:
+                              - from_expression_element:
+                                - table_expression:
+                                  - table_reference:
                                     - object_reference:
-                                      - naked_identifier: dbo
-                                      - dot: .
-                                      - quoted_identifier: '[RandomDate]'
+                                      - object_reference:
+                                        - naked_identifier: dbo
+                                        - dot: .
+                                        - quoted_identifier: '[RandomDate]'
                 - end_bracket: )
   - statement_terminator: ;
   - keyword: GO
@@ -228,67 +230,71 @@ file:
                 - dot: .
                 - star: '*'
       - from_clause:
-        - keyword: FROM
-        - from_expression:
+        - from_clause:
+          - keyword: FROM
           - from_expression:
-            - from_expression_element:
-              - from_expression_element:
-                - table_expression:
-                  - bracketed:
-                    - start_bracket: (
-                    - select_statement:
-                      - select_clause:
-                        - select_clause:
-                          - keyword: SELECT
-                          - select_clause_element:
-                            - column_reference:
-                              - naked_identifier: FIN
-                      - from_clause:
-                        - keyword: FROM
-                        - from_expression:
-                          - from_expression:
-                            - from_expression_element:
-                              - from_expression_element:
-                                - table_expression:
-                                  - table_reference:
-                                    - object_reference:
-                                      - object_reference:
-                                        - naked_identifier: enc
-                    - end_bracket: )
-                - alias_expression:
-                  - keyword: AS
-                  - naked_identifier: a
-            - join_clause:
-              - keyword: LEFT
-              - keyword: JOIN
+            - from_expression:
               - from_expression_element:
                 - from_expression_element:
                   - table_expression:
-                    - table_reference:
-                      - object_reference:
-                        - object_reference:
-                          - naked_identifier: b
-              - join_on_condition:
-                - keyword: ON
-                - expression:
-                  - column_reference:
+                    - bracketed:
+                      - start_bracket: (
+                      - select_statement:
+                        - select_clause:
+                          - select_clause:
+                            - keyword: SELECT
+                            - select_clause_element:
+                              - column_reference:
+                                - naked_identifier: FIN
+                        - from_clause:
+                          - from_clause:
+                            - keyword: FROM
+                            - from_expression:
+                              - from_expression:
+                                - from_expression_element:
+                                  - from_expression_element:
+                                    - table_expression:
+                                      - table_reference:
+                                        - object_reference:
+                                          - object_reference:
+                                            - naked_identifier: enc
+                      - end_bracket: )
+                  - alias_expression:
+                    - keyword: AS
                     - naked_identifier: a
-                    - dot: .
-                    - naked_identifier: FIN
-                  - comparison_operator:
-                    - raw_comparison_operator: =
-                  - column_reference:
-                    - naked_identifier: b
-                    - dot: .
-                    - naked_identifier: FIN
+              - join_clause:
+                - keyword: LEFT
+                - keyword: JOIN
+                - from_expression_element:
+                  - from_expression_element:
+                    - table_expression:
+                      - table_reference:
+                        - object_reference:
+                          - object_reference:
+                            - naked_identifier: b
+                - join_on_condition:
+                  - join_on_condition:
+                    - keyword: ON
+                    - expression:
+                      - column_reference:
+                        - naked_identifier: a
+                        - dot: .
+                        - naked_identifier: FIN
+                      - comparison_operator:
+                        - raw_comparison_operator: =
+                      - column_reference:
+                        - naked_identifier: b
+                        - dot: .
+                        - naked_identifier: FIN
       - where_clause:
-        - keyword: WHERE
-        - expression:
-          - column_reference:
-            - naked_identifier: b
-            - dot: .
-            - naked_identifier: FIN
-          - keyword: IS
-          - null_literal: 'NULL'
+        - where_clause:
+          - keyword: WHERE
+          - expression:
+            - column_reference:
+              - naked_identifier: b
+              - dot: .
+              - naked_identifier: FIN
+            - keyword: IS
+            - null_literal: 'NULL'
   - statement_terminator: ;
   - keyword: GO

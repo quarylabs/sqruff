@@ -10,26 +10,27 @@ file:
               - wildcard_identifier:
                 - star: '*'
       - from_clause:
-        - keyword: FROM
-        - from_expression:
+        - from_clause:
+          - keyword: FROM
           - from_expression:
-            - from_expression_element:
+            - from_expression:
               - from_expression_element:
-                - table_expression:
-                  - table_reference:
-                    - object_reference:
+                - from_expression_element:
+                  - table_expression:
+                    - table_reference:
                       - object_reference:
-                        - naked_identifier: Sales
-                        - dot: .
-                        - naked_identifier: Customer
-                - sample_expression:
-                  - keyword: TABLESAMPLE
-                  - keyword: SYSTEM
-                  - bracketed:
-                    - start_bracket: (
-                    - numeric_literal: '10'
-                    - keyword: PERCENT
-                    - end_bracket: )
+                        - object_reference:
+                          - naked_identifier: Sales
+                          - dot: .
+                          - naked_identifier: Customer
+                  - sample_expression:
+                    - keyword: TABLESAMPLE
+                    - keyword: SYSTEM
+                    - bracketed:
+                      - start_bracket: (
+                      - numeric_literal: '10'
+                      - keyword: PERCENT
+                      - end_bracket: )
   - statement_terminator: ;
   - statement:
     - select_statement:
@@ -41,25 +42,26 @@ file:
               - wildcard_identifier:
                 - star: '*'
       - from_clause:
-        - keyword: FROM
-        - from_expression:
+        - from_clause:
+          - keyword: FROM
           - from_expression:
-            - from_expression_element:
+            - from_expression:
               - from_expression_element:
-                - table_expression:
-                  - table_reference:
-                    - object_reference:
+                - from_expression_element:
+                  - table_expression:
+                    - table_reference:
                       - object_reference:
-                        - naked_identifier: Sales
-                        - dot: .
-                        - naked_identifier: Customer
-                - sample_expression:
-                  - keyword: TABLESAMPLE
-                  - bracketed:
-                    - start_bracket: (
-                    - numeric_literal: '10'
-                    - keyword: ROWS
-                    - end_bracket: )
+                        - object_reference:
+                          - naked_identifier: Sales
+                          - dot: .
+                          - naked_identifier: Customer
+                  - sample_expression:
+                    - keyword: TABLESAMPLE
+                    - bracketed:
+                      - start_bracket: (
+                      - numeric_literal: '10'
+                      - keyword: ROWS
+                      - end_bracket: )
   - statement_terminator: ;
   - statement:
     - select_statement:
@@ -71,24 +73,25 @@ file:
               - wildcard_identifier:
                 - star: '*'
       - from_clause:
-        - keyword: FROM
-        - from_expression:
+        - from_clause:
+          - keyword: FROM
           - from_expression:
-            - from_expression_element:
+            - from_expression:
               - from_expression_element:
-                - table_expression:
-                  - table_reference:
-                    - object_reference:
+                - from_expression_element:
+                  - table_expression:
+                    - table_reference:
                       - object_reference:
-                        - naked_identifier: Sales
-                        - dot: .
-                        - naked_identifier: Customer
-                - sample_expression:
-                  - keyword: TABLESAMPLE
-                  - bracketed:
-                    - start_bracket: (
-                    - numeric_literal: '10'
-                    - end_bracket: )
+                        - object_reference:
+                          - naked_identifier: Sales
+                          - dot: .
+                          - naked_identifier: Customer
+                  - sample_expression:
+                    - keyword: TABLESAMPLE
+                    - bracketed:
+                      - start_bracket: (
+                      - numeric_literal: '10'
+                      - end_bracket: )
   - statement_terminator: ;
   - statement:
     - select_statement:
@@ -100,29 +103,30 @@ file:
               - wildcard_identifier:
                 - star: '*'
       - from_clause:
-        - keyword: FROM
-        - from_expression:
+        - from_clause:
+          - keyword: FROM
           - from_expression:
-            - from_expression_element:
+            - from_expression:
               - from_expression_element:
-                - table_expression:
-                  - table_reference:
-                    - object_reference:
+                - from_expression_element:
+                  - table_expression:
+                    - table_reference:
                       - object_reference:
-                        - naked_identifier: Sales
-                        - dot: .
-                        - naked_identifier: Customer
-                - sample_expression:
-                  - keyword: TABLESAMPLE
-                  - keyword: SYSTEM
-                  - bracketed:
-                    - start_bracket: (
-                    - numeric_literal: '10'
-                    - keyword: ROWS
-                    - end_bracket: )
-                  - keyword: REPEATABLE
-                  - bracketed:
-                    - start_bracket: (
-                    - numeric_literal: '100'
-                    - end_bracket: )
+                        - object_reference:
+                          - naked_identifier: Sales
+                          - dot: .
+                          - naked_identifier: Customer
+                  - sample_expression:
+                    - keyword: TABLESAMPLE
+                    - keyword: SYSTEM
+                    - bracketed:
+                      - start_bracket: (
+                      - numeric_literal: '10'
+                      - keyword: ROWS
+                      - end_bracket: )
+                    - keyword: REPEATABLE
+                    - bracketed:
+                      - start_bracket: (
+                      - numeric_literal: '100'
+                      - end_bracket: )
   - statement_terminator: ;

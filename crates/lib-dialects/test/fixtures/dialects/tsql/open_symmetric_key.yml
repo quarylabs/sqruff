@@ -42,18 +42,19 @@ file:
                     - column_reference:
                       - naked_identifier: column1
               - from_clause:
-                - keyword: FROM
-                - from_expression:
+                - from_clause:
+                  - keyword: FROM
                   - from_expression:
-                    - from_expression_element:
+                    - from_expression:
                       - from_expression_element:
-                        - table_expression:
-                          - table_reference:
-                            - object_reference:
+                        - from_expression_element:
+                          - table_expression:
+                            - table_reference:
                               - object_reference:
-                                - naked_identifier: sys
-                                - dot: .
-                                - naked_identifier: tables
+                                - object_reference:
+                                  - naked_identifier: sys
+                                  - dot: .
+                                  - naked_identifier: tables
           - statement_terminator: ;
           - keyword: END
   - statement_terminator: ;

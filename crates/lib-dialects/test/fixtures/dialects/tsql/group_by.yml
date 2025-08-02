@@ -41,18 +41,19 @@ file:
                         - dot: .
                         - naked_identifier: ActionDTS
                 - from_clause:
-                  - keyword: FROM
-                  - from_expression:
+                  - from_clause:
+                    - keyword: FROM
                     - from_expression:
-                      - from_expression_element:
+                      - from_expression:
                         - from_expression_element:
-                          - table_expression:
-                            - table_reference:
-                              - object_reference:
+                          - from_expression_element:
+                            - table_expression:
+                              - table_reference:
                                 - object_reference:
-                                  - naked_identifier: Orders_Action
-                          - alias_expression:
-                            - naked_identifier: acto
+                                  - object_reference:
+                                    - naked_identifier: Orders_Action
+                            - alias_expression:
+                              - naked_identifier: acto
             - end_bracket: )
     - expression:
       - select_statement:
@@ -65,18 +66,19 @@ file:
                 - dot: .
                 - naked_identifier: actiondts
         - from_clause:
-          - keyword: FROM
-          - from_expression:
+          - from_clause:
+            - keyword: FROM
             - from_expression:
-              - from_expression_element:
+              - from_expression:
                 - from_expression_element:
-                  - table_expression:
-                    - table_reference:
-                      - object_reference:
+                  - from_expression_element:
+                    - table_expression:
+                      - table_reference:
                         - object_reference:
-                          - naked_identifier: '#n'
-                  - alias_expression:
-                    - naked_identifier: t
+                          - object_reference:
+                            - naked_identifier: '#n'
+                    - alias_expression:
+                      - naked_identifier: t
         - groupby_clause:
           - groupby_clause:
             - keyword: GROUP
@@ -127,16 +129,17 @@ file:
                       - naked_identifier: id
                   - end_bracket: )
       - from_clause:
-        - keyword: FROM
-        - from_expression:
+        - from_clause:
+          - keyword: FROM
           - from_expression:
-            - from_expression_element:
+            - from_expression:
               - from_expression_element:
-                - table_expression:
-                  - table_reference:
-                    - object_reference:
+                - from_expression_element:
+                  - table_expression:
+                    - table_reference:
                       - object_reference:
-                        - naked_identifier: '#3'
+                        - object_reference:
+                          - naked_identifier: '#3'
       - groupby_clause:
         - groupby_clause:
           - keyword: GROUP

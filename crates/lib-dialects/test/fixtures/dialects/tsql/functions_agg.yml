@@ -114,18 +114,19 @@ file:
               - keyword: AS
               - naked_identifier: MedianDisc
       - from_clause:
-        - keyword: from
-        - from_expression:
+        - from_clause:
+          - keyword: from
           - from_expression:
-            - from_expression_element:
+            - from_expression:
               - from_expression_element:
-                - table_expression:
-                  - table_reference:
-                    - object_reference:
+                - from_expression_element:
+                  - table_expression:
+                    - table_reference:
                       - object_reference:
-                        - naked_identifier: table1
-                - alias_expression:
-                  - naked_identifier: t
+                        - object_reference:
+                          - naked_identifier: table1
+                  - alias_expression:
+                    - naked_identifier: t
       - groupby_clause:
         - groupby_clause:
           - keyword: group

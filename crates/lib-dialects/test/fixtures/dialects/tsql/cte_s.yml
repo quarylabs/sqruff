@@ -34,26 +34,28 @@ file:
                         - star: '*'
                         - end_bracket: )
             - from_clause:
-              - keyword: FROM
-              - from_expression:
+              - from_clause:
+                - keyword: FROM
                 - from_expression:
-                  - from_expression_element:
+                  - from_expression:
                     - from_expression_element:
-                      - table_expression:
-                        - table_reference:
-                          - object_reference:
+                      - from_expression_element:
+                        - table_expression:
+                          - table_reference:
                             - object_reference:
-                              - naked_identifier: Sales
-                              - dot: .
-                              - naked_identifier: SalesOrderHeader
+                              - object_reference:
+                                - naked_identifier: Sales
+                                - dot: .
+                                - naked_identifier: SalesOrderHeader
             - where_clause:
-              - keyword: WHERE
-              - expression:
-                - column_reference:
-                  - naked_identifier: SalesPersonID
-                - keyword: IS
-                - keyword: NOT
-                - null_literal: 'NULL'
+              - where_clause:
+                - keyword: WHERE
+                - expression:
+                  - column_reference:
+                    - naked_identifier: SalesPersonID
+                  - keyword: IS
+                  - keyword: NOT
+                  - null_literal: 'NULL'
             - groupby_clause:
               - groupby_clause:
                 - keyword: GROUP
@@ -80,14 +82,15 @@ file:
                 - keyword: AS
                 - quoted_identifier: '"Average Sales Per Person"'
         - from_clause:
-          - keyword: FROM
-          - from_expression:
+          - from_clause:
+            - keyword: FROM
             - from_expression:
-              - from_expression_element:
+              - from_expression:
                 - from_expression_element:
-                  - table_expression:
-                    - table_reference:
-                      - object_reference:
+                  - from_expression_element:
+                    - table_expression:
+                      - table_reference:
                         - object_reference:
-                          - naked_identifier: Sales_CTE
+                          - object_reference:
+                            - naked_identifier: Sales_CTE
   - statement_terminator: ;

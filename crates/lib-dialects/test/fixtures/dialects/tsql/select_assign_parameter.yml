@@ -16,32 +16,34 @@ file:
                 - dot: .
                 - naked_identifier: id
       - from_clause:
-        - keyword: from
-        - from_expression:
+        - from_clause:
+          - keyword: from
           - from_expression:
-            - from_expression_element:
+            - from_expression:
               - from_expression_element:
-                - table_expression:
-                  - table_reference:
-                    - object_reference:
+                - from_expression_element:
+                  - table_expression:
+                    - table_reference:
                       - object_reference:
-                        - naked_identifier: mydb
-                        - dot: .
-                        - naked_identifier: myschema
-                        - dot: .
-                        - naked_identifier: customer
-                - alias_expression:
-                  - naked_identifier: c
+                        - object_reference:
+                          - naked_identifier: mydb
+                          - dot: .
+                          - naked_identifier: myschema
+                          - dot: .
+                          - naked_identifier: customer
+                  - alias_expression:
+                    - naked_identifier: c
       - where_clause:
-        - keyword: where
-        - expression:
-          - column_reference:
-            - naked_identifier: c
-            - dot: .
-            - naked_identifier: name
-          - comparison_operator:
-            - raw_comparison_operator: =
-          - quoted_literal: '''drjwelch'''
+        - where_clause:
+          - keyword: where
+          - expression:
+            - column_reference:
+              - naked_identifier: c
+              - dot: .
+              - naked_identifier: name
+            - comparison_operator:
+              - raw_comparison_operator: =
+            - quoted_literal: '''drjwelch'''
   - statement_terminator: ;
   - statement:
     - select_statement:
@@ -58,30 +60,32 @@ file:
                 - dot: .
                 - naked_identifier: id
       - from_clause:
-        - keyword: from
-        - from_expression:
+        - from_clause:
+          - keyword: from
           - from_expression:
-            - from_expression_element:
+            - from_expression:
               - from_expression_element:
-                - table_expression:
-                  - table_reference:
-                    - object_reference:
+                - from_expression_element:
+                  - table_expression:
+                    - table_reference:
                       - object_reference:
-                        - naked_identifier: mydb
-                        - dot: .
-                        - naked_identifier: myschema
-                        - dot: .
-                        - naked_identifier: customer
-                - alias_expression:
-                  - naked_identifier: c
+                        - object_reference:
+                          - naked_identifier: mydb
+                          - dot: .
+                          - naked_identifier: myschema
+                          - dot: .
+                          - naked_identifier: customer
+                  - alias_expression:
+                    - naked_identifier: c
       - where_clause:
-        - keyword: where
-        - expression:
-          - column_reference:
-            - naked_identifier: c
-            - dot: .
-            - naked_identifier: name
-          - comparison_operator:
-            - raw_comparison_operator: =
-          - quoted_literal: '''drjwelch'''
+        - where_clause:
+          - keyword: where
+          - expression:
+            - column_reference:
+              - naked_identifier: c
+              - dot: .
+              - naked_identifier: name
+            - comparison_operator:
+              - raw_comparison_operator: =
+            - quoted_literal: '''drjwelch'''
   - statement_terminator: ;

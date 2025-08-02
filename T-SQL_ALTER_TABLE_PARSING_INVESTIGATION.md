@@ -1,11 +1,42 @@
-# T-SQL ALTER TABLE Parsing Investigation
+# T-SQL Parsing Investigation
 
-## Current Status
-- **ALTER TABLE**: ✅ FULLY FIXED - All ALTER TABLE statements now parse correctly
-- **Trigger Bodies**: ✅ FIXED - Removed incorrect semicolon terminator that was prematurely ending trigger body parsing  
-- **RAISERROR**: ⚠️ PARTIAL - Works in isolation but conflicts with bare procedure calls in some contexts
+## Current Status (2025-08-02)
+- **Total T-SQL test files**: 159
+- **Unparsable files**: 3 (down from 5)
+- **Success rate**: 98.1%
 
-## Final Resolution
+### Remaining Unparsable Files
+1. **function_no_return.yml** - Keywords lexed as words in procedure body after AS
+2. **if_else_begin_end.yml** - ELSE parsed as naked_identifier  
+3. **try_catch.yml** - Second BEGIN TRY block unparsable after THROW statement
+
+## Root Cause Analysis
+
+### Fundamental Lexing Issue
+T-SQL has a lexing problem where keywords are sometimes treated as regular identifiers (words) in certain contexts:
+- After `AS` in stored procedures/functions
+- After semicolons in some contexts
+- After GO statements (batch separators)
+
+This is a fundamental issue in how the lexer works - once a token is lexed as a `word`, it cannot be changed to a `keyword` later in the parsing phase.
+
+## Investigation Summary
+
+### Attempted Solutions
+1. **StringParser Approach** - Added parsers that accept both keyword and word tokens
+   - Result: Made parsing worse (7 unparsable files instead of 3)
+   - Issue: Accepting words everywhere breaks proper AST structure
+
+2. **Word-based Statement Parsers** - Created specialized parsers for procedure bodies
+   - Result: function_no_return.yml became parsable but with wrong structure
+   - Issue: Cascading effect made other files unparsable
+
+### Successful Fixes (Separate Issues)
+1. **Removed CREATE from terminators** - Fixed keyword recognition in many contexts
+2. **Removed GO from StatementSegment** - Fixed triggers.yml completely
+3. **Added OPTION to DELETE exclude list** - Fixed delete_azure_synapse_analytics.yml
+
+## Previous Issues (Now Fixed)
 
 ### ALTER TABLE Issues - RESOLVED
 The root cause was that DROP and ALTER keywords were listed as statement terminators, causing parsing to fail when these keywords appeared within statements. Removing them from the terminator list fixed all ALTER TABLE parsing issues.

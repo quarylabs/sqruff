@@ -619,6 +619,54 @@ pub fn dialect() -> Dialect {
         ),
     );
 
+    // ProjectionSelectClauseTerminatorGrammar: Terminator for PROJECTION SELECT clauses
+    // Includes GROUP BY as a valid terminator (not allowed in regular SELECT)
+    clickhouse_dialect.add([(
+        "ProjectionSelectClauseTerminatorGrammar".into(),
+        one_of(vec_of_erased![
+            Ref::keyword("PREWHERE"),
+            Ref::keyword("INTO"),
+            Ref::keyword("FORMAT"),
+            Sequence::new(vec_of_erased![Ref::keyword("GROUP"), Ref::keyword("BY")]),
+            Sequence::new(vec_of_erased![Ref::keyword("ORDER"), Ref::keyword("BY")]),
+            Ref::keyword("WHERE"),
+        ])
+        .to_matchable()
+        .into(),
+    )]);
+
+    // ProjectionSelectClauseSegment: Specialized SELECT clause for PROJECTION
+    clickhouse_dialect.add([(
+        "ProjectionSelectClauseSegment".into(),
+        Sequence::new(vec_of_erased![
+            Ref::keyword("SELECT"),
+            // No modifiers needed for projections
+            MetaSegment::indent(),
+            Delimited::new(vec_of_erased![Ref::new("SelectClauseElementSegment")])
+                .config(|this| this.allow_trailing()),
+        ])
+        .terminators(vec_of_erased![Ref::new("ProjectionSelectClauseTerminatorGrammar")])
+        .config(|this| {
+            this.parse_mode(ParseMode::GreedyOnceStarted);
+        })
+        .to_matchable()
+        .into(),
+    )]);
+
+    // ProjectionSelectSegment: Specialized SELECT statement for PROJECTION
+    // PROJECTION SELECT can have: SELECT ... [GROUP BY ...] [ORDER BY ...]
+    // No FROM/WHERE/HAVING allowed in projections
+    clickhouse_dialect.add([(
+        "ProjectionSelectSegment".into(),
+        Sequence::new(vec_of_erased![
+            Ref::new("ProjectionSelectClauseSegment"),
+            Ref::new("GroupByClauseSegment").optional(),
+            Ref::new("OrderByClauseSegment").optional(),
+        ])
+        .to_matchable()
+        .into(),
+    )]);
+
     clickhouse_dialect.add([(
         "WithFillSegment".into(),
         Sequence::new(vec_of_erased![
@@ -1086,11 +1134,41 @@ pub fn dialect() -> Dialect {
                     Sequence::new(vec_of_erased![
                         Ref::keyword("TYPE"),
                         one_of(vec_of_erased![
+                            // Index types that can have parameters
+                            Sequence::new(vec_of_erased![
+                                Ref::keyword("BLOOM_FILTER"),
+                                Bracketed::new(vec_of_erased![
+                                    Delimited::new(vec_of_erased![
+                                        Ref::new("NumericLiteralSegment")
+                                    ])
+                                ]).config(|this| this.optional()),
+                            ]),
+                            Sequence::new(vec_of_erased![
+                                Ref::keyword("SET"),
+                                Bracketed::new(vec_of_erased![
+                                    Delimited::new(vec_of_erased![
+                                        Ref::new("NumericLiteralSegment")
+                                    ])
+                                ]).config(|this| this.optional()),
+                            ]),
+                            Sequence::new(vec_of_erased![
+                                Ref::keyword("NGRAMBF_V1"),
+                                Bracketed::new(vec_of_erased![
+                                    Delimited::new(vec_of_erased![
+                                        Ref::new("NumericLiteralSegment")
+                                    ])
+                                ]).config(|this| this.optional()),
+                            ]),
+                            Sequence::new(vec_of_erased![
+                                Ref::keyword("TOKENBF_V1"),
+                                Bracketed::new(vec_of_erased![
+                                    Delimited::new(vec_of_erased![
+                                        Ref::new("NumericLiteralSegment")
+                                    ])
+                                ]).config(|this| this.optional()),
+                            ]),
+                            // Index types without parameters
                             Ref::keyword("MINMAX"),
-                            Ref::keyword("SET"),
-                            Ref::keyword("NGRAMBF_V1"),
-                            Ref::keyword("TOKENBF_V1"),
-                            Ref::keyword("BLOOM_FILTER"),
                             Ref::keyword("HYPOTHESIS"),
                             Ref::new("SingleIdentifierGrammar"), // For other index types
                         ]),
@@ -1113,7 +1191,7 @@ pub fn dialect() -> Dialect {
                 Sequence::new(vec_of_erased![
                     Ref::keyword("PROJECTION"),
                     Ref::new("SingleIdentifierGrammar"),
-                    Bracketed::new(vec_of_erased![Ref::new("SelectStatementSegment")]),
+                    Bracketed::new(vec_of_erased![Ref::new("ProjectionSelectSegment")]),
                 ])
                 .to_matchable()
             })

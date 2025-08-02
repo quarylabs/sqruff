@@ -4,13 +4,13 @@ file:
     - keyword: CREATE
     - keyword: TABLE
     - table_reference:
-      - naked_identifier: users
+      - naked_identifier: test_bloom_filter
     - bracketed:
       - start_bracket: (
       - column_definition:
         - naked_identifier: id
         - data_type:
-          - data_type_identifier: UInt64
+          - data_type_identifier: Int32
       - comma: ','
       - column_definition:
         - naked_identifier: name
@@ -18,70 +18,61 @@ file:
           - data_type_identifier: String
       - comma: ','
       - column_definition:
-        - naked_identifier: email
+        - naked_identifier: user_id
         - data_type:
-          - data_type_identifier: String
-      - comma: ','
-      - column_definition:
-        - naked_identifier: age
-        - data_type:
-          - data_type_identifier: UInt8
+          - data_type_identifier: Int32
       - comma: ','
       - column_definition:
         - naked_identifier: created_at
         - data_type:
-          - data_type_identifier: DateTime
+          - data_type_identifier: DateTime64
+          - bracketed:
+            - start_bracket: (
+            - numeric_literal: '6'
+            - end_bracket: )
       - comma: ','
       - column_constraint_segment:
         - keyword: INDEX
-        - naked_identifier: idx_email
+        - naked_identifier: idx_name
         - expression:
           - column_reference:
-            - naked_identifier: email
+            - naked_identifier: name
         - keyword: TYPE
-        - keyword: minmax
+        - keyword: bloom_filter
+        - bracketed:
+          - start_bracket: (
+          - numeric_literal: '0.01'
+          - end_bracket: )
         - keyword: GRANULARITY
         - numeric_literal: '1'
       - comma: ','
       - column_constraint_segment:
         - keyword: INDEX
-        - naked_identifier: idx_age
+        - naked_identifier: idx_user
         - expression:
           - column_reference:
-            - naked_identifier: age
+            - naked_identifier: user_id
         - keyword: TYPE
-        - keyword: set
+        - keyword: bloom_filter
         - bracketed:
           - start_bracket: (
-          - numeric_literal: '10'
+          - numeric_literal: '0.001'
+          - comma: ','
+          - numeric_literal: '256'
           - end_bracket: )
         - keyword: GRANULARITY
         - numeric_literal: '2'
       - comma: ','
       - column_constraint_segment:
-        - keyword: PROJECTION
-        - naked_identifier: projection_by_age
-        - bracketed:
-          - start_bracket: (
-          - keyword: SELECT
-          - select_clause_element:
-            - column_reference:
-              - naked_identifier: age
-          - comma: ','
-          - select_clause_element:
-            - function:
-              - function_name:
-                - function_name_identifier: count
-              - function_contents:
-                - bracketed:
-                  - start_bracket: (
-                  - end_bracket: )
-          - groupby_clause:
-            - keyword: GROUP
-            - keyword: BY
-            - column_reference:
-              - naked_identifier: age
-          - end_bracket: )
+        - keyword: INDEX
+        - naked_identifier: idx_simple
+        - expression:
+          - column_reference:
+            - naked_identifier: name
+        - keyword: TYPE
+        - keyword: bloom_filter
+        - keyword: GRANULARITY
+        - numeric_literal: '1'
       - end_bracket: )
     - engine:
       - keyword: ENGINE
@@ -89,38 +80,34 @@ file:
         - raw_comparison_operator: =
       - table_engine_function:
         - function_name:
-          - function_name_identifier: MergeTree
-        - bracketed:
-          - start_bracket: (
-          - end_bracket: )
-      - merge_tree_order_by_clause:
-        - keyword: ORDER
-        - keyword: BY
-        - column_reference:
-          - naked_identifier: id
+          - function_name_identifier: Memory
 - statement_terminator: ;
 - statement:
   - create_table_statement:
     - keyword: CREATE
     - keyword: TABLE
     - table_reference:
-      - naked_identifier: analytics
+      - naked_identifier: analytics_events
     - bracketed:
       - start_bracket: (
       - column_definition:
         - naked_identifier: user_id
         - data_type:
-          - data_type_identifier: UInt64
+          - data_type_identifier: Int32
       - comma: ','
       - column_definition:
-        - naked_identifier: event_name
+        - naked_identifier: event_type
         - data_type:
           - data_type_identifier: String
       - comma: ','
       - column_definition:
         - naked_identifier: timestamp
         - data_type:
-          - data_type_identifier: DateTime
+          - data_type_identifier: DateTime64
+          - bracketed:
+            - start_bracket: (
+            - numeric_literal: '6'
+            - end_bracket: )
       - comma: ','
       - column_definition:
         - naked_identifier: properties
@@ -129,12 +116,31 @@ file:
       - comma: ','
       - column_constraint_segment:
         - keyword: INDEX
-        - naked_identifier: idx_events
+        - naked_identifier: idx_user_id
         - expression:
           - column_reference:
-            - naked_identifier: event_name
+            - naked_identifier: user_id
         - keyword: TYPE
         - keyword: bloom_filter
+        - bracketed:
+          - start_bracket: (
+          - numeric_literal: '0.01'
+          - end_bracket: )
+        - keyword: GRANULARITY
+        - numeric_literal: '1'
+      - comma: ','
+      - column_constraint_segment:
+        - keyword: INDEX
+        - naked_identifier: idx_event_type
+        - expression:
+          - column_reference:
+            - naked_identifier: event_type
+        - keyword: TYPE
+        - keyword: bloom_filter
+        - bracketed:
+          - start_bracket: (
+          - numeric_literal: '0.001'
+          - end_bracket: )
         - keyword: GRANULARITY
         - numeric_literal: '1'
       - comma: ','
@@ -146,31 +152,22 @@ file:
             - naked_identifier: timestamp
         - keyword: TYPE
         - keyword: minmax
+        - keyword: GRANULARITY
+        - numeric_literal: '4'
       - comma: ','
       - column_constraint_segment:
         - keyword: PROJECTION
-        - naked_identifier: monthly_stats
+        - naked_identifier: user_events
         - bracketed:
           - start_bracket: (
           - keyword: SELECT
           - select_clause_element:
-            - function:
-              - function_name:
-                - function_name_identifier: toYYYYMM
-              - function_contents:
-                - bracketed:
-                  - start_bracket: (
-                  - expression:
-                    - column_reference:
-                      - naked_identifier: timestamp
-                  - end_bracket: )
-            - alias_expression:
-              - keyword: as
-              - naked_identifier: month
+            - column_reference:
+              - naked_identifier: user_id
           - comma: ','
           - select_clause_element:
             - column_reference:
-              - naked_identifier: event_name
+              - naked_identifier: event_type
           - comma: ','
           - select_clause_element:
             - function:
@@ -182,15 +179,44 @@ file:
                   - end_bracket: )
             - alias_expression:
               - keyword: as
-              - naked_identifier: cnt
+              - naked_identifier: event_count
+          - comma: ','
+          - select_clause_element:
+            - function:
+              - function_name:
+                - function_name_identifier: max
+              - function_contents:
+                - bracketed:
+                  - start_bracket: (
+                  - expression:
+                    - column_reference:
+                      - naked_identifier: timestamp
+                  - end_bracket: )
+            - alias_expression:
+              - keyword: as
+              - naked_identifier: last_event
           - groupby_clause:
             - keyword: GROUP
             - keyword: BY
             - column_reference:
-              - naked_identifier: month
+              - naked_identifier: user_id
             - comma: ','
             - column_reference:
-              - naked_identifier: event_name
+              - naked_identifier: event_type
+          - orderby_clause:
+            - keyword: ORDER
+            - keyword: BY
+            - expression:
+              - bracketed:
+                - start_bracket: (
+                - column_reference:
+                  - naked_identifier: user_id
+                - comma: ','
+                - column_reference:
+                  - naked_identifier: event_count
+                - unparsable:
+                  - word: DESC
+                - end_bracket: )
           - end_bracket: )
       - end_bracket: )
     - engine:
@@ -199,10 +225,7 @@ file:
         - raw_comparison_operator: =
       - table_engine_function:
         - function_name:
-          - function_name_identifier: MergeTree
-        - bracketed:
-          - start_bracket: (
-          - end_bracket: )
+          - function_name_identifier: ReplacingMergeTree
       - keyword: PARTITION
       - keyword: BY
       - expression:
@@ -216,6 +239,11 @@ file:
                 - column_reference:
                   - naked_identifier: timestamp
               - end_bracket: )
+      - keyword: PRIMARY
+      - keyword: KEY
+      - expression:
+        - column_reference:
+          - naked_identifier: user_id
       - merge_tree_order_by_clause:
         - keyword: ORDER
         - keyword: BY

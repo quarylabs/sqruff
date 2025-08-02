@@ -10,6 +10,7 @@ use sqruff_lib_core::parser::grammar::conditional::Conditional;
 use sqruff_lib_core::parser::grammar::delimited::Delimited;
 use sqruff_lib_core::parser::grammar::sequence::{Bracketed, Sequence};
 use sqruff_lib_core::parser::lexer::Matcher;
+use sqruff_lib_core::parser::lookahead::LookaheadExclude;
 use sqruff_lib_core::parser::matchable::MatchableTrait;
 use sqruff_lib_core::parser::node_matcher::NodeMatcher;
 use sqruff_lib_core::parser::parsers::{RegexParser, StringParser, TypedParser};
@@ -85,6 +86,26 @@ pub fn dialect() -> Dialect {
     ]);
 
     clickhouse_dialect.add([
+        (
+            "SetOperatorSegment".into(),
+            NodeMatcher::new(SyntaxKind::SetOperator, |_| {
+                one_of(vec_of_erased![
+                    Ref::new("UnionGrammar"),
+                    Sequence::new(vec_of_erased![
+                        Ref::keyword("INTERSECT"),
+                        Ref::keyword("ALL").optional(),
+                    ]),
+                    Sequence::new(vec_of_erased![
+                        Ref::keyword("EXCEPT").exclude(LookaheadExclude::new("EXCEPT", "(")),
+                        Ref::keyword("ALL").optional(),
+                    ]),
+                    Ref::keyword("MINUS"),
+                ])
+                .to_matchable()
+            })
+            .to_matchable()
+            .into(),
+        ),
         (
             "SelectClauseTerminatorGrammar".into(),
             clickhouse_dialect
@@ -220,6 +241,52 @@ pub fn dialect() -> Dialect {
     );
 
     clickhouse_dialect.replace_grammar(
+        "WildcardExpressionSegment",
+        ansi::wildcard_expression_segment().copy(
+            Some(vec_of_erased![
+                Ref::new("ExceptClauseSegment").optional(),
+                Ref::new("ReplaceClauseSegment").optional(),
+            ]),
+            None,
+            None,
+            None,
+            Vec::new(),
+            false,
+        ),
+    );
+
+    clickhouse_dialect.add([
+        (
+            "ExceptClauseSegment".into(),
+            NodeMatcher::new(SyntaxKind::SelectExceptClause, |_| {
+                Sequence::new(vec_of_erased![
+                    Ref::keyword("EXCEPT"),
+                    Bracketed::new(vec_of_erased![Delimited::new(vec_of_erased![Ref::new(
+                        "SingleIdentifierGrammar"
+                    )])])
+                ])
+                .to_matchable()
+            })
+            .to_matchable()
+            .into(),
+        ),
+        (
+            "ReplaceClauseSegment".into(),
+            NodeMatcher::new(SyntaxKind::SelectReplaceClause, |_| {
+                Sequence::new(vec_of_erased![
+                    Ref::keyword("REPLACE"),
+                    Bracketed::new(vec_of_erased![Delimited::new(vec_of_erased![Ref::new(
+                        "SelectClauseElementSegment"
+                    )])])
+                ])
+                .to_matchable()
+            })
+            .to_matchable()
+            .into(),
+        ),
+    ]);
+
+    clickhouse_dialect.replace_grammar(
         "OrderByClauseSegment",
         Sequence::new(vec_of_erased![
             Ref::keyword("ORDER"),
@@ -248,6 +315,17 @@ pub fn dialect() -> Dialect {
     );
 
     clickhouse_dialect.add([
+        (
+            "PrewhereClauseSegment".into(),
+            Sequence::new(vec_of_erased![
+                Ref::keyword("PREWHERE"),
+                MetaSegment::indent(),
+                optionally_bracketed(vec_of_erased![Ref::new("ExpressionSegment")]),
+                MetaSegment::dedent(),
+            ])
+            .to_matchable()
+            .into(),
+        ),
         (
             "BackQuotedIdentifierSegment".into(),
             TypedParser::new(SyntaxKind::BackQuote, SyntaxKind::QuotedIdentifier)
@@ -521,6 +599,7 @@ pub fn dialect() -> Dialect {
         "SelectStatementSegment",
         ansi::select_statement().copy(
             Some(vec_of_erased![
+                Ref::new("PrewhereClauseSegment").optional(),
                 Ref::new("FormatClauseSegment").optional(),
                 Ref::new("IntoOutfileClauseSegment").optional(),
                 Ref::new("SettingsClauseSegment").optional(),
@@ -564,6 +643,16 @@ pub fn dialect() -> Dialect {
     clickhouse_dialect.replace_grammar(
         "DatatypeSegment",
         one_of(vec_of_erased![
+            // AggregateFunction(function_name, arg_type1, arg_type2, ...)
+            Sequence::new(vec_of_erased![
+                StringParser::new("AGGREGATEFUNCTION", SyntaxKind::DataTypeIdentifier),
+                Bracketed::new(vec_of_erased![Delimited::new(vec_of_erased![one_of(
+                    vec_of_erased![
+                        Ref::new("FunctionNameSegment"),
+                        Ref::new("DatatypeSegment"),
+                    ]
+                )])]),
+            ]),
             // Nullable(Type)
             Sequence::new(vec_of_erased![
                 StringParser::new("NULLABLE", SyntaxKind::DataTypeIdentifier),
@@ -1339,6 +1428,38 @@ pub fn dialect() -> Dialect {
 
     clickhouse_dialect.add([
         (
+            "OptimizeTableStatementSegment".into(),
+            NodeMatcher::new(SyntaxKind::Statement, |_| {
+                Sequence::new(vec_of_erased![
+                    Ref::keyword("OPTIMIZE"),
+                    Ref::keyword("TABLE"),
+                    Ref::new("TableReferenceSegment"),
+                    Ref::new("OnClusterClauseSegment").optional(),
+                    Sequence::new(vec_of_erased![
+                        Ref::keyword("PARTITION"),
+                        one_of(vec_of_erased![
+                            Ref::new("ExpressionSegment"),
+                            Sequence::new(vec_of_erased![
+                                Ref::keyword("ID"),
+                                Ref::new("QuotedLiteralSegment"),
+                            ]),
+                        ]),
+                    ])
+                    .config(|this| this.optional()),
+                    Ref::keyword("FINAL").optional(),
+                    Ref::keyword("DEDUPLICATE").optional(),
+                    Sequence::new(vec_of_erased![
+                        Ref::keyword("BY"),
+                        Delimited::new(vec_of_erased![Ref::new("ExpressionSegment")]),
+                    ])
+                    .config(|this| this.optional()),
+                ])
+                .to_matchable()
+            })
+            .to_matchable()
+            .into(),
+        ),
+        (
             "DropQuotaStatementSegment".into(),
             NodeMatcher::new(SyntaxKind::DropQuotaStatement, |_| {
                 Sequence::new(vec_of_erased![
@@ -1939,6 +2060,7 @@ pub fn dialect() -> Dialect {
         ansi::statement_segment().copy(
             Some(vec_of_erased![
                 Ref::new("CreateMaterializedViewStatementSegment"),
+                Ref::new("OptimizeTableStatementSegment"),
                 Ref::new("DropDictionaryStatementSegment"),
                 Ref::new("DropQuotaStatementSegment"),
                 Ref::new("DropSettingProfileStatementSegment"),

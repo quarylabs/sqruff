@@ -1,0 +1,71 @@
+file:
+- statement:
+  - set_expression:
+    - select_statement:
+      - select_clause:
+        - keyword: SELECT
+        - select_clause_element:
+          - numeric_literal: '1'
+    - set_operator:
+      - keyword: EXCEPT
+    - select_statement:
+      - select_clause:
+        - keyword: SELECT
+        - select_clause_element:
+          - numeric_literal: '2'
+- statement_terminator: ;
+- statement:
+  - set_expression:
+    - select_statement:
+      - select_clause:
+        - keyword: SELECT
+        - select_clause_element:
+          - numeric_literal: '1'
+    - set_operator:
+      - keyword: EXCEPT
+      - keyword: ALL
+    - select_statement:
+      - select_clause:
+        - keyword: SELECT
+        - select_clause_element:
+          - numeric_literal: '2'
+- statement_terminator: ;
+- statement:
+  - set_expression:
+    - select_statement:
+      - select_clause:
+        - keyword: SELECT
+        - select_clause_element:
+          - column_reference:
+            - naked_identifier: id
+        - comma: ','
+        - select_clause_element:
+          - column_reference:
+            - naked_identifier: name
+      - from_clause:
+        - keyword: FROM
+        - from_expression:
+          - from_expression_element:
+            - table_expression:
+              - table_reference:
+                - naked_identifier: users
+    - set_operator:
+      - keyword: EXCEPT
+    - select_statement:
+      - select_clause:
+        - keyword: SELECT
+        - select_clause_element:
+          - column_reference:
+            - naked_identifier: id
+        - comma: ','
+        - select_clause_element:
+          - column_reference:
+            - naked_identifier: name
+      - from_clause:
+        - keyword: FROM
+        - from_expression:
+          - from_expression_element:
+            - table_expression:
+              - table_reference:
+                - naked_identifier: deleted_users
+- statement_terminator: ;

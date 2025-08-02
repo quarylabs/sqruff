@@ -200,46 +200,87 @@ file:
                           - naked_identifier: table1
                   - alias_expression:
                     - naked_identifier: t1
-      - unparsable:
-        - word: LEFT
-        - word: OUTER
-        - word: HASH
-        - word: JOIN
-        - word: table2
-        - word: t2
-        - word: INNER
-        - word: MERGE
-        - word: JOIN
-        - word: table3
-        - word: t3
-        - word: ON
-        - word: t2
-        - dot: .
-        - word: id
-        - raw_comparison_operator: =
-        - word: t3
-        - dot: .
-        - word: t2_id
-        - word: ON
-        - word: t1
-        - dot: .
-        - word: id
-        - raw_comparison_operator: =
-        - word: t2
-        - dot: .
-        - word: t1_id
-        - word: FULL
-        - word: OUTER
-        - word: LOOP
-        - word: JOIN
-        - word: table4
-        - word: t4
-        - word: ON
-        - word: t1
-        - dot: .
-        - word: id
-        - raw_comparison_operator: =
-        - word: t4
-        - dot: .
-        - word: t1_id
+              - join_clause:
+                - keyword: LEFT
+                - keyword: OUTER
+                - keyword: HASH
+                - keyword: JOIN
+                - from_expression_element:
+                  - from_expression_element:
+                    - table_expression:
+                      - table_reference:
+                        - object_reference:
+                          - object_reference:
+                            - naked_identifier: table2
+                    - alias_expression:
+                      - naked_identifier: t2
+                - join_clause:
+                  - keyword: INNER
+                  - keyword: MERGE
+                  - keyword: JOIN
+                  - from_expression_element:
+                    - from_expression_element:
+                      - table_expression:
+                        - table_reference:
+                          - object_reference:
+                            - object_reference:
+                              - naked_identifier: table3
+                      - alias_expression:
+                        - naked_identifier: t3
+                  - join_on_condition:
+                    - join_on_condition:
+                      - keyword: ON
+                      - expression:
+                        - column_reference:
+                          - naked_identifier: t2
+                          - dot: .
+                          - naked_identifier: id
+                        - comparison_operator:
+                          - raw_comparison_operator: =
+                        - column_reference:
+                          - naked_identifier: t3
+                          - dot: .
+                          - naked_identifier: t2_id
+                - join_on_condition:
+                  - join_on_condition:
+                    - keyword: ON
+                    - expression:
+                      - column_reference:
+                        - naked_identifier: t1
+                        - dot: .
+                        - naked_identifier: id
+                      - comparison_operator:
+                        - raw_comparison_operator: =
+                      - column_reference:
+                        - naked_identifier: t2
+                        - dot: .
+                        - naked_identifier: t1_id
+              - join_clause:
+                - keyword: FULL
+                - keyword: OUTER
+                - keyword: LOOP
+                - keyword: JOIN
+                - from_expression_element:
+                  - from_expression_element:
+                    - table_expression:
+                      - table_reference:
+                        - object_reference:
+                          - object_reference:
+                            - naked_identifier: table4
+                    - alias_expression:
+                      - naked_identifier: t4
+                - join_on_condition:
+                  - join_on_condition:
+                    - keyword: ON
+                    - expression:
+                      - column_reference:
+                        - naked_identifier: t1
+                        - dot: .
+                        - naked_identifier: id
+                      - comparison_operator:
+                        - raw_comparison_operator: =
+                      - column_reference:
+                        - naked_identifier: t4
+                        - dot: .
+                        - naked_identifier: t1_id
   - statement_terminator: ;

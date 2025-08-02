@@ -1357,32 +1357,62 @@ pub fn raw_dialect() -> Dialect {
         "TryBlockSegment".into(),
         NodeMatcher::new(SyntaxKind::Statement, |_| {
             Sequence::new(vec_of_erased![
-                Ref::keyword("BEGIN"),
-                Ref::keyword("TRY"),
+                one_of(vec_of_erased![
+                    Ref::keyword("BEGIN"),
+                    StringParser::new("BEGIN", SyntaxKind::Word)
+                ]),
+                one_of(vec_of_erased![
+                    Ref::keyword("TRY"),
+                    StringParser::new("TRY", SyntaxKind::Word)
+                ]),
                 MetaSegment::indent(),
                 AnyNumberOf::new(vec_of_erased![Sequence::new(vec_of_erased![
                     Ref::new("StatementSegment"),
                     Ref::new("DelimiterGrammar").optional()
                 ])])
                 .config(|this| {
-                    this.terminators = vec_of_erased![Ref::keyword("END")];
+                    this.terminators = vec_of_erased![
+                        Ref::keyword("END"),
+                        StringParser::new("END", SyntaxKind::Word)
+                    ];
                 }),
                 MetaSegment::dedent(),
-                Ref::keyword("END"),
-                Ref::keyword("TRY"),
-                Ref::keyword("BEGIN"),
-                Ref::keyword("CATCH"),
+                one_of(vec_of_erased![
+                    Ref::keyword("END"),
+                    StringParser::new("END", SyntaxKind::Word)
+                ]),
+                one_of(vec_of_erased![
+                    Ref::keyword("TRY"),
+                    StringParser::new("TRY", SyntaxKind::Word)
+                ]),
+                one_of(vec_of_erased![
+                    Ref::keyword("BEGIN"),
+                    StringParser::new("BEGIN", SyntaxKind::Word)
+                ]),
+                one_of(vec_of_erased![
+                    Ref::keyword("CATCH"),
+                    StringParser::new("CATCH", SyntaxKind::Word)
+                ]),
                 MetaSegment::indent(),
                 AnyNumberOf::new(vec_of_erased![Sequence::new(vec_of_erased![
                     Ref::new("StatementSegment"),
                     Ref::new("DelimiterGrammar").optional()
                 ])])
                 .config(|this| {
-                    this.terminators = vec_of_erased![Ref::keyword("END")];
+                    this.terminators = vec_of_erased![
+                        Ref::keyword("END"),
+                        StringParser::new("END", SyntaxKind::Word)
+                    ];
                 }),
                 MetaSegment::dedent(),
-                Ref::keyword("END"),
-                Ref::keyword("CATCH")
+                one_of(vec_of_erased![
+                    Ref::keyword("END"),
+                    StringParser::new("END", SyntaxKind::Word)
+                ]),
+                one_of(vec_of_erased![
+                    Ref::keyword("CATCH"),
+                    StringParser::new("CATCH", SyntaxKind::Word)
+                ])
             ])
             .to_matchable()
         })
@@ -1427,7 +1457,10 @@ pub fn raw_dialect() -> Dialect {
             Sequence::new(vec_of_erased![
                 one_of(vec_of_erased![
                     Ref::keyword("EXEC"),
-                    Ref::keyword("EXECUTE")
+                    Ref::keyword("EXECUTE"),
+                    // Also accept EXEC/EXECUTE as word tokens in T-SQL procedure bodies
+                    StringParser::new("EXEC", SyntaxKind::Word),
+                    StringParser::new("EXECUTE", SyntaxKind::Word)
                 ]).config(|this| this.terminators = vec![]),
                 // Optional return value capture
                 Sequence::new(vec_of_erased![
@@ -9626,28 +9659,6 @@ pub fn raw_dialect() -> Dialect {
         .into(),
     );
 
-    // Override TsqlJoinTypeKeywordsGrammar to handle word tokens in procedure bodies
-    dialect.add([(
-        "TsqlJoinTypeKeywordsGrammar".into(),
-        one_of(vec_of_erased![
-            // Simple join types
-            one_of(vec_of_erased![
-                Ref::keyword("INNER"),
-                // Also accept INNER as word token in T-SQL procedure bodies
-                StringParser::new("INNER", SyntaxKind::Word)
-            ]),
-            Ref::keyword("LEFT"),
-            Ref::keyword("RIGHT"),
-            Ref::keyword("FULL"),
-            // Explicit OUTER combinations
-            Sequence::new(vec_of_erased![Ref::keyword("LEFT"), Ref::keyword("OUTER")]),
-            Sequence::new(vec_of_erased![Ref::keyword("RIGHT"), Ref::keyword("OUTER")]),
-            Sequence::new(vec_of_erased![Ref::keyword("FULL"), Ref::keyword("OUTER")])
-        ])
-        .config(|this| this.optional())
-        .to_matchable()
-        .into(),
-    )]);
 
     dialect.expand();
     dialect

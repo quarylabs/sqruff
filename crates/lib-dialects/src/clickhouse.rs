@@ -607,6 +607,7 @@ pub fn dialect() -> Dialect {
         ansi::select_statement().copy(
             Some(vec_of_erased![
                 Ref::new("PrewhereClauseSegment").optional(),
+                Ref::new("QualifyClauseSegment").optional(),
                 Ref::new("FormatClauseSegment").optional(),
                 Ref::new("IntoOutfileClauseSegment").optional(),
                 Ref::new("SettingsClauseSegment").optional(),
@@ -2415,6 +2416,25 @@ pub fn dialect() -> Dialect {
             .into(),
         ),
     ]);
+
+    // Add QUALIFY clause support (similar to BigQuery)
+    clickhouse_dialect.add([
+        (
+            "QualifyClauseSegment".into(),
+            NodeMatcher::new(SyntaxKind::QualifyClause, |_| {
+                Sequence::new(vec_of_erased![
+                    Ref::keyword("QUALIFY"),
+                    MetaSegment::indent(),
+                    optionally_bracketed(vec_of_erased![Ref::new("ExpressionSegment")]),
+                    MetaSegment::dedent(),
+                ])
+                .to_matchable()
+            })
+            .to_matchable()
+            .into(),
+        ),
+    ]);
+
 
     // Replace FunctionSegment to support ClickHouse higher-order functions
     // Pattern: function_name(parameters)(arguments) - second parentheses optional

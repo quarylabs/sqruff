@@ -622,6 +622,7 @@ pub fn dialect() -> Dialect {
         ansi::select_statement().copy(
             Some(vec_of_erased![
                 Ref::new("PrewhereClauseSegment").optional(),
+                Ref::new("QualifyClauseSegment").optional(),
                 Ref::new("FormatClauseSegment").optional(),
                 Ref::new("IntoOutfileClauseSegment").optional(),
                 Ref::new("SettingsClauseSegment").optional(),
@@ -2415,6 +2416,22 @@ pub fn dialect() -> Dialect {
                 StringParser::new(":", SyntaxKind::Colon),
                 Ref::new("DatatypeSegment"), // reuse existing ClickHouse data type definitions
                 StringParser::new("}", SyntaxKind::EndCurlyBracket),
+            ])
+            .to_matchable()
+        })
+        .to_matchable()
+        .into(),
+    )]);
+
+    // Add QUALIFY clause support (similar to BigQuery)
+    clickhouse_dialect.add([(
+        "QualifyClauseSegment".into(),
+        NodeMatcher::new(SyntaxKind::QualifyClause, |_| {
+            Sequence::new(vec_of_erased![
+                Ref::keyword("QUALIFY"),
+                MetaSegment::indent(),
+                optionally_bracketed(vec_of_erased![Ref::new("ExpressionSegment")]),
+                MetaSegment::dedent(),
             ])
             .to_matchable()
         })

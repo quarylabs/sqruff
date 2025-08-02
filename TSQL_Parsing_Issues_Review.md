@@ -448,3 +448,19 @@ The T-SQL dialect parsing has a solid foundation for basic constructs but requir
 - T-SQL specific syntax consistency
 
 Addressing the critical issues identified above will significantly improve T-SQL dialect support and enable proper linting rule functionality.
+
+## Update: Lexing Issues (2025-08-02)
+
+### Fundamental Lexing Problem Discovered
+
+During investigation of the remaining unparsable files, a critical lexing issue was discovered:
+
+1. **Keywords after GO statements** are lexed as "word" instead of "keyword"
+   - Affects: try_catch.yml (lines 78-87)
+   - Example: BEGIN, TRY, EXEC after GO are all lexed as words
+
+2. **Keywords inside procedure bodies** (after AS) are lexed as "word" instead of "keyword"
+   - Affects: function_no_return.yml (lines 19-28)
+   - Example: IF, BEGIN, PRINT, RETURN inside procedure body are lexed as words
+
+This is a **lexer-level issue**, not a parser issue. The lexer needs to understand context better to properly identify keywords in these contexts. This explains why these remaining files cannot be parsed correctly - the parser receives incorrect token types from the lexer.

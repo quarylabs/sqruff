@@ -333,12 +333,19 @@ pub fn dialect() -> Dialect {
                 .into(),
         ),
         (
+            "DoubleQuotedIdentifierSegment".into(),
+            TypedParser::new(SyntaxKind::DoubleQuote, SyntaxKind::QuotedIdentifier)
+                .to_matchable()
+                .into(),
+        ),
+        (
             "SingleIdentifierGrammar".into(),
             one_of(vec_of_erased![
                 Ref::new("NakedIdentifierSegment"),
                 Ref::new("QuotedIdentifierSegment"),
                 Ref::new("SingleQuotedIdentifierSegment"),
                 Ref::new("BackQuotedIdentifierSegment"),
+                Ref::new("DoubleQuotedIdentifierSegment"),
             ])
             .to_matchable()
             .into(),
@@ -729,6 +736,30 @@ pub fn dialect() -> Dialect {
             ]),
             // JSON data type
             StringParser::new("JSON", SyntaxKind::DataTypeIdentifier),
+            // SimpleAggregateFunction(function_name, arg_type1, arg_type2, ...)
+            Sequence::new(vec_of_erased![
+                StringParser::new("SIMPLEAGGREGATEFUNCTION", SyntaxKind::DataTypeIdentifier),
+                Bracketed::new(vec_of_erased![Delimited::new(vec_of_erased![one_of(
+                    vec_of_erased![
+                        Ref::new("FunctionNameSegment"),
+                        Ref::new("DatatypeSegment"),
+                    ]
+                )])]),
+            ]),
+            // Ring data type
+            StringParser::new("RING", SyntaxKind::DataTypeIdentifier),
+            // Polygon data type
+            StringParser::new("POLYGON", SyntaxKind::DataTypeIdentifier),
+            // MultiPolygon data type
+            StringParser::new("MULTIPOLYGON", SyntaxKind::DataTypeIdentifier),
+            // Point data type
+            StringParser::new("POINT", SyntaxKind::DataTypeIdentifier),
+            // UUID data type
+            StringParser::new("UUID", SyntaxKind::DataTypeIdentifier),
+            // IPv4 data type
+            StringParser::new("IPV4", SyntaxKind::DataTypeIdentifier),
+            // IPv6 data type
+            StringParser::new("IPV6", SyntaxKind::DataTypeIdentifier),
             // Enum8('val1' = 1, 'val2' = 2)
             Sequence::new(vec_of_erased![
                 one_of(vec_of_erased![
@@ -1046,6 +1077,50 @@ pub fn dialect() -> Dialect {
             .into(),
         ),
         (
+            "IndexDefinitionSegment".into(),
+            NodeMatcher::new(SyntaxKind::ColumnConstraintSegment, |_| {
+                Sequence::new(vec_of_erased![
+                    Ref::keyword("INDEX"),
+                    Ref::new("SingleIdentifierGrammar"),
+                    Ref::new("ExpressionSegment"),
+                    Sequence::new(vec_of_erased![
+                        Ref::keyword("TYPE"),
+                        one_of(vec_of_erased![
+                            Ref::keyword("MINMAX"),
+                            Ref::keyword("SET"),
+                            Ref::keyword("NGRAMBF_V1"),
+                            Ref::keyword("TOKENBF_V1"),
+                            Ref::keyword("BLOOM_FILTER"),
+                            Ref::keyword("HYPOTHESIS"),
+                            Ref::new("SingleIdentifierGrammar"), // For other index types
+                        ]),
+                    ])
+                    .config(|this| this.optional()),
+                    Sequence::new(vec_of_erased![
+                        Ref::keyword("GRANULARITY"),
+                        Ref::new("NumericLiteralSegment"),
+                    ])
+                    .config(|this| this.optional()),
+                ])
+                .to_matchable()
+            })
+            .to_matchable()
+            .into(),
+        ),
+        (
+            "ProjectionDefinitionSegment".into(),
+            NodeMatcher::new(SyntaxKind::ColumnConstraintSegment, |_| {
+                Sequence::new(vec_of_erased![
+                    Ref::keyword("PROJECTION"),
+                    Ref::new("SingleIdentifierGrammar"),
+                    Bracketed::new(vec_of_erased![Ref::new("SelectStatementSegment")]),
+                ])
+                .to_matchable()
+            })
+            .to_matchable()
+            .into(),
+        ),
+        (
             "ColumnTTLSegment".into(),
             NodeMatcher::new(SyntaxKind::ColumnTtlSegment, |_| {
                 Sequence::new(vec_of_erased![
@@ -1252,6 +1327,8 @@ pub fn dialect() -> Dialect {
                             Ref::new("TableConstraintSegment"),
                             Ref::new("ColumnDefinitionSegment"),
                             Ref::new("ColumnConstraintSegment"),
+                            Ref::new("IndexDefinitionSegment"),
+                            Ref::new("ProjectionDefinitionSegment"),
                         ]
                     )])])
                     .config(|this| this.optional()),

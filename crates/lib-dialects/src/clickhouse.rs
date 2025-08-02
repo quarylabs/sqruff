@@ -2422,6 +2422,33 @@ pub fn dialect() -> Dialect {
         .into(),
     )]);
 
+    // Replace FunctionSegment to support ClickHouse higher-order functions
+    // Pattern: function_name(parameters)(arguments) - second parentheses optional
+    // Examples: quantileExact(0.5)(column), count(column)
+    clickhouse_dialect.replace_grammar(
+        "FunctionSegment",
+        Sequence::new(vec_of_erased![one_of(vec_of_erased![
+            // Date part function pattern
+            Sequence::new(vec_of_erased![
+                Ref::new("DatePartFunctionNameSegment"),
+                Ref::new("DateTimeFunctionContentsSegment"),
+            ]),
+            // Standard function pattern with optional second parentheses for higher-order functions
+            Sequence::new(vec_of_erased![
+                Sequence::new(vec_of_erased![
+                    Ref::new("FunctionNameSegment").exclude(one_of(vec_of_erased![
+                        Ref::new("DatePartFunctionNameSegment"),
+                        Ref::new("ValuesClauseSegment")
+                    ])),
+                    Ref::new("FunctionContentsSegment"),
+                    Ref::new("FunctionContentsSegment").optional(), // Optional second parentheses for higher-order functions
+                ]),
+                Ref::new("PostFunctionGrammar").optional()
+            ]),
+        ])])
+        .to_matchable(),
+    );
+
     // Extend LiteralGrammar to include parametric expressions
     clickhouse_dialect.add([(
         "LiteralGrammar".into(),

@@ -5200,7 +5200,11 @@ pub fn raw_dialect() -> Dialect {
                     ])
                     .config(|this| this.optional()),
                     MetaSegment::dedent(),
-                    Ref::keyword("AS"),
+                    one_of(vec_of_erased![
+                        Ref::keyword("AS"),
+                        // Also accept AS as word token - though this is unusual
+                        StringParser::new("AS", SyntaxKind::Word)
+                    ]),
                     Ref::new("ProcedureDefinitionGrammar")
                 ])
                 .to_matchable()
@@ -7410,6 +7414,183 @@ pub fn raw_dialect() -> Dialect {
                 ]),
                 // Optional return value (for functions)
                 Ref::new("ExpressionSegment").optional()
+            ])
+            .to_matchable()
+        })
+        .to_matchable()
+        .into(),
+    )]);
+
+    // T-SQL overrides for base SQL constructs to support word tokens
+    // Override FROM clause to accept FROM as word token
+    dialect.add([(
+        "FromClauseSegment".into(),
+        NodeMatcher::new(SyntaxKind::FromClause, |_| {
+            Sequence::new(vec_of_erased![
+                one_of(vec_of_erased![
+                    Ref::keyword("FROM"),
+                    // Also accept FROM as word token in T-SQL procedure bodies
+                    StringParser::new("FROM", SyntaxKind::Word)
+                ]),
+                Delimited::new(vec_of_erased![Ref::new("FromExpressionElement")])
+            ])
+            .terminators(vec_of_erased![
+                Ref::new("WhereClauseSegment"),
+                Ref::new("GroupByClauseSegment"),
+                Ref::new("OrderByClauseSegment"),
+                Ref::new("HavingClauseSegment"),
+                Ref::new("LimitClauseSegment"),
+                Ref::new("OptionClauseSegment"),
+                Ref::keyword("FOR"),
+                Ref::new("SetOperatorSegment"),
+                Ref::new("WithCheckOptionSegment"),
+                Ref::new("DelimiterGrammar"),
+                Ref::new("BatchDelimiterGrammar"),
+            ])
+            .to_matchable()
+        })
+        .to_matchable()
+        .into(),
+    )]);
+
+    // Override WHERE clause to accept WHERE as word token
+    dialect.add([(
+        "WhereClauseSegment".into(),
+        NodeMatcher::new(SyntaxKind::WhereClause, |_| {
+            Sequence::new(vec_of_erased![
+                one_of(vec_of_erased![
+                    Ref::keyword("WHERE"),
+                    // Also accept WHERE as word token in T-SQL procedure bodies
+                    StringParser::new("WHERE", SyntaxKind::Word)
+                ]),
+                MetaSegment::indent(),
+                AnyNumberOf::new(vec_of_erased![Ref::new("ExpressionSegment")])
+                    .config(|this| this.min_times(1)),
+                MetaSegment::dedent(),
+            ])
+            .to_matchable()
+        })
+        .to_matchable()
+        .into(),
+    )]);
+
+    // Override join keywords to support word tokens
+    dialect.add([(
+        "JoinTypeKeywords".into(),
+        one_of(vec_of_erased![
+            // Regular keywords
+            Ref::keyword("JOIN"),
+            Sequence::new(vec_of_erased![Ref::keyword("INNER"), Ref::keyword("JOIN")]),
+            Sequence::new(vec_of_erased![
+                one_of(vec_of_erased![
+                    Ref::keyword("LEFT"),
+                    Ref::keyword("RIGHT"),
+                    Ref::keyword("FULL")
+                ]),
+                Ref::keyword("OUTER").optional(),
+                Ref::keyword("JOIN")
+            ]),
+            Sequence::new(vec_of_erased![Ref::keyword("CROSS"), Ref::keyword("JOIN")]),
+            // Also accept as word tokens in T-SQL procedure bodies
+            StringParser::new("JOIN", SyntaxKind::Word),
+            Sequence::new(vec_of_erased![
+                StringParser::new("INNER", SyntaxKind::Word),
+                StringParser::new("JOIN", SyntaxKind::Word)
+            ]),
+            // LEFT/RIGHT/FULL JOIN (without OUTER)
+            Sequence::new(vec_of_erased![
+                one_of(vec_of_erased![
+                    StringParser::new("LEFT", SyntaxKind::Word),
+                    StringParser::new("RIGHT", SyntaxKind::Word),
+                    StringParser::new("FULL", SyntaxKind::Word)
+                ]),
+                StringParser::new("JOIN", SyntaxKind::Word)
+            ]),
+            // LEFT/RIGHT/FULL OUTER JOIN
+            Sequence::new(vec_of_erased![
+                one_of(vec_of_erased![
+                    StringParser::new("LEFT", SyntaxKind::Word),
+                    StringParser::new("RIGHT", SyntaxKind::Word),
+                    StringParser::new("FULL", SyntaxKind::Word)
+                ]),
+                StringParser::new("OUTER", SyntaxKind::Word),
+                StringParser::new("JOIN", SyntaxKind::Word)
+            ]),
+            Sequence::new(vec_of_erased![
+                StringParser::new("CROSS", SyntaxKind::Word),
+                StringParser::new("JOIN", SyntaxKind::Word)
+            ])
+        ])
+        .to_matchable()
+        .into(),
+    )]);
+
+    // Override join ON clause to support word tokens
+    dialect.add([(
+        "JoinOnConditionSegment".into(),
+        NodeMatcher::new(SyntaxKind::JoinOnCondition, |_| {
+            Sequence::new(vec_of_erased![
+                one_of(vec_of_erased![
+                    Ref::keyword("ON"),
+                    // Also accept ON as word token in T-SQL procedure bodies
+                    StringParser::new("ON", SyntaxKind::Word)
+                ]),
+                MetaSegment::indent(),
+                AnyNumberOf::new(vec_of_erased![Ref::new("ExpressionSegment")])
+                    .config(|this| this.min_times(1)),
+                MetaSegment::dedent(),
+            ])
+            .to_matchable()
+        })
+        .to_matchable()
+        .into(),
+    )]);
+
+    // Override IS NULL/IS NOT NULL to support word tokens
+    dialect.add([(
+        "IsNullGrammar".into(),
+        one_of(vec_of_erased![
+            // IS NULL
+            Sequence::new(vec_of_erased![
+                one_of(vec_of_erased![
+                    Ref::keyword("IS"),
+                    // Also accept IS as word token in T-SQL procedure bodies
+                    StringParser::new("IS", SyntaxKind::Word)
+                ]),
+                one_of(vec_of_erased![
+                    Ref::keyword("NULL"),
+                    // Also accept NULL as word token
+                    StringParser::new("NULL", SyntaxKind::Word)
+                ])
+            ]),
+            // IS NOT NULL
+            Sequence::new(vec_of_erased![
+                one_of(vec_of_erased![
+                    Ref::keyword("IS"),
+                    StringParser::new("IS", SyntaxKind::Word)
+                ]),
+                one_of(vec_of_erased![
+                    Ref::keyword("NOT"),
+                    StringParser::new("NOT", SyntaxKind::Word)
+                ]),
+                one_of(vec_of_erased![
+                    Ref::keyword("NULL"),
+                    StringParser::new("NULL", SyntaxKind::Word)
+                ])
+            ])
+        ])
+        .to_matchable()
+        .into(),
+    )]);
+
+    // Override NULL literal to support word tokens
+    dialect.add([(
+        "NullLiteralSegment".into(),
+        NodeMatcher::new(SyntaxKind::NullLiteral, |_| {
+            one_of(vec_of_erased![
+                Ref::keyword("NULL"),
+                // Also accept NULL as word token in T-SQL procedure bodies
+                StringParser::new("NULL", SyntaxKind::Word)
             ])
             .to_matchable()
         })

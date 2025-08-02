@@ -200,3 +200,7 @@ cython_debug/
 
 # VS Code
 .vscode/
+
+# Claude Code & Development
+.claude/
+.history/

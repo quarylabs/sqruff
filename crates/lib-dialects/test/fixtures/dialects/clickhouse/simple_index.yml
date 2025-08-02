@@ -1,0 +1,44 @@
+file:
+- statement:
+  - create_table_statement:
+    - keyword: CREATE
+    - keyword: TABLE
+    - table_reference:
+      - naked_identifier: users
+    - bracketed:
+      - start_bracket: (
+      - column_definition:
+        - naked_identifier: id
+        - data_type:
+          - data_type_identifier: UInt64
+      - comma: ','
+      - column_definition:
+        - naked_identifier: name
+        - data_type:
+          - data_type_identifier: String
+      - comma: ','
+      - column_constraint_segment:
+        - keyword: INDEX
+        - naked_identifier: idx_name
+        - expression:
+          - column_reference:
+            - naked_identifier: name
+        - keyword: TYPE
+        - index_type_identifier: minmax
+      - end_bracket: )
+    - engine:
+      - keyword: ENGINE
+      - comparison_operator:
+        - raw_comparison_operator: =
+      - table_engine_function:
+        - function_name:
+          - function_name_identifier: MergeTree
+        - bracketed:
+          - start_bracket: (
+          - end_bracket: )
+      - merge_tree_order_by_clause:
+        - keyword: ORDER
+        - keyword: BY
+        - column_reference:
+          - naked_identifier: id
+- statement_terminator: ;

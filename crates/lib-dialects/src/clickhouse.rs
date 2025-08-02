@@ -859,17 +859,21 @@ pub fn dialect() -> Dialect {
             StringParser::new("IPV4", SyntaxKind::DataTypeIdentifier),
             // IPv6 data type
             StringParser::new("IPV6", SyntaxKind::DataTypeIdentifier),
-            // Enum8('val1' = 1, 'val2' = 2)
+            // Enum8('val1' = 1, 'val2' = 2) or Enum('val1', 'val2')
             Sequence::new(vec_of_erased![
                 one_of(vec_of_erased![
                     StringParser::new("ENUM8", SyntaxKind::DataTypeIdentifier),
                     StringParser::new("ENUM16", SyntaxKind::DataTypeIdentifier),
+                    StringParser::new("ENUM", SyntaxKind::DataTypeIdentifier),
                 ]),
                 Bracketed::new(vec_of_erased![Delimited::new(vec_of_erased![
                     Sequence::new(vec_of_erased![
                         Ref::new("QuotedLiteralSegment"),
-                        Ref::new("EqualsSegment"),
-                        Ref::new("NumericLiteralSegment"),
+                        Sequence::new(vec_of_erased![
+                            Ref::new("EqualsSegment"),
+                            Ref::new("NumericLiteralSegment"),
+                        ])
+                        .config(|this| this.optional()),
                     ])
                 ]),]),
             ]),
@@ -2400,6 +2404,39 @@ pub fn dialect() -> Dialect {
         ])
         .to_matchable(),
     );
+
+    // Add ParametricExpressionSegment for ClickHouse parametric views
+    clickhouse_dialect.add([(
+        "ParametricExpressionSegment".into(),
+        NodeMatcher::new(SyntaxKind::ParametricExpression, |_| {
+            Sequence::new(vec_of_erased![
+                StringParser::new("{", SyntaxKind::StartCurlyBracket),
+                Ref::new("SingleIdentifierGrammar"), // parameter name
+                StringParser::new(":", SyntaxKind::Colon),
+                Ref::new("DatatypeSegment"), // reuse existing ClickHouse data type definitions
+                StringParser::new("}", SyntaxKind::EndCurlyBracket),
+            ])
+            .to_matchable()
+        })
+        .to_matchable()
+        .into(),
+    )]);
+
+    // Extend LiteralGrammar to include parametric expressions
+    clickhouse_dialect.add([(
+        "LiteralGrammar".into(),
+        clickhouse_dialect
+            .grammar("LiteralGrammar")
+            .copy(
+                Some(vec_of_erased![Ref::new("ParametricExpressionSegment")]),
+                None,
+                None,
+                None,
+                Vec::new(),
+                false,
+            )
+            .into(),
+    )]);
 
     clickhouse_dialect.expand();
     clickhouse_dialect

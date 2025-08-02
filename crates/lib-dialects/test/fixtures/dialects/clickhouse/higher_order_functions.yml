@@ -1,0 +1,164 @@
+file:
+- statement:
+  - select_statement:
+    - select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+        - function:
+          - function_name:
+            - function_name_identifier: quantileExact
+          - function_contents:
+            - bracketed:
+              - start_bracket: (
+              - expression:
+                - numeric_literal: '0.5'
+              - end_bracket: )
+          - function_contents:
+            - bracketed:
+              - start_bracket: (
+              - expression:
+                - column_reference:
+                  - naked_identifier: response_time
+              - end_bracket: )
+        - alias_expression:
+          - keyword: as
+          - naked_identifier: median_response
+      - comma: ','
+      - select_clause_element:
+        - function:
+          - function_name:
+            - function_name_identifier: quantileExactArrayIf
+          - function_contents:
+            - bracketed:
+              - start_bracket: (
+              - expression:
+                - numeric_literal: '0.95'
+              - end_bracket: )
+          - function_contents:
+            - bracketed:
+              - start_bracket: (
+              - expression:
+                - column_reference:
+                  - naked_identifier: response_times
+              - comma: ','
+              - expression:
+                - column_reference:
+                  - naked_identifier: response_times
+                - comparison_operator:
+                  - raw_comparison_operator: '>'
+                - numeric_literal: '0'
+              - end_bracket: )
+        - alias_expression:
+          - keyword: as
+          - naked_identifier: p95_response
+      - comma: ','
+      - select_clause_element:
+        - function:
+          - function_name:
+            - function_name_identifier: avgArrayIf
+          - function_contents:
+            - bracketed:
+              - start_bracket: (
+              - expression:
+                - column_reference:
+                  - naked_identifier: response_times
+              - comma: ','
+              - expression:
+                - column_reference:
+                  - naked_identifier: response_times
+                - comparison_operator:
+                  - raw_comparison_operator: '>'
+                - numeric_literal: '0'
+              - end_bracket: )
+        - alias_expression:
+          - keyword: as
+          - naked_identifier: avg_response
+      - comma: ','
+      - select_clause_element:
+        - function:
+          - function_name:
+            - function_name_identifier: arraySort
+          - function_contents:
+            - bracketed:
+              - start_bracket: (
+              - expression:
+                - column_reference:
+                  - naked_identifier: x
+                - lambda: ->
+                - sign_indicator: '-'
+                - column_reference:
+                  - naked_identifier: x
+              - end_bracket: )
+          - function_contents:
+            - bracketed:
+              - start_bracket: (
+              - expression:
+                - column_reference:
+                  - naked_identifier: values
+              - end_bracket: )
+        - alias_expression:
+          - keyword: as
+          - naked_identifier: sorted_desc
+      - comma: ','
+      - select_clause_element:
+        - function:
+          - function_name:
+            - function_name_identifier: arrayMap
+          - function_contents:
+            - bracketed:
+              - start_bracket: (
+              - expression:
+                - column_reference:
+                  - naked_identifier: x
+                - lambda: ->
+                - column_reference:
+                  - naked_identifier: x
+                - binary_operator: '*'
+                - numeric_literal: '2'
+              - end_bracket: )
+          - function_contents:
+            - bracketed:
+              - start_bracket: (
+              - expression:
+                - column_reference:
+                  - naked_identifier: numbers
+              - end_bracket: )
+        - alias_expression:
+          - keyword: as
+          - naked_identifier: doubled
+      - comma: ','
+      - select_clause_element:
+        - function:
+          - function_name:
+            - function_name_identifier: count
+          - function_contents:
+            - bracketed:
+              - start_bracket: (
+              - star: '*'
+              - end_bracket: )
+        - alias_expression:
+          - keyword: as
+          - naked_identifier: total_count
+      - comma: ','
+      - select_clause_element:
+        - function:
+          - function_name:
+            - function_name_identifier: sum
+          - function_contents:
+            - bracketed:
+              - start_bracket: (
+              - expression:
+                - column_reference:
+                  - naked_identifier: amount
+              - end_bracket: )
+        - alias_expression:
+          - keyword: as
+          - naked_identifier: total_amount
+    - from_clause:
+      - keyword: FROM
+      - from_expression:
+        - from_expression_element:
+          - table_expression:
+            - table_reference:
+              - naked_identifier: test_table
+- statement_terminator: ;

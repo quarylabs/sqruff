@@ -24,7 +24,7 @@ file:
           - column_reference:
             - naked_identifier: name
         - keyword: TYPE
-        - keyword: minmax
+        - index_type_identifier: minmax
       - end_bracket: )
     - engine:
       - keyword: ENGINE

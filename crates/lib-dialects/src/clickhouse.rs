@@ -667,6 +667,46 @@ pub fn dialect() -> Dialect {
         .into(),
     )]);
 
+    // Index type string parsers for case-insensitive matching
+    clickhouse_dialect.add([
+        (
+            "BloomFilterIndexType".into(),
+            StringParser::new("bloom_filter", SyntaxKind::IndexTypeIdentifier)
+                .to_matchable()
+                .into(),
+        ),
+        (
+            "SetIndexType".into(),
+            StringParser::new("set", SyntaxKind::IndexTypeIdentifier)
+                .to_matchable()
+                .into(),
+        ),
+        (
+            "NgramBfV1IndexType".into(),
+            StringParser::new("ngrambf_v1", SyntaxKind::IndexTypeIdentifier)
+                .to_matchable()
+                .into(),
+        ),
+        (
+            "TokenBfV1IndexType".into(),
+            StringParser::new("tokenbf_v1", SyntaxKind::IndexTypeIdentifier)
+                .to_matchable()
+                .into(),
+        ),
+        (
+            "MinmaxIndexType".into(),
+            StringParser::new("minmax", SyntaxKind::IndexTypeIdentifier)
+                .to_matchable()
+                .into(),
+        ),
+        (
+            "HypothesisIndexType".into(),
+            StringParser::new("hypothesis", SyntaxKind::IndexTypeIdentifier)
+                .to_matchable()
+                .into(),
+        ),
+    ]);
+
     clickhouse_dialect.add([(
         "WithFillSegment".into(),
         Sequence::new(vec_of_erased![
@@ -1136,7 +1176,7 @@ pub fn dialect() -> Dialect {
                         one_of(vec_of_erased![
                             // Index types that can have parameters
                             Sequence::new(vec_of_erased![
-                                Ref::keyword("BLOOM_FILTER"),
+                                Ref::new("BloomFilterIndexType"),
                                 Bracketed::new(vec_of_erased![
                                     Delimited::new(vec_of_erased![
                                         Ref::new("NumericLiteralSegment")
@@ -1144,7 +1184,7 @@ pub fn dialect() -> Dialect {
                                 ]).config(|this| this.optional()),
                             ]),
                             Sequence::new(vec_of_erased![
-                                Ref::keyword("SET"),
+                                Ref::new("SetIndexType"),
                                 Bracketed::new(vec_of_erased![
                                     Delimited::new(vec_of_erased![
                                         Ref::new("NumericLiteralSegment")
@@ -1152,7 +1192,7 @@ pub fn dialect() -> Dialect {
                                 ]).config(|this| this.optional()),
                             ]),
                             Sequence::new(vec_of_erased![
-                                Ref::keyword("NGRAMBF_V1"),
+                                Ref::new("NgramBfV1IndexType"),
                                 Bracketed::new(vec_of_erased![
                                     Delimited::new(vec_of_erased![
                                         Ref::new("NumericLiteralSegment")
@@ -1160,7 +1200,7 @@ pub fn dialect() -> Dialect {
                                 ]).config(|this| this.optional()),
                             ]),
                             Sequence::new(vec_of_erased![
-                                Ref::keyword("TOKENBF_V1"),
+                                Ref::new("TokenBfV1IndexType"),
                                 Bracketed::new(vec_of_erased![
                                     Delimited::new(vec_of_erased![
                                         Ref::new("NumericLiteralSegment")
@@ -1168,8 +1208,8 @@ pub fn dialect() -> Dialect {
                                 ]).config(|this| this.optional()),
                             ]),
                             // Index types without parameters
-                            Ref::keyword("MINMAX"),
-                            Ref::keyword("HYPOTHESIS"),
+                            Ref::new("MinmaxIndexType"),
+                            Ref::new("HypothesisIndexType"),
                             Ref::new("SingleIdentifierGrammar"), // For other index types
                         ]),
                     ])

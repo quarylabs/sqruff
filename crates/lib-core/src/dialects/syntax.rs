@@ -505,6 +505,7 @@ pub enum SyntaxKind {
     PropertiesNakedIdentifier,
     Symbol,
     DataTypeIdentifier,
+    IndexTypeIdentifier,
     Placeholder,
     ExecuteScriptStatement,
     AssignmentOperator,

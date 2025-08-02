@@ -38,7 +38,7 @@ file:
           - column_reference:
             - naked_identifier: name
         - keyword: TYPE
-        - keyword: bloom_filter
+        - index_type_identifier: bloom_filter
         - bracketed:
           - start_bracket: (
           - numeric_literal: '0.01'
@@ -53,7 +53,7 @@ file:
           - column_reference:
             - naked_identifier: user_id
         - keyword: TYPE
-        - keyword: bloom_filter
+        - index_type_identifier: bloom_filter
         - bracketed:
           - start_bracket: (
           - numeric_literal: '0.001'
@@ -70,7 +70,7 @@ file:
           - column_reference:
             - naked_identifier: name
         - keyword: TYPE
-        - keyword: bloom_filter
+        - index_type_identifier: bloom_filter
         - keyword: GRANULARITY
         - numeric_literal: '1'
       - end_bracket: )
@@ -121,7 +121,7 @@ file:
           - column_reference:
             - naked_identifier: user_id
         - keyword: TYPE
-        - keyword: bloom_filter
+        - index_type_identifier: bloom_filter
         - bracketed:
           - start_bracket: (
           - numeric_literal: '0.01'
@@ -136,7 +136,7 @@ file:
           - column_reference:
             - naked_identifier: event_type
         - keyword: TYPE
-        - keyword: bloom_filter
+        - index_type_identifier: bloom_filter
         - bracketed:
           - start_bracket: (
           - numeric_literal: '0.001'
@@ -151,7 +151,7 @@ file:
           - column_reference:
             - naked_identifier: timestamp
         - keyword: TYPE
-        - keyword: minmax
+        - index_type_identifier: minmax
         - keyword: GRANULARITY
         - numeric_literal: '4'
       - comma: ','

@@ -39,7 +39,7 @@ file:
           - column_reference:
             - naked_identifier: email
         - keyword: TYPE
-        - keyword: minmax
+        - index_type_identifier: minmax
         - keyword: GRANULARITY
         - numeric_literal: '1'
       - comma: ','
@@ -50,7 +50,7 @@ file:
           - column_reference:
             - naked_identifier: age
         - keyword: TYPE
-        - keyword: set
+        - index_type_identifier: set
         - bracketed:
           - start_bracket: (
           - numeric_literal: '10'
@@ -134,7 +134,7 @@ file:
           - column_reference:
             - naked_identifier: event_name
         - keyword: TYPE
-        - keyword: bloom_filter
+        - index_type_identifier: bloom_filter
         - keyword: GRANULARITY
         - numeric_literal: '1'
       - comma: ','
@@ -145,7 +145,7 @@ file:
           - column_reference:
             - naked_identifier: timestamp
         - keyword: TYPE
-        - keyword: minmax
+        - index_type_identifier: minmax
       - comma: ','
       - column_constraint_segment:
         - keyword: PROJECTION

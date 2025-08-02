@@ -130,6 +130,7 @@ pub enum SyntaxKind {
     StructLiteral,
     TypedStructLiteral,
     IntervalExpression,
+    ParametricExpression,
     ArrayType,
     SizedArrayType,
     SelectStatement,

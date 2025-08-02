@@ -134,9 +134,7 @@ file:
       - expression:
         - column_reference:
           - naked_identifier: revenue_rank
-        - comparison_operator:
-          - raw_comparison_operator: <
-          - raw_comparison_operator: =
+        - comparison_operator: <=
         - numeric_literal: '10'
         - binary_operator: AND
         - column_reference:

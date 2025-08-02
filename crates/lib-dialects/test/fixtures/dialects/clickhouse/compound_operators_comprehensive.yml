@@ -1,0 +1,62 @@
+file:
+- statement:
+  - select_statement:
+    - select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+        - column_reference:
+          - naked_identifier: id
+      - comma: ','
+      - select_clause_element:
+        - column_reference:
+          - naked_identifier: value
+      - comma: ','
+      - select_clause_element:
+        - column_reference:
+          - naked_identifier: status
+    - from_clause:
+      - keyword: FROM
+      - from_expression:
+        - from_expression_element:
+          - table_expression:
+            - table_reference:
+              - naked_identifier: test_table
+    - where_clause:
+      - keyword: WHERE
+      - expression:
+        - column_reference:
+          - naked_identifier: value
+        - comparison_operator: '>='
+        - numeric_literal: '100'
+        - binary_operator: AND
+        - column_reference:
+          - naked_identifier: score
+        - comparison_operator: <=
+        - numeric_literal: '50'
+        - binary_operator: AND
+        - column_reference:
+          - naked_identifier: status
+        - comparison_operator: '!='
+        - quoted_literal: '''inactive'''
+        - binary_operator: AND
+        - column_reference:
+          - naked_identifier: category
+        - comparison_operator: <>
+        - quoted_literal: '''deleted'''
+        - binary_operator: AND
+        - column_reference:
+          - naked_identifier: created_at
+        - comparison_operator: '>='
+        - quoted_literal: '''2024-01-01'''
+        - binary_operator: AND
+        - column_reference:
+          - naked_identifier: modified_at
+        - comparison_operator: <=
+        - function:
+          - function_name:
+            - function_name_identifier: CURRENT_TIMESTAMP
+          - function_contents:
+            - bracketed:
+              - start_bracket: (
+              - end_bracket: )
+- statement_terminator: ;

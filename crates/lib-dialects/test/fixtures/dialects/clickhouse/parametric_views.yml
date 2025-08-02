@@ -41,9 +41,7 @@ file:
           - expression:
             - column_reference:
               - naked_identifier: date
-            - comparison_operator:
-              - raw_comparison_operator: '>'
-              - raw_comparison_operator: =
+            - comparison_operator: '>='
             - parametric_expression:
               - start_curly_bracket: '{'
               - naked_identifier: start_date
@@ -54,9 +52,7 @@ file:
             - binary_operator: AND
             - column_reference:
               - naked_identifier: date
-            - comparison_operator:
-              - raw_comparison_operator: <
-              - raw_comparison_operator: =
+            - comparison_operator: <=
             - parametric_expression:
               - start_curly_bracket: '{'
               - naked_identifier: end_date

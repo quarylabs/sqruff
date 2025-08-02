@@ -464,10 +464,54 @@ pub fn dialect() -> Dialect {
         ),
     ]);
 
+    // Add compound comparison operators before individual operators to prevent splitting
+    clickhouse_dialect.insert_lexer_matchers(
+        vec![
+            Matcher::string(
+                "greater_than_or_equal",
+                ">=",
+                SyntaxKind::RawComparisonOperator,
+            ),
+            Matcher::string(
+                "less_than_or_equal",
+                "<=",
+                SyntaxKind::RawComparisonOperator,
+            ),
+            Matcher::string("not_equal", "!=", SyntaxKind::RawComparisonOperator),
+            Matcher::string("not_equal_alt", "<>", SyntaxKind::RawComparisonOperator),
+        ],
+        "equals", // Insert before the individual "=" operator
+    );
+
     clickhouse_dialect.insert_lexer_matchers(
         vec![Matcher::string("lambda", "->", SyntaxKind::Lambda)],
         "newline",
     );
+
+    // Add single-token comparison operator segments for compound operators
+    clickhouse_dialect.add(vec![
+        (
+            "GreaterThanOrEqualToSegment".into(),
+            StringParser::new(">=", SyntaxKind::ComparisonOperator)
+                .to_matchable()
+                .into(),
+        ),
+        (
+            "LessThanOrEqualToSegment".into(),
+            StringParser::new("<=", SyntaxKind::ComparisonOperator)
+                .to_matchable()
+                .into(),
+        ),
+        (
+            "NotEqualToSegment".into(),
+            one_of(vec_of_erased![
+                StringParser::new("!=", SyntaxKind::ComparisonOperator),
+                StringParser::new("<>", SyntaxKind::ComparisonOperator),
+            ])
+            .to_matchable()
+            .into(),
+        ),
+    ]);
 
     clickhouse_dialect.add(vec![
         (

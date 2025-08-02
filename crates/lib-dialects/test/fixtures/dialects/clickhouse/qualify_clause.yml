@@ -134,9 +134,7 @@ file:
       - expression:
         - column_reference:
           - naked_identifier: revenue_rank
-        - comparison_operator:
-          - raw_comparison_operator: <
-          - raw_comparison_operator: =
+        - comparison_operator: <=
         - numeric_literal: '10'
         - binary_operator: AND
         - column_reference:
@@ -408,9 +406,7 @@ file:
       - expression:
         - column_reference:
           - naked_identifier: rank_by_sales
-        - comparison_operator:
-          - raw_comparison_operator: <
-          - raw_comparison_operator: =
+        - comparison_operator: <=
         - numeric_literal: '3'
         - binary_operator: OR
         - column_reference:
@@ -467,9 +463,7 @@ file:
         - expression:
           - column_reference:
             - naked_identifier: pct_rank
-          - comparison_operator:
-            - raw_comparison_operator: '>'
-            - raw_comparison_operator: =
+          - comparison_operator: '>='
           - numeric_literal: '0.75'
           - binary_operator: AND
           - column_reference:

@@ -151,9 +151,7 @@ file:
       - expression:
         - column_reference:
           - naked_identifier: timestamp
-        - comparison_operator:
-          - raw_comparison_operator: '>'
-          - raw_comparison_operator: =
+        - comparison_operator: '>='
         - parametric_expression:
           - start_curly_bracket: '{'
           - naked_identifier: start
@@ -218,9 +216,7 @@ file:
       - expression:
         - column_reference:
           - naked_identifier: price
-        - comparison_operator:
-          - raw_comparison_operator: <
-          - raw_comparison_operator: =
+        - comparison_operator: <=
         - parametric_expression:
           - start_curly_bracket: '{'
           - naked_identifier: max_price

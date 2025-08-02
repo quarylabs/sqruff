@@ -15,6 +15,9 @@ pub struct Cli {
     /// Path to a configuration file.
     #[arg(long, global = true)]
     pub config: Option<String>,
+    /// Override the dialect (e.g., bigquery, clickhouse, ansi).
+    #[arg(long, global = true)]
+    pub dialect: Option<String>,
     /// Show parse errors.
     #[arg(long, global = true, default_value = "false")]
     pub parsing_errors: bool,

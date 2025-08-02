@@ -17,6 +17,7 @@ pub mod commands;
 mod commands_fix;
 mod commands_info;
 mod commands_lint;
+mod commands_parse;
 mod commands_rules;
 #[cfg(feature = "codegen-docs")]
 mod docs;
@@ -92,6 +93,9 @@ where
         Commands::Rules => {
             commands_rules::rules_info(config);
             0
+        }
+        Commands::Parse(args) => {
+            commands_parse::run_parse(args, config)
         }
     }
 }

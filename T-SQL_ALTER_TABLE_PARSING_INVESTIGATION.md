@@ -1280,3 +1280,11 @@ This appears to be a fundamental lexer/parser issue where keyword recognition fa
 1. Investigate if we can fix the lexer to properly recognize keywords in these contexts
 2. Use StringParser approach similar to the commented-out CASE expression handling
 3. Find an alternative grammar structure that avoids the lexing ambiguity
+
+### Update: ELSE Parsing Discovery (2025-08-02)
+
+Found that ELSE is ALWAYS parsed as naked_identifier in T-SQL, even in working cases:
+- if_else.yml (working): ELSE is naked_identifier but followed by valid SELECT statement
+- if_else_begin_end.yml (broken): ELSE is naked_identifier followed by BEGIN (also naked_identifier)
+
+The issue is that when ELSE is parsed as a statement start (like a procedure name), having BEGIN after it creates an invalid parse tree. The parser expects ELSE to be followed by a valid statement, not another keyword that would start a block.

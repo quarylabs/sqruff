@@ -541,7 +541,7 @@ file:
                   - naked_identifier: ROLLBACK
             - statement_terminator: ;
             - keyword: END
-          - statement_terminator: ;
+      - statement_terminator: ;
       - statement:
         - naked_identifier: GO
         - expression:

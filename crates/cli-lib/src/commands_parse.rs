@@ -59,6 +59,7 @@ fn parse_and_output_tree(sql: &str, filename: &str, config: &FluffConfig, format
     let linter = Linter::new(config.clone(), None, None, true);
     let tables = Tables::default();
     
+    
     match linter.parse_string(&tables, sql, Some(filename.to_string())) {
         Ok(parsed) => {
             if let Some(tree) = &parsed.tree {

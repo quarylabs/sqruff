@@ -1,0 +1,62 @@
+file:
+- statement:
+  - statement:
+    - keyword: OPTIMIZE
+    - keyword: TABLE
+    - table_reference:
+      - naked_identifier: users
+- statement_terminator: ;
+- statement:
+  - statement:
+    - keyword: OPTIMIZE
+    - keyword: TABLE
+    - table_reference:
+      - naked_identifier: users
+    - keyword: PARTITION
+    - expression:
+      - quoted_literal: '''2023-01'''
+- statement_terminator: ;
+- statement:
+  - statement:
+    - keyword: OPTIMIZE
+    - keyword: TABLE
+    - table_reference:
+      - naked_identifier: users
+    - keyword: PARTITION
+    - expression:
+      - data_type:
+        - data_type_identifier: ID
+      - quoted_literal: '''part_id_123'''
+- statement_terminator: ;
+- statement:
+  - statement:
+    - keyword: OPTIMIZE
+    - keyword: TABLE
+    - table_reference:
+      - naked_identifier: users
+    - keyword: FINAL
+- statement_terminator: ;
+- statement:
+  - statement:
+    - keyword: OPTIMIZE
+    - keyword: TABLE
+    - table_reference:
+      - naked_identifier: users
+    - keyword: DEDUPLICATE
+- statement_terminator: ;
+- statement:
+  - statement:
+    - keyword: OPTIMIZE
+    - keyword: TABLE
+    - table_reference:
+      - naked_identifier: users
+    - keyword: DEDUPLICATE
+    - keyword: BY
+    - expression:
+      - column_reference:
+        - naked_identifier: id
+    - comma: ','
+    - expression:
+      - column_reference:
+        - naked_identifier: email
+- statement_terminator: ;

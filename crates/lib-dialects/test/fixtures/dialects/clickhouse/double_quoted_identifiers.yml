@@ -1,0 +1,69 @@
+file:
+- statement:
+  - select_statement:
+    - select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+        - column_reference:
+          - quoted_identifier: '"quoted_column"'
+    - from_clause:
+      - keyword: FROM
+      - from_expression:
+        - from_expression_element:
+          - table_expression:
+            - table_reference:
+              - quoted_identifier: '"quoted_table"'
+- statement_terminator: ;
+- statement:
+  - select_statement:
+    - select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+        - column_reference:
+          - quoted_identifier: '"user name"'
+      - comma: ','
+      - select_clause_element:
+        - column_reference:
+          - quoted_identifier: '"user_id"'
+    - from_clause:
+      - keyword: FROM
+      - from_expression:
+        - from_expression_element:
+          - table_expression:
+            - table_reference:
+              - quoted_identifier: '"user table"'
+    - where_clause:
+      - keyword: WHERE
+      - expression:
+        - column_reference:
+          - quoted_identifier: '"is active"'
+        - comparison_operator:
+          - raw_comparison_operator: =
+        - numeric_literal: '1'
+- statement_terminator: ;
+- statement:
+  - create_table_statement:
+    - keyword: CREATE
+    - keyword: TABLE
+    - table_reference:
+      - quoted_identifier: '"my table"'
+    - bracketed:
+      - start_bracket: (
+      - column_definition:
+        - quoted_identifier: '"my column"'
+        - data_type:
+          - data_type_identifier: String
+      - comma: ','
+      - column_definition:
+        - quoted_identifier: '"another column"'
+        - data_type:
+          - data_type_identifier: Int64
+      - end_bracket: )
+    - engine:
+      - keyword: ENGINE
+      - comparison_operator:
+        - raw_comparison_operator: =
+      - table_engine_function:
+        - function_name:
+          - function_name_identifier: Memory
+- statement_terminator: ;

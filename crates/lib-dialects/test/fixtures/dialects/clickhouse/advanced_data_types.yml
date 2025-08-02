@@ -1,0 +1,116 @@
+file:
+- statement:
+  - create_table_statement:
+    - keyword: CREATE
+    - keyword: TABLE
+    - table_reference:
+      - naked_identifier: advanced_types
+    - bracketed:
+      - start_bracket: (
+      - column_definition:
+        - naked_identifier: id
+        - data_type:
+          - data_type_identifier: UUID
+      - comma: ','
+      - column_definition:
+        - naked_identifier: ip_address
+        - data_type:
+          - data_type_identifier: IPv4
+      - comma: ','
+      - column_definition:
+        - naked_identifier: ipv6_address
+        - data_type:
+          - data_type_identifier: IPv6
+      - comma: ','
+      - column_definition:
+        - naked_identifier: location
+        - data_type:
+          - data_type_identifier: Point
+      - comma: ','
+      - column_definition:
+        - naked_identifier: area
+        - data_type:
+          - data_type_identifier: Polygon
+      - comma: ','
+      - column_definition:
+        - naked_identifier: multi_area
+        - data_type:
+          - data_type_identifier: MultiPolygon
+      - comma: ','
+      - column_definition:
+        - naked_identifier: boundary
+        - data_type:
+          - data_type_identifier: Ring
+      - comma: ','
+      - column_definition:
+        - naked_identifier: agg_func
+        - data_type:
+          - data_type_identifier: AggregateFunction
+          - bracketed:
+            - start_bracket: (
+            - function_name:
+              - function_name_identifier: sum
+            - comma: ','
+            - function_name:
+              - function_name_identifier: UInt64
+            - end_bracket: )
+      - comma: ','
+      - column_definition:
+        - naked_identifier: simple_agg
+        - data_type:
+          - data_type_identifier: SimpleAggregateFunction
+          - bracketed:
+            - start_bracket: (
+            - function_name:
+              - function_name_identifier: max
+            - comma: ','
+            - function_name:
+              - function_name_identifier: Float64
+            - end_bracket: )
+      - comma: ','
+      - column_definition:
+        - naked_identifier: nullable_ip
+        - data_type:
+          - data_type_identifier: Nullable
+          - bracketed:
+            - start_bracket: (
+            - data_type:
+              - data_type_identifier: IPv4
+            - end_bracket: )
+      - comma: ','
+      - column_definition:
+        - naked_identifier: low_card
+        - data_type:
+          - data_type_identifier: LowCardinality
+          - bracketed:
+            - start_bracket: (
+            - data_type:
+              - data_type_identifier: String
+            - end_bracket: )
+      - comma: ','
+      - column_definition:
+        - naked_identifier: geo_data
+        - data_type:
+          - data_type_identifier: Array
+          - bracketed:
+            - start_bracket: (
+            - data_type:
+              - data_type_identifier: Point
+            - end_bracket: )
+      - end_bracket: )
+    - engine:
+      - keyword: ENGINE
+      - comparison_operator:
+        - raw_comparison_operator: =
+      - table_engine_function:
+        - function_name:
+          - function_name_identifier: MergeTree
+        - bracketed:
+          - start_bracket: (
+          - end_bracket: )
+      - merge_tree_order_by_clause:
+        - keyword: ORDER
+        - keyword: BY
+        - column_reference:
+          - naked_identifier: id
+- statement_terminator: ;

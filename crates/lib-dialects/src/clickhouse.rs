@@ -286,26 +286,41 @@ pub fn dialect() -> Dialect {
         ),
     ]);
 
+    // Define the ORDER BY item as a reusable grammar element
+    clickhouse_dialect.add([(
+        "OrderByItemGrammar".into(),
+        Sequence::new(vec_of_erased![
+            one_of(vec_of_erased![
+                Ref::new("ColumnReferenceSegment"),
+                Ref::new("NumericLiteralSegment"),
+                Ref::new("ExpressionSegment"),
+            ]),
+            one_of(vec_of_erased![Ref::keyword("ASC"), Ref::keyword("DESC"),])
+                .config(|this| this.optional()),
+            Sequence::new(vec_of_erased![
+                Ref::keyword("NULLS"),
+                one_of(vec_of_erased![Ref::keyword("FIRST"), Ref::keyword("LAST"),]),
+            ])
+            .config(|this| this.optional()),
+            Ref::new("WithFillSegment").optional(),
+        ])
+        .to_matchable()
+        .into(),
+    )]);
+
     clickhouse_dialect.replace_grammar(
         "OrderByClauseSegment",
         Sequence::new(vec_of_erased![
             Ref::keyword("ORDER"),
             Ref::keyword("BY"),
             MetaSegment::indent(),
-            Delimited::new(vec_of_erased![Sequence::new(vec_of_erased![
-                one_of(vec_of_erased![
-                    Ref::new("ColumnReferenceSegment"),
-                    Ref::new("NumericLiteralSegment"),
-                    Ref::new("ExpressionSegment"),
-                ]),
-                one_of(vec_of_erased![Ref::keyword("ASC"), Ref::keyword("DESC"),])
-                    .config(|this| this.optional()),
-                Sequence::new(vec_of_erased![
-                    Ref::keyword("NULLS"),
-                    one_of(vec_of_erased![Ref::keyword("FIRST"), Ref::keyword("LAST"),]),
-                ])
-                .config(|this| this.optional()),
-                Ref::new("WithFillSegment").optional(),
+            Delimited::new(vec_of_erased![one_of(vec_of_erased![
+                // Handle bracketed expressions with ORDER BY items inside
+                Bracketed::new(vec_of_erased![Delimited::new(vec_of_erased![Ref::new(
+                    "OrderByItemGrammar"
+                )])]),
+                // Regular ORDER BY items
+                Ref::new("OrderByItemGrammar")
             ])])
             .config(|this| this.terminators =
                 vec_of_erased![Ref::keyword("LIMIT"), Ref::new("FrameClauseUnitGrammar")]),
@@ -333,12 +348,19 @@ pub fn dialect() -> Dialect {
                 .into(),
         ),
         (
+            "DoubleQuotedIdentifierSegment".into(),
+            TypedParser::new(SyntaxKind::DoubleQuote, SyntaxKind::QuotedIdentifier)
+                .to_matchable()
+                .into(),
+        ),
+        (
             "SingleIdentifierGrammar".into(),
             one_of(vec_of_erased![
                 Ref::new("NakedIdentifierSegment"),
                 Ref::new("QuotedIdentifierSegment"),
                 Ref::new("SingleQuotedIdentifierSegment"),
                 Ref::new("BackQuotedIdentifierSegment"),
+                Ref::new("DoubleQuotedIdentifierSegment"),
             ])
             .to_matchable()
             .into(),
@@ -612,6 +634,96 @@ pub fn dialect() -> Dialect {
         ),
     );
 
+    // ProjectionSelectClauseTerminatorGrammar: Terminator for PROJECTION SELECT clauses
+    // Includes GROUP BY as a valid terminator (not allowed in regular SELECT)
+    clickhouse_dialect.add([(
+        "ProjectionSelectClauseTerminatorGrammar".into(),
+        one_of(vec_of_erased![
+            Ref::keyword("PREWHERE"),
+            Ref::keyword("INTO"),
+            Ref::keyword("FORMAT"),
+            Sequence::new(vec_of_erased![Ref::keyword("GROUP"), Ref::keyword("BY")]),
+            Sequence::new(vec_of_erased![Ref::keyword("ORDER"), Ref::keyword("BY")]),
+            Ref::keyword("WHERE"),
+        ])
+        .to_matchable()
+        .into(),
+    )]);
+
+    // ProjectionSelectClauseSegment: Specialized SELECT clause for PROJECTION
+    clickhouse_dialect.add([(
+        "ProjectionSelectClauseSegment".into(),
+        Sequence::new(vec_of_erased![
+            Ref::keyword("SELECT"),
+            // No modifiers needed for projections
+            MetaSegment::indent(),
+            Delimited::new(vec_of_erased![Ref::new("SelectClauseElementSegment")])
+                .config(|this| this.allow_trailing()),
+        ])
+        .terminators(vec_of_erased![Ref::new(
+            "ProjectionSelectClauseTerminatorGrammar"
+        )])
+        .config(|this| {
+            this.parse_mode(ParseMode::GreedyOnceStarted);
+        })
+        .to_matchable()
+        .into(),
+    )]);
+
+    // ProjectionSelectSegment: Specialized SELECT statement for PROJECTION
+    // PROJECTION SELECT can have: SELECT ... [GROUP BY ...] [ORDER BY ...]
+    // No FROM/WHERE/HAVING allowed in projections
+    clickhouse_dialect.add([(
+        "ProjectionSelectSegment".into(),
+        Sequence::new(vec_of_erased![
+            Ref::new("ProjectionSelectClauseSegment"),
+            Ref::new("GroupByClauseSegment").optional(),
+            Ref::new("OrderByClauseSegment").optional(),
+        ])
+        .to_matchable()
+        .into(),
+    )]);
+
+    // Index type string parsers for case-insensitive matching
+    clickhouse_dialect.add([
+        (
+            "BloomFilterIndexType".into(),
+            StringParser::new("bloom_filter", SyntaxKind::IndexTypeIdentifier)
+                .to_matchable()
+                .into(),
+        ),
+        (
+            "SetIndexType".into(),
+            StringParser::new("set", SyntaxKind::IndexTypeIdentifier)
+                .to_matchable()
+                .into(),
+        ),
+        (
+            "NgramBfV1IndexType".into(),
+            StringParser::new("ngrambf_v1", SyntaxKind::IndexTypeIdentifier)
+                .to_matchable()
+                .into(),
+        ),
+        (
+            "TokenBfV1IndexType".into(),
+            StringParser::new("tokenbf_v1", SyntaxKind::IndexTypeIdentifier)
+                .to_matchable()
+                .into(),
+        ),
+        (
+            "MinmaxIndexType".into(),
+            StringParser::new("minmax", SyntaxKind::IndexTypeIdentifier)
+                .to_matchable()
+                .into(),
+        ),
+        (
+            "HypothesisIndexType".into(),
+            StringParser::new("hypothesis", SyntaxKind::IndexTypeIdentifier)
+                .to_matchable()
+                .into(),
+        ),
+    ]);
+
     clickhouse_dialect.add([(
         "WithFillSegment".into(),
         Sequence::new(vec_of_erased![
@@ -726,6 +838,27 @@ pub fn dialect() -> Dialect {
             ]),
             // JSON data type
             StringParser::new("JSON", SyntaxKind::DataTypeIdentifier),
+            // SimpleAggregateFunction(function_name, arg_type1, arg_type2, ...)
+            Sequence::new(vec_of_erased![
+                StringParser::new("SIMPLEAGGREGATEFUNCTION", SyntaxKind::DataTypeIdentifier),
+                Bracketed::new(vec_of_erased![Delimited::new(vec_of_erased![one_of(
+                    vec_of_erased![Ref::new("FunctionNameSegment"), Ref::new("DatatypeSegment"),]
+                )])]),
+            ]),
+            // Ring data type
+            StringParser::new("RING", SyntaxKind::DataTypeIdentifier),
+            // Polygon data type
+            StringParser::new("POLYGON", SyntaxKind::DataTypeIdentifier),
+            // MultiPolygon data type
+            StringParser::new("MULTIPOLYGON", SyntaxKind::DataTypeIdentifier),
+            // Point data type
+            StringParser::new("POINT", SyntaxKind::DataTypeIdentifier),
+            // UUID data type
+            StringParser::new("UUID", SyntaxKind::DataTypeIdentifier),
+            // IPv4 data type
+            StringParser::new("IPV4", SyntaxKind::DataTypeIdentifier),
+            // IPv6 data type
+            StringParser::new("IPV6", SyntaxKind::DataTypeIdentifier),
             // Enum8('val1' = 1, 'val2' = 2)
             Sequence::new(vec_of_erased![
                 one_of(vec_of_erased![
@@ -1043,6 +1176,76 @@ pub fn dialect() -> Dialect {
             .into(),
         ),
         (
+            "IndexDefinitionSegment".into(),
+            NodeMatcher::new(SyntaxKind::ColumnConstraintSegment, |_| {
+                Sequence::new(vec_of_erased![
+                    Ref::keyword("INDEX"),
+                    Ref::new("SingleIdentifierGrammar"),
+                    Ref::new("ExpressionSegment"),
+                    Sequence::new(vec_of_erased![
+                        Ref::keyword("TYPE"),
+                        one_of(vec_of_erased![
+                            // Index types that can have parameters
+                            Sequence::new(vec_of_erased![
+                                Ref::new("BloomFilterIndexType"),
+                                Bracketed::new(vec_of_erased![Delimited::new(vec_of_erased![
+                                    Ref::new("NumericLiteralSegment")
+                                ])])
+                                .config(|this| this.optional()),
+                            ]),
+                            Sequence::new(vec_of_erased![
+                                Ref::new("SetIndexType"),
+                                Bracketed::new(vec_of_erased![Delimited::new(vec_of_erased![
+                                    Ref::new("NumericLiteralSegment")
+                                ])])
+                                .config(|this| this.optional()),
+                            ]),
+                            Sequence::new(vec_of_erased![
+                                Ref::new("NgramBfV1IndexType"),
+                                Bracketed::new(vec_of_erased![Delimited::new(vec_of_erased![
+                                    Ref::new("NumericLiteralSegment")
+                                ])])
+                                .config(|this| this.optional()),
+                            ]),
+                            Sequence::new(vec_of_erased![
+                                Ref::new("TokenBfV1IndexType"),
+                                Bracketed::new(vec_of_erased![Delimited::new(vec_of_erased![
+                                    Ref::new("NumericLiteralSegment")
+                                ])])
+                                .config(|this| this.optional()),
+                            ]),
+                            // Index types without parameters
+                            Ref::new("MinmaxIndexType"),
+                            Ref::new("HypothesisIndexType"),
+                            Ref::new("SingleIdentifierGrammar"), // For other index types
+                        ]),
+                    ])
+                    .config(|this| this.optional()),
+                    Sequence::new(vec_of_erased![
+                        Ref::keyword("GRANULARITY"),
+                        Ref::new("NumericLiteralSegment"),
+                    ])
+                    .config(|this| this.optional()),
+                ])
+                .to_matchable()
+            })
+            .to_matchable()
+            .into(),
+        ),
+        (
+            "ProjectionDefinitionSegment".into(),
+            NodeMatcher::new(SyntaxKind::ColumnConstraintSegment, |_| {
+                Sequence::new(vec_of_erased![
+                    Ref::keyword("PROJECTION"),
+                    Ref::new("SingleIdentifierGrammar"),
+                    Bracketed::new(vec_of_erased![Ref::new("ProjectionSelectSegment")]),
+                ])
+                .to_matchable()
+            })
+            .to_matchable()
+            .into(),
+        ),
+        (
             "ColumnTTLSegment".into(),
             NodeMatcher::new(SyntaxKind::ColumnTtlSegment, |_| {
                 Sequence::new(vec_of_erased![
@@ -1249,6 +1452,8 @@ pub fn dialect() -> Dialect {
                             Ref::new("TableConstraintSegment"),
                             Ref::new("ColumnDefinitionSegment"),
                             Ref::new("ColumnConstraintSegment"),
+                            Ref::new("IndexDefinitionSegment"),
+                            Ref::new("ProjectionDefinitionSegment"),
                         ]
                     )])])
                     .config(|this| this.optional()),

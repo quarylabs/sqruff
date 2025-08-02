@@ -1288,3 +1288,24 @@ Found that ELSE is ALWAYS parsed as naked_identifier in T-SQL, even in working c
 - if_else_begin_end.yml (broken): ELSE is naked_identifier followed by BEGIN (also naked_identifier)
 
 The issue is that when ELSE is parsed as a statement start (like a procedure name), having BEGIN after it creates an invalid parse tree. The parser expects ELSE to be followed by a valid statement, not another keyword that would start a block.
+
+### Update: StringParser Implementation (2025-08-02)
+
+Implemented StringParser approach to handle keywords that are lexed as naked_identifier in certain contexts:
+
+1. **IfStatementSegment**: Added StringParser for IF/ELSE/BEGIN/END as naked identifiers
+2. **BeginEndBlockSegment**: Added StringParser for BEGIN/END as naked identifiers
+3. **TryBlockSegment**: Added StringParser for BEGIN TRY/END TRY/BEGIN CATCH/END CATCH
+
+**Result**: The parsers now accept these keywords whether they're lexed as keywords or naked identifiers. However, the test files still show unparsable sections because the issue runs deeper than just accepting the tokens.
+
+### Review from Another Claude Instance (2025-08-02)
+
+Received comprehensive review (`TSQL_Parsing_Issues_Review.md`) highlighting:
+- IF-ELSE statements parse ELSE as naked_identifier (confirmed our findings)
+- TRY-CATCH blocks have unparsable sections (confirmed)
+- DELETE statements with JOINs have severe misparsing issues
+- Control flow statements generally have problems
+- Statement boundary recognition issues
+
+This external validation confirms our observations and suggests these are systemic issues with how T-SQL handles keyword lexing in different contexts.

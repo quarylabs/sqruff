@@ -1289,7 +1289,11 @@ pub fn raw_dialect() -> Dialect {
             "BeginEndBlockSegment".into(),
             NodeMatcher::new(SyntaxKind::BeginEndBlock, |_| {
                 Sequence::new(vec_of_erased![
-                    Ref::keyword("BEGIN"),
+                    one_of(vec_of_erased![
+                        Ref::keyword("BEGIN"),
+                        // Also accept BEGIN as naked identifier in T-SQL
+                        StringParser::new("BEGIN", SyntaxKind::NakedIdentifier)
+                    ]),
                     Ref::new("DelimiterGrammar").optional(),
                     MetaSegment::indent(),
                     // Allow any number of statements with optional delimiters (like SQLFluff's OneOrMoreStatementsGrammar)
@@ -1299,10 +1303,18 @@ pub fn raw_dialect() -> Dialect {
                     ])])
                     .config(|this| {
                         this.min_times(1);
-                        this.terminators = vec_of_erased![Ref::keyword("END")];
+                        this.terminators = vec_of_erased![
+                            Ref::keyword("END"),
+                            // Also terminate on END as naked identifier
+                            StringParser::new("END", SyntaxKind::NakedIdentifier)
+                        ];
                     }),
                     MetaSegment::dedent(),
-                    Ref::keyword("END")
+                    one_of(vec_of_erased![
+                        Ref::keyword("END"),
+                        // Also accept END as naked identifier
+                        StringParser::new("END", SyntaxKind::NakedIdentifier)
+                    ])
                 ])
                 .to_matchable()
             })
@@ -1320,32 +1332,62 @@ pub fn raw_dialect() -> Dialect {
         "TryBlockSegment".into(),
         NodeMatcher::new(SyntaxKind::Statement, |_| {
             Sequence::new(vec_of_erased![
-                Ref::keyword("BEGIN"),
-                Ref::keyword("TRY"),
+                one_of(vec_of_erased![
+                    Ref::keyword("BEGIN"),
+                    StringParser::new("BEGIN", SyntaxKind::NakedIdentifier)
+                ]),
+                one_of(vec_of_erased![
+                    Ref::keyword("TRY"),
+                    StringParser::new("TRY", SyntaxKind::NakedIdentifier)
+                ]),
                 MetaSegment::indent(),
                 AnyNumberOf::new(vec_of_erased![Sequence::new(vec_of_erased![
                     Ref::new("StatementSegment"),
                     Ref::new("DelimiterGrammar").optional()
                 ])])
                 .config(|this| {
-                    this.terminators = vec_of_erased![Ref::keyword("END")];
+                    this.terminators = vec_of_erased![
+                        Ref::keyword("END"),
+                        StringParser::new("END", SyntaxKind::NakedIdentifier)
+                    ];
                 }),
                 MetaSegment::dedent(),
-                Ref::keyword("END"),
-                Ref::keyword("TRY"),
-                Ref::keyword("BEGIN"),
-                Ref::keyword("CATCH"),
+                one_of(vec_of_erased![
+                    Ref::keyword("END"),
+                    StringParser::new("END", SyntaxKind::NakedIdentifier)
+                ]),
+                one_of(vec_of_erased![
+                    Ref::keyword("TRY"),
+                    StringParser::new("TRY", SyntaxKind::NakedIdentifier)
+                ]),
+                one_of(vec_of_erased![
+                    Ref::keyword("BEGIN"),
+                    StringParser::new("BEGIN", SyntaxKind::NakedIdentifier)
+                ]),
+                one_of(vec_of_erased![
+                    Ref::keyword("CATCH"),
+                    StringParser::new("CATCH", SyntaxKind::NakedIdentifier)
+                ]),
                 MetaSegment::indent(),
                 AnyNumberOf::new(vec_of_erased![Sequence::new(vec_of_erased![
                     Ref::new("StatementSegment"),
                     Ref::new("DelimiterGrammar").optional()
                 ])])
                 .config(|this| {
-                    this.terminators = vec_of_erased![Ref::keyword("END")];
+                    this.terminators = vec_of_erased![
+                        Ref::keyword("END"),
+                        StringParser::new("END", SyntaxKind::NakedIdentifier)
+                    ];
                 }),
                 MetaSegment::dedent(),
-                Ref::keyword("END"),
-                Ref::keyword("CATCH")
+                one_of(vec_of_erased![
+                    Ref::keyword("END"),
+                    StringParser::new("END", SyntaxKind::NakedIdentifier)
+                ]),
+                one_of(vec_of_erased![
+                    Ref::keyword("CATCH"),
+                    StringParser::new("CATCH", SyntaxKind::NakedIdentifier)
+                ])
             ])
             .to_matchable()
         })
@@ -1609,6 +1651,8 @@ pub fn raw_dialect() -> Dialect {
                         // Remove max_times constraint - let it be flexible like SQLFluff
                         this.terminators = vec_of_erased![
                             Ref::keyword("ELSE"),
+                            // Also terminate on ELSE as naked identifier for T-SQL lexing
+                            StringParser::new("ELSE", SyntaxKind::NakedIdentifier),
                             // Add more terminators that could end an IF block
                             Ref::keyword("IF"), // Next IF statement
                             Ref::new("BatchSeparatorGrammar") // GO statement
@@ -1616,10 +1660,35 @@ pub fn raw_dialect() -> Dialect {
                     })
                 ]),
                 Sequence::new(vec_of_erased![
-                    Ref::keyword("ELSE"),
                     one_of(vec_of_erased![
-                        // BEGIN...END block (already handles its own delimiters and indentation)
+                        Ref::keyword("ELSE"),
+                        // Also accept ELSE as naked identifier in T-SQL
+                        StringParser::new("ELSE", SyntaxKind::NakedIdentifier)
+                    ]),
+                    one_of(vec_of_erased![
+                        // BEGIN...END block
                         Ref::new("BeginEndBlockSegment"),
+                        // BEGIN as naked identifier followed by statements
+                        Sequence::new(vec_of_erased![
+                            StringParser::new("BEGIN", SyntaxKind::NakedIdentifier),
+                            MetaSegment::indent(),
+                            AnyNumberOf::new(vec_of_erased![Sequence::new(vec_of_erased![
+                                Ref::new("StatementSegment"),
+                                Ref::new("DelimiterGrammar").optional()
+                            ])])
+                            .config(|this| {
+                                this.min_times(1);
+                                this.terminators = vec_of_erased![
+                                    Ref::keyword("END"),
+                                    StringParser::new("END", SyntaxKind::NakedIdentifier)
+                                ];
+                            }),
+                            MetaSegment::dedent(),
+                            one_of(vec_of_erased![
+                                Ref::keyword("END"),
+                                StringParser::new("END", SyntaxKind::NakedIdentifier)
+                            ])
+                        ]),
                         // Use flexible AnyNumberOf for ELSE body like SQLFluff
                         AnyNumberOf::new(vec_of_erased![Sequence::new(vec_of_erased![
                             Ref::new("StatementSegment"),

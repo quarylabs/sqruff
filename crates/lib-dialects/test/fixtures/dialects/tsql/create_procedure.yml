@@ -274,7 +274,7 @@ file:
                             - tsql_variable: '@fooReadonly'
                 - statement_terminator: ;
                 - keyword: END
-          - statement_terminator: ;
+              - statement_terminator: ;
           - keyword: END
   - statement_terminator: ;
   - keyword: GO

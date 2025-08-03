@@ -1698,12 +1698,16 @@ pub fn dialect() -> Dialect {
                     ])
                     .config(|this| this.optional()),
                     Ref::keyword("FINAL").optional(),
-                    Ref::keyword("DEDUPLICATE").optional(),
                     Sequence::new(vec_of_erased![
-                        Ref::keyword("BY"),
-                        Delimited::new(vec_of_erased![Ref::new("ExpressionSegment")]),
+                        Ref::keyword("DEDUPLICATE"),
+                        Sequence::new(vec_of_erased![
+                            Ref::keyword("BY"),
+                            Delimited::new(vec_of_erased![Ref::new("ExpressionSegment")]),
+                        ])
+                        .config(|this| this.optional()),
                     ])
                     .config(|this| this.optional()),
+                    Ref::new("SettingsClauseSegment").optional(),
                 ])
                 .to_matchable()
             })

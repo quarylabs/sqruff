@@ -1,6 +1,0 @@
-CREATE PROCEDURE test AS
-IF @nm IS NULL
-BEGIN
-    PRINT 'Test'
-    RETURN
-END

@@ -8579,118 +8579,116 @@ pub fn raw_dialect() -> Dialect {
         // COPY INTO statement
         (
             "TsqlCopyIntoStatementSegment".into(),
+            Sequence::new(vec_of_erased![
+                Ref::keyword("COPY"),
+                Ref::keyword("INTO"),
+                Ref::new("TableReferenceSegment"),
+                // Optional column list
+                Bracketed::new(vec_of_erased![Delimited::new(vec_of_erased![Ref::new(
+                    "ColumnReferenceSegment"
+                )])])
+                .config(|this| this.optional()),
+                // FROM clause with storage locations
                 Sequence::new(vec_of_erased![
-                    Ref::keyword("COPY"),
-                    Ref::keyword("INTO"),
-                    Ref::new("TableReferenceSegment"),
-                    // Optional column list
-                    Bracketed::new(vec_of_erased![Delimited::new(vec_of_erased![Ref::new(
-                        "ColumnReferenceSegment"
+                    Ref::keyword("FROM"),
+                    Delimited::new(vec_of_erased![Ref::new("TsqlStorageLocationSegment")])
+                ]),
+                // Optional WITH clause
+                Sequence::new(vec_of_erased![
+                    Ref::keyword("WITH"),
+                    Bracketed::new(vec_of_erased![Delimited::new(vec_of_erased![one_of(
+                        vec_of_erased![
+                            // FILE_TYPE = 'CSV'
+                            Sequence::new(vec_of_erased![
+                                Ref::keyword("FILE_TYPE"),
+                                Ref::new("EqualsSegment"),
+                                Ref::new("LiteralGrammar") // Support Unicode strings
+                            ]),
+                            // FILE_FORMAT = object_ref
+                            Sequence::new(vec_of_erased![
+                                Ref::keyword("FILE_FORMAT"),
+                                Ref::new("EqualsSegment"),
+                                Ref::new("ObjectReferenceSegment")
+                            ]),
+                            // CREDENTIAL = (credential_grammar)
+                            Sequence::new(vec_of_erased![
+                                Ref::keyword("CREDENTIAL"),
+                                Ref::new("EqualsSegment"),
+                                Bracketed::new(vec_of_erased![Ref::new("TsqlCredentialGrammar")])
+                            ]),
+                            // ERRORFILE = 'path'
+                            Sequence::new(vec_of_erased![
+                                Ref::keyword("ERRORFILE"),
+                                Ref::new("EqualsSegment"),
+                                Ref::new("QuotedLiteralSegment")
+                            ]),
+                            // MAXERRORS = number
+                            Sequence::new(vec_of_erased![
+                                Ref::keyword("MAXERRORS"),
+                                Ref::new("EqualsSegment"),
+                                Ref::new("NumericLiteralSegment")
+                            ]),
+                            // COMPRESSION = 'type'
+                            Sequence::new(vec_of_erased![
+                                Ref::keyword("COMPRESSION"),
+                                Ref::new("EqualsSegment"),
+                                Ref::new("QuotedLiteralSegment")
+                            ]),
+                            // FIELDQUOTE = 'char'
+                            Sequence::new(vec_of_erased![
+                                Ref::keyword("FIELDQUOTE"),
+                                Ref::new("EqualsSegment"),
+                                Ref::new("QuotedLiteralSegment")
+                            ]),
+                            // FIELDTERMINATOR = 'char'
+                            Sequence::new(vec_of_erased![
+                                Ref::keyword("FIELDTERMINATOR"),
+                                Ref::new("EqualsSegment"),
+                                Ref::new("QuotedLiteralSegment")
+                            ]),
+                            // ROWTERMINATOR = 'char'
+                            Sequence::new(vec_of_erased![
+                                Ref::keyword("ROWTERMINATOR"),
+                                Ref::new("EqualsSegment"),
+                                Ref::new("QuotedLiteralSegment")
+                            ]),
+                            // FIRSTROW = number
+                            Sequence::new(vec_of_erased![
+                                Ref::keyword("FIRSTROW"),
+                                Ref::new("EqualsSegment"),
+                                Ref::new("NumericLiteralSegment")
+                            ]),
+                            // DATEFORMAT = 'format'
+                            Sequence::new(vec_of_erased![
+                                Ref::keyword("DATEFORMAT"),
+                                Ref::new("EqualsSegment"),
+                                Ref::new("QuotedLiteralSegment")
+                            ]),
+                            // ENCODING = 'encoding'
+                            Sequence::new(vec_of_erased![
+                                Ref::keyword("ENCODING"),
+                                Ref::new("EqualsSegment"),
+                                Ref::new("QuotedLiteralSegment")
+                            ]),
+                            // IDENTITY_INSERT = 'ON'/'OFF'
+                            Sequence::new(vec_of_erased![
+                                Ref::keyword("IDENTITY_INSERT"),
+                                Ref::new("EqualsSegment"),
+                                Ref::new("QuotedLiteralSegment")
+                            ]),
+                            // AUTO_CREATE_TABLE = 'ON'/'OFF'
+                            Sequence::new(vec_of_erased![
+                                Ref::keyword("AUTO_CREATE_TABLE"),
+                                Ref::new("EqualsSegment"),
+                                Ref::new("QuotedLiteralSegment")
+                            ])
+                        ]
                     )])])
-                    .config(|this| this.optional()),
-                    // FROM clause with storage locations
-                    Sequence::new(vec_of_erased![
-                        Ref::keyword("FROM"),
-                        Delimited::new(vec_of_erased![Ref::new("TsqlStorageLocationSegment")])
-                    ]),
-                    // Optional WITH clause
-                    Sequence::new(vec_of_erased![
-                        Ref::keyword("WITH"),
-                        Bracketed::new(vec_of_erased![Delimited::new(vec_of_erased![one_of(
-                            vec_of_erased![
-                                // FILE_TYPE = 'CSV'
-                                Sequence::new(vec_of_erased![
-                                    Ref::keyword("FILE_TYPE"),
-                                    Ref::new("EqualsSegment"),
-                                    Ref::new("LiteralGrammar") // Support Unicode strings
-                                ]),
-                                // FILE_FORMAT = object_ref
-                                Sequence::new(vec_of_erased![
-                                    Ref::keyword("FILE_FORMAT"),
-                                    Ref::new("EqualsSegment"),
-                                    Ref::new("ObjectReferenceSegment")
-                                ]),
-                                // CREDENTIAL = (credential_grammar)
-                                Sequence::new(vec_of_erased![
-                                    Ref::keyword("CREDENTIAL"),
-                                    Ref::new("EqualsSegment"),
-                                    Bracketed::new(vec_of_erased![Ref::new(
-                                        "TsqlCredentialGrammar"
-                                    )])
-                                ]),
-                                // ERRORFILE = 'path'
-                                Sequence::new(vec_of_erased![
-                                    Ref::keyword("ERRORFILE"),
-                                    Ref::new("EqualsSegment"),
-                                    Ref::new("QuotedLiteralSegment")
-                                ]),
-                                // MAXERRORS = number
-                                Sequence::new(vec_of_erased![
-                                    Ref::keyword("MAXERRORS"),
-                                    Ref::new("EqualsSegment"),
-                                    Ref::new("NumericLiteralSegment")
-                                ]),
-                                // COMPRESSION = 'type'
-                                Sequence::new(vec_of_erased![
-                                    Ref::keyword("COMPRESSION"),
-                                    Ref::new("EqualsSegment"),
-                                    Ref::new("QuotedLiteralSegment")
-                                ]),
-                                // FIELDQUOTE = 'char'
-                                Sequence::new(vec_of_erased![
-                                    Ref::keyword("FIELDQUOTE"),
-                                    Ref::new("EqualsSegment"),
-                                    Ref::new("QuotedLiteralSegment")
-                                ]),
-                                // FIELDTERMINATOR = 'char'
-                                Sequence::new(vec_of_erased![
-                                    Ref::keyword("FIELDTERMINATOR"),
-                                    Ref::new("EqualsSegment"),
-                                    Ref::new("QuotedLiteralSegment")
-                                ]),
-                                // ROWTERMINATOR = 'char'
-                                Sequence::new(vec_of_erased![
-                                    Ref::keyword("ROWTERMINATOR"),
-                                    Ref::new("EqualsSegment"),
-                                    Ref::new("QuotedLiteralSegment")
-                                ]),
-                                // FIRSTROW = number
-                                Sequence::new(vec_of_erased![
-                                    Ref::keyword("FIRSTROW"),
-                                    Ref::new("EqualsSegment"),
-                                    Ref::new("NumericLiteralSegment")
-                                ]),
-                                // DATEFORMAT = 'format'
-                                Sequence::new(vec_of_erased![
-                                    Ref::keyword("DATEFORMAT"),
-                                    Ref::new("EqualsSegment"),
-                                    Ref::new("QuotedLiteralSegment")
-                                ]),
-                                // ENCODING = 'encoding'
-                                Sequence::new(vec_of_erased![
-                                    Ref::keyword("ENCODING"),
-                                    Ref::new("EqualsSegment"),
-                                    Ref::new("QuotedLiteralSegment")
-                                ]),
-                                // IDENTITY_INSERT = 'ON'/'OFF'
-                                Sequence::new(vec_of_erased![
-                                    Ref::keyword("IDENTITY_INSERT"),
-                                    Ref::new("EqualsSegment"),
-                                    Ref::new("QuotedLiteralSegment")
-                                ]),
-                                // AUTO_CREATE_TABLE = 'ON'/'OFF'
-                                Sequence::new(vec_of_erased![
-                                    Ref::keyword("AUTO_CREATE_TABLE"),
-                                    Ref::new("EqualsSegment"),
-                                    Ref::new("QuotedLiteralSegment")
-                                ])
-                            ]
-                        )])])
-                    ])
-                    .config(|this| this.optional())
                 ])
-                .to_matchable()
-                .into(),
+                .config(|this| this.optional())
+            ])
+            .to_matchable()
+            .into(),
         ),
     ]);
 
@@ -10470,138 +10468,137 @@ pub fn raw_dialect() -> Dialect {
     // Word-aware BREAK statement for when BREAK is lexed as word
     dialect.add([(
         "WordAwareBreakStatementSegment".into(),
-        StringParser::new("BREAK", SyntaxKind::Keyword).to_matchable().into(),
+        StringParser::new("BREAK", SyntaxKind::Keyword)
+            .to_matchable()
+            .into(),
     )]);
 
     // Word-aware DROP TABLE statement for when DROP is lexed as word
     dialect.add([(
         "WordAwareDropTableStatementSegment".into(),
-            Sequence::new(vec_of_erased![
-                // DROP as keyword or word token
-                one_of(vec_of_erased![
-                    StringParser::new("DROP", SyntaxKind::Keyword),
-                    StringParser::new("DROP", SyntaxKind::Word)
-                ]),
-                // TABLE as keyword or word token
-                one_of(vec_of_erased![
-                    StringParser::new("TABLE", SyntaxKind::Keyword),
-                    StringParser::new("TABLE", SyntaxKind::Word)
-                ]),
-                // Table reference - handle multi-part names with word tokens
-                one_of(vec_of_erased![
-                    Ref::new("TableReferenceSegment"),
-                    // Fallback: parse as word tokens for procedure contexts
+        Sequence::new(vec_of_erased![
+            // DROP as keyword or word token
+            one_of(vec_of_erased![
+                StringParser::new("DROP", SyntaxKind::Keyword),
+                StringParser::new("DROP", SyntaxKind::Word)
+            ]),
+            // TABLE as keyword or word token
+            one_of(vec_of_erased![
+                StringParser::new("TABLE", SyntaxKind::Keyword),
+                StringParser::new("TABLE", SyntaxKind::Word)
+            ]),
+            // Table reference - handle multi-part names with word tokens
+            one_of(vec_of_erased![
+                Ref::new("TableReferenceSegment"),
+                // Fallback: parse as word tokens for procedure contexts
+                Sequence::new(vec_of_erased![
+                    one_of(vec_of_erased![
+                        TypedParser::new(SyntaxKind::Word, SyntaxKind::NakedIdentifier),
+                        TypedParser::new(SyntaxKind::DoubleQuote, SyntaxKind::QuotedIdentifier)
+                    ]),
                     Sequence::new(vec_of_erased![
+                        TypedParser::new(SyntaxKind::Dot, SyntaxKind::Dot),
                         one_of(vec_of_erased![
                             TypedParser::new(SyntaxKind::Word, SyntaxKind::NakedIdentifier),
                             TypedParser::new(SyntaxKind::DoubleQuote, SyntaxKind::QuotedIdentifier)
-                        ]),
-                        Sequence::new(vec_of_erased![
-                            TypedParser::new(SyntaxKind::Dot, SyntaxKind::Dot),
-                            one_of(vec_of_erased![
-                                TypedParser::new(SyntaxKind::Word, SyntaxKind::NakedIdentifier),
-                                TypedParser::new(
-                                    SyntaxKind::DoubleQuote,
-                                    SyntaxKind::QuotedIdentifier
-                                )
-                            ])
                         ])
-                        .config(|this| this.optional())
                     ])
+                    .config(|this| this.optional())
                 ])
             ])
-            .to_matchable()
-            .into(),
+        ])
+        .to_matchable()
+        .into(),
     )]);
 
     // Word-aware DECLARE statement for when DECLARE is lexed as word
     dialect.add([(
         "WordAwareDeclareStatementSegment".into(),
+        Sequence::new(vec_of_erased![
+            // DECLARE as keyword or word token
+            one_of(vec_of_erased![
+                StringParser::new("DECLARE", SyntaxKind::Keyword),
+                StringParser::new("DECLARE", SyntaxKind::Word)
+            ]),
+            Ref::new("TsqlVariableSegment"),
+            // Optional AS keyword or word
+            Sequence::new(vec_of_erased![one_of(vec_of_erased![
+                StringParser::new("AS", SyntaxKind::Keyword),
+                StringParser::new("AS", SyntaxKind::Word)
+            ])])
+            .config(|this| this.optional()),
+            // Data type - handle as word tokens in procedure contexts
+            one_of(vec_of_erased![
+                Ref::new("DatatypeSegment"),
+                // Fallback: parse as word token
+                TypedParser::new(SyntaxKind::Word, SyntaxKind::NakedIdentifier)
+            ]),
+            // Optional assignment with expression - be more restrictive
             Sequence::new(vec_of_erased![
-                // DECLARE as keyword or word token
                 one_of(vec_of_erased![
-                    StringParser::new("DECLARE", SyntaxKind::Keyword),
-                    StringParser::new("DECLARE", SyntaxKind::Word)
+                    Ref::new("EqualsSegment"),
+                    TypedParser::new(
+                        SyntaxKind::RawComparisonOperator,
+                        SyntaxKind::ComparisonOperator
+                    )
                 ]),
-                Ref::new("TsqlVariableSegment"),
-                // Optional AS keyword or word
-                Sequence::new(vec_of_erased![one_of(vec_of_erased![
-                    StringParser::new("AS", SyntaxKind::Keyword),
-                    StringParser::new("AS", SyntaxKind::Word)
-                ])])
-                .config(|this| this.optional()),
-                // Data type - handle as word tokens in procedure contexts
+                // Expression - parse ONLY function calls and literals, don't consume everything
                 one_of(vec_of_erased![
-                    Ref::new("DatatypeSegment"),
-                    // Fallback: parse as word token
-                    TypedParser::new(SyntaxKind::Word, SyntaxKind::NakedIdentifier)
-                ]),
-                // Optional assignment with expression - be more restrictive
-                Sequence::new(vec_of_erased![
-                    one_of(vec_of_erased![
-                        Ref::new("EqualsSegment"),
-                        TypedParser::new(
-                            SyntaxKind::RawComparisonOperator,
-                            SyntaxKind::ComparisonOperator
-                        )
+                    // Parse simple function call pattern: WORD()
+                    Sequence::new(vec_of_erased![
+                        TypedParser::new(SyntaxKind::Word, SyntaxKind::NakedIdentifier),
+                        Bracketed::new(vec_of_erased![
+                            // Empty brackets or simple content
+                            AnyNumberOf::new(vec_of_erased![one_of(vec_of_erased![
+                                TypedParser::new(SyntaxKind::Word, SyntaxKind::NakedIdentifier),
+                                TypedParser::new(
+                                    SyntaxKind::NumericLiteral,
+                                    SyntaxKind::NumericLiteral
+                                ),
+                                TypedParser::new(SyntaxKind::Comma, SyntaxKind::Comma)
+                            ])])
+                            .config(|this| this.optional())
+                        ])
                     ]),
-                    // Expression - parse ONLY function calls and literals, don't consume everything
-                    one_of(vec_of_erased![
-                        // Parse simple function call pattern: WORD()
-                        Sequence::new(vec_of_erased![
-                            TypedParser::new(SyntaxKind::Word, SyntaxKind::NakedIdentifier),
-                            Bracketed::new(vec_of_erased![
-                                // Empty brackets or simple content
-                                AnyNumberOf::new(vec_of_erased![one_of(vec_of_erased![
-                                    TypedParser::new(SyntaxKind::Word, SyntaxKind::NakedIdentifier),
-                                    TypedParser::new(
-                                        SyntaxKind::NumericLiteral,
-                                        SyntaxKind::NumericLiteral
-                                    ),
-                                    TypedParser::new(SyntaxKind::Comma, SyntaxKind::Comma)
-                                ])])
-                                .config(|this| this.optional())
-                            ])
-                        ]),
-                        // Parse literals
-                        TypedParser::new(SyntaxKind::NumericLiteral, SyntaxKind::NumericLiteral),
-                        TypedParser::new(SyntaxKind::SingleQuote, SyntaxKind::QuotedLiteral),
-                        // Parse simple identifiers
-                        TypedParser::new(SyntaxKind::Word, SyntaxKind::NakedIdentifier)
-                    ])
+                    // Parse literals
+                    TypedParser::new(SyntaxKind::NumericLiteral, SyntaxKind::NumericLiteral),
+                    TypedParser::new(SyntaxKind::SingleQuote, SyntaxKind::QuotedLiteral),
+                    // Parse simple identifiers
+                    TypedParser::new(SyntaxKind::Word, SyntaxKind::NakedIdentifier)
                 ])
-                .config(|this| this.optional())
             ])
-            .terminators(vec_of_erased![
-                // Terminate at other statement keywords
-                StringParser::new("DROP", SyntaxKind::Word),
-                StringParser::new("CREATE", SyntaxKind::Word),
-                StringParser::new("INSERT", SyntaxKind::Word),
-                StringParser::new("SELECT", SyntaxKind::Word),
-                StringParser::new("UPDATE", SyntaxKind::Word),
-                StringParser::new("DELETE", SyntaxKind::Word),
-                StringParser::new("SET", SyntaxKind::Word),
-                StringParser::new("BEGIN", SyntaxKind::Word),
-                StringParser::new("IF", SyntaxKind::Word),
-                StringParser::new("WHILE", SyntaxKind::Word),
-                // Also terminate at keywords
-                Ref::keyword("DROP"),
-                Ref::keyword("CREATE"),
-                Ref::keyword("INSERT"),
-                Ref::keyword("SELECT"),
-                Ref::keyword("UPDATE"),
-                Ref::keyword("DELETE"),
-                Ref::keyword("SET"),
-                Ref::keyword("BEGIN"),
-                Ref::keyword("IF"),
-                Ref::keyword("WHILE"),
-                // Terminate at semicolons and GO
-                TypedParser::new(SyntaxKind::Semicolon, SyntaxKind::Semicolon),
-                StringParser::new("GO", SyntaxKind::Word),
-                Ref::keyword("GO")
-            ])
-            .to_matchable()
-            .into(),
+            .config(|this| this.optional())
+        ])
+        .terminators(vec_of_erased![
+            // Terminate at other statement keywords
+            StringParser::new("DROP", SyntaxKind::Word),
+            StringParser::new("CREATE", SyntaxKind::Word),
+            StringParser::new("INSERT", SyntaxKind::Word),
+            StringParser::new("SELECT", SyntaxKind::Word),
+            StringParser::new("UPDATE", SyntaxKind::Word),
+            StringParser::new("DELETE", SyntaxKind::Word),
+            StringParser::new("SET", SyntaxKind::Word),
+            StringParser::new("BEGIN", SyntaxKind::Word),
+            StringParser::new("IF", SyntaxKind::Word),
+            StringParser::new("WHILE", SyntaxKind::Word),
+            // Also terminate at keywords
+            Ref::keyword("DROP"),
+            Ref::keyword("CREATE"),
+            Ref::keyword("INSERT"),
+            Ref::keyword("SELECT"),
+            Ref::keyword("UPDATE"),
+            Ref::keyword("DELETE"),
+            Ref::keyword("SET"),
+            Ref::keyword("BEGIN"),
+            Ref::keyword("IF"),
+            Ref::keyword("WHILE"),
+            // Terminate at semicolons and GO
+            TypedParser::new(SyntaxKind::Semicolon, SyntaxKind::Semicolon),
+            StringParser::new("GO", SyntaxKind::Word),
+            Ref::keyword("GO")
+        ])
+        .to_matchable()
+        .into(),
     )]);
 
     // Word-aware SET statement for when SET is lexed as word

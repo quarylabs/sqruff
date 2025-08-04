@@ -62,30 +62,29 @@ file:
               - null_literal: 'NULL'
         - statement_terminator: ;
   - statement:
-    - statement:
-      - keyword: PRINT
-      - expression:
-        - quoted_literal: '''Number of rows deleted is '''
-        - binary_operator: +
+    - keyword: PRINT
+    - expression:
+      - quoted_literal: '''Number of rows deleted is '''
+      - binary_operator: +
+      - function:
         - function:
-          - function:
-            - function_name:
-              - function_name_identifier: CAST
-            - function_contents:
-              - bracketed:
-                - start_bracket: (
-                - expression:
-                  - parameterized_expression:
-                    - tsql_variable: '@@ROWCOUNT'
-                - keyword: as
-                - data_type:
-                  - data_type_identifier: char
-                  - bracketed_arguments:
-                    - bracketed:
-                      - start_bracket: (
-                      - numeric_literal: '3'
-                      - end_bracket: )
-                - end_bracket: )
+          - function_name:
+            - function_name_identifier: CAST
+          - function_contents:
+            - bracketed:
+              - start_bracket: (
+              - expression:
+                - parameterized_expression:
+                  - tsql_variable: '@@ROWCOUNT'
+              - keyword: as
+              - data_type:
+                - data_type_identifier: char
+                - bracketed_arguments:
+                  - bracketed:
+                    - start_bracket: (
+                    - numeric_literal: '3'
+                    - end_bracket: )
+              - end_bracket: )
   - statement_terminator: ;
   - keyword: GO
   - statement:
@@ -182,15 +181,13 @@ file:
                 - end_bracket: )
   - statement_terminator: ;
   - statement:
-    - statement:
-      - keyword: OPEN
-      - naked_identifier: complex_cursor
+    - keyword: OPEN
+    - naked_identifier: complex_cursor
   - statement_terminator: ;
   - statement:
-    - statement:
-      - keyword: FETCH
-      - keyword: FROM
-      - naked_identifier: complex_cursor
+    - keyword: FETCH
+    - keyword: FROM
+    - naked_identifier: complex_cursor
   - statement_terminator: ;
   - statement:
     - delete_statement:
@@ -216,14 +213,12 @@ file:
         - naked_identifier: complex_cursor
   - statement_terminator: ;
   - statement:
-    - statement:
-      - keyword: CLOSE
-      - naked_identifier: complex_cursor
+    - keyword: CLOSE
+    - naked_identifier: complex_cursor
   - statement_terminator: ;
   - statement:
-    - statement:
-      - keyword: DEALLOCATE
-      - naked_identifier: complex_cursor
+    - keyword: DEALLOCATE
+    - naked_identifier: complex_cursor
   - statement_terminator: ;
   - keyword: GO
   - statement:

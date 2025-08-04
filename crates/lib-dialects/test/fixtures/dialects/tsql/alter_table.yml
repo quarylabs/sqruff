@@ -132,14 +132,13 @@ file:
   - statement_terminator: ;
   - keyword: GO
   - statement:
-    - statement:
-      - keyword: EXEC
+    - keyword: EXEC
+    - object_reference:
       - object_reference:
-        - object_reference:
-          - naked_identifier: sp_help
-      - expression:
-        - column_reference:
-          - naked_identifier: doc_exc
+        - naked_identifier: sp_help
+    - expression:
+      - column_reference:
+        - naked_identifier: doc_exc
   - statement_terminator: ;
   - keyword: GO
   - statement:

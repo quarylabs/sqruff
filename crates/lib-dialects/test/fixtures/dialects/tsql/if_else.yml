@@ -83,39 +83,38 @@ file:
                 - raw_comparison_operator: =
               - numeric_literal: '1'
       - keyword: ELSE
-      - statement:
-        - word: SELECT
-        - word: ProductKey
-        - comma: ','
-        - word: EnglishDescription
-        - comma: ','
-        - word: Weight
-        - comma: ','
-        - single_quote: '''This product is available for shipping or pickup.'''
-        - word: AS
-        - word: ShippingStatus
-        - word: FROM
-        - word: DimProduct
-        - word: WHERE
-        - word: ProductKey
-        - raw_comparison_operator: =
-        - numeric_literal: '1'
-        - word: if
-        - word: exists
-        - start_bracket: (
-        - word: select
-        - star: '*'
-        - word: from
-        - word: '#a'
-        - word: union
-        - word: all
-        - word: select
-        - star: '*'
-        - word: from
-        - word: '#b'
-        - end_bracket: )
-        - word: set
-        - tsql_variable: '@var'
-        - raw_comparison_operator: =
-        - numeric_literal: '1'
-        - semicolon: ;
+      - word: SELECT
+      - word: ProductKey
+      - comma: ','
+      - word: EnglishDescription
+      - comma: ','
+      - word: Weight
+      - comma: ','
+      - single_quote: '''This product is available for shipping or pickup.'''
+      - word: AS
+      - word: ShippingStatus
+      - word: FROM
+      - word: DimProduct
+      - word: WHERE
+      - word: ProductKey
+      - raw_comparison_operator: =
+      - numeric_literal: '1'
+      - word: if
+      - word: exists
+      - start_bracket: (
+      - word: select
+      - star: '*'
+      - word: from
+      - word: '#a'
+      - word: union
+      - word: all
+      - word: select
+      - star: '*'
+      - word: from
+      - word: '#b'
+      - end_bracket: )
+      - word: set
+      - tsql_variable: '@var'
+      - raw_comparison_operator: =
+      - numeric_literal: '1'
+      - semicolon: ;

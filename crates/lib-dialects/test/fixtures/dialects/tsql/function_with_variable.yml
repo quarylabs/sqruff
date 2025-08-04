@@ -43,15 +43,14 @@ file:
           - expression:
             - numeric_literal: '4'
         - statement:
-          - statement:
-            - keyword: RETURN
-            - expression:
-              - parameterized_expression:
-                - tsql_variable: '@result'
-              - binary_operator: +
-              - parameterized_expression:
-                - tsql_variable: '@year'
-              - binary_operator: +
-              - parameterized_expression:
-                - tsql_variable: '@week'
+          - keyword: RETURN
+          - expression:
+            - parameterized_expression:
+              - tsql_variable: '@result'
+            - binary_operator: +
+            - parameterized_expression:
+              - tsql_variable: '@year'
+            - binary_operator: +
+            - parameterized_expression:
+              - tsql_variable: '@week'
         - keyword: END

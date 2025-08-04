@@ -1,44 +1,41 @@
 file:
 - batch:
   - statement:
-    - statement:
-      - keyword: EXECUTE
+    - keyword: EXECUTE
+    - object_reference:
       - object_reference:
-        - object_reference:
-          - naked_identifier: sp_add_job
-      - tsql_variable: '@job_name'
-      - assignment_operator:
-        - raw_comparison_operator: =
-      - expression:
-        - quoted_literal: '''TestJob'''
+        - naked_identifier: sp_add_job
+    - tsql_variable: '@job_name'
+    - assignment_operator:
+      - raw_comparison_operator: =
+    - expression:
+      - quoted_literal: '''TestJob'''
   - statement_terminator: ;
   - statement:
     - begin_end_block:
       - keyword: BEGIN
       - statement:
-        - statement:
-          - keyword: WAITFOR
-          - keyword: TIME
-          - expression:
-            - quoted_literal: '''22:20'''
+        - keyword: WAITFOR
+        - keyword: TIME
+        - expression:
+          - quoted_literal: '''22:20'''
       - statement_terminator: ;
       - statement:
-        - statement:
-          - keyword: EXECUTE
+        - keyword: EXECUTE
+        - object_reference:
           - object_reference:
-            - object_reference:
-              - naked_identifier: sp_update_job
-          - tsql_variable: '@job_name'
-          - assignment_operator:
-            - raw_comparison_operator: =
-          - expression:
-            - quoted_literal: '''TestJob'''
-          - comma: ','
-          - tsql_variable: '@new_name'
-          - assignment_operator:
-            - raw_comparison_operator: =
-          - expression:
-            - quoted_literal: '''UpdatedJob'''
+            - naked_identifier: sp_update_job
+        - tsql_variable: '@job_name'
+        - assignment_operator:
+          - raw_comparison_operator: =
+        - expression:
+          - quoted_literal: '''TestJob'''
+        - comma: ','
+        - tsql_variable: '@new_name'
+        - assignment_operator:
+          - raw_comparison_operator: =
+        - expression:
+          - quoted_literal: '''UpdatedJob'''
       - statement_terminator: ;
       - keyword: END
   - statement_terminator: ;
@@ -47,18 +44,16 @@ file:
     - begin_end_block:
       - keyword: BEGIN
       - statement:
-        - statement:
-          - keyword: WAITFOR
-          - keyword: DELAY
-          - expression:
-            - quoted_literal: '''02:00'''
+        - keyword: WAITFOR
+        - keyword: DELAY
+        - expression:
+          - quoted_literal: '''02:00'''
       - statement_terminator: ;
       - statement:
-        - statement:
-          - keyword: EXECUTE
+        - keyword: EXECUTE
+        - object_reference:
           - object_reference:
-            - object_reference:
-              - naked_identifier: sp_helpdb
+            - naked_identifier: sp_helpdb
       - statement_terminator: ;
       - keyword: END
   - statement_terminator: ;

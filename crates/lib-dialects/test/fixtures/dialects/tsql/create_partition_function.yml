@@ -1,106 +1,103 @@
 file:
 - batch:
   - statement:
-    - statement:
-      - keyword: CREATE
-      - keyword: PARTITION
-      - keyword: FUNCTION
+    - keyword: CREATE
+    - keyword: PARTITION
+    - keyword: FUNCTION
+    - object_reference:
       - object_reference:
-        - object_reference:
-          - naked_identifier: myIntRangePF1
-      - bracketed:
-        - start_bracket: (
-        - data_type:
-          - data_type_identifier: INT
-        - end_bracket: )
-      - keyword: AS
-      - keyword: RANGE
-      - keyword: LEFT
-      - keyword: FOR
-      - keyword: VALUES
-      - bracketed:
-        - start_bracket: (
-        - numeric_literal: '1'
-        - comma: ','
-        - numeric_literal: '100'
-        - comma: ','
-        - numeric_literal: '1000'
-        - end_bracket: )
+        - naked_identifier: myIntRangePF1
+    - bracketed:
+      - start_bracket: (
+      - data_type:
+        - data_type_identifier: INT
+      - end_bracket: )
+    - keyword: AS
+    - keyword: RANGE
+    - keyword: LEFT
+    - keyword: FOR
+    - keyword: VALUES
+    - bracketed:
+      - start_bracket: (
+      - numeric_literal: '1'
+      - comma: ','
+      - numeric_literal: '100'
+      - comma: ','
+      - numeric_literal: '1000'
+      - end_bracket: )
   - statement_terminator: ;
   - statement:
-    - statement:
-      - keyword: CREATE
-      - keyword: PARTITION
-      - keyword: FUNCTION
+    - keyword: CREATE
+    - keyword: PARTITION
+    - keyword: FUNCTION
+    - object_reference:
       - object_reference:
-        - object_reference:
-          - naked_identifier: myCharRangePF2
-      - bracketed:
-        - start_bracket: (
-        - data_type:
-          - data_type_identifier: CHAR
-          - bracketed_arguments:
-            - bracketed:
-              - start_bracket: (
-              - numeric_literal: '1'
-              - end_bracket: )
-        - end_bracket: )
-      - keyword: AS
-      - keyword: RANGE
-      - keyword: RIGHT
-      - keyword: FOR
-      - keyword: VALUES
-      - bracketed:
-        - start_bracket: (
-        - quoted_literal: '''A'''
-        - comma: ','
-        - quoted_literal: '''B'''
-        - comma: ','
-        - quoted_literal: '''C'''
-        - end_bracket: )
+        - naked_identifier: myCharRangePF2
+    - bracketed:
+      - start_bracket: (
+      - data_type:
+        - data_type_identifier: CHAR
+        - bracketed_arguments:
+          - bracketed:
+            - start_bracket: (
+            - numeric_literal: '1'
+            - end_bracket: )
+      - end_bracket: )
+    - keyword: AS
+    - keyword: RANGE
+    - keyword: RIGHT
+    - keyword: FOR
+    - keyword: VALUES
+    - bracketed:
+      - start_bracket: (
+      - quoted_literal: '''A'''
+      - comma: ','
+      - quoted_literal: '''B'''
+      - comma: ','
+      - quoted_literal: '''C'''
+      - end_bracket: )
   - statement_terminator: ;
   - statement:
-    - statement:
-      - keyword: CREATE
-      - keyword: PARTITION
-      - keyword: FUNCTION
+    - keyword: CREATE
+    - keyword: PARTITION
+    - keyword: FUNCTION
+    - object_reference:
       - object_reference:
-        - object_reference:
-          - quoted_identifier: '[myDateRangePF1]'
-      - bracketed:
-        - start_bracket: (
-        - data_type:
-          - data_type_identifier: date
-        - end_bracket: )
-      - keyword: AS
-      - keyword: RANGE
-      - keyword: RIGHT
-      - keyword: FOR
-      - keyword: VALUES
-      - bracketed:
-        - start_bracket: (
-        - quoted_literal: '''20030201'''
-        - comma: ','
-        - quoted_literal: '''20030301'''
-        - comma: ','
-        - quoted_literal: '''20030401'''
-        - comma: ','
-        - quoted_literal: '''20030501'''
-        - comma: ','
-        - quoted_literal: '''20030601'''
-        - comma: ','
-        - quoted_literal: '''20030701'''
-        - comma: ','
-        - quoted_literal: '''20030801'''
-        - comma: ','
-        - quoted_literal: '''20030901'''
-        - comma: ','
-        - quoted_literal: '''20031001'''
-        - comma: ','
-        - quoted_literal: '''20031101'''
-        - comma: ','
-        - quoted_literal: '''20031201'''
-        - end_bracket: )
+        - quoted_identifier: '[myDateRangePF1]'
+    - bracketed:
+      - start_bracket: (
+      - data_type:
+        - data_type_identifier: date
+      - end_bracket: )
+    - keyword: AS
+    - keyword: RANGE
+    - keyword: RIGHT
+    - keyword: FOR
+    - keyword: VALUES
+    - bracketed:
+      - start_bracket: (
+      - quoted_literal: '''20030201'''
+      - comma: ','
+      - quoted_literal: '''20030301'''
+      - comma: ','
+      - quoted_literal: '''20030401'''
+      - comma: ','
+      - quoted_literal: '''20030501'''
+      - comma: ','
+      - quoted_literal: '''20030601'''
+      - comma: ','
+      - quoted_literal: '''20030701'''
+      - comma: ','
+      - quoted_literal: '''20030801'''
+      - comma: ','
+      - quoted_literal: '''20030901'''
+      - comma: ','
+      - quoted_literal: '''20031001'''
+      - comma: ','
+      - quoted_literal: '''20031101'''
+      - comma: ','
+      - quoted_literal: '''20031201'''
+      - end_bracket: )
   - statement_terminator: ;
   - statement:
     - alter_function_statement:

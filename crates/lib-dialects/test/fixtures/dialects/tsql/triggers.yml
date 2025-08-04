@@ -19,19 +19,18 @@ file:
       - keyword: UPDATE
       - keyword: AS
       - statement:
-        - statement:
-          - keyword: RAISERROR
-          - bracketed:
-            - start_bracket: (
-            - expression:
-              - quoted_literal: '''Notify Customer Relations'''
-            - comma: ','
-            - expression:
-              - numeric_literal: '16'
-            - comma: ','
-            - expression:
-              - numeric_literal: '10'
-            - end_bracket: )
+        - keyword: RAISERROR
+        - bracketed:
+          - start_bracket: (
+          - expression:
+            - quoted_literal: '''Notify Customer Relations'''
+          - comma: ','
+          - expression:
+            - numeric_literal: '16'
+          - comma: ','
+          - expression:
+            - numeric_literal: '10'
+          - end_bracket: )
       - statement_terminator: ;
       - statement:
         - naked_identifier: GO
@@ -224,21 +223,20 @@ file:
           - begin_end_block:
             - keyword: BEGIN
             - statement:
-              - statement:
-                - keyword: RAISERROR
-                - bracketed:
-                  - start_bracket: (
-                  - expression:
-                    - quoted_literal: |-
-                        'A vendor''s credit rating is too low to accept new
-                        purchase orders.'
-                  - comma: ','
-                  - expression:
-                    - numeric_literal: '16'
-                  - comma: ','
-                  - expression:
-                    - numeric_literal: '1'
-                  - end_bracket: )
+              - keyword: RAISERROR
+              - bracketed:
+                - start_bracket: (
+                - expression:
+                  - quoted_literal: |-
+                      'A vendor''s credit rating is too low to accept new
+                      purchase orders.'
+                - comma: ','
+                - expression:
+                  - numeric_literal: '16'
+                - comma: ','
+                - expression:
+                  - numeric_literal: '1'
+                - end_bracket: )
             - statement_terminator: ;
             - statement:
               - transaction_statement:
@@ -247,11 +245,10 @@ file:
                   - keyword: TRANSACTION
             - statement_terminator: ;
             - statement:
-              - statement:
-                - keyword: RETURN
-                - expression:
-                  - data_type:
-                    - data_type_identifier: END
+              - keyword: RETURN
+              - expression:
+                - data_type:
+                  - data_type_identifier: END
             - statement_terminator: ;
             - statement:
               - naked_identifier: GO
@@ -299,19 +296,18 @@ file:
                   - naked_identifier: RETURN
             - statement_terminator: ;
             - statement:
-              - statement:
-                - keyword: RAISERROR
-                - bracketed:
-                  - start_bracket: (
-                  - expression:
-                    - quoted_literal: '''You must disable Trigger "safety" to remove synonyms!'''
-                  - comma: ','
-                  - expression:
-                    - numeric_literal: '10'
-                  - comma: ','
-                  - expression:
-                    - numeric_literal: '1'
-                  - end_bracket: )
+              - keyword: RAISERROR
+              - bracketed:
+                - start_bracket: (
+                - expression:
+                  - quoted_literal: '''You must disable Trigger "safety" to remove synonyms!'''
+                - comma: ','
+                - expression:
+                  - numeric_literal: '10'
+                - comma: ','
+                - expression:
+                  - numeric_literal: '1'
+                - end_bracket: )
             - statement:
               - transaction_statement:
                 - transaction_statement:

@@ -52,9 +52,8 @@ file:
             - statement_terminator: ;
             - keyword: END
       - statement:
-        - statement:
-          - keyword: PRINT
-          - expression:
-            - quoted_literal: N'The other process is not yet done.'
+        - keyword: PRINT
+        - expression:
+          - quoted_literal: N'The other process is not yet done.'
       - statement_terminator: ;
       - keyword: END

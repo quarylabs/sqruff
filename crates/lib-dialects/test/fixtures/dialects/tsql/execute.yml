@@ -1,244 +1,233 @@
 file:
 - batch:
   - statement:
-    - statement:
-      - keyword: EXEC
+    - keyword: EXEC
+    - object_reference:
       - object_reference:
-        - object_reference:
-          - quoted_identifier: '[Reporting]'
-          - dot: .
-          - quoted_identifier: '[Load_CLL]'
-      - expression:
-        - column_reference:
-          - naked_identifier: EXECUTE
-      - expression:
-        - column_reference:
-          - naked_identifier: dbo
-          - dot: .
-          - naked_identifier: ProcTestDefaults
-      - tsql_variable: '@p2'
-      - assignment_operator:
-        - raw_comparison_operator: =
-      - expression:
-        - quoted_literal: '''A'''
+        - quoted_identifier: '[Reporting]'
+        - dot: .
+        - quoted_identifier: '[Load_CLL]'
+    - expression:
+      - column_reference:
+        - naked_identifier: EXECUTE
+    - expression:
+      - column_reference:
+        - naked_identifier: dbo
+        - dot: .
+        - naked_identifier: ProcTestDefaults
+    - tsql_variable: '@p2'
+    - assignment_operator:
+      - raw_comparison_operator: =
+    - expression:
+      - quoted_literal: '''A'''
   - statement_terminator: ;
   - statement:
-    - statement:
-      - keyword: EXECUTE
+    - keyword: EXECUTE
+    - object_reference:
       - object_reference:
-        - object_reference:
-          - naked_identifier: dbo
-          - dot: .
-          - naked_identifier: ProcTestDefaults
-      - expression:
-        - numeric_literal: '68'
-      - comma: ','
-      - expression:
-        - quoted_literal: '''B'''
+        - naked_identifier: dbo
+        - dot: .
+        - naked_identifier: ProcTestDefaults
+    - expression:
+      - numeric_literal: '68'
+    - comma: ','
+    - expression:
+      - quoted_literal: '''B'''
   - statement_terminator: ;
   - statement:
-    - statement:
-      - keyword: EXECUTE
+    - keyword: EXECUTE
+    - object_reference:
       - object_reference:
-        - object_reference:
-          - naked_identifier: dbo
-          - dot: .
-          - naked_identifier: ProcTestDefaults
-      - expression:
-        - numeric_literal: '68'
-      - comma: ','
-      - expression:
-        - quoted_literal: '''C'''
-      - comma: ','
-      - expression:
-        - quoted_literal: '''House'''
+        - naked_identifier: dbo
+        - dot: .
+        - naked_identifier: ProcTestDefaults
+    - expression:
+      - numeric_literal: '68'
+    - comma: ','
+    - expression:
+      - quoted_literal: '''C'''
+    - comma: ','
+    - expression:
+      - quoted_literal: '''House'''
   - statement_terminator: ;
   - statement:
-    - statement:
-      - keyword: EXECUTE
+    - keyword: EXECUTE
+    - object_reference:
       - object_reference:
-        - object_reference:
-          - naked_identifier: dbo
-          - dot: .
-          - naked_identifier: ProcTestDefaults
-      - tsql_variable: '@p1'
-      - assignment_operator:
-        - raw_comparison_operator: =
-      - expression:
-        - column_reference:
-          - naked_identifier: DEFAULT
-      - comma: ','
-      - tsql_variable: '@p2'
-      - assignment_operator:
-        - raw_comparison_operator: =
-      - expression:
-        - quoted_literal: '''D'''
+        - naked_identifier: dbo
+        - dot: .
+        - naked_identifier: ProcTestDefaults
+    - tsql_variable: '@p1'
+    - assignment_operator:
+      - raw_comparison_operator: =
+    - expression:
+      - column_reference:
+        - naked_identifier: DEFAULT
+    - comma: ','
+    - tsql_variable: '@p2'
+    - assignment_operator:
+      - raw_comparison_operator: =
+    - expression:
+      - quoted_literal: '''D'''
   - statement_terminator: ;
   - statement:
-    - statement:
-      - keyword: EXECUTE
+    - keyword: EXECUTE
+    - object_reference:
       - object_reference:
-        - object_reference:
-          - naked_identifier: dbo
-          - dot: .
-          - naked_identifier: ProcTestDefaults
-      - expression:
-        - column_reference:
-          - naked_identifier: DEFAULT
-      - comma: ','
-      - tsql_variable: '@p3'
-      - assignment_operator:
-        - raw_comparison_operator: =
-      - expression:
-        - quoted_literal: '''Local'''
-      - comma: ','
-      - tsql_variable: '@p2'
-      - assignment_operator:
-        - raw_comparison_operator: =
-      - expression:
-        - quoted_literal: '''E'''
+        - naked_identifier: dbo
+        - dot: .
+        - naked_identifier: ProcTestDefaults
+    - expression:
+      - column_reference:
+        - naked_identifier: DEFAULT
+    - comma: ','
+    - tsql_variable: '@p3'
+    - assignment_operator:
+      - raw_comparison_operator: =
+    - expression:
+      - quoted_literal: '''Local'''
+    - comma: ','
+    - tsql_variable: '@p2'
+    - assignment_operator:
+      - raw_comparison_operator: =
+    - expression:
+      - quoted_literal: '''E'''
   - statement_terminator: ;
   - statement:
-    - statement:
-      - keyword: EXECUTE
+    - keyword: EXECUTE
+    - object_reference:
       - object_reference:
-        - object_reference:
-          - naked_identifier: dbo
-          - dot: .
-          - naked_identifier: ProcTestDefaults
-      - expression:
-        - column_reference:
-          - naked_identifier: DEFAULT
-      - comma: ','
-      - expression:
-        - quoted_literal: '''H'''
-      - comma: ','
-      - expression:
-        - column_reference:
-          - naked_identifier: DEFAULT
+        - naked_identifier: dbo
+        - dot: .
+        - naked_identifier: ProcTestDefaults
+    - expression:
+      - column_reference:
+        - naked_identifier: DEFAULT
+    - comma: ','
+    - expression:
+      - quoted_literal: '''H'''
+    - comma: ','
+    - expression:
+      - column_reference:
+        - naked_identifier: DEFAULT
   - statement_terminator: ;
   - statement:
-    - statement:
-      - keyword: EXECUTE
+    - keyword: EXECUTE
+    - object_reference:
       - object_reference:
-        - object_reference:
-          - naked_identifier: dbo
-          - dot: .
-          - naked_identifier: ProcTestDefaults
-      - expression:
-        - column_reference:
-          - naked_identifier: DEFAULT
-      - comma: ','
-      - expression:
-        - quoted_literal: '''I'''
-      - comma: ','
-      - tsql_variable: '@p3'
-      - assignment_operator:
-        - raw_comparison_operator: =
-      - expression:
-        - column_reference:
-          - naked_identifier: DEFAULT
+        - naked_identifier: dbo
+        - dot: .
+        - naked_identifier: ProcTestDefaults
+    - expression:
+      - column_reference:
+        - naked_identifier: DEFAULT
+    - comma: ','
+    - expression:
+      - quoted_literal: '''I'''
+    - comma: ','
+    - tsql_variable: '@p3'
+    - assignment_operator:
+      - raw_comparison_operator: =
+    - expression:
+      - column_reference:
+        - naked_identifier: DEFAULT
   - statement_terminator: ;
   - statement:
-    - statement:
-      - keyword: EXECUTE
+    - keyword: EXECUTE
+    - object_reference:
       - object_reference:
-        - object_reference:
-          - naked_identifier: sp_addextendedproperty
-      - tsql_variable: '@name'
-      - assignment_operator:
-        - raw_comparison_operator: =
-      - expression:
-        - quoted_literal: N'MS_Description'
-      - comma: ','
-      - tsql_variable: '@value'
-      - assignment_operator:
-        - raw_comparison_operator: =
-      - expression:
-        - quoted_literal: '''my text description'''
-      - comma: ','
-      - tsql_variable: '@level0type'
-      - assignment_operator:
-        - raw_comparison_operator: =
-      - expression:
-        - quoted_literal: N'SCHEMA'
-      - comma: ','
-      - tsql_variable: '@level0name'
-      - assignment_operator:
-        - raw_comparison_operator: =
-      - expression:
-        - quoted_literal: N'my_schema_name'
-      - comma: ','
-      - tsql_variable: '@level1type'
-      - assignment_operator:
-        - raw_comparison_operator: =
-      - expression:
-        - quoted_literal: N'my_object_type'
-      - comma: ','
-      - tsql_variable: '@level1name'
-      - assignment_operator:
-        - raw_comparison_operator: =
-      - expression:
-        - quoted_literal: N'my_object_name'
-      - expression:
-        - column_reference:
-          - naked_identifier: EXEC
-      - tsql_variable: '@pRes'
-      - assignment_operator:
-        - raw_comparison_operator: =
-      - expression:
-        - column_reference:
-          - naked_identifier: dbo
-          - dot: .
-          - naked_identifier: ProcTestDefaults
+        - naked_identifier: sp_addextendedproperty
+    - tsql_variable: '@name'
+    - assignment_operator:
+      - raw_comparison_operator: =
+    - expression:
+      - quoted_literal: N'MS_Description'
+    - comma: ','
+    - tsql_variable: '@value'
+    - assignment_operator:
+      - raw_comparison_operator: =
+    - expression:
+      - quoted_literal: '''my text description'''
+    - comma: ','
+    - tsql_variable: '@level0type'
+    - assignment_operator:
+      - raw_comparison_operator: =
+    - expression:
+      - quoted_literal: N'SCHEMA'
+    - comma: ','
+    - tsql_variable: '@level0name'
+    - assignment_operator:
+      - raw_comparison_operator: =
+    - expression:
+      - quoted_literal: N'my_schema_name'
+    - comma: ','
+    - tsql_variable: '@level1type'
+    - assignment_operator:
+      - raw_comparison_operator: =
+    - expression:
+      - quoted_literal: N'my_object_type'
+    - comma: ','
+    - tsql_variable: '@level1name'
+    - assignment_operator:
+      - raw_comparison_operator: =
+    - expression:
+      - quoted_literal: N'my_object_name'
+    - expression:
+      - column_reference:
+        - naked_identifier: EXEC
+    - tsql_variable: '@pRes'
+    - assignment_operator:
+      - raw_comparison_operator: =
+    - expression:
+      - column_reference:
+        - naked_identifier: dbo
+        - dot: .
+        - naked_identifier: ProcTestDefaults
   - statement_terminator: ;
   - statement:
-    - statement:
-      - keyword: EXEC
-      - tsql_variable: '@pRes'
-      - assignment_operator:
-        - raw_comparison_operator: =
+    - keyword: EXEC
+    - tsql_variable: '@pRes'
+    - assignment_operator:
+      - raw_comparison_operator: =
+    - object_reference:
       - object_reference:
-        - object_reference:
-          - naked_identifier: dbo
-          - dot: .
-          - naked_identifier: ProcTestDefaults
-      - tsql_variable: '@p1'
-      - assignment_operator:
-        - raw_comparison_operator: =
-      - expression:
-        - column_reference:
-          - naked_identifier: DEFAULT
+        - naked_identifier: dbo
+        - dot: .
+        - naked_identifier: ProcTestDefaults
+    - tsql_variable: '@p1'
+    - assignment_operator:
+      - raw_comparison_operator: =
+    - expression:
+      - column_reference:
+        - naked_identifier: DEFAULT
   - statement_terminator: ;
   - statement:
-    - statement:
-      - keyword: EXECUTE
-      - tsql_variable: '@pRes'
-      - assignment_operator:
-        - raw_comparison_operator: =
+    - keyword: EXECUTE
+    - tsql_variable: '@pRes'
+    - assignment_operator:
+      - raw_comparison_operator: =
+    - object_reference:
       - object_reference:
-        - object_reference:
-          - naked_identifier: dbo
-          - dot: .
-          - naked_identifier: ProcTestDefaults
+        - naked_identifier: dbo
+        - dot: .
+        - naked_identifier: ProcTestDefaults
   - statement_terminator: ;
   - statement:
-    - statement:
-      - keyword: EXECUTE
-      - tsql_variable: '@pRes'
-      - assignment_operator:
-        - raw_comparison_operator: =
+    - keyword: EXECUTE
+    - tsql_variable: '@pRes'
+    - assignment_operator:
+      - raw_comparison_operator: =
+    - object_reference:
       - object_reference:
-        - object_reference:
-          - naked_identifier: dbo
-          - dot: .
-          - naked_identifier: ProcTestDefaults
-      - tsql_variable: '@p1'
-      - assignment_operator:
-        - raw_comparison_operator: =
-      - expression:
-        - column_reference:
-          - naked_identifier: DEFAULT
+        - naked_identifier: dbo
+        - dot: .
+        - naked_identifier: ProcTestDefaults
+    - tsql_variable: '@p1'
+    - assignment_operator:
+      - raw_comparison_operator: =
+    - expression:
+      - column_reference:
+        - naked_identifier: DEFAULT
   - statement_terminator: ;
   - statement:
     - declare_statement:
@@ -256,23 +245,21 @@ file:
       - expression:
         - quoted_literal: '''SELECT 1'''
   - statement:
-    - statement:
-      - keyword: EXEC
-      - bracketed:
-        - start_bracket: (
-        - expression:
-          - parameterized_expression:
-            - tsql_variable: '@statement'
-        - end_bracket: )
+    - keyword: EXEC
+    - bracketed:
+      - start_bracket: (
+      - expression:
+        - parameterized_expression:
+          - tsql_variable: '@statement'
+      - end_bracket: )
   - statement_terminator: ;
   - statement:
-    - statement:
-      - keyword: EXEC
-      - bracketed:
-        - start_bracket: (
-        - expression:
-          - quoted_literal: '''DROP TABLE BoardInventory.BoardInventoryFact_Stage;'''
-        - end_bracket: )
+    - keyword: EXEC
+    - bracketed:
+      - start_bracket: (
+      - expression:
+        - quoted_literal: '''DROP TABLE BoardInventory.BoardInventoryFact_Stage;'''
+      - end_bracket: )
   - statement_terminator: ;
   - statement:
     - declare_statement:
@@ -324,79 +311,73 @@ file:
       - quoted_literal: '''123'''
   - statement_terminator: ;
   - statement:
-    - statement:
-      - keyword: EXECUTE
-      - bracketed:
-        - start_bracket: (
-        - expression:
-          - parameterized_expression:
-            - tsql_variable: '@s1'
-          - binary_operator: +
-          - parameterized_expression:
-            - tsql_variable: '@s2'
-        - end_bracket: )
-  - statement_terminator: ;
-  - statement:
-    - statement:
-      - keyword: EXEC
-      - bracketed:
-        - start_bracket: (
-        - expression:
-          - quoted_literal: '''select '''
-          - binary_operator: +
-          - quoted_literal: '''123'''
-        - end_bracket: )
-  - statement_terminator: ;
-  - statement:
-    - statement:
-      - keyword: EXECUTE
-      - bracketed:
-        - start_bracket: (
-        - expression:
-          - quoted_literal: '''USE AdventureWorks2022; SELECT BusinessEntityID, JobTitle FROM HumanResources.Employee;'''
-        - end_bracket: )
-  - statement_terminator: ;
-  - statement:
-    - statement:
-      - keyword: EXECUTE
-      - object_reference:
-        - object_reference:
-          - naked_identifier: dbo
-          - dot: .
-          - naked_identifier: uspGetEmployeeManagers
-      - expression:
-        - numeric_literal: '6'
-  - statement_terminator: ;
-  - statement:
-    - statement:
-      - keyword: EXECUTE
-      - object_reference:
-        - object_reference:
-          - naked_identifier: dbo
-          - dot: .
-          - naked_identifier: uspGetEmployeeManagers
-      - tsql_variable: '@EmployeeID'
-      - assignment_operator:
-        - raw_comparison_operator: =
-      - expression:
-        - numeric_literal: '6'
-  - statement_terminator: ;
-  - statement:
-    - statement:
-      - keyword: EXECUTE
-      - object_reference:
-        - object_reference:
-          - naked_identifier: dbo
-          - dot: .
-          - naked_identifier: uspGetEmployeeManagers
+    - keyword: EXECUTE
+    - bracketed:
+      - start_bracket: (
       - expression:
         - parameterized_expression:
-          - tsql_variable: '@EmployeeID'
-      - comma: ','
-      - expression:
+          - tsql_variable: '@s1'
+        - binary_operator: +
         - parameterized_expression:
-          - tsql_variable: '@ManagerID'
-      - keyword: OUTPUT
+          - tsql_variable: '@s2'
+      - end_bracket: )
+  - statement_terminator: ;
+  - statement:
+    - keyword: EXEC
+    - bracketed:
+      - start_bracket: (
+      - expression:
+        - quoted_literal: '''select '''
+        - binary_operator: +
+        - quoted_literal: '''123'''
+      - end_bracket: )
+  - statement_terminator: ;
+  - statement:
+    - keyword: EXECUTE
+    - bracketed:
+      - start_bracket: (
+      - expression:
+        - quoted_literal: '''USE AdventureWorks2022; SELECT BusinessEntityID, JobTitle FROM HumanResources.Employee;'''
+      - end_bracket: )
+  - statement_terminator: ;
+  - statement:
+    - keyword: EXECUTE
+    - object_reference:
+      - object_reference:
+        - naked_identifier: dbo
+        - dot: .
+        - naked_identifier: uspGetEmployeeManagers
+    - expression:
+      - numeric_literal: '6'
+  - statement_terminator: ;
+  - statement:
+    - keyword: EXECUTE
+    - object_reference:
+      - object_reference:
+        - naked_identifier: dbo
+        - dot: .
+        - naked_identifier: uspGetEmployeeManagers
+    - tsql_variable: '@EmployeeID'
+    - assignment_operator:
+      - raw_comparison_operator: =
+    - expression:
+      - numeric_literal: '6'
+  - statement_terminator: ;
+  - statement:
+    - keyword: EXECUTE
+    - object_reference:
+      - object_reference:
+        - naked_identifier: dbo
+        - dot: .
+        - naked_identifier: uspGetEmployeeManagers
+    - expression:
+      - parameterized_expression:
+        - tsql_variable: '@EmployeeID'
+    - comma: ','
+    - expression:
+      - parameterized_expression:
+        - tsql_variable: '@ManagerID'
+    - keyword: OUTPUT
   - statement_terminator: ;
   - keyword: GO
   - statement:
@@ -430,19 +411,18 @@ file:
                 - end_bracket: )
   - statement_terminator: ;
   - statement:
-    - statement:
-      - keyword: EXECUTE
+    - keyword: EXECUTE
+    - object_reference:
       - object_reference:
-        - object_reference:
-          - naked_identifier: dbo
-          - dot: .
-          - naked_identifier: uspGetWhereUsedProductID
-      - expression:
-        - numeric_literal: '819'
-      - comma: ','
-      - expression:
-        - parameterized_expression:
-          - tsql_variable: '@CheckDate'
+        - naked_identifier: dbo
+        - dot: .
+        - naked_identifier: uspGetWhereUsedProductID
+    - expression:
+      - numeric_literal: '819'
+    - comma: ','
+    - expression:
+      - parameterized_expression:
+        - tsql_variable: '@CheckDate'
   - statement_terminator: ;
   - statement:
     - declare_statement:
@@ -461,23 +441,22 @@ file:
         - data_type_identifier: sysname
   - statement_terminator: ;
   - statement:
-    - statement:
-      - keyword: EXECUTE
-      - bracketed:
-        - start_bracket: (
-        - expression:
-          - quoted_literal: '''ALTER INDEX ALL ON '''
-          - binary_operator: +
-          - parameterized_expression:
-            - tsql_variable: '@schemaname'
-          - binary_operator: +
-          - quoted_literal: '''.'''
-          - binary_operator: +
-          - parameterized_expression:
-            - tsql_variable: '@tablename'
-          - binary_operator: +
-          - quoted_literal: ''' REBUILD;'''
-        - end_bracket: )
+    - keyword: EXECUTE
+    - bracketed:
+      - start_bracket: (
+      - expression:
+        - quoted_literal: '''ALTER INDEX ALL ON '''
+        - binary_operator: +
+        - parameterized_expression:
+          - tsql_variable: '@schemaname'
+        - binary_operator: +
+        - quoted_literal: '''.'''
+        - binary_operator: +
+        - parameterized_expression:
+          - tsql_variable: '@tablename'
+        - binary_operator: +
+        - quoted_literal: ''' REBUILD;'''
+      - end_bracket: )
   - statement_terminator: ;
   - statement:
     - declare_statement:
@@ -488,25 +467,24 @@ file:
         - data_type_identifier: INT
   - statement_terminator: ;
   - statement:
-    - statement:
-      - keyword: EXECUTE
-      - tsql_variable: '@retstat'
-      - assignment_operator:
-        - raw_comparison_operator: =
+    - keyword: EXECUTE
+    - tsql_variable: '@retstat'
+    - assignment_operator:
+      - raw_comparison_operator: =
+    - object_reference:
       - object_reference:
-        - object_reference:
-          - naked_identifier: SQLSERVER1
-          - dot: .
-          - naked_identifier: AdventureWorks2022
-          - dot: .
-          - naked_identifier: dbo
-          - dot: .
-          - naked_identifier: uspGetEmployeeManagers
-      - tsql_variable: '@BusinessEntityID'
-      - assignment_operator:
-        - raw_comparison_operator: =
-      - expression:
-        - numeric_literal: '6'
+        - naked_identifier: SQLSERVER1
+        - dot: .
+        - naked_identifier: AdventureWorks2022
+        - dot: .
+        - naked_identifier: dbo
+        - dot: .
+        - naked_identifier: uspGetEmployeeManagers
+    - tsql_variable: '@BusinessEntityID'
+    - assignment_operator:
+      - raw_comparison_operator: =
+    - expression:
+      - numeric_literal: '6'
   - statement_terminator: ;
   - statement:
     - declare_statement:
@@ -526,114 +504,107 @@ file:
         - quoted_literal: '''sys.sp_who'''
   - statement_terminator: ;
   - statement:
-    - statement:
-      - keyword: EXECUTE
-      - tsql_variable: '@proc_name'
+    - keyword: EXECUTE
+    - tsql_variable: '@proc_name'
   - statement_terminator: ;
   - statement:
-    - statement:
-      - keyword: EXECUTE
+    - keyword: EXECUTE
+    - object_reference:
       - object_reference:
-        - object_reference:
-          - naked_identifier: dbo
-          - dot: .
-          - naked_identifier: ProcTestDefaults
-      - tsql_variable: '@p1'
-      - assignment_operator:
-        - raw_comparison_operator: =
-      - expression:
-        - column_reference:
-          - naked_identifier: DEFAULT
-      - comma: ','
-      - tsql_variable: '@p2'
-      - assignment_operator:
-        - raw_comparison_operator: =
-      - expression:
-        - quoted_literal: '''D'''
+        - naked_identifier: dbo
+        - dot: .
+        - naked_identifier: ProcTestDefaults
+    - tsql_variable: '@p1'
+    - assignment_operator:
+      - raw_comparison_operator: =
+    - expression:
+      - column_reference:
+        - naked_identifier: DEFAULT
+    - comma: ','
+    - tsql_variable: '@p2'
+    - assignment_operator:
+      - raw_comparison_operator: =
+    - expression:
+      - quoted_literal: '''D'''
   - statement_terminator: ;
   - statement:
-    - statement:
-      - keyword: EXECUTE
+    - keyword: EXECUTE
+    - object_reference:
       - object_reference:
-        - object_reference:
-          - naked_identifier: dbo
-          - dot: .
-          - naked_identifier: ProcTestDefaults
-      - expression:
-        - column_reference:
-          - naked_identifier: DEFAULT
-      - comma: ','
-      - expression:
-        - quoted_literal: '''H'''
-      - comma: ','
-      - expression:
-        - column_reference:
-          - naked_identifier: DEFAULT
+        - naked_identifier: dbo
+        - dot: .
+        - naked_identifier: ProcTestDefaults
+    - expression:
+      - column_reference:
+        - naked_identifier: DEFAULT
+    - comma: ','
+    - expression:
+      - quoted_literal: '''H'''
+    - comma: ','
+    - expression:
+      - column_reference:
+        - naked_identifier: DEFAULT
   - statement_terminator: ;
   - statement:
-    - statement:
-      - keyword: EXECUTE
+    - keyword: EXECUTE
+    - object_reference:
       - object_reference:
-        - object_reference:
-          - naked_identifier: dbo
-          - dot: .
-          - naked_identifier: ProcTestDefaults
+        - naked_identifier: dbo
+        - dot: .
+        - naked_identifier: ProcTestDefaults
+    - expression:
+      - column_reference:
+        - naked_identifier: DEFAULT
+    - comma: ','
+    - expression:
+      - quoted_literal: '''I'''
+    - comma: ','
+    - tsql_variable: '@p3'
+    - assignment_operator:
+      - raw_comparison_operator: =
+    - expression:
+      - column_reference:
+        - naked_identifier: DEFAULT
+  - statement_terminator: ;
+  - statement:
+    - keyword: EXECUTE
+    - bracketed:
+      - start_bracket: (
       - expression:
-        - column_reference:
-          - naked_identifier: DEFAULT
+        - quoted_literal: |-
+            'CREATE TABLE AdventureWorks2022.dbo.SalesTbl
+            (SalesID INT, SalesName VARCHAR(10)); '
+      - end_bracket: )
+    - keyword: AT
+    - naked_identifier: SeattleSales
+  - statement_terminator: ;
+  - statement:
+    - keyword: EXECUTE
+    - bracketed:
+      - start_bracket: (
+      - expression:
+        - quoted_literal: '''SELECT * FROM scott.emp WHERE MGR = ?'''
       - comma: ','
       - expression:
-        - quoted_literal: '''I'''
-      - comma: ','
-      - tsql_variable: '@p3'
-      - assignment_operator:
-        - raw_comparison_operator: =
-      - expression:
-        - column_reference:
-          - naked_identifier: DEFAULT
+        - numeric_literal: '7902'
+      - end_bracket: )
+    - keyword: AT
+    - naked_identifier: ORACLE
   - statement_terminator: ;
   - statement:
-    - statement:
-      - keyword: EXECUTE
-      - bracketed:
-        - start_bracket: (
-        - expression:
-          - quoted_literal: |-
-              'CREATE TABLE AdventureWorks2022.dbo.SalesTbl
-              (SalesID INT, SalesName VARCHAR(10)); '
-        - end_bracket: )
-      - keyword: AT
-      - naked_identifier: SeattleSales
-  - statement_terminator: ;
-  - statement:
-    - statement:
-      - keyword: EXECUTE
-      - bracketed:
-        - start_bracket: (
-        - expression:
-          - quoted_literal: '''SELECT * FROM scott.emp WHERE MGR = ?'''
-        - comma: ','
-        - expression:
-          - numeric_literal: '7902'
-        - end_bracket: )
-      - keyword: AT
-      - naked_identifier: ORACLE
-  - statement_terminator: ;
-  - statement:
-    - statement:
-      - keyword: EXECUTE
+    - keyword: EXECUTE
+    - object_reference:
       - object_reference:
-        - object_reference:
-          - naked_identifier: dbo
-          - dot: .
-          - naked_identifier: Proc_Test_Defaults
-      - tsql_variable: '@p2'
-      - assignment_operator:
-        - raw_comparison_operator: =
-      - expression:
-        - quoted_literal: '''A'''
-      - keyword: WITH
-      - keyword: RECOMPILE
+        - naked_identifier: dbo
+        - dot: .
+        - naked_identifier: Proc_Test_Defaults
+    - tsql_variable: '@p2'
+    - assignment_operator:
+      - raw_comparison_operator: =
+    - expression:
+      - quoted_literal: '''A'''
+    - keyword: WITH
+    - keyword: RECOMPILE
   - statement_terminator: ;
   - statement:
     - declare_statement:
@@ -649,185 +620,181 @@ file:
             - end_bracket: )
   - statement_terminator: ;
   - statement:
-    - statement:
-      - keyword: EXECUTE
-      - tsql_variable: '@returnstatus'
-      - assignment_operator:
-        - raw_comparison_operator: =
+    - keyword: EXECUTE
+    - tsql_variable: '@returnstatus'
+    - assignment_operator:
+      - raw_comparison_operator: =
+    - object_reference:
       - object_reference:
-        - object_reference:
-          - naked_identifier: dbo
-          - dot: .
-          - naked_identifier: ufnGetSalesOrderStatusText
-      - tsql_variable: '@Status'
-      - assignment_operator:
-        - raw_comparison_operator: =
-      - expression:
-        - numeric_literal: '2'
+        - naked_identifier: dbo
+        - dot: .
+        - naked_identifier: ufnGetSalesOrderStatusText
+    - tsql_variable: '@Status'
+    - assignment_operator:
+      - raw_comparison_operator: =
+    - expression:
+      - numeric_literal: '2'
   - statement_terminator: ;
   - statement:
-    - statement:
-      - keyword: EXECUTE
-      - bracketed:
-        - start_bracket: (
-        - expression:
-          - quoted_literal: '''CREATE TABLE Sales.SalesTable (SalesID INT, SalesName VARCHAR(10));'''
-        - end_bracket: )
-      - keyword: AS
-      - keyword: USER
-      - comparison_operator:
-        - raw_comparison_operator: =
-      - quoted_literal: '''User1'''
+    - keyword: EXECUTE
+    - bracketed:
+      - start_bracket: (
+      - expression:
+        - quoted_literal: '''CREATE TABLE Sales.SalesTable (SalesID INT, SalesName VARCHAR(10));'''
+      - end_bracket: )
+    - keyword: AS
+    - keyword: USER
+    - comparison_operator:
+      - raw_comparison_operator: =
+    - quoted_literal: '''User1'''
   - statement_terminator: ;
   - statement:
-    - statement:
-      - keyword: EXECUTE
+    - keyword: EXECUTE
+    - object_reference:
       - object_reference:
-        - object_reference:
-          - naked_identifier: uspGetEmployeeManagers
-      - expression:
-        - numeric_literal: '16'
-      - keyword: WITH
-      - keyword: RESULT
-      - keyword: SETS
+        - naked_identifier: uspGetEmployeeManagers
+    - expression:
+      - numeric_literal: '16'
+    - keyword: WITH
+    - keyword: RESULT
+    - keyword: SETS
+    - bracketed:
+      - start_bracket: (
       - bracketed:
         - start_bracket: (
-        - bracketed:
-          - start_bracket: (
-          - column_definition:
-            - quoted_identifier: '[Reporting Level]'
+        - column_definition:
+          - quoted_identifier: '[Reporting Level]'
+          - data_type:
             - data_type:
-              - data_type:
-                - data_type_identifier: INT
-            - keyword: NOT
-            - keyword: 'NULL'
-          - comma: ','
-          - column_definition:
-            - quoted_identifier: '[ID of Employee]'
-            - data_type:
-              - data_type:
-                - data_type_identifier: INT
-            - keyword: NOT
-            - keyword: 'NULL'
-          - comma: ','
-          - column_definition:
-            - quoted_identifier: '[Employee First Name]'
-            - data_type:
-              - data_type:
-                - data_type_identifier: NVARCHAR
-                - bracketed_arguments:
-                  - bracketed:
-                    - start_bracket: (
-                    - numeric_literal: '50'
-                    - end_bracket: )
-            - keyword: NOT
-            - keyword: 'NULL'
-          - comma: ','
-          - column_definition:
-            - quoted_identifier: '[Employee Last Name]'
-            - data_type:
-              - data_type:
-                - data_type_identifier: NVARCHAR
-                - bracketed_arguments:
-                  - bracketed:
-                    - start_bracket: (
-                    - numeric_literal: '50'
-                    - end_bracket: )
-            - keyword: NOT
-            - keyword: 'NULL'
-          - comma: ','
-          - column_definition:
-            - quoted_identifier: '[Employee ID of Manager]'
-            - data_type:
-              - data_type:
-                - data_type_identifier: NVARCHAR
-                - bracketed_arguments:
-                  - bracketed:
-                    - start_bracket: (
-                    - keyword: MAX
-                    - end_bracket: )
-            - keyword: NOT
-            - keyword: 'NULL'
-          - comma: ','
-          - column_definition:
-            - quoted_identifier: '[Manager First Name]'
-            - data_type:
-              - data_type:
-                - data_type_identifier: NVARCHAR
-                - bracketed_arguments:
-                  - bracketed:
-                    - start_bracket: (
-                    - numeric_literal: '50'
-                    - end_bracket: )
-            - keyword: NOT
-            - keyword: 'NULL'
-          - comma: ','
-          - column_definition:
-            - quoted_identifier: '[Manager Last Name]'
-            - data_type:
-              - data_type:
-                - data_type_identifier: NVARCHAR
-                - bracketed_arguments:
-                  - bracketed:
-                    - start_bracket: (
-                    - numeric_literal: '50'
-                    - end_bracket: )
-            - keyword: NOT
-            - keyword: 'NULL'
-          - end_bracket: )
-        - end_bracket: )
-  - statement_terminator: ;
-  - statement:
-    - statement:
-      - keyword: EXECUTE
-      - object_reference:
-        - object_reference:
-          - naked_identifier: Production
-          - dot: .
-          - naked_identifier: ProductList
-      - expression:
-        - quoted_literal: '''%tire%'''
-      - keyword: WITH
-      - keyword: RESULT
-      - keyword: SETS
-      - bracketed:
-        - start_bracket: (
-        - bracketed:
-          - start_bracket: (
-          - column_definition:
-            - naked_identifier: ProductID
-            - data_type:
-              - data_type:
-                - data_type_identifier: INT
-          - comma: ','
-          - column_definition:
-            - quoted_identifier: '[Name]'
-            - data_type:
-              - data_type:
-                - data_type_identifier: NAME
-          - comma: ','
-          - column_definition:
-            - naked_identifier: ListPrice
-            - data_type:
-              - data_type:
-                - data_type_identifier: MONEY
-          - end_bracket: )
+              - data_type_identifier: INT
+          - keyword: NOT
+          - keyword: 'NULL'
         - comma: ','
-        - bracketed:
-          - start_bracket: (
-          - column_definition:
-            - quoted_identifier: '[Name]'
+        - column_definition:
+          - quoted_identifier: '[ID of Employee]'
+          - data_type:
             - data_type:
-              - data_type:
-                - data_type_identifier: NAME
-          - comma: ','
-          - column_definition:
-            - naked_identifier: NumberOfOrders
+              - data_type_identifier: INT
+          - keyword: NOT
+          - keyword: 'NULL'
+        - comma: ','
+        - column_definition:
+          - quoted_identifier: '[Employee First Name]'
+          - data_type:
             - data_type:
-              - data_type:
-                - data_type_identifier: INT
-          - end_bracket: )
+              - data_type_identifier: NVARCHAR
+              - bracketed_arguments:
+                - bracketed:
+                  - start_bracket: (
+                  - numeric_literal: '50'
+                  - end_bracket: )
+          - keyword: NOT
+          - keyword: 'NULL'
+        - comma: ','
+        - column_definition:
+          - quoted_identifier: '[Employee Last Name]'
+          - data_type:
+            - data_type:
+              - data_type_identifier: NVARCHAR
+              - bracketed_arguments:
+                - bracketed:
+                  - start_bracket: (
+                  - numeric_literal: '50'
+                  - end_bracket: )
+          - keyword: NOT
+          - keyword: 'NULL'
+        - comma: ','
+        - column_definition:
+          - quoted_identifier: '[Employee ID of Manager]'
+          - data_type:
+            - data_type:
+              - data_type_identifier: NVARCHAR
+              - bracketed_arguments:
+                - bracketed:
+                  - start_bracket: (
+                  - keyword: MAX
+                  - end_bracket: )
+          - keyword: NOT
+          - keyword: 'NULL'
+        - comma: ','
+        - column_definition:
+          - quoted_identifier: '[Manager First Name]'
+          - data_type:
+            - data_type:
+              - data_type_identifier: NVARCHAR
+              - bracketed_arguments:
+                - bracketed:
+                  - start_bracket: (
+                  - numeric_literal: '50'
+                  - end_bracket: )
+          - keyword: NOT
+          - keyword: 'NULL'
+        - comma: ','
+        - column_definition:
+          - quoted_identifier: '[Manager Last Name]'
+          - data_type:
+            - data_type:
+              - data_type_identifier: NVARCHAR
+              - bracketed_arguments:
+                - bracketed:
+                  - start_bracket: (
+                  - numeric_literal: '50'
+                  - end_bracket: )
+          - keyword: NOT
+          - keyword: 'NULL'
         - end_bracket: )
+      - end_bracket: )
+  - statement_terminator: ;
+  - statement:
+    - keyword: EXECUTE
+    - object_reference:
+      - object_reference:
+        - naked_identifier: Production
+        - dot: .
+        - naked_identifier: ProductList
+    - expression:
+      - quoted_literal: '''%tire%'''
+    - keyword: WITH
+    - keyword: RESULT
+    - keyword: SETS
+    - bracketed:
+      - start_bracket: (
+      - bracketed:
+        - start_bracket: (
+        - column_definition:
+          - naked_identifier: ProductID
+          - data_type:
+            - data_type:
+              - data_type_identifier: INT
+        - comma: ','
+        - column_definition:
+          - quoted_identifier: '[Name]'
+          - data_type:
+            - data_type:
+              - data_type_identifier: NAME
+        - comma: ','
+        - column_definition:
+          - naked_identifier: ListPrice
+          - data_type:
+            - data_type:
+              - data_type_identifier: MONEY
+        - end_bracket: )
+      - comma: ','
+      - bracketed:
+        - start_bracket: (
+        - column_definition:
+          - quoted_identifier: '[Name]'
+          - data_type:
+            - data_type:
+              - data_type_identifier: NAME
+        - comma: ','
+        - column_definition:
+          - naked_identifier: NumberOfOrders
+          - data_type:
+            - data_type:
+              - data_type_identifier: INT
+        - end_bracket: )
+      - end_bracket: )
   - statement_terminator: ;
   - statement:
     - naked_identifier: EXECUTE

@@ -33,9 +33,8 @@ file:
       - begin_end_block:
         - keyword: begin
         - statement:
-          - statement:
-            - keyword: return
-            - expression:
-              - numeric_literal: '1'
+          - keyword: return
+          - expression:
+            - numeric_literal: '1'
         - statement_terminator: ;
         - keyword: end

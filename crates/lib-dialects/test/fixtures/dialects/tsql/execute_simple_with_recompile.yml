@@ -1,11 +1,10 @@
 file:
 - batch:
   - statement:
-    - statement:
-      - keyword: EXECUTE
+    - keyword: EXECUTE
+    - object_reference:
       - object_reference:
-        - object_reference:
-          - naked_identifier: test
-      - keyword: WITH
-      - keyword: RECOMPILE
+        - naked_identifier: test
+    - keyword: WITH
+    - keyword: RECOMPILE
   - statement_terminator: ;

@@ -282,15 +282,14 @@ file:
                   - numeric_literal: '1'
                 - statement_terminator: ;
             - statement:
-              - statement:
-                - keyword: RETURN
-                - expression:
-                  - bracketed:
-                    - start_bracket: (
-                    - expression:
-                      - parameterized_expression:
-                        - tsql_variable: '@ISOweek'
-                    - end_bracket: )
+              - keyword: RETURN
+              - expression:
+                - bracketed:
+                  - start_bracket: (
+                  - expression:
+                    - parameterized_expression:
+                      - tsql_variable: '@ISOweek'
+                  - end_bracket: )
             - statement_terminator: ;
             - keyword: END
   - statement_terminator: ;
@@ -335,8 +334,7 @@ file:
                           - numeric_literal: '1'
             - statement_terminator: ;
             - statement:
-              - statement:
-                - keyword: RETURN
+              - keyword: RETURN
             - statement_terminator: ;
             - keyword: END
   - statement_terminator: ;
@@ -365,10 +363,9 @@ file:
         - keyword: AS
         - keyword: BEGIN
         - statement:
-          - statement:
-            - keyword: RETURN
-            - expression:
-              - numeric_literal: '1'
+          - keyword: RETURN
+          - expression:
+            - numeric_literal: '1'
         - keyword: END
   - statement_terminator: ;
   - keyword: GO
@@ -394,10 +391,9 @@ file:
       - begin_end_block:
         - keyword: BEGIN
         - statement:
-          - statement:
-            - keyword: RETURN
-            - expression:
-              - numeric_literal: '0'
+          - keyword: RETURN
+          - expression:
+            - numeric_literal: '0'
         - keyword: END
   - statement_terminator: ;
   - keyword: GO
@@ -502,11 +498,10 @@ file:
                         - alias_expression:
                           - naked_identifier: i
         - statement:
-          - statement:
-            - keyword: RETURN
-            - expression:
-              - parameterized_expression:
-                - tsql_variable: '@str'
+          - keyword: RETURN
+          - expression:
+            - parameterized_expression:
+              - tsql_variable: '@str'
         - keyword: END
   - statement_terminator: ;
   - keyword: GO
@@ -538,10 +533,9 @@ file:
         - keyword: input
         - keyword: begin
         - statement:
-          - statement:
-            - keyword: return
-            - expression:
-              - parameterized_expression:
-                - tsql_variable: '@my_parameter'
+          - keyword: return
+          - expression:
+            - parameterized_expression:
+              - tsql_variable: '@my_parameter'
         - keyword: end
   - keyword: go

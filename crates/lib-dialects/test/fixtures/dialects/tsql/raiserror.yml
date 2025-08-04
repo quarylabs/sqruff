@@ -1,200 +1,192 @@
 file:
 - batch:
   - statement:
-    - statement:
-      - keyword: RAISERROR
-      - bracketed:
-        - start_bracket: (
-        - expression:
-          - numeric_literal: '15600'
-        - comma: ','
-        - expression:
-          - numeric_literal:
-            - sign_indicator: '-'
-            - numeric_literal: '1'
-        - comma: ','
-        - expression:
-          - numeric_literal:
-            - sign_indicator: '-'
-            - numeric_literal: '1'
-        - comma: ','
-        - expression:
-          - quoted_literal: '''mysp_CreateCustomer'''
-        - end_bracket: )
-  - statement_terminator: ;
-  - statement:
-    - statement:
-      - keyword: RAISERROR
-      - bracketed:
-        - start_bracket: (
-        - expression:
-          - quoted_literal: '''This is message %s %d.'''
-        - comma: ','
-        - expression:
-          - numeric_literal: '10'
-        - comma: ','
-        - expression:
+    - keyword: RAISERROR
+    - bracketed:
+      - start_bracket: (
+      - expression:
+        - numeric_literal: '15600'
+      - comma: ','
+      - expression:
+        - numeric_literal:
+          - sign_indicator: '-'
           - numeric_literal: '1'
-        - comma: ','
-        - expression:
-          - quoted_literal: '''number'''
-        - end_bracket: )
-  - statement_terminator: ;
-  - statement:
-    - statement:
-      - keyword: RAISERROR
-      - bracketed:
-        - start_bracket: (
-        - expression:
-          - quoted_literal: '''Error raised in TRY block.'''
-        - comma: ','
-        - expression:
-          - numeric_literal: '16'
-        - comma: ','
-        - expression:
+      - comma: ','
+      - expression:
+        - numeric_literal:
+          - sign_indicator: '-'
           - numeric_literal: '1'
-        - end_bracket: )
+      - comma: ','
+      - expression:
+        - quoted_literal: '''mysp_CreateCustomer'''
+      - end_bracket: )
   - statement_terminator: ;
   - statement:
-    - statement:
-      - keyword: RAISERROR
-      - bracketed:
-        - start_bracket: (
-        - expression:
-          - quoted_literal: N'Unicode error'
-        - comma: ','
-        - expression:
-          - numeric_literal: '16'
-        - comma: ','
-        - expression:
+    - keyword: RAISERROR
+    - bracketed:
+      - start_bracket: (
+      - expression:
+        - quoted_literal: '''This is message %s %d.'''
+      - comma: ','
+      - expression:
+        - numeric_literal: '10'
+      - comma: ','
+      - expression:
+        - numeric_literal: '1'
+      - comma: ','
+      - expression:
+        - quoted_literal: '''number'''
+      - end_bracket: )
+  - statement_terminator: ;
+  - statement:
+    - keyword: RAISERROR
+    - bracketed:
+      - start_bracket: (
+      - expression:
+        - quoted_literal: '''Error raised in TRY block.'''
+      - comma: ','
+      - expression:
+        - numeric_literal: '16'
+      - comma: ','
+      - expression:
+        - numeric_literal: '1'
+      - end_bracket: )
+  - statement_terminator: ;
+  - statement:
+    - keyword: RAISERROR
+    - bracketed:
+      - start_bracket: (
+      - expression:
+        - quoted_literal: N'Unicode error'
+      - comma: ','
+      - expression:
+        - numeric_literal: '16'
+      - comma: ','
+      - expression:
+        - numeric_literal: '1'
+      - end_bracket: )
+  - statement_terminator: ;
+  - statement:
+    - keyword: RAISERROR
+    - bracketed:
+      - start_bracket: (
+      - expression:
+        - quoted_literal: '''WITH option'''
+      - comma: ','
+      - expression:
+        - numeric_literal: '16'
+      - comma: ','
+      - expression:
+        - numeric_literal: '1'
+      - end_bracket: )
+    - keyword: WITH
+    - keyword: LOG
+  - statement_terminator: ;
+  - statement:
+    - keyword: RAISERROR
+    - bracketed:
+      - start_bracket: (
+      - expression:
+        - quoted_literal: '''Error with lots of arguments %a %b %c %d %e %f %g %h %i %j %k %l %m %n %o %p %q %r %s %t'''
+      - comma: ','
+      - expression:
+        - numeric_literal: '16'
+      - comma: ','
+      - expression:
+        - numeric_literal: '1'
+      - comma: ','
+      - expression:
+        - quoted_literal: '''a'''
+      - comma: ','
+      - expression:
+        - quoted_literal: N'b'
+      - comma: ','
+      - expression:
+        - parameterized_expression:
+          - tsql_variable: '@c'
+      - comma: ','
+      - expression:
+        - numeric_literal: '4'
+      - comma: ','
+      - expression:
+        - numeric_literal: '5'
+      - comma: ','
+      - expression:
+        - numeric_literal: '6'
+      - comma: ','
+      - expression:
+        - numeric_literal: '7'
+      - comma: ','
+      - expression:
+        - numeric_literal: '8'
+      - comma: ','
+      - expression:
+        - numeric_literal: '9'
+      - comma: ','
+      - expression:
+        - numeric_literal: '10'
+      - comma: ','
+      - expression:
+        - numeric_literal: '11'
+      - comma: ','
+      - expression:
+        - numeric_literal: '12'
+      - comma: ','
+      - expression:
+        - numeric_literal: '13'
+      - comma: ','
+      - expression:
+        - numeric_literal: '14'
+      - comma: ','
+      - expression:
+        - numeric_literal: '15'
+      - comma: ','
+      - expression:
+        - numeric_literal: '16'
+      - comma: ','
+      - expression:
+        - numeric_literal: '17'
+      - comma: ','
+      - expression:
+        - numeric_literal: '18'
+      - comma: ','
+      - expression:
+        - numeric_literal: '19'
+      - comma: ','
+      - expression:
+        - numeric_literal: '20'
+      - end_bracket: )
+  - statement_terminator: ;
+  - statement:
+    - keyword: RAISERROR
+    - bracketed:
+      - start_bracket: (
+      - expression:
+        - parameterized_expression:
+          - tsql_variable: '@ErrorMessage'
+      - comma: ','
+      - expression:
+        - parameterized_expression:
+          - tsql_variable: '@ErrorSeverity'
+      - comma: ','
+      - expression:
+        - parameterized_expression:
+          - tsql_variable: '@ErrorState'
+      - end_bracket: )
+  - statement_terminator: ;
+  - statement:
+    - keyword: RAISERROR
+    - bracketed:
+      - start_bracket: (
+      - expression:
+        - quoted_literal: '''The specified table does not exist. Please enter @tableName in the following format: Schemaname.Tablename OR [Schemaname].[Tablename]'''
+      - comma: ','
+      - expression:
+        - numeric_literal: '11'
+      - comma: ','
+      - expression:
+        - numeric_literal:
+          - sign_indicator: '-'
           - numeric_literal: '1'
-        - end_bracket: )
-  - statement_terminator: ;
-  - statement:
-    - statement:
-      - keyword: RAISERROR
-      - bracketed:
-        - start_bracket: (
-        - expression:
-          - quoted_literal: '''WITH option'''
-        - comma: ','
-        - expression:
-          - numeric_literal: '16'
-        - comma: ','
-        - expression:
-          - numeric_literal: '1'
-        - end_bracket: )
-      - keyword: WITH
-      - keyword: LOG
-  - statement_terminator: ;
-  - statement:
-    - statement:
-      - keyword: RAISERROR
-      - bracketed:
-        - start_bracket: (
-        - expression:
-          - quoted_literal: '''Error with lots of arguments %a %b %c %d %e %f %g %h %i %j %k %l %m %n %o %p %q %r %s %t'''
-        - comma: ','
-        - expression:
-          - numeric_literal: '16'
-        - comma: ','
-        - expression:
-          - numeric_literal: '1'
-        - comma: ','
-        - expression:
-          - quoted_literal: '''a'''
-        - comma: ','
-        - expression:
-          - quoted_literal: N'b'
-        - comma: ','
-        - expression:
-          - parameterized_expression:
-            - tsql_variable: '@c'
-        - comma: ','
-        - expression:
-          - numeric_literal: '4'
-        - comma: ','
-        - expression:
-          - numeric_literal: '5'
-        - comma: ','
-        - expression:
-          - numeric_literal: '6'
-        - comma: ','
-        - expression:
-          - numeric_literal: '7'
-        - comma: ','
-        - expression:
-          - numeric_literal: '8'
-        - comma: ','
-        - expression:
-          - numeric_literal: '9'
-        - comma: ','
-        - expression:
-          - numeric_literal: '10'
-        - comma: ','
-        - expression:
-          - numeric_literal: '11'
-        - comma: ','
-        - expression:
-          - numeric_literal: '12'
-        - comma: ','
-        - expression:
-          - numeric_literal: '13'
-        - comma: ','
-        - expression:
-          - numeric_literal: '14'
-        - comma: ','
-        - expression:
-          - numeric_literal: '15'
-        - comma: ','
-        - expression:
-          - numeric_literal: '16'
-        - comma: ','
-        - expression:
-          - numeric_literal: '17'
-        - comma: ','
-        - expression:
-          - numeric_literal: '18'
-        - comma: ','
-        - expression:
-          - numeric_literal: '19'
-        - comma: ','
-        - expression:
-          - numeric_literal: '20'
-        - end_bracket: )
-  - statement_terminator: ;
-  - statement:
-    - statement:
-      - keyword: RAISERROR
-      - bracketed:
-        - start_bracket: (
-        - expression:
-          - parameterized_expression:
-            - tsql_variable: '@ErrorMessage'
-        - comma: ','
-        - expression:
-          - parameterized_expression:
-            - tsql_variable: '@ErrorSeverity'
-        - comma: ','
-        - expression:
-          - parameterized_expression:
-            - tsql_variable: '@ErrorState'
-        - end_bracket: )
-  - statement_terminator: ;
-  - statement:
-    - statement:
-      - keyword: RAISERROR
-      - bracketed:
-        - start_bracket: (
-        - expression:
-          - quoted_literal: '''The specified table does not exist. Please enter @tableName in the following format: Schemaname.Tablename OR [Schemaname].[Tablename]'''
-        - comma: ','
-        - expression:
-          - numeric_literal: '11'
-        - comma: ','
-        - expression:
-          - numeric_literal:
-            - sign_indicator: '-'
-            - numeric_literal: '1'
-        - end_bracket: )
+      - end_bracket: )
   - statement_terminator: ;

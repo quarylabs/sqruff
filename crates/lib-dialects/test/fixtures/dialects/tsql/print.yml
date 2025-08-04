@@ -16,43 +16,40 @@ file:
       - expression:
         - quoted_literal: '''Test Print'''
   - statement:
-    - statement:
-      - keyword: PRINT
-      - expression:
-        - quoted_literal: '''#Dates'''
+    - keyword: PRINT
+    - expression:
+      - quoted_literal: '''#Dates'''
   - statement:
-    - statement:
-      - keyword: PRINT
-      - expression:
+    - keyword: PRINT
+    - expression:
+      - function:
         - function:
-          - function:
-            - function_name:
-              - function_name_identifier: CAST
-            - function_contents:
-              - bracketed:
-                - start_bracket: (
-                - expression:
+          - function_name:
+            - function_name_identifier: CAST
+          - function_contents:
+            - bracketed:
+              - start_bracket: (
+              - expression:
+                - function:
                   - function:
-                    - function:
-                      - function_name:
-                        - function_name_identifier: GETDATE
-                      - function_contents:
-                        - bracketed:
-                          - start_bracket: (
-                          - end_bracket: )
-                - keyword: AS
-                - data_type:
-                  - data_type_identifier: VARCHAR
-                  - bracketed_arguments:
-                    - bracketed:
-                      - start_bracket: (
-                      - numeric_literal: '50'
-                      - end_bracket: )
-                - end_bracket: )
+                    - function_name:
+                      - function_name_identifier: GETDATE
+                    - function_contents:
+                      - bracketed:
+                        - start_bracket: (
+                        - end_bracket: )
+              - keyword: AS
+              - data_type:
+                - data_type_identifier: VARCHAR
+                - bracketed_arguments:
+                  - bracketed:
+                    - start_bracket: (
+                    - numeric_literal: '50'
+                    - end_bracket: )
+              - end_bracket: )
   - statement_terminator: ;
   - statement:
-    - statement:
-      - keyword: PRINT
-      - expression:
-        - parameterized_expression:
-          - tsql_variable: '@TestVal'
+    - keyword: PRINT
+    - expression:
+      - parameterized_expression:
+        - tsql_variable: '@TestVal'

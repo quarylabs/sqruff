@@ -47,35 +47,30 @@ file:
           - column_reference:
             - naked_identifier: column_b
   - statement:
-    - statement:
-      - keyword: OPEN
-      - naked_identifier: pointy
+    - keyword: OPEN
+    - naked_identifier: pointy
   - statement_terminator: ;
   - statement:
-    - statement:
-      - keyword: FETCH
-      - keyword: FIRST
-      - keyword: FROM
-      - tsql_variable: '@pointy'
-      - keyword: into
-      - tsql_variable: '@result'
+    - keyword: FETCH
+    - keyword: FIRST
+    - keyword: FROM
+    - tsql_variable: '@pointy'
+    - keyword: into
+    - tsql_variable: '@result'
   - statement_terminator: ;
   - statement:
-    - statement:
-      - keyword: FETCH
-      - keyword: NEXT
-      - keyword: FROM
-      - keyword: GLOBAL
-      - naked_identifier: pointy
+    - keyword: FETCH
+    - keyword: NEXT
+    - keyword: FROM
+    - keyword: GLOBAL
+    - naked_identifier: pointy
   - statement_terminator: ;
   - statement:
-    - statement:
-      - keyword: CLOSE
-      - keyword: GLOBAL
-      - naked_identifier: pointy
+    - keyword: CLOSE
+    - keyword: GLOBAL
+    - naked_identifier: pointy
   - statement_terminator: ;
   - statement:
-    - statement:
-      - keyword: DEALLOCATE
-      - naked_identifier: pointy
+    - keyword: DEALLOCATE
+    - naked_identifier: pointy
   - statement_terminator: ;

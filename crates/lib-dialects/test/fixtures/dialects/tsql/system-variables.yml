@@ -37,10 +37,9 @@ file:
         - raw_comparison_operator: =
       - expression:
         - numeric_literal: '0'
-      - statement:
-        - keyword: PRINT
-        - expression:
-          - quoted_literal: '''Warning: No rows were updated'''
+      - keyword: PRINT
+      - expression:
+        - quoted_literal: '''Warning: No rows were updated'''
       - statement_terminator: ;
   - statement:
     - if_statement:
@@ -53,10 +52,9 @@ file:
       - begin_end_block:
         - keyword: BEGIN
         - statement:
-          - statement:
-            - keyword: PRINT
-            - expression:
-              - quoted_literal: N'A check constraint violation occurred.'
+          - keyword: PRINT
+          - expression:
+            - quoted_literal: N'A check constraint violation occurred.'
         - statement_terminator: ;
         - keyword: END
   - keyword: GO
@@ -74,11 +72,10 @@ file:
   - statement_terminator: ;
   - keyword: GO
   - statement:
-    - statement:
-      - keyword: PRINT
-      - expression:
-        - parameterized_expression:
-          - tsql_variable: '@@TRANCOUNT'
+    - keyword: PRINT
+    - expression:
+      - parameterized_expression:
+        - tsql_variable: '@@TRANCOUNT'
   - keyword: GO
   - statement:
     - select_statement:

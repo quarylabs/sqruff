@@ -113,3 +113,20 @@ test_exclude_constraint:
   configs:
     core:
       dialect: postgres
+
+test_clickhouse_parametric_view:
+  pass_str: |
+    SELECT *
+    FROM some_function(param_a = NULL, param_b = '2024-01-01')
+  configs:
+    core:
+      dialect: clickhouse
+
+test_function_call:
+  fail_str: |
+    SELECT some_function(param_a = NULL)
+  fix_str: |
+    SELECT some_function(param_a IS NULL)
+  configs:
+    core:
+      dialect: clickhouse

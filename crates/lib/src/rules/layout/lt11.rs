@@ -1,69 +1,54 @@
-use ahash::AHashMap;
 use sqruff_lib_core::dialects::syntax::{SyntaxKind, SyntaxSet};
 
-use crate::core::config::Value;
 use crate::core::rules::context::RuleContext;
-use crate::core::rules::crawlers::{Crawler, SegmentSeekerCrawler};
-use crate::core::rules::{Erased, ErasedRule, LintResult, Rule, RuleGroups};
+use crate::core::rules::crawlers::SegmentSeekerCrawler;
+use crate::core::rules::{Erased, LintResult, RuleGroups};
+use crate::define_rule;
 use crate::utils::reflow::sequence::{ReflowSequence, TargetSide};
 
-#[derive(Debug, Default, Clone)]
-pub struct RuleLT11;
+define_rule!(
+    /// **Anti-pattern**
+    ///
+    /// In this example, `UNION ALL` is not on a line itself.
+    ///
+    /// ```sql
+    /// SELECT 'a' AS col UNION ALL
+    /// SELECT 'b' AS col
+    /// ```
+    ///
+    /// **Best practice**
+    ///
+    /// Place `UNION ALL` on its own line.
+    ///
+    /// ```sql
+    /// SELECT 'a' AS col
+    /// UNION ALL
+    /// SELECT 'b' AS col
+    /// ```
+    pub struct RuleLT11 {};
 
-impl Rule for RuleLT11 {
-    fn load_from_config(&self, _config: &AHashMap<String, Value>) -> Result<ErasedRule, String> {
-        Ok(RuleLT11.erased())
-    }
-    fn name(&self) -> &'static str {
-        "layout.set_operators"
-    }
+    name = "layout.set_operators";
+    description = "Set operators should be surrounded by newlines.";
+    groups = [RuleGroups::All, RuleGroups::Core, RuleGroups::Layout];
+    eval = eval;
+    load_from_config = load_from_config;
+    is_fix_compatible = true;
+    crawl_behaviour = SegmentSeekerCrawler::new(const { SyntaxSet::new(&[SyntaxKind::SetOperator]) });
+);
 
-    fn description(&self) -> &'static str {
-        "Set operators should be surrounded by newlines."
-    }
+fn eval(context: &RuleContext) -> Vec<LintResult> {
+    ReflowSequence::from_around_target(
+        &context.segment,
+        context.parent_stack.first().unwrap().clone(),
+        TargetSide::Both,
+        context.config,
+    )
+    .rebreak(context.tables)
+    .results()
+}
 
-    fn long_description(&self) -> &'static str {
-        r#"
-**Anti-pattern**
-
-In this example, `UNION ALL` is not on a line itself.
-
-```sql
-SELECT 'a' AS col UNION ALL
-SELECT 'b' AS col
-```
-
-**Best practice**
-
-Place `UNION ALL` on its own line.
-
-```sql
-SELECT 'a' AS col
-UNION ALL
-SELECT 'b' AS col
-```
-"#
-    }
-
-    fn groups(&self) -> &'static [RuleGroups] {
-        &[RuleGroups::All, RuleGroups::Core, RuleGroups::Layout]
-    }
-    fn eval(&self, context: &RuleContext) -> Vec<LintResult> {
-        ReflowSequence::from_around_target(
-            &context.segment,
-            context.parent_stack.first().unwrap().clone(),
-            TargetSide::Both,
-            context.config,
-        )
-        .rebreak(context.tables)
-        .results()
-    }
-
-    fn is_fix_compatible(&self) -> bool {
-        true
-    }
-
-    fn crawl_behaviour(&self) -> Crawler {
-        SegmentSeekerCrawler::new(const { SyntaxSet::new(&[SyntaxKind::SetOperator]) }).into()
-    }
+fn load_from_config(
+    _config: &ahash::AHashMap<String, crate::core::config::Value>,
+) -> Result<crate::core::rules::ErasedRule, String> {
+    Ok(RuleLT11 {}.erased())
 }

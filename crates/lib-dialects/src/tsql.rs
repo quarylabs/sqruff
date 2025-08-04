@@ -397,8 +397,7 @@ pub fn raw_dialect() -> Dialect {
     //       .[table]
     dialect.replace_grammar(
         "ObjectReferenceSegment",
-        NodeMatcher::new(SyntaxKind::ObjectReference, |_| {
-            one_of(vec_of_erased![
+        one_of(vec_of_erased![
                 // T-SQL syntax with leading dots (for .table, ..table, ...table)
                 Sequence::new(vec_of_erased![
                     // At least one leading dot
@@ -446,8 +445,7 @@ pub fn raw_dialect() -> Dialect {
                     this.terminators = vec_of_erased![Ref::new("ObjectReferenceTerminatorGrammar")];
                 })
             ])
-            .to_matchable()
-        }).to_matchable(),
+            .to_matchable(),
     );
 
     // NOTE: T-SQL CASE expressions are now supported in SELECT clauses via TsqlCaseExpressionSegment
@@ -5837,8 +5835,9 @@ pub fn raw_dialect() -> Dialect {
         .to_matchable(),
     );
     // T-SQL CREATE FUNCTION support with CREATE OR ALTER
+    // NOTE: This is overridden later by replace_grammar
     dialect.add([(
-        "CreateFunctionStatementSegment".into(),
+        "CreateFunctionStatementSegment_UNUSED".into(),
         NodeMatcher::new(SyntaxKind::CreateFunctionStatement, |_| {
             Sequence::new(vec_of_erased![
                 one_of(vec_of_erased![
@@ -9420,8 +9419,7 @@ pub fn raw_dialect() -> Dialect {
 
     // Override CREATE FUNCTION for T-SQL specific features
     dialect.replace_grammar("CreateFunctionStatementSegment", {
-        NodeMatcher::new(SyntaxKind::CreateFunctionStatement, |_| {
-            Sequence::new(vec_of_erased![
+        Sequence::new(vec_of_erased![
                 Ref::keyword("CREATE"),
                 Sequence::new(vec_of_erased![Ref::keyword("OR"), Ref::keyword("ALTER")])
                     .config(|this| this.optional()),
@@ -9495,8 +9493,6 @@ pub fn raw_dialect() -> Dialect {
                 ])
             ])
             .to_matchable()
-        })
-        .to_matchable()
     });
 
     // Override MergeMatchSegment to allow multiple MERGE clauses including T-SQL specific syntax

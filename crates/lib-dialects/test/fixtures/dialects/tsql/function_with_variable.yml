@@ -2,58 +2,57 @@ file:
 - batch:
   - statement:
     - create_function_statement:
-      - create_function_statement:
-        - keyword: CREATE
-        - keyword: OR
-        - keyword: ALTER
-        - keyword: FUNCTION
-        - object_reference:
-          - quoted_identifier: '[dbo]'
-          - dot: .
-          - quoted_identifier: '[CONVERT_ISO_WEEK_TO_UNIX]'
-        - bracketed:
-          - start_bracket: (
-          - parameter:
-            - tsql_variable: '@year'
-            - data_type:
-              - data_type:
-                - data_type_identifier: INT
-          - comma: ','
-          - parameter:
-            - tsql_variable: '@week'
-            - data_type:
-              - data_type:
-                - data_type_identifier: INT
-          - end_bracket: )
-        - keyword: RETURNS
-        - data_type:
+      - keyword: CREATE
+      - keyword: OR
+      - keyword: ALTER
+      - keyword: FUNCTION
+      - object_reference:
+        - quoted_identifier: '[dbo]'
+        - dot: .
+        - quoted_identifier: '[CONVERT_ISO_WEEK_TO_UNIX]'
+      - bracketed:
+        - start_bracket: (
+        - parameter:
+          - tsql_variable: '@year'
           - data_type:
-            - data_type_identifier: BIGINT
-        - keyword: AS
-        - keyword: BEGIN
-        - statement:
-          - declare_statement:
-            - keyword: DECLARE
-            - tsql_variable: '@result'
             - data_type:
-              - data_type:
-                - data_type_identifier: BIGINT
-        - statement:
-          - keyword: SET
+              - data_type_identifier: INT
+        - comma: ','
+        - parameter:
+          - tsql_variable: '@week'
+          - data_type:
+            - data_type:
+              - data_type_identifier: INT
+        - end_bracket: )
+      - keyword: RETURNS
+      - data_type:
+        - data_type:
+          - data_type_identifier: BIGINT
+      - keyword: AS
+      - keyword: BEGIN
+      - statement:
+        - declare_statement:
+          - keyword: DECLARE
           - tsql_variable: '@result'
-          - assignment_operator:
-            - raw_comparison_operator: =
-          - expression:
-            - numeric_literal: '4'
-        - statement:
-          - keyword: RETURN
-          - expression:
-            - parameterized_expression:
-              - tsql_variable: '@result'
-            - binary_operator: +
-            - parameterized_expression:
-              - tsql_variable: '@year'
-            - binary_operator: +
-            - parameterized_expression:
-              - tsql_variable: '@week'
-        - keyword: END
+          - data_type:
+            - data_type:
+              - data_type_identifier: BIGINT
+      - statement:
+        - keyword: SET
+        - tsql_variable: '@result'
+        - assignment_operator:
+          - raw_comparison_operator: =
+        - expression:
+          - numeric_literal: '4'
+      - statement:
+        - keyword: RETURN
+        - expression:
+          - parameterized_expression:
+            - tsql_variable: '@result'
+          - binary_operator: +
+          - parameterized_expression:
+            - tsql_variable: '@year'
+          - binary_operator: +
+          - parameterized_expression:
+            - tsql_variable: '@week'
+      - keyword: END

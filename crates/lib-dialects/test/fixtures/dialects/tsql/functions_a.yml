@@ -142,76 +142,74 @@ file:
   - keyword: GO
   - statement:
     - create_function_statement:
-      - create_function_statement:
-        - keyword: CREATE
-        - keyword: FUNCTION
-        - object_reference:
-          - naked_identifier: dbo
-          - dot: .
-          - naked_identifier: RandDate
-        - bracketed:
-          - start_bracket: (
-          - parameter:
-            - tsql_variable: '@admit'
-            - data_type:
-              - data_type:
-                - data_type_identifier: DATE
-          - end_bracket: )
-        - keyword: RETURNS
-        - data_type:
+      - keyword: CREATE
+      - keyword: FUNCTION
+      - object_reference:
+        - naked_identifier: dbo
+        - dot: .
+        - naked_identifier: RandDate
+      - bracketed:
+        - start_bracket: (
+        - parameter:
+          - tsql_variable: '@admit'
           - data_type:
-            - data_type_identifier: TABLE
-        - keyword: AS
-        - statement:
-          - keyword: RETURN
-          - expression:
-            - bracketed:
-              - start_bracket: (
-              - expression:
-                - select_statement:
-                  - select_clause:
-                    - keyword: SELECT
-                    - select_clause_element:
-                      - tsql_variable: '@admit'
-                  - from_clause:
-                    - keyword: FROM
-                    - from_expression:
-                      - from_expression_element:
-                        - table_expression:
-                          - table_reference:
-                            - object_reference:
-                              - naked_identifier: dbo
-                              - dot: .
-                              - quoted_identifier: '[RandomDate]'
-              - end_bracket: )
+            - data_type:
+              - data_type_identifier: DATE
+        - end_bracket: )
+      - keyword: RETURNS
+      - data_type:
+        - data_type:
+          - data_type_identifier: TABLE
+      - keyword: AS
+      - statement:
+        - keyword: RETURN
+        - expression:
+          - bracketed:
+            - start_bracket: (
+            - expression:
+              - select_statement:
+                - select_clause:
+                  - keyword: SELECT
+                  - select_clause_element:
+                    - tsql_variable: '@admit'
+                - from_clause:
+                  - keyword: FROM
+                  - from_expression:
+                    - from_expression_element:
+                      - table_expression:
+                        - table_reference:
+                          - object_reference:
+                            - naked_identifier: dbo
+                            - dot: .
+                            - quoted_identifier: '[RandomDate]'
+            - end_bracket: )
   - statement_terminator: ;
   - keyword: GO
   - statement:
     - create_function_statement:
-      - create_function_statement:
-        - keyword: CREATE
-        - keyword: FUNCTION
-        - object_reference:
-          - naked_identifier: dbo
-          - dot: .
-          - naked_identifier: no_paramters
-        - bracketed:
-          - start_bracket: (
-          - end_bracket: )
-        - keyword: RETURNS
+      - keyword: CREATE
+      - keyword: FUNCTION
+      - object_reference:
+        - naked_identifier: dbo
+        - dot: .
+        - naked_identifier: no_paramters
+      - bracketed:
+        - start_bracket: (
+        - end_bracket: )
+      - keyword: RETURNS
+      - data_type:
         - data_type:
-          - data_type:
-            - data_type_identifier: INT
-        - keyword: AS
-        - statement:
-          - begin_end_block:
-            - keyword: BEGIN
-            - statement:
-              - keyword: RETURN
-              - expression:
-                - numeric_literal: '2'
-            - statement_terminator: ;
-            - keyword: END
+          - data_type_identifier: INT
+      - keyword: AS
+      - statement:
+        - begin_end_block:
+          - keyword: BEGIN
+          - statement:
+            - keyword: RETURN
+            - expression:
+              - numeric_literal: '2'
+          - statement_terminator: ;
+          - keyword: END
   - keyword: GO
   - statement:
     - select_statement:

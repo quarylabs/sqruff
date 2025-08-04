@@ -2,41 +2,40 @@ file:
 - batch:
   - statement:
     - create_function_statement:
-      - create_function_statement:
-        - keyword: CREATE
-        - keyword: OR
-        - keyword: ALTER
-        - keyword: FUNCTION
-        - object_reference:
-          - quoted_identifier: '[dbo]'
-          - dot: .
-          - quoted_identifier: '[add]'
-        - bracketed:
-          - start_bracket: (
-          - parameter:
-            - tsql_variable: '@add_1'
-            - data_type:
-              - data_type:
-                - data_type_identifier: int
-          - comma: ','
-          - parameter:
-            - tsql_variable: '@add_2'
-            - data_type:
-              - data_type:
-                - data_type_identifier: int
-          - end_bracket: )
-        - keyword: RETURNS
-        - data_type:
+      - keyword: CREATE
+      - keyword: OR
+      - keyword: ALTER
+      - keyword: FUNCTION
+      - object_reference:
+        - quoted_identifier: '[dbo]'
+        - dot: .
+        - quoted_identifier: '[add]'
+      - bracketed:
+        - start_bracket: (
+        - parameter:
+          - tsql_variable: '@add_1'
           - data_type:
-            - data_type_identifier: integer
-        - keyword: AS
-        - keyword: BEGIN
-        - statement:
-          - keyword: RETURN
-          - expression:
-            - parameterized_expression:
-              - tsql_variable: '@add_1'
-            - binary_operator: +
-            - parameterized_expression:
-              - tsql_variable: '@add_2'
-        - keyword: END
+            - data_type:
+              - data_type_identifier: int
+        - comma: ','
+        - parameter:
+          - tsql_variable: '@add_2'
+          - data_type:
+            - data_type:
+              - data_type_identifier: int
+        - end_bracket: )
+      - keyword: RETURNS
+      - data_type:
+        - data_type:
+          - data_type_identifier: integer
+      - keyword: AS
+      - keyword: BEGIN
+      - statement:
+        - keyword: RETURN
+        - expression:
+          - parameterized_expression:
+            - tsql_variable: '@add_1'
+          - binary_operator: +
+          - parameterized_expression:
+            - tsql_variable: '@add_2'
+      - keyword: END

@@ -1,3 +1,0 @@
-[sqruff]
-dialect = tsql
-rules = LT01

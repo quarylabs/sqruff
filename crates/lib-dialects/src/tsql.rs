@@ -10000,7 +10000,6 @@ pub fn raw_dialect() -> Dialect {
         .into(),
     )]);
 
-
     // Override FunctionSegment to include PostFunctionGrammar
     dialect.replace_grammar("FunctionSegment", {
         NodeMatcher::new(SyntaxKind::Function, |_| {

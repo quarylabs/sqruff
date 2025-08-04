@@ -57,13 +57,14 @@ file:
             - data_type:
               - data_type:
                 - data_type_identifier: DECIMAL
-                - bracketed_arguments:
-                  - bracketed:
-                    - start_bracket: (
+                - bracketed:
+                  - start_bracket: (
+                  - expression:
                     - numeric_literal: '10'
-                    - comma: ','
+                  - comma: ','
+                  - expression:
                     - numeric_literal: '2'
-                    - end_bracket: )
+                  - end_bracket: )
             - column_constraint_segment:
               - keyword: CHECK
               - bracketed:

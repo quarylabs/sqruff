@@ -17,11 +17,12 @@ file:
             - column_definition:
               - quoted_identifier: '[Column B]'
               - data_type:
-                - quoted_identifier: '[varchar]'
-                - bracketed_arguments:
-                  - bracketed:
-                    - start_bracket: (
-                    - numeric_literal: '100'
-                    - end_bracket: )
+                - data_type:
+                  - quoted_identifier: '[varchar]'
+                  - bracketed_arguments:
+                    - bracketed:
+                      - start_bracket: (
+                      - numeric_literal: '100'
+                      - end_bracket: )
           - comma: ','
           - end_bracket: )

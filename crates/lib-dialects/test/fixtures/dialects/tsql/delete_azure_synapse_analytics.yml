@@ -18,10 +18,12 @@ file:
     - naked_identifier: Table2
     - expression:
       - data_type:
-        - data_type_identifier: INNER
+        - data_type:
+          - data_type_identifier: INNER
     - expression:
       - data_type:
-        - data_type_identifier: JOIN
+        - data_type:
+          - data_type_identifier: JOIN
     - expression:
       - column_reference:
         - naked_identifier: dbo
@@ -303,10 +305,12 @@ file:
     - naked_identifier: Table2
     - expression:
       - data_type:
-        - data_type_identifier: INNER
+        - data_type:
+          - data_type_identifier: INNER
     - expression:
       - data_type:
-        - data_type_identifier: JOIN
+        - data_type:
+          - data_type_identifier: JOIN
     - expression:
       - column_reference:
         - naked_identifier: dbo

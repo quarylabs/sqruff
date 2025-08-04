@@ -17,12 +17,13 @@ file:
             - column_definition:
               - quoted_identifier: '[Column B]'
               - data_type:
-                - quoted_identifier: '[varchar]'
-                - bracketed_arguments:
-                  - bracketed:
-                    - start_bracket: (
-                    - numeric_literal: '100'
-                    - end_bracket: )
+                - data_type:
+                  - quoted_identifier: '[varchar]'
+                  - bracketed_arguments:
+                    - bracketed:
+                      - start_bracket: (
+                      - numeric_literal: '100'
+                      - end_bracket: )
           - comma: ','
           - column_definition:
             - quoted_identifier: '[ColumnC]'
@@ -84,12 +85,13 @@ file:
             - column_definition:
               - quoted_identifier: '[Column B]'
               - data_type:
-                - quoted_identifier: '[varchar]'
-                - bracketed_arguments:
-                  - bracketed:
-                    - start_bracket: (
-                    - numeric_literal: '100'
-                    - end_bracket: )
+                - data_type:
+                  - quoted_identifier: '[varchar]'
+                  - bracketed_arguments:
+                    - bracketed:
+                      - start_bracket: (
+                      - numeric_literal: '100'
+                      - end_bracket: )
           - comma: ','
           - column_definition:
             - quoted_identifier: '[ColumnC]'
@@ -149,12 +151,13 @@ file:
             - column_definition:
               - quoted_identifier: '[Column B]'
               - data_type:
-                - quoted_identifier: '[varchar]'
-                - bracketed_arguments:
-                  - bracketed:
-                    - start_bracket: (
-                    - numeric_literal: '100'
-                    - end_bracket: )
+                - data_type:
+                  - quoted_identifier: '[varchar]'
+                  - bracketed_arguments:
+                    - bracketed:
+                      - start_bracket: (
+                      - numeric_literal: '100'
+                      - end_bracket: )
           - comma: ','
           - column_definition:
             - quoted_identifier: '[ColumnC]'
@@ -222,12 +225,13 @@ file:
             - column_definition:
               - quoted_identifier: '[Column B]'
               - data_type:
-                - quoted_identifier: '[varchar]'
-                - bracketed_arguments:
-                  - bracketed:
-                    - start_bracket: (
-                    - numeric_literal: '100'
-                    - end_bracket: )
+                - data_type:
+                  - quoted_identifier: '[varchar]'
+                  - bracketed_arguments:
+                    - bracketed:
+                      - start_bracket: (
+                      - numeric_literal: '100'
+                      - end_bracket: )
           - comma: ','
           - column_definition:
             - quoted_identifier: '[ColumnC]'
@@ -299,12 +303,13 @@ file:
             - column_definition:
               - quoted_identifier: '[Column B]'
               - data_type:
-                - quoted_identifier: '[varchar]'
-                - bracketed_arguments:
-                  - bracketed:
-                    - start_bracket: (
-                    - numeric_literal: '100'
-                    - end_bracket: )
+                - data_type:
+                  - quoted_identifier: '[varchar]'
+                  - bracketed_arguments:
+                    - bracketed:
+                      - start_bracket: (
+                      - numeric_literal: '100'
+                      - end_bracket: )
           - comma: ','
           - column_definition:
             - quoted_identifier: '[ColumnC]'
@@ -376,12 +381,13 @@ file:
             - column_definition:
               - quoted_identifier: '[Column B]'
               - data_type:
-                - quoted_identifier: '[varchar]'
-                - bracketed_arguments:
-                  - bracketed:
-                    - start_bracket: (
-                    - numeric_literal: '100'
-                    - end_bracket: )
+                - data_type:
+                  - quoted_identifier: '[varchar]'
+                  - bracketed_arguments:
+                    - bracketed:
+                      - start_bracket: (
+                      - numeric_literal: '100'
+                      - end_bracket: )
           - comma: ','
           - column_definition:
             - quoted_identifier: '[ColumnC]'
@@ -455,12 +461,13 @@ file:
             - column_definition:
               - quoted_identifier: '[name]'
               - data_type:
-                - quoted_identifier: '[varchar]'
-                - bracketed_arguments:
-                  - bracketed:
-                    - start_bracket: (
-                    - numeric_literal: '100'
-                    - end_bracket: )
+                - data_type:
+                  - quoted_identifier: '[varchar]'
+                  - bracketed_arguments:
+                    - bracketed:
+                      - start_bracket: (
+                      - numeric_literal: '100'
+                      - end_bracket: )
               - column_constraint_segment:
                 - keyword: NOT
                 - keyword: 'NULL'
@@ -469,7 +476,8 @@ file:
             - column_definition:
               - quoted_identifier: '[month_num]'
               - data_type:
-                - quoted_identifier: '[int]'
+                - data_type:
+                  - quoted_identifier: '[int]'
               - column_constraint_segment:
                 - keyword: 'NULL'
           - end_bracket: )

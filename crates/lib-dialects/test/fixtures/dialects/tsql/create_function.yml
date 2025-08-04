@@ -15,11 +15,13 @@ file:
           - parameter:
             - tsql_variable: '@DATE'
             - data_type:
-              - data_type_identifier: datetime
+              - data_type:
+                - data_type_identifier: datetime
           - end_bracket: )
         - keyword: RETURNS
         - data_type:
-          - data_type_identifier: int
+          - data_type:
+            - data_type_identifier: int
         - keyword: WITH
         - keyword: EXECUTE
         - keyword: AS
@@ -33,7 +35,8 @@ file:
                 - keyword: DECLARE
                 - tsql_variable: '@ISOweek'
                 - data_type:
-                  - data_type_identifier: int
+                  - data_type:
+                    - data_type_identifier: int
             - statement_terminator: ;
             - statement:
               - keyword: SET
@@ -93,11 +96,12 @@ file:
                                             - end_bracket: )
                                   - keyword: as
                                   - data_type:
-                                    - data_type_identifier: CHAR
-                                    - bracketed_arguments:
+                                    - data_type:
+                                      - data_type_identifier: CHAR
                                       - bracketed:
                                         - start_bracket: (
-                                        - numeric_literal: '4'
+                                        - expression:
+                                          - numeric_literal: '4'
                                         - end_bracket: )
                                   - end_bracket: )
                           - binary_operator: +
@@ -157,11 +161,12 @@ file:
                                       - numeric_literal: '1'
                                     - keyword: AS
                                     - data_type:
-                                      - data_type_identifier: CHAR
-                                      - bracketed_arguments:
+                                      - data_type:
+                                        - data_type_identifier: CHAR
                                         - bracketed:
                                           - start_bracket: (
-                                          - numeric_literal: '4'
+                                          - expression:
+                                            - numeric_literal: '4'
                                           - end_bracket: )
                                     - end_bracket: )
                             - binary_operator: +
@@ -193,11 +198,12 @@ file:
                                               - end_bracket: )
                                     - keyword: AS
                                     - data_type:
-                                      - data_type_identifier: CHAR
-                                      - bracketed_arguments:
+                                      - data_type:
+                                        - data_type_identifier: CHAR
                                         - bracketed:
                                           - start_bracket: (
-                                          - numeric_literal: '2'
+                                          - expression:
+                                            - numeric_literal: '2'
                                           - end_bracket: )
                                     - end_bracket: )
                           - end_bracket: )
@@ -313,7 +319,8 @@ file:
           - column_reference:
             - naked_identifier: i
           - data_type:
-            - data_type_identifier: int
+            - data_type:
+              - data_type_identifier: int
           - end_bracket: )
         - keyword: AS
         - statement:
@@ -355,11 +362,13 @@ file:
             - tsql_variable: '@DATE'
             - keyword: as
             - data_type:
-              - data_type_identifier: datetime
+              - data_type:
+                - data_type_identifier: datetime
           - end_bracket: )
         - keyword: RETURNS
         - data_type:
-          - data_type_identifier: INT
+          - data_type:
+            - data_type_identifier: INT
         - keyword: AS
         - keyword: BEGIN
         - statement:
@@ -382,11 +391,13 @@ file:
           - tsql_variable: '@DATE'
           - keyword: as
           - data_type:
-            - data_type_identifier: datetime
+            - data_type:
+              - data_type_identifier: datetime
         - end_bracket: )
       - keyword: RETURNS
       - data_type:
-        - data_type_identifier: INT
+        - data_type:
+          - data_type_identifier: INT
       - keyword: AS
       - begin_end_block:
         - keyword: BEGIN
@@ -412,16 +423,19 @@ file:
           - parameter:
             - tsql_variable: '@list'
             - data_type:
-              - data_type_identifier: ItemList
+              - data_type:
+                - data_type_identifier: ItemList
             - keyword: READONLY
           - end_bracket: )
         - keyword: RETURNS
         - data_type:
-          - data_type_identifier: nvarchar
-          - bracketed_arguments:
+          - data_type:
+            - data_type_identifier: nvarchar
             - bracketed:
               - start_bracket: (
-              - keyword: max
+              - expression:
+                - column_reference:
+                  - naked_identifier: max
               - end_bracket: )
         - keyword: AS
         - keyword: BEGIN
@@ -430,11 +444,13 @@ file:
             - keyword: DECLARE
             - tsql_variable: '@str'
             - data_type:
-              - data_type_identifier: nvarchar
-              - bracketed_arguments:
+              - data_type:
+                - data_type_identifier: nvarchar
                 - bracketed:
                   - start_bracket: (
-                  - keyword: max
+                  - expression:
+                    - column_reference:
+                      - naked_identifier: max
                   - end_bracket: )
             - assignment_operator:
               - raw_comparison_operator: =
@@ -518,11 +534,13 @@ file:
           - parameter:
             - tsql_variable: '@my_parameter'
             - data_type:
-              - data_type_identifier: int
+              - data_type:
+                - data_type_identifier: int
           - end_bracket: )
         - keyword: returns
         - data_type:
-          - data_type_identifier: int
+          - data_type:
+            - data_type_identifier: int
         - keyword: with
         - keyword: schemabinding
         - comma: ','

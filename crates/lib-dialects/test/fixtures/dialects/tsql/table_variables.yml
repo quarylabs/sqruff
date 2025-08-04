@@ -20,9 +20,9 @@ file:
             - data_type:
               - data_type:
                 - data_type_identifier: nvarchar
-                - bracketed_arguments:
-                  - bracketed:
-                    - start_bracket: (
+                - bracketed:
+                  - start_bracket: (
+                  - expression:
                     - numeric_literal: '100'
-                    - end_bracket: )
+                  - end_bracket: )
         - end_bracket: )

@@ -78,11 +78,12 @@ file:
                   - tsql_variable: '@@ROWCOUNT'
               - keyword: as
               - data_type:
-                - data_type_identifier: char
-                - bracketed_arguments:
+                - data_type:
+                  - data_type_identifier: char
                   - bracketed:
                     - start_bracket: (
-                    - numeric_literal: '3'
+                    - expression:
+                      - numeric_literal: '3'
                     - end_bracket: )
               - end_bracket: )
   - statement_terminator: ;
@@ -299,10 +300,12 @@ file:
         - naked_identifier: spqh
     - expression:
       - data_type:
-        - data_type_identifier: INNER
+        - data_type:
+          - data_type_identifier: INNER
     - expression:
       - data_type:
-        - data_type_identifier: JOIN
+        - data_type:
+          - data_type_identifier: JOIN
     - expression:
       - column_reference:
         - naked_identifier: Sales
@@ -316,7 +319,8 @@ file:
         - naked_identifier: sp
     - expression:
       - data_type:
-        - data_type_identifier: ON
+        - data_type:
+          - data_type_identifier: ON
     - expression:
       - column_reference:
         - naked_identifier: spqh
@@ -363,10 +367,12 @@ file:
         - naked_identifier: spqh
     - expression:
       - data_type:
-        - data_type_identifier: INNER
+        - data_type:
+          - data_type_identifier: INNER
     - expression:
       - data_type:
-        - data_type_identifier: JOIN
+        - data_type:
+          - data_type_identifier: JOIN
     - expression:
       - column_reference:
         - naked_identifier: Sales
@@ -380,7 +386,8 @@ file:
         - naked_identifier: sp
     - expression:
       - data_type:
-        - data_type_identifier: ON
+        - data_type:
+          - data_type_identifier: ON
     - expression:
       - column_reference:
         - naked_identifier: spqh
@@ -624,11 +631,11 @@ file:
             - data_type:
               - data_type:
                 - data_type_identifier: nvarchar
-                - bracketed_arguments:
-                  - bracketed:
-                    - start_bracket: (
+                - bracketed:
+                  - start_bracket: (
+                  - expression:
                     - numeric_literal: '50'
-                    - end_bracket: )
+                  - end_bracket: )
             - column_constraint_segment:
               - keyword: NOT
               - keyword: 'NULL'
@@ -708,7 +715,8 @@ file:
         - naked_identifier: ph
     - expression:
       - data_type:
-        - data_type_identifier: JOIN
+        - data_type:
+          - data_type_identifier: JOIN
     - expression:
       - column_reference:
         - naked_identifier: Production
@@ -722,7 +730,8 @@ file:
         - naked_identifier: p
     - expression:
       - data_type:
-        - data_type_identifier: ON
+        - data_type:
+          - data_type_identifier: ON
     - expression:
       - column_reference:
         - naked_identifier: ph

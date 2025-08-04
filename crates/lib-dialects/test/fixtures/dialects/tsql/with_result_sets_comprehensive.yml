@@ -43,24 +43,25 @@ file:
           - data_type:
             - data_type:
               - data_type_identifier: NVARCHAR
-              - bracketed_arguments:
-                - bracketed:
-                  - start_bracket: (
+              - bracketed:
+                - start_bracket: (
+                - expression:
                   - numeric_literal: '50'
-                  - end_bracket: )
+                - end_bracket: )
         - comma: ','
         - column_definition:
           - naked_identifier: col3
           - data_type:
             - data_type:
               - data_type_identifier: DECIMAL
-              - bracketed_arguments:
-                - bracketed:
-                  - start_bracket: (
+              - bracketed:
+                - start_bracket: (
+                - expression:
                   - numeric_literal: '10'
-                  - comma: ','
+                - comma: ','
+                - expression:
                   - numeric_literal: '2'
-                  - end_bracket: )
+                - end_bracket: )
         - end_bracket: )
       - end_bracket: )
   - statement_terminator: ;
@@ -88,11 +89,11 @@ file:
           - data_type:
             - data_type:
               - data_type_identifier: VARCHAR
-              - bracketed_arguments:
-                - bracketed:
-                  - start_bracket: (
+              - bracketed:
+                - start_bracket: (
+                - expression:
                   - numeric_literal: '100'
-                  - end_bracket: )
+                - end_bracket: )
           - keyword: NOT
           - keyword: 'NULL'
         - end_bracket: )
@@ -121,11 +122,11 @@ file:
           - data_type:
             - data_type:
               - data_type_identifier: VARCHAR
-              - bracketed_arguments:
-                - bracketed:
-                  - start_bracket: (
+              - bracketed:
+                - start_bracket: (
+                - expression:
                   - numeric_literal: '50'
-                  - end_bracket: )
+                - end_bracket: )
         - end_bracket: )
       - comma: ','
       - bracketed:
@@ -135,11 +136,11 @@ file:
           - data_type:
             - data_type:
               - data_type_identifier: NVARCHAR
-              - bracketed_arguments:
-                - bracketed:
-                  - start_bracket: (
+              - bracketed:
+                - start_bracket: (
+                - expression:
                   - numeric_literal: '100'
-                  - end_bracket: )
+                - end_bracket: )
         - comma: ','
         - column_definition:
           - naked_identifier: count
@@ -172,11 +173,12 @@ file:
           - data_type:
             - data_type:
               - data_type_identifier: NVARCHAR
-              - bracketed_arguments:
-                - bracketed:
-                  - start_bracket: (
-                  - keyword: MAX
-                  - end_bracket: )
+              - bracketed:
+                - start_bracket: (
+                - expression:
+                  - column_reference:
+                    - naked_identifier: MAX
+                - end_bracket: )
         - end_bracket: )
       - end_bracket: )
   - statement_terminator: ;

@@ -86,11 +86,11 @@ file:
                       - data_type:
                         - data_type:
                           - data_type_identifier: VARCHAR
-                          - bracketed_arguments:
-                            - bracketed:
-                              - start_bracket: (
+                          - bracketed:
+                            - start_bracket: (
+                            - expression:
                               - numeric_literal: '3'
-                              - end_bracket: )
+                            - end_bracket: )
                       - comma: ','
                       - naked_identifier: temp
                       - data_type:
@@ -138,11 +138,11 @@ file:
                       - data_type:
                         - data_type:
                           - data_type_identifier: VARCHAR
-                          - bracketed_arguments:
-                            - bracketed:
-                              - start_bracket: (
+                          - bracketed:
+                            - start_bracket: (
+                            - expression:
                               - numeric_literal: '200'
-                              - end_bracket: )
+                            - end_bracket: )
                       - quoted_literal: '''$.Order.Number'''
                       - comma: ','
                       - naked_identifier: Date
@@ -155,11 +155,11 @@ file:
                       - data_type:
                         - data_type:
                           - data_type_identifier: VARCHAR
-                          - bracketed_arguments:
-                            - bracketed:
-                              - start_bracket: (
+                          - bracketed:
+                            - start_bracket: (
+                            - expression:
                               - numeric_literal: '200'
-                              - end_bracket: )
+                            - end_bracket: )
                       - quoted_literal: '''$.AccountNumber'''
                       - comma: ','
                       - naked_identifier: Quantity
@@ -172,11 +172,12 @@ file:
                       - data_type:
                         - data_type:
                           - data_type_identifier: NVARCHAR
-                          - bracketed_arguments:
-                            - bracketed:
-                              - start_bracket: (
-                              - keyword: MAX
-                              - end_bracket: )
+                          - bracketed:
+                            - start_bracket: (
+                            - expression:
+                              - column_reference:
+                                - naked_identifier: MAX
+                            - end_bracket: )
                       - keyword: AS
                       - keyword: JSON
                       - end_bracket: )
@@ -234,11 +235,11 @@ file:
                         - data_type:
                           - data_type:
                             - data_type_identifier: NVARCHAR
-                            - bracketed_arguments:
-                              - bracketed:
-                                - start_bracket: (
+                            - bracketed:
+                              - start_bracket: (
+                              - expression:
                                 - numeric_literal: '100'
-                                - end_bracket: )
+                              - end_bracket: )
                         - quoted_literal: '''$'''
                         - end_bracket: )
   - statement_terminator: ;
@@ -306,21 +307,21 @@ file:
                         - data_type:
                           - data_type:
                             - data_type_identifier: VARCHAR
-                            - bracketed_arguments:
-                              - bracketed:
-                                - start_bracket: (
+                            - bracketed:
+                              - start_bracket: (
+                              - expression:
                                 - numeric_literal: '500'
-                                - end_bracket: )
+                              - end_bracket: )
                         - comma: ','
                         - naked_identifier: postcode
                         - data_type:
                           - data_type:
                             - data_type_identifier: VARCHAR
-                            - bracketed_arguments:
-                              - bracketed:
-                                - start_bracket: (
+                            - bracketed:
+                              - start_bracket: (
+                              - expression:
                                 - numeric_literal: '500'
-                                - end_bracket: )
+                              - end_bracket: )
                         - quoted_literal: '''$.postcode'''
                         - comma: ','
                         - naked_identifier: lon
@@ -383,21 +384,21 @@ file:
                           - data_type:
                             - data_type:
                               - data_type_identifier: NVARCHAR
-                              - bracketed_arguments:
-                                - bracketed:
-                                  - start_bracket: (
+                              - bracketed:
+                                - start_bracket: (
+                                - expression:
                                   - numeric_literal: '50'
-                                  - end_bracket: )
+                                - end_bracket: )
                           - comma: ','
                           - naked_identifier: lastName
                           - data_type:
                             - data_type:
                               - data_type_identifier: NVARCHAR
-                              - bracketed_arguments:
-                                - bracketed:
-                                  - start_bracket: (
+                              - bracketed:
+                                - start_bracket: (
+                                - expression:
                                   - numeric_literal: '50'
-                                  - end_bracket: )
+                                - end_bracket: )
                           - comma: ','
                           - naked_identifier: isAlive
                           - data_type:
@@ -418,11 +419,11 @@ file:
                           - data_type:
                             - data_type:
                               - data_type_identifier: NVARCHAR
-                              - bracketed_arguments:
-                                - bracketed:
-                                  - start_bracket: (
+                              - bracketed:
+                                - start_bracket: (
+                                - expression:
                                   - numeric_literal: '50'
-                                  - end_bracket: )
+                                - end_bracket: )
                           - end_bracket: )
   - statement_terminator: ;
   - statement:

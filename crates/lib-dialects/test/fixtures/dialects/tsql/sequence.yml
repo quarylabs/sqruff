@@ -26,13 +26,15 @@ file:
       - create_sequence_options_segment:
         - keyword: AS
         - data_type:
-          - data_type_identifier: decimal
-          - bracketed_arguments:
+          - data_type:
+            - data_type_identifier: decimal
             - bracketed:
               - start_bracket: (
-              - numeric_literal: '3'
+              - expression:
+                - numeric_literal: '3'
               - comma: ','
-              - numeric_literal: '0'
+              - expression:
+                - numeric_literal: '0'
               - end_bracket: )
       - create_sequence_options_segment:
         - keyword: START

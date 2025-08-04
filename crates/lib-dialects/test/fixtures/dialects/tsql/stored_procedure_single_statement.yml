@@ -15,17 +15,18 @@ file:
         - start_bracket: (
         - tsql_variable: '@Apple'
         - data_type:
-          - quoted_identifier: '[int]'
+          - data_type:
+            - quoted_identifier: '[int]'
         - comma: ','
         - tsql_variable: '@Orange'
         - data_type:
           - data_type:
             - data_type_identifier: varchar
-            - bracketed_arguments:
-              - bracketed:
-                - start_bracket: (
+            - bracketed:
+              - start_bracket: (
+              - expression:
                 - numeric_literal: '100'
-                - end_bracket: )
+              - end_bracket: )
         - end_bracket: )
       - keyword: AS
       - insert_statement:

@@ -335,11 +335,11 @@ file:
                     - data_type:
                       - data_type:
                         - data_type_identifier: VARCHAR
-                        - bracketed_arguments:
-                          - bracketed:
-                            - start_bracket: (
+                        - bracketed:
+                          - start_bracket: (
+                          - expression:
                             - numeric_literal: '5'
-                            - end_bracket: )
+                          - end_bracket: )
                     - keyword: COLLATE
                     - identifier:
                       - naked_identifier: Latin1_General_BIN2
@@ -348,11 +348,11 @@ file:
                     - data_type:
                       - data_type:
                         - data_type_identifier: VARCHAR
-                        - bracketed_arguments:
-                          - bracketed:
-                            - start_bracket: (
+                        - bracketed:
+                          - start_bracket: (
+                          - expression:
                             - numeric_literal: '100'
-                            - end_bracket: )
+                          - end_bracket: )
                     - keyword: COLLATE
                     - identifier:
                       - naked_identifier: Latin1_General_BIN2
@@ -412,42 +412,42 @@ file:
                     - data_type:
                       - data_type:
                         - data_type_identifier: VARCHAR
-                        - bracketed_arguments:
-                          - bracketed:
-                            - start_bracket: (
+                        - bracketed:
+                          - start_bracket: (
+                          - expression:
                             - numeric_literal: '50'
-                            - end_bracket: )
+                          - end_bracket: )
                     - comma: ','
                     - quoted_identifier: '[stateName_explicit_path]'
                     - data_type:
                       - data_type:
                         - data_type_identifier: VARCHAR
-                        - bracketed_arguments:
-                          - bracketed:
-                            - start_bracket: (
+                        - bracketed:
+                          - start_bracket: (
+                          - expression:
                             - numeric_literal: '50'
-                            - end_bracket: )
+                          - end_bracket: )
                     - quoted_literal: '''$.stateName'''
                     - comma: ','
                     - quoted_identifier: '[COUNTYNAME]'
                     - data_type:
                       - data_type:
                         - data_type_identifier: VARCHAR
-                        - bracketed_arguments:
-                          - bracketed:
-                            - start_bracket: (
+                        - bracketed:
+                          - start_bracket: (
+                          - expression:
                             - numeric_literal: '50'
-                            - end_bracket: )
+                          - end_bracket: )
                     - comma: ','
                     - quoted_identifier: '[countyName_explicit_path]'
                     - data_type:
                       - data_type:
                         - data_type_identifier: VARCHAR
-                        - bracketed_arguments:
-                          - bracketed:
-                            - start_bracket: (
+                        - bracketed:
+                          - start_bracket: (
+                          - expression:
                             - numeric_literal: '50'
-                            - end_bracket: )
+                          - end_bracket: )
                     - quoted_literal: '''$.COUNTYNAME'''
                     - comma: ','
                     - quoted_identifier: '[population]'

@@ -13,11 +13,11 @@ file:
       - data_type:
         - data_type:
           - data_type_identifier: nvarchar
-          - bracketed_arguments:
-            - bracketed:
-              - start_bracket: (
+          - bracketed:
+            - start_bracket: (
+            - expression:
               - numeric_literal: '10'
-              - end_bracket: )
+            - end_bracket: )
       - comparison_operator:
         - raw_comparison_operator: =
       - quoted_literal: '''test'''

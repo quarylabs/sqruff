@@ -17,16 +17,19 @@ file:
           - parameter:
             - tsql_variable: '@year'
             - data_type:
-              - data_type_identifier: INT
+              - data_type:
+                - data_type_identifier: INT
           - comma: ','
           - parameter:
             - tsql_variable: '@week'
             - data_type:
-              - data_type_identifier: INT
+              - data_type:
+                - data_type_identifier: INT
           - end_bracket: )
         - keyword: RETURNS
         - data_type:
-          - data_type_identifier: BIGINT
+          - data_type:
+            - data_type_identifier: BIGINT
         - keyword: AS
         - keyword: BEGIN
         - statement:
@@ -34,7 +37,8 @@ file:
             - keyword: DECLARE
             - tsql_variable: '@result'
             - data_type:
-              - data_type_identifier: BIGINT
+              - data_type:
+                - data_type_identifier: BIGINT
         - statement:
           - keyword: SET
           - tsql_variable: '@result'

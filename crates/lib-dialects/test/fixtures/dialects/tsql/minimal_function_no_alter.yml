@@ -15,16 +15,19 @@ file:
           - parameter:
             - tsql_variable: '@add_1'
             - data_type:
-              - data_type_identifier: int
+              - data_type:
+                - data_type_identifier: int
           - comma: ','
           - parameter:
             - tsql_variable: '@add_2'
             - data_type:
-              - data_type_identifier: int
+              - data_type:
+                - data_type_identifier: int
           - end_bracket: )
         - keyword: RETURNS
         - data_type:
-          - data_type_identifier: integer
+          - data_type:
+            - data_type_identifier: integer
         - keyword: AS
         - keyword: BEGIN
         - statement:

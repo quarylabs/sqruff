@@ -296,11 +296,12 @@ file:
                                   - naked_identifier: ProductID
                               - keyword: AS
                               - data_type:
-                                - data_type_identifier: VARCHAR
-                                - bracketed_arguments:
+                                - data_type:
+                                  - data_type_identifier: VARCHAR
                                   - bracketed:
                                     - start_bracket: (
-                                    - numeric_literal: '10'
+                                    - expression:
+                                      - numeric_literal: '10'
                                     - end_bracket: )
                               - end_bracket: )
                     - comma: ','

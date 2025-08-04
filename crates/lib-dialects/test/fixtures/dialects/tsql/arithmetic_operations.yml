@@ -5,7 +5,8 @@ file:
       - keyword: DECLARE
       - tsql_variable: '@I'
       - data_type:
-        - data_type_identifier: INT
+        - data_type:
+          - data_type_identifier: INT
       - assignment_operator:
         - raw_comparison_operator: =
       - expression:

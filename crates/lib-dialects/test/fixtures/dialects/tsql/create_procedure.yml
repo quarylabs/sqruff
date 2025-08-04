@@ -180,11 +180,11 @@ file:
         - data_type:
           - data_type:
             - data_type_identifier: NVARCHAR
-            - bracketed_arguments:
-              - bracketed:
-                - start_bracket: (
+            - bracketed:
+              - start_bracket: (
+              - expression:
                 - numeric_literal: '42'
-                - end_bracket: )
+              - end_bracket: )
         - comparison_operator:
           - raw_comparison_operator: =
         - quoted_literal: N'foo'
@@ -292,11 +292,11 @@ file:
         - data_type:
           - data_type:
             - data_type_identifier: NVARCHAR
-            - bracketed_arguments:
-              - bracketed:
-                - start_bracket: (
+            - bracketed:
+              - start_bracket: (
+              - expression:
                 - numeric_literal: '32'
-                - end_bracket: )
+              - end_bracket: )
         - keyword: 'NULL'
         - comparison_operator:
           - raw_comparison_operator: =
@@ -348,11 +348,11 @@ file:
         - data_type:
           - data_type:
             - data_type_identifier: NVARCHAR
-            - bracketed_arguments:
-              - bracketed:
-                - start_bracket: (
+            - bracketed:
+              - start_bracket: (
+              - expression:
                 - numeric_literal: '32'
-                - end_bracket: )
+              - end_bracket: )
         - keyword: 'NULL'
         - comparison_operator:
           - raw_comparison_operator: =
@@ -660,11 +660,11 @@ file:
         - data_type:
           - data_type:
             - data_type_identifier: NVARCHAR
-            - bracketed_arguments:
-              - bracketed:
-                - start_bracket: (
+            - bracketed:
+              - start_bracket: (
+              - expression:
                 - numeric_literal: '32'
-                - end_bracket: )
+              - end_bracket: )
         - keyword: OUTPUT
         - comma: ','
         - tsql_variable: '@activated'

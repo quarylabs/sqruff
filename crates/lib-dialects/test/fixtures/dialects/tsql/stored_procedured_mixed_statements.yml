@@ -30,11 +30,12 @@ file:
       - keyword: DECLARE
       - tsql_variable: '@deadlock_var'
       - data_type:
-        - data_type_identifier: NCHAR
-        - bracketed_arguments:
+        - data_type:
+          - data_type_identifier: NCHAR
           - bracketed:
             - start_bracket: (
-            - numeric_literal: '3'
+            - expression:
+              - numeric_literal: '3'
             - end_bracket: )
   - statement_terminator: ;
   - statement:

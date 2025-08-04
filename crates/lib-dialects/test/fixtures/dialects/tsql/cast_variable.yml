@@ -5,7 +5,8 @@ file:
       - keyword: DECLARE
       - tsql_variable: '@DateNow'
       - data_type:
-        - data_type_identifier: date
+        - data_type:
+          - data_type_identifier: date
       - assignment_operator:
         - raw_comparison_operator: =
       - expression:
@@ -73,11 +74,12 @@ file:
                       - quoted_literal: '''1900-01-01'''
                     - keyword: as
                     - data_type:
-                      - data_type_identifier: datetime2
-                      - bracketed_arguments:
+                      - data_type:
+                        - data_type_identifier: datetime2
                         - bracketed:
                           - start_bracket: (
-                          - numeric_literal: '7'
+                          - expression:
+                            - numeric_literal: '7'
                           - end_bracket: )
                     - end_bracket: )
             - alias_expression:
@@ -103,11 +105,13 @@ file:
       - keyword: declare
       - tsql_variable: '@sample'
       - data_type:
-        - data_type_identifier: nvarchar
-        - bracketed_arguments:
+        - data_type:
+          - data_type_identifier: nvarchar
           - bracketed:
             - start_bracket: (
-            - keyword: max
+            - expression:
+              - column_reference:
+                - naked_identifier: max
             - end_bracket: )
       - assignment_operator:
         - raw_comparison_operator: =
@@ -123,10 +127,12 @@ file:
                   - numeric_literal: '100'
                 - keyword: as
                 - data_type:
-                  - data_type_identifier: nvarchar
-                  - bracketed_arguments:
+                  - data_type:
+                    - data_type_identifier: nvarchar
                     - bracketed:
                       - start_bracket: (
-                      - keyword: max
+                      - expression:
+                        - column_reference:
+                          - naked_identifier: max
                       - end_bracket: )
                 - end_bracket: )

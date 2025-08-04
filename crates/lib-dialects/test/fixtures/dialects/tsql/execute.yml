@@ -234,11 +234,13 @@ file:
       - keyword: DECLARE
       - tsql_variable: '@statement'
       - data_type:
-        - data_type_identifier: nvarchar
-        - bracketed_arguments:
+        - data_type:
+          - data_type_identifier: nvarchar
           - bracketed:
             - start_bracket: (
-            - keyword: max
+            - expression:
+              - column_reference:
+                - naked_identifier: max
             - end_bracket: )
       - assignment_operator:
         - raw_comparison_operator: =
@@ -267,11 +269,12 @@ file:
       - tsql_variable: '@s1'
       - keyword: AS
       - data_type:
-        - data_type_identifier: varchar
-        - bracketed_arguments:
+        - data_type:
+          - data_type_identifier: varchar
           - bracketed:
             - start_bracket: (
-            - numeric_literal: '10'
+            - expression:
+              - numeric_literal: '10'
             - end_bracket: )
       - assignment_operator:
         - raw_comparison_operator: =
@@ -283,11 +286,12 @@ file:
       - keyword: DECLARE
       - tsql_variable: '@s2'
       - data_type:
-        - data_type_identifier: varchar
-        - bracketed_arguments:
+        - data_type:
+          - data_type_identifier: varchar
           - bracketed:
             - start_bracket: (
-            - numeric_literal: '10'
+            - expression:
+              - numeric_literal: '10'
             - end_bracket: )
       - assignment_operator:
         - raw_comparison_operator: =
@@ -397,7 +401,8 @@ file:
       - tsql_variable: '@CheckDate'
       - keyword: AS
       - data_type:
-        - data_type_identifier: DATETIME
+        - data_type:
+          - data_type_identifier: DATETIME
       - assignment_operator:
         - raw_comparison_operator: =
       - expression:
@@ -430,7 +435,8 @@ file:
       - tsql_variable: '@schemaname'
       - keyword: AS
       - data_type:
-        - data_type_identifier: sysname
+        - data_type:
+          - data_type_identifier: sysname
   - statement_terminator: ;
   - statement:
     - declare_statement:
@@ -438,7 +444,8 @@ file:
       - tsql_variable: '@tablename'
       - keyword: AS
       - data_type:
-        - data_type_identifier: sysname
+        - data_type:
+          - data_type_identifier: sysname
   - statement_terminator: ;
   - statement:
     - keyword: EXECUTE
@@ -464,7 +471,8 @@ file:
       - tsql_variable: '@retstat'
       - keyword: AS
       - data_type:
-        - data_type_identifier: INT
+        - data_type:
+          - data_type_identifier: INT
   - statement_terminator: ;
   - statement:
     - keyword: EXECUTE
@@ -492,11 +500,12 @@ file:
       - tsql_variable: '@proc_name'
       - keyword: AS
       - data_type:
-        - data_type_identifier: VARCHAR
-        - bracketed_arguments:
+        - data_type:
+          - data_type_identifier: VARCHAR
           - bracketed:
             - start_bracket: (
-            - numeric_literal: '30'
+            - expression:
+              - numeric_literal: '30'
             - end_bracket: )
       - assignment_operator:
         - raw_comparison_operator: =
@@ -612,11 +621,12 @@ file:
       - tsql_variable: '@returnstatus'
       - keyword: AS
       - data_type:
-        - data_type_identifier: NVARCHAR
-        - bracketed_arguments:
+        - data_type:
+          - data_type_identifier: NVARCHAR
           - bracketed:
             - start_bracket: (
-            - numeric_literal: '15'
+            - expression:
+              - numeric_literal: '15'
             - end_bracket: )
   - statement_terminator: ;
   - statement:
@@ -683,11 +693,11 @@ file:
           - data_type:
             - data_type:
               - data_type_identifier: NVARCHAR
-              - bracketed_arguments:
-                - bracketed:
-                  - start_bracket: (
+              - bracketed:
+                - start_bracket: (
+                - expression:
                   - numeric_literal: '50'
-                  - end_bracket: )
+                - end_bracket: )
           - keyword: NOT
           - keyword: 'NULL'
         - comma: ','
@@ -696,11 +706,11 @@ file:
           - data_type:
             - data_type:
               - data_type_identifier: NVARCHAR
-              - bracketed_arguments:
-                - bracketed:
-                  - start_bracket: (
+              - bracketed:
+                - start_bracket: (
+                - expression:
                   - numeric_literal: '50'
-                  - end_bracket: )
+                - end_bracket: )
           - keyword: NOT
           - keyword: 'NULL'
         - comma: ','
@@ -709,11 +719,12 @@ file:
           - data_type:
             - data_type:
               - data_type_identifier: NVARCHAR
-              - bracketed_arguments:
-                - bracketed:
-                  - start_bracket: (
-                  - keyword: MAX
-                  - end_bracket: )
+              - bracketed:
+                - start_bracket: (
+                - expression:
+                  - column_reference:
+                    - naked_identifier: MAX
+                - end_bracket: )
           - keyword: NOT
           - keyword: 'NULL'
         - comma: ','
@@ -722,11 +733,11 @@ file:
           - data_type:
             - data_type:
               - data_type_identifier: NVARCHAR
-              - bracketed_arguments:
-                - bracketed:
-                  - start_bracket: (
+              - bracketed:
+                - start_bracket: (
+                - expression:
                   - numeric_literal: '50'
-                  - end_bracket: )
+                - end_bracket: )
           - keyword: NOT
           - keyword: 'NULL'
         - comma: ','
@@ -735,11 +746,11 @@ file:
           - data_type:
             - data_type:
               - data_type_identifier: NVARCHAR
-              - bracketed_arguments:
-                - bracketed:
-                  - start_bracket: (
+              - bracketed:
+                - start_bracket: (
+                - expression:
                   - numeric_literal: '50'
-                  - end_bracket: )
+                - end_bracket: )
           - keyword: NOT
           - keyword: 'NULL'
         - end_bracket: )

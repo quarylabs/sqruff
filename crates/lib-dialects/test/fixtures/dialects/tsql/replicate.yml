@@ -90,11 +90,12 @@ file:
       - keyword: DECLARE
       - tsql_variable: '@BinVar'
       - data_type:
-        - data_type_identifier: varbinary
-        - bracketed_arguments:
+        - data_type:
+          - data_type_identifier: varbinary
           - bracketed:
             - start_bracket: (
-            - numeric_literal: '128'
+            - expression:
+              - numeric_literal: '128'
             - end_bracket: )
   - statement_terminator: ;
   - statement:
@@ -126,11 +127,12 @@ file:
                         - end_bracket: )
               - keyword: AS
               - data_type:
-                - data_type_identifier: varbinary
-                - bracketed_arguments:
+                - data_type:
+                  - data_type_identifier: varbinary
                   - bracketed:
                     - start_bracket: (
-                    - numeric_literal: '128'
+                    - expression:
+                      - numeric_literal: '128'
                     - end_bracket: )
               - end_bracket: )
   - statement_terminator: ;

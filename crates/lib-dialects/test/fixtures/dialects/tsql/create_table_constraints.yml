@@ -17,14 +17,16 @@ file:
             - column_definition:
               - quoted_identifier: '[Column A]'
               - data_type:
-                - quoted_identifier: '[int]'
+                - data_type:
+                  - quoted_identifier: '[int]'
               - keyword: IDENTITY
           - comma: ','
           - column_definition:
             - column_definition:
               - quoted_identifier: '[Column B]'
               - data_type:
-                - quoted_identifier: '[int]'
+                - data_type:
+                  - quoted_identifier: '[int]'
               - keyword: IDENTITY
               - bracketed:
                 - start_bracket: (
@@ -69,11 +71,11 @@ file:
               - data_type:
                 - data_type:
                   - data_type_identifier: char
-                  - bracketed_arguments:
-                    - bracketed:
-                      - start_bracket: (
+                  - bracketed:
+                    - start_bracket: (
+                    - expression:
                       - numeric_literal: '30'
-                      - end_bracket: )
+                    - end_bracket: )
               - column_constraint_segment:
                 - keyword: DEFAULT
                 - bare_function: CURRENT_USER
@@ -231,12 +233,13 @@ file:
             - column_definition:
               - quoted_identifier: '[ColumnB]'
               - data_type:
-                - quoted_identifier: '[varchar]'
-                - bracketed_arguments:
-                  - bracketed:
-                    - start_bracket: (
-                    - numeric_literal: '100'
-                    - end_bracket: )
+                - data_type:
+                  - quoted_identifier: '[varchar]'
+                  - bracketed_arguments:
+                    - bracketed:
+                      - start_bracket: (
+                      - numeric_literal: '100'
+                      - end_bracket: )
               - keyword: FILESTREAM
               - keyword: MASKED
               - keyword: WITH
@@ -254,11 +257,11 @@ file:
               - data_type:
                 - data_type:
                   - data_type_identifier: varchar
-                  - bracketed_arguments:
-                    - bracketed:
-                      - start_bracket: (
+                  - bracketed:
+                    - start_bracket: (
+                    - expression:
                       - numeric_literal: '100'
-                      - end_bracket: )
+                    - end_bracket: )
               - column_constraint_segment:
                 - keyword: 'NULL'
                 - keyword: NOT
@@ -271,13 +274,14 @@ file:
               - data_type:
                 - data_type:
                   - data_type_identifier: decimal
-                  - bracketed_arguments:
-                    - bracketed:
-                      - start_bracket: (
+                  - bracketed:
+                    - start_bracket: (
+                    - expression:
                       - numeric_literal: '10'
-                      - comma: ','
+                    - comma: ','
+                    - expression:
                       - numeric_literal: '3'
-                      - end_bracket: )
+                    - end_bracket: )
               - column_constraint_segment:
                 - keyword: GENERATED
                 - keyword: ALWAYS
@@ -292,11 +296,11 @@ file:
               - data_type:
                 - data_type:
                   - data_type_identifier: varchar
-                  - bracketed_arguments:
-                    - bracketed:
-                      - start_bracket: (
+                  - bracketed:
+                    - start_bracket: (
+                    - expression:
                       - numeric_literal: '100'
-                      - end_bracket: )
+                    - end_bracket: )
               - column_constraint_segment:
                 - keyword: ENCRYPTED
                 - keyword: WITH
@@ -324,11 +328,11 @@ file:
               - data_type:
                 - data_type:
                   - data_type_identifier: varchar
-                  - bracketed_arguments:
-                    - bracketed:
-                      - start_bracket: (
+                  - bracketed:
+                    - start_bracket: (
+                    - expression:
                       - numeric_literal: '100'
-                      - end_bracket: )
+                    - end_bracket: )
               - column_constraint_segment:
                 - keyword: collate
                 - collation_reference:

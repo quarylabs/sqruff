@@ -37,11 +37,11 @@ file:
             - data_type:
               - data_type:
                 - data_type_identifier: VARCHAR
-                - bracketed_arguments:
-                  - bracketed:
-                    - start_bracket: (
+                - bracketed:
+                  - start_bracket: (
+                  - expression:
                     - numeric_literal: '20'
-                    - end_bracket: )
+                  - end_bracket: )
             - column_constraint_segment:
               - keyword: 'NULL'
   - statement_terminator: ;
@@ -326,11 +326,12 @@ file:
         - column_reference:
           - naked_identifier: rec_number
         - data_type:
-          - data_type_identifier: VARCHAR
-          - bracketed_arguments:
+          - data_type:
+            - data_type_identifier: VARCHAR
             - bracketed:
               - start_bracket: (
-              - numeric_literal: '36'
+              - expression:
+                - numeric_literal: '36'
               - end_bracket: )
   - keyword: GO
   - statement:
@@ -438,7 +439,8 @@ file:
               - end_bracket: )
     - expression:
       - data_type:
-        - data_type_identifier: GO
+        - data_type:
+          - data_type_identifier: GO
     - expression:
       - column_reference:
         - naked_identifier: ALTER
@@ -461,7 +463,8 @@ file:
         - quoted_identifier: '[FK_ProductCostHistory_Product_ProductID]'
     - expression:
       - data_type:
-        - data_type_identifier: GO
+        - data_type:
+          - data_type_identifier: GO
     - expression:
       - column_reference:
         - naked_identifier: ALTER
@@ -489,7 +492,8 @@ file:
         - naked_identifier: INT
     - expression:
       - data_type:
-        - data_type_identifier: GO
+        - data_type:
+          - data_type_identifier: GO
     - expression:
       - column_reference:
         - naked_identifier: ALTER
@@ -513,7 +517,8 @@ file:
                 - comparison_operator:
                   - raw_comparison_operator: =
                 - data_type:
-                  - data_type_identifier: ON
+                  - data_type:
+                    - data_type_identifier: ON
               - end_bracket: )
   - statement_terminator: ;
   - keyword: GO
@@ -624,7 +629,8 @@ file:
                           - comparison_operator:
                             - raw_comparison_operator: =
                           - data_type:
-                            - data_type_identifier: ON
+                            - data_type:
+                              - data_type_identifier: ON
                         - end_bracket: )
               - end_bracket: )
   - statement_terminator: ;
@@ -671,7 +677,8 @@ file:
                           - comparison_operator:
                             - raw_comparison_operator: =
                           - data_type:
-                            - data_type_identifier: ON
+                            - data_type:
+                              - data_type_identifier: ON
                         - comma: ','
                         - expression:
                           - column_reference:
@@ -726,7 +733,8 @@ file:
                           - comparison_operator:
                             - raw_comparison_operator: =
                           - data_type:
-                            - data_type_identifier: ON
+                            - data_type:
+                              - data_type_identifier: ON
                         - comma: ','
                         - expression:
                           - column_reference:
@@ -783,7 +791,8 @@ file:
                           - comparison_operator:
                             - raw_comparison_operator: =
                           - data_type:
-                            - data_type_identifier: ON
+                            - data_type:
+                              - data_type_identifier: ON
                         - comma: ','
                         - expression:
                           - column_reference:
@@ -898,7 +907,8 @@ file:
                 - comparison_operator:
                   - raw_comparison_operator: =
                 - data_type:
-                  - data_type_identifier: ON
+                  - data_type:
+                    - data_type_identifier: ON
               - end_bracket: )
   - statement_terminator: ;
   - keyword: GO
@@ -1225,7 +1235,8 @@ file:
                           - quoted_identifier: '[InventoryTs]'
                       - keyword: AS
                       - data_type:
-                        - data_type_identifier: date
+                        - data_type:
+                          - data_type_identifier: date
                       - end_bracket: )
   - statement_terminator: ;
   - keyword: GO
@@ -1282,7 +1293,8 @@ file:
               - end_bracket: )
     - expression:
       - data_type:
-        - data_type_identifier: ON
+        - data_type:
+          - data_type_identifier: ON
     - expression:
       - column_reference:
         - naked_identifier: UPDATE
@@ -1291,7 +1303,8 @@ file:
         - naked_identifier: CASCADE
     - expression:
       - data_type:
-        - data_type_identifier: ON
+        - data_type:
+          - data_type_identifier: ON
     - expression:
       - column_reference:
         - naked_identifier: DELETE
@@ -1353,12 +1366,13 @@ file:
             - column_definition:
               - quoted_identifier: '[strUserId]'
               - data_type:
-                - quoted_identifier: '[char]'
-                - bracketed_arguments:
-                  - bracketed:
-                    - start_bracket: (
-                    - numeric_literal: '21'
-                    - end_bracket: )
+                - data_type:
+                  - quoted_identifier: '[char]'
+                  - bracketed_arguments:
+                    - bracketed:
+                      - start_bracket: (
+                      - numeric_literal: '21'
+                      - end_bracket: )
               - column_constraint_segment:
                 - keyword: NOT
                 - keyword: 'NULL'
@@ -1367,12 +1381,13 @@ file:
             - column_definition:
               - quoted_identifier: '[strItem]'
               - data_type:
-                - quoted_identifier: '[binary]'
-                - bracketed_arguments:
-                  - bracketed:
-                    - start_bracket: (
-                    - numeric_literal: '400'
-                    - end_bracket: )
+                - data_type:
+                  - quoted_identifier: '[binary]'
+                  - bracketed_arguments:
+                    - bracketed:
+                      - start_bracket: (
+                      - numeric_literal: '400'
+                      - end_bracket: )
               - column_constraint_segment:
                 - keyword: 'NULL'
           - comma: ','
@@ -1380,12 +1395,13 @@ file:
             - column_definition:
               - quoted_identifier: '[strSkill]'
               - data_type:
-                - quoted_identifier: '[binary]'
-                - bracketed_arguments:
-                  - bracketed:
-                    - start_bracket: (
-                    - numeric_literal: '400'
-                    - end_bracket: )
+                - data_type:
+                  - quoted_identifier: '[binary]'
+                  - bracketed_arguments:
+                    - bracketed:
+                      - start_bracket: (
+                      - numeric_literal: '400'
+                      - end_bracket: )
               - column_constraint_segment:
                 - keyword: 'NULL'
           - comma: ','

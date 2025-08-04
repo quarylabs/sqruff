@@ -220,11 +220,12 @@ file:
       - keyword: DECLARE
       - tsql_variable: '@id_key'
       - data_type:
-        - data_type_identifier: nvarchar
-        - bracketed_arguments:
+        - data_type:
+          - data_type_identifier: nvarchar
           - bracketed:
             - start_bracket: (
-            - numeric_literal: '10'
+            - expression:
+              - numeric_literal: '10'
             - end_bracket: )
       - assignment_operator:
         - raw_comparison_operator: =
@@ -233,11 +234,12 @@ file:
       - comma: ','
       - tsql_variable: '@id_value'
       - data_type:
-        - data_type_identifier: nvarchar
-        - bracketed_arguments:
+        - data_type:
+          - data_type_identifier: nvarchar
           - bracketed:
             - start_bracket: (
-            - numeric_literal: '64'
+            - expression:
+              - numeric_literal: '64'
             - end_bracket: )
       - assignment_operator:
         - raw_comparison_operator: =
@@ -483,11 +485,12 @@ file:
       - keyword: DECLARE
       - tsql_variable: '@id_value'
       - data_type:
-        - data_type_identifier: nvarchar
-        - bracketed_arguments:
+        - data_type:
+          - data_type_identifier: nvarchar
           - bracketed:
             - start_bracket: (
-            - numeric_literal: '64'
+            - expression:
+              - numeric_literal: '64'
             - end_bracket: )
       - assignment_operator:
         - raw_comparison_operator: =

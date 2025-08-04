@@ -10,7 +10,8 @@ file:
     - bracketed:
       - start_bracket: (
       - data_type:
-        - data_type_identifier: INT
+        - data_type:
+          - data_type_identifier: INT
       - end_bracket: )
     - keyword: AS
     - keyword: RANGE
@@ -36,11 +37,12 @@ file:
     - bracketed:
       - start_bracket: (
       - data_type:
-        - data_type_identifier: CHAR
-        - bracketed_arguments:
+        - data_type:
+          - data_type_identifier: CHAR
           - bracketed:
             - start_bracket: (
-            - numeric_literal: '1'
+            - expression:
+              - numeric_literal: '1'
             - end_bracket: )
       - end_bracket: )
     - keyword: AS
@@ -67,7 +69,8 @@ file:
     - bracketed:
       - start_bracket: (
       - data_type:
-        - data_type_identifier: date
+        - data_type:
+          - data_type_identifier: date
       - end_bracket: )
     - keyword: AS
     - keyword: RANGE

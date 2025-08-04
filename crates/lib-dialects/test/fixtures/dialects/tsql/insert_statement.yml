@@ -78,7 +78,8 @@ file:
                             - quoted_identifier: '[POPULATION]'
                         - keyword: AS
                         - data_type:
-                          - data_type_identifier: BIGINT
+                          - data_type:
+                            - data_type_identifier: BIGINT
                         - end_bracket: )
                 - alias_expression:
                   - keyword: AS
@@ -101,7 +102,8 @@ file:
                             - quoted_identifier: '[WEEKLY_COUNT]'
                         - keyword: AS
                         - data_type:
-                          - data_type_identifier: BIGINT
+                          - data_type:
+                            - data_type_identifier: BIGINT
                         - end_bracket: )
                 - alias_expression:
                   - keyword: AS
@@ -163,7 +165,8 @@ file:
                                   - end_bracket: )
                         - keyword: AS
                         - data_type:
-                          - data_type_identifier: DATE
+                          - data_type:
+                            - data_type_identifier: DATE
                         - end_bracket: )
                 - alias_expression:
                   - keyword: AS
@@ -232,7 +235,8 @@ file:
                                   - end_bracket: )
                         - keyword: AS
                         - data_type:
-                          - data_type_identifier: DATE
+                          - data_type:
+                            - data_type_identifier: DATE
                         - end_bracket: )
                 - alias_expression:
                   - keyword: AS
@@ -251,7 +255,8 @@ file:
                             - quoted_identifier: '[RATE_14_DAY]'
                         - keyword: AS
                         - data_type:
-                          - data_type_identifier: FLOAT
+                          - data_type:
+                            - data_type_identifier: FLOAT
                         - end_bracket: )
                 - alias_expression:
                   - keyword: AS
@@ -270,7 +275,8 @@ file:
                             - quoted_identifier: '[CUMULATIVE_COUNT]'
                         - keyword: AS
                         - data_type:
-                          - data_type_identifier: BIGINT
+                          - data_type:
+                            - data_type_identifier: BIGINT
                         - end_bracket: )
                 - alias_expression:
                   - keyword: AS
@@ -463,7 +469,8 @@ file:
           - quoted_literal: '''Picard'''
         - expression:
           - data_type:
-            - data_type_identifier: GO
+            - data_type:
+              - data_type_identifier: GO
         - expression:
           - column_reference:
             - naked_identifier: INSERT
@@ -487,14 +494,17 @@ file:
                   - end_bracket: )
         - expression:
           - data_type:
-            - data_type_identifier: values
-            - bracketed_arguments:
+            - data_type:
+              - data_type_identifier: values
               - bracketed:
                 - start_bracket: (
-                - quoted_literal: '''Kirk'''
+                - expression:
+                  - quoted_literal: '''Kirk'''
                 - comma: ','
-                - quoted_literal: '''James'''
+                - expression:
+                  - quoted_literal: '''James'''
                 - end_bracket: )
         - expression:
           - data_type:
-            - data_type_identifier: GO
+            - data_type:
+              - data_type_identifier: GO

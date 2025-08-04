@@ -160,11 +160,13 @@ file:
           - parameter:
             - tsql_variable: '@admit'
             - data_type:
-              - data_type_identifier: DATE
+              - data_type:
+                - data_type_identifier: DATE
           - end_bracket: )
         - keyword: RETURNS
         - data_type:
-          - data_type_identifier: TABLE
+          - data_type:
+            - data_type_identifier: TABLE
         - keyword: AS
         - statement:
           - keyword: RETURN
@@ -211,7 +213,8 @@ file:
           - end_bracket: )
         - keyword: RETURNS
         - data_type:
-          - data_type_identifier: INT
+          - data_type:
+            - data_type_identifier: INT
         - keyword: AS
         - statement:
           - begin_end_block:

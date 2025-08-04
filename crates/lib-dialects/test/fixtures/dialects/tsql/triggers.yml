@@ -36,7 +36,8 @@ file:
         - naked_identifier: GO
         - expression:
           - data_type:
-            - data_type_identifier: CREATE
+            - data_type:
+              - data_type_identifier: CREATE
         - expression:
           - column_reference:
             - naked_identifier: TRIGGER
@@ -45,7 +46,8 @@ file:
             - naked_identifier: reminder2
         - expression:
           - data_type:
-            - data_type_identifier: ON
+            - data_type:
+              - data_type_identifier: ON
         - expression:
           - column_reference:
             - naked_identifier: Sales
@@ -106,7 +108,8 @@ file:
         - naked_identifier: GO
         - expression:
           - data_type:
-            - data_type_identifier: CREATE
+            - data_type:
+              - data_type_identifier: CREATE
         - expression:
           - column_reference:
             - naked_identifier: TRIGGER
@@ -117,7 +120,8 @@ file:
             - naked_identifier: LowCredit
         - expression:
           - data_type:
-            - data_type_identifier: ON
+            - data_type:
+              - data_type_identifier: ON
         - expression:
           - column_reference:
             - naked_identifier: Purchasing
@@ -248,13 +252,15 @@ file:
               - keyword: RETURN
               - expression:
                 - data_type:
-                  - data_type_identifier: END
+                  - data_type:
+                    - data_type_identifier: END
             - statement_terminator: ;
             - statement:
               - naked_identifier: GO
               - expression:
                 - data_type:
-                  - data_type_identifier: CREATE
+                  - data_type:
+                    - data_type_identifier: CREATE
               - expression:
                 - column_reference:
                   - naked_identifier: TRIGGER
@@ -263,7 +269,8 @@ file:
                   - naked_identifier: safety
               - expression:
                 - data_type:
-                  - data_type_identifier: ON
+                  - data_type:
+                    - data_type_identifier: ON
               - expression:
                 - column_reference:
                   - naked_identifier: DATABASE
@@ -327,7 +334,8 @@ file:
               - naked_identifier: GO
               - expression:
                 - data_type:
-                  - data_type_identifier: CREATE
+                  - data_type:
+                    - data_type_identifier: CREATE
               - expression:
                 - column_reference:
                   - naked_identifier: TRIGGER
@@ -336,7 +344,8 @@ file:
                   - naked_identifier: ddl_trig_database
               - expression:
                 - data_type:
-                  - data_type_identifier: ON
+                  - data_type:
+                    - data_type_identifier: ON
               - expression:
                 - column_reference:
                   - naked_identifier: ALL
@@ -366,10 +375,12 @@ file:
                         - numeric_literal: '1'
               - expression:
                 - data_type:
-                  - data_type_identifier: GO
+                  - data_type:
+                    - data_type_identifier: GO
               - expression:
                 - data_type:
-                  - data_type_identifier: CREATE
+                  - data_type:
+                    - data_type_identifier: CREATE
               - expression:
                 - column_reference:
                   - naked_identifier: TRIGGER
@@ -378,7 +389,8 @@ file:
                   - naked_identifier: ddl_trig_database
               - expression:
                 - data_type:
-                  - data_type_identifier: ON
+                  - data_type:
+                    - data_type_identifier: ON
               - expression:
                 - column_reference:
                   - naked_identifier: ALL
@@ -411,7 +423,8 @@ file:
               - naked_identifier: GO
               - expression:
                 - data_type:
-                  - data_type_identifier: DROP
+                  - data_type:
+                    - data_type_identifier: DROP
               - expression:
                 - column_reference:
                   - naked_identifier: TRIGGER
@@ -420,7 +433,8 @@ file:
                   - naked_identifier: ddl_trig_database
               - expression:
                 - data_type:
-                  - data_type_identifier: ON
+                  - data_type:
+                    - data_type_identifier: ON
               - expression:
                 - column_reference:
                   - naked_identifier: ALL
@@ -432,7 +446,8 @@ file:
               - naked_identifier: GO
               - expression:
                 - data_type:
-                  - data_type_identifier: CREATE
+                  - data_type:
+                    - data_type_identifier: CREATE
               - expression:
                 - column_reference:
                   - naked_identifier: TRIGGER
@@ -441,7 +456,8 @@ file:
                   - naked_identifier: connection_limit_trigger
               - expression:
                 - data_type:
-                  - data_type_identifier: ON
+                  - data_type:
+                    - data_type_identifier: ON
               - expression:
                 - column_reference:
                   - naked_identifier: ALL
@@ -547,7 +563,8 @@ file:
         - naked_identifier: GO
         - expression:
           - data_type:
-            - data_type_identifier: Create
+            - data_type:
+              - data_type_identifier: Create
         - expression:
           - column_reference:
             - naked_identifier: TRIGGER
@@ -558,7 +575,8 @@ file:
             - naked_identifier: tr_SP_BALS_L2_ATTRIBUTES
         - expression:
           - data_type:
-            - data_type_identifier: ON
+            - data_type:
+              - data_type_identifier: ON
         - expression:
           - column_reference:
             - naked_identifier: dbo
@@ -583,7 +601,8 @@ file:
             - naked_identifier: SP_BALS_L2_ATTRIBUTES
         - expression:
           - data_type:
-            - data_type_identifier: SET
+            - data_type:
+              - data_type_identifier: SET
         - expression:
           - column_reference:
             - naked_identifier: PDW_LAST_UPDATED
@@ -610,10 +629,12 @@ file:
             - naked_identifier: o
         - expression:
           - data_type:
-            - data_type_identifier: INNER
+            - data_type:
+              - data_type_identifier: INNER
         - expression:
           - data_type:
-            - data_type_identifier: JOIN
+            - data_type:
+              - data_type_identifier: JOIN
         - expression:
           - column_reference:
             - naked_identifier: Inserted
@@ -622,7 +643,8 @@ file:
             - naked_identifier: i
         - expression:
           - data_type:
-            - data_type_identifier: ON
+            - data_type:
+              - data_type_identifier: ON
         - expression:
           - column_reference:
             - naked_identifier: o
@@ -636,7 +658,8 @@ file:
             - naked_identifier: PK_L2_BALS
         - expression:
           - data_type:
-            - data_type_identifier: go
+            - data_type:
+              - data_type_identifier: go
         - expression:
           - column_reference:
             - naked_identifier: disable
@@ -650,7 +673,8 @@ file:
             - naked_identifier: tr_SP_BALS_L2_ATTRIBUTES
         - expression:
           - data_type:
-            - data_type_identifier: on
+            - data_type:
+              - data_type_identifier: on
         - expression:
           - column_reference:
             - naked_identifier: dbo
@@ -658,10 +682,12 @@ file:
             - naked_identifier: SP_BALS_L2_ATTRIBUTES
         - expression:
           - data_type:
-            - data_type_identifier: go
+            - data_type:
+              - data_type_identifier: go
         - expression:
           - data_type:
-            - data_type_identifier: Create
+            - data_type:
+              - data_type_identifier: Create
         - expression:
           - column_reference:
             - naked_identifier: TRIGGER
@@ -672,7 +698,8 @@ file:
             - naked_identifier: tr_u_SP_BALS_L2_ATTRIBUTES
         - expression:
           - data_type:
-            - data_type_identifier: ON
+            - data_type:
+              - data_type_identifier: ON
         - expression:
           - column_reference:
             - naked_identifier: dbo
@@ -697,7 +724,8 @@ file:
             - naked_identifier: SP_BALS_L2_ATTRIBUTES
         - expression:
           - data_type:
-            - data_type_identifier: SET
+            - data_type:
+              - data_type_identifier: SET
         - expression:
           - column_reference:
             - naked_identifier: PDW_LAST_UPDATED
@@ -724,10 +752,12 @@ file:
             - naked_identifier: o
         - expression:
           - data_type:
-            - data_type_identifier: INNER
+            - data_type:
+              - data_type_identifier: INNER
         - expression:
           - data_type:
-            - data_type_identifier: JOIN
+            - data_type:
+              - data_type_identifier: JOIN
         - expression:
           - column_reference:
             - naked_identifier: Inserted
@@ -736,7 +766,8 @@ file:
             - naked_identifier: i
         - expression:
           - data_type:
-            - data_type_identifier: ON
+            - data_type:
+              - data_type_identifier: ON
         - expression:
           - column_reference:
             - naked_identifier: o
@@ -750,10 +781,12 @@ file:
             - naked_identifier: PK_L2_BALS
         - expression:
           - data_type:
-            - data_type_identifier: GO
+            - data_type:
+              - data_type_identifier: GO
         - expression:
           - data_type:
-            - data_type_identifier: DROP
+            - data_type:
+              - data_type_identifier: DROP
         - expression:
           - column_reference:
             - naked_identifier: TRIGGER
@@ -765,7 +798,8 @@ file:
         - naked_identifier: GO
         - expression:
           - data_type:
-            - data_type_identifier: DROP
+            - data_type:
+              - data_type_identifier: DROP
         - expression:
           - column_reference:
             - naked_identifier: TRIGGER
@@ -774,7 +808,8 @@ file:
             - naked_identifier: safety
         - expression:
           - data_type:
-            - data_type_identifier: ON
+            - data_type:
+              - data_type_identifier: ON
         - expression:
           - column_reference:
             - naked_identifier: DATABASE
@@ -794,7 +829,8 @@ file:
             - naked_identifier: tr_u_SP_BALS_L2_ATTRIBUTES
         - expression:
           - data_type:
-            - data_type_identifier: on
+            - data_type:
+              - data_type_identifier: on
         - expression:
           - column_reference:
             - naked_identifier: dbo
@@ -802,7 +838,8 @@ file:
             - naked_identifier: SP_BALS_L2_ATTRIBUTES
         - expression:
           - data_type:
-            - data_type_identifier: GO
+            - data_type:
+              - data_type_identifier: GO
         - expression:
           - column_reference:
             - naked_identifier: DISABLE
@@ -814,7 +851,8 @@ file:
             - naked_identifier: safety
         - expression:
           - data_type:
-            - data_type_identifier: ON
+            - data_type:
+              - data_type_identifier: ON
         - expression:
           - column_reference:
             - naked_identifier: DATABASE
@@ -823,7 +861,8 @@ file:
         - naked_identifier: GO
         - expression:
           - data_type:
-            - data_type_identifier: CREATE
+            - data_type:
+              - data_type_identifier: CREATE
           - binary_operator: OR
           - column_reference:
             - naked_identifier: ALTER
@@ -835,7 +874,8 @@ file:
             - naked_identifier: reminder1
         - expression:
           - data_type:
-            - data_type_identifier: ON
+            - data_type:
+              - data_type_identifier: ON
         - expression:
           - column_reference:
             - naked_identifier: Sales
@@ -876,7 +916,8 @@ file:
         - naked_identifier: GO
         - expression:
           - data_type:
-            - data_type_identifier: CREATE
+            - data_type:
+              - data_type_identifier: CREATE
         - expression:
           - column_reference:
             - naked_identifier: TRIGGER
@@ -885,7 +926,8 @@ file:
             - naked_identifier: reminder
         - expression:
           - data_type:
-            - data_type_identifier: ON
+            - data_type:
+              - data_type_identifier: ON
         - expression:
           - column_reference:
             - naked_identifier: person
@@ -955,7 +997,8 @@ file:
                   - end_bracket: )
         - expression:
           - data_type:
-            - data_type_identifier: END
+            - data_type:
+              - data_type_identifier: END
       - statement_terminator: ;
       - statement:
         - naked_identifier: GO

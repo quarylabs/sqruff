@@ -945,7 +945,7 @@ pub fn raw_dialect() -> Dialect {
                 one_of(vec_of_erased![
                     // Regular column: datatype [column modifiers] [constraints]
                     Sequence::new(vec_of_erased![
-                        Ref::new("TsqlDatatypeSegment"), // Column type
+                        Ref::new("DatatypeSegment"), // Column type
                         // Flexible column modifiers in any order
                         AnyNumberOf::new(vec_of_erased![one_of(vec_of_erased![
                             // IDENTITY specification
@@ -2144,7 +2144,7 @@ pub fn raw_dialect() -> Dialect {
                 Bracketed::new(vec_of_erased![Delimited::new(vec_of_erased![
                     Sequence::new(vec_of_erased![
                         Ref::new("SingleIdentifierGrammar"), // Column name (naked or bracketed)
-                        Ref::new("TsqlDatatypeSegment"),     // Data type
+                        Ref::new("DatatypeSegment"),     // Data type
                         // Optional JSON path
                         Sequence::new(vec_of_erased![Ref::new("QuotedLiteralSegment")])
                             .config(|this| this.optional()),
@@ -3095,7 +3095,7 @@ pub fn raw_dialect() -> Dialect {
             Sequence::new(vec_of_erased![
                 Ref::keyword("ADD"),
                 Ref::new("SingleIdentifierGrammar"), // Column name
-                Ref::new("TsqlDatatypeSegment"),     // Column type
+                Ref::new("DatatypeSegment"),     // Column type
                 // Column modifiers and constraints
                 AnyNumberOf::new(vec_of_erased![one_of(vec_of_erased![
                     // Nullability
@@ -4493,7 +4493,7 @@ pub fn raw_dialect() -> Dialect {
                         Bracketed::new(vec_of_erased![Delimited::new(vec_of_erased![
                             Sequence::new(vec_of_erased![
                                 Ref::new("SingleIdentifierGrammar"), // Column name (can be bracketed)
-                                Ref::new("TsqlDatatypeSegment"),     // Data type
+                                Ref::new("DatatypeSegment"),     // Data type
                                 // Optional COLLATE clause
                                 Sequence::new(vec_of_erased![
                                     Ref::keyword("COLLATE"),
@@ -5284,39 +5284,10 @@ pub fn raw_dialect() -> Dialect {
             .into(),
         ),
         (
-            "TsqlDatatypeSegment".into(),
-            NodeMatcher::new(SyntaxKind::DataType, |_| {
-                one_of(vec_of_erased![
-                    // TABLE type with inline table definition
-                    Sequence::new(vec_of_erased![
-                        StringParser::new("TABLE", SyntaxKind::DataTypeIdentifier),
-                        Bracketed::new(vec_of_erased![Delimited::new(vec_of_erased![one_of(
-                            vec_of_erased![
-                                // Column definition
-                                Ref::new("ColumnDefinitionSegment"),
-                                // Table constraint
-                                Ref::new("TableConstraintSegment")
-                            ]
-                        )])])
-                    ]),
-                    // Square bracket data type like [int], [varchar](100)
-                    Sequence::new(vec_of_erased![
-                        Ref::new("QuotedIdentifierSegment"), // Bracketed data type name
-                        Ref::new("BracketedArguments").optional()
-                    ]),
-                    // Regular data type (includes DatatypeIdentifierSegment for user-defined types)
-                    Ref::new("DatatypeSegment")
-                ])
-                .to_matchable()
-            })
-            .to_matchable()
-            .into(),
-        ),
-        (
             "ProcedureParameterGrammar".into(),
             Sequence::new(vec_of_erased![
                 Ref::new("ParameterNameSegment"),
-                Ref::new("TsqlDatatypeSegment"),
+                Ref::new("DatatypeSegment"),
                 // Optional VARYING keyword (for cursors and some special types)
                 Ref::keyword("VARYING").optional(),
                 // Optional NULL/NOT NULL
@@ -5785,8 +5756,8 @@ pub fn raw_dialect() -> Dialect {
                     Ref::new("SingleIdentifierGrammar"),
                     Ref::new("QuotedIdentifierSegment")
                 ]),
-                // Data type (use TsqlDatatypeSegment for T-SQL specific types like INT)
-                Ref::new("TsqlDatatypeSegment"),
+                // Data type (use DatatypeSegment for T-SQL specific types like INT)
+                Ref::new("DatatypeSegment"),
                 // Optional NULL/NOT NULL constraint
                 one_of(vec_of_erased![
                     Ref::keyword("NULL"),
@@ -9687,7 +9658,7 @@ pub fn raw_dialect() -> Dialect {
                 // Regular column definition
                 Sequence::new(vec_of_erased![
                     Ref::new("SingleIdentifierGrammar"),
-                    Ref::new("TsqlDatatypeSegment"),
+                    Ref::new("DatatypeSegment"),
                     // Add IDENTITY support
                     Sequence::new(vec_of_erased![
                         Ref::keyword("IDENTITY"),
@@ -11818,6 +11789,92 @@ pub fn raw_dialect() -> Dialect {
         .to_matchable()
         .into(),
     )]);
+
+    // Replace DatatypeSegment to add T-SQL specific types
+    dialect.replace_grammar(
+        "DatatypeSegment",
+        NodeMatcher::new(SyntaxKind::DataType, |_| {
+            one_of(vec_of_erased![
+                // TABLE type with inline table definition
+                Sequence::new(vec_of_erased![
+                    StringParser::new("TABLE", SyntaxKind::DataTypeIdentifier),
+                    Bracketed::new(vec_of_erased![Delimited::new(vec_of_erased![one_of(
+                        vec_of_erased![
+                            // Column definition
+                            Ref::new("ColumnDefinitionSegment"),
+                            // Table constraint
+                            Ref::new("TableConstraintSegment")
+                        ]
+                    )])])
+                ]),
+                // Square bracket data type like [int], [varchar](100)
+                Sequence::new(vec_of_erased![
+                    Ref::new("QuotedIdentifierSegment"), // Bracketed data type name
+                    Ref::new("BracketedArguments").optional()
+                ]),
+                // ANSI data types
+                Sequence::new(vec_of_erased![
+                    one_of(vec_of_erased![
+                        Ref::keyword("TIME"),
+                        Ref::keyword("TIMESTAMP")
+                    ]),
+                    Bracketed::new(vec_of_erased![Ref::new("NumericLiteralSegment")])
+                        .config(|this| this.optional()),
+                    Sequence::new(vec_of_erased![
+                        one_of(vec_of_erased![Ref::keyword("WITH"), Ref::keyword("WITHOUT")]),
+                        Ref::keyword("TIME"),
+                        Ref::keyword("ZONE")
+                    ])
+                    .config(|this| this.optional())
+                ]),
+                // Array types
+                Sequence::new(vec_of_erased![
+                    Ref::new("DatatypeIdentifierSegment"),
+                    Ref::new("ArrayTypeSegment").optional()
+                ]),
+                // Parameterized types
+                Sequence::new(vec_of_erased![
+                    Ref::new("DatatypeIdentifierSegment"),
+                    Bracketed::new(vec_of_erased![one_of(vec_of_erased![
+                        Delimited::new(vec_of_erased![Ref::new("ExpressionSegment")]),
+                        Delimited::new(vec_of_erased![Ref::new("DatatypeSegment")])
+                    ])])
+                ]),
+                Ref::new("DatatypeIdentifierSegment"),
+                // Interval type
+                Sequence::new(vec_of_erased![
+                    Ref::keyword("INTERVAL"),
+                    one_of(vec_of_erased![
+                        Sequence::new(vec_of_erased![
+                            Ref::new("QuotedLiteralSegment"),
+                            one_of(vec_of_erased![
+                                Ref::new("DatetimeUnitSegment"),
+                                Sequence::new(vec_of_erased![
+                                    Ref::new("DatetimeUnitSegment"),
+                                    Ref::keyword("TO"),
+                                    Ref::new("DatetimeUnitSegment")
+                                ])
+                            ])
+                        ]),
+                        one_of(vec_of_erased![
+                            Ref::new("DatetimeUnitSegment"),
+                            Sequence::new(vec_of_erased![
+                                Ref::new("DatetimeUnitSegment"),
+                                Bracketed::new(vec_of_erased![Ref::new("ExpressionSegment")])
+                                    .config(|this| this.optional()),
+                                Ref::keyword("TO"),
+                                Ref::new("DatetimeUnitSegment"),
+                                Bracketed::new(vec_of_erased![Ref::new("ExpressionSegment")])
+                                    .config(|this| this.optional())
+                            ])
+                        ])
+                    ])
+                ])
+            ])
+            .to_matchable()
+        })
+        .to_matchable(),
+    );
 
     dialect.expand();
     dialect

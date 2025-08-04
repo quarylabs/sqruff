@@ -2144,7 +2144,7 @@ pub fn raw_dialect() -> Dialect {
                 Bracketed::new(vec_of_erased![Delimited::new(vec_of_erased![
                     Sequence::new(vec_of_erased![
                         Ref::new("SingleIdentifierGrammar"), // Column name (naked or bracketed)
-                        Ref::new("DatatypeSegment"),     // Data type
+                        Ref::new("DatatypeSegment"),         // Data type
                         // Optional JSON path
                         Sequence::new(vec_of_erased![Ref::new("QuotedLiteralSegment")])
                             .config(|this| this.optional()),
@@ -3095,7 +3095,7 @@ pub fn raw_dialect() -> Dialect {
             Sequence::new(vec_of_erased![
                 Ref::keyword("ADD"),
                 Ref::new("SingleIdentifierGrammar"), // Column name
-                Ref::new("DatatypeSegment"),     // Column type
+                Ref::new("DatatypeSegment"),         // Column type
                 // Column modifiers and constraints
                 AnyNumberOf::new(vec_of_erased![one_of(vec_of_erased![
                     // Nullability
@@ -4493,7 +4493,7 @@ pub fn raw_dialect() -> Dialect {
                         Bracketed::new(vec_of_erased![Delimited::new(vec_of_erased![
                             Sequence::new(vec_of_erased![
                                 Ref::new("SingleIdentifierGrammar"), // Column name (can be bracketed)
-                                Ref::new("DatatypeSegment"),     // Data type
+                                Ref::new("DatatypeSegment"),         // Data type
                                 // Optional COLLATE clause
                                 Sequence::new(vec_of_erased![
                                     Ref::keyword("COLLATE"),
@@ -11821,7 +11821,10 @@ pub fn raw_dialect() -> Dialect {
                     Bracketed::new(vec_of_erased![Ref::new("NumericLiteralSegment")])
                         .config(|this| this.optional()),
                     Sequence::new(vec_of_erased![
-                        one_of(vec_of_erased![Ref::keyword("WITH"), Ref::keyword("WITHOUT")]),
+                        one_of(vec_of_erased![
+                            Ref::keyword("WITH"),
+                            Ref::keyword("WITHOUT")
+                        ]),
                         Ref::keyword("TIME"),
                         Ref::keyword("ZONE")
                     ])

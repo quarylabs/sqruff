@@ -1458,9 +1458,7 @@ pub fn raw_dialect() -> Dialect {
                     Ref::new("DelimiterGrammar").optional()
                 ])])
                 .config(|this| {
-                    this.terminators = vec_of_erased![
-                        StringParser::new("END", SyntaxKind::Word)
-                    ];
+                    this.terminators = vec_of_erased![StringParser::new("END", SyntaxKind::Word)];
                 }),
                 MetaSegment::dedent(),
                 StringParser::new("END", SyntaxKind::Word),
@@ -1473,9 +1471,7 @@ pub fn raw_dialect() -> Dialect {
                     Ref::new("DelimiterGrammar").optional()
                 ])])
                 .config(|this| {
-                    this.terminators = vec_of_erased![
-                        StringParser::new("END", SyntaxKind::Word)
-                    ];
+                    this.terminators = vec_of_erased![StringParser::new("END", SyntaxKind::Word)];
                 }),
                 MetaSegment::dedent(),
                 StringParser::new("END", SyntaxKind::Word),
@@ -7478,7 +7474,7 @@ pub fn raw_dialect() -> Dialect {
         .to_matchable()
         .into(),
     )]);
-    
+
     // Word-aware DROP INDEX statement for T-SQL contexts where keywords are lexed as words
     dialect.add([(
         "WordAwareDropIndexStatementSegment".into(),
@@ -7500,7 +7496,7 @@ pub fn raw_dialect() -> Dialect {
         .to_matchable()
         .into(),
     )]);
-    
+
     // Word-aware UPDATE STATISTICS statement for T-SQL contexts where keywords are lexed as words
     dialect.add([(
         "WordAwareUpdateStatisticsStatementSegment".into(),
@@ -7515,9 +7511,9 @@ pub fn raw_dialect() -> Dialect {
                     // Single statistics name
                     Ref::new("ObjectReferenceSegment"),
                     // List of statistics in parentheses
-                    Bracketed::new(vec_of_erased![Delimited::new(vec_of_erased![
-                        Ref::new("ObjectReferenceSegment")
-                    ])])
+                    Bracketed::new(vec_of_erased![Delimited::new(vec_of_erased![Ref::new(
+                        "ObjectReferenceSegment"
+                    )])])
                 ])
                 .config(|this| this.optional()),
                 // Optional WITH options
@@ -7544,7 +7540,7 @@ pub fn raw_dialect() -> Dialect {
         .to_matchable()
         .into(),
     )]);
-    
+
     // Word-aware CREATE TRIGGER parser for T-SQL contexts where keywords are lexed as words
     dialect.add([(
         "WordAwareCreateTriggerStatementSegment".into(),
@@ -7621,26 +7617,25 @@ pub fn raw_dialect() -> Dialect {
                 // AS keyword
                 StringParser::new("AS", SyntaxKind::Word),
                 // Trigger body - multiple statements until GO or next CREATE/DROP
-                AnyNumberOf::new(vec_of_erased![
-                    Ref::new("GenericWordStatementSegment")
-                ])
-                .config(|this| {
-                    this.min_times(1);
-                    this.terminators = vec_of_erased![
-                        Ref::new("BatchSeparatorGrammar"),
-                        StringParser::new("GO", SyntaxKind::Word),
-                        StringParser::new("CREATE", SyntaxKind::Word),
-                        StringParser::new("DROP", SyntaxKind::Word),
-                        StringParser::new("ALTER", SyntaxKind::Word)
-                    ];
-                })
+                AnyNumberOf::new(vec_of_erased![Ref::new("GenericWordStatementSegment")]).config(
+                    |this| {
+                        this.min_times(1);
+                        this.terminators = vec_of_erased![
+                            Ref::new("BatchSeparatorGrammar"),
+                            StringParser::new("GO", SyntaxKind::Word),
+                            StringParser::new("CREATE", SyntaxKind::Word),
+                            StringParser::new("DROP", SyntaxKind::Word),
+                            StringParser::new("ALTER", SyntaxKind::Word)
+                        ];
+                    }
+                )
             ])
             .to_matchable()
         })
         .to_matchable()
         .into(),
     )]);
-    
+
     // Word-aware DROP TRIGGER parser
     dialect.add([(
         "WordAwareDropTriggerStatementSegment".into(),
@@ -7672,7 +7667,7 @@ pub fn raw_dialect() -> Dialect {
         .to_matchable()
         .into(),
     )]);
-    
+
     // Word-aware DISABLE TRIGGER parser
     dialect.add([(
         "WordAwareDisableTriggerStatementSegment".into(),
@@ -10945,7 +10940,10 @@ pub fn raw_dialect() -> Dialect {
                         TypedParser::new(SyntaxKind::DoubleQuote, SyntaxKind::QuotedIdentifier),
                         TypedParser::new(SyntaxKind::StartBracket, SyntaxKind::StartBracket),
                         TypedParser::new(SyntaxKind::EndBracket, SyntaxKind::EndBracket),
-                        TypedParser::new(SyntaxKind::RawComparisonOperator, SyntaxKind::RawComparisonOperator),
+                        TypedParser::new(
+                            SyntaxKind::RawComparisonOperator,
+                            SyntaxKind::RawComparisonOperator
+                        ),
                         Ref::new("LiteralGrammar")
                     ])])
                     .config(|this| {
@@ -10967,23 +10965,47 @@ pub fn raw_dialect() -> Dialect {
                         Bracketed::new(vec_of_erased![Delimited::new(vec_of_erased![
                             Sequence::new(vec_of_erased![
                                 TypedParser::new(SyntaxKind::Word, SyntaxKind::Word),
-                                TypedParser::new(SyntaxKind::RawComparisonOperator, SyntaxKind::RawComparisonOperator),
+                                TypedParser::new(
+                                    SyntaxKind::RawComparisonOperator,
+                                    SyntaxKind::RawComparisonOperator
+                                ),
                                 one_of(vec_of_erased![
                                     TypedParser::new(SyntaxKind::Word, SyntaxKind::Word),
-                                    TypedParser::new(SyntaxKind::NumericLiteral, SyntaxKind::NumericLiteral),
+                                    TypedParser::new(
+                                        SyntaxKind::NumericLiteral,
+                                        SyntaxKind::NumericLiteral
+                                    ),
                                     // Handle nested ONLINE = ON (...)
                                     Sequence::new(vec_of_erased![
                                         TypedParser::new(SyntaxKind::Word, SyntaxKind::Word),
-                                        Bracketed::new(vec_of_erased![AnyNumberOf::new(vec_of_erased![
-                                            one_of(vec_of_erased![
-                                                TypedParser::new(SyntaxKind::Word, SyntaxKind::Word),
-                                                TypedParser::new(SyntaxKind::Comma, SyntaxKind::Comma),
-                                                TypedParser::new(SyntaxKind::RawComparisonOperator, SyntaxKind::RawComparisonOperator),
-                                                TypedParser::new(SyntaxKind::NumericLiteral, SyntaxKind::NumericLiteral),
-                                                TypedParser::new(SyntaxKind::StartBracket, SyntaxKind::StartBracket),
-                                                TypedParser::new(SyntaxKind::EndBracket, SyntaxKind::EndBracket)
-                                            ])
-                                        ])])
+                                        Bracketed::new(vec_of_erased![AnyNumberOf::new(
+                                            vec_of_erased![one_of(vec_of_erased![
+                                                TypedParser::new(
+                                                    SyntaxKind::Word,
+                                                    SyntaxKind::Word
+                                                ),
+                                                TypedParser::new(
+                                                    SyntaxKind::Comma,
+                                                    SyntaxKind::Comma
+                                                ),
+                                                TypedParser::new(
+                                                    SyntaxKind::RawComparisonOperator,
+                                                    SyntaxKind::RawComparisonOperator
+                                                ),
+                                                TypedParser::new(
+                                                    SyntaxKind::NumericLiteral,
+                                                    SyntaxKind::NumericLiteral
+                                                ),
+                                                TypedParser::new(
+                                                    SyntaxKind::StartBracket,
+                                                    SyntaxKind::StartBracket
+                                                ),
+                                                TypedParser::new(
+                                                    SyntaxKind::EndBracket,
+                                                    SyntaxKind::EndBracket
+                                                )
+                                            ])]
+                                        )])
                                     ])
                                 ])
                             ])
@@ -10991,13 +11013,22 @@ pub fn raw_dialect() -> Dialect {
                         // WITH FILLFACTOR = n
                         Sequence::new(vec_of_erased![
                             StringParser::new("FILLFACTOR", SyntaxKind::Word),
-                            TypedParser::new(SyntaxKind::RawComparisonOperator, SyntaxKind::RawComparisonOperator),
-                            TypedParser::new(SyntaxKind::NumericLiteral, SyntaxKind::NumericLiteral)
+                            TypedParser::new(
+                                SyntaxKind::RawComparisonOperator,
+                                SyntaxKind::RawComparisonOperator
+                            ),
+                            TypedParser::new(
+                                SyntaxKind::NumericLiteral,
+                                SyntaxKind::NumericLiteral
+                            )
                         ]),
                         // WITH DATA_COMPRESSION = ROW/PAGE
                         Sequence::new(vec_of_erased![
                             StringParser::new("DATA_COMPRESSION", SyntaxKind::Word),
-                            TypedParser::new(SyntaxKind::RawComparisonOperator, SyntaxKind::RawComparisonOperator),
+                            TypedParser::new(
+                                SyntaxKind::RawComparisonOperator,
+                                SyntaxKind::RawComparisonOperator
+                            ),
                             TypedParser::new(SyntaxKind::Word, SyntaxKind::Word),
                             // Optional ON PARTITIONS clause
                             Sequence::new(vec_of_erased![
@@ -11005,7 +11036,10 @@ pub fn raw_dialect() -> Dialect {
                                 StringParser::new("PARTITIONS", SyntaxKind::Word),
                                 Bracketed::new(vec_of_erased![AnyNumberOf::new(vec_of_erased![
                                     one_of(vec_of_erased![
-                                        TypedParser::new(SyntaxKind::NumericLiteral, SyntaxKind::NumericLiteral),
+                                        TypedParser::new(
+                                            SyntaxKind::NumericLiteral,
+                                            SyntaxKind::NumericLiteral
+                                        ),
                                         TypedParser::new(SyntaxKind::Comma, SyntaxKind::Comma),
                                         StringParser::new("TO", SyntaxKind::Word)
                                     ])

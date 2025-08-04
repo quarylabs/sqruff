@@ -8472,39 +8472,10 @@ pub fn raw_dialect() -> Dialect {
         .into(),
     )]);
 
-    // Override FunctionSegment to include T-SQL specific JSON functions
-    dialect.replace_grammar("FunctionSegment", {
-        NodeMatcher::new(SyntaxKind::Function, |_| {
-            one_of(vec_of_erased![
-                Ref::new("TsqlJsonObjectSegment"),
-                Ref::new("TsqlJsonArraySegment"),
-                // Fall back to base function grammar
-                Sequence::new(vec_of_erased![Sequence::new(vec_of_erased![
-                    Ref::new("DatePartFunctionNameSegment"),
-                    Bracketed::new(vec_of_erased![Delimited::new(vec_of_erased![
-                        Ref::new("DatetimeUnitSegment"),
-                        Ref::new("FunctionContentsGrammar").optional()
-                    ])])
-                    .config(|this| this.parse_mode(ParseMode::Greedy))
-                ])]),
-                Sequence::new(vec_of_erased![
-                    Sequence::new(vec_of_erased![
-                        Ref::new("FunctionNameSegment").exclude(one_of(vec_of_erased![
-                            Ref::new("DatePartFunctionNameSegment"),
-                            Ref::new("ValuesClauseSegment")
-                        ])),
-                        Bracketed::new(vec_of_erased![
-                            Ref::new("FunctionContentsGrammar").optional()
-                        ])
-                        .config(|this| this.parse_mode(ParseMode::Greedy))
-                    ]),
-                    Ref::new("PostFunctionGrammar").optional()
-                ])
-            ])
-            .to_matchable()
-        })
-        .to_matchable()
-    });
+    // NOTE: This FunctionSegment definition is commented out because it's superseded by the later definition
+    // that consolidates all function patterns. Keeping for reference.
+    // // Override FunctionSegment to include T-SQL specific JSON functions
+    // dialect.replace_grammar("FunctionSegment", ...);
 
     // Add COPY INTO statement support for Azure blob storage
     dialect.add([
@@ -9640,6 +9611,16 @@ pub fn raw_dialect() -> Dialect {
     dialect.replace_grammar("ColumnDefinitionSegment", {
         NodeMatcher::new(SyntaxKind::ColumnDefinition, |_| {
             one_of(vec_of_erased![
+                // Computed column: column AS expression [PERSISTED]
+                // Put this first to prioritize AS as a keyword over AS as a data type
+                Sequence::new(vec_of_erased![
+                    Ref::new("SingleIdentifierGrammar"),
+                    Ref::keyword("AS"),
+                    Ref::new("ExpressionSegment"),
+                    Ref::keyword("PERSISTED").optional(),
+                    // Column constraints after PERSISTED
+                    AnyNumberOf::new(vec_of_erased![Ref::new("ColumnConstraintSegment")])
+                ]),
                 // Regular column definition
                 Sequence::new(vec_of_erased![
                     Ref::new("SingleIdentifierGrammar"),
@@ -9669,15 +9650,6 @@ pub fn raw_dialect() -> Dialect {
                     ])
                     .config(|this| this.optional()),
                     // Column constraints
-                    AnyNumberOf::new(vec_of_erased![Ref::new("ColumnConstraintSegment")])
-                ]),
-                // Computed column: column AS expression [PERSISTED]
-                Sequence::new(vec_of_erased![
-                    Ref::new("SingleIdentifierGrammar"),
-                    Ref::keyword("AS"),
-                    Ref::new("ExpressionSegment"),
-                    Ref::keyword("PERSISTED").optional(),
-                    // Column constraints after PERSISTED
                     AnyNumberOf::new(vec_of_erased![Ref::new("ColumnConstraintSegment")])
                 ])
             ])
@@ -9796,41 +9768,10 @@ pub fn raw_dialect() -> Dialect {
         .into(),
     )]);
 
-    // Override FunctionSegment to add JSON NULL clause support
-    dialect.replace_grammar("FunctionSegment", {
-        NodeMatcher::new(SyntaxKind::Function, |_| {
-            one_of(vec_of_erased![
-                // Date part functions (DATEADD, DATEDIFF, etc.)
-                Sequence::new(vec_of_erased![
-                    Ref::new("DatePartFunctionNameSegment"),
-                    Bracketed::new(vec_of_erased![
-                        Ref::new("DatetimeUnitSegment"),
-                        Ref::new("CommaSegment"),
-                        Ref::new("ExpressionSegment"),
-                        Ref::new("CommaSegment"),
-                        Ref::new("ExpressionSegment")
-                    ])
-                    .config(|this| this.parse_mode(ParseMode::Greedy))
-                ]),
-                // Regular functions with PostFunctionGrammar support
-                Sequence::new(vec_of_erased![
-                    Sequence::new(vec_of_erased![
-                        Ref::new("FunctionNameSegment"),
-                        Ref::new("FunctionParameterListGrammar")
-                    ]),
-                    Ref::new("PostFunctionGrammar").optional()
-                ]),
-                // JSON functions with NULL clause support
-                Sequence::new(vec_of_erased![
-                    Ref::new("FunctionNameSegment"),
-                    Ref::new("FunctionParameterListGrammar"),
-                    Ref::new("JsonNullClauseSegment")
-                ])
-            ])
-            .to_matchable()
-        })
-        .to_matchable()
-    });
+    // NOTE: This FunctionSegment definition is commented out because it's superseded by the later definition
+    // that consolidates all function patterns. Keeping for reference.
+    // // Override FunctionSegment to add JSON NULL clause support
+    // dialect.replace_grammar("FunctionSegment", ...);
 
     // Add JSON function names to T-SQL as a set
     dialect.sets_mut("json_function_names").extend([
@@ -9905,10 +9846,10 @@ pub fn raw_dialect() -> Dialect {
         .into(),
     )]);
 
-    // Override FunctionSegment to include PostFunctionGrammar
+    // Override FunctionSegment to include all T-SQL function patterns
+    // This consolidates all previous FunctionSegment definitions
     dialect.replace_grammar("FunctionSegment", {
-        NodeMatcher::new(SyntaxKind::Function, |_| {
-            one_of(vec_of_erased![
+        one_of(vec_of_erased![
                 // JSON functions
                 Ref::new("TsqlJsonObjectSegment"),
                 Ref::new("TsqlJsonArraySegment"),
@@ -9919,6 +9860,12 @@ pub fn raw_dialect() -> Dialect {
                         Ref::new("DateTimeFunctionContentsSegment")
                     ]),
                     Ref::new("PostFunctionGrammar").optional()
+                ]),
+                // JSON functions with NULL clause support (from second definition)
+                Sequence::new(vec_of_erased![
+                    Ref::new("FunctionNameSegment"),
+                    Ref::new("FunctionParameterListGrammar"),
+                    Ref::new("JsonNullClauseSegment")
                 ]),
                 // General function pattern with PostFunctionGrammar
                 Sequence::new(vec_of_erased![
@@ -9933,8 +9880,6 @@ pub fn raw_dialect() -> Dialect {
                 ])
             ])
             .to_matchable()
-        })
-        .to_matchable()
     });
 
     // Word token support for T-SQL procedure bodies

@@ -350,16 +350,15 @@ file:
         - comma: ','
         - select_clause_element:
           - function:
-            - function:
-              - function_name:
-                - function_name_identifier: SUM
-              - function_contents:
-                - bracketed:
-                  - start_bracket: (
-                  - expression:
-                    - column_reference:
-                      - naked_identifier: LineTotal
-                  - end_bracket: )
+            - function_name:
+              - function_name_identifier: SUM
+            - function_contents:
+              - bracketed:
+                - start_bracket: (
+                - expression:
+                  - column_reference:
+                    - naked_identifier: LineTotal
+                - end_bracket: )
           - alias_expression:
             - keyword: AS
             - naked_identifier: Total
@@ -423,16 +422,15 @@ file:
         - comma: ','
         - select_clause_element:
           - function:
-            - function:
-              - function_name:
-                - function_name_identifier: SUM
-              - function_contents:
-                - bracketed:
-                  - start_bracket: (
-                  - expression:
-                    - column_reference:
-                      - naked_identifier: LineTotal
-                  - end_bracket: )
+            - function_name:
+              - function_name_identifier: SUM
+            - function_contents:
+              - bracketed:
+                - start_bracket: (
+                - expression:
+                  - column_reference:
+                    - naked_identifier: LineTotal
+                - end_bracket: )
           - alias_expression:
             - keyword: AS
             - naked_identifier: Total
@@ -973,16 +971,15 @@ file:
           - from_expression_element:
             - table_expression:
               - function:
-                - function:
-                  - function_name:
-                    - naked_identifier: dbo
-                    - dot: .
-                    - function_name_identifier: tableX
-                  - function_contents:
-                    - bracketed:
-                      - start_bracket: (
-                      - expression:
-                        - column_reference:
-                          - naked_identifier: NOLOCK
-                      - end_bracket: )
+                - function_name:
+                  - naked_identifier: dbo
+                  - dot: .
+                  - function_name_identifier: tableX
+                - function_contents:
+                  - bracketed:
+                    - start_bracket: (
+                    - expression:
+                      - column_reference:
+                        - naked_identifier: NOLOCK
+                    - end_bracket: )
   - keyword: GO

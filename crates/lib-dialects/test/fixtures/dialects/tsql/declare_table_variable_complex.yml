@@ -43,13 +43,12 @@ file:
             - column_constraint_segment:
               - keyword: DEFAULT
               - function:
-                - function:
-                  - function_name:
-                    - function_name_identifier: GETDATE
-                  - function_contents:
-                    - bracketed:
-                      - start_bracket: (
-                      - end_bracket: )
+                - function_name:
+                  - function_name_identifier: GETDATE
+                - function_contents:
+                  - bracketed:
+                    - start_bracket: (
+                    - end_bracket: )
         - comma: ','
         - column_definition:
           - column_definition:

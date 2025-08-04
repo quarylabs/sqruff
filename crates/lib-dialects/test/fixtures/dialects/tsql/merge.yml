@@ -635,16 +635,15 @@ file:
               - comma: ','
               - select_clause_element:
                 - function:
-                  - function:
-                    - function_name:
-                      - function_name_identifier: SUM
-                    - function_contents:
-                      - bracketed:
-                        - start_bracket: (
-                        - expression:
-                          - column_reference:
-                            - naked_identifier: OrderQty
-                        - end_bracket: )
+                  - function_name:
+                    - function_name_identifier: SUM
+                  - function_contents:
+                    - bracketed:
+                      - start_bracket: (
+                      - expression:
+                        - column_reference:
+                          - naked_identifier: OrderQty
+                      - end_bracket: )
             - from_clause:
               - keyword: FROM
               - from_expression:
@@ -787,13 +786,12 @@ file:
                         - raw_comparison_operator: =
                       - expression:
                         - function:
-                          - function:
-                            - function_name:
-                              - function_name_identifier: GETDATE
-                            - function_contents:
-                              - bracketed:
-                                - start_bracket: (
-                                - end_bracket: )
+                          - function_name:
+                            - function_name_identifier: GETDATE
+                          - function_contents:
+                            - bracketed:
+                              - start_bracket: (
+                              - end_bracket: )
         - keyword: OUTPUT
         - select_clause_element:
           - tsql_variable: $action
@@ -859,16 +857,15 @@ file:
               - comma: ','
               - select_clause_element:
                 - function:
-                  - function:
-                    - function_name:
-                      - function_name_identifier: SUM
-                    - function_contents:
-                      - bracketed:
-                        - start_bracket: (
-                        - expression:
-                          - column_reference:
-                            - naked_identifier: OrderQty
-                        - end_bracket: )
+                  - function_name:
+                    - function_name_identifier: SUM
+                  - function_contents:
+                    - bracketed:
+                      - start_bracket: (
+                      - expression:
+                        - column_reference:
+                          - naked_identifier: OrderQty
+                      - end_bracket: )
             - from_clause:
               - keyword: FROM
               - from_expression:
@@ -1331,16 +1328,15 @@ file:
               - comma: ','
               - select_clause_element:
                 - function:
-                  - function:
-                    - function_name:
-                      - function_name_identifier: SUM
-                    - function_contents:
-                      - bracketed:
-                        - start_bracket: (
-                        - expression:
-                          - column_reference:
-                            - naked_identifier: OrderQty
-                        - end_bracket: )
+                  - function_name:
+                    - function_name_identifier: SUM
+                  - function_contents:
+                    - bracketed:
+                      - start_bracket: (
+                      - expression:
+                        - column_reference:
+                          - naked_identifier: OrderQty
+                      - end_bracket: )
             - from_clause:
               - keyword: FROM
               - from_expression:

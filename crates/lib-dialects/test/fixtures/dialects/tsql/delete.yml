@@ -62,25 +62,24 @@ file:
       - quoted_literal: '''Number of rows deleted is '''
       - binary_operator: +
       - function:
-        - function:
-          - function_name:
-            - function_name_identifier: CAST
-          - function_contents:
-            - bracketed:
-              - start_bracket: (
-              - expression:
-                - parameterized_expression:
-                  - tsql_variable: '@@ROWCOUNT'
-              - keyword: as
+        - function_name:
+          - function_name_identifier: CAST
+        - function_contents:
+          - bracketed:
+            - start_bracket: (
+            - expression:
+              - parameterized_expression:
+                - tsql_variable: '@@ROWCOUNT'
+            - keyword: as
+            - data_type:
               - data_type:
-                - data_type:
-                  - data_type_identifier: char
-                  - bracketed:
-                    - start_bracket: (
-                    - expression:
-                      - numeric_literal: '3'
-                    - end_bracket: )
-              - end_bracket: )
+                - data_type_identifier: char
+                - bracketed:
+                  - start_bracket: (
+                  - expression:
+                    - numeric_literal: '3'
+                  - end_bracket: )
+            - end_bracket: )
   - statement_terminator: ;
   - keyword: GO
   - statement:
@@ -126,16 +125,15 @@ file:
                     - keyword: SELECT
                     - select_clause_element:
                       - function:
-                        - function:
-                          - function_name:
-                            - function_name_identifier: MAX
-                          - function_contents:
-                            - bracketed:
-                              - start_bracket: (
-                              - expression:
-                                - column_reference:
-                                  - naked_identifier: RateChangeDate
-                              - end_bracket: )
+                        - function_name:
+                          - function_name_identifier: MAX
+                        - function_contents:
+                          - bracketed:
+                            - start_bracket: (
+                            - expression:
+                              - column_reference:
+                                - naked_identifier: RateChangeDate
+                            - end_bracket: )
                   - from_clause:
                     - keyword: FROM
                     - from_expression:

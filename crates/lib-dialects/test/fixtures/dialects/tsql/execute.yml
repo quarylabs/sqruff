@@ -393,13 +393,12 @@ file:
         - raw_comparison_operator: =
       - expression:
         - function:
-          - function:
-            - function_name:
-              - function_name_identifier: GETDATE
-            - function_contents:
-              - bracketed:
-                - start_bracket: (
-                - end_bracket: )
+          - function_name:
+            - function_name_identifier: GETDATE
+          - function_contents:
+            - bracketed:
+              - start_bracket: (
+              - end_bracket: )
   - statement_terminator: ;
   - statement:
     - keyword: EXECUTE

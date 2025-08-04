@@ -26,36 +26,34 @@ file:
       - raw_comparison_operator: =
     - expression:
       - function:
-        - function:
-          - function_name:
-            - function_name_identifier: CAST
-          - function_contents:
-            - bracketed:
-              - start_bracket: (
-              - expression:
-                - function:
-                  - function:
-                    - function_name:
-                      - function_name_identifier: REPLICATE
-                    - function_contents:
-                      - bracketed:
-                        - start_bracket: (
-                        - expression:
-                          - numeric_literal: '0x20'
-                        - comma: ','
-                        - expression:
-                          - numeric_literal: '128'
-                        - end_bracket: )
-              - keyword: AS
-              - data_type:
-                - data_type:
-                  - data_type_identifier: varbinary
+        - function_name:
+          - function_name_identifier: CAST
+        - function_contents:
+          - bracketed:
+            - start_bracket: (
+            - expression:
+              - function:
+                - function_name:
+                  - function_name_identifier: REPLICATE
+                - function_contents:
                   - bracketed:
                     - start_bracket: (
                     - expression:
+                      - numeric_literal: '0x20'
+                    - comma: ','
+                    - expression:
                       - numeric_literal: '128'
                     - end_bracket: )
-              - end_bracket: )
+            - keyword: AS
+            - data_type:
+              - data_type:
+                - data_type_identifier: varbinary
+                - bracketed:
+                  - start_bracket: (
+                  - expression:
+                    - numeric_literal: '128'
+                  - end_bracket: )
+            - end_bracket: )
   - statement_terminator: ;
   - statement:
     - set_context_info_statement:
@@ -69,13 +67,12 @@ file:
         - keyword: SELECT
         - select_clause_element:
           - function:
-            - function:
-              - function_name:
-                - function_name_identifier: CONTEXT_INFO
-              - function_contents:
-                - bracketed:
-                  - start_bracket: (
-                  - end_bracket: )
+            - function_name:
+              - function_name_identifier: CONTEXT_INFO
+            - function_contents:
+              - bracketed:
+                - start_bracket: (
+                - end_bracket: )
           - alias_expression:
             - keyword: AS
             - naked_identifier: MyContextInfo

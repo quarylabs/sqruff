@@ -80,15 +80,14 @@ file:
         - naked_identifier: column_b
     - expression:
       - function:
-        - function:
-          - function_name:
-            - function_name_identifier: VARCHAR
-          - function_contents:
-            - bracketed:
-              - start_bracket: (
-              - expression:
-                - numeric_literal: '20'
-              - end_bracket: )
+        - function_name:
+          - function_name_identifier: VARCHAR
+        - function_contents:
+          - bracketed:
+            - start_bracket: (
+            - expression:
+              - numeric_literal: '20'
+            - end_bracket: )
     - expression:
       - null_literal: 'NULL'
     - expression:
@@ -391,33 +390,31 @@ file:
         - naked_identifier: FOREIGN
     - expression:
       - function:
-        - function:
-          - function_name:
-            - function_name_identifier: KEY
-          - function_contents:
-            - bracketed:
-              - start_bracket: (
-              - expression:
-                - column_reference:
-                  - quoted_identifier: '[ProductID]'
-              - end_bracket: )
+        - function_name:
+          - function_name_identifier: KEY
+        - function_contents:
+          - bracketed:
+            - start_bracket: (
+            - expression:
+              - column_reference:
+                - quoted_identifier: '[ProductID]'
+            - end_bracket: )
     - expression:
       - column_reference:
         - naked_identifier: REFERENCES
     - expression:
       - function:
-        - function:
-          - function_name:
-            - quoted_identifier: '[Production]'
-            - dot: .
-            - quoted_identifier: '[Product]'
-          - function_contents:
-            - bracketed:
-              - start_bracket: (
-              - expression:
-                - column_reference:
-                  - quoted_identifier: '[ProductID]'
-              - end_bracket: )
+        - function_name:
+          - quoted_identifier: '[Production]'
+          - dot: .
+          - quoted_identifier: '[Product]'
+        - function_contents:
+          - bracketed:
+            - start_bracket: (
+            - expression:
+              - column_reference:
+                - quoted_identifier: '[ProductID]'
+            - end_bracket: )
     - expression:
       - data_type:
         - data_type:
@@ -486,21 +483,20 @@ file:
         - naked_identifier: TestTable
     - expression:
       - function:
-        - function:
-          - function_name:
-            - function_name_identifier: SET
-          - function_contents:
-            - bracketed:
-              - start_bracket: (
-              - expression:
-                - column_reference:
-                  - naked_identifier: SYSTEM_VERSIONING
-                - comparison_operator:
-                  - raw_comparison_operator: =
+        - function_name:
+          - function_name_identifier: SET
+        - function_contents:
+          - bracketed:
+            - start_bracket: (
+            - expression:
+              - column_reference:
+                - naked_identifier: SYSTEM_VERSIONING
+              - comparison_operator:
+                - raw_comparison_operator: =
+              - data_type:
                 - data_type:
-                  - data_type:
-                    - data_type_identifier: ON
-              - end_bracket: )
+                  - data_type_identifier: ON
+            - end_bracket: )
   - statement_terminator: ;
   - keyword: GO
   - statement:
@@ -513,20 +509,19 @@ file:
         - naked_identifier: TestTable
     - expression:
       - function:
-        - function:
-          - function_name:
-            - function_name_identifier: SET
-          - function_contents:
-            - bracketed:
-              - start_bracket: (
-              - expression:
-                - column_reference:
-                  - naked_identifier: SYSTEM_VERSIONING
-                - comparison_operator:
-                  - raw_comparison_operator: =
-                - column_reference:
-                  - naked_identifier: OFF
-              - end_bracket: )
+        - function_name:
+          - function_name_identifier: SET
+        - function_contents:
+          - bracketed:
+            - start_bracket: (
+            - expression:
+              - column_reference:
+                - naked_identifier: SYSTEM_VERSIONING
+              - comparison_operator:
+                - raw_comparison_operator: =
+              - column_reference:
+                - naked_identifier: OFF
+            - end_bracket: )
   - statement_terminator: ;
   - keyword: GO
   - statement:
@@ -539,33 +534,31 @@ file:
         - naked_identifier: TestTable
     - expression:
       - function:
-        - function:
-          - function_name:
-            - function_name_identifier: SET
-          - function_contents:
-            - bracketed:
-              - start_bracket: (
-              - expression:
-                - column_reference:
-                  - naked_identifier: SYSTEM_VERSIONING
-                - comparison_operator:
-                  - raw_comparison_operator: =
-                - function:
-                  - function:
-                    - function_name:
-                      - function_name_identifier: OFF
-                    - function_contents:
-                      - bracketed:
-                        - start_bracket: (
-                        - expression:
-                          - column_reference:
-                            - naked_identifier: HISTORY_TABLE
-                          - comparison_operator:
-                            - raw_comparison_operator: =
-                          - column_reference:
-                            - naked_identifier: TestTableHistory
-                        - end_bracket: )
-              - end_bracket: )
+        - function_name:
+          - function_name_identifier: SET
+        - function_contents:
+          - bracketed:
+            - start_bracket: (
+            - expression:
+              - column_reference:
+                - naked_identifier: SYSTEM_VERSIONING
+              - comparison_operator:
+                - raw_comparison_operator: =
+              - function:
+                - function_name:
+                  - function_name_identifier: OFF
+                - function_contents:
+                  - bracketed:
+                    - start_bracket: (
+                    - expression:
+                      - column_reference:
+                        - naked_identifier: HISTORY_TABLE
+                      - comparison_operator:
+                        - raw_comparison_operator: =
+                      - column_reference:
+                        - naked_identifier: TestTableHistory
+                    - end_bracket: )
+            - end_bracket: )
   - statement_terminator: ;
   - keyword: GO
   - statement:
@@ -578,42 +571,40 @@ file:
         - naked_identifier: TestTable
     - expression:
       - function:
-        - function:
-          - function_name:
-            - function_name_identifier: SET
-          - function_contents:
-            - bracketed:
-              - start_bracket: (
-              - expression:
-                - column_reference:
-                  - naked_identifier: SYSTEM_VERSIONING
-                - comparison_operator:
-                  - raw_comparison_operator: =
-                - function:
-                  - function:
-                    - function_name:
-                      - function_name_identifier: OFF
-                    - function_contents:
-                      - bracketed:
-                        - start_bracket: (
-                        - expression:
-                          - column_reference:
-                            - naked_identifier: HISTORY_TABLE
-                          - comparison_operator:
-                            - raw_comparison_operator: =
-                          - column_reference:
-                            - naked_identifier: TestTableHistory
-                        - comma: ','
-                        - expression:
-                          - column_reference:
-                            - naked_identifier: DATA_CONSISTENCY_CHECK
-                          - comparison_operator:
-                            - raw_comparison_operator: =
-                          - data_type:
-                            - data_type:
-                              - data_type_identifier: ON
-                        - end_bracket: )
-              - end_bracket: )
+        - function_name:
+          - function_name_identifier: SET
+        - function_contents:
+          - bracketed:
+            - start_bracket: (
+            - expression:
+              - column_reference:
+                - naked_identifier: SYSTEM_VERSIONING
+              - comparison_operator:
+                - raw_comparison_operator: =
+              - function:
+                - function_name:
+                  - function_name_identifier: OFF
+                - function_contents:
+                  - bracketed:
+                    - start_bracket: (
+                    - expression:
+                      - column_reference:
+                        - naked_identifier: HISTORY_TABLE
+                      - comparison_operator:
+                        - raw_comparison_operator: =
+                      - column_reference:
+                        - naked_identifier: TestTableHistory
+                    - comma: ','
+                    - expression:
+                      - column_reference:
+                        - naked_identifier: DATA_CONSISTENCY_CHECK
+                      - comparison_operator:
+                        - raw_comparison_operator: =
+                      - data_type:
+                        - data_type:
+                          - data_type_identifier: ON
+                    - end_bracket: )
+            - end_bracket: )
   - statement_terminator: ;
   - keyword: GO
   - statement:
@@ -626,50 +617,48 @@ file:
         - naked_identifier: TestTable
     - expression:
       - function:
-        - function:
-          - function_name:
-            - function_name_identifier: SET
-          - function_contents:
-            - bracketed:
-              - start_bracket: (
-              - expression:
-                - column_reference:
-                  - naked_identifier: SYSTEM_VERSIONING
-                - comparison_operator:
-                  - raw_comparison_operator: =
-                - function:
-                  - function:
-                    - function_name:
-                      - function_name_identifier: OFF
-                    - function_contents:
-                      - bracketed:
-                        - start_bracket: (
-                        - expression:
-                          - column_reference:
-                            - naked_identifier: HISTORY_TABLE
-                          - comparison_operator:
-                            - raw_comparison_operator: =
-                          - column_reference:
-                            - naked_identifier: TestTableHistory
-                        - comma: ','
-                        - expression:
-                          - column_reference:
-                            - naked_identifier: DATA_CONSISTENCY_CHECK
-                          - comparison_operator:
-                            - raw_comparison_operator: =
-                          - data_type:
-                            - data_type:
-                              - data_type_identifier: ON
-                        - comma: ','
-                        - expression:
-                          - column_reference:
-                            - naked_identifier: HISTORY_RETENTION_PERIOD
-                          - comparison_operator:
-                            - raw_comparison_operator: =
-                          - column_reference:
-                            - naked_identifier: INFINITE
-                        - end_bracket: )
-              - end_bracket: )
+        - function_name:
+          - function_name_identifier: SET
+        - function_contents:
+          - bracketed:
+            - start_bracket: (
+            - expression:
+              - column_reference:
+                - naked_identifier: SYSTEM_VERSIONING
+              - comparison_operator:
+                - raw_comparison_operator: =
+              - function:
+                - function_name:
+                  - function_name_identifier: OFF
+                - function_contents:
+                  - bracketed:
+                    - start_bracket: (
+                    - expression:
+                      - column_reference:
+                        - naked_identifier: HISTORY_TABLE
+                      - comparison_operator:
+                        - raw_comparison_operator: =
+                      - column_reference:
+                        - naked_identifier: TestTableHistory
+                    - comma: ','
+                    - expression:
+                      - column_reference:
+                        - naked_identifier: DATA_CONSISTENCY_CHECK
+                      - comparison_operator:
+                        - raw_comparison_operator: =
+                      - data_type:
+                        - data_type:
+                          - data_type_identifier: ON
+                    - comma: ','
+                    - expression:
+                      - column_reference:
+                        - naked_identifier: HISTORY_RETENTION_PERIOD
+                      - comparison_operator:
+                        - raw_comparison_operator: =
+                      - column_reference:
+                        - naked_identifier: INFINITE
+                    - end_bracket: )
+            - end_bracket: )
   - statement_terminator: ;
   - keyword: GO
   - statement:
@@ -682,52 +671,50 @@ file:
         - naked_identifier: TestTable
     - expression:
       - function:
-        - function:
-          - function_name:
-            - function_name_identifier: SET
-          - function_contents:
-            - bracketed:
-              - start_bracket: (
-              - expression:
-                - column_reference:
-                  - naked_identifier: SYSTEM_VERSIONING
-                - comparison_operator:
-                  - raw_comparison_operator: =
-                - function:
-                  - function:
-                    - function_name:
-                      - function_name_identifier: OFF
-                    - function_contents:
-                      - bracketed:
-                        - start_bracket: (
-                        - expression:
-                          - column_reference:
-                            - naked_identifier: HISTORY_TABLE
-                          - comparison_operator:
-                            - raw_comparison_operator: =
-                          - column_reference:
-                            - naked_identifier: TestTableHistory
-                        - comma: ','
-                        - expression:
-                          - column_reference:
-                            - naked_identifier: DATA_CONSISTENCY_CHECK
-                          - comparison_operator:
-                            - raw_comparison_operator: =
-                          - data_type:
-                            - data_type:
-                              - data_type_identifier: ON
-                        - comma: ','
-                        - expression:
-                          - column_reference:
-                            - naked_identifier: HISTORY_RETENTION_PERIOD
-                          - comparison_operator:
-                            - raw_comparison_operator: =
-                          - numeric_literal: '1'
-                        - expression:
-                          - column_reference:
-                            - naked_identifier: YEAR
-                        - end_bracket: )
-              - end_bracket: )
+        - function_name:
+          - function_name_identifier: SET
+        - function_contents:
+          - bracketed:
+            - start_bracket: (
+            - expression:
+              - column_reference:
+                - naked_identifier: SYSTEM_VERSIONING
+              - comparison_operator:
+                - raw_comparison_operator: =
+              - function:
+                - function_name:
+                  - function_name_identifier: OFF
+                - function_contents:
+                  - bracketed:
+                    - start_bracket: (
+                    - expression:
+                      - column_reference:
+                        - naked_identifier: HISTORY_TABLE
+                      - comparison_operator:
+                        - raw_comparison_operator: =
+                      - column_reference:
+                        - naked_identifier: TestTableHistory
+                    - comma: ','
+                    - expression:
+                      - column_reference:
+                        - naked_identifier: DATA_CONSISTENCY_CHECK
+                      - comparison_operator:
+                        - raw_comparison_operator: =
+                      - data_type:
+                        - data_type:
+                          - data_type_identifier: ON
+                    - comma: ','
+                    - expression:
+                      - column_reference:
+                        - naked_identifier: HISTORY_RETENTION_PERIOD
+                      - comparison_operator:
+                        - raw_comparison_operator: =
+                      - numeric_literal: '1'
+                    - expression:
+                      - column_reference:
+                        - naked_identifier: YEAR
+                    - end_bracket: )
+            - end_bracket: )
   - statement_terminator: ;
   - keyword: GO
   - statement:
@@ -740,52 +727,50 @@ file:
         - naked_identifier: TestTable
     - expression:
       - function:
-        - function:
-          - function_name:
-            - function_name_identifier: SET
-          - function_contents:
-            - bracketed:
-              - start_bracket: (
-              - expression:
-                - column_reference:
-                  - naked_identifier: SYSTEM_VERSIONING
-                - comparison_operator:
-                  - raw_comparison_operator: =
-                - function:
-                  - function:
-                    - function_name:
-                      - function_name_identifier: OFF
-                    - function_contents:
-                      - bracketed:
-                        - start_bracket: (
-                        - expression:
-                          - column_reference:
-                            - naked_identifier: HISTORY_TABLE
-                          - comparison_operator:
-                            - raw_comparison_operator: =
-                          - column_reference:
-                            - naked_identifier: TestTableHistory
-                        - comma: ','
-                        - expression:
-                          - column_reference:
-                            - naked_identifier: DATA_CONSISTENCY_CHECK
-                          - comparison_operator:
-                            - raw_comparison_operator: =
-                          - data_type:
-                            - data_type:
-                              - data_type_identifier: ON
-                        - comma: ','
-                        - expression:
-                          - column_reference:
-                            - naked_identifier: HISTORY_RETENTION_PERIOD
-                          - comparison_operator:
-                            - raw_comparison_operator: =
-                          - numeric_literal: '7'
-                        - expression:
-                          - column_reference:
-                            - naked_identifier: MONTHS
-                        - end_bracket: )
-              - end_bracket: )
+        - function_name:
+          - function_name_identifier: SET
+        - function_contents:
+          - bracketed:
+            - start_bracket: (
+            - expression:
+              - column_reference:
+                - naked_identifier: SYSTEM_VERSIONING
+              - comparison_operator:
+                - raw_comparison_operator: =
+              - function:
+                - function_name:
+                  - function_name_identifier: OFF
+                - function_contents:
+                  - bracketed:
+                    - start_bracket: (
+                    - expression:
+                      - column_reference:
+                        - naked_identifier: HISTORY_TABLE
+                      - comparison_operator:
+                        - raw_comparison_operator: =
+                      - column_reference:
+                        - naked_identifier: TestTableHistory
+                    - comma: ','
+                    - expression:
+                      - column_reference:
+                        - naked_identifier: DATA_CONSISTENCY_CHECK
+                      - comparison_operator:
+                        - raw_comparison_operator: =
+                      - data_type:
+                        - data_type:
+                          - data_type_identifier: ON
+                    - comma: ','
+                    - expression:
+                      - column_reference:
+                        - naked_identifier: HISTORY_RETENTION_PERIOD
+                      - comparison_operator:
+                        - raw_comparison_operator: =
+                      - numeric_literal: '7'
+                    - expression:
+                      - column_reference:
+                        - naked_identifier: MONTHS
+                    - end_bracket: )
+            - end_bracket: )
   - statement_terminator: ;
   - keyword: GO
   - statement:
@@ -798,20 +783,19 @@ file:
         - naked_identifier: TestTable
     - expression:
       - function:
-        - function:
-          - function_name:
-            - function_name_identifier: SET
-          - function_contents:
-            - bracketed:
-              - start_bracket: (
-              - expression:
-                - column_reference:
-                  - naked_identifier: FILESTREAM_ON
-                - comparison_operator:
-                  - raw_comparison_operator: =
-                - column_reference:
-                  - quoted_identifier: '"NULL"'
-              - end_bracket: )
+        - function_name:
+          - function_name_identifier: SET
+        - function_contents:
+          - bracketed:
+            - start_bracket: (
+            - expression:
+              - column_reference:
+                - naked_identifier: FILESTREAM_ON
+              - comparison_operator:
+                - raw_comparison_operator: =
+              - column_reference:
+                - quoted_identifier: '"NULL"'
+            - end_bracket: )
   - statement_terminator: ;
   - keyword: GO
   - statement:
@@ -824,20 +808,19 @@ file:
         - naked_identifier: TestTable
     - expression:
       - function:
-        - function:
-          - function_name:
-            - function_name_identifier: SET
-          - function_contents:
-            - bracketed:
-              - start_bracket: (
-              - expression:
-                - column_reference:
-                  - naked_identifier: FILESTREAM_ON
-                - comparison_operator:
-                  - raw_comparison_operator: =
-                - column_reference:
-                  - quoted_identifier: '"default"'
-              - end_bracket: )
+        - function_name:
+          - function_name_identifier: SET
+        - function_contents:
+          - bracketed:
+            - start_bracket: (
+            - expression:
+              - column_reference:
+                - naked_identifier: FILESTREAM_ON
+              - comparison_operator:
+                - raw_comparison_operator: =
+              - column_reference:
+                - quoted_identifier: '"default"'
+            - end_bracket: )
   - statement_terminator: ;
   - keyword: GO
   - statement:
@@ -850,20 +833,19 @@ file:
         - naked_identifier: TestTable
     - expression:
       - function:
-        - function:
-          - function_name:
-            - function_name_identifier: SET
-          - function_contents:
-            - bracketed:
-              - start_bracket: (
-              - expression:
-                - column_reference:
-                  - naked_identifier: FILESTREAM_ON
-                - comparison_operator:
-                  - raw_comparison_operator: =
-                - column_reference:
-                  - naked_identifier: PartitionSchemeName
-              - end_bracket: )
+        - function_name:
+          - function_name_identifier: SET
+        - function_contents:
+          - bracketed:
+            - start_bracket: (
+            - expression:
+              - column_reference:
+                - naked_identifier: FILESTREAM_ON
+              - comparison_operator:
+                - raw_comparison_operator: =
+              - column_reference:
+                - naked_identifier: PartitionSchemeName
+            - end_bracket: )
   - statement_terminator: ;
   - keyword: GO
   - statement:
@@ -876,21 +858,20 @@ file:
         - naked_identifier: TestTable
     - expression:
       - function:
-        - function:
-          - function_name:
-            - function_name_identifier: SET
-          - function_contents:
-            - bracketed:
-              - start_bracket: (
-              - expression:
-                - column_reference:
-                  - naked_identifier: DATA_DELETION
-                - comparison_operator:
-                  - raw_comparison_operator: =
+        - function_name:
+          - function_name_identifier: SET
+        - function_contents:
+          - bracketed:
+            - start_bracket: (
+            - expression:
+              - column_reference:
+                - naked_identifier: DATA_DELETION
+              - comparison_operator:
+                - raw_comparison_operator: =
+              - data_type:
                 - data_type:
-                  - data_type:
-                    - data_type_identifier: ON
-              - end_bracket: )
+                  - data_type_identifier: ON
+            - end_bracket: )
   - statement_terminator: ;
   - keyword: GO
   - statement:
@@ -903,33 +884,31 @@ file:
         - naked_identifier: TestTable
     - expression:
       - function:
-        - function:
-          - function_name:
-            - function_name_identifier: SET
-          - function_contents:
-            - bracketed:
-              - start_bracket: (
-              - expression:
-                - column_reference:
-                  - naked_identifier: DATA_DELETION
-                - comparison_operator:
-                  - raw_comparison_operator: =
-                - function:
-                  - function:
-                    - function_name:
-                      - function_name_identifier: OFF
-                    - function_contents:
-                      - bracketed:
-                        - start_bracket: (
-                        - expression:
-                          - column_reference:
-                            - naked_identifier: FILTER_COLUMN
-                          - comparison_operator:
-                            - raw_comparison_operator: =
-                          - column_reference:
-                            - naked_identifier: ColumnName
-                        - end_bracket: )
-              - end_bracket: )
+        - function_name:
+          - function_name_identifier: SET
+        - function_contents:
+          - bracketed:
+            - start_bracket: (
+            - expression:
+              - column_reference:
+                - naked_identifier: DATA_DELETION
+              - comparison_operator:
+                - raw_comparison_operator: =
+              - function:
+                - function_name:
+                  - function_name_identifier: OFF
+                - function_contents:
+                  - bracketed:
+                    - start_bracket: (
+                    - expression:
+                      - column_reference:
+                        - naked_identifier: FILTER_COLUMN
+                      - comparison_operator:
+                        - raw_comparison_operator: =
+                      - column_reference:
+                        - naked_identifier: ColumnName
+                    - end_bracket: )
+            - end_bracket: )
   - statement_terminator: ;
   - keyword: GO
   - statement:
@@ -942,43 +921,41 @@ file:
         - naked_identifier: TestTable
     - expression:
       - function:
-        - function:
-          - function_name:
-            - function_name_identifier: SET
-          - function_contents:
-            - bracketed:
-              - start_bracket: (
-              - expression:
-                - column_reference:
-                  - naked_identifier: DATA_DELETION
-                - comparison_operator:
-                  - raw_comparison_operator: =
-                - function:
-                  - function:
-                    - function_name:
-                      - function_name_identifier: OFF
-                    - function_contents:
-                      - bracketed:
-                        - start_bracket: (
-                        - expression:
-                          - column_reference:
-                            - naked_identifier: FILTER_COLUMN
-                          - comparison_operator:
-                            - raw_comparison_operator: =
-                          - column_reference:
-                            - naked_identifier: ColumnName
-                        - comma: ','
-                        - expression:
-                          - column_reference:
-                            - naked_identifier: RETENTION_PERIOD
-                          - comparison_operator:
-                            - raw_comparison_operator: =
-                          - numeric_literal: '1'
-                        - expression:
-                          - column_reference:
-                            - naked_identifier: YEAR
-                        - end_bracket: )
-              - end_bracket: )
+        - function_name:
+          - function_name_identifier: SET
+        - function_contents:
+          - bracketed:
+            - start_bracket: (
+            - expression:
+              - column_reference:
+                - naked_identifier: DATA_DELETION
+              - comparison_operator:
+                - raw_comparison_operator: =
+              - function:
+                - function_name:
+                  - function_name_identifier: OFF
+                - function_contents:
+                  - bracketed:
+                    - start_bracket: (
+                    - expression:
+                      - column_reference:
+                        - naked_identifier: FILTER_COLUMN
+                      - comparison_operator:
+                        - raw_comparison_operator: =
+                      - column_reference:
+                        - naked_identifier: ColumnName
+                    - comma: ','
+                    - expression:
+                      - column_reference:
+                        - naked_identifier: RETENTION_PERIOD
+                      - comparison_operator:
+                        - raw_comparison_operator: =
+                      - numeric_literal: '1'
+                    - expression:
+                      - column_reference:
+                        - naked_identifier: YEAR
+                    - end_bracket: )
+            - end_bracket: )
   - statement_terminator: ;
   - keyword: GO
   - statement:
@@ -991,41 +968,39 @@ file:
         - naked_identifier: TestTable
     - expression:
       - function:
-        - function:
-          - function_name:
-            - function_name_identifier: SET
-          - function_contents:
-            - bracketed:
-              - start_bracket: (
-              - expression:
-                - column_reference:
-                  - naked_identifier: DATA_DELETION
-                - comparison_operator:
-                  - raw_comparison_operator: =
-                - function:
-                  - function:
-                    - function_name:
-                      - function_name_identifier: OFF
-                    - function_contents:
-                      - bracketed:
-                        - start_bracket: (
-                        - expression:
-                          - column_reference:
-                            - naked_identifier: FILTER_COLUMN
-                          - comparison_operator:
-                            - raw_comparison_operator: =
-                          - column_reference:
-                            - naked_identifier: ColumnName
-                        - comma: ','
-                        - expression:
-                          - column_reference:
-                            - naked_identifier: RETENTION_PERIOD
-                          - comparison_operator:
-                            - raw_comparison_operator: =
-                          - column_reference:
-                            - naked_identifier: INFINITE
-                        - end_bracket: )
-              - end_bracket: )
+        - function_name:
+          - function_name_identifier: SET
+        - function_contents:
+          - bracketed:
+            - start_bracket: (
+            - expression:
+              - column_reference:
+                - naked_identifier: DATA_DELETION
+              - comparison_operator:
+                - raw_comparison_operator: =
+              - function:
+                - function_name:
+                  - function_name_identifier: OFF
+                - function_contents:
+                  - bracketed:
+                    - start_bracket: (
+                    - expression:
+                      - column_reference:
+                        - naked_identifier: FILTER_COLUMN
+                      - comparison_operator:
+                        - raw_comparison_operator: =
+                      - column_reference:
+                        - naked_identifier: ColumnName
+                    - comma: ','
+                    - expression:
+                      - column_reference:
+                        - naked_identifier: RETENTION_PERIOD
+                      - comparison_operator:
+                        - raw_comparison_operator: =
+                      - column_reference:
+                        - naked_identifier: INFINITE
+                    - end_bracket: )
+            - end_bracket: )
   - statement_terminator: ;
   - keyword: GO
   - statement:
@@ -1038,43 +1013,41 @@ file:
         - naked_identifier: TestTable
     - expression:
       - function:
-        - function:
-          - function_name:
-            - function_name_identifier: SET
-          - function_contents:
-            - bracketed:
-              - start_bracket: (
-              - expression:
-                - column_reference:
-                  - naked_identifier: DATA_DELETION
-                - comparison_operator:
-                  - raw_comparison_operator: =
-                - function:
-                  - function:
-                    - function_name:
-                      - function_name_identifier: OFF
-                    - function_contents:
-                      - bracketed:
-                        - start_bracket: (
-                        - expression:
-                          - column_reference:
-                            - naked_identifier: FILTER_COLUMN
-                          - comparison_operator:
-                            - raw_comparison_operator: =
-                          - column_reference:
-                            - naked_identifier: ColumnName
-                        - comma: ','
-                        - expression:
-                          - column_reference:
-                            - naked_identifier: RETENTION_PERIOD
-                          - comparison_operator:
-                            - raw_comparison_operator: =
-                          - numeric_literal: '7'
-                        - expression:
-                          - column_reference:
-                            - naked_identifier: YEARS
-                        - end_bracket: )
-              - end_bracket: )
+        - function_name:
+          - function_name_identifier: SET
+        - function_contents:
+          - bracketed:
+            - start_bracket: (
+            - expression:
+              - column_reference:
+                - naked_identifier: DATA_DELETION
+              - comparison_operator:
+                - raw_comparison_operator: =
+              - function:
+                - function_name:
+                  - function_name_identifier: OFF
+                - function_contents:
+                  - bracketed:
+                    - start_bracket: (
+                    - expression:
+                      - column_reference:
+                        - naked_identifier: FILTER_COLUMN
+                      - comparison_operator:
+                        - raw_comparison_operator: =
+                      - column_reference:
+                        - naked_identifier: ColumnName
+                    - comma: ','
+                    - expression:
+                      - column_reference:
+                        - naked_identifier: RETENTION_PERIOD
+                      - comparison_operator:
+                        - raw_comparison_operator: =
+                      - numeric_literal: '7'
+                    - expression:
+                      - column_reference:
+                        - naked_identifier: YEARS
+                    - end_bracket: )
+            - end_bracket: )
   - statement_terminator: ;
   - keyword: GO
   - statement:
@@ -1087,43 +1060,41 @@ file:
         - naked_identifier: TestTable
     - expression:
       - function:
-        - function:
-          - function_name:
-            - function_name_identifier: SET
-          - function_contents:
-            - bracketed:
-              - start_bracket: (
-              - expression:
-                - column_reference:
-                  - naked_identifier: DATA_DELETION
-                - comparison_operator:
-                  - raw_comparison_operator: =
-                - function:
-                  - function:
-                    - function_name:
-                      - function_name_identifier: OFF
-                    - function_contents:
-                      - bracketed:
-                        - start_bracket: (
-                        - expression:
-                          - column_reference:
-                            - naked_identifier: FILTER_COLUMN
-                          - comparison_operator:
-                            - raw_comparison_operator: =
-                          - column_reference:
-                            - naked_identifier: ColumnName
-                        - comma: ','
-                        - expression:
-                          - column_reference:
-                            - naked_identifier: RETENTION_PERIOD
-                          - comparison_operator:
-                            - raw_comparison_operator: =
-                          - numeric_literal: '7'
-                        - expression:
-                          - column_reference:
-                            - naked_identifier: DAYS
-                        - end_bracket: )
-              - end_bracket: )
+        - function_name:
+          - function_name_identifier: SET
+        - function_contents:
+          - bracketed:
+            - start_bracket: (
+            - expression:
+              - column_reference:
+                - naked_identifier: DATA_DELETION
+              - comparison_operator:
+                - raw_comparison_operator: =
+              - function:
+                - function_name:
+                  - function_name_identifier: OFF
+                - function_contents:
+                  - bracketed:
+                    - start_bracket: (
+                    - expression:
+                      - column_reference:
+                        - naked_identifier: FILTER_COLUMN
+                      - comparison_operator:
+                        - raw_comparison_operator: =
+                      - column_reference:
+                        - naked_identifier: ColumnName
+                    - comma: ','
+                    - expression:
+                      - column_reference:
+                        - naked_identifier: RETENTION_PERIOD
+                      - comparison_operator:
+                        - raw_comparison_operator: =
+                      - numeric_literal: '7'
+                    - expression:
+                      - column_reference:
+                        - naked_identifier: DAYS
+                    - end_bracket: )
+            - end_bracket: )
   - statement_terminator: ;
   - keyword: GO
   - statement:
@@ -1202,20 +1173,19 @@ file:
             - keyword: AS
             - expression:
               - function:
-                - function:
-                  - function_name:
-                    - function_name_identifier: CAST
-                  - function_contents:
-                    - bracketed:
-                      - start_bracket: (
-                      - expression:
-                        - column_reference:
-                          - quoted_identifier: '[InventoryTs]'
-                      - keyword: AS
+                - function_name:
+                  - function_name_identifier: CAST
+                - function_contents:
+                  - bracketed:
+                    - start_bracket: (
+                    - expression:
+                      - column_reference:
+                        - quoted_identifier: '[InventoryTs]'
+                    - keyword: AS
+                    - data_type:
                       - data_type:
-                        - data_type:
-                          - data_type_identifier: date
-                      - end_bracket: )
+                        - data_type_identifier: date
+                    - end_bracket: )
   - statement_terminator: ;
   - keyword: GO
   - statement:
@@ -1242,33 +1212,31 @@ file:
         - naked_identifier: FOREIGN
     - expression:
       - function:
-        - function:
-          - function_name:
-            - function_name_identifier: KEY
-          - function_contents:
-            - bracketed:
-              - start_bracket: (
-              - expression:
-                - column_reference:
-                  - quoted_identifier: '[JobId]'
-              - end_bracket: )
+        - function_name:
+          - function_name_identifier: KEY
+        - function_contents:
+          - bracketed:
+            - start_bracket: (
+            - expression:
+              - column_reference:
+                - quoted_identifier: '[JobId]'
+            - end_bracket: )
     - expression:
       - column_reference:
         - naked_identifier: REFERENCES
     - expression:
       - function:
-        - function:
-          - function_name:
-            - quoted_identifier: '[HangFire]'
-            - dot: .
-            - quoted_identifier: '[Job]'
-          - function_contents:
-            - bracketed:
-              - start_bracket: (
-              - expression:
-                - column_reference:
-                  - quoted_identifier: '[Id]'
-              - end_bracket: )
+        - function_name:
+          - quoted_identifier: '[HangFire]'
+          - dot: .
+          - quoted_identifier: '[Job]'
+        - function_contents:
+          - bracketed:
+            - start_bracket: (
+            - expression:
+              - column_reference:
+                - quoted_identifier: '[Id]'
+            - end_bracket: )
     - expression:
       - data_type:
         - data_type:
@@ -1462,18 +1430,17 @@ file:
         - naked_identifier: FOR
     - expression:
       - function:
-        - function:
-          - function_name:
-            - function_name_identifier: SYSTEM_TIME
-          - function_contents:
-            - bracketed:
-              - start_bracket: (
-              - expression:
-                - column_reference:
-                  - naked_identifier: StartDate
-              - comma: ','
-              - expression:
-                - column_reference:
-                  - naked_identifier: EndDate
-              - end_bracket: )
+        - function_name:
+          - function_name_identifier: SYSTEM_TIME
+        - function_contents:
+          - bracketed:
+            - start_bracket: (
+            - expression:
+              - column_reference:
+                - naked_identifier: StartDate
+            - comma: ','
+            - expression:
+              - column_reference:
+                - naked_identifier: EndDate
+            - end_bracket: )
   - statement_terminator: ;

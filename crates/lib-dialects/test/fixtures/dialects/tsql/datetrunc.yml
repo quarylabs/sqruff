@@ -6,66 +6,63 @@ file:
         - keyword: SELECT
         - select_clause_element:
           - function:
-            - function:
-              - function_name:
-                - function_name_identifier: DATETRUNC
-              - function_contents:
-                - bracketed:
-                  - start_bracket: (
-                  - expression:
-                    - column_reference:
-                      - naked_identifier: YEAR
-                  - comma: ','
-                  - expression:
-                    - column_reference:
-                      - naked_identifier: my_table
-                      - dot: .
-                      - naked_identifier: date
-                  - end_bracket: )
+            - function_name:
+              - function_name_identifier: DATETRUNC
+            - function_contents:
+              - bracketed:
+                - start_bracket: (
+                - expression:
+                  - column_reference:
+                    - naked_identifier: YEAR
+                - comma: ','
+                - expression:
+                  - column_reference:
+                    - naked_identifier: my_table
+                    - dot: .
+                    - naked_identifier: date
+                - end_bracket: )
           - alias_expression:
             - keyword: AS
             - quoted_identifier: '[beginningOfYear]'
         - comma: ','
         - select_clause_element:
           - function:
-            - function:
-              - function_name:
-                - function_name_identifier: DATETRUNC
-              - function_contents:
-                - bracketed:
-                  - start_bracket: (
-                  - expression:
-                    - column_reference:
-                      - naked_identifier: MONTH
-                  - comma: ','
-                  - expression:
-                    - column_reference:
-                      - naked_identifier: my_table
-                      - dot: .
-                      - naked_identifier: date
-                  - end_bracket: )
+            - function_name:
+              - function_name_identifier: DATETRUNC
+            - function_contents:
+              - bracketed:
+                - start_bracket: (
+                - expression:
+                  - column_reference:
+                    - naked_identifier: MONTH
+                - comma: ','
+                - expression:
+                  - column_reference:
+                    - naked_identifier: my_table
+                    - dot: .
+                    - naked_identifier: date
+                - end_bracket: )
           - alias_expression:
             - keyword: AS
             - quoted_identifier: '[FirstOfMonth]'
         - comma: ','
         - select_clause_element:
           - function:
-            - function:
-              - function_name:
-                - function_name_identifier: DATETRUNC
-              - function_contents:
-                - bracketed:
-                  - start_bracket: (
-                  - expression:
-                    - column_reference:
-                      - naked_identifier: DAY
-                  - comma: ','
-                  - expression:
-                    - column_reference:
-                      - naked_identifier: my_table
-                      - dot: .
-                      - naked_identifier: date
-                  - end_bracket: )
+            - function_name:
+              - function_name_identifier: DATETRUNC
+            - function_contents:
+              - bracketed:
+                - start_bracket: (
+                - expression:
+                  - column_reference:
+                    - naked_identifier: DAY
+                - comma: ','
+                - expression:
+                  - column_reference:
+                    - naked_identifier: my_table
+                    - dot: .
+                    - naked_identifier: date
+                - end_bracket: )
           - alias_expression:
             - keyword: AS
             - quoted_identifier: '[Today]'

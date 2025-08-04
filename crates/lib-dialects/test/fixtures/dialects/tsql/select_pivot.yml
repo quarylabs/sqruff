@@ -31,16 +31,15 @@ file:
               - bracketed:
                 - start_bracket: (
                 - function:
-                  - function:
-                    - function_name:
-                      - function_name_identifier: max
-                    - function_contents:
-                      - bracketed:
-                        - start_bracket: (
-                        - expression:
-                          - column_reference:
-                            - naked_identifier: value
-                        - end_bracket: )
+                  - function_name:
+                    - function_name_identifier: max
+                  - function_contents:
+                    - bracketed:
+                      - start_bracket: (
+                      - expression:
+                        - column_reference:
+                          - naked_identifier: value
+                      - end_bracket: )
                 - keyword: for
                 - column_reference:
                   - naked_identifier: rn
@@ -92,16 +91,15 @@ file:
               - bracketed:
                 - start_bracket: (
                 - function:
-                  - function:
-                    - function_name:
-                      - function_name_identifier: max
-                    - function_contents:
-                      - bracketed:
-                        - start_bracket: (
-                        - expression:
-                          - column_reference:
-                            - naked_identifier: value
-                        - end_bracket: )
+                  - function_name:
+                    - function_name_identifier: max
+                  - function_contents:
+                    - bracketed:
+                      - start_bracket: (
+                      - expression:
+                        - column_reference:
+                          - naked_identifier: value
+                      - end_bracket: )
                 - keyword: for
                 - column_reference:
                   - naked_identifier: rn

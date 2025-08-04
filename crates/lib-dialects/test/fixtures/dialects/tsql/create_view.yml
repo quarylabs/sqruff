@@ -29,16 +29,15 @@ file:
             - comma: ','
             - select_clause_element:
               - function:
-                - function:
-                  - function_name:
-                    - function_name_identifier: SUM
-                  - function_contents:
-                    - bracketed:
-                      - start_bracket: (
-                      - expression:
-                        - column_reference:
-                          - naked_identifier: TotalDue
-                      - end_bracket: )
+                - function_name:
+                  - function_name_identifier: SUM
+                - function_contents:
+                  - bracketed:
+                    - start_bracket: (
+                    - expression:
+                      - column_reference:
+                        - naked_identifier: TotalDue
+                    - end_bracket: )
               - alias_expression:
                 - keyword: AS
                 - naked_identifier: TotalSales
@@ -60,22 +59,21 @@ file:
               - comparison_operator:
                 - raw_comparison_operator: '>'
               - function:
-                - function:
-                  - function_name:
-                    - function_name_identifier: CONVERT
-                  - function_contents:
-                    - bracketed:
-                      - start_bracket: (
-                      - expression:
-                        - column_reference:
-                          - naked_identifier: DATETIME
-                      - comma: ','
-                      - expression:
-                        - quoted_literal: '''20001231'''
-                      - comma: ','
-                      - expression:
-                        - numeric_literal: '101'
-                      - end_bracket: )
+                - function_name:
+                  - function_name_identifier: CONVERT
+                - function_contents:
+                  - bracketed:
+                    - start_bracket: (
+                    - expression:
+                      - column_reference:
+                        - naked_identifier: DATETIME
+                    - comma: ','
+                    - expression:
+                      - quoted_literal: '''20001231'''
+                    - comma: ','
+                    - expression:
+                      - numeric_literal: '101'
+                    - end_bracket: )
           - groupby_clause:
             - groupby_clause:
               - keyword: GROUP
@@ -112,16 +110,15 @@ file:
             - comma: ','
             - select_clause_element:
               - function:
-                - function:
-                  - function_name:
-                    - function_name_identifier: SUM
-                  - function_contents:
-                    - bracketed:
-                      - start_bracket: (
-                      - expression:
-                        - column_reference:
-                          - naked_identifier: TotalDue
-                      - end_bracket: )
+                - function_name:
+                  - function_name_identifier: SUM
+                - function_contents:
+                  - bracketed:
+                    - start_bracket: (
+                    - expression:
+                      - column_reference:
+                        - naked_identifier: TotalDue
+                    - end_bracket: )
               - alias_expression:
                 - keyword: AS
                 - naked_identifier: TotalSales
@@ -143,22 +140,21 @@ file:
               - comparison_operator:
                 - raw_comparison_operator: '>'
               - function:
-                - function:
-                  - function_name:
-                    - function_name_identifier: CONVERT
-                  - function_contents:
-                    - bracketed:
-                      - start_bracket: (
-                      - expression:
-                        - column_reference:
-                          - naked_identifier: DATETIME
-                      - comma: ','
-                      - expression:
-                        - quoted_literal: '''20001231'''
-                      - comma: ','
-                      - expression:
-                        - numeric_literal: '101'
-                      - end_bracket: )
+                - function_name:
+                  - function_name_identifier: CONVERT
+                - function_contents:
+                  - bracketed:
+                    - start_bracket: (
+                    - expression:
+                      - column_reference:
+                        - naked_identifier: DATETIME
+                    - comma: ','
+                    - expression:
+                      - quoted_literal: '''20001231'''
+                    - comma: ','
+                    - expression:
+                      - numeric_literal: '101'
+                    - end_bracket: )
           - groupby_clause:
             - groupby_clause:
               - keyword: GROUP
@@ -235,22 +231,21 @@ file:
               - comparison_operator:
                 - raw_comparison_operator: '>'
               - function:
-                - function:
-                  - function_name:
-                    - function_name_identifier: CONVERT
-                  - function_contents:
-                    - bracketed:
-                      - start_bracket: (
-                      - expression:
-                        - column_reference:
-                          - naked_identifier: DATETIME
-                      - comma: ','
-                      - expression:
-                        - quoted_literal: '''20010630'''
-                      - comma: ','
-                      - expression:
-                        - numeric_literal: '101'
-                      - end_bracket: )
+                - function_name:
+                  - function_name_identifier: CONVERT
+                - function_contents:
+                  - bracketed:
+                    - start_bracket: (
+                    - expression:
+                      - column_reference:
+                        - naked_identifier: DATETIME
+                    - comma: ','
+                    - expression:
+                      - quoted_literal: '''20010630'''
+                    - comma: ','
+                    - expression:
+                      - numeric_literal: '101'
+                    - end_bracket: )
   - statement_terminator: ;
   - statement:
     - create_view_statement:

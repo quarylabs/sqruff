@@ -37,20 +37,19 @@ file:
             - from_expression_element:
               - table_expression:
                 - function:
-                  - function:
-                    - function_name:
-                      - naked_identifier: dbo
-                      - dot: .
-                      - function_name_identifier: GetCurrentStock
-                    - function_contents:
-                      - bracketed:
-                        - start_bracket: (
-                        - expression:
-                          - column_reference:
-                            - naked_identifier: p
-                            - dot: .
-                            - naked_identifier: ProductID
-                        - end_bracket: )
+                  - function_name:
+                    - naked_identifier: dbo
+                    - dot: .
+                    - function_name_identifier: GetCurrentStock
+                  - function_contents:
+                    - bracketed:
+                      - start_bracket: (
+                      - expression:
+                        - column_reference:
+                          - naked_identifier: p
+                          - dot: .
+                          - naked_identifier: ProductID
+                      - end_bracket: )
               - alias_expression:
                 - naked_identifier: s
       - where_clause:

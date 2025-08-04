@@ -11,18 +11,17 @@ file:
       - keyword: FILTER
       - keyword: PREDICATE
       - function:
-        - function:
-          - function_name:
-            - quoted_identifier: '[rls]'
-            - dot: .
-            - quoted_identifier: '[fn_securitypredicate]'
-          - function_contents:
-            - bracketed:
-              - start_bracket: (
-              - expression:
-                - column_reference:
-                  - quoted_identifier: '[CustomerId]'
-              - end_bracket: )
+        - function_name:
+          - quoted_identifier: '[rls]'
+          - dot: .
+          - quoted_identifier: '[fn_securitypredicate]'
+        - function_contents:
+          - bracketed:
+            - start_bracket: (
+            - expression:
+              - column_reference:
+                - quoted_identifier: '[CustomerId]'
+            - end_bracket: )
       - keyword: ON
       - object_reference:
         - quoted_identifier: '[dbo]'
@@ -40,18 +39,17 @@ file:
       - keyword: FILTER
       - keyword: PREDICATE
       - function:
-        - function:
-          - function_name:
-            - quoted_identifier: '[rls]'
-            - dot: .
-            - quoted_identifier: '[fn_securitypredicate1]'
-          - function_contents:
-            - bracketed:
-              - start_bracket: (
-              - expression:
-                - column_reference:
-                  - quoted_identifier: '[CustomerId]'
-              - end_bracket: )
+        - function_name:
+          - quoted_identifier: '[rls]'
+          - dot: .
+          - quoted_identifier: '[fn_securitypredicate1]'
+        - function_contents:
+          - bracketed:
+            - start_bracket: (
+            - expression:
+              - column_reference:
+                - quoted_identifier: '[CustomerId]'
+            - end_bracket: )
       - keyword: ON
       - object_reference:
         - quoted_identifier: '[dbo]'
@@ -62,18 +60,17 @@ file:
       - keyword: FILTER
       - keyword: PREDICATE
       - function:
-        - function:
-          - function_name:
-            - quoted_identifier: '[rls]'
-            - dot: .
-            - quoted_identifier: '[fn_securitypredicate1]'
-          - function_contents:
-            - bracketed:
-              - start_bracket: (
-              - expression:
-                - column_reference:
-                  - quoted_identifier: '[VendorId]'
-              - end_bracket: )
+        - function_name:
+          - quoted_identifier: '[rls]'
+          - dot: .
+          - quoted_identifier: '[fn_securitypredicate1]'
+        - function_contents:
+          - bracketed:
+            - start_bracket: (
+            - expression:
+              - column_reference:
+                - quoted_identifier: '[VendorId]'
+            - end_bracket: )
       - keyword: ON
       - object_reference:
         - quoted_identifier: '[dbo]'
@@ -84,18 +81,17 @@ file:
       - keyword: FILTER
       - keyword: PREDICATE
       - function:
-        - function:
-          - function_name:
-            - quoted_identifier: '[rls]'
-            - dot: .
-            - quoted_identifier: '[fn_securitypredicate2]'
-          - function_contents:
-            - bracketed:
-              - start_bracket: (
-              - expression:
-                - column_reference:
-                  - quoted_identifier: '[WingId]'
-              - end_bracket: )
+        - function_name:
+          - quoted_identifier: '[rls]'
+          - dot: .
+          - quoted_identifier: '[fn_securitypredicate2]'
+        - function_contents:
+          - bracketed:
+            - start_bracket: (
+            - expression:
+              - column_reference:
+                - quoted_identifier: '[WingId]'
+            - end_bracket: )
       - keyword: ON
       - object_reference:
         - quoted_identifier: '[dbo]'
@@ -123,18 +119,17 @@ file:
       - keyword: FILTER
       - keyword: PREDICATE
       - function:
-        - function:
-          - function_name:
-            - naked_identifier: rls
-            - dot: .
-            - function_name_identifier: tenantAccessPredicate
-          - function_contents:
-            - bracketed:
-              - start_bracket: (
-              - expression:
-                - column_reference:
-                  - naked_identifier: TenantId
-              - end_bracket: )
+        - function_name:
+          - naked_identifier: rls
+          - dot: .
+          - function_name_identifier: tenantAccessPredicate
+        - function_contents:
+          - bracketed:
+            - start_bracket: (
+            - expression:
+              - column_reference:
+                - naked_identifier: TenantId
+            - end_bracket: )
       - keyword: ON
       - object_reference:
         - naked_identifier: dbo
@@ -145,18 +140,17 @@ file:
       - keyword: BLOCK
       - keyword: PREDICATE
       - function:
-        - function:
-          - function_name:
-            - naked_identifier: rls
-            - dot: .
-            - function_name_identifier: tenantAccessPredicate
-          - function_contents:
-            - bracketed:
-              - start_bracket: (
-              - expression:
-                - column_reference:
-                  - naked_identifier: TenantId
-              - end_bracket: )
+        - function_name:
+          - naked_identifier: rls
+          - dot: .
+          - function_name_identifier: tenantAccessPredicate
+        - function_contents:
+          - bracketed:
+            - start_bracket: (
+            - expression:
+              - column_reference:
+                - naked_identifier: TenantId
+            - end_bracket: )
       - keyword: ON
       - object_reference:
         - naked_identifier: dbo
@@ -176,18 +170,17 @@ file:
       - keyword: FILTER
       - keyword: PREDICATE
       - function:
-        - function:
-          - function_name:
-            - naked_identifier: schema_preds
-            - dot: .
-            - function_name_identifier: SecPredicate
-          - function_contents:
-            - bracketed:
-              - start_bracket: (
-              - expression:
-                - column_reference:
-                  - naked_identifier: column1
-              - end_bracket: )
+        - function_name:
+          - naked_identifier: schema_preds
+          - dot: .
+          - function_name_identifier: SecPredicate
+        - function_contents:
+          - bracketed:
+            - start_bracket: (
+            - expression:
+              - column_reference:
+                - naked_identifier: column1
+            - end_bracket: )
       - keyword: ON
       - object_reference:
         - naked_identifier: myschema
@@ -221,18 +214,17 @@ file:
       - keyword: FILTER
       - keyword: PREDICATE
       - function:
-        - function:
-          - function_name:
-            - naked_identifier: schema_preds
-            - dot: .
-            - function_name_identifier: SecPredicate1
-          - function_contents:
-            - bracketed:
-              - start_bracket: (
-              - expression:
-                - column_reference:
-                  - naked_identifier: column1
-              - end_bracket: )
+        - function_name:
+          - naked_identifier: schema_preds
+          - dot: .
+          - function_name_identifier: SecPredicate1
+        - function_contents:
+          - bracketed:
+            - start_bracket: (
+            - expression:
+              - column_reference:
+                - naked_identifier: column1
+            - end_bracket: )
       - keyword: ON
       - object_reference:
         - naked_identifier: myschema
@@ -252,21 +244,20 @@ file:
       - keyword: FILTER
       - keyword: PREDICATE
       - function:
-        - function:
-          - function_name:
-            - naked_identifier: schema_preds
-            - dot: .
-            - function_name_identifier: SecPredicate2
-          - function_contents:
-            - bracketed:
-              - start_bracket: (
-              - expression:
-                - column_reference:
-                  - naked_identifier: column2
-              - comma: ','
-              - expression:
-                - numeric_literal: '1'
-              - end_bracket: )
+        - function_name:
+          - naked_identifier: schema_preds
+          - dot: .
+          - function_name_identifier: SecPredicate2
+        - function_contents:
+          - bracketed:
+            - start_bracket: (
+            - expression:
+              - column_reference:
+                - naked_identifier: column2
+            - comma: ','
+            - expression:
+              - numeric_literal: '1'
+            - end_bracket: )
       - keyword: ON
       - object_reference:
         - naked_identifier: myschema
@@ -284,18 +275,17 @@ file:
       - keyword: FILTER
       - keyword: PREDICATE
       - function:
-        - function:
-          - function_name:
-            - naked_identifier: schema_preds
-            - dot: .
-            - function_name_identifier: SecPredicate2
-          - function_contents:
-            - bracketed:
-              - start_bracket: (
-              - expression:
-                - column_reference:
-                  - naked_identifier: column1
-              - end_bracket: )
+        - function_name:
+          - naked_identifier: schema_preds
+          - dot: .
+          - function_name_identifier: SecPredicate2
+        - function_contents:
+          - bracketed:
+            - start_bracket: (
+            - expression:
+              - column_reference:
+                - naked_identifier: column1
+            - end_bracket: )
       - keyword: ON
       - object_reference:
         - naked_identifier: myschema
@@ -315,18 +305,17 @@ file:
       - keyword: BLOCK
       - keyword: PREDICATE
       - function:
-        - function:
-          - function_name:
-            - naked_identifier: rls
-            - dot: .
-            - function_name_identifier: tenantAccessPredicate_v2
-          - function_contents:
-            - bracketed:
-              - start_bracket: (
-              - expression:
-                - column_reference:
-                  - naked_identifier: TenantId
-              - end_bracket: )
+        - function_name:
+          - naked_identifier: rls
+          - dot: .
+          - function_name_identifier: tenantAccessPredicate_v2
+        - function_contents:
+          - bracketed:
+            - start_bracket: (
+            - expression:
+              - column_reference:
+                - naked_identifier: TenantId
+            - end_bracket: )
       - keyword: ON
       - object_reference:
         - naked_identifier: dbo

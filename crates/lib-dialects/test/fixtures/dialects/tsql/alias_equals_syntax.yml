@@ -11,16 +11,15 @@ file:
             - comparison_operator:
               - raw_comparison_operator: =
             - function:
-              - function:
-                - function_name:
-                  - function_name_identifier: SUM
-                - function_contents:
-                  - bracketed:
-                    - start_bracket: (
-                    - expression:
-                      - column_reference:
-                        - naked_identifier: quantity
-                    - end_bracket: )
+              - function_name:
+                - function_name_identifier: SUM
+              - function_contents:
+                - bracketed:
+                  - start_bracket: (
+                  - expression:
+                    - column_reference:
+                      - naked_identifier: quantity
+                  - end_bracket: )
       - from_clause:
         - keyword: FROM
         - from_expression:

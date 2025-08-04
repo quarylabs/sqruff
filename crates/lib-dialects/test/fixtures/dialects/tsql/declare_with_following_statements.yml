@@ -31,13 +31,12 @@ file:
               - raw_comparison_operator: =
             - expression:
               - function:
-                - function:
-                  - function_name:
-                    - function_name_identifier: GETDATE
-                  - function_contents:
-                    - bracketed:
-                      - start_bracket: (
-                      - end_bracket: )
+                - function_name:
+                  - function_name_identifier: GETDATE
+                - function_contents:
+                  - bracketed:
+                    - start_bracket: (
+                    - end_bracket: )
         - statement_terminator: ;
         - statement:
           - declare_statement:
@@ -50,13 +49,12 @@ file:
               - raw_comparison_operator: =
             - expression:
               - function:
-                - function:
-                  - function_name:
-                    - function_name_identifier: GETDATE
-                  - function_contents:
-                    - bracketed:
-                      - start_bracket: (
-                      - end_bracket: )
+                - function_name:
+                  - function_name_identifier: GETDATE
+                - function_contents:
+                  - bracketed:
+                    - start_bracket: (
+                    - end_bracket: )
             - comma: ','
             - tsql_variable: '@DateEnd'
             - data_type:
@@ -66,13 +64,12 @@ file:
               - raw_comparison_operator: =
             - expression:
               - function:
-                - function:
-                  - function_name:
-                    - function_name_identifier: GETDATE
-                  - function_contents:
-                    - bracketed:
-                      - start_bracket: (
-                      - end_bracket: )
+                - function_name:
+                  - function_name_identifier: GETDATE
+                - function_contents:
+                  - bracketed:
+                    - start_bracket: (
+                    - end_bracket: )
         - statement:
           - declare_statement:
             - keyword: DECLARE
@@ -139,15 +136,14 @@ file:
           - if_statement:
             - keyword: IF
             - function:
-              - function:
-                - function_name:
-                  - function_name_identifier: OBJECT_ID
-                - function_contents:
-                  - bracketed:
-                    - start_bracket: (
-                    - expression:
-                      - quoted_literal: '''tempdb..#UP'''
-                    - end_bracket: )
+              - function_name:
+                - function_name_identifier: OBJECT_ID
+              - function_contents:
+                - bracketed:
+                  - start_bracket: (
+                  - expression:
+                    - quoted_literal: '''tempdb..#UP'''
+                  - end_bracket: )
             - word: IS
             - word: NOT
             - word: 'NULL'

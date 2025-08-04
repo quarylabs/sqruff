@@ -7,26 +7,23 @@ file:
         - keyword: TABLE
         - table_reference:
           - object_reference:
-            - object_reference:
-              - quoted_identifier: '[dbo]'
-              - dot: .
-              - quoted_identifier: '[example]'
+            - quoted_identifier: '[dbo]'
+            - dot: .
+            - quoted_identifier: '[example]'
         - bracketed:
           - start_bracket: (
           - column_definition:
             - column_definition:
               - quoted_identifier: '[Column A]'
               - data_type:
-                - data_type:
-                  - quoted_identifier: '[int]'
+                - quoted_identifier: '[int]'
               - keyword: IDENTITY
           - comma: ','
           - column_definition:
             - column_definition:
               - quoted_identifier: '[Column B]'
               - data_type:
-                - data_type:
-                  - quoted_identifier: '[int]'
+                - quoted_identifier: '[int]'
               - keyword: IDENTITY
               - bracketed:
                 - start_bracket: (
@@ -52,8 +49,7 @@ file:
             - column_definition:
               - quoted_identifier: '[ColumnDecimal]'
               - data_type:
-                - data_type:
-                  - data_type_identifier: DATE
+                - data_type_identifier: DATE
               - column_constraint_segment:
                 - keyword: DEFAULT
                 - function:
@@ -69,12 +65,11 @@ file:
             - column_definition:
               - quoted_identifier: '[ColumnUser]'
               - data_type:
-                - data_type:
-                  - data_type_identifier: char
+                - data_type_identifier: char
+                - bracketed_arguments:
                   - bracketed:
                     - start_bracket: (
-                    - expression:
-                      - numeric_literal: '30'
+                    - numeric_literal: '30'
                     - end_bracket: )
               - column_constraint_segment:
                 - keyword: DEFAULT
@@ -84,8 +79,7 @@ file:
             - column_definition:
               - quoted_identifier: '[col1]'
               - data_type:
-                - data_type:
-                  - data_type_identifier: int
+                - data_type_identifier: int
               - column_constraint_segment:
                 - keyword: default
                 - expression:
@@ -108,8 +102,7 @@ file:
             - column_definition:
               - quoted_identifier: '[col1]'
               - data_type:
-                - data_type:
-                  - data_type_identifier: int
+                - data_type_identifier: int
               - column_constraint_segment:
                 - keyword: default
                 - expression:
@@ -138,8 +131,7 @@ file:
             - column_definition:
               - quoted_identifier: '[col1]'
               - data_type:
-                - data_type:
-                  - data_type_identifier: INT
+                - data_type_identifier: INT
               - column_constraint_segment:
                 - keyword: DEFAULT
                 - expression:
@@ -159,10 +151,9 @@ file:
         - keyword: table
         - table_reference:
           - object_reference:
-            - object_reference:
-              - quoted_identifier: '[schema1]'
-              - dot: .
-              - quoted_identifier: '[table1]'
+            - quoted_identifier: '[schema1]'
+            - dot: .
+            - quoted_identifier: '[table1]'
         - bracketed:
           - start_bracket: (
           - column_definition:
@@ -189,10 +180,9 @@ file:
         - keyword: table
         - table_reference:
           - object_reference:
-            - object_reference:
-              - quoted_identifier: '[schema1]'
-              - dot: .
-              - quoted_identifier: '[table1]'
+            - quoted_identifier: '[schema1]'
+            - dot: .
+            - quoted_identifier: '[table1]'
         - bracketed:
           - start_bracket: (
           - column_definition:
@@ -203,8 +193,7 @@ file:
             - table_constraint:
               - keyword: CONSTRAINT
               - object_reference:
-                - object_reference:
-                  - quoted_identifier: '[Pk_Id]'
+                - quoted_identifier: '[Pk_Id]'
               - keyword: PRIMARY
               - keyword: KEY
               - keyword: NONCLUSTERED
@@ -223,23 +212,21 @@ file:
         - keyword: TABLE
         - table_reference:
           - object_reference:
-            - object_reference:
-              - quoted_identifier: '[dbo]'
-              - dot: .
-              - quoted_identifier: '[table1]'
+            - quoted_identifier: '[dbo]'
+            - dot: .
+            - quoted_identifier: '[table1]'
         - bracketed:
           - start_bracket: (
           - column_definition:
             - column_definition:
               - quoted_identifier: '[ColumnB]'
               - data_type:
-                - data_type:
-                  - quoted_identifier: '[varchar]'
-                  - bracketed_arguments:
-                    - bracketed:
-                      - start_bracket: (
-                      - numeric_literal: '100'
-                      - end_bracket: )
+                - quoted_identifier: '[varchar]'
+                - bracketed_arguments:
+                  - bracketed:
+                    - start_bracket: (
+                    - numeric_literal: '100'
+                    - end_bracket: )
               - keyword: FILESTREAM
               - keyword: MASKED
               - keyword: WITH
@@ -255,12 +242,11 @@ file:
             - column_definition:
               - quoted_identifier: '[ColumnC]'
               - data_type:
-                - data_type:
-                  - data_type_identifier: varchar
+                - data_type_identifier: varchar
+                - bracketed_arguments:
                   - bracketed:
                     - start_bracket: (
-                    - expression:
-                      - numeric_literal: '100'
+                    - numeric_literal: '100'
                     - end_bracket: )
               - column_constraint_segment:
                 - keyword: 'NULL'
@@ -272,15 +258,13 @@ file:
             - column_definition:
               - quoted_identifier: '[ColumnDecimal]'
               - data_type:
-                - data_type:
-                  - data_type_identifier: decimal
+                - data_type_identifier: decimal
+                - bracketed_arguments:
                   - bracketed:
                     - start_bracket: (
-                    - expression:
-                      - numeric_literal: '10'
+                    - numeric_literal: '10'
                     - comma: ','
-                    - expression:
-                      - numeric_literal: '3'
+                    - numeric_literal: '3'
                     - end_bracket: )
               - column_constraint_segment:
                 - keyword: GENERATED
@@ -294,12 +278,11 @@ file:
             - column_definition:
               - quoted_identifier: '[columnE]'
               - data_type:
-                - data_type:
-                  - data_type_identifier: varchar
+                - data_type_identifier: varchar
+                - bracketed_arguments:
                   - bracketed:
                     - start_bracket: (
-                    - expression:
-                      - numeric_literal: '100'
+                    - numeric_literal: '100'
                     - end_bracket: )
               - column_constraint_segment:
                 - keyword: ENCRYPTED
@@ -326,12 +309,11 @@ file:
             - column_definition:
               - quoted_identifier: '[column1]'
               - data_type:
-                - data_type:
-                  - data_type_identifier: varchar
+                - data_type_identifier: varchar
+                - bracketed_arguments:
                   - bracketed:
                     - start_bracket: (
-                    - expression:
-                      - numeric_literal: '100'
+                    - numeric_literal: '100'
                     - end_bracket: )
               - column_constraint_segment:
                 - keyword: collate
@@ -346,29 +328,25 @@ file:
         - keyword: TABLE
         - table_reference:
           - object_reference:
-            - object_reference:
-              - naked_identifier: table_name
+            - naked_identifier: table_name
         - bracketed:
           - start_bracket: (
           - column_definition:
             - column_definition:
               - naked_identifier: id
               - data_type:
-                - data_type:
-                  - data_type_identifier: UNIQUEIDENTIFIER
+                - data_type_identifier: UNIQUEIDENTIFIER
               - column_constraint_segment:
                 - keyword: NOT
                 - keyword: 'NULL'
               - column_constraint_segment:
                 - keyword: CONSTRAINT
                 - object_reference:
-                  - object_reference:
-                    - naked_identifier: constraint_name
+                  - naked_identifier: constraint_name
                 - keyword: REFERENCES
                 - table_reference:
                   - object_reference:
-                    - object_reference:
-                      - naked_identifier: referenced_table_name
+                    - naked_identifier: referenced_table_name
                 - keyword: ON
                 - keyword: DELETE
                 - keyword: NO

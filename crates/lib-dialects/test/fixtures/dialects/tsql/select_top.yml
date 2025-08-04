@@ -3,38 +3,33 @@ file:
   - statement:
     - select_statement:
       - select_clause:
-        - select_clause:
-          - keyword: select
-          - select_clause_modifier:
-            - keyword: top
-            - expression:
-              - numeric_literal: '1'
-          - select_clause_element:
-            - column_reference:
-              - naked_identifier: t
-              - dot: .
-              - naked_identifier: date_column1
-            - alias_expression:
-              - keyword: as
-              - naked_identifier: last_date_column1
+        - keyword: select
+        - select_clause_modifier:
+          - keyword: top
+          - expression:
+            - numeric_literal: '1'
+        - select_clause_element:
+          - column_reference:
+            - naked_identifier: t
+            - dot: .
+            - naked_identifier: date_column1
+          - alias_expression:
+            - keyword: as
+            - naked_identifier: last_date_column1
       - from_clause:
-        - from_clause:
-          - keyword: from
-          - from_expression:
-            - from_expression:
-              - from_expression_element:
-                - from_expression_element:
-                  - table_expression:
-                    - table_reference:
-                      - object_reference:
-                        - object_reference:
-                          - naked_identifier: t1
-                          - dot: .
-                          - naked_identifier: t2
-                          - dot: .
-                          - naked_identifier: table_name
-                  - alias_expression:
-                    - naked_identifier: t
+        - keyword: from
+        - from_expression:
+          - from_expression_element:
+            - table_expression:
+              - table_reference:
+                - object_reference:
+                  - naked_identifier: t1
+                  - dot: .
+                  - naked_identifier: t2
+                  - dot: .
+                  - naked_identifier: table_name
+            - alias_expression:
+              - naked_identifier: t
       - orderby_clause:
         - keyword: order
         - keyword: by
@@ -47,70 +42,60 @@ file:
   - statement:
     - select_statement:
       - select_clause:
-        - select_clause:
-          - keyword: SELECT
-          - select_clause_modifier:
-            - keyword: TOP
-            - bracketed:
-              - start_bracket: (
-              - expression:
-                - numeric_literal: '10'
-              - end_bracket: )
-          - select_clause_element:
-            - column_reference:
-              - naked_identifier: JobTitle
-          - comma: ','
-          - select_clause_element:
-            - column_reference:
-              - naked_identifier: HireDate
+        - keyword: SELECT
+        - select_clause_modifier:
+          - keyword: TOP
+          - bracketed:
+            - start_bracket: (
+            - expression:
+              - numeric_literal: '10'
+            - end_bracket: )
+        - select_clause_element:
+          - column_reference:
+            - naked_identifier: JobTitle
+        - comma: ','
+        - select_clause_element:
+          - column_reference:
+            - naked_identifier: HireDate
       - from_clause:
-        - from_clause:
-          - keyword: FROM
-          - from_expression:
-            - from_expression:
-              - from_expression_element:
-                - from_expression_element:
-                  - table_expression:
-                    - table_reference:
-                      - object_reference:
-                        - object_reference:
-                          - naked_identifier: HumanResources
-                          - dot: .
-                          - naked_identifier: Employee
+        - keyword: FROM
+        - from_expression:
+          - from_expression_element:
+            - table_expression:
+              - table_reference:
+                - object_reference:
+                  - naked_identifier: HumanResources
+                  - dot: .
+                  - naked_identifier: Employee
   - statement_terminator: ;
   - statement:
     - select_statement:
       - select_clause:
-        - select_clause:
-          - keyword: SELECT
-          - select_clause_modifier:
-            - keyword: TOP
-            - bracketed:
-              - start_bracket: (
-              - expression:
-                - numeric_literal: '10'
-              - end_bracket: )
-          - select_clause_element:
-            - column_reference:
-              - naked_identifier: JobTitle
-          - comma: ','
-          - select_clause_element:
-            - column_reference:
-              - naked_identifier: HireDate
+        - keyword: SELECT
+        - select_clause_modifier:
+          - keyword: TOP
+          - bracketed:
+            - start_bracket: (
+            - expression:
+              - numeric_literal: '10'
+            - end_bracket: )
+        - select_clause_element:
+          - column_reference:
+            - naked_identifier: JobTitle
+        - comma: ','
+        - select_clause_element:
+          - column_reference:
+            - naked_identifier: HireDate
       - from_clause:
-        - from_clause:
-          - keyword: FROM
-          - from_expression:
-            - from_expression:
-              - from_expression_element:
-                - from_expression_element:
-                  - table_expression:
-                    - table_reference:
-                      - object_reference:
-                        - object_reference:
-                          - naked_identifier: HumanResources
-                          - dot: .
-                          - naked_identifier: Employee
+        - keyword: FROM
+        - from_expression:
+          - from_expression_element:
+            - table_expression:
+              - table_reference:
+                - object_reference:
+                  - naked_identifier: HumanResources
+                  - dot: .
+                  - naked_identifier: Employee
       - orderby_clause:
         - keyword: ORDER
         - keyword: BY
@@ -121,37 +106,32 @@ file:
   - statement:
     - select_statement:
       - select_clause:
-        - select_clause:
-          - keyword: SELECT
-          - select_clause_modifier:
-            - keyword: TOP
-            - bracketed:
-              - start_bracket: (
-              - expression:
-                - numeric_literal: '5'
-              - end_bracket: )
-            - keyword: PERCENT
-          - select_clause_element:
-            - column_reference:
-              - naked_identifier: JobTitle
-          - comma: ','
-          - select_clause_element:
-            - column_reference:
-              - naked_identifier: HireDate
+        - keyword: SELECT
+        - select_clause_modifier:
+          - keyword: TOP
+          - bracketed:
+            - start_bracket: (
+            - expression:
+              - numeric_literal: '5'
+            - end_bracket: )
+          - keyword: PERCENT
+        - select_clause_element:
+          - column_reference:
+            - naked_identifier: JobTitle
+        - comma: ','
+        - select_clause_element:
+          - column_reference:
+            - naked_identifier: HireDate
       - from_clause:
-        - from_clause:
-          - keyword: FROM
-          - from_expression:
-            - from_expression:
-              - from_expression_element:
-                - from_expression_element:
-                  - table_expression:
-                    - table_reference:
-                      - object_reference:
-                        - object_reference:
-                          - naked_identifier: HumanResources
-                          - dot: .
-                          - naked_identifier: Employee
+        - keyword: FROM
+        - from_expression:
+          - from_expression_element:
+            - table_expression:
+              - table_reference:
+                - object_reference:
+                  - naked_identifier: HumanResources
+                  - dot: .
+                  - naked_identifier: Employee
       - orderby_clause:
         - keyword: ORDER
         - keyword: BY
@@ -162,122 +142,113 @@ file:
   - statement:
     - select_statement:
       - select_clause:
-        - select_clause:
-          - keyword: SELECT
-          - select_clause_modifier:
-            - keyword: TOP
-            - bracketed:
-              - start_bracket: (
-              - expression:
-                - numeric_literal: '10'
-              - end_bracket: )
-            - keyword: PERCENT
-            - keyword: WITH
-            - keyword: TIES
-          - select_clause_element:
-            - column_reference:
-              - naked_identifier: pp
-              - dot: .
-              - naked_identifier: FirstName
-          - comma: ','
-          - select_clause_element:
-            - column_reference:
-              - naked_identifier: pp
-              - dot: .
-              - naked_identifier: LastName
-          - comma: ','
-          - select_clause_element:
-            - column_reference:
-              - naked_identifier: e
-              - dot: .
-              - naked_identifier: JobTitle
-          - comma: ','
-          - select_clause_element:
-            - column_reference:
-              - naked_identifier: e
-              - dot: .
-              - naked_identifier: Gender
-          - comma: ','
-          - select_clause_element:
-            - column_reference:
-              - naked_identifier: r
-              - dot: .
-              - naked_identifier: Rate
+        - keyword: SELECT
+        - select_clause_modifier:
+          - keyword: TOP
+          - bracketed:
+            - start_bracket: (
+            - expression:
+              - numeric_literal: '10'
+            - end_bracket: )
+          - keyword: PERCENT
+          - keyword: WITH
+          - keyword: TIES
+        - select_clause_element:
+          - column_reference:
+            - naked_identifier: pp
+            - dot: .
+            - naked_identifier: FirstName
+        - comma: ','
+        - select_clause_element:
+          - column_reference:
+            - naked_identifier: pp
+            - dot: .
+            - naked_identifier: LastName
+        - comma: ','
+        - select_clause_element:
+          - column_reference:
+            - naked_identifier: e
+            - dot: .
+            - naked_identifier: JobTitle
+        - comma: ','
+        - select_clause_element:
+          - column_reference:
+            - naked_identifier: e
+            - dot: .
+            - naked_identifier: Gender
+        - comma: ','
+        - select_clause_element:
+          - column_reference:
+            - naked_identifier: r
+            - dot: .
+            - naked_identifier: Rate
       - from_clause:
-        - from_clause:
-          - keyword: FROM
-          - from_expression:
-            - from_expression:
-              - from_expression_element:
-                - from_expression_element:
-                  - table_expression:
-                    - table_reference:
-                      - object_reference:
-                        - object_reference:
-                          - naked_identifier: Person
-                          - dot: .
-                          - naked_identifier: Person
-                  - alias_expression:
-                    - keyword: AS
+        - keyword: FROM
+        - from_expression:
+          - from_expression_element:
+            - table_expression:
+              - table_reference:
+                - object_reference:
+                  - naked_identifier: Person
+                  - dot: .
+                  - naked_identifier: Person
+            - alias_expression:
+              - keyword: AS
+              - naked_identifier: pp
+          - join_clause:
+            - keyword: INNER
+            - keyword: JOIN
+            - from_expression_element:
+              - table_expression:
+                - table_reference:
+                  - object_reference:
+                    - naked_identifier: HumanResources
+                    - dot: .
+                    - naked_identifier: Employee
+              - alias_expression:
+                - keyword: AS
+                - naked_identifier: e
+            - join_on_condition:
+              - join_on_condition:
+                - keyword: ON
+                - expression:
+                  - column_reference:
                     - naked_identifier: pp
-              - join_clause:
-                - keyword: INNER
-                - keyword: JOIN
-                - from_expression_element:
-                  - from_expression_element:
-                    - table_expression:
-                      - table_reference:
-                        - object_reference:
-                          - object_reference:
-                            - naked_identifier: HumanResources
-                            - dot: .
-                            - naked_identifier: Employee
-                    - alias_expression:
-                      - keyword: AS
-                      - naked_identifier: e
-                - join_on_condition:
-                  - join_on_condition:
-                    - keyword: ON
-                    - expression:
-                      - column_reference:
-                        - naked_identifier: pp
-                        - dot: .
-                        - naked_identifier: BusinessEntityID
-                      - comparison_operator:
-                        - raw_comparison_operator: =
-                      - column_reference:
-                        - naked_identifier: e
-                        - dot: .
-                        - naked_identifier: BusinessEntityID
-              - join_clause:
-                - keyword: INNER
-                - keyword: JOIN
-                - from_expression_element:
-                  - from_expression_element:
-                    - table_expression:
-                      - table_reference:
-                        - object_reference:
-                          - object_reference:
-                            - naked_identifier: HumanResources
-                            - dot: .
-                            - naked_identifier: EmployeePayHistory
-                    - alias_expression:
-                      - keyword: AS
-                      - naked_identifier: r
-                - join_on_condition:
-                  - join_on_condition:
-                    - keyword: ON
-                    - expression:
-                      - column_reference:
-                        - naked_identifier: r
-                        - dot: .
-                        - naked_identifier: BusinessEntityID
-                      - comparison_operator:
-                        - raw_comparison_operator: =
-                      - column_reference:
-                        - naked_identifier: e
-                        - dot: .
-                        - naked_identifier: BusinessEntityID
+                    - dot: .
+                    - naked_identifier: BusinessEntityID
+                  - comparison_operator:
+                    - raw_comparison_operator: =
+                  - column_reference:
+                    - naked_identifier: e
+                    - dot: .
+                    - naked_identifier: BusinessEntityID
+          - join_clause:
+            - keyword: INNER
+            - keyword: JOIN
+            - from_expression_element:
+              - table_expression:
+                - table_reference:
+                  - object_reference:
+                    - naked_identifier: HumanResources
+                    - dot: .
+                    - naked_identifier: EmployeePayHistory
+              - alias_expression:
+                - keyword: AS
+                - naked_identifier: r
+            - join_on_condition:
+              - join_on_condition:
+                - keyword: ON
+                - expression:
+                  - column_reference:
+                    - naked_identifier: r
+                    - dot: .
+                    - naked_identifier: BusinessEntityID
+                  - comparison_operator:
+                    - raw_comparison_operator: =
+                  - column_reference:
+                    - naked_identifier: e
+                    - dot: .
+                    - naked_identifier: BusinessEntityID
       - orderby_clause:
         - keyword: ORDER
         - keyword: BY

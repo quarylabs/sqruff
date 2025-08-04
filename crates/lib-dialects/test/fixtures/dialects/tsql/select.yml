@@ -3,297 +3,401 @@ file:
   - statement:
     - select_statement:
       - select_clause:
-        - select_clause:
-          - keyword: SELECT
-          - select_clause_element:
-            - case_expression:
-              - keyword: CASE
-              - keyword: WHEN
+        - keyword: SELECT
+        - select_clause_element:
+          - case_expression:
+            - keyword: CASE
+            - keyword: WHEN
+            - expression:
+              - numeric_literal: '1'
+              - comparison_operator:
+                - raw_comparison_operator: =
+              - numeric_literal: '1'
+            - keyword: THEN
+            - expression:
+              - quoted_literal: '''True'''
+            - keyword: WHEN
+            - expression:
+              - numeric_literal: '1'
+              - comparison_operator:
+                - raw_comparison_operator: '>'
+              - numeric_literal: '1'
+            - keyword: THEN
+            - expression:
+              - quoted_literal: '''False'''
+            - keyword: WHEN
+            - expression:
+              - numeric_literal: '1'
+              - comparison_operator:
+                - raw_comparison_operator: <
+              - numeric_literal: '1'
+            - keyword: THEN
+            - expression:
+              - quoted_literal: '''False'''
+            - keyword: WHEN
+            - expression:
+              - numeric_literal: '1'
+              - comparison_operator:
+                - raw_comparison_operator: '>'
+                - raw_comparison_operator: =
+              - numeric_literal: '1'
+            - keyword: THEN
+            - expression:
+              - quoted_literal: '''True'''
+            - keyword: WHEN
+            - expression:
+              - numeric_literal: '1'
+              - comparison_operator:
+                - raw_comparison_operator: '>'
+                - raw_comparison_operator: =
+              - numeric_literal: '1'
+            - keyword: THEN
+            - expression:
+              - quoted_literal: '''True'''
+            - keyword: WHEN
+            - expression:
+              - numeric_literal: '1'
+              - comparison_operator:
+                - raw_comparison_operator: <
+                - raw_comparison_operator: =
+              - numeric_literal: '1'
+            - keyword: THEN
+            - expression:
+              - quoted_literal: '''True'''
+            - keyword: WHEN
+            - expression:
+              - numeric_literal: '1'
+              - comparison_operator:
+                - raw_comparison_operator: <
+                - raw_comparison_operator: =
+              - numeric_literal: '1'
+            - keyword: THEN
+            - expression:
+              - quoted_literal: '''True'''
+            - keyword: WHEN
+            - expression:
+              - numeric_literal: '1'
+              - comparison_operator:
+                - raw_comparison_operator: <
+                - raw_comparison_operator: '>'
+              - numeric_literal: '1'
+            - keyword: THEN
+            - expression:
+              - quoted_literal: '''False'''
+            - keyword: WHEN
+            - expression:
+              - numeric_literal: '1'
+              - comparison_operator:
+                - raw_comparison_operator: <
+                - raw_comparison_operator: '>'
+              - numeric_literal: '1'
+            - keyword: THEN
+            - expression:
+              - quoted_literal: '''False'''
+            - keyword: WHEN
+            - expression:
+              - numeric_literal: '1'
+              - comparison_operator:
+                - raw_comparison_operator: '!'
+                - raw_comparison_operator: <
+              - numeric_literal: '1'
+            - keyword: THEN
+            - expression:
+              - quoted_literal: '''Why is this a thing?'''
+            - keyword: WHEN
+            - expression:
+              - numeric_literal: '1'
+              - comparison_operator:
+                - raw_comparison_operator: '!'
+                - raw_comparison_operator: <
+              - numeric_literal: '1'
+            - keyword: THEN
+            - expression:
+              - quoted_literal: '''Or this sort of thing?'''
+            - keyword: WHEN
+            - expression:
+              - numeric_literal: '1'
+              - comparison_operator:
+                - raw_comparison_operator: '!'
+                - raw_comparison_operator: =
+              - numeric_literal: '1'
+            - keyword: THEN
+            - expression:
+              - quoted_literal: '''False'''
+            - keyword: WHEN
+            - expression:
+              - numeric_literal: '1'
+              - comparison_operator:
+                - raw_comparison_operator: '!'
+                - raw_comparison_operator: =
+              - numeric_literal: '1'
+            - keyword: THEN
+            - expression:
+              - quoted_literal: '''False'''
+            - keyword: WHEN
+            - expression:
+              - numeric_literal: '1'
+              - comparison_operator:
+                - raw_comparison_operator: '!'
+                - raw_comparison_operator: '>'
+              - numeric_literal: '1'
+            - keyword: THEN
+            - expression:
+              - quoted_literal: '''NULL Handling, Probably'''
+            - keyword: WHEN
+            - expression:
+              - numeric_literal: '1'
+              - comparison_operator:
+                - raw_comparison_operator: '!'
+                - raw_comparison_operator: '>'
+              - numeric_literal: '1'
+            - keyword: THEN
+            - expression:
+              - quoted_literal: '''NULL Handling, Probably'''
+            - else_clause:
+              - keyword: ELSE
               - expression:
-                - numeric_literal: '1'
-                - comparison_operator:
-                  - raw_comparison_operator: =
-                - numeric_literal: '1'
-              - keyword: THEN
-              - expression:
-                - quoted_literal: '''True'''
-              - keyword: WHEN
-              - expression:
-                - numeric_literal: '1'
-                - comparison_operator:
-                  - raw_comparison_operator: '>'
-                - numeric_literal: '1'
-              - keyword: THEN
-              - expression:
-                - quoted_literal: '''False'''
-              - keyword: WHEN
-              - expression:
-                - numeric_literal: '1'
-                - comparison_operator:
-                  - raw_comparison_operator: <
-                - numeric_literal: '1'
-              - keyword: THEN
-              - expression:
-                - quoted_literal: '''False'''
-              - keyword: WHEN
-              - expression:
-                - numeric_literal: '1'
-                - comparison_operator:
-                  - raw_comparison_operator: '>'
-                  - raw_comparison_operator: =
-                - numeric_literal: '1'
-              - keyword: THEN
-              - expression:
-                - quoted_literal: '''True'''
-              - keyword: WHEN
-              - expression:
-                - numeric_literal: '1'
-                - comparison_operator:
-                  - raw_comparison_operator: '>'
-                  - raw_comparison_operator: =
-                - numeric_literal: '1'
-              - keyword: THEN
-              - expression:
-                - quoted_literal: '''True'''
-              - keyword: WHEN
-              - expression:
-                - numeric_literal: '1'
-                - comparison_operator:
-                  - raw_comparison_operator: <
-                  - raw_comparison_operator: =
-                - numeric_literal: '1'
-              - keyword: THEN
-              - expression:
-                - quoted_literal: '''True'''
-              - keyword: WHEN
-              - expression:
-                - numeric_literal: '1'
-                - comparison_operator:
-                  - raw_comparison_operator: <
-                  - raw_comparison_operator: =
-                - numeric_literal: '1'
-              - keyword: THEN
-              - expression:
-                - quoted_literal: '''True'''
-              - keyword: WHEN
-              - expression:
-                - numeric_literal: '1'
-                - comparison_operator:
-                  - raw_comparison_operator: <
-                  - raw_comparison_operator: '>'
-                - numeric_literal: '1'
-              - keyword: THEN
-              - expression:
-                - quoted_literal: '''False'''
-              - keyword: WHEN
-              - expression:
-                - numeric_literal: '1'
-                - comparison_operator:
-                  - raw_comparison_operator: <
-                  - raw_comparison_operator: '>'
-                - numeric_literal: '1'
-              - keyword: THEN
-              - expression:
-                - quoted_literal: '''False'''
-              - keyword: WHEN
-              - expression:
-                - numeric_literal: '1'
-                - comparison_operator:
-                  - raw_comparison_operator: '!'
-                  - raw_comparison_operator: <
-                - numeric_literal: '1'
-              - keyword: THEN
-              - expression:
-                - quoted_literal: '''Why is this a thing?'''
-              - keyword: WHEN
-              - expression:
-                - numeric_literal: '1'
-                - comparison_operator:
-                  - raw_comparison_operator: '!'
-                  - raw_comparison_operator: <
-                - numeric_literal: '1'
-              - keyword: THEN
-              - expression:
-                - quoted_literal: '''Or this sort of thing?'''
-              - keyword: WHEN
-              - expression:
-                - numeric_literal: '1'
-                - comparison_operator:
-                  - raw_comparison_operator: '!'
-                  - raw_comparison_operator: =
-                - numeric_literal: '1'
-              - keyword: THEN
-              - expression:
-                - quoted_literal: '''False'''
-              - keyword: WHEN
-              - expression:
-                - numeric_literal: '1'
-                - comparison_operator:
-                  - raw_comparison_operator: '!'
-                  - raw_comparison_operator: =
-                - numeric_literal: '1'
-              - keyword: THEN
-              - expression:
-                - quoted_literal: '''False'''
-              - keyword: WHEN
-              - expression:
-                - numeric_literal: '1'
-                - comparison_operator:
-                  - raw_comparison_operator: '!'
-                  - raw_comparison_operator: '>'
-                - numeric_literal: '1'
-              - keyword: THEN
-              - expression:
-                - quoted_literal: '''NULL Handling, Probably'''
-              - keyword: WHEN
-              - expression:
-                - numeric_literal: '1'
-                - comparison_operator:
-                  - raw_comparison_operator: '!'
-                  - raw_comparison_operator: '>'
-                - numeric_literal: '1'
-              - keyword: THEN
-              - expression:
-                - quoted_literal: '''NULL Handling, Probably'''
-              - else_clause:
-                - keyword: ELSE
-                - expression:
-                  - quoted_literal: '''Silly Tests'''
-              - keyword: END
-          - comma: ','
-          - select_clause_element:
-            - column_reference:
-              - naked_identifier: all_pop
-              - dot: .
-              - quoted_identifier: '[Arrival Date]'
-          - comma: ','
-          - select_clause_element:
-            - column_reference:
-              - naked_identifier: all_pop
-              - dot: .
-              - naked_identifier: Row#
-          - comma: ','
-          - select_clause_element:
-            - column_reference:
-              - naked_identifier: all_pop
-              - dot: .
-              - naked_identifier: b
-          - unparsable:
-            - tsql_variable: '@nanas'
-            - comma: ','
-            - double_quote: '[# POAs]'
-            - comma: ','
-            - single_quote: '''TSQLs escaping quotes test'''
-            - comma: ','
-            - single_quote: '''TSQL''''s escaping quotes test'''
-            - comma: ','
-            - single_quote: '''TSQL'''
-            - single_quote: '''s escaping quotes test'''
-            - comma: ','
-            - single_quote: '''TSQL'''
-            - word: AS
-            - single_quote: '''s escaping quotes test'''
-            - comma: ','
-            - single_quote: ''''''
-            - comma: ','
-            - single_quote: ''''''''''
-            - comma: ','
-            - word: all_pop
+                - quoted_literal: '''Silly Tests'''
+            - keyword: END
+        - comma: ','
+        - select_clause_element:
+          - column_reference:
+            - naked_identifier: all_pop
             - dot: .
-            - word: Language
-            - comma: ','
-            - word: ANSI_DEFAULTS
-            - comma: ','
-            - word: ANSI_NULL_DFLT_OFF
-            - comma: ','
-            - word: ANSI_NULL_DFLT_ON
-            - comma: ','
-            - word: ANSI_NULLS
-            - comma: ','
-            - word: ANSI_PADDING
-            - comma: ','
-            - word: ANSI_WARNINGS
-            - comma: ','
-            - word: ARITHABORT
-            - comma: ','
-            - word: ARITHIGNORE
-            - comma: ','
-            - word: CONCAT_NULL_YIELDS_NULL
-            - comma: ','
-            - word: CURSOR_CLOSE_ON_COMMIT
-            - comma: ','
-            - word: DATEFIRST
-            - comma: ','
-            - word: DATEFORMAT
-            - comma: ','
-            - word: DEADLOCK_PRIORITY
-            - comma: ','
-            - word: DISK
-            - comma: ','
-            - word: DUMP
-            - comma: ','
-            - word: FIPS_FLAGGER
-            - comma: ','
-            - word: FMTONLY
-            - comma: ','
-            - word: FORCEPLAN
-            - comma: ','
-            - word: IMPLICIT_TRANSACTIONS
-            - comma: ','
-            - word: LOAD
-            - comma: ','
-            - word: LOCK_TIMEOUT
-            - comma: ','
-            - word: NOCOUNT
-            - comma: ','
-            - word: NOEXEC
-            - comma: ','
-            - word: NUMERIC_ROUNDABORT
-            - comma: ','
-            - word: PARSEONLY
-            - comma: ','
-            - word: PRECISION
-            - comma: ','
-            - word: PROPERTY
-            - comma: ','
-            - word: QUERY_GOVERNOR_COST_LIMIT
-            - comma: ','
-            - word: QUOTED_IDENTIFIER
-            - comma: ','
-            - word: REMOTE_PROC_TRANSACTIONS
-            - comma: ','
-            - word: SECURITYAUDIT
-            - comma: ','
-            - word: SHOWPLAN_ALL
-            - comma: ','
-            - word: SHOWPLAN_TEXT
-            - comma: ','
-            - word: SHOWPLAN_XML
-            - comma: ','
-            - word: XACT_ABORT
-            - comma: ','
-            - word: Rows
-            - comma: ','
-            - word: NaN
-            - comma: ','
-            - word: Rlike
-            - comma: ','
-            - word: Ilike
-            - comma: ','
-            - word: Separator
-            - comma: ','
-            - word: Auto_Increment
-            - comma: ','
-            - word: Unsigned
-            - comma: ','
-            - word: Describe
-            - comma: ','
-            - word: Comment
-            - comma: ','
-            - word: Ml
-            - comma: ','
-            - word: Modify
-            - comma: ','
+            - quoted_identifier: '[Arrival Date]'
+        - comma: ','
+        - select_clause_element:
+          - column_reference:
+            - naked_identifier: all_pop
+            - dot: .
+            - naked_identifier: Row#
+        - comma: ','
+        - select_clause_element:
+          - data_type:
+            - naked_identifier: all_pop
+            - dot: .
+            - data_type_identifier: b
+          - parameterized_expression:
+            - tsql_variable: '@nanas'
+        - comma: ','
+        - select_clause_element:
+          - column_reference:
+            - quoted_identifier: '[# POAs]'
+        - comma: ','
+        - select_clause_element:
+          - quoted_literal: '''TSQLs escaping quotes test'''
+        - comma: ','
+        - select_clause_element:
+          - quoted_literal: '''TSQL''''s escaping quotes test'''
+        - comma: ','
+        - select_clause_element:
+          - quoted_literal: '''TSQL'''
+          - alias_expression:
+            - quoted_identifier: '''s escaping quotes test'''
+        - comma: ','
+        - select_clause_element:
+          - quoted_literal: '''TSQL'''
+          - alias_expression:
+            - keyword: AS
+            - quoted_identifier: '''s escaping quotes test'''
+        - comma: ','
+        - select_clause_element:
+          - quoted_literal: ''''''
+        - comma: ','
+        - select_clause_element:
+          - quoted_literal: ''''''''''
+        - comma: ','
+        - select_clause_element:
+          - column_reference:
+            - naked_identifier: all_pop
+            - dot: .
+            - naked_identifier: Language
+        - comma: ','
+        - select_clause_element:
+          - column_reference:
+            - naked_identifier: ANSI_DEFAULTS
+        - comma: ','
+        - select_clause_element:
+          - column_reference:
+            - naked_identifier: ANSI_NULL_DFLT_OFF
+        - comma: ','
+        - select_clause_element:
+          - column_reference:
+            - naked_identifier: ANSI_NULL_DFLT_ON
+        - comma: ','
+        - select_clause_element:
+          - column_reference:
+            - naked_identifier: ANSI_NULLS
+        - comma: ','
+        - select_clause_element:
+          - column_reference:
+            - naked_identifier: ANSI_PADDING
+        - comma: ','
+        - select_clause_element:
+          - column_reference:
+            - naked_identifier: ANSI_WARNINGS
+        - comma: ','
+        - select_clause_element:
+          - column_reference:
+            - naked_identifier: ARITHABORT
+        - comma: ','
+        - select_clause_element:
+          - column_reference:
+            - naked_identifier: ARITHIGNORE
+        - comma: ','
+        - select_clause_element:
+          - column_reference:
+            - naked_identifier: CONCAT_NULL_YIELDS_NULL
+        - comma: ','
+        - select_clause_element:
+          - column_reference:
+            - naked_identifier: CURSOR_CLOSE_ON_COMMIT
+        - comma: ','
+        - select_clause_element:
+          - column_reference:
+            - naked_identifier: DATEFIRST
+        - comma: ','
+        - select_clause_element:
+          - column_reference:
+            - naked_identifier: DATEFORMAT
+        - comma: ','
+        - select_clause_element:
+          - column_reference:
+            - naked_identifier: DEADLOCK_PRIORITY
+        - comma: ','
+        - select_clause_element:
+          - column_reference:
+            - naked_identifier: DISK
+        - comma: ','
+        - select_clause_element:
+          - column_reference:
+            - naked_identifier: DUMP
+        - comma: ','
+        - select_clause_element:
+          - column_reference:
+            - naked_identifier: FIPS_FLAGGER
+        - comma: ','
+        - select_clause_element:
+          - column_reference:
+            - naked_identifier: FMTONLY
+        - comma: ','
+        - select_clause_element:
+          - column_reference:
+            - naked_identifier: FORCEPLAN
+        - comma: ','
+        - select_clause_element:
+          - column_reference:
+            - naked_identifier: IMPLICIT_TRANSACTIONS
+        - comma: ','
+        - select_clause_element:
+          - column_reference:
+            - naked_identifier: LOAD
+        - comma: ','
+        - select_clause_element:
+          - column_reference:
+            - naked_identifier: LOCK_TIMEOUT
+        - comma: ','
+        - select_clause_element:
+          - column_reference:
+            - naked_identifier: NOCOUNT
+        - comma: ','
+        - select_clause_element:
+          - column_reference:
+            - naked_identifier: NOEXEC
+        - comma: ','
+        - select_clause_element:
+          - column_reference:
+            - naked_identifier: NUMERIC_ROUNDABORT
+        - comma: ','
+        - select_clause_element:
+          - column_reference:
+            - naked_identifier: PARSEONLY
+        - comma: ','
+        - select_clause_element:
+          - column_reference:
+            - naked_identifier: PRECISION
+        - comma: ','
+        - select_clause_element:
+          - column_reference:
+            - naked_identifier: PROPERTY
+        - comma: ','
+        - select_clause_element:
+          - column_reference:
+            - naked_identifier: QUERY_GOVERNOR_COST_LIMIT
+        - comma: ','
+        - select_clause_element:
+          - column_reference:
+            - naked_identifier: QUOTED_IDENTIFIER
+        - comma: ','
+        - select_clause_element:
+          - column_reference:
+            - naked_identifier: REMOTE_PROC_TRANSACTIONS
+        - comma: ','
+        - select_clause_element:
+          - expression:
+            - data_type:
+              - data_type_identifier: SECURITYAUDIT
+        - comma: ','
+        - select_clause_element:
+          - column_reference:
+            - naked_identifier: SHOWPLAN_ALL
+        - comma: ','
+        - select_clause_element:
+          - column_reference:
+            - naked_identifier: SHOWPLAN_TEXT
+        - comma: ','
+        - select_clause_element:
+          - column_reference:
+            - naked_identifier: SHOWPLAN_XML
+        - comma: ','
+        - select_clause_element:
+          - column_reference:
+            - naked_identifier: XACT_ABORT
+        - comma: ','
+        - select_clause_element:
+          - column_reference:
+            - naked_identifier: Rows
+        - comma: ','
+        - select_clause_element:
+          - column_reference:
+            - naked_identifier: NaN
+        - comma: ','
+        - select_clause_element:
+          - column_reference:
+            - naked_identifier: Rlike
+        - comma: ','
+        - select_clause_element:
+          - column_reference:
+            - naked_identifier: Ilike
+        - comma: ','
+        - select_clause_element:
+          - column_reference:
+            - naked_identifier: Separator
+        - comma: ','
+        - select_clause_element:
+          - column_reference:
+            - naked_identifier: Auto_Increment
+        - comma: ','
+        - select_clause_element:
+          - column_reference:
+            - naked_identifier: Unsigned
+        - comma: ','
+        - select_clause_element:
+          - column_reference:
+            - naked_identifier: Describe
+        - comma: ','
+        - select_clause_element:
+          - column_reference:
+            - naked_identifier: Comment
+        - comma: ','
+        - select_clause_element:
+          - column_reference:
+            - naked_identifier: Ml
+        - comma: ','
+        - select_clause_element:
+          - column_reference:
+            - naked_identifier: Modify
+        - comma: ','
   - statement:
     - naked_identifier: Minus
     - comma: ','
@@ -496,41 +600,35 @@ file:
                     - expression:
                       - select_statement:
                         - select_clause:
-                          - select_clause:
-                            - keyword: SELECT
-                            - select_clause_element:
-                              - column_reference:
-                                - naked_identifier: mediaty
+                          - keyword: SELECT
+                          - select_clause_element:
+                            - column_reference:
+                              - naked_identifier: mediaty
                         - from_clause:
-                          - from_clause:
-                            - keyword: FROM
-                            - from_expression:
-                              - from_expression:
-                                - from_expression_element:
-                                  - from_expression_element:
-                                    - table_expression:
-                                      - table_reference:
-                                        - object_reference:
-                                          - object_reference:
-                                            - naked_identifier: dbo
-                                            - dot: .
-                                            - naked_identifier: MediaTypes
-                                    - alias_expression:
-                                      - naked_identifier: ms
-                        - where_clause:
-                          - where_clause:
-                            - keyword: WHERE
-                            - expression:
-                              - column_reference:
+                          - keyword: FROM
+                          - from_expression:
+                            - from_expression_element:
+                              - table_expression:
+                                - table_reference:
+                                  - object_reference:
+                                    - naked_identifier: dbo
+                                    - dot: .
+                                    - naked_identifier: MediaTypes
+                              - alias_expression:
                                 - naked_identifier: ms
-                                - dot: .
-                                - naked_identifier: MediaTypeID
-                              - comparison_operator:
-                                - raw_comparison_operator: =
-                              - column_reference:
-                                - naked_identifier: f
-                                - dot: .
-                                - naked_identifier: mediatypeid
+                        - where_clause:
+                          - keyword: WHERE
+                          - expression:
+                            - column_reference:
+                              - naked_identifier: ms
+                              - dot: .
+                              - naked_identifier: MediaTypeID
+                            - comparison_operator:
+                              - raw_comparison_operator: =
+                            - column_reference:
+                              - naked_identifier: f
+                              - dot: .
+                              - naked_identifier: mediatypeid
                     - end_bracket: )
                 - orderby_clause:
                   - keyword: ORDER
@@ -801,19 +899,13 @@ file:
                 - numeric_literal: '1'
               - keyword: as
               - data_type:
-                - data_type:
-                  - data_type_identifier: character
-              - expression:
-                - function:
-                  - function:
-                    - function_name:
-                      - function_name_identifier: varying
-                    - function_contents:
-                      - bracketed:
-                        - start_bracket: (
-                        - expression:
-                          - numeric_literal: '1'
-                        - end_bracket: )
+                - keyword: character
+                - keyword: varying
+                - bracketed_arguments:
+                  - bracketed:
+                    - start_bracket: (
+                    - numeric_literal: '1'
+                    - end_bracket: )
               - end_bracket: )
     - comma: ','
     - expression:
@@ -829,8 +921,7 @@ file:
                   - quoted_identifier: '[central]'
               - keyword: as
               - data_type:
-                - data_type:
-                  - data_type_identifier: int
+                - data_type_identifier: int
               - end_bracket: )
     - comma: ','
     - expression:
@@ -875,77 +966,66 @@ file:
   - statement:
     - select_statement:
       - select_clause:
-        - select_clause:
-          - keyword: SELECT
-          - select_clause_modifier:
-            - keyword: DISTINCT
-            - keyword: TOP
-            - expression:
-              - numeric_literal: '5'
-          - select_clause_element:
-            - column_reference:
-              - naked_identifier: some_value
+        - keyword: SELECT
+        - select_clause_modifier:
+          - keyword: DISTINCT
+          - keyword: TOP
+          - expression:
+            - numeric_literal: '5'
+        - select_clause_element:
+          - column_reference:
+            - naked_identifier: some_value
       - from_clause:
-        - from_clause:
-          - keyword: FROM
-          - from_expression:
-            - from_expression:
-              - from_expression_element:
-                - from_expression_element:
-                  - table_expression:
-                    - table_reference:
-                      - object_reference:
-                        - object_reference:
-                          - naked_identifier: some_table
+        - keyword: FROM
+        - from_expression:
+          - from_expression_element:
+            - table_expression:
+              - table_reference:
+                - object_reference:
+                  - naked_identifier: some_table
   - statement_terminator: ;
   - statement:
     - select_statement:
       - select_clause:
-        - select_clause:
-          - keyword: select
-          - select_clause_element:
-            - quoted_literal: '''Tabellen'''
-            - alias_expression:
-              - keyword: as
-              - naked_identifier: Objekt
-          - comma: ','
-          - select_clause_element:
+        - keyword: select
+        - select_clause_element:
+          - quoted_literal: '''Tabellen'''
+          - alias_expression:
+            - keyword: as
+            - naked_identifier: Objekt
+        - comma: ','
+        - select_clause_element:
+          - function:
             - function:
-              - function:
-                - function_name:
-                  - function_name_identifier: Count
-                - function_contents:
-                  - bracketed:
-                    - start_bracket: (
-                    - star: '*'
-                    - end_bracket: )
-            - alias_expression:
-              - keyword: as
-              - naked_identifier: Anzahl
+              - function_name:
+                - function_name_identifier: Count
+              - function_contents:
+                - bracketed:
+                  - start_bracket: (
+                  - star: '*'
+                  - end_bracket: )
+          - alias_expression:
+            - keyword: as
+            - naked_identifier: Anzahl
       - from_clause:
-        - from_clause:
-          - keyword: from
-          - from_expression:
-            - from_expression:
-              - from_expression_element:
-                - from_expression_element:
-                  - table_expression:
-                    - table_reference:
-                      - object_reference:
-                        - object_reference:
-                          - naked_identifier: dbo
-                          - dot: .
-                          - naked_identifier: sql_modules
+        - keyword: from
+        - from_expression:
+          - from_expression_element:
+            - table_expression:
+              - table_reference:
+                - object_reference:
+                  - naked_identifier: dbo
+                  - dot: .
+                  - naked_identifier: sql_modules
   - statement_terminator: ;
   - statement:
     - select_statement:
       - select_clause:
-        - select_clause:
-          - keyword: select
-          - select_clause_element:
-            - column_reference:
-              - naked_identifier: field1
-            - alias_expression:
-              - keyword: AS
-              - naked_identifier: 日期差多少天
+        - keyword: select
+        - select_clause_element:
+          - column_reference:
+            - naked_identifier: field1
+          - alias_expression:
+            - keyword: AS
+            - naked_identifier: 日期差多少天
   - statement_terminator: ;

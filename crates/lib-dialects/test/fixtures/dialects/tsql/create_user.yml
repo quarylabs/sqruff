@@ -6,13 +6,11 @@ file:
         - keyword: CREATE
         - keyword: USER
         - object_reference:
-          - object_reference:
-            - naked_identifier: user_name
+          - naked_identifier: user_name
         - keyword: FOR
         - keyword: LOGIN
         - object_reference:
-          - object_reference:
-            - naked_identifier: login_name
+          - naked_identifier: login_name
   - statement_terminator: ;
   - statement:
     - create_user_statement:
@@ -20,13 +18,11 @@ file:
         - keyword: CREATE
         - keyword: USER
         - object_reference:
-          - object_reference:
-            - naked_identifier: user_name
+          - naked_identifier: user_name
         - keyword: FROM
         - keyword: LOGIN
         - object_reference:
-          - object_reference:
-            - naked_identifier: login_name
+          - naked_identifier: login_name
   - statement_terminator: ;
   - statement:
     - create_user_statement:
@@ -34,8 +30,7 @@ file:
         - keyword: CREATE
         - keyword: USER
         - object_reference:
-          - object_reference:
-            - quoted_identifier: '[TestUser]'
+          - quoted_identifier: '[TestUser]'
   - statement_terminator: ;
   - statement:
     - create_user_statement:
@@ -43,8 +38,7 @@ file:
         - keyword: CREATE
         - keyword: USER
         - object_reference:
-          - object_reference:
-            - naked_identifier: Barry
+          - naked_identifier: Barry
         - keyword: WITH
         - keyword: PASSWORD
         - comparison_operator:
@@ -57,8 +51,7 @@ file:
         - keyword: CREATE
         - keyword: USER
         - object_reference:
-          - object_reference:
-            - quoted_identifier: '[TestUser]'
+          - quoted_identifier: '[TestUser]'
         - keyword: FROM
         - keyword: EXTERNAL
         - keyword: PROVIDER
@@ -69,8 +62,7 @@ file:
         - keyword: CREATE
         - keyword: USER
         - object_reference:
-          - object_reference:
-            - naked_identifier: RIGHTSHOLDER
+          - naked_identifier: RIGHTSHOLDER
         - keyword: WITHOUT
         - keyword: LOGIN
   - statement_terminator: ;
@@ -80,8 +72,7 @@ file:
         - keyword: CREATE
         - keyword: USER
         - object_reference:
-          - object_reference:
-            - naked_identifier: RIGHTSHOLDER
+          - naked_identifier: RIGHTSHOLDER
         - keyword: WITHOUT
         - keyword: LOGIN
         - keyword: WITH
@@ -89,8 +80,7 @@ file:
         - comparison_operator:
           - raw_comparison_operator: =
         - object_reference:
-          - object_reference:
-            - naked_identifier: Other
+          - naked_identifier: Other
   - statement_terminator: ;
   - statement:
     - create_user_statement:
@@ -98,8 +88,7 @@ file:
         - keyword: CREATE
         - keyword: USER
         - object_reference:
-          - object_reference:
-            - quoted_identifier: '[Barry]'
+          - quoted_identifier: '[Barry]'
         - keyword: WITH
         - keyword: ALLOW_ENCRYPTED_VALUE_MODIFICATIONS
         - comparison_operator:
@@ -112,20 +101,17 @@ file:
         - keyword: CREATE
         - keyword: USER
         - object_reference:
-          - object_reference:
-            - naked_identifier: Wanida
+          - naked_identifier: Wanida
         - keyword: FOR
         - keyword: LOGIN
         - object_reference:
-          - object_reference:
-            - naked_identifier: WanidaBenshoof
+          - naked_identifier: WanidaBenshoof
         - keyword: WITH
         - keyword: DEFAULT_SCHEMA
         - comparison_operator:
           - raw_comparison_operator: =
         - object_reference:
-          - object_reference:
-            - naked_identifier: Marketing
+          - naked_identifier: Marketing
   - statement_terminator: ;
   - statement:
     - create_user_statement:
@@ -133,20 +119,17 @@ file:
         - keyword: CREATE
         - keyword: USER
         - object_reference:
-          - object_reference:
-            - naked_identifier: Wanida
+          - naked_identifier: Wanida
         - keyword: FOR
         - keyword: LOGIN
         - object_reference:
-          - object_reference:
-            - naked_identifier: WanidaSmith
+          - naked_identifier: WanidaSmith
         - keyword: WITH
         - keyword: DEFAULT_SCHEMA
         - comparison_operator:
           - raw_comparison_operator: =
         - object_reference:
-          - object_reference:
-            - naked_identifier: Tech
+          - naked_identifier: Tech
         - comma: ','
         - keyword: ALLOW_ENCRYPTED_VALUE_MODIFICATIONS
         - comparison_operator:
@@ -159,13 +142,11 @@ file:
         - keyword: CREATE
         - keyword: USER
         - object_reference:
-          - object_reference:
-            - naked_identifier: JinghaoLiu
+          - naked_identifier: JinghaoLiu
         - keyword: FOR
         - keyword: CERTIFICATE
         - object_reference:
-          - object_reference:
-            - naked_identifier: CarnationProduction50
+          - naked_identifier: CarnationProduction50
   - statement_terminator: ;
   - statement:
     - create_user_statement:
@@ -173,14 +154,12 @@ file:
         - keyword: CREATE
         - keyword: USER
         - object_reference:
-          - object_reference:
-            - naked_identifier: JinghaoLiu
+          - naked_identifier: JinghaoLiu
         - keyword: FOR
         - keyword: ASYMMETRIC
         - keyword: KEY
         - object_reference:
-          - object_reference:
-            - naked_identifier: CarnationProduction
+          - naked_identifier: CarnationProduction
   - statement_terminator: ;
   - statement:
     - create_user_statement:
@@ -188,8 +167,7 @@ file:
         - keyword: CREATE
         - keyword: USER
         - object_reference:
-          - object_reference:
-            - naked_identifier: Barry
+          - naked_identifier: Barry
         - keyword: WITH
         - keyword: PASSWORD
         - comparison_operator:

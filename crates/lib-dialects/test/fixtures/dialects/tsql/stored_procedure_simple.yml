@@ -5,8 +5,7 @@ file:
       - keyword: CREATE
       - keyword: PROC
       - object_reference:
-        - object_reference:
-          - naked_identifier: ProcedureName
+        - naked_identifier: ProcedureName
       - keyword: AS
       - select_statement:
         - select_clause:

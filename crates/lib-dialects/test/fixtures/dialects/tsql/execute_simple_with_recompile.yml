@@ -3,8 +3,7 @@ file:
   - statement:
     - keyword: EXECUTE
     - object_reference:
-      - object_reference:
-        - naked_identifier: test
+      - naked_identifier: test
     - keyword: WITH
     - keyword: RECOMPILE
   - statement_terminator: ;

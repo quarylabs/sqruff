@@ -5,13 +5,11 @@ file:
       - keyword: ALTER
       - keyword: INDEX
       - object_reference:
-        - object_reference:
-          - naked_identifier: index1
+        - naked_identifier: index1
       - keyword: ON
       - table_reference:
         - object_reference:
-          - object_reference:
-            - naked_identifier: table1
+          - naked_identifier: table1
       - keyword: REBUILD
   - statement_terminator: ;
   - statement:
@@ -19,13 +17,11 @@ file:
       - keyword: ALTER
       - keyword: INDEX
       - object_reference:
-        - object_reference:
-          - naked_identifier: ALL
+        - naked_identifier: ALL
       - keyword: ON
       - table_reference:
         - object_reference:
-          - object_reference:
-            - naked_identifier: table1
+          - naked_identifier: table1
       - keyword: REBUILD
   - statement_terminator: ;
   - statement:
@@ -33,13 +29,11 @@ file:
       - keyword: ALTER
       - keyword: INDEX
       - object_reference:
-        - object_reference:
-          - naked_identifier: idxcci_cci_target
+        - naked_identifier: idxcci_cci_target
       - keyword: ON
       - table_reference:
         - object_reference:
-          - object_reference:
-            - naked_identifier: cci_target
+          - naked_identifier: cci_target
       - keyword: REORGANIZE
       - keyword: WITH
       - bracketed:
@@ -55,13 +49,11 @@ file:
       - keyword: ALTER
       - keyword: INDEX
       - object_reference:
-        - object_reference:
-          - naked_identifier: cci_FactInternetSales2
+        - naked_identifier: cci_FactInternetSales2
       - keyword: ON
       - table_reference:
         - object_reference:
-          - object_reference:
-            - naked_identifier: FactInternetSales2
+          - naked_identifier: FactInternetSales2
       - keyword: REORGANIZE
   - statement_terminator: ;
   - statement:
@@ -69,13 +61,11 @@ file:
       - keyword: ALTER
       - keyword: INDEX
       - object_reference:
-        - object_reference:
-          - naked_identifier: cci_FactInternetSales2
+        - naked_identifier: cci_FactInternetSales2
       - keyword: ON
       - table_reference:
         - object_reference:
-          - object_reference:
-            - naked_identifier: FactInternetSales2
+          - naked_identifier: FactInternetSales2
       - keyword: REORGANIZE
       - keyword: PARTITION
       - comparison_operator:
@@ -87,13 +77,11 @@ file:
       - keyword: ALTER
       - keyword: INDEX
       - object_reference:
-        - object_reference:
-          - naked_identifier: cci_FactInternetSales2
+        - naked_identifier: cci_FactInternetSales2
       - keyword: ON
       - table_reference:
         - object_reference:
-          - object_reference:
-            - naked_identifier: FactInternetSales2
+          - naked_identifier: FactInternetSales2
       - keyword: REORGANIZE
       - keyword: WITH
       - bracketed:
@@ -109,13 +97,11 @@ file:
       - keyword: ALTER
       - keyword: INDEX
       - object_reference:
-        - object_reference:
-          - naked_identifier: cci_FactInternetSales2
+        - naked_identifier: cci_FactInternetSales2
       - keyword: ON
       - table_reference:
         - object_reference:
-          - object_reference:
-            - naked_identifier: FactInternetSales2
+          - naked_identifier: FactInternetSales2
       - keyword: REORGANIZE
       - keyword: PARTITION
       - comparison_operator:
@@ -135,13 +121,11 @@ file:
       - keyword: ALTER
       - keyword: INDEX
       - object_reference:
-        - object_reference:
-          - naked_identifier: cci_FactInternetSales2
+        - naked_identifier: cci_FactInternetSales2
       - keyword: ON
       - table_reference:
         - object_reference:
-          - object_reference:
-            - naked_identifier: FactInternetSales2
+          - naked_identifier: FactInternetSales2
       - keyword: REORGANIZE
   - statement_terminator: ;
   - statement:
@@ -149,13 +133,11 @@ file:
       - keyword: ALTER
       - keyword: INDEX
       - object_reference:
-        - object_reference:
-          - naked_identifier: cci_fact3ON
+        - naked_identifier: cci_fact3ON
       - keyword: ON
       - table_reference:
         - object_reference:
-          - object_reference:
-            - naked_identifier: fact3
+          - naked_identifier: fact3
       - keyword: REBUILD
       - keyword: PARTITION
       - comparison_operator:
@@ -167,13 +149,11 @@ file:
       - keyword: ALTER
       - keyword: INDEX
       - object_reference:
-        - object_reference:
-          - naked_identifier: cci_SimpleTable
+        - naked_identifier: cci_SimpleTable
       - keyword: ON
       - table_reference:
         - object_reference:
-          - object_reference:
-            - naked_identifier: SimpleTable
+          - naked_identifier: SimpleTable
       - keyword: REBUILD
       - keyword: WITH
       - bracketed:
@@ -189,13 +169,11 @@ file:
       - keyword: ALTER
       - keyword: INDEX
       - object_reference:
-        - object_reference:
-          - naked_identifier: cci_SimpleTable
+        - naked_identifier: cci_SimpleTable
       - keyword: ON
       - table_reference:
         - object_reference:
-          - object_reference:
-            - naked_identifier: SimpleTable
+          - naked_identifier: SimpleTable
       - keyword: REBUILD
       - keyword: WITH
       - bracketed:
@@ -211,15 +189,13 @@ file:
       - keyword: ALTER
       - keyword: INDEX
       - object_reference:
-        - object_reference:
-          - naked_identifier: PK_ProductPhoto_ProductPhotoID
+        - naked_identifier: PK_ProductPhoto_ProductPhotoID
       - keyword: ON
       - table_reference:
         - object_reference:
-          - object_reference:
-            - naked_identifier: Production
-            - dot: .
-            - naked_identifier: ProductPhoto
+          - naked_identifier: Production
+          - dot: .
+          - naked_identifier: ProductPhoto
       - keyword: REORGANIZE
       - keyword: WITH
       - bracketed:
@@ -235,15 +211,13 @@ file:
       - keyword: ALTER
       - keyword: INDEX
       - object_reference:
-        - object_reference:
-          - naked_identifier: IX_Employee_ManagerID
+        - naked_identifier: IX_Employee_ManagerID
       - keyword: ON
       - table_reference:
         - object_reference:
-          - object_reference:
-            - naked_identifier: HumanResources
-            - dot: .
-            - naked_identifier: Employee
+          - naked_identifier: HumanResources
+          - dot: .
+          - naked_identifier: Employee
       - keyword: DISABLE
   - statement_terminator: ;
   - statement:
@@ -251,13 +225,11 @@ file:
       - keyword: ALTER
       - keyword: INDEX
       - object_reference:
-        - object_reference:
-          - naked_identifier: IX_INDEX1
+        - naked_identifier: IX_INDEX1
       - keyword: ON
       - table_reference:
         - object_reference:
-          - object_reference:
-            - naked_identifier: T1
+          - naked_identifier: T1
       - keyword: REBUILD
       - keyword: WITH
       - bracketed:
@@ -273,15 +245,13 @@ file:
       - keyword: ALTER
       - keyword: INDEX
       - object_reference:
-        - object_reference:
-          - naked_identifier: ALL
+        - naked_identifier: ALL
       - keyword: ON
       - table_reference:
         - object_reference:
-          - object_reference:
-            - naked_identifier: Production
-            - dot: .
-            - naked_identifier: Product
+          - naked_identifier: Production
+          - dot: .
+          - naked_identifier: Product
       - keyword: REBUILD
       - keyword: WITH
       - bracketed:
@@ -307,13 +277,11 @@ file:
       - keyword: ALTER
       - keyword: INDEX
       - object_reference:
-        - object_reference:
-          - naked_identifier: test_idx
+        - naked_identifier: test_idx
       - keyword: on
       - table_reference:
         - object_reference:
-          - object_reference:
-            - naked_identifier: test_table
+          - naked_identifier: test_table
       - keyword: REBUILD
       - keyword: WITH
       - bracketed:
@@ -339,13 +307,11 @@ file:
       - keyword: ALTER
       - keyword: INDEX
       - object_reference:
-        - object_reference:
-          - naked_identifier: test_idx
+        - naked_identifier: test_idx
       - keyword: on
       - table_reference:
         - object_reference:
-          - object_reference:
-            - naked_identifier: test_table
+          - naked_identifier: test_table
       - keyword: PAUSE
   - statement_terminator: ;
   - statement:
@@ -353,13 +319,11 @@ file:
       - keyword: ALTER
       - keyword: INDEX
       - object_reference:
-        - object_reference:
-          - naked_identifier: test_idx
+        - naked_identifier: test_idx
       - keyword: on
       - table_reference:
         - object_reference:
-          - object_reference:
-            - naked_identifier: test_table
+          - naked_identifier: test_table
       - keyword: ABORT
   - statement_terminator: ;
   - statement:
@@ -367,13 +331,11 @@ file:
       - keyword: ALTER
       - keyword: INDEX
       - object_reference:
-        - object_reference:
-          - naked_identifier: test_idx
+        - naked_identifier: test_idx
       - keyword: on
       - table_reference:
         - object_reference:
-          - object_reference:
-            - naked_identifier: test_table
+          - naked_identifier: test_table
       - keyword: REBUILD
       - keyword: WITH
       - bracketed:
@@ -401,13 +363,11 @@ file:
       - keyword: ALTER
       - keyword: INDEX
       - object_reference:
-        - object_reference:
-          - naked_identifier: test_idx
+        - naked_identifier: test_idx
       - keyword: on
       - table_reference:
         - object_reference:
-          - object_reference:
-            - naked_identifier: test_table
+          - naked_identifier: test_table
       - keyword: REBUILD
       - keyword: WITH
       - bracketed:
@@ -431,13 +391,11 @@ file:
       - keyword: ALTER
       - keyword: INDEX
       - object_reference:
-        - object_reference:
-          - naked_identifier: test_idx
+        - naked_identifier: test_idx
       - keyword: on
       - table_reference:
         - object_reference:
-          - object_reference:
-            - naked_identifier: test_table
+          - naked_identifier: test_table
       - keyword: REBUILD
       - keyword: WITH
       - bracketed:
@@ -459,15 +417,13 @@ file:
       - keyword: ALTER
       - keyword: INDEX
       - object_reference:
-        - object_reference:
-          - naked_identifier: IX_TransactionHistory_TransactionDate
+        - naked_identifier: IX_TransactionHistory_TransactionDate
       - keyword: ON
       - table_reference:
         - object_reference:
-          - object_reference:
-            - naked_identifier: Production
-            - dot: .
-            - naked_identifier: TransactionHistory
+          - naked_identifier: Production
+          - dot: .
+          - naked_identifier: TransactionHistory
       - keyword: REBUILD
       - keyword: Partition
       - comparison_operator:
@@ -503,13 +459,11 @@ file:
       - keyword: ALTER
       - keyword: INDEX
       - object_reference:
-        - object_reference:
-          - naked_identifier: cci_FactInternetSales2
+        - naked_identifier: cci_FactInternetSales2
       - keyword: ON
       - table_reference:
         - object_reference:
-          - object_reference:
-            - naked_identifier: FactInternetSales2
+          - naked_identifier: FactInternetSales2
       - keyword: SET
       - bracketed:
         - start_bracket: (
@@ -529,13 +483,11 @@ file:
       - keyword: ALTER
       - keyword: INDEX
       - object_reference:
-        - object_reference:
-          - naked_identifier: cci_FactInternetSales2
+        - naked_identifier: cci_FactInternetSales2
       - keyword: ON
       - table_reference:
         - object_reference:
-          - object_reference:
-            - naked_identifier: FactInternetSales2
+          - naked_identifier: FactInternetSales2
       - keyword: SET
       - bracketed:
         - start_bracket: (
@@ -560,13 +512,11 @@ file:
       - keyword: ALTER
       - keyword: INDEX
       - object_reference:
-        - object_reference:
-          - naked_identifier: cci_FactInternetSales2
+        - naked_identifier: cci_FactInternetSales2
       - keyword: ON
       - table_reference:
         - object_reference:
-          - object_reference:
-            - naked_identifier: FactInternetSales2
+          - naked_identifier: FactInternetSales2
       - keyword: SET
       - bracketed:
         - start_bracket: (
@@ -581,13 +531,11 @@ file:
       - keyword: ALTER
       - keyword: INDEX
       - object_reference:
-        - object_reference:
-          - naked_identifier: cci_FactInternetSales2
+        - naked_identifier: cci_FactInternetSales2
       - keyword: ON
       - table_reference:
         - object_reference:
-          - object_reference:
-            - naked_identifier: FactInternetSales2
+          - naked_identifier: FactInternetSales2
       - keyword: SET
       - bracketed:
         - start_bracket: (
@@ -603,13 +551,11 @@ file:
       - keyword: ALTER
       - keyword: INDEX
       - object_reference:
-        - object_reference:
-          - naked_identifier: cci_FactInternetSales2
+        - naked_identifier: cci_FactInternetSales2
       - keyword: ON
       - table_reference:
         - object_reference:
-          - object_reference:
-            - naked_identifier: FactInternetSales2
+          - naked_identifier: FactInternetSales2
       - keyword: RESUME
   - statement_terminator: ;
   - statement:
@@ -617,13 +563,11 @@ file:
       - keyword: ALTER
       - keyword: INDEX
       - object_reference:
-        - object_reference:
-          - naked_identifier: cci_FactInternetSales2
+        - naked_identifier: cci_FactInternetSales2
       - keyword: ON
       - table_reference:
         - object_reference:
-          - object_reference:
-            - naked_identifier: FactInternetSales2
+          - naked_identifier: FactInternetSales2
       - keyword: RESUME
       - keyword: WITH
       - bracketed:
@@ -659,13 +603,11 @@ file:
       - keyword: ALTER
       - keyword: INDEX
       - object_reference:
-        - object_reference:
-          - naked_identifier: cci_FactInternetSales2
+        - naked_identifier: cci_FactInternetSales2
       - keyword: ON
       - table_reference:
         - object_reference:
-          - object_reference:
-            - naked_identifier: FactInternetSales2
+          - naked_identifier: FactInternetSales2
       - keyword: RESUME
       - keyword: WITH
       - bracketed:
@@ -681,13 +623,11 @@ file:
       - keyword: ALTER
       - keyword: INDEX
       - object_reference:
-        - object_reference:
-          - naked_identifier: cci_FactInternetSales2
+        - naked_identifier: cci_FactInternetSales2
       - keyword: ON
       - table_reference:
         - object_reference:
-          - object_reference:
-            - naked_identifier: FactInternetSales2
+          - naked_identifier: FactInternetSales2
       - keyword: RESUME
       - keyword: WITH
       - bracketed:

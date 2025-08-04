@@ -138,9 +138,8 @@ file:
             - word: VALUE
             - word: FOR
             - object_reference:
-              - object_reference:
-                - quoted_identifier: '[dbo]'
-                - dot: .
-                - quoted_identifier: '[SEQUENCE_NAME]'
+              - quoted_identifier: '[dbo]'
+              - dot: .
+              - quoted_identifier: '[SEQUENCE_NAME]'
         - end_bracket: )
   - statement_terminator: ;

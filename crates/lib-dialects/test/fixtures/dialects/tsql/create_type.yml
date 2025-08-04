@@ -5,8 +5,7 @@ file:
       - keyword: CREATE
       - keyword: TYPE
       - object_reference:
-        - object_reference:
-          - naked_identifier: person
+        - naked_identifier: person
       - keyword: AS
       - keyword: TABLE
       - bracketed:
@@ -15,27 +14,24 @@ file:
           - column_definition:
             - naked_identifier: name
             - data_type:
-              - data_type:
-                - data_type_identifier: nvarchar
+              - data_type_identifier: nvarchar
+              - bracketed_arguments:
                 - bracketed:
                   - start_bracket: (
-                  - expression:
-                    - numeric_literal: '10'
+                  - numeric_literal: '10'
                   - end_bracket: )
         - comma: ','
         - column_definition:
           - column_definition:
             - naked_identifier: height
             - data_type:
-              - data_type:
-                - data_type_identifier: int
+              - data_type_identifier: int
         - comma: ','
         - column_definition:
           - column_definition:
             - naked_identifier: favorite_color
             - data_type:
-              - data_type:
-                - data_type_identifier: int
+              - data_type_identifier: int
         - end_bracket: )
   - statement_terminator: ;
   - statement:
@@ -43,10 +39,8 @@ file:
       - keyword: CREATE
       - keyword: TYPE
       - object_reference:
-        - object_reference:
-          - naked_identifier: weird_int
+        - naked_identifier: weird_int
       - keyword: FROM
       - object_reference:
-        - object_reference:
-          - naked_identifier: int
+        - naked_identifier: int
   - statement_terminator: ;

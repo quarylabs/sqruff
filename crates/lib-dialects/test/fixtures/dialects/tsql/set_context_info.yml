@@ -11,12 +11,11 @@ file:
       - keyword: DECLARE
       - tsql_variable: '@BinVar'
       - data_type:
-        - data_type:
-          - data_type_identifier: varbinary
+        - data_type_identifier: varbinary
+        - bracketed_arguments:
           - bracketed:
             - start_bracket: (
-            - expression:
-              - numeric_literal: '128'
+            - numeric_literal: '128'
             - end_bracket: )
   - statement_terminator: ;
   - statement:
@@ -48,12 +47,11 @@ file:
                         - end_bracket: )
               - keyword: AS
               - data_type:
-                - data_type:
-                  - data_type_identifier: varbinary
+                - data_type_identifier: varbinary
+                - bracketed_arguments:
                   - bracketed:
                     - start_bracket: (
-                    - expression:
-                      - numeric_literal: '128'
+                    - numeric_literal: '128'
                     - end_bracket: )
               - end_bracket: )
   - statement_terminator: ;
@@ -66,18 +64,17 @@ file:
   - statement:
     - select_statement:
       - select_clause:
-        - select_clause:
-          - keyword: SELECT
-          - select_clause_element:
+        - keyword: SELECT
+        - select_clause_element:
+          - function:
             - function:
-              - function:
-                - function_name:
-                  - function_name_identifier: CONTEXT_INFO
-                - function_contents:
-                  - bracketed:
-                    - start_bracket: (
-                    - end_bracket: )
-            - alias_expression:
-              - keyword: AS
-              - naked_identifier: MyContextInfo
+              - function_name:
+                - function_name_identifier: CONTEXT_INFO
+              - function_contents:
+                - bracketed:
+                  - start_bracket: (
+                  - end_bracket: )
+          - alias_expression:
+            - keyword: AS
+            - naked_identifier: MyContextInfo
   - statement_terminator: ;

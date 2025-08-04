@@ -6,22 +6,19 @@ file:
         - keyword: CREATE
         - keyword: FUNCTION
         - object_reference:
-          - object_reference:
-            - naked_identifier: dbo
-            - dot: .
-            - naked_identifier: ISOweek
+          - naked_identifier: dbo
+          - dot: .
+          - naked_identifier: ISOweek
         - bracketed:
           - start_bracket: (
           - parameter:
             - tsql_variable: '@DATE'
             - data_type:
-              - data_type:
-                - data_type_identifier: datetime
+              - data_type_identifier: datetime
           - end_bracket: )
         - keyword: RETURNS
         - data_type:
-          - data_type:
-            - data_type_identifier: int
+          - data_type_identifier: int
         - keyword: WITH
         - keyword: EXECUTE
         - keyword: AS
@@ -35,8 +32,7 @@ file:
                 - keyword: DECLARE
                 - tsql_variable: '@ISOweek'
                 - data_type:
-                  - data_type:
-                    - data_type_identifier: int
+                  - data_type_identifier: int
             - statement_terminator: ;
             - statement:
               - keyword: SET
@@ -96,12 +92,11 @@ file:
                                             - end_bracket: )
                                   - keyword: as
                                   - data_type:
-                                    - data_type:
-                                      - data_type_identifier: CHAR
+                                    - data_type_identifier: CHAR
+                                    - bracketed_arguments:
                                       - bracketed:
                                         - start_bracket: (
-                                        - expression:
-                                          - numeric_literal: '4'
+                                        - numeric_literal: '4'
                                         - end_bracket: )
                                   - end_bracket: )
                           - binary_operator: +
@@ -161,12 +156,11 @@ file:
                                       - numeric_literal: '1'
                                     - keyword: AS
                                     - data_type:
-                                      - data_type:
-                                        - data_type_identifier: CHAR
+                                      - data_type_identifier: CHAR
+                                      - bracketed_arguments:
                                         - bracketed:
                                           - start_bracket: (
-                                          - expression:
-                                            - numeric_literal: '4'
+                                          - numeric_literal: '4'
                                           - end_bracket: )
                                     - end_bracket: )
                             - binary_operator: +
@@ -198,12 +192,11 @@ file:
                                               - end_bracket: )
                                     - keyword: AS
                                     - data_type:
-                                      - data_type:
-                                        - data_type_identifier: CHAR
+                                      - data_type_identifier: CHAR
+                                      - bracketed_arguments:
                                         - bracketed:
                                           - start_bracket: (
-                                          - expression:
-                                            - numeric_literal: '2'
+                                          - numeric_literal: '2'
                                           - end_bracket: )
                                     - end_bracket: )
                           - end_bracket: )
@@ -306,8 +299,7 @@ file:
         - keyword: CREATE
         - keyword: FUNCTION
         - object_reference:
-          - object_reference:
-            - naked_identifier: f
+          - naked_identifier: f
         - bracketed:
           - start_bracket: (
           - end_bracket: )
@@ -319,8 +311,7 @@ file:
           - column_reference:
             - naked_identifier: i
           - data_type:
-            - data_type:
-              - data_type_identifier: int
+            - data_type_identifier: int
           - end_bracket: )
         - keyword: AS
         - statement:
@@ -335,10 +326,9 @@ file:
                     - tsql_variable: '@t'
                   - select_statement:
                     - select_clause:
-                      - select_clause:
-                        - keyword: SELECT
-                        - select_clause_element:
-                          - numeric_literal: '1'
+                      - keyword: SELECT
+                      - select_clause_element:
+                        - numeric_literal: '1'
             - statement_terminator: ;
             - statement:
               - keyword: RETURN
@@ -354,21 +344,18 @@ file:
         - keyword: ALTER
         - keyword: FUNCTION
         - object_reference:
-          - object_reference:
-            - naked_identifier: F
+          - naked_identifier: F
         - bracketed:
           - start_bracket: (
           - parameter:
             - tsql_variable: '@DATE'
             - keyword: as
             - data_type:
-              - data_type:
-                - data_type_identifier: datetime
+              - data_type_identifier: datetime
           - end_bracket: )
         - keyword: RETURNS
         - data_type:
-          - data_type:
-            - data_type_identifier: INT
+          - data_type_identifier: INT
         - keyword: AS
         - keyword: BEGIN
         - statement:
@@ -383,21 +370,18 @@ file:
       - keyword: ALTER
       - keyword: FUNCTION
       - object_reference:
-        - object_reference:
-          - naked_identifier: F
+        - naked_identifier: F
       - bracketed:
         - start_bracket: (
         - parameter:
           - tsql_variable: '@DATE'
           - keyword: as
           - data_type:
-            - data_type:
-              - data_type_identifier: datetime
+            - data_type_identifier: datetime
         - end_bracket: )
       - keyword: RETURNS
       - data_type:
-        - data_type:
-          - data_type_identifier: INT
+        - data_type_identifier: INT
       - keyword: AS
       - begin_end_block:
         - keyword: BEGIN
@@ -414,28 +398,24 @@ file:
         - keyword: CREATE
         - keyword: FUNCTION
         - object_reference:
-          - object_reference:
-            - quoted_identifier: '[UTIL]'
-            - dot: .
-            - quoted_identifier: '[getItemList]'
+          - quoted_identifier: '[UTIL]'
+          - dot: .
+          - quoted_identifier: '[getItemList]'
         - bracketed:
           - start_bracket: (
           - parameter:
             - tsql_variable: '@list'
             - data_type:
-              - data_type:
-                - data_type_identifier: ItemList
+              - data_type_identifier: ItemList
             - keyword: READONLY
           - end_bracket: )
         - keyword: RETURNS
         - data_type:
-          - data_type:
-            - data_type_identifier: nvarchar
+          - data_type_identifier: nvarchar
+          - bracketed_arguments:
             - bracketed:
               - start_bracket: (
-              - expression:
-                - column_reference:
-                  - naked_identifier: max
+              - keyword: max
               - end_bracket: )
         - keyword: AS
         - keyword: BEGIN
@@ -444,13 +424,11 @@ file:
             - keyword: DECLARE
             - tsql_variable: '@str'
             - data_type:
-              - data_type:
-                - data_type_identifier: nvarchar
+              - data_type_identifier: nvarchar
+              - bracketed_arguments:
                 - bracketed:
                   - start_bracket: (
-                  - expression:
-                    - column_reference:
-                      - naked_identifier: max
+                  - keyword: max
                   - end_bracket: )
             - assignment_operator:
               - raw_comparison_operator: =
@@ -459,60 +437,52 @@ file:
         - statement:
           - select_statement:
             - select_clause:
-              - select_clause:
-                - keyword: SELECT
-                - select_clause_element:
-                  - tsql_variable: '@str'
-                  - assignment_operator:
-                    - raw_comparison_operator: =
-                  - expression:
-                    - parameterized_expression:
-                      - tsql_variable: '@str'
-                    - binary_operator: +
-                    - column_reference:
-                      - quoted_identifier: '[item]'
+              - keyword: SELECT
+              - select_clause_element:
+                - tsql_variable: '@str'
+                - assignment_operator:
+                  - raw_comparison_operator: =
+                - expression:
+                  - parameterized_expression:
+                    - tsql_variable: '@str'
+                  - binary_operator: +
+                  - column_reference:
+                    - quoted_identifier: '[item]'
             - from_clause:
-              - from_clause:
-                - keyword: FROM
-                - from_expression:
-                  - from_expression:
-                    - from_expression_element:
-                      - from_expression_element:
-                        - table_expression:
-                          - bracketed:
-                            - start_bracket: (
-                            - select_statement:
-                              - select_clause:
-                                - select_clause:
-                                  - keyword: SELECT
-                                  - select_clause_modifier:
-                                    - keyword: TOP
-                                    - bracketed:
-                                      - start_bracket: (
-                                      - expression:
-                                        - numeric_literal: '9999'
-                                      - end_bracket: )
-                                  - select_clause_element:
-                                    - column_reference:
-                                      - quoted_identifier: '[item]'
-                              - from_clause:
-                                - from_clause:
-                                  - keyword: FROM
-                                  - from_expression:
-                                    - from_expression:
-                                      - from_expression_element:
-                                        - from_expression_element:
-                                          - table_expression:
-                                            - table_reference:
-                                              - tsql_variable: '@list'
-                              - orderby_clause:
-                                - keyword: ORDER
-                                - keyword: BY
-                                - column_reference:
-                                  - quoted_identifier: '[order]'
-                            - end_bracket: )
-                        - alias_expression:
-                          - naked_identifier: i
+              - keyword: FROM
+              - from_expression:
+                - from_expression_element:
+                  - table_expression:
+                    - bracketed:
+                      - start_bracket: (
+                      - select_statement:
+                        - select_clause:
+                          - keyword: SELECT
+                          - select_clause_modifier:
+                            - keyword: TOP
+                            - bracketed:
+                              - start_bracket: (
+                              - expression:
+                                - numeric_literal: '9999'
+                              - end_bracket: )
+                          - select_clause_element:
+                            - column_reference:
+                              - quoted_identifier: '[item]'
+                        - from_clause:
+                          - keyword: FROM
+                          - from_expression:
+                            - from_expression_element:
+                              - table_expression:
+                                - table_reference:
+                                  - tsql_variable: '@list'
+                        - orderby_clause:
+                          - keyword: ORDER
+                          - keyword: BY
+                          - column_reference:
+                            - quoted_identifier: '[order]'
+                      - end_bracket: )
+                  - alias_expression:
+                    - naked_identifier: i
         - statement:
           - keyword: RETURN
           - expression:
@@ -527,20 +497,17 @@ file:
         - keyword: create
         - keyword: function
         - object_reference:
-          - object_reference:
-            - naked_identifier: my_function
+          - naked_identifier: my_function
         - bracketed:
           - start_bracket: (
           - parameter:
             - tsql_variable: '@my_parameter'
             - data_type:
-              - data_type:
-                - data_type_identifier: int
+              - data_type_identifier: int
           - end_bracket: )
         - keyword: returns
         - data_type:
-          - data_type:
-            - data_type_identifier: int
+          - data_type_identifier: int
         - keyword: with
         - keyword: schemabinding
         - comma: ','

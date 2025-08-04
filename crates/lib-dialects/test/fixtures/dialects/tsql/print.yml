@@ -5,12 +5,11 @@ file:
       - keyword: DECLARE
       - tsql_variable: '@TestVal'
       - data_type:
-        - data_type:
-          - data_type_identifier: VARCHAR
+        - data_type_identifier: VARCHAR
+        - bracketed_arguments:
           - bracketed:
             - start_bracket: (
-            - expression:
-              - numeric_literal: '20'
+            - numeric_literal: '20'
             - end_bracket: )
       - assignment_operator:
         - raw_comparison_operator: =
@@ -41,12 +40,11 @@ file:
                         - end_bracket: )
               - keyword: AS
               - data_type:
-                - data_type:
-                  - data_type_identifier: VARCHAR
+                - data_type_identifier: VARCHAR
+                - bracketed_arguments:
                   - bracketed:
                     - start_bracket: (
-                    - expression:
-                      - numeric_literal: '50'
+                    - numeric_literal: '50'
                     - end_bracket: )
               - end_bracket: )
   - statement_terminator: ;

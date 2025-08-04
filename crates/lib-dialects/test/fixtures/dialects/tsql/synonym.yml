@@ -8,8 +8,7 @@ file:
         - naked_identifier: my_synonym
       - keyword: FOR
       - object_reference:
-        - object_reference:
-          - naked_identifier: mytable
+        - naked_identifier: mytable
   - statement_terminator: ;
   - statement:
     - create_synonym_statement:
@@ -19,12 +18,11 @@ file:
         - naked_identifier: my_synonym
       - keyword: FOR
       - object_reference:
-        - object_reference:
-          - naked_identifier: otherdb
-          - dot: .
-          - naked_identifier: dbo
-          - dot: .
-          - naked_identifier: mytable
+        - naked_identifier: otherdb
+        - dot: .
+        - naked_identifier: dbo
+        - dot: .
+        - naked_identifier: mytable
   - statement_terminator: ;
   - statement:
     - drop_synonym_statement:

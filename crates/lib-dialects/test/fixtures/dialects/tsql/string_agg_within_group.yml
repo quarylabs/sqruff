@@ -3,139 +3,124 @@ file:
   - statement:
     - select_statement:
       - select_clause:
-        - select_clause:
-          - keyword: SELECT
-          - select_clause_element:
+        - keyword: SELECT
+        - select_clause_element:
+          - function:
             - function:
-              - function:
-                - function_name:
-                  - function_name_identifier: STRING_AGG
-                - function_contents:
-                  - bracketed:
-                    - start_bracket: (
-                    - expression:
-                      - column_reference:
-                        - naked_identifier: FirstName
-                    - comma: ','
-                    - expression:
-                      - quoted_literal: ''', '''
-                    - end_bracket: )
-                - withingroup_clause:
-                  - keyword: WITHIN
-                  - keyword: GROUP
-                  - bracketed:
-                    - start_bracket: (
-                    - orderby_clause:
-                      - keyword: ORDER
-                      - keyword: BY
-                      - column_reference:
-                        - naked_identifier: FirstName
-                    - end_bracket: )
+              - function_name:
+                - function_name_identifier: STRING_AGG
+              - function_contents:
+                - bracketed:
+                  - start_bracket: (
+                  - expression:
+                    - column_reference:
+                      - naked_identifier: FirstName
+                  - comma: ','
+                  - expression:
+                    - quoted_literal: ''', '''
+                  - end_bracket: )
+              - withingroup_clause:
+                - keyword: WITHIN
+                - keyword: GROUP
+                - bracketed:
+                  - start_bracket: (
+                  - orderby_clause:
+                    - keyword: ORDER
+                    - keyword: BY
+                    - column_reference:
+                      - naked_identifier: FirstName
+                  - end_bracket: )
       - from_clause:
-        - from_clause:
-          - keyword: FROM
-          - from_expression:
-            - from_expression:
-              - from_expression_element:
-                - from_expression_element:
-                  - table_expression:
-                    - table_reference:
-                      - object_reference:
-                        - object_reference:
-                          - naked_identifier: Employees
+        - keyword: FROM
+        - from_expression:
+          - from_expression_element:
+            - table_expression:
+              - table_reference:
+                - object_reference:
+                  - naked_identifier: Employees
   - statement_terminator: ;
   - statement:
     - select_statement:
       - select_clause:
-        - select_clause:
-          - keyword: SELECT
-          - select_clause_element:
+        - keyword: SELECT
+        - select_clause_element:
+          - function:
             - function:
-              - function:
-                - function_name:
-                  - function_name_identifier: STRING_AGG
-                - function_contents:
-                  - bracketed:
-                    - start_bracket: (
-                    - expression:
-                      - column_reference:
-                        - naked_identifier: ProductName
-                    - comma: ','
-                    - expression:
-                      - quoted_literal: ''' | '''
-                    - end_bracket: )
-                - withingroup_clause:
-                  - keyword: WITHIN
-                  - keyword: GROUP
-                  - bracketed:
-                    - start_bracket: (
-                    - orderby_clause:
-                      - keyword: ORDER
-                      - keyword: BY
-                      - column_reference:
-                        - naked_identifier: Price
-                      - keyword: DESC
-                    - end_bracket: )
+              - function_name:
+                - function_name_identifier: STRING_AGG
+              - function_contents:
+                - bracketed:
+                  - start_bracket: (
+                  - expression:
+                    - column_reference:
+                      - naked_identifier: ProductName
+                  - comma: ','
+                  - expression:
+                    - quoted_literal: ''' | '''
+                  - end_bracket: )
+              - withingroup_clause:
+                - keyword: WITHIN
+                - keyword: GROUP
+                - bracketed:
+                  - start_bracket: (
+                  - orderby_clause:
+                    - keyword: ORDER
+                    - keyword: BY
+                    - column_reference:
+                      - naked_identifier: Price
+                    - keyword: DESC
+                  - end_bracket: )
       - from_clause:
-        - from_clause:
-          - keyword: FROM
-          - from_expression:
-            - from_expression:
-              - from_expression_element:
-                - from_expression_element:
-                  - table_expression:
-                    - table_reference:
-                      - object_reference:
-                        - object_reference:
-                          - naked_identifier: Products
+        - keyword: FROM
+        - from_expression:
+          - from_expression_element:
+            - table_expression:
+              - table_reference:
+                - object_reference:
+                  - naked_identifier: Products
   - statement_terminator: ;
   - statement:
     - select_statement:
       - select_clause:
-        - select_clause:
-          - keyword: SELECT
-          - select_clause_element:
-            - column_reference:
-              - naked_identifier: Department
-          - comma: ','
-          - select_clause_element:
+        - keyword: SELECT
+        - select_clause_element:
+          - column_reference:
+            - naked_identifier: Department
+        - comma: ','
+        - select_clause_element:
+          - function:
             - function:
-              - function:
-                - function_name:
-                  - function_name_identifier: STRING_AGG
-                - function_contents:
-                  - bracketed:
-                    - start_bracket: (
-                    - expression:
-                      - column_reference:
-                        - naked_identifier: EmployeeName
-                    - comma: ','
-                    - expression:
-                      - quoted_literal: ''', '''
-                    - end_bracket: )
-                - withingroup_clause:
-                  - keyword: WITHIN
-                  - keyword: GROUP
-                  - bracketed:
-                    - start_bracket: (
-                    - orderby_clause:
-                      - keyword: ORDER
-                      - keyword: BY
-                      - column_reference:
-                        - naked_identifier: HireDate
-                    - end_bracket: )
+              - function_name:
+                - function_name_identifier: STRING_AGG
+              - function_contents:
+                - bracketed:
+                  - start_bracket: (
+                  - expression:
+                    - column_reference:
+                      - naked_identifier: EmployeeName
+                  - comma: ','
+                  - expression:
+                    - quoted_literal: ''', '''
+                  - end_bracket: )
+              - withingroup_clause:
+                - keyword: WITHIN
+                - keyword: GROUP
+                - bracketed:
+                  - start_bracket: (
+                  - orderby_clause:
+                    - keyword: ORDER
+                    - keyword: BY
+                    - column_reference:
+                      - naked_identifier: HireDate
+                  - end_bracket: )
       - from_clause:
-        - from_clause:
-          - keyword: FROM
-          - from_expression:
-            - from_expression:
-              - from_expression_element:
-                - from_expression_element:
-                  - table_expression:
-                    - table_reference:
-                      - object_reference:
-                        - object_reference:
-                          - naked_identifier: Employees
+        - keyword: FROM
+        - from_expression:
+          - from_expression_element:
+            - table_expression:
+              - table_reference:
+                - object_reference:
+                  - naked_identifier: Employees
       - groupby_clause:
         - groupby_clause:
           - keyword: GROUP
@@ -146,64 +131,59 @@ file:
   - statement:
     - select_statement:
       - select_clause:
-        - select_clause:
-          - keyword: SELECT
-          - select_clause_element:
-            - column_reference:
-              - naked_identifier: CategoryID
-          - comma: ','
-          - select_clause_element:
+        - keyword: SELECT
+        - select_clause_element:
+          - column_reference:
+            - naked_identifier: CategoryID
+        - comma: ','
+        - select_clause_element:
+          - function:
             - function:
-              - function:
-                - function_name:
-                  - function_name_identifier: STRING_AGG
-                - function_contents:
-                  - bracketed:
-                    - start_bracket: (
-                    - expression:
-                      - column_reference:
-                        - naked_identifier: ProductName
-                    - comma: ','
-                    - expression:
-                      - quoted_literal: ''', '''
-                    - end_bracket: )
-                - withingroup_clause:
-                  - keyword: WITHIN
-                  - keyword: GROUP
-                  - bracketed:
-                    - start_bracket: (
-                    - orderby_clause:
-                      - keyword: ORDER
-                      - keyword: BY
-                      - column_reference:
-                        - naked_identifier: ProductName
-                    - end_bracket: )
-          - comma: ','
-          - select_clause_element:
+              - function_name:
+                - function_name_identifier: STRING_AGG
+              - function_contents:
+                - bracketed:
+                  - start_bracket: (
+                  - expression:
+                    - column_reference:
+                      - naked_identifier: ProductName
+                  - comma: ','
+                  - expression:
+                    - quoted_literal: ''', '''
+                  - end_bracket: )
+              - withingroup_clause:
+                - keyword: WITHIN
+                - keyword: GROUP
+                - bracketed:
+                  - start_bracket: (
+                  - orderby_clause:
+                    - keyword: ORDER
+                    - keyword: BY
+                    - column_reference:
+                      - naked_identifier: ProductName
+                  - end_bracket: )
+        - comma: ','
+        - select_clause_element:
+          - function:
             - function:
-              - function:
-                - function_name:
-                  - function_name_identifier: COUNT
-                - function_contents:
-                  - bracketed:
-                    - start_bracket: (
-                    - star: '*'
-                    - end_bracket: )
-            - alias_expression:
-              - keyword: as
-              - naked_identifier: ProductCount
+              - function_name:
+                - function_name_identifier: COUNT
+              - function_contents:
+                - bracketed:
+                  - start_bracket: (
+                  - star: '*'
+                  - end_bracket: )
+          - alias_expression:
+            - keyword: as
+            - naked_identifier: ProductCount
       - from_clause:
-        - from_clause:
-          - keyword: FROM
-          - from_expression:
-            - from_expression:
-              - from_expression_element:
-                - from_expression_element:
-                  - table_expression:
-                    - table_reference:
-                      - object_reference:
-                        - object_reference:
-                          - naked_identifier: Products
+        - keyword: FROM
+        - from_expression:
+          - from_expression_element:
+            - table_expression:
+              - table_reference:
+                - object_reference:
+                  - naked_identifier: Products
       - groupby_clause:
         - groupby_clause:
           - keyword: GROUP
@@ -214,55 +194,50 @@ file:
   - statement:
     - select_statement:
       - select_clause:
-        - select_clause:
-          - keyword: SELECT
-          - select_clause_element:
-            - column_reference:
-              - naked_identifier: Region
-          - comma: ','
-          - select_clause_element:
+        - keyword: SELECT
+        - select_clause_element:
+          - column_reference:
+            - naked_identifier: Region
+        - comma: ','
+        - select_clause_element:
+          - function:
             - function:
-              - function:
-                - function_name:
-                  - function_name_identifier: STRING_AGG
-                - function_contents:
-                  - bracketed:
-                    - start_bracket: (
-                    - expression:
-                      - column_reference:
-                        - naked_identifier: City
+              - function_name:
+                - function_name_identifier: STRING_AGG
+              - function_contents:
+                - bracketed:
+                  - start_bracket: (
+                  - expression:
+                    - column_reference:
+                      - naked_identifier: City
+                  - comma: ','
+                  - expression:
+                    - quoted_literal: ''', '''
+                  - end_bracket: )
+              - withingroup_clause:
+                - keyword: WITHIN
+                - keyword: GROUP
+                - bracketed:
+                  - start_bracket: (
+                  - orderby_clause:
+                    - keyword: ORDER
+                    - keyword: BY
+                    - column_reference:
+                      - naked_identifier: Population
+                    - keyword: DESC
                     - comma: ','
-                    - expression:
-                      - quoted_literal: ''', '''
-                    - end_bracket: )
-                - withingroup_clause:
-                  - keyword: WITHIN
-                  - keyword: GROUP
-                  - bracketed:
-                    - start_bracket: (
-                    - orderby_clause:
-                      - keyword: ORDER
-                      - keyword: BY
-                      - column_reference:
-                        - naked_identifier: Population
-                      - keyword: DESC
-                      - comma: ','
-                      - column_reference:
-                        - naked_identifier: City
-                      - keyword: ASC
-                    - end_bracket: )
+                    - column_reference:
+                      - naked_identifier: City
+                    - keyword: ASC
+                  - end_bracket: )
       - from_clause:
-        - from_clause:
-          - keyword: FROM
-          - from_expression:
-            - from_expression:
-              - from_expression_element:
-                - from_expression_element:
-                  - table_expression:
-                    - table_reference:
-                      - object_reference:
-                        - object_reference:
-                          - naked_identifier: Cities
+        - keyword: FROM
+        - from_expression:
+          - from_expression_element:
+            - table_expression:
+              - table_reference:
+                - object_reference:
+                  - naked_identifier: Cities
       - groupby_clause:
         - groupby_clause:
           - keyword: GROUP
@@ -273,151 +248,135 @@ file:
   - statement:
     - select_statement:
       - select_clause:
-        - select_clause:
-          - keyword: SELECT
-          - select_clause_element:
+        - keyword: SELECT
+        - select_clause_element:
+          - function:
             - function:
-              - function:
-                - function_name:
-                  - function_name_identifier: STRING_AGG
-                - function_contents:
-                  - bracketed:
-                    - start_bracket: (
-                    - expression:
+              - function_name:
+                - function_name_identifier: STRING_AGG
+              - function_contents:
+                - bracketed:
+                  - start_bracket: (
+                  - expression:
+                    - function:
+                      - function:
+                        - function_name:
+                          - function_name_identifier: CAST
+                        - function_contents:
+                          - bracketed:
+                            - start_bracket: (
+                            - expression:
+                              - column_reference:
+                                - naked_identifier: ProductID
+                            - keyword: AS
+                            - data_type:
+                              - data_type_identifier: VARCHAR
+                              - bracketed_arguments:
+                                - bracketed:
+                                  - start_bracket: (
+                                  - numeric_literal: '10'
+                                  - end_bracket: )
+                            - end_bracket: )
+                  - comma: ','
+                  - expression:
+                    - quoted_literal: '''-'''
+                  - end_bracket: )
+              - withingroup_clause:
+                - keyword: WITHIN
+                - keyword: GROUP
+                - bracketed:
+                  - start_bracket: (
+                  - orderby_clause:
+                    - keyword: ORDER
+                    - keyword: BY
+                    - column_reference:
+                      - naked_identifier: ProductID
+                  - end_bracket: )
+      - from_clause:
+        - keyword: FROM
+        - from_expression:
+          - from_expression_element:
+            - table_expression:
+              - table_reference:
+                - object_reference:
+                  - naked_identifier: Products
+      - where_clause:
+        - keyword: WHERE
+        - expression:
+          - column_reference:
+            - naked_identifier: CategoryID
+          - comparison_operator:
+            - raw_comparison_operator: =
+          - numeric_literal: '1'
+  - statement_terminator: ;
+  - statement:
+    - select_statement:
+      - select_clause:
+        - keyword: SELECT
+        - select_clause_element:
+          - wildcard_expression:
+            - wildcard_identifier:
+              - star: '*'
+      - from_clause:
+        - keyword: FROM
+        - from_expression:
+          - from_expression_element:
+            - table_expression:
+              - bracketed:
+                - start_bracket: (
+                - select_statement:
+                  - select_clause:
+                    - keyword: SELECT
+                    - select_clause_element:
+                      - column_reference:
+                        - naked_identifier: DepartmentID
+                    - comma: ','
+                    - select_clause_element:
                       - function:
                         - function:
                           - function_name:
-                            - function_name_identifier: CAST
+                            - function_name_identifier: STRING_AGG
                           - function_contents:
                             - bracketed:
                               - start_bracket: (
                               - expression:
                                 - column_reference:
-                                  - naked_identifier: ProductID
-                              - keyword: AS
-                              - data_type:
-                                - data_type:
-                                  - data_type_identifier: VARCHAR
-                                  - bracketed:
-                                    - start_bracket: (
-                                    - expression:
-                                      - numeric_literal: '10'
-                                    - end_bracket: )
+                                  - naked_identifier: EmployeeName
+                              - comma: ','
+                              - expression:
+                                - quoted_literal: ''', '''
                               - end_bracket: )
-                    - comma: ','
-                    - expression:
-                      - quoted_literal: '''-'''
-                    - end_bracket: )
-                - withingroup_clause:
-                  - keyword: WITHIN
-                  - keyword: GROUP
-                  - bracketed:
-                    - start_bracket: (
-                    - orderby_clause:
-                      - keyword: ORDER
+                          - withingroup_clause:
+                            - keyword: WITHIN
+                            - keyword: GROUP
+                            - bracketed:
+                              - start_bracket: (
+                              - orderby_clause:
+                                - keyword: ORDER
+                                - keyword: BY
+                                - column_reference:
+                                  - naked_identifier: Salary
+                                - keyword: DESC
+                              - end_bracket: )
+                      - alias_expression:
+                        - keyword: as
+                        - naked_identifier: TopEarners
+                  - from_clause:
+                    - keyword: FROM
+                    - from_expression:
+                      - from_expression_element:
+                        - table_expression:
+                          - table_reference:
+                            - object_reference:
+                              - naked_identifier: Employees
+                  - groupby_clause:
+                    - groupby_clause:
+                      - keyword: GROUP
                       - keyword: BY
                       - column_reference:
-                        - naked_identifier: ProductID
-                    - end_bracket: )
-      - from_clause:
-        - from_clause:
-          - keyword: FROM
-          - from_expression:
-            - from_expression:
-              - from_expression_element:
-                - from_expression_element:
-                  - table_expression:
-                    - table_reference:
-                      - object_reference:
-                        - object_reference:
-                          - naked_identifier: Products
-      - where_clause:
-        - where_clause:
-          - keyword: WHERE
-          - expression:
-            - column_reference:
-              - naked_identifier: CategoryID
-            - comparison_operator:
-              - raw_comparison_operator: =
-            - numeric_literal: '1'
-  - statement_terminator: ;
-  - statement:
-    - select_statement:
-      - select_clause:
-        - select_clause:
-          - keyword: SELECT
-          - select_clause_element:
-            - wildcard_expression:
-              - wildcard_identifier:
-                - star: '*'
-      - from_clause:
-        - from_clause:
-          - keyword: FROM
-          - from_expression:
-            - from_expression:
-              - from_expression_element:
-                - from_expression_element:
-                  - table_expression:
-                    - bracketed:
-                      - start_bracket: (
-                      - select_statement:
-                        - select_clause:
-                          - select_clause:
-                            - keyword: SELECT
-                            - select_clause_element:
-                              - column_reference:
-                                - naked_identifier: DepartmentID
-                            - comma: ','
-                            - select_clause_element:
-                              - function:
-                                - function:
-                                  - function_name:
-                                    - function_name_identifier: STRING_AGG
-                                  - function_contents:
-                                    - bracketed:
-                                      - start_bracket: (
-                                      - expression:
-                                        - column_reference:
-                                          - naked_identifier: EmployeeName
-                                      - comma: ','
-                                      - expression:
-                                        - quoted_literal: ''', '''
-                                      - end_bracket: )
-                                  - withingroup_clause:
-                                    - keyword: WITHIN
-                                    - keyword: GROUP
-                                    - bracketed:
-                                      - start_bracket: (
-                                      - orderby_clause:
-                                        - keyword: ORDER
-                                        - keyword: BY
-                                        - column_reference:
-                                          - naked_identifier: Salary
-                                        - keyword: DESC
-                                      - end_bracket: )
-                              - alias_expression:
-                                - keyword: as
-                                - naked_identifier: TopEarners
-                        - from_clause:
-                          - from_clause:
-                            - keyword: FROM
-                            - from_expression:
-                              - from_expression:
-                                - from_expression_element:
-                                  - from_expression_element:
-                                    - table_expression:
-                                      - table_reference:
-                                        - object_reference:
-                                          - object_reference:
-                                            - naked_identifier: Employees
-                        - groupby_clause:
-                          - groupby_clause:
-                            - keyword: GROUP
-                            - keyword: BY
-                            - column_reference:
-                              - naked_identifier: DepartmentID
-                      - end_bracket: )
-                  - alias_expression:
-                    - keyword: AS
-                    - naked_identifier: DeptSummary
+                        - naked_identifier: DepartmentID
+                - end_bracket: )
+            - alias_expression:
+              - keyword: AS
+              - naked_identifier: DeptSummary
   - statement_terminator: ;

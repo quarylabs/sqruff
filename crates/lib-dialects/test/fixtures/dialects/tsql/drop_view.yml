@@ -6,8 +6,7 @@ file:
       - keyword: view
       - table_reference:
         - object_reference:
-          - object_reference:
-            - naked_identifier: some_view
+          - naked_identifier: some_view
   - statement_terminator: ;
   - statement:
     - drop_view_statement:
@@ -17,8 +16,7 @@ file:
       - keyword: exists
       - table_reference:
         - object_reference:
-          - object_reference:
-            - naked_identifier: some_view
+          - naked_identifier: some_view
   - statement_terminator: ;
   - statement:
     - drop_view_statement:
@@ -26,8 +24,7 @@ file:
       - keyword: view
       - table_reference:
         - object_reference:
-          - object_reference:
-            - naked_identifier: some_view
+          - naked_identifier: some_view
       - keyword: restrict
   - statement_terminator: ;
   - statement:
@@ -38,8 +35,7 @@ file:
       - keyword: exists
       - table_reference:
         - object_reference:
-          - object_reference:
-            - naked_identifier: some_view
+          - naked_identifier: some_view
       - keyword: restrict
   - statement_terminator: ;
   - statement:
@@ -48,8 +44,7 @@ file:
       - keyword: view
       - table_reference:
         - object_reference:
-          - object_reference:
-            - naked_identifier: some_view
+          - naked_identifier: some_view
       - keyword: cascade
   - statement_terminator: ;
   - statement:
@@ -60,7 +55,6 @@ file:
       - keyword: exists
       - table_reference:
         - object_reference:
-          - object_reference:
-            - naked_identifier: some_view
+          - naked_identifier: some_view
       - keyword: cascade
   - statement_terminator: ;

@@ -17,6 +17,5 @@ file:
           - naked_identifier: testuser
         - keyword: AUTHORIZATION
         - object_reference:
-          - object_reference:
-            - naked_identifier: dbo
+          - naked_identifier: dbo
   - statement_terminator: ;

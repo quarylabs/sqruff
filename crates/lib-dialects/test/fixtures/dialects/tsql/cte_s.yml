@@ -18,45 +18,39 @@ file:
           - start_bracket: (
           - select_statement:
             - select_clause:
-              - select_clause:
-                - keyword: SELECT
-                - select_clause_element:
-                  - column_reference:
-                    - naked_identifier: SalesPersonID
-                - comma: ','
-                - select_clause_element:
+              - keyword: SELECT
+              - select_clause_element:
+                - column_reference:
+                  - naked_identifier: SalesPersonID
+              - comma: ','
+              - select_clause_element:
+                - function:
                   - function:
-                    - function:
-                      - function_name:
-                        - function_name_identifier: COUNT
-                      - function_contents:
-                        - bracketed:
-                          - start_bracket: (
-                          - star: '*'
-                          - end_bracket: )
+                    - function_name:
+                      - function_name_identifier: COUNT
+                    - function_contents:
+                      - bracketed:
+                        - start_bracket: (
+                        - star: '*'
+                        - end_bracket: )
             - from_clause:
-              - from_clause:
-                - keyword: FROM
-                - from_expression:
-                  - from_expression:
-                    - from_expression_element:
-                      - from_expression_element:
-                        - table_expression:
-                          - table_reference:
-                            - object_reference:
-                              - object_reference:
-                                - naked_identifier: Sales
-                                - dot: .
-                                - naked_identifier: SalesOrderHeader
+              - keyword: FROM
+              - from_expression:
+                - from_expression_element:
+                  - table_expression:
+                    - table_reference:
+                      - object_reference:
+                        - naked_identifier: Sales
+                        - dot: .
+                        - naked_identifier: SalesOrderHeader
             - where_clause:
-              - where_clause:
-                - keyword: WHERE
-                - expression:
-                  - column_reference:
-                    - naked_identifier: SalesPersonID
-                  - keyword: IS
-                  - keyword: NOT
-                  - null_literal: 'NULL'
+              - keyword: WHERE
+              - expression:
+                - column_reference:
+                  - naked_identifier: SalesPersonID
+                - keyword: IS
+                - keyword: NOT
+                - null_literal: 'NULL'
             - groupby_clause:
               - groupby_clause:
                 - keyword: GROUP
@@ -66,33 +60,28 @@ file:
           - end_bracket: )
       - select_statement:
         - select_clause:
-          - select_clause:
-            - keyword: SELECT
-            - select_clause_element:
+          - keyword: SELECT
+          - select_clause_element:
+            - function:
               - function:
-                - function:
-                  - function_name:
-                    - function_name_identifier: AVG
-                  - function_contents:
-                    - bracketed:
-                      - start_bracket: (
-                      - expression:
-                        - column_reference:
-                          - naked_identifier: NumberOfOrders
-                      - end_bracket: )
-              - alias_expression:
-                - keyword: AS
-                - quoted_identifier: '"Average Sales Per Person"'
+                - function_name:
+                  - function_name_identifier: AVG
+                - function_contents:
+                  - bracketed:
+                    - start_bracket: (
+                    - expression:
+                      - column_reference:
+                        - naked_identifier: NumberOfOrders
+                    - end_bracket: )
+            - alias_expression:
+              - keyword: AS
+              - quoted_identifier: '"Average Sales Per Person"'
         - from_clause:
-          - from_clause:
-            - keyword: FROM
-            - from_expression:
-              - from_expression:
-                - from_expression_element:
-                  - from_expression_element:
-                    - table_expression:
-                      - table_reference:
-                        - object_reference:
-                          - object_reference:
-                            - naked_identifier: Sales_CTE
+          - keyword: FROM
+          - from_expression:
+            - from_expression_element:
+              - table_expression:
+                - table_reference:
+                  - object_reference:
+                    - naked_identifier: Sales_CTE
   - statement_terminator: ;

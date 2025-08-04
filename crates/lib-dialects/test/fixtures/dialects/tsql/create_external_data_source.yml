@@ -7,8 +7,7 @@ file:
       - keyword: DATA
       - keyword: SOURCE
       - object_reference:
-        - object_reference:
-          - naked_identifier: MyOracleServer
+        - naked_identifier: MyOracleServer
       - keyword: WITH
       - bracketed:
         - start_bracket: (
@@ -21,8 +20,7 @@ file:
         - comparison_operator:
           - raw_comparison_operator: =
         - object_reference:
-          - object_reference:
-            - naked_identifier: OracleProxyAccount
+          - naked_identifier: OracleProxyAccount
         - comma: ','
         - keyword: PUSHDOWN
         - comparison_operator:
@@ -37,8 +35,7 @@ file:
       - keyword: DATA
       - keyword: SOURCE
       - object_reference:
-        - object_reference:
-          - quoted_identifier: '[OracleSalesSrvr]'
+        - quoted_identifier: '[OracleSalesSrvr]'
       - keyword: WITH
       - bracketed:
         - start_bracket: (
@@ -56,8 +53,7 @@ file:
         - comparison_operator:
           - raw_comparison_operator: =
         - object_reference:
-          - object_reference:
-            - quoted_identifier: '[OracleProxyCredential]'
+          - quoted_identifier: '[OracleProxyCredential]'
         - end_bracket: )
   - statement_terminator: ;
   - statement:
@@ -67,8 +63,7 @@ file:
       - keyword: DATA
       - keyword: SOURCE
       - object_reference:
-        - object_reference:
-          - quoted_identifier: '[external_data_source_name]'
+        - quoted_identifier: '[external_data_source_name]'
       - keyword: WITH
       - bracketed:
         - start_bracket: (
@@ -81,8 +76,7 @@ file:
         - comparison_operator:
           - raw_comparison_operator: =
         - object_reference:
-          - object_reference:
-            - quoted_identifier: '[OracleCredentialTest]'
+          - quoted_identifier: '[OracleCredentialTest]'
         - comma: ','
         - keyword: CONNECTION_OPTIONS
         - comparison_operator:

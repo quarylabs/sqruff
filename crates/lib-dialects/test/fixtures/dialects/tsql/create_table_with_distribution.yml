@@ -7,23 +7,21 @@ file:
         - keyword: TABLE
         - table_reference:
           - object_reference:
-            - object_reference:
-              - quoted_identifier: '[dbo]'
-              - dot: .
-              - quoted_identifier: '[EC DC]'
+            - quoted_identifier: '[dbo]'
+            - dot: .
+            - quoted_identifier: '[EC DC]'
         - bracketed:
           - start_bracket: (
           - column_definition:
             - column_definition:
               - quoted_identifier: '[Column B]'
               - data_type:
-                - data_type:
-                  - quoted_identifier: '[varchar]'
-                  - bracketed_arguments:
-                    - bracketed:
-                      - start_bracket: (
-                      - numeric_literal: '100'
-                      - end_bracket: )
+                - quoted_identifier: '[varchar]'
+                - bracketed_arguments:
+                  - bracketed:
+                    - start_bracket: (
+                    - numeric_literal: '100'
+                    - end_bracket: )
           - comma: ','
           - column_definition:
             - quoted_identifier: '[ColumnC]'
@@ -63,10 +61,9 @@ file:
       - keyword: TABLE
       - table_reference:
         - object_reference:
-          - object_reference:
-            - quoted_identifier: '[dbo]'
-            - dot: .
-            - quoted_identifier: '[EC DC]'
+          - quoted_identifier: '[dbo]'
+          - dot: .
+          - quoted_identifier: '[EC DC]'
   - keyword: GO
   - statement:
     - create_table_statement:
@@ -75,23 +72,21 @@ file:
         - keyword: TABLE
         - table_reference:
           - object_reference:
-            - object_reference:
-              - quoted_identifier: '[dbo]'
-              - dot: .
-              - quoted_identifier: '[EC DC]'
+            - quoted_identifier: '[dbo]'
+            - dot: .
+            - quoted_identifier: '[EC DC]'
         - bracketed:
           - start_bracket: (
           - column_definition:
             - column_definition:
               - quoted_identifier: '[Column B]'
               - data_type:
-                - data_type:
-                  - quoted_identifier: '[varchar]'
-                  - bracketed_arguments:
-                    - bracketed:
-                      - start_bracket: (
-                      - numeric_literal: '100'
-                      - end_bracket: )
+                - quoted_identifier: '[varchar]'
+                - bracketed_arguments:
+                  - bracketed:
+                    - start_bracket: (
+                    - numeric_literal: '100'
+                    - end_bracket: )
           - comma: ','
           - column_definition:
             - quoted_identifier: '[ColumnC]'
@@ -129,10 +124,9 @@ file:
       - keyword: TABLE
       - table_reference:
         - object_reference:
-          - object_reference:
-            - quoted_identifier: '[dbo]'
-            - dot: .
-            - quoted_identifier: '[EC DC]'
+          - quoted_identifier: '[dbo]'
+          - dot: .
+          - quoted_identifier: '[EC DC]'
   - keyword: GO
   - statement:
     - create_table_statement:
@@ -141,23 +135,21 @@ file:
         - keyword: TABLE
         - table_reference:
           - object_reference:
-            - object_reference:
-              - quoted_identifier: '[dbo]'
-              - dot: .
-              - quoted_identifier: '[EC DC]'
+            - quoted_identifier: '[dbo]'
+            - dot: .
+            - quoted_identifier: '[EC DC]'
         - bracketed:
           - start_bracket: (
           - column_definition:
             - column_definition:
               - quoted_identifier: '[Column B]'
               - data_type:
-                - data_type:
-                  - quoted_identifier: '[varchar]'
-                  - bracketed_arguments:
-                    - bracketed:
-                      - start_bracket: (
-                      - numeric_literal: '100'
-                      - end_bracket: )
+                - quoted_identifier: '[varchar]'
+                - bracketed_arguments:
+                  - bracketed:
+                    - start_bracket: (
+                    - numeric_literal: '100'
+                    - end_bracket: )
           - comma: ','
           - column_definition:
             - quoted_identifier: '[ColumnC]'
@@ -203,10 +195,9 @@ file:
       - keyword: TABLE
       - table_reference:
         - object_reference:
-          - object_reference:
-            - quoted_identifier: '[dbo]'
-            - dot: .
-            - quoted_identifier: '[EC DC]'
+          - quoted_identifier: '[dbo]'
+          - dot: .
+          - quoted_identifier: '[EC DC]'
   - keyword: GO
   - statement:
     - create_table_statement:
@@ -215,23 +206,21 @@ file:
         - keyword: TABLE
         - table_reference:
           - object_reference:
-            - object_reference:
-              - quoted_identifier: '[dbo]'
-              - dot: .
-              - quoted_identifier: '[EC DC]'
+            - quoted_identifier: '[dbo]'
+            - dot: .
+            - quoted_identifier: '[EC DC]'
         - bracketed:
           - start_bracket: (
           - column_definition:
             - column_definition:
               - quoted_identifier: '[Column B]'
               - data_type:
-                - data_type:
-                  - quoted_identifier: '[varchar]'
-                  - bracketed_arguments:
-                    - bracketed:
-                      - start_bracket: (
-                      - numeric_literal: '100'
-                      - end_bracket: )
+                - quoted_identifier: '[varchar]'
+                - bracketed_arguments:
+                  - bracketed:
+                    - start_bracket: (
+                    - numeric_literal: '100'
+                    - end_bracket: )
           - comma: ','
           - column_definition:
             - quoted_identifier: '[ColumnC]'
@@ -281,10 +270,9 @@ file:
       - keyword: TABLE
       - table_reference:
         - object_reference:
-          - object_reference:
-            - quoted_identifier: '[dbo]'
-            - dot: .
-            - quoted_identifier: '[EC DC]'
+          - quoted_identifier: '[dbo]'
+          - dot: .
+          - quoted_identifier: '[EC DC]'
   - keyword: GO
   - statement:
     - create_table_statement:
@@ -293,23 +281,21 @@ file:
         - keyword: TABLE
         - table_reference:
           - object_reference:
-            - object_reference:
-              - quoted_identifier: '[dbo]'
-              - dot: .
-              - quoted_identifier: '[EC DC]'
+            - quoted_identifier: '[dbo]'
+            - dot: .
+            - quoted_identifier: '[EC DC]'
         - bracketed:
           - start_bracket: (
           - column_definition:
             - column_definition:
               - quoted_identifier: '[Column B]'
               - data_type:
-                - data_type:
-                  - quoted_identifier: '[varchar]'
-                  - bracketed_arguments:
-                    - bracketed:
-                      - start_bracket: (
-                      - numeric_literal: '100'
-                      - end_bracket: )
+                - quoted_identifier: '[varchar]'
+                - bracketed_arguments:
+                  - bracketed:
+                    - start_bracket: (
+                    - numeric_literal: '100'
+                    - end_bracket: )
           - comma: ','
           - column_definition:
             - quoted_identifier: '[ColumnC]'
@@ -358,10 +344,9 @@ file:
       - keyword: TABLE
       - table_reference:
         - object_reference:
-          - object_reference:
-            - quoted_identifier: '[dbo]'
-            - dot: .
-            - quoted_identifier: '[EC DC]'
+          - quoted_identifier: '[dbo]'
+          - dot: .
+          - quoted_identifier: '[EC DC]'
   - statement_terminator: ;
   - keyword: GO
   - statement:
@@ -371,23 +356,21 @@ file:
         - keyword: TABLE
         - table_reference:
           - object_reference:
-            - object_reference:
-              - quoted_identifier: '[dbo]'
-              - dot: .
-              - quoted_identifier: '[EC DC]'
+            - quoted_identifier: '[dbo]'
+            - dot: .
+            - quoted_identifier: '[EC DC]'
         - bracketed:
           - start_bracket: (
           - column_definition:
             - column_definition:
               - quoted_identifier: '[Column B]'
               - data_type:
-                - data_type:
-                  - quoted_identifier: '[varchar]'
-                  - bracketed_arguments:
-                    - bracketed:
-                      - start_bracket: (
-                      - numeric_literal: '100'
-                      - end_bracket: )
+                - quoted_identifier: '[varchar]'
+                - bracketed_arguments:
+                  - bracketed:
+                    - start_bracket: (
+                    - numeric_literal: '100'
+                    - end_bracket: )
           - comma: ','
           - column_definition:
             - quoted_identifier: '[ColumnC]'
@@ -438,10 +421,9 @@ file:
       - keyword: TABLE
       - table_reference:
         - object_reference:
-          - object_reference:
-            - quoted_identifier: '[dbo]'
-            - dot: .
-            - quoted_identifier: '[EC DC]'
+          - quoted_identifier: '[dbo]'
+          - dot: .
+          - quoted_identifier: '[EC DC]'
   - statement_terminator: ;
   - keyword: GO
   - statement:
@@ -451,23 +433,21 @@ file:
         - keyword: TABLE
         - table_reference:
           - object_reference:
-            - object_reference:
-              - quoted_identifier: '[dbo]'
-              - dot: .
-              - quoted_identifier: '[table]'
+            - quoted_identifier: '[dbo]'
+            - dot: .
+            - quoted_identifier: '[table]'
         - bracketed:
           - start_bracket: (
           - column_definition:
             - column_definition:
               - quoted_identifier: '[name]'
               - data_type:
-                - data_type:
-                  - quoted_identifier: '[varchar]'
-                  - bracketed_arguments:
-                    - bracketed:
-                      - start_bracket: (
-                      - numeric_literal: '100'
-                      - end_bracket: )
+                - quoted_identifier: '[varchar]'
+                - bracketed_arguments:
+                  - bracketed:
+                    - start_bracket: (
+                    - numeric_literal: '100'
+                    - end_bracket: )
               - column_constraint_segment:
                 - keyword: NOT
                 - keyword: 'NULL'
@@ -476,8 +456,7 @@ file:
             - column_definition:
               - quoted_identifier: '[month_num]'
               - data_type:
-                - data_type:
-                  - quoted_identifier: '[int]'
+                - quoted_identifier: '[int]'
               - column_constraint_segment:
                 - keyword: 'NULL'
           - end_bracket: )

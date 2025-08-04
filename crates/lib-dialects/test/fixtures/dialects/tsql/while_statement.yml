@@ -28,14 +28,11 @@ file:
                       - star: '*'
                 - word: FROM
                 - from_expression:
-                  - from_expression:
-                    - from_expression_element:
-                      - from_expression_element:
-                        - table_expression:
-                          - table_reference:
-                            - object_reference:
-                              - object_reference:
-                                - naked_identifier: '##MyTempTable'
+                  - from_expression_element:
+                    - table_expression:
+                      - table_reference:
+                        - object_reference:
+                          - naked_identifier: '##MyTempTable'
                 - word: WHERE
                 - expression:
                   - column_reference:

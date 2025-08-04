@@ -11,8 +11,7 @@ file:
           - column_definition:
             - naked_identifier: EmpID
             - data_type:
-              - data_type:
-                - data_type_identifier: INT
+              - data_type_identifier: INT
             - column_constraint_segment:
               - keyword: NOT
               - keyword: 'NULL'
@@ -21,22 +20,19 @@ file:
           - column_definition:
             - naked_identifier: OldVacationHours
             - data_type:
-              - data_type:
-                - data_type_identifier: INT
+              - data_type_identifier: INT
         - comma: ','
         - column_definition:
           - column_definition:
             - naked_identifier: NewVacationHours
             - data_type:
-              - data_type:
-                - data_type_identifier: INT
+              - data_type_identifier: INT
         - comma: ','
         - column_definition:
           - column_definition:
             - naked_identifier: ModifiedDate
             - data_type:
-              - data_type:
-                - data_type_identifier: DATETIME
+              - data_type_identifier: DATETIME
         - comma: ','
         - table_constraint:
           - table_constraint:

@@ -7,23 +7,21 @@ file:
         - keyword: TABLE
         - table_reference:
           - object_reference:
-            - object_reference:
-              - quoted_identifier: '[dbo]'
-              - dot: .
-              - quoted_identifier: '[EC DC]'
+            - quoted_identifier: '[dbo]'
+            - dot: .
+            - quoted_identifier: '[EC DC]'
         - bracketed:
           - start_bracket: (
           - column_definition:
             - column_definition:
               - quoted_identifier: '[Column B]'
               - data_type:
-                - data_type:
-                  - quoted_identifier: '[varchar]'
-                  - bracketed_arguments:
-                    - bracketed:
-                      - start_bracket: (
-                      - numeric_literal: '100'
-                      - end_bracket: )
+                - quoted_identifier: '[varchar]'
+                - bracketed_arguments:
+                  - bracketed:
+                    - start_bracket: (
+                    - numeric_literal: '100'
+                    - end_bracket: )
           - comma: ','
           - column_definition:
             - quoted_identifier: '[ColumnC]'
@@ -45,5 +43,4 @@ file:
           - end_bracket: )
         - keyword: ON
         - object_reference:
-          - object_reference:
-            - naked_identifier: MyFileGroup
+          - naked_identifier: MyFileGroup

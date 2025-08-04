@@ -3,27 +3,22 @@ file:
   - statement:
     - select_statement:
       - select_clause:
-        - select_clause:
-          - keyword: SELECT
-          - select_clause_element:
-            - column_reference:
-              - naked_identifier: name
-          - comma: ','
-          - select_clause_element:
-            - column_reference:
-              - naked_identifier: surname
+        - keyword: SELECT
+        - select_clause_element:
+          - column_reference:
+            - naked_identifier: name
+        - comma: ','
+        - select_clause_element:
+          - column_reference:
+            - naked_identifier: surname
       - from_clause:
-        - from_clause:
-          - keyword: FROM
-          - from_expression:
-            - from_expression:
-              - from_expression_element:
-                - from_expression_element:
-                  - table_expression:
-                    - table_reference:
-                      - object_reference:
-                        - object_reference:
-                          - naked_identifier: emp
+        - keyword: FROM
+        - from_expression:
+          - from_expression_element:
+            - table_expression:
+              - table_reference:
+                - object_reference:
+                  - naked_identifier: emp
       - keyword: FOR
       - keyword: JSON
       - keyword: AUTO
@@ -32,13 +27,12 @@ file:
   - statement:
     - select_statement:
       - select_clause:
-        - select_clause:
-          - keyword: SELECT
-          - select_clause_element:
-            - numeric_literal: '1'
-            - alias_expression:
-              - keyword: AS
-              - naked_identifier: a
+        - keyword: SELECT
+        - select_clause_element:
+          - numeric_literal: '1'
+          - alias_expression:
+            - keyword: AS
+            - naked_identifier: a
       - keyword: FOR
       - keyword: JSON
       - keyword: PATH
@@ -47,13 +41,12 @@ file:
   - statement:
     - select_statement:
       - select_clause:
-        - select_clause:
-          - keyword: SELECT
-          - select_clause_element:
-            - numeric_literal: '1'
-            - alias_expression:
-              - keyword: AS
-              - naked_identifier: a
+        - keyword: SELECT
+        - select_clause_element:
+          - numeric_literal: '1'
+          - alias_expression:
+            - keyword: AS
+            - naked_identifier: a
       - keyword: FOR
       - keyword: JSON
       - keyword: PATH
@@ -63,61 +56,54 @@ file:
   - statement:
     - select_statement:
       - select_clause:
-        - select_clause:
-          - keyword: SELECT
-          - select_clause_element:
-            - column_reference:
-              - naked_identifier: c
-              - dot: .
-              - naked_identifier: ClassName
-          - comma: ','
-          - select_clause_element:
-            - column_reference:
-              - naked_identifier: s
-              - dot: .
-              - naked_identifier: StudentName
+        - keyword: SELECT
+        - select_clause_element:
+          - column_reference:
+            - naked_identifier: c
+            - dot: .
+            - naked_identifier: ClassName
+        - comma: ','
+        - select_clause_element:
+          - column_reference:
+            - naked_identifier: s
+            - dot: .
+            - naked_identifier: StudentName
       - from_clause:
-        - from_clause:
-          - keyword: FROM
-          - from_expression:
-            - from_expression:
-              - from_expression_element:
-                - from_expression_element:
-                  - table_expression:
-                    - table_reference:
-                      - object_reference:
-                        - object_reference:
-                          - naked_identifier: '#tabClass'
-                  - alias_expression:
-                    - keyword: AS
+        - keyword: FROM
+        - from_expression:
+          - from_expression_element:
+            - table_expression:
+              - table_reference:
+                - object_reference:
+                  - naked_identifier: '#tabClass'
+            - alias_expression:
+              - keyword: AS
+              - naked_identifier: c
+          - join_clause:
+            - keyword: RIGHT
+            - keyword: JOIN
+            - from_expression_element:
+              - table_expression:
+                - table_reference:
+                  - object_reference:
+                    - naked_identifier: '#tabStudent'
+              - alias_expression:
+                - keyword: AS
+                - naked_identifier: s
+            - join_on_condition:
+              - join_on_condition:
+                - keyword: ON
+                - expression:
+                  - column_reference:
+                    - naked_identifier: s
+                    - dot: .
+                    - naked_identifier: ClassGuid
+                  - comparison_operator:
+                    - raw_comparison_operator: =
+                  - column_reference:
                     - naked_identifier: c
-              - join_clause:
-                - keyword: RIGHT
-                - keyword: JOIN
-                - from_expression_element:
-                  - from_expression_element:
-                    - table_expression:
-                      - table_reference:
-                        - object_reference:
-                          - object_reference:
-                            - naked_identifier: '#tabStudent'
-                    - alias_expression:
-                      - keyword: AS
-                      - naked_identifier: s
-                - join_on_condition:
-                  - join_on_condition:
-                    - keyword: ON
-                    - expression:
-                      - column_reference:
-                        - naked_identifier: s
-                        - dot: .
-                        - naked_identifier: ClassGuid
-                      - comparison_operator:
-                        - raw_comparison_operator: =
-                      - column_reference:
-                        - naked_identifier: c
-                        - dot: .
-                        - naked_identifier: ClassGuid
+                    - dot: .
+                    - naked_identifier: ClassGuid
       - orderby_clause:
         - keyword: ORDER
         - keyword: BY
@@ -138,13 +124,12 @@ file:
   - statement:
     - select_statement:
       - select_clause:
-        - select_clause:
-          - keyword: SELECT
-          - select_clause_element:
-            - numeric_literal: '1'
-            - alias_expression:
-              - keyword: AS
-              - naked_identifier: a
+        - keyword: SELECT
+        - select_clause_element:
+          - numeric_literal: '1'
+          - alias_expression:
+            - keyword: AS
+            - naked_identifier: a
       - keyword: FOR
       - keyword: JSON
       - keyword: PATH
@@ -163,44 +148,38 @@ file:
   - statement:
     - select_statement:
       - select_clause:
-        - select_clause:
-          - keyword: SELECT
-          - select_clause_element:
-            - column_reference:
-              - naked_identifier: ProductModelID
-          - comma: ','
-          - select_clause_element:
-            - column_reference:
-              - naked_identifier: Name
+        - keyword: SELECT
+        - select_clause_element:
+          - column_reference:
+            - naked_identifier: ProductModelID
+        - comma: ','
+        - select_clause_element:
+          - column_reference:
+            - naked_identifier: Name
       - from_clause:
-        - from_clause:
-          - keyword: FROM
-          - from_expression:
-            - from_expression:
-              - from_expression_element:
-                - from_expression_element:
-                  - table_expression:
-                    - table_reference:
-                      - object_reference:
-                        - object_reference:
-                          - naked_identifier: Production
-                          - dot: .
-                          - naked_identifier: ProductModel
+        - keyword: FROM
+        - from_expression:
+          - from_expression_element:
+            - table_expression:
+              - table_reference:
+                - object_reference:
+                  - naked_identifier: Production
+                  - dot: .
+                  - naked_identifier: ProductModel
       - where_clause:
-        - where_clause:
-          - keyword: WHERE
-          - expression:
-            - column_reference:
-              - naked_identifier: ProductModelID
-            - comparison_operator:
-              - raw_comparison_operator: =
-            - numeric_literal: '122'
-            - binary_operator: or
-            - column_reference:
-              - naked_identifier: ProductModelID
-            - comparison_operator:
-              - raw_comparison_operator: =
-            - numeric_literal: '119'
+        - keyword: WHERE
+        - expression:
+          - column_reference:
+            - naked_identifier: ProductModelID
+          - comparison_operator:
+            - raw_comparison_operator: =
+          - numeric_literal: '122'
+          - binary_operator: or
+          - column_reference:
+            - naked_identifier: ProductModelID
+          - comparison_operator:
+            - raw_comparison_operator: =
+          - numeric_literal: '119'
       - keyword: FOR
       - keyword: XML
       - keyword: RAW
@@ -208,38 +187,32 @@ file:
   - statement:
     - select_statement:
       - select_clause:
-        - select_clause:
-          - keyword: SELECT
-          - select_clause_element:
-            - column_reference:
-              - naked_identifier: ProductPhotoID
-          - comma: ','
-          - select_clause_element:
-            - column_reference:
-              - naked_identifier: ThumbNailPhoto
+        - keyword: SELECT
+        - select_clause_element:
+          - column_reference:
+            - naked_identifier: ProductPhotoID
+        - comma: ','
+        - select_clause_element:
+          - column_reference:
+            - naked_identifier: ThumbNailPhoto
       - from_clause:
-        - from_clause:
-          - keyword: FROM
-          - from_expression:
-            - from_expression:
-              - from_expression_element:
-                - from_expression_element:
-                  - table_expression:
-                    - table_reference:
-                      - object_reference:
-                        - object_reference:
-                          - naked_identifier: Production
-                          - dot: .
-                          - naked_identifier: ProductPhoto
+        - keyword: FROM
+        - from_expression:
+          - from_expression_element:
+            - table_expression:
+              - table_reference:
+                - object_reference:
+                  - naked_identifier: Production
+                  - dot: .
+                  - naked_identifier: ProductPhoto
       - where_clause:
-        - where_clause:
-          - keyword: WHERE
-          - expression:
-            - column_reference:
-              - naked_identifier: ProductPhotoID
-            - comparison_operator:
-              - raw_comparison_operator: =
-            - numeric_literal: '70'
+        - keyword: WHERE
+        - expression:
+          - column_reference:
+            - naked_identifier: ProductPhotoID
+          - comparison_operator:
+            - raw_comparison_operator: =
+          - numeric_literal: '70'
       - keyword: FOR
       - keyword: XML
       - keyword: AUTO
@@ -247,30 +220,25 @@ file:
   - statement:
     - select_statement:
       - select_clause:
-        - select_clause:
-          - keyword: SELECT
-          - select_clause_element:
-            - numeric_literal: '1'
-            - alias_expression:
-              - keyword: as
-              - naked_identifier: Tag
+        - keyword: SELECT
+        - select_clause_element:
+          - numeric_literal: '1'
+          - alias_expression:
+            - keyword: as
+            - naked_identifier: Tag
       - from_clause:
-        - from_clause:
-          - keyword: FROM
-          - from_expression:
-            - from_expression:
-              - from_expression_element:
-                - from_expression_element:
-                  - table_expression:
-                    - table_reference:
-                      - object_reference:
-                        - object_reference:
-                          - naked_identifier: HumanResources
-                          - dot: .
-                          - naked_identifier: Employee
-                  - alias_expression:
-                    - keyword: AS
-                    - naked_identifier: E
+        - keyword: FROM
+        - from_expression:
+          - from_expression_element:
+            - table_expression:
+              - table_reference:
+                - object_reference:
+                  - naked_identifier: HumanResources
+                  - dot: .
+                  - naked_identifier: Employee
+            - alias_expression:
+              - keyword: AS
+              - naked_identifier: E
       - keyword: FOR
       - keyword: XML
       - keyword: EXPLICIT
@@ -278,44 +246,38 @@ file:
   - statement:
     - select_statement:
       - select_clause:
-        - select_clause:
-          - keyword: SELECT
-          - select_clause_element:
-            - column_reference:
-              - naked_identifier: ProductModelID
-          - comma: ','
-          - select_clause_element:
-            - column_reference:
-              - naked_identifier: Name
+        - keyword: SELECT
+        - select_clause_element:
+          - column_reference:
+            - naked_identifier: ProductModelID
+        - comma: ','
+        - select_clause_element:
+          - column_reference:
+            - naked_identifier: Name
       - from_clause:
-        - from_clause:
-          - keyword: FROM
-          - from_expression:
-            - from_expression:
-              - from_expression_element:
-                - from_expression_element:
-                  - table_expression:
-                    - table_reference:
-                      - object_reference:
-                        - object_reference:
-                          - naked_identifier: Production
-                          - dot: .
-                          - naked_identifier: ProductModel
+        - keyword: FROM
+        - from_expression:
+          - from_expression_element:
+            - table_expression:
+              - table_reference:
+                - object_reference:
+                  - naked_identifier: Production
+                  - dot: .
+                  - naked_identifier: ProductModel
       - where_clause:
-        - where_clause:
-          - keyword: WHERE
-          - expression:
-            - column_reference:
-              - naked_identifier: ProductModelID
-            - comparison_operator:
-              - raw_comparison_operator: =
-            - numeric_literal: '122'
-            - binary_operator: OR
-            - column_reference:
-              - naked_identifier: ProductModelID
-            - comparison_operator:
-              - raw_comparison_operator: =
-            - numeric_literal: '119'
+        - keyword: WHERE
+        - expression:
+          - column_reference:
+            - naked_identifier: ProductModelID
+          - comparison_operator:
+            - raw_comparison_operator: =
+          - numeric_literal: '122'
+          - binary_operator: OR
+          - column_reference:
+            - naked_identifier: ProductModelID
+          - comparison_operator:
+            - raw_comparison_operator: =
+          - numeric_literal: '119'
       - keyword: FOR
       - keyword: XML
       - keyword: PATH
@@ -327,13 +289,12 @@ file:
   - statement:
     - select_statement:
       - select_clause:
-        - select_clause:
-          - keyword: SELECT
-          - select_clause_element:
-            - numeric_literal: '1'
-            - alias_expression:
-              - keyword: AS
-              - naked_identifier: a
+        - keyword: SELECT
+        - select_clause_element:
+          - numeric_literal: '1'
+          - alias_expression:
+            - keyword: AS
+            - naked_identifier: a
       - keyword: FOR
       - keyword: BROWSE
   - keyword: GO

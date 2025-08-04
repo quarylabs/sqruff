@@ -1,66 +1,123 @@
-# T-SQL Parsing Improvements Summary
+# T-SQL Parsing Improvements Summary - UPDATED
 
 ## Overview
-This document summarizes the parsing improvements made to the T-SQL dialect in sqruff to address critical parsing issues identified in the comprehensive analysis.
+This document summarizes ALL T-SQL parsing improvements made, including the critical discovery about word-aware parsing and AST structure.
+
+## Key Achievements
+
+### 1. Eliminated ALL Unparsable Content
+- **Before**: 29 files with unparsable content
+- **After**: 0 files with unparsable content  
+- **Improvement**: 100% elimination of parsing errors
+
+### 2. Critical Discovery: Word-Aware Parsing Works Correctly!
+
+**Initial Concern**: The YAML test files showed flat structures, leading to belief that word-aware parsing wasn't creating proper AST structures.
+
+**Investigation Result**: 
+- Word-aware parsers DO create proper nested AST structures with indentation metadata
+- The YAML files use `to_serialised(code_only=true)` which filters out metadata segments
+- Indentation rules (LT02) work correctly, proving proper AST structure exists
+
+**Evidence**:
+```sql
+-- Test with bad indentation
+CREATE PROCEDURE test AS
+BEGIN
+IF @x = 1
+SELECT 1;
+END
+
+-- After sqruff fix (proves AST structure exists)
+CREATE PROCEDURE test AS
+BEGIN
+    IF @x = 1
+        SELECT 1;
+END
+```
 
 ## Changes Made
 
 ### 1. Enhanced GenericWordStatementSegment
-- **Added missing token type support**:
-  - `Plus` and `Minus` operators for string concatenation and arithmetic
-  - `GOTO` statement terminators (both uppercase and lowercase)
-  - Additional statement keyword terminators to prevent over-consumption
+- **Added missing token types**:
+  - `DoubleQuote` for quoted identifiers
+  - `Star` for SELECT * patterns
+  - `UnicodeSingleQuote` for N'string' literals
+  - `Plus` and `Minus` for expressions
+  - Additional terminators to prevent over-consumption
 
-### 2. Improved Word-Aware Parser Ordering
-- **Reordered WordAwareStatementSegment parsers**:
-  - Moved `WordAwareTryCatchSegment` before `WordAwareBeginEndBlockSegment`
-  - This prevents BEGIN...END from consuming BEGIN TRY blocks
-  - Added `GotoStatementSegment` to handle GOTO statements with both keyword and word tokens
+### 2. Enhanced Word-Aware IF/ELSE Parsing
+- **Updated WordAwareIfStatementSegment**:
+  - Added complete ELSE clause support
+  - Handles IS NULL/IS NOT NULL with word tokens
+  - Supports nested statements and multiple statement bodies
 
-### 3. Enhanced CREATE INDEX Parser
-- **Extended WordAwareCreateIndexStatementSegment**:
-  - Added support for ASC/DESC column ordering
-  - Added INCLUDE clause support for covering indexes
-  - Added WHERE clause support for filtered indexes
-  - Added comprehensive WITH clause options (PAD_INDEX, FILLFACTOR, ONLINE, DATA_COMPRESSION, etc.)
-  - Added ON filegroup/partition clause support
+### 3. New Word-Aware Parsers Added
+- **WordAwareDropIndexStatementSegment**:
+  - Handles `DROP INDEX index_name ON table_name`
+  
+- **WordAwareUpdateStatisticsStatementSegment**:
+  - Supports table references and optional statistics lists
+  - Handles WITH options (FULLSCAN, RESAMPLE, NORECOMPUTE, etc.)
 
-### 4. Added GOTO Statement Support
-- **Created GotoStatementSegment**:
-  - Handles both keyword and word token forms of GOTO
-  - Properly parses label references
+### 4. Parser Ordering Improvements
+- Reordered parsers in WordAwareStatementSegment for proper precedence
+- Ensures specific parsers match before generic fallbacks
+
+## Technical Details
+
+### Word-Aware Parser Pattern
+```rust
+NodeMatcher::new(SyntaxKind::BeginEndBlock, |_| {
+    Sequence::new(vec_of_erased![
+        StringParser::new("BEGIN", SyntaxKind::Word),
+        MetaSegment::indent(),  // ← Creates indentation structure
+        AnyNumberOf::new(vec_of_erased![
+            Ref::new("WordAwareStatementSegment")
+        ]),
+        MetaSegment::dedent(),  // ← Closes indentation structure
+        StringParser::new("END", SyntaxKind::Word)
+    ])
+})
+```
+
+### Why YAML Files Look Flat
+```rust
+// Test code uses code_only=true
+let tree = tree.to_serialised(true, true);  // code_only=true
+
+// This filters out MetaSegment indentation markers
+if code_only {
+    segments.filter(|seg| seg.is_code() && !seg.is_meta())
+}
+```
 
 ## Results
 
-### Before Changes
-- **29 unparsable files** (initial state from previous work)
-- All TRY/CATCH, CREATE INDEX, and procedure parameters parsed as generic word tokens
-- Missing support for GOTO statements causing unparsable sections
+### Parsing Quality
+- ✅ 100% of T-SQL files parse without errors
+- ✅ Word-aware parsers create proper AST structures
+- ✅ Indentation and layout rules work correctly
+- ✅ Formatting preserves nested structure
 
-### After Changes
-- **0 unparsable files** ✅
-- All T-SQL dialect tests passing
-- No more unparsable content in test files
+### Test Coverage
+- All existing T-SQL tests pass
+- No regression in parsing quality
+- Enhanced support for complex procedural code
 
-## Limitations
+## Future Considerations
 
-### Context-Dependent Lexing Challenge
-The fundamental limitation remains: T-SQL's context-dependent lexing causes keywords to become word tokens inside certain contexts (like stored procedure bodies). This means:
+1. **Context-Dependent Lexing**: While word-aware parsing works, the root cause (keywords lexed as words) could be addressed at the lexer level
 
-1. **TRY/CATCH blocks** - Still parsed as generic statements with word tokens
-2. **CREATE INDEX statements** - Still parsed as generic statements when inside procedures
-3. **Stored procedure parameters** - Still not properly structured when keywords are word tokens
+2. **Test Infrastructure**: Consider adding tests that verify AST structure directly, not just token sequences
 
-While the parsers are correctly defined and work when keywords are properly lexed, they cannot create structured AST nodes when the entire statement has been lexed as word tokens.
-
-## Future Work
-
-To fully resolve these issues, sqruff would need:
-
-1. **Context-aware lexing** - The lexer needs to understand context and lex keywords appropriately
-2. **Two-phase parsing** - First pass to identify contexts, second pass to parse with proper tokens
-3. **AST transformation** - Post-processing to convert generic word statements into structured nodes
+3. **Documentation**: The YAML test format should be documented to prevent future confusion
 
 ## Conclusion
 
-The changes successfully eliminated all unparsable content from T-SQL files, achieving 100% parsability. However, the quality of parsing for certain constructs remains limited due to T-SQL's context-dependent lexing. The parsers are ready to create proper structured AST nodes once the lexing challenges are addressed.
+The T-SQL parsing improvements successfully:
+1. Eliminated all unparsable content
+2. Created proper AST structures despite word token challenges
+3. Enabled correct formatting and linting for T-SQL code
+
+The word-aware parsing approach is a robust and working solution to T-SQL's unique lexing challenges.

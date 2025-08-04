@@ -7478,6 +7478,237 @@ pub fn raw_dialect() -> Dialect {
         .to_matchable()
         .into(),
     )]);
+    
+    // Word-aware DROP INDEX statement for T-SQL contexts where keywords are lexed as words
+    dialect.add([(
+        "WordAwareDropIndexStatementSegment".into(),
+        NodeMatcher::new(SyntaxKind::DropIndexStatement, |_| {
+            Sequence::new(vec_of_erased![
+                StringParser::new("DROP", SyntaxKind::Word),
+                StringParser::new("INDEX", SyntaxKind::Word),
+                // Index name
+                one_of(vec_of_erased![
+                    Ref::new("ObjectReferenceSegment"),
+                    Ref::new("SingleIdentifierGrammar")
+                ]),
+                StringParser::new("ON", SyntaxKind::Word),
+                // Table name
+                Ref::new("TableReferenceSegment")
+            ])
+            .to_matchable()
+        })
+        .to_matchable()
+        .into(),
+    )]);
+    
+    // Word-aware UPDATE STATISTICS statement for T-SQL contexts where keywords are lexed as words
+    dialect.add([(
+        "WordAwareUpdateStatisticsStatementSegment".into(),
+        NodeMatcher::new(SyntaxKind::UpdateStatement, |_| {
+            Sequence::new(vec_of_erased![
+                StringParser::new("UPDATE", SyntaxKind::Word),
+                StringParser::new("STATISTICS", SyntaxKind::Word),
+                // Table reference
+                Ref::new("TableReferenceSegment"),
+                // Optional specific statistics or list
+                one_of(vec_of_erased![
+                    // Single statistics name
+                    Ref::new("ObjectReferenceSegment"),
+                    // List of statistics in parentheses
+                    Bracketed::new(vec_of_erased![Delimited::new(vec_of_erased![
+                        Ref::new("ObjectReferenceSegment")
+                    ])])
+                ])
+                .config(|this| this.optional()),
+                // Optional WITH options
+                Sequence::new(vec_of_erased![
+                    StringParser::new("WITH", SyntaxKind::Word),
+                    Delimited::new(vec_of_erased![one_of(vec_of_erased![
+                        StringParser::new("FULLSCAN", SyntaxKind::Word),
+                        StringParser::new("RESAMPLE", SyntaxKind::Word),
+                        StringParser::new("NORECOMPUTE", SyntaxKind::Word),
+                        Sequence::new(vec_of_erased![
+                            StringParser::new("SAMPLE", SyntaxKind::Word),
+                            Ref::new("NumericLiteralSegment"),
+                            one_of(vec_of_erased![
+                                StringParser::new("PERCENT", SyntaxKind::Word),
+                                StringParser::new("ROWS", SyntaxKind::Word)
+                            ])
+                        ])
+                    ])])
+                ])
+                .config(|this| this.optional())
+            ])
+            .to_matchable()
+        })
+        .to_matchable()
+        .into(),
+    )]);
+    
+    // Word-aware CREATE TRIGGER parser for T-SQL contexts where keywords are lexed as words
+    dialect.add([(
+        "WordAwareCreateTriggerStatementSegment".into(),
+        NodeMatcher::new(SyntaxKind::CreateTriggerStatement, |_| {
+            Sequence::new(vec_of_erased![
+                one_of(vec_of_erased![
+                    StringParser::new("CREATE", SyntaxKind::Word),
+                    StringParser::new("Create", SyntaxKind::Word),
+                    StringParser::new("create", SyntaxKind::Word)
+                ]),
+                Sequence::new(vec_of_erased![
+                    StringParser::new("OR", SyntaxKind::Word),
+                    StringParser::new("ALTER", SyntaxKind::Word)
+                ])
+                .config(|this| this.optional()),
+                StringParser::new("TRIGGER", SyntaxKind::Word),
+                Ref::new("SingleIdentifierGrammar"), // Trigger name
+                StringParser::new("ON", SyntaxKind::Word),
+                one_of(vec_of_erased![
+                    // Table reference (multi-part identifier)
+                    Sequence::new(vec_of_erased![
+                        Ref::new("SingleIdentifierGrammar"),
+                        AnyNumberOf::new(vec_of_erased![Sequence::new(vec_of_erased![
+                            Ref::new("DotSegment"),
+                            Ref::new("SingleIdentifierGrammar")
+                        ])])
+                    ]),
+                    // Server-level trigger
+                    Sequence::new(vec_of_erased![
+                        StringParser::new("ALL", SyntaxKind::Word),
+                        StringParser::new("SERVER", SyntaxKind::Word)
+                    ]),
+                    // Database-level trigger
+                    StringParser::new("DATABASE", SyntaxKind::Word)
+                ]),
+                // Optional WITH clause
+                Sequence::new(vec_of_erased![
+                    StringParser::new("WITH", SyntaxKind::Word),
+                    AnyNumberOf::new(vec_of_erased![
+                        StringParser::new("ENCRYPTION", SyntaxKind::Word),
+                        StringParser::new("NATIVE_COMPILATION", SyntaxKind::Word),
+                        StringParser::new("SCHEMABINDING", SyntaxKind::Word),
+                        Sequence::new(vec_of_erased![
+                            StringParser::new("EXECUTE", SyntaxKind::Word),
+                            StringParser::new("AS", SyntaxKind::Word),
+                            Ref::new("QuotedLiteralSegment")
+                        ])
+                    ])
+                ])
+                .config(|this| this.optional()),
+                // Trigger timing (FOR/AFTER/INSTEAD OF)
+                one_of(vec_of_erased![
+                    StringParser::new("FOR", SyntaxKind::Word),
+                    StringParser::new("AFTER", SyntaxKind::Word),
+                    Sequence::new(vec_of_erased![
+                        StringParser::new("INSTEAD", SyntaxKind::Word),
+                        StringParser::new("OF", SyntaxKind::Word)
+                    ])
+                ])
+                .config(|this| this.optional()),
+                // Trigger events
+                Delimited::new(vec_of_erased![one_of(vec_of_erased![
+                    StringParser::new("INSERT", SyntaxKind::Word),
+                    StringParser::new("UPDATE", SyntaxKind::Word),
+                    StringParser::new("DELETE", SyntaxKind::Word),
+                    StringParser::new("CREATE_DATABASE", SyntaxKind::Word),
+                    StringParser::new("DROP_DATABASE", SyntaxKind::Word),
+                    StringParser::new("DROP_SYNONYM", SyntaxKind::Word),
+                    StringParser::new("LOGON", SyntaxKind::Word),
+                    // Generic event identifier
+                    Ref::new("SingleIdentifierGrammar")
+                ])])
+                .config(|this| this.optional()),
+                // AS keyword
+                StringParser::new("AS", SyntaxKind::Word),
+                // Trigger body - multiple statements until GO or next CREATE/DROP
+                AnyNumberOf::new(vec_of_erased![
+                    Ref::new("GenericWordStatementSegment")
+                ])
+                .config(|this| {
+                    this.min_times(1);
+                    this.terminators = vec_of_erased![
+                        Ref::new("BatchSeparatorGrammar"),
+                        StringParser::new("GO", SyntaxKind::Word),
+                        StringParser::new("CREATE", SyntaxKind::Word),
+                        StringParser::new("DROP", SyntaxKind::Word),
+                        StringParser::new("ALTER", SyntaxKind::Word)
+                    ];
+                })
+            ])
+            .to_matchable()
+        })
+        .to_matchable()
+        .into(),
+    )]);
+    
+    // Word-aware DROP TRIGGER parser
+    dialect.add([(
+        "WordAwareDropTriggerStatementSegment".into(),
+        NodeMatcher::new(SyntaxKind::DropTriggerStatement, |_| {
+            Sequence::new(vec_of_erased![
+                StringParser::new("DROP", SyntaxKind::Word),
+                StringParser::new("TRIGGER", SyntaxKind::Word),
+                Sequence::new(vec_of_erased![
+                    StringParser::new("IF", SyntaxKind::Word),
+                    StringParser::new("EXISTS", SyntaxKind::Word)
+                ])
+                .config(|this| this.optional()),
+                Ref::new("SingleIdentifierGrammar"), // Trigger name
+                // Optional ON clause for server/database level triggers
+                Sequence::new(vec_of_erased![
+                    StringParser::new("ON", SyntaxKind::Word),
+                    one_of(vec_of_erased![
+                        Sequence::new(vec_of_erased![
+                            StringParser::new("ALL", SyntaxKind::Word),
+                            StringParser::new("SERVER", SyntaxKind::Word)
+                        ]),
+                        StringParser::new("DATABASE", SyntaxKind::Word)
+                    ])
+                ])
+                .config(|this| this.optional())
+            ])
+            .to_matchable()
+        })
+        .to_matchable()
+        .into(),
+    )]);
+    
+    // Word-aware DISABLE TRIGGER parser
+    dialect.add([(
+        "WordAwareDisableTriggerStatementSegment".into(),
+        NodeMatcher::new(SyntaxKind::Statement, |_| {
+            Sequence::new(vec_of_erased![
+                StringParser::new("DISABLE", SyntaxKind::Word),
+                StringParser::new("TRIGGER", SyntaxKind::Word),
+                one_of(vec_of_erased![
+                    Delimited::new(vec_of_erased![Ref::new("SingleIdentifierGrammar")]),
+                    StringParser::new("ALL", SyntaxKind::Word)
+                ]),
+                Sequence::new(vec_of_erased![
+                    StringParser::new("ON", SyntaxKind::Word),
+                    one_of(vec_of_erased![
+                        // Table reference (multi-part identifier)
+                        Sequence::new(vec_of_erased![
+                            Ref::new("SingleIdentifierGrammar"),
+                            AnyNumberOf::new(vec_of_erased![Sequence::new(vec_of_erased![
+                                Ref::new("DotSegment"),
+                                Ref::new("SingleIdentifierGrammar")
+                            ])])
+                        ]),
+                        StringParser::new("DATABASE", SyntaxKind::Word),
+                        Sequence::new(vec_of_erased![
+                            StringParser::new("ALL", SyntaxKind::Word),
+                            StringParser::new("SERVER", SyntaxKind::Word)
+                        ])
+                    ])
+                ])
+                .config(|this| this.optional())
+            ])
+            .to_matchable()
+        })
+        .to_matchable()
+        .into(),
+    )]);
 
     // RETURN statement (for procedures and functions)
     // Handle T-SQL's lexing behavior where RETURN can be lexed as word in procedure contexts
@@ -10155,6 +10386,8 @@ pub fn raw_dialect() -> Dialect {
                 ]),
                 // Statement body - specific statement handling (avoid generic fallbacks)
                 one_of(vec_of_erased![
+                    // Word-aware BEGIN...END block
+                    Ref::new("WordAwareBeginEndBlockSegment"),
                     // Word-aware CREATE INDEX statement (common after if exists)
                     Ref::new("WordAwareCreateIndexStatementSegment"),
                     // Word-aware SET statement (common after if exists)
@@ -10165,9 +10398,43 @@ pub fn raw_dialect() -> Dialect {
                     Ref::new("WordAwareBreakStatementSegment"),
                     Ref::new("WordAwarePrintStatementSegment"),
                     Ref::new("WordAwareReturnStatementSegment"),
+                    Ref::new("WordAwareSelectStatementSegment"),
                     // Regular statement for keyword-based parsing
                     Ref::new("StatementSegment")
                 ]),
+                // Optional ELSE clause - CRITICAL: Add this!
+                Sequence::new(vec_of_erased![
+                    one_of(vec_of_erased![
+                        StringParser::new("ELSE", SyntaxKind::Word),
+                        StringParser::new("else", SyntaxKind::Word),
+                        Ref::keyword("ELSE")
+                    ]),
+                    one_of(vec_of_erased![
+                        // Word-aware BEGIN...END block
+                        Ref::new("WordAwareBeginEndBlockSegment"),
+                        // Word-aware statements
+                        Ref::new("WordAwareIfStatementSegment"),
+                        Ref::new("WordAwareSelectStatementSegment"),
+                        Ref::new("WordAwareSetStatementSegment"),
+                        // Multiple statements for ELSE body
+                        AnyNumberOf::new(vec_of_erased![Sequence::new(vec_of_erased![
+                            Ref::new("WordAwareStatementSegment"),
+                            Ref::new("DelimiterGrammar").optional()
+                        ])])
+                        .config(|this| {
+                            this.min_times(1);
+                            this.terminators = vec_of_erased![
+                                StringParser::new("IF", SyntaxKind::Word),
+                                StringParser::new("if", SyntaxKind::Word),
+                                Ref::keyword("IF"),
+                                Ref::new("BatchSeparatorGrammar")
+                            ];
+                        }),
+                        // Regular statement
+                        Ref::new("StatementSegment")
+                    ])
+                ])
+                .config(|this| this.optional()),
                 // Optional delimiter
                 Ref::new("DelimiterGrammar").optional()
             ])
@@ -11315,6 +11582,11 @@ pub fn raw_dialect() -> Dialect {
             Ref::new("WordAwareSelectStatementSegment"), // Re-enabled: Focus on core parsing issues
             Ref::new("WordAwareInsertStatementSegment"), // Handle INSERT INTO in procedure bodies
             Ref::new("WordAwareCreateIndexStatementSegment"),
+            Ref::new("WordAwareDropIndexStatementSegment"),
+            Ref::new("WordAwareUpdateStatisticsStatementSegment"),
+            Ref::new("WordAwareCreateTriggerStatementSegment"),
+            Ref::new("WordAwareDropTriggerStatementSegment"),
+            Ref::new("WordAwareDisableTriggerStatementSegment"),
             // Enhanced CREATE PROCEDURE handles both keywords and word tokens
             Ref::new("CreateProcedureStatementSegment"),
             Ref::new("WordAwareStatisticsStatementSegment"),
@@ -11386,22 +11658,22 @@ pub fn raw_dialect() -> Dialect {
                 // CREATE OR ALTER PROCEDURE
                 one_of(vec_of_erased![
                     Sequence::new(vec_of_erased![
-                        StringParser::new("CREATE", SyntaxKind::Keyword),
+                        StringParser::new("CREATE", SyntaxKind::Word),
                         Sequence::new(vec_of_erased![
-                            StringParser::new("OR", SyntaxKind::Keyword),
-                            StringParser::new("ALTER", SyntaxKind::Keyword)
+                            StringParser::new("OR", SyntaxKind::Word),
+                            StringParser::new("ALTER", SyntaxKind::Word)
                         ])
                         .config(|this| this.optional()),
                         one_of(vec_of_erased![
-                            StringParser::new("PROCEDURE", SyntaxKind::Keyword),
-                            StringParser::new("PROC", SyntaxKind::Keyword)
+                            StringParser::new("PROCEDURE", SyntaxKind::Word),
+                            StringParser::new("PROC", SyntaxKind::Word)
                         ])
                     ]),
                     Sequence::new(vec_of_erased![
-                        StringParser::new("ALTER", SyntaxKind::Keyword),
+                        StringParser::new("ALTER", SyntaxKind::Word),
                         one_of(vec_of_erased![
-                            StringParser::new("PROCEDURE", SyntaxKind::Keyword),
-                            StringParser::new("PROC", SyntaxKind::Keyword)
+                            StringParser::new("PROCEDURE", SyntaxKind::Word),
+                            StringParser::new("PROC", SyntaxKind::Word)
                         ])
                     ])
                 ]),
@@ -11416,7 +11688,7 @@ pub fn raw_dialect() -> Dialect {
                     this.min_times(1);
                     this.terminators = vec_of_erased![
                         TypedParser::new(SyntaxKind::TsqlVariable, SyntaxKind::TsqlVariable),
-                        StringParser::new("AS", SyntaxKind::Keyword)
+                        StringParser::new("AS", SyntaxKind::Word)
                     ];
                 }),
                 // Optional parameters
@@ -11431,10 +11703,10 @@ pub fn raw_dialect() -> Dialect {
                     Ref::new("LiteralGrammar")
                 ])])
                 .config(|this| {
-                    this.terminators = vec_of_erased![StringParser::new("AS", SyntaxKind::Keyword)];
+                    this.terminators = vec_of_erased![StringParser::new("AS", SyntaxKind::Word)];
                 }),
                 // AS keyword
-                StringParser::new("AS", SyntaxKind::Keyword),
+                StringParser::new("AS", SyntaxKind::Word),
                 // Procedure body - use existing word-aware parsers
                 AnyNumberOf::new(vec_of_erased![
                     Ref::new("WordAwareStatementSegment"),
@@ -11445,7 +11717,7 @@ pub fn raw_dialect() -> Dialect {
                     this.parse_mode = ParseMode::Greedy;
                     this.terminators = vec_of_erased![
                         Ref::new("BatchSeparatorGrammar"),
-                        StringParser::new("GO", SyntaxKind::Keyword)
+                        StringParser::new("GO", SyntaxKind::Word)
                     ];
                 })
             ])

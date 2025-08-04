@@ -1,5 +1,5 @@
 file:
-- statement:
+- batch:
   - statement:
     - declare_statement:
       - keyword: DECLARE

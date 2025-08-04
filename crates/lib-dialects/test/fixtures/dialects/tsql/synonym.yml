@@ -1,5 +1,5 @@
 file:
-- statement:
+- batch:
   - statement:
     - create_synonym_statement:
       - keyword: CREATE

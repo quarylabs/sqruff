@@ -1,5 +1,5 @@
 file:
-- statement:
+- batch:
   - statement:
     - create_role_statement:
       - create_role_statement:

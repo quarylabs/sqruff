@@ -1,5 +1,5 @@
 file:
-- statement:
+- batch:
   - statement:
     - if_statement:
       - keyword: IF

@@ -1,5 +1,5 @@
 file:
-- statement:
+- batch:
   - statement:
     - keyword: SET
     - keyword: IDENTITY_INSERT

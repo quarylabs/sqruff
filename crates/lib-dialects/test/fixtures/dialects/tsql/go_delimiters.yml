@@ -1,6 +1,6 @@
 file:
 - keyword: GO
-- statement:
+- batch:
   - statement:
     - select_statement:
       - select_clause:

@@ -1,5 +1,5 @@
 file:
-- statement:
+- batch:
   - statement:
     - create_login_statement:
       - keyword: CREATE

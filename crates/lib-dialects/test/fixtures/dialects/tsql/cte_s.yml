@@ -1,5 +1,5 @@
 file:
-- statement:
+- batch:
   - statement:
     - with_compound_statement:
       - keyword: WITH

@@ -1,5 +1,5 @@
 file:
-- statement:
+- batch:
   - statement:
     - insert_statement:
       - keyword: BULK

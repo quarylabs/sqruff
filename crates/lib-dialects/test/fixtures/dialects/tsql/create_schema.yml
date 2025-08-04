@@ -1,5 +1,5 @@
 file:
-- statement:
+- batch:
   - statement:
     - create_schema_statement:
       - create_schema_statement:

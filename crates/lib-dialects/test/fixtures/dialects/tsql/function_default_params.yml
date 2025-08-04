@@ -1,5 +1,5 @@
 file:
-- statement:
+- batch:
   - statement:
     - create_procedure_statement:
       - keyword: create

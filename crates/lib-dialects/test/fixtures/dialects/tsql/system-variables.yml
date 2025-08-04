@@ -1,5 +1,5 @@
 file:
-- statement:
+- batch:
   - statement:
     - update_statement:
       - update_statement:

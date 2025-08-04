@@ -1,5 +1,5 @@
 file:
-- statement:
+- batch:
   - statement:
     - create_external_data_source_statement:
       - keyword: CREATE

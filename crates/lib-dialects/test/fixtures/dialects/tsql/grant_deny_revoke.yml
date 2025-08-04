@@ -1,5 +1,5 @@
 file:
-- statement:
+- batch:
   - statement:
     - access_statement:
       - keyword: GRANT

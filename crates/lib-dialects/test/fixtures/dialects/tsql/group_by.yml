@@ -1,5 +1,5 @@
 file:
-- statement:
+- batch:
   - statement:
     - naked_identifier: CREATE
     - expression:

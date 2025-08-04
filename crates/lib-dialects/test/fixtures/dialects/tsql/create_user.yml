@@ -1,5 +1,5 @@
 file:
-- statement:
+- batch:
   - statement:
     - create_user_statement:
       - create_user_statement:

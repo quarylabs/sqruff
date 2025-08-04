@@ -163,19 +163,7 @@ impl RuleCV07 {
         Self::iter_statements(file_segment)
             .into_iter()
             .flat_map(|stmt| {
-                // For T-SQL, we might have Statement -> Statement -> Bracketed
-                // So we need to check if the only child is another Statement
-                let segments_to_check = if stmt.segments().len() == 1 
-                    && stmt.segments()[0].is_type(SyntaxKind::Statement) 
-                {
-                    // Use the inner statement's segments
-                    stmt.segments()[0].segments().to_vec()
-                } else {
-                    // Use the direct segments
-                    stmt.segments().to_vec()
-                };
-                
-                segments_to_check
+                stmt.segments()
                     .iter()
                     .filter_map(|seg| {
                         if seg.is_type(SyntaxKind::Bracketed) {

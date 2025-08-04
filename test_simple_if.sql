@@ -1,0 +1,1 @@
+IF @nm IS NULL BEGIN PRINT 'hello' END

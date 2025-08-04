@@ -10,12 +10,13 @@ file:
               - function:
                 - function_name:
                   - function_name_identifier: DATE
-                - bracketed:
-                  - start_bracket: (
-                  - expression:
-                    - column_reference:
-                      - naked_identifier: t
-                  - end_bracket: )
+                - function_contents:
+                  - bracketed:
+                    - start_bracket: (
+                    - expression:
+                      - column_reference:
+                        - naked_identifier: t
+                    - end_bracket: )
             - alias_expression:
               - keyword: AS
               - naked_identifier: t_date
@@ -25,15 +26,16 @@ file:
               - function:
                 - function_name:
                   - function_name_identifier: ROUND
-                - bracketed:
-                  - start_bracket: (
-                  - expression:
-                    - column_reference:
-                      - naked_identifier: b
-                  - comma: ','
-                  - expression:
-                    - numeric_literal: '2'
-                  - end_bracket: )
+                - function_contents:
+                  - bracketed:
+                    - start_bracket: (
+                    - expression:
+                      - column_reference:
+                        - naked_identifier: b
+                    - comma: ','
+                    - expression:
+                      - numeric_literal: '2'
+                    - end_bracket: )
             - alias_expression:
               - keyword: AS
               - naked_identifier: b_round
@@ -43,37 +45,40 @@ file:
               - function:
                 - function_name:
                   - function_name_identifier: LEFT
-                - bracketed:
-                  - start_bracket: (
-                  - expression:
-                    - function:
+                - function_contents:
+                  - bracketed:
+                    - start_bracket: (
+                    - expression:
                       - function:
-                        - function_name:
-                          - function_name_identifier: RIGHT
-                        - bracketed:
-                          - start_bracket: (
-                          - expression:
-                            - column_reference:
-                              - naked_identifier: s
-                          - comma: ','
-                          - expression:
-                            - numeric_literal: '5'
-                          - end_bracket: )
-                  - comma: ','
-                  - expression:
-                    - function:
+                        - function:
+                          - function_name:
+                            - function_name_identifier: RIGHT
+                          - function_contents:
+                            - bracketed:
+                              - start_bracket: (
+                              - expression:
+                                - column_reference:
+                                  - naked_identifier: s
+                              - comma: ','
+                              - expression:
+                                - numeric_literal: '5'
+                              - end_bracket: )
+                    - comma: ','
+                    - expression:
                       - function:
-                        - function_name:
-                          - function_name_identifier: LEN
-                        - bracketed:
-                          - start_bracket: (
-                          - expression:
-                            - column_reference:
-                              - naked_identifier: s
-                            - binary_operator: +
-                            - numeric_literal: '6'
-                          - end_bracket: )
-                  - end_bracket: )
+                        - function:
+                          - function_name:
+                            - function_name_identifier: LEN
+                          - function_contents:
+                            - bracketed:
+                              - start_bracket: (
+                              - expression:
+                                - column_reference:
+                                  - naked_identifier: s
+                                - binary_operator: +
+                                - numeric_literal: '6'
+                              - end_bracket: )
+                    - end_bracket: )
             - alias_expression:
               - keyword: AS
               - naked_identifier: compound
@@ -83,21 +88,22 @@ file:
               - function:
                 - function_name:
                   - function_name_identifier: DATEADD
-                - bracketed:
-                  - start_bracket: (
-                  - expression:
-                    - column_reference:
-                      - naked_identifier: month
-                  - comma: ','
-                  - expression:
-                    - numeric_literal:
-                      - sign_indicator: '-'
-                      - numeric_literal: '1'
-                  - comma: ','
-                  - expression:
-                    - column_reference:
-                      - naked_identifier: column1
-                  - end_bracket: )
+                - function_contents:
+                  - bracketed:
+                    - start_bracket: (
+                    - expression:
+                      - column_reference:
+                        - naked_identifier: month
+                    - comma: ','
+                    - expression:
+                      - numeric_literal:
+                        - sign_indicator: '-'
+                        - numeric_literal: '1'
+                    - comma: ','
+                    - expression:
+                      - column_reference:
+                        - naked_identifier: column1
+                    - end_bracket: )
             - alias_expression:
               - keyword: AS
               - naked_identifier: column1_lastmonth
@@ -107,21 +113,22 @@ file:
               - function:
                 - function_name:
                   - function_name_identifier: convert
-                - bracketed:
-                  - start_bracket: (
-                  - expression:
-                    - column_reference:
-                      - naked_identifier: varchar
-                  - comma: ','
-                  - expression:
-                    - column_reference:
-                      - naked_identifier: tbl_b
-                      - dot: .
-                      - naked_identifier: column1
-                  - comma: ','
-                  - expression:
-                    - numeric_literal: '23'
-                  - end_bracket: )
+                - function_contents:
+                  - bracketed:
+                    - start_bracket: (
+                    - expression:
+                      - column_reference:
+                        - naked_identifier: varchar
+                    - comma: ','
+                    - expression:
+                      - column_reference:
+                        - naked_identifier: tbl_b
+                        - dot: .
+                        - naked_identifier: column1
+                    - comma: ','
+                    - expression:
+                      - numeric_literal: '23'
+                    - end_bracket: )
             - alias_expression:
               - keyword: AS
               - naked_identifier: column1_varchar

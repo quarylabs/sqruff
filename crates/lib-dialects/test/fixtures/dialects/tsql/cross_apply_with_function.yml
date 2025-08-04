@@ -48,14 +48,15 @@ file:
                             - naked_identifier: dbo
                             - dot: .
                             - function_name_identifier: GetCurrentStock
-                          - bracketed:
-                            - start_bracket: (
-                            - expression:
-                              - column_reference:
-                                - naked_identifier: p
-                                - dot: .
-                                - naked_identifier: ProductID
-                            - end_bracket: )
+                          - function_contents:
+                            - bracketed:
+                              - start_bracket: (
+                              - expression:
+                                - column_reference:
+                                  - naked_identifier: p
+                                  - dot: .
+                                  - naked_identifier: ProductID
+                              - end_bracket: )
                     - alias_expression:
                       - naked_identifier: s
       - where_clause:

@@ -10,9 +10,10 @@ file:
               - function:
                 - function_name:
                   - function_name_identifier: ROW_NUMBER
-                - bracketed:
-                  - start_bracket: (
-                  - end_bracket: )
+                - function_contents:
+                  - bracketed:
+                    - start_bracket: (
+                    - end_bracket: )
                 - over_clause:
                   - keyword: OVER
                   - bracketed:
@@ -61,9 +62,10 @@ file:
               - function:
                 - function_name:
                   - function_name_identifier: ROW_NUMBER
-                - bracketed:
-                  - start_bracket: (
-                  - end_bracket: )
+                - function_contents:
+                  - bracketed:
+                    - start_bracket: (
+                    - end_bracket: )
                 - over_clause:
                   - keyword: OVER
                   - bracketed:
@@ -109,9 +111,10 @@ file:
               - function:
                 - function_name:
                   - function_name_identifier: ROW_NUMBER
-                - bracketed:
-                  - start_bracket: (
-                  - end_bracket: )
+                - function_contents:
+                  - bracketed:
+                    - start_bracket: (
+                    - end_bracket: )
                 - over_clause:
                   - keyword: OVER
                   - bracketed:
@@ -171,9 +174,10 @@ file:
               - function:
                 - function_name:
                   - function_name_identifier: ROW_NUMBER
-                - bracketed:
-                  - start_bracket: (
-                  - end_bracket: )
+                - function_contents:
+                  - bracketed:
+                    - start_bracket: (
+                    - end_bracket: )
                 - over_clause:
                   - keyword: OVER
                   - bracketed:
@@ -245,9 +249,10 @@ file:
               - function:
                 - function_name:
                   - function_name_identifier: ROW_NUMBER
-                - bracketed:
-                  - start_bracket: (
-                  - end_bracket: )
+                - function_contents:
+                  - bracketed:
+                    - start_bracket: (
+                    - end_bracket: )
                 - over_clause:
                   - keyword: OVER
                   - bracketed:
@@ -314,9 +319,10 @@ file:
               - function:
                 - function_name:
                   - function_name_identifier: ROW_NUMBER
-                - bracketed:
-                  - start_bracket: (
-                  - end_bracket: )
+                - function_contents:
+                  - bracketed:
+                    - start_bracket: (
+                    - end_bracket: )
                 - over_clause:
                   - keyword: OVER
                   - bracketed:
@@ -330,14 +336,15 @@ file:
                             - function:
                               - function_name:
                                 - function_name_identifier: SUM
-                              - bracketed:
-                                - start_bracket: (
-                                - expression:
-                                  - column_reference:
-                                    - naked_identifier: t
-                                    - dot: .
-                                    - naked_identifier: col1
-                                - end_bracket: )
+                              - function_contents:
+                                - bracketed:
+                                  - start_bracket: (
+                                  - expression:
+                                    - column_reference:
+                                      - naked_identifier: t
+                                      - dot: .
+                                      - naked_identifier: col1
+                                  - end_bracket: )
                       - orderby_clause:
                         - keyword: ORDER
                         - keyword: BY

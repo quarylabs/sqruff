@@ -10,15 +10,16 @@ file:
               - function:
                 - function_name:
                   - function_name_identifier: STRING_AGG
-                - bracketed:
-                  - start_bracket: (
-                  - expression:
-                    - column_reference:
-                      - naked_identifier: FirstName
-                  - comma: ','
-                  - expression:
-                    - quoted_literal: ''', '''
-                  - end_bracket: )
+                - function_contents:
+                  - bracketed:
+                    - start_bracket: (
+                    - expression:
+                      - column_reference:
+                        - naked_identifier: FirstName
+                    - comma: ','
+                    - expression:
+                      - quoted_literal: ''', '''
+                    - end_bracket: )
                 - withingroup_clause:
                   - keyword: WITHIN
                   - keyword: GROUP
@@ -53,15 +54,16 @@ file:
               - function:
                 - function_name:
                   - function_name_identifier: STRING_AGG
-                - bracketed:
-                  - start_bracket: (
-                  - expression:
-                    - column_reference:
-                      - naked_identifier: ProductName
-                  - comma: ','
-                  - expression:
-                    - quoted_literal: ''' | '''
-                  - end_bracket: )
+                - function_contents:
+                  - bracketed:
+                    - start_bracket: (
+                    - expression:
+                      - column_reference:
+                        - naked_identifier: ProductName
+                    - comma: ','
+                    - expression:
+                      - quoted_literal: ''' | '''
+                    - end_bracket: )
                 - withingroup_clause:
                   - keyword: WITHIN
                   - keyword: GROUP
@@ -101,15 +103,16 @@ file:
               - function:
                 - function_name:
                   - function_name_identifier: STRING_AGG
-                - bracketed:
-                  - start_bracket: (
-                  - expression:
-                    - column_reference:
-                      - naked_identifier: EmployeeName
-                  - comma: ','
-                  - expression:
-                    - quoted_literal: ''', '''
-                  - end_bracket: )
+                - function_contents:
+                  - bracketed:
+                    - start_bracket: (
+                    - expression:
+                      - column_reference:
+                        - naked_identifier: EmployeeName
+                    - comma: ','
+                    - expression:
+                      - quoted_literal: ''', '''
+                    - end_bracket: )
                 - withingroup_clause:
                   - keyword: WITHIN
                   - keyword: GROUP
@@ -154,15 +157,16 @@ file:
               - function:
                 - function_name:
                   - function_name_identifier: STRING_AGG
-                - bracketed:
-                  - start_bracket: (
-                  - expression:
-                    - column_reference:
-                      - naked_identifier: ProductName
-                  - comma: ','
-                  - expression:
-                    - quoted_literal: ''', '''
-                  - end_bracket: )
+                - function_contents:
+                  - bracketed:
+                    - start_bracket: (
+                    - expression:
+                      - column_reference:
+                        - naked_identifier: ProductName
+                    - comma: ','
+                    - expression:
+                      - quoted_literal: ''', '''
+                    - end_bracket: )
                 - withingroup_clause:
                   - keyword: WITHIN
                   - keyword: GROUP
@@ -180,10 +184,11 @@ file:
               - function:
                 - function_name:
                   - function_name_identifier: COUNT
-                - bracketed:
-                  - start_bracket: (
-                  - star: '*'
-                  - end_bracket: )
+                - function_contents:
+                  - bracketed:
+                    - start_bracket: (
+                    - star: '*'
+                    - end_bracket: )
             - alias_expression:
               - keyword: as
               - naked_identifier: ProductCount
@@ -220,15 +225,16 @@ file:
               - function:
                 - function_name:
                   - function_name_identifier: STRING_AGG
-                - bracketed:
-                  - start_bracket: (
-                  - expression:
-                    - column_reference:
-                      - naked_identifier: City
-                  - comma: ','
-                  - expression:
-                    - quoted_literal: ''', '''
-                  - end_bracket: )
+                - function_contents:
+                  - bracketed:
+                    - start_bracket: (
+                    - expression:
+                      - column_reference:
+                        - naked_identifier: City
+                    - comma: ','
+                    - expression:
+                      - quoted_literal: ''', '''
+                    - end_bracket: )
                 - withingroup_clause:
                   - keyword: WITHIN
                   - keyword: GROUP
@@ -274,32 +280,33 @@ file:
               - function:
                 - function_name:
                   - function_name_identifier: STRING_AGG
-                - bracketed:
-                  - start_bracket: (
-                  - expression:
-                    - function:
+                - function_contents:
+                  - bracketed:
+                    - start_bracket: (
+                    - expression:
                       - function:
-                        - function_name:
-                          - function_name_identifier: CAST
-                        - bracketed:
-                          - start_bracket: (
-                          - expression:
-                            - column_reference:
-                              - naked_identifier: ProductID
-                          - keyword: AS
-                          - data_type:
-                            - data_type:
-                              - data_type_identifier: VARCHAR
-                              - bracketed_arguments:
-                                - bracketed:
-                                  - start_bracket: (
-                                  - numeric_literal: '10'
-                                  - end_bracket: )
-                          - end_bracket: )
-                  - comma: ','
-                  - expression:
-                    - quoted_literal: '''-'''
-                  - end_bracket: )
+                        - function:
+                          - function_name:
+                            - function_name_identifier: CAST
+                          - function_contents:
+                            - bracketed:
+                              - start_bracket: (
+                              - expression:
+                                - column_reference:
+                                  - naked_identifier: ProductID
+                              - keyword: AS
+                              - data_type:
+                                - data_type_identifier: VARCHAR
+                                - bracketed_arguments:
+                                  - bracketed:
+                                    - start_bracket: (
+                                    - numeric_literal: '10'
+                                    - end_bracket: )
+                              - end_bracket: )
+                    - comma: ','
+                    - expression:
+                      - quoted_literal: '''-'''
+                    - end_bracket: )
                 - withingroup_clause:
                   - keyword: WITHIN
                   - keyword: GROUP
@@ -365,15 +372,16 @@ file:
                                 - function:
                                   - function_name:
                                     - function_name_identifier: STRING_AGG
-                                  - bracketed:
-                                    - start_bracket: (
-                                    - expression:
-                                      - column_reference:
-                                        - naked_identifier: EmployeeName
-                                    - comma: ','
-                                    - expression:
-                                      - quoted_literal: ''', '''
-                                    - end_bracket: )
+                                  - function_contents:
+                                    - bracketed:
+                                      - start_bracket: (
+                                      - expression:
+                                        - column_reference:
+                                          - naked_identifier: EmployeeName
+                                      - comma: ','
+                                      - expression:
+                                        - quoted_literal: ''', '''
+                                      - end_bracket: )
                                   - withingroup_clause:
                                     - keyword: WITHIN
                                     - keyword: GROUP

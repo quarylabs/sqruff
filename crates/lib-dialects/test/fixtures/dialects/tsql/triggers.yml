@@ -138,20 +138,22 @@ file:
             - function:
               - function_name:
                 - function_name_identifier: IF
-              - bracketed:
-                - start_bracket: (
-                - expression:
-                  - function:
+              - function_contents:
+                - bracketed:
+                  - start_bracket: (
+                  - expression:
                     - function:
-                      - function_name:
-                        - function_name_identifier: ROWCOUNT_BIG
-                      - bracketed:
-                        - start_bracket: (
-                        - end_bracket: )
-                  - comparison_operator:
-                    - raw_comparison_operator: =
-                  - numeric_literal: '0'
-                - end_bracket: )
+                      - function:
+                        - function_name:
+                          - function_name_identifier: ROWCOUNT_BIG
+                        - function_contents:
+                          - bracketed:
+                            - start_bracket: (
+                            - end_bracket: )
+                    - comparison_operator:
+                      - raw_comparison_operator: =
+                    - numeric_literal: '0'
+                  - end_bracket: )
         - expression:
           - column_reference:
             - naked_identifier: RETURN
@@ -282,15 +284,16 @@ file:
                   - function:
                     - function_name:
                       - function_name_identifier: IF
-                    - bracketed:
-                      - start_bracket: (
-                      - expression:
-                        - parameterized_expression:
-                          - tsql_variable: '@@ROWCOUNT'
-                        - comparison_operator:
-                          - raw_comparison_operator: =
-                        - numeric_literal: '0'
-                      - end_bracket: )
+                    - function_contents:
+                      - bracketed:
+                        - start_bracket: (
+                        - expression:
+                          - parameterized_expression:
+                            - tsql_variable: '@@ROWCOUNT'
+                          - comparison_operator:
+                            - raw_comparison_operator: =
+                          - numeric_literal: '0'
+                        - end_bracket: )
               - expression:
                 - column_reference:
                   - naked_identifier: RETURN
@@ -480,9 +483,10 @@ file:
                   - function:
                     - function_name:
                       - function_name_identifier: ORIGINAL_LOGIN
-                    - bracketed:
-                      - start_bracket: (
-                      - end_bracket: )
+                    - function_contents:
+                      - bracketed:
+                        - start_bracket: (
+                        - end_bracket: )
                 - comparison_operator:
                   - raw_comparison_operator: =
                 - quoted_literal: '''login_test'''
@@ -499,10 +503,11 @@ file:
                               - function:
                                 - function_name:
                                   - function_name_identifier: COUNT
-                                - bracketed:
-                                  - start_bracket: (
-                                  - star: '*'
-                                  - end_bracket: )
+                                - function_contents:
+                                  - bracketed:
+                                    - start_bracket: (
+                                    - star: '*'
+                                    - end_bracket: )
                       - from_clause:
                         - from_clause:
                           - keyword: FROM
@@ -592,9 +597,10 @@ file:
             - function:
               - function_name:
                 - function_name_identifier: Getdate
-              - bracketed:
-                - start_bracket: (
-                - end_bracket: )
+              - function_contents:
+                - bracketed:
+                  - start_bracket: (
+                  - end_bracket: )
         - expression:
           - column_reference:
             - naked_identifier: FROM
@@ -705,9 +711,10 @@ file:
             - function:
               - function_name:
                 - function_name_identifier: sysdatetime
-              - bracketed:
-                - start_bracket: (
-                - end_bracket: )
+              - function_contents:
+                - bracketed:
+                  - start_bracket: (
+                  - end_bracket: )
         - expression:
           - column_reference:
             - naked_identifier: FROM
@@ -856,17 +863,18 @@ file:
             - function:
               - function_name:
                 - function_name_identifier: RAISERROR
-              - bracketed:
-                - start_bracket: (
-                - expression:
-                  - quoted_literal: '''Notify Customer Relations'''
-                - comma: ','
-                - expression:
-                  - numeric_literal: '16'
-                - comma: ','
-                - expression:
-                  - numeric_literal: '10'
-                - end_bracket: )
+              - function_contents:
+                - bracketed:
+                  - start_bracket: (
+                  - expression:
+                    - quoted_literal: '''Notify Customer Relations'''
+                  - comma: ','
+                  - expression:
+                    - numeric_literal: '16'
+                  - comma: ','
+                  - expression:
+                    - numeric_literal: '10'
+                  - end_bracket: )
       - statement_terminator: ;
       - statement:
         - naked_identifier: GO
@@ -901,31 +909,34 @@ file:
             - function:
               - function_name:
                 - function_name_identifier: IF
-              - bracketed:
-                - start_bracket: (
-                - expression:
-                  - function:
+              - function_contents:
+                - bracketed:
+                  - start_bracket: (
+                  - expression:
                     - function:
-                      - function_name:
-                        - function_name_identifier: UPDATE
-                      - bracketed:
-                        - start_bracket: (
-                        - expression:
-                          - column_reference:
-                            - naked_identifier: stateprovinceid
-                        - end_bracket: )
-                  - binary_operator: OR
-                  - function:
+                      - function:
+                        - function_name:
+                          - function_name_identifier: UPDATE
+                        - function_contents:
+                          - bracketed:
+                            - start_bracket: (
+                            - expression:
+                              - column_reference:
+                                - naked_identifier: stateprovinceid
+                            - end_bracket: )
+                    - binary_operator: OR
                     - function:
-                      - function_name:
-                        - function_name_identifier: UPDATE
-                      - bracketed:
-                        - start_bracket: (
-                        - expression:
-                          - column_reference:
-                            - naked_identifier: postalcode
-                        - end_bracket: )
-                - end_bracket: )
+                      - function:
+                        - function_name:
+                          - function_name_identifier: UPDATE
+                        - function_contents:
+                          - bracketed:
+                            - start_bracket: (
+                            - expression:
+                              - column_reference:
+                                - naked_identifier: postalcode
+                            - end_bracket: )
+                  - end_bracket: )
         - expression:
           - column_reference:
             - naked_identifier: BEGIN
@@ -934,17 +945,18 @@ file:
             - function:
               - function_name:
                 - function_name_identifier: RAISERROR
-              - bracketed:
-                - start_bracket: (
-                - expression:
-                  - numeric_literal: '50009'
-                - comma: ','
-                - expression:
-                  - numeric_literal: '16'
-                - comma: ','
-                - expression:
-                  - numeric_literal: '10'
-                - end_bracket: )
+              - function_contents:
+                - bracketed:
+                  - start_bracket: (
+                  - expression:
+                    - numeric_literal: '50009'
+                  - comma: ','
+                  - expression:
+                    - numeric_literal: '16'
+                  - comma: ','
+                  - expression:
+                    - numeric_literal: '10'
+                  - end_bracket: )
         - expression:
           - data_type:
             - data_type_identifier: END

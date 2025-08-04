@@ -12,53 +12,57 @@ file:
             - quoted_identifier: '[dbo]'
             - dot: .
             - quoted_identifier: '[EC DC]'
-          - bracketed:
-            - start_bracket: (
-            - expression:
-              - column_reference:
-                - quoted_identifier: '[Column B]'
-            - expression:
-              - function:
+          - function_contents:
+            - bracketed:
+              - start_bracket: (
+              - expression:
+                - column_reference:
+                  - quoted_identifier: '[Column B]'
+              - expression:
                 - function:
-                  - function_name:
-                    - quoted_identifier: '[varchar]'
-                  - bracketed:
-                    - start_bracket: (
-                    - expression:
-                      - numeric_literal: '100'
-                    - end_bracket: )
-            - comma: ','
-            - expression:
-              - column_reference:
-                - quoted_identifier: '[ColumnC]'
-            - expression:
-              - function:
+                  - function:
+                    - function_name:
+                      - quoted_identifier: '[varchar]'
+                    - function_contents:
+                      - bracketed:
+                        - start_bracket: (
+                        - expression:
+                          - numeric_literal: '100'
+                        - end_bracket: )
+              - comma: ','
+              - expression:
+                - column_reference:
+                  - quoted_identifier: '[ColumnC]'
+              - expression:
                 - function:
-                  - function_name:
-                    - function_name_identifier: varchar
-                  - bracketed:
-                    - start_bracket: (
-                    - expression:
-                      - numeric_literal: '100'
-                    - end_bracket: )
-            - comma: ','
-            - expression:
-              - column_reference:
-                - quoted_identifier: '[ColumnDecimal]'
-            - expression:
-              - function:
+                  - function:
+                    - function_name:
+                      - function_name_identifier: varchar
+                    - function_contents:
+                      - bracketed:
+                        - start_bracket: (
+                        - expression:
+                          - numeric_literal: '100'
+                        - end_bracket: )
+              - comma: ','
+              - expression:
+                - column_reference:
+                  - quoted_identifier: '[ColumnDecimal]'
+              - expression:
                 - function:
-                  - function_name:
-                    - function_name_identifier: decimal
-                  - bracketed:
-                    - start_bracket: (
-                    - expression:
-                      - numeric_literal: '10'
-                    - comma: ','
-                    - expression:
-                      - numeric_literal: '3'
-                    - end_bracket: )
-            - end_bracket: )
+                  - function:
+                    - function_name:
+                      - function_name_identifier: decimal
+                    - function_contents:
+                      - bracketed:
+                        - start_bracket: (
+                        - expression:
+                          - numeric_literal: '10'
+                        - comma: ','
+                        - expression:
+                          - numeric_literal: '3'
+                        - end_bracket: )
+              - end_bracket: )
     - expression:
       - column_reference:
         - naked_identifier: CREATE
@@ -70,64 +74,65 @@ file:
         - function:
           - function_name:
             - function_name_identifier: foo
-          - bracketed:
-            - start_bracket: (
-            - expression:
-              - column_reference:
-                - naked_identifier: pk
-            - expression:
-              - column_reference:
-                - naked_identifier: int
-            - expression:
-              - column_reference:
-                - naked_identifier: PRIMARY
-            - expression:
-              - column_reference:
-                - naked_identifier: KEY
-            - comma: ','
-            - expression:
-              - column_reference:
-                - naked_identifier: quoted_name
-            - expression:
-              - column_reference:
-                - quoted_identifier: '[custom udt]'
-            - comma: ','
-            - expression:
-              - column_reference:
-                - naked_identifier: qualified_name
-            - expression:
-              - column_reference:
-                - naked_identifier: sch
-                - dot: .
-                - naked_identifier: qualified
-            - comma: ','
-            - expression:
-              - column_reference:
-                - naked_identifier: quoted_qualified
-            - expression:
-              - column_reference:
-                - quoted_identifier: '"my schema"'
-                - dot: .
-                - naked_identifier: qualified
-            - comma: ','
-            - expression:
-              - column_reference:
-                - naked_identifier: more_quoted
-            - expression:
-              - column_reference:
-                - quoted_identifier: '"my schema"'
-                - dot: .
-                - quoted_identifier: '"custom udt"'
-            - comma: ','
-            - expression:
-              - column_reference:
-                - naked_identifier: quoted_udt
-            - expression:
-              - column_reference:
-                - naked_identifier: sch
-                - dot: .
-                - quoted_identifier: '[custom udt]'
-            - end_bracket: )
+          - function_contents:
+            - bracketed:
+              - start_bracket: (
+              - expression:
+                - column_reference:
+                  - naked_identifier: pk
+              - expression:
+                - column_reference:
+                  - naked_identifier: int
+              - expression:
+                - column_reference:
+                  - naked_identifier: PRIMARY
+              - expression:
+                - column_reference:
+                  - naked_identifier: KEY
+              - comma: ','
+              - expression:
+                - column_reference:
+                  - naked_identifier: quoted_name
+              - expression:
+                - column_reference:
+                  - quoted_identifier: '[custom udt]'
+              - comma: ','
+              - expression:
+                - column_reference:
+                  - naked_identifier: qualified_name
+              - expression:
+                - column_reference:
+                  - naked_identifier: sch
+                  - dot: .
+                  - naked_identifier: qualified
+              - comma: ','
+              - expression:
+                - column_reference:
+                  - naked_identifier: quoted_qualified
+              - expression:
+                - column_reference:
+                  - quoted_identifier: '"my schema"'
+                  - dot: .
+                  - naked_identifier: qualified
+              - comma: ','
+              - expression:
+                - column_reference:
+                  - naked_identifier: more_quoted
+              - expression:
+                - column_reference:
+                  - quoted_identifier: '"my schema"'
+                  - dot: .
+                  - quoted_identifier: '"custom udt"'
+              - comma: ','
+              - expression:
+                - column_reference:
+                  - naked_identifier: quoted_udt
+              - expression:
+                - column_reference:
+                  - naked_identifier: sch
+                  - dot: .
+                  - quoted_identifier: '[custom udt]'
+              - end_bracket: )
   - statement_terminator: ;
   - statement:
     - create_table_statement:
@@ -255,16 +260,16 @@ file:
                   - function:
                     - function_name:
                       - function_name_identifier: CAST
-                    - bracketed:
-                      - start_bracket: (
-                      - expression:
-                        - column_reference:
-                          - naked_identifier: InventoryTs
-                      - keyword: AS
-                      - data_type:
+                    - function_contents:
+                      - bracketed:
+                        - start_bracket: (
+                        - expression:
+                          - column_reference:
+                            - naked_identifier: InventoryTs
+                        - keyword: AS
                         - data_type:
                           - data_type_identifier: date
-                      - end_bracket: )
+                        - end_bracket: )
           - end_bracket: )
   - statement_terminator: ;
   - statement:

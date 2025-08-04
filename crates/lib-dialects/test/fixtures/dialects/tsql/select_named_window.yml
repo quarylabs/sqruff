@@ -10,9 +10,10 @@ file:
               - function:
                 - function_name:
                   - function_name_identifier: ROW_NUMBER
-                - bracketed:
-                  - start_bracket: (
-                  - end_bracket: )
+                - function_contents:
+                  - bracketed:
+                    - start_bracket: (
+                    - end_bracket: )
                 - over_clause:
                   - keyword: OVER
                   - naked_identifier: win
@@ -177,12 +178,13 @@ file:
               - function:
                 - function_name:
                   - function_name_identifier: SUM
-                - bracketed:
-                  - start_bracket: (
-                  - expression:
-                    - column_reference:
-                      - naked_identifier: OrderQty
-                  - end_bracket: )
+                - function_contents:
+                  - bracketed:
+                    - start_bracket: (
+                    - expression:
+                      - column_reference:
+                        - naked_identifier: OrderQty
+                    - end_bracket: )
                 - over_clause:
                   - keyword: OVER
                   - naked_identifier: win
@@ -195,12 +197,13 @@ file:
               - function:
                 - function_name:
                   - function_name_identifier: AVG
-                - bracketed:
-                  - start_bracket: (
-                  - expression:
-                    - column_reference:
-                      - naked_identifier: OrderQty
-                  - end_bracket: )
+                - function_contents:
+                  - bracketed:
+                    - start_bracket: (
+                    - expression:
+                      - column_reference:
+                        - naked_identifier: OrderQty
+                    - end_bracket: )
                 - over_clause:
                   - keyword: OVER
                   - naked_identifier: win
@@ -213,12 +216,13 @@ file:
               - function:
                 - function_name:
                   - function_name_identifier: COUNT
-                - bracketed:
-                  - start_bracket: (
-                  - expression:
-                    - column_reference:
-                      - naked_identifier: OrderQty
-                  - end_bracket: )
+                - function_contents:
+                  - bracketed:
+                    - start_bracket: (
+                    - expression:
+                      - column_reference:
+                        - naked_identifier: OrderQty
+                    - end_bracket: )
                 - over_clause:
                   - keyword: OVER
                   - naked_identifier: win
@@ -231,12 +235,13 @@ file:
               - function:
                 - function_name:
                   - function_name_identifier: MIN
-                - bracketed:
-                  - start_bracket: (
-                  - expression:
-                    - column_reference:
-                      - naked_identifier: OrderQty
-                  - end_bracket: )
+                - function_contents:
+                  - bracketed:
+                    - start_bracket: (
+                    - expression:
+                      - column_reference:
+                        - naked_identifier: OrderQty
+                    - end_bracket: )
                 - over_clause:
                   - keyword: OVER
                   - naked_identifier: win
@@ -249,12 +254,13 @@ file:
               - function:
                 - function_name:
                   - function_name_identifier: MAX
-                - bracketed:
-                  - start_bracket: (
-                  - expression:
-                    - column_reference:
-                      - naked_identifier: OrderQty
-                  - end_bracket: )
+                - function_contents:
+                  - bracketed:
+                    - start_bracket: (
+                    - expression:
+                      - column_reference:
+                        - naked_identifier: OrderQty
+                    - end_bracket: )
                 - over_clause:
                   - keyword: OVER
                   - naked_identifier: win
@@ -332,12 +338,13 @@ file:
               - function:
                 - function_name:
                   - function_name_identifier: SUM
-                - bracketed:
-                  - start_bracket: (
-                  - expression:
-                    - column_reference:
-                      - naked_identifier: OrderQty
-                  - end_bracket: )
+                - function_contents:
+                  - bracketed:
+                    - start_bracket: (
+                    - expression:
+                      - column_reference:
+                        - naked_identifier: OrderQty
+                    - end_bracket: )
                 - over_clause:
                   - keyword: OVER
                   - naked_identifier: win
@@ -350,12 +357,13 @@ file:
               - function:
                 - function_name:
                   - function_name_identifier: AVG
-                - bracketed:
-                  - start_bracket: (
-                  - expression:
-                    - column_reference:
-                      - naked_identifier: OrderQty
-                  - end_bracket: )
+                - function_contents:
+                  - bracketed:
+                    - start_bracket: (
+                    - expression:
+                      - column_reference:
+                        - naked_identifier: OrderQty
+                    - end_bracket: )
                 - over_clause:
                   - keyword: OVER
                   - bracketed:
@@ -378,12 +386,13 @@ file:
               - function:
                 - function_name:
                   - function_name_identifier: COUNT
-                - bracketed:
-                  - start_bracket: (
-                  - expression:
-                    - column_reference:
-                      - naked_identifier: OrderQty
-                  - end_bracket: )
+                - function_contents:
+                  - bracketed:
+                    - start_bracket: (
+                    - expression:
+                      - column_reference:
+                        - naked_identifier: OrderQty
+                    - end_bracket: )
                 - over_clause:
                   - keyword: OVER
                   - bracketed:
@@ -480,12 +489,13 @@ file:
               - function:
                 - function_name:
                   - function_name_identifier: SUM
-                - bracketed:
-                  - start_bracket: (
-                  - expression:
-                    - column_reference:
-                      - naked_identifier: OrderQty
-                  - end_bracket: )
+                - function_contents:
+                  - bracketed:
+                    - start_bracket: (
+                    - expression:
+                      - column_reference:
+                        - naked_identifier: OrderQty
+                    - end_bracket: )
                 - over_clause:
                   - keyword: OVER
                   - naked_identifier: win2
@@ -498,12 +508,13 @@ file:
               - function:
                 - function_name:
                   - function_name_identifier: AVG
-                - bracketed:
-                  - start_bracket: (
-                  - expression:
-                    - column_reference:
-                      - naked_identifier: OrderQty
-                  - end_bracket: )
+                - function_contents:
+                  - bracketed:
+                    - start_bracket: (
+                    - expression:
+                      - column_reference:
+                        - naked_identifier: OrderQty
+                    - end_bracket: )
                 - over_clause:
                   - keyword: OVER
                   - naked_identifier: win1
@@ -594,9 +605,10 @@ file:
               - function:
                 - function_name:
                   - function_name_identifier: row_number
-                - bracketed:
-                  - start_bracket: (
-                  - end_bracket: )
+                - function_contents:
+                  - bracketed:
+                    - start_bracket: (
+                    - end_bracket: )
                 - over_clause:
                   - keyword: over
                   - naked_identifier: win

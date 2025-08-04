@@ -31,11 +31,12 @@ file:
                         - function:
                           - function_name:
                             - function_name_identifier: OPENJSON
-                          - bracketed:
-                            - start_bracket: (
-                            - expression:
-                              - quoted_literal: N'[1,2,3,4]'
-                            - end_bracket: )
+                          - function_contents:
+                            - bracketed:
+                              - start_bracket: (
+                              - expression:
+                                - quoted_literal: N'[1,2,3,4]'
+                              - end_bracket: )
                     - alias_expression:
                       - keyword: AS
                       - naked_identifier: productTypes
@@ -461,12 +462,13 @@ file:
                       - function:
                         - function_name:
                           - function_name_identifier: OPENJSON
-                        - bracketed:
-                          - start_bracket: (
-                          - expression:
-                            - parameterized_expression:
-                              - tsql_variable: '@JSON'
-                          - end_bracket: )
+                        - function_contents:
+                          - bracketed:
+                            - start_bracket: (
+                            - expression:
+                              - parameterized_expression:
+                                - tsql_variable: '@JSON'
+                            - end_bracket: )
                   - alias_expression:
                     - keyword: AS
                     - naked_identifier: root
@@ -480,14 +482,15 @@ file:
                         - function:
                           - function_name:
                             - function_name_identifier: OPENJSON
-                          - bracketed:
-                            - start_bracket: (
-                            - expression:
-                              - column_reference:
-                                - naked_identifier: root
-                                - dot: .
-                                - naked_identifier: value
-                            - end_bracket: )
+                          - function_contents:
+                            - bracketed:
+                              - start_bracket: (
+                              - expression:
+                                - column_reference:
+                                  - naked_identifier: root
+                                  - dot: .
+                                  - naked_identifier: value
+                              - end_bracket: )
                     - alias_expression:
                       - keyword: AS
                       - naked_identifier: TheValues

@@ -10,17 +10,18 @@ file:
               - function:
                 - function_name:
                   - function_name_identifier: DATEPART
-                - bracketed:
-                  - start_bracket: (
-                  - datetime_type_identifier:
-                    - datetime_type_identifier: DW
-                  - comma: ','
-                  - expression:
-                    - column_reference:
-                      - naked_identifier: my_table
-                      - dot: .
-                      - naked_identifier: date
-                  - end_bracket: )
+                - function_contents:
+                  - bracketed:
+                    - start_bracket: (
+                    - datetime_type_identifier:
+                      - datetime_type_identifier: DW
+                    - comma: ','
+                    - expression:
+                      - column_reference:
+                        - naked_identifier: my_table
+                        - dot: .
+                        - naked_identifier: date
+                    - end_bracket: )
             - alias_expression:
               - keyword: AS
               - naked_identifier: dayofweek

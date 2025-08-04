@@ -13,48 +13,50 @@ file:
         - function:
           - function_name:
             - function_name_identifier: WITH
-          - bracketed:
-            - start_bracket: (
-            - expression:
-              - column_reference:
-                - naked_identifier: DISTRIBUTION
-              - comparison_operator:
-                - raw_comparison_operator: =
-              - column_reference:
-                - naked_identifier: ROUND_ROBIN
-            - end_bracket: )
+          - function_contents:
+            - bracketed:
+              - start_bracket: (
+              - expression:
+                - column_reference:
+                  - naked_identifier: DISTRIBUTION
+                - comparison_operator:
+                  - raw_comparison_operator: =
+                - column_reference:
+                  - naked_identifier: ROUND_ROBIN
+              - end_bracket: )
     - expression:
       - function:
         - function:
           - function_name:
             - function_name_identifier: AS
-          - bracketed:
-            - start_bracket: (
-            - expression:
-              - select_statement:
-                - select_clause:
+          - function_contents:
+            - bracketed:
+              - start_bracket: (
+              - expression:
+                - select_statement:
                   - select_clause:
-                    - keyword: Select
-                    - select_clause_element:
-                      - column_reference:
-                        - naked_identifier: acto
-                        - dot: .
-                        - naked_identifier: ActionDTS
-                - from_clause:
+                    - select_clause:
+                      - keyword: Select
+                      - select_clause_element:
+                        - column_reference:
+                          - naked_identifier: acto
+                          - dot: .
+                          - naked_identifier: ActionDTS
                   - from_clause:
-                    - keyword: FROM
-                    - from_expression:
+                    - from_clause:
+                      - keyword: FROM
                       - from_expression:
-                        - from_expression_element:
+                        - from_expression:
                           - from_expression_element:
-                            - table_expression:
-                              - table_reference:
-                                - object_reference:
+                            - from_expression_element:
+                              - table_expression:
+                                - table_reference:
                                   - object_reference:
-                                    - naked_identifier: Orders_Action
-                            - alias_expression:
-                              - naked_identifier: acto
-            - end_bracket: )
+                                    - object_reference:
+                                      - naked_identifier: Orders_Action
+                              - alias_expression:
+                                - naked_identifier: acto
+              - end_bracket: )
     - expression:
       - select_statement:
         - select_clause:
@@ -111,23 +113,25 @@ file:
               - function:
                 - function_name:
                   - function_name_identifier: count
-                - bracketed:
-                  - start_bracket: (
-                  - star: '*'
-                  - end_bracket: )
+                - function_contents:
+                  - bracketed:
+                    - start_bracket: (
+                    - star: '*'
+                    - end_bracket: )
           - comma: ','
           - select_clause_element:
             - function:
               - function:
                 - function_name:
                   - function_name_identifier: count
-                - bracketed:
-                  - start_bracket: (
-                  - keyword: DISTINCT
-                  - expression:
-                    - column_reference:
-                      - naked_identifier: id
-                  - end_bracket: )
+                - function_contents:
+                  - bracketed:
+                    - start_bracket: (
+                    - keyword: DISTINCT
+                    - expression:
+                      - column_reference:
+                        - naked_identifier: id
+                    - end_bracket: )
       - from_clause:
         - from_clause:
           - keyword: FROM

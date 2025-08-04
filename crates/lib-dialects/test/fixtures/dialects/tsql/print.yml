@@ -28,18 +28,19 @@ file:
           - function:
             - function_name:
               - function_name_identifier: CAST
-            - bracketed:
-              - start_bracket: (
-              - expression:
-                - function:
+            - function_contents:
+              - bracketed:
+                - start_bracket: (
+                - expression:
                   - function:
-                    - function_name:
-                      - function_name_identifier: GETDATE
-                    - bracketed:
-                      - start_bracket: (
-                      - end_bracket: )
-              - keyword: AS
-              - data_type:
+                    - function:
+                      - function_name:
+                        - function_name_identifier: GETDATE
+                      - function_contents:
+                        - bracketed:
+                          - start_bracket: (
+                          - end_bracket: )
+                - keyword: AS
                 - data_type:
                   - data_type_identifier: VARCHAR
                   - bracketed_arguments:
@@ -47,7 +48,7 @@ file:
                       - start_bracket: (
                       - numeric_literal: '50'
                       - end_bracket: )
-              - end_bracket: )
+                - end_bracket: )
   - statement_terminator: ;
   - statement:
     - statement:

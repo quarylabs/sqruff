@@ -45,15 +45,16 @@ file:
                   - function:
                     - function_name:
                       - function_name_identifier: DATEPART
-                    - bracketed:
-                      - start_bracket: (
-                      - datetime_type_identifier:
-                        - datetime_type_identifier: wk
-                      - comma: ','
-                      - expression:
-                        - parameterized_expression:
-                          - tsql_variable: '@DATE'
-                      - end_bracket: )
+                    - function_contents:
+                      - bracketed:
+                        - start_bracket: (
+                        - datetime_type_identifier:
+                          - datetime_type_identifier: wk
+                        - comma: ','
+                        - expression:
+                          - parameterized_expression:
+                            - tsql_variable: '@DATE'
+                        - end_bracket: )
                 - binary_operator: +
                 - numeric_literal: '1'
                 - binary_operator: '-'
@@ -61,45 +62,47 @@ file:
                   - function:
                     - function_name:
                       - function_name_identifier: DATEPART
-                    - bracketed:
-                      - start_bracket: (
-                      - datetime_type_identifier:
-                        - datetime_type_identifier: wk
-                      - comma: ','
-                      - expression:
-                        - function:
+                    - function_contents:
+                      - bracketed:
+                        - start_bracket: (
+                        - datetime_type_identifier:
+                          - datetime_type_identifier: wk
+                        - comma: ','
+                        - expression:
                           - function:
-                            - function_name:
-                              - function_name_identifier: CAST
-                            - bracketed:
-                              - start_bracket: (
-                              - expression:
-                                - function:
-                                  - function:
-                                    - function_name:
-                                      - function_name_identifier: DATEPART
-                                    - bracketed:
-                                      - start_bracket: (
-                                      - datetime_type_identifier:
-                                        - datetime_type_identifier: yy
-                                      - comma: ','
-                                      - expression:
-                                        - parameterized_expression:
-                                          - tsql_variable: '@DATE'
-                                      - end_bracket: )
-                              - keyword: as
-                              - data_type:
-                                - data_type:
-                                  - data_type_identifier: CHAR
-                                  - bracketed_arguments:
-                                    - bracketed:
-                                      - start_bracket: (
-                                      - numeric_literal: '4'
-                                      - end_bracket: )
-                              - end_bracket: )
-                        - binary_operator: +
-                        - quoted_literal: '''0104'''
-                      - end_bracket: )
+                            - function:
+                              - function_name:
+                                - function_name_identifier: CAST
+                              - function_contents:
+                                - bracketed:
+                                  - start_bracket: (
+                                  - expression:
+                                    - function:
+                                      - function:
+                                        - function_name:
+                                          - function_name_identifier: DATEPART
+                                        - function_contents:
+                                          - bracketed:
+                                            - start_bracket: (
+                                            - datetime_type_identifier:
+                                              - datetime_type_identifier: yy
+                                            - comma: ','
+                                            - expression:
+                                              - parameterized_expression:
+                                                - tsql_variable: '@DATE'
+                                            - end_bracket: )
+                                  - keyword: as
+                                  - data_type:
+                                    - data_type_identifier: CHAR
+                                    - bracketed_arguments:
+                                      - bracketed:
+                                        - start_bracket: (
+                                        - numeric_literal: '4'
+                                        - end_bracket: )
+                                  - end_bracket: )
+                          - binary_operator: +
+                          - quoted_literal: '''0104'''
+                        - end_bracket: )
             - statement_terminator: ;
             - statement:
               - if_statement:
@@ -124,77 +127,80 @@ file:
                         - naked_identifier: dbo
                         - dot: .
                         - function_name_identifier: ISOweek
-                      - bracketed:
-                        - start_bracket: (
-                        - expression:
-                          - function:
+                      - function_contents:
+                        - bracketed:
+                          - start_bracket: (
+                          - expression:
                             - function:
-                              - function_name:
-                                - function_name_identifier: CAST
-                              - bracketed:
-                                - start_bracket: (
-                                - expression:
-                                  - function:
-                                    - function:
-                                      - function_name:
-                                        - function_name_identifier: DATEPART
-                                      - bracketed:
-                                        - start_bracket: (
-                                        - datetime_type_identifier:
-                                          - datetime_type_identifier: yy
-                                        - comma: ','
-                                        - expression:
-                                          - parameterized_expression:
-                                            - tsql_variable: '@DATE'
-                                        - end_bracket: )
-                                  - binary_operator: '-'
-                                  - numeric_literal: '1'
-                                - keyword: AS
-                                - data_type:
-                                  - data_type:
-                                    - data_type_identifier: CHAR
-                                    - bracketed_arguments:
-                                      - bracketed:
-                                        - start_bracket: (
-                                        - numeric_literal: '4'
-                                        - end_bracket: )
-                                - end_bracket: )
-                          - binary_operator: +
-                          - quoted_literal: '''12'''
-                          - binary_operator: +
-                          - function:
+                              - function:
+                                - function_name:
+                                  - function_name_identifier: CAST
+                                - function_contents:
+                                  - bracketed:
+                                    - start_bracket: (
+                                    - expression:
+                                      - function:
+                                        - function:
+                                          - function_name:
+                                            - function_name_identifier: DATEPART
+                                          - function_contents:
+                                            - bracketed:
+                                              - start_bracket: (
+                                              - datetime_type_identifier:
+                                                - datetime_type_identifier: yy
+                                              - comma: ','
+                                              - expression:
+                                                - parameterized_expression:
+                                                  - tsql_variable: '@DATE'
+                                              - end_bracket: )
+                                      - binary_operator: '-'
+                                      - numeric_literal: '1'
+                                    - keyword: AS
+                                    - data_type:
+                                      - data_type_identifier: CHAR
+                                      - bracketed_arguments:
+                                        - bracketed:
+                                          - start_bracket: (
+                                          - numeric_literal: '4'
+                                          - end_bracket: )
+                                    - end_bracket: )
+                            - binary_operator: +
+                            - quoted_literal: '''12'''
+                            - binary_operator: +
                             - function:
-                              - function_name:
-                                - function_name_identifier: CAST
-                              - bracketed:
-                                - start_bracket: (
-                                - expression:
-                                  - numeric_literal: '24'
-                                  - binary_operator: +
-                                  - function:
-                                    - function:
-                                      - function_name:
-                                        - function_name_identifier: DATEPART
-                                      - bracketed:
-                                        - start_bracket: (
-                                        - datetime_type_identifier:
-                                          - datetime_type_identifier: DAY
-                                        - comma: ','
-                                        - expression:
-                                          - parameterized_expression:
-                                            - tsql_variable: '@DATE'
-                                        - end_bracket: )
-                                - keyword: AS
-                                - data_type:
-                                  - data_type:
-                                    - data_type_identifier: CHAR
-                                    - bracketed_arguments:
-                                      - bracketed:
-                                        - start_bracket: (
-                                        - numeric_literal: '2'
-                                        - end_bracket: )
-                                - end_bracket: )
-                        - end_bracket: )
+                              - function:
+                                - function_name:
+                                  - function_name_identifier: CAST
+                                - function_contents:
+                                  - bracketed:
+                                    - start_bracket: (
+                                    - expression:
+                                      - numeric_literal: '24'
+                                      - binary_operator: +
+                                      - function:
+                                        - function:
+                                          - function_name:
+                                            - function_name_identifier: DATEPART
+                                          - function_contents:
+                                            - bracketed:
+                                              - start_bracket: (
+                                              - datetime_type_identifier:
+                                                - datetime_type_identifier: DAY
+                                              - comma: ','
+                                              - expression:
+                                                - parameterized_expression:
+                                                  - tsql_variable: '@DATE'
+                                              - end_bracket: )
+                                    - keyword: AS
+                                    - data_type:
+                                      - data_type_identifier: CHAR
+                                      - bracketed_arguments:
+                                        - bracketed:
+                                          - start_bracket: (
+                                          - numeric_literal: '2'
+                                          - end_bracket: )
+                                    - end_bracket: )
+                          - end_bracket: )
                   - binary_operator: +
                   - numeric_literal: '1'
                 - statement_terminator: ;
@@ -211,15 +217,16 @@ file:
                           - function:
                             - function_name:
                               - function_name_identifier: DATEPART
-                            - bracketed:
-                              - start_bracket: (
-                              - datetime_type_identifier:
-                                - datetime_type_identifier: mm
-                              - comma: ','
-                              - expression:
-                                - parameterized_expression:
-                                  - tsql_variable: '@DATE'
-                              - end_bracket: )
+                            - function_contents:
+                              - bracketed:
+                                - start_bracket: (
+                                - datetime_type_identifier:
+                                  - datetime_type_identifier: mm
+                                - comma: ','
+                                - expression:
+                                  - parameterized_expression:
+                                    - tsql_variable: '@DATE'
+                                - end_bracket: )
                         - comparison_operator:
                           - raw_comparison_operator: =
                         - numeric_literal: '12'
@@ -235,29 +242,31 @@ file:
                               - function:
                                 - function_name:
                                   - function_name_identifier: DATEPART
-                                - bracketed:
-                                  - start_bracket: (
-                                  - datetime_type_identifier:
-                                    - datetime_type_identifier: dd
-                                  - comma: ','
-                                  - expression:
-                                    - parameterized_expression:
-                                      - tsql_variable: '@DATE'
-                                  - end_bracket: )
+                                - function_contents:
+                                  - bracketed:
+                                    - start_bracket: (
+                                    - datetime_type_identifier:
+                                      - datetime_type_identifier: dd
+                                    - comma: ','
+                                    - expression:
+                                      - parameterized_expression:
+                                        - tsql_variable: '@DATE'
+                                    - end_bracket: )
                             - binary_operator: '-'
                             - function:
                               - function:
                                 - function_name:
                                   - function_name_identifier: DATEPART
-                                - bracketed:
-                                  - start_bracket: (
-                                  - datetime_type_identifier:
-                                    - datetime_type_identifier: dw
-                                  - comma: ','
-                                  - expression:
-                                    - parameterized_expression:
-                                      - tsql_variable: '@DATE'
-                                  - end_bracket: )
+                                - function_contents:
+                                  - bracketed:
+                                    - start_bracket: (
+                                    - datetime_type_identifier:
+                                      - datetime_type_identifier: dw
+                                    - comma: ','
+                                    - expression:
+                                      - parameterized_expression:
+                                        - tsql_variable: '@DATE'
+                                    - end_bracket: )
                           - end_bracket: )
                         - comparison_operator:
                           - raw_comparison_operator: '>'

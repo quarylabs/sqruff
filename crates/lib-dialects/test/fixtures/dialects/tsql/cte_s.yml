@@ -29,10 +29,11 @@ file:
                     - function:
                       - function_name:
                         - function_name_identifier: COUNT
-                      - bracketed:
-                        - start_bracket: (
-                        - star: '*'
-                        - end_bracket: )
+                      - function_contents:
+                        - bracketed:
+                          - start_bracket: (
+                          - star: '*'
+                          - end_bracket: )
             - from_clause:
               - from_clause:
                 - keyword: FROM
@@ -72,12 +73,13 @@ file:
                 - function:
                   - function_name:
                     - function_name_identifier: AVG
-                  - bracketed:
-                    - start_bracket: (
-                    - expression:
-                      - column_reference:
-                        - naked_identifier: NumberOfOrders
-                    - end_bracket: )
+                  - function_contents:
+                    - bracketed:
+                      - start_bracket: (
+                      - expression:
+                        - column_reference:
+                          - naked_identifier: NumberOfOrders
+                      - end_bracket: )
               - alias_expression:
                 - keyword: AS
                 - quoted_identifier: '"Average Sales Per Person"'

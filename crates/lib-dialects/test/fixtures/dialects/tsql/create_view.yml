@@ -34,12 +34,13 @@ file:
                   - function:
                     - function_name:
                       - function_name_identifier: SUM
-                    - bracketed:
-                      - start_bracket: (
-                      - expression:
-                        - column_reference:
-                          - naked_identifier: TotalDue
-                      - end_bracket: )
+                    - function_contents:
+                      - bracketed:
+                        - start_bracket: (
+                        - expression:
+                          - column_reference:
+                            - naked_identifier: TotalDue
+                        - end_bracket: )
                 - alias_expression:
                   - keyword: AS
                   - naked_identifier: TotalSales
@@ -69,18 +70,19 @@ file:
                   - function:
                     - function_name:
                       - function_name_identifier: CONVERT
-                    - bracketed:
-                      - start_bracket: (
-                      - expression:
-                        - column_reference:
-                          - naked_identifier: DATETIME
-                      - comma: ','
-                      - expression:
-                        - quoted_literal: '''20001231'''
-                      - comma: ','
-                      - expression:
-                        - numeric_literal: '101'
-                      - end_bracket: )
+                    - function_contents:
+                      - bracketed:
+                        - start_bracket: (
+                        - expression:
+                          - column_reference:
+                            - naked_identifier: DATETIME
+                        - comma: ','
+                        - expression:
+                          - quoted_literal: '''20001231'''
+                        - comma: ','
+                        - expression:
+                          - numeric_literal: '101'
+                        - end_bracket: )
           - groupby_clause:
             - groupby_clause:
               - keyword: GROUP
@@ -122,12 +124,13 @@ file:
                   - function:
                     - function_name:
                       - function_name_identifier: SUM
-                    - bracketed:
-                      - start_bracket: (
-                      - expression:
-                        - column_reference:
-                          - naked_identifier: TotalDue
-                      - end_bracket: )
+                    - function_contents:
+                      - bracketed:
+                        - start_bracket: (
+                        - expression:
+                          - column_reference:
+                            - naked_identifier: TotalDue
+                        - end_bracket: )
                 - alias_expression:
                   - keyword: AS
                   - naked_identifier: TotalSales
@@ -157,18 +160,19 @@ file:
                   - function:
                     - function_name:
                       - function_name_identifier: CONVERT
-                    - bracketed:
-                      - start_bracket: (
-                      - expression:
-                        - column_reference:
-                          - naked_identifier: DATETIME
-                      - comma: ','
-                      - expression:
-                        - quoted_literal: '''20001231'''
-                      - comma: ','
-                      - expression:
-                        - numeric_literal: '101'
-                      - end_bracket: )
+                    - function_contents:
+                      - bracketed:
+                        - start_bracket: (
+                        - expression:
+                          - column_reference:
+                            - naked_identifier: DATETIME
+                        - comma: ','
+                        - expression:
+                          - quoted_literal: '''20001231'''
+                        - comma: ','
+                        - expression:
+                          - numeric_literal: '101'
+                        - end_bracket: )
           - groupby_clause:
             - groupby_clause:
               - keyword: GROUP
@@ -255,18 +259,19 @@ file:
                   - function:
                     - function_name:
                       - function_name_identifier: CONVERT
-                    - bracketed:
-                      - start_bracket: (
-                      - expression:
-                        - column_reference:
-                          - naked_identifier: DATETIME
-                      - comma: ','
-                      - expression:
-                        - quoted_literal: '''20010630'''
-                      - comma: ','
-                      - expression:
-                        - numeric_literal: '101'
-                      - end_bracket: )
+                    - function_contents:
+                      - bracketed:
+                        - start_bracket: (
+                        - expression:
+                          - column_reference:
+                            - naked_identifier: DATETIME
+                        - comma: ','
+                        - expression:
+                          - quoted_literal: '''20010630'''
+                        - comma: ','
+                        - expression:
+                          - numeric_literal: '101'
+                        - end_bracket: )
   - statement_terminator: ;
   - statement:
     - create_view_statement:

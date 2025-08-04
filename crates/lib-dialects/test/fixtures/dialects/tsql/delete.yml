@@ -71,13 +71,13 @@ file:
           - function:
             - function_name:
               - function_name_identifier: CAST
-            - bracketed:
-              - start_bracket: (
-              - expression:
-                - parameterized_expression:
-                  - tsql_variable: '@@ROWCOUNT'
-              - keyword: as
-              - data_type:
+            - function_contents:
+              - bracketed:
+                - start_bracket: (
+                - expression:
+                  - parameterized_expression:
+                    - tsql_variable: '@@ROWCOUNT'
+                - keyword: as
                 - data_type:
                   - data_type_identifier: char
                   - bracketed_arguments:
@@ -85,7 +85,7 @@ file:
                       - start_bracket: (
                       - numeric_literal: '3'
                       - end_bracket: )
-              - end_bracket: )
+                - end_bracket: )
   - statement_terminator: ;
   - keyword: GO
   - statement:
@@ -141,12 +141,13 @@ file:
                             - function:
                               - function_name:
                                 - function_name_identifier: MAX
-                              - bracketed:
-                                - start_bracket: (
-                                - expression:
-                                  - column_reference:
-                                    - naked_identifier: RateChangeDate
-                                - end_bracket: )
+                              - function_contents:
+                                - bracketed:
+                                  - start_bracket: (
+                                  - expression:
+                                    - column_reference:
+                                      - naked_identifier: RateChangeDate
+                                  - end_bracket: )
                     - from_clause:
                       - from_clause:
                         - keyword: FROM

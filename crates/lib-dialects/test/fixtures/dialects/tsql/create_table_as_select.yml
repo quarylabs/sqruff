@@ -15,28 +15,30 @@ file:
         - function:
           - function_name:
             - function_name_identifier: WITH
-          - bracketed:
-            - start_bracket: (
-            - expression:
-              - column_reference:
-                - naked_identifier: DISTRIBUTION
-              - comparison_operator:
-                - raw_comparison_operator: =
-              - function:
+          - function_contents:
+            - bracketed:
+              - start_bracket: (
+              - expression:
+                - column_reference:
+                  - naked_identifier: DISTRIBUTION
+                - comparison_operator:
+                  - raw_comparison_operator: =
                 - function:
-                  - function_name:
-                    - function_name_identifier: HASH
-                  - bracketed:
-                    - start_bracket: (
-                    - expression:
-                      - column_reference:
-                        - quoted_identifier: '[ID]'
-                    - end_bracket: )
-            - comma: ','
-            - expression:
-              - column_reference:
-                - naked_identifier: HEAP
-            - end_bracket: )
+                  - function:
+                    - function_name:
+                      - function_name_identifier: HASH
+                    - function_contents:
+                      - bracketed:
+                        - start_bracket: (
+                        - expression:
+                          - column_reference:
+                            - quoted_identifier: '[ID]'
+                        - end_bracket: )
+              - comma: ','
+              - expression:
+                - column_reference:
+                  - naked_identifier: HEAP
+              - end_bracket: )
     - expression:
       - column_reference:
         - naked_identifier: AS
@@ -51,19 +53,20 @@ file:
         - function:
           - function_name:
             - function_name_identifier: AS
-          - bracketed:
-            - start_bracket: (
-            - expression:
-              - select_statement:
-                - select_clause:
+          - function_contents:
+            - bracketed:
+              - start_bracket: (
+              - expression:
+                - select_statement:
                   - select_clause:
-                    - keyword: SELECT
-                    - select_clause_element:
-                      - quoted_literal: '''Program'''
-                      - alias_expression:
-                        - keyword: AS
-                        - naked_identifier: Program
-            - end_bracket: )
+                    - select_clause:
+                      - keyword: SELECT
+                      - select_clause_element:
+                        - quoted_literal: '''Program'''
+                        - alias_expression:
+                          - keyword: AS
+                          - naked_identifier: Program
+              - end_bracket: )
     - expression:
       - select_statement:
         - select_clause:
@@ -186,28 +189,30 @@ file:
         - function:
           - function_name:
             - function_name_identifier: WITH
-          - bracketed:
-            - start_bracket: (
-            - expression:
-              - column_reference:
-                - naked_identifier: DISTRIBUTION
-              - comparison_operator:
-                - raw_comparison_operator: =
-              - function:
+          - function_contents:
+            - bracketed:
+              - start_bracket: (
+              - expression:
+                - column_reference:
+                  - naked_identifier: DISTRIBUTION
+                - comparison_operator:
+                  - raw_comparison_operator: =
                 - function:
-                  - function_name:
-                    - function_name_identifier: HASH
-                  - bracketed:
-                    - start_bracket: (
-                    - expression:
-                      - column_reference:
-                        - quoted_identifier: '[ID]'
-                    - end_bracket: )
-            - comma: ','
-            - expression:
-              - column_reference:
-                - naked_identifier: HEAP
-            - end_bracket: )
+                  - function:
+                    - function_name:
+                      - function_name_identifier: HASH
+                    - function_contents:
+                      - bracketed:
+                        - start_bracket: (
+                        - expression:
+                          - column_reference:
+                            - quoted_identifier: '[ID]'
+                        - end_bracket: )
+              - comma: ','
+              - expression:
+                - column_reference:
+                  - naked_identifier: HEAP
+              - end_bracket: )
     - expression:
       - column_reference:
         - naked_identifier: AS

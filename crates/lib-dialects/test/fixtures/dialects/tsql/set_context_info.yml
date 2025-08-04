@@ -28,23 +28,24 @@ file:
         - function:
           - function_name:
             - function_name_identifier: CAST
-          - bracketed:
-            - start_bracket: (
-            - expression:
-              - function:
+          - function_contents:
+            - bracketed:
+              - start_bracket: (
+              - expression:
                 - function:
-                  - function_name:
-                    - function_name_identifier: REPLICATE
-                  - bracketed:
-                    - start_bracket: (
-                    - expression:
-                      - numeric_literal: '0x20'
-                    - comma: ','
-                    - expression:
-                      - numeric_literal: '128'
-                    - end_bracket: )
-            - keyword: AS
-            - data_type:
+                  - function:
+                    - function_name:
+                      - function_name_identifier: REPLICATE
+                    - function_contents:
+                      - bracketed:
+                        - start_bracket: (
+                        - expression:
+                          - numeric_literal: '0x20'
+                        - comma: ','
+                        - expression:
+                          - numeric_literal: '128'
+                        - end_bracket: )
+              - keyword: AS
               - data_type:
                 - data_type_identifier: varbinary
                 - bracketed_arguments:
@@ -52,7 +53,7 @@ file:
                     - start_bracket: (
                     - numeric_literal: '128'
                     - end_bracket: )
-            - end_bracket: )
+              - end_bracket: )
   - statement_terminator: ;
   - statement:
     - set_context_info_statement:
@@ -70,9 +71,10 @@ file:
               - function:
                 - function_name:
                   - function_name_identifier: CONTEXT_INFO
-                - bracketed:
-                  - start_bracket: (
-                  - end_bracket: )
+                - function_contents:
+                  - bracketed:
+                    - start_bracket: (
+                    - end_bracket: )
             - alias_expression:
               - keyword: AS
               - naked_identifier: MyContextInfo

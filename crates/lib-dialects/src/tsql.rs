@@ -10000,29 +10000,11 @@ pub fn raw_dialect() -> Dialect {
         .into(),
     )]);
 
-    // Add CAST function name for proper function recognition
-    dialect.add([(
-        "CastFunctionNameSegment".into(),
-        NodeMatcher::new(SyntaxKind::FunctionName, |_| {
-            StringParser::new("CAST", SyntaxKind::FunctionNameIdentifier).to_matchable()
-        })
-        .to_matchable()
-        .into(),
-    )]);
 
-    // Override FunctionSegment to prioritize CAST function and include PostFunctionGrammar
+    // Override FunctionSegment to include PostFunctionGrammar
     dialect.replace_grammar("FunctionSegment", {
         NodeMatcher::new(SyntaxKind::Function, |_| {
             one_of(vec_of_erased![
-                // CAST function with special AS syntax
-                Sequence::new(vec_of_erased![
-                    Ref::new("CastFunctionNameSegment"),
-                    Bracketed::new(vec_of_erased![
-                        Ref::new("ExpressionSegment"),
-                        Ref::keyword("AS"),
-                        Ref::new("TsqlDatatypeSegment")
-                    ])
-                ]),
                 // JSON functions
                 Ref::new("TsqlJsonObjectSegment"),
                 Ref::new("TsqlJsonArraySegment"),
@@ -10030,11 +10012,7 @@ pub fn raw_dialect() -> Dialect {
                 Sequence::new(vec_of_erased![
                     Sequence::new(vec_of_erased![
                         Ref::new("DatePartFunctionNameSegment"),
-                        Bracketed::new(vec_of_erased![
-                            Ref::new("DatetimeUnitSegment"),
-                            Ref::new("CommaSegment"),
-                            Ref::new("ExpressionSegment")
-                        ])
+                        Ref::new("DateTimeFunctionContentsSegment")
                     ]),
                     Ref::new("PostFunctionGrammar").optional()
                 ]),
@@ -10043,13 +10021,9 @@ pub fn raw_dialect() -> Dialect {
                     Sequence::new(vec_of_erased![
                         Ref::new("FunctionNameSegment").exclude(one_of(vec_of_erased![
                             Ref::new("DatePartFunctionNameSegment"),
-                            Ref::new("CastFunctionNameSegment"),
                             Ref::new("ValuesClauseSegment")
                         ])),
-                        Bracketed::new(vec_of_erased![
-                            Ref::new("FunctionContentsGrammar").optional()
-                        ])
-                        .config(|this| this.parse_mode(ParseMode::Greedy))
+                        Ref::new("FunctionContentsSegment")
                     ]),
                     Ref::new("PostFunctionGrammar").optional()
                 ])

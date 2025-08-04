@@ -17,12 +17,13 @@ file:
             - quoted_identifier: '[rls]'
             - dot: .
             - quoted_identifier: '[fn_securitypredicate]'
-          - bracketed:
-            - start_bracket: (
-            - expression:
-              - column_reference:
-                - quoted_identifier: '[CustomerId]'
-            - end_bracket: )
+          - function_contents:
+            - bracketed:
+              - start_bracket: (
+              - expression:
+                - column_reference:
+                  - quoted_identifier: '[CustomerId]'
+              - end_bracket: )
       - keyword: ON
       - object_reference:
         - object_reference:
@@ -47,12 +48,13 @@ file:
             - quoted_identifier: '[rls]'
             - dot: .
             - quoted_identifier: '[fn_securitypredicate1]'
-          - bracketed:
-            - start_bracket: (
-            - expression:
-              - column_reference:
-                - quoted_identifier: '[CustomerId]'
-            - end_bracket: )
+          - function_contents:
+            - bracketed:
+              - start_bracket: (
+              - expression:
+                - column_reference:
+                  - quoted_identifier: '[CustomerId]'
+              - end_bracket: )
       - keyword: ON
       - object_reference:
         - object_reference:
@@ -69,12 +71,13 @@ file:
             - quoted_identifier: '[rls]'
             - dot: .
             - quoted_identifier: '[fn_securitypredicate1]'
-          - bracketed:
-            - start_bracket: (
-            - expression:
-              - column_reference:
-                - quoted_identifier: '[VendorId]'
-            - end_bracket: )
+          - function_contents:
+            - bracketed:
+              - start_bracket: (
+              - expression:
+                - column_reference:
+                  - quoted_identifier: '[VendorId]'
+              - end_bracket: )
       - keyword: ON
       - object_reference:
         - object_reference:
@@ -91,12 +94,13 @@ file:
             - quoted_identifier: '[rls]'
             - dot: .
             - quoted_identifier: '[fn_securitypredicate2]'
-          - bracketed:
-            - start_bracket: (
-            - expression:
-              - column_reference:
-                - quoted_identifier: '[WingId]'
-            - end_bracket: )
+          - function_contents:
+            - bracketed:
+              - start_bracket: (
+              - expression:
+                - column_reference:
+                  - quoted_identifier: '[WingId]'
+              - end_bracket: )
       - keyword: ON
       - object_reference:
         - object_reference:
@@ -131,12 +135,13 @@ file:
             - naked_identifier: rls
             - dot: .
             - function_name_identifier: tenantAccessPredicate
-          - bracketed:
-            - start_bracket: (
-            - expression:
-              - column_reference:
-                - naked_identifier: TenantId
-            - end_bracket: )
+          - function_contents:
+            - bracketed:
+              - start_bracket: (
+              - expression:
+                - column_reference:
+                  - naked_identifier: TenantId
+              - end_bracket: )
       - keyword: ON
       - object_reference:
         - object_reference:
@@ -153,12 +158,13 @@ file:
             - naked_identifier: rls
             - dot: .
             - function_name_identifier: tenantAccessPredicate
-          - bracketed:
-            - start_bracket: (
-            - expression:
-              - column_reference:
-                - naked_identifier: TenantId
-            - end_bracket: )
+          - function_contents:
+            - bracketed:
+              - start_bracket: (
+              - expression:
+                - column_reference:
+                  - naked_identifier: TenantId
+              - end_bracket: )
       - keyword: ON
       - object_reference:
         - object_reference:
@@ -185,12 +191,13 @@ file:
             - naked_identifier: schema_preds
             - dot: .
             - function_name_identifier: SecPredicate
-          - bracketed:
-            - start_bracket: (
-            - expression:
-              - column_reference:
-                - naked_identifier: column1
-            - end_bracket: )
+          - function_contents:
+            - bracketed:
+              - start_bracket: (
+              - expression:
+                - column_reference:
+                  - naked_identifier: column1
+              - end_bracket: )
       - keyword: ON
       - object_reference:
         - object_reference:
@@ -232,12 +239,13 @@ file:
             - naked_identifier: schema_preds
             - dot: .
             - function_name_identifier: SecPredicate1
-          - bracketed:
-            - start_bracket: (
-            - expression:
-              - column_reference:
-                - naked_identifier: column1
-            - end_bracket: )
+          - function_contents:
+            - bracketed:
+              - start_bracket: (
+              - expression:
+                - column_reference:
+                  - naked_identifier: column1
+              - end_bracket: )
       - keyword: ON
       - object_reference:
         - object_reference:
@@ -264,15 +272,16 @@ file:
             - naked_identifier: schema_preds
             - dot: .
             - function_name_identifier: SecPredicate2
-          - bracketed:
-            - start_bracket: (
-            - expression:
-              - column_reference:
-                - naked_identifier: column2
-            - comma: ','
-            - expression:
-              - numeric_literal: '1'
-            - end_bracket: )
+          - function_contents:
+            - bracketed:
+              - start_bracket: (
+              - expression:
+                - column_reference:
+                  - naked_identifier: column2
+              - comma: ','
+              - expression:
+                - numeric_literal: '1'
+              - end_bracket: )
       - keyword: ON
       - object_reference:
         - object_reference:
@@ -297,12 +306,13 @@ file:
             - naked_identifier: schema_preds
             - dot: .
             - function_name_identifier: SecPredicate2
-          - bracketed:
-            - start_bracket: (
-            - expression:
-              - column_reference:
-                - naked_identifier: column1
-            - end_bracket: )
+          - function_contents:
+            - bracketed:
+              - start_bracket: (
+              - expression:
+                - column_reference:
+                  - naked_identifier: column1
+              - end_bracket: )
       - keyword: ON
       - object_reference:
         - object_reference:
@@ -329,12 +339,13 @@ file:
             - naked_identifier: rls
             - dot: .
             - function_name_identifier: tenantAccessPredicate_v2
-          - bracketed:
-            - start_bracket: (
-            - expression:
-              - column_reference:
-                - naked_identifier: TenantId
-            - end_bracket: )
+          - function_contents:
+            - bracketed:
+              - start_bracket: (
+              - expression:
+                - column_reference:
+                  - naked_identifier: TenantId
+              - end_bracket: )
       - keyword: ON
       - object_reference:
         - object_reference:

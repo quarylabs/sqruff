@@ -397,12 +397,13 @@ file:
               - function:
                 - function_name:
                   - function_name_identifier: SUM
-                - bracketed:
-                  - start_bracket: (
-                  - expression:
-                    - column_reference:
-                      - naked_identifier: LineTotal
-                  - end_bracket: )
+                - function_contents:
+                  - bracketed:
+                    - start_bracket: (
+                    - expression:
+                      - column_reference:
+                        - naked_identifier: LineTotal
+                    - end_bracket: )
             - alias_expression:
               - keyword: AS
               - naked_identifier: Total
@@ -475,12 +476,13 @@ file:
               - function:
                 - function_name:
                   - function_name_identifier: SUM
-                - bracketed:
-                  - start_bracket: (
-                  - expression:
-                    - column_reference:
-                      - naked_identifier: LineTotal
-                  - end_bracket: )
+                - function_contents:
+                  - bracketed:
+                    - start_bracket: (
+                    - expression:
+                      - column_reference:
+                        - naked_identifier: LineTotal
+                    - end_bracket: )
             - alias_expression:
               - keyword: AS
               - naked_identifier: Total
@@ -1084,10 +1086,11 @@ file:
                           - naked_identifier: dbo
                           - dot: .
                           - function_name_identifier: tableX
-                        - bracketed:
-                          - start_bracket: (
-                          - expression:
-                            - column_reference:
-                              - naked_identifier: NOLOCK
-                          - end_bracket: )
+                        - function_contents:
+                          - bracketed:
+                            - start_bracket: (
+                            - expression:
+                              - column_reference:
+                                - naked_identifier: NOLOCK
+                            - end_bracket: )
   - keyword: GO

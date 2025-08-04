@@ -13,36 +13,40 @@ file:
           - function:
             - function_name:
               - function_name_identifier: ISNULL
-            - bracketed:
-              - start_bracket: (
-              - expression:
-                - function:
+            - function_contents:
+              - bracketed:
+                - start_bracket: (
+                - expression:
                   - function:
-                    - function_name:
-                      - naked_identifier: Shared
-                      - dot: .
-                      - function_name_identifier: GetESTDateTime
-                    - bracketed:
-                      - start_bracket: (
-                      - expression:
-                        - function:
-                          - function:
-                            - function_name:
-                              - function_name_identifier: GETDATE
-                            - bracketed:
-                              - start_bracket: (
-                              - end_bracket: )
-                      - end_bracket: )
-              - comma: ','
-              - expression:
-                - function:
+                    - function:
+                      - function_name:
+                        - naked_identifier: Shared
+                        - dot: .
+                        - function_name_identifier: GetESTDateTime
+                      - function_contents:
+                        - bracketed:
+                          - start_bracket: (
+                          - expression:
+                            - function:
+                              - function:
+                                - function_name:
+                                  - function_name_identifier: GETDATE
+                                - function_contents:
+                                  - bracketed:
+                                    - start_bracket: (
+                                    - end_bracket: )
+                          - end_bracket: )
+                - comma: ','
+                - expression:
                   - function:
-                    - function_name:
-                      - function_name_identifier: GETDATE
-                    - bracketed:
-                      - start_bracket: (
-                      - end_bracket: )
-              - end_bracket: )
+                    - function:
+                      - function_name:
+                        - function_name_identifier: GETDATE
+                      - function_contents:
+                        - bracketed:
+                          - start_bracket: (
+                          - end_bracket: )
+                - end_bracket: )
   - statement:
     - select_statement:
       - select_clause:
@@ -62,12 +66,12 @@ file:
               - function:
                 - function_name:
                   - function_name_identifier: cast
-                - bracketed:
-                  - start_bracket: (
-                  - expression:
-                    - quoted_literal: '''1900-01-01'''
-                  - keyword: as
-                  - data_type:
+                - function_contents:
+                  - bracketed:
+                    - start_bracket: (
+                    - expression:
+                      - quoted_literal: '''1900-01-01'''
+                    - keyword: as
                     - data_type:
                       - data_type_identifier: datetime2
                       - bracketed_arguments:
@@ -75,7 +79,7 @@ file:
                           - start_bracket: (
                           - numeric_literal: '7'
                           - end_bracket: )
-                  - end_bracket: )
+                    - end_bracket: )
             - alias_expression:
               - keyword: as
               - naked_identifier: DataRefreshDate
@@ -112,12 +116,12 @@ file:
           - function:
             - function_name:
               - function_name_identifier: cast
-            - bracketed:
-              - start_bracket: (
-              - expression:
-                - numeric_literal: '100'
-              - keyword: as
-              - data_type:
+            - function_contents:
+              - bracketed:
+                - start_bracket: (
+                - expression:
+                  - numeric_literal: '100'
+                - keyword: as
                 - data_type:
                   - data_type_identifier: nvarchar
                   - bracketed_arguments:
@@ -125,4 +129,4 @@ file:
                       - start_bracket: (
                       - keyword: max
                       - end_bracket: )
-              - end_bracket: )
+                - end_bracket: )

@@ -90,12 +90,13 @@ file:
                             - function:
                               - function_name:
                                 - function_name_identifier: AVG
-                              - bracketed:
-                                - start_bracket: (
-                                - expression:
-                                  - column_reference:
-                                    - naked_identifier: StandardCost
-                                - end_bracket: )
+                              - function_contents:
+                                - bracketed:
+                                  - start_bracket: (
+                                  - expression:
+                                    - column_reference:
+                                      - naked_identifier: StandardCost
+                                  - end_bracket: )
                           - keyword: FOR
                           - column_reference:
                             - naked_identifier: DaysToManufacture

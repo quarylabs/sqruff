@@ -32,24 +32,25 @@ file:
         - function:
           - function_name:
             - function_name_identifier: ON
-          - bracketed:
-            - start_bracket: (
-            - expression:
-              - column_reference:
-                - naked_identifier: dbo
-                - dot: .
-                - naked_identifier: Table2
-                - dot: .
-                - naked_identifier: ColA
-              - comparison_operator:
-                - raw_comparison_operator: =
-              - column_reference:
-                - naked_identifier: dbo
-                - dot: .
-                - naked_identifier: Table1
-                - dot: .
-                - naked_identifier: ColA
-            - end_bracket: )
+          - function_contents:
+            - bracketed:
+              - start_bracket: (
+              - expression:
+                - column_reference:
+                  - naked_identifier: dbo
+                  - dot: .
+                  - naked_identifier: Table2
+                  - dot: .
+                  - naked_identifier: ColA
+                - comparison_operator:
+                  - raw_comparison_operator: =
+                - column_reference:
+                  - naked_identifier: dbo
+                  - dot: .
+                  - naked_identifier: Table1
+                  - dot: .
+                  - naked_identifier: ColA
+              - end_bracket: )
     - expression:
       - column_reference:
         - naked_identifier: WHERE
@@ -316,24 +317,25 @@ file:
         - function:
           - function_name:
             - function_name_identifier: ON
-          - bracketed:
-            - start_bracket: (
-            - expression:
-              - column_reference:
-                - naked_identifier: dbo
-                - dot: .
-                - naked_identifier: Table2
-                - dot: .
-                - naked_identifier: ColA
-              - comparison_operator:
-                - raw_comparison_operator: =
-              - column_reference:
-                - naked_identifier: dbo
-                - dot: .
-                - naked_identifier: Table1
-                - dot: .
-                - naked_identifier: ColA
-            - end_bracket: )
+          - function_contents:
+            - bracketed:
+              - start_bracket: (
+              - expression:
+                - column_reference:
+                  - naked_identifier: dbo
+                  - dot: .
+                  - naked_identifier: Table2
+                  - dot: .
+                  - naked_identifier: ColA
+                - comparison_operator:
+                  - raw_comparison_operator: =
+                - column_reference:
+                  - naked_identifier: dbo
+                  - dot: .
+                  - naked_identifier: Table1
+                  - dot: .
+                  - naked_identifier: ColA
+              - end_bracket: )
     - expression:
       - column_reference:
         - naked_identifier: WHERE

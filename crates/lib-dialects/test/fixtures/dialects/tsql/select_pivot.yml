@@ -39,12 +39,13 @@ file:
                         - function:
                           - function_name:
                             - function_name_identifier: max
-                          - bracketed:
-                            - start_bracket: (
-                            - expression:
-                              - column_reference:
-                                - naked_identifier: value
-                            - end_bracket: )
+                          - function_contents:
+                            - bracketed:
+                              - start_bracket: (
+                              - expression:
+                                - column_reference:
+                                  - naked_identifier: value
+                              - end_bracket: )
                       - keyword: for
                       - column_reference:
                         - naked_identifier: rn
@@ -104,12 +105,13 @@ file:
                         - function:
                           - function_name:
                             - function_name_identifier: max
-                          - bracketed:
-                            - start_bracket: (
-                            - expression:
-                              - column_reference:
-                                - naked_identifier: value
-                            - end_bracket: )
+                          - function_contents:
+                            - bracketed:
+                              - start_bracket: (
+                              - expression:
+                                - column_reference:
+                                  - naked_identifier: value
+                              - end_bracket: )
                       - keyword: for
                       - column_reference:
                         - naked_identifier: rn

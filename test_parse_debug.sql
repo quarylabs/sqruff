@@ -1,1 +1,0 @@
-(SELECT foo FROM bar)

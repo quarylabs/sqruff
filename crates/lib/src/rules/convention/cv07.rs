@@ -66,28 +66,6 @@ Don’t wrap top-level statements in brackets.
 
     fn eval(&self, context: &RuleContext) -> Vec<LintResult> {
         let mut results = vec![];
-        
-        // Debug output for T-SQL
-        if context.config.raw.get("core")
-            .and_then(|c| c.as_map())
-            .and_then(|m| m.get("dialect"))
-            .and_then(|d| d.as_string())
-            .map(|s| s == "tsql")
-            .unwrap_or(false) 
-        {
-            eprintln!("DEBUG CV07: Processing T-SQL file");
-            let statements = Self::iter_statements(context.segment.clone());
-            eprintln!("DEBUG CV07: Found {} statements", statements.len());
-            for stmt in &statements {
-                eprintln!("DEBUG CV07: Statement type: {:?}", stmt.get_type());
-                eprintln!("  Segments: {:?}", stmt.segments().iter().map(|s| s.get_type()).collect::<Vec<_>>());
-                if stmt.segments().len() > 0 {
-                    for seg in stmt.segments() {
-                        eprintln!("    - {:?}: raw={:?}", seg.get_type(), seg.raw());
-                    }
-                }
-            }
-        }
 
         for (parent, bracketed_segment) in Self::iter_bracketed_statements(context.segment.clone())
         {

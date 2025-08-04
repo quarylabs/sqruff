@@ -3935,7 +3935,7 @@ pub fn raw_dialect() -> Dialect {
     // Add BatchSegment that contains multiple statements like SQLFluff
     dialect.add([(
         "BatchSegment".into(),
-        NodeMatcher::new(SyntaxKind::Statement, |_| {
+        NodeMatcher::new(SyntaxKind::Batch, |_| {
             one_of(vec_of_erased![
                 // Try normal statement parsing first
                 AnyNumberOf::new(vec_of_erased![Sequence::new(vec_of_erased![

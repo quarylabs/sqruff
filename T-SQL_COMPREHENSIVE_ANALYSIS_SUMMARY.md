@@ -25,6 +25,7 @@ This document consolidates the complete investigation into T-SQL parsing issues 
 11. **Implementation Reference** (T-SQL_IMPLEMENTATION_REFERENCE.md): Developer guide
 12. **Final Strategy** (T-SQL_FINAL_PARSING_STRATEGY.md): Current status and next steps
 13. **ALTER TABLE Investigation** (ALTER_TABLE_DROP_COLUMN_INVESTIGATION.md): Specific grammar fix
+14. **Function Parsing Regression** (T-SQL_FUNCTION_PARSING_REGRESSION_ANALYSIS.md): Critical parsing issue
 
 ### Current State (Updated from tsql_parsing_status_report.md)
 - **Success Rate**: 89% (136/153 files fully parsable, 17 files with unparsable sections)
@@ -280,6 +281,69 @@ ALTER TABLE dbo.doc_exc ADD column_b VARCHAR(20) NULL CONSTRAINT exb_unique UNIQ
 3. **Incremental testing** helps identify structural patterns that work
 4. **Grammar precedence matters** when multiple definitions exist
 
+## Function Parsing Regression Analysis
+
+### Critical Issue (T-SQL_FUNCTION_PARSING_REGRESSION_ANALYSIS.md)
+A regression introduced by word-aware parsing changes that caused function parsing to fail catastrophically.
+
+#### Problem
+- **Critical Issue**: LT06 panic indicating function segments missing FunctionName/FunctionContents children
+- **Simple Test Case**: `SELECT GETDATE();` causes panic
+- **Impact**: Affects all files containing functions (6+ unparsable files)
+- **Root Cause**: Recent word-aware parsing changes introduced malformed AST structure
+
+#### Investigation Strategy
+The analysis used a systematic approach to identify the regression:
+
+1. **Current State Analysis**:
+   - ✅ Confirmed function parsing regression affects basic statements
+   - ✅ Issue is not batch-specific or CREATE-statement specific  
+   - ✅ Panic occurs in LT06 rule expecting FunctionName/FunctionContents children
+
+2. **Change Analysis** (Risk Assessment):
+   - **High Risk**: WordAwareExpressionSegment IS/NULL tokens (lines 9952-9957)
+   - **High Risk**: WordAwareSelectStatementSegment SELECT/FROM/WHERE tokens (lines 10012+)
+   - **Medium Risk**: Parser priority changes and WordAwareStatementSegment reordering
+   - **Low Risk**: New parser creation (WordAwareCreateIndexStatementSegment, etc.)
+
+3. **Hypothesis**: SELECT Statement Parsing Interference
+   - Theory: Changes to WordAwareSelectStatementSegment interfering with function parsing
+   - Reasoning: Simple `SELECT GETDATE();` triggers panic, extensive SELECT changes made
+
+#### Investigation Progress
+1. **Baseline Test**: ✅ Panic confirmed with minimal case
+2. **Systematic Reversion**: 
+   - ✅ Disabled WordAwareSelectStatementSegment - panic persists
+   - ✅ Removed recursive references in WordAwareExpressionSegment - panic persists
+   - 🔄 Additional investigation needed
+
+#### Test Cases Used
+```sql
+-- Minimal reproduction
+SELECT GETDATE();
+
+-- Function variants
+SELECT NEXT VALUE FOR seq1;  
+SELECT OBJECT_ID('table');
+```
+
+#### Impact Assessment
+- **Severity**: Critical (prevents basic function usage)
+- **Scope**: All function calls in SQL statements
+- **Priority**: Immediate fix required for CI/production use
+- **Target**: 0 unparsable files + no LT06 panic
+
+#### Key Insights
+1. **Regression Detection**: Word-aware changes can have unexpected cascading effects
+2. **AST Structure**: Function segments require specific child node structure
+3. **Testing Strategy**: Simple test cases can reveal complex architectural issues
+4. **Systematic Debugging**: Methodical reversion helps isolate problematic changes
+
+#### Status
+- **Current**: Investigation in progress
+- **Goal**: Fix function parsing regression while preserving word-aware functionality
+- **Success Metrics**: 0 unparsable files + no LT06 panic + comprehensive test validation
+
 ## Technical Deep Dive
 
 ### Why StringParser Doesn't Fully Work
@@ -391,12 +455,13 @@ The T-SQL parsing investigation represents a comprehensive analysis of SQL diale
 2. **Architectural Analysis**: Deep investigation of Sqruff vs SQLFluff differences
 3. **Implementation**: Word-aware parsing infrastructure (lines 9859-10011 in tsql.rs)
 4. **Specific Fixes**: ALTER TABLE grammar restructuring, various syntax enhancements
-5. **Current State**: 89% success rate (136/153 files) with 17 files having specific syntax gaps
+5. **Regression Issues**: Function parsing regression requiring systematic debugging
+6. **Current State**: 89% success rate (136/153 files) with 17 files having specific syntax gaps
 
 The implemented word-aware parsing system provides robust fallback handling and prevents parser failures, making Sqruff practically usable for T-SQL while maintaining clean architecture for other dialects. The remaining 17 files with issues represent specific T-SQL syntax patterns that need targeted grammar enhancements rather than architectural changes.
 
-**Key Takeaway**: The investigation successfully solved the core architectural challenges (context-dependent lexing) and now has a clear roadmap for addressing remaining syntax support gaps through priority-ordered pattern fixes.
+**Key Takeaway**: The investigation successfully solved the core architectural challenges (context-dependent lexing), implemented specific grammar fixes, and identified a critical function parsing regression. The work demonstrates both the complexity of SQL dialect parsing and the importance of systematic debugging approaches when making architectural changes.
 
 ---
 
-*This summary consolidates 14 analysis documents spanning architectural investigation, implementation attempts, technical deep dives, current status reporting, and specific grammar fixes for T-SQL parsing challenges in Sqruff. The included documents range from initial architecture analysis through specific ALTER TABLE fixes to current priority recommendations for remaining syntax support.*
+*This summary consolidates 15 analysis documents spanning architectural investigation, implementation attempts, technical deep dives, current status reporting, specific grammar fixes, and regression analysis for T-SQL parsing challenges in Sqruff. The included documents range from initial architecture analysis through specific fixes to critical regression identification and debugging strategies.*

@@ -1,0 +1,6 @@
+THROW 50005, N'an error occurred', 1;
+BEGIN TRY
+    EXEC spSomeProc
+END TRY
+BEGIN CATCH
+END CATCH;

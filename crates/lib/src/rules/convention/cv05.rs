@@ -109,6 +109,13 @@ WHERE a IS NULL
             return Vec::new();
         }
 
+        // Check if we're inside a function call (at any level in parent stack)
+        for parent in &context.parent_stack {
+            if parent.is_type(SyntaxKind::Function) {
+                return Vec::new();
+            }
+        }
+
         let raw_consist = context.segment.raw();
         if !["=", "!=", "<>"].contains(&raw_consist.as_str()) {
             return Vec::new();

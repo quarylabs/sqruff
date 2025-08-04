@@ -391,63 +391,8 @@ pub fn raw_dialect() -> Dialect {
         "OPENXML",
     ]);
 
-    // Override ObjectReferenceSegment to support T-SQL's leading dots syntax
-    // In T-SQL:
-    // - .table means current_database.current_schema.table
-    // - ..table means current_database..table (default schema)
-    // - ...table means current_server.current_database..table (default schema)
-    dialect.replace_grammar(
-        "ObjectReferenceSegment",
-        one_of(vec_of_erased![
-            // T-SQL syntax with leading dots
-            Sequence::new(vec_of_erased![
-                // At least one leading dot
-                one_of(vec_of_erased![
-                    Sequence::new(vec_of_erased![
-                        Ref::new("DotSegment"),
-                        Ref::new("DotSegment"),
-                        Ref::new("DotSegment")
-                    ]), // ...table
-                    Sequence::new(vec_of_erased![
-                        Ref::new("DotSegment"),
-                        Ref::new("DotSegment")
-                    ]), // ..table
-                    Ref::new("DotSegment") // .table
-                ]),
-                // Then the identifier parts
-                Delimited::new(vec_of_erased![Ref::new("SingleIdentifierGrammar")]).config(
-                    |this| {
-                        this.delimiter(Ref::new("DotSegment"));
-                        this.disallow_gaps();
-                        this.terminators =
-                            vec_of_erased![Ref::new("ObjectReferenceTerminatorGrammar")];
-                    }
-                )
-            ]),
-            // Standard object reference (no leading dots)
-            Delimited::new(vec_of_erased![Ref::new("SingleIdentifierGrammar")]).config(|this| {
-                this.delimiter(Ref::new("DotSegment"));
-                this.disallow_gaps();
-                this.terminators = vec_of_erased![Ref::new("ObjectReferenceTerminatorGrammar")];
-            }),
-            // T-SQL double-dot syntax: server..table, database..table (default schema)
-            Sequence::new(vec_of_erased![
-                Ref::new("SingleIdentifierGrammar"), // server/database name
-                Ref::new("DotSegment"),
-                Ref::new("DotSegment"),
-                // Then the remaining identifier parts
-                Delimited::new(vec_of_erased![Ref::new("SingleIdentifierGrammar")]).config(
-                    |this| {
-                        this.delimiter(Ref::new("DotSegment"));
-                        this.disallow_gaps();
-                        this.terminators =
-                            vec_of_erased![Ref::new("ObjectReferenceTerminatorGrammar")];
-                    }
-                )
-            ])
-        ])
-        .to_matchable(),
-    );
+    // T-SQL uses the standard ANSI ObjectReferenceSegment
+    // The leading dots syntax (.table, ..table, ...table) is handled elsewhere
 
     // NOTE: T-SQL CASE expressions are now supported in SELECT clauses via TsqlCaseExpressionSegment
     // The previous parsing issue was resolved by creating T-SQL specific CASE expressions that use

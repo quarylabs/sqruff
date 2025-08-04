@@ -7,10 +7,9 @@ file:
         - keyword: TABLE
         - table_reference:
           - object_reference:
-            - object_reference:
-              - quoted_identifier: '[dbo]'
-              - dot: .
-              - quoted_identifier: '[EC DC]'
+            - quoted_identifier: '[dbo]'
+            - dot: .
+            - quoted_identifier: '[EC DC]'
         - bracketed:
           - start_bracket: (
           - column_definition:
@@ -45,5 +44,4 @@ file:
           - end_bracket: )
         - keyword: ON
         - object_reference:
-          - object_reference:
-            - naked_identifier: MyFileGroup
+          - naked_identifier: MyFileGroup

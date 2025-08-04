@@ -5,8 +5,7 @@ file:
     - keyword: IDENTITY_INSERT
     - table_reference:
       - object_reference:
-        - object_reference:
-          - naked_identifier: someTable
+        - naked_identifier: someTable
     - keyword: ON
   - statement_terminator: ;
   - statement:
@@ -16,8 +15,7 @@ file:
         - keyword: INTO
         - table_reference:
           - object_reference:
-            - object_reference:
-              - naked_identifier: someTable
+            - naked_identifier: someTable
         - bracketed:
           - start_bracket: (
           - column_reference:
@@ -40,7 +38,6 @@ file:
     - keyword: IDENTITY_INSERT
     - table_reference:
       - object_reference:
-        - object_reference:
-          - naked_identifier: someTable
+        - naked_identifier: someTable
     - keyword: OFF
   - statement_terminator: ;

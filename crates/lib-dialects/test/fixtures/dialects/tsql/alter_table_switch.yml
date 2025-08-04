@@ -6,17 +6,15 @@ file:
       - keyword: TABLE
       - table_reference:
         - object_reference:
-          - object_reference:
-            - quoted_identifier: '[Facility]'
-            - dot: .
-            - quoted_identifier: '[PL_stage]'
+          - quoted_identifier: '[Facility]'
+          - dot: .
+          - quoted_identifier: '[PL_stage]'
       - keyword: SWITCH
       - keyword: TO
       - object_reference:
-        - object_reference:
-          - quoted_identifier: '[Facility]'
-          - dot: .
-          - quoted_identifier: '[PL_BASE]'
+        - quoted_identifier: '[Facility]'
+        - dot: .
+        - quoted_identifier: '[PL_BASE]'
       - keyword: WITH
       - bracketed:
         - start_bracket: (
@@ -32,15 +30,13 @@ file:
       - keyword: TABLE
       - table_reference:
         - object_reference:
-          - object_reference:
-            - quoted_identifier: '[PartitionTable]'
+          - quoted_identifier: '[PartitionTable]'
       - keyword: SWITCH
       - keyword: PARTITION
       - numeric_literal: '1'
       - keyword: TO
       - object_reference:
-        - object_reference:
-          - naked_identifier: NonPartitionTable
+        - naked_identifier: NonPartitionTable
   - statement_terminator: ;
   - statement:
     - alter_table_switch_statement:
@@ -48,15 +44,13 @@ file:
       - keyword: TABLE
       - table_reference:
         - object_reference:
-          - object_reference:
-            - naked_identifier: Orders
+          - naked_identifier: Orders
       - keyword: SWITCH
       - keyword: PARTITION
       - numeric_literal: '2'
       - keyword: TO
       - object_reference:
-        - object_reference:
-          - quoted_identifier: '[OrdersHistory]'
+        - quoted_identifier: '[OrdersHistory]'
       - keyword: PARTITION
       - numeric_literal: '2'
   - statement_terminator: ;
@@ -66,15 +60,13 @@ file:
       - keyword: TABLE
       - table_reference:
         - object_reference:
-          - object_reference:
-            - naked_identifier: Orders
+          - naked_identifier: Orders
       - keyword: SWITCH
       - keyword: PARTITION
       - numeric_literal: '3'
       - keyword: TO
       - object_reference:
-        - object_reference:
-          - quoted_identifier: '[OrdersHistory]'
+        - quoted_identifier: '[OrdersHistory]'
       - keyword: PARTITION
       - numeric_literal: '3'
   - statement_terminator: ;
@@ -84,15 +76,13 @@ file:
       - keyword: TABLE
       - table_reference:
         - object_reference:
-          - object_reference:
-            - naked_identifier: Orders
+          - naked_identifier: Orders
       - keyword: SWITCH
       - keyword: PARTITION
       - numeric_literal: '4'
       - keyword: TO
       - object_reference:
-        - object_reference:
-          - quoted_identifier: '[OrdersHistory]'
+        - quoted_identifier: '[OrdersHistory]'
       - keyword: PARTITION
       - numeric_literal: '4'
       - keyword: WITH
@@ -120,15 +110,13 @@ file:
       - keyword: TABLE
       - table_reference:
         - object_reference:
-          - object_reference:
-            - naked_identifier: Orders
+          - naked_identifier: Orders
       - keyword: SWITCH
       - keyword: PARTITION
       - numeric_literal: '5'
       - keyword: TO
       - object_reference:
-        - object_reference:
-          - quoted_identifier: '[OrdersHistory]'
+        - quoted_identifier: '[OrdersHistory]'
       - keyword: PARTITION
       - numeric_literal: '5'
       - keyword: WITH

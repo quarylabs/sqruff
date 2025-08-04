@@ -5,8 +5,7 @@ file:
       - keyword: CREATE
       - keyword: PROCEDURE
       - object_reference:
-        - object_reference:
-          - naked_identifier: findjobs
+        - naked_identifier: findjobs
       - tsql_variable: '@nm'
       - data_type:
         - data_type:

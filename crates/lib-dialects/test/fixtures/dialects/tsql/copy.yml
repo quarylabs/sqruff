@@ -5,10 +5,9 @@ file:
     - keyword: INTO
     - table_reference:
       - object_reference:
-        - object_reference:
-          - naked_identifier: dbo
-          - dot: .
-          - quoted_identifier: '[lineitem]'
+        - naked_identifier: dbo
+        - dot: .
+        - quoted_identifier: '[lineitem]'
     - keyword: FROM
     - quoted_literal: '''https://unsecureaccount.blob.core.windows.net/customerdatasets/folder1/lineitem.csv'''
   - statement_terminator: ;
@@ -17,8 +16,7 @@ file:
     - keyword: INTO
     - table_reference:
       - object_reference:
-        - object_reference:
-          - naked_identifier: test_1
+        - naked_identifier: test_1
     - keyword: FROM
     - quoted_literal: '''https://myaccount.blob.core.windows.net/myblobcontainer/folder1/'''
     - keyword: WITH
@@ -91,8 +89,7 @@ file:
     - keyword: INTO
     - table_reference:
       - object_reference:
-        - object_reference:
-          - naked_identifier: test_parquet
+        - naked_identifier: test_parquet
     - keyword: FROM
     - quoted_literal: '''https://myaccount.blob.core.windows.net/myblobcontainer/folder1/*.parquet'''
     - keyword: WITH
@@ -102,8 +99,7 @@ file:
       - comparison_operator:
         - raw_comparison_operator: =
       - object_reference:
-        - object_reference:
-          - naked_identifier: myFileFormat
+        - naked_identifier: myFileFormat
       - comma: ','
       - keyword: CREDENTIAL
       - comparison_operator:
@@ -127,8 +123,7 @@ file:
     - keyword: INTO
     - table_reference:
       - object_reference:
-        - object_reference:
-          - naked_identifier: t1
+        - naked_identifier: t1
     - keyword: FROM
     - quoted_literal: '''https://myaccount.blob.core.windows.net/myblobcontainer/folder0/*.txt'''
     - comma: ','
@@ -168,10 +163,9 @@ file:
     - keyword: INTO
     - table_reference:
       - object_reference:
-        - object_reference:
-          - naked_identifier: dbo
-          - dot: .
-          - naked_identifier: myCOPYDemoTable
+        - naked_identifier: dbo
+        - dot: .
+        - naked_identifier: myCOPYDemoTable
     - keyword: FROM
     - quoted_literal: '''https://myaccount.blob.core.windows.net/myblobcontainer/folder0/*.txt'''
     - keyword: WITH
@@ -209,8 +203,7 @@ file:
     - keyword: INTO
     - table_reference:
       - object_reference:
-        - object_reference:
-          - quoted_identifier: '[myCOPYDemoTable]'
+        - quoted_identifier: '[myCOPYDemoTable]'
     - keyword: FROM
     - quoted_literal: '''https://myaccount.blob.core.windows.net/customerdatasets/folder1/lineitem.parquet'''
     - keyword: WITH

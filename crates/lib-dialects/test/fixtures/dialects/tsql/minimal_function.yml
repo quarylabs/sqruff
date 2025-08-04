@@ -8,10 +8,9 @@ file:
         - keyword: ALTER
         - keyword: FUNCTION
         - object_reference:
-          - object_reference:
-            - quoted_identifier: '[dbo]'
-            - dot: .
-            - quoted_identifier: '[add]'
+          - quoted_identifier: '[dbo]'
+          - dot: .
+          - quoted_identifier: '[add]'
         - bracketed:
           - start_bracket: (
           - parameter:

@@ -6,10 +6,9 @@ file:
         - keyword: UPDATE
         - table_reference:
           - object_reference:
-            - object_reference:
-              - naked_identifier: HumanResources
-              - dot: .
-              - naked_identifier: Employee
+            - naked_identifier: HumanResources
+            - dot: .
+            - naked_identifier: Employee
         - set_clause_list:
           - keyword: SET
           - set_clause:
@@ -21,14 +20,13 @@ file:
               - expression:
                 - quoted_literal: N'Executive'
         - where_clause:
-          - where_clause:
-            - keyword: WHERE
-            - expression:
-              - column_reference:
-                - naked_identifier: NationalIDNumber
-              - comparison_operator:
-                - raw_comparison_operator: =
-              - numeric_literal: '123456789'
+          - keyword: WHERE
+          - expression:
+            - column_reference:
+              - naked_identifier: NationalIDNumber
+            - comparison_operator:
+              - raw_comparison_operator: =
+            - numeric_literal: '123456789'
   - statement:
     - if_statement:
       - keyword: IF
@@ -61,14 +59,13 @@ file:
   - statement:
     - select_statement:
       - select_clause:
-        - select_clause:
-          - keyword: SELECT
-          - select_clause_element:
-            - parameterized_expression:
-              - tsql_variable: '@@IDENTITY'
-            - alias_expression:
-              - keyword: AS
-              - quoted_identifier: '''Identity'''
+        - keyword: SELECT
+        - select_clause_element:
+          - parameterized_expression:
+            - tsql_variable: '@@IDENTITY'
+          - alias_expression:
+            - keyword: AS
+            - quoted_identifier: '''Identity'''
   - statement_terminator: ;
   - keyword: GO
   - statement:
@@ -80,13 +77,12 @@ file:
   - statement:
     - select_statement:
       - select_clause:
-        - select_clause:
-          - keyword: SELECT
-          - select_clause_element:
-            - parameterized_expression:
-              - tsql_variable: '@@PACK_RECEIVED'
-            - alias_expression:
-              - keyword: AS
-              - quoted_identifier: '''Packets Received'''
+        - keyword: SELECT
+        - select_clause_element:
+          - parameterized_expression:
+            - tsql_variable: '@@PACK_RECEIVED'
+          - alias_expression:
+            - keyword: AS
+            - quoted_identifier: '''Packets Received'''
   - statement_terminator: ;
   - keyword: GO

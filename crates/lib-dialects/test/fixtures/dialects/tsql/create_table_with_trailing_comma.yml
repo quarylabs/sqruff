@@ -7,10 +7,9 @@ file:
         - keyword: TABLE
         - table_reference:
           - object_reference:
-            - object_reference:
-              - quoted_identifier: '[dbo]'
-              - dot: .
-              - quoted_identifier: '[test]'
+            - quoted_identifier: '[dbo]'
+            - dot: .
+            - quoted_identifier: '[test]'
         - bracketed:
           - start_bracket: (
           - column_definition:

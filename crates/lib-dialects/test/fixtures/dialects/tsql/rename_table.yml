@@ -5,12 +5,10 @@ file:
       - keyword: RENAME
       - keyword: OBJECT
       - object_reference:
-        - object_reference:
-          - quoted_identifier: '[Reporting]'
-          - dot: .
-          - quoted_identifier: '[TABLE_NEW]'
+        - quoted_identifier: '[Reporting]'
+        - dot: .
+        - quoted_identifier: '[TABLE_NEW]'
       - keyword: to
       - object_reference:
-        - object_reference:
-          - quoted_identifier: '[TABLE_BASE]'
+        - quoted_identifier: '[TABLE_BASE]'
   - statement_terminator: ;

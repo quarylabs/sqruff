@@ -5,8 +5,7 @@ file:
     - keyword: PARTITION
     - keyword: FUNCTION
     - object_reference:
-      - object_reference:
-        - naked_identifier: myIntRangePF1
+      - naked_identifier: myIntRangePF1
     - bracketed:
       - start_bracket: (
       - data_type:
@@ -32,8 +31,7 @@ file:
     - keyword: PARTITION
     - keyword: FUNCTION
     - object_reference:
-      - object_reference:
-        - naked_identifier: myCharRangePF2
+      - naked_identifier: myCharRangePF2
     - bracketed:
       - start_bracket: (
       - data_type:
@@ -64,8 +62,7 @@ file:
     - keyword: PARTITION
     - keyword: FUNCTION
     - object_reference:
-      - object_reference:
-        - quoted_identifier: '[myDateRangePF1]'
+      - quoted_identifier: '[myDateRangePF1]'
     - bracketed:
       - start_bracket: (
       - data_type:
@@ -108,8 +105,7 @@ file:
       - keyword: PARTITION
       - keyword: FUNCTION
       - object_reference:
-        - object_reference:
-          - naked_identifier: myIntRangePF1
+        - naked_identifier: myIntRangePF1
       - bracketed:
         - start_bracket: (
         - end_bracket: )
@@ -126,8 +122,7 @@ file:
       - keyword: PARTITION
       - keyword: FUNCTION
       - object_reference:
-        - object_reference:
-          - naked_identifier: myCharRangePF2
+        - naked_identifier: myCharRangePF2
       - bracketed:
         - start_bracket: (
         - end_bracket: )

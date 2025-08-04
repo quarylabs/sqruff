@@ -5,10 +5,9 @@ file:
       - keyword: CREATE
       - keyword: PROC
       - object_reference:
-        - object_reference:
-          - naked_identifier: Reporting
-          - dot: .
-          - naked_identifier: DeclareProblem
+        - naked_identifier: Reporting
+        - dot: .
+        - naked_identifier: DeclareProblem
       - keyword: AS
       - begin_end_block:
         - keyword: BEGIN
@@ -157,7 +156,6 @@ file:
               - keyword: TABLE
               - table_reference:
                 - object_reference:
-                  - object_reference:
-                    - naked_identifier: '#UP'
+                  - naked_identifier: '#UP'
             - statement_terminator: ;
         - keyword: END

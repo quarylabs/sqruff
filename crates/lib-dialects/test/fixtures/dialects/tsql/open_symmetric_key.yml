@@ -5,10 +5,9 @@ file:
       - keyword: CREATE
       - keyword: PROCEDURE
       - object_reference:
-        - object_reference:
-          - naked_identifier: dbo
-          - dot: .
-          - naked_identifier: procedure_name
+        - naked_identifier: dbo
+        - dot: .
+        - naked_identifier: procedure_name
       - keyword: AS
       - begin_end_block:
         - keyword: BEGIN
@@ -22,37 +21,30 @@ file:
           - keyword: SYMMETRIC
           - keyword: KEY
           - object_reference:
-            - object_reference:
-              - quoted_identifier: '[Key01]'
+            - quoted_identifier: '[Key01]'
           - keyword: DECRYPTION
           - keyword: BY
           - keyword: CERTIFICATE
           - object_reference:
-            - object_reference:
-              - quoted_identifier: '[Cert]'
+            - quoted_identifier: '[Cert]'
         - statement_terminator: ;
         - statement:
           - select_statement:
             - select_clause:
-              - select_clause:
-                - keyword: SELECT
-                - select_clause_element:
-                  - column_reference:
-                    - naked_identifier: column1
+              - keyword: SELECT
+              - select_clause_element:
+                - column_reference:
+                  - naked_identifier: column1
             - from_clause:
-              - from_clause:
-                - keyword: FROM
-                - from_expression:
-                  - from_expression:
-                    - from_expression_element:
-                      - from_expression_element:
-                        - table_expression:
-                          - table_reference:
-                            - object_reference:
-                              - object_reference:
-                                - naked_identifier: sys
-                                - dot: .
-                                - naked_identifier: tables
+              - keyword: FROM
+              - from_expression:
+                - from_expression_element:
+                  - table_expression:
+                    - table_reference:
+                      - object_reference:
+                        - naked_identifier: sys
+                        - dot: .
+                        - naked_identifier: tables
         - statement_terminator: ;
         - keyword: END
   - statement_terminator: ;
@@ -62,28 +54,24 @@ file:
     - keyword: SYMMETRIC
     - keyword: KEY
     - object_reference:
-      - object_reference:
-        - quoted_identifier: '[Key01]'
+      - quoted_identifier: '[Key01]'
     - keyword: DECRYPTION
     - keyword: BY
     - keyword: CERTIFICATE
     - object_reference:
-      - object_reference:
-        - quoted_identifier: '[Cert]'
+      - quoted_identifier: '[Cert]'
   - statement_terminator: ;
   - statement:
     - keyword: OPEN
     - keyword: SYMMETRIC
     - keyword: KEY
     - object_reference:
-      - object_reference:
-        - quoted_identifier: '[Key01]'
+      - quoted_identifier: '[Key01]'
     - keyword: DECRYPTION
     - keyword: BY
     - keyword: CERTIFICATE
     - object_reference:
-      - object_reference:
-        - quoted_identifier: '[Cert]'
+      - quoted_identifier: '[Cert]'
     - keyword: WITH
     - keyword: PASSWORD
     - comparison_operator:
@@ -95,30 +83,26 @@ file:
     - keyword: SYMMETRIC
     - keyword: KEY
     - object_reference:
-      - object_reference:
-        - quoted_identifier: '[Key01]'
+      - quoted_identifier: '[Key01]'
     - keyword: DECRYPTION
     - keyword: BY
     - keyword: ASYMMETRIC
     - keyword: KEY
     - object_reference:
-      - object_reference:
-        - quoted_identifier: '[asym_key]'
+      - quoted_identifier: '[asym_key]'
   - statement_terminator: ;
   - statement:
     - keyword: OPEN
     - keyword: SYMMETRIC
     - keyword: KEY
     - object_reference:
-      - object_reference:
-        - quoted_identifier: '[Key01]'
+      - quoted_identifier: '[Key01]'
     - keyword: DECRYPTION
     - keyword: BY
     - keyword: ASYMMETRIC
     - keyword: KEY
     - object_reference:
-      - object_reference:
-        - quoted_identifier: '[asym_key]'
+      - quoted_identifier: '[asym_key]'
     - keyword: WITH
     - keyword: PASSWORD
     - comparison_operator:
@@ -130,23 +114,20 @@ file:
     - keyword: SYMMETRIC
     - keyword: KEY
     - object_reference:
-      - object_reference:
-        - quoted_identifier: '[Key01]'
+      - quoted_identifier: '[Key01]'
     - keyword: DECRYPTION
     - keyword: BY
     - keyword: SYMMETRIC
     - keyword: KEY
     - object_reference:
-      - object_reference:
-        - quoted_identifier: '[sym_key]'
+      - quoted_identifier: '[sym_key]'
   - statement_terminator: ;
   - statement:
     - keyword: OPEN
     - keyword: SYMMETRIC
     - keyword: KEY
     - object_reference:
-      - object_reference:
-        - quoted_identifier: '[Key01]'
+      - quoted_identifier: '[Key01]'
     - keyword: DECRYPTION
     - keyword: BY
     - keyword: PASSWORD

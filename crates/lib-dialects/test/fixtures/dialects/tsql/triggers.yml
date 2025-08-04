@@ -9,10 +9,9 @@ file:
       - keyword: ON
       - table_reference:
         - object_reference:
-          - object_reference:
-            - naked_identifier: Sales
-            - dot: .
-            - naked_identifier: Customer
+          - naked_identifier: Sales
+          - dot: .
+          - naked_identifier: Customer
       - keyword: AFTER
       - keyword: INSERT
       - comma: ','
@@ -175,45 +174,40 @@ file:
                     - numeric_literal: '1'
                 - word: FROM
                 - from_expression:
-                  - from_expression:
+                  - from_expression_element:
+                    - table_expression:
+                      - table_reference:
+                        - object_reference:
+                          - naked_identifier: inserted
+                    - alias_expression:
+                      - keyword: AS
+                      - naked_identifier: i
+                  - join_clause:
+                    - keyword: JOIN
                     - from_expression_element:
-                      - from_expression_element:
-                        - table_expression:
-                          - table_reference:
-                            - object_reference:
-                              - object_reference:
-                                - naked_identifier: inserted
-                        - alias_expression:
-                          - keyword: AS
-                          - naked_identifier: i
-                    - join_clause:
-                      - keyword: JOIN
-                      - from_expression_element:
-                        - from_expression_element:
-                          - table_expression:
-                            - table_reference:
-                              - object_reference:
-                                - object_reference:
-                                  - naked_identifier: Purchasing
-                                  - dot: .
-                                  - naked_identifier: Vendor
-                          - alias_expression:
-                            - keyword: AS
-                            - naked_identifier: v
+                      - table_expression:
+                        - table_reference:
+                          - object_reference:
+                            - naked_identifier: Purchasing
+                            - dot: .
+                            - naked_identifier: Vendor
+                      - alias_expression:
+                        - keyword: AS
+                        - naked_identifier: v
+                    - join_on_condition:
                       - join_on_condition:
-                        - join_on_condition:
-                          - keyword: ON
-                          - expression:
-                            - column_reference:
-                              - naked_identifier: v
-                              - dot: .
-                              - naked_identifier: BusinessEntityID
-                            - comparison_operator:
-                              - raw_comparison_operator: =
-                            - column_reference:
-                              - naked_identifier: i
-                              - dot: .
-                              - naked_identifier: VendorID
+                        - keyword: ON
+                        - expression:
+                          - column_reference:
+                            - naked_identifier: v
+                            - dot: .
+                            - naked_identifier: BusinessEntityID
+                          - comparison_operator:
+                            - raw_comparison_operator: =
+                          - column_reference:
+                            - naked_identifier: i
+                            - dot: .
+                            - naked_identifier: VendorID
                 - word: WHERE
                 - expression:
                   - column_reference:
@@ -369,10 +363,9 @@ file:
               - expression:
                 - select_statement:
                   - select_clause:
-                    - select_clause:
-                      - keyword: SELECT
-                      - select_clause_element:
-                        - numeric_literal: '1'
+                    - keyword: SELECT
+                    - select_clause_element:
+                      - numeric_literal: '1'
               - expression:
                 - data_type:
                   - data_type:
@@ -415,10 +408,9 @@ file:
             - statement:
               - select_statement:
                 - select_clause:
-                  - select_clause:
-                    - keyword: SELECT
-                    - select_clause_element:
-                      - numeric_literal: '1'
+                  - keyword: SELECT
+                  - select_clause_element:
+                    - numeric_literal: '1'
             - statement:
               - naked_identifier: GO
               - expression:
@@ -508,47 +500,41 @@ file:
                   - expression:
                     - select_statement:
                       - select_clause:
-                        - select_clause:
-                          - keyword: SELECT
-                          - select_clause_element:
+                        - keyword: SELECT
+                        - select_clause_element:
+                          - function:
                             - function:
-                              - function:
-                                - function_name:
-                                  - function_name_identifier: COUNT
-                                - function_contents:
-                                  - bracketed:
-                                    - start_bracket: (
-                                    - star: '*'
-                                    - end_bracket: )
+                              - function_name:
+                                - function_name_identifier: COUNT
+                              - function_contents:
+                                - bracketed:
+                                  - start_bracket: (
+                                  - star: '*'
+                                  - end_bracket: )
                       - from_clause:
-                        - from_clause:
-                          - keyword: FROM
-                          - from_expression:
-                            - from_expression:
-                              - from_expression_element:
-                                - from_expression_element:
-                                  - table_expression:
-                                    - table_reference:
-                                      - object_reference:
-                                        - object_reference:
-                                          - naked_identifier: sys
-                                          - dot: .
-                                          - naked_identifier: dm_exec_sessions
+                        - keyword: FROM
+                        - from_expression:
+                          - from_expression_element:
+                            - table_expression:
+                              - table_reference:
+                                - object_reference:
+                                  - naked_identifier: sys
+                                  - dot: .
+                                  - naked_identifier: dm_exec_sessions
                       - where_clause:
-                        - where_clause:
-                          - keyword: WHERE
-                          - expression:
-                            - column_reference:
-                              - naked_identifier: is_user_process
-                            - comparison_operator:
-                              - raw_comparison_operator: =
-                            - numeric_literal: '1'
-                            - binary_operator: AND
-                            - column_reference:
-                              - naked_identifier: original_login_name
-                            - comparison_operator:
-                              - raw_comparison_operator: =
-                            - quoted_literal: '''login_test'''
+                        - keyword: WHERE
+                        - expression:
+                          - column_reference:
+                            - naked_identifier: is_user_process
+                          - comparison_operator:
+                            - raw_comparison_operator: =
+                          - numeric_literal: '1'
+                          - binary_operator: AND
+                          - column_reference:
+                            - naked_identifier: original_login_name
+                          - comparison_operator:
+                            - raw_comparison_operator: =
+                          - quoted_literal: '''login_test'''
                   - end_bracket: )
                 - comparison_operator:
                   - raw_comparison_operator: '>'

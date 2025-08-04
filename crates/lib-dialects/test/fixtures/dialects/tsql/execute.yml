@@ -3,10 +3,9 @@ file:
   - statement:
     - keyword: EXEC
     - object_reference:
-      - object_reference:
-        - quoted_identifier: '[Reporting]'
-        - dot: .
-        - quoted_identifier: '[Load_CLL]'
+      - quoted_identifier: '[Reporting]'
+      - dot: .
+      - quoted_identifier: '[Load_CLL]'
     - expression:
       - column_reference:
         - naked_identifier: EXECUTE
@@ -24,10 +23,9 @@ file:
   - statement:
     - keyword: EXECUTE
     - object_reference:
-      - object_reference:
-        - naked_identifier: dbo
-        - dot: .
-        - naked_identifier: ProcTestDefaults
+      - naked_identifier: dbo
+      - dot: .
+      - naked_identifier: ProcTestDefaults
     - expression:
       - numeric_literal: '68'
     - comma: ','
@@ -37,10 +35,9 @@ file:
   - statement:
     - keyword: EXECUTE
     - object_reference:
-      - object_reference:
-        - naked_identifier: dbo
-        - dot: .
-        - naked_identifier: ProcTestDefaults
+      - naked_identifier: dbo
+      - dot: .
+      - naked_identifier: ProcTestDefaults
     - expression:
       - numeric_literal: '68'
     - comma: ','
@@ -53,10 +50,9 @@ file:
   - statement:
     - keyword: EXECUTE
     - object_reference:
-      - object_reference:
-        - naked_identifier: dbo
-        - dot: .
-        - naked_identifier: ProcTestDefaults
+      - naked_identifier: dbo
+      - dot: .
+      - naked_identifier: ProcTestDefaults
     - tsql_variable: '@p1'
     - assignment_operator:
       - raw_comparison_operator: =
@@ -73,10 +69,9 @@ file:
   - statement:
     - keyword: EXECUTE
     - object_reference:
-      - object_reference:
-        - naked_identifier: dbo
-        - dot: .
-        - naked_identifier: ProcTestDefaults
+      - naked_identifier: dbo
+      - dot: .
+      - naked_identifier: ProcTestDefaults
     - expression:
       - column_reference:
         - naked_identifier: DEFAULT
@@ -96,10 +91,9 @@ file:
   - statement:
     - keyword: EXECUTE
     - object_reference:
-      - object_reference:
-        - naked_identifier: dbo
-        - dot: .
-        - naked_identifier: ProcTestDefaults
+      - naked_identifier: dbo
+      - dot: .
+      - naked_identifier: ProcTestDefaults
     - expression:
       - column_reference:
         - naked_identifier: DEFAULT
@@ -114,10 +108,9 @@ file:
   - statement:
     - keyword: EXECUTE
     - object_reference:
-      - object_reference:
-        - naked_identifier: dbo
-        - dot: .
-        - naked_identifier: ProcTestDefaults
+      - naked_identifier: dbo
+      - dot: .
+      - naked_identifier: ProcTestDefaults
     - expression:
       - column_reference:
         - naked_identifier: DEFAULT
@@ -135,8 +128,7 @@ file:
   - statement:
     - keyword: EXECUTE
     - object_reference:
-      - object_reference:
-        - naked_identifier: sp_addextendedproperty
+      - naked_identifier: sp_addextendedproperty
     - tsql_variable: '@name'
     - assignment_operator:
       - raw_comparison_operator: =
@@ -190,10 +182,9 @@ file:
     - assignment_operator:
       - raw_comparison_operator: =
     - object_reference:
-      - object_reference:
-        - naked_identifier: dbo
-        - dot: .
-        - naked_identifier: ProcTestDefaults
+      - naked_identifier: dbo
+      - dot: .
+      - naked_identifier: ProcTestDefaults
     - tsql_variable: '@p1'
     - assignment_operator:
       - raw_comparison_operator: =
@@ -207,10 +198,9 @@ file:
     - assignment_operator:
       - raw_comparison_operator: =
     - object_reference:
-      - object_reference:
-        - naked_identifier: dbo
-        - dot: .
-        - naked_identifier: ProcTestDefaults
+      - naked_identifier: dbo
+      - dot: .
+      - naked_identifier: ProcTestDefaults
   - statement_terminator: ;
   - statement:
     - keyword: EXECUTE
@@ -218,10 +208,9 @@ file:
     - assignment_operator:
       - raw_comparison_operator: =
     - object_reference:
-      - object_reference:
-        - naked_identifier: dbo
-        - dot: .
-        - naked_identifier: ProcTestDefaults
+      - naked_identifier: dbo
+      - dot: .
+      - naked_identifier: ProcTestDefaults
     - tsql_variable: '@p1'
     - assignment_operator:
       - raw_comparison_operator: =
@@ -347,20 +336,18 @@ file:
   - statement:
     - keyword: EXECUTE
     - object_reference:
-      - object_reference:
-        - naked_identifier: dbo
-        - dot: .
-        - naked_identifier: uspGetEmployeeManagers
+      - naked_identifier: dbo
+      - dot: .
+      - naked_identifier: uspGetEmployeeManagers
     - expression:
       - numeric_literal: '6'
   - statement_terminator: ;
   - statement:
     - keyword: EXECUTE
     - object_reference:
-      - object_reference:
-        - naked_identifier: dbo
-        - dot: .
-        - naked_identifier: uspGetEmployeeManagers
+      - naked_identifier: dbo
+      - dot: .
+      - naked_identifier: uspGetEmployeeManagers
     - tsql_variable: '@EmployeeID'
     - assignment_operator:
       - raw_comparison_operator: =
@@ -370,10 +357,9 @@ file:
   - statement:
     - keyword: EXECUTE
     - object_reference:
-      - object_reference:
-        - naked_identifier: dbo
-        - dot: .
-        - naked_identifier: uspGetEmployeeManagers
+      - naked_identifier: dbo
+      - dot: .
+      - naked_identifier: uspGetEmployeeManagers
     - expression:
       - parameterized_expression:
         - tsql_variable: '@EmployeeID'
@@ -418,10 +404,9 @@ file:
   - statement:
     - keyword: EXECUTE
     - object_reference:
-      - object_reference:
-        - naked_identifier: dbo
-        - dot: .
-        - naked_identifier: uspGetWhereUsedProductID
+      - naked_identifier: dbo
+      - dot: .
+      - naked_identifier: uspGetWhereUsedProductID
     - expression:
       - numeric_literal: '819'
     - comma: ','
@@ -480,14 +465,13 @@ file:
     - assignment_operator:
       - raw_comparison_operator: =
     - object_reference:
-      - object_reference:
-        - naked_identifier: SQLSERVER1
-        - dot: .
-        - naked_identifier: AdventureWorks2022
-        - dot: .
-        - naked_identifier: dbo
-        - dot: .
-        - naked_identifier: uspGetEmployeeManagers
+      - naked_identifier: SQLSERVER1
+      - dot: .
+      - naked_identifier: AdventureWorks2022
+      - dot: .
+      - naked_identifier: dbo
+      - dot: .
+      - naked_identifier: uspGetEmployeeManagers
     - tsql_variable: '@BusinessEntityID'
     - assignment_operator:
       - raw_comparison_operator: =
@@ -519,10 +503,9 @@ file:
   - statement:
     - keyword: EXECUTE
     - object_reference:
-      - object_reference:
-        - naked_identifier: dbo
-        - dot: .
-        - naked_identifier: ProcTestDefaults
+      - naked_identifier: dbo
+      - dot: .
+      - naked_identifier: ProcTestDefaults
     - tsql_variable: '@p1'
     - assignment_operator:
       - raw_comparison_operator: =
@@ -539,10 +522,9 @@ file:
   - statement:
     - keyword: EXECUTE
     - object_reference:
-      - object_reference:
-        - naked_identifier: dbo
-        - dot: .
-        - naked_identifier: ProcTestDefaults
+      - naked_identifier: dbo
+      - dot: .
+      - naked_identifier: ProcTestDefaults
     - expression:
       - column_reference:
         - naked_identifier: DEFAULT
@@ -557,10 +539,9 @@ file:
   - statement:
     - keyword: EXECUTE
     - object_reference:
-      - object_reference:
-        - naked_identifier: dbo
-        - dot: .
-        - naked_identifier: ProcTestDefaults
+      - naked_identifier: dbo
+      - dot: .
+      - naked_identifier: ProcTestDefaults
     - expression:
       - column_reference:
         - naked_identifier: DEFAULT
@@ -603,10 +584,9 @@ file:
   - statement:
     - keyword: EXECUTE
     - object_reference:
-      - object_reference:
-        - naked_identifier: dbo
-        - dot: .
-        - naked_identifier: Proc_Test_Defaults
+      - naked_identifier: dbo
+      - dot: .
+      - naked_identifier: Proc_Test_Defaults
     - tsql_variable: '@p2'
     - assignment_operator:
       - raw_comparison_operator: =
@@ -635,10 +615,9 @@ file:
     - assignment_operator:
       - raw_comparison_operator: =
     - object_reference:
-      - object_reference:
-        - naked_identifier: dbo
-        - dot: .
-        - naked_identifier: ufnGetSalesOrderStatusText
+      - naked_identifier: dbo
+      - dot: .
+      - naked_identifier: ufnGetSalesOrderStatusText
     - tsql_variable: '@Status'
     - assignment_operator:
       - raw_comparison_operator: =
@@ -661,8 +640,7 @@ file:
   - statement:
     - keyword: EXECUTE
     - object_reference:
-      - object_reference:
-        - naked_identifier: uspGetEmployeeManagers
+      - naked_identifier: uspGetEmployeeManagers
     - expression:
       - numeric_literal: '16'
     - keyword: WITH
@@ -759,10 +737,9 @@ file:
   - statement:
     - keyword: EXECUTE
     - object_reference:
-      - object_reference:
-        - naked_identifier: Production
-        - dot: .
-        - naked_identifier: ProductList
+      - naked_identifier: Production
+      - dot: .
+      - naked_identifier: ProductList
     - expression:
       - quoted_literal: '''%tire%'''
     - keyword: WITH

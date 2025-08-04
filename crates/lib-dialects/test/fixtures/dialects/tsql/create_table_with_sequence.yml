@@ -7,10 +7,9 @@ file:
         - keyword: TABLE
         - table_reference:
           - object_reference:
-            - object_reference:
-              - naked_identifier: DEST
-              - dot: .
-              - naked_identifier: MELDER
+            - naked_identifier: DEST
+            - dot: .
+            - naked_identifier: MELDER
         - bracketed:
           - start_bracket: (
           - column_definition:
@@ -31,10 +30,9 @@ file:
                 - keyword: VALUE
                 - keyword: FOR
                 - object_reference:
-                  - object_reference:
-                    - quoted_identifier: '[dbo]'
-                    - dot: .
-                    - quoted_identifier: '[SEQ_MELDER]'
+                  - quoted_identifier: '[dbo]'
+                  - dot: .
+                  - quoted_identifier: '[SEQ_MELDER]'
           - comma: ','
           - column_definition:
             - quoted_identifier: '[DOWNLOADED_TOTAL]'

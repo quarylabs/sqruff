@@ -398,8 +398,7 @@ pub fn raw_dialect() -> Dialect {
     // - ...table means current_server.current_database..table (default schema)
     dialect.replace_grammar(
         "ObjectReferenceSegment",
-        NodeMatcher::new(SyntaxKind::ObjectReference, |_| {
-            one_of(vec_of_erased![
+        one_of(vec_of_erased![
                 // T-SQL syntax with leading dots
                 Sequence::new(vec_of_erased![
                     // At least one leading dot
@@ -448,10 +447,8 @@ pub fn raw_dialect() -> Dialect {
                                 vec_of_erased![Ref::new("ObjectReferenceTerminatorGrammar")];
                         }
                     )
-                ])
             ])
-            .to_matchable()
-        })
+        ])
         .to_matchable(),
     );
 
@@ -4476,8 +4473,7 @@ pub fn raw_dialect() -> Dialect {
     // The LookaheadExclude prevents WITH from being parsed as an alias when followed by (
     dialect.replace_grammar(
         "FromExpressionElementSegment",
-        NodeMatcher::new(SyntaxKind::FromExpressionElement, |_| {
-            Sequence::new(vec_of_erased![
+        Sequence::new(vec_of_erased![
                 Ref::new("PreTableFunctionKeywordsGrammar").optional(),
                 optionally_bracketed(vec_of_erased![Ref::new("TableExpressionSegment")]),
                 // Support both WITH OFFSET and OPENROWSET WITH column definitions
@@ -4531,9 +4527,7 @@ pub fn raw_dialect() -> Dialect {
                     .optional(),
                 Ref::new("SamplingExpressionSegment").optional(),
                 Ref::new("PostTableExpressionGrammar").optional() // T-SQL table hints
-            ])
-            .to_matchable()
-        })
+        ])
         .to_matchable(),
     );
 
@@ -4716,8 +4710,7 @@ pub fn raw_dialect() -> Dialect {
     // This is needed because T-SQL has different join syntax (e.g., FULL OUTER MERGE JOIN)
     dialect.replace_grammar(
         "FromExpressionSegment",
-        NodeMatcher::new(SyntaxKind::FromExpression, |_| {
-            optionally_bracketed(vec_of_erased![Sequence::new(vec_of_erased![
+        optionally_bracketed(vec_of_erased![Sequence::new(vec_of_erased![
                 MetaSegment::indent(),
                 one_of(vec_of_erased![
                     Ref::new("FromExpressionElementSegment"),
@@ -4755,9 +4748,7 @@ pub fn raw_dialect() -> Dialect {
                 }),
                 Conditional::new(MetaSegment::dedent()).indented_joins(),
                 Ref::new("PostTableExpressionGrammar").optional()
-            ])])
-            .to_matchable()
-        })
+        ])])
         .to_matchable(),
     );
 
@@ -5491,8 +5482,7 @@ pub fn raw_dialect() -> Dialect {
     // that doesn't terminate on END when inside a CASE expression
     dialect.replace_grammar(
         "SelectClauseSegment",
-        NodeMatcher::new(SyntaxKind::SelectClause, |_| {
-            Sequence::new(vec_of_erased![
+        Sequence::new(vec_of_erased![
                 one_of(vec_of_erased![
                     Ref::keyword("SELECT"),
                     // Also accept SELECT as word token in T-SQL procedure bodies
@@ -5531,11 +5521,9 @@ pub fn raw_dialect() -> Dialect {
                 Ref::keyword("WHILE"),
                 Ref::keyword("EXEC"),
                 Ref::keyword("EXECUTE"),
-            ])
-            .config(|this| {
-                this.parse_mode(ParseMode::GreedyOnceStarted);
-            })
-            .to_matchable()
+        ])
+        .config(|this| {
+            this.parse_mode(ParseMode::GreedyOnceStarted);
         })
         .to_matchable(),
     );
@@ -9987,36 +9975,30 @@ pub fn raw_dialect() -> Dialect {
     // Override FromClauseSegment to handle word tokens in procedure bodies
     dialect.replace_grammar(
         "FromClauseSegment",
-        NodeMatcher::new(SyntaxKind::FromClause, |_| {
-            Sequence::new(vec_of_erased![
-                one_of(vec_of_erased![
-                    Ref::keyword("FROM"),
-                    // Also accept FROM as word token in T-SQL procedure bodies
-                    StringParser::new("FROM", SyntaxKind::Keyword)
-                ]),
-                Delimited::new(vec_of_erased![Ref::new("FromExpressionSegment")]),
-            ])
-            .to_matchable()
-        })
+        Sequence::new(vec_of_erased![
+            one_of(vec_of_erased![
+                Ref::keyword("FROM"),
+                // Also accept FROM as word token in T-SQL procedure bodies
+                StringParser::new("FROM", SyntaxKind::Keyword)
+            ]),
+            Delimited::new(vec_of_erased![Ref::new("FromExpressionSegment")]),
+        ])
         .to_matchable(),
     );
 
     // Override WhereClauseSegment to handle word tokens in procedure bodies
     dialect.replace_grammar(
         "WhereClauseSegment",
-        NodeMatcher::new(SyntaxKind::WhereClause, |_| {
-            Sequence::new(vec_of_erased![
-                one_of(vec_of_erased![
-                    Ref::keyword("WHERE"),
-                    // Also accept WHERE as word token in T-SQL procedure bodies
-                    StringParser::new("WHERE", SyntaxKind::Keyword)
-                ]),
-                MetaSegment::implicit_indent(),
-                optionally_bracketed(vec_of_erased![Ref::new("ExpressionSegment")]),
-                MetaSegment::dedent()
-            ])
-            .to_matchable()
-        })
+        Sequence::new(vec_of_erased![
+            one_of(vec_of_erased![
+                Ref::keyword("WHERE"),
+                // Also accept WHERE as word token in T-SQL procedure bodies
+                StringParser::new("WHERE", SyntaxKind::Keyword)
+            ]),
+            MetaSegment::implicit_indent(),
+            optionally_bracketed(vec_of_erased![Ref::new("ExpressionSegment")]),
+            MetaSegment::dedent()
+        ])
         .to_matchable(),
     );
 

@@ -7,10 +7,9 @@ file:
         - keyword: TABLE
         - table_reference:
           - object_reference:
-            - object_reference:
-              - quoted_identifier: '[dbo]'
-              - dot: .
-              - quoted_identifier: '[example]'
+            - quoted_identifier: '[dbo]'
+            - dot: .
+            - quoted_identifier: '[example]'
         - bracketed:
           - start_bracket: (
           - column_definition:
@@ -159,10 +158,9 @@ file:
         - keyword: table
         - table_reference:
           - object_reference:
-            - object_reference:
-              - quoted_identifier: '[schema1]'
-              - dot: .
-              - quoted_identifier: '[table1]'
+            - quoted_identifier: '[schema1]'
+            - dot: .
+            - quoted_identifier: '[table1]'
         - bracketed:
           - start_bracket: (
           - column_definition:
@@ -189,10 +187,9 @@ file:
         - keyword: table
         - table_reference:
           - object_reference:
-            - object_reference:
-              - quoted_identifier: '[schema1]'
-              - dot: .
-              - quoted_identifier: '[table1]'
+            - quoted_identifier: '[schema1]'
+            - dot: .
+            - quoted_identifier: '[table1]'
         - bracketed:
           - start_bracket: (
           - column_definition:
@@ -203,8 +200,7 @@ file:
             - table_constraint:
               - keyword: CONSTRAINT
               - object_reference:
-                - object_reference:
-                  - quoted_identifier: '[Pk_Id]'
+                - quoted_identifier: '[Pk_Id]'
               - keyword: PRIMARY
               - keyword: KEY
               - keyword: NONCLUSTERED
@@ -223,10 +219,9 @@ file:
         - keyword: TABLE
         - table_reference:
           - object_reference:
-            - object_reference:
-              - quoted_identifier: '[dbo]'
-              - dot: .
-              - quoted_identifier: '[table1]'
+            - quoted_identifier: '[dbo]'
+            - dot: .
+            - quoted_identifier: '[table1]'
         - bracketed:
           - start_bracket: (
           - column_definition:
@@ -346,8 +341,7 @@ file:
         - keyword: TABLE
         - table_reference:
           - object_reference:
-            - object_reference:
-              - naked_identifier: table_name
+            - naked_identifier: table_name
         - bracketed:
           - start_bracket: (
           - column_definition:
@@ -362,13 +356,11 @@ file:
               - column_constraint_segment:
                 - keyword: CONSTRAINT
                 - object_reference:
-                  - object_reference:
-                    - naked_identifier: constraint_name
+                  - naked_identifier: constraint_name
                 - keyword: REFERENCES
                 - table_reference:
                   - object_reference:
-                    - object_reference:
-                      - naked_identifier: referenced_table_name
+                    - naked_identifier: referenced_table_name
                 - keyword: ON
                 - keyword: DELETE
                 - keyword: NO

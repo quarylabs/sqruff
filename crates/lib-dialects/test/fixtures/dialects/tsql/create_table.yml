@@ -141,10 +141,9 @@ file:
         - keyword: TABLE
         - table_reference:
           - object_reference:
-            - object_reference:
-              - naked_identifier: dbo
-              - dot: .
-              - naked_identifier: Products
+            - naked_identifier: dbo
+            - dot: .
+            - naked_identifier: Products
         - bracketed:
           - start_bracket: (
           - column_definition:
@@ -281,10 +280,9 @@ file:
         - keyword: TABLE
         - table_reference:
           - object_reference:
-            - object_reference:
-              - quoted_identifier: '[dbo]'
-              - dot: .
-              - quoted_identifier: '[Foo]'
+            - quoted_identifier: '[dbo]'
+            - dot: .
+            - quoted_identifier: '[Foo]'
         - bracketed:
           - start_bracket: (
           - column_definition:
@@ -308,8 +306,7 @@ file:
             - table_constraint:
               - keyword: CONSTRAINT
               - object_reference:
-                - object_reference:
-                  - quoted_identifier: '[PK_Foo_ID]'
+                - quoted_identifier: '[PK_Foo_ID]'
               - keyword: PRIMARY
               - keyword: KEY
               - keyword: CLUSTERED
@@ -332,10 +329,9 @@ file:
                 - keyword: REFERENCES
                 - table_reference:
                   - object_reference:
-                    - object_reference:
-                      - quoted_identifier: '[dbo]'
-                      - dot: .
-                      - quoted_identifier: '[Bar]'
+                    - quoted_identifier: '[dbo]'
+                    - dot: .
+                    - quoted_identifier: '[Bar]'
                 - bracketed:
                   - start_bracket: (
                   - column_reference:

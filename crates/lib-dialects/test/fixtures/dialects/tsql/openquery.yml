@@ -3,31 +3,27 @@ file:
   - statement:
     - select_statement:
       - select_clause:
-        - select_clause:
-          - keyword: SELECT
-          - select_clause_element:
-            - column_reference:
-              - naked_identifier: column1
-          - comma: ','
-          - select_clause_element:
-            - column_reference:
-              - naked_identifier: column2
+        - keyword: SELECT
+        - select_clause_element:
+          - column_reference:
+            - naked_identifier: column1
+        - comma: ','
+        - select_clause_element:
+          - column_reference:
+            - naked_identifier: column2
       - from_clause:
-        - from_clause:
-          - keyword: FROM
-          - from_expression:
-            - from_expression:
-              - from_expression_element:
-                - from_expression_element:
-                  - table_expression:
-                    - table_reference:
-                      - keyword: OPENQUERY
-                      - bracketed:
-                        - start_bracket: (
-                        - quoted_identifier: '[testlinkedserver]'
-                        - comma: ','
-                        - quoted_literal: '''select * from table_name'''
-                        - end_bracket: )
+        - keyword: FROM
+        - from_expression:
+          - from_expression_element:
+            - table_expression:
+              - table_reference:
+                - keyword: OPENQUERY
+                - bracketed:
+                  - start_bracket: (
+                  - quoted_identifier: '[testlinkedserver]'
+                  - comma: ','
+                  - quoted_literal: '''select * from table_name'''
+                  - end_bracket: )
   - statement_terminator: ;
   - statement:
     - update_statement:

@@ -66,18 +66,17 @@ file:
   - statement:
     - select_statement:
       - select_clause:
-        - select_clause:
-          - keyword: SELECT
-          - select_clause_element:
+        - keyword: SELECT
+        - select_clause_element:
+          - function:
             - function:
-              - function:
-                - function_name:
-                  - function_name_identifier: CONTEXT_INFO
-                - function_contents:
-                  - bracketed:
-                    - start_bracket: (
-                    - end_bracket: )
-            - alias_expression:
-              - keyword: AS
-              - naked_identifier: MyContextInfo
+              - function_name:
+                - function_name_identifier: CONTEXT_INFO
+              - function_contents:
+                - bracketed:
+                  - start_bracket: (
+                  - end_bracket: )
+          - alias_expression:
+            - keyword: AS
+            - naked_identifier: MyContextInfo
   - statement_terminator: ;

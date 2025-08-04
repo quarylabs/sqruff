@@ -5,8 +5,7 @@ file:
       - keyword: CREATE
       - keyword: TYPE
       - object_reference:
-        - object_reference:
-          - naked_identifier: person
+        - naked_identifier: person
       - keyword: AS
       - keyword: TABLE
       - bracketed:
@@ -43,10 +42,8 @@ file:
       - keyword: CREATE
       - keyword: TYPE
       - object_reference:
-        - object_reference:
-          - naked_identifier: weird_int
+        - naked_identifier: weird_int
       - keyword: FROM
       - object_reference:
-        - object_reference:
-          - naked_identifier: int
+        - naked_identifier: int
   - statement_terminator: ;

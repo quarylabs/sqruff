@@ -7,8 +7,7 @@ file:
       - keyword: FILE
       - keyword: FORMAT
       - object_reference:
-        - object_reference:
-          - naked_identifier: textdelimited1
+        - naked_identifier: textdelimited1
       - keyword: WITH
       - bracketed:
         - start_bracket: (
@@ -44,8 +43,7 @@ file:
       - keyword: FILE
       - keyword: FORMAT
       - object_reference:
-        - object_reference:
-          - naked_identifier: skipHeader_CSV
+        - naked_identifier: skipHeader_CSV
       - keyword: WITH
       - bracketed:
         - start_bracket: (
@@ -86,8 +84,7 @@ file:
       - keyword: FILE
       - keyword: FORMAT
       - object_reference:
-        - object_reference:
-          - quoted_identifier: '[rcfile1]'
+        - quoted_identifier: '[rcfile1]'
       - keyword: WITH
       - bracketed:
         - start_bracket: (
@@ -114,8 +111,7 @@ file:
       - keyword: FILE
       - keyword: FORMAT
       - object_reference:
-        - object_reference:
-          - naked_identifier: orcfile1
+        - naked_identifier: orcfile1
       - keyword: WITH
       - bracketed:
         - start_bracket: (
@@ -137,8 +133,7 @@ file:
       - keyword: FILE
       - keyword: FORMAT
       - object_reference:
-        - object_reference:
-          - naked_identifier: parquetfile1
+        - naked_identifier: parquetfile1
       - keyword: WITH
       - bracketed:
         - start_bracket: (
@@ -160,8 +155,7 @@ file:
       - keyword: FILE
       - keyword: FORMAT
       - object_reference:
-        - object_reference:
-          - naked_identifier: jsonFileFormat
+        - naked_identifier: jsonFileFormat
       - keyword: WITH
       - bracketed:
         - start_bracket: (
@@ -183,8 +177,7 @@ file:
       - keyword: FILE
       - keyword: FORMAT
       - object_reference:
-        - object_reference:
-          - naked_identifier: DeltaFileFormat
+        - naked_identifier: DeltaFileFormat
       - keyword: WITH
       - bracketed:
         - start_bracket: (

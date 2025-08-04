@@ -6,17 +6,15 @@ file:
       - keyword: TABLE
       - table_reference:
         - object_reference:
-          - object_reference:
-            - quoted_identifier: '[REPORTING]'
-            - dot: .
-            - quoted_identifier: '[UN_NEW]'
+          - quoted_identifier: '[REPORTING]'
+          - dot: .
+          - quoted_identifier: '[UN_NEW]'
       - keyword: SWITCH
       - keyword: to
       - object_reference:
-        - object_reference:
-          - quoted_identifier: '[REPORTING]'
-          - dot: .
-          - quoted_identifier: '[UN_BASE]'
+        - quoted_identifier: '[REPORTING]'
+        - dot: .
+        - quoted_identifier: '[UN_BASE]'
       - keyword: WITH
       - bracketed:
         - start_bracket: (
@@ -32,10 +30,9 @@ file:
       - keyword: TABLE
       - table_reference:
         - object_reference:
-          - object_reference:
-            - quoted_identifier: '[REPORTING]'
-            - dot: .
-            - quoted_identifier: '[UN_NEW]'
+          - quoted_identifier: '[REPORTING]'
+          - dot: .
+          - quoted_identifier: '[UN_NEW]'
   - statement_terminator: ;
   - statement:
     - alter_table_statement:
@@ -44,8 +41,7 @@ file:
         - keyword: TABLE
         - table_reference:
           - object_reference:
-            - object_reference:
-              - naked_identifier: table_name
+            - naked_identifier: table_name
         - keyword: DROP
         - keyword: COLUMN
         - naked_identifier: column1

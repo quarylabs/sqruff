@@ -6,31 +6,25 @@ file:
       - keyword: PARTITION
       - keyword: SCHEME
       - object_reference:
-        - object_reference:
-          - naked_identifier: myRangePS1
+        - naked_identifier: myRangePS1
       - keyword: AS
       - keyword: PARTITION
       - object_reference:
-        - object_reference:
-          - naked_identifier: myRangePF1
+        - naked_identifier: myRangePF1
       - keyword: TO
       - bracketed:
         - start_bracket: (
         - object_reference:
-          - object_reference:
-            - naked_identifier: test1fg
+          - naked_identifier: test1fg
         - comma: ','
         - object_reference:
-          - object_reference:
-            - quoted_identifier: '[test2fg]'
+          - quoted_identifier: '[test2fg]'
         - comma: ','
         - object_reference:
-          - object_reference:
-            - naked_identifier: test3fg
+          - naked_identifier: test3fg
         - comma: ','
         - object_reference:
-          - object_reference:
-            - naked_identifier: test4fg
+          - naked_identifier: test4fg
         - end_bracket: )
   - statement_terminator: ;
   - statement:
@@ -39,20 +33,17 @@ file:
       - keyword: PARTITION
       - keyword: SCHEME
       - object_reference:
-        - object_reference:
-          - naked_identifier: myRangePS3
+        - naked_identifier: myRangePS3
       - keyword: AS
       - keyword: PARTITION
       - object_reference:
-        - object_reference:
-          - naked_identifier: myRangePF3
+        - naked_identifier: myRangePF3
       - keyword: ALL
       - keyword: TO
       - bracketed:
         - start_bracket: (
         - object_reference:
-          - object_reference:
-            - naked_identifier: test1fg
+          - naked_identifier: test1fg
         - end_bracket: )
   - statement_terminator: ;
   - statement:
@@ -61,20 +52,17 @@ file:
       - keyword: PARTITION
       - keyword: SCHEME
       - object_reference:
-        - object_reference:
-          - quoted_identifier: '[myRangePS1]'
+        - quoted_identifier: '[myRangePS1]'
       - keyword: AS
       - keyword: PARTITION
       - object_reference:
-        - object_reference:
-          - naked_identifier: myRangePF1
+        - naked_identifier: myRangePF1
       - keyword: ALL
       - keyword: TO
       - bracketed:
         - start_bracket: (
         - object_reference:
-          - object_reference:
-            - quoted_identifier: '[PRIMARY]'
+          - quoted_identifier: '[PRIMARY]'
         - end_bracket: )
   - statement_terminator: ;
   - statement:
@@ -83,11 +71,9 @@ file:
       - keyword: PARTITION
       - keyword: SCHEME
       - object_reference:
-        - object_reference:
-          - naked_identifier: MyRangePS1
+        - naked_identifier: MyRangePS1
       - keyword: NEXT
       - keyword: USED
       - object_reference:
-        - object_reference:
-          - naked_identifier: test5fg
+        - naked_identifier: test5fg
   - statement_terminator: ;

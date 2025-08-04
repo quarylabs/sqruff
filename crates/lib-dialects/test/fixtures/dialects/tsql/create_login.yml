@@ -5,8 +5,7 @@ file:
       - keyword: CREATE
       - keyword: LOGIN
       - object_reference:
-        - object_reference:
-          - quoted_identifier: '[MyUserName]'
+        - quoted_identifier: '[MyUserName]'
       - keyword: WITH
       - keyword: PASSWORD
       - comparison_operator:
@@ -18,8 +17,7 @@ file:
       - keyword: CREATE
       - keyword: LOGIN
       - object_reference:
-        - object_reference:
-          - quoted_identifier: '[MyUserName]'
+        - quoted_identifier: '[MyUserName]'
       - keyword: WITH
       - keyword: PASSWORD
       - comparison_operator:
@@ -32,8 +30,7 @@ file:
       - keyword: CREATE
       - keyword: LOGIN
       - object_reference:
-        - object_reference:
-          - quoted_identifier: '[MyUserName]'
+        - quoted_identifier: '[MyUserName]'
       - keyword: WITH
       - keyword: PASSWORD
       - comparison_operator:
@@ -50,8 +47,7 @@ file:
       - keyword: CREATE
       - keyword: LOGIN
       - object_reference:
-        - object_reference:
-          - quoted_identifier: '[MyUserName]'
+        - quoted_identifier: '[MyUserName]'
       - keyword: WITH
       - keyword: PASSWORD
       - comparison_operator:
@@ -69,8 +65,7 @@ file:
       - keyword: CREATE
       - keyword: LOGIN
       - object_reference:
-        - object_reference:
-          - quoted_identifier: '[MyUserName]'
+        - quoted_identifier: '[MyUserName]'
       - keyword: WITH
       - keyword: PASSWORD
       - comparison_operator:
@@ -87,8 +82,7 @@ file:
       - keyword: CREATE
       - keyword: LOGIN
       - object_reference:
-        - object_reference:
-          - quoted_identifier: '[MyUserName]'
+        - quoted_identifier: '[MyUserName]'
       - keyword: WITH
       - keyword: PASSWORD
       - comparison_operator:
@@ -105,8 +99,7 @@ file:
       - keyword: CREATE
       - keyword: LOGIN
       - object_reference:
-        - object_reference:
-          - quoted_identifier: '[MyUserName]'
+        - quoted_identifier: '[MyUserName]'
       - keyword: WITH
       - keyword: PASSWORD
       - comparison_operator:
@@ -120,8 +113,7 @@ file:
       - keyword: CREATE
       - keyword: LOGIN
       - object_reference:
-        - object_reference:
-          - quoted_identifier: '[MyUserName]'
+        - quoted_identifier: '[MyUserName]'
       - keyword: WITH
       - keyword: PASSWORD
       - comparison_operator:
@@ -142,16 +134,14 @@ file:
       - comparison_operator:
         - raw_comparison_operator: =
       - object_reference:
-        - object_reference:
-          - quoted_identifier: '[MyCredential]'
+        - quoted_identifier: '[MyCredential]'
   - statement_terminator: ;
   - statement:
     - create_login_statement:
       - keyword: CREATE
       - keyword: LOGIN
       - object_reference:
-        - object_reference:
-          - quoted_identifier: '[myapp]'
+        - quoted_identifier: '[myapp]'
       - keyword: FROM
       - keyword: EXTERNAL
       - keyword: PROVIDER
@@ -161,25 +151,21 @@ file:
       - keyword: CREATE
       - keyword: LOGIN
       - object_reference:
-        - object_reference:
-          - quoted_identifier: '[myapp]'
+        - quoted_identifier: '[myapp]'
       - keyword: FROM
       - keyword: CERTIFICATE
       - object_reference:
-        - object_reference:
-          - quoted_identifier: '[MyCert]'
+        - quoted_identifier: '[MyCert]'
   - statement_terminator: ;
   - statement:
     - create_login_statement:
       - keyword: CREATE
       - keyword: LOGIN
       - object_reference:
-        - object_reference:
-          - quoted_identifier: '[myapp]'
+        - quoted_identifier: '[myapp]'
       - keyword: FROM
       - keyword: ASYMMETRIC
       - keyword: KEY
       - object_reference:
-        - object_reference:
-          - quoted_identifier: '[MyAsymKey]'
+        - quoted_identifier: '[MyAsymKey]'
   - statement_terminator: ;

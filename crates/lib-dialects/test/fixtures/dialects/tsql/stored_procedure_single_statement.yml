@@ -7,10 +7,9 @@ file:
       - keyword: ALTER
       - keyword: PROCEDURE
       - object_reference:
-        - object_reference:
-          - naked_identifier: DBO
-          - dot: .
-          - naked_identifier: SP_ECDC_CASES_INTER
+        - naked_identifier: DBO
+        - dot: .
+        - naked_identifier: SP_ECDC_CASES_INTER
       - bracketed:
         - start_bracket: (
         - tsql_variable: '@Apple'

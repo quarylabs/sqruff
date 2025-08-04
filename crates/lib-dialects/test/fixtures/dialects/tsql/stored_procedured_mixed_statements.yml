@@ -5,10 +5,9 @@ file:
       - keyword: CREATE
       - keyword: PROC
       - object_reference:
-        - object_reference:
-          - quoted_identifier: '[Reporting]'
-          - dot: .
-          - quoted_identifier: '[PowerPlan]'
+        - quoted_identifier: '[Reporting]'
+        - dot: .
+        - quoted_identifier: '[PowerPlan]'
       - keyword: AS
       - statement:
         - word: DECLARE
@@ -81,10 +80,9 @@ file:
       - statement:
         - select_statement:
           - select_clause:
-            - select_clause:
-              - keyword: SELECT
-              - select_clause_element:
-                - numeric_literal: '1'
+            - keyword: SELECT
+            - select_clause_element:
+              - numeric_literal: '1'
       - statement:
         - create_table_statement:
           - create_table_statement:
@@ -92,8 +90,7 @@ file:
             - keyword: TABLE
             - table_reference:
               - object_reference:
-                - object_reference:
-                  - naked_identifier: '#TempTest'
+                - naked_identifier: '#TempTest'
             - keyword: WITH
             - bracketed:
               - start_bracket: (
@@ -109,24 +106,23 @@ file:
               - start_bracket: (
               - select_statement:
                 - select_clause:
-                  - select_clause:
-                    - keyword: SELECT
-                    - select_clause_element:
-                      - numeric_literal: '2'
-                      - alias_expression:
-                        - keyword: AS
-                        - naked_identifier: Two
-                    - comma: ','
-                    - select_clause_element:
-                      - numeric_literal: '3'
-                      - alias_expression:
-                        - keyword: AS
-                        - naked_identifier: Three
-                    - comma: ','
-                    - select_clause_element:
-                      - numeric_literal: '4'
-                      - alias_expression:
-                        - keyword: AS
-                        - naked_identifier: Four
+                  - keyword: SELECT
+                  - select_clause_element:
+                    - numeric_literal: '2'
+                    - alias_expression:
+                      - keyword: AS
+                      - naked_identifier: Two
+                  - comma: ','
+                  - select_clause_element:
+                    - numeric_literal: '3'
+                    - alias_expression:
+                      - keyword: AS
+                      - naked_identifier: Three
+                  - comma: ','
+                  - select_clause_element:
+                    - numeric_literal: '4'
+                    - alias_expression:
+                      - keyword: AS
+                      - naked_identifier: Four
               - end_bracket: )
       - keyword: END

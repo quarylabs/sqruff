@@ -1746,53 +1746,32 @@ pub fn raw_dialect() -> Dialect {
                         StringParser::new("ELSE", SyntaxKind::Keyword)
                     ]),
                     one_of(vec_of_erased![
-                        // Try word-aware BEGIN...END block first for procedures with word tokens
-                        Ref::new("WordAwareBeginEndBlockSegment"),
-                        // BEGIN...END block
+                        // BEGIN...END block (highest priority)
                         Ref::new("BeginEndBlockSegment"),
-                        // Single word-aware statement
-                        Ref::new("WordAwareStatementSegment"),
-                        // ELSE clause doesn't need ELSE-aware statement since it's the final clause
+                        // Word-aware BEGIN...END block for procedures with word tokens
+                        Ref::new("WordAwareBeginEndBlockSegment"),
+                        // Single statement (proper SQL statements should be prioritized)
                         Ref::new("StatementSegment"),
-                        // BEGIN as naked identifier followed by statements
-                        Sequence::new(vec_of_erased![
-                            StringParser::new("BEGIN", SyntaxKind::NakedIdentifier),
-                            MetaSegment::indent(),
-                            AnyNumberOf::new(vec_of_erased![Sequence::new(vec_of_erased![
-                                Ref::new("StatementSegment"),
-                                Ref::new("DelimiterGrammar").optional()
-                            ])])
-                            .config(|this| {
-                                this.min_times(1);
-                                this.terminators = vec_of_erased![
-                                    Ref::keyword("END"),
-                                    StringParser::new("END", SyntaxKind::NakedIdentifier)
-                                ];
-                            }),
-                            MetaSegment::dedent(),
-                            one_of(vec_of_erased![
-                                Ref::keyword("END"),
-                                StringParser::new("END", SyntaxKind::NakedIdentifier)
-                            ])
-                        ]),
-                        // Use flexible AnyNumberOf for ELSE body like SQLFluff
+                        // Word-aware statement for procedures with word tokens
+                        Ref::new("WordAwareStatementSegment"),
+                        // Multiple statements - this should be tried after single statement fails
                         AnyNumberOf::new(vec_of_erased![Sequence::new(vec_of_erased![
                             one_of(vec_of_erased![
-                                // Try word-aware parsers first for lowercase keywords
-                                Ref::new("WordAwareStatementSegment"),
-                                // Regular statement segment
-                                Ref::new("StatementSegment")
+                                // Try regular statement first
+                                Ref::new("StatementSegment"),
+                                // Then word-aware parsers for lowercase keywords
+                                Ref::new("WordAwareStatementSegment")
                             ]),
                             Ref::new("DelimiterGrammar").optional()
                         ])])
                         .config(|this| {
                             this.min_times(1);
-                            // Remove max_times constraint for ELSE body too
+                            this.max_times(5); // Limit to prevent infinite loops
                             this.terminators = vec_of_erased![
                                 Ref::keyword("IF"),                           // Next IF statement
                                 StringParser::new("IF", SyntaxKind::Keyword), // Also handle lowercase if as word
-                                StringParser::new("if", SyntaxKind::Word), // Also handle lowercase if as word
-                                Ref::new("BatchSeparatorGrammar")          // GO statement
+                                StringParser::new("if", SyntaxKind::Word),   // Also handle lowercase if as word
+                                Ref::new("BatchSeparatorGrammar")             // GO statement
                             ];
                         })
                     ])

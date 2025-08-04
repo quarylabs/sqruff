@@ -3,133 +3,139 @@ file:
   - statement:
     - select_statement:
       - select_clause:
-        - keyword: select
-        - select_clause_element:
-          - function:
+        - select_clause:
+          - keyword: select
+          - select_clause_element:
             - function:
-              - function_name:
-                - function_name_identifier: convert
-              - function_contents:
-                - bracketed:
-                  - start_bracket: (
-                  - expression:
-                    - column_reference:
-                      - naked_identifier: date
-                  - comma: ','
-                  - expression:
-                    - function:
+              - function:
+                - function_name:
+                  - function_name_identifier: convert
+                - function_contents:
+                  - bracketed:
+                    - start_bracket: (
+                    - expression:
+                      - column_reference:
+                        - naked_identifier: date
+                    - comma: ','
+                    - expression:
                       - function:
-                        - function_name:
-                          - function_name_identifier: dateadd
-                        - function_contents:
-                          - bracketed:
-                            - start_bracket: (
-                            - expression:
-                              - column_reference:
-                                - naked_identifier: month
-                            - comma: ','
-                            - expression:
-                              - function:
+                        - function:
+                          - function_name:
+                            - function_name_identifier: dateadd
+                          - function_contents:
+                            - bracketed:
+                              - start_bracket: (
+                              - expression:
+                                - column_reference:
+                                  - naked_identifier: month
+                              - comma: ','
+                              - expression:
                                 - function:
-                                  - function_name:
-                                    - function_name_identifier: datediff
-                                  - function_contents:
-                                    - bracketed:
-                                      - start_bracket: (
-                                      - expression:
-                                        - column_reference:
-                                          - naked_identifier: month
-                                      - comma: ','
-                                      - expression:
-                                        - numeric_literal: '0'
-                                      - comma: ','
-                                      - expression:
-                                        - column_reference:
-                                          - naked_identifier: t
-                                          - dot: .
-                                          - naked_identifier: valid_from_date
-                                      - end_bracket: )
-                            - comma: ','
-                            - expression:
-                              - numeric_literal: '0'
-                            - end_bracket: )
-                  - end_bracket: )
-          - alias_expression:
-            - keyword: as
-            - naked_identifier: valid_from_date
-      - from_clause:
-        - keyword: from
-        - from_expression:
-          - from_expression_element:
-            - table_expression:
-              - table_reference:
-                - object_reference:
-                  - naked_identifier: t
+                                  - function:
+                                    - function_name:
+                                      - function_name_identifier: datediff
+                                    - function_contents:
+                                      - bracketed:
+                                        - start_bracket: (
+                                        - expression:
+                                          - column_reference:
+                                            - naked_identifier: month
+                                        - comma: ','
+                                        - expression:
+                                          - numeric_literal: '0'
+                                        - comma: ','
+                                        - expression:
+                                          - column_reference:
+                                            - naked_identifier: t
+                                            - dot: .
+                                            - naked_identifier: valid_from_date
+                                        - end_bracket: )
+                              - comma: ','
+                              - expression:
+                                - numeric_literal: '0'
+                              - end_bracket: )
+                    - end_bracket: )
             - alias_expression:
               - keyword: as
-              - naked_identifier: t
+              - naked_identifier: valid_from_date
+      - from_clause:
+        - from_clause:
+          - keyword: from
+          - from_expression:
+            - from_expression:
+              - from_expression_element:
+                - from_expression_element:
+                  - table_expression:
+                    - table_reference:
+                      - object_reference:
+                        - object_reference:
+                          - naked_identifier: t
+                  - alias_expression:
+                    - keyword: as
+                    - naked_identifier: t
       - where_clause:
-        - keyword: where
-        - expression:
-          - column_reference:
-            - naked_identifier: t
-            - dot: .
-            - naked_identifier: activity_month
-          - comparison_operator:
-            - raw_comparison_operator: '>'
-            - raw_comparison_operator: =
-          - function:
+        - where_clause:
+          - keyword: where
+          - expression:
+            - column_reference:
+              - naked_identifier: t
+              - dot: .
+              - naked_identifier: activity_month
+            - comparison_operator:
+              - raw_comparison_operator: '>'
+              - raw_comparison_operator: =
             - function:
-              - function_name:
-                - function_name_identifier: convert
-              - function_contents:
-                - bracketed:
-                  - start_bracket: (
-                  - expression:
-                    - column_reference:
-                      - naked_identifier: date
-                  - comma: ','
-                  - expression:
-                    - function:
+              - function:
+                - function_name:
+                  - function_name_identifier: convert
+                - function_contents:
+                  - bracketed:
+                    - start_bracket: (
+                    - expression:
+                      - column_reference:
+                        - naked_identifier: date
+                    - comma: ','
+                    - expression:
                       - function:
-                        - function_name:
-                          - function_name_identifier: dateadd
-                        - function_contents:
-                          - bracketed:
-                            - start_bracket: (
-                            - expression:
-                              - column_reference:
-                                - naked_identifier: yy
-                            - comma: ','
-                            - expression:
-                              - function:
+                        - function:
+                          - function_name:
+                            - function_name_identifier: dateadd
+                          - function_contents:
+                            - bracketed:
+                              - start_bracket: (
+                              - expression:
+                                - column_reference:
+                                  - naked_identifier: yy
+                              - comma: ','
+                              - expression:
                                 - function:
-                                  - function_name:
-                                    - function_name_identifier: datediff
-                                  - function_contents:
-                                    - bracketed:
-                                      - start_bracket: (
-                                      - expression:
-                                        - column_reference:
-                                          - naked_identifier: yy
-                                      - comma: ','
-                                      - expression:
-                                        - numeric_literal: '0'
-                                      - comma: ','
-                                      - expression:
-                                        - function:
+                                  - function:
+                                    - function_name:
+                                      - function_name_identifier: datediff
+                                    - function_contents:
+                                      - bracketed:
+                                        - start_bracket: (
+                                        - expression:
+                                          - column_reference:
+                                            - naked_identifier: yy
+                                        - comma: ','
+                                        - expression:
+                                          - numeric_literal: '0'
+                                        - comma: ','
+                                        - expression:
                                           - function:
-                                            - function_name:
-                                              - function_name_identifier: getdate
-                                            - function_contents:
-                                              - bracketed:
-                                                - start_bracket: (
-                                                - end_bracket: )
-                                      - end_bracket: )
-                              - binary_operator: '-'
-                              - numeric_literal: '1'
-                            - comma: ','
-                            - expression:
-                              - numeric_literal: '0'
-                            - end_bracket: )
-                  - end_bracket: )
+                                            - function:
+                                              - function_name:
+                                                - function_name_identifier: getdate
+                                              - function_contents:
+                                                - bracketed:
+                                                  - start_bracket: (
+                                                  - end_bracket: )
+                                        - end_bracket: )
+                                - binary_operator: '-'
+                                - numeric_literal: '1'
+                              - comma: ','
+                              - expression:
+                                - numeric_literal: '0'
+                              - end_bracket: )
+                    - end_bracket: )

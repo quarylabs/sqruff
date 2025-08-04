@@ -141,16 +141,18 @@ file:
         - keyword: TABLE
         - table_reference:
           - object_reference:
-            - naked_identifier: dbo
-            - dot: .
-            - naked_identifier: Products
+            - object_reference:
+              - naked_identifier: dbo
+              - dot: .
+              - naked_identifier: Products
         - bracketed:
           - start_bracket: (
           - column_definition:
             - column_definition:
               - naked_identifier: ProductID
               - data_type:
-                - data_type_identifier: int
+                - data_type:
+                  - data_type_identifier: int
               - keyword: IDENTITY
               - bracketed:
                 - start_bracket: (
@@ -237,17 +239,18 @@ file:
           - column_definition:
             - column_definition:
               - quoted_identifier: '[SoldValue]'
-              - keyword: AS
-              - expression:
-                - bracketed:
-                  - start_bracket: (
-                  - expression:
-                    - column_reference:
-                      - naked_identifier: QtySold
-                    - binary_operator: '*'
-                    - column_reference:
-                      - naked_identifier: UnitPrice
-                  - end_bracket: )
+              - data_type:
+                - data_type:
+                  - data_type_identifier: AS
+                  - bracketed:
+                    - start_bracket: (
+                    - expression:
+                      - column_reference:
+                        - naked_identifier: QtySold
+                      - binary_operator: '*'
+                      - column_reference:
+                        - naked_identifier: UnitPrice
+                    - end_bracket: )
           - comma: ','
           - column_definition:
             - column_definition:
@@ -266,7 +269,8 @@ file:
                             - naked_identifier: InventoryTs
                         - keyword: AS
                         - data_type:
-                          - data_type_identifier: date
+                          - data_type:
+                            - data_type_identifier: date
                         - end_bracket: )
           - end_bracket: )
   - statement_terminator: ;
@@ -277,16 +281,18 @@ file:
         - keyword: TABLE
         - table_reference:
           - object_reference:
-            - quoted_identifier: '[dbo]'
-            - dot: .
-            - quoted_identifier: '[Foo]'
+            - object_reference:
+              - quoted_identifier: '[dbo]'
+              - dot: .
+              - quoted_identifier: '[Foo]'
         - bracketed:
           - start_bracket: (
           - column_definition:
             - column_definition:
               - quoted_identifier: '[ID]'
               - data_type:
-                - quoted_identifier: '[int]'
+                - data_type:
+                  - quoted_identifier: '[int]'
               - keyword: IDENTITY
               - bracketed:
                 - start_bracket: (
@@ -302,7 +308,8 @@ file:
             - table_constraint:
               - keyword: CONSTRAINT
               - object_reference:
-                - quoted_identifier: '[PK_Foo_ID]'
+                - object_reference:
+                  - quoted_identifier: '[PK_Foo_ID]'
               - keyword: PRIMARY
               - keyword: KEY
               - keyword: CLUSTERED
@@ -317,16 +324,18 @@ file:
             - column_definition:
               - quoted_identifier: '[other_ID]'
               - data_type:
-                - quoted_identifier: '[int]'
+                - data_type:
+                  - quoted_identifier: '[int]'
               - column_constraint_segment:
                 - keyword: FOREIGN
                 - keyword: KEY
                 - keyword: REFERENCES
                 - table_reference:
                   - object_reference:
-                    - quoted_identifier: '[dbo]'
-                    - dot: .
-                    - quoted_identifier: '[Bar]'
+                    - object_reference:
+                      - quoted_identifier: '[dbo]'
+                      - dot: .
+                      - quoted_identifier: '[Bar]'
                 - bracketed:
                   - start_bracket: (
                   - column_reference:

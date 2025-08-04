@@ -7,7 +7,8 @@ file:
         - keyword: VIEW
         - table_reference:
           - object_reference:
-            - naked_identifier: vwCTE
+            - object_reference:
+              - naked_identifier: vwCTE
         - keyword: AS
         - with_compound_statement:
           - keyword: WITH
@@ -30,114 +31,132 @@ file:
                 - set_expression:
                   - select_statement:
                     - select_clause:
-                      - keyword: SELECT
-                      - select_clause_element:
-                        - column_reference:
-                          - naked_identifier: EmployeeID
-                      - comma: ','
-                      - select_clause_element:
-                        - column_reference:
-                          - naked_identifier: ManagerID
-                      - comma: ','
-                      - select_clause_element:
-                        - column_reference:
-                          - naked_identifier: Title
+                      - select_clause:
+                        - keyword: SELECT
+                        - select_clause_element:
+                          - column_reference:
+                            - naked_identifier: EmployeeID
+                        - comma: ','
+                        - select_clause_element:
+                          - column_reference:
+                            - naked_identifier: ManagerID
+                        - comma: ','
+                        - select_clause_element:
+                          - column_reference:
+                            - naked_identifier: Title
                     - from_clause:
-                      - keyword: FROM
-                      - from_expression:
-                        - from_expression_element:
-                          - table_expression:
-                            - table_reference:
-                              - object_reference:
-                                - naked_identifier: HumanResources
-                                - dot: .
-                                - naked_identifier: Employee
+                      - from_clause:
+                        - keyword: FROM
+                        - from_expression:
+                          - from_expression:
+                            - from_expression_element:
+                              - from_expression_element:
+                                - table_expression:
+                                  - table_reference:
+                                    - object_reference:
+                                      - object_reference:
+                                        - naked_identifier: HumanResources
+                                        - dot: .
+                                        - naked_identifier: Employee
                     - where_clause:
-                      - keyword: WHERE
-                      - expression:
-                        - column_reference:
-                          - naked_identifier: ManagerID
-                        - keyword: IS
-                        - keyword: NOT
-                        - null_literal: 'NULL'
+                      - where_clause:
+                        - keyword: WHERE
+                        - expression:
+                          - column_reference:
+                            - naked_identifier: ManagerID
+                          - keyword: IS
+                          - keyword: NOT
+                          - null_literal: 'NULL'
                   - set_operator:
                     - keyword: UNION
                     - keyword: ALL
                   - select_statement:
                     - select_clause:
-                      - keyword: SELECT
-                      - select_clause_element:
-                        - column_reference:
-                          - naked_identifier: cte
-                          - dot: .
-                          - naked_identifier: EmployeeID
-                      - comma: ','
-                      - select_clause_element:
-                        - column_reference:
-                          - naked_identifier: cte
-                          - dot: .
-                          - naked_identifier: ManagerID
-                      - comma: ','
-                      - select_clause_element:
-                        - column_reference:
-                          - naked_identifier: cte
-                          - dot: .
-                          - naked_identifier: Title
+                      - select_clause:
+                        - keyword: SELECT
+                        - select_clause_element:
+                          - column_reference:
+                            - naked_identifier: cte
+                            - dot: .
+                            - naked_identifier: EmployeeID
+                        - comma: ','
+                        - select_clause_element:
+                          - column_reference:
+                            - naked_identifier: cte
+                            - dot: .
+                            - naked_identifier: ManagerID
+                        - comma: ','
+                        - select_clause_element:
+                          - column_reference:
+                            - naked_identifier: cte
+                            - dot: .
+                            - naked_identifier: Title
                     - from_clause:
-                      - keyword: FROM
-                      - from_expression:
-                        - from_expression_element:
-                          - table_expression:
-                            - table_reference:
-                              - object_reference:
-                                - naked_identifier: cte
-                        - join_clause:
-                          - keyword: JOIN
-                          - from_expression_element:
-                            - table_expression:
-                              - table_reference:
-                                - object_reference:
-                                  - naked_identifier: HumanResources
-                                  - dot: .
-                                  - naked_identifier: Employee
-                            - alias_expression:
-                              - keyword: AS
-                              - naked_identifier: e
-                          - join_on_condition:
-                            - join_on_condition:
-                              - keyword: ON
-                              - expression:
-                                - column_reference:
-                                  - naked_identifier: cte
-                                  - dot: .
-                                  - naked_identifier: ManagerID
-                                - comparison_operator:
-                                  - raw_comparison_operator: =
-                                - column_reference:
-                                  - naked_identifier: e
-                                  - dot: .
-                                  - naked_identifier: EmployeeID
+                      - from_clause:
+                        - keyword: FROM
+                        - from_expression:
+                          - from_expression:
+                            - from_expression_element:
+                              - from_expression_element:
+                                - table_expression:
+                                  - table_reference:
+                                    - object_reference:
+                                      - object_reference:
+                                        - naked_identifier: cte
+                            - join_clause:
+                              - keyword: JOIN
+                              - from_expression_element:
+                                - from_expression_element:
+                                  - table_expression:
+                                    - table_reference:
+                                      - object_reference:
+                                        - object_reference:
+                                          - naked_identifier: HumanResources
+                                          - dot: .
+                                          - naked_identifier: Employee
+                                  - alias_expression:
+                                    - keyword: AS
+                                    - naked_identifier: e
+                              - join_on_condition:
+                                - join_on_condition:
+                                  - keyword: ON
+                                  - expression:
+                                    - column_reference:
+                                      - naked_identifier: cte
+                                      - dot: .
+                                      - naked_identifier: ManagerID
+                                    - comparison_operator:
+                                      - raw_comparison_operator: =
+                                    - column_reference:
+                                      - naked_identifier: e
+                                      - dot: .
+                                      - naked_identifier: EmployeeID
               - end_bracket: )
           - select_statement:
             - select_clause:
-              - keyword: SELECT
-              - select_clause_element:
-                - column_reference:
-                  - naked_identifier: EmployeeID
-              - comma: ','
-              - select_clause_element:
-                - column_reference:
-                  - naked_identifier: ManagerID
-              - comma: ','
-              - select_clause_element:
-                - column_reference:
-                  - naked_identifier: Title
+              - select_clause:
+                - keyword: SELECT
+                - select_clause_element:
+                  - column_reference:
+                    - naked_identifier: EmployeeID
+                - comma: ','
+                - select_clause_element:
+                  - column_reference:
+                    - naked_identifier: ManagerID
+                - comma: ','
+                - select_clause_element:
+                  - column_reference:
+                    - naked_identifier: Title
             - from_clause:
-              - keyword: FROM
-              - from_expression:
-                - from_expression_element:
-                  - table_expression:
-                    - table_reference:
-                      - object_reference:
-                        - naked_identifier: cte
+              - from_clause:
+                - keyword: FROM
+                - from_expression:
+                  - from_expression:
+                    - from_expression_element:
+                      - from_expression_element:
+                        - table_expression:
+                          - table_reference:
+                            - object_reference:
+                              - object_reference:
+                                - naked_identifier: cte
   - keyword: GO

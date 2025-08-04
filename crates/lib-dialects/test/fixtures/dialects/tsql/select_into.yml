@@ -3,42 +3,48 @@ file:
   - statement:
     - select_statement:
       - select_clause:
-        - keyword: SELECT
-        - select_clause_element:
-          - column_reference:
-            - quoted_identifier: '[ID]'
-        - comma: ','
-        - select_clause_element:
-          - column_reference:
-            - quoted_identifier: '[FIN]'
-        - comma: ','
-        - select_clause_element:
-          - column_reference:
-            - quoted_identifier: '[Unit]'
-        - comma: ','
-        - select_clause_element:
-          - column_reference:
-            - quoted_identifier: '[EventNM]'
-        - comma: ','
-        - select_clause_element:
-          - column_reference:
-            - quoted_identifier: '[Date]'
-        - comma: ','
-        - select_clause_element:
-          - column_reference:
-            - quoted_identifier: '[CHGFlag]'
+        - select_clause:
+          - keyword: SELECT
+          - select_clause_element:
+            - column_reference:
+              - quoted_identifier: '[ID]'
+          - comma: ','
+          - select_clause_element:
+            - column_reference:
+              - quoted_identifier: '[FIN]'
+          - comma: ','
+          - select_clause_element:
+            - column_reference:
+              - quoted_identifier: '[Unit]'
+          - comma: ','
+          - select_clause_element:
+            - column_reference:
+              - quoted_identifier: '[EventNM]'
+          - comma: ','
+          - select_clause_element:
+            - column_reference:
+              - quoted_identifier: '[Date]'
+          - comma: ','
+          - select_clause_element:
+            - column_reference:
+              - quoted_identifier: '[CHGFlag]'
       - keyword: INTO
       - table_reference:
         - object_reference:
-          - naked_identifier: '#CHG'
+          - object_reference:
+            - naked_identifier: '#CHG'
       - from_clause:
-        - keyword: FROM
-        - from_expression:
-          - from_expression_element:
-            - table_expression:
-              - table_reference:
-                - object_reference:
-                  - naked_identifier: Final
+        - from_clause:
+          - keyword: FROM
+          - from_expression:
+            - from_expression:
+              - from_expression_element:
+                - from_expression_element:
+                  - table_expression:
+                    - table_reference:
+                      - object_reference:
+                        - object_reference:
+                          - naked_identifier: Final
       - groupby_clause:
         - groupby_clause:
           - keyword: GROUP

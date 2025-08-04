@@ -7,9 +7,10 @@ file:
         - keyword: FROM
         - table_reference:
           - object_reference:
-            - naked_identifier: Sales
-            - dot: .
-            - naked_identifier: SalesPersonQuotaHistory
+            - object_reference:
+              - naked_identifier: Sales
+              - dot: .
+              - naked_identifier: SalesPersonQuotaHistory
         - statement_terminator: ;
   - keyword: GO
   - statement:
@@ -19,17 +20,19 @@ file:
         - keyword: FROM
         - table_reference:
           - object_reference:
-            - naked_identifier: Production
-            - dot: .
-            - naked_identifier: ProductCostHistory
+            - object_reference:
+              - naked_identifier: Production
+              - dot: .
+              - naked_identifier: ProductCostHistory
         - where_clause:
-          - keyword: WHERE
-          - expression:
-            - column_reference:
-              - naked_identifier: StandardCost
-            - comparison_operator:
-              - raw_comparison_operator: '>'
-            - numeric_literal: '1000.00'
+          - where_clause:
+            - keyword: WHERE
+            - expression:
+              - column_reference:
+                - naked_identifier: StandardCost
+              - comparison_operator:
+                - raw_comparison_operator: '>'
+              - numeric_literal: '1000.00'
         - statement_terminator: ;
   - keyword: GO
   - statement:
@@ -38,23 +41,25 @@ file:
         - keyword: DELETE
         - table_reference:
           - object_reference:
-            - naked_identifier: Production
-            - dot: .
-            - naked_identifier: ProductCostHistory
+            - object_reference:
+              - naked_identifier: Production
+              - dot: .
+              - naked_identifier: ProductCostHistory
         - where_clause:
-          - keyword: WHERE
-          - expression:
-            - column_reference:
-              - naked_identifier: StandardCost
-            - keyword: BETWEEN
-            - numeric_literal: '12.00'
-            - keyword: AND
-            - numeric_literal: '14.00'
-            - binary_operator: AND
-            - column_reference:
-              - naked_identifier: EndDate
-            - keyword: IS
-            - null_literal: 'NULL'
+          - where_clause:
+            - keyword: WHERE
+            - expression:
+              - column_reference:
+                - naked_identifier: StandardCost
+              - keyword: BETWEEN
+              - numeric_literal: '12.00'
+              - keyword: AND
+              - numeric_literal: '14.00'
+              - binary_operator: AND
+              - column_reference:
+                - naked_identifier: EndDate
+              - keyword: IS
+              - null_literal: 'NULL'
         - statement_terminator: ;
   - statement:
     - keyword: PRINT
@@ -73,11 +78,12 @@ file:
                   - tsql_variable: '@@ROWCOUNT'
               - keyword: as
               - data_type:
-                - data_type_identifier: char
-                - bracketed_arguments:
+                - data_type:
+                  - data_type_identifier: char
                   - bracketed:
                     - start_bracket: (
-                    - numeric_literal: '3'
+                    - expression:
+                      - numeric_literal: '3'
                     - end_bracket: )
               - end_bracket: )
   - statement_terminator: ;
@@ -90,78 +96,90 @@ file:
       - keyword: FOR
       - select_statement:
         - select_clause:
-          - keyword: SELECT
-          - select_clause_element:
-            - column_reference:
-              - naked_identifier: a
-              - dot: .
-              - naked_identifier: BusinessEntityID
-        - from_clause:
-          - keyword: FROM
-          - from_expression:
-            - from_expression_element:
-              - table_expression:
-                - table_reference:
-                  - object_reference:
-                    - naked_identifier: HumanResources
-                    - dot: .
-                    - naked_identifier: EmployeePayHistory
-              - alias_expression:
-                - keyword: AS
+          - select_clause:
+            - keyword: SELECT
+            - select_clause_element:
+              - column_reference:
                 - naked_identifier: a
+                - dot: .
+                - naked_identifier: BusinessEntityID
+        - from_clause:
+          - from_clause:
+            - keyword: FROM
+            - from_expression:
+              - from_expression:
+                - from_expression_element:
+                  - from_expression_element:
+                    - table_expression:
+                      - table_reference:
+                        - object_reference:
+                          - object_reference:
+                            - naked_identifier: HumanResources
+                            - dot: .
+                            - naked_identifier: EmployeePayHistory
+                    - alias_expression:
+                      - keyword: AS
+                      - naked_identifier: a
         - where_clause:
-          - keyword: WHERE
-          - expression:
-            - column_reference:
-              - naked_identifier: RateChangeDate
-            - comparison_operator:
-              - raw_comparison_operator: <
-              - raw_comparison_operator: '>'
-            - bracketed:
-              - start_bracket: (
-              - expression:
-                - select_statement:
-                  - select_clause:
-                    - keyword: SELECT
-                    - select_clause_element:
-                      - function:
-                        - function:
-                          - function_name:
-                            - function_name_identifier: MAX
-                          - function_contents:
-                            - bracketed:
-                              - start_bracket: (
-                              - expression:
-                                - column_reference:
-                                  - naked_identifier: RateChangeDate
-                              - end_bracket: )
-                  - from_clause:
-                    - keyword: FROM
-                    - from_expression:
-                      - from_expression_element:
-                        - table_expression:
-                          - table_reference:
-                            - object_reference:
-                              - naked_identifier: HumanResources
-                              - dot: .
-                              - naked_identifier: EmployeePayHistory
-                        - alias_expression:
-                          - keyword: AS
-                          - naked_identifier: b
-                  - where_clause:
-                    - keyword: WHERE
-                    - expression:
-                      - column_reference:
-                        - naked_identifier: a
-                        - dot: .
-                        - naked_identifier: BusinessEntityID
-                      - comparison_operator:
-                        - raw_comparison_operator: =
-                      - column_reference:
-                        - naked_identifier: b
-                        - dot: .
-                        - naked_identifier: BusinessEntityID
-              - end_bracket: )
+          - where_clause:
+            - keyword: WHERE
+            - expression:
+              - column_reference:
+                - naked_identifier: RateChangeDate
+              - comparison_operator:
+                - raw_comparison_operator: <
+                - raw_comparison_operator: '>'
+              - bracketed:
+                - start_bracket: (
+                - expression:
+                  - select_statement:
+                    - select_clause:
+                      - select_clause:
+                        - keyword: SELECT
+                        - select_clause_element:
+                          - function:
+                            - function:
+                              - function_name:
+                                - function_name_identifier: MAX
+                              - function_contents:
+                                - bracketed:
+                                  - start_bracket: (
+                                  - expression:
+                                    - column_reference:
+                                      - naked_identifier: RateChangeDate
+                                  - end_bracket: )
+                    - from_clause:
+                      - from_clause:
+                        - keyword: FROM
+                        - from_expression:
+                          - from_expression:
+                            - from_expression_element:
+                              - from_expression_element:
+                                - table_expression:
+                                  - table_reference:
+                                    - object_reference:
+                                      - object_reference:
+                                        - naked_identifier: HumanResources
+                                        - dot: .
+                                        - naked_identifier: EmployeePayHistory
+                                - alias_expression:
+                                  - keyword: AS
+                                  - naked_identifier: b
+                    - where_clause:
+                      - where_clause:
+                        - keyword: WHERE
+                        - expression:
+                          - column_reference:
+                            - naked_identifier: a
+                            - dot: .
+                            - naked_identifier: BusinessEntityID
+                          - comparison_operator:
+                            - raw_comparison_operator: =
+                          - column_reference:
+                            - naked_identifier: b
+                            - dot: .
+                            - naked_identifier: BusinessEntityID
+                - end_bracket: )
   - statement_terminator: ;
   - statement:
     - keyword: OPEN
@@ -179,14 +197,16 @@ file:
         - keyword: FROM
         - table_reference:
           - object_reference:
-            - naked_identifier: HumanResources
-            - dot: .
-            - naked_identifier: EmployeePayHistory
+            - object_reference:
+              - naked_identifier: HumanResources
+              - dot: .
+              - naked_identifier: EmployeePayHistory
         - where_clause:
-          - keyword: WHERE
-          - expression:
-            - column_reference:
-              - naked_identifier: CURRENT
+          - where_clause:
+            - keyword: WHERE
+            - expression:
+              - column_reference:
+                - naked_identifier: CURRENT
   - statement:
     - naked_identifier: OF
     - expression:
@@ -209,42 +229,50 @@ file:
         - keyword: FROM
         - table_reference:
           - object_reference:
-            - naked_identifier: Sales
-            - dot: .
-            - naked_identifier: SalesPersonQuotaHistory
+            - object_reference:
+              - naked_identifier: Sales
+              - dot: .
+              - naked_identifier: SalesPersonQuotaHistory
         - where_clause:
-          - keyword: WHERE
-          - expression:
-            - column_reference:
-              - naked_identifier: BusinessEntityID
-            - keyword: IN
-            - bracketed:
-              - start_bracket: (
-              - select_statement:
-                - select_clause:
-                  - keyword: SELECT
-                  - select_clause_element:
-                    - column_reference:
-                      - naked_identifier: BusinessEntityID
-                - from_clause:
-                  - keyword: FROM
-                  - from_expression:
-                    - from_expression_element:
-                      - table_expression:
-                        - table_reference:
-                          - object_reference:
-                            - naked_identifier: Sales
-                            - dot: .
-                            - naked_identifier: SalesPerson
-                - where_clause:
-                  - keyword: WHERE
-                  - expression:
-                    - column_reference:
-                      - naked_identifier: SalesYTD
-                    - comparison_operator:
-                      - raw_comparison_operator: '>'
-                    - numeric_literal: '2500000.00'
-              - end_bracket: )
+          - where_clause:
+            - keyword: WHERE
+            - expression:
+              - column_reference:
+                - naked_identifier: BusinessEntityID
+              - keyword: IN
+              - bracketed:
+                - start_bracket: (
+                - select_statement:
+                  - select_clause:
+                    - select_clause:
+                      - keyword: SELECT
+                      - select_clause_element:
+                        - column_reference:
+                          - naked_identifier: BusinessEntityID
+                  - from_clause:
+                    - from_clause:
+                      - keyword: FROM
+                      - from_expression:
+                        - from_expression:
+                          - from_expression_element:
+                            - from_expression_element:
+                              - table_expression:
+                                - table_reference:
+                                  - object_reference:
+                                    - object_reference:
+                                      - naked_identifier: Sales
+                                      - dot: .
+                                      - naked_identifier: SalesPerson
+                  - where_clause:
+                    - where_clause:
+                      - keyword: WHERE
+                      - expression:
+                        - column_reference:
+                          - naked_identifier: SalesYTD
+                        - comparison_operator:
+                          - raw_comparison_operator: '>'
+                        - numeric_literal: '2500000.00'
+                - end_bracket: )
         - statement_terminator: ;
   - keyword: GO
   - statement:
@@ -254,9 +282,10 @@ file:
         - keyword: FROM
         - table_reference:
           - object_reference:
-            - naked_identifier: Sales
-            - dot: .
-            - naked_identifier: SalesPersonQuotaHistory
+            - object_reference:
+              - naked_identifier: Sales
+              - dot: .
+              - naked_identifier: SalesPersonQuotaHistory
         - alias_expression:
           - naked_identifier: FROM
   - statement:
@@ -271,10 +300,12 @@ file:
         - naked_identifier: spqh
     - expression:
       - data_type:
-        - data_type_identifier: INNER
+        - data_type:
+          - data_type_identifier: INNER
     - expression:
       - data_type:
-        - data_type_identifier: JOIN
+        - data_type:
+          - data_type_identifier: JOIN
     - expression:
       - column_reference:
         - naked_identifier: Sales
@@ -288,7 +319,8 @@ file:
         - naked_identifier: sp
     - expression:
       - data_type:
-        - data_type_identifier: ON
+        - data_type:
+          - data_type_identifier: ON
     - expression:
       - column_reference:
         - naked_identifier: spqh
@@ -319,7 +351,8 @@ file:
         - keyword: DELETE
         - table_reference:
           - object_reference:
-            - naked_identifier: spqh
+            - object_reference:
+              - naked_identifier: spqh
         - alias_expression:
           - naked_identifier: FROM
   - statement:
@@ -334,10 +367,12 @@ file:
         - naked_identifier: spqh
     - expression:
       - data_type:
-        - data_type_identifier: INNER
+        - data_type:
+          - data_type_identifier: INNER
     - expression:
       - data_type:
-        - data_type_identifier: JOIN
+        - data_type:
+          - data_type_identifier: JOIN
     - expression:
       - column_reference:
         - naked_identifier: Sales
@@ -351,7 +386,8 @@ file:
         - naked_identifier: sp
     - expression:
       - data_type:
-        - data_type_identifier: ON
+        - data_type:
+          - data_type_identifier: ON
     - expression:
       - column_reference:
         - naked_identifier: spqh
@@ -388,17 +424,19 @@ file:
         - keyword: FROM
         - table_reference:
           - object_reference:
-            - naked_identifier: Purchasing
-            - dot: .
-            - naked_identifier: PurchaseOrderDetail
+            - object_reference:
+              - naked_identifier: Purchasing
+              - dot: .
+              - naked_identifier: PurchaseOrderDetail
         - where_clause:
-          - keyword: WHERE
-          - expression:
-            - column_reference:
-              - naked_identifier: DueDate
-            - comparison_operator:
-              - raw_comparison_operator: <
-            - quoted_literal: '''20020701'''
+          - where_clause:
+            - keyword: WHERE
+            - expression:
+              - column_reference:
+                - naked_identifier: DueDate
+              - comparison_operator:
+                - raw_comparison_operator: <
+              - quoted_literal: '''20020701'''
         - statement_terminator: ;
   - keyword: GO
   - statement:
@@ -408,44 +446,51 @@ file:
         - keyword: FROM
         - table_reference:
           - object_reference:
-            - naked_identifier: Purchasing
-            - dot: .
-            - naked_identifier: PurchaseOrderDetail
+            - object_reference:
+              - naked_identifier: Purchasing
+              - dot: .
+              - naked_identifier: PurchaseOrderDetail
         - where_clause:
-          - keyword: WHERE
-          - expression:
-            - column_reference:
-              - naked_identifier: PurchaseOrderDetailID
-            - keyword: IN
-            - bracketed:
-              - start_bracket: (
-              - select_statement:
-                - select_clause:
-                  - keyword: SELECT
-                  - select_clause_modifier:
-                    - keyword: TOP
-                    - expression:
-                      - numeric_literal: '10'
-                  - select_clause_element:
+          - where_clause:
+            - keyword: WHERE
+            - expression:
+              - column_reference:
+                - naked_identifier: PurchaseOrderDetailID
+              - keyword: IN
+              - bracketed:
+                - start_bracket: (
+                - select_statement:
+                  - select_clause:
+                    - select_clause:
+                      - keyword: SELECT
+                      - select_clause_modifier:
+                        - keyword: TOP
+                        - expression:
+                          - numeric_literal: '10'
+                      - select_clause_element:
+                        - column_reference:
+                          - naked_identifier: PurchaseOrderDetailID
+                  - from_clause:
+                    - from_clause:
+                      - keyword: FROM
+                      - from_expression:
+                        - from_expression:
+                          - from_expression_element:
+                            - from_expression_element:
+                              - table_expression:
+                                - table_reference:
+                                  - object_reference:
+                                    - object_reference:
+                                      - naked_identifier: Purchasing
+                                      - dot: .
+                                      - naked_identifier: PurchaseOrderDetail
+                  - orderby_clause:
+                    - keyword: ORDER
+                    - keyword: BY
                     - column_reference:
-                      - naked_identifier: PurchaseOrderDetailID
-                - from_clause:
-                  - keyword: FROM
-                  - from_expression:
-                    - from_expression_element:
-                      - table_expression:
-                        - table_reference:
-                          - object_reference:
-                            - naked_identifier: Purchasing
-                            - dot: .
-                            - naked_identifier: PurchaseOrderDetail
-                - orderby_clause:
-                  - keyword: ORDER
-                  - keyword: BY
-                  - column_reference:
-                    - naked_identifier: DueDate
-                  - keyword: ASC
-              - end_bracket: )
+                      - naked_identifier: DueDate
+                    - keyword: ASC
+                - end_bracket: )
         - statement_terminator: ;
   - keyword: GO
   - statement:
@@ -454,21 +499,23 @@ file:
         - keyword: DELETE
         - table_reference:
           - object_reference:
-            - naked_identifier: MyLinkServer
-            - dot: .
-            - naked_identifier: AdventureWorks2012
-            - dot: .
-            - naked_identifier: HumanResources
-            - dot: .
-            - naked_identifier: Department
+            - object_reference:
+              - naked_identifier: MyLinkServer
+              - dot: .
+              - naked_identifier: AdventureWorks2012
+              - dot: .
+              - naked_identifier: HumanResources
+              - dot: .
+              - naked_identifier: Department
         - where_clause:
-          - keyword: WHERE
-          - expression:
-            - column_reference:
-              - naked_identifier: DepartmentID
-            - comparison_operator:
-              - raw_comparison_operator: '>'
-            - numeric_literal: '16'
+          - where_clause:
+            - keyword: WHERE
+            - expression:
+              - column_reference:
+                - naked_identifier: DepartmentID
+              - comparison_operator:
+                - raw_comparison_operator: '>'
+              - numeric_literal: '16'
         - statement_terminator: ;
   - keyword: GO
   - statement:
@@ -501,7 +548,8 @@ file:
             - quoted_literal: '''Server=Seattle1;Trusted_Connection=yes;'''
             - comma: ','
             - object_reference:
-              - naked_identifier: Department
+              - object_reference:
+                - naked_identifier: Department
             - end_bracket: )
   - keyword: GO
   - statement:
@@ -524,13 +572,14 @@ file:
         - dot: .
         - naked_identifier: Department
         - where_clause:
-          - keyword: WHERE
-          - expression:
-            - column_reference:
-              - naked_identifier: DepartmentID
-            - comparison_operator:
-              - raw_comparison_operator: =
-            - numeric_literal: '17'
+          - where_clause:
+            - keyword: WHERE
+            - expression:
+              - column_reference:
+                - naked_identifier: DepartmentID
+              - comparison_operator:
+                - raw_comparison_operator: =
+              - numeric_literal: '17'
         - statement_terminator: ;
   - statement:
     - delete_statement:
@@ -538,9 +587,10 @@ file:
         - keyword: DELETE
         - table_reference:
           - object_reference:
-            - naked_identifier: Sales
-            - dot: .
-            - naked_identifier: ShoppingCartItem
+            - object_reference:
+              - naked_identifier: Sales
+              - dot: .
+              - naked_identifier: ShoppingCartItem
         - keyword: OUTPUT
         - select_clause_element:
           - wildcard_expression:
@@ -549,13 +599,14 @@ file:
               - dot: .
               - star: '*'
         - where_clause:
-          - keyword: WHERE
-          - expression:
-            - column_reference:
-              - naked_identifier: ShoppingCartID
-            - comparison_operator:
-              - raw_comparison_operator: =
-            - numeric_literal: '20621'
+          - where_clause:
+            - keyword: WHERE
+            - expression:
+              - column_reference:
+                - naked_identifier: ShoppingCartID
+              - comparison_operator:
+                - raw_comparison_operator: =
+              - numeric_literal: '20621'
         - statement_terminator: ;
   - statement:
     - declare_statement:
@@ -568,7 +619,8 @@ file:
           - column_definition:
             - naked_identifier: ProductID
             - data_type:
-              - data_type_identifier: int
+              - data_type:
+                - data_type_identifier: int
             - column_constraint_segment:
               - keyword: NOT
               - keyword: 'NULL'
@@ -577,11 +629,12 @@ file:
           - column_definition:
             - naked_identifier: ProductName
             - data_type:
-              - data_type_identifier: nvarchar
-              - bracketed_arguments:
+              - data_type:
+                - data_type_identifier: nvarchar
                 - bracketed:
                   - start_bracket: (
-                  - numeric_literal: '50'
+                  - expression:
+                    - numeric_literal: '50'
                   - end_bracket: )
             - column_constraint_segment:
               - keyword: NOT
@@ -591,7 +644,8 @@ file:
           - column_definition:
             - naked_identifier: ProductModelID
             - data_type:
-              - data_type_identifier: int
+              - data_type:
+                - data_type_identifier: int
             - column_constraint_segment:
               - keyword: NOT
               - keyword: 'NULL'
@@ -600,7 +654,8 @@ file:
           - column_definition:
             - naked_identifier: PhotoID
             - data_type:
-              - data_type_identifier: int
+              - data_type:
+                - data_type_identifier: int
             - column_constraint_segment:
               - keyword: NOT
               - keyword: 'NULL'
@@ -612,9 +667,10 @@ file:
         - keyword: DELETE
         - table_reference:
           - object_reference:
-            - naked_identifier: Production
-            - dot: .
-            - naked_identifier: ProductProductPhoto
+            - object_reference:
+              - naked_identifier: Production
+              - dot: .
+              - naked_identifier: ProductProductPhoto
         - keyword: OUTPUT
         - select_clause_element:
           - column_reference:
@@ -659,7 +715,8 @@ file:
         - naked_identifier: ph
     - expression:
       - data_type:
-        - data_type_identifier: JOIN
+        - data_type:
+          - data_type_identifier: JOIN
     - expression:
       - column_reference:
         - naked_identifier: Production
@@ -673,7 +730,8 @@ file:
         - naked_identifier: p
     - expression:
       - data_type:
-        - data_type_identifier: ON
+        - data_type:
+          - data_type_identifier: ON
     - expression:
       - column_reference:
         - naked_identifier: ph

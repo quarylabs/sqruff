@@ -3,15 +3,20 @@ file:
   - statement:
     - select_statement:
       - select_clause:
-        - keyword: SELECT
-        - select_clause_element:
-          - column_reference:
-            - naked_identifier: foo
+        - select_clause:
+          - keyword: SELECT
+          - select_clause_element:
+            - column_reference:
+              - naked_identifier: foo
       - from_clause:
-        - keyword: FROM
-        - from_expression:
-          - from_expression_element:
-            - table_expression:
-              - table_reference:
-                - object_reference:
-                  - naked_identifier: bar
+        - from_clause:
+          - keyword: FROM
+          - from_expression:
+            - from_expression:
+              - from_expression_element:
+                - from_expression_element:
+                  - table_expression:
+                    - table_reference:
+                      - object_reference:
+                        - object_reference:
+                          - naked_identifier: bar

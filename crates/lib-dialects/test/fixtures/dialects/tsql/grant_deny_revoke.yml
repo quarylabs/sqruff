@@ -8,12 +8,14 @@ file:
       - keyword: OBJECT
       - casting_operator: '::'
       - object_reference:
-        - naked_identifier: Person
-        - dot: .
-        - naked_identifier: Address
+        - object_reference:
+          - naked_identifier: Person
+          - dot: .
+          - naked_identifier: Address
       - keyword: TO
       - object_reference:
-        - naked_identifier: RosaQdM
+        - object_reference:
+          - naked_identifier: RosaQdM
   - statement_terminator: ;
   - keyword: GO
   - statement:
@@ -29,12 +31,14 @@ file:
       - keyword: OBJECT
       - casting_operator: '::'
       - object_reference:
-        - naked_identifier: HumanResources
-        - dot: .
-        - naked_identifier: uspUpdateEmployeeHireInfo
+        - object_reference:
+          - naked_identifier: HumanResources
+          - dot: .
+          - naked_identifier: uspUpdateEmployeeHireInfo
       - keyword: TO
       - object_reference:
-        - naked_identifier: Recruiting11
+        - object_reference:
+          - naked_identifier: Recruiting11
   - statement_terminator: ;
   - keyword: GO
   - statement:
@@ -50,12 +54,14 @@ file:
       - keyword: OBJECT
       - casting_operator: '::'
       - object_reference:
-        - naked_identifier: HumanResources
-        - dot: .
-        - naked_identifier: vEmployee
+        - object_reference:
+          - naked_identifier: HumanResources
+          - dot: .
+          - naked_identifier: vEmployee
       - keyword: TO
       - object_reference:
-        - naked_identifier: Wanida
+        - object_reference:
+          - naked_identifier: Wanida
       - keyword: WITH
       - keyword: GRANT
       - keyword: OPTION
@@ -67,9 +73,10 @@ file:
       - keyword: SELECT
       - keyword: ON
       - object_reference:
-        - naked_identifier: Person
-        - dot: .
-        - naked_identifier: Address
+        - object_reference:
+          - naked_identifier: Person
+          - dot: .
+          - naked_identifier: Address
       - keyword: TO
       - role_reference:
         - naked_identifier: RosaQdM
@@ -81,9 +88,10 @@ file:
       - keyword: SELECT
       - keyword: ON
       - object_reference:
-        - naked_identifier: Person
-        - dot: .
-        - naked_identifier: Address
+        - object_reference:
+          - naked_identifier: Person
+          - dot: .
+          - naked_identifier: Address
       - keyword: TO
       - role_reference:
         - quoted_identifier: '[AdventureWorks2012\RosaQdM]'
@@ -103,9 +111,10 @@ file:
       - keyword: EXECUTE
       - keyword: ON
       - object_reference:
-        - naked_identifier: dbo
-        - dot: .
-        - naked_identifier: uspGetBillOfMaterials
+        - object_reference:
+          - naked_identifier: dbo
+          - dot: .
+          - naked_identifier: uspGetBillOfMaterials
       - keyword: TO
       - role_reference:
         - naked_identifier: newrole
@@ -119,10 +128,12 @@ file:
       - keyword: SCHEMA
       - casting_operator: '::'
       - object_reference:
-        - naked_identifier: Sales
+        - object_reference:
+          - naked_identifier: Sales
       - keyword: TO
       - object_reference:
-        - naked_identifier: Vendors
+        - object_reference:
+          - naked_identifier: Vendors
   - statement_terminator: ;
   - keyword: GO
   - statement:
@@ -133,10 +144,12 @@ file:
       - keyword: SCHEMA
       - casting_operator: '::'
       - object_reference:
-        - naked_identifier: Sales
+        - object_reference:
+          - naked_identifier: Sales
       - keyword: TO
       - object_reference:
-        - naked_identifier: Vendors
+        - object_reference:
+          - naked_identifier: Vendors
   - statement_terminator: ;
   - keyword: GO
   - statement:
@@ -147,12 +160,14 @@ file:
       - keyword: OBJECT
       - casting_operator: '::'
       - object_reference:
-        - naked_identifier: Person
-        - dot: .
-        - naked_identifier: Address
+        - object_reference:
+          - naked_identifier: Person
+          - dot: .
+          - naked_identifier: Address
       - keyword: TO
       - object_reference:
-        - naked_identifier: RosaQdM
+        - object_reference:
+          - naked_identifier: RosaQdM
   - statement_terminator: ;
   - keyword: GO
   - statement:
@@ -163,12 +178,14 @@ file:
       - keyword: OBJECT
       - casting_operator: '::'
       - object_reference:
-        - naked_identifier: HumanResources
-        - dot: .
-        - naked_identifier: uspUpdateEmployeeHireInfo
+        - object_reference:
+          - naked_identifier: HumanResources
+          - dot: .
+          - naked_identifier: uspUpdateEmployeeHireInfo
       - keyword: TO
       - object_reference:
-        - naked_identifier: Recruiting11
+        - object_reference:
+          - naked_identifier: Recruiting11
   - statement_terminator: ;
   - keyword: GO
   - statement:
@@ -184,12 +201,14 @@ file:
       - keyword: OBJECT
       - casting_operator: '::'
       - object_reference:
-        - naked_identifier: HumanResources
-        - dot: .
-        - naked_identifier: vEmployee
+        - object_reference:
+          - naked_identifier: HumanResources
+          - dot: .
+          - naked_identifier: vEmployee
       - keyword: TO
       - object_reference:
-        - naked_identifier: Wanida
+        - object_reference:
+          - naked_identifier: Wanida
       - keyword: CASCADE
   - statement_terminator: ;
   - keyword: GO

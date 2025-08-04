@@ -5,7 +5,8 @@ file:
       - keyword: DECLARE
       - tsql_variable: '@DateNow'
       - data_type:
-        - data_type_identifier: date
+        - data_type:
+          - data_type_identifier: date
       - assignment_operator:
         - raw_comparison_operator: =
       - expression:
@@ -50,59 +51,67 @@ file:
   - statement:
     - select_statement:
       - select_clause:
-        - keyword: select
-        - select_clause_element:
-          - column_reference:
-            - naked_identifier: enc
-            - dot: .
-            - naked_identifier: personid
-          - alias_expression:
-            - keyword: as
-            - naked_identifier: personid
-        - comma: ','
-        - select_clause_element:
-          - function:
-            - function:
-              - function_name:
-                - function_name_identifier: cast
-              - function_contents:
-                - bracketed:
-                  - start_bracket: (
-                  - expression:
-                    - quoted_literal: '''1900-01-01'''
-                  - keyword: as
-                  - data_type:
-                    - data_type_identifier: datetime2
-                    - bracketed_arguments:
-                      - bracketed:
-                        - start_bracket: (
-                        - numeric_literal: '7'
-                        - end_bracket: )
-                  - end_bracket: )
-          - alias_expression:
-            - keyword: as
-            - naked_identifier: DataRefreshDate
-      - from_clause:
-        - keyword: from
-        - from_expression:
-          - from_expression_element:
-            - table_expression:
-              - table_reference:
-                - object_reference:
-                  - naked_identifier: encounter
-            - alias_expression:
+        - select_clause:
+          - keyword: select
+          - select_clause_element:
+            - column_reference:
               - naked_identifier: enc
+              - dot: .
+              - naked_identifier: personid
+            - alias_expression:
+              - keyword: as
+              - naked_identifier: personid
+          - comma: ','
+          - select_clause_element:
+            - function:
+              - function:
+                - function_name:
+                  - function_name_identifier: cast
+                - function_contents:
+                  - bracketed:
+                    - start_bracket: (
+                    - expression:
+                      - quoted_literal: '''1900-01-01'''
+                    - keyword: as
+                    - data_type:
+                      - data_type:
+                        - data_type_identifier: datetime2
+                        - bracketed:
+                          - start_bracket: (
+                          - expression:
+                            - numeric_literal: '7'
+                          - end_bracket: )
+                    - end_bracket: )
+            - alias_expression:
+              - keyword: as
+              - naked_identifier: DataRefreshDate
+      - from_clause:
+        - from_clause:
+          - keyword: from
+          - from_expression:
+            - from_expression:
+              - from_expression_element:
+                - from_expression_element:
+                  - table_expression:
+                    - table_reference:
+                      - object_reference:
+                        - object_reference:
+                          - naked_identifier: encounter
+                  - alias_expression:
+                    - naked_identifier: enc
   - statement_terminator: ;
   - statement:
     - declare_statement:
       - keyword: declare
       - tsql_variable: '@sample'
       - data_type:
-        - data_type_identifier: nvarchar
-        - bracketed_arguments:
+        - data_type:
+          - data_type_identifier: nvarchar
           - bracketed:
             - start_bracket: (
-            - keyword: max
+            - expression:
+              - column_reference:
+                - naked_identifier: max
             - end_bracket: )
       - assignment_operator:
         - raw_comparison_operator: =
@@ -118,10 +127,12 @@ file:
                   - numeric_literal: '100'
                 - keyword: as
                 - data_type:
-                  - data_type_identifier: nvarchar
-                  - bracketed_arguments:
+                  - data_type:
+                    - data_type_identifier: nvarchar
                     - bracketed:
                       - start_bracket: (
-                      - keyword: max
+                      - expression:
+                        - column_reference:
+                          - naked_identifier: max
                       - end_bracket: )
                 - end_bracket: )

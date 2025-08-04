@@ -3,49 +3,54 @@ file:
   - statement:
     - select_statement:
       - select_clause:
-        - keyword: SELECT
-        - select_clause_element:
-          - function:
+        - select_clause:
+          - keyword: SELECT
+          - select_clause_element:
             - function:
-              - function_name:
-                - function_name_identifier: FIRST_VALUE
-              - function_contents:
-                - bracketed:
-                  - start_bracket: (
-                  - expression:
-                    - column_reference:
-                      - quoted_identifier: '[entrypunt]'
-                  - end_bracket: )
-              - over_clause:
-                - keyword: IGNORE
-                - keyword: NULLS
-                - keyword: OVER
-                - bracketed:
-                  - start_bracket: (
-                  - window_specification:
-                    - partitionby_clause:
-                      - keyword: PARTITION
-                      - keyword: BY
-                      - bracketed:
-                        - start_bracket: (
-                        - expression:
-                          - column_reference:
-                            - quoted_identifier: '[reisnummer]'
-                        - end_bracket: )
-                    - orderby_clause:
-                      - keyword: ORDER
-                      - keyword: BY
+              - function:
+                - function_name:
+                  - function_name_identifier: FIRST_VALUE
+                - function_contents:
+                  - bracketed:
+                    - start_bracket: (
+                    - expression:
                       - column_reference:
-                        - quoted_identifier: '[reismutatie starttijdstip]'
-                  - end_bracket: )
-          - alias_expression:
-            - keyword: AS
-            - quoted_identifier: '[entrypunt]'
+                        - quoted_identifier: '[entrypunt]'
+                    - end_bracket: )
+                - over_clause:
+                  - keyword: IGNORE
+                  - keyword: NULLS
+                  - keyword: OVER
+                  - bracketed:
+                    - start_bracket: (
+                    - window_specification:
+                      - partitionby_clause:
+                        - keyword: PARTITION
+                        - keyword: BY
+                        - bracketed:
+                          - start_bracket: (
+                          - expression:
+                            - column_reference:
+                              - quoted_identifier: '[reisnummer]'
+                          - end_bracket: )
+                      - orderby_clause:
+                        - keyword: ORDER
+                        - keyword: BY
+                        - column_reference:
+                          - quoted_identifier: '[reismutatie starttijdstip]'
+                    - end_bracket: )
+            - alias_expression:
+              - keyword: AS
+              - quoted_identifier: '[entrypunt]'
       - from_clause:
-        - keyword: FROM
-        - from_expression:
-          - from_expression_element:
-            - table_expression:
-              - table_reference:
-                - object_reference:
-                  - quoted_identifier: '[reizen]'
+        - from_clause:
+          - keyword: FROM
+          - from_expression:
+            - from_expression:
+              - from_expression_element:
+                - from_expression_element:
+                  - table_expression:
+                    - table_reference:
+                      - object_reference:
+                        - object_reference:
+                          - quoted_identifier: '[reizen]'

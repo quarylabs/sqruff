@@ -5,9 +5,10 @@ file:
       - keyword: CREATE
       - keyword: PROC
       - object_reference:
-        - quoted_identifier: '[Reporting]'
-        - dot: .
-        - quoted_identifier: '[PowerPlan]'
+        - object_reference:
+          - quoted_identifier: '[Reporting]'
+          - dot: .
+          - quoted_identifier: '[PowerPlan]'
       - keyword: AS
       - statement:
         - word: DECLARE
@@ -29,11 +30,12 @@ file:
       - keyword: DECLARE
       - tsql_variable: '@deadlock_var'
       - data_type:
-        - data_type_identifier: NCHAR
-        - bracketed_arguments:
+        - data_type:
+          - data_type_identifier: NCHAR
           - bracketed:
             - start_bracket: (
-            - numeric_literal: '3'
+            - expression:
+              - numeric_literal: '3'
             - end_bracket: )
   - statement_terminator: ;
   - statement:
@@ -79,9 +81,10 @@ file:
       - statement:
         - select_statement:
           - select_clause:
-            - keyword: SELECT
-            - select_clause_element:
-              - numeric_literal: '1'
+            - select_clause:
+              - keyword: SELECT
+              - select_clause_element:
+                - numeric_literal: '1'
       - statement:
         - create_table_statement:
           - create_table_statement:
@@ -89,7 +92,8 @@ file:
             - keyword: TABLE
             - table_reference:
               - object_reference:
-                - naked_identifier: '#TempTest'
+                - object_reference:
+                  - naked_identifier: '#TempTest'
             - keyword: WITH
             - bracketed:
               - start_bracket: (
@@ -105,23 +109,24 @@ file:
               - start_bracket: (
               - select_statement:
                 - select_clause:
-                  - keyword: SELECT
-                  - select_clause_element:
-                    - numeric_literal: '2'
-                    - alias_expression:
-                      - keyword: AS
-                      - naked_identifier: Two
-                  - comma: ','
-                  - select_clause_element:
-                    - numeric_literal: '3'
-                    - alias_expression:
-                      - keyword: AS
-                      - naked_identifier: Three
-                  - comma: ','
-                  - select_clause_element:
-                    - numeric_literal: '4'
-                    - alias_expression:
-                      - keyword: AS
-                      - naked_identifier: Four
+                  - select_clause:
+                    - keyword: SELECT
+                    - select_clause_element:
+                      - numeric_literal: '2'
+                      - alias_expression:
+                        - keyword: AS
+                        - naked_identifier: Two
+                    - comma: ','
+                    - select_clause_element:
+                      - numeric_literal: '3'
+                      - alias_expression:
+                        - keyword: AS
+                        - naked_identifier: Three
+                    - comma: ','
+                    - select_clause_element:
+                      - numeric_literal: '4'
+                      - alias_expression:
+                        - keyword: AS
+                        - naked_identifier: Four
               - end_bracket: )
       - keyword: END

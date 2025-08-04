@@ -17,28 +17,34 @@ file:
         - keyword: VIEW
         - table_reference:
           - object_reference:
-            - quoted_identifier: '[DEST]'
-            - dot: .
-            - quoted_identifier: '[V_DIFFERENCE_NURSING_HOME__INFECTED_LOCATIONS_TOTAL_PER_REGION]'
+            - object_reference:
+              - quoted_identifier: '[DEST]'
+              - dot: .
+              - quoted_identifier: '[V_DIFFERENCE_NURSING_HOME__INFECTED_LOCATIONS_TOTAL_PER_REGION]'
         - keyword: AS
         - select_statement:
           - select_clause:
-            - keyword: SELECT
-            - select_clause_modifier:
-              - keyword: TOP
-              - expression:
-                - numeric_literal: '1'
-            - select_clause_element:
-              - column_reference:
-                - naked_identifier: DATE_OF_REPORT
+            - select_clause:
+              - keyword: SELECT
+              - select_clause_modifier:
+                - keyword: TOP
+                - expression:
+                  - numeric_literal: '1'
+              - select_clause_element:
+                - column_reference:
+                  - naked_identifier: DATE_OF_REPORT
           - from_clause:
-            - keyword: FROM
-            - from_expression:
-              - from_expression_element:
-                - table_expression:
-                  - table_reference:
-                    - object_reference:
-                      - naked_identifier: BASE_CTE
+            - from_clause:
+              - keyword: FROM
+              - from_expression:
+                - from_expression:
+                  - from_expression_element:
+                    - from_expression_element:
+                      - table_expression:
+                        - table_reference:
+                          - object_reference:
+                            - object_reference:
+                              - naked_identifier: BASE_CTE
   - statement_terminator: ;
   - keyword: GO
   - statement:
@@ -50,28 +56,34 @@ file:
         - keyword: VIEW
         - table_reference:
           - object_reference:
-            - quoted_identifier: '[DEST]'
-            - dot: .
-            - quoted_identifier: '[V_DIFFERENCE_NURSING_HOME__INFECTED_LOCATIONS_TOTAL_PER_REGION]'
+            - object_reference:
+              - quoted_identifier: '[DEST]'
+              - dot: .
+              - quoted_identifier: '[V_DIFFERENCE_NURSING_HOME__INFECTED_LOCATIONS_TOTAL_PER_REGION]'
         - keyword: AS
         - select_statement:
           - select_clause:
-            - keyword: SELECT
-            - select_clause_modifier:
-              - keyword: TOP
-              - expression:
-                - numeric_literal: '1'
-            - select_clause_element:
-              - column_reference:
-                - naked_identifier: DATE_OF_REPORT
+            - select_clause:
+              - keyword: SELECT
+              - select_clause_modifier:
+                - keyword: TOP
+                - expression:
+                  - numeric_literal: '1'
+              - select_clause_element:
+                - column_reference:
+                  - naked_identifier: DATE_OF_REPORT
           - from_clause:
-            - keyword: FROM
-            - from_expression:
-              - from_expression_element:
-                - table_expression:
-                  - table_reference:
-                    - object_reference:
-                      - naked_identifier: BASE_CTE
+            - from_clause:
+              - keyword: FROM
+              - from_expression:
+                - from_expression:
+                  - from_expression_element:
+                    - from_expression_element:
+                      - table_expression:
+                        - table_reference:
+                          - object_reference:
+                            - object_reference:
+                              - naked_identifier: BASE_CTE
           - orderby_clause:
             - keyword: ORDER
             - keyword: BY
@@ -86,122 +98,131 @@ file:
         - keyword: VIEW
         - table_reference:
           - object_reference:
-            - quoted_identifier: '[DEST]'
-            - dot: .
-            - quoted_identifier: '[V_DIFFERENCE_NURSING_HOME__INFECTED_LOCATIONS_TOTAL_PER_REGION]'
+            - object_reference:
+              - quoted_identifier: '[DEST]'
+              - dot: .
+              - quoted_identifier: '[V_DIFFERENCE_NURSING_HOME__INFECTED_LOCATIONS_TOTAL_PER_REGION]'
         - keyword: AS
         - select_statement:
           - select_clause:
-            - keyword: SELECT
-            - select_clause_element:
-              - column_reference:
-                - naked_identifier: DATE_OF_REPORT
-            - comma: ','
-            - select_clause_element:
-              - column_reference:
-                - naked_identifier: NEW_DATE_OF_REPORT_UNIX
-              - alias_expression:
-                - keyword: AS
-                - naked_identifier: NEW_DATE_UNIX
-            - comma: ','
-            - select_clause_element:
-              - column_reference:
-                - naked_identifier: OLD_DATE_OF_REPORT_UNIX
-              - alias_expression:
-                - keyword: AS
-                - naked_identifier: OLD_DATE_UNIX
-            - comma: ','
-            - select_clause_element:
-              - column_reference:
-                - naked_identifier: T1
-                - dot: .
-                - naked_identifier: VRCODE
-            - comma: ','
-            - select_clause_element:
-              - case_expression:
-                - keyword: CASE
-                - keyword: WHEN
-                - expression:
-                  - column_reference:
-                    - naked_identifier: OLD_VALUE
-                  - keyword: IS
-                  - null_literal: 'NULL'
-                - keyword: THEN
-                - expression:
-                  - numeric_literal: '0'
-                - else_clause:
-                  - keyword: ELSE
+            - select_clause:
+              - keyword: SELECT
+              - select_clause_element:
+                - column_reference:
+                  - naked_identifier: DATE_OF_REPORT
+              - comma: ','
+              - select_clause_element:
+                - column_reference:
+                  - naked_identifier: NEW_DATE_OF_REPORT_UNIX
+                - alias_expression:
+                  - keyword: AS
+                  - naked_identifier: NEW_DATE_UNIX
+              - comma: ','
+              - select_clause_element:
+                - column_reference:
+                  - naked_identifier: OLD_DATE_OF_REPORT_UNIX
+                - alias_expression:
+                  - keyword: AS
+                  - naked_identifier: OLD_DATE_UNIX
+              - comma: ','
+              - select_clause_element:
+                - column_reference:
+                  - naked_identifier: T1
+                  - dot: .
+                  - naked_identifier: VRCODE
+              - comma: ','
+              - select_clause_element:
+                - case_expression:
+                  - keyword: CASE
+                  - keyword: WHEN
                   - expression:
                     - column_reference:
                       - naked_identifier: OLD_VALUE
-                - keyword: END
-              - alias_expression:
-                - keyword: AS
-                - naked_identifier: OLD_VALUE
-            - comma: ','
-            - select_clause_element:
-              - case_expression:
-                - keyword: CASE
-                - keyword: WHEN
-                - expression:
-                  - column_reference:
-                    - quoted_identifier: '[DIFFERENCE]'
-                  - keyword: IS
-                  - null_literal: 'NULL'
-                - keyword: THEN
-                - expression:
-                  - numeric_literal: '0'
-                - else_clause:
-                  - keyword: ELSE
+                    - keyword: IS
+                    - null_literal: 'NULL'
+                  - keyword: THEN
+                  - expression:
+                    - numeric_literal: '0'
+                  - else_clause:
+                    - keyword: ELSE
+                    - expression:
+                      - column_reference:
+                        - naked_identifier: OLD_VALUE
+                  - keyword: END
+                - alias_expression:
+                  - keyword: AS
+                  - naked_identifier: OLD_VALUE
+              - comma: ','
+              - select_clause_element:
+                - case_expression:
+                  - keyword: CASE
+                  - keyword: WHEN
                   - expression:
                     - column_reference:
                       - quoted_identifier: '[DIFFERENCE]'
-                - keyword: END
-              - alias_expression:
-                - keyword: AS
-                - quoted_identifier: '[DIFFERENCE]'
-          - from_clause:
-            - keyword: FROM
-            - from_expression:
-              - from_expression_element:
-                - table_expression:
-                  - table_reference:
-                    - object_reference:
-                      - naked_identifier: BASE_CTE
-                - alias_expression:
-                  - naked_identifier: T1
-              - join_clause:
-                - keyword: LEFT
-                - keyword: JOIN
-                - from_expression_element:
-                  - table_expression:
-                    - table_reference:
-                      - object_reference:
-                        - naked_identifier: LAST_DATE_OF_REPORT
-                  - alias_expression:
-                    - naked_identifier: T2
-                - join_on_condition:
-                  - join_on_condition:
-                    - keyword: ON
+                    - keyword: IS
+                    - null_literal: 'NULL'
+                  - keyword: THEN
+                  - expression:
+                    - numeric_literal: '0'
+                  - else_clause:
+                    - keyword: ELSE
                     - expression:
                       - column_reference:
+                        - quoted_identifier: '[DIFFERENCE]'
+                  - keyword: END
+                - alias_expression:
+                  - keyword: AS
+                  - quoted_identifier: '[DIFFERENCE]'
+          - from_clause:
+            - from_clause:
+              - keyword: FROM
+              - from_expression:
+                - from_expression:
+                  - from_expression_element:
+                    - from_expression_element:
+                      - table_expression:
+                        - table_reference:
+                          - object_reference:
+                            - object_reference:
+                              - naked_identifier: BASE_CTE
+                      - alias_expression:
                         - naked_identifier: T1
-                        - dot: .
-                        - quoted_identifier: '[VRCODE]'
-                      - comparison_operator:
-                        - raw_comparison_operator: =
-                      - column_reference:
-                        - naked_identifier: T2
-                        - dot: .
-                        - quoted_identifier: '[VRCODE]'
+                  - join_clause:
+                    - keyword: LEFT
+                    - keyword: JOIN
+                    - from_expression_element:
+                      - from_expression_element:
+                        - table_expression:
+                          - table_reference:
+                            - object_reference:
+                              - object_reference:
+                                - naked_identifier: LAST_DATE_OF_REPORT
+                        - alias_expression:
+                          - naked_identifier: T2
+                    - join_on_condition:
+                      - join_on_condition:
+                        - keyword: ON
+                        - expression:
+                          - column_reference:
+                            - naked_identifier: T1
+                            - dot: .
+                            - quoted_identifier: '[VRCODE]'
+                          - comparison_operator:
+                            - raw_comparison_operator: =
+                          - column_reference:
+                            - naked_identifier: T2
+                            - dot: .
+                            - quoted_identifier: '[VRCODE]'
           - where_clause:
-            - keyword: WHERE
-            - expression:
-              - column_reference:
-                - naked_identifier: DATE_OF_REPORT
-              - comparison_operator:
-                - raw_comparison_operator: =
-              - column_reference:
-                - naked_identifier: LAST_DATE_OF_REPORT
+            - where_clause:
+              - keyword: WHERE
+              - expression:
+                - column_reference:
+                  - naked_identifier: DATE_OF_REPORT
+                - comparison_operator:
+                  - raw_comparison_operator: =
+                - column_reference:
+                  - naked_identifier: LAST_DATE_OF_REPORT
   - statement_terminator: ;
   - keyword: GO

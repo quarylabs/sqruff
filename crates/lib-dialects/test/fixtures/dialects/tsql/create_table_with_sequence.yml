@@ -7,16 +7,18 @@ file:
         - keyword: TABLE
         - table_reference:
           - object_reference:
-            - naked_identifier: DEST
-            - dot: .
-            - naked_identifier: MELDER
+            - object_reference:
+              - naked_identifier: DEST
+              - dot: .
+              - naked_identifier: MELDER
         - bracketed:
           - start_bracket: (
           - column_definition:
             - column_definition:
               - quoted_identifier: '[ID]'
               - data_type:
-                - data_type_identifier: INT
+                - data_type:
+                  - data_type_identifier: INT
               - column_constraint_segment:
                 - keyword: PRIMARY
                 - keyword: KEY
@@ -29,9 +31,10 @@ file:
                 - keyword: VALUE
                 - keyword: FOR
                 - object_reference:
-                  - quoted_identifier: '[dbo]'
-                  - dot: .
-                  - quoted_identifier: '[SEQ_MELDER]'
+                  - object_reference:
+                    - quoted_identifier: '[dbo]'
+                    - dot: .
+                    - quoted_identifier: '[SEQ_MELDER]'
           - comma: ','
           - column_definition:
             - quoted_identifier: '[DOWNLOADED_TOTAL]'
@@ -52,7 +55,8 @@ file:
             - column_definition:
               - naked_identifier: DATE_LAST_INSERTED
               - data_type:
-                - data_type_identifier: DATETIME
+                - data_type:
+                  - data_type_identifier: DATETIME
               - column_constraint_segment:
                 - keyword: DEFAULT
                 - function:

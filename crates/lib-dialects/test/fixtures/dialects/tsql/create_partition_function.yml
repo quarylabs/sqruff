@@ -5,11 +5,13 @@ file:
     - keyword: PARTITION
     - keyword: FUNCTION
     - object_reference:
-      - naked_identifier: myIntRangePF1
+      - object_reference:
+        - naked_identifier: myIntRangePF1
     - bracketed:
       - start_bracket: (
       - data_type:
-        - data_type_identifier: INT
+        - data_type:
+          - data_type_identifier: INT
       - end_bracket: )
     - keyword: AS
     - keyword: RANGE
@@ -30,15 +32,17 @@ file:
     - keyword: PARTITION
     - keyword: FUNCTION
     - object_reference:
-      - naked_identifier: myCharRangePF2
+      - object_reference:
+        - naked_identifier: myCharRangePF2
     - bracketed:
       - start_bracket: (
       - data_type:
-        - data_type_identifier: CHAR
-        - bracketed_arguments:
+        - data_type:
+          - data_type_identifier: CHAR
           - bracketed:
             - start_bracket: (
-            - numeric_literal: '1'
+            - expression:
+              - numeric_literal: '1'
             - end_bracket: )
       - end_bracket: )
     - keyword: AS
@@ -60,11 +64,13 @@ file:
     - keyword: PARTITION
     - keyword: FUNCTION
     - object_reference:
-      - quoted_identifier: '[myDateRangePF1]'
+      - object_reference:
+        - quoted_identifier: '[myDateRangePF1]'
     - bracketed:
       - start_bracket: (
       - data_type:
-        - data_type_identifier: date
+        - data_type:
+          - data_type_identifier: date
       - end_bracket: )
     - keyword: AS
     - keyword: RANGE
@@ -102,7 +108,8 @@ file:
       - keyword: PARTITION
       - keyword: FUNCTION
       - object_reference:
-        - naked_identifier: myIntRangePF1
+        - object_reference:
+          - naked_identifier: myIntRangePF1
       - bracketed:
         - start_bracket: (
         - end_bracket: )
@@ -119,7 +126,8 @@ file:
       - keyword: PARTITION
       - keyword: FUNCTION
       - object_reference:
-        - naked_identifier: myCharRangePF2
+        - object_reference:
+          - naked_identifier: myCharRangePF2
       - bracketed:
         - start_bracket: (
         - end_bracket: )

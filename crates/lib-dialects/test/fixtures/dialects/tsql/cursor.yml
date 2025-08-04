@@ -11,30 +11,36 @@ file:
       - keyword: FOR
       - select_statement:
         - select_clause:
-          - keyword: SELECT
-          - select_clause_element:
-            - column_reference:
-              - naked_identifier: column_a
-          - comma: ','
-          - select_clause_element:
-            - column_reference:
-              - naked_identifier: column_b
+          - select_clause:
+            - keyword: SELECT
+            - select_clause_element:
+              - column_reference:
+                - naked_identifier: column_a
+            - comma: ','
+            - select_clause_element:
+              - column_reference:
+                - naked_identifier: column_b
         - from_clause:
-          - keyword: FROM
-          - from_expression:
-            - from_expression_element:
-              - table_expression:
-                - table_reference:
-                  - object_reference:
-                    - naked_identifier: some_table
+          - from_clause:
+            - keyword: FROM
+            - from_expression:
+              - from_expression:
+                - from_expression_element:
+                  - from_expression_element:
+                    - table_expression:
+                      - table_reference:
+                        - object_reference:
+                          - object_reference:
+                            - naked_identifier: some_table
         - where_clause:
-          - keyword: WHERE
-          - expression:
-            - column_reference:
-              - naked_identifier: column_a
-            - keyword: IS
-            - keyword: NOT
-            - null_literal: 'NULL'
+          - where_clause:
+            - keyword: WHERE
+            - expression:
+              - column_reference:
+                - naked_identifier: column_a
+              - keyword: IS
+              - keyword: NOT
+              - null_literal: 'NULL'
         - orderby_clause:
           - keyword: ORDER
           - keyword: BY

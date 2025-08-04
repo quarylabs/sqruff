@@ -3,7 +3,8 @@ file:
   - statement:
     - keyword: EXECUTE
     - object_reference:
-      - naked_identifier: test
+      - object_reference:
+        - naked_identifier: test
     - keyword: WITH
     - keyword: RESULT
     - keyword: SETS
@@ -14,14 +15,16 @@ file:
         - column_definition:
           - naked_identifier: col1
           - data_type:
-            - data_type_identifier: INT
+            - data_type:
+              - data_type_identifier: INT
         - end_bracket: )
       - end_bracket: )
   - statement_terminator: ;
   - statement:
     - keyword: EXECUTE
     - object_reference:
-      - naked_identifier: test
+      - object_reference:
+        - naked_identifier: test
     - keyword: WITH
     - keyword: RESULT
     - keyword: SETS
@@ -32,28 +35,32 @@ file:
         - column_definition:
           - naked_identifier: col1
           - data_type:
-            - data_type_identifier: INT
+            - data_type:
+              - data_type_identifier: INT
         - comma: ','
         - column_definition:
           - naked_identifier: col2
           - data_type:
-            - data_type_identifier: NVARCHAR
-            - bracketed_arguments:
+            - data_type:
+              - data_type_identifier: NVARCHAR
               - bracketed:
                 - start_bracket: (
-                - numeric_literal: '50'
+                - expression:
+                  - numeric_literal: '50'
                 - end_bracket: )
         - comma: ','
         - column_definition:
           - naked_identifier: col3
           - data_type:
-            - data_type_identifier: DECIMAL
-            - bracketed_arguments:
+            - data_type:
+              - data_type_identifier: DECIMAL
               - bracketed:
                 - start_bracket: (
-                - numeric_literal: '10'
+                - expression:
+                  - numeric_literal: '10'
                 - comma: ','
-                - numeric_literal: '2'
+                - expression:
+                  - numeric_literal: '2'
                 - end_bracket: )
         - end_bracket: )
       - end_bracket: )
@@ -61,7 +68,8 @@ file:
   - statement:
     - keyword: EXECUTE
     - object_reference:
-      - naked_identifier: test
+      - object_reference:
+        - naked_identifier: test
     - keyword: WITH
     - keyword: RESULT
     - keyword: SETS
@@ -72,17 +80,19 @@ file:
         - column_definition:
           - naked_identifier: col1
           - data_type:
-            - data_type_identifier: INT
+            - data_type:
+              - data_type_identifier: INT
           - keyword: 'NULL'
         - comma: ','
         - column_definition:
           - naked_identifier: col2
           - data_type:
-            - data_type_identifier: VARCHAR
-            - bracketed_arguments:
+            - data_type:
+              - data_type_identifier: VARCHAR
               - bracketed:
                 - start_bracket: (
-                - numeric_literal: '100'
+                - expression:
+                  - numeric_literal: '100'
                 - end_bracket: )
           - keyword: NOT
           - keyword: 'NULL'
@@ -92,7 +102,8 @@ file:
   - statement:
     - keyword: EXECUTE
     - object_reference:
-      - naked_identifier: test
+      - object_reference:
+        - naked_identifier: test
     - keyword: WITH
     - keyword: RESULT
     - keyword: SETS
@@ -103,16 +114,18 @@ file:
         - column_definition:
           - naked_identifier: col1
           - data_type:
-            - data_type_identifier: INT
+            - data_type:
+              - data_type_identifier: INT
         - comma: ','
         - column_definition:
           - naked_identifier: col2
           - data_type:
-            - data_type_identifier: VARCHAR
-            - bracketed_arguments:
+            - data_type:
+              - data_type_identifier: VARCHAR
               - bracketed:
                 - start_bracket: (
-                - numeric_literal: '50'
+                - expression:
+                  - numeric_literal: '50'
                 - end_bracket: )
         - end_bracket: )
       - comma: ','
@@ -121,24 +134,27 @@ file:
         - column_definition:
           - naked_identifier: name
           - data_type:
-            - data_type_identifier: NVARCHAR
-            - bracketed_arguments:
+            - data_type:
+              - data_type_identifier: NVARCHAR
               - bracketed:
                 - start_bracket: (
-                - numeric_literal: '100'
+                - expression:
+                  - numeric_literal: '100'
                 - end_bracket: )
         - comma: ','
         - column_definition:
           - naked_identifier: count
           - data_type:
-            - data_type_identifier: INT
+            - data_type:
+              - data_type_identifier: INT
         - end_bracket: )
       - end_bracket: )
   - statement_terminator: ;
   - statement:
     - keyword: EXECUTE
     - object_reference:
-      - naked_identifier: test
+      - object_reference:
+        - naked_identifier: test
     - keyword: WITH
     - keyword: RESULT
     - keyword: SETS
@@ -149,16 +165,19 @@ file:
         - column_definition:
           - quoted_identifier: '[Column 1]'
           - data_type:
-            - data_type_identifier: INT
+            - data_type:
+              - data_type_identifier: INT
         - comma: ','
         - column_definition:
           - quoted_identifier: '[Column 2]'
           - data_type:
-            - data_type_identifier: NVARCHAR
-            - bracketed_arguments:
+            - data_type:
+              - data_type_identifier: NVARCHAR
               - bracketed:
                 - start_bracket: (
-                - keyword: MAX
+                - expression:
+                  - column_reference:
+                    - naked_identifier: MAX
                 - end_bracket: )
         - end_bracket: )
       - end_bracket: )
@@ -166,7 +185,8 @@ file:
   - statement:
     - keyword: EXECUTE
     - object_reference:
-      - naked_identifier: test
+      - object_reference:
+        - naked_identifier: test
     - keyword: WITH
     - keyword: RESULT
     - keyword: SETS
@@ -175,7 +195,8 @@ file:
   - statement:
     - keyword: EXECUTE
     - object_reference:
-      - naked_identifier: test
+      - object_reference:
+        - naked_identifier: test
     - keyword: WITH
     - keyword: RESULT
     - keyword: SETS

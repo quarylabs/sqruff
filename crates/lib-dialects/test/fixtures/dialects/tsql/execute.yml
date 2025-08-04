@@ -3,9 +3,10 @@ file:
   - statement:
     - keyword: EXEC
     - object_reference:
-      - quoted_identifier: '[Reporting]'
-      - dot: .
-      - quoted_identifier: '[Load_CLL]'
+      - object_reference:
+        - quoted_identifier: '[Reporting]'
+        - dot: .
+        - quoted_identifier: '[Load_CLL]'
     - expression:
       - column_reference:
         - naked_identifier: EXECUTE
@@ -23,9 +24,10 @@ file:
   - statement:
     - keyword: EXECUTE
     - object_reference:
-      - naked_identifier: dbo
-      - dot: .
-      - naked_identifier: ProcTestDefaults
+      - object_reference:
+        - naked_identifier: dbo
+        - dot: .
+        - naked_identifier: ProcTestDefaults
     - expression:
       - numeric_literal: '68'
     - comma: ','
@@ -35,9 +37,10 @@ file:
   - statement:
     - keyword: EXECUTE
     - object_reference:
-      - naked_identifier: dbo
-      - dot: .
-      - naked_identifier: ProcTestDefaults
+      - object_reference:
+        - naked_identifier: dbo
+        - dot: .
+        - naked_identifier: ProcTestDefaults
     - expression:
       - numeric_literal: '68'
     - comma: ','
@@ -50,9 +53,10 @@ file:
   - statement:
     - keyword: EXECUTE
     - object_reference:
-      - naked_identifier: dbo
-      - dot: .
-      - naked_identifier: ProcTestDefaults
+      - object_reference:
+        - naked_identifier: dbo
+        - dot: .
+        - naked_identifier: ProcTestDefaults
     - tsql_variable: '@p1'
     - assignment_operator:
       - raw_comparison_operator: =
@@ -69,9 +73,10 @@ file:
   - statement:
     - keyword: EXECUTE
     - object_reference:
-      - naked_identifier: dbo
-      - dot: .
-      - naked_identifier: ProcTestDefaults
+      - object_reference:
+        - naked_identifier: dbo
+        - dot: .
+        - naked_identifier: ProcTestDefaults
     - expression:
       - column_reference:
         - naked_identifier: DEFAULT
@@ -91,9 +96,10 @@ file:
   - statement:
     - keyword: EXECUTE
     - object_reference:
-      - naked_identifier: dbo
-      - dot: .
-      - naked_identifier: ProcTestDefaults
+      - object_reference:
+        - naked_identifier: dbo
+        - dot: .
+        - naked_identifier: ProcTestDefaults
     - expression:
       - column_reference:
         - naked_identifier: DEFAULT
@@ -108,9 +114,10 @@ file:
   - statement:
     - keyword: EXECUTE
     - object_reference:
-      - naked_identifier: dbo
-      - dot: .
-      - naked_identifier: ProcTestDefaults
+      - object_reference:
+        - naked_identifier: dbo
+        - dot: .
+        - naked_identifier: ProcTestDefaults
     - expression:
       - column_reference:
         - naked_identifier: DEFAULT
@@ -128,7 +135,8 @@ file:
   - statement:
     - keyword: EXECUTE
     - object_reference:
-      - naked_identifier: sp_addextendedproperty
+      - object_reference:
+        - naked_identifier: sp_addextendedproperty
     - tsql_variable: '@name'
     - assignment_operator:
       - raw_comparison_operator: =
@@ -182,9 +190,10 @@ file:
     - assignment_operator:
       - raw_comparison_operator: =
     - object_reference:
-      - naked_identifier: dbo
-      - dot: .
-      - naked_identifier: ProcTestDefaults
+      - object_reference:
+        - naked_identifier: dbo
+        - dot: .
+        - naked_identifier: ProcTestDefaults
     - tsql_variable: '@p1'
     - assignment_operator:
       - raw_comparison_operator: =
@@ -198,9 +207,10 @@ file:
     - assignment_operator:
       - raw_comparison_operator: =
     - object_reference:
-      - naked_identifier: dbo
-      - dot: .
-      - naked_identifier: ProcTestDefaults
+      - object_reference:
+        - naked_identifier: dbo
+        - dot: .
+        - naked_identifier: ProcTestDefaults
   - statement_terminator: ;
   - statement:
     - keyword: EXECUTE
@@ -208,9 +218,10 @@ file:
     - assignment_operator:
       - raw_comparison_operator: =
     - object_reference:
-      - naked_identifier: dbo
-      - dot: .
-      - naked_identifier: ProcTestDefaults
+      - object_reference:
+        - naked_identifier: dbo
+        - dot: .
+        - naked_identifier: ProcTestDefaults
     - tsql_variable: '@p1'
     - assignment_operator:
       - raw_comparison_operator: =
@@ -223,11 +234,13 @@ file:
       - keyword: DECLARE
       - tsql_variable: '@statement'
       - data_type:
-        - data_type_identifier: nvarchar
-        - bracketed_arguments:
+        - data_type:
+          - data_type_identifier: nvarchar
           - bracketed:
             - start_bracket: (
-            - keyword: max
+            - expression:
+              - column_reference:
+                - naked_identifier: max
             - end_bracket: )
       - assignment_operator:
         - raw_comparison_operator: =
@@ -256,11 +269,12 @@ file:
       - tsql_variable: '@s1'
       - keyword: AS
       - data_type:
-        - data_type_identifier: varchar
-        - bracketed_arguments:
+        - data_type:
+          - data_type_identifier: varchar
           - bracketed:
             - start_bracket: (
-            - numeric_literal: '10'
+            - expression:
+              - numeric_literal: '10'
             - end_bracket: )
       - assignment_operator:
         - raw_comparison_operator: =
@@ -272,11 +286,12 @@ file:
       - keyword: DECLARE
       - tsql_variable: '@s2'
       - data_type:
-        - data_type_identifier: varchar
-        - bracketed_arguments:
+        - data_type:
+          - data_type_identifier: varchar
           - bracketed:
             - start_bracket: (
-            - numeric_literal: '10'
+            - expression:
+              - numeric_literal: '10'
             - end_bracket: )
       - assignment_operator:
         - raw_comparison_operator: =
@@ -332,18 +347,20 @@ file:
   - statement:
     - keyword: EXECUTE
     - object_reference:
-      - naked_identifier: dbo
-      - dot: .
-      - naked_identifier: uspGetEmployeeManagers
+      - object_reference:
+        - naked_identifier: dbo
+        - dot: .
+        - naked_identifier: uspGetEmployeeManagers
     - expression:
       - numeric_literal: '6'
   - statement_terminator: ;
   - statement:
     - keyword: EXECUTE
     - object_reference:
-      - naked_identifier: dbo
-      - dot: .
-      - naked_identifier: uspGetEmployeeManagers
+      - object_reference:
+        - naked_identifier: dbo
+        - dot: .
+        - naked_identifier: uspGetEmployeeManagers
     - tsql_variable: '@EmployeeID'
     - assignment_operator:
       - raw_comparison_operator: =
@@ -353,9 +370,10 @@ file:
   - statement:
     - keyword: EXECUTE
     - object_reference:
-      - naked_identifier: dbo
-      - dot: .
-      - naked_identifier: uspGetEmployeeManagers
+      - object_reference:
+        - naked_identifier: dbo
+        - dot: .
+        - naked_identifier: uspGetEmployeeManagers
     - expression:
       - parameterized_expression:
         - tsql_variable: '@EmployeeID'
@@ -383,7 +401,8 @@ file:
       - tsql_variable: '@CheckDate'
       - keyword: AS
       - data_type:
-        - data_type_identifier: DATETIME
+        - data_type:
+          - data_type_identifier: DATETIME
       - assignment_operator:
         - raw_comparison_operator: =
       - expression:
@@ -399,9 +418,10 @@ file:
   - statement:
     - keyword: EXECUTE
     - object_reference:
-      - naked_identifier: dbo
-      - dot: .
-      - naked_identifier: uspGetWhereUsedProductID
+      - object_reference:
+        - naked_identifier: dbo
+        - dot: .
+        - naked_identifier: uspGetWhereUsedProductID
     - expression:
       - numeric_literal: '819'
     - comma: ','
@@ -415,7 +435,8 @@ file:
       - tsql_variable: '@schemaname'
       - keyword: AS
       - data_type:
-        - data_type_identifier: sysname
+        - data_type:
+          - data_type_identifier: sysname
   - statement_terminator: ;
   - statement:
     - declare_statement:
@@ -423,7 +444,8 @@ file:
       - tsql_variable: '@tablename'
       - keyword: AS
       - data_type:
-        - data_type_identifier: sysname
+        - data_type:
+          - data_type_identifier: sysname
   - statement_terminator: ;
   - statement:
     - keyword: EXECUTE
@@ -449,7 +471,8 @@ file:
       - tsql_variable: '@retstat'
       - keyword: AS
       - data_type:
-        - data_type_identifier: INT
+        - data_type:
+          - data_type_identifier: INT
   - statement_terminator: ;
   - statement:
     - keyword: EXECUTE
@@ -457,13 +480,14 @@ file:
     - assignment_operator:
       - raw_comparison_operator: =
     - object_reference:
-      - naked_identifier: SQLSERVER1
-      - dot: .
-      - naked_identifier: AdventureWorks2022
-      - dot: .
-      - naked_identifier: dbo
-      - dot: .
-      - naked_identifier: uspGetEmployeeManagers
+      - object_reference:
+        - naked_identifier: SQLSERVER1
+        - dot: .
+        - naked_identifier: AdventureWorks2022
+        - dot: .
+        - naked_identifier: dbo
+        - dot: .
+        - naked_identifier: uspGetEmployeeManagers
     - tsql_variable: '@BusinessEntityID'
     - assignment_operator:
       - raw_comparison_operator: =
@@ -476,11 +500,12 @@ file:
       - tsql_variable: '@proc_name'
       - keyword: AS
       - data_type:
-        - data_type_identifier: VARCHAR
-        - bracketed_arguments:
+        - data_type:
+          - data_type_identifier: VARCHAR
           - bracketed:
             - start_bracket: (
-            - numeric_literal: '30'
+            - expression:
+              - numeric_literal: '30'
             - end_bracket: )
       - assignment_operator:
         - raw_comparison_operator: =
@@ -494,9 +519,10 @@ file:
   - statement:
     - keyword: EXECUTE
     - object_reference:
-      - naked_identifier: dbo
-      - dot: .
-      - naked_identifier: ProcTestDefaults
+      - object_reference:
+        - naked_identifier: dbo
+        - dot: .
+        - naked_identifier: ProcTestDefaults
     - tsql_variable: '@p1'
     - assignment_operator:
       - raw_comparison_operator: =
@@ -513,9 +539,10 @@ file:
   - statement:
     - keyword: EXECUTE
     - object_reference:
-      - naked_identifier: dbo
-      - dot: .
-      - naked_identifier: ProcTestDefaults
+      - object_reference:
+        - naked_identifier: dbo
+        - dot: .
+        - naked_identifier: ProcTestDefaults
     - expression:
       - column_reference:
         - naked_identifier: DEFAULT
@@ -530,9 +557,10 @@ file:
   - statement:
     - keyword: EXECUTE
     - object_reference:
-      - naked_identifier: dbo
-      - dot: .
-      - naked_identifier: ProcTestDefaults
+      - object_reference:
+        - naked_identifier: dbo
+        - dot: .
+        - naked_identifier: ProcTestDefaults
     - expression:
       - column_reference:
         - naked_identifier: DEFAULT
@@ -575,9 +603,10 @@ file:
   - statement:
     - keyword: EXECUTE
     - object_reference:
-      - naked_identifier: dbo
-      - dot: .
-      - naked_identifier: Proc_Test_Defaults
+      - object_reference:
+        - naked_identifier: dbo
+        - dot: .
+        - naked_identifier: Proc_Test_Defaults
     - tsql_variable: '@p2'
     - assignment_operator:
       - raw_comparison_operator: =
@@ -592,11 +621,12 @@ file:
       - tsql_variable: '@returnstatus'
       - keyword: AS
       - data_type:
-        - data_type_identifier: NVARCHAR
-        - bracketed_arguments:
+        - data_type:
+          - data_type_identifier: NVARCHAR
           - bracketed:
             - start_bracket: (
-            - numeric_literal: '15'
+            - expression:
+              - numeric_literal: '15'
             - end_bracket: )
   - statement_terminator: ;
   - statement:
@@ -605,9 +635,10 @@ file:
     - assignment_operator:
       - raw_comparison_operator: =
     - object_reference:
-      - naked_identifier: dbo
-      - dot: .
-      - naked_identifier: ufnGetSalesOrderStatusText
+      - object_reference:
+        - naked_identifier: dbo
+        - dot: .
+        - naked_identifier: ufnGetSalesOrderStatusText
     - tsql_variable: '@Status'
     - assignment_operator:
       - raw_comparison_operator: =
@@ -630,7 +661,8 @@ file:
   - statement:
     - keyword: EXECUTE
     - object_reference:
-      - naked_identifier: uspGetEmployeeManagers
+      - object_reference:
+        - naked_identifier: uspGetEmployeeManagers
     - expression:
       - numeric_literal: '16'
     - keyword: WITH
@@ -643,25 +675,28 @@ file:
         - column_definition:
           - quoted_identifier: '[Reporting Level]'
           - data_type:
-            - data_type_identifier: INT
+            - data_type:
+              - data_type_identifier: INT
           - keyword: NOT
           - keyword: 'NULL'
         - comma: ','
         - column_definition:
           - quoted_identifier: '[ID of Employee]'
           - data_type:
-            - data_type_identifier: INT
+            - data_type:
+              - data_type_identifier: INT
           - keyword: NOT
           - keyword: 'NULL'
         - comma: ','
         - column_definition:
           - quoted_identifier: '[Employee First Name]'
           - data_type:
-            - data_type_identifier: NVARCHAR
-            - bracketed_arguments:
+            - data_type:
+              - data_type_identifier: NVARCHAR
               - bracketed:
                 - start_bracket: (
-                - numeric_literal: '50'
+                - expression:
+                  - numeric_literal: '50'
                 - end_bracket: )
           - keyword: NOT
           - keyword: 'NULL'
@@ -669,11 +704,12 @@ file:
         - column_definition:
           - quoted_identifier: '[Employee Last Name]'
           - data_type:
-            - data_type_identifier: NVARCHAR
-            - bracketed_arguments:
+            - data_type:
+              - data_type_identifier: NVARCHAR
               - bracketed:
                 - start_bracket: (
-                - numeric_literal: '50'
+                - expression:
+                  - numeric_literal: '50'
                 - end_bracket: )
           - keyword: NOT
           - keyword: 'NULL'
@@ -681,11 +717,13 @@ file:
         - column_definition:
           - quoted_identifier: '[Employee ID of Manager]'
           - data_type:
-            - data_type_identifier: NVARCHAR
-            - bracketed_arguments:
+            - data_type:
+              - data_type_identifier: NVARCHAR
               - bracketed:
                 - start_bracket: (
-                - keyword: MAX
+                - expression:
+                  - column_reference:
+                    - naked_identifier: MAX
                 - end_bracket: )
           - keyword: NOT
           - keyword: 'NULL'
@@ -693,11 +731,12 @@ file:
         - column_definition:
           - quoted_identifier: '[Manager First Name]'
           - data_type:
-            - data_type_identifier: NVARCHAR
-            - bracketed_arguments:
+            - data_type:
+              - data_type_identifier: NVARCHAR
               - bracketed:
                 - start_bracket: (
-                - numeric_literal: '50'
+                - expression:
+                  - numeric_literal: '50'
                 - end_bracket: )
           - keyword: NOT
           - keyword: 'NULL'
@@ -705,11 +744,12 @@ file:
         - column_definition:
           - quoted_identifier: '[Manager Last Name]'
           - data_type:
-            - data_type_identifier: NVARCHAR
-            - bracketed_arguments:
+            - data_type:
+              - data_type_identifier: NVARCHAR
               - bracketed:
                 - start_bracket: (
-                - numeric_literal: '50'
+                - expression:
+                  - numeric_literal: '50'
                 - end_bracket: )
           - keyword: NOT
           - keyword: 'NULL'
@@ -719,9 +759,10 @@ file:
   - statement:
     - keyword: EXECUTE
     - object_reference:
-      - naked_identifier: Production
-      - dot: .
-      - naked_identifier: ProductList
+      - object_reference:
+        - naked_identifier: Production
+        - dot: .
+        - naked_identifier: ProductList
     - expression:
       - quoted_literal: '''%tire%'''
     - keyword: WITH
@@ -734,17 +775,20 @@ file:
         - column_definition:
           - naked_identifier: ProductID
           - data_type:
-            - data_type_identifier: INT
+            - data_type:
+              - data_type_identifier: INT
         - comma: ','
         - column_definition:
           - quoted_identifier: '[Name]'
           - data_type:
-            - data_type_identifier: NAME
+            - data_type:
+              - data_type_identifier: NAME
         - comma: ','
         - column_definition:
           - naked_identifier: ListPrice
           - data_type:
-            - data_type_identifier: MONEY
+            - data_type:
+              - data_type_identifier: MONEY
         - end_bracket: )
       - comma: ','
       - bracketed:
@@ -752,12 +796,14 @@ file:
         - column_definition:
           - quoted_identifier: '[Name]'
           - data_type:
-            - data_type_identifier: NAME
+            - data_type:
+              - data_type_identifier: NAME
         - comma: ','
         - column_definition:
           - naked_identifier: NumberOfOrders
           - data_type:
-            - data_type_identifier: INT
+            - data_type:
+              - data_type_identifier: INT
         - end_bracket: )
       - end_bracket: )
   - statement_terminator: ;

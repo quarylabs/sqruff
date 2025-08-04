@@ -12,9 +12,10 @@ file:
         - keyword: ON
         - table_reference:
           - object_reference:
-            - naked_identifier: dbo
-            - dot: .
-            - naked_identifier: Orders
+            - object_reference:
+              - naked_identifier: dbo
+              - dot: .
+              - naked_identifier: Orders
         - keyword: WITH
         - bracketed:
           - start_bracket: (
@@ -36,9 +37,10 @@ file:
         - keyword: ON
         - table_reference:
           - object_reference:
-            - naked_identifier: dbo
-            - dot: .
-            - naked_identifier: Compression
+            - object_reference:
+              - naked_identifier: dbo
+              - dot: .
+              - naked_identifier: Compression
         - keyword: WITH
         - bracketed:
           - start_bracket: (
@@ -61,9 +63,10 @@ file:
         - keyword: ON
         - table_reference:
           - object_reference:
-            - naked_identifier: dbo
-            - dot: .
-            - naked_identifier: DataColumns
+            - object_reference:
+              - naked_identifier: dbo
+              - dot: .
+              - naked_identifier: DataColumns
         - keyword: WITH
         - bracketed:
           - start_bracket: (
@@ -85,9 +88,10 @@ file:
         - keyword: ON
         - table_reference:
           - object_reference:
-            - naked_identifier: dbo
-            - dot: .
-            - naked_identifier: OnlineTable
+            - object_reference:
+              - naked_identifier: dbo
+              - dot: .
+              - naked_identifier: OnlineTable
         - keyword: WITH
         - bracketed:
           - start_bracket: (
@@ -109,9 +113,10 @@ file:
         - keyword: ON
         - table_reference:
           - object_reference:
-            - naked_identifier: dbo
-            - dot: .
-            - naked_identifier: Orders
+            - object_reference:
+              - naked_identifier: dbo
+              - dot: .
+              - naked_identifier: Orders
         - bracketed:
           - start_bracket: (
           - column_reference:
@@ -146,9 +151,10 @@ file:
         - keyword: ON
         - table_reference:
           - object_reference:
-            - naked_identifier: dbo
-            - dot: .
-            - naked_identifier: Orders2
+            - object_reference:
+              - naked_identifier: dbo
+              - dot: .
+              - naked_identifier: Orders2
         - bracketed:
           - start_bracket: (
           - column_reference:
@@ -184,9 +190,10 @@ file:
         - keyword: ON
         - table_reference:
           - object_reference:
-            - naked_identifier: dbo
-            - dot: .
-            - naked_identifier: Materials
+            - object_reference:
+              - naked_identifier: dbo
+              - dot: .
+              - naked_identifier: Materials
         - bracketed:
           - start_bracket: (
           - column_reference:

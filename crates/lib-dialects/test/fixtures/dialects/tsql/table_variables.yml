@@ -11,16 +11,18 @@ file:
           - column_definition:
             - naked_identifier: id
             - data_type:
-              - data_type_identifier: int
+              - data_type:
+                - data_type_identifier: int
         - comma: ','
         - column_definition:
           - column_definition:
             - naked_identifier: url
             - data_type:
-              - data_type_identifier: nvarchar
-              - bracketed_arguments:
+              - data_type:
+                - data_type_identifier: nvarchar
                 - bracketed:
                   - start_bracket: (
-                  - numeric_literal: '100'
+                  - expression:
+                    - numeric_literal: '100'
                   - end_bracket: )
         - end_bracket: )

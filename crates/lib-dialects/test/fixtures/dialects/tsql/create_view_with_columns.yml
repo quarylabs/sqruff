@@ -7,7 +7,8 @@ file:
         - keyword: VIEW
         - table_reference:
           - object_reference:
-            - naked_identifier: my_view
+            - object_reference:
+              - naked_identifier: my_view
         - bracketed:
           - start_bracket: (
           - column_reference:
@@ -19,20 +20,25 @@ file:
         - keyword: AS
         - select_statement:
           - select_clause:
-            - keyword: SELECT
-            - select_clause_element:
-              - column_reference:
-                - naked_identifier: col1
-            - comma: ','
-            - select_clause_element:
-              - column_reference:
-                - naked_identifier: col2
+            - select_clause:
+              - keyword: SELECT
+              - select_clause_element:
+                - column_reference:
+                  - naked_identifier: col1
+              - comma: ','
+              - select_clause_element:
+                - column_reference:
+                  - naked_identifier: col2
           - from_clause:
-            - keyword: FROM
-            - from_expression:
-              - from_expression_element:
-                - table_expression:
-                  - table_reference:
-                    - object_reference:
-                      - naked_identifier: source_table
+            - from_clause:
+              - keyword: FROM
+              - from_expression:
+                - from_expression:
+                  - from_expression_element:
+                    - from_expression_element:
+                      - table_expression:
+                        - table_reference:
+                          - object_reference:
+                            - object_reference:
+                              - naked_identifier: source_table
   - statement_terminator: ;

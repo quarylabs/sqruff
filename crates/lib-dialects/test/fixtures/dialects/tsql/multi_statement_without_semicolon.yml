@@ -3,32 +3,42 @@ file:
   - statement:
     - select_statement:
       - select_clause:
-        - keyword: select
-        - select_clause_element:
-          - column_reference:
-            - naked_identifier: a
+        - select_clause:
+          - keyword: select
+          - select_clause_element:
+            - column_reference:
+              - naked_identifier: a
       - from_clause:
-        - keyword: from
-        - from_expression:
-          - from_expression_element:
-            - table_expression:
-              - table_reference:
-                - object_reference:
-                  - naked_identifier: tbl1
+        - from_clause:
+          - keyword: from
+          - from_expression:
+            - from_expression:
+              - from_expression_element:
+                - from_expression_element:
+                  - table_expression:
+                    - table_reference:
+                      - object_reference:
+                        - object_reference:
+                          - naked_identifier: tbl1
   - keyword: GO
   - statement:
     - select_statement:
       - select_clause:
-        - keyword: select
-        - select_clause_element:
-          - column_reference:
-            - naked_identifier: b
+        - select_clause:
+          - keyword: select
+          - select_clause_element:
+            - column_reference:
+              - naked_identifier: b
       - from_clause:
-        - keyword: from
-        - from_expression:
-          - from_expression_element:
-            - table_expression:
-              - table_reference:
-                - object_reference:
-                  - naked_identifier: tbl2
+        - from_clause:
+          - keyword: from
+          - from_expression:
+            - from_expression:
+              - from_expression_element:
+                - from_expression_element:
+                  - table_expression:
+                    - table_reference:
+                      - object_reference:
+                        - object_reference:
+                          - naked_identifier: tbl2
   - keyword: GO

@@ -3,93 +3,99 @@ file:
   - statement:
     - select_statement:
       - select_clause:
-        - keyword: SELECT
-        - select_clause_element:
-          - expression:
-            - function:
+        - select_clause:
+          - keyword: SELECT
+          - select_clause_element:
+            - expression:
               - function:
-                - function_name:
-                  - function_name_identifier: REPLICATE
-                - function_contents:
-                  - bracketed:
-                    - start_bracket: (
-                    - expression:
-                      - quoted_literal: '''0'''
-                    - comma: ','
-                    - expression:
-                      - numeric_literal: '3'
-                      - binary_operator: '-'
-                      - function:
+                - function:
+                  - function_name:
+                    - function_name_identifier: REPLICATE
+                  - function_contents:
+                    - bracketed:
+                      - start_bracket: (
+                      - expression:
+                        - quoted_literal: '''0'''
+                      - comma: ','
+                      - expression:
+                        - numeric_literal: '3'
+                        - binary_operator: '-'
                         - function:
-                          - function_name:
-                            - function_name_identifier: DATALENGTH
-                          - function_contents:
-                            - bracketed:
-                              - start_bracket: (
-                              - expression:
-                                - column_reference:
-                                  - naked_identifier: c1
-                              - end_bracket: )
-                    - end_bracket: )
-            - binary_operator: +
-            - column_reference:
-              - naked_identifier: c1
-          - alias_expression:
-            - keyword: AS
-            - quoted_identifier: '''Varchar Column'''
-        - comma: ','
-        - select_clause_element:
-          - expression:
-            - function:
+                          - function:
+                            - function_name:
+                              - function_name_identifier: DATALENGTH
+                            - function_contents:
+                              - bracketed:
+                                - start_bracket: (
+                                - expression:
+                                  - column_reference:
+                                    - naked_identifier: c1
+                                - end_bracket: )
+                      - end_bracket: )
+              - binary_operator: +
+              - column_reference:
+                - naked_identifier: c1
+            - alias_expression:
+              - keyword: AS
+              - quoted_identifier: '''Varchar Column'''
+          - comma: ','
+          - select_clause_element:
+            - expression:
               - function:
-                - function_name:
-                  - function_name_identifier: REPLICATE
-                - function_contents:
-                  - bracketed:
-                    - start_bracket: (
-                    - expression:
-                      - quoted_literal: '''0'''
-                    - comma: ','
-                    - expression:
-                      - numeric_literal: '3'
-                      - binary_operator: '-'
-                      - function:
+                - function:
+                  - function_name:
+                    - function_name_identifier: REPLICATE
+                  - function_contents:
+                    - bracketed:
+                      - start_bracket: (
+                      - expression:
+                        - quoted_literal: '''0'''
+                      - comma: ','
+                      - expression:
+                        - numeric_literal: '3'
+                        - binary_operator: '-'
                         - function:
-                          - function_name:
-                            - function_name_identifier: DATALENGTH
-                          - function_contents:
-                            - bracketed:
-                              - start_bracket: (
-                              - expression:
-                                - column_reference:
-                                  - naked_identifier: c2
-                              - end_bracket: )
-                    - end_bracket: )
-            - binary_operator: +
-            - column_reference:
-              - naked_identifier: c2
-          - alias_expression:
-            - keyword: AS
-            - quoted_identifier: '''Char Column'''
+                          - function:
+                            - function_name:
+                              - function_name_identifier: DATALENGTH
+                            - function_contents:
+                              - bracketed:
+                                - start_bracket: (
+                                - expression:
+                                  - column_reference:
+                                    - naked_identifier: c2
+                                - end_bracket: )
+                      - end_bracket: )
+              - binary_operator: +
+              - column_reference:
+                - naked_identifier: c2
+            - alias_expression:
+              - keyword: AS
+              - quoted_identifier: '''Char Column'''
       - from_clause:
-        - keyword: FROM
-        - from_expression:
-          - from_expression_element:
-            - table_expression:
-              - table_reference:
-                - object_reference:
-                  - naked_identifier: t1
+        - from_clause:
+          - keyword: FROM
+          - from_expression:
+            - from_expression:
+              - from_expression_element:
+                - from_expression_element:
+                  - table_expression:
+                    - table_reference:
+                      - object_reference:
+                        - object_reference:
+                          - naked_identifier: t1
   - statement_terminator: ;
   - statement:
     - declare_statement:
       - keyword: DECLARE
       - tsql_variable: '@BinVar'
       - data_type:
-        - data_type_identifier: varbinary
-        - bracketed_arguments:
+        - data_type:
+          - data_type_identifier: varbinary
           - bracketed:
             - start_bracket: (
-            - numeric_literal: '128'
+            - expression:
+              - numeric_literal: '128'
             - end_bracket: )
   - statement_terminator: ;
   - statement:
@@ -121,11 +127,12 @@ file:
                         - end_bracket: )
               - keyword: AS
               - data_type:
-                - data_type_identifier: varbinary
-                - bracketed_arguments:
+                - data_type:
+                  - data_type_identifier: varbinary
                   - bracketed:
                     - start_bracket: (
-                    - numeric_literal: '128'
+                    - expression:
+                      - numeric_literal: '128'
                     - end_bracket: )
               - end_bracket: )
   - statement_terminator: ;

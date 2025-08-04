@@ -7,9 +7,10 @@ file:
         - keyword: TABLE
         - table_reference:
           - object_reference:
-            - quoted_identifier: '[dbo]'
-            - dot: .
-            - quoted_identifier: '[Person]'
+            - object_reference:
+              - quoted_identifier: '[dbo]'
+              - dot: .
+              - quoted_identifier: '[Person]'
         - bracketed:
           - start_bracket: (
           - column_definition:
@@ -36,7 +37,8 @@ file:
         - keyword: TABLE
         - table_reference:
           - object_reference:
-            - naked_identifier: friends
+            - object_reference:
+              - naked_identifier: friends
         - bracketed:
           - start_bracket: (
           - column_definition:
@@ -59,7 +61,8 @@ file:
         - keyword: TABLE
         - table_reference:
           - object_reference:
-            - naked_identifier: likes
+            - object_reference:
+              - naked_identifier: likes
         - keyword: AS
         - keyword: EDGE
   - statement_terminator: ;
@@ -70,26 +73,30 @@ file:
         - keyword: TABLE
         - table_reference:
           - object_reference:
-            - naked_identifier: dbo
-            - dot: .
-            - naked_identifier: FriendOf
+            - object_reference:
+              - naked_identifier: dbo
+              - dot: .
+              - naked_identifier: FriendOf
         - bracketed:
           - start_bracket: (
           - keyword: CONSTRAINT
           - object_reference:
-            - naked_identifier: cnt_Person_FriendOf_Person
+            - object_reference:
+              - naked_identifier: cnt_Person_FriendOf_Person
           - keyword: CONNECTION
           - bracketed:
             - start_bracket: (
             - object_reference:
-              - naked_identifier: dbo
-              - dot: .
-              - naked_identifier: Person
+              - object_reference:
+                - naked_identifier: dbo
+                - dot: .
+                - naked_identifier: Person
             - keyword: TO
             - object_reference:
-              - naked_identifier: dbo
-              - dot: .
-              - naked_identifier: Person
+              - object_reference:
+                - naked_identifier: dbo
+                - dot: .
+                - naked_identifier: Person
             - end_bracket: )
           - end_bracket: )
         - keyword: AS
@@ -102,26 +109,30 @@ file:
         - keyword: TABLE
         - table_reference:
           - object_reference:
-            - naked_identifier: dbo
-            - dot: .
-            - naked_identifier: FriendOf
+            - object_reference:
+              - naked_identifier: dbo
+              - dot: .
+              - naked_identifier: FriendOf
         - bracketed:
           - start_bracket: (
           - keyword: CONSTRAINT
           - object_reference:
-            - naked_identifier: cnt_Person_FriendOf_Person
+            - object_reference:
+              - naked_identifier: cnt_Person_FriendOf_Person
           - keyword: CONNECTION
           - bracketed:
             - start_bracket: (
             - object_reference:
-              - naked_identifier: dbo
-              - dot: .
-              - naked_identifier: Person
+              - object_reference:
+                - naked_identifier: dbo
+                - dot: .
+                - naked_identifier: Person
             - keyword: TO
             - object_reference:
-              - naked_identifier: dbo
-              - dot: .
-              - naked_identifier: Person
+              - object_reference:
+                - naked_identifier: dbo
+                - dot: .
+                - naked_identifier: Person
             - end_bracket: )
           - keyword: ON
           - keyword: DELETE

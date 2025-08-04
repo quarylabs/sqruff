@@ -8,24 +8,28 @@ file:
         - keyword: ALTER
         - keyword: FUNCTION
         - object_reference:
-          - quoted_identifier: '[dbo]'
-          - dot: .
-          - quoted_identifier: '[CONVERT_ISO_WEEK_TO_UNIX]'
+          - object_reference:
+            - quoted_identifier: '[dbo]'
+            - dot: .
+            - quoted_identifier: '[CONVERT_ISO_WEEK_TO_UNIX]'
         - bracketed:
           - start_bracket: (
           - parameter:
             - tsql_variable: '@year'
             - data_type:
-              - data_type_identifier: INT
+              - data_type:
+                - data_type_identifier: INT
           - comma: ','
           - parameter:
             - tsql_variable: '@week'
             - data_type:
-              - data_type_identifier: INT
+              - data_type:
+                - data_type_identifier: INT
           - end_bracket: )
         - keyword: RETURNS
         - data_type:
-          - data_type_identifier: BIGINT
+          - data_type:
+            - data_type_identifier: BIGINT
         - keyword: AS
         - keyword: BEGIN
         - statement:
@@ -33,7 +37,8 @@ file:
             - keyword: DECLARE
             - tsql_variable: '@result'
             - data_type:
-              - data_type_identifier: BIGINT
+              - data_type:
+                - data_type_identifier: BIGINT
         - statement:
           - keyword: SET
           - tsql_variable: '@result'

@@ -3,7 +3,8 @@ file:
   - statement:
     - keyword: EXECUTE
     - object_reference:
-      - naked_identifier: sp_add_job
+      - object_reference:
+        - naked_identifier: sp_add_job
     - tsql_variable: '@job_name'
     - assignment_operator:
       - raw_comparison_operator: =
@@ -22,7 +23,8 @@ file:
       - statement:
         - keyword: EXECUTE
         - object_reference:
-          - naked_identifier: sp_update_job
+          - object_reference:
+            - naked_identifier: sp_update_job
         - tsql_variable: '@job_name'
         - assignment_operator:
           - raw_comparison_operator: =
@@ -50,7 +52,8 @@ file:
       - statement:
         - keyword: EXECUTE
         - object_reference:
-          - naked_identifier: sp_helpdb
+          - object_reference:
+            - naked_identifier: sp_helpdb
       - statement_terminator: ;
       - keyword: END
   - statement_terminator: ;

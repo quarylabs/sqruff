@@ -8,16 +8,14 @@ file:
         - object_reference:
           - naked_identifier: ProcedureName
       - keyword: AS
-      - statement:
-        - select_statement:
-          - select_clause:
-            - select_clause:
-              - keyword: SELECT
-              - select_clause_element:
-                - function:
-                  - function:
-                    - function_name:
-                      - function_name_identifier: DB_NAME
-                    - bracketed:
-                      - start_bracket: (
-                      - end_bracket: )
+      - select_statement:
+        - select_clause:
+          - word: SELECT
+          - expression:
+            - function:
+              - function:
+                - function_name:
+                  - function_name_identifier: DB_NAME
+                - bracketed:
+                  - start_bracket: (
+                  - end_bracket: )

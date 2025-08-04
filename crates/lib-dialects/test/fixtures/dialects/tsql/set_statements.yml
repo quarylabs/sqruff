@@ -134,9 +134,9 @@ file:
         - start_bracket: (
         - expression:
           - expression:
-            - keyword: NEXT
-            - keyword: VALUE
-            - keyword: FOR
+            - word: NEXT
+            - word: VALUE
+            - word: FOR
             - object_reference:
               - object_reference:
                 - quoted_identifier: '[dbo]'

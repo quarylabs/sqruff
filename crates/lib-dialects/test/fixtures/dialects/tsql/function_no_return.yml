@@ -15,7 +15,7 @@ file:
         - raw_comparison_operator: =
       - null_literal: 'NULL'
       - keyword: AS
-      - unparsable:
+      - statement:
         - word: IF
         - tsql_variable: '@nm'
         - word: IS

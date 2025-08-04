@@ -37,31 +37,19 @@ file:
                     - quoted_identifier: '[SEQ_MELDER]'
           - comma: ','
           - column_definition:
-            - column_definition:
-              - quoted_identifier: '[DOWNLOADED_TOTAL]'
-              - data_type:
-                - data_type:
-                  - data_type_identifier: INT
-              - column_constraint_segment:
-                - keyword: 'NULL'
+            - quoted_identifier: '[DOWNLOADED_TOTAL]'
+            - word: INT
+            - word: 'NULL'
           - comma: ','
           - column_definition:
-            - column_definition:
-              - quoted_identifier: '[WARNED_DAILY]'
-              - data_type:
-                - data_type:
-                  - data_type_identifier: INT
-              - column_constraint_segment:
-                - keyword: 'NULL'
+            - quoted_identifier: '[WARNED_DAILY]'
+            - word: INT
+            - word: 'NULL'
           - comma: ','
           - column_definition:
-            - column_definition:
-              - quoted_identifier: '[DATE_OF_REPORT]'
-              - data_type:
-                - data_type:
-                  - data_type_identifier: DATETIME
-              - column_constraint_segment:
-                - keyword: 'NULL'
+            - quoted_identifier: '[DATE_OF_REPORT]'
+            - word: DATETIME
+            - word: 'NULL'
           - comma: ','
           - column_definition:
             - column_definition:

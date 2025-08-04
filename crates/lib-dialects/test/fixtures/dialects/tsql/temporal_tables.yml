@@ -271,30 +271,22 @@ file:
                     - end_bracket: )
           - comma: ','
           - column_definition:
-            - column_definition:
-              - quoted_identifier: '[ColumnC]'
-              - data_type:
-                - data_type:
-                  - data_type_identifier: varchar
-                  - bracketed_arguments:
-                    - bracketed:
-                      - start_bracket: (
-                      - numeric_literal: '100'
-                      - end_bracket: )
+            - quoted_identifier: '[ColumnC]'
+            - word: varchar
+            - bracketed:
+              - start_bracket: (
+              - numeric_literal: '100'
+              - end_bracket: )
           - comma: ','
           - column_definition:
-            - column_definition:
-              - quoted_identifier: '[ColumnDecimal]'
-              - data_type:
-                - data_type:
-                  - data_type_identifier: decimal
-                  - bracketed_arguments:
-                    - bracketed:
-                      - start_bracket: (
-                      - numeric_literal: '10'
-                      - comma: ','
-                      - numeric_literal: '3'
-                      - end_bracket: )
+            - quoted_identifier: '[ColumnDecimal]'
+            - word: decimal
+            - bracketed:
+              - start_bracket: (
+              - numeric_literal: '10'
+              - comma: ','
+              - numeric_literal: '3'
+              - end_bracket: )
           - end_bracket: )
         - keyword: WITH
         - bracketed:
@@ -349,37 +341,24 @@ file:
                 - keyword: CLUSTERED
           - comma: ','
           - column_definition:
-            - column_definition:
-              - naked_identifier: DeptName
-              - data_type:
-                - data_type:
-                  - data_type_identifier: VARCHAR
-                  - bracketed_arguments:
-                    - bracketed:
-                      - start_bracket: (
-                      - numeric_literal: '50'
-                      - end_bracket: )
-              - column_constraint_segment:
-                - keyword: NOT
-                - keyword: 'NULL'
+            - naked_identifier: DeptName
+            - word: VARCHAR
+            - bracketed:
+              - start_bracket: (
+              - numeric_literal: '50'
+              - end_bracket: )
+            - word: NOT
+            - word: 'NULL'
           - comma: ','
           - column_definition:
-            - column_definition:
-              - naked_identifier: ManagerID
-              - data_type:
-                - data_type:
-                  - data_type_identifier: INT
-              - column_constraint_segment:
-                - keyword: 'NULL'
+            - naked_identifier: ManagerID
+            - word: INT
+            - word: 'NULL'
           - comma: ','
           - column_definition:
-            - column_definition:
-              - naked_identifier: ParentDeptID
-              - data_type:
-                - data_type:
-                  - data_type_identifier: INT
-              - column_constraint_segment:
-                - keyword: 'NULL'
+            - naked_identifier: ParentDeptID
+            - word: INT
+            - word: 'NULL'
           - comma: ','
           - column_definition:
             - column_definition:
@@ -469,30 +448,22 @@ file:
                     - end_bracket: )
           - comma: ','
           - column_definition:
-            - column_definition:
-              - quoted_identifier: '[ColumnC]'
-              - data_type:
-                - data_type:
-                  - data_type_identifier: varchar
-                  - bracketed_arguments:
-                    - bracketed:
-                      - start_bracket: (
-                      - numeric_literal: '100'
-                      - end_bracket: )
+            - quoted_identifier: '[ColumnC]'
+            - word: varchar
+            - bracketed:
+              - start_bracket: (
+              - numeric_literal: '100'
+              - end_bracket: )
           - comma: ','
           - column_definition:
-            - column_definition:
-              - quoted_identifier: '[ColumnDecimal]'
-              - data_type:
-                - data_type:
-                  - data_type_identifier: decimal
-                  - bracketed_arguments:
-                    - bracketed:
-                      - start_bracket: (
-                      - numeric_literal: '10'
-                      - comma: ','
-                      - numeric_literal: '3'
-                      - end_bracket: )
+            - quoted_identifier: '[ColumnDecimal]'
+            - word: decimal
+            - bracketed:
+              - start_bracket: (
+              - numeric_literal: '10'
+              - comma: ','
+              - numeric_literal: '3'
+              - end_bracket: )
           - end_bracket: )
         - keyword: WITH
         - bracketed:
@@ -530,30 +501,22 @@ file:
                     - end_bracket: )
           - comma: ','
           - column_definition:
-            - column_definition:
-              - quoted_identifier: '[ColumnC]'
-              - data_type:
-                - data_type:
-                  - data_type_identifier: varchar
-                  - bracketed_arguments:
-                    - bracketed:
-                      - start_bracket: (
-                      - numeric_literal: '100'
-                      - end_bracket: )
+            - quoted_identifier: '[ColumnC]'
+            - word: varchar
+            - bracketed:
+              - start_bracket: (
+              - numeric_literal: '100'
+              - end_bracket: )
           - comma: ','
           - column_definition:
-            - column_definition:
-              - quoted_identifier: '[ColumnDecimal]'
-              - data_type:
-                - data_type:
-                  - data_type_identifier: decimal
-                  - bracketed_arguments:
-                    - bracketed:
-                      - start_bracket: (
-                      - numeric_literal: '10'
-                      - comma: ','
-                      - numeric_literal: '3'
-                      - end_bracket: )
+            - quoted_identifier: '[ColumnDecimal]'
+            - word: decimal
+            - bracketed:
+              - start_bracket: (
+              - numeric_literal: '10'
+              - comma: ','
+              - numeric_literal: '3'
+              - end_bracket: )
           - end_bracket: )
         - keyword: WITH
         - bracketed:
@@ -604,30 +567,22 @@ file:
                     - end_bracket: )
           - comma: ','
           - column_definition:
-            - column_definition:
-              - quoted_identifier: '[ColumnC]'
-              - data_type:
-                - data_type:
-                  - data_type_identifier: varchar
-                  - bracketed_arguments:
-                    - bracketed:
-                      - start_bracket: (
-                      - numeric_literal: '100'
-                      - end_bracket: )
+            - quoted_identifier: '[ColumnC]'
+            - word: varchar
+            - bracketed:
+              - start_bracket: (
+              - numeric_literal: '100'
+              - end_bracket: )
           - comma: ','
           - column_definition:
-            - column_definition:
-              - quoted_identifier: '[ColumnDecimal]'
-              - data_type:
-                - data_type:
-                  - data_type_identifier: decimal
-                  - bracketed_arguments:
-                    - bracketed:
-                      - start_bracket: (
-                      - numeric_literal: '10'
-                      - comma: ','
-                      - numeric_literal: '3'
-                      - end_bracket: )
+            - quoted_identifier: '[ColumnDecimal]'
+            - word: decimal
+            - bracketed:
+              - start_bracket: (
+              - numeric_literal: '10'
+              - comma: ','
+              - numeric_literal: '3'
+              - end_bracket: )
           - end_bracket: )
         - keyword: WITH
         - bracketed:
@@ -685,30 +640,22 @@ file:
                     - end_bracket: )
           - comma: ','
           - column_definition:
-            - column_definition:
-              - quoted_identifier: '[ColumnC]'
-              - data_type:
-                - data_type:
-                  - data_type_identifier: varchar
-                  - bracketed_arguments:
-                    - bracketed:
-                      - start_bracket: (
-                      - numeric_literal: '100'
-                      - end_bracket: )
+            - quoted_identifier: '[ColumnC]'
+            - word: varchar
+            - bracketed:
+              - start_bracket: (
+              - numeric_literal: '100'
+              - end_bracket: )
           - comma: ','
           - column_definition:
-            - column_definition:
-              - quoted_identifier: '[ColumnDecimal]'
-              - data_type:
-                - data_type:
-                  - data_type_identifier: decimal
-                  - bracketed_arguments:
-                    - bracketed:
-                      - start_bracket: (
-                      - numeric_literal: '10'
-                      - comma: ','
-                      - numeric_literal: '3'
-                      - end_bracket: )
+            - quoted_identifier: '[ColumnDecimal]'
+            - word: decimal
+            - bracketed:
+              - start_bracket: (
+              - numeric_literal: '10'
+              - comma: ','
+              - numeric_literal: '3'
+              - end_bracket: )
           - end_bracket: )
         - keyword: WITH
         - bracketed:
@@ -782,30 +729,22 @@ file:
                     - end_bracket: )
           - comma: ','
           - column_definition:
-            - column_definition:
-              - quoted_identifier: '[ColumnC]'
-              - data_type:
-                - data_type:
-                  - data_type_identifier: varchar
-                  - bracketed_arguments:
-                    - bracketed:
-                      - start_bracket: (
-                      - numeric_literal: '100'
-                      - end_bracket: )
+            - quoted_identifier: '[ColumnC]'
+            - word: varchar
+            - bracketed:
+              - start_bracket: (
+              - numeric_literal: '100'
+              - end_bracket: )
           - comma: ','
           - column_definition:
-            - column_definition:
-              - quoted_identifier: '[ColumnDecimal]'
-              - data_type:
-                - data_type:
-                  - data_type_identifier: decimal
-                  - bracketed_arguments:
-                    - bracketed:
-                      - start_bracket: (
-                      - numeric_literal: '10'
-                      - comma: ','
-                      - numeric_literal: '3'
-                      - end_bracket: )
+            - quoted_identifier: '[ColumnDecimal]'
+            - word: decimal
+            - bracketed:
+              - start_bracket: (
+              - numeric_literal: '10'
+              - comma: ','
+              - numeric_literal: '3'
+              - end_bracket: )
           - end_bracket: )
         - keyword: WITH
         - bracketed:
@@ -853,30 +792,22 @@ file:
                     - end_bracket: )
           - comma: ','
           - column_definition:
-            - column_definition:
-              - quoted_identifier: '[ColumnC]'
-              - data_type:
-                - data_type:
-                  - data_type_identifier: varchar
-                  - bracketed_arguments:
-                    - bracketed:
-                      - start_bracket: (
-                      - numeric_literal: '100'
-                      - end_bracket: )
+            - quoted_identifier: '[ColumnC]'
+            - word: varchar
+            - bracketed:
+              - start_bracket: (
+              - numeric_literal: '100'
+              - end_bracket: )
           - comma: ','
           - column_definition:
-            - column_definition:
-              - quoted_identifier: '[ColumnDecimal]'
-              - data_type:
-                - data_type:
-                  - data_type_identifier: decimal
-                  - bracketed_arguments:
-                    - bracketed:
-                      - start_bracket: (
-                      - numeric_literal: '10'
-                      - comma: ','
-                      - numeric_literal: '3'
-                      - end_bracket: )
+            - quoted_identifier: '[ColumnDecimal]'
+            - word: decimal
+            - bracketed:
+              - start_bracket: (
+              - numeric_literal: '10'
+              - comma: ','
+              - numeric_literal: '3'
+              - end_bracket: )
           - end_bracket: )
         - keyword: WITH
         - bracketed:
@@ -926,30 +857,22 @@ file:
                     - end_bracket: )
           - comma: ','
           - column_definition:
-            - column_definition:
-              - quoted_identifier: '[ColumnC]'
-              - data_type:
-                - data_type:
-                  - data_type_identifier: varchar
-                  - bracketed_arguments:
-                    - bracketed:
-                      - start_bracket: (
-                      - numeric_literal: '100'
-                      - end_bracket: )
+            - quoted_identifier: '[ColumnC]'
+            - word: varchar
+            - bracketed:
+              - start_bracket: (
+              - numeric_literal: '100'
+              - end_bracket: )
           - comma: ','
           - column_definition:
-            - column_definition:
-              - quoted_identifier: '[ColumnDecimal]'
-              - data_type:
-                - data_type:
-                  - data_type_identifier: decimal
-                  - bracketed_arguments:
-                    - bracketed:
-                      - start_bracket: (
-                      - numeric_literal: '10'
-                      - comma: ','
-                      - numeric_literal: '3'
-                      - end_bracket: )
+            - quoted_identifier: '[ColumnDecimal]'
+            - word: decimal
+            - bracketed:
+              - start_bracket: (
+              - numeric_literal: '10'
+              - comma: ','
+              - numeric_literal: '3'
+              - end_bracket: )
           - end_bracket: )
         - keyword: WITH
         - bracketed:
@@ -1019,30 +942,22 @@ file:
                     - end_bracket: )
           - comma: ','
           - column_definition:
-            - column_definition:
-              - quoted_identifier: '[ColumnC]'
-              - data_type:
-                - data_type:
-                  - data_type_identifier: varchar
-                  - bracketed_arguments:
-                    - bracketed:
-                      - start_bracket: (
-                      - numeric_literal: '100'
-                      - end_bracket: )
+            - quoted_identifier: '[ColumnC]'
+            - word: varchar
+            - bracketed:
+              - start_bracket: (
+              - numeric_literal: '100'
+              - end_bracket: )
           - comma: ','
           - column_definition:
-            - column_definition:
-              - quoted_identifier: '[ColumnDecimal]'
-              - data_type:
-                - data_type:
-                  - data_type_identifier: decimal
-                  - bracketed_arguments:
-                    - bracketed:
-                      - start_bracket: (
-                      - numeric_literal: '10'
-                      - comma: ','
-                      - numeric_literal: '3'
-                      - end_bracket: )
+            - quoted_identifier: '[ColumnDecimal]'
+            - word: decimal
+            - bracketed:
+              - start_bracket: (
+              - numeric_literal: '10'
+              - comma: ','
+              - numeric_literal: '3'
+              - end_bracket: )
           - end_bracket: )
         - keyword: WITH
         - bracketed:

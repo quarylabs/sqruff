@@ -165,64 +165,59 @@ file:
               - start_bracket: (
               - select_statement:
                 - select_clause:
-                  - select_clause:
-                    - keyword: SELECT
-                    - select_clause_element:
-                      - numeric_literal: '1'
-                - from_clause:
-                  - from_clause:
-                    - keyword: FROM
-                    - from_expression:
-                      - from_expression:
+                  - word: SELECT
+                  - expression:
+                    - numeric_literal: '1'
+                - word: FROM
+                - from_expression:
+                  - from_expression:
+                    - from_expression_element:
+                      - from_expression_element:
+                        - table_expression:
+                          - table_reference:
+                            - object_reference:
+                              - object_reference:
+                                - naked_identifier: inserted
+                        - alias_expression:
+                          - keyword: AS
+                          - naked_identifier: i
+                    - join_clause:
+                      - keyword: JOIN
+                      - from_expression_element:
                         - from_expression_element:
-                          - from_expression_element:
-                            - table_expression:
-                              - table_reference:
+                          - table_expression:
+                            - table_reference:
+                              - object_reference:
                                 - object_reference:
-                                  - object_reference:
-                                    - naked_identifier: inserted
-                            - alias_expression:
-                              - keyword: AS
+                                  - naked_identifier: Purchasing
+                                  - dot: .
+                                  - naked_identifier: Vendor
+                          - alias_expression:
+                            - keyword: AS
+                            - naked_identifier: v
+                      - join_on_condition:
+                        - join_on_condition:
+                          - keyword: ON
+                          - expression:
+                            - column_reference:
+                              - naked_identifier: v
+                              - dot: .
+                              - naked_identifier: BusinessEntityID
+                            - comparison_operator:
+                              - raw_comparison_operator: =
+                            - column_reference:
                               - naked_identifier: i
-                        - join_clause:
-                          - keyword: JOIN
-                          - from_expression_element:
-                            - from_expression_element:
-                              - table_expression:
-                                - table_reference:
-                                  - object_reference:
-                                    - object_reference:
-                                      - naked_identifier: Purchasing
-                                      - dot: .
-                                      - naked_identifier: Vendor
-                              - alias_expression:
-                                - keyword: AS
-                                - naked_identifier: v
-                          - join_on_condition:
-                            - join_on_condition:
-                              - keyword: ON
-                              - expression:
-                                - column_reference:
-                                  - naked_identifier: v
-                                  - dot: .
-                                  - naked_identifier: BusinessEntityID
-                                - comparison_operator:
-                                  - raw_comparison_operator: =
-                                - column_reference:
-                                  - naked_identifier: i
-                                  - dot: .
-                                  - naked_identifier: VendorID
-                - where_clause:
-                  - where_clause:
-                    - keyword: WHERE
-                    - expression:
-                      - column_reference:
-                        - naked_identifier: v
-                        - dot: .
-                        - naked_identifier: CreditRating
-                      - comparison_operator:
-                        - raw_comparison_operator: =
-                      - numeric_literal: '5'
+                              - dot: .
+                              - naked_identifier: VendorID
+                - word: WHERE
+                - expression:
+                  - column_reference:
+                    - naked_identifier: v
+                    - dot: .
+                    - naked_identifier: CreditRating
+                  - comparison_operator:
+                    - raw_comparison_operator: =
+                  - numeric_literal: '5'
               - end_bracket: )
           - begin_end_block:
             - keyword: BEGIN

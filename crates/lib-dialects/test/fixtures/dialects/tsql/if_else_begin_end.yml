@@ -3,11 +3,11 @@ file:
   - statement:
     - if_statement:
       - keyword: IF
+      - numeric_literal: '1'
+      - comparison_operator:
+        - raw_comparison_operator: <
+        - raw_comparison_operator: =
       - expression:
-        - numeric_literal: '1'
-        - comparison_operator:
-          - raw_comparison_operator: <
-          - raw_comparison_operator: =
         - bracketed:
           - start_bracket: (
           - expression:

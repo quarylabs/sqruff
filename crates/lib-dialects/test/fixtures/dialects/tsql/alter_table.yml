@@ -14,11 +14,8 @@ file:
         - bracketed:
           - start_bracket: (
           - column_definition:
-            - column_definition:
-              - naked_identifier: column_a
-              - data_type:
-                - data_type:
-                  - data_type_identifier: INT
+            - naked_identifier: column_a
+            - word: INT
           - end_bracket: )
   - statement_terminator: ;
   - keyword: GO
@@ -63,11 +60,8 @@ file:
         - bracketed:
           - start_bracket: (
           - column_definition:
-            - column_definition:
-              - naked_identifier: column_a
-              - data_type:
-                - data_type:
-                  - data_type_identifier: INT
+            - naked_identifier: column_a
+            - word: INT
           - end_bracket: )
   - statement_terminator: ;
   - keyword: GO
@@ -173,18 +167,12 @@ file:
         - bracketed:
           - start_bracket: (
           - column_definition:
-            - column_definition:
-              - naked_identifier: column_a
-              - data_type:
-                - data_type:
-                  - data_type_identifier: INT
+            - naked_identifier: column_a
+            - word: INT
           - comma: ','
           - column_definition:
-            - column_definition:
-              - naked_identifier: column_b
-              - data_type:
-                - data_type:
-                  - data_type_identifier: INT
+            - naked_identifier: column_b
+            - word: INT
           - end_bracket: )
   - statement_terminator: ;
   - keyword: GO

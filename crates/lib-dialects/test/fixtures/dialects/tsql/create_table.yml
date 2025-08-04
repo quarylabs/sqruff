@@ -160,37 +160,24 @@ file:
                 - keyword: 'NULL'
           - comma: ','
           - column_definition:
-            - column_definition:
-              - naked_identifier: InventoryTs
-              - data_type:
-                - data_type:
-                  - data_type_identifier: datetime2
-                  - bracketed_arguments:
-                    - bracketed:
-                      - start_bracket: (
-                      - numeric_literal: '0'
-                      - end_bracket: )
+            - naked_identifier: InventoryTs
+            - word: datetime2
+            - bracketed:
+              - start_bracket: (
+              - numeric_literal: '0'
+              - end_bracket: )
           - comma: ','
           - column_definition:
-            - column_definition:
-              - naked_identifier: QtyAvailable
-              - data_type:
-                - data_type:
-                  - data_type_identifier: smallint
+            - naked_identifier: QtyAvailable
+            - word: smallint
           - comma: ','
           - column_definition:
-            - column_definition:
-              - naked_identifier: QtySold
-              - data_type:
-                - data_type:
-                  - data_type_identifier: smallint
+            - naked_identifier: QtySold
+            - word: smallint
           - comma: ','
           - column_definition:
-            - column_definition:
-              - naked_identifier: UnitPrice
-              - data_type:
-                - data_type:
-                  - data_type_identifier: money
+            - naked_identifier: UnitPrice
+            - word: money
           - comma: ','
           - column_definition:
             - column_definition:

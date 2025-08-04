@@ -511,6 +511,8 @@ pub fn raw_dialect() -> Dialect {
     dialect.add([(
         "Expression_C_Grammar".into(), 
         one_of(vec_of_erased![
+            // PRIORITY: Try word-aware EXISTS function first for T-SQL word tokens
+            Ref::new("WordAwareExistsFunctionSegment"),
             // Sequence for "EXISTS" with a bracketed selectable grammar (from ANSI)
             Sequence::new(vec_of_erased![
                 Ref::keyword("EXISTS"),
@@ -1292,7 +1294,7 @@ pub fn raw_dialect() -> Dialect {
                 one_of(vec_of_erased![
                     Ref::keyword("PRINT"),
                     // Also accept PRINT as word token in T-SQL procedure bodies
-                    StringParser::new("PRINT", SyntaxKind::Word)
+                    StringParser::new("PRINT", SyntaxKind::Keyword)
                 ]),
                 Ref::new("ExpressionSegment")
             ])
@@ -1313,7 +1315,7 @@ pub fn raw_dialect() -> Dialect {
                         // Also accept BEGIN as naked identifier in T-SQL
                         StringParser::new("BEGIN", SyntaxKind::NakedIdentifier),
                         // Also accept BEGIN as word token in T-SQL procedure bodies
-                        StringParser::new("BEGIN", SyntaxKind::Word)
+                        StringParser::new("BEGIN", SyntaxKind::Keyword)
                     ]),
                     Ref::new("DelimiterGrammar").optional(),
                     MetaSegment::indent(),
@@ -1329,7 +1331,7 @@ pub fn raw_dialect() -> Dialect {
                             // Also terminate on END as naked identifier
                             StringParser::new("END", SyntaxKind::NakedIdentifier),
                             // Also terminate on END as word token
-                            StringParser::new("END", SyntaxKind::Word)
+                            StringParser::new("END", SyntaxKind::Keyword)
                         ];
                     }),
                     MetaSegment::dedent(),
@@ -1338,7 +1340,7 @@ pub fn raw_dialect() -> Dialect {
                         // Also accept END as naked identifier
                         StringParser::new("END", SyntaxKind::NakedIdentifier),
                         // Also accept END as word token in T-SQL procedure bodies
-                        StringParser::new("END", SyntaxKind::Word)
+                        StringParser::new("END", SyntaxKind::Keyword)
                     ])
                 ])
                 .to_matchable()
@@ -1359,11 +1361,11 @@ pub fn raw_dialect() -> Dialect {
             Sequence::new(vec_of_erased![
                 one_of(vec_of_erased![
                     Ref::keyword("BEGIN"),
-                    StringParser::new("BEGIN", SyntaxKind::Word)
+                    StringParser::new("BEGIN", SyntaxKind::Keyword)
                 ]),
                 one_of(vec_of_erased![
                     Ref::keyword("TRY"),
-                    StringParser::new("TRY", SyntaxKind::Word)
+                    StringParser::new("TRY", SyntaxKind::Keyword)
                 ]),
                 MetaSegment::indent(),
                 AnyNumberOf::new(vec_of_erased![Sequence::new(vec_of_erased![
@@ -1373,25 +1375,25 @@ pub fn raw_dialect() -> Dialect {
                 .config(|this| {
                     this.terminators = vec_of_erased![
                         Ref::keyword("END"),
-                        StringParser::new("END", SyntaxKind::Word)
+                        StringParser::new("END", SyntaxKind::Keyword)
                     ];
                 }),
                 MetaSegment::dedent(),
                 one_of(vec_of_erased![
                     Ref::keyword("END"),
-                    StringParser::new("END", SyntaxKind::Word)
+                    StringParser::new("END", SyntaxKind::Keyword)
                 ]),
                 one_of(vec_of_erased![
                     Ref::keyword("TRY"),
-                    StringParser::new("TRY", SyntaxKind::Word)
+                    StringParser::new("TRY", SyntaxKind::Keyword)
                 ]),
                 one_of(vec_of_erased![
                     Ref::keyword("BEGIN"),
-                    StringParser::new("BEGIN", SyntaxKind::Word)
+                    StringParser::new("BEGIN", SyntaxKind::Keyword)
                 ]),
                 one_of(vec_of_erased![
                     Ref::keyword("CATCH"),
-                    StringParser::new("CATCH", SyntaxKind::Word)
+                    StringParser::new("CATCH", SyntaxKind::Keyword)
                 ]),
                 MetaSegment::indent(),
                 AnyNumberOf::new(vec_of_erased![Sequence::new(vec_of_erased![
@@ -1401,17 +1403,17 @@ pub fn raw_dialect() -> Dialect {
                 .config(|this| {
                     this.terminators = vec_of_erased![
                         Ref::keyword("END"),
-                        StringParser::new("END", SyntaxKind::Word)
+                        StringParser::new("END", SyntaxKind::Keyword)
                     ];
                 }),
                 MetaSegment::dedent(),
                 one_of(vec_of_erased![
                     Ref::keyword("END"),
-                    StringParser::new("END", SyntaxKind::Word)
+                    StringParser::new("END", SyntaxKind::Keyword)
                 ]),
                 one_of(vec_of_erased![
                     Ref::keyword("CATCH"),
-                    StringParser::new("CATCH", SyntaxKind::Word)
+                    StringParser::new("CATCH", SyntaxKind::Keyword)
                 ])
             ])
             .to_matchable()
@@ -1459,8 +1461,8 @@ pub fn raw_dialect() -> Dialect {
                     Ref::keyword("EXEC"),
                     Ref::keyword("EXECUTE"),
                     // Also accept EXEC/EXECUTE as word tokens in T-SQL procedure bodies
-                    StringParser::new("EXEC", SyntaxKind::Word),
-                    StringParser::new("EXECUTE", SyntaxKind::Word)
+                    StringParser::new("EXEC", SyntaxKind::Keyword),
+                    StringParser::new("EXECUTE", SyntaxKind::Keyword)
                 ]).config(|this| this.terminators = vec![]),
                 // Optional return value capture
                 Sequence::new(vec_of_erased![
@@ -1666,32 +1668,23 @@ pub fn raw_dialect() -> Dialect {
                 one_of(vec_of_erased![
                     Ref::keyword("IF"),
                     // Also accept IF as word token in T-SQL procedure bodies
-                    StringParser::new("IF", SyntaxKind::Word)
+                    StringParser::new("IF", SyntaxKind::Keyword),
+                    // Also accept lowercase 'if' as word token
+                    StringParser::new("if", SyntaxKind::Keyword)
                 ]),
-                Ref::new("ExpressionSegment"),
+                // Try word-aware expression first, then fallback to standard expression
+                one_of(vec_of_erased![
+                    Ref::new("WordAwareExpressionSegment"),
+                    Ref::new("ExpressionSegment")
+                ]),
                 // Try AnyNumberOf pattern like BeginEndBlockSegment to handle statement boundaries better
                 one_of(vec_of_erased![
+                    // Try word-aware BEGIN...END block first for procedures with word tokens
+                    Ref::new("WordAwareBeginEndBlockSegment"),
                     // BEGIN...END block (already handles its own delimiters and indentation)
                     Ref::new("BeginEndBlockSegment"),
-                    // Follow SQLFluff's flexible approach - remove artificial constraints
-                    AnyNumberOf::new(vec_of_erased![Sequence::new(vec_of_erased![
-                        Ref::new("StatementSegment"),
-                        Ref::new("DelimiterGrammar").optional()
-                    ])])
-                    .config(|this| {
-                        this.min_times(1);
-                        // Remove max_times constraint - let it be flexible like SQLFluff
-                        this.terminators = vec_of_erased![
-                            Ref::keyword("ELSE"),
-                            // Also terminate on ELSE as naked identifier for T-SQL lexing
-                            StringParser::new("ELSE", SyntaxKind::NakedIdentifier),
-                            // Also terminate on ELSE as word token
-                            StringParser::new("ELSE", SyntaxKind::Word),
-                            // Add more terminators that could end an IF block
-                            Ref::keyword("IF"), // Next IF statement
-                            Ref::new("BatchSeparatorGrammar") // GO statement
-                        ];
-                    })
+                    // CRITICAL: Use ELSE-aware statement parser for IF bodies
+                    Ref::new("ElseAwareStatementSegment")
                 ]),
                 Sequence::new(vec_of_erased![
                     one_of(vec_of_erased![
@@ -1699,11 +1692,17 @@ pub fn raw_dialect() -> Dialect {
                         // Also accept ELSE as naked identifier in T-SQL
                         StringParser::new("ELSE", SyntaxKind::NakedIdentifier),
                         // Also accept ELSE as word token in T-SQL procedure bodies
-                        StringParser::new("ELSE", SyntaxKind::Word)
+                        StringParser::new("ELSE", SyntaxKind::Keyword)
                     ]),
                     one_of(vec_of_erased![
+                        // Try word-aware BEGIN...END block first for procedures with word tokens
+                        Ref::new("WordAwareBeginEndBlockSegment"),
                         // BEGIN...END block
                         Ref::new("BeginEndBlockSegment"),
+                        // Single word-aware statement
+                        Ref::new("WordAwareStatementSegment"),
+                        // ELSE clause doesn't need ELSE-aware statement since it's the final clause
+                        Ref::new("StatementSegment"),
                         // BEGIN as naked identifier followed by statements
                         Sequence::new(vec_of_erased![
                             StringParser::new("BEGIN", SyntaxKind::NakedIdentifier),
@@ -1727,7 +1726,12 @@ pub fn raw_dialect() -> Dialect {
                         ]),
                         // Use flexible AnyNumberOf for ELSE body like SQLFluff
                         AnyNumberOf::new(vec_of_erased![Sequence::new(vec_of_erased![
-                            Ref::new("StatementSegment"),
+                            one_of(vec_of_erased![
+                                // Try word-aware parsers first for lowercase keywords
+                                Ref::new("WordAwareStatementSegment"),
+                                // Regular statement segment
+                                Ref::new("StatementSegment")
+                            ]),
                             Ref::new("DelimiterGrammar").optional()
                         ])])
                         .config(|this| {
@@ -1735,6 +1739,8 @@ pub fn raw_dialect() -> Dialect {
                             // Remove max_times constraint for ELSE body too
                             this.terminators = vec_of_erased![
                                 Ref::keyword("IF"), // Next IF statement
+                                StringParser::new("IF", SyntaxKind::Keyword), // Also handle lowercase if as word
+                                StringParser::new("if", SyntaxKind::Word), // Also handle lowercase if as word
                                 Ref::new("BatchSeparatorGrammar") // GO statement
                             ];
                         })
@@ -1855,9 +1861,18 @@ pub fn raw_dialect() -> Dialect {
         (
             "WhileStatementGrammar".into(),
             Sequence::new(vec_of_erased![
-                Ref::keyword("WHILE"),
+                one_of(vec_of_erased![
+                    Ref::keyword("WHILE"),
+                    // Also accept WHILE as word token in T-SQL procedure bodies
+                    StringParser::new("WHILE", SyntaxKind::Keyword)
+                ]),
                 Ref::new("ExpressionSegment"),
-                Ref::new("StatementSegment")
+                one_of(vec_of_erased![
+                    // Try word-aware parsers first for procedures with word tokens
+                    Ref::new("WordAwareBeginEndBlockSegment"),
+                    Ref::new("WordAwareStatementSegment"),
+                    Ref::new("StatementSegment")
+                ])
             ])
             .to_matchable()
             .into(),
@@ -3847,7 +3862,11 @@ pub fn raw_dialect() -> Dialect {
         (
             "BatchSeparatorSegment".into(),
             Sequence::new(vec_of_erased![
-                Ref::keyword("GO"),
+                one_of(vec_of_erased![
+                    Ref::keyword("GO"),
+                    // Also accept GO as word token for word-aware contexts
+                    StringParser::new("GO", SyntaxKind::Word)
+                ]),
                 // GO can optionally be followed by a count (e.g., GO 10)
                 Ref::new("NumericLiteralSegment").optional()
             ])
@@ -3868,15 +3887,20 @@ pub fn raw_dialect() -> Dialect {
     dialect.add([(
         "BatchSegment".into(),
         NodeMatcher::new(SyntaxKind::Statement, |_| {
-            AnyNumberOf::new(vec_of_erased![Sequence::new(vec_of_erased![
-                Ref::new("StatementSegment"),
-                AnyNumberOf::new(vec_of_erased![
-                    Ref::new("DelimiterGrammar"), // Optional semicolons in T-SQL
-                    Ref::new("BatchDelimiterGrammar") // Also allow GO to terminate statements
-                ])
-                .config(|this| this.optional())
-            ])])
-            .config(|this| this.min_times(1)) // At least one statement required
+            one_of(vec_of_erased![
+                // Try normal statement parsing first
+                AnyNumberOf::new(vec_of_erased![Sequence::new(vec_of_erased![
+                    Ref::new("StatementSegment"),
+                    AnyNumberOf::new(vec_of_erased![
+                        Ref::new("DelimiterGrammar"), // Optional semicolons in T-SQL
+                        Ref::new("BatchDelimiterGrammar") // Also allow GO to terminate statements
+                    ])
+                    .config(|this| this.optional())
+                ])])
+                .config(|this| this.min_times(1)), // At least one statement required
+                // Fallback to word-aware batch parsing
+                Ref::new("WordAwareBatchSegment")
+            ])
             .to_matchable()
         })
         .to_matchable()
@@ -4014,6 +4038,7 @@ pub fn raw_dialect() -> Dialect {
             Ref::new("TsqlGrantStatementSegment"),
             Ref::new("TsqlDenyStatementSegment"),
             Ref::new("TsqlRevokeStatementSegment"),
+            // Enhanced CREATE TABLE handles both keywords and word tokens
             Ref::new("CreateTableStatementSegment"),
             Ref::new("CreateRoleStatementSegment"),
             Ref::new("DropRoleStatementSegment"),
@@ -4029,6 +4054,8 @@ pub fn raw_dialect() -> Dialect {
             Ref::new("AlterMasterKeyStatementSegment"),
             Ref::new("DropMasterKeyStatementSegment"),
             Ref::new("DropDatabaseStatementSegment"),
+            // Word-aware CREATE INDEX must come before regular CREATE INDEX
+            Ref::new("WordAwareCreateIndexStatementSegment"),
             Ref::new("CreateIndexStatementSegment"),
             Ref::new("DropIndexStatementSegment"),
             Ref::new("CreateStatisticsStatementSegment"),
@@ -4373,7 +4400,9 @@ pub fn raw_dialect() -> Dialect {
         "Expression_D_Grammar".into(),
         Sequence::new(vec_of_erased![
             one_of(vec_of_erased![
-                // Add NEXT VALUE FOR before other expressions
+                // Add word-aware NEXT VALUE FOR first for word token contexts
+                Ref::new("WordAwareNextValueForSegment"),
+                // Add regular NEXT VALUE FOR for keyword contexts
                 Ref::new("NextValueForSegment"),
                 Ref::new("BareFunctionSegment"),
                 Ref::new("FunctionSegment"),
@@ -5159,18 +5188,33 @@ pub fn raw_dialect() -> Dialect {
             "CreateProcedureStatementSegment".into(),
             NodeMatcher::new(SyntaxKind::CreateProcedureStatement, |_| {
                 Sequence::new(vec_of_erased![
+                    // CREATE/ALTER as keyword or word token
                     one_of(vec_of_erased![
                         Ref::keyword("CREATE"),
+                        StringParser::new("CREATE", SyntaxKind::Word),
                         Ref::keyword("ALTER"),
+                        StringParser::new("ALTER", SyntaxKind::Word),
                         Sequence::new(vec_of_erased![
-                            Ref::keyword("CREATE"),
-                            Ref::keyword("OR"),
-                            Ref::keyword("ALTER")
+                            one_of(vec_of_erased![
+                                Ref::keyword("CREATE"),
+                                StringParser::new("CREATE", SyntaxKind::Word)
+                            ]),
+                            one_of(vec_of_erased![
+                                Ref::keyword("OR"),
+                                StringParser::new("OR", SyntaxKind::Word)
+                            ]),
+                            one_of(vec_of_erased![
+                                Ref::keyword("ALTER"),
+                                StringParser::new("ALTER", SyntaxKind::Word)
+                            ])
                         ])
                     ]),
+                    // PROC/PROCEDURE as keyword or word token
                     one_of(vec_of_erased![
                         Ref::keyword("PROC"),
-                        Ref::keyword("PROCEDURE")
+                        StringParser::new("PROC", SyntaxKind::Word),
+                        Ref::keyword("PROCEDURE"),
+                        StringParser::new("PROCEDURE", SyntaxKind::Word)
                     ]),
                     Ref::new("ObjectReferenceSegment"),
                     // Optional version number
@@ -5203,7 +5247,7 @@ pub fn raw_dialect() -> Dialect {
                     one_of(vec_of_erased![
                         Ref::keyword("AS"),
                         // Also accept AS as word token - though this is unusual
-                        StringParser::new("AS", SyntaxKind::Word)
+                        StringParser::new("AS", SyntaxKind::Keyword)
                     ]),
                     Ref::new("ProcedureDefinitionGrammar")
                 ])
@@ -5344,7 +5388,23 @@ pub fn raw_dialect() -> Dialect {
                 ]),
                 // Atomic blocks for natively compiled procedures
                 Ref::new("AtomicBlockSegment"),
-                // Single statement or block
+                // PRIORITY 1: Word-aware BEGIN...END block first (complete block structure)
+                Ref::new("WordAwareBeginEndBlockSegment"),
+                // PRIORITY 2: Regular BEGIN...END block
+                Ref::new("BeginEndBlockSegment"),
+                // PRIORITY 3: For procedures with word tokens after AS, try specific word-aware parsers
+                Ref::new("WordAwareIfStatementSegment"),
+                // PRIORITY 4: Word-based parsing fallback (for procedure bodies with word tokens)
+                AnyNumberOf::new(vec_of_erased![Sequence::new(vec_of_erased![
+                    Ref::new("WordAwareStatementSegment"),
+                    Ref::new("DelimiterGrammar").optional()
+                ])])
+                .config(|this| {
+                    this.min_times(1);
+                    this.parse_mode = ParseMode::Greedy;
+                    this.terminators = vec_of_erased![Ref::new("BatchSeparatorGrammar")];
+                }),
+                // Single statement or block (when keywords are properly lexed)
                 Ref::new("StatementSegment"),
                 // Multiple statements for procedures without BEGIN...END
                 AnyNumberOf::new(vec_of_erased![Sequence::new(vec_of_erased![
@@ -5423,6 +5483,10 @@ pub fn raw_dialect() -> Dialect {
     ]);
 
     // T-SQL supports alternative alias syntax: AliasName = Expression
+    // NOTE: Removed global ExpressionSegment override as it was too restrictive
+    // WordAwareExpressionSegment is now only used in specific targeted contexts
+    // rather than replacing all expression parsing globally
+
     // We need to be careful to ensure CASE expressions can be parsed
     //
     // IMPORTANT: Do NOT add custom grammars here. Instead, override AliasExpressionSegment
@@ -5468,7 +5532,7 @@ pub fn raw_dialect() -> Dialect {
                 one_of(vec_of_erased![
                     Ref::keyword("SELECT"),
                     // Also accept SELECT as word token in T-SQL procedure bodies
-                    StringParser::new("SELECT", SyntaxKind::Word)
+                    StringParser::new("SELECT", SyntaxKind::Keyword)
                 ]),
                 Ref::new("SelectClauseModifierSegment").optional(),
                 MetaSegment::indent(),
@@ -5598,7 +5662,10 @@ pub fn raw_dialect() -> Dialect {
                 Ref::keyword("BREAK"),
                 Ref::keyword("CONTINUE"),
                 Ref::keyword("DBCC"),
-                Ref::keyword("RENAME")
+                Ref::keyword("RENAME"),
+                // CRITICAL: Add ELSE as terminator for IF...ELSE statements (both keyword and word tokens)
+                Ref::keyword("ELSE"),
+                StringParser::new("ELSE", SyntaxKind::Word)
             ],
             true,
         ),
@@ -6076,8 +6143,16 @@ pub fn raw_dialect() -> Dialect {
         "CreateTableStatementSegment",
         NodeMatcher::new(SyntaxKind::CreateTableStatement, |_| {
             Sequence::new(vec_of_erased![
-                Ref::keyword("CREATE"),
-                Ref::keyword("TABLE"),
+                // CREATE as keyword or word token
+                one_of(vec_of_erased![
+                    Ref::keyword("CREATE"),
+                    StringParser::new("CREATE", SyntaxKind::Word)
+                ]),
+                // TABLE as keyword or word token
+                one_of(vec_of_erased![
+                    Ref::keyword("TABLE"),
+                    StringParser::new("TABLE", SyntaxKind::Word)
+                ]),
                 Ref::new("IfNotExistsGrammar").optional(),
                 Ref::new("TableReferenceSegment"),
                 one_of(vec_of_erased![
@@ -6086,6 +6161,8 @@ pub fn raw_dialect() -> Dialect {
                         Bracketed::new(vec_of_erased![
                             Delimited::new(vec_of_erased![
                                 one_of(vec_of_erased![
+                                    // Word-aware column definition for cases with word tokens
+                                    Ref::new("WordAwareColumnDefinitionSegment"),
                                     Ref::new("ColumnDefinitionSegment"),
                                     Ref::new("TableConstraintSegment"),
                                     // T-SQL Graph: CONNECTION constraint for edge tables
@@ -7410,7 +7487,7 @@ pub fn raw_dialect() -> Dialect {
                 one_of(vec_of_erased![
                     Ref::keyword("RETURN"),
                     // Also accept RETURN as word token in T-SQL procedure bodies
-                    StringParser::new("RETURN", SyntaxKind::Word)
+                    StringParser::new("RETURN", SyntaxKind::Keyword)
                 ]),
                 // Optional return value (for functions)
                 Ref::new("ExpressionSegment").optional()
@@ -7430,7 +7507,7 @@ pub fn raw_dialect() -> Dialect {
                 one_of(vec_of_erased![
                     Ref::keyword("FROM"),
                     // Also accept FROM as word token in T-SQL procedure bodies
-                    StringParser::new("FROM", SyntaxKind::Word)
+                    StringParser::new("FROM", SyntaxKind::Keyword)
                 ]),
                 Delimited::new(vec_of_erased![Ref::new("FromExpressionElement")])
             ])
@@ -7461,7 +7538,7 @@ pub fn raw_dialect() -> Dialect {
                 one_of(vec_of_erased![
                     Ref::keyword("WHERE"),
                     // Also accept WHERE as word token in T-SQL procedure bodies
-                    StringParser::new("WHERE", SyntaxKind::Word)
+                    StringParser::new("WHERE", SyntaxKind::Keyword)
                 ]),
                 MetaSegment::indent(),
                 AnyNumberOf::new(vec_of_erased![Ref::new("ExpressionSegment")])
@@ -7492,33 +7569,33 @@ pub fn raw_dialect() -> Dialect {
             ]),
             Sequence::new(vec_of_erased![Ref::keyword("CROSS"), Ref::keyword("JOIN")]),
             // Also accept as word tokens in T-SQL procedure bodies
-            StringParser::new("JOIN", SyntaxKind::Word),
+            StringParser::new("JOIN", SyntaxKind::Keyword),
             Sequence::new(vec_of_erased![
-                StringParser::new("INNER", SyntaxKind::Word),
-                StringParser::new("JOIN", SyntaxKind::Word)
+                StringParser::new("INNER", SyntaxKind::Keyword),
+                StringParser::new("JOIN", SyntaxKind::Keyword)
             ]),
             // LEFT/RIGHT/FULL JOIN (without OUTER)
             Sequence::new(vec_of_erased![
                 one_of(vec_of_erased![
-                    StringParser::new("LEFT", SyntaxKind::Word),
-                    StringParser::new("RIGHT", SyntaxKind::Word),
-                    StringParser::new("FULL", SyntaxKind::Word)
+                    StringParser::new("LEFT", SyntaxKind::Keyword),
+                    StringParser::new("RIGHT", SyntaxKind::Keyword),
+                    StringParser::new("FULL", SyntaxKind::Keyword)
                 ]),
-                StringParser::new("JOIN", SyntaxKind::Word)
+                StringParser::new("JOIN", SyntaxKind::Keyword)
             ]),
             // LEFT/RIGHT/FULL OUTER JOIN
             Sequence::new(vec_of_erased![
                 one_of(vec_of_erased![
-                    StringParser::new("LEFT", SyntaxKind::Word),
-                    StringParser::new("RIGHT", SyntaxKind::Word),
-                    StringParser::new("FULL", SyntaxKind::Word)
+                    StringParser::new("LEFT", SyntaxKind::Keyword),
+                    StringParser::new("RIGHT", SyntaxKind::Keyword),
+                    StringParser::new("FULL", SyntaxKind::Keyword)
                 ]),
-                StringParser::new("OUTER", SyntaxKind::Word),
-                StringParser::new("JOIN", SyntaxKind::Word)
+                StringParser::new("OUTER", SyntaxKind::Keyword),
+                StringParser::new("JOIN", SyntaxKind::Keyword)
             ]),
             Sequence::new(vec_of_erased![
-                StringParser::new("CROSS", SyntaxKind::Word),
-                StringParser::new("JOIN", SyntaxKind::Word)
+                StringParser::new("CROSS", SyntaxKind::Keyword),
+                StringParser::new("JOIN", SyntaxKind::Keyword)
             ])
         ])
         .to_matchable()
@@ -7533,7 +7610,7 @@ pub fn raw_dialect() -> Dialect {
                 one_of(vec_of_erased![
                     Ref::keyword("ON"),
                     // Also accept ON as word token in T-SQL procedure bodies
-                    StringParser::new("ON", SyntaxKind::Word)
+                    StringParser::new("ON", SyntaxKind::Keyword)
                 ]),
                 MetaSegment::indent(),
                 AnyNumberOf::new(vec_of_erased![Ref::new("ExpressionSegment")])
@@ -7555,27 +7632,27 @@ pub fn raw_dialect() -> Dialect {
                 one_of(vec_of_erased![
                     Ref::keyword("IS"),
                     // Also accept IS as word token in T-SQL procedure bodies
-                    StringParser::new("IS", SyntaxKind::Word)
+                    StringParser::new("IS", SyntaxKind::Keyword)
                 ]),
                 one_of(vec_of_erased![
                     Ref::keyword("NULL"),
                     // Also accept NULL as word token
-                    StringParser::new("NULL", SyntaxKind::Word)
+                    StringParser::new("NULL", SyntaxKind::Keyword)
                 ])
             ]),
             // IS NOT NULL
             Sequence::new(vec_of_erased![
                 one_of(vec_of_erased![
                     Ref::keyword("IS"),
-                    StringParser::new("IS", SyntaxKind::Word)
+                    StringParser::new("IS", SyntaxKind::Keyword)
                 ]),
                 one_of(vec_of_erased![
                     Ref::keyword("NOT"),
-                    StringParser::new("NOT", SyntaxKind::Word)
+                    StringParser::new("NOT", SyntaxKind::Keyword)
                 ]),
                 one_of(vec_of_erased![
                     Ref::keyword("NULL"),
-                    StringParser::new("NULL", SyntaxKind::Word)
+                    StringParser::new("NULL", SyntaxKind::Keyword)
                 ])
             ])
         ])
@@ -7590,7 +7667,7 @@ pub fn raw_dialect() -> Dialect {
             one_of(vec_of_erased![
                 Ref::keyword("NULL"),
                 // Also accept NULL as word token in T-SQL procedure bodies
-                StringParser::new("NULL", SyntaxKind::Word)
+                StringParser::new("NULL", SyntaxKind::Keyword)
             ])
             .to_matchable()
         })
@@ -9318,6 +9395,9 @@ pub fn raw_dialect() -> Dialect {
         .to_matchable()
     });
 
+    // Remove the problematic StatementSegment override
+    // Instead, modify ProcedureDefinitionGrammar directly to use WordAwareStatementSegment
+
     // T-SQL MergeIntoLiteralGrammar override - INTO is optional in T-SQL
     // Try to add it first in case ANSI doesn't have it
     dialect.add([(
@@ -9491,6 +9571,31 @@ pub fn raw_dialect() -> Dialect {
                 Ref::keyword("NEXT"),
                 Ref::keyword("VALUE"),
                 Ref::keyword("FOR"),
+                Ref::new("ObjectReferenceSegment")
+            ])
+            .to_matchable()
+        })
+        .to_matchable()
+        .into(),
+    )]);
+
+    // Word-aware NEXT VALUE FOR sequence expression for word token contexts
+    dialect.add([(
+        "WordAwareNextValueForSegment".into(),
+        NodeMatcher::new(SyntaxKind::Expression, |_| {
+            Sequence::new(vec_of_erased![
+                one_of(vec_of_erased![
+                    StringParser::new("NEXT", SyntaxKind::Word),
+                    StringParser::new("next", SyntaxKind::Word)
+                ]),
+                one_of(vec_of_erased![
+                    StringParser::new("VALUE", SyntaxKind::Word),
+                    StringParser::new("value", SyntaxKind::Word)
+                ]),
+                one_of(vec_of_erased![
+                    StringParser::new("FOR", SyntaxKind::Word),
+                    StringParser::new("for", SyntaxKind::Word)
+                ]),
                 Ref::new("ObjectReferenceSegment")
             ])
             .to_matchable()
@@ -9746,7 +9851,7 @@ pub fn raw_dialect() -> Dialect {
             one_of(vec_of_erased![
                 Ref::keyword("IS"),
                 // Also accept IS as word token in T-SQL procedure bodies
-                StringParser::new("IS", SyntaxKind::Word)
+                StringParser::new("IS", SyntaxKind::Keyword)
             ]),
             Ref::keyword("NOT").optional(),
             Ref::new("NullLiteralSegment")
@@ -9761,7 +9866,7 @@ pub fn raw_dialect() -> Dialect {
         one_of(vec_of_erased![
             StringParser::new("null", SyntaxKind::NullLiteral),
             // Also accept NULL as word token in T-SQL procedure bodies
-            StringParser::new("NULL", SyntaxKind::Word)
+            StringParser::new("NULL", SyntaxKind::Keyword)
         ])
         .to_matchable()
         .into(),
@@ -9775,7 +9880,7 @@ pub fn raw_dialect() -> Dialect {
                 one_of(vec_of_erased![
                     Ref::keyword("FROM"),
                     // Also accept FROM as word token in T-SQL procedure bodies
-                    StringParser::new("FROM", SyntaxKind::Word)
+                    StringParser::new("FROM", SyntaxKind::Keyword)
                 ]),
                 Delimited::new(vec_of_erased![Ref::new("FromExpressionSegment")]),
             ])
@@ -9793,7 +9898,7 @@ pub fn raw_dialect() -> Dialect {
                 one_of(vec_of_erased![
                     Ref::keyword("WHERE"),
                     // Also accept WHERE as word token in T-SQL procedure bodies
-                    StringParser::new("WHERE", SyntaxKind::Word)
+                    StringParser::new("WHERE", SyntaxKind::Keyword)
                 ]),
                 MetaSegment::implicit_indent(),
                 optionally_bracketed(vec_of_erased![Ref::new("ExpressionSegment")]),
@@ -9812,7 +9917,7 @@ pub fn raw_dialect() -> Dialect {
             one_of(vec_of_erased![
                 Ref::keyword("JOIN"),
                 // Also accept JOIN as word token in T-SQL procedure bodies
-                StringParser::new("JOIN", SyntaxKind::Word)
+                StringParser::new("JOIN", SyntaxKind::Keyword)
             ])
             .to_matchable()
         ])
@@ -9828,7 +9933,7 @@ pub fn raw_dialect() -> Dialect {
                 one_of(vec_of_erased![
                     Ref::keyword("ON"),
                     // Also accept ON as word token in T-SQL procedure bodies
-                    StringParser::new("ON", SyntaxKind::Word)
+                    StringParser::new("ON", SyntaxKind::Keyword)
                 ]),
                 Conditional::new(MetaSegment::implicit_indent()).indented_on_contents(),
                 optionally_bracketed(vec_of_erased![Ref::new("ExpressionSegment")]),
@@ -9840,6 +9945,1595 @@ pub fn raw_dialect() -> Dialect {
         .into(),
     );
 
+
+    // Word-aware expression parser for T-SQL contexts where keywords are lexed as words
+    // This handles expressions like "@var IS NULL" where IS and NULL are word tokens
+    dialect.add([(
+        "WordAwareExpressionSegment".into(),
+        Sequence::new(vec_of_erased![
+            // First part of expression (e.g., variable, column, literal)
+            one_of(vec_of_erased![
+                // Word-aware NEXT VALUE FOR expression
+                Ref::new("WordAwareNextValueForSegment"),
+                // EXISTS function with word token
+                Ref::new("WordAwareExistsFunctionSegment"),
+                Ref::new("TsqlVariableSegment"),
+                Ref::new("ColumnReferenceSegment"),
+                Ref::new("LiteralGrammar"),
+                Ref::new("FunctionSegment"),
+                // Fixed: Remove recursive reference to prevent malformed AST
+                Bracketed::new(vec_of_erased![Ref::new("ExpressionSegment")])
+            ]),
+            // Optional operators and additional expressions
+            AnyNumberOf::new(vec_of_erased![
+                one_of(vec_of_erased![
+                    // IS NULL / IS NOT NULL with word tokens
+                    Sequence::new(vec_of_erased![
+                        StringParser::new("IS", SyntaxKind::Word),
+                        one_of(vec_of_erased![
+                            StringParser::new("NULL", SyntaxKind::Word),
+                            Sequence::new(vec_of_erased![
+                                StringParser::new("NOT", SyntaxKind::Word),
+                                StringParser::new("NULL", SyntaxKind::Word)
+                            ])
+                        ])
+                    ]),
+                    // Comparison operators
+                    Sequence::new(vec_of_erased![
+                        Ref::new("ComparisonOperatorGrammar"),
+                        // Fixed: Remove recursive reference to prevent malformed AST
+                        Ref::new("ExpressionSegment")
+                    ]),
+                    // Binary operators (AND, OR)
+                    Sequence::new(vec_of_erased![
+                        one_of(vec_of_erased![
+                            Ref::keyword("AND"),
+                            Ref::keyword("OR"),
+                            StringParser::new("AND", SyntaxKind::Word),
+                            StringParser::new("OR", SyntaxKind::Word)
+                        ]),
+                        // Fixed: Remove recursive reference to prevent malformed AST
+                        Ref::new("ExpressionSegment")
+                    ])
+                ])
+            ])
+        ])
+        .to_matchable()
+        .into(),
+    )]);
+    
+    // Word-aware PRINT statement for when PRINT is lexed as word
+    dialect.add([(
+        "WordAwarePrintStatementSegment".into(),
+        NodeMatcher::new(SyntaxKind::Statement, |_| {
+            Sequence::new(vec_of_erased![
+                StringParser::new("PRINT", SyntaxKind::Word),
+                Ref::new("ExpressionSegment") // Expression should work fine with literals
+            ])
+            .to_matchable()
+        })
+        .to_matchable()
+        .into(),
+    )]);
+    
+    // Word-aware SELECT statement for when SELECT is lexed as word
+    dialect.add([(
+        "WordAwareSelectStatementSegment".into(),
+        NodeMatcher::new(SyntaxKind::SelectStatement, |_| {
+            Sequence::new(vec_of_erased![
+                // SELECT clause with word token
+                NodeMatcher::new(SyntaxKind::SelectClause, |_| {
+                    Sequence::new(vec_of_erased![
+                        one_of(vec_of_erased![
+                            StringParser::new("SELECT", SyntaxKind::Word),
+                            // Also accept lowercase 'select' as word token
+                            StringParser::new("select", SyntaxKind::Word)
+                        ]),
+                        MetaSegment::indent(),
+                        Delimited::new(vec_of_erased![
+                            one_of(vec_of_erased![
+                                // Wildcard expression (* or table.*)
+                                Ref::new("WildcardExpressionSegment"),
+                                // Simple column reference (o.name)
+                                Ref::new("ColumnReferenceSegment"),
+                                // Expression (for complex select items)
+                                Ref::new("ExpressionSegment")
+                            ])
+                        ])
+                        .config(|this| this.allow_trailing()),
+                    ])
+                    .terminators(vec_of_erased![
+                        StringParser::new("FROM", SyntaxKind::Word),
+                        Ref::keyword("FROM")
+                    ])
+                    .to_matchable()
+                }),
+                // FROM clause with word token
+                Sequence::new(vec_of_erased![
+                    one_of(vec_of_erased![
+                        StringParser::new("FROM", SyntaxKind::Word),
+                        // Also accept lowercase 'from' as word token
+                        StringParser::new("from", SyntaxKind::Word)
+                    ]),
+                    Ref::new("FromExpressionSegment")
+                ])
+                .config(|this| this.optional()),
+                // WHERE clause with word token
+                Sequence::new(vec_of_erased![
+                    one_of(vec_of_erased![
+                        StringParser::new("WHERE", SyntaxKind::Word),
+                        // Also accept lowercase 'where' as word token
+                        StringParser::new("where", SyntaxKind::Word)
+                    ]),
+                    Ref::new("ExpressionSegment")
+                ])
+                .config(|this| this.optional()),
+                // UNION clause with word tokens
+                Sequence::new(vec_of_erased![
+                    one_of(vec_of_erased![
+                        StringParser::new("UNION", SyntaxKind::Keyword),
+                        // Also accept lowercase 'union' as word token
+                        StringParser::new("union", SyntaxKind::Keyword)
+                    ]),
+                    Sequence::new(vec_of_erased![
+                        one_of(vec_of_erased![
+                            StringParser::new("ALL", SyntaxKind::Keyword),
+                            // Also accept lowercase 'all' as word token
+                            StringParser::new("all", SyntaxKind::Keyword)
+                        ])
+                    ])
+                    .config(|this| this.optional()),
+                    Ref::new("WordAwareSelectStatementSegment")
+                ])
+                .config(|this| this.optional())
+            ])
+            .terminators(vec_of_erased![
+                // Critical: Terminate at ELSE when inside IF statements
+                StringParser::new("ELSE", SyntaxKind::Word),
+                StringParser::new("else", SyntaxKind::Word),
+                StringParser::new("ELSE", SyntaxKind::Keyword),
+                Ref::keyword("ELSE"),
+                // Also terminate at other common statement keywords
+                StringParser::new("END", SyntaxKind::Word),
+                StringParser::new("end", SyntaxKind::Word),
+                Ref::keyword("END"),
+                StringParser::new("GO", SyntaxKind::Word),
+                Ref::new("SemicolonSegment")
+            ])
+            .to_matchable()
+        })
+        .to_matchable()
+        .into(),
+    )]);
+    
+    // Word-aware RETURN statement for when RETURN is lexed as word
+    dialect.add([(
+        "WordAwareReturnStatementSegment".into(),
+        NodeMatcher::new(SyntaxKind::Statement, |_| {
+            Sequence::new(vec_of_erased![
+                StringParser::new("RETURN", SyntaxKind::Word),
+                // Optional return value
+                Ref::new("ExpressionSegment").optional()
+            ])
+            .to_matchable()
+        })
+        .to_matchable()
+        .into(),
+    )]);
+    
+    // Word-aware BEGIN...END block that uses word-aware statements
+    dialect.add([(
+        "WordAwareBeginEndBlockSegment".into(),
+        NodeMatcher::new(SyntaxKind::BeginEndBlock, |_| {
+            Sequence::new(vec_of_erased![
+                StringParser::new("BEGIN", SyntaxKind::Word),
+                Ref::new("DelimiterGrammar").optional(),
+                MetaSegment::indent(),
+                AnyNumberOf::new(vec_of_erased![Sequence::new(vec_of_erased![
+                    Ref::new("WordAwareStatementSegment"),
+                    Ref::new("DelimiterGrammar").optional()
+                ])])
+                .config(|this| {
+                    this.min_times(1);
+                    this.terminators = vec_of_erased![
+                        StringParser::new("END", SyntaxKind::Word),
+                        Ref::keyword("END") // Also check for proper keywords
+                    ];
+                }),
+                MetaSegment::dedent(),
+                StringParser::new("END", SyntaxKind::Word)
+            ])
+            .to_matchable()
+        })
+        .to_matchable()
+        .into(),
+    )]);
+    
+    // Word-aware IF statement that expects and transforms word tokens
+    dialect.add([(
+        "WordAwareIfStatementSegment".into(),
+        NodeMatcher::new(SyntaxKind::IfStatement, |_| {
+            Sequence::new(vec_of_erased![
+                // IF as word token (both uppercase and lowercase)
+                one_of(vec_of_erased![
+                    StringParser::new("IF", SyntaxKind::Word),
+                    StringParser::new("if", SyntaxKind::Word)
+                ]),
+                // Handle optional NOT keyword for IF NOT EXISTS patterns
+                Sequence::new(vec_of_erased![
+                    one_of(vec_of_erased![
+                        StringParser::new("NOT", SyntaxKind::Word),
+                        StringParser::new("not", SyntaxKind::Word)
+                    ])
+                ]).config(|this| this.optional()),
+                // Expression with word tokens - use targeted parser for exists(select...)
+                one_of(vec_of_erased![
+                    Ref::new("WordAwareExpressionSegment"),
+                    Ref::new("ExpressionSegment")
+                ]),
+                // Statement body - specific statement handling (avoid generic fallbacks)
+                one_of(vec_of_erased![
+                    // Word-aware CREATE INDEX statement (common after if exists)
+                    Ref::new("WordAwareCreateIndexStatementSegment"),
+                    // Word-aware SET statement (common after if exists)
+                    Ref::new("WordAwareSetStatementSegment"),
+                    // Other specific word-aware statements
+                    Ref::new("WordAwareIfStatementSegment"),
+                    Ref::new("WordAwareWhileStatementSegment"),
+                    Ref::new("WordAwareBreakStatementSegment"),
+                    Ref::new("WordAwarePrintStatementSegment"),
+                    Ref::new("WordAwareReturnStatementSegment"),
+                    // Regular statement for keyword-based parsing
+                    Ref::new("StatementSegment")
+                ]),
+                // Optional delimiter
+                Ref::new("DelimiterGrammar").optional()
+            ])
+            .to_matchable()
+        })
+        .to_matchable()
+        .into(),
+    )]);
+    
+    // ELSE-aware statement parser for IF statement bodies
+    // This ensures statements inside IF bodies properly terminate at ELSE
+    dialect.add([(
+        "ElseAwareStatementSegment".into(),
+        one_of(vec_of_erased![
+            // Core statements that I know exist for sure
+            Ref::new("BeginEndBlockSegment"),
+            Ref::new("DeclareStatementSegment"),
+            Ref::new("SetVariableStatementSegment"),
+            Ref::new("PrintStatementSegment"),
+            Ref::new("IfStatementSegment"),
+            Ref::new("WhileStatementSegment"),
+            Ref::new("BreakStatementSegment"),
+            Ref::new("ContinueStatementSegment"),
+            Ref::new("ExecuteStatementSegment"),
+            // CRITICAL: Use ELSE-aware selectable grammar instead of regular SelectableGrammar
+            Ref::new("ElseAwareSelectableGrammar"),
+            // Include some basic ANSI statements that should exist
+            Ref::new("InsertStatementSegment"),
+            Ref::new("UpdateStatementSegment"),
+            Ref::new("DeleteStatementSegment"),
+            // Word-aware CREATE TABLE must come before regular CREATE TABLE for compound statements
+            Ref::new("WordAwareCreateTableStatementSegment"),
+            // Enhanced CREATE TABLE handles both keywords and word tokens  
+            Ref::new("CreateTableStatementSegment"),
+            // Enhanced CREATE PROCEDURE handles both keywords and word tokens for compound statements
+            Ref::new("CreateProcedureStatementSegment"),
+            Ref::new("DropTableStatementSegment")
+        ])
+        .config(|this| this.terminators = vec_of_erased![
+            Ref::new("BatchSeparatorGrammar"), // GO statements should terminate
+            Ref::keyword("ELSE"), // ELSE keywords should terminate
+            StringParser::new("ELSE", SyntaxKind::NakedIdentifier),
+            StringParser::new("ELSE", SyntaxKind::Keyword)
+        ])
+        .to_matchable()
+        .into(),
+    )]);
+
+    // ELSE-aware selectable grammar that properly terminates at ELSE keywords
+    dialect.add([(
+        "ElseAwareSelectableGrammar".into(),
+        one_of(vec_of_erased![
+            // Just use simple SELECT statement with ELSE termination
+            Ref::new("ElseAwareSelectStatementSegment"),
+            // Bracketed selectable with ELSE termination
+            optionally_bracketed(vec_of_erased![Ref::new("ElseAwareSelectStatementSegment")])
+        ])
+        .to_matchable()
+        .into(),
+    )]);
+
+    // ELSE-aware SELECT statement that properly terminates at ELSE
+    dialect.add([(
+        "ElseAwareSelectStatementSegment".into(),
+        NodeMatcher::new(SyntaxKind::SelectStatement, |_| {
+            Sequence::new(vec_of_erased![
+                Ref::new("SelectClauseSegment"),
+                Ref::new("FromClauseSegment").optional(),
+                Ref::new("WhereClauseSegment").optional(),
+                Ref::new("GroupByClauseSegment").optional(),
+                Ref::new("HavingClauseSegment").optional(),
+                Ref::new("OrderByClauseSegment").optional(),
+                Ref::new("LimitClauseSegment").optional(),
+                Ref::new("NamedWindowSegment").optional(),
+            ])
+            .terminators(vec_of_erased![
+                // CRITICAL: Terminate at ELSE for IF statement bodies
+                Ref::keyword("ELSE"),
+                StringParser::new("ELSE", SyntaxKind::Word),
+                StringParser::new("else", SyntaxKind::Word),
+                // Also terminate at other logical boundaries
+                Ref::keyword("UNION"),
+                Ref::keyword("INTERSECT"),
+                Ref::keyword("EXCEPT"),
+                Ref::keyword("ORDER"),
+                Ref::keyword("LIMIT"),
+                Ref::keyword("OFFSET"),
+                Ref::keyword("FOR"),
+                Ref::keyword("OPTION"),
+                Ref::keyword("INTO"),
+                Ref::keyword("GO"),
+                Ref::keyword("RENAME"),
+            ])
+            .to_matchable()
+        })
+        .to_matchable()
+        .into(),
+    )]);
+
+    // Word-aware WHILE statement for when WHILE is lexed as word
+    dialect.add([(
+        "WordAwareWhileStatementSegment".into(),
+        NodeMatcher::new(SyntaxKind::Statement, |_| {
+            Sequence::new(vec_of_erased![
+                StringParser::new("WHILE", SyntaxKind::Keyword),
+                Ref::new("ExpressionSegment"),
+                one_of(vec_of_erased![
+                    // Try word-aware parsers first
+                    Ref::new("WordAwareBeginEndBlockSegment"),
+                    Ref::new("WordAwareStatementSegment"),
+                    Ref::new("BeginEndBlockSegment"),
+                    Ref::new("StatementSegment")
+                ])
+            ])
+            .to_matchable()
+        })
+        .to_matchable()
+        .into(),
+    )]);
+    
+    // Word-aware BREAK statement for when BREAK is lexed as word
+    dialect.add([(
+        "WordAwareBreakStatementSegment".into(),
+        NodeMatcher::new(SyntaxKind::Statement, |_| {
+            StringParser::new("BREAK", SyntaxKind::Keyword).to_matchable()
+        })
+        .to_matchable()
+        .into(),
+    )]);
+    
+    // Word-aware DROP TABLE statement for when DROP is lexed as word
+    dialect.add([(
+        "WordAwareDropTableStatementSegment".into(),
+        NodeMatcher::new(SyntaxKind::Statement, |_| {
+            Sequence::new(vec_of_erased![
+                // DROP as keyword or word token
+                one_of(vec_of_erased![
+                    StringParser::new("DROP", SyntaxKind::Keyword),
+                    StringParser::new("DROP", SyntaxKind::Word)
+                ]),
+                // TABLE as keyword or word token
+                one_of(vec_of_erased![
+                    StringParser::new("TABLE", SyntaxKind::Keyword),
+                    StringParser::new("TABLE", SyntaxKind::Word)
+                ]),
+                // Table reference - handle multi-part names with word tokens
+                one_of(vec_of_erased![
+                    Ref::new("TableReferenceSegment"),
+                    // Fallback: parse as word tokens for procedure contexts
+                    Sequence::new(vec_of_erased![
+                        one_of(vec_of_erased![
+                            TypedParser::new(SyntaxKind::Word, SyntaxKind::NakedIdentifier),
+                            TypedParser::new(SyntaxKind::DoubleQuote, SyntaxKind::QuotedIdentifier)
+                        ]),
+                        Sequence::new(vec_of_erased![
+                            TypedParser::new(SyntaxKind::Dot, SyntaxKind::Dot),
+                            one_of(vec_of_erased![
+                                TypedParser::new(SyntaxKind::Word, SyntaxKind::NakedIdentifier),
+                                TypedParser::new(SyntaxKind::DoubleQuote, SyntaxKind::QuotedIdentifier)
+                            ])
+                        ])
+                        .config(|this| this.optional())
+                    ])
+                ])
+            ])
+            .to_matchable()
+        })
+        .to_matchable()
+        .into(),
+    )]);
+    
+    // Word-aware DECLARE statement for when DECLARE is lexed as word
+    dialect.add([(
+        "WordAwareDeclareStatementSegment".into(),
+        NodeMatcher::new(SyntaxKind::Statement, |_| {
+            Sequence::new(vec_of_erased![
+                // DECLARE as keyword or word token
+                one_of(vec_of_erased![
+                    StringParser::new("DECLARE", SyntaxKind::Keyword),
+                    StringParser::new("DECLARE", SyntaxKind::Word)
+                ]),
+                Ref::new("TsqlVariableSegment"),
+                // Optional AS keyword or word
+                Sequence::new(vec_of_erased![
+                    one_of(vec_of_erased![
+                        StringParser::new("AS", SyntaxKind::Keyword),
+                        StringParser::new("AS", SyntaxKind::Word)
+                    ])
+                ])
+                .config(|this| this.optional()),
+                // Data type - handle as word tokens in procedure contexts
+                one_of(vec_of_erased![
+                    Ref::new("DatatypeSegment"),
+                    // Fallback: parse as word token
+                    TypedParser::new(SyntaxKind::Word, SyntaxKind::NakedIdentifier)
+                ]),
+                // Optional assignment with expression - be more restrictive 
+                Sequence::new(vec_of_erased![
+                    one_of(vec_of_erased![
+                        Ref::new("EqualsSegment"),
+                        TypedParser::new(SyntaxKind::RawComparisonOperator, SyntaxKind::ComparisonOperator)
+                    ]),
+                    // Expression - parse ONLY function calls and literals, don't consume everything
+                    one_of(vec_of_erased![
+                        // Parse simple function call pattern: WORD()
+                        Sequence::new(vec_of_erased![
+                            TypedParser::new(SyntaxKind::Word, SyntaxKind::NakedIdentifier),
+                            Bracketed::new(vec_of_erased![
+                                // Empty brackets or simple content
+                                AnyNumberOf::new(vec_of_erased![
+                                    one_of(vec_of_erased![
+                                        TypedParser::new(SyntaxKind::Word, SyntaxKind::NakedIdentifier),
+                                        TypedParser::new(SyntaxKind::NumericLiteral, SyntaxKind::NumericLiteral),
+                                        TypedParser::new(SyntaxKind::Comma, SyntaxKind::Comma)
+                                    ])
+                                ])
+                                .config(|this| this.optional())
+                            ])
+                        ]),
+                        // Parse literals
+                        TypedParser::new(SyntaxKind::NumericLiteral, SyntaxKind::NumericLiteral),
+                        TypedParser::new(SyntaxKind::SingleQuote, SyntaxKind::QuotedLiteral),
+                        // Parse simple identifiers
+                        TypedParser::new(SyntaxKind::Word, SyntaxKind::NakedIdentifier)
+                    ])
+                ])
+                .config(|this| this.optional())
+            ])
+            .terminators(vec_of_erased![
+                // Terminate at other statement keywords
+                StringParser::new("DROP", SyntaxKind::Word),
+                StringParser::new("CREATE", SyntaxKind::Word),
+                StringParser::new("INSERT", SyntaxKind::Word),
+                StringParser::new("SELECT", SyntaxKind::Word),
+                StringParser::new("UPDATE", SyntaxKind::Word),
+                StringParser::new("DELETE", SyntaxKind::Word),
+                StringParser::new("SET", SyntaxKind::Word),
+                StringParser::new("BEGIN", SyntaxKind::Word),
+                StringParser::new("IF", SyntaxKind::Word),
+                StringParser::new("WHILE", SyntaxKind::Word),
+                // Also terminate at keywords
+                Ref::keyword("DROP"),
+                Ref::keyword("CREATE"),
+                Ref::keyword("INSERT"),
+                Ref::keyword("SELECT"),
+                Ref::keyword("UPDATE"),
+                Ref::keyword("DELETE"),
+                Ref::keyword("SET"),
+                Ref::keyword("BEGIN"),
+                Ref::keyword("IF"),
+                Ref::keyword("WHILE"),
+                // Terminate at semicolons and GO
+                TypedParser::new(SyntaxKind::Semicolon, SyntaxKind::Semicolon),
+                StringParser::new("GO", SyntaxKind::Word),
+                Ref::keyword("GO")
+            ])
+            .to_matchable()
+        })
+        .to_matchable()
+        .into(),
+    )]);
+    
+    // Word-aware SET statement for when SET is lexed as word
+    dialect.add([(
+        "WordAwareSetStatementSegment".into(),
+        NodeMatcher::new(SyntaxKind::Statement, |_| {
+            Sequence::new(vec_of_erased![
+                one_of(vec_of_erased![
+                    StringParser::new("SET", SyntaxKind::Keyword),
+                    // Also accept lowercase 'set' as word token
+                    StringParser::new("set", SyntaxKind::Keyword)
+                ]),
+                Ref::new("TsqlVariableSegment"),
+                Ref::new("EqualsSegment"),
+                Ref::new("ExpressionSegment")
+            ])
+            .to_matchable()
+        })
+        .to_matchable()
+        .into(),
+    )]);
+    
+    // Word-aware EXISTS function for when EXISTS is lexed as word
+    dialect.add([(
+        "WordAwareExistsFunctionSegment".into(),
+        NodeMatcher::new(SyntaxKind::Expression, |_| {
+            Sequence::new(vec_of_erased![
+                one_of(vec_of_erased![
+                    StringParser::new("EXISTS", SyntaxKind::Keyword),
+                    // Also accept lowercase 'exists' as word token
+                    StringParser::new("exists", SyntaxKind::Keyword)
+                ]),
+                Bracketed::new(vec_of_erased![
+                    one_of(vec_of_erased![
+                        // Try word-aware SELECT first
+                        Ref::new("WordAwareSelectStatementSegment"),
+                        // Regular SELECT statement as fallback
+                        Ref::new("SelectStatementSegment"),
+                        // Fallback: SelectableGrammar (like regular EXISTS)
+                        Ref::new("SelectableGrammar"),
+                        // Last resort: Generic word-aware statement that can handle anything
+                        Ref::new("WordAwareGenericSelectSegment")
+                    ])
+                ])
+            ])
+            .to_matchable()
+        })
+        .to_matchable()
+        .into(),
+    )]);
+    
+    // Generic word-aware SELECT segment for robust parsing of SELECT with word tokens
+    dialect.add([(
+        "WordAwareGenericSelectSegment".into(),
+        NodeMatcher::new(SyntaxKind::SelectStatement, |_| {
+            Sequence::new(vec_of_erased![
+                // Start with SELECT (keyword or word)
+                one_of(vec_of_erased![
+                    StringParser::new("SELECT", SyntaxKind::Keyword),
+                    StringParser::new("select", SyntaxKind::Keyword),
+                    Ref::keyword("SELECT")
+                ]),
+                // Consume everything until we hit a closing bracket or terminator
+                AnyNumberOf::new(vec_of_erased![
+                    one_of(vec_of_erased![
+                        TypedParser::new(SyntaxKind::Word, SyntaxKind::Word),
+                        TypedParser::new(SyntaxKind::Star, SyntaxKind::Star),
+                        TypedParser::new(SyntaxKind::Comma, SyntaxKind::Comma),
+                        TypedParser::new(SyntaxKind::Dot, SyntaxKind::Dot),
+                        TypedParser::new(SyntaxKind::SingleQuote, SyntaxKind::SingleQuote),
+                        TypedParser::new(SyntaxKind::NumericLiteral, SyntaxKind::NumericLiteral),
+                        TypedParser::new(SyntaxKind::RawComparisonOperator, SyntaxKind::RawComparisonOperator),
+                        TypedParser::new(SyntaxKind::TsqlVariable, SyntaxKind::TsqlVariable),
+                        Ref::new("LiteralGrammar"),
+                        // Allow nested subqueries
+                        Bracketed::new(vec_of_erased![
+                            Ref::new("WordAwareGenericSelectSegment")
+                        ])
+                    ])
+                ])
+                .config(|this| {
+                    this.min_times(1);
+                    // Stop at closing bracket or common terminators
+                    this.terminators = vec_of_erased![
+                        TypedParser::new(SyntaxKind::EndBracket, SyntaxKind::EndBracket),
+                        StringParser::new(")", SyntaxKind::EndBracket),
+                        // Also stop at statement terminators
+                        StringParser::new("GO", SyntaxKind::Word),
+                        Ref::new("SemicolonSegment")
+                    ];
+                })
+            ])
+            .to_matchable()
+        })
+        .to_matchable()
+        .into(),
+    )]);
+    
+    // Special parser for single statements that must stop before ELSE
+    dialect.add([(
+        "WordAwareSingleStatementBeforeElse".into(),
+        // Try word-aware parsers that know to stop at ELSE
+        one_of(vec_of_erased![
+            // Word-aware SELECT that stops at ELSE
+            Ref::new("WordAwareSelectStatementSegment"),
+            // Word-aware SET statement (for variable assignments)
+            Ref::new("WordAwareSetStatementSegment"),
+            // Word-aware PRINT statement
+            Ref::new("WordAwarePrintStatementSegment"),
+            // Word-aware DECLARE statement
+            Ref::new("WordAwareDeclareStatementSegment"),
+            // Generic word statement that stops at ELSE with improved terminators
+            AnyNumberOf::new(vec_of_erased![
+                one_of(vec_of_erased![
+                    TypedParser::new(SyntaxKind::Word, SyntaxKind::Word),
+                    TypedParser::new(SyntaxKind::TsqlVariable, SyntaxKind::TsqlVariable),
+                    TypedParser::new(SyntaxKind::Dot, SyntaxKind::Dot),
+                    TypedParser::new(SyntaxKind::Comma, SyntaxKind::Comma),
+                    TypedParser::new(SyntaxKind::RawComparisonOperator, SyntaxKind::RawComparisonOperator),
+                    TypedParser::new(SyntaxKind::SingleQuote, SyntaxKind::SingleQuote),
+                    TypedParser::new(SyntaxKind::NumericLiteral, SyntaxKind::NumericLiteral),
+                    TypedParser::new(SyntaxKind::Semicolon, SyntaxKind::Semicolon),
+                    TypedParser::new(SyntaxKind::StartBracket, SyntaxKind::StartBracket),
+                    TypedParser::new(SyntaxKind::EndBracket, SyntaxKind::EndBracket),
+                    TypedParser::new(SyntaxKind::Star, SyntaxKind::Star),
+                    Ref::new("LiteralGrammar"),
+                ])
+            ])
+            .config(|this| {
+                this.min_times(1);
+                // Critical: Stop at ELSE when parsing IF body - improved terminators
+                this.terminators = vec_of_erased![
+                    StringParser::new("ELSE", SyntaxKind::Word),
+                    StringParser::new("else", SyntaxKind::Word),
+                    StringParser::new("ELSE", SyntaxKind::Keyword),
+                    StringParser::new("else", SyntaxKind::Keyword),
+                    Ref::keyword("ELSE"),
+                    StringParser::new("IF", SyntaxKind::Word),
+                    StringParser::new("if", SyntaxKind::Word),
+                    StringParser::new("BEGIN", SyntaxKind::Word),
+                    StringParser::new("begin", SyntaxKind::Word),
+                    StringParser::new("END", SyntaxKind::Word),
+                    StringParser::new("end", SyntaxKind::Word),
+                    StringParser::new("GO", SyntaxKind::Word),
+                ];
+            })
+        ])
+        .to_matchable()
+        .into(),
+    )]);
+    
+    // Word-aware CREATE INDEX statement for when CREATE is lexed as word
+    dialect.add([(
+        "WordAwareCreateIndexStatementSegment".into(),
+        NodeMatcher::new(SyntaxKind::CreateIndexStatement, |_| {
+            Sequence::new(vec_of_erased![
+                // CREATE as keyword or word token
+                one_of(vec_of_erased![
+                    Ref::keyword("CREATE"),
+                    StringParser::new("CREATE", SyntaxKind::Word)
+                ]),
+                // UNIQUE is optional - handle as keyword or word
+                one_of(vec_of_erased![
+                    Ref::keyword("UNIQUE"),
+                    StringParser::new("UNIQUE", SyntaxKind::Word)
+                ]).config(|this| this.optional()),
+                // CLUSTERED or NONCLUSTERED - handle as keyword or word
+                one_of(vec_of_erased![
+                    Ref::keyword("CLUSTERED"),
+                    StringParser::new("CLUSTERED", SyntaxKind::Word),
+                    Ref::keyword("NONCLUSTERED"), 
+                    StringParser::new("NONCLUSTERED", SyntaxKind::Word)
+                ]).config(|this| this.optional()),
+                // INDEX as keyword or word token
+                one_of(vec_of_erased![
+                    Ref::keyword("INDEX"),
+                    StringParser::new("INDEX", SyntaxKind::Word)
+                ]),
+                // Index name - consume until ON
+                one_of(vec_of_erased![
+                    TypedParser::new(SyntaxKind::Word, SyntaxKind::NakedIdentifier),
+                    TypedParser::new(SyntaxKind::DoubleQuote, SyntaxKind::QuotedIdentifier),
+                    Ref::new("SingleIdentifierGrammar")
+                ]),
+                // ON as keyword or word token
+                one_of(vec_of_erased![
+                    Ref::keyword("ON"),
+                    StringParser::new("ON", SyntaxKind::Word)
+                ]),
+                // Table reference - handle multi-part names
+                Sequence::new(vec_of_erased![
+                    one_of(vec_of_erased![
+                        TypedParser::new(SyntaxKind::Word, SyntaxKind::NakedIdentifier),
+                        TypedParser::new(SyntaxKind::DoubleQuote, SyntaxKind::QuotedIdentifier),
+                        Ref::new("SingleIdentifierGrammar")
+                    ]),
+                    Sequence::new(vec_of_erased![
+                        TypedParser::new(SyntaxKind::Dot, SyntaxKind::Dot),
+                        one_of(vec_of_erased![
+                            TypedParser::new(SyntaxKind::Word, SyntaxKind::NakedIdentifier),
+                            TypedParser::new(SyntaxKind::DoubleQuote, SyntaxKind::QuotedIdentifier),
+                            Ref::new("SingleIdentifierGrammar")
+                        ])
+                    ])
+                    .config(|this| this.optional())
+                ]),
+                // Column list
+                Bracketed::new(vec_of_erased![
+                    AnyNumberOf::new(vec_of_erased![
+                        one_of(vec_of_erased![
+                            TypedParser::new(SyntaxKind::Word, SyntaxKind::NakedIdentifier),
+                            TypedParser::new(SyntaxKind::DoubleQuote, SyntaxKind::QuotedIdentifier),
+                            TypedParser::new(SyntaxKind::Comma, SyntaxKind::Comma),
+                            Ref::new("SingleIdentifierGrammar")
+                        ])
+                    ])
+                ])
+            ])
+            .terminators(vec_of_erased![
+                // Terminate at GO keywords to allow next statements  
+                StringParser::new("GO", SyntaxKind::Word),
+                Ref::keyword("GO"),
+                // Terminate at other CREATE statements
+                StringParser::new("CREATE", SyntaxKind::Word),
+                Ref::keyword("CREATE"),
+                // Terminate at semicolons
+                TypedParser::new(SyntaxKind::Semicolon, SyntaxKind::Semicolon)
+            ])
+            .to_matchable()
+        })
+        .to_matchable()
+        .into(),
+    )]);
+    
+    // Add back WordAwareCreateTableStatementSegment for batch contexts where CREATE TABLE appears as word tokens
+    // Add WordAwareInsertStatementSegment for procedure bodies with word tokens
+    // Add compound statement parser for DECLARE followed by other statements
+    // Add compound parser for CREATE statements that appear together  
+    dialect.add([
+        (
+            "CompoundCreateStatementSegment".into(),
+            NodeMatcher::new(SyntaxKind::CreateTableStatement, |_| {
+                one_of(vec_of_erased![
+                    // Handle CREATE TABLE that appears after other CREATE statements
+                    Sequence::new(vec_of_erased![
+                        StringParser::new("CREATE", SyntaxKind::Word),
+                        StringParser::new("TABLE", SyntaxKind::Word),
+                        // Table name with multi-part reference
+                        Sequence::new(vec_of_erased![
+                            TypedParser::new(SyntaxKind::Word, SyntaxKind::NakedIdentifier),
+                            Sequence::new(vec_of_erased![
+                                TypedParser::new(SyntaxKind::Dot, SyntaxKind::Dot),
+                                TypedParser::new(SyntaxKind::Word, SyntaxKind::NakedIdentifier)
+                            ])
+                            .config(|this| this.optional())
+                        ]),
+                        // Column definitions in brackets - consume all content
+                        Bracketed::new(vec_of_erased![
+                            AnyNumberOf::new(vec_of_erased![
+                                one_of(vec_of_erased![
+                                    TypedParser::new(SyntaxKind::Word, SyntaxKind::NakedIdentifier),
+                                    TypedParser::new(SyntaxKind::DoubleQuote, SyntaxKind::QuotedIdentifier),
+                                    TypedParser::new(SyntaxKind::Comma, SyntaxKind::Comma),
+                                    TypedParser::new(SyntaxKind::StartBracket, SyntaxKind::StartBracket),
+                                    TypedParser::new(SyntaxKind::EndBracket, SyntaxKind::EndBracket),
+                                    TypedParser::new(SyntaxKind::Dot, SyntaxKind::Dot),
+                                    TypedParser::new(SyntaxKind::NumericLiteral, SyntaxKind::NumericLiteral),
+                                    TypedParser::new(SyntaxKind::SingleQuote, SyntaxKind::QuotedLiteral)
+                                ])
+                            ])
+                        ])
+                    ])
+                ])
+                .to_matchable()
+            })
+            .to_matchable()
+            .into(),
+        )
+    ]);
+    
+    dialect.add([
+        (
+            "CompoundDeclareStatementSegment".into(),
+            NodeMatcher::new(SyntaxKind::Statement, |_| {
+                Sequence::new(vec_of_erased![
+                    // First: DECLARE statement  
+                    Sequence::new(vec_of_erased![
+                        StringParser::new("DECLARE", SyntaxKind::Word),
+                        Ref::new("TsqlVariableSegment"),
+                        TypedParser::new(SyntaxKind::Word, SyntaxKind::NakedIdentifier), // Data type
+                        // Optional assignment
+                        Sequence::new(vec_of_erased![
+                            TypedParser::new(SyntaxKind::RawComparisonOperator, SyntaxKind::ComparisonOperator),
+                            // Function call: WORD()
+                            Sequence::new(vec_of_erased![
+                                TypedParser::new(SyntaxKind::Word, SyntaxKind::NakedIdentifier),
+                                Bracketed::new(vec_of_erased![]).config(|this| this.optional())
+                            ])
+                        ])
+                        .config(|this| this.optional())
+                    ]),
+                    // Second: DROP TABLE statement
+                    Sequence::new(vec_of_erased![
+                        StringParser::new("DROP", SyntaxKind::Word),
+                        StringParser::new("TABLE", SyntaxKind::Word),
+                        // Table reference with quoted identifiers
+                        Sequence::new(vec_of_erased![
+                            TypedParser::new(SyntaxKind::DoubleQuote, SyntaxKind::QuotedIdentifier),
+                            TypedParser::new(SyntaxKind::Dot, SyntaxKind::Dot),
+                            TypedParser::new(SyntaxKind::DoubleQuote, SyntaxKind::QuotedIdentifier)
+                        ])
+                    ])
+                ])
+                .to_matchable()
+            })
+            .to_matchable()
+            .into(),
+        )
+    ]);
+    
+    // CompoundBatchStatementSegment for complex CREATE INDEX GO CREATE INDEX ; CREATE TABLE patterns 
+    dialect.add([(
+        "CompoundBatchStatementSegment".into(),
+        NodeMatcher::new(SyntaxKind::Statement, |_| {
+            Sequence::new(vec_of_erased![
+                // First CREATE INDEX (CLUSTERED)
+                Sequence::new(vec_of_erased![
+                    StringParser::new("CREATE", SyntaxKind::Word),
+                    StringParser::new("CLUSTERED", SyntaxKind::Word),
+                    StringParser::new("INDEX", SyntaxKind::Word),
+                    // Consume tokens until GO or end
+                    AnyNumberOf::new(vec_of_erased![
+                        one_of(vec_of_erased![
+                            TypedParser::new(SyntaxKind::Word, SyntaxKind::Word),
+                            TypedParser::new(SyntaxKind::Dot, SyntaxKind::Dot),
+                            TypedParser::new(SyntaxKind::StartBracket, SyntaxKind::StartBracket),
+                            TypedParser::new(SyntaxKind::EndBracket, SyntaxKind::EndBracket)
+                        ])
+                    ])
+                    .config(|this| {
+                        this.min_times(1);
+                        this.terminators = vec_of_erased![
+                            StringParser::new("GO", SyntaxKind::Word)
+                        ];
+                    })
+                ]),
+                // GO separator
+                StringParser::new("GO", SyntaxKind::Word),
+                // Second CREATE INDEX (NONCLUSTERED)
+                Sequence::new(vec_of_erased![
+                    StringParser::new("CREATE", SyntaxKind::Word),
+                    StringParser::new("NONCLUSTERED", SyntaxKind::Word),
+                    StringParser::new("INDEX", SyntaxKind::Word),
+                    // Consume tokens until semicolon
+                    AnyNumberOf::new(vec_of_erased![
+                        one_of(vec_of_erased![
+                            TypedParser::new(SyntaxKind::Word, SyntaxKind::Word),
+                            TypedParser::new(SyntaxKind::Dot, SyntaxKind::Dot),
+                            TypedParser::new(SyntaxKind::StartBracket, SyntaxKind::StartBracket),
+                            TypedParser::new(SyntaxKind::EndBracket, SyntaxKind::EndBracket),
+                            TypedParser::new(SyntaxKind::Comma, SyntaxKind::Comma)
+                        ])
+                    ])
+                    .config(|this| {
+                        this.min_times(1);
+                        this.terminators = vec_of_erased![
+                            TypedParser::new(SyntaxKind::Semicolon, SyntaxKind::Semicolon)
+                        ];
+                    })
+                ]),
+                // Semicolon separator
+                TypedParser::new(SyntaxKind::Semicolon, SyntaxKind::Semicolon),
+                // CREATE TABLE statement
+                Sequence::new(vec_of_erased![
+                    StringParser::new("CREATE", SyntaxKind::Word),
+                    StringParser::new("TABLE", SyntaxKind::Word),
+                    // Table name (schema.table)
+                    Sequence::new(vec_of_erased![
+                        TypedParser::new(SyntaxKind::Word, SyntaxKind::Word),
+                        TypedParser::new(SyntaxKind::Dot, SyntaxKind::Dot),
+                        TypedParser::new(SyntaxKind::Word, SyntaxKind::Word)
+                    ]),
+                    // Column definitions in brackets - use generic token consumption for maximum compatibility
+                    Bracketed::new(vec_of_erased![
+                        AnyNumberOf::new(vec_of_erased![
+                            one_of(vec_of_erased![
+                                TypedParser::new(SyntaxKind::Word, SyntaxKind::Word),
+                                TypedParser::new(SyntaxKind::DoubleQuote, SyntaxKind::QuotedIdentifier),
+                                TypedParser::new(SyntaxKind::Comma, SyntaxKind::Comma),
+                                TypedParser::new(SyntaxKind::StartBracket, SyntaxKind::StartBracket),
+                                TypedParser::new(SyntaxKind::EndBracket, SyntaxKind::EndBracket),
+                                TypedParser::new(SyntaxKind::Dot, SyntaxKind::Dot),
+                                TypedParser::new(SyntaxKind::NumericLiteral, SyntaxKind::NumericLiteral),
+                                TypedParser::new(SyntaxKind::SingleQuote, SyntaxKind::QuotedLiteral),
+                                TypedParser::new(SyntaxKind::Semicolon, SyntaxKind::Semicolon)
+                            ])
+                        ])
+                    ])
+                ])
+            ])
+            .to_matchable()
+        })
+        .to_matchable()
+        .into(),
+    )]);
+    
+    // FallbackCreateTableSegment for CREATE TABLE patterns that appear in complex compound contexts
+    dialect.add([(
+        "FallbackCreateTableSegment".into(),
+        NodeMatcher::new(SyntaxKind::CreateTableStatement, |_| {
+            Sequence::new(vec_of_erased![
+                // Look for CREATE TABLE pattern anywhere in the token stream
+                StringParser::new("CREATE", SyntaxKind::Word),
+                StringParser::new("TABLE", SyntaxKind::Word),
+                // Table name (handle schema.table or just table)
+                TypedParser::new(SyntaxKind::Word, SyntaxKind::Word),
+                // Optional schema.table pattern
+                Sequence::new(vec_of_erased![
+                    TypedParser::new(SyntaxKind::Dot, SyntaxKind::Dot),
+                    TypedParser::new(SyntaxKind::Word, SyntaxKind::Word)
+                ]).config(|this| { this.optional(); }),
+                // Opening bracket for column definitions
+                TypedParser::new(SyntaxKind::StartBracket, SyntaxKind::StartBracket),
+                // Column definitions - consume everything until closing bracket
+                AnyNumberOf::new(vec_of_erased![
+                    one_of(vec_of_erased![
+                        TypedParser::new(SyntaxKind::Word, SyntaxKind::Word),
+                        TypedParser::new(SyntaxKind::DoubleQuote, SyntaxKind::QuotedIdentifier),
+                        TypedParser::new(SyntaxKind::Comma, SyntaxKind::Comma),
+                        TypedParser::new(SyntaxKind::StartBracket, SyntaxKind::StartBracket),
+                        TypedParser::new(SyntaxKind::EndBracket, SyntaxKind::EndBracket),
+                        TypedParser::new(SyntaxKind::Dot, SyntaxKind::Dot),
+                        TypedParser::new(SyntaxKind::NumericLiteral, SyntaxKind::NumericLiteral),
+                        TypedParser::new(SyntaxKind::SingleQuote, SyntaxKind::QuotedLiteral)
+                    ])
+                ])
+                .config(|this| {
+                    this.terminators = vec_of_erased![
+                        // Stop at the closing bracket of the column definitions
+                        TypedParser::new(SyntaxKind::EndBracket, SyntaxKind::EndBracket)
+                    ];
+                }),
+                // Closing bracket for column definitions
+                TypedParser::new(SyntaxKind::EndBracket, SyntaxKind::EndBracket)
+            ])
+            .to_matchable()
+        })
+        .to_matchable()
+        .into(),
+    )]);
+    
+    dialect.add([
+        (
+            "WordAwareInsertStatementSegment".into(),
+            NodeMatcher::new(SyntaxKind::InsertStatement, |_| {
+                Sequence::new(vec_of_erased![
+                    // INSERT as word token (for procedure contexts)
+                    StringParser::new("INSERT", SyntaxKind::Word),
+                    // INTO as word token
+                    StringParser::new("INTO", SyntaxKind::Word),
+                    // Table reference - handle multi-part names
+                    Sequence::new(vec_of_erased![
+                        one_of(vec_of_erased![
+                            TypedParser::new(SyntaxKind::Word, SyntaxKind::NakedIdentifier),
+                            TypedParser::new(SyntaxKind::DoubleQuote, SyntaxKind::QuotedIdentifier),
+                            Ref::new("SingleIdentifierGrammar")
+                        ]),
+                        Sequence::new(vec_of_erased![
+                            TypedParser::new(SyntaxKind::Dot, SyntaxKind::Dot),
+                            one_of(vec_of_erased![
+                                TypedParser::new(SyntaxKind::Word, SyntaxKind::NakedIdentifier),
+                                TypedParser::new(SyntaxKind::DoubleQuote, SyntaxKind::QuotedIdentifier),
+                                Ref::new("SingleIdentifierGrammar")
+                            ])
+                        ])
+                        .config(|this| this.optional())
+                    ]),
+                    // Column list in brackets (optional)
+                    Bracketed::new(vec_of_erased![
+                        AnyNumberOf::new(vec_of_erased![
+                            one_of(vec_of_erased![
+                                TypedParser::new(SyntaxKind::Word, SyntaxKind::NakedIdentifier),
+                                TypedParser::new(SyntaxKind::DoubleQuote, SyntaxKind::QuotedIdentifier),
+                                TypedParser::new(SyntaxKind::Comma, SyntaxKind::Comma)
+                            ])
+                        ])
+                    ])
+                    .config(|this| this.optional()),
+                    // SELECT statement or VALUES - consume rest as tokens for now
+                    AnyNumberOf::new(vec_of_erased![
+                        one_of(vec_of_erased![
+                            TypedParser::new(SyntaxKind::Word, SyntaxKind::NakedIdentifier),
+                            TypedParser::new(SyntaxKind::DoubleQuote, SyntaxKind::QuotedIdentifier),
+                            TypedParser::new(SyntaxKind::Comma, SyntaxKind::Comma),
+                            TypedParser::new(SyntaxKind::StartBracket, SyntaxKind::StartBracket),
+                            TypedParser::new(SyntaxKind::EndBracket, SyntaxKind::EndBracket),
+                            TypedParser::new(SyntaxKind::Dot, SyntaxKind::Dot),
+                            TypedParser::new(SyntaxKind::NumericLiteral, SyntaxKind::NumericLiteral),
+                            TypedParser::new(SyntaxKind::SingleQuote, SyntaxKind::QuotedLiteral)
+                        ])
+                    ])
+                ])
+                .terminators(vec_of_erased![
+                    // Terminate at GO keywords to allow next statements
+                    StringParser::new("GO", SyntaxKind::Word),
+                    Ref::keyword("GO"),
+                    // Terminate at semicolons
+                    TypedParser::new(SyntaxKind::Semicolon, SyntaxKind::Semicolon)
+                ])
+                .to_matchable()
+            })
+            .to_matchable()
+            .into(),
+        )
+    ]);
+    
+    dialect.add([
+        (
+            "WordAwareCreateTableStatementSegment".into(),
+            NodeMatcher::new(SyntaxKind::CreateTableStatement, |_| {
+                Sequence::new(vec_of_erased![
+                    // CREATE as word token (for batch contexts)
+                    StringParser::new("CREATE", SyntaxKind::Word),
+                    // TABLE as word token
+                    StringParser::new("TABLE", SyntaxKind::Word),
+                    // Simplified: consume all tokens until opening bracket
+                    AnyNumberOf::new(vec_of_erased![
+                        one_of(vec_of_erased![
+                            TypedParser::new(SyntaxKind::Word, SyntaxKind::NakedIdentifier),
+                            TypedParser::new(SyntaxKind::DoubleQuote, SyntaxKind::QuotedIdentifier),
+                            TypedParser::new(SyntaxKind::Dot, SyntaxKind::Dot)
+                        ])
+                    ])
+                    .config(|this| this.min_times(1)),
+                    // Column definitions in brackets - use generic token consumption for maximum compatibility
+                    Bracketed::new(vec_of_erased![
+                        AnyNumberOf::new(vec_of_erased![
+                            one_of(vec_of_erased![
+                                TypedParser::new(SyntaxKind::Word, SyntaxKind::Word),
+                                TypedParser::new(SyntaxKind::DoubleQuote, SyntaxKind::QuotedIdentifier),
+                                TypedParser::new(SyntaxKind::Comma, SyntaxKind::Comma),
+                                TypedParser::new(SyntaxKind::StartBracket, SyntaxKind::StartBracket),
+                                TypedParser::new(SyntaxKind::EndBracket, SyntaxKind::EndBracket),
+                                TypedParser::new(SyntaxKind::Dot, SyntaxKind::Dot),
+                                TypedParser::new(SyntaxKind::NumericLiteral, SyntaxKind::NumericLiteral),
+                                TypedParser::new(SyntaxKind::SingleQuote, SyntaxKind::QuotedLiteral),
+                                TypedParser::new(SyntaxKind::Semicolon, SyntaxKind::Semicolon)
+                            ])
+                        ])
+                    ])
+                ])
+                .terminators(vec_of_erased![
+                    // Terminate at GO keywords to allow next statements  
+                    StringParser::new("GO", SyntaxKind::Word),
+                    Ref::keyword("GO"),
+                    // Terminate at other CREATE statements
+                    StringParser::new("CREATE", SyntaxKind::Word),
+                    Ref::keyword("CREATE"),
+                    // Terminate at semicolons
+                    TypedParser::new(SyntaxKind::Semicolon, SyntaxKind::Semicolon)
+                ])
+                .to_matchable()
+            })
+            .to_matchable()
+            .into(),
+        )
+    ]);
+
+    // Word-aware column definition for CREATE TABLE contexts where keywords are lexed as words
+    dialect.add([(
+        "WordAwareColumnDefinitionSegment".into(),
+        NodeMatcher::new(SyntaxKind::ColumnDefinition, |_| {
+            Sequence::new(vec_of_erased![
+                // Column name - handle bracketed identifiers
+                one_of(vec_of_erased![
+                    // Bracketed identifier like [ID]
+                    TypedParser::new(SyntaxKind::DoubleQuote, SyntaxKind::QuotedIdentifier),
+                    // Regular word token
+                    TypedParser::new(SyntaxKind::Word, SyntaxKind::NakedIdentifier),
+                    // Standard identifier grammar
+                    Ref::new("SingleIdentifierGrammar")
+                ]),
+                // Column type as word token
+                one_of(vec_of_erased![
+                    // Simple types: INT, BIGINT, etc.
+                    TypedParser::new(SyntaxKind::Word, SyntaxKind::Word),
+                    // Types with parameters: VARCHAR(100), DECIMAL(16,2)
+                    Sequence::new(vec_of_erased![
+                        TypedParser::new(SyntaxKind::Word, SyntaxKind::Word), // type name
+                        Bracketed::new(vec_of_erased![
+                            one_of(vec_of_erased![
+                                // Single parameter: VARCHAR(100)
+                                TypedParser::new(SyntaxKind::NumericLiteral, SyntaxKind::NumericLiteral),
+                                // Two parameters: DECIMAL(16,2)
+                                Sequence::new(vec_of_erased![
+                                    TypedParser::new(SyntaxKind::NumericLiteral, SyntaxKind::NumericLiteral),
+                                    TypedParser::new(SyntaxKind::Comma, SyntaxKind::Comma),
+                                    TypedParser::new(SyntaxKind::NumericLiteral, SyntaxKind::NumericLiteral)
+                                ])
+                            ])
+                        ])
+                    ])
+                ]),
+                // Column constraints as word tokens
+                AnyNumberOf::new(vec_of_erased![
+                    one_of(vec_of_erased![
+                        // PRIMARY KEY
+                        Sequence::new(vec_of_erased![
+                            StringParser::new("PRIMARY", SyntaxKind::Word),
+                            StringParser::new("KEY", SyntaxKind::Word)
+                        ]),
+                        // NOT NULL
+                        Sequence::new(vec_of_erased![
+                            StringParser::new("NOT", SyntaxKind::Word),
+                            StringParser::new("NULL", SyntaxKind::Word)
+                        ]),
+                        // NULL
+                        StringParser::new("NULL", SyntaxKind::Word),
+                        // DEFAULT expression
+                        Sequence::new(vec_of_erased![
+                            StringParser::new("DEFAULT", SyntaxKind::Word),
+                            one_of(vec_of_erased![
+                                // DEFAULT (NEXT VALUE FOR ...)
+                                Bracketed::new(vec_of_erased![
+                                    Ref::new("WordAwareNextValueForSegment")
+                                ]),
+                                // DEFAULT literal
+                                Ref::new("LiteralGrammar")
+                            ])
+                        ])
+                    ])
+                ]).config(|this| this.optional())
+            ])
+            .to_matchable()
+        })
+        .to_matchable()
+        .into(),
+    )]);
+    
+    // Word-aware CREATE/UPDATE/DROP STATISTICS statements
+    dialect.add([(
+        "WordAwareStatisticsStatementSegment".into(),
+        NodeMatcher::new(SyntaxKind::Statement, |_| {
+            one_of(vec_of_erased![
+                // CREATE STATISTICS
+                Sequence::new(vec_of_erased![
+                    StringParser::new("CREATE", SyntaxKind::Keyword),
+                    StringParser::new("STATISTICS", SyntaxKind::Keyword),
+                    // Consume rest as tokens
+                    AnyNumberOf::new(vec_of_erased![
+                        one_of(vec_of_erased![
+                            TypedParser::new(SyntaxKind::Word, SyntaxKind::Word),
+                            TypedParser::new(SyntaxKind::DoubleQuote, SyntaxKind::DoubleQuote),
+                            TypedParser::new(SyntaxKind::Comma, SyntaxKind::Comma),
+                            TypedParser::new(SyntaxKind::Dot, SyntaxKind::Dot),
+                            TypedParser::new(SyntaxKind::StartBracket, SyntaxKind::StartBracket),
+                            TypedParser::new(SyntaxKind::EndBracket, SyntaxKind::EndBracket),
+                            Ref::new("LiteralGrammar")
+                        ])
+                    ])
+                    .config(|this| {
+                        this.min_times(1);
+                        this.terminators = vec_of_erased![
+                            StringParser::new("GO", SyntaxKind::Word),
+                            StringParser::new("CREATE", SyntaxKind::Word),
+                            StringParser::new("UPDATE", SyntaxKind::Word),
+                            StringParser::new("DROP", SyntaxKind::Word),
+                            Ref::new("SemicolonSegment")
+                        ];
+                    })
+                ]),
+                // UPDATE STATISTICS
+                Sequence::new(vec_of_erased![
+                    StringParser::new("UPDATE", SyntaxKind::Keyword),
+                    StringParser::new("STATISTICS", SyntaxKind::Keyword),
+                    // Consume rest as tokens
+                    AnyNumberOf::new(vec_of_erased![
+                        one_of(vec_of_erased![
+                            TypedParser::new(SyntaxKind::Word, SyntaxKind::Word),
+                            TypedParser::new(SyntaxKind::DoubleQuote, SyntaxKind::DoubleQuote),
+                            TypedParser::new(SyntaxKind::Comma, SyntaxKind::Comma),
+                            TypedParser::new(SyntaxKind::Dot, SyntaxKind::Dot),
+                            TypedParser::new(SyntaxKind::StartBracket, SyntaxKind::StartBracket),
+                            TypedParser::new(SyntaxKind::EndBracket, SyntaxKind::EndBracket),
+                            Ref::new("LiteralGrammar")
+                        ])
+                    ])
+                    .config(|this| {
+                        this.min_times(1);
+                        this.terminators = vec_of_erased![
+                            StringParser::new("GO", SyntaxKind::Word),
+                            StringParser::new("CREATE", SyntaxKind::Word),
+                            StringParser::new("UPDATE", SyntaxKind::Word),
+                            StringParser::new("DROP", SyntaxKind::Word),
+                            Ref::new("SemicolonSegment")
+                        ];
+                    })
+                ]),
+                // DROP STATISTICS
+                Sequence::new(vec_of_erased![
+                    StringParser::new("DROP", SyntaxKind::Keyword),
+                    StringParser::new("STATISTICS", SyntaxKind::Keyword),
+                    // Consume rest as tokens
+                    AnyNumberOf::new(vec_of_erased![
+                        one_of(vec_of_erased![
+                            TypedParser::new(SyntaxKind::Word, SyntaxKind::Word),
+                            TypedParser::new(SyntaxKind::DoubleQuote, SyntaxKind::DoubleQuote),
+                            TypedParser::new(SyntaxKind::Comma, SyntaxKind::Comma),
+                            TypedParser::new(SyntaxKind::Dot, SyntaxKind::Dot),
+                            TypedParser::new(SyntaxKind::StartBracket, SyntaxKind::StartBracket),
+                            TypedParser::new(SyntaxKind::EndBracket, SyntaxKind::EndBracket),
+                            Ref::new("LiteralGrammar")
+                        ])
+                    ])
+                    .config(|this| {
+                        this.min_times(1);
+                        this.terminators = vec_of_erased![
+                            StringParser::new("GO", SyntaxKind::Word),
+                            StringParser::new("CREATE", SyntaxKind::Word),
+                            StringParser::new("UPDATE", SyntaxKind::Word),
+                            StringParser::new("DROP", SyntaxKind::Word),
+                            Ref::new("SemicolonSegment")
+                        ];
+                    })
+                ]),
+                // DROP INDEX
+                Sequence::new(vec_of_erased![
+                    StringParser::new("DROP", SyntaxKind::Keyword),
+                    StringParser::new("INDEX", SyntaxKind::Keyword),
+                    // Consume rest as tokens
+                    AnyNumberOf::new(vec_of_erased![
+                        one_of(vec_of_erased![
+                            TypedParser::new(SyntaxKind::Word, SyntaxKind::Word),
+                            TypedParser::new(SyntaxKind::DoubleQuote, SyntaxKind::DoubleQuote),
+                            TypedParser::new(SyntaxKind::Comma, SyntaxKind::Comma),
+                            TypedParser::new(SyntaxKind::Dot, SyntaxKind::Dot),
+                            TypedParser::new(SyntaxKind::StartBracket, SyntaxKind::StartBracket),
+                            TypedParser::new(SyntaxKind::EndBracket, SyntaxKind::EndBracket),
+                            Ref::new("LiteralGrammar")
+                        ])
+                    ])
+                    .config(|this| {
+                        this.min_times(1);
+                        this.terminators = vec_of_erased![
+                            StringParser::new("GO", SyntaxKind::Word),
+                            StringParser::new("CREATE", SyntaxKind::Word),
+                            StringParser::new("UPDATE", SyntaxKind::Word),
+                            StringParser::new("DROP", SyntaxKind::Word),
+                            Ref::new("SemicolonSegment")
+                        ];
+                    })
+                ])
+            ])
+            .to_matchable()
+        })
+        .to_matchable()
+        .into(),
+    )]);
+    
+    // Word-aware statement segment for parsing statements when keywords are lexed as words
+    dialect.add([(
+        "WordAwareStatementSegment".into(),
+        // Try to parse word tokens as proper statements
+        one_of(vec_of_erased![
+            // Use word-aware parsers for statements with word tokens
+            // Put CREATE TABLE FIRST with ABSOLUTE HIGHEST priority
+            Ref::new("WordAwareCreateTableStatementSegment"),
+            // Add fallback CREATE TABLE parser for complex compound contexts
+            Ref::new("FallbackCreateTableSegment"),
+            // Then compound CREATE statement (which also handles CREATE TABLE patterns)
+            Ref::new("CompoundCreateStatementSegment"),
+            // Put compound statements next to handle complex patterns  
+            Ref::new("CompoundDeclareStatementSegment"),
+            Ref::new("CompoundBatchStatementSegment"),
+            // Put DROP TABLE next to prevent it from being consumed by other parsers
+            Ref::new("WordAwareDropTableStatementSegment"),
+            Ref::new("WordAwareIfStatementSegment"),
+            Ref::new("WordAwareWhileStatementSegment"),
+            Ref::new("WordAwareBreakStatementSegment"),
+            Ref::new("WordAwareDeclareStatementSegment"),
+            Ref::new("WordAwareSetStatementSegment"),
+            Ref::new("WordAwarePrintStatementSegment"),
+            Ref::new("WordAwareReturnStatementSegment"),
+            Ref::new("WordAwareSelectStatementSegment"), // Re-enabled: Focus on core parsing issues
+            Ref::new("WordAwareInsertStatementSegment"), // Handle INSERT INTO in procedure bodies
+            Ref::new("WordAwareBeginEndBlockSegment"),
+            Ref::new("WordAwareCreateIndexStatementSegment"),
+            // Enhanced CREATE PROCEDURE handles both keywords and word tokens
+            Ref::new("CreateProcedureStatementSegment"),
+            Ref::new("WordAwareStatisticsStatementSegment"),
+            // Try regular parsers that already handle word tokens
+            Ref::new("BeginEndBlockSegment"),
+            Ref::new("DeclareStatementSegment"),
+            Ref::new("DropTableStatementSegment"),
+            Ref::new("BreakStatementSegment"),
+            Ref::new("PrintStatementSegment"),
+            Ref::new("ReturnStatementSegment"),
+            Ref::new("SelectStatementSegment"),
+            Ref::new("TryBlockSegment"),
+            Ref::new("ExecuteStatementSegment"),
+            Ref::new("SetVariableStatementSegment"),
+            Ref::new("CreateIndexStatementSegment"),
+            // Fallback to regular parsers
+            Ref::new("IfStatementSegment"),
+            Ref::new("WhileStatementSegment"),
+            // Fallback CREATE parsers for compound statement contexts
+            Ref::new("FallbackWordCreateStatementSegment"),
+            // Fallback: For truly unparsable content, consume tokens to prevent errors
+            Ref::new("GenericWordStatementSegment")
+        ])
+        .to_matchable()
+        .into(),
+    )]);
+    
+    // Word-aware batch segment for when entire batches have word tokens
+    dialect.add([(
+        "WordAwareBatchSegment".into(),
+        AnyNumberOf::new(vec_of_erased![
+            one_of(vec_of_erased![
+                // Try word-aware statement parsing first
+                Sequence::new(vec_of_erased![
+                    Ref::new("WordAwareStatementSegment"),
+                    AnyNumberOf::new(vec_of_erased![
+                        Ref::new("DelimiterGrammar"),
+                        Ref::new("BatchDelimiterGrammar"),
+                        StringParser::new("GO", SyntaxKind::Keyword),
+                        // Also handle GO as word token
+                        StringParser::new("GO", SyntaxKind::Word),
+                        // Handle semicolons as statement separators in word contexts
+                        TypedParser::new(SyntaxKind::Semicolon, SyntaxKind::Semicolon)
+                    ])
+                    .config(|this| this.optional())
+                ]),
+                // Handle WHILE statements at batch level
+                Ref::new("WordAwareWhileStatementSegment"),
+                Ref::new("WhileStatementSegment"),
+                // Also try specific word-aware parsers
+                Ref::new("WordAwareCreateProcedureSegment"),
+                // Handle standalone TRY-CATCH blocks with word tokens
+                Ref::new("TryBlockSegment"),
+                // Fallback: consume tokens to prevent errors
+                Ref::new("GenericWordStatementSegment")
+            ])
+        ])
+        .config(|this| this.min_times(1))
+        .to_matchable()
+        .into(),
+    )]);
+    
+    // Word-aware CREATE PROCEDURE segment for when CREATE PROCEDURE is lexed as words
+    dialect.add([(
+        "WordAwareCreateProcedureSegment".into(),
+        NodeMatcher::new(SyntaxKind::CreateProcedureStatement, |_| {
+            Sequence::new(vec_of_erased![
+                // CREATE OR ALTER PROCEDURE
+                one_of(vec_of_erased![
+                    Sequence::new(vec_of_erased![
+                        StringParser::new("CREATE", SyntaxKind::Keyword),
+                        Sequence::new(vec_of_erased![
+                            StringParser::new("OR", SyntaxKind::Keyword),
+                            StringParser::new("ALTER", SyntaxKind::Keyword)
+                        ]).config(|this| this.optional()),
+                        one_of(vec_of_erased![
+                            StringParser::new("PROCEDURE", SyntaxKind::Keyword),
+                            StringParser::new("PROC", SyntaxKind::Keyword)
+                        ])
+                    ]),
+                    Sequence::new(vec_of_erased![
+                        StringParser::new("ALTER", SyntaxKind::Keyword),
+                        one_of(vec_of_erased![
+                            StringParser::new("PROCEDURE", SyntaxKind::Keyword),
+                            StringParser::new("PROC", SyntaxKind::Keyword)
+                        ])
+                    ])
+                ]),
+                // Procedure name - could be multi-part
+                AnyNumberOf::new(vec_of_erased![
+                    one_of(vec_of_erased![
+                        TypedParser::new(SyntaxKind::Word, SyntaxKind::Word),
+                        TypedParser::new(SyntaxKind::NakedIdentifier, SyntaxKind::NakedIdentifier),
+                        TypedParser::new(SyntaxKind::QuotedIdentifier, SyntaxKind::QuotedIdentifier),
+                        TypedParser::new(SyntaxKind::Dot, SyntaxKind::Dot)
+                    ])
+                ]).config(|this| {
+                    this.min_times(1);
+                    this.terminators = vec_of_erased![
+                        TypedParser::new(SyntaxKind::TsqlVariable, SyntaxKind::TsqlVariable),
+                        StringParser::new("AS", SyntaxKind::Keyword)
+                    ];
+                }),
+                // Optional parameters
+                AnyNumberOf::new(vec_of_erased![
+                    one_of(vec_of_erased![
+                        TypedParser::new(SyntaxKind::TsqlVariable, SyntaxKind::TsqlVariable),
+                        TypedParser::new(SyntaxKind::Word, SyntaxKind::Word),
+                        TypedParser::new(SyntaxKind::RawComparisonOperator, SyntaxKind::RawComparisonOperator),
+                        TypedParser::new(SyntaxKind::Comma, SyntaxKind::Comma),
+                        Ref::new("LiteralGrammar")
+                    ])
+                ]).config(|this| {
+                    this.terminators = vec_of_erased![
+                        StringParser::new("AS", SyntaxKind::Keyword)
+                    ];
+                }),
+                // AS keyword
+                StringParser::new("AS", SyntaxKind::Keyword),
+                // Procedure body - use existing word-aware parsers
+                AnyNumberOf::new(vec_of_erased![
+                    Ref::new("WordAwareStatementSegment"),
+                    Ref::new("DelimiterGrammar").optional()
+                ])
+                .config(|this| {
+                    this.min_times(1);
+                    this.parse_mode = ParseMode::Greedy;
+                    this.terminators = vec_of_erased![
+                        Ref::new("BatchSeparatorGrammar"),
+                        StringParser::new("GO", SyntaxKind::Keyword)
+                    ];
+                })
+            ])
+            .to_matchable()
+        })
+        .to_matchable()
+        .into(),
+    )]);
+
+    // Fallback CREATE statement parser for compound statement contexts - consumes tokens to prevent unparsable
+    dialect.add([(
+        "FallbackWordCreateStatementSegment".into(),
+        one_of(vec_of_erased![
+            // CREATE TABLE with word tokens - simple token consumption to prevent unparsable
+            Sequence::new(vec_of_erased![
+                StringParser::new("CREATE", SyntaxKind::Word),
+                StringParser::new("TABLE", SyntaxKind::Word),
+                // Consume table name tokens
+                AnyNumberOf::new(vec_of_erased![
+                    one_of(vec_of_erased![
+                        TypedParser::new(SyntaxKind::Word, SyntaxKind::Word),
+                        TypedParser::new(SyntaxKind::Dot, SyntaxKind::Dot)
+                    ])
+                ])
+                .config(|this| {
+                    this.min_times(1);
+                    this.max_times(3); // schema.table max
+                }),
+                // Consume everything until we find what looks like the next statement
+                AnyNumberOf::new(vec_of_erased![
+                    one_of(vec_of_erased![
+                        TypedParser::new(SyntaxKind::StartBracket, SyntaxKind::StartBracket),
+                        TypedParser::new(SyntaxKind::EndBracket, SyntaxKind::EndBracket),
+                        TypedParser::new(SyntaxKind::Word, SyntaxKind::Word),
+                        TypedParser::new(SyntaxKind::DoubleQuote, SyntaxKind::DoubleQuote),
+                        TypedParser::new(SyntaxKind::Comma, SyntaxKind::Comma),
+                        TypedParser::new(SyntaxKind::Dot, SyntaxKind::Dot),
+                        TypedParser::new(SyntaxKind::NumericLiteral, SyntaxKind::NumericLiteral),
+                        TypedParser::new(SyntaxKind::SingleQuote, SyntaxKind::SingleQuote)
+                    ])
+                ])
+                .config(|this| {
+                    this.terminators = vec_of_erased![
+                        StringParser::new("GO", SyntaxKind::Word),
+                        StringParser::new("CREATE", SyntaxKind::Word),
+                        TypedParser::new(SyntaxKind::Semicolon, SyntaxKind::Semicolon)
+                    ];
+                })
+            ]),
+            // CREATE INDEX with word tokens - simple token consumption
+            Sequence::new(vec_of_erased![
+                StringParser::new("CREATE", SyntaxKind::Word),
+                // Optional modifiers
+                AnyNumberOf::new(vec_of_erased![
+                    one_of(vec_of_erased![
+                        StringParser::new("CLUSTERED", SyntaxKind::Word),
+                        StringParser::new("NONCLUSTERED", SyntaxKind::Word),
+                        StringParser::new("UNIQUE", SyntaxKind::Word)
+                    ])
+                ])
+                .config(|this| this.max_times(2)),
+                StringParser::new("INDEX", SyntaxKind::Word),
+                // Consume everything for the INDEX statement
+                AnyNumberOf::new(vec_of_erased![
+                    one_of(vec_of_erased![
+                        TypedParser::new(SyntaxKind::Word, SyntaxKind::Word),
+                        TypedParser::new(SyntaxKind::Dot, SyntaxKind::Dot),
+                        TypedParser::new(SyntaxKind::StartBracket, SyntaxKind::StartBracket),
+                        TypedParser::new(SyntaxKind::EndBracket, SyntaxKind::EndBracket),
+                        TypedParser::new(SyntaxKind::Comma, SyntaxKind::Comma)
+                    ])
+                ])
+                .config(|this| {
+                    this.terminators = vec_of_erased![
+                        StringParser::new("GO", SyntaxKind::Word),
+                        StringParser::new("CREATE", SyntaxKind::Word),
+                        TypedParser::new(SyntaxKind::Semicolon, SyntaxKind::Semicolon)
+                    ];
+                })
+            ])
+        ])
+        .to_matchable()
+        .into(),
+    )]);
+
+    // Generic word statement for fallback parsing
+    dialect.add([(
+        "GenericWordStatementSegment".into(),
+        NodeMatcher::new(SyntaxKind::Statement, |_| {
+            AnyNumberOf::new(vec_of_erased![
+                one_of(vec_of_erased![
+                    TypedParser::new(SyntaxKind::Word, SyntaxKind::Word),
+                    TypedParser::new(SyntaxKind::TsqlVariable, SyntaxKind::TsqlVariable),
+                    TypedParser::new(SyntaxKind::Dot, SyntaxKind::Dot),
+                    TypedParser::new(SyntaxKind::Comma, SyntaxKind::Comma),
+                    TypedParser::new(SyntaxKind::RawComparisonOperator, SyntaxKind::RawComparisonOperator),
+                    TypedParser::new(SyntaxKind::SingleQuote, SyntaxKind::SingleQuote),
+                    TypedParser::new(SyntaxKind::NumericLiteral, SyntaxKind::NumericLiteral),
+                    TypedParser::new(SyntaxKind::Semicolon, SyntaxKind::Semicolon),
+                    TypedParser::new(SyntaxKind::StartBracket, SyntaxKind::StartBracket),
+                    TypedParser::new(SyntaxKind::EndBracket, SyntaxKind::EndBracket),
+                    TypedParser::new(SyntaxKind::DoubleQuote, SyntaxKind::QuotedIdentifier),
+                    TypedParser::new(SyntaxKind::Star, SyntaxKind::Star),
+                    TypedParser::new(SyntaxKind::UnicodeSingleQuote, SyntaxKind::QuotedLiteral),
+                    Ref::new("LiteralGrammar"),
+                ])
+            ])
+            .config(|this| {
+                this.min_times(1);
+                // Add terminators to prevent consuming too many tokens
+                // Use both word and keyword forms since we might encounter either
+                this.terminators = vec_of_erased![
+                    StringParser::new("IF", SyntaxKind::Word),
+                    StringParser::new("ELSE", SyntaxKind::Word),
+                    StringParser::new("BEGIN", SyntaxKind::Word),
+                    StringParser::new("END", SyntaxKind::Word),
+                    StringParser::new("WHILE", SyntaxKind::Word),
+                    StringParser::new("RETURN", SyntaxKind::Word),
+                    StringParser::new("PRINT", SyntaxKind::Word),
+                    StringParser::new("SELECT", SyntaxKind::Word),
+                    StringParser::new("INSERT", SyntaxKind::Word),
+                    StringParser::new("UPDATE", SyntaxKind::Word),
+                    StringParser::new("DELETE", SyntaxKind::Word),
+                    StringParser::new("SET", SyntaxKind::Word),
+                    StringParser::new("DECLARE", SyntaxKind::Word),
+                    StringParser::new("CREATE", SyntaxKind::Word),
+                    StringParser::new("DROP", SyntaxKind::Word),
+                    StringParser::new("ALTER", SyntaxKind::Word),
+                    // Also add lowercase versions
+                    StringParser::new("if", SyntaxKind::Word),
+                    StringParser::new("else", SyntaxKind::Word),
+                    StringParser::new("begin", SyntaxKind::Word),
+                    StringParser::new("end", SyntaxKind::Word),
+                    StringParser::new("while", SyntaxKind::Word),
+                    StringParser::new("return", SyntaxKind::Word),
+                    StringParser::new("print", SyntaxKind::Word),
+                    StringParser::new("select", SyntaxKind::Word),
+                    StringParser::new("insert", SyntaxKind::Word),
+                    StringParser::new("update", SyntaxKind::Word),
+                    StringParser::new("delete", SyntaxKind::Word),
+                    StringParser::new("set", SyntaxKind::Word),
+                    StringParser::new("declare", SyntaxKind::Word),
+                    StringParser::new("create", SyntaxKind::Word),
+                    StringParser::new("drop", SyntaxKind::Word),
+                    StringParser::new("alter", SyntaxKind::Word),
+                    // Also add keyword versions
+                    Ref::keyword("IF"),
+                    Ref::keyword("ELSE"),
+                    Ref::keyword("BEGIN"),
+                    Ref::keyword("END"),
+                    Ref::keyword("WHILE"),
+                    Ref::keyword("RETURN"),
+                    Ref::keyword("PRINT"),
+                    Ref::keyword("SELECT"),
+                    Ref::keyword("INSERT"),
+                    Ref::keyword("UPDATE"),
+                    Ref::keyword("DELETE"),
+                    Ref::keyword("SET"),
+                    Ref::keyword("DECLARE"),
+                    Ref::keyword("CREATE"),
+                    Ref::keyword("DROP"),
+                    Ref::keyword("ALTER"),
+                    StringParser::new("GO", SyntaxKind::Word),
+                    Ref::new("SemicolonSegment"),
+                ];
+            })
+            .to_matchable()
+        })
+        .to_matchable()
+        .into(),
+    )]);
 
     dialect.expand();
     dialect

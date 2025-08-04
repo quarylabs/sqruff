@@ -32,72 +32,64 @@ file:
   - statement:
     - if_statement:
       - keyword: IF
+      - tsql_variable: '@@ROWCOUNT'
+      - comparison_operator:
+        - raw_comparison_operator: =
       - expression:
-        - parameterized_expression:
-          - tsql_variable: '@@ROWCOUNT'
-        - comparison_operator:
-          - raw_comparison_operator: =
         - numeric_literal: '0'
       - statement:
+        - keyword: PRINT
+        - expression:
+          - quoted_literal: '''Warning: No rows were updated'''
+      - statement_terminator: ;
+  - statement:
+    - if_statement:
+      - keyword: IF
+      - tsql_variable: '@@ERROR'
+      - comparison_operator:
+        - raw_comparison_operator: =
+      - expression:
+        - numeric_literal: '547'
+      - begin_end_block:
+        - keyword: BEGIN
         - statement:
-          - keyword: PRINT
-          - expression:
-            - quoted_literal: '''Warning: No rows were updated'''
-      - statement_terminator: ;
-      - statement:
-        - if_statement:
-          - keyword: IF
-          - expression:
+          - statement:
+            - keyword: PRINT
+            - expression:
+              - quoted_literal: N'A check constraint violation occurred.'
+        - statement_terminator: ;
+        - keyword: END
+  - keyword: GO
+  - statement:
+    - select_statement:
+      - select_clause:
+        - select_clause:
+          - keyword: SELECT
+          - select_clause_element:
             - parameterized_expression:
-              - tsql_variable: '@@ERROR'
-            - comparison_operator:
-              - raw_comparison_operator: =
-            - numeric_literal: '547'
-          - begin_end_block:
-            - keyword: BEGIN
-            - statement:
-              - statement:
-                - keyword: PRINT
-                - expression:
-                  - quoted_literal: N'A check constraint violation occurred.'
-            - statement_terminator: ;
-            - keyword: END
-      - statement:
-        - naked_identifier: GO
-        - expression:
-          - select_statement:
-            - select_clause:
-              - select_clause:
-                - keyword: SELECT
-                - select_clause_element:
-                  - parameterized_expression:
-                    - tsql_variable: '@@IDENTITY'
-                  - alias_expression:
-                    - keyword: AS
-                    - quoted_identifier: '''Identity'''
-      - statement_terminator: ;
-      - statement:
-        - naked_identifier: GO
-        - expression:
-          - column_reference:
-            - naked_identifier: PRINT
-        - expression:
-          - parameterized_expression:
-            - tsql_variable: '@@TRANCOUNT'
-        - expression:
-          - data_type:
-            - data_type_identifier: GO
-        - expression:
-          - select_statement:
-            - select_clause:
-              - select_clause:
-                - keyword: SELECT
-                - select_clause_element:
-                  - parameterized_expression:
-                    - tsql_variable: '@@PACK_RECEIVED'
-                  - alias_expression:
-                    - keyword: AS
-                    - quoted_identifier: '''Packets Received'''
-      - statement_terminator: ;
-      - statement:
-        - naked_identifier: GO
+              - tsql_variable: '@@IDENTITY'
+            - alias_expression:
+              - keyword: AS
+              - quoted_identifier: '''Identity'''
+  - statement_terminator: ;
+  - keyword: GO
+  - statement:
+    - statement:
+      - keyword: PRINT
+      - expression:
+        - parameterized_expression:
+          - tsql_variable: '@@TRANCOUNT'
+  - keyword: GO
+  - statement:
+    - select_statement:
+      - select_clause:
+        - select_clause:
+          - keyword: SELECT
+          - select_clause_element:
+            - parameterized_expression:
+              - tsql_variable: '@@PACK_RECEIVED'
+            - alias_expression:
+              - keyword: AS
+              - quoted_identifier: '''Packets Received'''
+  - statement_terminator: ;
+  - keyword: GO

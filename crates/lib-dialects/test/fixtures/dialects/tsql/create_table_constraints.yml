@@ -37,19 +37,14 @@ file:
                 - keyword: 'NULL'
           - comma: ','
           - column_definition:
-            - column_definition:
-              - quoted_identifier: '[ColumnC]'
-              - data_type:
-                - data_type:
-                  - data_type_identifier: varchar
-                  - bracketed_arguments:
-                    - bracketed:
-                      - start_bracket: (
-                      - numeric_literal: '100'
-                      - end_bracket: )
-              - column_constraint_segment:
-                - keyword: DEFAULT
-                - quoted_literal: '''mydefault'''
+            - quoted_identifier: '[ColumnC]'
+            - word: varchar
+            - bracketed:
+              - start_bracket: (
+              - numeric_literal: '100'
+              - end_bracket: )
+            - word: DEFAULT
+            - quoted_literal: '''mydefault'''
           - comma: ','
           - column_definition:
             - column_definition:
@@ -127,19 +122,14 @@ file:
                 - keyword: 'null'
           - comma: ','
           - column_definition:
-            - column_definition:
-              - quoted_identifier: '[col1]'
-              - data_type:
-                - data_type:
-                  - data_type_identifier: int
-              - column_constraint_segment:
-                - keyword: default
-                - numeric_literal:
-                  - sign_indicator: '-'
-                  - numeric_literal: '1'
-              - column_constraint_segment:
-                - keyword: not
-                - keyword: 'null'
+            - quoted_identifier: '[col1]'
+            - word: int
+            - word: default
+            - numeric_literal:
+              - sign_indicator: '-'
+              - numeric_literal: '1'
+            - word: not
+            - word: 'null'
           - comma: ','
           - column_definition:
             - column_definition:
@@ -173,11 +163,8 @@ file:
         - bracketed:
           - start_bracket: (
           - column_definition:
-            - column_definition:
-              - quoted_identifier: '[col1]'
-              - data_type:
-                - data_type:
-                  - data_type_identifier: INT
+            - quoted_identifier: '[col1]'
+            - word: INT
           - comma: ','
           - table_constraint:
             - table_constraint:
@@ -206,11 +193,8 @@ file:
         - bracketed:
           - start_bracket: (
           - column_definition:
-            - column_definition:
-              - quoted_identifier: '[col1]'
-              - data_type:
-                - data_type:
-                  - data_type_identifier: INT
+            - quoted_identifier: '[col1]'
+            - word: INT
           - comma: ','
           - table_constraint:
             - table_constraint:

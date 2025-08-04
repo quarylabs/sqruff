@@ -11,31 +11,19 @@ file:
           - quoted_identifier: '[PowerPlan]'
       - keyword: AS
       - statement:
-        - declare_statement:
-          - keyword: DECLARE
-          - tsql_variable: '@DATEFUNCTION'
-          - data_type:
-            - data_type_identifier: DATE
-          - assignment_operator:
-            - raw_comparison_operator: =
-          - expression:
-            - function:
-              - function:
-                - function_name:
-                  - function_name_identifier: GETDATE
-                - bracketed:
-                  - start_bracket: (
-                  - end_bracket: )
-      - statement:
-        - drop_table_statement:
-          - keyword: DROP
-          - keyword: TABLE
-          - table_reference:
-            - object_reference:
-              - object_reference:
-                - quoted_identifier: '[Reporting]'
-                - dot: .
-                - quoted_identifier: '[PowerPlan_BASE]'
+        - word: DECLARE
+        - tsql_variable: '@DATEFUNCTION'
+        - naked_identifier: DATE
+        - comparison_operator: =
+        - naked_identifier: GETDATE
+        - bracketed:
+          - start_bracket: (
+          - end_bracket: )
+        - word: DROP
+        - word: TABLE
+        - quoted_identifier: '[Reporting]'
+        - dot: .
+        - quoted_identifier: '[PowerPlan_BASE]'
   - statement_terminator: ;
   - statement:
     - declare_statement:

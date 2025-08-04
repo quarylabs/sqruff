@@ -398,54 +398,54 @@ pub fn raw_dialect() -> Dialect {
     dialect.replace_grammar(
         "ObjectReferenceSegment",
         one_of(vec_of_erased![
-                // T-SQL syntax with leading dots (for .table, ..table, ...table)
-                Sequence::new(vec_of_erased![
-                    // At least one leading dot
-                    one_of(vec_of_erased![
-                        Sequence::new(vec_of_erased![
-                            Ref::new("DotSegment"),
-                            Ref::new("DotSegment"),
-                            Ref::new("DotSegment")
-                        ]), // ...table
-                        Sequence::new(vec_of_erased![
-                            Ref::new("DotSegment"),
-                            Ref::new("DotSegment")
-                        ]), // ..table
-                        Ref::new("DotSegment") // .table
-                    ]),
-                    // Then the identifier parts
-                    Delimited::new(vec_of_erased![Ref::new("SingleIdentifierGrammar")]).config(
-                        |this| {
-                            this.delimiter(Ref::new("DotSegment"));
-                            this.allow_gaps = true;  // Allow gaps for multi-line
-                            this.terminators =
-                                vec_of_erased![Ref::new("ObjectReferenceTerminatorGrammar")];
-                        }
-                    )
+            // T-SQL syntax with leading dots (for .table, ..table, ...table)
+            Sequence::new(vec_of_erased![
+                // At least one leading dot
+                one_of(vec_of_erased![
+                    Sequence::new(vec_of_erased![
+                        Ref::new("DotSegment"),
+                        Ref::new("DotSegment"),
+                        Ref::new("DotSegment")
+                    ]), // ...table
+                    Sequence::new(vec_of_erased![
+                        Ref::new("DotSegment"),
+                        Ref::new("DotSegment")
+                    ]), // ..table
+                    Ref::new("DotSegment") // .table
                 ]),
-                // T-SQL double-dot syntax: server..table, database..table (default schema)
-                Sequence::new(vec_of_erased![
-                    Ref::new("SingleIdentifierGrammar"), // server/database name
-                    Ref::new("DotSegment"),
-                    Ref::new("DotSegment"),
-                    // Then the remaining identifier parts
-                    Delimited::new(vec_of_erased![Ref::new("SingleIdentifierGrammar")]).config(
-                        |this| {
-                            this.delimiter(Ref::new("DotSegment"));
-                            this.allow_gaps = true;  // Allow gaps for multi-line
-                            this.terminators =
-                                vec_of_erased![Ref::new("ObjectReferenceTerminatorGrammar")];
-                        }
-                    )
-                ]),
-                // Standard object reference (no leading dots)
-                Delimited::new(vec_of_erased![Ref::new("SingleIdentifierGrammar")]).config(|this| {
-                    this.delimiter(Ref::new("DotSegment"));
-                    this.allow_gaps = true;  // Allow gaps for multi-line
-                    this.terminators = vec_of_erased![Ref::new("ObjectReferenceTerminatorGrammar")];
-                })
-            ])
-            .to_matchable(),
+                // Then the identifier parts
+                Delimited::new(vec_of_erased![Ref::new("SingleIdentifierGrammar")]).config(
+                    |this| {
+                        this.delimiter(Ref::new("DotSegment"));
+                        this.allow_gaps = true; // Allow gaps for multi-line
+                        this.terminators =
+                            vec_of_erased![Ref::new("ObjectReferenceTerminatorGrammar")];
+                    }
+                )
+            ]),
+            // T-SQL double-dot syntax: server..table, database..table (default schema)
+            Sequence::new(vec_of_erased![
+                Ref::new("SingleIdentifierGrammar"), // server/database name
+                Ref::new("DotSegment"),
+                Ref::new("DotSegment"),
+                // Then the remaining identifier parts
+                Delimited::new(vec_of_erased![Ref::new("SingleIdentifierGrammar")]).config(
+                    |this| {
+                        this.delimiter(Ref::new("DotSegment"));
+                        this.allow_gaps = true; // Allow gaps for multi-line
+                        this.terminators =
+                            vec_of_erased![Ref::new("ObjectReferenceTerminatorGrammar")];
+                    }
+                )
+            ]),
+            // Standard object reference (no leading dots)
+            Delimited::new(vec_of_erased![Ref::new("SingleIdentifierGrammar")]).config(|this| {
+                this.delimiter(Ref::new("DotSegment"));
+                this.allow_gaps = true; // Allow gaps for multi-line
+                this.terminators = vec_of_erased![Ref::new("ObjectReferenceTerminatorGrammar")];
+            })
+        ])
+        .to_matchable(),
     );
 
     // NOTE: T-SQL CASE expressions are now supported in SELECT clauses via TsqlCaseExpressionSegment
@@ -9391,79 +9391,79 @@ pub fn raw_dialect() -> Dialect {
     // Override CREATE FUNCTION for T-SQL specific features
     dialect.replace_grammar("CreateFunctionStatementSegment", {
         Sequence::new(vec_of_erased![
-                Ref::keyword("CREATE"),
-                Sequence::new(vec_of_erased![Ref::keyword("OR"), Ref::keyword("ALTER")])
-                    .config(|this| this.optional()),
-                Ref::keyword("FUNCTION"),
-                Ref::new("ObjectReferenceSegment"), // T-SQL functions can have schema names
-                Ref::new("FunctionParameterListGrammar"),
-                // RETURNS clause - can be simple type or table type
-                Sequence::new(vec_of_erased![
-                    Ref::keyword("RETURNS"),
-                    one_of(vec_of_erased![
-                        // Table variable: RETURNS @var TABLE (...)
-                        Sequence::new(vec_of_erased![
-                            Ref::new("TsqlVariableSegment"),
-                            Ref::keyword("TABLE"),
-                            Bracketed::new(vec_of_erased![Delimited::new(vec_of_erased![
-                                Sequence::new(vec_of_erased![
-                                    Ref::new("ColumnReferenceSegment"),
-                                    Ref::new("DatatypeSegment")
-                                ])
-                            ])])
-                        ]),
-                        // Simple data type
-                        Ref::new("DatatypeSegment")
-                    ])
-                ]),
-                // Optional WITH clauses
-                Sequence::new(vec_of_erased![
-                    Ref::keyword("WITH"),
-                    Delimited::new(vec_of_erased![one_of(vec_of_erased![
-                        Ref::keyword("SCHEMABINDING"),
-                        Sequence::new(vec_of_erased![
-                            Ref::keyword("RETURNS"),
-                            Ref::keyword("NULL"),
-                            Ref::keyword("ON"),
-                            Ref::keyword("NULL"),
-                            Ref::keyword("INPUT")
-                        ]),
-                        Sequence::new(vec_of_erased![
-                            Ref::keyword("EXECUTE"),
-                            Ref::keyword("AS"),
-                            one_of(vec_of_erased![
-                                Ref::keyword("CALLER"),
-                                Ref::keyword("SELF"),
-                                Ref::keyword("OWNER"),
-                                Ref::new("QuotedLiteralSegment")
-                            ])
-                        ])
-                    ])])
-                ])
+            Ref::keyword("CREATE"),
+            Sequence::new(vec_of_erased![Ref::keyword("OR"), Ref::keyword("ALTER")])
                 .config(|this| this.optional()),
-                // Function body
+            Ref::keyword("FUNCTION"),
+            Ref::new("ObjectReferenceSegment"), // T-SQL functions can have schema names
+            Ref::new("FunctionParameterListGrammar"),
+            // RETURNS clause - can be simple type or table type
+            Sequence::new(vec_of_erased![
+                Ref::keyword("RETURNS"),
                 one_of(vec_of_erased![
-                    // AS BEGIN ... END
+                    // Table variable: RETURNS @var TABLE (...)
                     Sequence::new(vec_of_erased![
-                        Ref::keyword("AS"),
-                        Ref::keyword("BEGIN"),
-                        AnyNumberOf::new(vec_of_erased![Ref::new("StatementSegment")]),
-                        Ref::keyword("END")
+                        Ref::new("TsqlVariableSegment"),
+                        Ref::keyword("TABLE"),
+                        Bracketed::new(vec_of_erased![Delimited::new(vec_of_erased![
+                            Sequence::new(vec_of_erased![
+                                Ref::new("ColumnReferenceSegment"),
+                                Ref::new("DatatypeSegment")
+                            ])
+                        ])])
                     ]),
-                    // Just AS for inline functions
+                    // Simple data type
+                    Ref::new("DatatypeSegment")
+                ])
+            ]),
+            // Optional WITH clauses
+            Sequence::new(vec_of_erased![
+                Ref::keyword("WITH"),
+                Delimited::new(vec_of_erased![one_of(vec_of_erased![
+                    Ref::keyword("SCHEMABINDING"),
                     Sequence::new(vec_of_erased![
-                        Ref::keyword("AS"),
-                        Ref::new("StatementSegment")
+                        Ref::keyword("RETURNS"),
+                        Ref::keyword("NULL"),
+                        Ref::keyword("ON"),
+                        Ref::keyword("NULL"),
+                        Ref::keyword("INPUT")
                     ]),
-                    // BEGIN ... END without AS (T-SQL allows this)
                     Sequence::new(vec_of_erased![
-                        Ref::keyword("BEGIN"),
-                        AnyNumberOf::new(vec_of_erased![Ref::new("StatementSegment")]),
-                        Ref::keyword("END")
+                        Ref::keyword("EXECUTE"),
+                        Ref::keyword("AS"),
+                        one_of(vec_of_erased![
+                            Ref::keyword("CALLER"),
+                            Ref::keyword("SELF"),
+                            Ref::keyword("OWNER"),
+                            Ref::new("QuotedLiteralSegment")
+                        ])
                     ])
+                ])])
+            ])
+            .config(|this| this.optional()),
+            // Function body
+            one_of(vec_of_erased![
+                // AS BEGIN ... END
+                Sequence::new(vec_of_erased![
+                    Ref::keyword("AS"),
+                    Ref::keyword("BEGIN"),
+                    AnyNumberOf::new(vec_of_erased![Ref::new("StatementSegment")]),
+                    Ref::keyword("END")
+                ]),
+                // Just AS for inline functions
+                Sequence::new(vec_of_erased![
+                    Ref::keyword("AS"),
+                    Ref::new("StatementSegment")
+                ]),
+                // BEGIN ... END without AS (T-SQL allows this)
+                Sequence::new(vec_of_erased![
+                    Ref::keyword("BEGIN"),
+                    AnyNumberOf::new(vec_of_erased![Ref::new("StatementSegment")]),
+                    Ref::keyword("END")
                 ])
             ])
-            .to_matchable()
+        ])
+        .to_matchable()
     });
 
     // Override MergeMatchSegment to allow multiple MERGE clauses including T-SQL specific syntax
@@ -9850,36 +9850,36 @@ pub fn raw_dialect() -> Dialect {
     // This consolidates all previous FunctionSegment definitions
     dialect.replace_grammar("FunctionSegment", {
         one_of(vec_of_erased![
-                // JSON functions
-                Ref::new("TsqlJsonObjectSegment"),
-                Ref::new("TsqlJsonArraySegment"),
-                // Date part functions with optional PostFunctionGrammar
+            // JSON functions
+            Ref::new("TsqlJsonObjectSegment"),
+            Ref::new("TsqlJsonArraySegment"),
+            // Date part functions with optional PostFunctionGrammar
+            Sequence::new(vec_of_erased![
                 Sequence::new(vec_of_erased![
-                    Sequence::new(vec_of_erased![
+                    Ref::new("DatePartFunctionNameSegment"),
+                    Ref::new("DateTimeFunctionContentsSegment")
+                ]),
+                Ref::new("PostFunctionGrammar").optional()
+            ]),
+            // JSON functions with NULL clause support (from second definition)
+            Sequence::new(vec_of_erased![
+                Ref::new("FunctionNameSegment"),
+                Ref::new("FunctionParameterListGrammar"),
+                Ref::new("JsonNullClauseSegment")
+            ]),
+            // General function pattern with PostFunctionGrammar
+            Sequence::new(vec_of_erased![
+                Sequence::new(vec_of_erased![
+                    Ref::new("FunctionNameSegment").exclude(one_of(vec_of_erased![
                         Ref::new("DatePartFunctionNameSegment"),
-                        Ref::new("DateTimeFunctionContentsSegment")
-                    ]),
-                    Ref::new("PostFunctionGrammar").optional()
+                        Ref::new("ValuesClauseSegment")
+                    ])),
+                    Ref::new("FunctionContentsSegment")
                 ]),
-                // JSON functions with NULL clause support (from second definition)
-                Sequence::new(vec_of_erased![
-                    Ref::new("FunctionNameSegment"),
-                    Ref::new("FunctionParameterListGrammar"),
-                    Ref::new("JsonNullClauseSegment")
-                ]),
-                // General function pattern with PostFunctionGrammar
-                Sequence::new(vec_of_erased![
-                    Sequence::new(vec_of_erased![
-                        Ref::new("FunctionNameSegment").exclude(one_of(vec_of_erased![
-                            Ref::new("DatePartFunctionNameSegment"),
-                            Ref::new("ValuesClauseSegment")
-                        ])),
-                        Ref::new("FunctionContentsSegment")
-                    ]),
-                    Ref::new("PostFunctionGrammar").optional()
-                ])
+                Ref::new("PostFunctionGrammar").optional()
             ])
-            .to_matchable()
+        ])
+        .to_matchable()
     });
 
     // Word token support for T-SQL procedure bodies

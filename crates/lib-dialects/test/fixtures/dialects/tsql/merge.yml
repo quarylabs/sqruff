@@ -503,12 +503,10 @@ file:
             - select_clause:
               - keyword: SELECT
               - select_clause_element:
-                - parameterized_expression:
-                  - tsql_variable: '@UnitMeasureCode'
+                - tsql_variable: '@UnitMeasureCode'
               - comma: ','
               - select_clause_element:
-                - parameterized_expression:
-                  - tsql_variable: '@Name'
+                - tsql_variable: '@Name'
           - end_bracket: )
         - alias_expression:
           - keyword: as
@@ -599,8 +597,7 @@ file:
               - star: '*'
         - comma: ','
         - select_clause_element:
-          - parameterized_expression:
-            - tsql_variable: $action
+          - tsql_variable: $action
         - comma: ','
         - select_clause_element:
           - wildcard_expression:
@@ -799,8 +796,7 @@ file:
                                 - end_bracket: )
         - keyword: OUTPUT
         - select_clause_element:
-          - parameterized_expression:
-            - tsql_variable: $action
+          - tsql_variable: $action
         - comma: ','
         - select_clause_element:
           - column_reference:
@@ -1018,8 +1014,7 @@ file:
                 - keyword: DELETE
         - keyword: OUTPUT
         - select_clause_element:
-          - parameterized_expression:
-            - tsql_variable: $action
+          - tsql_variable: $action
         - comma: ','
         - select_clause_element:
           - column_reference:
@@ -1190,12 +1185,10 @@ file:
             - select_clause:
               - keyword: SELECT
               - select_clause_element:
-                - parameterized_expression:
-                  - tsql_variable: '@UnitMeasureCode'
+                - tsql_variable: '@UnitMeasureCode'
               - comma: ','
               - select_clause_element:
-                - parameterized_expression:
-                  - tsql_variable: '@Name'
+                - tsql_variable: '@Name'
           - end_bracket: )
         - alias_expression:
           - keyword: as
@@ -1286,8 +1279,7 @@ file:
               - star: '*'
         - comma: ','
         - select_clause_element:
-          - parameterized_expression:
-            - tsql_variable: $action
+          - tsql_variable: $action
         - comma: ','
         - select_clause_element:
           - wildcard_expression:
@@ -1494,8 +1486,7 @@ file:
                 - keyword: DELETE
         - keyword: OUTPUT
         - select_clause_element:
-          - parameterized_expression:
-            - tsql_variable: $action
+          - tsql_variable: $action
         - comma: ','
         - select_clause_element:
           - column_reference:

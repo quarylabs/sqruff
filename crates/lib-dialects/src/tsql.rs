@@ -399,32 +399,22 @@ pub fn raw_dialect() -> Dialect {
     dialect.replace_grammar(
         "ObjectReferenceSegment",
         one_of(vec_of_erased![
-                // T-SQL syntax with leading dots
-                Sequence::new(vec_of_erased![
-                    // At least one leading dot
-                    one_of(vec_of_erased![
-                        Sequence::new(vec_of_erased![
-                            Ref::new("DotSegment"),
-                            Ref::new("DotSegment"),
-                            Ref::new("DotSegment")
-                        ]), // ...table
-                        Sequence::new(vec_of_erased![
-                            Ref::new("DotSegment"),
-                            Ref::new("DotSegment")
-                        ]), // ..table
-                        Ref::new("DotSegment") // .table
-                    ]),
-                    // Then the identifier parts
-                    Delimited::new(vec_of_erased![Ref::new("SingleIdentifierGrammar")]).config(
-                        |this| {
-                            this.delimiter(Ref::new("DotSegment"));
-                            this.disallow_gaps();
-                            this.terminators =
-                                vec_of_erased![Ref::new("ObjectReferenceTerminatorGrammar")];
-                        }
-                    )
+            // T-SQL syntax with leading dots
+            Sequence::new(vec_of_erased![
+                // At least one leading dot
+                one_of(vec_of_erased![
+                    Sequence::new(vec_of_erased![
+                        Ref::new("DotSegment"),
+                        Ref::new("DotSegment"),
+                        Ref::new("DotSegment")
+                    ]), // ...table
+                    Sequence::new(vec_of_erased![
+                        Ref::new("DotSegment"),
+                        Ref::new("DotSegment")
+                    ]), // ..table
+                    Ref::new("DotSegment") // .table
                 ]),
-                // Standard object reference (no leading dots)
+                // Then the identifier parts
                 Delimited::new(vec_of_erased![Ref::new("SingleIdentifierGrammar")]).config(
                     |this| {
                         this.delimiter(Ref::new("DotSegment"));
@@ -432,21 +422,28 @@ pub fn raw_dialect() -> Dialect {
                         this.terminators =
                             vec_of_erased![Ref::new("ObjectReferenceTerminatorGrammar")];
                     }
-                ),
-                // T-SQL double-dot syntax: server..table, database..table (default schema)
-                Sequence::new(vec_of_erased![
-                    Ref::new("SingleIdentifierGrammar"), // server/database name
-                    Ref::new("DotSegment"),
-                    Ref::new("DotSegment"),
-                    // Then the remaining identifier parts
-                    Delimited::new(vec_of_erased![Ref::new("SingleIdentifierGrammar")]).config(
-                        |this| {
-                            this.delimiter(Ref::new("DotSegment"));
-                            this.disallow_gaps();
-                            this.terminators =
-                                vec_of_erased![Ref::new("ObjectReferenceTerminatorGrammar")];
-                        }
-                    )
+                )
+            ]),
+            // Standard object reference (no leading dots)
+            Delimited::new(vec_of_erased![Ref::new("SingleIdentifierGrammar")]).config(|this| {
+                this.delimiter(Ref::new("DotSegment"));
+                this.disallow_gaps();
+                this.terminators = vec_of_erased![Ref::new("ObjectReferenceTerminatorGrammar")];
+            }),
+            // T-SQL double-dot syntax: server..table, database..table (default schema)
+            Sequence::new(vec_of_erased![
+                Ref::new("SingleIdentifierGrammar"), // server/database name
+                Ref::new("DotSegment"),
+                Ref::new("DotSegment"),
+                // Then the remaining identifier parts
+                Delimited::new(vec_of_erased![Ref::new("SingleIdentifierGrammar")]).config(
+                    |this| {
+                        this.delimiter(Ref::new("DotSegment"));
+                        this.disallow_gaps();
+                        this.terminators =
+                            vec_of_erased![Ref::new("ObjectReferenceTerminatorGrammar")];
+                    }
+                )
             ])
         ])
         .to_matchable(),
@@ -1770,8 +1767,8 @@ pub fn raw_dialect() -> Dialect {
                             this.terminators = vec_of_erased![
                                 Ref::keyword("IF"),                           // Next IF statement
                                 StringParser::new("IF", SyntaxKind::Keyword), // Also handle lowercase if as word
-                                StringParser::new("if", SyntaxKind::Word),   // Also handle lowercase if as word
-                                Ref::new("BatchSeparatorGrammar")             // GO statement
+                                StringParser::new("if", SyntaxKind::Word), // Also handle lowercase if as word
+                                Ref::new("BatchSeparatorGrammar")          // GO statement
                             ];
                         })
                     ])
@@ -4335,6 +4332,8 @@ pub fn raw_dialect() -> Dialect {
             Ref::new("IntervalExpressionSegment"),
             Ref::new("FunctionSegment"),
             Ref::new("ColumnReferenceSegment"),
+            // Add TsqlVariableSegment for T-SQL variables like @variable
+            Ref::new("TsqlVariableSegment"),
             Ref::new("ExpressionSegment"),
             Sequence::new(vec_of_erased![
                 Ref::new("DatatypeSegment"),
@@ -4453,59 +4452,59 @@ pub fn raw_dialect() -> Dialect {
     dialect.replace_grammar(
         "FromExpressionElementSegment",
         Sequence::new(vec_of_erased![
-                Ref::new("PreTableFunctionKeywordsGrammar").optional(),
-                optionally_bracketed(vec_of_erased![Ref::new("TableExpressionSegment")]),
-                // Support both WITH OFFSET and OPENROWSET WITH column definitions
-                Sequence::new(vec_of_erased![
-                    Ref::keyword("WITH"),
-                    one_of(vec_of_erased![
-                        // ANSI WITH OFFSET syntax
+            Ref::new("PreTableFunctionKeywordsGrammar").optional(),
+            optionally_bracketed(vec_of_erased![Ref::new("TableExpressionSegment")]),
+            // Support both WITH OFFSET and OPENROWSET WITH column definitions
+            Sequence::new(vec_of_erased![
+                Ref::keyword("WITH"),
+                one_of(vec_of_erased![
+                    // ANSI WITH OFFSET syntax
+                    Sequence::new(vec_of_erased![
+                        Ref::keyword("OFFSET"),
+                        Ref::new("AliasExpressionSegment")
+                    ]),
+                    // OPENROWSET WITH column definitions syntax
+                    Bracketed::new(vec_of_erased![Delimited::new(vec_of_erased![
                         Sequence::new(vec_of_erased![
-                            Ref::keyword("OFFSET"),
-                            Ref::new("AliasExpressionSegment")
-                        ]),
-                        // OPENROWSET WITH column definitions syntax
-                        Bracketed::new(vec_of_erased![Delimited::new(vec_of_erased![
+                            Ref::new("SingleIdentifierGrammar"), // Column name (can be bracketed)
+                            Ref::new("DatatypeSegment"),         // Data type
+                            // Optional COLLATE clause
                             Sequence::new(vec_of_erased![
-                                Ref::new("SingleIdentifierGrammar"), // Column name (can be bracketed)
-                                Ref::new("DatatypeSegment"),         // Data type
-                                // Optional COLLATE clause
-                                Sequence::new(vec_of_erased![
-                                    Ref::keyword("COLLATE"),
-                                    Ref::new("CollationSegment")
-                                ])
-                                .config(|this| this.optional()),
-                                // Optional JSON path expression for JSON data
-                                Sequence::new(vec_of_erased![
-                                    Ref::keyword("STRICT").optional(),
-                                    Ref::new("QuotedLiteralSegment")
-                                ])
-                                .config(|this| this.optional()),
-                                // Handle erroneous trailing tokens (like numbers) in column definitions
-                                AnyNumberOf::new(vec_of_erased![one_of(vec_of_erased![
-                                    Ref::new("NumericLiteralSegment"),
-                                    Ref::new("SingleIdentifierGrammar")
-                                ])])
-                                .config(|this| this.max_times(5)) // Limit to prevent runaway parsing
+                                Ref::keyword("COLLATE"),
+                                Ref::new("CollationSegment")
                             ])
-                        ])])
-                    ])
+                            .config(|this| this.optional()),
+                            // Optional JSON path expression for JSON data
+                            Sequence::new(vec_of_erased![
+                                Ref::keyword("STRICT").optional(),
+                                Ref::new("QuotedLiteralSegment")
+                            ])
+                            .config(|this| this.optional()),
+                            // Handle erroneous trailing tokens (like numbers) in column definitions
+                            AnyNumberOf::new(vec_of_erased![one_of(vec_of_erased![
+                                Ref::new("NumericLiteralSegment"),
+                                Ref::new("SingleIdentifierGrammar")
+                            ])])
+                            .config(|this| this.max_times(5)) // Limit to prevent runaway parsing
+                        ])
+                    ])])
                 ])
-                .config(|this| this.optional()),
-                // Alias can come either before or after WITH clause
-                Ref::new("AliasExpressionSegment")
-                    .exclude(one_of(vec_of_erased![
-                        Ref::new("FromClauseTerminatorGrammar"),
-                        Ref::new("SamplingExpressionSegment"),
-                        Ref::new("JoinLikeClauseGrammar"),
-                        LookaheadExclude::new("WITH", "("), // Prevents WITH from being parsed as alias when followed by (
-                        Ref::keyword("GO"), // Prevents GO from being parsed as alias (it's a batch separator)
-                        Ref::keyword("FOR"), // Prevents FOR from being parsed as alias (FOR JSON/XML/BROWSE clauses)
-                        Ref::keyword("OPTION") // Prevents OPTION from being parsed as alias (for query hints)
-                    ]))
-                    .optional(),
-                Ref::new("SamplingExpressionSegment").optional(),
-                Ref::new("PostTableExpressionGrammar").optional() // T-SQL table hints
+            ])
+            .config(|this| this.optional()),
+            // Alias can come either before or after WITH clause
+            Ref::new("AliasExpressionSegment")
+                .exclude(one_of(vec_of_erased![
+                    Ref::new("FromClauseTerminatorGrammar"),
+                    Ref::new("SamplingExpressionSegment"),
+                    Ref::new("JoinLikeClauseGrammar"),
+                    LookaheadExclude::new("WITH", "("), // Prevents WITH from being parsed as alias when followed by (
+                    Ref::keyword("GO"), // Prevents GO from being parsed as alias (it's a batch separator)
+                    Ref::keyword("FOR"), // Prevents FOR from being parsed as alias (FOR JSON/XML/BROWSE clauses)
+                    Ref::keyword("OPTION") // Prevents OPTION from being parsed as alias (for query hints)
+                ]))
+                .optional(),
+            Ref::new("SamplingExpressionSegment").optional(),
+            Ref::new("PostTableExpressionGrammar").optional() // T-SQL table hints
         ])
         .to_matchable(),
     );
@@ -4690,43 +4689,43 @@ pub fn raw_dialect() -> Dialect {
     dialect.replace_grammar(
         "FromExpressionSegment",
         optionally_bracketed(vec_of_erased![Sequence::new(vec_of_erased![
-                MetaSegment::indent(),
-                one_of(vec_of_erased![
-                    Ref::new("FromExpressionElementSegment"),
-                    Bracketed::new(vec_of_erased![Ref::new("FromExpressionSegment")])
-                ])
-                .config(|this| this.terminators = vec_of_erased![
+            MetaSegment::indent(),
+            one_of(vec_of_erased![
+                Ref::new("FromExpressionElementSegment"),
+                Bracketed::new(vec_of_erased![Ref::new("FromExpressionSegment")])
+            ])
+            .config(|this| this.terminators = vec_of_erased![
+                Sequence::new(vec_of_erased![Ref::keyword("ORDER"), Ref::keyword("BY")]),
+                Sequence::new(vec_of_erased![Ref::keyword("GROUP"), Ref::keyword("BY")]),
+                Ref::keyword("WHERE"),
+                Ref::keyword("HAVING"),
+                Ref::keyword("FOR"),    // Fix for FOR JSON/XML/BROWSE clauses
+                Ref::keyword("OPTION"), // T-SQL OPTION clause
+            ]),
+            MetaSegment::dedent(),
+            Conditional::new(MetaSegment::indent()).indented_joins(),
+            AnyNumberOf::new(vec_of_erased![
+                // Use JoinLikeClauseGrammar which includes both JoinClauseSegment and ApplyClauseSegment
+                Ref::new("JoinLikeClauseGrammar")
+            ])
+            .config(|this| {
+                this.optional();
+                this.terminators = vec_of_erased![
                     Sequence::new(vec_of_erased![Ref::keyword("ORDER"), Ref::keyword("BY")]),
                     Sequence::new(vec_of_erased![Ref::keyword("GROUP"), Ref::keyword("BY")]),
+                    Ref::keyword("LIMIT"),
                     Ref::keyword("WHERE"),
-                    Ref::keyword("HAVING"),
-                    Ref::keyword("FOR"),    // Fix for FOR JSON/XML/BROWSE clauses
-                    Ref::keyword("OPTION"), // T-SQL OPTION clause
-                ]),
-                MetaSegment::dedent(),
-                Conditional::new(MetaSegment::indent()).indented_joins(),
-                AnyNumberOf::new(vec_of_erased![
-                    // Use JoinLikeClauseGrammar which includes both JoinClauseSegment and ApplyClauseSegment
-                    Ref::new("JoinLikeClauseGrammar")
-                ])
-                .config(|this| {
-                    this.optional();
-                    this.terminators = vec_of_erased![
-                        Sequence::new(vec_of_erased![Ref::keyword("ORDER"), Ref::keyword("BY")]),
-                        Sequence::new(vec_of_erased![Ref::keyword("GROUP"), Ref::keyword("BY")]),
-                        Ref::keyword("LIMIT"),
-                        Ref::keyword("WHERE"),
-                        Ref::keyword("PIVOT"),
-                        Ref::keyword("UNPIVOT"),
-                        Ref::keyword("FOR"),
-                        Ref::keyword("OPTION"),
-                        Ref::new("SetOperatorSegment"),
-                        Ref::new("WithNoSchemaBindingClauseSegment"),
-                        Ref::new("DelimiterGrammar")
-                    ];
-                }),
-                Conditional::new(MetaSegment::dedent()).indented_joins(),
-                Ref::new("PostTableExpressionGrammar").optional()
+                    Ref::keyword("PIVOT"),
+                    Ref::keyword("UNPIVOT"),
+                    Ref::keyword("FOR"),
+                    Ref::keyword("OPTION"),
+                    Ref::new("SetOperatorSegment"),
+                    Ref::new("WithNoSchemaBindingClauseSegment"),
+                    Ref::new("DelimiterGrammar")
+                ];
+            }),
+            Conditional::new(MetaSegment::dedent()).indented_joins(),
+            Ref::new("PostTableExpressionGrammar").optional()
         ])])
         .to_matchable(),
     );
@@ -5438,6 +5437,11 @@ pub fn raw_dialect() -> Dialect {
                     Ref::new("AssignmentOperatorSegment"),
                     Ref::new("ExpressionSegment")
                 ]),
+                // Standalone T-SQL variable: @var
+                Sequence::new(vec_of_erased![
+                    Ref::new("TsqlVariableSegment"),
+                    Ref::new("AliasExpressionSegment").optional(),
+                ]),
                 // Standard ANSI select clause elements
                 Ref::new("WildcardExpressionSegment"),
                 // CRITICAL: Try CaseExpressionSegment FIRST to handle T-SQL CASE expressions correctly
@@ -5462,44 +5466,61 @@ pub fn raw_dialect() -> Dialect {
     dialect.replace_grammar(
         "SelectClauseSegment",
         Sequence::new(vec_of_erased![
-                one_of(vec_of_erased![
-                    Ref::keyword("SELECT"),
-                    // Also accept SELECT as word token in T-SQL procedure bodies
-                    StringParser::new("SELECT", SyntaxKind::Keyword)
+            one_of(vec_of_erased![
+                Ref::keyword("SELECT"),
+                // Also accept SELECT as word token in T-SQL procedure bodies
+                StringParser::new("SELECT", SyntaxKind::Keyword)
+            ]),
+            Ref::new("SelectClauseModifierSegment").optional(),
+            MetaSegment::indent(),
+            // Custom T-SQL select clause parsing that can handle edge cases like "column@variable"
+            AnyNumberOf::new(vec_of_erased![one_of(vec_of_erased![
+                // Normal comma-separated elements
+                Sequence::new(vec_of_erased![
+                    Ref::new("SelectClauseElementSegment"),
+                    Ref::new("CommaSegment")
                 ]),
-                Ref::new("SelectClauseModifierSegment").optional(),
-                MetaSegment::indent(),
-                Delimited::new(vec_of_erased![Ref::new("SelectClauseElementSegment")])
-                    .config(|this| this.allow_trailing()),
-            ])
-            .terminators(vec_of_erased![
-                // Use all standard terminators except END
-                Ref::keyword("FROM"),
-                Ref::keyword("WHERE"),
-                Ref::keyword("INTO"),
-                Sequence::new(vec_of_erased![Ref::keyword("ORDER"), Ref::keyword("BY")]),
-                Ref::keyword("LIMIT"),
-                Ref::keyword("OVERLAPS"),
-                Ref::new("SetOperatorSegment"),
-                Ref::keyword("FETCH"),
-                Ref::keyword("FOR"),
-                Ref::new("BatchDelimiterGrammar"),
-                Ref::keyword("OPTION"),
-                // Statement keywords that should terminate SELECT clause
-                Ref::keyword("CREATE"),
-                Ref::keyword("DROP"),
-                Ref::keyword("ALTER"),
-                Ref::keyword("INSERT"),
-                Ref::keyword("UPDATE"),
-                Ref::keyword("DELETE"),
-                Ref::keyword("DECLARE"),
-                Ref::keyword("SET"),
-                Ref::keyword("BEGIN"),
-                // Exclude END here - it will be handled differently
-                Ref::keyword("IF"),
-                Ref::keyword("WHILE"),
-                Ref::keyword("EXEC"),
-                Ref::keyword("EXECUTE"),
+                // Final element without comma
+                Ref::new("SelectClauseElementSegment")
+            ])])
+            .config(|this| {
+                this.min_times(1);
+                // Allow natural boundaries at T-SQL variables
+                this.terminators = vec_of_erased![
+                    Ref::new("TsqlVariableSegment"),
+                    Ref::keyword("FROM"),
+                    Ref::keyword("WHERE")
+                ];
+            }),
+        ])
+        .terminators(vec_of_erased![
+            // Use all standard terminators except END
+            Ref::keyword("FROM"),
+            Ref::keyword("WHERE"),
+            Ref::keyword("INTO"),
+            Sequence::new(vec_of_erased![Ref::keyword("ORDER"), Ref::keyword("BY")]),
+            Ref::keyword("LIMIT"),
+            Ref::keyword("OVERLAPS"),
+            Ref::new("SetOperatorSegment"),
+            Ref::keyword("FETCH"),
+            Ref::keyword("FOR"),
+            Ref::new("BatchDelimiterGrammar"),
+            Ref::keyword("OPTION"),
+            // Statement keywords that should terminate SELECT clause
+            Ref::keyword("CREATE"),
+            Ref::keyword("DROP"),
+            Ref::keyword("ALTER"),
+            Ref::keyword("INSERT"),
+            Ref::keyword("UPDATE"),
+            Ref::keyword("DELETE"),
+            Ref::keyword("DECLARE"),
+            Ref::keyword("SET"),
+            Ref::keyword("BEGIN"),
+            // Exclude END here - it will be handled differently
+            Ref::keyword("IF"),
+            Ref::keyword("WHILE"),
+            Ref::keyword("EXEC"),
+            Ref::keyword("EXECUTE"),
         ])
         .config(|this| {
             this.parse_mode(ParseMode::GreedyOnceStarted);

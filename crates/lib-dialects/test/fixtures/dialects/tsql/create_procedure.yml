@@ -236,12 +236,10 @@ file:
                   - select_clause:
                     - keyword: SELECT
                     - select_clause_element:
-                      - parameterized_expression:
-                        - tsql_variable: '@bar'
+                      - tsql_variable: '@bar'
                     - comma: ','
                     - select_clause_element:
-                      - parameterized_expression:
-                        - tsql_variable: '@fooReadonly'
+                      - tsql_variable: '@fooReadonly'
               - statement_terminator: ;
               - keyword: END
             - statement_terminator: ;
@@ -353,12 +351,10 @@ file:
             - select_clause:
               - keyword: SELECT
               - select_clause_element:
-                - parameterized_expression:
-                  - tsql_variable: '@id'
+                - tsql_variable: '@id'
               - comma: ','
               - select_clause_element:
-                - parameterized_expression:
-                  - tsql_variable: '@bar'
+                - tsql_variable: '@bar'
         - statement_terminator: ;
         - keyword: END
   - statement_terminator: ;

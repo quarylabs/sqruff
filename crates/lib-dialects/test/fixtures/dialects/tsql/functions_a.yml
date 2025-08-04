@@ -172,8 +172,7 @@ file:
                   - select_clause:
                     - keyword: SELECT
                     - select_clause_element:
-                      - parameterized_expression:
-                        - tsql_variable: '@admit'
+                      - tsql_variable: '@admit'
                   - from_clause:
                     - keyword: FROM
                     - from_expression:

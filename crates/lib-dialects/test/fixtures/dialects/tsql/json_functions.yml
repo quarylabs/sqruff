@@ -290,8 +290,7 @@ file:
                           - select_clause:
                             - keyword: SELECT
                             - select_clause_element:
-                              - parameterized_expression:
-                                - tsql_variable: '@@SPID'
+                              - tsql_variable: '@@SPID'
                       - end_bracket: )
                   - end_bracket: )
   - statement_terminator: ;
@@ -514,8 +513,7 @@ file:
                           - select_clause:
                             - keyword: SELECT
                             - select_clause_element:
-                              - parameterized_expression:
-                                - tsql_variable: '@@SPID'
+                              - tsql_variable: '@@SPID'
                       - end_bracket: )
                   - end_bracket: )
   - statement_terminator: ;

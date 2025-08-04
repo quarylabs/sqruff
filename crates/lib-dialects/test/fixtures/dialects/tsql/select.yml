@@ -177,122 +177,228 @@ file:
             - naked_identifier: all_pop
             - dot: .
             - naked_identifier: b
-        - unparsable:
+        - select_clause_element:
           - tsql_variable: '@nanas'
-          - comma: ','
-          - double_quote: '[# POAs]'
-          - comma: ','
-          - single_quote: '''TSQLs escaping quotes test'''
-          - comma: ','
-          - single_quote: '''TSQL''''s escaping quotes test'''
-          - comma: ','
-          - single_quote: '''TSQL'''
-          - single_quote: '''s escaping quotes test'''
-          - comma: ','
-          - single_quote: '''TSQL'''
-          - word: AS
-          - single_quote: '''s escaping quotes test'''
-          - comma: ','
-          - single_quote: ''''''
-          - comma: ','
-          - single_quote: ''''''''''
-          - comma: ','
-          - word: all_pop
-          - dot: .
-          - word: Language
-          - comma: ','
-          - word: ANSI_DEFAULTS
-          - comma: ','
-          - word: ANSI_NULL_DFLT_OFF
-          - comma: ','
-          - word: ANSI_NULL_DFLT_ON
-          - comma: ','
-          - word: ANSI_NULLS
-          - comma: ','
-          - word: ANSI_PADDING
-          - comma: ','
-          - word: ANSI_WARNINGS
-          - comma: ','
-          - word: ARITHABORT
-          - comma: ','
-          - word: ARITHIGNORE
-          - comma: ','
-          - word: CONCAT_NULL_YIELDS_NULL
-          - comma: ','
-          - word: CURSOR_CLOSE_ON_COMMIT
-          - comma: ','
-          - word: DATEFIRST
-          - comma: ','
-          - word: DATEFORMAT
-          - comma: ','
-          - word: DEADLOCK_PRIORITY
-          - comma: ','
-          - word: DISK
-          - comma: ','
-          - word: DUMP
-          - comma: ','
-          - word: FIPS_FLAGGER
-          - comma: ','
-          - word: FMTONLY
-          - comma: ','
-          - word: FORCEPLAN
-          - comma: ','
-          - word: IMPLICIT_TRANSACTIONS
-          - comma: ','
-          - word: LOAD
-          - comma: ','
-          - word: LOCK_TIMEOUT
-          - comma: ','
-          - word: NOCOUNT
-          - comma: ','
-          - word: NOEXEC
-          - comma: ','
-          - word: NUMERIC_ROUNDABORT
-          - comma: ','
-          - word: PARSEONLY
-          - comma: ','
-          - word: PRECISION
-          - comma: ','
-          - word: PROPERTY
-          - comma: ','
-          - word: QUERY_GOVERNOR_COST_LIMIT
-          - comma: ','
-          - word: QUOTED_IDENTIFIER
-          - comma: ','
-          - word: REMOTE_PROC_TRANSACTIONS
-          - comma: ','
-          - word: SECURITYAUDIT
-          - comma: ','
-          - word: SHOWPLAN_ALL
-          - comma: ','
-          - word: SHOWPLAN_TEXT
-          - comma: ','
-          - word: SHOWPLAN_XML
-          - comma: ','
-          - word: XACT_ABORT
-          - comma: ','
-          - word: Rows
-          - comma: ','
-          - word: NaN
-          - comma: ','
-          - word: Rlike
-          - comma: ','
-          - word: Ilike
-          - comma: ','
-          - word: Separator
-          - comma: ','
-          - word: Auto_Increment
-          - comma: ','
-          - word: Unsigned
-          - comma: ','
-          - word: Describe
-          - comma: ','
-          - word: Comment
-          - comma: ','
-          - word: Ml
-          - comma: ','
-          - word: Modify
-          - comma: ','
+        - comma: ','
+        - select_clause_element:
+          - column_reference:
+            - quoted_identifier: '[# POAs]'
+        - comma: ','
+        - select_clause_element:
+          - quoted_literal: '''TSQLs escaping quotes test'''
+        - comma: ','
+        - select_clause_element:
+          - quoted_literal: '''TSQL''''s escaping quotes test'''
+        - comma: ','
+        - select_clause_element:
+          - quoted_literal: '''TSQL'''
+          - alias_expression:
+            - quoted_identifier: '''s escaping quotes test'''
+        - comma: ','
+        - select_clause_element:
+          - quoted_literal: '''TSQL'''
+          - alias_expression:
+            - keyword: AS
+            - quoted_identifier: '''s escaping quotes test'''
+        - comma: ','
+        - select_clause_element:
+          - quoted_literal: ''''''
+        - comma: ','
+        - select_clause_element:
+          - quoted_literal: ''''''''''
+        - comma: ','
+        - select_clause_element:
+          - column_reference:
+            - naked_identifier: all_pop
+            - dot: .
+            - naked_identifier: Language
+        - comma: ','
+        - select_clause_element:
+          - column_reference:
+            - naked_identifier: ANSI_DEFAULTS
+        - comma: ','
+        - select_clause_element:
+          - column_reference:
+            - naked_identifier: ANSI_NULL_DFLT_OFF
+        - comma: ','
+        - select_clause_element:
+          - column_reference:
+            - naked_identifier: ANSI_NULL_DFLT_ON
+        - comma: ','
+        - select_clause_element:
+          - column_reference:
+            - naked_identifier: ANSI_NULLS
+        - comma: ','
+        - select_clause_element:
+          - column_reference:
+            - naked_identifier: ANSI_PADDING
+        - comma: ','
+        - select_clause_element:
+          - column_reference:
+            - naked_identifier: ANSI_WARNINGS
+        - comma: ','
+        - select_clause_element:
+          - column_reference:
+            - naked_identifier: ARITHABORT
+        - comma: ','
+        - select_clause_element:
+          - column_reference:
+            - naked_identifier: ARITHIGNORE
+        - comma: ','
+        - select_clause_element:
+          - column_reference:
+            - naked_identifier: CONCAT_NULL_YIELDS_NULL
+        - comma: ','
+        - select_clause_element:
+          - column_reference:
+            - naked_identifier: CURSOR_CLOSE_ON_COMMIT
+        - comma: ','
+        - select_clause_element:
+          - column_reference:
+            - naked_identifier: DATEFIRST
+        - comma: ','
+        - select_clause_element:
+          - column_reference:
+            - naked_identifier: DATEFORMAT
+        - comma: ','
+        - select_clause_element:
+          - column_reference:
+            - naked_identifier: DEADLOCK_PRIORITY
+        - comma: ','
+        - select_clause_element:
+          - column_reference:
+            - naked_identifier: DISK
+        - comma: ','
+        - select_clause_element:
+          - column_reference:
+            - naked_identifier: DUMP
+        - comma: ','
+        - select_clause_element:
+          - column_reference:
+            - naked_identifier: FIPS_FLAGGER
+        - comma: ','
+        - select_clause_element:
+          - column_reference:
+            - naked_identifier: FMTONLY
+        - comma: ','
+        - select_clause_element:
+          - column_reference:
+            - naked_identifier: FORCEPLAN
+        - comma: ','
+        - select_clause_element:
+          - column_reference:
+            - naked_identifier: IMPLICIT_TRANSACTIONS
+        - comma: ','
+        - select_clause_element:
+          - column_reference:
+            - naked_identifier: LOAD
+        - comma: ','
+        - select_clause_element:
+          - column_reference:
+            - naked_identifier: LOCK_TIMEOUT
+        - comma: ','
+        - select_clause_element:
+          - column_reference:
+            - naked_identifier: NOCOUNT
+        - comma: ','
+        - select_clause_element:
+          - column_reference:
+            - naked_identifier: NOEXEC
+        - comma: ','
+        - select_clause_element:
+          - column_reference:
+            - naked_identifier: NUMERIC_ROUNDABORT
+        - comma: ','
+        - select_clause_element:
+          - column_reference:
+            - naked_identifier: PARSEONLY
+        - comma: ','
+        - select_clause_element:
+          - column_reference:
+            - naked_identifier: PRECISION
+        - comma: ','
+        - select_clause_element:
+          - column_reference:
+            - naked_identifier: PROPERTY
+        - comma: ','
+        - select_clause_element:
+          - column_reference:
+            - naked_identifier: QUERY_GOVERNOR_COST_LIMIT
+        - comma: ','
+        - select_clause_element:
+          - column_reference:
+            - naked_identifier: QUOTED_IDENTIFIER
+        - comma: ','
+        - select_clause_element:
+          - column_reference:
+            - naked_identifier: REMOTE_PROC_TRANSACTIONS
+        - comma: ','
+        - select_clause_element:
+          - expression:
+            - data_type:
+              - data_type:
+                - data_type_identifier: SECURITYAUDIT
+        - comma: ','
+        - select_clause_element:
+          - column_reference:
+            - naked_identifier: SHOWPLAN_ALL
+        - comma: ','
+        - select_clause_element:
+          - column_reference:
+            - naked_identifier: SHOWPLAN_TEXT
+        - comma: ','
+        - select_clause_element:
+          - column_reference:
+            - naked_identifier: SHOWPLAN_XML
+        - comma: ','
+        - select_clause_element:
+          - column_reference:
+            - naked_identifier: XACT_ABORT
+        - comma: ','
+        - select_clause_element:
+          - column_reference:
+            - naked_identifier: Rows
+        - comma: ','
+        - select_clause_element:
+          - column_reference:
+            - naked_identifier: NaN
+        - comma: ','
+        - select_clause_element:
+          - column_reference:
+            - naked_identifier: Rlike
+        - comma: ','
+        - select_clause_element:
+          - column_reference:
+            - naked_identifier: Ilike
+        - comma: ','
+        - select_clause_element:
+          - column_reference:
+            - naked_identifier: Separator
+        - comma: ','
+        - select_clause_element:
+          - column_reference:
+            - naked_identifier: Auto_Increment
+        - comma: ','
+        - select_clause_element:
+          - column_reference:
+            - naked_identifier: Unsigned
+        - comma: ','
+        - select_clause_element:
+          - column_reference:
+            - naked_identifier: Describe
+        - comma: ','
+        - select_clause_element:
+          - column_reference:
+            - naked_identifier: Comment
+        - comma: ','
+        - select_clause_element:
+          - column_reference:
+            - naked_identifier: Ml
+        - comma: ','
+        - select_clause_element:
+          - column_reference:
+            - naked_identifier: Modify
+        - comma: ','
   - statement:
     - naked_identifier: Minus
     - comma: ','

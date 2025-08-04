@@ -61,8 +61,7 @@ file:
       - select_clause:
         - keyword: SELECT
         - select_clause_element:
-          - parameterized_expression:
-            - tsql_variable: '@@IDENTITY'
+          - tsql_variable: '@@IDENTITY'
           - alias_expression:
             - keyword: AS
             - quoted_identifier: '''Identity'''
@@ -79,8 +78,7 @@ file:
       - select_clause:
         - keyword: SELECT
         - select_clause_element:
-          - parameterized_expression:
-            - tsql_variable: '@@PACK_RECEIVED'
+          - tsql_variable: '@@PACK_RECEIVED'
           - alias_expression:
             - keyword: AS
             - quoted_identifier: '''Packets Received'''

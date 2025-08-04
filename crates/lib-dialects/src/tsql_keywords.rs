@@ -857,7 +857,7 @@ pub(crate) fn tsql_additional_unreserved_keywords() -> AHashSet<&'static str> {
         "HIDDEN",
         "ENCRYPTED",
         "COLUMN_ENCRYPTION_KEY",
-        "ENCRYPTION_TYPE", 
+        "ENCRYPTION_TYPE",
         "ALGORITHM",
         "RANDOMIZED",
         "DETERMINISTIC",

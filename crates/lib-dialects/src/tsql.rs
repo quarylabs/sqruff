@@ -22,7 +22,6 @@ use sqruff_lib_core::vec_of_erased;
 
 use crate::{ansi, tsql_keywords};
 
-
 pub fn dialect() -> Dialect {
     raw_dialect()
 }
@@ -80,7 +79,7 @@ pub fn raw_dialect() -> Dialect {
         "SNAPSHOT",
         "VIEW_METADATA",
         "ROWS", // Allow 'AS rows' alias
-        "R", // Allow 'AS r' alias
+        "R",    // Allow 'AS r' alias
         "SINGLE_BLOB",
         "SINGLE_CLOB",
         "SINGLE_NCLOB",
@@ -158,13 +157,11 @@ pub fn raw_dialect() -> Dialect {
         "HASH",
     ]);
 
-
     // T-SQL specific operators
     dialect.sets_mut("operator_symbols").extend([
         "%=", "&=", "*=", "+=", "-=", "/=", "^=", "|=", // Compound assignment
         "!<", "!>", // Special comparison operators (non-spaced versions)
     ]);
-
 
     // T-SQL supports square brackets for identifiers and @ for variables
     // Insert square bracket identifier before individual bracket matchers to ensure it's matched first
@@ -202,11 +199,7 @@ pub fn raw_dialect() -> Dialect {
                 SyntaxKind::UnicodeSingleQuote,
             ),
             // Hexadecimal literals: 0x123ABC
-            Matcher::regex(
-                "hex_literal",
-                r"0x[0-9a-fA-F]+",
-                SyntaxKind::NumericLiteral,
-            ),
+            Matcher::regex("hex_literal", r"0x[0-9a-fA-F]+", SyntaxKind::NumericLiteral),
             // Azure Blob Storage URLs for COPY INTO
             Matcher::regex(
                 "azure_blob_storage_url",
@@ -220,11 +213,31 @@ pub fn raw_dialect() -> Dialect {
                 SyntaxKind::QuotedLiteral,
             ),
             // Compound assignment operators - must come before individual operators
-            Matcher::string("addition_assignment", "+=", SyntaxKind::AdditionAssignmentSegment),
-            Matcher::string("subtraction_assignment", "-=", SyntaxKind::SubtractionAssignmentSegment),
-            Matcher::string("multiplication_assignment", "*=", SyntaxKind::MultiplicationAssignmentSegment),
-            Matcher::string("division_assignment", "/=", SyntaxKind::DivisionAssignmentSegment),
-            Matcher::string("modulus_assignment", "%=", SyntaxKind::ModulusAssignmentSegment),
+            Matcher::string(
+                "addition_assignment",
+                "+=",
+                SyntaxKind::AdditionAssignmentSegment,
+            ),
+            Matcher::string(
+                "subtraction_assignment",
+                "-=",
+                SyntaxKind::SubtractionAssignmentSegment,
+            ),
+            Matcher::string(
+                "multiplication_assignment",
+                "*=",
+                SyntaxKind::MultiplicationAssignmentSegment,
+            ),
+            Matcher::string(
+                "division_assignment",
+                "/=",
+                SyntaxKind::DivisionAssignmentSegment,
+            ),
+            Matcher::string(
+                "modulus_assignment",
+                "%=",
+                SyntaxKind::ModulusAssignmentSegment,
+            ),
         ],
         "equals",
     );
@@ -240,18 +253,18 @@ pub fn raw_dialect() -> Dialect {
             SyntaxKind::Word,
         ),
     ]);
-    
+
     // NOTE: Keyword matching is handled differently in Sqruff's architecture.
     // Keywords are NOT matched during lexing - they are identified during parsing.
     // The lexer produces word tokens, and the parser uses StringParser to match
     // keywords based on their text content.
-    // 
+    //
     // NOTE: T-SQL has known limitations where keywords are lexed as word tokens
     // in certain contexts (e.g., inside procedure bodies after AS, after THROW
     // statements). This affects ~1.26% of T-SQL code. See docs/tsql_limitations.md
     // for details and workarounds.
-    // 
-    // Adding keyword matchers to the lexer would require significant architectural 
+    //
+    // Adding keyword matchers to the lexer would require significant architectural
     // changes and static keyword definitions, which conflicts with the dynamic
     // keyword sets loaded from tsql_keywords module.
 
@@ -349,8 +362,8 @@ pub fn raw_dialect() -> Dialect {
         "SPACE",
         "STR",
         "UNICODE",
-        "CONVERT",  // T-SQL conversion function
-        "DATEADD",  // T-SQL date functions
+        "CONVERT", // T-SQL conversion function
+        "DATEADD", // T-SQL date functions
         "DATEDIFF",
         "DATENAME",
         "DATEPART",
@@ -362,7 +375,7 @@ pub fn raw_dialect() -> Dialect {
         // T-SQL window functions
         "ROW_NUMBER",
         "RANK",
-        "DENSE_RANK", 
+        "DENSE_RANK",
         "NTILE",
         "LAG",
         "LEAD",
@@ -395,56 +408,59 @@ pub fn raw_dialect() -> Dialect {
                             Ref::new("DotSegment"),
                             Ref::new("DotSegment"),
                             Ref::new("DotSegment")
-                        ]),  // ...table
+                        ]), // ...table
                         Sequence::new(vec_of_erased![
                             Ref::new("DotSegment"),
                             Ref::new("DotSegment")
-                        ]),  // ..table
-                        Ref::new("DotSegment")  // .table
+                        ]), // ..table
+                        Ref::new("DotSegment") // .table
                     ]),
                     // Then the identifier parts
-                    Delimited::new(vec_of_erased![Ref::new("SingleIdentifierGrammar")])
-                        .config(|this| {
+                    Delimited::new(vec_of_erased![Ref::new("SingleIdentifierGrammar")]).config(
+                        |this| {
                             this.delimiter(Ref::new("DotSegment"));
                             this.disallow_gaps();
-                            this.terminators = vec_of_erased![Ref::new("ObjectReferenceTerminatorGrammar")];
-                        })
+                            this.terminators =
+                                vec_of_erased![Ref::new("ObjectReferenceTerminatorGrammar")];
+                        }
+                    )
                 ]),
                 // Standard object reference (no leading dots)
-                Delimited::new(vec_of_erased![Ref::new("SingleIdentifierGrammar")])
-                    .config(|this| {
+                Delimited::new(vec_of_erased![Ref::new("SingleIdentifierGrammar")]).config(
+                    |this| {
                         this.delimiter(Ref::new("DotSegment"));
                         this.disallow_gaps();
-                        this.terminators = vec_of_erased![Ref::new("ObjectReferenceTerminatorGrammar")];
-                    }),
+                        this.terminators =
+                            vec_of_erased![Ref::new("ObjectReferenceTerminatorGrammar")];
+                    }
+                ),
                 // T-SQL double-dot syntax: server..table, database..table (default schema)
                 Sequence::new(vec_of_erased![
                     Ref::new("SingleIdentifierGrammar"), // server/database name
                     Ref::new("DotSegment"),
-                    Ref::new("DotSegment"), 
+                    Ref::new("DotSegment"),
                     // Then the remaining identifier parts
-                    Delimited::new(vec_of_erased![Ref::new("SingleIdentifierGrammar")])
-                        .config(|this| {
+                    Delimited::new(vec_of_erased![Ref::new("SingleIdentifierGrammar")]).config(
+                        |this| {
                             this.delimiter(Ref::new("DotSegment"));
                             this.disallow_gaps();
-                            this.terminators = vec_of_erased![Ref::new("ObjectReferenceTerminatorGrammar")];
-                        })
+                            this.terminators =
+                                vec_of_erased![Ref::new("ObjectReferenceTerminatorGrammar")];
+                        }
+                    )
                 ])
             ])
             .to_matchable()
         })
-        .to_matchable()
-        .into(),
+        .to_matchable(),
     );
 
     // NOTE: T-SQL CASE expressions are now supported in SELECT clauses via TsqlCaseExpressionSegment
     // The previous parsing issue was resolved by creating T-SQL specific CASE expressions that use
-    // StringParser instead of Ref::keyword to handle T-SQL's lexing behavior where CASE, WHEN, 
+    // StringParser instead of Ref::keyword to handle T-SQL's lexing behavior where CASE, WHEN,
     // THEN, ELSE are lexed as Word tokens in SELECT contexts but Keyword tokens in WHERE contexts.
-        
 
-
-    // T-SQL specific CASE expression - handle T-SQL's unique lexing behavior where CASE/WHEN/THEN/ELSE/END 
+    // T-SQL specific CASE expression - handle T-SQL's unique lexing behavior where CASE/WHEN/THEN/ELSE/END
     // are lexed as 'word' in SELECT contexts but 'keyword' in WHERE contexts
     dialect.add([(
         "CaseExpressionSegment".into(),
@@ -453,14 +469,12 @@ pub fn raw_dialect() -> Dialect {
                 // Searched CASE: CASE WHEN condition THEN result [WHEN condition THEN result]... [ELSE result] END
                 Sequence::new(vec_of_erased![
                     Ref::keyword("CASE"),
-                    AnyNumberOf::new(vec_of_erased![
-                        Sequence::new(vec_of_erased![
-                            Ref::keyword("WHEN"),
-                            Ref::new("ExpressionSegment"),
-                            Ref::keyword("THEN"),
-                            Ref::new("ExpressionSegment")
-                        ])
-                    ]),
+                    AnyNumberOf::new(vec_of_erased![Sequence::new(vec_of_erased![
+                        Ref::keyword("WHEN"),
+                        Ref::new("ExpressionSegment"),
+                        Ref::keyword("THEN"),
+                        Ref::new("ExpressionSegment")
+                    ])]),
                     Ref::new("ElseClauseSegment").optional(),
                     Ref::keyword("END")
                 ]),
@@ -468,14 +482,12 @@ pub fn raw_dialect() -> Dialect {
                 Sequence::new(vec_of_erased![
                     Ref::keyword("CASE"),
                     Ref::new("ExpressionSegment"),
-                    AnyNumberOf::new(vec_of_erased![
-                        Sequence::new(vec_of_erased![
-                            Ref::keyword("WHEN"),
-                            Ref::new("ExpressionSegment"),
-                            Ref::keyword("THEN"),
-                            Ref::new("ExpressionSegment")
-                        ])
-                    ]),
+                    AnyNumberOf::new(vec_of_erased![Sequence::new(vec_of_erased![
+                        Ref::keyword("WHEN"),
+                        Ref::new("ExpressionSegment"),
+                        Ref::keyword("THEN"),
+                        Ref::new("ExpressionSegment")
+                    ])]),
                     Ref::new("ElseClauseSegment").optional(),
                     Ref::keyword("END")
                 ])
@@ -498,7 +510,7 @@ pub fn raw_dialect() -> Dialect {
                     .exclude(Ref::keyword("THEN"))
                     .exclude(Ref::keyword("ELSE"))
                     .exclude(Ref::keyword("END"))
-                    .to_matchable()
+                    .to_matchable(),
             ])
             .config(|this| this.delimiter(Ref::new("ObjectReferenceDelimiterGrammar")))
             .to_matchable()
@@ -509,7 +521,7 @@ pub fn raw_dialect() -> Dialect {
 
     // Override Expression_C_Grammar to handle EXISTS functions and prioritize CaseExpressionSegment
     dialect.add([(
-        "Expression_C_Grammar".into(), 
+        "Expression_C_Grammar".into(),
         one_of(vec_of_erased![
             // PRIORITY: Try word-aware EXISTS function first for T-SQL word tokens
             Ref::new("WordAwareExistsFunctionSegment"),
@@ -530,7 +542,7 @@ pub fn raw_dialect() -> Dialect {
     // The issue is that ANSI Expression_C_Grammar, Expression_D_Grammar, and BaseExpressionElementGrammar
     // are all inherited by T-SQL but not redefined in T-SQL's own library.
     // replace_grammar() can only work on grammars that exist in the current dialect's library.
-    
+
     // NEXT APPROACH: Test if the CaseExpressionSegment override actually works in isolation
     // by creating a simple test case without the complex grammar hierarchy.
 
@@ -640,39 +652,37 @@ pub fn raw_dialect() -> Dialect {
                             Ref::new("UnicodeLiteralSegment")
                         ]),
                         // Optional parameters after file path
-                        AnyNumberOf::new(vec_of_erased![
-                            Sequence::new(vec_of_erased![
-                                Ref::new("CommaSegment"),
-                                one_of(vec_of_erased![
-                                    // Simple keywords like SINGLE_BLOB, SINGLE_CLOB, etc.
-                                    Ref::keyword("SINGLE_BLOB"),
-                                    Ref::keyword("SINGLE_CLOB"), 
-                                    Ref::keyword("SINGLE_NCLOB"),
-                                    // Named parameters: PARAM = value
-                                    Sequence::new(vec_of_erased![
-                                        one_of(vec_of_erased![
-                                            Ref::keyword("FORMATFILE"),
-                                            Ref::keyword("FIRSTROW"),
-                                            Ref::keyword("LASTROW"),
-                                            Ref::keyword("MAXERRORS"),
-                                            Ref::keyword("FORMAT"),
-                                            Ref::keyword("CODEPAGE"),
-                                            Ref::keyword("ERRORFILE"),
-                                            Ref::keyword("FIELDTERMINATOR"),
-                                            Ref::keyword("ROWTERMINATOR"),
-                                            Ref::keyword("FIELDQUOTE"),
-                                            Ref::keyword("DATA_SOURCE")
-                                        ]),
-                                        Ref::new("EqualsSegment"),
-                                        one_of(vec_of_erased![
-                                            Ref::new("QuotedLiteralSegment"),
-                                            Ref::new("UnicodeLiteralSegment"),
-                                            Ref::new("NumericLiteralSegment")
-                                        ])
+                        AnyNumberOf::new(vec_of_erased![Sequence::new(vec_of_erased![
+                            Ref::new("CommaSegment"),
+                            one_of(vec_of_erased![
+                                // Simple keywords like SINGLE_BLOB, SINGLE_CLOB, etc.
+                                Ref::keyword("SINGLE_BLOB"),
+                                Ref::keyword("SINGLE_CLOB"),
+                                Ref::keyword("SINGLE_NCLOB"),
+                                // Named parameters: PARAM = value
+                                Sequence::new(vec_of_erased![
+                                    one_of(vec_of_erased![
+                                        Ref::keyword("FORMATFILE"),
+                                        Ref::keyword("FIRSTROW"),
+                                        Ref::keyword("LASTROW"),
+                                        Ref::keyword("MAXERRORS"),
+                                        Ref::keyword("FORMAT"),
+                                        Ref::keyword("CODEPAGE"),
+                                        Ref::keyword("ERRORFILE"),
+                                        Ref::keyword("FIELDTERMINATOR"),
+                                        Ref::keyword("ROWTERMINATOR"),
+                                        Ref::keyword("FIELDQUOTE"),
+                                        Ref::keyword("DATA_SOURCE")
+                                    ]),
+                                    Ref::new("EqualsSegment"),
+                                    one_of(vec_of_erased![
+                                        Ref::new("QuotedLiteralSegment"),
+                                        Ref::new("UnicodeLiteralSegment"),
+                                        Ref::new("NumericLiteralSegment")
                                     ])
                                 ])
                             ])
-                        ])
+                        ])])
                     ]),
                     // Provider syntax: OPENROWSET('provider', ...)
                     // Can use either commas or semicolons as separators
@@ -695,7 +705,7 @@ pub fn raw_dialect() -> Dialect {
                                 Ref::new("QuotedLiteralSegment"), // Data source
                                 Ref::new("SemicolonSegment"),
                                 Ref::new("QuotedLiteralSegment"), // User ID
-                                Ref::new("SemicolonSegment"), 
+                                Ref::new("SemicolonSegment"),
                                 Ref::new("QuotedLiteralSegment"), // Password
                                 Ref::new("CommaSegment"),
                                 Ref::new("ObjectReferenceSegment") // Table name
@@ -703,8 +713,7 @@ pub fn raw_dialect() -> Dialect {
                         ])
                     ])
                 ])])
-                .config(|this| this.parse_mode(ParseMode::Greedy))
-                // WITH clause removed - now handled by FromExpressionElementSegment
+                .config(|this| this.parse_mode(ParseMode::Greedy)) // WITH clause removed - now handled by FromExpressionElementSegment
             ])
             .to_matchable()
         })
@@ -715,7 +724,7 @@ pub fn raw_dialect() -> Dialect {
     // Add T-SQL specific grammar
 
     // TOP clause support (e.g., SELECT TOP 10, TOP (10) PERCENT, TOP 5 WITH TIES)
-    
+
     // Define TopClauseSegment for reuse in SELECT, DELETE, UPDATE, INSERT
     dialect.add([(
         "TopClauseSegment".into(),
@@ -725,15 +734,13 @@ pub fn raw_dialect() -> Dialect {
             optionally_bracketed(vec_of_erased![Ref::new("ExpressionSegment")]),
             Ref::keyword("PERCENT").optional(),
             // WITH TIES is only valid in SELECT, not in DELETE/UPDATE/INSERT
-            Sequence::new(vec_of_erased![
-                Ref::keyword("WITH"),
-                Ref::keyword("TIES")
-            ]).config(|this| this.optional())
+            Sequence::new(vec_of_erased![Ref::keyword("WITH"), Ref::keyword("TIES")])
+                .config(|this| this.optional())
         ])
         .to_matchable()
         .into(),
     )]);
-    
+
     // T-SQL allows DISTINCT/ALL followed by TOP
     dialect.replace_grammar(
         "SelectClauseModifierSegment",
@@ -754,7 +761,7 @@ pub fn raw_dialect() -> Dialect {
         one_of(vec_of_erased![
             Ref::keyword("FROM"),
             Ref::keyword("WHERE"),
-            Ref::keyword("INTO"),  // T-SQL supports SELECT INTO
+            Ref::keyword("INTO"), // T-SQL supports SELECT INTO
             Sequence::new(vec_of_erased![Ref::keyword("ORDER"), Ref::keyword("BY")]),
             Ref::keyword("LIMIT"),
             Ref::keyword("OVERLAPS"),
@@ -811,37 +818,52 @@ pub fn raw_dialect() -> Dialect {
         // Addition assignment (+=) - uses lexer token
         (
             "AdditionAssignmentSegment".into(),
-            TypedParser::new(SyntaxKind::AdditionAssignmentSegment, SyntaxKind::AdditionAssignmentSegment)
-                .to_matchable()
-                .into(),
+            TypedParser::new(
+                SyntaxKind::AdditionAssignmentSegment,
+                SyntaxKind::AdditionAssignmentSegment,
+            )
+            .to_matchable()
+            .into(),
         ),
         // Subtraction assignment (-=) - uses lexer token
         (
             "SubtractionAssignmentSegment".into(),
-            TypedParser::new(SyntaxKind::SubtractionAssignmentSegment, SyntaxKind::SubtractionAssignmentSegment)
-                .to_matchable()
-                .into(),
+            TypedParser::new(
+                SyntaxKind::SubtractionAssignmentSegment,
+                SyntaxKind::SubtractionAssignmentSegment,
+            )
+            .to_matchable()
+            .into(),
         ),
         // Multiplication assignment (*=) - uses lexer token
         (
             "MultiplicationAssignmentSegment".into(),
-            TypedParser::new(SyntaxKind::MultiplicationAssignmentSegment, SyntaxKind::MultiplicationAssignmentSegment)
-                .to_matchable()
-                .into(),
+            TypedParser::new(
+                SyntaxKind::MultiplicationAssignmentSegment,
+                SyntaxKind::MultiplicationAssignmentSegment,
+            )
+            .to_matchable()
+            .into(),
         ),
         // Division assignment (/=) - uses lexer token
         (
             "DivisionAssignmentSegment".into(),
-            TypedParser::new(SyntaxKind::DivisionAssignmentSegment, SyntaxKind::DivisionAssignmentSegment)
-                .to_matchable()
-                .into(),
+            TypedParser::new(
+                SyntaxKind::DivisionAssignmentSegment,
+                SyntaxKind::DivisionAssignmentSegment,
+            )
+            .to_matchable()
+            .into(),
         ),
         // Modulus assignment (%=) - uses lexer token
         (
             "ModulusAssignmentSegment".into(),
-            TypedParser::new(SyntaxKind::ModulusAssignmentSegment, SyntaxKind::ModulusAssignmentSegment)
-                .to_matchable()
-                .into(),
+            TypedParser::new(
+                SyntaxKind::ModulusAssignmentSegment,
+                SyntaxKind::ModulusAssignmentSegment,
+            )
+            .to_matchable()
+            .into(),
         ),
         // Bitwise XOR assignment (^=)
         (
@@ -925,89 +947,82 @@ pub fn raw_dialect() -> Dialect {
                     Sequence::new(vec_of_erased![
                         Ref::new("TsqlDatatypeSegment"), // Column type
                         // Flexible column modifiers in any order
-                        AnyNumberOf::new(vec_of_erased![
-                            one_of(vec_of_erased![
-                                // IDENTITY specification
-                                Sequence::new(vec_of_erased![
-                                    Ref::keyword("IDENTITY"),
-                                    Bracketed::new(vec_of_erased![
-                                        Ref::new("NumericLiteralSegment"), // seed
-                                        Ref::new("CommaSegment"),
-                                        Ref::new("NumericLiteralSegment")  // increment
-                                    ]).config(|this| this.optional()) // IDENTITY can be without parameters
-                                ]),
-                                // DEFAULT constraint
-                                Sequence::new(vec_of_erased![
-                                    Ref::keyword("DEFAULT"),
+                        AnyNumberOf::new(vec_of_erased![one_of(vec_of_erased![
+                            // IDENTITY specification
+                            Sequence::new(vec_of_erased![
+                                Ref::keyword("IDENTITY"),
+                                Bracketed::new(vec_of_erased![
+                                    Ref::new("NumericLiteralSegment"), // seed
+                                    Ref::new("CommaSegment"),
+                                    Ref::new("NumericLiteralSegment") // increment
+                                ])
+                                .config(|this| this.optional()) // IDENTITY can be without parameters
+                            ]),
+                            // DEFAULT constraint
+                            Sequence::new(vec_of_erased![
+                                Ref::keyword("DEFAULT"),
+                                one_of(vec_of_erased![
+                                    // Parenthesized expressions: DEFAULT (expression)
+                                    Bracketed::new(vec_of_erased![Ref::new("ExpressionSegment")]),
+                                    // Direct expression: DEFAULT expression
+                                    Ref::new("ExpressionSegment")
+                                ])
+                            ]),
+                            // FILESTREAM
+                            Ref::keyword("FILESTREAM"),
+                            // MASKED WITH (FUNCTION = '...')
+                            Sequence::new(vec_of_erased![
+                                Ref::keyword("MASKED"),
+                                Ref::keyword("WITH"),
+                                Bracketed::new(vec_of_erased![
+                                    Ref::keyword("FUNCTION"),
+                                    Ref::new("EqualsSegment"),
+                                    Ref::new("QuotedLiteralSegment")
+                                ])
+                            ]),
+                            // ENCRYPTED WITH (...)
+                            Sequence::new(vec_of_erased![
+                                Ref::keyword("ENCRYPTED"),
+                                Ref::keyword("WITH"),
+                                Bracketed::new(vec_of_erased![Delimited::new(vec_of_erased![
                                     one_of(vec_of_erased![
-                                        // Parenthesized expressions: DEFAULT (expression)
-                                        Bracketed::new(vec_of_erased![
-                                            Ref::new("ExpressionSegment")
+                                        // COLUMN_ENCRYPTION_KEY = key_name
+                                        Sequence::new(vec_of_erased![
+                                            Ref::keyword("COLUMN_ENCRYPTION_KEY"),
+                                            Ref::new("EqualsSegment"),
+                                            Ref::new("SingleIdentifierGrammar")
                                         ]),
-                                        // Direct expression: DEFAULT expression  
-                                        Ref::new("ExpressionSegment")
-                                    ])
-                                ]),
-                                // FILESTREAM
-                                Ref::keyword("FILESTREAM"),
-                                // MASKED WITH (FUNCTION = '...')
-                                Sequence::new(vec_of_erased![
-                                    Ref::keyword("MASKED"),
-                                    Ref::keyword("WITH"),
-                                    Bracketed::new(vec_of_erased![
-                                        Ref::keyword("FUNCTION"),
-                                        Ref::new("EqualsSegment"),
-                                        Ref::new("QuotedLiteralSegment")
-                                    ])
-                                ]),
-                                // ENCRYPTED WITH (...)
-                                Sequence::new(vec_of_erased![
-                                    Ref::keyword("ENCRYPTED"),
-                                    Ref::keyword("WITH"),
-                                    Bracketed::new(vec_of_erased![
-                                        Delimited::new(vec_of_erased![
-                                            one_of(vec_of_erased![
-                                                // COLUMN_ENCRYPTION_KEY = key_name
-                                                Sequence::new(vec_of_erased![
-                                                    Ref::keyword("COLUMN_ENCRYPTION_KEY"),
-                                                    Ref::new("EqualsSegment"),
-                                                    Ref::new("SingleIdentifierGrammar")
-                                                ]),
-                                                // ENCRYPTION_TYPE = RANDOMIZED
-                                                Sequence::new(vec_of_erased![
-                                                    Ref::keyword("ENCRYPTION_TYPE"),
-                                                    Ref::new("EqualsSegment"),
-                                                    Ref::keyword("RANDOMIZED")
-                                                ]),
-                                                // ALGORITHM = 'algorithm_name'
-                                                Sequence::new(vec_of_erased![
-                                                    Ref::keyword("ALGORITHM"),
-                                                    Ref::new("EqualsSegment"),
-                                                    Ref::new("QuotedLiteralSegment")
-                                                ])
-                                            ])
+                                        // ENCRYPTION_TYPE = RANDOMIZED
+                                        Sequence::new(vec_of_erased![
+                                            Ref::keyword("ENCRYPTION_TYPE"),
+                                            Ref::new("EqualsSegment"),
+                                            Ref::keyword("RANDOMIZED")
+                                        ]),
+                                        // ALGORITHM = 'algorithm_name'
+                                        Sequence::new(vec_of_erased![
+                                            Ref::keyword("ALGORITHM"),
+                                            Ref::new("EqualsSegment"),
+                                            Ref::new("QuotedLiteralSegment")
                                         ])
                                     ])
-                                ]),
-                                // GENERATED ALWAYS AS ROW START/END HIDDEN for temporal tables
-                                Sequence::new(vec_of_erased![
-                                    Ref::keyword("GENERATED"),
-                                    Ref::keyword("ALWAYS"),
-                                    Ref::keyword("AS"),
-                                    Ref::keyword("ROW"),
-                                    one_of(vec_of_erased![
-                                        Ref::keyword("START"),
-                                        Ref::keyword("END")
-                                    ]),
-                                    Ref::keyword("HIDDEN").optional()
-                                ]),
-                                // COLLATE clause
-                                Sequence::new(vec_of_erased![
-                                    Ref::keyword("COLLATE"),
-                                    Ref::new("SingleIdentifierGrammar")
-                                ])
+                                ])])
+                            ]),
+                            // GENERATED ALWAYS AS ROW START/END HIDDEN for temporal tables
+                            Sequence::new(vec_of_erased![
+                                Ref::keyword("GENERATED"),
+                                Ref::keyword("ALWAYS"),
+                                Ref::keyword("AS"),
+                                Ref::keyword("ROW"),
+                                one_of(vec_of_erased![Ref::keyword("START"), Ref::keyword("END")]),
+                                Ref::keyword("HIDDEN").optional()
+                            ]),
+                            // COLLATE clause
+                            Sequence::new(vec_of_erased![
+                                Ref::keyword("COLLATE"),
+                                Ref::new("SingleIdentifierGrammar")
                             ])
-                        ]).config(|this| this.optional()),
+                        ])])
+                        .config(|this| this.optional()),
                         // Column constraints
                         AnyNumberOf::new(vec_of_erased![Ref::new("ColumnConstraintSegment")])
                             .config(|this| this.optional())
@@ -1037,7 +1052,8 @@ pub fn raw_dialect() -> Dialect {
                 Sequence::new(vec_of_erased![
                     Ref::keyword("CONSTRAINT"),
                     Ref::new("ObjectReferenceSegment")
-                ]).config(|this| this.optional()),
+                ])
+                .config(|this| this.optional()),
                 one_of(vec_of_erased![
                     // PRIMARY KEY constraint
                     Sequence::new(vec_of_erased![
@@ -1046,18 +1062,15 @@ pub fn raw_dialect() -> Dialect {
                         one_of(vec_of_erased![
                             Ref::keyword("CLUSTERED"),
                             Ref::keyword("NONCLUSTERED")
-                        ]).config(|this| this.optional()),
-                        Bracketed::new(vec_of_erased![
-                            Delimited::new(vec_of_erased![
-                                Sequence::new(vec_of_erased![
-                                    Ref::new("ColumnReferenceSegment"),
-                                    one_of(vec_of_erased![
-                                        Ref::keyword("ASC"),
-                                        Ref::keyword("DESC")
-                                    ]).config(|this| this.optional())
-                                ])
-                            ])
                         ])
+                        .config(|this| this.optional()),
+                        Bracketed::new(vec_of_erased![Delimited::new(vec_of_erased![
+                            Sequence::new(vec_of_erased![
+                                Ref::new("ColumnReferenceSegment"),
+                                one_of(vec_of_erased![Ref::keyword("ASC"), Ref::keyword("DESC")])
+                                    .config(|this| this.optional())
+                            ])
+                        ])])
                     ]),
                     // UNIQUE constraint
                     Sequence::new(vec_of_erased![
@@ -1065,56 +1078,52 @@ pub fn raw_dialect() -> Dialect {
                         one_of(vec_of_erased![
                             Ref::keyword("CLUSTERED"),
                             Ref::keyword("NONCLUSTERED")
-                        ]).config(|this| this.optional()),
-                        Bracketed::new(vec_of_erased![
-                            Delimited::new(vec_of_erased![
-                                Sequence::new(vec_of_erased![
-                                    Ref::new("ColumnReferenceSegment"),
-                                    one_of(vec_of_erased![
-                                        Ref::keyword("ASC"),
-                                        Ref::keyword("DESC")
-                                    ]).config(|this| this.optional())
-                                ])
-                            ])
                         ])
+                        .config(|this| this.optional()),
+                        Bracketed::new(vec_of_erased![Delimited::new(vec_of_erased![
+                            Sequence::new(vec_of_erased![
+                                Ref::new("ColumnReferenceSegment"),
+                                one_of(vec_of_erased![Ref::keyword("ASC"), Ref::keyword("DESC")])
+                                    .config(|this| this.optional())
+                            ])
+                        ])])
                     ]),
                     // FOREIGN KEY constraint
                     Sequence::new(vec_of_erased![
                         Ref::keyword("FOREIGN"),
                         Ref::keyword("KEY"),
-                        Bracketed::new(vec_of_erased![
-                            Delimited::new(vec_of_erased![Ref::new("ColumnReferenceSegment")])
-                        ]),
+                        Bracketed::new(vec_of_erased![Delimited::new(vec_of_erased![Ref::new(
+                            "ColumnReferenceSegment"
+                        )])]),
                         Ref::keyword("REFERENCES"),
                         Ref::new("TableReferenceSegment"),
-                        Bracketed::new(vec_of_erased![
-                            Delimited::new(vec_of_erased![Ref::new("ColumnReferenceSegment")])
-                        ]),
+                        Bracketed::new(vec_of_erased![Delimited::new(vec_of_erased![Ref::new(
+                            "ColumnReferenceSegment"
+                        )])]),
                         // Optional ON DELETE/UPDATE actions
-                        AnyNumberOf::new(vec_of_erased![
-                            Sequence::new(vec_of_erased![
-                                Ref::keyword("ON"),
-                                one_of(vec_of_erased![
-                                    Ref::keyword("DELETE"),
-                                    Ref::keyword("UPDATE")
-                                ]),
-                                one_of(vec_of_erased![
-                                    Ref::keyword("CASCADE"),
-                                    Ref::keyword("RESTRICT"),
-                                    Sequence::new(vec_of_erased![
-                                        Ref::keyword("SET"),
-                                        one_of(vec_of_erased![
-                                            Ref::keyword("NULL"),
-                                            Ref::keyword("DEFAULT")
-                                        ])
-                                    ]),
-                                    Sequence::new(vec_of_erased![
-                                        Ref::keyword("NO"),
-                                        Ref::keyword("ACTION")
+                        AnyNumberOf::new(vec_of_erased![Sequence::new(vec_of_erased![
+                            Ref::keyword("ON"),
+                            one_of(vec_of_erased![
+                                Ref::keyword("DELETE"),
+                                Ref::keyword("UPDATE")
+                            ]),
+                            one_of(vec_of_erased![
+                                Ref::keyword("CASCADE"),
+                                Ref::keyword("RESTRICT"),
+                                Sequence::new(vec_of_erased![
+                                    Ref::keyword("SET"),
+                                    one_of(vec_of_erased![
+                                        Ref::keyword("NULL"),
+                                        Ref::keyword("DEFAULT")
                                     ])
+                                ]),
+                                Sequence::new(vec_of_erased![
+                                    Ref::keyword("NO"),
+                                    Ref::keyword("ACTION")
                                 ])
                             ])
-                        ]).config(|this| this.optional()),
+                        ])])
+                        .config(|this| this.optional()),
                         // Optional UNIQUE keyword (for foreign key constraints)
                         Ref::keyword("UNIQUE").optional()
                     ]),
@@ -1198,13 +1207,11 @@ pub fn raw_dialect() -> Dialect {
                 Ref::keyword("SET"),
                 one_of(vec_of_erased![
                     // Variable assignment: SET @var = value or SET @var1 = value1, @var2 = value2
-                    Delimited::new(vec_of_erased![
-                        Sequence::new(vec_of_erased![
-                            Ref::new("TsqlVariableSegment"),
-                            Ref::new("AssignmentOperatorSegment"),
-                            Ref::new("ExpressionSegment")
-                        ])
-                    ]),
+                    Delimited::new(vec_of_erased![Sequence::new(vec_of_erased![
+                        Ref::new("TsqlVariableSegment"),
+                        Ref::new("AssignmentOperatorSegment"),
+                        Ref::new("ExpressionSegment")
+                    ])]),
                     // SET DEADLOCK_PRIORITY
                     Sequence::new(vec_of_erased![
                         Ref::keyword("DEADLOCK_PRIORITY"),
@@ -1463,7 +1470,8 @@ pub fn raw_dialect() -> Dialect {
                     // Also accept EXEC/EXECUTE as word tokens in T-SQL procedure bodies
                     StringParser::new("EXEC", SyntaxKind::Keyword),
                     StringParser::new("EXECUTE", SyntaxKind::Keyword)
-                ]).config(|this| this.terminators = vec![]),
+                ])
+                .config(|this| this.terminators = vec![]),
                 // Optional return value capture
                 Sequence::new(vec_of_erased![
                     Ref::new("TsqlVariableSegment"),
@@ -1473,9 +1481,9 @@ pub fn raw_dialect() -> Dialect {
                 // What to execute
                 one_of(vec_of_erased![
                     // Dynamic SQL (expression or parameterized query in parentheses)
-                    Bracketed::new(vec_of_erased![
-                        Delimited::new(vec_of_erased![Ref::new("ExpressionSegment")])
-                    ]),
+                    Bracketed::new(vec_of_erased![Delimited::new(vec_of_erased![Ref::new(
+                        "ExpressionSegment"
+                    )])]),
                     // Execute stored procedure variable
                     Ref::new("TsqlVariableSegment"),
                     // Stored procedure with optional parameters
@@ -1532,12 +1540,13 @@ pub fn raw_dialect() -> Dialect {
                                     ])
                                 ])
                             ])
-                        ])]).config(|this| {
+                        ])])
+                        .config(|this| {
                             // Stop parsing parameters when we encounter optional clauses
                             this.terminators = vec_of_erased![
-                                Ref::keyword("AS"),     // AS USER clause
-                                Ref::keyword("WITH"),   // WITH RECOMPILE or WITH RESULT SETS
-                                Ref::keyword("AT")      // AT linked_server clause
+                                Ref::keyword("AS"),   // AS USER clause
+                                Ref::keyword("WITH"), // WITH RECOMPILE or WITH RESULT SETS
+                                Ref::keyword("AT")    // AT linked_server clause
                             ];
                         })
                     ])
@@ -1567,15 +1576,11 @@ pub fn raw_dialect() -> Dialect {
                         // T-SQL WITH RESULT SETS patterns:
                         // Single result set: ((column definitions))
                         // Multiple result sets: ( (result_set_1), (result_set_2) )
-                        Bracketed::new(vec_of_erased![
-                            Delimited::new(vec_of_erased![
-                                Bracketed::new(vec_of_erased![
-                                    Delimited::new(vec_of_erased![
-                                        Ref::new("ResultSetColumnDefinitionSegment")
-                                    ])
-                                ])
-                            ])
-                        ])
+                        Bracketed::new(vec_of_erased![Delimited::new(vec_of_erased![
+                            Bracketed::new(vec_of_erased![Delimited::new(vec_of_erased![
+                                Ref::new("ResultSetColumnDefinitionSegment")
+                            ])])
+                        ])])
                     ])
                 ])
                 .config(|this| this.optional()),
@@ -1658,7 +1663,6 @@ pub fn raw_dialect() -> Dialect {
         ),
     ]);
 
-
     // IF...ELSE statement
     // Handle T-SQL's lexing behavior where IF/ELSE can be lexed as words in procedure contexts
     dialect.add([(
@@ -1738,10 +1742,10 @@ pub fn raw_dialect() -> Dialect {
                             this.min_times(1);
                             // Remove max_times constraint for ELSE body too
                             this.terminators = vec_of_erased![
-                                Ref::keyword("IF"), // Next IF statement
+                                Ref::keyword("IF"),                           // Next IF statement
                                 StringParser::new("IF", SyntaxKind::Keyword), // Also handle lowercase if as word
                                 StringParser::new("if", SyntaxKind::Word), // Also handle lowercase if as word
-                                Ref::new("BatchSeparatorGrammar") // GO statement
+                                Ref::new("BatchSeparatorGrammar")          // GO statement
                             ];
                         })
                     ])
@@ -1770,7 +1774,7 @@ pub fn raw_dialect() -> Dialect {
         .to_matchable()
         .into(),
     )]);
-    
+
     // Bare procedure call (without EXECUTE keyword)
     // This matches: sp_help 'table' or dbo.myproc @param = 1
     // But should NOT match: RAISERROR (...) or other statement keywords
@@ -1785,12 +1789,10 @@ pub fn raw_dialect() -> Dialect {
                     Ref::new("DotSegment"),
                     Ref::new("SingleIdentifierGrammar"),
                     // Optional additional parts
-                    AnyNumberOf::new(vec_of_erased![
-                        Sequence::new(vec_of_erased![
-                            Ref::new("DotSegment"),
-                            Ref::new("SingleIdentifierGrammar")
-                        ])
-                    ])
+                    AnyNumberOf::new(vec_of_erased![Sequence::new(vec_of_erased![
+                        Ref::new("DotSegment"),
+                        Ref::new("SingleIdentifierGrammar")
+                    ])])
                 ]),
                 // Single identifier that is NOT a statement keyword
                 Ref::new("BareProcedureIdentifierSegment")
@@ -2092,7 +2094,7 @@ pub fn raw_dialect() -> Dialect {
                 Bracketed::new(vec_of_erased![Delimited::new(vec_of_erased![
                     Sequence::new(vec_of_erased![
                         Ref::new("SingleIdentifierGrammar"), // Column name (naked or bracketed)
-                        Ref::new("TsqlDatatypeSegment"),        // Data type
+                        Ref::new("TsqlDatatypeSegment"),     // Data type
                         // Optional JSON path
                         Sequence::new(vec_of_erased![Ref::new("QuotedLiteralSegment")])
                             .config(|this| this.optional()),
@@ -2160,104 +2162,104 @@ pub fn raw_dialect() -> Dialect {
                         Bracketed::new(vec_of_erased![Delimited::new(vec_of_erased![one_of(
                             vec_of_erased![
                                 // Simple options
-                            Sequence::new(vec_of_erased![
-                                one_of(vec_of_erased![
-                                    Ref::keyword("PAD_INDEX"),
-                                    Ref::keyword("FILLFACTOR"),
-                                    Ref::keyword("SORT_IN_TEMPDB"),
-                                    Ref::keyword("IGNORE_DUP_KEY"),
-                                    Ref::keyword("STATISTICS_NORECOMPUTE"),
-                                    Ref::keyword("STATISTICS_INCREMENTAL"),
-                                    Ref::keyword("DROP_EXISTING"),
-                                    Ref::keyword("RESUMABLE"),
-                                    Ref::keyword("ALLOW_ROW_LOCKS"),
-                                    Ref::keyword("ALLOW_PAGE_LOCKS"),
-                                    Ref::keyword("OPTIMIZE_FOR_SEQUENTIAL_KEY"),
-                                    Ref::keyword("MAXDOP")
-                                ]),
-                                Ref::new("AssignmentOperatorSegment"),
-                                one_of(vec_of_erased![
-                                    Ref::keyword("ON"),
-                                    Ref::keyword("OFF"),
-                                    Ref::new("NumericLiteralSegment")
-                                ])
-                            ]),
-                            // DATA_COMPRESSION option
-                            Sequence::new(vec_of_erased![
-                                Ref::keyword("DATA_COMPRESSION"),
-                                Ref::new("AssignmentOperatorSegment"),
-                                one_of(vec_of_erased![
-                                    Ref::keyword("NONE"),
-                                    Ref::keyword("ROW"),
-                                    Ref::keyword("PAGE"),
-                                    Ref::keyword("COLUMNSTORE"),
-                                    Ref::keyword("COLUMNSTORE_ARCHIVE")
-                                ]),
-                                // Optional ON PARTITIONS clause
                                 Sequence::new(vec_of_erased![
-                                    Ref::keyword("ON"),
-                                    Ref::keyword("PARTITIONS"),
-                                    Bracketed::new(vec_of_erased![Delimited::new(vec_of_erased![
-                                        one_of(vec_of_erased![
-                                            // Single partition number
-                                            Ref::new("NumericLiteralSegment"),
-                                            // Range of partitions
-                                            Sequence::new(vec_of_erased![
-                                                Ref::new("NumericLiteralSegment"),
-                                                Ref::keyword("TO"),
-                                                Ref::new("NumericLiteralSegment")
-                                            ])
-                                        ])
-                                    ])])
-                                ])
-                                .config(|this| this.optional())
-                            ]),
-                            // ONLINE option with sub-options
-                            Sequence::new(vec_of_erased![
-                                Ref::keyword("ONLINE"),
-                                Ref::new("AssignmentOperatorSegment"),
-                                one_of(vec_of_erased![
-                                    Ref::keyword("OFF"),
-                                    Ref::keyword("ON"),
-                                    // ONLINE = ON with WAIT_AT_LOW_PRIORITY
+                                    one_of(vec_of_erased![
+                                        Ref::keyword("PAD_INDEX"),
+                                        Ref::keyword("FILLFACTOR"),
+                                        Ref::keyword("SORT_IN_TEMPDB"),
+                                        Ref::keyword("IGNORE_DUP_KEY"),
+                                        Ref::keyword("STATISTICS_NORECOMPUTE"),
+                                        Ref::keyword("STATISTICS_INCREMENTAL"),
+                                        Ref::keyword("DROP_EXISTING"),
+                                        Ref::keyword("RESUMABLE"),
+                                        Ref::keyword("ALLOW_ROW_LOCKS"),
+                                        Ref::keyword("ALLOW_PAGE_LOCKS"),
+                                        Ref::keyword("OPTIMIZE_FOR_SEQUENTIAL_KEY"),
+                                        Ref::keyword("MAXDOP")
+                                    ]),
+                                    Ref::new("AssignmentOperatorSegment"),
+                                    one_of(vec_of_erased![
+                                        Ref::keyword("ON"),
+                                        Ref::keyword("OFF"),
+                                        Ref::new("NumericLiteralSegment")
+                                    ])
+                                ]),
+                                // DATA_COMPRESSION option
+                                Sequence::new(vec_of_erased![
+                                    Ref::keyword("DATA_COMPRESSION"),
+                                    Ref::new("AssignmentOperatorSegment"),
+                                    one_of(vec_of_erased![
+                                        Ref::keyword("NONE"),
+                                        Ref::keyword("ROW"),
+                                        Ref::keyword("PAGE"),
+                                        Ref::keyword("COLUMNSTORE"),
+                                        Ref::keyword("COLUMNSTORE_ARCHIVE")
+                                    ]),
+                                    // Optional ON PARTITIONS clause
                                     Sequence::new(vec_of_erased![
                                         Ref::keyword("ON"),
-                                        Bracketed::new(vec_of_erased![
-                                            Ref::keyword("WAIT_AT_LOW_PRIORITY"),
-                                            Bracketed::new(vec_of_erased![Delimited::new(
-                                                vec_of_erased![
-                                                    // MAX_DURATION
-                                                    Sequence::new(vec_of_erased![
-                                                        Ref::keyword("MAX_DURATION"),
-                                                        Ref::new("AssignmentOperatorSegment"),
-                                                        Ref::new("NumericLiteralSegment"),
-                                                        Ref::keyword("MINUTES").optional()
-                                                    ]),
-                                                    // ABORT_AFTER_WAIT
-                                                    Sequence::new(vec_of_erased![
-                                                        Ref::keyword("ABORT_AFTER_WAIT"),
-                                                        Ref::new("AssignmentOperatorSegment"),
-                                                        one_of(vec_of_erased![
-                                                            Ref::keyword("NONE"),
-                                                            Ref::keyword("SELF"),
-                                                            Ref::keyword("BLOCKERS")
+                                        Ref::keyword("PARTITIONS"),
+                                        Bracketed::new(vec_of_erased![Delimited::new(
+                                            vec_of_erased![one_of(vec_of_erased![
+                                                // Single partition number
+                                                Ref::new("NumericLiteralSegment"),
+                                                // Range of partitions
+                                                Sequence::new(vec_of_erased![
+                                                    Ref::new("NumericLiteralSegment"),
+                                                    Ref::keyword("TO"),
+                                                    Ref::new("NumericLiteralSegment")
+                                                ])
+                                            ])]
+                                        )])
+                                    ])
+                                    .config(|this| this.optional())
+                                ]),
+                                // ONLINE option with sub-options
+                                Sequence::new(vec_of_erased![
+                                    Ref::keyword("ONLINE"),
+                                    Ref::new("AssignmentOperatorSegment"),
+                                    one_of(vec_of_erased![
+                                        Ref::keyword("OFF"),
+                                        Ref::keyword("ON"),
+                                        // ONLINE = ON with WAIT_AT_LOW_PRIORITY
+                                        Sequence::new(vec_of_erased![
+                                            Ref::keyword("ON"),
+                                            Bracketed::new(vec_of_erased![
+                                                Ref::keyword("WAIT_AT_LOW_PRIORITY"),
+                                                Bracketed::new(vec_of_erased![Delimited::new(
+                                                    vec_of_erased![
+                                                        // MAX_DURATION
+                                                        Sequence::new(vec_of_erased![
+                                                            Ref::keyword("MAX_DURATION"),
+                                                            Ref::new("AssignmentOperatorSegment"),
+                                                            Ref::new("NumericLiteralSegment"),
+                                                            Ref::keyword("MINUTES").optional()
+                                                        ]),
+                                                        // ABORT_AFTER_WAIT
+                                                        Sequence::new(vec_of_erased![
+                                                            Ref::keyword("ABORT_AFTER_WAIT"),
+                                                            Ref::new("AssignmentOperatorSegment"),
+                                                            one_of(vec_of_erased![
+                                                                Ref::keyword("NONE"),
+                                                                Ref::keyword("SELF"),
+                                                                Ref::keyword("BLOCKERS")
+                                                            ])
                                                         ])
-                                                    ])
-                                                ]
-                                            )])
+                                                    ]
+                                                )])
+                                            ])
                                         ])
                                     ])
+                                ]),
+                                // COMPRESSION_DELAY option
+                                Sequence::new(vec_of_erased![
+                                    Ref::keyword("COMPRESSION_DELAY"),
+                                    Ref::new("AssignmentOperatorSegment"),
+                                    Ref::new("NumericLiteralSegment"),
+                                    Ref::keyword("MINUTES").optional()
                                 ])
-                            ]),
-                            // COMPRESSION_DELAY option
-                            Sequence::new(vec_of_erased![
-                                Ref::keyword("COMPRESSION_DELAY"),
-                                Ref::new("AssignmentOperatorSegment"),
-                                Ref::new("NumericLiteralSegment"),
-                                Ref::keyword("MINUTES").optional()
-                            ])
-                        ]
-                    )])]),
+                            ]
+                        )])]),
                         // WITH option = value - non-bracketed form (single option only)
                         Sequence::new(vec_of_erased![
                             one_of(vec_of_erased![
@@ -2322,33 +2324,29 @@ pub fn raw_dialect() -> Dialect {
                     Ref::keyword("ON"),
                     Ref::new("TableReferenceSegment"),
                     // Column list in parentheses
-                    Bracketed::new(vec_of_erased![
-                        Delimited::new(vec_of_erased![
-                            Ref::new("ColumnReferenceSegment")
-                        ])
-                    ]),
+                    Bracketed::new(vec_of_erased![Delimited::new(vec_of_erased![Ref::new(
+                        "ColumnReferenceSegment"
+                    )])]),
                     // Optional WITH options
                     Sequence::new(vec_of_erased![
                         Ref::keyword("WITH"),
-                        Delimited::new(vec_of_erased![
-                            one_of(vec_of_erased![
-                                Ref::keyword("FULLSCAN"),
-                                Ref::keyword("NORECOMPUTE"),
-                                Sequence::new(vec_of_erased![
-                                    Ref::keyword("SAMPLE"),
-                                    Ref::new("NumericLiteralSegment"),
-                                    one_of(vec_of_erased![
-                                        Ref::keyword("PERCENT"),
-                                        Ref::keyword("ROWS")
-                                    ])
-                                ]),
-                                Sequence::new(vec_of_erased![
-                                    Ref::keyword("STATS_STREAM"),
-                                    Ref::new("EqualsSegment"),
-                                    Ref::new("ExpressionSegment")
+                        Delimited::new(vec_of_erased![one_of(vec_of_erased![
+                            Ref::keyword("FULLSCAN"),
+                            Ref::keyword("NORECOMPUTE"),
+                            Sequence::new(vec_of_erased![
+                                Ref::keyword("SAMPLE"),
+                                Ref::new("NumericLiteralSegment"),
+                                one_of(vec_of_erased![
+                                    Ref::keyword("PERCENT"),
+                                    Ref::keyword("ROWS")
                                 ])
+                            ]),
+                            Sequence::new(vec_of_erased![
+                                Ref::keyword("STATS_STREAM"),
+                                Ref::new("EqualsSegment"),
+                                Ref::new("ExpressionSegment")
                             ])
-                        ])
+                        ])])
                     ])
                     .config(|this| this.optional())
                 ])
@@ -2430,8 +2428,7 @@ pub fn raw_dialect() -> Dialect {
             ])
             .to_matchable()
         })
-        .to_matchable()
-        .into(),
+        .to_matchable(),
     );
 
     // WAITFOR statement
@@ -2869,19 +2866,18 @@ pub fn raw_dialect() -> Dialect {
                                         Sequence::new(vec_of_erased![
                                             Ref::keyword("ON"),
                                             Ref::keyword("PARTITIONS"),
-                                            Bracketed::new(vec_of_erased![
-                                                Delimited::new(vec_of_erased![
-                                                    one_of(vec_of_erased![
+                                            Bracketed::new(vec_of_erased![Delimited::new(
+                                                vec_of_erased![one_of(vec_of_erased![
+                                                    Ref::new("NumericLiteralSegment"),
+                                                    Sequence::new(vec_of_erased![
                                                         Ref::new("NumericLiteralSegment"),
-                                                        Sequence::new(vec_of_erased![
-                                                            Ref::new("NumericLiteralSegment"),
-                                                            Ref::keyword("TO"),
-                                                            Ref::new("NumericLiteralSegment")
-                                                        ])
+                                                        Ref::keyword("TO"),
+                                                        Ref::new("NumericLiteralSegment")
                                                     ])
-                                                ])
-                                            ])
-                                        ]).config(|this| this.optional())
+                                                ])]
+                                            )])
+                                        ])
+                                        .config(|this| this.optional())
                                     ]),
                                     Sequence::new(vec_of_erased![
                                         Ref::keyword("XML_COMPRESSION"),
@@ -2894,19 +2890,18 @@ pub fn raw_dialect() -> Dialect {
                                         Sequence::new(vec_of_erased![
                                             Ref::keyword("ON"),
                                             Ref::keyword("PARTITIONS"),
-                                            Bracketed::new(vec_of_erased![
-                                                Delimited::new(vec_of_erased![
-                                                    one_of(vec_of_erased![
+                                            Bracketed::new(vec_of_erased![Delimited::new(
+                                                vec_of_erased![one_of(vec_of_erased![
+                                                    Ref::new("NumericLiteralSegment"),
+                                                    Sequence::new(vec_of_erased![
                                                         Ref::new("NumericLiteralSegment"),
-                                                        Sequence::new(vec_of_erased![
-                                                            Ref::new("NumericLiteralSegment"),
-                                                            Ref::keyword("TO"),
-                                                            Ref::new("NumericLiteralSegment")
-                                                        ])
+                                                        Ref::keyword("TO"),
+                                                        Ref::new("NumericLiteralSegment")
                                                     ])
-                                                ])
-                                            ])
-                                        ]).config(|this| this.optional())
+                                                ])]
+                                            )])
+                                        ])
+                                        .config(|this| this.optional())
                                     ]),
                                     Sequence::new(vec_of_erased![
                                         Ref::keyword("ONLINE"),
@@ -2919,23 +2914,27 @@ pub fn raw_dialect() -> Dialect {
                                                 Ref::keyword("ON"),
                                                 Bracketed::new(vec_of_erased![
                                                     Ref::keyword("WAIT_AT_LOW_PRIORITY"),
-                                                    Bracketed::new(vec_of_erased![
-                                                        Delimited::new(vec_of_erased![
-                                                            Sequence::new(vec_of_erased![
+                                                    Bracketed::new(vec_of_erased![Delimited::new(
+                                                        vec_of_erased![Sequence::new(
+                                                            vec_of_erased![
                                                                 one_of(vec_of_erased![
                                                                     Ref::keyword("MAX_DURATION"),
-                                                                    Ref::keyword("ABORT_AFTER_WAIT")
+                                                                    Ref::keyword(
+                                                                        "ABORT_AFTER_WAIT"
+                                                                    )
                                                                 ]),
                                                                 Ref::new("EqualsSegment"),
                                                                 one_of(vec_of_erased![
-                                                                    Ref::new("NumericLiteralSegment"),
+                                                                    Ref::new(
+                                                                        "NumericLiteralSegment"
+                                                                    ),
                                                                     Ref::keyword("SELF"),
                                                                     Ref::keyword("BLOCKERS"),
                                                                     Ref::keyword("NONE")
                                                                 ])
-                                                            ])
-                                                        ])
-                                                    ])
+                                                            ]
+                                                        )]
+                                                    )])
                                                 ])
                                             ])
                                         ])
@@ -2999,8 +2998,8 @@ pub fn raw_dialect() -> Dialect {
                         Ref::keyword("RESUME"),
                         Sequence::new(vec_of_erased![
                             Ref::keyword("WITH"),
-                            Bracketed::new(vec_of_erased![Delimited::new(vec_of_erased![
-                                one_of(vec_of_erased![
+                            Bracketed::new(vec_of_erased![Delimited::new(vec_of_erased![one_of(
+                                vec_of_erased![
                                     Sequence::new(vec_of_erased![
                                         one_of(vec_of_erased![
                                             Ref::keyword("MAXDOP"),
@@ -3012,26 +3011,24 @@ pub fn raw_dialect() -> Dialect {
                                     ]),
                                     Sequence::new(vec_of_erased![
                                         Ref::keyword("WAIT_AT_LOW_PRIORITY"),
-                                        Bracketed::new(vec_of_erased![
-                                            Delimited::new(vec_of_erased![
-                                                Sequence::new(vec_of_erased![
-                                                    one_of(vec_of_erased![
-                                                        Ref::keyword("MAX_DURATION"),
-                                                        Ref::keyword("ABORT_AFTER_WAIT")
-                                                    ]),
-                                                    Ref::new("EqualsSegment"),
-                                                    one_of(vec_of_erased![
-                                                        Ref::new("NumericLiteralSegment"),
-                                                        Ref::keyword("SELF"),
-                                                        Ref::keyword("BLOCKERS"),
-                                                        Ref::keyword("NONE")
-                                                    ])
+                                        Bracketed::new(vec_of_erased![Delimited::new(
+                                            vec_of_erased![Sequence::new(vec_of_erased![
+                                                one_of(vec_of_erased![
+                                                    Ref::keyword("MAX_DURATION"),
+                                                    Ref::keyword("ABORT_AFTER_WAIT")
+                                                ]),
+                                                Ref::new("EqualsSegment"),
+                                                one_of(vec_of_erased![
+                                                    Ref::new("NumericLiteralSegment"),
+                                                    Ref::keyword("SELF"),
+                                                    Ref::keyword("BLOCKERS"),
+                                                    Ref::keyword("NONE")
                                                 ])
-                                            ])
-                                        ])
+                                            ])]
+                                        )])
                                     ])
-                                ])
-                            ])])
+                                ]
+                            )])])
                         ])
                         .config(|this| this.optional())
                     ]),
@@ -3047,66 +3044,70 @@ pub fn raw_dialect() -> Dialect {
         .into(),
     )]);
 
-    // Define specialized ALTER TABLE column addition for mixed operations  
+    // Define specialized ALTER TABLE column addition for mixed operations
     dialect.add([(
         "AlterTableAddColumnSegment".into(),
         NodeMatcher::new(SyntaxKind::AlterTableActionSegment, |_| {
             Sequence::new(vec_of_erased![
                 Ref::keyword("ADD"),
                 Ref::new("SingleIdentifierGrammar"), // Column name
-                Ref::new("TsqlDatatypeSegment"), // Column type
+                Ref::new("TsqlDatatypeSegment"),     // Column type
                 // Column modifiers and constraints
-                AnyNumberOf::new(vec_of_erased![
-                    one_of(vec_of_erased![
-                        // Nullability
-                        Ref::keyword("NULL"),
-                        Sequence::new(vec_of_erased![Ref::keyword("NOT"), Ref::keyword("NULL")]),
-                        // IDENTITY specification
-                        Sequence::new(vec_of_erased![
-                            Ref::keyword("IDENTITY"),
-                            Bracketed::new(vec_of_erased![
-                                Ref::new("NumericLiteralSegment"), // seed
-                                Ref::new("CommaSegment"),
-                                Ref::new("NumericLiteralSegment")  // increment
-                            ]).config(|this| this.optional())
-                        ]),
-                        // DEFAULT constraint
-                        Sequence::new(vec_of_erased![
-                            Ref::keyword("DEFAULT"),
-                            one_of(vec_of_erased![
-                                Bracketed::new(vec_of_erased![Ref::new("ExpressionSegment")]),
-                                Ref::new("ExpressionSegment")
+                AnyNumberOf::new(vec_of_erased![one_of(vec_of_erased![
+                    // Nullability
+                    Ref::keyword("NULL"),
+                    Sequence::new(vec_of_erased![Ref::keyword("NOT"), Ref::keyword("NULL")]),
+                    // IDENTITY specification
+                    Sequence::new(vec_of_erased![
+                        Ref::keyword("IDENTITY"),
+                        Bracketed::new(vec_of_erased![
+                            Ref::new("NumericLiteralSegment"), // seed
+                            Ref::new("CommaSegment"),
+                            Ref::new("NumericLiteralSegment") // increment
+                        ])
+                        .config(|this| this.optional())
+                    ]),
+                    // DEFAULT constraint
+                    Sequence::new(vec_of_erased![
+                        Ref::keyword("DEFAULT"),
+                        one_of(vec_of_erased![
+                            Bracketed::new(vec_of_erased![Ref::new("ExpressionSegment")]),
+                            Ref::new("ExpressionSegment")
+                        ])
+                    ]),
+                    // Named constraint: CONSTRAINT name constraint_type
+                    Sequence::new(vec_of_erased![
+                        Ref::keyword("CONSTRAINT"),
+                        Ref::new("SingleIdentifierGrammar"), // constraint name
+                        one_of(vec_of_erased![
+                            Ref::keyword("UNIQUE"),
+                            Ref::keyword("PRIMARY"), // Will be followed by KEY
+                            Sequence::new(vec_of_erased![
+                                Ref::keyword("PRIMARY"),
+                                Ref::keyword("KEY")
+                            ]),
+                            // FOREIGN KEY references
+                            Sequence::new(vec_of_erased![
+                                Ref::keyword("FOREIGN"),
+                                Ref::keyword("KEY"),
+                                Ref::keyword("REFERENCES"),
+                                Ref::new("TableReferenceSegment"),
+                                Bracketed::new(vec_of_erased![Delimited::new(vec_of_erased![
+                                    Ref::new("ColumnReferenceSegment")
+                                ])])
+                                .config(|this| this.optional())
                             ])
-                        ]),
-                        // Named constraint: CONSTRAINT name constraint_type
-                        Sequence::new(vec_of_erased![
-                            Ref::keyword("CONSTRAINT"),
-                            Ref::new("SingleIdentifierGrammar"), // constraint name
-                            one_of(vec_of_erased![
-                                Ref::keyword("UNIQUE"),
-                                Ref::keyword("PRIMARY"), // Will be followed by KEY
-                                Sequence::new(vec_of_erased![Ref::keyword("PRIMARY"), Ref::keyword("KEY")]),
-                                // FOREIGN KEY references
-                                Sequence::new(vec_of_erased![
-                                    Ref::keyword("FOREIGN"),
-                                    Ref::keyword("KEY"),
-                                    Ref::keyword("REFERENCES"),
-                                    Ref::new("TableReferenceSegment"),
-                                    Bracketed::new(vec_of_erased![
-                                        Delimited::new(vec_of_erased![Ref::new("ColumnReferenceSegment")])
-                                    ]).config(|this| this.optional())
-                                ])
-                            ])
-                        ]),
-                        // COLLATE clause
-                        Sequence::new(vec_of_erased![
-                            Ref::keyword("COLLATE"),
-                            Ref::new("SingleIdentifierGrammar")
-                        ]),
-                        // FILESTREAM
-                        Ref::keyword("FILESTREAM")
-                    ])
-                ]).config(|this| this.optional())
+                        ])
+                    ]),
+                    // COLLATE clause
+                    Sequence::new(vec_of_erased![
+                        Ref::keyword("COLLATE"),
+                        Ref::new("SingleIdentifierGrammar")
+                    ]),
+                    // FILESTREAM
+                    Ref::keyword("FILESTREAM")
+                ])])
+                .config(|this| this.optional())
             ])
             .to_matchable()
         })
@@ -3117,11 +3118,9 @@ pub fn raw_dialect() -> Dialect {
     // T-SQL DROP COLUMN list segment - simple pattern without NodeMatcher
     dialect.add([(
         "TsqlDropColumnListSegment".into(),
-        Delimited::new(vec_of_erased![
-            Ref::new("SingleIdentifierGrammar")
-        ])
-        .to_matchable()
-        .into(),
+        Delimited::new(vec_of_erased![Ref::new("SingleIdentifierGrammar")])
+            .to_matchable()
+            .into(),
     )]);
 
     // T-SQL ALTER TABLE DROP COLUMN support (standalone grammar)
@@ -3165,47 +3164,46 @@ pub fn raw_dialect() -> Dialect {
                         Ref::keyword("PRIMARY"),
                         Ref::keyword("KEY"),
                         Ref::keyword("CLUSTERED").optional(),
-                        Bracketed::new(vec_of_erased![
-                            Delimited::new(vec_of_erased![Ref::new("ColumnReferenceSegment")])
-                        ])
+                        Bracketed::new(vec_of_erased![Delimited::new(vec_of_erased![Ref::new(
+                            "ColumnReferenceSegment"
+                        )])])
                     ]),
                     // FOREIGN KEY ... REFERENCES ... with ON UPDATE/DELETE actions
                     Sequence::new(vec_of_erased![
                         Ref::keyword("FOREIGN"),
                         Ref::keyword("KEY"),
-                        Bracketed::new(vec_of_erased![
-                            Delimited::new(vec_of_erased![Ref::new("ColumnReferenceSegment")])
-                        ]),
+                        Bracketed::new(vec_of_erased![Delimited::new(vec_of_erased![Ref::new(
+                            "ColumnReferenceSegment"
+                        )])]),
                         Ref::keyword("REFERENCES"),
                         Ref::new("TableReferenceSegment"),
-                        Bracketed::new(vec_of_erased![
-                            Delimited::new(vec_of_erased![Ref::new("ColumnReferenceSegment")])
-                        ]),
+                        Bracketed::new(vec_of_erased![Delimited::new(vec_of_erased![Ref::new(
+                            "ColumnReferenceSegment"
+                        )])]),
                         // Optional ON UPDATE/DELETE actions
-                        AnyNumberOf::new(vec_of_erased![
-                            Sequence::new(vec_of_erased![
-                                Ref::keyword("ON"),
-                                one_of(vec_of_erased![
-                                    Ref::keyword("UPDATE"),
-                                    Ref::keyword("DELETE")
-                                ]),
-                                one_of(vec_of_erased![
-                                    Ref::keyword("CASCADE"),
-                                    Ref::keyword("RESTRICT"),
-                                    Sequence::new(vec_of_erased![
-                                        Ref::keyword("SET"),
-                                        one_of(vec_of_erased![
-                                            Ref::keyword("NULL"),
-                                            Ref::keyword("DEFAULT")
-                                        ])
-                                    ]),
-                                    Sequence::new(vec_of_erased![
-                                        Ref::keyword("NO"),
-                                        Ref::keyword("ACTION")
+                        AnyNumberOf::new(vec_of_erased![Sequence::new(vec_of_erased![
+                            Ref::keyword("ON"),
+                            one_of(vec_of_erased![
+                                Ref::keyword("UPDATE"),
+                                Ref::keyword("DELETE")
+                            ]),
+                            one_of(vec_of_erased![
+                                Ref::keyword("CASCADE"),
+                                Ref::keyword("RESTRICT"),
+                                Sequence::new(vec_of_erased![
+                                    Ref::keyword("SET"),
+                                    one_of(vec_of_erased![
+                                        Ref::keyword("NULL"),
+                                        Ref::keyword("DEFAULT")
                                     ])
+                                ]),
+                                Sequence::new(vec_of_erased![
+                                    Ref::keyword("NO"),
+                                    Ref::keyword("ACTION")
                                 ])
                             ])
-                        ]).config(|this| this.optional())
+                        ])])
+                        .config(|this| this.optional())
                     ])
                 ])
             ]),
@@ -3218,14 +3216,14 @@ pub fn raw_dialect() -> Dialect {
                 Ref::new("ObjectReferenceSegment"),
                 Ref::keyword("FOREIGN"),
                 Ref::keyword("KEY"),
-                Bracketed::new(vec_of_erased![
-                    Delimited::new(vec_of_erased![Ref::new("ColumnReferenceSegment")])
-                ]),
+                Bracketed::new(vec_of_erased![Delimited::new(vec_of_erased![Ref::new(
+                    "ColumnReferenceSegment"
+                )])]),
                 Ref::keyword("REFERENCES"),
                 Ref::new("TableReferenceSegment"),
-                Bracketed::new(vec_of_erased![
-                    Delimited::new(vec_of_erased![Ref::new("ColumnReferenceSegment")])
-                ])
+                Bracketed::new(vec_of_erased![Delimited::new(vec_of_erased![Ref::new(
+                    "ColumnReferenceSegment"
+                )])])
             ]),
             // CHECK CONSTRAINT constraint_name
             Sequence::new(vec_of_erased![
@@ -3253,9 +3251,9 @@ pub fn raw_dialect() -> Dialect {
                 Ref::keyword("PERIOD"),
                 Ref::keyword("FOR"),
                 Ref::keyword("SYSTEM_TIME"),
-                Bracketed::new(vec_of_erased![
-                    Delimited::new(vec_of_erased![Ref::new("ColumnReferenceSegment")])
-                ])
+                Bracketed::new(vec_of_erased![Delimited::new(vec_of_erased![Ref::new(
+                    "ColumnReferenceSegment"
+                )])])
             ]),
             // ALTER COLUMN
             Sequence::new(vec_of_erased![
@@ -3267,46 +3265,42 @@ pub fn raw_dialect() -> Dialect {
             // SET (option = value, ...)
             Sequence::new(vec_of_erased![
                 Ref::keyword("SET"),
-                Bracketed::new(vec_of_erased![
-                    Delimited::new(vec_of_erased![
-                        Sequence::new(vec_of_erased![
-                            Ref::new("NakedIdentifierSegment"), // option name like SYSTEM_VERSIONING
-                            Ref::new("EqualsSegment"),
-                            one_of(vec_of_erased![
-                                Ref::keyword("ON"),
-                                Ref::keyword("OFF"),
-                                Ref::new("LiteralGrammar"),
-                                Ref::new("ObjectReferenceSegment"),
-                                Ref::new("QuotedLiteralSegment"),
-                                // Handle complex option values like OFF(HISTORY_TABLE = ...)
-                                Bracketed::new(vec_of_erased![
-                                    Delimited::new(vec_of_erased![
+                Bracketed::new(vec_of_erased![Delimited::new(vec_of_erased![
+                    Sequence::new(vec_of_erased![
+                        Ref::new("NakedIdentifierSegment"), // option name like SYSTEM_VERSIONING
+                        Ref::new("EqualsSegment"),
+                        one_of(vec_of_erased![
+                            Ref::keyword("ON"),
+                            Ref::keyword("OFF"),
+                            Ref::new("LiteralGrammar"),
+                            Ref::new("ObjectReferenceSegment"),
+                            Ref::new("QuotedLiteralSegment"),
+                            // Handle complex option values like OFF(HISTORY_TABLE = ...)
+                            Bracketed::new(vec_of_erased![Delimited::new(vec_of_erased![
+                                Sequence::new(vec_of_erased![
+                                    Ref::new("NakedIdentifierSegment"),
+                                    Ref::new("EqualsSegment"),
+                                    one_of(vec_of_erased![
+                                        Ref::new("LiteralGrammar"),
+                                        Ref::new("ObjectReferenceSegment"),
+                                        Ref::keyword("INFINITE"),
                                         Sequence::new(vec_of_erased![
-                                            Ref::new("NakedIdentifierSegment"),
-                                            Ref::new("EqualsSegment"),
+                                            Ref::new("NumericLiteralSegment"),
                                             one_of(vec_of_erased![
-                                                Ref::new("LiteralGrammar"),
-                                                Ref::new("ObjectReferenceSegment"),
-                                                Ref::keyword("INFINITE"),
-                                                Sequence::new(vec_of_erased![
-                                                    Ref::new("NumericLiteralSegment"),
-                                                    one_of(vec_of_erased![
-                                                        Ref::keyword("YEAR"),
-                                                        Ref::keyword("YEARS"),
-                                                        Ref::keyword("MONTH"),
-                                                        Ref::keyword("MONTHS"),
-                                                        Ref::keyword("DAY"),
-                                                        Ref::keyword("DAYS")
-                                                    ])
-                                                ])
+                                                Ref::keyword("YEAR"),
+                                                Ref::keyword("YEARS"),
+                                                Ref::keyword("MONTH"),
+                                                Ref::keyword("MONTHS"),
+                                                Ref::keyword("DAY"),
+                                                Ref::keyword("DAYS")
                                             ])
                                         ])
                                     ])
                                 ])
-                            ])
+                            ])])
                         ])
                     ])
-                ])
+                ])])
             ])
         ])
         .to_matchable()
@@ -3602,7 +3596,6 @@ pub fn raw_dialect() -> Dialect {
     );
     */
 
-
     // T-SQL ALTER TABLE OPTIONS GRAMMAR
     // Define the grammar for individual ALTER TABLE operations
     dialect.add([(
@@ -3668,10 +3661,8 @@ pub fn raw_dialect() -> Dialect {
                     // DROP CONSTRAINT
                     Sequence::new(vec_of_erased![
                         Ref::keyword("CONSTRAINT"),
-                        Sequence::new(vec_of_erased![
-                            Ref::keyword("IF"),
-                            Ref::keyword("EXISTS")
-                        ]).config(|this| this.optional()),
+                        Sequence::new(vec_of_erased![Ref::keyword("IF"), Ref::keyword("EXISTS")])
+                            .config(|this| this.optional()),
                         Ref::new("ObjectReferenceSegment")
                     ])
                 ])
@@ -3704,9 +3695,7 @@ pub fn raw_dialect() -> Dialect {
                 Ref::keyword("TABLE"),
                 Ref::new("TableReferenceSegment"),
                 // Use T-SQL specific options grammar instead of ANSI
-                Delimited::new(vec_of_erased![
-                    Ref::new("TsqlAlterTableOptionsGrammar")
-                ])
+                Delimited::new(vec_of_erased![Ref::new("TsqlAlterTableOptionsGrammar")])
             ])
             .to_matchable()
         })
@@ -3892,8 +3881,8 @@ pub fn raw_dialect() -> Dialect {
                 AnyNumberOf::new(vec_of_erased![Sequence::new(vec_of_erased![
                     Ref::new("StatementSegment"),
                     AnyNumberOf::new(vec_of_erased![
-                        Ref::new("DelimiterGrammar"), // Optional semicolons in T-SQL
-                        Ref::new("BatchDelimiterGrammar") // Also allow GO to terminate statements
+                        Ref::new("DelimiterGrammar"),      // Optional semicolons in T-SQL
+                        Ref::new("BatchDelimiterGrammar")  // Also allow GO to terminate statements
                     ])
                     .config(|this| this.optional())
                 ])])
@@ -3922,13 +3911,11 @@ pub fn raw_dialect() -> Dialect {
                 // First batch
                 Ref::new("BatchSegment"),
                 // Any number of GO-separated batches
-                AnyNumberOf::new(vec_of_erased![
-                    Sequence::new(vec_of_erased![
-                        Ref::new("BatchDelimiterGrammar"),
-                        Ref::new("DelimiterGrammar").optional(),
-                        Ref::new("BatchSegment")
-                    ])
-                ]),
+                AnyNumberOf::new(vec_of_erased![Sequence::new(vec_of_erased![
+                    Ref::new("BatchDelimiterGrammar"),
+                    Ref::new("DelimiterGrammar").optional(),
+                    Ref::new("BatchSegment")
+                ])]),
                 // Allow trailing GO statements at the end of the file
                 AnyNumberOf::new(vec_of_erased![
                     Ref::new("BatchDelimiterGrammar"),
@@ -4084,10 +4071,12 @@ pub fn raw_dialect() -> Dialect {
             // Bare procedure call (without EXECUTE) - MUST be last to avoid conflicts
             Ref::new("BareProcedureCallStatementSegment")
         ])
-        .config(|this| this.terminators = vec_of_erased![
-            Ref::new("DelimiterGrammar"),
-            Ref::new("BatchSeparatorGrammar") // Ensure GO terminates statements
-        ])
+        .config(|this| {
+            this.terminators = vec_of_erased![
+                Ref::new("DelimiterGrammar"),
+                Ref::new("BatchSeparatorGrammar") // Ensure GO terminates statements
+            ]
+        })
         .to_matchable(),
     );
 
@@ -4145,7 +4134,6 @@ pub fn raw_dialect() -> Dialect {
         ),
     ]);
 
-
     // Add T-SQL specific ObjectReferenceSegment that supports dot-prefixed references
     dialect.add([(
         "TsqlDotPrefixedReferenceSegment".into(),
@@ -4178,7 +4166,7 @@ pub fn raw_dialect() -> Dialect {
         .to_matchable()
         .into(),
     )]);
-    
+
     // Update TableReferenceSegment to support T-SQL table variables and dot-prefixed references
     // Temp tables are now handled as regular ObjectReferenceSegment since they use word tokens
     dialect.replace_grammar(
@@ -4201,7 +4189,6 @@ pub fn raw_dialect() -> Dialect {
         .into(),
     )]);
 
-
     // Update TableExpressionSegment to include PIVOT/UNPIVOT, OPENJSON, and OPENROWSET
     dialect.replace_grammar(
         "TableExpressionSegment",
@@ -4209,8 +4196,8 @@ pub fn raw_dialect() -> Dialect {
             Ref::new("ValuesClauseSegment"),
             Ref::new("BareFunctionSegment"),
             // T-SQL specific functions must come before generic FunctionSegment
-            Ref::new("OpenRowSetSegment"),   // OPENROWSET function (alias handled by FromExpressionElementSegment)
-            Ref::new("OpenQuerySegment"),    // Add OPENQUERY support
+            Ref::new("OpenRowSetSegment"), // OPENROWSET function (alias handled by FromExpressionElementSegment)
+            Ref::new("OpenQuerySegment"),  // Add OPENQUERY support
             Ref::new("OpenDataSourceSegment"), // Add OPENDATASOURCE support
             Ref::new("FunctionSegment"),
             Ref::new("TableReferenceSegment"),
@@ -4286,14 +4273,12 @@ pub fn raw_dialect() -> Dialect {
                 // INDEX hint with parameter(s) - can specify multiple indexes
                 Sequence::new(vec_of_erased![
                     Ref::keyword("INDEX"),
-                    Bracketed::new(vec_of_erased![
-                        Delimited::new(vec_of_erased![
-                            one_of(vec_of_erased![
-                                Ref::new("NumericLiteralSegment"),
-                                Ref::new("NakedIdentifierSegment")
-                            ])
-                        ])
-                    ])
+                    Bracketed::new(vec_of_erased![Delimited::new(vec_of_erased![one_of(
+                        vec_of_erased![
+                            Ref::new("NumericLiteralSegment"),
+                            Ref::new("NakedIdentifierSegment")
+                        ]
+                    )])])
                 ])
             ])
             .to_matchable()
@@ -4362,7 +4347,7 @@ pub fn raw_dialect() -> Dialect {
         .to_matchable()
         .into(),
     )]);
-    
+
     // DISABLED: Override Expression_C_Grammar to use T-SQL specific CASE expressions
     // Let T-SQL use ANSI's Expression_C_Grammar with overridden CaseExpressionSegment
     // dialect.add([(
@@ -4394,7 +4379,7 @@ pub fn raw_dialect() -> Dialect {
     //     .to_matchable()
     //     .into(),
     // )]);
-    
+
     // Override Expression_D_Grammar to include T-SQL specific expressions like NEXT VALUE FOR
     dialect.add([(
         "Expression_D_Grammar".into(),
@@ -4406,15 +4391,11 @@ pub fn raw_dialect() -> Dialect {
                 Ref::new("NextValueForSegment"),
                 Ref::new("BareFunctionSegment"),
                 Ref::new("FunctionSegment"),
-                Bracketed::new(vec_of_erased![
-                    one_of(vec_of_erased![
-                        Ref::new("ExpressionSegment"),
-                        Ref::new("SelectableGrammar"),
-                        Delimited::new(vec_of_erased![
-                            Ref::new("ColumnReferenceSegment")
-                        ])
-                    ])
-                ])
+                Bracketed::new(vec_of_erased![one_of(vec_of_erased![
+                    Ref::new("ExpressionSegment"),
+                    Ref::new("SelectableGrammar"),
+                    Delimited::new(vec_of_erased![Ref::new("ColumnReferenceSegment")])
+                ])])
                 .config(|this| this.parse_mode(ParseMode::Greedy)),
                 Ref::new("SelectStatementSegment"),
                 Ref::new("LiteralGrammar"),
@@ -4423,9 +4404,7 @@ pub fn raw_dialect() -> Dialect {
                 Ref::new("ColumnReferenceSegment"),
                 Ref::new("DatatypeSegment")
             ]),
-            AnyNumberOf::new(vec_of_erased![
-                Ref::new("ArrayAccessorSegment")
-            ])
+            AnyNumberOf::new(vec_of_erased![Ref::new("ArrayAccessorSegment")])
         ])
         .to_matchable()
         .into(),
@@ -4438,7 +4417,9 @@ pub fn raw_dialect() -> Dialect {
             // WITH (hints) syntax
             Ref::new("TableHintSegment"),
             // Simplified (hint) syntax - just bracketed hints without WITH
-            Bracketed::new(vec_of_erased![Delimited::new(vec_of_erased![Ref::new("TableHintElement")])]),
+            Bracketed::new(vec_of_erased![Delimited::new(vec_of_erased![Ref::new(
+                "TableHintElement"
+            )])]),
             // PIVOT/UNPIVOT
             Ref::new("PivotUnpivotStatementSegment"),
         ])
@@ -4473,19 +4454,20 @@ pub fn raw_dialect() -> Dialect {
                                 Sequence::new(vec_of_erased![
                                     Ref::keyword("COLLATE"),
                                     Ref::new("CollationSegment")
-                                ]).config(|this| this.optional()),
+                                ])
+                                .config(|this| this.optional()),
                                 // Optional JSON path expression for JSON data
                                 Sequence::new(vec_of_erased![
                                     Ref::keyword("STRICT").optional(),
                                     Ref::new("QuotedLiteralSegment")
-                                ]).config(|this| this.optional()),
+                                ])
+                                .config(|this| this.optional()),
                                 // Handle erroneous trailing tokens (like numbers) in column definitions
-                                AnyNumberOf::new(vec_of_erased![
-                                    one_of(vec_of_erased![
-                                        Ref::new("NumericLiteralSegment"),
-                                        Ref::new("SingleIdentifierGrammar")
-                                    ])
-                                ]).config(|this| this.max_times(5)) // Limit to prevent runaway parsing
+                                AnyNumberOf::new(vec_of_erased![one_of(vec_of_erased![
+                                    Ref::new("NumericLiteralSegment"),
+                                    Ref::new("SingleIdentifierGrammar")
+                                ])])
+                                .config(|this| this.max_times(5)) // Limit to prevent runaway parsing
                             ])
                         ])])
                     ])
@@ -4519,7 +4501,7 @@ pub fn raw_dialect() -> Dialect {
         "TsqlJoinHintGrammar".into(),
         one_of(vec_of_erased![
             Ref::keyword("HASH"),
-            Ref::keyword("MERGE"), 
+            Ref::keyword("MERGE"),
             Ref::keyword("LOOP")
         ])
         .to_matchable()
@@ -4543,14 +4525,14 @@ pub fn raw_dialect() -> Dialect {
                 Sequence::new(vec_of_erased![Ref::keyword("LEFT"), Ref::keyword("OUTER")]),
                 Sequence::new(vec_of_erased![Ref::keyword("RIGHT"), Ref::keyword("OUTER")]),
                 Sequence::new(vec_of_erased![Ref::keyword("FULL"), Ref::keyword("OUTER")])
-            ]).config(|this| this.optional()),
+            ])
+            .config(|this| this.optional()),
             // Optional join hint (HASH, MERGE, LOOP)
             Ref::new("TsqlJoinHintGrammar").optional()
         ])
         .to_matchable()
         .into(),
     )]);
-
 
     // T-SQL specific JoinClauseSegment with algorithm hints support
     // This replaces the ANSI JoinClauseSegment to support T-SQL JOIN hints
@@ -4702,7 +4684,7 @@ pub fn raw_dialect() -> Dialect {
                     Sequence::new(vec_of_erased![Ref::keyword("GROUP"), Ref::keyword("BY")]),
                     Ref::keyword("WHERE"),
                     Ref::keyword("HAVING"),
-                    Ref::keyword("FOR"), // Fix for FOR JSON/XML/BROWSE clauses
+                    Ref::keyword("FOR"),    // Fix for FOR JSON/XML/BROWSE clauses
                     Ref::keyword("OPTION"), // T-SQL OPTION clause
                 ]),
                 MetaSegment::dedent(),
@@ -4808,10 +4790,7 @@ pub fn raw_dialect() -> Dialect {
                     Ref::keyword("MINVALUE"),
                     Ref::new("NumericLiteralSegment")
                 ]),
-                Sequence::new(vec_of_erased![
-                    Ref::keyword("NO"),
-                    Ref::keyword("MINVALUE")
-                ])
+                Sequence::new(vec_of_erased![Ref::keyword("NO"), Ref::keyword("MINVALUE")])
             ]),
             // MAXVALUE / NO MAXVALUE
             one_of(vec_of_erased![
@@ -4819,10 +4798,7 @@ pub fn raw_dialect() -> Dialect {
                     Ref::keyword("MAXVALUE"),
                     Ref::new("NumericLiteralSegment")
                 ]),
-                Sequence::new(vec_of_erased![
-                    Ref::keyword("NO"),
-                    Ref::keyword("MAXVALUE")
-                ])
+                Sequence::new(vec_of_erased![Ref::keyword("NO"), Ref::keyword("MAXVALUE")])
             ]),
             // CACHE
             Sequence::new(vec_of_erased![
@@ -4832,18 +4808,12 @@ pub fn raw_dialect() -> Dialect {
             // CYCLE / NO CYCLE
             one_of(vec_of_erased![
                 Ref::keyword("CYCLE"),
-                Sequence::new(vec_of_erased![
-                    Ref::keyword("NO"),
-                    Ref::keyword("CYCLE")
-                ])
+                Sequence::new(vec_of_erased![Ref::keyword("NO"), Ref::keyword("CYCLE")])
             ]),
             // ORDER / NO ORDER (T-SQL specific)
             one_of(vec_of_erased![
                 Ref::keyword("ORDER"),
-                Sequence::new(vec_of_erased![
-                    Ref::keyword("NO"),
-                    Ref::keyword("ORDER")
-                ])
+                Sequence::new(vec_of_erased![Ref::keyword("NO"), Ref::keyword("ORDER")])
             ])
         ])
         .to_matchable(),
@@ -4868,7 +4838,8 @@ pub fn raw_dialect() -> Dialect {
                             Ref::keyword("NOT"),
                             Ref::keyword("FOR"),
                             Ref::keyword("REPLICATION")
-                        ]).config(|this| this.optional())
+                        ])
+                        .config(|this| this.optional())
                     ]),
                     // CHECK constraint
                     Sequence::new(vec_of_erased![
@@ -4901,9 +4872,9 @@ pub fn raw_dialect() -> Dialect {
                         Ref::keyword("KEY"),
                         Ref::keyword("REFERENCES"),
                         Ref::new("TableReferenceSegment"),
-                        Bracketed::new(vec_of_erased![
-                            Delimited::new(vec_of_erased![Ref::new("ColumnReferenceSegment")])
-                        ])
+                        Bracketed::new(vec_of_erased![Delimited::new(vec_of_erased![Ref::new(
+                            "ColumnReferenceSegment"
+                        )])])
                     ]),
                     // Simple UNIQUE without parentheses (for inline column constraint)
                     Ref::keyword("UNIQUE"),
@@ -4931,32 +4902,27 @@ pub fn raw_dialect() -> Dialect {
                         Ref::keyword("ALWAYS"),
                         Ref::keyword("AS"),
                         Ref::keyword("ROW"),
-                        one_of(vec_of_erased![
-                            Ref::keyword("START"),
-                            Ref::keyword("END")
-                        ]),
+                        one_of(vec_of_erased![Ref::keyword("START"), Ref::keyword("END")]),
                         Ref::keyword("HIDDEN").optional()
                     ]),
                     // ENCRYPTED WITH (encryption parameters)
                     Sequence::new(vec_of_erased![
                         Ref::keyword("ENCRYPTED"),
                         Ref::keyword("WITH"),
-                        Bracketed::new(vec_of_erased![
-                            Delimited::new(vec_of_erased![
-                                Sequence::new(vec_of_erased![
-                                    one_of(vec_of_erased![
-                                        Ref::keyword("COLUMN_ENCRYPTION_KEY"),
-                                        Ref::keyword("ENCRYPTION_TYPE"),
-                                        Ref::keyword("ALGORITHM")
-                                    ]),
-                                    Ref::new("EqualsSegment"),
-                                    one_of(vec_of_erased![
-                                        Ref::new("QuotedLiteralSegment"),
-                                        Ref::new("NakedIdentifierSegment")
-                                    ])
+                        Bracketed::new(vec_of_erased![Delimited::new(vec_of_erased![
+                            Sequence::new(vec_of_erased![
+                                one_of(vec_of_erased![
+                                    Ref::keyword("COLUMN_ENCRYPTION_KEY"),
+                                    Ref::keyword("ENCRYPTION_TYPE"),
+                                    Ref::keyword("ALGORITHM")
+                                ]),
+                                Ref::new("EqualsSegment"),
+                                one_of(vec_of_erased![
+                                    Ref::new("QuotedLiteralSegment"),
+                                    Ref::new("NakedIdentifierSegment")
                                 ])
                             ])
-                        ])
+                        ])])
                     ]),
                 ]),
             ])
@@ -4965,7 +4931,6 @@ pub fn raw_dialect() -> Dialect {
         .to_matchable()
         .into(),
     )]);
-
 
     // Override ColumnConstraintDefaultGrammar to support T-SQL expressions
     dialect.add([(
@@ -4994,7 +4959,8 @@ pub fn raw_dialect() -> Dialect {
             one_of(vec_of_erased![
                 Ref::keyword("CLUSTERED"),
                 Ref::keyword("NONCLUSTERED")
-            ]).config(|this| this.optional())
+            ])
+            .config(|this| this.optional())
         ])
         .to_matchable()
         .into(),
@@ -5008,20 +4974,18 @@ pub fn raw_dialect() -> Dialect {
             one_of(vec_of_erased![
                 Ref::keyword("CLUSTERED"),
                 Ref::keyword("NONCLUSTERED")
-            ]).config(|this| this.optional()),
+            ])
+            .config(|this| this.optional()),
             // Optional column list with ASC/DESC for T-SQL
             // This is truly optional to allow standalone UNIQUE constraints
-            Bracketed::new(vec_of_erased![
-                Delimited::new(vec_of_erased![
-                    Sequence::new(vec_of_erased![
-                        Ref::new("ColumnReferenceSegment"),
-                        one_of(vec_of_erased![
-                            Ref::keyword("ASC"),
-                            Ref::keyword("DESC")
-                        ]).config(|this| this.optional())
-                    ])
+            Bracketed::new(vec_of_erased![Delimited::new(vec_of_erased![
+                Sequence::new(vec_of_erased![
+                    Ref::new("ColumnReferenceSegment"),
+                    one_of(vec_of_erased![Ref::keyword("ASC"), Ref::keyword("DESC")])
+                        .config(|this| this.optional())
                 ])
-            ]).config(|this| this.optional())
+            ])])
+            .config(|this| this.optional())
         ])
         .to_matchable()
         .into(),
@@ -5043,34 +5007,27 @@ pub fn raw_dialect() -> Dialect {
                         one_of(vec_of_erased![
                             Ref::keyword("CLUSTERED"),
                             Ref::keyword("NONCLUSTERED")
-                        ]).config(|this| this.optional()),
-                        // T-SQL supports column list with ASC/DESC
-                        Bracketed::new(vec_of_erased![
-                            Delimited::new(vec_of_erased![
-                                Sequence::new(vec_of_erased![
-                                    Ref::new("ColumnReferenceSegment"),
-                                    one_of(vec_of_erased![
-                                        Ref::keyword("ASC"),
-                                        Ref::keyword("DESC")
-                                    ]).config(|this| this.optional())
-                                ])
-                            ])
                         ])
+                        .config(|this| this.optional()),
+                        // T-SQL supports column list with ASC/DESC
+                        Bracketed::new(vec_of_erased![Delimited::new(vec_of_erased![
+                            Sequence::new(vec_of_erased![
+                                Ref::new("ColumnReferenceSegment"),
+                                one_of(vec_of_erased![Ref::keyword("ASC"), Ref::keyword("DESC")])
+                                    .config(|this| this.optional())
+                            ])
+                        ])])
                     ]),
                     Sequence::new(vec_of_erased![
                         Ref::new("PrimaryKeyGrammar"),
                         // T-SQL supports column list with ASC/DESC
-                        Bracketed::new(vec_of_erased![
-                            Delimited::new(vec_of_erased![
-                                Sequence::new(vec_of_erased![
-                                    Ref::new("ColumnReferenceSegment"),
-                                    one_of(vec_of_erased![
-                                        Ref::keyword("ASC"),
-                                        Ref::keyword("DESC")
-                                    ]).config(|this| this.optional())
-                                ])
+                        Bracketed::new(vec_of_erased![Delimited::new(vec_of_erased![
+                            Sequence::new(vec_of_erased![
+                                Ref::new("ColumnReferenceSegment"),
+                                one_of(vec_of_erased![Ref::keyword("ASC"), Ref::keyword("DESC")])
+                                    .config(|this| this.optional())
                             ])
-                        ])
+                        ])])
                     ]),
                     Sequence::new(vec_of_erased![
                         Ref::new("ForeignKeyGrammar"),
@@ -5081,7 +5038,7 @@ pub fn raw_dialect() -> Dialect {
             ])
             .to_matchable()
         })
-        .to_matchable()
+        .to_matchable(),
     );
 
     // Override ReferenceDefinitionGrammar to support optional FOREIGN KEY prefix
@@ -5089,41 +5046,36 @@ pub fn raw_dialect() -> Dialect {
         "ReferenceDefinitionGrammar".into(),
         Sequence::new(vec_of_erased![
             // Optional FOREIGN KEY keywords
-            Sequence::new(vec_of_erased![
-                Ref::keyword("FOREIGN"),
-                Ref::keyword("KEY")
-            ]).config(|this| this.optional()),
+            Sequence::new(vec_of_erased![Ref::keyword("FOREIGN"), Ref::keyword("KEY")])
+                .config(|this| this.optional()),
             Ref::keyword("REFERENCES"),
             Ref::new("TableReferenceSegment"), // Table reference
             // Optional column list in parentheses
-            Bracketed::new(vec_of_erased![
-                Delimited::new(vec_of_erased![Ref::new("ColumnReferenceSegment")])
-            ]).config(|this| this.optional()),
+            Bracketed::new(vec_of_erased![Delimited::new(vec_of_erased![Ref::new(
+                "ColumnReferenceSegment"
+            )])])
+            .config(|this| this.optional()),
             // Optional referential actions
-            AnyNumberOf::new(vec_of_erased![
-                Sequence::new(vec_of_erased![
-                    Ref::keyword("ON"),
-                    one_of(vec_of_erased![
-                        Ref::keyword("DELETE"),
-                        Ref::keyword("UPDATE")
-                    ]),
-                    one_of(vec_of_erased![
-                        Ref::keyword("CASCADE"),
-                        Ref::keyword("RESTRICT"),
-                        Sequence::new(vec_of_erased![
-                            Ref::keyword("SET"),
-                            one_of(vec_of_erased![
-                                Ref::keyword("NULL"),
-                                Ref::keyword("DEFAULT")
-                            ])
-                        ]),
-                        Sequence::new(vec_of_erased![
-                            Ref::keyword("NO"),
-                            Ref::keyword("ACTION")
+            AnyNumberOf::new(vec_of_erased![Sequence::new(vec_of_erased![
+                Ref::keyword("ON"),
+                one_of(vec_of_erased![
+                    Ref::keyword("DELETE"),
+                    Ref::keyword("UPDATE")
+                ]),
+                one_of(vec_of_erased![
+                    Ref::keyword("CASCADE"),
+                    Ref::keyword("RESTRICT"),
+                    Sequence::new(vec_of_erased![
+                        Ref::keyword("SET"),
+                        one_of(vec_of_erased![
+                            Ref::keyword("NULL"),
+                            Ref::keyword("DEFAULT")
                         ])
-                    ])
+                    ]),
+                    Sequence::new(vec_of_erased![Ref::keyword("NO"), Ref::keyword("ACTION")])
                 ])
-            ]).config(|this| this.optional())
+            ])])
+            .config(|this| this.optional())
         ])
         .to_matchable()
         .into(),
@@ -5180,7 +5132,6 @@ pub fn raw_dialect() -> Dialect {
         .to_matchable()
         .into(),
     )]);
-
 
     // T-SQL CREATE PROCEDURE support
     dialect.add([
@@ -5295,16 +5246,14 @@ pub fn raw_dialect() -> Dialect {
                     // TABLE type with inline table definition
                     Sequence::new(vec_of_erased![
                         StringParser::new("TABLE", SyntaxKind::DataTypeIdentifier),
-                        Bracketed::new(vec_of_erased![
-                            Delimited::new(vec_of_erased![
-                                one_of(vec_of_erased![
-                                    // Column definition
-                                    Ref::new("ColumnDefinitionSegment"),
-                                    // Table constraint
-                                    Ref::new("TableConstraintSegment")
-                                ])
-                            ])
-                        ])
+                        Bracketed::new(vec_of_erased![Delimited::new(vec_of_erased![one_of(
+                            vec_of_erased![
+                                // Column definition
+                                Ref::new("ColumnDefinitionSegment"),
+                                // Table constraint
+                                Ref::new("TableConstraintSegment")
+                            ]
+                        )])])
                     ]),
                     // Square bracket data type like [int], [varchar](100)
                     Sequence::new(vec_of_erased![
@@ -5492,7 +5441,7 @@ pub fn raw_dialect() -> Dialect {
     // IMPORTANT: Do NOT add custom grammars here. Instead, override AliasExpressionSegment
     // to support T-SQL's alias = expression syntax.
     // For now, just use ANSI's SelectClauseElementSegment which properly handles CASE
-    
+
     // Override SelectClauseElementSegment to support T-SQL variable assignment AND prioritize CASE expressions
     dialect.add([(
         "SelectClauseElementSegment".into(),
@@ -5522,7 +5471,7 @@ pub fn raw_dialect() -> Dialect {
         .to_matchable()
         .into(),
     )]);
-    
+
     // Override SelectClause to handle CASE expressions properly by using a custom parsing approach
     // that doesn't terminate on END when inside a CASE expression
     dialect.replace_grammar(
@@ -5573,8 +5522,7 @@ pub fn raw_dialect() -> Dialect {
             })
             .to_matchable()
         })
-        .to_matchable()
-        .into(),
+        .to_matchable(),
     );
 
     // Add T-SQL specific WithCheckOptionSegment - must be defined before use
@@ -5798,11 +5746,9 @@ pub fn raw_dialect() -> Dialect {
                 // Optional NULL/NOT NULL constraint
                 one_of(vec_of_erased![
                     Ref::keyword("NULL"),
-                    Sequence::new(vec_of_erased![
-                        Ref::keyword("NOT"),
-                        Ref::keyword("NULL")
-                    ])
-                ]).config(|this| this.optional())
+                    Sequence::new(vec_of_erased![Ref::keyword("NOT"), Ref::keyword("NULL")])
+                ])
+                .config(|this| this.optional())
             ])
             .to_matchable()
         })
@@ -5817,16 +5763,13 @@ pub fn raw_dialect() -> Dialect {
         one_of(vec_of_erased![
             // CTE with SELECT - exclude WITH CHECK pattern
             Sequence::new(vec_of_erased![
-                Ref::keyword("WITH")
-                    .exclude(LookaheadExclude::new("WITH", "CHECK")),
+                Ref::keyword("WITH").exclude(LookaheadExclude::new("WITH", "CHECK")),
                 Ref::keyword("RECURSIVE").optional(),
                 Conditional::new(MetaSegment::indent()).indented_ctes(),
-                Delimited::new(vec_of_erased![Ref::new("CTEDefinitionSegment")]).config(
-                    |this| {
-                        this.terminators = vec_of_erased![Ref::keyword("SELECT")];
-                        this.allow_trailing();
-                    }
-                ),
+                Delimited::new(vec_of_erased![Ref::new("CTEDefinitionSegment")]).config(|this| {
+                    this.terminators = vec_of_erased![Ref::keyword("SELECT")];
+                    this.allow_trailing();
+                }),
                 Conditional::new(MetaSegment::dedent()).indented_ctes(),
                 Ref::new("NonWithSelectableGrammar"),
             ]),
@@ -5876,12 +5819,11 @@ pub fn raw_dialect() -> Dialect {
                 Ref::keyword("AS"),
                 // Parse the SELECT statement, but lookahead to preserve WITH CHECK OPTION
                 Sequence::new(vec_of_erased![
-                    optionally_bracketed(vec_of_erased![Ref::new("SelectableGrammar")])
-                        .config(|this| {
-                            this.terminators = vec_of_erased![
-                                Ref::new("WithCheckOptionSegment")
-                            ];
-                        }),
+                    optionally_bracketed(vec_of_erased![Ref::new("SelectableGrammar")]).config(
+                        |this| {
+                            this.terminators = vec_of_erased![Ref::new("WithCheckOptionSegment")];
+                        }
+                    ),
                     // WITH CHECK OPTION at the end using proper segment
                     Ref::new("WithCheckOptionSegment").optional()
                 ])
@@ -6134,8 +6076,7 @@ pub fn raw_dialect() -> Dialect {
             ])
             .to_matchable()
         })
-        .to_matchable()
-        .into(),
+        .to_matchable(),
     );
 
     // T-SQL CREATE TABLE with Azure Synapse Analytics support
@@ -6159,27 +6100,25 @@ pub fn raw_dialect() -> Dialect {
                     // Regular CREATE TABLE with column definitions (not graph tables)
                     Sequence::new(vec_of_erased![
                         Bracketed::new(vec_of_erased![
-                            Delimited::new(vec_of_erased![
-                                one_of(vec_of_erased![
-                                    // Word-aware column definition for cases with word tokens
-                                    Ref::new("WordAwareColumnDefinitionSegment"),
-                                    Ref::new("ColumnDefinitionSegment"),
-                                    Ref::new("TableConstraintSegment"),
-                                    // T-SQL Graph: CONNECTION constraint for edge tables
-                                    Ref::new("ConnectionConstraintSegment"),
-                                    // PERIOD FOR SYSTEM_TIME for temporal tables
-                                    Sequence::new(vec_of_erased![
-                                        Ref::keyword("PERIOD"),
-                                        Ref::keyword("FOR"),
-                                        Ref::keyword("SYSTEM_TIME"),
-                                        Bracketed::new(vec_of_erased![
-                                            Ref::new("SingleIdentifierGrammar"),
-                                            Ref::new("CommaSegment"),
-                                            Ref::new("SingleIdentifierGrammar")
-                                        ])
+                            Delimited::new(vec_of_erased![one_of(vec_of_erased![
+                                // Word-aware column definition for cases with word tokens
+                                Ref::new("WordAwareColumnDefinitionSegment"),
+                                Ref::new("ColumnDefinitionSegment"),
+                                Ref::new("TableConstraintSegment"),
+                                // T-SQL Graph: CONNECTION constraint for edge tables
+                                Ref::new("ConnectionConstraintSegment"),
+                                // PERIOD FOR SYSTEM_TIME for temporal tables
+                                Sequence::new(vec_of_erased![
+                                    Ref::keyword("PERIOD"),
+                                    Ref::keyword("FOR"),
+                                    Ref::keyword("SYSTEM_TIME"),
+                                    Bracketed::new(vec_of_erased![
+                                        Ref::new("SingleIdentifierGrammar"),
+                                        Ref::new("CommaSegment"),
+                                        Ref::new("SingleIdentifierGrammar")
                                     ])
                                 ])
-                            ])
+                            ])])
                             .config(|this| this.allow_trailing())
                         ]),
                         // Optional WITH clause for table options (after column definitions)
@@ -6193,10 +6132,7 @@ pub fn raw_dialect() -> Dialect {
                         // Optional AS NODE/EDGE for graph tables with column definitions
                         Sequence::new(vec_of_erased![
                             Ref::keyword("AS"),
-                            one_of(vec_of_erased![
-                                Ref::keyword("NODE"),
-                                Ref::keyword("EDGE")
-                            ])
+                            one_of(vec_of_erased![Ref::keyword("NODE"), Ref::keyword("EDGE")])
                         ])
                         .config(|this| this.optional())
                     ]),
@@ -6218,10 +6154,7 @@ pub fn raw_dialect() -> Dialect {
                     // T-SQL Graph: Simple graph table without column definitions (CREATE TABLE name AS NODE/EDGE)
                     Sequence::new(vec_of_erased![
                         Ref::keyword("AS"),
-                        one_of(vec_of_erased![
-                            Ref::keyword("NODE"),
-                            Ref::keyword("EDGE")
-                        ])
+                        one_of(vec_of_erased![Ref::keyword("NODE"), Ref::keyword("EDGE")])
                     ])
                 ]),
                 // Optional ON filegroup/partition_scheme clause for both table types
@@ -6236,9 +6169,9 @@ pub fn raw_dialect() -> Dialect {
                 // Optional WITH clause for table options (after ON filegroup)
                 Sequence::new(vec_of_erased![
                     Ref::keyword("WITH"),
-                    Bracketed::new(vec_of_erased![Delimited::new(vec_of_erased![
-                        Ref::new("TableOptionGrammar")
-                    ])])
+                    Bracketed::new(vec_of_erased![Delimited::new(vec_of_erased![Ref::new(
+                        "TableOptionGrammar"
+                    )])])
                 ])
                 .config(|this| this.optional())
             ])
@@ -6353,42 +6286,44 @@ pub fn raw_dialect() -> Dialect {
                     Ref::keyword("OFF"),
                     Sequence::new(vec_of_erased![
                         Ref::keyword("ON"),
-                        Bracketed::new(vec_of_erased![Delimited::new(vec_of_erased![
-                            // HISTORY_TABLE option
-                            Sequence::new(vec_of_erased![
-                                Ref::keyword("HISTORY_TABLE"),
-                                Ref::new("EqualsSegment"),
-                                Ref::new("ObjectReferenceSegment")
-                            ]),
-                            // HISTORY_RETENTION_PERIOD option
-                            Sequence::new(vec_of_erased![
-                                Ref::keyword("HISTORY_RETENTION_PERIOD"),
-                                Ref::new("EqualsSegment"),
-                                one_of(vec_of_erased![
-                                    Ref::keyword("INFINITE"),
-                                    Sequence::new(vec_of_erased![
-                                        Ref::new("NumericLiteralSegment"),
-                                        one_of(vec_of_erased![
-                                            Ref::keyword("DAY"),
-                                            Ref::keyword("DAYS"),
-                                            Ref::keyword("WEEK"),
-                                            Ref::keyword("WEEKS"),
-                                            Ref::keyword("MONTH"),
-                                            Ref::keyword("MONTHS"),
-                                            Ref::keyword("YEAR"),
-                                            Ref::keyword("YEARS")
+                        Bracketed::new(vec_of_erased![
+                            Delimited::new(vec_of_erased![
+                                // HISTORY_TABLE option
+                                Sequence::new(vec_of_erased![
+                                    Ref::keyword("HISTORY_TABLE"),
+                                    Ref::new("EqualsSegment"),
+                                    Ref::new("ObjectReferenceSegment")
+                                ]),
+                                // HISTORY_RETENTION_PERIOD option
+                                Sequence::new(vec_of_erased![
+                                    Ref::keyword("HISTORY_RETENTION_PERIOD"),
+                                    Ref::new("EqualsSegment"),
+                                    one_of(vec_of_erased![
+                                        Ref::keyword("INFINITE"),
+                                        Sequence::new(vec_of_erased![
+                                            Ref::new("NumericLiteralSegment"),
+                                            one_of(vec_of_erased![
+                                                Ref::keyword("DAY"),
+                                                Ref::keyword("DAYS"),
+                                                Ref::keyword("WEEK"),
+                                                Ref::keyword("WEEKS"),
+                                                Ref::keyword("MONTH"),
+                                                Ref::keyword("MONTHS"),
+                                                Ref::keyword("YEAR"),
+                                                Ref::keyword("YEARS")
+                                            ])
                                         ])
                                     ])
+                                ]),
+                                // DATA_CONSISTENCY_CHECK option
+                                Sequence::new(vec_of_erased![
+                                    Ref::keyword("DATA_CONSISTENCY_CHECK"),
+                                    Ref::new("EqualsSegment"),
+                                    one_of(vec_of_erased![Ref::keyword("ON"), Ref::keyword("OFF")])
                                 ])
-                            ]),
-                            // DATA_CONSISTENCY_CHECK option
-                            Sequence::new(vec_of_erased![
-                                Ref::keyword("DATA_CONSISTENCY_CHECK"),
-                                Ref::new("EqualsSegment"),
-                                one_of(vec_of_erased![Ref::keyword("ON"), Ref::keyword("OFF")])
                             ])
+                            .config(|this| this.allow_trailing())
                         ])
-                        .config(|this| this.allow_trailing())])
                     ])
                 ])
             ]),
@@ -6769,7 +6704,7 @@ pub fn raw_dialect() -> Dialect {
             Sequence::new(vec_of_erased![
                 Ref::keyword("LOCATION"),
                 Ref::new("EqualsSegment"),
-                Ref::new("LiteralGrammar")  // Changed to support Unicode strings
+                Ref::new("LiteralGrammar") // Changed to support Unicode strings
             ]),
             // CREDENTIAL = credential_name
             Sequence::new(vec_of_erased![
@@ -6787,7 +6722,7 @@ pub fn raw_dialect() -> Dialect {
             Sequence::new(vec_of_erased![
                 Ref::keyword("CONNECTION_OPTIONS"),
                 Ref::new("EqualsSegment"),
-                Ref::new("LiteralGrammar")  // Changed to support Unicode strings
+                Ref::new("LiteralGrammar") // Changed to support Unicode strings
             ])
         ])
         .to_matchable()
@@ -6868,13 +6803,13 @@ pub fn raw_dialect() -> Dialect {
             Sequence::new(vec_of_erased![
                 Ref::keyword("FIELD_TERMINATOR"),
                 Ref::new("EqualsSegment"),
-                Ref::new("LiteralGrammar")  // Support Unicode strings
+                Ref::new("LiteralGrammar") // Support Unicode strings
             ]),
             // STRING_DELIMITER = 'delimiter'
             Sequence::new(vec_of_erased![
                 Ref::keyword("STRING_DELIMITER"),
                 Ref::new("EqualsSegment"),
-                Ref::new("LiteralGrammar")  // Support Unicode strings
+                Ref::new("LiteralGrammar") // Support Unicode strings
             ]),
             // FIRST_ROW = number
             Sequence::new(vec_of_erased![
@@ -6940,7 +6875,8 @@ pub fn raw_dialect() -> Dialect {
                         Sequence::new(vec_of_erased![
                             Ref::keyword("FROM"),
                             Ref::keyword("WINDOWS")
-                        ]).config(|this| this.optional())
+                        ])
+                        .config(|this| this.optional())
                     ]),
                     // FROM WINDOWS
                     Sequence::new(vec_of_erased![
@@ -7356,28 +7292,26 @@ pub fn raw_dialect() -> Dialect {
                 one_of(vec_of_erased![
                     Sequence::new(vec_of_erased![
                         Ref::keyword("FOR"),
-                        Delimited::new(vec_of_erased![
-                            one_of(vec_of_erased![
-                                // Common DDL events for DATABASE/ALL SERVER triggers
-                                Ref::keyword("CREATE_TABLE"),
-                                Ref::keyword("ALTER_TABLE"),
-                                Ref::keyword("DROP_TABLE"),
-                                Ref::keyword("CREATE_INDEX"),
-                                Ref::keyword("DROP_INDEX"),
-                                Ref::keyword("CREATE_VIEW"),
-                                Ref::keyword("DROP_VIEW"),
-                                Ref::keyword("CREATE_PROCEDURE"),
-                                Ref::keyword("DROP_PROCEDURE"),
-                                Ref::keyword("CREATE_FUNCTION"),
-                                Ref::keyword("DROP_FUNCTION"),
-                                Ref::keyword("CREATE_SYNONYM"),
-                                Ref::keyword("DROP_SYNONYM"),
-                                Ref::keyword("CREATE_DATABASE"),
-                                Ref::keyword("DROP_DATABASE"),
-                                // Fallback for other DDL events as identifiers
-                                Ref::new("SingleIdentifierGrammar")
-                            ])
-                        ])
+                        Delimited::new(vec_of_erased![one_of(vec_of_erased![
+                            // Common DDL events for DATABASE/ALL SERVER triggers
+                            Ref::keyword("CREATE_TABLE"),
+                            Ref::keyword("ALTER_TABLE"),
+                            Ref::keyword("DROP_TABLE"),
+                            Ref::keyword("CREATE_INDEX"),
+                            Ref::keyword("DROP_INDEX"),
+                            Ref::keyword("CREATE_VIEW"),
+                            Ref::keyword("DROP_VIEW"),
+                            Ref::keyword("CREATE_PROCEDURE"),
+                            Ref::keyword("DROP_PROCEDURE"),
+                            Ref::keyword("CREATE_FUNCTION"),
+                            Ref::keyword("DROP_FUNCTION"),
+                            Ref::keyword("CREATE_SYNONYM"),
+                            Ref::keyword("DROP_SYNONYM"),
+                            Ref::keyword("CREATE_DATABASE"),
+                            Ref::keyword("DROP_DATABASE"),
+                            // Fallback for other DDL events as identifiers
+                            Ref::new("SingleIdentifierGrammar")
+                        ])])
                     ]),
                     Ref::keyword("AFTER"),
                     Sequence::new(vec_of_erased![Ref::keyword("INSTEAD"), Ref::keyword("OF")])
@@ -7412,16 +7346,18 @@ pub fn raw_dialect() -> Dialect {
                         this.min_times(1);
                         this.terminators = vec_of_erased![
                             Ref::new("BatchSeparatorGrammar"), // GO terminates the trigger
-                            Ref::keyword("DROP"), // Next DROP TRIGGER might follow
-                            Ref::keyword("CREATE"), // Next CREATE statement might follow
+                            Ref::keyword("DROP"),              // Next DROP TRIGGER might follow
+                            Ref::keyword("CREATE"),            // Next CREATE statement might follow
                         ];
                     })
                 ])
             ])
-            .config(|this| this.terminators = vec_of_erased![
-                Ref::new("BatchSeparatorGrammar") // GO terminates the trigger definition
-                // Removed DelimiterGrammar - semicolons should NOT terminate the entire trigger body
-            ])
+            .config(|this| {
+                this.terminators = vec_of_erased![
+                    Ref::new("BatchSeparatorGrammar") // GO terminates the trigger definition
+                                                      // Removed DelimiterGrammar - semicolons should NOT terminate the entire trigger body
+                ]
+            })
             .to_matchable()
         })
         .to_matchable()
@@ -7444,7 +7380,8 @@ pub fn raw_dialect() -> Dialect {
                         Sequence::new(vec_of_erased![Ref::keyword("ALL"), Ref::keyword("SERVER")]),
                         Ref::keyword("DATABASE")
                     ])
-                ]).config(|this| this.optional())
+                ])
+                .config(|this| this.optional())
             ])
             .to_matchable()
         })
@@ -8160,10 +8097,7 @@ pub fn raw_dialect() -> Dialect {
                         Ref::keyword("NULL")
                     ]),
                     // Just ON NULL by itself
-                    Sequence::new(vec_of_erased![
-                        Ref::keyword("ON"),
-                        Ref::keyword("NULL")
-                    ])
+                    Sequence::new(vec_of_erased![Ref::keyword("ON"), Ref::keyword("NULL")])
                 ])
                 .to_matchable()
             })
@@ -8215,7 +8149,7 @@ pub fn raw_dialect() -> Dialect {
             .to_matchable()
             .into(),
         ),
-        // Grammar for JSON_ARRAY function contents  
+        // Grammar for JSON_ARRAY function contents
         (
             "TsqlJsonArrayContentsGrammar".into(),
             one_of(vec_of_erased![
@@ -8223,9 +8157,7 @@ pub fn raw_dialect() -> Dialect {
                 Ref::new("TsqlJsonNullClause"),
                 // List of expressions followed by optional null clause (without comma)
                 Sequence::new(vec_of_erased![
-                    Delimited::new(vec_of_erased![
-                        Ref::new("ExpressionSegment")
-                    ]).config(|this| {
+                    Delimited::new(vec_of_erased![Ref::new("ExpressionSegment")]).config(|this| {
                         this.allow_trailing = false; // Don't allow trailing comma before null clause
                     }),
                     // Allow the NULL ON NULL clause directly after the expressions
@@ -8244,9 +8176,8 @@ pub fn raw_dialect() -> Dialect {
                         StringParser::new("JSON_ARRAY", SyntaxKind::FunctionNameIdentifier)
                             .to_matchable()
                     }),
-                    Bracketed::new(vec_of_erased![
-                        Ref::new("TsqlJsonArrayContentsGrammar")
-                    ]).config(|this| this.parse_mode(ParseMode::Greedy))
+                    Bracketed::new(vec_of_erased![Ref::new("TsqlJsonArrayContentsGrammar")])
+                        .config(|this| this.parse_mode(ParseMode::Greedy))
                 ])
                 .to_matchable()
             })
@@ -8425,7 +8356,7 @@ pub fn raw_dialect() -> Dialect {
                                 Sequence::new(vec_of_erased![
                                     Ref::keyword("FILE_TYPE"),
                                     Ref::new("EqualsSegment"),
-                                    Ref::new("LiteralGrammar")  // Support Unicode strings
+                                    Ref::new("LiteralGrammar") // Support Unicode strings
                                 ]),
                                 // FILE_FORMAT = object_ref
                                 Sequence::new(vec_of_erased![
@@ -8670,31 +8601,29 @@ pub fn raw_dialect() -> Dialect {
     ]);
 
     // T-SQL OUTPUT clause needed by INSERT, UPDATE, DELETE, MERGE statements
-    dialect.add([
-        (
-            "OutputClauseSegment".into(),
+    dialect.add([(
+        "OutputClauseSegment".into(),
+        Sequence::new(vec_of_erased![
+            Ref::keyword("OUTPUT"),
+            Delimited::new(vec_of_erased![
+                // Use SelectClauseElementSegment which already handles expressions with aliases
+                Ref::new("SelectClauseElementSegment"),
+            ]),
+            // Optional INTO clause
             Sequence::new(vec_of_erased![
-                Ref::keyword("OUTPUT"),
-                Delimited::new(vec_of_erased![
-                    // Use SelectClauseElementSegment which already handles expressions with aliases
-                    Ref::new("SelectClauseElementSegment"),
-                ]),
-                // Optional INTO clause
-                Sequence::new(vec_of_erased![
-                    Ref::keyword("INTO"),
-                    Ref::new("TableReferenceSegment"),
-                    // Optional column list
-                    Bracketed::new(vec_of_erased![Delimited::new(vec_of_erased![Ref::new(
-                        "ColumnReferenceSegment"
-                    ),])])
-                    .config(|this| this.optional()),
-                ])
+                Ref::keyword("INTO"),
+                Ref::new("TableReferenceSegment"),
+                // Optional column list
+                Bracketed::new(vec_of_erased![Delimited::new(vec_of_erased![Ref::new(
+                    "ColumnReferenceSegment"
+                ),])])
                 .config(|this| this.optional()),
             ])
-            .to_matchable()
-            .into(),
-        ),
-    ]);
+            .config(|this| this.optional()),
+        ])
+        .to_matchable()
+        .into(),
+    )]);
 
     // Override MergeStatementSegment for T-SQL specific features (OUTPUT clause support)
     dialect.replace_grammar(
@@ -8760,12 +8689,11 @@ pub fn raw_dialect() -> Dialect {
                             Ref::new("OpenRowSetSegment")
                         ]),
                         // Allow .database.schema.table after OPENDATASOURCE/OPENROWSET/OPENQUERY
-                        AnyNumberOf::new(vec_of_erased![
-                            Sequence::new(vec_of_erased![
-                                Ref::new("DotSegment"),
-                                Ref::new("SingleIdentifierGrammar")
-                            ])
-                        ]).config(|this| this.min_times(1))
+                        AnyNumberOf::new(vec_of_erased![Sequence::new(vec_of_erased![
+                            Ref::new("DotSegment"),
+                            Ref::new("SingleIdentifierGrammar")
+                        ])])
+                        .config(|this| this.min_times(1))
                     ]),
                     Ref::new("FunctionSegment"),
                 ]),
@@ -8842,12 +8770,11 @@ pub fn raw_dialect() -> Dialect {
                             Ref::new("OpenRowSetSegment")
                         ]),
                         // Allow .database.schema.table after OPENDATASOURCE/OPENROWSET/OPENQUERY
-                        AnyNumberOf::new(vec_of_erased![
-                            Sequence::new(vec_of_erased![
-                                Ref::new("DotSegment"),
-                                Ref::new("SingleIdentifierGrammar")
-                            ])
-                        ]).config(|this| this.min_times(1))
+                        AnyNumberOf::new(vec_of_erased![Sequence::new(vec_of_erased![
+                            Ref::new("DotSegment"),
+                            Ref::new("SingleIdentifierGrammar")
+                        ])])
+                        .config(|this| this.min_times(1))
                     ]),
                 ]),
                 // T-SQL specific: Table hints
@@ -8876,7 +8803,6 @@ pub fn raw_dialect() -> Dialect {
 
     // NOTE: Removed T-SQL SelectableGrammar override to fix MERGE statement parsing
     // The EXEC statement support should be added differently without breaking MERGE
-
 
     // Override DELETE statement for T-SQL specific features
     dialect.replace_grammar(
@@ -8912,12 +8838,11 @@ pub fn raw_dialect() -> Dialect {
                             Ref::new("OpenRowSetSegment")
                         ]),
                         // Allow .database.schema.table after OPENDATASOURCE/OPENROWSET/OPENQUERY
-                        AnyNumberOf::new(vec_of_erased![
-                            Sequence::new(vec_of_erased![
-                                Ref::new("DotSegment"),
-                                Ref::new("SingleIdentifierGrammar")
-                            ])
-                        ]).config(|this| this.min_times(1))
+                        AnyNumberOf::new(vec_of_erased![Sequence::new(vec_of_erased![
+                            Ref::new("DotSegment"),
+                            Ref::new("SingleIdentifierGrammar")
+                        ])])
+                        .config(|this| this.min_times(1))
                     ]),
                     Ref::new("FunctionSegment"),
                 ]),
@@ -8945,8 +8870,7 @@ pub fn raw_dialect() -> Dialect {
             MetaSegment::indent(),
             one_of(vec_of_erased![
                 // Regular WHERE with expression - exclude WITH CHECK OPTION
-                Ref::new("ExpressionSegment")
-                    .exclude(LookaheadExclude::new("WITH", "CHECK")),
+                Ref::new("ExpressionSegment").exclude(LookaheadExclude::new("WITH", "CHECK")),
                 // T-SQL CURRENT OF clause for cursors
                 Sequence::new(vec_of_erased![
                     Ref::keyword("CURRENT"),
@@ -9149,9 +9073,10 @@ pub fn raw_dialect() -> Dialect {
                     // Table name (can be schema qualified)
                     Ref::new("TableReferenceSegment"),
                     // Column definitions (optional)
-                    Bracketed::new(vec_of_erased![
-                        Delimited::new(vec_of_erased![Ref::new("ColumnDefinitionSegment")])
-                    ]).config(|this| this.optional()),
+                    Bracketed::new(vec_of_erased![Delimited::new(vec_of_erased![Ref::new(
+                        "ColumnDefinitionSegment"
+                    )])])
+                    .config(|this| this.optional()),
                     // WITH clause for external table options
                     Sequence::new(vec_of_erased![
                         Ref::keyword("WITH"),
@@ -9281,7 +9206,9 @@ pub fn raw_dialect() -> Dialect {
             // WITH (hints) syntax
             Ref::new("TableHintSegment"),
             // Simplified (hint) syntax - just bracketed hints without WITH
-            Bracketed::new(vec_of_erased![Delimited::new(vec_of_erased![Ref::new("TableHintElement")])]),
+            Bracketed::new(vec_of_erased![Delimited::new(vec_of_erased![Ref::new(
+                "TableHintElement"
+            )])]),
             // PIVOT/UNPIVOT
             Ref::new("PivotUnpivotStatementSegment"),
             // FOR SYSTEM_TIME temporal table queries
@@ -9297,12 +9224,10 @@ pub fn raw_dialect() -> Dialect {
         NodeMatcher::new(SyntaxKind::CreateFunctionStatement, |_| {
             Sequence::new(vec_of_erased![
                 Ref::keyword("CREATE"),
-                Sequence::new(vec_of_erased![
-                    Ref::keyword("OR"),
-                    Ref::keyword("ALTER")
-                ]).config(|this| this.optional()),
+                Sequence::new(vec_of_erased![Ref::keyword("OR"), Ref::keyword("ALTER")])
+                    .config(|this| this.optional()),
                 Ref::keyword("FUNCTION"),
-                Ref::new("ObjectReferenceSegment"),  // T-SQL functions can have schema names
+                Ref::new("ObjectReferenceSegment"), // T-SQL functions can have schema names
                 Ref::new("FunctionParameterListGrammar"),
                 // RETURNS clause - can be simple type or table type
                 Sequence::new(vec_of_erased![
@@ -9312,14 +9237,12 @@ pub fn raw_dialect() -> Dialect {
                         Sequence::new(vec_of_erased![
                             Ref::new("TsqlVariableSegment"),
                             Ref::keyword("TABLE"),
-                            Bracketed::new(vec_of_erased![
-                                Delimited::new(vec_of_erased![
-                                    Sequence::new(vec_of_erased![
-                                        Ref::new("ColumnReferenceSegment"),
-                                        Ref::new("DatatypeSegment")
-                                    ])
+                            Bracketed::new(vec_of_erased![Delimited::new(vec_of_erased![
+                                Sequence::new(vec_of_erased![
+                                    Ref::new("ColumnReferenceSegment"),
+                                    Ref::new("DatatypeSegment")
                                 ])
-                            ])
+                            ])])
                         ]),
                         // Simple data type
                         Ref::new("DatatypeSegment")
@@ -9328,41 +9251,38 @@ pub fn raw_dialect() -> Dialect {
                 // Optional WITH clauses
                 Sequence::new(vec_of_erased![
                     Ref::keyword("WITH"),
-                    Delimited::new(vec_of_erased![
-                        one_of(vec_of_erased![
-                            Ref::keyword("SCHEMABINDING"),
-                            Sequence::new(vec_of_erased![
-                                Ref::keyword("RETURNS"),
-                                Ref::keyword("NULL"),
-                                Ref::keyword("ON"),
-                                Ref::keyword("NULL"),
-                                Ref::keyword("INPUT")
-                            ]),
-                            Sequence::new(vec_of_erased![
-                                Ref::keyword("EXECUTE"),
-                                Ref::keyword("AS"),
-                                one_of(vec_of_erased![
-                                    Ref::keyword("CALLER"),
-                                    Ref::keyword("SELF"),
-                                    Ref::keyword("OWNER"),
-                                    Ref::new("QuotedLiteralSegment")
-                                ])
+                    Delimited::new(vec_of_erased![one_of(vec_of_erased![
+                        Ref::keyword("SCHEMABINDING"),
+                        Sequence::new(vec_of_erased![
+                            Ref::keyword("RETURNS"),
+                            Ref::keyword("NULL"),
+                            Ref::keyword("ON"),
+                            Ref::keyword("NULL"),
+                            Ref::keyword("INPUT")
+                        ]),
+                        Sequence::new(vec_of_erased![
+                            Ref::keyword("EXECUTE"),
+                            Ref::keyword("AS"),
+                            one_of(vec_of_erased![
+                                Ref::keyword("CALLER"),
+                                Ref::keyword("SELF"),
+                                Ref::keyword("OWNER"),
+                                Ref::new("QuotedLiteralSegment")
                             ])
                         ])
-                    ])
-                ]).config(|this| this.optional()),
+                    ])])
+                ])
+                .config(|this| this.optional()),
                 // Function body
                 one_of(vec_of_erased![
                     // AS BEGIN ... END
                     Sequence::new(vec_of_erased![
                         Ref::keyword("AS"),
                         Ref::keyword("BEGIN"),
-                        AnyNumberOf::new(vec_of_erased![
-                            Ref::new("StatementSegment")
-                        ]),
+                        AnyNumberOf::new(vec_of_erased![Ref::new("StatementSegment")]),
                         Ref::keyword("END")
                     ]),
-                    // Just AS for inline functions 
+                    // Just AS for inline functions
                     Sequence::new(vec_of_erased![
                         Ref::keyword("AS"),
                         Ref::new("StatementSegment")
@@ -9370,9 +9290,7 @@ pub fn raw_dialect() -> Dialect {
                     // BEGIN ... END without AS (T-SQL allows this)
                     Sequence::new(vec_of_erased![
                         Ref::keyword("BEGIN"),
-                        AnyNumberOf::new(vec_of_erased![
-                            Ref::new("StatementSegment")
-                        ]),
+                        AnyNumberOf::new(vec_of_erased![Ref::new("StatementSegment")]),
                         Ref::keyword("END")
                     ])
                 ])
@@ -9411,65 +9329,71 @@ pub fn raw_dialect() -> Dialect {
     )]);
 
     // T-SQL specific JOIN hints grammar - add HASH/MERGE/LOOP hints to JoinTypeKeywordsGrammar
-    dialect.add([
-        (
-            "JoinTypeKeywordsGrammar".into(),
-            one_of(vec![
-                Ref::keyword("CROSS").to_matchable(),
-                // T-SQL specific: INNER with optional hints
-                Sequence::new(vec![
-                    Ref::keyword("INNER").to_matchable(),
-                    one_of(vec![
-                        Ref::keyword("HASH").to_matchable(),
-                        Ref::keyword("MERGE").to_matchable(), 
-                        Ref::keyword("LOOP").to_matchable(),
-                    ]).config(|this| this.optional()).to_matchable(),
-                ]).to_matchable(),
-                // T-SQL specific: OUTER joins with optional hints
-                Sequence::new(vec![
-                    one_of(vec![
-                        Ref::keyword("FULL").to_matchable(),
-                        Ref::keyword("LEFT").to_matchable(),
-                        Ref::keyword("RIGHT").to_matchable(),
-                    ]).to_matchable(),
-                    Ref::keyword("OUTER").optional().to_matchable(),
-                    one_of(vec![
-                        Ref::keyword("HASH").to_matchable(),
-                        Ref::keyword("MERGE").to_matchable(), 
-                        Ref::keyword("LOOP").to_matchable(),
-                    ]).config(|this| this.optional()).to_matchable(),
-                ]).to_matchable(),
-            ]).config(|this| this.optional()).to_matchable().into()
-        ),
-    ]);
+    dialect.add([(
+        "JoinTypeKeywordsGrammar".into(),
+        one_of(vec![
+            Ref::keyword("CROSS").to_matchable(),
+            // T-SQL specific: INNER with optional hints
+            Sequence::new(vec![
+                Ref::keyword("INNER").to_matchable(),
+                one_of(vec![
+                    Ref::keyword("HASH").to_matchable(),
+                    Ref::keyword("MERGE").to_matchable(),
+                    Ref::keyword("LOOP").to_matchable(),
+                ])
+                .config(|this| this.optional())
+                .to_matchable(),
+            ])
+            .to_matchable(),
+            // T-SQL specific: OUTER joins with optional hints
+            Sequence::new(vec![
+                one_of(vec![
+                    Ref::keyword("FULL").to_matchable(),
+                    Ref::keyword("LEFT").to_matchable(),
+                    Ref::keyword("RIGHT").to_matchable(),
+                ])
+                .to_matchable(),
+                Ref::keyword("OUTER").optional().to_matchable(),
+                one_of(vec![
+                    Ref::keyword("HASH").to_matchable(),
+                    Ref::keyword("MERGE").to_matchable(),
+                    Ref::keyword("LOOP").to_matchable(),
+                ])
+                .config(|this| this.optional())
+                .to_matchable(),
+            ])
+            .to_matchable(),
+        ])
+        .config(|this| this.optional())
+        .to_matchable()
+        .into(),
+    )]);
 
     // T-SQL AliasedTableReferenceGrammar override - support inline aliases without indentation
     // This fixes MERGE statements like "MERGE table alias" where alias is on same line
-    dialect.add([
-        (
-            "AliasedTableReferenceGrammar".into(),
-            Sequence::new(vec_of_erased![
-                Ref::new("TableReferenceSegment"),
-                // T-SQL specific inline alias support (no indent requirement)
-                NodeMatcher::new(SyntaxKind::AliasExpression, |_| {
-                    Sequence::new(vec_of_erased![
-                        Ref::keyword("AS").optional(),
-                        one_of(vec_of_erased![
-                            Sequence::new(vec_of_erased![
-                                Ref::new("SingleIdentifierGrammar"),
-                                Bracketed::new(vec_of_erased![Ref::new("SingleIdentifierListSegment")])
-                                    .config(|this| this.optional())
-                            ]),
-                            Ref::new("SingleQuotedIdentifierSegment")
+    dialect.add([(
+        "AliasedTableReferenceGrammar".into(),
+        Sequence::new(vec_of_erased![
+            Ref::new("TableReferenceSegment"),
+            // T-SQL specific inline alias support (no indent requirement)
+            NodeMatcher::new(SyntaxKind::AliasExpression, |_| {
+                Sequence::new(vec_of_erased![
+                    Ref::keyword("AS").optional(),
+                    one_of(vec_of_erased![
+                        Sequence::new(vec_of_erased![
+                            Ref::new("SingleIdentifierGrammar"),
+                            Bracketed::new(vec_of_erased![Ref::new("SingleIdentifierListSegment")])
+                                .config(|this| this.optional())
                         ]),
-                    ])
-                    .to_matchable()
-                }),
-            ])
-            .to_matchable()
-            .into(),
-        ),
-    ]);
+                        Ref::new("SingleQuotedIdentifierSegment")
+                    ]),
+                ])
+                .to_matchable()
+            }),
+        ])
+        .to_matchable()
+        .into(),
+    )]);
 
     // Override MERGE NOT MATCHED clause to support "BY TARGET" and "BY SOURCE"
     dialect.replace_grammar("MergeNotMatchedClauseSegment", {
@@ -9485,12 +9409,14 @@ pub fn raw_dialect() -> Dialect {
                         Ref::keyword("TARGET"),
                         Ref::keyword("SOURCE")
                     ])
-                ]).config(|this| this.optional()),
+                ])
+                .config(|this| this.optional()),
                 // Optional AND condition
                 Sequence::new(vec_of_erased![
                     Ref::keyword("AND"),
                     Ref::new("ExpressionSegment")
-                ]).config(|this| this.optional()),
+                ])
+                .config(|this| this.optional()),
                 Ref::keyword("THEN"),
                 MetaSegment::indent(),
                 one_of(vec_of_erased![
@@ -9509,8 +9435,7 @@ pub fn raw_dialect() -> Dialect {
     dialect.add([(
         "MergeDeleteClauseSegment".into(),
         NodeMatcher::new(SyntaxKind::DeleteStatement, |_| {
-            Ref::keyword("DELETE")
-            .to_matchable()
+            Ref::keyword("DELETE").to_matchable()
         })
         .to_matchable()
         .into(),
@@ -9531,8 +9456,10 @@ pub fn raw_dialect() -> Dialect {
                             Ref::new("NumericLiteralSegment"),
                             Ref::new("CommaSegment"),
                             Ref::new("NumericLiteralSegment")
-                        ]).config(|this| this.optional())
-                    ]).config(|this| this.optional()),
+                        ])
+                        .config(|this| this.optional())
+                    ])
+                    .config(|this| this.optional()),
                     // FILESTREAM
                     Ref::keyword("FILESTREAM").optional(),
                     // MASKED WITH (FUNCTION = '...')
@@ -9544,7 +9471,8 @@ pub fn raw_dialect() -> Dialect {
                             Ref::new("EqualsSegment"),
                             Ref::new("QuotedLiteralSegment")
                         ])
-                    ]).config(|this| this.optional()),
+                    ])
+                    .config(|this| this.optional()),
                     // Column constraints
                     AnyNumberOf::new(vec_of_erased![Ref::new("ColumnConstraintSegment")])
                 ]),
@@ -9604,7 +9532,6 @@ pub fn raw_dialect() -> Dialect {
         .into(),
     )]);
 
-
     // Add OPENQUERY support
     dialect.add([(
         "OpenQuerySegment".into(),
@@ -9627,7 +9554,7 @@ pub fn raw_dialect() -> Dialect {
         .to_matchable()
         .into(),
     )]);
-    
+
     // Add OPENDATASOURCE support
     dialect.add([(
         "OpenDataSourceSegment".into(),
@@ -9698,7 +9625,7 @@ pub fn raw_dialect() -> Dialect {
                     ]),
                     Ref::new("PostFunctionGrammar").optional()
                 ]),
-                // JSON functions with NULL clause support  
+                // JSON functions with NULL clause support
                 Sequence::new(vec_of_erased![
                     Ref::new("FunctionNameSegment"),
                     Ref::new("FunctionParameterListGrammar"),
@@ -9761,7 +9688,8 @@ pub fn raw_dialect() -> Dialect {
                 StringParser::new("mcs", SyntaxKind::DatetimeTypeIdentifier),
                 StringParser::new("nanosecond", SyntaxKind::DatetimeTypeIdentifier),
                 StringParser::new("ns", SyntaxKind::DatetimeTypeIdentifier),
-            ]).to_matchable()
+            ])
+            .to_matchable()
         })
         .to_matchable()
         .into(),
@@ -9775,7 +9703,8 @@ pub fn raw_dialect() -> Dialect {
             one_of(vec_of_erased![
                 StringParser::new("DATENAME", SyntaxKind::FunctionNameIdentifier),
                 StringParser::new("DATEPART", SyntaxKind::FunctionNameIdentifier),
-            ]).to_matchable()
+            ])
+            .to_matchable()
         })
         .to_matchable()
         .into(),
@@ -9886,8 +9815,7 @@ pub fn raw_dialect() -> Dialect {
             ])
             .to_matchable()
         })
-        .to_matchable()
-        .into(),
+        .to_matchable(),
     );
 
     // Override WhereClauseSegment to handle word tokens in procedure bodies
@@ -9906,8 +9834,7 @@ pub fn raw_dialect() -> Dialect {
             ])
             .to_matchable()
         })
-        .to_matchable()
-        .into(),
+        .to_matchable(),
     );
 
     // Override JoinKeywordsGrammar to handle word tokens in procedure bodies
@@ -9919,7 +9846,7 @@ pub fn raw_dialect() -> Dialect {
                 // Also accept JOIN as word token in T-SQL procedure bodies
                 StringParser::new("JOIN", SyntaxKind::Keyword)
             ])
-            .to_matchable()
+            .to_matchable(),
         ])
         .to_matchable()
         .into(),
@@ -9941,10 +9868,8 @@ pub fn raw_dialect() -> Dialect {
             ])
             .to_matchable()
         })
-        .to_matchable()
-        .into(),
+        .to_matchable(),
     );
-
 
     // Word-aware expression parser for T-SQL contexts where keywords are lexed as words
     // This handles expressions like "@var IS NULL" where IS and NULL are word tokens
@@ -9965,43 +9890,41 @@ pub fn raw_dialect() -> Dialect {
                 Bracketed::new(vec_of_erased![Ref::new("ExpressionSegment")])
             ]),
             // Optional operators and additional expressions
-            AnyNumberOf::new(vec_of_erased![
-                one_of(vec_of_erased![
-                    // IS NULL / IS NOT NULL with word tokens
-                    Sequence::new(vec_of_erased![
-                        StringParser::new("IS", SyntaxKind::Word),
-                        one_of(vec_of_erased![
-                            StringParser::new("NULL", SyntaxKind::Word),
-                            Sequence::new(vec_of_erased![
-                                StringParser::new("NOT", SyntaxKind::Word),
-                                StringParser::new("NULL", SyntaxKind::Word)
-                            ])
+            AnyNumberOf::new(vec_of_erased![one_of(vec_of_erased![
+                // IS NULL / IS NOT NULL with word tokens
+                Sequence::new(vec_of_erased![
+                    StringParser::new("IS", SyntaxKind::Word),
+                    one_of(vec_of_erased![
+                        StringParser::new("NULL", SyntaxKind::Word),
+                        Sequence::new(vec_of_erased![
+                            StringParser::new("NOT", SyntaxKind::Word),
+                            StringParser::new("NULL", SyntaxKind::Word)
                         ])
-                    ]),
-                    // Comparison operators
-                    Sequence::new(vec_of_erased![
-                        Ref::new("ComparisonOperatorGrammar"),
-                        // Fixed: Remove recursive reference to prevent malformed AST
-                        Ref::new("ExpressionSegment")
-                    ]),
-                    // Binary operators (AND, OR)
-                    Sequence::new(vec_of_erased![
-                        one_of(vec_of_erased![
-                            Ref::keyword("AND"),
-                            Ref::keyword("OR"),
-                            StringParser::new("AND", SyntaxKind::Word),
-                            StringParser::new("OR", SyntaxKind::Word)
-                        ]),
-                        // Fixed: Remove recursive reference to prevent malformed AST
-                        Ref::new("ExpressionSegment")
                     ])
+                ]),
+                // Comparison operators
+                Sequence::new(vec_of_erased![
+                    Ref::new("ComparisonOperatorGrammar"),
+                    // Fixed: Remove recursive reference to prevent malformed AST
+                    Ref::new("ExpressionSegment")
+                ]),
+                // Binary operators (AND, OR)
+                Sequence::new(vec_of_erased![
+                    one_of(vec_of_erased![
+                        Ref::keyword("AND"),
+                        Ref::keyword("OR"),
+                        StringParser::new("AND", SyntaxKind::Word),
+                        StringParser::new("OR", SyntaxKind::Word)
+                    ]),
+                    // Fixed: Remove recursive reference to prevent malformed AST
+                    Ref::new("ExpressionSegment")
                 ])
-            ])
+            ])])
         ])
         .to_matchable()
         .into(),
     )]);
-    
+
     // Word-aware PRINT statement for when PRINT is lexed as word
     dialect.add([(
         "WordAwarePrintStatementSegment".into(),
@@ -10015,7 +9938,7 @@ pub fn raw_dialect() -> Dialect {
         .to_matchable()
         .into(),
     )]);
-    
+
     // Word-aware SELECT statement for when SELECT is lexed as word
     dialect.add([(
         "WordAwareSelectStatementSegment".into(),
@@ -10030,16 +9953,14 @@ pub fn raw_dialect() -> Dialect {
                             StringParser::new("select", SyntaxKind::Word)
                         ]),
                         MetaSegment::indent(),
-                        Delimited::new(vec_of_erased![
-                            one_of(vec_of_erased![
-                                // Wildcard expression (* or table.*)
-                                Ref::new("WildcardExpressionSegment"),
-                                // Simple column reference (o.name)
-                                Ref::new("ColumnReferenceSegment"),
-                                // Expression (for complex select items)
-                                Ref::new("ExpressionSegment")
-                            ])
-                        ])
+                        Delimited::new(vec_of_erased![one_of(vec_of_erased![
+                            // Wildcard expression (* or table.*)
+                            Ref::new("WildcardExpressionSegment"),
+                            // Simple column reference (o.name)
+                            Ref::new("ColumnReferenceSegment"),
+                            // Expression (for complex select items)
+                            Ref::new("ExpressionSegment")
+                        ])])
                         .config(|this| this.allow_trailing()),
                     ])
                     .terminators(vec_of_erased![
@@ -10075,13 +9996,11 @@ pub fn raw_dialect() -> Dialect {
                         // Also accept lowercase 'union' as word token
                         StringParser::new("union", SyntaxKind::Keyword)
                     ]),
-                    Sequence::new(vec_of_erased![
-                        one_of(vec_of_erased![
-                            StringParser::new("ALL", SyntaxKind::Keyword),
-                            // Also accept lowercase 'all' as word token
-                            StringParser::new("all", SyntaxKind::Keyword)
-                        ])
-                    ])
+                    Sequence::new(vec_of_erased![one_of(vec_of_erased![
+                        StringParser::new("ALL", SyntaxKind::Keyword),
+                        // Also accept lowercase 'all' as word token
+                        StringParser::new("all", SyntaxKind::Keyword)
+                    ])])
                     .config(|this| this.optional()),
                     Ref::new("WordAwareSelectStatementSegment")
                 ])
@@ -10105,7 +10024,7 @@ pub fn raw_dialect() -> Dialect {
         .to_matchable()
         .into(),
     )]);
-    
+
     // Word-aware RETURN statement for when RETURN is lexed as word
     dialect.add([(
         "WordAwareReturnStatementSegment".into(),
@@ -10120,7 +10039,7 @@ pub fn raw_dialect() -> Dialect {
         .to_matchable()
         .into(),
     )]);
-    
+
     // Word-aware BEGIN...END block that uses word-aware statements
     dialect.add([(
         "WordAwareBeginEndBlockSegment".into(),
@@ -10148,7 +10067,7 @@ pub fn raw_dialect() -> Dialect {
         .to_matchable()
         .into(),
     )]);
-    
+
     // Word-aware IF statement that expects and transforms word tokens
     dialect.add([(
         "WordAwareIfStatementSegment".into(),
@@ -10160,12 +10079,11 @@ pub fn raw_dialect() -> Dialect {
                     StringParser::new("if", SyntaxKind::Word)
                 ]),
                 // Handle optional NOT keyword for IF NOT EXISTS patterns
-                Sequence::new(vec_of_erased![
-                    one_of(vec_of_erased![
-                        StringParser::new("NOT", SyntaxKind::Word),
-                        StringParser::new("not", SyntaxKind::Word)
-                    ])
-                ]).config(|this| this.optional()),
+                Sequence::new(vec_of_erased![one_of(vec_of_erased![
+                    StringParser::new("NOT", SyntaxKind::Word),
+                    StringParser::new("not", SyntaxKind::Word)
+                ])])
+                .config(|this| this.optional()),
                 // Expression with word tokens - use targeted parser for exists(select...)
                 one_of(vec_of_erased![
                     Ref::new("WordAwareExpressionSegment"),
@@ -10194,7 +10112,7 @@ pub fn raw_dialect() -> Dialect {
         .to_matchable()
         .into(),
     )]);
-    
+
     // ELSE-aware statement parser for IF statement bodies
     // This ensures statements inside IF bodies properly terminate at ELSE
     dialect.add([(
@@ -10218,18 +10136,20 @@ pub fn raw_dialect() -> Dialect {
             Ref::new("DeleteStatementSegment"),
             // Word-aware CREATE TABLE must come before regular CREATE TABLE for compound statements
             Ref::new("WordAwareCreateTableStatementSegment"),
-            // Enhanced CREATE TABLE handles both keywords and word tokens  
+            // Enhanced CREATE TABLE handles both keywords and word tokens
             Ref::new("CreateTableStatementSegment"),
             // Enhanced CREATE PROCEDURE handles both keywords and word tokens for compound statements
             Ref::new("CreateProcedureStatementSegment"),
             Ref::new("DropTableStatementSegment")
         ])
-        .config(|this| this.terminators = vec_of_erased![
-            Ref::new("BatchSeparatorGrammar"), // GO statements should terminate
-            Ref::keyword("ELSE"), // ELSE keywords should terminate
-            StringParser::new("ELSE", SyntaxKind::NakedIdentifier),
-            StringParser::new("ELSE", SyntaxKind::Keyword)
-        ])
+        .config(|this| {
+            this.terminators = vec_of_erased![
+                Ref::new("BatchSeparatorGrammar"), // GO statements should terminate
+                Ref::keyword("ELSE"),              // ELSE keywords should terminate
+                StringParser::new("ELSE", SyntaxKind::NakedIdentifier),
+                StringParser::new("ELSE", SyntaxKind::Keyword)
+            ]
+        })
         .to_matchable()
         .into(),
     )]);
@@ -10305,7 +10225,7 @@ pub fn raw_dialect() -> Dialect {
         .to_matchable()
         .into(),
     )]);
-    
+
     // Word-aware BREAK statement for when BREAK is lexed as word
     dialect.add([(
         "WordAwareBreakStatementSegment".into(),
@@ -10315,7 +10235,7 @@ pub fn raw_dialect() -> Dialect {
         .to_matchable()
         .into(),
     )]);
-    
+
     // Word-aware DROP TABLE statement for when DROP is lexed as word
     dialect.add([(
         "WordAwareDropTableStatementSegment".into(),
@@ -10344,7 +10264,10 @@ pub fn raw_dialect() -> Dialect {
                             TypedParser::new(SyntaxKind::Dot, SyntaxKind::Dot),
                             one_of(vec_of_erased![
                                 TypedParser::new(SyntaxKind::Word, SyntaxKind::NakedIdentifier),
-                                TypedParser::new(SyntaxKind::DoubleQuote, SyntaxKind::QuotedIdentifier)
+                                TypedParser::new(
+                                    SyntaxKind::DoubleQuote,
+                                    SyntaxKind::QuotedIdentifier
+                                )
                             ])
                         ])
                         .config(|this| this.optional())
@@ -10356,7 +10279,7 @@ pub fn raw_dialect() -> Dialect {
         .to_matchable()
         .into(),
     )]);
-    
+
     // Word-aware DECLARE statement for when DECLARE is lexed as word
     dialect.add([(
         "WordAwareDeclareStatementSegment".into(),
@@ -10369,12 +10292,10 @@ pub fn raw_dialect() -> Dialect {
                 ]),
                 Ref::new("TsqlVariableSegment"),
                 // Optional AS keyword or word
-                Sequence::new(vec_of_erased![
-                    one_of(vec_of_erased![
-                        StringParser::new("AS", SyntaxKind::Keyword),
-                        StringParser::new("AS", SyntaxKind::Word)
-                    ])
-                ])
+                Sequence::new(vec_of_erased![one_of(vec_of_erased![
+                    StringParser::new("AS", SyntaxKind::Keyword),
+                    StringParser::new("AS", SyntaxKind::Word)
+                ])])
                 .config(|this| this.optional()),
                 // Data type - handle as word tokens in procedure contexts
                 one_of(vec_of_erased![
@@ -10382,11 +10303,14 @@ pub fn raw_dialect() -> Dialect {
                     // Fallback: parse as word token
                     TypedParser::new(SyntaxKind::Word, SyntaxKind::NakedIdentifier)
                 ]),
-                // Optional assignment with expression - be more restrictive 
+                // Optional assignment with expression - be more restrictive
                 Sequence::new(vec_of_erased![
                     one_of(vec_of_erased![
                         Ref::new("EqualsSegment"),
-                        TypedParser::new(SyntaxKind::RawComparisonOperator, SyntaxKind::ComparisonOperator)
+                        TypedParser::new(
+                            SyntaxKind::RawComparisonOperator,
+                            SyntaxKind::ComparisonOperator
+                        )
                     ]),
                     // Expression - parse ONLY function calls and literals, don't consume everything
                     one_of(vec_of_erased![
@@ -10395,13 +10319,14 @@ pub fn raw_dialect() -> Dialect {
                             TypedParser::new(SyntaxKind::Word, SyntaxKind::NakedIdentifier),
                             Bracketed::new(vec_of_erased![
                                 // Empty brackets or simple content
-                                AnyNumberOf::new(vec_of_erased![
-                                    one_of(vec_of_erased![
-                                        TypedParser::new(SyntaxKind::Word, SyntaxKind::NakedIdentifier),
-                                        TypedParser::new(SyntaxKind::NumericLiteral, SyntaxKind::NumericLiteral),
-                                        TypedParser::new(SyntaxKind::Comma, SyntaxKind::Comma)
-                                    ])
-                                ])
+                                AnyNumberOf::new(vec_of_erased![one_of(vec_of_erased![
+                                    TypedParser::new(SyntaxKind::Word, SyntaxKind::NakedIdentifier),
+                                    TypedParser::new(
+                                        SyntaxKind::NumericLiteral,
+                                        SyntaxKind::NumericLiteral
+                                    ),
+                                    TypedParser::new(SyntaxKind::Comma, SyntaxKind::Comma)
+                                ])])
                                 .config(|this| this.optional())
                             ])
                         ]),
@@ -10447,7 +10372,7 @@ pub fn raw_dialect() -> Dialect {
         .to_matchable()
         .into(),
     )]);
-    
+
     // Word-aware SET statement for when SET is lexed as word
     dialect.add([(
         "WordAwareSetStatementSegment".into(),
@@ -10467,7 +10392,7 @@ pub fn raw_dialect() -> Dialect {
         .to_matchable()
         .into(),
     )]);
-    
+
     // Word-aware EXISTS function for when EXISTS is lexed as word
     dialect.add([(
         "WordAwareExistsFunctionSegment".into(),
@@ -10478,25 +10403,23 @@ pub fn raw_dialect() -> Dialect {
                     // Also accept lowercase 'exists' as word token
                     StringParser::new("exists", SyntaxKind::Keyword)
                 ]),
-                Bracketed::new(vec_of_erased![
-                    one_of(vec_of_erased![
-                        // Try word-aware SELECT first
-                        Ref::new("WordAwareSelectStatementSegment"),
-                        // Regular SELECT statement as fallback
-                        Ref::new("SelectStatementSegment"),
-                        // Fallback: SelectableGrammar (like regular EXISTS)
-                        Ref::new("SelectableGrammar"),
-                        // Last resort: Generic word-aware statement that can handle anything
-                        Ref::new("WordAwareGenericSelectSegment")
-                    ])
-                ])
+                Bracketed::new(vec_of_erased![one_of(vec_of_erased![
+                    // Try word-aware SELECT first
+                    Ref::new("WordAwareSelectStatementSegment"),
+                    // Regular SELECT statement as fallback
+                    Ref::new("SelectStatementSegment"),
+                    // Fallback: SelectableGrammar (like regular EXISTS)
+                    Ref::new("SelectableGrammar"),
+                    // Last resort: Generic word-aware statement that can handle anything
+                    Ref::new("WordAwareGenericSelectSegment")
+                ])])
             ])
             .to_matchable()
         })
         .to_matchable()
         .into(),
     )]);
-    
+
     // Generic word-aware SELECT segment for robust parsing of SELECT with word tokens
     dialect.add([(
         "WordAwareGenericSelectSegment".into(),
@@ -10509,23 +10432,22 @@ pub fn raw_dialect() -> Dialect {
                     Ref::keyword("SELECT")
                 ]),
                 // Consume everything until we hit a closing bracket or terminator
-                AnyNumberOf::new(vec_of_erased![
-                    one_of(vec_of_erased![
-                        TypedParser::new(SyntaxKind::Word, SyntaxKind::Word),
-                        TypedParser::new(SyntaxKind::Star, SyntaxKind::Star),
-                        TypedParser::new(SyntaxKind::Comma, SyntaxKind::Comma),
-                        TypedParser::new(SyntaxKind::Dot, SyntaxKind::Dot),
-                        TypedParser::new(SyntaxKind::SingleQuote, SyntaxKind::SingleQuote),
-                        TypedParser::new(SyntaxKind::NumericLiteral, SyntaxKind::NumericLiteral),
-                        TypedParser::new(SyntaxKind::RawComparisonOperator, SyntaxKind::RawComparisonOperator),
-                        TypedParser::new(SyntaxKind::TsqlVariable, SyntaxKind::TsqlVariable),
-                        Ref::new("LiteralGrammar"),
-                        // Allow nested subqueries
-                        Bracketed::new(vec_of_erased![
-                            Ref::new("WordAwareGenericSelectSegment")
-                        ])
-                    ])
-                ])
+                AnyNumberOf::new(vec_of_erased![one_of(vec_of_erased![
+                    TypedParser::new(SyntaxKind::Word, SyntaxKind::Word),
+                    TypedParser::new(SyntaxKind::Star, SyntaxKind::Star),
+                    TypedParser::new(SyntaxKind::Comma, SyntaxKind::Comma),
+                    TypedParser::new(SyntaxKind::Dot, SyntaxKind::Dot),
+                    TypedParser::new(SyntaxKind::SingleQuote, SyntaxKind::SingleQuote),
+                    TypedParser::new(SyntaxKind::NumericLiteral, SyntaxKind::NumericLiteral),
+                    TypedParser::new(
+                        SyntaxKind::RawComparisonOperator,
+                        SyntaxKind::RawComparisonOperator
+                    ),
+                    TypedParser::new(SyntaxKind::TsqlVariable, SyntaxKind::TsqlVariable),
+                    Ref::new("LiteralGrammar"),
+                    // Allow nested subqueries
+                    Bracketed::new(vec_of_erased![Ref::new("WordAwareGenericSelectSegment")])
+                ])])
                 .config(|this| {
                     this.min_times(1);
                     // Stop at closing bracket or common terminators
@@ -10543,7 +10465,7 @@ pub fn raw_dialect() -> Dialect {
         .to_matchable()
         .into(),
     )]);
-    
+
     // Special parser for single statements that must stop before ELSE
     dialect.add([(
         "WordAwareSingleStatementBeforeElse".into(),
@@ -10558,22 +10480,23 @@ pub fn raw_dialect() -> Dialect {
             // Word-aware DECLARE statement
             Ref::new("WordAwareDeclareStatementSegment"),
             // Generic word statement that stops at ELSE with improved terminators
-            AnyNumberOf::new(vec_of_erased![
-                one_of(vec_of_erased![
-                    TypedParser::new(SyntaxKind::Word, SyntaxKind::Word),
-                    TypedParser::new(SyntaxKind::TsqlVariable, SyntaxKind::TsqlVariable),
-                    TypedParser::new(SyntaxKind::Dot, SyntaxKind::Dot),
-                    TypedParser::new(SyntaxKind::Comma, SyntaxKind::Comma),
-                    TypedParser::new(SyntaxKind::RawComparisonOperator, SyntaxKind::RawComparisonOperator),
-                    TypedParser::new(SyntaxKind::SingleQuote, SyntaxKind::SingleQuote),
-                    TypedParser::new(SyntaxKind::NumericLiteral, SyntaxKind::NumericLiteral),
-                    TypedParser::new(SyntaxKind::Semicolon, SyntaxKind::Semicolon),
-                    TypedParser::new(SyntaxKind::StartBracket, SyntaxKind::StartBracket),
-                    TypedParser::new(SyntaxKind::EndBracket, SyntaxKind::EndBracket),
-                    TypedParser::new(SyntaxKind::Star, SyntaxKind::Star),
-                    Ref::new("LiteralGrammar"),
-                ])
-            ])
+            AnyNumberOf::new(vec_of_erased![one_of(vec_of_erased![
+                TypedParser::new(SyntaxKind::Word, SyntaxKind::Word),
+                TypedParser::new(SyntaxKind::TsqlVariable, SyntaxKind::TsqlVariable),
+                TypedParser::new(SyntaxKind::Dot, SyntaxKind::Dot),
+                TypedParser::new(SyntaxKind::Comma, SyntaxKind::Comma),
+                TypedParser::new(
+                    SyntaxKind::RawComparisonOperator,
+                    SyntaxKind::RawComparisonOperator
+                ),
+                TypedParser::new(SyntaxKind::SingleQuote, SyntaxKind::SingleQuote),
+                TypedParser::new(SyntaxKind::NumericLiteral, SyntaxKind::NumericLiteral),
+                TypedParser::new(SyntaxKind::Semicolon, SyntaxKind::Semicolon),
+                TypedParser::new(SyntaxKind::StartBracket, SyntaxKind::StartBracket),
+                TypedParser::new(SyntaxKind::EndBracket, SyntaxKind::EndBracket),
+                TypedParser::new(SyntaxKind::Star, SyntaxKind::Star),
+                Ref::new("LiteralGrammar"),
+            ])])
             .config(|this| {
                 this.min_times(1);
                 // Critical: Stop at ELSE when parsing IF body - improved terminators
@@ -10596,7 +10519,7 @@ pub fn raw_dialect() -> Dialect {
         .to_matchable()
         .into(),
     )]);
-    
+
     // Word-aware CREATE INDEX statement for when CREATE is lexed as word
     dialect.add([(
         "WordAwareCreateIndexStatementSegment".into(),
@@ -10611,14 +10534,16 @@ pub fn raw_dialect() -> Dialect {
                 one_of(vec_of_erased![
                     Ref::keyword("UNIQUE"),
                     StringParser::new("UNIQUE", SyntaxKind::Word)
-                ]).config(|this| this.optional()),
+                ])
+                .config(|this| this.optional()),
                 // CLUSTERED or NONCLUSTERED - handle as keyword or word
                 one_of(vec_of_erased![
                     Ref::keyword("CLUSTERED"),
                     StringParser::new("CLUSTERED", SyntaxKind::Word),
-                    Ref::keyword("NONCLUSTERED"), 
+                    Ref::keyword("NONCLUSTERED"),
                     StringParser::new("NONCLUSTERED", SyntaxKind::Word)
-                ]).config(|this| this.optional()),
+                ])
+                .config(|this| this.optional()),
                 // INDEX as keyword or word token
                 one_of(vec_of_erased![
                     Ref::keyword("INDEX"),
@@ -10653,19 +10578,17 @@ pub fn raw_dialect() -> Dialect {
                     .config(|this| this.optional())
                 ]),
                 // Column list
-                Bracketed::new(vec_of_erased![
-                    AnyNumberOf::new(vec_of_erased![
-                        one_of(vec_of_erased![
-                            TypedParser::new(SyntaxKind::Word, SyntaxKind::NakedIdentifier),
-                            TypedParser::new(SyntaxKind::DoubleQuote, SyntaxKind::QuotedIdentifier),
-                            TypedParser::new(SyntaxKind::Comma, SyntaxKind::Comma),
-                            Ref::new("SingleIdentifierGrammar")
-                        ])
-                    ])
-                ])
+                Bracketed::new(vec_of_erased![AnyNumberOf::new(vec_of_erased![one_of(
+                    vec_of_erased![
+                        TypedParser::new(SyntaxKind::Word, SyntaxKind::NakedIdentifier),
+                        TypedParser::new(SyntaxKind::DoubleQuote, SyntaxKind::QuotedIdentifier),
+                        TypedParser::new(SyntaxKind::Comma, SyntaxKind::Comma),
+                        Ref::new("SingleIdentifierGrammar")
+                    ]
+                )])])
             ])
             .terminators(vec_of_erased![
-                // Terminate at GO keywords to allow next statements  
+                // Terminate at GO keywords to allow next statements
                 StringParser::new("GO", SyntaxKind::Word),
                 Ref::keyword("GO"),
                 // Terminate at other CREATE statements
@@ -10679,94 +10602,94 @@ pub fn raw_dialect() -> Dialect {
         .to_matchable()
         .into(),
     )]);
-    
+
     // Add back WordAwareCreateTableStatementSegment for batch contexts where CREATE TABLE appears as word tokens
     // Add WordAwareInsertStatementSegment for procedure bodies with word tokens
     // Add compound statement parser for DECLARE followed by other statements
-    // Add compound parser for CREATE statements that appear together  
-    dialect.add([
-        (
-            "CompoundCreateStatementSegment".into(),
-            NodeMatcher::new(SyntaxKind::CreateTableStatement, |_| {
-                one_of(vec_of_erased![
-                    // Handle CREATE TABLE that appears after other CREATE statements
-                    Sequence::new(vec_of_erased![
-                        StringParser::new("CREATE", SyntaxKind::Word),
-                        StringParser::new("TABLE", SyntaxKind::Word),
-                        // Table name with multi-part reference
-                        Sequence::new(vec_of_erased![
-                            TypedParser::new(SyntaxKind::Word, SyntaxKind::NakedIdentifier),
-                            Sequence::new(vec_of_erased![
-                                TypedParser::new(SyntaxKind::Dot, SyntaxKind::Dot),
-                                TypedParser::new(SyntaxKind::Word, SyntaxKind::NakedIdentifier)
-                            ])
-                            .config(|this| this.optional())
-                        ]),
-                        // Column definitions in brackets - consume all content
-                        Bracketed::new(vec_of_erased![
-                            AnyNumberOf::new(vec_of_erased![
-                                one_of(vec_of_erased![
-                                    TypedParser::new(SyntaxKind::Word, SyntaxKind::NakedIdentifier),
-                                    TypedParser::new(SyntaxKind::DoubleQuote, SyntaxKind::QuotedIdentifier),
-                                    TypedParser::new(SyntaxKind::Comma, SyntaxKind::Comma),
-                                    TypedParser::new(SyntaxKind::StartBracket, SyntaxKind::StartBracket),
-                                    TypedParser::new(SyntaxKind::EndBracket, SyntaxKind::EndBracket),
-                                    TypedParser::new(SyntaxKind::Dot, SyntaxKind::Dot),
-                                    TypedParser::new(SyntaxKind::NumericLiteral, SyntaxKind::NumericLiteral),
-                                    TypedParser::new(SyntaxKind::SingleQuote, SyntaxKind::QuotedLiteral)
-                                ])
-                            ])
-                        ])
-                    ])
-                ])
-                .to_matchable()
-            })
-            .to_matchable()
-            .into(),
-        )
-    ]);
-    
-    dialect.add([
-        (
-            "CompoundDeclareStatementSegment".into(),
-            NodeMatcher::new(SyntaxKind::Statement, |_| {
+    // Add compound parser for CREATE statements that appear together
+    dialect.add([(
+        "CompoundCreateStatementSegment".into(),
+        NodeMatcher::new(SyntaxKind::CreateTableStatement, |_| {
+            one_of(vec_of_erased![
+                // Handle CREATE TABLE that appears after other CREATE statements
                 Sequence::new(vec_of_erased![
-                    // First: DECLARE statement  
+                    StringParser::new("CREATE", SyntaxKind::Word),
+                    StringParser::new("TABLE", SyntaxKind::Word),
+                    // Table name with multi-part reference
                     Sequence::new(vec_of_erased![
-                        StringParser::new("DECLARE", SyntaxKind::Word),
-                        Ref::new("TsqlVariableSegment"),
-                        TypedParser::new(SyntaxKind::Word, SyntaxKind::NakedIdentifier), // Data type
-                        // Optional assignment
+                        TypedParser::new(SyntaxKind::Word, SyntaxKind::NakedIdentifier),
                         Sequence::new(vec_of_erased![
-                            TypedParser::new(SyntaxKind::RawComparisonOperator, SyntaxKind::ComparisonOperator),
-                            // Function call: WORD()
-                            Sequence::new(vec_of_erased![
-                                TypedParser::new(SyntaxKind::Word, SyntaxKind::NakedIdentifier),
-                                Bracketed::new(vec_of_erased![]).config(|this| this.optional())
-                            ])
+                            TypedParser::new(SyntaxKind::Dot, SyntaxKind::Dot),
+                            TypedParser::new(SyntaxKind::Word, SyntaxKind::NakedIdentifier)
                         ])
                         .config(|this| this.optional())
                     ]),
-                    // Second: DROP TABLE statement
-                    Sequence::new(vec_of_erased![
-                        StringParser::new("DROP", SyntaxKind::Word),
-                        StringParser::new("TABLE", SyntaxKind::Word),
-                        // Table reference with quoted identifiers
-                        Sequence::new(vec_of_erased![
+                    // Column definitions in brackets - consume all content
+                    Bracketed::new(vec_of_erased![AnyNumberOf::new(vec_of_erased![one_of(
+                        vec_of_erased![
+                            TypedParser::new(SyntaxKind::Word, SyntaxKind::NakedIdentifier),
                             TypedParser::new(SyntaxKind::DoubleQuote, SyntaxKind::QuotedIdentifier),
+                            TypedParser::new(SyntaxKind::Comma, SyntaxKind::Comma),
+                            TypedParser::new(SyntaxKind::StartBracket, SyntaxKind::StartBracket),
+                            TypedParser::new(SyntaxKind::EndBracket, SyntaxKind::EndBracket),
                             TypedParser::new(SyntaxKind::Dot, SyntaxKind::Dot),
-                            TypedParser::new(SyntaxKind::DoubleQuote, SyntaxKind::QuotedIdentifier)
+                            TypedParser::new(
+                                SyntaxKind::NumericLiteral,
+                                SyntaxKind::NumericLiteral
+                            ),
+                            TypedParser::new(SyntaxKind::SingleQuote, SyntaxKind::QuotedLiteral)
+                        ]
+                    )])])
+                ])
+            ])
+            .to_matchable()
+        })
+        .to_matchable()
+        .into(),
+    )]);
+
+    dialect.add([(
+        "CompoundDeclareStatementSegment".into(),
+        NodeMatcher::new(SyntaxKind::Statement, |_| {
+            Sequence::new(vec_of_erased![
+                // First: DECLARE statement
+                Sequence::new(vec_of_erased![
+                    StringParser::new("DECLARE", SyntaxKind::Word),
+                    Ref::new("TsqlVariableSegment"),
+                    TypedParser::new(SyntaxKind::Word, SyntaxKind::NakedIdentifier), // Data type
+                    // Optional assignment
+                    Sequence::new(vec_of_erased![
+                        TypedParser::new(
+                            SyntaxKind::RawComparisonOperator,
+                            SyntaxKind::ComparisonOperator
+                        ),
+                        // Function call: WORD()
+                        Sequence::new(vec_of_erased![
+                            TypedParser::new(SyntaxKind::Word, SyntaxKind::NakedIdentifier),
+                            Bracketed::new(vec_of_erased![]).config(|this| this.optional())
                         ])
                     ])
+                    .config(|this| this.optional())
+                ]),
+                // Second: DROP TABLE statement
+                Sequence::new(vec_of_erased![
+                    StringParser::new("DROP", SyntaxKind::Word),
+                    StringParser::new("TABLE", SyntaxKind::Word),
+                    // Table reference with quoted identifiers
+                    Sequence::new(vec_of_erased![
+                        TypedParser::new(SyntaxKind::DoubleQuote, SyntaxKind::QuotedIdentifier),
+                        TypedParser::new(SyntaxKind::Dot, SyntaxKind::Dot),
+                        TypedParser::new(SyntaxKind::DoubleQuote, SyntaxKind::QuotedIdentifier)
+                    ])
                 ])
-                .to_matchable()
-            })
+            ])
             .to_matchable()
-            .into(),
-        )
-    ]);
-    
-    // CompoundBatchStatementSegment for complex CREATE INDEX GO CREATE INDEX ; CREATE TABLE patterns 
+        })
+        .to_matchable()
+        .into(),
+    )]);
+
+    // CompoundBatchStatementSegment for complex CREATE INDEX GO CREATE INDEX ; CREATE TABLE patterns
     dialect.add([(
         "CompoundBatchStatementSegment".into(),
         NodeMatcher::new(SyntaxKind::Statement, |_| {
@@ -10777,19 +10700,16 @@ pub fn raw_dialect() -> Dialect {
                     StringParser::new("CLUSTERED", SyntaxKind::Word),
                     StringParser::new("INDEX", SyntaxKind::Word),
                     // Consume tokens until GO or end
-                    AnyNumberOf::new(vec_of_erased![
-                        one_of(vec_of_erased![
-                            TypedParser::new(SyntaxKind::Word, SyntaxKind::Word),
-                            TypedParser::new(SyntaxKind::Dot, SyntaxKind::Dot),
-                            TypedParser::new(SyntaxKind::StartBracket, SyntaxKind::StartBracket),
-                            TypedParser::new(SyntaxKind::EndBracket, SyntaxKind::EndBracket)
-                        ])
-                    ])
+                    AnyNumberOf::new(vec_of_erased![one_of(vec_of_erased![
+                        TypedParser::new(SyntaxKind::Word, SyntaxKind::Word),
+                        TypedParser::new(SyntaxKind::Dot, SyntaxKind::Dot),
+                        TypedParser::new(SyntaxKind::StartBracket, SyntaxKind::StartBracket),
+                        TypedParser::new(SyntaxKind::EndBracket, SyntaxKind::EndBracket)
+                    ])])
                     .config(|this| {
                         this.min_times(1);
-                        this.terminators = vec_of_erased![
-                            StringParser::new("GO", SyntaxKind::Word)
-                        ];
+                        this.terminators =
+                            vec_of_erased![StringParser::new("GO", SyntaxKind::Word)];
                     })
                 ]),
                 // GO separator
@@ -10800,20 +10720,19 @@ pub fn raw_dialect() -> Dialect {
                     StringParser::new("NONCLUSTERED", SyntaxKind::Word),
                     StringParser::new("INDEX", SyntaxKind::Word),
                     // Consume tokens until semicolon
-                    AnyNumberOf::new(vec_of_erased![
-                        one_of(vec_of_erased![
-                            TypedParser::new(SyntaxKind::Word, SyntaxKind::Word),
-                            TypedParser::new(SyntaxKind::Dot, SyntaxKind::Dot),
-                            TypedParser::new(SyntaxKind::StartBracket, SyntaxKind::StartBracket),
-                            TypedParser::new(SyntaxKind::EndBracket, SyntaxKind::EndBracket),
-                            TypedParser::new(SyntaxKind::Comma, SyntaxKind::Comma)
-                        ])
-                    ])
+                    AnyNumberOf::new(vec_of_erased![one_of(vec_of_erased![
+                        TypedParser::new(SyntaxKind::Word, SyntaxKind::Word),
+                        TypedParser::new(SyntaxKind::Dot, SyntaxKind::Dot),
+                        TypedParser::new(SyntaxKind::StartBracket, SyntaxKind::StartBracket),
+                        TypedParser::new(SyntaxKind::EndBracket, SyntaxKind::EndBracket),
+                        TypedParser::new(SyntaxKind::Comma, SyntaxKind::Comma)
+                    ])])
                     .config(|this| {
                         this.min_times(1);
-                        this.terminators = vec_of_erased![
-                            TypedParser::new(SyntaxKind::Semicolon, SyntaxKind::Semicolon)
-                        ];
+                        this.terminators = vec_of_erased![TypedParser::new(
+                            SyntaxKind::Semicolon,
+                            SyntaxKind::Semicolon
+                        )];
                     })
                 ]),
                 // Semicolon separator
@@ -10829,21 +10748,22 @@ pub fn raw_dialect() -> Dialect {
                         TypedParser::new(SyntaxKind::Word, SyntaxKind::Word)
                     ]),
                     // Column definitions in brackets - use generic token consumption for maximum compatibility
-                    Bracketed::new(vec_of_erased![
-                        AnyNumberOf::new(vec_of_erased![
-                            one_of(vec_of_erased![
-                                TypedParser::new(SyntaxKind::Word, SyntaxKind::Word),
-                                TypedParser::new(SyntaxKind::DoubleQuote, SyntaxKind::QuotedIdentifier),
-                                TypedParser::new(SyntaxKind::Comma, SyntaxKind::Comma),
-                                TypedParser::new(SyntaxKind::StartBracket, SyntaxKind::StartBracket),
-                                TypedParser::new(SyntaxKind::EndBracket, SyntaxKind::EndBracket),
-                                TypedParser::new(SyntaxKind::Dot, SyntaxKind::Dot),
-                                TypedParser::new(SyntaxKind::NumericLiteral, SyntaxKind::NumericLiteral),
-                                TypedParser::new(SyntaxKind::SingleQuote, SyntaxKind::QuotedLiteral),
-                                TypedParser::new(SyntaxKind::Semicolon, SyntaxKind::Semicolon)
-                            ])
-                        ])
-                    ])
+                    Bracketed::new(vec_of_erased![AnyNumberOf::new(vec_of_erased![one_of(
+                        vec_of_erased![
+                            TypedParser::new(SyntaxKind::Word, SyntaxKind::Word),
+                            TypedParser::new(SyntaxKind::DoubleQuote, SyntaxKind::QuotedIdentifier),
+                            TypedParser::new(SyntaxKind::Comma, SyntaxKind::Comma),
+                            TypedParser::new(SyntaxKind::StartBracket, SyntaxKind::StartBracket),
+                            TypedParser::new(SyntaxKind::EndBracket, SyntaxKind::EndBracket),
+                            TypedParser::new(SyntaxKind::Dot, SyntaxKind::Dot),
+                            TypedParser::new(
+                                SyntaxKind::NumericLiteral,
+                                SyntaxKind::NumericLiteral
+                            ),
+                            TypedParser::new(SyntaxKind::SingleQuote, SyntaxKind::QuotedLiteral),
+                            TypedParser::new(SyntaxKind::Semicolon, SyntaxKind::Semicolon)
+                        ]
+                    )])])
                 ])
             ])
             .to_matchable()
@@ -10851,7 +10771,7 @@ pub fn raw_dialect() -> Dialect {
         .to_matchable()
         .into(),
     )]);
-    
+
     // FallbackCreateTableSegment for CREATE TABLE patterns that appear in complex compound contexts
     dialect.add([(
         "FallbackCreateTableSegment".into(),
@@ -10866,22 +10786,23 @@ pub fn raw_dialect() -> Dialect {
                 Sequence::new(vec_of_erased![
                     TypedParser::new(SyntaxKind::Dot, SyntaxKind::Dot),
                     TypedParser::new(SyntaxKind::Word, SyntaxKind::Word)
-                ]).config(|this| { this.optional(); }),
+                ])
+                .config(|this| {
+                    this.optional();
+                }),
                 // Opening bracket for column definitions
                 TypedParser::new(SyntaxKind::StartBracket, SyntaxKind::StartBracket),
                 // Column definitions - consume everything until closing bracket
-                AnyNumberOf::new(vec_of_erased![
-                    one_of(vec_of_erased![
-                        TypedParser::new(SyntaxKind::Word, SyntaxKind::Word),
-                        TypedParser::new(SyntaxKind::DoubleQuote, SyntaxKind::QuotedIdentifier),
-                        TypedParser::new(SyntaxKind::Comma, SyntaxKind::Comma),
-                        TypedParser::new(SyntaxKind::StartBracket, SyntaxKind::StartBracket),
-                        TypedParser::new(SyntaxKind::EndBracket, SyntaxKind::EndBracket),
-                        TypedParser::new(SyntaxKind::Dot, SyntaxKind::Dot),
-                        TypedParser::new(SyntaxKind::NumericLiteral, SyntaxKind::NumericLiteral),
-                        TypedParser::new(SyntaxKind::SingleQuote, SyntaxKind::QuotedLiteral)
-                    ])
-                ])
+                AnyNumberOf::new(vec_of_erased![one_of(vec_of_erased![
+                    TypedParser::new(SyntaxKind::Word, SyntaxKind::Word),
+                    TypedParser::new(SyntaxKind::DoubleQuote, SyntaxKind::QuotedIdentifier),
+                    TypedParser::new(SyntaxKind::Comma, SyntaxKind::Comma),
+                    TypedParser::new(SyntaxKind::StartBracket, SyntaxKind::StartBracket),
+                    TypedParser::new(SyntaxKind::EndBracket, SyntaxKind::EndBracket),
+                    TypedParser::new(SyntaxKind::Dot, SyntaxKind::Dot),
+                    TypedParser::new(SyntaxKind::NumericLiteral, SyntaxKind::NumericLiteral),
+                    TypedParser::new(SyntaxKind::SingleQuote, SyntaxKind::QuotedLiteral)
+                ])])
                 .config(|this| {
                     this.terminators = vec_of_erased![
                         // Stop at the closing bracket of the column definitions
@@ -10896,123 +10817,111 @@ pub fn raw_dialect() -> Dialect {
         .to_matchable()
         .into(),
     )]);
-    
-    dialect.add([
-        (
-            "WordAwareInsertStatementSegment".into(),
-            NodeMatcher::new(SyntaxKind::InsertStatement, |_| {
+
+    dialect.add([(
+        "WordAwareInsertStatementSegment".into(),
+        NodeMatcher::new(SyntaxKind::InsertStatement, |_| {
+            Sequence::new(vec_of_erased![
+                // INSERT as word token (for procedure contexts)
+                StringParser::new("INSERT", SyntaxKind::Word),
+                // INTO as word token
+                StringParser::new("INTO", SyntaxKind::Word),
+                // Table reference - handle multi-part names
                 Sequence::new(vec_of_erased![
-                    // INSERT as word token (for procedure contexts)
-                    StringParser::new("INSERT", SyntaxKind::Word),
-                    // INTO as word token
-                    StringParser::new("INTO", SyntaxKind::Word),
-                    // Table reference - handle multi-part names
+                    one_of(vec_of_erased![
+                        TypedParser::new(SyntaxKind::Word, SyntaxKind::NakedIdentifier),
+                        TypedParser::new(SyntaxKind::DoubleQuote, SyntaxKind::QuotedIdentifier),
+                        Ref::new("SingleIdentifierGrammar")
+                    ]),
                     Sequence::new(vec_of_erased![
+                        TypedParser::new(SyntaxKind::Dot, SyntaxKind::Dot),
                         one_of(vec_of_erased![
                             TypedParser::new(SyntaxKind::Word, SyntaxKind::NakedIdentifier),
                             TypedParser::new(SyntaxKind::DoubleQuote, SyntaxKind::QuotedIdentifier),
                             Ref::new("SingleIdentifierGrammar")
-                        ]),
-                        Sequence::new(vec_of_erased![
-                            TypedParser::new(SyntaxKind::Dot, SyntaxKind::Dot),
-                            one_of(vec_of_erased![
-                                TypedParser::new(SyntaxKind::Word, SyntaxKind::NakedIdentifier),
-                                TypedParser::new(SyntaxKind::DoubleQuote, SyntaxKind::QuotedIdentifier),
-                                Ref::new("SingleIdentifierGrammar")
-                            ])
-                        ])
-                        .config(|this| this.optional())
-                    ]),
-                    // Column list in brackets (optional)
-                    Bracketed::new(vec_of_erased![
-                        AnyNumberOf::new(vec_of_erased![
-                            one_of(vec_of_erased![
-                                TypedParser::new(SyntaxKind::Word, SyntaxKind::NakedIdentifier),
-                                TypedParser::new(SyntaxKind::DoubleQuote, SyntaxKind::QuotedIdentifier),
-                                TypedParser::new(SyntaxKind::Comma, SyntaxKind::Comma)
-                            ])
                         ])
                     ])
-                    .config(|this| this.optional()),
-                    // SELECT statement or VALUES - consume rest as tokens for now
-                    AnyNumberOf::new(vec_of_erased![
-                        one_of(vec_of_erased![
-                            TypedParser::new(SyntaxKind::Word, SyntaxKind::NakedIdentifier),
-                            TypedParser::new(SyntaxKind::DoubleQuote, SyntaxKind::QuotedIdentifier),
-                            TypedParser::new(SyntaxKind::Comma, SyntaxKind::Comma),
-                            TypedParser::new(SyntaxKind::StartBracket, SyntaxKind::StartBracket),
-                            TypedParser::new(SyntaxKind::EndBracket, SyntaxKind::EndBracket),
-                            TypedParser::new(SyntaxKind::Dot, SyntaxKind::Dot),
-                            TypedParser::new(SyntaxKind::NumericLiteral, SyntaxKind::NumericLiteral),
-                            TypedParser::new(SyntaxKind::SingleQuote, SyntaxKind::QuotedLiteral)
-                        ])
-                    ])
-                ])
-                .terminators(vec_of_erased![
-                    // Terminate at GO keywords to allow next statements
-                    StringParser::new("GO", SyntaxKind::Word),
-                    Ref::keyword("GO"),
-                    // Terminate at semicolons
-                    TypedParser::new(SyntaxKind::Semicolon, SyntaxKind::Semicolon)
-                ])
-                .to_matchable()
-            })
+                    .config(|this| this.optional())
+                ]),
+                // Column list in brackets (optional)
+                Bracketed::new(vec_of_erased![AnyNumberOf::new(vec_of_erased![one_of(
+                    vec_of_erased![
+                        TypedParser::new(SyntaxKind::Word, SyntaxKind::NakedIdentifier),
+                        TypedParser::new(SyntaxKind::DoubleQuote, SyntaxKind::QuotedIdentifier),
+                        TypedParser::new(SyntaxKind::Comma, SyntaxKind::Comma)
+                    ]
+                )])])
+                .config(|this| this.optional()),
+                // SELECT statement or VALUES - consume rest as tokens for now
+                AnyNumberOf::new(vec_of_erased![one_of(vec_of_erased![
+                    TypedParser::new(SyntaxKind::Word, SyntaxKind::NakedIdentifier),
+                    TypedParser::new(SyntaxKind::DoubleQuote, SyntaxKind::QuotedIdentifier),
+                    TypedParser::new(SyntaxKind::Comma, SyntaxKind::Comma),
+                    TypedParser::new(SyntaxKind::StartBracket, SyntaxKind::StartBracket),
+                    TypedParser::new(SyntaxKind::EndBracket, SyntaxKind::EndBracket),
+                    TypedParser::new(SyntaxKind::Dot, SyntaxKind::Dot),
+                    TypedParser::new(SyntaxKind::NumericLiteral, SyntaxKind::NumericLiteral),
+                    TypedParser::new(SyntaxKind::SingleQuote, SyntaxKind::QuotedLiteral)
+                ])])
+            ])
+            .terminators(vec_of_erased![
+                // Terminate at GO keywords to allow next statements
+                StringParser::new("GO", SyntaxKind::Word),
+                Ref::keyword("GO"),
+                // Terminate at semicolons
+                TypedParser::new(SyntaxKind::Semicolon, SyntaxKind::Semicolon)
+            ])
             .to_matchable()
-            .into(),
-        )
-    ]);
-    
-    dialect.add([
-        (
-            "WordAwareCreateTableStatementSegment".into(),
-            NodeMatcher::new(SyntaxKind::CreateTableStatement, |_| {
-                Sequence::new(vec_of_erased![
-                    // CREATE as word token (for batch contexts)
-                    StringParser::new("CREATE", SyntaxKind::Word),
-                    // TABLE as word token
-                    StringParser::new("TABLE", SyntaxKind::Word),
-                    // Simplified: consume all tokens until opening bracket
-                    AnyNumberOf::new(vec_of_erased![
-                        one_of(vec_of_erased![
-                            TypedParser::new(SyntaxKind::Word, SyntaxKind::NakedIdentifier),
-                            TypedParser::new(SyntaxKind::DoubleQuote, SyntaxKind::QuotedIdentifier),
-                            TypedParser::new(SyntaxKind::Dot, SyntaxKind::Dot)
-                        ])
-                    ])
-                    .config(|this| this.min_times(1)),
-                    // Column definitions in brackets - use generic token consumption for maximum compatibility
-                    Bracketed::new(vec_of_erased![
-                        AnyNumberOf::new(vec_of_erased![
-                            one_of(vec_of_erased![
-                                TypedParser::new(SyntaxKind::Word, SyntaxKind::Word),
-                                TypedParser::new(SyntaxKind::DoubleQuote, SyntaxKind::QuotedIdentifier),
-                                TypedParser::new(SyntaxKind::Comma, SyntaxKind::Comma),
-                                TypedParser::new(SyntaxKind::StartBracket, SyntaxKind::StartBracket),
-                                TypedParser::new(SyntaxKind::EndBracket, SyntaxKind::EndBracket),
-                                TypedParser::new(SyntaxKind::Dot, SyntaxKind::Dot),
-                                TypedParser::new(SyntaxKind::NumericLiteral, SyntaxKind::NumericLiteral),
-                                TypedParser::new(SyntaxKind::SingleQuote, SyntaxKind::QuotedLiteral),
-                                TypedParser::new(SyntaxKind::Semicolon, SyntaxKind::Semicolon)
-                            ])
-                        ])
-                    ])
-                ])
-                .terminators(vec_of_erased![
-                    // Terminate at GO keywords to allow next statements  
-                    StringParser::new("GO", SyntaxKind::Word),
-                    Ref::keyword("GO"),
-                    // Terminate at other CREATE statements
-                    StringParser::new("CREATE", SyntaxKind::Word),
-                    Ref::keyword("CREATE"),
-                    // Terminate at semicolons
-                    TypedParser::new(SyntaxKind::Semicolon, SyntaxKind::Semicolon)
-                ])
-                .to_matchable()
-            })
+        })
+        .to_matchable()
+        .into(),
+    )]);
+
+    dialect.add([(
+        "WordAwareCreateTableStatementSegment".into(),
+        NodeMatcher::new(SyntaxKind::CreateTableStatement, |_| {
+            Sequence::new(vec_of_erased![
+                // CREATE as word token (for batch contexts)
+                StringParser::new("CREATE", SyntaxKind::Word),
+                // TABLE as word token
+                StringParser::new("TABLE", SyntaxKind::Word),
+                // Simplified: consume all tokens until opening bracket
+                AnyNumberOf::new(vec_of_erased![one_of(vec_of_erased![
+                    TypedParser::new(SyntaxKind::Word, SyntaxKind::NakedIdentifier),
+                    TypedParser::new(SyntaxKind::DoubleQuote, SyntaxKind::QuotedIdentifier),
+                    TypedParser::new(SyntaxKind::Dot, SyntaxKind::Dot)
+                ])])
+                .config(|this| this.min_times(1)),
+                // Column definitions in brackets - use generic token consumption for maximum compatibility
+                Bracketed::new(vec_of_erased![AnyNumberOf::new(vec_of_erased![one_of(
+                    vec_of_erased![
+                        TypedParser::new(SyntaxKind::Word, SyntaxKind::Word),
+                        TypedParser::new(SyntaxKind::DoubleQuote, SyntaxKind::QuotedIdentifier),
+                        TypedParser::new(SyntaxKind::Comma, SyntaxKind::Comma),
+                        TypedParser::new(SyntaxKind::StartBracket, SyntaxKind::StartBracket),
+                        TypedParser::new(SyntaxKind::EndBracket, SyntaxKind::EndBracket),
+                        TypedParser::new(SyntaxKind::Dot, SyntaxKind::Dot),
+                        TypedParser::new(SyntaxKind::NumericLiteral, SyntaxKind::NumericLiteral),
+                        TypedParser::new(SyntaxKind::SingleQuote, SyntaxKind::QuotedLiteral),
+                        TypedParser::new(SyntaxKind::Semicolon, SyntaxKind::Semicolon)
+                    ]
+                )])])
+            ])
+            .terminators(vec_of_erased![
+                // Terminate at GO keywords to allow next statements
+                StringParser::new("GO", SyntaxKind::Word),
+                Ref::keyword("GO"),
+                // Terminate at other CREATE statements
+                StringParser::new("CREATE", SyntaxKind::Word),
+                Ref::keyword("CREATE"),
+                // Terminate at semicolons
+                TypedParser::new(SyntaxKind::Semicolon, SyntaxKind::Semicolon)
+            ])
             .to_matchable()
-            .into(),
-        )
-    ]);
+        })
+        .to_matchable()
+        .into(),
+    )]);
 
     // Word-aware column definition for CREATE TABLE contexts where keywords are lexed as words
     dialect.add([(
@@ -11035,56 +10944,62 @@ pub fn raw_dialect() -> Dialect {
                     // Types with parameters: VARCHAR(100), DECIMAL(16,2)
                     Sequence::new(vec_of_erased![
                         TypedParser::new(SyntaxKind::Word, SyntaxKind::Word), // type name
-                        Bracketed::new(vec_of_erased![
-                            one_of(vec_of_erased![
-                                // Single parameter: VARCHAR(100)
-                                TypedParser::new(SyntaxKind::NumericLiteral, SyntaxKind::NumericLiteral),
-                                // Two parameters: DECIMAL(16,2)
-                                Sequence::new(vec_of_erased![
-                                    TypedParser::new(SyntaxKind::NumericLiteral, SyntaxKind::NumericLiteral),
-                                    TypedParser::new(SyntaxKind::Comma, SyntaxKind::Comma),
-                                    TypedParser::new(SyntaxKind::NumericLiteral, SyntaxKind::NumericLiteral)
-                                ])
+                        Bracketed::new(vec_of_erased![one_of(vec_of_erased![
+                            // Single parameter: VARCHAR(100)
+                            TypedParser::new(
+                                SyntaxKind::NumericLiteral,
+                                SyntaxKind::NumericLiteral
+                            ),
+                            // Two parameters: DECIMAL(16,2)
+                            Sequence::new(vec_of_erased![
+                                TypedParser::new(
+                                    SyntaxKind::NumericLiteral,
+                                    SyntaxKind::NumericLiteral
+                                ),
+                                TypedParser::new(SyntaxKind::Comma, SyntaxKind::Comma),
+                                TypedParser::new(
+                                    SyntaxKind::NumericLiteral,
+                                    SyntaxKind::NumericLiteral
+                                )
                             ])
-                        ])
+                        ])])
                     ])
                 ]),
                 // Column constraints as word tokens
-                AnyNumberOf::new(vec_of_erased![
-                    one_of(vec_of_erased![
-                        // PRIMARY KEY
-                        Sequence::new(vec_of_erased![
-                            StringParser::new("PRIMARY", SyntaxKind::Word),
-                            StringParser::new("KEY", SyntaxKind::Word)
-                        ]),
-                        // NOT NULL
-                        Sequence::new(vec_of_erased![
-                            StringParser::new("NOT", SyntaxKind::Word),
-                            StringParser::new("NULL", SyntaxKind::Word)
-                        ]),
-                        // NULL
-                        StringParser::new("NULL", SyntaxKind::Word),
-                        // DEFAULT expression
-                        Sequence::new(vec_of_erased![
-                            StringParser::new("DEFAULT", SyntaxKind::Word),
-                            one_of(vec_of_erased![
-                                // DEFAULT (NEXT VALUE FOR ...)
-                                Bracketed::new(vec_of_erased![
-                                    Ref::new("WordAwareNextValueForSegment")
-                                ]),
-                                // DEFAULT literal
-                                Ref::new("LiteralGrammar")
-                            ])
+                AnyNumberOf::new(vec_of_erased![one_of(vec_of_erased![
+                    // PRIMARY KEY
+                    Sequence::new(vec_of_erased![
+                        StringParser::new("PRIMARY", SyntaxKind::Word),
+                        StringParser::new("KEY", SyntaxKind::Word)
+                    ]),
+                    // NOT NULL
+                    Sequence::new(vec_of_erased![
+                        StringParser::new("NOT", SyntaxKind::Word),
+                        StringParser::new("NULL", SyntaxKind::Word)
+                    ]),
+                    // NULL
+                    StringParser::new("NULL", SyntaxKind::Word),
+                    // DEFAULT expression
+                    Sequence::new(vec_of_erased![
+                        StringParser::new("DEFAULT", SyntaxKind::Word),
+                        one_of(vec_of_erased![
+                            // DEFAULT (NEXT VALUE FOR ...)
+                            Bracketed::new(vec_of_erased![Ref::new(
+                                "WordAwareNextValueForSegment"
+                            )]),
+                            // DEFAULT literal
+                            Ref::new("LiteralGrammar")
                         ])
                     ])
-                ]).config(|this| this.optional())
+                ])])
+                .config(|this| this.optional())
             ])
             .to_matchable()
         })
         .to_matchable()
         .into(),
     )]);
-    
+
     // Word-aware CREATE/UPDATE/DROP STATISTICS statements
     dialect.add([(
         "WordAwareStatisticsStatementSegment".into(),
@@ -11095,17 +11010,15 @@ pub fn raw_dialect() -> Dialect {
                     StringParser::new("CREATE", SyntaxKind::Keyword),
                     StringParser::new("STATISTICS", SyntaxKind::Keyword),
                     // Consume rest as tokens
-                    AnyNumberOf::new(vec_of_erased![
-                        one_of(vec_of_erased![
-                            TypedParser::new(SyntaxKind::Word, SyntaxKind::Word),
-                            TypedParser::new(SyntaxKind::DoubleQuote, SyntaxKind::DoubleQuote),
-                            TypedParser::new(SyntaxKind::Comma, SyntaxKind::Comma),
-                            TypedParser::new(SyntaxKind::Dot, SyntaxKind::Dot),
-                            TypedParser::new(SyntaxKind::StartBracket, SyntaxKind::StartBracket),
-                            TypedParser::new(SyntaxKind::EndBracket, SyntaxKind::EndBracket),
-                            Ref::new("LiteralGrammar")
-                        ])
-                    ])
+                    AnyNumberOf::new(vec_of_erased![one_of(vec_of_erased![
+                        TypedParser::new(SyntaxKind::Word, SyntaxKind::Word),
+                        TypedParser::new(SyntaxKind::DoubleQuote, SyntaxKind::DoubleQuote),
+                        TypedParser::new(SyntaxKind::Comma, SyntaxKind::Comma),
+                        TypedParser::new(SyntaxKind::Dot, SyntaxKind::Dot),
+                        TypedParser::new(SyntaxKind::StartBracket, SyntaxKind::StartBracket),
+                        TypedParser::new(SyntaxKind::EndBracket, SyntaxKind::EndBracket),
+                        Ref::new("LiteralGrammar")
+                    ])])
                     .config(|this| {
                         this.min_times(1);
                         this.terminators = vec_of_erased![
@@ -11122,17 +11035,15 @@ pub fn raw_dialect() -> Dialect {
                     StringParser::new("UPDATE", SyntaxKind::Keyword),
                     StringParser::new("STATISTICS", SyntaxKind::Keyword),
                     // Consume rest as tokens
-                    AnyNumberOf::new(vec_of_erased![
-                        one_of(vec_of_erased![
-                            TypedParser::new(SyntaxKind::Word, SyntaxKind::Word),
-                            TypedParser::new(SyntaxKind::DoubleQuote, SyntaxKind::DoubleQuote),
-                            TypedParser::new(SyntaxKind::Comma, SyntaxKind::Comma),
-                            TypedParser::new(SyntaxKind::Dot, SyntaxKind::Dot),
-                            TypedParser::new(SyntaxKind::StartBracket, SyntaxKind::StartBracket),
-                            TypedParser::new(SyntaxKind::EndBracket, SyntaxKind::EndBracket),
-                            Ref::new("LiteralGrammar")
-                        ])
-                    ])
+                    AnyNumberOf::new(vec_of_erased![one_of(vec_of_erased![
+                        TypedParser::new(SyntaxKind::Word, SyntaxKind::Word),
+                        TypedParser::new(SyntaxKind::DoubleQuote, SyntaxKind::DoubleQuote),
+                        TypedParser::new(SyntaxKind::Comma, SyntaxKind::Comma),
+                        TypedParser::new(SyntaxKind::Dot, SyntaxKind::Dot),
+                        TypedParser::new(SyntaxKind::StartBracket, SyntaxKind::StartBracket),
+                        TypedParser::new(SyntaxKind::EndBracket, SyntaxKind::EndBracket),
+                        Ref::new("LiteralGrammar")
+                    ])])
                     .config(|this| {
                         this.min_times(1);
                         this.terminators = vec_of_erased![
@@ -11149,17 +11060,15 @@ pub fn raw_dialect() -> Dialect {
                     StringParser::new("DROP", SyntaxKind::Keyword),
                     StringParser::new("STATISTICS", SyntaxKind::Keyword),
                     // Consume rest as tokens
-                    AnyNumberOf::new(vec_of_erased![
-                        one_of(vec_of_erased![
-                            TypedParser::new(SyntaxKind::Word, SyntaxKind::Word),
-                            TypedParser::new(SyntaxKind::DoubleQuote, SyntaxKind::DoubleQuote),
-                            TypedParser::new(SyntaxKind::Comma, SyntaxKind::Comma),
-                            TypedParser::new(SyntaxKind::Dot, SyntaxKind::Dot),
-                            TypedParser::new(SyntaxKind::StartBracket, SyntaxKind::StartBracket),
-                            TypedParser::new(SyntaxKind::EndBracket, SyntaxKind::EndBracket),
-                            Ref::new("LiteralGrammar")
-                        ])
-                    ])
+                    AnyNumberOf::new(vec_of_erased![one_of(vec_of_erased![
+                        TypedParser::new(SyntaxKind::Word, SyntaxKind::Word),
+                        TypedParser::new(SyntaxKind::DoubleQuote, SyntaxKind::DoubleQuote),
+                        TypedParser::new(SyntaxKind::Comma, SyntaxKind::Comma),
+                        TypedParser::new(SyntaxKind::Dot, SyntaxKind::Dot),
+                        TypedParser::new(SyntaxKind::StartBracket, SyntaxKind::StartBracket),
+                        TypedParser::new(SyntaxKind::EndBracket, SyntaxKind::EndBracket),
+                        Ref::new("LiteralGrammar")
+                    ])])
                     .config(|this| {
                         this.min_times(1);
                         this.terminators = vec_of_erased![
@@ -11176,17 +11085,15 @@ pub fn raw_dialect() -> Dialect {
                     StringParser::new("DROP", SyntaxKind::Keyword),
                     StringParser::new("INDEX", SyntaxKind::Keyword),
                     // Consume rest as tokens
-                    AnyNumberOf::new(vec_of_erased![
-                        one_of(vec_of_erased![
-                            TypedParser::new(SyntaxKind::Word, SyntaxKind::Word),
-                            TypedParser::new(SyntaxKind::DoubleQuote, SyntaxKind::DoubleQuote),
-                            TypedParser::new(SyntaxKind::Comma, SyntaxKind::Comma),
-                            TypedParser::new(SyntaxKind::Dot, SyntaxKind::Dot),
-                            TypedParser::new(SyntaxKind::StartBracket, SyntaxKind::StartBracket),
-                            TypedParser::new(SyntaxKind::EndBracket, SyntaxKind::EndBracket),
-                            Ref::new("LiteralGrammar")
-                        ])
-                    ])
+                    AnyNumberOf::new(vec_of_erased![one_of(vec_of_erased![
+                        TypedParser::new(SyntaxKind::Word, SyntaxKind::Word),
+                        TypedParser::new(SyntaxKind::DoubleQuote, SyntaxKind::DoubleQuote),
+                        TypedParser::new(SyntaxKind::Comma, SyntaxKind::Comma),
+                        TypedParser::new(SyntaxKind::Dot, SyntaxKind::Dot),
+                        TypedParser::new(SyntaxKind::StartBracket, SyntaxKind::StartBracket),
+                        TypedParser::new(SyntaxKind::EndBracket, SyntaxKind::EndBracket),
+                        Ref::new("LiteralGrammar")
+                    ])])
                     .config(|this| {
                         this.min_times(1);
                         this.terminators = vec_of_erased![
@@ -11204,7 +11111,7 @@ pub fn raw_dialect() -> Dialect {
         .to_matchable()
         .into(),
     )]);
-    
+
     // Word-aware statement segment for parsing statements when keywords are lexed as words
     dialect.add([(
         "WordAwareStatementSegment".into(),
@@ -11217,7 +11124,7 @@ pub fn raw_dialect() -> Dialect {
             Ref::new("FallbackCreateTableSegment"),
             // Then compound CREATE statement (which also handles CREATE TABLE patterns)
             Ref::new("CompoundCreateStatementSegment"),
-            // Put compound statements next to handle complex patterns  
+            // Put compound statements next to handle complex patterns
             Ref::new("CompoundDeclareStatementSegment"),
             Ref::new("CompoundBatchStatementSegment"),
             // Put DROP TABLE next to prevent it from being consumed by other parsers
@@ -11259,42 +11166,40 @@ pub fn raw_dialect() -> Dialect {
         .to_matchable()
         .into(),
     )]);
-    
+
     // Word-aware batch segment for when entire batches have word tokens
     dialect.add([(
         "WordAwareBatchSegment".into(),
-        AnyNumberOf::new(vec_of_erased![
-            one_of(vec_of_erased![
-                // Try word-aware statement parsing first
-                Sequence::new(vec_of_erased![
-                    Ref::new("WordAwareStatementSegment"),
-                    AnyNumberOf::new(vec_of_erased![
-                        Ref::new("DelimiterGrammar"),
-                        Ref::new("BatchDelimiterGrammar"),
-                        StringParser::new("GO", SyntaxKind::Keyword),
-                        // Also handle GO as word token
-                        StringParser::new("GO", SyntaxKind::Word),
-                        // Handle semicolons as statement separators in word contexts
-                        TypedParser::new(SyntaxKind::Semicolon, SyntaxKind::Semicolon)
-                    ])
-                    .config(|this| this.optional())
-                ]),
-                // Handle WHILE statements at batch level
-                Ref::new("WordAwareWhileStatementSegment"),
-                Ref::new("WhileStatementSegment"),
-                // Also try specific word-aware parsers
-                Ref::new("WordAwareCreateProcedureSegment"),
-                // Handle standalone TRY-CATCH blocks with word tokens
-                Ref::new("TryBlockSegment"),
-                // Fallback: consume tokens to prevent errors
-                Ref::new("GenericWordStatementSegment")
-            ])
-        ])
+        AnyNumberOf::new(vec_of_erased![one_of(vec_of_erased![
+            // Try word-aware statement parsing first
+            Sequence::new(vec_of_erased![
+                Ref::new("WordAwareStatementSegment"),
+                AnyNumberOf::new(vec_of_erased![
+                    Ref::new("DelimiterGrammar"),
+                    Ref::new("BatchDelimiterGrammar"),
+                    StringParser::new("GO", SyntaxKind::Keyword),
+                    // Also handle GO as word token
+                    StringParser::new("GO", SyntaxKind::Word),
+                    // Handle semicolons as statement separators in word contexts
+                    TypedParser::new(SyntaxKind::Semicolon, SyntaxKind::Semicolon)
+                ])
+                .config(|this| this.optional())
+            ]),
+            // Handle WHILE statements at batch level
+            Ref::new("WordAwareWhileStatementSegment"),
+            Ref::new("WhileStatementSegment"),
+            // Also try specific word-aware parsers
+            Ref::new("WordAwareCreateProcedureSegment"),
+            // Handle standalone TRY-CATCH blocks with word tokens
+            Ref::new("TryBlockSegment"),
+            // Fallback: consume tokens to prevent errors
+            Ref::new("GenericWordStatementSegment")
+        ])])
         .config(|this| this.min_times(1))
         .to_matchable()
         .into(),
     )]);
-    
+
     // Word-aware CREATE PROCEDURE segment for when CREATE PROCEDURE is lexed as words
     dialect.add([(
         "WordAwareCreateProcedureSegment".into(),
@@ -11307,7 +11212,8 @@ pub fn raw_dialect() -> Dialect {
                         Sequence::new(vec_of_erased![
                             StringParser::new("OR", SyntaxKind::Keyword),
                             StringParser::new("ALTER", SyntaxKind::Keyword)
-                        ]).config(|this| this.optional()),
+                        ])
+                        .config(|this| this.optional()),
                         one_of(vec_of_erased![
                             StringParser::new("PROCEDURE", SyntaxKind::Keyword),
                             StringParser::new("PROC", SyntaxKind::Keyword)
@@ -11322,14 +11228,13 @@ pub fn raw_dialect() -> Dialect {
                     ])
                 ]),
                 // Procedure name - could be multi-part
-                AnyNumberOf::new(vec_of_erased![
-                    one_of(vec_of_erased![
-                        TypedParser::new(SyntaxKind::Word, SyntaxKind::Word),
-                        TypedParser::new(SyntaxKind::NakedIdentifier, SyntaxKind::NakedIdentifier),
-                        TypedParser::new(SyntaxKind::QuotedIdentifier, SyntaxKind::QuotedIdentifier),
-                        TypedParser::new(SyntaxKind::Dot, SyntaxKind::Dot)
-                    ])
-                ]).config(|this| {
+                AnyNumberOf::new(vec_of_erased![one_of(vec_of_erased![
+                    TypedParser::new(SyntaxKind::Word, SyntaxKind::Word),
+                    TypedParser::new(SyntaxKind::NakedIdentifier, SyntaxKind::NakedIdentifier),
+                    TypedParser::new(SyntaxKind::QuotedIdentifier, SyntaxKind::QuotedIdentifier),
+                    TypedParser::new(SyntaxKind::Dot, SyntaxKind::Dot)
+                ])])
+                .config(|this| {
                     this.min_times(1);
                     this.terminators = vec_of_erased![
                         TypedParser::new(SyntaxKind::TsqlVariable, SyntaxKind::TsqlVariable),
@@ -11337,18 +11242,18 @@ pub fn raw_dialect() -> Dialect {
                     ];
                 }),
                 // Optional parameters
-                AnyNumberOf::new(vec_of_erased![
-                    one_of(vec_of_erased![
-                        TypedParser::new(SyntaxKind::TsqlVariable, SyntaxKind::TsqlVariable),
-                        TypedParser::new(SyntaxKind::Word, SyntaxKind::Word),
-                        TypedParser::new(SyntaxKind::RawComparisonOperator, SyntaxKind::RawComparisonOperator),
-                        TypedParser::new(SyntaxKind::Comma, SyntaxKind::Comma),
-                        Ref::new("LiteralGrammar")
-                    ])
-                ]).config(|this| {
-                    this.terminators = vec_of_erased![
-                        StringParser::new("AS", SyntaxKind::Keyword)
-                    ];
+                AnyNumberOf::new(vec_of_erased![one_of(vec_of_erased![
+                    TypedParser::new(SyntaxKind::TsqlVariable, SyntaxKind::TsqlVariable),
+                    TypedParser::new(SyntaxKind::Word, SyntaxKind::Word),
+                    TypedParser::new(
+                        SyntaxKind::RawComparisonOperator,
+                        SyntaxKind::RawComparisonOperator
+                    ),
+                    TypedParser::new(SyntaxKind::Comma, SyntaxKind::Comma),
+                    Ref::new("LiteralGrammar")
+                ])])
+                .config(|this| {
+                    this.terminators = vec_of_erased![StringParser::new("AS", SyntaxKind::Keyword)];
                 }),
                 // AS keyword
                 StringParser::new("AS", SyntaxKind::Keyword),
@@ -11381,29 +11286,25 @@ pub fn raw_dialect() -> Dialect {
                 StringParser::new("CREATE", SyntaxKind::Word),
                 StringParser::new("TABLE", SyntaxKind::Word),
                 // Consume table name tokens
-                AnyNumberOf::new(vec_of_erased![
-                    one_of(vec_of_erased![
-                        TypedParser::new(SyntaxKind::Word, SyntaxKind::Word),
-                        TypedParser::new(SyntaxKind::Dot, SyntaxKind::Dot)
-                    ])
-                ])
+                AnyNumberOf::new(vec_of_erased![one_of(vec_of_erased![
+                    TypedParser::new(SyntaxKind::Word, SyntaxKind::Word),
+                    TypedParser::new(SyntaxKind::Dot, SyntaxKind::Dot)
+                ])])
                 .config(|this| {
                     this.min_times(1);
                     this.max_times(3); // schema.table max
                 }),
                 // Consume everything until we find what looks like the next statement
-                AnyNumberOf::new(vec_of_erased![
-                    one_of(vec_of_erased![
-                        TypedParser::new(SyntaxKind::StartBracket, SyntaxKind::StartBracket),
-                        TypedParser::new(SyntaxKind::EndBracket, SyntaxKind::EndBracket),
-                        TypedParser::new(SyntaxKind::Word, SyntaxKind::Word),
-                        TypedParser::new(SyntaxKind::DoubleQuote, SyntaxKind::DoubleQuote),
-                        TypedParser::new(SyntaxKind::Comma, SyntaxKind::Comma),
-                        TypedParser::new(SyntaxKind::Dot, SyntaxKind::Dot),
-                        TypedParser::new(SyntaxKind::NumericLiteral, SyntaxKind::NumericLiteral),
-                        TypedParser::new(SyntaxKind::SingleQuote, SyntaxKind::SingleQuote)
-                    ])
-                ])
+                AnyNumberOf::new(vec_of_erased![one_of(vec_of_erased![
+                    TypedParser::new(SyntaxKind::StartBracket, SyntaxKind::StartBracket),
+                    TypedParser::new(SyntaxKind::EndBracket, SyntaxKind::EndBracket),
+                    TypedParser::new(SyntaxKind::Word, SyntaxKind::Word),
+                    TypedParser::new(SyntaxKind::DoubleQuote, SyntaxKind::DoubleQuote),
+                    TypedParser::new(SyntaxKind::Comma, SyntaxKind::Comma),
+                    TypedParser::new(SyntaxKind::Dot, SyntaxKind::Dot),
+                    TypedParser::new(SyntaxKind::NumericLiteral, SyntaxKind::NumericLiteral),
+                    TypedParser::new(SyntaxKind::SingleQuote, SyntaxKind::SingleQuote)
+                ])])
                 .config(|this| {
                     this.terminators = vec_of_erased![
                         StringParser::new("GO", SyntaxKind::Word),
@@ -11416,25 +11317,21 @@ pub fn raw_dialect() -> Dialect {
             Sequence::new(vec_of_erased![
                 StringParser::new("CREATE", SyntaxKind::Word),
                 // Optional modifiers
-                AnyNumberOf::new(vec_of_erased![
-                    one_of(vec_of_erased![
-                        StringParser::new("CLUSTERED", SyntaxKind::Word),
-                        StringParser::new("NONCLUSTERED", SyntaxKind::Word),
-                        StringParser::new("UNIQUE", SyntaxKind::Word)
-                    ])
-                ])
+                AnyNumberOf::new(vec_of_erased![one_of(vec_of_erased![
+                    StringParser::new("CLUSTERED", SyntaxKind::Word),
+                    StringParser::new("NONCLUSTERED", SyntaxKind::Word),
+                    StringParser::new("UNIQUE", SyntaxKind::Word)
+                ])])
                 .config(|this| this.max_times(2)),
                 StringParser::new("INDEX", SyntaxKind::Word),
                 // Consume everything for the INDEX statement
-                AnyNumberOf::new(vec_of_erased![
-                    one_of(vec_of_erased![
-                        TypedParser::new(SyntaxKind::Word, SyntaxKind::Word),
-                        TypedParser::new(SyntaxKind::Dot, SyntaxKind::Dot),
-                        TypedParser::new(SyntaxKind::StartBracket, SyntaxKind::StartBracket),
-                        TypedParser::new(SyntaxKind::EndBracket, SyntaxKind::EndBracket),
-                        TypedParser::new(SyntaxKind::Comma, SyntaxKind::Comma)
-                    ])
-                ])
+                AnyNumberOf::new(vec_of_erased![one_of(vec_of_erased![
+                    TypedParser::new(SyntaxKind::Word, SyntaxKind::Word),
+                    TypedParser::new(SyntaxKind::Dot, SyntaxKind::Dot),
+                    TypedParser::new(SyntaxKind::StartBracket, SyntaxKind::StartBracket),
+                    TypedParser::new(SyntaxKind::EndBracket, SyntaxKind::EndBracket),
+                    TypedParser::new(SyntaxKind::Comma, SyntaxKind::Comma)
+                ])])
                 .config(|this| {
                     this.terminators = vec_of_erased![
                         StringParser::new("GO", SyntaxKind::Word),
@@ -11452,24 +11349,25 @@ pub fn raw_dialect() -> Dialect {
     dialect.add([(
         "GenericWordStatementSegment".into(),
         NodeMatcher::new(SyntaxKind::Statement, |_| {
-            AnyNumberOf::new(vec_of_erased![
-                one_of(vec_of_erased![
-                    TypedParser::new(SyntaxKind::Word, SyntaxKind::Word),
-                    TypedParser::new(SyntaxKind::TsqlVariable, SyntaxKind::TsqlVariable),
-                    TypedParser::new(SyntaxKind::Dot, SyntaxKind::Dot),
-                    TypedParser::new(SyntaxKind::Comma, SyntaxKind::Comma),
-                    TypedParser::new(SyntaxKind::RawComparisonOperator, SyntaxKind::RawComparisonOperator),
-                    TypedParser::new(SyntaxKind::SingleQuote, SyntaxKind::SingleQuote),
-                    TypedParser::new(SyntaxKind::NumericLiteral, SyntaxKind::NumericLiteral),
-                    TypedParser::new(SyntaxKind::Semicolon, SyntaxKind::Semicolon),
-                    TypedParser::new(SyntaxKind::StartBracket, SyntaxKind::StartBracket),
-                    TypedParser::new(SyntaxKind::EndBracket, SyntaxKind::EndBracket),
-                    TypedParser::new(SyntaxKind::DoubleQuote, SyntaxKind::QuotedIdentifier),
-                    TypedParser::new(SyntaxKind::Star, SyntaxKind::Star),
-                    TypedParser::new(SyntaxKind::UnicodeSingleQuote, SyntaxKind::QuotedLiteral),
-                    Ref::new("LiteralGrammar"),
-                ])
-            ])
+            AnyNumberOf::new(vec_of_erased![one_of(vec_of_erased![
+                TypedParser::new(SyntaxKind::Word, SyntaxKind::Word),
+                TypedParser::new(SyntaxKind::TsqlVariable, SyntaxKind::TsqlVariable),
+                TypedParser::new(SyntaxKind::Dot, SyntaxKind::Dot),
+                TypedParser::new(SyntaxKind::Comma, SyntaxKind::Comma),
+                TypedParser::new(
+                    SyntaxKind::RawComparisonOperator,
+                    SyntaxKind::RawComparisonOperator
+                ),
+                TypedParser::new(SyntaxKind::SingleQuote, SyntaxKind::SingleQuote),
+                TypedParser::new(SyntaxKind::NumericLiteral, SyntaxKind::NumericLiteral),
+                TypedParser::new(SyntaxKind::Semicolon, SyntaxKind::Semicolon),
+                TypedParser::new(SyntaxKind::StartBracket, SyntaxKind::StartBracket),
+                TypedParser::new(SyntaxKind::EndBracket, SyntaxKind::EndBracket),
+                TypedParser::new(SyntaxKind::DoubleQuote, SyntaxKind::QuotedIdentifier),
+                TypedParser::new(SyntaxKind::Star, SyntaxKind::Star),
+                TypedParser::new(SyntaxKind::UnicodeSingleQuote, SyntaxKind::QuotedLiteral),
+                Ref::new("LiteralGrammar"),
+            ])])
             .config(|this| {
                 this.min_times(1);
                 // Add terminators to prevent consuming too many tokens

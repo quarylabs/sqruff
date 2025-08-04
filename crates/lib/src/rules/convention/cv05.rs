@@ -109,11 +109,23 @@ WHERE a IS NULL
             return Vec::new();
         }
 
-        // Check if we're inside a function call (at any level in parent stack)
+        // Check if we're inside a function call in a table context (FROM/JOIN clause)
+        // This handles ClickHouse parametric views like: FROM vw_events(param = NULL)
+        let mut in_function = false;
+        let mut in_from_expression = false;
+        
         for parent in &context.parent_stack {
             if parent.is_type(SyntaxKind::Function) {
-                return Vec::new();
+                in_function = true;
             }
+            if parent.is_type(SyntaxKind::FromExpression) {
+                in_from_expression = true;
+            }
+        }
+        
+        // Only exclude if we're in a function AND in a FROM expression (parametric views)
+        if in_function && in_from_expression {
+            return Vec::new();
         }
 
         let raw_consist = context.segment.raw();

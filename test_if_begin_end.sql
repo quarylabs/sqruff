@@ -1,8 +1,0 @@
-IF (1 > 1)
-BEGIN
-    PRINT 'A';
-END
-ELSE IF (2 > 2)
-BEGIN
-    PRINT 'B';
-END

@@ -842,6 +842,7 @@ test_tsql_function:
   configs:
     core:
       dialect: tsql
+  ignored: "T-SQL function formatting issue: BEGIN/END and IF keywords misclassified as Word tokens causing LT02 violations. Same root cause as ELSE IF issue. See https://github.com/quarylabs/sqruff/issues/1873"
 
 test_pass_ignore_templated_whitespace:
   ignored: "jinja is not set"

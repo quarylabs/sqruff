@@ -1724,6 +1724,8 @@ pub fn raw_dialect() -> Dialect {
                     Ref::new("WordAwareExpressionSegment"),
                     Ref::new("ExpressionSegment")
                 ]),
+                // Indent for the IF body
+                MetaSegment::indent(),
                 // Try AnyNumberOf pattern like BeginEndBlockSegment to handle statement boundaries better
                 one_of(vec_of_erased![
                     // Try word-aware BEGIN...END block first for procedures with word tokens
@@ -1733,6 +1735,8 @@ pub fn raw_dialect() -> Dialect {
                     // CRITICAL: Use ELSE-aware statement parser for IF bodies
                     Ref::new("ElseAwareStatementSegment")
                 ]),
+                // Dedent after the IF body
+                MetaSegment::dedent(),
                 Sequence::new(vec_of_erased![
                     one_of(vec_of_erased![
                         Ref::keyword("ELSE"),
@@ -1742,34 +1746,43 @@ pub fn raw_dialect() -> Dialect {
                         StringParser::new("ELSE", SyntaxKind::Keyword)
                     ]),
                     one_of(vec_of_erased![
-                        // BEGIN...END block (highest priority)
-                        Ref::new("BeginEndBlockSegment"),
-                        // Word-aware BEGIN...END block for procedures with word tokens
-                        Ref::new("WordAwareBeginEndBlockSegment"),
-                        // Single statement (proper SQL statements should be prioritized)
-                        Ref::new("StatementSegment"),
-                        // Word-aware statement for procedures with word tokens
-                        Ref::new("WordAwareStatementSegment"),
-                        // Multiple statements - this should be tried after single statement fails
-                        AnyNumberOf::new(vec_of_erased![Sequence::new(vec_of_erased![
+                        // Special handling for ELSE IF - don't indent the IF
+                        Ref::new("IfStatementSegment"),
+                        // For regular ELSE, indent the body
+                        Sequence::new(vec_of_erased![
+                            MetaSegment::indent(),
                             one_of(vec_of_erased![
-                                // Try regular statement first
+                                // BEGIN...END block (highest priority)
+                                Ref::new("BeginEndBlockSegment"),
+                                // Word-aware BEGIN...END block for procedures with word tokens
+                                Ref::new("WordAwareBeginEndBlockSegment"),
+                                // Single statement (proper SQL statements should be prioritized)
                                 Ref::new("StatementSegment"),
-                                // Then word-aware parsers for lowercase keywords
-                                Ref::new("WordAwareStatementSegment")
+                                // Word-aware statement for procedures with word tokens
+                                Ref::new("WordAwareStatementSegment"),
+                                // Multiple statements - this should be tried after single statement fails
+                                AnyNumberOf::new(vec_of_erased![Sequence::new(vec_of_erased![
+                                    one_of(vec_of_erased![
+                                        // Try regular statement first
+                                        Ref::new("StatementSegment"),
+                                        // Then word-aware parsers for lowercase keywords
+                                        Ref::new("WordAwareStatementSegment")
+                                    ]),
+                                    Ref::new("DelimiterGrammar").optional()
+                                ])])
+                                .config(|this| {
+                                    this.min_times(1);
+                                    this.max_times(5); // Limit to prevent infinite loops
+                                    this.terminators = vec_of_erased![
+                                        Ref::keyword("IF"),                           // Next IF statement
+                                        StringParser::new("IF", SyntaxKind::Keyword), // Also handle lowercase if as word
+                                        StringParser::new("if", SyntaxKind::Word), // Also handle lowercase if as word
+                                        Ref::new("BatchSeparatorGrammar")          // GO statement
+                                    ];
+                                })
                             ]),
-                            Ref::new("DelimiterGrammar").optional()
-                        ])])
-                        .config(|this| {
-                            this.min_times(1);
-                            this.max_times(5); // Limit to prevent infinite loops
-                            this.terminators = vec_of_erased![
-                                Ref::keyword("IF"),                           // Next IF statement
-                                StringParser::new("IF", SyntaxKind::Keyword), // Also handle lowercase if as word
-                                StringParser::new("if", SyntaxKind::Word), // Also handle lowercase if as word
-                                Ref::new("BatchSeparatorGrammar")          // GO statement
-                            ];
-                        })
+                            MetaSegment::dedent()
+                        ])
                     ])
                 ])
                 .config(|this| this.optional()),
@@ -1781,6 +1794,7 @@ pub fn raw_dialect() -> Dialect {
         .to_matchable()
         .into(),
     )]);
+
 
     // Special identifier segment for bare procedure names that excludes statement keywords
     dialect.add([(

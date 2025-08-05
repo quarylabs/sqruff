@@ -162,60 +162,61 @@ file:
         - if_statement:
           - keyword: IF
           - expression:
-            - keyword: EXISTS
-            - bracketed:
-              - start_bracket: (
-              - select_statement:
-                - select_clause:
-                  - word: SELECT
-                  - expression:
-                    - numeric_literal: '1'
-                - word: FROM
-                - from_expression:
-                  - from_expression_element:
-                    - table_expression:
-                      - table_reference:
-                        - object_reference:
-                          - naked_identifier: inserted
-                    - alias_expression:
-                      - keyword: AS
-                      - naked_identifier: i
-                  - join_clause:
-                    - keyword: JOIN
+            - expression:
+              - keyword: EXISTS
+              - bracketed:
+                - start_bracket: (
+                - select_statement:
+                  - select_clause:
+                    - word: SELECT
+                    - expression:
+                      - numeric_literal: '1'
+                  - word: FROM
+                  - from_expression:
                     - from_expression_element:
                       - table_expression:
                         - table_reference:
                           - object_reference:
-                            - naked_identifier: Purchasing
-                            - dot: .
-                            - naked_identifier: Vendor
+                            - naked_identifier: inserted
                       - alias_expression:
                         - keyword: AS
-                        - naked_identifier: v
-                    - join_on_condition:
+                        - naked_identifier: i
+                    - join_clause:
+                      - keyword: JOIN
+                      - from_expression_element:
+                        - table_expression:
+                          - table_reference:
+                            - object_reference:
+                              - naked_identifier: Purchasing
+                              - dot: .
+                              - naked_identifier: Vendor
+                        - alias_expression:
+                          - keyword: AS
+                          - naked_identifier: v
                       - join_on_condition:
-                        - keyword: ON
-                        - expression:
-                          - column_reference:
-                            - naked_identifier: v
-                            - dot: .
-                            - naked_identifier: BusinessEntityID
-                          - comparison_operator:
-                            - raw_comparison_operator: =
-                          - column_reference:
-                            - naked_identifier: i
-                            - dot: .
-                            - naked_identifier: VendorID
-                - word: WHERE
-                - expression:
-                  - column_reference:
-                    - naked_identifier: v
-                    - dot: .
-                    - naked_identifier: CreditRating
-                  - comparison_operator:
-                    - raw_comparison_operator: =
-                  - numeric_literal: '5'
-              - end_bracket: )
+                        - join_on_condition:
+                          - keyword: ON
+                          - expression:
+                            - column_reference:
+                              - naked_identifier: v
+                              - dot: .
+                              - naked_identifier: BusinessEntityID
+                            - comparison_operator:
+                              - raw_comparison_operator: =
+                            - column_reference:
+                              - naked_identifier: i
+                              - dot: .
+                              - naked_identifier: VendorID
+                  - word: WHERE
+                  - expression:
+                    - column_reference:
+                      - naked_identifier: v
+                      - dot: .
+                      - naked_identifier: CreditRating
+                    - comparison_operator:
+                      - raw_comparison_operator: =
+                    - numeric_literal: '5'
+                - end_bracket: )
           - if_statements:
             - statement:
               - begin_end_block:

@@ -130,18 +130,19 @@ file:
   - statement:
     - if_statement:
       - keyword: IF
-      - function:
-        - function_name:
-          - function_name_identifier: OBJECT_ID
-        - function_contents:
-          - bracketed:
-            - start_bracket: (
-            - expression:
-              - quoted_literal: '''tempdb..#UP'''
-            - end_bracket: )
-      - word: IS
-      - word: NOT
-      - word: 'NULL'
+      - expression:
+        - function:
+          - function_name:
+            - function_name_identifier: OBJECT_ID
+          - function_contents:
+            - bracketed:
+              - start_bracket: (
+              - expression:
+                - quoted_literal: '''tempdb..#UP'''
+              - end_bracket: )
+        - keyword: IS
+        - keyword: NOT
+        - null_literal: 'NULL'
       - if_statements:
         - statement:
           - drop_table_statement:

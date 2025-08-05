@@ -210,9 +210,11 @@ file:
   - statement:
     - if_statement:
       - keyword: IF
-      - tsql_variable: '@id'
-      - word: IS
-      - word: 'NULL'
+      - expression:
+        - parameterized_expression:
+          - tsql_variable: '@id'
+        - keyword: IS
+        - null_literal: 'NULL'
       - if_statements:
         - statement:
           - begin_end_block:

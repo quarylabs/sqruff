@@ -30,10 +30,11 @@ file:
   - statement:
     - if_statement:
       - keyword: IF
-      - tsql_variable: '@@ROWCOUNT'
-      - comparison_operator:
-        - raw_comparison_operator: =
       - expression:
+        - parameterized_expression:
+          - tsql_variable: '@@ROWCOUNT'
+        - comparison_operator:
+          - raw_comparison_operator: =
         - numeric_literal: '0'
       - if_statements:
         - statement:
@@ -44,10 +45,11 @@ file:
         - statement:
           - if_statement:
             - keyword: IF
-            - tsql_variable: '@@ERROR'
-            - comparison_operator:
-              - raw_comparison_operator: =
             - expression:
+              - parameterized_expression:
+                - tsql_variable: '@@ERROR'
+              - comparison_operator:
+                - raw_comparison_operator: =
               - numeric_literal: '547'
             - if_statements:
               - statement:

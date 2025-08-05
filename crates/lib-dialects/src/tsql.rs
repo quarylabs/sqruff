@@ -1145,6 +1145,7 @@ pub fn raw_dialect() -> Dialect {
             NodeMatcher::new(SyntaxKind::DeclareStatement, |_| {
                 Sequence::new(vec_of_erased![
                     Ref::keyword("DECLARE"),
+                    MetaSegment::indent(),
                     // Multiple variables can be declared with comma separation
                     Delimited::new(vec_of_erased![Sequence::new(vec_of_erased![
                         Ref::new("ParameterNameSegment"),
@@ -1178,6 +1179,8 @@ pub fn raw_dialect() -> Dialect {
                             ])
                         ])
                     ])])
+                    .config(|this| this.allow_trailing()),
+                    MetaSegment::dedent()
                 ])
                 .to_matchable()
             })
@@ -1198,13 +1201,15 @@ pub fn raw_dialect() -> Dialect {
             "SetVariableStatementGrammar".into(),
             Sequence::new(vec_of_erased![
                 Ref::keyword("SET"),
+                MetaSegment::indent(),
                 one_of(vec_of_erased![
                     // Variable assignment: SET @var = value or SET @var1 = value1, @var2 = value2
                     Delimited::new(vec_of_erased![Sequence::new(vec_of_erased![
                         Ref::new("TsqlVariableSegment"),
                         Ref::new("AssignmentOperatorSegment"),
                         Ref::new("ExpressionSegment")
-                    ])]),
+                    ])])
+                    .config(|this| this.allow_trailing()),
                     // SET DEADLOCK_PRIORITY
                     Sequence::new(vec_of_erased![
                         Ref::keyword("DEADLOCK_PRIORITY"),
@@ -1278,7 +1283,8 @@ pub fn raw_dialect() -> Dialect {
                         Ref::new("TableReferenceSegment"),
                         one_of(vec_of_erased![Ref::keyword("ON"), Ref::keyword("OFF")])
                     ])
-                ])
+                ]),
+                MetaSegment::dedent()
             ])
             .to_matchable()
             .into(),
@@ -1786,61 +1792,32 @@ pub fn raw_dialect() -> Dialect {
         .into(),
     )]);
 
-    // IF statement - includes ELSE handling with proper dedent before ELSE
+    // T-SQL IF statement - structured like BigQuery with explicit indent/dedent
     dialect.add([(
         "IfStatementSegment".into(),
         NodeMatcher::new(SyntaxKind::IfStatement, |_| {
             Sequence::new(vec_of_erased![
-                // IF keyword and condition
-                one_of(vec_of_erased![
-                    Ref::keyword("IF"),
-                    StringParser::new("IF", SyntaxKind::Keyword),
-                    StringParser::new("if", SyntaxKind::Keyword)
-                ]),
-                one_of(vec_of_erased![
-                    Ref::new("WordAwareExpressionSegment"),
-                    Ref::new("ExpressionSegment")
-                ]),
-                // Indent for IF body
+                // Main IF clause: IF condition
+                Ref::keyword("IF"),
+                Ref::new("ExpressionSegment"),
                 MetaSegment::indent(),
                 Ref::new("IfStatementsSegment"),
-                // Dedent before ELSE - this is critical
                 MetaSegment::dedent(),
-                // Optional ELSE IF/ELSE clauses
-                AnyNumberOf::new(vec_of_erased![
-                    one_of(vec_of_erased![
-                        // ELSE IF
-                        Sequence::new(vec_of_erased![
-                            one_of(vec_of_erased![
-                                Ref::keyword("ELSE"),
-                                StringParser::new("ELSE", SyntaxKind::Keyword),
-                                StringParser::new("else", SyntaxKind::Keyword)
-                            ]),
-                            one_of(vec_of_erased![
-                                Ref::keyword("IF"),
-                                StringParser::new("IF", SyntaxKind::Keyword),
-                                StringParser::new("if", SyntaxKind::Keyword)
-                            ]),
-                            one_of(vec_of_erased![
-                                Ref::new("WordAwareExpressionSegment"),
-                                Ref::new("ExpressionSegment")
-                            ]),
-                            MetaSegment::indent(),
-                            Ref::new("IfStatementsSegment"),
-                            MetaSegment::dedent()
-                        ]),
-                        // Plain ELSE
-                        Sequence::new(vec_of_erased![
-                            one_of(vec_of_erased![
-                                Ref::keyword("ELSE"),
-                                StringParser::new("ELSE", SyntaxKind::Keyword),
-                                StringParser::new("else", SyntaxKind::Keyword)
-                            ]),
-                            MetaSegment::indent(),
-                            Ref::new("IfStatementsSegment"),
-                            MetaSegment::dedent()
-                        ])
-                    ])
+                // ELSE IF clauses: ELSE IF condition (two keywords)
+                AnyNumberOf::new(vec_of_erased![Sequence::new(vec_of_erased![
+                    Ref::keyword("ELSE"),
+                    Ref::keyword("IF"),
+                    Ref::new("ExpressionSegment"),
+                    MetaSegment::indent(),
+                    Ref::new("IfStatementsSegment"),
+                    MetaSegment::dedent()
+                ])]),
+                // Optional ELSE clause
+                Sequence::new(vec_of_erased![
+                    Ref::keyword("ELSE"),
+                    MetaSegment::indent(),
+                    Ref::new("IfStatementsSegment"),
+                    MetaSegment::dedent()
                 ])
                 .config(|this| this.optional())
             ])
@@ -10238,7 +10215,7 @@ pub fn raw_dialect() -> Dialect {
         .into(),
     )]);
 
-    // Word-aware IF statement that expects and transforms word tokens
+    // Word-aware IF statement that expects and transforms word tokens  
     dialect.add([(
         "WordAwareIfStatementSegment".into(),
         NodeMatcher::new(SyntaxKind::IfStatement, |_| {
@@ -10265,23 +10242,36 @@ pub fn raw_dialect() -> Dialect {
                 Ref::new("IfStatementsSegment"),
                 // Close indentation for the IF body
                 MetaSegment::dedent(),
-                // Optional ELSE clause - CRITICAL: Add this!
-                Sequence::new(vec_of_erased![
+                // ELSE IF clauses: ELSE IF condition (two keywords)
+                AnyNumberOf::new(vec_of_erased![Sequence::new(vec_of_erased![
                     one_of(vec_of_erased![
+                        Ref::keyword("ELSE"),
                         StringParser::new("ELSE", SyntaxKind::Word),
-                        StringParser::new("else", SyntaxKind::Word),
-                        Ref::keyword("ELSE")
+                        StringParser::new("else", SyntaxKind::Word)
                     ]),
                     one_of(vec_of_erased![
-                        // Special handling for ELSE IF - don't indent the IF
-                        Ref::new("WordAwareIfStatementSegment"),
-                        // For regular ELSE body, add indentation
-                        Sequence::new(vec_of_erased![
-                            MetaSegment::indent(),
-                            Ref::new("IfStatementsSegment"),
-                            MetaSegment::dedent()
-                        ])
-                    ])
+                        Ref::keyword("IF"),
+                        StringParser::new("IF", SyntaxKind::Word),
+                        StringParser::new("if", SyntaxKind::Word)
+                    ]),
+                    one_of(vec_of_erased![
+                        Ref::new("WordAwareExpressionSegment"),
+                        Ref::new("ExpressionSegment")
+                    ]),
+                    MetaSegment::indent(),
+                    Ref::new("IfStatementsSegment"),
+                    MetaSegment::dedent()
+                ])]),
+                // Optional ELSE clause
+                Sequence::new(vec_of_erased![
+                    one_of(vec_of_erased![
+                        Ref::keyword("ELSE"),
+                        StringParser::new("ELSE", SyntaxKind::Word),
+                        StringParser::new("else", SyntaxKind::Word)
+                    ]),
+                    MetaSegment::indent(),
+                    Ref::new("IfStatementsSegment"),
+                    MetaSegment::dedent()
                 ])
                 .config(|this| this.optional()),
                 // Optional delimiter
@@ -11849,3 +11839,4 @@ pub fn raw_dialect() -> Dialect {
     dialect.expand();
     dialect
 }
+

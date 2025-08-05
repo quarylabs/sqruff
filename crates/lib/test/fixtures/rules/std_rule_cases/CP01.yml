@@ -228,3 +228,4 @@ test_fail_select_lower_keyword_functions:
     rules:
       capitalisation.keywords:
         capitalisation_policy: upper
+  ignored: "CP01 rule doesn't capitalize function names that are also keywords. See https://github.com/quarylabs/sqruff/issues/1871"

@@ -1763,9 +1763,10 @@ pub fn raw_dialect() -> Dialect {
                 MetaSegment::indent(),
                 // Use the IF statements container for proper indentation handling
                 Ref::new("IfStatementsSegment"),
-                // Close indentation for the IF body
+                // Close indentation for the IF body - CRITICAL: ELSE must come after this
                 MetaSegment::dedent(),
-                Sequence::new(vec_of_erased![
+                // ELSE clause positioned at same level as IF (not indented)
+                AnyNumberOf::new(vec_of_erased![Sequence::new(vec_of_erased![
                     one_of(vec_of_erased![
                         Ref::keyword("ELSE"),
                         // Also accept ELSE as naked identifier in T-SQL
@@ -1774,17 +1775,30 @@ pub fn raw_dialect() -> Dialect {
                         StringParser::new("ELSE", SyntaxKind::Keyword)
                     ]),
                     one_of(vec_of_erased![
-                        // Special handling for ELSE IF - don't indent the IF
-                        Ref::new("IfStatementSegment"),
-                        // For regular ELSE, the body with indentation
+                        // Special handling for ELSE IF - the IF is at same level, not indented
+                        Sequence::new(vec_of_erased![
+                            one_of(vec_of_erased![
+                                Ref::keyword("IF"),
+                                StringParser::new("IF", SyntaxKind::Keyword),
+                                StringParser::new("if", SyntaxKind::Keyword)
+                            ]),
+                            one_of(vec_of_erased![
+                                Ref::new("WordAwareExpressionSegment"),
+                                Ref::new("ExpressionSegment")
+                            ]),
+                            MetaSegment::indent(),
+                            Ref::new("IfStatementsSegment"),
+                            MetaSegment::dedent()
+                        ]),
+                        // For regular ELSE, indent the body
                         Sequence::new(vec_of_erased![
                             MetaSegment::indent(),
                             Ref::new("IfStatementsSegment"),
                             MetaSegment::dedent()
                         ])
                     ])
-                ])
-                .config(|this| this.optional()),
+                ])])
+                .config(|this| this.max_times(20)),
                 // Optional delimiter for the entire IF statement to handle multi-statement files
                 Ref::new("DelimiterGrammar").optional()
             ])

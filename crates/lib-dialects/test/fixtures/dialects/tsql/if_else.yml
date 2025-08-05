@@ -34,75 +34,76 @@ file:
                     - raw_comparison_operator: =
                   - numeric_literal: '1'
           - end_bracket: )
-      - select_statement:
-        - select_clause:
-          - keyword: SELECT
-          - select_clause_element:
-            - column_reference:
-              - naked_identifier: ProductKey
-          - comma: ','
-          - select_clause_element:
-            - column_reference:
-              - naked_identifier: EnglishDescription
-          - comma: ','
-          - select_clause_element:
-            - column_reference:
-              - naked_identifier: Weight
-          - comma: ','
-          - select_clause_element:
-            - quoted_literal: '''This product is too heavy to ship and is only available for pickup.'''
-            - alias_expression:
-              - keyword: AS
-              - naked_identifier: ShippingStatus
-        - from_clause:
-          - keyword: FROM
-          - from_expression:
-            - from_expression_element:
-              - table_expression:
-                - table_reference:
-                  - object_reference:
-                    - naked_identifier: DimProduct
-        - where_clause:
-          - keyword: WHERE
-          - expression:
-            - column_reference:
-              - naked_identifier: ProductKey
-            - comparison_operator:
-              - raw_comparison_operator: =
-            - numeric_literal: '1'
-      - keyword: ELSE
-      - word: SELECT
-      - word: ProductKey
-      - comma: ','
-      - word: EnglishDescription
-      - comma: ','
-      - word: Weight
-      - comma: ','
-      - single_quote: '''This product is available for shipping or pickup.'''
-      - word: AS
-      - word: ShippingStatus
-      - word: FROM
-      - word: DimProduct
-      - word: WHERE
-      - word: ProductKey
-      - raw_comparison_operator: =
-      - numeric_literal: '1'
-      - word: if
-      - word: exists
-      - start_bracket: (
-      - word: select
-      - star: '*'
-      - word: from
-      - word: '#a'
-      - word: union
-      - word: all
-      - word: select
-      - star: '*'
-      - word: from
-      - word: '#b'
-      - end_bracket: )
-      - word: set
-      - tsql_variable: '@var'
-      - raw_comparison_operator: =
-      - numeric_literal: '1'
-      - semicolon: ;
+      - if_statements:
+        - select_statement:
+          - select_clause:
+            - keyword: SELECT
+            - select_clause_element:
+              - column_reference:
+                - naked_identifier: ProductKey
+            - comma: ','
+            - select_clause_element:
+              - column_reference:
+                - naked_identifier: EnglishDescription
+            - comma: ','
+            - select_clause_element:
+              - column_reference:
+                - naked_identifier: Weight
+            - comma: ','
+            - select_clause_element:
+              - quoted_literal: '''This product is too heavy to ship and is only available for pickup.'''
+              - alias_expression:
+                - keyword: AS
+                - naked_identifier: ShippingStatus
+          - from_clause:
+            - keyword: FROM
+            - from_expression:
+              - from_expression_element:
+                - table_expression:
+                  - table_reference:
+                    - object_reference:
+                      - naked_identifier: DimProduct
+          - where_clause:
+            - keyword: WHERE
+            - expression:
+              - column_reference:
+                - naked_identifier: ProductKey
+              - comparison_operator:
+                - raw_comparison_operator: =
+              - numeric_literal: '1'
+        - word: ELSE
+        - word: SELECT
+        - word: ProductKey
+        - comma: ','
+        - word: EnglishDescription
+        - comma: ','
+        - word: Weight
+        - comma: ','
+        - single_quote: '''This product is available for shipping or pickup.'''
+        - word: AS
+        - word: ShippingStatus
+        - word: FROM
+        - word: DimProduct
+        - word: WHERE
+        - word: ProductKey
+        - raw_comparison_operator: =
+        - numeric_literal: '1'
+        - word: if
+        - word: exists
+        - start_bracket: (
+        - word: select
+        - star: '*'
+        - word: from
+        - word: '#a'
+        - word: union
+        - word: all
+        - word: select
+        - star: '*'
+        - word: from
+        - word: '#b'
+        - end_bracket: )
+        - word: set
+        - tsql_variable: '@var'
+        - raw_comparison_operator: =
+        - numeric_literal: '1'
+        - semicolon: ;

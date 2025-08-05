@@ -35,52 +35,40 @@ file:
         - raw_comparison_operator: =
       - expression:
         - numeric_literal: '0'
-      - keyword: PRINT
-      - expression:
-        - quoted_literal: '''Warning: No rows were updated'''
-      - statement_terminator: ;
-  - statement:
-    - if_statement:
-      - keyword: IF
-      - tsql_variable: '@@ERROR'
-      - comparison_operator:
-        - raw_comparison_operator: =
-      - expression:
-        - numeric_literal: '547'
-      - begin_end_block:
-        - keyword: BEGIN
-        - statement:
-          - keyword: PRINT
-          - expression:
-            - quoted_literal: N'A check constraint violation occurred.'
+      - if_statements:
+        - word: PRINT
+        - expression:
+          - quoted_literal: '''Warning: No rows were updated'''
         - statement_terminator: ;
-        - keyword: END
-  - keyword: GO
-  - statement:
-    - select_statement:
-      - select_clause:
-        - keyword: SELECT
-        - select_clause_element:
-          - tsql_variable: '@@IDENTITY'
-          - alias_expression:
-            - keyword: AS
-            - quoted_identifier: '''Identity'''
-  - statement_terminator: ;
-  - keyword: GO
-  - statement:
-    - keyword: PRINT
-    - expression:
-      - parameterized_expression:
-        - tsql_variable: '@@TRANCOUNT'
-  - keyword: GO
-  - statement:
-    - select_statement:
-      - select_clause:
-        - keyword: SELECT
-        - select_clause_element:
-          - tsql_variable: '@@PACK_RECEIVED'
-          - alias_expression:
-            - keyword: AS
-            - quoted_identifier: '''Packets Received'''
-  - statement_terminator: ;
-  - keyword: GO
+        - if_statement:
+          - word: IF
+          - tsql_variable: '@@ERROR'
+          - comparison_operator:
+            - raw_comparison_operator: =
+          - expression:
+            - numeric_literal: '547'
+          - if_statements:
+            - begin_end_block:
+              - keyword: BEGIN
+              - statement:
+                - keyword: PRINT
+                - expression:
+                  - quoted_literal: N'A check constraint violation occurred.'
+              - statement_terminator: ;
+              - keyword: END
+            - word: GO
+            - word: SELECT
+            - tsql_variable: '@@IDENTITY'
+            - word: AS
+            - single_quote: '''Identity'''
+            - semicolon: ;
+            - word: GO
+            - word: PRINT
+            - tsql_variable: '@@TRANCOUNT'
+            - word: GO
+            - word: SELECT
+            - tsql_variable: '@@PACK_RECEIVED'
+            - word: AS
+            - single_quote: '''Packets Received'''
+            - semicolon: ;
+            - word: GO

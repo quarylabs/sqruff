@@ -1706,6 +1706,41 @@ pub fn raw_dialect() -> Dialect {
         ),
     ]);
 
+    // IF statements container - similar to BigQuery's IfStatementsSegment  
+    dialect.add([(
+        "IfStatementsSegment".into(),
+        NodeMatcher::new(SyntaxKind::IfStatements, |_| {
+            AnyNumberOf::new(vec_of_erased![Sequence::new(vec_of_erased![
+                one_of(vec_of_erased![
+                    // Try word-aware parsers first for procedures with word tokens
+                    Ref::new("WordAwareStatementSegment"),
+                    // Regular statements
+                    Ref::new("StatementSegment"),
+                    // ELSE-aware statements that properly terminate at ELSE
+                    Ref::new("ElseAwareStatementSegment")
+                ]),
+                Ref::new("DelimiterGrammar").optional()
+            ])])
+            .config(|this| {
+                this.min_times(1);
+                this.terminators = vec_of_erased![
+                    Ref::keyword("ELSE"),
+                    StringParser::new("ELSE", SyntaxKind::Keyword),
+                    StringParser::new("ELSE", SyntaxKind::NakedIdentifier),
+                    StringParser::new("ELSE", SyntaxKind::Word),
+                    StringParser::new("else", SyntaxKind::Word),
+                    Ref::keyword("IF"),
+                    StringParser::new("IF", SyntaxKind::Keyword),
+                    StringParser::new("if", SyntaxKind::Word),
+                    Ref::new("BatchSeparatorGrammar")
+                ];
+            })
+            .to_matchable()
+        })
+        .to_matchable()
+        .into(),
+    )]);
+
     // IF...ELSE statement
     // Handle T-SQL's lexing behavior where IF/ELSE can be lexed as words in procedure contexts
     dialect.add([(
@@ -1724,18 +1759,11 @@ pub fn raw_dialect() -> Dialect {
                     Ref::new("WordAwareExpressionSegment"),
                     Ref::new("ExpressionSegment")
                 ]),
-                // Indent for the IF body
+                // Add indentation for the IF body
                 MetaSegment::indent(),
-                // Try AnyNumberOf pattern like BeginEndBlockSegment to handle statement boundaries better
-                one_of(vec_of_erased![
-                    // Try word-aware BEGIN...END block first for procedures with word tokens
-                    Ref::new("WordAwareBeginEndBlockSegment"),
-                    // BEGIN...END block (already handles its own delimiters and indentation)
-                    Ref::new("BeginEndBlockSegment"),
-                    // CRITICAL: Use ELSE-aware statement parser for IF bodies
-                    Ref::new("ElseAwareStatementSegment")
-                ]),
-                // Dedent after the IF body
+                // Use the IF statements container for proper indentation handling
+                Ref::new("IfStatementsSegment"),
+                // Close indentation for the IF body
                 MetaSegment::dedent(),
                 Sequence::new(vec_of_erased![
                     one_of(vec_of_erased![
@@ -1748,39 +1776,10 @@ pub fn raw_dialect() -> Dialect {
                     one_of(vec_of_erased![
                         // Special handling for ELSE IF - don't indent the IF
                         Ref::new("IfStatementSegment"),
-                        // For regular ELSE, indent the body
+                        // For regular ELSE, the body with indentation
                         Sequence::new(vec_of_erased![
                             MetaSegment::indent(),
-                            one_of(vec_of_erased![
-                                // BEGIN...END block (highest priority)
-                                Ref::new("BeginEndBlockSegment"),
-                                // Word-aware BEGIN...END block for procedures with word tokens
-                                Ref::new("WordAwareBeginEndBlockSegment"),
-                                // Single statement (proper SQL statements should be prioritized)
-                                Ref::new("StatementSegment"),
-                                // Word-aware statement for procedures with word tokens
-                                Ref::new("WordAwareStatementSegment"),
-                                // Multiple statements - this should be tried after single statement fails
-                                AnyNumberOf::new(vec_of_erased![Sequence::new(vec_of_erased![
-                                    one_of(vec_of_erased![
-                                        // Try regular statement first
-                                        Ref::new("StatementSegment"),
-                                        // Then word-aware parsers for lowercase keywords
-                                        Ref::new("WordAwareStatementSegment")
-                                    ]),
-                                    Ref::new("DelimiterGrammar").optional()
-                                ])])
-                                .config(|this| {
-                                    this.min_times(1);
-                                    this.max_times(5); // Limit to prevent infinite loops
-                                    this.terminators = vec_of_erased![
-                                        Ref::keyword("IF"),                           // Next IF statement
-                                        StringParser::new("IF", SyntaxKind::Keyword), // Also handle lowercase if as word
-                                        StringParser::new("if", SyntaxKind::Word), // Also handle lowercase if as word
-                                        Ref::new("BatchSeparatorGrammar")          // GO statement
-                                    ];
-                                })
-                            ]),
+                            Ref::new("IfStatementsSegment"),
                             MetaSegment::dedent()
                         ])
                     ])
@@ -10204,24 +10203,12 @@ pub fn raw_dialect() -> Dialect {
                     Ref::new("WordAwareExpressionSegment"),
                     Ref::new("ExpressionSegment")
                 ]),
-                // Statement body - specific statement handling (avoid generic fallbacks)
-                one_of(vec_of_erased![
-                    // Word-aware BEGIN...END block
-                    Ref::new("WordAwareBeginEndBlockSegment"),
-                    // Word-aware CREATE INDEX statement (common after if exists)
-                    Ref::new("WordAwareCreateIndexStatementSegment"),
-                    // Word-aware SET statement (common after if exists)
-                    Ref::new("WordAwareSetStatementSegment"),
-                    // Other specific word-aware statements
-                    Ref::new("WordAwareIfStatementSegment"),
-                    Ref::new("WordAwareWhileStatementSegment"),
-                    Ref::new("WordAwareBreakStatementSegment"),
-                    Ref::new("WordAwarePrintStatementSegment"),
-                    Ref::new("WordAwareReturnStatementSegment"),
-                    Ref::new("WordAwareSelectStatementSegment"),
-                    // Regular statement for keyword-based parsing
-                    Ref::new("StatementSegment")
-                ]),
+                // Add indentation for the IF body
+                MetaSegment::indent(),
+                // Use the IF statements container for proper indentation handling
+                Ref::new("IfStatementsSegment"),
+                // Close indentation for the IF body
+                MetaSegment::dedent(),
                 // Optional ELSE clause - CRITICAL: Add this!
                 Sequence::new(vec_of_erased![
                     one_of(vec_of_erased![
@@ -10230,28 +10217,14 @@ pub fn raw_dialect() -> Dialect {
                         Ref::keyword("ELSE")
                     ]),
                     one_of(vec_of_erased![
-                        // Word-aware BEGIN...END block
-                        Ref::new("WordAwareBeginEndBlockSegment"),
-                        // Word-aware statements
+                        // Special handling for ELSE IF - don't indent the IF
                         Ref::new("WordAwareIfStatementSegment"),
-                        Ref::new("WordAwareSelectStatementSegment"),
-                        Ref::new("WordAwareSetStatementSegment"),
-                        // Multiple statements for ELSE body
-                        AnyNumberOf::new(vec_of_erased![Sequence::new(vec_of_erased![
-                            Ref::new("WordAwareStatementSegment"),
-                            Ref::new("DelimiterGrammar").optional()
-                        ])])
-                        .config(|this| {
-                            this.min_times(1);
-                            this.terminators = vec_of_erased![
-                                StringParser::new("IF", SyntaxKind::Word),
-                                StringParser::new("if", SyntaxKind::Word),
-                                Ref::keyword("IF"),
-                                Ref::new("BatchSeparatorGrammar")
-                            ];
-                        }),
-                        // Regular statement
-                        Ref::new("StatementSegment")
+                        // For regular ELSE body, add indentation
+                        Sequence::new(vec_of_erased![
+                            MetaSegment::indent(),
+                            Ref::new("IfStatementsSegment"),
+                            MetaSegment::dedent()
+                        ])
                     ])
                 ])
                 .config(|this| this.optional()),

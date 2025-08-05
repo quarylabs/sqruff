@@ -2196,6 +2196,7 @@ pub fn raw_dialect() -> Dialect {
                 Ref::keyword("COLUMNSTORE").optional(),
                 Ref::keyword("INDEX"),
                 Ref::new("IndexReferenceSegment"),
+                MetaSegment::indent(),
                 Ref::keyword("ON"),
                 Ref::new("TableReferenceSegment"),
                 // Column list (optional for columnstore)
@@ -2373,7 +2374,8 @@ pub fn raw_dialect() -> Dialect {
                         Ref::keyword("PRIMARY")
                     ])
                 ])
-                .config(|this| this.optional())
+                .config(|this| this.optional()),
+                MetaSegment::dedent()
             ])
             .to_matchable()
         })
@@ -10708,6 +10710,7 @@ pub fn raw_dialect() -> Dialect {
                     TypedParser::new(SyntaxKind::DoubleQuote, SyntaxKind::QuotedIdentifier),
                     Ref::new("SingleIdentifierGrammar")
                 ]),
+                MetaSegment::indent(),
                 // ON as keyword or word token
                 one_of(vec_of_erased![
                     Ref::keyword("ON"),
@@ -10886,7 +10889,8 @@ pub fn raw_dialect() -> Dialect {
                         Ref::new("SingleIdentifierGrammar")
                     ])
                 ])
-                .config(|this| this.optional())
+                .config(|this| this.optional()),
+                MetaSegment::dedent()
             ])
             .terminators(vec_of_erased![
                 // Terminate at GO keywords to allow next statements

@@ -721,10 +721,6 @@ test_exasol_script:
       dialect: exasol
 
 test_pass_tsql_else_if:
-  # TODO: Fix T-SQL IF/ELSE IF/ELSE indentation handling
-  # LT02 rule doesn't recognize T-SQL's two-keyword "ELSE IF" as being at same level as IF
-  # See TSQL_ELSE_IF_INDENTATION_RESEARCH.md for detailed investigation
-  ignored: "T-SQL IF/ELSE IF/ELSE indentation not working correctly - LT02 expects ELSE to be indented"
   pass_str: |
     IF (1 > 1)
         PRINT 'A';
@@ -737,6 +733,9 @@ test_pass_tsql_else_if:
   configs:
     core:
       dialect: tsql
+    indentation:
+      allow_implicit_indents: true
+  ignored: "T-SQL ELSE/ELSE IF indentation issue: Keywords misclassified as Word tokens causing LT02 violations. See https://github.com/quarylabs/sqruff/issues/1873"
 
 test_fail_tsql_else_if:
   # TODO: Fix T-SQL IF/ELSE IF/ELSE indentation handling

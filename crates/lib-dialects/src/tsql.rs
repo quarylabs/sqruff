@@ -1799,16 +1799,16 @@ pub fn raw_dialect() -> Dialect {
             Sequence::new(vec_of_erased![
                 // Main IF clause: IF condition
                 Ref::keyword("IF"),
-                Ref::new("ExpressionSegment"),
                 MetaSegment::indent(),
+                Ref::new("ExpressionSegment"),
                 Ref::new("IfStatementsSegment"),
                 MetaSegment::dedent(),
                 // ELSE IF clauses: ELSE IF condition (two keywords)
                 AnyNumberOf::new(vec_of_erased![Sequence::new(vec_of_erased![
                     Ref::keyword("ELSE"),
                     Ref::keyword("IF"),
-                    Ref::new("ExpressionSegment"),
                     MetaSegment::indent(),
+                    Ref::new("ExpressionSegment"),
                     Ref::new("IfStatementsSegment"),
                     MetaSegment::dedent()
                 ])]),

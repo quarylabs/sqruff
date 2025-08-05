@@ -1,0 +1,3 @@
+[sqruff]
+rules = LT02
+dialect = tsql

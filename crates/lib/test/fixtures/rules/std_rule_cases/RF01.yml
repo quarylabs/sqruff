@@ -219,8 +219,6 @@ test_mysql_select_no_from_should_not_except:
       dialect: mysql
 
 test_nested_join_clause_does_not_flag:
-  # TODO: Fix T-SQL nested JOIN parsing causing panic in join.rs
-  ignored: "T-SQL nested JOIN syntax causes panic in parser"
   pass_str: |
     SELECT
         1 AS RegionCode
@@ -234,8 +232,6 @@ test_nested_join_clause_does_not_flag:
       dialect: tsql
 
 test_nested_join_clauses_do_not_flag:
-  # TODO: Fix T-SQL nested JOIN parsing causing panic in join.rs
-  ignored: "T-SQL nested JOIN syntax causes panic in parser"
   pass_str: |
     SELECT
         1 AS RegionCode
@@ -251,8 +247,6 @@ test_nested_join_clauses_do_not_flag:
       dialect: tsql
 
 test_parenthesized_join_clauses_do_not_flag:
-  # TODO: Fix T-SQL parenthesized JOIN parsing causing panic in join.rs
-  ignored: "T-SQL parenthesized JOIN syntax causes panic in parser"
   pass_str: |
     SELECT
         1 AS RegionCode

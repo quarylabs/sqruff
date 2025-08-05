@@ -36,39 +36,62 @@ file:
       - expression:
         - numeric_literal: '0'
       - if_statements:
-        - word: PRINT
-        - expression:
-          - quoted_literal: '''Warning: No rows were updated'''
-        - statement_terminator: ;
-        - if_statement:
-          - word: IF
-          - tsql_variable: '@@ERROR'
-          - comparison_operator:
-            - raw_comparison_operator: =
+        - statement:
+          - keyword: PRINT
           - expression:
-            - numeric_literal: '547'
-          - if_statements:
-            - begin_end_block:
-              - keyword: BEGIN
+            - quoted_literal: '''Warning: No rows were updated'''
+        - statement_terminator: ;
+        - statement:
+          - if_statement:
+            - keyword: IF
+            - tsql_variable: '@@ERROR'
+            - comparison_operator:
+              - raw_comparison_operator: =
+            - expression:
+              - numeric_literal: '547'
+            - if_statements:
               - statement:
-                - keyword: PRINT
+                - begin_end_block:
+                  - keyword: BEGIN
+                  - statement:
+                    - keyword: PRINT
+                    - expression:
+                      - quoted_literal: N'A check constraint violation occurred.'
+                  - statement_terminator: ;
+                  - keyword: END
+              - statement:
+                - naked_identifier: GO
                 - expression:
-                  - quoted_literal: N'A check constraint violation occurred.'
+                  - select_statement:
+                    - select_clause:
+                      - keyword: SELECT
+                      - select_clause_element:
+                        - tsql_variable: '@@IDENTITY'
+                        - alias_expression:
+                          - keyword: AS
+                          - quoted_identifier: '''Identity'''
               - statement_terminator: ;
-              - keyword: END
-            - word: GO
-            - word: SELECT
-            - tsql_variable: '@@IDENTITY'
-            - word: AS
-            - single_quote: '''Identity'''
-            - semicolon: ;
-            - word: GO
-            - word: PRINT
-            - tsql_variable: '@@TRANCOUNT'
-            - word: GO
-            - word: SELECT
-            - tsql_variable: '@@PACK_RECEIVED'
-            - word: AS
-            - single_quote: '''Packets Received'''
-            - semicolon: ;
-            - word: GO
+              - statement:
+                - naked_identifier: GO
+                - expression:
+                  - column_reference:
+                    - naked_identifier: PRINT
+                - expression:
+                  - parameterized_expression:
+                    - tsql_variable: '@@TRANCOUNT'
+                - expression:
+                  - data_type:
+                    - data_type:
+                      - data_type_identifier: GO
+                - expression:
+                  - select_statement:
+                    - select_clause:
+                      - keyword: SELECT
+                      - select_clause_element:
+                        - tsql_variable: '@@PACK_RECEIVED'
+                        - alias_expression:
+                          - keyword: AS
+                          - quoted_identifier: '''Packets Received'''
+              - statement_terminator: ;
+              - statement:
+                - naked_identifier: GO

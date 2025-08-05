@@ -1706,18 +1706,14 @@ pub fn raw_dialect() -> Dialect {
         ),
     ]);
 
-    // IF statements container - similar to BigQuery's IfStatementsSegment  
+    // IF statements segment - kept for compatibility
     dialect.add([(
         "IfStatementsSegment".into(),
         NodeMatcher::new(SyntaxKind::IfStatements, |_| {
             AnyNumberOf::new(vec_of_erased![Sequence::new(vec_of_erased![
                 one_of(vec_of_erased![
-                    // Try word-aware parsers first for procedures with word tokens
-                    Ref::new("WordAwareStatementSegment"),
-                    // Regular statements
                     Ref::new("StatementSegment"),
-                    // ELSE-aware statements that properly terminate at ELSE
-                    Ref::new("ElseAwareStatementSegment")
+                    Ref::new("WordAwareStatementSegment")
                 ]),
                 Ref::new("DelimiterGrammar").optional()
             ])])
@@ -1725,13 +1721,7 @@ pub fn raw_dialect() -> Dialect {
                 this.min_times(1);
                 this.terminators = vec_of_erased![
                     Ref::keyword("ELSE"),
-                    StringParser::new("ELSE", SyntaxKind::Keyword),
-                    StringParser::new("ELSE", SyntaxKind::NakedIdentifier),
-                    StringParser::new("ELSE", SyntaxKind::Word),
-                    StringParser::new("else", SyntaxKind::Word),
-                    Ref::keyword("IF"),
-                    StringParser::new("IF", SyntaxKind::Keyword),
-                    StringParser::new("if", SyntaxKind::Word),
+                    Ref::keyword("END"),
                     Ref::new("BatchSeparatorGrammar")
                 ];
             })
@@ -1741,42 +1731,91 @@ pub fn raw_dialect() -> Dialect {
         .into(),
     )]);
 
-    // IF...ELSE statement
-    // Handle T-SQL's lexing behavior where IF/ELSE can be lexed as words in procedure contexts
+    // ELSE statement segment - separate from IF to ensure proper indentation levels
     dialect.add([(
-        "IfStatementSegment".into(),
-        NodeMatcher::new(SyntaxKind::IfStatement, |_| {
+        "ElseStatementSegment".into(),
+        NodeMatcher::new(SyntaxKind::ElseStatement, |_| {
             Sequence::new(vec_of_erased![
                 one_of(vec_of_erased![
+                    Ref::keyword("ELSE"),
+                    StringParser::new("ELSE", SyntaxKind::Keyword),
+                    StringParser::new("else", SyntaxKind::Keyword)
+                ]),
+                MetaSegment::indent(),
+                one_of(vec_of_erased![
+                    Ref::new("StatementSegment"),
+                    Ref::new("WordAwareStatementSegment")
+                ]),
+                MetaSegment::dedent()
+            ])
+            .to_matchable()
+        })
+        .to_matchable()
+        .into(),
+    )]);
+
+    // ELSE IF statement segment - handles ELSE IF as a single statement type
+    dialect.add([(
+        "ElseIfStatementSegment".into(),
+        NodeMatcher::new(SyntaxKind::ElseIfStatement, |_| {
+            Sequence::new(vec_of_erased![
+                one_of(vec_of_erased![
+                    Ref::keyword("ELSE"),
+                    StringParser::new("ELSE", SyntaxKind::Keyword),
+                    StringParser::new("else", SyntaxKind::Keyword)
+                ]),
+                one_of(vec_of_erased![
                     Ref::keyword("IF"),
-                    // Also accept IF as word token in T-SQL procedure bodies
                     StringParser::new("IF", SyntaxKind::Keyword),
-                    // Also accept lowercase 'if' as word token
                     StringParser::new("if", SyntaxKind::Keyword)
                 ]),
-                // Try word-aware expression first, then fallback to standard expression
                 one_of(vec_of_erased![
                     Ref::new("WordAwareExpressionSegment"),
                     Ref::new("ExpressionSegment")
                 ]),
-                // Add indentation for the IF body
                 MetaSegment::indent(),
-                // Use the IF statements container for proper indentation handling
+                one_of(vec_of_erased![
+                    Ref::new("StatementSegment"),
+                    Ref::new("WordAwareStatementSegment")
+                ]),
+                MetaSegment::dedent()
+            ])
+            .to_matchable()
+        })
+        .to_matchable()
+        .into(),
+    )]);
+
+    // IF statement - includes ELSE handling with proper dedent before ELSE
+    dialect.add([(
+        "IfStatementSegment".into(),
+        NodeMatcher::new(SyntaxKind::IfStatement, |_| {
+            Sequence::new(vec_of_erased![
+                // IF keyword and condition
+                one_of(vec_of_erased![
+                    Ref::keyword("IF"),
+                    StringParser::new("IF", SyntaxKind::Keyword),
+                    StringParser::new("if", SyntaxKind::Keyword)
+                ]),
+                one_of(vec_of_erased![
+                    Ref::new("WordAwareExpressionSegment"),
+                    Ref::new("ExpressionSegment")
+                ]),
+                // Indent for IF body
+                MetaSegment::indent(),
                 Ref::new("IfStatementsSegment"),
-                // Close indentation for the IF body - CRITICAL: ELSE must come after this
+                // Dedent before ELSE - this is critical
                 MetaSegment::dedent(),
-                // ELSE clause positioned at same level as IF (not indented)
-                AnyNumberOf::new(vec_of_erased![Sequence::new(vec_of_erased![
+                // Optional ELSE IF/ELSE clauses
+                AnyNumberOf::new(vec_of_erased![
                     one_of(vec_of_erased![
-                        Ref::keyword("ELSE"),
-                        // Also accept ELSE as naked identifier in T-SQL
-                        StringParser::new("ELSE", SyntaxKind::NakedIdentifier),
-                        // Also accept ELSE as word token in T-SQL procedure bodies
-                        StringParser::new("ELSE", SyntaxKind::Keyword)
-                    ]),
-                    one_of(vec_of_erased![
-                        // Special handling for ELSE IF - the IF is at same level, not indented
+                        // ELSE IF
                         Sequence::new(vec_of_erased![
+                            one_of(vec_of_erased![
+                                Ref::keyword("ELSE"),
+                                StringParser::new("ELSE", SyntaxKind::Keyword),
+                                StringParser::new("else", SyntaxKind::Keyword)
+                            ]),
                             one_of(vec_of_erased![
                                 Ref::keyword("IF"),
                                 StringParser::new("IF", SyntaxKind::Keyword),
@@ -1790,17 +1829,20 @@ pub fn raw_dialect() -> Dialect {
                             Ref::new("IfStatementsSegment"),
                             MetaSegment::dedent()
                         ]),
-                        // For regular ELSE, indent the body
+                        // Plain ELSE
                         Sequence::new(vec_of_erased![
+                            one_of(vec_of_erased![
+                                Ref::keyword("ELSE"),
+                                StringParser::new("ELSE", SyntaxKind::Keyword),
+                                StringParser::new("else", SyntaxKind::Keyword)
+                            ]),
                             MetaSegment::indent(),
                             Ref::new("IfStatementsSegment"),
                             MetaSegment::dedent()
                         ])
                     ])
-                ])])
-                .config(|this| this.max_times(20)),
-                // Optional delimiter for the entire IF statement to handle multi-statement files
-                Ref::new("DelimiterGrammar").optional()
+                ])
+                .config(|this| this.optional())
             ])
             .to_matchable()
         })

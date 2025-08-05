@@ -169,6 +169,8 @@ pub enum SyntaxKind {
     RepeatStatement,
     IfStatements,
     IfStatement,
+    ElseStatement,
+    ElseIfStatement,
     LoopStatements,
     LoopStatement,
     WhileStatements,

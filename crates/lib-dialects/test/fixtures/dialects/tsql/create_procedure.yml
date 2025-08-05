@@ -214,19 +214,20 @@ file:
       - word: IS
       - word: 'NULL'
       - if_statements:
-        - begin_end_block:
-          - keyword: BEGIN
-          - statement:
-            - select_statement:
-              - select_clause:
-                - keyword: SELECT
-                - select_clause_element:
-                  - tsql_variable: '@bar'
-                - comma: ','
-                - select_clause_element:
-                  - tsql_variable: '@fooReadonly'
-          - statement_terminator: ;
-          - keyword: END
+        - statement:
+          - begin_end_block:
+            - keyword: BEGIN
+            - statement:
+              - select_statement:
+                - select_clause:
+                  - keyword: SELECT
+                  - select_clause_element:
+                    - tsql_variable: '@bar'
+                  - comma: ','
+                  - select_clause_element:
+                    - tsql_variable: '@fooReadonly'
+            - statement_terminator: ;
+            - keyword: END
         - statement_terminator: ;
         - word: END
         - semicolon: ;

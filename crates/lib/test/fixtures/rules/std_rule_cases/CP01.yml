@@ -214,9 +214,6 @@ test_fail_select_lower:
         capitalisation_policy: upper
 
 test_fail_select_lower_keyword_functions:
-  # Test for issue #3520
-  # TODO: Fix T-SQL function name capitalization
-  ignored: "T-SQL function name capitalization not working correctly"
   fail_str: |
     SELECT
     cast(5 AS int) AS test1,

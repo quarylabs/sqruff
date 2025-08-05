@@ -33,312 +33,693 @@ file:
                 - quoted_literal: '''IX_INTER_VIMR_INFECTIOUS_PEOPLE'''
             - end_bracket: )
       - if_statements:
-        - create_index_statement:
-          - keyword: CREATE
-          - keyword: NONCLUSTERED
-          - keyword: INDEX
-          - naked_identifier: IX_INTER_VIMR_INFECTIOUS_PEOPLE
-          - keyword: ON
-          - naked_identifier: dbo
-          - dot: .
-          - naked_identifier: VIMR_INFECTIOUS_PEOPLE
-          - bracketed:
-            - start_bracket: (
-            - naked_identifier: DATE_LAST_INSERTED
-            - end_bracket: )
+        - statement:
+          - create_index_statement:
+            - keyword: CREATE
+            - keyword: NONCLUSTERED
+            - keyword: INDEX
+            - naked_identifier: IX_INTER_VIMR_INFECTIOUS_PEOPLE
+            - keyword: ON
+            - naked_identifier: dbo
+            - dot: .
+            - naked_identifier: VIMR_INFECTIOUS_PEOPLE
+            - bracketed:
+              - start_bracket: (
+              - naked_identifier: DATE_LAST_INSERTED
+              - end_bracket: )
         - statement_terminator: ;
-        - word: GO
-        - word: IF
-        - word: NOT
-        - word: EXISTS
-        - start_bracket: (
-        - word: SELECT
-        - star: '*'
-        - word: FROM
-        - word: sys
-        - dot: .
-        - word: indexes
-        - word: WHERE
-        - word: NAME
-        - raw_comparison_operator: =
-        - single_quote: '''IX_INTER_FOUNDATION_NICE_IC_INTAKE_COUNT'''
-        - end_bracket: )
-        - word: CREATE
-        - word: NONCLUSTERED
-        - word: INDEX
-        - word: IX_INTER_FOUNDATION_NICE_IC_INTAKE_COUNT
-        - word: ON
-        - word: dbo
-        - dot: .
-        - word: FOUNDATION_NICE_IC_INTAKE_COUNT
-        - start_bracket: (
-        - word: DATE_LAST_INSERTED
-        - end_bracket: )
-        - semicolon: ;
-        - word: GO
-        - word: IF
-        - word: EXISTS
-        - start_bracket: (
-        - word: SELECT
-        - star: '*'
-        - word: FROM
-        - word: sys
-        - dot: .
-        - word: indexes
-        - word: WHERE
-        - word: NAME
-        - raw_comparison_operator: =
-        - single_quote: '''IX_INTER_VIMR_REPRODUCTION_NUMBER'''
-        - end_bracket: )
-        - word: CREATE
-        - word: CLUSTERED
-        - word: INDEX
-        - word: IX_INTER_VIMR_REPRODUCTION_NUMBER
-        - word: ON
-        - word: dbo
-        - dot: .
-        - word: VIMR_INFECTIOUS_PEOPLE
-        - start_bracket: (
-        - word: DATE_LAST_INSERTED
-        - end_bracket: )
-        - semicolon: ;
-        - word: GO
-        - word: CREATE
-        - word: NONCLUSTERED
-        - word: INDEX
-        - quoted_identifier: '[ind_1]'
-        - word: ON
-        - quoted_identifier: '[schema1]'
-        - dot: .
-        - quoted_identifier: '[table1]'
-        - start_bracket: (
-        - quoted_identifier: '[column1]'
-        - word: ASC
-        - end_bracket: )
-        - word: INCLUDE
-        - start_bracket: (
-        - quoted_identifier: '[column2]'
-        - end_bracket: )
-        - word: WHERE
-        - start_bracket: (
-        - quoted_identifier: '[column3]'
-        - word: IS
-        - word: 'NULL'
-        - end_bracket: )
-        - semicolon: ;
-        - word: GO
-        - word: CREATE
-        - word: NONCLUSTERED
-        - word: INDEX
-        - quoted_identifier: '[NI_name]'
-        - word: ON
-        - quoted_identifier: '[schema1]'
-        - dot: .
-        - quoted_identifier: '[table1]'
-        - start_bracket: (
-        - quoted_identifier: '[column1]'
-        - word: DESC
-        - end_bracket: )
-        - word: ON
-        - quoted_identifier: '[PRIMARY]'
-        - semicolon: ;
-        - word: GO
-        - word: CREATE
-        - word: UNIQUE
-        - word: INDEX
-        - quoted_identifier: '[ix_name]'
-        - word: ON
-        - quoted_identifier: '[schema1]'
-        - dot: .
-        - quoted_identifier: '[table1]'
-        - start_bracket: (
-        - quoted_identifier: '[column1]'
-        - comma: ','
-        - quoted_identifier: '[column2]'
-        - end_bracket: )
-        - word: WITH
-        - word: FILLFACTOR
-        - raw_comparison_operator: =
-        - numeric_literal: '80'
-        - semicolon: ;
-        - word: GO
-        - word: CREATE
-        - word: UNIQUE
-        - word: INDEX
-        - quoted_identifier: '[ix_name]'
-        - word: ON
-        - quoted_identifier: '[schema1]'
-        - dot: .
-        - quoted_identifier: '[table1]'
-        - start_bracket: (
-        - quoted_identifier: '[column1]'
-        - end_bracket: )
-        - word: WITH
-        - start_bracket: (
-        - word: PAD_INDEX
-        - raw_comparison_operator: =
-        - word: OFF
-        - comma: ','
-        - word: SORT_IN_TEMPDB
-        - raw_comparison_operator: =
-        - word: ON
-        - end_bracket: )
-        - semicolon: ;
-        - word: CREATE
-        - word: UNIQUE
-        - word: INDEX
-        - quoted_identifier: '[ix_name]'
-        - word: ON
-        - quoted_identifier: '[schema1]'
-        - dot: .
-        - quoted_identifier: '[table1]'
-        - start_bracket: (
-        - quoted_identifier: '[column1]'
-        - end_bracket: )
-        - word: WITH
-        - start_bracket: (
-        - word: ONLINE
-        - raw_comparison_operator: =
-        - word: ON
-        - end_bracket: )
-        - semicolon: ;
-        - word: GO
-        - word: CREATE
-        - word: UNIQUE
-        - word: INDEX
-        - quoted_identifier: '[ix_name]'
-        - word: ON
-        - quoted_identifier: '[schema1]'
-        - dot: .
-        - quoted_identifier: '[table1]'
-        - start_bracket: (
-        - quoted_identifier: '[column1]'
-        - end_bracket: )
-        - word: WITH
-        - start_bracket: (
-        - word: ONLINE
-        - raw_comparison_operator: =
-        - word: ON
-        - start_bracket: (
-        - word: WAIT_AT_LOW_PRIORITY
-        - start_bracket: (
-        - word: MAX_DURATION
-        - raw_comparison_operator: =
-        - numeric_literal: '5'
-        - word: MINUTES
-        - comma: ','
-        - word: ABORT_AFTER_WAIT
-        - raw_comparison_operator: =
-        - word: NONE
-        - end_bracket: )
-        - end_bracket: )
-        - end_bracket: )
-        - semicolon: ;
-        - word: GO
-        - word: CREATE
-        - word: UNIQUE
-        - word: INDEX
-        - quoted_identifier: '[ix_name]'
-        - word: ON
-        - quoted_identifier: '[schema1]'
-        - dot: .
-        - quoted_identifier: '[table1]'
-        - start_bracket: (
-        - quoted_identifier: '[column1]'
-        - end_bracket: )
-        - word: WITH
-        - word: DATA_COMPRESSION
-        - raw_comparison_operator: =
-        - word: ROW
-        - word: ON
-        - word: PARTITIONS
-        - start_bracket: (
-        - numeric_literal: '2'
-        - comma: ','
-        - numeric_literal: '4'
-        - comma: ','
-        - numeric_literal: '6'
-        - word: TO
-        - numeric_literal: '8'
-        - end_bracket: )
-        - word: GO
-        - word: CREATE
-        - word: STATISTICS
-        - word: Stats_Population
-        - word: ON
-        - quoted_identifier: '[Reporting]'
-        - dot: .
-        - quoted_identifier: '[Population]'
-        - start_bracket: (
-        - quoted_identifier: '[ID]'
-        - comma: ','
-        - quoted_identifier: '[Facility]'
-        - comma: ','
-        - quoted_identifier: '[Population]'
-        - end_bracket: )
-        - word: GO
-        - word: UPDATE
-        - word: STATISTICS
-        - word: Reporting
-        - dot: .
-        - word: Population
-        - word: Stats_Population
-        - semicolon: ;
-        - word: GO
-        - word: UPDATE
-        - word: STATISTICS
-        - word: Reporting
-        - dot: .
-        - word: Population
-        - start_bracket: (
-        - word: Stats_Facility
-        - comma: ','
-        - word: Stats_Population
-        - end_bracket: )
-        - semicolon: ;
-        - word: GO
-        - word: UPDATE
-        - word: STATISTICS
-        - word: Reporting
-        - dot: .
-        - word: Population
-        - start_bracket: (
-        - word: Stats_Facility
-        - comma: ','
-        - word: Stats_Population
-        - end_bracket: )
-        - word: WITH
-        - word: FULLSCAN
-        - semicolon: ;
-        - word: GO
-        - word: UPDATE
-        - word: STATISTICS
-        - word: Reporting
-        - dot: .
-        - word: Population
-        - start_bracket: (
-        - word: Stats_Facility
-        - comma: ','
-        - word: Stats_Population
-        - end_bracket: )
-        - word: WITH
-        - word: RESAMPLE
-        - semicolon: ;
-        - word: GO
-        - word: DROP
-        - word: STATISTICS
-        - word: Reporting
-        - dot: .
-        - word: Population
-        - dot: .
-        - word: Stats_Population
-        - word: GO
-        - word: DROP
-        - word: INDEX
-        - word: IX_INTER_VIMR_REPRODUCTION_NUMBER
-        - word: ON
-        - word: dbo
-        - dot: .
-        - word: VIMR_INFECTIOUS_PEOPLE
-        - semicolon: ;
-        - word: GO
+        - statement:
+          - naked_identifier: GO
+          - expression:
+            - column_reference:
+              - naked_identifier: IF
+          - expression:
+            - keyword: NOT
+            - expression:
+              - keyword: EXISTS
+              - bracketed:
+                - start_bracket: (
+                - select_statement:
+                  - select_clause:
+                    - word: SELECT
+                    - wildcard_expression:
+                      - wildcard_identifier:
+                        - star: '*'
+                  - word: FROM
+                  - from_expression:
+                    - from_expression_element:
+                      - table_expression:
+                        - table_reference:
+                          - object_reference:
+                            - naked_identifier: sys
+                            - dot: .
+                            - naked_identifier: indexes
+                  - word: WHERE
+                  - expression:
+                    - column_reference:
+                      - naked_identifier: NAME
+                    - comparison_operator:
+                      - raw_comparison_operator: =
+                    - quoted_literal: '''IX_INTER_FOUNDATION_NICE_IC_INTAKE_COUNT'''
+                - end_bracket: )
+          - expression:
+            - column_reference:
+              - naked_identifier: CREATE
+          - expression:
+            - column_reference:
+              - naked_identifier: NONCLUSTERED
+          - expression:
+            - column_reference:
+              - naked_identifier: INDEX
+          - expression:
+            - column_reference:
+              - naked_identifier: IX_INTER_FOUNDATION_NICE_IC_INTAKE_COUNT
+          - expression:
+            - data_type:
+              - data_type:
+                - data_type_identifier: ON
+          - expression:
+            - function:
+              - function_name:
+                - naked_identifier: dbo
+                - dot: .
+                - function_name_identifier: FOUNDATION_NICE_IC_INTAKE_COUNT
+              - function_contents:
+                - bracketed:
+                  - start_bracket: (
+                  - expression:
+                    - column_reference:
+                      - naked_identifier: DATE_LAST_INSERTED
+                  - end_bracket: )
+        - statement_terminator: ;
+        - statement:
+          - naked_identifier: GO
+          - expression:
+            - column_reference:
+              - naked_identifier: IF
+          - expression:
+            - expression:
+              - keyword: EXISTS
+              - bracketed:
+                - start_bracket: (
+                - select_statement:
+                  - select_clause:
+                    - word: SELECT
+                    - wildcard_expression:
+                      - wildcard_identifier:
+                        - star: '*'
+                  - word: FROM
+                  - from_expression:
+                    - from_expression_element:
+                      - table_expression:
+                        - table_reference:
+                          - object_reference:
+                            - naked_identifier: sys
+                            - dot: .
+                            - naked_identifier: indexes
+                  - word: WHERE
+                  - expression:
+                    - column_reference:
+                      - naked_identifier: NAME
+                    - comparison_operator:
+                      - raw_comparison_operator: =
+                    - quoted_literal: '''IX_INTER_VIMR_REPRODUCTION_NUMBER'''
+                - end_bracket: )
+          - expression:
+            - column_reference:
+              - naked_identifier: CREATE
+          - expression:
+            - column_reference:
+              - naked_identifier: CLUSTERED
+          - expression:
+            - column_reference:
+              - naked_identifier: INDEX
+          - expression:
+            - column_reference:
+              - naked_identifier: IX_INTER_VIMR_REPRODUCTION_NUMBER
+          - expression:
+            - data_type:
+              - data_type:
+                - data_type_identifier: ON
+          - expression:
+            - function:
+              - function_name:
+                - naked_identifier: dbo
+                - dot: .
+                - function_name_identifier: VIMR_INFECTIOUS_PEOPLE
+              - function_contents:
+                - bracketed:
+                  - start_bracket: (
+                  - expression:
+                    - column_reference:
+                      - naked_identifier: DATE_LAST_INSERTED
+                  - end_bracket: )
+        - statement_terminator: ;
+        - statement:
+          - naked_identifier: GO
+          - expression:
+            - column_reference:
+              - naked_identifier: CREATE
+          - expression:
+            - column_reference:
+              - naked_identifier: NONCLUSTERED
+          - expression:
+            - column_reference:
+              - naked_identifier: INDEX
+          - expression:
+            - column_reference:
+              - quoted_identifier: '[ind_1]'
+          - expression:
+            - data_type:
+              - data_type:
+                - data_type_identifier: ON
+          - expression:
+            - function:
+              - function_name:
+                - quoted_identifier: '[schema1]'
+                - dot: .
+                - quoted_identifier: '[table1]'
+              - function_contents:
+                - bracketed:
+                  - start_bracket: (
+                  - index_column_definition:
+                    - quoted_identifier: '[column1]'
+                    - keyword: ASC
+                  - end_bracket: )
+          - expression:
+            - function:
+              - function_name:
+                - function_name_identifier: INCLUDE
+              - function_contents:
+                - bracketed:
+                  - start_bracket: (
+                  - expression:
+                    - column_reference:
+                      - quoted_identifier: '[column2]'
+                  - end_bracket: )
+          - expression:
+            - function:
+              - function_name:
+                - function_name_identifier: WHERE
+              - function_contents:
+                - bracketed:
+                  - start_bracket: (
+                  - expression:
+                    - column_reference:
+                      - quoted_identifier: '[column3]'
+                    - keyword: IS
+                    - null_literal: 'NULL'
+                  - end_bracket: )
+        - statement_terminator: ;
+        - statement:
+          - naked_identifier: GO
+          - expression:
+            - column_reference:
+              - naked_identifier: CREATE
+          - expression:
+            - column_reference:
+              - naked_identifier: NONCLUSTERED
+          - expression:
+            - column_reference:
+              - naked_identifier: INDEX
+          - expression:
+            - column_reference:
+              - quoted_identifier: '[NI_name]'
+          - expression:
+            - data_type:
+              - data_type:
+                - data_type_identifier: ON
+          - expression:
+            - function:
+              - function_name:
+                - quoted_identifier: '[schema1]'
+                - dot: .
+                - quoted_identifier: '[table1]'
+              - function_contents:
+                - bracketed:
+                  - start_bracket: (
+                  - index_column_definition:
+                    - quoted_identifier: '[column1]'
+                    - keyword: DESC
+                  - end_bracket: )
+          - expression:
+            - data_type:
+              - data_type:
+                - data_type_identifier: ON
+          - expression:
+            - column_reference:
+              - quoted_identifier: '[PRIMARY]'
+        - statement_terminator: ;
+        - statement:
+          - naked_identifier: GO
+          - expression:
+            - column_reference:
+              - naked_identifier: CREATE
+          - expression:
+            - column_reference:
+              - naked_identifier: UNIQUE
+          - expression:
+            - column_reference:
+              - naked_identifier: INDEX
+          - expression:
+            - column_reference:
+              - quoted_identifier: '[ix_name]'
+          - expression:
+            - data_type:
+              - data_type:
+                - data_type_identifier: ON
+          - expression:
+            - function:
+              - function_name:
+                - quoted_identifier: '[schema1]'
+                - dot: .
+                - quoted_identifier: '[table1]'
+              - function_contents:
+                - bracketed:
+                  - start_bracket: (
+                  - expression:
+                    - column_reference:
+                      - quoted_identifier: '[column1]'
+                  - comma: ','
+                  - expression:
+                    - column_reference:
+                      - quoted_identifier: '[column2]'
+                  - end_bracket: )
+          - expression:
+            - column_reference:
+              - naked_identifier: WITH
+          - expression:
+            - column_reference:
+              - naked_identifier: FILLFACTOR
+            - comparison_operator:
+              - raw_comparison_operator: =
+            - numeric_literal: '80'
+        - statement_terminator: ;
+        - statement:
+          - naked_identifier: GO
+          - expression:
+            - column_reference:
+              - naked_identifier: CREATE
+          - expression:
+            - column_reference:
+              - naked_identifier: UNIQUE
+          - expression:
+            - column_reference:
+              - naked_identifier: INDEX
+          - expression:
+            - column_reference:
+              - quoted_identifier: '[ix_name]'
+          - expression:
+            - data_type:
+              - data_type:
+                - data_type_identifier: ON
+          - expression:
+            - function:
+              - function_name:
+                - quoted_identifier: '[schema1]'
+                - dot: .
+                - quoted_identifier: '[table1]'
+              - function_contents:
+                - bracketed:
+                  - start_bracket: (
+                  - expression:
+                    - column_reference:
+                      - quoted_identifier: '[column1]'
+                  - end_bracket: )
+          - expression:
+            - function:
+              - function_name:
+                - function_name_identifier: WITH
+              - function_contents:
+                - bracketed:
+                  - start_bracket: (
+                  - expression:
+                    - column_reference:
+                      - naked_identifier: PAD_INDEX
+                    - comparison_operator:
+                      - raw_comparison_operator: =
+                    - column_reference:
+                      - naked_identifier: OFF
+                  - comma: ','
+                  - expression:
+                    - column_reference:
+                      - naked_identifier: SORT_IN_TEMPDB
+                    - comparison_operator:
+                      - raw_comparison_operator: =
+                    - data_type:
+                      - data_type:
+                        - data_type_identifier: ON
+                  - end_bracket: )
+        - statement_terminator: ;
+        - statement:
+          - create_index_statement:
+            - keyword: CREATE
+            - keyword: UNIQUE
+            - keyword: INDEX
+            - quoted_identifier: '[ix_name]'
+            - keyword: ON
+            - quoted_identifier: '[schema1]'
+            - dot: .
+            - quoted_identifier: '[table1]'
+            - bracketed:
+              - start_bracket: (
+              - quoted_identifier: '[column1]'
+              - end_bracket: )
+            - word: WITH
+            - bracketed:
+              - start_bracket: (
+              - word: ONLINE
+              - raw_comparison_operator: =
+              - word: ON
+              - end_bracket: )
+        - statement_terminator: ;
+        - statement:
+          - naked_identifier: GO
+          - expression:
+            - column_reference:
+              - naked_identifier: CREATE
+          - expression:
+            - column_reference:
+              - naked_identifier: UNIQUE
+          - expression:
+            - column_reference:
+              - naked_identifier: INDEX
+          - expression:
+            - column_reference:
+              - quoted_identifier: '[ix_name]'
+          - expression:
+            - data_type:
+              - data_type:
+                - data_type_identifier: ON
+          - expression:
+            - function:
+              - function_name:
+                - quoted_identifier: '[schema1]'
+                - dot: .
+                - quoted_identifier: '[table1]'
+              - function_contents:
+                - bracketed:
+                  - start_bracket: (
+                  - expression:
+                    - column_reference:
+                      - quoted_identifier: '[column1]'
+                  - end_bracket: )
+          - expression:
+            - function:
+              - function_name:
+                - function_name_identifier: WITH
+              - function_contents:
+                - bracketed:
+                  - start_bracket: (
+                  - expression:
+                    - column_reference:
+                      - naked_identifier: ONLINE
+                    - comparison_operator:
+                      - raw_comparison_operator: =
+                    - function:
+                      - function_name:
+                        - function_name_identifier: ON
+                      - function_contents:
+                        - bracketed:
+                          - start_bracket: (
+                          - expression:
+                            - function:
+                              - function_name:
+                                - function_name_identifier: WAIT_AT_LOW_PRIORITY
+                              - function_contents:
+                                - bracketed:
+                                  - start_bracket: (
+                                  - expression:
+                                    - column_reference:
+                                      - naked_identifier: MAX_DURATION
+                                    - comparison_operator:
+                                      - raw_comparison_operator: =
+                                    - numeric_literal: '5'
+                                  - expression:
+                                    - column_reference:
+                                      - naked_identifier: MINUTES
+                                  - comma: ','
+                                  - expression:
+                                    - column_reference:
+                                      - naked_identifier: ABORT_AFTER_WAIT
+                                    - comparison_operator:
+                                      - raw_comparison_operator: =
+                                    - column_reference:
+                                      - naked_identifier: NONE
+                                  - end_bracket: )
+                          - end_bracket: )
+                  - end_bracket: )
+        - statement_terminator: ;
+        - statement:
+          - naked_identifier: GO
+          - expression:
+            - column_reference:
+              - naked_identifier: CREATE
+          - expression:
+            - column_reference:
+              - naked_identifier: UNIQUE
+          - expression:
+            - column_reference:
+              - naked_identifier: INDEX
+          - expression:
+            - column_reference:
+              - quoted_identifier: '[ix_name]'
+          - expression:
+            - data_type:
+              - data_type:
+                - data_type_identifier: ON
+          - expression:
+            - function:
+              - function_name:
+                - quoted_identifier: '[schema1]'
+                - dot: .
+                - quoted_identifier: '[table1]'
+              - function_contents:
+                - bracketed:
+                  - start_bracket: (
+                  - expression:
+                    - column_reference:
+                      - quoted_identifier: '[column1]'
+                  - end_bracket: )
+          - expression:
+            - column_reference:
+              - naked_identifier: WITH
+          - expression:
+            - column_reference:
+              - naked_identifier: DATA_COMPRESSION
+            - comparison_operator:
+              - raw_comparison_operator: =
+            - column_reference:
+              - naked_identifier: ROW
+          - expression:
+            - data_type:
+              - data_type:
+                - data_type_identifier: ON
+          - expression:
+            - function:
+              - function_name:
+                - function_name_identifier: PARTITIONS
+              - function_contents:
+                - bracketed:
+                  - start_bracket: (
+                  - expression:
+                    - numeric_literal: '2'
+                  - comma: ','
+                  - expression:
+                    - numeric_literal: '4'
+                  - comma: ','
+                  - expression:
+                    - numeric_literal: '6'
+                  - expression:
+                    - column_reference:
+                      - naked_identifier: TO
+                  - expression:
+                    - numeric_literal: '8'
+                  - end_bracket: )
+          - expression:
+            - data_type:
+              - data_type:
+                - data_type_identifier: GO
+          - expression:
+            - column_reference:
+              - naked_identifier: CREATE
+          - expression:
+            - column_reference:
+              - naked_identifier: STATISTICS
+          - expression:
+            - column_reference:
+              - naked_identifier: Stats_Population
+          - expression:
+            - data_type:
+              - data_type:
+                - data_type_identifier: ON
+          - expression:
+            - function:
+              - function_name:
+                - quoted_identifier: '[Reporting]'
+                - dot: .
+                - quoted_identifier: '[Population]'
+              - function_contents:
+                - bracketed:
+                  - start_bracket: (
+                  - expression:
+                    - column_reference:
+                      - quoted_identifier: '[ID]'
+                  - comma: ','
+                  - expression:
+                    - column_reference:
+                      - quoted_identifier: '[Facility]'
+                  - comma: ','
+                  - expression:
+                    - column_reference:
+                      - quoted_identifier: '[Population]'
+                  - end_bracket: )
+          - expression:
+            - data_type:
+              - data_type:
+                - data_type_identifier: GO
+          - expression:
+            - column_reference:
+              - naked_identifier: UPDATE
+          - expression:
+            - column_reference:
+              - naked_identifier: STATISTICS
+          - expression:
+            - column_reference:
+              - naked_identifier: Reporting
+              - dot: .
+              - naked_identifier: Population
+          - expression:
+            - column_reference:
+              - naked_identifier: Stats_Population
+        - statement_terminator: ;
+        - statement:
+          - naked_identifier: GO
+          - expression:
+            - column_reference:
+              - naked_identifier: UPDATE
+          - expression:
+            - column_reference:
+              - naked_identifier: STATISTICS
+          - expression:
+            - function:
+              - function_name:
+                - naked_identifier: Reporting
+                - dot: .
+                - function_name_identifier: Population
+              - function_contents:
+                - bracketed:
+                  - start_bracket: (
+                  - expression:
+                    - column_reference:
+                      - naked_identifier: Stats_Facility
+                  - comma: ','
+                  - expression:
+                    - column_reference:
+                      - naked_identifier: Stats_Population
+                  - end_bracket: )
+        - statement_terminator: ;
+        - statement:
+          - naked_identifier: GO
+          - expression:
+            - column_reference:
+              - naked_identifier: UPDATE
+          - expression:
+            - column_reference:
+              - naked_identifier: STATISTICS
+          - expression:
+            - function:
+              - function_name:
+                - naked_identifier: Reporting
+                - dot: .
+                - function_name_identifier: Population
+              - function_contents:
+                - bracketed:
+                  - start_bracket: (
+                  - expression:
+                    - column_reference:
+                      - naked_identifier: Stats_Facility
+                  - comma: ','
+                  - expression:
+                    - column_reference:
+                      - naked_identifier: Stats_Population
+                  - end_bracket: )
+          - expression:
+            - column_reference:
+              - naked_identifier: WITH
+          - expression:
+            - column_reference:
+              - naked_identifier: FULLSCAN
+        - statement_terminator: ;
+        - statement:
+          - naked_identifier: GO
+          - expression:
+            - column_reference:
+              - naked_identifier: UPDATE
+          - expression:
+            - column_reference:
+              - naked_identifier: STATISTICS
+          - expression:
+            - function:
+              - function_name:
+                - naked_identifier: Reporting
+                - dot: .
+                - function_name_identifier: Population
+              - function_contents:
+                - bracketed:
+                  - start_bracket: (
+                  - expression:
+                    - column_reference:
+                      - naked_identifier: Stats_Facility
+                  - comma: ','
+                  - expression:
+                    - column_reference:
+                      - naked_identifier: Stats_Population
+                  - end_bracket: )
+          - expression:
+            - column_reference:
+              - naked_identifier: WITH
+          - expression:
+            - column_reference:
+              - naked_identifier: RESAMPLE
+        - statement_terminator: ;
+        - statement:
+          - naked_identifier: GO
+          - expression:
+            - column_reference:
+              - naked_identifier: DROP
+          - expression:
+            - column_reference:
+              - naked_identifier: STATISTICS
+          - expression:
+            - column_reference:
+              - naked_identifier: Reporting
+              - dot: .
+              - naked_identifier: Population
+              - dot: .
+              - naked_identifier: Stats_Population
+          - expression:
+            - data_type:
+              - data_type:
+                - data_type_identifier: GO
+          - expression:
+            - column_reference:
+              - naked_identifier: DROP
+          - expression:
+            - column_reference:
+              - naked_identifier: INDEX
+          - expression:
+            - column_reference:
+              - naked_identifier: IX_INTER_VIMR_REPRODUCTION_NUMBER
+          - expression:
+            - data_type:
+              - data_type:
+                - data_type_identifier: ON
+          - expression:
+            - column_reference:
+              - naked_identifier: dbo
+              - dot: .
+              - naked_identifier: VIMR_INFECTIOUS_PEOPLE
+        - statement_terminator: ;
+        - statement:
+          - naked_identifier: GO

@@ -217,506 +217,764 @@ file:
                   - numeric_literal: '5'
               - end_bracket: )
           - if_statements:
-            - begin_end_block:
-              - keyword: BEGIN
-              - statement:
-                - keyword: RAISERROR
-                - bracketed:
-                  - start_bracket: (
-                  - expression:
-                    - quoted_literal: |-
-                        'A vendor''s credit rating is too low to accept new
-                        purchase orders.'
-                  - comma: ','
-                  - expression:
-                    - numeric_literal: '16'
-                  - comma: ','
-                  - expression:
-                    - numeric_literal: '1'
-                  - end_bracket: )
-              - statement_terminator: ;
-              - statement:
-                - transaction_statement:
+            - statement:
+              - begin_end_block:
+                - keyword: BEGIN
+                - statement:
+                  - keyword: RAISERROR
+                  - bracketed:
+                    - start_bracket: (
+                    - expression:
+                      - quoted_literal: |-
+                          'A vendor''s credit rating is too low to accept new
+                          purchase orders.'
+                    - comma: ','
+                    - expression:
+                      - numeric_literal: '16'
+                    - comma: ','
+                    - expression:
+                      - numeric_literal: '1'
+                    - end_bracket: )
+                - statement_terminator: ;
+                - statement:
                   - transaction_statement:
-                    - keyword: ROLLBACK
-                    - keyword: TRANSACTION
-              - statement_terminator: ;
-              - statement:
-                - keyword: RETURN
-                - expression:
-                  - data_type:
-                    - data_type:
-                      - data_type_identifier: END
-              - statement_terminator: ;
-              - statement:
-                - naked_identifier: GO
-                - expression:
-                  - data_type:
-                    - data_type:
-                      - data_type_identifier: CREATE
-                - expression:
-                  - column_reference:
-                    - naked_identifier: TRIGGER
-                - expression:
-                  - column_reference:
-                    - naked_identifier: safety
-                - expression:
-                  - data_type:
-                    - data_type:
-                      - data_type_identifier: ON
-                - expression:
-                  - column_reference:
-                    - naked_identifier: DATABASE
-                - expression:
-                  - column_reference:
-                    - naked_identifier: FOR
-                - expression:
-                  - column_reference:
-                    - naked_identifier: DROP_SYNONYM
-                - expression:
-                  - column_reference:
-                    - naked_identifier: AS
-                - expression:
-                  - function:
-                    - function_name:
-                      - function_name_identifier: IF
-                    - function_contents:
-                      - bracketed:
-                        - start_bracket: (
-                        - expression:
-                          - parameterized_expression:
-                            - tsql_variable: '@@ROWCOUNT'
-                          - comparison_operator:
-                            - raw_comparison_operator: =
-                          - numeric_literal: '0'
-                        - end_bracket: )
-                - expression:
-                  - column_reference:
-                    - naked_identifier: RETURN
-              - statement_terminator: ;
-              - statement:
-                - keyword: RAISERROR
-                - bracketed:
-                  - start_bracket: (
+                    - transaction_statement:
+                      - keyword: ROLLBACK
+                      - keyword: TRANSACTION
+                - statement_terminator: ;
+                - statement:
+                  - keyword: RETURN
                   - expression:
-                    - quoted_literal: '''You must disable Trigger "safety" to remove synonyms!'''
-                  - comma: ','
+                    - data_type:
+                      - data_type:
+                        - data_type_identifier: END
+                - statement_terminator: ;
+                - statement:
+                  - naked_identifier: GO
                   - expression:
-                    - numeric_literal: '10'
-                  - comma: ','
+                    - data_type:
+                      - data_type:
+                        - data_type_identifier: CREATE
                   - expression:
-                    - numeric_literal: '1'
-                  - end_bracket: )
-              - statement:
-                - transaction_statement:
-                  - transaction_statement:
-                    - keyword: ROLLBACK
-                    - naked_identifier: GO
-              - statement:
-                - drop_trigger_statement:
-                  - drop_trigger_statement:
-                    - keyword: DROP
-                    - keyword: TRIGGER
-                    - trigger_reference:
+                    - column_reference:
+                      - naked_identifier: TRIGGER
+                  - expression:
+                    - column_reference:
                       - naked_identifier: safety
-                    - keyword: ON
-                    - keyword: DATABASE
-              - statement_terminator: ;
-              - statement:
-                - naked_identifier: GO
-                - expression:
-                  - data_type:
+                  - expression:
                     - data_type:
-                      - data_type_identifier: CREATE
-                - expression:
-                  - column_reference:
-                    - naked_identifier: TRIGGER
-                - expression:
-                  - column_reference:
-                    - naked_identifier: ddl_trig_database
-                - expression:
-                  - data_type:
+                      - data_type:
+                        - data_type_identifier: ON
+                  - expression:
+                    - column_reference:
+                      - naked_identifier: DATABASE
+                  - expression:
+                    - column_reference:
+                      - naked_identifier: FOR
+                  - expression:
+                    - column_reference:
+                      - naked_identifier: DROP_SYNONYM
+                  - expression:
+                    - column_reference:
+                      - naked_identifier: AS
+                  - expression:
+                    - function:
+                      - function_name:
+                        - function_name_identifier: IF
+                      - function_contents:
+                        - bracketed:
+                          - start_bracket: (
+                          - expression:
+                            - parameterized_expression:
+                              - tsql_variable: '@@ROWCOUNT'
+                            - comparison_operator:
+                              - raw_comparison_operator: =
+                            - numeric_literal: '0'
+                          - end_bracket: )
+                  - expression:
+                    - column_reference:
+                      - naked_identifier: RETURN
+                - statement_terminator: ;
+                - statement:
+                  - keyword: RAISERROR
+                  - bracketed:
+                    - start_bracket: (
+                    - expression:
+                      - quoted_literal: '''You must disable Trigger "safety" to remove synonyms!'''
+                    - comma: ','
+                    - expression:
+                      - numeric_literal: '10'
+                    - comma: ','
+                    - expression:
+                      - numeric_literal: '1'
+                    - end_bracket: )
+                - statement:
+                  - transaction_statement:
+                    - transaction_statement:
+                      - keyword: ROLLBACK
+                      - naked_identifier: GO
+                - statement:
+                  - drop_trigger_statement:
+                    - drop_trigger_statement:
+                      - keyword: DROP
+                      - keyword: TRIGGER
+                      - trigger_reference:
+                        - naked_identifier: safety
+                      - keyword: ON
+                      - keyword: DATABASE
+                - statement_terminator: ;
+                - statement:
+                  - naked_identifier: GO
+                  - expression:
                     - data_type:
-                      - data_type_identifier: ON
-                - expression:
-                  - column_reference:
-                    - naked_identifier: ALL
-                - expression:
-                  - column_reference:
-                    - naked_identifier: SERVER
-                - expression:
-                  - column_reference:
-                    - naked_identifier: FOR
-                - expression:
-                  - column_reference:
-                    - naked_identifier: CREATE_DATABASE
-                - expression:
-                  - column_reference:
-                    - naked_identifier: AS
-                - expression:
-                  - column_reference:
-                    - naked_identifier: PRINT
-                - expression:
-                  - quoted_literal: '''Database Created.'''
-                - expression:
+                      - data_type:
+                        - data_type_identifier: CREATE
+                  - expression:
+                    - column_reference:
+                      - naked_identifier: TRIGGER
+                  - expression:
+                    - column_reference:
+                      - naked_identifier: ddl_trig_database
+                  - expression:
+                    - data_type:
+                      - data_type:
+                        - data_type_identifier: ON
+                  - expression:
+                    - column_reference:
+                      - naked_identifier: ALL
+                  - expression:
+                    - column_reference:
+                      - naked_identifier: SERVER
+                  - expression:
+                    - column_reference:
+                      - naked_identifier: FOR
+                  - expression:
+                    - column_reference:
+                      - naked_identifier: CREATE_DATABASE
+                  - expression:
+                    - column_reference:
+                      - naked_identifier: AS
+                  - expression:
+                    - column_reference:
+                      - naked_identifier: PRINT
+                  - expression:
+                    - quoted_literal: '''Database Created.'''
+                  - expression:
+                    - select_statement:
+                      - select_clause:
+                        - keyword: SELECT
+                        - select_clause_element:
+                          - numeric_literal: '1'
+                  - expression:
+                    - data_type:
+                      - data_type:
+                        - data_type_identifier: GO
+                  - expression:
+                    - data_type:
+                      - data_type:
+                        - data_type_identifier: CREATE
+                  - expression:
+                    - column_reference:
+                      - naked_identifier: TRIGGER
+                  - expression:
+                    - column_reference:
+                      - naked_identifier: ddl_trig_database
+                  - expression:
+                    - data_type:
+                      - data_type:
+                        - data_type_identifier: ON
+                  - expression:
+                    - column_reference:
+                      - naked_identifier: ALL
+                  - expression:
+                    - column_reference:
+                      - naked_identifier: SERVER
+                  - expression:
+                    - column_reference:
+                      - naked_identifier: FOR
+                  - expression:
+                    - column_reference:
+                      - naked_identifier: CREATE_DATABASE
+                  - expression:
+                    - column_reference:
+                      - naked_identifier: AS
+                  - expression:
+                    - column_reference:
+                      - naked_identifier: PRINT
+                  - expression:
+                    - quoted_literal: '''Database Created.'''
+                - statement_terminator: ;
+                - statement:
                   - select_statement:
                     - select_clause:
                       - keyword: SELECT
                       - select_clause_element:
                         - numeric_literal: '1'
-                - expression:
-                  - data_type:
+                - statement:
+                  - naked_identifier: GO
+                  - expression:
                     - data_type:
-                      - data_type_identifier: GO
-                - expression:
-                  - data_type:
+                      - data_type:
+                        - data_type_identifier: DROP
+                  - expression:
+                    - column_reference:
+                      - naked_identifier: TRIGGER
+                  - expression:
+                    - column_reference:
+                      - naked_identifier: ddl_trig_database
+                  - expression:
                     - data_type:
-                      - data_type_identifier: CREATE
-                - expression:
-                  - column_reference:
-                    - naked_identifier: TRIGGER
-                - expression:
-                  - column_reference:
-                    - naked_identifier: ddl_trig_database
-                - expression:
-                  - data_type:
+                      - data_type:
+                        - data_type_identifier: ON
+                  - expression:
+                    - column_reference:
+                      - naked_identifier: ALL
+                  - expression:
+                    - column_reference:
+                      - naked_identifier: SERVER
+                - statement_terminator: ;
+                - statement:
+                  - naked_identifier: GO
+                  - expression:
                     - data_type:
-                      - data_type_identifier: ON
-                - expression:
-                  - column_reference:
-                    - naked_identifier: ALL
-                - expression:
-                  - column_reference:
-                    - naked_identifier: SERVER
-                - expression:
-                  - column_reference:
-                    - naked_identifier: FOR
-                - expression:
-                  - column_reference:
-                    - naked_identifier: CREATE_DATABASE
-                - expression:
-                  - column_reference:
-                    - naked_identifier: AS
-                - expression:
-                  - column_reference:
-                    - naked_identifier: PRINT
-                - expression:
-                  - quoted_literal: '''Database Created.'''
-              - statement_terminator: ;
-              - statement:
-                - select_statement:
-                  - select_clause:
-                    - keyword: SELECT
-                    - select_clause_element:
-                      - numeric_literal: '1'
-              - statement:
-                - naked_identifier: GO
-                - expression:
-                  - data_type:
+                      - data_type:
+                        - data_type_identifier: CREATE
+                  - expression:
+                    - column_reference:
+                      - naked_identifier: TRIGGER
+                  - expression:
+                    - column_reference:
+                      - naked_identifier: connection_limit_trigger
+                  - expression:
                     - data_type:
-                      - data_type_identifier: DROP
-                - expression:
-                  - column_reference:
-                    - naked_identifier: TRIGGER
-                - expression:
-                  - column_reference:
-                    - naked_identifier: ddl_trig_database
-                - expression:
-                  - data_type:
-                    - data_type:
-                      - data_type_identifier: ON
-                - expression:
-                  - column_reference:
-                    - naked_identifier: ALL
-                - expression:
-                  - column_reference:
-                    - naked_identifier: SERVER
-              - statement_terminator: ;
-              - statement:
-                - naked_identifier: GO
-                - expression:
-                  - data_type:
-                    - data_type:
-                      - data_type_identifier: CREATE
-                - expression:
-                  - column_reference:
-                    - naked_identifier: TRIGGER
-                - expression:
-                  - column_reference:
-                    - naked_identifier: connection_limit_trigger
-                - expression:
-                  - data_type:
-                    - data_type:
-                      - data_type_identifier: ON
-                - expression:
-                  - column_reference:
-                    - naked_identifier: ALL
-                - expression:
-                  - column_reference:
-                    - naked_identifier: SERVER
-                - expression:
-                  - column_reference:
-                    - naked_identifier: WITH
-                - expression:
-                  - column_reference:
-                    - naked_identifier: EXECUTE
-                - expression:
-                  - column_reference:
-                    - naked_identifier: AS
-                - expression:
-                  - quoted_literal: '''login_test'''
-                - expression:
-                  - column_reference:
-                    - naked_identifier: FOR
-                - expression:
-                  - column_reference:
-                    - naked_identifier: LOGON
-                - expression:
-                  - column_reference:
-                    - naked_identifier: AS
-                - expression:
-                  - column_reference:
-                    - naked_identifier: BEGIN
-                - expression:
-                  - data_type:
-                    - data_type:
-                      - data_type_identifier: IF
-                - expression:
-                  - function:
-                    - function_name:
-                      - function_name_identifier: ORIGINAL_LOGIN
-                    - function_contents:
-                      - bracketed:
-                        - start_bracket: (
-                        - end_bracket: )
-                  - comparison_operator:
-                    - raw_comparison_operator: =
-                  - quoted_literal: '''login_test'''
-                  - binary_operator: AND
-                  - bracketed:
-                    - start_bracket: (
-                    - expression:
-                      - select_statement:
-                        - select_clause:
-                          - keyword: SELECT
-                          - select_clause_element:
-                            - function:
-                              - function_name:
-                                - function_name_identifier: COUNT
-                              - function_contents:
-                                - bracketed:
-                                  - start_bracket: (
-                                  - star: '*'
-                                  - end_bracket: )
-                        - from_clause:
-                          - keyword: FROM
-                          - from_expression:
-                            - from_expression_element:
-                              - table_expression:
-                                - table_reference:
-                                  - object_reference:
-                                    - naked_identifier: sys
-                                    - dot: .
-                                    - naked_identifier: dm_exec_sessions
-                        - where_clause:
-                          - keyword: WHERE
-                          - expression:
-                            - column_reference:
-                              - naked_identifier: is_user_process
-                            - comparison_operator:
-                              - raw_comparison_operator: =
-                            - numeric_literal: '1'
-                            - binary_operator: AND
-                            - column_reference:
-                              - naked_identifier: original_login_name
-                            - comparison_operator:
-                              - raw_comparison_operator: =
-                            - quoted_literal: '''login_test'''
-                    - end_bracket: )
-                  - comparison_operator:
-                    - raw_comparison_operator: '>'
-                  - numeric_literal: '3'
-                - expression:
-                  - column_reference:
-                    - naked_identifier: ROLLBACK
-              - statement_terminator: ;
-              - keyword: END
+                      - data_type:
+                        - data_type_identifier: ON
+                  - expression:
+                    - column_reference:
+                      - naked_identifier: ALL
+                  - expression:
+                    - column_reference:
+                      - naked_identifier: SERVER
+                  - expression:
+                    - column_reference:
+                      - naked_identifier: WITH
+                  - expression:
+                    - column_reference:
+                      - naked_identifier: EXECUTE
+                  - expression:
+                    - column_reference:
+                      - naked_identifier: AS
+                  - expression:
+                    - quoted_literal: '''login_test'''
+                  - expression:
+                    - column_reference:
+                      - naked_identifier: FOR
+                  - expression:
+                    - column_reference:
+                      - naked_identifier: LOGON
+                  - expression:
+                    - column_reference:
+                      - naked_identifier: AS
+                  - expression:
+                    - column_reference:
+                      - naked_identifier: BEGIN
+                  - expression:
+                    - column_reference:
+                      - naked_identifier: IF
+                  - expression:
+                    - function:
+                      - function_name:
+                        - function_name_identifier: ORIGINAL_LOGIN
+                      - function_contents:
+                        - bracketed:
+                          - start_bracket: (
+                          - end_bracket: )
+                    - comparison_operator:
+                      - raw_comparison_operator: =
+                    - quoted_literal: '''login_test'''
+                    - binary_operator: AND
+                    - bracketed:
+                      - start_bracket: (
+                      - expression:
+                        - select_statement:
+                          - select_clause:
+                            - keyword: SELECT
+                            - select_clause_element:
+                              - function:
+                                - function_name:
+                                  - function_name_identifier: COUNT
+                                - function_contents:
+                                  - bracketed:
+                                    - start_bracket: (
+                                    - star: '*'
+                                    - end_bracket: )
+                          - from_clause:
+                            - keyword: FROM
+                            - from_expression:
+                              - from_expression_element:
+                                - table_expression:
+                                  - table_reference:
+                                    - object_reference:
+                                      - naked_identifier: sys
+                                      - dot: .
+                                      - naked_identifier: dm_exec_sessions
+                          - where_clause:
+                            - keyword: WHERE
+                            - expression:
+                              - column_reference:
+                                - naked_identifier: is_user_process
+                              - comparison_operator:
+                                - raw_comparison_operator: =
+                              - numeric_literal: '1'
+                              - binary_operator: AND
+                              - column_reference:
+                                - naked_identifier: original_login_name
+                              - comparison_operator:
+                                - raw_comparison_operator: =
+                              - quoted_literal: '''login_test'''
+                      - end_bracket: )
+                    - comparison_operator:
+                      - raw_comparison_operator: '>'
+                    - numeric_literal: '3'
+                  - expression:
+                    - column_reference:
+                      - naked_identifier: ROLLBACK
+                - statement_terminator: ;
+                - keyword: END
             - statement_terminator: ;
-            - word: GO
-            - word: Create
-            - word: TRIGGER
-            - word: dbo
-            - dot: .
-            - word: tr_SP_BALS_L2_ATTRIBUTES
-            - word: ON
-            - word: dbo
-            - dot: .
-            - word: SP_BALS_L2_ATTRIBUTES
-            - word: AFTER
-            - word: UPDATE
-            - word: AS
-            - word: UPDATE
-            - word: dbo
-            - dot: .
-            - word: SP_BALS_L2_ATTRIBUTES
-            - word: SET
-            - word: PDW_LAST_UPDATED
-            - raw_comparison_operator: =
-            - word: Getdate
-            - start_bracket: (
-            - end_bracket: )
-            - word: FROM
-            - word: dbo
-            - dot: .
-            - word: SP_BALS_L2_ATTRIBUTES
-            - word: o
-            - word: INNER
-            - word: JOIN
-            - word: Inserted
-            - word: i
-            - word: ON
-            - word: o
-            - dot: .
-            - word: PK_L2_BALS
-            - raw_comparison_operator: =
-            - word: i
-            - dot: .
-            - word: PK_L2_BALS
-            - word: go
-            - word: disable
-            - word: trigger
-            - word: dbo
-            - dot: .
-            - word: tr_SP_BALS_L2_ATTRIBUTES
-            - word: on
-            - word: dbo
-            - dot: .
-            - word: SP_BALS_L2_ATTRIBUTES
-            - word: go
-            - word: Create
-            - word: TRIGGER
-            - word: dbo
-            - dot: .
-            - word: tr_u_SP_BALS_L2_ATTRIBUTES
-            - word: ON
-            - word: dbo
-            - dot: .
-            - word: SP_BALS_L2_ATTRIBUTES
-            - word: AFTER
-            - word: UPDATE
-            - word: AS
-            - word: UPDATE
-            - word: dbo
-            - dot: .
-            - word: SP_BALS_L2_ATTRIBUTES
-            - word: SET
-            - word: PDW_LAST_UPDATED
-            - raw_comparison_operator: =
-            - word: sysdatetime
-            - start_bracket: (
-            - end_bracket: )
-            - word: FROM
-            - word: dbo
-            - dot: .
-            - word: SP_BALS_L2_ATTRIBUTES
-            - word: o
-            - word: INNER
-            - word: JOIN
-            - word: Inserted
-            - word: i
-            - word: ON
-            - word: o
-            - dot: .
-            - word: PK_L2_BALS
-            - raw_comparison_operator: =
-            - word: i
-            - dot: .
-            - word: PK_L2_BALS
-            - word: GO
-            - word: DROP
-            - word: TRIGGER
-            - word: employee_insupd
-            - semicolon: ;
-            - word: GO
-            - word: DROP
-            - word: TRIGGER
-            - word: safety
-            - word: ON
-            - word: DATABASE
-            - semicolon: ;
-            - word: GO
-            - word: disable
-            - word: trigger
-            - word: dbo
-            - dot: .
-            - word: tr_u_SP_BALS_L2_ATTRIBUTES
-            - word: on
-            - word: dbo
-            - dot: .
-            - word: SP_BALS_L2_ATTRIBUTES
-            - word: GO
-            - word: DISABLE
-            - word: TRIGGER
-            - word: safety
-            - word: ON
-            - word: DATABASE
-            - semicolon: ;
-            - word: GO
-            - word: CREATE
-            - word: OR
-            - word: ALTER
-            - word: TRIGGER
-            - word: reminder1
-            - word: ON
-            - word: Sales
-            - dot: .
-            - word: Customer
-            - word: AFTER
-            - word: INSERT
-            - comma: ','
-            - word: UPDATE
-            - word: AS
-            - word: RAISERROR
-            - start_bracket: (
-            - single_quote: '''Notify Customer Relations'''
-            - comma: ','
-            - numeric_literal: '16'
-            - comma: ','
-            - numeric_literal: '10'
-            - end_bracket: )
-            - semicolon: ;
-            - word: GO
-            - word: CREATE
-            - word: TRIGGER
-            - word: reminder
-            - word: ON
-            - word: person
-            - dot: .
-            - word: address
-            - word: AFTER
-            - word: UPDATE
-            - word: AS
-            - word: IF
-            - start_bracket: (
-            - word: UPDATE
-            - start_bracket: (
-            - word: stateprovinceid
-            - end_bracket: )
-            - word: OR
-            - word: UPDATE
-            - start_bracket: (
-            - word: postalcode
-            - end_bracket: )
-            - end_bracket: )
-            - word: BEGIN
-            - word: RAISERROR
-            - start_bracket: (
-            - numeric_literal: '50009'
-            - comma: ','
-            - numeric_literal: '16'
-            - comma: ','
-            - numeric_literal: '10'
-            - end_bracket: )
-            - word: END
-            - semicolon: ;
-            - word: GO
+            - statement:
+              - naked_identifier: GO
+              - expression:
+                - data_type:
+                  - data_type:
+                    - data_type_identifier: Create
+              - expression:
+                - column_reference:
+                  - naked_identifier: TRIGGER
+              - expression:
+                - column_reference:
+                  - naked_identifier: dbo
+                  - dot: .
+                  - naked_identifier: tr_SP_BALS_L2_ATTRIBUTES
+              - expression:
+                - data_type:
+                  - data_type:
+                    - data_type_identifier: ON
+              - expression:
+                - column_reference:
+                  - naked_identifier: dbo
+                  - dot: .
+                  - naked_identifier: SP_BALS_L2_ATTRIBUTES
+              - expression:
+                - column_reference:
+                  - naked_identifier: AFTER
+              - expression:
+                - column_reference:
+                  - naked_identifier: UPDATE
+              - expression:
+                - column_reference:
+                  - naked_identifier: AS
+              - expression:
+                - column_reference:
+                  - naked_identifier: UPDATE
+              - expression:
+                - column_reference:
+                  - naked_identifier: dbo
+                  - dot: .
+                  - naked_identifier: SP_BALS_L2_ATTRIBUTES
+              - expression:
+                - data_type:
+                  - data_type:
+                    - data_type_identifier: SET
+              - expression:
+                - column_reference:
+                  - naked_identifier: PDW_LAST_UPDATED
+                - comparison_operator:
+                  - raw_comparison_operator: =
+                - function:
+                  - function_name:
+                    - function_name_identifier: Getdate
+                  - function_contents:
+                    - bracketed:
+                      - start_bracket: (
+                      - end_bracket: )
+              - expression:
+                - column_reference:
+                  - naked_identifier: FROM
+              - expression:
+                - column_reference:
+                  - naked_identifier: dbo
+                  - dot: .
+                  - naked_identifier: SP_BALS_L2_ATTRIBUTES
+              - expression:
+                - column_reference:
+                  - naked_identifier: o
+              - expression:
+                - data_type:
+                  - data_type:
+                    - data_type_identifier: INNER
+              - expression:
+                - data_type:
+                  - data_type:
+                    - data_type_identifier: JOIN
+              - expression:
+                - column_reference:
+                  - naked_identifier: Inserted
+              - expression:
+                - column_reference:
+                  - naked_identifier: i
+              - expression:
+                - data_type:
+                  - data_type:
+                    - data_type_identifier: ON
+              - expression:
+                - column_reference:
+                  - naked_identifier: o
+                  - dot: .
+                  - naked_identifier: PK_L2_BALS
+                - comparison_operator:
+                  - raw_comparison_operator: =
+                - column_reference:
+                  - naked_identifier: i
+                  - dot: .
+                  - naked_identifier: PK_L2_BALS
+              - expression:
+                - data_type:
+                  - data_type:
+                    - data_type_identifier: go
+              - expression:
+                - column_reference:
+                  - naked_identifier: disable
+              - expression:
+                - column_reference:
+                  - naked_identifier: trigger
+              - expression:
+                - column_reference:
+                  - naked_identifier: dbo
+                  - dot: .
+                  - naked_identifier: tr_SP_BALS_L2_ATTRIBUTES
+              - expression:
+                - data_type:
+                  - data_type:
+                    - data_type_identifier: on
+              - expression:
+                - column_reference:
+                  - naked_identifier: dbo
+                  - dot: .
+                  - naked_identifier: SP_BALS_L2_ATTRIBUTES
+              - expression:
+                - data_type:
+                  - data_type:
+                    - data_type_identifier: go
+              - expression:
+                - data_type:
+                  - data_type:
+                    - data_type_identifier: Create
+              - expression:
+                - column_reference:
+                  - naked_identifier: TRIGGER
+              - expression:
+                - column_reference:
+                  - naked_identifier: dbo
+                  - dot: .
+                  - naked_identifier: tr_u_SP_BALS_L2_ATTRIBUTES
+              - expression:
+                - data_type:
+                  - data_type:
+                    - data_type_identifier: ON
+              - expression:
+                - column_reference:
+                  - naked_identifier: dbo
+                  - dot: .
+                  - naked_identifier: SP_BALS_L2_ATTRIBUTES
+              - expression:
+                - column_reference:
+                  - naked_identifier: AFTER
+              - expression:
+                - column_reference:
+                  - naked_identifier: UPDATE
+              - expression:
+                - column_reference:
+                  - naked_identifier: AS
+              - expression:
+                - column_reference:
+                  - naked_identifier: UPDATE
+              - expression:
+                - column_reference:
+                  - naked_identifier: dbo
+                  - dot: .
+                  - naked_identifier: SP_BALS_L2_ATTRIBUTES
+              - expression:
+                - data_type:
+                  - data_type:
+                    - data_type_identifier: SET
+              - expression:
+                - column_reference:
+                  - naked_identifier: PDW_LAST_UPDATED
+                - comparison_operator:
+                  - raw_comparison_operator: =
+                - function:
+                  - function_name:
+                    - function_name_identifier: sysdatetime
+                  - function_contents:
+                    - bracketed:
+                      - start_bracket: (
+                      - end_bracket: )
+              - expression:
+                - column_reference:
+                  - naked_identifier: FROM
+              - expression:
+                - column_reference:
+                  - naked_identifier: dbo
+                  - dot: .
+                  - naked_identifier: SP_BALS_L2_ATTRIBUTES
+              - expression:
+                - column_reference:
+                  - naked_identifier: o
+              - expression:
+                - data_type:
+                  - data_type:
+                    - data_type_identifier: INNER
+              - expression:
+                - data_type:
+                  - data_type:
+                    - data_type_identifier: JOIN
+              - expression:
+                - column_reference:
+                  - naked_identifier: Inserted
+              - expression:
+                - column_reference:
+                  - naked_identifier: i
+              - expression:
+                - data_type:
+                  - data_type:
+                    - data_type_identifier: ON
+              - expression:
+                - column_reference:
+                  - naked_identifier: o
+                  - dot: .
+                  - naked_identifier: PK_L2_BALS
+                - comparison_operator:
+                  - raw_comparison_operator: =
+                - column_reference:
+                  - naked_identifier: i
+                  - dot: .
+                  - naked_identifier: PK_L2_BALS
+              - expression:
+                - data_type:
+                  - data_type:
+                    - data_type_identifier: GO
+              - expression:
+                - data_type:
+                  - data_type:
+                    - data_type_identifier: DROP
+              - expression:
+                - column_reference:
+                  - naked_identifier: TRIGGER
+              - expression:
+                - column_reference:
+                  - naked_identifier: employee_insupd
+            - statement_terminator: ;
+            - statement:
+              - naked_identifier: GO
+              - expression:
+                - data_type:
+                  - data_type:
+                    - data_type_identifier: DROP
+              - expression:
+                - column_reference:
+                  - naked_identifier: TRIGGER
+              - expression:
+                - column_reference:
+                  - naked_identifier: safety
+              - expression:
+                - data_type:
+                  - data_type:
+                    - data_type_identifier: ON
+              - expression:
+                - column_reference:
+                  - naked_identifier: DATABASE
+            - statement_terminator: ;
+            - statement:
+              - naked_identifier: GO
+              - expression:
+                - column_reference:
+                  - naked_identifier: disable
+              - expression:
+                - column_reference:
+                  - naked_identifier: trigger
+              - expression:
+                - column_reference:
+                  - naked_identifier: dbo
+                  - dot: .
+                  - naked_identifier: tr_u_SP_BALS_L2_ATTRIBUTES
+              - expression:
+                - data_type:
+                  - data_type:
+                    - data_type_identifier: on
+              - expression:
+                - column_reference:
+                  - naked_identifier: dbo
+                  - dot: .
+                  - naked_identifier: SP_BALS_L2_ATTRIBUTES
+              - expression:
+                - data_type:
+                  - data_type:
+                    - data_type_identifier: GO
+              - expression:
+                - column_reference:
+                  - naked_identifier: DISABLE
+              - expression:
+                - column_reference:
+                  - naked_identifier: TRIGGER
+              - expression:
+                - column_reference:
+                  - naked_identifier: safety
+              - expression:
+                - data_type:
+                  - data_type:
+                    - data_type_identifier: ON
+              - expression:
+                - column_reference:
+                  - naked_identifier: DATABASE
+            - statement_terminator: ;
+            - statement:
+              - naked_identifier: GO
+              - expression:
+                - data_type:
+                  - data_type:
+                    - data_type_identifier: CREATE
+                - binary_operator: OR
+                - column_reference:
+                  - naked_identifier: ALTER
+              - expression:
+                - column_reference:
+                  - naked_identifier: TRIGGER
+              - expression:
+                - column_reference:
+                  - naked_identifier: reminder1
+              - expression:
+                - data_type:
+                  - data_type:
+                    - data_type_identifier: ON
+              - expression:
+                - column_reference:
+                  - naked_identifier: Sales
+                  - dot: .
+                  - naked_identifier: Customer
+              - expression:
+                - column_reference:
+                  - naked_identifier: AFTER
+              - expression:
+                - column_reference:
+                  - naked_identifier: INSERT
+              - comma: ','
+              - expression:
+                - column_reference:
+                  - naked_identifier: UPDATE
+              - expression:
+                - column_reference:
+                  - naked_identifier: AS
+              - expression:
+                - function:
+                  - function_name:
+                    - function_name_identifier: RAISERROR
+                  - function_contents:
+                    - bracketed:
+                      - start_bracket: (
+                      - expression:
+                        - quoted_literal: '''Notify Customer Relations'''
+                      - comma: ','
+                      - expression:
+                        - numeric_literal: '16'
+                      - comma: ','
+                      - expression:
+                        - numeric_literal: '10'
+                      - end_bracket: )
+            - statement_terminator: ;
+            - statement:
+              - naked_identifier: GO
+              - expression:
+                - data_type:
+                  - data_type:
+                    - data_type_identifier: CREATE
+              - expression:
+                - column_reference:
+                  - naked_identifier: TRIGGER
+              - expression:
+                - column_reference:
+                  - naked_identifier: reminder
+              - expression:
+                - data_type:
+                  - data_type:
+                    - data_type_identifier: ON
+              - expression:
+                - column_reference:
+                  - naked_identifier: person
+                  - dot: .
+                  - naked_identifier: address
+              - expression:
+                - column_reference:
+                  - naked_identifier: AFTER
+              - expression:
+                - column_reference:
+                  - naked_identifier: UPDATE
+              - expression:
+                - column_reference:
+                  - naked_identifier: AS
+              - expression:
+                - function:
+                  - function_name:
+                    - function_name_identifier: IF
+                  - function_contents:
+                    - bracketed:
+                      - start_bracket: (
+                      - expression:
+                        - function:
+                          - function_name:
+                            - function_name_identifier: UPDATE
+                          - function_contents:
+                            - bracketed:
+                              - start_bracket: (
+                              - expression:
+                                - column_reference:
+                                  - naked_identifier: stateprovinceid
+                              - end_bracket: )
+                        - binary_operator: OR
+                        - function:
+                          - function_name:
+                            - function_name_identifier: UPDATE
+                          - function_contents:
+                            - bracketed:
+                              - start_bracket: (
+                              - expression:
+                                - column_reference:
+                                  - naked_identifier: postalcode
+                              - end_bracket: )
+                      - end_bracket: )
+              - expression:
+                - column_reference:
+                  - naked_identifier: BEGIN
+              - expression:
+                - function:
+                  - function_name:
+                    - function_name_identifier: RAISERROR
+                  - function_contents:
+                    - bracketed:
+                      - start_bracket: (
+                      - expression:
+                        - numeric_literal: '50009'
+                      - comma: ','
+                      - expression:
+                        - numeric_literal: '16'
+                      - comma: ','
+                      - expression:
+                        - numeric_literal: '10'
+                      - end_bracket: )
+              - expression:
+                - data_type:
+                  - data_type:
+                    - data_type_identifier: END
+            - statement_terminator: ;
+            - statement:
+              - naked_identifier: GO

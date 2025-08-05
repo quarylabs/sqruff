@@ -143,10 +143,12 @@ file:
       - word: NOT
       - word: 'NULL'
       - if_statements:
-        - keyword: DROP
-        - keyword: TABLE
-        - table_reference:
-          - object_reference:
-            - naked_identifier: '#UP'
+        - statement:
+          - drop_table_statement:
+            - keyword: DROP
+            - keyword: TABLE
+            - table_reference:
+              - object_reference:
+                - naked_identifier: '#UP'
         - statement_terminator: ;
         - word: END

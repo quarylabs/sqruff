@@ -212,9 +212,6 @@ issue_1589:
         force_enable: true
 
 issue_1639:
-  # TODO: Re-enable this test once T-SQL CREATE TABLE support is improved
-  # Currently, T-SQL CREATE TABLE statements are not fully parsed, causing this test to fail
-  ignored: "T-SQL CREATE TABLE syntax not fully supported yet"
   fail_str: |
     DECLARE @VariableE date = GETDATE()
 

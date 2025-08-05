@@ -357,12 +357,13 @@ test_teradata_datatype:
 
 test_tsql_datatype:
   # T-SQL uses CAST() or CONVERT() functions for type casting
+  # Note: Spaces are required between data types and their parameters
   pass_str: |
       select
-          CAST(1 AS DECIMAL(3, 1)),
-          CAST(1 AS DEC(3, 1)),
-          CAST(1 AS NUMERIC(3, 1)),
-          CAST('bar' AS VARCHAR(3))
+          CAST(1 AS DECIMAL (3, 1)),
+          CAST(1 AS DEC (3, 1)),
+          CAST(1 AS NUMERIC (3, 1)),
+          CAST('bar' AS VARCHAR (3))
   configs:
     core:
       dialect: tsql

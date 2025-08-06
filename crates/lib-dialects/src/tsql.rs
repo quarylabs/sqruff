@@ -4269,7 +4269,9 @@ pub fn raw_dialect() -> Dialect {
             Ref::new("OpenJsonSegment"),
             Bracketed::new(vec_of_erased![one_of(vec_of_erased![
                 Ref::new("SelectableGrammar"),
-                Ref::new("MergeStatementSegment") // MERGE can be used in subquery with OUTPUT
+                Ref::new("MergeStatementSegment"), // MERGE can be used in subquery with OUTPUT
+                // Support parenthesized JOINs like (table1 JOIN table2 ON ...)
+                Ref::new("ParenthesizedJoinExpressionSegment")
             ])]),
             Sequence::new(vec_of_erased![
                 Ref::new("TableReferenceSegment"),
@@ -4665,6 +4667,22 @@ pub fn raw_dialect() -> Dialect {
     )]);
 
     // Enable NATURAL JOIN support for T-SQL (inherits ANSI implementation)
+
+    // Parenthesized JOIN expression support
+    // Allows expressions like: (table1 JOIN table2 ON condition)
+    // This is used in complex FROM clauses where a JOIN result is treated as a single table expression
+    dialect.add([(
+        "ParenthesizedJoinExpressionSegment".into(),
+        Sequence::new(vec_of_erased![
+            Ref::new("TableReferenceSegment"),
+            one_of(vec_of_erased![
+                Ref::new("JoinClauseSegment"),
+                Ref::new("JoinLikeClauseGrammar")
+            ])
+        ])
+        .to_matchable()
+        .into(),
+    )]);
 
     // T-SQL specific data type handling for MAX keyword and -1
     // Override BracketedArguments to accept MAX keyword and negative numbers

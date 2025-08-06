@@ -43,11 +43,41 @@ pub fn raw_dialect() -> Dialect {
     // Add date part keywords to unreserved keywords so they can be used in date functions
     dialect.sets_mut("unreserved_keywords").extend([
         // Date part names
-        "YEAR", "QUARTER", "MONTH", "DAYOFYEAR", "DAY", "WEEK", "WEEKDAY",
-        "HOUR", "MINUTE", "SECOND", "MILLISECOND", "MICROSECOND", "NANOSECOND",
-        // Date part abbreviations  
-        "YY", "YYYY", "QQ", "Q", "MM", "M", "DY", "Y", "DD", "D",
-        "WK", "WW", "DW", "HH", "MI", "N", "SS", "S", "MS", "MCS", "NS",
+        "YEAR",
+        "QUARTER",
+        "MONTH",
+        "DAYOFYEAR",
+        "DAY",
+        "WEEK",
+        "WEEKDAY",
+        "HOUR",
+        "MINUTE",
+        "SECOND",
+        "MILLISECOND",
+        "MICROSECOND",
+        "NANOSECOND",
+        // Date part abbreviations
+        "YY",
+        "YYYY",
+        "QQ",
+        "Q",
+        "MM",
+        "M",
+        "DY",
+        "Y",
+        "DD",
+        "D",
+        "WK",
+        "WW",
+        "DW",
+        "HH",
+        "MI",
+        "N",
+        "SS",
+        "S",
+        "MS",
+        "MCS",
+        "NS",
     ]);
 
     // Add table hint keywords to unreserved keywords
@@ -10039,13 +10069,11 @@ pub fn raw_dialect() -> Dialect {
         NodeMatcher::new(SyntaxKind::Function, |_| {
             Sequence::new(vec_of_erased![
                 StringParser::new("CONVERT", SyntaxKind::FunctionNameIdentifier),
-                Bracketed::new(vec_of_erased![
-                    Delimited::new(vec_of_erased![
-                        Ref::new("DatatypeSegment"),  // First arg is always a data type
-                        Ref::new("Expression_A_Grammar"),  // Expression to convert
-                        Ref::new("NumericLiteralSegment").optional()  // Optional style parameter
-                    ])
-                ])
+                Bracketed::new(vec_of_erased![Delimited::new(vec_of_erased![
+                    Ref::new("DatatypeSegment"),      // First arg is always a data type
+                    Ref::new("Expression_A_Grammar"), // Expression to convert
+                    Ref::new("NumericLiteralSegment").optional()  // Optional style parameter
+                ])])
             ])
             .to_matchable()
         })
@@ -10105,13 +10133,11 @@ pub fn raw_dialect() -> Dialect {
         NodeMatcher::new(SyntaxKind::Function, |_| {
             Sequence::new(vec_of_erased![
                 StringParser::new("DATEADD", SyntaxKind::FunctionNameIdentifier),
-                Bracketed::new(vec_of_erased![
-                    Delimited::new(vec_of_erased![
-                        Ref::new("DatePartLiteralSegment"),  // First arg is a date part
-                        Ref::new("Expression_A_Grammar"),  // Number to add
-                        Ref::new("Expression_A_Grammar")   // Date expression
-                    ])
-                ])
+                Bracketed::new(vec_of_erased![Delimited::new(vec_of_erased![
+                    Ref::new("DatePartLiteralSegment"), // First arg is a date part
+                    Ref::new("Expression_A_Grammar"),   // Number to add
+                    Ref::new("Expression_A_Grammar")    // Date expression
+                ])])
             ])
             .to_matchable()
         })
@@ -10125,13 +10151,11 @@ pub fn raw_dialect() -> Dialect {
         NodeMatcher::new(SyntaxKind::Function, |_| {
             Sequence::new(vec_of_erased![
                 StringParser::new("DATEDIFF", SyntaxKind::FunctionNameIdentifier),
-                Bracketed::new(vec_of_erased![
-                    Delimited::new(vec_of_erased![
-                        Ref::new("DatePartLiteralSegment"),  // First arg is a date part
-                        Ref::new("Expression_A_Grammar"),  // Start date
-                        Ref::new("Expression_A_Grammar")   // End date
-                    ])
-                ])
+                Bracketed::new(vec_of_erased![Delimited::new(vec_of_erased![
+                    Ref::new("DatePartLiteralSegment"), // First arg is a date part
+                    Ref::new("Expression_A_Grammar"),   // Start date
+                    Ref::new("Expression_A_Grammar")    // End date
+                ])])
             ])
             .to_matchable()
         })
@@ -10145,7 +10169,7 @@ pub fn raw_dialect() -> Dialect {
         one_of(vec_of_erased![
             // CONVERT function with special data type handling
             Ref::new("ConvertFunctionSegment"),
-            // Date functions with special date part handling  
+            // Date functions with special date part handling
             Ref::new("DateAddFunctionSegment"),
             Ref::new("DateDiffFunctionSegment"),
             // JSON functions

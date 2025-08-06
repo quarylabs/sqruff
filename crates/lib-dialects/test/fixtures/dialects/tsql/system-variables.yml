@@ -53,14 +53,13 @@ file:
               - numeric_literal: '547'
             - if_statements:
               - statement:
-                - begin_end_block:
-                  - keyword: BEGIN
-                  - statement:
-                    - keyword: PRINT
-                    - expression:
-                      - quoted_literal: N'A check constraint violation occurred.'
-                  - statement_terminator: ;
-                  - keyword: END
+                - keyword: BEGIN
+                - statement:
+                  - keyword: PRINT
+                  - expression:
+                    - quoted_literal: N'A check constraint violation occurred.'
+                - statement_terminator: ;
+                - keyword: END
               - statement:
                 - naked_identifier: GO
                 - expression:

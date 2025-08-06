@@ -187,14 +187,13 @@ file:
           - data_type_identifier: INT
       - keyword: AS
       - statement:
-        - begin_end_block:
-          - keyword: BEGIN
-          - statement:
-            - keyword: RETURN
-            - expression:
-              - numeric_literal: '2'
-          - statement_terminator: ;
-          - keyword: END
+        - keyword: BEGIN
+        - statement:
+          - keyword: RETURN
+          - expression:
+            - numeric_literal: '2'
+        - statement_terminator: ;
+        - keyword: END
   - keyword: GO
   - statement:
     - select_statement:

@@ -11,47 +11,45 @@ file:
       - quoted_literal: '''TestJob'''
   - statement_terminator: ;
   - statement:
-    - begin_end_block:
-      - keyword: BEGIN
-      - statement:
-        - keyword: WAITFOR
-        - keyword: TIME
-        - expression:
-          - quoted_literal: '''22:20'''
-      - statement_terminator: ;
-      - statement:
-        - keyword: EXECUTE
-        - object_reference:
-          - naked_identifier: sp_update_job
-        - tsql_variable: '@job_name'
-        - assignment_operator:
-          - raw_comparison_operator: =
-        - expression:
-          - quoted_literal: '''TestJob'''
-        - comma: ','
-        - tsql_variable: '@new_name'
-        - assignment_operator:
-          - raw_comparison_operator: =
-        - expression:
-          - quoted_literal: '''UpdatedJob'''
-      - statement_terminator: ;
-      - keyword: END
+    - keyword: BEGIN
+    - statement:
+      - keyword: WAITFOR
+      - keyword: TIME
+      - expression:
+        - quoted_literal: '''22:20'''
+    - statement_terminator: ;
+    - statement:
+      - keyword: EXECUTE
+      - object_reference:
+        - naked_identifier: sp_update_job
+      - tsql_variable: '@job_name'
+      - assignment_operator:
+        - raw_comparison_operator: =
+      - expression:
+        - quoted_literal: '''TestJob'''
+      - comma: ','
+      - tsql_variable: '@new_name'
+      - assignment_operator:
+        - raw_comparison_operator: =
+      - expression:
+        - quoted_literal: '''UpdatedJob'''
+    - statement_terminator: ;
+    - keyword: END
   - statement_terminator: ;
   - keyword: GO
   - statement:
-    - begin_end_block:
-      - keyword: BEGIN
-      - statement:
-        - keyword: WAITFOR
-        - keyword: DELAY
-        - expression:
-          - quoted_literal: '''02:00'''
-      - statement_terminator: ;
-      - statement:
-        - keyword: EXECUTE
-        - object_reference:
-          - naked_identifier: sp_helpdb
-      - statement_terminator: ;
-      - keyword: END
+    - keyword: BEGIN
+    - statement:
+      - keyword: WAITFOR
+      - keyword: DELAY
+      - expression:
+        - quoted_literal: '''02:00'''
+    - statement_terminator: ;
+    - statement:
+      - keyword: EXECUTE
+      - object_reference:
+        - naked_identifier: sp_helpdb
+    - statement_terminator: ;
+    - keyword: END
   - statement_terminator: ;
   - keyword: GO

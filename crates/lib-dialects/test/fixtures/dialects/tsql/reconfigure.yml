@@ -1,12 +1,10 @@
 file:
 - batch:
   - statement:
-    - reconfigure_statement:
-      - keyword: RECONFIGURE
+    - keyword: RECONFIGURE
   - statement_terminator: ;
   - statement:
-    - reconfigure_statement:
-      - keyword: RECONFIGURE
-      - keyword: WITH
-      - keyword: OVERRIDE
+    - keyword: RECONFIGURE
+    - keyword: WITH
+    - keyword: OVERRIDE
   - statement_terminator: ;

@@ -1351,43 +1351,40 @@ pub fn raw_dialect() -> Dialect {
     dialect.add([
         (
             "BeginEndBlockSegment".into(),
-            NodeMatcher::new(SyntaxKind::BeginEndBlock, |_| {
-                Sequence::new(vec_of_erased![
-                    one_of(vec_of_erased![
-                        Ref::keyword("BEGIN"),
-                        // Also accept BEGIN as naked identifier in T-SQL
-                        StringParser::new("BEGIN", SyntaxKind::NakedIdentifier),
-                        // Also accept BEGIN as word token in T-SQL procedure bodies
-                        StringParser::new("BEGIN", SyntaxKind::Keyword)
-                    ]),
-                    Ref::new("DelimiterGrammar").optional(),
-                    MetaSegment::indent(),
-                    // Allow any number of statements with optional delimiters (like SQLFluff's OneOrMoreStatementsGrammar)
-                    AnyNumberOf::new(vec_of_erased![Sequence::new(vec_of_erased![
-                        Ref::new("StatementSegment"),
-                        Ref::new("DelimiterGrammar").optional()
-                    ])])
-                    .config(|this| {
-                        this.min_times(1);
-                        this.terminators = vec_of_erased![
-                            Ref::keyword("END"),
-                            // Also terminate on END as naked identifier
-                            StringParser::new("END", SyntaxKind::NakedIdentifier),
-                            // Also terminate on END as word token
-                            StringParser::new("END", SyntaxKind::Keyword)
-                        ];
-                    }),
-                    MetaSegment::dedent(),
-                    one_of(vec_of_erased![
+            Sequence::new(vec_of_erased![
+                one_of(vec_of_erased![
+                    Ref::keyword("BEGIN"),
+                    // Also accept BEGIN as naked identifier in T-SQL
+                    StringParser::new("BEGIN", SyntaxKind::NakedIdentifier),
+                    // Also accept BEGIN as word token in T-SQL procedure bodies
+                    StringParser::new("BEGIN", SyntaxKind::Keyword)
+                ]),
+                Ref::new("DelimiterGrammar").optional(),
+                MetaSegment::indent(),
+                // Allow any number of statements with optional delimiters (like SQLFluff's OneOrMoreStatementsGrammar)
+                AnyNumberOf::new(vec_of_erased![Sequence::new(vec_of_erased![
+                    Ref::new("StatementSegment"),
+                    Ref::new("DelimiterGrammar").optional()
+                ])])
+                .config(|this| {
+                    this.min_times(1);
+                    this.terminators = vec_of_erased![
                         Ref::keyword("END"),
-                        // Also accept END as naked identifier
+                        // Also terminate on END as naked identifier
                         StringParser::new("END", SyntaxKind::NakedIdentifier),
-                        // Also accept END as word token in T-SQL procedure bodies
+                        // Also terminate on END as word token
                         StringParser::new("END", SyntaxKind::Keyword)
-                    ])
+                    ];
+                }),
+                MetaSegment::dedent(),
+                one_of(vec_of_erased![
+                    Ref::keyword("END"),
+                    // Also accept END as naked identifier
+                    StringParser::new("END", SyntaxKind::NakedIdentifier),
+                    // Also accept END as word token in T-SQL procedure bodies
+                    StringParser::new("END", SyntaxKind::Keyword)
                 ])
-                .to_matchable()
-            })
+            ])
             .to_matchable()
             .into(),
         ),
@@ -1400,83 +1397,80 @@ pub fn raw_dialect() -> Dialect {
     // TRY...CATCH blocks - full implementation with correct structure
     dialect.add([(
         "TryBlockSegment".into(),
-        NodeMatcher::new(SyntaxKind::TryCatchStatement, |_| {
-            Sequence::new(vec_of_erased![
+        Sequence::new(vec_of_erased![
+            one_of(vec_of_erased![
+                Ref::keyword("BEGIN"),
+                StringParser::new("BEGIN", SyntaxKind::Keyword),
+                StringParser::new("BEGIN", SyntaxKind::Word) // Support word tokens
+            ]),
+            one_of(vec_of_erased![
+                Ref::keyword("TRY"),
+                StringParser::new("TRY", SyntaxKind::Keyword),
+                StringParser::new("TRY", SyntaxKind::Word) // Support word tokens
+            ]),
+            MetaSegment::indent(),
+            AnyNumberOf::new(vec_of_erased![Sequence::new(vec_of_erased![
                 one_of(vec_of_erased![
-                    Ref::keyword("BEGIN"),
-                    StringParser::new("BEGIN", SyntaxKind::Keyword),
-                    StringParser::new("BEGIN", SyntaxKind::Word) // Support word tokens
+                    Ref::new("StatementSegment"),
+                    Ref::new("WordAwareStatementSegment") // Allow word-aware statements in TRY block
                 ]),
-                one_of(vec_of_erased![
-                    Ref::keyword("TRY"),
-                    StringParser::new("TRY", SyntaxKind::Keyword),
-                    StringParser::new("TRY", SyntaxKind::Word) // Support word tokens
-                ]),
-                MetaSegment::indent(),
-                AnyNumberOf::new(vec_of_erased![Sequence::new(vec_of_erased![
-                    one_of(vec_of_erased![
-                        Ref::new("StatementSegment"),
-                        Ref::new("WordAwareStatementSegment") // Allow word-aware statements in TRY block
-                    ]),
-                    Ref::new("DelimiterGrammar").optional()
-                ])])
-                .config(|this| {
-                    this.terminators = vec_of_erased![
-                        Ref::keyword("END"),
-                        StringParser::new("END", SyntaxKind::Keyword),
-                        StringParser::new("END", SyntaxKind::Word)
-                    ];
-                }),
-                MetaSegment::dedent(),
-                one_of(vec_of_erased![
+                Ref::new("DelimiterGrammar").optional()
+            ])])
+            .config(|this| {
+                this.terminators = vec_of_erased![
                     Ref::keyword("END"),
                     StringParser::new("END", SyntaxKind::Keyword),
-                    StringParser::new("END", SyntaxKind::Word) // Support word tokens
-                ]),
+                    StringParser::new("END", SyntaxKind::Word)
+                ];
+            }),
+            MetaSegment::dedent(),
+            one_of(vec_of_erased![
+                Ref::keyword("END"),
+                StringParser::new("END", SyntaxKind::Keyword),
+                StringParser::new("END", SyntaxKind::Word) // Support word tokens
+            ]),
+            one_of(vec_of_erased![
+                Ref::keyword("TRY"),
+                StringParser::new("TRY", SyntaxKind::Keyword),
+                StringParser::new("TRY", SyntaxKind::Word) // Support word tokens
+            ]),
+            one_of(vec_of_erased![
+                Ref::keyword("BEGIN"),
+                StringParser::new("BEGIN", SyntaxKind::Keyword),
+                StringParser::new("BEGIN", SyntaxKind::Word) // Support word tokens
+            ]),
+            one_of(vec_of_erased![
+                Ref::keyword("CATCH"),
+                StringParser::new("CATCH", SyntaxKind::Keyword),
+                StringParser::new("CATCH", SyntaxKind::Word) // Support word tokens
+            ]),
+            MetaSegment::indent(),
+            AnyNumberOf::new(vec_of_erased![Sequence::new(vec_of_erased![
                 one_of(vec_of_erased![
-                    Ref::keyword("TRY"),
-                    StringParser::new("TRY", SyntaxKind::Keyword),
-                    StringParser::new("TRY", SyntaxKind::Word) // Support word tokens
+                    Ref::new("StatementSegment"),
+                    Ref::new("WordAwareStatementSegment") // Allow word-aware statements in CATCH block
                 ]),
-                one_of(vec_of_erased![
-                    Ref::keyword("BEGIN"),
-                    StringParser::new("BEGIN", SyntaxKind::Keyword),
-                    StringParser::new("BEGIN", SyntaxKind::Word) // Support word tokens
-                ]),
-                one_of(vec_of_erased![
-                    Ref::keyword("CATCH"),
-                    StringParser::new("CATCH", SyntaxKind::Keyword),
-                    StringParser::new("CATCH", SyntaxKind::Word) // Support word tokens
-                ]),
-                MetaSegment::indent(),
-                AnyNumberOf::new(vec_of_erased![Sequence::new(vec_of_erased![
-                    one_of(vec_of_erased![
-                        Ref::new("StatementSegment"),
-                        Ref::new("WordAwareStatementSegment") // Allow word-aware statements in CATCH block
-                    ]),
-                    Ref::new("DelimiterGrammar").optional()
-                ])])
-                .config(|this| {
-                    this.terminators = vec_of_erased![
-                        Ref::keyword("END"),
-                        StringParser::new("END", SyntaxKind::Keyword),
-                        StringParser::new("END", SyntaxKind::Word)
-                    ];
-                }),
-                MetaSegment::dedent(),
-                one_of(vec_of_erased![
+                Ref::new("DelimiterGrammar").optional()
+            ])])
+            .config(|this| {
+                this.terminators = vec_of_erased![
                     Ref::keyword("END"),
                     StringParser::new("END", SyntaxKind::Keyword),
-                    StringParser::new("END", SyntaxKind::Word) // Support word tokens
-                ]),
-                one_of(vec_of_erased![
-                    Ref::keyword("CATCH"),
-                    StringParser::new("CATCH", SyntaxKind::Keyword),
-                    StringParser::new("CATCH", SyntaxKind::Word) // Support word tokens
-                ])
+                    StringParser::new("END", SyntaxKind::Word)
+                ];
+            }),
+            MetaSegment::dedent(),
+            one_of(vec_of_erased![
+                Ref::keyword("END"),
+                StringParser::new("END", SyntaxKind::Keyword),
+                StringParser::new("END", SyntaxKind::Word) // Support word tokens
+            ]),
+            one_of(vec_of_erased![
+                Ref::keyword("CATCH"),
+                StringParser::new("CATCH", SyntaxKind::Keyword),
+                StringParser::new("CATCH", SyntaxKind::Word) // Support word tokens
             ])
-            .to_matchable()
-        })
+        ])
         .to_matchable()
         .into(),
     )]);
@@ -1484,37 +1478,34 @@ pub fn raw_dialect() -> Dialect {
     // Word-aware TRY/CATCH parser for T-SQL contexts where keywords are lexed as words
     dialect.add([(
         "WordAwareTryCatchSegment".into(),
-        NodeMatcher::new(SyntaxKind::TryCatchStatement, |_| {
-            Sequence::new(vec_of_erased![
-                StringParser::new("BEGIN", SyntaxKind::Word),
-                StringParser::new("TRY", SyntaxKind::Word),
-                MetaSegment::indent(),
-                AnyNumberOf::new(vec_of_erased![Sequence::new(vec_of_erased![
-                    Ref::new("WordAwareStatementSegment"),
-                    Ref::new("DelimiterGrammar").optional()
-                ])])
-                .config(|this| {
-                    this.terminators = vec_of_erased![StringParser::new("END", SyntaxKind::Word)];
-                }),
-                MetaSegment::dedent(),
-                StringParser::new("END", SyntaxKind::Word),
-                StringParser::new("TRY", SyntaxKind::Word),
-                StringParser::new("BEGIN", SyntaxKind::Word),
-                StringParser::new("CATCH", SyntaxKind::Word),
-                MetaSegment::indent(),
-                AnyNumberOf::new(vec_of_erased![Sequence::new(vec_of_erased![
-                    Ref::new("WordAwareStatementSegment"),
-                    Ref::new("DelimiterGrammar").optional()
-                ])])
-                .config(|this| {
-                    this.terminators = vec_of_erased![StringParser::new("END", SyntaxKind::Word)];
-                }),
-                MetaSegment::dedent(),
-                StringParser::new("END", SyntaxKind::Word),
-                StringParser::new("CATCH", SyntaxKind::Word)
-            ])
-            .to_matchable()
-        })
+        Sequence::new(vec_of_erased![
+            StringParser::new("BEGIN", SyntaxKind::Word),
+            StringParser::new("TRY", SyntaxKind::Word),
+            MetaSegment::indent(),
+            AnyNumberOf::new(vec_of_erased![Sequence::new(vec_of_erased![
+                Ref::new("WordAwareStatementSegment"),
+                Ref::new("DelimiterGrammar").optional()
+            ])])
+            .config(|this| {
+                this.terminators = vec_of_erased![StringParser::new("END", SyntaxKind::Word)];
+            }),
+            MetaSegment::dedent(),
+            StringParser::new("END", SyntaxKind::Word),
+            StringParser::new("TRY", SyntaxKind::Word),
+            StringParser::new("BEGIN", SyntaxKind::Word),
+            StringParser::new("CATCH", SyntaxKind::Word),
+            MetaSegment::indent(),
+            AnyNumberOf::new(vec_of_erased![Sequence::new(vec_of_erased![
+                Ref::new("WordAwareStatementSegment"),
+                Ref::new("DelimiterGrammar").optional()
+            ])])
+            .config(|this| {
+                this.terminators = vec_of_erased![StringParser::new("END", SyntaxKind::Word)];
+            }),
+            MetaSegment::dedent(),
+            StringParser::new("END", SyntaxKind::Word),
+            StringParser::new("CATCH", SyntaxKind::Word)
+        ])
         .to_matchable()
         .into(),
     )]);
@@ -1689,64 +1680,55 @@ pub fn raw_dialect() -> Dialect {
     dialect.add([
         (
             "ReconfigureStatementSegment".into(),
-            NodeMatcher::new(SyntaxKind::ReconfigureStatement, |_| {
+            Sequence::new(vec_of_erased![
+                Ref::keyword("RECONFIGURE"),
                 Sequence::new(vec_of_erased![
-                    Ref::keyword("RECONFIGURE"),
-                    Sequence::new(vec_of_erased![
-                        Ref::keyword("WITH"),
-                        Ref::keyword("OVERRIDE")
-                    ])
-                    .config(|this| this.optional())
+                    Ref::keyword("WITH"),
+                    Ref::keyword("OVERRIDE")
                 ])
-                .to_matchable()
-            })
+                .config(|this| this.optional())
+            ])
             .to_matchable()
             .into(),
         ),
         // RENAME OBJECT statement (Azure Synapse Analytics specific)
         (
             "RenameObjectStatementSegment".into(),
-            NodeMatcher::new(SyntaxKind::RenameObjectStatement, |_| {
-                Sequence::new(vec_of_erased![
-                    Ref::keyword("RENAME"),
-                    one_of(vec_of_erased![
-                        // RENAME OBJECT syntax
-                        Sequence::new(vec_of_erased![
-                            Ref::keyword("OBJECT"),
-                            Ref::new("ObjectReferenceSegment"),
-                            Ref::keyword("TO"),
-                            Ref::new("ObjectReferenceSegment")
-                        ]),
-                        // RENAME DATABASE syntax
-                        Sequence::new(vec_of_erased![
-                            Ref::keyword("DATABASE"),
-                            Ref::new("ObjectReferenceSegment"),
-                            Ref::keyword("TO"),
-                            Ref::new("ObjectReferenceSegment")
-                        ])
+            Sequence::new(vec_of_erased![
+                Ref::keyword("RENAME"),
+                one_of(vec_of_erased![
+                    // RENAME OBJECT syntax
+                    Sequence::new(vec_of_erased![
+                        Ref::keyword("OBJECT"),
+                        Ref::new("ObjectReferenceSegment"),
+                        Ref::keyword("TO"),
+                        Ref::new("ObjectReferenceSegment")
+                    ]),
+                    // RENAME DATABASE syntax
+                    Sequence::new(vec_of_erased![
+                        Ref::keyword("DATABASE"),
+                        Ref::new("ObjectReferenceSegment"),
+                        Ref::keyword("TO"),
+                        Ref::new("ObjectReferenceSegment")
                     ])
                 ])
-                .to_matchable()
-            })
+            ])
             .to_matchable()
             .into(),
         ),
         // SET CONTEXT_INFO statement
         (
             "SetContextInfoStatementSegment".into(),
-            NodeMatcher::new(SyntaxKind::SetContextInfoStatement, |_| {
-                Sequence::new(vec_of_erased![
-                    Ref::keyword("SET"),
-                    Ref::keyword("CONTEXT_INFO"),
-                    one_of(vec_of_erased![
-                        Ref::new("NumericLiteralSegment"),
-                        Ref::new("TsqlVariableSegment"),
-                        Ref::new("ExpressionSegment"),
-                        Ref::keyword("NULL")
-                    ])
+            Sequence::new(vec_of_erased![
+                Ref::keyword("SET"),
+                Ref::keyword("CONTEXT_INFO"),
+                one_of(vec_of_erased![
+                    Ref::new("NumericLiteralSegment"),
+                    Ref::new("TsqlVariableSegment"),
+                    Ref::new("ExpressionSegment"),
+                    Ref::keyword("NULL")
                 ])
-                .to_matchable()
-            })
+            ])
             .to_matchable()
             .into(),
         ),
@@ -1780,22 +1762,19 @@ pub fn raw_dialect() -> Dialect {
     // ELSE statement segment - separate from IF to ensure proper indentation levels
     dialect.add([(
         "ElseStatementSegment".into(),
-        NodeMatcher::new(SyntaxKind::ElseStatement, |_| {
-            Sequence::new(vec_of_erased![
-                one_of(vec_of_erased![
-                    Ref::keyword("ELSE"),
-                    StringParser::new("ELSE", SyntaxKind::Keyword),
-                    StringParser::new("else", SyntaxKind::Keyword)
-                ]),
-                MetaSegment::indent(),
-                one_of(vec_of_erased![
-                    Ref::new("StatementSegment"),
-                    Ref::new("WordAwareStatementSegment")
-                ]),
-                MetaSegment::dedent()
-            ])
-            .to_matchable()
-        })
+        Sequence::new(vec_of_erased![
+            one_of(vec_of_erased![
+                Ref::keyword("ELSE"),
+                StringParser::new("ELSE", SyntaxKind::Keyword),
+                StringParser::new("else", SyntaxKind::Keyword)
+            ]),
+            MetaSegment::indent(),
+            one_of(vec_of_erased![
+                Ref::new("StatementSegment"),
+                Ref::new("WordAwareStatementSegment")
+            ]),
+            MetaSegment::dedent()
+        ])
         .to_matchable()
         .into(),
     )]);
@@ -1803,31 +1782,28 @@ pub fn raw_dialect() -> Dialect {
     // ELSE IF statement segment - handles ELSE IF as a single statement type
     dialect.add([(
         "ElseIfStatementSegment".into(),
-        NodeMatcher::new(SyntaxKind::ElseIfStatement, |_| {
-            Sequence::new(vec_of_erased![
-                one_of(vec_of_erased![
-                    Ref::keyword("ELSE"),
-                    StringParser::new("ELSE", SyntaxKind::Keyword),
-                    StringParser::new("else", SyntaxKind::Keyword)
-                ]),
-                one_of(vec_of_erased![
-                    Ref::keyword("IF"),
-                    StringParser::new("IF", SyntaxKind::Keyword),
-                    StringParser::new("if", SyntaxKind::Keyword)
-                ]),
-                one_of(vec_of_erased![
-                    Ref::new("WordAwareExpressionSegment"),
-                    Ref::new("ExpressionSegment")
-                ]),
-                MetaSegment::indent(),
-                one_of(vec_of_erased![
-                    Ref::new("StatementSegment"),
-                    Ref::new("WordAwareStatementSegment")
-                ]),
-                MetaSegment::dedent()
-            ])
-            .to_matchable()
-        })
+        Sequence::new(vec_of_erased![
+            one_of(vec_of_erased![
+                Ref::keyword("ELSE"),
+                StringParser::new("ELSE", SyntaxKind::Keyword),
+                StringParser::new("else", SyntaxKind::Keyword)
+            ]),
+            one_of(vec_of_erased![
+                Ref::keyword("IF"),
+                StringParser::new("IF", SyntaxKind::Keyword),
+                StringParser::new("if", SyntaxKind::Keyword)
+            ]),
+            one_of(vec_of_erased![
+                Ref::new("WordAwareExpressionSegment"),
+                Ref::new("ExpressionSegment")
+            ]),
+            MetaSegment::indent(),
+            one_of(vec_of_erased![
+                Ref::new("StatementSegment"),
+                Ref::new("WordAwareStatementSegment")
+            ]),
+            MetaSegment::dedent()
+        ])
         .to_matchable()
         .into(),
     )]);
@@ -3810,60 +3786,57 @@ pub fn raw_dialect() -> Dialect {
     // ALTER TABLE SWITCH statement
     dialect.add([(
         "AlterTableSwitchStatementSegment".into(),
-        NodeMatcher::new(SyntaxKind::AlterTableSwitchStatement, |_| {
+        Sequence::new(vec_of_erased![
+            Ref::keyword("ALTER"),
+            Ref::keyword("TABLE"),
+            Ref::new("TableReferenceSegment"),
+            Ref::keyword("SWITCH"),
             Sequence::new(vec_of_erased![
-                Ref::keyword("ALTER"),
-                Ref::keyword("TABLE"),
-                Ref::new("TableReferenceSegment"),
-                Ref::keyword("SWITCH"),
-                Sequence::new(vec_of_erased![
-                    Ref::keyword("PARTITION"),
-                    Ref::new("NumericLiteralSegment")
-                ])
-                .config(|this| this.optional()),
-                Ref::keyword("TO"),
-                Ref::new("ObjectReferenceSegment"),
-                Sequence::new(vec_of_erased![
-                    Ref::keyword("PARTITION"),
-                    Ref::new("NumericLiteralSegment")
-                ])
-                .config(|this| this.optional()),
-                Sequence::new(vec_of_erased![
-                    Ref::keyword("WITH"),
-                    one_of(vec_of_erased![
-                        // WAIT_AT_LOW_PRIORITY option
-                        Bracketed::new(vec_of_erased![
-                            Ref::keyword("WAIT_AT_LOW_PRIORITY"),
-                            Bracketed::new(vec_of_erased![Delimited::new(vec_of_erased![
-                                Sequence::new(vec_of_erased![
-                                    Ref::keyword("MAX_DURATION"),
-                                    Ref::new("EqualsSegment"),
-                                    Ref::new("NumericLiteralSegment"),
-                                    Ref::keyword("MINUTES").optional()
-                                ]),
-                                Sequence::new(vec_of_erased![
-                                    Ref::keyword("ABORT_AFTER_WAIT"),
-                                    Ref::new("EqualsSegment"),
-                                    one_of(vec_of_erased![
-                                        Ref::keyword("NONE"),
-                                        Ref::keyword("SELF"),
-                                        Ref::keyword("BLOCKERS")
-                                    ])
+                Ref::keyword("PARTITION"),
+                Ref::new("NumericLiteralSegment")
+            ])
+            .config(|this| this.optional()),
+            Ref::keyword("TO"),
+            Ref::new("ObjectReferenceSegment"),
+            Sequence::new(vec_of_erased![
+                Ref::keyword("PARTITION"),
+                Ref::new("NumericLiteralSegment")
+            ])
+            .config(|this| this.optional()),
+            Sequence::new(vec_of_erased![
+                Ref::keyword("WITH"),
+                one_of(vec_of_erased![
+                    // WAIT_AT_LOW_PRIORITY option
+                    Bracketed::new(vec_of_erased![
+                        Ref::keyword("WAIT_AT_LOW_PRIORITY"),
+                        Bracketed::new(vec_of_erased![Delimited::new(vec_of_erased![
+                            Sequence::new(vec_of_erased![
+                                Ref::keyword("MAX_DURATION"),
+                                Ref::new("EqualsSegment"),
+                                Ref::new("NumericLiteralSegment"),
+                                Ref::keyword("MINUTES").optional()
+                            ]),
+                            Sequence::new(vec_of_erased![
+                                Ref::keyword("ABORT_AFTER_WAIT"),
+                                Ref::new("EqualsSegment"),
+                                one_of(vec_of_erased![
+                                    Ref::keyword("NONE"),
+                                    Ref::keyword("SELF"),
+                                    Ref::keyword("BLOCKERS")
                                 ])
-                            ])])
-                        ]),
-                        // TRUNCATE_TARGET option (Azure Synapse Analytics)
-                        Bracketed::new(vec_of_erased![
-                            Ref::keyword("TRUNCATE_TARGET"),
-                            Ref::new("EqualsSegment"),
-                            one_of(vec_of_erased![Ref::keyword("ON"), Ref::keyword("OFF")])
-                        ])
+                            ])
+                        ])])
+                    ]),
+                    // TRUNCATE_TARGET option (Azure Synapse Analytics)
+                    Bracketed::new(vec_of_erased![
+                        Ref::keyword("TRUNCATE_TARGET"),
+                        Ref::new("EqualsSegment"),
+                        one_of(vec_of_erased![Ref::keyword("ON"), Ref::keyword("OFF")])
                     ])
                 ])
-                .config(|this| this.optional())
             ])
-            .to_matchable()
-        })
+            .config(|this| this.optional())
+        ])
         .to_matchable()
         .into(),
     )]);
@@ -8275,16 +8248,13 @@ pub fn raw_dialect() -> Dialect {
     // CREATE SYNONYM statement
     dialect.add([(
         "CreateSynonymStatementSegment".into(),
-        NodeMatcher::new(SyntaxKind::CreateSynonymStatement, |_| {
-            Sequence::new(vec_of_erased![
-                Ref::keyword("CREATE"),
-                Ref::keyword("SYNONYM"),
-                Ref::new("SynonymReferenceSegment"),
-                Ref::keyword("FOR"),
-                Ref::new("ObjectReferenceSegment")
-            ])
-            .to_matchable()
-        })
+        Sequence::new(vec_of_erased![
+            Ref::keyword("CREATE"),
+            Ref::keyword("SYNONYM"),
+            Ref::new("SynonymReferenceSegment"),
+            Ref::keyword("FOR"),
+            Ref::new("ObjectReferenceSegment")
+        ])
         .to_matchable()
         .into(),
     )]);
@@ -8292,15 +8262,12 @@ pub fn raw_dialect() -> Dialect {
     // DROP SYNONYM statement
     dialect.add([(
         "DropSynonymStatementSegment".into(),
-        NodeMatcher::new(SyntaxKind::DropSynonymStatement, |_| {
-            Sequence::new(vec_of_erased![
-                Ref::keyword("DROP"),
-                Ref::keyword("SYNONYM"),
-                Ref::new("IfExistsGrammar").optional(),
-                Ref::new("SynonymReferenceSegment")
-            ])
-            .to_matchable()
-        })
+        Sequence::new(vec_of_erased![
+            Ref::keyword("DROP"),
+            Ref::keyword("SYNONYM"),
+            Ref::new("IfExistsGrammar").optional(),
+            Ref::new("SynonymReferenceSegment")
+        ])
         .to_matchable()
         .into(),
     )]);
@@ -8326,17 +8293,14 @@ pub fn raw_dialect() -> Dialect {
     // OFFSET clause
     dialect.add([(
         "OffsetClauseSegment".into(),
-        NodeMatcher::new(SyntaxKind::OffsetClause, |_| {
-            Sequence::new(vec_of_erased![
-                Ref::keyword("OFFSET"),
-                one_of(vec_of_erased![
-                    Ref::new("NumericLiteralSegment"),
-                    Ref::new("ExpressionSegment")
-                ]),
-                one_of(vec_of_erased![Ref::keyword("ROW"), Ref::keyword("ROWS")])
-            ])
-            .to_matchable()
-        })
+        Sequence::new(vec_of_erased![
+            Ref::keyword("OFFSET"),
+            one_of(vec_of_erased![
+                Ref::new("NumericLiteralSegment"),
+                Ref::new("ExpressionSegment")
+            ]),
+            one_of(vec_of_erased![Ref::keyword("ROW"), Ref::keyword("ROWS")])
+        ])
         .to_matchable()
         .into(),
     )]);
@@ -10466,27 +10430,24 @@ pub fn raw_dialect() -> Dialect {
     // Word-aware BEGIN...END block that uses word-aware statements
     dialect.add([(
         "WordAwareBeginEndBlockSegment".into(),
-        NodeMatcher::new(SyntaxKind::BeginEndBlock, |_| {
-            Sequence::new(vec_of_erased![
-                StringParser::new("BEGIN", SyntaxKind::Word),
-                Ref::new("DelimiterGrammar").optional(),
-                MetaSegment::indent(),
-                AnyNumberOf::new(vec_of_erased![Sequence::new(vec_of_erased![
-                    Ref::new("WordAwareStatementSegment"),
-                    Ref::new("DelimiterGrammar").optional()
-                ])])
-                .config(|this| {
-                    this.min_times(1);
-                    this.terminators = vec_of_erased![
-                        StringParser::new("END", SyntaxKind::Word),
-                        Ref::keyword("END") // Also check for proper keywords
-                    ];
-                }),
-                MetaSegment::dedent(),
-                StringParser::new("END", SyntaxKind::Word)
-            ])
-            .to_matchable()
-        })
+        Sequence::new(vec_of_erased![
+            StringParser::new("BEGIN", SyntaxKind::Word),
+            Ref::new("DelimiterGrammar").optional(),
+            MetaSegment::indent(),
+            AnyNumberOf::new(vec_of_erased![Sequence::new(vec_of_erased![
+                Ref::new("WordAwareStatementSegment"),
+                Ref::new("DelimiterGrammar").optional()
+            ])])
+            .config(|this| {
+                this.min_times(1);
+                this.terminators = vec_of_erased![
+                    StringParser::new("END", SyntaxKind::Word),
+                    Ref::keyword("END") // Also check for proper keywords
+                ];
+            }),
+            MetaSegment::dedent(),
+            StringParser::new("END", SyntaxKind::Word)
+        ])
         .to_matchable()
         .into(),
     )]);

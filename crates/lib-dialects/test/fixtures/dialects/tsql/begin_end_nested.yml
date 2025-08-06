@@ -1,18 +1,16 @@
 file:
 - batch:
   - statement:
-    - begin_end_block:
+    - keyword: BEGIN
+    - statement:
       - keyword: BEGIN
       - statement:
-        - begin_end_block:
-          - keyword: BEGIN
-          - statement:
-            - select_statement:
-              - select_clause:
-                - keyword: SELECT
-                - select_clause_element:
-                  - quoted_literal: '''Weekend'''
-          - statement_terminator: ;
-          - keyword: END
+        - select_statement:
+          - select_clause:
+            - keyword: SELECT
+            - select_clause_element:
+              - quoted_literal: '''Weekend'''
+      - statement_terminator: ;
       - keyword: END
+    - keyword: END
   - statement_terminator: ;

@@ -7,16 +7,15 @@ file:
       - object_reference:
         - quoted_identifier: '[PROCEDURE_NAME]'
       - keyword: AS
-      - begin_end_block:
-        - keyword: BEGIN
-        - statement:
-          - select_statement:
-            - select_clause:
-              - keyword: SELECT
-              - select_clause_element:
-                - numeric_literal: '1'
-        - statement_terminator: ;
-        - keyword: END
+      - keyword: BEGIN
+      - statement:
+        - select_statement:
+          - select_clause:
+            - keyword: SELECT
+            - select_clause_element:
+              - numeric_literal: '1'
+      - statement_terminator: ;
+      - keyword: END
   - statement_terminator: ;
   - keyword: GO
   - statement:
@@ -28,16 +27,15 @@ file:
         - dot: .
         - quoted_identifier: '[TEST]'
       - keyword: AS
-      - begin_end_block:
-        - keyword: BEGIN
-        - statement:
-          - select_statement:
-            - select_clause:
-              - keyword: SELECT
-              - select_clause_element:
-                - numeric_literal: '1'
-        - statement_terminator: ;
-        - keyword: END
+      - keyword: BEGIN
+      - statement:
+        - select_statement:
+          - select_clause:
+            - keyword: SELECT
+            - select_clause_element:
+              - numeric_literal: '1'
+      - statement_terminator: ;
+      - keyword: END
   - statement_terminator: ;
   - keyword: GO
   - statement:
@@ -47,16 +45,15 @@ file:
       - object_reference:
         - quoted_identifier: '[PROCEDURE_NAME]'
       - keyword: AS
-      - begin_end_block:
-        - keyword: BEGIN
-        - statement:
-          - select_statement:
-            - select_clause:
-              - keyword: SELECT
-              - select_clause_element:
-                - numeric_literal: '1'
-        - statement_terminator: ;
-        - keyword: END
+      - keyword: BEGIN
+      - statement:
+        - select_statement:
+          - select_clause:
+            - keyword: SELECT
+            - select_clause_element:
+              - numeric_literal: '1'
+      - statement_terminator: ;
+      - keyword: END
   - statement_terminator: ;
   - keyword: GO
   - statement:
@@ -66,16 +63,15 @@ file:
       - object_reference:
         - quoted_identifier: '[PROCEDURE_NAME]'
       - keyword: AS
-      - begin_end_block:
-        - keyword: BEGIN
-        - statement:
-          - select_statement:
-            - select_clause:
-              - keyword: SELECT
-              - select_clause_element:
-                - numeric_literal: '1'
-        - statement_terminator: ;
-        - keyword: END
+      - keyword: BEGIN
+      - statement:
+        - select_statement:
+          - select_clause:
+            - keyword: SELECT
+            - select_clause_element:
+              - numeric_literal: '1'
+      - statement_terminator: ;
+      - keyword: END
   - statement_terminator: ;
   - keyword: GO
   - statement:
@@ -87,16 +83,15 @@ file:
       - object_reference:
         - quoted_identifier: '[PROCEDURE_NAME]'
       - keyword: AS
-      - begin_end_block:
-        - keyword: BEGIN
-        - statement:
-          - select_statement:
-            - select_clause:
-              - keyword: SELECT
-              - select_clause_element:
-                - numeric_literal: '1'
-        - statement_terminator: ;
-        - keyword: END
+      - keyword: BEGIN
+      - statement:
+        - select_statement:
+          - select_clause:
+            - keyword: SELECT
+            - select_clause_element:
+              - numeric_literal: '1'
+      - statement_terminator: ;
+      - keyword: END
   - statement_terminator: ;
   - keyword: GO
   - statement:
@@ -108,16 +103,15 @@ file:
       - object_reference:
         - quoted_identifier: '[PROCEDURE_NAME]'
       - keyword: AS
-      - begin_end_block:
-        - keyword: BEGIN
-        - statement:
-          - select_statement:
-            - select_clause:
-              - keyword: SELECT
-              - select_clause_element:
-                - numeric_literal: '1'
-        - statement_terminator: ;
-        - keyword: END
+      - keyword: BEGIN
+      - statement:
+        - select_statement:
+          - select_clause:
+            - keyword: SELECT
+            - select_clause_element:
+              - numeric_literal: '1'
+      - statement_terminator: ;
+      - keyword: END
   - statement_terminator: ;
   - keyword: GO
   - statement:
@@ -217,19 +211,18 @@ file:
         - null_literal: 'NULL'
       - if_statements:
         - statement:
-          - begin_end_block:
-            - keyword: BEGIN
-            - statement:
-              - select_statement:
-                - select_clause:
-                  - keyword: SELECT
-                  - select_clause_element:
-                    - tsql_variable: '@bar'
-                  - comma: ','
-                  - select_clause_element:
-                    - tsql_variable: '@fooReadonly'
-            - statement_terminator: ;
-            - keyword: END
+          - keyword: BEGIN
+          - statement:
+            - select_statement:
+              - select_clause:
+                - keyword: SELECT
+                - select_clause_element:
+                  - tsql_variable: '@bar'
+                - comma: ','
+                - select_clause_element:
+                  - tsql_variable: '@fooReadonly'
+          - statement_terminator: ;
+          - keyword: END
         - statement_terminator: ;
         - word: END
         - semicolon: ;

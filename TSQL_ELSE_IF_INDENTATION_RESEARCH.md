@@ -687,3 +687,55 @@ This requires a rule-level fix in CP01 to handle `FunctionNameIdentifier` segmen
 - **GitHub Issue**: [#1871](https://github.com/quarylabs/sqruff/issues/1871) - Created with comprehensive analysis
 - **Test Status**: `test_fail_select_lower_keyword_functions` temporarily ignored with issue reference
 - **Next Steps**: Rule-level fix needed in CP01 to handle `SyntaxKind::FunctionNameIdentifier` segments that are also keywords
+
+---
+
+# T-SQL Parser Fixes Completed
+
+## Successfully Fixed Issues
+
+### 1. DECLARE Statement Indentation ✅
+- **Issue**: DECLARE statements were not properly indenting variable declarations
+- **Fix**: Added `MetaSegment::indent()` and `MetaSegment::dedent()` around the Delimited construct in `DeclareStatementGrammar`
+- **Result**: DECLARE statements now format correctly with proper indentation:
+```sql
+DECLARE
+    @prv_qtr_1st_dt DATETIME,
+    @last_qtr INT,
+    @last_qtr_first_mn INT,
+    @last_qtr_yr INT;
+```
+
+### 2. SET Statement Indentation ✅
+- **Issue**: SET statements were not properly indenting variable assignments
+- **Fix**: Added `MetaSegment::indent()` and `MetaSegment::dedent()` around the assignment construct in `SetVariableStatementGrammar`
+- **Result**: SET statements now format correctly with proper indentation:
+```sql
+SET
+    @prv_qtr_1st_dt = CAST(@last_qtr_yr AS VARCHAR (4)) + '-' +
+    CAST(@last_qtr_first_mn AS VARCHAR (2)) + '-01'
+```
+
+### 3. IF Statement Indentation ✅
+- **Issue**: IF statements were applying indentation after the condition instead of before
+- **Fix**: Moved `MetaSegment::indent()` to occur after the IF keyword and before the expression in `IfStatementSegment`
+- **Result**: IF statements now format correctly with both condition and body properly indented:
+```sql
+IF
+    1 > 1 AND
+    2 < 2
+    SELECT 1;
+```
+
+## Technical Details
+
+All fixes followed the same successful pattern used in other statement types like SELECT:
+1. Add `MetaSegment::indent()` immediately after the main keyword
+2. Place the content that should be indented (expressions, assignments, conditions)
+3. Add `MetaSegment::dedent()` at the end of the construct
+
+This ensures the LT02 indentation rule correctly recognizes the statement structure and applies proper formatting.
+
+## Remaining Issues
+
+The complex ELSE IF indentation issue (GitHub #1873) remains unresolved, as it involves deeper word-aware parsing system conflicts with the LT02 rule that require significant rule engine modifications.

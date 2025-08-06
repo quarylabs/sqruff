@@ -40,6 +40,16 @@ pub fn raw_dialect() -> Dialect {
         .sets_mut("unreserved_keywords")
         .extend(tsql_keywords::tsql_additional_unreserved_keywords());
 
+    // Add date part keywords to unreserved keywords so they can be used in date functions
+    dialect.sets_mut("unreserved_keywords").extend([
+        // Date part names
+        "YEAR", "QUARTER", "MONTH", "DAYOFYEAR", "DAY", "WEEK", "WEEKDAY",
+        "HOUR", "MINUTE", "SECOND", "MILLISECOND", "MICROSECOND", "NANOSECOND",
+        // Date part abbreviations  
+        "YY", "YYYY", "QQ", "Q", "MM", "M", "DY", "Y", "DD", "D",
+        "WK", "WW", "DW", "HH", "MI", "N", "SS", "S", "MS", "MCS", "NS",
+    ]);
+
     // Add table hint keywords to unreserved keywords
     dialect.sets_mut("unreserved_keywords").extend([
         "NOLOCK",
@@ -10043,12 +10053,101 @@ pub fn raw_dialect() -> Dialect {
         .into(),
     )]);
 
+    // Define date part literals for T-SQL date functions
+    // These are keywords that specify the date component (year, month, day, etc.)
+    dialect.add([(
+        "DatePartLiteralSegment".into(),
+        one_of(vec_of_erased![
+            // Full names
+            Ref::keyword("YEAR"),
+            Ref::keyword("QUARTER"),
+            Ref::keyword("MONTH"),
+            Ref::keyword("DAYOFYEAR"),
+            Ref::keyword("DAY"),
+            Ref::keyword("WEEK"),
+            Ref::keyword("WEEKDAY"),
+            Ref::keyword("HOUR"),
+            Ref::keyword("MINUTE"),
+            Ref::keyword("SECOND"),
+            Ref::keyword("MILLISECOND"),
+            Ref::keyword("MICROSECOND"),
+            Ref::keyword("NANOSECOND"),
+            // Abbreviations
+            Ref::keyword("YY"),
+            Ref::keyword("YYYY"),
+            Ref::keyword("QQ"),
+            Ref::keyword("Q"),
+            Ref::keyword("MM"),
+            Ref::keyword("M"),
+            Ref::keyword("DY"),
+            Ref::keyword("Y"),
+            Ref::keyword("DD"),
+            Ref::keyword("D"),
+            Ref::keyword("WK"),
+            Ref::keyword("WW"),
+            Ref::keyword("DW"),
+            Ref::keyword("HH"),
+            Ref::keyword("MI"),
+            Ref::keyword("N"),
+            Ref::keyword("SS"),
+            Ref::keyword("S"),
+            Ref::keyword("MS"),
+            Ref::keyword("MCS"),
+            Ref::keyword("NS")
+        ])
+        .to_matchable()
+        .into(),
+    )]);
+
+    // Add DATEADD function segment with special handling for date part as first parameter
+    dialect.add([(
+        "DateAddFunctionSegment".into(),
+        NodeMatcher::new(SyntaxKind::Function, |_| {
+            Sequence::new(vec_of_erased![
+                StringParser::new("DATEADD", SyntaxKind::FunctionNameIdentifier),
+                Bracketed::new(vec_of_erased![
+                    Delimited::new(vec_of_erased![
+                        Ref::new("DatePartLiteralSegment"),  // First arg is a date part
+                        Ref::new("Expression_A_Grammar"),  // Number to add
+                        Ref::new("Expression_A_Grammar")   // Date expression
+                    ])
+                ])
+            ])
+            .to_matchable()
+        })
+        .to_matchable()
+        .into(),
+    )]);
+
+    // Add DATEDIFF function segment with special handling for date part as first parameter
+    dialect.add([(
+        "DateDiffFunctionSegment".into(),
+        NodeMatcher::new(SyntaxKind::Function, |_| {
+            Sequence::new(vec_of_erased![
+                StringParser::new("DATEDIFF", SyntaxKind::FunctionNameIdentifier),
+                Bracketed::new(vec_of_erased![
+                    Delimited::new(vec_of_erased![
+                        Ref::new("DatePartLiteralSegment"),  // First arg is a date part
+                        Ref::new("Expression_A_Grammar"),  // Start date
+                        Ref::new("Expression_A_Grammar")   // End date
+                    ])
+                ])
+            ])
+            .to_matchable()
+        })
+        .to_matchable()
+        .into(),
+    )]);
+
     // Override FunctionSegment to include all T-SQL function patterns
     // This consolidates all previous FunctionSegment definitions
     dialect.replace_grammar("FunctionSegment", {
         one_of(vec_of_erased![
             // CONVERT function with special data type handling
             Ref::new("ConvertFunctionSegment"),
+            // Date functions with special date part handling  
+            Ref::new("DateAddFunctionSegment"),
+            Ref::new("DateDiffFunctionSegment"),
             // JSON functions
             Ref::new("TsqlJsonObjectSegment"),
             Ref::new("TsqlJsonArraySegment"),

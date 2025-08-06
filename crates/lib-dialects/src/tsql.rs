@@ -4609,10 +4609,8 @@ pub fn raw_dialect() -> Dialect {
                 Sequence::new(vec_of_erased![
                     Ref::new("TsqlJoinTypeKeywordsGrammar").optional(),
                     Ref::new("JoinKeywordsGrammar"),
-                    MetaSegment::indent(),
                     Ref::new("FromExpressionElementSegment"),
                     AnyNumberOf::new(vec_of_erased![Ref::new("NestedJoinGrammar")]),
-                    MetaSegment::dedent(),
                     Sequence::new(vec_of_erased![
                         Conditional::new(MetaSegment::indent()).indented_using_on(),
                         one_of(vec_of_erased![

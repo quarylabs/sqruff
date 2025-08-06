@@ -1248,6 +1248,8 @@ test_tsql_cross_join_indentation:
 
 test_tsql_nested_join:
   # Test for behavior prior to issue #3672
+  # This SQL is invalid - first JOIN missing ON clause
+  ignored: "Invalid T-SQL: INNER JOIN table2 missing ON clause. This test expects nested indentation for invalid SQL."
   fail_str: |
     SELECT
         table1.col,

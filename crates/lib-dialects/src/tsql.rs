@@ -5376,7 +5376,11 @@ pub fn raw_dialect() -> Dialect {
                 Ref::new("BeginEndBlockSegment"),
                 // PRIORITY 3: For procedures with word tokens after AS, try specific word-aware parsers
                 Ref::new("WordAwareIfStatementSegment"),
-                // PRIORITY 4: Word-based parsing fallback (for procedure bodies with word tokens)
+                // PRIORITY 4: Single statement or block (when keywords are properly lexed)
+                // Use ProcedureBodyStatementSegment for inline SELECT handling
+                // IMPORTANT: This must come BEFORE WordAwareStatementSegment fallback
+                Ref::new("ProcedureBodyStatementSegment"),
+                // PRIORITY 5: Word-based parsing fallback (for procedure bodies with word tokens)
                 AnyNumberOf::new(vec_of_erased![Sequence::new(vec_of_erased![
                     Ref::new("WordAwareStatementSegment"),
                     Ref::new("DelimiterGrammar").optional()
@@ -5386,11 +5390,9 @@ pub fn raw_dialect() -> Dialect {
                     this.parse_mode = ParseMode::Greedy;
                     this.terminators = vec_of_erased![Ref::new("BatchSeparatorGrammar")];
                 }),
-                // Single statement or block (when keywords are properly lexed)
-                Ref::new("StatementSegment"),
                 // Multiple statements for procedures without BEGIN...END
                 AnyNumberOf::new(vec_of_erased![Sequence::new(vec_of_erased![
-                    Ref::new("StatementSegment"),
+                    Ref::new("ProcedureBodyStatementSegment"),
                     Ref::new("DelimiterGrammar").optional()
                 ])])
                 .config(|this| {
@@ -5407,6 +5409,96 @@ pub fn raw_dialect() -> Dialect {
             "ProcedureStatementSegment".into(),
             // Just use StatementSegment for now - the ordering should handle precedence
             Ref::new("StatementSegment").to_matchable().into(),
+        ),
+        // Special select clause for procedure bodies without forced indentation
+        (
+            "ProcedureBodySelectClauseSegment".into(),
+            Sequence::new(vec_of_erased![
+                one_of(vec_of_erased![
+                    Ref::keyword("SELECT"),
+                    // Also accept SELECT as word token in T-SQL procedure bodies
+                    StringParser::new("SELECT", SyntaxKind::Keyword)
+                ]),
+                Ref::new("SelectClauseModifierSegment").optional(),
+                // NO MetaSegment::indent() here - inline for procedure bodies
+                // Custom T-SQL select clause parsing that can handle edge cases like "column@variable"
+                AnyNumberOf::new(vec_of_erased![one_of(vec_of_erased![
+                    // Normal comma-separated elements
+                    Sequence::new(vec_of_erased![
+                        Ref::new("SelectClauseElementSegment"),
+                        Ref::new("CommaSegment")
+                    ]),
+                    // Final element without comma
+                    Ref::new("SelectClauseElementSegment")
+                ])])
+                .config(|this| {
+                    this.min_times(1);
+                    // Allow natural boundaries at T-SQL variables
+                    this.terminators = vec_of_erased![
+                        Ref::new("TsqlVariableSegment"),
+                        Ref::keyword("FROM"),
+                        Ref::keyword("WHERE")
+                    ];
+                }),
+            ])
+            .terminators(vec_of_erased![
+                // Use all standard terminators except END
+                Ref::keyword("FROM"),
+                Ref::keyword("WHERE"),
+                Ref::keyword("INTO"),
+                Sequence::new(vec_of_erased![Ref::keyword("ORDER"), Ref::keyword("BY")]),
+                Ref::keyword("LIMIT"),
+                Ref::keyword("OVERLAPS"),
+                Ref::new("SetOperatorSegment"),
+                Ref::new("SetExpressionSegment"),
+                Ref::keyword("UNION"),
+                Ref::keyword("INTERSECT"),
+                Ref::keyword("EXCEPT"),
+                Ref::new("DelimiterGrammar"),
+            ])
+            .config(|this| {
+                this.parse_mode(ParseMode::GreedyOnceStarted);
+            })
+            .to_matchable()
+            .into(),
+        ),
+        // Special SELECT statement for procedure bodies
+        (
+            "ProcedureBodySelectStatementSegment".into(),
+            Sequence::new(vec_of_erased![
+                Ref::new("ProcedureBodySelectClauseSegment"),
+                // Note: No dedent here since we didn't indent
+                Ref::new("FromClauseSegment").optional(),
+                Ref::new("WhereClauseSegment").optional(),
+                Ref::new("GroupByClauseSegment").optional(),
+                Ref::new("HavingClauseSegment").optional(),
+                Ref::new("OverlapsClauseSegment").optional(),
+                Ref::new("NamedWindowSegment").optional(),
+                Ref::new("OrderByClauseSegment").optional(),
+                Ref::new("FetchClauseSegment").optional(),
+                Ref::new("LimitClauseSegment").optional(),
+            ])
+            .terminators(vec_of_erased![
+                Ref::new("SetOperatorSegment"),
+            ])
+            .config(|this| {
+                this.parse_mode(ParseMode::GreedyOnceStarted);
+            })
+            .to_matchable()
+            .into(),
+        ),
+        // Statement segment for procedure bodies that uses inline SELECT
+        (
+            "ProcedureBodyStatementSegment".into(),
+            one_of(vec_of_erased![
+                // Use special inline SELECT for procedure bodies
+                Ref::new("ProcedureBodySelectStatementSegment"),
+                // For all other statements, use the regular StatementSegment
+                // This avoids duplicating the entire statement list
+                Ref::new("StatementSegment"),
+            ])
+            .to_matchable()
+            .into(),
         ),
         (
             "AtomicBlockSegment".into(),

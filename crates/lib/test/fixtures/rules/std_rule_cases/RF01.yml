@@ -285,7 +285,10 @@ test_pass_update_with_alias:
         SELECT 1 FROM foobar AS tmp WHERE tmp.idx = dest.idx)
 
 test_pass_postgres_merge_with_alias:
-  ignored: "test says postgres but it's set to tsql"
+  # FAILING: MERGE statement target alias 'dest' not accessible in EXISTS clause
+  # The target table alias from MERGE should be accessible in WHEN clauses
+  # but RF01 incorrectly flags it as not found in FROM clause
+  ignored: "MERGE target alias scoping not properly handled - dest.idx and dest.name flagged as not found"
   pass_str: |
     merge dw.sch.tbl dest
     using land.sch.tbl src

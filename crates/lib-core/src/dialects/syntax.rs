@@ -330,7 +330,6 @@ pub enum SyntaxKind {
     CreateCloneStatement,
     CreateDatabaseFromShareStatement,
     CreateProcedureStatement,
-    TryCatchStatement,
     ScriptingBlockStatement,
     ScriptingLetStatement,
     AlterFunctionStatement,

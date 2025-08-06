@@ -4671,14 +4671,15 @@ pub fn raw_dialect() -> Dialect {
     // Parenthesized JOIN expression support
     // Allows expressions like: (table1 JOIN table2 ON condition)
     // This is used in complex FROM clauses where a JOIN result is treated as a single table expression
+    // Support multiple JOINs inside parentheses
     dialect.add([(
         "ParenthesizedJoinExpressionSegment".into(),
         Sequence::new(vec_of_erased![
             Ref::new("TableReferenceSegment"),
-            one_of(vec_of_erased![
+            AnyNumberOf::new(vec_of_erased![one_of(vec_of_erased![
                 Ref::new("JoinClauseSegment"),
                 Ref::new("JoinLikeClauseGrammar")
-            ])
+            ])])
         ])
         .to_matchable()
         .into(),
@@ -10021,10 +10022,33 @@ pub fn raw_dialect() -> Dialect {
         .into(),
     )]);
 
+    // Add CONVERT function segment with special handling for data type as first parameter
+    // This ensures the first argument is parsed as a data type, not a column reference
+    dialect.add([(
+        "ConvertFunctionSegment".into(),
+        NodeMatcher::new(SyntaxKind::Function, |_| {
+            Sequence::new(vec_of_erased![
+                StringParser::new("CONVERT", SyntaxKind::FunctionNameIdentifier),
+                Bracketed::new(vec_of_erased![
+                    Delimited::new(vec_of_erased![
+                        Ref::new("DatatypeSegment"),  // First arg is always a data type
+                        Ref::new("Expression_A_Grammar"),  // Expression to convert
+                        Ref::new("NumericLiteralSegment").optional()  // Optional style parameter
+                    ])
+                ])
+            ])
+            .to_matchable()
+        })
+        .to_matchable()
+        .into(),
+    )]);
+
     // Override FunctionSegment to include all T-SQL function patterns
     // This consolidates all previous FunctionSegment definitions
     dialect.replace_grammar("FunctionSegment", {
         one_of(vec_of_erased![
+            // CONVERT function with special data type handling
+            Ref::new("ConvertFunctionSegment"),
             // JSON functions
             Ref::new("TsqlJsonObjectSegment"),
             Ref::new("TsqlJsonArraySegment"),

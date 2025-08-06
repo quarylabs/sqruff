@@ -4699,11 +4699,15 @@ pub fn raw_dialect() -> Dialect {
     // Override the empty NestedJoinGrammar from ANSI dialect
     dialect.add([(
         "NestedJoinGrammar".into(),
-        one_of(vec_of_erased![
-            // Self-referencing JoinClauseSegment allows recursion
-            Ref::new("JoinClauseSegment"),
-            // Also support APPLY clauses in nested contexts
-            Ref::new("ApplyClauseSegment")
+        Sequence::new(vec_of_erased![
+            MetaSegment::indent(),
+            one_of(vec_of_erased![
+                // Self-referencing JoinClauseSegment allows recursion
+                Ref::new("JoinClauseSegment"),
+                // Also support APPLY clauses in nested contexts
+                Ref::new("ApplyClauseSegment")
+            ]),
+            MetaSegment::dedent()
         ])
         .to_matchable()
         .into(),

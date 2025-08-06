@@ -253,11 +253,7 @@ pub fn raw_dialect() -> Dialect {
                 SyntaxKind::QuotedLiteral,
             ),
             // Compound assignment operators - must come before individual operators
-            Matcher::string(
-                "addition_assignment",
-                "+=",
-                SyntaxKind::AssignmentOperator,
-            ),
+            Matcher::string("addition_assignment", "+=", SyntaxKind::AssignmentOperator),
             Matcher::string(
                 "subtraction_assignment",
                 "-=",
@@ -268,16 +264,8 @@ pub fn raw_dialect() -> Dialect {
                 "*=",
                 SyntaxKind::AssignmentOperator,
             ),
-            Matcher::string(
-                "division_assignment",
-                "/=",
-                SyntaxKind::AssignmentOperator,
-            ),
-            Matcher::string(
-                "modulus_assignment",
-                "%=",
-                SyntaxKind::AssignmentOperator,
-            ),
+            Matcher::string("division_assignment", "/=", SyntaxKind::AssignmentOperator),
+            Matcher::string("modulus_assignment", "%=", SyntaxKind::AssignmentOperator),
         ],
         "equals",
     );
@@ -848,52 +836,37 @@ pub fn raw_dialect() -> Dialect {
         // Addition assignment (+=) - uses lexer token
         (
             "AdditionAssignmentSegment".into(),
-            StringParser::new(
-                "+=",
-                SyntaxKind::AssignmentOperator,
-            )
-            .to_matchable()
-            .into(),
+            StringParser::new("+=", SyntaxKind::AssignmentOperator)
+                .to_matchable()
+                .into(),
         ),
         // Subtraction assignment (-=) - uses lexer token
         (
             "SubtractionAssignmentSegment".into(),
-            StringParser::new(
-                "-=",
-                SyntaxKind::AssignmentOperator,
-            )
-            .to_matchable()
-            .into(),
+            StringParser::new("-=", SyntaxKind::AssignmentOperator)
+                .to_matchable()
+                .into(),
         ),
         // Multiplication assignment (*=) - uses lexer token
         (
             "MultiplicationAssignmentSegment".into(),
-            StringParser::new(
-                "*=",
-                SyntaxKind::AssignmentOperator,
-            )
-            .to_matchable()
-            .into(),
+            StringParser::new("*=", SyntaxKind::AssignmentOperator)
+                .to_matchable()
+                .into(),
         ),
         // Division assignment (/=) - uses lexer token
         (
             "DivisionAssignmentSegment".into(),
-            StringParser::new(
-                "/=",
-                SyntaxKind::AssignmentOperator,
-            )
-            .to_matchable()
-            .into(),
+            StringParser::new("/=", SyntaxKind::AssignmentOperator)
+                .to_matchable()
+                .into(),
         ),
         // Modulus assignment (%=) - uses lexer token
         (
             "ModulusAssignmentSegment".into(),
-            StringParser::new(
-                "%=",
-                SyntaxKind::AssignmentOperator,
-            )
-            .to_matchable()
-            .into(),
+            StringParser::new("%=", SyntaxKind::AssignmentOperator)
+                .to_matchable()
+                .into(),
         ),
         // Bitwise XOR assignment (^=)
         (

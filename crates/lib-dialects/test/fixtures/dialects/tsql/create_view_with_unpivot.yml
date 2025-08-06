@@ -67,35 +67,34 @@ file:
                     - end_bracket: )
                 - alias_expression:
                   - naked_identifier: p
-                - pivot_expression:
-                  - keyword: UNPIVOT
+                - keyword: UNPIVOT
+                - bracketed:
+                  - start_bracket: (
+                  - column_reference:
+                    - naked_identifier: Orders
+                  - keyword: FOR
+                  - column_reference:
+                    - naked_identifier: Employee
+                  - keyword: IN
                   - bracketed:
                     - start_bracket: (
-                    - column_reference:
-                      - naked_identifier: Orders
-                    - keyword: FOR
-                    - column_reference:
-                      - naked_identifier: Employee
-                    - keyword: IN
-                    - bracketed:
-                      - start_bracket: (
-                      - pivot_column_reference:
-                        - naked_identifier: Emp1
-                      - comma: ','
-                      - pivot_column_reference:
-                        - naked_identifier: Emp2
-                      - comma: ','
-                      - pivot_column_reference:
-                        - naked_identifier: Emp3
-                      - comma: ','
-                      - pivot_column_reference:
-                        - naked_identifier: Emp4
-                      - comma: ','
-                      - pivot_column_reference:
-                        - naked_identifier: Emp5
-                      - end_bracket: )
+                    - pivot_column_reference:
+                      - naked_identifier: Emp1
+                    - comma: ','
+                    - pivot_column_reference:
+                      - naked_identifier: Emp2
+                    - comma: ','
+                    - pivot_column_reference:
+                      - naked_identifier: Emp3
+                    - comma: ','
+                    - pivot_column_reference:
+                      - naked_identifier: Emp4
+                    - comma: ','
+                    - pivot_column_reference:
+                      - naked_identifier: Emp5
                     - end_bracket: )
-                  - alias_expression:
-                    - keyword: AS
-                    - naked_identifier: unpvt
+                  - end_bracket: )
+                - alias_expression:
+                  - keyword: AS
+                  - naked_identifier: unpvt
   - statement_terminator: ;

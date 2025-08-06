@@ -26,39 +26,38 @@ file:
             - alias_expression:
               - keyword: as
               - naked_identifier: t1
-            - pivot_expression:
-              - keyword: pivot
+            - keyword: pivot
+            - bracketed:
+              - start_bracket: (
+              - function:
+                - function_name:
+                  - function_name_identifier: max
+                - function_contents:
+                  - bracketed:
+                    - start_bracket: (
+                    - expression:
+                      - column_reference:
+                        - naked_identifier: value
+                    - end_bracket: )
+              - keyword: for
+              - column_reference:
+                - naked_identifier: rn
+              - keyword: in
               - bracketed:
                 - start_bracket: (
-                - function:
-                  - function_name:
-                    - function_name_identifier: max
-                  - function_contents:
-                    - bracketed:
-                      - start_bracket: (
-                      - expression:
-                        - column_reference:
-                          - naked_identifier: value
-                      - end_bracket: )
-                - keyword: for
-                - column_reference:
-                  - naked_identifier: rn
-                - keyword: in
-                - bracketed:
-                  - start_bracket: (
-                  - pivot_column_reference:
-                    - quoted_identifier: '[1]'
-                  - comma: ','
-                  - pivot_column_reference:
-                    - quoted_identifier: '[2]'
-                  - comma: ','
-                  - pivot_column_reference:
-                    - quoted_identifier: '[3]'
-                  - end_bracket: )
+                - pivot_column_reference:
+                  - quoted_identifier: '[1]'
+                - comma: ','
+                - pivot_column_reference:
+                  - quoted_identifier: '[2]'
+                - comma: ','
+                - pivot_column_reference:
+                  - quoted_identifier: '[3]'
                 - end_bracket: )
-              - alias_expression:
-                - keyword: as
-                - naked_identifier: pvt
+              - end_bracket: )
+            - alias_expression:
+              - keyword: as
+              - naked_identifier: pvt
   - statement_terminator: ;
   - statement:
     - select_statement:
@@ -86,38 +85,37 @@ file:
             - alias_expression:
               - keyword: as
               - naked_identifier: t1
-            - pivot_expression:
-              - keyword: pivot
+            - keyword: pivot
+            - bracketed:
+              - start_bracket: (
+              - function:
+                - function_name:
+                  - function_name_identifier: max
+                - function_contents:
+                  - bracketed:
+                    - start_bracket: (
+                    - expression:
+                      - column_reference:
+                        - naked_identifier: value
+                    - end_bracket: )
+              - keyword: for
+              - column_reference:
+                - naked_identifier: rn
+              - keyword: in
               - bracketed:
                 - start_bracket: (
-                - function:
-                  - function_name:
-                    - function_name_identifier: max
-                  - function_contents:
-                    - bracketed:
-                      - start_bracket: (
-                      - expression:
-                        - column_reference:
-                          - naked_identifier: value
-                      - end_bracket: )
-                - keyword: for
-                - column_reference:
-                  - naked_identifier: rn
-                - keyword: in
-                - bracketed:
-                  - start_bracket: (
-                  - pivot_column_reference:
-                    - quoted_identifier: '[1]'
-                  - comma: ','
-                  - pivot_column_reference:
-                    - quoted_identifier: '[2]'
-                  - comma: ','
-                  - pivot_column_reference:
-                    - quoted_identifier: '[3]'
-                  - end_bracket: )
+                - pivot_column_reference:
+                  - quoted_identifier: '[1]'
+                - comma: ','
+                - pivot_column_reference:
+                  - quoted_identifier: '[2]'
+                - comma: ','
+                - pivot_column_reference:
+                  - quoted_identifier: '[3]'
                 - end_bracket: )
-              - alias_expression:
-                - naked_identifier: pvt
+              - end_bracket: )
+            - alias_expression:
+              - naked_identifier: pvt
   - statement_terminator: ;
   - keyword: GO
   - statement:

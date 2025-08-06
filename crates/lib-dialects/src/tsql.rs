@@ -9255,47 +9255,44 @@ pub fn raw_dialect() -> Dialect {
     dialect.add([
         (
             "PivotUnpivotStatementSegment".into(),
-            NodeMatcher::new(SyntaxKind::PivotExpression, |_| {
-                Sequence::new(vec_of_erased![
-                    one_of(vec_of_erased![
-                        // PIVOT
-                        Sequence::new(vec_of_erased![
-                            Ref::keyword("PIVOT"),
-                            Bracketed::new(vec_of_erased![
-                                // Aggregate function (e.g., AVG(StandardCost))
-                                Ref::new("FunctionSegment"),
-                                Ref::keyword("FOR"),
-                                // Column to pivot on
-                                Ref::new("ColumnReferenceSegment"),
-                                Ref::keyword("IN"),
-                                // List of values to become column headers
-                                Bracketed::new(vec_of_erased![Delimited::new(vec_of_erased![
-                                    Ref::new("PivotColumnReferenceSegment")
-                                ])])
-                            ])
-                        ]),
-                        // UNPIVOT
-                        Sequence::new(vec_of_erased![
-                            Ref::keyword("UNPIVOT"),
-                            Bracketed::new(vec_of_erased![
-                                // Value column (e.g., Quantity)
-                                Ref::new("ColumnReferenceSegment"),
-                                Ref::keyword("FOR"),
-                                // Column that will hold the unpivoted column names
-                                Ref::new("ColumnReferenceSegment"),
-                                Ref::keyword("IN"),
-                                // List of columns to unpivot
-                                Bracketed::new(vec_of_erased![Delimited::new(vec_of_erased![
-                                    Ref::new("PivotColumnReferenceSegment")
-                                ])])
-                            ])
+            Sequence::new(vec_of_erased![
+                one_of(vec_of_erased![
+                    // PIVOT
+                    Sequence::new(vec_of_erased![
+                        Ref::keyword("PIVOT"),
+                        Bracketed::new(vec_of_erased![
+                            // Aggregate function (e.g., AVG(StandardCost))
+                            Ref::new("FunctionSegment"),
+                            Ref::keyword("FOR"),
+                            // Column to pivot on
+                            Ref::new("ColumnReferenceSegment"),
+                            Ref::keyword("IN"),
+                            // List of values to become column headers
+                            Bracketed::new(vec_of_erased![Delimited::new(vec_of_erased![
+                                Ref::new("PivotColumnReferenceSegment")
+                            ])])
                         ])
                     ]),
-                    // Optional AS alias after PIVOT/UNPIVOT
-                    Ref::new("AliasExpressionSegment").optional()
-                ])
-                .to_matchable()
-            })
+                    // UNPIVOT
+                    Sequence::new(vec_of_erased![
+                        Ref::keyword("UNPIVOT"),
+                        Bracketed::new(vec_of_erased![
+                            // Value column (e.g., Quantity)
+                            Ref::new("ColumnReferenceSegment"),
+                            Ref::keyword("FOR"),
+                            // Column that will hold the unpivoted column names
+                            Ref::new("ColumnReferenceSegment"),
+                            Ref::keyword("IN"),
+                            // List of columns to unpivot
+                            Bracketed::new(vec_of_erased![Delimited::new(vec_of_erased![
+                                Ref::new("PivotColumnReferenceSegment")
+                            ])])
+                        ])
+                    ])
+                ]),
+                // Optional AS alias after PIVOT/UNPIVOT
+                Ref::new("AliasExpressionSegment").optional()
+            ])
             .to_matchable()
             .into(),
         ),

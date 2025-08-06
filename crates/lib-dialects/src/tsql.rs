@@ -1827,7 +1827,6 @@ pub fn raw_dialect() -> Dialect {
         .into(),
     )]);
 
-
     // Special identifier segment for bare procedure names that excludes statement keywords
     dialect.add([(
         "BareProcedureIdentifierSegment".into(),
@@ -5483,9 +5482,7 @@ pub fn raw_dialect() -> Dialect {
                     Ref::new("LimitClauseSegment").optional(),
                     Ref::new("OptionClauseSegment").optional(),
                 ])
-                .terminators(vec_of_erased![
-                    Ref::new("SetOperatorSegment"),
-                ])
+                .terminators(vec_of_erased![Ref::new("SetOperatorSegment"),])
                 .config(|this| {
                     this.parse_mode(ParseMode::GreedyOnceStarted);
                 })
@@ -10318,7 +10315,7 @@ pub fn raw_dialect() -> Dialect {
         .into(),
     )]);
 
-    // Word-aware IF statement that expects and transforms word tokens  
+    // Word-aware IF statement that expects and transforms word tokens
     dialect.add([(
         "WordAwareIfStatementSegment".into(),
         NodeMatcher::new(SyntaxKind::IfStatement, |_| {
@@ -11944,4 +11941,3 @@ pub fn raw_dialect() -> Dialect {
     dialect.expand();
     dialect
 }
-

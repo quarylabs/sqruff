@@ -49,6 +49,19 @@ Remove unnecessary SyntaxKind entries that were added for NodeMatcher and flatte
 
 All NodeMatcher instances have been successfully flattened and the corresponding SyntaxKind entries removed from syntax.rs. The TypedParser instances don't need flattening as they are already in the correct form. Tests have been updated and are passing.
 
+## Final Status
+
+### SyntaxKind entries still in syntax.rs (all legitimate):
+- **PivotColumnReference** - Used for pivot table analysis (kept intentionally)
+- **AdditionAssignmentSegment** - Lexer token for += operator
+- **SubtractionAssignmentSegment** - Lexer token for -= operator  
+- **MultiplicationAssignmentSegment** - Lexer token for *= operator
+- **DivisionAssignmentSegment** - Lexer token for /= operator
+- **ModulusAssignmentSegment** - Lexer token for %= operator
+
+All of these are legitimate uses where SyntaxKind is needed, not unnecessary NodeMatcher wrappers.
+
 ## Commits Created
 - First batch: "fix: Flatten NodeMatcher instances in T-SQL dialect (part 1)"
 - Second batch: "fix: Complete NodeMatcher flattening for T-SQL dialect"
+- Final cleanup: "fix: Remove unused TryCatchStatement SyntaxKind"

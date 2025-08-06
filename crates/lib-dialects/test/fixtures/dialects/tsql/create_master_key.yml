@@ -1,93 +1,85 @@
 file:
 - batch:
   - statement:
-    - create_master_key_statement:
-      - keyword: CREATE
-      - keyword: MASTER
-      - keyword: KEY
-      - keyword: ENCRYPTION
-      - keyword: BY
-      - keyword: PASSWORD
-      - comparison_operator:
-        - raw_comparison_operator: =
-      - quoted_literal: '''<strong password>'''
+    - keyword: CREATE
+    - keyword: MASTER
+    - keyword: KEY
+    - keyword: ENCRYPTION
+    - keyword: BY
+    - keyword: PASSWORD
+    - comparison_operator:
+      - raw_comparison_operator: =
+    - quoted_literal: '''<strong password>'''
   - statement_terminator: ;
   - statement:
-    - create_master_key_statement:
-      - keyword: CREATE
-      - keyword: MASTER
-      - keyword: KEY
+    - keyword: CREATE
+    - keyword: MASTER
+    - keyword: KEY
   - statement_terminator: ;
   - statement:
-    - alter_master_key_statement:
-      - keyword: ALTER
-      - keyword: MASTER
-      - keyword: KEY
-      - keyword: REGENERATE
-      - keyword: WITH
-      - keyword: ENCRYPTION
-      - keyword: BY
-      - keyword: PASSWORD
-      - comparison_operator:
-        - raw_comparison_operator: =
-      - quoted_literal: '''<even stronger password>'''
+    - keyword: ALTER
+    - keyword: MASTER
+    - keyword: KEY
+    - keyword: REGENERATE
+    - keyword: WITH
+    - keyword: ENCRYPTION
+    - keyword: BY
+    - keyword: PASSWORD
+    - comparison_operator:
+      - raw_comparison_operator: =
+    - quoted_literal: '''<even stronger password>'''
   - statement_terminator: ;
   - statement:
-    - alter_master_key_statement:
-      - keyword: ALTER
-      - keyword: MASTER
-      - keyword: KEY
-      - keyword: FORCE
-      - keyword: REGENERATE
-      - keyword: WITH
-      - keyword: ENCRYPTION
-      - keyword: BY
-      - keyword: PASSWORD
-      - comparison_operator:
-        - raw_comparison_operator: =
-      - quoted_literal: '''<even stronger password>'''
+    - keyword: ALTER
+    - keyword: MASTER
+    - keyword: KEY
+    - keyword: FORCE
+    - keyword: REGENERATE
+    - keyword: WITH
+    - keyword: ENCRYPTION
+    - keyword: BY
+    - keyword: PASSWORD
+    - comparison_operator:
+      - raw_comparison_operator: =
+    - quoted_literal: '''<even stronger password>'''
   - statement_terminator: ;
   - statement:
-    - alter_master_key_statement:
-      - keyword: ALTER
-      - keyword: MASTER
-      - keyword: KEY
-      - keyword: ADD
-      - keyword: ENCRYPTION
-      - keyword: BY
-      - keyword: PASSWORD
-      - comparison_operator:
-        - raw_comparison_operator: =
-      - quoted_literal: '''<even stronger password>'''
+    - keyword: ALTER
+    - keyword: MASTER
+    - keyword: KEY
+    - keyword: ADD
+    - keyword: ENCRYPTION
+    - keyword: BY
+    - keyword: PASSWORD
+    - comparison_operator:
+      - raw_comparison_operator: =
+    - quoted_literal: '''<even stronger password>'''
   - statement_terminator: ;
   - statement:
-    - alter_master_key_statement:
-      - keyword: ALTER
-      - keyword: MASTER
-      - keyword: KEY
-      - keyword: ADD
-      - keyword: ENCRYPTION
-      - keyword: BY
-      - keyword: SERVICE
-      - keyword: MASTER
-      - keyword: KEY
+    - keyword: ALTER
+    - keyword: MASTER
+    - keyword: KEY
+    - keyword: ADD
+    - keyword: ENCRYPTION
+    - keyword: BY
+    - keyword: SERVICE
+    - keyword: MASTER
+    - keyword: KEY
   - statement_terminator: ;
   - statement:
-    - alter_master_key_statement:
-      - keyword: ALTER
-      - keyword: MASTER
-      - keyword: KEY
-      - keyword: DROP
-      - keyword: ENCRYPTION
-      - keyword: BY
-      - keyword: PASSWORD
-      - comparison_operator:
-        - raw_comparison_operator: =
-      - quoted_literal: '''<even stronger password>'''
+    - keyword: ALTER
+    - keyword: MASTER
+    - keyword: KEY
+    - keyword: DROP
+    - keyword: ENCRYPTION
+    - keyword: BY
+    - keyword: PASSWORD
+    - comparison_operator:
+      - raw_comparison_operator: =
+    - quoted_literal: '''<even stronger password>'''
   - statement_terminator: ;
   - statement:
-    - drop_master_key_statement:
-      - keyword: DROP
-      - keyword: MASTER
-      - keyword: KEY
+    - keyword: DROP
+    - keyword: MASTER
+    - keyword: KEY
   - statement_terminator: ;

@@ -6871,20 +6871,17 @@ pub fn raw_dialect() -> Dialect {
     // CREATE EXTERNAL DATA SOURCE
     dialect.add([(
         "CreateExternalDataSourceStatementSegment".into(),
-        NodeMatcher::new(SyntaxKind::CreateExternalDataSourceStatement, |_| {
-            Sequence::new(vec_of_erased![
-                Ref::keyword("CREATE"),
-                Ref::keyword("EXTERNAL"),
-                Ref::keyword("DATA"),
-                Ref::keyword("SOURCE"),
-                Ref::new("ObjectReferenceSegment"),
-                Ref::keyword("WITH"),
-                Bracketed::new(vec_of_erased![Delimited::new(vec_of_erased![Ref::new(
-                    "ExternalDataSourceOptionGrammar"
-                )])])
-            ])
-            .to_matchable()
-        })
+        Sequence::new(vec_of_erased![
+            Ref::keyword("CREATE"),
+            Ref::keyword("EXTERNAL"),
+            Ref::keyword("DATA"),
+            Ref::keyword("SOURCE"),
+            Ref::new("ObjectReferenceSegment"),
+            Ref::keyword("WITH"),
+            Bracketed::new(vec_of_erased![Delimited::new(vec_of_erased![Ref::new(
+                "ExternalDataSourceOptionGrammar"
+            )])])
+        ])
         .to_matchable()
         .into(),
     )]);
@@ -6924,20 +6921,17 @@ pub fn raw_dialect() -> Dialect {
     // CREATE EXTERNAL FILE FORMAT
     dialect.add([(
         "CreateExternalFileFormatStatementSegment".into(),
-        NodeMatcher::new(SyntaxKind::CreateExternalFileFormatStatement, |_| {
-            Sequence::new(vec_of_erased![
-                Ref::keyword("CREATE"),
-                Ref::keyword("EXTERNAL"),
-                Ref::keyword("FILE"),
-                Ref::keyword("FORMAT"),
-                Ref::new("ObjectReferenceSegment"),
-                Ref::keyword("WITH"),
-                Bracketed::new(vec_of_erased![Delimited::new(vec_of_erased![Ref::new(
-                    "ExternalFileFormatOptionGrammar"
-                )])])
-            ])
-            .to_matchable()
-        })
+        Sequence::new(vec_of_erased![
+            Ref::keyword("CREATE"),
+            Ref::keyword("EXTERNAL"),
+            Ref::keyword("FILE"),
+            Ref::keyword("FORMAT"),
+            Ref::new("ObjectReferenceSegment"),
+            Ref::keyword("WITH"),
+            Bracketed::new(vec_of_erased![Delimited::new(vec_of_erased![Ref::new(
+                "ExternalFileFormatOptionGrammar"
+            )])])
+        ])
         .to_matchable()
         .into(),
     )]);
@@ -7045,60 +7039,57 @@ pub fn raw_dialect() -> Dialect {
     // CREATE LOGIN
     dialect.add([(
         "CreateLoginStatementSegment".into(),
-        NodeMatcher::new(SyntaxKind::CreateLoginStatement, |_| {
-            Sequence::new(vec_of_erased![
-                Ref::keyword("CREATE"),
-                Ref::keyword("LOGIN"),
-                Ref::new("ObjectReferenceSegment"),
-                one_of(vec_of_erased![
-                    // WITH PASSWORD = 'password' [MUST_CHANGE] [, options] [FROM WINDOWS]
-                    Sequence::new(vec_of_erased![
-                        Ref::keyword("WITH"),
-                        Ref::keyword("PASSWORD"),
-                        Ref::new("EqualsSegment"),
-                        Ref::new("QuotedLiteralSegment"),
-                        Ref::keyword("MUST_CHANGE").optional(),
-                        // Additional options after MUST_CHANGE
-                        AnyNumberOf::new(vec_of_erased![Sequence::new(vec_of_erased![
-                            Ref::new("CommaSegment"),
-                            Ref::new("LoginOptionGrammar")
-                        ])]),
-                        // Optional FROM WINDOWS after password options
-                        Sequence::new(vec_of_erased![
-                            Ref::keyword("FROM"),
-                            Ref::keyword("WINDOWS")
-                        ])
-                        .config(|this| this.optional())
-                    ]),
-                    // FROM WINDOWS
+        Sequence::new(vec_of_erased![
+            Ref::keyword("CREATE"),
+            Ref::keyword("LOGIN"),
+            Ref::new("ObjectReferenceSegment"),
+            one_of(vec_of_erased![
+                // WITH PASSWORD = 'password' [MUST_CHANGE] [, options] [FROM WINDOWS]
+                Sequence::new(vec_of_erased![
+                    Ref::keyword("WITH"),
+                    Ref::keyword("PASSWORD"),
+                    Ref::new("EqualsSegment"),
+                    Ref::new("QuotedLiteralSegment"),
+                    Ref::keyword("MUST_CHANGE").optional(),
+                    // Additional options after MUST_CHANGE
+                    AnyNumberOf::new(vec_of_erased![Sequence::new(vec_of_erased![
+                        Ref::new("CommaSegment"),
+                        Ref::new("LoginOptionGrammar")
+                    ])]),
+                    // Optional FROM WINDOWS after password options
                     Sequence::new(vec_of_erased![
                         Ref::keyword("FROM"),
                         Ref::keyword("WINDOWS")
-                    ]),
-                    // FROM EXTERNAL PROVIDER
-                    Sequence::new(vec_of_erased![
-                        Ref::keyword("FROM"),
-                        Ref::keyword("EXTERNAL"),
-                        Ref::keyword("PROVIDER")
-                    ]),
-                    // FROM CERTIFICATE certificate_name
-                    Sequence::new(vec_of_erased![
-                        Ref::keyword("FROM"),
-                        Ref::keyword("CERTIFICATE"),
-                        Ref::new("ObjectReferenceSegment")
-                    ]),
-                    // FROM ASYMMETRIC KEY key_name
-                    Sequence::new(vec_of_erased![
-                        Ref::keyword("FROM"),
-                        Ref::keyword("ASYMMETRIC"),
-                        Ref::keyword("KEY"),
-                        Ref::new("ObjectReferenceSegment")
                     ])
+                    .config(|this| this.optional())
+                ]),
+                // FROM WINDOWS
+                Sequence::new(vec_of_erased![
+                    Ref::keyword("FROM"),
+                    Ref::keyword("WINDOWS")
+                ]),
+                // FROM EXTERNAL PROVIDER
+                Sequence::new(vec_of_erased![
+                    Ref::keyword("FROM"),
+                    Ref::keyword("EXTERNAL"),
+                    Ref::keyword("PROVIDER")
+                ]),
+                // FROM CERTIFICATE certificate_name
+                Sequence::new(vec_of_erased![
+                    Ref::keyword("FROM"),
+                    Ref::keyword("CERTIFICATE"),
+                    Ref::new("ObjectReferenceSegment")
+                ]),
+                // FROM ASYMMETRIC KEY key_name
+                Sequence::new(vec_of_erased![
+                    Ref::keyword("FROM"),
+                    Ref::keyword("ASYMMETRIC"),
+                    Ref::keyword("KEY"),
+                    Ref::new("ObjectReferenceSegment")
                 ])
-                .config(|this| this.optional())
             ])
-            .to_matchable()
-        })
+            .config(|this| this.optional())
+        ])
         .to_matchable()
         .into(),
     )]);
@@ -7265,33 +7256,30 @@ pub fn raw_dialect() -> Dialect {
     // CREATE SECURITY POLICY
     dialect.add([(
         "CreateSecurityPolicyStatementSegment".into(),
-        NodeMatcher::new(SyntaxKind::CreateSecurityPolicyStatement, |_| {
+        Sequence::new(vec_of_erased![
+            Ref::keyword("CREATE"),
+            Ref::keyword("SECURITY"),
+            Ref::keyword("POLICY"),
+            Ref::new("ObjectReferenceSegment"),
+            // One or more ADD clauses
+            AnyNumberOf::new(vec_of_erased![Ref::new("SecurityPolicyAddClause")])
+                .config(|this| this.min_times(1)),
+            // Optional WITH clause
             Sequence::new(vec_of_erased![
-                Ref::keyword("CREATE"),
-                Ref::keyword("SECURITY"),
-                Ref::keyword("POLICY"),
-                Ref::new("ObjectReferenceSegment"),
-                // One or more ADD clauses
-                AnyNumberOf::new(vec_of_erased![Ref::new("SecurityPolicyAddClause")])
-                    .config(|this| this.min_times(1)),
-                // Optional WITH clause
-                Sequence::new(vec_of_erased![
-                    Ref::keyword("WITH"),
-                    Bracketed::new(vec_of_erased![Delimited::new(vec_of_erased![Ref::new(
-                        "SecurityPolicyOptionGrammar"
-                    )])])
-                ])
-                .config(|this| this.optional()),
-                // Optional NOT FOR REPLICATION
-                Sequence::new(vec_of_erased![
-                    Ref::keyword("NOT"),
-                    Ref::keyword("FOR"),
-                    Ref::keyword("REPLICATION")
-                ])
-                .config(|this| this.optional())
+                Ref::keyword("WITH"),
+                Bracketed::new(vec_of_erased![Delimited::new(vec_of_erased![Ref::new(
+                    "SecurityPolicyOptionGrammar"
+                )])])
             ])
-            .to_matchable()
-        })
+            .config(|this| this.optional()),
+            // Optional NOT FOR REPLICATION
+            Sequence::new(vec_of_erased![
+                Ref::keyword("NOT"),
+                Ref::keyword("FOR"),
+                Ref::keyword("REPLICATION")
+            ])
+            .config(|this| this.optional())
+        ])
         .to_matchable()
         .into(),
     )]);
@@ -7351,38 +7339,35 @@ pub fn raw_dialect() -> Dialect {
     // ALTER SECURITY POLICY
     dialect.add([(
         "AlterSecurityPolicyStatementSegment".into(),
-        NodeMatcher::new(SyntaxKind::AlterSecurityPolicyStatement, |_| {
-            Sequence::new(vec_of_erased![
-                Ref::keyword("ALTER"),
-                Ref::keyword("SECURITY"),
-                Ref::keyword("POLICY"),
-                Ref::new("ObjectReferenceSegment"),
-                one_of(vec_of_erased![
-                    // ADD/DROP/ALTER clauses
-                    AnyNumberOf::new(vec_of_erased![one_of(vec_of_erased![
-                        Ref::new("SecurityPolicyAddClause"),
-                        Ref::new("SecurityPolicyDropClause"),
-                        Ref::new("SecurityPolicyAlterClause")
-                    ])])
-                    .config(|this| this.min_times(1)),
-                    // WITH clause only
-                    Sequence::new(vec_of_erased![
-                        Ref::keyword("WITH"),
-                        Bracketed::new(vec_of_erased![Delimited::new(vec_of_erased![Ref::new(
-                            "SecurityPolicyOptionGrammar"
-                        )])])
-                    ])
-                ]),
-                // Optional NOT FOR REPLICATION
+        Sequence::new(vec_of_erased![
+            Ref::keyword("ALTER"),
+            Ref::keyword("SECURITY"),
+            Ref::keyword("POLICY"),
+            Ref::new("ObjectReferenceSegment"),
+            one_of(vec_of_erased![
+                // ADD/DROP/ALTER clauses
+                AnyNumberOf::new(vec_of_erased![one_of(vec_of_erased![
+                    Ref::new("SecurityPolicyAddClause"),
+                    Ref::new("SecurityPolicyDropClause"),
+                    Ref::new("SecurityPolicyAlterClause")
+                ])])
+                .config(|this| this.min_times(1)),
+                // WITH clause only
                 Sequence::new(vec_of_erased![
-                    Ref::keyword("NOT"),
-                    Ref::keyword("FOR"),
-                    Ref::keyword("REPLICATION")
+                    Ref::keyword("WITH"),
+                    Bracketed::new(vec_of_erased![Delimited::new(vec_of_erased![Ref::new(
+                        "SecurityPolicyOptionGrammar"
+                    )])])
                 ])
-                .config(|this| this.optional())
+            ]),
+            // Optional NOT FOR REPLICATION
+            Sequence::new(vec_of_erased![
+                Ref::keyword("NOT"),
+                Ref::keyword("FOR"),
+                Ref::keyword("REPLICATION")
             ])
-            .to_matchable()
-        })
+            .config(|this| this.optional())
+        ])
         .to_matchable()
         .into(),
     )]);
@@ -7439,16 +7424,13 @@ pub fn raw_dialect() -> Dialect {
     // DROP SECURITY POLICY
     dialect.add([(
         "DropSecurityPolicyStatementSegment".into(),
-        NodeMatcher::new(SyntaxKind::DropSecurityPolicyStatement, |_| {
-            Sequence::new(vec_of_erased![
-                Ref::keyword("DROP"),
-                Ref::keyword("SECURITY"),
-                Ref::keyword("POLICY"),
-                Ref::new("IfExistsGrammar").optional(),
-                Ref::new("ObjectReferenceSegment")
-            ])
-            .to_matchable()
-        })
+        Sequence::new(vec_of_erased![
+            Ref::keyword("DROP"),
+            Ref::keyword("SECURITY"),
+            Ref::keyword("POLICY"),
+            Ref::new("IfExistsGrammar").optional(),
+            Ref::new("ObjectReferenceSegment")
+        ])
         .to_matchable()
         .into(),
     )]);
@@ -8063,45 +8045,42 @@ pub fn raw_dialect() -> Dialect {
     // DECLARE CURSOR statement
     dialect.add([(
         "DeclareCursorStatementSegment".into(),
-        NodeMatcher::new(SyntaxKind::DeclareCursorStatement, |_| {
-            Sequence::new(vec_of_erased![
-                Ref::keyword("DECLARE"),
-                Ref::new("NakedIdentifierSegment"),
-                Ref::keyword("CURSOR"),
-                // Optional scope
-                one_of(vec_of_erased![
-                    Ref::keyword("LOCAL"),
-                    Ref::keyword("GLOBAL")
-                ])
-                .config(|this| this.optional()),
-                // Optional scroll behavior
-                one_of(vec_of_erased![
-                    Ref::keyword("FORWARD_ONLY"),
-                    Ref::keyword("SCROLL")
-                ])
-                .config(|this| this.optional()),
-                // Optional cursor type
-                one_of(vec_of_erased![
-                    Ref::keyword("STATIC"),
-                    Ref::keyword("KEYSET"),
-                    Ref::keyword("DYNAMIC"),
-                    Ref::keyword("FAST_FORWARD")
-                ])
-                .config(|this| this.optional()),
-                // Optional concurrency
-                one_of(vec_of_erased![
-                    Ref::keyword("READ_ONLY"),
-                    Ref::keyword("SCROLL_LOCKS"),
-                    Ref::keyword("OPTIMISTIC")
-                ])
-                .config(|this| this.optional()),
-                // Optional TYPE_WARNING
-                Ref::keyword("TYPE_WARNING").optional(),
-                Ref::keyword("FOR"),
-                Ref::new("SelectStatementSegment")
+        Sequence::new(vec_of_erased![
+            Ref::keyword("DECLARE"),
+            Ref::new("NakedIdentifierSegment"),
+            Ref::keyword("CURSOR"),
+            // Optional scope
+            one_of(vec_of_erased![
+                Ref::keyword("LOCAL"),
+                Ref::keyword("GLOBAL")
             ])
-            .to_matchable()
-        })
+            .config(|this| this.optional()),
+            // Optional scroll behavior
+            one_of(vec_of_erased![
+                Ref::keyword("FORWARD_ONLY"),
+                Ref::keyword("SCROLL")
+            ])
+            .config(|this| this.optional()),
+            // Optional cursor type
+            one_of(vec_of_erased![
+                Ref::keyword("STATIC"),
+                Ref::keyword("KEYSET"),
+                Ref::keyword("DYNAMIC"),
+                Ref::keyword("FAST_FORWARD")
+            ])
+            .config(|this| this.optional()),
+            // Optional concurrency
+            one_of(vec_of_erased![
+                Ref::keyword("READ_ONLY"),
+                Ref::keyword("SCROLL_LOCKS"),
+                Ref::keyword("OPTIMISTIC")
+            ])
+            .config(|this| this.optional()),
+            // Optional TYPE_WARNING
+            Ref::keyword("TYPE_WARNING").optional(),
+            Ref::keyword("FOR"),
+            Ref::new("SelectStatementSegment")
+        ])
         .to_matchable()
         .into(),
     )]);
@@ -8470,23 +8449,20 @@ pub fn raw_dialect() -> Dialect {
         // T-SQL JSON null handling clause for JSON_ARRAY and JSON_OBJECT
         (
             "TsqlJsonNullClause".into(),
-            NodeMatcher::new(SyntaxKind::JsonNullClause, |_| {
-                one_of(vec_of_erased![
-                    Sequence::new(vec_of_erased![
-                        Ref::keyword("NULL"),
-                        Ref::keyword("ON"),
-                        Ref::keyword("NULL")
-                    ]),
-                    Sequence::new(vec_of_erased![
-                        Ref::keyword("ABSENT"),
-                        Ref::keyword("ON"),
-                        Ref::keyword("NULL")
-                    ]),
-                    // Just ON NULL by itself
-                    Sequence::new(vec_of_erased![Ref::keyword("ON"), Ref::keyword("NULL")])
-                ])
-                .to_matchable()
-            })
+            one_of(vec_of_erased![
+                Sequence::new(vec_of_erased![
+                    Ref::keyword("NULL"),
+                    Ref::keyword("ON"),
+                    Ref::keyword("NULL")
+                ]),
+                Sequence::new(vec_of_erased![
+                    Ref::keyword("ABSENT"),
+                    Ref::keyword("ON"),
+                    Ref::keyword("NULL")
+                ]),
+                // Just ON NULL by itself
+                Sequence::new(vec_of_erased![Ref::keyword("ON"), Ref::keyword("NULL")])
+            ])
             .to_matchable()
             .into(),
         ),
@@ -8806,112 +8782,100 @@ pub fn raw_dialect() -> Dialect {
     dialect.add([
         (
             "CreateDatabaseScopedCredentialStatementSegment".into(),
-            NodeMatcher::new(SyntaxKind::CreateDatabaseScopedCredentialStatement, |_| {
-                Sequence::new(vec_of_erased![
-                    Ref::keyword("CREATE"),
-                    Ref::keyword("DATABASE"),
-                    Ref::keyword("SCOPED"),
-                    Ref::keyword("CREDENTIAL"),
-                    Ref::new("ObjectReferenceSegment"), // credential_name
-                    Ref::keyword("WITH"),
-                    Ref::new("TsqlCredentialGrammar") // IDENTITY = 'value' [, SECRET = 'value']
-                ])
-                .to_matchable()
-            })
+            Sequence::new(vec_of_erased![
+                Ref::keyword("CREATE"),
+                Ref::keyword("DATABASE"),
+                Ref::keyword("SCOPED"),
+                Ref::keyword("CREDENTIAL"),
+                Ref::new("ObjectReferenceSegment"), // credential_name
+                Ref::keyword("WITH"),
+                Ref::new("TsqlCredentialGrammar") // IDENTITY = 'value' [, SECRET = 'value']
+            ])
             .to_matchable()
             .into(),
         ),
         // CREATE MASTER KEY statement
         (
             "CreateMasterKeyStatementSegment".into(),
-            NodeMatcher::new(SyntaxKind::CreateMasterKeyStatement, |_| {
+            Sequence::new(vec_of_erased![
+                Ref::keyword("CREATE"),
+                StringParser::new("MASTER", SyntaxKind::Keyword),
+                Ref::keyword("KEY"),
                 Sequence::new(vec_of_erased![
-                    Ref::keyword("CREATE"),
-                    StringParser::new("MASTER", SyntaxKind::Keyword),
-                    Ref::keyword("KEY"),
-                    Sequence::new(vec_of_erased![
-                        Ref::keyword("ENCRYPTION"),
-                        Ref::keyword("BY"),
-                        Ref::keyword("PASSWORD"),
-                        Ref::new("EqualsSegment"),
-                        Ref::new("QuotedLiteralSegment")
-                    ])
-                    .config(|this| this.optional())
+                    Ref::keyword("ENCRYPTION"),
+                    Ref::keyword("BY"),
+                    Ref::keyword("PASSWORD"),
+                    Ref::new("EqualsSegment"),
+                    Ref::new("QuotedLiteralSegment")
                 ])
-                .to_matchable()
-            })
+                .config(|this| this.optional())
+            ])
             .to_matchable()
             .into(),
         ),
         // ALTER MASTER KEY statement
         (
             "AlterMasterKeyStatementSegment".into(),
-            NodeMatcher::new(SyntaxKind::AlterMasterKeyStatement, |_| {
-                Sequence::new(vec_of_erased![
-                    Ref::keyword("ALTER"),
-                    StringParser::new("MASTER", SyntaxKind::Keyword),
-                    Ref::keyword("KEY"),
-                    one_of(vec_of_erased![
-                        // FORCE REGENERATE WITH ENCRYPTION BY PASSWORD = 'password'
-                        Sequence::new(vec_of_erased![
-                            Sequence::new(vec_of_erased![StringParser::new(
-                                "FORCE",
-                                SyntaxKind::Keyword
-                            ),])
-                            .config(|this| this.optional()),
-                            StringParser::new("REGENERATE", SyntaxKind::Keyword),
-                            Ref::keyword("WITH"),
-                            Ref::keyword("ENCRYPTION"),
-                            Ref::keyword("BY"),
-                            Ref::keyword("PASSWORD"),
-                            Ref::new("EqualsSegment"),
-                            Ref::new("QuotedLiteralSegment")
-                        ]),
-                        // ADD ENCRYPTION BY PASSWORD = 'password'
-                        Sequence::new(vec_of_erased![
-                            Ref::keyword("ADD"),
-                            Ref::keyword("ENCRYPTION"),
-                            Ref::keyword("BY"),
-                            one_of(vec_of_erased![
-                                Sequence::new(vec_of_erased![
-                                    Ref::keyword("PASSWORD"),
-                                    Ref::new("EqualsSegment"),
-                                    Ref::new("QuotedLiteralSegment")
-                                ]),
-                                Sequence::new(vec_of_erased![
-                                    Ref::keyword("SERVICE"),
-                                    StringParser::new("MASTER", SyntaxKind::Keyword),
-                                    Ref::keyword("KEY")
-                                ])
+            Sequence::new(vec_of_erased![
+                Ref::keyword("ALTER"),
+                StringParser::new("MASTER", SyntaxKind::Keyword),
+                Ref::keyword("KEY"),
+                one_of(vec_of_erased![
+                    // FORCE REGENERATE WITH ENCRYPTION BY PASSWORD = 'password'
+                    Sequence::new(vec_of_erased![
+                        Sequence::new(vec_of_erased![StringParser::new(
+                            "FORCE",
+                            SyntaxKind::Keyword
+                        ),])
+                        .config(|this| this.optional()),
+                        StringParser::new("REGENERATE", SyntaxKind::Keyword),
+                        Ref::keyword("WITH"),
+                        Ref::keyword("ENCRYPTION"),
+                        Ref::keyword("BY"),
+                        Ref::keyword("PASSWORD"),
+                        Ref::new("EqualsSegment"),
+                        Ref::new("QuotedLiteralSegment")
+                    ]),
+                    // ADD ENCRYPTION BY PASSWORD = 'password'
+                    Sequence::new(vec_of_erased![
+                        Ref::keyword("ADD"),
+                        Ref::keyword("ENCRYPTION"),
+                        Ref::keyword("BY"),
+                        one_of(vec_of_erased![
+                            Sequence::new(vec_of_erased![
+                                Ref::keyword("PASSWORD"),
+                                Ref::new("EqualsSegment"),
+                                Ref::new("QuotedLiteralSegment")
+                            ]),
+                            Sequence::new(vec_of_erased![
+                                Ref::keyword("SERVICE"),
+                                StringParser::new("MASTER", SyntaxKind::Keyword),
+                                Ref::keyword("KEY")
                             ])
-                        ]),
-                        // DROP ENCRYPTION BY PASSWORD = 'password'
-                        Sequence::new(vec_of_erased![
-                            Ref::keyword("DROP"),
-                            Ref::keyword("ENCRYPTION"),
-                            Ref::keyword("BY"),
-                            Ref::keyword("PASSWORD"),
-                            Ref::new("EqualsSegment"),
-                            Ref::new("QuotedLiteralSegment")
                         ])
+                    ]),
+                    // DROP ENCRYPTION BY PASSWORD = 'password'
+                    Sequence::new(vec_of_erased![
+                        Ref::keyword("DROP"),
+                        Ref::keyword("ENCRYPTION"),
+                        Ref::keyword("BY"),
+                        Ref::keyword("PASSWORD"),
+                        Ref::new("EqualsSegment"),
+                        Ref::new("QuotedLiteralSegment")
                     ])
                 ])
-                .to_matchable()
-            })
+            ])
             .to_matchable()
             .into(),
         ),
         // DROP MASTER KEY statement
         (
             "DropMasterKeyStatementSegment".into(),
-            NodeMatcher::new(SyntaxKind::DropMasterKeyStatement, |_| {
-                Sequence::new(vec_of_erased![
-                    Ref::keyword("DROP"),
-                    StringParser::new("MASTER", SyntaxKind::Keyword),
-                    Ref::keyword("KEY")
-                ])
-                .to_matchable()
-            })
+            Sequence::new(vec_of_erased![
+                Ref::keyword("DROP"),
+                StringParser::new("MASTER", SyntaxKind::Keyword),
+                Ref::keyword("KEY")
+            ])
             .to_matchable()
             .into(),
         ),

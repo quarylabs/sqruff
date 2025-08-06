@@ -11,10 +11,9 @@ file:
                 - function_name_identifier: JSON_OBJECT
               - bracketed:
                 - start_bracket: (
-                - json_null_clause:
-                  - keyword: ABSENT
-                  - keyword: ON
-                  - keyword: 'NULL'
+                - keyword: ABSENT
+                - keyword: ON
+                - keyword: 'NULL'
                 - end_bracket: )
   - statement_terminator: ;
   - statement:
@@ -66,9 +65,8 @@ file:
                 - comma: ','
                 - expression:
                   - null_literal: 'NULL'
-                - json_null_clause:
-                  - keyword: ON
-                  - keyword: 'NULL'
+                - keyword: ON
+                - keyword: 'NULL'
                 - end_bracket: )
   - statement_terminator: ;
   - statement:
@@ -117,10 +115,9 @@ file:
                 - colon: ':'
                 - expression:
                   - null_literal: 'NULL'
-                - json_null_clause:
-                  - keyword: ABSENT
-                  - keyword: ON
-                  - keyword: 'NULL'
+                - keyword: ABSENT
+                - keyword: ON
+                - keyword: 'NULL'
                 - end_bracket: )
   - statement_terminator: ;
   - statement:
@@ -438,10 +435,9 @@ file:
                         - expression:
                           - numeric_literal: '2'
                         - end_bracket: )
-                - json_null_clause:
-                  - keyword: 'NULL'
-                  - keyword: ON
-                  - keyword: 'NULL'
+                - keyword: 'NULL'
+                - keyword: ON
+                - keyword: 'NULL'
                 - end_bracket: )
   - statement_terminator: ;
   - statement:

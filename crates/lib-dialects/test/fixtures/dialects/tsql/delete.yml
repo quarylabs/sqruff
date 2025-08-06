@@ -83,84 +83,83 @@ file:
   - statement_terminator: ;
   - keyword: GO
   - statement:
-    - declare_cursor_statement:
-      - keyword: DECLARE
-      - naked_identifier: complex_cursor
-      - keyword: CURSOR
-      - keyword: FOR
-      - select_statement:
-        - select_clause:
-          - keyword: SELECT
-          - select_clause_element:
-            - column_reference:
+    - keyword: DECLARE
+    - naked_identifier: complex_cursor
+    - keyword: CURSOR
+    - keyword: FOR
+    - select_statement:
+      - select_clause:
+        - keyword: SELECT
+        - select_clause_element:
+          - column_reference:
+            - naked_identifier: a
+            - dot: .
+            - naked_identifier: BusinessEntityID
+      - from_clause:
+        - keyword: FROM
+        - from_expression:
+          - from_expression_element:
+            - table_expression:
+              - table_reference:
+                - object_reference:
+                  - naked_identifier: HumanResources
+                  - dot: .
+                  - naked_identifier: EmployeePayHistory
+            - alias_expression:
+              - keyword: AS
               - naked_identifier: a
-              - dot: .
-              - naked_identifier: BusinessEntityID
-        - from_clause:
-          - keyword: FROM
-          - from_expression:
-            - from_expression_element:
-              - table_expression:
-                - table_reference:
-                  - object_reference:
-                    - naked_identifier: HumanResources
-                    - dot: .
-                    - naked_identifier: EmployeePayHistory
-              - alias_expression:
-                - keyword: AS
-                - naked_identifier: a
-        - where_clause:
-          - keyword: WHERE
-          - expression:
-            - column_reference:
-              - naked_identifier: RateChangeDate
-            - comparison_operator:
-              - raw_comparison_operator: <
-              - raw_comparison_operator: '>'
-            - bracketed:
-              - start_bracket: (
-              - expression:
-                - select_statement:
-                  - select_clause:
-                    - keyword: SELECT
-                    - select_clause_element:
-                      - function:
-                        - function_name:
-                          - function_name_identifier: MAX
-                        - function_contents:
-                          - bracketed:
-                            - start_bracket: (
-                            - expression:
-                              - column_reference:
-                                - naked_identifier: RateChangeDate
-                            - end_bracket: )
-                  - from_clause:
-                    - keyword: FROM
-                    - from_expression:
-                      - from_expression_element:
-                        - table_expression:
-                          - table_reference:
-                            - object_reference:
-                              - naked_identifier: HumanResources
-                              - dot: .
-                              - naked_identifier: EmployeePayHistory
-                        - alias_expression:
-                          - keyword: AS
-                          - naked_identifier: b
-                  - where_clause:
-                    - keyword: WHERE
-                    - expression:
-                      - column_reference:
-                        - naked_identifier: a
-                        - dot: .
-                        - naked_identifier: BusinessEntityID
-                      - comparison_operator:
-                        - raw_comparison_operator: =
-                      - column_reference:
+      - where_clause:
+        - keyword: WHERE
+        - expression:
+          - column_reference:
+            - naked_identifier: RateChangeDate
+          - comparison_operator:
+            - raw_comparison_operator: <
+            - raw_comparison_operator: '>'
+          - bracketed:
+            - start_bracket: (
+            - expression:
+              - select_statement:
+                - select_clause:
+                  - keyword: SELECT
+                  - select_clause_element:
+                    - function:
+                      - function_name:
+                        - function_name_identifier: MAX
+                      - function_contents:
+                        - bracketed:
+                          - start_bracket: (
+                          - expression:
+                            - column_reference:
+                              - naked_identifier: RateChangeDate
+                          - end_bracket: )
+                - from_clause:
+                  - keyword: FROM
+                  - from_expression:
+                    - from_expression_element:
+                      - table_expression:
+                        - table_reference:
+                          - object_reference:
+                            - naked_identifier: HumanResources
+                            - dot: .
+                            - naked_identifier: EmployeePayHistory
+                      - alias_expression:
+                        - keyword: AS
                         - naked_identifier: b
-                        - dot: .
-                        - naked_identifier: BusinessEntityID
-              - end_bracket: )
+                - where_clause:
+                  - keyword: WHERE
+                  - expression:
+                    - column_reference:
+                      - naked_identifier: a
+                      - dot: .
+                      - naked_identifier: BusinessEntityID
+                    - comparison_operator:
+                      - raw_comparison_operator: =
+                    - column_reference:
+                      - naked_identifier: b
+                      - dot: .
+                      - naked_identifier: BusinessEntityID
+            - end_bracket: )
   - statement_terminator: ;
   - statement:
     - keyword: OPEN

@@ -428,8 +428,7 @@ file:
         - object_reference:
           - naked_identifier: FindEmployeesFunc
         - tsql_variable: '@lastName'
-        - assignment_operator:
-          - raw_comparison_operator: =
+        - raw_comparison_operator: =
         - expression:
           - quoted_literal: '''Picard'''
         - expression:

@@ -630,8 +630,7 @@ file:
             - set_clause:
               - column_reference:
                 - naked_identifier: ListPrice
-              - assignment_operator:
-                - raw_comparison_operator: =
+              - raw_comparison_operator: =
               - expression:
                 - column_reference:
                   - naked_identifier: ListPrice

@@ -45,8 +45,7 @@ file:
         - keyword: select
         - select_clause_element:
           - tsql_variable: '@userid_parameter'
-          - assignment_operator:
-            - raw_comparison_operator: =
+          - raw_comparison_operator: =
           - expression:
             - column_reference:
               - naked_identifier: c

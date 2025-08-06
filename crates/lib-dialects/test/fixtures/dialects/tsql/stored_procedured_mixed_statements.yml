@@ -40,8 +40,7 @@ file:
   - statement:
     - keyword: SET
     - tsql_variable: '@deadlock_var'
-    - assignment_operator:
-      - raw_comparison_operator: =
+    - raw_comparison_operator: =
     - expression:
       - quoted_literal: N'LOW'
   - statement_terminator: ;

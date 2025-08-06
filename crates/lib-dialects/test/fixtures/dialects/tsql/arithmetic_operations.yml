@@ -7,8 +7,7 @@ file:
       - data_type:
         - data_type:
           - data_type_identifier: INT
-      - assignment_operator:
-        - raw_comparison_operator: =
+      - raw_comparison_operator: =
       - expression:
         - numeric_literal: '0'
   - statement_terminator: ;
@@ -29,8 +28,7 @@ file:
         - keyword: SELECT
         - select_clause_element:
           - tsql_variable: '@I'
-          - assignment_operator:
-            - addition_assignment_segment: +=
+          - assignment_operator: +=
           - expression:
             - numeric_literal: '2'
   - statement_terminator: ;
@@ -51,8 +49,7 @@ file:
         - keyword: SELECT
         - select_clause_element:
           - tsql_variable: '@I'
-          - assignment_operator:
-            - subtraction_assignment_segment: -=
+          - assignment_operator: -=
           - expression:
             - numeric_literal: '4'
   - statement_terminator: ;
@@ -73,8 +70,7 @@ file:
         - keyword: SELECT
         - select_clause_element:
           - tsql_variable: '@I'
-          - assignment_operator:
-            - multiplication_assignment_segment: '*='
+          - assignment_operator: '*='
           - expression:
             - numeric_literal: '6'
   - statement_terminator: ;
@@ -95,8 +91,7 @@ file:
         - keyword: SELECT
         - select_clause_element:
           - tsql_variable: '@I'
-          - assignment_operator:
-            - division_assignment_segment: /=
+          - assignment_operator: /=
           - expression:
             - numeric_literal: '8'
   - statement_terminator: ;
@@ -117,8 +112,7 @@ file:
         - keyword: SELECT
         - select_clause_element:
           - tsql_variable: '@I'
-          - assignment_operator:
-            - modulus_assignment_segment: '%='
+          - assignment_operator: '%='
           - expression:
             - numeric_literal: '10'
   - statement_terminator: ;

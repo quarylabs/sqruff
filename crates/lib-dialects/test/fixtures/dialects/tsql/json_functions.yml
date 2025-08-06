@@ -208,8 +208,7 @@ file:
             - expression:
               - numeric_literal: '10'
             - end_bracket: )
-      - assignment_operator:
-        - raw_comparison_operator: =
+      - raw_comparison_operator: =
       - expression:
         - quoted_literal: N'id'
       - comma: ','
@@ -222,8 +221,7 @@ file:
             - expression:
               - numeric_literal: '64'
             - end_bracket: )
-      - assignment_operator:
-        - raw_comparison_operator: =
+      - raw_comparison_operator: =
       - expression:
         - function:
           - function_name:
@@ -452,8 +450,7 @@ file:
             - expression:
               - numeric_literal: '64'
             - end_bracket: )
-      - assignment_operator:
-        - raw_comparison_operator: =
+      - raw_comparison_operator: =
       - expression:
         - function:
           - function_name:

@@ -19,8 +19,7 @@ file:
         - bracketed:
           - start_bracket: (
           - keyword: MAXDOP
-          - assignment_operator:
-            - raw_comparison_operator: =
+          - raw_comparison_operator: =
           - numeric_literal: '2'
           - end_bracket: )
   - statement_terminator: ;
@@ -43,8 +42,7 @@ file:
         - bracketed:
           - start_bracket: (
           - keyword: COMPRESSION_DELAY
-          - assignment_operator:
-            - raw_comparison_operator: =
+          - raw_comparison_operator: =
           - numeric_literal: '10'
           - keyword: MINUTES
           - end_bracket: )
@@ -68,8 +66,7 @@ file:
         - bracketed:
           - start_bracket: (
           - keyword: DATA_COMPRESSION
-          - assignment_operator:
-            - raw_comparison_operator: =
+          - raw_comparison_operator: =
           - keyword: COLUMNSTORE_ARCHIVE
           - end_bracket: )
   - statement_terminator: ;
@@ -92,8 +89,7 @@ file:
         - bracketed:
           - start_bracket: (
           - keyword: ONLINE
-          - assignment_operator:
-            - raw_comparison_operator: =
+          - raw_comparison_operator: =
           - keyword: ON
           - end_bracket: )
   - statement_terminator: ;
@@ -130,8 +126,7 @@ file:
         - bracketed:
           - start_bracket: (
           - keyword: ONLINE
-          - assignment_operator:
-            - raw_comparison_operator: =
+          - raw_comparison_operator: =
           - keyword: ON
           - end_bracket: )
   - statement_terminator: ;
@@ -167,8 +162,7 @@ file:
         - bracketed:
           - start_bracket: (
           - keyword: ONLINE
-          - assignment_operator:
-            - raw_comparison_operator: =
+          - raw_comparison_operator: =
           - keyword: ON
           - end_bracket: )
   - statement_terminator: ;

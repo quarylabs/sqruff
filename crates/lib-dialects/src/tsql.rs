@@ -256,27 +256,27 @@ pub fn raw_dialect() -> Dialect {
             Matcher::string(
                 "addition_assignment",
                 "+=",
-                SyntaxKind::AdditionAssignmentSegment,
+                SyntaxKind::AssignmentOperator,
             ),
             Matcher::string(
                 "subtraction_assignment",
                 "-=",
-                SyntaxKind::SubtractionAssignmentSegment,
+                SyntaxKind::AssignmentOperator,
             ),
             Matcher::string(
                 "multiplication_assignment",
                 "*=",
-                SyntaxKind::MultiplicationAssignmentSegment,
+                SyntaxKind::AssignmentOperator,
             ),
             Matcher::string(
                 "division_assignment",
                 "/=",
-                SyntaxKind::DivisionAssignmentSegment,
+                SyntaxKind::AssignmentOperator,
             ),
             Matcher::string(
                 "modulus_assignment",
                 "%=",
-                SyntaxKind::ModulusAssignmentSegment,
+                SyntaxKind::AssignmentOperator,
             ),
         ],
         "equals",
@@ -831,29 +831,26 @@ pub fn raw_dialect() -> Dialect {
     dialect.add([
         (
             "AssignmentOperatorSegment".into(),
-            NodeMatcher::new(SyntaxKind::AssignmentOperator, |_| {
-                one_of(vec_of_erased![
-                    Ref::new("RawEqualsSegment"),
-                    Ref::new("AdditionAssignmentSegment"),
-                    Ref::new("SubtractionAssignmentSegment"),
-                    Ref::new("MultiplicationAssignmentSegment"),
-                    Ref::new("DivisionAssignmentSegment"),
-                    Ref::new("ModulusAssignmentSegment"),
-                    Ref::new("BitwiseXorAssignmentSegment"),
-                    Ref::new("BitwiseAndAssignmentSegment"),
-                    Ref::new("BitwiseOrAssignmentSegment")
-                ])
-                .to_matchable()
-            })
+            one_of(vec_of_erased![
+                Ref::new("RawEqualsSegment"),
+                Ref::new("AdditionAssignmentSegment"),
+                Ref::new("SubtractionAssignmentSegment"),
+                Ref::new("MultiplicationAssignmentSegment"),
+                Ref::new("DivisionAssignmentSegment"),
+                Ref::new("ModulusAssignmentSegment"),
+                Ref::new("BitwiseXorAssignmentSegment"),
+                Ref::new("BitwiseAndAssignmentSegment"),
+                Ref::new("BitwiseOrAssignmentSegment")
+            ])
             .to_matchable()
             .into(),
         ),
         // Addition assignment (+=) - uses lexer token
         (
             "AdditionAssignmentSegment".into(),
-            TypedParser::new(
-                SyntaxKind::AdditionAssignmentSegment,
-                SyntaxKind::AdditionAssignmentSegment,
+            StringParser::new(
+                "+=",
+                SyntaxKind::AssignmentOperator,
             )
             .to_matchable()
             .into(),
@@ -861,9 +858,9 @@ pub fn raw_dialect() -> Dialect {
         // Subtraction assignment (-=) - uses lexer token
         (
             "SubtractionAssignmentSegment".into(),
-            TypedParser::new(
-                SyntaxKind::SubtractionAssignmentSegment,
-                SyntaxKind::SubtractionAssignmentSegment,
+            StringParser::new(
+                "-=",
+                SyntaxKind::AssignmentOperator,
             )
             .to_matchable()
             .into(),
@@ -871,9 +868,9 @@ pub fn raw_dialect() -> Dialect {
         // Multiplication assignment (*=) - uses lexer token
         (
             "MultiplicationAssignmentSegment".into(),
-            TypedParser::new(
-                SyntaxKind::MultiplicationAssignmentSegment,
-                SyntaxKind::MultiplicationAssignmentSegment,
+            StringParser::new(
+                "*=",
+                SyntaxKind::AssignmentOperator,
             )
             .to_matchable()
             .into(),
@@ -881,9 +878,9 @@ pub fn raw_dialect() -> Dialect {
         // Division assignment (/=) - uses lexer token
         (
             "DivisionAssignmentSegment".into(),
-            TypedParser::new(
-                SyntaxKind::DivisionAssignmentSegment,
-                SyntaxKind::DivisionAssignmentSegment,
+            StringParser::new(
+                "/=",
+                SyntaxKind::AssignmentOperator,
             )
             .to_matchable()
             .into(),
@@ -891,9 +888,9 @@ pub fn raw_dialect() -> Dialect {
         // Modulus assignment (%=) - uses lexer token
         (
             "ModulusAssignmentSegment".into(),
-            TypedParser::new(
-                SyntaxKind::ModulusAssignmentSegment,
-                SyntaxKind::ModulusAssignmentSegment,
+            StringParser::new(
+                "%=",
+                SyntaxKind::AssignmentOperator,
             )
             .to_matchable()
             .into(),
@@ -901,39 +898,30 @@ pub fn raw_dialect() -> Dialect {
         // Bitwise XOR assignment (^=)
         (
             "BitwiseXorAssignmentSegment".into(),
-            NodeMatcher::new(SyntaxKind::AssignmentOperator, |_| {
-                Sequence::new(vec_of_erased![
-                    Ref::new("BitwiseXorSegment"),
-                    Ref::new("RawEqualsSegment")
-                ])
-                .to_matchable()
-            })
+            Sequence::new(vec_of_erased![
+                Ref::new("BitwiseXorSegment"),
+                Ref::new("RawEqualsSegment")
+            ])
             .to_matchable()
             .into(),
         ),
         // Bitwise AND assignment (&=)
         (
             "BitwiseAndAssignmentSegment".into(),
-            NodeMatcher::new(SyntaxKind::AssignmentOperator, |_| {
-                Sequence::new(vec_of_erased![
-                    Ref::new("BitwiseAndSegment"),
-                    Ref::new("RawEqualsSegment")
-                ])
-                .to_matchable()
-            })
+            Sequence::new(vec_of_erased![
+                Ref::new("BitwiseAndSegment"),
+                Ref::new("RawEqualsSegment")
+            ])
             .to_matchable()
             .into(),
         ),
         // Bitwise OR assignment (|=)
         (
             "BitwiseOrAssignmentSegment".into(),
-            NodeMatcher::new(SyntaxKind::AssignmentOperator, |_| {
-                Sequence::new(vec_of_erased![
-                    Ref::new("BitwiseOrSegment"),
-                    Ref::new("RawEqualsSegment")
-                ])
-                .to_matchable()
-            })
+            Sequence::new(vec_of_erased![
+                Ref::new("BitwiseOrSegment"),
+                Ref::new("RawEqualsSegment")
+            ])
             .to_matchable()
             .into(),
         ),

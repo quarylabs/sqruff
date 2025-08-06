@@ -15,8 +15,7 @@ file:
         - dot: .
         - naked_identifier: ProcTestDefaults
     - tsql_variable: '@p2'
-    - assignment_operator:
-      - raw_comparison_operator: =
+    - raw_comparison_operator: =
     - expression:
       - quoted_literal: '''A'''
   - statement_terminator: ;
@@ -54,15 +53,13 @@ file:
       - dot: .
       - naked_identifier: ProcTestDefaults
     - tsql_variable: '@p1'
-    - assignment_operator:
-      - raw_comparison_operator: =
+    - raw_comparison_operator: =
     - expression:
       - column_reference:
         - naked_identifier: DEFAULT
     - comma: ','
     - tsql_variable: '@p2'
-    - assignment_operator:
-      - raw_comparison_operator: =
+    - raw_comparison_operator: =
     - expression:
       - quoted_literal: '''D'''
   - statement_terminator: ;
@@ -77,14 +74,12 @@ file:
         - naked_identifier: DEFAULT
     - comma: ','
     - tsql_variable: '@p3'
-    - assignment_operator:
-      - raw_comparison_operator: =
+    - raw_comparison_operator: =
     - expression:
       - quoted_literal: '''Local'''
     - comma: ','
     - tsql_variable: '@p2'
-    - assignment_operator:
-      - raw_comparison_operator: =
+    - raw_comparison_operator: =
     - expression:
       - quoted_literal: '''E'''
   - statement_terminator: ;
@@ -119,8 +114,7 @@ file:
       - quoted_literal: '''I'''
     - comma: ','
     - tsql_variable: '@p3'
-    - assignment_operator:
-      - raw_comparison_operator: =
+    - raw_comparison_operator: =
     - expression:
       - column_reference:
         - naked_identifier: DEFAULT
@@ -130,46 +124,39 @@ file:
     - object_reference:
       - naked_identifier: sp_addextendedproperty
     - tsql_variable: '@name'
-    - assignment_operator:
-      - raw_comparison_operator: =
+    - raw_comparison_operator: =
     - expression:
       - quoted_literal: N'MS_Description'
     - comma: ','
     - tsql_variable: '@value'
-    - assignment_operator:
-      - raw_comparison_operator: =
+    - raw_comparison_operator: =
     - expression:
       - quoted_literal: '''my text description'''
     - comma: ','
     - tsql_variable: '@level0type'
-    - assignment_operator:
-      - raw_comparison_operator: =
+    - raw_comparison_operator: =
     - expression:
       - quoted_literal: N'SCHEMA'
     - comma: ','
     - tsql_variable: '@level0name'
-    - assignment_operator:
-      - raw_comparison_operator: =
+    - raw_comparison_operator: =
     - expression:
       - quoted_literal: N'my_schema_name'
     - comma: ','
     - tsql_variable: '@level1type'
-    - assignment_operator:
-      - raw_comparison_operator: =
+    - raw_comparison_operator: =
     - expression:
       - quoted_literal: N'my_object_type'
     - comma: ','
     - tsql_variable: '@level1name'
-    - assignment_operator:
-      - raw_comparison_operator: =
+    - raw_comparison_operator: =
     - expression:
       - quoted_literal: N'my_object_name'
     - expression:
       - column_reference:
         - naked_identifier: EXEC
     - tsql_variable: '@pRes'
-    - assignment_operator:
-      - raw_comparison_operator: =
+    - raw_comparison_operator: =
     - expression:
       - column_reference:
         - naked_identifier: dbo
@@ -179,15 +166,13 @@ file:
   - statement:
     - keyword: EXEC
     - tsql_variable: '@pRes'
-    - assignment_operator:
-      - raw_comparison_operator: =
+    - raw_comparison_operator: =
     - object_reference:
       - naked_identifier: dbo
       - dot: .
       - naked_identifier: ProcTestDefaults
     - tsql_variable: '@p1'
-    - assignment_operator:
-      - raw_comparison_operator: =
+    - raw_comparison_operator: =
     - expression:
       - column_reference:
         - naked_identifier: DEFAULT
@@ -195,8 +180,7 @@ file:
   - statement:
     - keyword: EXECUTE
     - tsql_variable: '@pRes'
-    - assignment_operator:
-      - raw_comparison_operator: =
+    - raw_comparison_operator: =
     - object_reference:
       - naked_identifier: dbo
       - dot: .
@@ -205,15 +189,13 @@ file:
   - statement:
     - keyword: EXECUTE
     - tsql_variable: '@pRes'
-    - assignment_operator:
-      - raw_comparison_operator: =
+    - raw_comparison_operator: =
     - object_reference:
       - naked_identifier: dbo
       - dot: .
       - naked_identifier: ProcTestDefaults
     - tsql_variable: '@p1'
-    - assignment_operator:
-      - raw_comparison_operator: =
+    - raw_comparison_operator: =
     - expression:
       - column_reference:
         - naked_identifier: DEFAULT
@@ -231,8 +213,7 @@ file:
               - column_reference:
                 - naked_identifier: max
             - end_bracket: )
-      - assignment_operator:
-        - raw_comparison_operator: =
+      - raw_comparison_operator: =
       - expression:
         - quoted_literal: '''SELECT 1'''
   - statement:
@@ -265,8 +246,7 @@ file:
             - expression:
               - numeric_literal: '10'
             - end_bracket: )
-      - assignment_operator:
-        - raw_comparison_operator: =
+      - raw_comparison_operator: =
       - expression:
         - null_literal: 'NULL'
   - statement_terminator: ;
@@ -282,24 +262,21 @@ file:
             - expression:
               - numeric_literal: '10'
             - end_bracket: )
-      - assignment_operator:
-        - raw_comparison_operator: =
+      - raw_comparison_operator: =
       - expression:
         - null_literal: 'NULL'
   - statement_terminator: ;
   - statement:
     - keyword: SET
     - tsql_variable: '@s1'
-    - assignment_operator:
-      - raw_comparison_operator: =
+    - raw_comparison_operator: =
     - expression:
       - quoted_literal: '''select '''
   - statement_terminator: ;
   - statement:
     - keyword: SET
     - tsql_variable: '@s2'
-    - assignment_operator:
-      - raw_comparison_operator: =
+    - raw_comparison_operator: =
     - expression:
       - quoted_literal: '''123'''
   - statement_terminator: ;
@@ -349,8 +326,7 @@ file:
       - dot: .
       - naked_identifier: uspGetEmployeeManagers
     - tsql_variable: '@EmployeeID'
-    - assignment_operator:
-      - raw_comparison_operator: =
+    - raw_comparison_operator: =
     - expression:
       - numeric_literal: '6'
   - statement_terminator: ;
@@ -375,8 +351,7 @@ file:
     - dot: .
     - naked_identifier: uspGetEmployeeManagers
     - tsql_variable: '@EmployeeID'
-    - assignment_operator:
-      - raw_comparison_operator: =
+    - raw_comparison_operator: =
     - expression:
       - numeric_literal: '6'
   - statement_terminator: ;
@@ -389,8 +364,7 @@ file:
       - data_type:
         - data_type:
           - data_type_identifier: DATETIME
-      - assignment_operator:
-        - raw_comparison_operator: =
+      - raw_comparison_operator: =
       - expression:
         - function:
           - function_name:
@@ -461,8 +435,7 @@ file:
   - statement:
     - keyword: EXECUTE
     - tsql_variable: '@retstat'
-    - assignment_operator:
-      - raw_comparison_operator: =
+    - raw_comparison_operator: =
     - object_reference:
       - naked_identifier: SQLSERVER1
       - dot: .
@@ -472,8 +445,7 @@ file:
       - dot: .
       - naked_identifier: uspGetEmployeeManagers
     - tsql_variable: '@BusinessEntityID'
-    - assignment_operator:
-      - raw_comparison_operator: =
+    - raw_comparison_operator: =
     - expression:
       - numeric_literal: '6'
   - statement_terminator: ;
@@ -490,8 +462,7 @@ file:
             - expression:
               - numeric_literal: '30'
             - end_bracket: )
-      - assignment_operator:
-        - raw_comparison_operator: =
+      - raw_comparison_operator: =
       - expression:
         - quoted_literal: '''sys.sp_who'''
   - statement_terminator: ;
@@ -506,15 +477,13 @@ file:
       - dot: .
       - naked_identifier: ProcTestDefaults
     - tsql_variable: '@p1'
-    - assignment_operator:
-      - raw_comparison_operator: =
+    - raw_comparison_operator: =
     - expression:
       - column_reference:
         - naked_identifier: DEFAULT
     - comma: ','
     - tsql_variable: '@p2'
-    - assignment_operator:
-      - raw_comparison_operator: =
+    - raw_comparison_operator: =
     - expression:
       - quoted_literal: '''D'''
   - statement_terminator: ;
@@ -549,8 +518,7 @@ file:
       - quoted_literal: '''I'''
     - comma: ','
     - tsql_variable: '@p3'
-    - assignment_operator:
-      - raw_comparison_operator: =
+    - raw_comparison_operator: =
     - expression:
       - column_reference:
         - naked_identifier: DEFAULT
@@ -587,8 +555,7 @@ file:
       - dot: .
       - naked_identifier: Proc_Test_Defaults
     - tsql_variable: '@p2'
-    - assignment_operator:
-      - raw_comparison_operator: =
+    - raw_comparison_operator: =
     - expression:
       - quoted_literal: '''A'''
     - keyword: WITH
@@ -611,15 +578,13 @@ file:
   - statement:
     - keyword: EXECUTE
     - tsql_variable: '@returnstatus'
-    - assignment_operator:
-      - raw_comparison_operator: =
+    - raw_comparison_operator: =
     - object_reference:
       - naked_identifier: dbo
       - dot: .
       - naked_identifier: ufnGetSalesOrderStatusText
     - tsql_variable: '@Status'
-    - assignment_operator:
-      - raw_comparison_operator: =
+    - raw_comparison_operator: =
     - expression:
       - numeric_literal: '2'
   - statement_terminator: ;

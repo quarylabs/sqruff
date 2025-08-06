@@ -32,8 +32,7 @@ file:
               - set_clause:
                 - column_reference:
                   - naked_identifier: status
-                - assignment_operator:
-                  - raw_comparison_operator: =
+                - raw_comparison_operator: =
                 - expression:
                   - quoted_literal: '''Active'''
           - statement_terminator: ;

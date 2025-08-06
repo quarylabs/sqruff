@@ -15,8 +15,7 @@ file:
             - set_clause:
               - column_reference:
                 - quoted_identifier: '[Flg]'
-              - assignment_operator:
-                - raw_comparison_operator: =
+              - raw_comparison_operator: =
               - expression:
                 - numeric_literal: '1'
         - where_clause:
@@ -70,8 +69,7 @@ file:
                 - naked_identifier: tt
                 - dot: .
                 - naked_identifier: rn
-              - assignment_operator:
-                - addition_assignment_segment: +=
+              - assignment_operator: +=
               - expression:
                 - numeric_literal: '1'
         - from_clause:
@@ -120,8 +118,7 @@ file:
             - set_clause:
               - column_reference:
                 - naked_identifier: deleted
-              - assignment_operator:
-                - raw_comparison_operator: =
+              - raw_comparison_operator: =
               - expression:
                 - numeric_literal: '1'
         - keyword: OUTPUT

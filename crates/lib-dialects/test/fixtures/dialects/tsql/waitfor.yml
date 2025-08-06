@@ -5,8 +5,7 @@ file:
     - object_reference:
       - naked_identifier: sp_add_job
     - tsql_variable: '@job_name'
-    - assignment_operator:
-      - raw_comparison_operator: =
+    - raw_comparison_operator: =
     - expression:
       - quoted_literal: '''TestJob'''
   - statement_terminator: ;
@@ -23,14 +22,12 @@ file:
       - object_reference:
         - naked_identifier: sp_update_job
       - tsql_variable: '@job_name'
-      - assignment_operator:
-        - raw_comparison_operator: =
+      - raw_comparison_operator: =
       - expression:
         - quoted_literal: '''TestJob'''
       - comma: ','
       - tsql_variable: '@new_name'
-      - assignment_operator:
-        - raw_comparison_operator: =
+      - raw_comparison_operator: =
       - expression:
         - quoted_literal: '''UpdatedJob'''
     - statement_terminator: ;

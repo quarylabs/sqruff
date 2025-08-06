@@ -22,8 +22,7 @@ file:
       - data_type:
         - data_type:
           - data_type_identifier: DATE
-      - assignment_operator:
-        - raw_comparison_operator: =
+      - raw_comparison_operator: =
       - expression:
         - function:
           - function_name:
@@ -40,8 +39,7 @@ file:
       - data_type:
         - data_type:
           - data_type_identifier: DATETIME2
-      - assignment_operator:
-        - raw_comparison_operator: =
+      - raw_comparison_operator: =
       - expression:
         - function:
           - function_name:
@@ -55,8 +53,7 @@ file:
       - data_type:
         - data_type:
           - data_type_identifier: DATETIME2
-      - assignment_operator:
-        - raw_comparison_operator: =
+      - raw_comparison_operator: =
       - expression:
         - function:
           - function_name:
@@ -72,8 +69,7 @@ file:
       - data_type:
         - data_type:
           - data_type_identifier: DATE
-      - assignment_operator:
-        - raw_comparison_operator: =
+      - raw_comparison_operator: =
       - expression:
         - bracketed:
           - start_bracket: (
@@ -87,8 +83,7 @@ file:
       - data_type:
         - data_type:
           - data_type_identifier: DATE
-      - assignment_operator:
-        - raw_comparison_operator: =
+      - raw_comparison_operator: =
       - expression:
         - bare_function: SYSTEM_USER
   - statement_terminator: ;
@@ -99,16 +94,14 @@ file:
       - data_type:
         - data_type:
           - data_type_identifier: DATE
-      - assignment_operator:
-        - raw_comparison_operator: =
+      - raw_comparison_operator: =
       - expression:
         - bare_function: CURRENT_TIMESTAMP
   - statement_terminator: ;
   - statement:
     - keyword: SET
     - tsql_variable: '@EOMONTH'
-    - assignment_operator:
-      - raw_comparison_operator: =
+    - raw_comparison_operator: =
     - expression:
       - bracketed:
         - start_bracket: (
@@ -118,8 +111,7 @@ file:
   - statement:
     - keyword: SET
     - tsql_variable: '@EOMONTH'
-    - assignment_operator:
-      - raw_comparison_operator: =
+    - raw_comparison_operator: =
     - expression:
       - bracketed:
         - start_bracket: (

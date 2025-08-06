@@ -15,8 +15,7 @@ file:
             - set_clause:
               - column_reference:
                 - naked_identifier: JobTitle
-              - assignment_operator:
-                - raw_comparison_operator: =
+              - raw_comparison_operator: =
               - expression:
                 - quoted_literal: N'Executive'
         - where_clause:

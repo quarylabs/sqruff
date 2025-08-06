@@ -40,8 +40,7 @@ file:
       - statement:
         - keyword: SET
         - tsql_variable: '@result'
-        - assignment_operator:
-          - raw_comparison_operator: =
+        - raw_comparison_operator: =
         - expression:
           - numeric_literal: '4'
       - statement:

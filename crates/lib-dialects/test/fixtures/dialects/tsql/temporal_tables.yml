@@ -132,8 +132,7 @@ file:
       - data_type:
         - data_type:
           - data_type_identifier: DATETIME2
-      - assignment_operator:
-        - raw_comparison_operator: =
+      - raw_comparison_operator: =
       - expression:
         - quoted_literal: '''2021-01-01 00:00:00'''
   - statement_terminator: ;
@@ -144,8 +143,7 @@ file:
       - data_type:
         - data_type:
           - data_type_identifier: DATETIME2
-      - assignment_operator:
-        - raw_comparison_operator: =
+      - raw_comparison_operator: =
       - expression:
         - quoted_literal: '''2022-01-01 00:00:00'''
   - statement_terminator: ;
@@ -184,8 +182,7 @@ file:
       - data_type:
         - data_type:
           - data_type_identifier: DATETIME2
-      - assignment_operator:
-        - raw_comparison_operator: =
+      - raw_comparison_operator: =
       - expression:
         - quoted_literal: '''2021-01-01 00:00:00'''
   - statement_terminator: ;

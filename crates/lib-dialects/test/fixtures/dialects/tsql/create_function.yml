@@ -58,8 +58,7 @@ file:
   - statement:
     - keyword: SET
     - tsql_variable: '@ISOweek'
-    - assignment_operator:
-      - raw_comparison_operator: =
+    - raw_comparison_operator: =
     - expression:
       - function:
         - function_name:
@@ -138,8 +137,7 @@ file:
         - statement:
           - keyword: SET
           - tsql_variable: '@ISOweek'
-          - assignment_operator:
-            - raw_comparison_operator: =
+          - raw_comparison_operator: =
           - expression:
             - function:
               - function_name:
@@ -293,8 +291,7 @@ file:
               - statement:
                 - keyword: SET
                 - tsql_variable: '@ISOweek'
-                - assignment_operator:
-                  - raw_comparison_operator: =
+                - raw_comparison_operator: =
                 - expression:
                   - numeric_literal: '1'
               - statement_terminator: ;

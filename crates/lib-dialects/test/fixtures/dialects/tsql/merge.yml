@@ -64,8 +64,7 @@ file:
                         - naked_identifier: dst
                         - dot: .
                         - naked_identifier: l_id
-                      - assignment_operator:
-                        - raw_comparison_operator: =
+                      - raw_comparison_operator: =
                       - expression:
                         - column_reference:
                           - naked_identifier: src
@@ -78,8 +77,7 @@ file:
                         - naked_identifier: dst
                         - dot: .
                         - naked_identifier: e_date_to
-                      - assignment_operator:
-                        - raw_comparison_operator: =
+                      - raw_comparison_operator: =
                       - expression:
                         - column_reference:
                           - naked_identifier: src
@@ -192,8 +190,7 @@ file:
                           - naked_identifier: dst
                           - dot: .
                           - naked_identifier: cc_name
-                        - assignment_operator:
-                          - raw_comparison_operator: =
+                        - raw_comparison_operator: =
                         - expression:
                           - column_reference:
                             - naked_identifier: src
@@ -206,8 +203,7 @@ file:
                           - naked_identifier: dst
                           - dot: .
                           - naked_identifier: cc_description
-                        - assignment_operator:
-                          - raw_comparison_operator: =
+                        - raw_comparison_operator: =
                         - expression:
                           - column_reference:
                             - naked_identifier: src
@@ -314,8 +310,7 @@ file:
                         - naked_identifier: dst
                         - dot: .
                         - naked_identifier: c_name
-                      - assignment_operator:
-                        - raw_comparison_operator: =
+                      - raw_comparison_operator: =
                       - expression:
                         - column_reference:
                           - naked_identifier: src
@@ -328,8 +323,7 @@ file:
                         - naked_identifier: dst
                         - dot: .
                         - naked_identifier: col1
-                      - assignment_operator:
-                        - raw_comparison_operator: =
+                      - raw_comparison_operator: =
                       - expression:
                         - column_reference:
                           - naked_identifier: src
@@ -342,8 +336,7 @@ file:
                         - naked_identifier: dst
                         - dot: .
                         - naked_identifier: col2
-                      - assignment_operator:
-                        - raw_comparison_operator: =
+                      - raw_comparison_operator: =
                       - expression:
                         - column_reference:
                           - naked_identifier: src
@@ -466,8 +459,7 @@ file:
                           - naked_identifier: dst
                           - dot: .
                           - naked_identifier: col1
-                        - assignment_operator:
-                          - raw_comparison_operator: =
+                        - raw_comparison_operator: =
                         - expression:
                           - quoted_literal: '''N'''
                     - comma: ','
@@ -477,8 +469,7 @@ file:
                           - naked_identifier: dst
                           - dot: .
                           - naked_identifier: col2
-                        - assignment_operator:
-                          - raw_comparison_operator: =
+                        - raw_comparison_operator: =
                         - expression:
                           - column_reference:
                             - naked_identifier: col2
@@ -549,8 +540,7 @@ file:
                     - set_clause:
                       - column_reference:
                         - naked_identifier: Name
-                      - assignment_operator:
-                        - raw_comparison_operator: =
+                      - raw_comparison_operator: =
                       - expression:
                         - column_reference:
                           - naked_identifier: src
@@ -763,8 +753,7 @@ file:
                         - naked_identifier: tgt
                         - dot: .
                         - naked_identifier: Quantity
-                      - assignment_operator:
-                        - raw_comparison_operator: =
+                      - raw_comparison_operator: =
                       - expression:
                         - column_reference:
                           - naked_identifier: tgt
@@ -782,8 +771,7 @@ file:
                         - naked_identifier: tgt
                         - dot: .
                         - naked_identifier: ModifiedDate
-                      - assignment_operator:
-                        - raw_comparison_operator: =
+                      - raw_comparison_operator: =
                       - expression:
                         - function:
                           - function_name:
@@ -976,8 +964,7 @@ file:
                         - naked_identifier: pi
                         - dot: .
                         - naked_identifier: Quantity
-                      - assignment_operator:
-                        - raw_comparison_operator: =
+                      - raw_comparison_operator: =
                       - expression:
                         - column_reference:
                           - naked_identifier: pi
@@ -1139,8 +1126,7 @@ file:
                                     - set_clause:
                                       - column_reference:
                                         - naked_identifier: columnC
-                                      - assignment_operator:
-                                        - raw_comparison_operator: =
+                                      - raw_comparison_operator: =
                                       - expression:
                                         - column_reference:
                                           - naked_identifier: src
@@ -1228,8 +1214,7 @@ file:
                     - set_clause:
                       - column_reference:
                         - naked_identifier: Name
-                      - assignment_operator:
-                        - raw_comparison_operator: =
+                      - raw_comparison_operator: =
                       - expression:
                         - column_reference:
                           - naked_identifier: src
@@ -1447,8 +1432,7 @@ file:
                         - naked_identifier: pi
                         - dot: .
                         - naked_identifier: Quantity
-                      - assignment_operator:
-                        - raw_comparison_operator: =
+                      - raw_comparison_operator: =
                       - expression:
                         - column_reference:
                           - naked_identifier: pi
@@ -1570,8 +1554,7 @@ file:
                         - naked_identifier: target
                         - dot: .
                         - naked_identifier: i
-                      - assignment_operator:
-                        - raw_comparison_operator: =
+                      - raw_comparison_operator: =
                       - expression:
                         - column_reference:
                           - naked_identifier: source

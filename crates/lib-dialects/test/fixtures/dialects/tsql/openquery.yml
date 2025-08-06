@@ -43,8 +43,7 @@ file:
             - set_clause:
               - column_reference:
                 - naked_identifier: name
-              - assignment_operator:
-                - raw_comparison_operator: =
+              - raw_comparison_operator: =
               - expression:
                 - quoted_literal: '''ADifferentName'''
         - statement_terminator: ;

@@ -598,11 +598,6 @@ pub enum SyntaxKind {
     PrepareStatement,
     ExecuteStatement,
     RenameTableStatement,
-    AdditionAssignmentSegment,
-    SubtractionAssignmentSegment,
-    MultiplicationAssignmentSegment,
-    DivisionAssignmentSegment,
-    ModulusAssignmentSegment,
 }
 
 impl SyntaxKind {

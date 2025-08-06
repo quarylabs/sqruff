@@ -21,8 +21,7 @@ file:
   - statement:
     - keyword: SET
     - tsql_variable: '@BinVar'
-    - assignment_operator:
-      - raw_comparison_operator: =
+    - raw_comparison_operator: =
     - expression:
       - function:
         - function_name:

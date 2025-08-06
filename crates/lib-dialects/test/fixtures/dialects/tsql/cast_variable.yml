@@ -7,8 +7,7 @@ file:
       - data_type:
         - data_type:
           - data_type_identifier: date
-      - assignment_operator:
-        - raw_comparison_operator: =
+      - raw_comparison_operator: =
       - expression:
         - function:
           - function_name:
@@ -103,8 +102,7 @@ file:
               - column_reference:
                 - naked_identifier: max
             - end_bracket: )
-      - assignment_operator:
-        - raw_comparison_operator: =
+      - raw_comparison_operator: =
       - expression:
         - function:
           - function_name:

@@ -12,8 +12,7 @@ file:
             - expression:
               - numeric_literal: '20'
             - end_bracket: )
-      - assignment_operator:
-        - raw_comparison_operator: =
+      - raw_comparison_operator: =
       - expression:
         - quoted_literal: '''Test Print'''
   - statement:

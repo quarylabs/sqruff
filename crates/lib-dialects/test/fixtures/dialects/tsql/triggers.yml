@@ -80,26 +80,22 @@ file:
             - dot: .
             - naked_identifier: sp_send_dbmail
         - tsql_variable: '@profile_name'
-        - assignment_operator:
-          - raw_comparison_operator: =
+        - raw_comparison_operator: =
         - expression:
           - quoted_literal: '''AdventureWorks2012 Administrator'''
         - comma: ','
         - tsql_variable: '@recipients'
-        - assignment_operator:
-          - raw_comparison_operator: =
+        - raw_comparison_operator: =
         - expression:
           - quoted_literal: '''danw@Adventure-Works.com'''
         - comma: ','
         - tsql_variable: '@body'
-        - assignment_operator:
-          - raw_comparison_operator: =
+        - raw_comparison_operator: =
         - expression:
           - quoted_literal: '''Don''''t forget to print a report for the sales force.'''
         - comma: ','
         - tsql_variable: '@subject'
-        - assignment_operator:
-          - raw_comparison_operator: =
+        - raw_comparison_operator: =
         - expression:
           - quoted_literal: '''Reminder'''
       - statement_terminator: ;

@@ -285,10 +285,11 @@ test_pass_update_with_alias:
         SELECT 1 FROM foobar AS tmp WHERE tmp.idx = dest.idx)
 
 test_pass_postgres_merge_with_alias:
-  # FAILING: MERGE statement target alias 'dest' not accessible in EXISTS clause
-  # The target table alias from MERGE should be accessible in WHEN clauses
-  # but RF01 incorrectly flags it as not found in FROM clause
-  ignored: "MERGE target alias scoping not properly handled - dest.idx and dest.name flagged as not found"
+  # BUG: RF01 fails when EXISTS subquery contains column alias (AS tmp)
+  # The SQL is valid - target alias 'dest' should be accessible in EXISTS clause
+  # Works fine without the "AS tmp" alias in SELECT 1
+  # Issue: Column alias in EXISTS subquery breaks parent scope resolution
+  ignored: "RF01 bug: column alias in EXISTS subquery breaks MERGE target alias resolution"
   pass_str: |
     merge dw.sch.tbl dest
     using land.sch.tbl src

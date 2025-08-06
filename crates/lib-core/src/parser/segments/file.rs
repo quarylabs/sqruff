@@ -74,14 +74,9 @@ impl FileSegment {
 
             matched.extend_from_slice(head);
             matched.push(
-                SegmentBuilder::node(
-                    tables.next_id(),
-                    SyntaxKind::Unparsable,
-                    dialect,
-                    tail.to_vec(),
-                )
-                .position_from_segments()
-                .finish(),
+                SegmentBuilder::node(tables.next_id(), SyntaxKind::File, dialect, tail.to_vec())
+                    .position_from_segments()
+                    .finish(),
             );
             &matched
         } else {

@@ -5481,6 +5481,7 @@ pub fn raw_dialect() -> Dialect {
                     Ref::new("OrderByClauseSegment").optional(),
                     Ref::new("FetchClauseSegment").optional(),
                     Ref::new("LimitClauseSegment").optional(),
+                    Ref::new("OptionClauseSegment").optional(),
                 ])
                 .terminators(vec_of_erased![
                     Ref::new("SetOperatorSegment"),

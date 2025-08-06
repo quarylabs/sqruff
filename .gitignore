@@ -200,3 +200,6 @@ cython_debug/
 
 # VS Code
 .vscode/
+
+# Serena cache
+.serena/

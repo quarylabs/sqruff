@@ -138,8 +138,8 @@ file:
       - keyword: AS
       - select_statement:
         - select_clause:
-          - word: SELECT
-          - expression:
+          - keyword: SELECT
+          - select_clause_element:
             - numeric_literal: '1'
   - statement_terminator: ;
   - keyword: GO

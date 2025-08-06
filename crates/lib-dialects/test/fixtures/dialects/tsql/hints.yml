@@ -125,21 +125,19 @@ file:
               - raw_comparison_operator: =
             - parameterized_expression:
               - tsql_variable: '@postal_code'
-        - keyword: OPTION
-        - bracketed:
+        - unparsable:
+          - word: OPTION
           - start_bracket: (
-          - keyword: OPTIMIZE
-          - keyword: FOR
-          - bracketed:
-            - start_bracket: (
-            - tsql_variable: '@city_name'
-            - comparison_operator:
-              - raw_comparison_operator: =
-            - quoted_literal: '''Seattle'''
-            - comma: ','
-            - tsql_variable: '@postal_code'
-            - keyword: UNKNOWN
-            - end_bracket: )
+          - word: OPTIMIZE
+          - word: FOR
+          - start_bracket: (
+          - tsql_variable: '@city_name'
+          - raw_comparison_operator: =
+          - single_quote: '''Seattle'''
+          - comma: ','
+          - tsql_variable: '@postal_code'
+          - word: UNKNOWN
+          - end_bracket: )
           - end_bracket: )
   - statement_terminator: ;
   - keyword: GO

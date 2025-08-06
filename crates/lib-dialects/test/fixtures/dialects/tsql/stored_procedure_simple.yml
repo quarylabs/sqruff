@@ -9,8 +9,8 @@ file:
       - keyword: AS
       - select_statement:
         - select_clause:
-          - word: SELECT
-          - expression:
+          - keyword: SELECT
+          - select_clause_element:
             - function:
               - function_name:
                 - function_name_identifier: DB_NAME

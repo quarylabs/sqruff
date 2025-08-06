@@ -10,27 +10,22 @@ file:
         - comma: ','
         - select_clause_element:
           - function:
-            - function_name:
+            - function:
               - function_name_identifier: DATEDIFF
-            - function_contents:
               - bracketed:
                 - start_bracket: (
-                - expression:
-                  - column_reference:
-                    - naked_identifier: day
+                - keyword: day
                 - comma: ','
-                - expression:
-                  - column_reference:
-                    - quoted_identifier: '[mydate]'
+                - column_reference:
+                  - quoted_identifier: '[mydate]'
                 - comma: ','
-                - expression:
-                  - function:
-                    - function_name:
-                      - function_name_identifier: GETDATE
-                    - function_contents:
-                      - bracketed:
-                        - start_bracket: (
-                        - end_bracket: )
+                - function:
+                  - function_name:
+                    - function_name_identifier: GETDATE
+                  - function_contents:
+                    - bracketed:
+                      - start_bracket: (
+                      - end_bracket: )
                 - end_bracket: )
           - alias_expression:
             - keyword: AS
@@ -56,200 +51,145 @@ file:
         - comma: ','
         - select_clause_element:
           - function:
-            - function_name:
+            - function:
               - function_name_identifier: DATEDIFF
-            - function_contents:
               - bracketed:
                 - start_bracket: (
-                - expression:
-                  - column_reference:
-                    - naked_identifier: year
+                - keyword: year
                 - comma: ','
-                - expression:
-                  - quoted_literal: '''2005-12-31 23:59:59.9999999'''
+                - quoted_literal: '''2005-12-31 23:59:59.9999999'''
                 - comma: ','
-                - expression:
-                  - quoted_literal: '''2006-01-01 00:00:00.0000000'''
+                - quoted_literal: '''2006-01-01 00:00:00.0000000'''
                 - end_bracket: )
         - comma: ','
         - select_clause_element:
           - function:
-            - function_name:
+            - function:
               - function_name_identifier: DATEDIFF
-            - function_contents:
               - bracketed:
                 - start_bracket: (
-                - expression:
-                  - column_reference:
-                    - naked_identifier: quarter
+                - keyword: quarter
                 - comma: ','
-                - expression:
-                  - quoted_literal: '''2005-12-31 23:59:59.9999999'''
+                - quoted_literal: '''2005-12-31 23:59:59.9999999'''
                 - comma: ','
-                - expression:
-                  - quoted_literal: '''2006-01-01 00:00:00.0000000'''
+                - quoted_literal: '''2006-01-01 00:00:00.0000000'''
                 - end_bracket: )
         - comma: ','
         - select_clause_element:
           - function:
-            - function_name:
+            - function:
               - function_name_identifier: DATEDIFF
-            - function_contents:
               - bracketed:
                 - start_bracket: (
-                - expression:
-                  - column_reference:
-                    - naked_identifier: month
+                - keyword: month
                 - comma: ','
-                - expression:
-                  - quoted_literal: '''2005-12-31 23:59:59.9999999'''
+                - quoted_literal: '''2005-12-31 23:59:59.9999999'''
                 - comma: ','
-                - expression:
-                  - quoted_literal: '''2006-01-01 00:00:00.0000000'''
+                - quoted_literal: '''2006-01-01 00:00:00.0000000'''
                 - end_bracket: )
         - comma: ','
         - select_clause_element:
           - function:
-            - function_name:
+            - function:
               - function_name_identifier: DATEDIFF
-            - function_contents:
               - bracketed:
                 - start_bracket: (
-                - expression:
-                  - column_reference:
-                    - naked_identifier: dayofyear
+                - keyword: dayofyear
                 - comma: ','
-                - expression:
-                  - quoted_literal: '''2005-12-31 23:59:59.9999999'''
+                - quoted_literal: '''2005-12-31 23:59:59.9999999'''
                 - comma: ','
-                - expression:
-                  - quoted_literal: '''2006-01-01 00:00:00.0000000'''
+                - quoted_literal: '''2006-01-01 00:00:00.0000000'''
                 - end_bracket: )
         - comma: ','
         - select_clause_element:
           - function:
-            - function_name:
+            - function:
               - function_name_identifier: DATEDIFF
-            - function_contents:
               - bracketed:
                 - start_bracket: (
-                - expression:
-                  - column_reference:
-                    - naked_identifier: day
+                - keyword: day
                 - comma: ','
-                - expression:
-                  - quoted_literal: '''2005-12-31 23:59:59.9999999'''
+                - quoted_literal: '''2005-12-31 23:59:59.9999999'''
                 - comma: ','
-                - expression:
-                  - quoted_literal: '''2006-01-01 00:00:00.0000000'''
+                - quoted_literal: '''2006-01-01 00:00:00.0000000'''
                 - end_bracket: )
         - comma: ','
         - select_clause_element:
           - function:
-            - function_name:
+            - function:
               - function_name_identifier: DATEDIFF
-            - function_contents:
               - bracketed:
                 - start_bracket: (
-                - expression:
-                  - column_reference:
-                    - naked_identifier: week
+                - keyword: week
                 - comma: ','
-                - expression:
-                  - quoted_literal: '''2005-12-31 23:59:59.9999999'''
+                - quoted_literal: '''2005-12-31 23:59:59.9999999'''
                 - comma: ','
-                - expression:
-                  - quoted_literal: '''2006-01-01 00:00:00.0000000'''
+                - quoted_literal: '''2006-01-01 00:00:00.0000000'''
                 - end_bracket: )
         - comma: ','
         - select_clause_element:
           - function:
-            - function_name:
+            - function:
               - function_name_identifier: DATEDIFF
-            - function_contents:
               - bracketed:
                 - start_bracket: (
-                - expression:
-                  - column_reference:
-                    - naked_identifier: hour
+                - keyword: hour
                 - comma: ','
-                - expression:
-                  - quoted_literal: '''2005-12-31 23:59:59.9999999'''
+                - quoted_literal: '''2005-12-31 23:59:59.9999999'''
                 - comma: ','
-                - expression:
-                  - quoted_literal: '''2006-01-01 00:00:00.0000000'''
+                - quoted_literal: '''2006-01-01 00:00:00.0000000'''
                 - end_bracket: )
         - comma: ','
         - select_clause_element:
           - function:
-            - function_name:
+            - function:
               - function_name_identifier: DATEDIFF
-            - function_contents:
               - bracketed:
                 - start_bracket: (
-                - expression:
-                  - column_reference:
-                    - naked_identifier: minute
+                - keyword: minute
                 - comma: ','
-                - expression:
-                  - quoted_literal: '''2005-12-31 23:59:59.9999999'''
+                - quoted_literal: '''2005-12-31 23:59:59.9999999'''
                 - comma: ','
-                - expression:
-                  - quoted_literal: '''2006-01-01 00:00:00.0000000'''
+                - quoted_literal: '''2006-01-01 00:00:00.0000000'''
                 - end_bracket: )
         - comma: ','
         - select_clause_element:
           - function:
-            - function_name:
+            - function:
               - function_name_identifier: DATEDIFF
-            - function_contents:
               - bracketed:
                 - start_bracket: (
-                - expression:
-                  - column_reference:
-                    - naked_identifier: second
+                - keyword: second
                 - comma: ','
-                - expression:
-                  - quoted_literal: '''2005-12-31 23:59:59.9999999'''
+                - quoted_literal: '''2005-12-31 23:59:59.9999999'''
                 - comma: ','
-                - expression:
-                  - quoted_literal: '''2006-01-01 00:00:00.0000000'''
+                - quoted_literal: '''2006-01-01 00:00:00.0000000'''
                 - end_bracket: )
         - comma: ','
         - select_clause_element:
           - function:
-            - function_name:
+            - function:
               - function_name_identifier: DATEDIFF
-            - function_contents:
               - bracketed:
                 - start_bracket: (
-                - expression:
-                  - column_reference:
-                    - naked_identifier: millisecond
+                - keyword: millisecond
                 - comma: ','
-                - expression:
-                  - quoted_literal: '''2005-12-31 23:59:59.9999999'''
+                - quoted_literal: '''2005-12-31 23:59:59.9999999'''
                 - comma: ','
-                - expression:
-                  - quoted_literal: '''2006-01-01 00:00:00.0000000'''
+                - quoted_literal: '''2006-01-01 00:00:00.0000000'''
                 - end_bracket: )
         - comma: ','
         - select_clause_element:
           - function:
-            - function_name:
+            - function:
               - function_name_identifier: DATEDIFF
-            - function_contents:
               - bracketed:
                 - start_bracket: (
-                - expression:
-                  - column_reference:
-                    - naked_identifier: microsecond
+                - keyword: microsecond
                 - comma: ','
-                - expression:
-                  - quoted_literal: '''2005-12-31 23:59:59.9999999'''
+                - quoted_literal: '''2005-12-31 23:59:59.9999999'''
                 - comma: ','
-                - expression:
-                  - quoted_literal: '''2006-01-01 00:00:00.0000000'''
+                - quoted_literal: '''2006-01-01 00:00:00.0000000'''
                 - end_bracket: )
         - comma: ','
         - select_clause_element:
@@ -272,40 +212,30 @@ file:
         - comma: ','
         - select_clause_element:
           - function:
-            - function_name:
+            - function:
               - function_name_identifier: DATEADD
-            - function_contents:
               - bracketed:
                 - start_bracket: (
-                - expression:
-                  - column_reference:
-                    - naked_identifier: year
+                - keyword: year
                 - comma: ','
-                - expression:
-                  - numeric_literal: '2147483647'
+                - numeric_literal: '2147483647'
                 - comma: ','
-                - expression:
-                  - quoted_literal: '''20060731'''
+                - quoted_literal: '''20060731'''
                 - end_bracket: )
         - comma: ','
         - select_clause_element:
           - function:
-            - function_name:
+            - function:
               - function_name_identifier: DATEADD
-            - function_contents:
               - bracketed:
                 - start_bracket: (
-                - expression:
-                  - column_reference:
-                    - naked_identifier: year
+                - keyword: year
                 - comma: ','
-                - expression:
-                  - numeric_literal:
-                    - sign_indicator: '-'
-                    - numeric_literal: '2147483647'
+                - numeric_literal:
+                  - sign_indicator: '-'
+                  - numeric_literal: '2147483647'
                 - comma: ','
-                - expression:
-                  - quoted_literal: '''20060731'''
+                - quoted_literal: '''20060731'''
                 - end_bracket: )
         - comma: ','
         - select_clause_element:

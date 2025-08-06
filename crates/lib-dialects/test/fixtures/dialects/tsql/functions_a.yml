@@ -79,23 +79,18 @@ file:
         - comma: ','
         - select_clause_element:
           - function:
-            - function_name:
+            - function:
               - function_name_identifier: DATEADD
-            - function_contents:
               - bracketed:
                 - start_bracket: (
-                - expression:
-                  - column_reference:
-                    - naked_identifier: month
+                - keyword: month
                 - comma: ','
-                - expression:
-                  - numeric_literal:
-                    - sign_indicator: '-'
-                    - numeric_literal: '1'
+                - numeric_literal:
+                  - sign_indicator: '-'
+                  - numeric_literal: '1'
                 - comma: ','
-                - expression:
-                  - column_reference:
-                    - naked_identifier: column1
+                - column_reference:
+                  - naked_identifier: column1
                 - end_bracket: )
           - alias_expression:
             - keyword: AS

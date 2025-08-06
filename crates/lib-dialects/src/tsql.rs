@@ -4645,6 +4645,19 @@ pub fn raw_dialect() -> Dialect {
                     MetaSegment::indent(),
                     Ref::new("FromExpressionElementSegment"),
                     MetaSegment::dedent(),
+                ]),
+                // CROSS JOIN (Cartesian product - no ON condition required)
+                Sequence::new(vec_of_erased![
+                    one_of(vec_of_erased![
+                        Sequence::new(vec_of_erased![Ref::keyword("CROSS"), Ref::keyword("JOIN")]),
+                        Sequence::new(vec_of_erased![
+                            StringParser::new("CROSS", SyntaxKind::Keyword),
+                            StringParser::new("JOIN", SyntaxKind::Keyword)
+                        ])
+                    ]),
+                    MetaSegment::indent(),
+                    Ref::new("FromExpressionElementSegment"),
+                    MetaSegment::dedent(),
                 ])
             ])
             .to_matchable()

@@ -103,23 +103,20 @@ file:
         - comma: ','
         - select_clause_element:
           - function:
-            - function_name:
+            - function:
               - function_name_identifier: convert
-            - function_contents:
               - bracketed:
                 - start_bracket: (
-                - expression:
-                  - column_reference:
-                    - naked_identifier: varchar
+                - data_type:
+                  - data_type:
+                    - data_type_identifier: varchar
                 - comma: ','
-                - expression:
-                  - column_reference:
-                    - naked_identifier: tbl_b
-                    - dot: .
-                    - naked_identifier: column1
+                - column_reference:
+                  - naked_identifier: tbl_b
+                  - dot: .
+                  - naked_identifier: column1
                 - comma: ','
-                - expression:
-                  - numeric_literal: '23'
+                - numeric_literal: '23'
                 - end_bracket: )
           - alias_expression:
             - keyword: AS

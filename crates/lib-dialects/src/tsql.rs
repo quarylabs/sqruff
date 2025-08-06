@@ -2391,6 +2391,7 @@ pub fn raw_dialect() -> Dialect {
                     Ref::keyword("CREATE"),
                     Ref::keyword("STATISTICS"),
                     Ref::new("ObjectReferenceSegment"), // Statistics name
+                    MetaSegment::indent(),
                     Ref::keyword("ON"),
                     Ref::new("TableReferenceSegment"),
                     // Column list in parentheses
@@ -2418,7 +2419,8 @@ pub fn raw_dialect() -> Dialect {
                             ])
                         ])])
                     ])
-                    .config(|this| this.optional())
+                    .config(|this| this.optional()),
+                    MetaSegment::dedent()
                 ])
                 .to_matchable()
             })

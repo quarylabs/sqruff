@@ -201,11 +201,11 @@ test_fail_select_lower:
   fail_str: |
     select *
     FROM
-        {{ source("ids","shop") }}
+        shop
   fix_str: |
     SELECT *
     FROM
-        {{ source("ids","shop") }}
+        shop
   configs:
     core:
       dialect: tsql

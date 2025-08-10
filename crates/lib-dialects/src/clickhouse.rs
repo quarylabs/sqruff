@@ -488,8 +488,24 @@ pub fn dialect() -> Dialect {
         "newline",
     );
 
-    // Add single-token comparison operator segments for compound operators
+    // Add concat operator || as a single token before individual | tokens
+    clickhouse_dialect.insert_lexer_matchers(
+        vec![Matcher::string(
+            "concat_operator",
+            "||",
+            SyntaxKind::BinaryOperator,
+        )],
+        "vertical_bar",
+    );
+
+    // Add single-token operators for ClickHouse
     clickhouse_dialect.add(vec![
+        (
+            "ConcatSegment".into(),
+            StringParser::new("||", SyntaxKind::BinaryOperator)
+                .to_matchable()
+                .into(),
+        ),
         (
             "GreaterThanOrEqualToSegment".into(),
             StringParser::new(">=", SyntaxKind::ComparisonOperator)

@@ -2524,61 +2524,11 @@ pub fn dialect() -> Dialect {
             .into(),
     )]);
 
-    // Fix CASE expression parsing: Remove BinaryOperatorGrammar from terminators
-    // to allow || operators in ELSE clauses
-    clickhouse_dialect.replace_grammar(
-        "CaseExpressionSegment",
-        NodeMatcher::new(SyntaxKind::CaseExpression, |_| {
-            one_of(vec_of_erased![
-                Sequence::new(vec_of_erased![
-                    Ref::keyword("CASE"),
-                    MetaSegment::implicit_indent(),
-                    AnyNumberOf::new(vec_of_erased![Ref::new("WhenClauseSegment")],).config(
-                        |this| {
-                            this.reset_terminators = true;
-                            this.terminators =
-                                vec_of_erased![Ref::keyword("ELSE"), Ref::keyword("END")];
-                        }
-                    ),
-                    Ref::new("ElseClauseSegment").optional(),
-                    MetaSegment::dedent(),
-                    Ref::keyword("END"),
-                ]),
-                Sequence::new(vec_of_erased![
-                    Ref::keyword("CASE"),
-                    Ref::new("ExpressionSegment"),
-                    MetaSegment::implicit_indent(),
-                    AnyNumberOf::new(vec_of_erased![Ref::new("WhenClauseSegment")],).config(
-                        |this| {
-                            this.reset_terminators = true;
-                            this.terminators =
-                                vec_of_erased![Ref::keyword("ELSE"), Ref::keyword("END")];
-                        }
-                    ),
-                    Ref::new("ElseClauseSegment").optional(),
-                    MetaSegment::dedent(),
-                    Ref::keyword("END"),
-                ]),
-            ])
-            .config(|this| {
-                // Fix: Remove BinaryOperatorGrammar from terminators to allow || in ELSE clauses
-                this.terminators = vec_of_erased![
-                    Ref::new("ComparisonOperatorGrammar"),
-                    Ref::new("CommaSegment"),
-                    // BinaryOperatorGrammar removed - this was causing || to terminate CASE expressions
-                ]
-            })
-            .to_matchable()
-        })
-        .to_matchable(),
-    );
-
     // Replace ConcatSegment to use single token instead of sequence of pipes
     clickhouse_dialect.replace_grammar(
         "ConcatSegment",
         Ref::new("ConcatOperatorSegment").to_matchable(),
     );
-
     clickhouse_dialect.expand();
     clickhouse_dialect
 }

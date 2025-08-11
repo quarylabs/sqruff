@@ -195,10 +195,11 @@ impl<'me, T: Clone + Default> Query<'me, T> {
         ) {
             if seg.is_type(SyntaxKind::TableReference) {
                 let _seg = seg.reference();
-                if !_seg.is_qualified() && lookup_cte {
-                    if let Some(cte) = self.lookup_cte(seg.raw().as_ref(), pop) {
-                        acc.push(Source::Query(cte));
-                    }
+                if !_seg.is_qualified()
+                    && lookup_cte
+                    && let Some(cte) = self.lookup_cte(seg.raw().as_ref(), pop)
+                {
+                    acc.push(Source::Query(cte));
                 }
                 acc.push(Source::TableReference(seg.raw().clone()));
             } else {
@@ -210,12 +211,11 @@ impl<'me, T: Clone + Default> Query<'me, T> {
             }
         }
 
-        if acc.is_empty() {
-            if let Some(table_expr) =
+        if acc.is_empty()
+            && let Some(table_expr) =
                 segment.child(const { &SyntaxSet::new(&[SyntaxKind::TableExpression]) })
-            {
-                return vec![Source::TableReference(table_expr.raw().to_smolstr())];
-            }
+        {
+            return vec![Source::TableReference(table_expr.raw().to_smolstr())];
         }
 
         acc

@@ -128,10 +128,10 @@ FROM foo;
         // (i.e. if a cast happens in a macro, the end user writing the current
         // query may not know that or have control over it, so we should just
         // skip it).
-        if let Some(pos_marker) = &context.segment.get_position_marker() {
-            if !pos_marker.is_literal() {
-                return Vec::new();
-            }
+        if let Some(pos_marker) = &context.segment.get_position_marker()
+            && !pos_marker.is_literal()
+        {
+            return Vec::new();
         }
 
         let current_type_casting_style = if context.segment.is_type(SyntaxKind::Function) {

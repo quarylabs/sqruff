@@ -42,8 +42,8 @@ impl RuleAL06 {
                 return Vec::new();
             };
 
-            if let Some(min_alias_length) = self.min_alias_length {
-                if let Some(alias_identifier_ref) =
+            if let Some(min_alias_length) = self.min_alias_length
+                && let Some(alias_identifier_ref) =
                     alias_exp_ref.child(const { &SyntaxSet::new(&[SyntaxKind::Identifier, SyntaxKind::NakedIdentifier]) })
                 {
                     let alias_identifier = alias_identifier_ref.raw();
@@ -60,10 +60,9 @@ impl RuleAL06 {
                         ))
                     }
                 }
-            }
 
-            if let Some(max_alias_length) = self.max_alias_length {
-                if let Some(alias_identifier_ref) =
+            if let Some(max_alias_length) = self.max_alias_length
+                && let Some(alias_identifier_ref) =
                     alias_exp_ref.child(const { &SyntaxSet::new(&[SyntaxKind::Identifier, SyntaxKind::NakedIdentifier]) })
                 {
                     let alias_identifier = alias_identifier_ref.raw();
@@ -81,7 +80,6 @@ impl RuleAL06 {
                         ))
                     }
                 }
-            }
         }
 
         violation_buff

@@ -212,24 +212,23 @@ impl MatchableTrait for RegexParser {
         let segment = &segments[idx as usize];
         let segment_raw_upper =
             SmolStr::from_iter(segment.raw().chars().map(|ch| ch.to_ascii_uppercase()));
-        if let Some(result) = self.template.find(&segment_raw_upper).ok().flatten() {
-            if result.as_str() == segment_raw_upper
-                && !self.anti_template.as_ref().is_some_and(|anti_template| {
-                    anti_template
-                        .is_match(&segment_raw_upper)
-                        .unwrap_or_default()
-                })
-            {
-                return Ok(MatchResult {
-                    span: Span {
-                        start: idx,
-                        end: idx + 1,
-                    },
-                    matched: Matched::Newtype(self.kind).into(),
-                    insert_segments: Vec::new(),
-                    child_matches: Vec::new(),
-                });
-            }
+        if let Some(result) = self.template.find(&segment_raw_upper).ok().flatten()
+            && result.as_str() == segment_raw_upper
+            && !self.anti_template.as_ref().is_some_and(|anti_template| {
+                anti_template
+                    .is_match(&segment_raw_upper)
+                    .unwrap_or_default()
+            })
+        {
+            return Ok(MatchResult {
+                span: Span {
+                    start: idx,
+                    end: idx + 1,
+                },
+                matched: Matched::Newtype(self.kind).into(),
+                insert_segments: Vec::new(),
+                child_matches: Vec::new(),
+            });
         }
 
         Ok(MatchResult::empty_at(idx))

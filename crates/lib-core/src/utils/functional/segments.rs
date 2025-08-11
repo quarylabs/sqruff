@@ -185,10 +185,10 @@ impl Segments {
         let mut buff = Vec::new();
 
         for seg in pyslice(&self.base, start_index + 1..stop_index) {
-            if let Some(loop_while) = &loop_while {
-                if !loop_while(seg) {
-                    break;
-                }
+            if let Some(loop_while) = &loop_while
+                && !loop_while(seg)
+            {
+                break;
             }
 
             if select_if.as_ref().is_none_or(|f| f(seg)) {

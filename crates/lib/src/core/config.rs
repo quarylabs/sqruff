@@ -177,16 +177,16 @@ impl FluffConfig {
         let mut config =
             loader.load_config_up_to_path(".", extra_config_path.clone(), ignore_local_config);
 
-        if let Some(overrides) = overrides {
-            if let Some(dialect) = overrides.get("dialect") {
-                let core = config
-                    .entry("core".into())
-                    .or_insert_with(|| Value::Map(AHashMap::new()));
+        if let Some(overrides) = overrides
+            && let Some(dialect) = overrides.get("dialect")
+        {
+            let core = config
+                .entry("core".into())
+                .or_insert_with(|| Value::Map(AHashMap::new()));
 
-                core.as_map_mut()
-                    .unwrap()
-                    .insert("dialect".into(), Value::String(dialect.clone().into()));
-            }
+            core.as_map_mut()
+                .unwrap()
+                .insert("dialect".into(), Value::String(dialect.clone().into()));
         }
 
         Ok(FluffConfig::new(config, extra_config_path, None))

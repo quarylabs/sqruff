@@ -349,14 +349,14 @@ fn to_node(
                     .or_else(|| source_name.clone());
                 let mut reference_node_name = None;
 
-                if source.get().kind() == ScopeKind::Cte {
-                    if let Some((selected_node, _)) = scope.selected_sources(tables).get(&table) {
-                        let ExprKind::TableReference(name, _) = &tables.exprs[*selected_node].kind
-                        else {
-                            unimplemented!()
-                        };
-                        reference_node_name = Some(name.clone());
-                    }
+                if source.get().kind() == ScopeKind::Cte
+                    && let Some((selected_node, _)) = scope.selected_sources(tables).get(&table)
+                {
+                    let ExprKind::TableReference(name, _) = &tables.exprs[*selected_node].kind
+                    else {
+                        unimplemented!()
+                    };
+                    reference_node_name = Some(name.clone());
                 }
 
                 to_node(

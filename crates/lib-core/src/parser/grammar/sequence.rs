@@ -427,7 +427,7 @@ impl MatchableTrait for Bracketed {
             start_match,
             start_bracket.clone(),
             &[start_bracket],
-            &[end_bracket.clone()],
+            std::slice::from_ref(&end_bracket),
             &[bracket_persists],
             parse_context,
             false,
@@ -442,7 +442,7 @@ impl MatchableTrait for Bracketed {
         }
 
         let mut content_match =
-            parse_context.deeper_match(true, &[end_bracket.clone()], |ctx| {
+            parse_context.deeper_match(true, std::slice::from_ref(&end_bracket), |ctx| {
                 self.this
                     .match_segments(&segments[..end_idx as usize], idx, ctx)
             })?;

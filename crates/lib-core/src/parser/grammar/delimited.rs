@@ -104,7 +104,7 @@ impl MatchableTrait for Delimited {
                 .cloned(),
         );
 
-        let delimiter_matchers = &[self.delimiter.clone()];
+        let delimiter_matchers = std::slice::from_ref(&self.delimiter);
 
         if !self.allow_gaps {
             terminator_matchers.push(NonCodeMatcher.to_matchable());

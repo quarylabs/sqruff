@@ -92,10 +92,9 @@ impl RuleAL07 {
                                     SyntaxKind::NakedIdentifier,
                                 ])
                             },
-                        ) {
-                            if used_alias_ref.raw() == alias_name {
-                                ids_refs.push(used_alias_ref);
-                            }
+                        ) && used_alias_ref.raw() == alias_name
+                        {
+                            ids_refs.push(used_alias_ref);
                         }
                     }
 
@@ -108,14 +107,12 @@ impl RuleAL07 {
                                     SyntaxKind::NakedIdentifier,
                                 ])
                             },
-                        ) {
-                            if used_alias_ref.raw() == alias_name
-                                && exp_ref
-                                    .child(const { &SyntaxSet::new(&[SyntaxKind::Dot]) })
-                                    .is_some()
-                            {
-                                ids_refs.push(used_alias_ref);
-                            }
+                        ) && used_alias_ref.raw() == alias_name
+                            && exp_ref
+                                .child(const { &SyntaxSet::new(&[SyntaxKind::Dot]) })
+                                .is_some()
+                        {
+                            ids_refs.push(used_alias_ref);
                         }
                     }
                 }
@@ -183,10 +180,11 @@ impl RuleAL07 {
                 continue;
             };
 
-            if let Some(ref base_table) = base_table {
-                if base_table.raw() == table_ref.raw() && base_table != &table_ref {
-                    continue;
-                }
+            if let Some(ref base_table) = base_table
+                && base_table.raw() == table_ref.raw()
+                && base_table != &table_ref
+            {
+                continue;
             }
 
             let whitespace_ref =

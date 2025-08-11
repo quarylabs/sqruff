@@ -119,41 +119,39 @@ from fancy_table
             let then_expression =
                 when_clauses.children(Some(|it| it.is_type(SyntaxKind::Expression)))[1].clone();
 
-            if !else_clauses.is_empty() {
-                if let Some(else_expression) = else_clauses
+            if !else_clauses.is_empty()
+                && let Some(else_expression) = else_clauses
                     .children(Some(|it| it.is_type(SyntaxKind::Expression)))
                     .first()
+            {
+                let upper_bools = ["TRUE", "FALSE"];
+
+                let then_expression_upper = then_expression.raw().to_uppercase_smolstr();
+                let else_expression_upper = else_expression.raw().to_uppercase_smolstr();
+
+                if upper_bools.contains(&then_expression_upper.as_str())
+                    && upper_bools.contains(&else_expression_upper.as_str())
+                    && then_expression_upper != else_expression_upper
                 {
-                    let upper_bools = ["TRUE", "FALSE"];
+                    let coalesce_arg_1 = condition_expression.clone();
+                    let coalesce_arg_2 = SegmentBuilder::keyword(context.tables.next_id(), "false");
+                    let preceding_not = then_expression_upper == "FALSE";
 
-                    let then_expression_upper = then_expression.raw().to_uppercase_smolstr();
-                    let else_expression_upper = else_expression.raw().to_uppercase_smolstr();
+                    let fixes = Self::coalesce_fix_list(
+                        context,
+                        coalesce_arg_1,
+                        coalesce_arg_2,
+                        preceding_not,
+                    );
 
-                    if upper_bools.contains(&then_expression_upper.as_str())
-                        && upper_bools.contains(&else_expression_upper.as_str())
-                        && then_expression_upper != else_expression_upper
-                    {
-                        let coalesce_arg_1 = condition_expression.clone();
-                        let coalesce_arg_2 =
-                            SegmentBuilder::keyword(context.tables.next_id(), "false");
-                        let preceding_not = then_expression_upper == "FALSE";
-
-                        let fixes = Self::coalesce_fix_list(
-                            context,
-                            coalesce_arg_1,
-                            coalesce_arg_2,
-                            preceding_not,
-                        );
-
-                        return vec![LintResult::new(
-                            condition_expression.into(),
-                            fixes,
-                            "Unnecessary CASE statement. Use COALESCE function instead."
-                                .to_owned()
-                                .into(),
-                            None,
-                        )];
-                    }
+                    return vec![LintResult::new(
+                        condition_expression.into(),
+                        fixes,
+                        "Unnecessary CASE statement. Use COALESCE function instead."
+                            .to_owned()
+                            .into(),
+                        None,
+                    )];
                 }
             }
 

@@ -201,10 +201,10 @@ fn determine_aligned_inline_spacing(
             if ps.segment.is_type(align_within) {
                 parent_segment = Some(ps.segment.clone());
             }
-            if let Some(align_scope) = align_scope {
-                if ps.segment.is_type(align_scope) {
-                    break;
-                }
+            if let Some(align_scope) = align_scope
+                && ps.segment.is_type(align_scope)
+            {
+                break;
             }
         }
     }
@@ -246,10 +246,10 @@ fn determine_aligned_inline_spacing(
     siblings.retain(|sibling| {
         let pos_marker = sibling.get_position_marker().unwrap();
         let best_seen = earliest_siblings.get(&pos_marker.working_line_no).copied();
-        if let Some(best_seen) = best_seen {
-            if pos_marker.working_line_pos > best_seen {
-                return false;
-            }
+        if let Some(best_seen) = best_seen
+            && pos_marker.working_line_pos > best_seen
+        {
+            return false;
         }
         earliest_siblings.insert(pos_marker.working_line_no, pos_marker.working_line_pos);
 
@@ -274,18 +274,16 @@ fn determine_aligned_inline_spacing(
         for sibling in &siblings {
             if let (Some(seg_pos), Some(sibling_pos)) =
                 (&seg.get_position_marker(), &sibling.get_position_marker())
+                && seg_pos.working_loc() == sibling_pos.working_loc()
+                && let Some(last_code) = &last_code
             {
-                if seg_pos.working_loc() == sibling_pos.working_loc() {
-                    if let Some(last_code) = &last_code {
-                        let loc = last_code
-                            .get_position_marker()
-                            .unwrap()
-                            .working_loc_after(last_code.raw());
+                let loc = last_code
+                    .get_position_marker()
+                    .unwrap()
+                    .working_loc_after(last_code.raw());
 
-                        if loc.1 > max_desired_line_pos {
-                            max_desired_line_pos = loc.1;
-                        }
-                    }
+                if loc.1 > max_desired_line_pos {
+                    max_desired_line_pos = loc.1;
                 }
             }
         }
@@ -466,11 +464,11 @@ pub fn handle_respace_inline_without_space(
             existing_fix = Some("after");
             insertion = Some(block.segment().clone());
         }
-    } else if let Some(block) = next_block {
-        if block.segment().get_position_marker().is_none() {
-            existing_fix = Some("before");
-            insertion = Some(block.segment().clone());
-        }
+    } else if let Some(block) = next_block
+        && block.segment().get_position_marker().is_none()
+    {
+        existing_fix = Some("before");
+        insertion = Some(block.segment().clone());
     }
 
     if let Some(existing_fix) = existing_fix {
@@ -515,8 +513,9 @@ pub fn handle_respace_inline_without_space(
         "Expected single whitespace.".to_owned()
     };
 
-    let new_result = if prev_block.is_some() && anchor_on != "after" {
-        let prev_block = prev_block.unwrap();
+    let new_result = if let Some(prev_block) = prev_block
+        && anchor_on != "after"
+    {
         let anchor = if let Some(block) = next_block {
             // If next_block is Some, get the first segment
             block.segment().clone()

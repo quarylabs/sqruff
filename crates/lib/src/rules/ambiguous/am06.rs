@@ -137,15 +137,14 @@ ORDER BY a ASC, b DESC
 
                 if let Some(PriorGroupByOrderByConvention(prior_group_by_order_by_convention)) =
                     context.try_get::<PriorGroupByOrderByConvention>()
+                    && prior_group_by_order_by_convention != current_group_by_order_by_convention
                 {
-                    if prior_group_by_order_by_convention != current_group_by_order_by_convention {
-                        return vec![LintResult::new(
-                            context.segment.clone().into(),
-                            Vec::new(),
-                            None,
-                            None,
-                        )];
-                    }
+                    return vec![LintResult::new(
+                        context.segment.clone().into(),
+                        Vec::new(),
+                        None,
+                        None,
+                    )];
                 }
 
                 context.set(PriorGroupByOrderByConvention(

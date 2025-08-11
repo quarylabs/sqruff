@@ -439,20 +439,18 @@ impl Linter {
             }
         };
 
-        if include_parse_errors {
-            if let Some(parsed) = &parsed {
-                let unparsables = parsed.recursive_crawl(
-                    &SyntaxSet::single(SyntaxKind::Unparsable),
-                    true,
-                    &SyntaxSet::EMPTY,
-                    true,
-                );
+        if include_parse_errors && let Some(parsed) = &parsed {
+            let unparsables = parsed.recursive_crawl(
+                &SyntaxSet::single(SyntaxKind::Unparsable),
+                true,
+                &SyntaxSet::EMPTY,
+                true,
+            );
 
-                violations.extend(unparsables.into_iter().map(|segment| SQLParseError {
-                    description: "Unparsable section".into(),
-                    segment: segment.into(),
-                }));
-            }
+            violations.extend(unparsables.into_iter().map(|segment| SQLParseError {
+                description: "Unparsable section".into(),
+                segment: segment.into(),
+            }));
         };
 
         (parsed, violations)
@@ -481,7 +479,7 @@ impl Linter {
     }
 
     /// Normalise newlines to unix-style line endings.
-    fn normalise_newlines(string: &str) -> Cow<str> {
+    fn normalise_newlines(string: &str) -> Cow<'_, str> {
         lazy_regex::regex!("\r\n|\r").replace_all(string, "\n")
     }
 

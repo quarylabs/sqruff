@@ -108,11 +108,11 @@ impl MatchableTrait for Ref {
     ) -> Option<(AHashSet<String>, SyntaxSet)> {
         self.simple_cache
             .get_or_init(|| {
-                if let Some(ref c) = crumbs {
-                    if c.contains(&&*self.reference) {
-                        let loop_string = c.join(" -> ");
-                        panic!("Self referential grammar detected: {loop_string}");
-                    }
+                if let Some(ref c) = crumbs
+                    && c.contains(&&*self.reference)
+                {
+                    let loop_string = c.join(" -> ");
+                    panic!("Self referential grammar detected: {loop_string}");
                 }
 
                 let mut new_crumbs = crumbs.unwrap_or_default();

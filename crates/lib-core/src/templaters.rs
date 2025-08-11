@@ -221,15 +221,15 @@ impl TemplatedFileInner {
             previous_slice = Some(tfs);
             outer_tfs = Some(tfs)
         }
-        if !sliced_file.is_empty() && input_templated_str.is_some() {
-            if let Some(outer_tfs) = outer_tfs {
-                if outer_tfs.templated_slice.end != templated_str.len() {
-                    return Err(SQLFluffSkipFile::new(format!(
-                        "Last templated slice does not end at end of string, (found slice {:?})",
-                        outer_tfs.templated_slice
-                    )));
-                }
-            }
+        if !sliced_file.is_empty()
+            && input_templated_str.is_some()
+            && let Some(outer_tfs) = outer_tfs
+            && outer_tfs.templated_slice.end != templated_str.len()
+        {
+            return Err(SQLFluffSkipFile::new(format!(
+                "Last templated slice does not end at end of string, (found slice {:?})",
+                outer_tfs.templated_slice
+            )));
         }
 
         Ok(TemplatedFileInner {

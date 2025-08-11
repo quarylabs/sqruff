@@ -264,55 +264,55 @@ impl Tables {
         let mut last = None;
 
         std::iter::from_fn(move || {
-            if let Some(last_node) = last.take() {
-                if prune.as_mut().is_none_or(|prune| !prune(self, last_node)) {
-                    match &self.exprs[last_node].kind {
-                        ExprKind::Select {
-                            with,
-                            projections,
-                            from,
-                            joins,
-                        } => {
-                            queue.extend(joins.iter().rev());
-                            queue.extend(from);
-                            queue.extend(projections.iter().rev());
-                            queue.extend(with);
-                        }
-                        &ExprKind::Subquery(subquery, _) => {
-                            queue.push(subquery);
-                        }
-                        ExprKind::With { ctes } => {
-                            queue.extend(ctes.iter().rev());
-                        }
-                        &ExprKind::Cte { alias, this } => {
-                            queue.push(this);
-                            queue.push(alias);
-                        }
-                        &ExprKind::Alias0(this, alias) => {
-                            queue.push(alias);
-                            queue.push(this);
-                        }
-                        ExprKind::Function(_, args) => {
-                            queue.extend(args.iter().rev());
-                        }
-                        ExprKind::TableAlias(_, alias) => {
-                            queue.extend(alias);
-                        }
-                        &ExprKind::From { this, alias } => {
-                            queue.extend(alias);
-                            queue.push(this);
-                        }
-                        &ExprKind::Join { this, on, using } => {
-                            queue.extend(using);
-                            queue.extend(on);
-                            queue.push(this);
-                        }
-                        &ExprKind::Add(lhs, rhs) | &ExprKind::Sub(lhs, rhs) => {
-                            queue.extend([rhs, lhs]);
-                        }
-                        _ => {}
-                    };
-                }
+            if let Some(last_node) = last.take()
+                && prune.as_mut().is_none_or(|prune| !prune(self, last_node))
+            {
+                match &self.exprs[last_node].kind {
+                    ExprKind::Select {
+                        with,
+                        projections,
+                        from,
+                        joins,
+                    } => {
+                        queue.extend(joins.iter().rev());
+                        queue.extend(from);
+                        queue.extend(projections.iter().rev());
+                        queue.extend(with);
+                    }
+                    &ExprKind::Subquery(subquery, _) => {
+                        queue.push(subquery);
+                    }
+                    ExprKind::With { ctes } => {
+                        queue.extend(ctes.iter().rev());
+                    }
+                    &ExprKind::Cte { alias, this } => {
+                        queue.push(this);
+                        queue.push(alias);
+                    }
+                    &ExprKind::Alias0(this, alias) => {
+                        queue.push(alias);
+                        queue.push(this);
+                    }
+                    ExprKind::Function(_, args) => {
+                        queue.extend(args.iter().rev());
+                    }
+                    ExprKind::TableAlias(_, alias) => {
+                        queue.extend(alias);
+                    }
+                    &ExprKind::From { this, alias } => {
+                        queue.extend(alias);
+                        queue.push(this);
+                    }
+                    &ExprKind::Join { this, on, using } => {
+                        queue.extend(using);
+                        queue.extend(on);
+                        queue.push(this);
+                    }
+                    &ExprKind::Add(lhs, rhs) | &ExprKind::Sub(lhs, rhs) => {
+                        queue.extend([rhs, lhs]);
+                    }
+                    _ => {}
+                };
             }
 
             last = queue.pop();
@@ -620,20 +620,20 @@ pub(crate) fn lower_inner(
 
             let this = lower_inner(tables, this, parent);
 
-            if let Some(maybe_alias) = cursor.next() {
-                if maybe_alias.get_type() == SyntaxKind::AliasExpression {
-                    let maybe_alias = maybe_alias.clone();
-                    let raw_segments = maybe_alias.get_raw_segments();
-                    let alias = raw_segments
-                        .iter()
-                        .rev()
-                        .find(|it| it.is_code())
-                        .unwrap()
-                        .clone();
+            if let Some(maybe_alias) = cursor.next()
+                && maybe_alias.get_type() == SyntaxKind::AliasExpression
+            {
+                let maybe_alias = maybe_alias.clone();
+                let raw_segments = maybe_alias.get_raw_segments();
+                let alias = raw_segments
+                    .iter()
+                    .rev()
+                    .find(|it| it.is_code())
+                    .unwrap()
+                    .clone();
 
-                    if let ExprKind::TableReference(_, slot) = &mut tables.exprs[this].kind {
-                        *slot = Some(alias.raw().to_string());
-                    }
+                if let ExprKind::TableReference(_, slot) = &mut tables.exprs[this].kind {
+                    *slot = Some(alias.raw().to_string());
                 }
             }
 
@@ -835,11 +835,11 @@ impl<'me> Cursor<'me> {
     }
 
     fn skip_if(&mut self, raws: &[&str]) -> bool {
-        if let Some(peeked) = self.peek() {
-            if raws.contains(&peeked.raw().to_uppercase().as_str()) {
-                self.next();
-                return true;
-            }
+        if let Some(peeked) = self.peek()
+            && raws.contains(&peeked.raw().to_uppercase().as_str())
+        {
+            self.next();
+            return true;
         }
 
         false

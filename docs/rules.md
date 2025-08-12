@@ -13,7 +13,7 @@ The following rules are available in this create. This list is generated from th
 | AL05 | [aliasing.unused](#aliasingunused) | Tables should not be aliased if that alias is not used. | 
 | AL06 | [aliasing.length](#aliasinglength) | Identify aliases in from clause and join conditions | 
 | AL07 | [aliasing.forbid](#aliasingforbid) | Avoid table aliases in from clauses and join conditions. | 
-| AL08 | [layout.cte_newline](#layoutcte_newline) | Column aliases should be unique within each clause. | 
+| AL08 | [aliasing.unique.column](#aliasinguniquecolumn) | Column aliases should be unique within each clause. | 
 | AL09 | [aliasing.self_alias.column](#aliasingself_aliascolumn) | Find self-aliased columns and fix them | 
 | AM01 | [ambiguous.distinct](#ambiguousdistinct) | Ambiguous use of 'DISTINCT' in a 'SELECT' statement with 'GROUP BY'. | 
 | AM02 | [ambiguous.union](#ambiguousunion) | Look for UNION keyword not immediately followed by DISTINCT or ALL | 
@@ -342,7 +342,7 @@ FROM
 ```
 
 
-### layout.cte_newline
+### aliasing.unique.column
 
 Column aliases should be unique within each clause.
 

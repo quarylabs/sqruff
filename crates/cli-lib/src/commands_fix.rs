@@ -23,9 +23,12 @@ pub(crate) fn run_fix(
 
         for mut file in result {
             let path = std::mem::take(&mut file.path);
+            let source = file.source_str().to_string();
             let fixed = file.fix_string();
 
-            std::fs::write(path, fixed).unwrap();
+            if fixed != source {
+                std::fs::write(path, fixed).unwrap();
+            }
         }
 
         linter.formatter_mut().unwrap().completion_message(files);
@@ -50,4 +53,40 @@ pub(crate) fn run_fix_stdin(
 
     // if all fixable violations are fixable, return 0 else return 1
     has_unfixable_errors as i32
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use std::io::Write;
+    use std::path::Path;
+    use std::thread::sleep;
+    use std::time::Duration;
+    use tempfile::NamedTempFile;
+
+    fn ignore_none(_: &Path) -> bool {
+        false
+    }
+
+    #[test]
+    fn run_fix_does_not_update_mtime_when_no_changes() {
+        let mut tmp = NamedTempFile::new().unwrap();
+        writeln!(tmp, "SELECT 1 FROM").unwrap();
+        tmp.flush().unwrap();
+        let tmp = tmp.into_temp_path();
+        let path = tmp.to_path_buf();
+
+        let before = std::fs::metadata(&path).unwrap().modified().unwrap();
+        sleep(Duration::from_secs(1));
+
+        let args = FixArgs {
+            paths: vec![path.clone()],
+            format: Format::Human,
+        };
+        let config = FluffConfig::default();
+        run_fix(args, config, ignore_none, true);
+
+        let after = std::fs::metadata(&path).unwrap().modified().unwrap();
+        assert_eq!(before, after);
+    }
 }

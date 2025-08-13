@@ -49,6 +49,10 @@ impl LintedFile {
         &self.path
     }
 
+    pub fn source_str(&self) -> &str {
+        &self.templated_file.source_str
+    }
+
     pub fn into_violations(self) -> Vec<SQLBaseError> {
         self.violations
     }

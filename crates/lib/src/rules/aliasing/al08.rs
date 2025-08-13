@@ -18,7 +18,7 @@ impl Rule for RuleAL08 {
     }
 
     fn name(&self) -> &'static str {
-        "layout.cte_newline"
+        "aliasing.unique.column"
     }
 
     fn description(&self) -> &'static str {

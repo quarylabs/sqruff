@@ -49,6 +49,10 @@ impl LintedFile {
         &self.path
     }
 
+    pub fn has_fixes(&self) -> bool {
+        !self.patches.is_empty()
+    }
+
     pub fn into_violations(self) -> Vec<SQLBaseError> {
         self.violations
     }

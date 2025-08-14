@@ -49,8 +49,8 @@ impl LintedFile {
         &self.path
     }
 
-    pub fn source_str(&self) -> &str {
-        &self.templated_file.source_str
+    pub fn has_fixes(&self) -> bool {
+        !self.patches.is_empty()
     }
 
     pub fn into_violations(self) -> Vec<SQLBaseError> {

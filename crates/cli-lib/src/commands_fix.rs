@@ -22,13 +22,12 @@ pub(crate) fn run_fix(
         let files = result.len();
 
         for mut file in result {
-            let path = std::mem::take(&mut file.path);
-            let source = file.source_str().to_string();
-            let fixed = file.fix_string();
-
-            if fixed != source {
-                std::fs::write(path, fixed).unwrap();
+            if !file.has_fixes() {
+                continue;
             }
+            let path = std::mem::take(&mut file.path);
+            let fixed = file.fix_string();
+            std::fs::write(path, fixed).unwrap();
         }
 
         linter.formatter_mut().unwrap().completion_message(files);

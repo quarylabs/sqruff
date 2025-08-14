@@ -46,7 +46,7 @@ export function activate(context: vscode.ExtensionContext) {
 
       const uri = vscode.workspace.workspaceFolders[0].uri;
       const fileNames = [".sqlfluff", ".sqruff"];
-      let contents = new Uint8Array();
+      let contents = new Uint8Array() as Uint8Array<ArrayBufferLike>;
 
       for (const fileName of fileNames) {
         try {

@@ -1,0 +1,336 @@
+file:
+- batch:
+  - statement:
+    - naked_identifier: CREATE
+    - expression:
+      - column_reference:
+        - naked_identifier: TABLE
+    - expression:
+      - function:
+        - function_name:
+          - quoted_identifier: '[dbo]'
+          - dot: .
+          - quoted_identifier: '[EC DC]'
+        - function_contents:
+          - bracketed:
+            - start_bracket: (
+            - expression:
+              - column_reference:
+                - quoted_identifier: '[Column B]'
+            - expression:
+              - function:
+                - function_name:
+                  - quoted_identifier: '[varchar]'
+                - function_contents:
+                  - bracketed:
+                    - start_bracket: (
+                    - expression:
+                      - numeric_literal: '100'
+                    - end_bracket: )
+            - comma: ','
+            - expression:
+              - column_reference:
+                - quoted_identifier: '[ColumnC]'
+            - expression:
+              - function:
+                - function_name:
+                  - function_name_identifier: varchar
+                - function_contents:
+                  - bracketed:
+                    - start_bracket: (
+                    - expression:
+                      - numeric_literal: '100'
+                    - end_bracket: )
+            - comma: ','
+            - expression:
+              - column_reference:
+                - quoted_identifier: '[ColumnDecimal]'
+            - expression:
+              - function:
+                - function_name:
+                  - function_name_identifier: decimal
+                - function_contents:
+                  - bracketed:
+                    - start_bracket: (
+                    - expression:
+                      - numeric_literal: '10'
+                    - comma: ','
+                    - expression:
+                      - numeric_literal: '3'
+                    - end_bracket: )
+            - end_bracket: )
+    - expression:
+      - column_reference:
+        - naked_identifier: CREATE
+    - expression:
+      - column_reference:
+        - naked_identifier: TABLE
+    - expression:
+      - function:
+        - function_name:
+          - function_name_identifier: foo
+        - function_contents:
+          - bracketed:
+            - start_bracket: (
+            - expression:
+              - column_reference:
+                - naked_identifier: pk
+            - expression:
+              - column_reference:
+                - naked_identifier: int
+            - expression:
+              - column_reference:
+                - naked_identifier: PRIMARY
+            - expression:
+              - column_reference:
+                - naked_identifier: KEY
+            - comma: ','
+            - expression:
+              - column_reference:
+                - naked_identifier: quoted_name
+            - expression:
+              - column_reference:
+                - quoted_identifier: '[custom udt]'
+            - comma: ','
+            - expression:
+              - column_reference:
+                - naked_identifier: qualified_name
+            - expression:
+              - column_reference:
+                - naked_identifier: sch
+                - dot: .
+                - naked_identifier: qualified
+            - comma: ','
+            - expression:
+              - column_reference:
+                - naked_identifier: quoted_qualified
+            - expression:
+              - column_reference:
+                - quoted_identifier: '"my schema"'
+                - dot: .
+                - naked_identifier: qualified
+            - comma: ','
+            - expression:
+              - column_reference:
+                - naked_identifier: more_quoted
+            - expression:
+              - column_reference:
+                - quoted_identifier: '"my schema"'
+                - dot: .
+                - quoted_identifier: '"custom udt"'
+            - comma: ','
+            - expression:
+              - column_reference:
+                - naked_identifier: quoted_udt
+            - expression:
+              - column_reference:
+                - naked_identifier: sch
+                - dot: .
+                - quoted_identifier: '[custom udt]'
+            - end_bracket: )
+  - statement_terminator: ;
+  - statement:
+    - create_table_statement:
+      - create_table_statement:
+        - keyword: CREATE
+        - keyword: TABLE
+        - table_reference:
+          - object_reference:
+            - naked_identifier: dbo
+            - dot: .
+            - naked_identifier: Products
+        - bracketed:
+          - start_bracket: (
+          - column_definition:
+            - column_definition:
+              - naked_identifier: ProductID
+              - data_type:
+                - data_type:
+                  - data_type_identifier: int
+              - keyword: IDENTITY
+              - bracketed:
+                - start_bracket: (
+                - numeric_literal: '1'
+                - comma: ','
+                - numeric_literal: '1'
+                - end_bracket: )
+              - column_constraint_segment:
+                - keyword: NOT
+                - keyword: 'NULL'
+          - comma: ','
+          - column_definition:
+            - naked_identifier: InventoryTs
+            - word: datetime2
+            - bracketed:
+              - start_bracket: (
+              - numeric_literal: '0'
+              - end_bracket: )
+          - comma: ','
+          - column_definition:
+            - naked_identifier: QtyAvailable
+            - word: smallint
+          - comma: ','
+          - column_definition:
+            - naked_identifier: QtySold
+            - word: smallint
+          - comma: ','
+          - column_definition:
+            - naked_identifier: UnitPrice
+            - word: money
+          - comma: ','
+          - column_definition:
+            - column_definition:
+              - naked_identifier: InventoryValue1
+              - keyword: AS
+              - expression:
+                - column_reference:
+                  - naked_identifier: QtyAvailable
+                - binary_operator: '*'
+                - column_reference:
+                  - naked_identifier: UnitPrice
+              - keyword: PERSISTED
+          - comma: ','
+          - column_definition:
+            - column_definition:
+              - naked_identifier: InventoryValue2
+              - keyword: AS
+              - expression:
+                - column_reference:
+                  - naked_identifier: QtyAvailable
+                - binary_operator: '*'
+                - column_reference:
+                  - naked_identifier: UnitPrice
+              - keyword: PERSISTED
+              - column_constraint_segment:
+                - keyword: NOT
+                - keyword: 'NULL'
+          - comma: ','
+          - column_definition:
+            - column_definition:
+              - naked_identifier: InventoryValue3
+              - keyword: AS
+              - expression:
+                - column_reference:
+                  - naked_identifier: QtyAvailable
+                - binary_operator: '*'
+                - column_reference:
+                  - naked_identifier: UnitPrice
+          - comma: ','
+          - column_definition:
+            - column_definition:
+              - naked_identifier: InventoryValue4
+              - keyword: AS
+              - expression:
+                - column_reference:
+                  - naked_identifier: QtyAvailable
+                - binary_operator: '*'
+                - column_reference:
+                  - naked_identifier: UnitPrice
+              - column_constraint_segment:
+                - keyword: PRIMARY
+                - keyword: KEY
+          - comma: ','
+          - column_definition:
+            - column_definition:
+              - quoted_identifier: '[SoldValue]'
+              - keyword: AS
+              - expression:
+                - bracketed:
+                  - start_bracket: (
+                  - expression:
+                    - column_reference:
+                      - naked_identifier: QtySold
+                    - binary_operator: '*'
+                    - column_reference:
+                      - naked_identifier: UnitPrice
+                  - end_bracket: )
+          - comma: ','
+          - column_definition:
+            - column_definition:
+              - naked_identifier: InventoyDate
+              - keyword: AS
+              - expression:
+                - function:
+                  - function_name:
+                    - function_name_identifier: CAST
+                  - function_contents:
+                    - bracketed:
+                      - start_bracket: (
+                      - expression:
+                        - column_reference:
+                          - naked_identifier: InventoryTs
+                      - keyword: AS
+                      - data_type:
+                        - data_type:
+                          - data_type_identifier: date
+                      - end_bracket: )
+          - end_bracket: )
+  - statement_terminator: ;
+  - statement:
+    - create_table_statement:
+      - create_table_statement:
+        - keyword: CREATE
+        - keyword: TABLE
+        - table_reference:
+          - object_reference:
+            - quoted_identifier: '[dbo]'
+            - dot: .
+            - quoted_identifier: '[Foo]'
+        - bracketed:
+          - start_bracket: (
+          - column_definition:
+            - column_definition:
+              - quoted_identifier: '[ID]'
+              - data_type:
+                - data_type:
+                  - quoted_identifier: '[int]'
+              - keyword: IDENTITY
+              - bracketed:
+                - start_bracket: (
+                - numeric_literal: '1'
+                - comma: ','
+                - numeric_literal: '1'
+                - end_bracket: )
+              - column_constraint_segment:
+                - keyword: NOT
+                - keyword: 'NULL'
+          - comma: ','
+          - table_constraint:
+            - table_constraint:
+              - keyword: CONSTRAINT
+              - object_reference:
+                - quoted_identifier: '[PK_Foo_ID]'
+              - keyword: PRIMARY
+              - keyword: KEY
+              - keyword: CLUSTERED
+              - bracketed:
+                - start_bracket: (
+                - column_reference:
+                  - quoted_identifier: '[ID]'
+                - keyword: ASC
+                - end_bracket: )
+          - comma: ','
+          - column_definition:
+            - column_definition:
+              - quoted_identifier: '[other_ID]'
+              - data_type:
+                - data_type:
+                  - quoted_identifier: '[int]'
+              - column_constraint_segment:
+                - keyword: FOREIGN
+                - keyword: KEY
+                - keyword: REFERENCES
+                - table_reference:
+                  - object_reference:
+                    - quoted_identifier: '[dbo]'
+                    - dot: .
+                    - quoted_identifier: '[Bar]'
+                - bracketed:
+                  - start_bracket: (
+                  - column_reference:
+                    - naked_identifier: id
+                  - end_bracket: )
+              - column_constraint_segment:
+                - keyword: UNIQUE
+          - end_bracket: )
+  - statement_terminator: ;

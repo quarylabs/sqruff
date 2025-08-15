@@ -219,8 +219,6 @@ test_mysql_select_no_from_should_not_except:
       dialect: mysql
 
 test_nested_join_clause_does_not_flag:
-  # TODO: Fix T-SQL nested JOIN parsing causing panic in join.rs
-  ignored: "T-SQL nested JOIN syntax causes panic in parser"
   pass_str: |
     SELECT
         1 AS RegionCode
@@ -234,8 +232,6 @@ test_nested_join_clause_does_not_flag:
       dialect: tsql
 
 test_nested_join_clauses_do_not_flag:
-  # TODO: Fix T-SQL nested JOIN parsing causing panic in join.rs
-  ignored: "T-SQL nested JOIN syntax causes panic in parser"
   pass_str: |
     SELECT
         1 AS RegionCode
@@ -251,8 +247,6 @@ test_nested_join_clauses_do_not_flag:
       dialect: tsql
 
 test_parenthesized_join_clauses_do_not_flag:
-  # TODO: Fix T-SQL parenthesized JOIN parsing causing panic in join.rs
-  ignored: "T-SQL parenthesized JOIN syntax causes panic in parser"
   pass_str: |
     SELECT
         1 AS RegionCode
@@ -291,7 +285,11 @@ test_pass_update_with_alias:
         SELECT 1 FROM foobar AS tmp WHERE tmp.idx = dest.idx)
 
 test_pass_postgres_merge_with_alias:
-  ignored: "test says postgres but it's set to tsql"
+  # BUG: RF01 fails when EXISTS subquery contains column alias (AS tmp)
+  # The SQL is valid - target alias 'dest' should be accessible in EXISTS clause
+  # Works fine without the "AS tmp" alias in SELECT 1
+  # Issue: Column alias in EXISTS subquery breaks parent scope resolution
+  ignored: "RF01 bug: column alias in EXISTS subquery breaks MERGE target alias resolution"
   pass_str: |
     merge dw.sch.tbl dest
     using land.sch.tbl src

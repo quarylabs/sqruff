@@ -1,0 +1,230 @@
+file:
+- statement:
+  - create_table_statement:
+    - keyword: CREATE
+    - keyword: TABLE
+    - table_reference:
+      - naked_identifier: users
+    - bracketed:
+      - start_bracket: (
+      - column_definition:
+        - naked_identifier: id
+        - data_type:
+          - data_type_identifier: UInt64
+      - comma: ','
+      - column_definition:
+        - naked_identifier: name
+        - data_type:
+          - data_type_identifier: String
+      - comma: ','
+      - column_definition:
+        - naked_identifier: email
+        - data_type:
+          - data_type_identifier: String
+      - comma: ','
+      - column_definition:
+        - naked_identifier: age
+        - data_type:
+          - data_type_identifier: UInt8
+      - comma: ','
+      - column_definition:
+        - naked_identifier: created_at
+        - data_type:
+          - data_type_identifier: DateTime
+      - comma: ','
+      - column_constraint_segment:
+        - keyword: INDEX
+        - naked_identifier: idx_email
+        - expression:
+          - column_reference:
+            - naked_identifier: email
+        - keyword: TYPE
+        - index_type_identifier: minmax
+        - keyword: GRANULARITY
+        - numeric_literal: '1'
+      - comma: ','
+      - column_constraint_segment:
+        - keyword: INDEX
+        - naked_identifier: idx_age
+        - expression:
+          - column_reference:
+            - naked_identifier: age
+        - keyword: TYPE
+        - index_type_identifier: set
+        - bracketed:
+          - start_bracket: (
+          - numeric_literal: '10'
+          - end_bracket: )
+        - keyword: GRANULARITY
+        - numeric_literal: '2'
+      - comma: ','
+      - column_constraint_segment:
+        - keyword: PROJECTION
+        - naked_identifier: projection_by_age
+        - bracketed:
+          - start_bracket: (
+          - keyword: SELECT
+          - select_clause_element:
+            - column_reference:
+              - naked_identifier: age
+          - comma: ','
+          - select_clause_element:
+            - function:
+              - function_name:
+                - function_name_identifier: count
+              - function_contents:
+                - bracketed:
+                  - start_bracket: (
+                  - end_bracket: )
+          - groupby_clause:
+            - keyword: GROUP
+            - keyword: BY
+            - column_reference:
+              - naked_identifier: age
+          - end_bracket: )
+      - end_bracket: )
+    - engine:
+      - keyword: ENGINE
+      - comparison_operator:
+        - raw_comparison_operator: =
+      - table_engine_function:
+        - function_name:
+          - function_name_identifier: MergeTree
+        - bracketed:
+          - start_bracket: (
+          - end_bracket: )
+      - merge_tree_order_by_clause:
+        - keyword: ORDER
+        - keyword: BY
+        - column_reference:
+          - naked_identifier: id
+- statement_terminator: ;
+- statement:
+  - create_table_statement:
+    - keyword: CREATE
+    - keyword: TABLE
+    - table_reference:
+      - naked_identifier: analytics
+    - bracketed:
+      - start_bracket: (
+      - column_definition:
+        - naked_identifier: user_id
+        - data_type:
+          - data_type_identifier: UInt64
+      - comma: ','
+      - column_definition:
+        - naked_identifier: event_name
+        - data_type:
+          - data_type_identifier: String
+      - comma: ','
+      - column_definition:
+        - naked_identifier: timestamp
+        - data_type:
+          - data_type_identifier: DateTime
+      - comma: ','
+      - column_definition:
+        - naked_identifier: properties
+        - data_type:
+          - data_type_identifier: String
+      - comma: ','
+      - column_constraint_segment:
+        - keyword: INDEX
+        - naked_identifier: idx_events
+        - expression:
+          - column_reference:
+            - naked_identifier: event_name
+        - keyword: TYPE
+        - index_type_identifier: bloom_filter
+        - keyword: GRANULARITY
+        - numeric_literal: '1'
+      - comma: ','
+      - column_constraint_segment:
+        - keyword: INDEX
+        - naked_identifier: idx_timestamp
+        - expression:
+          - column_reference:
+            - naked_identifier: timestamp
+        - keyword: TYPE
+        - index_type_identifier: minmax
+      - comma: ','
+      - column_constraint_segment:
+        - keyword: PROJECTION
+        - naked_identifier: monthly_stats
+        - bracketed:
+          - start_bracket: (
+          - keyword: SELECT
+          - select_clause_element:
+            - function:
+              - function_name:
+                - function_name_identifier: toYYYYMM
+              - function_contents:
+                - bracketed:
+                  - start_bracket: (
+                  - expression:
+                    - column_reference:
+                      - naked_identifier: timestamp
+                  - end_bracket: )
+            - alias_expression:
+              - keyword: as
+              - naked_identifier: month
+          - comma: ','
+          - select_clause_element:
+            - column_reference:
+              - naked_identifier: event_name
+          - comma: ','
+          - select_clause_element:
+            - function:
+              - function_name:
+                - function_name_identifier: count
+              - function_contents:
+                - bracketed:
+                  - start_bracket: (
+                  - end_bracket: )
+            - alias_expression:
+              - keyword: as
+              - naked_identifier: cnt
+          - groupby_clause:
+            - keyword: GROUP
+            - keyword: BY
+            - column_reference:
+              - naked_identifier: month
+            - comma: ','
+            - column_reference:
+              - naked_identifier: event_name
+          - end_bracket: )
+      - end_bracket: )
+    - engine:
+      - keyword: ENGINE
+      - comparison_operator:
+        - raw_comparison_operator: =
+      - table_engine_function:
+        - function_name:
+          - function_name_identifier: MergeTree
+        - bracketed:
+          - start_bracket: (
+          - end_bracket: )
+      - keyword: PARTITION
+      - keyword: BY
+      - expression:
+        - function:
+          - function_name:
+            - function_name_identifier: toYYYYMM
+          - function_contents:
+            - bracketed:
+              - start_bracket: (
+              - expression:
+                - column_reference:
+                  - naked_identifier: timestamp
+              - end_bracket: )
+      - merge_tree_order_by_clause:
+        - keyword: ORDER
+        - keyword: BY
+        - bracketed:
+          - start_bracket: (
+          - column_reference:
+            - naked_identifier: user_id
+          - comma: ','
+          - column_reference:
+            - naked_identifier: timestamp
+          - end_bracket: )
+- statement_terminator: ;

@@ -61,7 +61,6 @@ impl Dialect {
         }
     }
 
-    #[track_caller]
     pub fn replace_grammar(&mut self, name: &'static str, match_grammar: Matchable) {
         match self
             .library
@@ -201,7 +200,6 @@ impl Dialect {
         }
     }
 
-    #[track_caller]
     pub fn r#ref(&self, name: &str) -> Matchable {
         match self.library.get(name) {
             Some(DialectElementType::Matchable(matchable)) => matchable.clone(),

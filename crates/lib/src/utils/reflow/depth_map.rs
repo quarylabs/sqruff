@@ -183,10 +183,10 @@ impl DepthInfo {
             "DepthInfo comparison shares no common ancestor!"
         );
 
-        let common_depth = common_hashes.len();
+        // Return the elements that are actually in the intersection, preserving their order
         self.stack_hashes
             .iter()
-            .take(common_depth)
+            .filter(|hash| common_hashes.contains(hash))
             .copied()
             .collect()
     }

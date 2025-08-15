@@ -21,11 +21,11 @@ templater = raw
 
 Sqruff comes with the following templaters out of the box:
 
-- [raw](###raw)
-- [placeholder](###placeholder)
-- [python](###python)
-- [jinja](###jinja)
-- [dbt](###dbt)
+- [raw](#raw)
+- [placeholder](#placeholder)
+- [python](#python)
+- [jinja](#jinja)
+- [dbt](#dbt)
 
 ## Details
 

@@ -22,8 +22,8 @@ importers:
         version: 9.0.1
     devDependencies:
       '@eslint/js':
-        specifier: ^9.32.0
-        version: 9.32.0
+        specifier: ^9.33.0
+        version: 9.33.0
       '@rauschma/env-var':
         specifier: ^1.0.1
         version: 1.0.1
@@ -110,8 +110,8 @@ importers:
         version: 3.0.4(react-dom@19.1.1(react@19.1.1))(react@19.1.1)
     devDependencies:
       '@eslint/js':
-        specifier: ^9.32.0
-        version: 9.32.0
+        specifier: ^9.33.0
+        version: 9.33.0
       '@tailwindcss/postcss':
         specifier: ^4.1.11
         version: 4.1.11
@@ -401,6 +401,10 @@ packages:
 
   '@eslint/js@9.32.0':
     resolution: {integrity: sha512-BBpRFZK3eX6uMLKz8WxFOBIFFcGFJ/g8XuwjTHCqHROSIsopI+ddn/d5Cfh36+7+e5edVS8dbSHnBNhrLEX0zg==}
+    engines: {node: ^18.18.0 || ^20.9.0 || >=21.1.0}
+
+  '@eslint/js@9.33.0':
+    resolution: {integrity: sha512-5K1/mKhWaMfreBGJTwval43JJmkip0RmM+3+IuqupeSKNC/Th2Kc7ucaq5ovTSra/OOKB9c58CGSz3QMVbWt0A==}
     engines: {node: ^18.18.0 || ^20.9.0 || >=21.1.0}
 
   '@eslint/object-schema@2.1.6':
@@ -3808,6 +3812,8 @@ snapshots:
       - supports-color
 
   '@eslint/js@9.32.0': {}
+
+  '@eslint/js@9.33.0': {}
 
   '@eslint/object-schema@2.1.6': {}
 

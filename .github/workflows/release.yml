@@ -10,7 +10,7 @@ jobs:
     name: Convert release to draft
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # ratchet:actions/checkout@v4
+      - uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # ratchet:actions/checkout@v5
       - run: chmod +x .hacking/scripts/convert_release_to_draft.sh
       - run: .hacking/scripts/convert_release_to_draft.sh
         env:
@@ -21,7 +21,7 @@ jobs:
     needs:
       - convert-release-as-draft
     steps:
-      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # ratchet:actions/checkout@v4
+      - uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # ratchet:actions/checkout@v5
       - name: Install jq
         run: sudo apt-get install jq
       - name: Allow running check_versions_match.sh
@@ -42,7 +42,7 @@ jobs:
       attestations: write
       packages: write
     steps:
-      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # ratchet:actions/checkout@v4
+      - uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # ratchet:actions/checkout@v5
       - uses: Swatinem/rust-cache@98c8021b550208e191a6a3145459bfc9fb29c4c0 # ratchet:Swatinem/rust-cache@v2
       - uses: pnpm/action-setup@a7487c7e89a18df4991f7f222e4898a00d66ddda # ratchet:pnpm/action-setup@v4
         name: Install pnpm
@@ -109,7 +109,7 @@ jobs:
             target: aarch64-apple-darwin
             bin: sqruff
     steps:
-      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # ratchet:actions/checkout@v4
+      - uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # ratchet:actions/checkout@v5
       - uses: ./.github/actions/build-binaries
         with:
           package: true
@@ -131,7 +131,7 @@ jobs:
     needs:
       - check-versions-match
     steps:
-      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # ratchet:actions/checkout@v4
+      - uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # ratchet:actions/checkout@v5
       - name: Set up QEMU
         uses: docker/setup-qemu-action@29109295f81e9208d7d86ff1c6c12d2833863392 # ratchet:docker/setup-qemu-action@v3
       - name: Set up Docker Buildx
@@ -159,7 +159,7 @@ jobs:
       - release
       - release-vsix
     steps:
-      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # ratchet:actions/checkout@v4
+      - uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # ratchet:actions/checkout@v5
       - run: chmod +x ./.hacking/scripts/convert_release_to_not_draft.sh
       - run: ./.hacking/scripts/convert_release_to_not_draft.sh
         env:
@@ -172,14 +172,14 @@ jobs:
     env:
       HOMEBREW_ACCESS_TOKEN: ${{ secrets.HOMEBREW_ACCESS_TOKEN }}
     steps:
-      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # ratchet:actions/checkout@v4
+      - uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # ratchet:actions/checkout@v5
       - run: ./.hacking/scripts/update_homebrew_pr.sh $HOMEBREW_ACCESS_TOKEN
   publish-to-cargo:
     name: Publish to Cargo
     runs-on: ubuntu-latest
     needs: [convert_release_to_not_draft]
     steps:
-      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # ratchet:actions/checkout@v4
+      - uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # ratchet:actions/checkout@v5
       - uses: actions-rs/toolchain@16499b5e05bf2e26879000db0c1d13f7e13fa3af # ratchet:actions-rs/toolchain@v1
         with:
           toolchain: stable
@@ -226,7 +226,7 @@ jobs:
       - release-vsix
       - convert_release_to_not_draft
     steps:
-      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # ratchet:actions/checkout@v4
+      - uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # ratchet:actions/checkout@v5
       - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # ratchet:actions/setup-node@v4
         with:
           node-version-file: ".nvmrc"
@@ -243,7 +243,7 @@ jobs:
       - release-vsix
       - convert_release_to_not_draft
     steps:
-      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # ratchet:actions/checkout@v4
+      - uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # ratchet:actions/checkout@v5
       - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # ratchet:actions/setup-node@v4
         with:
           node-version-file: ".nvmrc"

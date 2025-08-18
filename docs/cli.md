@@ -10,6 +10,7 @@ This document contains the help content for the `sqruff` command-line program.
 * [`sqruff lsp`↴](#sqruff-lsp)
 * [`sqruff info`↴](#sqruff-info)
 * [`sqruff rules`↴](#sqruff-rules)
+* [`sqruff parse`↴](#sqruff-parse)
 
 ## `sqruff`
 
@@ -24,6 +25,7 @@ sqruff is a sql formatter and linter
 * `lsp` — Run an LSP server
 * `info` — Print information about sqruff and the current environment
 * `rules` — Explain the available rules
+* `parse` — Parse SQL and output the parse tree for debugging
 
 ###### **Options:**
 
@@ -97,6 +99,27 @@ Print information about sqruff and the current environment
 Explain the available rules
 
 **Usage:** `sqruff rules`
+
+
+
+## `sqruff parse`
+
+Parse SQL and output the parse tree for debugging
+
+**Usage:** `sqruff parse [OPTIONS] [PATHS]...`
+
+###### **Arguments:**
+
+* `<PATHS>` — Files or directories to parse. Use `-` to read from stdin
+
+###### **Options:**
+
+* `-f`, `--format <FORMAT>` — The output format for the parse tree
+
+  Default value: `pretty`
+
+  Possible values: `json`, `pretty`
+
 
 
 

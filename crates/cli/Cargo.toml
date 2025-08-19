@@ -22,12 +22,14 @@ workspace = true
 [features]
 python = ["sqruff-cli-lib/python", "pyo3"]
 codegen-docs = ["sqruff-cli-lib/codegen-docs"]
+bench = []
 
 [[bin]]
 name = "bench"
 path = "src/bin/bench.rs"
 bench = false
 publish = false
+required-features = ["bench"]
 
 [[test]]
 name = "fix_return_code"

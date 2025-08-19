@@ -122,13 +122,19 @@ impl Linter {
             if path.is_file() {
                 expanded_paths.push(path.to_string_lossy().to_string());
             } else {
-                expanded_paths.extend(self.paths_from_path(path, None, None, None, None));
+                expanded_paths.extend(self.paths_from_path(path, None, None, None, None, Some(ignorer)));
             };
         }
 
         let paths: Vec<String> = expanded_paths
             .into_iter()
-            .filter(|path| !ignorer(Path::new(path)))
+            .filter(|path| {
+                let should_ignore = ignorer(Path::new(path));
+                if should_ignore {
+                    log::debug!("Filtering out ignored file '{}' from final processing list", path);
+                }
+                !should_ignore
+            })
             .collect_vec();
 
         let mut files = Vec::with_capacity(paths.len());
@@ -497,6 +503,7 @@ impl Linter {
         ignore_non_existent_files: Option<bool>,
         ignore_files: Option<bool>,
         working_path: Option<String>,
+        ignorer: Option<&(dyn Fn(&Path) -> bool + Send + Sync)>,
     ) -> Vec<String> {
         let ignore_file_name = ignore_file_name.unwrap_or_else(|| String::from(".sqlfluffignore"));
         let ignore_non_existent_files = ignore_non_existent_files.unwrap_or(false);
@@ -522,15 +529,43 @@ impl Linter {
             let files = vec![path.file_name().unwrap().to_str().unwrap().to_string()];
             vec![(dirpath, None, files)]
         } else {
-            WalkDir::new(&path)
-                .into_iter()
-                .filter_map(Result::ok) // Filter out the Result and get DirEntry
-                .map(|entry| {
+            let walkdir = WalkDir::new(&path);
+            let entries: Vec<_> = if let Some(ignorer) = ignorer {
+                // Apply ignorer during traversal to skip ignored directories entirely
+                walkdir
+                    .into_iter()
+                    .filter_entry(|entry| {
+                        let should_ignore = ignorer(entry.path());
+                        if should_ignore {
+                            let path_type = if entry.file_type().is_dir() { "directory" } else { "file" };
+                            log::debug!("Skipping {} '{}' during file discovery traversal", path_type, entry.path().display());
+                        }
+                        !should_ignore
+                    })
+                    .filter_map(Result::ok)
+                    .collect()
+            } else {
+                // No ignorer provided, use original behavior
+                walkdir
+                    .into_iter()
+                    .filter_map(Result::ok)
+                    .collect()
+            };
+            
+            // Group entries by directory to maintain the original data structure
+            let mut dir_files: AHashMap<String, Vec<String>> = AHashMap::new();
+            
+            for entry in entries {
+                if entry.file_type().is_file() {
                     let dirpath = entry.path().parent().unwrap().to_str().unwrap().to_string();
-                    let files = vec![entry.file_name().to_str().unwrap().to_string()];
-                    (dirpath, None, files)
-                })
-                .collect_vec()
+                    let filename = entry.file_name().to_str().unwrap().to_string();
+                    dir_files.entry(dirpath).or_default().push(filename);
+                }
+            }
+            
+            dir_files.into_iter().map(|(dirpath, files)| {
+                (dirpath, None, files)
+            }).collect_vec()
         };
 
         // TODO:
@@ -660,7 +695,7 @@ mod tests {
             None,
             false,
         ); // Assuming Linter has a new() method for initialization
-        let paths = lntr.paths_from_path("test/fixtures/lexer".into(), None, None, None, None);
+        let paths = lntr.paths_from_path("test/fixtures/lexer".into(), None, None, None, None, None);
         let expected = vec![
             "test.fixtures.lexer.basic.sql",
             "test.fixtures.lexer.block_comment.sql",
@@ -684,6 +719,7 @@ mod tests {
             None,
             None,
             None,
+            None,
         ));
         assert!(paths.contains(&"test.fixtures.linter.passing.sql".to_string()));
         assert!(paths.contains(&"test.fixtures.linter.passing_cap_extension.SQL".to_string()));
@@ -698,7 +734,7 @@ mod tests {
             FluffConfig::new(<_>::default(), None, None).with_sql_file_exts(vec![".txt".into()]);
         let lntr = Linter::new(config, None, None, false); // Assuming Linter has a new() method for initialization
 
-        let paths = lntr.paths_from_path("test/fixtures/linter".into(), None, None, None, None);
+        let paths = lntr.paths_from_path("test/fixtures/linter".into(), None, None, None, None, None);
 
         // Normalizing paths as in the Python version
         let normalized_paths = normalise_paths(paths);
@@ -721,6 +757,7 @@ mod tests {
         ); // Assuming Linter has a new() method for initialization
         let paths = lntr.paths_from_path(
             "test/fixtures/linter/indentation_errors.sql".into(),
+            None,
             None,
             None,
             None,

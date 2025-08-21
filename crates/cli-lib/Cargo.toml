@@ -19,7 +19,7 @@ pkg-fmt = "zip"
 workspace = true
 
 [features]
-parser = ["sqruff-lib-core/serde"]
+parser = ["sqruff-lib/parser"]
 python = ["sqruff-lib/python", "pyo3"]
 codegen-docs = ["clap-markdown", "minijinja", "python"]
 

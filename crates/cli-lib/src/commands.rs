@@ -41,6 +41,12 @@ pub enum Commands {
     Info,
     #[command(name = "rules", about = "Explain the available rules")]
     Rules,
+    #[cfg(feature = "parser")]
+    #[command(
+        name = "parse",
+        about = "Parse SQL and output the parse tree for debugging"
+    )]
+    Parse(ParseArgs),
 }
 
 #[derive(Debug, Parser)]
@@ -60,12 +66,29 @@ pub struct FixArgs {
     pub format: Format,
 }
 
+#[derive(Debug, Parser)]
+pub struct ParseArgs {
+    /// Files or directories to parse. Use `-` to read from stdin.
+    pub paths: Vec<PathBuf>,
+    /// The output format for the parse tree.
+    #[arg(default_value_t, short, long)]
+    pub format: ParseFormat,
+}
+
 #[derive(Debug, Clone, Copy, ValueEnum, Display)]
 #[strum(serialize_all = "kebab-case")]
 pub enum Format {
     Human,
     GithubAnnotationNative,
     Json,
+}
+
+#[derive(Debug, Clone, Copy, ValueEnum, Display, Default)]
+#[strum(serialize_all = "kebab-case")]
+pub enum ParseFormat {
+    Json,
+    #[default]
+    Pretty,
 }
 
 impl Default for Format {

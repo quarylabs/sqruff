@@ -20,6 +20,7 @@ pkg-fmt = "zip"
 workspace = true
 
 [features]
+parser = ["sqruff-cli-lib/parser"]
 python = ["sqruff-cli-lib/python", "pyo3"]
 codegen-docs = ["sqruff-cli-lib/codegen-docs"]
 bench = []

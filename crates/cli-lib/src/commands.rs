@@ -41,7 +41,11 @@ pub enum Commands {
     Info,
     #[command(name = "rules", about = "Explain the available rules")]
     Rules,
-    #[command(name = "parse", about = "Parse SQL and output the parse tree for debugging")]
+    #[cfg(feature = "parser")]
+    #[command(
+        name = "parse",
+        about = "Parse SQL and output the parse tree for debugging"
+    )]
     Parse(ParseArgs),
 }
 

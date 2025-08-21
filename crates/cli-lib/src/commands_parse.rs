@@ -16,7 +16,7 @@ pub(crate) fn run_parse(args: ParseArgs, config: FluffConfig) -> i32 {
 fn run_parse_stdin(config: FluffConfig, format: ParseFormat) -> i32 {
     let stdin = io::stdin();
     let mut sql = String::new();
-    
+
     for line in stdin.lock().lines() {
         match line {
             Ok(line) => {
@@ -29,17 +29,22 @@ fn run_parse_stdin(config: FluffConfig, format: ParseFormat) -> i32 {
             }
         }
     }
-    
+
     parse_and_output_tree(&sql, "<stdin>", &config, format)
 }
 
 fn run_parse_files(args: ParseArgs, config: FluffConfig) -> i32 {
     let mut exit_code = 0;
-    
+
     for path in &args.paths {
         match std::fs::read_to_string(path) {
             Ok(sql) => {
-                let result = parse_and_output_tree(&sql, path.to_string_lossy().as_ref(), &config, args.format);
+                let result = parse_and_output_tree(
+                    &sql,
+                    path.to_string_lossy().as_ref(),
+                    &config,
+                    args.format,
+                );
                 if result != 0 {
                     exit_code = result;
                 }
@@ -50,15 +55,20 @@ fn run_parse_files(args: ParseArgs, config: FluffConfig) -> i32 {
             }
         }
     }
-    
+
     exit_code
 }
 
-fn parse_and_output_tree(sql: &str, filename: &str, config: &FluffConfig, format: ParseFormat) -> i32 {
+fn parse_and_output_tree(
+    sql: &str,
+    filename: &str,
+    config: &FluffConfig,
+    format: ParseFormat,
+) -> i32 {
     // Create a linter and parse the SQL
     let linter = Linter::new(config.clone(), None, None, true);
     let tables = Tables::default();
-    
+
     match linter.parse_string(&tables, sql, Some(filename.to_string())) {
         Ok(parsed) => {
             if let Some(tree) = &parsed.tree {
@@ -78,7 +88,7 @@ fn parse_and_output_tree(sql: &str, filename: &str, config: &FluffConfig, format
                         println!("{}", tree.stringify(false));
                     }
                 }
-                
+
                 // Also print any parsing violations if they exist
                 if !parsed.violations.is_empty() {
                     eprintln!("\nParse violations:");
@@ -86,7 +96,7 @@ fn parse_and_output_tree(sql: &str, filename: &str, config: &FluffConfig, format
                         eprintln!("  {}", violation);
                     }
                 }
-                
+
                 0
             } else {
                 eprintln!("Error: Failed to parse {}", filename);

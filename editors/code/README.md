@@ -75,6 +75,15 @@ You can also install sqruff using [pip](https://pypi.org/project/sqruff/).
 pip install sqruff
 ```
 
+#### For other platforms
+
+Either download the binary from the [releases page](https://github.com/quarylabs/sqruff/releases) with `cargo binstall` or compile it yourself and with cargo:
+
+```bash
+cago binstall sqruff
+cargo install sqruff
+```
+
 #### GitHub Action
 
 You can also use the GitHub Action to install and run sqruff in your CI/CD pipeline. Inside a Github Action, `sqruff` automatically outputs linting output in the GitHub format so that it can be easily viewed in the PR tab.
@@ -88,15 +97,6 @@ jobs:
       - uses: actions/checkout@v4
       - uses: quarylabs/install-sqruff-cli-action@main
       - run: sqruff lint .
-```
-
-#### For other platforms
-
-Either download the binary from the [releases page](https://github.com/quarylabs/sqruff/releases) or compile it yourself and with cargo:
-
-```bash
-cargo install sqruff
-sqruff --help
 ```
 
 #### Visual Studio Code Extension

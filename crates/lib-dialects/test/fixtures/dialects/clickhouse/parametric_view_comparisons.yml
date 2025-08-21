@@ -1,0 +1,90 @@
+file:
+- statement:
+  - create_view_statement:
+    - create_view_statement:
+      - keyword: CREATE
+      - keyword: VIEW
+      - table_reference:
+        - naked_identifier: comparison_param_view
+      - keyword: AS
+      - select_statement:
+        - select_clause:
+          - keyword: SELECT
+          - select_clause_element:
+            - column_reference:
+              - naked_identifier: id
+          - comma: ','
+          - select_clause_element:
+            - column_reference:
+              - naked_identifier: timestamp
+          - comma: ','
+          - select_clause_element:
+            - column_reference:
+              - naked_identifier: value
+        - from_clause:
+          - keyword: FROM
+          - from_expression:
+            - from_expression_element:
+              - table_expression:
+                - table_reference:
+                  - naked_identifier: events
+        - where_clause:
+          - keyword: WHERE
+          - expression:
+            - column_reference:
+              - naked_identifier: timestamp
+            - comparison_operator: '>='
+            - parametric_expression:
+              - start_curly_bracket: '{'
+              - naked_identifier: start_date
+              - colon: ':'
+              - data_type:
+                - data_type_identifier: DateTime64
+              - end_curly_bracket: '}'
+            - binary_operator: AND
+            - column_reference:
+              - naked_identifier: timestamp
+            - comparison_operator: <=
+            - parametric_expression:
+              - start_curly_bracket: '{'
+              - naked_identifier: end_date
+              - colon: ':'
+              - data_type:
+                - data_type_identifier: DateTime64
+              - end_curly_bracket: '}'
+            - binary_operator: AND
+            - column_reference:
+              - naked_identifier: value
+            - comparison_operator:
+              - raw_comparison_operator: '>'
+            - parametric_expression:
+              - start_curly_bracket: '{'
+              - naked_identifier: min_value
+              - colon: ':'
+              - data_type:
+                - data_type_identifier: Float64
+              - end_curly_bracket: '}'
+            - binary_operator: AND
+            - column_reference:
+              - naked_identifier: status
+            - comparison_operator: '!='
+            - parametric_expression:
+              - start_curly_bracket: '{'
+              - naked_identifier: excluded_status
+              - colon: ':'
+              - data_type:
+                - data_type_identifier: String
+              - end_curly_bracket: '}'
+            - binary_operator: AND
+            - column_reference:
+              - naked_identifier: score
+            - comparison_operator:
+              - raw_comparison_operator: <
+            - parametric_expression:
+              - start_curly_bracket: '{'
+              - naked_identifier: max_score
+              - colon: ':'
+              - data_type:
+                - data_type_identifier: UInt32
+              - end_curly_bracket: '}'
+- statement_terminator: ;

@@ -54,9 +54,7 @@ file:
                 - lambda: ->
                 - column_reference:
                   - naked_identifier: x
-                - comparison_operator:
-                  - raw_comparison_operator: '!'
-                  - raw_comparison_operator: =
+                - comparison_operator: '!='
                 - column_reference:
                   - naked_identifier: y
               - comma: ','

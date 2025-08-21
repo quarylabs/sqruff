@@ -219,6 +219,31 @@ impl Linter {
         fix: bool,
     ) -> (ErasedSegment, Option<IgnoreMask>, Vec<SQLLintError>) {
         let mut initial_violations = Vec::new();
+
+        // Check for unparsable sections before attempting to fix
+        if fix {
+            let fix_even_unparsable = self
+                .config
+                .get("fix_even_unparsable", "core")
+                .as_bool()
+                .unwrap_or(false);
+
+            if !fix_even_unparsable {
+                let unparsables = tree.recursive_crawl(
+                    &SyntaxSet::single(SyntaxKind::Unparsable),
+                    true,
+                    &SyntaxSet::EMPTY,
+                    true,
+                );
+                
+                if !unparsables.is_empty() {
+                    // Don't apply fixes to files with unparsable sections
+                    // Return the original tree unchanged with no fixes applied
+                    return (tree, None, initial_violations);
+                }
+            }
+        }
+
         let phases: &[_] = if fix {
             &[LintPhase::Main, LintPhase::Post]
         } else {

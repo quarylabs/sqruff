@@ -135,9 +135,7 @@ file:
           - binary_operator: AND
           - column_reference:
             - naked_identifier: EventTime
-          - comparison_operator:
-            - raw_comparison_operator: <
-            - raw_comparison_operator: =
+          - comparison_operator: <=
           - column_reference:
             - naked_identifier: ts_upper_bound
 - statement_terminator: ;

@@ -17,6 +17,7 @@ pub mod commands;
 mod commands_fix;
 mod commands_info;
 mod commands_lint;
+mod commands_parse;
 mod commands_rules;
 #[cfg(feature = "codegen-docs")]
 mod docs;
@@ -41,7 +42,11 @@ where
     let cli = Cli::parse_from(args);
     let collect_parse_errors = cli.parsing_errors;
 
-    let config: FluffConfig = if let Some(config) = cli.config.as_ref() {
+    let config: FluffConfig = if let Some(dialect) = cli.dialect.as_ref() {
+        // Override dialect - create a minimal config with just the dialect setting
+        let config_str = format!("[sqruff]\ndialect = {}", dialect);
+        FluffConfig::from_source(&config_str, None)
+    } else if let Some(config) = cli.config.as_ref() {
         if !Path::new(config).is_file() {
             eprintln!(
                 "The specified config file '{}' does not exist.",
@@ -92,6 +97,9 @@ where
         Commands::Rules => {
             commands_rules::rules_info(config);
             0
+        }
+        Commands::Parse(args) => {
+            commands_parse::run_parse(args, config)
         }
     }
 }

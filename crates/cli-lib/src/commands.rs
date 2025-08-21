@@ -83,10 +83,11 @@ pub enum Format {
     Json,
 }
 
-#[derive(Debug, Clone, Copy, ValueEnum, Display)]
+#[derive(Debug, Clone, Copy, ValueEnum, Display, Default)]
 #[strum(serialize_all = "kebab-case")]
 pub enum ParseFormat {
     Json,
+    #[default]
     Pretty,
 }
 
@@ -97,11 +98,5 @@ impl Default for Format {
         } else {
             Format::Human
         }
-    }
-}
-
-impl Default for ParseFormat {
-    fn default() -> Self {
-        ParseFormat::Pretty
     }
 }

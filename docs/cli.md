@@ -28,6 +28,7 @@ sqruff is a sql formatter and linter
 ###### **Options:**
 
 * `--config <CONFIG>` — Path to a configuration file
+* `--dialect <DIALECT>` — Override the dialect (e.g., bigquery, clickhouse, ansi)
 * `--parsing-errors` — Show parse errors
 
   Default value: `false`

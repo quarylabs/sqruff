@@ -21,7 +21,7 @@ smol_str = "0.3.1"
 ahash = { version = "0.8.11", features = ["compile-time-rng", "serde"] }
 strum.workspace = true
 strum_macros.workspace = true
-indexmap = "2.10.0"
+indexmap = "2.11.0"
 nohash-hasher = "0.2.0"
 itertools = "0.14.0"
 fancy-regex = "0.16.1"

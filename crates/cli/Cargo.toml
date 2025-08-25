@@ -60,6 +60,10 @@ harness = false
 name = "ui_json"
 harness = false
 
+[[test]]
+name = "dialect_override"
+harness = false
+
 [package.metadata.cargo-machete]
 ignored = ["pyo3"]
 

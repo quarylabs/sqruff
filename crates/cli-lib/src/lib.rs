@@ -2,6 +2,7 @@ use clap::Parser as _;
 use commands::Format;
 use sqruff_lib::core::linter::core::Linter;
 use sqruff_lib::{Formatter, core::config::FluffConfig};
+use sqruff_lib_core::dialects::init::DialectKind;
 use std::path::Path;
 use std::sync::Arc;
 use stdin::is_std_in_flag_input;
@@ -43,11 +44,7 @@ where
     let cli = Cli::parse_from(args);
     let collect_parse_errors = cli.parsing_errors;
 
-    let config: FluffConfig = if let Some(dialect) = cli.dialect.as_ref() {
-        // Override dialect - create a minimal config with just the dialect setting
-        let config_str = format!("[sqruff]\ndialect = {}", dialect);
-        FluffConfig::from_source(&config_str, None)
-    } else if let Some(config) = cli.config.as_ref() {
+    let mut config: FluffConfig = if let Some(config) = cli.config.as_ref() {
         if !Path::new(config).is_file() {
             eprintln!(
                 "The specified config file '{}' does not exist.",
@@ -61,6 +58,22 @@ where
     } else {
         FluffConfig::from_root(None, false, None).unwrap()
     };
+
+    if let Some(dialect) = cli.dialect {
+        let dialect_kind = DialectKind::try_from(dialect.as_str());
+        match dialect_kind {
+            Ok(dialect_kind) => {
+                config.override_dialect(dialect_kind).unwrap_or_else(|e| {
+                    eprintln!("{}", e);
+                    std::process::exit(1);
+                });
+            }
+            Err(e) => {
+                eprintln!("{}", e);
+                std::process::exit(1);
+            }
+        }
+    }
 
     let current_path = std::env::current_dir().unwrap();
     let ignore_file = ignore::IgnoreFile::new_from_root(&current_path).unwrap();

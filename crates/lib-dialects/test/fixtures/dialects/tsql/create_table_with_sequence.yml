@@ -1,0 +1,68 @@
+file:
+- batch:
+  - statement:
+    - create_table_statement:
+      - create_table_statement:
+        - keyword: CREATE
+        - keyword: TABLE
+        - table_reference:
+          - object_reference:
+            - naked_identifier: DEST
+            - dot: .
+            - naked_identifier: MELDER
+        - bracketed:
+          - start_bracket: (
+          - column_definition:
+            - column_definition:
+              - quoted_identifier: '[ID]'
+              - data_type:
+                - data_type:
+                  - data_type_identifier: INT
+              - column_constraint_segment:
+                - keyword: PRIMARY
+                - keyword: KEY
+              - column_constraint_segment:
+                - keyword: NOT
+                - keyword: 'NULL'
+              - column_constraint_segment:
+                - keyword: DEFAULT
+                - keyword: NEXT
+                - keyword: VALUE
+                - keyword: FOR
+                - object_reference:
+                  - quoted_identifier: '[dbo]'
+                  - dot: .
+                  - quoted_identifier: '[SEQ_MELDER]'
+          - comma: ','
+          - column_definition:
+            - quoted_identifier: '[DOWNLOADED_TOTAL]'
+            - word: INT
+            - word: 'NULL'
+          - comma: ','
+          - column_definition:
+            - quoted_identifier: '[WARNED_DAILY]'
+            - word: INT
+            - word: 'NULL'
+          - comma: ','
+          - column_definition:
+            - quoted_identifier: '[DATE_OF_REPORT]'
+            - word: DATETIME
+            - word: 'NULL'
+          - comma: ','
+          - column_definition:
+            - column_definition:
+              - naked_identifier: DATE_LAST_INSERTED
+              - data_type:
+                - data_type:
+                  - data_type_identifier: DATETIME
+              - column_constraint_segment:
+                - keyword: DEFAULT
+                - function:
+                  - function_name:
+                    - function_name_identifier: GETDATE
+                  - function_contents:
+                    - bracketed:
+                      - start_bracket: (
+                      - end_bracket: )
+          - end_bracket: )
+  - statement_terminator: ;

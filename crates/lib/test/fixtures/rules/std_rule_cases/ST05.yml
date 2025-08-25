@@ -348,8 +348,6 @@ issue_2898_redshift_attribute_error:
       dialect: postgres
 
 issue_3623_internal_error_multiple_templated_files:
-  # TODO: Fix T-SQL CTE (Common Table Expression) handling
-  ignored: "T-SQL CTE syntax handling not working correctly"
   fail_str: |
     CREATE TABLE #procs
     WITH (DISTRIBUTION = HASH([eid])) AS

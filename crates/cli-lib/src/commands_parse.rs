@@ -55,7 +55,7 @@ fn run_parse_files(args: ParseArgs, config: FluffConfig) -> i32 {
             }
         }
     }
-    
+
     exit_code
 }
 

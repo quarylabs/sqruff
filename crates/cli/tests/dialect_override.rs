@@ -15,7 +15,11 @@ fn main() {
 }
 
 fn dialect_override() {
-    let profile = if cfg!(debug_assertions) { "debug" } else { "release" };
+    let profile = if cfg!(debug_assertions) {
+        "debug"
+    } else {
+        "release"
+    };
 
     let cargo_folder = Path::new(env!("CARGO_MANIFEST_DIR"));
 
@@ -83,4 +87,3 @@ fn dialect_override() {
 }
 
 const STATEMENT: &str = "SELECT DISTINCT ON (customer_id)\n    customer_id, total, created_at\nFROM orders\nORDER BY customer_id, created_at DESC;\n";
-

@@ -46,6 +46,12 @@ impl Default for FluffConfig {
 }
 
 impl FluffConfig {
+    pub fn override_dialect(&mut self, dialect: DialectKind) -> Result<(), String> {
+        self.dialect =
+            kind_to_dialect(&dialect).ok_or(format!("Invalid dialect: {}", dialect.as_ref()))?;
+        Ok(())
+    }
+
     pub fn get(&self, key: &str, section: &str) -> &Value {
         &self.raw[section][key]
     }

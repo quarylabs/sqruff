@@ -80,7 +80,7 @@ pip install sqruff
 Either download the binary from the [releases page](https://github.com/quarylabs/sqruff/releases) with `cargo binstall` or compile it yourself and with cargo:
 
 ```bash
-cago binstall sqruff
+cargo binstall sqruff
 cargo install sqruff
 ```
 

@@ -107,13 +107,12 @@ impl ObjectReferenceSegment {
 
                 if let (Some(&min_level), Some(&max_level)) =
                     (sorted_levels.first(), sorted_levels.last())
+                    && refs.len() >= max_level as usize
                 {
-                    if refs.len() >= max_level as usize {
-                        let start = refs.len() - max_level as usize;
-                        let end = refs.len() - min_level as usize + 1;
-                        if start < end {
-                            return vec![refs[start..end].to_vec()];
-                        }
+                    let start = refs.len() - max_level as usize;
+                    let end = refs.len() - min_level as usize + 1;
+                    if start < end {
+                        return vec![refs[start..end].to_vec()];
                     }
                 }
                 vec![]

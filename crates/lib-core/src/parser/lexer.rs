@@ -327,10 +327,10 @@ impl Pattern {
                     return None;
                 }
 
-                if let Ok(Some(matched)) = template.find(forward_string) {
-                    if matched.start() == 0 {
-                        return Some(matched.as_str());
-                    }
+                if let Ok(Some(matched)) = template.find(forward_string)
+                    && matched.start() == 0
+                {
+                    return Some(matched.as_str());
                 }
             }
             SearchPatternKind::Native(f) => {

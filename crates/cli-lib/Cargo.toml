@@ -19,6 +19,7 @@ pkg-fmt = "zip"
 workspace = true
 
 [features]
+parser = ["sqruff-lib/parser"]
 python = ["sqruff-lib/python", "pyo3"]
 codegen-docs = ["clap-markdown", "minijinja", "python"]
 
@@ -42,5 +43,5 @@ serde_json = { version = "1.0" }
 [dev-dependencies]
 assert_cmd = "2.0.16"
 expect-test = "1.5.0"
-tempfile = "3.20.0"
-fancy-regex = { version = "0.15" }
+tempfile = "3.21.0"
+fancy-regex = { version = "0.16" }

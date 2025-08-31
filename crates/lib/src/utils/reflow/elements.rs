@@ -271,7 +271,7 @@ impl ReflowPoint {
                 new_segments.push(new_indent.clone());
                 new_segments.extend_from_slice(&self.segments[last_newline_idx + 1..]);
 
-                return (
+                (
                     vec![LintResult::new(
                         if let Some(before) = before {
                             before.into()
@@ -287,7 +287,7 @@ impl ReflowPoint {
                         None,
                     )],
                     ReflowPoint::new(new_segments),
-                );
+                )
             }
         } else {
             // There isn't currently a newline.
@@ -347,7 +347,7 @@ impl ReflowPoint {
                     new_segments
                 });
 
-                return (
+                (
                     vec![LintResult::new(
                         ws_seg.clone().into(),
                         vec![fix],
@@ -355,7 +355,7 @@ impl ReflowPoint {
                         source.map(ToOwned::to_owned),
                     )],
                     new_point,
-                );
+                )
             } else {
                 let new_indent = SegmentBuilder::whitespace(tables.next_id(), desired_indent);
 
@@ -371,7 +371,7 @@ impl ReflowPoint {
                         vec![new_newline.clone(), new_indent.clone()],
                     );
 
-                    return (
+                    (
                         vec![LintResult::new(
                             before.clone().into(),
                             vec![fix],
@@ -383,7 +383,7 @@ impl ReflowPoint {
                             source.map(ToOwned::to_owned),
                         )],
                         ReflowPoint::new(vec![new_newline, new_indent]),
-                    );
+                    )
                 } else {
                     let after = after.unwrap();
                     let fix = LintFix::create_after(
@@ -397,7 +397,7 @@ impl ReflowPoint {
                         after.raw()
                     );
 
-                    return (
+                    (
                         vec![LintResult::new(
                             Some(after),
                             vec![fix],
@@ -405,7 +405,7 @@ impl ReflowPoint {
                             source.map(ToOwned::to_owned),
                         )],
                         ReflowPoint::new(vec![new_newline, new_indent]),
-                    );
+                    )
                 }
             }
         }

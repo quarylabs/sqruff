@@ -71,9 +71,9 @@ FROM table;
             let alias_expression =
                 clause_element.child(const { &SyntaxSet::new(&[SyntaxKind::AliasExpression]) });
 
-            if let Some(column) = column {
-                if let Some(alias_expression) = alias_expression {
-                    if column
+            if let Some(column) = column
+                && let Some(alias_expression) = alias_expression
+                    && (column
                         .child(
                             const {
                                 &SyntaxSet::new(&[
@@ -85,7 +85,7 @@ FROM table;
                         .is_some()
                         || column
                             .child(const { &SyntaxSet::new(&[SyntaxKind::QuotedIdentifier]) })
-                            .is_some()
+                            .is_some())
                     {
                         let Some(whitespace) = clause_element
                             .child(const { &SyntaxSet::new(&[SyntaxKind::Whitespace]) })
@@ -138,8 +138,6 @@ FROM table;
                             ));
                         }
                     }
-                }
-            }
         }
 
         violations

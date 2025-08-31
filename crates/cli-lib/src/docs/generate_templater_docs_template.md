@@ -21,7 +21,7 @@ templater = raw
 
 Sqruff comes with the following templaters out of the box:
 
-{% for template in templaters %}- [{{ template.name }}]({{ template.name }})
+{% for template in templaters %}- [{{ template.name }}](#{{ template.name }})
 {% endfor %}
 ## Details
 {% for templater in templaters %}

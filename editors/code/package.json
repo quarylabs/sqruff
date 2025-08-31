@@ -7,7 +7,7 @@
     "url": "https://github.com/quarylabs/sqruff.git"
   },
   "publisher": "Quary",
-  "version": "0.29.2",
+  "version": "0.29.3",
   "engines": {
     "vscode": "^1.96.0"
   },
@@ -42,19 +42,19 @@
     "vscode-languageserver": "^9.0.1"
   },
   "devDependencies": {
-    "@eslint/js": "^9.32.0",
+    "@eslint/js": "^9.34.0",
     "@rauschma/env-var": "^1.0.1",
     "@types/mocha": "^10.0.10",
-    "@types/node": "~22.16.5",
+    "@types/node": "~22.17.2",
     "@types/vscode": "1.96.0",
     "@vscode/test-cli": "^0.0.11",
     "@vscode/test-electron": "^2.5.2",
-    "@vscode/test-web": "^0.0.71",
+    "@vscode/test-web": "^0.0.72",
     "@vscode/vsce": "^3.6.0",
-    "esbuild": "^0.25.8",
-    "eslint": "^9.32.0",
+    "esbuild": "^0.25.9",
+    "eslint": "^9.34.0",
     "npm-run-all": "^4.1.5",
-    "typescript": "^5.8.3",
-    "typescript-eslint": "^8.38.0"
+    "typescript": "^5.9.2",
+    "typescript-eslint": "^8.41.0"
   }
 }

@@ -178,13 +178,13 @@ SELECT DISTINCT a, b FROM foo
             )];
         }
 
-        if let Some(seq) = seq {
-            if let Some(anchor) = anchor {
-                let fixes = seq.respace(context.tables, false, Filter::All).fixes();
+        if let Some(seq) = seq
+            && let Some(anchor) = anchor
+        {
+            let fixes = seq.respace(context.tables, false, Filter::All).fixes();
 
-                if !fixes.is_empty() {
-                    return vec![LintResult::new(Some(anchor), fixes, None, None)];
-                }
+            if !fixes.is_empty() {
+                return vec![LintResult::new(Some(anchor), fixes, None, None)];
             }
         }
 

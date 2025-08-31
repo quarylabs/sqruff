@@ -326,11 +326,11 @@ pub fn rebreak_sequence(
                 let mut create_anchor = None;
                 for i in 0..loc.next.pre_code_pt_idx {
                     let idx = loc.next.pre_code_pt_idx - i;
-                    if let Some(elem) = elem_buff.get(idx as usize) {
-                        if let Some(segments) = elem.segments().last() {
-                            create_anchor = Some(segments.clone());
-                            break;
-                        }
+                    if let Some(elem) = elem_buff.get(idx as usize)
+                        && let Some(segments) = elem.segments().last()
+                    {
+                        create_anchor = Some(segments.clone());
+                        break;
                     }
                 }
 

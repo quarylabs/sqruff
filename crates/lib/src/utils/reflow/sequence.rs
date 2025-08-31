@@ -289,10 +289,10 @@ impl<'a> ReflowSequence<'a> {
 
             lint_results = new_lint_results;
 
-            if let Some(pre_value) = pre {
-                if new_elements.is_empty() || new_elements.last().unwrap() != pre_value {
-                    new_elements.push(pre_value.clone().into());
-                }
+            if let Some(pre_value) = pre
+                && (new_elements.is_empty() || new_elements.last().unwrap() != pre_value)
+            {
+                new_elements.push(pre_value.clone().into());
             }
 
             new_elements.push(new_point.into());

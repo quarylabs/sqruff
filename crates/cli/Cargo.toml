@@ -20,14 +20,17 @@ pkg-fmt = "zip"
 workspace = true
 
 [features]
+parser = ["sqruff-cli-lib/parser"]
 python = ["sqruff-cli-lib/python", "pyo3"]
 codegen-docs = ["sqruff-cli-lib/codegen-docs"]
+bench = []
 
 [[bin]]
 name = "bench"
 path = "src/bin/bench.rs"
 bench = false
 publish = false
+required-features = ["bench"]
 
 [[test]]
 name = "fix_return_code"
@@ -57,6 +60,10 @@ harness = false
 name = "ui_json"
 harness = false
 
+[[test]]
+name = "dialect_override"
+harness = false
+
 [package.metadata.cargo-machete]
 ignored = ["pyo3"]
 
@@ -70,4 +77,4 @@ mimalloc = "0.1"
 [dev-dependencies]
 assert_cmd = "2.0.16"
 expect-test = "1.5.0"
-tempfile = "3.20.0"
+tempfile = "3.21.0"

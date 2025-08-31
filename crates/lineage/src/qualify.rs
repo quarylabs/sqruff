@@ -37,12 +37,10 @@ fn qualify_tables(tables: &mut Tables, expr: Expr) {
 
                         if node_data.parent.is_some_and(|parent| {
                             matches!(&tables.exprs[parent].kind, ExprKind::From { .. })
-                        }) {
-                            if let ExprKind::TableReference(_, slot @ None) =
-                                &mut tables.exprs[node].kind
-                            {
-                                *slot = Some(name.clone());
-                            }
+                        }) && let ExprKind::TableReference(_, slot @ None) =
+                            &mut tables.exprs[node].kind
+                        {
+                            *slot = Some(name.clone());
                         }
                     }
                 }
@@ -72,12 +70,11 @@ fn qualify_columns0(tables: &mut Tables, scope: &Scope, resolver: &Resolver) {
         let column_name = iter.next().unwrap();
         let table = iter.next();
 
-        if table.is_none() {
-            if let Some(column_table) = resolver.table(tables, column_name) {
-                let column_table = tables.stringify(column_table);
-                tables.exprs[column].kind =
-                    ExprKind::Column(format!("{column_table}.{column_name}"));
-            }
+        if table.is_none()
+            && let Some(column_table) = resolver.table(tables, column_name)
+        {
+            let column_table = tables.stringify(column_table);
+            tables.exprs[column].kind = ExprKind::Column(format!("{column_table}.{column_name}"));
         }
     }
 }

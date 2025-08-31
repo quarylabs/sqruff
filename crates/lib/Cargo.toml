@@ -38,13 +38,14 @@ name = "depth_map"
 harness = false
 
 [features]
+parser = ["sqruff-lib-core/stringify"]
 python = ["pyo3", "sqruff-lib-core/serde"]
 
 [dependencies]
 sqruff-lib-core.workspace = true
 sqruff-lib-dialects.workspace = true
 
-fancy-regex = "0.15.0"
+fancy-regex = "0.16.1"
 itertools = "0.14.0"
 regex = "1"
 walkdir = "2.5.0"

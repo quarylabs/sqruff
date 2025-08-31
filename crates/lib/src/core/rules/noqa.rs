@@ -212,12 +212,12 @@ impl NoQADirective {
                                 source_slice: Default::default(),
                             })
                         } else {
-                            return Ok(Some(NoQADirective::LineIgnoreRules(LineIgnoreRules {
+                            Ok(Some(NoQADirective::LineIgnoreRules(LineIgnoreRules {
                                 line_no,
                                 line_pos: 0,
                                 raw_string: original_comment.into(),
                                 rules,
-                            })));
+                            })))
                         }
                     } else {
                         Err(SQLBaseError {
@@ -373,12 +373,11 @@ impl IgnoreMask {
                         }
                     }
                     NoQADirective::LineIgnoreRules(LineIgnoreRules { line_no, rules, .. }) => {
-                        if vline_no == *line_no {
-                            if let Some(rule) = rule {
-                                if rules.contains(rule.code()) {
-                                    return true;
-                                }
-                            }
+                        if vline_no == *line_no
+                            && let Some(rule) = rule
+                            && rules.contains(rule.code())
+                        {
+                            return true;
                         }
                     }
                     _ => {}
@@ -459,10 +458,10 @@ impl IgnoreMask {
             // Check whether the violation is masked
             if all_rules_disabled {
                 return true;
-            } else if let Some(rule) = rule {
-                if disabled_rules.contains(rule.code()) {
-                    return true;
-                }
+            } else if let Some(rule) = rule
+                && disabled_rules.contains(rule.code())
+            {
+                return true;
             }
 
             false

@@ -479,11 +479,11 @@ fn map_line_buffers(
 
                 let mut _pt = None;
                 for j in loc..indent_point.idx {
-                    if let Some(pt) = previous_points.get(&j) {
-                        if pt.is_line_break {
-                            _pt = Some(pt);
-                            break;
-                        }
+                    if let Some(pt) = previous_points.get(&j)
+                        && pt.is_line_break
+                    {
+                        _pt = Some(pt);
+                        break;
                     }
                 }
 
@@ -549,10 +549,10 @@ fn deduce_line_current_indent(
                 }
             }
 
-            if let Some(ref seg) = indent_seg {
-                if !seg.is_type(SyntaxKind::Whitespace) {
-                    indent_seg = None;
-                }
+            if let Some(ref seg) = indent_seg
+                && !seg.is_type(SyntaxKind::Whitespace)
+            {
+                indent_seg = None;
             }
         }
     }
@@ -564,7 +564,7 @@ fn deduce_line_current_indent(
     if indent_seg.is_type(SyntaxKind::Placeholder) {
         unimplemented!()
     } else if indent_seg.get_position_marker().is_none() || !indent_seg.is_templated() {
-        return indent_seg.raw().clone();
+        indent_seg.raw().clone()
     } else {
         unimplemented!()
     }

@@ -285,24 +285,23 @@ impl RuleLT09 {
                 ));
             }
 
-            if let Some(from_segment) = &select_targets_info.from_segment {
-                if i + 1 == select_targets_info.select_targets.len()
-                    && select_target.get_position_marker().unwrap().working_line_no
-                        == from_segment.get_position_marker().unwrap().working_line_no
-                {
-                    fixes.extend(
-                        select_targets_info
-                            .pre_from_whitespace
-                            .clone()
-                            .into_iter()
-                            .map(LintFix::delete),
-                    );
+            if let Some(from_segment) = &select_targets_info.from_segment
+                && i + 1 == select_targets_info.select_targets.len()
+                && select_target.get_position_marker().unwrap().working_line_no
+                    == from_segment.get_position_marker().unwrap().working_line_no
+            {
+                fixes.extend(
+                    select_targets_info
+                        .pre_from_whitespace
+                        .clone()
+                        .into_iter()
+                        .map(LintFix::delete),
+                );
 
-                    fixes.push(LintFix::create_before(
-                        from_segment.clone(),
-                        vec![SegmentBuilder::newline(tables.next_id(), "\n")],
-                    ));
-                }
+                fixes.push(LintFix::create_before(
+                    from_segment.clone(),
+                    vec![SegmentBuilder::newline(tables.next_id(), "\n")],
+                ));
             }
         }
 

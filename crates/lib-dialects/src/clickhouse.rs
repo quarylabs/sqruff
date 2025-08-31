@@ -2546,6 +2546,49 @@ pub fn dialect() -> Dialect {
             .into(),
     )]);
 
+    // Add custom frame extent for ClickHouse to support INTERVAL X DAY syntax
+    clickhouse_dialect.add([(
+        "FrameExtentGrammar".into(),
+        one_of(vec_of_erased![
+            Sequence::new(vec_of_erased![Ref::keyword("CURRENT"), Ref::keyword("ROW")]),
+            Sequence::new(vec_of_erased![
+                one_of(vec_of_erased![
+                    Ref::new("NumericLiteralSegment"),
+                    // Support both INTERVAL 'string' and INTERVAL number unit syntaxes
+                    Ref::new("IntervalExpressionSegment"),
+                    Ref::keyword("UNBOUNDED")
+                ]),
+                one_of(vec_of_erased![
+                    Ref::keyword("PRECEDING"),
+                    Ref::keyword("FOLLOWING")
+                ])
+            ])
+        ])
+        .to_matchable()
+        .into(),
+    )]);
+
+    // Replace FrameClauseSegment to use ClickHouse's frame extent
+    clickhouse_dialect.replace_grammar(
+        "FrameClauseSegment",
+        NodeMatcher::new(SyntaxKind::FrameClause, |_| {
+            Sequence::new(vec_of_erased![
+                Ref::new("FrameClauseUnitGrammar"),
+                one_of(vec_of_erased![
+                    Ref::new("FrameExtentGrammar"),
+                    Sequence::new(vec_of_erased![
+                        Ref::keyword("BETWEEN"),
+                        Ref::new("FrameExtentGrammar"),
+                        Ref::keyword("AND"),
+                        Ref::new("FrameExtentGrammar"),
+                    ])
+                ])
+            ])
+            .to_matchable()
+        })
+        .to_matchable(),
+    );
+
     clickhouse_dialect.expand();
     clickhouse_dialect
 }

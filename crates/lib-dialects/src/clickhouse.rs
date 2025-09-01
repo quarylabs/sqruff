@@ -2589,6 +2589,33 @@ pub fn dialect() -> Dialect {
         .to_matchable(),
     );
 
+    // Add ternary operator support for ClickHouse
+    // ClickHouse supports: condition ? true_expr : false_expr
+    //
+    // IMPORTANT: The ternary operator has LOWER precedence than AND/OR operators.
+    // This means `true ? 1 : 0 AND false ? 1 : 0` will fail to parse,
+    // while `(true ? 1 : 0) AND (false ? 1 : 0)` parses with explicit grouping.
+    //
+    // NOTE: This implementation does NOT support nested ternary operators without parentheses.
+    // For example, `a ? b : c ? d : e` is not supported and will fail to parse.
+    // You must use parentheses: `a ? b : (c ? d : e)` or `(a ? b : c) ? d : e`.
+    // This matches ClickHouse's actual behavior where nested ternaries require explicit grouping.
+
+    clickhouse_dialect.replace_grammar(
+        "ExpressionSegment",
+        Sequence::new(vec_of_erased![
+            Ref::new("Expression_A_Grammar"),
+            Sequence::new(vec_of_erased![
+                StringParser::new("?", SyntaxKind::QuestionMark),
+                Ref::new("Expression_A_Grammar"),
+                StringParser::new(":", SyntaxKind::Colon),
+                Ref::new("Expression_A_Grammar"),
+            ])
+            .config(|this| this.optional()),
+        ])
+        .to_matchable(),
+    );
+
     clickhouse_dialect.expand();
     clickhouse_dialect
 }

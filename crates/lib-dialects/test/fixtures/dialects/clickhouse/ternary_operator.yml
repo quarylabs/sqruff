@@ -1,0 +1,168 @@
+file:
+- statement:
+  - select_statement:
+    - select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+        - expression:
+          - numeric_literal: '1'
+          - comparison_operator:
+            - raw_comparison_operator: =
+          - numeric_literal: '1'
+          - question_mark: '?'
+          - quoted_literal: '''yes'''
+          - colon: ':'
+          - quoted_literal: '''no'''
+        - alias_expression:
+          - keyword: AS
+          - naked_identifier: result
+- statement_terminator: ;
+- statement:
+  - select_statement:
+    - select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+        - expression:
+          - bracketed:
+            - start_bracket: (
+            - expression:
+              - boolean_literal: 'true'
+              - question_mark: '?'
+              - numeric_literal: '1'
+              - colon: ':'
+              - numeric_literal: '0'
+            - end_bracket: )
+          - binary_operator: AND
+          - bracketed:
+            - start_bracket: (
+            - expression:
+              - boolean_literal: 'false'
+              - question_mark: '?'
+              - numeric_literal: '1'
+              - colon: ':'
+              - numeric_literal: '0'
+            - end_bracket: )
+        - alias_expression:
+          - keyword: AS
+          - naked_identifier: ternary_with_and
+- statement_terminator: ;
+- statement:
+  - select_statement:
+    - select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+        - expression:
+          - column_reference:
+            - naked_identifier: x
+          - comparison_operator:
+            - raw_comparison_operator: '>'
+          - numeric_literal: '5'
+          - question_mark: '?'
+          - quoted_literal: '''greater'''
+          - colon: ':'
+          - quoted_literal: '''not greater'''
+        - alias_expression:
+          - keyword: AS
+          - naked_identifier: comparison_result
+- statement_terminator: ;
+- statement:
+  - select_statement:
+    - select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+        - wildcard_expression:
+          - wildcard_identifier:
+            - star: '*'
+    - from_clause:
+      - keyword: FROM
+      - from_expression:
+        - from_expression_element:
+          - table_expression:
+            - table_reference:
+              - naked_identifier: users
+    - where_clause:
+      - keyword: WHERE
+      - expression:
+        - bracketed:
+          - start_bracket: (
+          - expression:
+            - column_reference:
+              - naked_identifier: age
+            - comparison_operator: '>='
+            - numeric_literal: '18'
+            - question_mark: '?'
+            - numeric_literal: '1'
+            - colon: ':'
+            - numeric_literal: '0'
+          - end_bracket: )
+        - comparison_operator:
+          - raw_comparison_operator: =
+        - numeric_literal: '1'
+- statement_terminator: ;
+- statement:
+  - select_statement:
+    - select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+        - expression:
+          - numeric_literal: '2'
+          - binary_operator: +
+          - numeric_literal: '3'
+          - comparison_operator:
+            - raw_comparison_operator: '>'
+          - numeric_literal: '4'
+          - question_mark: '?'
+          - quoted_literal: '''yes'''
+          - colon: ':'
+          - quoted_literal: '''no'''
+        - alias_expression:
+          - keyword: AS
+          - naked_identifier: arithmetic_test
+- statement_terminator: ;
+- statement:
+  - select_statement:
+    - select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+        - expression:
+          - column_reference:
+            - naked_identifier: score
+          - comparison_operator: '>='
+          - numeric_literal: '90'
+          - question_mark: '?'
+          - quoted_literal: '''A'''
+          - colon: ':'
+          - bracketed:
+            - start_bracket: (
+            - expression:
+              - column_reference:
+                - naked_identifier: score
+              - comparison_operator: '>='
+              - numeric_literal: '80'
+              - question_mark: '?'
+              - quoted_literal: '''B'''
+              - colon: ':'
+              - bracketed:
+                - start_bracket: (
+                - expression:
+                  - column_reference:
+                    - naked_identifier: score
+                  - comparison_operator: '>='
+                  - numeric_literal: '70'
+                  - question_mark: '?'
+                  - quoted_literal: '''C'''
+                  - colon: ':'
+                  - quoted_literal: '''F'''
+                - end_bracket: )
+            - end_bracket: )
+        - alias_expression:
+          - keyword: AS
+          - naked_identifier: grade
+    - from_clause:
+      - keyword: FROM
+      - from_expression:
+        - from_expression_element:
+          - table_expression:
+            - table_reference:
+              - naked_identifier: students
+- statement_terminator: ;

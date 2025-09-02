@@ -1,0 +1,34 @@
+file:
+- batch:
+  - statement:
+    - keyword: WHILE
+    - expression:
+      - bracketed:
+        - start_bracket: (
+        - expression:
+          - numeric_literal: '1'
+          - comparison_operator:
+            - raw_comparison_operator: =
+          - numeric_literal: '1'
+        - end_bracket: )
+    - word: BEGIN
+    - word: IF
+    - word: EXISTS
+    - start_bracket: (
+    - word: SELECT
+    - star: '*'
+    - word: FROM
+    - word: '##MyTempTable'
+    - word: WHERE
+    - word: EventCode
+    - raw_comparison_operator: =
+    - single_quote: '''Done'''
+    - end_bracket: )
+    - word: BEGIN
+    - word: BREAK
+    - semicolon: ;
+    - word: END
+    - word: PRINT
+    - quoted_literal: N'The other process is not yet done.'
+    - semicolon: ;
+    - word: END

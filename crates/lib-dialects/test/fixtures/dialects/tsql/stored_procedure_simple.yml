@@ -1,12 +1,12 @@
 file:
-- statement:
-  - create_procedure_statement:
-    - keyword: CREATE
-    - keyword: PROC
-    - object_reference:
-      - naked_identifier: ProcedureName
-    - keyword: AS
-    - statement:
+- batch:
+  - statement:
+    - create_procedure_statement:
+      - keyword: CREATE
+      - keyword: PROC
+      - object_reference:
+        - naked_identifier: ProcedureName
+      - keyword: AS
       - select_statement:
         - select_clause:
           - keyword: SELECT

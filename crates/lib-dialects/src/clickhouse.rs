@@ -646,13 +646,10 @@ pub fn dialect() -> Dialect {
     clickhouse_dialect.add([
         (
             "JoinLikeClauseGrammar".into(),
-            Sequence::new(vec_of_erased![
-                AnyNumberOf::new(vec_of_erased![Ref::new("ArrayJoinClauseSegment")])
-                    .config(|this| this.min_times(1)),
-                Ref::new("AliasExpressionSegment").optional(),
-            ])
-            .to_matchable()
-            .into(),
+            AnyNumberOf::new(vec_of_erased![Ref::new("ArrayJoinClauseSegment")])
+                .config(|this| this.min_times(1))
+                .to_matchable()
+                .into(),
         ),
         (
             "InOperatorGrammar".into(),
@@ -1065,9 +1062,14 @@ pub fn dialect() -> Dialect {
                 Ref::new("SingleQuotedIdentifierSegment"),
             ])
             .config(|this| this.exclude = one_of(vec_of_erased![
-                Ref::keyword("LATERAL"),
-                Ref::keyword("WINDOW"),
-                Ref::keyword("KEYS"),
+                Ref::keyword("WHERE"),
+                Ref::keyword("ORDER"),
+                Ref::keyword("GROUP"),
+                Ref::keyword("HAVING"),
+                Ref::keyword("LIMIT"),
+                Ref::keyword("UNION"),
+                Ref::keyword("INTERSECT"),
+                Ref::keyword("EXCEPT"),
             ])
             .to_matchable()
             .into()),

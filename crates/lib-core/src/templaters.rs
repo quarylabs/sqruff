@@ -71,6 +71,10 @@ impl TemplatedFile {
         let inner = &*self.inner;
         serde_yaml::to_string(inner).unwrap()
     }
+
+    pub fn raw_slices(&self) -> &[RawFileSlice] {
+        &self.inner.raw_sliced
+    }
 }
 
 impl From<String> for TemplatedFile {
@@ -579,6 +583,14 @@ impl RawFileSlice {
             slice_subtype,
             block_idx: block_idx.unwrap_or(0),
         }
+    }
+
+    pub fn raw(&self) -> &str {
+        &self.raw
+    }
+
+    pub fn slice_type(&self) -> &str {
+        &self.slice_type
     }
 }
 

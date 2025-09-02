@@ -79,7 +79,7 @@ fn parse_sql(parser: &Parser, source: &str) -> ErasedSegment {
     let (tokens, _) = lexer.lex(&tables, source);
 
     let tables = sqruff_lib_core::parser::segments::Tables::default();
-    parser.parse(&tables, &tokens, None).unwrap().unwrap()
+    parser.parse(&tables, &tokens).unwrap().unwrap()
 }
 
 pub type Node = usize;

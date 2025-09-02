@@ -47,7 +47,7 @@ fn main() {
                 let (tokens, errors) = lexer.lex(&tables, templated_file);
                 assert!(errors.is_empty());
 
-                let parsed = parser.parse(&tables, &tokens, None).unwrap();
+                let parsed = parser.parse(&tables, &tokens).unwrap();
                 let tree = parsed.unwrap();
                 let tree = tree.to_serialised(true, true);
 

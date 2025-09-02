@@ -415,13 +415,8 @@ impl Linter {
 
         let parsed: Option<ErasedSegment>;
         if let Some(token_list) = tokens {
-            let (p, pvs) = Self::parse_tokens(
-                tables,
-                &token_list,
-                &self.config,
-                Some(rendered.filename.to_string()),
-                self.include_parse_errors,
-            );
+            let (p, pvs) =
+                Self::parse_tokens(tables, &token_list, &self.config, self.include_parse_errors);
             parsed = p;
             violations.extend(pvs.into_iter().map_into());
         } else {
@@ -441,13 +436,12 @@ impl Linter {
         tables: &Tables,
         tokens: &[ErasedSegment],
         config: &FluffConfig,
-        filename: Option<String>,
         include_parse_errors: bool,
     ) -> (Option<ErasedSegment>, Vec<SQLParseError>) {
         let parser: Parser = config.into();
         let mut violations: Vec<SQLParseError> = Vec::new();
 
-        let parsed = match parser.parse(tables, tokens, filename) {
+        let parsed = match parser.parse(tables, tokens) {
             Ok(parsed) => parsed,
             Err(error) => {
                 violations.push(error);

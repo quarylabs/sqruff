@@ -1556,6 +1556,7 @@ dependencies = [
  "mimalloc",
  "pyo3",
  "sqruff-cli-lib",
+ "sqruff-lib",
  "tempfile",
 ]
 

@@ -78,3 +78,4 @@ mimalloc = "0.1"
 assert_cmd = "2.0.16"
 expect-test = "1.5.0"
 tempfile = "3.21.0"
+sqruff-lib.workspace = true

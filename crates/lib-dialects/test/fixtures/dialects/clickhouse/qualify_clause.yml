@@ -1,0 +1,475 @@
+file:
+- statement:
+  - select_statement:
+    - select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+        - column_reference:
+          - naked_identifier: user_id
+      - comma: ','
+      - select_clause_element:
+        - column_reference:
+          - naked_identifier: event_timestamp
+      - comma: ','
+      - select_clause_element:
+        - function:
+          - function_name:
+            - function_name_identifier: row_number
+          - function_contents:
+            - bracketed:
+              - start_bracket: (
+              - end_bracket: )
+          - over_clause:
+            - keyword: OVER
+            - bracketed:
+              - start_bracket: (
+              - window_specification:
+                - partitionby_clause:
+                  - keyword: PARTITION
+                  - keyword: BY
+                  - expression:
+                    - column_reference:
+                      - naked_identifier: user_id
+                - orderby_clause:
+                  - keyword: ORDER
+                  - keyword: BY
+                  - column_reference:
+                    - naked_identifier: event_timestamp
+                  - keyword: DESC
+              - end_bracket: )
+        - alias_expression:
+          - keyword: as
+          - naked_identifier: rn
+      - comma: ','
+      - select_clause_element:
+        - function:
+          - function_name:
+            - function_name_identifier: count
+          - function_contents:
+            - bracketed:
+              - start_bracket: (
+              - star: '*'
+              - end_bracket: )
+          - over_clause:
+            - keyword: OVER
+            - bracketed:
+              - start_bracket: (
+              - window_specification:
+                - partitionby_clause:
+                  - keyword: PARTITION
+                  - keyword: BY
+                  - expression:
+                    - column_reference:
+                      - naked_identifier: user_id
+              - end_bracket: )
+        - alias_expression:
+          - keyword: as
+          - naked_identifier: user_event_count
+    - from_clause:
+      - keyword: FROM
+      - from_expression:
+        - from_expression_element:
+          - table_expression:
+            - table_reference:
+              - naked_identifier: events
+    - qualify_clause:
+      - keyword: QUALIFY
+      - expression:
+        - column_reference:
+          - naked_identifier: rn
+        - comparison_operator:
+          - raw_comparison_operator: =
+        - numeric_literal: '1'
+- statement_terminator: ;
+- statement:
+  - select_statement:
+    - select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+        - column_reference:
+          - naked_identifier: user_id
+      - comma: ','
+      - select_clause_element:
+        - column_reference:
+          - naked_identifier: revenue
+      - comma: ','
+      - select_clause_element:
+        - function:
+          - function_name:
+            - function_name_identifier: rank
+          - function_contents:
+            - bracketed:
+              - start_bracket: (
+              - end_bracket: )
+          - over_clause:
+            - keyword: OVER
+            - bracketed:
+              - start_bracket: (
+              - window_specification:
+                - partitionby_clause:
+                  - keyword: PARTITION
+                  - keyword: BY
+                  - expression:
+                    - column_reference:
+                      - naked_identifier: category
+                - orderby_clause:
+                  - keyword: ORDER
+                  - keyword: BY
+                  - column_reference:
+                    - naked_identifier: revenue
+                  - keyword: DESC
+              - end_bracket: )
+        - alias_expression:
+          - keyword: as
+          - naked_identifier: revenue_rank
+    - from_clause:
+      - keyword: FROM
+      - from_expression:
+        - from_expression_element:
+          - table_expression:
+            - table_reference:
+              - naked_identifier: sales
+    - qualify_clause:
+      - keyword: QUALIFY
+      - expression:
+        - column_reference:
+          - naked_identifier: revenue_rank
+        - comparison_operator: <=
+        - numeric_literal: '10'
+        - binary_operator: AND
+        - column_reference:
+          - naked_identifier: revenue
+        - comparison_operator:
+          - raw_comparison_operator: '>'
+        - numeric_literal: '1000'
+- statement_terminator: ;
+- statement:
+  - select_statement:
+    - select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+        - column_reference:
+          - naked_identifier: id
+      - comma: ','
+      - select_clause_element:
+        - column_reference:
+          - naked_identifier: name
+      - comma: ','
+      - select_clause_element:
+        - column_reference:
+          - naked_identifier: score
+      - comma: ','
+      - select_clause_element:
+        - function:
+          - function_name:
+            - function_name_identifier: dense_rank
+          - function_contents:
+            - bracketed:
+              - start_bracket: (
+              - end_bracket: )
+          - over_clause:
+            - keyword: OVER
+            - bracketed:
+              - start_bracket: (
+              - window_specification:
+                - orderby_clause:
+                  - keyword: ORDER
+                  - keyword: BY
+                  - column_reference:
+                    - naked_identifier: score
+                  - keyword: DESC
+              - end_bracket: )
+        - alias_expression:
+          - keyword: as
+          - naked_identifier: rank
+    - from_clause:
+      - keyword: FROM
+      - from_expression:
+        - from_expression_element:
+          - table_expression:
+            - table_reference:
+              - naked_identifier: students
+    - qualify_clause:
+      - keyword: QUALIFY
+      - expression:
+        - column_reference:
+          - naked_identifier: rank
+        - keyword: BETWEEN
+        - numeric_literal: '1'
+        - keyword: AND
+        - numeric_literal: '5'
+        - binary_operator: OR
+        - column_reference:
+          - naked_identifier: score
+        - comparison_operator:
+          - raw_comparison_operator: '>'
+        - numeric_literal: '95'
+- statement_terminator: ;
+- statement:
+  - select_statement:
+    - select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+        - column_reference:
+          - naked_identifier: product_id
+      - comma: ','
+      - select_clause_element:
+        - column_reference:
+          - naked_identifier: sales_amount
+      - comma: ','
+      - select_clause_element:
+        - function:
+          - function_name:
+            - function_name_identifier: row_number
+          - function_contents:
+            - bracketed:
+              - start_bracket: (
+              - end_bracket: )
+          - over_clause:
+            - keyword: OVER
+            - bracketed:
+              - start_bracket: (
+              - window_specification:
+                - partitionby_clause:
+                  - keyword: PARTITION
+                  - keyword: BY
+                  - expression:
+                    - column_reference:
+                      - naked_identifier: product_id
+                - orderby_clause:
+                  - keyword: ORDER
+                  - keyword: BY
+                  - column_reference:
+                    - naked_identifier: sales_amount
+                  - keyword: DESC
+              - end_bracket: )
+        - alias_expression:
+          - keyword: as
+          - naked_identifier: sales_rank
+    - from_clause:
+      - keyword: FROM
+      - from_expression:
+        - from_expression_element:
+          - table_expression:
+            - table_reference:
+              - naked_identifier: product_sales
+    - qualify_clause:
+      - keyword: QUALIFY
+      - expression:
+        - function:
+          - function_name:
+            - function_name_identifier: abs
+          - function_contents:
+            - bracketed:
+              - start_bracket: (
+              - expression:
+                - column_reference:
+                  - naked_identifier: sales_rank
+                - binary_operator: '-'
+                - numeric_literal: '2'
+              - end_bracket: )
+        - comparison_operator:
+          - raw_comparison_operator: <
+        - numeric_literal: '1'
+- statement_terminator: ;
+- statement:
+  - select_statement:
+    - select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+        - column_reference:
+          - naked_identifier: customer_id
+      - comma: ','
+      - select_clause_element:
+        - column_reference:
+          - naked_identifier: order_date
+      - comma: ','
+      - select_clause_element:
+        - function:
+          - function_name:
+            - function_name_identifier: row_number
+          - function_contents:
+            - bracketed:
+              - start_bracket: (
+              - end_bracket: )
+          - over_clause:
+            - keyword: OVER
+            - bracketed:
+              - start_bracket: (
+              - window_specification:
+                - partitionby_clause:
+                  - keyword: PARTITION
+                  - keyword: BY
+                  - expression:
+                    - column_reference:
+                      - naked_identifier: customer_id
+                - orderby_clause:
+                  - keyword: ORDER
+                  - keyword: BY
+                  - column_reference:
+                    - naked_identifier: order_date
+                  - keyword: DESC
+              - end_bracket: )
+        - alias_expression:
+          - keyword: as
+          - naked_identifier: recent_order_rank
+    - from_clause:
+      - keyword: FROM
+      - from_expression:
+        - from_expression_element:
+          - table_expression:
+            - table_reference:
+              - naked_identifier: orders
+    - qualify_clause:
+      - keyword: QUALIFY
+      - expression:
+        - column_reference:
+          - naked_identifier: recent_order_rank
+        - comparison_operator:
+          - raw_comparison_operator: =
+        - numeric_literal: '1'
+        - binary_operator: AND
+        - column_reference:
+          - naked_identifier: order_date
+        - keyword: IS
+        - keyword: NOT
+        - null_literal: 'NULL'
+- statement_terminator: ;
+- statement:
+  - select_statement:
+    - select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+        - column_reference:
+          - naked_identifier: region
+      - comma: ','
+      - select_clause_element:
+        - column_reference:
+          - naked_identifier: sales_total
+      - comma: ','
+      - select_clause_element:
+        - function:
+          - function_name:
+            - function_name_identifier: row_number
+          - function_contents:
+            - bracketed:
+              - start_bracket: (
+              - end_bracket: )
+          - over_clause:
+            - keyword: OVER
+            - bracketed:
+              - start_bracket: (
+              - window_specification:
+                - orderby_clause:
+                  - keyword: ORDER
+                  - keyword: BY
+                  - column_reference:
+                    - naked_identifier: sales_total
+                  - keyword: DESC
+              - end_bracket: )
+        - alias_expression:
+          - keyword: as
+          - naked_identifier: rank_by_sales
+      - comma: ','
+      - select_clause_element:
+        - function:
+          - function_name:
+            - function_name_identifier: dense_rank
+          - function_contents:
+            - bracketed:
+              - start_bracket: (
+              - end_bracket: )
+          - over_clause:
+            - keyword: OVER
+            - bracketed:
+              - start_bracket: (
+              - window_specification:
+                - orderby_clause:
+                  - keyword: ORDER
+                  - keyword: BY
+                  - column_reference:
+                    - naked_identifier: sales_total
+                  - keyword: DESC
+              - end_bracket: )
+        - alias_expression:
+          - keyword: as
+          - naked_identifier: dense_rank_sales
+    - from_clause:
+      - keyword: FROM
+      - from_expression:
+        - from_expression_element:
+          - table_expression:
+            - table_reference:
+              - naked_identifier: regional_sales
+    - qualify_clause:
+      - keyword: QUALIFY
+      - expression:
+        - column_reference:
+          - naked_identifier: rank_by_sales
+        - comparison_operator: <=
+        - numeric_literal: '3'
+        - binary_operator: OR
+        - column_reference:
+          - naked_identifier: dense_rank_sales
+        - comparison_operator:
+          - raw_comparison_operator: =
+        - numeric_literal: '1'
+- statement_terminator: ;
+- statement:
+  - select_statement:
+    - select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+        - column_reference:
+          - naked_identifier: dept_id
+      - comma: ','
+      - select_clause_element:
+        - column_reference:
+          - naked_identifier: employee_count
+      - comma: ','
+      - select_clause_element:
+        - function:
+          - function_name:
+            - function_name_identifier: percent_rank
+          - function_contents:
+            - bracketed:
+              - start_bracket: (
+              - end_bracket: )
+          - over_clause:
+            - keyword: OVER
+            - bracketed:
+              - start_bracket: (
+              - window_specification:
+                - orderby_clause:
+                  - keyword: ORDER
+                  - keyword: BY
+                  - column_reference:
+                    - naked_identifier: employee_count
+              - end_bracket: )
+        - alias_expression:
+          - keyword: as
+          - naked_identifier: pct_rank
+    - from_clause:
+      - keyword: FROM
+      - from_expression:
+        - from_expression_element:
+          - table_expression:
+            - table_reference:
+              - naked_identifier: departments
+    - qualify_clause:
+      - keyword: QUALIFY
+      - bracketed:
+        - start_bracket: (
+        - expression:
+          - column_reference:
+            - naked_identifier: pct_rank
+          - comparison_operator: '>='
+          - numeric_literal: '0.75'
+          - binary_operator: AND
+          - column_reference:
+            - naked_identifier: employee_count
+          - comparison_operator:
+            - raw_comparison_operator: '>'
+          - numeric_literal: '10'
+        - end_bracket: )
+- statement_terminator: ;

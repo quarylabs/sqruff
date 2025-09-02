@@ -1873,3 +1873,219 @@ file:
                 - dot: .
                 - star: '*'
 - statement_terminator: ;
+- statement:
+  - select_statement:
+    - select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+        - column_reference:
+          - naked_identifier: col
+    - from_clause:
+      - keyword: FROM
+      - from_expression:
+        - from_expression_element:
+          - table_expression:
+            - bracketed:
+              - start_bracket: (
+              - select_statement:
+                - select_clause:
+                  - keyword: SELECT
+                  - select_clause_element:
+                    - array_literal:
+                      - start_square_bracket: '['
+                      - numeric_literal: '1'
+                      - comma: ','
+                      - numeric_literal: '2'
+                      - comma: ','
+                      - numeric_literal: '3'
+                      - end_square_bracket: ']'
+                    - alias_expression:
+                      - keyword: AS
+                      - naked_identifier: arr
+              - end_bracket: )
+          - alias_expression:
+            - keyword: AS
+            - naked_identifier: t1
+        - array_join_clause:
+          - keyword: ARRAY
+          - keyword: JOIN
+          - select_clause_element:
+            - column_reference:
+              - naked_identifier: arr
+            - alias_expression:
+              - keyword: AS
+              - naked_identifier: col
+    - where_clause:
+      - keyword: WHERE
+      - expression:
+        - column_reference:
+          - naked_identifier: col
+        - comparison_operator:
+          - raw_comparison_operator: '>'
+        - numeric_literal: '1'
+- statement_terminator: ;
+- statement:
+  - select_statement:
+    - select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+        - function:
+          - function_name:
+            - function_name_identifier: toDateTime64
+          - function_contents:
+            - bracketed:
+              - start_bracket: (
+              - expression:
+                - column_reference:
+                  - naked_identifier: start5
+                - binary_operator: +
+                - column_reference:
+                  - naked_identifier: i
+                - binary_operator: '*'
+                - column_reference:
+                  - naked_identifier: step_sec
+              - comma: ','
+              - expression:
+                - numeric_literal: '6'
+              - end_bracket: )
+        - alias_expression:
+          - keyword: AS
+          - naked_identifier: ts
+      - comma: ','
+      - select_clause_element:
+        - numeric_literal: '1'
+        - alias_expression:
+          - keyword: AS
+          - naked_identifier: join_key
+    - from_clause:
+      - keyword: FROM
+      - from_expression:
+        - from_expression_element:
+          - table_expression:
+            - table_reference:
+              - naked_identifier: bounds
+        - array_join_clause:
+          - keyword: ARRAY
+          - keyword: JOIN
+          - select_clause_element:
+            - function:
+              - function_name:
+                - function_name_identifier: range
+              - function_contents:
+                - bracketed:
+                  - start_bracket: (
+                  - expression:
+                    - numeric_literal: '0'
+                  - comma: ','
+                  - expression:
+                    - function:
+                      - function_name:
+                        - function_name_identifier: greatest
+                      - function_contents:
+                        - bracketed:
+                          - start_bracket: (
+                          - expression:
+                            - function:
+                              - function_name:
+                                - function_name_identifier: intDiv
+                              - function_contents:
+                                - bracketed:
+                                  - start_bracket: (
+                                  - expression:
+                                    - function:
+                                      - function_name:
+                                        - function_name_identifier: toUInt32
+                                      - function_contents:
+                                        - bracketed:
+                                          - start_bracket: (
+                                          - expression:
+                                            - bracketed:
+                                              - start_bracket: (
+                                              - expression:
+                                                - column_reference:
+                                                  - naked_identifier: end5
+                                                - binary_operator: '-'
+                                                - column_reference:
+                                                  - naked_identifier: start5
+                                              - end_bracket: )
+                                          - end_bracket: )
+                                  - comma: ','
+                                  - expression:
+                                    - column_reference:
+                                      - naked_identifier: step_sec
+                                  - end_bracket: )
+                            - binary_operator: +
+                            - numeric_literal: '1'
+                          - comma: ','
+                          - expression:
+                            - numeric_literal: '0'
+                          - end_bracket: )
+                  - end_bracket: )
+            - alias_expression:
+              - keyword: AS
+              - naked_identifier: i
+    - where_clause:
+      - keyword: WHERE
+      - expression:
+        - column_reference:
+          - naked_identifier: ts
+        - comparison_operator: <=
+        - function:
+          - function_name:
+            - function_name_identifier: now64
+          - function_contents:
+            - bracketed:
+              - start_bracket: (
+              - expression:
+                - numeric_literal: '6'
+              - end_bracket: )
+- statement_terminator: ;
+- statement:
+  - select_statement:
+    - select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+        - wildcard_expression:
+          - wildcard_identifier:
+            - star: '*'
+    - from_clause:
+      - keyword: FROM
+      - from_expression:
+        - from_expression_element:
+          - table_expression:
+            - bracketed:
+              - start_bracket: (
+              - select_statement:
+                - select_clause:
+                  - keyword: SELECT
+                  - select_clause_element:
+                    - array_literal:
+                      - start_square_bracket: '['
+                      - numeric_literal: '1'
+                      - comma: ','
+                      - numeric_literal: '2'
+                      - comma: ','
+                      - numeric_literal: '3'
+                      - end_square_bracket: ']'
+                    - alias_expression:
+                      - keyword: AS
+                      - naked_identifier: arr
+              - end_bracket: )
+          - alias_expression:
+            - keyword: AS
+            - naked_identifier: t1
+        - array_join_clause:
+          - keyword: ARRAY
+          - keyword: JOIN
+          - select_clause_element:
+            - column_reference:
+              - naked_identifier: arr
+    - where_clause:
+      - keyword: WHERE
+      - expression:
+        - column_reference:
+          - naked_identifier: arr
+        - comparison_operator:
+          - raw_comparison_operator: '>'
+        - numeric_literal: '1'
+- statement_terminator: ;

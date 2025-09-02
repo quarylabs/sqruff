@@ -1,0 +1,330 @@
+file:
+- statement:
+  - create_table_statement:
+    - keyword: CREATE
+    - keyword: TABLE
+    - table_reference:
+      - naked_identifier: test_bloom_filter
+    - bracketed:
+      - start_bracket: (
+      - column_definition:
+        - naked_identifier: id
+        - data_type:
+          - data_type_identifier: Int32
+      - comma: ','
+      - column_definition:
+        - naked_identifier: name
+        - data_type:
+          - data_type_identifier: String
+      - comma: ','
+      - column_definition:
+        - naked_identifier: user_id
+        - data_type:
+          - data_type_identifier: Int32
+      - comma: ','
+      - column_definition:
+        - naked_identifier: created_at
+        - data_type:
+          - data_type_identifier: DateTime64
+          - bracketed:
+            - start_bracket: (
+            - numeric_literal: '6'
+            - end_bracket: )
+      - comma: ','
+      - column_constraint_segment:
+        - keyword: INDEX
+        - naked_identifier: idx_name
+        - expression:
+          - column_reference:
+            - naked_identifier: name
+        - keyword: TYPE
+        - index_type_identifier: bloom_filter
+        - bracketed:
+          - start_bracket: (
+          - numeric_literal: '0.01'
+          - end_bracket: )
+        - keyword: GRANULARITY
+        - numeric_literal: '1'
+      - comma: ','
+      - column_constraint_segment:
+        - keyword: INDEX
+        - naked_identifier: idx_user
+        - expression:
+          - column_reference:
+            - naked_identifier: user_id
+        - keyword: TYPE
+        - index_type_identifier: bloom_filter
+        - bracketed:
+          - start_bracket: (
+          - numeric_literal: '0.001'
+          - comma: ','
+          - numeric_literal: '256'
+          - end_bracket: )
+        - keyword: GRANULARITY
+        - numeric_literal: '2'
+      - comma: ','
+      - column_constraint_segment:
+        - keyword: INDEX
+        - naked_identifier: idx_simple
+        - expression:
+          - column_reference:
+            - naked_identifier: name
+        - keyword: TYPE
+        - index_type_identifier: bloom_filter
+        - keyword: GRANULARITY
+        - numeric_literal: '1'
+      - end_bracket: )
+    - engine:
+      - keyword: ENGINE
+      - comparison_operator:
+        - raw_comparison_operator: =
+      - table_engine_function:
+        - function_name:
+          - function_name_identifier: Memory
+- statement_terminator: ;
+- statement:
+  - create_table_statement:
+    - keyword: CREATE
+    - keyword: TABLE
+    - table_reference:
+      - naked_identifier: test_extended_indexes
+    - bracketed:
+      - start_bracket: (
+      - column_definition:
+        - naked_identifier: id
+        - data_type:
+          - data_type_identifier: UInt64
+      - comma: ','
+      - column_definition:
+        - naked_identifier: text_content
+        - data_type:
+          - data_type_identifier: String
+      - comma: ','
+      - column_definition:
+        - naked_identifier: search_terms
+        - data_type:
+          - data_type_identifier: String
+      - comma: ','
+      - column_definition:
+        - naked_identifier: vector_data
+        - data_type:
+          - data_type_identifier: Array
+          - bracketed:
+            - start_bracket: (
+            - data_type:
+              - data_type_identifier: Float32
+            - end_bracket: )
+      - comma: ','
+      - column_constraint_segment:
+        - keyword: INDEX
+        - naked_identifier: idx_ngram
+        - expression:
+          - column_reference:
+            - naked_identifier: text_content
+        - keyword: TYPE
+        - index_type_identifier: ngrambf_v1
+        - bracketed:
+          - start_bracket: (
+          - numeric_literal: '3'
+          - comma: ','
+          - numeric_literal: '256'
+          - comma: ','
+          - numeric_literal: '3'
+          - comma: ','
+          - numeric_literal: '0'
+          - end_bracket: )
+        - keyword: GRANULARITY
+        - numeric_literal: '1'
+      - comma: ','
+      - column_constraint_segment:
+        - keyword: INDEX
+        - naked_identifier: idx_token
+        - expression:
+          - column_reference:
+            - naked_identifier: search_terms
+        - keyword: TYPE
+        - index_type_identifier: tokenbf_v1
+        - bracketed:
+          - start_bracket: (
+          - numeric_literal: '256'
+          - comma: ','
+          - numeric_literal: '2'
+          - comma: ','
+          - numeric_literal: '0'
+          - end_bracket: )
+        - keyword: GRANULARITY
+        - numeric_literal: '2'
+      - comma: ','
+      - column_constraint_segment:
+        - keyword: INDEX
+        - naked_identifier: idx_hypothesis
+        - expression:
+          - column_reference:
+            - naked_identifier: vector_data
+        - keyword: TYPE
+        - index_type_identifier: hypothesis
+        - keyword: GRANULARITY
+        - numeric_literal: '4'
+      - end_bracket: )
+    - engine:
+      - keyword: ENGINE
+      - comparison_operator:
+        - raw_comparison_operator: =
+      - table_engine_function:
+        - function_name:
+          - function_name_identifier: MergeTree
+        - bracketed:
+          - start_bracket: (
+          - end_bracket: )
+      - merge_tree_order_by_clause:
+        - keyword: ORDER
+        - keyword: BY
+        - column_reference:
+          - naked_identifier: id
+- statement_terminator: ;
+- statement:
+  - create_table_statement:
+    - keyword: CREATE
+    - keyword: TABLE
+    - table_reference:
+      - naked_identifier: test_all_index_types
+    - bracketed:
+      - start_bracket: (
+      - column_definition:
+        - naked_identifier: id
+        - data_type:
+          - data_type_identifier: UInt64
+      - comma: ','
+      - column_definition:
+        - naked_identifier: name
+        - data_type:
+          - data_type_identifier: String
+      - comma: ','
+      - column_definition:
+        - naked_identifier: description
+        - data_type:
+          - data_type_identifier: String
+      - comma: ','
+      - column_definition:
+        - naked_identifier: tags
+        - data_type:
+          - data_type_identifier: Array
+          - bracketed:
+            - start_bracket: (
+            - data_type:
+              - data_type_identifier: String
+            - end_bracket: )
+      - comma: ','
+      - column_definition:
+        - naked_identifier: score
+        - data_type:
+          - data_type_identifier: Float64
+      - comma: ','
+      - column_constraint_segment:
+        - keyword: INDEX
+        - naked_identifier: idx_minmax
+        - expression:
+          - column_reference:
+            - naked_identifier: score
+        - keyword: TYPE
+        - index_type_identifier: minmax
+        - keyword: GRANULARITY
+        - numeric_literal: '1'
+      - comma: ','
+      - column_constraint_segment:
+        - keyword: INDEX
+        - naked_identifier: idx_set
+        - expression:
+          - column_reference:
+            - naked_identifier: name
+        - keyword: TYPE
+        - index_type_identifier: set
+        - bracketed:
+          - start_bracket: (
+          - numeric_literal: '100'
+          - end_bracket: )
+        - keyword: GRANULARITY
+        - numeric_literal: '1'
+      - comma: ','
+      - column_constraint_segment:
+        - keyword: INDEX
+        - naked_identifier: idx_bloom
+        - expression:
+          - column_reference:
+            - naked_identifier: tags
+        - keyword: TYPE
+        - index_type_identifier: bloom_filter
+        - bracketed:
+          - start_bracket: (
+          - numeric_literal: '0.01'
+          - end_bracket: )
+        - keyword: GRANULARITY
+        - numeric_literal: '1'
+      - comma: ','
+      - column_constraint_segment:
+        - keyword: INDEX
+        - naked_identifier: idx_ngram
+        - expression:
+          - column_reference:
+            - naked_identifier: description
+        - keyword: TYPE
+        - index_type_identifier: ngrambf_v1
+        - bracketed:
+          - start_bracket: (
+          - numeric_literal: '3'
+          - comma: ','
+          - numeric_literal: '256'
+          - comma: ','
+          - numeric_literal: '3'
+          - comma: ','
+          - numeric_literal: '0'
+          - end_bracket: )
+        - keyword: GRANULARITY
+        - numeric_literal: '2'
+      - comma: ','
+      - column_constraint_segment:
+        - keyword: INDEX
+        - naked_identifier: idx_token
+        - expression:
+          - column_reference:
+            - naked_identifier: tags
+        - keyword: TYPE
+        - index_type_identifier: tokenbf_v1
+        - bracketed:
+          - start_bracket: (
+          - numeric_literal: '256'
+          - comma: ','
+          - numeric_literal: '2'
+          - comma: ','
+          - numeric_literal: '0'
+          - end_bracket: )
+        - keyword: GRANULARITY
+        - numeric_literal: '2'
+      - comma: ','
+      - column_constraint_segment:
+        - keyword: INDEX
+        - naked_identifier: idx_hypothesis
+        - expression:
+          - column_reference:
+            - naked_identifier: score
+        - keyword: TYPE
+        - index_type_identifier: hypothesis
+        - keyword: GRANULARITY
+        - numeric_literal: '1'
+      - end_bracket: )
+    - engine:
+      - keyword: ENGINE
+      - comparison_operator:
+        - raw_comparison_operator: =
+      - table_engine_function:
+        - function_name:
+          - function_name_identifier: MergeTree
+        - bracketed:
+          - start_bracket: (
+          - end_bracket: )
+      - merge_tree_order_by_clause:
+        - keyword: ORDER
+        - keyword: BY
+        - column_reference:
+          - naked_identifier: id
+- statement_terminator: ;

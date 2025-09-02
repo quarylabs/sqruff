@@ -67,3 +67,10 @@ SELECT * FROM (SELECT [1, 2] AS arr, [3, 4] AS arr2) AS t1 ARRAY JOIN arr, arr2;
 SELECT x, y FROM (SELECT [1, 2] AS arr, [3, 4] AS arr2) AS t1 ARRAY JOIN arr AS x, arr2 AS y;
 SELECT *,ch,cg FROM (SELECT 1) ARRAY JOIN ['1','2'] as cg, splitByChar(',','1,2') as ch;
 SELECT * FROM (SELECT [1,2] x) AS t1 ARRAY JOIN t1.*;
+-- ARRAY join with WHERE clause
+SELECT col FROM (SELECT [1, 2, 3] AS arr) AS t1 ARRAY JOIN arr AS col WHERE col > 1;
+SELECT toDateTime64(start5 + i * step_sec, 6) AS ts, 1 AS join_key
+FROM bounds
+ARRAY JOIN range(0, greatest(intDiv(toUInt32((end5 - start5)), step_sec) + 1, 0)) AS i
+WHERE ts <= now64(6);
+SELECT * FROM (SELECT [1, 2, 3] AS arr) AS t1 ARRAY JOIN arr WHERE arr > 1;

@@ -1,0 +1,256 @@
+file:
+- statement:
+  - select_statement:
+    - select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+        - wildcard_expression:
+          - wildcard_identifier:
+            - star: '*'
+    - from_clause:
+      - keyword: FROM
+      - from_expression:
+        - from_expression_element:
+          - table_expression:
+            - table_reference:
+              - naked_identifier: users
+    - where_clause:
+      - keyword: WHERE
+      - expression:
+        - column_reference:
+          - naked_identifier: id
+        - comparison_operator:
+          - raw_comparison_operator: =
+        - parametric_expression:
+          - start_curly_bracket: '{'
+          - naked_identifier: user_id
+          - colon: ':'
+          - data_type:
+            - data_type_identifier: UInt64
+          - end_curly_bracket: '}'
+- statement_terminator: ;
+- statement:
+  - select_statement:
+    - select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+        - wildcard_expression:
+          - wildcard_identifier:
+            - star: '*'
+    - from_clause:
+      - keyword: FROM
+      - from_expression:
+        - from_expression_element:
+          - table_expression:
+            - table_reference:
+              - naked_identifier: logs
+    - where_clause:
+      - keyword: WHERE
+      - expression:
+        - column_reference:
+          - naked_identifier: level
+        - comparison_operator:
+          - raw_comparison_operator: =
+        - parametric_expression:
+          - start_curly_bracket: '{'
+          - naked_identifier: log_level
+          - colon: ':'
+          - data_type:
+            - data_type_identifier: String
+          - end_curly_bracket: '}'
+- statement_terminator: ;
+- statement:
+  - select_statement:
+    - select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+        - wildcard_expression:
+          - wildcard_identifier:
+            - star: '*'
+    - from_clause:
+      - keyword: FROM
+      - from_expression:
+        - from_expression_element:
+          - table_expression:
+            - table_reference:
+              - naked_identifier: metrics
+    - where_clause:
+      - keyword: WHERE
+      - expression:
+        - column_reference:
+          - naked_identifier: tags
+        - comparison_operator:
+          - raw_comparison_operator: =
+        - parametric_expression:
+          - start_curly_bracket: '{'
+          - naked_identifier: tags
+          - colon: ':'
+          - data_type:
+            - data_type_identifier: Array
+            - bracketed:
+              - start_bracket: (
+              - data_type:
+                - data_type_identifier: String
+              - end_bracket: )
+          - end_curly_bracket: '}'
+        - binary_operator: AND
+        - column_reference:
+          - naked_identifier: value
+        - comparison_operator:
+          - raw_comparison_operator: '>'
+        - parametric_expression:
+          - start_curly_bracket: '{'
+          - naked_identifier: threshold
+          - colon: ':'
+          - data_type:
+            - data_type_identifier: Nullable
+            - bracketed:
+              - start_bracket: (
+              - data_type:
+                - data_type_identifier: Float64
+              - end_bracket: )
+          - end_curly_bracket: '}'
+        - binary_operator: AND
+        - column_reference:
+          - naked_identifier: category
+        - comparison_operator:
+          - raw_comparison_operator: =
+        - parametric_expression:
+          - start_curly_bracket: '{'
+          - naked_identifier: cat
+          - colon: ':'
+          - data_type:
+            - data_type_identifier: Enum
+            - bracketed:
+              - start_bracket: (
+              - quoted_literal: '''A'''
+              - comma: ','
+              - quoted_literal: '''B'''
+              - comma: ','
+              - quoted_literal: '''C'''
+              - end_bracket: )
+          - end_curly_bracket: '}'
+- statement_terminator: ;
+- statement:
+  - select_statement:
+    - select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+        - wildcard_expression:
+          - wildcard_identifier:
+            - star: '*'
+    - from_clause:
+      - keyword: FROM
+      - from_expression:
+        - from_expression_element:
+          - table_expression:
+            - table_reference:
+              - naked_identifier: events
+    - where_clause:
+      - keyword: WHERE
+      - expression:
+        - column_reference:
+          - naked_identifier: timestamp
+        - comparison_operator: '>='
+        - parametric_expression:
+          - start_curly_bracket: '{'
+          - naked_identifier: start
+          - colon: ':'
+          - data_type:
+            - data_type_identifier: DateTime64
+            - bracketed:
+              - start_bracket: (
+              - numeric_literal: '3'
+              - end_bracket: )
+          - end_curly_bracket: '}'
+        - binary_operator: AND
+        - column_reference:
+          - naked_identifier: ip_address
+        - comparison_operator:
+          - raw_comparison_operator: =
+        - parametric_expression:
+          - start_curly_bracket: '{'
+          - naked_identifier: ip
+          - colon: ':'
+          - data_type:
+            - data_type_identifier: IPv4
+          - end_curly_bracket: '}'
+        - binary_operator: AND
+        - column_reference:
+          - naked_identifier: metadata
+        - comparison_operator:
+          - raw_comparison_operator: =
+        - parametric_expression:
+          - start_curly_bracket: '{'
+          - naked_identifier: meta
+          - colon: ':'
+          - data_type:
+            - data_type_identifier: Map
+            - bracketed:
+              - start_bracket: (
+              - data_type:
+                - data_type_identifier: String
+              - comma: ','
+              - data_type:
+                - data_type_identifier: String
+              - end_bracket: )
+          - end_curly_bracket: '}'
+- statement_terminator: ;
+- statement:
+  - select_statement:
+    - select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+        - wildcard_expression:
+          - wildcard_identifier:
+            - star: '*'
+    - from_clause:
+      - keyword: FROM
+      - from_expression:
+        - from_expression_element:
+          - table_expression:
+            - table_reference:
+              - naked_identifier: products
+    - where_clause:
+      - keyword: WHERE
+      - expression:
+        - column_reference:
+          - naked_identifier: price
+        - comparison_operator: <=
+        - parametric_expression:
+          - start_curly_bracket: '{'
+          - naked_identifier: max_price
+          - colon: ':'
+          - data_type:
+            - data_type_identifier: Nullable
+            - bracketed:
+              - start_bracket: (
+              - data_type:
+                - data_type_identifier: Decimal
+                - bracketed_arguments:
+                  - bracketed:
+                    - start_bracket: (
+                    - numeric_literal: '10'
+                    - comma: ','
+                    - numeric_literal: '2'
+                    - end_bracket: )
+              - end_bracket: )
+          - end_curly_bracket: '}'
+        - binary_operator: AND
+        - column_reference:
+          - naked_identifier: category
+        - comparison_operator:
+          - raw_comparison_operator: =
+        - parametric_expression:
+          - start_curly_bracket: '{'
+          - naked_identifier: category
+          - colon: ':'
+          - data_type:
+            - data_type_identifier: LowCardinality
+            - bracketed:
+              - start_bracket: (
+              - data_type:
+                - data_type_identifier: String
+              - end_bracket: )
+          - end_curly_bracket: '}'
+- statement_terminator: ;

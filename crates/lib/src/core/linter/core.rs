@@ -235,6 +235,32 @@ impl Linter {
         fix: bool,
     ) -> (ErasedSegment, Option<IgnoreMask>, Vec<SQLLintError>) {
         let mut initial_violations = Vec::new();
+
+        // Check for unparsable sections and decide whether to allow fixes
+        let mut allow_fixes = fix;
+        if fix {
+            let fix_even_unparsable = self
+                .config
+                .get("fix_even_unparsable", "core")
+                .as_bool()
+                .unwrap_or(false);
+
+            if !fix_even_unparsable {
+                let unparsables = tree.recursive_crawl(
+                    &SyntaxSet::single(SyntaxKind::Unparsable),
+                    true,
+                    &SyntaxSet::EMPTY,
+                    true,
+                );
+
+                if !unparsables.is_empty() {
+                    // Don't apply fixes to files with unparsable sections
+                    // But still run linting to report violations
+                    allow_fixes = false;
+                }
+            }
+        }
+
         let phases: &[_] = if fix {
             &[LintPhase::Main, LintPhase::Post]
         } else {
@@ -245,7 +271,7 @@ impl Linter {
 
         // If we are fixing then we want to loop up to the runaway_limit, otherwise just
         // once for linting.
-        let loop_limit = if fix { 10 } else { 1 };
+        let loop_limit = if allow_fixes { 10 } else { 1 };
         // Look for comment segments which might indicate lines to ignore.
         let (ignore_mask, violations): (Option<IgnoreMask>, Vec<SQLBaseError>) = {
             let disable_noqa = self
@@ -297,7 +323,7 @@ impl Linter {
                     // results returned won't be seen by the user anyway (linting errors ADDED by
                     // rules changing SQL, are not reported back to the user - only initial linting
                     // errors), so there's absolutely no reason to run them.
-                    if fix && !is_first_linter_pass && !rule.is_fix_compatible() {
+                    if allow_fixes && !is_first_linter_pass && !rule.is_fix_compatible() {
                         continue;
                     }
 
@@ -338,7 +364,7 @@ impl Linter {
                         continue;
                     }
 
-                    if fix && !anchor_info.is_empty() {
+                    if allow_fixes && !anchor_info.is_empty() {
                         let (new_tree, _, _) = tree.apply_fixes(&mut anchor_info);
 
                         let loop_check_tuple =
@@ -855,5 +881,59 @@ mod tests {
         let out_str = "SELECT\n foo\n FROM \n \n\n bar;";
 
         assert_eq!(Linter::normalise_newlines(in_str), out_str);
+    }
+
+    #[test]
+    fn test_fix_even_unparsable_config() {
+        use crate::core::config::{FluffConfig, Value};
+        use ahash::AHashMap;
+
+        // SQL with unparsable section and spacing issues
+        let sql_with_unparsable = "SELECT   *   FROM   table   WHERE UNPARSABLE SYNTAX HERE;";
+
+        // Test 1: fix_even_unparsable = false (default)
+        let linter_default = Linter::new(
+            FluffConfig::new(<_>::default(), None, None),
+            None,
+            None,
+            false,
+        );
+
+        let result_default = linter_default.lint_string(sql_with_unparsable, None, true);
+        // With unparsable sections and fix_even_unparsable=false (default),
+        // the linter should not apply any fixes
+        assert!(
+            !result_default.has_fixes(),
+            "Should not fix when unparsable sections exist with fix_even_unparsable=false"
+        );
+        // But it should still report violations
+        assert!(
+            !result_default.violations().is_empty(),
+            "Should still report violations even when not fixing"
+        );
+
+        // Test 2: fix_even_unparsable = true
+        let mut config_map = AHashMap::new();
+        let mut core_config = AHashMap::new();
+        core_config.insert("fix_even_unparsable".to_string(), Value::Bool(true));
+        config_map.insert("core".to_string(), Value::Map(core_config));
+        let config_with_fix = FluffConfig::new(config_map, None, None);
+
+        let linter_with_fix = Linter::new(config_with_fix, None, None, false);
+
+        let result_with_fix = linter_with_fix.lint_string(sql_with_unparsable, None, true);
+        // With fix_even_unparsable=true, fixes should be applied despite unparsable sections
+        assert!(
+            result_with_fix.has_fixes(),
+            "Should apply fixes when fix_even_unparsable=true"
+        );
+
+        // Test 3: Valid SQL should always be fixed
+        let valid_sql = "SELECT  *  FROM  table;";
+        let result_valid = linter_default.lint_string(valid_sql, None, true);
+        assert!(
+            result_valid.has_fixes(),
+            "Fix should be applied to valid SQL"
+        );
     }
 }

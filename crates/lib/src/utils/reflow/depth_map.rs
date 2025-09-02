@@ -183,11 +183,126 @@ impl DepthInfo {
             "DepthInfo comparison shares no common ancestor!"
         );
 
-        let common_depth = common_hashes.len();
+        // Return the elements that are actually in the intersection, preserving their order
         self.stack_hashes
             .iter()
-            .take(common_depth)
+            .filter(|hash| common_hashes.contains(hash))
             .copied()
             .collect()
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use sqruff_lib_core::dialects::syntax::SyntaxKind;
+
+    #[test]
+    fn test_common_with_intersection_filtering() {
+        // Create test DepthInfo instances with specific hash patterns
+        let depth_info1 = DepthInfo {
+            stack_depth: 4,
+            stack_hashes: vec![100, 200, 300, 400],
+            stack_hash_set: [100, 200, 300, 400].into_iter().collect(),
+            stack_class_types: vec![
+                SyntaxSet::new(&[SyntaxKind::File]),
+                SyntaxSet::new(&[SyntaxKind::Expression]),
+                SyntaxSet::new(&[SyntaxKind::Function]),
+                SyntaxSet::new(&[SyntaxKind::HavingClause]),
+            ],
+            stack_positions: IntMap::default(),
+        };
+
+        let depth_info2 = DepthInfo {
+            stack_depth: 4,
+            stack_hashes: vec![100, 250, 300, 450],
+            stack_hash_set: [100, 250, 300, 450].into_iter().collect(),
+            stack_class_types: vec![
+                SyntaxSet::new(&[SyntaxKind::File]),
+                SyntaxSet::new(&[SyntaxKind::PathSegment]),
+                SyntaxSet::new(&[SyntaxKind::Function]),
+                SyntaxSet::new(&[SyntaxKind::LimitClause]),
+            ],
+            stack_positions: IntMap::default(),
+        };
+
+        // Test the common_with function
+        let common = depth_info1.common_with(&depth_info2);
+
+        // Should return only the elements that are in both sets, in the order they appear in depth_info1
+        // Common elements are 100 and 300 (intersection of both hash sets)
+        assert_eq!(common, vec![100, 300]);
+
+        // Verify that the old buggy behavior (take(common_depth)) would have been wrong
+        // The old code would have taken the first 2 elements: [100, 200]
+        // But the correct behavior is to filter for actual intersection: [100, 300]
+        let old_buggy_result: Vec<u64> = depth_info1.stack_hashes.iter().take(2).copied().collect();
+        assert_eq!(old_buggy_result, vec![100, 200]);
+        assert_ne!(
+            common, old_buggy_result,
+            "Fix correctly addresses the intersection filtering bug"
+        );
+    }
+
+    #[test]
+    fn test_common_with_no_common_elements() {
+        let depth_info1 = DepthInfo {
+            stack_depth: 2,
+            stack_hashes: vec![100, 200],
+            stack_hash_set: [100, 200].into_iter().collect(),
+            stack_class_types: vec![
+                SyntaxSet::new(&[SyntaxKind::File]),
+                SyntaxSet::new(&[SyntaxKind::Expression]),
+            ],
+            stack_positions: IntMap::default(),
+        };
+
+        let depth_info2 = DepthInfo {
+            stack_depth: 2,
+            stack_hashes: vec![300, 400],
+            stack_hash_set: [300, 400].into_iter().collect(),
+            stack_class_types: vec![
+                SyntaxSet::new(&[SyntaxKind::Function]),
+                SyntaxSet::new(&[SyntaxKind::HavingClause]),
+            ],
+            stack_positions: IntMap::default(),
+        };
+
+        // This should panic because there are no common ancestors
+        let result = std::panic::catch_unwind(|| depth_info1.common_with(&depth_info2));
+        assert!(
+            result.is_err(),
+            "Should panic when no common ancestors exist"
+        );
+    }
+
+    #[test]
+    fn test_common_with_all_common_elements() {
+        let depth_info1 = DepthInfo {
+            stack_depth: 3,
+            stack_hashes: vec![100, 200, 300],
+            stack_hash_set: [100, 200, 300].into_iter().collect(),
+            stack_class_types: vec![
+                SyntaxSet::new(&[SyntaxKind::File]),
+                SyntaxSet::new(&[SyntaxKind::Expression]),
+                SyntaxSet::new(&[SyntaxKind::Function]),
+            ],
+            stack_positions: IntMap::default(),
+        };
+
+        let depth_info2 = DepthInfo {
+            stack_depth: 3,
+            stack_hashes: vec![100, 200, 300],
+            stack_hash_set: [100, 200, 300].into_iter().collect(),
+            stack_class_types: vec![
+                SyntaxSet::new(&[SyntaxKind::File]),
+                SyntaxSet::new(&[SyntaxKind::Expression]),
+                SyntaxSet::new(&[SyntaxKind::Function]),
+            ],
+            stack_positions: IntMap::default(),
+        };
+
+        let common = depth_info1.common_with(&depth_info2);
+        assert_eq!(common, vec![100, 200, 300]);
     }
 }

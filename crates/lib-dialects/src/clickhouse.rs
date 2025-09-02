@@ -10,6 +10,7 @@ use sqruff_lib_core::parser::grammar::conditional::Conditional;
 use sqruff_lib_core::parser::grammar::delimited::Delimited;
 use sqruff_lib_core::parser::grammar::sequence::{Bracketed, Sequence};
 use sqruff_lib_core::parser::lexer::Matcher;
+use sqruff_lib_core::parser::lookahead::LookaheadExclude;
 use sqruff_lib_core::parser::matchable::MatchableTrait;
 use sqruff_lib_core::parser::node_matcher::NodeMatcher;
 use sqruff_lib_core::parser::parsers::{RegexParser, StringParser, TypedParser};
@@ -85,6 +86,26 @@ pub fn dialect() -> Dialect {
     ]);
 
     clickhouse_dialect.add([
+        (
+            "SetOperatorSegment".into(),
+            NodeMatcher::new(SyntaxKind::SetOperator, |_| {
+                one_of(vec_of_erased![
+                    Ref::new("UnionGrammar"),
+                    Sequence::new(vec_of_erased![
+                        Ref::keyword("INTERSECT"),
+                        Ref::keyword("ALL").optional(),
+                    ]),
+                    Sequence::new(vec_of_erased![
+                        Ref::keyword("EXCEPT").exclude(LookaheadExclude::new("EXCEPT", "(")),
+                        Ref::keyword("ALL").optional(),
+                    ]),
+                    Ref::keyword("MINUS"),
+                ])
+                .to_matchable()
+            })
+            .to_matchable()
+            .into(),
+        ),
         (
             "SelectClauseTerminatorGrammar".into(),
             clickhouse_dialect
@@ -220,25 +241,86 @@ pub fn dialect() -> Dialect {
     );
 
     clickhouse_dialect.replace_grammar(
+        "WildcardExpressionSegment",
+        ansi::wildcard_expression_segment().copy(
+            Some(vec_of_erased![
+                Ref::new("ExceptClauseSegment").optional(),
+                Ref::new("ReplaceClauseSegment").optional(),
+            ]),
+            None,
+            None,
+            None,
+            Vec::new(),
+            false,
+        ),
+    );
+
+    clickhouse_dialect.add([
+        (
+            "ExceptClauseSegment".into(),
+            NodeMatcher::new(SyntaxKind::SelectExceptClause, |_| {
+                Sequence::new(vec_of_erased![
+                    Ref::keyword("EXCEPT"),
+                    Bracketed::new(vec_of_erased![Delimited::new(vec_of_erased![Ref::new(
+                        "SingleIdentifierGrammar"
+                    )])])
+                ])
+                .to_matchable()
+            })
+            .to_matchable()
+            .into(),
+        ),
+        (
+            "ReplaceClauseSegment".into(),
+            NodeMatcher::new(SyntaxKind::SelectReplaceClause, |_| {
+                Sequence::new(vec_of_erased![
+                    Ref::keyword("REPLACE"),
+                    Bracketed::new(vec_of_erased![Delimited::new(vec_of_erased![Ref::new(
+                        "SelectClauseElementSegment"
+                    )])])
+                ])
+                .to_matchable()
+            })
+            .to_matchable()
+            .into(),
+        ),
+    ]);
+
+    // Define the ORDER BY item as a reusable grammar element
+    clickhouse_dialect.add([(
+        "OrderByItemGrammar".into(),
+        Sequence::new(vec_of_erased![
+            one_of(vec_of_erased![
+                Ref::new("ColumnReferenceSegment"),
+                Ref::new("NumericLiteralSegment"),
+                Ref::new("ExpressionSegment"),
+            ]),
+            one_of(vec_of_erased![Ref::keyword("ASC"), Ref::keyword("DESC"),])
+                .config(|this| this.optional()),
+            Sequence::new(vec_of_erased![
+                Ref::keyword("NULLS"),
+                one_of(vec_of_erased![Ref::keyword("FIRST"), Ref::keyword("LAST"),]),
+            ])
+            .config(|this| this.optional()),
+            Ref::new("WithFillSegment").optional(),
+        ])
+        .to_matchable()
+        .into(),
+    )]);
+
+    clickhouse_dialect.replace_grammar(
         "OrderByClauseSegment",
         Sequence::new(vec_of_erased![
             Ref::keyword("ORDER"),
             Ref::keyword("BY"),
             MetaSegment::indent(),
-            Delimited::new(vec_of_erased![Sequence::new(vec_of_erased![
-                one_of(vec_of_erased![
-                    Ref::new("ColumnReferenceSegment"),
-                    Ref::new("NumericLiteralSegment"),
-                    Ref::new("ExpressionSegment"),
-                ]),
-                one_of(vec_of_erased![Ref::keyword("ASC"), Ref::keyword("DESC"),])
-                    .config(|this| this.optional()),
-                Sequence::new(vec_of_erased![
-                    Ref::keyword("NULLS"),
-                    one_of(vec_of_erased![Ref::keyword("FIRST"), Ref::keyword("LAST"),]),
-                ])
-                .config(|this| this.optional()),
-                Ref::new("WithFillSegment").optional(),
+            Delimited::new(vec_of_erased![one_of(vec_of_erased![
+                // Handle bracketed expressions with ORDER BY items inside
+                Bracketed::new(vec_of_erased![Delimited::new(vec_of_erased![Ref::new(
+                    "OrderByItemGrammar"
+                )])]),
+                // Regular ORDER BY items
+                Ref::new("OrderByItemGrammar")
             ])])
             .config(|this| this.terminators =
                 vec_of_erased![Ref::keyword("LIMIT"), Ref::new("FrameClauseUnitGrammar")]),
@@ -249,8 +331,25 @@ pub fn dialect() -> Dialect {
 
     clickhouse_dialect.add([
         (
+            "PrewhereClauseSegment".into(),
+            Sequence::new(vec_of_erased![
+                Ref::keyword("PREWHERE"),
+                MetaSegment::indent(),
+                optionally_bracketed(vec_of_erased![Ref::new("ExpressionSegment")]),
+                MetaSegment::dedent(),
+            ])
+            .to_matchable()
+            .into(),
+        ),
+        (
             "BackQuotedIdentifierSegment".into(),
             TypedParser::new(SyntaxKind::BackQuote, SyntaxKind::QuotedIdentifier)
+                .to_matchable()
+                .into(),
+        ),
+        (
+            "DoubleQuotedIdentifierSegment".into(),
+            TypedParser::new(SyntaxKind::DoubleQuote, SyntaxKind::QuotedIdentifier)
                 .to_matchable()
                 .into(),
         ),
@@ -261,6 +360,7 @@ pub fn dialect() -> Dialect {
                 Ref::new("QuotedIdentifierSegment"),
                 Ref::new("SingleQuotedIdentifierSegment"),
                 Ref::new("BackQuotedIdentifierSegment"),
+                Ref::new("DoubleQuotedIdentifierSegment"),
             ])
             .to_matchable()
             .into(),
@@ -364,10 +464,70 @@ pub fn dialect() -> Dialect {
         ),
     ]);
 
+    // Add compound comparison operators before individual operators to prevent splitting
+    clickhouse_dialect.insert_lexer_matchers(
+        vec![
+            Matcher::string(
+                "greater_than_or_equal",
+                ">=",
+                SyntaxKind::RawComparisonOperator,
+            ),
+            Matcher::string(
+                "less_than_or_equal",
+                "<=",
+                SyntaxKind::RawComparisonOperator,
+            ),
+            Matcher::string("not_equal", "!=", SyntaxKind::RawComparisonOperator),
+            Matcher::string("not_equal_alt", "<>", SyntaxKind::RawComparisonOperator),
+        ],
+        "equals", // Insert before the individual "=" operator
+    );
+
     clickhouse_dialect.insert_lexer_matchers(
         vec![Matcher::string("lambda", "->", SyntaxKind::Lambda)],
         "newline",
     );
+
+    // Add concat operator || as a single token before individual | tokens
+    clickhouse_dialect.insert_lexer_matchers(
+        vec![Matcher::string(
+            "concat_operator",
+            "||",
+            SyntaxKind::BinaryOperator,
+        )],
+        "vertical_bar",
+    );
+
+    // Add single-token operators for ClickHouse
+    clickhouse_dialect.add(vec![
+        (
+            "ConcatSegment".into(),
+            StringParser::new("||", SyntaxKind::BinaryOperator)
+                .to_matchable()
+                .into(),
+        ),
+        (
+            "GreaterThanOrEqualToSegment".into(),
+            StringParser::new(">=", SyntaxKind::ComparisonOperator)
+                .to_matchable()
+                .into(),
+        ),
+        (
+            "LessThanOrEqualToSegment".into(),
+            StringParser::new("<=", SyntaxKind::ComparisonOperator)
+                .to_matchable()
+                .into(),
+        ),
+        (
+            "NotEqualToSegment".into(),
+            one_of(vec_of_erased![
+                StringParser::new("!=", SyntaxKind::ComparisonOperator),
+                StringParser::new("<>", SyntaxKind::ComparisonOperator),
+            ])
+            .to_matchable()
+            .into(),
+        ),
+    ]);
 
     clickhouse_dialect.add(vec![
         (
@@ -486,13 +646,10 @@ pub fn dialect() -> Dialect {
     clickhouse_dialect.add([
         (
             "JoinLikeClauseGrammar".into(),
-            Sequence::new(vec_of_erased![
-                AnyNumberOf::new(vec_of_erased![Ref::new("ArrayJoinClauseSegment")])
-                    .config(|this| this.min_times(1)),
-                Ref::new("AliasExpressionSegment").optional(),
-            ])
-            .to_matchable()
-            .into(),
+            AnyNumberOf::new(vec_of_erased![Ref::new("ArrayJoinClauseSegment")])
+                .config(|this| this.min_times(1))
+                .to_matchable()
+                .into(),
         ),
         (
             "InOperatorGrammar".into(),
@@ -521,6 +678,8 @@ pub fn dialect() -> Dialect {
         "SelectStatementSegment",
         ansi::select_statement().copy(
             Some(vec_of_erased![
+                Ref::new("PrewhereClauseSegment").optional(),
+                Ref::new("QualifyClauseSegment").optional(),
                 Ref::new("FormatClauseSegment").optional(),
                 Ref::new("IntoOutfileClauseSegment").optional(),
                 Ref::new("SettingsClauseSegment").optional(),
@@ -532,6 +691,96 @@ pub fn dialect() -> Dialect {
             false,
         ),
     );
+
+    // ProjectionSelectClauseTerminatorGrammar: Terminator for PROJECTION SELECT clauses
+    // Includes GROUP BY as a valid terminator (not allowed in regular SELECT)
+    clickhouse_dialect.add([(
+        "ProjectionSelectClauseTerminatorGrammar".into(),
+        one_of(vec_of_erased![
+            Ref::keyword("PREWHERE"),
+            Ref::keyword("INTO"),
+            Ref::keyword("FORMAT"),
+            Sequence::new(vec_of_erased![Ref::keyword("GROUP"), Ref::keyword("BY")]),
+            Sequence::new(vec_of_erased![Ref::keyword("ORDER"), Ref::keyword("BY")]),
+            Ref::keyword("WHERE"),
+        ])
+        .to_matchable()
+        .into(),
+    )]);
+
+    // ProjectionSelectClauseSegment: Specialized SELECT clause for PROJECTION
+    clickhouse_dialect.add([(
+        "ProjectionSelectClauseSegment".into(),
+        Sequence::new(vec_of_erased![
+            Ref::keyword("SELECT"),
+            // No modifiers needed for projections
+            MetaSegment::indent(),
+            Delimited::new(vec_of_erased![Ref::new("SelectClauseElementSegment")])
+                .config(|this| this.allow_trailing()),
+        ])
+        .terminators(vec_of_erased![Ref::new(
+            "ProjectionSelectClauseTerminatorGrammar"
+        )])
+        .config(|this| {
+            this.parse_mode(ParseMode::GreedyOnceStarted);
+        })
+        .to_matchable()
+        .into(),
+    )]);
+
+    // ProjectionSelectSegment: Specialized SELECT statement for PROJECTION
+    // PROJECTION SELECT can have: SELECT ... [GROUP BY ...] [ORDER BY ...]
+    // No FROM/WHERE/HAVING allowed in projections
+    clickhouse_dialect.add([(
+        "ProjectionSelectSegment".into(),
+        Sequence::new(vec_of_erased![
+            Ref::new("ProjectionSelectClauseSegment"),
+            Ref::new("GroupByClauseSegment").optional(),
+            Ref::new("OrderByClauseSegment").optional(),
+        ])
+        .to_matchable()
+        .into(),
+    )]);
+
+    // Index type string parsers for case-insensitive matching
+    clickhouse_dialect.add([
+        (
+            "BloomFilterIndexType".into(),
+            StringParser::new("bloom_filter", SyntaxKind::IndexTypeIdentifier)
+                .to_matchable()
+                .into(),
+        ),
+        (
+            "SetIndexType".into(),
+            StringParser::new("set", SyntaxKind::IndexTypeIdentifier)
+                .to_matchable()
+                .into(),
+        ),
+        (
+            "NgramBfV1IndexType".into(),
+            StringParser::new("ngrambf_v1", SyntaxKind::IndexTypeIdentifier)
+                .to_matchable()
+                .into(),
+        ),
+        (
+            "TokenBfV1IndexType".into(),
+            StringParser::new("tokenbf_v1", SyntaxKind::IndexTypeIdentifier)
+                .to_matchable()
+                .into(),
+        ),
+        (
+            "MinmaxIndexType".into(),
+            StringParser::new("minmax", SyntaxKind::IndexTypeIdentifier)
+                .to_matchable()
+                .into(),
+        ),
+        (
+            "HypothesisIndexType".into(),
+            StringParser::new("hypothesis", SyntaxKind::IndexTypeIdentifier)
+                .to_matchable()
+                .into(),
+        ),
+    ]);
 
     clickhouse_dialect.add([(
         "WithFillSegment".into(),
@@ -564,6 +813,13 @@ pub fn dialect() -> Dialect {
     clickhouse_dialect.replace_grammar(
         "DatatypeSegment",
         one_of(vec_of_erased![
+            // AggregateFunction(function_name, arg_type1, arg_type2, ...)
+            Sequence::new(vec_of_erased![
+                StringParser::new("AGGREGATEFUNCTION", SyntaxKind::DataTypeIdentifier),
+                Bracketed::new(vec_of_erased![Delimited::new(vec_of_erased![one_of(
+                    vec_of_erased![Ref::new("FunctionNameSegment"), Ref::new("DatatypeSegment"),]
+                )])]),
+            ]),
             // Nullable(Type)
             Sequence::new(vec_of_erased![
                 StringParser::new("NULLABLE", SyntaxKind::DataTypeIdentifier),
@@ -640,17 +896,42 @@ pub fn dialect() -> Dialect {
             ]),
             // JSON data type
             StringParser::new("JSON", SyntaxKind::DataTypeIdentifier),
-            // Enum8('val1' = 1, 'val2' = 2)
+            // SimpleAggregateFunction(function_name, arg_type1, arg_type2, ...)
+            Sequence::new(vec_of_erased![
+                StringParser::new("SIMPLEAGGREGATEFUNCTION", SyntaxKind::DataTypeIdentifier),
+                Bracketed::new(vec_of_erased![Delimited::new(vec_of_erased![one_of(
+                    vec_of_erased![Ref::new("FunctionNameSegment"), Ref::new("DatatypeSegment"),]
+                )])]),
+            ]),
+            // Ring data type
+            StringParser::new("RING", SyntaxKind::DataTypeIdentifier),
+            // Polygon data type
+            StringParser::new("POLYGON", SyntaxKind::DataTypeIdentifier),
+            // MultiPolygon data type
+            StringParser::new("MULTIPOLYGON", SyntaxKind::DataTypeIdentifier),
+            // Point data type
+            StringParser::new("POINT", SyntaxKind::DataTypeIdentifier),
+            // UUID data type
+            StringParser::new("UUID", SyntaxKind::DataTypeIdentifier),
+            // IPv4 data type
+            StringParser::new("IPV4", SyntaxKind::DataTypeIdentifier),
+            // IPv6 data type
+            StringParser::new("IPV6", SyntaxKind::DataTypeIdentifier),
+            // Enum8('val1' = 1, 'val2' = 2) or Enum('val1', 'val2')
             Sequence::new(vec_of_erased![
                 one_of(vec_of_erased![
                     StringParser::new("ENUM8", SyntaxKind::DataTypeIdentifier),
                     StringParser::new("ENUM16", SyntaxKind::DataTypeIdentifier),
+                    StringParser::new("ENUM", SyntaxKind::DataTypeIdentifier),
                 ]),
                 Bracketed::new(vec_of_erased![Delimited::new(vec_of_erased![
                     Sequence::new(vec_of_erased![
                         Ref::new("QuotedLiteralSegment"),
-                        Ref::new("EqualsSegment"),
-                        Ref::new("NumericLiteralSegment"),
+                        Sequence::new(vec_of_erased![
+                            Ref::new("EqualsSegment"),
+                            Ref::new("NumericLiteralSegment"),
+                        ])
+                        .config(|this| this.optional()),
                     ])
                 ]),]),
             ]),
@@ -781,9 +1062,14 @@ pub fn dialect() -> Dialect {
                 Ref::new("SingleQuotedIdentifierSegment"),
             ])
             .config(|this| this.exclude = one_of(vec_of_erased![
-                Ref::keyword("LATERAL"),
-                Ref::keyword("WINDOW"),
-                Ref::keyword("KEYS"),
+                Ref::keyword("WHERE"),
+                Ref::keyword("ORDER"),
+                Ref::keyword("GROUP"),
+                Ref::keyword("HAVING"),
+                Ref::keyword("LIMIT"),
+                Ref::keyword("UNION"),
+                Ref::keyword("INTERSECT"),
+                Ref::keyword("EXCEPT"),
             ])
             .to_matchable()
             .into()),
@@ -950,6 +1236,76 @@ pub fn dialect() -> Dialect {
                             .config(|this| this.optional()),
                         ]),
                     ]),
+                ])
+                .to_matchable()
+            })
+            .to_matchable()
+            .into(),
+        ),
+        (
+            "IndexDefinitionSegment".into(),
+            NodeMatcher::new(SyntaxKind::ColumnConstraintSegment, |_| {
+                Sequence::new(vec_of_erased![
+                    Ref::keyword("INDEX"),
+                    Ref::new("SingleIdentifierGrammar"),
+                    Ref::new("ExpressionSegment"),
+                    Sequence::new(vec_of_erased![
+                        Ref::keyword("TYPE"),
+                        one_of(vec_of_erased![
+                            // Index types that can have parameters
+                            Sequence::new(vec_of_erased![
+                                Ref::new("BloomFilterIndexType"),
+                                Bracketed::new(vec_of_erased![Delimited::new(vec_of_erased![
+                                    Ref::new("NumericLiteralSegment")
+                                ])])
+                                .config(|this| this.optional()),
+                            ]),
+                            Sequence::new(vec_of_erased![
+                                Ref::new("SetIndexType"),
+                                Bracketed::new(vec_of_erased![Delimited::new(vec_of_erased![
+                                    Ref::new("NumericLiteralSegment")
+                                ])])
+                                .config(|this| this.optional()),
+                            ]),
+                            Sequence::new(vec_of_erased![
+                                Ref::new("NgramBfV1IndexType"),
+                                Bracketed::new(vec_of_erased![Delimited::new(vec_of_erased![
+                                    Ref::new("NumericLiteralSegment")
+                                ])])
+                                .config(|this| this.optional()),
+                            ]),
+                            Sequence::new(vec_of_erased![
+                                Ref::new("TokenBfV1IndexType"),
+                                Bracketed::new(vec_of_erased![Delimited::new(vec_of_erased![
+                                    Ref::new("NumericLiteralSegment")
+                                ])])
+                                .config(|this| this.optional()),
+                            ]),
+                            // Index types without parameters
+                            Ref::new("MinmaxIndexType"),
+                            Ref::new("HypothesisIndexType"),
+                            Ref::new("SingleIdentifierGrammar"), // For other index types
+                        ]),
+                    ])
+                    .config(|this| this.optional()),
+                    Sequence::new(vec_of_erased![
+                        Ref::keyword("GRANULARITY"),
+                        Ref::new("NumericLiteralSegment"),
+                    ])
+                    .config(|this| this.optional()),
+                ])
+                .to_matchable()
+            })
+            .to_matchable()
+            .into(),
+        ),
+        (
+            "ProjectionDefinitionSegment".into(),
+            NodeMatcher::new(SyntaxKind::ColumnConstraintSegment, |_| {
+                Sequence::new(vec_of_erased![
+                    Ref::keyword("PROJECTION"),
+                    Ref::new("SingleIdentifierGrammar"),
+                    Bracketed::new(vec_of_erased![Ref::new("ProjectionSelectSegment")]),
                 ])
                 .to_matchable()
             })
@@ -1163,6 +1519,8 @@ pub fn dialect() -> Dialect {
                             Ref::new("TableConstraintSegment"),
                             Ref::new("ColumnDefinitionSegment"),
                             Ref::new("ColumnConstraintSegment"),
+                            Ref::new("IndexDefinitionSegment"),
+                            Ref::new("ProjectionDefinitionSegment"),
                         ]
                     )])])
                     .config(|this| this.optional()),
@@ -1338,6 +1696,42 @@ pub fn dialect() -> Dialect {
     );
 
     clickhouse_dialect.add([
+        (
+            "OptimizeTableStatementSegment".into(),
+            NodeMatcher::new(SyntaxKind::Statement, |_| {
+                Sequence::new(vec_of_erased![
+                    Ref::keyword("OPTIMIZE"),
+                    Ref::keyword("TABLE"),
+                    Ref::new("TableReferenceSegment"),
+                    Ref::new("OnClusterClauseSegment").optional(),
+                    Sequence::new(vec_of_erased![
+                        Ref::keyword("PARTITION"),
+                        one_of(vec_of_erased![
+                            Ref::new("ExpressionSegment"),
+                            Sequence::new(vec_of_erased![
+                                Ref::keyword("ID"),
+                                Ref::new("QuotedLiteralSegment"),
+                            ]),
+                        ]),
+                    ])
+                    .config(|this| this.optional()),
+                    Ref::keyword("FINAL").optional(),
+                    Sequence::new(vec_of_erased![
+                        Ref::keyword("DEDUPLICATE"),
+                        Sequence::new(vec_of_erased![
+                            Ref::keyword("BY"),
+                            Delimited::new(vec_of_erased![Ref::new("ExpressionSegment")]),
+                        ])
+                        .config(|this| this.optional()),
+                    ])
+                    .config(|this| this.optional()),
+                    Ref::new("SettingsClauseSegment").optional(),
+                ])
+                .to_matchable()
+            })
+            .to_matchable()
+            .into(),
+        ),
         (
             "DropQuotaStatementSegment".into(),
             NodeMatcher::new(SyntaxKind::DropQuotaStatement, |_| {
@@ -1939,6 +2333,7 @@ pub fn dialect() -> Dialect {
         ansi::statement_segment().copy(
             Some(vec_of_erased![
                 Ref::new("CreateMaterializedViewStatementSegment"),
+                Ref::new("OptimizeTableStatementSegment"),
                 Ref::new("DropDictionaryStatementSegment"),
                 Ref::new("DropQuotaStatementSegment"),
                 Ref::new("DropSettingProfileStatementSegment"),
@@ -2072,6 +2467,152 @@ pub fn dialect() -> Dialect {
                 // Column constraint
                 Ref::new("ColumnConstraintSegment"),
             ])])
+            .config(|this| this.optional()),
+        ])
+        .to_matchable(),
+    );
+
+    // Add ParametricExpressionSegment for ClickHouse parametric views
+    clickhouse_dialect.add([(
+        "ParametricExpressionSegment".into(),
+        NodeMatcher::new(SyntaxKind::ParametricExpression, |_| {
+            Sequence::new(vec_of_erased![
+                StringParser::new("{", SyntaxKind::StartCurlyBracket),
+                Ref::new("SingleIdentifierGrammar"), // parameter name
+                StringParser::new(":", SyntaxKind::Colon),
+                Ref::new("DatatypeSegment"), // reuse existing ClickHouse data type definitions
+                StringParser::new("}", SyntaxKind::EndCurlyBracket),
+            ])
+            .to_matchable()
+        })
+        .to_matchable()
+        .into(),
+    )]);
+
+    // Add QUALIFY clause support (similar to BigQuery)
+    clickhouse_dialect.add([(
+        "QualifyClauseSegment".into(),
+        NodeMatcher::new(SyntaxKind::QualifyClause, |_| {
+            Sequence::new(vec_of_erased![
+                Ref::keyword("QUALIFY"),
+                MetaSegment::indent(),
+                optionally_bracketed(vec_of_erased![Ref::new("ExpressionSegment")]),
+                MetaSegment::dedent(),
+            ])
+            .to_matchable()
+        })
+        .to_matchable()
+        .into(),
+    )]);
+
+    // Replace FunctionSegment to support ClickHouse higher-order functions
+    // Pattern: function_name(parameters)(arguments) - second parentheses optional
+    // Examples: quantileExact(0.5)(column), count(column)
+    clickhouse_dialect.replace_grammar(
+        "FunctionSegment",
+        Sequence::new(vec_of_erased![one_of(vec_of_erased![
+            // Date part function pattern
+            Sequence::new(vec_of_erased![
+                Ref::new("DatePartFunctionNameSegment"),
+                Ref::new("DateTimeFunctionContentsSegment"),
+            ]),
+            // Standard function pattern with optional second parentheses for higher-order functions
+            Sequence::new(vec_of_erased![
+                Sequence::new(vec_of_erased![
+                    Ref::new("FunctionNameSegment").exclude(one_of(vec_of_erased![
+                        Ref::new("DatePartFunctionNameSegment"),
+                        Ref::new("ValuesClauseSegment")
+                    ])),
+                    Ref::new("FunctionContentsSegment"),
+                    Ref::new("FunctionContentsSegment").optional(), // Optional second parentheses for higher-order functions
+                ]),
+                Ref::new("PostFunctionGrammar").optional()
+            ]),
+        ])])
+        .to_matchable(),
+    );
+
+    // Extend LiteralGrammar to include parametric expressions
+    clickhouse_dialect.add([(
+        "LiteralGrammar".into(),
+        clickhouse_dialect
+            .grammar("LiteralGrammar")
+            .copy(
+                Some(vec_of_erased![Ref::new("ParametricExpressionSegment")]),
+                None,
+                None,
+                None,
+                Vec::new(),
+                false,
+            )
+            .into(),
+    )]);
+
+    // Add custom frame extent for ClickHouse to support INTERVAL X DAY syntax
+    clickhouse_dialect.add([(
+        "FrameExtentGrammar".into(),
+        one_of(vec_of_erased![
+            Sequence::new(vec_of_erased![Ref::keyword("CURRENT"), Ref::keyword("ROW")]),
+            Sequence::new(vec_of_erased![
+                one_of(vec_of_erased![
+                    Ref::new("NumericLiteralSegment"),
+                    // Support both INTERVAL 'string' and INTERVAL number unit syntaxes
+                    Ref::new("IntervalExpressionSegment"),
+                    Ref::keyword("UNBOUNDED")
+                ]),
+                one_of(vec_of_erased![
+                    Ref::keyword("PRECEDING"),
+                    Ref::keyword("FOLLOWING")
+                ])
+            ])
+        ])
+        .to_matchable()
+        .into(),
+    )]);
+
+    // Replace FrameClauseSegment to use ClickHouse's frame extent
+    clickhouse_dialect.replace_grammar(
+        "FrameClauseSegment",
+        NodeMatcher::new(SyntaxKind::FrameClause, |_| {
+            Sequence::new(vec_of_erased![
+                Ref::new("FrameClauseUnitGrammar"),
+                one_of(vec_of_erased![
+                    Ref::new("FrameExtentGrammar"),
+                    Sequence::new(vec_of_erased![
+                        Ref::keyword("BETWEEN"),
+                        Ref::new("FrameExtentGrammar"),
+                        Ref::keyword("AND"),
+                        Ref::new("FrameExtentGrammar"),
+                    ])
+                ])
+            ])
+            .to_matchable()
+        })
+        .to_matchable(),
+    );
+
+    // Add ternary operator support for ClickHouse
+    // ClickHouse supports: condition ? true_expr : false_expr
+    //
+    // IMPORTANT: The ternary operator has LOWER precedence than AND/OR operators.
+    // This means `true ? 1 : 0 AND false ? 1 : 0` will fail to parse,
+    // while `(true ? 1 : 0) AND (false ? 1 : 0)` parses with explicit grouping.
+    //
+    // NOTE: This implementation does NOT support nested ternary operators without parentheses.
+    // For example, `a ? b : c ? d : e` is not supported and will fail to parse.
+    // You must use parentheses: `a ? b : (c ? d : e)` or `(a ? b : c) ? d : e`.
+    // This matches ClickHouse's actual behavior where nested ternaries require explicit grouping.
+
+    clickhouse_dialect.replace_grammar(
+        "ExpressionSegment",
+        Sequence::new(vec_of_erased![
+            Ref::new("Expression_A_Grammar"),
+            Sequence::new(vec_of_erased![
+                StringParser::new("?", SyntaxKind::QuestionMark),
+                Ref::new("Expression_A_Grammar"),
+                StringParser::new(":", SyntaxKind::Colon),
+                Ref::new("Expression_A_Grammar"),
+            ])
             .config(|this| this.optional()),
         ])
         .to_matchable(),

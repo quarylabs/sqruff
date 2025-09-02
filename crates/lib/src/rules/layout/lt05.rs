@@ -82,6 +82,11 @@ FROM my_table"#
                         .as_ref()
                         .unwrap()
                         .is_type(SyntaxKind::InlineComment)
+                    || res
+                        .anchor
+                        .as_ref()
+                        .unwrap()
+                        .is_type(SyntaxKind::BlockComment)
                 {
                     to_remove.insert(res_idx);
                     continue;
@@ -100,7 +105,10 @@ FROM my_table"#
                         break;
                     }
 
-                    if seg.is_type(SyntaxKind::Comment) || seg.is_type(SyntaxKind::InlineComment) {
+                    if seg.is_type(SyntaxKind::Comment)
+                        || seg.is_type(SyntaxKind::InlineComment)
+                        || seg.is_type(SyntaxKind::BlockComment)
+                    {
                         to_remove.insert(res_idx);
                         break;
                     } else if seg.is_type(SyntaxKind::Placeholder) {

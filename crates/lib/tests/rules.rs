@@ -61,6 +61,13 @@ fn main() {
         linter.config_mut().raw.get("core").unwrap().clone(),
     );
 
+    // Set fix_even_unparsable to true
+    core.get_mut("core")
+        .unwrap()
+        .as_map_mut()
+        .unwrap()
+        .insert("fix_even_unparsable".into(), Value::Bool(true));
+
     let pattern = args
         .file
         .as_deref()

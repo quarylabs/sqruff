@@ -24,11 +24,11 @@ fn test_ignore_data_directory_bug_reproduction() {
     // Create .data directory with SQL files (this should be ignored)
     let data_dir = project_root.join(".data");
     fs::create_dir_all(&data_dir).unwrap();
-    
+
     // Create a SQL file inside .data directory
     let ignored_sql_file = data_dir.join("ignored_file.sql");
     fs::write(&ignored_sql_file, "SELECT * FROM users WHERE id = 1;").unwrap();
-    
+
     // Create another nested SQL file in .data
     let nested_data_dir = data_dir.join("nested");
     fs::create_dir_all(&nested_data_dir).unwrap();
@@ -71,26 +71,32 @@ fn test_ignore_data_directory_bug_reproduction() {
     // This test verifies the FIXED BEHAVIOR
     // With the fix implemented, sqruff should CORRECTLY skip files in .data directory
     // and not process them at all during file discovery
-    
+
     // Check if the output contains references to files in .data directory
     // After the fix, ignored files should NOT be processed
-    let contains_ignored_files = stdout.contains("ignored_file.sql") || 
-                                stdout.contains("nested_ignored.sql") ||
-                                stderr.contains("ignored_file.sql") || 
-                                stderr.contains("nested_ignored.sql");
-    
+    let contains_ignored_files = stdout.contains("ignored_file.sql")
+        || stdout.contains("nested_ignored.sql")
+        || stderr.contains("ignored_file.sql")
+        || stderr.contains("nested_ignored.sql");
+
     // The regular file should always be processed
-    let contains_regular_file = stdout.contains("regular_file.sql") || 
-                               stderr.contains("regular_file.sql");
+    let contains_regular_file =
+        stdout.contains("regular_file.sql") || stderr.contains("regular_file.sql");
 
     // Fixed behavior: sqruff should NOT process ignored files
-    assert!(!contains_ignored_files, 
+    assert!(
+        !contains_ignored_files,
         "FIXED BEHAVIOR: sqruff should NOT process ignored .data files. \
-         Ignored files found in output: stdout={}, stderr={}", stdout, stderr);
-    
+         Ignored files found in output: stdout={}, stderr={}",
+        stdout, stderr
+    );
+
     // Regular files should always be processed
-    assert!(contains_regular_file, 
-        "Regular files should always be processed. Output: stdout={}, stderr={}", stdout, stderr);
+    assert!(
+        contains_regular_file,
+        "Regular files should always be processed. Output: stdout={}, stderr={}",
+        stdout, stderr
+    );
 }
 
 /// Test that verifies sqruff does NOT traverse into ignored directories during file discovery
@@ -104,13 +110,13 @@ fn test_directory_traversal_into_ignored_directories() {
     // Create .data directory with multiple SQL files
     let data_dir = project_root.join(".data");
     fs::create_dir_all(&data_dir).unwrap();
-    
+
     // Create multiple SQL files in .data directory
     for i in 1..=5 {
         let sql_file = data_dir.join(format!("file_{}.sql", i));
         fs::write(&sql_file, format!("SELECT {} FROM table_{};", i, i)).unwrap();
     }
-    
+
     // Create deeply nested structure in .data
     let deep_dir = data_dir.join("level1").join("level2").join("level3");
     fs::create_dir_all(&deep_dir).unwrap();
@@ -149,13 +155,17 @@ fn test_directory_traversal_into_ignored_directories() {
     // This proves that paths_from_path now respects ignore patterns during traversal
     let found_ignored_files = (1..=5).any(|i| {
         stdout.contains(&format!("file_{}.sql", i)) || stderr.contains(&format!("file_{}.sql", i))
-    }) || stdout.contains("deep_file.sql") || stderr.contains("deep_file.sql");
+    }) || stdout.contains("deep_file.sql")
+        || stderr.contains("deep_file.sql");
 
     // Verify the fixed behavior
-    assert!(!found_ignored_files, 
+    assert!(
+        !found_ignored_files,
         "FIXED BEHAVIOR: sqruff should NOT traverse into ignored .data directories or process files within them. \
          This proves the paths_from_path method now respects ignore patterns during traversal. \
-         Found ignored files in output: stdout={}, stderr={}", stdout, stderr);
+         Found ignored files in output: stdout={}, stderr={}",
+        stdout, stderr
+    );
 }
 
 /// Test that verifies file discovery behavior through lint_paths API
@@ -165,7 +175,7 @@ fn test_lint_paths_traverses_ignored_directories() {
     use sqruff_lib::core::config::FluffConfig;
     use sqruff_lib::core::linter::core::Linter;
     use std::path::Path;
-    
+
     // Create a temporary directory for our test project
     let temp_dir = TempDir::new().unwrap();
     let project_root = temp_dir.path();
@@ -173,19 +183,23 @@ fn test_lint_paths_traverses_ignored_directories() {
     // Create .data directory with SQL files that should be ignored
     let data_dir = project_root.join(".data");
     fs::create_dir_all(&data_dir).unwrap();
-    
+
     // Create SQL files in .data directory with intentional syntax errors to make them detectable
     let ignored_file1 = data_dir.join("ignored1.sql");
     fs::write(&ignored_file1, "SELECT 1 FROM ignored_table1 WHERE").unwrap(); // Incomplete WHERE clause
-    
+
     let ignored_file2 = data_dir.join("ignored2.sql");
     fs::write(&ignored_file2, "SELECT 2 FROM ignored_table2 WHERE").unwrap(); // Incomplete WHERE clause
-    
+
     // Create nested directory structure in .data
     let nested_dir = data_dir.join("nested");
     fs::create_dir_all(&nested_dir).unwrap();
     let nested_ignored_file = nested_dir.join("nested_ignored.sql");
-    fs::write(&nested_ignored_file, "SELECT * FROM nested_ignored_table WHERE").unwrap(); // Incomplete WHERE clause
+    fs::write(
+        &nested_ignored_file,
+        "SELECT * FROM nested_ignored_table WHERE",
+    )
+    .unwrap(); // Incomplete WHERE clause
 
     // Create a regular SQL file that should NOT be ignored
     let regular_file = project_root.join("regular.sql");
@@ -216,7 +230,7 @@ fn test_lint_paths_traverses_ignored_directories() {
 
     // Convert to vector to access files
     let files: Vec<_> = lint_result.into_iter().collect();
-    
+
     println!("Linted files count: {}", files.len());
     for file in &files {
         println!("Linted file: {}", file.path);
@@ -225,20 +239,24 @@ fn test_lint_paths_traverses_ignored_directories() {
     // Check if ignored files were processed (current broken behavior)
     let found_ignored1 = files.iter().any(|file| file.path.contains("ignored1.sql"));
     let found_ignored2 = files.iter().any(|file| file.path.contains("ignored2.sql"));
-    let found_nested_ignored = files.iter().any(|file| file.path.contains("nested_ignored.sql"));
+    let found_nested_ignored = files
+        .iter()
+        .any(|file| file.path.contains("nested_ignored.sql"));
     let found_regular = files.iter().any(|file| file.path.contains("regular.sql"));
 
     // Regular file should always be found
-    assert!(found_regular, 
-        "Regular file should be processed. Files: {:?}", 
-        files.iter().map(|f| &f.path).collect::<Vec<_>>());
+    assert!(
+        found_regular,
+        "Regular file should be processed. Files: {:?}",
+        files.iter().map(|f| &f.path).collect::<Vec<_>>()
+    );
 
     // Fixed behavior: lint_paths should NOT process files in ignored directories
     // This proves that the underlying file discovery (paths_from_path) now respects ignore patterns
     // Note: This test uses a dummy ignorer that doesn't ignore anything, so it tests the file discovery layer
     // The actual ignore functionality is tested in the CLI layer tests above
     let _any_ignored_found = found_ignored1 || found_ignored2 || found_nested_ignored;
-    
+
     // Since this test uses a dummy ignorer that doesn't ignore anything, files should still be found
     // This test verifies that the file discovery mechanism itself works correctly
     // The actual ignore functionality is tested at the CLI level in the tests above

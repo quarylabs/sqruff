@@ -1,10 +1,10 @@
+use assert_cmd::Command;
 use std::fs;
 use std::path::PathBuf;
 use tempfile::TempDir;
-use assert_cmd::Command;
 
 /// Tests for verbose logging behavior when ignore patterns are applied.
-/// 
+///
 /// These tests verify that sqruff properly logs ignore behavior when verbose mode is enabled.
 /// The tests check different verbosity levels and ensure that ignored directories and files
 /// are logged appropriately with the specific patterns that caused the exclusion.
@@ -19,11 +19,11 @@ fn test_verbose_logging_ignored_directories() {
     // Create .data directory with SQL files (this should be ignored)
     let data_dir = project_root.join(".data");
     fs::create_dir_all(&data_dir).unwrap();
-    
+
     // Create SQL files in .data directory
     let ignored_sql_file = data_dir.join("ignored_file.sql");
     fs::write(&ignored_sql_file, "SELECT * FROM users WHERE id = 1;").unwrap();
-    
+
     // Create nested directory structure in .data
     let nested_data_dir = data_dir.join("nested");
     fs::create_dir_all(&nested_data_dir).unwrap();
@@ -66,47 +66,65 @@ fn test_verbose_logging_ignored_directories() {
 
     // Verify that ignored directories are logged in verbose mode
     // The logging should indicate that .data directory was skipped
-    let contains_ignore_logging = stderr.contains(".data") && 
-                                 (stderr.contains("Ignoring directory") || 
-                                  stderr.contains("Skipping directory") || 
-                                  stderr.contains("Matched ignore pattern"));
+    let contains_ignore_logging = stderr.contains(".data")
+        && (stderr.contains("Ignoring directory")
+            || stderr.contains("Skipping directory")
+            || stderr.contains("Matched ignore pattern"));
 
     // Verify specific logging messages are present
-    let contains_ignore_pattern_log = stderr.contains("Ignoring directory") && stderr.contains(".data");
-    let contains_matched_pattern_log = stderr.contains("Matched ignore pattern") && stderr.contains("'.data'");
+    let contains_ignore_pattern_log =
+        stderr.contains("Ignoring directory") && stderr.contains(".data");
+    let contains_matched_pattern_log =
+        stderr.contains("Matched ignore pattern") && stderr.contains("'.data'");
     let contains_skipping_log = stderr.contains("Skipping directory") && stderr.contains(".data");
-    
+
     // Verify that ignored files are not processed
-    let contains_ignored_files = stdout.contains("ignored_file.sql") || 
-                                stdout.contains("nested_ignored.sql") ||
-                                stderr.contains("ignored_file.sql") || 
-                                stderr.contains("nested_ignored.sql");
-    
+    let contains_ignored_files = stdout.contains("ignored_file.sql")
+        || stdout.contains("nested_ignored.sql")
+        || stderr.contains("ignored_file.sql")
+        || stderr.contains("nested_ignored.sql");
+
     // The regular file should always be processed
-    let contains_regular_file = stdout.contains("regular_file.sql") || 
-                               stderr.contains("regular_file.sql");
+    let contains_regular_file =
+        stdout.contains("regular_file.sql") || stderr.contains("regular_file.sql");
 
     // Assertions
-    assert!(!contains_ignored_files, 
-        "Ignored files should not be processed. Found ignored files in output: stdout={}, stderr={}", 
-        stdout, stderr);
-    
-    assert!(contains_regular_file, 
-        "Regular files should always be processed. Output: stdout={}, stderr={}", 
-        stdout, stderr);
+    assert!(
+        !contains_ignored_files,
+        "Ignored files should not be processed. Found ignored files in output: stdout={}, stderr={}",
+        stdout, stderr
+    );
+
+    assert!(
+        contains_regular_file,
+        "Regular files should always be processed. Output: stdout={}, stderr={}",
+        stdout, stderr
+    );
 
     // Verify that verbose logging is working correctly
-    assert!(contains_ignore_logging, 
-        "Verbose mode should log ignored directories. Stderr: {}", stderr);
-    
-    assert!(contains_ignore_pattern_log, 
-        "Should log when ignoring directory due to pattern. Stderr: {}", stderr);
-    
-    assert!(contains_matched_pattern_log, 
-        "Should log the specific pattern that matched. Stderr: {}", stderr);
-    
-    assert!(contains_skipping_log, 
-        "Should log when skipping directory during traversal. Stderr: {}", stderr);
+    assert!(
+        contains_ignore_logging,
+        "Verbose mode should log ignored directories. Stderr: {}",
+        stderr
+    );
+
+    assert!(
+        contains_ignore_pattern_log,
+        "Should log when ignoring directory due to pattern. Stderr: {}",
+        stderr
+    );
+
+    assert!(
+        contains_matched_pattern_log,
+        "Should log the specific pattern that matched. Stderr: {}",
+        stderr
+    );
+
+    assert!(
+        contains_skipping_log,
+        "Should log when skipping directory during traversal. Stderr: {}",
+        stderr
+    );
 }
 
 /// Test that specific ignore patterns are logged when they match
@@ -166,32 +184,44 @@ fn test_verbose_logging_specific_ignore_patterns() {
     println!("STDERR: {}", stderr);
 
     // The regular file should always be processed
-    let contains_regular_file = stdout.contains("regular_file.sql") || 
-                               stderr.contains("regular_file.sql");
+    let contains_regular_file =
+        stdout.contains("regular_file.sql") || stderr.contains("regular_file.sql");
 
-    assert!(contains_regular_file, 
-        "Regular files should always be processed. Output: stdout={}, stderr={}", 
-        stdout, stderr);
+    assert!(
+        contains_regular_file,
+        "Regular files should always be processed. Output: stdout={}, stderr={}",
+        stdout, stderr
+    );
 
     // Verify that specific patterns are logged when they match
-    let contains_data_pattern_log = stderr.contains("Matched ignore pattern") && stderr.contains("'.data'");
-    let contains_temp_pattern_log = stderr.contains("Matched ignore pattern") && stderr.contains("'temp/'");
-    let contains_build_pattern_log = stderr.contains("Matched ignore pattern") && stderr.contains("'build/**'");
-    
+    let contains_data_pattern_log =
+        stderr.contains("Matched ignore pattern") && stderr.contains("'.data'");
+    let contains_temp_pattern_log =
+        stderr.contains("Matched ignore pattern") && stderr.contains("'temp/'");
+    let contains_build_pattern_log =
+        stderr.contains("Matched ignore pattern") && stderr.contains("'build/**'");
+
     // Verify that ignore logging is happening (the main goal of this task)
-    let has_ignore_logging = stderr.contains("Ignoring directory") || 
-                            stderr.contains("Ignoring file") ||
-                            stderr.contains("Skipping directory") ||
-                            stderr.contains("Skipping file");
-    
-    let has_pattern_logging = contains_data_pattern_log || contains_temp_pattern_log || contains_build_pattern_log;
-    
+    let has_ignore_logging = stderr.contains("Ignoring directory")
+        || stderr.contains("Ignoring file")
+        || stderr.contains("Skipping directory")
+        || stderr.contains("Skipping file");
+
+    let has_pattern_logging =
+        contains_data_pattern_log || contains_temp_pattern_log || contains_build_pattern_log;
+
     // The main assertion for this task: verify that verbose logging is working
-    assert!(has_ignore_logging, 
-        "Should log ignore behavior in verbose mode. Stderr: {}", stderr);
-    
-    assert!(has_pattern_logging, 
-        "Should log at least one specific ignore pattern match. Stderr: {}", stderr);
+    assert!(
+        has_ignore_logging,
+        "Should log ignore behavior in verbose mode. Stderr: {}",
+        stderr
+    );
+
+    assert!(
+        has_pattern_logging,
+        "Should log at least one specific ignore pattern match. Stderr: {}",
+        stderr
+    );
 }
 
 /// Test logging behavior across different verbosity levels
@@ -228,7 +258,7 @@ fn test_verbose_logging_different_verbosity_levels() {
     let log_levels = vec![
         ("off", "Off"),
         ("error", "Error"),
-        ("warn", "Warn"), 
+        ("warn", "Warn"),
         ("info", "Info"),
         ("debug", "Debug"),
         ("trace", "Trace"),
@@ -236,7 +266,7 @@ fn test_verbose_logging_different_verbosity_levels() {
 
     for (log_level, level_name) in log_levels {
         println!("Testing log level: {}", level_name);
-        
+
         let mut cmd = Command::new(&sqruff_path);
         cmd.arg("lint")
             .arg("-f")
@@ -253,38 +283,46 @@ fn test_verbose_logging_different_verbosity_levels() {
         println!("Log level {}: STDERR: {}", level_name, stderr);
 
         // Verify that ignored files are not processed regardless of log level
-        let contains_ignored_files = stdout.contains("ignored_file.sql") || 
-                                    stderr.contains("ignored_file.sql");
-        
-        // The regular file should always be processed
-        let contains_regular_file = stdout.contains("regular_file.sql") || 
-                                   stderr.contains("regular_file.sql");
+        let contains_ignored_files =
+            stdout.contains("ignored_file.sql") || stderr.contains("ignored_file.sql");
 
-        assert!(!contains_ignored_files, 
-            "Ignored files should not be processed at log level {}. Found ignored files in output: stdout={}, stderr={}", 
-            level_name, stdout, stderr);
-        
-        assert!(contains_regular_file, 
-            "Regular files should always be processed at log level {}. Output: stdout={}, stderr={}", 
-            level_name, stdout, stderr);
+        // The regular file should always be processed
+        let contains_regular_file =
+            stdout.contains("regular_file.sql") || stderr.contains("regular_file.sql");
+
+        assert!(
+            !contains_ignored_files,
+            "Ignored files should not be processed at log level {}. Found ignored files in output: stdout={}, stderr={}",
+            level_name, stdout, stderr
+        );
+
+        assert!(
+            contains_regular_file,
+            "Regular files should always be processed at log level {}. Output: stdout={}, stderr={}",
+            level_name, stdout, stderr
+        );
 
         // Check logging behavior at different verbosity levels
-        let has_ignore_logging = stderr.contains("Ignoring directory") || 
-                                stderr.contains("Skipping directory") ||
-                                stderr.contains("Matched ignore pattern");
-        
+        let has_ignore_logging = stderr.contains("Ignoring directory")
+            || stderr.contains("Skipping directory")
+            || stderr.contains("Matched ignore pattern");
+
         match level_name {
             "Off" | "Error" | "Warn" | "Info" => {
                 // Lower log levels should not show debug ignore logging
-                assert!(!has_ignore_logging, 
-                    "Log level {} should not show debug ignore logging. Stderr: {}", 
-                    level_name, stderr);
+                assert!(
+                    !has_ignore_logging,
+                    "Log level {} should not show debug ignore logging. Stderr: {}",
+                    level_name, stderr
+                );
             }
             "Debug" | "Trace" => {
                 // Higher log levels should show detailed ignore logging
-                assert!(has_ignore_logging, 
-                    "Log level {} should show detailed ignore logging. Stderr: {}", 
-                    level_name, stderr);
+                assert!(
+                    has_ignore_logging,
+                    "Log level {} should show detailed ignore logging. Stderr: {}",
+                    level_name, stderr
+                );
             }
             _ => {}
         }
@@ -345,32 +383,44 @@ fn test_verbose_logging_file_pattern_matching() {
     println!("STDERR: {}", stderr);
 
     // The regular file should always be processed
-    let contains_regular_file = stdout.contains("regular_file.sql") || 
-                               stderr.contains("regular_file.sql");
+    let contains_regular_file =
+        stdout.contains("regular_file.sql") || stderr.contains("regular_file.sql");
 
-    assert!(contains_regular_file, 
-        "Regular files should always be processed. Output: stdout={}, stderr={}", 
-        stdout, stderr);
+    assert!(
+        contains_regular_file,
+        "Regular files should always be processed. Output: stdout={}, stderr={}",
+        stdout, stderr
+    );
 
     // Verify that pattern-specific logging is working (main goal of this task)
-    let has_bak_pattern_log = stderr.contains("Matched ignore pattern") && stderr.contains("'*.bak'");
-    let has_tmp_pattern_log = stderr.contains("Matched ignore pattern") && stderr.contains("'*.tmp'");
-    let has_logs_pattern_log = stderr.contains("Matched ignore pattern") && stderr.contains("'logs/'");
-    
+    let has_bak_pattern_log =
+        stderr.contains("Matched ignore pattern") && stderr.contains("'*.bak'");
+    let has_tmp_pattern_log =
+        stderr.contains("Matched ignore pattern") && stderr.contains("'*.tmp'");
+    let has_logs_pattern_log =
+        stderr.contains("Matched ignore pattern") && stderr.contains("'logs/'");
+
     // Verify that ignore logging is happening
-    let has_ignore_logging = stderr.contains("Ignoring directory") || 
-                            stderr.contains("Ignoring file") ||
-                            stderr.contains("Skipping directory") ||
-                            stderr.contains("Skipping file");
-    
-    let has_any_pattern_logging = has_bak_pattern_log || has_tmp_pattern_log || has_logs_pattern_log;
-    
+    let has_ignore_logging = stderr.contains("Ignoring directory")
+        || stderr.contains("Ignoring file")
+        || stderr.contains("Skipping directory")
+        || stderr.contains("Skipping file");
+
+    let has_any_pattern_logging =
+        has_bak_pattern_log || has_tmp_pattern_log || has_logs_pattern_log;
+
     // The main assertion for this task: verify that verbose logging is working
-    assert!(has_ignore_logging, 
-        "Should log ignore behavior in verbose mode. Stderr: {}", stderr);
-    
-    assert!(has_any_pattern_logging, 
-        "Should log at least one file pattern match. Stderr: {}", stderr);
+    assert!(
+        has_ignore_logging,
+        "Should log ignore behavior in verbose mode. Stderr: {}",
+        stderr
+    );
+
+    assert!(
+        has_any_pattern_logging,
+        "Should log at least one file pattern match. Stderr: {}",
+        stderr
+    );
 }
 
 /// Test that verbose logging works with nested ignore patterns
@@ -383,7 +433,7 @@ fn test_verbose_logging_nested_ignore_patterns() {
     // Create a simple directory structure that we know will work with ignore patterns
     let data_dir = project_root.join(".data");
     fs::create_dir_all(&data_dir).unwrap();
-    
+
     let ignored_file = data_dir.join("ignored.sql");
     fs::write(&ignored_file, "SELECT * FROM ignored;").unwrap();
 
@@ -420,22 +470,31 @@ fn test_verbose_logging_nested_ignore_patterns() {
     println!("STDOUT: {}", stdout);
     println!("STDERR: {}", stderr);
 
-    let contains_regular_file = stdout.contains("regular_file.sql") || stderr.contains("regular_file.sql");
+    let contains_regular_file =
+        stdout.contains("regular_file.sql") || stderr.contains("regular_file.sql");
 
-    assert!(contains_regular_file, 
-        "Regular files should always be processed. Output: stdout={}, stderr={}", 
-        stdout, stderr);
+    assert!(
+        contains_regular_file,
+        "Regular files should always be processed. Output: stdout={}, stderr={}",
+        stdout, stderr
+    );
 
     // Verify that ignore pattern logging is working (main goal of this task)
     let has_pattern_log = stderr.contains("Matched ignore pattern") && stderr.contains("'.data'");
-    let has_ignore_logging = stderr.contains("Ignoring directory") || 
-                            stderr.contains("Ignoring file") ||
-                            stderr.contains("Skipping directory");
-    
+    let has_ignore_logging = stderr.contains("Ignoring directory")
+        || stderr.contains("Ignoring file")
+        || stderr.contains("Skipping directory");
+
     // The main assertion for this task: verify that verbose logging is working
-    assert!(has_ignore_logging, 
-        "Should log ignore behavior in verbose mode. Stderr: {}", stderr);
-    
-    assert!(has_pattern_log, 
-        "Should log the specific ignore pattern that matched. Stderr: {}", stderr);
+    assert!(
+        has_ignore_logging,
+        "Should log ignore behavior in verbose mode. Stderr: {}",
+        stderr
+    );
+
+    assert!(
+        has_pattern_log,
+        "Should log the specific ignore pattern that matched. Stderr: {}",
+        stderr
+    );
 }

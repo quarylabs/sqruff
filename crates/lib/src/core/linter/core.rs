@@ -122,7 +122,14 @@ impl Linter {
             if path.is_file() {
                 expanded_paths.push(path.to_string_lossy().to_string());
             } else {
-                expanded_paths.extend(self.paths_from_path(path, None, None, None, None, Some(ignorer)));
+                expanded_paths.extend(self.paths_from_path(
+                    path,
+                    None,
+                    None,
+                    None,
+                    None,
+                    Some(ignorer),
+                ));
             };
         }
 
@@ -131,7 +138,10 @@ impl Linter {
             .filter(|path| {
                 let should_ignore = ignorer(Path::new(path));
                 if should_ignore {
-                    log::debug!("Filtering out ignored file '{}' from final processing list", path);
+                    log::debug!(
+                        "Filtering out ignored file '{}' from final processing list",
+                        path
+                    );
                 }
                 !should_ignore
             })
@@ -537,8 +547,16 @@ impl Linter {
                     .filter_entry(|entry| {
                         let should_ignore = ignorer(entry.path());
                         if should_ignore {
-                            let path_type = if entry.file_type().is_dir() { "directory" } else { "file" };
-                            log::debug!("Skipping {} '{}' during file discovery traversal", path_type, entry.path().display());
+                            let path_type = if entry.file_type().is_dir() {
+                                "directory"
+                            } else {
+                                "file"
+                            };
+                            log::debug!(
+                                "Skipping {} '{}' during file discovery traversal",
+                                path_type,
+                                entry.path().display()
+                            );
                         }
                         !should_ignore
                     })
@@ -546,15 +564,12 @@ impl Linter {
                     .collect()
             } else {
                 // No ignorer provided, use original behavior
-                walkdir
-                    .into_iter()
-                    .filter_map(Result::ok)
-                    .collect()
+                walkdir.into_iter().filter_map(Result::ok).collect()
             };
-            
+
             // Group entries by directory to maintain the original data structure
             let mut dir_files: AHashMap<String, Vec<String>> = AHashMap::new();
-            
+
             for entry in entries {
                 if entry.file_type().is_file() {
                     let dirpath = entry.path().parent().unwrap().to_str().unwrap().to_string();
@@ -562,10 +577,11 @@ impl Linter {
                     dir_files.entry(dirpath).or_default().push(filename);
                 }
             }
-            
-            dir_files.into_iter().map(|(dirpath, files)| {
-                (dirpath, None, files)
-            }).collect_vec()
+
+            dir_files
+                .into_iter()
+                .map(|(dirpath, files)| (dirpath, None, files))
+                .collect_vec()
         };
 
         // TODO:
@@ -695,7 +711,8 @@ mod tests {
             None,
             false,
         ); // Assuming Linter has a new() method for initialization
-        let paths = lntr.paths_from_path("test/fixtures/lexer".into(), None, None, None, None, None);
+        let paths =
+            lntr.paths_from_path("test/fixtures/lexer".into(), None, None, None, None, None);
         let expected = vec![
             "test.fixtures.lexer.basic.sql",
             "test.fixtures.lexer.block_comment.sql",
@@ -734,7 +751,8 @@ mod tests {
             FluffConfig::new(<_>::default(), None, None).with_sql_file_exts(vec![".txt".into()]);
         let lntr = Linter::new(config, None, None, false); // Assuming Linter has a new() method for initialization
 
-        let paths = lntr.paths_from_path("test/fixtures/linter".into(), None, None, None, None, None);
+        let paths =
+            lntr.paths_from_path("test/fixtures/linter".into(), None, None, None, None, None);
 
         // Normalizing paths as in the Python version
         let normalized_paths = normalise_paths(paths);

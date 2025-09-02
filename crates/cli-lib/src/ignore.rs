@@ -31,17 +31,21 @@ impl IgnoreFile {
         let is_dir = path.is_dir();
         let match_result = self.ignore.matched(path, is_dir);
         let is_ignored = match_result.is_ignore();
-        
+
         if is_ignored {
             let path_type = if is_dir { "directory" } else { "file" };
-            log::debug!("Ignoring {} '{}' due to ignore pattern", path_type, path.display());
-            
+            log::debug!(
+                "Ignoring {} '{}' due to ignore pattern",
+                path_type,
+                path.display()
+            );
+
             // Log the specific pattern that caused the ignore if available
             if let Some(pattern) = match_result.inner() {
                 log::debug!("Matched ignore pattern: '{}'", pattern.original());
             }
         }
-        
+
         is_ignored
     }
 }

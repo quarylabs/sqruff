@@ -54,7 +54,6 @@ impl<'a> Parser<'a> {
         &self,
         tables: &Tables,
         segments: &[ErasedSegment],
-        filename: Option<String>,
     ) -> Result<Option<ErasedSegment>, SQLParseError> {
         if segments.is_empty() {
             // This should normally never happen because there will usually
@@ -67,16 +66,12 @@ impl<'a> Parser<'a> {
         // context of a context manager. That's because it's the initial
         // instantiation.
         let mut parse_cx: ParseContext = self.into();
+
         // Kick off parsing with the root segment. The BaseFileSegment has
         // a unique entry point to facilitate exaclty this. All other segments
         // will use the standard .match()/.parse() route.
-        let root = FileSegment.root_parse(
-            tables,
-            parse_cx.dialect().name,
-            segments,
-            &mut parse_cx,
-            filename,
-        )?;
+        let root =
+            FileSegment.root_parse(tables, parse_cx.dialect().name, segments, &mut parse_cx)?;
 
         #[cfg(debug_assertions)]
         {

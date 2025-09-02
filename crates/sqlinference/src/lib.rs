@@ -12,5 +12,5 @@ pub fn parse_sql(parser: &Parser, source: &str) -> ErasedSegment {
     let lexer = parser.dialect().lexer();
     let (tokens, _) = lexer.lex(&tables, source);
     let tables = Tables::default();
-    parser.parse(&tables, &tokens, None).unwrap().unwrap()
+    parser.parse(&tables, &tokens).unwrap().unwrap()
 }

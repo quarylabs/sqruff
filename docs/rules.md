@@ -37,9 +37,9 @@ The following rules are available in this create. This list is generated from th
 | CV08 | [convention.left_join](#conventionleft_join) | Use LEFT JOIN instead of RIGHT JOIN. | 
 | CV09 | [convention.blocked_words](#conventionblocked_words) | Block a list of configurable words from being used. | 
 | CV10 | [convention.quoted_literals](#conventionquoted_literals) | Consistent usage of preferred quotes for quoted literals. | 
-| CV11 | [convention.casting_style](#conventioncasting_style) | Enforce consistent type casting style. |
-| JJ01 | [jinja.padding](#jinjapadding) | Jinja tags should have a single whitespace on either side. |
-| LT01 | [layout.spacing](#layoutspacing) | Inappropriate Spacing. |
+| CV11 | [convention.casting_style](#conventioncasting_style) | Enforce consistent type casting style. | 
+| JJ01 | [jinja.padding](#jinjapadding) | Jinja tags should have a single whitespace on either side. | 
+| LT01 | [layout.spacing](#layoutspacing) | Inappropriate Spacing. | 
 | LT02 | [layout.indent](#layoutindent) | Incorrect Indentation. | 
 | LT03 | [layout.operators](#layoutoperators) | Operators should follow a standard for being before/after newlines. | 
 | LT04 | [layout.commas](#layoutcommas) | Leading/Trailing comma enforcement. | 
@@ -1265,6 +1265,7 @@ Jinja tags should have a single whitespace on either side.
 **Groups:** `all`, `core`, `jinja`
 
 **Fixable:** Yes
+Jinja tags should have a single whitespace on either side.
 
 **Anti-pattern**
 

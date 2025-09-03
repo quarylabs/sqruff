@@ -1,0 +1,1 @@
+SELECT 5 DIV 2;

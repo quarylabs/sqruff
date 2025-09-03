@@ -1652,6 +1652,7 @@ dependencies = [
  "smol_str",
  "strum",
  "strum_macros",
+ "thiserror",
 ]
 
 [[package]]

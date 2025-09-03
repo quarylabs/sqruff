@@ -80,7 +80,7 @@ fn main() {
                 let tokens = lexer.lex(&tables, sql);
                 assert!(tokens.1.is_empty());
 
-                let parsed = parser.parse(&tables, &tokens.0, None).unwrap();
+                let parsed = parser.parse(&tables, &tokens.0).unwrap();
                 let tree = parsed.unwrap();
                 let tree = tree.to_serialised(true, true);
 

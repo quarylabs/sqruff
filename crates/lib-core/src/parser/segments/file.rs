@@ -25,7 +25,6 @@ impl FileSegment {
         dialect: DialectKind,
         segments: &[ErasedSegment],
         parse_context: &mut ParseContext,
-        _f_name: Option<String>,
     ) -> Result<ErasedSegment, SQLParseError> {
         let start_idx = segments
             .iter()

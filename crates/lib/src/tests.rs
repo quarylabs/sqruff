@@ -218,7 +218,7 @@ fn test_dialect_ansi_is_whitespace() {
         false,
     );
     let file_content = std::fs::read_to_string(
-        "../lib-dialects/test/fixtures/dialects/ansi/select_in_multiline_comment.sql",
+        "../lib-dialects/test/fixtures/dialects/ansi/sqlfluff/select_in_multiline_comment.sql",
     )
     .expect("Unable to read file");
 

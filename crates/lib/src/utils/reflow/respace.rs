@@ -293,14 +293,19 @@ fn determine_aligned_inline_spacing(
         }
     }
 
-    " ".repeat(
-        1 + max_desired_line_pos
-            - whitespace_seg
-                .get_position_marker()
-                .as_ref()
-                .unwrap()
-                .working_line_pos,
-    )
+    let ws_pos = whitespace_seg
+        .get_position_marker()
+        .as_ref()
+        .unwrap()
+        .working_line_pos;
+
+    // If the existing whitespace is already beyond the desired position, we
+    // shouldn't attempt to create a negative repeat length. Saturating the
+    // subtraction guards against underflow which would otherwise cause a
+    // capacity overflow panic when calling `repeat`.
+    let diff = max_desired_line_pos.saturating_sub(ws_pos);
+
+    " ".repeat(1 + diff)
 }
 
 #[allow(clippy::too_many_arguments)]

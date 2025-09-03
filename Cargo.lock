@@ -1590,6 +1590,7 @@ version = "0.29.3"
 dependencies = [
  "assert_cmd",
  "expect-test",
+ "mimalloc",
  "pyo3",
  "sqruff-cli-lib",
  "tempfile",

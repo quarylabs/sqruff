@@ -1,13 +1,14 @@
-use std::fmt::Display;
 use std::ops::{Deref, DerefMut, Range};
 
 use fancy_regex::Regex;
+use thiserror::Error;
 
 use super::parser::segments::ErasedSegment;
 use crate::helpers::Config;
 use crate::parser::markers::PositionMarker;
 
-#[derive(Debug, PartialEq, Clone, Default)]
+#[derive(Debug, PartialEq, Clone, Default, Error)]
+#[error("{description}")]
 pub struct SQLBaseError {
     pub fixable: bool,
     pub line_no: usize,
@@ -42,13 +43,8 @@ impl SQLBaseError {
     }
 }
 
-impl Display for SQLBaseError {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        write!(f, "{}", self.description)
-    }
-}
-
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Error)]
+#[error(transparent)]
 pub struct SQLLintError {
     base: SQLBaseError,
 }
@@ -91,17 +87,13 @@ impl From<SQLBaseError> for SQLLintError {
     }
 }
 
-#[derive(Debug, PartialEq, Clone)]
-pub struct SQLTemplaterError {}
-
-impl Display for SQLTemplaterError {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        write!(f, "SQLTemplaterError")
-    }
-}
+#[derive(Debug, PartialEq, Clone, Error)]
+#[error("SQLTemplaterError")]
+pub struct SQLTemplaterError;
 
 /// An error which should be fed back to the user.
-#[derive(Debug)]
+#[derive(Debug, Error)]
+#[error("{value}")]
 pub struct SQLFluffUserError {
     pub value: String,
 }
@@ -112,13 +104,8 @@ impl SQLFluffUserError {
     }
 }
 
-impl Display for SQLFluffUserError {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        f.write_str(&self.value)
-    }
-}
-
-#[derive(Debug)]
+#[derive(Debug, Error)]
+#[error("{description}")]
 pub struct SQLParseError {
     pub description: String,
     pub segment: Option<ErasedSegment>,
@@ -164,7 +151,8 @@ impl From<SQLParseError> for SQLBaseError {
     }
 }
 
-#[derive(PartialEq, Eq, Debug)]
+#[derive(PartialEq, Eq, Debug, Error)]
+#[error("{message}")]
 pub struct SQLLexError {
     message: String,
     position_marker: PositionMarker,
@@ -179,9 +167,9 @@ impl SQLLexError {
     }
 }
 
-#[derive(Debug)]
+#[derive(Debug, Error)]
+#[error("{value}")]
 pub struct SQLFluffSkipFile {
-    #[allow(dead_code)]
     value: String,
 }
 

@@ -5,6 +5,8 @@ use std::str::Chars;
 
 use super::markers::PositionMarker;
 use super::segments::{ErasedSegment, SegmentBuilder, Tables};
+#[cfg(feature = "simd-tokenizer")]
+use super::simd_tokenizer::{SimdTokenizer, TokenKind};
 use crate::dialects::Dialect;
 use crate::dialects::syntax::SyntaxKind;
 use crate::errors::SQLLexError;
@@ -453,27 +455,46 @@ impl Lexer {
         template: impl Into<TemplatedFile>,
     ) -> (Vec<ErasedSegment>, Vec<SQLLexError>) {
         let template = template.into();
-        let mut str_buff = template.templated_str.as_deref().unwrap();
+        let str_buff = template.templated_str.as_deref().unwrap();
 
         // Lex the string to get a tuple of LexedElement
         let mut element_buffer: Vec<Element> = Vec::new();
 
-        loop {
-            let mut res = self.lex_match(str_buff);
-            element_buffer.append(&mut res.elements);
-
-            if res.forward_string.is_empty() {
-                break;
+        #[cfg(feature = "simd-tokenizer")]
+        {
+            let tokenizer = SimdTokenizer::new(str_buff);
+            for tok in tokenizer.tokenize() {
+                let (name, kind) = match tok.kind {
+                    TokenKind::Identifier => ("identifier", SyntaxKind::Identifier),
+                    TokenKind::Number => ("numeric_literal", SyntaxKind::NumericLiteral),
+                    TokenKind::Symbol => ("symbol", SyntaxKind::Symbol),
+                    TokenKind::Whitespace => ("whitespace", SyntaxKind::Whitespace),
+                    TokenKind::EndOfFile => ("end_of_file", SyntaxKind::EndOfFile),
+                };
+                element_buffer.push(Element::new(name, kind, tok.text));
             }
+        }
 
-            // If we STILL can't match, then just panic out.
-            let mut resort_res = self.last_resort_lexer.matches(str_buff);
-            if !resort_res.elements.is_empty() {
-                break;
+        #[cfg(not(feature = "simd-tokenizer"))]
+        {
+            let mut str_buff = str_buff;
+            loop {
+                let mut res = self.lex_match(str_buff);
+                element_buffer.append(&mut res.elements);
+
+                if res.forward_string.is_empty() {
+                    break;
+                }
+
+                // If we STILL can't match, then just panic out.
+                let mut resort_res = self.last_resort_lexer.matches(str_buff);
+                if !resort_res.elements.is_empty() {
+                    break;
+                }
+
+                str_buff = resort_res.forward_string;
+                element_buffer.append(&mut resort_res.elements);
             }
-
-            str_buff = resort_res.forward_string;
-            element_buffer.append(&mut resort_res.elements);
         }
 
         // Map tuple LexedElement to list of TemplateElement.

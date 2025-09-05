@@ -15,6 +15,7 @@ crate-type = ["cdylib", "rlib"]
 [features]
 serde = ["dep:serde"]
 stringify = ["dep:serde_yaml", "serde"]
+simd-tokenizer = []
 
 [dependencies]
 smol_str = "0.3.1"

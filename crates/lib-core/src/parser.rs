@@ -11,6 +11,9 @@ pub mod parsers;
 pub mod segments;
 pub mod types;
 
+#[cfg(feature = "simd-tokenizer")]
+pub mod simd_tokenizer;
+
 use ahash::AHashMap;
 
 use crate::dialects::Dialect;

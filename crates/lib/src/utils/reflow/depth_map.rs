@@ -1,5 +1,3 @@
-use std::iter::zip;
-
 use ahash::{AHashMap, AHashSet};
 use nohash_hasher::{IntMap, IntSet};
 use sqruff_lib_core::dialects::syntax::SyntaxSet;
@@ -108,17 +106,22 @@ pub struct DepthInfo {
 
 impl DepthInfo {
     fn from_stack(stack: &[PathStep]) -> DepthInfo {
-        let stack_hashes: Vec<u64> = stack.iter().map(|ps| ps.segment.hash_value()).collect();
-        let stack_hash_set: IntSet<u64> = IntSet::from_iter(stack_hashes.clone());
+        // Build all structures in a single pass to avoid repeated iteration and
+        // intermediate allocations.
+        let mut stack_hashes = Vec::with_capacity(stack.len());
+        let mut stack_hash_set: IntSet<u64> = IntSet::default();
+        stack_hash_set.reserve(stack.len());
+        let mut stack_class_types = Vec::with_capacity(stack.len());
+        let mut stack_positions: IntMap<u64, StackPosition> = IntMap::default();
+        stack_positions.reserve(stack.len());
 
-        let stack_class_types = stack
-            .iter()
-            .map(|ps| ps.segment.class_types().clone())
-            .collect();
-
-        let stack_positions: IntMap<u64, StackPosition> = zip(stack_hashes.iter(), stack.iter())
-            .map(|(&hash, path)| (hash, StackPosition::from_path_step(path)))
-            .collect();
+        for path in stack {
+            let hash = path.segment.hash_value();
+            stack_hashes.push(hash);
+            stack_hash_set.insert(hash);
+            stack_class_types.push(path.segment.class_types().clone());
+            stack_positions.insert(hash, StackPosition::from_path_step(path));
+        }
 
         DepthInfo {
             stack_depth: stack_hashes.len(),

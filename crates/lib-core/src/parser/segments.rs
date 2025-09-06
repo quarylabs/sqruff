@@ -614,7 +614,7 @@ impl ErasedSegment {
     }
 
     #[track_caller]
-    pub(crate) fn make_mut(&mut self) -> &mut NodeOrToken {
+    pub fn make_mut(&mut self) -> &mut NodeOrToken {
         Rc::make_mut(&mut self.value)
     }
 
@@ -977,7 +977,7 @@ pub struct NodeOrToken {
     syntax_kind: SyntaxKind,
     class_types: SyntaxSet,
     position_marker: Option<PositionMarker>,
-    kind: NodeOrTokenKind,
+    pub kind: NodeOrTokenKind,
     code_idx: OnceCell<Rc<Vec<usize>>>,
     hash: OnceCell<u64>,
 }
@@ -1003,7 +1003,7 @@ pub struct NodeData {
     dialect: DialectKind,
     segments: Vec<ErasedSegment>,
     raw: OnceCell<SmolStr>,
-    source_fixes: Vec<SourceFix>,
+    pub source_fixes: Vec<SourceFix>,
     descendant_type_set: OnceCell<SyntaxSet>,
     raw_segments_with_ancestors: OnceCell<Vec<(ErasedSegment, Vec<PathStep>)>>,
 }

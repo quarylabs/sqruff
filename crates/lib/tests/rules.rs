@@ -109,20 +109,6 @@ fn main() {
                 continue;
             }
 
-            let template = case
-                .configs
-                .get("core")
-                .and_then(|it| it.as_map())
-                .and_then(|it| it.get("templater"))
-                .and_then(|it| it.as_string());
-            if let Some(template) = template {
-                println!(
-                    "templater not yet supported ignored, {} templating is not supported",
-                    template
-                );
-                continue;
-            }
-
             let has_config = !case.configs.is_empty();
             let rule = &file.rule;
             if has_config {

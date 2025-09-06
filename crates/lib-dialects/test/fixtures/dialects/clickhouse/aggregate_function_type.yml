@@ -1,0 +1,30 @@
+file:
+- statement:
+  - select_statement:
+    - select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+        - function:
+          - function_name:
+            - function_name_identifier: CAST
+          - function_contents:
+            - bracketed:
+              - start_bracket: (
+              - expression:
+                - null_literal: 'NULL'
+              - keyword: AS
+              - data_type:
+                - data_type_identifier: AggregateFunction
+                - bracketed:
+                  - start_bracket: (
+                  - function_name:
+                    - function_name_identifier: sum
+                  - comma: ','
+                  - function_name:
+                    - function_name_identifier: UInt64
+                  - end_bracket: )
+              - end_bracket: )
+        - alias_expression:
+          - keyword: AS
+          - naked_identifier: agg_col
+- statement_terminator: ;

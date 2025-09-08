@@ -31,7 +31,7 @@ impl Templater for DBTTemplater {
         config: &FluffConfig,
         _: &Option<Arc<dyn Formatter>>,
     ) -> Result<TemplatedFile, SQLFluffUserError> {
-        let templated_file = Python::with_gil(|py| -> PyResult<TemplatedFile> {
+        let templated_file = Python::attach(|py| -> PyResult<TemplatedFile> {
             let main_module = PyModule::import(py, "sqruff.templaters.dbt_templater")?;
             let fun: Py<PyAny> = main_module.getattr("process_from_rust")?.into();
 

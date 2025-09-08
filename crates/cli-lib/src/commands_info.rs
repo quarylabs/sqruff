@@ -9,7 +9,7 @@ pub(crate) fn info() {
         use pyo3::types::{PyList, PyMapping, PyString};
 
         // Acquire the Global Interpreter Lock (GIL) and open a Python context
-        Python::with_gil(|py| {
+        Python::attach(|py| {
             // Import the sys module
             let sys = py.import("sys").unwrap();
 

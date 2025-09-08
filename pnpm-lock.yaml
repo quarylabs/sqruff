@@ -43,8 +43,8 @@ importers:
         specifier: ^2.5.2
         version: 2.5.2
       '@vscode/test-web':
-        specifier: ^0.0.72
-        version: 0.0.72
+        specifier: ^0.0.73
+        version: 0.0.73
       '@vscode/vsce':
         specifier: ^3.6.0
         version: 3.6.0
@@ -962,9 +962,9 @@ packages:
     resolution: {integrity: sha512-8ukpxv4wYe0iWMRQU18jhzJOHkeGKbnw7xWRX3Zw1WJA4cEKbHcmmLPdPrPtL6rhDcrlCZN+xKRpv09n4gRHYg==}
     engines: {node: '>=16'}
 
-  '@vscode/test-web@0.0.72':
-    resolution: {integrity: sha512-4Yqr8GSXmx5a5dXMBoL/bv/J7WVJ4H5u63CEhEL4yO5mL9fYpdbSLrB0MFHx0FmvclNzQ7cXQmK1UsCOrqjvvA==}
-    engines: {node: '>=16'}
+  '@vscode/test-web@0.0.73':
+    resolution: {integrity: sha512-xCvUsZi33/asatnFZHOUzrlcfjwqy+I34tjG0pM4LZmDV1jAeczNAyFRZw6VJE+uSAy9N4ncZz/cemdBaU+yZg==}
+    engines: {node: '>=20'}
     hasBin: true
 
   '@vscode/vsce-sign-alpine-arm64@2.0.5':
@@ -4377,7 +4377,7 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
-  '@vscode/test-web@0.0.72':
+  '@vscode/test-web@0.0.73':
     dependencies:
       '@koa/cors': 5.0.0
       '@koa/router': 14.0.0

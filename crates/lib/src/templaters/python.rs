@@ -58,7 +58,7 @@ At the moment, dot notation is not supported in the templater."
         _formatter: &Option<Arc<dyn Formatter>>,
     ) -> Result<TemplatedFile, SQLFluffUserError> {
         // Need to pull context out of config
-        let templated_file = Python::with_gil(|py| -> PyResult<TemplatedFile> {
+        let templated_file = Python::attach(|py| -> PyResult<TemplatedFile> {
             let main_module = PyModule::import(py, "sqruff.templaters.python_templater")?;
             let fun: Py<PyAny> = main_module.getattr("process_from_rust")?.into();
             // pass object with Rust tuple of positional arguments

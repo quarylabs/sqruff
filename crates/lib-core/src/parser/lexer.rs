@@ -398,11 +398,14 @@ impl<'text> Cursor<'text> {
 
 /// The Lexer class actually does the lexing step.
 #[derive(Debug, Clone)]
+#[cfg_attr(feature = "simd-tokenizer", allow(dead_code))]
 pub struct Lexer {
     syntax_map: Vec<(&'static str, SyntaxKind)>,
     regex: regex_automata::meta::Regex,
     matchers: Vec<Matcher>,
     last_resort_lexer: Matcher,
+    #[cfg(feature = "simd-tokenizer")]
+    use_simd: bool,
 }
 
 impl<'a> From<&'a Dialect> for Lexer {
@@ -414,6 +417,12 @@ impl<'a> From<&'a Dialect> for Lexer {
 impl Lexer {
     /// Create a new lexer.
     pub(crate) fn new(lexer_matchers: &[Matcher]) -> Self {
+        // Default to regular tokenizer since SIMD is experimental and incomplete
+        Self::new_with_options(lexer_matchers, false)
+    }
+
+    /// Create a new lexer with options for tokenizer selection.
+    pub(crate) fn new_with_options(lexer_matchers: &[Matcher], #[allow(unused_variables)] use_simd: bool) -> Self {
         let mut patterns = Vec::new();
         let mut syntax_map = Vec::new();
         let mut matchers = Vec::new();
@@ -446,7 +455,21 @@ impl Lexer {
                 r"[^\t\n.]*",
                 SyntaxKind::Unlexable,
             ),
+            #[cfg(feature = "simd-tokenizer")]
+            use_simd,
         }
+    }
+
+    /// Create a lexer for testing with regular tokenizer (when SIMD feature is enabled).
+    #[cfg(feature = "simd-tokenizer")]
+    pub fn new_regular_for_test(lexer_matchers: &[Matcher]) -> Self {
+        Self::new_with_options(lexer_matchers, false)
+    }
+
+    /// Create a lexer for testing with SIMD tokenizer (when SIMD feature is enabled).
+    #[cfg(feature = "simd-tokenizer")]
+    pub fn new_simd_for_test(lexer_matchers: &[Matcher]) -> Self {
+        Self::new_with_options(lexer_matchers, true)
     }
 
     pub fn lex(
@@ -462,16 +485,38 @@ impl Lexer {
 
         #[cfg(feature = "simd-tokenizer")]
         {
-            let tokenizer = SimdTokenizer::new(str_buff);
-            for tok in tokenizer.tokenize() {
-                let (name, kind) = match tok.kind {
-                    TokenKind::Identifier => ("identifier", SyntaxKind::Identifier),
-                    TokenKind::Number => ("numeric_literal", SyntaxKind::NumericLiteral),
-                    TokenKind::Symbol => ("symbol", SyntaxKind::Symbol),
-                    TokenKind::Whitespace => ("whitespace", SyntaxKind::Whitespace),
-                    TokenKind::EndOfFile => ("end_of_file", SyntaxKind::EndOfFile),
-                };
-                element_buffer.push(Element::new(name, kind, tok.text));
+            if self.use_simd {
+                let tokenizer = SimdTokenizer::new(str_buff);
+                for tok in tokenizer.tokenize() {
+                    let (name, kind) = match tok.kind {
+                        TokenKind::Identifier => ("identifier", SyntaxKind::Identifier),
+                        TokenKind::Number => ("numeric_literal", SyntaxKind::NumericLiteral),
+                        TokenKind::Symbol => ("symbol", SyntaxKind::Symbol),
+                        TokenKind::Whitespace => ("whitespace", SyntaxKind::Whitespace),
+                        TokenKind::EndOfFile => ("end_of_file", SyntaxKind::EndOfFile),
+                    };
+                    element_buffer.push(Element::new(name, kind, tok.text));
+                }
+            } else {
+                // Use the regular lexer even when SIMD is available
+                let mut str_buff = str_buff;
+                loop {
+                    let mut res = self.lex_match(str_buff);
+                    element_buffer.append(&mut res.elements);
+
+                    if res.forward_string.is_empty() {
+                        break;
+                    }
+
+                    // If we STILL can't match, then just panic out.
+                    let mut resort_res = self.last_resort_lexer.matches(str_buff);
+                    if !resort_res.elements.is_empty() {
+                        break;
+                    }
+
+                    str_buff = resort_res.forward_string;
+                    element_buffer.append(&mut resort_res.elements);
+                }
             }
         }
 
@@ -532,6 +577,7 @@ impl Lexer {
     }
 
     /// Iteratively match strings using the selection of sub-matchers.
+    #[cfg_attr(feature = "simd-tokenizer", allow(dead_code))]
     fn lex_match<'b>(&self, mut forward_string: &'b str) -> Match<'b> {
         let mut elem_buff = Vec::new();
 

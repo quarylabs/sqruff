@@ -33,6 +33,7 @@ default = [
     "trino",
     "tsql",
 ]
+simd-tokenizer = ["sqruff-lib-core/simd-tokenizer"]
 athena = []
 bigquery = []
 clickhouse = []
@@ -57,7 +58,7 @@ serde_yaml = "0.9.34+deprecated"
 
 [dev-dependencies]
 sqruff-lib-core.workspace = true
-sqruff-lib-core.features = ["serde", "stringify"]
+sqruff-lib-core.features = ["serde", "stringify", "simd-tokenizer"]
 rayon = "1.10.0"
 expect-test = "1.5.0"
 glob = "0.3.1"

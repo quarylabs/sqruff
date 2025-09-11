@@ -126,7 +126,9 @@ def find_first_difference_commit(sqlfluff_path: Path, dialect: str) -> Optional[
     current_head = current_head.strip()
 
     # Get git log for the dialect directory (oldest first)
-    cmd = ["git", "log", "--oneline", "--reverse", "--", str(dialect_dir)]
+    # Use relative path from repository root
+    relative_dialect_path = f"test/fixtures/dialects/{dialect}"
+    cmd = ["git", "log", "--oneline", "--reverse", "--", relative_dialect_path]
     exit_code, stdout, stderr = run_command(cmd, cwd=sqlfluff_path)
 
     if exit_code != 0:
@@ -138,7 +140,9 @@ def find_first_difference_commit(sqlfluff_path: Path, dialect: str) -> Optional[
         print(f"No commits found for {dialect} directory")
         return None
 
-    sqruff_dialect_dir = Path("crates/lib-dialects/test/fixtures/dialects") / dialect
+    sqruff_dialect_dir = (
+        Path("crates/lib-dialects/test/fixtures/dialects") / dialect / "sqlfluff"
+    )
 
     try:
         last_matching_commit = None
@@ -234,7 +238,9 @@ def find_first_difference_commit(sqlfluff_path: Path, dialect: str) -> Optional[
 
 def copy_from_commit(sqlfluff_path: Path, dialect: str, commit_hash: str) -> List[Path]:
     """Copy SQL files from a specific commit in sqlfluff to sqruff."""
-    sqruff_dialect_dir = Path("crates/lib-dialects/test/fixtures/dialects") / dialect
+    sqruff_dialect_dir = (
+        Path("crates/lib-dialects/test/fixtures/dialects") / dialect / "sqlfluff"
+    )
 
     if not sqruff_dialect_dir.exists():
         print(f"Error: sqruff dialect directory {sqruff_dialect_dir} does not exist")
@@ -372,7 +378,7 @@ async def main():
         sys.exit(1)
 
     sqruff_dialect_dir = (
-        Path("crates/lib-dialects/test/fixtures/dialects") / args.dialect
+        Path("crates/lib-dialects/test/fixtures/dialects") / args.dialect / "sqlfluff"
     )
     if not sqruff_dialect_dir.exists():
         print(f"Error: sqruff dialect directory {sqruff_dialect_dir} does not exist")

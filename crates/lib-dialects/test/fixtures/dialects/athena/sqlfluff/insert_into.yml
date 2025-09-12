@@ -31,3 +31,55 @@ file:
           - keyword: date
           - date_constructor_literal: '''2019-07-31'''
 - statement_terminator: ;
+- statement:
+  - insert_statement:
+    - keyword: INSERT
+    - keyword: INTO
+    - table_reference:
+      - naked_identifier: cities
+    - values_clause:
+      - keyword: VALUES
+      - expression:
+        - bracketed:
+          - start_bracket: (
+          - numeric_literal: '1'
+          - comma: ','
+          - quoted_literal: '''Lansing'''
+          - comma: ','
+          - quoted_literal: '''MI'''
+          - comma: ','
+          - quoted_literal: '''Si quaeris peninsulam amoenam circumspice'''
+          - end_bracket: )
+- statement_terminator: ;
+- statement:
+  - insert_statement:
+    - keyword: INSERT
+    - keyword: INTO
+    - table_reference:
+      - naked_identifier: cities
+    - values_clause:
+      - keyword: VALUES
+      - expression:
+        - bracketed:
+          - start_bracket: (
+          - numeric_literal: '1'
+          - comma: ','
+          - quoted_literal: '''Lansing'''
+          - comma: ','
+          - quoted_literal: '''MI'''
+          - comma: ','
+          - quoted_literal: '''Si quaeris peninsulam amoenam circumspice'''
+          - end_bracket: )
+      - comma: ','
+      - expression:
+        - bracketed:
+          - start_bracket: (
+          - numeric_literal: '3'
+          - comma: ','
+          - quoted_literal: '''Boise'''
+          - comma: ','
+          - quoted_literal: '''ID'''
+          - comma: ','
+          - quoted_literal: '''Esto perpetua'''
+          - end_bracket: )
+- statement_terminator: ;

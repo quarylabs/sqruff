@@ -1,7 +1,6 @@
 use ahash::AHashMap;
 use itertools::{Itertools, enumerate};
 use sqruff_lib_core::dialects::syntax::{SyntaxKind, SyntaxSet};
-use sqruff_lib_core::edit_type::EditType;
 use sqruff_lib_core::lint_fix::LintFix;
 use sqruff_lib_core::parser::segments::{ErasedSegment, SegmentBuilder, Tables};
 use sqruff_lib_core::utils::functional::segments::Segments;
@@ -416,8 +415,8 @@ impl RuleLT09 {
                     let mut local_fixes = Vec::new();
                     let mut all_deletes = fixes
                         .iter()
-                        .filter(|fix| fix.edit_type == EditType::Delete)
-                        .map(|fix| fix.anchor.clone())
+                        .filter(|fix| matches!(fix, LintFix::Delete { .. }))
+                        .map(|fix| fix.anchor().clone())
                         .collect_vec();
                     for seg in delete_segments.unwrap_or_default() {
                         fixes.push(LintFix::delete(seg.clone()));

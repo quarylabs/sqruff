@@ -8,7 +8,7 @@ pub fn compute_anchor_edit_info(
     fixes: Vec<LintFix>,
 ) {
     for fix in fixes {
-        let anchor_id = fix.anchor.id();
+        let anchor_id = fix.anchor().id();
         anchor_info.entry(anchor_id).or_default().add(fix);
     }
 }

@@ -1,5 +1,4 @@
 pub mod dialects;
-pub mod edit_type;
 pub mod errors;
 pub mod helpers;
 pub mod lint_fix;

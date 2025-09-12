@@ -343,20 +343,6 @@ pub fn dialect() -> Dialect {
                 .to_matchable()
                 .into(),
         ),
-        (
-            "DatetimeWithTZSegment".into(),
-            Sequence::new(vec_of_erased![
-                one_of(vec_of_erased![
-                    Ref::keyword("TIMESTAMP"),
-                    Ref::keyword("TIME")
-                ]),
-                Ref::keyword("WITH"),
-                Ref::keyword("TIME"),
-                Ref::keyword("ZONE")
-            ])
-            .to_matchable()
-            .into(),
-        ),
     ]);
 
     dialect.add([
@@ -630,7 +616,7 @@ pub fn dialect() -> Dialect {
                             ])
                         ])])
                     ]),
-                    Ref::new("DatetimeWithTZSegment")
+                    Ref::new("TimeWithTZGrammar")
                 ])
                 .to_matchable()
             })

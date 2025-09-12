@@ -1,0 +1,173 @@
+file:
+- statement:
+  - select_statement:
+    - select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+        - expression:
+          - cast_expression:
+            - quoted_literal: '''12'''
+            - casting_operator: '::'
+            - data_type:
+              - data_type_identifier: Nullable
+              - bracketed:
+                - start_bracket: (
+                - data_type:
+                  - data_type_identifier: Decimal
+                  - bracketed_arguments:
+                    - bracketed:
+                      - start_bracket: (
+                      - numeric_literal: '12'
+                      - comma: ','
+                      - numeric_literal: '0'
+                      - end_bracket: )
+                - end_bracket: )
+        - alias_expression:
+          - keyword: as
+          - naked_identifier: num_value
+- statement_terminator: ;
+- statement:
+  - select_statement:
+    - select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+        - expression:
+          - cast_expression:
+            - quoted_literal: '''12'''
+            - casting_operator: '::'
+            - data_type:
+              - data_type_identifier: Nullable
+              - bracketed:
+                - start_bracket: (
+                - data_type:
+                  - data_type_identifier: Decimal32
+                  - bracketed:
+                    - start_bracket: (
+                    - numeric_literal: '1'
+                    - end_bracket: )
+                - end_bracket: )
+        - alias_expression:
+          - keyword: as
+          - naked_identifier: num_value
+- statement_terminator: ;
+- statement:
+  - select_statement:
+    - select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+        - expression:
+          - cast_expression:
+            - quoted_literal: '''12'''
+            - casting_operator: '::'
+            - data_type:
+              - data_type_identifier: Nullable
+              - bracketed:
+                - start_bracket: (
+                - data_type:
+                  - data_type_identifier: Decimal64
+                  - bracketed:
+                    - start_bracket: (
+                    - numeric_literal: '12'
+                    - end_bracket: )
+                - end_bracket: )
+        - alias_expression:
+          - keyword: as
+          - naked_identifier: num_value
+- statement_terminator: ;
+- statement:
+  - select_statement:
+    - select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+        - expression:
+          - cast_expression:
+            - quoted_literal: '''12'''
+            - casting_operator: '::'
+            - data_type:
+              - data_type_identifier: Nullable
+              - bracketed:
+                - start_bracket: (
+                - data_type:
+                  - data_type_identifier: Decimal128
+                  - bracketed:
+                    - start_bracket: (
+                    - numeric_literal: '12'
+                    - end_bracket: )
+                - end_bracket: )
+        - alias_expression:
+          - keyword: as
+          - naked_identifier: num_value
+- statement_terminator: ;
+- statement:
+  - select_statement:
+    - select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+        - expression:
+          - cast_expression:
+            - quoted_literal: '''12'''
+            - casting_operator: '::'
+            - data_type:
+              - data_type_identifier: Nullable
+              - bracketed:
+                - start_bracket: (
+                - data_type:
+                  - data_type_identifier: Decimal256
+                  - bracketed:
+                    - start_bracket: (
+                    - numeric_literal: '12'
+                    - end_bracket: )
+                - end_bracket: )
+        - alias_expression:
+          - keyword: as
+          - naked_identifier: num_value
+- statement_terminator: ;
+- statement:
+  - select_statement:
+    - select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+        - expression:
+          - cast_expression:
+            - quoted_literal: '''12'''
+            - casting_operator: '::'
+            - data_type:
+              - data_type_identifier: Decimal
+              - bracketed_arguments:
+                - bracketed:
+                  - start_bracket: (
+                  - numeric_literal: '12'
+                  - comma: ','
+                  - numeric_literal: '0'
+                  - end_bracket: )
+        - alias_expression:
+          - keyword: as
+          - naked_identifier: num_value
+- statement_terminator: ;
+- statement:
+  - select_statement:
+    - select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+        - expression:
+          - cast_expression:
+            - quoted_literal: '''12'''
+            - casting_operator: '::'
+            - data_type:
+              - data_type_identifier: Nullable
+              - bracketed:
+                - start_bracket: (
+                - data_type:
+                  - data_type_identifier: Numeric
+                  - bracketed_arguments:
+                    - bracketed:
+                      - start_bracket: (
+                      - numeric_literal: '12'
+                      - comma: ','
+                      - numeric_literal: '0'
+                      - end_bracket: )
+                - end_bracket: )
+        - alias_expression:
+          - keyword: as
+          - naked_identifier: num_value
+- statement_terminator: ;

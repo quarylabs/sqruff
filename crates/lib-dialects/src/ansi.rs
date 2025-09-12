@@ -3812,23 +3812,7 @@ pub fn raw_dialect() -> Dialect {
             "DatatypeSegment".into(),
             NodeMatcher::new(SyntaxKind::DataType, |_| {
                 one_of(vec_of_erased![
-                    Sequence::new(vec_of_erased![
-                        one_of(vec_of_erased![
-                            Ref::keyword("TIME"),
-                            Ref::keyword("TIMESTAMP")
-                        ]),
-                        Bracketed::new(vec_of_erased![Ref::new("NumericLiteralSegment")])
-                            .config(|this| this.optional()),
-                        Sequence::new(vec_of_erased![
-                            one_of(vec_of_erased![
-                                Ref::keyword("WITH"),
-                                Ref::keyword("WITHOUT")
-                            ]),
-                            Ref::keyword("TIME"),
-                            Ref::keyword("ZONE"),
-                        ])
-                        .config(|this| this.optional()),
-                    ]),
+                    Ref::new("TimeWithTZGrammar"),
                     Sequence::new(vec_of_erased![
                         Ref::keyword("DOUBLE"),
                         Ref::keyword("PRECISION")
@@ -4812,6 +4796,28 @@ pub fn raw_dialect() -> Dialect {
         (
             "BracketedSegment".into(),
             BracketedSegmentMatcher::new().to_matchable().into(),
+        ),
+        (
+            "TimeWithTZGrammar".into(),
+            Sequence::new(vec_of_erased![
+                one_of(vec_of_erased![
+                    Ref::keyword("TIME"),
+                    Ref::keyword("TIMESTAMP")
+                ]),
+                Bracketed::new(vec_of_erased![Ref::new("NumericLiteralSegment")])
+                    .config(|this| this.optional()),
+                Sequence::new(vec_of_erased![
+                    one_of(vec_of_erased![
+                        Ref::keyword("WITH"),
+                        Ref::keyword("WITHOUT")
+                    ]),
+                    Ref::keyword("TIME"),
+                    Ref::keyword("ZONE"),
+                ])
+                .config(|this| this.optional()),
+            ])
+            .to_matchable()
+            .into(),
         ),
     ]);
 

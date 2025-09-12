@@ -11,6 +11,13 @@ file:
     - keyword: CREATE
     - keyword: DATABASE
     - database_reference:
+      - naked_identifier: _123
+- statement_terminator: ;
+- statement:
+  - create_database_statement:
+    - keyword: CREATE
+    - keyword: DATABASE
+    - database_reference:
       - naked_identifier: db_name
     - keyword: COMMENT
     - quoted_identifier: '''SingleQuoted'''
@@ -61,6 +68,17 @@ file:
       - keyword: ON
       - keyword: CLUSTER
       - naked_identifier: cluster
+- statement_terminator: ;
+- statement:
+  - create_database_statement:
+    - keyword: CREATE
+    - keyword: DATABASE
+    - database_reference:
+      - naked_identifier: db_name
+    - on_cluster_clause:
+      - keyword: ON
+      - keyword: CLUSTER
+      - naked_identifier: _123
 - statement_terminator: ;
 - statement:
   - create_database_statement:

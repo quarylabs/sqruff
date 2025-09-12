@@ -143,7 +143,6 @@ pub fn dialect() -> Dialect {
             "CTASPropertyGrammar".into(),
             Sequence::new(vec_of_erased![
                 one_of(vec_of_erased![
-                    Ref::keyword("EXTERNAL_LOCATION"),
                     Ref::keyword("FORMAT"),
                     Ref::keyword("PARTITIONED_BY"),
                     Ref::keyword("BUCKETED_BY"),
@@ -151,8 +150,11 @@ pub fn dialect() -> Dialect {
                     Ref::keyword("WRITE_COMPRESSION"),
                     Ref::keyword("ORC_COMPRESSION"),
                     Ref::keyword("PARQUET_COMPRESSION"),
+                    Ref::keyword("COMPRESSION_LEVEL"),
                     Ref::keyword("FIELD_DELIMITER"),
-                    Ref::keyword("LOCATION")
+                    Ref::keyword("IS_EXTERNAL"),
+                    Ref::keyword("TABLE_TYPE"),
+                    Ref::keyword("EXTERNAL_LOCATION")
                 ]),
                 Ref::new("EqualsSegment"),
                 Ref::new("LiteralGrammar")
@@ -164,7 +166,6 @@ pub fn dialect() -> Dialect {
             "CTASIcebergPropertyGrammar".into(),
             Sequence::new(vec_of_erased![
                 one_of(vec_of_erased![
-                    Ref::keyword("EXTERNAL_LOCATION"),
                     Ref::keyword("FORMAT"),
                     Ref::keyword("PARTITIONED_BY"),
                     Ref::keyword("BUCKETED_BY"),
@@ -172,13 +173,19 @@ pub fn dialect() -> Dialect {
                     Ref::keyword("WRITE_COMPRESSION"),
                     Ref::keyword("ORC_COMPRESSION"),
                     Ref::keyword("PARQUET_COMPRESSION"),
+                    Ref::keyword("COMPRESSION_LEVEL"),
                     Ref::keyword("FIELD_DELIMITER"),
-                    Ref::keyword("LOCATION"),
                     Ref::keyword("IS_EXTERNAL"),
                     Ref::keyword("TABLE_TYPE"),
+                    // Iceberg-specific properties
+                    Ref::keyword("LOCATION"),
                     Ref::keyword("PARTITIONING"),
-                    Ref::keyword("VACUUM_MAX_SNAPSHOT_AGE_MS"),
-                    Ref::keyword("VACUUM_MIN_SNAPSHOTS_TO_KEEP")
+                    Ref::keyword("VACUUM_MAX_SNAPSHOT_AGE_SECONDS"),
+                    Ref::keyword("VACUUM_MIN_SNAPSHOTS_TO_KEEP"),
+                    Ref::keyword("OPTIMIZE_REWRITE_MIN_DATA_FILE_SIZE_BYTES"),
+                    Ref::keyword("OPTIMIZE_REWRITE_MAX_DATA_FILE_SIZE_BYTES"),
+                    Ref::keyword("OPTIMIZE_REWRITE_DATA_FILE_THRESHOLD"),
+                    Ref::keyword("OPTIMIZE_REWRITE_DELETE_FILE_THRESHOLD")
                 ]),
                 Ref::new("EqualsSegment"),
                 Ref::new("LiteralGrammar")

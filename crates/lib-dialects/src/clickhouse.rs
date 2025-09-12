@@ -1260,60 +1260,115 @@ pub fn dialect() -> Dialect {
 
     clickhouse_dialect.replace_grammar(
         "CreateTableStatementSegment",
-        Sequence::new(vec_of_erased![
-            Ref::keyword("CREATE"),
-            one_of(vec_of_erased![
-                Ref::new("OrReplaceGrammar"),
+        one_of(vec_of_erased![
+            // Regular CREATE TABLE statement
+            Sequence::new(vec_of_erased![
+                Ref::keyword("CREATE"),
+                Ref::new("OrReplaceGrammar").optional(),
+                Ref::keyword("TABLE"),
+                Ref::new("IfNotExistsGrammar").optional(),
+                Ref::new("TableReferenceSegment"),
+                Ref::new("OnClusterClauseSegment").optional(),
+                one_of(vec_of_erased![
+                    // CREATE TABLE (...):
+                    Sequence::new(vec_of_erased![
+                        Bracketed::new(vec_of_erased![Delimited::new(vec_of_erased![one_of(
+                            vec_of_erased![
+                                Ref::new("TableConstraintSegment"),
+                                Ref::new("ColumnDefinitionSegment"),
+                                Ref::new("ColumnConstraintSegment"),
+                            ]
+                        )])])
+                        .config(|this| this.optional()),
+                        Ref::new("TableEngineSegment"),
+                        // CREATE TABLE (...) AS SELECT:
+                        Sequence::new(vec_of_erased![
+                            Ref::keyword("AS"),
+                            Ref::new("SelectableGrammar"),
+                        ])
+                        .config(|this| this.optional()),
+                    ]),
+                    // CREATE TABLE AS other_table:
+                    Sequence::new(vec_of_erased![
+                        Ref::keyword("AS"),
+                        Ref::new("TableReferenceSegment"),
+                        Ref::new("TableEngineSegment").optional(),
+                    ]),
+                    // CREATE TABLE AS table_function():
+                    Sequence::new(vec_of_erased![
+                        Ref::keyword("AS"),
+                        Ref::new("FunctionSegment"),
+                    ]),
+                ]),
+                any_set_of(vec_of_erased![
+                    Sequence::new(vec_of_erased![
+                        Ref::keyword("COMMENT"),
+                        one_of(vec_of_erased![
+                            Ref::new("SingleIdentifierGrammar"),
+                            Ref::new("QuotedIdentifierSegment"),
+                        ]),
+                    ]),
+                    Ref::new("TableTTLSegment"),
+                ])
+                .config(|this| this.optional()),
+                Ref::new("TableEndClauseSegment").optional(),
+            ]),
+            // CREATE TEMPORARY TABLE statement
+            Sequence::new(vec_of_erased![
+                Ref::keyword("CREATE"),
                 Ref::keyword("TEMPORARY"),
-            ])
-            .config(|this| this.optional()),
-            Ref::keyword("TABLE"),
-            Ref::new("IfNotExistsGrammar").optional(),
-            Ref::new("TableReferenceSegment"),
-            Ref::new("OnClusterClauseSegment").optional(),
-            one_of(vec_of_erased![
-                // CREATE TABLE (...):
-                Sequence::new(vec_of_erased![
-                    Bracketed::new(vec_of_erased![Delimited::new(vec_of_erased![one_of(
-                        vec_of_erased![
-                            Ref::new("TableConstraintSegment"),
-                            Ref::new("ColumnDefinitionSegment"),
-                            Ref::new("ColumnConstraintSegment"),
-                        ]
-                    )])])
-                    .config(|this| this.optional()),
-                    Ref::new("TableEngineSegment"),
-                    // CREATE TABLE (...) AS SELECT:
+                Ref::keyword("TABLE"),
+                Ref::new("IfNotExistsGrammar").optional(),
+                Ref::new("TableReferenceSegment"),
+                one_of(vec_of_erased![
+                    // CREATE TEMPORARY TABLE (...):
+                    Sequence::new(vec_of_erased![
+                        Bracketed::new(vec_of_erased![Delimited::new(vec_of_erased![one_of(
+                            vec_of_erased![
+                                Ref::new("TableConstraintSegment"),
+                                Ref::new("ColumnDefinitionSegment"),
+                                Ref::new("ColumnConstraintSegment"),
+                            ]
+                        )])])
+                        .config(|this| this.optional()),
+                        Ref::new("TableEngineSegment"),
+                        // CREATE TEMPORARY TABLE (...) AS SELECT:
+                        Sequence::new(vec_of_erased![
+                            Ref::keyword("AS"),
+                            Ref::new("SelectableGrammar"),
+                        ])
+                        .config(|this| this.optional()),
+                    ]),
+                    // CREATE TEMPORARY TABLE AS other_table:
+                    Sequence::new(vec_of_erased![
+                        Ref::keyword("AS"),
+                        Ref::new("TableReferenceSegment"),
+                        Ref::new("TableEngineSegment").optional(),
+                    ]),
+                    // CREATE TEMPORARY TABLE AS table_function():
+                    Sequence::new(vec_of_erased![
+                        Ref::keyword("AS"),
+                        Ref::new("FunctionSegment"),
+                    ]),
+                    // CREATE TEMPORARY TABLE AS SELECT (without column definitions)
                     Sequence::new(vec_of_erased![
                         Ref::keyword("AS"),
                         Ref::new("SelectableGrammar"),
-                    ])
-                    .config(|this| this.optional()),
-                ]),
-                // CREATE TABLE AS other_table:
-                Sequence::new(vec_of_erased![
-                    Ref::keyword("AS"),
-                    Ref::new("TableReferenceSegment"),
-                    Ref::new("TableEngineSegment").optional(),
-                ]),
-                // CREATE TABLE AS table_function():
-                Sequence::new(vec_of_erased![
-                    Ref::keyword("AS"),
-                    Ref::new("FunctionSegment"),
-                ]),
-            ]),
-            any_set_of(vec_of_erased![
-                Sequence::new(vec_of_erased![
-                    Ref::keyword("COMMENT"),
-                    one_of(vec_of_erased![
-                        Ref::new("SingleIdentifierGrammar"),
-                        Ref::new("QuotedIdentifierSegment"),
                     ]),
                 ]),
-                Ref::new("TableTTLSegment"),
-            ])
-            .config(|this| this.optional()),
-            Ref::new("TableEndClauseSegment").optional(),
+                any_set_of(vec_of_erased![
+                    Sequence::new(vec_of_erased![
+                        Ref::keyword("COMMENT"),
+                        one_of(vec_of_erased![
+                            Ref::new("SingleIdentifierGrammar"),
+                            Ref::new("QuotedIdentifierSegment"),
+                        ]),
+                    ]),
+                    Ref::new("TableTTLSegment"),
+                ])
+                .config(|this| this.optional()),
+                Ref::new("TableEndClauseSegment").optional(),
+            ]),
         ])
         .to_matchable(),
     );

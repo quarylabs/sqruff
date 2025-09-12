@@ -102,7 +102,7 @@ impl ReflowPoint {
         }
     }
 
-    pub fn get_indent_segment(&self) -> Option<ErasedSegment> {
+    pub fn get_indent_segment(&self) -> Option<&ErasedSegment> {
         let mut indent = None;
         for seg in self.segments.iter().rev() {
             if seg
@@ -116,7 +116,7 @@ impl ReflowPoint {
             match seg.get_type() {
                 SyntaxKind::Newline => return indent,
                 SyntaxKind::Whitespace => {
-                    indent = Some(seg.clone());
+                    indent = Some(seg);
                     continue;
                 }
                 _ => {}
@@ -126,7 +126,7 @@ impl ReflowPoint {
                 .unwrap_or_default()
                 .contains('\n')
             {
-                return Some(seg.clone());
+                return Some(seg);
             }
         }
         indent
@@ -150,7 +150,7 @@ impl ReflowPoint {
         }
 
         let seg = self.get_indent_segment();
-        let consumed_whitespace = get_consumed_whitespace(seg.as_ref());
+        let consumed_whitespace = get_consumed_whitespace(seg);
 
         if let Some(consumed_whitespace) = consumed_whitespace {
             return consumed_whitespace
@@ -198,7 +198,7 @@ impl ReflowPoint {
                     let idx = self
                         .segments
                         .iter()
-                        .position(|seg| seg == &indent_seg)
+                        .position(|seg| seg == indent_seg)
                         .unwrap();
                     return (
                         vec![LintResult::new(
@@ -229,14 +229,18 @@ impl ReflowPoint {
                 let idx = self
                     .segments
                     .iter()
-                    .position(|it| it == &indent_seg)
+                    .position(|it| it == indent_seg)
                     .unwrap();
 
                 let description = format!("Expected {}.", indent_description(desired_indent));
 
                 let lint_result = LintResult::new(
                     indent_seg.clone().into(),
-                    vec![LintFix::replace(indent_seg, vec![new_indent.clone()], None)],
+                    vec![LintFix::replace(
+                        indent_seg.clone(),
+                        vec![new_indent.clone()],
+                        None,
+                    )],
                     description.into(),
                     None,
                 );

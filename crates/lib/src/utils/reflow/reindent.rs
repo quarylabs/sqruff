@@ -544,12 +544,12 @@ fn deduce_line_current_indent(
         } else {
             for segment in elements[0].segments().iter().rev() {
                 if segment.is_type(SyntaxKind::Whitespace) && !segment.is_templated() {
-                    indent_seg = Some(segment.clone());
+                    indent_seg = Some(segment);
                     break;
                 }
             }
 
-            if let Some(ref seg) = indent_seg
+            if let Some(seg) = indent_seg
                 && !seg.is_type(SyntaxKind::Whitespace)
             {
                 indent_seg = None;
@@ -1548,7 +1548,7 @@ mod tests {
         for (raw_sql_in, elem_idx, indent_out) in cases {
             let root = parse_ansi_string(raw_sql_in);
             let config = <_>::default();
-            let seq = ReflowSequence::from_root(root, &config);
+            let seq = ReflowSequence::from_root(&root, &config);
             let elem = seq.elements()[elem_idx].as_point().unwrap();
 
             assert_eq!(indent_out, elem.get_indent().as_deref());

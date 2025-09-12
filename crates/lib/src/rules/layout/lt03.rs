@@ -92,7 +92,7 @@ FROM foo
 
         ReflowSequence::from_around_target(
             &context.segment,
-            &context.parent_stack.first().unwrap(),
+            context.parent_stack.first().unwrap(),
             TargetSide::Both,
             context.config,
         )

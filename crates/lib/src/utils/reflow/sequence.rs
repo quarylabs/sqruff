@@ -51,11 +51,11 @@ impl<'a, 'b> ReflowSequence<'a, 'b> {
     }
 
     pub fn from_root(root_segment: &'b ErasedSegment, config: &'a FluffConfig) -> Self {
-        let depth_map = DepthMap::from_parent(&root_segment).into();
+        let depth_map = DepthMap::from_parent(root_segment).into();
 
         Self::from_raw_segments(
             root_segment.get_raw_segments(),
-            &root_segment,
+            root_segment,
             config,
             depth_map,
         )
@@ -69,7 +69,7 @@ impl<'a, 'b> ReflowSequence<'a, 'b> {
     ) -> ReflowSequence<'a, 'b> {
         let reflow_config = config.reflow();
         let depth_map = depth_map.unwrap_or_else(|| {
-            DepthMap::from_raws_and_root(segments.clone().into_iter(), &root_segment)
+            DepthMap::from_raws_and_root(segments.clone().into_iter(), root_segment)
         });
         let elements = Self::elements_from_raw_segments(segments, &depth_map, reflow_config);
 
@@ -171,7 +171,7 @@ impl<'a, 'b> ReflowSequence<'a, 'b> {
         }
 
         let segments = &all_raws[pre_idx..post_idx];
-        ReflowSequence::from_raw_segments(segments.to_vec(), &root_segment, config, None)
+        ReflowSequence::from_raw_segments(segments.to_vec(), root_segment, config, None)
     }
 
     pub fn insert(
@@ -263,7 +263,7 @@ impl<'a, 'b> ReflowSequence<'a, 'b> {
                 tables,
                 pre,
                 post,
-                &self.root_segment,
+                self.root_segment,
                 lint_results,
                 strip_newlines,
                 "before",
@@ -314,7 +314,7 @@ impl<'a, 'b> ReflowSequence<'a, 'b> {
         }
 
         // Delegate to the rebreak algorithm
-        let (elem_buff, lint_results) = rebreak_sequence(tables, self.elements, &self.root_segment);
+        let (elem_buff, lint_results) = rebreak_sequence(tables, self.elements, self.root_segment);
 
         ReflowSequence {
             root_segment: self.root_segment,
@@ -419,7 +419,7 @@ impl<'a, 'b> ReflowSequence<'a, 'b> {
         let (elements, length_results) = lint_line_length(
             tables,
             &self.elements,
-            &self.root_segment,
+            self.root_segment,
             &single_indent,
             self.reflow_config.max_line_length,
             self.reflow_config.allow_implicit_indents,

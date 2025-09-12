@@ -233,7 +233,6 @@ impl ErasedSegment {
 }
 
 impl ErasedSegment {
-    #[allow(clippy::new_ret_no_self, clippy::wrong_self_convention)]
     #[track_caller]
     pub fn new(&self, segments: Vec<ErasedSegment>) -> ErasedSegment {
         match &self.value.kind {

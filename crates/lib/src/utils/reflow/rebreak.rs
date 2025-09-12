@@ -584,7 +584,7 @@ mod tests {
 
             let root = parse_ansi_string(raw_sql_in);
             let config = <_>::default();
-            let seq = ReflowSequence::from_root(root, &config);
+            let seq = ReflowSequence::from_root(&root, &config);
             let new_seq = seq.rebreak(&tables);
 
             assert_eq!(new_seq.raw(), raw_sql_out);
@@ -609,7 +609,7 @@ mod tests {
             let root = parse_ansi_string(raw_sql_in);
             let target = &root.get_raw_segments()[target_idx];
             let config = <_>::default();
-            let seq = ReflowSequence::from_around_target(target, root, TargetSide::Both, &config);
+            let seq = ReflowSequence::from_around_target(target, &root, TargetSide::Both, &config);
 
             assert_eq!(seq.raw(), seq_sql_in);
 

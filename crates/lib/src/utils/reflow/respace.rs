@@ -609,7 +609,7 @@ mod tests {
         for (raw_sql_in, (strip_newlines, filter), raw_sql_out) in cases {
             let root = parse_ansi_string(raw_sql_in);
             let config = <_>::default();
-            let seq = ReflowSequence::from_root(root, &config);
+            let seq = ReflowSequence::from_root(&root, &config);
 
             let new_seq = seq.respace(&tables, strip_newlines, filter);
             assert_eq!(new_seq.raw(), raw_sql_out);
@@ -682,7 +682,7 @@ mod tests {
 
             let root = parse_ansi_string(raw_sql_in);
             let config = <_>::default();
-            let seq = ReflowSequence::from_root(root.clone(), &config);
+            let seq = ReflowSequence::from_root(&root, &config);
             let pnt = seq.elements()[point_idx].as_point().unwrap();
 
             let (results, new_pnt) = pnt.respace_point(

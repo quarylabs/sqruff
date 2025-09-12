@@ -14,8 +14,8 @@ use super::reindent::{construct_single_indent, lint_indent_points, lint_line_len
 use crate::core::config::FluffConfig;
 use crate::core::rules::LintResult;
 
-pub struct ReflowSequence<'a> {
-    root_segment: ErasedSegment,
+pub struct ReflowSequence<'a, 'b> {
+    root_segment: &'b ErasedSegment,
     elements: ReflowSequenceType,
     lint_results: Vec<LintResult>,
     reflow_config: &'a ReflowConfig,
@@ -34,7 +34,7 @@ pub enum ReflowInsertPosition {
     Before,
 }
 
-impl<'a> ReflowSequence<'a> {
+impl<'a, 'b> ReflowSequence<'a, 'b> {
     pub fn raw(&self) -> String {
         self.elements.iter().map(|it| it.raw()).join("")
     }
@@ -50,12 +50,12 @@ impl<'a> ReflowSequence<'a> {
             .collect()
     }
 
-    pub fn from_root(root_segment: ErasedSegment, config: &'a FluffConfig) -> Self {
+    pub fn from_root(root_segment: &'b ErasedSegment, config: &'a FluffConfig) -> Self {
         let depth_map = DepthMap::from_parent(&root_segment).into();
 
         Self::from_raw_segments(
             root_segment.get_raw_segments(),
-            root_segment,
+            &root_segment,
             config,
             depth_map,
         )
@@ -63,10 +63,10 @@ impl<'a> ReflowSequence<'a> {
 
     pub fn from_raw_segments(
         segments: Vec<ErasedSegment>,
-        root_segment: ErasedSegment,
+        root_segment: &'b ErasedSegment,
         config: &'a FluffConfig,
         depth_map: Option<DepthMap>,
-    ) -> ReflowSequence<'a> {
+    ) -> ReflowSequence<'a, 'b> {
         let reflow_config = config.reflow();
         let depth_map = depth_map.unwrap_or_else(|| {
             DepthMap::from_raws_and_root(segments.clone().into_iter(), &root_segment)
@@ -131,10 +131,10 @@ impl<'a> ReflowSequence<'a> {
 
     pub fn from_around_target(
         target_segment: &ErasedSegment,
-        root_segment: ErasedSegment,
+        root_segment: &'b ErasedSegment,
         sides: TargetSide,
         config: &'a FluffConfig,
-    ) -> ReflowSequence<'a> {
+    ) -> ReflowSequence<'a, 'b> {
         let all_raws = root_segment.get_raw_segments();
         let target_raws = target_segment.get_raw_segments();
 
@@ -171,7 +171,7 @@ impl<'a> ReflowSequence<'a> {
         }
 
         let segments = &all_raws[pre_idx..post_idx];
-        ReflowSequence::from_raw_segments(segments.to_vec(), root_segment, config, None)
+        ReflowSequence::from_raw_segments(segments.to_vec(), &root_segment, config, None)
     }
 
     pub fn insert(
@@ -220,7 +220,7 @@ impl<'a> ReflowSequence<'a> {
             .unwrap_or_else(|| panic!("Target [{target:?}] not found in ReflowSequence."))
     }
 
-    pub fn without(self, target: &ErasedSegment) -> ReflowSequence<'a> {
+    pub fn without(self, target: &ErasedSegment) -> ReflowSequence<'a, 'b> {
         let removal_idx = self.find_element_idx_with(target);
         if removal_idx == 0 || removal_idx == self.elements.len() - 1 {
             panic!("Unexpected removal at one end of a ReflowSequence.");
@@ -241,7 +241,7 @@ impl<'a> ReflowSequence<'a> {
 
         ReflowSequence {
             elements: new_elements,
-            root_segment: self.root_segment.clone(),
+            root_segment: self.root_segment,
             lint_results: vec![LintResult::new(
                 target.clone().into(),
                 vec![LintFix::delete(target.clone())],

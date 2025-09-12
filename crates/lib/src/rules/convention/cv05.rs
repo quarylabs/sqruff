@@ -147,7 +147,7 @@ WHERE a IS NULL
 
         let fixes = ReflowSequence::from_around_target(
             &context.segment,
-            context.parent_stack[0].clone(),
+            &context.parent_stack[0],
             TargetSide::Both,
             context.config,
         )

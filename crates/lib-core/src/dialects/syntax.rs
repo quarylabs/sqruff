@@ -113,6 +113,7 @@ pub enum SyntaxKind {
     CaseExpression,
     WhenClause,
     ElseClause,
+    PreWhereClause,
     WhereClause,
     SetOperator,
     ValuesClause,

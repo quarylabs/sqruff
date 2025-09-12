@@ -21,6 +21,8 @@ use super::ansi::{self, raw_dialect};
 use crate::clickhouse_keywords::UNRESERVED_KEYWORDS;
 
 pub fn dialect() -> Dialect {
+    let ansi_dialect = raw_dialect();
+
     let mut clickhouse_dialect = raw_dialect();
     clickhouse_dialect.name = DialectKind::Clickhouse;
     clickhouse_dialect
@@ -582,20 +584,69 @@ pub fn dialect() -> Dialect {
         ),
     ]);
 
+    clickhouse_dialect.add([(
+        "PreWhereClauseSegment".into(),
+        NodeMatcher::new(SyntaxKind::PreWhereClause, |_| {
+            Sequence::new(vec_of_erased![
+                Ref::keyword("PREWHERE"),
+                // NOTE: The indent here is implicit to allow
+                // constructions like:
+                //
+                //    PREWHERE a
+                //        AND b
+                //
+                // to be valid without forcing an indent between
+                // "PREWHERE" and "a".
+                MetaSegment::implicit_indent(),
+                optionally_bracketed(vec_of_erased![Ref::new("ExpressionSegment")]),
+                MetaSegment::dedent(),
+            ])
+            .to_matchable()
+        })
+        .to_matchable()
+        .into(),
+    )]);
+
+    // We need to replace the UnorderedSelectStatementSegment to include PREWHERE
+    clickhouse_dialect.replace_grammar(
+        "UnorderedSelectStatementSegment",
+        ansi_dialect
+            .grammar("UnorderedSelectStatementSegment")
+            .match_grammar(&ansi_dialect)
+            .unwrap()
+            .copy(
+                Some(vec_of_erased![Ref::new("PreWhereClauseSegment").optional()]),
+                None,
+                Some(Ref::new("WhereClauseSegment").optional().to_matchable()),
+                None,
+                Vec::new(),
+                false,
+            ),
+    );
+
     clickhouse_dialect.replace_grammar(
         "SelectStatementSegment",
-        ansi::select_statement().copy(
-            Some(vec_of_erased![
-                Ref::new("FormatClauseSegment").optional(),
-                Ref::new("IntoOutfileClauseSegment").optional(),
-                Ref::new("SettingsClauseSegment").optional(),
-            ]),
-            None,
-            None,
-            None,
-            Vec::new(),
-            false,
-        ),
+        ansi::select_statement()
+            .copy(
+                Some(vec_of_erased![Ref::new("PreWhereClauseSegment").optional(),]),
+                None,
+                Some(Ref::new("WhereClauseSegment").optional().to_matchable()),
+                None,
+                Vec::new(),
+                false,
+            )
+            .copy(
+                Some(vec_of_erased![
+                    Ref::new("FormatClauseSegment").optional(),
+                    Ref::new("IntoOutfileClauseSegment").optional(),
+                    Ref::new("SettingsClauseSegment").optional(),
+                ]),
+                None,
+                None,
+                None,
+                Vec::new(),
+                false,
+            ),
     );
 
     clickhouse_dialect.add([(

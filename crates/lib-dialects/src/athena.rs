@@ -688,7 +688,14 @@ pub fn dialect() -> Dialect {
                                 Ref::keyword("BY"),
                                 Bracketed::new(vec_of_erased![Delimited::new(vec_of_erased![
                                     Sequence::new(vec_of_erased![
-                                        Ref::new("ColumnDefinitionSegment"),
+                                        one_of(vec_of_erased![
+                                            // External tables expect types...
+                                            Ref::new("ColumnDefinitionSegment"),
+                                            // Iceberg tables don't expect types.
+                                            Ref::new("SingleIdentifierGrammar"),
+                                            // Iceberg tables also allow partition transforms
+                                            Ref::new("FunctionSegment"),
+                                        ]),
                                         Ref::new("CommentGrammar").optional()
                                     ])
                                 ])])

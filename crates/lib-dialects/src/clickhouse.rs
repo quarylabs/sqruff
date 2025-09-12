@@ -2,13 +2,13 @@ use sqruff_lib_core::dialects::Dialect;
 use sqruff_lib_core::dialects::init::DialectKind;
 use sqruff_lib_core::dialects::syntax::SyntaxKind;
 use sqruff_lib_core::helpers::{Config, ToMatchable};
-use sqruff_lib_core::parser::grammar::Ref;
 use sqruff_lib_core::parser::grammar::anyof::{
     AnyNumberOf, any_set_of, one_of, optionally_bracketed,
 };
 use sqruff_lib_core::parser::grammar::conditional::Conditional;
 use sqruff_lib_core::parser::grammar::delimited::Delimited;
 use sqruff_lib_core::parser::grammar::sequence::{Bracketed, Sequence};
+use sqruff_lib_core::parser::grammar::{Anything, Ref};
 use sqruff_lib_core::parser::lexer::Matcher;
 use sqruff_lib_core::parser::matchable::MatchableTrait;
 use sqruff_lib_core::parser::node_matcher::NodeMatcher;
@@ -90,11 +90,11 @@ pub fn dialect() -> Dialect {
             clickhouse_dialect
                 .grammar("SelectClauseTerminatorGrammar")
                 .copy(
-                    Some(vec_of_erased![one_of(vec_of_erased![
+                    Some(vec_of_erased![
                         Ref::keyword("PREWHERE"),
                         Ref::keyword("INTO"),
                         Ref::keyword("FORMAT"),
-                    ])]),
+                    ]),
                     None,
                     Some(Ref::keyword("WHERE").to_matchable()),
                     None,
@@ -108,11 +108,11 @@ pub fn dialect() -> Dialect {
             clickhouse_dialect
                 .grammar("FromClauseTerminatorGrammar")
                 .copy(
-                    Some(vec_of_erased![one_of(vec_of_erased![
+                    Some(vec_of_erased![
                         Ref::keyword("PREWHERE"),
                         Ref::keyword("INTO"),
                         Ref::keyword("FORMAT"),
-                    ])]),
+                    ]),
                     None,
                     Some(Ref::keyword("WHERE").to_matchable()),
                     None,
@@ -143,6 +143,40 @@ pub fn dialect() -> Dialect {
             .into(),
         ),
     ]);
+
+    // Disambiguate wildcard EXCEPT from set operator EXCEPT.
+    // Exclude patterns like `EXCEPT ( ... )` and `EXCEPT identifier` from
+    // being parsed as a set operator to allow wildcard `* EXCEPT ...` to bind.
+    clickhouse_dialect.replace_grammar(
+        "SetOperatorSegment",
+        one_of(vec_of_erased![
+            Ref::new("UnionGrammar"),
+            Sequence::new(vec_of_erased![
+                one_of(vec_of_erased![
+                    Ref::keyword("INTERSECT"),
+                    Ref::keyword("EXCEPT")
+                ]),
+                Ref::keyword("ALL").optional(),
+            ]),
+            Ref::keyword("MINUS"),
+        ])
+        .config(|config| {
+            config.exclude = Some(
+                one_of(vec_of_erased![
+                    Sequence::new(vec_of_erased![
+                        Ref::keyword("EXCEPT"),
+                        Bracketed::new(vec_of_erased![Anything::new()]),
+                    ]),
+                    Sequence::new(vec_of_erased![
+                        Ref::keyword("EXCEPT"),
+                        Ref::new("SingleIdentifierGrammar"),
+                    ]),
+                ])
+                .to_matchable(),
+            );
+        })
+        .to_matchable(),
+    );
 
     clickhouse_dialect.replace_grammar(
         "FromExpressionElementSegment",
@@ -265,6 +299,25 @@ pub fn dialect() -> Dialect {
             .to_matchable()
             .into(),
         ),
+        // A Clickhouse SELECT EXCEPT clause.
+        // https://clickhouse.com/docs/en/sql-reference/statements/select#except
+        (
+            "ExceptClauseSegment".into(),
+            NodeMatcher::new(SyntaxKind::SelectExceptClause, |_| {
+                Sequence::new(vec_of_erased![
+                    Ref::keyword("EXCEPT"),
+                    one_of(vec_of_erased![
+                        Bracketed::new(vec_of_erased![Delimited::new(vec_of_erased![Ref::new(
+                            "SingleIdentifierGrammar"
+                        )])]),
+                        Ref::new("SingleIdentifierGrammar"),
+                    ]),
+                ])
+                .to_matchable()
+            })
+            .to_matchable()
+            .into(),
+        ),
         (
             "QuotedLiteralSegment".into(),
             one_of(vec_of_erased![
@@ -286,6 +339,18 @@ pub fn dialect() -> Dialect {
             .into(),
         ),
     ]);
+
+    clickhouse_dialect.replace_grammar(
+        "WildcardExpressionSegment",
+        ansi::wildcard_expression_segment().copy(
+            Some(vec_of_erased![Ref::new("ExceptClauseSegment").optional()]),
+            None,
+            None,
+            None,
+            Vec::new(),
+            false,
+        ),
+    );
 
     clickhouse_dialect.add([(
         "SettingsClauseSegment".into(),

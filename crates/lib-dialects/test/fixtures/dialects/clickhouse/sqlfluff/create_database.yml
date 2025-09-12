@@ -11,6 +11,13 @@ file:
     - keyword: CREATE
     - keyword: DATABASE
     - database_reference:
+      - naked_identifier: _123
+- statement_terminator: ;
+- statement:
+  - create_database_statement:
+    - keyword: CREATE
+    - keyword: DATABASE
+    - database_reference:
       - naked_identifier: db_name
     - keyword: COMMENT
     - quoted_identifier: '''SingleQuoted'''
@@ -61,6 +68,17 @@ file:
       - keyword: ON
       - keyword: CLUSTER
       - naked_identifier: cluster
+- statement_terminator: ;
+- statement:
+  - create_database_statement:
+    - keyword: CREATE
+    - keyword: DATABASE
+    - database_reference:
+      - naked_identifier: db_name
+    - on_cluster_clause:
+      - keyword: ON
+      - keyword: CLUSTER
+      - naked_identifier: _123
 - statement_terminator: ;
 - statement:
   - create_database_statement:
@@ -271,11 +289,11 @@ file:
           - expression:
             - quoted_literal: '''replica_name'''
           - end_bracket: )
-    - keyword: SETTINGS
-    - naked_identifier: key1
-    - comparison_operator:
-      - raw_comparison_operator: =
-    - naked_identifier: value1
+      - keyword: SETTINGS
+      - naked_identifier: key1
+      - comparison_operator:
+        - raw_comparison_operator: =
+      - naked_identifier: value1
 - statement_terminator: ;
 - statement:
   - create_database_statement:
@@ -1929,14 +1947,14 @@ file:
           - expression:
             - quoted_literal: '''***'''
           - end_bracket: )
-    - keyword: SETTINGS
-    - naked_identifier: allows_query_when_mysql_lost
-    - comparison_operator:
-      - raw_comparison_operator: =
-    - naked_identifier: 'true'
-    - comma: ','
-    - naked_identifier: max_wait_time_when_mysql_unavailable
-    - comparison_operator:
-      - raw_comparison_operator: =
-    - numeric_literal: '10000'
+      - keyword: SETTINGS
+      - naked_identifier: allows_query_when_mysql_lost
+      - comparison_operator:
+        - raw_comparison_operator: =
+      - naked_identifier: 'true'
+      - comma: ','
+      - naked_identifier: max_wait_time_when_mysql_unavailable
+      - comparison_operator:
+        - raw_comparison_operator: =
+      - numeric_literal: '10000'
 - statement_terminator: ;

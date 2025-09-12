@@ -1,7 +1,6 @@
 use ahash::AHashMap;
 use itertools::Itertools;
 use sqruff_lib_core::dialects::syntax::{SyntaxKind, SyntaxSet};
-use sqruff_lib_core::edit_type::EditType;
 use sqruff_lib_core::helpers::IndexMap;
 use sqruff_lib_core::lint_fix::LintFix;
 use sqruff_lib_core::parser::segments::SegmentBuilder;
@@ -130,14 +129,14 @@ SELECT a FROM plop
                 continue;
             }
 
-            let mut fix_type = EditType::CreateBefore;
+            let mut is_replace = false;
             let mut fix_point = None;
 
             let num_newlines = if comma_style == "oneline" {
                 if global_comma_style == "trailing" {
                     fix_point = forward_slice[comma_seg_idx + 1].clone().into();
                     if forward_slice[comma_seg_idx + 1].is_type(SyntaxKind::Whitespace) {
-                        fix_type = EditType::Replace;
+                        is_replace = true;
                     }
                 } else if global_comma_style == "leading" {
                     fix_point = forward_slice[comma_seg_idx].clone().into();
@@ -155,7 +154,7 @@ SELECT a FROM plop
                     if matches!(comma_style, "trailing" | "final" | "floating") {
                         if forward_slice[seg_idx - 1].is_type(SyntaxKind::Whitespace) {
                             fix_point = forward_slice[seg_idx - 1].clone().into();
-                            fix_type = EditType::Replace;
+                            is_replace = true;
                         } else {
                             fix_point = forward_slice[seg_idx].clone().into();
                         }
@@ -190,16 +189,17 @@ SELECT a FROM plop
 
             // Only create fixes if we have a valid fix point
             let fixes = if let Some(anchor) = fix_point {
-                vec![LintFix {
-                    edit_type: fix_type,
-                    anchor,
-                    edit: std::iter::repeat_n(
-                        SegmentBuilder::newline(context.tables.next_id(), "\n"),
-                        num_newlines,
-                    )
-                    .collect_vec(),
-                    source: Vec::new(),
-                }]
+                let newlines = std::iter::repeat_n(
+                    SegmentBuilder::newline(context.tables.next_id(), "\n"),
+                    num_newlines,
+                )
+                .collect_vec();
+
+                if is_replace {
+                    vec![LintFix::replace(anchor, newlines, None)]
+                } else {
+                    vec![LintFix::create_before(anchor, newlines)]
+                }
             } else {
                 // Skip generating a fix if we don't have a valid anchor point
                 Vec::new()

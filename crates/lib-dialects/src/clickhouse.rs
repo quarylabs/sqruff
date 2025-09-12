@@ -290,13 +290,8 @@ pub fn dialect() -> Dialect {
             SegmentGenerator::new(|dialect| {
                 // Generate the anti template from the set of reserved keywords
                 let reserved_keywords = dialect.sets("reserved_keywords");
-                let pattern = reserved_keywords
-                    .iter()
-                    .cloned()
-                    .collect::<Vec<_>>()
-                    .join("|");
+                let pattern = reserved_keywords.into_iter().collect::<Vec<_>>().join("|");
                 let anti_template = format!("^({pattern})$");
-
                 RegexParser::new("[a-zA-Z_][0-9a-zA-Z_]*", SyntaxKind::NakedIdentifier)
                     .anti_template(&anti_template)
                     .to_matchable()
@@ -991,20 +986,7 @@ pub fn dialect() -> Dialect {
                                 Ref::keyword("BY"),
                                 Ref::new("ExpressionSegment"),
                             ]),
-                            Sequence::new(vec_of_erased![
-                                Ref::keyword("SETTINGS"),
-                                Delimited::new(vec_of_erased![
-                                    Sequence::new(vec_of_erased![
-                                        Ref::new("NakedIdentifierSegment"),
-                                        Ref::new("EqualsSegment"),
-                                        one_of(vec_of_erased![
-                                            Ref::new("NumericLiteralSegment"),
-                                            Ref::new("QuotedLiteralSegment"),
-                                        ]),
-                                    ])
-                                    .config(|this| this.optional())
-                                ]),
-                            ]),
+                            Ref::new("SettingsClauseSegment").optional(),
                         ]),
                     ]),
                 ])
@@ -1068,21 +1050,7 @@ pub fn dialect() -> Dialect {
                                 Ref::new("ExpressionSegment"),
                             ])
                             .config(|this| this.optional()),
-                            Sequence::new(vec_of_erased![
-                                Ref::keyword("SETTINGS"),
-                                Delimited::new(vec_of_erased![AnyNumberOf::new(vec_of_erased![
-                                    Sequence::new(vec_of_erased![
-                                        Ref::new("NakedIdentifierSegment"),
-                                        Ref::new("EqualsSegment"),
-                                        one_of(vec_of_erased![
-                                            Ref::new("NumericLiteralSegment"),
-                                            Ref::new("QuotedLiteralSegment"),
-                                        ]),
-                                    ])
-                                    .config(|this| this.optional()),
-                                ])])
-                            ])
-                            .config(|this| this.optional()),
+                            Ref::new("SettingsClauseSegment").optional(),
                         ]),
                     ]),
                 ])
@@ -1203,23 +1171,6 @@ pub fn dialect() -> Dialect {
                     Ref::new("SingleIdentifierGrammar"),
                 ])
                 .config(|this| this.optional()),
-                Sequence::new(vec_of_erased![
-                    Ref::keyword("SETTINGS"),
-                    Delimited::new(vec_of_erased![
-                        Sequence::new(vec_of_erased![
-                            Ref::new("NakedIdentifierSegment"),
-                            Ref::new("EqualsSegment"),
-                            one_of(vec_of_erased![
-                                Ref::new("NakedIdentifierSegment"),
-                                Ref::new("NumericLiteralSegment"),
-                                Ref::new("QuotedLiteralSegment"),
-                                Ref::new("BooleanLiteralGrammar"),
-                            ]),
-                        ])
-                        .config(|this| this.optional())
-                    ])
-                    .config(|this| this.optional()),
-                ]),
             ]),
             AnyNumberOf::new(vec_of_erased![
                 Ref::keyword("TABLE"),

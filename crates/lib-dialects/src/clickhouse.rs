@@ -2070,6 +2070,23 @@ pub fn dialect() -> Dialect {
                     ])
                     .config(|this| this.optional()),
                 ]),
+                // ALTER TABLE ... DROP PARTITION|PART partition_expr
+                Sequence::new(vec_of_erased![
+                    Ref::keyword("DROP"),
+                    one_of(vec_of_erased![
+                        Ref::keyword("PARTITION"),
+                        Ref::keyword("PART"),
+                    ]),
+                    Ref::new("SingleIdentifierGrammar"),
+                ]),
+                // ALTER TABLE ... REPLACE PARTITION partition_expr FROM table1
+                Sequence::new(vec_of_erased![
+                    Ref::keyword("REPLACE"),
+                    Ref::keyword("PARTITION"),
+                    Ref::new("SingleIdentifierGrammar"),
+                    Ref::keyword("FROM"),
+                    Ref::new("TableReferenceSegment"),
+                ]),
             ]),
         ])
         .to_matchable(),

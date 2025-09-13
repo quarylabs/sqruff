@@ -1,4 +1,3 @@
-use crate::edit_type::EditType;
 use crate::lint_fix::LintFix;
 use crate::parser::segments::fix::SourceFix;
 
@@ -59,22 +58,26 @@ impl AnchorEditInfo {
         };
 
         if fix.is_just_source_edit() {
-            self.source_fixes.extend(fix.edit[0].get_source_fixes());
+            if let LintFix::Replace { edit, .. } = &fix
+                && !edit.is_empty()
+            {
+                self.source_fixes.extend(edit[0].get_source_fixes());
+            }
 
             if let Some(_first_replace) = &self.first_replace {
                 unimplemented!();
             }
         }
 
-        if fix.edit_type == EditType::Replace && self.first_replace.is_none() {
+        if matches!(fix, LintFix::Replace { .. }) && self.first_replace.is_none() {
             self.first_replace = Some(self.fixes.len());
         }
 
-        match fix.edit_type {
-            EditType::CreateBefore => self.create_before += 1,
-            EditType::CreateAfter => self.create_after += 1,
-            EditType::Replace => self.replace += 1,
-            EditType::Delete => self.delete += 1,
+        match fix {
+            LintFix::CreateBefore { .. } => self.create_before += 1,
+            LintFix::CreateAfter { .. } => self.create_after += 1,
+            LintFix::Replace { .. } => self.replace += 1,
+            LintFix::Delete { .. } => self.delete += 1,
         };
 
         self.fixes.push(fix);

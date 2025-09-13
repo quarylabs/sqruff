@@ -126,6 +126,7 @@ pub(crate) const UNRESERVED_KEYWORDS: &[&str] = &[
     "OR",
     "OUTFILE",
     "OVERRIDE",
+    "PART",
     "PASTE",
     "POPULATE",
     "POSTGRESQL",

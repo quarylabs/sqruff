@@ -1268,3 +1268,81 @@ file:
             - raw_comparison_operator: =
           - numeric_literal: '1'
 - statement_terminator: ;
+- statement:
+  - alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+      - naked_identifier: x
+    - keyword: DROP
+    - keyword: PARTITION
+    - naked_identifier: y
+- statement_terminator: ;
+- statement:
+  - alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+      - naked_identifier: x
+    - on_cluster_clause:
+      - keyword: ON
+      - keyword: CLUSTER
+      - quoted_identifier: '''{cluster}'''
+    - keyword: DROP
+    - keyword: PARTITION
+    - quoted_identifier: '''y'''
+- statement_terminator: ;
+- statement:
+  - alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+      - naked_identifier: x
+    - keyword: DROP
+    - keyword: PART
+    - quoted_identifier: '''y'''
+- statement_terminator: ;
+- statement:
+  - alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+      - naked_identifier: x
+    - on_cluster_clause:
+      - keyword: ON
+      - keyword: CLUSTER
+      - quoted_identifier: '''{cluster}'''
+    - keyword: DROP
+    - keyword: PART
+    - quoted_identifier: '''y'''
+- statement_terminator: ;
+- statement:
+  - alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+      - naked_identifier: x
+    - keyword: REPLACE
+    - keyword: PARTITION
+    - quoted_identifier: '''y'''
+    - keyword: FROM
+    - table_reference:
+      - naked_identifier: z
+- statement_terminator: ;
+- statement:
+  - alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+      - naked_identifier: x
+    - on_cluster_clause:
+      - keyword: ON
+      - keyword: CLUSTER
+      - quoted_identifier: '''{cluster}'''
+    - keyword: REPLACE
+    - keyword: PARTITION
+    - quoted_identifier: '''y'''
+    - keyword: FROM
+    - table_reference:
+      - naked_identifier: z
+- statement_terminator: ;

@@ -119,7 +119,7 @@ FROM foo AS voo
                         as_keyword.clone().into(),
                         ReflowSequence::from_around_target(
                             as_keyword,
-                            rule_cx.parent_stack[0].clone(),
+                            &rule_cx.parent_stack[0],
                             TargetSide::Both,
                             rule_cx.config,
                         )
@@ -142,7 +142,7 @@ FROM foo AS voo
                     rule_cx.segment.clone().into(),
                     ReflowSequence::from_around_target(
                         &identifier,
-                        rule_cx.parent_stack[0].clone(),
+                        &rule_cx.parent_stack[0],
                         TargetSide::Before,
                         rule_cx.config,
                     )

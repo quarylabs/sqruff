@@ -15,15 +15,15 @@ use crate::utils::reflow::sequence::{Filter, ReflowSequence, TargetSide};
 pub struct RuleST08;
 
 impl RuleST08 {
-    pub fn remove_unneeded_brackets<'a>(
+    pub fn remove_unneeded_brackets<'a, 'b>(
         &self,
-        context: &RuleContext<'a>,
+        context: &'b RuleContext<'a>,
         bracketed: Segments,
-    ) -> (ErasedSegment, ReflowSequence<'a>) {
+    ) -> (ErasedSegment, ReflowSequence<'a, 'b>) {
         let anchor = &bracketed.get(0, None).unwrap();
         let seq = ReflowSequence::from_around_target(
             anchor,
-            context.parent_stack[0].clone(),
+            &context.parent_stack[0],
             TargetSide::Before,
             context.config,
         )
@@ -121,7 +121,7 @@ SELECT DISTINCT a, b FROM foo
                     anchor = Some(modifier[0].clone());
                     seq = Some(ReflowSequence::from_around_target(
                         &modifier[0],
-                        context.parent_stack[0].clone(),
+                        &context.parent_stack[0],
                         TargetSide::After,
                         context.config,
                     ));

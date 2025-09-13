@@ -14,6 +14,7 @@ impl Rule for RuleLT11 {
     fn load_from_config(&self, _config: &AHashMap<String, Value>) -> Result<ErasedRule, String> {
         Ok(RuleLT11.erased())
     }
+
     fn name(&self) -> &'static str {
         "layout.set_operators"
     }
@@ -48,10 +49,11 @@ SELECT 'b' AS col
     fn groups(&self) -> &'static [RuleGroups] {
         &[RuleGroups::All, RuleGroups::Core, RuleGroups::Layout]
     }
+
     fn eval(&self, context: &RuleContext) -> Vec<LintResult> {
         ReflowSequence::from_around_target(
             &context.segment,
-            context.parent_stack.first().unwrap().clone(),
+            context.parent_stack.first().unwrap(),
             TargetSide::Both,
             context.config,
         )

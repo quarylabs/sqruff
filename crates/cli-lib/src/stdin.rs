@@ -1,5 +1,5 @@
 use std::io::Read;
-use std::path::PathBuf;
+use std::path::{Path, PathBuf};
 
 /// Check if the given input is the flag to use stdin as input.
 ///
@@ -8,9 +8,9 @@ use std::path::PathBuf;
 ///
 /// The error message is returned if any of the inputs are `-` and there are other inputs.
 pub(crate) fn is_std_in_flag_input(inputs: &[PathBuf]) -> Result<bool, String> {
-    if inputs.len() == 1 && inputs[0] == PathBuf::from("-") {
+    if inputs.len() == 1 && inputs[0] == Path::new("-") {
         Ok(true)
-    } else if inputs.iter().any(|input| *input == PathBuf::from("-")) {
+    } else if inputs.iter().any(|input| input == Path::new("-")) {
         Err("Cannot mix stdin flag with other inputs".to_string())
     } else {
         Ok(false)

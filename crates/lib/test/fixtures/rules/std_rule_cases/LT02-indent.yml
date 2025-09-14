@@ -2174,3 +2174,12 @@ test_pass_implicit_where:
   configs:
     indentation:
       allow_implicit_indents: true
+
+test_pass_comment_at_start_of_parenthesis:
+  # Comment-only lines shouldn't affect following indentation.
+  pass_str: |
+    SELECT
+        (
+            -- comment
+            1
+        ) AS x

@@ -45,15 +45,19 @@ file:
             - table_expression:
               - values_clause:
                 - keyword: VALUES
-                - bracketed:
-                  - start_bracket: (
-                  - quoted_literal: '''a'''
-                  - end_bracket: )
+                - expression:
+                  - bracketed:
+                    - start_bracket: (
+                    - expression:
+                      - quoted_literal: '''a'''
+                    - end_bracket: )
                 - comma: ','
-                - bracketed:
-                  - start_bracket: (
-                  - quoted_literal: '''b'''
-                  - end_bracket: )
+                - expression:
+                  - bracketed:
+                    - start_bracket: (
+                    - expression:
+                      - quoted_literal: '''b'''
+                    - end_bracket: )
             - end_bracket: )
           - alias_expression:
             - keyword: AS
@@ -80,15 +84,19 @@ file:
             - table_expression:
               - values_clause:
                 - keyword: VALUES
-                - bracketed:
-                  - start_bracket: (
-                  - quoted_literal: '''a'''
-                  - end_bracket: )
+                - expression:
+                  - bracketed:
+                    - start_bracket: (
+                    - expression:
+                      - quoted_literal: '''a'''
+                    - end_bracket: )
                 - comma: ','
-                - bracketed:
-                  - start_bracket: (
-                  - quoted_literal: '''b'''
-                  - end_bracket: )
+                - expression:
+                  - bracketed:
+                    - start_bracket: (
+                    - expression:
+                      - quoted_literal: '''b'''
+                    - end_bracket: )
             - end_bracket: )
           - alias_expression:
             - keyword: AS

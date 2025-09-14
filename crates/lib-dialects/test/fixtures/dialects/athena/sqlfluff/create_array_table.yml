@@ -30,18 +30,20 @@ file:
       - naked_identifier: array_table
     - values_clause:
       - keyword: values
-      - bracketed:
-        - start_bracket: (
-        - typed_array_literal:
-          - array_type:
-            - keyword: ARRAY
-          - array_literal:
-            - start_square_bracket: '['
-            - numeric_literal: '1'
-            - comma: ','
-            - numeric_literal: '2'
-            - comma: ','
-            - numeric_literal: '3'
-            - end_square_bracket: ']'
-        - end_bracket: )
+      - expression:
+        - bracketed:
+          - start_bracket: (
+          - expression:
+            - typed_array_literal:
+              - array_type:
+                - keyword: ARRAY
+              - array_literal:
+                - start_square_bracket: '['
+                - numeric_literal: '1'
+                - comma: ','
+                - numeric_literal: '2'
+                - comma: ','
+                - numeric_literal: '3'
+                - end_square_bracket: ']'
+          - end_bracket: )
 - statement_terminator: ;

@@ -442,7 +442,8 @@ pub fn dialect() -> Dialect {
                             Ref::keyword("WITH"),
                             Ref::keyword("ORDINALITY")
                         ])
-                        .config(|config| config.optional())
+                        .config(|config| config.optional()),
+                        Ref::new("WithinGroupClauseSegment")
                     ]),
                     None,
                     None,
@@ -451,6 +452,71 @@ pub fn dialect() -> Dialect {
                     false,
                 )
                 .into(),
+        ),
+        (
+            "FunctionContentsGrammar".into(),
+            ansi_dialect
+                .grammar("FunctionContentsGrammar")
+                .copy(
+                    Some(vec_of_erased![Ref::new("ListaggOverflowClauseSegment")]),
+                    None,
+                    None,
+                    None,
+                    Vec::new(),
+                    false,
+                )
+                .into(),
+        ),
+    ]);
+
+    // Add support for WITHIN GROUP and LISTAGG overflow clauses
+    dialect.add([
+        (
+            "WithinGroupClauseSegment".into(),
+            Sequence::new(vec_of_erased![
+                Ref::keyword("WITHIN"),
+                Ref::keyword("GROUP"),
+                Bracketed::new(vec_of_erased![Ref::new("OrderByClauseSegment")]),
+                Ref::new("FilterClauseGrammar").optional(),
+            ])
+            .to_matchable()
+            .into(),
+        ),
+        (
+            "ListaggOverflowClauseSegment".into(),
+            Sequence::new(vec_of_erased![
+                Ref::keyword("ON"),
+                Ref::keyword("OVERFLOW"),
+                one_of(vec_of_erased![
+                    Ref::keyword("ERROR"),
+                    Sequence::new(vec_of_erased![
+                        Ref::keyword("TRUNCATE"),
+                        Ref::new("QuotedLiteralSegment").optional(),
+                        one_of(vec_of_erased![
+                            Ref::keyword("WITH"),
+                            Ref::keyword("WITHOUT")
+                        ])
+                        .config(|config| {
+                            config.optional();
+                        }),
+                        Ref::keyword("COUNT").optional()
+                    ]),
+                ]),
+            ])
+            .to_matchable()
+            .into(),
+        ),
+        (
+            "ValuesClauseSegment".into(),
+            NodeMatcher::new(SyntaxKind::ValuesClause, |_| {
+                Sequence::new(vec_of_erased![
+                    Ref::keyword("VALUES"),
+                    Delimited::new(vec_of_erased![Ref::new("ExpressionSegment")])
+                ])
+                .to_matchable()
+            })
+            .to_matchable()
+            .into(),
         ),
     ]);
 

@@ -152,6 +152,7 @@ pub(crate) const UNRESERVED_KEYWORDS: &[&str] = &[
     "SEMI",
     "SEND",
     "SENDS",
+    "SETTING",
     "SETTINGS",
     "SHOW",
     "SOURCE",

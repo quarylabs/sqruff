@@ -61,7 +61,7 @@ fn main() {
             continue;
         };
 
-        let path = format!("test/fixtures/dialects/{dialect_name}/sqlfluff/*.sql");
+        let path = format!("test/fixtures/dialects/{dialect_name}/*/*.sql");
         let files = glob::glob(&path).unwrap().flatten().collect_vec();
 
         println!("For dialect: {dialect_name}, found {} files", files.len());

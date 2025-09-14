@@ -1,0 +1,17 @@
+file:
+- statement:
+  - alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+      - naked_identifier: x
+    - keyword: MODIFY
+    - keyword: COLUMN
+    - naked_identifier: col
+    - keyword: MODIFY
+    - keyword: SETTING
+    - naked_identifier: min_compress_block_size
+    - comparison_operator:
+      - raw_comparison_operator: =
+    - numeric_literal: '8192'
+- statement_terminator: ;

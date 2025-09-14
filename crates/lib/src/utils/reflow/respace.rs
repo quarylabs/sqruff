@@ -1,7 +1,6 @@
 use itertools::{Itertools, enumerate};
 use rustc_hash::FxHashMap;
 use sqruff_lib_core::dialects::syntax::{SyntaxKind, SyntaxSet};
-use sqruff_lib_core::edit_type::EditType;
 use sqruff_lib_core::lint_fix::LintFix;
 use sqruff_lib_core::parser::markers::PositionMarker;
 use sqruff_lib_core::parser::segments::{ErasedSegment, SegmentBuilder, Tables};
@@ -482,11 +481,15 @@ pub fn handle_respace_inline_without_space(
 
         'outer: for (result_idx, res) in enumerate(&existing_results) {
             for (fix_idx, fix) in enumerate(&res.fixes) {
-                if fix
-                    .edit
-                    .iter()
-                    .any(|e| e.id() == insertion.as_ref().unwrap().id())
-                {
+                let has_insertion = match fix {
+                    LintFix::CreateAfter { edit, .. }
+                    | LintFix::CreateBefore { edit, .. }
+                    | LintFix::Replace { edit, .. } => edit
+                        .iter()
+                        .any(|e| e.id() == insertion.as_ref().unwrap().id()),
+                    LintFix::Delete { .. } => false,
+                };
+                if has_insertion {
                     res_found = Some(result_idx);
                     fix_found = Some(fix_idx);
                     break 'outer;
@@ -502,7 +505,14 @@ pub fn handle_respace_inline_without_space(
         if existing_fix == "before" {
             unimplemented!()
         } else if existing_fix == "after" {
-            fix.edit.push(added_whitespace);
+            match fix {
+                LintFix::CreateAfter { edit, .. }
+                | LintFix::CreateBefore { edit, .. }
+                | LintFix::Replace { edit, .. } => {
+                    edit.push(added_whitespace);
+                }
+                LintFix::Delete { .. } => unreachable!(),
+            }
         }
 
         return (segment_buffer, existing_results, true);
@@ -530,12 +540,11 @@ pub fn handle_respace_inline_without_space(
 
         LintResult::new(
             anchor.into(),
-            vec![LintFix {
-                edit_type: EditType::CreateAfter,
-                anchor: prev_block.segment().clone(),
-                edit: vec![added_whitespace],
-                source: vec![],
-            }],
+            vec![LintFix::create_after(
+                prev_block.segment().clone(),
+                vec![added_whitespace],
+                None,
+            )],
             desc.into(),
             None,
         )
@@ -563,8 +572,8 @@ mod tests {
     use pretty_assertions::assert_eq;
     use smol_str::ToSmolStr;
     use sqruff_lib::core::test_functions::parse_ansi_string;
-    use sqruff_lib_core::edit_type::EditType;
     use sqruff_lib_core::helpers::enter_panic;
+    use sqruff_lib_core::lint_fix::LintFix;
 
     use crate::utils::reflow::helpers::fixes_from_results;
     use crate::utils::reflow::respace::Tables;
@@ -614,6 +623,14 @@ mod tests {
             let new_seq = seq.respace(&tables, strip_newlines, filter);
             assert_eq!(new_seq.raw(), raw_sql_out);
         }
+    }
+
+    #[derive(Debug, Clone, Copy, PartialEq)]
+    enum EditType {
+        CreateBefore,
+        CreateAfter,
+        Replace,
+        Delete,
     }
 
     #[test]
@@ -698,7 +715,15 @@ mod tests {
             assert_eq!(new_pnt.raw(), raw_point_sql_out);
 
             let fixes = fixes_from_results(results.into_iter())
-                .map(|fix| (fix.edit_type, fix.anchor.raw().to_smolstr()))
+                .map(|fix| {
+                    let edit_type = match fix {
+                        LintFix::CreateBefore { .. } => EditType::CreateBefore,
+                        LintFix::CreateAfter { .. } => EditType::CreateAfter,
+                        LintFix::Replace { .. } => EditType::Replace,
+                        LintFix::Delete { .. } => EditType::Delete,
+                    };
+                    (edit_type, fix.anchor().raw().to_smolstr())
+                })
                 .collect_vec();
 
             assert_eq!(fixes, fixes_out);

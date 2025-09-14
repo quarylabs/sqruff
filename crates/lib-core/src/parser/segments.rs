@@ -20,7 +20,7 @@ use smol_str::SmolStr;
 
 use crate::dialects::init::DialectKind;
 use crate::dialects::syntax::{SyntaxKind, SyntaxSet};
-use crate::edit_type::EditType;
+use crate::lint_fix::LintFix;
 use crate::parser::markers::PositionMarker;
 use crate::parser::segments::fix::{FixPatch, SourceFix};
 use crate::parser::segments::object_reference::{ObjectReferenceKind, ObjectReferenceSegment};
@@ -736,17 +736,17 @@ impl ErasedSegment {
             };
 
             if anchor_info.fixes.len() == 2
-                && anchor_info.fixes[0].edit_type == EditType::CreateAfter
+                && matches!(anchor_info.fixes[0], LintFix::CreateAfter { .. })
             {
                 anchor_info.fixes.reverse();
             }
 
             let fixes_count = anchor_info.fixes.len();
-            for mut lint_fix in anchor_info.fixes {
+            for lint_fix in anchor_info.fixes {
                 has_applied_fixes = true;
 
                 // Deletes are easy.
-                if lint_fix.edit_type == EditType::Delete {
+                if matches!(lint_fix, LintFix::Delete { .. }) {
                     // We're just getting rid of this segment.
                     _requires_validate = true;
                     // NOTE: We don't add the segment in this case.
@@ -755,40 +755,54 @@ impl ErasedSegment {
 
                 // Otherwise it must be a replace or a create.
                 assert!(matches!(
-                    lint_fix.edit_type,
-                    EditType::Replace | EditType::CreateBefore | EditType::CreateAfter
+                    lint_fix,
+                    LintFix::Replace { .. }
+                        | LintFix::CreateBefore { .. }
+                        | LintFix::CreateAfter { .. }
                 ));
 
-                if lint_fix.edit_type == EditType::CreateAfter && fixes_count == 1 {
-                    // In the case of a creation after that is not part
-                    // of a create_before/create_after pair, also add
-                    // this segment before the edit.
-                    seg_buffer.push(seg.clone());
-                }
-
-                let mut consumed_pos = false;
-                for mut s in std::mem::take(&mut lint_fix.edit) {
-                    if lint_fix.edit_type == EditType::Replace
-                        && !consumed_pos
-                        && s.raw() == seg.raw()
-                    {
-                        consumed_pos = true;
-                        s.make_mut()
-                            .set_position_marker(seg.get_position_marker().cloned());
+                match lint_fix {
+                    LintFix::CreateAfter { edit, .. } => {
+                        if fixes_count == 1 {
+                            // In the case of a creation after that is not part
+                            // of a create_before/create_after pair, also add
+                            // this segment before the edit.
+                            seg_buffer.push(seg.clone());
+                        }
+                        for s in edit {
+                            seg_buffer.push(s);
+                        }
+                        _requires_validate = true;
                     }
+                    LintFix::CreateBefore { edit, .. } => {
+                        for s in edit {
+                            seg_buffer.push(s);
+                        }
+                        seg_buffer.push(seg.clone());
+                        _requires_validate = true;
+                    }
+                    LintFix::Replace { edit, .. } => {
+                        let mut consumed_pos = false;
+                        let is_single_same_type =
+                            edit.len() == 1 && edit[0].class_types() == seg.class_types();
 
-                    seg_buffer.push(s);
-                }
+                        for mut s in edit {
+                            if !consumed_pos && s.raw() == seg.raw() {
+                                consumed_pos = true;
+                                s.make_mut()
+                                    .set_position_marker(seg.get_position_marker().cloned());
+                            }
+                            seg_buffer.push(s);
+                        }
 
-                if !(lint_fix.edit_type == EditType::Replace
-                    && lint_fix.edit.len() == 1
-                    && lint_fix.edit[0].class_types() == seg.class_types())
-                {
-                    _requires_validate = true;
-                }
-
-                if lint_fix.edit_type == EditType::CreateBefore {
-                    seg_buffer.push(seg.clone());
+                        if !is_single_same_type {
+                            _requires_validate = true;
+                        }
+                    }
+                    LintFix::Delete { .. } => {
+                        // Already handled above
+                        unreachable!()
+                    }
                 }
             }
         }

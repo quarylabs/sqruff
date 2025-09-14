@@ -1,7 +1,6 @@
 use ahash::{AHashMap, AHashSet};
 use itertools::Itertools;
 use sqruff_lib_core::dialects::syntax::{SyntaxKind, SyntaxSet};
-use sqruff_lib_core::edit_type::EditType;
 use sqruff_lib_core::lint_fix::LintFix;
 use sqruff_lib_core::parser::segments::{ErasedSegment, SegmentBuilder, Tables};
 use sqruff_lib_core::utils::functional::segments::Segments;
@@ -514,13 +513,18 @@ struct SegmentMoveContext {
     whitespace_deletions: Segments,
 }
 
-pub fn choose_anchor_segment(
+#[derive(Debug, Clone, Copy, PartialEq)]
+enum EditType {
+    CreateAfter,
+}
+
+fn choose_anchor_segment(
     root_segment: &ErasedSegment,
     edit_type: EditType,
     segment: &ErasedSegment,
     filter_meta: bool,
 ) -> ErasedSegment {
-    if !matches!(edit_type, EditType::CreateBefore | EditType::CreateAfter) {
+    if !matches!(edit_type, EditType::CreateAfter) {
         return segment.clone();
     }
 
@@ -552,9 +556,6 @@ pub fn choose_anchor_segment(
         children_lists.push(seg.segments().to_vec());
         for children in children_lists {
             match edit_type {
-                EditType::CreateBefore if children[0].id() == child.id() => {
-                    unreachable!()
-                }
                 EditType::CreateAfter if children.last().unwrap().id() == child.id() => {
                     anchor = seg.clone();
                     child = seg;

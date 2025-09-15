@@ -514,6 +514,7 @@ pub enum SyntaxKind {
     IntoTableClause,
     PasswordAuth,
     ExecuteAsClause,
+    ExecuteImmediateClause,
     UnicodeSingleQuote,
     EscapedSingleQuote,
     UnicodeDoubleQuote,

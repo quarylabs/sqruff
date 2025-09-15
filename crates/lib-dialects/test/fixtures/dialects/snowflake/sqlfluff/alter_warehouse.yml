@@ -394,3 +394,28 @@ file:
         - raw_comparison_operator: =
       - warehouse_size: STANDARD
 - statement_terminator: ;
+- statement:
+  - alter_warehouse_statement:
+    - keyword: ALTER
+    - keyword: WAREHOUSE
+    - object_reference:
+      - naked_identifier: CI_TRANSFORMING
+    - keyword: SET
+    - comment_equals_clause:
+      - keyword: COMMENT
+      - comparison_operator:
+        - raw_comparison_operator: =
+      - quoted_literal: '''Warehouse for dbt development transformations in CI'''
+    - comma: ','
+    - warehouse_object_properties:
+      - keyword: AUTO_RESUME
+      - comparison_operator:
+        - raw_comparison_operator: =
+      - boolean_literal: 'TRUE'
+    - comma: ','
+    - warehouse_object_properties:
+      - keyword: AUTO_SUSPEND
+      - comparison_operator:
+        - raw_comparison_operator: =
+      - numeric_literal: '30'
+- statement_terminator: ;

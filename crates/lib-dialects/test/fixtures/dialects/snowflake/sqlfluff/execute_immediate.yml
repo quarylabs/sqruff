@@ -1,0 +1,95 @@
+file:
+- statement:
+  - execute_immediate_clause:
+    - keyword: EXECUTE
+    - keyword: IMMEDIATE
+    - quoted_literal: '''select 1'''
+- statement_terminator: ;
+- statement:
+  - execute_immediate_clause:
+    - keyword: EXECUTE
+    - keyword: IMMEDIATE
+    - quoted_literal: |-
+        $$
+          SELECT PI();
+        $$
+- statement_terminator: ;
+- statement:
+  - set_statement:
+    - keyword: SET
+    - variable: pie
+    - comparison_operator:
+      - raw_comparison_operator: =
+    - expression:
+      - quoted_literal: |-
+          $$
+            SELECT PI();
+          $$
+- statement_terminator: ;
+- statement:
+  - set_statement:
+    - keyword: SET
+    - variable: one
+    - comparison_operator:
+      - raw_comparison_operator: =
+    - expression:
+      - numeric_literal: '1'
+- statement_terminator: ;
+- statement:
+  - set_statement:
+    - keyword: SET
+    - variable: two
+    - comparison_operator:
+      - raw_comparison_operator: =
+    - expression:
+      - numeric_literal: '2'
+- statement_terminator: ;
+- statement:
+  - execute_immediate_clause:
+    - keyword: EXECUTE
+    - keyword: IMMEDIATE
+    - variable: $pie
+- statement_terminator: ;
+- statement:
+  - execute_immediate_clause:
+    - keyword: EXECUTE
+    - keyword: IMMEDIATE
+    - variable: $pie
+    - keyword: USING
+    - bracketed:
+      - start_bracket: (
+      - variable: one
+      - comma: ','
+      - variable: two
+      - end_bracket: )
+- statement_terminator: ;
+- statement:
+  - set_statement:
+    - keyword: SET
+    - variable: three
+    - comparison_operator:
+      - raw_comparison_operator: =
+    - expression:
+      - quoted_literal: '''select ? + ?'''
+- statement_terminator: ;
+- statement:
+  - execute_immediate_clause:
+    - keyword: EXECUTE
+    - keyword: IMMEDIATE
+    - colon: ':'
+    - variable: three
+- statement_terminator: ;
+- statement:
+  - execute_immediate_clause:
+    - keyword: EXECUTE
+    - keyword: IMMEDIATE
+    - colon: ':'
+    - variable: three
+    - keyword: USING
+    - bracketed:
+      - start_bracket: (
+      - variable: one
+      - comma: ','
+      - variable: two
+      - end_bracket: )
+- statement_terminator: ;

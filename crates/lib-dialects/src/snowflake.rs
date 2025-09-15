@@ -1416,6 +1416,7 @@ pub fn dialect() -> Dialect {
                 Ref::new("CreateDatabaseFromShareStatementSegment"),
                 Ref::new("AlterRoleStatementSegment"),
                 Ref::new("AlterStorageIntegrationSegment"),
+                Ref::new("ExecuteImmediateClauseSegment"),
                 Ref::new("ExecuteTaskClauseSegment"),
             ]),
             None,
@@ -6767,6 +6768,35 @@ pub fn dialect() -> Dialect {
                 Sequence::new(vec_of_erased![
                     Ref::keyword("UNSET"),
                     Delimited::new(vec_of_erased![Ref::new("ParameterNameSegment")]),
+                ])
+                .to_matchable()
+            })
+            .to_matchable()
+            .into(),
+        ),
+        (
+            //Snowflake's EXECUTE IMMEDIATE clause.
+            // https://docs.snowflake.com/en/sql-reference/sql/execute-immediate
+            "ExecuteImmediateClauseSegment".into(),
+            NodeMatcher::new(SyntaxKind::ExecuteImmediateClause, |_| {
+                Sequence::new(vec_of_erased![
+                    Ref::keyword("EXECUTE"),
+                    Ref::keyword("IMMEDIATE"),
+                    one_of(vec_of_erased![
+                        Ref::new("QuotedLiteralSegment"),
+                        Ref::new("ReferencedVariableNameSegment"),
+                        Sequence::new(vec_of_erased![
+                            Ref::new("ColonSegment"),
+                            Ref::new("LocalVariableNameSegment"),
+                        ]),
+                    ]),
+                    Sequence::new(vec_of_erased![
+                        Ref::keyword("USING"),
+                        Bracketed::new(vec_of_erased![Delimited::new(vec_of_erased![Ref::new(
+                            "LocalVariableNameSegment"
+                        )]),]),
+                    ])
+                    .config(|this| this.optional()),
                 ])
                 .to_matchable()
             })

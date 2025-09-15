@@ -2375,6 +2375,7 @@ pub fn dialect() -> Dialect {
                             Ref::keyword("SET"),
                             one_of(vec_of_erased![
                                 AnyNumberOf::new(vec_of_erased![
+                                    Ref::new("CommaSegment").optional(),
                                     Ref::new("WarehouseObjectPropertiesSegment"),
                                     Ref::new("CommentEqualsClauseSegment"),
                                     Ref::new("WarehouseObjectParamsSegment"),

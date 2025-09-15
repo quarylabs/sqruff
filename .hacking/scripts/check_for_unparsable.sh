@@ -14,11 +14,13 @@
 #   0 - Pattern NOT found in any file
 #   1 - Pattern found in at least one file
 
-shift  # Shift so $@ now contains only filenames (if any)
+# Pattern is not used from command line arguments in this script
+# The patterns are hardcoded as pattern_unparsable and pattern_file
 
-# If no files are specified, default to looking in crates/lib-dialects/test/fixtures/dialects/***/*.yml
+# If no files are specified, default to looking in crates/lib-dialects/test/fixtures/dialects/**/*.yml
 if [[ $# -eq 0 ]]; then
-  set -- crates/lib-dialects/test/fixtures/dialects/**/*.yml
+  # Use find to get all .yml files recursively
+  set -- $(find crates/lib-dialects/test/fixtures/dialects -name "*.yml" -type f)
 fi
 
 pattern_unparsable="unparsable:"

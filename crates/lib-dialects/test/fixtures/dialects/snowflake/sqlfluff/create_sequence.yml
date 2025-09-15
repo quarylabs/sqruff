@@ -1,0 +1,62 @@
+file:
+- statement:
+  - create_sequence_statement:
+    - keyword: CREATE
+    - keyword: SEQUENCE
+    - column_reference:
+      - naked_identifier: seq
+- statement_terminator: ;
+- statement:
+  - create_statement:
+    - keyword: CREATE
+    - keyword: OR
+    - keyword: REPLACE
+    - keyword: SEQUENCE
+    - keyword: IF
+    - keyword: NOT
+    - keyword: EXISTS
+    - object_reference:
+      - naked_identifier: seq
+    - keyword: WITH
+- unparsable:
+  - word: START
+  - word: WITH
+  - raw_comparison_operator: =
+  - numeric_literal: '2'
+  - word: INCREMENT
+  - word: BY
+  - raw_comparison_operator: =
+  - numeric_literal: '15'
+  - word: ORDER
+  - word: COMMENT
+  - raw_comparison_operator: =
+  - single_quote: '''this_a_beautiful_sequence'''
+  - semicolon: ;
+  - word: CREATE
+  - word: OR
+  - word: REPLACE
+  - word: SEQUENCE
+  - word: IF
+  - word: NOT
+  - word: EXISTS
+  - word: seq
+  - word: START
+  - raw_comparison_operator: =
+  - numeric_literal: '2'
+  - word: INCREMENT
+  - raw_comparison_operator: =
+  - numeric_literal: '15'
+  - word: NOORDER
+  - semicolon: ;
+  - word: CREATE
+  - word: SEQUENCE
+  - word: seq
+  - word: START
+  - numeric_literal: '2'
+  - semicolon: ;
+  - word: CREATE
+  - word: SEQUENCE
+  - word: seq
+  - word: INCREMENT
+  - numeric_literal: '2'
+  - semicolon: ;

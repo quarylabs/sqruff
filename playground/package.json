@@ -20,7 +20,7 @@
     "eslint-plugin-react-hooks": "^5.2.0",
     "fflate": "^0.8.2",
     "lodash-es": "^4.17.21",
-    "monaco-editor": "^0.52.2",
+    "monaco-editor": "^0.53.0",
     "react": "^19.1.1",
     "react-dom": "^19.1.1",
     "react-resizable-panels": "^3.0.6"

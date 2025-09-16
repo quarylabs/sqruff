@@ -534,6 +534,51 @@ Please implement these changes in the Sqruff dialect."""
         async for message in query(options=options, prompt=prompt):
             print(message)
 
+        # After Claude finishes, run cargo check to verify compilation
+        print("\nRunning cargo check to verify compilation...")
+        dialect_crate_dir = (
+            Path(__file__).parent.parent.parent / "crates" / "lib-dialects"
+        )
+        exit_code, stdout, stderr = run_command(
+            ["cargo", "check", "-p", "sqruff-lib-dialects"],
+            cwd=str(dialect_crate_dir.parent.parent),  # Run from repo root
+        )
+
+        if exit_code == 0:
+            print("✅ Compilation successful!")
+        else:
+            print("❌ Compilation failed. Starting new Claude session to fix errors...")
+
+            # Prepare error context for Claude
+            error_output = (
+                f"STDOUT:\n{stdout}\n\nSTDERR:\n{stderr}"
+                if stdout or stderr
+                else "No specific error output"
+            )
+
+            fix_prompt = f"""The previous implementation of SQLFluff dialect changes for the {args.dialect} dialect has compilation errors.
+
+Original changes implemented:
+{commit_message}
+
+Original SQLFluff diff:
+```diff
+{dialect_changes}
+```
+
+Compilation failed with the following errors:
+```
+{error_output}
+```
+
+Please fix the compilation errors in the Rust dialect implementation. Look at the error messages to understand what's wrong and make the necessary corrections to ensure the code compiles successfully.
+
+After making fixes, run `cargo check -p sqruff-lib-dialects` to verify the compilation succeeds."""
+
+            print("Starting compilation fix session...")
+            async for message in query(options=options, prompt=fix_prompt):
+                print(message)
+
     print("Done!")
 
 

@@ -6,12 +6,27 @@ use itertools::Itertools;
 use rayon::iter::ParallelIterator;
 use rayon::prelude::IntoParallelRefIterator;
 use sqruff_lib_core::dialects::init::DialectKind;
+use sqruff_lib_core::dialects::syntax::SyntaxKind;
 use sqruff_lib_core::helpers;
 use sqruff_lib_core::parser::Parser;
 use sqruff_lib_core::parser::lexer::Lexer;
-use sqruff_lib_core::parser::segments::Tables;
+use sqruff_lib_core::parser::segments::{ErasedSegment, Tables};
 use sqruff_lib_dialects::kind_to_dialect;
 use strum::IntoEnumIterator;
+
+fn check_no_unparsable_segments(tree: &ErasedSegment) -> Vec<String> {
+    tree.recursive_crawl_all(false)
+        .into_iter()
+        .filter(|segment| segment.is_type(SyntaxKind::Unparsable))
+        .map(|segment| {
+            format!(
+                "Unparsable segment found: {} at position {:?}",
+                segment.raw(),
+                segment.get_position_marker()
+            )
+        })
+        .collect()
+}
 
 fn main() {
     let args = std::env::args().skip(1).collect::<Vec<String>>();
@@ -82,6 +97,17 @@ fn main() {
 
                 let parsed = parser.parse(&tables, &tokens.0).unwrap();
                 let tree = parsed.unwrap();
+
+                // Check for unparsable segments
+                let unparsable_segments = check_no_unparsable_segments(&tree);
+                if !unparsable_segments.is_empty() {
+                    panic!(
+                        "Found unparsable segments in {}: {}",
+                        file.display(),
+                        unparsable_segments.join(", ")
+                    );
+                }
+
                 let tree = tree.to_serialised(true, true);
 
                 serde_yaml::to_string(&tree).unwrap()

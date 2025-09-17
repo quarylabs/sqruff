@@ -1,0 +1,310 @@
+file:
+- statement:
+  - keyword: CREATE
+  - keyword: RESOURCE
+  - keyword: MONITOR
+  - object_reference:
+    - naked_identifier: my_monitor
+  - keyword: WITH
+  - keyword: CREDIT_QUOTA
+  - comparison_operator:
+    - raw_comparison_operator: =
+  - numeric_literal: '100'
+- statement_terminator: ;
+- statement:
+  - keyword: CREATE
+  - keyword: RESOURCE
+  - keyword: MONITOR
+  - object_reference:
+    - naked_identifier: budget_monitor
+  - keyword: WITH
+  - keyword: CREDIT_QUOTA
+  - comparison_operator:
+    - raw_comparison_operator: =
+  - numeric_literal: '500'
+  - keyword: FREQUENCY
+  - comparison_operator:
+    - raw_comparison_operator: =
+  - keyword: MONTHLY
+- statement_terminator: ;
+- statement:
+  - keyword: CREATE
+  - keyword: RESOURCE
+  - keyword: MONITOR
+  - object_reference:
+    - naked_identifier: daily_monitor
+  - keyword: WITH
+  - keyword: CREDIT_QUOTA
+  - comparison_operator:
+    - raw_comparison_operator: =
+  - numeric_literal: '10'
+  - keyword: FREQUENCY
+  - comparison_operator:
+    - raw_comparison_operator: =
+  - keyword: DAILY
+- statement_terminator: ;
+- statement:
+  - keyword: CREATE
+  - keyword: RESOURCE
+  - keyword: MONITOR
+  - object_reference:
+    - naked_identifier: weekly_monitor
+  - keyword: WITH
+  - keyword: CREDIT_QUOTA
+  - comparison_operator:
+    - raw_comparison_operator: =
+  - numeric_literal: '70'
+  - keyword: FREQUENCY
+  - comparison_operator:
+    - raw_comparison_operator: =
+  - keyword: WEEKLY
+- statement_terminator: ;
+- statement:
+  - keyword: CREATE
+  - keyword: RESOURCE
+  - keyword: MONITOR
+  - object_reference:
+    - naked_identifier: yearly_monitor
+  - keyword: WITH
+  - keyword: CREDIT_QUOTA
+  - comparison_operator:
+    - raw_comparison_operator: =
+  - numeric_literal: '5000'
+  - keyword: FREQUENCY
+  - comparison_operator:
+    - raw_comparison_operator: =
+  - keyword: YEARLY
+- statement_terminator: ;
+- statement:
+  - keyword: CREATE
+  - keyword: RESOURCE
+  - keyword: MONITOR
+  - object_reference:
+    - naked_identifier: never_monitor
+  - keyword: WITH
+  - keyword: CREDIT_QUOTA
+  - comparison_operator:
+    - raw_comparison_operator: =
+  - numeric_literal: '1000'
+  - keyword: FREQUENCY
+  - comparison_operator:
+    - raw_comparison_operator: =
+  - keyword: NEVER
+- statement_terminator: ;
+- statement:
+  - keyword: CREATE
+  - keyword: RESOURCE
+  - keyword: MONITOR
+  - object_reference:
+    - naked_identifier: timed_monitor
+  - keyword: WITH
+  - keyword: CREDIT_QUOTA
+  - comparison_operator:
+    - raw_comparison_operator: =
+  - numeric_literal: '100'
+  - keyword: START_TIMESTAMP
+  - comparison_operator:
+    - raw_comparison_operator: =
+  - quoted_literal: '''2024-01-01 00:00:00'''
+- statement_terminator: ;
+- statement:
+  - keyword: CREATE
+  - keyword: RESOURCE
+  - keyword: MONITOR
+  - object_reference:
+    - naked_identifier: immediate_monitor
+  - keyword: WITH
+  - keyword: CREDIT_QUOTA
+  - comparison_operator:
+    - raw_comparison_operator: =
+  - numeric_literal: '100'
+  - keyword: START_TIMESTAMP
+  - comparison_operator:
+    - raw_comparison_operator: =
+  - keyword: IMMEDIATELY
+- statement_terminator: ;
+- statement:
+  - keyword: CREATE
+  - keyword: RESOURCE
+  - keyword: MONITOR
+  - object_reference:
+    - naked_identifier: limited_monitor
+  - keyword: WITH
+  - keyword: CREDIT_QUOTA
+  - comparison_operator:
+    - raw_comparison_operator: =
+  - numeric_literal: '100'
+  - keyword: END_TIMESTAMP
+  - comparison_operator:
+    - raw_comparison_operator: =
+  - quoted_literal: '''2024-12-31 23:59:59'''
+- statement_terminator: ;
+- statement:
+  - keyword: CREATE
+  - keyword: RESOURCE
+  - keyword: MONITOR
+  - object_reference:
+    - naked_identifier: notify_monitor
+  - keyword: WITH
+  - keyword: CREDIT_QUOTA
+  - comparison_operator:
+    - raw_comparison_operator: =
+  - numeric_literal: '100'
+  - keyword: NOTIFY_USERS
+  - comparison_operator:
+    - raw_comparison_operator: =
+  - bracketed:
+    - start_bracket: (
+    - naked_identifier: user1
+    - comma: ','
+    - naked_identifier: user2
+    - comma: ','
+    - naked_identifier: user3
+    - end_bracket: )
+- statement_terminator: ;
+- statement:
+  - keyword: CREATE
+  - keyword: RESOURCE
+  - keyword: MONITOR
+  - object_reference:
+    - naked_identifier: trigger_monitor
+  - keyword: WITH
+  - keyword: CREDIT_QUOTA
+  - comparison_operator:
+    - raw_comparison_operator: =
+  - numeric_literal: '100'
+  - keyword: TRIGGERS
+  - keyword: ON
+  - numeric_literal: '90'
+  - keyword: PERCENT
+  - keyword: DO
+  - keyword: SUSPEND
+- statement_terminator: ;
+- statement:
+  - keyword: CREATE
+  - keyword: RESOURCE
+  - keyword: MONITOR
+  - object_reference:
+    - naked_identifier: multi_trigger_monitor
+  - keyword: WITH
+  - keyword: CREDIT_QUOTA
+  - comparison_operator:
+    - raw_comparison_operator: =
+  - numeric_literal: '1000'
+  - keyword: TRIGGERS
+  - keyword: ON
+  - numeric_literal: '50'
+  - keyword: PERCENT
+  - keyword: DO
+  - keyword: NOTIFY
+  - keyword: ON
+  - numeric_literal: '75'
+  - keyword: PERCENT
+  - keyword: DO
+  - keyword: NOTIFY
+  - keyword: ON
+  - numeric_literal: '90'
+  - keyword: PERCENT
+  - keyword: DO
+  - keyword: SUSPEND
+  - keyword: ON
+  - numeric_literal: '100'
+  - keyword: PERCENT
+  - keyword: DO
+  - keyword: SUSPEND_IMMEDIATE
+- statement_terminator: ;
+- statement:
+  - keyword: CREATE
+  - keyword: OR
+  - keyword: REPLACE
+  - keyword: RESOURCE
+  - keyword: MONITOR
+  - object_reference:
+    - naked_identifier: full_monitor
+  - keyword: WITH
+  - keyword: CREDIT_QUOTA
+  - comparison_operator:
+    - raw_comparison_operator: =
+  - numeric_literal: '2000'
+  - keyword: FREQUENCY
+  - comparison_operator:
+    - raw_comparison_operator: =
+  - keyword: MONTHLY
+  - keyword: START_TIMESTAMP
+  - comparison_operator:
+    - raw_comparison_operator: =
+  - quoted_literal: '''2024-01-01 00:00:00'''
+  - keyword: END_TIMESTAMP
+  - comparison_operator:
+    - raw_comparison_operator: =
+  - quoted_literal: '''2024-12-31 23:59:59'''
+  - keyword: NOTIFY_USERS
+  - comparison_operator:
+    - raw_comparison_operator: =
+  - bracketed:
+    - start_bracket: (
+    - naked_identifier: admin
+    - comma: ','
+    - naked_identifier: finance_team
+    - end_bracket: )
+  - keyword: TRIGGERS
+  - keyword: ON
+  - numeric_literal: '60'
+  - keyword: PERCENT
+  - keyword: DO
+  - keyword: NOTIFY
+  - keyword: ON
+  - numeric_literal: '80'
+  - keyword: PERCENT
+  - keyword: DO
+  - keyword: SUSPEND
+  - keyword: ON
+  - numeric_literal: '95'
+  - keyword: PERCENT
+  - keyword: DO
+  - keyword: SUSPEND_IMMEDIATE
+- statement_terminator: ;
+- statement:
+  - keyword: CREATE
+  - keyword: OR
+  - keyword: REPLACE
+  - keyword: RESOURCE
+  - keyword: MONITOR
+  - object_reference:
+    - naked_identifier: replaced_monitor
+  - keyword: WITH
+  - keyword: CREDIT_QUOTA
+  - comparison_operator:
+    - raw_comparison_operator: =
+  - numeric_literal: '300'
+- statement_terminator: ;
+- statement:
+  - keyword: CREATE
+  - keyword: RESOURCE
+  - keyword: MONITOR
+  - object_reference:
+    - naked_identifier: my_schema
+    - dot: .
+    - naked_identifier: my_monitor
+  - keyword: WITH
+  - keyword: CREDIT_QUOTA
+  - comparison_operator:
+    - raw_comparison_operator: =
+  - numeric_literal: '100'
+- statement_terminator: ;
+- statement:
+  - keyword: CREATE
+  - keyword: RESOURCE
+  - keyword: MONITOR
+  - object_reference:
+    - naked_identifier: my_db
+    - dot: .
+    - naked_identifier: my_schema
+    - dot: .
+    - naked_identifier: my_monitor
+  - keyword: WITH
+  - keyword: CREDIT_QUOTA
+  - comparison_operator:
+    - raw_comparison_operator: =
+  - numeric_literal: '100'
+- statement_terminator: ;

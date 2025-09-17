@@ -1420,6 +1420,9 @@ pub fn dialect() -> Dialect {
                 Ref::new("ExecuteTaskClauseSegment"),
                 Ref::new("CreateSequenceStatementSegment"),
                 Ref::new("AlterSequenceStatementSegment"),
+                Ref::new("CreateResourceMonitorStatementSegment"),
+                Ref::new("AlterResourceMonitorStatementSegment"),
+                Ref::new("DropResourceMonitorStatementSegment"),
             ]),
             None,
             None,
@@ -7759,6 +7762,123 @@ pub fn dialect() -> Dialect {
         .to_matchable()
         .into(),
     )]);
+
+    // Resource Monitor statements
+    snowflake_dialect.add([
+        (
+            // A `RESOURCE MONITOR` options statement.
+            // https://docs.snowflake.com/en/sql-reference/sql/create-resource-monitor
+            // https://docs.snowflake.com/en/sql-reference/sql/alter-resource-monitor
+            "ResourceMonitorOptionsSegment".into(),
+            AnyNumberOf::new(vec_of_erased![
+                Sequence::new(vec_of_erased![
+                    Ref::keyword("CREDIT_QUOTA"),
+                    Ref::new("EqualsSegment"),
+                    Ref::new("NumericLiteralSegment"),
+                ]),
+                Sequence::new(vec_of_erased![
+                    Ref::keyword("FREQUENCY"),
+                    Ref::new("EqualsSegment"),
+                    one_of(vec_of_erased![
+                        Ref::keyword("DAILY"),
+                        Ref::keyword("WEEKLY"),
+                        Ref::keyword("MONTHLY"),
+                        Ref::keyword("YEARLY"),
+                        Ref::keyword("NEVER"),
+                    ]),
+                ]),
+                Sequence::new(vec_of_erased![
+                    Ref::keyword("START_TIMESTAMP"),
+                    Ref::new("EqualsSegment"),
+                    one_of(vec_of_erased![
+                        Ref::new("QuotedLiteralSegment"),
+                        Ref::keyword("IMMEDIATELY"),
+                    ]),
+                ]),
+                Sequence::new(vec_of_erased![
+                    Ref::keyword("END_TIMESTAMP"),
+                    Ref::new("EqualsSegment"),
+                    Ref::new("QuotedLiteralSegment"),
+                ]),
+                Sequence::new(vec_of_erased![
+                    Ref::keyword("NOTIFY_USERS"),
+                    Ref::new("EqualsSegment"),
+                    Bracketed::new(vec_of_erased![Delimited::new(vec_of_erased![Ref::new(
+                        "SingleIdentifierGrammar"
+                    ),])]),
+                ]),
+                Sequence::new(vec_of_erased![
+                    Ref::keyword("TRIGGERS"),
+                    AnyNumberOf::new(vec_of_erased![Sequence::new(vec_of_erased![
+                        Ref::keyword("ON"),
+                        Ref::new("NumericLiteralSegment"),
+                        Ref::keyword("PERCENT"),
+                        Ref::keyword("DO"),
+                        one_of(vec_of_erased![
+                            Ref::keyword("NOTIFY"),
+                            Ref::keyword("SUSPEND"),
+                            Ref::keyword("SUSPEND_IMMEDIATE"),
+                        ]),
+                    ]),])
+                ]),
+            ])
+            .to_matchable()
+            .into(),
+        ),
+        (
+            // A `CREATE RESOURCE MONITOR` statement.
+            // https://docs.snowflake.com/en/sql-reference/sql/create-resource-monitor
+            "CreateResourceMonitorStatementSegment".into(),
+            Sequence::new(vec_of_erased![
+                Ref::keyword("CREATE"),
+                Ref::new("OrReplaceGrammar").optional(),
+                Ref::new("IfNotExistsGrammar").optional(),
+                Sequence::new(vec_of_erased![
+                    Ref::keyword("RESOURCE"),
+                    Ref::keyword("MONITOR"),
+                ]),
+                Ref::new("ObjectReferenceSegment"),
+                Ref::keyword("WITH"),
+                Ref::new("ResourceMonitorOptionsSegment"),
+            ])
+            .to_matchable()
+            .into(),
+        ),
+        (
+            // An `ALTER RESOURCE MONITOR` statement.
+            // https://docs.snowflake.com/en/sql-reference/sql/alter-resource-monitor
+            "AlterResourceMonitorStatementSegment".into(),
+            Sequence::new(vec_of_erased![
+                Ref::keyword("ALTER"),
+                Sequence::new(vec_of_erased![
+                    Ref::keyword("RESOURCE"),
+                    Ref::keyword("MONITOR"),
+                ]),
+                Ref::new("IfExistsGrammar").optional(),
+                Ref::new("ObjectReferenceSegment"),
+                Ref::keyword("SET"),
+                Ref::new("ResourceMonitorOptionsSegment"),
+            ])
+            .to_matchable()
+            .into(),
+        ),
+        (
+            // A `DROP RESOURCE MONITOR` statement.
+            // https://docs.snowflake.com/en/sql-reference/sql/drop-resource-monitor
+            "DropResourceMonitorStatementSegment".into(),
+            Sequence::new(vec_of_erased![
+                Ref::keyword("DROP"),
+                Sequence::new(vec_of_erased![
+                    Ref::keyword("RESOURCE"),
+                    Ref::keyword("MONITOR"),
+                ]),
+                Ref::new("IfExistsGrammar").optional(),
+                Ref::new("ObjectReferenceSegment"),
+            ])
+            .to_matchable()
+            .into(),
+        ),
+    ]);
 
     snowflake_dialect.expand();
     snowflake_dialect

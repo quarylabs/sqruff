@@ -579,6 +579,20 @@ After making fixes, run `cargo check -p sqruff-lib-dialects` to verify the compi
             async for message in query(options=options, prompt=fix_prompt):
                 print(message)
 
+        # Run cargo fmt to format the code
+        print("\nRunning cargo fmt to format the code...")
+        exit_code, stdout, stderr = run_command(
+            ["cargo", "fmt", "-p", "sqruff-lib-dialects"],
+            cwd=str(dialect_crate_dir.parent.parent),  # Run from repo root
+        )
+
+        if exit_code == 0:
+            print("✅ Code formatted successfully!")
+        else:
+            print(f"⚠️ cargo fmt returned non-zero exit code: {exit_code}")
+            if stderr:
+                print(f"Error output: {stderr}")
+
     print("Done!")
 
 

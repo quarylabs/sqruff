@@ -3842,20 +3842,7 @@ pub fn dialect() -> Dialect {
             ]),
             Sequence::new(vec_of_erased![
                 Ref::keyword("DEFAULT"),
-                one_of(vec_of_erased![
-                    Ref::new("QuotedLiteralSegment"),
-                    Sequence::new(vec_of_erased![
-                        Ref::keyword("CURRENT_TIMESTAMP"),
-                        Bracketed::new(vec_of_erased![
-                            Ref::new("NumericLiteralSegment").optional(),
-                        ])
-                        .config(|this| this.optional()),
-                    ]),
-                    Sequence::new(vec_of_erased![
-                        Ref::keyword("SYSDATE"),
-                        Bracketed::new(vec_of_erased![]),
-                    ]),
-                ]),
+                Ref::new("ExpressionSegment"),
             ]),
             Sequence::new(vec_of_erased![
                 one_of(vec_of_erased![
@@ -3898,19 +3885,8 @@ pub fn dialect() -> Dialect {
             Ref::new("TagBracketedEqualsSegment").optional(),
             Ref::new("ConstraintPropertiesSegment"),
             Sequence::new(vec_of_erased![
-                Ref::keyword("DEFAULT"),
-                Ref::new("QuotedLiteralSegment"),
-            ]),
-            Sequence::new(vec_of_erased![
                 Ref::keyword("CHECK"),
                 Bracketed::new(vec_of_erased![Ref::new("ExpressionSegment"),]),
-            ]),
-            Sequence::new(vec_of_erased![
-                Ref::keyword("DEFAULT"),
-                one_of(vec_of_erased![
-                    Ref::new("LiteralGrammar"),
-                    Ref::new("FunctionSegment"),
-                ]),
             ]),
             Sequence::new(vec_of_erased![
                 Ref::keyword("REFERENCES"),

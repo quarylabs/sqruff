@@ -1370,10 +1370,12 @@ pub fn dialect() -> Dialect {
                 Ref::new("CreateUserSegment"),
                 Ref::new("CreateCloneStatementSegment"),
                 Ref::new("CreateProcedureStatementSegment"),
+                Ref::new("AlterProcedureStatementSegment"),
                 Ref::new("ScriptingBlockStatementSegment"),
                 Ref::new("ScriptingLetStatementSegment"),
                 Ref::new("ReturnStatementSegment"),
                 Ref::new("ShowStatementSegment"),
+                Ref::new("AlterAccountStatementSegment"),
                 Ref::new("AlterUserStatementSegment"),
                 Ref::new("AlterSessionStatementSegment"),
                 Ref::new("AlterTaskStatementSegment"),
@@ -1420,6 +1422,10 @@ pub fn dialect() -> Dialect {
                 Ref::new("ExecuteTaskClauseSegment"),
                 Ref::new("CreateSequenceStatementSegment"),
                 Ref::new("AlterSequenceStatementSegment"),
+                Ref::new("CreateResourceMonitorStatementSegment"),
+                Ref::new("AlterResourceMonitorStatementSegment"),
+                Ref::new("DropResourceMonitorStatementSegment"),
+                Ref::new("AlterDatabaseSegment"),
             ]),
             None,
             None,
@@ -3246,6 +3252,55 @@ pub fn dialect() -> Dialect {
             .into(),
         ),
         (
+            "AlterProcedureStatementSegment".into(),
+            NodeMatcher::new(SyntaxKind::AlterProcedureStatement, |_| {
+                Sequence::new(vec_of_erased![
+                    Ref::keyword("ALTER"),
+                    Ref::keyword("PROCEDURE"),
+                    Ref::new("IfExistsGrammar").optional(),
+                    Ref::new("FunctionNameSegment"),
+                    Ref::new("FunctionParameterListGrammar"),
+                    one_of(vec_of_erased![
+                        Sequence::new(vec_of_erased![
+                            Ref::keyword("RENAME"),
+                            Ref::keyword("TO"),
+                            Ref::new("FunctionNameSegment"),
+                        ]),
+                        Sequence::new(vec_of_erased![
+                            Ref::keyword("EXECUTE"),
+                            Ref::keyword("AS"),
+                            one_of(vec_of_erased![
+                                Ref::keyword("CALLER"),
+                                Ref::keyword("OWNER"),
+                            ]),
+                        ]),
+                        Sequence::new(vec_of_erased![
+                            Ref::keyword("SET"),
+                            one_of(vec_of_erased![
+                                Ref::new("TagEqualsSegment"),
+                                Ref::new("CommentEqualsClauseSegment"),
+                            ]),
+                        ]),
+                        Sequence::new(vec_of_erased![
+                            Ref::keyword("UNSET"),
+                            one_of(vec_of_erased![
+                                Sequence::new(vec_of_erased![
+                                    Ref::keyword("TAG"),
+                                    Delimited::new(
+                                        vec_of_erased![Ref::new("TagReferenceSegment"),]
+                                    ),
+                                ]),
+                                Ref::keyword("COMMENT"),
+                            ]),
+                        ]),
+                    ]),
+                ])
+                .to_matchable()
+            })
+            .to_matchable()
+            .into(),
+        ),
+        (
             "ReturnStatementSegment".into(),
             NodeMatcher::new(SyntaxKind::ReturnStatement, |_| {
                 Sequence::new(vec_of_erased![
@@ -3787,20 +3842,7 @@ pub fn dialect() -> Dialect {
             ]),
             Sequence::new(vec_of_erased![
                 Ref::keyword("DEFAULT"),
-                one_of(vec_of_erased![
-                    Ref::new("QuotedLiteralSegment"),
-                    Sequence::new(vec_of_erased![
-                        Ref::keyword("CURRENT_TIMESTAMP"),
-                        Bracketed::new(vec_of_erased![
-                            Ref::new("NumericLiteralSegment").optional(),
-                        ])
-                        .config(|this| this.optional()),
-                    ]),
-                    Sequence::new(vec_of_erased![
-                        Ref::keyword("SYSDATE"),
-                        Bracketed::new(vec_of_erased![]),
-                    ]),
-                ]),
+                Ref::new("ExpressionSegment"),
             ]),
             Sequence::new(vec_of_erased![
                 one_of(vec_of_erased![
@@ -3843,19 +3885,8 @@ pub fn dialect() -> Dialect {
             Ref::new("TagBracketedEqualsSegment").optional(),
             Ref::new("ConstraintPropertiesSegment"),
             Sequence::new(vec_of_erased![
-                Ref::keyword("DEFAULT"),
-                Ref::new("QuotedLiteralSegment"),
-            ]),
-            Sequence::new(vec_of_erased![
                 Ref::keyword("CHECK"),
                 Bracketed::new(vec_of_erased![Ref::new("ExpressionSegment"),]),
-            ]),
-            Sequence::new(vec_of_erased![
-                Ref::keyword("DEFAULT"),
-                one_of(vec_of_erased![
-                    Ref::new("LiteralGrammar"),
-                    Ref::new("FunctionSegment"),
-                ]),
             ]),
             Sequence::new(vec_of_erased![
                 Ref::keyword("REFERENCES"),
@@ -6352,6 +6383,69 @@ pub fn dialect() -> Dialect {
             .into(),
         ),
         (
+            // `ALTER ACCOUNT` statement.
+            // https://docs.snowflake.com/en/sql-reference/sql/alter-account
+            "AlterAccountStatementSegment".into(),
+            Sequence::new(vec_of_erased![
+                Ref::keyword("ALTER"),
+                Ref::keyword("ACCOUNT"),
+                one_of(vec_of_erased![
+                    Sequence::new(vec_of_erased![
+                        Ref::keyword("SET"),
+                        Ref::keyword("RESOURCE_MONITOR"),
+                        Ref::new("EqualsSegment"),
+                        Ref::new("NakedIdentifierSegment"),
+                    ]),
+                    Sequence::new(vec_of_erased![
+                        Ref::keyword("SET"),
+                        one_of(vec_of_erased![
+                            Ref::keyword("PASSWORD"),
+                            Ref::keyword("SESSION"),
+                        ]),
+                        Ref::keyword("POLICY"),
+                        Ref::new("TableReferenceSegment"),
+                    ]),
+                    Sequence::new(vec_of_erased![
+                        Ref::keyword("SET"),
+                        Ref::new("TagEqualsSegment"),
+                    ]),
+                    Sequence::new(vec_of_erased![
+                        Ref::keyword("SET"),
+                        Delimited::new(vec_of_erased![Sequence::new(vec_of_erased![
+                            Ref::new("ParameterNameSegment"),
+                            Ref::new("EqualsSegment"),
+                            one_of(vec_of_erased![
+                                Ref::new("BooleanLiteralGrammar"),
+                                Ref::new("QuotedLiteralSegment"),
+                                Ref::new("NumericLiteralSegment"),
+                                Ref::new("NakedIdentifierSegment"),
+                            ]),
+                        ]),]),
+                    ]),
+                    Sequence::new(vec_of_erased![
+                        Ref::keyword("UNSET"),
+                        one_of(vec_of_erased![
+                            Ref::keyword("PASSWORD"),
+                            Ref::keyword("SESSION"),
+                        ]),
+                        Ref::keyword("POLICY"),
+                    ]),
+                    Sequence::new(vec_of_erased![
+                        Ref::keyword("UNSET"),
+                        one_of(vec_of_erased![
+                            Sequence::new(vec_of_erased![
+                                Ref::keyword("TAG"),
+                                Delimited::new(vec_of_erased![Ref::new("TagReferenceSegment")]),
+                            ]),
+                            Delimited::new(vec_of_erased![Ref::new("NakedIdentifierSegment")]),
+                        ]),
+                    ]),
+                ]),
+            ])
+            .to_matchable()
+            .into(),
+        ),
+        (
             "ShowStatementSegment".into(),
             NodeMatcher::new(SyntaxKind::ShowStatement, |_| {
                 let object_types_plural = one_of(vec_of_erased![
@@ -7759,6 +7853,180 @@ pub fn dialect() -> Dialect {
         .to_matchable()
         .into(),
     )]);
+
+    // Resource Monitor statements
+    snowflake_dialect.add([
+        (
+            // A `RESOURCE MONITOR` options statement.
+            // https://docs.snowflake.com/en/sql-reference/sql/create-resource-monitor
+            // https://docs.snowflake.com/en/sql-reference/sql/alter-resource-monitor
+            "ResourceMonitorOptionsSegment".into(),
+            AnyNumberOf::new(vec_of_erased![
+                Sequence::new(vec_of_erased![
+                    Ref::keyword("CREDIT_QUOTA"),
+                    Ref::new("EqualsSegment"),
+                    Ref::new("NumericLiteralSegment"),
+                ]),
+                Sequence::new(vec_of_erased![
+                    Ref::keyword("FREQUENCY"),
+                    Ref::new("EqualsSegment"),
+                    one_of(vec_of_erased![
+                        Ref::keyword("DAILY"),
+                        Ref::keyword("WEEKLY"),
+                        Ref::keyword("MONTHLY"),
+                        Ref::keyword("YEARLY"),
+                        Ref::keyword("NEVER"),
+                    ]),
+                ]),
+                Sequence::new(vec_of_erased![
+                    Ref::keyword("START_TIMESTAMP"),
+                    Ref::new("EqualsSegment"),
+                    one_of(vec_of_erased![
+                        Ref::new("QuotedLiteralSegment"),
+                        Ref::keyword("IMMEDIATELY"),
+                    ]),
+                ]),
+                Sequence::new(vec_of_erased![
+                    Ref::keyword("END_TIMESTAMP"),
+                    Ref::new("EqualsSegment"),
+                    Ref::new("QuotedLiteralSegment"),
+                ]),
+                Sequence::new(vec_of_erased![
+                    Ref::keyword("NOTIFY_USERS"),
+                    Ref::new("EqualsSegment"),
+                    Bracketed::new(vec_of_erased![Delimited::new(vec_of_erased![Ref::new(
+                        "SingleIdentifierGrammar"
+                    ),])]),
+                ]),
+                Sequence::new(vec_of_erased![
+                    Ref::keyword("TRIGGERS"),
+                    AnyNumberOf::new(vec_of_erased![Sequence::new(vec_of_erased![
+                        Ref::keyword("ON"),
+                        Ref::new("NumericLiteralSegment"),
+                        Ref::keyword("PERCENT"),
+                        Ref::keyword("DO"),
+                        one_of(vec_of_erased![
+                            Ref::keyword("NOTIFY"),
+                            Ref::keyword("SUSPEND"),
+                            Ref::keyword("SUSPEND_IMMEDIATE"),
+                        ]),
+                    ]),])
+                ]),
+            ])
+            .to_matchable()
+            .into(),
+        ),
+        (
+            // A `CREATE RESOURCE MONITOR` statement.
+            // https://docs.snowflake.com/en/sql-reference/sql/create-resource-monitor
+            "CreateResourceMonitorStatementSegment".into(),
+            Sequence::new(vec_of_erased![
+                Ref::keyword("CREATE"),
+                Ref::new("OrReplaceGrammar").optional(),
+                Ref::new("IfNotExistsGrammar").optional(),
+                Sequence::new(vec_of_erased![
+                    Ref::keyword("RESOURCE"),
+                    Ref::keyword("MONITOR"),
+                ]),
+                Ref::new("ObjectReferenceSegment"),
+                Ref::keyword("WITH"),
+                Ref::new("ResourceMonitorOptionsSegment"),
+            ])
+            .to_matchable()
+            .into(),
+        ),
+        (
+            // An `ALTER RESOURCE MONITOR` statement.
+            // https://docs.snowflake.com/en/sql-reference/sql/alter-resource-monitor
+            "AlterResourceMonitorStatementSegment".into(),
+            Sequence::new(vec_of_erased![
+                Ref::keyword("ALTER"),
+                Sequence::new(vec_of_erased![
+                    Ref::keyword("RESOURCE"),
+                    Ref::keyword("MONITOR"),
+                ]),
+                Ref::new("IfExistsGrammar").optional(),
+                Ref::new("ObjectReferenceSegment"),
+                Ref::keyword("SET"),
+                Ref::new("ResourceMonitorOptionsSegment"),
+            ])
+            .to_matchable()
+            .into(),
+        ),
+        (
+            // A `DROP RESOURCE MONITOR` statement.
+            // https://docs.snowflake.com/en/sql-reference/sql/drop-resource-monitor
+            "DropResourceMonitorStatementSegment".into(),
+            Sequence::new(vec_of_erased![
+                Ref::keyword("DROP"),
+                Sequence::new(vec_of_erased![
+                    Ref::keyword("RESOURCE"),
+                    Ref::keyword("MONITOR"),
+                ]),
+                Ref::new("IfExistsGrammar").optional(),
+                Ref::new("ObjectReferenceSegment"),
+            ])
+            .to_matchable()
+            .into(),
+        ),
+        (
+            // An `ALTER DATABASE` statement.
+            // https://docs.snowflake.com/en/sql-reference/sql/alter-database
+            "AlterDatabaseSegment".into(),
+            NodeMatcher::new(SyntaxKind::AlterDatabaseStatement, |_| {
+                Sequence::new(vec_of_erased![
+                    Ref::keyword("ALTER"),
+                    Ref::keyword("DATABASE"),
+                    Ref::new("IfExistsGrammar").optional(),
+                    Ref::new("ObjectReferenceSegment"),
+                    one_of(vec_of_erased![
+                        Sequence::new(vec_of_erased![
+                            Ref::keyword("RENAME"),
+                            Ref::keyword("TO"),
+                            Ref::new("ObjectReferenceSegment"),
+                        ]),
+                        Sequence::new(vec_of_erased![
+                            Ref::keyword("SWAP"),
+                            Ref::keyword("WITH"),
+                            Ref::new("ObjectReferenceSegment"),
+                        ]),
+                        Sequence::new(vec_of_erased![
+                            Ref::keyword("SET"),
+                            one_of(vec_of_erased![
+                                Ref::new("TagEqualsSegment"),
+                                Delimited::new(vec_of_erased![Sequence::new(vec_of_erased![
+                                    Ref::new("ParameterNameSegment"),
+                                    Ref::new("EqualsSegment"),
+                                    one_of(vec_of_erased![
+                                        Ref::new("BooleanLiteralGrammar"),
+                                        Ref::new("QuotedLiteralSegment"),
+                                        Ref::new("NumericLiteralSegment"),
+                                    ]),
+                                ]),]),
+                            ]),
+                        ]),
+                        Sequence::new(vec_of_erased![
+                            Ref::keyword("UNSET"),
+                            Ref::keyword("TAG"),
+                            Delimited::new(vec_of_erased![Ref::new("TagReferenceSegment")]),
+                        ]),
+                        Sequence::new(vec_of_erased![
+                            Ref::keyword("UNSET"),
+                            Delimited::new(vec_of_erased![one_of(vec_of_erased![
+                                Ref::keyword("DATA_RETENTION_TIME_IN_DAYS"),
+                                Ref::keyword("MAX_DATA_EXTENSION_TIME_IN_DAYS"),
+                                Ref::keyword("DEFAULT_DDL_COLLATION"),
+                                Ref::keyword("COMMENT"),
+                            ]),]),
+                        ]),
+                    ]),
+                ])
+                .to_matchable()
+            })
+            .to_matchable()
+            .into(),
+        ),
+    ]);
 
     snowflake_dialect.expand();
     snowflake_dialect

@@ -444,7 +444,8 @@ file:
           - data_type_identifier: number
         - column_constraint_segment:
           - keyword: default
-          - null_literal: 'null'
+          - expression:
+            - null_literal: 'null'
       - comma: ','
       - column_definition:
         - naked_identifier: orderdate
@@ -452,7 +453,8 @@ file:
           - data_type_identifier: date
         - column_constraint_segment:
           - keyword: default
-          - null_literal: 'null'
+          - expression:
+            - null_literal: 'null'
       - comma: ','
       - column_definition:
         - naked_identifier: orderstatus
@@ -465,7 +467,8 @@ file:
               - end_bracket: )
         - column_constraint_segment:
           - keyword: default
-          - null_literal: 'null'
+          - expression:
+            - null_literal: 'null'
       - comma: ','
       - column_definition:
         - naked_identifier: price
@@ -684,7 +687,8 @@ file:
           - keyword: NOT
           - keyword: 'NULL'
           - keyword: DEFAULT
-          - keyword: CURRENT_TIMESTAMP
+          - expression:
+            - bare_function: CURRENT_TIMESTAMP
       - comma: ','
       - column_definition:
         - naked_identifier: timestamp_col2
@@ -692,10 +696,14 @@ file:
           - data_type_identifier: TIMESTAMP_TZ
         - column_constraint_segment:
           - keyword: DEFAULT
-          - keyword: CURRENT_TIMESTAMP
-          - bracketed:
-            - start_bracket: (
-            - end_bracket: )
+          - expression:
+            - function:
+              - function_name:
+                - function_name_identifier: CURRENT_TIMESTAMP
+              - function_contents:
+                - bracketed:
+                  - start_bracket: (
+                  - end_bracket: )
       - comma: ','
       - column_definition:
         - naked_identifier: timestamp_col3
@@ -703,11 +711,16 @@ file:
           - data_type_identifier: TIMESTAMP_TZ
         - column_constraint_segment:
           - keyword: DEFAULT
-          - keyword: CURRENT_TIMESTAMP
-          - bracketed:
-            - start_bracket: (
-            - numeric_literal: '2'
-            - end_bracket: )
+          - expression:
+            - function:
+              - function_name:
+                - function_name_identifier: CURRENT_TIMESTAMP
+              - function_contents:
+                - bracketed:
+                  - start_bracket: (
+                  - expression:
+                    - numeric_literal: '2'
+                  - end_bracket: )
       - comma: ','
       - column_definition:
         - naked_identifier: sysdate_col4
@@ -715,10 +728,14 @@ file:
           - data_type_identifier: TIMESTAMP_TZ
         - column_constraint_segment:
           - keyword: DEFAULT
-          - keyword: SYSDATE
-          - bracketed:
-            - start_bracket: (
-            - end_bracket: )
+          - expression:
+            - function:
+              - function_name:
+                - function_name_identifier: SYSDATE
+              - function_contents:
+                - bracketed:
+                  - start_bracket: (
+                  - end_bracket: )
       - end_bracket: )
 - statement_terminator: ;
 - statement:
@@ -901,4 +918,26 @@ file:
           - raw_comparison_operator: =
         - quoted_literal: '''{"IRM":[{"Primary":"ABC123"}]}'''
         - end_bracket: )
+- statement_terminator: ;
+- statement:
+  - create_table_statement:
+    - keyword: CREATE
+    - keyword: TABLE
+    - table_reference:
+      - naked_identifier: my_table
+    - bracketed:
+      - start_bracket: (
+      - column_definition:
+        - naked_identifier: foo
+        - data_type:
+          - data_type_identifier: TIMESTAMP_NTZ
+        - column_constraint_segment:
+          - keyword: DEFAULT
+          - expression:
+            - cast_expression:
+              - bare_function: CURRENT_TIMESTAMP
+              - casting_operator: '::'
+              - data_type:
+                - data_type_identifier: TIMESTAMP_NTZ
+      - end_bracket: )
 - statement_terminator: ;

@@ -1,0 +1,52 @@
+file:
+- statement:
+  - select_statement:
+    - select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+        - function:
+          - function_name:
+            - function_name_identifier: ANY_VALUE
+          - function_contents:
+            - bracketed:
+              - start_bracket: (
+              - expression:
+                - column_reference:
+                  - naked_identifier: foo
+              - keyword: HAVING
+              - keyword: MIN
+              - expression:
+                - column_reference:
+                  - naked_identifier: bar
+              - end_bracket: )
+        - alias_expression:
+          - keyword: AS
+          - naked_identifier: any_value_having_min
+      - comma: ','
+      - select_clause_element:
+        - function:
+          - function_name:
+            - function_name_identifier: ANY_VALUE
+          - function_contents:
+            - bracketed:
+              - start_bracket: (
+              - expression:
+                - column_reference:
+                  - naked_identifier: foo
+              - keyword: HAVING
+              - keyword: MAX
+              - expression:
+                - column_reference:
+                  - naked_identifier: bar
+              - end_bracket: )
+        - alias_expression:
+          - keyword: AS
+          - naked_identifier: any_value_having_max
+      - comma: ','
+    - from_clause:
+      - keyword: FROM
+      - from_expression:
+        - from_expression_element:
+          - table_expression:
+            - table_reference:
+              - naked_identifier: t

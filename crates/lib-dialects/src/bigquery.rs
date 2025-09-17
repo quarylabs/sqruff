@@ -236,6 +236,12 @@ pub fn dialect() -> Dialect {
                     ])
                     .config(|this| this.optional())
                 ]),
+                Sequence::new(vec_of_erased![
+                    Ref::new("ExpressionSegment"),
+                    Ref::keyword("HAVING"),
+                    one_of(vec_of_erased![Ref::keyword("MIN"), Ref::keyword("MAX")]),
+                    Ref::new("ExpressionSegment")
+                ]),
                 Ref::new("NamedArgumentSegment")
             ])
             .to_matchable()

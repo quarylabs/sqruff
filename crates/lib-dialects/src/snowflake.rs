@@ -1370,6 +1370,7 @@ pub fn dialect() -> Dialect {
                 Ref::new("CreateUserSegment"),
                 Ref::new("CreateCloneStatementSegment"),
                 Ref::new("CreateProcedureStatementSegment"),
+                Ref::new("AlterProcedureStatementSegment"),
                 Ref::new("ScriptingBlockStatementSegment"),
                 Ref::new("ScriptingLetStatementSegment"),
                 Ref::new("ReturnStatementSegment"),
@@ -3241,6 +3242,55 @@ pub fn dialect() -> Dialect {
                         Ref::new("SingleQuotedUDFBody"),
                         Ref::new("DollarQuotedUDFBody"),
                         Ref::new("ScriptingBlockStatementSegment"),
+                    ]),
+                ])
+                .to_matchable()
+            })
+            .to_matchable()
+            .into(),
+        ),
+        (
+            "AlterProcedureStatementSegment".into(),
+            NodeMatcher::new(SyntaxKind::AlterProcedureStatement, |_| {
+                Sequence::new(vec_of_erased![
+                    Ref::keyword("ALTER"),
+                    Ref::keyword("PROCEDURE"),
+                    Ref::new("IfExistsGrammar").optional(),
+                    Ref::new("FunctionNameSegment"),
+                    Ref::new("FunctionParameterListGrammar"),
+                    one_of(vec_of_erased![
+                        Sequence::new(vec_of_erased![
+                            Ref::keyword("RENAME"),
+                            Ref::keyword("TO"),
+                            Ref::new("FunctionNameSegment"),
+                        ]),
+                        Sequence::new(vec_of_erased![
+                            Ref::keyword("EXECUTE"),
+                            Ref::keyword("AS"),
+                            one_of(vec_of_erased![
+                                Ref::keyword("CALLER"),
+                                Ref::keyword("OWNER"),
+                            ]),
+                        ]),
+                        Sequence::new(vec_of_erased![
+                            Ref::keyword("SET"),
+                            one_of(vec_of_erased![
+                                Ref::new("TagEqualsSegment"),
+                                Ref::new("CommentEqualsClauseSegment"),
+                            ]),
+                        ]),
+                        Sequence::new(vec_of_erased![
+                            Ref::keyword("UNSET"),
+                            one_of(vec_of_erased![
+                                Sequence::new(vec_of_erased![
+                                    Ref::keyword("TAG"),
+                                    Delimited::new(
+                                        vec_of_erased![Ref::new("TagReferenceSegment"),]
+                                    ),
+                                ]),
+                                Ref::keyword("COMMENT"),
+                            ]),
+                        ]),
                     ]),
                 ])
                 .to_matchable()

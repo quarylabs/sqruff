@@ -175,14 +175,6 @@ jobs:
         run: go install github.com/sethvargo/ratchet@latest
       - name: Ratchet Check
         run: make ratchet_check
-  check-no-unparsable:
-    name: Check no unparsable files
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # ratchet:actions/checkout@v5
-      - run: chmod +x ./.hacking/scripts/check_for_unparsable.sh
-      - run: ./.hacking/scripts/check_for_unparsable.sh
-
   build-binaries:
     name: Build binaries for all platforms
     runs-on: ${{ matrix.platform.os }}

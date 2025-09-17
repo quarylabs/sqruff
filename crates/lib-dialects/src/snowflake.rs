@@ -1375,6 +1375,7 @@ pub fn dialect() -> Dialect {
                 Ref::new("ScriptingLetStatementSegment"),
                 Ref::new("ReturnStatementSegment"),
                 Ref::new("ShowStatementSegment"),
+                Ref::new("AlterAccountStatementSegment"),
                 Ref::new("AlterUserStatementSegment"),
                 Ref::new("AlterSessionStatementSegment"),
                 Ref::new("AlterTaskStatementSegment"),
@@ -6401,6 +6402,69 @@ pub fn dialect() -> Dialect {
                 ])
                 .to_matchable()
             })
+            .to_matchable()
+            .into(),
+        ),
+        (
+            // `ALTER ACCOUNT` statement.
+            // https://docs.snowflake.com/en/sql-reference/sql/alter-account
+            "AlterAccountStatementSegment".into(),
+            Sequence::new(vec_of_erased![
+                Ref::keyword("ALTER"),
+                Ref::keyword("ACCOUNT"),
+                one_of(vec_of_erased![
+                    Sequence::new(vec_of_erased![
+                        Ref::keyword("SET"),
+                        Ref::keyword("RESOURCE_MONITOR"),
+                        Ref::new("EqualsSegment"),
+                        Ref::new("NakedIdentifierSegment"),
+                    ]),
+                    Sequence::new(vec_of_erased![
+                        Ref::keyword("SET"),
+                        one_of(vec_of_erased![
+                            Ref::keyword("PASSWORD"),
+                            Ref::keyword("SESSION"),
+                        ]),
+                        Ref::keyword("POLICY"),
+                        Ref::new("TableReferenceSegment"),
+                    ]),
+                    Sequence::new(vec_of_erased![
+                        Ref::keyword("SET"),
+                        Ref::new("TagEqualsSegment"),
+                    ]),
+                    Sequence::new(vec_of_erased![
+                        Ref::keyword("SET"),
+                        Delimited::new(vec_of_erased![Sequence::new(vec_of_erased![
+                            Ref::new("ParameterNameSegment"),
+                            Ref::new("EqualsSegment"),
+                            one_of(vec_of_erased![
+                                Ref::new("BooleanLiteralGrammar"),
+                                Ref::new("QuotedLiteralSegment"),
+                                Ref::new("NumericLiteralSegment"),
+                                Ref::new("NakedIdentifierSegment"),
+                            ]),
+                        ]),]),
+                    ]),
+                    Sequence::new(vec_of_erased![
+                        Ref::keyword("UNSET"),
+                        one_of(vec_of_erased![
+                            Ref::keyword("PASSWORD"),
+                            Ref::keyword("SESSION"),
+                        ]),
+                        Ref::keyword("POLICY"),
+                    ]),
+                    Sequence::new(vec_of_erased![
+                        Ref::keyword("UNSET"),
+                        one_of(vec_of_erased![
+                            Sequence::new(vec_of_erased![
+                                Ref::keyword("TAG"),
+                                Delimited::new(vec_of_erased![Ref::new("TagReferenceSegment")]),
+                            ]),
+                            Delimited::new(vec_of_erased![Ref::new("NakedIdentifierSegment")]),
+                        ]),
+                    ]),
+                ]),
+            ])
             .to_matchable()
             .into(),
         ),

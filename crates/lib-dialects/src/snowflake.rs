@@ -1418,6 +1418,8 @@ pub fn dialect() -> Dialect {
                 Ref::new("AlterStorageIntegrationSegment"),
                 Ref::new("ExecuteImmediateClauseSegment"),
                 Ref::new("ExecuteTaskClauseSegment"),
+                Ref::new("CreateSequenceStatementSegment"),
+                Ref::new("AlterSequenceStatementSegment"),
             ]),
             None,
             None,
@@ -6811,6 +6813,86 @@ pub fn dialect() -> Dialect {
                     Ref::keyword("EXECUTE"),
                     Ref::keyword("TASK"),
                     Ref::new("ObjectReferenceSegment"),
+                ])
+                .to_matchable()
+            })
+            .to_matchable()
+            .into(),
+        ),
+        (
+            "CreateSequenceStatementSegment".into(),
+            NodeMatcher::new(SyntaxKind::CreateSequenceStatement, |_| {
+                Sequence::new(vec_of_erased![
+                    Ref::keyword("CREATE"),
+                    Sequence::new(vec_of_erased![Ref::keyword("OR"), Ref::keyword("REPLACE"),])
+                        .config(|this| this.optional()),
+                    Ref::keyword("SEQUENCE"),
+                    Ref::new("IfNotExistsGrammar").optional(),
+                    Ref::new("SequenceReferenceSegment"),
+                    Ref::keyword("WITH").optional(),
+                    Sequence::new(vec_of_erased![
+                        Ref::keyword("START"),
+                        Ref::keyword("WITH").optional(),
+                        Ref::new("EqualsSegment").optional(),
+                        Ref::new("IntegerSegment"),
+                    ])
+                    .config(|this| this.optional()),
+                    Sequence::new(vec_of_erased![
+                        Ref::keyword("INCREMENT"),
+                        Ref::keyword("BY").optional(),
+                        Ref::new("EqualsSegment").optional(),
+                        Ref::new("IntegerSegment"),
+                    ])
+                    .config(|this| this.optional()),
+                    one_of(vec_of_erased![
+                        Ref::keyword("ORDER"),
+                        Ref::keyword("NOORDER"),
+                    ])
+                    .config(|this| this.optional()),
+                    Ref::new("CommentEqualsClauseSegment").optional(),
+                ])
+                .to_matchable()
+            })
+            .to_matchable()
+            .into(),
+        ),
+        (
+            "AlterSequenceStatementSegment".into(),
+            NodeMatcher::new(SyntaxKind::AlterSequenceStatement, |_| {
+                Sequence::new(vec_of_erased![
+                    Ref::keyword("ALTER"),
+                    Ref::keyword("SEQUENCE"),
+                    Ref::new("IfExistsGrammar").optional(),
+                    Ref::new("SequenceReferenceSegment"),
+                    Sequence::new(vec_of_erased![
+                        Ref::keyword("SET").optional(),
+                        any_set_of(vec_of_erased![
+                            Sequence::new(vec_of_erased![
+                                Ref::keyword("INCREMENT"),
+                                Ref::keyword("BY").optional(),
+                                Ref::new("EqualsSegment").optional(),
+                                Ref::new("IntegerSegment"),
+                            ])
+                            .config(|this| this.optional()),
+                            one_of(vec_of_erased![
+                                Ref::keyword("ORDER"),
+                                Ref::keyword("NOORDER"),
+                            ]),
+                            Ref::new("CommentEqualsClauseSegment"),
+                        ]),
+                    ])
+                    .config(|this| this.optional()),
+                    Sequence::new(vec_of_erased![
+                        Ref::keyword("UNSET"),
+                        Ref::keyword("COMMENT"),
+                    ])
+                    .config(|this| this.optional()),
+                    Sequence::new(vec_of_erased![
+                        Ref::keyword("RENAME"),
+                        Ref::keyword("TO"),
+                        Ref::new("SequenceReferenceSegment"),
+                    ])
+                    .config(|this| this.optional()),
                 ])
                 .to_matchable()
             })

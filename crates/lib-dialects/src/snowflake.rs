@@ -1370,10 +1370,12 @@ pub fn dialect() -> Dialect {
                 Ref::new("CreateUserSegment"),
                 Ref::new("CreateCloneStatementSegment"),
                 Ref::new("CreateProcedureStatementSegment"),
+                Ref::new("AlterProcedureStatementSegment"),
                 Ref::new("ScriptingBlockStatementSegment"),
                 Ref::new("ScriptingLetStatementSegment"),
                 Ref::new("ReturnStatementSegment"),
                 Ref::new("ShowStatementSegment"),
+                Ref::new("AlterAccountStatementSegment"),
                 Ref::new("AlterUserStatementSegment"),
                 Ref::new("AlterSessionStatementSegment"),
                 Ref::new("AlterTaskStatementSegment"),
@@ -1423,6 +1425,7 @@ pub fn dialect() -> Dialect {
                 Ref::new("CreateResourceMonitorStatementSegment"),
                 Ref::new("AlterResourceMonitorStatementSegment"),
                 Ref::new("DropResourceMonitorStatementSegment"),
+                Ref::new("AlterDatabaseSegment"),
             ]),
             None,
             None,
@@ -3241,6 +3244,55 @@ pub fn dialect() -> Dialect {
                         Ref::new("SingleQuotedUDFBody"),
                         Ref::new("DollarQuotedUDFBody"),
                         Ref::new("ScriptingBlockStatementSegment"),
+                    ]),
+                ])
+                .to_matchable()
+            })
+            .to_matchable()
+            .into(),
+        ),
+        (
+            "AlterProcedureStatementSegment".into(),
+            NodeMatcher::new(SyntaxKind::AlterProcedureStatement, |_| {
+                Sequence::new(vec_of_erased![
+                    Ref::keyword("ALTER"),
+                    Ref::keyword("PROCEDURE"),
+                    Ref::new("IfExistsGrammar").optional(),
+                    Ref::new("FunctionNameSegment"),
+                    Ref::new("FunctionParameterListGrammar"),
+                    one_of(vec_of_erased![
+                        Sequence::new(vec_of_erased![
+                            Ref::keyword("RENAME"),
+                            Ref::keyword("TO"),
+                            Ref::new("FunctionNameSegment"),
+                        ]),
+                        Sequence::new(vec_of_erased![
+                            Ref::keyword("EXECUTE"),
+                            Ref::keyword("AS"),
+                            one_of(vec_of_erased![
+                                Ref::keyword("CALLER"),
+                                Ref::keyword("OWNER"),
+                            ]),
+                        ]),
+                        Sequence::new(vec_of_erased![
+                            Ref::keyword("SET"),
+                            one_of(vec_of_erased![
+                                Ref::new("TagEqualsSegment"),
+                                Ref::new("CommentEqualsClauseSegment"),
+                            ]),
+                        ]),
+                        Sequence::new(vec_of_erased![
+                            Ref::keyword("UNSET"),
+                            one_of(vec_of_erased![
+                                Sequence::new(vec_of_erased![
+                                    Ref::keyword("TAG"),
+                                    Delimited::new(
+                                        vec_of_erased![Ref::new("TagReferenceSegment"),]
+                                    ),
+                                ]),
+                                Ref::keyword("COMMENT"),
+                            ]),
+                        ]),
                     ]),
                 ])
                 .to_matchable()
@@ -6355,6 +6407,69 @@ pub fn dialect() -> Dialect {
             .into(),
         ),
         (
+            // `ALTER ACCOUNT` statement.
+            // https://docs.snowflake.com/en/sql-reference/sql/alter-account
+            "AlterAccountStatementSegment".into(),
+            Sequence::new(vec_of_erased![
+                Ref::keyword("ALTER"),
+                Ref::keyword("ACCOUNT"),
+                one_of(vec_of_erased![
+                    Sequence::new(vec_of_erased![
+                        Ref::keyword("SET"),
+                        Ref::keyword("RESOURCE_MONITOR"),
+                        Ref::new("EqualsSegment"),
+                        Ref::new("NakedIdentifierSegment"),
+                    ]),
+                    Sequence::new(vec_of_erased![
+                        Ref::keyword("SET"),
+                        one_of(vec_of_erased![
+                            Ref::keyword("PASSWORD"),
+                            Ref::keyword("SESSION"),
+                        ]),
+                        Ref::keyword("POLICY"),
+                        Ref::new("TableReferenceSegment"),
+                    ]),
+                    Sequence::new(vec_of_erased![
+                        Ref::keyword("SET"),
+                        Ref::new("TagEqualsSegment"),
+                    ]),
+                    Sequence::new(vec_of_erased![
+                        Ref::keyword("SET"),
+                        Delimited::new(vec_of_erased![Sequence::new(vec_of_erased![
+                            Ref::new("ParameterNameSegment"),
+                            Ref::new("EqualsSegment"),
+                            one_of(vec_of_erased![
+                                Ref::new("BooleanLiteralGrammar"),
+                                Ref::new("QuotedLiteralSegment"),
+                                Ref::new("NumericLiteralSegment"),
+                                Ref::new("NakedIdentifierSegment"),
+                            ]),
+                        ]),]),
+                    ]),
+                    Sequence::new(vec_of_erased![
+                        Ref::keyword("UNSET"),
+                        one_of(vec_of_erased![
+                            Ref::keyword("PASSWORD"),
+                            Ref::keyword("SESSION"),
+                        ]),
+                        Ref::keyword("POLICY"),
+                    ]),
+                    Sequence::new(vec_of_erased![
+                        Ref::keyword("UNSET"),
+                        one_of(vec_of_erased![
+                            Sequence::new(vec_of_erased![
+                                Ref::keyword("TAG"),
+                                Delimited::new(vec_of_erased![Ref::new("TagReferenceSegment")]),
+                            ]),
+                            Delimited::new(vec_of_erased![Ref::new("NakedIdentifierSegment")]),
+                        ]),
+                    ]),
+                ]),
+            ])
+            .to_matchable()
+            .into(),
+        ),
+        (
             "ShowStatementSegment".into(),
             NodeMatcher::new(SyntaxKind::ShowStatement, |_| {
                 let object_types_plural = one_of(vec_of_erased![
@@ -7875,6 +7990,63 @@ pub fn dialect() -> Dialect {
                 Ref::new("IfExistsGrammar").optional(),
                 Ref::new("ObjectReferenceSegment"),
             ])
+            .to_matchable()
+            .into(),
+        ),
+        (
+            // An `ALTER DATABASE` statement.
+            // https://docs.snowflake.com/en/sql-reference/sql/alter-database
+            "AlterDatabaseSegment".into(),
+            NodeMatcher::new(SyntaxKind::AlterDatabaseStatement, |_| {
+                Sequence::new(vec_of_erased![
+                    Ref::keyword("ALTER"),
+                    Ref::keyword("DATABASE"),
+                    Ref::new("IfExistsGrammar").optional(),
+                    Ref::new("ObjectReferenceSegment"),
+                    one_of(vec_of_erased![
+                        Sequence::new(vec_of_erased![
+                            Ref::keyword("RENAME"),
+                            Ref::keyword("TO"),
+                            Ref::new("ObjectReferenceSegment"),
+                        ]),
+                        Sequence::new(vec_of_erased![
+                            Ref::keyword("SWAP"),
+                            Ref::keyword("WITH"),
+                            Ref::new("ObjectReferenceSegment"),
+                        ]),
+                        Sequence::new(vec_of_erased![
+                            Ref::keyword("SET"),
+                            one_of(vec_of_erased![
+                                Ref::new("TagEqualsSegment"),
+                                Delimited::new(vec_of_erased![Sequence::new(vec_of_erased![
+                                    Ref::new("ParameterNameSegment"),
+                                    Ref::new("EqualsSegment"),
+                                    one_of(vec_of_erased![
+                                        Ref::new("BooleanLiteralGrammar"),
+                                        Ref::new("QuotedLiteralSegment"),
+                                        Ref::new("NumericLiteralSegment"),
+                                    ]),
+                                ]),]),
+                            ]),
+                        ]),
+                        Sequence::new(vec_of_erased![
+                            Ref::keyword("UNSET"),
+                            Ref::keyword("TAG"),
+                            Delimited::new(vec_of_erased![Ref::new("TagReferenceSegment")]),
+                        ]),
+                        Sequence::new(vec_of_erased![
+                            Ref::keyword("UNSET"),
+                            Delimited::new(vec_of_erased![one_of(vec_of_erased![
+                                Ref::keyword("DATA_RETENTION_TIME_IN_DAYS"),
+                                Ref::keyword("MAX_DATA_EXTENSION_TIME_IN_DAYS"),
+                                Ref::keyword("DEFAULT_DDL_COLLATION"),
+                                Ref::keyword("COMMENT"),
+                            ]),]),
+                        ]),
+                    ]),
+                ])
+                .to_matchable()
+            })
             .to_matchable()
             .into(),
         ),

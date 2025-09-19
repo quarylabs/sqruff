@@ -64,7 +64,11 @@ brew install sqruff
 Using `bash`:
 
 ```bash
+# Install to default location (/usr/local/bin)
 curl -fsSL https://raw.githubusercontent.com/quarylabs/sqruff/main/install.sh | bash
+
+# Install to custom directory
+curl -fsSL https://raw.githubusercontent.com/quarylabs/sqruff/main/install.sh | bash -s ~/.local/bin
 ```
 
 #### Pip

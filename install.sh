@@ -46,7 +46,7 @@ DOWNLOAD_URL=$(curl -sSL $RELEASE_URL | grep -o "browser_download_url.*$ASSET_NA
 ASSET_NAME=$(basename $DOWNLOAD_URL)
 
 # Define the installation directory
-INSTALL_DIR="/usr/local/bin"
+INSTALL_DIR="${1:-/usr/local/bin}"
 
 DOWNLOAD_URL=`echo $DOWNLOAD_URL | tr -d '\"'`
 

@@ -42,6 +42,7 @@ pub enum RuleGroups {
     Layout,
     References,
     Structure,
+    Jinja,
 }
 
 impl LintResult {

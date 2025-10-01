@@ -1,5 +1,3 @@
-use std::cell::RefCell;
-
 use ahash::{AHashMap, AHashSet};
 use smol_str::{SmolStr, ToSmolStr};
 use sqruff_lib_core::dialects::Dialect;
@@ -19,7 +17,7 @@ use crate::core::rules::crawlers::{Crawler, SegmentSeekerCrawler};
 use crate::core::rules::{Erased, ErasedRule, LintResult, Rule, RuleGroups};
 
 #[derive(Default, Clone)]
-struct AL05Query {
+struct State {
     aliases: Vec<AliasInfo>,
     tbl_refs: Vec<SmolStr>,
 }
@@ -86,14 +84,16 @@ FROM foo
             return Vec::new();
         }
 
-        let query = Query::from_segment(&context.segment, context.dialect, None);
-        self.analyze_table_aliases(query.clone(), context.dialect);
+        let query = Query::from_segment(&context.segment, context.dialect);
+        let mut state_stack = vec![State::default()];
+        self.analyze_table_aliases(query.clone(), context.dialect, &mut state_stack);
+        let state = state_stack.pop().unwrap();
 
         if context.dialect.name == DialectKind::Redshift {
             let mut references = AHashSet::default();
             let mut aliases = AHashSet::default();
 
-            for alias in &query.inner.borrow().payload.aliases {
+            for alias in &state.aliases {
                 aliases.insert(alias.ref_str.clone());
                 if let Some(object_reference) = &alias.object_reference {
                     for seg in object_reference.segments() {
@@ -118,17 +118,12 @@ FROM foo
             }
         }
 
-        for alias in &RefCell::borrow(&query.inner).payload.aliases {
+        for alias in &state.aliases {
             if Self::is_alias_required(&alias.from_expression_element, context.dialect.name) {
                 continue;
             }
 
-            if alias.aliased
-                && !RefCell::borrow(&query.inner)
-                    .payload
-                    .tbl_refs
-                    .contains(&alias.ref_str)
-            {
+            if alias.aliased && !state.tbl_refs.contains(&alias.ref_str) {
                 let violation = self.report_unused_alias(alias.clone());
                 violations.push(violation);
             }
@@ -148,13 +143,14 @@ FROM foo
 
 impl RuleAL05 {
     #[allow(clippy::only_used_in_recursion)]
-    fn analyze_table_aliases(&self, query: Query<AL05Query>, dialect: &Dialect) {
-        let selectables = std::mem::take(&mut RefCell::borrow_mut(&query.inner).selectables);
+    fn analyze_table_aliases(&self, query: Query, dialect: &Dialect, state_stack: &mut Vec<State>) {
+        let selectables = query.selectables.clone();
 
         for selectable in &selectables {
             if let Some(select_info) = selectable.select_info() {
-                RefCell::borrow_mut(&query.inner)
-                    .payload
+                state_stack
+                    .last_mut()
+                    .unwrap()
                     .aliases
                     .extend(select_info.table_aliases);
 
@@ -162,32 +158,25 @@ impl RuleAL05 {
                     for tr in
                         r.extract_possible_references(ObjectReferenceLevel::Table, dialect.name)
                     {
-                        Self::resolve_and_mark_reference(query.clone(), tr.part);
+                        Self::resolve_and_mark_reference(state_stack, tr.part);
                     }
                 }
             }
         }
 
-        RefCell::borrow_mut(&query.inner).selectables = selectables;
-
         for child in query.children() {
-            self.analyze_table_aliases(child, dialect);
+            state_stack.push(State::default());
+            self.analyze_table_aliases(child, dialect, state_stack);
+            state_stack.pop();
         }
     }
 
-    fn resolve_and_mark_reference(query: Query<AL05Query>, r#ref: String) {
-        if RefCell::borrow(&query.inner)
-            .payload
-            .aliases
-            .iter()
-            .any(|it| it.ref_str == r#ref)
-        {
-            RefCell::borrow_mut(&query.inner)
-                .payload
-                .tbl_refs
-                .push(r#ref.into());
-        } else if let Some(parent) = RefCell::borrow(&query.inner).parent.clone() {
-            Self::resolve_and_mark_reference(parent, r#ref);
+    fn resolve_and_mark_reference(state_stack: &mut Vec<State>, r#ref: String) {
+        for st in state_stack.iter_mut().rev() {
+            if st.aliases.iter().any(|it| it.ref_str == r#ref) {
+                st.tbl_refs.push(r#ref.into());
+                return;
+            }
         }
     }
 

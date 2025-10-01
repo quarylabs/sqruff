@@ -1,5 +1,3 @@
-use std::cell::RefCell;
-
 use ahash::{AHashMap, AHashSet};
 use itertools::Itertools;
 use smol_str::SmolStr;
@@ -28,14 +26,14 @@ impl RuleRF03 {
         tables: &Tables,
         single_table_references: &str,
         is_struct_dialect: bool,
-        query: Query<()>,
+        query: Query,
         _visited: &mut AHashSet<ErasedSegment>,
     ) -> Vec<LintResult> {
         #[allow(unused_assignments)]
         let mut select_info = None;
 
         let mut acc = Vec::new();
-        let selectables = &RefCell::borrow(&query.inner).selectables;
+        let selectables = &query.selectables;
 
         if !selectables.is_empty() {
             select_info = selectables[0].select_info();
@@ -46,8 +44,6 @@ impl RuleRF03 {
             {
                 let mut fixable = true;
                 let possible_ref_tables = iter_available_targets(query.clone());
-
-                if let Some(_parent) = &RefCell::borrow(&query.inner).parent {}
 
                 if possible_ref_tables.len() > 1 {
                     fixable = false;
@@ -84,8 +80,8 @@ impl RuleRF03 {
     }
 }
 
-fn iter_available_targets(query: Query<()>) -> Vec<SmolStr> {
-    RefCell::borrow(&query.inner)
+fn iter_available_targets(query: Query) -> Vec<SmolStr> {
+    query
         .selectables
         .iter()
         .flat_map(|selectable| {
@@ -367,7 +363,7 @@ FROM foo
                     .unwrap()
             });
 
-        let query: Query<()> = Query::from_segment(&context.segment, context.dialect, None);
+        let query: Query = Query::from_segment(&context.segment, context.dialect);
         let mut visited: AHashSet<ErasedSegment> = AHashSet::new();
         let is_struct_dialect = self.dialect_skip().contains(&context.dialect.name);
 

@@ -1,7 +1,9 @@
-use ahash::AHashMap;
+use ahash::{AHashMap, AHashSet};
+use smol_str::{SmolStr, StrExt};
 use sqruff_lib_core::dialects::common::AliasInfo;
 use sqruff_lib_core::dialects::syntax::{SyntaxKind, SyntaxSet};
 use sqruff_lib_core::parser::segments::ErasedSegment;
+use sqruff_lib_core::helpers::IndexMap;
 use sqruff_lib_core::utils::analysis::query::{Query, Selectable, Source};
 
 use crate::core::config::Value;
@@ -16,6 +18,14 @@ const START_TYPES: [SyntaxKind; 3] = [
     SyntaxKind::SelectStatement,
     SyntaxKind::SetExpression,
     SyntaxKind::WithCompoundStatement,
+];
+
+// Types used to locate the inner query within a CTE definition, including VALUES.
+const INNER_TYPES: [SyntaxKind; 4] = [
+    SyntaxKind::WithCompoundStatement,
+    SyntaxKind::SetExpression,
+    SyntaxKind::SelectStatement,
+    SyntaxKind::ValuesClause,
 ];
 
 impl Rule for RuleAM04 {
@@ -72,9 +82,10 @@ SELECT a, b FROM t
     }
 
     fn eval(&self, rule_cx: &RuleContext) -> Vec<LintResult> {
-        let query = Query::from_segment(&rule_cx.segment, rule_cx.dialect, None);
-
-        let result = self.analyze_result_columns(query);
+        let query = Query::from_segment(&rule_cx.segment, rule_cx.dialect);
+        let mut visited = AHashSet::new();
+        let env = query.ctes.clone();
+        let result = self.analyze_result_columns(query, &mut visited, &env);
         match result {
             Ok(_) => {
                 vec![]
@@ -94,32 +105,92 @@ SELECT a, b FROM t
 
 impl RuleAM04 {
     /// returns an anchor to the rule
-    fn analyze_result_columns(&self, query: Query<()>) -> Result<(), ErasedSegment> {
-        if query.inner.borrow().selectables.is_empty() {
+    fn analyze_result_columns(
+        &self,
+        query: Query,
+        visited: &mut AHashSet<SmolStr>,
+        env: &IndexMap<SmolStr, ErasedSegment>,
+    ) -> Result<(), ErasedSegment> {
+        if query.selectables.is_empty() {
             return Ok(());
         }
 
-        let selectables = query.inner.borrow().selectables.clone();
+        let selectables = query.selectables.clone();
         for selectable in selectables {
             for wildcard in selectable.wildcard_info() {
                 if !wildcard.tables.is_empty() {
                     for wildcard_table in wildcard.tables {
                         if let Some(alias_info) = selectable.find_alias(&wildcard_table) {
-                            self.handle_alias(&selectable, alias_info, &query)?;
+                            self.handle_alias(&selectable, alias_info, &query, visited, env)?;
                         } else {
-                            let Some(cte) = query.lookup_cte(&wildcard_table, true) else {
+                            let key = wildcard_table.to_uppercase_smolstr();
+                            if let Some(seg) = env.get(&key) {
+                                if visited.contains(&key) {
+                                    return Err(selectable.selectable);
+                                }
+                                // Build inner query from CTE definition
+                                let inner = seg
+                                    .recursive_crawl(
+                                        const { &SyntaxSet::new(&INNER_TYPES) },
+                                        true,
+                                        &SyntaxSet::EMPTY,
+                                        true,
+                                    )
+                                    .first()
+                                    .cloned();
+                                if let Some(inner) = inner {
+                                    let child = Query::from_segment(&inner, query.dialect);
+                                    // Merge env with child's own ctes (child overrides)
+                                    let mut merged = env.clone();
+                                    merged.extend(child.ctes.clone());
+                                    visited.insert(key.clone());
+                                    let res = self.analyze_result_columns(child, visited, &merged);
+                                    visited.remove(&key);
+                                    res?;
+                                } else {
+                                    return Err(selectable.selectable);
+                                }
+                            } else {
                                 return Err(selectable.selectable);
-                            };
-
-                            self.analyze_result_columns(cte)?;
+                            }
                         }
                     }
                 } else {
-                    let selectable = query.inner.borrow().selectables[0].selectable.clone();
+                    let selectable = query.selectables[0].selectable.clone();
                     for source in query.crawl_sources(selectable.clone(), false, true) {
-                        if let Source::Query(query) = source {
-                            self.analyze_result_columns(query)?;
-                            return Ok(());
+                        match source {
+                            Source::Query(q) => {
+                                let mut merged = env.clone();
+                                merged.extend(q.ctes.clone());
+                                self.analyze_result_columns(q, visited, &merged)?;
+                                return Ok(());
+                            }
+                            Source::TableReference(name) => {
+                                let key = name.to_uppercase_smolstr();
+                                if let Some(seg) = env.get(&key) {
+                                    if visited.contains(&key) {
+                                        return Err(selectable.clone());
+                                    }
+                                    let inner = seg
+                                        .recursive_crawl(
+                                            const { &SyntaxSet::new(&INNER_TYPES) },
+                                            true,
+                                            &SyntaxSet::EMPTY,
+                                            true,
+                                        )
+                                        .first()
+                                        .cloned();
+                                    if let Some(inner) = inner {
+                                        let child = Query::from_segment(&inner, query.dialect);
+                                        let mut merged = env.clone();
+                                        merged.extend(child.ctes.clone());
+                                        visited.insert(key.clone());
+                                        self.analyze_result_columns(child, visited, &merged)?;
+                                        visited.remove(&key);
+                                        return Ok(());
+                                    }
+                                }
+                            }
                         }
                     }
 
@@ -135,7 +206,9 @@ impl RuleAM04 {
         &self,
         selectable: &Selectable,
         alias_info: AliasInfo,
-        query: &Query<'_, ()>,
+        query: &Query<'_>,
+        visited: &mut AHashSet<SmolStr>,
+        env: &IndexMap<SmolStr, ErasedSegment>,
     ) -> Result<(), ErasedSegment> {
         let select_info_target = query
             .crawl_sources(alias_info.from_expression_element, false, true)
@@ -143,8 +216,41 @@ impl RuleAM04 {
             .next()
             .unwrap();
         match select_info_target {
-            Source::TableReference(_) => Err(selectable.selectable.clone()),
-            Source::Query(query) => self.analyze_result_columns(query),
+            Source::TableReference(name) => {
+                let key = name.to_uppercase_smolstr();
+                if let Some(seg) = env.get(&key) {
+                    if visited.contains(&key) {
+                        return Err(selectable.selectable.clone());
+                    }
+                    let inner = seg
+                        .recursive_crawl(
+                            const { &SyntaxSet::new(&INNER_TYPES) },
+                            true,
+                            &SyntaxSet::EMPTY,
+                            true,
+                        )
+                        .first()
+                        .cloned();
+                    if let Some(inner) = inner {
+                        let child = Query::from_segment(&inner, query.dialect);
+                        let mut merged = env.clone();
+                        merged.extend(child.ctes.clone());
+                        visited.insert(key.clone());
+                        let res = self.analyze_result_columns(child, visited, &merged);
+                        visited.remove(&key);
+                        res
+                    } else {
+                        Err(selectable.selectable.clone())
+                    }
+                } else {
+                    Err(selectable.selectable.clone())
+                }
+            }
+            Source::Query(q) => {
+                let mut merged = env.clone();
+                merged.extend(q.ctes.clone());
+                self.analyze_result_columns(q, visited, &merged)
+            }
         }
     }
 }

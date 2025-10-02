@@ -386,7 +386,7 @@ pub fn get_column_with_source(
     select_statement: &str,
 ) -> Result<ExtractedSelect, String> {
     let ast = parse_sql(parser, select_statement);
-    let query: Query<()> = Query::from_root(&ast, parser.dialect()).unwrap();
+    let query: Query = Query::from_root(&ast, parser.dialect()).unwrap();
     extract_select(&query)
 }
 
@@ -409,29 +409,27 @@ type OperatedOn = HashMap<String, ((Operation, bool), (String, String))>;
 /// statement. The map in the result is from the final column name to the source
 /// column name and source table name. Also returns an array of unrecognized
 /// columns.
-fn extract_select(query: &Query<'_, ()>) -> Result<ExtractedSelect, String> {
-    let with_extracted: Option<Vec<(String, ExtractedSelect)>> =
-        if query.inner.borrow().ctes.is_empty() {
-            None
-        } else {
-            query
-                .inner
-                .borrow()
-                .ctes
-                .iter()
-                .rev()
-                .map(|(name, query)| {
-                    let select = extract_select(query)?;
-                    Ok(Some((name.to_lowercase(), select)))
-                })
-                .collect::<Result<Option<Vec<_>>, String>>()?
-        };
+fn extract_select(query: &Query<'_>) -> Result<ExtractedSelect, String> {
+    let with_extracted: Option<Vec<(String, ExtractedSelect)>> = if query.ctes.is_empty() {
+        None
+    } else {
+        query
+            .ctes
+            .iter()
+            .rev()
+            .map(|(name, seg)| {
+                let q = Query::from_segment(seg, query.dialect);
+                let select = extract_select(&q)?;
+                Ok(Some((name.to_lowercase(), select)))
+            })
+            .collect::<Result<Option<Vec<_>>, String>>()?
+    };
 
-    let main_extracted = if let Some(from_clause) = query.inner.borrow().selectables[0]
+    let main_extracted = if let Some(from_clause) = query.selectables[0]
         .selectable
         .child(const { &SyntaxSet::single(SyntaxKind::FromClause) })
     {
-        let has_group_by = query.inner.borrow().selectables[0]
+        let has_group_by = query.selectables[0]
             .selectable
             .child(const { &SyntaxSet::single(SyntaxKind::GroupbyClause) })
             .is_some();
@@ -447,7 +445,7 @@ fn extract_select(query: &Query<'_, ()>) -> Result<ExtractedSelect, String> {
             .next()
             .unwrap();
 
-        let select_clause = query.inner.borrow().selectables[0]
+        let select_clause = query.selectables[0]
             .selectable
             .child(const { &SyntaxSet::single(SyntaxKind::SelectClause) })
             .unwrap();
@@ -459,7 +457,7 @@ fn extract_select(query: &Query<'_, ()>) -> Result<ExtractedSelect, String> {
             false,
         );
 
-        let extracted_table = extract_table(&relation, query.inner.borrow().dialect)?;
+        let extracted_table = extract_table(&relation, query.dialect)?;
         let mut extracted_tables = vec![extracted_table];
 
         let joins = from_clause.recursive_crawl(
@@ -469,7 +467,7 @@ fn extract_select(query: &Query<'_, ()>) -> Result<ExtractedSelect, String> {
             false,
         );
         if !joins.is_empty() {
-            let extracted = extract_extracted_from_joins(joins, query.inner.borrow().dialect)?;
+            let extracted = extract_extracted_from_joins(joins, query.dialect)?;
             extracted_tables.extend(extracted);
         }
 
@@ -1020,7 +1018,7 @@ fn extract_table(table_factor: &ErasedSegment, dialect: &Dialect) -> Result<Extr
                 .next()
                 .unwrap();
 
-            let subquery = Query::from_segment(&subquery, dialect, None);
+            let subquery = Query::from_segment(&subquery, dialect);
             let selected = extract_select(&subquery)?;
 
             if let Some(alias) = table_factor

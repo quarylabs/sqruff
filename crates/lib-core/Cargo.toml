@@ -31,7 +31,7 @@ serde_yaml = { version = "0.9.34", optional = true }
 rustc-hash = "2.1.1"
 slyce = "0.3.1"
 enum_dispatch = "0.3.13"
-regex-automata = { version = "0.4.10", features = ["perf"] }
+regex-automata = { version = "0.4.11", features = ["perf"] }
 thiserror = "2"
 log.workspace = true
 

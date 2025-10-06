@@ -1,3 +1,4 @@
+#![cfg_attr(feature = "simd-tokenizer", feature(portable_simd))]
 pub mod dialects;
 pub mod errors;
 pub mod helpers;

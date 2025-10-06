@@ -184,13 +184,24 @@ fn revise_comment_lines(lines: &mut [IndentLine], elements: &ReflowSequenceType)
         }
     }
 
-    let changes = changes.into_iter().chain(
-        comment_line_buffer
-            .into_iter()
-            .map(|comment_line_idx| (comment_line_idx, 0)),
-    );
+    let changes = changes
+        .into_iter()
+        .chain(comment_line_buffer.into_iter().map(|idx| (idx, 0)));
+
     for (comment_line_idx, initial_indent_balance) in changes {
-        lines[comment_line_idx].initial_indent_balance = initial_indent_balance;
+        let line = &mut lines[comment_line_idx];
+        line.initial_indent_balance = initial_indent_balance;
+        for ip in &mut line.indent_points {
+            ip.initial_indent_balance = initial_indent_balance;
+            ip.untaken_indents.clear();
+        }
+
+        if let Some(next) = lines.get_mut(comment_line_idx + 1) {
+            if let Some(first_ip) = next.indent_points.first_mut() {
+                first_ip.initial_indent_balance = initial_indent_balance;
+                first_ip.untaken_indents.clear();
+            }
+        }
     }
 }
 

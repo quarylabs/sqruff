@@ -114,17 +114,17 @@ impl Selectable<'_> {
         }
 
         let values = Segments::new(self.selectable.clone(), None);
-        let alias_expression = values.children(None).find_first(Some(|it: &ErasedSegment| {
-            it.is_type(SyntaxKind::AliasExpression)
-        }));
+        let alias_expression = values
+            .children_all()
+            .find_first_where(|it: &ErasedSegment| it.is_type(SyntaxKind::AliasExpression));
         let name = alias_expression
-            .children(None)
-            .find_first(Some(|it: &ErasedSegment| {
+            .children_all()
+            .find_first_where(|it: &ErasedSegment| {
                 matches!(
                     it.get_type(),
                     SyntaxKind::NakedIdentifier | SyntaxKind::QuotedIdentifier,
                 )
-            }));
+            });
 
         let alias_info = AliasInfo {
             ref_str: if name.is_empty() {

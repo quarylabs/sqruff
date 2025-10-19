@@ -11,7 +11,6 @@ use sqruff_lib_core::parser::segments::ErasedSegment;
 use sqruff_lib_core::parser::segments::object_reference::ObjectReferenceLevel;
 use sqruff_lib_core::utils::analysis::query::Query;
 use sqruff_lib_core::utils::analysis::select::get_select_statement_info;
-use sqruff_lib_core::utils::functional::segments::Segments;
 
 use crate::core::config::Value;
 use crate::core::rules::context::RuleContext;
@@ -129,7 +128,7 @@ FROM foo
                     .tbl_refs
                     .contains(&alias.ref_str)
             {
-                let violation = self.report_unused_alias(alias.clone());
+                let violation = self.report_unused_alias(alias);
                 violations.push(violation);
             }
         }
@@ -224,21 +223,28 @@ impl RuleAL05 {
         false
     }
 
-    fn report_unused_alias(&self, alias: AliasInfo) -> LintResult {
+    fn report_unused_alias(&self, alias: &AliasInfo) -> LintResult {
         let mut fixes = vec![LintFix::delete(alias.alias_expression.clone().unwrap())];
-        let to_delete = Segments::from_vec(alias.from_expression_element.segments().to_vec(), None)
-            .reversed()
-            .select::<fn(&ErasedSegment) -> bool>(
-                None,
-                Some(|it| it.is_whitespace() || it.is_meta()),
-                alias.alias_expression.as_ref().unwrap().into(),
-                None,
-            );
 
-        fixes.extend(to_delete.into_iter().map(LintFix::delete));
+        // Delete contiguous whitespace/meta immediately preceding the alias expression
+        // without allocating intermediate Segments collections.
+        if let Some(alias_idx) = alias
+            .from_expression_element
+            .segments()
+            .iter()
+            .position(|s| s == alias.alias_expression.as_ref().unwrap())
+        {
+            for seg in alias.from_expression_element.segments()[..alias_idx]
+                .iter()
+                .rev()
+                .take_while(|s| s.is_whitespace() || s.is_meta())
+            {
+                fixes.push(LintFix::delete(seg.clone()));
+            }
+        }
 
         LintResult::new(
-            alias.segment,
+            alias.segment.clone(),
             fixes,
             format!(
                 "Alias '{}' is never used in SELECT statement.",

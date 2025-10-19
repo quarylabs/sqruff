@@ -54,30 +54,24 @@ FROM foo
     }
     fn eval(&self, context: &RuleContext) -> Vec<LintResult> {
         let segment = FunctionalContext::new(context).segment();
-        let children = segment.children(None);
+        let children = segment.children_all();
 
         let function_name = children
-            .find_first(Some(|segment: &ErasedSegment| {
-                segment.is_type(SyntaxKind::FunctionName)
-            }))
+            .find_first_where(|segment: &ErasedSegment| segment.is_type(SyntaxKind::FunctionName))
             .pop();
         let function_contents = children
-            .find_first(Some(|segment: &ErasedSegment| {
+            .find_first_where(|segment: &ErasedSegment| {
                 segment.is_type(SyntaxKind::FunctionContents)
-            }))
+            })
             .pop();
 
-        let mut intermediate_segments = children.select::<fn(&ErasedSegment) -> bool>(
-            None,
-            None,
-            Some(&function_name),
-            Some(&function_contents),
-        );
+        let mut intermediate_segments =
+            children.between_exclusive(&function_name, &function_contents);
 
         if !intermediate_segments.is_empty() {
-            return if intermediate_segments.all(Some(|seg| {
+            return if intermediate_segments.all_match(|seg| {
                 matches!(seg.get_type(), SyntaxKind::Whitespace | SyntaxKind::Newline)
-            })) {
+            }) {
                 vec![LintResult::new(
                     intermediate_segments.first().cloned(),
                     intermediate_segments

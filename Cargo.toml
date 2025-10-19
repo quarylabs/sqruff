@@ -17,8 +17,8 @@ perf = "warn"
 cloned_instead_of_copied = "warn"
 
 [profile.release]
-lto = true
-codegen-units = 1
+#lto = true
+#codegen-units = 1
 
 [workspace.dependencies]
 log = "0.4"

@@ -71,7 +71,7 @@ INNER JOIN table_b
         let segment = functional_context.segment();
         let parent_stack = functional_context.parent_stack();
 
-        let usings = segment.children(Some(|it: &ErasedSegment| it.is_keyword("using")));
+        let usings = segment.children_where(|it: &ErasedSegment| it.is_keyword("using"));
         let using_anchor = usings.first();
 
         let Some(using_anchor) = using_anchor else {
@@ -103,9 +103,8 @@ INNER JOIN table_b
             return vec![unfixable_result];
         }
 
-        let stmts = parent_stack.find_last(Some(|it: &ErasedSegment| {
-            it.is_type(SyntaxKind::SelectStatement)
-        }));
+        let stmts = parent_stack
+            .find_last_where(|it: &ErasedSegment| it.is_type(SyntaxKind::SelectStatement));
         let parent_select = stmts.first();
 
         let Some(parent_select) = parent_select else {
@@ -164,17 +163,13 @@ INNER JOIN table_b
 
 fn extract_cols_from_using(join_clause: Segments, using_segs: &ErasedSegment) -> Vec<SmolStr> {
     join_clause
-        .children(None)
-        .select(
-            Some(|it: &ErasedSegment| it.is_type(SyntaxKind::Bracketed)),
-            None,
-            Some(using_segs),
-            None,
-        )
-        .find_first::<fn(&ErasedSegment) -> bool>(None)
-        .children(Some(|it: &ErasedSegment| {
+        .children_all()
+        .after(using_segs)
+        .filter(|it: &ErasedSegment| it.is_type(SyntaxKind::Bracketed))
+        .head()
+        .children_where(|it: &ErasedSegment| {
             it.is_type(SyntaxKind::Identifier) || it.is_type(SyntaxKind::NakedIdentifier)
-        }))
+        })
         .into_iter()
         .map(|it| it.raw().to_smolstr())
         .collect()
@@ -214,7 +209,7 @@ fn extract_deletion_sequence_and_anchor(
     let mut insert_anchor = None;
     let mut to_delete = Vec::new();
 
-    for seg in join_clause.children(None) {
+    for seg in join_clause.children_all() {
         if seg.raw().eq_ignore_ascii_case("USING") {
             to_delete.push(seg.clone());
             continue;

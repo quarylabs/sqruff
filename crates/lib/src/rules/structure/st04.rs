@@ -68,43 +68,41 @@ FROM mytable
 
     fn eval(&self, context: &RuleContext) -> Vec<LintResult> {
         let segment = FunctionalContext::new(context).segment();
-        let case1_children = segment.children(None);
+        let case1_children = segment.children_all();
         let case1_keywords =
-            case1_children.find_first(Some(|it: &ErasedSegment| it.is_keyword("CASE")));
+            case1_children.find_first_where(|it: &ErasedSegment| it.is_keyword("CASE"));
         let case1_first_case = case1_keywords.first().unwrap();
-        let case1_when_list = case1_children.find_first(Some(|it: &ErasedSegment| {
+        let case1_when_list = case1_children.find_first_where(|it: &ErasedSegment| {
             matches!(
                 it.get_type(),
                 SyntaxKind::WhenClause | SyntaxKind::ElseClause
             )
-        }));
+        });
         let case1_first_when = case1_when_list.first().unwrap();
         let when_clause_list =
-            case1_children.find_last(Some(|it| it.is_type(SyntaxKind::WhenClause)));
+            case1_children.find_last_where(|it| it.is_type(SyntaxKind::WhenClause));
         let case1_last_when = when_clause_list.first();
         let case1_else_clause =
-            case1_children.find_last(Some(|it| it.is_type(SyntaxKind::ElseClause)));
+            case1_children.find_last_where(|it| it.is_type(SyntaxKind::ElseClause));
         let case1_else_expressions =
-            case1_else_clause.children(Some(|it| it.is_type(SyntaxKind::Expression)));
-        let expression_children = case1_else_expressions.children(None);
-        let case2 =
-            expression_children.select::<fn(&ErasedSegment) -> bool>(None, None, None, None);
-        let case2_children = case2.children(None);
+            case1_else_clause.children_where(|it| it.is_type(SyntaxKind::Expression));
+        let case2 = case1_else_expressions.children_all();
+        let case2_children = case2.children_all();
         let case2_case_list =
-            case2_children.find_first(Some(|it: &ErasedSegment| it.is_keyword("CASE")));
+            case2_children.find_first_where(|it: &ErasedSegment| it.is_keyword("CASE"));
         let case2_first_case = case2_case_list.first();
-        let case2_when_list = case2_children.find_first(Some(|it: &ErasedSegment| {
+        let case2_when_list = case2_children.find_first_where(|it: &ErasedSegment| {
             matches!(
                 it.get_type(),
                 SyntaxKind::WhenClause | SyntaxKind::ElseClause
             )
-        }));
+        });
         let case2_first_when = case2_when_list.first();
 
         let Some(case1_last_when) = case1_last_when else {
             return Vec::new();
         };
-        if case1_else_expressions.len() > 1 || expression_children.len() > 1 || case2.is_empty() {
+        if case1_else_expressions.len() > 1 || case2.len() > 1 || case2.is_empty() {
             return Vec::new();
         }
 
@@ -115,33 +113,23 @@ FROM mytable
         };
 
         // Additionally check that case2 is actually a CASE expression
-        if !case2.any(Some(|seg: &ErasedSegment| {
-            seg.is_type(SyntaxKind::CaseExpression)
-        })) {
+        if !case2.any_match(|seg: &ErasedSegment| seg.is_type(SyntaxKind::CaseExpression)) {
             return Vec::new();
         }
 
         let x1 = segment
-            .children(Some(|it| it.is_code()))
-            .select::<fn(&ErasedSegment) -> bool>(
-                None,
-                None,
-                case1_first_case.into(),
-                case1_first_when.into(),
-            )
+            .children_where(|it| it.is_code())
+            .between_exclusive(case1_first_case, case1_first_when)
             .into_iter()
             .map(|it| it.raw().to_smolstr());
 
-        let x2 = case2
-            .children(Some(|it| it.is_code()))
-            .select::<fn(&ErasedSegment) -> bool>(
-                None,
-                None,
-                case2_first_case.into(),
-                case2_first_when,
-            )
-            .into_iter()
-            .map(|it| it.raw().to_smolstr());
+        let code2 = case2.children_where(|it| it.is_code());
+        let range2 = if let Some(stop) = case2_first_when {
+            code2.between_exclusive(case2_first_case, stop)
+        } else {
+            code2.after(case2_first_case)
+        };
+        let x2 = range2.into_iter().map(|it| it.raw().to_smolstr());
 
         if x1.ne(x2) {
             return Vec::new();
@@ -149,27 +137,29 @@ FROM mytable
 
         let case1_else_clause_seg = case1_else_clause.first().unwrap();
 
-        let case1_to_delete = case1_children.select::<fn(&ErasedSegment) -> bool>(
-            None,
-            None,
-            case1_last_when.into(),
-            case1_else_clause_seg.into(),
-        );
+        let case1_to_delete =
+            case1_children.between_exclusive(case1_last_when, case1_else_clause_seg);
 
-        let comments = case1_to_delete.find_last(Some(|it: &ErasedSegment| it.is_comment()));
+        let comments = case1_to_delete.find_last_where(|it: &ErasedSegment| it.is_comment());
         let after_last_comment_index = comments
             .first()
             .and_then(|comment| case1_to_delete.iter().position(|it| it == comment))
             .map_or(0, |n| n + 1);
 
-        let case1_comments_to_restore = case1_to_delete.select::<fn(&ErasedSegment) -> bool>(
-            None,
-            None,
-            None,
-            case1_to_delete.base.get(after_last_comment_index),
-        );
-        let after_else_comment = case1_else_clause.children(None).select(
-            Some(|it: &ErasedSegment| {
+        let case1_comments_to_restore =
+            if let Some(stop_seg) = case1_to_delete.base.get(after_last_comment_index) {
+                case1_to_delete.before(stop_seg)
+            } else {
+                case1_to_delete.clone()
+            };
+        let after_else_comment = {
+            let children = case1_else_clause.children_all();
+            let range = if let Some(stop) = case1_else_expressions.first() {
+                children.before(stop)
+            } else {
+                children
+            };
+            range.filter(|it: &ErasedSegment| {
                 matches!(
                     it.get_type(),
                     SyntaxKind::Newline
@@ -178,11 +168,8 @@ FROM mytable
                         | SyntaxKind::Comment
                         | SyntaxKind::Whitespace
                 )
-            }),
-            None,
-            None,
-            case1_else_expressions.first(),
-        );
+            })
+        };
 
         let mut fixes = case1_to_delete
             .into_iter()
@@ -200,7 +187,7 @@ FROM mytable
         let when_indent_str = indentation(&case1_children, case1_last_when, indent_unit);
         let end_indent_str = indentation(&case1_children, case1_first_case, indent_unit);
 
-        let nested_clauses = case2.children(Some(|it: &ErasedSegment| {
+        let nested_clauses = case2.children_where(|it: &ErasedSegment| {
             matches!(
                 it.get_type(),
                 SyntaxKind::WhenClause
@@ -211,7 +198,7 @@ FROM mytable
                     | SyntaxKind::Comment
                     | SyntaxKind::Whitespace
             )
-        }));
+        });
 
         let mut segments = case1_comments_to_restore.base;
         segments.append(&mut rebuild_spacing(
@@ -256,14 +243,12 @@ fn indentation(
     indent_unit: IndentUnit,
 ) -> String {
     let leading_whitespace = parent_segments
-        .select::<fn(&ErasedSegment) -> bool>(None, None, None, segment.into())
+        .before(segment)
         .reversed()
-        .find_first(Some(|it: &ErasedSegment| {
-            it.is_type(SyntaxKind::Whitespace)
-        }));
+        .find_first_where(|it: &ErasedSegment| it.is_type(SyntaxKind::Whitespace));
     let seg_indent = parent_segments
-        .select::<fn(&ErasedSegment) -> bool>(None, None, None, segment.into())
-        .find_last(Some(|it| it.is_type(SyntaxKind::Indent)));
+        .before(segment)
+        .find_last_where(|it| it.is_type(SyntaxKind::Indent));
     let mut indent_level = 1;
     if let Some(segment_indent) = seg_indent
         .last()
@@ -294,8 +279,8 @@ fn rebuild_spacing(
     let mut buff = Vec::new();
 
     let mut prior_newline = nested_clauses
-        .find_last(Some(|it: &ErasedSegment| !it.is_whitespace()))
-        .any(Some(|it: &ErasedSegment| it.is_comment()));
+        .find_last_where(|it: &ErasedSegment| !it.is_whitespace())
+        .any_match(|it: &ErasedSegment| it.is_comment());
     let mut prior_whitespace = String::new();
 
     for seg in nested_clauses {
@@ -335,26 +320,19 @@ fn nested_end_trailing_comment(
     end_indent_str: &str,
 ) -> Vec<LintFix> {
     // Prepend newline spacing to comments on the final nested `END` line.
-    let trailing_end = case1_children.select::<fn(&ErasedSegment) -> bool>(
-        None,
-        Some(|seg: &ErasedSegment| !seg.is_type(SyntaxKind::Newline)),
-        Some(case1_else_clause_seg),
-        None,
-    );
+    let trailing_end = case1_children
+        .after(case1_else_clause_seg)
+        .take_while(|seg: &ErasedSegment| !seg.is_type(SyntaxKind::Newline));
 
     let mut fixes = trailing_end
-        .select(
-            Some(|seg: &ErasedSegment| seg.is_whitespace()),
-            Some(|seg: &ErasedSegment| !seg.is_comment()),
-            None,
-            None,
-        )
+        .take_while(|seg: &ErasedSegment| !seg.is_comment())
+        .filter(|seg: &ErasedSegment| seg.is_whitespace())
         .into_iter()
         .map(LintFix::delete)
         .collect_vec();
 
     if let Some(first_comment) = trailing_end
-        .find_first(Some(|seg: &ErasedSegment| seg.is_comment()))
+        .find_first_where(|seg: &ErasedSegment| seg.is_comment())
         .first()
     {
         let segments = vec![

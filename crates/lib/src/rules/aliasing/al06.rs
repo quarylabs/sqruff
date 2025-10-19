@@ -143,7 +143,7 @@ JOIN
     }
 
     fn eval(&self, context: &RuleContext) -> Vec<LintResult> {
-        let children = FunctionalContext::new(context).segment().children(None);
+        let children = FunctionalContext::new(context).segment().children_all();
         let from_expression_elements = children.recursive_crawl(
             const { &SyntaxSet::new(&[SyntaxKind::FromExpressionElement]) },
             true,

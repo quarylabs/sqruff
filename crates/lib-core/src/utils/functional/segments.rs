@@ -1,10 +1,6 @@
-use std::ops::Range;
-
 use crate::dialects::syntax::SyntaxSet;
 use crate::parser::segments::ErasedSegment;
 use crate::templaters::TemplatedFile;
-
-type PredicateType = Option<fn(&ErasedSegment) -> bool>;
 
 #[derive(Debug, Default, Clone)]
 pub struct Segments {
@@ -24,8 +20,8 @@ impl Segments {
     pub fn recursive_crawl(&self, types: &SyntaxSet, recurse_into: bool) -> Segments {
         let mut segments = Vec::new();
 
-        for s in &self.base {
-            segments.extend(s.recursive_crawl(types, recurse_into, &SyntaxSet::EMPTY, true));
+        for segment in &self.base {
+            segments.extend(segment.recursive_crawl(types, recurse_into, &SyntaxSet::EMPTY, true));
         }
 
         Segments::from_vec(segments, self.templated_file.clone())
@@ -74,16 +70,12 @@ impl Segments {
         self.base.pop().unwrap()
     }
 
-    pub fn all(&self, predicate: PredicateType) -> bool {
-        self.base
-            .iter()
-            .all(|s| predicate.is_none_or(|pred| pred(s)))
+    pub fn all_match<F: Fn(&ErasedSegment) -> bool>(&self, predicate: F) -> bool {
+        self.base.iter().all(predicate)
     }
 
-    pub fn any(&self, predicate: PredicateType) -> bool {
-        self.base
-            .iter()
-            .any(|s| predicate.is_none_or(|pred| pred(s)))
+    pub fn any_match<F: Fn(&ErasedSegment) -> bool>(&self, predicate: F) -> bool {
+        self.base.iter().any(predicate)
     }
 
     pub fn len(&self) -> usize {
@@ -101,35 +93,50 @@ impl Segments {
         }
     }
 
-    pub fn children(&self, predicate: PredicateType) -> Segments {
-        let mut child_segments = Vec::with_capacity(predicate.map_or(0, |_| self.len()));
-
-        for s in &self.base {
-            for child in s.segments() {
-                if let Some(ref pred) = predicate {
-                    if pred(child) {
-                        child_segments.push(child.clone());
-                    }
-                } else {
-                    child_segments.push(child.clone());
-                }
-            }
+    pub fn children_all(&self) -> Segments {
+        let mut child_segments = Vec::with_capacity(self.len());
+        for segment in &self.base {
+            child_segments.extend(segment.segments().iter().cloned());
         }
-
         Segments {
             base: child_segments,
             templated_file: self.templated_file.clone(),
         }
     }
 
-    pub fn find_last(&self, predicate: PredicateType) -> Segments {
+    pub fn children_where<F: Fn(&ErasedSegment) -> bool>(&self, predicate: F) -> Segments {
+        let mut child_segments = Vec::with_capacity(self.len());
+        for segment in &self.base {
+            for child in segment.segments() {
+                if predicate(child) {
+                    child_segments.push(child.clone());
+                }
+            }
+        }
+        Segments {
+            base: child_segments,
+            templated_file: self.templated_file.clone(),
+        }
+    }
+
+    pub fn children_iter_where<F: Fn(&ErasedSegment) -> bool + 'static>(
+        &self,
+        predicate: F,
+    ) -> impl Iterator<Item = &ErasedSegment> + '_ {
+        self.base
+            .iter()
+            .flat_map(|segment| segment.segments().iter())
+            .filter(move |child| predicate(child))
+    }
+
+    pub fn find_last_where<F: Fn(&ErasedSegment) -> bool>(&self, predicate: F) -> Segments {
         self.base
             .iter()
             .rev()
-            .find_map(|s| {
-                if predicate.as_ref().is_none_or(|p| p(s)) {
+            .find_map(|segment| {
+                if predicate(segment) {
                     Some(Segments {
-                        base: vec![s.clone()],
+                        base: vec![segment.clone()],
                         templated_file: self.templated_file.clone(),
                     })
                 } else {
@@ -146,16 +153,28 @@ impl Segments {
         self.index(value)
     }
 
-    pub fn find_first<F: Fn(&ErasedSegment) -> bool>(&self, predicate: Option<F>) -> Segments {
-        for s in &self.base {
-            if predicate.as_ref().is_none_or(|p| p(s)) {
+    pub fn find_first_where<F: Fn(&ErasedSegment) -> bool>(&self, predicate: F) -> Segments {
+        for segment in &self.base {
+            if predicate(segment) {
                 return Segments {
-                    base: vec![s.clone()],
+                    base: vec![segment.clone()],
                     templated_file: self.templated_file.clone(),
                 };
             }
         }
+        Segments {
+            base: vec![],
+            templated_file: self.templated_file.clone(),
+        }
+    }
 
+    pub fn head(&self) -> Segments {
+        if let Some(segment) = self.base.first() {
+            return Segments {
+                base: vec![segment.clone()],
+                templated_file: self.templated_file.clone(),
+            };
+        }
         Segments {
             base: vec![],
             templated_file: self.templated_file.clone(),
@@ -166,38 +185,102 @@ impl Segments {
         self.base.iter().position(|it| it == value)
     }
 
-    #[track_caller]
-    pub fn select<SelectIf: Fn(&ErasedSegment) -> bool>(
-        &self,
-        select_if: Option<SelectIf>,
-        loop_while: PredicateType,
-        start_seg: Option<&ErasedSegment>,
-        stop_seg: Option<&ErasedSegment>,
-    ) -> Segments {
-        let start_index = start_seg
-            .map(|seg| self.base.iter().position(|x| x == seg).unwrap() as isize)
-            .unwrap_or(-1);
-
-        let stop_index = stop_seg
-            .map(|seg| self.base.iter().position(|x| x == seg).unwrap() as isize)
-            .unwrap_or_else(|| self.base.len() as isize);
-
-        let mut buff = Vec::new();
-
-        for seg in pyslice(&self.base, start_index + 1..stop_index) {
-            if let Some(loop_while) = &loop_while
-                && !loop_while(seg)
-            {
-                break;
-            }
-
-            if select_if.as_ref().is_none_or(|f| f(seg)) {
-                buff.push(seg.clone());
-            }
+    pub fn filter<F: Fn(&ErasedSegment) -> bool>(&self, predicate: F) -> Segments {
+        let base = self
+            .base
+            .iter()
+            .filter(|segment| predicate(segment))
+            .cloned()
+            .collect();
+        Segments {
+            base,
+            templated_file: self.templated_file.clone(),
         }
+    }
+
+    pub fn take_while<F: Fn(&ErasedSegment) -> bool>(&self, predicate: F) -> Segments {
+        let base = self
+            .base
+            .iter()
+            .take_while(|segment| predicate(segment))
+            .cloned()
+            .collect();
+        Segments {
+            base,
+            templated_file: self.templated_file.clone(),
+        }
+    }
+
+    pub fn iter_after<'a>(
+        &'a self,
+        start: &ErasedSegment,
+    ) -> impl Iterator<Item = &'a ErasedSegment> + 'a {
+        let start_idx = self
+            .base
+            .iter()
+            .position(|segment| segment == start)
+            .map(|index| index + 1)
+            .unwrap_or(self.base.len());
+        self.base[start_idx..].iter()
+    }
+
+    pub fn iter_after_while<'a, F: Fn(&ErasedSegment) -> bool + 'a>(
+        &'a self,
+        start: &ErasedSegment,
+        while_cond: F,
+    ) -> impl Iterator<Item = &'a ErasedSegment> + 'a {
+        self.iter_after(start)
+            .take_while(move |segment| while_cond(segment))
+    }
+
+    pub fn after(&self, start: &ErasedSegment) -> Segments {
+        let start_idx = self
+            .base
+            .iter()
+            .position(|segment| segment == start)
+            .expect("start segment not found");
+        let base = self.base[start_idx + 1..].to_vec();
+        Segments {
+            base,
+            templated_file: self.templated_file.clone(),
+        }
+    }
+
+    pub fn before(&self, stop: &ErasedSegment) -> Segments {
+        let stop_idx = self
+            .base
+            .iter()
+            .position(|segment| segment == stop)
+            .expect("stop segment not found");
+        let base = self.base[..stop_idx].to_vec();
+        Segments {
+            base,
+            templated_file: self.templated_file.clone(),
+        }
+    }
+
+    pub fn between_exclusive(&self, start: &ErasedSegment, stop: &ErasedSegment) -> Segments {
+        let len = self.base.len();
+
+        let start_idx = self
+            .base
+            .iter()
+            .position(|s| s == start)
+            .map(|i| i + 1)
+            .unwrap_or(0)
+            .min(len);
+
+        let end_idx = self
+            .base
+            .iter()
+            .position(|s| s == stop)
+            .unwrap_or(len)
+            .min(len);
+
+        let base = self.base.get(start_idx..end_idx).unwrap_or(&[]).to_vec();
 
         Segments {
-            base: buff,
+            base,
             templated_file: self.templated_file.clone(),
         }
     }
@@ -218,13 +301,4 @@ impl IntoIterator for Segments {
     fn into_iter(self) -> Self::IntoIter {
         self.base.into_iter()
     }
-}
-
-fn pyslice<T>(collection: &[T], Range { start, end }: Range<isize>) -> impl Iterator<Item = &T> {
-    let slice = slyce::Slice {
-        start: start.into(),
-        end: end.into(),
-        step: None,
-    };
-    slice.apply(collection)
 }

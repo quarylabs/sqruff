@@ -56,14 +56,11 @@ FROM table;
     fn eval(&self, context: &RuleContext) -> Vec<LintResult> {
         let mut violations = Vec::new();
 
-        let children = FunctionalContext::new(context).segment().children(None);
+        let children = FunctionalContext::new(context).segment().children_all();
 
-        for clause_element in children.select(
-            Some(|sp: &ErasedSegment| sp.is_type(SyntaxKind::SelectClauseElement)),
-            None,
-            None,
-            None,
-        ) {
+        for clause_element in
+            children.filter(|sp: &ErasedSegment| sp.is_type(SyntaxKind::SelectClauseElement))
+        {
             let clause_element_raw_segment = clause_element.get_raw_segments();
 
             let column =

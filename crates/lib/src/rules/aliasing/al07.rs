@@ -274,26 +274,21 @@ FROM
             return Vec::new();
         }
 
-        let children = FunctionalContext::new(context).segment().children(None);
+        let children = FunctionalContext::new(context).segment().children_all();
         let from_clause_segment = children
-            .select(
-                Some(|it: &ErasedSegment| it.is_type(SyntaxKind::FromClause)),
-                None,
-                None,
-                None,
-            )
-            .find_first::<fn(&_) -> _>(None);
+            .filter(|it: &ErasedSegment| it.is_type(SyntaxKind::FromClause))
+            .head();
 
         let base_table = from_clause_segment
-            .children(Some(|it| it.is_type(SyntaxKind::FromExpression)))
-            .find_first::<fn(&_) -> _>(None)
-            .children(Some(|it| it.is_type(SyntaxKind::FromExpressionElement)))
-            .find_first::<fn(&_) -> _>(None)
-            .children(Some(|it| it.is_type(SyntaxKind::TableExpression)))
-            .find_first::<fn(&_) -> _>(None)
-            .children(Some(|it| {
+            .children_where(|it| it.is_type(SyntaxKind::FromExpression))
+            .head()
+            .children_where(|it| it.is_type(SyntaxKind::FromExpressionElement))
+            .head()
+            .children_where(|it| it.is_type(SyntaxKind::TableExpression))
+            .head()
+            .children_where(|it| {
                 it.is_type(SyntaxKind::ObjectReference) || it.is_type(SyntaxKind::TableReference)
-            }));
+            });
 
         if base_table.is_empty() {
             return Vec::new();
@@ -302,12 +297,7 @@ FROM
         let mut from_expression_elements = Vec::new();
         let mut column_reference_segments = Vec::new();
 
-        let after_from_clause = children.select::<fn(&ErasedSegment) -> bool>(
-            None,
-            None,
-            Some(&from_clause_segment[0]),
-            None,
-        );
+        let after_from_clause = children.after(&from_clause_segment[0]);
         for clause in chain(from_clause_segment, after_from_clause) {
             for from_expression_element in clause.recursive_crawl(
                 const { &SyntaxSet::new(&[SyntaxKind::FromExpressionElement]) },

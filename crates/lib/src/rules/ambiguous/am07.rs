@@ -84,7 +84,7 @@ FROM t
             }
         }
 
-        let query: Query<()> = Query::from_segment(root, context.dialect, None);
+        let query: Query<'_> = Query::from_segment(root, context.dialect, None);
         let (set_segment_select_sizes, resolve_wildcard) = self.get_select_target_counts(query);
 
         // if queries had different select target counts and all wildcards had been
@@ -117,7 +117,7 @@ impl RuleAM07 {
     /// can't guarantee that we can always resolve any wildcards (*), so
     /// we also return a flag to indicate whether any present have been
     /// fully resolved.
-    fn get_select_target_counts(&self, query: Query<()>) -> (HashSet<usize>, bool) {
+    fn get_select_target_counts(&self, query: Query<'_>) -> (HashSet<usize>, bool) {
         let mut select_target_counts = HashSet::new();
         let mut resolved_wildcard = true;
 
@@ -137,7 +137,7 @@ impl RuleAM07 {
     ///
     /// The selectable may opr may not have (*) wildcard expressions. If it
     /// does, we attempt to resolve them.
-    fn resolve_selectable(&self, selectable: Selectable, root_query: Query<()>) -> (usize, bool) {
+    fn resolve_selectable(&self, selectable: Selectable, root_query: Query<'_>) -> (usize, bool) {
         debug_assert!(selectable.select_info().is_some());
 
         let wildcard_info = selectable.wildcard_info();
@@ -176,7 +176,7 @@ impl RuleAM07 {
     /// only called on any subqueries (which may themselves be SELECT,
     /// WITH or set expressions) found during the resolution of any
     /// wildcards.
-    fn resolve_wild_query(&self, query: Query<()>) -> (usize, bool) {
+    fn resolve_wild_query(&self, query: Query<'_>) -> (usize, bool) {
         // if one of the source queries for a query within the set is a
         // set expression, just use the first query. If that first query isn't
         // reflective of the others, that will be caught when that segment
@@ -195,7 +195,7 @@ impl RuleAM07 {
         &self,
         wildcard: WildcardInfo,
         selectable: Selectable,
-        root_query: Query<()>,
+        root_query: Query<'_>,
     ) -> (usize, bool) {
         let mut resolved = true;
 

@@ -10,7 +10,7 @@ use sqruff_lib_core::dialects::syntax::{SyntaxKind, SyntaxSet};
 use sqruff_lib_core::parser::segments::object_reference::{
     ObjectReferenceLevel, ObjectReferencePart, ObjectReferenceSegment,
 };
-use sqruff_lib_core::utils::analysis::query::{Query, Selectable};
+use sqruff_lib_core::utils::analysis::query::{Query, QueryInner, Selectable};
 
 use crate::core::config::Value;
 use crate::core::rules::context::RuleContext;
@@ -19,10 +19,13 @@ use crate::core::rules::reference::object_ref_matches_table;
 use crate::core::rules::{Erased, ErasedRule, LintResult, Rule, RuleGroups};
 
 #[derive(Debug, Default, Clone)]
-struct RF01Query {
+struct RF01QueryData {
     aliases: Vec<AliasInfo>,
     standalone_aliases: Vec<SmolStr>,
 }
+
+type QueryKey<'a> = *const RefCell<QueryInner<'a>>;
+type RF01State<'a> = AHashMap<QueryKey<'a>, RF01QueryData>;
 
 #[derive(Debug, Clone, Default)]
 pub struct RuleRF01 {
@@ -31,12 +34,13 @@ pub struct RuleRF01 {
 
 impl RuleRF01 {
     #[allow(clippy::only_used_in_recursion)]
-    fn resolve_reference(
+    fn resolve_reference<'a>(
         &self,
         r: &ObjectReferenceSegment,
         tbl_refs: Vec<(ObjectReferencePart, Vec<SmolStr>)>,
         dml_target_table: &[SmolStr],
-        query: Query<RF01Query>,
+        query: Query<'a>,
+        payloads: &RF01State<'a>,
     ) -> Option<LintResult> {
         let possible_references: Vec<_> = tbl_refs
             .clone()
@@ -46,30 +50,38 @@ impl RuleRF01 {
 
         let mut targets = vec![];
 
-        for alias in &RefCell::borrow(&query.inner).payload.aliases {
-            if alias.aliased {
-                targets.push(vec![alias.ref_str.clone()]);
+        if let Some(payload) = payloads.get(&query.id()) {
+            for alias in &payload.aliases {
+                if alias.aliased {
+                    targets.push(vec![alias.ref_str.clone()]);
+                }
+
+                if let Some(object_reference) = &alias.object_reference {
+                    let references = object_reference
+                        .reference()
+                        .iter_raw_references()
+                        .into_iter()
+                        .map(|it| it.part.into())
+                        .collect_vec();
+
+                    targets.push(references);
+                }
             }
 
-            if let Some(object_reference) = &alias.object_reference {
-                let references = object_reference
-                    .reference()
-                    .iter_raw_references()
-                    .into_iter()
-                    .map(|it| it.part.into())
-                    .collect_vec();
-
-                targets.push(references);
+            for standalone_alias in &payload.standalone_aliases {
+                targets.push(vec![standalone_alias.clone()]);
             }
-        }
-
-        for standalone_alias in &RefCell::borrow(&query.inner).payload.standalone_aliases {
-            targets.push(vec![standalone_alias.clone()]);
         }
 
         if !object_ref_matches_table(&possible_references, &targets) {
             if let Some(parent) = RefCell::borrow(&query.inner).parent.clone() {
-                return self.resolve_reference(r, tbl_refs.clone(), dml_target_table, parent);
+                return self.resolve_reference(
+                    r,
+                    tbl_refs.clone(),
+                    dml_target_table,
+                    parent,
+                    payloads,
+                );
             } else if dml_target_table.is_empty()
                 || !object_ref_matches_table(&possible_references, &[dml_target_table.to_vec()])
             {
@@ -118,32 +130,36 @@ impl RuleRF01 {
         tbl_refs
     }
 
-    fn analyze_table_references(
+    fn analyze_table_references<'a>(
         &self,
-        query: Query<RF01Query>,
+        query: Query<'a>,
         dml_target_table: &[SmolStr],
+        payloads: &mut RF01State<'a>,
         violations: &mut Vec<LintResult>,
     ) {
+        payloads.entry(query.id()).or_default();
         let selectables = std::mem::take(&mut RefCell::borrow_mut(&query.inner).selectables);
 
         for selectable in &selectables {
             if let Some(select_info) = selectable.select_info() {
-                RefCell::borrow_mut(&query.inner)
-                    .payload
-                    .aliases
-                    .extend(select_info.table_aliases);
-                RefCell::borrow_mut(&query.inner)
-                    .payload
-                    .standalone_aliases
-                    .extend(select_info.standalone_aliases);
+                let table_aliases = select_info.table_aliases;
+                let standalone_aliases = select_info.standalone_aliases;
+                let reference_buffer = select_info.reference_buffer;
 
-                for r in select_info.reference_buffer {
+                {
+                    let payload = payloads.entry(query.id()).or_default();
+                    payload.aliases.extend(table_aliases);
+                    payload.standalone_aliases.extend(standalone_aliases);
+                }
+
+                for r in reference_buffer {
                     if !self.should_ignore_reference(&r, selectable) {
                         let violation = self.resolve_reference(
                             &r,
                             self.get_table_refs(&r, RefCell::borrow(&query.inner).dialect),
                             dml_target_table,
                             query.clone(),
+                            payloads,
                         );
                         violations.extend(violation);
                     }
@@ -154,7 +170,7 @@ impl RuleRF01 {
         RefCell::borrow_mut(&query.inner).selectables = selectables;
 
         for child in query.children() {
-            self.analyze_table_references(child, dml_target_table, violations);
+            self.analyze_table_references(child, dml_target_table, payloads, violations);
         }
     }
 
@@ -234,6 +250,7 @@ FROM foo
 
     fn eval(&self, context: &RuleContext) -> Vec<LintResult> {
         let query = Query::from_segment(&context.segment, context.dialect, None);
+        let mut payloads = RF01State::default();
         let mut violations = Vec::new();
         let tmp;
 
@@ -260,7 +277,7 @@ FROM foo
             &[]
         };
 
-        self.analyze_table_references(query, dml_target_table, &mut violations);
+        self.analyze_table_references(query, dml_target_table, &mut payloads, &mut violations);
 
         violations
     }

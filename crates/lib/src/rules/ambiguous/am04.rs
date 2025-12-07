@@ -94,7 +94,7 @@ SELECT a, b FROM t
 
 impl RuleAM04 {
     /// returns an anchor to the rule
-    fn analyze_result_columns(&self, query: Query<()>) -> Result<(), ErasedSegment> {
+    fn analyze_result_columns(&self, query: Query<'_>) -> Result<(), ErasedSegment> {
         if query.inner.borrow().selectables.is_empty() {
             return Ok(());
         }
@@ -135,7 +135,7 @@ impl RuleAM04 {
         &self,
         selectable: &Selectable,
         alias_info: AliasInfo,
-        query: &Query<'_, ()>,
+        query: &Query<'_>,
     ) -> Result<(), ErasedSegment> {
         let select_info_target = query
             .crawl_sources(alias_info.from_expression_element, false, true)

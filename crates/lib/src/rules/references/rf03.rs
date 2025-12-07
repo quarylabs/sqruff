@@ -28,7 +28,7 @@ impl RuleRF03 {
         tables: &Tables,
         single_table_references: &str,
         is_struct_dialect: bool,
-        query: Query<()>,
+        query: Query<'_>,
         _visited: &mut AHashSet<ErasedSegment>,
     ) -> Vec<LintResult> {
         #[allow(unused_assignments)]
@@ -84,7 +84,7 @@ impl RuleRF03 {
     }
 }
 
-fn iter_available_targets(query: Query<()>) -> Vec<SmolStr> {
+fn iter_available_targets(query: Query<'_>) -> Vec<SmolStr> {
     RefCell::borrow(&query.inner)
         .selectables
         .iter()
@@ -367,7 +367,7 @@ FROM foo
                     .unwrap()
             });
 
-        let query: Query<()> = Query::from_segment(&context.segment, context.dialect, None);
+        let query: Query<'_> = Query::from_segment(&context.segment, context.dialect, None);
         let mut visited: AHashSet<ErasedSegment> = AHashSet::new();
         let is_struct_dialect = self.dialect_skip().contains(&context.dialect.name);
 

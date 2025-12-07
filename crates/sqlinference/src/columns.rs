@@ -19,7 +19,7 @@ pub fn get_columns_internal(
     let mut columns: Vec<String> = vec![];
     let mut unnamed: Vec<String> = vec![];
 
-    let query: Query<()> = Query::from_root(&ast, parser.dialect()).unwrap();
+    let query: Query<'_> = Query::from_root(&ast, parser.dialect()).unwrap();
     let ast = query.inner.borrow().selectables[0].selectable.clone();
 
     for segment in ast.recursive_crawl(

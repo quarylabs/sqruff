@@ -173,7 +173,6 @@ impl<'me> Query<'me> {
     pub fn crawl_sources(
         &self,
         segment: ErasedSegment,
-
         pop: bool,
         lookup_cte: bool,
     ) -> Vec<Source<'me>> {

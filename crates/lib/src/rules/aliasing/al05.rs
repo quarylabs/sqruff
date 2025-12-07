@@ -191,11 +191,11 @@ impl RuleAL05 {
         r#ref: String,
         payloads: &mut AL05State<'a>,
     ) {
-        if let Some(payload) = payloads.get_mut(&query.id()) {
-            if payload.aliases.iter().any(|it| it.ref_str == r#ref) {
-                payload.tbl_refs.push(r#ref.into());
-                return;
-            }
+        if let Some(payload) = payloads.get_mut(&query.id())
+            && payload.aliases.iter().any(|it| it.ref_str == r#ref)
+        {
+            payload.tbl_refs.push(r#ref.into());
+            return;
         }
 
         if let Some(parent) = RefCell::borrow(&query.inner).parent.clone() {

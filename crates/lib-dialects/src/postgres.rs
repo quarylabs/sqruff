@@ -6710,3 +6710,172 @@ pub fn statement_segment() -> Matchable {
         false,
     )
 }
+
+/// Apply pgvector extension support to the postgres dialect.
+/// This adds VECTOR, HALFVEC, and SPARSEVEC types with optional dimension parameters.
+pub fn apply_pgvector_extension(postgres: &mut Dialect) {
+    use sqruff_lib_core::parser::types::DialectElementType;
+
+    // Define the pgvector type keywords
+    const PGVECTOR_KEYWORDS: &[&str] = &["VECTOR", "HALFVEC", "SPARSEVEC"];
+
+    // Add keywords to the unreserved_keywords set
+    for &kw in PGVECTOR_KEYWORDS {
+        postgres.add_keyword_to_set("unreserved_keywords", kw);
+    }
+
+    // Also add the keywords directly to the library as StringParsers
+    // (since expand() has already been called and won't process newly added set members)
+    for &kw in PGVECTOR_KEYWORDS {
+        let parser = StringParser::new(kw, SyntaxKind::Keyword);
+        postgres.add([(kw.into(), DialectElementType::Matchable(parser.to_matchable()))]);
+    }
+
+    // Replace DatatypeSegment grammar to include pgvector types
+    postgres.replace_grammar(
+        "DatatypeSegment",
+        Sequence::new(vec_of_erased![
+            Sequence::new(vec_of_erased![
+                Ref::new("SingleIdentifierGrammar"),
+                Ref::new("DotSegment")
+            ])
+            .config(|this| {
+                this.allow_gaps = false;
+                this.optional();
+            }),
+            one_of(vec_of_erased![
+                Ref::new("WellKnownTextGeometrySegment"),
+                Ref::new("DateTimeTypeIdentifier"),
+                Sequence::new(vec_of_erased![one_of(vec_of_erased![
+                    Ref::keyword("SMALLINT"),
+                    Ref::keyword("INTEGER"),
+                    Ref::keyword("INT"),
+                    Ref::keyword("INT2"),
+                    Ref::keyword("INT4"),
+                    Ref::keyword("INT8"),
+                    Ref::keyword("BIGINT"),
+                    Ref::keyword("FLOAT4"),
+                    Ref::keyword("FLOAT8"),
+                    Ref::keyword("REAL"),
+                    Sequence::new(vec_of_erased![
+                        Ref::keyword("DOUBLE"),
+                        Ref::keyword("PRECISION")
+                    ]),
+                    Ref::keyword("SMALLSERIAL"),
+                    Ref::keyword("SERIAL"),
+                    Ref::keyword("SERIAL2"),
+                    Ref::keyword("SERIAL4"),
+                    Ref::keyword("SERIAL8"),
+                    Ref::keyword("BIGSERIAL"),
+                    // Numeric types [(precision)]
+                    Sequence::new(vec_of_erased![
+                        one_of(vec_of_erased![Ref::keyword("FLOAT")]),
+                        Ref::new("BracketedArguments").optional()
+                    ]),
+                    // Numeric types [precision ["," scale])]
+                    Sequence::new(vec_of_erased![
+                        one_of(vec_of_erased![
+                            Ref::keyword("DECIMAL"),
+                            Ref::keyword("NUMERIC")
+                        ]),
+                        Ref::new("BracketedArguments").optional()
+                    ]),
+                    // Monetary type
+                    Ref::keyword("MONEY"),
+                    // Character types
+                    one_of(vec_of_erased![
+                        Sequence::new(vec_of_erased![
+                            one_of(vec_of_erased![
+                                Ref::keyword("BPCHAR"),
+                                Ref::keyword("CHAR"),
+                                Sequence::new(vec_of_erased![
+                                    Ref::keyword("CHAR"),
+                                    Ref::keyword("VARYING")
+                                ]),
+                                Ref::keyword("CHARACTER"),
+                                Sequence::new(vec_of_erased![
+                                    Ref::keyword("CHARACTER"),
+                                    Ref::keyword("VARYING")
+                                ]),
+                                Ref::keyword("VARCHAR")
+                            ]),
+                            Ref::new("BracketedArguments").optional()
+                        ]),
+                        Ref::keyword("TEXT")
+                    ]),
+                    // Binary type
+                    Ref::keyword("BYTEA"),
+                    // Boolean types
+                    one_of(vec_of_erased![
+                        Ref::keyword("BOOLEAN"),
+                        Ref::keyword("BOOL")
+                    ]),
+                    // Geometric types
+                    one_of(vec_of_erased![
+                        Ref::keyword("POINT"),
+                        Ref::keyword("LINE"),
+                        Ref::keyword("LSEG"),
+                        Ref::keyword("BOX"),
+                        Ref::keyword("PATH"),
+                        Ref::keyword("POLYGON"),
+                        Ref::keyword("CIRCLE")
+                    ]),
+                    // Network address types
+                    one_of(vec_of_erased![
+                        Ref::keyword("CIDR"),
+                        Ref::keyword("INET"),
+                        Ref::keyword("MACADDR"),
+                        Ref::keyword("MACADDR8")
+                    ]),
+                    // Text search types
+                    one_of(vec_of_erased![
+                        Ref::keyword("TSVECTOR"),
+                        Ref::keyword("TSQUERY")
+                    ]),
+                    // pgvector types (dimension is optional)
+                    Sequence::new(vec_of_erased![
+                        one_of(vec_of_erased![
+                            Ref::keyword("VECTOR"),
+                            Ref::keyword("HALFVEC"),
+                            Ref::keyword("SPARSEVEC")
+                        ]),
+                        Ref::new("BracketedArguments").optional()
+                    ]),
+                    // Bit string types
+                    Sequence::new(vec_of_erased![
+                        Ref::keyword("BIT"),
+                        one_of(vec_of_erased![Ref::keyword("VARYING")])
+                            .config(|this| this.optional()),
+                        Ref::new("BracketedArguments").optional()
+                    ]),
+                    // UUID type
+                    Ref::keyword("UUID"),
+                    // XML type
+                    Ref::keyword("XML"),
+                    // JSON types
+                    one_of(vec_of_erased![Ref::keyword("JSON"), Ref::keyword("JSONB")]),
+                    // Range types
+                    Ref::keyword("INT4RANGE"),
+                    Ref::keyword("INT8RANGE"),
+                    Ref::keyword("NUMRANGE"),
+                    Ref::keyword("TSRANGE"),
+                    Ref::keyword("TSTZRANGE"),
+                    Ref::keyword("DATERANGE"),
+                    // pg_lsn type
+                    Ref::keyword("PG_LSN")
+                ])]),
+                Ref::new("DatatypeIdentifierSegment")
+            ]),
+            one_of(vec_of_erased![
+                AnyNumberOf::new(vec_of_erased![
+                    Bracketed::new(vec_of_erased![Ref::new("ExpressionSegment").optional()])
+                        .config(|this| this.bracket_type("square"))
+                ]),
+                Ref::new("ArrayTypeSegment"),
+                Ref::new("SizedArrayTypeSegment"),
+            ])
+            .config(|this| this.optional()),
+        ])
+        .to_matchable(),
+    );
+}

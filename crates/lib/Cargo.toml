@@ -38,8 +38,10 @@ name = "depth_map"
 harness = false
 
 [features]
+default = ["postgres"]
 parser = ["sqruff-lib-core/stringify"]
 python = ["pyo3", "sqruff-lib-core/serde"]
+postgres = ["sqruff-lib-dialects/postgres"]
 
 [dependencies]
 sqruff-lib-core.workspace = true

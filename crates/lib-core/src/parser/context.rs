@@ -2,6 +2,7 @@ use ahash::AHashMap;
 use rustc_hash::FxHashMap;
 use smol_str::SmolStr;
 
+use super::core::TokenSpan;
 use super::match_result::MatchResult;
 use super::matchable::{Matchable, MatchableCacheKey};
 use crate::dialects::Dialect;
@@ -10,7 +11,7 @@ use crate::helpers::IndexSet;
 use crate::parser::Parser;
 
 type LocKey = u32;
-type LocKeyData = (SmolStr, (usize, usize), SyntaxKind, u32);
+type LocKeyData = (SmolStr, TokenSpan, SyntaxKind, u32);
 
 #[derive(Debug, PartialEq, Eq, Hash)]
 pub struct CacheKey {

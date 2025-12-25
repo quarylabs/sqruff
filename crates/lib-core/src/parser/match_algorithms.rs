@@ -2,6 +2,7 @@ use ahash::AHashMap;
 use itertools::{Itertools as _, enumerate, multiunzip};
 use smol_str::StrExt;
 
+use super::adapters::token_from_segment;
 use super::context::ParseContext;
 use super::match_result::{MatchResult, Matched, Span};
 use super::matchable::{Matchable, MatchableTrait};
@@ -126,14 +127,9 @@ pub fn longest_match(
     }
 
     let terminators = parse_context.terminators.clone();
-    let cache_position = segments[idx as usize].get_position_marker().unwrap();
+    let token = token_from_segment(&segments[idx as usize]);
 
-    let loc_key = (
-        segments[idx as usize].raw().clone(),
-        cache_position.working_loc(),
-        segments[idx as usize].get_type(),
-        max_idx,
-    );
+    let loc_key = (token.raw, token.span, token.kind, max_idx);
 
     let loc_key = parse_context.loc_key(loc_key);
 

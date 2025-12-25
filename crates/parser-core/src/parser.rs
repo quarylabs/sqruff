@@ -138,7 +138,7 @@ fn root_parse_events(
 
 fn emit_tokens(tokens: &[Token], sink: &mut impl EventSink) {
     for token in tokens {
-        sink.token(token.clone());
+        sink.token(token);
     }
 }
 

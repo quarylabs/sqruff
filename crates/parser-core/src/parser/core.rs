@@ -100,7 +100,7 @@ impl Token {
 pub trait EventSink {
     fn enter_node(&mut self, kind: SyntaxKind);
     fn exit_node(&mut self, kind: SyntaxKind);
-    fn token(&mut self, token: Token);
+    fn token(&mut self, token: &Token);
 }
 
 fn class_types(syntax_kind: SyntaxKind) -> SyntaxSet {

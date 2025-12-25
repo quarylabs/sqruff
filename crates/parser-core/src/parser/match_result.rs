@@ -131,7 +131,8 @@ impl MatchResult {
                 }
                 let idx = span.end - 1;
                 if let Some(token) = tokens.get(idx as usize) {
-                    sink.token(Token::new(kind, token.raw.clone(), token.span));
+                    let new_token = Token::new(kind, token.raw.clone(), token.span);
+                    sink.token(&new_token);
                 }
             }
             None => {
@@ -185,7 +186,7 @@ fn emit_token_slice(tokens: &[Token], start: u32, end: u32, sink: &mut impl Even
     }
 
     for token in &tokens[start as usize..end as usize] {
-        sink.token(token.clone());
+        sink.token(token);
     }
 }
 
@@ -241,7 +242,8 @@ fn emit_content(
                     trigger.apply_events(tokens, sink);
                 }
                 Trigger::Meta(meta) => {
-                    sink.token(Token::new(meta, "", point_span_at_idx(tokens, idx)));
+                    let token = Token::new(meta, "", point_span_at_idx(tokens, idx));
+                    sink.token(&token);
                 }
             }
         }

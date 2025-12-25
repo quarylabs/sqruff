@@ -1,5 +1,3 @@
-use smol_str::SmolStr;
-
 use crate::dialects::init::DialectKind;
 use crate::dialects::syntax::SyntaxKind;
 use crate::parser::markers::PositionMarker;
@@ -66,7 +64,7 @@ impl<'a> EventSink for SegmentTreeBuilder<'a> {
         self.push_segment(node);
     }
 
-    fn token(&mut self, token: Token) {
+    fn token(&mut self, token: &Token) {
         let position = PositionMarker::new(
             token.span.source_range(),
             token.span.templated_range(),
@@ -75,8 +73,7 @@ impl<'a> EventSink for SegmentTreeBuilder<'a> {
             None,
         );
 
-        let raw: SmolStr = token.raw;
-        let segment = SegmentBuilder::token(self.tables.next_id(), raw.as_ref(), token.kind)
+        let segment = SegmentBuilder::token(self.tables.next_id(), token.raw.as_ref(), token.kind)
             .with_position(position)
             .finish();
 

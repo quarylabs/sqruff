@@ -61,10 +61,10 @@ impl EventSink for EventCollector {
         self.events.push(ParseEvent::ExitNode { kind });
     }
 
-    fn token(&mut self, token: Token) {
+    fn token(&mut self, token: &Token) {
         self.events.push(ParseEvent::Token {
             kind: token.kind,
-            raw: token.raw,
+            raw: token.raw.clone(),
         });
     }
 }
@@ -88,7 +88,7 @@ impl<'a, H: ParseEventHandler> EventSink for ParseEventHandlerSink<'a, H> {
         self.handler.exit_node(kind);
     }
 
-    fn token(&mut self, token: Token) {
+    fn token(&mut self, token: &Token) {
         self.handler.token(token.kind, token.raw.as_ref());
     }
 }

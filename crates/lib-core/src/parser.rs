@@ -1,4 +1,5 @@
 pub mod context;
+pub mod core;
 pub mod grammar;
 pub mod lexer;
 pub mod lookahead;

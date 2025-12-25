@@ -3,7 +3,9 @@ use std::cmp::Ordering;
 
 use ahash::HashMapExt;
 use nohash_hasher::IntMap;
+use smol_str::SmolStr;
 
+use super::core::{EventSink, Token, TokenSpan};
 use super::segments::{ErasedSegment, SegmentBuilder, Tables};
 use crate::dialects::init::DialectKind;
 use crate::dialects::syntax::SyntaxKind;
@@ -212,6 +214,40 @@ impl MatchResult {
             }
         }
     }
+
+    pub fn apply_events(self, segments: &[ErasedSegment], sink: &mut impl EventSink) {
+        if self.is_empty() {
+            return;
+        }
+
+        let MatchResult {
+            span,
+            matched,
+            insert_segments,
+            child_matches,
+        } = self;
+
+        match matched {
+            Some(Matched::SyntaxKind(kind)) => {
+                sink.enter_node(kind);
+                emit_content(span, insert_segments, child_matches, segments, sink);
+                sink.exit_node(kind);
+            }
+            Some(Matched::Newtype(kind)) => {
+                debug_assert!(insert_segments.is_empty() && child_matches.is_empty());
+                if span.start >= span.end {
+                    return;
+                }
+                let idx = span.end - 1;
+                if let Some(segment) = segments.get(idx as usize) {
+                    sink.token(token_from_segment(segment, kind));
+                }
+            }
+            None => {
+                emit_content(span, insert_segments, child_matches, segments, sink);
+            }
+        }
+    }
 }
 
 impl<'a> From<&'a MatchResult> for Cow<'a, MatchResult> {
@@ -230,4 +266,102 @@ impl From<MatchResult> for Cow<'_, MatchResult> {
 pub struct Span {
     pub start: u32,
     pub end: u32,
+}
+
+fn token_span_from_marker(marker: &PositionMarker) -> TokenSpan {
+    TokenSpan::new(
+        marker.source_slice.start,
+        marker.source_slice.end,
+        marker.templated_slice.start,
+        marker.templated_slice.end,
+    )
+}
+
+fn token_from_segment(segment: &ErasedSegment, kind: SyntaxKind) -> Token {
+    let marker = segment
+        .get_position_marker()
+        .expect("token segment should have a position marker");
+    Token::new(kind, segment.raw().clone(), token_span_from_marker(marker))
+}
+
+fn point_span_at_idx(segments: &[ErasedSegment], idx: u32) -> TokenSpan {
+    token_span_from_marker(&get_point_pos_at_idx(segments, idx))
+}
+
+fn emit_segment_tokens(
+    segments: &[ErasedSegment],
+    start: u32,
+    end: u32,
+    sink: &mut impl EventSink,
+) {
+    if start >= end {
+        return;
+    }
+
+    for segment in &segments[start as usize..end as usize] {
+        sink.token(token_from_segment(segment, segment.get_type()));
+    }
+}
+
+fn emit_content(
+    span: Span,
+    insert_segments: Vec<(u32, SyntaxKind)>,
+    child_matches: Vec<MatchResult>,
+    segments: &[ErasedSegment],
+    sink: &mut impl EventSink,
+) {
+    enum Trigger {
+        MatchResult(MatchResult),
+        Meta(SyntaxKind),
+    }
+
+    let mut trigger_locs: IntMap<u32, Vec<Trigger>> =
+        IntMap::with_capacity(insert_segments.len() + child_matches.len());
+
+    for (pos, insert) in insert_segments {
+        trigger_locs
+            .entry(pos)
+            .or_default()
+            .push(Trigger::Meta(insert));
+    }
+
+    for match_result in child_matches {
+        trigger_locs
+            .entry(match_result.span.start)
+            .or_default()
+            .push(Trigger::MatchResult(match_result));
+    }
+
+    let mut max_idx = span.start;
+    let mut keys = Vec::from_iter(trigger_locs.keys().copied());
+    keys.sort();
+
+    for idx in keys {
+        match idx.cmp(&max_idx) {
+            Ordering::Greater => {
+                emit_segment_tokens(segments, max_idx, idx, sink);
+                max_idx = idx;
+            }
+            Ordering::Less => {
+                unreachable!("This MatchResult was wrongly constructed")
+            }
+            Ordering::Equal => {}
+        }
+
+        for trigger in trigger_locs.remove(&idx).unwrap() {
+            match trigger {
+                Trigger::MatchResult(trigger) => {
+                    max_idx = trigger.span.end;
+                    trigger.apply_events(segments, sink);
+                }
+                Trigger::Meta(meta) => {
+                    sink.token(Token::new(meta, SmolStr::new(""), point_span_at_idx(segments, idx)));
+                }
+            }
+        }
+    }
+
+    if max_idx < span.end {
+        emit_segment_tokens(segments, max_idx, span.end, sink);
+    }
 }

@@ -402,34 +402,30 @@ impl Linter {
 
     /// Parse a rendered file.
     pub fn parse_rendered(&self, tables: &Tables, rendered: RenderedFile) -> ParsedString {
-        let violations = rendered.templater_violations.clone();
-        if !violations.is_empty() {
+        if !rendered.templater_violations.is_empty() {
             unimplemented!()
         }
 
         let mut violations = Vec::new();
         let tokens = if rendered.templated_file.is_templated() {
-            let (t, lvs) = self.lex_templated_file_cached(
+            let (tokens, lex_violations) = self.lex_templated_file_cached(
                 tables,
                 rendered.templated_file.clone(),
             );
-            if !lvs.is_empty() {
-                unimplemented!("violations.extend(lvs);")
+            if !lex_violations.is_empty() {
+                unimplemented!("violations.extend(lex_violations);")
             }
-            t
+            tokens
         } else {
             None
         };
 
-        let parsed: Option<ErasedSegment>;
-        if let Some(token_list) = tokens {
-            let (p, pvs) =
+        let parsed = tokens.and_then(|token_list| {
+            let (parsed, parse_violations) =
                 Self::parse_tokens(tables, &token_list, &self.config, self.include_parse_errors);
-            parsed = p;
-            violations.extend(pvs.into_iter().map_into());
-        } else {
-            parsed = None;
-        };
+            violations.extend(parse_violations.into_iter().map_into());
+            parsed
+        });
 
         ParsedString {
             tree: parsed,

@@ -1,7 +1,7 @@
 use std::io::{self, BufRead};
 
 use sqruff_lib::core::{config::FluffConfig, linter::core::Linter};
-use sqruff_lib_core::parser::segments::Tables;
+use sqruff_parser_tree::parser::segments::Tables;
 
 use crate::commands::{ParseArgs, ParseFormat};
 

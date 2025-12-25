@@ -1,7 +1,7 @@
 use std::str::FromStr;
 
 use ahash::AHashMap;
-use sqruff_lib_core::dialects::syntax::{SyntaxKind, SyntaxSet};
+use sqruff_parser_tree::dialects::syntax::{SyntaxKind, SyntaxSet};
 
 use crate::core::config::{FluffConfig, Value};
 use crate::utils::reflow::depth_map::{DepthInfo, StackPositionType};

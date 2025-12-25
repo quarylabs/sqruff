@@ -2,16 +2,16 @@ use itertools::Itertools;
 use sqruff_lib::core::config::FluffConfig;
 use sqruff_lib::core::linter::core::Linter;
 use sqruff_lib::core::test_functions::fresh_ansi_dialect;
-use sqruff_lib_core::dialects::init::DialectKind;
-use sqruff_lib_core::dialects::syntax::SyntaxKind;
-use sqruff_lib_core::parser::CoreParser;
-use sqruff_lib_core::parser::adapters::tokens_from_segments;
-use sqruff_lib_core::parser::context::ParseContext;
-use sqruff_lib_core::parser::lexer::Lexer;
-use sqruff_lib_core::parser::matchable::MatchableTrait;
-use sqruff_lib_core::parser::segments::builder::SegmentTreeBuilder;
-use sqruff_lib_core::parser::segments::Tables;
-use sqruff_lib_core::parser::segments::test_functions::lex;
+use sqruff_parser_core::dialects::init::DialectKind;
+use sqruff_parser_core::dialects::syntax::SyntaxKind;
+use sqruff_parser_core::parser::Parser as CoreParser;
+use sqruff_parser_core::parser::context::ParseContext;
+use sqruff_parser_core::parser::matchable::MatchableTrait;
+use sqruff_parser_tree::parser::adapters::tokens_from_segments;
+use sqruff_parser_tree::lexer::Lexer;
+use sqruff_parser_tree::parser::segments::builder::SegmentTreeBuilder;
+use sqruff_parser_tree::parser::segments::test_functions::lex;
+use sqruff_parser_tree::parser::segments::Tables;
 
 #[test]
 fn test_dialect_ansi_file_lex() {

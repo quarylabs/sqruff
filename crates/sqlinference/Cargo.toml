@@ -10,7 +10,7 @@ license.workspace = true
 workspace = true
 
 [dependencies]
-sqruff-lib-core = { workspace = true }
+sqruff-parser-tree = { workspace = true }
 
 [dev-dependencies]
 sqruff-lib-dialects = { workspace = true }

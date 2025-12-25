@@ -19,18 +19,18 @@ use itertools::Itertools;
 use rayon::iter::{IndexedParallelIterator, IntoParallelRefIterator as _, ParallelIterator as _};
 use rustc_hash::FxHashMap;
 use smol_str::{SmolStr, ToSmolStr};
-use sqruff_lib_core::dialects::Dialect;
-use sqruff_lib_core::dialects::syntax::{SyntaxKind, SyntaxSet};
-use sqruff_lib_core::errors::{
+use sqruff_parser_tree::dialects::Dialect;
+use sqruff_parser_tree::dialects::syntax::{SyntaxKind, SyntaxSet};
+use sqruff_parser_tree::errors::{
     SQLBaseError, SQLFluffUserError, SQLLexError, SQLLintError, SQLParseError,
 };
-use sqruff_lib_core::helpers;
-use sqruff_lib_core::linter::compute_anchor_edit_info;
-use sqruff_lib_core::parser::Parser;
-use sqruff_lib_core::parser::lexer::Lexer;
-use sqruff_lib_core::parser::segments::fix::SourceFix;
-use sqruff_lib_core::parser::segments::{ErasedSegment, Tables};
-use sqruff_lib_core::templaters::TemplatedFile;
+use sqruff_parser_tree::helpers;
+use sqruff_parser_tree::linter::compute_anchor_edit_info;
+use sqruff_parser_tree::parser::Parser;
+use sqruff_parser_tree::lexer::Lexer;
+use sqruff_parser_tree::parser::segments::fix::SourceFix;
+use sqruff_parser_tree::parser::segments::{ErasedSegment, Tables};
+use sqruff_parser_tree::templaters::TemplatedFile;
 use walkdir::WalkDir;
 
 pub struct Linter {
@@ -685,7 +685,7 @@ impl Linter {
 
 #[cfg(test)]
 mod tests {
-    use sqruff_lib_core::parser::segments::Tables;
+    use sqruff_parser_tree::parser::segments::Tables;
 
     use crate::core::config::FluffConfig;
     use crate::core::linter::core::Linter;

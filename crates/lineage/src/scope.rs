@@ -3,7 +3,7 @@ use std::collections::HashMap;
 use std::rc::Rc;
 
 use indexmap::IndexMap;
-use sqruff_lib_core::helpers::Config;
+use sqruff_parser_tree::helpers::Config;
 
 use crate::ir::{Expr, ExprData, ExprKind, Tables};
 

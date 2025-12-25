@@ -2,7 +2,7 @@ use clap::Parser as _;
 use commands::Format;
 use sqruff_lib::core::linter::core::Linter;
 use sqruff_lib::{Formatter, core::config::FluffConfig};
-use sqruff_lib_core::dialects::init::DialectKind;
+use sqruff_parser_tree::dialects::init::DialectKind;
 use std::path::Path;
 use std::sync::Arc;
 use stdin::is_std_in_flag_input;

@@ -1,6 +1,6 @@
 use ahash::AHashMap;
-use sqruff_lib_core::dialects::syntax::{SyntaxKind, SyntaxSet};
-use sqruff_lib_core::lint_fix::LintFix;
+use sqruff_parser_tree::dialects::syntax::{SyntaxKind, SyntaxSet};
+use sqruff_parser_tree::lint_fix::LintFix;
 
 use crate::core::config::Value;
 use crate::core::rules::context::RuleContext;

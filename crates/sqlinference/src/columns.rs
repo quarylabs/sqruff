@@ -1,6 +1,6 @@
-use sqruff_lib_core::dialects::syntax::{SyntaxKind, SyntaxSet};
-use sqruff_lib_core::parser::Parser;
-use sqruff_lib_core::utils::analysis::query::Query;
+use sqruff_parser_tree::dialects::syntax::{SyntaxKind, SyntaxSet};
+use sqruff_parser_tree::parser::Parser;
+use sqruff_parser_tree::utils::analysis::query::Query;
 
 use crate::parse_sql;
 
@@ -55,7 +55,7 @@ pub fn get_columns_internal(
 
 #[cfg(test)]
 mod tests {
-    use sqruff_lib_core::parser::Parser;
+    use sqruff_parser_tree::parser::Parser;
     use sqruff_lib_dialects::ansi;
 
     use super::*;

@@ -3,12 +3,12 @@ use criterion::{Criterion, criterion_group, criterion_main};
 use pprof::criterion::{Output, PProfProfiler};
 use sqruff_lib::core::config::FluffConfig;
 use sqruff_lib::core::test_functions::fresh_ansi_dialect;
-use sqruff_lib_core::dialects::syntax::SyntaxKind;
-use sqruff_lib_core::parser::CoreParser;
-use sqruff_lib_core::parser::adapters::tokens_from_segments;
-use sqruff_lib_core::parser::context::ParseContext;
-use sqruff_lib_core::parser::matchable::MatchableTrait as _;
-use sqruff_lib_core::parser::segments::test_functions::lex;
+use sqruff_parser_core::dialects::syntax::SyntaxKind;
+use sqruff_parser_core::parser::Parser as CoreParser;
+use sqruff_parser_core::parser::context::ParseContext;
+use sqruff_parser_core::parser::matchable::MatchableTrait as _;
+use sqruff_parser_tree::parser::adapters::tokens_from_segments;
+use sqruff_parser_tree::parser::segments::test_functions::lex;
 use std::hint::black_box;
 
 include!("shims/global_alloc_overwrite.rs");

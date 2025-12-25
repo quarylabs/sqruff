@@ -5,9 +5,9 @@ use indexmap::{IndexMap, IndexSet};
 use ir::{Expr, ExprKind, Tables};
 use schema::Schema;
 use scope::{Scope, ScopeKind, Source};
-use sqruff_lib_core::parser::Parser;
-use sqruff_lib_core::parser::lexer::Lexer;
-use sqruff_lib_core::parser::segments::ErasedSegment;
+use sqruff_parser_tree::parser::Parser;
+use sqruff_parser_tree::lexer::Lexer;
+use sqruff_parser_tree::parser::segments::ErasedSegment;
 
 mod expand;
 pub mod ir;
@@ -73,13 +73,13 @@ impl<'config> Lineage<'config> {
 }
 
 fn parse_sql(parser: &Parser, source: &str) -> ErasedSegment {
-    let tables = sqruff_lib_core::parser::segments::Tables::default();
+    let tables = sqruff_parser_tree::parser::segments::Tables::default();
     let ansi = sqruff_lib_dialects::ansi::dialect();
     let lexer = Lexer::from(&ansi);
 
     let (tokens, _) = lexer.lex(&tables, source);
 
-    let tables = sqruff_lib_core::parser::segments::Tables::default();
+    let tables = sqruff_parser_tree::parser::segments::Tables::default();
     parser.parse(&tables, &tokens).unwrap().unwrap()
 }
 
@@ -380,7 +380,7 @@ fn to_node(
 mod tests {
     use std::collections::HashMap;
 
-    use sqruff_lib_core::parser::Parser;
+    use sqruff_parser_tree::parser::Parser;
 
     use crate::Lineage;
 

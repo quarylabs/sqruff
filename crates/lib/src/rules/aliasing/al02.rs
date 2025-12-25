@@ -1,5 +1,5 @@
 use ahash::AHashMap;
-use sqruff_lib_core::dialects::syntax::{SyntaxKind, SyntaxSet};
+use sqruff_parser_tree::dialects::syntax::{SyntaxKind, SyntaxSet};
 
 use super::al01::{Aliasing, RuleAL01};
 use crate::core::config::Value;

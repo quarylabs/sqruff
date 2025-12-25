@@ -25,7 +25,7 @@ codegen-docs = ["clap-markdown", "minijinja", "python"]
 
 [dependencies]
 sqruff-lib.workspace = true
-sqruff-lib-core.workspace = true
+sqruff-parser-tree.workspace = true
 sqruff-lsp.workspace = true
 strum_macros.workspace = true
 fern = "0.7"

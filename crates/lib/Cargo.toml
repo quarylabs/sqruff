@@ -38,11 +38,11 @@ name = "depth_map"
 harness = false
 
 [features]
-parser = ["sqruff-lib-core/stringify"]
-python = ["pyo3", "sqruff-lib-core/serde"]
+parser = ["sqruff-parser-tree/stringify"]
+python = ["pyo3", "sqruff-parser-tree/serde"]
 
 [dependencies]
-sqruff-lib-core.workspace = true
+sqruff-parser-tree.workspace = true
 sqruff-lib-dialects.workspace = true
 
 fancy-regex = "0.16.2"
@@ -87,5 +87,6 @@ serde_with = { version = "3.13", default-features = false, features = [
     "alloc",
     "macros",
 ] }
-sqruff-lib-core = { path = "../lib-core", features = ["serde"] }
+sqruff-parser-core.workspace = true
+sqruff-parser-tree = { workspace = true, features = ["serde"] }
 pyo3 = { version = "0.26.0", features = ["auto-initialize"] }

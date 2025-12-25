@@ -1,8 +1,8 @@
 use ahash::AHashMap;
-use sqruff_lib_core::dialects::common::AliasInfo;
-use sqruff_lib_core::dialects::syntax::{SyntaxKind, SyntaxSet};
-use sqruff_lib_core::parser::segments::ErasedSegment;
-use sqruff_lib_core::utils::analysis::query::{Query, Selectable, Source};
+use sqruff_parser_tree::dialects::common::AliasInfo;
+use sqruff_parser_tree::dialects::syntax::{SyntaxKind, SyntaxSet};
+use sqruff_parser_tree::parser::segments::ErasedSegment;
+use sqruff_parser_tree::utils::analysis::query::{Query, Selectable, Source};
 
 use crate::core::config::Value;
 use crate::core::rules::context::RuleContext;

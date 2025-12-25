@@ -1,22 +1,22 @@
-use sqruff_lib_core::dialects::Dialect;
-use sqruff_lib_core::dialects::init::DialectKind;
-use sqruff_lib_core::dialects::syntax::SyntaxKind;
-use sqruff_lib_core::helpers::{Config, ToMatchable};
-use sqruff_lib_core::parser::grammar::anyof::{
+use sqruff_parser_core::dialects::Dialect;
+use sqruff_parser_core::dialects::init::DialectKind;
+use sqruff_parser_core::dialects::syntax::SyntaxKind;
+use sqruff_parser_core::helpers::{Config, ToMatchable};
+use sqruff_parser_core::parser::grammar::anyof::{
     AnyNumberOf, any_set_of, one_of, optionally_bracketed,
 };
-use sqruff_lib_core::parser::grammar::conditional::Conditional;
-use sqruff_lib_core::parser::grammar::delimited::Delimited;
-use sqruff_lib_core::parser::grammar::sequence::{Bracketed, Sequence};
-use sqruff_lib_core::parser::grammar::{Anything, Ref};
-use sqruff_lib_core::parser::lexer::Matcher;
-use sqruff_lib_core::parser::matchable::MatchableTrait;
-use sqruff_lib_core::parser::node_matcher::NodeMatcher;
-use sqruff_lib_core::parser::parsers::{RegexParser, StringParser, TypedParser};
-use sqruff_lib_core::parser::segments::generator::SegmentGenerator;
-use sqruff_lib_core::parser::segments::meta::MetaSegment;
-use sqruff_lib_core::parser::types::ParseMode;
-use sqruff_lib_core::vec_of_erased;
+use sqruff_parser_core::parser::grammar::conditional::Conditional;
+use sqruff_parser_core::parser::grammar::delimited::Delimited;
+use sqruff_parser_core::parser::grammar::sequence::{Bracketed, Sequence};
+use sqruff_parser_core::parser::grammar::{Anything, Ref};
+use sqruff_parser_core::parser::lexer::Matcher;
+use sqruff_parser_core::parser::matchable::MatchableTrait;
+use sqruff_parser_core::parser::node_matcher::NodeMatcher;
+use sqruff_parser_core::parser::parsers::{RegexParser, StringParser, TypedParser};
+use sqruff_parser_core::parser::segments::generator::SegmentGenerator;
+use sqruff_parser_core::parser::segments::meta::MetaSegment;
+use sqruff_parser_core::parser::types::ParseMode;
+use sqruff_parser_core::vec_of_erased;
 
 use super::ansi::{self, raw_dialect};
 use crate::clickhouse_keywords::UNRESERVED_KEYWORDS;

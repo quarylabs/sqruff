@@ -10,7 +10,7 @@ use std::io::{Stderr, Write};
 use anstyle::{AnsiColor, Effects, Style};
 use sqruff_lib::Formatter;
 use sqruff_lib::core::linter::linted_file::LintedFile;
-use sqruff_lib_core::errors::SQLBaseError;
+use sqruff_parser_tree::errors::SQLBaseError;
 
 use crate::formatters::utils::{
     colorize_helper, should_produce_plain_output, split_string_on_spaces,
@@ -172,7 +172,7 @@ impl Status {
 mod tests {
     use anstyle::AnsiColor;
     use fancy_regex::Regex;
-    use sqruff_lib_core::errors::{ErrorStructRule, SQLBaseError};
+    use sqruff_parser_tree::errors::{ErrorStructRule, SQLBaseError};
 
     use crate::formatters::{OutputStreamFormatter, utils::split_string_on_spaces};
 

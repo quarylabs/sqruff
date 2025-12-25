@@ -2,11 +2,11 @@ use std::fmt::Debug;
 
 use ahash::{AHashMap, AHashSet};
 use smol_str::SmolStr;
-use sqruff_lib_core::dialects::common::{AliasInfo, ColumnAliasInfo};
-use sqruff_lib_core::dialects::syntax::{SyntaxKind, SyntaxSet};
-use sqruff_lib_core::helpers::IndexSet;
-use sqruff_lib_core::parser::segments::object_reference::ObjectReferenceSegment;
-use sqruff_lib_core::utils::analysis::select::get_select_statement_info;
+use sqruff_parser_tree::dialects::common::{AliasInfo, ColumnAliasInfo};
+use sqruff_parser_tree::dialects::syntax::{SyntaxKind, SyntaxSet};
+use sqruff_parser_tree::helpers::IndexSet;
+use sqruff_parser_tree::parser::segments::object_reference::ObjectReferenceSegment;
+use sqruff_parser_tree::utils::analysis::select::get_select_statement_info;
 
 use crate::core::config::Value;
 use crate::core::rules::context::RuleContext;

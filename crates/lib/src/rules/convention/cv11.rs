@@ -1,9 +1,9 @@
 use ahash::AHashMap;
 use itertools::chain;
-use sqruff_lib_core::dialects::syntax::{SyntaxKind, SyntaxSet};
-use sqruff_lib_core::lint_fix::LintFix;
-use sqruff_lib_core::parser::segments::{ErasedSegment, SegmentBuilder, Tables};
-use sqruff_lib_core::utils::functional::segments::Segments;
+use sqruff_parser_tree::dialects::syntax::{SyntaxKind, SyntaxSet};
+use sqruff_parser_tree::lint_fix::LintFix;
+use sqruff_parser_tree::parser::segments::{ErasedSegment, SegmentBuilder, Tables};
+use sqruff_parser_tree::utils::functional::segments::Segments;
 use strum_macros::{AsRefStr, EnumString};
 
 use crate::core::config::Value;
@@ -479,7 +479,7 @@ fn convert_fix_list(
     convert_arg_2: ErasedSegment,
     later_types: Option<Segments>,
 ) -> Vec<LintFix> {
-    use sqruff_lib_core::parser::segments::ErasedSegment;
+    use sqruff_parser_tree::parser::segments::ErasedSegment;
 
     let mut edits: Vec<ErasedSegment> = vec![
         SegmentBuilder::token(

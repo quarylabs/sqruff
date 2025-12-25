@@ -3,14 +3,14 @@ use std::cell::RefCell;
 use ahash::AHashMap;
 use itertools::Itertools;
 use smol_str::SmolStr;
-use sqruff_lib_core::dialects::Dialect;
-use sqruff_lib_core::dialects::common::AliasInfo;
-use sqruff_lib_core::dialects::init::DialectKind;
-use sqruff_lib_core::dialects::syntax::{SyntaxKind, SyntaxSet};
-use sqruff_lib_core::parser::segments::object_reference::{
+use sqruff_parser_tree::dialects::Dialect;
+use sqruff_parser_tree::dialects::common::AliasInfo;
+use sqruff_parser_tree::dialects::init::DialectKind;
+use sqruff_parser_tree::dialects::syntax::{SyntaxKind, SyntaxSet};
+use sqruff_parser_tree::parser::segments::object_reference::{
     ObjectReferenceLevel, ObjectReferencePart, ObjectReferenceSegment,
 };
-use sqruff_lib_core::utils::analysis::query::{Query, Selectable};
+use sqruff_parser_tree::utils::analysis::query::{Query, Selectable};
 
 use crate::core::config::Value;
 use crate::core::rules::context::RuleContext;

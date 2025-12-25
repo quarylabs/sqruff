@@ -1,6 +1,6 @@
 #[cfg(test)]
 mod tests {
-    use sqruff_lib_core::parser::segments::Tables;
+    use sqruff_parser_tree::parser::segments::Tables;
 
     use crate::core::config::FluffConfig;
     use crate::core::linter::core::Linter;

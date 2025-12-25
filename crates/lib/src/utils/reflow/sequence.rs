@@ -2,9 +2,9 @@ use std::cmp::PartialEq;
 use std::mem::take;
 
 use itertools::Itertools;
-use sqruff_lib_core::dialects::syntax::SyntaxKind;
-use sqruff_lib_core::lint_fix::LintFix;
-use sqruff_lib_core::parser::segments::{ErasedSegment, Tables};
+use sqruff_parser_tree::dialects::syntax::SyntaxKind;
+use sqruff_parser_tree::lint_fix::LintFix;
+use sqruff_parser_tree::parser::segments::{ErasedSegment, Tables};
 
 use super::config::ReflowConfig;
 use super::depth_map::DepthMap;

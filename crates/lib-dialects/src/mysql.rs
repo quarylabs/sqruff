@@ -1,12 +1,12 @@
-use sqruff_lib_core::dialects::Dialect;
-use sqruff_lib_core::dialects::init::DialectKind;
-use sqruff_lib_core::dialects::syntax::SyntaxKind;
-use sqruff_lib_core::helpers::{Config, ToMatchable};
-use sqruff_lib_core::parser::grammar::Ref;
-use sqruff_lib_core::parser::grammar::anyof::one_of;
-use sqruff_lib_core::parser::lexer::Matcher;
-use sqruff_lib_core::parser::node_matcher::NodeMatcher;
-use sqruff_lib_core::vec_of_erased;
+use sqruff_parser_core::dialects::Dialect;
+use sqruff_parser_core::dialects::init::DialectKind;
+use sqruff_parser_core::dialects::syntax::SyntaxKind;
+use sqruff_parser_core::helpers::{Config, ToMatchable};
+use sqruff_parser_core::parser::grammar::Ref;
+use sqruff_parser_core::parser::grammar::anyof::one_of;
+use sqruff_parser_core::parser::lexer::Matcher;
+use sqruff_parser_core::parser::node_matcher::NodeMatcher;
+use sqruff_parser_core::vec_of_erased;
 
 use super::ansi;
 

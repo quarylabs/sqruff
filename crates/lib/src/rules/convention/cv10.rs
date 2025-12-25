@@ -1,9 +1,9 @@
 use ahash::AHashMap;
 use regex::Regex;
-use sqruff_lib_core::dialects::init::DialectKind;
-use sqruff_lib_core::dialects::syntax::{SyntaxKind, SyntaxSet};
-use sqruff_lib_core::lint_fix::LintFix;
-use sqruff_lib_core::parser::segments::SegmentBuilder;
+use sqruff_parser_tree::dialects::init::DialectKind;
+use sqruff_parser_tree::dialects::syntax::{SyntaxKind, SyntaxSet};
+use sqruff_parser_tree::lint_fix::LintFix;
+use sqruff_parser_tree::parser::segments::SegmentBuilder;
 use strum_macros::{AsRefStr, EnumString};
 
 use crate::core::config::Value;

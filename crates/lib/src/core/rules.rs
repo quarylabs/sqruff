@@ -10,13 +10,13 @@ use std::sync::Arc;
 
 use ahash::{AHashMap, AHashSet};
 use itertools::chain;
-use sqruff_lib_core::dialects::Dialect;
-use sqruff_lib_core::dialects::init::DialectKind;
-use sqruff_lib_core::errors::{ErrorStructRule, SQLLintError};
-use sqruff_lib_core::helpers::{Config, IndexMap};
-use sqruff_lib_core::lint_fix::LintFix;
-use sqruff_lib_core::parser::segments::{ErasedSegment, Tables};
-use sqruff_lib_core::templaters::TemplatedFile;
+use sqruff_parser_tree::dialects::Dialect;
+use sqruff_parser_tree::dialects::init::DialectKind;
+use sqruff_parser_tree::errors::{ErrorStructRule, SQLLintError};
+use sqruff_parser_tree::helpers::{Config, IndexMap};
+use sqruff_parser_tree::lint_fix::LintFix;
+use sqruff_parser_tree::parser::segments::{ErasedSegment, Tables};
+use sqruff_parser_tree::templaters::TemplatedFile;
 use strum_macros::AsRefStr;
 
 use crate::core::config::{FluffConfig, Value};

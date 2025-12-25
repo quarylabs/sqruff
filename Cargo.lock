@@ -926,8 +926,8 @@ dependencies = [
  "append-only-vec",
  "indexmap",
  "polonius-the-crab",
- "sqruff-lib-core",
  "sqruff-lib-dialects",
+ "sqruff-parser-tree",
 ]
 
 [[package]]
@@ -1590,8 +1590,8 @@ dependencies = [
  "serde",
  "serde_json",
  "sqruff-lib",
- "sqruff-lib-core",
  "sqruff-lsp",
+ "sqruff-parser-tree",
  "strum_macros",
  "tempfile",
 ]
@@ -1637,8 +1637,9 @@ dependencies = [
  "serde_yaml",
  "smol_str",
  "sqruff-lib",
- "sqruff-lib-core",
  "sqruff-lib-dialects",
+ "sqruff-parser-core",
+ "sqruff-parser-tree",
  "strum",
  "strum_macros",
  "walkdir",
@@ -1679,7 +1680,8 @@ dependencies = [
  "itertools 0.14.0",
  "rayon",
  "serde_yaml",
- "sqruff-lib-core",
+ "sqruff-parser-core",
+ "sqruff-parser-tree",
  "strum",
 ]
 
@@ -1748,8 +1750,8 @@ dependencies = [
 name = "sqruff-sqlinference"
 version = "0.29.3"
 dependencies = [
- "sqruff-lib-core",
  "sqruff-lib-dialects",
+ "sqruff-parser-tree",
 ]
 
 [[package]]
@@ -1760,7 +1762,7 @@ dependencies = [
  "line-index",
  "lineage",
  "sqruff-lib",
- "sqruff-lib-core",
+ "sqruff-parser-tree",
  "wasm-bindgen",
 ]
 

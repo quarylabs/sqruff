@@ -1,4 +1,4 @@
-use sqruff_lib_core::utils::functional::segments::Segments;
+use sqruff_parser_tree::utils::functional::segments::Segments;
 
 use crate::core::rules::context::RuleContext;
 

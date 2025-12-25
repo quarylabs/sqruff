@@ -29,6 +29,8 @@ sqruff-lib = { version = "0.29.3", path = "crates/lib" }
 sqruff-lsp = { version = "0.29.3", path = "crates/lsp" }
 sqruff-lib-core = { version = "0.29.3", path = "crates/lib-core" }
 sqruff-lib-dialects = { version = "0.29.3", path = "crates/lib-dialects" }
+sqruff-parser-core = { version = "0.29.3", path = "crates/parser-core" }
+sqruff-parser-tree = { version = "0.29.3", path = "crates/parser-tree" }
 wasm-bindgen = "0.2"
 wasm-pack = "0.13.1"
 

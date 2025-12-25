@@ -1,7 +1,7 @@
 use ahash::{AHashMap, AHashSet};
 use regex::Regex;
-use sqruff_lib_core::dialects::init::DialectKind;
-use sqruff_lib_core::dialects::syntax::{SyntaxKind, SyntaxSet};
+use sqruff_parser_tree::dialects::init::DialectKind;
+use sqruff_parser_tree::dialects::syntax::{SyntaxKind, SyntaxSet};
 
 use crate::core::config::Value;
 use crate::core::rules::context::RuleContext;

@@ -1,12 +1,12 @@
 use std::collections::{HashMap, HashSet};
 use std::fmt::Display;
 
-use sqruff_lib_core::dialects::Dialect;
-use sqruff_lib_core::dialects::syntax::{SyntaxKind, SyntaxSet};
-use sqruff_lib_core::parser::Parser;
-use sqruff_lib_core::parser::segments::ErasedSegment;
-use sqruff_lib_core::utils::analysis::query::Query;
-use sqruff_lib_core::utils::functional::segments::Segments;
+use sqruff_parser_tree::dialects::Dialect;
+use sqruff_parser_tree::dialects::syntax::{SyntaxKind, SyntaxSet};
+use sqruff_parser_tree::parser::Parser;
+use sqruff_parser_tree::parser::segments::ErasedSegment;
+use sqruff_parser_tree::utils::analysis::query::Query;
+use sqruff_parser_tree::utils::functional::segments::Segments;
 
 use crate::aggregate_functions::aggregate_is_test_inferrable;
 use crate::infer_tests::Source::{UnderlyingColumn, UnderlyingColumnWithOperation};

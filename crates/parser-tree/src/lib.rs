@@ -1,6 +1,7 @@
 pub mod dialects;
 pub mod errors;
 pub mod lexer;
+pub mod linter;
 pub mod lint_fix;
 pub mod parser;
 pub mod segments;

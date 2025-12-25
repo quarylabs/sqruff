@@ -1,7 +1,7 @@
 use std::ops::Deref;
 
 use ahash::AHashMap;
-use sqruff_lib_core::dialects::syntax::{SyntaxKind, SyntaxSet};
+use sqruff_parser_tree::dialects::syntax::{SyntaxKind, SyntaxSet};
 
 use super::lt03::RuleLT03;
 use crate::core::config::Value;

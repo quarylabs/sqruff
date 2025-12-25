@@ -1,6 +1,6 @@
-use sqruff_lib_core::errors::{SQLBaseError, SQLTemplaterError};
-use sqruff_lib_core::parser::segments::ErasedSegment;
-use sqruff_lib_core::templaters::TemplatedFile;
+use sqruff_parser_tree::errors::{SQLBaseError, SQLTemplaterError};
+use sqruff_parser_tree::parser::segments::ErasedSegment;
+use sqruff_parser_tree::templaters::TemplatedFile;
 
 /// An object to store the result of a templated file/string.
 ///

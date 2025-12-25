@@ -205,7 +205,10 @@ fn emit_content(
         IntMap::with_capacity(insert_segments.len() + child_matches.len());
 
     for (pos, insert) in insert_segments {
-        trigger_locs.entry(pos).or_default().push(Trigger::Meta(insert));
+        trigger_locs
+            .entry(pos)
+            .or_default()
+            .push(Trigger::Meta(insert));
     }
 
     for match_result in child_matches {

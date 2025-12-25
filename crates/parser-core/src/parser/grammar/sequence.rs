@@ -7,6 +7,7 @@ use crate::dialects::syntax::{SyntaxKind, SyntaxSet};
 use crate::errors::SQLParseError;
 use crate::helpers::ToMatchable;
 use crate::parser::context::ParseContext;
+use crate::parser::core::Token;
 use crate::parser::match_algorithms::{
     resolve_bracket, skip_start_index_forward_to_code, skip_stop_index_backward_to_code,
     trim_to_terminator,
@@ -15,7 +16,6 @@ use crate::parser::match_result::{MatchResult, Matched, Span};
 use crate::parser::matchable::{
     Matchable, MatchableCacheKey, MatchableTrait, next_matchable_cache_key,
 };
-use crate::parser::core::Token;
 use crate::parser::types::ParseMode;
 
 fn flush_metas(

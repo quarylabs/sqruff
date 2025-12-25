@@ -5,15 +5,15 @@ use expect_test::expect_file;
 use itertools::Itertools;
 use rayon::iter::ParallelIterator;
 use rayon::prelude::IntoParallelRefIterator;
+use sqruff_lib_dialects::kind_to_dialect;
 use sqruff_parser_tree::dialects::init::DialectKind;
 use sqruff_parser_tree::dialects::syntax::SyntaxKind;
 use sqruff_parser_tree::helpers;
-use sqruff_parser_tree::parser::Parser;
 use sqruff_parser_tree::lexer::Lexer;
+use sqruff_parser_tree::parser::Parser;
 use sqruff_parser_tree::parser::adapters::segments_from_tokens;
 use sqruff_parser_tree::parser::segments::{ErasedSegment, Tables};
 use sqruff_parser_tree::templaters::TemplatedFile;
-use sqruff_lib_dialects::kind_to_dialect;
 use strum::IntoEnumIterator;
 
 fn check_no_unparsable_segments(tree: &ErasedSegment) -> Vec<String> {

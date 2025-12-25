@@ -5,9 +5,9 @@ use crate::dialects::Dialect;
 use crate::dialects::syntax::SyntaxKind;
 use crate::errors::SQLParseError;
 use crate::parser::context::ParseContext;
+use crate::parser::core::Token;
 use crate::parser::match_result::{MatchResult, Matched};
 use crate::parser::matchable::Matchable;
-use crate::parser::core::Token;
 
 #[macro_export]
 macro_rules! vec_of_erased {

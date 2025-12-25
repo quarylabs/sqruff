@@ -25,10 +25,10 @@ use sqruff_parser_tree::errors::{
     SQLBaseError, SQLFluffUserError, SQLLexError, SQLLintError, SQLParseError,
 };
 use sqruff_parser_tree::helpers;
+use sqruff_parser_tree::lexer::Lexer;
 use sqruff_parser_tree::linter::compute_anchor_edit_info;
 use sqruff_parser_tree::parser::Parser;
 use sqruff_parser_tree::parser::adapters::segments_from_tokens;
-use sqruff_parser_tree::lexer::Lexer;
 use sqruff_parser_tree::parser::segments::fix::SourceFix;
 use sqruff_parser_tree::parser::segments::{ErasedSegment, Tables};
 use sqruff_parser_tree::templaters::TemplatedFile;

@@ -4,12 +4,12 @@ use std::ops::Range;
 use crate::dialects::Dialect;
 use crate::dialects::syntax::SyntaxKind;
 use crate::errors::SQLLexError;
+use crate::slice_helpers::{is_zero_slice, offset_slice};
+use crate::templaters::TemplatedFile;
 use sqruff_parser_core::parser::core::{Token, TokenSpan};
 pub use sqruff_parser_core::parser::lexer::{
     Cursor, Element, Match, Matcher, Pattern, SearchPatternKind,
 };
-use crate::slice_helpers::{is_zero_slice, offset_slice};
-use crate::templaters::TemplatedFile;
 
 /// A LexedElement, bundled with it's position in the templated file.
 #[derive(Debug)]
@@ -33,18 +33,11 @@ impl<'a> TemplateElement<'a> {
         TemplateElement {
             raw: element.into_text(),
             template_slice,
-            matcher: Info {
-                name,
-                syntax_kind,
-            },
+            matcher: Info { name, syntax_kind },
         }
     }
 
-    pub fn to_token(
-        &self,
-        span: TokenSpan,
-        subslice: Option<Range<usize>>,
-    ) -> Token {
+    pub fn to_token(&self, span: TokenSpan, subslice: Option<Range<usize>>) -> Token {
         let slice = subslice.map_or_else(|| self.raw.as_ref(), |slice| &self.raw[slice]);
         Token::new(self.matcher.syntax_kind, slice, span)
     }
@@ -77,7 +70,8 @@ impl Lexer {
             match pattern_def.kind() {
                 SearchPatternKind::String(raw) | SearchPatternKind::Regex(raw) => {
                     let raw = *raw;
-                    let pattern_str = if matches!(pattern_def.kind(), SearchPatternKind::String(_)) {
+                    let pattern_str = if matches!(pattern_def.kind(), SearchPatternKind::String(_))
+                    {
                         fancy_regex::escape(raw)
                     } else {
                         raw.into()
@@ -105,10 +99,7 @@ impl Lexer {
         }
     }
 
-    pub fn lex(
-        &self,
-        template: impl Into<TemplatedFile>,
-    ) -> (Vec<Token>, Vec<SQLLexError>) {
+    pub fn lex(&self, template: impl Into<TemplatedFile>) -> (Vec<Token>, Vec<SQLLexError>) {
         let template = template.into();
         let mut str_buff = template.templated_str.as_deref().unwrap();
 
@@ -142,10 +133,7 @@ impl Lexer {
         (tokens, Vec::new())
     }
 
-    pub fn lex_tokens(
-        &self,
-        template: impl Into<TemplatedFile>,
-    ) -> (Vec<Token>, Vec<SQLLexError>) {
+    pub fn lex_tokens(&self, template: impl Into<TemplatedFile>) -> (Vec<Token>, Vec<SQLLexError>) {
         self.lex(template)
     }
 
@@ -258,7 +246,11 @@ impl Lexer {
     }
 }
 
-fn token_span_for_element(element: &TemplateElement, source_start: usize, source_end: usize) -> TokenSpan {
+fn token_span_for_element(
+    element: &TemplateElement,
+    source_start: usize,
+    source_end: usize,
+) -> TokenSpan {
     TokenSpan::new(
         source_start,
         source_end,
@@ -267,10 +259,7 @@ fn token_span_for_element(element: &TemplateElement, source_start: usize, source
     )
 }
 
-fn iter_tokens(
-    lexed_elements: Vec<TemplateElement>,
-    templated_file: &TemplatedFile,
-) -> Vec<Token> {
+fn iter_tokens(lexed_elements: Vec<TemplateElement>, templated_file: &TemplatedFile) -> Vec<Token> {
     let mut result: Vec<Token> = Vec::with_capacity(lexed_elements.len());
     // An index to track where we've got to in the templated file.
     let mut tfs_idx = 0;
@@ -321,10 +310,9 @@ fn iter_tokens(
                     let source_slice_end =
                         (element.template_slice.end as isize + tfs_offset) as usize;
                     let span = token_span_for_element(&element, slice_start, source_slice_end);
-                    result.push(element.to_token(
-                        span,
-                        Some(consumed_element_length..element.raw.len()),
-                    ));
+                    result.push(
+                        element.to_token(span, Some(consumed_element_length..element.raw.len())),
+                    );
 
                     // If it was an exact match, consume the templated element too.
                     if element.template_slice.end == tfs.templated_slice.end {
@@ -420,10 +408,10 @@ fn iter_tokens(
 
                         let span =
                             token_span_for_element(&element, slice_start, tfs.source_slice.end);
-                        result.push(element.to_token(
-                            span,
-                            Some(consumed_element_length..element.raw.len()),
-                        ));
+                        result.push(
+                            element
+                                .to_token(span, Some(consumed_element_length..element.raw.len())),
+                        );
 
                         // If it was an exact match, consume the templated element too.
                         if element.template_slice.end == tfs.templated_slice.end {

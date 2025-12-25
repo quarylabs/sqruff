@@ -1,7 +1,7 @@
-use sqruff_parser_core::parser::core::{Token, TokenSpan};
 use crate::parser::markers::PositionMarker;
 use crate::parser::segments::{ErasedSegment, SegmentBuilder, Tables};
 use crate::templaters::TemplatedFile;
+use sqruff_parser_core::parser::core::{Token, TokenSpan};
 
 pub fn token_span_from_marker(marker: &PositionMarker) -> TokenSpan {
     TokenSpan::new(
@@ -16,7 +16,11 @@ pub fn token_from_segment(segment: &ErasedSegment) -> Token {
     let marker = segment
         .get_position_marker()
         .expect("token segment should have a position marker");
-    Token::new(segment.get_type(), segment.raw().clone(), token_span_from_marker(marker))
+    Token::new(
+        segment.get_type(),
+        segment.raw().clone(),
+        token_span_from_marker(marker),
+    )
 }
 
 pub fn tokens_from_segments(segments: &[ErasedSegment]) -> Vec<Token> {

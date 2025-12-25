@@ -12,12 +12,12 @@ use crate::dialects::syntax::SyntaxSet;
 use crate::errors::SQLParseError;
 use crate::helpers::ToMatchable;
 use crate::parser::context::ParseContext;
+use crate::parser::core::Token;
 use crate::parser::match_algorithms::greedy_match;
 use crate::parser::match_result::MatchResult;
 use crate::parser::matchable::{
     Matchable, MatchableCacheKey, MatchableTrait, next_matchable_cache_key,
 };
-use crate::parser::core::Token;
 
 #[derive(Clone)]
 pub struct Ref {

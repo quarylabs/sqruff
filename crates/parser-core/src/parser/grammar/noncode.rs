@@ -3,9 +3,9 @@ use ahash::AHashSet;
 use crate::dialects::syntax::SyntaxSet;
 use crate::errors::SQLParseError;
 use crate::parser::context::ParseContext;
+use crate::parser::core::Token;
 use crate::parser::match_result::{MatchResult, Span};
 use crate::parser::matchable::{Matchable, MatchableCacheKey, MatchableTrait};
-use crate::parser::core::Token;
 
 #[derive(Debug, Clone, PartialEq)]
 pub struct NonCodeMatcher;

@@ -5,11 +5,11 @@ pub mod segments;
 use ahash::AHashMap;
 
 use sqruff_parser_core::errors::SQLParseError as CoreParseError;
+use sqruff_parser_core::parser::Parser as CoreParser;
 use sqruff_parser_core::parser::core::EventSink;
 use sqruff_parser_core::parser::events::{
     EventCollector, ParseEvent, ParseEventHandler, ParseEventHandlerSink,
 };
-use sqruff_parser_core::parser::Parser as CoreParser;
 
 use crate::dialects::Dialect;
 use crate::errors::SQLParseError;
@@ -59,8 +59,7 @@ impl<'a> Parser<'a> {
         }
 
         let templated_file = templated_file_for_segments(segments);
-        let mut builder =
-            SegmentTreeBuilder::new(self.dialect().name, tables, templated_file);
+        let mut builder = SegmentTreeBuilder::new(self.dialect().name, tables, templated_file);
         self.parse_with_sink(segments, &mut builder)?;
         let root = builder.finish();
 

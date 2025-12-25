@@ -10,7 +10,9 @@ use sqruff_parser_core::parser::grammar::{Anything, Nothing, Ref};
 use sqruff_parser_core::parser::lexer::Matcher;
 use sqruff_parser_core::parser::matchable::MatchableTrait;
 use sqruff_parser_core::parser::node_matcher::NodeMatcher;
-use sqruff_parser_core::parser::parsers::{MultiStringParser, RegexParser, StringParser, TypedParser};
+use sqruff_parser_core::parser::parsers::{
+    MultiStringParser, RegexParser, StringParser, TypedParser,
+};
 use sqruff_parser_core::parser::segments::generator::SegmentGenerator;
 use sqruff_parser_core::parser::segments::meta::MetaSegment;
 use sqruff_parser_core::parser::types::ParseMode;

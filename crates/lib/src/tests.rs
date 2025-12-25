@@ -8,9 +8,9 @@ use sqruff_parser_core::parser::Parser as CoreParser;
 use sqruff_parser_core::parser::context::ParseContext;
 use sqruff_parser_core::parser::matchable::MatchableTrait;
 use sqruff_parser_tree::lexer::Lexer;
+use sqruff_parser_tree::parser::segments::Tables;
 use sqruff_parser_tree::parser::segments::builder::SegmentTreeBuilder;
 use sqruff_parser_tree::parser::segments::test_functions::lex;
-use sqruff_parser_tree::parser::segments::Tables;
 use sqruff_parser_tree::templaters::TemplatedFile;
 
 #[test]

@@ -4,8 +4,8 @@ use expect_test::expect_file;
 use glob::glob;
 use sqruff_lib::core::config::FluffConfig;
 use sqruff_lib::core::linter::core::Linter;
-use sqruff_parser_tree::parser::Parser;
 use sqruff_parser_tree::lexer::Lexer;
+use sqruff_parser_tree::parser::Parser;
 use sqruff_parser_tree::parser::adapters::segments_from_tokens;
 use sqruff_parser_tree::parser::segments::Tables;
 

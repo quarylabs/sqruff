@@ -12,7 +12,9 @@ use sqruff_parser_core::parser::grammar::{Anything, Ref};
 use sqruff_parser_core::parser::lexer::Matcher;
 use sqruff_parser_core::parser::matchable::MatchableTrait;
 use sqruff_parser_core::parser::node_matcher::NodeMatcher;
-use sqruff_parser_core::parser::parsers::{MultiStringParser, RegexParser, StringParser, TypedParser};
+use sqruff_parser_core::parser::parsers::{
+    MultiStringParser, RegexParser, StringParser, TypedParser,
+};
 use sqruff_parser_core::parser::segments::bracketed::BracketedSegmentMatcher;
 use sqruff_parser_core::parser::segments::meta::MetaSegment;
 use sqruff_parser_core::parser::types::ParseMode;

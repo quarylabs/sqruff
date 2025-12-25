@@ -11,7 +11,9 @@ use sqruff_parser_core::parser::lexer::{Cursor, Matcher, Pattern};
 use sqruff_parser_core::parser::lookahead::LookaheadExclude;
 use sqruff_parser_core::parser::matchable::{Matchable, MatchableTrait};
 use sqruff_parser_core::parser::node_matcher::NodeMatcher;
-use sqruff_parser_core::parser::parsers::{MultiStringParser, RegexParser, StringParser, TypedParser};
+use sqruff_parser_core::parser::parsers::{
+    MultiStringParser, RegexParser, StringParser, TypedParser,
+};
 use sqruff_parser_core::parser::segments::bracketed::BracketedSegmentMatcher;
 use sqruff_parser_core::parser::segments::generator::SegmentGenerator;
 use sqruff_parser_core::parser::segments::meta::MetaSegment;

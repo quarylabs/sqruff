@@ -237,7 +237,6 @@ impl Dialect {
                 }
             }
         }
-
     }
 }
 

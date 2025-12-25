@@ -1,10 +1,10 @@
 use ahash::AHashSet;
 
 use super::context::ParseContext;
+use super::core::Token;
 use super::match_algorithms::skip_start_index_forward_to_code;
 use super::match_result::MatchResult;
 use super::matchable::{Matchable, MatchableCacheKey, MatchableTrait, next_matchable_cache_key};
-use super::core::Token;
 use crate::dialects::syntax::SyntaxSet;
 use crate::errors::SQLParseError;
 

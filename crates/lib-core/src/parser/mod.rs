@@ -7,4 +7,4 @@ pub use sqruff_parser_core::parser::{
 };
 
 pub use sqruff_parser_core::parser::Parser as CoreParser;
-pub use sqruff_parser_tree::parser::{adapters, markers, Parser};
+pub use sqruff_parser_tree::parser::{Parser, adapters, markers};

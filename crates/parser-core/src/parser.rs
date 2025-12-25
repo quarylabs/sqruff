@@ -87,10 +87,7 @@ fn root_parse_events(
     parse_context: &mut ParseContext,
     sink: &mut impl EventSink,
 ) -> Result<(), SQLParseError> {
-    let start_idx = tokens
-        .iter()
-        .position(|token| token.is_code())
-        .unwrap_or(0) as u32;
+    let start_idx = tokens.iter().position(|token| token.is_code()).unwrap_or(0) as u32;
 
     let end_idx = tokens
         .iter()

@@ -2,10 +2,10 @@ use smol_str::SmolStr;
 
 use crate::dialects::init::DialectKind;
 use crate::dialects::syntax::SyntaxKind;
-use sqruff_parser_core::parser::core::{EventSink, Token};
 use crate::parser::markers::PositionMarker;
 use crate::parser::segments::{ErasedSegment, SegmentBuilder, Tables};
 use crate::templaters::TemplatedFile;
+use sqruff_parser_core::parser::core::{EventSink, Token};
 
 pub struct SegmentTreeBuilder<'a> {
     dialect: DialectKind,
@@ -59,14 +59,9 @@ impl<'a> EventSink for SegmentTreeBuilder<'a> {
         let frame = self.stack.pop().expect("exit_node without enter_node");
         assert_eq!(frame.kind, kind, "exit_node kind mismatch");
 
-        let node = SegmentBuilder::node(
-            self.tables.next_id(),
-            kind,
-            self.dialect,
-            frame.children,
-        )
-        .position_from_segments()
-        .finish();
+        let node = SegmentBuilder::node(self.tables.next_id(), kind, self.dialect, frame.children)
+            .position_from_segments()
+            .finish();
 
         self.push_segment(node);
     }

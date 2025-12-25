@@ -3,17 +3,13 @@ use itertools::{Itertools as _, enumerate, multiunzip};
 use smol_str::StrExt;
 
 use super::context::ParseContext;
+use super::core::Token;
 use super::match_result::{MatchResult, Matched, Span};
 use super::matchable::{Matchable, MatchableTrait};
-use super::core::Token;
 use crate::dialects::syntax::{SyntaxKind, SyntaxSet};
 use crate::errors::SQLParseError;
 
-pub fn skip_start_index_forward_to_code(
-    segments: &[Token],
-    start_idx: u32,
-    max_idx: u32,
-) -> u32 {
+pub fn skip_start_index_forward_to_code(segments: &[Token], start_idx: u32, max_idx: u32) -> u32 {
     let mut idx = start_idx;
     while idx < max_idx {
         if segments[idx as usize].is_code() {
@@ -24,11 +20,7 @@ pub fn skip_start_index_forward_to_code(
     idx
 }
 
-pub fn skip_stop_index_backward_to_code(
-    segments: &[Token],
-    stop_idx: u32,
-    min_idx: u32,
-) -> u32 {
+pub fn skip_stop_index_backward_to_code(segments: &[Token], stop_idx: u32, min_idx: u32) -> u32 {
     let mut idx = stop_idx;
     while idx > min_idx {
         if segments[idx as usize - 1].is_code() {
@@ -48,10 +40,7 @@ pub fn first_trimmed_raw(seg: &Token) -> String {
         .unwrap_or_default()
 }
 
-pub fn first_non_whitespace(
-    segments: &[Token],
-    start_idx: u32,
-) -> Option<(String, &SyntaxSet)> {
+pub fn first_non_whitespace(segments: &[Token], start_idx: u32) -> Option<(String, &SyntaxSet)> {
     for segment in segments.iter().skip(start_idx as usize) {
         if let Some(raw) = segment.first_non_whitespace_segment_raw_upper() {
             return Some((raw, segment.class_types()));

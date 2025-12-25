@@ -6,6 +6,7 @@ use ahash::AHashSet;
 use enum_dispatch::enum_dispatch;
 
 use super::context::ParseContext;
+use super::core::Token;
 use super::grammar::anyof::AnyNumberOf;
 use super::grammar::conditional::Conditional;
 use super::grammar::delimited::Delimited;
@@ -16,7 +17,6 @@ use super::lookahead::LookaheadExclude;
 use super::match_result::MatchResult;
 use super::node_matcher::NodeMatcher;
 use super::parsers::{MultiStringParser, RegexParser, StringParser, TypedParser};
-use super::core::Token;
 use super::segments::bracketed::BracketedSegmentMatcher;
 use super::segments::meta::MetaSegment;
 use crate::dialects::Dialect;

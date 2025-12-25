@@ -1,9 +1,9 @@
 use ahash::AHashSet;
 
-use crate::parser::core::Token;
 use crate::dialects::syntax::{SyntaxKind, SyntaxSet};
 use crate::errors::SQLParseError;
 use crate::parser::context::ParseContext;
+use crate::parser::core::Token;
 use crate::parser::match_result::MatchResult;
 use crate::parser::matchable::{
     Matchable, MatchableCacheKey, MatchableTrait, next_matchable_cache_key,

@@ -3,8 +3,8 @@ use std::ops::{Deref, DerefMut, Range};
 use fancy_regex::Regex;
 use thiserror::Error;
 
-use crate::parser::segments::ErasedSegment;
 use crate::parser::markers::PositionMarker;
+use crate::parser::segments::ErasedSegment;
 use sqruff_parser_core::helpers::Config;
 
 #[derive(Debug, PartialEq, Clone, Default, Error)]

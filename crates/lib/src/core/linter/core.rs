@@ -27,6 +27,7 @@ use sqruff_parser_tree::errors::{
 use sqruff_parser_tree::helpers;
 use sqruff_parser_tree::linter::compute_anchor_edit_info;
 use sqruff_parser_tree::parser::Parser;
+use sqruff_parser_tree::parser::adapters::segments_from_tokens;
 use sqruff_parser_tree::lexer::Lexer;
 use sqruff_parser_tree::parser::segments::fix::SourceFix;
 use sqruff_parser_tree::parser::segments::{ErasedSegment, Tables};
@@ -478,15 +479,16 @@ impl Linter {
         // Get the lexer
         let lexer = Lexer::from(dialect);
         // Lex the file and log any problems
-        let (tokens, lex_vs) = lexer.lex(tables, templated_file);
+        let (tokens, lex_vs) = lexer.lex(templated_file.clone());
 
         violations.extend(lex_vs);
 
-        if tokens.is_empty() {
+        let segments = segments_from_tokens(&tokens, &templated_file, tables);
+        if segments.is_empty() {
             return (None, violations);
         }
 
-        (tokens.into(), violations)
+        (segments.into(), violations)
     }
 
     /// Normalise newlines to unix-style line endings.

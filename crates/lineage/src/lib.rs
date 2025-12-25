@@ -7,7 +7,9 @@ use schema::Schema;
 use scope::{Scope, ScopeKind, Source};
 use sqruff_parser_tree::parser::Parser;
 use sqruff_parser_tree::lexer::Lexer;
+use sqruff_parser_tree::parser::adapters::segments_from_tokens;
 use sqruff_parser_tree::parser::segments::ErasedSegment;
+use sqruff_parser_tree::templaters::TemplatedFile;
 
 mod expand;
 pub mod ir;
@@ -73,14 +75,16 @@ impl<'config> Lineage<'config> {
 }
 
 fn parse_sql(parser: &Parser, source: &str) -> ErasedSegment {
-    let tables = sqruff_parser_tree::parser::segments::Tables::default();
+    let lex_tables = sqruff_parser_tree::parser::segments::Tables::default();
     let ansi = sqruff_lib_dialects::ansi::dialect();
     let lexer = Lexer::from(&ansi);
+    let templated_file: TemplatedFile = source.into();
 
-    let (tokens, _) = lexer.lex(&tables, source);
+    let (tokens, _) = lexer.lex(templated_file.clone());
+    let segments = segments_from_tokens(&tokens, &templated_file, &lex_tables);
 
-    let tables = sqruff_parser_tree::parser::segments::Tables::default();
-    parser.parse(&tables, &tokens).unwrap().unwrap()
+    let parse_tables = sqruff_parser_tree::parser::segments::Tables::default();
+    parser.parse(&parse_tables, &segments).unwrap().unwrap()
 }
 
 pub type Node = usize;

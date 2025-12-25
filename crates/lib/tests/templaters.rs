@@ -6,6 +6,7 @@ use sqruff_lib::core::config::FluffConfig;
 use sqruff_lib::core::linter::core::Linter;
 use sqruff_parser_tree::parser::Parser;
 use sqruff_parser_tree::lexer::Lexer;
+use sqruff_parser_tree::parser::adapters::segments_from_tokens;
 use sqruff_parser_tree::parser::segments::Tables;
 
 fn main() {
@@ -44,10 +45,11 @@ fn main() {
                     .process(&sql, &sql_file.to_string_lossy(), &config, &None)
                     .unwrap();
 
-                let (tokens, errors) = lexer.lex(&tables, templated_file);
+                let (tokens, errors) = lexer.lex(templated_file.clone());
                 assert!(errors.is_empty());
 
-                let parsed = parser.parse(&tables, &tokens).unwrap();
+                let segments = segments_from_tokens(&tokens, &templated_file, &tables);
+                let parsed = parser.parse(&tables, &segments).unwrap();
                 let tree = parsed.unwrap();
                 let tree = tree.to_serialised(true, true);
 

@@ -10,7 +10,9 @@ use sqruff_parser_tree::dialects::syntax::SyntaxKind;
 use sqruff_parser_tree::helpers;
 use sqruff_parser_tree::parser::Parser;
 use sqruff_parser_tree::lexer::Lexer;
+use sqruff_parser_tree::parser::adapters::segments_from_tokens;
 use sqruff_parser_tree::parser::segments::{ErasedSegment, Tables};
+use sqruff_parser_tree::templaters::TemplatedFile;
 use sqruff_lib_dialects::kind_to_dialect;
 use strum::IntoEnumIterator;
 
@@ -92,10 +94,12 @@ fn main() {
                 let tables = Tables::default();
                 let lexer = Lexer::from(&dialect);
                 let parser = Parser::from(&dialect);
-                let tokens = lexer.lex(&tables, sql);
-                assert!(tokens.1.is_empty());
+                let templated_file: TemplatedFile = sql.clone().into();
+                let (tokens, errors) = lexer.lex(templated_file.clone());
+                assert!(errors.is_empty());
+                let segments = segments_from_tokens(&tokens, &templated_file, &tables);
 
-                let parsed = parser.parse(&tables, &tokens.0).unwrap();
+                let parsed = parser.parse(&tables, &segments).unwrap();
                 let tree = parsed.unwrap();
 
                 // Check for unparsable segments

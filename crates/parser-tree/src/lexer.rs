@@ -1,13 +1,10 @@
 use std::borrow::Cow;
 use std::ops::Range;
 
-use crate::parser::markers::PositionMarker;
-use crate::parser::segments::{ErasedSegment, SegmentBuilder, Tables};
-use crate::parser::adapters::tokens_from_segments;
 use crate::dialects::Dialect;
 use crate::dialects::syntax::SyntaxKind;
 use crate::errors::SQLLexError;
-use sqruff_parser_core::parser::core::Token;
+use sqruff_parser_core::parser::core::{Token, TokenSpan};
 pub use sqruff_parser_core::parser::lexer::{
     Cursor, Element, Match, Matcher, Pattern, SearchPatternKind,
 };
@@ -43,15 +40,13 @@ impl<'a> TemplateElement<'a> {
         }
     }
 
-    pub fn to_segment(
+    pub fn to_token(
         &self,
-        pos_marker: PositionMarker,
+        span: TokenSpan,
         subslice: Option<Range<usize>>,
-    ) -> ErasedSegment {
+    ) -> Token {
         let slice = subslice.map_or_else(|| self.raw.as_ref(), |slice| &self.raw[slice]);
-        SegmentBuilder::token(0, slice, self.matcher.syntax_kind)
-            .with_position(pos_marker)
-            .finish()
+        Token::new(self.matcher.syntax_kind, slice, span)
     }
 }
 
@@ -112,9 +107,8 @@ impl Lexer {
 
     pub fn lex(
         &self,
-        tables: &Tables,
         template: impl Into<TemplatedFile>,
-    ) -> (Vec<ErasedSegment>, Vec<SQLLexError>) {
+    ) -> (Vec<Token>, Vec<SQLLexError>) {
         let template = template.into();
         let mut str_buff = template.templated_str.as_deref().unwrap();
 
@@ -142,23 +136,17 @@ impl Lexer {
         // Map tuple LexedElement to list of TemplateElement.
         // This adds the template_slice to the object.
         let templated_buffer = Lexer::map_template_slices(element_buffer, &template);
-        // Turn lexed elements into segments.
-        let mut segments = self.elements_to_segments(templated_buffer, &template);
+        // Turn lexed elements into tokens.
+        let tokens = self.elements_to_tokens(templated_buffer, &template);
 
-        for seg in &mut segments {
-            seg.get_mut().set_id(tables.next_id())
-        }
-
-        (segments, Vec::new())
+        (tokens, Vec::new())
     }
 
     pub fn lex_tokens(
         &self,
         template: impl Into<TemplatedFile>,
     ) -> (Vec<Token>, Vec<SQLLexError>) {
-        let tables = Tables::default();
-        let (segments, errors) = self.lex(&tables, template);
-        (tokens_from_segments(&segments), errors)
+        self.lex(template)
     }
 
     /// Generate any lexing errors for any un-lex-ables.
@@ -166,22 +154,6 @@ impl Lexer {
     /// TODO: Taking in an iterator, also can make the typing better than use
     /// unwrap.
     #[allow(dead_code)]
-    fn violations_from_segments(segments: Vec<ErasedSegment>) -> Vec<SQLLexError> {
-        segments
-            .into_iter()
-            .filter(|s| s.is_type(SyntaxKind::Unlexable))
-            .map(|s| {
-                SQLLexError::new(
-                    format!(
-                        "Unable to lex characters: {}",
-                        s.raw().chars().take(10).collect::<String>()
-                    ),
-                    s.get_position_marker().unwrap().clone(),
-                )
-            })
-            .collect()
-    }
-
     /// Iteratively match strings using the selection of sub-matchers.
     fn lex_match<'b>(&self, mut forward_string: &'b str) -> Match<'b> {
         let mut elem_buff = Vec::new();
@@ -261,35 +233,45 @@ impl Lexer {
         templated_buff
     }
 
-    /// Convert a tuple of lexed elements into a tuple of segments.
-    fn elements_to_segments(
+    /// Convert a tuple of lexed elements into a tuple of tokens.
+    fn elements_to_tokens(
         &self,
         elements: Vec<TemplateElement>,
         templated_file: &TemplatedFile,
-    ) -> Vec<ErasedSegment> {
-        let mut segments = iter_segments(elements, templated_file);
+    ) -> Vec<Token> {
+        let mut tokens = iter_tokens(elements, templated_file);
 
         // Add an end of file marker
-        let position_maker = match segments.last() {
-            Some(segment) => segment.get_position_marker().unwrap().end_point_marker(),
-            None => PositionMarker::from_point(0, 0, templated_file.clone(), None, None),
+        let eof_span = match tokens.last() {
+            Some(token) => TokenSpan::new(
+                token.span.source_end,
+                token.span.source_end,
+                token.span.templated_end,
+                token.span.templated_end,
+            ),
+            None => TokenSpan::new(0, 0, 0, 0),
         };
 
-        segments.push(
-            SegmentBuilder::token(0, "", SyntaxKind::EndOfFile)
-                .with_position(position_maker)
-                .finish(),
-        );
+        tokens.push(Token::new(SyntaxKind::EndOfFile, "", eof_span));
 
-        segments
+        tokens
     }
 }
 
-fn iter_segments(
+fn token_span_for_element(element: &TemplateElement, source_start: usize, source_end: usize) -> TokenSpan {
+    TokenSpan::new(
+        source_start,
+        source_end,
+        element.template_slice.start,
+        element.template_slice.end,
+    )
+}
+
+fn iter_tokens(
     lexed_elements: Vec<TemplateElement>,
     templated_file: &TemplatedFile,
-) -> Vec<ErasedSegment> {
-    let mut result: Vec<ErasedSegment> = Vec::with_capacity(lexed_elements.len());
+) -> Vec<Token> {
+    let mut result: Vec<Token> = Vec::with_capacity(lexed_elements.len());
     // An index to track where we've got to in the templated file.
     let mut tfs_idx = 0;
     // We keep a map of previous block locations in case they re-occur.
@@ -338,14 +320,9 @@ fn iter_segments(
 
                     let source_slice_end =
                         (element.template_slice.end as isize + tfs_offset) as usize;
-                    result.push(element.to_segment(
-                        PositionMarker::new(
-                            slice_start..source_slice_end,
-                            element.template_slice.clone(),
-                            templated_file.clone(),
-                            None,
-                            None,
-                        ),
+                    let span = token_span_for_element(&element, slice_start, source_slice_end);
+                    result.push(element.to_token(
+                        span,
                         Some(consumed_element_length..element.raw.len()),
                     ));
 
@@ -397,14 +374,10 @@ fn iter_segments(
                             panic!("Cannot convert {source_slice_end} to usize")
                         });
 
-                        result.push(element.to_segment(
-                            PositionMarker::new(
-                                source_slice_start..source_slice_end,
-                                element.template_slice.clone(),
-                                templated_file.clone(),
-                                None,
-                                None,
-                            ),
+                        let span =
+                            token_span_for_element(&element, source_slice_start, source_slice_end);
+                        result.push(element.to_token(
+                            span,
                             offset_slice(consumed_element_length, incremental_length).into(),
                         ));
                     } else {
@@ -445,14 +418,10 @@ fn iter_segments(
                             tfs.source_slice.start + consumed_element_length
                         };
 
-                        result.push(element.to_segment(
-                            PositionMarker::new(
-                                slice_start..tfs.source_slice.end,
-                                element.template_slice.clone(),
-                                templated_file.clone(),
-                                None,
-                                None,
-                            ),
+                        let span =
+                            token_span_for_element(&element, slice_start, tfs.source_slice.end);
+                        result.push(element.to_token(
+                            span,
                             Some(consumed_element_length..element.raw.len()),
                         ));
 

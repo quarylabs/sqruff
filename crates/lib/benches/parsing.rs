@@ -7,7 +7,6 @@ use sqruff_parser_core::dialects::syntax::SyntaxKind;
 use sqruff_parser_core::parser::Parser as CoreParser;
 use sqruff_parser_core::parser::context::ParseContext;
 use sqruff_parser_core::parser::matchable::MatchableTrait as _;
-use sqruff_parser_tree::parser::adapters::tokens_from_segments;
 use sqruff_parser_tree::parser::segments::test_functions::lex;
 use std::hint::black_box;
 
@@ -94,12 +93,11 @@ fn parse(c: &mut Criterion) {
         let parser: CoreParser = (&dialect).into();
         let mut ctx: ParseContext = (&parser).into();
         let segment = dialect.r#ref("FileSegment");
-        let mut segments = lex(config.get_dialect(), source);
+        let mut tokens = lex(config.get_dialect(), source);
 
-        if segments.last().unwrap().get_type() == SyntaxKind::EndOfFile {
-            segments.pop();
+        if matches!(tokens.last(), Some(token) if token.is_type(SyntaxKind::EndOfFile)) {
+            tokens.pop();
         }
-        let tokens = tokens_from_segments(&segments);
 
         c.bench_function(name, |b| {
             b.iter(|| {

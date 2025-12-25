@@ -7,11 +7,11 @@ use sqruff_parser_core::dialects::syntax::SyntaxKind;
 use sqruff_parser_core::parser::Parser as CoreParser;
 use sqruff_parser_core::parser::context::ParseContext;
 use sqruff_parser_core::parser::matchable::MatchableTrait;
-use sqruff_parser_tree::parser::adapters::tokens_from_segments;
 use sqruff_parser_tree::lexer::Lexer;
 use sqruff_parser_tree::parser::segments::builder::SegmentTreeBuilder;
 use sqruff_parser_tree::parser::segments::test_functions::lex;
 use sqruff_parser_tree::parser::segments::Tables;
+use sqruff_parser_tree::templaters::TemplatedFile;
 
 #[test]
 fn test_dialect_ansi_file_lex() {
@@ -30,9 +30,8 @@ fn test_dialect_ansi_file_lex() {
         let ansi = fresh_ansi_dialect();
         let lexer = Lexer::from(&ansi);
 
-        let tables = Tables::default();
         // Assume that the lex function returns a Result with tokens
-        let (tokens, errors) = lexer.lex(&tables, raw);
+        let (tokens, errors) = lexer.lex(raw);
 
         assert_eq!(errors.len(), 0, "Lexing failed for input: {}", raw);
 
@@ -42,7 +41,7 @@ fn test_dialect_ansi_file_lex() {
 
         // Check if the concatenated raw components of the tokens match the original raw
         // string
-        let concatenated: String = tokens.iter().map(|token| token.raw().as_str()).collect();
+        let concatenated: String = tokens.iter().map(|token| token.raw()).collect();
         assert_eq!(
             concatenated, raw,
             "Concatenation mismatch for input: {}",
@@ -157,21 +156,16 @@ fn test_dialect_ansi_specific_segment_parses() {
         let mut ctx: ParseContext = (&parser).into();
 
         let segment = dialect.r#ref(segment_ref);
-        let mut segments = lex(&dialect, sql_string);
+        let mut tokens = lex(&dialect, sql_string);
 
-        if segments.last().unwrap().get_type() == SyntaxKind::EndOfFile {
-            segments.pop();
+        if matches!(tokens.last(), Some(token) if token.is_type(SyntaxKind::EndOfFile)) {
+            tokens.pop();
         }
 
         let tables = Tables::default();
-        let tokens = tokens_from_segments(&segments);
         let match_result = segment.match_segments(&tokens, 0, &mut ctx).unwrap();
 
-        let templated_file = segments
-            .iter()
-            .find_map(|segment| segment.get_position_marker())
-            .map(|marker| marker.templated_file.clone())
-            .expect("parsed segments should have a position marker");
+        let templated_file: TemplatedFile = sql_string.into();
         let mut builder = SegmentTreeBuilder::new(DialectKind::Ansi, &tables, templated_file);
         match_result.apply_events(&tokens, &mut builder);
         let mut parsed = builder.finish().into_iter().collect::<Vec<_>>();

@@ -7,6 +7,7 @@ use crate::helpers::Config;
 use crate::lexer::Lexer;
 use crate::parser::markers::PositionMarker;
 use crate::templaters::TemplatedFile;
+use sqruff_parser_core::parser::core::Token;
 
 pub fn bracket_segments() -> Vec<ErasedSegment> {
     generate_test_segments_func(vec![
@@ -14,12 +15,11 @@ pub fn bracket_segments() -> Vec<ErasedSegment> {
     ])
 }
 
-pub fn lex(dialect: &Dialect, string: &str) -> Vec<ErasedSegment> {
+pub fn lex(dialect: &Dialect, string: &str) -> Vec<Token> {
     let lexer = Lexer::new(dialect.lexer_matchers());
-    let tables = Tables::default();
-    let (segments, errors) = lexer.lex(&tables, string);
-    assert_eq!(errors, &[]);
-    segments
+    let (tokens, errors) = lexer.lex(string);
+    assert!(errors.is_empty());
+    tokens
 }
 
 /// Roughly generate test segments.

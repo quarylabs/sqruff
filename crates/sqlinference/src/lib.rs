@@ -1,4 +1,5 @@
 use sqruff_lib_core::parser::Parser;
+use sqruff_lib_core::parser::lexer::Lexer;
 use sqruff_lib_core::parser::segments::{ErasedSegment, Tables};
 
 pub mod aggregate_functions;
@@ -9,7 +10,7 @@ pub mod test;
 
 pub fn parse_sql(parser: &Parser, source: &str) -> ErasedSegment {
     let tables = Tables::default();
-    let lexer = parser.dialect().lexer();
+    let lexer = Lexer::from(parser.dialect());
     let (tokens, _) = lexer.lex(&tables, source);
     let tables = Tables::default();
     parser.parse(&tables, &tokens).unwrap().unwrap()

@@ -27,6 +27,7 @@ use sqruff_lib_core::errors::{
 use sqruff_lib_core::helpers;
 use sqruff_lib_core::linter::compute_anchor_edit_info;
 use sqruff_lib_core::parser::Parser;
+use sqruff_lib_core::parser::lexer::Lexer;
 use sqruff_lib_core::parser::segments::fix::SourceFix;
 use sqruff_lib_core::parser::segments::{ErasedSegment, Tables};
 use sqruff_lib_core::templaters::TemplatedFile;
@@ -475,7 +476,7 @@ impl Linter {
         let mut violations: Vec<SQLLexError> = vec![];
         log::debug!("LEXING RAW ({})", templated_file.name());
         // Get the lexer
-        let lexer = dialect.lexer();
+        let lexer = Lexer::from(dialect);
         // Lex the file and log any problems
         let (tokens, lex_vs) = lexer.lex(tables, templated_file);
 

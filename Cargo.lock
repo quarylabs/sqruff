@@ -1662,6 +1662,8 @@ dependencies = [
  "serde_yaml",
  "slyce",
  "smol_str",
+ "sqruff-parser-core",
+ "sqruff-parser-tree",
  "strum",
  "strum_macros",
  "thiserror",
@@ -1694,6 +1696,52 @@ dependencies = [
  "serde_json",
  "sqruff-lib",
  "wasm-bindgen",
+]
+
+[[package]]
+name = "sqruff-parser-core"
+version = "0.29.3"
+dependencies = [
+ "ahash",
+ "enum_dispatch",
+ "fancy-regex",
+ "indexmap",
+ "itertools 0.14.0",
+ "log",
+ "nohash-hasher",
+ "pretty_assertions",
+ "regex-automata",
+ "rustc-hash",
+ "serde",
+ "serde_yaml",
+ "slyce",
+ "smol_str",
+ "strum",
+ "strum_macros",
+ "thiserror",
+]
+
+[[package]]
+name = "sqruff-parser-tree"
+version = "0.29.3"
+dependencies = [
+ "ahash",
+ "enum_dispatch",
+ "fancy-regex",
+ "indexmap",
+ "itertools 0.14.0",
+ "log",
+ "nohash-hasher",
+ "regex-automata",
+ "rustc-hash",
+ "serde",
+ "serde_yaml",
+ "slyce",
+ "smol_str",
+ "sqruff-parser-core",
+ "strum",
+ "strum_macros",
+ "thiserror",
 ]
 
 [[package]]

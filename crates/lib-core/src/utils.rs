@@ -1,2 +1,1 @@
-pub mod analysis;
-pub mod functional;
+pub use sqruff_parser_tree::utils::{analysis, functional};

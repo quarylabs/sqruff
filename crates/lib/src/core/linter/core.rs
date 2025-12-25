@@ -39,6 +39,7 @@ pub struct Linter {
     formatter: Option<Arc<dyn Formatter>>,
     templater: &'static dyn Templater,
     rules: OnceLock<Vec<ErasedRule>>,
+    lexer: OnceLock<Lexer>,
 
     /// include_parse_errors is a flag to indicate whether to include parse errors in the output
     include_parse_errors: bool,
@@ -60,8 +61,14 @@ impl Linter {
             formatter,
             templater,
             rules: OnceLock::new(),
+            lexer: OnceLock::new(),
             include_parse_errors,
         }
+    }
+
+    fn lexer(&self) -> &Lexer {
+        self.lexer
+            .get_or_init(|| Lexer::from(&self.config.dialect))
     }
 
     pub fn get_templater(config: &FluffConfig) -> &'static dyn Templater {
@@ -402,10 +409,9 @@ impl Linter {
 
         let mut violations = Vec::new();
         let tokens = if rendered.templated_file.is_templated() {
-            let (t, lvs) = Self::lex_templated_file(
+            let (t, lvs) = self.lex_templated_file_cached(
                 tables,
                 rendered.templated_file.clone(),
-                &self.config.dialect,
             );
             if !lvs.is_empty() {
                 unimplemented!("violations.extend(lvs);")
@@ -474,10 +480,25 @@ impl Linter {
         templated_file: TemplatedFile,
         dialect: &Dialect,
     ) -> (Option<Vec<ErasedSegment>>, Vec<SQLLexError>) {
+        let lexer = Lexer::from(dialect);
+        Self::lex_templated_file_with_lexer(tables, templated_file, &lexer)
+    }
+
+    fn lex_templated_file_cached(
+        &self,
+        tables: &Tables,
+        templated_file: TemplatedFile,
+    ) -> (Option<Vec<ErasedSegment>>, Vec<SQLLexError>) {
+        Self::lex_templated_file_with_lexer(tables, templated_file, self.lexer())
+    }
+
+    fn lex_templated_file_with_lexer(
+        tables: &Tables,
+        templated_file: TemplatedFile,
+        lexer: &Lexer,
+    ) -> (Option<Vec<ErasedSegment>>, Vec<SQLLexError>) {
         let mut violations: Vec<SQLLexError> = vec![];
         log::debug!("LEXING RAW ({})", templated_file.name());
-        // Get the lexer
-        let lexer = Lexer::from(dialect);
         // Lex the file and log any problems
         let (tokens, lex_vs) = lexer.lex(templated_file.clone());
 
@@ -669,6 +690,7 @@ impl Linter {
 
     pub fn config_mut(&mut self) -> &mut FluffConfig {
         self.rules = OnceLock::new();
+        self.lexer = OnceLock::new();
         &mut self.config
     }
 

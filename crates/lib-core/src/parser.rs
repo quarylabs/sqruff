@@ -1,6 +1,7 @@
 pub mod adapters;
 pub mod context;
 pub mod core;
+pub mod events;
 pub mod grammar;
 pub mod lexer;
 pub mod lookahead;
@@ -17,7 +18,11 @@ use ahash::AHashMap;
 
 use crate::dialects::Dialect;
 use crate::errors::SQLParseError;
+use crate::parser::core::EventSink;
+use crate::parser::events::{EventCollector, ParseEvent, ParseEventHandler, ParseEventHandlerSink};
+use crate::parser::segments::builder::SegmentTreeBuilder;
 use crate::parser::segments::file::FileSegment;
+use crate::templaters::TemplatedFile;
 use context::ParseContext;
 use segments::{ErasedSegment, Tables};
 
@@ -64,16 +69,11 @@ impl<'a> Parser<'a> {
             return Ok(None);
         }
 
-        // NOTE: This is the only time we use the parse context not in the
-        // context of a context manager. That's because it's the initial
-        // instantiation.
-        let mut parse_cx: ParseContext = self.into();
-
-        // Kick off parsing with the root segment. The BaseFileSegment has
-        // a unique entry point to facilitate exaclty this. All other segments
-        // will use the standard .match()/.parse() route.
-        let root =
-            FileSegment.root_parse(tables, parse_cx.dialect().name, segments, &mut parse_cx)?;
+        let templated_file = templated_file_for_segments(segments);
+        let mut builder =
+            SegmentTreeBuilder::new(self.dialect().name, tables, templated_file);
+        self.parse_with_sink(segments, &mut builder)?;
+        let root = builder.finish();
 
         #[cfg(debug_assertions)]
         {
@@ -82,9 +82,55 @@ impl<'a> Parser<'a> {
                 smol_str::SmolStr::from_iter(segments.iter().map(|s| s.raw().as_str()))
             };
 
-            pretty_assertions::assert_eq!(&join_segments_raw(segments), root.raw());
+            if let Some(root) = &root {
+                pretty_assertions::assert_eq!(&join_segments_raw(segments), root.raw());
+            }
         }
 
-        Ok(root.into())
+        Ok(root)
     }
+
+    pub fn parse_with_sink(
+        &self,
+        segments: &[ErasedSegment],
+        sink: &mut impl EventSink,
+    ) -> Result<(), SQLParseError> {
+        if segments.is_empty() {
+            return Ok(());
+        }
+
+        // NOTE: This is the only time we use the parse context not in the
+        // context of a context manager. That's because it's the initial
+        // instantiation.
+        let mut parse_cx: ParseContext = self.into();
+        FileSegment.root_parse_events(segments, &mut parse_cx, sink)
+    }
+
+    pub fn parse_with(
+        &self,
+        _tables: &Tables,
+        segments: &[ErasedSegment],
+        handler: &mut impl ParseEventHandler,
+    ) -> Result<(), SQLParseError> {
+        let mut sink = ParseEventHandlerSink::new(handler);
+        self.parse_with_sink(segments, &mut sink)
+    }
+
+    pub fn parse_events(
+        &self,
+        _tables: &Tables,
+        segments: &[ErasedSegment],
+    ) -> Result<Vec<ParseEvent>, SQLParseError> {
+        let mut collector = EventCollector::default();
+        self.parse_with_sink(segments, &mut collector)?;
+        Ok(collector.into_events())
+    }
+}
+
+fn templated_file_for_segments(segments: &[ErasedSegment]) -> TemplatedFile {
+    segments
+        .iter()
+        .find_map(|segment| segment.get_position_marker())
+        .map(|marker| marker.templated_file.clone())
+        .expect("parsed segments should have a position marker")
 }

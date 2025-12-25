@@ -1,4 +1,5 @@
 pub mod bracketed;
+pub mod builder;
 pub mod file;
 pub mod fix;
 pub mod from;

@@ -38,6 +38,7 @@ The following rules are available in this create. This list is generated from th
 | CV09 | [convention.blocked_words](#conventionblocked_words) | Block a list of configurable words from being used. | 
 | CV10 | [convention.quoted_literals](#conventionquoted_literals) | Consistent usage of preferred quotes for quoted literals. | 
 | CV11 | [convention.casting_style](#conventioncasting_style) | Enforce consistent type casting style. | 
+| JJ01 | [jinja.padding](#jinjapadding) | Jinja tags should have a single whitespace on either side. | 
 | LT01 | [layout.spacing](#layoutspacing) | Inappropriate Spacing. | 
 | LT02 | [layout.indent](#layoutindent) | Incorrect Indentation. | 
 | LT03 | [layout.operators](#layoutoperators) | Operators should follow a standard for being before/after newlines. | 
@@ -1254,6 +1255,36 @@ SELECT
 FROM foo;
 ```
 
+
+### jinja.padding
+
+Jinja tags should have a single whitespace on either side.
+
+**Code:** `JJ01`
+
+**Groups:** `all`, `core`, `jinja`
+
+**Fixable:** Yes
+Jinja tags should have a single whitespace on either side.
+
+**Anti-pattern**
+
+Jinja tags with either no whitespace or very long whitespace are hard to read.
+
+```jinja
+SELECT {{    a     }} from {{ref('foo')}}
+```
+
+**Best practice**
+
+A single whitespace surrounding Jinja tags, alternatively longer gaps containing newlines are acceptable.
+
+```jinja
+SELECT {{ a }} from {{ ref('foo') }};
+SELECT {{ a }} from {{
+    ref('foo')
+}};
+```
 
 ### layout.spacing
 

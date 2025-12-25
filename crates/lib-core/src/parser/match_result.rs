@@ -3,8 +3,7 @@ use std::cmp::Ordering;
 
 use ahash::HashMapExt;
 use nohash_hasher::IntMap;
-use smol_str::SmolStr;
-
+use crate::parser::adapters::{token_from_segment, token_span_from_marker};
 use super::core::{EventSink, Token, TokenSpan};
 use super::segments::{ErasedSegment, SegmentBuilder, Tables};
 use crate::dialects::init::DialectKind;
@@ -240,7 +239,8 @@ impl MatchResult {
                 }
                 let idx = span.end - 1;
                 if let Some(segment) = segments.get(idx as usize) {
-                    sink.token(token_from_segment(segment, kind));
+                    let Token { raw, span, .. } = token_from_segment(segment);
+                    sink.token(Token::new(kind, raw, span));
                 }
             }
             None => {
@@ -268,22 +268,6 @@ pub struct Span {
     pub end: u32,
 }
 
-fn token_span_from_marker(marker: &PositionMarker) -> TokenSpan {
-    TokenSpan::new(
-        marker.source_slice.start,
-        marker.source_slice.end,
-        marker.templated_slice.start,
-        marker.templated_slice.end,
-    )
-}
-
-fn token_from_segment(segment: &ErasedSegment, kind: SyntaxKind) -> Token {
-    let marker = segment
-        .get_position_marker()
-        .expect("token segment should have a position marker");
-    Token::new(kind, segment.raw().clone(), token_span_from_marker(marker))
-}
-
 fn point_span_at_idx(segments: &[ErasedSegment], idx: u32) -> TokenSpan {
     token_span_from_marker(&get_point_pos_at_idx(segments, idx))
 }
@@ -299,7 +283,7 @@ fn emit_segment_tokens(
     }
 
     for segment in &segments[start as usize..end as usize] {
-        sink.token(token_from_segment(segment, segment.get_type()));
+        sink.token(token_from_segment(segment));
     }
 }
 
@@ -355,7 +339,7 @@ fn emit_content(
                     trigger.apply_events(segments, sink);
                 }
                 Trigger::Meta(meta) => {
-                    sink.token(Token::new(meta, SmolStr::new(""), point_span_at_idx(segments, idx)));
+                    sink.token(Token::new(meta, "", point_span_at_idx(segments, idx)));
                 }
             }
         }

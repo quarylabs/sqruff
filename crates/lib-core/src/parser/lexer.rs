@@ -5,6 +5,8 @@ use std::str::Chars;
 
 use super::markers::PositionMarker;
 use super::segments::{ErasedSegment, SegmentBuilder, Tables};
+use crate::parser::adapters::tokens_from_segments;
+use crate::parser::core::Token;
 use crate::dialects::Dialect;
 use crate::dialects::syntax::SyntaxKind;
 use crate::errors::SQLLexError;
@@ -487,6 +489,15 @@ impl Lexer {
         }
 
         (segments, Vec::new())
+    }
+
+    pub fn lex_tokens(
+        &self,
+        template: impl Into<TemplatedFile>,
+    ) -> (Vec<Token>, Vec<SQLLexError>) {
+        let tables = Tables::default();
+        let (segments, errors) = self.lex(&tables, template);
+        (tokens_from_segments(&segments), errors)
     }
 
     /// Generate any lexing errors for any un-lex-ables.

@@ -1,5 +1,5 @@
 use ahash::{AHashMap, HashSet, HashSetExt};
-use sqruff_parser_tree::dialects::syntax::{SyntaxKind, SyntaxSet};
+use sqruff_parser_tree::dialects::{SyntaxKind, SyntaxSet};
 use sqruff_parser_tree::utils::analysis::query::{Query, Selectable, Source, WildcardInfo};
 
 use crate::core::config::Value;

@@ -2,11 +2,11 @@ use ahash::AHashMap;
 use itertools::{Itertools as _, enumerate, multiunzip};
 use smol_str::StrExt;
 
-use super::context::ParseContext;
-use super::core::Token;
-use super::match_result::{MatchResult, Matched, Span};
+use crate::parser::context::ParseContext;
+use crate::parser::token::Token;
+use super::result::{MatchResult, Matched, Span};
 use super::matchable::{Matchable, MatchableTrait};
-use crate::dialects::syntax::{SyntaxKind, SyntaxSet};
+use crate::dialects::{SyntaxKind, SyntaxSet};
 use crate::errors::SQLParseError;
 
 pub fn skip_start_index_forward_to_code(segments: &[Token], start_idx: u32, max_idx: u32) -> u32 {

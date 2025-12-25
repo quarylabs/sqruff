@@ -2,7 +2,7 @@ use std::ops::Range;
 
 use smol_str::SmolStr;
 
-use crate::dialects::syntax::{SyntaxKind, SyntaxSet};
+use crate::dialects::{SyntaxKind, SyntaxSet};
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
 pub struct TokenSpan {
@@ -95,12 +95,6 @@ impl Token {
             Some(self.raw.to_uppercase())
         }
     }
-}
-
-pub trait EventSink {
-    fn enter_node(&mut self, kind: SyntaxKind);
-    fn exit_node(&mut self, kind: SyntaxKind);
-    fn token(&mut self, token: &Token);
 }
 
 fn class_types(syntax_kind: SyntaxKind) -> SyntaxSet {

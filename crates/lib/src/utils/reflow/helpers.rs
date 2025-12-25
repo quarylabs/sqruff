@@ -1,5 +1,5 @@
 use smol_str::SmolStr;
-use sqruff_parser_tree::dialects::syntax::SyntaxKind;
+use sqruff_parser_tree::dialects::SyntaxKind;
 use sqruff_parser_tree::lint_fix::LintFix;
 use sqruff_parser_tree::parser::segments::ErasedSegment;
 

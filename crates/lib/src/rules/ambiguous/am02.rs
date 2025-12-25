@@ -1,6 +1,6 @@
 use ahash::AHashMap;
-use sqruff_parser_tree::dialects::init::DialectKind;
-use sqruff_parser_tree::dialects::syntax::{SyntaxKind, SyntaxSet};
+use sqruff_parser_tree::dialects::DialectKind;
+use sqruff_parser_tree::dialects::{SyntaxKind, SyntaxSet};
 use sqruff_parser_tree::lint_fix::LintFix;
 use sqruff_parser_tree::parser::segments::SegmentBuilder;
 

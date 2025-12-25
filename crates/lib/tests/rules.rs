@@ -6,7 +6,7 @@ use serde::Deserialize;
 use serde_with::{KeyValueMap, serde_as};
 use sqruff_lib::core::config::{FluffConfig, Value};
 use sqruff_lib::core::linter::core::Linter;
-use sqruff_parser_tree::dialects::init::DialectKind;
+use sqruff_parser_tree::dialects::DialectKind;
 
 #[derive(Default)]
 pub struct Args {

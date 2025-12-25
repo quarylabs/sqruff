@@ -1,8 +1,8 @@
 use itertools::{Itertools, enumerate};
 use smol_str::{SmolStr, ToSmolStr};
 
-use crate::dialects::init::DialectKind;
-use crate::dialects::syntax::{SyntaxKind, SyntaxSet};
+use crate::dialects::DialectKind;
+use crate::dialects::{SyntaxKind, SyntaxSet};
 use crate::parser::segments::ErasedSegment;
 
 #[derive(PartialEq, Eq, PartialOrd, Ord, Clone, Copy)]

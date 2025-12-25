@@ -3,11 +3,11 @@ use itertools::{Itertools, chain};
 use nohash_hasher::IntMap;
 
 use super::sequence::{Bracketed, Sequence};
-use crate::dialects::syntax::{SyntaxKind, SyntaxSet};
+use crate::dialects::{SyntaxKind, SyntaxSet};
 use crate::errors::SQLParseError;
 use crate::helpers::ToMatchable;
 use crate::parser::context::ParseContext;
-use crate::parser::core::Token;
+use crate::parser::token::Token;
 use crate::parser::match_algorithms::{
     longest_match, skip_start_index_forward_to_code, trim_to_terminator,
 };

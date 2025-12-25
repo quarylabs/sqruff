@@ -1,13 +1,11 @@
 pub mod context;
-pub mod core;
+pub mod event_sink;
+pub mod token;
 pub mod events;
 pub mod grammar;
 pub mod lexer;
 pub mod lookahead;
-pub mod match_algorithms;
-pub mod match_result;
-pub mod matchable;
-pub mod node_matcher;
+pub mod matching;
 pub mod parsers;
 pub mod segments;
 pub mod types;
@@ -15,12 +13,18 @@ pub mod types;
 use ahash::AHashMap;
 
 use crate::dialects::Dialect;
-use crate::dialects::syntax::SyntaxKind;
+use crate::dialects::SyntaxKind;
 use crate::errors::SQLParseError;
-use crate::parser::core::{EventSink, Token};
+use crate::parser::event_sink::EventSink;
+use crate::parser::token::Token;
 use crate::parser::events::{EventCollector, ParseEvent, ParseEventHandler, ParseEventHandlerSink};
 use crate::parser::matchable::MatchableTrait;
 use context::ParseContext;
+
+pub use matching::algorithms as match_algorithms;
+pub use matching::matchable;
+pub use matching::node_matcher;
+pub use matching::result as match_result;
 
 #[derive(Clone)]
 pub struct Parser<'a> {

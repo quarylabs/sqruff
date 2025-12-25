@@ -3,11 +3,11 @@ use std::ops::{Deref, DerefMut};
 use ahash::AHashSet;
 
 use super::anyof::{AnyNumberOf, one_of};
-use crate::dialects::syntax::SyntaxSet;
+use crate::dialects::SyntaxSet;
 use crate::errors::SQLParseError;
 use crate::helpers::ToMatchable;
 use crate::parser::context::ParseContext;
-use crate::parser::core::Token;
+use crate::parser::token::Token;
 use crate::parser::grammar::Ref;
 use crate::parser::grammar::noncode::NonCodeMatcher;
 use crate::parser::match_algorithms::{longest_match, skip_start_index_forward_to_code};

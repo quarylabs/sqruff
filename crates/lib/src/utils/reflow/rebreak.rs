@@ -1,7 +1,7 @@
 use std::cmp::PartialEq;
 use std::str::FromStr;
 
-use sqruff_parser_tree::dialects::syntax::SyntaxKind;
+use sqruff_parser_tree::dialects::SyntaxKind;
 use sqruff_parser_tree::helpers::capitalize;
 use sqruff_parser_tree::lint_fix::LintFix;
 use sqruff_parser_tree::parser::segments::{ErasedSegment, Tables};

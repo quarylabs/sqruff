@@ -1,4 +1,4 @@
-use sqruff_parser_tree::dialects::syntax::{SyntaxKind, SyntaxSet};
+use sqruff_parser_tree::dialects::{SyntaxKind, SyntaxSet};
 use sqruff_parser_tree::parser::Parser;
 use sqruff_parser_tree::utils::analysis::query::Query;
 

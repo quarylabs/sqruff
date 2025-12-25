@@ -2,7 +2,7 @@ use std::borrow::Cow;
 use std::ops::Range;
 use std::str::Chars;
 
-use crate::dialects::syntax::SyntaxKind;
+use crate::dialects::SyntaxKind;
 
 /// An element matched during lexing.
 #[derive(Debug, Clone)]

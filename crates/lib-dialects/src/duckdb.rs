@@ -1,6 +1,6 @@
 use sqruff_parser_core::dialects::Dialect;
-use sqruff_parser_core::dialects::init::DialectKind;
-use sqruff_parser_core::dialects::syntax::SyntaxKind;
+use sqruff_parser_core::dialects::DialectKind;
+use sqruff_parser_core::dialects::SyntaxKind;
 use sqruff_parser_core::helpers::{Config, ToMatchable};
 use sqruff_parser_core::parser::grammar::Ref;
 use sqruff_parser_core::parser::grammar::anyof::one_of;

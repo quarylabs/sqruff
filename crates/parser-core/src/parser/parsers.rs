@@ -3,10 +3,10 @@ use fancy_regex::Regex;
 use smol_str::SmolStr;
 
 use super::context::ParseContext;
-use super::core::Token;
+use super::token::Token;
 use super::match_result::{MatchResult, Matched, Span};
 use super::matchable::{Matchable, MatchableCacheKey, MatchableTrait, next_matchable_cache_key};
-use crate::dialects::syntax::{SyntaxKind, SyntaxSet};
+use crate::dialects::{SyntaxKind, SyntaxSet};
 use crate::errors::SQLParseError;
 
 #[derive(Debug, Clone, PartialEq)]

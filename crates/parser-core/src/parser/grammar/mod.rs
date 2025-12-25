@@ -8,11 +8,11 @@ use ahash::AHashSet;
 use std::borrow::Cow;
 use std::sync::OnceLock;
 
-use crate::dialects::syntax::SyntaxSet;
+use crate::dialects::SyntaxSet;
 use crate::errors::SQLParseError;
 use crate::helpers::ToMatchable;
 use crate::parser::context::ParseContext;
-use crate::parser::core::Token;
+use crate::parser::token::Token;
 use crate::parser::match_algorithms::greedy_match;
 use crate::parser::match_result::MatchResult;
 use crate::parser::matchable::{

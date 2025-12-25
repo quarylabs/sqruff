@@ -1,6 +1,6 @@
 use ahash::{AHashMap, AHashSet};
 use itertools::enumerate;
-use sqruff_parser_tree::dialects::syntax::SyntaxKind;
+use sqruff_parser_tree::dialects::SyntaxKind;
 
 use crate::core::config::Value;
 use crate::core::rules::context::RuleContext;

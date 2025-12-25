@@ -2,7 +2,7 @@ use std::collections::{HashMap, HashSet};
 use std::fmt::Display;
 
 use sqruff_parser_tree::dialects::Dialect;
-use sqruff_parser_tree::dialects::syntax::{SyntaxKind, SyntaxSet};
+use sqruff_parser_tree::dialects::{SyntaxKind, SyntaxSet};
 use sqruff_parser_tree::parser::Parser;
 use sqruff_parser_tree::parser::segments::ErasedSegment;
 use sqruff_parser_tree::utils::analysis::query::Query;

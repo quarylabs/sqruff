@@ -1,7 +1,7 @@
 use crate::parser::markers::PositionMarker;
 use crate::parser::segments::{ErasedSegment, SegmentBuilder, Tables};
 use crate::templaters::TemplatedFile;
-use sqruff_parser_core::parser::core::{Token, TokenSpan};
+use sqruff_parser_core::parser::token::{Token, TokenSpan};
 
 pub fn token_span_from_marker(marker: &PositionMarker) -> TokenSpan {
     TokenSpan::new(

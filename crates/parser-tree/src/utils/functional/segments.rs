@@ -1,6 +1,6 @@
 use std::ops::Range;
 
-use crate::dialects::syntax::SyntaxSet;
+use crate::dialects::SyntaxSet;
 use crate::parser::segments::ErasedSegment;
 use crate::templaters::TemplatedFile;
 

@@ -7,7 +7,7 @@ use sqruff_parser_core::parser::grammar::sequence::Bracketed;
 use sqruff_parser_core::parser::matchable::MatchableTrait;
 use sqruff_parser_core::parser::segments::meta::MetaSegment;
 use sqruff_parser_core::{
-    dialects::{Dialect, init::DialectKind},
+    dialects::{Dialect, DialectKind},
     helpers::ToMatchable,
     parser::grammar::{Ref, sequence::Sequence},
     vec_of_erased,

@@ -1,6 +1,6 @@
 use std::collections::HashMap;
 
-use sqruff_parser_tree::dialects::init::DialectKind;
+use sqruff_parser_tree::dialects::DialectKind;
 
 use crate::infer_tests::Operation;
 use crate::test::Test;

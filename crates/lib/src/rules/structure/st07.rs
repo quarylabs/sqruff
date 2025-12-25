@@ -1,8 +1,8 @@
 use ahash::AHashMap;
 use itertools::Itertools;
 use smol_str::{SmolStr, ToSmolStr};
-use sqruff_parser_tree::dialects::init::DialectKind;
-use sqruff_parser_tree::dialects::syntax::{SyntaxKind, SyntaxSet};
+use sqruff_parser_tree::dialects::DialectKind;
+use sqruff_parser_tree::dialects::{SyntaxKind, SyntaxSet};
 use sqruff_parser_tree::lint_fix::LintFix;
 use sqruff_parser_tree::parser::segments::{ErasedSegment, SegmentBuilder, Tables};
 use sqruff_parser_tree::utils::analysis::select::get_select_statement_info;

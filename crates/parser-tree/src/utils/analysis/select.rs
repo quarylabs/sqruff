@@ -3,8 +3,8 @@ use smol_str::{SmolStr, ToSmolStr};
 
 use crate::dialects::Dialect;
 use crate::dialects::common::{AliasInfo, ColumnAliasInfo};
-use crate::dialects::init::DialectKind;
-use crate::dialects::syntax::{SyntaxKind, SyntaxSet};
+use crate::dialects::DialectKind;
+use crate::dialects::{SyntaxKind, SyntaxSet};
 use crate::parser::segments::ErasedSegment;
 use crate::parser::segments::from::FromClauseSegment;
 use crate::parser::segments::join::JoinClauseSegment;

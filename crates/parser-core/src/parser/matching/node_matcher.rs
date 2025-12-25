@@ -2,12 +2,12 @@ use std::sync::OnceLock;
 
 use super::matchable::MatchableTrait;
 use crate::dialects::Dialect;
-use crate::dialects::syntax::SyntaxKind;
+use crate::dialects::SyntaxKind;
 use crate::errors::SQLParseError;
 use crate::parser::context::ParseContext;
-use crate::parser::core::Token;
-use crate::parser::match_result::{MatchResult, Matched};
-use crate::parser::matchable::Matchable;
+use crate::parser::token::Token;
+use super::result::{MatchResult, Matched};
+use super::matchable::Matchable;
 
 #[macro_export]
 macro_rules! vec_of_erased {

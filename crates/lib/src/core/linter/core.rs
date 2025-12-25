@@ -20,7 +20,7 @@ use rayon::iter::{IndexedParallelIterator, IntoParallelRefIterator as _, Paralle
 use rustc_hash::FxHashMap;
 use smol_str::{SmolStr, ToSmolStr};
 use sqruff_parser_tree::dialects::Dialect;
-use sqruff_parser_tree::dialects::syntax::{SyntaxKind, SyntaxSet};
+use sqruff_parser_tree::dialects::{SyntaxKind, SyntaxSet};
 use sqruff_parser_tree::errors::{
     SQLBaseError, SQLFluffUserError, SQLLexError, SQLLintError, SQLParseError,
 };

@@ -3,7 +3,7 @@ use itertools::Itertools;
 use regex::Regex;
 use smol_str::SmolStr;
 use sqruff_parser_tree::dialects::common::{AliasInfo, ColumnAliasInfo};
-use sqruff_parser_tree::dialects::syntax::{SyntaxKind, SyntaxSet};
+use sqruff_parser_tree::dialects::{SyntaxKind, SyntaxSet};
 use sqruff_parser_tree::parser::segments::object_reference::ObjectReferenceSegment;
 
 use crate::core::config::Value;

@@ -16,8 +16,8 @@ use itertools::enumerate;
 use rustc_hash::FxHashMap;
 use smol_str::SmolStr;
 
-use crate::dialects::init::DialectKind;
-use crate::dialects::syntax::{SyntaxKind, SyntaxSet};
+use crate::dialects::DialectKind;
+use crate::dialects::{SyntaxKind, SyntaxSet};
 use crate::lint_fix::LintFix;
 use crate::parser::markers::PositionMarker;
 use crate::parser::segments::fix::{FixPatch, SourceFix};

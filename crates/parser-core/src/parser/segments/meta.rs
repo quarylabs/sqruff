@@ -2,10 +2,10 @@ use std::fmt::Debug;
 
 use ahash::AHashSet;
 
-use crate::dialects::syntax::{SyntaxKind, SyntaxSet};
+use crate::dialects::{SyntaxKind, SyntaxSet};
 use crate::errors::SQLParseError;
 use crate::parser::context::ParseContext;
-use crate::parser::core::Token;
+use crate::parser::token::Token;
 use crate::parser::match_result::MatchResult;
 use crate::parser::matchable::{Matchable, MatchableTrait};
 

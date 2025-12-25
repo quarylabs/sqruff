@@ -1,6 +1,6 @@
 use ahash::AHashMap;
 use sqruff_parser_tree::dialects::common::AliasInfo;
-use sqruff_parser_tree::dialects::syntax::{SyntaxKind, SyntaxSet};
+use sqruff_parser_tree::dialects::{SyntaxKind, SyntaxSet};
 use sqruff_parser_tree::parser::segments::ErasedSegment;
 use sqruff_parser_tree::utils::analysis::query::{Query, Selectable, Source};
 

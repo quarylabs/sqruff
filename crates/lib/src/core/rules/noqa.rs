@@ -1,6 +1,6 @@
 use ahash::HashSet;
 use itertools::Itertools;
-use sqruff_parser_tree::dialects::syntax::{SyntaxKind, SyntaxSet};
+use sqruff_parser_tree::dialects::{SyntaxKind, SyntaxSet};
 use sqruff_parser_tree::errors::SQLBaseError;
 use sqruff_parser_tree::parser::segments::ErasedSegment;
 

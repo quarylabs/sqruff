@@ -3,7 +3,7 @@ use criterion::{Criterion, criterion_group, criterion_main};
 use pprof::criterion::{Output, PProfProfiler};
 use sqruff_lib::core::config::FluffConfig;
 use sqruff_lib::core::test_functions::fresh_ansi_dialect;
-use sqruff_parser_core::dialects::syntax::SyntaxKind;
+use sqruff_parser_core::dialects::SyntaxKind;
 use sqruff_parser_core::parser::Parser as CoreParser;
 use sqruff_parser_core::parser::context::ParseContext;
 use sqruff_parser_core::parser::matchable::MatchableTrait as _;

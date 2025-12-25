@@ -1,7 +1,8 @@
 use smol_str::SmolStr;
 
-use crate::dialects::syntax::SyntaxKind;
-use crate::parser::core::{EventSink, Token};
+use crate::dialects::SyntaxKind;
+use crate::parser::event_sink::EventSink;
+use crate::parser::token::Token;
 
 pub trait ParseEventHandler {
     fn enter_node(&mut self, kind: SyntaxKind);

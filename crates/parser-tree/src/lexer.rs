@@ -2,11 +2,11 @@ use std::borrow::Cow;
 use std::ops::Range;
 
 use crate::dialects::Dialect;
-use crate::dialects::syntax::SyntaxKind;
+use crate::dialects::SyntaxKind;
 use crate::errors::SQLLexError;
 use crate::slice_helpers::{is_zero_slice, offset_slice};
 use crate::templaters::TemplatedFile;
-use sqruff_parser_core::parser::core::{Token, TokenSpan};
+use sqruff_parser_core::parser::token::{Token, TokenSpan};
 pub use sqruff_parser_core::parser::lexer::{
     Cursor, Element, Match, Matcher, Pattern, SearchPatternKind,
 };

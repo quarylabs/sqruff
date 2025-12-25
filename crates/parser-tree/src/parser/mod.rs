@@ -6,7 +6,7 @@ use ahash::AHashMap;
 
 use sqruff_parser_core::errors::SQLParseError as CoreParseError;
 use sqruff_parser_core::parser::Parser as CoreParser;
-use sqruff_parser_core::parser::core::EventSink;
+use sqruff_parser_core::parser::event_sink::EventSink;
 use sqruff_parser_core::parser::events::{
     EventCollector, ParseEvent, ParseEventHandler, ParseEventHandlerSink,
 };

@@ -1,7 +1,7 @@
 use fancy_regex::Regex;
 use thiserror::Error;
 
-use crate::parser::core::TokenSpan;
+use crate::parser::token::TokenSpan;
 
 #[derive(Debug, Error)]
 #[error("{description}")]

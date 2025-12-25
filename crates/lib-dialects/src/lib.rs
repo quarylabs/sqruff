@@ -1,5 +1,5 @@
 use sqruff_parser_core::dialects::Dialect;
-use sqruff_parser_core::dialects::init::DialectKind;
+use sqruff_parser_core::dialects::DialectKind;
 
 pub mod ansi;
 mod ansi_keywords;

@@ -1,5 +1,5 @@
-use crate::dialects::init::DialectKind;
-use crate::dialects::syntax::SyntaxKind;
+use crate::dialects::DialectKind;
+use crate::dialects::SyntaxKind;
 use crate::parser::segments::{ErasedSegment, SegmentBuilder, Tables};
 
 #[derive(Debug, Clone, PartialEq)]

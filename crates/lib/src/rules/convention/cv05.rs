@@ -1,7 +1,7 @@
 use std::borrow::Cow;
 
 use ahash::AHashMap;
-use sqruff_parser_tree::dialects::syntax::{SyntaxKind, SyntaxSet};
+use sqruff_parser_tree::dialects::{SyntaxKind, SyntaxSet};
 use sqruff_parser_tree::parser::segments::{ErasedSegment, SegmentBuilder};
 use sqruff_parser_tree::utils::functional::segments::Segments;
 

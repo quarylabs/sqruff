@@ -1,4 +1,4 @@
-use sqruff_parser_tree::dialects::syntax::SyntaxKind;
+use sqruff_parser_tree::dialects::SyntaxKind;
 use sqruff_parser_tree::parser::segments::ErasedSegment;
 
 pub fn identifiers_policy_applicable(policy: &str, parent_stack: &[ErasedSegment]) -> bool {

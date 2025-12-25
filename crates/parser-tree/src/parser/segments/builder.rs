@@ -1,9 +1,10 @@
-use crate::dialects::init::DialectKind;
-use crate::dialects::syntax::SyntaxKind;
+use crate::dialects::DialectKind;
+use crate::dialects::SyntaxKind;
 use crate::parser::markers::PositionMarker;
 use crate::parser::segments::{ErasedSegment, SegmentBuilder, Tables};
 use crate::templaters::TemplatedFile;
-use sqruff_parser_core::parser::core::{EventSink, Token};
+use sqruff_parser_core::parser::event_sink::EventSink;
+use sqruff_parser_core::parser::token::Token;
 
 pub struct SegmentTreeBuilder<'a> {
     dialect: DialectKind,

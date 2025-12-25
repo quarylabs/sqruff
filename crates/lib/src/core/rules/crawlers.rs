@@ -1,5 +1,5 @@
 use enum_dispatch::enum_dispatch;
-use sqruff_parser_tree::dialects::syntax::{SyntaxKind, SyntaxSet};
+use sqruff_parser_tree::dialects::{SyntaxKind, SyntaxSet};
 use sqruff_parser_tree::parser::segments::ErasedSegment;
 
 use crate::core::rules::context::RuleContext;

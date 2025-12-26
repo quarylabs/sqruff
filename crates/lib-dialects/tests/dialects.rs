@@ -11,7 +11,7 @@ use sqruff_parser_tree::dialects::DialectKind;
 use sqruff_parser_tree::dialects::SyntaxKind;
 use sqruff_parser_tree::helpers;
 use sqruff_parser_tree::lexer::Lexer;
-use sqruff_parser_tree::parser::segments::builder::SegmentTreeBuilder;
+use sqruff_parser_tree::parser::adapters::tree_from_tokens;
 use sqruff_parser_tree::parser::segments::{ErasedSegment, Tables};
 use sqruff_parser_tree::templaters::TemplatedFile;
 use strum::IntoEnumIterator;
@@ -97,13 +97,9 @@ fn main() {
                 let templated_file: TemplatedFile = sql.clone().into();
                 let (tokens, errors) = lexer.lex(&templated_file);
                 assert!(errors.is_empty());
-                let mut builder = SegmentTreeBuilder::new(
-                    parser.dialect().name(),
-                    &tables,
-                    templated_file.clone(),
-                );
-                parser.parse_with_sink(&tokens, &mut builder).unwrap();
-                let tree = builder.finish().unwrap();
+                let tree = tree_from_tokens(&parser, &tokens, &tables, &templated_file)
+                    .unwrap()
+                    .unwrap();
 
                 // Check for unparsable segments
                 let unparsable_segments = check_no_unparsable_segments(&tree);

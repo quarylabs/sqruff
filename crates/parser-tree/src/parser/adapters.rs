@@ -1,6 +1,8 @@
 use crate::parser::markers::PositionMarker;
 use crate::parser::segments::{ErasedSegment, SegmentBuilder, Tables};
+use crate::parser::segments::builder::SegmentTreeBuilder;
 use crate::templaters::TemplatedFile;
+use sqruff_parser_core::parser::Parser;
 use sqruff_parser_core::parser::token::{Token, TokenSpan};
 
 pub fn token_span_from_marker(marker: &PositionMarker) -> TokenSpan {
@@ -54,4 +56,16 @@ pub fn segments_from_tokens(
         .iter()
         .map(|token| segment_from_token(token, templated_file, tables))
         .collect()
+}
+
+pub fn tree_from_tokens(
+    parser: &Parser,
+    tokens: &[Token],
+    tables: &Tables,
+    templated_file: &TemplatedFile,
+) -> Result<Option<ErasedSegment>, sqruff_parser_core::errors::SQLParseError> {
+    let mut builder =
+        SegmentTreeBuilder::new(parser.dialect().name(), tables, templated_file.clone());
+    parser.parse_with_sink(tokens, &mut builder)?;
+    Ok(builder.finish())
 }

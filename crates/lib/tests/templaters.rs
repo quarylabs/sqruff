@@ -7,7 +7,7 @@ use sqruff_lib::core::linter::core::Linter;
 use sqruff_parser_core::parser::Parser;
 use sqruff_parser_tree::lexer::Lexer;
 use sqruff_parser_tree::parser::segments::Tables;
-use sqruff_parser_tree::parser::segments::builder::SegmentTreeBuilder;
+use sqruff_parser_tree::parser::adapters::tree_from_tokens;
 
 fn main() {
     let templaters_folder = std::path::Path::new("test/fixtures/templaters");
@@ -48,13 +48,9 @@ fn main() {
                 let (tokens, errors) = lexer.lex(&templated_file);
                 assert!(errors.is_empty());
 
-                let mut builder = SegmentTreeBuilder::new(
-                    parser.dialect().name(),
-                    &tables,
-                    templated_file.clone(),
-                );
-                parser.parse_with_sink(&tokens, &mut builder).unwrap();
-                let tree = builder.finish().unwrap();
+                let tree = tree_from_tokens(&parser, &tokens, &tables, &templated_file)
+                    .unwrap()
+                    .unwrap();
                 let tree = tree.to_serialised(true, true);
 
                 serde_yaml::to_string(&tree).unwrap()

@@ -27,6 +27,9 @@ test("home page opens", async ({ page }) => {
     "[sqruff]\n" + "dialect = ansi\n" + "rules = all\n",
   );
 
+  // Wait for settings to be applied by checking the main panel contains the new rules
+  await expect(page.locator("#main")).toContainText("rules = all");
+
   await formatEditorContains(page, "select foo.bar from table1 as foo");
 
   // Change the rule to AL01
@@ -34,6 +37,9 @@ test("home page opens", async ({ page }) => {
     page,
     "[sqruff]\n" + "dialect = ansi\n" + "rules = AL01, CP01\n",
   );
+
+  // Wait for settings to be applied
+  await expect(page.locator("#main")).toContainText("rules = AL01, CP01");
 
   await formatEditorContains(page, "select foo.bar from table1 as foo");
 });

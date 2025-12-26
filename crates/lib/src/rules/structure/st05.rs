@@ -40,7 +40,7 @@ fn config_mapping(key: &str) -> SyntaxSet {
 
 #[allow(dead_code)]
 struct NestedSubQuerySummary<'a> {
-    query: Query<'a, ()>,
+    query: Query<'a>,
     selectable: Selectable<'a>,
     table_alias: AliasInfo,
     select_source_names: AHashSet<SmolStr>,
@@ -116,7 +116,7 @@ join c using(x)
             return Vec::new();
         }
 
-        let query: Query<'_, ()> = Query::from_segment(&context.segment, context.dialect, None);
+        let query: Query<'_> = Query::from_segment(&context.segment, context.dialect, None);
         let mut ctes = CTEBuilder::default();
 
         for cte in query.inner.borrow().ctes.values() {
@@ -260,7 +260,7 @@ impl RuleST05 {
         &self,
         tables: &Tables,
         dialect: &'a Dialect,
-        query: Query<'a, ()>,
+        query: Query<'a>,
         ctes: &mut CTEBuilder,
         case_preference: Case,
         segment_clone_map: &SegmentCloneMap,
@@ -331,7 +331,7 @@ impl RuleST05 {
 
     fn nested_subqueries<'a>(
         &self,
-        query: Query<'a, ()>,
+        query: Query<'a>,
         dialect: &'a Dialect,
     ) -> Vec<NestedSubQuerySummary<'a>> {
         let mut acc = Vec::new();
@@ -357,7 +357,7 @@ impl RuleST05 {
                     }
 
                     let Some(query) =
-                        Query::<()>::from_root(&table_alias.from_expression_element, dialect)
+                        Query::from_root(&table_alias.from_expression_element, dialect)
                     else {
                         continue;
                     };

@@ -386,7 +386,7 @@ pub fn get_column_with_source(
     select_statement: &str,
 ) -> Result<ExtractedSelect, String> {
     let ast = parse_sql(parser, select_statement);
-    let query: Query<()> = Query::from_root(&ast, parser.dialect()).unwrap();
+    let query: Query<'_> = Query::from_root(&ast, parser.dialect()).unwrap();
     extract_select(&query)
 }
 
@@ -409,7 +409,7 @@ type OperatedOn = HashMap<String, ((Operation, bool), (String, String))>;
 /// statement. The map in the result is from the final column name to the source
 /// column name and source table name. Also returns an array of unrecognized
 /// columns.
-fn extract_select(query: &Query<'_, ()>) -> Result<ExtractedSelect, String> {
+fn extract_select(query: &Query<'_>) -> Result<ExtractedSelect, String> {
     let with_extracted: Option<Vec<(String, ExtractedSelect)>> =
         if query.inner.borrow().ctes.is_empty() {
             None

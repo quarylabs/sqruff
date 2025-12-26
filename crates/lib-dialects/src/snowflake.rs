@@ -1426,6 +1426,8 @@ pub fn dialect() -> Dialect {
                 Ref::new("AlterResourceMonitorStatementSegment"),
                 Ref::new("DropResourceMonitorStatementSegment"),
                 Ref::new("AlterDatabaseSegment"),
+                Ref::new("AlterMaskingPolicySegment"),
+                Ref::new("AlterNetworkPolicyStatementSegment"),
             ]),
             None,
             None,
@@ -2985,6 +2987,14 @@ pub fn dialect() -> Dialect {
                                 Ref::keyword("USER"),
                                 Ref::new("ObjectReferenceSegment"),
                             ]),
+                            Sequence::new(vec_of_erased![
+                                Ref::keyword("ADD"),
+                                Ref::keyword("SEARCH"),
+                                Ref::keyword("OPTIMIZATION"),
+                                Ref::keyword("ON"),
+                                Ref::keyword("SCHEMA"),
+                                Ref::new("SchemaReferenceSegment"),
+                            ]),
                             Ref::new("ObjectReferenceSegment"),
                         ]),
                         Ref::keyword("TO"),
@@ -3060,6 +3070,14 @@ pub fn dialect() -> Dialect {
                                 Ref::keyword("ON"),
                                 Ref::keyword("USER"),
                                 Ref::new("ObjectReferenceSegment"),
+                            ]),
+                            Sequence::new(vec_of_erased![
+                                Ref::keyword("ADD"),
+                                Ref::keyword("SEARCH"),
+                                Ref::keyword("OPTIMIZATION"),
+                                Ref::keyword("ON"),
+                                Ref::keyword("SCHEMA"),
+                                Ref::new("SchemaReferenceSegment"),
                             ]),
                         ]),
                         Ref::keyword("FROM"),
@@ -3842,20 +3860,7 @@ pub fn dialect() -> Dialect {
             ]),
             Sequence::new(vec_of_erased![
                 Ref::keyword("DEFAULT"),
-                one_of(vec_of_erased![
-                    Ref::new("QuotedLiteralSegment"),
-                    Sequence::new(vec_of_erased![
-                        Ref::keyword("CURRENT_TIMESTAMP"),
-                        Bracketed::new(vec_of_erased![
-                            Ref::new("NumericLiteralSegment").optional(),
-                        ])
-                        .config(|this| this.optional()),
-                    ]),
-                    Sequence::new(vec_of_erased![
-                        Ref::keyword("SYSDATE"),
-                        Bracketed::new(vec_of_erased![]),
-                    ]),
-                ]),
+                Ref::new("ExpressionSegment"),
             ]),
             Sequence::new(vec_of_erased![
                 one_of(vec_of_erased![
@@ -3898,19 +3903,8 @@ pub fn dialect() -> Dialect {
             Ref::new("TagBracketedEqualsSegment").optional(),
             Ref::new("ConstraintPropertiesSegment"),
             Sequence::new(vec_of_erased![
-                Ref::keyword("DEFAULT"),
-                Ref::new("QuotedLiteralSegment"),
-            ]),
-            Sequence::new(vec_of_erased![
                 Ref::keyword("CHECK"),
                 Bracketed::new(vec_of_erased![Ref::new("ExpressionSegment"),]),
-            ]),
-            Sequence::new(vec_of_erased![
-                Ref::keyword("DEFAULT"),
-                one_of(vec_of_erased![
-                    Ref::new("LiteralGrammar"),
-                    Ref::new("FunctionSegment"),
-                ]),
             ]),
             Sequence::new(vec_of_erased![
                 Ref::keyword("REFERENCES"),
@@ -8047,6 +8041,138 @@ pub fn dialect() -> Dialect {
                 ])
                 .to_matchable()
             })
+            .to_matchable()
+            .into(),
+        ),
+        (
+            // An `ALTER MASKING POLICY` statement.
+            // https://docs.snowflake.com/en/sql-reference/sql/alter-masking-policy
+            "AlterMaskingPolicySegment".into(),
+            Sequence::new(vec_of_erased![
+                Ref::keyword("ALTER"),
+                Ref::keyword("MASKING"),
+                Ref::keyword("POLICY"),
+                Ref::new("IfExistsGrammar").optional(),
+                Ref::new("ObjectReferenceSegment"),
+                one_of(vec_of_erased![
+                    Sequence::new(vec_of_erased![
+                        Ref::keyword("RENAME"),
+                        Ref::keyword("TO"),
+                        Ref::new("ObjectReferenceSegment"),
+                    ]),
+                    Sequence::new(vec_of_erased![
+                        Ref::keyword("SET"),
+                        Ref::keyword("BODY"),
+                        Ref::new("FunctionAssignerSegment"),
+                        Ref::new("ExpressionSegment"),
+                    ]),
+                    Sequence::new(vec_of_erased![
+                        Ref::keyword("SET"),
+                        Ref::new("TagEqualsSegment"),
+                    ]),
+                    Sequence::new(vec_of_erased![
+                        Ref::keyword("UNSET"),
+                        Ref::keyword("TAG"),
+                        Delimited::new(vec_of_erased![Ref::new("TagReferenceSegment")]),
+                    ]),
+                    Sequence::new(vec_of_erased![
+                        Ref::keyword("SET"),
+                        Ref::keyword("COMMENT"),
+                        Ref::new("EqualsSegment"),
+                        Ref::new("QuotedLiteralSegment"),
+                    ]),
+                    Sequence::new(vec_of_erased![
+                        Ref::keyword("UNSET"),
+                        Ref::keyword("COMMENT"),
+                    ]),
+                ]),
+            ])
+            .to_matchable()
+            .into(),
+        ),
+        (
+            // An `ALTER NETWORK POLICY` statement.
+            // https://docs.snowflake.com/en/sql-reference/sql/alter-network-policy
+            "AlterNetworkPolicyStatementSegment".into(),
+            Sequence::new(vec_of_erased![
+                Ref::keyword("ALTER"),
+                Ref::keyword("NETWORK"),
+                Ref::keyword("POLICY"),
+                Ref::new("IfExistsGrammar").optional(),
+                Ref::new("SingleIdentifierGrammar"),
+                one_of(vec_of_erased![
+                    Sequence::new(vec_of_erased![
+                        Ref::keyword("SET"),
+                        any_set_of(vec_of_erased![
+                            Sequence::new(vec_of_erased![
+                                Ref::keyword("ALLOWED_NETWORK_RULE_LIST"),
+                                Ref::new("EqualsSegment"),
+                                Bracketed::new(vec_of_erased![Delimited::new(vec_of_erased![
+                                    Ref::new("QuotedLiteralSegment"),
+                                ]),]),
+                            ]),
+                            Sequence::new(vec_of_erased![
+                                Ref::keyword("BLOCKED_NETWORK_RULE_LIST"),
+                                Ref::new("EqualsSegment"),
+                                Bracketed::new(vec_of_erased![Delimited::new(vec_of_erased![
+                                    Ref::new("QuotedLiteralSegment"),
+                                ]),]),
+                            ]),
+                            Sequence::new(vec_of_erased![
+                                Ref::keyword("ALLOWED_IP_LIST"),
+                                Ref::new("EqualsSegment"),
+                                Bracketed::new(vec_of_erased![Delimited::new(vec_of_erased![
+                                    Ref::new("QuotedLiteralSegment"),
+                                ]),]),
+                            ]),
+                            Sequence::new(vec_of_erased![
+                                Ref::keyword("BLOCKED_IP_LIST"),
+                                Ref::new("EqualsSegment"),
+                                Bracketed::new(vec_of_erased![Delimited::new(vec_of_erased![
+                                    Ref::new("QuotedLiteralSegment"),
+                                ]),]),
+                            ]),
+                            Sequence::new(vec_of_erased![
+                                Ref::keyword("COMMENT"),
+                                Ref::new("EqualsSegment"),
+                                Ref::new("QuotedLiteralSegment"),
+                            ]),
+                        ]),
+                    ]),
+                    Sequence::new(vec_of_erased![
+                        Ref::keyword("UNSET"),
+                        Ref::keyword("COMMENT"),
+                    ]),
+                    Sequence::new(vec_of_erased![
+                        one_of(vec_of_erased![Ref::keyword("ADD"), Ref::keyword("REMOVE"),]),
+                        one_of(vec_of_erased![
+                            Ref::keyword("ALLOWED_NETWORK_RULE_LIST"),
+                            Ref::keyword("BLOCKED_NETWORK_RULE_LIST"),
+                        ]),
+                        Ref::new("EqualsSegment"),
+                        Ref::new("QuotedLiteralSegment"),
+                    ]),
+                    Sequence::new(vec_of_erased![
+                        Ref::keyword("RENAME"),
+                        Ref::keyword("TO"),
+                        Ref::new("SingleIdentifierGrammar"),
+                    ]),
+                    Sequence::new(vec_of_erased![
+                        Ref::keyword("SET"),
+                        Ref::new("TagEqualsSegment"),
+                    ]),
+                    Sequence::new(vec_of_erased![
+                        Ref::keyword("UNSET"),
+                        Ref::keyword("TAG"),
+                        Ref::new("TagReferenceSegment"),
+                        AnyNumberOf::new(vec_of_erased![
+                            Ref::new("CommaSegment"),
+                            Ref::new("TagReferenceSegment"),
+                        ])
+                        .config(|this| this.optional()),
+                    ]),
+                ]),
+            ])
             .to_matchable()
             .into(),
         ),

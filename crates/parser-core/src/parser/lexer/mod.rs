@@ -958,7 +958,7 @@ mod tests {
         ];
 
         for (in_string, regex, match_string) in tests {
-            let matcher = Matcher::regex("test", regex, SyntaxKind::Word);
+            let matcher = Matcher::legacy("test", |_| true, regex, SyntaxKind::Word);
             assert_matches(in_string, &matcher, Some(match_string));
         }
     }

@@ -1186,3 +1186,35 @@ file:
     - role_reference:
       - naked_identifier: my_role
 - statement_terminator: ;
+- statement:
+  - access_statement:
+    - keyword: GRANT
+    - keyword: ADD
+    - keyword: SEARCH
+    - keyword: OPTIMIZATION
+    - keyword: ON
+    - keyword: SCHEMA
+    - table_reference:
+      - object_reference:
+        - naked_identifier: MY_SCHEMA
+    - keyword: TO
+    - keyword: ROLE
+    - role_reference:
+      - naked_identifier: MY_ROLE
+- statement_terminator: ;
+- statement:
+  - access_statement:
+    - keyword: REVOKE
+    - keyword: ADD
+    - keyword: SEARCH
+    - keyword: OPTIMIZATION
+    - keyword: ON
+    - keyword: SCHEMA
+    - table_reference:
+      - object_reference:
+        - naked_identifier: MY_SCHEMA
+    - keyword: FROM
+    - keyword: ROLE
+    - object_reference:
+      - naked_identifier: MY_ROLE
+- statement_terminator: ;

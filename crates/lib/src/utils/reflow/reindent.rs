@@ -4,9 +4,9 @@ use std::mem::take;
 use ahash::{AHashMap, AHashSet};
 use itertools::{Itertools, chain, enumerate};
 use smol_str::SmolStr;
-use sqruff_parser_tree::dialects::{SyntaxKind, SyntaxSet};
-use sqruff_parser_tree::lint_fix::LintFix;
-use sqruff_parser_tree::parser::segments::{ErasedSegment, SegmentBuilder, Tables};
+use sqruff_lib_core::dialects::{SyntaxKind, SyntaxSet};
+use sqruff_lib_core::lint_fix::LintFix;
+use sqruff_lib_core::parser::segments::{ErasedSegment, SegmentBuilder, Tables};
 use strum_macros::EnumString;
 
 use super::elements::{ReflowBlock, ReflowElement, ReflowPoint, ReflowSequenceType};

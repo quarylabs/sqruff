@@ -7,7 +7,7 @@ use sqruff_parser_core::dialects::SyntaxKind;
 use sqruff_parser_core::parser::Parser as CoreParser;
 use sqruff_parser_core::parser::context::ParseContext;
 use sqruff_parser_core::parser::matchable::MatchableTrait as _;
-use sqruff_parser_tree::parser::segments::test_functions::lex;
+use sqruff_lib_core::parser::segments::test_functions::lex;
 use std::hint::black_box;
 
 include!("shims/global_alloc_overwrite.rs");

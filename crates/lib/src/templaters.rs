@@ -1,7 +1,7 @@
 use std::sync::Arc;
 
-use sqruff_parser_tree::errors::SQLFluffUserError;
-use sqruff_parser_tree::templaters::TemplatedFile;
+use sqruff_lib_core::errors::SQLFluffUserError;
+use sqruff_lib_core::templaters::TemplatedFile;
 
 use crate::Formatter;
 use crate::core::config::FluffConfig;

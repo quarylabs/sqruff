@@ -3,9 +3,9 @@ use std::cell::RefCell;
 use std::rc::Rc;
 
 use ahash::AHashMap;
-use sqruff_parser_tree::dialects::Dialect;
-use sqruff_parser_tree::parser::segments::{ErasedSegment, Tables};
-use sqruff_parser_tree::templaters::TemplatedFile;
+use sqruff_lib_core::dialects::Dialect;
+use sqruff_lib_core::parser::segments::{ErasedSegment, Tables};
+use sqruff_lib_core::templaters::TemplatedFile;
 
 use crate::core::config::FluffConfig;
 

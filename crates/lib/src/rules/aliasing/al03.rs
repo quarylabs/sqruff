@@ -1,7 +1,7 @@
 use ahash::AHashMap;
-use sqruff_parser_tree::dialects::{SyntaxKind, SyntaxSet};
-use sqruff_parser_tree::parser::segments::ErasedSegment;
-use sqruff_parser_tree::utils::functional::segments::Segments;
+use sqruff_lib_core::dialects::{SyntaxKind, SyntaxSet};
+use sqruff_lib_core::parser::segments::ErasedSegment;
+use sqruff_lib_core::utils::functional::segments::Segments;
 
 use crate::core::config::Value;
 use crate::core::rules::context::RuleContext;

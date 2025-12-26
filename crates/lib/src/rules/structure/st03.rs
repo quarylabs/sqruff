@@ -2,9 +2,9 @@ use std::cell::RefCell;
 
 use ahash::AHashMap;
 use smol_str::StrExt;
-use sqruff_parser_tree::dialects::{SyntaxKind, SyntaxSet};
-use sqruff_parser_tree::helpers::IndexMap;
-use sqruff_parser_tree::utils::analysis::query::Query;
+use sqruff_lib_core::dialects::{SyntaxKind, SyntaxSet};
+use sqruff_lib_core::helpers::IndexMap;
+use sqruff_lib_core::utils::analysis::query::Query;
 
 use crate::core::config::Value;
 use crate::core::rules::context::RuleContext;

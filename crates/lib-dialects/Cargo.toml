@@ -57,8 +57,7 @@ ahash = "0.8.11"
 serde_yaml = "0.9.34+deprecated"
 
 [dev-dependencies]
-sqruff-parser-tree.workspace = true
-sqruff-parser-tree.features = ["serde"]
+sqruff-lib-core = { workspace = true, features = ["serde"] }
 rayon = "1.10.0"
 expect-test = "1.5.0"
 glob = "0.3.1"

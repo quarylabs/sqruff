@@ -1,9 +1,9 @@
 use itertools::{Itertools, enumerate};
 use rustc_hash::FxHashMap;
-use sqruff_parser_tree::dialects::{SyntaxKind, SyntaxSet};
-use sqruff_parser_tree::lint_fix::LintFix;
-use sqruff_parser_tree::parser::markers::PositionMarker;
-use sqruff_parser_tree::parser::segments::{ErasedSegment, SegmentBuilder, Tables};
+use sqruff_lib_core::dialects::{SyntaxKind, SyntaxSet};
+use sqruff_lib_core::lint_fix::LintFix;
+use sqruff_lib_core::parser::markers::PositionMarker;
+use sqruff_lib_core::parser::segments::{ErasedSegment, SegmentBuilder, Tables};
 
 use super::elements::ReflowBlock;
 use crate::core::rules::LintResult;
@@ -572,8 +572,8 @@ mod tests {
     use pretty_assertions::assert_eq;
     use smol_str::ToSmolStr;
     use sqruff_lib::core::test_functions::parse_ansi_string;
-    use sqruff_parser_tree::helpers::enter_panic;
-    use sqruff_parser_tree::lint_fix::LintFix;
+    use sqruff_lib_core::helpers::enter_panic;
+    use sqruff_lib_core::lint_fix::LintFix;
 
     use crate::utils::reflow::helpers::fixes_from_results;
     use crate::utils::reflow::respace::Tables;

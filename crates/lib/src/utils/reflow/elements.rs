@@ -5,9 +5,9 @@ use std::rc::Rc;
 
 use itertools::{Itertools, chain};
 use nohash_hasher::IntMap;
-use sqruff_parser_tree::dialects::{SyntaxKind, SyntaxSet};
-use sqruff_parser_tree::lint_fix::LintFix;
-use sqruff_parser_tree::parser::segments::{ErasedSegment, SegmentBuilder, Tables};
+use sqruff_lib_core::dialects::{SyntaxKind, SyntaxSet};
+use sqruff_lib_core::lint_fix::LintFix;
+use sqruff_lib_core::parser::segments::{ErasedSegment, SegmentBuilder, Tables};
 
 use super::config::{ReflowConfig, Spacing};
 use super::depth_map::DepthInfo;

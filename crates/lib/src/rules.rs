@@ -1,5 +1,5 @@
 use itertools::{Itertools, chain};
-use sqruff_parser_tree::helpers::IndexMap;
+use sqruff_lib_core::helpers::IndexMap;
 
 use crate::core::rules::{ErasedRule, RuleManifest, RuleSet};
 

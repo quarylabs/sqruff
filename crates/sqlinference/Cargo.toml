@@ -10,7 +10,7 @@ license.workspace = true
 workspace = true
 
 [dependencies]
-sqruff-parser-tree = { workspace = true }
+sqruff-lib-core.workspace = true
 sqruff-parser-core.workspace = true
 
 [dev-dependencies]

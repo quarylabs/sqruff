@@ -4,7 +4,7 @@ use pyo3::prelude::*;
 use pyo3::types::PyDict;
 use pyo3::{Bound, Python};
 use serde::{Deserialize, Serialize};
-use sqruff_parser_tree::errors::SQLFluffUserError;
+use sqruff_lib_core::errors::SQLFluffUserError;
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct PythonFluffConfig {

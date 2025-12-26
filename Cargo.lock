@@ -926,9 +926,9 @@ dependencies = [
  "append-only-vec",
  "indexmap",
  "polonius-the-crab",
+ "sqruff-lib-core",
  "sqruff-lib-dialects",
  "sqruff-parser-core",
- "sqruff-parser-tree",
 ]
 
 [[package]]
@@ -1591,8 +1591,8 @@ dependencies = [
  "serde",
  "serde_json",
  "sqruff-lib",
+ "sqruff-lib-core",
  "sqruff-lsp",
- "sqruff-parser-tree",
  "strum_macros",
  "tempfile",
 ]
@@ -1646,9 +1646,9 @@ dependencies = [
  "serde_yaml",
  "smol_str",
  "sqruff-lib",
+ "sqruff-lib-core",
  "sqruff-lib-dialects",
  "sqruff-parser-core",
- "sqruff-parser-tree",
  "strum",
  "strum_macros",
  "walkdir",
@@ -1674,7 +1674,6 @@ dependencies = [
  "smol_str",
  "sqruff-helpers",
  "sqruff-parser-core",
- "sqruff-parser-tree",
  "strum",
  "strum_macros",
  "thiserror",
@@ -1691,8 +1690,8 @@ dependencies = [
  "rayon",
  "serde_yaml",
  "sqruff-helpers",
+ "sqruff-lib-core",
  "sqruff-parser-core",
- "sqruff-parser-tree",
  "strum",
 ]
 
@@ -1735,36 +1734,12 @@ dependencies = [
 ]
 
 [[package]]
-name = "sqruff-parser-tree"
-version = "0.29.3"
-dependencies = [
- "ahash",
- "enum_dispatch",
- "fancy-regex",
- "indexmap",
- "itertools 0.14.0",
- "log",
- "nohash-hasher",
- "regex-automata",
- "rustc-hash",
- "serde",
- "serde_yaml",
- "slyce",
- "smol_str",
- "sqruff-helpers",
- "sqruff-parser-core",
- "strum",
- "strum_macros",
- "thiserror",
-]
-
-[[package]]
 name = "sqruff-sqlinference"
 version = "0.29.3"
 dependencies = [
+ "sqruff-lib-core",
  "sqruff-lib-dialects",
  "sqruff-parser-core",
- "sqruff-parser-tree",
 ]
 
 [[package]]
@@ -1775,8 +1750,8 @@ dependencies = [
  "line-index",
  "lineage",
  "sqruff-lib",
+ "sqruff-lib-core",
  "sqruff-parser-core",
- "sqruff-parser-tree",
  "wasm-bindgen",
 ]
 

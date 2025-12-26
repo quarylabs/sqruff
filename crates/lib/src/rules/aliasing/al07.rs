@@ -3,9 +3,9 @@ use std::iter::once;
 use ahash::{AHashMap, AHashSet};
 use itertools::chain;
 use smol_str::ToSmolStr;
-use sqruff_parser_tree::dialects::{SyntaxKind, SyntaxSet};
-use sqruff_parser_tree::lint_fix::LintFix;
-use sqruff_parser_tree::parser::segments::{ErasedSegment, SegmentBuilder, Tables};
+use sqruff_lib_core::dialects::{SyntaxKind, SyntaxSet};
+use sqruff_lib_core::lint_fix::LintFix;
+use sqruff_lib_core::parser::segments::{ErasedSegment, SegmentBuilder, Tables};
 
 use crate::core::config::Value;
 use crate::core::rules::context::RuleContext;

@@ -3,9 +3,9 @@ use std::ops::Range;
 use crate::core::rules::noqa::IgnoreMask;
 
 use rustc_hash::FxHashSet;
-use sqruff_parser_tree::errors::SQLBaseError;
-use sqruff_parser_tree::parser::segments::fix::FixPatch;
-use sqruff_parser_tree::templaters::{RawFileSlice, TemplatedFile};
+use sqruff_lib_core::errors::SQLBaseError;
+use sqruff_lib_core::parser::segments::fix::FixPatch;
+use sqruff_lib_core::templaters::{RawFileSlice, TemplatedFile};
 
 #[derive(Debug, Default, Clone)]
 pub struct LintedFile {
@@ -218,7 +218,7 @@ impl LintedFile {
 
 #[cfg(test)]
 mod test {
-    use sqruff_parser_tree::templaters::TemplatedFileSlice;
+    use sqruff_lib_core::templaters::TemplatedFileSlice;
 
     use super::*;
 

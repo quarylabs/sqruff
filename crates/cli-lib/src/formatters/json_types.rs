@@ -1,7 +1,7 @@
 use std::collections::BTreeMap;
 
 use serde::Serialize;
-use sqruff_parser_tree::errors::SQLBaseError;
+use sqruff_lib_core::errors::SQLBaseError;
 
 impl From<SQLBaseError> for Diagnostic {
     fn from(value: SQLBaseError) -> Self {

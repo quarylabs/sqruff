@@ -15,7 +15,7 @@ bench = false
 [dependencies]
 line-index = "0.1.1"
 sqruff-lib.workspace = true
-sqruff-parser-tree = { workspace = true, features = ["stringify"] }
+sqruff-lib-core = { workspace = true, features = ["stringify"] }
 sqruff-parser-core.workspace = true
 wasm-bindgen = "0.2"
 lineage = { path = "../lineage" }

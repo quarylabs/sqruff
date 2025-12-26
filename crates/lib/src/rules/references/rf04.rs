@@ -1,6 +1,6 @@
 use itertools::Itertools;
 use regex::Regex;
-use sqruff_parser_tree::dialects::{SyntaxKind, SyntaxSet};
+use sqruff_lib_core::dialects::{SyntaxKind, SyntaxSet};
 
 use crate::core::rules::context::RuleContext;
 use crate::core::rules::crawlers::{Crawler, SegmentSeekerCrawler};

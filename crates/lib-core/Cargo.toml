@@ -13,17 +13,11 @@ workspace = true
 crate-type = ["cdylib", "rlib"]
 
 [features]
-serde = ["dep:serde", "sqruff-parser-core/serde", "sqruff-parser-tree/serde"]
-stringify = [
-    "dep:serde_yaml",
-    "serde",
-    "sqruff-parser-core/stringify",
-    "sqruff-parser-tree/stringify",
-]
+serde = ["dep:serde", "sqruff-parser-core/serde"]
+stringify = ["dep:serde_yaml", "serde", "sqruff-parser-core/stringify"]
 
 [dependencies]
 sqruff-parser-core = { version = "0.29.3", path = "../parser-core" }
-sqruff-parser-tree = { version = "0.29.3", path = "../parser-tree" }
 sqruff-helpers.workspace = true
 smol_str = "0.3.1"
 ahash = { version = "0.8.11", features = ["compile-time-rng", "serde"] }

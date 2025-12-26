@@ -1,11 +1,12 @@
+pub mod dialects;
+pub mod errors;
+pub mod lexer;
+pub mod lint_fix;
 pub mod linter;
 pub mod parser;
+pub mod segments;
+pub mod slice_helpers;
+pub mod templaters;
 pub mod utils;
 pub use sqruff_helpers as helpers;
 pub use sqruff_parser_core::vec_of_erased;
-pub use sqruff_parser_tree::dialects;
-pub use sqruff_parser_tree::errors;
-pub use sqruff_parser_tree::lint_fix;
-pub use sqruff_parser_tree::segments;
-pub use sqruff_parser_tree::slice_helpers;
-pub use sqruff_parser_tree::templaters;

@@ -1,10 +1,10 @@
 use crate::errors::SQLParseError;
+use crate::parser::IndentationConfig;
 use crate::parser::context::ParseContext;
 use crate::parser::match_result::{MatchResult, Span};
 use crate::parser::matchable::{Matchable, MatchableTrait};
 use crate::parser::segments::ErasedSegment;
 use crate::parser::segments::meta::Indent;
-use crate::parser::IndentationConfig;
 
 #[derive(Clone, Debug, PartialEq)]
 pub struct Conditional {
@@ -54,9 +54,7 @@ impl Conditional {
     }
 
     fn is_enabled(&self, parse_context: &ParseContext) -> bool {
-        parse_context
-            .indentation_config
-            .contains(self.requirements)
+        parse_context.indentation_config.contains(self.requirements)
     }
 }
 

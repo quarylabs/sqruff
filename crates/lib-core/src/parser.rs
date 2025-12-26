@@ -44,7 +44,10 @@ impl IndentationConfig {
 
         config.insert_if(Self::INDENTED_JOINS, get(Self::INDENTED_JOINS_KEY));
         config.insert_if(Self::INDENTED_USING_ON, get(Self::INDENTED_USING_ON_KEY));
-        config.insert_if(Self::INDENTED_ON_CONTENTS, get(Self::INDENTED_ON_CONTENTS_KEY));
+        config.insert_if(
+            Self::INDENTED_ON_CONTENTS,
+            get(Self::INDENTED_ON_CONTENTS_KEY),
+        );
         config.insert_if(Self::INDENTED_THEN, get(Self::INDENTED_THEN_KEY));
         config.insert_if(
             Self::INDENTED_THEN_CONTENTS,

@@ -666,12 +666,10 @@ impl Lexer {
         // Add an end of file marker
         let eof_span = match tokens.last() {
             Some(token) => TokenSpan::new(
-                token.span.source_end,
-                token.span.source_end,
-                token.span.templated_end,
-                token.span.templated_end,
+                token.span.source.end..token.span.source.end,
+                token.span.templated.end..token.span.templated.end,
             ),
-            None => TokenSpan::new(0, 0, 0, 0),
+            None => TokenSpan::new(0..0, 0..0),
         };
 
         tokens.push(Token::new(SyntaxKind::EndOfFile, "", eof_span));
@@ -686,10 +684,8 @@ fn token_span_for_element(
     source_end: usize,
 ) -> TokenSpan {
     TokenSpan::new(
-        source_start,
-        source_end,
-        element.template_slice.start,
-        element.template_slice.end,
+        source_start..source_end,
+        element.template_slice.start..element.template_slice.end,
     )
 }
 

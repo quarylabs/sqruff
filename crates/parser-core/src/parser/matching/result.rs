@@ -132,7 +132,7 @@ impl MatchResult {
                 }
                 let idx = span.end - 1;
                 if let Some(token) = tokens.get(idx as usize) {
-                    let new_token = Token::new(kind, token.raw.clone(), token.span);
+                    let new_token = Token::new(kind, token.raw.clone(), token.span.clone());
                     sink.token(&new_token);
                 }
             }
@@ -164,20 +164,16 @@ pub struct Span {
 fn point_span_at_idx(tokens: &[Token], idx: u32) -> TokenSpan {
     if let Some(token) = tokens.get(idx as usize) {
         TokenSpan::new(
-            token.span.source_start,
-            token.span.source_start,
-            token.span.templated_start,
-            token.span.templated_start,
+            token.span.source.start..token.span.source.start,
+            token.span.templated.start..token.span.templated.start,
         )
     } else if let Some(token) = tokens.last() {
         TokenSpan::new(
-            token.span.source_end,
-            token.span.source_end,
-            token.span.templated_end,
-            token.span.templated_end,
+            token.span.source.end..token.span.source.end,
+            token.span.templated.end..token.span.templated.end,
         )
     } else {
-        TokenSpan::new(0, 0, 0, 0)
+        TokenSpan::new(0..0, 0..0)
     }
 }
 

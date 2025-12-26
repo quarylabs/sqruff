@@ -117,7 +117,7 @@ pub fn longest_match(
     let terminators = parse_context.terminators.clone();
     let token = &segments[idx as usize];
 
-    let loc_key = (token.raw.clone(), token.span, token.kind, max_idx);
+    let loc_key = (token.raw.clone(), token.span.clone(), token.kind, max_idx);
 
     let loc_key = parse_context.loc_key(loc_key);
 
@@ -260,7 +260,7 @@ pub fn resolve_bracket(
         if !match_result.has_match() {
             return Err(SQLParseError {
                 description: "Couldn't find closing bracket for opening bracket.".into(),
-                span: Some(segments[opening_match.span.start as usize].span),
+                span: Some(segments[opening_match.span.start as usize].span.clone()),
             });
         }
 
@@ -296,7 +296,7 @@ pub fn resolve_bracket(
 
             return Err(SQLParseError {
                 description: "Found unexpected end bracket!".into(),
-                span: Some(segments[(match_result.span.end - 1) as usize].span),
+                span: Some(segments[(match_result.span.end - 1) as usize].span.clone()),
             });
         }
 

@@ -6,12 +6,7 @@ use sqruff_parser_core::parser::Parser;
 use sqruff_parser_core::parser::token::{Token, TokenSpan};
 
 pub fn token_span_from_marker(marker: &PositionMarker) -> TokenSpan {
-    TokenSpan::new(
-        marker.source_slice.start,
-        marker.source_slice.end,
-        marker.templated_slice.start,
-        marker.templated_slice.end,
-    )
+    TokenSpan::new(marker.source_slice.clone(), marker.templated_slice.clone())
 }
 
 pub fn token_from_segment(segment: &ErasedSegment) -> Token {

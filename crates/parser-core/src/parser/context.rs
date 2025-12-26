@@ -7,8 +7,8 @@ use super::match_result::MatchResult;
 use super::matchable::{Matchable, MatchableCacheKey};
 use crate::dialects::Dialect;
 use crate::dialects::SyntaxKind;
-use crate::helpers::IndexSet;
 use crate::parser::Parser;
+use sqruff_helpers::IndexSet;
 
 type LocKey = u32;
 type LocKeyData = (SmolStr, TokenSpan, SyntaxKind, u32);

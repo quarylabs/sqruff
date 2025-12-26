@@ -8,4 +8,4 @@ pub mod segments;
 pub mod slice_helpers;
 pub mod templaters;
 pub mod utils;
-pub use sqruff_parser_core::helpers;
+pub use sqruff_helpers as helpers;

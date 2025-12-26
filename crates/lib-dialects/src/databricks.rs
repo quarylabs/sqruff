@@ -1,6 +1,6 @@
 use crate::databricks_keywords::{RESERVED_KEYWORDS, UNRESERVED_KEYWORDS};
 use crate::sparksql;
-use sqruff_parser_core::helpers::Config;
+use sqruff_helpers::Config;
 use sqruff_parser_core::parser::grammar::anyof::one_of;
 use sqruff_parser_core::parser::grammar::delimited::Delimited;
 use sqruff_parser_core::parser::grammar::sequence::Bracketed;

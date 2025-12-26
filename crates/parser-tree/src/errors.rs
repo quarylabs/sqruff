@@ -5,7 +5,7 @@ use thiserror::Error;
 
 use crate::parser::markers::PositionMarker;
 use crate::parser::segments::ErasedSegment;
-use sqruff_parser_core::helpers::Config;
+use crate::helpers::Config;
 
 #[derive(Debug, PartialEq, Clone, Default, Error)]
 #[error("{description}")]

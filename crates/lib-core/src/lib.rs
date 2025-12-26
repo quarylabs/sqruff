@@ -1,7 +1,7 @@
 pub mod linter;
 pub mod parser;
 pub mod utils;
-pub use sqruff_parser_core::helpers;
+pub use sqruff_helpers as helpers;
 pub use sqruff_parser_core::vec_of_erased;
 pub use sqruff_parser_tree::dialects;
 pub use sqruff_parser_tree::errors;

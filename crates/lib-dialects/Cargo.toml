@@ -50,6 +50,7 @@ tsql = []
 
 [dependencies]
 sqruff-parser-core.workspace = true
+sqruff-helpers.workspace = true
 strum.workspace = true
 itertools = "0.14.0"
 ahash = "0.8.11"

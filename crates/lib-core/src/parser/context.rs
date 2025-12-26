@@ -3,10 +3,10 @@ use smol_str::SmolStr;
 
 use super::match_result::MatchResult;
 use super::matchable::{Matchable, MatchableCacheKey};
-use crate::parser::IndentationConfig;
 use crate::dialects::Dialect;
 use crate::dialects::syntax::SyntaxKind;
 use crate::helpers::IndexSet;
+use crate::parser::IndentationConfig;
 use crate::parser::Parser;
 
 type LocKey = u32;

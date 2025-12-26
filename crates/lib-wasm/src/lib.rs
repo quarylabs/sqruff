@@ -2,8 +2,8 @@ use line_index::LineIndex;
 use lineage::{Lineage, Node};
 use sqruff_lib::core::config::FluffConfig;
 use sqruff_lib::core::linter::core::Linter as SqruffLinter;
-use sqruff_lib_core::parser::{IndentationConfig, Parser};
 use sqruff_lib_core::parser::segments::Tables;
+use sqruff_lib_core::parser::{IndentationConfig, Parser};
 use wasm_bindgen::prelude::*;
 
 #[wasm_bindgen]
@@ -116,7 +116,10 @@ impl Linter {
             Tool::Format => result.fix_string(),
             Tool::Cst => cst.unwrap().stringify(false),
             Tool::Lineage => {
-                let parser = Parser::new(self.base.config().get_dialect(), IndentationConfig::default());
+                let parser = Parser::new(
+                    self.base.config().get_dialect(),
+                    IndentationConfig::default(),
+                );
                 let (tables, node) = Lineage::new(parser, "", sql).build();
 
                 print_tree(&tables, node, "", "", "")

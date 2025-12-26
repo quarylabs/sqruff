@@ -18,4 +18,3 @@ sqruff-lib.workspace = true
 sqruff-lib-core = { workspace = true, features = ["stringify"] }
 wasm-bindgen = "0.2"
 lineage = { path = "../lineage" }
-ahash.workspace = true

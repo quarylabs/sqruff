@@ -5,11 +5,11 @@ use indexmap::{IndexMap, IndexSet};
 use ir::{Expr, ExprKind, Tables};
 use schema::Schema;
 use scope::{Scope, ScopeKind, Source};
-use sqruff_parser_core::parser::Parser;
 use sqruff_lib_core::lexer::Lexer;
-use sqruff_lib_core::parser::segments::ErasedSegment;
 use sqruff_lib_core::parser::adapters::tree_from_tokens;
+use sqruff_lib_core::parser::segments::ErasedSegment;
 use sqruff_lib_core::templaters::TemplatedFile;
+use sqruff_parser_core::parser::Parser;
 
 mod expand;
 pub mod ir;

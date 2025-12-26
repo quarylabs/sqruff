@@ -1,6 +1,6 @@
-use sqruff_parser_core::parser::Parser;
 use sqruff_lib_core::dialects::{SyntaxKind, SyntaxSet};
 use sqruff_lib_core::utils::analysis::query::Query;
+use sqruff_parser_core::parser::Parser;
 
 use crate::parse_sql;
 

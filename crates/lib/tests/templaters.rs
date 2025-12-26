@@ -4,10 +4,10 @@ use expect_test::expect_file;
 use glob::glob;
 use sqruff_lib::core::config::FluffConfig;
 use sqruff_lib::core::linter::core::Linter;
-use sqruff_parser_core::parser::Parser;
 use sqruff_lib_core::lexer::Lexer;
-use sqruff_lib_core::parser::segments::Tables;
 use sqruff_lib_core::parser::adapters::tree_from_tokens;
+use sqruff_lib_core::parser::segments::Tables;
+use sqruff_parser_core::parser::Parser;
 
 fn main() {
     let templaters_folder = std::path::Path::new("test/fixtures/templaters");

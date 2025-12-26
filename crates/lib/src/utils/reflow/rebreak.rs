@@ -1,8 +1,8 @@
 use std::cmp::PartialEq;
 use std::str::FromStr;
 
+use crate::utils::strings::capitalize;
 use sqruff_lib_core::dialects::SyntaxKind;
-use sqruff_lib_core::helpers::capitalize;
 use sqruff_lib_core::lint_fix::LintFix;
 use sqruff_lib_core::parser::segments::{ErasedSegment, Tables};
 use strum_macros::{AsRefStr, EnumString};

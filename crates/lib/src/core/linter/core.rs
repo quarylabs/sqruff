@@ -14,19 +14,17 @@ use crate::core::rules::{ErasedRule, Exception, LintPhase, RulePack};
 use crate::rules::get_ruleset;
 use crate::templaters::raw::RawTemplater;
 use crate::templaters::{TEMPLATERS, Templater};
+use crate::utils::paths::normalize;
 use ahash::{AHashMap, AHashSet};
 use itertools::Itertools;
 use rayon::iter::{IndexedParallelIterator, IntoParallelRefIterator as _, ParallelIterator as _};
 use rustc_hash::FxHashMap;
 use smol_str::{SmolStr, ToSmolStr};
-use sqruff_parser_core::parser::Parser;
-use sqruff_parser_core::parser::token::{Token, TokenSpan};
 use sqruff_lib_core::dialects::Dialect;
 use sqruff_lib_core::dialects::{SyntaxKind, SyntaxSet};
 use sqruff_lib_core::errors::{
     SQLBaseError, SQLFluffUserError, SQLLexError, SQLLintError, SQLParseError,
 };
-use sqruff_lib_core::helpers;
 use sqruff_lib_core::lexer::Lexer;
 use sqruff_lib_core::linter::compute_anchor_edit_info;
 use sqruff_lib_core::parser::adapters::segment_from_token;
@@ -35,6 +33,8 @@ use sqruff_lib_core::parser::segments::builder::SegmentTreeBuilder;
 use sqruff_lib_core::parser::segments::fix::SourceFix;
 use sqruff_lib_core::parser::segments::{ErasedSegment, Tables};
 use sqruff_lib_core::templaters::TemplatedFile;
+use sqruff_parser_core::parser::Parser;
+use sqruff_parser_core::parser::token::{Token, TokenSpan};
 use walkdir::WalkDir;
 
 pub struct Linter {
@@ -709,7 +709,7 @@ impl Linter {
         let mut filtered_buffer = AHashSet::new();
 
         for fpath in buffer {
-            let npath = helpers::normalize(&fpath).to_str().unwrap().to_string();
+            let npath = normalize(&fpath).to_str().unwrap().to_string();
             filtered_buffer.insert(npath);
         }
 

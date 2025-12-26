@@ -1,7 +1,7 @@
-use sqruff_lib_dialects::kind_to_dialect;
 use sqruff_lib_core::dialects::Dialect;
 use sqruff_lib_core::dialects::DialectKind;
 use sqruff_lib_core::parser::segments::{ErasedSegment, Tables};
+use sqruff_lib_dialects::kind_to_dialect;
 
 use crate::core::linter::core::Linter;
 

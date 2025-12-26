@@ -1,6 +1,6 @@
 use crate::parser::markers::PositionMarker;
-use crate::parser::segments::{ErasedSegment, SegmentBuilder, Tables};
 use crate::parser::segments::builder::SegmentTreeBuilder;
+use crate::parser::segments::{ErasedSegment, SegmentBuilder, Tables};
 use crate::templaters::TemplatedFile;
 use sqruff_parser_core::parser::Parser;
 use sqruff_parser_core::parser::token::{Token, TokenSpan};

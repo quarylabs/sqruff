@@ -5,14 +5,17 @@ use crate::parser::event_sink::EventSink;
 use crate::parser::token::Token;
 
 pub trait ParseEventHandler {
-    fn enter_node(&mut self, kind: SyntaxKind);
+    fn enter_node(&mut self, kind: SyntaxKind, estimated_children: usize);
     fn exit_node(&mut self, kind: SyntaxKind);
     fn token(&mut self, kind: SyntaxKind, raw: &str);
 }
 
 #[derive(Debug, Clone, PartialEq)]
 pub enum ParseEvent {
-    EnterNode { kind: SyntaxKind },
+    EnterNode {
+        kind: SyntaxKind,
+        estimated_children: usize,
+    },
     ExitNode { kind: SyntaxKind },
     Token { kind: SyntaxKind, raw: SmolStr },
 }
@@ -37,8 +40,11 @@ impl EventCollector {
 }
 
 impl ParseEventHandler for EventCollector {
-    fn enter_node(&mut self, kind: SyntaxKind) {
-        self.events.push(ParseEvent::EnterNode { kind });
+    fn enter_node(&mut self, kind: SyntaxKind, estimated_children: usize) {
+        self.events.push(ParseEvent::EnterNode {
+            kind,
+            estimated_children,
+        });
     }
 
     fn exit_node(&mut self, kind: SyntaxKind) {
@@ -54,8 +60,11 @@ impl ParseEventHandler for EventCollector {
 }
 
 impl EventSink for EventCollector {
-    fn enter_node(&mut self, kind: SyntaxKind) {
-        self.events.push(ParseEvent::EnterNode { kind });
+    fn enter_node(&mut self, kind: SyntaxKind, estimated_children: usize) {
+        self.events.push(ParseEvent::EnterNode {
+            kind,
+            estimated_children,
+        });
     }
 
     fn exit_node(&mut self, kind: SyntaxKind) {
@@ -81,8 +90,8 @@ impl<'a, H: ParseEventHandler> ParseEventHandlerSink<'a, H> {
 }
 
 impl<'a, H: ParseEventHandler> EventSink for ParseEventHandlerSink<'a, H> {
-    fn enter_node(&mut self, kind: SyntaxKind) {
-        self.handler.enter_node(kind);
+    fn enter_node(&mut self, kind: SyntaxKind, estimated_children: usize) {
+        self.handler.enter_node(kind, estimated_children);
     }
 
     fn exit_node(&mut self, kind: SyntaxKind) {

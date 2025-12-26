@@ -76,7 +76,7 @@ impl SegmentBuilder {
         }
     }
 
-    pub fn token(id: u32, raw: &str, syntax_kind: SyntaxKind) -> Self {
+    pub fn token(id: u32, raw: impl Into<SmolStr>, syntax_kind: SyntaxKind) -> Self {
         SegmentBuilder {
             node_or_token: NodeOrToken {
                 id,

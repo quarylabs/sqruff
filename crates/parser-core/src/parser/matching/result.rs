@@ -121,7 +121,7 @@ impl MatchResult {
 
         match matched {
             Some(Matched::SyntaxKind(kind)) => {
-                sink.enter_node(kind);
+                sink.enter_node(kind, 0);
                 emit_content(span, insert_segments, child_matches, tokens, sink);
                 sink.exit_node(kind);
             }

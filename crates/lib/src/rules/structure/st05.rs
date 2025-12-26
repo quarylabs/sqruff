@@ -732,7 +732,7 @@ fn create_cte_seg(
         SyntaxKind::CommonTableExpression,
         dialect.name,
         vec![
-            SegmentBuilder::token(tables.next_id(), &alias_name, SyntaxKind::NakedIdentifier)
+            SegmentBuilder::token(tables.next_id(), alias_name, SyntaxKind::NakedIdentifier)
                 .finish(),
             SegmentBuilder::whitespace(tables.next_id(), " "),
             segmentify(tables, "AS", case_preference),

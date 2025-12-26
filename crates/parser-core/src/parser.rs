@@ -98,7 +98,7 @@ fn root_parse_events(
         .rposition(|token| token.is_code())
         .map_or(start_idx, |idx| idx as u32 + 1);
 
-    sink.enter_node(SyntaxKind::File);
+    sink.enter_node(SyntaxKind::File, 0);
     emit_tokens(&tokens[..start_idx as usize], sink);
 
     if start_idx == end_idx {
@@ -150,7 +150,7 @@ fn emit_unparsable(tokens: &[Token], sink: &mut impl EventSink) {
     if tokens.is_empty() {
         return;
     }
-    sink.enter_node(SyntaxKind::Unparsable);
+    sink.enter_node(SyntaxKind::Unparsable, 0);
     emit_tokens(tokens, sink);
     sink.exit_node(SyntaxKind::Unparsable);
 }

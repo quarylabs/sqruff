@@ -47,11 +47,13 @@ impl<'a> SegmentTreeBuilder<'a> {
 }
 
 impl<'a> EventSink for SegmentTreeBuilder<'a> {
-    fn enter_node(&mut self, kind: SyntaxKind) {
-        self.stack.push(NodeFrame {
-            kind,
-            children: Vec::new(),
-        });
+    fn enter_node(&mut self, kind: SyntaxKind, estimated_children: usize) {
+        let children = if estimated_children == 0 {
+            Vec::new()
+        } else {
+            Vec::with_capacity(estimated_children)
+        };
+        self.stack.push(NodeFrame { kind, children });
     }
 
     fn exit_node(&mut self, kind: SyntaxKind) {
@@ -74,7 +76,7 @@ impl<'a> EventSink for SegmentTreeBuilder<'a> {
             None,
         );
 
-        let segment = SegmentBuilder::token(self.tables.next_id(), token.raw.as_ref(), token.kind)
+        let segment = SegmentBuilder::token(self.tables.next_id(), token.raw.clone(), token.kind)
             .with_position(position)
             .finish();
 

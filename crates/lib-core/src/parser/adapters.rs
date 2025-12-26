@@ -42,7 +42,7 @@ pub fn segment_from_token(
         None,
     );
 
-    SegmentBuilder::token(tables.next_id(), token.raw.as_ref(), token.kind)
+    SegmentBuilder::token(tables.next_id(), token.raw.clone(), token.kind)
         .with_position(position)
         .finish()
 }

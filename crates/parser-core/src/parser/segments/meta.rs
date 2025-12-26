@@ -5,9 +5,9 @@ use ahash::AHashSet;
 use crate::dialects::{SyntaxKind, SyntaxSet};
 use crate::errors::SQLParseError;
 use crate::parser::context::ParseContext;
-use crate::parser::token::Token;
 use crate::parser::match_result::MatchResult;
 use crate::parser::matchable::{Matchable, MatchableTrait};
+use crate::parser::token::Token;
 
 pub type Indent = MetaSegment;
 

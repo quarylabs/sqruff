@@ -44,6 +44,7 @@ python = ["pyo3", "sqruff-parser-tree/serde"]
 [dependencies]
 sqruff-parser-tree.workspace = true
 sqruff-lib-dialects.workspace = true
+sqruff-parser-core.workspace = true
 
 fancy-regex = "0.16.2"
 itertools = "0.14.0"
@@ -87,6 +88,5 @@ serde_with = { version = "3.13", default-features = false, features = [
     "alloc",
     "macros",
 ] }
-sqruff-parser-core.workspace = true
 sqruff-parser-tree = { workspace = true, features = ["serde"] }
 pyo3 = { version = "0.26.0", features = ["auto-initialize"] }

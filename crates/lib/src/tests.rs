@@ -31,7 +31,7 @@ fn test_dialect_ansi_file_lex() {
         let lexer = Lexer::from(&ansi);
 
         // Assume that the lex function returns a Result with tokens
-        let (tokens, errors) = lexer.lex(raw);
+        let (tokens, errors) = lexer.lex_str(raw);
 
         assert_eq!(errors.len(), 0, "Lexing failed for input: {}", raw);
 

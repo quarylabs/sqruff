@@ -5,10 +5,10 @@ use indexmap::{IndexMap, IndexSet};
 use ir::{Expr, ExprKind, Tables};
 use schema::Schema;
 use scope::{Scope, ScopeKind, Source};
+use sqruff_parser_core::parser::Parser;
 use sqruff_parser_tree::lexer::Lexer;
-use sqruff_parser_tree::parser::Parser;
-use sqruff_parser_tree::parser::adapters::segments_from_tokens;
 use sqruff_parser_tree::parser::segments::ErasedSegment;
+use sqruff_parser_tree::parser::segments::builder::SegmentTreeBuilder;
 use sqruff_parser_tree::templaters::TemplatedFile;
 
 mod expand;
@@ -75,16 +75,19 @@ impl<'config> Lineage<'config> {
 }
 
 fn parse_sql(parser: &Parser, source: &str) -> ErasedSegment {
-    let lex_tables = sqruff_parser_tree::parser::segments::Tables::default();
     let ansi = sqruff_lib_dialects::ansi::dialect();
     let lexer = Lexer::from(&ansi);
     let templated_file: TemplatedFile = source.into();
 
-    let (tokens, _) = lexer.lex(templated_file.clone());
-    let segments = segments_from_tokens(&tokens, &templated_file, &lex_tables);
-
+    let (tokens, _) = lexer.lex(&templated_file);
     let parse_tables = sqruff_parser_tree::parser::segments::Tables::default();
-    parser.parse(&parse_tables, &segments).unwrap().unwrap()
+    let mut builder = SegmentTreeBuilder::new(
+        parser.dialect().name(),
+        &parse_tables,
+        templated_file.clone(),
+    );
+    parser.parse_with_sink(&tokens, &mut builder).unwrap();
+    builder.finish().unwrap()
 }
 
 pub type Node = usize;
@@ -384,7 +387,7 @@ fn to_node(
 mod tests {
     use std::collections::HashMap;
 
-    use sqruff_parser_tree::parser::Parser;
+    use sqruff_parser_core::parser::Parser;
 
     use crate::Lineage;
 

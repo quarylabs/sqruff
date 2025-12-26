@@ -3,9 +3,9 @@ use fancy_regex::Regex;
 use smol_str::SmolStr;
 
 use super::context::ParseContext;
-use super::token::Token;
 use super::match_result::{MatchResult, Matched, Span};
 use super::matchable::{Matchable, MatchableCacheKey, MatchableTrait, next_matchable_cache_key};
+use super::token::Token;
 use crate::dialects::{SyntaxKind, SyntaxSet};
 use crate::errors::SQLParseError;
 

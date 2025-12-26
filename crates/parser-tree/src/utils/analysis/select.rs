@@ -2,8 +2,8 @@ use itertools::Itertools;
 use smol_str::{SmolStr, ToSmolStr};
 
 use crate::dialects::Dialect;
-use crate::dialects::common::{AliasInfo, ColumnAliasInfo};
 use crate::dialects::DialectKind;
+use crate::dialects::common::{AliasInfo, ColumnAliasInfo};
 use crate::dialects::{SyntaxKind, SyntaxSet};
 use crate::parser::segments::ErasedSegment;
 use crate::parser::segments::from::FromClauseSegment;

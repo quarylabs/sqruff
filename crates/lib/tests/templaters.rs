@@ -4,10 +4,10 @@ use expect_test::expect_file;
 use glob::glob;
 use sqruff_lib::core::config::FluffConfig;
 use sqruff_lib::core::linter::core::Linter;
+use sqruff_parser_core::parser::Parser;
 use sqruff_parser_tree::lexer::Lexer;
-use sqruff_parser_tree::parser::Parser;
-use sqruff_parser_tree::parser::adapters::segments_from_tokens;
 use sqruff_parser_tree::parser::segments::Tables;
+use sqruff_parser_tree::parser::segments::builder::SegmentTreeBuilder;
 
 fn main() {
     let templaters_folder = std::path::Path::new("test/fixtures/templaters");
@@ -45,12 +45,16 @@ fn main() {
                     .process(&sql, &sql_file.to_string_lossy(), &config, &None)
                     .unwrap();
 
-                let (tokens, errors) = lexer.lex(templated_file.clone());
+                let (tokens, errors) = lexer.lex(&templated_file);
                 assert!(errors.is_empty());
 
-                let segments = segments_from_tokens(&tokens, &templated_file, &tables);
-                let parsed = parser.parse(&tables, &segments).unwrap();
-                let tree = parsed.unwrap();
+                let mut builder = SegmentTreeBuilder::new(
+                    parser.dialect().name(),
+                    &tables,
+                    templated_file.clone(),
+                );
+                parser.parse_with_sink(&tokens, &mut builder).unwrap();
+                let tree = builder.finish().unwrap();
                 let tree = tree.to_serialised(true, true);
 
                 serde_yaml::to_string(&tree).unwrap()

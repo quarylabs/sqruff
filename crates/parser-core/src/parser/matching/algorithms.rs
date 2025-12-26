@@ -2,12 +2,12 @@ use ahash::AHashMap;
 use itertools::{Itertools as _, enumerate, multiunzip};
 use smol_str::StrExt;
 
-use crate::parser::context::ParseContext;
-use crate::parser::token::Token;
-use super::result::{MatchResult, Matched, Span};
 use super::matchable::{Matchable, MatchableTrait};
+use super::result::{MatchResult, Matched, Span};
 use crate::dialects::{SyntaxKind, SyntaxSet};
 use crate::errors::SQLParseError;
+use crate::parser::context::ParseContext;
+use crate::parser::token::Token;
 
 pub fn skip_start_index_forward_to_code(segments: &[Token], start_idx: u32, max_idx: u32) -> u32 {
     let mut idx = start_idx;

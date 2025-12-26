@@ -1,6 +1,5 @@
 pub mod context;
 pub mod event_sink;
-pub mod token;
 pub mod events;
 pub mod grammar;
 pub mod lexer;
@@ -8,6 +7,7 @@ pub mod lookahead;
 pub mod matching;
 pub mod parsers;
 pub mod segments;
+pub mod token;
 pub mod types;
 
 use ahash::AHashMap;
@@ -16,9 +16,9 @@ use crate::dialects::Dialect;
 use crate::dialects::SyntaxKind;
 use crate::errors::SQLParseError;
 use crate::parser::event_sink::EventSink;
-use crate::parser::token::Token;
 use crate::parser::events::{EventCollector, ParseEvent, ParseEventHandler, ParseEventHandlerSink};
 use crate::parser::matchable::MatchableTrait;
+use crate::parser::token::Token;
 use context::ParseContext;
 
 pub use matching::algorithms as match_algorithms;

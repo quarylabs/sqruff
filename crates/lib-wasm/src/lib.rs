@@ -3,7 +3,7 @@ use line_index::LineIndex;
 use lineage::{Lineage, Node};
 use sqruff_lib::core::config::FluffConfig;
 use sqruff_lib::core::linter::core::Linter as SqruffLinter;
-use sqruff_parser_tree::parser::Parser;
+use sqruff_parser_core::parser::Parser;
 use sqruff_parser_tree::parser::segments::Tables;
 use wasm_bindgen::prelude::*;
 

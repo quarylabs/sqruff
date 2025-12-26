@@ -28,3 +28,16 @@ impl SQLParseError {
         }
     }
 }
+
+#[derive(Debug, Error)]
+#[error("{message}")]
+pub struct SQLLexError {
+    pub message: String,
+    pub span: TokenSpan,
+}
+
+impl SQLLexError {
+    pub fn new(message: String, span: TokenSpan) -> SQLLexError {
+        SQLLexError { message, span }
+    }
+}

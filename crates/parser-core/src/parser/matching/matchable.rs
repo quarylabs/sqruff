@@ -5,8 +5,12 @@ use std::sync::atomic::{AtomicU32, Ordering};
 use ahash::AHashSet;
 use enum_dispatch::enum_dispatch;
 
+use super::node_matcher::NodeMatcher;
+use super::result::MatchResult;
+use crate::dialects::Dialect;
+use crate::dialects::{SyntaxKind, SyntaxSet};
+use crate::errors::SQLParseError;
 use crate::parser::context::ParseContext;
-use crate::parser::token::Token;
 use crate::parser::grammar::anyof::AnyNumberOf;
 use crate::parser::grammar::conditional::Conditional;
 use crate::parser::grammar::delimited::Delimited;
@@ -14,14 +18,10 @@ use crate::parser::grammar::noncode::NonCodeMatcher;
 use crate::parser::grammar::sequence::{Bracketed, Sequence};
 use crate::parser::grammar::{Anything, Nothing, Ref};
 use crate::parser::lookahead::LookaheadExclude;
-use super::result::MatchResult;
-use super::node_matcher::NodeMatcher;
 use crate::parser::parsers::{MultiStringParser, RegexParser, StringParser, TypedParser};
 use crate::parser::segments::bracketed::BracketedSegmentMatcher;
 use crate::parser::segments::meta::MetaSegment;
-use crate::dialects::Dialect;
-use crate::dialects::{SyntaxKind, SyntaxSet};
-use crate::errors::SQLParseError;
+use crate::parser::token::Token;
 
 #[derive(Clone, Debug, PartialEq)]
 pub struct Matchable {

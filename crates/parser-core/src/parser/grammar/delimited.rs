@@ -7,7 +7,6 @@ use crate::dialects::SyntaxSet;
 use crate::errors::SQLParseError;
 use crate::helpers::ToMatchable;
 use crate::parser::context::ParseContext;
-use crate::parser::token::Token;
 use crate::parser::grammar::Ref;
 use crate::parser::grammar::noncode::NonCodeMatcher;
 use crate::parser::match_algorithms::{longest_match, skip_start_index_forward_to_code};
@@ -15,6 +14,7 @@ use crate::parser::match_result::MatchResult;
 use crate::parser::matchable::{
     Matchable, MatchableCacheKey, MatchableTrait, next_matchable_cache_key,
 };
+use crate::parser::token::Token;
 
 /// Match an arbitrary number of elements separated by a delimiter.
 ///

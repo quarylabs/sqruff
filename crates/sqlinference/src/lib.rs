@@ -1,6 +1,6 @@
+use sqruff_parser_core::parser::Parser;
 use sqruff_parser_tree::lexer::Lexer;
-use sqruff_parser_tree::parser::Parser;
-use sqruff_parser_tree::parser::adapters::segments_from_tokens;
+use sqruff_parser_tree::parser::segments::builder::SegmentTreeBuilder;
 use sqruff_parser_tree::parser::segments::{ErasedSegment, Tables};
 use sqruff_parser_tree::templaters::TemplatedFile;
 
@@ -11,12 +11,16 @@ pub mod inference;
 pub mod test;
 
 pub fn parse_sql(parser: &Parser, source: &str) -> ErasedSegment {
-    let lex_tables = Tables::default();
     let lexer = Lexer::from(parser.dialect());
     let templated_file: TemplatedFile = source.into();
-    let (tokens, _) = lexer.lex(templated_file.clone());
-    let segments = segments_from_tokens(&tokens, &templated_file, &lex_tables);
+    let (tokens, _) = lexer.lex(&templated_file);
 
     let parse_tables = Tables::default();
-    parser.parse(&parse_tables, &segments).unwrap().unwrap()
+    let mut builder = SegmentTreeBuilder::new(
+        parser.dialect().name(),
+        &parse_tables,
+        templated_file.clone(),
+    );
+    parser.parse_with_sink(&tokens, &mut builder).unwrap();
+    builder.finish().unwrap()
 }

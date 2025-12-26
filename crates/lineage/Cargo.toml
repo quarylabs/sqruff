@@ -13,4 +13,5 @@ append-only-vec = "0.1.5"
 indexmap.workspace = true
 polonius-the-crab = "0.4.1"
 sqruff-parser-tree = { workspace = true }
+sqruff-parser-core.workspace = true
 sqruff-lib-dialects = { workspace = true }

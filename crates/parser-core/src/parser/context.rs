@@ -2,9 +2,9 @@ use ahash::AHashMap;
 use rustc_hash::FxHashMap;
 use smol_str::SmolStr;
 
-use super::token::TokenSpan;
 use super::match_result::MatchResult;
 use super::matchable::{Matchable, MatchableCacheKey};
+use super::token::TokenSpan;
 use crate::dialects::Dialect;
 use crate::dialects::SyntaxKind;
 use crate::parser::Parser;

@@ -1,10 +1,10 @@
 // T-SQL (Transact-SQL) dialect implementation for Microsoft SQL Server
 
 use itertools::Itertools;
+use sqruff_helpers::Config;
 use sqruff_parser_core::dialects::Dialect;
 use sqruff_parser_core::dialects::DialectKind;
 use sqruff_parser_core::dialects::SyntaxKind;
-use sqruff_helpers::Config;
 use sqruff_parser_core::helpers::ToMatchable;
 use sqruff_parser_core::parser::grammar::Ref;
 use sqruff_parser_core::parser::grammar::anyof::{AnyNumberOf, one_of, optionally_bracketed};

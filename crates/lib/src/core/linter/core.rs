@@ -19,6 +19,8 @@ use itertools::Itertools;
 use rayon::iter::{IndexedParallelIterator, IntoParallelRefIterator as _, ParallelIterator as _};
 use rustc_hash::FxHashMap;
 use smol_str::{SmolStr, ToSmolStr};
+use sqruff_parser_core::parser::Parser;
+use sqruff_parser_core::parser::token::{Token, TokenSpan};
 use sqruff_parser_tree::dialects::Dialect;
 use sqruff_parser_tree::dialects::{SyntaxKind, SyntaxSet};
 use sqruff_parser_tree::errors::{
@@ -27,8 +29,9 @@ use sqruff_parser_tree::errors::{
 use sqruff_parser_tree::helpers;
 use sqruff_parser_tree::lexer::Lexer;
 use sqruff_parser_tree::linter::compute_anchor_edit_info;
-use sqruff_parser_tree::parser::Parser;
-use sqruff_parser_tree::parser::adapters::segments_from_tokens;
+use sqruff_parser_tree::parser::adapters::segment_from_token;
+use sqruff_parser_tree::parser::markers::PositionMarker;
+use sqruff_parser_tree::parser::segments::builder::SegmentTreeBuilder;
 use sqruff_parser_tree::parser::segments::fix::SourceFix;
 use sqruff_parser_tree::parser::segments::{ErasedSegment, Tables};
 use sqruff_parser_tree::templaters::TemplatedFile;
@@ -67,8 +70,7 @@ impl Linter {
     }
 
     fn lexer(&self) -> &Lexer {
-        self.lexer
-            .get_or_init(|| Lexer::from(&self.config.dialect))
+        self.lexer.get_or_init(|| Lexer::from(&self.config.dialect))
     }
 
     pub fn get_templater(config: &FluffConfig) -> &'static dyn Templater {
@@ -408,10 +410,8 @@ impl Linter {
 
         let mut violations = Vec::new();
         let tokens = if rendered.templated_file.is_templated() {
-            let (tokens, lex_violations) = self.lex_templated_file_cached(
-                tables,
-                rendered.templated_file.clone(),
-            );
+            let (tokens, lex_violations) =
+                self.lex_templated_file_cached(rendered.templated_file.clone());
             if !lex_violations.is_empty() {
                 unimplemented!("violations.extend(lex_violations);")
             }
@@ -421,8 +421,13 @@ impl Linter {
         };
 
         let parsed = tokens.and_then(|token_list| {
-            let (parsed, parse_violations) =
-                Self::parse_tokens(tables, &token_list, &self.config, self.include_parse_errors);
+            let (parsed, parse_violations) = Self::parse_tokens(
+                tables,
+                &token_list,
+                &rendered.templated_file,
+                &self.config,
+                self.include_parse_errors,
+            );
             violations.extend(parse_violations.into_iter().map_into());
             parsed
         });
@@ -438,17 +443,20 @@ impl Linter {
 
     fn parse_tokens(
         tables: &Tables,
-        tokens: &[ErasedSegment],
+        tokens: &[Token],
+        templated_file: &TemplatedFile,
         config: &FluffConfig,
         include_parse_errors: bool,
     ) -> (Option<ErasedSegment>, Vec<SQLParseError>) {
         let parser: Parser = config.into();
         let mut violations: Vec<SQLParseError> = Vec::new();
+        let mut builder =
+            SegmentTreeBuilder::new(parser.dialect().name(), tables, templated_file.clone());
 
-        let parsed = match parser.parse(tables, tokens) {
-            Ok(parsed) => parsed,
+        let parsed = match parser.parse_with_sink(tokens, &mut builder) {
+            Ok(()) => builder.finish(),
             Err(error) => {
-                violations.push(error);
+                violations.push(Self::map_parse_error(error, tokens, templated_file, tables));
                 None
             }
         };
@@ -470,42 +478,72 @@ impl Linter {
         (parsed, violations)
     }
 
+    fn map_parse_error(
+        err: sqruff_parser_core::errors::SQLParseError,
+        tokens: &[Token],
+        templated_file: &TemplatedFile,
+        tables: &Tables,
+    ) -> SQLParseError {
+        let segment = err.span.and_then(|span| {
+            tokens
+                .iter()
+                .find(|token| token.span == span)
+                .map(|token| segment_from_token(token, templated_file, tables))
+        });
+
+        SQLParseError {
+            description: err.description,
+            segment,
+        }
+    }
+
+    fn marker_from_span(span: TokenSpan, templated_file: &TemplatedFile) -> PositionMarker {
+        PositionMarker::new(
+            span.source_range(),
+            span.templated_range(),
+            templated_file.clone(),
+            None,
+            None,
+        )
+    }
+
     /// Lex a templated file.
     pub fn lex_templated_file(
-        tables: &Tables,
         templated_file: TemplatedFile,
         dialect: &Dialect,
-    ) -> (Option<Vec<ErasedSegment>>, Vec<SQLLexError>) {
+    ) -> (Option<Vec<Token>>, Vec<SQLLexError>) {
         let lexer = Lexer::from(dialect);
-        Self::lex_templated_file_with_lexer(tables, templated_file, &lexer)
+        Self::lex_templated_file_with_lexer(templated_file, &lexer)
     }
 
     fn lex_templated_file_cached(
         &self,
-        tables: &Tables,
         templated_file: TemplatedFile,
-    ) -> (Option<Vec<ErasedSegment>>, Vec<SQLLexError>) {
-        Self::lex_templated_file_with_lexer(tables, templated_file, self.lexer())
+    ) -> (Option<Vec<Token>>, Vec<SQLLexError>) {
+        Self::lex_templated_file_with_lexer(templated_file, self.lexer())
     }
 
     fn lex_templated_file_with_lexer(
-        tables: &Tables,
         templated_file: TemplatedFile,
         lexer: &Lexer,
-    ) -> (Option<Vec<ErasedSegment>>, Vec<SQLLexError>) {
+    ) -> (Option<Vec<Token>>, Vec<SQLLexError>) {
         let mut violations: Vec<SQLLexError> = vec![];
         log::debug!("LEXING RAW ({})", templated_file.name());
         // Lex the file and log any problems
-        let (tokens, lex_vs) = lexer.lex(templated_file.clone());
+        let (tokens, lex_vs) = lexer.lex(&templated_file);
 
-        violations.extend(lex_vs);
+        violations.extend(lex_vs.into_iter().map(|err| {
+            SQLLexError::new(
+                err.message,
+                Self::marker_from_span(err.span, &templated_file),
+            )
+        }));
 
-        let segments = segments_from_tokens(&tokens, &templated_file, tables);
-        if segments.is_empty() {
+        if tokens.is_empty() {
             return (None, violations);
         }
 
-        (segments.into(), violations)
+        (Some(tokens), violations)
     }
 
     /// Normalise newlines to unix-style line endings.

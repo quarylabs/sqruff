@@ -6,12 +6,12 @@ use itertools::Itertools;
 use rayon::iter::ParallelIterator;
 use rayon::prelude::IntoParallelRefIterator;
 use sqruff_lib_dialects::kind_to_dialect;
+use sqruff_parser_core::parser::Parser;
 use sqruff_parser_tree::dialects::DialectKind;
 use sqruff_parser_tree::dialects::SyntaxKind;
 use sqruff_parser_tree::helpers;
 use sqruff_parser_tree::lexer::Lexer;
-use sqruff_parser_tree::parser::Parser;
-use sqruff_parser_tree::parser::adapters::segments_from_tokens;
+use sqruff_parser_tree::parser::segments::builder::SegmentTreeBuilder;
 use sqruff_parser_tree::parser::segments::{ErasedSegment, Tables};
 use sqruff_parser_tree::templaters::TemplatedFile;
 use strum::IntoEnumIterator;
@@ -95,12 +95,15 @@ fn main() {
                 let lexer = Lexer::from(&dialect);
                 let parser = Parser::from(&dialect);
                 let templated_file: TemplatedFile = sql.clone().into();
-                let (tokens, errors) = lexer.lex(templated_file.clone());
+                let (tokens, errors) = lexer.lex(&templated_file);
                 assert!(errors.is_empty());
-                let segments = segments_from_tokens(&tokens, &templated_file, &tables);
-
-                let parsed = parser.parse(&tables, &segments).unwrap();
-                let tree = parsed.unwrap();
+                let mut builder = SegmentTreeBuilder::new(
+                    parser.dialect().name(),
+                    &tables,
+                    templated_file.clone(),
+                );
+                parser.parse_with_sink(&tokens, &mut builder).unwrap();
+                let tree = builder.finish().unwrap();
 
                 // Check for unparsable segments
                 let unparsable_segments = check_no_unparsable_segments(&tree);

@@ -6,5 +6,5 @@ pub use sqruff_parser_core::parser::{
     node_matcher, parsers, token, types,
 };
 
-pub use sqruff_parser_core::parser::Parser as CoreParser;
-pub use sqruff_parser_tree::parser::{Parser, adapters, markers};
+pub use sqruff_parser_core::parser::Parser;
+pub use sqruff_parser_tree::parser::{adapters, markers};

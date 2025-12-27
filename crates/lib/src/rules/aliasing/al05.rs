@@ -129,7 +129,7 @@ FROM foo
             }
 
             if alias.aliased && !payload.tbl_refs.contains(&alias.ref_str) {
-                let violation = self.report_unused_alias(alias.clone());
+                let violation = self.report_unused_alias(alias);
                 violations.push(violation);
             }
         }

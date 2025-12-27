@@ -90,6 +90,12 @@ impl CodeParser {
     }
 }
 
+impl Default for CodeParser {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
 impl MatchableTrait for CodeParser {
     fn elements(&self) -> &[Matchable] {
         &[]

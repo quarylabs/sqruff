@@ -797,7 +797,7 @@ pub fn raw_dialect() -> Dialect {
             NodeMatcher::new(SyntaxKind::DatabaseReference, |_dialect| {
                 _dialect
                     .grammar("ObjectReferenceSegment")
-                    .match_grammar(&_dialect)
+                    .match_grammar(_dialect)
                     .unwrap()
             })
             .to_matchable()
@@ -808,7 +808,7 @@ pub fn raw_dialect() -> Dialect {
             NodeMatcher::new(SyntaxKind::TableReference, |_dialect| {
                 _dialect
                     .grammar("ObjectReferenceSegment")
-                    .match_grammar(&_dialect)
+                    .match_grammar(_dialect)
                     .unwrap()
             })
             .to_matchable()
@@ -819,7 +819,7 @@ pub fn raw_dialect() -> Dialect {
             NodeMatcher::new(SyntaxKind::SchemaReference, |_dialect| {
                 _dialect
                     .grammar("ObjectReferenceSegment")
-                    .match_grammar(&_dialect)
+                    .match_grammar(_dialect)
                     .unwrap()
             })
             .to_matchable()

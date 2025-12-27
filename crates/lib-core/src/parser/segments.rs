@@ -999,6 +999,7 @@ pub struct NodeOrToken {
 }
 
 #[derive(Debug, Clone)]
+#[allow(clippy::large_enum_variant)]
 pub enum NodeOrTokenKind {
     Node(NodeData),
     Token(TokenData),

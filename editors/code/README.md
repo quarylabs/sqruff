@@ -59,7 +59,7 @@ You can use [brew](https://brew.sh/) to install sqruff easily on macOS.
 brew install sqruff
 ```
 
-#### Download the binary with bash script
+#### Download the binary with a bash script
 
 Using `bash`:
 
@@ -81,7 +81,7 @@ pip install sqruff
 
 #### For other platforms
 
-Either download the binary from the [releases page](https://github.com/quarylabs/sqruff/releases) with `cargo binstall` or compile it yourself and with cargo:
+Either download the binary from the [releases page](https://github.com/quarylabs/sqruff/releases) with `cargo binstall` or compile it yourself with cargo:
 
 ```bash
 cargo binstall sqruff
@@ -90,7 +90,7 @@ cargo install sqruff
 
 #### GitHub Action
 
-You can also use the GitHub Action to install and run sqruff in your CI/CD pipeline. Inside a Github Action, `sqruff` automatically outputs linting output in the GitHub format so that it can be easily viewed in the PR tab.
+You can also use the GitHub Action to install and run sqruff in your CI/CD pipeline. Inside a GitHub Action, `sqruff` automatically outputs linting results in the GitHub format so they can be easily viewed in the PR tab.
 
 ```yaml
 jobs:
@@ -121,7 +121,7 @@ sqruff lint <directory>
 
 #### Fixing
 
-To fix a single or set of files, run the following command:
+To fix a single file or a set of files, run the following command:
 
 ```bash
 sqruff fix <file/paths/directory>
@@ -147,7 +147,7 @@ indented_joins = True
 
 #### Ignoring files
 
-Like `.ignore` files, sqruff ignores files and folder, specified in a `.sqruffignore` file placed in the root of where the command is run. For example if placed in `.sqruffignore`, the following code will ignore `.hql` files and files in any director named temp:
+Like `.ignore` files, sqruff ignores files and folders specified in a `.sqruffignore` file placed in the root of where the command is run. For example, if placed in `.sqruffignore`, the following code will ignore `.hql` files and files in any directory named temp:
 
 ```
 # ignore ALL .hql files
@@ -161,7 +161,7 @@ temp/
 
 The NoQA directive is a way to disable specific rules or all rules for a specific line or range of lines. Similar to flake8’s ignore, individual lines can be ignored by adding `-- noqa` to the end of the line.
 
-##### Ignoring single line errors
+##### Ignoring single-line errors
 
 The following example will ignore all errors on the line where it is placed:
 
@@ -202,7 +202,7 @@ For all the details on the CLI commands and options, see the [CLI documentation]
 
 ## Docs
 
-For more details about, see the documents in the [docs](./docs/) folder which contains:
+For more details, see the documents in the [docs](./docs/) folder, which contains:
 
 - [Details on the rules](./docs/rules.md)
 - [Details on the CLI](./docs/cli.md)

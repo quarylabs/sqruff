@@ -2,8 +2,8 @@ use crate::errors::SQLParseError;
 use crate::parser::context::ParseContext;
 use crate::parser::match_result::{MatchResult, Span};
 use crate::parser::matchable::{Matchable, MatchableTrait};
-use crate::parser::segments::ErasedSegment;
 use crate::parser::segments::meta::Indent;
+use crate::parser::token::Token;
 
 #[derive(Clone, Debug, PartialEq)]
 pub struct Conditional {
@@ -100,7 +100,7 @@ impl MatchableTrait for Conditional {
 
     fn match_segments(
         &self,
-        _segments: &[ErasedSegment],
+        _segments: &[Token],
         idx: u32,
         parse_context: &mut ParseContext,
     ) -> Result<MatchResult, SQLParseError> {

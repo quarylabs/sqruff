@@ -49,15 +49,15 @@ trino = []
 tsql = []
 
 [dependencies]
-sqruff-lib-core.workspace = true
+sqruff-parser-core.workspace = true
+sqruff-helpers.workspace = true
 strum.workspace = true
 itertools = "0.14.0"
 ahash = "0.8.11"
 serde_yaml = "0.9.34+deprecated"
 
 [dev-dependencies]
-sqruff-lib-core.workspace = true
-sqruff-lib-core.features = ["serde", "stringify"]
+sqruff-lib-core = { workspace = true, features = ["serde"] }
 rayon = "1.10.0"
 expect-test = "1.5.0"
 glob = "0.3.1"

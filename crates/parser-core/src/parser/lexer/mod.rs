@@ -1,15 +1,10 @@
 use std::borrow::Cow;
-use std::fmt::Debug;
 use std::ops::Range;
 use std::str::Chars;
 
-use super::markers::PositionMarker;
-use super::segments::{ErasedSegment, SegmentBuilder, Tables};
-use crate::dialects::Dialect;
-use crate::dialects::syntax::SyntaxKind;
+use crate::dialects::SyntaxKind;
 use crate::errors::SQLLexError;
-use crate::slice_helpers::{is_zero_slice, offset_slice};
-use crate::templaters::TemplatedFile;
+use crate::parser::token::{Token, TokenSpan};
 
 /// An element matched during lexing.
 #[derive(Debug, Clone)]
@@ -20,51 +15,28 @@ pub struct Element<'a> {
 }
 
 impl<'a> Element<'a> {
-    fn new(name: &'static str, syntax_kind: SyntaxKind, text: impl Into<Cow<'a, str>>) -> Self {
+    pub fn new(name: &'static str, syntax_kind: SyntaxKind, text: impl Into<Cow<'a, str>>) -> Self {
         Self {
             name,
             syntax_kind,
             text: text.into(),
         }
     }
-}
 
-/// A LexedElement, bundled with it's position in the templated file.
-#[derive(Debug)]
-pub struct TemplateElement<'a> {
-    raw: Cow<'a, str>,
-    template_slice: Range<usize>,
-    matcher: Info,
-}
-
-#[derive(Debug)]
-struct Info {
-    name: &'static str,
-    syntax_kind: SyntaxKind,
-}
-
-impl<'a> TemplateElement<'a> {
-    /// Make a TemplateElement from a LexedElement.
-    pub fn from_element(element: Element<'a>, template_slice: Range<usize>) -> Self {
-        TemplateElement {
-            raw: element.text,
-            template_slice,
-            matcher: Info {
-                name: element.name,
-                syntax_kind: element.syntax_kind,
-            },
-        }
+    pub fn name(&self) -> &'static str {
+        self.name
     }
 
-    pub fn to_segment(
-        &self,
-        pos_marker: PositionMarker,
-        subslice: Option<Range<usize>>,
-    ) -> ErasedSegment {
-        let slice = subslice.map_or_else(|| self.raw.as_ref(), |slice| &self.raw[slice]);
-        SegmentBuilder::token(0, slice, self.matcher.syntax_kind)
-            .with_position(pos_marker)
-            .finish()
+    pub fn text(&self) -> &str {
+        self.text.as_ref()
+    }
+
+    pub fn into_text(self) -> Cow<'a, str> {
+        self.text
+    }
+
+    pub fn syntax_kind(&self) -> SyntaxKind {
+        self.syntax_kind
     }
 }
 
@@ -140,6 +112,10 @@ impl Matcher {
         self.pattern.name
     }
 
+    pub fn pattern(&self) -> &Pattern {
+        &self.pattern
+    }
+
     #[track_caller]
     pub fn matches<'a>(&self, forward_string: &'a str) -> Match<'a> {
         match self.pattern.matches(forward_string) {
@@ -186,9 +162,7 @@ impl Matcher {
 
                 elem_buff
             }
-            None => {
-                vec![Element::new(self.name(), matched_kind, matched)]
-            }
+            None => vec![Element::new(self.name(), matched_kind, matched)],
         }
     }
 
@@ -315,6 +289,18 @@ impl Pattern {
         }
     }
 
+    pub fn name(&self) -> &'static str {
+        self.name
+    }
+
+    pub fn syntax_kind(&self) -> SyntaxKind {
+        self.syntax_kind
+    }
+
+    pub fn kind(&self) -> &SearchPatternKind {
+        &self.kind
+    }
+
     fn matches<'a>(&self, forward_string: &'a str) -> Option<&'a str> {
         match self.kind {
             SearchPatternKind::String(template) => {
@@ -367,7 +353,7 @@ pub struct Cursor<'text> {
 impl<'text> Cursor<'text> {
     const EOF: char = '\0';
 
-    fn new(text: &'text str) -> Self {
+    pub fn new(text: &'text str) -> Self {
         Self {
             text,
             chars: text.chars(),
@@ -394,6 +380,99 @@ impl<'text> Cursor<'text> {
     }
 }
 
+pub trait LexSource {
+    type Slice;
+
+    fn templated_str(&self) -> &str;
+    fn slices(&self) -> &[Self::Slice];
+    fn slice_type<'a>(&self, slice: &'a Self::Slice) -> &'a str;
+    fn source_range(&self, slice: &Self::Slice) -> Range<usize>;
+    fn templated_range(&self, slice: &Self::Slice) -> Range<usize>;
+}
+
+#[derive(Debug, Clone)]
+pub struct RawSlice {
+    slice_type: &'static str,
+    source_range: Range<usize>,
+    templated_range: Range<usize>,
+}
+
+#[derive(Debug, Clone)]
+pub struct RawSource<'a> {
+    raw: &'a str,
+    slice: RawSlice,
+}
+
+impl<'a> RawSource<'a> {
+    pub fn new(raw: &'a str) -> Self {
+        let len = raw.len();
+        Self {
+            raw,
+            slice: RawSlice {
+                slice_type: "literal",
+                source_range: 0..len,
+                templated_range: 0..len,
+            },
+        }
+    }
+}
+
+impl<'a> LexSource for RawSource<'a> {
+    type Slice = RawSlice;
+
+    fn templated_str(&self) -> &str {
+        self.raw
+    }
+
+    fn slices(&self) -> &[Self::Slice] {
+        std::slice::from_ref(&self.slice)
+    }
+
+    fn slice_type<'s>(&self, slice: &'s Self::Slice) -> &'s str {
+        slice.slice_type
+    }
+
+    fn source_range(&self, slice: &Self::Slice) -> Range<usize> {
+        slice.source_range.clone()
+    }
+
+    fn templated_range(&self, slice: &Self::Slice) -> Range<usize> {
+        slice.templated_range.clone()
+    }
+}
+
+/// A LexedElement, bundled with its position in the templated file.
+#[derive(Debug)]
+pub struct TemplateElement<'a> {
+    raw: Cow<'a, str>,
+    template_slice: Range<usize>,
+    matcher: Info,
+}
+
+#[derive(Debug)]
+struct Info {
+    name: &'static str,
+    syntax_kind: SyntaxKind,
+}
+
+impl<'a> TemplateElement<'a> {
+    /// Make a TemplateElement from a LexedElement.
+    pub fn from_element(element: Element<'a>, template_slice: Range<usize>) -> Self {
+        let name = element.name();
+        let syntax_kind = element.syntax_kind();
+        TemplateElement {
+            raw: element.into_text(),
+            template_slice,
+            matcher: Info { name, syntax_kind },
+        }
+    }
+
+    pub fn to_token(&self, span: TokenSpan, subslice: Option<Range<usize>>) -> Token {
+        let slice = subslice.map_or_else(|| self.raw.as_ref(), |slice| &self.raw[slice]);
+        Token::new(self.matcher.syntax_kind, slice, span)
+    }
+}
+
 /// The Lexer class actually does the lexing step.
 #[derive(Debug, Clone)]
 pub struct Lexer {
@@ -403,8 +482,8 @@ pub struct Lexer {
     last_resort_lexer: Matcher,
 }
 
-impl<'a> From<&'a Dialect> for Lexer {
-    fn from(dialect: &'a Dialect) -> Self {
+impl<'a> From<&'a crate::dialects::Dialect> for Lexer {
+    fn from(dialect: &'a crate::dialects::Dialect) -> Self {
         Lexer::new(dialect.lexer_matchers())
     }
 }
@@ -417,16 +496,19 @@ impl Lexer {
         let mut matchers = Vec::new();
 
         for matcher in lexer_matchers {
-            match matcher.pattern.kind {
-                SearchPatternKind::String(pattern) | SearchPatternKind::Regex(pattern) => {
-                    let pattern = if matches!(matcher.pattern.kind, SearchPatternKind::String(_)) {
-                        fancy_regex::escape(pattern)
+            let pattern_def = matcher.pattern();
+            match pattern_def.kind() {
+                SearchPatternKind::String(raw) | SearchPatternKind::Regex(raw) => {
+                    let raw = *raw;
+                    let pattern_str = if matches!(pattern_def.kind(), SearchPatternKind::String(_))
+                    {
+                        fancy_regex::escape(raw)
                     } else {
-                        pattern.into()
+                        raw.into()
                     };
 
-                    patterns.push(pattern);
-                    syntax_map.push((matcher.pattern.name, matcher.pattern.syntax_kind));
+                    patterns.push(pattern_str);
+                    syntax_map.push((pattern_def.name(), pattern_def.syntax_kind()));
                 }
                 SearchPatternKind::Legacy(_, _) | SearchPatternKind::Native(_) => {
                     matchers.push(matcher.clone());
@@ -447,13 +529,8 @@ impl Lexer {
         }
     }
 
-    pub fn lex(
-        &self,
-        tables: &Tables,
-        template: impl Into<TemplatedFile>,
-    ) -> (Vec<ErasedSegment>, Vec<SQLLexError>) {
-        let template = template.into();
-        let mut str_buff = template.templated_str.as_deref().unwrap();
+    pub fn lex<S: LexSource>(&self, source: &S) -> (Vec<Token>, Vec<SQLLexError>) {
+        let mut str_buff = source.templated_str();
 
         // Lex the string to get a tuple of LexedElement
         let mut element_buffer: Vec<Element> = Vec::new();
@@ -478,15 +555,20 @@ impl Lexer {
 
         // Map tuple LexedElement to list of TemplateElement.
         // This adds the template_slice to the object.
-        let templated_buffer = Lexer::map_template_slices(element_buffer, &template);
-        // Turn lexed elements into segments.
-        let mut segments = self.elements_to_segments(templated_buffer, &template);
+        let templated_buffer = Lexer::map_template_slices(element_buffer, source);
+        // Turn lexed elements into tokens.
+        let tokens = self.elements_to_tokens(templated_buffer, source);
 
-        for seg in &mut segments {
-            seg.get_mut().set_id(tables.next_id())
-        }
+        (tokens, Vec::new())
+    }
 
-        (segments, Vec::new())
+    pub fn lex_tokens<S: LexSource>(&self, source: &S) -> (Vec<Token>, Vec<SQLLexError>) {
+        self.lex(source)
+    }
+
+    pub fn lex_str(&self, raw: &str) -> (Vec<Token>, Vec<SQLLexError>) {
+        let source = RawSource::new(raw);
+        self.lex(&source)
     }
 
     /// Generate any lexing errors for any un-lex-ables.
@@ -494,22 +576,6 @@ impl Lexer {
     /// TODO: Taking in an iterator, also can make the typing better than use
     /// unwrap.
     #[allow(dead_code)]
-    fn violations_from_segments(segments: Vec<ErasedSegment>) -> Vec<SQLLexError> {
-        segments
-            .into_iter()
-            .filter(|s| s.is_type(SyntaxKind::Unlexable))
-            .map(|s| {
-                SQLLexError::new(
-                    format!(
-                        "Unable to lex characters: {}",
-                        s.raw().chars().take(10).collect::<String>()
-                    ),
-                    s.get_position_marker().unwrap().clone(),
-                )
-            })
-            .collect()
-    }
-
     /// Iteratively match strings using the selection of sub-matchers.
     fn lex_match<'b>(&self, mut forward_string: &'b str) -> Match<'b> {
         let mut elem_buff = Vec::new();
@@ -562,23 +628,24 @@ impl Lexer {
     /// file.
     /// TODO Can this vec be turned into an iterator and return iterator to make
     /// lazy?
-    fn map_template_slices<'b>(
+    fn map_template_slices<'b, S: LexSource>(
         elements: Vec<Element<'b>>,
-        template: &TemplatedFile,
+        source: &S,
     ) -> Vec<TemplateElement<'b>> {
         let mut idx = 0;
         let mut templated_buff: Vec<TemplateElement> = Vec::with_capacity(elements.len());
+        let templated_string = source.templated_str();
 
         for element in elements {
-            let template_slice = offset_slice(idx, element.text.len());
-            idx += element.text.len();
+            let text = element.text();
+            let template_slice = offset_slice(idx, text.len());
+            idx += text.len();
 
-            let templated_string = template.templated();
-            if templated_string[template_slice.clone()] != element.text {
+            if &templated_string[template_slice.clone()] != text {
                 panic!(
                     "Template and lexed elements do not match. This should never happen {:?} != \
                      {:?}",
-                    element.text, &templated_string[template_slice]
+                    text, &templated_string[template_slice]
                 );
             }
 
@@ -588,40 +655,47 @@ impl Lexer {
         templated_buff
     }
 
-    /// Convert a tuple of lexed elements into a tuple of segments.
-    fn elements_to_segments(
+    /// Convert a tuple of lexed elements into a tuple of tokens.
+    fn elements_to_tokens<S: LexSource>(
         &self,
         elements: Vec<TemplateElement>,
-        templated_file: &TemplatedFile,
-    ) -> Vec<ErasedSegment> {
-        let mut segments = iter_segments(elements, templated_file);
+        source: &S,
+    ) -> Vec<Token> {
+        let mut tokens = iter_tokens(elements, source);
 
         // Add an end of file marker
-        let position_maker = match segments.last() {
-            Some(segment) => segment.get_position_marker().unwrap().end_point_marker(),
-            None => PositionMarker::from_point(0, 0, templated_file.clone(), None, None),
+        let eof_span = match tokens.last() {
+            Some(token) => TokenSpan::new(
+                token.span.source.end..token.span.source.end,
+                token.span.templated.end..token.span.templated.end,
+            ),
+            None => TokenSpan::new(0..0, 0..0),
         };
 
-        segments.push(
-            SegmentBuilder::token(0, "", SyntaxKind::EndOfFile)
-                .with_position(position_maker)
-                .finish(),
-        );
+        tokens.push(Token::new(SyntaxKind::EndOfFile, "", eof_span));
 
-        segments
+        tokens
     }
 }
 
-fn iter_segments(
-    lexed_elements: Vec<TemplateElement>,
-    templated_file: &TemplatedFile,
-) -> Vec<ErasedSegment> {
-    let mut result: Vec<ErasedSegment> = Vec::with_capacity(lexed_elements.len());
+fn token_span_for_element(
+    element: &TemplateElement,
+    source_start: usize,
+    source_end: usize,
+) -> TokenSpan {
+    TokenSpan::new(
+        source_start..source_end,
+        element.template_slice.start..element.template_slice.end,
+    )
+}
+
+fn iter_tokens<S: LexSource>(lexed_elements: Vec<TemplateElement>, source: &S) -> Vec<Token> {
+    let mut result: Vec<Token> = Vec::with_capacity(lexed_elements.len());
     // An index to track where we've got to in the templated file.
     let mut tfs_idx = 0;
     // We keep a map of previous block locations in case they re-occur.
     // let block_stack = BlockTracker()
-    let templated_file_slices = &templated_file.sliced_file;
+    let templated_file_slices = source.slices();
 
     // Now work out source slices, and add in template placeholders.
     for element in lexed_elements {
@@ -634,24 +708,21 @@ fn iter_segments(
             .enumerate()
             .map(|(i, tfs)| (i + tfs_idx, tfs))
         {
-            // Is it a zero slice?
-            if is_zero_slice(&tfs.templated_slice) {
-                let _slice = if idx + 1 < templated_file_slices.len() {
-                    templated_file_slices[idx + 1].clone().into()
-                } else {
-                    None
-                };
+            let templated_slice = source.templated_range(tfs);
 
+            // Is it a zero slice?
+            if is_zero_slice(&templated_slice) {
                 continue;
             }
 
-            if tfs.slice_type == "literal" {
-                let tfs_offset =
-                    (tfs.source_slice.start as isize) - (tfs.templated_slice.start as isize);
+            let slice_type = source.slice_type(tfs);
+            if slice_type == "literal" {
+                let source_slice = source.source_range(tfs);
+                let tfs_offset = (source_slice.start as isize) - (templated_slice.start as isize);
 
                 // NOTE: Greater than OR EQUAL, to include the case of it matching
                 // length exactly.
-                if element.template_slice.end <= tfs.templated_slice.end {
+                if element.template_slice.end <= templated_slice.end {
                     let slice_start = stashed_source_idx.unwrap_or_else(|| {
                         let sum = element.template_slice.start as isize
                             + consumed_element_length as isize
@@ -665,24 +736,18 @@ fn iter_segments(
 
                     let source_slice_end =
                         (element.template_slice.end as isize + tfs_offset) as usize;
-                    result.push(element.to_segment(
-                        PositionMarker::new(
-                            slice_start..source_slice_end,
-                            element.template_slice.clone(),
-                            templated_file.clone(),
-                            None,
-                            None,
-                        ),
-                        Some(consumed_element_length..element.raw.len()),
-                    ));
+                    let span = token_span_for_element(&element, slice_start, source_slice_end);
+                    result.push(
+                        element.to_token(span, Some(consumed_element_length..element.raw.len())),
+                    );
 
                     // If it was an exact match, consume the templated element too.
-                    if element.template_slice.end == tfs.templated_slice.end {
+                    if element.template_slice.end == templated_slice.end {
                         tfs_idx += 1
                     }
                     // In any case, we're done with this element. Move on
                     break;
-                } else if element.template_slice.start == tfs.templated_slice.end {
+                } else if element.template_slice.start == templated_slice.end {
                     // Did we forget to move on from the last tfs and there's
                     // overlap?
                     // NOTE: If the rest of the logic works, this should never
@@ -708,8 +773,7 @@ fn iter_segments(
                             panic!("Found literal whitespace with stashed idx!")
                         }
 
-                        let incremental_length =
-                            tfs.templated_slice.end - element.template_slice.start;
+                        let incremental_length = templated_slice.end - element.template_slice.start;
 
                         let source_slice_start = element.template_slice.start as isize
                             + consumed_element_length as isize
@@ -724,14 +788,10 @@ fn iter_segments(
                             panic!("Cannot convert {source_slice_end} to usize")
                         });
 
-                        result.push(element.to_segment(
-                            PositionMarker::new(
-                                source_slice_start..source_slice_end,
-                                element.template_slice.clone(),
-                                templated_file.clone(),
-                                None,
-                                None,
-                            ),
+                        let span =
+                            token_span_for_element(&element, source_slice_start, source_slice_end);
+                        result.push(element.to_token(
+                            span,
                             offset_slice(consumed_element_length, incremental_length).into(),
                         ));
                     } else {
@@ -746,21 +806,23 @@ fn iter_segments(
                         }
                     }
                 }
-            } else if matches!(tfs.slice_type.as_str(), "templated" | "block_start") {
+            } else if matches!(slice_type, "templated" | "block_start") {
                 // Found a templated slice. Does it have length in the templated file?
                 // If it doesn't, then we'll pick it up next.
-                if !is_zero_slice(&tfs.templated_slice) {
+                if !is_zero_slice(&templated_slice) {
+                    let source_slice = source.source_range(tfs);
+
                     // If it's a block_start. Append to the block stack.
                     // NOTE: This is rare, but call blocks do occasionally
                     // have length (and so don't get picked up by
                     // _handle_zero_length_slice)
-                    if tfs.slice_type == "block_start" {
+                    if slice_type == "block_start" {
                         unimplemented!()
                         // block_stack.enter(tfs.source_slice)
                     }
 
                     // Is our current element totally contained in this slice?
-                    if element.template_slice.end <= tfs.templated_slice.end {
+                    if element.template_slice.end <= templated_slice.end {
                         log::debug!("Contained templated slice.");
                         // Yes it is. Add lexed element with source slices as the whole
                         // span of the source slice for the file slice.
@@ -769,22 +831,17 @@ fn iter_segments(
                         let slice_start = if let Some(stashed_source_idx) = stashed_source_idx {
                             stashed_source_idx
                         } else {
-                            tfs.source_slice.start + consumed_element_length
+                            source_slice.start + consumed_element_length
                         };
 
-                        result.push(element.to_segment(
-                            PositionMarker::new(
-                                slice_start..tfs.source_slice.end,
-                                element.template_slice.clone(),
-                                templated_file.clone(),
-                                None,
-                                None,
-                            ),
-                            Some(consumed_element_length..element.raw.len()),
-                        ));
+                        let span = token_span_for_element(&element, slice_start, source_slice.end);
+                        result.push(
+                            element
+                                .to_token(span, Some(consumed_element_length..element.raw.len())),
+                        );
 
                         // If it was an exact match, consume the templated element too.
-                        if element.template_slice.end == tfs.templated_slice.end {
+                        if element.template_slice.end == templated_slice.end {
                             tfs_idx += 1
                         }
                         // Carry on to the next lexed element
@@ -803,7 +860,7 @@ fn iter_segments(
 
                         // Stash the source idx for later when we do make a segment.
                         if stashed_source_idx.is_none() {
-                            stashed_source_idx = Some(tfs.source_slice.start);
+                            stashed_source_idx = Some(source_slice.start);
                             continue;
                         }
                         // Move on to the next template slice
@@ -811,10 +868,18 @@ fn iter_segments(
                     }
                 }
             }
-            panic!("Unable to process slice: {tfs:?}");
+            panic!("Unable to process slice");
         }
     }
     result
+}
+
+fn is_zero_slice(slice: &Range<usize>) -> bool {
+    slice.start == slice.end
+}
+
+fn offset_slice(start: usize, offset: usize) -> Range<usize> {
+    start..start + offset
 }
 
 #[cfg(test)]
@@ -888,34 +953,9 @@ mod tests {
             ),
         ];
 
-        for (raw, reg, res) in tests {
-            let matcher = Matcher::legacy("test", |_| true, reg, SyntaxKind::Word);
-
-            assert_matches(raw, &matcher, Some(res));
+        for (in_string, regex, match_string) in tests {
+            let matcher = Matcher::legacy("test", |_| true, regex, SyntaxKind::Word);
+            assert_matches(in_string, &matcher, Some(match_string));
         }
-    }
-
-    /// Test the lexer string
-    #[test]
-    fn test_parser_lexer_string() {
-        let matcher = Matcher::string("dot", ".", SyntaxKind::Dot);
-
-        assert_matches(".fsaljk", &matcher, Some("."));
-        assert_matches("fsaljk", &matcher, None);
-    }
-
-    /// Test the RepeatedMultiMatcher
-    #[test]
-    fn test_parser_lexer_lex_match() {
-        let matchers: Vec<Matcher> = vec![
-            Matcher::string("dot", ".", SyntaxKind::Dot),
-            Matcher::regex("test", "#[^#]*#", SyntaxKind::Dash),
-        ];
-
-        let res = Lexer::new(&matchers).lex_match("..#..#..#");
-
-        assert_eq!(res.forward_string, "#");
-        assert_eq!(res.elements.len(), 5);
-        assert_eq!(res.elements[2].text, "#..#");
     }
 }

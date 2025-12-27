@@ -1,7 +1,7 @@
 use ahash::AHashMap;
 use itertools::Itertools;
 use smol_str::{SmolStr, StrExt};
-use sqruff_lib_core::dialects::syntax::{SyntaxKind, SyntaxSet};
+use sqruff_lib_core::dialects::{SyntaxKind, SyntaxSet};
 use sqruff_lib_core::lint_fix::LintFix;
 use sqruff_lib_core::parser::segments::from::FromExpressionElementSegment;
 use sqruff_lib_core::parser::segments::join::JoinClauseSegment;

@@ -3,7 +3,7 @@ use itertools::{Itertools, chain};
 use nohash_hasher::IntMap;
 
 use super::sequence::{Bracketed, Sequence};
-use crate::dialects::syntax::{SyntaxKind, SyntaxSet};
+use crate::dialects::{SyntaxKind, SyntaxSet};
 use crate::errors::SQLParseError;
 use crate::helpers::ToMatchable;
 use crate::parser::context::ParseContext;
@@ -14,11 +14,11 @@ use crate::parser::match_result::{MatchResult, Matched, Span};
 use crate::parser::matchable::{
     Matchable, MatchableCacheKey, MatchableTrait, next_matchable_cache_key,
 };
-use crate::parser::segments::ErasedSegment;
+use crate::parser::token::Token;
 use crate::parser::types::ParseMode;
 
 fn parse_mode_match_result(
-    segments: &[ErasedSegment],
+    segments: &[Token],
     current_match: MatchResult,
     max_idx: u32,
     parse_mode: ParseMode,
@@ -158,7 +158,7 @@ impl MatchableTrait for AnyNumberOf {
 
     fn match_segments(
         &self,
-        segments: &[ErasedSegment],
+        segments: &[Token],
         idx: u32,
         parse_context: &mut ParseContext,
     ) -> Result<MatchResult, SQLParseError> {

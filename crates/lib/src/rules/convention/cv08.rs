@@ -1,6 +1,6 @@
 use ahash::{AHashMap, AHashSet};
 use smol_str::{SmolStr, StrExt};
-use sqruff_lib_core::dialects::syntax::{SyntaxKind, SyntaxSet};
+use sqruff_lib_core::dialects::{SyntaxKind, SyntaxSet};
 
 use crate::core::config::Value;
 use crate::core::rules::context::RuleContext;

@@ -1,13 +1,13 @@
 use ahash::AHashSet;
 
-use super::ErasedSegment;
-use crate::dialects::syntax::{SyntaxKind, SyntaxSet};
+use crate::dialects::{SyntaxKind, SyntaxSet};
 use crate::errors::SQLParseError;
 use crate::parser::context::ParseContext;
 use crate::parser::match_result::MatchResult;
 use crate::parser::matchable::{
     Matchable, MatchableCacheKey, MatchableTrait, next_matchable_cache_key,
 };
+use crate::parser::token::Token;
 
 #[derive(Clone, Debug, Ord, PartialOrd, Eq, PartialEq)]
 pub struct BracketedSegmentMatcher {
@@ -43,11 +43,11 @@ impl MatchableTrait for BracketedSegmentMatcher {
 
     fn match_segments(
         &self,
-        segments: &[ErasedSegment],
+        segments: &[Token],
         idx: u32,
         _parse_context: &mut ParseContext,
     ) -> Result<MatchResult, SQLParseError> {
-        if segments[idx as usize].get_type() == SyntaxKind::Bracketed {
+        if segments[idx as usize].kind == SyntaxKind::Bracketed {
             return Ok(MatchResult::from_span(idx, idx + 1));
         }
 

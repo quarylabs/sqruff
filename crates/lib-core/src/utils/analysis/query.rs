@@ -6,7 +6,7 @@ use smol_str::{SmolStr, StrExt, ToSmolStr};
 use super::select::SelectStatementColumnsAndTables;
 use crate::dialects::Dialect;
 use crate::dialects::common::AliasInfo;
-use crate::dialects::syntax::{SyntaxKind, SyntaxSet};
+use crate::dialects::{SyntaxKind, SyntaxSet};
 use crate::helpers::IndexMap;
 use crate::parser::segments::ErasedSegment;
 use crate::utils::analysis::select::get_select_statement_info;

@@ -5,7 +5,7 @@ use std::rc::Rc;
 
 use itertools::{Itertools, chain};
 use nohash_hasher::IntMap;
-use sqruff_lib_core::dialects::syntax::{SyntaxKind, SyntaxSet};
+use sqruff_lib_core::dialects::{SyntaxKind, SyntaxSet};
 use sqruff_lib_core::lint_fix::LintFix;
 use sqruff_lib_core::parser::segments::{ErasedSegment, SegmentBuilder, Tables};
 

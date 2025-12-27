@@ -2,18 +2,14 @@ use ahash::AHashMap;
 use itertools::{Itertools as _, enumerate, multiunzip};
 use smol_str::StrExt;
 
-use super::context::ParseContext;
-use super::match_result::{MatchResult, Matched, Span};
 use super::matchable::{Matchable, MatchableTrait};
-use super::segments::ErasedSegment;
-use crate::dialects::syntax::{SyntaxKind, SyntaxSet};
+use super::result::{MatchResult, Matched, Span};
+use crate::dialects::{SyntaxKind, SyntaxSet};
 use crate::errors::SQLParseError;
+use crate::parser::context::ParseContext;
+use crate::parser::token::Token;
 
-pub fn skip_start_index_forward_to_code(
-    segments: &[ErasedSegment],
-    start_idx: u32,
-    max_idx: u32,
-) -> u32 {
+pub fn skip_start_index_forward_to_code(segments: &[Token], start_idx: u32, max_idx: u32) -> u32 {
     let mut idx = start_idx;
     while idx < max_idx {
         if segments[idx as usize].is_code() {
@@ -24,11 +20,7 @@ pub fn skip_start_index_forward_to_code(
     idx
 }
 
-pub fn skip_stop_index_backward_to_code(
-    segments: &[ErasedSegment],
-    stop_idx: u32,
-    min_idx: u32,
-) -> u32 {
+pub fn skip_stop_index_backward_to_code(segments: &[Token], stop_idx: u32, min_idx: u32) -> u32 {
     let mut idx = stop_idx;
     while idx > min_idx {
         if segments[idx as usize - 1].is_code() {
@@ -39,7 +31,7 @@ pub fn skip_stop_index_backward_to_code(
     idx
 }
 
-pub fn first_trimmed_raw(seg: &ErasedSegment) -> String {
+pub fn first_trimmed_raw(seg: &Token) -> String {
     seg.raw()
         .to_uppercase_smolstr()
         .split(char::is_whitespace)
@@ -48,10 +40,7 @@ pub fn first_trimmed_raw(seg: &ErasedSegment) -> String {
         .unwrap_or_default()
 }
 
-pub fn first_non_whitespace(
-    segments: &[ErasedSegment],
-    start_idx: u32,
-) -> Option<(String, &SyntaxSet)> {
+pub fn first_non_whitespace(segments: &[Token], start_idx: u32) -> Option<(String, &SyntaxSet)> {
     for segment in segments.iter().skip(start_idx as usize) {
         if let Some(raw) = segment.first_non_whitespace_segment_raw_upper() {
             return Some((raw, segment.class_types()));
@@ -63,7 +52,7 @@ pub fn first_non_whitespace(
 
 pub fn prune_options(
     options: &[Matchable],
-    segments: &[ErasedSegment],
+    segments: &[Token],
     parse_context: &mut ParseContext,
     start_idx: u32,
 ) -> Vec<Matchable> {
@@ -107,7 +96,7 @@ pub fn prune_options(
 }
 
 pub fn longest_match(
-    segments: &[ErasedSegment],
+    segments: &[Token],
     matchers: &[Matchable],
     idx: u32,
     parse_context: &mut ParseContext,
@@ -126,14 +115,9 @@ pub fn longest_match(
     }
 
     let terminators = parse_context.terminators.clone();
-    let cache_position = segments[idx as usize].get_position_marker().unwrap();
+    let token = &segments[idx as usize];
 
-    let loc_key = (
-        segments[idx as usize].raw().clone(),
-        cache_position.working_loc(),
-        segments[idx as usize].get_type(),
-        max_idx,
-    );
+    let loc_key = (token.raw.clone(), token.span.clone(), token.kind, max_idx);
 
     let loc_key = parse_context.loc_key(loc_key);
 
@@ -190,7 +174,7 @@ pub fn longest_match(
 }
 
 fn next_match(
-    segments: &[ErasedSegment],
+    segments: &[Token],
     idx: u32,
     matchers: &[Matchable],
     parse_context: &mut ParseContext,
@@ -253,7 +237,7 @@ fn next_match(
 
 #[allow(clippy::too_many_arguments)]
 pub fn resolve_bracket(
-    segments: &[ErasedSegment],
+    segments: &[Token],
     opening_match: MatchResult,
     opening_matcher: Matchable,
     start_brackets: &[Matchable],
@@ -276,7 +260,7 @@ pub fn resolve_bracket(
         if !match_result.has_match() {
             return Err(SQLParseError {
                 description: "Couldn't find closing bracket for opening bracket.".into(),
-                segment: segments[opening_match.span.start as usize].clone().into(),
+                span: Some(segments[opening_match.span.start as usize].span.clone()),
             });
         }
 
@@ -312,9 +296,7 @@ pub fn resolve_bracket(
 
             return Err(SQLParseError {
                 description: "Found unexpected end bracket!".into(),
-                segment: segments[(match_result.span.end - 1) as usize]
-                    .clone()
-                    .into(),
+                span: Some(segments[(match_result.span.end - 1) as usize].span.clone()),
             });
         }
 
@@ -339,7 +321,7 @@ pub fn resolve_bracket(
 type BracketMatch = Result<(MatchResult, Option<Matchable>, Vec<MatchResult>), SQLParseError>;
 
 fn next_ex_bracket_match(
-    segments: &[ErasedSegment],
+    segments: &[Token],
     idx: u32,
     matchers: &[Matchable],
     parse_context: &mut ParseContext,
@@ -411,7 +393,7 @@ fn next_ex_bracket_match(
 }
 
 pub fn greedy_match(
-    segments: &[ErasedSegment],
+    segments: &[Token],
     idx: u32,
     parse_context: &mut ParseContext,
     matchers: &[Matchable],
@@ -462,7 +444,7 @@ pub fn greedy_match(
                 }
 
                 allowable_match = matches!(
-                    segments[idx as usize - 1].get_type(),
+                    segments[idx as usize - 1].kind,
                     SyntaxKind::Whitespace | SyntaxKind::Newline
                 );
 
@@ -510,7 +492,7 @@ pub fn greedy_match(
 }
 
 pub fn trim_to_terminator(
-    segments: &[ErasedSegment],
+    segments: &[Token],
     idx: u32,
     terminators: &[Matchable],
     parse_context: &mut ParseContext,

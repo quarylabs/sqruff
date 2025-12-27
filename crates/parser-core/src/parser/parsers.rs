@@ -5,8 +5,8 @@ use smol_str::SmolStr;
 use super::context::ParseContext;
 use super::match_result::{MatchResult, Matched, Span};
 use super::matchable::{Matchable, MatchableCacheKey, MatchableTrait, next_matchable_cache_key};
-use super::segments::ErasedSegment;
-use crate::dialects::syntax::{SyntaxKind, SyntaxSet};
+use super::token::Token;
+use crate::dialects::{SyntaxKind, SyntaxSet};
 use crate::errors::SQLParseError;
 
 #[derive(Debug, Clone, PartialEq)]
@@ -31,8 +31,8 @@ impl TypedParser {
         }
     }
 
-    pub fn is_first_match(&self, segment: &ErasedSegment) -> bool {
-        self.target_types.contains(segment.get_type())
+    pub fn is_first_match(&self, segment: &Token) -> bool {
+        self.target_types.contains(segment.kind)
     }
 }
 
@@ -52,7 +52,7 @@ impl MatchableTrait for TypedParser {
 
     fn match_segments(
         &self,
-        segments: &[ErasedSegment],
+        segments: &[Token],
         idx: u32,
         _parse_context: &mut ParseContext,
     ) -> Result<MatchResult, SQLParseError> {
@@ -120,7 +120,7 @@ impl MatchableTrait for StringParser {
 
     fn match_segments(
         &self,
-        segments: &[ErasedSegment],
+        segments: &[Token],
         idx: u32,
         _parse_context: &mut ParseContext,
     ) -> Result<MatchResult, SQLParseError> {
@@ -205,7 +205,7 @@ impl MatchableTrait for RegexParser {
 
     fn match_segments(
         &self,
-        segments: &[ErasedSegment],
+        segments: &[Token],
         idx: u32,
         _parse_context: &mut ParseContext,
     ) -> Result<MatchResult, SQLParseError> {
@@ -284,7 +284,7 @@ impl MatchableTrait for MultiStringParser {
 
     fn match_segments(
         &self,
-        segments: &[ErasedSegment],
+        segments: &[Token],
         idx: u32,
         _parse_context: &mut ParseContext,
     ) -> Result<MatchResult, SQLParseError> {

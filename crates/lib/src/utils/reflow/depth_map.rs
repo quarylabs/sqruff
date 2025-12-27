@@ -1,6 +1,6 @@
 use ahash::{AHashMap, AHashSet};
 use nohash_hasher::{IntMap, IntSet};
-use sqruff_lib_core::dialects::syntax::SyntaxSet;
+use sqruff_lib_core::dialects::SyntaxSet;
 use sqruff_lib_core::parser::segments::{ErasedSegment, PathStep};
 
 /// An element of the stack_positions property of DepthInfo.

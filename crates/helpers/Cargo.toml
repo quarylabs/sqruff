@@ -1,0 +1,17 @@
+[package]
+name = "sqruff-helpers"
+description = "Shared helpers for sqruff crates."
+version.workspace = true
+repository.workspace = true
+edition.workspace = true
+license.workspace = true
+
+[lints]
+workspace = true
+
+[lib]
+crate-type = ["rlib"]
+
+[dependencies]
+ahash.workspace = true
+indexmap.workspace = true

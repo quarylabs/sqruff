@@ -8,7 +8,7 @@ use ahash::AHashSet;
 use std::borrow::Cow;
 use std::sync::OnceLock;
 
-use crate::dialects::syntax::SyntaxSet;
+use crate::dialects::SyntaxSet;
 use crate::errors::SQLParseError;
 use crate::helpers::ToMatchable;
 use crate::parser::context::ParseContext;
@@ -17,7 +17,7 @@ use crate::parser::match_result::MatchResult;
 use crate::parser::matchable::{
     Matchable, MatchableCacheKey, MatchableTrait, next_matchable_cache_key,
 };
-use crate::parser::segments::ErasedSegment;
+use crate::parser::token::Token;
 
 #[derive(Clone)]
 pub struct Ref {
@@ -128,7 +128,7 @@ impl MatchableTrait for Ref {
 
     fn match_segments(
         &self,
-        segments: &[ErasedSegment],
+        segments: &[Token],
         idx: u32,
         parse_context: &mut ParseContext,
     ) -> Result<MatchResult, SQLParseError> {
@@ -203,7 +203,7 @@ impl MatchableTrait for Anything {
 
     fn match_segments(
         &self,
-        segments: &[ErasedSegment],
+        segments: &[Token],
         idx: u32,
         parse_context: &mut ParseContext,
     ) -> Result<MatchResult, SQLParseError> {
@@ -244,7 +244,7 @@ impl MatchableTrait for Nothing {
 
     fn match_segments(
         &self,
-        _segments: &[ErasedSegment],
+        _segments: &[Token],
         idx: u32,
         _parse_context: &mut ParseContext,
     ) -> Result<MatchResult, SQLParseError> {

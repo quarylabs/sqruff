@@ -2,7 +2,7 @@ use std::cell::RefCell;
 
 use ahash::AHashMap;
 use smol_str::StrExt;
-use sqruff_lib_core::dialects::syntax::{SyntaxKind, SyntaxSet};
+use sqruff_lib_core::dialects::{SyntaxKind, SyntaxSet};
 use sqruff_lib_core::helpers::IndexMap;
 use sqruff_lib_core::utils::analysis::query::Query;
 

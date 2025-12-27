@@ -4,13 +4,14 @@ use smol_str::SmolStr;
 
 use super::match_result::MatchResult;
 use super::matchable::{Matchable, MatchableCacheKey};
+use super::token::TokenSpan;
 use crate::dialects::Dialect;
-use crate::dialects::syntax::SyntaxKind;
-use crate::helpers::IndexSet;
+use crate::dialects::SyntaxKind;
 use crate::parser::Parser;
+use sqruff_helpers::IndexSet;
 
 type LocKey = u32;
-type LocKeyData = (SmolStr, (usize, usize), SyntaxKind, u32);
+type LocKeyData = (SmolStr, TokenSpan, SyntaxKind, u32);
 
 #[derive(Debug, PartialEq, Eq, Hash)]
 pub struct CacheKey {

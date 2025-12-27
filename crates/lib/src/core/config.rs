@@ -6,10 +6,10 @@ use ahash::AHashMap;
 use configparser::ini::Ini;
 use itertools::Itertools;
 use sqruff_lib_core::dialects::Dialect;
-use sqruff_lib_core::dialects::init::{DialectKind, dialect_readout};
+use sqruff_lib_core::dialects::{DialectKind, dialect_readout};
 use sqruff_lib_core::errors::SQLFluffUserError;
-use sqruff_lib_core::parser::Parser;
 use sqruff_lib_dialects::kind_to_dialect;
+use sqruff_parser_core::parser::Parser;
 
 use crate::utils::reflow::config::ReflowConfig;
 

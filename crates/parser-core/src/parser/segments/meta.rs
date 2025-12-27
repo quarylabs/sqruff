@@ -2,12 +2,12 @@ use std::fmt::Debug;
 
 use ahash::AHashSet;
 
-use super::ErasedSegment;
-use crate::dialects::syntax::{SyntaxKind, SyntaxSet};
+use crate::dialects::{SyntaxKind, SyntaxSet};
 use crate::errors::SQLParseError;
 use crate::parser::context::ParseContext;
 use crate::parser::match_result::MatchResult;
 use crate::parser::matchable::{Matchable, MatchableTrait};
+use crate::parser::token::Token;
 
 pub type Indent = MetaSegment;
 
@@ -50,7 +50,7 @@ impl MatchableTrait for MetaSegment {
 
     fn match_segments(
         &self,
-        _segments: &[ErasedSegment],
+        _segments: &[Token],
         _idx: u32,
         _parse_context: &mut ParseContext,
     ) -> Result<MatchResult, SQLParseError> {

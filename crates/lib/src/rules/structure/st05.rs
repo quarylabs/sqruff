@@ -6,9 +6,9 @@ use itertools::{Itertools, enumerate};
 use rustc_hash::FxHashMap;
 use smol_str::{SmolStr, StrExt, ToSmolStr, format_smolstr};
 use sqruff_lib_core::dialects::Dialect;
+use sqruff_lib_core::dialects::DialectKind;
 use sqruff_lib_core::dialects::common::AliasInfo;
-use sqruff_lib_core::dialects::init::DialectKind;
-use sqruff_lib_core::dialects::syntax::{SyntaxKind, SyntaxSet};
+use sqruff_lib_core::dialects::{SyntaxKind, SyntaxSet};
 use sqruff_lib_core::lint_fix::LintFix;
 use sqruff_lib_core::linter::compute_anchor_edit_info;
 use sqruff_lib_core::parser::segments::object_reference::ObjectReferenceLevel;
@@ -732,7 +732,7 @@ fn create_cte_seg(
         SyntaxKind::CommonTableExpression,
         dialect.name,
         vec![
-            SegmentBuilder::token(tables.next_id(), &alias_name, SyntaxKind::NakedIdentifier)
+            SegmentBuilder::token(tables.next_id(), alias_name, SyntaxKind::NakedIdentifier)
                 .finish(),
             SegmentBuilder::whitespace(tables.next_id(), " "),
             segmentify(tables, "AS", case_preference),

@@ -1,13 +1,13 @@
 use std::sync::OnceLock;
 
+use super::matchable::Matchable;
 use super::matchable::MatchableTrait;
+use super::result::{MatchResult, Matched};
 use crate::dialects::Dialect;
-use crate::dialects::syntax::SyntaxKind;
+use crate::dialects::SyntaxKind;
 use crate::errors::SQLParseError;
 use crate::parser::context::ParseContext;
-use crate::parser::match_result::{MatchResult, Matched};
-use crate::parser::matchable::Matchable;
-use crate::parser::segments::ErasedSegment;
+use crate::parser::token::Token;
 
 #[macro_export]
 macro_rules! vec_of_erased {
@@ -75,7 +75,7 @@ impl MatchableTrait for NodeMatcher {
 
     fn match_segments(
         &self,
-        segments: &[ErasedSegment],
+        segments: &[Token],
         idx: u32,
         parse_context: &mut ParseContext,
     ) -> Result<MatchResult, SQLParseError> {
@@ -83,7 +83,7 @@ impl MatchableTrait for NodeMatcher {
             return Ok(MatchResult::empty_at(idx));
         }
 
-        if segments[idx as usize].get_type() == self.get_type() {
+        if segments[idx as usize].kind == self.get_type() {
             return Ok(MatchResult::from_span(idx, idx + 1));
         }
 

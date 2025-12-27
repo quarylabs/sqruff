@@ -5,23 +5,23 @@ use std::sync::atomic::{AtomicU32, Ordering};
 use ahash::AHashSet;
 use enum_dispatch::enum_dispatch;
 
-use super::context::ParseContext;
-use super::grammar::anyof::AnyNumberOf;
-use super::grammar::conditional::Conditional;
-use super::grammar::delimited::Delimited;
-use super::grammar::noncode::NonCodeMatcher;
-use super::grammar::sequence::{Bracketed, Sequence};
-use super::grammar::{Anything, Nothing, Ref};
-use super::lookahead::LookaheadExclude;
-use super::match_result::MatchResult;
 use super::node_matcher::NodeMatcher;
-use super::parsers::{MultiStringParser, RegexParser, StringParser, TypedParser};
-use super::segments::ErasedSegment;
-use super::segments::bracketed::BracketedSegmentMatcher;
-use super::segments::meta::MetaSegment;
+use super::result::MatchResult;
 use crate::dialects::Dialect;
-use crate::dialects::syntax::{SyntaxKind, SyntaxSet};
+use crate::dialects::{SyntaxKind, SyntaxSet};
 use crate::errors::SQLParseError;
+use crate::parser::context::ParseContext;
+use crate::parser::grammar::anyof::AnyNumberOf;
+use crate::parser::grammar::conditional::Conditional;
+use crate::parser::grammar::delimited::Delimited;
+use crate::parser::grammar::noncode::NonCodeMatcher;
+use crate::parser::grammar::sequence::{Bracketed, Sequence};
+use crate::parser::grammar::{Anything, Nothing, Ref};
+use crate::parser::lookahead::LookaheadExclude;
+use crate::parser::parsers::{MultiStringParser, RegexParser, StringParser, TypedParser};
+use crate::parser::segments::bracketed::BracketedSegmentMatcher;
+use crate::parser::segments::meta::MetaSegment;
+use crate::parser::token::Token;
 
 #[derive(Clone, Debug, PartialEq)]
 pub struct Matchable {
@@ -167,7 +167,7 @@ pub trait MatchableTrait {
 
     fn match_segments(
         &self,
-        _segments: &[ErasedSegment],
+        _segments: &[Token],
         _idx: u32,
         _parse_context: &mut ParseContext,
     ) -> Result<MatchResult, SQLParseError> {

@@ -4,9 +4,9 @@ use ahash::AHashMap;
 use itertools::Itertools;
 use smol_str::SmolStr;
 use sqruff_lib_core::dialects::Dialect;
+use sqruff_lib_core::dialects::DialectKind;
 use sqruff_lib_core::dialects::common::AliasInfo;
-use sqruff_lib_core::dialects::init::DialectKind;
-use sqruff_lib_core::dialects::syntax::{SyntaxKind, SyntaxSet};
+use sqruff_lib_core::dialects::{SyntaxKind, SyntaxSet};
 use sqruff_lib_core::parser::segments::object_reference::{
     ObjectReferenceLevel, ObjectReferencePart, ObjectReferenceSegment,
 };

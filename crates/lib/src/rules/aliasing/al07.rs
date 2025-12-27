@@ -3,7 +3,7 @@ use std::iter::once;
 use ahash::{AHashMap, AHashSet};
 use itertools::chain;
 use smol_str::ToSmolStr;
-use sqruff_lib_core::dialects::syntax::{SyntaxKind, SyntaxSet};
+use sqruff_lib_core::dialects::{SyntaxKind, SyntaxSet};
 use sqruff_lib_core::lint_fix::LintFix;
 use sqruff_lib_core::parser::segments::{ErasedSegment, SegmentBuilder, Tables};
 
@@ -135,7 +135,7 @@ impl RuleAL07 {
                             edits.push(SegmentBuilder::symbol(tables.next_id(), "."));
                         }
                         edits.push(
-                            SegmentBuilder::token(tables.next_id(), part, SyntaxKind::Identifier)
+                            SegmentBuilder::token(tables.next_id(), *part, SyntaxKind::Identifier)
                                 .finish(),
                         );
                     }

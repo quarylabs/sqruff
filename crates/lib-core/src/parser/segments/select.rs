@@ -1,5 +1,5 @@
 use crate::dialects::common::ColumnAliasInfo;
-use crate::dialects::syntax::{SyntaxKind, SyntaxSet};
+use crate::dialects::{SyntaxKind, SyntaxSet};
 use crate::parser::segments::ErasedSegment;
 
 #[derive(Clone)]

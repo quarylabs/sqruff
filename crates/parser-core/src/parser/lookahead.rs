@@ -4,8 +4,8 @@ use super::context::ParseContext;
 use super::match_algorithms::skip_start_index_forward_to_code;
 use super::match_result::MatchResult;
 use super::matchable::{Matchable, MatchableCacheKey, MatchableTrait, next_matchable_cache_key};
-use super::segments::ErasedSegment;
-use crate::dialects::syntax::SyntaxSet;
+use super::token::Token;
+use crate::dialects::SyntaxSet;
 use crate::errors::SQLParseError;
 
 /// A matcher that excludes patterns based on lookahead.
@@ -54,7 +54,7 @@ impl MatchableTrait for LookaheadExclude {
 
     fn match_segments(
         &self,
-        segments: &[ErasedSegment],
+        segments: &[Token],
         idx: u32,
         _parse_context: &mut ParseContext,
     ) -> Result<MatchResult, SQLParseError> {

@@ -1,5 +1,5 @@
 use crate::dialects::common::AliasInfo;
-use crate::dialects::syntax::{SyntaxKind, SyntaxSet};
+use crate::dialects::{SyntaxKind, SyntaxSet};
 use crate::parser::segments::ErasedSegment;
 use crate::parser::segments::from::FromExpressionElementSegment;
 

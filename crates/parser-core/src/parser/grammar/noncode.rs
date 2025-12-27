@@ -1,11 +1,11 @@
 use ahash::AHashSet;
 
-use crate::dialects::syntax::SyntaxSet;
+use crate::dialects::SyntaxSet;
 use crate::errors::SQLParseError;
 use crate::parser::context::ParseContext;
 use crate::parser::match_result::{MatchResult, Span};
 use crate::parser::matchable::{Matchable, MatchableCacheKey, MatchableTrait};
-use crate::parser::segments::ErasedSegment;
+use crate::parser::token::Token;
 
 #[derive(Debug, Clone, PartialEq)]
 pub struct NonCodeMatcher;
@@ -30,7 +30,7 @@ impl MatchableTrait for NonCodeMatcher {
 
     fn match_segments(
         &self,
-        segments: &[ErasedSegment],
+        segments: &[Token],
         idx: u32,
         _parse_context: &mut ParseContext,
     ) -> Result<MatchResult, SQLParseError> {

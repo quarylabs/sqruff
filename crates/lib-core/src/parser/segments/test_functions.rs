@@ -2,11 +2,12 @@ use std::ops::Range;
 
 use super::{ErasedSegment, SegmentBuilder, Tables};
 use crate::dialects::Dialect;
-use crate::dialects::syntax::SyntaxKind;
+use crate::dialects::SyntaxKind;
 use crate::helpers::Config;
-use crate::parser::lexer::Lexer;
+use crate::lexer::Lexer;
 use crate::parser::markers::PositionMarker;
 use crate::templaters::TemplatedFile;
+use sqruff_parser_core::parser::token::Token;
 
 pub fn bracket_segments() -> Vec<ErasedSegment> {
     generate_test_segments_func(vec![
@@ -14,12 +15,11 @@ pub fn bracket_segments() -> Vec<ErasedSegment> {
     ])
 }
 
-pub fn lex(dialect: &Dialect, string: &str) -> Vec<ErasedSegment> {
-    let lexer = Lexer::new(dialect.lexer_matchers());
-    let tables = Tables::default();
-    let (segments, errors) = lexer.lex(&tables, string);
-    assert_eq!(errors, &[]);
-    segments
+pub fn lex(dialect: &Dialect, string: &str) -> Vec<Token> {
+    let lexer = Lexer::from(dialect);
+    let (tokens, errors) = lexer.lex_str(string);
+    assert!(errors.is_empty());
+    tokens
 }
 
 /// Roughly generate test segments.

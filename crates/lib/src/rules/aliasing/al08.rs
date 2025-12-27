@@ -1,7 +1,7 @@
 use std::collections::hash_map::Entry;
 
 use ahash::AHashMap;
-use sqruff_lib_core::dialects::syntax::{SyntaxKind, SyntaxSet};
+use sqruff_lib_core::dialects::{SyntaxKind, SyntaxSet};
 use sqruff_lib_core::parser::segments::ErasedSegment;
 
 use crate::core::config::Value;

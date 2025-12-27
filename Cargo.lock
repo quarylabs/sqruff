@@ -928,6 +928,7 @@ dependencies = [
  "polonius-the-crab",
  "sqruff-lib-core",
  "sqruff-lib-dialects",
+ "sqruff-parser-core",
 ]
 
 [[package]]
@@ -1608,6 +1609,14 @@ dependencies = [
 ]
 
 [[package]]
+name = "sqruff-helpers"
+version = "0.29.3"
+dependencies = [
+ "ahash",
+ "indexmap",
+]
+
+[[package]]
 name = "sqruff-lib"
 version = "0.29.3"
 dependencies = [
@@ -1639,6 +1648,7 @@ dependencies = [
  "sqruff-lib",
  "sqruff-lib-core",
  "sqruff-lib-dialects",
+ "sqruff-parser-core",
  "strum",
  "strum_macros",
  "walkdir",
@@ -1662,6 +1672,8 @@ dependencies = [
  "serde_yaml",
  "slyce",
  "smol_str",
+ "sqruff-helpers",
+ "sqruff-parser-core",
  "strum",
  "strum_macros",
  "thiserror",
@@ -1677,7 +1689,9 @@ dependencies = [
  "itertools 0.14.0",
  "rayon",
  "serde_yaml",
+ "sqruff-helpers",
  "sqruff-lib-core",
+ "sqruff-parser-core",
  "strum",
 ]
 
@@ -1697,11 +1711,35 @@ dependencies = [
 ]
 
 [[package]]
+name = "sqruff-parser-core"
+version = "0.29.3"
+dependencies = [
+ "ahash",
+ "enum_dispatch",
+ "fancy-regex",
+ "itertools 0.14.0",
+ "log",
+ "nohash-hasher",
+ "pretty_assertions",
+ "regex-automata",
+ "rustc-hash",
+ "serde",
+ "serde_yaml",
+ "slyce",
+ "smol_str",
+ "sqruff-helpers",
+ "strum",
+ "strum_macros",
+ "thiserror",
+]
+
+[[package]]
 name = "sqruff-sqlinference"
 version = "0.29.3"
 dependencies = [
  "sqruff-lib-core",
  "sqruff-lib-dialects",
+ "sqruff-parser-core",
 ]
 
 [[package]]
@@ -1713,6 +1751,7 @@ dependencies = [
  "lineage",
  "sqruff-lib",
  "sqruff-lib-core",
+ "sqruff-parser-core",
  "wasm-bindgen",
 ]
 

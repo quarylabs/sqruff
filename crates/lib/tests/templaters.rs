@@ -4,9 +4,10 @@ use expect_test::expect_file;
 use glob::glob;
 use sqruff_lib::core::config::FluffConfig;
 use sqruff_lib::core::linter::core::Linter;
-use sqruff_lib_core::parser::Parser;
-use sqruff_lib_core::parser::lexer::Lexer;
+use sqruff_lib_core::lexer::Lexer;
+use sqruff_lib_core::parser::adapters::tree_from_tokens;
 use sqruff_lib_core::parser::segments::Tables;
+use sqruff_parser_core::parser::Parser;
 
 fn main() {
     let templaters_folder = std::path::Path::new("test/fixtures/templaters");
@@ -44,11 +45,12 @@ fn main() {
                     .process(&sql, &sql_file.to_string_lossy(), &config, &None)
                     .unwrap();
 
-                let (tokens, errors) = lexer.lex(&tables, templated_file);
+                let (tokens, errors) = lexer.lex(&templated_file);
                 assert!(errors.is_empty());
 
-                let parsed = parser.parse(&tables, &tokens).unwrap();
-                let tree = parsed.unwrap();
+                let tree = tree_from_tokens(&parser, &tokens, &tables, &templated_file)
+                    .unwrap()
+                    .unwrap();
                 let tree = tree.to_serialised(true, true);
 
                 serde_yaml::to_string(&tree).unwrap()

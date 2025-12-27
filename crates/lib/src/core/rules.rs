@@ -11,7 +11,7 @@ use std::sync::Arc;
 use ahash::{AHashMap, AHashSet};
 use itertools::chain;
 use sqruff_lib_core::dialects::Dialect;
-use sqruff_lib_core::dialects::init::DialectKind;
+use sqruff_lib_core::dialects::DialectKind;
 use sqruff_lib_core::errors::{ErrorStructRule, SQLLintError};
 use sqruff_lib_core::helpers::{Config, IndexMap};
 use sqruff_lib_core::lint_fix::LintFix;

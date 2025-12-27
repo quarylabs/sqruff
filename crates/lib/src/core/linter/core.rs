@@ -14,22 +14,27 @@ use crate::core::rules::{ErasedRule, Exception, LintPhase, RulePack};
 use crate::rules::get_ruleset;
 use crate::templaters::raw::RawTemplater;
 use crate::templaters::{TEMPLATERS, Templater};
+use crate::utils::paths::normalize;
 use ahash::{AHashMap, AHashSet};
 use itertools::Itertools;
 use rayon::iter::{IndexedParallelIterator, IntoParallelRefIterator as _, ParallelIterator as _};
 use rustc_hash::FxHashMap;
 use smol_str::{SmolStr, ToSmolStr};
 use sqruff_lib_core::dialects::Dialect;
-use sqruff_lib_core::dialects::syntax::{SyntaxKind, SyntaxSet};
+use sqruff_lib_core::dialects::{SyntaxKind, SyntaxSet};
 use sqruff_lib_core::errors::{
     SQLBaseError, SQLFluffUserError, SQLLexError, SQLLintError, SQLParseError,
 };
-use sqruff_lib_core::helpers;
+use sqruff_lib_core::lexer::Lexer;
 use sqruff_lib_core::linter::compute_anchor_edit_info;
-use sqruff_lib_core::parser::Parser;
+use sqruff_lib_core::parser::adapters::segment_from_token;
+use sqruff_lib_core::parser::markers::PositionMarker;
+use sqruff_lib_core::parser::segments::builder::SegmentTreeBuilder;
 use sqruff_lib_core::parser::segments::fix::SourceFix;
 use sqruff_lib_core::parser::segments::{ErasedSegment, Tables};
 use sqruff_lib_core::templaters::TemplatedFile;
+use sqruff_parser_core::parser::Parser;
+use sqruff_parser_core::parser::token::{Token, TokenSpan};
 use walkdir::WalkDir;
 
 pub struct Linter {
@@ -37,6 +42,7 @@ pub struct Linter {
     formatter: Option<Arc<dyn Formatter>>,
     templater: &'static dyn Templater,
     rules: OnceLock<Vec<ErasedRule>>,
+    lexer: OnceLock<Lexer>,
 
     /// include_parse_errors is a flag to indicate whether to include parse errors in the output
     include_parse_errors: bool,
@@ -58,8 +64,13 @@ impl Linter {
             formatter,
             templater,
             rules: OnceLock::new(),
+            lexer: OnceLock::new(),
             include_parse_errors,
         }
+    }
+
+    fn lexer(&self) -> &Lexer {
+        self.lexer.get_or_init(|| Lexer::from(&self.config.dialect))
     }
 
     pub fn get_templater(config: &FluffConfig) -> &'static dyn Templater {
@@ -393,35 +404,33 @@ impl Linter {
 
     /// Parse a rendered file.
     pub fn parse_rendered(&self, tables: &Tables, rendered: RenderedFile) -> ParsedString {
-        let violations = rendered.templater_violations.clone();
-        if !violations.is_empty() {
+        if !rendered.templater_violations.is_empty() {
             unimplemented!()
         }
 
         let mut violations = Vec::new();
         let tokens = if rendered.templated_file.is_templated() {
-            let (t, lvs) = Self::lex_templated_file(
-                tables,
-                rendered.templated_file.clone(),
-                &self.config.dialect,
-            );
-            if !lvs.is_empty() {
-                unimplemented!("violations.extend(lvs);")
+            let (tokens, lex_violations) =
+                self.lex_templated_file_cached(rendered.templated_file.clone());
+            if !lex_violations.is_empty() {
+                unimplemented!("violations.extend(lex_violations);")
             }
-            t
+            tokens
         } else {
             None
         };
 
-        let parsed: Option<ErasedSegment>;
-        if let Some(token_list) = tokens {
-            let (p, pvs) =
-                Self::parse_tokens(tables, &token_list, &self.config, self.include_parse_errors);
-            parsed = p;
-            violations.extend(pvs.into_iter().map_into());
-        } else {
-            parsed = None;
-        };
+        let parsed = tokens.and_then(|token_list| {
+            let (parsed, parse_violations) = Self::parse_tokens(
+                tables,
+                &token_list,
+                &rendered.templated_file,
+                &self.config,
+                self.include_parse_errors,
+            );
+            violations.extend(parse_violations.into_iter().map_into());
+            parsed
+        });
 
         ParsedString {
             tree: parsed,
@@ -434,17 +443,20 @@ impl Linter {
 
     fn parse_tokens(
         tables: &Tables,
-        tokens: &[ErasedSegment],
+        tokens: &[Token],
+        templated_file: &TemplatedFile,
         config: &FluffConfig,
         include_parse_errors: bool,
     ) -> (Option<ErasedSegment>, Vec<SQLParseError>) {
         let parser: Parser = config.into();
         let mut violations: Vec<SQLParseError> = Vec::new();
+        let mut builder =
+            SegmentTreeBuilder::new(parser.dialect().name(), tables, templated_file.clone());
 
-        let parsed = match parser.parse(tables, tokens) {
-            Ok(parsed) => parsed,
+        let parsed = match parser.parse_with_sink(tokens, &mut builder) {
+            Ok(()) => builder.finish(),
             Err(error) => {
-                violations.push(error);
+                violations.push(Self::map_parse_error(error, tokens, templated_file, tables));
                 None
             }
         };
@@ -466,26 +478,72 @@ impl Linter {
         (parsed, violations)
     }
 
+    fn map_parse_error(
+        err: sqruff_parser_core::errors::SQLParseError,
+        tokens: &[Token],
+        templated_file: &TemplatedFile,
+        tables: &Tables,
+    ) -> SQLParseError {
+        let segment = err.span.and_then(|span| {
+            tokens
+                .iter()
+                .find(|token| token.span == span)
+                .map(|token| segment_from_token(token, templated_file, tables))
+        });
+
+        SQLParseError {
+            description: err.description,
+            segment,
+        }
+    }
+
+    fn marker_from_span(span: TokenSpan, templated_file: &TemplatedFile) -> PositionMarker {
+        PositionMarker::new(
+            span.source_range(),
+            span.templated_range(),
+            templated_file.clone(),
+            None,
+            None,
+        )
+    }
+
     /// Lex a templated file.
     pub fn lex_templated_file(
-        tables: &Tables,
         templated_file: TemplatedFile,
         dialect: &Dialect,
-    ) -> (Option<Vec<ErasedSegment>>, Vec<SQLLexError>) {
+    ) -> (Option<Vec<Token>>, Vec<SQLLexError>) {
+        let lexer = Lexer::from(dialect);
+        Self::lex_templated_file_with_lexer(templated_file, &lexer)
+    }
+
+    fn lex_templated_file_cached(
+        &self,
+        templated_file: TemplatedFile,
+    ) -> (Option<Vec<Token>>, Vec<SQLLexError>) {
+        Self::lex_templated_file_with_lexer(templated_file, self.lexer())
+    }
+
+    fn lex_templated_file_with_lexer(
+        templated_file: TemplatedFile,
+        lexer: &Lexer,
+    ) -> (Option<Vec<Token>>, Vec<SQLLexError>) {
         let mut violations: Vec<SQLLexError> = vec![];
         log::debug!("LEXING RAW ({})", templated_file.name());
-        // Get the lexer
-        let lexer = dialect.lexer();
         // Lex the file and log any problems
-        let (tokens, lex_vs) = lexer.lex(tables, templated_file);
+        let (tokens, lex_vs) = lexer.lex(&templated_file);
 
-        violations.extend(lex_vs);
+        violations.extend(lex_vs.into_iter().map(|err| {
+            SQLLexError::new(
+                err.message,
+                Self::marker_from_span(err.span, &templated_file),
+            )
+        }));
 
         if tokens.is_empty() {
             return (None, violations);
         }
 
-        (tokens.into(), violations)
+        (Some(tokens), violations)
     }
 
     /// Normalise newlines to unix-style line endings.
@@ -651,7 +709,7 @@ impl Linter {
         let mut filtered_buffer = AHashSet::new();
 
         for fpath in buffer {
-            let npath = helpers::normalize(&fpath).to_str().unwrap().to_string();
+            let npath = normalize(&fpath).to_str().unwrap().to_string();
             filtered_buffer.insert(npath);
         }
 
@@ -666,6 +724,7 @@ impl Linter {
 
     pub fn config_mut(&mut self) -> &mut FluffConfig {
         self.rules = OnceLock::new();
+        self.lexer = OnceLock::new();
         &mut self.config
     }
 

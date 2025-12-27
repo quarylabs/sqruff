@@ -2,13 +2,16 @@ use itertools::Itertools;
 use sqruff_lib::core::config::FluffConfig;
 use sqruff_lib::core::linter::core::Linter;
 use sqruff_lib::core::test_functions::fresh_ansi_dialect;
-use sqruff_lib_core::dialects::init::DialectKind;
-use sqruff_lib_core::dialects::syntax::SyntaxKind;
-use sqruff_lib_core::parser::Parser;
-use sqruff_lib_core::parser::context::ParseContext;
-use sqruff_lib_core::parser::matchable::MatchableTrait;
+use sqruff_lib_core::lexer::Lexer;
 use sqruff_lib_core::parser::segments::Tables;
+use sqruff_lib_core::parser::segments::builder::SegmentTreeBuilder;
 use sqruff_lib_core::parser::segments::test_functions::lex;
+use sqruff_lib_core::templaters::TemplatedFile;
+use sqruff_parser_core::dialects::DialectKind;
+use sqruff_parser_core::dialects::SyntaxKind;
+use sqruff_parser_core::parser::Parser as CoreParser;
+use sqruff_parser_core::parser::context::ParseContext;
+use sqruff_parser_core::parser::matchable::MatchableTrait;
 
 #[test]
 fn test_dialect_ansi_file_lex() {
@@ -25,11 +28,10 @@ fn test_dialect_ansi_file_lex() {
     for (raw, res) in test_cases {
         // Assume FluffConfig and Lexer are defined somewhere in your codebase
         let ansi = fresh_ansi_dialect();
-        let lexer = ansi.lexer();
+        let lexer = Lexer::from(&ansi);
 
-        let tables = Tables::default();
         // Assume that the lex function returns a Result with tokens
-        let (tokens, errors) = lexer.lex(&tables, raw);
+        let (tokens, errors) = lexer.lex_str(raw);
 
         assert_eq!(errors.len(), 0, "Lexing failed for input: {}", raw);
 
@@ -39,7 +41,7 @@ fn test_dialect_ansi_file_lex() {
 
         // Check if the concatenated raw components of the tokens match the original raw
         // string
-        let concatenated: String = tokens.iter().map(|token| token.raw().as_str()).collect();
+        let concatenated: String = tokens.iter().map(|token| token.raw()).collect();
         assert_eq!(
             concatenated, raw,
             "Concatenation mismatch for input: {}",
@@ -149,23 +151,24 @@ fn test_dialect_ansi_specific_segment_parses() {
     ];
 
     let dialect = fresh_ansi_dialect();
-    let config: FluffConfig = FluffConfig::new(<_>::default(), None, None);
-
     for (segment_ref, sql_string) in cases {
-        let config = config.clone();
-        let parser: Parser = (&config).into();
+        let parser: CoreParser = (&dialect).into();
         let mut ctx: ParseContext = (&parser).into();
 
         let segment = dialect.r#ref(segment_ref);
-        let mut segments = lex(&dialect, sql_string);
+        let mut tokens = lex(&dialect, sql_string);
 
-        if segments.last().unwrap().get_type() == SyntaxKind::EndOfFile {
-            segments.pop();
+        if matches!(tokens.last(), Some(token) if token.is_type(SyntaxKind::EndOfFile)) {
+            tokens.pop();
         }
 
         let tables = Tables::default();
-        let match_result = segment.match_segments(&segments, 0, &mut ctx).unwrap();
-        let mut parsed = match_result.apply(&tables, DialectKind::Ansi, &segments);
+        let match_result = segment.match_segments(&tokens, 0, &mut ctx).unwrap();
+
+        let templated_file: TemplatedFile = sql_string.into();
+        let mut builder = SegmentTreeBuilder::new(DialectKind::Ansi, &tables, templated_file);
+        match_result.apply_events(&tokens, &mut builder);
+        let mut parsed = builder.finish().into_iter().collect::<Vec<_>>();
 
         assert_eq!(parsed.len(), 1, "failed {segment_ref}, {sql_string}");
 

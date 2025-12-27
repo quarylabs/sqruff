@@ -1,12 +1,12 @@
 use std::cell::RefCell;
 
+use crate::utils::strings::capitalize;
 use ahash::{AHashMap, AHashSet};
 use itertools::Itertools;
 use smol_str::SmolStr;
+use sqruff_lib_core::dialects::DialectKind;
 use sqruff_lib_core::dialects::common::{AliasInfo, ColumnAliasInfo};
-use sqruff_lib_core::dialects::init::DialectKind;
-use sqruff_lib_core::dialects::syntax::{SyntaxKind, SyntaxSet};
-use sqruff_lib_core::helpers::capitalize;
+use sqruff_lib_core::dialects::{SyntaxKind, SyntaxSet};
 use sqruff_lib_core::lint_fix::LintFix;
 use sqruff_lib_core::parser::segments::object_reference::ObjectReferenceSegment;
 use sqruff_lib_core::parser::segments::{ErasedSegment, SegmentBuilder, Tables};

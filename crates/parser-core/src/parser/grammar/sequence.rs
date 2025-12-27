@@ -3,7 +3,7 @@ use std::ops::{Deref, DerefMut};
 
 use ahash::AHashSet;
 
-use crate::dialects::syntax::{SyntaxKind, SyntaxSet};
+use crate::dialects::{SyntaxKind, SyntaxSet};
 use crate::errors::SQLParseError;
 use crate::helpers::ToMatchable;
 use crate::parser::context::ParseContext;
@@ -15,14 +15,14 @@ use crate::parser::match_result::{MatchResult, Matched, Span};
 use crate::parser::matchable::{
     Matchable, MatchableCacheKey, MatchableTrait, next_matchable_cache_key,
 };
-use crate::parser::segments::ErasedSegment;
+use crate::parser::token::Token;
 use crate::parser::types::ParseMode;
 
 fn flush_metas(
     tpre_nc_idx: u32,
     post_nc_idx: u32,
     meta_buffer: Vec<SyntaxKind>,
-    _segments: &[ErasedSegment],
+    _segments: &[Token],
 ) -> Vec<(u32, SyntaxKind)> {
     let meta_idx = if meta_buffer.iter().all(|it| it.indent_val() >= 0) {
         tpre_nc_idx
@@ -118,7 +118,7 @@ impl MatchableTrait for Sequence {
 
     fn match_segments(
         &self,
-        segments: &[ErasedSegment],
+        segments: &[Token],
         mut idx: u32,
         parse_context: &mut ParseContext,
     ) -> Result<MatchResult, SQLParseError> {
@@ -405,7 +405,7 @@ impl MatchableTrait for Bracketed {
 
     fn match_segments(
         &self,
-        segments: &[ErasedSegment],
+        segments: &[Token],
         idx: u32,
         parse_context: &mut ParseContext,
     ) -> Result<MatchResult, SQLParseError> {

@@ -1,5 +1,5 @@
 use append_only_vec::AppendOnlyVec;
-use sqruff_lib_core::dialects::syntax::{SyntaxKind, SyntaxSet};
+use sqruff_lib_core::dialects::{SyntaxKind, SyntaxSet};
 use sqruff_lib_core::parser::segments::ErasedSegment;
 
 use crate::{Node, NodeData};

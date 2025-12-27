@@ -2,7 +2,7 @@ use std::cmp::PartialEq;
 use std::mem::take;
 
 use itertools::Itertools;
-use sqruff_lib_core::dialects::syntax::SyntaxKind;
+use sqruff_lib_core::dialects::SyntaxKind;
 use sqruff_lib_core::lint_fix::LintFix;
 use sqruff_lib_core::parser::segments::{ErasedSegment, Tables};
 

@@ -1,0 +1,39 @@
+[package]
+name = "sqruff-parser-core"
+description = "Core parser logic for sqruff."
+version.workspace = true
+repository.workspace = true
+edition.workspace = true
+license.workspace = true
+
+[lints]
+workspace = true
+
+[lib]
+crate-type = ["rlib"]
+
+[features]
+serde = ["dep:serde"]
+stringify = ["dep:serde_yaml", "serde"]
+
+[dependencies]
+smol_str = "0.3.1"
+ahash = { version = "0.8.11", features = ["compile-time-rng", "serde"] }
+strum.workspace = true
+strum_macros.workspace = true
+nohash-hasher = "0.2.0"
+itertools = "0.14.0"
+fancy-regex = "0.16.2"
+pretty_assertions = "1.4.0"
+serde = { version = "1.0", features = ["derive"], optional = true }
+serde_yaml = { version = "0.9.34", optional = true }
+rustc-hash = "2.1.1"
+slyce = "0.3.1"
+enum_dispatch = "0.3.13"
+regex-automata = { version = "0.4.10", features = ["perf"] }
+thiserror = "2"
+log.workspace = true
+sqruff-helpers.workspace = true
+
+[dev-dependencies]
+serde = { version = "1.0", features = ["derive"] }

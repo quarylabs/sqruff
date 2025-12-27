@@ -1,13 +1,13 @@
 use crate::databricks_keywords::{RESERVED_KEYWORDS, UNRESERVED_KEYWORDS};
 use crate::sparksql;
-use sqruff_lib_core::helpers::Config;
-use sqruff_lib_core::parser::grammar::anyof::one_of;
-use sqruff_lib_core::parser::grammar::delimited::Delimited;
-use sqruff_lib_core::parser::grammar::sequence::Bracketed;
-use sqruff_lib_core::parser::matchable::MatchableTrait;
-use sqruff_lib_core::parser::segments::meta::MetaSegment;
-use sqruff_lib_core::{
-    dialects::{Dialect, init::DialectKind},
+use sqruff_helpers::Config;
+use sqruff_parser_core::parser::grammar::anyof::one_of;
+use sqruff_parser_core::parser::grammar::delimited::Delimited;
+use sqruff_parser_core::parser::grammar::sequence::Bracketed;
+use sqruff_parser_core::parser::matchable::MatchableTrait;
+use sqruff_parser_core::parser::segments::meta::MetaSegment;
+use sqruff_parser_core::{
+    dialects::{Dialect, DialectKind},
     helpers::ToMatchable,
     parser::grammar::{Ref, sequence::Sequence},
     vec_of_erased,

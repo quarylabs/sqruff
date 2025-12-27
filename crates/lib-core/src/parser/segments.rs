@@ -1,10 +1,8 @@
-pub mod bracketed;
+pub mod builder;
 pub mod file;
 pub mod fix;
 pub mod from;
-pub mod generator;
 pub mod join;
-pub mod meta;
 pub mod object_reference;
 pub mod select;
 pub mod test_functions;
@@ -18,8 +16,8 @@ use itertools::enumerate;
 use rustc_hash::FxHashMap;
 use smol_str::SmolStr;
 
-use crate::dialects::init::DialectKind;
-use crate::dialects::syntax::{SyntaxKind, SyntaxSet};
+use crate::dialects::DialectKind;
+use crate::dialects::{SyntaxKind, SyntaxSet};
 use crate::lint_fix::LintFix;
 use crate::parser::markers::PositionMarker;
 use crate::parser::segments::fix::{FixPatch, SourceFix};
@@ -78,7 +76,7 @@ impl SegmentBuilder {
         }
     }
 
-    pub fn token(id: u32, raw: &str, syntax_kind: SyntaxKind) -> Self {
+    pub fn token(id: u32, raw: impl Into<SmolStr>, syntax_kind: SyntaxKind) -> Self {
         SegmentBuilder {
             node_or_token: NodeOrToken {
                 id,
@@ -556,15 +554,6 @@ impl ErasedSegment {
 
     pub fn class_types(&self) -> &SyntaxSet {
         &self.value.class_types
-    }
-
-    pub(crate) fn first_non_whitespace_segment_raw_upper(&self) -> Option<String> {
-        for seg in self.get_raw_segments() {
-            if !seg.raw().is_empty() {
-                return Some(seg.raw().to_uppercase());
-            }
-        }
-        None
     }
 
     pub fn is(&self, other: &ErasedSegment) -> bool {

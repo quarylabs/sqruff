@@ -3,9 +3,9 @@ use std::ops::{Deref, DerefMut, Range};
 use fancy_regex::Regex;
 use thiserror::Error;
 
-use super::parser::segments::ErasedSegment;
 use crate::helpers::Config;
 use crate::parser::markers::PositionMarker;
+use crate::parser::segments::ErasedSegment;
 
 #[derive(Debug, PartialEq, Clone, Default, Error)]
 #[error("{description}")]

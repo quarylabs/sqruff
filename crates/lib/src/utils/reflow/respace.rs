@@ -1,6 +1,6 @@
 use itertools::{Itertools, enumerate};
 use rustc_hash::FxHashMap;
-use sqruff_lib_core::dialects::syntax::{SyntaxKind, SyntaxSet};
+use sqruff_lib_core::dialects::{SyntaxKind, SyntaxSet};
 use sqruff_lib_core::lint_fix::LintFix;
 use sqruff_lib_core::parser::markers::PositionMarker;
 use sqruff_lib_core::parser::segments::{ErasedSegment, SegmentBuilder, Tables};

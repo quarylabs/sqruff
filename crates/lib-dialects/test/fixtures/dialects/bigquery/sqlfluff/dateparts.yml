@@ -236,7 +236,8 @@ file:
                   - naked_identifier: col1
               - end_bracket: )
         - alias_expression:
-          - keyword: AS
+          - alias_operator:
+            - keyword: AS
           - naked_identifier: week
       - comma: ','
       - select_clause_element:
@@ -253,7 +254,8 @@ file:
                   - naked_identifier: col1
               - end_bracket: )
         - alias_expression:
-          - keyword: AS
+          - alias_operator:
+            - keyword: AS
           - naked_identifier: week
       - comma: ','
       - select_clause_element:

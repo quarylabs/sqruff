@@ -76,7 +76,8 @@ file:
                   - end_bracket: )
             - end_bracket: )
           - alias_expression:
-            - keyword: AS
+            - alias_operator:
+              - keyword: AS
             - naked_identifier: t
             - bracketed:
               - start_bracket: (
@@ -120,7 +121,8 @@ file:
                   - end_bracket: )
             - end_bracket: )
           - alias_expression:
-            - keyword: AS
+            - alias_operator:
+              - keyword: AS
             - naked_identifier: t
             - bracketed:
               - start_bracket: (

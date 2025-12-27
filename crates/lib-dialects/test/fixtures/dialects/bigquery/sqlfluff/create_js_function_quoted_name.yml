@@ -15,13 +15,13 @@ file:
         - end_bracket: )
     - keyword: RETURNS
     - data_type:
-      - struct_type:
+      - data_type:
         - keyword: STRUCT
         - struct_type_schema:
           - start_angle_bracket: <
           - parameter: '`$=`'
           - data_type:
-            - array_type:
+            - data_type:
               - keyword: ARRAY
               - start_angle_bracket: <
               - data_type:

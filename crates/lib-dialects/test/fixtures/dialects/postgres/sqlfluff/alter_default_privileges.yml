@@ -31,9 +31,8 @@ file:
       - naked_identifier: my_user
     - keyword: IN
     - keyword: SCHEMA
-    - table_reference:
-      - object_reference:
-        - naked_identifier: my_schema
+    - schema_reference:
+      - naked_identifier: my_schema
     - alter_default_privileges_grant:
       - keyword: GRANT
       - alter_default_privileges_object_privilege:
@@ -78,13 +77,11 @@ file:
       - naked_identifier: my_user
     - keyword: IN
     - keyword: SCHEMA
-    - table_reference:
-      - object_reference:
-        - naked_identifier: my_schema
+    - schema_reference:
+      - naked_identifier: my_schema
     - comma: ','
-    - table_reference:
-      - object_reference:
-        - naked_identifier: your_schema
+    - schema_reference:
+      - naked_identifier: your_schema
     - alter_default_privileges_grant:
       - keyword: GRANT
       - alter_default_privileges_object_privilege:
@@ -221,13 +218,11 @@ file:
     - keyword: PRIVILEGES
     - keyword: IN
     - keyword: SCHEMA
-    - table_reference:
-      - object_reference:
-        - naked_identifier: my_schema
+    - schema_reference:
+      - naked_identifier: my_schema
     - comma: ','
-    - table_reference:
-      - object_reference:
-        - naked_identifier: your_schema
+    - schema_reference:
+      - naked_identifier: your_schema
     - alter_default_privileges_grant:
       - keyword: GRANT
       - alter_default_privileges_object_privilege:
@@ -301,13 +296,11 @@ file:
       - naked_identifier: your_user
     - keyword: IN
     - keyword: SCHEMA
-    - table_reference:
-      - object_reference:
-        - naked_identifier: my_schema
+    - schema_reference:
+      - naked_identifier: my_schema
     - comma: ','
-    - table_reference:
-      - object_reference:
-        - naked_identifier: your_schema
+    - schema_reference:
+      - naked_identifier: your_schema
     - alter_default_privileges_grant:
       - keyword: GRANT
       - alter_default_privileges_object_privilege:
@@ -372,9 +365,8 @@ file:
       - naked_identifier: my_user
     - keyword: IN
     - keyword: SCHEMA
-    - table_reference:
-      - object_reference:
-        - naked_identifier: my_schema
+    - schema_reference:
+      - naked_identifier: my_schema
     - alter_default_privileges_revoke:
       - keyword: REVOKE
       - alter_default_privileges_object_privilege:
@@ -399,13 +391,11 @@ file:
       - naked_identifier: my_user
     - keyword: IN
     - keyword: SCHEMA
-    - table_reference:
-      - object_reference:
-        - naked_identifier: my_schema
+    - schema_reference:
+      - naked_identifier: my_schema
     - comma: ','
-    - table_reference:
-      - object_reference:
-        - naked_identifier: your_schema
+    - schema_reference:
+      - naked_identifier: your_schema
     - alter_default_privileges_revoke:
       - keyword: REVOKE
       - alter_default_privileges_object_privilege:
@@ -430,9 +420,8 @@ file:
       - naked_identifier: my_user
     - keyword: IN
     - keyword: SCHEMA
-    - table_reference:
-      - object_reference:
-        - naked_identifier: my_schema
+    - schema_reference:
+      - naked_identifier: my_schema
     - alter_default_privileges_revoke:
       - keyword: REVOKE
       - alter_default_privileges_object_privilege:
@@ -524,13 +513,11 @@ file:
     - keyword: PRIVILEGES
     - keyword: IN
     - keyword: SCHEMA
-    - table_reference:
-      - object_reference:
-        - naked_identifier: my_schema
+    - schema_reference:
+      - naked_identifier: my_schema
     - comma: ','
-    - table_reference:
-      - object_reference:
-        - naked_identifier: your_schema
+    - schema_reference:
+      - naked_identifier: your_schema
     - alter_default_privileges_revoke:
       - keyword: REVOKE
       - alter_default_privileges_object_privilege:
@@ -585,13 +572,11 @@ file:
       - naked_identifier: your_user
     - keyword: IN
     - keyword: SCHEMA
-    - table_reference:
-      - object_reference:
-        - naked_identifier: my_schema
+    - schema_reference:
+      - naked_identifier: my_schema
     - comma: ','
-    - table_reference:
-      - object_reference:
-        - naked_identifier: your_schema
+    - schema_reference:
+      - naked_identifier: your_schema
     - alter_default_privileges_revoke:
       - keyword: REVOKE
       - alter_default_privileges_object_privilege:

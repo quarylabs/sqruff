@@ -3,14 +3,14 @@ file:
   - drop_sequence_statement:
     - keyword: DROP
     - keyword: SEQUENCE
-    - column_reference:
+    - sequence_reference:
       - naked_identifier: foo
 - statement_terminator: ;
 - statement:
   - drop_sequence_statement:
     - keyword: DROP
     - keyword: SEQUENCE
-    - column_reference:
+    - sequence_reference:
       - naked_identifier: foo
       - dot: .
       - naked_identifier: foo
@@ -21,7 +21,7 @@ file:
     - keyword: SEQUENCE
     - keyword: IF
     - keyword: EXISTS
-    - column_reference:
+    - sequence_reference:
       - naked_identifier: foo
 - statement_terminator: ;
 - statement:
@@ -30,7 +30,7 @@ file:
     - keyword: SEQUENCE
     - keyword: IF
     - keyword: EXISTS
-    - column_reference:
+    - sequence_reference:
       - naked_identifier: foo
     - keyword: CASCADE
 - statement_terminator: ;
@@ -38,7 +38,7 @@ file:
   - drop_sequence_statement:
     - keyword: DROP
     - keyword: SEQUENCE
-    - column_reference:
+    - sequence_reference:
       - naked_identifier: foo
     - keyword: RESTRICT
 - statement_terminator: ;

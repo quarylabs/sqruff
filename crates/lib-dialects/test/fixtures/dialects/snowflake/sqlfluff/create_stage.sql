@@ -80,3 +80,59 @@ CREATE OR REPLACE STAGE foo.bar
   STORAGE_INTEGRATION = foo
   FILE_FORMAT = (FORMAT_NAME = foo.bar.baz)
 ;
+
+CREATE OR REPLACE STAGE your_stage_name
+  URL = 's3://your_s3_bucket/your_path_in_s3';
+
+CREATE OR REPLACE STAGE your_stage_name
+  URL = 's3://your-s3-bucket/your-path-in-s3';
+
+CREATE STAGE mystage
+  URL=$your_variable
+  CREDENTIALS=(AZURE_SAS_TOKEN=$your_variable);
+
+CREATE STAGE mystage
+  URL=$your_variable
+  STORAGE_INTEGRATION=$your_variable;
+
+CREATE OR REPLACE STAGE foo.bar
+  URL = 's3://foobar'
+  STORAGE_INTEGRATION = foo
+  FILE_FORMAT = (
+    TYPE = CSV
+    PARSE_HEADER = TRUE
+  );
+
+CREATE OR ALTER STAGE foo.bar
+  URL = 's3://foobar';
+
+CREATE STAGE foo.bar
+  STORAGE_INTEGRATION=$your_variable
+  URL=$your_variable;
+
+CREATE OR REPLACE STAGE foo.bar
+  STORAGE_INTEGRATION = foo
+  URL = 's3://foobar'
+  FILE_FORMAT = (
+    TYPE = CSV
+    PARSE_HEADER = TRUE
+  );
+
+CREATE STAGE my_ext_stage
+  STORAGE_INTEGRATION = myint
+  URL='azure://myaccount.blob.core.windows.net/load/files/';
+
+CREATE STAGE mystage
+  CREDENTIALS=(AZURE_SAS_TOKEN='?sv=2016-05-31&ss=b&srt=sco&sp=rwdl&se=2018-06-27T10:05:50Z&st=2017-06-27T02:05:50Z&spr=https,http&sig=bgqQwoXwxzuD2GJfagRg7VOS8hzNr3QLT7rhS8OFRLQ%3D')
+  ENCRYPTION=(TYPE='AZURE_CSE' MASTER_KEY = 'kPxX0jzYfIamtnJEUTHwq80Au6NbSgPH5r4BDDwOaO8=')
+  URL='azure://myaccount.blob.core.windows.net/mycontainer/files/'
+  FILE_FORMAT = my_csv_format;
+
+CREATE STAGE mystage
+  STORAGE_INTEGRATION = my_storage_int
+  DIRECTORY = (
+    ENABLE = true
+    AUTO_REFRESH = true
+    NOTIFICATION_INTEGRATION = 'MY_NOTIFICATION_INT'
+  )
+  URL='azure://myaccount.blob.core.windows.net/load/files/';

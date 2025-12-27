@@ -1,0 +1,123 @@
+file:
+- batch:
+  - statement:
+    - declare_segment:
+      - keyword: DECLARE
+      - parameter: '@DateNow'
+      - data_type:
+        - keyword: date
+      - comparison_operator:
+        - raw_comparison_operator: =
+      - expression:
+        - function:
+          - function_name:
+            - function_name_identifier: ISNULL
+          - function_contents:
+            - bracketed:
+              - start_bracket: (
+              - expression:
+                - function:
+                  - function_name:
+                    - naked_identifier: Shared
+                    - dot: .
+                    - function_name_identifier: GetESTDateTime
+                  - function_contents:
+                    - bracketed:
+                      - start_bracket: (
+                      - expression:
+                        - function:
+                          - function_name:
+                            - function_name_identifier: GETDATE
+                          - function_contents:
+                            - bracketed:
+                              - start_bracket: (
+                              - end_bracket: )
+                      - end_bracket: )
+              - comma: ','
+              - expression:
+                - function:
+                  - function_name:
+                    - function_name_identifier: GETDATE
+                  - function_contents:
+                    - bracketed:
+                      - start_bracket: (
+                      - end_bracket: )
+              - end_bracket: )
+  - statement:
+    - select_statement:
+      - select_clause:
+        - keyword: select
+        - select_clause_element:
+          - column_reference:
+            - naked_identifier: enc
+            - dot: .
+            - naked_identifier: personid
+          - alias_expression:
+            - alias_operator:
+              - keyword: as
+            - naked_identifier: personid
+        - comma: ','
+        - select_clause_element:
+          - function:
+            - function_name:
+              - keyword: cast
+            - function_contents:
+              - bracketed:
+                - start_bracket: (
+                - expression:
+                  - quoted_literal: '''1900-01-01'''
+                - keyword: as
+                - data_type:
+                  - keyword: datetime2
+                  - bracketed_arguments:
+                    - bracketed:
+                      - start_bracket: (
+                      - expression:
+                        - integer_literal: '7'
+                      - end_bracket: )
+                - end_bracket: )
+          - alias_expression:
+            - alias_operator:
+              - keyword: as
+            - naked_identifier: DataRefreshDate
+      - from_clause:
+        - keyword: from
+        - from_expression:
+          - from_expression_element:
+            - table_expression:
+              - table_reference:
+                - naked_identifier: encounter
+            - alias_expression:
+              - naked_identifier: enc
+  - statement_terminator: ;
+  - statement:
+    - declare_segment:
+      - keyword: declare
+      - parameter: '@sample'
+      - data_type:
+        - keyword: nvarchar
+        - bracketed_arguments:
+          - bracketed:
+            - start_bracket: (
+            - keyword: max
+            - end_bracket: )
+      - comparison_operator:
+        - raw_comparison_operator: =
+      - expression:
+        - function:
+          - function_name:
+            - keyword: cast
+          - function_contents:
+            - bracketed:
+              - start_bracket: (
+              - expression:
+                - integer_literal: '100'
+              - keyword: as
+              - data_type:
+                - keyword: nvarchar
+                - bracketed_arguments:
+                  - bracketed:
+                    - start_bracket: (
+                    - keyword: max
+                    - end_bracket: )
+              - end_bracket: )

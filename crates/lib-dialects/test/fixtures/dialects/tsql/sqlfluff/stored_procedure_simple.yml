@@ -1,20 +1,22 @@
 file:
-- statement:
-  - create_procedure_statement:
-    - keyword: CREATE
-    - keyword: PROC
-    - object_reference:
-      - naked_identifier: ProcedureName
-    - keyword: AS
-    - statement:
-      - select_statement:
-        - select_clause:
-          - keyword: SELECT
-          - select_clause_element:
-            - function:
-              - function_name:
-                - function_name_identifier: DB_NAME
-              - function_contents:
-                - bracketed:
-                  - start_bracket: (
-                  - end_bracket: )
+- batch:
+  - statement:
+    - create_procedure_statement:
+      - keyword: CREATE
+      - keyword: PROC
+      - object_reference:
+        - naked_identifier: ProcedureName
+      - keyword: AS
+      - procedure_statement:
+        - statement:
+          - select_statement:
+            - select_clause:
+              - keyword: SELECT
+              - select_clause_element:
+                - function:
+                  - function_name:
+                    - function_name_identifier: DB_NAME
+                  - function_contents:
+                    - bracketed:
+                      - start_bracket: (
+                      - end_bracket: )

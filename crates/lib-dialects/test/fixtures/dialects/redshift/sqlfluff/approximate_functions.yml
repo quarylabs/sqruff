@@ -16,34 +16,37 @@ file:
         - function:
           - function_name:
             - function_name_identifier: count
-          - bracketed:
-            - start_bracket: (
-            - expression:
-              - column_reference:
-                - naked_identifier: totalprice
-            - end_bracket: )
+          - function_contents:
+            - bracketed:
+              - start_bracket: (
+              - expression:
+                - column_reference:
+                  - naked_identifier: totalprice
+              - end_bracket: )
       - comma: ','
       - select_clause_element:
         - function:
           - function_name:
             - function_name_identifier: sum
-          - bracketed:
-            - start_bracket: (
-            - expression:
-              - column_reference:
-                - naked_identifier: totalprice
-            - end_bracket: )
+          - function_contents:
+            - bracketed:
+              - start_bracket: (
+              - expression:
+                - column_reference:
+                  - naked_identifier: totalprice
+              - end_bracket: )
       - comma: ','
       - select_clause_element:
         - function:
           - keyword: approximate
           - function_name:
             - function_name_identifier: percentile_disc
-          - bracketed:
-            - start_bracket: (
-            - expression:
-              - numeric_literal: '0.5'
-            - end_bracket: )
+          - function_contents:
+            - bracketed:
+              - start_bracket: (
+              - expression:
+                - numeric_literal: '0.5'
+              - end_bracket: )
           - withingroup_clause:
             - keyword: within
             - keyword: group
@@ -98,13 +101,14 @@ file:
           - keyword: approximate
           - function_name:
             - function_name_identifier: count
-          - bracketed:
-            - start_bracket: (
-            - keyword: distinct
-            - expression:
-              - column_reference:
-                - naked_identifier: pricepaid
-            - end_bracket: )
+          - function_contents:
+            - bracketed:
+              - start_bracket: (
+              - keyword: distinct
+              - expression:
+                - column_reference:
+                  - naked_identifier: pricepaid
+              - end_bracket: )
     - from_clause:
       - keyword: from
       - from_expression:
@@ -121,13 +125,14 @@ file:
         - function:
           - function_name:
             - function_name_identifier: count
-          - bracketed:
-            - start_bracket: (
-            - keyword: distinct
-            - expression:
-              - column_reference:
-                - naked_identifier: pricepaid
-            - end_bracket: )
+          - function_contents:
+            - bracketed:
+              - start_bracket: (
+              - keyword: distinct
+              - expression:
+                - column_reference:
+                  - naked_identifier: pricepaid
+              - end_bracket: )
     - from_clause:
       - keyword: from
       - from_expression:
@@ -144,12 +149,13 @@ file:
         - function:
           - function_name:
             - function_name_identifier: approximate
-          - bracketed:
-            - start_bracket: (
-            - expression:
-              - column_reference:
-                - naked_identifier: foo
-            - end_bracket: )
+          - function_contents:
+            - bracketed:
+              - start_bracket: (
+              - expression:
+                - column_reference:
+                  - naked_identifier: foo
+              - end_bracket: )
     - from_clause:
       - keyword: from
       - from_expression:

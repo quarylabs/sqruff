@@ -66,13 +66,15 @@ file:
       - select_clause_element:
         - quoted_literal: '''1'''
         - alias_expression:
-          - keyword: as
+          - alias_operator:
+            - keyword: as
           - naked_identifier: bb
       - comma: ','
       - select_clause_element:
         - numeric_literal: '2'
         - alias_expression:
-          - keyword: as
+          - alias_operator:
+            - keyword: as
           - naked_identifier: aa
 - statement_terminator: ;
 - statement:
@@ -86,13 +88,15 @@ file:
       - select_clause_element:
         - quoted_literal: '''1'''
         - alias_expression:
-          - keyword: as
+          - alias_operator:
+            - keyword: as
           - naked_identifier: bb
       - comma: ','
       - select_clause_element:
         - numeric_literal: '2'
         - alias_expression:
-          - keyword: as
+          - alias_operator:
+            - keyword: as
           - naked_identifier: aa
 - statement_terminator: ;
 - statement:
@@ -102,7 +106,7 @@ file:
       - select_clause_element:
         - expression:
           - typed_struct_literal:
-            - struct_type:
+            - data_type:
               - keyword: struct
             - struct_literal:
               - bracketed:
@@ -112,7 +116,8 @@ file:
                   - dot: .
                   - naked_identifier: bar_id
                 - alias_expression:
-                  - keyword: as
+                  - alias_operator:
+                    - keyword: as
                   - naked_identifier: id
                 - comma: ','
                 - column_reference:
@@ -120,11 +125,13 @@ file:
                   - dot: .
                   - naked_identifier: bar_name
                 - alias_expression:
-                  - keyword: as
+                  - alias_operator:
+                    - keyword: as
                   - naked_identifier: bar
                 - end_bracket: )
         - alias_expression:
-          - keyword: as
+          - alias_operator:
+            - keyword: as
           - naked_identifier: bar
     - from_clause:
       - keyword: from
@@ -178,11 +185,11 @@ file:
                   - start_bracket: (
                   - expression:
                     - typed_array_literal:
-                      - array_type:
+                      - data_type:
                         - keyword: ARRAY
                         - start_angle_bracket: <
                         - data_type:
-                          - struct_type:
+                          - data_type:
                             - keyword: STRUCT
                             - struct_type_schema:
                               - start_angle_bracket: <
@@ -222,7 +229,7 @@ file:
       - select_clause_element:
         - expression:
           - typed_struct_literal:
-            - struct_type:
+            - data_type:
               - keyword: STRUCT
               - struct_type_schema:
                 - start_angle_bracket: <
@@ -238,7 +245,7 @@ file:
       - select_clause_element:
         - expression:
           - typed_struct_literal:
-            - struct_type:
+            - data_type:
               - keyword: STRUCT
               - struct_type_schema:
                 - start_angle_bracket: <
@@ -254,7 +261,7 @@ file:
       - select_clause_element:
         - expression:
           - typed_struct_literal:
-            - struct_type:
+            - data_type:
               - keyword: STRUCT
               - struct_type_schema:
                 - start_angle_bracket: <
@@ -280,7 +287,7 @@ file:
       - select_clause_element:
         - expression:
           - typed_struct_literal:
-            - struct_type:
+            - data_type:
               - keyword: STRUCT
               - struct_type_schema:
                 - start_angle_bracket: <
@@ -301,7 +308,7 @@ file:
       - select_clause_element:
         - expression:
           - typed_struct_literal:
-            - struct_type:
+            - data_type:
               - keyword: STRUCT
             - struct_literal:
               - bracketed:
@@ -313,7 +320,8 @@ file:
                   - naked_identifier: some_other_field
                 - end_bracket: )
         - alias_expression:
-          - keyword: AS
+          - alias_operator:
+            - keyword: AS
           - naked_identifier: col
     - from_clause:
       - keyword: FROM
@@ -336,7 +344,7 @@ file:
               - start_bracket: (
               - expression:
                 - typed_struct_literal:
-                  - struct_type:
+                  - data_type:
                     - keyword: STRUCT
                   - struct_literal:
                     - bracketed:
@@ -344,7 +352,8 @@ file:
                       - end_bracket: )
               - end_bracket: )
         - alias_expression:
-          - keyword: AS
+          - alias_operator:
+            - keyword: AS
           - naked_identifier: col
     - from_clause:
       - keyword: FROM
@@ -353,4 +362,42 @@ file:
           - table_expression:
             - table_reference:
               - naked_identifier: table
+- statement_terminator: ;
+- statement:
+  - select_statement:
+    - select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+        - expression:
+          - bracketed:
+            - start_bracket: (
+            - expression:
+              - numeric_literal: '1'
+              - binary_operator: '*'
+              - numeric_literal: '1'
+            - comma: ','
+            - numeric_literal: '2'
+            - end_bracket: )
+          - keyword: IN
+          - bracketed:
+            - start_bracket: (
+            - typed_struct_literal:
+              - data_type:
+                - keyword: STRUCT
+              - struct_literal:
+                - bracketed:
+                  - start_bracket: (
+                  - numeric_literal: '1'
+                  - alias_expression:
+                    - alias_operator:
+                      - keyword: AS
+                    - naked_identifier: a
+                  - comma: ','
+                  - numeric_literal: '2'
+                  - alias_expression:
+                    - alias_operator:
+                      - keyword: AS
+                    - naked_identifier: b
+                  - end_bracket: )
+            - end_bracket: )
 - statement_terminator: ;

@@ -9,7 +9,8 @@ file:
           - dot: .
           - naked_identifier: material_number
         - alias_expression:
-          - keyword: AS
+          - alias_operator:
+            - keyword: AS
           - naked_identifier: material_number_composition
       - comma: ','
       - select_clause_element:
@@ -27,23 +28,26 @@ file:
               - comma: ','
               - expression:
                 - quoted_literal: ''' || '''
-              - keyword: ON
-              - keyword: OVERFLOW
-              - keyword: ERROR
+              - listagg_overflow_clause:
+                - keyword: ON
+                - keyword: OVERFLOW
+                - keyword: ERROR
               - end_bracket: )
-          - keyword: WITHIN
-          - keyword: GROUP
-          - bracketed:
-            - start_bracket: (
-            - orderby_clause:
-              - keyword: ORDER
-              - keyword: BY
-              - column_reference:
-                - naked_identifier: composition
-              - keyword: ASC
-            - end_bracket: )
+          - withingroup_clause:
+            - keyword: WITHIN
+            - keyword: GROUP
+            - bracketed:
+              - start_bracket: (
+              - orderby_clause:
+                - keyword: ORDER
+                - keyword: BY
+                - column_reference:
+                  - naked_identifier: composition
+                - keyword: ASC
+              - end_bracket: )
         - alias_expression:
-          - keyword: AS
+          - alias_operator:
+            - keyword: AS
           - naked_identifier: composition
     - from_clause:
       - keyword: FROM
@@ -53,7 +57,8 @@ file:
             - table_reference:
               - naked_identifier: article_composition
           - alias_expression:
-            - keyword: AS
+            - alias_operator:
+              - keyword: AS
             - naked_identifier: composition
     - groupby_clause:
       - keyword: GROUP
@@ -85,32 +90,34 @@ file:
               - expression:
                 - quoted_literal: ''','''
               - end_bracket: )
-          - keyword: WITHIN
-          - keyword: GROUP
-          - bracketed:
-            - start_bracket: (
-            - orderby_clause:
-              - keyword: ORDER
-              - keyword: BY
-              - column_reference:
-                - naked_identifier: population
-              - keyword: DESC
-            - end_bracket: )
-          - keyword: FILTER
-          - bracketed:
-            - start_bracket: (
-            - keyword: WHERE
-            - expression:
-              - column_reference:
-                - naked_identifier: population
-              - comparison_operator:
-                - raw_comparison_operator: '>'
-                - raw_comparison_operator: =
-              - column_reference:
-                - naked_identifier: 10_000_000
-            - end_bracket: )
+          - withingroup_clause:
+            - keyword: WITHIN
+            - keyword: GROUP
+            - bracketed:
+              - start_bracket: (
+              - orderby_clause:
+                - keyword: ORDER
+                - keyword: BY
+                - column_reference:
+                  - naked_identifier: population
+                - keyword: DESC
+              - end_bracket: )
+            - keyword: FILTER
+            - bracketed:
+              - start_bracket: (
+              - keyword: WHERE
+              - expression:
+                - column_reference:
+                  - naked_identifier: population
+                - comparison_operator:
+                  - raw_comparison_operator: '>'
+                  - raw_comparison_operator: =
+                - column_reference:
+                  - naked_identifier: 10_000_000
+              - end_bracket: )
         - alias_expression:
-          - keyword: AS
+          - alias_operator:
+            - keyword: AS
           - naked_identifier: megacities
     - from_clause:
       - keyword: FROM
@@ -177,7 +184,8 @@ file:
                     - end_bracket: )
             - end_bracket: )
           - alias_expression:
-            - keyword: AS
+            - alias_operator:
+              - keyword: AS
             - naked_identifier: t
             - bracketed:
               - start_bracket: (
@@ -216,23 +224,25 @@ file:
               - comma: ','
               - expression:
                 - quoted_literal: ''','''
-              - keyword: ON
-              - keyword: OVERFLOW
-              - keyword: TRUNCATE
-              - quoted_literal: '''.....'''
-              - keyword: WITH
-              - keyword: COUNT
+              - listagg_overflow_clause:
+                - keyword: ON
+                - keyword: OVERFLOW
+                - keyword: TRUNCATE
+                - quoted_literal: '''.....'''
+                - keyword: WITH
+                - keyword: COUNT
               - end_bracket: )
-          - keyword: WITHIN
-          - keyword: GROUP
-          - bracketed:
-            - start_bracket: (
-            - orderby_clause:
-              - keyword: ORDER
-              - keyword: BY
-              - column_reference:
-                - naked_identifier: value
-            - end_bracket: )
+          - withingroup_clause:
+            - keyword: WITHIN
+            - keyword: GROUP
+            - bracketed:
+              - start_bracket: (
+              - orderby_clause:
+                - keyword: ORDER
+                - keyword: BY
+                - column_reference:
+                  - naked_identifier: value
+              - end_bracket: )
     - from_clause:
       - keyword: FROM
       - from_expression:
@@ -252,7 +262,8 @@ file:
                   - quoted_literal: '''c'''
             - end_bracket: )
           - alias_expression:
-            - keyword: AS
+            - alias_operator:
+              - keyword: AS
             - naked_identifier: t
             - bracketed:
               - start_bracket: (
@@ -277,23 +288,25 @@ file:
               - comma: ','
               - expression:
                 - quoted_literal: ''','''
-              - keyword: ON
-              - keyword: OVERFLOW
-              - keyword: TRUNCATE
-              - quoted_literal: '''.....'''
-              - keyword: WITHOUT
-              - keyword: COUNT
+              - listagg_overflow_clause:
+                - keyword: ON
+                - keyword: OVERFLOW
+                - keyword: TRUNCATE
+                - quoted_literal: '''.....'''
+                - keyword: WITHOUT
+                - keyword: COUNT
               - end_bracket: )
-          - keyword: WITHIN
-          - keyword: GROUP
-          - bracketed:
-            - start_bracket: (
-            - orderby_clause:
-              - keyword: ORDER
-              - keyword: BY
-              - column_reference:
-                - naked_identifier: value
-            - end_bracket: )
+          - withingroup_clause:
+            - keyword: WITHIN
+            - keyword: GROUP
+            - bracketed:
+              - start_bracket: (
+              - orderby_clause:
+                - keyword: ORDER
+                - keyword: BY
+                - column_reference:
+                  - naked_identifier: value
+              - end_bracket: )
     - from_clause:
       - keyword: FROM
       - from_expression:
@@ -313,7 +326,8 @@ file:
                   - quoted_literal: '''c'''
             - end_bracket: )
           - alias_expression:
-            - keyword: AS
+            - alias_operator:
+              - keyword: AS
             - naked_identifier: t
             - bracketed:
               - start_bracket: (

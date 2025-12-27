@@ -38,7 +38,8 @@ file:
                     - end_angle_bracket: '>'
               - end_bracket: )
         - alias_expression:
-          - keyword: AS
+          - alias_operator:
+            - keyword: AS
           - naked_identifier: json_map
     - from_clause:
       - keyword: FROM

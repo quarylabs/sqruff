@@ -13,7 +13,8 @@ file:
                 - select_clause_element:
                   - numeric_literal: '1'
                   - alias_expression:
-                    - keyword: as
+                    - alias_operator:
+                      - keyword: as
                     - naked_identifier: p
           - end_bracket: )
       - keyword: as
@@ -32,7 +33,8 @@ file:
                   - numeric_literal: '1'
                 - end_bracket: )
           - alias_expression:
-            - keyword: as
+            - alias_operator:
+              - keyword: as
             - naked_identifier: Test_string
         - comma: ','
         - select_clause_element:
@@ -49,7 +51,8 @@ file:
                   - numeric_literal: '3'
                 - end_bracket: )
           - alias_expression:
-            - keyword: as
+            - alias_operator:
+              - keyword: as
             - naked_identifier: Test_dateTime64
         - comma: ','
         - select_clause_element:
@@ -66,7 +69,8 @@ file:
                   - quoted_literal: '''TestNull'''
                 - end_bracket: )
           - alias_expression:
-            - keyword: as
+            - alias_operator:
+              - keyword: as
             - naked_identifier: testIf
         - comma: ','
         - select_clause_element:
@@ -83,14 +87,16 @@ file:
                   - quoted_literal: '''abc'''
                 - end_bracket: )
           - alias_expression:
-            - keyword: as
+            - alias_operator:
+              - keyword: as
             - naked_identifier: testJSON
         - comma: ','
         - select_clause_element:
           - column_reference:
             - naked_identifier: test_param
           - alias_expression:
-            - keyword: as
+            - alias_operator:
+              - keyword: as
             - naked_identifier: param
 - statement_terminator: ;
 - statement:
@@ -260,7 +266,8 @@ file:
             - binary_operator: '*'
             - numeric_literal: '100'
           - alias_expression:
-            - keyword: AS
+            - alias_operator:
+              - keyword: AS
             - naked_identifier: table_disk_usage
         - comma: ','
         - select_clause_element:
@@ -288,7 +295,8 @@ file:
         - keyword: DESC
       - limit_clause:
         - keyword: LIMIT
-        - numeric_literal: '10'
+        - limit_clause_component:
+          - numeric_literal: '10'
 - statement_terminator: ;
 - statement:
   - with_compound_statement:

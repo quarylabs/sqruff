@@ -92,7 +92,7 @@ file:
     - keyword: SHOW
     - keyword: FUNCTIONS
     - keyword: FROM
-    - object_reference:
+    - database_reference:
       - naked_identifier: default
 - statement_terminator: ;
 - statement:
@@ -101,7 +101,7 @@ file:
     - keyword: USER
     - keyword: FUNCTIONS
     - keyword: FROM
-    - object_reference:
+    - database_reference:
       - naked_identifier: default
 - statement_terminator: ;
 - statement:
@@ -109,7 +109,7 @@ file:
     - keyword: SHOW
     - keyword: FUNCTIONS
     - keyword: FROM
-    - object_reference:
+    - database_reference:
       - naked_identifier: default
     - keyword: LIKE
     - quoted_literal: '''t*'''
@@ -119,7 +119,7 @@ file:
     - keyword: SHOW
     - keyword: FUNCTIONS
     - keyword: FROM
-    - object_reference:
+    - database_reference:
       - naked_identifier: default
     - quoted_literal: '''t*'''
 - statement_terminator: ;
@@ -129,7 +129,7 @@ file:
     - keyword: USER
     - keyword: FUNCTIONS
     - keyword: FROM
-    - object_reference:
+    - database_reference:
       - naked_identifier: default
     - keyword: LIKE
     - quoted_literal: '''t*'''
@@ -140,7 +140,7 @@ file:
     - keyword: USER
     - keyword: FUNCTIONS
     - keyword: FROM
-    - object_reference:
+    - database_reference:
       - naked_identifier: default
     - quoted_literal: '''t*'''
 - statement_terminator: ;

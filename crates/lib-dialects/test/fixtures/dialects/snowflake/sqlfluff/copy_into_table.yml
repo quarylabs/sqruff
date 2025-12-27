@@ -183,11 +183,10 @@ file:
     - keyword: into
     - table_reference:
       - naked_identifier: mytable
-    - copy_options:
-      - keyword: purge
-      - comparison_operator:
-        - raw_comparison_operator: =
-      - boolean_literal: 'true'
+    - keyword: purge
+    - comparison_operator:
+      - raw_comparison_operator: =
+    - boolean_literal: 'true'
 - statement_terminator: ;
 - statement:
   - copy_into_table_statement:
@@ -387,5 +386,129 @@ file:
           - comparison_operator:
             - raw_comparison_operator: =
           - file_type: JSON
+        - end_bracket: )
+- statement_terminator: ;
+- statement:
+  - copy_into_table_statement:
+    - keyword: COPY
+    - keyword: INTO
+    - table_reference:
+      - naked_identifier: table1
+    - keyword: FROM
+    - storage_location:
+      - stage_path: '@stage1'
+    - keyword: MATCH_BY_COLUMN_NAME
+    - comparison_operator:
+      - raw_comparison_operator: =
+    - keyword: CASE_INSENSITIVE
+    - keyword: INCLUDE_METADATA
+    - comparison_operator:
+      - raw_comparison_operator: =
+    - bracketed:
+      - start_bracket: (
+      - naked_identifier: ingestdate
+      - comparison_operator:
+        - raw_comparison_operator: =
+      - keyword: METADATA$START_SCAN_TIME
+      - comma: ','
+      - naked_identifier: filename
+      - comparison_operator:
+        - raw_comparison_operator: =
+      - keyword: METADATA$FILENAME
+      - end_bracket: )
+- statement_terminator: ;
+- statement:
+  - copy_into_table_statement:
+    - keyword: COPY
+    - keyword: INTO
+    - table_reference:
+      - naked_identifier: table1
+    - keyword: FROM
+    - storage_location:
+      - stage_path: '@stage1'
+    - keyword: MATCH_BY_COLUMN_NAME
+    - comparison_operator:
+      - raw_comparison_operator: =
+    - keyword: CASE_INSENSITIVE
+    - keyword: FILE_FORMAT
+    - comparison_operator:
+      - raw_comparison_operator: =
+    - file_format_segment:
+      - bracketed:
+        - start_bracket: (
+        - json_file_format_type_parameters:
+          - keyword: TYPE
+          - comparison_operator:
+            - raw_comparison_operator: =
+          - file_type: JSON
+        - end_bracket: )
+    - keyword: LOAD_UNCERTAIN_FILES
+    - comparison_operator:
+      - raw_comparison_operator: =
+    - boolean_literal: 'TRUE'
+    - keyword: INCLUDE_METADATA
+    - comparison_operator:
+      - raw_comparison_operator: =
+    - bracketed:
+      - start_bracket: (
+      - naked_identifier: ingestdate
+      - comparison_operator:
+        - raw_comparison_operator: =
+      - keyword: METADATA$START_SCAN_TIME
+      - comma: ','
+      - naked_identifier: filename
+      - comparison_operator:
+        - raw_comparison_operator: =
+      - keyword: METADATA$FILENAME
+      - end_bracket: )
+- statement_terminator: ;
+- statement:
+  - copy_into_table_statement:
+    - keyword: COPY
+    - keyword: INTO
+    - table_reference:
+      - naked_identifier: test
+      - dot: .
+      - naked_identifier: transactions_all
+    - keyword: FROM
+    - storage_location:
+      - stage_path: '@rawdata.STITCH_STAGE_NETSUITE/transactions/'
+    - keyword: FILE_FORMAT
+    - comparison_operator:
+      - raw_comparison_operator: =
+    - file_format_segment:
+      - object_reference:
+        - naked_identifier: rawdata
+        - dot: .
+        - naked_identifier: json_format
+    - keyword: MATCH_BY_COLUMN_NAME
+    - comparison_operator:
+      - raw_comparison_operator: =
+    - quoted_literal: '''case_insensitive'''
+- statement_terminator: ;
+- statement:
+  - copy_into_table_statement:
+    - keyword: copy
+    - keyword: into
+    - table_reference:
+      - naked_identifier: mytable1
+    - keyword: from
+    - storage_location:
+      - bucket_path: '''s3://bucket/source'''
+    - keyword: file_format
+    - comparison_operator:
+      - raw_comparison_operator: =
+    - file_format_segment:
+      - bracketed:
+        - start_bracket: (
+        - csv_file_format_type_parameters:
+          - keyword: type
+          - comparison_operator:
+            - raw_comparison_operator: =
+          - file_type: csv
+          - keyword: MULTI_LINE
+          - comparison_operator:
+            - raw_comparison_operator: =
+          - boolean_literal: 'FALSE'
         - end_bracket: )
 - statement_terminator: ;

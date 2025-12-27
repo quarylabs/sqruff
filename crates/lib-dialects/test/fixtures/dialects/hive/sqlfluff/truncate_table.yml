@@ -1,0 +1,23 @@
+file:
+- statement:
+  - truncate_statement:
+    - keyword: TRUNCATE
+    - keyword: TABLE
+    - table_reference:
+      - naked_identifier: foo
+- statement_terminator: ;
+- statement:
+  - truncate_statement:
+    - keyword: TRUNCATE
+    - table_reference:
+      - naked_identifier: bar
+    - keyword: PARTITION
+    - bracketed:
+      - start_bracket: (
+      - column_reference:
+        - naked_identifier: col
+      - comparison_operator:
+        - raw_comparison_operator: =
+      - quoted_literal: '''val'''
+      - end_bracket: )
+- statement_terminator: ;

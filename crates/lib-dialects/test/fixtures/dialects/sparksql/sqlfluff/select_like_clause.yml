@@ -211,11 +211,9 @@ file:
         - keyword: ALL
         - bracketed:
           - start_bracket: (
-          - column_reference:
-            - quoted_identifier: '''%an%'''
+          - quoted_literal: '''%an%'''
           - comma: ','
-          - column_reference:
-            - quoted_identifier: '''%an'''
+          - quoted_literal: '''%an'''
           - end_bracket: )
 - statement_terminator: ;
 - statement:
@@ -245,11 +243,9 @@ file:
         - keyword: ANY
         - bracketed:
           - start_bracket: (
-          - column_reference:
-            - quoted_identifier: '''%an%'''
+          - quoted_literal: '''%an%'''
           - comma: ','
-          - column_reference:
-            - quoted_identifier: '''%an'''
+          - quoted_literal: '''%an'''
           - end_bracket: )
 - statement_terminator: ;
 - statement:
@@ -279,11 +275,9 @@ file:
         - keyword: SOME
         - bracketed:
           - start_bracket: (
-          - column_reference:
-            - quoted_identifier: '''%an%'''
+          - quoted_literal: '''%an%'''
           - comma: ','
-          - column_reference:
-            - quoted_identifier: '''%an'''
+          - quoted_literal: '''%an'''
           - end_bracket: )
 - statement_terminator: ;
 - statement:
@@ -314,11 +308,9 @@ file:
         - keyword: ALL
         - bracketed:
           - start_bracket: (
-          - column_reference:
-            - quoted_identifier: '''%an%'''
+          - quoted_literal: '''%an%'''
           - comma: ','
-          - column_reference:
-            - quoted_identifier: '''%an'''
+          - quoted_literal: '''%an'''
           - end_bracket: )
 - statement_terminator: ;
 - statement:
@@ -349,11 +341,9 @@ file:
         - keyword: ANY
         - bracketed:
           - start_bracket: (
-          - column_reference:
-            - quoted_identifier: '''%an%'''
+          - quoted_literal: '''%an%'''
           - comma: ','
-          - column_reference:
-            - quoted_identifier: '''%an'''
+          - quoted_literal: '''%an'''
           - end_bracket: )
 - statement_terminator: ;
 - statement:
@@ -384,11 +374,9 @@ file:
         - keyword: SOME
         - bracketed:
           - start_bracket: (
-          - column_reference:
-            - quoted_identifier: '''%an%'''
+          - quoted_literal: '''%an%'''
           - comma: ','
-          - column_reference:
-            - quoted_identifier: '''%an'''
+          - quoted_literal: '''%an'''
           - end_bracket: )
 - statement_terminator: ;
 - statement:
@@ -414,11 +402,9 @@ file:
         - keyword: ALL
         - bracketed:
           - start_bracket: (
-          - column_reference:
-            - quoted_identifier: '''%oO%'''
+          - quoted_literal: '''%oO%'''
           - comma: ','
-          - column_reference:
-            - quoted_identifier: '''%Go%'''
+          - quoted_literal: '''%Go%'''
           - end_bracket: )
 - statement_terminator: ;
 - statement:
@@ -444,13 +430,10 @@ file:
         - keyword: ANY
         - bracketed:
           - start_bracket: (
-          - column_reference:
-            - quoted_identifier: '''%oo%'''
+          - quoted_literal: '''%oo%'''
           - comma: ','
-          - column_reference:
-            - quoted_identifier: '''%IN'''
+          - quoted_literal: '''%IN'''
           - comma: ','
-          - column_reference:
-            - quoted_identifier: '''fA%'''
+          - quoted_literal: '''fA%'''
           - end_bracket: )
 - statement_terminator: ;

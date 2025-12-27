@@ -1,0 +1,90 @@
+file:
+- statement:
+  - copy_files_into_location_statement:
+    - keyword: COPY
+    - keyword: FILES
+    - keyword: INTO
+    - storage_location:
+      - stage_path: '''@stage/folder'''
+    - keyword: FROM
+    - storage_location:
+      - stage_path: '''@other_stage/folder'''
+- statement_terminator: ;
+- statement:
+  - copy_files_into_location_statement:
+    - keyword: COPY
+    - keyword: FILES
+    - keyword: INTO
+    - storage_location:
+      - stage_path: '''@stage/folder'''
+    - keyword: FROM
+    - storage_location:
+      - stage_path: '''@other_stage/folder'''
+    - keyword: FILES
+    - comparison_operator:
+      - raw_comparison_operator: =
+    - bracketed:
+      - start_bracket: (
+      - quoted_literal: '''data.csv'''
+      - comma: ','
+      - quoted_literal: '''data2.csv'''
+      - end_bracket: )
+- statement_terminator: ;
+- statement:
+  - copy_files_into_location_statement:
+    - keyword: COPY
+    - keyword: FILES
+    - keyword: INTO
+    - storage_location:
+      - stage_path: '''@stage/folder'''
+    - keyword: FROM
+    - storage_location:
+      - stage_path: '''@other_stage/folder'''
+    - keyword: PATTERN
+    - comparison_operator:
+      - raw_comparison_operator: =
+    - quoted_literal: '''.*[.]parquet.*'''
+- statement_terminator: ;
+- statement:
+  - copy_files_into_location_statement:
+    - keyword: COPY
+    - keyword: FILES
+    - keyword: INTO
+    - storage_location:
+      - stage_path: '''@stage/folder'''
+    - keyword: FROM
+    - storage_location:
+      - stage_path: '''@other_stage/folder'''
+    - keyword: DETAILED_OUTPUT
+    - comparison_operator:
+      - raw_comparison_operator: =
+    - boolean_literal: 'TRUE'
+- statement_terminator: ;
+- statement:
+  - copy_files_into_location_statement:
+    - keyword: COPY
+    - keyword: FILES
+    - keyword: INTO
+    - storage_location:
+      - stage_path: '''@stage/folder'''
+    - keyword: FROM
+    - storage_location:
+      - stage_path: '''@other_stage/folder'''
+    - keyword: FILES
+    - comparison_operator:
+      - raw_comparison_operator: =
+    - bracketed:
+      - start_bracket: (
+      - quoted_literal: '''data.csv'''
+      - comma: ','
+      - quoted_literal: '''data2.csv'''
+      - end_bracket: )
+    - keyword: PATTERN
+    - comparison_operator:
+      - raw_comparison_operator: =
+    - quoted_literal: '''.*[.]parquet.*'''
+    - keyword: DETAILED_OUTPUT
+    - comparison_operator:
+      - raw_comparison_operator: =
+    - boolean_literal: 'TRUE'
+- statement_terminator: ;

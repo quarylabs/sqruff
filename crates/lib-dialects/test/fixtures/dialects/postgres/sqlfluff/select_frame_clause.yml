@@ -55,7 +55,8 @@ file:
                   - keyword: following
               - end_bracket: )
         - alias_expression:
-          - keyword: as
+          - alias_operator:
+            - keyword: as
           - naked_identifier: col_name
     - from_clause:
       - keyword: from
@@ -155,12 +156,14 @@ file:
                 - frame_clause:
                   - keyword: RANGE
                   - keyword: BETWEEN
-                  - keyword: INTERVAL
-                  - quoted_literal: '''1 YEAR - 1 DAYS'''
+                  - interval_expression:
+                    - keyword: INTERVAL
+                    - quoted_literal: '''1 YEAR - 1 DAYS'''
                   - keyword: PRECEDING
                   - keyword: AND
-                  - keyword: INTERVAL
-                  - quoted_literal: '''15 DAYS'''
+                  - interval_expression:
+                    - keyword: INTERVAL
+                    - quoted_literal: '''15 DAYS'''
                   - keyword: PRECEDING
               - end_bracket: )
 - statement_terminator: ;

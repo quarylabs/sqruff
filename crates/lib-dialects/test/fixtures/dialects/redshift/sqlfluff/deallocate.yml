@@ -1,0 +1,14 @@
+file:
+- statement:
+  - deallocate_statement:
+    - keyword: DEALLOCATE
+    - object_reference:
+      - naked_identifier: statement_name
+- statement_terminator: ;
+- statement:
+  - deallocate_statement:
+    - keyword: DEALLOCATE
+    - keyword: PREPARE
+    - object_reference:
+      - naked_identifier: statement_name
+- statement_terminator: ;

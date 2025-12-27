@@ -31,7 +31,8 @@ file:
                   - naked_identifier: order_created_at
               - end_bracket: )
         - alias_expression:
-          - keyword: AS
+          - alias_operator:
+            - keyword: AS
           - naked_identifier: order_day
     - from_clause:
       - keyword: FROM
@@ -41,7 +42,8 @@ file:
             - table_reference:
               - naked_identifier: my_table
           - alias_expression:
-            - keyword: as
+            - alias_operator:
+              - keyword: as
             - naked_identifier: gmv
     - where_clause:
       - keyword: WHERE

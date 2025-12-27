@@ -169,7 +169,8 @@ file:
                   - star: '*'
                   - end_bracket: )
             - alias_expression:
-              - keyword: as
+              - alias_operator:
+                - keyword: as
               - naked_identifier: count
         - from_clause:
           - keyword: FROM

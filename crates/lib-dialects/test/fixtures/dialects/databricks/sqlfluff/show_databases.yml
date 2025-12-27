@@ -9,7 +9,7 @@ file:
     - keyword: SHOW
     - keyword: DATABASES
     - keyword: FROM
-    - object_reference:
+    - database_reference:
       - naked_identifier: userdb
 - statement_terminator: ;
 - statement:
@@ -17,7 +17,7 @@ file:
     - keyword: SHOW
     - keyword: DATABASES
     - keyword: IN
-    - object_reference:
+    - database_reference:
       - naked_identifier: userdb
 - statement_terminator: ;
 - statement:
@@ -25,7 +25,7 @@ file:
     - keyword: SHOW
     - keyword: DATABASES
     - keyword: FROM
-    - object_reference:
+    - database_reference:
       - naked_identifier: default
     - keyword: LIKE
     - quoted_literal: '''sam*'''
@@ -35,7 +35,7 @@ file:
     - keyword: SHOW
     - keyword: DATABASES
     - keyword: FROM
-    - object_reference:
+    - database_reference:
       - naked_identifier: default
     - quoted_literal: '''sam*'''
 - statement_terminator: ;

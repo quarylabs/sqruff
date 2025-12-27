@@ -134,7 +134,8 @@ file:
           - column_reference:
             - naked_identifier: audience_size
         - alias_expression:
-          - keyword: AS
+          - alias_operator:
+            - keyword: AS
           - naked_identifier: relative_abundance
     - from_clause:
       - keyword: FROM

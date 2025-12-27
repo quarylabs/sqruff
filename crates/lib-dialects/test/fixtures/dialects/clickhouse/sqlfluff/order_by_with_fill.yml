@@ -34,13 +34,15 @@ file:
                             - numeric_literal: '10'
                           - end_bracket: )
                     - alias_expression:
-                      - keyword: AS
+                      - alias_operator:
+                        - keyword: AS
                       - naked_identifier: n
                   - comma: ','
                   - select_clause_element:
                     - quoted_literal: '''original'''
                     - alias_expression:
-                      - keyword: AS
+                      - alias_operator:
+                        - keyword: AS
                       - naked_identifier: source
                 - from_clause:
                   - keyword: FROM
@@ -72,16 +74,17 @@ file:
       - keyword: BY
       - column_reference:
         - naked_identifier: n
-      - keyword: WITH
-      - keyword: FILL
-      - keyword: FROM
-      - expression:
-        - numeric_literal: '0'
-      - keyword: TO
-      - expression:
-        - numeric_literal: '5.51'
-      - keyword: STEP
-      - numeric_literal: '0.5'
+      - with_fill:
+        - keyword: WITH
+        - keyword: FILL
+        - keyword: FROM
+        - expression:
+          - numeric_literal: '0'
+        - keyword: TO
+        - expression:
+          - numeric_literal: '5.51'
+        - keyword: STEP
+        - numeric_literal: '0.5'
 - statement_terminator: ;
 - statement:
   - select_statement:
@@ -107,7 +110,8 @@ file:
                 - numeric_literal: '86400'
               - end_bracket: )
         - alias_expression:
-          - keyword: AS
+          - alias_operator:
+            - keyword: AS
           - naked_identifier: d1
       - comma: ','
       - select_clause_element:
@@ -124,13 +128,15 @@ file:
                 - numeric_literal: '86400'
               - end_bracket: )
         - alias_expression:
-          - keyword: AS
+          - alias_operator:
+            - keyword: AS
           - naked_identifier: d2
       - comma: ','
       - select_clause_element:
         - quoted_literal: '''original'''
         - alias_expression:
-          - keyword: AS
+          - alias_operator:
+            - keyword: AS
           - naked_identifier: source
     - from_clause:
       - keyword: FROM
@@ -165,15 +171,17 @@ file:
       - keyword: BY
       - column_reference:
         - naked_identifier: d2
-      - keyword: WITH
-      - keyword: FILL
+      - with_fill:
+        - keyword: WITH
+        - keyword: FILL
       - comma: ','
       - column_reference:
         - naked_identifier: d1
-      - keyword: WITH
-      - keyword: FILL
-      - keyword: STEP
-      - numeric_literal: '5'
+      - with_fill:
+        - keyword: WITH
+        - keyword: FILL
+        - keyword: STEP
+        - numeric_literal: '5'
 - statement_terminator: ;
 - statement:
   - select_statement:
@@ -199,7 +207,8 @@ file:
                 - numeric_literal: '86400'
               - end_bracket: )
         - alias_expression:
-          - keyword: AS
+          - alias_operator:
+            - keyword: AS
           - naked_identifier: d1
       - comma: ','
       - select_clause_element:
@@ -216,13 +225,15 @@ file:
                 - numeric_literal: '86400'
               - end_bracket: )
         - alias_expression:
-          - keyword: AS
+          - alias_operator:
+            - keyword: AS
           - naked_identifier: d2
       - comma: ','
       - select_clause_element:
         - quoted_literal: '''original'''
         - alias_expression:
-          - keyword: AS
+          - alias_operator:
+            - keyword: AS
           - naked_identifier: source
     - from_clause:
       - keyword: FROM
@@ -257,15 +268,17 @@ file:
       - keyword: BY
       - column_reference:
         - naked_identifier: d1
-      - keyword: WITH
-      - keyword: FILL
-      - keyword: STEP
-      - numeric_literal: '5'
+      - with_fill:
+        - keyword: WITH
+        - keyword: FILL
+        - keyword: STEP
+        - numeric_literal: '5'
       - comma: ','
       - column_reference:
         - naked_identifier: d2
-      - keyword: WITH
-      - keyword: FILL
+      - with_fill:
+        - keyword: WITH
+        - keyword: FILL
 - statement_terminator: ;
 - statement:
   - select_statement:
@@ -291,7 +304,8 @@ file:
                 - numeric_literal: '86400'
               - end_bracket: )
         - alias_expression:
-          - keyword: AS
+          - alias_operator:
+            - keyword: AS
           - naked_identifier: d1
       - comma: ','
       - select_clause_element:
@@ -308,13 +322,15 @@ file:
                 - numeric_literal: '86400'
               - end_bracket: )
         - alias_expression:
-          - keyword: AS
+          - alias_operator:
+            - keyword: AS
           - naked_identifier: d2
       - comma: ','
       - select_clause_element:
         - quoted_literal: '''original'''
         - alias_expression:
-          - keyword: AS
+          - alias_operator:
+            - keyword: AS
           - naked_identifier: source
     - from_clause:
       - keyword: FROM
@@ -349,16 +365,18 @@ file:
       - keyword: BY
       - column_reference:
         - naked_identifier: d1
-      - keyword: WITH
-      - keyword: FILL
-      - keyword: STEP
-      - interval_expression:
-        - keyword: INTERVAL
-        - numeric_literal: '1'
-        - date_part: DAY
+      - with_fill:
+        - keyword: WITH
+        - keyword: FILL
+        - keyword: STEP
+        - interval_expression:
+          - keyword: INTERVAL
+          - numeric_literal: '1'
+          - date_part: DAY
       - comma: ','
       - column_reference:
         - naked_identifier: d2
-      - keyword: WITH
-      - keyword: FILL
+      - with_fill:
+        - keyword: WITH
+        - keyword: FILL
 - statement_terminator: ;

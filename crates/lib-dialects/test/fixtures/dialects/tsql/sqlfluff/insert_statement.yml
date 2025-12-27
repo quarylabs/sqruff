@@ -1,0 +1,461 @@
+file:
+- batch:
+  - statement:
+    - insert_statement:
+      - keyword: INSERT
+      - keyword: INTO
+      - table_reference:
+        - naked_identifier: INTER
+        - dot: .
+        - naked_identifier: ECDC_CASES
+      - bracketed:
+        - start_bracket: (
+        - column_reference:
+          - quoted_identifier: '[COUNTRY]'
+        - comma: ','
+        - column_reference:
+          - quoted_identifier: '[COUNTRY_CODE]'
+        - comma: ','
+        - column_reference:
+          - quoted_identifier: '[CONTINENT]'
+        - comma: ','
+        - column_reference:
+          - quoted_identifier: '[POPULATION]'
+        - comma: ','
+        - column_reference:
+          - quoted_identifier: '[INDICATOR]'
+        - comma: ','
+        - column_reference:
+          - quoted_identifier: '[WEEKLY_COUNT]'
+        - comma: ','
+        - column_reference:
+          - quoted_identifier: '[YEAR_WEEK]'
+        - comma: ','
+        - column_reference:
+          - quoted_identifier: '[WEEK_START]'
+        - comma: ','
+        - column_reference:
+          - quoted_identifier: '[WEEK_END]'
+        - comma: ','
+        - column_reference:
+          - quoted_identifier: '[RATE_14_DAY]'
+        - comma: ','
+        - column_reference:
+          - quoted_identifier: '[CUMULATIVE_COUNT]'
+        - comma: ','
+        - column_reference:
+          - quoted_identifier: '[SOURCE]'
+        - end_bracket: )
+      - select_statement:
+        - select_clause:
+          - keyword: SELECT
+          - select_clause_element:
+            - column_reference:
+              - quoted_identifier: '[COUNTRY]'
+          - comma: ','
+          - select_clause_element:
+            - column_reference:
+              - quoted_identifier: '[COUNTRY_CODE]'
+          - comma: ','
+          - select_clause_element:
+            - column_reference:
+              - quoted_identifier: '[CONTINENT]'
+          - comma: ','
+          - select_clause_element:
+            - function:
+              - function_name:
+                - keyword: CAST
+              - function_contents:
+                - bracketed:
+                  - start_bracket: (
+                  - expression:
+                    - column_reference:
+                      - quoted_identifier: '[POPULATION]'
+                  - keyword: AS
+                  - data_type:
+                    - keyword: BIGINT
+                  - end_bracket: )
+            - alias_expression:
+              - alias_operator:
+                - keyword: AS
+              - quoted_identifier: '[POPULATION]'
+          - comma: ','
+          - select_clause_element:
+            - column_reference:
+              - quoted_identifier: '[INDICATOR]'
+          - comma: ','
+          - select_clause_element:
+            - function:
+              - function_name:
+                - keyword: CAST
+              - function_contents:
+                - bracketed:
+                  - start_bracket: (
+                  - expression:
+                    - column_reference:
+                      - quoted_identifier: '[WEEKLY_COUNT]'
+                  - keyword: AS
+                  - data_type:
+                    - keyword: BIGINT
+                  - end_bracket: )
+            - alias_expression:
+              - alias_operator:
+                - keyword: AS
+              - quoted_identifier: '[WEEKLY_COUNT]'
+          - comma: ','
+          - select_clause_element:
+            - column_reference:
+              - quoted_identifier: '[YEAR_WEEK]'
+          - comma: ','
+          - select_clause_element:
+            - function:
+              - function_name:
+                - keyword: CAST
+              - function_contents:
+                - bracketed:
+                  - start_bracket: (
+                  - expression:
+                    - function:
+                      - function_name:
+                        - quoted_identifier: '[dbo]'
+                        - dot: .
+                        - function_name_identifier: '[CONVERT_ISO_WEEK_TO_DATETIME]'
+                      - function_contents:
+                        - bracketed:
+                          - start_bracket: (
+                          - expression:
+                            - function:
+                              - function_name:
+                                - keyword: LEFT
+                              - function_contents:
+                                - bracketed:
+                                  - start_bracket: (
+                                  - expression:
+                                    - column_reference:
+                                      - naked_identifier: YEAR_WEEK
+                                  - comma: ','
+                                  - expression:
+                                    - integer_literal: '4'
+                                  - end_bracket: )
+                          - comma: ','
+                          - expression:
+                            - function:
+                              - function_name:
+                                - keyword: RIGHT
+                              - function_contents:
+                                - bracketed:
+                                  - start_bracket: (
+                                  - expression:
+                                    - column_reference:
+                                      - naked_identifier: YEAR_WEEK
+                                  - comma: ','
+                                  - expression:
+                                    - integer_literal: '2'
+                                  - end_bracket: )
+                          - end_bracket: )
+                  - keyword: AS
+                  - data_type:
+                    - keyword: DATE
+                  - end_bracket: )
+            - alias_expression:
+              - alias_operator:
+                - keyword: AS
+              - quoted_identifier: '[WEEK_START]'
+          - comma: ','
+          - select_clause_element:
+            - function:
+              - function_name:
+                - keyword: CAST
+              - function_contents:
+                - bracketed:
+                  - start_bracket: (
+                  - expression:
+                    - function:
+                      - function_name:
+                        - quoted_identifier: '[dbo]'
+                        - dot: .
+                        - function_name_identifier: '[WEEK_END]'
+                      - function_contents:
+                        - bracketed:
+                          - start_bracket: (
+                          - expression:
+                            - function:
+                              - function_name:
+                                - quoted_identifier: '[dbo]'
+                                - dot: .
+                                - function_name_identifier: '[CONVERT_ISO_WEEK_TO_DATETIME]'
+                              - function_contents:
+                                - bracketed:
+                                  - start_bracket: (
+                                  - expression:
+                                    - function:
+                                      - function_name:
+                                        - keyword: LEFT
+                                      - function_contents:
+                                        - bracketed:
+                                          - start_bracket: (
+                                          - expression:
+                                            - column_reference:
+                                              - naked_identifier: YEAR_WEEK
+                                          - comma: ','
+                                          - expression:
+                                            - integer_literal: '4'
+                                          - end_bracket: )
+                                  - comma: ','
+                                  - expression:
+                                    - function:
+                                      - function_name:
+                                        - keyword: RIGHT
+                                      - function_contents:
+                                        - bracketed:
+                                          - start_bracket: (
+                                          - expression:
+                                            - column_reference:
+                                              - naked_identifier: YEAR_WEEK
+                                          - comma: ','
+                                          - expression:
+                                            - integer_literal: '2'
+                                          - end_bracket: )
+                                  - end_bracket: )
+                          - end_bracket: )
+                  - keyword: AS
+                  - data_type:
+                    - keyword: DATE
+                  - end_bracket: )
+            - alias_expression:
+              - alias_operator:
+                - keyword: AS
+              - quoted_identifier: '[WEEK_END]'
+          - comma: ','
+          - select_clause_element:
+            - function:
+              - function_name:
+                - keyword: CAST
+              - function_contents:
+                - bracketed:
+                  - start_bracket: (
+                  - expression:
+                    - column_reference:
+                      - quoted_identifier: '[RATE_14_DAY]'
+                  - keyword: AS
+                  - data_type:
+                    - keyword: FLOAT
+                  - end_bracket: )
+            - alias_expression:
+              - alias_operator:
+                - keyword: AS
+              - quoted_identifier: '[RATE_14_DAY]'
+          - comma: ','
+          - select_clause_element:
+            - function:
+              - function_name:
+                - keyword: CAST
+              - function_contents:
+                - bracketed:
+                  - start_bracket: (
+                  - expression:
+                    - column_reference:
+                      - quoted_identifier: '[CUMULATIVE_COUNT]'
+                  - keyword: AS
+                  - data_type:
+                    - keyword: BIGINT
+                  - end_bracket: )
+            - alias_expression:
+              - alias_operator:
+                - keyword: AS
+              - quoted_identifier: '[CUMULATIVE_COUNT]'
+          - comma: ','
+          - select_clause_element:
+            - column_reference:
+              - quoted_identifier: '[SOURCE]'
+        - from_clause:
+          - keyword: FROM
+          - from_expression:
+            - from_expression_element:
+              - table_expression:
+                - table_reference:
+                  - naked_identifier: STAGE
+                  - dot: .
+                  - naked_identifier: ECDC_CASES
+  - go_statement:
+    - keyword: GO
+- batch:
+  - statement:
+    - begin_end_block:
+      - keyword: BEGIN
+      - statement:
+        - insert_statement:
+          - keyword: INSERT
+          - keyword: INTO
+          - table_reference:
+            - naked_identifier: HumanResources
+            - dot: .
+            - naked_identifier: NewEmployee
+          - select_statement:
+            - select_clause:
+              - keyword: SELECT
+              - select_clause_element:
+                - column_reference:
+                  - naked_identifier: EmpID
+              - comma: ','
+              - select_clause_element:
+                - column_reference:
+                  - naked_identifier: LastName
+              - comma: ','
+              - select_clause_element:
+                - column_reference:
+                  - naked_identifier: FirstName
+              - comma: ','
+              - select_clause_element:
+                - column_reference:
+                  - naked_identifier: Phone
+              - comma: ','
+              - select_clause_element:
+                - column_reference:
+                  - naked_identifier: Address
+              - comma: ','
+              - select_clause_element:
+                - column_reference:
+                  - naked_identifier: City
+              - comma: ','
+              - select_clause_element:
+                - column_reference:
+                  - naked_identifier: StateProvince
+              - comma: ','
+              - select_clause_element:
+                - column_reference:
+                  - naked_identifier: PostalCode
+              - comma: ','
+              - select_clause_element:
+                - column_reference:
+                  - naked_identifier: CurrentFlag
+            - from_clause:
+              - keyword: FROM
+              - from_expression:
+                - from_expression_element:
+                  - table_expression:
+                    - table_reference:
+                      - naked_identifier: EmployeeTemp
+      - statement_terminator: ;
+      - keyword: END
+  - go_statement:
+    - keyword: GO
+- batch:
+  - statement:
+    - insert_statement:
+      - keyword: INSERT
+      - keyword: INTO
+      - table_reference:
+        - naked_identifier: HumanResources
+        - dot: .
+        - naked_identifier: NewEmployee
+      - select_statement:
+        - select_clause:
+          - keyword: SELECT
+          - select_clause_element:
+            - column_reference:
+              - naked_identifier: EmpID
+          - comma: ','
+          - select_clause_element:
+            - column_reference:
+              - naked_identifier: LastName
+          - comma: ','
+          - select_clause_element:
+            - column_reference:
+              - naked_identifier: FirstName
+          - comma: ','
+          - select_clause_element:
+            - column_reference:
+              - naked_identifier: Phone
+          - comma: ','
+          - select_clause_element:
+            - column_reference:
+              - naked_identifier: Address
+          - comma: ','
+          - select_clause_element:
+            - column_reference:
+              - naked_identifier: City
+          - comma: ','
+          - select_clause_element:
+            - column_reference:
+              - naked_identifier: StateProvince
+          - comma: ','
+          - select_clause_element:
+            - column_reference:
+              - naked_identifier: PostalCode
+          - comma: ','
+          - select_clause_element:
+            - column_reference:
+              - naked_identifier: CurrentFlag
+        - from_clause:
+          - keyword: FROM
+          - from_expression:
+            - from_expression_element:
+              - table_expression:
+                - table_reference:
+                  - naked_identifier: EmployeeTemp
+  - statement_terminator: ;
+  - go_statement:
+    - keyword: GO
+- batch:
+  - statement:
+    - insert_statement:
+      - keyword: INSERT
+      - keyword: INTO
+      - table_reference:
+        - naked_identifier: HumanResources
+        - dot: .
+        - naked_identifier: NewEmployee
+      - post_table_expression:
+        - keyword: WITH
+        - bracketed:
+          - start_bracket: (
+          - query_hint_segment:
+            - keyword: TABLOCK
+          - end_bracket: )
+      - output_clause:
+        - keyword: OUTPUT
+        - keyword: INSERTED
+        - dot: .
+        - wildcard_identifier:
+          - star: '*'
+        - keyword: INTO
+        - table_reference:
+          - naked_identifier: Results
+      - execute_script_statement:
+        - keyword: EXEC
+        - object_reference:
+          - naked_identifier: FindEmployeesFunc
+        - parameter: '@lastName'
+        - comparison_operator:
+          - raw_comparison_operator: =
+        - expression:
+          - quoted_literal: '''Picard'''
+  - go_statement:
+    - keyword: GO
+- batch:
+  - statement:
+    - insert_statement:
+      - keyword: INSERT
+      - table_reference:
+        - naked_identifier: HumanResources
+        - dot: .
+        - naked_identifier: NewEmployee
+      - bracketed:
+        - start_bracket: (
+        - column_reference:
+          - naked_identifier: LastName
+        - comma: ','
+        - column_reference:
+          - naked_identifier: FirstName
+        - end_bracket: )
+      - values_clause:
+        - keyword: values
+        - bracketed:
+          - start_bracket: (
+          - quoted_literal: '''Kirk'''
+          - comma: ','
+          - quoted_literal: '''James'''
+          - end_bracket: )
+  - go_statement:
+    - keyword: GO

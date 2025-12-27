@@ -59,7 +59,7 @@ file:
       - column_definition:
         - naked_identifier: x
         - data_type:
-          - struct_type:
+          - data_type:
             - keyword: STRUCT
             - struct_type_schema:
               - start_angle_bracket: <
@@ -80,11 +80,11 @@ file:
       - column_definition:
         - naked_identifier: y
         - data_type:
-          - array_type:
+          - data_type:
             - keyword: ARRAY
             - start_angle_bracket: <
             - data_type:
-              - struct_type:
+              - data_type:
                 - keyword: STRUCT
                 - struct_type_schema:
                   - start_angle_bracket: <

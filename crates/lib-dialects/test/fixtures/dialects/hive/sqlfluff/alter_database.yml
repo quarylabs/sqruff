@@ -1,0 +1,43 @@
+file:
+- statement:
+  - alter_database_statement:
+    - keyword: ALTER
+    - keyword: DATABASE
+    - database_reference:
+      - naked_identifier: foo
+    - keyword: SET
+    - keyword: DBPROPERTIES
+    - bracketed:
+      - start_bracket: (
+      - quoted_literal: '"prop1"'
+      - comparison_operator:
+        - raw_comparison_operator: =
+      - quoted_literal: '"val1"'
+      - comma: ','
+      - quoted_literal: '"prop2"'
+      - comparison_operator:
+        - raw_comparison_operator: =
+      - quoted_literal: '"val2"'
+      - end_bracket: )
+- statement_terminator: ;
+- statement:
+  - alter_database_statement:
+    - keyword: ALTER
+    - keyword: DATABASE
+    - database_reference:
+      - naked_identifier: bar
+    - keyword: SET
+    - keyword: LOCATION
+    - quoted_literal: '"hdfs://alternate_path"'
+- statement_terminator: ;
+- statement:
+  - alter_database_statement:
+    - keyword: ALTER
+    - keyword: DATABASE
+    - database_reference:
+      - naked_identifier: foo2
+    - keyword: SET
+    - keyword: OWNER
+    - keyword: USER
+    - quoted_literal: '"user"'
+- statement_terminator: ;

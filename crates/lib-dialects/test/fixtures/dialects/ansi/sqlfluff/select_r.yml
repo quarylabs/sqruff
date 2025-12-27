@@ -22,7 +22,8 @@ file:
                     - table_reference:
                       - naked_identifier: sales_eu
                   - alias_expression:
-                    - keyword: AS
+                    - alias_operator:
+                      - keyword: AS
                     - naked_identifier: s
           - set_operator:
             - keyword: UNION
@@ -41,7 +42,8 @@ file:
                     - table_reference:
                       - naked_identifier: sales_us
                   - alias_expression:
-                    - keyword: AS
+                    - alias_operator:
+                      - keyword: AS
                     - naked_identifier: s2
         - end_bracket: )
     - select_statement:

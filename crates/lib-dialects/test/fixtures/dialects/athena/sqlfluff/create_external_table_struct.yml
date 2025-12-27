@@ -77,7 +77,7 @@ file:
         - data_type:
           - array_type:
             - keyword: array
-            - array_type:
+            - array_type_schema:
               - start_angle_bracket: <
               - data_type:
                 - primitive_type:
@@ -141,7 +141,7 @@ file:
         - data_type:
           - array_type:
             - keyword: array
-            - array_type:
+            - array_type_schema:
               - start_angle_bracket: <
               - data_type:
                 - primitive_type:

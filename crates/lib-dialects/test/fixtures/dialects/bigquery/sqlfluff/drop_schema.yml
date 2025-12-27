@@ -1,0 +1,38 @@
+file:
+- statement:
+  - drop_schema_statement:
+    - keyword: DROP
+    - keyword: SCHEMA
+    - schema_reference:
+      - naked_identifier: example_dataset
+- statement_terminator: ;
+- statement:
+  - drop_schema_statement:
+    - keyword: DROP
+    - keyword: SCHEMA
+    - keyword: IF
+    - keyword: EXISTS
+    - schema_reference:
+      - naked_identifier: example_project
+      - dot: .
+      - naked_identifier: example_dataset
+- statement_terminator: ;
+- statement:
+  - undrop_schema_statement:
+    - keyword: UNDROP
+    - keyword: SCHEMA
+    - schema_reference:
+      - naked_identifier: example_dataset
+- statement_terminator: ;
+- statement:
+  - undrop_schema_statement:
+    - keyword: UNDROP
+    - keyword: SCHEMA
+    - keyword: IF
+    - keyword: NOT
+    - keyword: EXISTS
+    - schema_reference:
+      - naked_identifier: example_project
+      - dot: .
+      - naked_identifier: example_dataset
+- statement_terminator: ;

@@ -22,7 +22,8 @@ file:
         - column_reference:
           - naked_identifier: col_a
         - alias_expression:
-          - keyword: AS
+          - alias_operator:
+            - keyword: AS
           - naked_identifier: _
     - from_clause:
       - keyword: FROM

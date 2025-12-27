@@ -3,7 +3,7 @@ file:
   - reindex_statement_segment:
     - keyword: REINDEX
     - keyword: INDEX
-    - database_reference:
+    - index_reference:
       - naked_identifier: my_index
 - statement_terminator: ;
 - statement:
@@ -53,7 +53,6 @@ file:
       - boolean_literal: 'TRUE'
       - end_bracket: )
     - keyword: SCHEMA
-    - table_reference:
-      - object_reference:
-        - naked_identifier: my_schema
+    - schema_reference:
+      - naked_identifier: my_schema
 - statement_terminator: ;

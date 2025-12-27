@@ -1,0 +1,15 @@
+file:
+- statement:
+  - create_database_statement:
+    - keyword: CREATE
+    - keyword: SCHEMA
+    - keyword: IF
+    - keyword: NOT
+    - keyword: EXISTS
+    - database_reference:
+      - naked_identifier: foo
+    - keyword: COMMENT
+    - quoted_literal: '''test schema'''
+    - keyword: MANAGEDLOCATION
+    - quoted_literal: '''hdfs://path'''
+- statement_terminator: ;

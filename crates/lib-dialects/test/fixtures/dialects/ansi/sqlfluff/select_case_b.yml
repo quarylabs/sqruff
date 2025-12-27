@@ -30,7 +30,8 @@ file:
                 - numeric_literal: '0'
             - keyword: END
         - alias_expression:
-          - keyword: as
+          - alias_operator:
+            - keyword: as
           - naked_identifier: a_case_statement
     - from_clause:
       - keyword: FROM

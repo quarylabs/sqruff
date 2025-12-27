@@ -17,7 +17,8 @@ file:
             - data_type:
               - data_type_identifier: string
         - alias_expression:
-          - keyword: AS
+          - alias_operator:
+            - keyword: AS
           - naked_identifier: TO_PHONE_NUMBER
       - comma: ','
       - select_clause_element:
@@ -34,7 +35,8 @@ file:
             - data_type:
               - data_type_identifier: string
         - alias_expression:
-          - keyword: AS
+          - alias_operator:
+            - keyword: AS
           - naked_identifier: FROM_PHONE_NUMBER
     - from_clause:
       - keyword: FROM

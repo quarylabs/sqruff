@@ -1,0 +1,47 @@
+file:
+- statement:
+  - set_statement:
+    - keyword: set
+- statement_terminator: ;
+- statement:
+  - set_statement:
+    - keyword: set
+    - option_indicator: '-'
+    - option: v
+- statement_terminator: ;
+- statement:
+  - set_statement:
+    - keyword: set
+    - parameter: foo
+    - raw_comparison_operator: =
+    - numeric_literal: '2'
+- statement_terminator: ;
+- statement:
+  - set_statement:
+    - keyword: set
+    - parameter: foo
+    - raw_comparison_operator: =
+    - quoted_literal: '''bar'''
+- statement_terminator: ;
+- statement:
+  - set_statement:
+    - keyword: set
+    - parameter: hivevar
+    - colon_delimiter: ':'
+    - parameter: cat
+    - raw_comparison_operator: =
+    - quoted_literal: '"Chloe"'
+- statement_terminator: ;
+- statement:
+  - set_statement:
+    - keyword: set
+    - parameter: mapreduce
+    - dot: .
+    - parameter: reduce
+    - dot: .
+    - parameter: memory
+    - dot: .
+    - parameter: mb
+    - raw_comparison_operator: =
+    - numeric_literal: '12000'
+- statement_terminator: ;

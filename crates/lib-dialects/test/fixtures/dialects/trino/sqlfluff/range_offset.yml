@@ -40,7 +40,8 @@ file:
                   - keyword: FOLLOWING
               - end_bracket: )
         - alias_expression:
-          - keyword: AS
+          - alias_operator:
+            - keyword: AS
           - naked_identifier: close_better_scores_count
     - from_clause:
       - keyword: FROM

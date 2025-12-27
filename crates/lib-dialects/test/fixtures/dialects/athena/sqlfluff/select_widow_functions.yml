@@ -42,7 +42,8 @@ file:
                   - keyword: DESC
               - end_bracket: )
         - alias_expression:
-          - keyword: AS
+          - alias_operator:
+            - keyword: AS
           - naked_identifier: rnk
     - from_clause:
       - keyword: FROM
@@ -109,7 +110,8 @@ file:
                     - naked_identifier: orderdate
               - end_bracket: )
         - alias_expression:
-          - keyword: AS
+          - alias_operator:
+            - keyword: AS
           - naked_identifier: rolling_sum
     - from_clause:
       - keyword: FROM

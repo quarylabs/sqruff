@@ -1,0 +1,74 @@
+file:
+- batch:
+  - statement:
+    - select_statement:
+      - select_clause:
+        - keyword: select
+        - select_clause_element:
+          - binary_literal: '0x0'
+  - statement_terminator: ;
+  - statement:
+    - select_statement:
+      - select_clause:
+        - keyword: select
+        - select_clause_element:
+          - binary_literal: '0xAE'
+  - statement_terminator: ;
+  - statement:
+    - select_statement:
+      - select_clause:
+        - keyword: select
+        - select_clause_element:
+          - binary_literal: '0x12Ef'
+  - statement_terminator: ;
+  - statement:
+    - select_statement:
+      - select_clause:
+        - keyword: select
+        - select_clause_element:
+          - binary_literal: '0x69048AEFDD010E'
+  - statement_terminator: ;
+  - statement:
+    - select_statement:
+      - select_clause:
+        - keyword: select
+        - select_clause_element:
+          - binary_literal: 0x
+  - statement_terminator: ;
+  - statement:
+    - select_statement:
+      - select_clause:
+        - keyword: select
+        - select_clause_element:
+          - binary_literal: 0X0
+  - statement_terminator: ;
+  - statement:
+    - select_statement:
+      - select_clause:
+        - keyword: select
+        - select_clause_element:
+          - binary_literal: 0XAE
+  - statement_terminator: ;
+  - statement:
+    - select_statement:
+      - select_clause:
+        - keyword: select
+        - select_clause_element:
+          - binary_literal: '0x0'
+        - comma: ','
+        - select_clause_element:
+          - binary_literal: '0xAE'
+        - comma: ','
+        - select_clause_element:
+          - binary_literal: '0x12Ef'
+  - statement_terminator: ;
+  - statement:
+    - select_statement:
+      - select_clause:
+        - keyword: select
+        - select_clause_element:
+          - numeric_literal: x'FF'
+        - comma: ','
+        - select_clause_element:
+          - numeric_literal: X'DEAD'
+  - statement_terminator: ;

@@ -345,7 +345,8 @@ file:
               - start_bracket: (
               - end_bracket: )
         - alias_expression:
-          - keyword: AS
+          - alias_operator:
+            - keyword: AS
           - naked_identifier: p_data_date
     - distribute_by_clause:
       - keyword: DISTRIBUTE

@@ -1,0 +1,33 @@
+file:
+- statement:
+  - drop_subscription:
+    - keyword: DROP
+    - keyword: SUBSCRIPTION
+    - subscription_reference:
+      - naked_identifier: mysub
+- statement_terminator: ;
+- statement:
+  - drop_subscription:
+    - keyword: DROP
+    - keyword: SUBSCRIPTION
+    - keyword: IF
+    - keyword: EXISTS
+    - subscription_reference:
+      - naked_identifier: mysub
+- statement_terminator: ;
+- statement:
+  - drop_subscription:
+    - keyword: DROP
+    - keyword: SUBSCRIPTION
+    - subscription_reference:
+      - naked_identifier: mysub
+    - keyword: CASCADE
+- statement_terminator: ;
+- statement:
+  - drop_subscription:
+    - keyword: DROP
+    - keyword: SUBSCRIPTION
+    - subscription_reference:
+      - naked_identifier: mysub
+    - keyword: RESTRICT
+- statement_terminator: ;

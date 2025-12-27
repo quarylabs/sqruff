@@ -11,7 +11,8 @@ file:
             - data_type:
               - data_type_identifier: INT
         - alias_expression:
-          - keyword: AS
+          - alias_operator:
+            - keyword: AS
           - naked_identifier: user_id
       - comma: ','
       - select_clause_element:
@@ -22,7 +23,8 @@ file:
             - data_type:
               - data_type_identifier: INT
         - alias_expression:
-          - keyword: AS
+          - alias_operator:
+            - keyword: AS
           - naked_identifier: is_paid
     - limit_clause:
       - keyword: LIMIT

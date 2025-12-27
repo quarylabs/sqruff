@@ -17,7 +17,8 @@ file:
         - column_reference:
           - naked_identifier: simple_explicit
         - alias_expression:
-          - keyword: as
+          - alias_operator:
+            - keyword: as
           - naked_identifier: aliased_column_1
       - comma: ','
       - select_clause_element:
@@ -42,7 +43,8 @@ file:
           - column_reference:
             - naked_identifier: aliased
         - alias_expression:
-          - keyword: as
+          - alias_operator:
+            - keyword: as
           - naked_identifier: calculation
       - comma: ','
       - select_clause_element:
@@ -56,7 +58,8 @@ file:
           - sign_indicator: '-'
           - numeric_literal: '786'
         - alias_expression:
-          - keyword: as
+          - alias_operator:
+            - keyword: as
           - naked_identifier: aliased_column3
     - from_clause:
       - keyword: FROM
@@ -72,7 +75,8 @@ file:
               - table_reference:
                 - naked_identifier: aliased_1
             - alias_expression:
-              - keyword: as
+              - alias_operator:
+                - keyword: as
               - naked_identifier: foo
         - join_clause:
           - keyword: JOIN

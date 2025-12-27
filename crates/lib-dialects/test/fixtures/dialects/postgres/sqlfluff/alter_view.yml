@@ -505,9 +505,8 @@ file:
       - naked_identifier: myview
     - keyword: SET
     - keyword: SCHEMA
-    - table_reference:
-      - object_reference:
-        - naked_identifier: new_schema
+    - schema_reference:
+      - naked_identifier: new_schema
 - statement_terminator: ;
 - statement:
   - alter_view_statement:
@@ -519,9 +518,8 @@ file:
       - naked_identifier: myview
     - keyword: SET
     - keyword: SCHEMA
-    - table_reference:
-      - object_reference:
-        - naked_identifier: new_schema
+    - schema_reference:
+      - naked_identifier: new_schema
 - statement_terminator: ;
 - statement:
   - alter_view_statement:

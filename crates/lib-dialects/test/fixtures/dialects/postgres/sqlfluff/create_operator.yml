@@ -1,0 +1,92 @@
+file:
+- statement:
+  - create_operator_statement:
+    - keyword: CREATE
+    - keyword: OPERATOR
+    - symbol: '>'
+    - symbol: =
+    - bracketed:
+      - start_bracket: (
+      - keyword: LEFTARG
+      - comparison_operator:
+        - raw_comparison_operator: =
+      - object_reference:
+        - naked_identifier: semantic_version
+      - comma: ','
+      - keyword: RIGHTARG
+      - comparison_operator:
+        - raw_comparison_operator: =
+      - object_reference:
+        - naked_identifier: semantic_version
+      - comma: ','
+      - keyword: PROCEDURE
+      - comparison_operator:
+        - raw_comparison_operator: =
+      - function_name:
+        - function_name_identifier: semantic_version_ge
+      - comma: ','
+      - keyword: COMMUTATOR
+      - comparison_operator:
+        - raw_comparison_operator: =
+      - symbol: <
+      - symbol: =
+      - end_bracket: )
+- statement_terminator: ;
+- statement:
+  - create_operator_statement:
+    - keyword: CREATE
+    - keyword: OPERATOR
+    - symbol: =
+    - symbol: =
+    - symbol: =
+    - bracketed:
+      - start_bracket: (
+      - keyword: LEFTARG
+      - comparison_operator:
+        - raw_comparison_operator: =
+      - object_reference:
+        - naked_identifier: box
+      - comma: ','
+      - keyword: RIGHTARG
+      - comparison_operator:
+        - raw_comparison_operator: =
+      - object_reference:
+        - naked_identifier: box
+      - comma: ','
+      - keyword: FUNCTION
+      - comparison_operator:
+        - raw_comparison_operator: =
+      - function_name:
+        - function_name_identifier: area_equal_function
+      - comma: ','
+      - keyword: COMMUTATOR
+      - comparison_operator:
+        - raw_comparison_operator: =
+      - symbol: =
+      - symbol: =
+      - symbol: =
+      - comma: ','
+      - keyword: NEGATOR
+      - comparison_operator:
+        - raw_comparison_operator: =
+      - symbol: '!'
+      - symbol: =
+      - symbol: =
+      - comma: ','
+      - keyword: RESTRICT
+      - comparison_operator:
+        - raw_comparison_operator: =
+      - function_name:
+        - function_name_identifier: area_restriction_function
+      - comma: ','
+      - keyword: JOIN
+      - comparison_operator:
+        - raw_comparison_operator: =
+      - function_name:
+        - function_name_identifier: area_join_function
+      - comma: ','
+      - keyword: HASHES
+      - comma: ','
+      - keyword: MERGES
+      - end_bracket: )
+- statement_terminator: ;

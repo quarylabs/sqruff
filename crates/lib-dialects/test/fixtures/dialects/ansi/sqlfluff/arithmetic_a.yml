@@ -23,7 +23,8 @@ file:
           - binary_operator: +
           - numeric_literal: '13'
         - alias_expression:
-          - keyword: as
+          - alias_operator:
+            - keyword: as
           - naked_identifier: val
 - statement_terminator: ;
 - statement:
@@ -53,7 +54,8 @@ file:
           - binary_operator: +
           - numeric_literal: '13'
         - alias_expression:
-          - keyword: as
+          - alias_operator:
+            - keyword: as
           - naked_identifier: val
 - statement_terminator: ;
 - statement:
@@ -106,11 +108,11 @@ file:
       - select_clause_element:
         - expression:
           - numeric_literal: '4'
-          - comparison_operator:
+          - binary_operator:
             - ampersand: '&'
           - tilde: '~'
           - numeric_literal: '8'
-          - comparison_operator:
+          - binary_operator:
             - pipe: '|'
           - numeric_literal: '16'
 - statement_terminator: ;
@@ -136,7 +138,7 @@ file:
       - select_clause_element:
         - expression:
           - numeric_literal: '8'
-          - comparison_operator:
+          - binary_operator:
             - pipe: '|'
           - tilde: '~'
           - tilde: '~'

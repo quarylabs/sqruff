@@ -1,0 +1,98 @@
+file:
+- batch:
+  - statement:
+    - create_view_statement:
+      - keyword: CREATE
+      - keyword: VIEW
+      - object_reference:
+        - naked_identifier: UnpivotView
+      - keyword: AS
+      - select_statement:
+        - select_clause:
+          - keyword: SELECT
+          - select_clause_element:
+            - column_reference:
+              - naked_identifier: VendorID
+          - comma: ','
+          - select_clause_element:
+            - column_reference:
+              - naked_identifier: Employee
+          - comma: ','
+          - select_clause_element:
+            - column_reference:
+              - naked_identifier: Orders
+        - from_clause:
+          - keyword: FROM
+          - from_expression:
+            - from_expression_element:
+              - table_expression:
+                - bracketed:
+                  - start_bracket: (
+                  - select_statement:
+                    - select_clause:
+                      - keyword: SELECT
+                      - select_clause_element:
+                        - column_reference:
+                          - naked_identifier: VendorID
+                      - comma: ','
+                      - select_clause_element:
+                        - column_reference:
+                          - naked_identifier: Emp1
+                      - comma: ','
+                      - select_clause_element:
+                        - column_reference:
+                          - naked_identifier: Emp2
+                      - comma: ','
+                      - select_clause_element:
+                        - column_reference:
+                          - naked_identifier: Emp3
+                      - comma: ','
+                      - select_clause_element:
+                        - column_reference:
+                          - naked_identifier: Emp4
+                      - comma: ','
+                      - select_clause_element:
+                        - column_reference:
+                          - naked_identifier: Emp5
+                    - from_clause:
+                      - keyword: FROM
+                      - from_expression:
+                        - from_expression_element:
+                          - table_expression:
+                            - table_reference:
+                              - naked_identifier: pvt
+                  - end_bracket: )
+              - alias_expression:
+                - naked_identifier: p
+            - from_pivot_expression:
+              - keyword: UNPIVOT
+              - bracketed:
+                - start_bracket: (
+                - column_reference:
+                  - naked_identifier: Orders
+                - keyword: FOR
+                - column_reference:
+                  - naked_identifier: Employee
+                - keyword: IN
+                - bracketed:
+                  - start_bracket: (
+                  - pivot_column_reference:
+                    - naked_identifier: Emp1
+                  - comma: ','
+                  - pivot_column_reference:
+                    - naked_identifier: Emp2
+                  - comma: ','
+                  - pivot_column_reference:
+                    - naked_identifier: Emp3
+                  - comma: ','
+                  - pivot_column_reference:
+                    - naked_identifier: Emp4
+                  - comma: ','
+                  - pivot_column_reference:
+                    - naked_identifier: Emp5
+                  - end_bracket: )
+                - end_bracket: )
+              - keyword: AS
+              - table_reference:
+                - naked_identifier: unpvt
+  - statement_terminator: ;

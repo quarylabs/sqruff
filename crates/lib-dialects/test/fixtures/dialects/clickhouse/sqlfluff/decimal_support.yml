@@ -17,13 +17,16 @@ file:
                   - bracketed_arguments:
                     - bracketed:
                       - start_bracket: (
-                      - numeric_literal: '12'
+                      - data_type:
+                        - numeric_literal: '12'
                       - comma: ','
-                      - numeric_literal: '0'
+                      - data_type:
+                        - numeric_literal: '0'
                       - end_bracket: )
                 - end_bracket: )
         - alias_expression:
-          - keyword: as
+          - alias_operator:
+            - keyword: as
           - naked_identifier: num_value
 - statement_terminator: ;
 - statement:
@@ -47,7 +50,8 @@ file:
                     - end_bracket: )
                 - end_bracket: )
         - alias_expression:
-          - keyword: as
+          - alias_operator:
+            - keyword: as
           - naked_identifier: num_value
 - statement_terminator: ;
 - statement:
@@ -71,7 +75,8 @@ file:
                     - end_bracket: )
                 - end_bracket: )
         - alias_expression:
-          - keyword: as
+          - alias_operator:
+            - keyword: as
           - naked_identifier: num_value
 - statement_terminator: ;
 - statement:
@@ -95,7 +100,8 @@ file:
                     - end_bracket: )
                 - end_bracket: )
         - alias_expression:
-          - keyword: as
+          - alias_operator:
+            - keyword: as
           - naked_identifier: num_value
 - statement_terminator: ;
 - statement:
@@ -119,7 +125,8 @@ file:
                     - end_bracket: )
                 - end_bracket: )
         - alias_expression:
-          - keyword: as
+          - alias_operator:
+            - keyword: as
           - naked_identifier: num_value
 - statement_terminator: ;
 - statement:
@@ -136,12 +143,15 @@ file:
               - bracketed_arguments:
                 - bracketed:
                   - start_bracket: (
-                  - numeric_literal: '12'
+                  - data_type:
+                    - numeric_literal: '12'
                   - comma: ','
-                  - numeric_literal: '0'
+                  - data_type:
+                    - numeric_literal: '0'
                   - end_bracket: )
         - alias_expression:
-          - keyword: as
+          - alias_operator:
+            - keyword: as
           - naked_identifier: num_value
 - statement_terminator: ;
 - statement:
@@ -162,12 +172,15 @@ file:
                   - bracketed_arguments:
                     - bracketed:
                       - start_bracket: (
-                      - numeric_literal: '12'
+                      - data_type:
+                        - numeric_literal: '12'
                       - comma: ','
-                      - numeric_literal: '0'
+                      - data_type:
+                        - numeric_literal: '0'
                       - end_bracket: )
                 - end_bracket: )
         - alias_expression:
-          - keyword: as
+          - alias_operator:
+            - keyword: as
           - naked_identifier: num_value
 - statement_terminator: ;

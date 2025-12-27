@@ -6,7 +6,8 @@ file:
       - select_clause_element:
         - boolean_literal: 'TRUE'
         - alias_expression:
-          - keyword: AS
+          - alias_operator:
+            - keyword: AS
           - naked_identifier: col1
       - comma: ','
       - select_clause_element:
@@ -30,7 +31,8 @@ file:
                   - numeric_literal: '2'
               - end_bracket: )
         - alias_expression:
-          - keyword: AS
+          - alias_operator:
+            - keyword: AS
           - naked_identifier: col2
       - comma: ','
       - select_clause_element:

@@ -5,6 +5,6 @@ file:
     - keyword: INDEX
     - keyword: IF
     - keyword: EXISTS
-    - database_reference:
+    - index_reference:
       - naked_identifier: transaction_updated
 - statement_terminator: ;

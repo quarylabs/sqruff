@@ -1,0 +1,10 @@
+file:
+- statement:
+  - drop_function_statement:
+    - keyword: DROP
+    - keyword: FUNCTION
+    - keyword: IF
+    - keyword: EXISTS
+    - function_name:
+      - quoted_identifier: '`testfunction`'
+- statement_terminator: ;

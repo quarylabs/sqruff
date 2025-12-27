@@ -23,7 +23,8 @@ file:
                   - quoted_literal: '''{ "price": 5 }'''
                 - end_bracket: )
               - alias_expression:
-                - keyword: AS
+                - alias_operator:
+                  - keyword: AS
                 - naked_identifier: T
                 - bracketed:
                   - start_bracket: (
@@ -69,7 +70,8 @@ file:
                   - quoted_literal: '''{ "price": 5 }'''
                 - end_bracket: )
               - alias_expression:
-                - keyword: AS
+                - alias_operator:
+                  - keyword: AS
                 - naked_identifier: T
                 - bracketed:
                   - start_bracket: (

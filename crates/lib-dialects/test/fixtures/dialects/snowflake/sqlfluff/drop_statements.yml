@@ -307,9 +307,8 @@ file:
   - drop_schema_statement:
     - keyword: DROP
     - keyword: SCHEMA
-    - table_reference:
-      - object_reference:
-        - naked_identifier: MY_SCHEMA
+    - schema_reference:
+      - naked_identifier: MY_SCHEMA
 - statement_terminator: ;
 - statement:
   - drop_schema_statement:
@@ -317,9 +316,8 @@ file:
     - keyword: SCHEMA
     - keyword: IF
     - keyword: EXISTS
-    - table_reference:
-      - object_reference:
-        - naked_identifier: MY_SCHEMA
+    - schema_reference:
+      - naked_identifier: MY_SCHEMA
 - statement_terminator: ;
 - statement:
   - drop_schema_statement:
@@ -327,16 +325,15 @@ file:
     - keyword: SCHEMA
     - keyword: IF
     - keyword: EXISTS
-    - table_reference:
-      - object_reference:
-        - naked_identifier: MY_SCHEMA
+    - schema_reference:
+      - naked_identifier: MY_SCHEMA
     - keyword: CASCADE
 - statement_terminator: ;
 - statement:
   - drop_sequence_statement:
     - keyword: DROP
     - keyword: SEQUENCE
-    - column_reference:
+    - sequence_reference:
       - naked_identifier: MY_SCHEMA
       - dot: .
       - naked_identifier: INVOICE_SEQUENCE_NUMBER
@@ -544,4 +541,42 @@ file:
     - keyword: IF
     - keyword: EXISTS
     - naked_identifier: MY_WAREHOUSE
+- statement_terminator: ;
+- statement:
+  - drop_external_volume_statement:
+    - keyword: DROP
+    - keyword: EXTERNAL
+    - keyword: VOLUME
+    - external_volume_reference:
+      - naked_identifier: my_volume
+- statement_terminator: ;
+- statement:
+  - drop_external_volume_statement:
+    - keyword: DROP
+    - keyword: EXTERNAL
+    - keyword: VOLUME
+    - keyword: IF
+    - keyword: EXISTS
+    - external_volume_reference:
+      - naked_identifier: foo
+- statement_terminator: ;
+- statement:
+  - drop_object_statement:
+    - keyword: DROP
+    - keyword: CORTEX
+    - keyword: SEARCH
+    - keyword: SERVICE
+    - object_reference:
+      - naked_identifier: mysvc
+- statement_terminator: ;
+- statement:
+  - drop_object_statement:
+    - keyword: DROP
+    - keyword: CORTEX
+    - keyword: SEARCH
+    - keyword: SERVICE
+    - keyword: IF
+    - keyword: EXISTS
+    - object_reference:
+      - naked_identifier: mysvc
 - statement_terminator: ;

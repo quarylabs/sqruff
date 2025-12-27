@@ -1,0 +1,126 @@
+file:
+- statement:
+  - check_table_statement:
+    - keyword: CHECK
+    - keyword: TABLE
+    - table_reference:
+      - naked_identifier: some_table
+    - keyword: FOR
+    - keyword: UPGRADE
+- statement_terminator: ;
+- statement:
+  - check_table_statement:
+    - keyword: CHECK
+    - keyword: TABLE
+    - table_reference:
+      - naked_identifier: some_table1
+    - comma: ','
+    - table_reference:
+      - naked_identifier: some_table2
+    - keyword: FOR
+    - keyword: UPGRADE
+- statement_terminator: ;
+- statement:
+  - check_table_statement:
+    - keyword: CHECK
+    - keyword: TABLE
+    - table_reference:
+      - naked_identifier: some_table
+    - keyword: QUICK
+- statement_terminator: ;
+- statement:
+  - check_table_statement:
+    - keyword: CHECK
+    - keyword: TABLE
+    - table_reference:
+      - naked_identifier: some_table1
+    - comma: ','
+    - table_reference:
+      - naked_identifier: some_table2
+    - keyword: QUICK
+- statement_terminator: ;
+- statement:
+  - check_table_statement:
+    - keyword: CHECK
+    - keyword: TABLE
+    - table_reference:
+      - naked_identifier: some_table
+    - keyword: FAST
+- statement_terminator: ;
+- statement:
+  - check_table_statement:
+    - keyword: CHECK
+    - keyword: TABLE
+    - table_reference:
+      - naked_identifier: some_table1
+    - comma: ','
+    - table_reference:
+      - naked_identifier: some_table2
+    - keyword: FAST
+- statement_terminator: ;
+- statement:
+  - check_table_statement:
+    - keyword: CHECK
+    - keyword: TABLE
+    - table_reference:
+      - naked_identifier: some_table
+    - keyword: MEDIUM
+- statement_terminator: ;
+- statement:
+  - check_table_statement:
+    - keyword: CHECK
+    - keyword: TABLE
+    - table_reference:
+      - naked_identifier: some_table1
+    - comma: ','
+    - table_reference:
+      - naked_identifier: some_table2
+    - keyword: MEDIUM
+- statement_terminator: ;
+- statement:
+  - check_table_statement:
+    - keyword: CHECK
+    - keyword: TABLE
+    - table_reference:
+      - naked_identifier: some_table
+    - keyword: EXTENDED
+- statement_terminator: ;
+- statement:
+  - check_table_statement:
+    - keyword: CHECK
+    - keyword: TABLE
+    - table_reference:
+      - naked_identifier: some_table1
+    - comma: ','
+    - table_reference:
+      - naked_identifier: some_table2
+    - keyword: EXTENDED
+- statement_terminator: ;
+- statement:
+  - check_table_statement:
+    - keyword: CHECK
+    - keyword: TABLE
+    - table_reference:
+      - naked_identifier: some_table
+    - keyword: CHANGED
+- statement_terminator: ;
+- statement:
+  - check_table_statement:
+    - keyword: CHECK
+    - keyword: TABLE
+    - table_reference:
+      - naked_identifier: some_table1
+    - comma: ','
+    - table_reference:
+      - naked_identifier: some_table2
+    - keyword: CHANGED
+- statement_terminator: ;
+- statement:
+  - check_table_statement:
+    - keyword: CHECK
+    - keyword: TABLE
+    - table_reference:
+      - naked_identifier: some_table
+    - keyword: FAST
+    - keyword: QUICK
+- statement_terminator: ;

@@ -15,11 +15,12 @@ file:
               - function:
                 - function_name:
                   - function_name_identifier: percentile_cont
-                - bracketed:
-                  - start_bracket: (
-                  - expression:
-                    - numeric_literal: '0.20'
-                  - end_bracket: )
+                - function_contents:
+                  - bracketed:
+                    - start_bracket: (
+                    - expression:
+                      - numeric_literal: '0.20'
+                    - end_bracket: )
                 - withingroup_clause:
                   - keyword: within
                   - keyword: group
@@ -46,18 +47,20 @@ file:
                     - end_bracket: )
             - end_bracket: )
         - alias_expression:
-          - keyword: as
+          - alias_operator:
+            - keyword: as
           - naked_identifier: percentile_20
       - comma: ','
       - select_clause_element:
         - function:
           - function_name:
             - function_name_identifier: percentile_cont
-          - bracketed:
-            - start_bracket: (
-            - expression:
-              - numeric_literal: '0.40'
-            - end_bracket: )
+          - function_contents:
+            - bracketed:
+              - start_bracket: (
+              - expression:
+                - numeric_literal: '0.40'
+              - end_bracket: )
           - withingroup_clause:
             - keyword: within
             - keyword: group
@@ -83,7 +86,8 @@ file:
                       - naked_identifier: dataset_id
               - end_bracket: )
         - alias_expression:
-          - keyword: as
+          - alias_operator:
+            - keyword: as
           - naked_identifier: percentile_40
     - from_clause:
       - keyword: from

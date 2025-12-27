@@ -77,7 +77,7 @@ const POSTGRES_DOCS_KEYWORDS: &[(&str, &str)] = &[
     ("ASYMMETRIC", "reserved"),
     ("AT", "non-reserved"),
     ("ATAN", "not-keyword"),
-    ("ATOMIC", "not-keyword"),
+    ("ATOMIC", "non-reserved"),
     ("ATTACH", "non-reserved"),
     ("ATTRIBUTE", "non-reserved"),
     ("ATTRIBUTES", "not-keyword"),
@@ -158,6 +158,7 @@ const POSTGRES_DOCS_KEYWORDS: &[(&str, &str)] = &[
     ("COMMENTS", "non-reserved"),
     ("COMMIT", "non-reserved"),
     ("COMMITTED", "non-reserved"),
+    ("COMMUTATOR", "reserved-(can-be-function-or-type)"),
     ("COMPRESSION", "non-reserved"),
     ("CONCURRENTLY", "reserved-(can-be-function-or-type)"),
     ("CONDITION", "not-keyword"),
@@ -347,6 +348,7 @@ const POSTGRES_DOCS_KEYWORDS: &[(&str, &str)] = &[
     ("GROUPING", "non-reserved-(cannot-be-function-or-type)"),
     ("GROUPS", "non-reserved"),
     ("HANDLER", "non-reserved"),
+    ("HASHES", "reserved-(can-be-function-or-type)"),
     ("HAVING", "reserved"),
     ("HEADER", "non-reserved"),
     ("HEX", "not-keyword"),
@@ -401,6 +403,7 @@ const POSTGRES_DOCS_KEYWORDS: &[(&str, &str)] = &[
     ("INVOKER", "non-reserved"),
     ("IS", "reserved-(can-be-function-or-type)"),
     ("ISNULL", "reserved-(can-be-function-or-type)"),
+    ("IS_SUPERUSER", "non-reserved"),
     ("ISOLATION", "non-reserved"),
     ("JOIN", "reserved-(can-be-function-or-type)"),
     ("JSON", "not-keyword"),
@@ -410,9 +413,14 @@ const POSTGRES_DOCS_KEYWORDS: &[(&str, &str)] = &[
     ("JSON_OBJECT", "not-keyword"),
     ("JSON_OBJECTAGG", "not-keyword"),
     ("JSON_QUERY", "not-keyword"),
+    ("JSON_SERIALIZE", "not-keyword"),
     ("JSON_TABLE", "not-keyword"),
     ("JSON_TABLE_PRIMITIVE", "not-keyword"),
     ("JSON_VALUE", "not-keyword"),
+    ("JSONB_EACH", "not-keyword"),
+    ("JSONB_EACH_TEXT", "not-keyword"),
+    ("JSON_EACH", "not-keyword"),
+    ("JSON_EACH_TEXT", "not-keyword"),
     ("JSONB", "non-reserved-(cannot-be-function-or-type)"),
     ("K", "not-keyword"),
     ("KEEP", "not-keyword"),
@@ -427,11 +435,14 @@ const POSTGRES_DOCS_KEYWORDS: &[(&str, &str)] = &[
     ("LAST", "non-reserved"),
     ("LAST_VALUE", "not-keyword"),
     ("LATERAL", "reserved"),
+    ("LC_COLLATE", "non-reserved"),
+    ("LC_CTYPE", "non-reserved"),
     ("LEAD", "not-keyword"),
     ("LEADING", "reserved"),
     ("LEAKPROOF", "non-reserved"),
     ("LEAST", "non-reserved-(cannot-be-function-or-type)"),
     ("LEFT", "reserved-(can-be-function-or-type)"),
+    ("LEFTARG", "non-reserved-(cannot-be-function-or-type)"),
     ("LENGTH", "not-keyword"),
     ("LEVEL", "non-reserved"),
     ("LIBRARY", "not-keyword"),
@@ -472,6 +483,7 @@ const POSTGRES_DOCS_KEYWORDS: &[(&str, &str)] = &[
     ("MEASURES", "not-keyword"),
     ("MEMBER", "not-keyword"),
     ("MERGE", "non-reserved"),
+    ("MERGES", "reserved-(can-be-function-or-type)"),
     ("MESSAGE_LENGTH", "not-keyword"),
     ("MESSAGE_OCTET_LENGTH", "not-keyword"),
     ("MESSAGE_TEXT", "not-keyword"),
@@ -496,6 +508,7 @@ const POSTGRES_DOCS_KEYWORDS: &[(&str, &str)] = &[
     ("NATURAL", "reserved-(can-be-function-or-type)"),
     ("NCHAR", "non-reserved-(cannot-be-function-or-type)"),
     ("NCLOB", "not-keyword"),
+    ("NEGATOR", "reserved-(can-be-function-or-type)"),
     ("NESTED", "not-keyword"),
     ("NESTING", "not-keyword"),
     ("NEW", "non-reserved"),
@@ -654,7 +667,8 @@ const POSTGRES_DOCS_KEYWORDS: &[(&str, &str)] = &[
     ("RESTRICT", "non-reserved"),
     ("RESTRICTIVE", "non-reserved"),
     ("RESULT", "not-keyword"),
-    ("RETURN", "not-keyword"),
+    ("RETRIEVE", "non-reserved"),
+    ("RETURN", "non-reserved"),
     ("RETURNED_CARDINALITY", "not-keyword"),
     ("RETURNED_LENGTH", "not-keyword"),
     ("RETURNED_OCTET_LENGTH", "not-keyword"),
@@ -663,6 +677,7 @@ const POSTGRES_DOCS_KEYWORDS: &[(&str, &str)] = &[
     ("RETURNS", "non-reserved"),
     ("REVOKE", "non-reserved"),
     ("RIGHT", "reserved-(can-be-function-or-type)"),
+    ("RIGHTARG", "reserved-(can-be-function-or-type)"),
     ("ROLE", "non-reserved"),
     ("ROLLBACK", "non-reserved"),
     ("ROLLUP", "non-reserved"),
@@ -705,7 +720,9 @@ const POSTGRES_DOCS_KEYWORDS: &[(&str, &str)] = &[
     ("SERIAL8", "non-reserved-(cannot-be-function-or-type)"),
     ("SERIALIZABLE", "non-reserved"),
     ("SERVER", "non-reserved"),
+    ("SERVER_ENCODING", "non-reserved"),
     ("SERVER_NAME", "not-keyword"),
+    ("SERVER_VERSION", "non-reserved"),
     ("SESSION", "non-reserved"),
     ("SESSION_USER", "reserved"),
     ("SET", "non-reserved"),
@@ -836,7 +853,7 @@ const POSTGRES_DOCS_KEYWORDS: &[(&str, &str)] = &[
     ("UPPER", "not-keyword"),
     ("URI", "not-keyword"),
     ("USAGE", "not-keyword"),
-    ("USER", "reserved"),
+    ("USER", "non-reserved"),
     ("USER_DEFINED_TYPE_CATALOG", "not-keyword"),
     ("USER_DEFINED_TYPE_CODE", "not-keyword"),
     ("USER_DEFINED_TYPE_NAME", "not-keyword"),
@@ -934,6 +951,7 @@ const POSTGRES_NONDOCS_KEYWORDS: &[(&str, &str)] = &[
     ("INDEX_CLEANUP", "non-reserved"),
     ("IS_TEMPLATE", "non-reserved"),
     ("JSON", "non-reserved"),
+    ("KEYS", "non-reserved"),
     ("LC_COLLATE", "non-reserved"),
     ("LC_CTYPE", "non-reserved"),
     ("LIBC", "non-reserved"),
@@ -960,6 +978,7 @@ const POSTGRES_NONDOCS_KEYWORDS: &[(&str, &str)] = &[
     ("RESPECT", "non-reserved"),
     ("RESTRICTED", "non-reserved"),
     ("SAFE", "non-reserved"),
+    ("SCALAR", "non-reserved"),
     ("SETTINGS", "non-reserved"),
     ("SKIP_LOCKED", "non-reserved"),
     ("SUMMARY", "non-reserved"),
@@ -972,7 +991,7 @@ const POSTGRES_NONDOCS_KEYWORDS: &[(&str, &str)] = &[
     ("WAL", "non-reserved"),
 ];
 
-pub(crate) const POSTGRES_POSTGIS_DATATYPE_KEYWORDS: &[(&str, &str)] = &[
+const POSTGRES_POSTGIS_DATATYPE_KEYWORDS: &[(&str, &str)] = &[
     ("POINT", "non-reserved"),
     ("LINESTRING", "non-reserved"),
     ("POLYGON", "non-reserved"),
@@ -1017,12 +1036,15 @@ const POSTGRES_POSTGIS_OTHER_KEYWORDS: &[(&str, &str)] = &[
     ("EMPTY", "non-reserved"),
 ];
 
+const POSTGRES_PGVECTOR_KEYWORDS: &[(&str, &str)] = &[("VECTOR", "non-reserved")];
+
 pub(crate) fn postgres_keywords() -> Vec<(&'static str, &'static str)> {
     priority_keyword_merge(&[
         POSTGRES_DOCS_KEYWORDS,
         POSTGRES_NONDOCS_KEYWORDS,
         POSTGRES_POSTGIS_DATATYPE_KEYWORDS,
         POSTGRES_POSTGIS_OTHER_KEYWORDS,
+        POSTGRES_PGVECTOR_KEYWORDS,
     ])
 }
 
@@ -1060,14 +1082,15 @@ mod tests {
 
         assert_eq!(sorted(result_2), sorted(expected_result_2));
 
-        let kw_list_3 = &[("B", "reserved")];
+        let kw_list_3 = &[("A", "reserved"), ("D", "not-keyword")];
 
         let result_3 = priority_keyword_merge(&[kw_list_2, kw_list_1, kw_list_3]);
 
         let expected_result_3 = vec![
-            ("A", "not-keyword"),
-            ("B", "reserved"),
+            ("A", "reserved"),
+            ("B", "non-reserved"),
             ("C", "non-reserved"),
+            ("D", "not-keyword"),
         ];
 
         assert_eq!(sorted(result_3), sorted(expected_result_3));

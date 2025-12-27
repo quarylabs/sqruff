@@ -28,7 +28,8 @@ file:
               - null_literal: 'NULL'
             - end_bracket: )
         - alias_expression:
-          - keyword: AS
+          - alias_operator:
+            - keyword: AS
           - naked_identifier: count
     - from_clause:
       - keyword: FROM

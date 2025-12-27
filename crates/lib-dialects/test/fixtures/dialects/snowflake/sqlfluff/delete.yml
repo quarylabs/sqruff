@@ -13,7 +13,8 @@ file:
     - table_reference:
       - naked_identifier: leased_bicycles
     - alias_expression:
-      - keyword: as
+      - alias_operator:
+        - keyword: as
       - naked_identifier: lb
 - statement_terminator: ;
 - statement:
@@ -76,14 +77,16 @@ file:
     - table_reference:
       - naked_identifier: leased_bicycles
     - alias_expression:
-      - keyword: as
+      - alias_operator:
+        - keyword: as
       - naked_identifier: lb
     - keyword: using
     - table_expression:
       - table_reference:
         - naked_identifier: returned_bicycles
     - alias_expression:
-      - keyword: as
+      - alias_operator:
+        - keyword: as
       - naked_identifier: rb
     - where_clause:
       - keyword: where
@@ -173,21 +176,24 @@ file:
     - table_reference:
       - naked_identifier: leased_bicycles
     - alias_expression:
-      - keyword: as
+      - alias_operator:
+        - keyword: as
       - naked_identifier: lb
     - keyword: using
     - table_expression:
       - table_reference:
         - naked_identifier: returned_bicycles
     - alias_expression:
-      - keyword: as
+      - alias_operator:
+        - keyword: as
       - naked_identifier: rb
     - comma: ','
     - table_expression:
       - table_reference:
         - naked_identifier: broken_bicycles
     - alias_expression:
-      - keyword: as
+      - alias_operator:
+        - keyword: as
       - naked_identifier: bb
     - where_clause:
       - keyword: where
@@ -276,7 +282,8 @@ file:
               - column_reference:
                 - naked_identifier: bicycle_id
               - alias_expression:
-                - keyword: as
+                - alias_operator:
+                  - keyword: as
                 - naked_identifier: bicycle_id
           - from_clause:
             - keyword: from
@@ -287,7 +294,8 @@ file:
                     - naked_identifier: returned_bicycles
         - end_bracket: )
     - alias_expression:
-      - keyword: as
+      - alias_operator:
+        - keyword: as
       - naked_identifier: returned
     - where_clause:
       - keyword: where
@@ -320,7 +328,8 @@ file:
               - column_reference:
                 - naked_identifier: bicycle_id
               - alias_expression:
-                - keyword: as
+                - alias_operator:
+                  - keyword: as
                 - naked_identifier: bicycle_id
           - from_clause:
             - keyword: from
@@ -338,7 +347,8 @@ file:
               - numeric_literal: '2'
         - end_bracket: )
     - alias_expression:
-      - keyword: as
+      - alias_operator:
+        - keyword: as
       - naked_identifier: returned
     - where_clause:
       - keyword: where

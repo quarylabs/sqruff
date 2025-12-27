@@ -167,8 +167,7 @@ file:
                     - column_reference:
                       - naked_identifier: category
                     - comma: ','
-                    - column_reference:
-                      - quoted_identifier: '''CATEGORY'''
+                    - quoted_literal: '''CATEGORY'''
                     - end_bracket: )
                 - comma: ','
                 - expression:
@@ -274,19 +273,21 @@ file:
       - table_engine_function:
         - function_name:
           - function_name_identifier: MergeTree
-        - bracketed:
-          - start_bracket: (
-          - end_bracket: )
+        - function_contents:
+          - bracketed:
+            - start_bracket: (
+            - end_bracket: )
       - merge_tree_order_by_clause:
         - keyword: ORDER
         - keyword: BY
         - column_reference:
           - naked_identifier: id
-      - keyword: SETTINGS
-      - naked_identifier: index_granularity
-      - comparison_operator:
-        - raw_comparison_operator: =
-      - numeric_literal: '8192'
+      - settings_clause:
+        - keyword: SETTINGS
+        - naked_identifier: index_granularity
+        - comparison_operator:
+          - raw_comparison_operator: =
+        - numeric_literal: '8192'
 - statement_terminator: ;
 - statement:
   - alter_table_statement:
@@ -667,8 +668,7 @@ file:
                 - column_reference:
                   - naked_identifier: category
                 - comma: ','
-                - column_reference:
-                  - quoted_identifier: '''RESOURCE_TYPE'''
+                - quoted_literal: '''RESOURCE_TYPE'''
                 - end_bracket: )
             - comma: ','
             - expression:

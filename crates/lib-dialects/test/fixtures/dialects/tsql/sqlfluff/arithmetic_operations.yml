@@ -1,0 +1,128 @@
+file:
+- batch:
+  - statement:
+    - declare_segment:
+      - keyword: DECLARE
+      - parameter: '@I'
+      - data_type:
+        - keyword: INT
+      - comparison_operator:
+        - raw_comparison_operator: =
+      - expression:
+        - integer_literal: '0'
+  - statement_terminator: ;
+  - statement:
+    - select_statement:
+      - select_clause:
+        - keyword: SELECT
+        - select_clause_element:
+          - expression:
+            - parameter: '@I'
+            - binary_operator: +
+            - integer_literal: '1'
+  - statement_terminator: ;
+  - statement:
+    - select_statement:
+      - select_clause:
+        - keyword: SELECT
+        - select_clause_element:
+          - select_variable_assignment:
+            - parameter: '@I'
+            - assignment_operator:
+              - binary_operator: +
+              - raw_comparison_operator: =
+            - expression:
+              - integer_literal: '2'
+  - statement_terminator: ;
+  - statement:
+    - select_statement:
+      - select_clause:
+        - keyword: SELECT
+        - select_clause_element:
+          - expression:
+            - parameter: '@I'
+            - binary_operator: '-'
+            - integer_literal: '3'
+  - statement_terminator: ;
+  - statement:
+    - select_statement:
+      - select_clause:
+        - keyword: SELECT
+        - select_clause_element:
+          - select_variable_assignment:
+            - parameter: '@I'
+            - assignment_operator:
+              - binary_operator: '-'
+              - raw_comparison_operator: =
+            - expression:
+              - integer_literal: '4'
+  - statement_terminator: ;
+  - statement:
+    - select_statement:
+      - select_clause:
+        - keyword: SELECT
+        - select_clause_element:
+          - expression:
+            - parameter: '@I'
+            - binary_operator: '*'
+            - integer_literal: '5'
+  - statement_terminator: ;
+  - statement:
+    - select_statement:
+      - select_clause:
+        - keyword: SELECT
+        - select_clause_element:
+          - select_variable_assignment:
+            - parameter: '@I'
+            - assignment_operator:
+              - binary_operator: '*'
+              - raw_comparison_operator: =
+            - expression:
+              - integer_literal: '6'
+  - statement_terminator: ;
+  - statement:
+    - select_statement:
+      - select_clause:
+        - keyword: SELECT
+        - select_clause_element:
+          - expression:
+            - parameter: '@I'
+            - binary_operator: /
+            - integer_literal: '7'
+  - statement_terminator: ;
+  - statement:
+    - select_statement:
+      - select_clause:
+        - keyword: SELECT
+        - select_clause_element:
+          - select_variable_assignment:
+            - parameter: '@I'
+            - assignment_operator:
+              - binary_operator: /
+              - raw_comparison_operator: =
+            - expression:
+              - integer_literal: '8'
+  - statement_terminator: ;
+  - statement:
+    - select_statement:
+      - select_clause:
+        - keyword: SELECT
+        - select_clause_element:
+          - expression:
+            - parameter: '@I'
+            - binary_operator: '%'
+            - integer_literal: '9'
+  - statement_terminator: ;
+  - statement:
+    - select_statement:
+      - select_clause:
+        - keyword: SELECT
+        - select_clause_element:
+          - select_variable_assignment:
+            - parameter: '@I'
+            - assignment_operator:
+              - binary_operator: '%'
+              - raw_comparison_operator: =
+            - expression:
+              - integer_literal: '10'
+  - statement_terminator: ;

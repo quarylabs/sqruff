@@ -58,9 +58,8 @@ file:
   - create_schema_statement:
     - keyword: create
     - keyword: schema
-    - table_reference:
-      - object_reference:
-        - naked_identifier: mytestschema
+    - schema_reference:
+      - naked_identifier: mytestschema
     - schema_object_properties:
       - comment_equals_clause:
         - keyword: comment
@@ -72,9 +71,8 @@ file:
   - create_schema_statement:
     - keyword: create
     - keyword: schema
-    - table_reference:
-      - object_reference:
-        - naked_identifier: mytestschema
+    - schema_reference:
+      - naked_identifier: mytestschema
     - tag_bracketed_equals:
       - keyword: tag
       - bracketed:
@@ -96,9 +94,8 @@ file:
   - create_schema_statement:
     - keyword: create
     - keyword: schema
-    - table_reference:
-      - object_reference:
-        - naked_identifier: mytestschema
+    - schema_reference:
+      - naked_identifier: mytestschema
     - keyword: with
     - keyword: managed
     - keyword: access
@@ -111,12 +108,55 @@ file:
     - keyword: if
     - keyword: not
     - keyword: exists
-    - table_reference:
-      - object_reference:
-        - naked_identifier: mytestschema
+    - schema_reference:
+      - naked_identifier: mytestschema
     - schema_object_properties:
       - keyword: default_ddl_collation
       - comparison_operator:
         - raw_comparison_operator: =
       - quoted_literal: '''de_DE'''
+- statement_terminator: ;
+- statement:
+  - create_schema_statement:
+    - keyword: CREATE
+    - keyword: SCHEMA
+    - schema_reference:
+      - naked_identifier: MYDB
+      - dot: .
+      - naked_identifier: MYSCHEMA
+    - schema_object_properties:
+      - comment_equals_clause:
+        - keyword: COMMENT
+        - comparison_operator:
+          - raw_comparison_operator: =
+        - quoted_literal: '"Space for landing my data"'
+- statement_terminator: ;
+- statement:
+  - create_schema_statement:
+    - keyword: CREATE
+    - keyword: SCHEMA
+    - keyword: IF
+    - keyword: NOT
+    - keyword: EXISTS
+    - schema_reference:
+      - naked_identifier: MYDB
+      - dot: .
+      - naked_identifier: MYSCHEMA
+    - schema_object_properties:
+      - comment_equals_clause:
+        - keyword: COMMENT
+        - comparison_operator:
+          - raw_comparison_operator: =
+        - quoted_literal: '"Space for landing my data"'
+- statement_terminator: ;
+- statement:
+  - create_schema_statement:
+    - keyword: CREATE
+    - keyword: OR
+    - keyword: ALTER
+    - keyword: SCHEMA
+    - schema_reference:
+      - naked_identifier: MYDB
+      - dot: .
+      - naked_identifier: MYSCHEMA
 - statement_terminator: ;

@@ -24,9 +24,8 @@ file:
   - use_statement:
     - keyword: use
     - keyword: schema
-    - table_reference:
-      - object_reference:
-        - naked_identifier: my_schema
+    - schema_reference:
+      - naked_identifier: my_schema
 - statement_terminator: ;
 - statement:
   - use_statement:
@@ -59,19 +58,17 @@ file:
   - use_statement:
     - keyword: USE
     - keyword: SCHEMA
-    - table_reference:
-      - object_reference:
-        - quoted_identifier: '"MY_DATABASE"'
-        - dot: .
-        - quoted_identifier: '"MY_SCHEMA"'
+    - schema_reference:
+      - quoted_identifier: '"MY_DATABASE"'
+      - dot: .
+      - quoted_identifier: '"MY_SCHEMA"'
 - statement_terminator: ;
 - statement:
   - use_statement:
     - keyword: USE
     - keyword: SCHEMA
-    - table_reference:
-      - object_reference:
-        - quoted_identifier: '"MY_SCHEMA"'
+    - schema_reference:
+      - quoted_identifier: '"MY_SCHEMA"'
 - statement_terminator: ;
 - statement:
   - use_statement:

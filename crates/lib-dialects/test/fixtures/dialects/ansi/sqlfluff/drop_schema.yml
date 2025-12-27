@@ -3,26 +3,23 @@ file:
   - drop_schema_statement:
     - keyword: drop
     - keyword: schema
-    - table_reference:
-      - object_reference:
-        - naked_identifier: my_schema
+    - schema_reference:
+      - naked_identifier: my_schema
 - statement_terminator: ;
 - statement:
   - drop_schema_statement:
     - keyword: drop
     - keyword: schema
-    - table_reference:
-      - object_reference:
-        - naked_identifier: my_schema
+    - schema_reference:
+      - naked_identifier: my_schema
     - keyword: cascade
 - statement_terminator: ;
 - statement:
   - drop_schema_statement:
     - keyword: drop
     - keyword: schema
-    - table_reference:
-      - object_reference:
-        - naked_identifier: my_schema
+    - schema_reference:
+      - naked_identifier: my_schema
     - keyword: restrict
 - statement_terminator: ;
 - statement:
@@ -31,9 +28,8 @@ file:
     - keyword: schema
     - keyword: if
     - keyword: exists
-    - table_reference:
-      - object_reference:
-        - naked_identifier: my_schema
+    - schema_reference:
+      - naked_identifier: my_schema
 - statement_terminator: ;
 - statement:
   - drop_schema_statement:
@@ -41,9 +37,8 @@ file:
     - keyword: schema
     - keyword: if
     - keyword: exists
-    - table_reference:
-      - object_reference:
-        - naked_identifier: my_schema
+    - schema_reference:
+      - naked_identifier: my_schema
     - keyword: cascade
 - statement_terminator: ;
 - statement:
@@ -52,8 +47,7 @@ file:
     - keyword: schema
     - keyword: if
     - keyword: exists
-    - table_reference:
-      - object_reference:
-        - naked_identifier: my_schema
+    - schema_reference:
+      - naked_identifier: my_schema
     - keyword: restrict
 - statement_terminator: ;

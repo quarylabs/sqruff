@@ -6,7 +6,8 @@ file:
       - select_clause_element:
         - numeric_literal: '1'
         - alias_expression:
-          - keyword: AS
+          - alias_operator:
+            - keyword: AS
           - naked_identifier: _
 - statement_terminator: ;
 - statement:
@@ -16,7 +17,8 @@ file:
       - select_clause_element:
         - numeric_literal: '1'
         - alias_expression:
-          - keyword: AS
+          - alias_operator:
+            - keyword: AS
           - naked_identifier: __
 - statement_terminator: ;
 - statement:
@@ -26,7 +28,8 @@ file:
       - select_clause_element:
         - numeric_literal: '1'
         - alias_expression:
-          - keyword: AS
+          - alias_operator:
+            - keyword: AS
           - naked_identifier: __TEST
 - statement_terminator: ;
 - statement:
@@ -60,7 +63,8 @@ file:
                     - end_bracket: )
             - end_bracket: )
           - alias_expression:
-            - keyword: AS
+            - alias_operator:
+              - keyword: AS
             - naked_identifier: _
             - bracketed:
               - start_bracket: (
@@ -99,7 +103,8 @@ file:
                     - end_bracket: )
             - end_bracket: )
           - alias_expression:
-            - keyword: AS
+            - alias_operator:
+              - keyword: AS
             - naked_identifier: __
             - bracketed:
               - start_bracket: (

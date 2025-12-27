@@ -15,7 +15,8 @@ file:
           - quoted_literal: '''Y-Wing'''
           - end_square_bracket: ']'
         - alias_expression:
-          - keyword: as
+          - alias_operator:
+            - keyword: as
           - naked_identifier: starfighter_list
       - comma: ','
       - select_clause_element:
@@ -32,7 +33,8 @@ file:
             - quoted_literal: '''Can''''t in fact destroy a star'''
           - end_curly_bracket: '}'
         - alias_expression:
-          - keyword: as
+          - alias_operator:
+            - keyword: as
           - naked_identifier: star_destroyer_facts
 - statement_terminator: ;
 - statement:
@@ -50,7 +52,8 @@ file:
             - numeric_literal: '2'
             - end_square_bracket: ']'
         - alias_expression:
-          - keyword: as
+          - alias_operator:
+            - keyword: as
           - naked_identifier: dont_forget_the_b_wing
     - from_clause:
       - keyword: FROM
@@ -74,7 +77,8 @@ file:
                       - quoted_literal: '''Y-Wing'''
                       - end_square_bracket: ']'
                     - alias_expression:
-                      - keyword: as
+                      - alias_operator:
+                        - keyword: as
                       - naked_identifier: starfighter_list
               - end_bracket: )
 - statement_terminator: ;
@@ -93,7 +97,8 @@ file:
               - numeric_literal: '3'
             - end_square_bracket: ']'
         - alias_expression:
-          - keyword: as
+          - alias_operator:
+            - keyword: as
           - naked_identifier: nearly_soloed
 - statement_terminator: ;
 - statement:
@@ -135,7 +140,8 @@ file:
                         - quoted_literal: '''High'''
                       - end_curly_bracket: '}'
                     - alias_expression:
-                      - keyword: as
+                      - alias_operator:
+                        - keyword: as
                       - naked_identifier: planet
               - end_bracket: )
 - statement_terminator: ;

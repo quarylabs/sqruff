@@ -15,9 +15,10 @@ file:
             - table_reference:
               - naked_identifier: table
           - alias_expression:
-            - keyword: as
+            - alias_operator:
+              - keyword: as
             - naked_identifier: t
-    - pre_where_clause:
+    - prewhere_clause:
       - keyword: PREWHERE
       - expression:
         - column_reference:
@@ -42,9 +43,10 @@ file:
             - table_reference:
               - naked_identifier: table
           - alias_expression:
-            - keyword: as
+            - alias_operator:
+              - keyword: as
             - naked_identifier: t
-    - pre_where_clause:
+    - prewhere_clause:
       - keyword: PREWHERE
       - expression:
         - column_reference:
@@ -74,9 +76,10 @@ file:
             - table_reference:
               - naked_identifier: table
           - alias_expression:
-            - keyword: as
+            - alias_operator:
+              - keyword: as
             - naked_identifier: t
-    - pre_where_clause:
+    - prewhere_clause:
       - keyword: PREWHERE
       - expression:
         - column_reference:
@@ -112,9 +115,10 @@ file:
             - table_reference:
               - naked_identifier: table
           - alias_expression:
-            - keyword: as
+            - alias_operator:
+              - keyword: as
             - naked_identifier: t
-    - pre_where_clause:
+    - prewhere_clause:
       - keyword: PREWHERE
       - expression:
         - column_reference:
@@ -158,9 +162,10 @@ file:
             - table_reference:
               - naked_identifier: table
           - alias_expression:
-            - keyword: as
+            - alias_operator:
+              - keyword: as
             - naked_identifier: t
-    - pre_where_clause:
+    - prewhere_clause:
       - keyword: PREWHERE
       - expression:
         - column_reference:

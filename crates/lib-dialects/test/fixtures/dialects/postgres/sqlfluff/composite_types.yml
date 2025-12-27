@@ -3,25 +3,19 @@ file:
   - create_type_statement:
     - keyword: CREATE
     - keyword: TYPE
-    - object_reference:
-      - naked_identifier: my_type
+    - data_type:
+      - data_type_identifier: my_type
     - keyword: AS
     - bracketed:
       - start_bracket: (
-      - column_reference:
-        - naked_identifier: int_
-      - data_type:
-        - keyword: INT4
+      - word: int_
+      - word: INT4
       - comma: ','
-      - column_reference:
-        - naked_identifier: bool_
-      - data_type:
-        - keyword: BOOLEAN
+      - word: bool_
+      - word: BOOLEAN
       - comma: ','
-      - column_reference:
-        - naked_identifier: comment_
-      - data_type:
-        - keyword: TEXT
+      - word: comment_
+      - word: TEXT
       - end_bracket: )
 - statement_terminator: ;
 - statement:

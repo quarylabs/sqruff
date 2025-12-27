@@ -55,7 +55,8 @@ file:
                   - keyword: ROW
               - end_bracket: )
         - alias_expression:
-          - keyword: AS
+          - alias_operator:
+            - keyword: AS
           - naked_identifier: cumulative_number_of_affected_accounts
     - from_clause:
       - keyword: FROM

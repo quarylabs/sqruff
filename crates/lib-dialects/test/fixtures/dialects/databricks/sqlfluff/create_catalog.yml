@@ -1,27 +1,30 @@
 file:
 - statement:
-  - keyword: CREATE
-  - keyword: CATALOG
-  - object_reference:
-    - naked_identifier: customer_cat
+  - create_catalog_statement:
+    - keyword: CREATE
+    - keyword: CATALOG
+    - catalog_reference:
+      - naked_identifier: customer_cat
 - statement_terminator: ;
 - statement:
-  - keyword: CREATE
-  - keyword: CATALOG
-  - keyword: IF
-  - keyword: NOT
-  - keyword: EXISTS
-  - object_reference:
-    - naked_identifier: customer_cat
+  - create_catalog_statement:
+    - keyword: CREATE
+    - keyword: CATALOG
+    - keyword: IF
+    - keyword: NOT
+    - keyword: EXISTS
+    - catalog_reference:
+      - naked_identifier: customer_cat
 - statement_terminator: ;
 - statement:
-  - keyword: CREATE
-  - keyword: CATALOG
-  - keyword: IF
-  - keyword: NOT
-  - keyword: EXISTS
-  - object_reference:
-    - naked_identifier: customer_cat
-  - keyword: COMMENT
-  - quoted_literal: '''This is customer catalog'''
+  - create_catalog_statement:
+    - keyword: CREATE
+    - keyword: CATALOG
+    - keyword: IF
+    - keyword: NOT
+    - keyword: EXISTS
+    - catalog_reference:
+      - naked_identifier: customer_cat
+    - keyword: COMMENT
+    - quoted_literal: '''This is customer catalog'''
 - statement_terminator: ;

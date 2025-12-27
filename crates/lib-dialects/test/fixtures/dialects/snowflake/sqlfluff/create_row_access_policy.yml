@@ -1,0 +1,173 @@
+file:
+- statement:
+  - create_row_access_policy_statement:
+    - keyword: CREATE
+    - keyword: ROW
+    - keyword: ACCESS
+    - keyword: POLICY
+    - keyword: IF
+    - keyword: NOT
+    - keyword: EXISTS
+    - naked_identifier: my_access_policy
+    - keyword: AS
+    - function_parameter_list:
+      - bracketed:
+        - start_bracket: (
+        - parameter: TEXT
+        - data_type:
+          - data_type_identifier: VARCHAR
+        - end_bracket: )
+    - keyword: RETURNS
+    - keyword: BOOLEAN
+    - function_assigner: ->
+    - expression:
+      - boolean_literal: 'FALSE'
+- statement_terminator: ;
+- statement:
+  - create_row_access_policy_statement:
+    - keyword: CREATE
+    - keyword: OR
+    - keyword: REPLACE
+    - keyword: ROW
+    - keyword: ACCESS
+    - keyword: POLICY
+    - naked_identifier: my_access_policy
+    - keyword: AS
+    - function_parameter_list:
+      - bracketed:
+        - start_bracket: (
+        - parameter: val
+        - data_type:
+          - data_type_identifier: VARCHAR
+        - end_bracket: )
+    - keyword: RETURNS
+    - keyword: BOOLEAN
+    - function_assigner: ->
+    - expression:
+      - boolean_literal: 'TRUE'
+- statement_terminator: ;
+- statement:
+  - create_row_access_policy_statement:
+    - keyword: CREATE
+    - keyword: OR
+    - keyword: REPLACE
+    - keyword: ROW
+    - keyword: ACCESS
+    - keyword: POLICY
+    - keyword: IF
+    - keyword: NOT
+    - keyword: EXISTS
+    - naked_identifier: my_access_policy
+    - keyword: AS
+    - function_parameter_list:
+      - bracketed:
+        - start_bracket: (
+        - parameter: val
+        - data_type:
+          - data_type_identifier: VARCHAR
+        - end_bracket: )
+    - keyword: RETURNS
+    - keyword: BOOLEAN
+    - function_assigner: ->
+    - expression:
+      - boolean_literal: 'TRUE'
+- statement_terminator: ;
+- statement:
+  - create_row_access_policy_statement:
+    - keyword: CREATE
+    - keyword: OR
+    - keyword: REPLACE
+    - keyword: ROW
+    - keyword: ACCESS
+    - keyword: POLICY
+    - keyword: IF
+    - keyword: NOT
+    - keyword: EXISTS
+    - naked_identifier: my_access_policy
+    - keyword: AS
+    - function_parameter_list:
+      - bracketed:
+        - start_bracket: (
+        - parameter: val
+        - data_type:
+          - data_type_identifier: VARCHAR
+        - end_bracket: )
+    - keyword: RETURNS
+    - keyword: BOOLEAN
+    - function_assigner: ->
+    - expression:
+      - boolean_literal: 'TRUE'
+    - comment_equals_clause:
+      - keyword: COMMENT
+      - comparison_operator:
+        - raw_comparison_operator: =
+      - quoted_literal: '''My Comment'''
+- statement_terminator: ;
+- statement:
+  - create_row_access_policy_statement:
+    - keyword: CREATE
+    - keyword: ROW
+    - keyword: ACCESS
+    - keyword: POLICY
+    - naked_identifier: my_access_policy
+    - keyword: AS
+    - function_parameter_list:
+      - bracketed:
+        - start_bracket: (
+        - parameter: val
+        - data_type:
+          - data_type_identifier: VARCHAR
+        - end_bracket: )
+    - keyword: RETURNS
+    - keyword: BOOLEAN
+    - function_assigner: ->
+    - expression:
+      - boolean_literal: 'TRUE'
+- statement_terminator: ;
+- statement:
+  - create_row_access_policy_statement:
+    - keyword: CREATE
+    - keyword: ROW
+    - keyword: ACCESS
+    - keyword: POLICY
+    - naked_identifier: my_access_policy
+    - keyword: AS
+    - function_parameter_list:
+      - bracketed:
+        - start_bracket: (
+        - parameter: val
+        - data_type:
+          - data_type_identifier: VARCHAR
+        - end_bracket: )
+    - keyword: RETURNS
+    - keyword: BOOLEAN
+    - function_assigner: ->
+    - expression:
+      - boolean_literal: 'TRUE'
+    - comment_equals_clause:
+      - keyword: COMMENT
+      - comparison_operator:
+        - raw_comparison_operator: =
+      - quoted_literal: '''My Comment'''
+- statement_terminator: ;
+- statement:
+  - create_row_access_policy_statement:
+    - keyword: CREATE
+    - keyword: ROW
+    - keyword: ACCESS
+    - keyword: POLICY
+    - quoted_identifier: '"My-Access-Policy"'
+    - keyword: AS
+    - function_parameter_list:
+      - bracketed:
+        - start_bracket: (
+        - parameter: val
+        - data_type:
+          - data_type_identifier: VARCHAR
+        - end_bracket: )
+    - keyword: RETURNS
+    - keyword: BOOLEAN
+    - function_assigner: ->
+    - expression:
+      - boolean_literal: 'TRUE'
+- statement_terminator: ;

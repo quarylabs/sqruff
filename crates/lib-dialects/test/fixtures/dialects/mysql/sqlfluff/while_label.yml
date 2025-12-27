@@ -1,0 +1,33 @@
+file:
+- statement:
+  - while_statement:
+    - naked_identifier: iteration
+    - colon: ':'
+    - keyword: while
+    - expression:
+      - column_reference:
+        - naked_identifier: _cnt
+      - comparison_operator:
+        - raw_comparison_operator: <
+        - raw_comparison_operator: =
+      - column_reference:
+        - naked_identifier: _max_cnt
+    - keyword: do
+    - statement:
+      - set_statement:
+        - keyword: set
+        - variable: _cnt
+        - comparison_operator:
+          - raw_comparison_operator: =
+        - expression:
+          - column_reference:
+            - naked_identifier: _cnt
+          - binary_operator: +
+          - numeric_literal: '1'
+- statement_terminator: ;
+- statement:
+  - while_statement:
+    - keyword: end
+    - keyword: while
+    - naked_identifier: iteration
+- statement_terminator: ;

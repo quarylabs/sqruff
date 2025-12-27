@@ -1,0 +1,27 @@
+file:
+- statement:
+  - rename_table_statement:
+    - keyword: RENAME
+    - keyword: TABLE
+    - table_reference:
+      - naked_identifier: old_table
+    - keyword: TO
+    - table_reference:
+      - naked_identifier: new_table
+- statement_terminator: ;
+- statement:
+  - rename_table_statement:
+    - keyword: RENAME
+    - keyword: TABLE
+    - table_reference:
+      - naked_identifier: old_table1
+    - keyword: TO
+    - table_reference:
+      - naked_identifier: new_table1
+    - comma: ','
+    - table_reference:
+      - naked_identifier: old_table2
+    - keyword: TO
+    - table_reference:
+      - naked_identifier: new_table2
+- statement_terminator: ;

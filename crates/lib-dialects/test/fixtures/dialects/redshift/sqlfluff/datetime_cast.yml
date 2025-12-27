@@ -192,7 +192,8 @@ file:
             - data_type:
               - keyword: VARCHAR
         - alias_expression:
-          - keyword: AS
+          - alias_operator:
+            - keyword: AS
           - naked_identifier: status
       - comma: ','
       - select_clause_element:
@@ -213,7 +214,8 @@ file:
               - expression:
                 - quoted_literal: '''UTC'''
         - alias_expression:
-          - keyword: AS
+          - alias_operator:
+            - keyword: AS
           - naked_identifier: started_at
       - comma: ','
       - select_clause_element:
@@ -234,7 +236,8 @@ file:
               - expression:
                 - quoted_literal: '''UTC'''
         - alias_expression:
-          - keyword: AS
+          - alias_operator:
+            - keyword: AS
           - naked_identifier: ended_at
       - comma: ','
       - select_clause_element:
@@ -255,7 +258,8 @@ file:
               - expression:
                 - quoted_literal: '''UTC'''
         - alias_expression:
-          - keyword: AS
+          - alias_operator:
+            - keyword: AS
           - naked_identifier: created_at
       - comma: ','
       - select_clause_element:
@@ -276,7 +280,8 @@ file:
             - data_type:
               - keyword: VARCHAR
         - alias_expression:
-          - keyword: AS
+          - alias_operator:
+            - keyword: AS
           - naked_identifier: communication_request_fhir_reference_origin
       - comma: ','
       - select_clause_element:
@@ -290,9 +295,10 @@ file:
           - function:
             - function_name:
               - function_name_identifier: GETDATE
-            - bracketed:
-              - start_bracket: (
-              - end_bracket: )
+            - function_contents:
+              - bracketed:
+                - start_bracket: (
+                - end_bracket: )
           - time_zone_grammar:
             - keyword: AT
             - keyword: TIME
@@ -308,9 +314,10 @@ file:
               - function:
                 - function_name:
                   - function_name_identifier: GETDATE
-                - bracketed:
-                  - start_bracket: (
-                  - end_bracket: )
+                - function_contents:
+                  - bracketed:
+                    - start_bracket: (
+                    - end_bracket: )
               - time_zone_grammar:
                 - keyword: AT
                 - keyword: TIME
@@ -336,9 +343,10 @@ file:
                   - function:
                     - function_name:
                       - function_name_identifier: GETDATE
-                    - bracketed:
-                      - start_bracket: (
-                      - end_bracket: )
+                    - function_contents:
+                      - bracketed:
+                        - start_bracket: (
+                        - end_bracket: )
                   - time_zone_grammar:
                     - keyword: AT
                     - keyword: TIME

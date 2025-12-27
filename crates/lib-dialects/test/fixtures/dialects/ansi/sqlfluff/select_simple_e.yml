@@ -12,7 +12,8 @@ file:
             - data_type:
               - data_type_identifier: date
         - alias_expression:
-          - keyword: as
+          - alias_operator:
+            - keyword: as
           - naked_identifier: casted_variable
       - comma: ','
       - select_clause_element:
@@ -23,7 +24,8 @@ file:
             - data_type:
               - data_type_identifier: bigint
         - alias_expression:
-          - keyword: as
+          - alias_operator:
+            - keyword: as
           - naked_identifier: another_casted_number
     - from_clause:
       - keyword: FROM

@@ -1,0 +1,23 @@
+file:
+- statement:
+  - drop_procedure_statement:
+    - keyword: DROP
+    - keyword: PROCEDURE
+    - procedure_name:
+      - naked_identifier: example_dataset
+      - dot: .
+      - procedure_name_identifier: example_procedure
+- statement_terminator: ;
+- statement:
+  - drop_procedure_statement:
+    - keyword: DROP
+    - keyword: PROCEDURE
+    - keyword: IF
+    - keyword: EXISTS
+    - procedure_name:
+      - quoted_identifier: '`other-project`'
+      - dot: .
+      - naked_identifier: sample_dataset
+      - dot: .
+      - procedure_name_identifier: myprocedure
+- statement_terminator: ;

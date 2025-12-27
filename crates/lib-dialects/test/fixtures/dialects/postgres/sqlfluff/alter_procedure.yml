@@ -74,9 +74,8 @@ file:
         - end_bracket: )
     - keyword: SET
     - keyword: SCHEMA
-    - table_reference:
-      - object_reference:
-        - naked_identifier: accounting
+    - schema_reference:
+      - naked_identifier: accounting
 - statement_terminator: ;
 - statement:
   - alter_procedure_statement:

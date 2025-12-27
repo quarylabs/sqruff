@@ -6,6 +6,5 @@ file:
     - keyword: if
     - keyword: not
     - keyword: exists
-    - table_reference:
-      - object_reference:
-        - naked_identifier: my_schema
+    - schema_reference:
+      - naked_identifier: my_schema

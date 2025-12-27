@@ -1,4 +1,3 @@
-use ahash::AHashMap;
 use rustc_hash::FxHashMap;
 use smol_str::SmolStr;
 
@@ -7,6 +6,7 @@ use super::matchable::{Matchable, MatchableCacheKey};
 use crate::dialects::Dialect;
 use crate::dialects::syntax::SyntaxKind;
 use crate::helpers::IndexSet;
+use crate::parser::IndentationConfig;
 use crate::parser::Parser;
 
 type LocKey = u32;
@@ -30,19 +30,19 @@ pub struct ParseContext<'a> {
     pub(crate) terminators: Vec<Matchable>,
     loc_keys: IndexSet<LocKeyData>,
     parse_cache: FxHashMap<CacheKey, MatchResult>,
-    pub(crate) indentation_config: &'a AHashMap<String, bool>,
+    pub(crate) indentation_config: IndentationConfig,
 }
 
 impl<'a> From<&'a Parser<'a>> for ParseContext<'a> {
     fn from(parser: &'a Parser) -> Self {
         let dialect = parser.dialect();
-        let indentation_config = &parser.indentation_config;
+        let indentation_config = parser.indentation_config;
         Self::new(dialect, indentation_config)
     }
 }
 
 impl<'a> ParseContext<'a> {
-    pub fn new(dialect: &'a Dialect, indentation_config: &'a AHashMap<String, bool>) -> Self {
+    pub fn new(dialect: &'a Dialect, indentation_config: IndentationConfig) -> Self {
         Self {
             dialect,
             terminators: Vec::new(),

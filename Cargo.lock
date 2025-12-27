@@ -1701,7 +1701,6 @@ dependencies = [
 name = "sqruff-wasm"
 version = "0.29.3"
 dependencies = [
- "ahash",
  "line-index",
  "lineage",
  "sqruff-lib",

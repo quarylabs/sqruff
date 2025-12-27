@@ -1,4 +1,5 @@
 use crate::errors::SQLParseError;
+use crate::parser::IndentationConfig;
 use crate::parser::context::ParseContext;
 use crate::parser::match_result::{MatchResult, Span};
 use crate::parser::matchable::{Matchable, MatchableTrait};
@@ -8,88 +9,52 @@ use crate::parser::segments::meta::Indent;
 #[derive(Clone, Debug, PartialEq)]
 pub struct Conditional {
     meta: Indent,
-    indented_joins: bool,
-    indented_using_on: bool,
-    indented_on_contents: bool,
-    indented_then: bool,
-    indented_then_contents: bool,
-    indented_joins_on: bool,
-    indented_ctes: bool,
+    requirements: IndentationConfig,
 }
 
 impl Conditional {
     pub fn new(meta: Indent) -> Self {
         Self {
             meta,
-            indented_joins: false,
-            indented_using_on: false,
-            indented_on_contents: false,
-            indented_then: false,
-            indented_then_contents: false,
-            indented_joins_on: false,
-            indented_ctes: false,
+            requirements: IndentationConfig::default(),
         }
     }
 
-    pub fn indented_ctes(mut self) -> Self {
-        self.indented_ctes = true;
+    fn require(mut self, flag: IndentationConfig) -> Self {
+        self.requirements.insert(flag);
         self
     }
 
-    pub fn indented_joins(mut self) -> Self {
-        self.indented_joins = true;
-        self
+    pub fn indented_ctes(self) -> Self {
+        self.require(IndentationConfig::INDENTED_CTES)
     }
 
-    pub fn indented_using_on(mut self) -> Self {
-        self.indented_using_on = true;
-        self
+    pub fn indented_joins(self) -> Self {
+        self.require(IndentationConfig::INDENTED_JOINS)
     }
 
-    pub fn indented_on_contents(mut self) -> Self {
-        self.indented_on_contents = true;
-        self
+    pub fn indented_using_on(self) -> Self {
+        self.require(IndentationConfig::INDENTED_USING_ON)
     }
 
-    pub fn indented_then(mut self) -> Self {
-        self.indented_then = true;
-        self
+    pub fn indented_on_contents(self) -> Self {
+        self.require(IndentationConfig::INDENTED_ON_CONTENTS)
     }
 
-    pub fn indented_then_contents(mut self) -> Self {
-        self.indented_then_contents = true;
-        self
+    pub fn indented_then(self) -> Self {
+        self.require(IndentationConfig::INDENTED_THEN)
     }
 
-    pub fn indented_joins_on(mut self) -> Self {
-        self.indented_joins_on = true;
-        self
+    pub fn indented_then_contents(self) -> Self {
+        self.require(IndentationConfig::INDENTED_THEN_CONTENTS)
     }
 
-    fn is_enabled(&self, parse_context: &mut ParseContext) -> bool {
-        macro_rules! check_config_match {
-            ($self:expr, $parse_context:expr, $field:ident) => {{
-                let config_value = $parse_context
-                    .indentation_config
-                    .get(stringify!($field))
-                    .copied()
-                    .unwrap_or_default();
+    pub fn indented_joins_on(self) -> Self {
+        self.require(IndentationConfig::INDENTED_JOINS_ON)
+    }
 
-                if $self.$field && $self.$field != config_value {
-                    return false;
-                }
-            }};
-        }
-
-        check_config_match!(self, parse_context, indented_joins);
-        check_config_match!(self, parse_context, indented_using_on);
-        check_config_match!(self, parse_context, indented_on_contents);
-        check_config_match!(self, parse_context, indented_then);
-        check_config_match!(self, parse_context, indented_then_contents);
-        check_config_match!(self, parse_context, indented_joins_on);
-        check_config_match!(self, parse_context, indented_ctes);
-
-        true
+    fn is_enabled(&self, parse_context: &ParseContext) -> bool {
+        parse_context.indentation_config.contains(self.requirements)
     }
 }
 

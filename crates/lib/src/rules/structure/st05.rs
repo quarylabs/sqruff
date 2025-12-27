@@ -107,12 +107,10 @@ join c using(x)
         let segment = functional_context.segment();
         let parent_stack = functional_context.parent_stack();
 
-        let is_select = segment.all(Some(|it: &ErasedSegment| {
-            SELECT_TYPES.contains(it.get_type())
-        }));
-        let is_select_child = parent_stack.any(Some(|it: &ErasedSegment| {
-            SELECT_TYPES.contains(it.get_type())
-        }));
+        let is_select =
+            segment.all_match(|it: &ErasedSegment| SELECT_TYPES.contains(it.get_type()));
+        let is_select_child =
+            parent_stack.any_match(|it: &ErasedSegment| SELECT_TYPES.contains(it.get_type()));
 
         if !is_select || is_select_child {
             return Vec::new();
@@ -125,12 +123,11 @@ join c using(x)
             ctes.insert_cte(cte.inner.borrow().cte_definition_segment.clone().unwrap());
         }
 
-        let is_with = segment.all(Some(|it: &ErasedSegment| {
-            it.is_type(SyntaxKind::WithCompoundStatement)
-        }));
+        let is_with =
+            segment.all_match(|it: &ErasedSegment| it.is_type(SyntaxKind::WithCompoundStatement));
         let is_recursive = is_with
             && !segment
-                .children(Some(|it: &ErasedSegment| it.is_keyword("recursive")))
+                .children_where(|it: &ErasedSegment| it.is_keyword("recursive"))
                 .is_empty();
 
         let case_preference = get_case_preference(&segment);
@@ -209,12 +206,12 @@ join c using(x)
 
         let _segment = Segments::new(new_root, None);
         let output_select = if is_with {
-            _segment.children(Some(|it: &ErasedSegment| {
+            _segment.children_where(|it: &ErasedSegment| {
                 matches!(
                     it.get_type(),
                     SyntaxKind::SetExpression | SyntaxKind::SelectStatement
                 )
-            }))
+            })
         } else {
             _segment.clone()
         };
@@ -549,16 +546,12 @@ impl CTEBuilder {
         if let Some(from_clause) = &from_clause {
             let from_clause_children = Segments::from_vec(from_clause.segments().to_vec(), None);
             from_segment = from_clause_children
-                .find_first(Some(|it: &ErasedSegment| it.is_keyword("FROM")))
+                .find_first_where(|it: &ErasedSegment| it.is_keyword("FROM"))
                 .into();
             if !from_segment.as_ref().unwrap().is_empty()
                 && from_clause_children
-                    .select::<fn(&ErasedSegment) -> bool>(
-                        None,
-                        Some(|it| it.is_whitespace()),
-                        Some(&from_segment.as_ref().unwrap().base[0]),
-                        None,
-                    )
+                    .after(&from_segment.as_ref().unwrap().base[0])
+                    .take_while(|it| it.is_whitespace())
                     .is_empty()
             {
                 missing_space_after_from = true;
@@ -644,10 +637,8 @@ impl CTEBuilder {
 
     fn insert_cte(&mut self, cte: ErasedSegment) {
         let inbound_subquery = Segments::new(cte.clone(), None)
-            .children(None)
-            .find_first(Some(|it: &ErasedSegment| {
-                it.get_position_marker().is_some()
-            }));
+            .children_all()
+            .find_first_where(|it: &ErasedSegment| it.get_position_marker().is_some());
         let insert_position = self
             .ctes
             .iter()
@@ -657,7 +648,7 @@ impl CTEBuilder {
                 is_child(
                     Segments::new(
                         Segments::new(it.clone(), None)
-                            .children(None)
+                            .children_all()
                             .last()
                             .cloned()
                             .unwrap(),

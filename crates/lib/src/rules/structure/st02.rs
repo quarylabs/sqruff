@@ -95,33 +95,25 @@ from fancy_table
             .raw()
             .eq_ignore_ascii_case("CASE")
         {
-            let children = FunctionalContext::new(context).segment().children(None);
+            let children = FunctionalContext::new(context).segment().children_all();
 
-            let when_clauses = children.select(
-                Some(|it: &ErasedSegment| it.is_type(SyntaxKind::WhenClause)),
-                None,
-                None,
-                None,
-            );
-            let else_clauses = children.select(
-                Some(|it: &ErasedSegment| it.is_type(SyntaxKind::ElseClause)),
-                None,
-                None,
-                None,
-            );
+            let when_clauses =
+                children.filter(|it: &ErasedSegment| it.is_type(SyntaxKind::WhenClause));
+            let else_clauses =
+                children.filter(|it: &ErasedSegment| it.is_type(SyntaxKind::ElseClause));
 
             if when_clauses.len() > 1 {
                 return Vec::new();
             }
 
             let condition_expression =
-                when_clauses.children(Some(|it| it.is_type(SyntaxKind::Expression)))[0].clone();
+                when_clauses.children_where(|it| it.is_type(SyntaxKind::Expression))[0].clone();
             let then_expression =
-                when_clauses.children(Some(|it| it.is_type(SyntaxKind::Expression)))[1].clone();
+                when_clauses.children_where(|it| it.is_type(SyntaxKind::Expression))[1].clone();
 
             if !else_clauses.is_empty()
                 && let Some(else_expression) = else_clauses
-                    .children(Some(|it| it.is_type(SyntaxKind::Expression)))
+                    .children_where(|it| it.is_type(SyntaxKind::Expression))
                     .first()
             {
                 let upper_bools = ["TRUE", "FALSE"];
@@ -172,16 +164,14 @@ from fancy_table
                 let is_not_prefix = condition_expression_segments_raw.contains("NOT");
 
                 let tmp = Segments::new(condition_expression.clone(), None)
-                    .children(Some(|it| it.is_type(SyntaxKind::ColumnReference)));
+                    .children_where(|it| it.is_type(SyntaxKind::ColumnReference));
 
                 let Some(column_reference_segment) = tmp.first() else {
                     return Vec::new();
                 };
 
                 let array_accessor_segment = Segments::new(condition_expression.clone(), None)
-                    .children(Some(|it: &ErasedSegment| {
-                        it.is_type(SyntaxKind::ArrayAccessor)
-                    }))
+                    .children_where(|it: &ErasedSegment| it.is_type(SyntaxKind::ArrayAccessor))
                     .first()
                     .cloned();
 
@@ -195,7 +185,7 @@ from fancy_table
 
                 if !else_clauses.is_empty() {
                     let else_expression = else_clauses
-                        .children(Some(|it| it.is_type(SyntaxKind::Expression)))[0]
+                        .children_where(|it| it.is_type(SyntaxKind::Expression))[0]
                         .clone();
 
                     let (coalesce_arg_1, coalesce_arg_2) = if !is_not_prefix

@@ -115,11 +115,11 @@ SELECT 123 as `foo` -- For BigQuery, MySql, ...
 
         if FunctionalContext::new(context)
             .parent_stack()
-            .any(Some(|it| {
+            .any_match(|it| {
                 [SyntaxKind::PasswordAuth, SyntaxKind::ExecuteAsClause]
                     .into_iter()
                     .any(|ty| it.is_type(ty))
-            }))
+            })
         {
             return Vec::new();
         }

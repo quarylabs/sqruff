@@ -276,9 +276,8 @@ impl RuleCV06 {
         );
 
         if before_segment.len() == 1
-            && before_segment.all(Some(|segment: &ErasedSegment| {
-                segment.is_type(SyntaxKind::Newline)
-            }))
+            && before_segment
+                .all_match(|segment: &ErasedSegment| segment.is_type(SyntaxKind::Newline))
         {
             return None;
         }
@@ -337,12 +336,8 @@ impl RuleCV06 {
         ) -> LintFix = LintFix::create_after;
         if AHashSet::from_iter(whitespace_deletions.base.clone()).contains(&anchor_segment) {
             lintfix_fn = LintFix::replace;
-            whitespace_deletions = whitespace_deletions.select(
-                Some(|it: &ErasedSegment| it.id() != anchor_segment.id()),
-                None,
-                None,
-                None,
-            );
+            whitespace_deletions =
+                whitespace_deletions.filter(|it: &ErasedSegment| it.id() != anchor_segment.id());
         }
 
         let mut fixes = vec![
@@ -455,18 +450,10 @@ impl RuleCV06 {
         let reversed_raw_stack =
             Segments::from_vec(parent_segment.get_raw_segments(), None).reversed();
 
-        let before_code = reversed_raw_stack.select::<fn(&ErasedSegment) -> bool>(
-            None,
-            Some(|s| !s.is_code()),
-            Some(&target_segment),
-            None,
-        );
-        let before_segment = before_code.select(
-            Some(|segment: &ErasedSegment| !segment.is_meta()),
-            None,
-            None,
-            None,
-        );
+        let before_code = reversed_raw_stack
+            .after(&target_segment)
+            .take_while(|s| !s.is_code());
+        let before_segment = before_code.filter(|segment: &ErasedSegment| !segment.is_meta());
 
         // We're selecting from the raw stack, so we know that before_code is made of
         // raw elements.
@@ -477,12 +464,8 @@ impl RuleCV06 {
         };
 
         let first_code = reversed_raw_stack
-            .select(
-                Some(|s: &ErasedSegment| s.is_code()),
-                None,
-                Some(&target_segment),
-                None,
-            )
+            .after(&target_segment)
+            .filter(|s: &ErasedSegment| s.is_code())
             .first()
             .cloned();
 
@@ -491,12 +474,7 @@ impl RuleCV06 {
 
         // We can tidy up any whitespace between the segment and the preceding
         // code/comment segment. Don't mess with the comment spacing/placement.
-        let whitespace_deletions = before_segment.select::<fn(&ErasedSegment) -> bool>(
-            None,
-            Some(|segment| segment.is_whitespace()),
-            None,
-            None,
-        );
+        let whitespace_deletions = before_segment.take_while(|segment| segment.is_whitespace());
         SegmentMoveContext {
             anchor_segment,
             is_one_line,

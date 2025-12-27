@@ -1529,12 +1529,6 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "0fda2ff0d084019ba4d7c6f371c95d8fd75ce3524c3cb8fb653a3023f6323e64"
 
 [[package]]
-name = "slyce"
-version = "0.3.1"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "046d1c67b37db818d93f1d04a924ddbd7396c96cf9cfaa593d038259ae484729"
-
-[[package]]
 name = "smallvec"
 version = "1.15.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1660,7 +1654,6 @@ dependencies = [
  "rustc-hash",
  "serde",
  "serde_yaml",
- "slyce",
  "smol_str",
  "strum",
  "strum_macros",

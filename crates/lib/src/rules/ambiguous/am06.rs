@@ -83,14 +83,14 @@ ORDER BY a ASC, b DESC
     fn eval(&self, context: &RuleContext) -> Vec<LintResult> {
         let skip = FunctionalContext::new(context)
             .parent_stack()
-            .any(Some(|it| {
+            .any_match(|it| {
                 let ignore_types = [
                     SyntaxKind::WithingroupClause,
                     SyntaxKind::WindowSpecification,
                     SyntaxKind::AggregateOrderByClause,
                 ];
                 ignore_types.iter().any(|&ty| it.is_type(ty))
-            }));
+            });
 
         if skip {
             return Vec::new();

@@ -31,11 +31,11 @@ fn get_last_segment(mut segment: Segments) -> (Vec<ErasedSegment>, Segments) {
     let mut parent_stack = Vec::new();
 
     loop {
-        let children = segment.children(None);
+        let children = segment.children_all();
 
         if !children.is_empty() {
             parent_stack.push(segment.first().unwrap().clone());
-            segment = children.find_last(Some(|s| !s.is_type(SyntaxKind::EndOfFile)));
+            segment = children.find_last_where(|s| !s.is_type(SyntaxKind::EndOfFile));
         } else {
             return (parent_stack, segment);
         }

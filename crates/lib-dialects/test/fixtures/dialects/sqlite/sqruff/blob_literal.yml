@@ -1,0 +1,40 @@
+file:
+- statement:
+  - select_statement:
+    - select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+        - bytes_quoted_literal: X'123456'
+        - alias_expression:
+          - keyword: AS
+          - naked_identifier: col
+- statement_terminator: ;
+- statement:
+  - select_statement:
+    - select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+        - bytes_quoted_literal: x'ABCDEF'
+        - alias_expression:
+          - keyword: AS
+          - naked_identifier: col
+- statement_terminator: ;
+- statement:
+  - insert_statement:
+    - keyword: INSERT
+    - keyword: INTO
+    - table_reference:
+      - naked_identifier: t
+    - bracketed:
+      - start_bracket: (
+      - column_reference:
+        - naked_identifier: id
+      - end_bracket: )
+    - values_clause:
+      - keyword: VALUES
+      - bracketed:
+        - start_bracket: (
+        - expression:
+          - bytes_quoted_literal: X'1234567890abcdef'
+        - end_bracket: )
+- statement_terminator: ;

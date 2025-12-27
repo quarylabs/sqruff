@@ -27,7 +27,7 @@ enum TypeCastingStyle {
 struct PreviousSkipped;
 
 fn get_children(segments: Segments) -> Segments {
-    segments.children(Some(|it: &ErasedSegment| {
+    segments.children_where(|it: &ErasedSegment| {
         !it.is_meta()
             && !matches!(
                 it.get_type(),
@@ -39,7 +39,7 @@ fn get_children(segments: Segments) -> Segments {
                     | SyntaxKind::Comma
                     | SyntaxKind::Keyword
             )
-    }))
+    })
 }
 
 fn shorthand_fix_list(
@@ -169,12 +169,12 @@ FROM foo;
                         TypeCastingStyle::Convert => {
                             let bracketed = functional_context
                                 .segment()
-                                .children(Some(|it: &ErasedSegment| {
+                                .children_where(|it: &ErasedSegment| {
                                     it.is_type(SyntaxKind::FunctionContents)
-                                }))
-                                .children(Some(|it: &ErasedSegment| {
+                                })
+                                .children_where(|it: &ErasedSegment| {
                                     it.is_type(SyntaxKind::Bracketed)
-                                }));
+                                });
                             let convert_content = get_children(bracketed);
                             if convert_content.len() > 2 {
                                 if previous_skipped.is_none() {
@@ -212,12 +212,12 @@ FROM foo;
                         TypeCastingStyle::Cast => {
                             let bracketed = functional_context
                                 .segment()
-                                .children(Some(|it: &ErasedSegment| {
+                                .children_where(|it: &ErasedSegment| {
                                     it.is_type(SyntaxKind::FunctionContents)
-                                }))
-                                .children(Some(|it: &ErasedSegment| {
+                                })
+                                .children_where(|it: &ErasedSegment| {
                                     it.is_type(SyntaxKind::Bracketed)
-                                }));
+                                });
                             let cast_content = get_children(bracketed);
 
                             if cast_content.len() > 2 {
@@ -254,12 +254,12 @@ FROM foo;
                             // Get the content of CAST
                             let bracketed = functional_context
                                 .segment()
-                                .children(Some(|it: &ErasedSegment| {
+                                .children_where(|it: &ErasedSegment| {
                                     it.is_type(SyntaxKind::FunctionContents)
-                                }))
-                                .children(Some(|it: &ErasedSegment| {
+                                })
+                                .children_where(|it: &ErasedSegment| {
                                     it.is_type(SyntaxKind::Bracketed)
-                                }));
+                                });
                             let cast_content = get_children(bracketed);
                             if cast_content.len() > 2 {
                                 return Vec::new();
@@ -274,12 +274,12 @@ FROM foo;
                         } else if current_type_casting_style == TypeCastingStyle::Convert {
                             let bracketed = functional_context
                                 .segment()
-                                .children(Some(|it: &ErasedSegment| {
+                                .children_where(|it: &ErasedSegment| {
                                     it.is_type(SyntaxKind::FunctionContents)
-                                }))
-                                .children(Some(|it: &ErasedSegment| {
+                                })
+                                .children_where(|it: &ErasedSegment| {
                                     it.is_type(SyntaxKind::Bracketed)
-                                }));
+                                });
                             let convert_content = get_children(bracketed);
                             if convert_content.len() > 2 {
                                 return Vec::new();
@@ -315,12 +315,12 @@ FROM foo;
                         TypeCastingStyle::Convert => {
                             let bracketed = functional_context
                                 .segment()
-                                .children(Some(|it: &ErasedSegment| {
+                                .children_where(|it: &ErasedSegment| {
                                     it.is_type(SyntaxKind::FunctionContents)
-                                }))
-                                .children(Some(|it: &ErasedSegment| {
+                                })
+                                .children_where(|it: &ErasedSegment| {
                                     it.is_type(SyntaxKind::Bracketed)
-                                }));
+                                });
                             let segments = get_children(bracketed);
                             fixes = cast_fix_list(
                                 context.tables,
@@ -356,12 +356,12 @@ FROM foo;
                         TypeCastingStyle::Cast => {
                             let bracketed = functional_context
                                 .segment()
-                                .children(Some(|it: &ErasedSegment| {
+                                .children_where(|it: &ErasedSegment| {
                                     it.is_type(SyntaxKind::FunctionContents)
-                                }))
-                                .children(Some(|it: &ErasedSegment| {
+                                })
+                                .children_where(|it: &ErasedSegment| {
                                     it.is_type(SyntaxKind::Bracketed)
-                                }));
+                                });
                             let cast_content = get_children(bracketed);
 
                             fixes = convert_fix_list(
@@ -389,12 +389,12 @@ FROM foo;
                         TypeCastingStyle::Cast => {
                             let bracketed = functional_context
                                 .segment()
-                                .children(Some(|it: &ErasedSegment| {
+                                .children_where(|it: &ErasedSegment| {
                                     it.is_type(SyntaxKind::FunctionContents)
-                                }))
-                                .children(Some(|it: &ErasedSegment| {
+                                })
+                                .children_where(|it: &ErasedSegment| {
                                     it.is_type(SyntaxKind::Bracketed)
-                                }));
+                                });
                             let segments = get_children(bracketed);
 
                             fixes = shorthand_fix_list(
@@ -408,12 +408,12 @@ FROM foo;
                         TypeCastingStyle::Convert => {
                             let bracketed = functional_context
                                 .segment()
-                                .children(Some(|it: &ErasedSegment| {
+                                .children_where(|it: &ErasedSegment| {
                                     it.is_type(SyntaxKind::FunctionContents)
-                                }))
-                                .children(Some(|it: &ErasedSegment| {
+                                })
+                                .children_where(|it: &ErasedSegment| {
                                     it.is_type(SyntaxKind::Bracketed)
-                                }));
+                                });
                             let segments = get_children(bracketed);
 
                             fixes = shorthand_fix_list(

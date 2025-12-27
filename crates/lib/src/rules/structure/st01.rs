@@ -61,24 +61,21 @@ from x
     fn eval(&self, context: &RuleContext) -> Vec<LintResult> {
         let anchor = context.segment.clone();
 
-        let children = FunctionalContext::new(context).segment().children(None);
-        let else_clause = children.find_first(Some(|it: &ErasedSegment| {
-            it.is_type(SyntaxKind::ElseClause)
-        }));
+        let children = FunctionalContext::new(context).segment().children_all();
+        let else_clause =
+            children.find_first_where(|it: &ErasedSegment| it.is_type(SyntaxKind::ElseClause));
 
         if !else_clause
-            .children(Some(|child| child.raw().eq_ignore_ascii_case("NULL")))
+            .children_where(|child| child.raw().eq_ignore_ascii_case("NULL"))
             .is_empty()
         {
-            let before_else = children.reversed().select::<fn(&ErasedSegment) -> bool>(
-                None,
-                Some(|it| {
+            let before_else = children
+                .reversed()
+                .after(else_clause.first().unwrap())
+                .take_while(|it| {
                     matches!(it.get_type(), SyntaxKind::Whitespace | SyntaxKind::Newline)
                         | it.is_meta()
-                }),
-                else_clause.first().unwrap().into(),
-                None,
-            );
+                });
 
             let mut fixes = Vec::with_capacity(before_else.len() + 1);
             fixes.push(LintFix::delete(else_clause.first().unwrap().clone()));

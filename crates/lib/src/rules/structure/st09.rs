@@ -83,10 +83,10 @@ left join bar
 
     fn eval(&self, context: &RuleContext) -> Vec<LintResult> {
         let mut table_aliases = Vec::new();
-        let children = FunctionalContext::new(context).segment().children(None);
+        let children = FunctionalContext::new(context).segment().children_all();
         let join_clauses =
             children.recursive_crawl(const { &SyntaxSet::new(&[SyntaxKind::JoinClause]) }, true);
-        let join_on_conditions = join_clauses.children(None).recursive_crawl(
+        let join_on_conditions = join_clauses.children_all().recursive_crawl(
             const { &SyntaxSet::new(&[SyntaxKind::JoinOnCondition]) },
             true,
         );
@@ -130,12 +130,12 @@ left join bar
         let mut conditions = Vec::new();
 
         let join_on_condition_expressions = join_on_conditions
-            .children(None)
+            .children_all()
             .recursive_crawl(const { &SyntaxSet::new(&[SyntaxKind::Expression]) }, true);
 
         for expression in join_on_condition_expressions {
             let mut expression_group = Vec::new();
-            for element in Segments::new(expression, None).children(None) {
+            for element in Segments::new(expression, None).children_all() {
                 if !matches!(
                     element.get_type(),
                     SyntaxKind::Whitespace | SyntaxKind::Newline

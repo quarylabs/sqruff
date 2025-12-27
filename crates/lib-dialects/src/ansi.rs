@@ -1723,7 +1723,7 @@ pub fn raw_dialect() -> Dialect {
             NodeMatcher::new(SyntaxKind::TableReference, |_dialect| {
                 _dialect
                     .grammar("ObjectReferenceSegment")
-                    .match_grammar(&_dialect)
+                    .match_grammar(_dialect)
                     .unwrap()
             })
             .to_matchable()
@@ -1734,7 +1734,7 @@ pub fn raw_dialect() -> Dialect {
             NodeMatcher::new(SyntaxKind::SchemaReference, |_dialect| {
                 _dialect
                     .grammar("ObjectReferenceSegment")
-                    .match_grammar(&_dialect)
+                    .match_grammar(_dialect)
                     .unwrap()
             })
             .to_matchable()
@@ -1745,7 +1745,7 @@ pub fn raw_dialect() -> Dialect {
             NodeMatcher::new(SyntaxKind::DatabaseReference, |_dialect| {
                 _dialect
                     .grammar("ObjectReferenceSegment")
-                    .match_grammar(&_dialect)
+                    .match_grammar(_dialect)
                     .unwrap()
             })
             .to_matchable()
@@ -1756,7 +1756,7 @@ pub fn raw_dialect() -> Dialect {
             NodeMatcher::new(SyntaxKind::IndexReference, |_dialect| {
                 _dialect
                     .grammar("ObjectReferenceSegment")
-                    .match_grammar(&_dialect)
+                    .match_grammar(_dialect)
                     .unwrap()
             })
             .to_matchable()
@@ -1794,7 +1794,7 @@ pub fn raw_dialect() -> Dialect {
             NodeMatcher::new(SyntaxKind::TablespaceReference, |_dialect| {
                 _dialect
                     .grammar("ObjectReferenceSegment")
-                    .match_grammar(&_dialect)
+                    .match_grammar(_dialect)
                     .unwrap()
             })
             .to_matchable()
@@ -1805,7 +1805,7 @@ pub fn raw_dialect() -> Dialect {
             NodeMatcher::new(SyntaxKind::ExtensionReference, |_dialect| {
                 _dialect
                     .grammar("ObjectReferenceSegment")
-                    .match_grammar(&_dialect)
+                    .match_grammar(_dialect)
                     .unwrap()
             })
             .to_matchable()
@@ -1816,7 +1816,7 @@ pub fn raw_dialect() -> Dialect {
             NodeMatcher::new(SyntaxKind::ColumnReference, |_dialect| {
                 _dialect
                     .grammar("ObjectReferenceSegment")
-                    .match_grammar(&_dialect)
+                    .match_grammar(_dialect)
                     .unwrap()
             })
             .to_matchable()
@@ -1827,7 +1827,7 @@ pub fn raw_dialect() -> Dialect {
             NodeMatcher::new(SyntaxKind::SequenceReference, |_dialect| {
                 _dialect
                     .grammar("ObjectReferenceSegment")
-                    .match_grammar(&_dialect)
+                    .match_grammar(_dialect)
                     .unwrap()
             })
             .to_matchable()
@@ -1838,7 +1838,7 @@ pub fn raw_dialect() -> Dialect {
             NodeMatcher::new(SyntaxKind::TagReference, |_dialect| {
                 _dialect
                     .grammar("ObjectReferenceSegment")
-                    .match_grammar(&_dialect)
+                    .match_grammar(_dialect)
                     .unwrap()
             })
             .to_matchable()
@@ -1849,7 +1849,7 @@ pub fn raw_dialect() -> Dialect {
             NodeMatcher::new(SyntaxKind::TriggerReference, |_dialect| {
                 _dialect
                     .grammar("ObjectReferenceSegment")
-                    .match_grammar(&_dialect)
+                    .match_grammar(_dialect)
                     .unwrap()
             })
             .to_matchable()

@@ -48,7 +48,7 @@ file:
               - start_bracket: (
               - expression:
                 - typed_array_literal:
-                  - data_type:
+                  - array_type:
                     - keyword: ARRAY
                   - array_literal:
                     - start_square_bracket: '['
@@ -56,7 +56,7 @@ file:
                     - end_square_bracket: ']'
               - keyword: AS
               - data_type:
-                - data_type:
+                - array_type:
                   - keyword: ARRAY
                   - start_angle_bracket: <
                   - data_type:

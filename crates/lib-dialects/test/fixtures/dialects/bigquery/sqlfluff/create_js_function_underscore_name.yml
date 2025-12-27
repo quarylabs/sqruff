@@ -15,13 +15,13 @@ file:
         - end_bracket: )
     - keyword: RETURNS
     - data_type:
-      - data_type:
+      - struct_type:
         - keyword: STRUCT
         - struct_type_schema:
           - start_angle_bracket: <
           - parameter: _product_id
           - data_type:
-            - data_type:
+            - array_type:
               - keyword: ARRAY
               - start_angle_bracket: <
               - data_type:

@@ -16,7 +16,7 @@ file:
       - comma: ','
       - select_clause_element:
         - typed_array_literal:
-          - data_type:
+          - array_type:
             - keyword: ARRAY
             - start_angle_bracket: <
             - data_type:
@@ -39,7 +39,7 @@ file:
       - comma: ','
       - select_clause_element:
         - typed_array_literal:
-          - data_type:
+          - array_type:
             - keyword: ARRAY
             - start_angle_bracket: <
             - data_type:
@@ -66,7 +66,7 @@ file:
       - comma: ','
       - select_clause_element:
         - typed_array_literal:
-          - data_type:
+          - array_type:
             - keyword: ARRAY
             - start_angle_bracket: <
             - data_type:
@@ -86,7 +86,7 @@ file:
           - start_square_bracket: '['
           - expression:
             - typed_struct_literal:
-              - data_type:
+              - struct_type:
                 - keyword: STRUCT
               - struct_literal:
                 - bracketed:

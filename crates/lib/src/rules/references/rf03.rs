@@ -1,5 +1,3 @@
-use std::cell::RefCell;
-
 use ahash::{AHashMap, AHashSet};
 use itertools::Itertools;
 use smol_str::SmolStr;
@@ -35,7 +33,7 @@ impl RuleRF03 {
         let mut select_info = None;
 
         let mut acc = Vec::new();
-        let selectables = &RefCell::borrow(&query.inner).selectables;
+        let selectables = query.selectables();
 
         if !selectables.is_empty() {
             select_info = selectables[0].select_info();
@@ -47,7 +45,7 @@ impl RuleRF03 {
                 let mut fixable = true;
                 let possible_ref_tables = iter_available_targets(query.clone());
 
-                if let Some(_parent) = &RefCell::borrow(&query.inner).parent {}
+                if query.parent().is_some() {}
 
                 if possible_ref_tables.len() > 1 {
                     fixable = false;
@@ -85,8 +83,8 @@ impl RuleRF03 {
 }
 
 fn iter_available_targets(query: Query<'_>) -> Vec<SmolStr> {
-    RefCell::borrow(&query.inner)
-        .selectables
+    query
+        .selectables()
         .iter()
         .flat_map(|selectable| {
             selectable

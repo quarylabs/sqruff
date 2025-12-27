@@ -1,4 +1,5 @@
-use ahash::AHashMap;
+use ahash::{AHashMap, AHashSet};
+use smol_str::SmolStr;
 use sqruff_lib_core::dialects::common::AliasInfo;
 use sqruff_lib_core::dialects::syntax::{SyntaxKind, SyntaxSet};
 use sqruff_lib_core::parser::segments::ErasedSegment;
@@ -73,8 +74,9 @@ SELECT a, b FROM t
 
     fn eval(&self, rule_cx: &RuleContext) -> Vec<LintResult> {
         let query = Query::from_segment(&rule_cx.segment, rule_cx.dialect, None);
+        let mut consumed_ctes = AHashSet::new();
 
-        let result = self.analyze_result_columns(query);
+        let result = self.analyze_result_columns(query, &mut consumed_ctes);
         match result {
             Ok(_) => {
                 vec![]
@@ -94,36 +96,41 @@ SELECT a, b FROM t
 
 impl RuleAM04 {
     /// returns an anchor to the rule
-    fn analyze_result_columns(&self, query: Query<'_>) -> Result<(), ErasedSegment> {
-        if query.inner.borrow().selectables.is_empty() {
+    fn analyze_result_columns(
+        &self,
+        query: Query<'_>,
+        consumed_ctes: &mut AHashSet<SmolStr>,
+    ) -> Result<(), ErasedSegment> {
+        if query.selectables().is_empty() {
             return Ok(());
         }
 
-        let selectables = query.inner.borrow().selectables.clone();
-        for selectable in selectables {
+        for selectable in query.selectables() {
             for wildcard in selectable.wildcard_info() {
                 if !wildcard.tables.is_empty() {
                     for wildcard_table in wildcard.tables {
                         if let Some(alias_info) = selectable.find_alias(&wildcard_table) {
-                            self.handle_alias(&selectable, alias_info, &query)?;
+                            self.handle_alias(&selectable, alias_info, &query, consumed_ctes)?;
                         } else {
-                            let Some(cte) = query.lookup_cte(&wildcard_table, true) else {
-                                return Err(selectable.selectable);
+                            let Some(cte) =
+                                query.lookup_cte_tracked(&wildcard_table, consumed_ctes)
+                            else {
+                                return Err(selectable.selectable.clone());
                             };
 
-                            self.analyze_result_columns(cte)?;
+                            self.analyze_result_columns(cte, consumed_ctes)?;
                         }
                     }
                 } else {
-                    let selectable = query.inner.borrow().selectables[0].selectable.clone();
-                    for source in query.crawl_sources(selectable.clone(), false, true) {
-                        if let Source::Query(query) = source {
-                            self.analyze_result_columns(query)?;
+                    let selectable_segment = query.selectables()[0].selectable.clone();
+                    for source in query.crawl_sources(selectable_segment.clone(), None, true) {
+                        if let Source::Query(subquery) = source {
+                            self.analyze_result_columns(subquery, consumed_ctes)?;
                             return Ok(());
                         }
                     }
 
-                    return Err(selectable);
+                    return Err(selectable_segment);
                 }
             }
         }
@@ -136,15 +143,16 @@ impl RuleAM04 {
         selectable: &Selectable,
         alias_info: AliasInfo,
         query: &Query<'_>,
+        consumed_ctes: &mut AHashSet<SmolStr>,
     ) -> Result<(), ErasedSegment> {
         let select_info_target = query
-            .crawl_sources(alias_info.from_expression_element, false, true)
+            .crawl_sources(alias_info.from_expression_element, None, true)
             .into_iter()
             .next()
             .unwrap();
         match select_info_target {
             Source::TableReference(_) => Err(selectable.selectable.clone()),
-            Source::Query(query) => self.analyze_result_columns(query),
+            Source::Query(subquery) => self.analyze_result_columns(subquery, consumed_ctes),
         }
     }
 }

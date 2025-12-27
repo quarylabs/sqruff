@@ -1,4 +1,5 @@
-use ahash::{AHashMap, HashSet, HashSetExt};
+use ahash::{AHashMap, AHashSet, HashSet, HashSetExt};
+use smol_str::SmolStr;
 use sqruff_lib_core::dialects::syntax::{SyntaxKind, SyntaxSet};
 use sqruff_lib_core::utils::analysis::query::{Query, Selectable, Source, WildcardInfo};
 
@@ -85,7 +86,9 @@ FROM t
         }
 
         let query: Query<'_> = Query::from_segment(root, context.dialect, None);
-        let (set_segment_select_sizes, resolve_wildcard) = self.get_select_target_counts(query);
+        let mut consumed_ctes = AHashSet::new();
+        let (set_segment_select_sizes, resolve_wildcard) =
+            self.get_select_target_counts(query, &mut consumed_ctes);
 
         // if queries had different select target counts and all wildcards had been
         // resolved; fail
@@ -117,13 +120,16 @@ impl RuleAM07 {
     /// can't guarantee that we can always resolve any wildcards (*), so
     /// we also return a flag to indicate whether any present have been
     /// fully resolved.
-    fn get_select_target_counts(&self, query: Query<'_>) -> (HashSet<usize>, bool) {
+    fn get_select_target_counts(
+        &self,
+        query: Query<'_>,
+        consumed_ctes: &mut AHashSet<SmolStr>,
+    ) -> (HashSet<usize>, bool) {
         let mut select_target_counts = HashSet::new();
         let mut resolved_wildcard = true;
 
-        let selectables = query.inner.borrow().selectables.clone();
-        for selectable in selectables {
-            let (cnt, res) = self.resolve_selectable(selectable.clone(), query.clone());
+        for selectable in query.selectables() {
+            let (cnt, res) = self.resolve_selectable(selectable.clone(), query.clone(), consumed_ctes);
             if !res {
                 resolved_wildcard = false;
             }
@@ -137,7 +143,12 @@ impl RuleAM07 {
     ///
     /// The selectable may opr may not have (*) wildcard expressions. If it
     /// does, we attempt to resolve them.
-    fn resolve_selectable(&self, selectable: Selectable, root_query: Query<'_>) -> (usize, bool) {
+    fn resolve_selectable(
+        &self,
+        selectable: Selectable,
+        root_query: Query<'_>,
+        consumed_ctes: &mut AHashSet<SmolStr>,
+    ) -> (usize, bool) {
         debug_assert!(selectable.select_info().is_some());
 
         let wildcard_info = selectable.wildcard_info();
@@ -156,7 +167,7 @@ impl RuleAM07 {
         // list of select targets that can be counted.
         for wildcard in wildcard_info {
             let (_cols, _resolved) =
-                self.resolve_selectable_wildcard(wildcard, selectable.clone(), root_query.clone());
+                self.resolve_selectable_wildcard(wildcard, selectable.clone(), root_query.clone(), consumed_ctes);
             resolved = resolved && _resolved;
             // Add on the number of columns which the wildcard resolves to.
             num_cols += _cols;
@@ -176,14 +187,18 @@ impl RuleAM07 {
     /// only called on any subqueries (which may themselves be SELECT,
     /// WITH or set expressions) found during the resolution of any
     /// wildcards.
-    fn resolve_wild_query(&self, query: Query<'_>) -> (usize, bool) {
+    fn resolve_wild_query(
+        &self,
+        query: Query<'_>,
+        consumed_ctes: &mut AHashSet<SmolStr>,
+    ) -> (usize, bool) {
         // if one of the source queries for a query within the set is a
         // set expression, just use the first query. If that first query isn't
         // reflective of the others, that will be caught when that segment
         // is processed. We'll know if we're in a set based on whether there
         // is more than one selectable. i.e. Just take the first selectable.
-        let selectable = query.inner.borrow().selectables[0].clone();
-        self.resolve_selectable(selectable, query.clone())
+        let selectable = query.selectables()[0].clone();
+        self.resolve_selectable(selectable, query.clone(), consumed_ctes)
     }
 
     /// Attempt to resolve a single wildcard (*) within a Selectable.
@@ -196,15 +211,16 @@ impl RuleAM07 {
         wildcard: WildcardInfo,
         selectable: Selectable,
         root_query: Query<'_>,
+        consumed_ctes: &mut AHashSet<SmolStr>,
     ) -> (usize, bool) {
         let mut resolved = true;
 
         // If there is no table specified, it is likely a subquery so handle that first.
         if wildcard.tables.is_empty() {
             // Crawl the query looking for the subquery, problem in the FROM.
-            for source in root_query.crawl_sources(selectable.selectable, false, true) {
+            for source in root_query.crawl_sources(selectable.selectable, None, true) {
                 if let Source::Query(query) = source {
-                    return self.resolve_wild_query(query);
+                    return self.resolve_wild_query(query, consumed_ctes);
                 }
             }
             return (0, false);
@@ -219,7 +235,7 @@ impl RuleAM07 {
             let alias_info = selectable.find_alias(&wildcard_table);
             if let Some(alias_info) = alias_info {
                 let select_info_target = root_query
-                    .crawl_sources(alias_info.from_expression_element, false, true)
+                    .crawl_sources(alias_info.from_expression_element, None, true)
                     .into_iter()
                     .next()
                     .unwrap();
@@ -229,7 +245,7 @@ impl RuleAM07 {
                         cte_name = name;
                     }
                     Source::Query(query) => {
-                        let (_cols, _resolved) = self.resolve_wild_query(query);
+                        let (_cols, _resolved) = self.resolve_wild_query(query, consumed_ctes);
                         num_columns += _cols;
                         resolved = resolved && _resolved;
                         continue;
@@ -237,9 +253,9 @@ impl RuleAM07 {
                 }
             }
 
-            let cte = root_query.lookup_cte(&cte_name, true);
+            let cte = root_query.lookup_cte_tracked(&cte_name, consumed_ctes);
             if let Some(cte) = cte {
-                let (cols, _resolved) = self.resolve_wild_query(cte);
+                let (cols, _resolved) = self.resolve_wild_query(cte, consumed_ctes);
                 num_columns += cols;
                 resolved = resolved && _resolved;
             } else {

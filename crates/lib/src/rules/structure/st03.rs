@@ -1,5 +1,3 @@
-use std::cell::RefCell;
-
 use ahash::AHashMap;
 use smol_str::StrExt;
 use sqruff_lib_core::dialects::syntax::{SyntaxKind, SyntaxSet};
@@ -71,8 +69,8 @@ FROM cte1
         let mut result = Vec::new();
         let query: Query<'_> = Query::from_root(&context.segment, context.dialect).unwrap();
 
-        let mut remaining_ctes: IndexMap<_, _> = RefCell::borrow(&query.inner)
-            .ctes
+        let mut remaining_ctes: IndexMap<_, _> = query
+            .ctes()
             .keys()
             .map(|it| (it.to_uppercase_smolstr(), it.clone()))
             .collect();
@@ -87,14 +85,13 @@ FROM cte1
         }
 
         for name in remaining_ctes.values() {
-            let tmp = RefCell::borrow(&query.inner);
-            let cte = RefCell::borrow(&tmp.ctes[name].inner);
+            let cte = &query.ctes()[name];
             result.push(LintResult::new(
-                cte.cte_name_segment.clone(),
+                cte.cte_name_segment().cloned(),
                 Vec::new(),
                 Some(format!(
                     "Query defines CTE \"{}\" but does not use it.",
-                    cte.cte_name_segment.as_ref().unwrap().raw()
+                    cte.cte_name_segment().unwrap().raw()
                 )),
                 None,
             ));

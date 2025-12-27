@@ -119,8 +119,8 @@ join c using(x)
         let query: Query<'_> = Query::from_segment(&context.segment, context.dialect, None);
         let mut ctes = CTEBuilder::default();
 
-        for cte in query.inner.borrow().ctes.values() {
-            ctes.insert_cte(cte.inner.borrow().cte_definition_segment.clone().unwrap());
+        for cte in query.ctes().values() {
+            ctes.insert_cte(cte.cte_definition_segment().cloned().unwrap());
         }
 
         let is_with =
@@ -287,11 +287,11 @@ impl RuleST05 {
 
             ctes.insert_cte(new_cte);
 
-            if nsq.query.inner.borrow().selectables.len() != 1 {
+            if nsq.query.selectables().len() != 1 {
                 continue;
             }
 
-            let select = nsq.query.inner.borrow().selectables[0].clone().selectable;
+            let select = nsq.query.selectables()[0].clone().selectable;
             let anchor = anchor.recursive_crawl(
                 const {
                     &SyntaxSet::new(&[
@@ -322,7 +322,7 @@ impl RuleST05 {
                 res,
                 nsq.table_alias.from_expression_element,
                 alias_name.clone(),
-                nsq.query.inner.borrow().selectables[0].clone().selectable,
+                nsq.query.selectables()[0].clone().selectable,
             ));
         }
 
@@ -338,10 +338,10 @@ impl RuleST05 {
 
         let parent_types = config_mapping(&self.forbid_subquery_in);
         let mut queries = vec![query.clone()];
-        queries.extend(query.inner.borrow().ctes.values().cloned());
+        queries.extend(query.ctes().values().cloned());
 
         for (i, q) in enumerate(queries) {
-            for selectable in &q.inner.borrow().selectables {
+            for selectable in q.selectables() {
                 let Some(select_info) = selectable.select_info() else {
                     continue;
                 };
@@ -356,7 +356,7 @@ impl RuleST05 {
                         select_source_names.insert(object_reference.raw().to_smolstr());
                     }
 
-                    let Some(query) =
+                    let Some(subquery) =
                         Query::from_root(&table_alias.from_expression_element, dialect)
                     else {
                         continue;
@@ -376,10 +376,8 @@ impl RuleST05 {
 
                     if is_correlated_subquery(
                         Segments::new(
-                            query
-                                .inner
-                                .borrow()
-                                .selectables
+                            subquery
+                                .selectables()
                                 .first()
                                 .unwrap()
                                 .selectable
@@ -400,7 +398,7 @@ impl RuleST05 {
                     });
 
                     if i > 0 {
-                        acc.append(&mut self.nested_subqueries(query.clone(), dialect));
+                        acc.append(&mut self.nested_subqueries(subquery.clone(), dialect));
                     }
                 }
             }

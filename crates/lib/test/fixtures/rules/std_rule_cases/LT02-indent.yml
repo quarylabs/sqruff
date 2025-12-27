@@ -869,6 +869,7 @@ test_fail_ignore_templated_whitespace_1:
       ignore_templated_areas: false
 
 test_fail_ignore_templated_whitespace_2:
+  ignored: "jinja is not set"
   fail_str: |
     SELECT
         c1,
@@ -926,6 +927,7 @@ test_pass_ignore_templated_newline_last_line:
     from {{ "\n\nmy_table" }}
 
 test_fail_fix_template_indentation_1:
+  ignored: "jinja is not set"
   fail_str: |
     SELECT
         c1,

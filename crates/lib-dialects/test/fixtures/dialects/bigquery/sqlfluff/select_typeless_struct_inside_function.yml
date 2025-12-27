@@ -6,14 +6,14 @@ file:
       - select_clause_element:
         - expression:
           - typed_struct_literal:
-            - data_type:
+            - struct_type:
               - keyword: STRUCT
             - struct_literal:
               - bracketed:
                 - start_bracket: (
                 - expression:
                   - typed_struct_literal:
-                    - data_type:
+                    - struct_type:
                       - keyword: STRUCT
                     - struct_literal:
                       - bracketed:
@@ -47,7 +47,7 @@ file:
               - start_bracket: (
               - expression:
                 - typed_struct_literal:
-                  - data_type:
+                  - struct_type:
                     - keyword: STRUCT
                   - struct_literal:
                     - bracketed:

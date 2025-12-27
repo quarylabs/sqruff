@@ -65,7 +65,7 @@ file:
     - keyword: declare
     - naked_identifier: arr1
     - data_type:
-      - data_type:
+      - array_type:
         - keyword: array
         - start_angle_bracket: <
         - data_type:
@@ -98,7 +98,7 @@ file:
     - keyword: declare
     - naked_identifier: arr4
     - data_type:
-      - data_type:
+      - array_type:
         - keyword: array
         - start_angle_bracket: <
         - data_type:
@@ -117,7 +117,7 @@ file:
     - keyword: declare
     - naked_identifier: arr5
     - data_type:
-      - data_type:
+      - array_type:
         - keyword: array
         - start_angle_bracket: <
         - data_type:
@@ -134,7 +134,7 @@ file:
     - keyword: declare
     - naked_identifier: str1
     - data_type:
-      - data_type:
+      - struct_type:
         - keyword: struct
         - struct_type_schema:
           - start_angle_bracket: <
@@ -152,7 +152,7 @@ file:
     - keyword: declare
     - naked_identifier: str2
     - data_type:
-      - data_type:
+      - struct_type:
         - keyword: struct
         - struct_type_schema:
           - start_angle_bracket: <
@@ -167,7 +167,7 @@ file:
     - keyword: default
     - expression:
       - typed_struct_literal:
-        - data_type:
+        - struct_type:
           - keyword: struct
         - struct_literal:
           - bracketed:
@@ -184,7 +184,7 @@ file:
     - keyword: default
     - expression:
       - typed_struct_literal:
-        - data_type:
+        - struct_type:
           - keyword: struct
         - struct_literal:
           - bracketed:
@@ -199,7 +199,7 @@ file:
     - keyword: declare
     - naked_identifier: str4
     - data_type:
-      - data_type:
+      - struct_type:
         - keyword: struct
         - struct_type_schema:
           - start_angle_bracket: <
@@ -225,7 +225,7 @@ file:
     - keyword: declare
     - naked_identifier: str5
     - data_type:
-      - data_type:
+      - struct_type:
         - keyword: struct
         - struct_type_schema:
           - start_angle_bracket: <

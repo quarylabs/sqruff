@@ -609,7 +609,7 @@ file:
         - start_bracket: (
         - parameter: _log
         - data_type:
-          - data_type:
+          - struct_type:
             - keyword: STRUCT
             - struct_type_schema:
               - start_angle_bracket: <
@@ -694,7 +694,7 @@ file:
         - start_bracket: (
         - parameter: _log
         - data_type:
-          - data_type:
+          - struct_type:
             - keyword: STRUCT
             - struct_type_schema:
               - start_angle_bracket: <
@@ -833,7 +833,7 @@ file:
         - start_bracket: (
         - parameter: _log
         - data_type:
-          - data_type:
+          - struct_type:
             - keyword: STRUCT
             - struct_type_schema:
               - start_angle_bracket: <

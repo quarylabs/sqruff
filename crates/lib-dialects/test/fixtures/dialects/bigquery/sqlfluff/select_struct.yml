@@ -106,7 +106,7 @@ file:
       - select_clause_element:
         - expression:
           - typed_struct_literal:
-            - data_type:
+            - struct_type:
               - keyword: struct
             - struct_literal:
               - bracketed:
@@ -185,11 +185,11 @@ file:
                   - start_bracket: (
                   - expression:
                     - typed_array_literal:
-                      - data_type:
+                      - array_type:
                         - keyword: ARRAY
                         - start_angle_bracket: <
                         - data_type:
-                          - data_type:
+                          - struct_type:
                             - keyword: STRUCT
                             - struct_type_schema:
                               - start_angle_bracket: <
@@ -229,7 +229,7 @@ file:
       - select_clause_element:
         - expression:
           - typed_struct_literal:
-            - data_type:
+            - struct_type:
               - keyword: STRUCT
               - struct_type_schema:
                 - start_angle_bracket: <
@@ -245,7 +245,7 @@ file:
       - select_clause_element:
         - expression:
           - typed_struct_literal:
-            - data_type:
+            - struct_type:
               - keyword: STRUCT
               - struct_type_schema:
                 - start_angle_bracket: <
@@ -261,7 +261,7 @@ file:
       - select_clause_element:
         - expression:
           - typed_struct_literal:
-            - data_type:
+            - struct_type:
               - keyword: STRUCT
               - struct_type_schema:
                 - start_angle_bracket: <
@@ -287,7 +287,7 @@ file:
       - select_clause_element:
         - expression:
           - typed_struct_literal:
-            - data_type:
+            - struct_type:
               - keyword: STRUCT
               - struct_type_schema:
                 - start_angle_bracket: <
@@ -308,7 +308,7 @@ file:
       - select_clause_element:
         - expression:
           - typed_struct_literal:
-            - data_type:
+            - struct_type:
               - keyword: STRUCT
             - struct_literal:
               - bracketed:
@@ -344,7 +344,7 @@ file:
               - start_bracket: (
               - expression:
                 - typed_struct_literal:
-                  - data_type:
+                  - struct_type:
                     - keyword: STRUCT
                   - struct_literal:
                     - bracketed:
@@ -382,7 +382,7 @@ file:
           - bracketed:
             - start_bracket: (
             - typed_struct_literal:
-              - data_type:
+              - struct_type:
                 - keyword: STRUCT
               - struct_literal:
                 - bracketed:

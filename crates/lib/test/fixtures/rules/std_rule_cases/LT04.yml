@@ -281,6 +281,7 @@ leading_comma_move_past_several_comment_lines:
           line_position: leading
 
 leading_comma_with_templated_column_1:
+  ignored: "jinja is not set"
   fail_str: |
     SELECT
         c1,

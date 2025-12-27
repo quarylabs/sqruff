@@ -663,7 +663,7 @@ pub fn raw_dialect() -> Dialect {
     bigquery_dialect.add([
         (
             "ArrayTypeSegment".into(),
-            NodeMatcher::new(SyntaxKind::DataType, |_dialect| {
+            NodeMatcher::new(SyntaxKind::ArrayType, |_dialect| {
                 Sequence::new(vec![
                     Ref::keyword("ARRAY").to_matchable(),
                     Bracketed::new(vec![Ref::new("DatatypeSegment").to_matchable()])
@@ -1847,7 +1847,7 @@ pub fn raw_dialect() -> Dialect {
         ),
         (
             "StructTypeSegment".into(),
-            NodeMatcher::new(SyntaxKind::DataType, |_dialect| {
+            NodeMatcher::new(SyntaxKind::StructType, |_dialect| {
                 Sequence::new(vec![
                     Ref::keyword("STRUCT").to_matchable(),
                     Ref::new("StructTypeSchemaSegment")

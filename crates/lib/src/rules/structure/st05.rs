@@ -208,24 +208,17 @@ join c using(x)
         }
 
         let _segment = Segments::new(new_root, None);
-        let output_select = if is_with {
-            _segment.children(Some(|it: &ErasedSegment| {
-                matches!(
-                    it.get_type(),
-                    SyntaxKind::SetExpression | SyntaxKind::SelectStatement
-                )
-            }))
-        } else {
-            _segment.clone()
+        let Some(target_statement) = resolve_output_statement(&_segment) else {
+            return lint_results;
         };
 
         for result in &mut lint_results {
             let subquery_parent = subquery_parent.clone().unwrap();
-            let output_select_clone = output_select[0].clone();
+            let output_select_clone = target_statement.clone();
 
             let mut fixes = ctes.ensure_space_after_from(
                 context.tables,
-                output_select[0].clone(),
+                target_statement.clone(),
                 &output_select_clone,
                 subquery_parent,
             );
@@ -423,6 +416,31 @@ fn get_first_select_statement_descendant(segment: &ErasedSegment) -> Option<Eras
         )
         .into_iter()
         .next()
+}
+
+fn resolve_output_statement(segment: &Segments) -> Option<ErasedSegment> {
+    let root = segment.first()?.clone();
+
+    if root.is_type(SyntaxKind::WithCompoundStatement) {
+        let statement = segment.children(Some(|it: &ErasedSegment| {
+            matches!(
+                it.get_type(),
+                SyntaxKind::SetExpression
+                    | SyntaxKind::SelectStatement
+                    | SyntaxKind::InsertStatement
+                    | SyntaxKind::UpdateStatement
+                    | SyntaxKind::DeleteStatement
+            )
+        }));
+
+        if let Some(stmt) = statement.first() {
+            return Some(stmt.clone());
+        }
+
+        return get_first_select_statement_descendant(&root);
+    }
+
+    Some(root)
 }
 
 fn is_correlated_subquery(

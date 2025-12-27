@@ -5262,13 +5262,15 @@ pub fn raw_dialect() -> Dialect {
             .config(|this| this.optional()),
             Sequence::new(vec_of_erased![
                 Ref::keyword("RETURNING"),
+                MetaSegment::indent(),
                 one_of(vec_of_erased![
                     Ref::new("StarSegment"),
                     Delimited::new(vec_of_erased![Sequence::new(vec_of_erased![
                         Ref::new("ExpressionSegment"),
                         Ref::new("AsAliasExpressionSegment").optional(),
                     ])])
-                ])
+                ]),
+                MetaSegment::dedent(),
             ])
             .config(|this| this.optional()),
         ])
@@ -6050,6 +6052,7 @@ pub fn raw_dialect() -> Dialect {
             .config(|this| this.optional()),
             Sequence::new(vec_of_erased![
                 Ref::keyword("RETURNING"),
+                MetaSegment::indent(),
                 one_of(vec_of_erased![
                     Ref::new("StarSegment"),
                     Delimited::new(vec_of_erased![Sequence::new(vec_of_erased![
@@ -6057,6 +6060,7 @@ pub fn raw_dialect() -> Dialect {
                         Ref::new("AliasExpressionSegment").optional(),
                     ])]),
                 ]),
+                MetaSegment::dedent(),
             ])
             .config(|this| this.optional()),
         ])
@@ -6132,6 +6136,7 @@ pub fn raw_dialect() -> Dialect {
                     .config(|this| this.optional()),
                     Sequence::new(vec_of_erased![
                         Ref::keyword("RETURNING"),
+                        MetaSegment::indent(),
                         one_of(vec_of_erased![
                             Ref::new("StarSegment"),
                             Delimited::new(vec_of_erased![Sequence::new(vec_of_erased![
@@ -6139,6 +6144,7 @@ pub fn raw_dialect() -> Dialect {
                                 Ref::new("AliasExpressionSegment").optional(),
                             ])])
                         ]),
+                        MetaSegment::dedent(),
                     ])
                     .config(|this| this.optional()),
                 ])

@@ -1847,7 +1847,7 @@ pub fn raw_dialect() -> Dialect {
         ),
         (
             "StructTypeSegment".into(),
-            NodeMatcher::new(SyntaxKind::StructType, |_dialect| {
+            NodeMatcher::new(SyntaxKind::DataType, |_dialect| {
                 Sequence::new(vec![
                     Ref::keyword("STRUCT").to_matchable(),
                     Ref::new("StructTypeSchemaSegment")

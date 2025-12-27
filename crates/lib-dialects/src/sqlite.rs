@@ -24,6 +24,17 @@ pub fn raw_dialect() -> Dialect {
     let mut sqlite_dialect = ansi_dialect.clone();
     sqlite_dialect.name = DialectKind::Sqlite;
 
+    // Add lexer matcher for SQLite blob literals (X'...' or x'...').
+    // Insert before single_quote to take precedence over string literals.
+    sqlite_dialect.insert_lexer_matchers(
+        vec![Matcher::regex(
+            "bytes_single_quote",
+            r#"[xX]'[0-9A-Fa-f]*'"#,
+            SyntaxKind::BytesSingleQuote,
+        )],
+        "single_quote",
+    );
+
     sqlite_dialect.sets_mut("reserved_keywords").clear();
 
     sqlite_dialect
@@ -151,6 +162,12 @@ pub fn raw_dialect() -> Dialect {
                 .to_matchable()
                 .into(),
         ),
+        (
+            "BytesQuotedLiteralSegment".into(),
+            TypedParser::new(SyntaxKind::BytesSingleQuote, SyntaxKind::BytesQuotedLiteral)
+                .to_matchable()
+                .into(),
+        ),
     ]);
 
     sqlite_dialect.replace_grammar(
@@ -188,7 +205,10 @@ pub fn raw_dialect() -> Dialect {
     sqlite_dialect.replace_grammar(
         "LiteralGrammar",
         ansi_dialect.grammar("LiteralGrammar").copy(
-            Some(vec![Ref::new("ParameterizedSegment").to_matchable()]),
+            Some(vec![
+                Ref::new("ParameterizedSegment").to_matchable(),
+                Ref::new("BytesQuotedLiteralSegment").to_matchable(),
+            ]),
             None,
             None,
             None,

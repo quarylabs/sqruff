@@ -382,3 +382,33 @@ test_fail_snowflake_semi_structured_cast_4453:
     rules:
       convention.casting_style:
         preferred_type_casting_style: cast
+
+# Test that shorthand cast inside non-CAST/CONVERT functions doesn't trigger
+# false positive inconsistency errors (e.g., STRING_AGG contains ::text cast
+# but STRING_AGG itself is not a casting function)
+test_pass_shorthand_cast_inside_aggregate_function:
+  pass_str: |
+    SELECT STRING_AGG(id::text, ' ')
+    FROM ou;
+  configs:
+    core:
+      dialect: postgres
+
+test_pass_shorthand_cast_inside_multiple_functions:
+  pass_str: |
+    SELECT
+        COALESCE(a::text, ''),
+        STRING_AGG(b::varchar, ', '),
+        TRIM(c::text)
+    FROM foo;
+  configs:
+    core:
+      dialect: postgres
+
+test_pass_cast_inside_aggregate_function:
+  pass_str: |
+    SELECT STRING_AGG(CAST(id AS text), ' ')
+    FROM ou;
+  configs:
+    core:
+      dialect: postgres

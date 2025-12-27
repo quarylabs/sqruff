@@ -1030,7 +1030,7 @@ pub fn raw_dialect() -> Dialect {
         (
             "SchemaReferenceSegment".into(),
             NodeMatcher::new(SyntaxKind::SchemaReference, |_dialect| {
-                _dialect.grammar("ObjectReferenceSegment").match_grammar(&_dialect).unwrap()
+                _dialect.grammar("ObjectReferenceSegment").match_grammar(_dialect).unwrap()
             })
                 .to_matchable()
                 .into()
@@ -1038,7 +1038,7 @@ pub fn raw_dialect() -> Dialect {
         (
             "DatabaseReferenceSegment".into(),
             NodeMatcher::new(SyntaxKind::DatabaseReference, |_dialect| {
-                _dialect.grammar("ObjectReferenceSegment").match_grammar(&_dialect).unwrap()
+                _dialect.grammar("ObjectReferenceSegment").match_grammar(_dialect).unwrap()
             })
                 .to_matchable()
                 .into()
@@ -1046,7 +1046,7 @@ pub fn raw_dialect() -> Dialect {
         (
             "IndexReferenceSegment".into(),
             NodeMatcher::new(SyntaxKind::IndexReference, |_dialect| {
-                _dialect.grammar("ObjectReferenceSegment").match_grammar(&_dialect).unwrap()
+                _dialect.grammar("ObjectReferenceSegment").match_grammar(_dialect).unwrap()
             })
                 .to_matchable()
                 .into()
@@ -1054,7 +1054,7 @@ pub fn raw_dialect() -> Dialect {
         (
             "ExtensionReferenceSegment".into(),
             NodeMatcher::new(SyntaxKind::ExtensionReference, |_dialect| {
-                _dialect.grammar("ObjectReferenceSegment").match_grammar(&_dialect).unwrap()
+                _dialect.grammar("ObjectReferenceSegment").match_grammar(_dialect).unwrap()
             })
                 .to_matchable()
                 .into()
@@ -1062,7 +1062,7 @@ pub fn raw_dialect() -> Dialect {
         (
             "ColumnReferenceSegment".into(),
             NodeMatcher::new(SyntaxKind::ColumnReference, |_dialect| {
-                _dialect.grammar("ObjectReferenceSegment").match_grammar(&_dialect).unwrap()
+                _dialect.grammar("ObjectReferenceSegment").match_grammar(_dialect).unwrap()
             })
                 .to_matchable()
                 .into()
@@ -1070,7 +1070,7 @@ pub fn raw_dialect() -> Dialect {
         (
             "SequenceReferenceSegment".into(),
             NodeMatcher::new(SyntaxKind::SequenceReference, |_dialect| {
-                _dialect.grammar("ObjectReferenceSegment").match_grammar(&_dialect).unwrap()
+                _dialect.grammar("ObjectReferenceSegment").match_grammar(_dialect).unwrap()
             })
                 .to_matchable()
                 .into()
@@ -1078,7 +1078,7 @@ pub fn raw_dialect() -> Dialect {
         (
             "PivotColumnReferenceSegment".into(),
             NodeMatcher::new(SyntaxKind::PivotColumnReference, |_dialect| {
-                _dialect.grammar("ObjectReferenceSegment").match_grammar(&_dialect).unwrap()
+                _dialect.grammar("ObjectReferenceSegment").match_grammar(_dialect).unwrap()
             })
                 .to_matchable()
                 .into()

@@ -23,7 +23,8 @@ file:
                   - quoted_literal: '''c'''
                   - end_square_bracket: ']'
               - alias_expression:
-                - keyword: AS
+                - alias_operator:
+                  - keyword: AS
                 - naked_identifier: array_column
         - end_bracket: )
     - select_statement:
@@ -64,10 +65,12 @@ file:
                           - dot: .
                           - naked_identifier: array_column
                       - end_bracket: )
-                  - keyword: WITH
-                  - keyword: ORDINALITY
+                  - withordinality_clause:
+                    - keyword: WITH
+                    - keyword: ORDINALITY
               - alias_expression:
-                - keyword: AS
+                - alias_operator:
+                  - keyword: AS
                 - naked_identifier: u
                 - bracketed:
                   - start_bracket: (
@@ -101,7 +104,8 @@ file:
                   - quoted_literal: '''c'''
                   - end_square_bracket: ']'
               - alias_expression:
-                - keyword: AS
+                - alias_operator:
+                  - keyword: AS
                 - naked_identifier: array_column
         - end_bracket: )
     - select_statement:
@@ -142,8 +146,9 @@ file:
                           - dot: .
                           - naked_identifier: array_column
                       - end_bracket: )
-                  - keyword: WITH
-                  - keyword: ORDINALITY
+                  - withordinality_clause:
+                    - keyword: WITH
+                    - keyword: ORDINALITY
               - alias_expression:
                 - naked_identifier: u
                 - bracketed:
@@ -178,7 +183,8 @@ file:
                   - quoted_literal: '''c'''
                   - end_square_bracket: ']'
               - alias_expression:
-                - keyword: AS
+                - alias_operator:
+                  - keyword: AS
                 - naked_identifier: array_column
         - end_bracket: )
     - select_statement:
@@ -219,8 +225,9 @@ file:
                           - dot: .
                           - naked_identifier: array_column
                       - end_bracket: )
-                  - keyword: WITH
-                  - keyword: ORDINALITY
+                  - withordinality_clause:
+                    - keyword: WITH
+                    - keyword: ORDINALITY
               - alias_expression:
                 - naked_identifier: u
                 - bracketed:
@@ -255,7 +262,8 @@ file:
                   - quoted_literal: '''c'''
                   - end_square_bracket: ']'
               - alias_expression:
-                - keyword: AS
+                - alias_operator:
+                  - keyword: AS
                 - naked_identifier: array_column1
             - comma: ','
             - select_clause_element:
@@ -269,7 +277,8 @@ file:
                   - numeric_literal: '2'
                   - end_square_bracket: ']'
               - alias_expression:
-                - keyword: AS
+                - alias_operator:
+                  - keyword: AS
                 - naked_identifier: array_column2
         - end_bracket: )
     - select_statement:
@@ -322,10 +331,12 @@ file:
                           - dot: .
                           - naked_identifier: array_column2
                       - end_bracket: )
-                  - keyword: WITH
-                  - keyword: ORDINALITY
+                  - withordinality_clause:
+                    - keyword: WITH
+                    - keyword: ORDINALITY
               - alias_expression:
-                - keyword: AS
+                - alias_operator:
+                  - keyword: AS
                 - naked_identifier: u
                 - bracketed:
                   - start_bracket: (
@@ -359,7 +370,8 @@ file:
                   - numeric_literal: '2'
                   - end_square_bracket: ']'
               - alias_expression:
-                - keyword: AS
+                - alias_operator:
+                  - keyword: AS
                 - naked_identifier: array_column
         - end_bracket: )
     - select_statement:
@@ -395,7 +407,8 @@ file:
                           - naked_identifier: array_column
                       - end_bracket: )
               - alias_expression:
-                - keyword: AS
+                - alias_operator:
+                  - keyword: AS
                 - naked_identifier: u
                 - bracketed:
                   - start_bracket: (

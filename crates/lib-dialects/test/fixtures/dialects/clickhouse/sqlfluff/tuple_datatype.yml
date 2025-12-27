@@ -10,11 +10,9 @@ file:
               - start_bracket: (
               - numeric_literal: '1'
               - comma: ','
-              - column_reference:
-                - quoted_identifier: '''two'''
+              - quoted_literal: '''two'''
               - comma: ','
-              - column_reference:
-                - quoted_identifier: '''2024-01-01'''
+              - quoted_literal: '''2024-01-01'''
               - end_bracket: )
             - casting_operator: '::'
             - data_type:
@@ -34,7 +32,8 @@ file:
                   - data_type_identifier: Date32
                 - end_bracket: )
         - alias_expression:
-          - keyword: as
+          - alias_operator:
+            - keyword: as
           - naked_identifier: struct
 - statement_terminator: ;
 - statement:
@@ -48,11 +47,9 @@ file:
               - start_bracket: (
               - numeric_literal: '1'
               - comma: ','
-              - column_reference:
-                - quoted_identifier: '''two'''
+              - quoted_literal: '''two'''
               - comma: ','
-              - column_reference:
-                - quoted_identifier: '''2024-01-01'''
+              - quoted_literal: '''2024-01-01'''
               - end_bracket: )
             - casting_operator: '::'
             - data_type:
@@ -72,7 +69,8 @@ file:
                   - data_type_identifier: Date32
                 - end_bracket: )
         - alias_expression:
-          - keyword: as
+          - alias_operator:
+            - keyword: as
           - naked_identifier: struct
 - statement_terminator: ;
 - statement:
@@ -86,16 +84,15 @@ file:
               - start_bracket: (
               - numeric_literal: '1'
               - comma: ','
-              - column_reference:
-                - quoted_identifier: '''two'''
+              - quoted_literal: '''two'''
               - comma: ','
-              - column_reference:
-                - quoted_identifier: '''2024-01-01'''
+              - quoted_literal: '''2024-01-01'''
               - end_bracket: )
             - casting_operator: '::'
             - data_type:
               - quoted_identifier: '`Tuple(id Int64, name String, created_at Date32)`'
         - alias_expression:
-          - keyword: as
+          - alias_operator:
+            - keyword: as
           - naked_identifier: struct
 - statement_terminator: ;

@@ -237,11 +237,11 @@ fn test_dialect_ansi_parse_indented_joins() {
     let cases = [
         (
             "select field_1 from my_table as alias_1",
-            [1, 5, 8, 11, 15, 16, 17].as_slice(),
+            [1, 4, 8, 11, 15, 16, 17].as_slice(),
         ),
         (
             "select field_1 from my_table as alias_1 join foo using (field_1)",
-            [1, 5, 8, 11, 15, 17, 19, 23, 24, 26, 29, 31, 33, 34, 35].as_slice(),
+            [1, 4, 8, 11, 15, 17, 19, 23, 24, 26, 29, 31, 33, 34, 35].as_slice(),
         ),
     ];
     let lnt = Linter::new(

@@ -6,11 +6,13 @@ file:
       - select_clause_element:
         - quoted_literal: '''c\'' '''
         - alias_expression:
-          - keyword: as
+          - alias_operator:
+            - keyword: as
           - naked_identifier: escaped
       - comma: ','
       - select_clause_element:
         - quoted_literal: '''c\'' '''' '''
         - alias_expression:
-          - keyword: as
+          - alias_operator:
+            - keyword: as
           - naked_identifier: escaped_double

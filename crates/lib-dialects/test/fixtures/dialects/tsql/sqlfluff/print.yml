@@ -1,0 +1,57 @@
+file:
+- batch:
+  - statement:
+    - declare_segment:
+      - keyword: DECLARE
+      - parameter: '@TestVal'
+      - data_type:
+        - keyword: VARCHAR
+        - bracketed_arguments:
+          - bracketed:
+            - start_bracket: (
+            - expression:
+              - integer_literal: '20'
+            - end_bracket: )
+      - comparison_operator:
+        - raw_comparison_operator: =
+      - expression:
+        - quoted_literal: '''Test Print'''
+  - statement:
+    - print_statement:
+      - keyword: PRINT
+      - expression:
+        - quoted_literal: '''#Dates'''
+  - statement:
+    - print_statement:
+      - keyword: PRINT
+      - expression:
+        - function:
+          - function_name:
+            - keyword: CAST
+          - function_contents:
+            - bracketed:
+              - start_bracket: (
+              - expression:
+                - function:
+                  - function_name:
+                    - function_name_identifier: GETDATE
+                  - function_contents:
+                    - bracketed:
+                      - start_bracket: (
+                      - end_bracket: )
+              - keyword: AS
+              - data_type:
+                - keyword: VARCHAR
+                - bracketed_arguments:
+                  - bracketed:
+                    - start_bracket: (
+                    - expression:
+                      - integer_literal: '50'
+                    - end_bracket: )
+              - end_bracket: )
+  - statement_terminator: ;
+  - statement:
+    - print_statement:
+      - keyword: PRINT
+      - expression:
+        - parameter: '@TestVal'

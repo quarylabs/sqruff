@@ -167,7 +167,8 @@ file:
                 - boolean_literal: 'FALSE'
               - end_bracket: )
         - alias_expression:
-          - keyword: AS
+          - alias_operator:
+            - keyword: AS
           - naked_identifier: is_bear
     - from_clause:
       - keyword: FROM
@@ -352,7 +353,8 @@ file:
                 - boolean_literal: 'FALSE'
               - end_bracket: )
         - alias_expression:
-          - keyword: AS
+          - alias_operator:
+            - keyword: AS
           - naked_identifier: is_bear
     - from_clause:
       - keyword: FROM
@@ -409,7 +411,8 @@ file:
                       - quoted_literal: '''24601'''
                     - end_bracket: )
               - alias_expression:
-                - keyword: AS
+                - alias_operator:
+                  - keyword: AS
                 - naked_identifier: honey_numerical_code
           - from_clause:
             - keyword: FROM

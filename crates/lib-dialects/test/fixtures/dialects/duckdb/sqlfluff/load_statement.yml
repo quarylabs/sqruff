@@ -1,5 +1,0 @@
-file:
-- statement:
-  - keyword: LOAD
-  - naked_identifier: spatial
-- statement_terminator: ;

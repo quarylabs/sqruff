@@ -355,8 +355,11 @@ FROM foo
     }
 
     fn dialect_skip(&self) -> &'static [DialectKind] {
-        // TODO: add hive
-        &[DialectKind::Bigquery, DialectKind::Redshift]
+        &[
+            DialectKind::Bigquery,
+            DialectKind::Hive,
+            DialectKind::Redshift,
+        ]
     }
 
     fn eval(&self, context: &RuleContext) -> Vec<LintResult> {

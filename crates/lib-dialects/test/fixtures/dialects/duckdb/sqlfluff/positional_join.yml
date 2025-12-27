@@ -1,0 +1,33 @@
+file:
+- statement:
+  - select_statement:
+    - select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+        - wildcard_expression:
+          - wildcard_identifier:
+            - naked_identifier: df1
+            - dot: .
+            - star: '*'
+      - comma: ','
+      - select_clause_element:
+        - wildcard_expression:
+          - wildcard_identifier:
+            - naked_identifier: df2
+            - dot: .
+            - star: '*'
+    - from_clause:
+      - keyword: FROM
+      - from_expression:
+        - from_expression_element:
+          - table_expression:
+            - table_reference:
+              - naked_identifier: df1
+        - join_clause:
+          - keyword: POSITIONAL
+          - keyword: JOIN
+          - from_expression_element:
+            - table_expression:
+              - table_reference:
+                - naked_identifier: df2
+- statement_terminator: ;

@@ -1,0 +1,91 @@
+file:
+- statement:
+  - drop_index_statement:
+    - keyword: DROP
+    - keyword: INDEX
+    - index_reference:
+      - quoted_identifier: '`test`'
+    - keyword: ON
+    - table_reference:
+      - quoted_identifier: '`table1`'
+      - dot: .
+      - quoted_identifier: '`foo`'
+    - keyword: ALGORITHM
+    - comparison_operator:
+      - raw_comparison_operator: =
+    - keyword: DEFAULT
+- statement_terminator: ;
+- statement:
+  - drop_index_statement:
+    - keyword: DROP
+    - keyword: INDEX
+    - index_reference:
+      - quoted_identifier: '`test`'
+    - keyword: ON
+    - table_reference:
+      - quoted_identifier: '`table1`'
+      - dot: .
+      - quoted_identifier: '`foo`'
+    - keyword: ALGORITHM
+    - comparison_operator:
+      - raw_comparison_operator: =
+    - keyword: INPLACE
+- statement_terminator: ;
+- statement:
+  - drop_index_statement:
+    - keyword: DROP
+    - keyword: INDEX
+    - index_reference:
+      - quoted_identifier: '`test`'
+    - keyword: ON
+    - table_reference:
+      - quoted_identifier: '`table1`'
+      - dot: .
+      - quoted_identifier: '`foo`'
+    - keyword: ALGORITHM
+    - comparison_operator:
+      - raw_comparison_operator: =
+    - keyword: COPY
+- statement_terminator: ;
+- statement:
+  - drop_index_statement:
+    - keyword: DROP
+    - keyword: INDEX
+    - index_reference:
+      - quoted_identifier: '`test`'
+    - keyword: ON
+    - table_reference:
+      - quoted_identifier: '`table1`'
+      - dot: .
+      - quoted_identifier: '`foo`'
+    - keyword: ALGORITHM
+    - keyword: DEFAULT
+- statement_terminator: ;
+- statement:
+  - drop_index_statement:
+    - keyword: DROP
+    - keyword: INDEX
+    - index_reference:
+      - quoted_identifier: '`test`'
+    - keyword: ON
+    - table_reference:
+      - quoted_identifier: '`table1`'
+      - dot: .
+      - quoted_identifier: '`foo`'
+    - keyword: ALGORITHM
+    - keyword: INPLACE
+- statement_terminator: ;
+- statement:
+  - drop_index_statement:
+    - keyword: DROP
+    - keyword: INDEX
+    - index_reference:
+      - quoted_identifier: '`test`'
+    - keyword: ON
+    - table_reference:
+      - quoted_identifier: '`table1`'
+      - dot: .
+      - quoted_identifier: '`foo`'
+    - keyword: ALGORITHM
+    - keyword: COPY
+- statement_terminator: ;

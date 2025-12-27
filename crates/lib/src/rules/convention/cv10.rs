@@ -106,7 +106,7 @@ from foo
         if !(self.force_enable
             || matches!(
                 context.dialect.name,
-                DialectKind::Bigquery | DialectKind::Sparksql
+                DialectKind::Bigquery | DialectKind::Hive | DialectKind::Sparksql
             ))
         {
             return Vec::new();

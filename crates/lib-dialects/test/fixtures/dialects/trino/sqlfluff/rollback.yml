@@ -1,0 +1,10 @@
+file:
+- statement:
+  - transaction_statement:
+    - keyword: ROLLBACK
+- statement_terminator: ;
+- statement:
+  - transaction_statement:
+    - keyword: ROLLBACK
+    - keyword: WORK
+- statement_terminator: ;

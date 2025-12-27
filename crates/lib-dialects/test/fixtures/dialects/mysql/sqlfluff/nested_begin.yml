@@ -1,0 +1,29 @@
+file:
+- statement:
+  - transaction_statement:
+    - naked_identifier: blocks
+    - colon: ':'
+    - keyword: BEGIN
+    - statement:
+      - transaction_statement:
+        - naked_identifier: nest
+        - colon: ':'
+        - keyword: begin
+        - statement:
+          - set_statement:
+            - keyword: set
+            - variable: '@abc'
+            - comparison_operator:
+              - raw_comparison_operator: =
+            - numeric_literal: '1'
+- statement_terminator: ;
+- statement:
+  - transaction_statement:
+    - keyword: end
+    - naked_identifier: nest
+- statement_terminator: ;
+- statement:
+  - transaction_statement:
+    - keyword: END
+    - naked_identifier: blocks
+- statement_terminator: '~'

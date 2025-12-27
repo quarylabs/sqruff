@@ -13,7 +13,8 @@ file:
             - select_clause_element:
               - numeric_literal: '8760'
               - alias_expression:
-                - keyword: AS
+                - alias_operator:
+                  - keyword: AS
                 - naked_identifier: hours_per_year
         - end_bracket: )
     - select_statement:
@@ -43,7 +44,8 @@ file:
               - dot: .
               - naked_identifier: hours_per_year
           - alias_expression:
-            - keyword: AS
+            - alias_operator:
+              - keyword: AS
             - naked_identifier: some_value
       - from_clause:
         - keyword: FROM
@@ -66,7 +68,8 @@ file:
                 - table_reference:
                   - naked_identifier: table2
               - alias_expression:
-                - keyword: AS
+                - alias_operator:
+                  - keyword: AS
                 - naked_identifier: foo
             - keyword: USING
             - bracketed:

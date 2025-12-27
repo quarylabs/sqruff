@@ -1,0 +1,68 @@
+file:
+- statement:
+  - create_volume_statement:
+    - keyword: CREATE
+    - keyword: VOLUME
+    - volume_reference:
+      - naked_identifier: customer_vol
+- statement_terminator: ;
+- statement:
+  - create_volume_statement:
+    - keyword: CREATE
+    - keyword: VOLUME
+    - keyword: IF
+    - keyword: NOT
+    - keyword: EXISTS
+    - volume_reference:
+      - naked_identifier: customer_vol
+- statement_terminator: ;
+- statement:
+  - create_volume_statement:
+    - keyword: CREATE
+    - keyword: VOLUME
+    - keyword: IF
+    - keyword: NOT
+    - keyword: EXISTS
+    - volume_reference:
+      - naked_identifier: customer_vol
+    - keyword: COMMENT
+    - quoted_literal: '''This is customer volume'''
+- statement_terminator: ;
+- statement:
+  - create_volume_statement:
+    - keyword: CREATE
+    - keyword: EXTERNAL
+    - keyword: VOLUME
+    - volume_reference:
+      - naked_identifier: customer_vol_external
+    - keyword: LOCATION
+    - quoted_literal: '''s3://s3-path/'''
+- statement_terminator: ;
+- statement:
+  - create_volume_statement:
+    - keyword: CREATE
+    - keyword: EXTERNAL
+    - keyword: VOLUME
+    - keyword: IF
+    - keyword: NOT
+    - keyword: EXISTS
+    - volume_reference:
+      - naked_identifier: customer_vol_external
+    - keyword: LOCATION
+    - quoted_literal: '''s3://s3-path/'''
+- statement_terminator: ;
+- statement:
+  - create_volume_statement:
+    - keyword: CREATE
+    - keyword: EXTERNAL
+    - keyword: VOLUME
+    - keyword: IF
+    - keyword: NOT
+    - keyword: EXISTS
+    - volume_reference:
+      - naked_identifier: customer_vol_external
+    - keyword: LOCATION
+    - quoted_literal: '''s3://s3-path/'''
+    - keyword: COMMENT
+    - quoted_literal: '''This is customer volume'''
+- statement_terminator: ;

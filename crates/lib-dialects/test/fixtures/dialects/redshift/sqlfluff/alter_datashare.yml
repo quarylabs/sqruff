@@ -22,9 +22,8 @@ file:
     - boolean_literal: 'TRUE'
     - keyword: FOR
     - keyword: SCHEMA
-    - table_reference:
-      - object_reference:
-        - naked_identifier: public
+    - schema_reference:
+      - naked_identifier: public
 - statement_terminator: ;
 - statement:
   - create_datashare_statement:
@@ -65,9 +64,8 @@ file:
       - naked_identifier: salesshare
     - keyword: ADD
     - keyword: SCHEMA
-    - table_reference:
-      - object_reference:
-        - naked_identifier: public
+    - schema_reference:
+      - naked_identifier: public
 - statement_terminator: ;
 - statement:
   - create_datashare_statement:
@@ -98,9 +96,8 @@ file:
     - keyword: TABLES
     - keyword: IN
     - keyword: SCHEMA
-    - table_reference:
-      - object_reference:
-        - naked_identifier: public
+    - schema_reference:
+      - naked_identifier: public
 - statement_terminator: ;
 - statement:
   - create_datashare_statement:

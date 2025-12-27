@@ -1,0 +1,52 @@
+file:
+- statement:
+  - alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+      - naked_identifier: schema
+      - dot: .
+      - naked_identifier: table1
+    - keyword: rename
+    - keyword: TO
+    - table_reference:
+      - naked_identifier: schema
+      - dot: .
+      - naked_identifier: table2
+- statement_terminator: ;
+- statement:
+  - alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+      - naked_identifier: schema
+      - dot: .
+      - naked_identifier: table1
+    - keyword: rename
+    - keyword: TO
+    - table_reference:
+      - naked_identifier: schema
+      - dot: .
+      - naked_identifier: table2
+- statement_terminator: ;
+- statement:
+  - alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+      - naked_identifier: table2
+    - keyword: EXCHANGE
+    - keyword: PARTITION
+    - bracketed:
+      - start_bracket: (
+      - column_reference:
+        - naked_identifier: ds
+      - comparison_operator:
+        - raw_comparison_operator: =
+      - quoted_literal: '''1'''
+      - end_bracket: )
+    - keyword: WITH
+    - keyword: TABLE
+    - table_reference:
+      - naked_identifier: table1
+- statement_terminator: ;

@@ -57,7 +57,8 @@ file:
                           - end_square_bracket: ']'
                     - end_bracket: )
               - alias_expression:
-                - keyword: AS
+                - alias_operator:
+                  - keyword: AS
                 - naked_identifier: a_map
         - end_bracket: )
     - select_statement:

@@ -34,7 +34,8 @@ file:
                   - naked_identifier: villainy
               - end_bracket: )
         - alias_expression:
-          - keyword: as
+          - alias_operator:
+            - keyword: as
           - naked_identifier: total_scum_and_villainy
     - from_clause:
       - keyword: FROM
@@ -56,21 +57,22 @@ file:
         - wildcard_expression:
           - wildcard_identifier:
             - star: '*'
-        - keyword: EXCLUDE
-        - bracketed:
-          - start_bracket: (
-          - column_reference:
-            - naked_identifier: cantinas
-          - comma: ','
-          - column_reference:
-            - naked_identifier: booths
-          - comma: ','
-          - column_reference:
-            - naked_identifier: scum
-          - comma: ','
-          - column_reference:
-            - naked_identifier: villainy
-          - end_bracket: )
+          - wildcard_exclude:
+            - keyword: EXCLUDE
+            - bracketed:
+              - start_bracket: (
+              - column_reference:
+                - naked_identifier: cantinas
+              - comma: ','
+              - column_reference:
+                - naked_identifier: booths
+              - comma: ','
+              - column_reference:
+                - naked_identifier: scum
+              - comma: ','
+              - column_reference:
+                - naked_identifier: villainy
+              - end_bracket: )
       - comma: ','
       - select_clause_element:
         - function:
@@ -87,7 +89,8 @@ file:
                   - naked_identifier: villainy
               - end_bracket: )
         - alias_expression:
-          - keyword: as
+          - alias_operator:
+            - keyword: as
           - naked_identifier: total_scum_and_villainy
     - from_clause:
       - keyword: FROM
@@ -121,7 +124,8 @@ file:
                   - naked_identifier: civility
               - end_bracket: )
         - alias_expression:
-          - keyword: as
+          - alias_operator:
+            - keyword: as
           - naked_identifier: total_civility
     - from_clause:
       - keyword: FROM

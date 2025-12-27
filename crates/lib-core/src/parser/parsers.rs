@@ -77,6 +77,60 @@ impl MatchableTrait for TypedParser {
     }
 }
 
+#[derive(Debug, Clone, PartialEq)]
+pub struct CodeParser {
+    cache_key: MatchableCacheKey,
+}
+
+impl CodeParser {
+    pub fn new() -> Self {
+        Self {
+            cache_key: next_matchable_cache_key(),
+        }
+    }
+}
+
+impl Default for CodeParser {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
+impl MatchableTrait for CodeParser {
+    fn elements(&self) -> &[Matchable] {
+        &[]
+    }
+
+    fn simple(
+        &self,
+        _parse_context: &ParseContext,
+        _crumbs: Option<Vec<&str>>,
+    ) -> Option<(AHashSet<String>, SyntaxSet)> {
+        None
+    }
+
+    fn match_segments(
+        &self,
+        segments: &[ErasedSegment],
+        idx: u32,
+        _parse_context: &mut ParseContext,
+    ) -> Result<MatchResult, SQLParseError> {
+        if idx as usize >= segments.len() {
+            return Ok(MatchResult::empty_at(idx));
+        }
+
+        if segments[idx as usize].is_code() {
+            return Ok(MatchResult::from_span(idx, idx + 1));
+        }
+
+        Ok(MatchResult::empty_at(idx))
+    }
+
+    fn cache_key(&self) -> MatchableCacheKey {
+        self.cache_key
+    }
+}
+
 #[derive(Clone, Debug, PartialEq)]
 pub struct StringParser {
     template: String,

@@ -164,7 +164,8 @@ file:
                     - numeric_literal: '8'
                   - end_bracket: )
           - alias_expression:
-            - keyword: AS
+            - alias_operator:
+              - keyword: AS
             - naked_identifier: test
 - statement_terminator: ;
 - statement:

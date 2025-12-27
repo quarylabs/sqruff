@@ -1,5 +1,4 @@
-/// Datbricks reserved keywords which can be found https://docs.databricks.com/sql/language-manual/sql-ref-reserved-words.html
-pub(crate) const RESERVED_KEYWORDS: &[&str] = &[
+pub(crate) const RESERVED_KEYWORDS: [&str; 16] = [
     "ANTI",
     "CROSS",
     "EXCEPT",
@@ -18,7 +17,8 @@ pub(crate) const RESERVED_KEYWORDS: &[&str] = &[
     "USING",
 ];
 
-pub(crate) const UNRESERVED_KEYWORDS: &[&str] = &[
+pub(crate) const UNRESERVED_KEYWORDS: [&str; 27] = [
+    "AUTO",
     "CATALOG",
     "COMPENSATION",
     "CRON",
@@ -32,12 +32,14 @@ pub(crate) const UNRESERVED_KEYWORDS: &[&str] = &[
     "OPTIMIZATION",
     "OPTIMIZE",
     "PREDICTIVE",
+    "PRIVATE",
     "PROVIDER",
     "PYTHON",
     "RECIPIENT",
     "RELY",
     "SCHEDULE",
     "SQL",
+    "TAG",
     "TAGS",
     "TIMESERIES",
     "VOLUME",

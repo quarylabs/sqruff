@@ -37,7 +37,8 @@ file:
                         - naked_identifier: array_field
                     - end_bracket: )
             - alias_expression:
-              - keyword: AS
+              - alias_operator:
+                - keyword: AS
               - naked_identifier: my_unnested_table
               - bracketed:
                 - start_bracket: (
@@ -102,7 +103,8 @@ file:
                     - end_bracket: )
             - end_bracket: )
           - alias_expression:
-            - keyword: AS
+            - alias_operator:
+              - keyword: AS
             - naked_identifier: x
             - bracketed:
               - start_bracket: (
@@ -127,7 +129,8 @@ file:
                 - keyword: WITH
                 - keyword: ORDINALITY
             - alias_expression:
-              - keyword: AS
+              - alias_operator:
+                - keyword: AS
               - naked_identifier: t
               - bracketed:
                 - start_bracket: (

@@ -1,0 +1,18 @@
+file:
+- statement:
+  - drop_table_statement:
+    - keyword: DROP
+    - keyword: TABLE
+    - table_reference:
+      - naked_identifier: foo
+- statement_terminator: ;
+- statement:
+  - drop_table_statement:
+    - keyword: DROP
+    - keyword: TABLE
+    - keyword: IF
+    - keyword: exists
+    - table_reference:
+      - naked_identifier: bar
+    - keyword: PURGE
+- statement_terminator: ;

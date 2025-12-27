@@ -1,1 +1,0 @@
-DECLARE @MyVariable INT = 42;

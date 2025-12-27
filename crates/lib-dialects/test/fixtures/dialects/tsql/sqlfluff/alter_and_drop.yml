@@ -1,0 +1,48 @@
+file:
+- batch:
+  - statement:
+    - alter_table_switch_statement:
+      - keyword: ALTER
+      - keyword: TABLE
+      - object_reference:
+        - quoted_identifier: '[REPORTING]'
+        - dot: .
+        - quoted_identifier: '[UN_NEW]'
+      - keyword: SWITCH
+      - keyword: to
+      - object_reference:
+        - quoted_identifier: '[REPORTING]'
+        - dot: .
+        - quoted_identifier: '[UN_BASE]'
+      - keyword: WITH
+      - bracketed:
+        - start_bracket: (
+        - keyword: TRUNCATE_TARGET
+        - comparison_operator:
+          - raw_comparison_operator: =
+        - keyword: ON
+        - end_bracket: )
+  - statement_terminator: ;
+  - statement:
+    - drop_table_statement:
+      - keyword: DROP
+      - keyword: TABLE
+      - table_reference:
+        - quoted_identifier: '[REPORTING]'
+        - dot: .
+        - quoted_identifier: '[UN_NEW]'
+  - statement_terminator: ;
+  - statement:
+    - alter_table_statement:
+      - keyword: ALTER
+      - keyword: TABLE
+      - table_reference:
+        - naked_identifier: table_name
+      - keyword: DROP
+      - keyword: COLUMN
+      - column_reference:
+        - naked_identifier: column1
+      - comma: ','
+      - column_reference:
+        - naked_identifier: column2
+  - statement_terminator: ;

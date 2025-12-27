@@ -75,7 +75,7 @@ FROM foo
 
     fn eval(&self, rule_cx: &RuleContext) -> Vec<LintResult> {
         let segment = FunctionalContext::new(rule_cx).segment();
-        let children = segment.children(None);
+        let children = segment.children_all();
 
         let last_content: ErasedSegment = children
             .clone()

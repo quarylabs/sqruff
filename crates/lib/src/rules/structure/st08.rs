@@ -84,33 +84,25 @@ SELECT DISTINCT a, b FROM foo
     fn eval(&self, context: &RuleContext) -> Vec<LintResult> {
         let mut seq: Option<ReflowSequence> = None;
         let mut anchor: Option<ErasedSegment> = None;
-        let children = FunctionalContext::new(context).segment().children(None);
+        let children = FunctionalContext::new(context).segment().children_all();
 
         if context.segment.is_type(SyntaxKind::SelectClause) {
-            let modifier = children.select(
-                Some(|it: &ErasedSegment| it.is_type(SyntaxKind::SelectClauseModifier)),
-                None,
-                None,
-                None,
-            );
-            let selected_elements = children.select(
-                Some(|it: &ErasedSegment| it.is_type(SyntaxKind::SelectClauseElement)),
-                None,
-                None,
-                None,
-            );
-            let first_element = selected_elements.find_first::<fn(&_) -> _>(None);
+            let modifier =
+                children.filter(|it: &ErasedSegment| it.is_type(SyntaxKind::SelectClauseModifier));
+            let selected_elements =
+                children.filter(|it: &ErasedSegment| it.is_type(SyntaxKind::SelectClauseElement));
+            let first_element = selected_elements.head();
             let expression = first_element
-                .children(Some(|it| it.is_type(SyntaxKind::Expression)))
-                .find_first::<fn(&ErasedSegment) -> bool>(None);
+                .children_where(|it| it.is_type(SyntaxKind::Expression))
+                .head();
             let expression = if expression.is_empty() {
                 first_element
             } else {
                 expression
             };
             let bracketed = expression
-                .children(Some(|it| it.get_type() == SyntaxKind::Bracketed))
-                .find_first::<fn(&_) -> _>(None);
+                .children_where(|it| it.get_type() == SyntaxKind::Bracketed)
+                .head();
 
             if !modifier.is_empty() && !bracketed.is_empty() {
                 if expression[0].segments().len() == 1 {
@@ -134,16 +126,11 @@ SELECT DISTINCT a, b FROM foo
                 return Vec::new();
             }
 
-            let selected_functions = children.select(
-                Some(|it: &ErasedSegment| it.is_type(SyntaxKind::FunctionName)),
-                None,
-                None,
-                None,
-            );
+            let selected_functions =
+                children.filter(|it: &ErasedSegment| it.is_type(SyntaxKind::FunctionName));
             let function_name = selected_functions.first();
-            let bracketed = children.find_first(Some(|it: &ErasedSegment| {
-                it.is_type(SyntaxKind::FunctionContents)
-            }));
+            let bracketed = children
+                .find_first_where(|it: &ErasedSegment| it.is_type(SyntaxKind::FunctionContents));
 
             if function_name.is_none()
                 || !function_name
@@ -155,7 +142,7 @@ SELECT DISTINCT a, b FROM foo
                 return Vec::new();
             }
 
-            let bracketed = &bracketed.children(None)[0];
+            let bracketed = &bracketed.children_all()[0];
             let mut edits = vec![
                 SegmentBuilder::token(
                     context.tables.next_id(),

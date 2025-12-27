@@ -746,15 +746,13 @@ fn avg_min_max_function_parser(
 }
 
 fn join_operator(join: ErasedSegment) -> String {
-    let keywords = Segments::new(join, None).children(None).select(
-        Some(|it: &ErasedSegment| it.is_type(SyntaxKind::Keyword)),
-        Some(|it: &ErasedSegment| {
+    let keywords = Segments::new(join, None)
+        .children_all()
+        .take_while(|it: &ErasedSegment| {
             !it.raw().eq_ignore_ascii_case("join") && it.is_type(SyntaxKind::Keyword)
                 || !it.is_code()
-        }),
-        None,
-        None,
-    );
+        })
+        .filter(|it: &ErasedSegment| it.is_type(SyntaxKind::Keyword));
 
     let keywords = keywords
         .iter()
@@ -1059,7 +1057,7 @@ fn extract_table(table_factor: &ErasedSegment, dialect: &Dialect) -> Result<Extr
 
 fn fn_args(root: ErasedSegment) -> Vec<ErasedSegment> {
     Segments::new(root, None)
-        .children(Some(|it: &ErasedSegment| {
+        .children_where(|it: &ErasedSegment| {
             !it.is_meta()
                 && !matches!(
                     it.get_type(),
@@ -1071,7 +1069,7 @@ fn fn_args(root: ErasedSegment) -> Vec<ErasedSegment> {
                         | SyntaxKind::Comma
                         | SyntaxKind::Keyword
                 )
-        }))
+        })
         .into_vec()
 }
 

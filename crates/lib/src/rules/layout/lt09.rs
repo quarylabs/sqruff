@@ -100,8 +100,8 @@ FROM test_table;
         let select_clause = FunctionalContext::new(context).segment();
 
         let wildcards = select_clause
-            .children(Some(|sp| sp.is_type(SyntaxKind::SelectClauseElement)))
-            .children(Some(|sp| sp.is_type(SyntaxKind::WildcardExpression)));
+            .children_where(|sp| sp.is_type(SyntaxKind::SelectClauseElement))
+            .children_where(|sp| sp.is_type(SyntaxKind::WildcardExpression));
 
         let has_wildcard = !wildcards.is_empty();
 
@@ -131,69 +131,43 @@ FROM test_table;
 
 impl RuleLT09 {
     fn get_indexes(context: &RuleContext) -> SelectTargetsInfo {
-        let children = FunctionalContext::new(context).segment().children(None);
+        let children = FunctionalContext::new(context).segment().children_all();
 
-        let select_targets = children.select(
-            Some(|segment: &ErasedSegment| segment.is_type(SyntaxKind::SelectClauseElement)),
-            None,
-            None,
-            None,
-        );
+        let select_targets = children
+            .filter(|segment: &ErasedSegment| segment.is_type(SyntaxKind::SelectClauseElement));
 
-        let first_select_target_idx = select_targets
-            .get(0, None)
-            .and_then(|it| children.find(&it));
+        let first_select_target_idx = select_targets.first().and_then(|it| children.find(it));
 
-        let selects = children.select(
-            Some(|segment: &ErasedSegment| segment.is_keyword("select")),
-            None,
-            None,
-            None,
-        );
+        let selects = children.filter(|segment: &ErasedSegment| segment.is_keyword("select"));
 
         let select_idx =
-            (!selects.is_empty()).then(|| children.find(&selects.get(0, None).unwrap()).unwrap());
+            (!selects.is_empty()).then(|| children.find(selects.first().unwrap()).unwrap());
 
-        let newlines = children.select(
-            Some(|it: &ErasedSegment| it.is_type(SyntaxKind::Newline)),
-            None,
-            None,
-            None,
-        );
+        let newlines = children.filter(|it: &ErasedSegment| it.is_type(SyntaxKind::Newline));
 
         let first_new_line_idx =
-            (!newlines.is_empty()).then(|| children.find(&newlines.get(0, None).unwrap()).unwrap());
+            (!newlines.is_empty()).then(|| children.find(newlines.first().unwrap()).unwrap());
         let mut comment_after_select_idx = None;
 
         if !newlines.is_empty() {
-            let comment_after_select = children.select(
-                Some(|seg: &ErasedSegment| seg.is_type(SyntaxKind::Comment)),
-                Some(|seg| {
+            let select_head = selects.first().unwrap();
+            if let Some(first_comment) = children
+                .iter_after_while(select_head, |seg| {
                     seg.is_type(SyntaxKind::Comment)
                         | seg.is_type(SyntaxKind::Whitespace)
                         | seg.is_meta()
-                }),
-                selects.get(0, None).as_ref(),
-                newlines.get(0, None).as_ref(),
-            );
-
-            if !comment_after_select.is_empty() {
-                comment_after_select_idx = (!comment_after_select.is_empty()).then(|| {
-                    children
-                        .find(&comment_after_select.get(0, None).unwrap())
-                        .unwrap()
-                });
+                })
+                .find(|seg| seg.is_type(SyntaxKind::Comment))
+            {
+                comment_after_select_idx = children.find(first_comment);
             }
         }
 
         let mut first_whitespace_idx = None;
         if let Some(first_new_line_idx) = first_new_line_idx {
-            let segments_after_first_line = children.select(
-                Some(|seg: &ErasedSegment| seg.is_type(SyntaxKind::Whitespace)),
-                None,
-                Some(&children[first_new_line_idx]),
-                None,
-            );
+            let segments_after_first_line = children
+                .after(&children[first_new_line_idx])
+                .filter(|seg: &ErasedSegment| seg.is_type(SyntaxKind::Whitespace));
 
             if !segments_after_first_line.is_empty() {
                 first_whitespace_idx =
@@ -203,17 +177,17 @@ impl RuleLT09 {
 
         let siblings_post = FunctionalContext::new(context).siblings_post();
         let from_segment = siblings_post
-            .find_first(Some(|seg: &ErasedSegment| {
-                seg.is_type(SyntaxKind::FromClause)
-            }))
-            .find_first::<fn(&ErasedSegment) -> bool>(None)
+            .find_first_where(|seg: &ErasedSegment| seg.is_type(SyntaxKind::FromClause))
+            .head()
             .get(0, None);
-        let pre_from_whitespace = siblings_post.select(
-            Some(|seg: &ErasedSegment| seg.is_type(SyntaxKind::Whitespace)),
-            None,
-            None,
-            from_segment.as_ref(),
-        );
+        let pre_from_whitespace = {
+            let range = if let Some(ref stop) = from_segment {
+                siblings_post.before(stop)
+            } else {
+                siblings_post.clone()
+            };
+            range.filter(|seg: &ErasedSegment| seg.is_type(SyntaxKind::Whitespace))
+        };
 
         SelectTargetsInfo {
             select_idx,
@@ -325,10 +299,9 @@ impl RuleLT09 {
             return Vec::new();
         }
 
-        let select_children = select_clause.children(None);
-        let mut modifier = select_children.find_first(Some(|seg: &ErasedSegment| {
-            seg.is_type(SyntaxKind::SelectClauseModifier)
-        }));
+        let select_children = select_clause.children_all();
+        let mut modifier = select_children
+            .find_first_where(|seg: &ErasedSegment| seg.is_type(SyntaxKind::SelectClauseModifier));
 
         if select_children[select_targets_info.first_select_target_idx.unwrap()]
             .descendant_type_set()
@@ -405,13 +378,8 @@ impl RuleLT09 {
                         select_children[select_targets_info.first_new_line_idx.unwrap()].clone()
                     };
 
-                    let move_after_select_clause = select_children
-                        .select::<fn(&ErasedSegment) -> bool>(
-                            None,
-                            None,
-                            (&start_seg).into(),
-                            (&stop_seg).into(),
-                        );
+                    let move_after_select_clause =
+                        select_children.between_exclusive(&start_seg, &stop_seg);
                     let mut local_fixes = Vec::new();
                     let mut all_deletes = fixes
                         .iter()
@@ -452,12 +420,8 @@ impl RuleLT09 {
                 if select_stmt.segments()[after_select_clause_idx].is_type(SyntaxKind::Newline) {
                     let to_delete = select_children
                         .reversed()
-                        .select::<fn(&ErasedSegment) -> bool>(
-                            None,
-                            Some(|seg| seg.is_type(SyntaxKind::Whitespace)),
-                            (&select_children[start_idx]).into(),
-                            None,
-                        );
+                        .after(&select_children[start_idx])
+                        .take_while(|seg| seg.is_type(SyntaxKind::Whitespace));
 
                     if !to_delete.is_empty() {
                         let delete_last_newline = select_children[start_idx - to_delete.len() - 1]
@@ -504,12 +468,8 @@ impl RuleLT09 {
 
                     let to_delete = select_children
                         .reversed()
-                        .select::<fn(&ErasedSegment) -> bool>(
-                            None,
-                            Some(|it| it.is_type(SyntaxKind::Whitespace)),
-                            Some(start_seg),
-                            None,
-                        );
+                        .after(start_seg)
+                        .take_while(|it| it.is_type(SyntaxKind::Whitespace));
 
                     if !to_delete.is_empty() {
                         let add_newline =

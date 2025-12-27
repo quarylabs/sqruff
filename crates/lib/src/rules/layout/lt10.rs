@@ -56,53 +56,42 @@ from x
     }
     fn eval(&self, context: &RuleContext) -> Vec<LintResult> {
         // Get children of select_clause and the corresponding select keyword.
-        let child_segments = FunctionalContext::new(context).segment().children(None);
+        let child_segments = FunctionalContext::new(context).segment().children_all();
         let select_keyword = child_segments.first().unwrap();
 
         // See if we have a select_clause_modifier.
-        let select_clause_modifier_seg = child_segments.find_first(Some(|sp: &ErasedSegment| {
-            sp.is_type(SyntaxKind::SelectClauseModifier)
-        }));
-
-        // Rule doesn't apply if there's no select clause modifier.
-        if select_clause_modifier_seg.is_empty() {
+        let Some(select_clause_modifier) = child_segments
+            .iter()
+            .find(|sp| sp.is_type(SyntaxKind::SelectClauseModifier))
+        else {
             return Vec::new();
-        }
+        };
 
         // Are there any newlines between the select keyword and the select clause
         // modifier.
-        let leading_newline_segments = child_segments.select(
-            Some(|seg: &ErasedSegment| seg.is_type(SyntaxKind::Newline)),
-            Some(|seg| seg.is_whitespace() || seg.is_meta()),
-            select_keyword.into(),
-            None,
-        );
+        let leading_newline_segments = child_segments
+            .after(select_keyword)
+            .take_while(|seg| seg.is_whitespace() || seg.is_meta())
+            .filter(|seg: &ErasedSegment| seg.is_type(SyntaxKind::Newline));
 
         // Rule doesn't apply if select clause modifier is already on the same line as
         // the select keyword.
         if leading_newline_segments.is_empty() {
             return Vec::new();
         }
-
-        let select_clause_modifier = select_clause_modifier_seg.first().unwrap();
-
         // We should check if there is whitespace before the select clause modifier and
         // remove this during the lint fix.
-        let leading_whitespace_segments = child_segments.select(
-            Some(|seg: &ErasedSegment| seg.is_type(SyntaxKind::Whitespace)),
-            Some(|seg| seg.is_whitespace() || seg.is_meta()),
-            select_keyword.into(),
-            None,
-        );
+        let leading_whitespace_segments = child_segments
+            .after(select_keyword)
+            .take_while(|seg| seg.is_whitespace() || seg.is_meta())
+            .filter(|seg: &ErasedSegment| seg.is_type(SyntaxKind::Whitespace));
 
         // We should also check if the following select clause element
         // is on the same line as the select clause modifier.
-        let trailing_newline_segments = child_segments.select(
-            Some(|seg: &ErasedSegment| seg.is_type(SyntaxKind::Newline)),
-            Some(|seg| seg.is_whitespace() || seg.is_meta()),
-            select_clause_modifier.into(),
-            None,
-        );
+        let trailing_newline_segments = child_segments
+            .after(select_clause_modifier)
+            .take_while(|seg| seg.is_whitespace() || seg.is_meta())
+            .filter(|seg: &ErasedSegment| seg.is_type(SyntaxKind::Newline));
 
         // We will insert these segments directly after the select keyword.
         let mut edit_segments = vec![
@@ -129,12 +118,10 @@ from x
             fixes.extend(segments.map(LintFix::delete));
         }
 
-        let trailing_whitespace_segments = child_segments.select(
-            Some(|segment: &ErasedSegment| segment.is_whitespace()),
-            Some(|seg| seg.is_type(SyntaxKind::Whitespace) || seg.is_meta()),
-            select_clause_modifier.into(),
-            None,
-        );
+        let trailing_whitespace_segments = child_segments
+            .after(select_clause_modifier)
+            .take_while(|seg| seg.is_type(SyntaxKind::Whitespace) || seg.is_meta())
+            .filter(|segment: &ErasedSegment| segment.is_whitespace());
 
         if !trailing_whitespace_segments.is_empty() {
             fixes.extend(

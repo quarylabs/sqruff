@@ -58,19 +58,14 @@ FROM foo
         let segment = FunctionalContext::new(context).segment();
 
         if !segment
-            .children(Some(|it| it.is_type(SyntaxKind::GroupbyClause)))
+            .children_where(|it| it.is_type(SyntaxKind::GroupbyClause))
             .is_empty()
         {
             let distinct = segment
-                .children(Some(|it| it.is_type(SyntaxKind::SelectClause)))
-                .children(Some(|it| it.is_type(SyntaxKind::SelectClauseModifier)))
-                .children(Some(|it| it.is_type(SyntaxKind::Keyword)))
-                .select(
-                    Some(|it: &ErasedSegment| it.is_keyword("DISTINCT")),
-                    None,
-                    None,
-                    None,
-                );
+                .children_where(|it| it.is_type(SyntaxKind::SelectClause))
+                .children_where(|it| it.is_type(SyntaxKind::SelectClauseModifier))
+                .children_where(|it| it.is_type(SyntaxKind::Keyword))
+                .filter(|it: &ErasedSegment| it.is_keyword("DISTINCT"));
 
             if !distinct.is_empty() {
                 return vec![LintResult::new(

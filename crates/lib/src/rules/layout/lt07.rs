@@ -57,25 +57,21 @@ SELECT * FROM zoo
     fn eval(&self, context: &RuleContext) -> Vec<LintResult> {
         let segments = FunctionalContext::new(context)
             .segment()
-            .children(Some(|seg| seg.is_type(SyntaxKind::CommonTableExpression)));
+            .children_where(|seg| seg.is_type(SyntaxKind::CommonTableExpression));
 
         let mut cte_end_brackets = AHashSet::new();
         for cte in segments.iterate_segments() {
             let cte_start_bracket = cte
-                .children(None)
-                .find_last(Some(|seg| seg.is_type(SyntaxKind::Bracketed)))
-                .children(None)
-                .find_first(Some(|seg: &ErasedSegment| {
-                    seg.is_type(SyntaxKind::StartBracket)
-                }));
+                .children_all()
+                .find_last_where(|seg| seg.is_type(SyntaxKind::Bracketed))
+                .children_all()
+                .find_first_where(|seg: &ErasedSegment| seg.is_type(SyntaxKind::StartBracket));
 
             let cte_end_bracket = cte
-                .children(None)
-                .find_last(Some(|seg| seg.is_type(SyntaxKind::Bracketed)))
-                .children(None)
-                .find_first(Some(|seg: &ErasedSegment| {
-                    seg.is_type(SyntaxKind::EndBracket)
-                }));
+                .children_all()
+                .find_last_where(|seg| seg.is_type(SyntaxKind::Bracketed))
+                .children_all()
+                .find_first_where(|seg: &ErasedSegment| seg.is_type(SyntaxKind::EndBracket));
 
             if !cte_start_bracket.is_empty() && !cte_end_bracket.is_empty() {
                 if cte_start_bracket[0]

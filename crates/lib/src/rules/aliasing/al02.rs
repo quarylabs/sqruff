@@ -86,7 +86,7 @@ FROM foo
     fn eval(&self, context: &RuleContext) -> Vec<LintResult> {
         if FunctionalContext::new(context)
             .segment()
-            .children(None)
+            .children_all()
             .last()
             .unwrap()
             .raw()

@@ -58,51 +58,29 @@ FROM foo
     fn eval(&self, context: &RuleContext) -> Vec<LintResult> {
         let functional_context = FunctionalContext::new(context);
         let segment = functional_context.segment();
-        let children = segment.children(None);
+        let children = segment.children_all();
 
-        if children.any(Some(|it| it.get_type() == SyntaxKind::AliasExpression)) {
+        if children.any_match(|it| it.get_type() == SyntaxKind::AliasExpression) {
             return Vec::new();
         }
 
         // Ignore if it's a function with EMITS clause as EMITS is equivalent to AS
-        if !children
-            .select(
-                Some(|sp: &ErasedSegment| sp.is_type(SyntaxKind::Function)),
-                None,
-                None,
-                None,
-            )
-            .children(None)
-            .select(
-                Some(|sp: &ErasedSegment| sp.is_type(SyntaxKind::EmitsSegment)),
-                None,
-                None,
-                None,
-            )
+        let functions = children.filter(|sp: &ErasedSegment| sp.is_type(SyntaxKind::Function));
+        if !functions
+            .children_all()
+            .filter(|sp: &ErasedSegment| sp.is_type(SyntaxKind::EmitsSegment))
             .is_empty()
         {
             return Vec::new();
         }
 
-        if !children
-            .children(None)
-            .select(
-                Some(|it: &ErasedSegment| it.is_type(SyntaxKind::CastExpression)),
-                None,
-                None,
-                None,
-            )
-            .is_empty()
-            && !children
-                .children(None)
-                .select(
-                    Some(|it: &ErasedSegment| it.is_type(SyntaxKind::CastExpression)),
-                    None,
-                    None,
-                    None,
-                )
-                .children(None)
-                .any(Some(|it| it.is_type(SyntaxKind::Function)))
+        let casts = children
+            .children_all()
+            .filter(|it: &ErasedSegment| it.is_type(SyntaxKind::CastExpression));
+        if !casts.is_empty()
+            && !casts
+                .children_all()
+                .any_match(|it| it.is_type(SyntaxKind::Function))
         {
             return Vec::new();
         }
@@ -110,19 +88,15 @@ FROM foo
         let parent_stack = functional_context.parent_stack();
 
         if parent_stack
-            .find_last(Some(|it| it.is_type(SyntaxKind::CommonTableExpression)))
-            .children(None)
-            .any(Some(|it| it.is_type(SyntaxKind::CTEColumnList)))
+            .find_last_where(|it| it.is_type(SyntaxKind::CommonTableExpression))
+            .children_all()
+            .any_match(|it| it.is_type(SyntaxKind::CTEColumnList))
         {
             return Vec::new();
         }
 
-        let select_clause_children = children.select(
-            Some(|it: &ErasedSegment| !it.is_type(SyntaxKind::Star)),
-            None,
-            None,
-            None,
-        );
+        let select_clause_children =
+            children.filter(|it: &ErasedSegment| !it.is_type(SyntaxKind::Star));
         let is_complex_clause = recursively_check_is_complex(select_clause_children);
 
         if !is_complex_clause {
@@ -135,9 +109,9 @@ FROM foo
             .as_bool()
             .unwrap()
         {
-            let immediate_parent = parent_stack.find_last(None);
-            let elements =
-                immediate_parent.children(Some(|it| it.is_type(SyntaxKind::SelectClauseElement)));
+            let immediate_parent = parent_stack.last().unwrap().clone();
+            let elements = Segments::new(immediate_parent, None)
+                .children_where(|it| it.is_type(SyntaxKind::SelectClauseElement));
 
             if elements.len() > 1 {
                 return vec![LintResult::new(
@@ -166,7 +140,7 @@ FROM foo
 }
 
 fn recursively_check_is_complex(select_clause_or_exp_children: Segments) -> bool {
-    let selector: Option<fn(&ErasedSegment) -> bool> = Some(|it: &ErasedSegment| {
+    let filtered = select_clause_or_exp_children.filter(|it: &ErasedSegment| {
         !matches!(
             it.get_type(),
             SyntaxKind::Whitespace
@@ -176,19 +150,17 @@ fn recursively_check_is_complex(select_clause_or_exp_children: Segments) -> bool
                 | SyntaxKind::Bracketed
         )
     });
-
-    let filtered = select_clause_or_exp_children.select(selector, None, None, None);
     let remaining_count = filtered.len();
 
     if remaining_count == 0 {
         return false;
     }
 
-    let first_el = filtered.find_first::<fn(&ErasedSegment) -> _>(None);
+    let first_el = filtered.head();
 
-    if remaining_count > 1 || !first_el.all(Some(|it| it.is_type(SyntaxKind::Expression))) {
+    if remaining_count > 1 || !first_el.all_match(|it| it.is_type(SyntaxKind::Expression)) {
         return true;
     }
 
-    recursively_check_is_complex(first_el.children(None))
+    recursively_check_is_complex(first_el.children_all())
 }

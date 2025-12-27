@@ -79,7 +79,7 @@ SELECT * FROM X WHERE 1 != 2 AND 3 != 4;
     fn eval(&self, context: &RuleContext) -> Vec<LintResult> {
         // Get the comparison operator children
         let segment = FunctionalContext::new(context).segment();
-        let raw_comparison_operators = segment.children(None);
+        let raw_comparison_operators = segment.children_all();
 
         // Only check ``<>`` or ``!=`` operators
         let raw_operator_list = raw_comparison_operators

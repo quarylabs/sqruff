@@ -6,6 +6,7 @@ use sqruff_lib_core::parser::grammar::anyof::{AnyNumberOf, one_of, optionally_br
 use sqruff_lib_core::parser::grammar::delimited::Delimited;
 use sqruff_lib_core::parser::grammar::sequence::{Bracketed, Sequence};
 use sqruff_lib_core::parser::grammar::{Anything, Nothing, Ref};
+use sqruff_lib_core::parser::lexer::Matcher;
 use sqruff_lib_core::parser::matchable::MatchableTrait;
 use sqruff_lib_core::parser::node_matcher::NodeMatcher;
 use sqruff_lib_core::parser::parsers::TypedParser;
@@ -24,6 +25,17 @@ pub fn raw_dialect() -> Dialect {
     let mut sqlite_dialect = sqlite_dialect;
     sqlite_dialect.name = DialectKind::Sqlite;
 
+    // Add lexer matchers for SQLite blob literals (X'...' or x'...')
+    // These must be inserted before single_quote to take precedence
+    sqlite_dialect.insert_lexer_matchers(
+        vec![Matcher::regex(
+            "bytes_single_quote",
+            r"[xX]'([^'\\]|\\.)*'",
+            SyntaxKind::BytesSingleQuote,
+        )],
+        "single_quote",
+    );
+
     sqlite_dialect.sets_mut("reserved_keywords").clear();
     sqlite_dialect
         .sets_mut("reserved_keywords")
@@ -34,6 +46,28 @@ pub fn raw_dialect() -> Dialect {
         .extend(UNRESERVED_KEYWORDS);
 
     sqlite_dialect.add([
+        // SQLite blob literal segment (X'...' or x'...')
+        (
+            "BytesQuotedLiteralSegment".into(),
+            TypedParser::new(SyntaxKind::BytesSingleQuote, SyntaxKind::BytesQuotedLiteral)
+                .to_matchable()
+                .into(),
+        ),
+        // Extend LiteralGrammar to include blob literals
+        (
+            "LiteralGrammar".into(),
+            sqlite_dialect
+                .grammar("LiteralGrammar")
+                .copy(
+                    Some(vec_of_erased![Ref::new("BytesQuotedLiteralSegment")]),
+                    None,
+                    None,
+                    None,
+                    Vec::new(),
+                    false,
+                )
+                .into(),
+        ),
         (
             "ColumnConstraintDefaultGrammar".into(),
             Ref::new("ExpressionSegment").to_matchable().into(),

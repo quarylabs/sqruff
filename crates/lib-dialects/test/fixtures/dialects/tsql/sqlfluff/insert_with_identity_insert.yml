@@ -1,0 +1,41 @@
+file:
+- batch:
+  - statement:
+    - set_segment:
+      - keyword: SET
+      - keyword: IDENTITY_INSERT
+      - table_reference:
+        - naked_identifier: someTable
+      - keyword: ON
+  - statement_terminator: ;
+  - statement:
+    - insert_statement:
+      - keyword: INSERT
+      - keyword: INTO
+      - table_reference:
+        - naked_identifier: someTable
+      - bracketed:
+        - start_bracket: (
+        - column_reference:
+          - naked_identifier: ID
+        - comma: ','
+        - column_reference:
+          - naked_identifier: Value
+        - end_bracket: )
+      - values_clause:
+        - keyword: VALUES
+        - bracketed:
+          - start_bracket: (
+          - integer_literal: '1'
+          - comma: ','
+          - integer_literal: '2'
+          - end_bracket: )
+  - statement_terminator: ;
+  - statement:
+    - set_segment:
+      - keyword: SET
+      - keyword: IDENTITY_INSERT
+      - table_reference:
+        - naked_identifier: someTable
+      - keyword: OFF
+  - statement_terminator: ;

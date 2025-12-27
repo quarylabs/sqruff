@@ -1,0 +1,75 @@
+file:
+- statement:
+  - alter_streamlit_statement:
+    - keyword: ALTER
+    - keyword: STREAMLIT
+    - object_reference:
+      - naked_identifier: my_streamlit
+    - keyword: SET
+    - keyword: ROOT_LOCATION
+    - comparison_operator:
+      - raw_comparison_operator: =
+    - stage_path: '''@stage_name/folder'''
+    - keyword: MAIN_FILE
+    - comparison_operator:
+      - raw_comparison_operator: =
+    - quoted_literal: '''main.py'''
+- statement_terminator: ;
+- statement:
+  - alter_streamlit_statement:
+    - keyword: ALTER
+    - keyword: STREAMLIT
+    - object_reference:
+      - naked_identifier: my_streamlit
+    - keyword: SET
+    - keyword: ROOT_LOCATION
+    - comparison_operator:
+      - raw_comparison_operator: =
+    - stage_path: '''@stage_name/folder'''
+    - keyword: MAIN_FILE
+    - comparison_operator:
+      - raw_comparison_operator: =
+    - quoted_literal: '''main.py'''
+    - keyword: QUERY_WAREHOUSE
+    - comparison_operator:
+      - raw_comparison_operator: =
+    - object_reference:
+      - naked_identifier: my_wh
+- statement_terminator: ;
+- statement:
+  - alter_streamlit_statement:
+    - keyword: ALTER
+    - keyword: STREAMLIT
+    - object_reference:
+      - naked_identifier: my_streamlit
+    - keyword: SET
+    - keyword: ROOT_LOCATION
+    - comparison_operator:
+      - raw_comparison_operator: =
+    - stage_path: '''@stage_name/folder'''
+    - keyword: MAIN_FILE
+    - comparison_operator:
+      - raw_comparison_operator: =
+    - quoted_literal: '''main.py'''
+    - keyword: QUERY_WAREHOUSE
+    - comparison_operator:
+      - raw_comparison_operator: =
+    - object_reference:
+      - naked_identifier: my_wh
+    - comment_equals_clause:
+      - keyword: comment
+      - comparison_operator:
+        - raw_comparison_operator: =
+      - quoted_literal: '''New comment for stream'''
+- statement_terminator: ;
+- statement:
+  - alter_streamlit_statement:
+    - keyword: ALTER
+    - keyword: STREAMLIT
+    - object_reference:
+      - naked_identifier: my_streamlit
+    - keyword: RENAME
+    - keyword: TO
+    - object_reference:
+      - naked_identifier: new_my_streamlit
+- statement_terminator: ;

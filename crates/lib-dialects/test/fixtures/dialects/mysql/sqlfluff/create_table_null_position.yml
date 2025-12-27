@@ -1,0 +1,52 @@
+file:
+- statement:
+  - create_table_statement:
+    - keyword: CREATE
+    - keyword: TABLE
+    - keyword: IF
+    - keyword: NOT
+    - keyword: EXISTS
+    - table_reference:
+      - naked_identifier: db_name
+      - dot: .
+      - naked_identifier: table_name
+    - bracketed:
+      - start_bracket: (
+      - column_definition:
+        - naked_identifier: updated_at1
+        - keyword: timestamp
+        - keyword: default
+        - keyword: CURRENT_TIMESTAMP
+        - keyword: not
+        - keyword: 'null'
+        - keyword: on
+        - keyword: update
+        - keyword: CURRENT_TIMESTAMP
+      - comma: ','
+      - column_definition:
+        - naked_identifier: updated_at2
+        - keyword: timestamp
+        - keyword: not
+        - keyword: 'null'
+        - keyword: default
+        - keyword: CURRENT_TIMESTAMP
+        - keyword: on
+        - keyword: update
+        - keyword: CURRENT_TIMESTAMP
+      - comma: ','
+      - column_definition:
+        - naked_identifier: updated_at3
+        - keyword: timestamp
+        - keyword: default
+        - keyword: CURRENT_TIMESTAMP
+        - keyword: on
+        - keyword: update
+        - keyword: CURRENT_TIMESTAMP
+        - keyword: not
+        - keyword: 'null'
+      - comma: ','
+      - column_definition:
+        - naked_identifier: updated_at4
+        - keyword: timestamp
+      - end_bracket: )
+- statement_terminator: ;

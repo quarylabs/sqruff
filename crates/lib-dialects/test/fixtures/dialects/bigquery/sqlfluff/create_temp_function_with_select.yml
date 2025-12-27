@@ -56,12 +56,14 @@ file:
                                       - end_bracket: )
                               - end_bracket: )
                       - alias_expression:
-                        - keyword: AS
+                        - alias_operator:
+                          - keyword: AS
                         - naked_identifier: y
                       - keyword: WITH
                       - keyword: OFFSET
                       - alias_expression:
-                        - keyword: AS
+                        - alias_operator:
+                          - keyword: AS
                         - naked_identifier: i
             - end_bracket: )
         - end_bracket: )

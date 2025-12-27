@@ -3,9 +3,8 @@ file:
   - create_schema_statement:
     - keyword: CREATE
     - keyword: SCHEMA
-    - table_reference:
-      - object_reference:
-        - naked_identifier: asdf
+    - schema_reference:
+      - naked_identifier: asdf
 - statement_terminator: ;
 - statement:
   - create_schema_statement:
@@ -14,17 +13,15 @@ file:
     - keyword: IF
     - keyword: NOT
     - keyword: EXISTS
-    - table_reference:
-      - object_reference:
-        - naked_identifier: asdf
+    - schema_reference:
+      - naked_identifier: asdf
 - statement_terminator: ;
 - statement:
   - create_schema_statement:
     - keyword: CREATE
     - keyword: SCHEMA
-    - table_reference:
-      - object_reference:
-        - naked_identifier: asdf
+    - schema_reference:
+      - naked_identifier: asdf
     - keyword: AUTHORIZATION
     - role_reference:
       - naked_identifier: bob
@@ -44,9 +41,8 @@ file:
     - keyword: IF
     - keyword: NOT
     - keyword: EXISTS
-    - table_reference:
-      - object_reference:
-        - naked_identifier: asdf
+    - schema_reference:
+      - naked_identifier: asdf
     - keyword: AUTHORIZATION
     - role_reference:
       - naked_identifier: bob

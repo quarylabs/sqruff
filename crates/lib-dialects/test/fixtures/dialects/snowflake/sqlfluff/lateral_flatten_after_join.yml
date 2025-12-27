@@ -7,7 +7,8 @@ file:
         - column_reference:
           - naked_identifier: value
         - alias_expression:
-          - keyword: as
+          - alias_operator:
+            - keyword: as
           - naked_identifier: p_id
       - comma: ','
       - select_clause_element:
@@ -58,7 +59,8 @@ file:
                 - boolean_literal: 'false'
               - end_bracket: )
         - alias_expression:
-          - keyword: as
+          - alias_operator:
+            - keyword: as
           - naked_identifier: most_recent
     - from_clause:
       - keyword: from

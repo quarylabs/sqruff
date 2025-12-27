@@ -20,3 +20,12 @@ file:
       - quoted_literal: '''two'''
       - end_square_bracket: ']'
 - statement_terminator: ;
+- statement:
+  - set_segment:
+    - keyword: set
+    - system_variable:
+      - double_at_sign_literal: '@@query_label'
+    - comparison_operator:
+      - raw_comparison_operator: =
+    - quoted_literal: '''text'''
+- statement_terminator: ;

@@ -32,10 +32,11 @@ file:
     - role_reference:
       - quoted_identifier: '"test_role"'
     - keyword: SET
-    - keyword: COMMENT
-    - comparison_operator:
-      - raw_comparison_operator: =
-    - quoted_literal: '''test_comment'''
+    - comment_equals_clause:
+      - keyword: COMMENT
+      - comparison_operator:
+        - raw_comparison_operator: =
+      - quoted_literal: '''test_comment'''
 - statement_terminator: ;
 - statement:
   - alter_role_statement:
@@ -56,10 +57,11 @@ file:
     - role_reference:
       - quoted_identifier: '"test_role"'
     - keyword: SET
-    - keyword: COMMENT
-    - comparison_operator:
-      - raw_comparison_operator: =
-    - quoted_literal: '''test_comment'''
+    - comment_equals_clause:
+      - keyword: COMMENT
+      - comparison_operator:
+        - raw_comparison_operator: =
+      - quoted_literal: '''test_comment'''
 - statement_terminator: ;
 - statement:
   - alter_role_statement:

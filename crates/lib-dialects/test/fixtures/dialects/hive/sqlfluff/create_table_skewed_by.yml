@@ -1,0 +1,73 @@
+file:
+- statement:
+  - create_table_statement:
+    - keyword: CREATE
+    - keyword: TABLE
+    - table_reference:
+      - naked_identifier: foo
+    - bracketed:
+      - start_bracket: (
+      - column_definition:
+        - naked_identifier: col1
+        - data_type:
+          - primitive_type:
+            - keyword: STRING
+      - comma: ','
+      - column_definition:
+        - naked_identifier: col2
+        - data_type:
+          - primitive_type:
+            - keyword: int
+      - comma: ','
+      - column_definition:
+        - naked_identifier: col3
+        - data_type:
+          - primitive_type:
+            - keyword: STRING
+      - end_bracket: )
+    - skewed_by_clause:
+      - keyword: SKEWED
+      - keyword: BY
+      - bracketed:
+        - start_bracket: (
+        - column_reference:
+          - naked_identifier: col1
+        - comma: ','
+        - column_reference:
+          - naked_identifier: col2
+        - end_bracket: )
+      - keyword: ON
+      - bracketed:
+        - start_bracket: (
+        - bracketed:
+          - start_bracket: (
+          - quoted_literal: '''s1'''
+          - comma: ','
+          - numeric_literal: '1'
+          - end_bracket: )
+        - comma: ','
+        - bracketed:
+          - start_bracket: (
+          - quoted_literal: '''s3'''
+          - comma: ','
+          - numeric_literal: '3'
+          - end_bracket: )
+        - comma: ','
+        - bracketed:
+          - start_bracket: (
+          - quoted_literal: '''s13'''
+          - comma: ','
+          - numeric_literal: '13'
+          - end_bracket: )
+        - comma: ','
+        - bracketed:
+          - start_bracket: (
+          - quoted_literal: '''s78'''
+          - comma: ','
+          - numeric_literal: '78'
+          - end_bracket: )
+        - end_bracket: )
+      - keyword: STORED
+      - keyword: AS
+      - keyword: DIRECTORIES
+- statement_terminator: ;

@@ -25,7 +25,8 @@ file:
         - column_reference:
           - naked_identifier: bar
         - alias_expression:
-          - keyword: AS
+          - alias_operator:
+            - keyword: AS
           - quoted_identifier: '`baz`'
     - from_clause:
       - keyword: FROM
@@ -73,6 +74,7 @@ file:
               - dot: .
               - naked_identifier: bar
           - alias_expression:
-            - keyword: AS
+            - alias_operator:
+              - keyword: AS
             - quoted_identifier: '`baz`'
 - statement_terminator: ;

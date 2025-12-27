@@ -7,7 +7,8 @@ file:
         - column_reference:
           - naked_identifier: y
         - alias_expression:
-          - keyword: AS
+          - alias_operator:
+            - keyword: AS
           - naked_identifier: woy
     - from_clause:
       - keyword: FROM
@@ -35,7 +36,8 @@ file:
                           - end_bracket: )
                   - end_bracket: )
           - alias_expression:
-            - keyword: AS
+            - alias_operator:
+              - keyword: AS
             - naked_identifier: y
 - statement_terminator: ;
 - statement:

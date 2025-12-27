@@ -8,7 +8,8 @@ file:
     - keyword: ACCOUNTS
     - comparison_operator:
       - raw_comparison_operator: =
-    - naked_identifier: my_account_1
+    - object_reference:
+      - naked_identifier: my_account_1
 - statement_terminator: ;
 - statement:
   - alter_share_statement:
@@ -21,7 +22,8 @@ file:
     - keyword: ACCOUNTS
     - comparison_operator:
       - raw_comparison_operator: =
-    - naked_identifier: my_account_1
+    - object_reference:
+      - naked_identifier: my_account_1
 - statement_terminator: ;
 - statement:
   - alter_share_statement:
@@ -32,7 +34,8 @@ file:
     - keyword: ACCOUNTS
     - comparison_operator:
       - raw_comparison_operator: =
-    - naked_identifier: my_account_1
+    - object_reference:
+      - naked_identifier: my_account_1
 - statement_terminator: ;
 - statement:
   - alter_share_statement:
@@ -43,9 +46,11 @@ file:
     - keyword: ACCOUNTS
     - comparison_operator:
       - raw_comparison_operator: =
-    - naked_identifier: my_account_1
+    - object_reference:
+      - naked_identifier: my_account_1
     - comma: ','
-    - naked_identifier: my_account_2
+    - object_reference:
+      - naked_identifier: my_account_2
 - statement_terminator: ;
 - statement:
   - alter_share_statement:
@@ -56,11 +61,14 @@ file:
     - keyword: ACCOUNTS
     - comparison_operator:
       - raw_comparison_operator: =
-    - naked_identifier: my_account_1
+    - object_reference:
+      - naked_identifier: my_account_1
     - comma: ','
-    - naked_identifier: my_account_2
+    - object_reference:
+      - naked_identifier: my_account_2
     - comma: ','
-    - naked_identifier: my_account_3
+    - object_reference:
+      - naked_identifier: my_account_3
 - statement_terminator: ;
 - statement:
   - alter_share_statement:
@@ -138,7 +146,8 @@ file:
     - keyword: ACCOUNTS
     - comparison_operator:
       - raw_comparison_operator: =
-    - naked_identifier: my_account_1
+    - object_reference:
+      - naked_identifier: my_account_1
     - keyword: SHARE_RESTRICTIONS
     - comparison_operator:
       - raw_comparison_operator: =
@@ -153,9 +162,11 @@ file:
     - keyword: ACCOUNTS
     - comparison_operator:
       - raw_comparison_operator: =
-    - naked_identifier: my_account_1
+    - object_reference:
+      - naked_identifier: my_account_1
     - comma: ','
-    - naked_identifier: my_account_2
+    - object_reference:
+      - naked_identifier: my_account_2
     - keyword: SHARE_RESTRICTIONS
     - comparison_operator:
       - raw_comparison_operator: =
@@ -170,7 +181,8 @@ file:
     - keyword: ACCOUNTS
     - comparison_operator:
       - raw_comparison_operator: =
-    - naked_identifier: my_account_1
+    - object_reference:
+      - naked_identifier: my_account_1
     - comment_equals_clause:
       - keyword: COMMENT
       - comparison_operator:
@@ -188,12 +200,28 @@ file:
     - keyword: ACCOUNTS
     - comparison_operator:
       - raw_comparison_operator: =
-    - naked_identifier: my_account_1
+    - object_reference:
+      - naked_identifier: my_account_1
     - comma: ','
-    - naked_identifier: my_account_2
+    - object_reference:
+      - naked_identifier: my_account_2
     - comment_equals_clause:
       - keyword: COMMENT
       - comparison_operator:
         - raw_comparison_operator: =
       - quoted_literal: '''my_comment'''
+- statement_terminator: ;
+- statement:
+  - alter_share_statement:
+    - keyword: ALTER
+    - keyword: SHARE
+    - naked_identifier: my_share
+    - keyword: ADD
+    - keyword: ACCOUNTS
+    - comparison_operator:
+      - raw_comparison_operator: =
+    - object_reference:
+      - naked_identifier: org
+      - dot: .
+      - naked_identifier: account
 - statement_terminator: ;

@@ -16,39 +16,40 @@ file:
               - expression:
                 - quoted_literal: '''(\w)(\w*)'''
               - comma: ','
-              - parameter: x
-              - symbol: ->
-              - expression:
-                - function:
-                  - function_name:
-                    - function_name_identifier: UPPER
-                  - function_contents:
-                    - bracketed:
-                      - start_bracket: (
-                      - expression:
-                        - column_reference:
-                          - naked_identifier: x
-                        - array_accessor:
-                          - start_square_bracket: '['
-                          - numeric_literal: '1'
-                          - end_square_bracket: ']'
-                      - end_bracket: )
-                - binary_operator:
-                  - pipe: '|'
-                  - pipe: '|'
-                - function:
-                  - function_name:
-                    - function_name_identifier: LOWER
-                  - function_contents:
-                    - bracketed:
-                      - start_bracket: (
-                      - expression:
-                        - column_reference:
-                          - naked_identifier: x
-                        - array_accessor:
-                          - start_square_bracket: '['
-                          - numeric_literal: '2'
-                          - end_square_bracket: ']'
-                      - end_bracket: )
+              - lambda_function:
+                - parameter: x
+                - lambda_arrow: ->
+                - expression:
+                  - function:
+                    - function_name:
+                      - function_name_identifier: UPPER
+                    - function_contents:
+                      - bracketed:
+                        - start_bracket: (
+                        - expression:
+                          - column_reference:
+                            - naked_identifier: x
+                          - array_accessor:
+                            - start_square_bracket: '['
+                            - numeric_literal: '1'
+                            - end_square_bracket: ']'
+                        - end_bracket: )
+                  - binary_operator:
+                    - pipe: '|'
+                    - pipe: '|'
+                  - function:
+                    - function_name:
+                      - function_name_identifier: LOWER
+                    - function_contents:
+                      - bracketed:
+                        - start_bracket: (
+                        - expression:
+                          - column_reference:
+                            - naked_identifier: x
+                          - array_accessor:
+                            - start_square_bracket: '['
+                            - numeric_literal: '2'
+                            - end_square_bracket: ']'
+                        - end_bracket: )
               - end_bracket: )
 - statement_terminator: ;

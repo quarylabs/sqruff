@@ -32,7 +32,8 @@ file:
                       - end_square_bracket: ']'
                   - end_bracket: )
           - alias_expression:
-            - keyword: AS
+            - alias_operator:
+              - keyword: AS
             - naked_identifier: i
           - keyword: WITH
           - keyword: OFFSET

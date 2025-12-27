@@ -125,9 +125,10 @@ file:
       - table_engine_function:
         - function_name:
           - function_name_identifier: MergeTree
-        - bracketed:
-          - start_bracket: (
-          - end_bracket: )
+        - function_contents:
+          - bracketed:
+            - start_bracket: (
+            - end_bracket: )
     - keyword: AS
     - select_statement:
       - select_clause:
@@ -161,9 +162,10 @@ file:
       - table_engine_function:
         - function_name:
           - function_name_identifier: MergeTree
-        - bracketed:
-          - start_bracket: (
-          - end_bracket: )
+        - function_contents:
+          - bracketed:
+            - start_bracket: (
+            - end_bracket: )
     - keyword: AS
     - select_statement:
       - select_clause:
@@ -197,9 +199,10 @@ file:
       - table_engine_function:
         - function_name:
           - function_name_identifier: MergeTree
-        - bracketed:
-          - start_bracket: (
-          - end_bracket: )
+        - function_contents:
+          - bracketed:
+            - start_bracket: (
+            - end_bracket: )
     - keyword: POPULATE
     - keyword: AS
     - select_statement:
@@ -272,9 +275,10 @@ file:
       - table_engine_function:
         - function_name:
           - function_name_identifier: MergeTree
-        - bracketed:
-          - start_bracket: (
-          - end_bracket: )
+        - function_contents:
+          - bracketed:
+            - start_bracket: (
+            - end_bracket: )
       - merge_tree_order_by_clause:
         - keyword: ORDER
         - keyword: BY
@@ -316,9 +320,10 @@ file:
       - table_engine_function:
         - function_name:
           - function_name_identifier: MergeTree
-        - bracketed:
-          - start_bracket: (
-          - end_bracket: )
+        - function_contents:
+          - bracketed:
+            - start_bracket: (
+            - end_bracket: )
       - merge_tree_order_by_clause:
         - keyword: ORDER
         - keyword: BY
@@ -361,9 +366,10 @@ file:
       - table_engine_function:
         - function_name:
           - function_name_identifier: MergeTree
-        - bracketed:
-          - start_bracket: (
-          - end_bracket: )
+        - function_contents:
+          - bracketed:
+            - start_bracket: (
+            - end_bracket: )
       - merge_tree_order_by_clause:
         - keyword: ORDER
         - keyword: BY
@@ -406,9 +412,10 @@ file:
       - table_engine_function:
         - function_name:
           - function_name_identifier: MergeTree
-        - bracketed:
-          - start_bracket: (
-          - end_bracket: )
+        - function_contents:
+          - bracketed:
+            - start_bracket: (
+            - end_bracket: )
       - merge_tree_order_by_clause:
         - keyword: ORDER
         - keyword: BY
@@ -587,9 +594,10 @@ file:
       - table_engine_function:
         - function_name:
           - function_name_identifier: MergeTree
-        - bracketed:
-          - start_bracket: (
-          - end_bracket: )
+        - function_contents:
+          - bracketed:
+            - start_bracket: (
+            - end_bracket: )
       - merge_tree_order_by_clause:
         - keyword: ORDER
         - keyword: BY
@@ -629,14 +637,15 @@ file:
       - table_engine_function:
         - function_name:
           - function_name_identifier: ReplicatedReplacingMergeTree
-        - bracketed:
-          - start_bracket: (
-          - expression:
-            - quoted_literal: '''/clickhouse/tables/{shard}/my_view_6'''
-          - comma: ','
-          - expression:
-            - quoted_literal: '''{replica}'''
-          - end_bracket: )
+        - function_contents:
+          - bracketed:
+            - start_bracket: (
+            - expression:
+              - quoted_literal: '''/clickhouse/tables/{shard}/my_view_6'''
+            - comma: ','
+            - expression:
+              - quoted_literal: '''{replica}'''
+            - end_bracket: )
       - keyword: PARTITION
       - keyword: BY
       - expression:
@@ -671,11 +680,12 @@ file:
           - keyword: INTERVAL
           - numeric_literal: '1'
           - date_part: MONTH
-    - keyword: SETTINGS
-    - naked_identifier: index_granularity
-    - comparison_operator:
-      - raw_comparison_operator: =
-    - numeric_literal: '8192'
+    - settings_clause:
+      - keyword: SETTINGS
+      - naked_identifier: index_granularity
+      - comparison_operator:
+        - raw_comparison_operator: =
+      - numeric_literal: '8192'
     - keyword: AS
     - select_statement:
       - select_clause:
@@ -745,9 +755,10 @@ file:
       - table_engine_function:
         - function_name:
           - function_name_identifier: SummingMergeTree
-        - bracketed:
-          - start_bracket: (
-          - end_bracket: )
+        - function_contents:
+          - bracketed:
+            - start_bracket: (
+            - end_bracket: )
       - merge_tree_order_by_clause:
         - keyword: ORDER
         - keyword: BY
@@ -783,7 +794,8 @@ file:
                     - naked_identifier: value
                 - end_bracket: )
           - alias_expression:
-            - keyword: AS
+            - alias_operator:
+              - keyword: AS
             - naked_identifier: total_value
         - comma: ','
         - select_clause_element:
@@ -795,7 +807,8 @@ file:
                 - start_bracket: (
                 - end_bracket: )
           - alias_expression:
-            - keyword: AS
+            - alias_operator:
+              - keyword: AS
             - naked_identifier: count
         - comma: ','
         - select_clause_element:
@@ -810,7 +823,8 @@ file:
                     - naked_identifier: value
                 - end_bracket: )
           - alias_expression:
-            - keyword: AS
+            - alias_operator:
+              - keyword: AS
             - naked_identifier: avg_value
       - from_clause:
         - keyword: FROM
@@ -914,7 +928,8 @@ file:
           - column_reference:
             - naked_identifier: _timestamp_ms
           - alias_expression:
-            - keyword: AS
+            - alias_operator:
+              - keyword: AS
             - naked_identifier: processedAt
       - from_clause:
         - keyword: FROM
@@ -959,7 +974,8 @@ file:
           - column_reference:
             - naked_identifier: _timestamp_ms
           - alias_expression:
-            - keyword: AS
+            - alias_operator:
+              - keyword: AS
             - naked_identifier: processedAt
         - comma: ','
         - select_clause_element:
@@ -968,7 +984,8 @@ file:
             - dot: .
             - naked_identifier: measuredAt
           - alias_expression:
-            - keyword: AS
+            - alias_operator:
+              - keyword: AS
             - naked_identifier: measuredAt
         - comma: ','
         - select_clause_element:
@@ -977,7 +994,8 @@ file:
             - dot: .
             - naked_identifier: value
           - alias_expression:
-            - keyword: AS
+            - alias_operator:
+              - keyword: AS
             - naked_identifier: value
         - comma: ','
         - select_clause_element:
@@ -986,7 +1004,8 @@ file:
             - dot: .
             - naked_identifier: name
           - alias_expression:
-            - keyword: AS
+            - alias_operator:
+              - keyword: AS
             - naked_identifier: name
       - from_clause:
         - keyword: FROM
@@ -1037,7 +1056,8 @@ file:
           - column_reference:
             - naked_identifier: _ingestedAt
           - alias_expression:
-            - keyword: AS
+            - alias_operator:
+              - keyword: AS
             - naked_identifier: ingestedAt
         - comma: ','
         - select_clause_element:
@@ -1065,7 +1085,8 @@ file:
                                 - naked_identifier: ingestedAt
                             - end_bracket: )
                       - alias_expression:
-                        - keyword: AS
+                        - alias_operator:
+                          - keyword: AS
                         - naked_identifier: _ingestedAt
                     - comma: ','
                     - select_clause_element:
@@ -1084,7 +1105,8 @@ file:
                                 - naked_identifier: objectIdentfier
                             - end_bracket: )
                       - alias_expression:
-                        - keyword: AS
+                        - alias_operator:
+                          - keyword: AS
                         - naked_identifier: objectList
                   - from_clause:
                     - keyword: FROM
@@ -1138,7 +1160,8 @@ file:
           - column_reference:
             - naked_identifier: _ingestedAt
           - alias_expression:
-            - keyword: AS
+            - alias_operator:
+              - keyword: AS
             - naked_identifier: ingestedAt
         - comma: ','
         - select_clause_element:
@@ -1174,7 +1197,8 @@ file:
                                 - naked_identifier: ingestedAt
                             - end_bracket: )
                       - alias_expression:
-                        - keyword: AS
+                        - alias_operator:
+                          - keyword: AS
                         - naked_identifier: _ingestedAt
                     - comma: ','
                     - select_clause_element:
@@ -1186,7 +1210,8 @@ file:
                             - start_bracket: (
                             - end_bracket: )
                       - alias_expression:
-                        - keyword: AS
+                        - alias_operator:
+                          - keyword: AS
                         - naked_identifier: valueCount
                     - comma: ','
                     - select_clause_element:
@@ -1226,7 +1251,8 @@ file:
                               - numeric_literal: '1000'
                             - end_bracket: )
                       - alias_expression:
-                        - keyword: AS
+                        - alias_operator:
+                          - keyword: AS
                         - naked_identifier: cumulativeLagSeconds
                   - from_clause:
                     - keyword: FROM
@@ -1276,21 +1302,24 @@ file:
           - column_reference:
             - naked_identifier: _topic
           - alias_expression:
-            - keyword: AS
+            - alias_operator:
+              - keyword: AS
             - naked_identifier: topic
         - comma: ','
         - select_clause_element:
           - column_reference:
             - naked_identifier: _partition
           - alias_expression:
-            - keyword: AS
+            - alias_operator:
+              - keyword: AS
             - naked_identifier: kafka_partition
         - comma: ','
         - select_clause_element:
           - column_reference:
             - naked_identifier: _offset
           - alias_expression:
-            - keyword: AS
+            - alias_operator:
+              - keyword: AS
             - naked_identifier: offset
         - comma: ','
         - select_clause_element:
@@ -1314,21 +1343,24 @@ file:
                         - end_bracket: )
                 - end_bracket: )
           - alias_expression:
-            - keyword: AS
+            - alias_operator:
+              - keyword: AS
             - naked_identifier: processedAt
         - comma: ','
         - select_clause_element:
           - column_reference:
             - naked_identifier: _raw_message
           - alias_expression:
-            - keyword: AS
+            - alias_operator:
+              - keyword: AS
             - naked_identifier: raw_message
         - comma: ','
         - select_clause_element:
           - column_reference:
             - naked_identifier: _error
           - alias_expression:
-            - keyword: AS
+            - alias_operator:
+              - keyword: AS
             - naked_identifier: error
       - from_clause:
         - keyword: FROM

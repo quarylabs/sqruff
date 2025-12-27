@@ -3,6 +3,6 @@ file:
   - drop_index_statement:
     - keyword: DROP
     - keyword: INDEX
-    - database_reference:
+    - index_reference:
       - naked_identifier: transaction_updated
 - statement_terminator: ;

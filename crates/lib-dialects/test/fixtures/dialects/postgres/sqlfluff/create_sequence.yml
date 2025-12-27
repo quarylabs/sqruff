@@ -3,14 +3,14 @@ file:
   - create_sequence_statement:
     - keyword: CREATE
     - keyword: SEQUENCE
-    - column_reference:
+    - sequence_reference:
       - naked_identifier: foo
 - statement_terminator: ;
 - statement:
   - create_sequence_statement:
     - keyword: CREATE
     - keyword: SEQUENCE
-    - column_reference:
+    - sequence_reference:
       - naked_identifier: foo
     - create_sequence_options_segment:
       - keyword: AS
@@ -21,7 +21,7 @@ file:
   - create_sequence_statement:
     - keyword: CREATE
     - keyword: SEQUENCE
-    - column_reference:
+    - sequence_reference:
       - naked_identifier: foo
     - create_sequence_options_segment:
       - keyword: INCREMENT
@@ -32,7 +32,7 @@ file:
   - create_sequence_statement:
     - keyword: CREATE
     - keyword: SEQUENCE
-    - column_reference:
+    - sequence_reference:
       - naked_identifier: foo
     - create_sequence_options_segment:
       - keyword: MINVALUE
@@ -45,7 +45,7 @@ file:
   - create_sequence_statement:
     - keyword: CREATE
     - keyword: SEQUENCE
-    - column_reference:
+    - sequence_reference:
       - naked_identifier: foo
     - create_sequence_options_segment:
       - keyword: NO
@@ -58,7 +58,7 @@ file:
   - create_sequence_statement:
     - keyword: CREATE
     - keyword: SEQUENCE
-    - column_reference:
+    - sequence_reference:
       - naked_identifier: foo
     - create_sequence_options_segment:
       - keyword: INCREMENT
@@ -75,7 +75,7 @@ file:
   - create_sequence_statement:
     - keyword: CREATE
     - keyword: SEQUENCE
-    - column_reference:
+    - sequence_reference:
       - naked_identifier: foo
     - create_sequence_options_segment:
       - keyword: NO
@@ -85,7 +85,7 @@ file:
   - create_sequence_statement:
     - keyword: CREATE
     - keyword: SEQUENCE
-    - column_reference:
+    - sequence_reference:
       - naked_identifier: foo
     - create_sequence_options_segment:
       - keyword: OWNED
@@ -96,7 +96,7 @@ file:
   - create_sequence_statement:
     - keyword: CREATE
     - keyword: SEQUENCE
-    - column_reference:
+    - sequence_reference:
       - naked_identifier: foo
     - create_sequence_options_segment:
       - keyword: OWNED
@@ -114,7 +114,7 @@ file:
     - keyword: IF
     - keyword: NOT
     - keyword: EXISTS
-    - column_reference:
+    - sequence_reference:
       - naked_identifier: foo
 - statement_terminator: ;
 - statement:
@@ -122,6 +122,27 @@ file:
     - keyword: CREATE
     - keyword: TEMPORARY
     - keyword: SEQUENCE
-    - column_reference:
+    - sequence_reference:
       - naked_identifier: foo
+- statement_terminator: ;
+- statement:
+  - create_sequence_statement:
+    - keyword: CREATE
+    - keyword: SEQUENCE
+    - sequence_reference:
+      - naked_identifier: derp
+    - create_sequence_options_segment:
+      - keyword: INCREMENT
+      - keyword: BY
+      - sign_indicator: '-'
+      - numeric_literal: '5'
+    - create_sequence_options_segment:
+      - keyword: MINVALUE
+      - sign_indicator: +
+      - numeric_literal: '50'
+    - create_sequence_options_segment:
+      - keyword: MAXVALUE
+      - sign_indicator: '-'
+      - numeric_literal: '5'
+- statement_terminator: ;
 - statement_terminator: ;

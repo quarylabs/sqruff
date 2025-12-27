@@ -1,0 +1,7 @@
+file:
+- statement:
+  - reset_session_authorization_statement:
+    - keyword: RESET
+    - keyword: SESSION
+    - keyword: AUTHORIZATION
+- statement_terminator: ;

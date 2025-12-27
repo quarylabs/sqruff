@@ -20,7 +20,8 @@ file:
                   - naked_identifier: bar
               - end_bracket: )
         - alias_expression:
-          - keyword: AS
+          - alias_operator:
+            - keyword: AS
           - naked_identifier: any_value_having_min
       - comma: ','
       - select_clause_element:
@@ -40,7 +41,8 @@ file:
                   - naked_identifier: bar
               - end_bracket: )
         - alias_expression:
-          - keyword: AS
+          - alias_operator:
+            - keyword: AS
           - naked_identifier: any_value_having_max
       - comma: ','
     - from_clause:

@@ -1,0 +1,21 @@
+file:
+- batch:
+  - statement:
+    - create_server_role_statement:
+      - keyword: CREATE
+      - keyword: SERVER
+      - keyword: ROLE
+      - role_reference:
+        - naked_identifier: server_role
+      - keyword: AUTHORIZATION
+      - role_reference:
+        - naked_identifier: sa
+  - statement_terminator: ;
+  - statement:
+    - create_server_role_statement:
+      - keyword: CREATE
+      - keyword: SERVER
+      - keyword: ROLE
+      - role_reference:
+        - naked_identifier: server_role2
+  - statement_terminator: ;

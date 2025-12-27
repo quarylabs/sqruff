@@ -87,7 +87,8 @@ file:
               - keyword: PERCENT
               - end_bracket: )
           - alias_expression:
-            - keyword: AS
+            - alias_operator:
+              - keyword: AS
             - naked_identifier: t
 - statement_terminator: ;
 - statement:
@@ -273,7 +274,8 @@ file:
               - keyword: ROWS
               - end_bracket: )
           - alias_expression:
-            - keyword: AS
+            - alias_operator:
+              - keyword: AS
             - naked_identifier: t1
         - join_clause:
           - keyword: NATURAL
@@ -293,6 +295,7 @@ file:
                 - numeric_literal: '10'
                 - end_bracket: )
             - alias_expression:
-              - keyword: AS
+              - alias_operator:
+                - keyword: AS
               - naked_identifier: t2
 - statement_terminator: ;

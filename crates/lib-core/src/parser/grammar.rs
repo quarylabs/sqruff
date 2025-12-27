@@ -62,6 +62,16 @@ impl Ref {
         self
     }
 
+    pub fn terminators(mut self, terminators: Vec<Matchable>) -> Self {
+        self.terminators = terminators;
+        self
+    }
+
+    pub fn reset_terminators(mut self) -> Self {
+        self.reset_terminators = true;
+        self
+    }
+
     pub fn optional(mut self) -> Self {
         self.optional = true;
         self

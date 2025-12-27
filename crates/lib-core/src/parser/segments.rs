@@ -482,7 +482,10 @@ impl ErasedSegment {
     pub fn is_comment(&self) -> bool {
         matches!(
             self.value.syntax_kind,
-            SyntaxKind::Comment | SyntaxKind::InlineComment | SyntaxKind::BlockComment
+            SyntaxKind::Comment
+                | SyntaxKind::InlineComment
+                | SyntaxKind::BlockComment
+                | SyntaxKind::NotebookStart
         )
     }
 

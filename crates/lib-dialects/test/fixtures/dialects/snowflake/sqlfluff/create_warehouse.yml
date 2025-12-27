@@ -96,3 +96,58 @@ file:
         - raw_comparison_operator: =
       - numeric_literal: '60'
 - statement_terminator: ;
+- statement:
+  - create_statement:
+    - keyword: CREATE
+    - keyword: OR
+    - keyword: ALTER
+    - keyword: WAREHOUSE
+    - object_reference:
+      - naked_identifier: my_wh
+- statement_terminator: ;
+- statement:
+  - create_statement:
+    - keyword: create
+    - keyword: warehouse
+    - object_reference:
+      - naked_identifier: my_wh
+    - warehouse_object_properties:
+      - keyword: resource_constraint
+      - comparison_operator:
+        - raw_comparison_operator: =
+      - resource_constraint: '''STANDARD_GEN_1'''
+      - keyword: warehouse_size
+      - comparison_operator:
+        - raw_comparison_operator: =
+      - warehouse_size: '''medium'''
+- statement_terminator: ;
+- statement:
+  - create_statement:
+    - keyword: create
+    - keyword: warehouse
+    - object_reference:
+      - naked_identifier: my_wh
+    - warehouse_object_properties:
+      - keyword: resource_constraint
+      - comparison_operator:
+        - raw_comparison_operator: =
+      - resource_constraint: STANDARD_GEN_2
+      - keyword: warehouse_size
+      - comparison_operator:
+        - raw_comparison_operator: =
+      - warehouse_size: '''medium'''
+      - keyword: SCALING_POLICY
+      - comparison_operator:
+        - raw_comparison_operator: =
+      - scaling_policy: ECONOMY
+    - comment_equals_clause:
+      - keyword: comment
+      - comparison_operator:
+        - raw_comparison_operator: =
+      - quoted_literal: '''comment'''
+    - warehouse_object_properties:
+      - keyword: auto_suspend
+      - comparison_operator:
+        - raw_comparison_operator: =
+      - numeric_literal: '60'
+- statement_terminator: ;

@@ -16,7 +16,8 @@ file:
             - table_reference:
               - naked_identifier: foo
           - alias_expression:
-            - keyword: AS
+            - alias_operator:
+              - keyword: AS
             - naked_identifier: f
           - sample_expression:
             - keyword: TABLESAMPLE

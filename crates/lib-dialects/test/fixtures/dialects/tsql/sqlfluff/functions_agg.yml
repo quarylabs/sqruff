@@ -1,0 +1,158 @@
+file:
+- batch:
+  - statement:
+    - select_statement:
+      - select_clause:
+        - keyword: SELECT
+        - select_clause_element:
+          - function:
+            - function_name:
+              - keyword: string_agg
+            - function_contents:
+              - bracketed:
+                - start_bracket: (
+                - expression:
+                  - column_reference:
+                    - naked_identifier: t
+                    - dot: .
+                    - naked_identifier: v
+                - comma: ','
+                - expression:
+                  - quoted_literal: '''; '''
+                - end_bracket: )
+            - within_group_clause:
+              - keyword: within
+              - keyword: group
+              - bracketed:
+                - start_bracket: (
+                - orderby_clause:
+                  - keyword: order
+                  - keyword: by
+                  - column_reference:
+                    - naked_identifier: v
+                - end_bracket: )
+          - alias_expression:
+            - alias_operator:
+              - keyword: as
+            - naked_identifier: column_name1
+        - comma: ','
+        - select_clause_element:
+          - function:
+            - function_name:
+              - keyword: PERCENTILE_CONT
+            - function_contents:
+              - bracketed:
+                - start_bracket: (
+                - expression:
+                  - numeric_literal: '0.5'
+                - end_bracket: )
+            - within_group_clause:
+              - keyword: WITHIN
+              - keyword: GROUP
+              - bracketed:
+                - start_bracket: (
+                - orderby_clause:
+                  - keyword: ORDER
+                  - keyword: BY
+                  - column_reference:
+                    - naked_identifier: t
+                    - dot: .
+                    - naked_identifier: Rate
+                - end_bracket: )
+              - keyword: OVER
+              - bracketed:
+                - start_bracket: (
+                - partitionby_clause:
+                  - keyword: PARTITION
+                  - keyword: BY
+                  - column_reference:
+                    - naked_identifier: Name
+                - end_bracket: )
+          - alias_expression:
+            - alias_operator:
+              - keyword: AS
+            - naked_identifier: MedianCont
+        - comma: ','
+        - select_clause_element:
+          - function:
+            - function_name:
+              - keyword: PERCENTILE_DISC
+            - function_contents:
+              - bracketed:
+                - start_bracket: (
+                - expression:
+                  - numeric_literal: '0.5'
+                - end_bracket: )
+            - within_group_clause:
+              - keyword: WITHIN
+              - keyword: GROUP
+              - bracketed:
+                - start_bracket: (
+                - orderby_clause:
+                  - keyword: ORDER
+                  - keyword: BY
+                  - column_reference:
+                    - naked_identifier: t
+                    - dot: .
+                    - naked_identifier: Rate
+                - end_bracket: )
+              - keyword: OVER
+              - bracketed:
+                - start_bracket: (
+                - partitionby_clause:
+                  - keyword: PARTITION
+                  - keyword: BY
+                  - column_reference:
+                    - naked_identifier: Name
+                - end_bracket: )
+          - alias_expression:
+            - alias_operator:
+              - keyword: AS
+            - naked_identifier: MedianDisc
+      - from_clause:
+        - keyword: from
+        - from_expression:
+          - from_expression_element:
+            - table_expression:
+              - table_reference:
+                - naked_identifier: table1
+            - alias_expression:
+              - naked_identifier: t
+      - groupby_clause:
+        - keyword: group
+        - keyword: by
+        - column_reference:
+          - naked_identifier: employee_id
+      - having_clause:
+        - keyword: HAVING
+        - expression:
+          - function:
+            - function_name:
+              - function_name_identifier: MIN
+            - function_contents:
+              - bracketed:
+                - start_bracket: (
+                - expression:
+                  - column_reference:
+                    - quoted_identifier: '[ArrivalDt]'
+                - end_bracket: )
+          - comparison_operator:
+            - raw_comparison_operator: <
+            - raw_comparison_operator: =
+          - function:
+            - function_name:
+              - function_name_identifier: MAX
+            - function_contents:
+              - bracketed:
+                - start_bracket: (
+                - expression:
+                  - column_reference:
+                    - quoted_identifier: '[DischargeDt]'
+                - end_bracket: )
+  - statement:
+    - drop_table_statement:
+      - keyword: DROP
+      - keyword: TABLE
+      - table_reference:
+        - hash_identifier: '#Mercury'
+  - statement_terminator: ;

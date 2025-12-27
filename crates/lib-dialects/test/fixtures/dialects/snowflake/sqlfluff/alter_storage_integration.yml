@@ -45,10 +45,11 @@ file:
     - object_reference:
       - naked_identifier: test_integration
     - keyword: set
-    - keyword: comment
-    - comparison_operator:
-      - raw_comparison_operator: =
-    - quoted_literal: '''test comment'''
+    - comment_equals_clause:
+      - keyword: comment
+      - comparison_operator:
+        - raw_comparison_operator: =
+      - quoted_literal: '''test comment'''
 - statement_terminator: ;
 - statement:
   - alter_storage_integration_statement:
@@ -147,10 +148,11 @@ file:
     - comparison_operator:
       - raw_comparison_operator: =
     - boolean_literal: 'false'
-    - keyword: comment
-    - comparison_operator:
-      - raw_comparison_operator: =
-    - quoted_literal: '''test comment'''
+    - comment_equals_clause:
+      - keyword: comment
+      - comparison_operator:
+        - raw_comparison_operator: =
+      - quoted_literal: '''test comment'''
 - statement_terminator: ;
 - statement:
   - alter_storage_integration_statement:
@@ -160,10 +162,11 @@ file:
     - object_reference:
       - naked_identifier: test_integration
     - keyword: set
-    - keyword: comment
-    - comparison_operator:
-      - raw_comparison_operator: =
-    - quoted_literal: '''test comment'''
+    - comment_equals_clause:
+      - keyword: comment
+      - comparison_operator:
+        - raw_comparison_operator: =
+      - quoted_literal: '''test comment'''
     - keyword: enabled
     - comparison_operator:
       - raw_comparison_operator: =
@@ -389,10 +392,11 @@ file:
     - comparison_operator:
       - raw_comparison_operator: =
     - boolean_literal: 'true'
-    - keyword: comment
-    - comparison_operator:
-      - raw_comparison_operator: =
-    - quoted_literal: '''test_comment'''
+    - comment_equals_clause:
+      - keyword: comment
+      - comparison_operator:
+        - raw_comparison_operator: =
+      - quoted_literal: '''test_comment'''
     - keyword: azure_tenant_id
     - comparison_operator:
       - raw_comparison_operator: =
@@ -428,10 +432,11 @@ file:
     - comparison_operator:
       - raw_comparison_operator: =
     - boolean_literal: 'true'
-    - keyword: comment
-    - comparison_operator:
-      - raw_comparison_operator: =
-    - quoted_literal: '''test_comment'''
+    - comment_equals_clause:
+      - keyword: comment
+      - comparison_operator:
+        - raw_comparison_operator: =
+      - quoted_literal: '''test_comment'''
     - keyword: azure_tenant_id
     - comparison_operator:
       - raw_comparison_operator: =
@@ -452,4 +457,8 @@ file:
       - comma: ','
       - bucket_path: '''azure://myaccount.blob.core.windows.net/mycontainer/path4/'''
       - end_bracket: )
+    - keyword: use_privatelink_endpoint
+    - comparison_operator:
+      - raw_comparison_operator: =
+    - boolean_literal: 'true'
 - statement_terminator: ;

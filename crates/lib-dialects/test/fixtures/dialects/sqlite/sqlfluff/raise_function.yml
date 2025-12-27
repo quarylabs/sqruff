@@ -1,0 +1,33 @@
+file:
+- statement:
+  - create_trigger_statement:
+    - keyword: CREATE
+    - keyword: TRIGGER
+    - trigger_reference:
+      - naked_identifier: x
+    - keyword: BEFORE
+    - keyword: UPDATE
+    - keyword: OF
+    - column_reference:
+      - naked_identifier: z
+    - keyword: ON
+    - table_reference:
+      - naked_identifier: y
+    - keyword: BEGIN
+    - select_statement:
+      - select_clause:
+        - keyword: SELECT
+        - select_clause_element:
+          - function:
+            - function_name:
+              - function_name_identifier: RAISE
+            - function_contents:
+              - bracketed:
+                - start_bracket: (
+                - keyword: ROLLBACK
+                - comma: ','
+                - quoted_literal: '''updating z not allowed'''
+                - end_bracket: )
+    - statement_terminator: ;
+    - keyword: END
+- statement_terminator: ;

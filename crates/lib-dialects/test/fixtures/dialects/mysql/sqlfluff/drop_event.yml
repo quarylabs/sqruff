@@ -1,0 +1,17 @@
+file:
+- statement:
+  - drop_event_statement:
+    - keyword: DROP
+    - keyword: EVENT
+    - object_reference:
+      - naked_identifier: test
+- statement_terminator: ;
+- statement:
+  - drop_event_statement:
+    - keyword: DROP
+    - keyword: EVENT
+    - keyword: IF
+    - keyword: EXISTS
+    - object_reference:
+      - naked_identifier: test
+- statement_terminator: ;

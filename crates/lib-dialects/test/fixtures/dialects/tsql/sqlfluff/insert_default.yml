@@ -1,0 +1,11 @@
+file:
+- batch:
+  - statement:
+    - insert_statement:
+      - keyword: INSERT
+      - keyword: INTO
+      - table_reference:
+        - naked_identifier: mytable
+      - keyword: DEFAULT
+      - keyword: VALUES
+  - statement_terminator: ;

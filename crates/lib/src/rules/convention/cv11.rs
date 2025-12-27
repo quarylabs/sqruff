@@ -157,6 +157,12 @@ FROM foo;
         let functional_context = FunctionalContext::new(context);
         match self.preferred_type_casting_style {
             TypeCastingStyle::Consistent => {
+                // If current is None, it's not a cast operation (e.g., STRING_AGG, or
+                // other non-CAST/CONVERT functions), so skip it entirely.
+                if current_type_casting_style == TypeCastingStyle::None {
+                    return Vec::new();
+                }
+
                 let Some(prior_type_casting_style) = context.try_get::<TypeCastingStyle>() else {
                     context.set(current_type_casting_style);
                     return Vec::new();

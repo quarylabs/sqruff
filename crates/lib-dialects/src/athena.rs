@@ -507,11 +507,14 @@ pub fn raw_dialect() -> Dialect {
         (
             "WithinGroupClauseSegment".into(),
             NodeMatcher::new(SyntaxKind::WithingroupClause, |_dialect| {
-                let dialect = super::trino::raw_dialect();
-                dialect
-                    .grammar("WithinGroupClauseSegment")
-                    .match_grammar(&dialect)
-                    .unwrap()
+                Sequence::new(vec![
+                    Ref::keyword("WITHIN").to_matchable(),
+                    Ref::keyword("GROUP").to_matchable(),
+                    Bracketed::new(vec![Ref::new("OrderByClauseSegment").to_matchable()])
+                        .to_matchable(),
+                    Ref::new("FilterClauseGrammar").optional().to_matchable(),
+                ])
+                .to_matchable()
             })
             .to_matchable()
             .into(),
@@ -519,11 +522,29 @@ pub fn raw_dialect() -> Dialect {
         (
             "ListaggOverflowClauseSegment".into(),
             NodeMatcher::new(SyntaxKind::ListaggOverflowClause, |_dialect| {
-                let dialect = super::trino::raw_dialect();
-                dialect
-                    .grammar("ListaggOverflowClauseSegment")
-                    .match_grammar(&dialect)
-                    .unwrap()
+                Sequence::new(vec![
+                    Ref::keyword("ON").to_matchable(),
+                    Ref::keyword("OVERFLOW").to_matchable(),
+                    one_of(vec![
+                        Ref::keyword("ERROR").to_matchable(),
+                        Sequence::new(vec![
+                            Ref::keyword("TRUNCATE").to_matchable(),
+                            Ref::new("QuotedLiteralSegment").optional().to_matchable(),
+                            one_of(vec![
+                                Ref::keyword("WITH").to_matchable(),
+                                Ref::keyword("WITHOUT").to_matchable(),
+                            ])
+                            .config(|this| {
+                                this.optional();
+                            })
+                            .to_matchable(),
+                            Ref::keyword("COUNT").optional().to_matchable(),
+                        ])
+                        .to_matchable(),
+                    ])
+                    .to_matchable(),
+                ])
+                .to_matchable()
             })
             .to_matchable()
             .into(),

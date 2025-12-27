@@ -195,7 +195,7 @@ jobs:
             target: x86_64-pc-windows-msvc
             bin: sqruff.exe
           - name: sqruff-darwin-x86_64.tar.gz
-            os: macos-13
+            os: macos-15-intel
             target: x86_64-apple-darwin
             bin: sqruff
           - name: sqruff-darwin-aarch64.tar.gz

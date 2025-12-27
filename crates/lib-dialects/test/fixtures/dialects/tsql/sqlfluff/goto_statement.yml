@@ -1,0 +1,14 @@
+file:
+- batch:
+  - statement:
+    - goto_statement:
+      - keyword: GOTO
+      - naked_identifier: Branch_Three
+  - statement_terminator: ;
+  - statement:
+    - label_segment:
+      - naked_identifier: Branch_Three
+      - colon: ':'
+  - statement:
+    - return_segment:
+      - keyword: RETURN

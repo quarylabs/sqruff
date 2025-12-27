@@ -1,0 +1,15 @@
+file:
+- statement:
+  - alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+      - naked_identifier: example_dataset
+      - dot: .
+      - naked_identifier: example_table
+    - keyword: SET
+    - default_collate:
+      - keyword: DEFAULT
+      - keyword: COLLATE
+      - quoted_literal: '"und:ci"'
+- statement_terminator: ;

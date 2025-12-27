@@ -160,9 +160,10 @@ file:
       - naked_identifier: user1
     - keyword: PASSWORD
     - quoted_literal: '''md5153c434b4b77c89e6b94f12c5393af5b'''
-    - keyword: CONNECTION
-    - keyword: LIMIT
-    - numeric_literal: '30'
+    - connection_limit_segment:
+      - keyword: CONNECTION
+      - keyword: LIMIT
+      - numeric_literal: '30'
 - statement_terminator: ;
 - statement:
   - create_user_statement:
@@ -172,9 +173,10 @@ file:
       - naked_identifier: user1
     - keyword: PASSWORD
     - quoted_literal: '''md5153c434b4b77c89e6b94f12c5393af5b'''
-    - keyword: CONNECTION
-    - keyword: LIMIT
-    - keyword: UNLIMITED
+    - connection_limit_segment:
+      - keyword: CONNECTION
+      - keyword: LIMIT
+      - keyword: UNLIMITED
 - statement_terminator: ;
 - statement:
   - create_user_statement:

@@ -101,3 +101,68 @@ file:
                   - naked_identifier: bar
       - end_bracket: )
 - statement_terminator: ;
+- statement:
+  - create_view_statement:
+    - keyword: CREATE
+    - keyword: OR
+    - keyword: REPLACE
+    - keyword: VIEW
+    - table_reference:
+      - naked_identifier: foo
+    - bracketed:
+      - start_bracket: (
+      - column_definition:
+        - naked_identifier: x
+        - options_segment:
+          - keyword: OPTIONS
+          - bracketed:
+            - start_bracket: (
+            - parameter: description
+            - comparison_operator:
+              - raw_comparison_operator: =
+            - quoted_literal: '''x'''
+            - end_bracket: )
+      - comma: ','
+      - column_definition:
+        - naked_identifier: y
+        - options_segment:
+          - keyword: OPTIONS
+          - bracketed:
+            - start_bracket: (
+            - parameter: description
+            - comparison_operator:
+              - raw_comparison_operator: =
+            - quoted_literal: '''y'''
+            - end_bracket: )
+      - end_bracket: )
+    - options_segment:
+      - keyword: OPTIONS
+      - bracketed:
+        - start_bracket: (
+        - parameter: description
+        - comparison_operator:
+          - raw_comparison_operator: =
+        - quoted_literal: '''view_column_name_list'''
+        - end_bracket: )
+    - keyword: AS
+    - bracketed:
+      - start_bracket: (
+      - select_statement:
+        - select_clause:
+          - keyword: SELECT
+          - select_clause_element:
+            - column_reference:
+              - naked_identifier: x
+          - comma: ','
+          - select_clause_element:
+            - column_reference:
+              - naked_identifier: y
+        - from_clause:
+          - keyword: from
+          - from_expression:
+            - from_expression_element:
+              - table_expression:
+                - table_reference:
+                  - naked_identifier: bar
+      - end_bracket: )
+- statement_terminator: ;

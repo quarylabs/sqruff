@@ -132,13 +132,13 @@ file:
       - naked_identifier: cluster_name
 - statement_terminator: ;
 - statement:
-  - drop_role_statement:
+  - drop_user_statement:
     - keyword: DROP
     - keyword: ROLE
     - naked_identifier: role_name
 - statement_terminator: ;
 - statement:
-  - drop_role_statement:
+  - drop_user_statement:
     - keyword: DROP
     - keyword: ROLE
     - keyword: IF
@@ -146,7 +146,7 @@ file:
     - naked_identifier: role_name
 - statement_terminator: ;
 - statement:
-  - drop_role_statement:
+  - drop_user_statement:
     - keyword: DROP
     - keyword: ROLE
     - naked_identifier: role_name

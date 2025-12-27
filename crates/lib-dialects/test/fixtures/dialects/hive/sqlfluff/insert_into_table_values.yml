@@ -1,0 +1,24 @@
+file:
+- statement:
+  - insert_statement:
+    - keyword: INSERT
+    - keyword: INTO
+    - keyword: TABLE
+    - table_reference:
+      - naked_identifier: foo
+    - values_clause:
+      - keyword: VALUES
+      - bracketed:
+        - start_bracket: (
+        - quoted_literal: '''foo'''
+        - comma: ','
+        - quoted_literal: '''bar'''
+        - end_bracket: )
+      - comma: ','
+      - bracketed:
+        - start_bracket: (
+        - quoted_literal: '''rab'''
+        - comma: ','
+        - quoted_literal: '''oof'''
+        - end_bracket: )
+- statement_terminator: ;

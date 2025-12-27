@@ -3,7 +3,7 @@ file:
   - create_index_statement:
     - keyword: CREATE
     - keyword: INDEX
-    - database_reference:
+    - index_reference:
       - naked_identifier: li1
     - keyword: ON
     - table_reference:
@@ -31,7 +31,7 @@ file:
   - create_index_statement:
     - keyword: CREATE
     - keyword: INDEX
-    - database_reference:
+    - index_reference:
       - naked_identifier: acctchng_magnitude
     - keyword: ON
     - table_reference:
@@ -59,7 +59,7 @@ file:
   - create_index_statement:
     - keyword: CREATE
     - keyword: INDEX
-    - database_reference:
+    - index_reference:
       - naked_identifier: t2xy
     - keyword: ON
     - table_reference:
@@ -80,7 +80,7 @@ file:
     - keyword: CREATE
     - keyword: UNIQUE
     - keyword: INDEX
-    - database_reference:
+    - index_reference:
       - naked_identifier: team_leader
     - keyword: ON
     - table_reference:
@@ -100,7 +100,7 @@ file:
   - create_index_statement:
     - keyword: CREATE
     - keyword: INDEX
-    - database_reference:
+    - index_reference:
       - naked_identifier: ex1
     - keyword: ON
     - table_reference:
@@ -132,7 +132,7 @@ file:
   - create_index_statement:
     - keyword: CREATE
     - keyword: INDEX
-    - database_reference:
+    - index_reference:
       - naked_identifier: po_parent
     - keyword: ON
     - table_reference:
@@ -149,13 +149,13 @@ file:
           - naked_identifier: parent_po
         - keyword: IS
         - keyword: NOT
-        - keyword: 'NULL'
+        - null_literal: 'NULL'
 - statement_terminator: ;
 - statement:
   - create_index_statement:
     - keyword: CREATE
     - keyword: INDEX
-    - database_reference:
+    - index_reference:
       - naked_identifier: ex2
     - keyword: ON
     - table_reference:
@@ -175,5 +175,5 @@ file:
           - naked_identifier: c
         - keyword: IS
         - keyword: NOT
-        - keyword: 'NULL'
+        - null_literal: 'NULL'
 - statement_terminator: ;

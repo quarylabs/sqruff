@@ -1,0 +1,119 @@
+file:
+- batch:
+  - statement:
+    - if_then_statement:
+      - if_clause:
+        - keyword: IF
+        - expression:
+          - integer_literal: '1'
+          - comparison_operator:
+            - raw_comparison_operator: <
+            - raw_comparison_operator: =
+          - bracketed:
+            - start_bracket: (
+            - expression:
+              - select_statement:
+                - select_clause:
+                  - keyword: SELECT
+                  - select_clause_element:
+                    - column_reference:
+                      - naked_identifier: Weight
+                - from_clause:
+                  - keyword: from
+                  - from_expression:
+                    - from_expression_element:
+                      - table_expression:
+                        - table_reference:
+                          - naked_identifier: DimProduct
+                - where_clause:
+                  - keyword: WHERE
+                  - expression:
+                    - column_reference:
+                      - naked_identifier: ProductKey
+                    - comparison_operator:
+                      - raw_comparison_operator: =
+                    - integer_literal: '1'
+            - end_bracket: )
+      - statement:
+        - begin_end_block:
+          - keyword: BEGIN
+          - statement:
+            - select_statement:
+              - select_clause:
+                - keyword: SELECT
+                - select_clause_element:
+                  - column_reference:
+                    - naked_identifier: ProductKey
+                - comma: ','
+                - select_clause_element:
+                  - column_reference:
+                    - naked_identifier: EnglishDescription
+                - comma: ','
+                - select_clause_element:
+                  - column_reference:
+                    - naked_identifier: Weight
+                - comma: ','
+                - select_clause_element:
+                  - quoted_literal: '''This product is too heavy to ship and is only available for pickup.'''
+                  - alias_expression:
+                    - alias_operator:
+                      - keyword: AS
+                    - naked_identifier: ShippingStatus
+              - from_clause:
+                - keyword: FROM
+                - from_expression:
+                  - from_expression_element:
+                    - table_expression:
+                      - table_reference:
+                        - naked_identifier: DimProduct
+              - where_clause:
+                - keyword: WHERE
+                - expression:
+                  - column_reference:
+                    - naked_identifier: ProductKey
+                  - comparison_operator:
+                    - raw_comparison_operator: =
+                  - integer_literal: '1'
+          - keyword: END
+      - keyword: ELSE
+      - statement:
+        - begin_end_block:
+          - keyword: BEGIN
+          - statement:
+            - select_statement:
+              - select_clause:
+                - keyword: SELECT
+                - select_clause_element:
+                  - column_reference:
+                    - naked_identifier: ProductKey
+                - comma: ','
+                - select_clause_element:
+                  - column_reference:
+                    - naked_identifier: EnglishDescription
+                - comma: ','
+                - select_clause_element:
+                  - column_reference:
+                    - naked_identifier: Weight
+                - comma: ','
+                - select_clause_element:
+                  - quoted_literal: '''This product is available for shipping or pickup.'''
+                  - alias_expression:
+                    - alias_operator:
+                      - keyword: AS
+                    - naked_identifier: ShippingStatus
+              - from_clause:
+                - keyword: FROM
+                - from_expression:
+                  - from_expression_element:
+                    - table_expression:
+                      - table_reference:
+                        - naked_identifier: DimProduct
+              - where_clause:
+                - keyword: WHERE
+                - expression:
+                  - column_reference:
+                    - naked_identifier: ProductKey
+                  - comparison_operator:
+                    - raw_comparison_operator: =
+                  - integer_literal: '1'
+          - keyword: END

@@ -1042,9 +1042,8 @@ file:
       - naked_identifier: distributors
     - keyword: SET
     - keyword: SCHEMA
-    - table_reference:
-      - object_reference:
-        - naked_identifier: yourschema
+    - schema_reference:
+      - naked_identifier: yourschema
 - statement_terminator: ;
 - statement:
   - alter_table_statement:
@@ -1067,7 +1066,7 @@ file:
         - keyword: KEY
         - keyword: USING
         - keyword: INDEX
-        - database_reference:
+        - index_reference:
           - naked_identifier: dist_id_temp_idx
 - statement_terminator: ;
 - statement:
@@ -1374,7 +1373,7 @@ file:
         - alter_sequence_options_segment:
           - keyword: SEQUENCE
           - keyword: NAME
-          - column_reference:
+          - sequence_reference:
             - naked_identifier: public
             - dot: .
             - naked_identifier: history_id_seq

@@ -1,0 +1,18 @@
+file:
+- batch:
+  - statement:
+    - drop_user_statement:
+      - keyword: drop
+      - keyword: user
+      - role_reference:
+        - naked_identifier: some_user
+  - statement_terminator: ;
+  - statement:
+    - drop_user_statement:
+      - keyword: drop
+      - keyword: user
+      - keyword: if
+      - keyword: exists
+      - role_reference:
+        - naked_identifier: some_user
+  - statement_terminator: ;

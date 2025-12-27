@@ -6,7 +6,8 @@ file:
       - select_clause_element:
         - bytes_quoted_literal: X'123456'
         - alias_expression:
-          - keyword: AS
+          - alias_operator:
+            - keyword: AS
           - naked_identifier: col
 - statement_terminator: ;
 - statement:
@@ -16,6 +17,7 @@ file:
       - select_clause_element:
         - bytes_quoted_literal: X"123456"
         - alias_expression:
-          - keyword: AS
+          - alias_operator:
+            - keyword: AS
           - naked_identifier: col
 - statement_terminator: ;

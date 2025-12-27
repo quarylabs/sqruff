@@ -1,0 +1,83 @@
+file:
+- batch:
+  - statement:
+    - with_compound_statement:
+      - keyword: WITH
+      - common_table_expression:
+        - naked_identifier: Sales_CTE
+        - cte_column_list:
+          - bracketed:
+            - start_bracket: (
+            - identifier_list:
+              - naked_identifier: SalesPersonID
+              - comma: ','
+              - naked_identifier: NumberOfOrders
+            - end_bracket: )
+        - keyword: AS
+        - bracketed:
+          - start_bracket: (
+          - select_statement:
+            - select_clause:
+              - keyword: SELECT
+              - select_clause_element:
+                - column_reference:
+                  - naked_identifier: SalesPersonID
+              - comma: ','
+              - select_clause_element:
+                - function:
+                  - function_name:
+                    - function_name_identifier: COUNT
+                  - function_contents:
+                    - bracketed:
+                      - start_bracket: (
+                      - star: '*'
+                      - end_bracket: )
+            - from_clause:
+              - keyword: FROM
+              - from_expression:
+                - from_expression_element:
+                  - table_expression:
+                    - table_reference:
+                      - naked_identifier: Sales
+                      - dot: .
+                      - naked_identifier: SalesOrderHeader
+            - where_clause:
+              - keyword: WHERE
+              - expression:
+                - column_reference:
+                  - naked_identifier: SalesPersonID
+                - keyword: IS
+                - keyword: NOT
+                - null_literal: 'NULL'
+            - groupby_clause:
+              - keyword: GROUP
+              - keyword: BY
+              - column_reference:
+                - naked_identifier: SalesPersonID
+          - end_bracket: )
+      - select_statement:
+        - select_clause:
+          - keyword: SELECT
+          - select_clause_element:
+            - function:
+              - function_name:
+                - function_name_identifier: AVG
+              - function_contents:
+                - bracketed:
+                  - start_bracket: (
+                  - expression:
+                    - column_reference:
+                      - naked_identifier: NumberOfOrders
+                  - end_bracket: )
+            - alias_expression:
+              - alias_operator:
+                - keyword: AS
+              - quoted_identifier: '"Average Sales Per Person"'
+        - from_clause:
+          - keyword: FROM
+          - from_expression:
+            - from_expression_element:
+              - table_expression:
+                - table_reference:
+                  - naked_identifier: Sales_CTE
+  - statement_terminator: ;

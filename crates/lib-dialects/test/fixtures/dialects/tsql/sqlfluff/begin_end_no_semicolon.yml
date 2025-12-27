@@ -1,0 +1,12 @@
+file:
+- batch:
+  - statement:
+    - begin_end_block:
+      - keyword: BEGIN
+      - statement:
+        - select_statement:
+          - select_clause:
+            - keyword: SELECT
+            - select_clause_element:
+              - integer_literal: '1'
+      - keyword: END

@@ -1,0 +1,20 @@
+file:
+- statement:
+  - create_table_statement:
+    - keyword: CREATE
+    - keyword: TABLE
+    - table_reference:
+      - naked_identifier: search
+    - bracketed:
+      - start_bracket: (
+      - column_definition:
+        - naked_identifier: embedding
+        - data_type:
+          - keyword: VECTOR
+          - bracketed_arguments:
+            - bracketed:
+              - start_bracket: (
+              - numeric_literal: '1536'
+              - end_bracket: )
+      - end_bracket: )
+- statement_terminator: ;

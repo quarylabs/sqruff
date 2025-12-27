@@ -4,7 +4,7 @@ file:
     - keyword: CREATE
     - keyword: UNIQUE
     - keyword: INDEX
-    - database_reference:
+    - index_reference:
       - naked_identifier: title_idx
     - keyword: ON
     - table_reference:
@@ -21,7 +21,7 @@ file:
     - keyword: CREATE
     - keyword: UNIQUE
     - keyword: INDEX
-    - database_reference:
+    - index_reference:
       - naked_identifier: title_idx
     - keyword: ON
     - table_reference:
@@ -48,7 +48,7 @@ file:
   - create_index_statement:
     - keyword: CREATE
     - keyword: INDEX
-    - database_reference:
+    - index_reference:
       - naked_identifier: title_idx
     - keyword: ON
     - table_reference:
@@ -100,7 +100,7 @@ file:
   - create_index_statement:
     - keyword: CREATE
     - keyword: INDEX
-    - database_reference:
+    - index_reference:
       - naked_identifier: title_idx_german
     - keyword: ON
     - table_reference:
@@ -120,7 +120,7 @@ file:
   - create_index_statement:
     - keyword: CREATE
     - keyword: INDEX
-    - database_reference:
+    - index_reference:
       - naked_identifier: title_idx_nulls_low
     - keyword: ON
     - table_reference:
@@ -139,7 +139,7 @@ file:
   - create_index_statement:
     - keyword: CREATE
     - keyword: INDEX
-    - database_reference:
+    - index_reference:
       - naked_identifier: title_idx_nulls_high
     - keyword: ON
     - table_reference:
@@ -159,7 +159,7 @@ file:
     - keyword: CREATE
     - keyword: UNIQUE
     - keyword: INDEX
-    - database_reference:
+    - index_reference:
       - naked_identifier: title_idx
     - keyword: ON
     - table_reference:
@@ -185,7 +185,7 @@ file:
   - create_index_statement:
     - keyword: CREATE
     - keyword: INDEX
-    - database_reference:
+    - index_reference:
       - naked_identifier: gin_idx
     - keyword: ON
     - table_reference:
@@ -214,7 +214,7 @@ file:
   - create_index_statement:
     - keyword: CREATE
     - keyword: INDEX
-    - database_reference:
+    - index_reference:
       - naked_identifier: code_idx
     - keyword: ON
     - table_reference:
@@ -233,7 +233,7 @@ file:
   - create_index_statement:
     - keyword: CREATE
     - keyword: INDEX
-    - database_reference:
+    - index_reference:
       - naked_identifier: pointloc
     - keyword: ON
     - table_reference:
@@ -265,7 +265,7 @@ file:
     - keyword: CREATE
     - keyword: INDEX
     - keyword: CONCURRENTLY
-    - database_reference:
+    - index_reference:
       - naked_identifier: sales_quantity_index
     - keyword: ON
     - table_reference:
@@ -281,7 +281,7 @@ file:
   - create_index_statement:
     - keyword: CREATE
     - keyword: INDEX
-    - database_reference:
+    - index_reference:
       - naked_identifier: super_idx
     - keyword: ON
     - table_reference:
@@ -302,7 +302,7 @@ file:
   - create_index_statement:
     - keyword: CREATE
     - keyword: INDEX
-    - database_reference:
+    - index_reference:
       - naked_identifier: opclass_index
     - keyword: ON
     - table_reference:
@@ -323,7 +323,7 @@ file:
   - create_index_statement:
     - keyword: CREATE
     - keyword: INDEX
-    - database_reference:
+    - index_reference:
       - naked_identifier: opclass_index_with_parameters
     - keyword: ON
     - table_reference:
@@ -360,7 +360,7 @@ file:
     - keyword: CREATE
     - keyword: UNIQUE
     - keyword: INDEX
-    - database_reference:
+    - index_reference:
       - naked_identifier: tests_success_constraint
     - keyword: ON
     - table_reference:
@@ -384,7 +384,7 @@ file:
   - create_index_statement:
     - keyword: CREATE
     - keyword: INDEX
-    - database_reference:
+    - index_reference:
       - naked_identifier: nulls_distinct_index
     - keyword: ON
     - table_reference:
@@ -415,7 +415,7 @@ file:
   - create_index_statement:
     - keyword: CREATE
     - keyword: INDEX
-    - database_reference:
+    - index_reference:
       - naked_identifier: nulls_not_distinct_index
     - keyword: ON
     - table_reference:
@@ -447,7 +447,7 @@ file:
   - create_index_statement:
     - keyword: CREATE
     - keyword: INDEX
-    - database_reference:
+    - index_reference:
       - naked_identifier: code_idx
     - keyword: ON
     - table_reference:
@@ -461,4 +461,26 @@ file:
     - keyword: TABLESPACE
     - tablespace_reference:
       - naked_identifier: indexspace
+- statement_terminator: ;
+- statement:
+  - create_index_statement:
+    - keyword: CREATE
+    - keyword: INDEX
+    - keyword: CONCURRENTLY
+    - keyword: IF
+    - keyword: NOT
+    - keyword: EXISTS
+    - index_reference:
+      - naked_identifier: user_my_column_idx
+    - keyword: ON
+    - table_reference:
+      - naked_identifier: my_schema
+      - dot: .
+      - naked_identifier: user
+    - bracketed:
+      - start_bracket: (
+      - index_element:
+        - column_reference:
+          - naked_identifier: my_column
+      - end_bracket: )
 - statement_terminator: ;

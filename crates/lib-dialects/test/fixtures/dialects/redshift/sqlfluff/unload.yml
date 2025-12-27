@@ -257,3 +257,22 @@ file:
     - keyword: as
     - quoted_literal: '''fred'''
 - statement_terminator: ;
+- statement:
+  - unload_statement:
+    - keyword: unload
+    - bracketed:
+      - start_bracket: (
+      - quoted_literal: '''select * from tbl'''
+      - end_bracket: )
+    - keyword: to
+    - quoted_literal: '''s3://mybucket/unload/'''
+    - keyword: csv
+    - keyword: header
+    - authorization_segment:
+      - keyword: credentials
+      - quoted_literal: '''aws_access_key_id=abc;aws_secret_access_key=def'''
+    - keyword: extension
+    - quoted_literal: '''csv'''
+    - keyword: parallel
+    - keyword: 'false'
+- statement_terminator: ;

@@ -3,6 +3,5 @@ file:
   - create_schema_statement:
     - keyword: create
     - keyword: schema
-    - table_reference:
-      - object_reference:
-        - naked_identifier: my_schema
+    - schema_reference:
+      - naked_identifier: my_schema

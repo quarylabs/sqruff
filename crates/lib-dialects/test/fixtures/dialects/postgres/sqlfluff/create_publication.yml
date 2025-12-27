@@ -232,17 +232,15 @@ file:
       - keyword: TABLES
       - keyword: IN
       - keyword: SCHEMA
-      - table_reference:
-        - object_reference:
-          - naked_identifier: j
+      - schema_reference:
+        - naked_identifier: j
     - comma: ','
     - publication_objects:
       - keyword: TABLES
       - keyword: IN
       - keyword: SCHEMA
-      - table_reference:
-        - object_reference:
-          - naked_identifier: k
+      - schema_reference:
+        - naked_identifier: k
     - comma: ','
     - publication_objects:
       - keyword: TABLES
@@ -250,29 +248,24 @@ file:
       - keyword: SCHEMA
       - keyword: CURRENT_SCHEMA
       - comma: ','
-      - table_reference:
-        - object_reference:
-          - naked_identifier: l
+      - schema_reference:
+        - naked_identifier: l
       - comma: ','
-      - table_reference:
-        - object_reference:
-          - naked_identifier: m
+      - schema_reference:
+        - naked_identifier: m
     - comma: ','
     - publication_objects:
       - keyword: TABLES
       - keyword: IN
       - keyword: SCHEMA
-      - table_reference:
-        - object_reference:
-          - naked_identifier: n
+      - schema_reference:
+        - naked_identifier: n
       - comma: ','
-      - table_reference:
-        - object_reference:
-          - naked_identifier: o
+      - schema_reference:
+        - naked_identifier: o
       - comma: ','
-      - table_reference:
-        - object_reference:
-          - naked_identifier: p
+      - schema_reference:
+        - naked_identifier: p
 - statement_terminator: ;
 - statement:
   - create_publication_statement:
@@ -471,9 +464,8 @@ file:
       - keyword: TABLES
       - keyword: IN
       - keyword: SCHEMA
-      - table_reference:
-        - object_reference:
-          - naked_identifier: production
+      - schema_reference:
+        - naked_identifier: production
 - statement_terminator: ;
 - statement:
   - create_publication_statement:
@@ -486,13 +478,11 @@ file:
       - keyword: TABLES
       - keyword: IN
       - keyword: SCHEMA
-      - table_reference:
-        - object_reference:
-          - naked_identifier: marketing
+      - schema_reference:
+        - naked_identifier: marketing
       - comma: ','
-      - table_reference:
-        - object_reference:
-          - naked_identifier: sales
+      - schema_reference:
+        - naked_identifier: sales
 - statement_terminator: ;
 - statement:
   - create_publication_statement:

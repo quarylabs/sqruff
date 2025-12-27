@@ -24,7 +24,8 @@ file:
             - binary_operator: /
             - numeric_literal: '2'
           - alias_expression:
-            - keyword: AS
+            - alias_operator:
+              - keyword: AS
             - naked_identifier: half
       - from_clause:
         - keyword: FROM
@@ -61,7 +62,8 @@ file:
             - binary_operator: /
             - numeric_literal: '4'
           - alias_expression:
-            - keyword: AS
+            - alias_operator:
+              - keyword: AS
             - naked_identifier: quarter
       - from_clause:
         - keyword: FROM

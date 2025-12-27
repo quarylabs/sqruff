@@ -220,7 +220,8 @@ file:
     - bracketed:
       - start_bracket: (
       - column_definition:
-        - naked_identifier: a
+        - column_reference:
+          - naked_identifier: a
         - data_type:
           - primitive_type:
             - keyword: STRING
@@ -230,7 +231,8 @@ file:
             - quoted_literal: '''a'''
       - comma: ','
       - column_definition:
-        - naked_identifier: b
+        - column_reference:
+          - naked_identifier: b
         - data_type:
           - primitive_type:
             - keyword: INT

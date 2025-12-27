@@ -19,12 +19,12 @@ file:
       - expression:
         - column_reference:
           - naked_identifier: a
-        - comparison_operator: '!~'
+        - like_operator: '!~'
         - quoted_literal: '''[a-z]'''
         - binary_operator: AND
         - column_reference:
           - naked_identifier: d
-        - comparison_operator: '!~~*'
+        - like_operator: '!~~*'
         - quoted_literal: '''[a-z]'''
         - binary_operator: AND
         - column_reference:
@@ -34,5 +34,5 @@ file:
         - binary_operator: AND
         - column_reference:
           - naked_identifier: c
-        - comparison_operator: '!~*'
+        - like_operator: '!~*'
         - quoted_literal: '''^([0-9]){1,}(\.)([0-9]{1,})$'''

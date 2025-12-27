@@ -23,7 +23,8 @@ file:
                   - naked_identifier: total_count
               - end_bracket: )
         - alias_expression:
-          - keyword: as
+          - alias_operator:
+            - keyword: as
           - naked_identifier: cnt
     - from_clause:
       - keyword: from
@@ -74,7 +75,8 @@ file:
                   - naked_identifier: total_count
               - end_bracket: )
         - alias_expression:
-          - keyword: as
+          - alias_operator:
+            - keyword: as
           - naked_identifier: cnt
     - from_clause:
       - keyword: from
@@ -125,7 +127,8 @@ file:
                   - naked_identifier: total_count
               - end_bracket: )
         - alias_expression:
-          - keyword: as
+          - alias_operator:
+            - keyword: as
           - naked_identifier: cnt
     - from_clause:
       - keyword: from
@@ -176,7 +179,8 @@ file:
                   - naked_identifier: total_count
               - end_bracket: )
         - alias_expression:
-          - keyword: as
+          - alias_operator:
+            - keyword: as
           - naked_identifier: cnt
     - from_clause:
       - keyword: from
@@ -248,7 +252,8 @@ file:
                   - naked_identifier: total_count
               - end_bracket: )
         - alias_expression:
-          - keyword: as
+          - alias_operator:
+            - keyword: as
           - naked_identifier: cnt
     - from_clause:
       - keyword: from

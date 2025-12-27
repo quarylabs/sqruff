@@ -10,7 +10,8 @@ file:
       - select_clause_element:
         - quoted_literal: '"some string"'
         - alias_expression:
-          - keyword: as
+          - alias_operator:
+            - keyword: as
           - naked_identifier: list_id
     - from_clause:
       - keyword: FROM

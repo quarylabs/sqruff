@@ -403,9 +403,8 @@ file:
       - naked_identifier: bar
     - keyword: SET
     - keyword: SCHEMA
-    - table_reference:
-      - object_reference:
-        - naked_identifier: new_schema
+    - schema_reference:
+      - naked_identifier: new_schema
 - statement_terminator: ;
 - statement:
   - alter_materialized_view_statement:
@@ -418,9 +417,8 @@ file:
       - naked_identifier: bar
     - keyword: SET
     - keyword: SCHEMA
-    - table_reference:
-      - object_reference:
-        - naked_identifier: new_schema
+    - schema_reference:
+      - naked_identifier: new_schema
 - statement_terminator: ;
 - statement:
   - alter_materialized_view_statement:

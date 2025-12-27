@@ -45,14 +45,15 @@ file:
       - table_engine_function:
         - function_name:
           - function_name_identifier: ReplicatedMergeTree
-        - bracketed:
-          - start_bracket: (
-          - expression:
-            - quoted_literal: '''/clickhouse/{cluster}/databases/{database}/all/tables/{table}'''
-          - comma: ','
-          - expression:
-            - quoted_literal: '''{replica}'''
-          - end_bracket: )
+        - function_contents:
+          - bracketed:
+            - start_bracket: (
+            - expression:
+              - quoted_literal: '''/clickhouse/{cluster}/databases/{database}/all/tables/{table}'''
+            - comma: ','
+            - expression:
+              - quoted_literal: '''{replica}'''
+            - end_bracket: )
       - merge_tree_order_by_clause:
         - keyword: ORDER
         - keyword: BY
@@ -79,9 +80,10 @@ file:
           - column_reference:
             - naked_identifier: uuid
           - end_bracket: )
-      - keyword: SETTINGS
-      - naked_identifier: index_granularity
-      - comparison_operator:
-        - raw_comparison_operator: =
-      - numeric_literal: '8192'
+      - settings_clause:
+        - keyword: SETTINGS
+        - naked_identifier: index_granularity
+        - comparison_operator:
+          - raw_comparison_operator: =
+        - numeric_literal: '8192'
 - statement_terminator: ;

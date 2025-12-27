@@ -20,7 +20,8 @@ file:
     - table_reference:
       - naked_identifier: tbl1
     - alias_expression:
-      - keyword: as
+      - alias_operator:
+        - keyword: as
       - naked_identifier: set
     - set_clause_list:
       - keyword: set

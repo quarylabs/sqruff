@@ -859,13 +859,15 @@ pub fn raw_dialect() -> Dialect {
         "ReturningClauseSegment".into(),
         Sequence::new(vec_of_erased![
             Ref::keyword("RETURNING"),
+            MetaSegment::indent(),
             one_of(vec_of_erased![
                 Ref::new("StarSegment"),
                 Delimited::new(vec_of_erased![Sequence::new(vec_of_erased![
                     Ref::new("ExpressionSegment"),
                     Ref::new("AsAliasExpressionSegment").optional(),
                 ])])
-            ])
+            ]),
+            MetaSegment::dedent(),
         ])
         .to_matchable()
         .into(),

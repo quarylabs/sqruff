@@ -1897,7 +1897,7 @@ SELECT
 FROM foo
 ```
 
-**Dialects where this rule is skipped:** `athena`, `redshift`, `bigquery`, `databricks`, `duckdb`, `sparksql`
+**Dialects where this rule is skipped:** `athena`, `redshift`, `bigquery`, `databricks`, `duckdb`, `hive`, `sparksql`
 
 ### references.qualification
 
@@ -1969,7 +1969,7 @@ SELECT
 FROM foo
 ```
 
-**Dialects where this rule is skipped:** `bigquery`, `redshift`
+**Dialects where this rule is skipped:** `bigquery`, `hive`, `redshift`
 
 ### references.keywords
 
@@ -2453,4 +2453,3 @@ left join bar
     on foo.a = bar.a
     and foo.b = bar.b
 ```
-

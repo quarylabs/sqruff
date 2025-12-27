@@ -3,7 +3,7 @@ file:
   - create_sequence_statement:
     - keyword: CREATE
     - keyword: SEQUENCE
-    - column_reference:
+    - sequence_reference:
       - naked_identifier: seq
 - statement_terminator: ;
 - statement:
@@ -15,7 +15,7 @@ file:
     - keyword: IF
     - keyword: NOT
     - keyword: EXISTS
-    - column_reference:
+    - sequence_reference:
       - naked_identifier: seq
     - keyword: WITH
     - keyword: START
@@ -44,7 +44,7 @@ file:
     - keyword: IF
     - keyword: NOT
     - keyword: EXISTS
-    - column_reference:
+    - sequence_reference:
       - naked_identifier: seq
     - keyword: START
     - comparison_operator:
@@ -60,7 +60,7 @@ file:
   - create_sequence_statement:
     - keyword: CREATE
     - keyword: SEQUENCE
-    - column_reference:
+    - sequence_reference:
       - naked_identifier: seq
     - keyword: START
     - integer_literal: '2'
@@ -69,7 +69,7 @@ file:
   - create_sequence_statement:
     - keyword: CREATE
     - keyword: SEQUENCE
-    - column_reference:
+    - sequence_reference:
       - naked_identifier: seq
     - keyword: INCREMENT
     - integer_literal: '2'

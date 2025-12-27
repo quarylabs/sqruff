@@ -473,7 +473,8 @@ file:
                       - naked_identifier: b
                   - end_bracket: )
             - alias_expression:
-              - keyword: AS
+              - alias_operator:
+                - keyword: AS
               - naked_identifier: my_avg
           - comma: ','
           - select_clause_element:
@@ -486,7 +487,8 @@ file:
                   - star: '*'
                   - end_bracket: )
             - alias_expression:
-              - keyword: AS
+              - alias_operator:
+                - keyword: AS
               - naked_identifier: my_count
         - from_clause:
           - keyword: FROM
@@ -575,7 +577,8 @@ file:
                       - naked_identifier: b
                   - end_bracket: )
             - alias_expression:
-              - keyword: AS
+              - alias_operator:
+                - keyword: AS
               - naked_identifier: my_avg
           - comma: ','
           - select_clause_element:
@@ -588,7 +591,8 @@ file:
                   - star: '*'
                   - end_bracket: )
             - alias_expression:
-              - keyword: AS
+              - alias_operator:
+                - keyword: AS
               - naked_identifier: my_count
         - from_clause:
           - keyword: FROM

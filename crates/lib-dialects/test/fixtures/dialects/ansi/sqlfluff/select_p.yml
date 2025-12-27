@@ -31,7 +31,8 @@ file:
                 - data_type_identifier: STRING
               - end_bracket: )
         - alias_expression:
-          - keyword: AS
+          - alias_operator:
+            - keyword: AS
           - naked_identifier: age_label
       - comma: ','
       - select_clause_element:
@@ -48,7 +49,8 @@ file:
                   - naked_identifier: end_time
               - end_bracket: )
         - alias_expression:
-          - keyword: AS
+          - alias_operator:
+            - keyword: AS
           - naked_identifier: day
     - from_clause:
       - keyword: FROM

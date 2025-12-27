@@ -341,3 +341,32 @@ CREATE TABLE many_options (
 );
 
 CREATE TABLE example_table () INHERITS (parent_table);
+
+CREATE TABLE IF NOT EXISTS table2(
+  col1 int,
+  col2 int NOT NULL,
+  col3 int,
+
+  FOREIGN KEY (col1, col2)
+  REFERENCES table1 (col1, col2)
+  ON DELETE SET NULL (col1)
+);
+
+CREATE TABLE IF NOT EXISTS table2(
+  col1 int,
+  col2 int NOT NULL,
+  col3 int,
+
+  FOREIGN KEY (col1, col2)
+  REFERENCES table1 (col1, col2)
+  ON DELETE SET DEFAULT (col1)
+);
+
+CREATE TABLE myschema.user (
+    user_id bigint PRIMARY KEY,
+    name    varchar(40)
+);
+
+CREATE TABLE my_table (
+  interval  bigint
+);

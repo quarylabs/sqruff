@@ -126,14 +126,18 @@ FROM foo AS vee
                         )
                     },
                 )
-                && context
+                && (context
                     .dialect
                     .sets("unreserved_keywords")
                     .contains(upper_segment.as_str())
-                || context
-                    .dialect
-                    .sets("reserved_keywords")
-                    .contains(upper_segment.as_str()))
+                    || context
+                        .dialect
+                        .sets("reserved_keywords")
+                        .contains(upper_segment.as_str())
+                    || context
+                        .dialect
+                        .sets("future_reserved_keywords")
+                        .contains(upper_segment.as_str())))
         {
             vec![LintResult::new(
                 Some(context.segment.clone()),

@@ -6,7 +6,6 @@ use crate::core::config::Value;
 use crate::core::rules::context::RuleContext;
 use crate::core::rules::crawlers::{Crawler, SegmentSeekerCrawler};
 use crate::core::rules::{Erased, ErasedRule, LintResult, Rule, RuleGroups};
-use crate::utils::functional::context::FunctionalContext;
 
 #[derive(Debug, Clone)]
 pub struct RuleAL02 {
@@ -84,14 +83,11 @@ FROM foo
     }
 
     fn eval(&self, context: &RuleContext) -> Vec<LintResult> {
-        if FunctionalContext::new(context)
-            .segment()
-            .children_all()
-            .last()
-            .unwrap()
-            .raw()
-            == "="
-        {
+        if matches!(
+            context.segment
+                .child(&SyntaxSet::new(&[SyntaxKind::AliasOperator])),
+            Some(alias_operator) if alias_operator.raw() == "="
+        ) {
             return Vec::new();
         }
 

@@ -1,7 +1,7 @@
 use ahash::AHashMap;
 use sqruff_lib_core::dialects::syntax::{SyntaxKind, SyntaxSet};
 use sqruff_lib_core::lint_fix::LintFix;
-use sqruff_lib_core::parser::segments::{ErasedSegment, SegmentBuilder};
+use sqruff_lib_core::parser::segments::SegmentBuilder;
 
 use crate::core::config::Value;
 use crate::core::rules::context::RuleContext;
@@ -77,12 +77,10 @@ FROM foo
         let segment = FunctionalContext::new(rule_cx).segment();
         let children = segment.children_all();
 
-        let last_content: ErasedSegment = children
-            .clone()
-            .last()
-            .cloned()
-            .filter(|sp: &ErasedSegment| sp.is_code())
-            .unwrap();
+        let last_content = match children.into_iter().rev().find(|seg| seg.is_code()) {
+            Some(seg) => seg,
+            None => return Vec::new(),
+        };
 
         let mut fixes = Vec::new();
 
@@ -101,7 +99,10 @@ FROM foo
                             if seg.get_position_marker().is_none() {
                                 continue;
                             }
-                        } else if seg.get_position_marker().unwrap().source_position() == comma_pos
+                        } else if seg
+                            .get_position_marker()
+                            .map(|marker| marker.source_position() == comma_pos)
+                            .unwrap_or(false)
                         {
                             if seg != &last_content {
                                 break;

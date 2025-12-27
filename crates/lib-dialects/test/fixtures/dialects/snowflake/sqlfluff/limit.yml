@@ -312,10 +312,11 @@ file:
       - keyword: by
       - column_reference:
         - naked_identifier: c1
-    - limit_clause:
+    - offset_clause:
       - keyword: offset
       - numeric_literal: '1'
       - keyword: row
+    - limit_clause:
       - keyword: fetch
       - numeric_literal: '1'
       - keyword: row
@@ -339,10 +340,11 @@ file:
       - keyword: by
       - column_reference:
         - naked_identifier: c1
-    - limit_clause:
+    - offset_clause:
       - keyword: offset
       - numeric_literal: '3'
       - keyword: rows
+    - limit_clause:
       - keyword: fetch
       - numeric_literal: '3'
       - keyword: rows

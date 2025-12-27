@@ -1,0 +1,320 @@
+file:
+- statement:
+  - exception_block_statement:
+    - keyword: EXCEPTION
+    - keyword: WHEN
+    - object_reference:
+      - naked_identifier: EXCEPTION_2
+    - keyword: THEN
+    - statement:
+      - return_statement:
+        - keyword: RETURN
+        - expression:
+          - column_reference:
+            - naked_identifier: SQLERRM
+    - statement_terminator: ;
+    - keyword: WHEN
+    - object_reference:
+      - naked_identifier: EXCEPTION_1
+    - keyword: THEN
+    - statement:
+      - return_statement:
+        - keyword: RETURN
+        - expression:
+          - column_reference:
+            - naked_identifier: SQLERRM
+- statement_terminator: ;
+- statement:
+  - exception_block_statement:
+    - keyword: EXCEPTION
+    - keyword: WHEN
+    - object_reference:
+      - naked_identifier: MY_FIRST_EXCEPTION
+    - keyword: OR
+    - object_reference:
+      - naked_identifier: MY_SECOND_EXCEPTION
+    - keyword: THEN
+    - statement:
+      - return_statement:
+        - keyword: RETURN
+        - expression:
+          - numeric_literal: '123'
+    - statement_terminator: ;
+    - keyword: WHEN
+    - object_reference:
+      - naked_identifier: MY_FOURTH_EXCEPTION
+    - keyword: THEN
+    - statement:
+      - return_statement:
+        - keyword: RETURN
+        - expression:
+          - numeric_literal: '4'
+    - statement_terminator: ;
+    - keyword: WHEN
+    - object_reference:
+      - naked_identifier: OTHER
+    - keyword: THEN
+    - statement:
+      - return_statement:
+        - keyword: RETURN
+        - expression:
+          - numeric_literal: '99'
+- statement_terminator: ;
+- statement:
+  - exception_block_statement:
+    - keyword: EXCEPTION
+    - keyword: WHEN
+    - object_reference:
+      - naked_identifier: STATEMENT_ERROR
+    - keyword: THEN
+    - statement:
+      - return_statement:
+        - keyword: RETURN
+        - expression:
+          - function:
+            - function_name:
+              - function_name_identifier: OBJECT_CONSTRUCT
+            - function_contents:
+              - bracketed:
+                - start_bracket: (
+                - expression:
+                  - quoted_literal: '''Error type'''
+                - comma: ','
+                - expression:
+                  - quoted_literal: '''STATEMENT_ERROR'''
+                - comma: ','
+                - expression:
+                  - quoted_literal: '''SQLCODE'''
+                - comma: ','
+                - expression:
+                  - column_reference:
+                    - naked_identifier: SQLCODE
+                - comma: ','
+                - expression:
+                  - quoted_literal: '''SQLERRM'''
+                - comma: ','
+                - expression:
+                  - column_reference:
+                    - naked_identifier: SQLERRM
+                - comma: ','
+                - expression:
+                  - quoted_literal: '''SQLSTATE'''
+                - comma: ','
+                - expression:
+                  - column_reference:
+                    - naked_identifier: SQLSTATE
+                - end_bracket: )
+    - statement_terminator: ;
+    - keyword: WHEN
+    - object_reference:
+      - naked_identifier: EXPRESSION_ERROR
+    - keyword: THEN
+    - statement:
+      - return_statement:
+        - keyword: RETURN
+        - expression:
+          - function:
+            - function_name:
+              - function_name_identifier: OBJECT_CONSTRUCT
+            - function_contents:
+              - bracketed:
+                - start_bracket: (
+                - expression:
+                  - quoted_literal: '''Error type'''
+                - comma: ','
+                - expression:
+                  - quoted_literal: '''EXPRESSION_ERROR'''
+                - comma: ','
+                - expression:
+                  - quoted_literal: '''SQLCODE'''
+                - comma: ','
+                - expression:
+                  - column_reference:
+                    - naked_identifier: SQLCODE
+                - comma: ','
+                - expression:
+                  - quoted_literal: '''SQLERRM'''
+                - comma: ','
+                - expression:
+                  - column_reference:
+                    - naked_identifier: SQLERRM
+                - comma: ','
+                - expression:
+                  - quoted_literal: '''SQLSTATE'''
+                - comma: ','
+                - expression:
+                  - column_reference:
+                    - naked_identifier: SQLSTATE
+                - end_bracket: )
+    - statement_terminator: ;
+    - keyword: WHEN
+    - object_reference:
+      - naked_identifier: OTHER
+    - keyword: THEN
+    - statement:
+      - return_statement:
+        - keyword: RETURN
+        - expression:
+          - function:
+            - function_name:
+              - function_name_identifier: OBJECT_CONSTRUCT
+            - function_contents:
+              - bracketed:
+                - start_bracket: (
+                - expression:
+                  - quoted_literal: '''Error type'''
+                - comma: ','
+                - expression:
+                  - quoted_literal: '''Other error'''
+                - comma: ','
+                - expression:
+                  - quoted_literal: '''SQLCODE'''
+                - comma: ','
+                - expression:
+                  - column_reference:
+                    - naked_identifier: SQLCODE
+                - comma: ','
+                - expression:
+                  - quoted_literal: '''SQLERRM'''
+                - comma: ','
+                - expression:
+                  - column_reference:
+                    - naked_identifier: SQLERRM
+                - comma: ','
+                - expression:
+                  - quoted_literal: '''SQLSTATE'''
+                - comma: ','
+                - expression:
+                  - column_reference:
+                    - naked_identifier: SQLSTATE
+                - end_bracket: )
+- statement_terminator: ;
+- statement:
+  - exception_block_statement:
+    - keyword: EXCEPTION
+    - keyword: WHEN
+    - object_reference:
+      - naked_identifier: STATEMENT_ERROR
+    - keyword: THEN
+    - statement:
+      - return_statement:
+        - keyword: RETURN
+        - expression:
+          - function:
+            - function_name:
+              - function_name_identifier: OBJECT_CONSTRUCT
+            - function_contents:
+              - bracketed:
+                - start_bracket: (
+                - expression:
+                  - quoted_literal: '''Error type'''
+                - comma: ','
+                - expression:
+                  - quoted_literal: '''STATEMENT_ERROR'''
+                - comma: ','
+                - expression:
+                  - quoted_literal: '''SQLCODE'''
+                - comma: ','
+                - expression:
+                  - column_reference:
+                    - naked_identifier: SQLCODE
+                - comma: ','
+                - expression:
+                  - quoted_literal: '''SQLERRM'''
+                - comma: ','
+                - expression:
+                  - column_reference:
+                    - naked_identifier: SQLERRM
+                - comma: ','
+                - expression:
+                  - quoted_literal: '''SQLSTATE'''
+                - comma: ','
+                - expression:
+                  - column_reference:
+                    - naked_identifier: SQLSTATE
+                - end_bracket: )
+    - statement_terminator: ;
+    - keyword: WHEN
+    - object_reference:
+      - naked_identifier: EXPRESSION_ERROR
+    - keyword: THEN
+    - statement:
+      - return_statement:
+        - keyword: RETURN
+        - expression:
+          - function:
+            - function_name:
+              - function_name_identifier: OBJECT_CONSTRUCT
+            - function_contents:
+              - bracketed:
+                - start_bracket: (
+                - expression:
+                  - quoted_literal: '''Error type'''
+                - comma: ','
+                - expression:
+                  - quoted_literal: '''EXPRESSION_ERROR'''
+                - comma: ','
+                - expression:
+                  - quoted_literal: '''SQLCODE'''
+                - comma: ','
+                - expression:
+                  - column_reference:
+                    - naked_identifier: SQLCODE
+                - comma: ','
+                - expression:
+                  - quoted_literal: '''SQLERRM'''
+                - comma: ','
+                - expression:
+                  - column_reference:
+                    - naked_identifier: SQLERRM
+                - comma: ','
+                - expression:
+                  - quoted_literal: '''SQLSTATE'''
+                - comma: ','
+                - expression:
+                  - column_reference:
+                    - naked_identifier: SQLSTATE
+                - end_bracket: )
+    - statement_terminator: ;
+    - keyword: WHEN
+    - object_reference:
+      - naked_identifier: OTHER
+    - keyword: THEN
+    - statement:
+      - return_statement:
+        - keyword: RETURN
+        - expression:
+          - function:
+            - function_name:
+              - function_name_identifier: OBJECT_CONSTRUCT
+            - function_contents:
+              - bracketed:
+                - start_bracket: (
+                - expression:
+                  - quoted_literal: '''Error type'''
+                - comma: ','
+                - expression:
+                  - quoted_literal: '''Other error'''
+                - comma: ','
+                - expression:
+                  - quoted_literal: '''SQLCODE'''
+                - comma: ','
+                - expression:
+                  - column_reference:
+                    - naked_identifier: SQLCODE
+                - comma: ','
+                - expression:
+                  - quoted_literal: '''SQLERRM'''
+                - comma: ','
+                - expression:
+                  - column_reference:
+                    - naked_identifier: SQLERRM
+                - comma: ','
+                - expression:
+                  - quoted_literal: '''SQLSTATE'''
+                - comma: ','
+                - expression:
+                  - column_reference:
+                    - naked_identifier: SQLSTATE
+                - end_bracket: )
+- statement_terminator: ;

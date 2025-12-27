@@ -1868,7 +1868,7 @@ SELECT
 FROM foo
 ```
 
-**Dialects where this rule is skipped:** `redshift`, `bigquery`, `sparksql`
+**Dialects where this rule is skipped:** `athena`, `redshift`, `bigquery`, `databricks`, `duckdb`, `hive`, `sparksql`
 
 ### references.qualification
 
@@ -1940,7 +1940,7 @@ SELECT
 FROM foo
 ```
 
-**Dialects where this rule is skipped:** `bigquery`, `redshift`
+**Dialects where this rule is skipped:** `bigquery`, `hive`, `redshift`
 
 ### references.keywords
 

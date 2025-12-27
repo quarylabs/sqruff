@@ -5,9 +5,8 @@ file:
     - keyword: SCHEMA
     - keyword: IF
     - keyword: EXISTS
-    - table_reference:
-      - object_reference:
-        - naked_identifier: dbname
+    - schema_reference:
+      - naked_identifier: dbname
     - keyword: RESTRICT
 - statement_terminator: ;
 - statement:
@@ -16,18 +15,16 @@ file:
     - keyword: SCHEMA
     - keyword: IF
     - keyword: EXISTS
-    - table_reference:
-      - object_reference:
-        - naked_identifier: dbname
+    - schema_reference:
+      - naked_identifier: dbname
     - keyword: CASCADE
 - statement_terminator: ;
 - statement:
   - drop_schema_statement:
     - keyword: DROP
     - keyword: SCHEMA
-    - table_reference:
-      - object_reference:
-        - naked_identifier: inventory_db
+    - schema_reference:
+      - naked_identifier: inventory_db
     - keyword: CASCADE
 - statement_terminator: ;
 - statement:
@@ -36,8 +33,7 @@ file:
     - keyword: SCHEMA
     - keyword: IF
     - keyword: EXISTS
-    - table_reference:
-      - object_reference:
-        - naked_identifier: inventory_db
+    - schema_reference:
+      - naked_identifier: inventory_db
     - keyword: CASCADE
 - statement_terminator: ;

@@ -18,7 +18,8 @@ file:
                 - quoted_literal: '''abc'''
               - end_bracket: )
         - alias_expression:
-          - keyword: as
+          - alias_operator:
+            - keyword: as
           - naked_identifier: b
     - from_clause:
       - keyword: from

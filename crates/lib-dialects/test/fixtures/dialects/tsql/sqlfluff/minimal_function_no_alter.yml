@@ -1,0 +1,37 @@
+file:
+- batch:
+  - statement:
+    - create_function_statement:
+      - keyword: CREATE
+      - keyword: FUNCTION
+      - object_reference:
+        - quoted_identifier: '[dbo]'
+        - dot: .
+        - quoted_identifier: '[add]'
+      - function_parameter_list:
+        - bracketed:
+          - start_bracket: (
+          - parameter: '@add_1'
+          - data_type:
+            - keyword: int
+          - comma: ','
+          - parameter: '@add_2'
+          - data_type:
+            - keyword: int
+          - end_bracket: )
+      - keyword: RETURNS
+      - data_type:
+        - data_type_identifier: integer
+      - keyword: AS
+      - procedure_statement:
+        - statement:
+          - begin_end_block:
+            - keyword: BEGIN
+            - statement:
+              - return_segment:
+                - keyword: RETURN
+                - expression:
+                  - parameter: '@add_1'
+                  - binary_operator: +
+                  - parameter: '@add_2'
+            - keyword: END

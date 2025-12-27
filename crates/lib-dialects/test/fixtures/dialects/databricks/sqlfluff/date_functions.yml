@@ -19,14 +19,14 @@ file:
       - from_expression:
         - from_expression_element:
           - table_expression:
-            - object_reference:
+            - table_reference:
               - naked_identifier: my_table
         - join_clause:
           - keyword: LEFT
           - keyword: JOIN
           - from_expression_element:
             - table_expression:
-              - object_reference:
+              - table_reference:
                 - naked_identifier: other_table
           - join_on_condition:
             - keyword: ON
@@ -76,7 +76,8 @@ file:
                   - naked_identifier: start_dt
               - end_bracket: )
         - alias_expression:
-          - keyword: AS
+          - alias_operator:
+            - keyword: AS
           - naked_identifier: date_add_micro
       - comma: ','
       - select_clause_element:
@@ -97,7 +98,8 @@ file:
                   - naked_identifier: end_dt
               - end_bracket: )
         - alias_expression:
-          - keyword: AS
+          - alias_operator:
+            - keyword: AS
           - naked_identifier: datediff_milli
       - comma: ','
       - select_clause_element:
@@ -117,7 +119,8 @@ file:
                   - naked_identifier: start_dt
               - end_bracket: )
         - alias_expression:
-          - keyword: AS
+          - alias_operator:
+            - keyword: AS
           - naked_identifier: dateadd_min
       - comma: ','
       - select_clause_element:
@@ -138,7 +141,8 @@ file:
                   - naked_identifier: end_dt
               - end_bracket: )
         - alias_expression:
-          - keyword: AS
+          - alias_operator:
+            - keyword: AS
           - naked_identifier: datediff_hr
       - comma: ','
       - select_clause_element:
@@ -159,7 +163,8 @@ file:
                   - naked_identifier: end_dt
               - end_bracket: )
         - alias_expression:
-          - keyword: AS
+          - alias_operator:
+            - keyword: AS
           - naked_identifier: timediff_day
       - comma: ','
       - select_clause_element:
@@ -169,9 +174,7 @@ file:
           - function_contents:
             - bracketed:
               - start_bracket: (
-              - expression:
-                - column_reference:
-                  - naked_identifier: DAYOFYEAR
+              - date_part: DAYOFYEAR
               - comma: ','
               - expression:
                 - numeric_literal: '5'
@@ -181,7 +184,8 @@ file:
                   - naked_identifier: start_dt
               - end_bracket: )
         - alias_expression:
-          - keyword: AS
+          - alias_operator:
+            - keyword: AS
           - naked_identifier: ts_add_day_of_yr
       - comma: ','
       - select_clause_element:
@@ -202,7 +206,8 @@ file:
                   - naked_identifier: end_dt
               - end_bracket: )
         - alias_expression:
-          - keyword: AS
+          - alias_operator:
+            - keyword: AS
           - naked_identifier: ts_diff_week
       - comma: ','
       - select_clause_element:
@@ -222,7 +227,8 @@ file:
                   - naked_identifier: start_dt
               - end_bracket: )
         - alias_expression:
-          - keyword: AS
+          - alias_operator:
+            - keyword: AS
           - naked_identifier: date_add_month
       - comma: ','
       - select_clause_element:
@@ -242,7 +248,8 @@ file:
                   - naked_identifier: start_dt
               - end_bracket: )
         - alias_expression:
-          - keyword: AS
+          - alias_operator:
+            - keyword: AS
           - naked_identifier: date_add_quarter
       - comma: ','
       - select_clause_element:
@@ -262,13 +269,14 @@ file:
                   - naked_identifier: start_dt
               - end_bracket: )
         - alias_expression:
-          - keyword: AS
+          - alias_operator:
+            - keyword: AS
           - naked_identifier: date_add_year
     - from_clause:
       - keyword: FROM
       - from_expression:
         - from_expression_element:
           - table_expression:
-            - object_reference:
+            - table_reference:
               - naked_identifier: my_table
 - statement_terminator: ;

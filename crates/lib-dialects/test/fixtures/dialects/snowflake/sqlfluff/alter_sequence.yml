@@ -3,18 +3,18 @@ file:
   - alter_sequence_statement:
     - keyword: ALTER
     - keyword: SEQUENCE
-    - column_reference:
+    - sequence_reference:
       - naked_identifier: seq
     - keyword: RENAME
     - keyword: TO
-    - column_reference:
+    - sequence_reference:
       - naked_identifier: seq2
 - statement_terminator: ;
 - statement:
   - alter_sequence_statement:
     - keyword: ALTER
     - keyword: SEQUENCE
-    - column_reference:
+    - sequence_reference:
       - naked_identifier: seq
     - keyword: SET
     - keyword: INCREMENT
@@ -27,7 +27,7 @@ file:
   - alter_sequence_statement:
     - keyword: ALTER
     - keyword: SEQUENCE
-    - column_reference:
+    - sequence_reference:
       - naked_identifier: seq
     - keyword: INCREMENT
     - keyword: BY
@@ -39,7 +39,7 @@ file:
   - alter_sequence_statement:
     - keyword: ALTER
     - keyword: SEQUENCE
-    - column_reference:
+    - sequence_reference:
       - naked_identifier: seq
     - keyword: INCREMENT
     - comparison_operator:
@@ -50,7 +50,7 @@ file:
   - alter_sequence_statement:
     - keyword: ALTER
     - keyword: SEQUENCE
-    - column_reference:
+    - sequence_reference:
       - naked_identifier: seq
     - keyword: INCREMENT
     - integer_literal: '2'
@@ -59,7 +59,7 @@ file:
   - alter_sequence_statement:
     - keyword: ALTER
     - keyword: SEQUENCE
-    - column_reference:
+    - sequence_reference:
       - naked_identifier: seq
     - keyword: SET
     - keyword: ORDER
@@ -73,7 +73,7 @@ file:
   - alter_sequence_statement:
     - keyword: ALTER
     - keyword: SEQUENCE
-    - column_reference:
+    - sequence_reference:
       - naked_identifier: seq
     - keyword: SET
     - keyword: NOORDER
@@ -87,7 +87,7 @@ file:
   - alter_sequence_statement:
     - keyword: ALTER
     - keyword: SEQUENCE
-    - column_reference:
+    - sequence_reference:
       - naked_identifier: seq
     - keyword: UNSET
     - keyword: COMMENT
@@ -96,7 +96,7 @@ file:
   - alter_sequence_statement:
     - keyword: ALTER
     - keyword: SEQUENCE
-    - column_reference:
+    - sequence_reference:
       - naked_identifier: seq
     - keyword: SET
     - keyword: INCREMENT

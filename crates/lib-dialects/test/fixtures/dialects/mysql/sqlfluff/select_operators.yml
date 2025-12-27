@@ -5,8 +5,97 @@ file:
       - keyword: SELECT
       - select_clause_element:
         - expression:
+          - not_operator: '!'
+          - numeric_literal: '1'
+- statement_terminator: ;
+- statement:
+  - select_statement:
+    - select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+        - expression:
+          - numeric_literal: '1'
+          - binary_operator: '&&'
+          - numeric_literal: '1'
+- statement_terminator: ;
+- statement:
+  - select_statement:
+    - select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+        - expression:
+          - numeric_literal: '1'
+          - binary_operator: '&&'
+          - numeric_literal: '0'
+- statement_terminator: ;
+- statement:
+  - select_statement:
+    - select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+        - expression:
+          - numeric_literal: '1'
+          - binary_operator: XOR
+          - numeric_literal: '1'
+- statement_terminator: ;
+- statement:
+  - select_statement:
+    - select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+        - expression:
+          - numeric_literal: '1'
+          - binary_operator: '||'
+          - numeric_literal: '1'
+- statement_terminator: ;
+- statement:
+  - select_statement:
+    - select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+        - expression:
+          - column_reference:
+            - naked_identifier: col_1
+          - binary_operator: '&&'
+          - numeric_literal: '1'
+- statement_terminator: ;
+- statement:
+  - select_statement:
+    - select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+        - expression:
+          - bracketed:
+            - start_bracket: (
+            - expression:
+              - column_reference:
+                - naked_identifier: col_1
+              - comparison_operator:
+                - raw_comparison_operator: =
+              - column_reference:
+                - naked_identifier: col_2
+            - end_bracket: )
+          - binary_operator: '||'
+          - column_reference:
+            - naked_identifier: col_3
+- statement_terminator: ;
+- statement:
+  - select_statement:
+    - select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+        - expression:
           - numeric_literal: '5'
-          - binary_operator:
-            - keyword: DIV
+          - binary_operator: DIV
+          - numeric_literal: '2'
+- statement_terminator: ;
+- statement:
+  - select_statement:
+    - select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+        - expression:
+          - numeric_literal: '5'
+          - binary_operator: MOD
           - numeric_literal: '2'
 - statement_terminator: ;

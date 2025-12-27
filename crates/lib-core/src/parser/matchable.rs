@@ -15,7 +15,7 @@ use super::grammar::{Anything, Nothing, Ref};
 use super::lookahead::LookaheadExclude;
 use super::match_result::MatchResult;
 use super::node_matcher::NodeMatcher;
-use super::parsers::{MultiStringParser, RegexParser, StringParser, TypedParser};
+use super::parsers::{CodeParser, MultiStringParser, RegexParser, StringParser, TypedParser};
 use super::segments::ErasedSegment;
 use super::segments::bracketed::BracketedSegmentMatcher;
 use super::segments::meta::MetaSegment;
@@ -99,6 +99,7 @@ pub enum MatchableTraitImpl {
     Sequence(Sequence),
     StringParser(StringParser),
     TypedParser(TypedParser),
+    CodeParser(CodeParser),
     MetaSegment(MetaSegment),
     MultiStringParser(MultiStringParser),
     RegexParser(RegexParser),

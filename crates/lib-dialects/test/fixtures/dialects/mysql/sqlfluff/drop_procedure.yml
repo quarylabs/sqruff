@@ -1,0 +1,10 @@
+file:
+- statement:
+  - drop_procedure_statement:
+    - keyword: DROP
+    - keyword: PROCEDURE
+    - keyword: IF
+    - keyword: EXISTS
+    - object_reference:
+      - quoted_identifier: '`testprocedure`'
+- statement_terminator: ;

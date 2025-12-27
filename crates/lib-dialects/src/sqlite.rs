@@ -1738,6 +1738,408 @@ pub fn raw_dialect() -> Dialect {
         ),
     ]);
 
+    let column_constraint = sqlite_dialect
+        .grammar("ColumnConstraintSegment")
+        .match_grammar(&sqlite_dialect)
+        .unwrap()
+        .copy(
+            Some(vec_of_erased![
+                one_of(vec_of_erased![
+                    Ref::keyword("DEFERRABLE"),
+                    Sequence::new(vec_of_erased![
+                        Ref::keyword("NOT"),
+                        Ref::keyword("DEFERRABLE")
+                    ])
+                ])
+                .config(|config| {
+                    config.optional();
+                }),
+                one_of(vec_of_erased![
+                    Sequence::new(vec_of_erased![
+                        Ref::keyword("INITIALLY"),
+                        Ref::keyword("DEFERRED")
+                    ]),
+                    Sequence::new(vec_of_erased![
+                        Ref::keyword("INITIALLY"),
+                        Ref::keyword("IMMEDIATE")
+                    ])
+                ])
+                .config(|config| {
+                    config.optional();
+                })
+            ]),
+            None,
+            None,
+            None,
+            Vec::new(),
+            false,
+        );
+    sqlite_dialect.replace_grammar("ColumnConstraintSegment", column_constraint);
+
+    sqlite_dialect.replace_grammar(
+        "TableConstraintSegment",
+        Sequence::new(vec_of_erased![
+            Sequence::new(vec_of_erased![
+                Ref::keyword("CONSTRAINT"),
+                Ref::new("ObjectReferenceSegment")
+            ])
+            .config(|config| {
+                config.optional();
+            }),
+            one_of(vec_of_erased![
+                Sequence::new(vec_of_erased![
+                    Ref::keyword("CHECK"),
+                    Bracketed::new(vec_of_erased![Ref::new("ExpressionSegment")])
+                ]),
+                Sequence::new(vec_of_erased![
+                    Ref::keyword("UNIQUE"),
+                    Ref::new("BracketedColumnReferenceListGrammar")
+                ]),
+                Sequence::new(vec_of_erased![
+                    Ref::new("PrimaryKeyGrammar"),
+                    Ref::new("BracketedColumnReferenceListGrammar")
+                ]),
+                Sequence::new(vec_of_erased![
+                    Ref::new("ForeignKeyGrammar"),
+                    Ref::new("BracketedColumnReferenceListGrammar"),
+                    Ref::new("ReferenceDefinitionGrammar")
+                ])
+            ]),
+            one_of(vec_of_erased![
+                Ref::keyword("DEFERRABLE"),
+                Sequence::new(vec_of_erased![
+                    Ref::keyword("NOT"),
+                    Ref::keyword("DEFERRABLE")
+                ])
+            ])
+            .config(|config| {
+                config.optional();
+            }),
+            one_of(vec_of_erased![
+                Sequence::new(vec_of_erased![
+                    Ref::keyword("INITIALLY"),
+                    Ref::keyword("DEFERRED")
+                ]),
+                Sequence::new(vec_of_erased![
+                    Ref::keyword("INITIALLY"),
+                    Ref::keyword("IMMEDIATE")
+                ])
+            ])
+            .config(|config| {
+                config.optional();
+            })
+        ])
+        .to_matchable(),
+    );
+
+    sqlite_dialect.replace_grammar(
+        "TransactionStatementSegment",
+        Sequence::new(vec_of_erased![
+            one_of(vec_of_erased![
+                Ref::keyword("BEGIN"),
+                Ref::keyword("COMMIT"),
+                Ref::keyword("ROLLBACK"),
+                Ref::keyword("END")
+            ]),
+            one_of(vec_of_erased![Ref::keyword("TRANSACTION")]).config(|config| {
+                config.optional();
+            }),
+            Sequence::new(vec_of_erased![
+                Ref::keyword("TO"),
+                Ref::keyword("SAVEPOINT"),
+                Ref::new("ObjectReferenceSegment")
+            ])
+            .config(|config| {
+                config.optional();
+            })
+        ])
+        .to_matchable(),
+    );
+
+    sqlite_dialect.add([(
+        "PragmaReferenceSegment".into(),
+        NodeMatcher::new(SyntaxKind::PragmaReference, |sqlite_dialect| {
+            sqlite_dialect
+                .grammar("ObjectReferenceSegment")
+                .match_grammar(sqlite_dialect)
+                .unwrap()
+        })
+        .to_matchable()
+        .into(),
+    )]);
+
+    sqlite_dialect.add([(
+        "PragmaStatementSegment".into(),
+        NodeMatcher::new(SyntaxKind::PragmaStatement, |_| {
+            let pragma_value = one_of(vec_of_erased![
+                Ref::new("LiteralGrammar"),
+                Ref::new("BooleanLiteralGrammar"),
+                Ref::keyword("YES"),
+                Ref::keyword("NO"),
+                Ref::keyword("ON"),
+                Ref::keyword("OFF"),
+                Ref::keyword("NONE"),
+                Ref::keyword("FULL"),
+                Ref::keyword("INCREMENTAL"),
+                Ref::keyword("DELETE"),
+                Ref::keyword("TRUNCATE"),
+                Ref::keyword("PERSIST"),
+                Ref::keyword("MEMORY"),
+                Ref::keyword("WAL"),
+                Ref::keyword("NORMAL"),
+                Ref::keyword("EXCLUSIVE"),
+                Ref::keyword("FAST"),
+                Ref::keyword("EXTRA"),
+                Ref::keyword("DEFAULT"),
+                Ref::keyword("FILE"),
+                Ref::keyword("PASSIVE"),
+                Ref::keyword("RESTART"),
+                Ref::keyword("RESET")
+            ]);
+
+            Sequence::new(vec_of_erased![
+                Ref::keyword("PRAGMA"),
+                Ref::new("PragmaReferenceSegment"),
+                Bracketed::new(vec_of_erased![pragma_value.clone()]).config(|config| {
+                    config.optional();
+                }),
+                Sequence::new(vec_of_erased![
+                    Ref::new("EqualsSegment"),
+                    optionally_bracketed(vec_of_erased![pragma_value])
+                ])
+                .config(|config| {
+                    config.optional();
+                })
+            ])
+            .to_matchable()
+        })
+        .to_matchable()
+        .into(),
+    )]);
+
+    sqlite_dialect.replace_grammar(
+        "CreateTriggerStatementSegment",
+        Sequence::new(vec_of_erased![
+            Ref::keyword("CREATE"),
+            Ref::new("TemporaryGrammar").optional(),
+            Ref::keyword("TRIGGER"),
+            Ref::new("IfNotExistsGrammar").optional(),
+            Ref::new("TriggerReferenceSegment"),
+            one_of(vec_of_erased![
+                Ref::keyword("BEFORE"),
+                Ref::keyword("AFTER"),
+                Sequence::new(vec_of_erased![Ref::keyword("INSTEAD"), Ref::keyword("OF")])
+            ])
+            .config(|config| {
+                config.optional();
+            }),
+            one_of(vec_of_erased![
+                Ref::keyword("DELETE"),
+                Ref::keyword("INSERT"),
+                Sequence::new(vec_of_erased![
+                    Ref::keyword("UPDATE"),
+                    Sequence::new(vec_of_erased![
+                        Ref::keyword("OF"),
+                        Delimited::new(vec_of_erased![Ref::new("ColumnReferenceSegment")])
+                    ])
+                    .config(|config| {
+                        config.optional();
+                    })
+                ])
+            ]),
+            Ref::keyword("ON"),
+            Ref::new("TableReferenceSegment"),
+            Sequence::new(vec_of_erased![
+                Ref::keyword("FOR"),
+                Ref::keyword("EACH"),
+                Ref::keyword("ROW")
+            ])
+            .config(|config| {
+                config.optional();
+            }),
+            Sequence::new(vec_of_erased![
+                Ref::keyword("WHEN"),
+                Bracketed::new(vec_of_erased![Ref::new("ExpressionSegment")])
+            ])
+            .config(|config| {
+                config.optional();
+            }),
+            Ref::keyword("BEGIN"),
+            Delimited::new(vec_of_erased![
+                Ref::new("UpdateStatementSegment"),
+                Ref::new("InsertStatementSegment"),
+                Ref::new("DeleteStatementSegment"),
+                Ref::new("SelectableGrammar")
+            ])
+            .config(|config| {
+                config.delimiter(
+                    AnyNumberOf::new(vec_of_erased![Ref::new("DelimiterGrammar")]).config(
+                        |config| {
+                            config.min_times = 1;
+                        },
+                    ),
+                );
+                config.allow_trailing = true;
+            }),
+            Ref::keyword("END")
+        ])
+        .to_matchable(),
+    );
+    sqlite_dialect.add([(
+        "UnorderedSelectStatementSegment".into(),
+        NodeMatcher::new(SyntaxKind::SelectStatement, |_| {
+            Sequence::new(vec_of_erased![
+                Ref::new("SelectClauseSegment"),
+                MetaSegment::dedent(),
+                Ref::new("FromClauseSegment").optional(),
+                Ref::new("WhereClauseSegment").optional(),
+                Ref::new("GroupByClauseSegment").optional(),
+                Ref::new("HavingClauseSegment").optional(),
+                Ref::new("OverlapsClauseSegment").optional(),
+                Ref::new("NamedWindowSegment").optional()
+            ])
+            .to_matchable()
+        })
+        .to_matchable()
+        .into(),
+    )]);
+
+    sqlite_dialect.add([(
+        "SelectStatementSegment".into(),
+        NodeMatcher::new(SyntaxKind::SelectStatement, |sqlite_dialect| {
+            sqlite_dialect
+                .grammar("UnorderedSelectStatementSegment")
+                .match_grammar(sqlite_dialect)
+                .unwrap()
+                .copy(
+                    Some(vec_of_erased![
+                        Ref::new("OrderByClauseSegment").optional(),
+                        Ref::new("FetchClauseSegment").optional(),
+                        Ref::new("LimitClauseSegment").optional(),
+                        Ref::new("NamedWindowSegment").optional(),
+                    ]),
+                    None,
+                    None,
+                    None,
+                    Vec::new(),
+                    false,
+                )
+        })
+        .to_matchable()
+        .into(),
+    )]);
+
+    sqlite_dialect.replace_grammar(
+        "CreateIndexStatementSegment",
+        Sequence::new(vec_of_erased![
+            Ref::keyword("CREATE"),
+            Ref::keyword("UNIQUE").optional(),
+            Ref::keyword("INDEX"),
+            Ref::new("IfNotExistsGrammar").optional(),
+            Ref::new("IndexReferenceSegment"),
+            Ref::keyword("ON"),
+            Ref::new("TableReferenceSegment"),
+            Sequence::new(vec_of_erased![Bracketed::new(vec_of_erased![
+                Delimited::new(vec_of_erased![Ref::new("IndexColumnDefinitionSegment")])
+            ])]),
+            Ref::new("WhereClauseSegment").optional()
+        ])
+        .to_matchable(),
+    );
+
+    sqlite_dialect.replace_grammar(
+        "StatementSegment",
+        one_of(vec_of_erased![
+            Ref::new("AlterTableStatementSegment"),
+            Ref::new("CreateIndexStatementSegment"),
+            Ref::new("CreateTableStatementSegment"),
+            Ref::new("CreateTriggerStatementSegment"),
+            Ref::new("CreateViewStatementSegment"),
+            Ref::new("DeleteStatementSegment"),
+            Ref::new("DropIndexStatementSegment"),
+            Ref::new("DropTableStatementSegment"),
+            Ref::new("DropTriggerStatementSegment"),
+            Ref::new("DropViewStatementSegment"),
+            Ref::new("ExplainStatementSegment"),
+            Ref::new("InsertStatementSegment"),
+            Ref::new("PragmaStatementSegment"),
+            Ref::new("SelectableGrammar"),
+            Ref::new("TransactionStatementSegment"),
+            Ref::new("UpdateStatementSegment"),
+            Bracketed::new(vec_of_erased![Ref::new("StatementSegment")])
+        ])
+        .to_matchable(),
+    );
+
+    sqlite_dialect.replace_grammar(
+        "AlterTableStatementSegment",
+        Sequence::new(vec_of_erased![
+            Ref::keyword("ALTER"),
+            Ref::keyword("TABLE"),
+            Ref::new("TableReferenceSegment"),
+            one_of(vec_of_erased![
+                Sequence::new(vec_of_erased![
+                    Ref::keyword("RENAME"),
+                    Ref::keyword("TO"),
+                    one_of(vec_of_erased![one_of(vec_of_erased![
+                        Ref::new("ParameterNameSegment"),
+                        Ref::new("QuotedIdentifierSegment")
+                    ])])
+                ]),
+                Sequence::new(vec_of_erased![
+                    Ref::keyword("RENAME"),
+                    Ref::keyword("COLUMN").optional(),
+                    Ref::new("ColumnReferenceSegment"),
+                    Ref::keyword("TO"),
+                    Ref::new("ColumnReferenceSegment")
+                ]),
+                Sequence::new(vec_of_erased![
+                    Ref::keyword("ADD"),
+                    Ref::keyword("COLUMN").optional(),
+                    Ref::new("ColumnDefinitionSegment"),
+                ]),
+                Sequence::new(vec_of_erased![
+                    Ref::keyword("DROP"),
+                    Ref::keyword("COLUMN").optional(),
+                    Ref::new("ColumnReferenceSegment")
+                ]),
+            ]),
+        ])
+        .to_matchable(),
+    );
+
+    sqlite_dialect.add([(
+        "ReturningClauseSegment".into(),
+        Sequence::new(vec_of_erased![
+            Ref::keyword("RETURNING"),
+            MetaSegment::indent(),
+            one_of(vec_of_erased![
+                Ref::new("StarSegment"),
+                Delimited::new(vec_of_erased![Sequence::new(vec_of_erased![
+                    Ref::new("ExpressionSegment"),
+                    Ref::new("AsAliasExpressionSegment").optional(),
+                ])])
+            ]),
+            MetaSegment::dedent(),
+        ])
+        .to_matchable()
+        .into(),
+    )]);
+
+    sqlite_dialect.add([(
+        "AsAliasExpressionSegment".into(),
+        NodeMatcher::new(SyntaxKind::AliasExpression, |_| {
+            Sequence::new(vec_of_erased![
+                MetaSegment::indent(),
+                Ref::keyword("AS"),
+                Ref::new("SingleIdentifierGrammar"),
+                MetaSegment::dedent(),
+            ])
+            .to_matchable()
+        })
+        .to_matchable()
+        .into(),
+    )]);
     sqlite_dialect
 }
 

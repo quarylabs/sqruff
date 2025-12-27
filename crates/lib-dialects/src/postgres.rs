@@ -8225,95 +8225,66 @@ pub fn raw_dialect() -> Dialect {
             .to_matchable()
             .into(),
         ),
-        (
-            "InsertStatementSegment".into(),
-            NodeMatcher::new(SyntaxKind::InsertStatement, |_dialect| {
-                Sequence::new(vec![
-                    Ref::keyword("INSERT").to_matchable(),
-                    Ref::keyword("INTO").to_matchable(),
-                    Ref::new("TableReferenceSegment").to_matchable(),
-                    Ref::new("AsAliasExpressionSegment")
-                        .optional()
-                        .to_matchable(),
-                    Ref::new("BracketedColumnReferenceListGrammar")
-                        .optional()
-                        .to_matchable(),
-                    Sequence::new(vec![
-                        Ref::keyword("OVERRIDING").to_matchable(),
-                        one_of(vec![
-                            Ref::keyword("SYSTEM").to_matchable(),
-                            Ref::keyword("USER").to_matchable(),
-                        ])
-                        .to_matchable(),
-                        Ref::keyword("VALUE").to_matchable(),
-                    ])
-                    .config(|this| {
-                        this.optional();
-                    })
-                    .to_matchable(),
-                    one_of(vec![
-                        Sequence::new(vec![
-                            Ref::keyword("DEFAULT").to_matchable(),
-                            Ref::keyword("VALUES").to_matchable(),
-                        ])
-                        .to_matchable(),
-                        Ref::new("SelectableGrammar").to_matchable(),
-                    ])
-                    .to_matchable(),
-                    Sequence::new(vec![
-                        Ref::keyword("ON").to_matchable(),
-                        Ref::keyword("CONFLICT").to_matchable(),
-                        Ref::new("ConflictTargetSegment").optional().to_matchable(),
-                        Ref::new("ConflictActionSegment").to_matchable(),
-                    ])
-                    .config(|this| {
-                        this.optional();
-                    })
-                    .to_matchable(),
-                    Sequence::new(vec![
-                        Ref::keyword("RETURNING").to_matchable(),
-                        MetaSegment::indent().to_matchable(),
-                        one_of(vec![
-                            Ref::new("StarSegment").to_matchable(),
-                            Delimited::new(vec![
-                                Sequence::new(vec![
-                                    Ref::new("ExpressionSegment").to_matchable(),
-                                    Ref::new("AsAliasExpressionSegment")
-                                        .optional()
-                                        .to_matchable(),
-                                ])
-                                .to_matchable(),
-                            ])
-                            .to_matchable(),
-                        ])
-                        .to_matchable(),
-                        MetaSegment::dedent().to_matchable(),
-                    ])
-                    .config(|this| {
-                        this.optional();
-                    })
-                    .to_matchable(),
-                ])
-                .to_matchable()
-            })
-            .to_matchable()
-            .into(),
-        ),
-        (
-            "DropTypeStatementSegment".into(),
-            NodeMatcher::new(SyntaxKind::DropTypeStatement, |_dialect| {
-                Sequence::new(vec![
-                    Ref::keyword("DROP").to_matchable(),
-                    Ref::keyword("TYPE").to_matchable(),
-                    Ref::new("IfExistsGrammar").optional().to_matchable(),
-                    Delimited::new(vec![Ref::new("DatatypeSegment").to_matchable()]).to_matchable(),
-                    Ref::new("DropBehaviorGrammar").optional().to_matchable(),
-                ])
-                .to_matchable()
-            })
-            .to_matchable()
-            .into(),
-        ),
+    ]);
+
+    postgres.replace_grammar(
+        "InsertStatementSegment",
+        Sequence::new(vec_of_erased![
+            Ref::keyword("INSERT"),
+            Ref::keyword("INTO"),
+            Ref::new("TableReferenceSegment"),
+            Ref::new("AsAliasExpressionSegment").optional(),
+            Ref::new("BracketedColumnReferenceListGrammar").optional(),
+            Sequence::new(vec_of_erased![
+                Ref::keyword("OVERRIDING"),
+                one_of(vec_of_erased![Ref::keyword("SYSTEM"), Ref::keyword("USER")]),
+                Ref::keyword("VALUE")
+            ])
+            .config(|this| this.optional()),
+            one_of(vec_of_erased![
+                Sequence::new(vec_of_erased![
+                    Ref::keyword("DEFAULT"),
+                    Ref::keyword("VALUES")
+                ]),
+                Ref::new("SelectableGrammar"),
+            ]),
+            Sequence::new(vec_of_erased![
+                Ref::keyword("ON"),
+                Ref::keyword("CONFLICT"),
+                Ref::new("ConflictTargetSegment").optional(),
+                Ref::new("ConflictActionSegment")
+            ])
+            .config(|this| this.optional()),
+            Sequence::new(vec_of_erased![
+                Ref::keyword("RETURNING"),
+                MetaSegment::indent(),
+                one_of(vec_of_erased![
+                    Ref::new("StarSegment"),
+                    Delimited::new(vec_of_erased![Sequence::new(vec_of_erased![
+                        Ref::new("ExpressionSegment"),
+                        Ref::new("AsAliasExpressionSegment").optional(),
+                    ])])
+                ]),
+                MetaSegment::dedent(),
+            ])
+            .config(|this| this.optional()),
+        ])
+        .to_matchable(),
+    );
+
+    postgres.replace_grammar(
+        "DropTypeStatementSegment",
+        Sequence::new(vec_of_erased![
+            Ref::keyword("DROP"),
+            Ref::keyword("TYPE"),
+            Ref::new("IfExistsGrammar").optional(),
+            Delimited::new(vec_of_erased![Ref::new("DatatypeSegment")]),
+            Ref::new("DropBehaviorGrammar").optional(),
+        ])
+        .to_matchable(),
+    );
+
+    postgres.add([
         (
             "SetStatementSegment".into(),
             NodeMatcher::new(SyntaxKind::SetStatement, |_dialect| {
@@ -9347,158 +9318,113 @@ pub fn raw_dialect() -> Dialect {
             .to_matchable()
             .into(),
         ),
-        (
-            "CTEDefinitionSegment".into(),
-            NodeMatcher::new(SyntaxKind::CommonTableExpression, |_dialect| {
-                Sequence::new(vec![
-                    Ref::new("SingleIdentifierGrammar").to_matchable(),
-                    Ref::new("CTEColumnList").optional().to_matchable(),
-                    Ref::keyword("AS").to_matchable(),
-                    Sequence::new(vec![
-                        Ref::keyword("NOT").optional().to_matchable(),
-                        Ref::keyword("MATERIALIZED").to_matchable(),
-                    ])
-                    .config(|this| {
-                        this.optional();
-                    })
-                    .to_matchable(),
-                    Bracketed::new(vec![Ref::new("SelectableGrammar").to_matchable()])
-                        .config(|this| {
-                            this.parse_mode(ParseMode::Greedy);
-                        })
-                        .to_matchable(),
-                    one_of(vec![
-                        Sequence::new(vec![
-                            Ref::keyword("SEARCH").to_matchable(),
-                            one_of(vec![
-                                Ref::keyword("BREADTH").to_matchable(),
-                                Ref::keyword("DEPTH").to_matchable(),
-                            ])
-                            .to_matchable(),
-                            Ref::keyword("FIRST").to_matchable(),
-                            Ref::keyword("BY").to_matchable(),
-                            Ref::new("ColumnReferenceSegment").to_matchable(),
-                            Ref::keyword("SET").to_matchable(),
-                            Ref::new("ColumnReferenceSegment").to_matchable(),
-                        ])
-                        .to_matchable(),
-                        Sequence::new(vec![
-                            Ref::keyword("CYCLE").to_matchable(),
-                            Ref::new("ColumnReferenceSegment").to_matchable(),
-                            Ref::keyword("SET").to_matchable(),
-                            Ref::new("ColumnReferenceSegment").to_matchable(),
-                            Ref::keyword("USING").to_matchable(),
-                            Ref::new("ColumnReferenceSegment").to_matchable(),
-                        ])
-                        .to_matchable(),
-                    ])
-                    .config(|this| {
-                        this.optional();
-                    })
-                    .to_matchable(),
+    ]);
+
+    postgres.replace_grammar(
+        "CTEDefinitionSegment",
+        Sequence::new(vec_of_erased![
+            Ref::new("SingleIdentifierGrammar"),
+            Ref::new("CTEColumnList").optional(),
+            Ref::keyword("AS"),
+            Sequence::new(vec_of_erased![
+                Ref::keyword("NOT").optional(),
+                Ref::keyword("MATERIALIZED"),
+            ])
+            .config(|this| this.optional()),
+            Bracketed::new(vec_of_erased![Ref::new("SelectableGrammar"),])
+                .config(|this| this.parse_mode = ParseMode::Greedy),
+            one_of(vec_of_erased![
+                Sequence::new(vec_of_erased![
+                    Ref::keyword("SEARCH"),
+                    one_of(vec_of_erased![
+                        Ref::keyword("BREADTH"),
+                        Ref::keyword("DEPTH"),
+                    ]),
+                    Ref::keyword("FIRST"),
+                    Ref::keyword("BY"),
+                    Ref::new("ColumnReferenceSegment"),
+                    Ref::keyword("SET"),
+                    Ref::new("ColumnReferenceSegment"),
+                ]),
+                Sequence::new(vec_of_erased![
+                    Ref::keyword("CYCLE"),
+                    Ref::new("ColumnReferenceSegment"),
+                    Ref::keyword("SET"),
+                    Ref::new("ColumnReferenceSegment"),
+                    Ref::keyword("USING"),
+                    Ref::new("ColumnReferenceSegment"),
+                ]),
+            ])
+            .config(|this| this.optional()),
+        ])
+        .to_matchable(),
+    );
+
+    postgres.replace_grammar(
+        "ValuesClauseSegment",
+        Sequence::new(vec_of_erased![
+            Ref::keyword("VALUES"),
+            Delimited::new(vec_of_erased![Bracketed::new(vec_of_erased![
+                Delimited::new(vec_of_erased![
+                    Ref::new("ExpressionSegment"),
+                    Ref::keyword("DEFAULT")
                 ])
-                .to_matchable()
-            })
-            .to_matchable()
-            .into(),
-        ),
-        (
-            "ValuesClauseSegment".into(),
-            NodeMatcher::new(SyntaxKind::ValuesClause, |_dialect| {
-                Sequence::new(vec![
-                    Ref::keyword("VALUES").to_matchable(),
-                    Delimited::new(vec![
-                        Bracketed::new(vec![
-                            Delimited::new(vec![
-                                Ref::new("ExpressionSegment").to_matchable(),
-                                Ref::keyword("DEFAULT").to_matchable(),
-                            ])
-                            .to_matchable(),
-                        ])
-                        .config(|this| {
-                            this.parse_mode(ParseMode::Greedy);
-                        })
-                        .to_matchable(),
-                    ])
-                    .to_matchable(),
-                    Ref::new("AliasExpressionSegment").optional().to_matchable(),
-                    Ref::new("OrderByClauseSegment").optional().to_matchable(),
-                    Ref::new("LimitClauseSegment").optional().to_matchable(),
-                ])
-                .to_matchable()
-            })
-            .to_matchable()
-            .into(),
-        ),
-        (
-            "DeleteStatementSegment".into(),
-            NodeMatcher::new(SyntaxKind::DeleteStatement, |_dialect| {
-                Sequence::new(vec![
-                    Ref::keyword("DELETE").to_matchable(),
-                    Ref::keyword("FROM").to_matchable(),
-                    Ref::keyword("ONLY").optional().to_matchable(),
-                    Ref::new("TableReferenceSegment").to_matchable(),
-                    Ref::new("StarSegment").optional().to_matchable(),
-                    Ref::new("AliasExpressionSegment").optional().to_matchable(),
-                    Sequence::new(vec![
-                        Ref::keyword("USING").to_matchable(),
-                        MetaSegment::indent().to_matchable(),
-                        Delimited::new(vec![
-                            Sequence::new(vec![
-                                Ref::new("TableExpressionSegment").to_matchable(),
-                                Ref::new("AliasExpressionSegment").optional().to_matchable(),
-                            ])
-                            .to_matchable(),
-                        ])
-                        .to_matchable(),
-                        MetaSegment::dedent().to_matchable(),
-                    ])
-                    .config(|this| {
-                        this.optional();
-                    })
-                    .to_matchable(),
-                    Ref::new("JoinClauseSegment").optional().to_matchable(),
-                    one_of(vec![
-                        Sequence::new(vec![
-                            Ref::keyword("WHERE").to_matchable(),
-                            Ref::keyword("CURRENT").to_matchable(),
-                            Ref::keyword("OF").to_matchable(),
-                            Ref::new("ObjectReferenceSegment").to_matchable(),
-                        ])
-                        .to_matchable(),
-                        Ref::new("WhereClauseSegment").to_matchable(),
-                    ])
-                    .config(|this| {
-                        this.optional();
-                    })
-                    .to_matchable(),
-                    Sequence::new(vec![
-                        Ref::keyword("RETURNING").to_matchable(),
-                        MetaSegment::indent().to_matchable(),
-                        one_of(vec![
-                            Ref::new("StarSegment").to_matchable(),
-                            Delimited::new(vec![
-                                Sequence::new(vec![
-                                    Ref::new("ExpressionSegment").to_matchable(),
-                                    Ref::new("AliasExpressionSegment").optional().to_matchable(),
-                                ])
-                                .to_matchable(),
-                            ])
-                            .to_matchable(),
-                        ])
-                        .to_matchable(),
-                        MetaSegment::dedent().to_matchable(),
-                    ])
-                    .config(|this| {
-                        this.optional();
-                    })
-                    .to_matchable(),
-                ])
-                .to_matchable()
-            })
-            .to_matchable()
-            .into(),
-        ),
+                .config(|this| this.parse_mode = ParseMode::Greedy),
+            ])]),
+            Ref::new("AliasExpressionSegment").optional(),
+            Ref::new("OrderByClauseSegment").optional(),
+            Ref::new("LimitClauseSegment").optional(),
+        ])
+        .to_matchable(),
+    );
+
+    postgres.replace_grammar(
+        "DeleteStatementSegment",
+        Sequence::new(vec_of_erased![
+            Ref::keyword("DELETE"),
+            Ref::keyword("FROM"),
+            Ref::keyword("ONLY").optional(),
+            Ref::new("TableReferenceSegment"),
+            Ref::new("StarSegment").optional(),
+            Ref::new("AliasExpressionSegment").optional(),
+            Sequence::new(vec_of_erased![
+                Ref::keyword("USING"),
+                MetaSegment::indent(),
+                Delimited::new(vec_of_erased![Sequence::new(vec_of_erased![
+                    Ref::new("TableExpressionSegment"),
+                    Ref::new("AliasExpressionSegment").optional(),
+                ])]),
+                MetaSegment::dedent(),
+            ])
+            .config(|this| this.optional()),
+            one_of(vec_of_erased![
+                Sequence::new(vec_of_erased![
+                    Ref::keyword("WHERE"),
+                    Ref::keyword("CURRENT"),
+                    Ref::keyword("OF"),
+                    Ref::new("ObjectReferenceSegment"),
+                ]),
+                Ref::new("WhereClauseSegment"),
+            ])
+            .config(|this| this.optional()),
+            Sequence::new(vec_of_erased![
+                Ref::keyword("RETURNING"),
+                MetaSegment::indent(),
+                one_of(vec_of_erased![
+                    Ref::new("StarSegment"),
+                    Delimited::new(vec_of_erased![Sequence::new(vec_of_erased![
+                        Ref::new("ExpressionSegment"),
+                        Ref::new("AliasExpressionSegment").optional(),
+                    ])]),
+                ]),
+                MetaSegment::dedent(),
+            ])
+            .config(|this| this.optional()),
+        ])
+        .to_matchable(),
+    );
+
+    postgres.add([
         (
             "SetClauseSegment".into(),
             NodeMatcher::new(SyntaxKind::SetClause, |_dialect| {
@@ -9591,26 +9517,18 @@ pub fn raw_dialect() -> Dialect {
                         .to_matchable(),
                         Ref::new("WhereClauseSegment").to_matchable(),
                     ])
-                    .config(|this| {
-                        this.optional();
-                    })
-                    .to_matchable(),
-                    Sequence::new(vec![
-                        Ref::keyword("RETURNING").to_matchable(),
-                        MetaSegment::indent().to_matchable(),
-                        one_of(vec![
-                            Ref::new("StarSegment").to_matchable(),
-                            Delimited::new(vec![
-                                Sequence::new(vec![
-                                    Ref::new("ExpressionSegment").to_matchable(),
-                                    Ref::new("AliasExpressionSegment").optional().to_matchable(),
-                                ])
-                                .to_matchable(),
-                            ])
-                            .to_matchable(),
-                        ])
-                        .to_matchable(),
-                        MetaSegment::dedent().to_matchable(),
+                    .config(|this| this.optional()),
+                    Sequence::new(vec_of_erased![
+                        Ref::keyword("RETURNING"),
+                        MetaSegment::indent(),
+                        one_of(vec_of_erased![
+                            Ref::new("StarSegment"),
+                            Delimited::new(vec_of_erased![Sequence::new(vec_of_erased![
+                                Ref::new("ExpressionSegment"),
+                                Ref::new("AliasExpressionSegment").optional(),
+                            ])])
+                        ]),
+                        MetaSegment::dedent(),
                     ])
                     .config(|this| {
                         this.optional();

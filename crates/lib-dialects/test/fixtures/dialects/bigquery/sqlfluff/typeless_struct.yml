@@ -15,7 +15,7 @@ file:
               - comma: ','
               - expression:
                 - typed_struct_literal:
-                  - data_type:
+                  - struct_type:
                     - keyword: STRUCT
                   - struct_literal:
                     - bracketed:
@@ -35,7 +35,7 @@ file:
               - comma: ','
               - expression:
                 - typed_struct_literal:
-                  - data_type:
+                  - struct_type:
                     - keyword: STRUCT
                   - struct_literal:
                     - bracketed:
@@ -96,7 +96,7 @@ file:
               - keyword: THEN
               - expression:
                 - typed_struct_literal:
-                  - data_type:
+                  - struct_type:
                     - keyword: STRUCT
                   - struct_literal:
                     - bracketed:

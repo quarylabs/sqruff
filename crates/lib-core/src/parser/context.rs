@@ -76,26 +76,38 @@ impl<'a> ParseContext<'a> {
         push_terminators: &[Matchable],
     ) -> (usize, Vec<Matchable>) {
         let mut appended = 0;
-        let terminators = self.terminators.clone();
 
-        if clear_terminators && !self.terminators.is_empty() {
-            self.terminators = if !push_terminators.is_empty() {
-                push_terminators.to_vec()
-            } else {
-                Vec::new()
-            };
-        } else if !push_terminators.is_empty() {
+        if clear_terminators {
+            let previous = std::mem::take(&mut self.terminators);
+
+            if !push_terminators.is_empty() {
+                if previous.is_empty() {
+                    self.terminators.reserve(push_terminators.len());
+                    for terminator in push_terminators {
+                        if !self.terminators.contains(terminator) {
+                            self.terminators.push(terminator.clone());
+                            appended += 1;
+                        }
+                    }
+                } else {
+                    self.terminators = push_terminators.to_vec();
+                }
+            }
+
+            return (appended, previous);
+        }
+
+        if !push_terminators.is_empty() {
+            self.terminators.reserve(push_terminators.len());
             for terminator in push_terminators {
-                let terminator_owned = terminator.clone();
-
                 if !self.terminators.contains(terminator) {
-                    self.terminators.push(terminator_owned);
+                    self.terminators.push(terminator.clone());
                     appended += 1;
                 }
             }
         }
 
-        (appended, terminators)
+        (appended, Vec::new())
     }
 
     fn reset_terminators(

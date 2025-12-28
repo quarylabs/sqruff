@@ -24,6 +24,7 @@ parser = ["sqruff-cli-lib/parser"]
 python = ["sqruff-cli-lib/python", "pyo3"]
 codegen-docs = ["sqruff-cli-lib/codegen-docs"]
 bench = []
+dhat-heap = ["dep:dhat"]
 
 [[bin]]
 name = "bench"
@@ -70,6 +71,7 @@ ignored = ["pyo3"]
 [dependencies]
 sqruff-cli-lib.workspace = true
 pyo3 = { version = "0.27.2", features = ["auto-initialize"], optional = true }
+dhat = { version = "0.3.3", optional = true }
 
 [target.'cfg(target_os = "windows")'.dependencies]
 mimalloc = "0.1"

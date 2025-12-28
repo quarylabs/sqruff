@@ -1,10 +1,12 @@
-use ahash::AHashMap;
+use ahash::{AHashMap, RandomState};
+use hashbrown::HashMap;
 use itertools::{Itertools as _, enumerate, multiunzip};
-use smol_str::StrExt;
+use smol_str::SmolStr;
+use unicase::UniCase;
 
 use super::context::ParseContext;
 use super::match_result::{MatchResult, Matched, Span};
-use super::matchable::{Matchable, MatchableTrait};
+use super::matchable::{Matchable, MatchableTrait, Raw};
 use super::segments::ErasedSegment;
 use crate::dialects::syntax::{SyntaxKind, SyntaxSet};
 use crate::errors::SQLParseError;
@@ -39,21 +41,20 @@ pub fn skip_stop_index_backward_to_code(
     idx
 }
 
-pub fn first_trimmed_raw(seg: &ErasedSegment) -> String {
+pub fn first_trimmed_raw(seg: &ErasedSegment) -> SmolStr {
     seg.raw()
-        .to_uppercase_smolstr()
         .split(char::is_whitespace)
         .next()
-        .map(ToString::to_string)
+        .map(SmolStr::from)
         .unwrap_or_default()
 }
 
 pub fn first_non_whitespace(
     segments: &[ErasedSegment],
     start_idx: u32,
-) -> Option<(String, &SyntaxSet)> {
+) -> Option<(SmolStr, &SyntaxSet)> {
     for segment in segments.iter().skip(start_idx as usize) {
-        if let Some(raw) = segment.first_non_whitespace_segment_raw_upper() {
+        if let Some(raw) = segment.first_non_whitespace_segment_raw() {
             return Some((raw, segment.class_types()));
         }
     }
@@ -73,6 +74,8 @@ pub fn prune_options(
     let Some((first_raw, first_types)) = first_non_whitespace(segments, start_idx) else {
         return options.to_vec();
     };
+
+    let first_raw = UniCase::new(first_raw);
 
     for opt in options {
         let Some(simple) = opt.simple(parse_context, None) else {
@@ -201,7 +204,7 @@ fn next_match(
         return Ok((MatchResult::empty_at(idx), None));
     }
 
-    let mut raw_simple_map: AHashMap<String, Vec<usize>> = AHashMap::new();
+    let mut raw_simple_map: HashMap<Raw, Vec<usize>, RandomState> = HashMap::default();
     let mut type_simple_map: AHashMap<SyntaxKind, Vec<usize>> = AHashMap::new();
 
     for (idx, matcher) in enumerate(matchers) {
@@ -221,8 +224,9 @@ fn next_match(
 
     for idx in idx..max_idx {
         let seg = &segments[idx as usize];
+        let trimmed_raw = first_trimmed_raw(seg);
         let mut matcher_idxs = raw_simple_map
-            .get(&first_trimmed_raw(seg))
+            .get(&UniCase::new(trimmed_raw))
             .cloned()
             .unwrap_or_default();
 

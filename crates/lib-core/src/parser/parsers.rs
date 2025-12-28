@@ -1,10 +1,12 @@
-use ahash::AHashSet;
 use fancy_regex::Regex;
 use smol_str::SmolStr;
+use unicase::UniCase;
 
 use super::context::ParseContext;
 use super::match_result::{MatchResult, Matched, Span};
-use super::matchable::{Matchable, MatchableCacheKey, MatchableTrait, next_matchable_cache_key};
+use super::matchable::{
+    Matchable, MatchableCacheKey, MatchableTrait, RawSet, next_matchable_cache_key,
+};
 use super::segments::ErasedSegment;
 use crate::dialects::syntax::{SyntaxKind, SyntaxSet};
 use crate::errors::SQLParseError;
@@ -45,9 +47,9 @@ impl MatchableTrait for TypedParser {
         &self,
         parse_context: &ParseContext,
         crumbs: Option<Vec<&str>>,
-    ) -> Option<(AHashSet<String>, SyntaxSet)> {
+    ) -> Option<(RawSet, SyntaxSet)> {
         let _ = (parse_context, crumbs);
-        (AHashSet::new(), self.target_types.clone()).into()
+        (RawSet::default(), self.target_types.clone()).into()
     }
 
     fn match_segments(
@@ -80,7 +82,7 @@ impl MatchableTrait for TypedParser {
 #[derive(Clone, Debug, PartialEq)]
 pub struct StringParser {
     template: String,
-    simple: AHashSet<String>,
+    simple: RawSet,
     kind: SyntaxKind,
     optional: bool,
     cache_key: MatchableCacheKey,
@@ -89,7 +91,8 @@ pub struct StringParser {
 impl StringParser {
     pub fn new(template: &str, kind: SyntaxKind) -> StringParser {
         let template_upper = template.to_uppercase();
-        let simple_set = [template_upper.clone()].into();
+        let mut simple_set = RawSet::default();
+        simple_set.insert(UniCase::new(SmolStr::from(template_upper.clone())));
 
         StringParser {
             template: template_upper,
@@ -114,7 +117,7 @@ impl MatchableTrait for StringParser {
         &self,
         _parse_context: &ParseContext,
         _crumbs: Option<Vec<&str>>,
-    ) -> Option<(AHashSet<String>, SyntaxSet)> {
+    ) -> Option<(RawSet, SyntaxSet)> {
         (self.simple.clone(), SyntaxSet::EMPTY).into()
     }
 
@@ -197,7 +200,7 @@ impl MatchableTrait for RegexParser {
         &self,
         _parse_context: &ParseContext,
         _crumbs: Option<Vec<&str>>,
-    ) -> Option<(AHashSet<String>, SyntaxSet)> {
+    ) -> Option<(RawSet, SyntaxSet)> {
         // Does this matcher support a uppercase hash matching route?
         // Regex segment does NOT for now. We might need to later for efficiency.
         None
@@ -241,8 +244,8 @@ impl MatchableTrait for RegexParser {
 
 #[derive(Clone, Debug, PartialEq)]
 pub struct MultiStringParser {
-    templates: AHashSet<String>,
-    simple: AHashSet<String>,
+    templates: RawSet,
+    simple: RawSet,
     kind: SyntaxKind,
     cache: MatchableCacheKey,
 }
@@ -250,15 +253,13 @@ pub struct MultiStringParser {
 impl MultiStringParser {
     pub fn new(templates: Vec<String>, kind: SyntaxKind) -> Self {
         let templates = templates
-            .iter()
-            .map(|template| template.to_ascii_uppercase())
-            .collect::<AHashSet<String>>();
-
-        let _simple = templates.clone();
+            .into_iter()
+            .map(|template| UniCase::new(SmolStr::from(template.to_ascii_uppercase())))
+            .collect::<RawSet>();
 
         Self {
-            templates: templates.into_iter().collect(),
-            simple: _simple.into_iter().collect(),
+            simple: templates.clone(),
+            templates,
             kind,
             cache: next_matchable_cache_key(),
         }
@@ -278,7 +279,7 @@ impl MatchableTrait for MultiStringParser {
         &self,
         _parse_context: &ParseContext,
         _crumbs: Option<Vec<&str>>,
-    ) -> Option<(AHashSet<String>, SyntaxSet)> {
+    ) -> Option<(RawSet, SyntaxSet)> {
         (self.simple.clone(), SyntaxSet::EMPTY).into()
     }
 
@@ -290,7 +291,11 @@ impl MatchableTrait for MultiStringParser {
     ) -> Result<MatchResult, SQLParseError> {
         let segment = &segments[idx as usize];
 
-        if segment.is_code() && self.templates.contains(&segment.raw().to_ascii_uppercase()) {
+        if segment.is_code()
+            && self
+                .templates
+                .contains(&UniCase::new(segment.raw().clone()))
+        {
             return Ok(MatchResult {
                 span: Span {
                     start: idx,

@@ -4,7 +4,6 @@ pub mod delimited;
 pub mod noncode;
 pub mod sequence;
 
-use ahash::AHashSet;
 use std::borrow::Cow;
 use std::sync::OnceLock;
 
@@ -15,7 +14,7 @@ use crate::parser::context::ParseContext;
 use crate::parser::match_algorithms::greedy_match;
 use crate::parser::match_result::MatchResult;
 use crate::parser::matchable::{
-    Matchable, MatchableCacheKey, MatchableTrait, next_matchable_cache_key,
+    Matchable, MatchableCacheKey, MatchableTrait, RawSet, next_matchable_cache_key,
 };
 use crate::parser::segments::ErasedSegment;
 
@@ -28,7 +27,7 @@ pub struct Ref {
     pub(crate) allow_gaps: bool,
     pub(crate) optional: bool,
     cache_key: MatchableCacheKey,
-    simple_cache: OnceLock<Option<(AHashSet<String>, SyntaxSet)>>,
+    simple_cache: OnceLock<Option<(RawSet, SyntaxSet)>>,
 }
 
 impl std::fmt::Debug for Ref {
@@ -105,7 +104,7 @@ impl MatchableTrait for Ref {
         &self,
         parse_context: &ParseContext,
         crumbs: Option<Vec<&str>>,
-    ) -> Option<(AHashSet<String>, SyntaxSet)> {
+    ) -> Option<(RawSet, SyntaxSet)> {
         self.simple_cache
             .get_or_init(|| {
                 if let Some(ref c) = crumbs

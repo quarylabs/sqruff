@@ -1,10 +1,8 @@
-use ahash::AHashSet;
-
 use crate::dialects::syntax::SyntaxSet;
 use crate::errors::SQLParseError;
 use crate::parser::context::ParseContext;
 use crate::parser::match_result::{MatchResult, Span};
-use crate::parser::matchable::{Matchable, MatchableCacheKey, MatchableTrait};
+use crate::parser::matchable::{Matchable, MatchableCacheKey, MatchableTrait, RawSet};
 use crate::parser::segments::ErasedSegment;
 
 #[derive(Debug, Clone, PartialEq)]
@@ -24,7 +22,7 @@ impl MatchableTrait for NonCodeMatcher {
         &self,
         _parse_context: &ParseContext,
         _crumbs: Option<Vec<&str>>,
-    ) -> Option<(AHashSet<String>, SyntaxSet)> {
+    ) -> Option<(RawSet, SyntaxSet)> {
         None
     }
 

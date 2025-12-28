@@ -1,9 +1,9 @@
-use ahash::AHashSet;
-
 use super::context::ParseContext;
 use super::match_algorithms::skip_start_index_forward_to_code;
 use super::match_result::MatchResult;
-use super::matchable::{Matchable, MatchableCacheKey, MatchableTrait, next_matchable_cache_key};
+use super::matchable::{
+    Matchable, MatchableCacheKey, MatchableTrait, RawSet, next_matchable_cache_key,
+};
 use super::segments::ErasedSegment;
 use crate::dialects::syntax::SyntaxSet;
 use crate::errors::SQLParseError;
@@ -47,7 +47,7 @@ impl MatchableTrait for LookaheadExclude {
         &self,
         _parse_context: &ParseContext,
         _crumbs: Option<Vec<&str>>,
-    ) -> Option<(AHashSet<String>, SyntaxSet)> {
+    ) -> Option<(RawSet, SyntaxSet)> {
         // LookaheadExclude doesn't have simple matching
         None
     }

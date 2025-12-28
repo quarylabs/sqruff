@@ -558,10 +558,10 @@ impl ErasedSegment {
         &self.value.class_types
     }
 
-    pub(crate) fn first_non_whitespace_segment_raw_upper(&self) -> Option<String> {
+    pub(crate) fn first_non_whitespace_segment_raw(&self) -> Option<SmolStr> {
         for seg in self.get_raw_segments() {
             if !seg.raw().is_empty() {
-                return Some(seg.raw().to_uppercase());
+                return Some(seg.raw().clone());
             }
         }
         None

@@ -2,8 +2,10 @@ use std::ops::Deref;
 use std::sync::Arc;
 use std::sync::atomic::{AtomicU32, Ordering};
 
-use ahash::AHashSet;
 use enum_dispatch::enum_dispatch;
+use hashbrown::HashSet;
+use smol_str::SmolStr;
+use unicase::UniCase;
 
 use super::context::ParseContext;
 use super::grammar::anyof::AnyNumberOf;
@@ -22,6 +24,9 @@ use super::segments::meta::MetaSegment;
 use crate::dialects::Dialect;
 use crate::dialects::syntax::{SyntaxKind, SyntaxSet};
 use crate::errors::SQLParseError;
+
+pub type Raw = UniCase<SmolStr>;
+pub type RawSet = HashSet<Raw, ahash::RandomState>;
 
 #[derive(Clone, Debug, PartialEq)]
 pub struct Matchable {
@@ -159,7 +164,7 @@ pub trait MatchableTrait {
         &self,
         parse_context: &ParseContext,
         crumbs: Option<Vec<&str>>,
-    ) -> Option<(AHashSet<String>, SyntaxSet)> {
+    ) -> Option<(RawSet, SyntaxSet)> {
         let match_grammar = self.match_grammar(parse_context.dialect())?;
 
         match_grammar.simple(parse_context, crumbs)

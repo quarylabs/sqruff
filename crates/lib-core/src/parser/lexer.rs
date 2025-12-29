@@ -682,12 +682,11 @@ fn iter_segments(
                     }
                     // In any case, we're done with this element. Move on
                     break;
-                } else if element.template_slice.start == tfs.templated_slice.end {
-                    // Did we forget to move on from the last tfs and there's
-                    // overlap?
-                    // NOTE: If the rest of the logic works, this should never
-                    // happen.
-                    log::debug!("Missed Skip");
+                } else if element.template_slice.start >= tfs.templated_slice.end {
+                    // Element starts at or after this slice ends - skip to next slice.
+                    // This can happen when zero-length slices exist (e.g., stripped
+                    // whitespace from Jinja comments like {#- ... #}).
+                    log::debug!("Element starts at or after slice end, skipping");
                     continue;
                 } else {
                     // This means that the current lexed element spans across
@@ -734,6 +733,8 @@ fn iter_segments(
                             ),
                             offset_slice(consumed_element_length, incremental_length).into(),
                         ));
+                        // Continue to the next slice to process remaining whitespace
+                        continue;
                     } else {
                         // We can't split it. We're going to end up yielding a segment
                         // which spans multiple slices. Stash the type, and if we haven't
@@ -742,8 +743,9 @@ fn iter_segments(
                         if stashed_source_idx.is_none() {
                             stashed_source_idx = (element.template_slice.start + idx).into();
                             log::debug!("Stashing a source start. {stashed_source_idx:?}");
-                            continue;
                         }
+                        // Continue to next slice regardless of whether we stashed
+                        continue;
                     }
                 }
             } else if matches!(tfs.slice_type.as_str(), "templated" | "block_start") {

@@ -1,0 +1,16 @@
+load("@crates//:defs.bzl", "all_crate_deps")
+load("@rules_rust//rust:defs.bzl", "rust_library")
+
+ALL_FEATURES = [
+    "serde",
+    "stringify",
+]
+
+rust_library(
+    name = "sqruff-lib-core",
+    srcs = glob(["src/**/*.rs"]),
+    crate_features = ALL_FEATURES,
+    proc_macro_deps = all_crate_deps(proc_macro = True),
+    visibility = ["//visibility:public"],
+    deps = all_crate_deps(normal = True),
+)

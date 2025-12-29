@@ -17,7 +17,8 @@ ratchet(
 )
 bazel_dep(name = "aspect_rules_js", version = "2.3.7")
 bazel_dep(name = "rules_nodejs", version = "6.3.4")
-bazel_dep(name = "rules_shell", version = "0.3.0")
+bazel_dep(name = "rules_rust", version = "0.68.1")
+bazel_dep(name = "rules_shell", version = "0.6.1")
 bazel_dep(name = "rules_shellcheck", version = "0.4.0")
 
 node = use_extension("@rules_nodejs//nodejs:extensions.bzl", "node")
@@ -36,3 +37,34 @@ pnpm.pnpm(
     pnpm_version = "10.0.0",
 )
 use_repo(pnpm, "pnpm")
+
+# Rust toolchain
+rust = use_extension("@rules_rust//rust:extensions.bzl", "rust")
+rust.toolchain(
+    edition = "2024",
+    versions = ["1.92.0"],
+)
+use_repo(rust, "rust_toolchains")
+
+register_toolchains("@rust_toolchains//:all")
+
+# Crate universe - reads from Cargo.toml workspace
+crate = use_extension("@rules_rust//crate_universe:extensions.bzl", "crate")
+crate.from_cargo(
+    name = "crates",
+    cargo_lockfile = "//:Cargo.lock",
+    manifests = [
+        "//:Cargo.toml",
+        "//crates/cli:Cargo.toml",
+        "//crates/cli-lib:Cargo.toml",
+        "//crates/cli-python:Cargo.toml",
+        "//crates/lib:Cargo.toml",
+        "//crates/lib-core:Cargo.toml",
+        "//crates/lib-dialects:Cargo.toml",
+        "//crates/lib-wasm:Cargo.toml",
+        "//crates/lineage:Cargo.toml",
+        "//crates/lsp:Cargo.toml",
+        "//crates/sqlinference:Cargo.toml",
+    ],
+)
+use_repo(crate, "crates")

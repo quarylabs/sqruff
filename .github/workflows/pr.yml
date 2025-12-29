@@ -38,7 +38,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # ratchet:actions/checkout@v5
-      - uses: Swatinem/rust-cache@f13886b937689c021905a6b90929199931d60db1 # ratchet:Swatinem/rust-cache@v2
+      - uses: Swatinem/rust-cache@779680da715d629ac1d338a641029a2f4372abb5 # ratchet:Swatinem/rust-cache@v2
       - uses: dtolnay/rust-toolchain@4305c38b25d97ef35a8ad1f985ccf2d2242004f2 # ratchet:dtolnay/rust-toolchain@stable
       - run: cargo check --all --all-features --tests --benches
   compile:
@@ -46,7 +46,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # ratchet:actions/checkout@v5
-      - uses: Swatinem/rust-cache@f13886b937689c021905a6b90929199931d60db1 # ratchet:Swatinem/rust-cache@v2
+      - uses: Swatinem/rust-cache@779680da715d629ac1d338a641029a2f4372abb5 # ratchet:Swatinem/rust-cache@v2
       - uses: dtolnay/rust-toolchain@4305c38b25d97ef35a8ad1f985ccf2d2242004f2 # ratchet:dtolnay/rust-toolchain@stable
       - run: cargo build --locked --release --all-features
   compile-wasm:
@@ -54,7 +54,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # ratchet:actions/checkout@v5
-      - uses: Swatinem/rust-cache@f13886b937689c021905a6b90929199931d60db1 # ratchet:Swatinem/rust-cache@v2
+      - uses: Swatinem/rust-cache@779680da715d629ac1d338a641029a2f4372abb5 # ratchet:Swatinem/rust-cache@v2
       - name: Add WASM target
         run: rustup target add wasm32-unknown-unknown
       - run: cargo build --package sqruff-lib --locked --release --target wasm32-unknown-unknown
@@ -65,7 +65,7 @@ jobs:
       PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD: false
     steps:
       - uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # ratchet:actions/checkout@v5
-      - uses: Swatinem/rust-cache@f13886b937689c021905a6b90929199931d60db1 # ratchet:Swatinem/rust-cache@v2
+      - uses: Swatinem/rust-cache@779680da715d629ac1d338a641029a2f4372abb5 # ratchet:Swatinem/rust-cache@v2
       - uses: pnpm/action-setup@41ff72655975bd51cab0327fa583b6e92b6d3061 # ratchet:pnpm/action-setup@v4
         name: Install pnpm
         with:
@@ -110,7 +110,7 @@ jobs:
       - name: Install dependencies
         run: make python_install
       - uses: dtolnay/rust-toolchain@4305c38b25d97ef35a8ad1f985ccf2d2242004f2 # ratchet:dtolnay/rust-toolchain@stable
-      - uses: Swatinem/rust-cache@f13886b937689c021905a6b90929199931d60db1 # ratchet:Swatinem/rust-cache@v2
+      - uses: Swatinem/rust-cache@779680da715d629ac1d338a641029a2f4372abb5 # ratchet:Swatinem/rust-cache@v2
       - run: make rust_test
       - name: Check for diffs
         run: git diff --quiet || exit 1
@@ -120,7 +120,7 @@ jobs:
     steps:
       - name: Checkout sources
         uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # ratchet:actions/checkout@v5
-      - uses: Swatinem/rust-cache@f13886b937689c021905a6b90929199931d60db1 # ratchet:Swatinem/rust-cache@v2
+      - uses: Swatinem/rust-cache@779680da715d629ac1d338a641029a2f4372abb5 # ratchet:Swatinem/rust-cache@v2
       - uses: taiki-e/install-action@0ef4f35ddc4b6153a6ab3244a74c795572d27045 # ratchet:taiki-e/install-action@cargo-hack
       - uses: taiki-e/install-action@60d1e0b7b9b30b3ee6dce287792460110d5eb552 # ratchet:taiki-e/install-action@cargo-machete
       - uses: dtolnay/rust-toolchain@4305c38b25d97ef35a8ad1f985ccf2d2242004f2 # ratchet:dtolnay/rust-toolchain@stable

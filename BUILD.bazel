@@ -1,0 +1,78 @@
+load("@npm//:defs.bzl", "npm_link_all_packages")
+load("@npm//:prettier/package_json.bzl", prettier_bin = "bin")
+
+# Link all npm packages into node_modules
+npm_link_all_packages(name = "node_modules")
+
+# Prettier configuration
+exports_files([
+    ".prettierrc.json",
+    "pnpm-lock.yaml",
+])
+
+# Files to check with prettier
+filegroup(
+    name = "prettier_srcs",
+    srcs = glob(
+        [
+            "editors/**/*.ts",
+            "editors/**/*.js",
+            "editors/**/*.json",
+            "editors/**/*.md",
+            "playground/**/*.ts",
+            "playground/**/*.tsx",
+            "playground/**/*.css",
+            "playground/**/*.html",
+            "playground/**/*.json",
+            ".github/**/*.yaml",
+            ".github/**/*.yml",
+        ],
+        exclude = [
+            "**/node_modules/**",
+            "**/dist/**",
+            "**/out/**",
+            "**/.vscode-test/**",
+        ],
+    ) + ["README.md"],
+)
+
+# Prettier format check test
+prettier_bin.prettier_test(
+    name = "prettier_check",
+    size = "small",
+    args = [
+        "--check",
+        "--config",
+        ".prettierrc.json",
+        "editors",
+        "playground",
+        "*.md",
+        ".github",
+    ],
+    chdir = package_name(),
+    data = [
+        ":node_modules/prettier",
+        ":prettier_srcs",
+        ".prettierrc.json",
+    ],
+)
+
+# Prettier format (for fixing locally)
+prettier_bin.prettier_binary(
+    name = "prettier_fix",
+    args = [
+        "--write",
+        "--config",
+        ".prettierrc.json",
+        "editors",
+        "playground",
+        "*.md",
+        ".github",
+    ],
+    chdir = package_name(),
+    data = [
+        ":node_modules/prettier",
+        ":prettier_srcs",
+        ".prettierrc.json",
+    ],
+)

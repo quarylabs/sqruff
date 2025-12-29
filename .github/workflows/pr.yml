@@ -132,17 +132,13 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # ratchet:actions/checkout@v5
-      - uses: pnpm/action-setup@41ff72655975bd51cab0327fa583b6e92b6d3061 # ratchet:pnpm/action-setup@v4
-        name: Install pnpm
+      - uses: bazel-contrib/setup-bazel@e8a62c5e490d30cf7e4fee76096d92e0a41f4cd3 # ratchet:bazel-contrib/setup-bazel@0.14.0
         with:
-          version: 10
-      - name: Install Nodejs
-        uses: actions/setup-node@2028fbc5c25fe9cf00d9f06a71cc4710d4507903 # ratchet:actions/setup-node@v5
-        with:
-          node-version-file: ".nvmrc"
-          cache: "pnpm"
-      - run: pnpm install --frozen-lockfile
-      - run: pnpm run fmt:check
+          bazelisk-cache: true
+          disk-cache: ${{ github.workflow }}
+          repository-cache: true
+      - name: Check Prettier formatting
+        run: bazel test --config=ci //:prettier_check
   shellcheck:
     name: Shellcheck
     runs-on: ubuntu-latest

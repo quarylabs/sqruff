@@ -1,0 +1,27 @@
+"""Bazel module definition for sqruff."""
+
+module(
+    name = "sqruff",
+    version = "0.0.0",
+)
+
+bazel_dep(name = "aspect_bazel_lib", version = "2.19.1")
+bazel_dep(name = "aspect_rules_js", version = "2.3.7")
+bazel_dep(name = "rules_nodejs", version = "6.3.4")
+
+node = use_extension("@rules_nodejs//nodejs:extensions.bzl", "node")
+node.toolchain(node_version = "22.12.0")
+
+npm = use_extension("@aspect_rules_js//npm:extensions.bzl", "npm")
+npm.npm_translate_lock(
+    name = "npm",
+    pnpm_lock = "//:pnpm-lock.yaml",
+)
+use_repo(npm, "npm")
+
+pnpm = use_extension("@aspect_rules_js//npm:extensions.bzl", "pnpm")
+pnpm.pnpm(
+    name = "pnpm",
+    pnpm_version = "10.0.0",
+)
+use_repo(pnpm, "pnpm")

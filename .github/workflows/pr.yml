@@ -127,8 +127,8 @@ jobs:
         with:
           components: clippy, rustfmt
       - run: make rust_lint
-  prettier-formatting:
-    name: Check Prettier formatting
+  bazel-lint:
+    name: Bazel Lint
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # ratchet:actions/checkout@v5
@@ -137,20 +137,8 @@ jobs:
           bazelisk-cache: true
           disk-cache: ${{ github.workflow }}
           repository-cache: true
-      - name: Check Prettier formatting
-        run: bazel test --config=ci //:prettier_check
-  shellcheck:
-    name: Shellcheck
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # ratchet:actions/checkout@v5
-      - uses: bazel-contrib/setup-bazel@e8a62c5e490d30cf7e4fee76096d92e0a41f4cd3 # ratchet:bazel-contrib/setup-bazel@0.14.0
-        with:
-          bazelisk-cache: true
-          disk-cache: ${{ github.workflow }}
-          repository-cache: true
-      - name: Run ShellCheck
-        run: bazel test --config=ci //:shellcheck
+      - name: Run lint checks
+        run: bazel test --config=ci //:prettier_check //:shellcheck
   python:
     name: Run python checks
     runs-on: ubuntu-latest

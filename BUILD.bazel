@@ -1,5 +1,6 @@
 load("@npm//:defs.bzl", "npm_link_all_packages")
 load("@npm//:prettier/package_json.bzl", prettier_bin = "bin")
+load("@rules_shellcheck//:def.bzl", "shellcheck_test")
 
 # Link all npm packages into node_modules
 npm_link_all_packages(name = "node_modules")
@@ -75,4 +76,12 @@ prettier_bin.prettier_binary(
         ":prettier_srcs",
         ".prettierrc.json",
     ],
+)
+
+# Shellcheck test for shell scripts
+shellcheck_test(
+    name = "shellcheck",
+    size = "small",
+    data = glob([".hacking/scripts/*.sh"]),
+    severity = "warning",
 )

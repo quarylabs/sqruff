@@ -1,6 +1,6 @@
 use pyo3::prelude::*;
 use pyo3::types::PySlice;
-use pyo3::{Py, PyAny, Python};
+use pyo3::{Borrowed, Py, PyAny, Python};
 use sqruff_lib_core::errors::SQLFluffUserError;
 use sqruff_lib_core::templaters::{RawFileSlice, TemplatedFile, TemplatedFileSlice};
 
@@ -90,14 +90,16 @@ struct PythonTemplatedFileSlice {
     templated_slice: std::ops::Range<usize>,
 }
 
-impl<'py> FromPyObject<'py> for PythonTemplatedFileSlice {
-    fn extract_bound(ob: &Bound<'py, PyAny>) -> PyResult<Self> {
+impl<'a, 'py> FromPyObject<'a, 'py> for PythonTemplatedFileSlice {
+    type Error = PyErr;
+
+    fn extract(ob: Borrowed<'a, 'py, PyAny>) -> PyResult<Self> {
         // Get attributes directly from the object
         let slice_type = ob.getattr("slice_type")?.extract::<String>()?;
         let binding = ob.getattr("source_slice")?;
-        let source_slice_obj = binding.downcast::<PySlice>()?;
+        let source_slice_obj: &Bound<'py, PySlice> = binding.cast()?;
         let bindig = ob.getattr("templated_slice")?;
-        let templated_slice_obj = bindig.downcast::<PySlice>()?;
+        let templated_slice_obj: &Bound<'py, PySlice> = bindig.cast()?;
 
         // Extract start and stop indices from the slices
         let source_start = source_slice_obj
@@ -158,8 +160,10 @@ impl PythonRawFileSlice {
     }
 }
 
-impl<'py> FromPyObject<'py> for PythonRawFileSlice {
-    fn extract_bound(ob: &Bound<'py, PyAny>) -> PyResult<Self> {
+impl<'a, 'py> FromPyObject<'a, 'py> for PythonRawFileSlice {
+    type Error = PyErr;
+
+    fn extract(ob: Borrowed<'a, 'py, PyAny>) -> PyResult<Self> {
         let raw = ob.getattr("raw")?.extract::<String>()?;
         let slice_tpe = ob.getattr("slice_type")?.extract::<String>()?;
         let source_idx = ob.getattr("source_idx")?.extract::<usize>()?;

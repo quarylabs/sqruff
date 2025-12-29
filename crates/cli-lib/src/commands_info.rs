@@ -15,13 +15,9 @@ pub(crate) fn info() {
 
             // Get some attributes from sys
             let version = sys.getattr("version").unwrap();
-            let version = version.downcast().unwrap();
             let executable = sys.getattr("executable").unwrap();
-            let executable = executable.downcast().unwrap();
             let prefix = sys.getattr("prefix").unwrap();
-            let prefix = prefix.downcast().unwrap();
             let base_prefix = sys.getattr("base_prefix").unwrap();
-            let base_prefix = base_prefix.downcast().unwrap();
             // Print them out or do whatever you want with them
             println!("Python Version: {}", version.str().unwrap());
             println!("Executable: {}", executable.str().unwrap());
@@ -29,7 +25,7 @@ pub(crate) fn info() {
             println!("Base Prefix: {}", base_prefix.str().unwrap());
 
             let sys_path = sys.getattr("path").unwrap();
-            let sys_path = sys_path.downcast::<PyList>().unwrap();
+            let sys_path: &Bound<'_, PyList> = sys_path.cast().unwrap();
             println!("sys.path:");
             for p in sys_path.iter() {
                 println!("  {p}");
@@ -39,11 +35,10 @@ pub(crate) fn info() {
             // you can import "os" and query os.environ:
             let os = py.import("os").unwrap();
             let environ = os.getattr("environ").unwrap();
-            let environ = environ.downcast::<PyMapping>().unwrap();
+            let environ: &Bound<'_, PyMapping> = environ.cast().unwrap();
             // If VIRTUAL_ENV is set, you can get it like:
-            if let Ok(environ) = environ.get_item("VIRTUAL_ENV") {
-                // if string
-                let virtual_env = environ.downcast::<PyString>();
+            if let Ok(virtual_env_val) = environ.get_item("VIRTUAL_ENV") {
+                let virtual_env: Result<&Bound<'_, PyString>, _> = virtual_env_val.cast();
                 if let Ok(virtual_env) = virtual_env {
                     println!("VIRTUAL_ENV: {virtual_env}");
                 } else {

@@ -6,6 +6,15 @@ module(
 )
 
 bazel_dep(name = "aspect_bazel_lib", version = "2.19.1")
+
+# Ratchet for GitHub Actions version pinning
+ratchet = use_repo_rule("@bazel_tools//tools/build_defs/repo:http.bzl", "http_archive")
+ratchet(
+    name = "ratchet",
+    build_file_content = """exports_files(["ratchet"])""",
+    sha256 = "7141236c5500dce440bb764a964c9d9d8130a3a421604c75b7f7fbaa55cf89f5",
+    url = "https://github.com/sethvargo/ratchet/releases/download/v0.11.4/ratchet_0.11.4_linux_amd64.tar.gz",
+)
 bazel_dep(name = "aspect_rules_js", version = "2.3.7")
 bazel_dep(name = "rules_nodejs", version = "6.3.4")
 bazel_dep(name = "rules_shell", version = "0.3.0")

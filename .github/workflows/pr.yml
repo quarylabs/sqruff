@@ -127,7 +127,7 @@ jobs:
           disk-cache: ${{ github.workflow }}
           repository-cache: true
       - name: Run lint checks
-        run: bazel test --config=ci //:prettier_check //:shellcheck //:check_files_match
+        run: bazel test --config=ci //:prettier_check //:shellcheck //:check_files_match //:ratchet_check
   python:
     name: Run python checks
     runs-on: ubuntu-latest
@@ -141,16 +141,6 @@ jobs:
           python-version: ${{ matrix.python-version }}
       - run: make python_install
       - run: make python_ci
-  github-actions-ratchet-check:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # ratchet:actions/checkout@v5
-      - name: Set up Go
-        uses: actions/setup-go@4dc6199c7b1a012772edbd06daecab0f50c9053c # ratchet:actions/setup-go@v6
-      - name: Install ratchet
-        run: go install github.com/sethvargo/ratchet@latest
-      - name: Ratchet Check
-        run: make ratchet_check
   build-binaries:
     name: Build binaries for all platforms
     runs-on: ${{ matrix.platform.os }}

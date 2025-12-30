@@ -14,3 +14,9 @@ rust_library(
     visibility = ["//visibility:public"],
     deps = all_crate_deps(normal = True),
 )
+
+filegroup(
+    name = "machete_srcs",
+    srcs = glob(["src/**/*.rs"]) + ["Cargo.toml"],
+    visibility = ["//visibility:public"],
+)

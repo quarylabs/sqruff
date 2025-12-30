@@ -1,5 +1,6 @@
 load("@npm//:defs.bzl", "npm_link_all_packages")
 load("@npm//:prettier/package_json.bzl", prettier_bin = "bin")
+load("@rules_rust//rust:defs.bzl", "rust_clippy", "rustfmt_test")
 load("@rules_shell//shell:sh_test.bzl", "sh_test")
 load("@rules_shellcheck//:def.bzl", "shellcheck_test")
 
@@ -121,4 +122,54 @@ sh_test(
         "//crates/cli-python:pyproject.toml",
         "pyproject.toml",
     ],
+)
+
+# All Rust targets for linting
+RUST_TARGETS = [
+    "//crates/cli:sqruff",
+    "//crates/cli-lib:sqruff-cli-lib",
+    "//crates/lib:sqruff-lib",
+    "//crates/lib-core:sqruff-lib-core",
+    "//crates/lib-dialects:sqruff-lib-dialects",
+    "//crates/lib-wasm:sqruff-wasm",
+    "//crates/lineage:lineage",
+    "//crates/lsp:sqruff-lsp",
+    "//crates/sqlinference:sqruff-sqlinference",
+]
+
+# Rust format check
+rustfmt_test(
+    name = "rustfmt_check",
+    targets = RUST_TARGETS,
+)
+
+# Rust clippy check
+rust_clippy(
+    name = "clippy_check",
+    deps = RUST_TARGETS,
+)
+
+# Cargo machete - check for unused dependencies
+sh_test(
+    name = "cargo_machete",
+    size = "small",
+    srcs = [".hacking/scripts/cargo_machete.sh"],
+    data = [
+        "Cargo.lock",
+        "Cargo.toml",
+        "//crates/cli:machete_srcs",
+        "//crates/cli-lib:machete_srcs",
+        "//crates/cli-python:machete_srcs",
+        "//crates/lib:machete_srcs",
+        "//crates/lib-core:machete_srcs",
+        "//crates/lib-dialects:machete_srcs",
+        "//crates/lib-wasm:machete_srcs",
+        "//crates/lineage:machete_srcs",
+        "//crates/lsp:machete_srcs",
+        "//crates/sqlinference:machete_srcs",
+        "@rules_rust//rust/toolchain:current_cargo_files",
+    ],
+    env = {
+        "CARGO": "$(rlocationpath @rules_rust//rust/toolchain:current_cargo_files)",
+    },
 )

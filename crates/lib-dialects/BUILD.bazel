@@ -28,3 +28,9 @@ rust_library(
         "//crates/lib-core:sqruff-lib-core",
     ],
 )
+
+filegroup(
+    name = "machete_srcs",
+    srcs = glob(["src/**/*.rs"]) + ["Cargo.toml"],
+    visibility = ["//visibility:public"],
+)

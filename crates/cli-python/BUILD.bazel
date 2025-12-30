@@ -1,1 +1,10 @@
-exports_files(["pyproject.toml"])
+exports_files([
+    "Cargo.toml",
+    "pyproject.toml",
+])
+
+filegroup(
+    name = "machete_srcs",
+    srcs = glob(["src/**/*.rs"]) + ["Cargo.toml"],
+    visibility = ["//visibility:public"],
+)

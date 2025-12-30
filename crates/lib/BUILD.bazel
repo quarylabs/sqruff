@@ -59,3 +59,9 @@ rust_shared_library(
         "//crates/lib-dialects:sqruff-lib-dialects",
     ],
 )
+
+filegroup(
+    name = "machete_srcs",
+    srcs = glob(["src/**/*.rs"]) + ["Cargo.toml"],
+    visibility = ["//visibility:public"],
+)

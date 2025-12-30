@@ -23,6 +23,13 @@
 
 Try it out in the [playground](https://playground.quary.dev)!
 
+## Sqruff vs SQLFluff
+
+Sqruff started its life aiming to be an exact replacement for [sqlfluff](https://sqlfluff.com/), but it is slowly diverging. Key differences include:
+
+- **Accurate dialect definitions:** Unlike sqlfluff, sqruff aims for dialect definitions that accurately reflect the target SQL dialect. Sqruff only concerns itself with formatting valid SQL code rather than aiming to fix partially correct code.
+- **Configuration:** While sqruff's configuration format is similar to sqlfluff, it will slowly diverge over time as sqruff develops its own identity.
+
 ## Dialects Supported
 
 Sqruff currently supports the following SQL dialects:

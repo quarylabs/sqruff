@@ -43,10 +43,13 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # ratchet:actions/checkout@v5
-      - uses: Swatinem/rust-cache@779680da715d629ac1d338a641029a2f4372abb5 # ratchet:Swatinem/rust-cache@v2
-      - name: Add WASM target
-        run: rustup target add wasm32-unknown-unknown
-      - run: cargo build --package sqruff-lib --locked --release --target wasm32-unknown-unknown
+      - uses: bazel-contrib/setup-bazel@e8a62c5e490d30cf7e4fee76096d92e0a41f4cd3 # ratchet:bazel-contrib/setup-bazel@0.14.0
+        with:
+          bazelisk-cache: true
+          disk-cache: ${{ github.workflow }}
+          repository-cache: true
+      - name: Build WASM
+        run: bazel build --config=ci //crates/lib:sqruff-lib-wasm
   typescript:
     name: TypeScript
     runs-on: ubuntu-latest

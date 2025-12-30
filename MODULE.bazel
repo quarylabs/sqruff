@@ -42,11 +42,15 @@ use_repo(pnpm, "pnpm")
 rust = use_extension("@rules_rust//rust:extensions.bzl", "rust")
 rust.toolchain(
     edition = "2024",
+    extra_target_triples = ["wasm32-unknown-unknown"],
     versions = ["1.92.0"],
 )
 use_repo(rust, "rust_toolchains")
 
 register_toolchains("@rust_toolchains//:all")
+
+# Required for WASM cross-compilation
+register_toolchains("@rules_rust//rust/private/dummy_cc_toolchain:dummy_cc_wasm32_toolchain")
 
 # Crate universe - reads from Cargo.toml workspace
 crate = use_extension("@rules_rust//crate_universe:extensions.bzl", "crate")

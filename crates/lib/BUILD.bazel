@@ -1,4 +1,4 @@
-load("@crates//:defs.bzl", "all_crate_deps")
+load("@crates//:defs.bzl", "all_crate_deps", "crate_deps")
 load("@rules_rust//rust:defs.bzl", "rust_library", "rust_shared_library")
 
 ALL_FEATURES = [
@@ -18,31 +18,32 @@ rust_library(
     ],
 )
 
-# WASM build target - explicit deps without pyo3
-WASM_DEPS = [
-    "@crates//:ahash",
-    "@crates//:common-path",
-    "@crates//:configparser",
-    "@crates//:fancy-regex",
-    "@crates//:indexmap",
-    "@crates//:itertools",
-    "@crates//:lazy-regex",
-    "@crates//:log",
-    "@crates//:nohash-hasher",
-    "@crates//:pretty_assertions",
-    "@crates//:rayon",
-    "@crates//:regex",
-    "@crates//:rustc-hash",
-    "@crates//:serde",
-    "@crates//:serde_json",
-    "@crates//:smol_str",
-    "@crates//:strum",
-    "@crates//:walkdir",
+# WASM build target - explicit deps without pyo3 (doesn't support WASM)
+# Uses crate_deps() so versions stay aligned with Cargo.lock
+WASM_CRATE_NAMES = [
+    "ahash",
+    "common-path",
+    "configparser",
+    "fancy-regex",
+    "indexmap",
+    "itertools",
+    "lazy-regex",
+    "log",
+    "nohash-hasher",
+    "pretty_assertions",
+    "rayon",
+    "regex",
+    "rustc-hash",
+    "serde",
+    "serde_json",
+    "smol_str",
+    "strum",
+    "walkdir",
 ]
 
-WASM_PROC_MACRO_DEPS = [
-    "@crates//:enum_dispatch",
-    "@crates//:strum_macros",
+WASM_PROC_MACRO_CRATE_NAMES = [
+    "enum_dispatch",
+    "strum_macros",
 ]
 
 rust_shared_library(
@@ -51,9 +52,9 @@ rust_shared_library(
     compile_data = glob(["src/**/*.cfg"]),
     crate_features = ALL_FEATURES,
     platform = "@rules_rust//rust/platform:wasm",
-    proc_macro_deps = WASM_PROC_MACRO_DEPS,
+    proc_macro_deps = crate_deps(WASM_PROC_MACRO_CRATE_NAMES),
     visibility = ["//visibility:public"],
-    deps = WASM_DEPS + [
+    deps = crate_deps(WASM_CRATE_NAMES) + [
         "//crates/lib-core:sqruff-lib-core",
         "//crates/lib-dialects:sqruff-lib-dialects",
     ],

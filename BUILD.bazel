@@ -109,3 +109,16 @@ sh_test(
         "@ratchet//:ratchet",
     ] + glob([".github/workflows/*.yml"]),
 )
+
+# Check that versions match across Cargo.toml, package.json, pyproject.toml
+sh_test(
+    name = "check_versions_match",
+    size = "small",
+    srcs = [".hacking/scripts/check_versions_match.sh"],
+    data = [
+        "Cargo.toml",
+        "editors/code/package.json",
+        "//crates/cli-python:pyproject.toml",
+        "pyproject.toml",
+    ],
+)

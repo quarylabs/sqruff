@@ -12,16 +12,6 @@ env:
   RUST_BACKTRACE: short
   PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD: true
 jobs:
-  check-versions-match:
-    name: Check versions match
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # ratchet:actions/checkout@v5
-      - name: Install jq
-        run: sudo apt-get install jq
-      - name: Allow running check_versions_match.sh
-        run: chmod +x ./.hacking/scripts/check_versions_match.sh
-      - run: ./.hacking/scripts/check_versions_match.sh
   check:
     name: Rust Check
     runs-on: ubuntu-latest
@@ -130,7 +120,7 @@ jobs:
           disk-cache: ${{ github.workflow }}
           repository-cache: true
       - name: Run lint checks
-        run: bazel test --config=ci //:prettier_check //:shellcheck //:check_files_match //:ratchet_check
+        run: bazel test --config=ci //:prettier_check //:shellcheck //:check_files_match //:ratchet_check //:check_versions_match
   python:
     name: Run python checks
     runs-on: ubuntu-latest

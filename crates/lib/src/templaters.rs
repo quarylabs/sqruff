@@ -46,22 +46,43 @@ pub static TEMPLATERS: [&'static dyn Templater; 5] = [
 #[cfg(not(feature = "python"))]
 pub static TEMPLATERS: [&'static dyn Templater; 2] = [&RAW_TEMPLATER, &PLACEHOLDER_TEMPLATER];
 
+/// How a templater processes files.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum ProcessingMode {
+    /// Files can be processed individually and in parallel using Rayon.
+    /// Used by simple templaters like raw and placeholder.
+    Parallel,
+    /// Files must be processed sequentially, one at a time.
+    /// Used by templaters that have Python GIL restrictions.
+    Sequential,
+    /// Files benefit from batch processing with shared state.
+    /// The templater will receive all files at once and can optimize initialization.
+    /// Used by dbt to share manifest loading across files.
+    Batch,
+}
+
 pub trait Templater: Send + Sync {
     /// The name of the templater.
     fn name(&self) -> &'static str;
 
-    /// Can process in parrallel.
-    fn can_process_in_parallel(&self) -> bool;
-
     /// Description of the templater.
     fn description(&self) -> &'static str;
 
-    /// Process a string and return a TemplatedFile.
+    /// Returns the processing mode for this templater.
+    fn processing_mode(&self) -> ProcessingMode;
+
+    /// Process one or more files and return TemplatedFiles.
+    ///
+    /// Arguments:
+    /// - files: Slice of (file_content, file_name) tuples
+    /// - config: The configuration to use
+    /// - formatter: Optional formatter for output
+    ///
+    /// Returns a vector of results in the same order as the input files.
     fn process(
         &self,
-        in_str: &str,
-        f_name: &str,
+        files: &[(&str, &str)],
         config: &FluffConfig,
         formatter: &Option<Arc<dyn Formatter>>,
-    ) -> Result<TemplatedFile, SQLFluffUserError>;
+    ) -> Vec<Result<TemplatedFile, SQLFluffUserError>>;
 }

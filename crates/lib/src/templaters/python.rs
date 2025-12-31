@@ -7,19 +7,49 @@ use sqruff_lib_core::templaters::{RawFileSlice, TemplatedFile, TemplatedFileSlic
 use super::Templater;
 use crate::Formatter;
 use crate::core::config::FluffConfig;
+use crate::templaters::ProcessingMode;
 use crate::templaters::python_shared::PythonFluffConfig;
 use std::sync::Arc;
 
 #[derive(Default)]
 pub struct PythonTemplater;
 
+impl PythonTemplater {
+    fn process_single(
+        &self,
+        in_str: &str,
+        f_name: &str,
+        config: &FluffConfig,
+    ) -> Result<TemplatedFile, SQLFluffUserError> {
+        // Need to pull context out of config
+        let templated_file = Python::attach(|py| -> PyResult<TemplatedFile> {
+            let main_module = PyModule::import(py, "sqruff.templaters.python_templater")?;
+            let fun: Py<PyAny> = main_module.getattr("process_from_rust")?.into();
+            // pass object with Rust tuple of positional arguments
+            let py_dict = config.to_python_context(py, "python").unwrap();
+            let python_fluff_config: PythonFluffConfig = config.clone().into();
+            let args = (
+                in_str.to_string(),
+                f_name.to_string(),
+                python_fluff_config.to_json_string(),
+                py_dict,
+            );
+            let returned = fun.call1(py, args);
+
+            // Parse the returned value
+            let returned = returned?;
+            let templated_file: PythonTemplatedFile = returned.extract(py)?;
+            Ok(templated_file.to_templated_file())
+        })
+        .map_err(|e| SQLFluffUserError::new(format!("Python templater error: {e:?}")))?;
+
+        Ok(templated_file)
+    }
+}
+
 impl Templater for PythonTemplater {
     fn name(&self) -> &'static str {
         "python"
-    }
-
-    fn can_process_in_parallel(&self) -> bool {
-        false
     }
 
     fn description(&self) -> &'static str {
@@ -50,36 +80,20 @@ SELECT * FROM foo
 At the moment, dot notation is not supported in the templater."
     }
 
+    fn processing_mode(&self) -> ProcessingMode {
+        ProcessingMode::Sequential
+    }
+
     fn process(
         &self,
-        in_str: &str,
-        f_name: &str,
+        files: &[(&str, &str)],
         config: &FluffConfig,
         _formatter: &Option<Arc<dyn Formatter>>,
-    ) -> Result<TemplatedFile, SQLFluffUserError> {
-        // Need to pull context out of config
-        let templated_file = Python::attach(|py| -> PyResult<TemplatedFile> {
-            let main_module = PyModule::import(py, "sqruff.templaters.python_templater")?;
-            let fun: Py<PyAny> = main_module.getattr("process_from_rust")?.into();
-            // pass object with Rust tuple of positional arguments
-            let py_dict = config.to_python_context(py, "python").unwrap();
-            let python_fluff_config: PythonFluffConfig = config.clone().into();
-            let args = (
-                in_str.to_string(),
-                f_name.to_string(),
-                python_fluff_config.to_json_string(),
-                py_dict,
-            );
-            let returned = fun.call1(py, args);
-
-            // Parse the returned value
-            let returned = returned?;
-            let templated_file: PythonTemplatedFile = returned.extract(py)?;
-            Ok(templated_file.to_templated_file())
-        })
-        .map_err(|e| SQLFluffUserError::new(format!("Python templater error: {e:?}")))?;
-
-        Ok(templated_file)
+    ) -> Vec<Result<TemplatedFile, SQLFluffUserError>> {
+        files
+            .iter()
+            .map(|(content, fname)| self.process_single(content, fname, config))
+            .collect()
     }
 }
 
@@ -225,9 +239,8 @@ blah = foo
 
         let templater = PythonTemplater;
 
-        let templated_file = templater
-            .process(PYTHON_STRING, "test.sql", &config, &None)
-            .unwrap();
+        let results = templater.process(&[(PYTHON_STRING, "test.sql")], &config, &None);
+        let templated_file = results.into_iter().next().unwrap().unwrap();
 
         assert_eq!(templated_file.templated(), "SELECT * FROM foo");
     }
@@ -245,7 +258,8 @@ noblah = foo
 
         let templater = PythonTemplater;
 
-        let templated_file = templater.process(PYTHON_STRING, "test.sql", &config, &None);
+        let results = templater.process(&[(PYTHON_STRING, "test.sql")], &config, &None);
+        let templated_file = results.into_iter().next().unwrap();
 
         assert!(templated_file.is_err())
     }

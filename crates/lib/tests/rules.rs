@@ -109,20 +109,6 @@ fn main() {
                 continue;
             }
 
-            let template = case
-                .configs
-                .get("core")
-                .and_then(|it| it.as_map())
-                .and_then(|it| it.get("templater"))
-                .and_then(|it| it.as_string());
-            if let Some(template) = template {
-                println!(
-                    "templater not yet supported ignored, {} templating is not supported",
-                    template
-                );
-                continue;
-            }
-
             let has_config = !case.configs.is_empty();
             let rule = &file.rule;
             if has_config {
@@ -162,6 +148,10 @@ fn main() {
                 }
 
                 linter.config_mut().reload_reflow();
+
+                // Recreate linter with proper templater after all config is set up
+                let templater = Linter::get_templater(linter.config());
+                linter = Linter::new(linter.config().clone(), None, Some(templater), true);
             }
 
             match case.kind {
@@ -210,7 +200,8 @@ dialect = {dialect}
                         "Fail and fix strings should not be equal"
                     );
 
-                    let actual = linter.lint_string_wrapped(&fail_str, true).fix_string();
+                    let linted = linter.lint_string_wrapped(&fail_str, true);
+                    let actual = linted.fix_string();
 
                     pretty_assertions::assert_eq!(actual, fix_str);
                 }

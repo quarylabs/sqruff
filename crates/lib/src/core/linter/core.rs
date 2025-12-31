@@ -27,7 +27,6 @@ use sqruff_lib_core::errors::{
 use sqruff_lib_core::helpers;
 use sqruff_lib_core::linter::compute_anchor_edit_info;
 use sqruff_lib_core::parser::Parser;
-use sqruff_lib_core::parser::segments::fix::SourceFix;
 use sqruff_lib_core::parser::segments::{ErasedSegment, Tables};
 use sqruff_lib_core::templaters::TemplatedFile;
 use walkdir::WalkDir;
@@ -240,8 +239,8 @@ impl Linter {
         } else {
             &[LintPhase::Main]
         };
-        let mut previous_versions: AHashSet<(SmolStr, Vec<SourceFix>)> =
-            [(tree.raw().to_smolstr(), vec![])].into_iter().collect();
+        let mut previous_versions: AHashSet<(SmolStr, bool)> =
+            [(tree.raw().to_smolstr(), false)].into_iter().collect();
 
         // If we are fixing then we want to loop up to the runaway_limit, otherwise just
         // once for linting.
@@ -340,9 +339,12 @@ impl Linter {
 
                     if fix && !anchor_info.is_empty() {
                         let (new_tree, _, _) = tree.apply_fixes(&mut anchor_info);
+                        let has_source_fixes = !new_tree.get_all_source_fixes().is_empty();
 
-                        let loop_check_tuple =
-                            (new_tree.raw().to_smolstr(), new_tree.get_source_fixes());
+                        // For loop detection, we check raw and whether we have source_fixes.
+                        // Source fixes don't change the tree raw, so once we have source_fixes
+                        // and raw is unchanged, we're done.
+                        let loop_check_tuple = (new_tree.raw().to_smolstr(), has_source_fixes);
 
                         if previous_versions.insert(loop_check_tuple) {
                             tree = new_tree;

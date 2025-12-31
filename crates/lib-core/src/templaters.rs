@@ -295,6 +295,11 @@ impl TemplatedFileInner {
         ret_buff
     }
 
+    /// Get all raw slices (template and literal).
+    pub fn raw_sliced(&self) -> &[RawFileSlice] {
+        &self.raw_sliced
+    }
+
     pub fn find_slice_indices_of_templated_pos(
         &self,
         templated_pos: usize,
@@ -591,6 +596,16 @@ impl RawFileSlice {
     /// Return the a slice object for this slice.
     pub fn source_slice(&self) -> Range<usize> {
         self.source_idx..self.end_source_idx()
+    }
+
+    /// Return the raw source string for this slice.
+    pub fn raw(&self) -> &str {
+        &self.raw
+    }
+
+    /// Return the slice type (e.g., "literal", "templated", "comment", etc.).
+    pub fn slice_type(&self) -> &str {
+        &self.slice_type
     }
 
     /// Based on its slice_type, does it only appear in the *source*?

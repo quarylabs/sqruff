@@ -9,4 +9,4 @@ repo="quarylabs/sqruff"
 URL="https://github.com/${repo}/releases/download/v${VERSION}/sqruff-${VERSION}.vsix"
 echo "URL: $URL"
 
-curl -L -o extension.vsix "$URL"
+curl -fL -o extension.vsix "$URL"

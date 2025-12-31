@@ -155,7 +155,9 @@ jobs:
   python:
     name: Run python checks
     runs-on: ubuntu-latest
+    continue-on-error: ${{ matrix.python-version == '3.14' }}
     strategy:
+      fail-fast: false
       matrix:
         python-version: ["3.10", "3.11", "3.12", "3.13", "3.14"]
     steps:
@@ -163,6 +165,7 @@ jobs:
       - uses: actions/setup-python@83679a892e2d95755f2dac6acb0bfd1e9ac5d548 # ratchet:actions/setup-python@v6
         with:
           python-version: ${{ matrix.python-version }}
+          allow-prereleases: true
       - run: make python_install
       - run: make python_ci
   github-actions-ratchet-check:

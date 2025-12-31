@@ -107,6 +107,13 @@ impl SegmentBuilder {
         self
     }
 
+    pub fn with_source_fixes(mut self, source_fixes: Vec<SourceFix>) -> Self {
+        if let NodeOrTokenKind::Node(ref mut node) = self.node_or_token.kind {
+            node.source_fixes = source_fixes;
+        }
+        self
+    }
+
     pub fn finish(self) -> ErasedSegment {
         ErasedSegment {
             value: Rc::new(self.node_or_token),
@@ -236,14 +243,20 @@ impl ErasedSegment {
     #[track_caller]
     pub fn new(&self, segments: Vec<ErasedSegment>) -> ErasedSegment {
         match &self.value.kind {
-            NodeOrTokenKind::Node(node) => SegmentBuilder::node(
-                self.value.id,
-                self.value.syntax_kind,
-                node.dialect,
-                segments,
-            )
-            .with_position(self.get_position_marker().unwrap().clone())
-            .finish(),
+            NodeOrTokenKind::Node(node) => {
+                let mut builder = SegmentBuilder::node(
+                    self.value.id,
+                    self.value.syntax_kind,
+                    node.dialect,
+                    segments,
+                )
+                .with_position(self.get_position_marker().unwrap().clone());
+                // Preserve source_fixes during tree rebuilds
+                if !node.source_fixes.is_empty() {
+                    builder = builder.with_source_fixes(node.source_fixes.clone());
+                }
+                builder.finish()
+            }
             NodeOrTokenKind::Token(_) => self.deep_clone(),
         }
     }
@@ -367,17 +380,28 @@ impl ErasedSegment {
 
         let templated_raw = &templated_file.templated_str.as_ref().unwrap()
             [self.get_position_marker().unwrap().templated_slice.clone()];
-        if self.raw() == templated_raw {
-            acc.extend(self.iter_source_fix_patches(templated_file));
+
+        // Always collect source fixes from this segment first
+        acc.extend(self.iter_source_fix_patches(templated_file));
+
+        // Check if any descendants have source_fixes
+        let has_descendant_source_fixes = self
+            .recursive_crawl_all(false)
+            .iter()
+            .any(|s| !s.get_source_fixes().is_empty());
+
+        if self.raw() == templated_raw && !has_descendant_source_fixes {
+            // Already collected source_fix_patches above, just return
             return acc;
         }
+        // If there are descendant source_fixes, continue to iterate over children
 
         if self.get_position_marker().is_none() {
             return Vec::new();
         }
 
         let pos_marker = self.get_position_marker().unwrap();
-        if pos_marker.is_literal() {
+        if pos_marker.is_literal() && !has_descendant_source_fixes {
             acc.extend(self.iter_source_fix_patches(templated_file));
             acc.push(FixPatch::new(
                 pos_marker.templated_slice.clone(),
@@ -533,6 +557,15 @@ impl ErasedSegment {
             NodeOrTokenKind::Node(node) => node.source_fixes.clone(),
             NodeOrTokenKind::Token(_) => Vec::new(),
         }
+    }
+
+    /// Return all source fixes from this segment and all its descendants.
+    pub fn get_all_source_fixes(&self) -> Vec<SourceFix> {
+        let mut fixes = self.get_source_fixes();
+        for segment in self.segments() {
+            fixes.extend(segment.get_all_source_fixes());
+        }
+        fixes
     }
 
     pub fn edit(

@@ -39,6 +39,7 @@ pub enum RuleGroups {
     Ambiguous,
     Capitalisation,
     Convention,
+    Jinja,
     Layout,
     References,
     Structure,
@@ -180,6 +181,7 @@ pub fn crawl(
     on_violation: &mut impl FnMut(LintResult),
 ) -> Result<(), Exception> {
     let mut root_context = RuleContext::new(tables, dialect, config, tree.clone());
+    root_context.templated_file = Some(templated_file.clone());
     let mut has_exception = false;
 
     // TODO Will to return a note that rules were skipped

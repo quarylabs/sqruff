@@ -44,6 +44,10 @@ pub enum Commands {
     Info,
     #[command(name = "rules", about = "Explain the available rules")]
     Rules,
+    #[command(name = "dialects", about = "List available dialects")]
+    Dialects,
+    #[command(name = "templaters", about = "List available templaters")]
+    Templaters,
     #[cfg(feature = "parser")]
     #[command(
         name = "parse",

@@ -15,12 +15,14 @@ use crate::formatters::github_annotation_native_formatter::GithubAnnotationNativ
 use crate::formatters::json::JsonFormatter;
 
 pub mod commands;
+mod commands_dialects;
 mod commands_fix;
 mod commands_info;
 mod commands_lint;
 #[cfg(feature = "parser")]
 mod commands_parse;
 mod commands_rules;
+mod commands_templaters;
 #[cfg(feature = "codegen-docs")]
 mod docs;
 mod formatters;
@@ -110,6 +112,14 @@ where
         }
         Commands::Rules => {
             commands_rules::rules_info(config);
+            0
+        }
+        Commands::Dialects => {
+            commands_dialects::dialects();
+            0
+        }
+        Commands::Templaters => {
+            commands_templaters::templaters();
             0
         }
         #[cfg(feature = "parser")]

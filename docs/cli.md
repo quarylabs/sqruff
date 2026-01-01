@@ -10,6 +10,8 @@ This document contains the help content for the `sqruff` command-line program.
 * [`sqruff lsp`↴](#sqruff-lsp)
 * [`sqruff info`↴](#sqruff-info)
 * [`sqruff rules`↴](#sqruff-rules)
+* [`sqruff dialects`↴](#sqruff-dialects)
+* [`sqruff templaters`↴](#sqruff-templaters)
 
 ## `sqruff`
 
@@ -24,6 +26,8 @@ sqruff is a sql formatter and linter
 * `lsp` — Run an LSP server
 * `info` — Print information about sqruff and the current environment
 * `rules` — Explain the available rules
+* `dialects` — List available dialects
+* `templaters` — List available templaters
 
 ###### **Options:**
 
@@ -98,6 +102,22 @@ Print information about sqruff and the current environment
 Explain the available rules
 
 **Usage:** `sqruff rules`
+
+
+
+## `sqruff dialects`
+
+List available dialects
+
+**Usage:** `sqruff dialects`
+
+
+
+## `sqruff templaters`
+
+List available templaters
+
+**Usage:** `sqruff templaters`
 
 
 

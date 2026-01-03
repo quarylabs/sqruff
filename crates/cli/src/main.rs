@@ -13,8 +13,13 @@ static ALLOC: dhat::Alloc = dhat::Alloc;
 #[cfg(not(feature = "codegen-docs"))]
 pub fn main() {
     #[cfg(feature = "dhat-heap")]
-    let _profiler = dhat::Profiler::new_heap();
-    std::process::exit(sqruff_cli_lib::run_with_args(std::env::args_os()));
+    let profiler = dhat::Profiler::new_heap();
+    let exit_code = sqruff_cli_lib::run_with_args(std::env::args_os());
+
+    #[cfg(feature = "dhat-heap")]
+    drop(profiler);
+
+    std::process::exit(exit_code);
 }
 
 #[cfg(feature = "codegen-docs")]

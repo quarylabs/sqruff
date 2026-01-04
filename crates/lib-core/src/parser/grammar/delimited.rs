@@ -1,7 +1,5 @@
 use std::ops::{Deref, DerefMut};
 
-use ahash::AHashSet;
-
 use super::anyof::{AnyNumberOf, one_of};
 use crate::dialects::syntax::SyntaxSet;
 use crate::errors::SQLParseError;
@@ -12,7 +10,7 @@ use crate::parser::grammar::noncode::NonCodeMatcher;
 use crate::parser::match_algorithms::{longest_match, skip_start_index_forward_to_code};
 use crate::parser::match_result::MatchResult;
 use crate::parser::matchable::{
-    Matchable, MatchableCacheKey, MatchableTrait, next_matchable_cache_key,
+    Matchable, MatchableCacheKey, MatchableTrait, RawSet, next_matchable_cache_key,
 };
 use crate::parser::segments::ErasedSegment;
 
@@ -71,7 +69,7 @@ impl MatchableTrait for Delimited {
         &self,
         parse_context: &ParseContext,
         crumbs: Option<Vec<&str>>,
-    ) -> Option<(AHashSet<String>, SyntaxSet)> {
+    ) -> Option<(RawSet, SyntaxSet)> {
         super::anyof::simple(&self.elements, parse_context, crumbs)
     }
 

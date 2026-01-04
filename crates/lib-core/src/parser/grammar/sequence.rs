@@ -1,8 +1,6 @@
 use std::iter::zip;
 use std::ops::{Deref, DerefMut};
 
-use ahash::AHashSet;
-
 use crate::dialects::syntax::{SyntaxKind, SyntaxSet};
 use crate::errors::SQLParseError;
 use crate::helpers::ToMatchable;
@@ -13,7 +11,7 @@ use crate::parser::match_algorithms::{
 };
 use crate::parser::match_result::{MatchResult, Matched, Span};
 use crate::parser::matchable::{
-    Matchable, MatchableCacheKey, MatchableTrait, next_matchable_cache_key,
+    Matchable, MatchableCacheKey, MatchableTrait, RawSet, next_matchable_cache_key,
 };
 use crate::parser::segments::ErasedSegment;
 use crate::parser::types::ParseMode;
@@ -98,8 +96,8 @@ impl MatchableTrait for Sequence {
         &self,
         parse_context: &ParseContext,
         crumbs: Option<Vec<&str>>,
-    ) -> Option<(AHashSet<String>, SyntaxSet)> {
-        let mut simple_raws = AHashSet::new();
+    ) -> Option<(RawSet, SyntaxSet)> {
+        let mut simple_raws = RawSet::default();
         let mut simple_types = SyntaxSet::EMPTY;
 
         for opt in &self.elements {
@@ -398,7 +396,7 @@ impl MatchableTrait for Bracketed {
         &self,
         parse_context: &ParseContext,
         crumbs: Option<Vec<&str>>,
-    ) -> Option<(AHashSet<String>, SyntaxSet)> {
+    ) -> Option<(RawSet, SyntaxSet)> {
         let (start_bracket, _, _) = self.get_bracket_from_dialect(parse_context).unwrap();
         start_bracket.simple(parse_context, crumbs)
     }

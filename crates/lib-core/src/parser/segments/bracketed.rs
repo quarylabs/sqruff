@@ -1,12 +1,10 @@
-use ahash::AHashSet;
-
 use super::ErasedSegment;
 use crate::dialects::syntax::{SyntaxKind, SyntaxSet};
 use crate::errors::SQLParseError;
 use crate::parser::context::ParseContext;
 use crate::parser::match_result::MatchResult;
 use crate::parser::matchable::{
-    Matchable, MatchableCacheKey, MatchableTrait, next_matchable_cache_key,
+    Matchable, MatchableCacheKey, MatchableTrait, RawSet, next_matchable_cache_key,
 };
 
 #[derive(Clone, Debug, Ord, PartialOrd, Eq, PartialEq)]
@@ -37,7 +35,7 @@ impl MatchableTrait for BracketedSegmentMatcher {
         &self,
         _parse_context: &ParseContext,
         _crumbs: Option<Vec<&str>>,
-    ) -> Option<(AHashSet<String>, SyntaxSet)> {
+    ) -> Option<(RawSet, SyntaxSet)> {
         None
     }
 

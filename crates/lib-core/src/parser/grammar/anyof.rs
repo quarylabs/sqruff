@@ -1,4 +1,3 @@
-use ahash::AHashSet;
 use itertools::{Itertools, chain};
 use nohash_hasher::IntMap;
 
@@ -12,7 +11,7 @@ use crate::parser::match_algorithms::{
 };
 use crate::parser::match_result::{MatchResult, Matched, Span};
 use crate::parser::matchable::{
-    Matchable, MatchableCacheKey, MatchableTrait, next_matchable_cache_key,
+    Matchable, MatchableCacheKey, MatchableTrait, RawSet, next_matchable_cache_key,
 };
 use crate::parser::segments::ErasedSegment;
 use crate::parser::types::ParseMode;
@@ -54,8 +53,8 @@ pub fn simple(
     elements: &[Matchable],
     parse_context: &ParseContext,
     crumbs: Option<Vec<&str>>,
-) -> Option<(AHashSet<String>, SyntaxSet)> {
-    let option_simples: Vec<Option<(AHashSet<String>, SyntaxSet)>> = elements
+) -> Option<(RawSet, SyntaxSet)> {
+    let option_simples: Vec<Option<(RawSet, SyntaxSet)>> = elements
         .iter()
         .map(|opt| opt.simple(parse_context, crumbs.clone()))
         .collect();
@@ -64,13 +63,11 @@ pub fn simple(
         return None;
     }
 
-    let simple_buff: Vec<(AHashSet<String>, SyntaxSet)> =
-        option_simples.into_iter().flatten().collect();
+    let simple_buff: Vec<(RawSet, SyntaxSet)> = option_simples.into_iter().flatten().collect();
 
-    let simple_raws: AHashSet<_> = simple_buff
+    let simple_raws: RawSet = simple_buff
         .iter()
-        .flat_map(|(raws, _)| raws)
-        .cloned()
+        .flat_map(|(raws, _)| raws.iter().cloned())
         .collect();
 
     let simple_types: SyntaxSet = simple_buff
@@ -152,7 +149,7 @@ impl MatchableTrait for AnyNumberOf {
         &self,
         parse_context: &ParseContext,
         crumbs: Option<Vec<&str>>,
-    ) -> Option<(AHashSet<String>, SyntaxSet)> {
+    ) -> Option<(RawSet, SyntaxSet)> {
         simple(&self.elements, parse_context, crumbs)
     }
 

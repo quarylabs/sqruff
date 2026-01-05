@@ -47,7 +47,7 @@
     "@types/mocha": "^10.0.10",
     "@types/node": "~22.18.13",
     "@types/vscode": "1.96.0",
-    "@vscode/test-cli": "^0.0.11",
+    "@vscode/test-cli": "^0.0.12",
     "@vscode/test-electron": "^2.5.2",
     "@vscode/test-web": "^0.0.77",
     "@vscode/vsce": "^3.7.1",

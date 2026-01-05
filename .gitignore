@@ -202,5 +202,6 @@ cython_debug/
 .vscode/
 
 # Claude Code & Development
-.claude/
+.claude/*
+!.claude/skills/
 .history/

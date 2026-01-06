@@ -1,0 +1,24 @@
+[project]
+site_name = "sqruff"
+docs_dir = "docs"
+site_dir = "site"
+
+nav = [
+  { "Overview" = "index.md" },
+  { "Installing Sqruff" = "getting-started/installation.md" },
+  { "The Sqruff Linter" = "usage/lint.md" },
+  { "Configuring Sqruff" = "usage/configuration.md" },
+  { "Ignore files" = "usage/ignore-files.md" },
+  { "Ignore errors (noqa)" = "usage/noqa.md" },
+  { "Contributing" = "development/contributing.md" },
+  { "Dialects" = "reference/dialects.md" },
+  { "CLI" = "reference/cli.md" },
+  { "Rules" = "reference/rules.md" },
+  { "Templaters" = "reference/templaters.md" },
+  { "Sample configurations" = "reference/sample-configurations.md" },
+  { "Community projects" = "community/community-projects.md" },
+  { "dbt project support" = "experimental/dbt.md" },
+]
+
+[project.theme]
+variant = "classic"

@@ -1,29 +1,26 @@
-load("@aspect_rules_js//js:defs.bzl", "js_library")
-
-# Export files for other build targets
+# Export files for the pnpm workspace data attribute and other build targets
 exports_files([
     "LICENSE",
     "package.json",
     "README.md",
 ])
 
-# Source files for prettier formatting
-# Uses js_library so it can be added to deps of js_test targets in other packages
+load("@aspect_rules_js//js:defs.bzl", "js_library")
+
+# Source files for prettier formatting (referenced by root BUILD.bazel)
+# Wrapped in js_library to support cross-package usage with js_binary
 js_library(
     name = "prettier_srcs",
-    srcs = glob(
-        [
-            "**/*.ts",
-            "**/*.js",
-            "**/*.json",
-            "**/*.md",
-        ],
-        exclude = [
-            "node_modules/**",
-            "dist/**",
-            "out/**",
-            ".vscode-test/**",
-        ],
-    ),
+    srcs = glob([
+        "**/*.ts",
+        "**/*.js",
+        "**/*.json",
+        "**/*.md",
+    ], exclude = [
+        "node_modules/**",
+        "dist/**",
+        "out/**",
+        ".vscode-test/**",
+    ]),
     visibility = ["//visibility:public"],
 )

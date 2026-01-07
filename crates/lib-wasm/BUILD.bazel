@@ -38,8 +38,10 @@ rust_shared_library(
 
 # Generate JavaScript bindings using wasm-bindgen
 # This produces the .wasm file and JS glue code for web usage
+# out_name matches what wasm-pack produces for compatibility with playground imports
 rust_wasm_bindgen(
     name = "sqruff-wasm-bindgen",
+    out_name = "sqruff_wasm",
     target = "web",
     wasm_file = ":sqruff-wasm-cdylib",
     visibility = ["//visibility:public"],

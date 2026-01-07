@@ -167,9 +167,11 @@ sh_test(
         "//crates/lineage:machete_srcs",
         "//crates/lsp:machete_srcs",
         "//crates/sqlinference:machete_srcs",
+        "@cargo_machete//:cargo-machete",
         "@rules_rust//rust/toolchain:current_cargo_files",
     ],
     env = {
         "CARGO": "$(rlocationpath @rules_rust//rust/toolchain:current_cargo_files)",
+        "MACHETE": "$(rlocationpath @cargo_machete//:cargo-machete)",
     },
 )

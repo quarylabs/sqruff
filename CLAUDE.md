@@ -152,9 +152,9 @@ Sqruff takes significant inspiration from SQLFluff. Understanding when to follow
 
 **IMPORTANT**: Some documentation files are auto-generated from source code. Never edit these files directly:
 
-- **`docs/cli.md`** - Generated from CLI argument definitions using clap-markdown
-- **`docs/rules.md`** - Generated from rules source code
-- **`docs/templaters.md`** - Generated from templaters source code
+- **`docs/reference/cli.md`** - Generated from CLI argument definitions using clap-markdown
+- **`docs/reference/rules.md`** - Generated from rules source code
+- **`docs/reference/templaters.md`** - Generated from templaters source code
 
 To update these docs:
 1. Modify the source code (CLI args, rule implementations, or templater code)

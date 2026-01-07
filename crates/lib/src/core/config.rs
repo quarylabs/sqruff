@@ -8,7 +8,7 @@ use itertools::Itertools;
 use sqruff_lib_core::dialects::Dialect;
 use sqruff_lib_core::dialects::init::{DialectKind, dialect_readout};
 use sqruff_lib_core::errors::SQLFluffUserError;
-use sqruff_lib_core::parser::Parser;
+use sqruff_lib_core::parser::{IndentationConfig, Parser};
 use sqruff_lib_dialects::kind_to_dialect;
 
 use crate::utils::reflow::config::ReflowConfig;
@@ -621,11 +621,9 @@ fn nested_combine(config_stack: Vec<AHashMap<String, Value>>) -> AHashMap<String
 impl<'a> From<&'a FluffConfig> for Parser<'a> {
     fn from(config: &'a FluffConfig) -> Self {
         let dialect = config.get_dialect();
-        let indentation_config = config.raw["indentation"].as_map().unwrap();
-        let indentation_config: AHashMap<_, _> = indentation_config
-            .iter()
-            .map(|(key, value)| (key.clone(), value.to_bool()))
-            .collect();
+        let indentation_section = &config.raw["indentation"];
+        let indentation_config =
+            IndentationConfig::from_bool_lookup(|key| indentation_section[key].to_bool());
         Self::new(dialect, indentation_config)
     }
 }

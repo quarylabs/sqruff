@@ -1,0 +1,23 @@
+# Export files for the pnpm workspace data attribute and other build targets
+exports_files([
+    "LICENSE",
+    "package.json",
+    "README.md",
+])
+
+# Source files for prettier formatting (referenced by root BUILD.bazel)
+filegroup(
+    name = "prettier_srcs",
+    srcs = glob([
+        "**/*.ts",
+        "**/*.js",
+        "**/*.json",
+        "**/*.md",
+    ], exclude = [
+        "node_modules/**",
+        "dist/**",
+        "out/**",
+        ".vscode-test/**",
+    ]),
+    visibility = ["//visibility:public"],
+)

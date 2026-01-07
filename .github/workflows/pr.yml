@@ -39,7 +39,7 @@ jobs:
           disk-cache: ${{ github.workflow }}
           repository-cache: true
       - name: Build WASM
-        run: bazel build --config=ci //crates/lib:sqruff-lib-wasm
+        run: bazel build --config=ci //crates/lib-wasm:sqruff-wasm-bindgen
   typescript:
     name: TypeScript
     runs-on: ubuntu-latest

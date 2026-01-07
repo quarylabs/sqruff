@@ -1,0 +1,29 @@
+load("@aspect_rules_js//js:defs.bzl", "js_library")
+
+# Export files for other build targets
+exports_files([
+    "LICENSE",
+    "package.json",
+    "README.md",
+])
+
+# Source files for prettier formatting
+# Uses js_library so it can be added to deps of js_test targets in other packages
+js_library(
+    name = "prettier_srcs",
+    srcs = glob(
+        [
+            "**/*.ts",
+            "**/*.js",
+            "**/*.json",
+            "**/*.md",
+        ],
+        exclude = [
+            "node_modules/**",
+            "dist/**",
+            "out/**",
+            ".vscode-test/**",
+        ],
+    ),
+    visibility = ["//visibility:public"],
+)

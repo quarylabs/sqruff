@@ -1,0 +1,83 @@
+"""Bazel module definition for sqruff."""
+
+module(
+    name = "sqruff",
+    version = "0.0.0",
+)
+
+bazel_dep(name = "aspect_bazel_lib", version = "2.19.1")
+
+# Ratchet for GitHub Actions version pinning
+http_archive = use_repo_rule("@bazel_tools//tools/build_defs/repo:http.bzl", "http_archive")
+http_archive(
+    name = "ratchet",
+    build_file_content = """exports_files(["ratchet"])""",
+    sha256 = "7141236c5500dce440bb764a964c9d9d8130a3a421604c75b7f7fbaa55cf89f5",
+    url = "https://github.com/sethvargo/ratchet/releases/download/v0.11.4/ratchet_0.11.4_linux_amd64.tar.gz",
+)
+
+# Cargo-machete for unused dependency checking
+http_archive(
+    name = "cargo_machete",
+    build_file_content = """exports_files(["cargo-machete"])""",
+    sha256 = "640b0814480b401e4e72201e52a13e1311b8eb8d7c27faa08bbe9886f252f26d",
+    strip_prefix = "cargo-machete-v0.9.1-x86_64-unknown-linux-musl",
+    url = "https://github.com/bnjbvr/cargo-machete/releases/download/v0.9.1/cargo-machete-v0.9.1-x86_64-unknown-linux-musl.tar.gz",
+)
+bazel_dep(name = "aspect_rules_js", version = "2.3.7")
+bazel_dep(name = "rules_nodejs", version = "6.3.4")
+bazel_dep(name = "rules_rust", version = "0.68.1")
+bazel_dep(name = "rules_shell", version = "0.6.1")
+bazel_dep(name = "rules_shellcheck", version = "0.4.0")
+
+node = use_extension("@rules_nodejs//nodejs:extensions.bzl", "node")
+node.toolchain(node_version = "22.12.0")
+
+npm = use_extension("@aspect_rules_js//npm:extensions.bzl", "npm")
+npm.npm_translate_lock(
+    name = "npm",
+    pnpm_lock = "//:pnpm-lock.yaml",
+)
+use_repo(npm, "npm")
+
+pnpm = use_extension("@aspect_rules_js//npm:extensions.bzl", "pnpm")
+pnpm.pnpm(
+    name = "pnpm",
+    pnpm_version = "10.0.0",
+)
+use_repo(pnpm, "pnpm")
+
+# Rust toolchain
+rust = use_extension("@rules_rust//rust:extensions.bzl", "rust")
+rust.toolchain(
+    edition = "2024",
+    extra_target_triples = ["wasm32-unknown-unknown"],
+    versions = ["1.92.0"],
+)
+use_repo(rust, "rust_toolchains")
+
+register_toolchains("@rust_toolchains//:all")
+
+# Required for WASM cross-compilation
+register_toolchains("@rules_rust//rust/private/dummy_cc_toolchain:dummy_cc_wasm32_toolchain")
+
+# Crate universe - reads from Cargo.toml workspace
+crate = use_extension("@rules_rust//crate_universe:extensions.bzl", "crate")
+crate.from_cargo(
+    name = "crates",
+    cargo_lockfile = "//:Cargo.lock",
+    manifests = [
+        "//:Cargo.toml",
+        "//crates/cli:Cargo.toml",
+        "//crates/cli-lib:Cargo.toml",
+        "//crates/cli-python:Cargo.toml",
+        "//crates/lib:Cargo.toml",
+        "//crates/lib-core:Cargo.toml",
+        "//crates/lib-dialects:Cargo.toml",
+        "//crates/lib-wasm:Cargo.toml",
+        "//crates/lineage:Cargo.toml",
+        "//crates/lsp:Cargo.toml",
+        "//crates/sqlinference:Cargo.toml",
+    ],
+)
+use_repo(crate, "crates")

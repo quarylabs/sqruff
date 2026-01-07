@@ -12,27 +12,6 @@ env:
   RUST_BACKTRACE: short
   PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD: true
 jobs:
-  check-licenses-readmes-match:
-    name: Check licenses match
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # ratchet:actions/checkout@v5
-      - name: Copy LICENSE to editors/code directory
-        run: cp LICENSE editors/code/LICENSE
-      - name: Copy README.md to editors/code directory
-        run: cp README.md editors/code/README.md
-      - name: Check there is no change
-        run: git diff --quiet || exit 1
-  check-versions-match:
-    name: Check versions match
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # ratchet:actions/checkout@v5
-      - name: Install jq
-        run: sudo apt-get install jq
-      - name: Allow running check_versions_match.sh
-        run: chmod +x ./.hacking/scripts/check_versions_match.sh
-      - run: ./.hacking/scripts/check_versions_match.sh
   check:
     name: Rust Check
     runs-on: ubuntu-latest
@@ -54,10 +33,13 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # ratchet:actions/checkout@v5
-      - uses: Swatinem/rust-cache@779680da715d629ac1d338a641029a2f4372abb5 # ratchet:Swatinem/rust-cache@v2
-      - name: Add WASM target
-        run: rustup target add wasm32-unknown-unknown
-      - run: cargo build --package sqruff-lib --locked --release --target wasm32-unknown-unknown
+      - uses: bazel-contrib/setup-bazel@8310a45e30297e76bc8fbae427fb6068efa01eb8 # ratchet:bazel-contrib/setup-bazel@0.16.0
+        with:
+          bazelisk-cache: true
+          disk-cache: ${{ github.workflow }}
+          repository-cache: true
+      - name: Build WASM
+        run: bazel build --config=ci //crates/lib:sqruff-lib-wasm
   typescript:
     name: TypeScript
     runs-on: ubuntu-latest
@@ -127,31 +109,18 @@ jobs:
         with:
           components: clippy, rustfmt
       - run: make rust_lint
-  prettier-formatting:
-    name: Check Prettier formatting
+  bazel-lint:
+    name: Bazel Lint
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # ratchet:actions/checkout@v5
-      - uses: pnpm/action-setup@41ff72655975bd51cab0327fa583b6e92b6d3061 # ratchet:pnpm/action-setup@v4
-        name: Install pnpm
+      - uses: bazel-contrib/setup-bazel@8310a45e30297e76bc8fbae427fb6068efa01eb8 # ratchet:bazel-contrib/setup-bazel@0.16.0
         with:
-          version: 10
-      - name: Install Nodejs
-        uses: actions/setup-node@2028fbc5c25fe9cf00d9f06a71cc4710d4507903 # ratchet:actions/setup-node@v5
-        with:
-          node-version-file: ".nvmrc"
-          cache: "pnpm"
-      - run: pnpm install --frozen-lockfile
-      - run: pnpm run fmt:check
-  shellcheck:
-    name: Shellcheck
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # ratchet:actions/checkout@v5
-      - name: Run ShellCheck
-        uses: ludeeus/action-shellcheck@00b27aa7cb85167568cb48a3838b75f4265f2bca # ratchet:ludeeus/action-shellcheck@master
-        with:
-          scandir: "./.hacking/scripts"
+          bazelisk-cache: true
+          disk-cache: ${{ github.workflow }}
+          repository-cache: true
+      - name: Run lint checks
+        run: bazel test --config=ci //:prettier_check //:shellcheck //:check_files_match //:ratchet_check //:check_versions_match
   python:
     name: Run python checks
     runs-on: ubuntu-latest
@@ -165,16 +134,6 @@ jobs:
           python-version: ${{ matrix.python-version }}
       - run: make python_install
       - run: make python_ci
-  github-actions-ratchet-check:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # ratchet:actions/checkout@v5
-      - name: Set up Go
-        uses: actions/setup-go@4dc6199c7b1a012772edbd06daecab0f50c9053c # ratchet:actions/setup-go@v6
-      - name: Install ratchet
-        run: go install github.com/sethvargo/ratchet@latest
-      - name: Ratchet Check
-        run: make ratchet_check
   build-binaries:
     name: Build binaries for all platforms
     runs-on: ${{ matrix.platform.os }}

@@ -204,3 +204,8 @@ cython_debug/
 # Claude Code & Development
 .claude/
 .history/
+
+# Bazel
+bazel-*
+.bazelisk/
+user.bazelrc

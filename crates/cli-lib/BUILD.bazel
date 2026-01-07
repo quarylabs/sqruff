@@ -1,0 +1,27 @@
+load("@crates//:defs.bzl", "all_crate_deps")
+load("@rules_rust//rust:defs.bzl", "rust_library")
+
+rust_library(
+    name = "sqruff-cli-lib",
+    srcs = glob(["src/**/*.rs"]),
+    proc_macro_deps = all_crate_deps(proc_macro = True),
+    visibility = ["//visibility:public"],
+    deps = all_crate_deps(normal = True) + [
+        "//crates/lib:sqruff-lib",
+        "//crates/lib-core:sqruff-lib-core",
+        "//crates/lsp:sqruff-lsp",
+    ],
+)
+
+filegroup(
+    name = "machete_srcs",
+    srcs = glob(
+        [
+            "src/**/*.rs",
+            "tests/**/*.rs",
+            "benches/**/*.rs",
+        ],
+        allow_empty = True,
+    ) + ["Cargo.toml"],
+    visibility = ["//visibility:public"],
+)

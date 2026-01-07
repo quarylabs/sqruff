@@ -1,0 +1,177 @@
+load("@npm//:defs.bzl", "npm_link_all_packages")
+load("@npm//:prettier/package_json.bzl", prettier_bin = "bin")
+load("@rules_rust//rust:defs.bzl", "rust_clippy", "rustfmt_test")
+load("@rules_shell//shell:sh_test.bzl", "sh_test")
+load("@rules_shellcheck//:def.bzl", "shellcheck_test")
+
+# Link all npm packages into node_modules
+npm_link_all_packages(name = "node_modules")
+
+# Prettier configuration
+exports_files([
+    ".prettierrc.json",
+    "pnpm-lock.yaml",
+])
+
+# Files to check with prettier
+filegroup(
+    name = "prettier_srcs",
+    srcs = glob(
+        [
+            "editors/**/*.ts",
+            "editors/**/*.js",
+            "editors/**/*.json",
+            "editors/**/*.md",
+            "playground/**/*.ts",
+            "playground/**/*.tsx",
+            "playground/**/*.css",
+            "playground/**/*.html",
+            "playground/**/*.json",
+            ".github/**/*.yaml",
+            ".github/**/*.yml",
+        ],
+        exclude = [
+            "**/node_modules/**",
+            "**/dist/**",
+            "**/out/**",
+            "**/.vscode-test/**",
+        ],
+    ) + ["README.md"],
+)
+
+# Prettier format check test
+prettier_bin.prettier_test(
+    name = "prettier_check",
+    size = "small",
+    args = [
+        "--check",
+        "--config",
+        ".prettierrc.json",
+        "editors",
+        "playground",
+        "*.md",
+        ".github",
+    ],
+    chdir = package_name(),
+    data = [
+        ":node_modules/prettier",
+        ":prettier_srcs",
+        ".prettierrc.json",
+    ],
+)
+
+# Prettier format (for fixing locally)
+prettier_bin.prettier_binary(
+    name = "prettier_fix",
+    args = [
+        "--write",
+        "--config",
+        ".prettierrc.json",
+        "editors",
+        "playground",
+        "*.md",
+        ".github",
+    ],
+    chdir = package_name(),
+    data = [
+        ":node_modules/prettier",
+        ":prettier_srcs",
+        ".prettierrc.json",
+    ],
+)
+
+# Shellcheck test for shell scripts
+shellcheck_test(
+    name = "shellcheck",
+    size = "small",
+    data = glob([".hacking/scripts/*.sh"]),
+    severity = "warning",
+)
+
+# Check that LICENSE and README.md are synced to editors/code
+sh_test(
+    name = "check_files_match",
+    size = "small",
+    srcs = [".hacking/scripts/check_files_match.sh"],
+    data = [
+        "LICENSE",
+        "README.md",
+        "editors/code/LICENSE",
+        "editors/code/README.md",
+    ],
+)
+
+# Ratchet check for GitHub Actions version pinning
+sh_test(
+    name = "ratchet_check",
+    size = "small",
+    srcs = [".hacking/scripts/ratchet_check.sh"],
+    data = [
+        "@ratchet//:ratchet",
+    ] + glob([".github/workflows/*.yml"]),
+)
+
+# Check that versions match across Cargo.toml, package.json, pyproject.toml
+sh_test(
+    name = "check_versions_match",
+    size = "small",
+    srcs = [".hacking/scripts/check_versions_match.sh"],
+    data = [
+        "Cargo.toml",
+        "editors/code/package.json",
+        "//crates/cli-python:pyproject.toml",
+        "pyproject.toml",
+    ],
+)
+
+# All Rust targets for linting
+RUST_TARGETS = [
+    "//crates/cli:sqruff",
+    "//crates/cli-lib:sqruff-cli-lib",
+    "//crates/lib:sqruff-lib",
+    "//crates/lib-core:sqruff-lib-core",
+    "//crates/lib-dialects:sqruff-lib-dialects",
+    "//crates/lib-wasm:sqruff-wasm",
+    "//crates/lineage:lineage",
+    "//crates/lsp:sqruff-lsp",
+    "//crates/sqlinference:sqruff-sqlinference",
+]
+
+# Rust format check
+rustfmt_test(
+    name = "rustfmt_check",
+    targets = RUST_TARGETS,
+)
+
+# Rust clippy check
+rust_clippy(
+    name = "clippy_check",
+    deps = RUST_TARGETS,
+)
+
+# Cargo machete - check for unused dependencies
+sh_test(
+    name = "cargo_machete",
+    size = "small",
+    srcs = [".hacking/scripts/cargo_machete.sh"],
+    data = [
+        "Cargo.lock",
+        "Cargo.toml",
+        "//crates/cli:machete_srcs",
+        "//crates/cli-lib:machete_srcs",
+        "//crates/cli-python:machete_srcs",
+        "//crates/lib:machete_srcs",
+        "//crates/lib-core:machete_srcs",
+        "//crates/lib-dialects:machete_srcs",
+        "//crates/lib-wasm:machete_srcs",
+        "//crates/lineage:machete_srcs",
+        "//crates/lsp:machete_srcs",
+        "//crates/sqlinference:machete_srcs",
+        "@cargo_machete//:cargo-machete",
+        "@rules_rust//rust/toolchain:current_cargo_files",
+    ],
+    env = {
+        "CARGO": "$(rlocationpath @rules_rust//rust/toolchain:current_cargo_files)",
+        "MACHETE": "$(rlocationpath @cargo_machete//:cargo-machete)",
+    },
+)

@@ -5,6 +5,9 @@
     "pnpm": ">=10.0.0"
   },
   "engineStrict": true,
+  "pnpm": {
+    "onlyBuiltDependencies": []
+  },
   "devDependencies": {
     "prettier": "^3.7.4"
   },

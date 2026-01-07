@@ -1,0 +1,19 @@
+# Common flags for all builds
+common --enable_bzlmod
+
+# Build with optimizations
+build --compilation_mode=opt
+
+# Use remote cache for CI (can be configured per-environment)
+# build --remote_cache=...
+
+# Improve build output
+build --show_progress_rate_limit=0.5
+build --curses=yes
+
+# Test output
+test --test_output=errors
+
+# CI-specific settings
+build:ci --color=yes
+test:ci --test_output=all

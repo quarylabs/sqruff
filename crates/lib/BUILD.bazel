@@ -1,0 +1,74 @@
+load("@crates//:defs.bzl", "all_crate_deps", "crate_deps")
+load("@rules_rust//rust:defs.bzl", "rust_library", "rust_shared_library")
+
+ALL_FEATURES = [
+    "parser",
+]
+
+rust_library(
+    name = "sqruff-lib",
+    srcs = glob(["src/**/*.rs"]),
+    compile_data = glob(["src/**/*.cfg"]),
+    crate_features = ALL_FEATURES,
+    proc_macro_deps = all_crate_deps(proc_macro = True),
+    visibility = ["//visibility:public"],
+    deps = all_crate_deps(normal = True) + [
+        "//crates/lib-core:sqruff-lib-core",
+        "//crates/lib-dialects:sqruff-lib-dialects",
+    ],
+)
+
+# WASM build target - explicit deps without pyo3 (doesn't support WASM)
+# Uses crate_deps() so versions stay aligned with Cargo.lock
+WASM_CRATE_NAMES = [
+    "ahash",
+    "common-path",
+    "configparser",
+    "fancy-regex",
+    "indexmap",
+    "itertools",
+    "lazy-regex",
+    "log",
+    "nohash-hasher",
+    "pretty_assertions",
+    "rayon",
+    "regex",
+    "rustc-hash",
+    "serde",
+    "serde_json",
+    "smol_str",
+    "strum",
+    "walkdir",
+]
+
+WASM_PROC_MACRO_CRATE_NAMES = [
+    "enum_dispatch",
+    "strum_macros",
+]
+
+rust_shared_library(
+    name = "sqruff-lib-wasm",
+    srcs = glob(["src/**/*.rs"]),
+    compile_data = glob(["src/**/*.cfg"]),
+    crate_features = ALL_FEATURES,
+    platform = "@rules_rust//rust/platform:wasm",
+    proc_macro_deps = crate_deps(WASM_PROC_MACRO_CRATE_NAMES),
+    visibility = ["//visibility:public"],
+    deps = crate_deps(WASM_CRATE_NAMES) + [
+        "//crates/lib-core:sqruff-lib-core",
+        "//crates/lib-dialects:sqruff-lib-dialects",
+    ],
+)
+
+filegroup(
+    name = "machete_srcs",
+    srcs = glob(
+        [
+            "src/**/*.rs",
+            "tests/**/*.rs",
+            "benches/**/*.rs",
+        ],
+        allow_empty = True,
+    ) + ["Cargo.toml"],
+    visibility = ["//visibility:public"],
+)

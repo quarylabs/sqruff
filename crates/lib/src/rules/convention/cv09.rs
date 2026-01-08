@@ -1,50 +1,18 @@
-use ahash::{AHashMap, AHashSet};
+use ahash::AHashSet;
 use smol_str::StrExt;
 use sqruff_lib_core::dialects::syntax::SyntaxKind;
 
-use crate::core::config::Value;
 use crate::core::rules::context::RuleContext;
 use crate::core::rules::crawlers::{Crawler, TokenSeekerCrawler};
-use crate::core::rules::{Erased, ErasedRule, LintResult, Rule, RuleGroups};
+use crate::core::rules::{LintResult, Rule, RuleGroups};
+
+#[derive(Clone)]
+struct CachedBlockedWords(AHashSet<String>);
 
 #[derive(Default, Clone, Debug)]
-pub struct RuleCV09 {
-    blocked_words: AHashSet<String>,
-    blocked_regex: Vec<regex::Regex>,
-    match_source: bool,
-}
+pub struct RuleCV09;
 
 impl Rule for RuleCV09 {
-    fn load_from_config(&self, config: &AHashMap<String, Value>) -> Result<ErasedRule, String> {
-        let blocked_words = config["blocked_words"]
-            .as_string()
-            .map_or(Default::default(), |it| {
-                it.split(',')
-                    .map(|s| s.to_string().to_uppercase())
-                    .collect::<AHashSet<_>>()
-            });
-        let blocked_regex = config["blocked_regex"]
-            .as_array()
-            .unwrap_or_default()
-            .into_iter()
-            .map(|regex| {
-                let regex = regex.as_string();
-                if let Some(regex) = regex {
-                    Ok(regex::Regex::new(regex).map_err(|e| e.to_string())?)
-                } else {
-                    Err("blocked_regex must be an array of strings".to_string())
-                }
-            })
-            .collect::<Result<Vec<_>, _>>()?;
-        let match_source = config["match_source"].as_bool().unwrap_or_default();
-        Ok(RuleCV09 {
-            blocked_words,
-            blocked_regex,
-            match_source,
-        }
-        .erased())
-    }
-
     fn name(&self) -> &'static str {
         "convention.blocked_words"
     }
@@ -94,17 +62,31 @@ CREATE TABLE myschema.t1 (a BOOL);
     }
 
     fn eval(&self, context: &RuleContext) -> Vec<LintResult> {
+        let rules = &context.config.rules.convention_blocked_words;
         if matches!(
             context.segment.get_type(),
             SyntaxKind::Comment | SyntaxKind::InlineComment | SyntaxKind::BlockComment
-        ) || self.blocked_words.is_empty() && self.blocked_regex.is_empty()
+        ) || rules.blocked_words.is_empty() && rules.blocked_regex.is_empty()
         {
             return vec![];
         }
 
+        let blocked_words = context
+            .try_get::<CachedBlockedWords>()
+            .map(|cached| cached.0)
+            .unwrap_or_else(|| {
+                let set = rules
+                    .blocked_words
+                    .iter()
+                    .map(|value| value.to_uppercase())
+                    .collect::<AHashSet<_>>();
+                context.set(CachedBlockedWords(set.clone()));
+                set
+            });
+
         let raw_upper = context.segment.raw().to_uppercase();
 
-        if self.blocked_words.contains(&raw_upper) {
+        if blocked_words.contains(&raw_upper) {
             return vec![LintResult::new(
                 Some(context.segment.clone()),
                 vec![],
@@ -113,7 +95,7 @@ CREATE TABLE myschema.t1 (a BOOL);
             )];
         }
 
-        for regex in &self.blocked_regex {
+        for regex in &rules.blocked_regex {
             if regex.is_match(&raw_upper) {
                 return vec![LintResult::new(
                     Some(context.segment.clone()),
@@ -123,7 +105,7 @@ CREATE TABLE myschema.t1 (a BOOL);
                 )];
             }
 
-            if self.match_source {
+            if rules.match_source {
                 for (segment, _) in context.segment.raw_segments_with_ancestors() {
                     if regex.is_match(segment.raw().to_uppercase_smolstr().as_str()) {
                         return vec![LintResult::new(

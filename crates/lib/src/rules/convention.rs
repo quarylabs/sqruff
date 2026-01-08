@@ -16,16 +16,16 @@ pub fn rules() -> Vec<ErasedRule> {
     use crate::core::rules::Erased as _;
 
     vec![
-        cv01::RuleCV01::default().erased(),
+        cv01::RuleCV01.erased(),
         cv02::RuleCV02.erased(),
-        cv03::RuleCV03::default().erased(),
-        cv04::RuleCV04::default().erased(),
+        cv03::RuleCV03.erased(),
+        cv04::RuleCV04.erased(),
         cv05::RuleCV05.erased(),
-        cv06::RuleCV06::default().erased(),
+        cv06::RuleCV06.erased(),
         cv07::RuleCV07.erased(),
         cv08::RuleCV08.erased(),
-        cv09::RuleCV09::default().erased(),
-        cv10::RuleCV10::default().erased(),
-        cv11::RuleCV11::default().erased(),
+        cv09::RuleCV09.erased(),
+        cv10::RuleCV10.erased(),
+        cv11::RuleCV11.erased(),
     ]
 }

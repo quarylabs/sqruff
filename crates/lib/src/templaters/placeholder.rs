@@ -6,7 +6,7 @@ use sqruff_lib_core::errors::SQLFluffUserError;
 use sqruff_lib_core::templaters::{RawFileSlice, TemplatedFile, TemplatedFileSlice};
 
 use crate::Formatter;
-use crate::core::config::FluffConfig;
+use crate::core::config::{FluffConfig, PlaceholderValue};
 use crate::templaters::{ProcessingMode, Templater};
 
 #[derive(Default)]
@@ -90,31 +90,22 @@ const NO_PARAM_OR_STYLE: &str =
 
 impl PlaceholderTemplater {
     fn derive_style(&self, config: &FluffConfig) -> Result<Regex, SQLFluffUserError> {
-        let config = config
-            .get("placeholder", "templater")
-            .as_map()
-            .ok_or(SQLFluffUserError::new(NO_PARAM_OR_STYLE.to_string()))?;
-        match (config.get("param_regex"), config.get("param_style")) {
+        let placeholder = &config.templater.placeholder;
+        match (&placeholder.param_regex, &placeholder.param_style) {
             (Some(_), Some(_)) => Err(SQLFluffUserError::new(
                 "Both param_regex and param_style were provided to the placeholder templater."
                     .to_string(),
             )),
             (None, None) => Err(SQLFluffUserError::new(NO_PARAM_OR_STYLE.to_string())),
             (Some(param_regex), None) => {
-                let param_regex = param_regex.as_string().ok_or(SQLFluffUserError::new(
-                    "Invalid param_regex for templater 'placeholder'".to_string(),
-                ))?;
                 let regex = Regex::new(param_regex).map_err(|e| {
                     SQLFluffUserError::new(format!("Invalid regex for param_regex: {e}"))
                 })?;
                 Ok(regex)
             }
             (None, Some(param_style)) => {
-                let param_style = param_style.as_string().ok_or(SQLFluffUserError::new(
-                    "Invalid param_style for templater 'placeholder'".to_string(),
-                ))?;
                 let known_styles = get_known_styles();
-                let regex = known_styles.get(param_style).ok_or_else(|| {
+                let regex = known_styles.get(param_style.as_str()).ok_or_else(|| {
                     SQLFluffUserError::new(format!(
                         "Unknown param_style '{param_style}' for templater 'placeholder'"
                     ))
@@ -140,7 +131,7 @@ impl PlaceholderTemplater {
         let mut param_counter = 1;
         let regex = self.derive_style(config)?;
 
-        let template_config = config.get("placeholder", "templater").as_map();
+        let template_config = &config.templater.placeholder.replacements;
 
         for cap in regex.captures_iter(in_str) {
             let cap = cap.unwrap();
@@ -155,22 +146,15 @@ impl PlaceholderTemplater {
             };
 
             let last_literal_length = span.start - last_pos_raw;
-            let replacement = template_config
-                .and_then(|config| config.get(&param_name))
-                .map_or(Ok(param_name.clone()), |v| {
-                    match (v.as_string(), v.as_int(), v.as_bool()) {
-                        (Some(s), None, None) => Ok(s.to_string()),
-                        (None, Some(i), None) => Ok(i.to_string()),
-                        (None, None, Some(b)) => Ok(if b {
-                            "true".to_string()
-                        } else {
-                            "false".to_string()
-                        }),
-                        _ => Err(SQLFluffUserError::new(format!(
-                            "Invalid value for parameter replacement: {param_name}"
-                        ))),
-                    }
-                })?;
+            let replacement = template_config.get(&param_name).map_or(
+                Ok(param_name.clone()),
+                |value| match value {
+                    PlaceholderValue::String(value) => Ok(value.clone()),
+                    PlaceholderValue::Bool(value) => Ok(value.to_string()),
+                    PlaceholderValue::Int(value) => Ok(value.to_string()),
+                    PlaceholderValue::Float(value) => Ok(value.to_string()),
+                },
+            )?;
 
             // Add the literal to the slices
             template_slices.push(TemplatedFileSlice {
@@ -379,17 +363,26 @@ mod tests {
 [sqruff:templater:placeholder]
 param_style = colon",
             None,
+<<<<<<< HEAD
         );
         let results = templater.process(&[(in_str, "test.sql")], &config, &None);
         let out_str = results.into_iter().next().unwrap().unwrap();
+=======
+        )
+        .unwrap();
+        let out_str = templater
+            .process(in_str, "test.sql", &config, &None)
+            .unwrap();
+>>>>>>> 51f08904 (refactor: typed config)
         let out = out_str.templated();
         assert_eq!(in_str, out)
     }
 
     #[test]
     fn test_all_the_known_styles() {
+        type PlaceholderCase<'a> = (&'a str, &'a str, &'a str, Vec<(&'a str, &'a str)>);
         // in, param_style, expected_out, values
-        let cases: [(&str, &str, &str, Vec<(&str, &str)>); 19] = [
+        let cases: [PlaceholderCase<'_>; 19] = [
             (
                 "SELECT * FROM f, o, o WHERE a < 10\n\n",
                 "colon",
@@ -697,7 +690,8 @@ param_style = {}
                 )
                 .as_str(),
                 None,
-            );
+            )
+            .unwrap();
             let templater = PlaceholderTemplater {};
             let results = templater.process(&[(in_str, "test.sql")], &config, &None);
             let out_str = results.into_iter().next().unwrap().unwrap();
@@ -710,7 +704,7 @@ param_style = {}
     /// Test the error raised when config is incomplete, as in no param_regex
     /// nor param_style.
     fn test_templater_setup_none() {
-        let config = FluffConfig::from_source("", None);
+        let config = FluffConfig::from_source("", None).unwrap();
         let templater = PlaceholderTemplater {};
         let in_str = "SELECT 2+2";
         let results = templater.process(&[(in_str, "test.sql")], &config, &None);
@@ -734,7 +728,8 @@ param_regex = __(?P<param_name>[\w_]+)__
 param_style = colon
             "#,
             None,
-        );
+        )
+        .unwrap();
         let templater = PlaceholderTemplater {};
         let in_str = "SELECT 2+2";
         let results = templater.process(&[(in_str, "test.sql")], &config, &None);
@@ -757,7 +752,8 @@ param_regex = __(?P<param_name>[\w_]+)__
 my_name = john
 "#,
             None,
-        );
+        )
+        .unwrap();
         let templater = PlaceholderTemplater {};
         let in_str = "SELECT bla FROM blob WHERE id = __my_name__";
         let results = templater.process(&[(in_str, "test")], &config, &None);
@@ -775,7 +771,8 @@ my_name = john
 param_style = unknown
             "#,
             None,
-        );
+        )
+        .unwrap();
         let templater = PlaceholderTemplater {};
         let in_str = "SELECT * FROM {{blah}} WHERE %(gnepr)s OR e~':'";
         let results = templater.process(&[(in_str, "test.sql")], &config, &None);
@@ -802,7 +799,8 @@ rules = all
 param_style = percent
 "#,
             None,
-        );
+        )
+        .unwrap();
         let sql = "SELECT a,b FROM users WHERE a = %s";
 
         let mut linter = Linter::new(config, None, None, false);

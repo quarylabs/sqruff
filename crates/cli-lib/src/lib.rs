@@ -56,9 +56,15 @@ where
             std::process::exit(1);
         };
         let read_file = std::fs::read_to_string(config).unwrap();
-        FluffConfig::from_source(&read_file, None)
+        FluffConfig::from_source(&read_file, None).unwrap_or_else(|err| {
+            eprintln!("Failed to parse config file: {err}");
+            std::process::exit(1);
+        })
     } else {
-        FluffConfig::from_root(None, false, None).unwrap()
+        FluffConfig::from_root(None, false, None).unwrap_or_else(|err| {
+            eprintln!("{err}");
+            std::process::exit(1);
+        })
     };
 
     if let Some(dialect) = cli.dialect {
@@ -127,14 +133,18 @@ where
     }
 }
 
-pub(crate) fn linter(config: FluffConfig, format: Format, collect_parse_errors: bool) -> Linter {
+pub(crate) fn linter(
+    config: FluffConfig,
+    format: Format,
+    collect_parse_errors: bool,
+) -> Linter {
     let formatter: Arc<dyn Formatter> = match format {
         Format::Human => {
             let output_stream = std::io::stderr().into();
             let formatter = OutputStreamFormatter::new(
                 output_stream,
-                config.get("nocolor", "core").as_bool().unwrap_or_default(),
-                config.get("verbose", "core").as_int().unwrap_or_default(),
+                config.core.nocolor.unwrap_or_default(),
+                config.core.verbose.unwrap_or_default(),
             );
             Arc::new(formatter)
         }

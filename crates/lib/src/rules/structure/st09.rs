@@ -1,4 +1,3 @@
-use ahash::AHashMap;
 use itertools::Itertools;
 use smol_str::{SmolStr, StrExt};
 use sqruff_lib_core::dialects::syntax::{SyntaxKind, SyntaxSet};
@@ -8,28 +7,15 @@ use sqruff_lib_core::parser::segments::join::JoinClauseSegment;
 use sqruff_lib_core::parser::segments::{ErasedSegment, SegmentBuilder};
 use sqruff_lib_core::utils::functional::segments::Segments;
 
-use crate::core::config::Value;
 use crate::core::rules::context::RuleContext;
 use crate::core::rules::crawlers::{Crawler, SegmentSeekerCrawler};
-use crate::core::rules::{Erased, ErasedRule, LintResult, Rule, RuleGroups};
+use crate::core::rules::{LintResult, Rule, RuleGroups};
 use crate::utils::functional::context::FunctionalContext;
 
 #[derive(Default, Debug, Clone)]
-pub struct RuleST09 {
-    preferred_first_table_in_join_clause: String,
-}
+pub struct RuleST09;
 
 impl Rule for RuleST09 {
-    fn load_from_config(&self, config: &AHashMap<String, Value>) -> Result<ErasedRule, String> {
-        Ok(RuleST09 {
-            preferred_first_table_in_join_clause: config["preferred_first_table_in_join_clause"]
-                .as_string()
-                .unwrap()
-                .to_owned(),
-        }
-        .erased())
-    }
-
     fn name(&self) -> &'static str {
         "structure.join_condition_order"
     }
@@ -82,6 +68,11 @@ left join bar
     }
 
     fn eval(&self, context: &RuleContext) -> Vec<LintResult> {
+        let preferred_first_table_in_join_clause = &context
+            .config
+            .rules
+            .structure_join_condition_order
+            .preferred_first_table_in_join_clause;
         let mut table_aliases = Vec::new();
         let children = FunctionalContext::new(context).segment().children_all();
         let join_clauses =
@@ -212,7 +203,7 @@ left join bar
                     .iter()
                     .position(|x| x == &second_table)
                     .unwrap()
-                && self.preferred_first_table_in_join_clause == "earlier")
+                && preferred_first_table_in_join_clause == "earlier")
                 || (table_aliases
                     .iter()
                     .position(|x| x == &first_table)
@@ -221,7 +212,7 @@ left join bar
                         .iter()
                         .position(|x| x == &second_table)
                         .unwrap()
-                    && self.preferred_first_table_in_join_clause == "later")
+                    && preferred_first_table_in_join_clause == "later")
             {
                 fixes.push(LintFix::replace(
                     first_column_reference.clone(),
@@ -267,7 +258,7 @@ left join bar
             fixes,
             format!(
                 "Joins should list the table referenced {}",
-                self.preferred_first_table_in_join_clause
+                preferred_first_table_in_join_clause
             )
             .into(),
             None,

@@ -17,10 +17,9 @@ use sqruff_lib_core::utils::analysis::query::{Query, Selectable};
 use sqruff_lib_core::utils::analysis::select::get_select_statement_info;
 use sqruff_lib_core::utils::functional::segments::Segments;
 
-use crate::core::config::Value;
 use crate::core::rules::context::RuleContext;
 use crate::core::rules::crawlers::{Crawler, SegmentSeekerCrawler};
-use crate::core::rules::{Erased, ErasedRule, LintResult, Rule, RuleGroups};
+use crate::core::rules::{LintResult, Rule, RuleGroups};
 use crate::utils::functional::context::FunctionalContext;
 
 const SELECT_TYPES: SyntaxSet = SyntaxSet::new(&[
@@ -47,18 +46,9 @@ struct NestedSubQuerySummary<'a> {
 }
 
 #[derive(Clone, Debug, Default)]
-pub(crate) struct RuleST05 {
-    forbid_subquery_in: String,
-}
+pub(crate) struct RuleST05;
 
 impl Rule for RuleST05 {
-    fn load_from_config(&self, config: &AHashMap<String, Value>) -> Result<ErasedRule, String> {
-        Ok(RuleST05 {
-            forbid_subquery_in: config["forbid_subquery_in"].as_string().unwrap().into(),
-        }
-        .erased())
-    }
-
     fn name(&self) -> &'static str {
         "structure.subquery"
     }
@@ -106,6 +96,7 @@ join c using(x)
         let functional_context = FunctionalContext::new(context);
         let segment = functional_context.segment();
         let parent_stack = functional_context.parent_stack();
+        let forbid_subquery_in = &context.config.rules.structure_subquery.forbid_subquery_in;
 
         let is_select =
             segment.all_match(|it: &ErasedSegment| SELECT_TYPES.contains(it.get_type()));
@@ -144,6 +135,7 @@ join c using(x)
             &mut ctes,
             case_preference,
             &clone_map,
+            forbid_subquery_in,
         );
 
         let mut lint_results = Vec::with_capacity(results.len());
@@ -256,6 +248,7 @@ join c using(x)
 }
 
 impl RuleST05 {
+    #[allow(clippy::too_many_arguments)]
     fn lint_query<'a>(
         &self,
         tables: &Tables,
@@ -264,10 +257,11 @@ impl RuleST05 {
         ctes: &mut CTEBuilder,
         case_preference: Case,
         segment_clone_map: &SegmentCloneMap,
+        forbid_subquery_in: &str,
     ) -> Vec<(LintResult, ErasedSegment, SmolStr, ErasedSegment)> {
         let mut acc = Vec::new();
 
-        for nsq in self.nested_subqueries(query, dialect) {
+        for nsq in self.nested_subqueries(query, dialect, forbid_subquery_in) {
             let (alias_name, _) = ctes.create_cte_alias(Some(&nsq.table_alias));
             let anchor = nsq
                 .table_alias
@@ -333,10 +327,11 @@ impl RuleST05 {
         &self,
         query: Query<'a>,
         dialect: &'a Dialect,
+        forbid_subquery_in: &str,
     ) -> Vec<NestedSubQuerySummary<'a>> {
         let mut acc = Vec::new();
 
-        let parent_types = config_mapping(&self.forbid_subquery_in);
+        let parent_types = config_mapping(forbid_subquery_in);
         let mut queries = vec![query.clone()];
         queries.extend(query.inner.borrow().ctes.values().cloned());
 
@@ -400,7 +395,11 @@ impl RuleST05 {
                     });
 
                     if i > 0 {
-                        acc.append(&mut self.nested_subqueries(query.clone(), dialect));
+                        acc.append(&mut self.nested_subqueries(
+                            query.clone(),
+                            dialect,
+                            forbid_subquery_in,
+                        ));
                     }
                 }
             }

@@ -11,11 +11,11 @@ pub fn rules() -> Vec<ErasedRule> {
     use crate::core::rules::Erased as _;
 
     vec![
-        rf01::RuleRF01::default().erased(),
-        rf02::RuleRF02::default().erased(),
-        rf03::RuleRF03::default().erased(),
-        rf04::RuleRF04::default().erased(),
-        rf05::RuleRF05::default().erased(),
-        rf06::RuleRF06::default().erased(),
+        rf01::RuleRF01.erased(),
+        rf02::RuleRF02.erased(),
+        rf03::RuleRF03.erased(),
+        rf04::RuleRF04.erased(),
+        rf05::RuleRF05.erased(),
+        rf06::RuleRF06.erased(),
     ]
 }

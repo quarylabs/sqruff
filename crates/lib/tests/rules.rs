@@ -1,10 +1,10 @@
 use std::str::FromStr;
 
-use ahash::AHashMap;
 use glob::glob;
 use serde::Deserialize;
+use serde_json::Value as JsonValue;
 use serde_with::{KeyValueMap, serde_as};
-use sqruff_lib::core::config::{FluffConfig, Value};
+use sqruff_lib::core::config::FluffConfig;
 use sqruff_lib::core::linter::core::Linter;
 use sqruff_lib_core::dialects::init::DialectKind;
 
@@ -14,12 +14,27 @@ pub struct Args {
 }
 
 impl Args {
-    fn parse_args(&mut self, iter: impl Iterator<Item = String>) {
-        self.file = iter.skip_while(|arg| arg == "--").next();
+    fn parse_args(&mut self, mut iter: impl Iterator<Item = String>) {
+        self.file = iter.find(|arg| arg != "--");
     }
 }
 
-static INDENT_CONFIG: &[&str] = &["indent_unit", "tab_space_size"];
+fn value_to_i32(value: &JsonValue) -> Option<i32> {
+    value
+        .as_i64()
+        .and_then(|value| i32::try_from(value).ok())
+        .or_else(|| value.as_str().and_then(|raw| raw.parse::<i32>().ok()))
+}
+
+fn apply_indent_overrides(config: &mut FluffConfig, rules: &serde_json::Map<String, JsonValue>) {
+    if let Some(value) = rules.get("indent_unit").and_then(|value| value.as_str()) {
+        config.indentation.indent_unit = Some(value.to_string());
+    }
+
+    if let Some(value) = rules.get("tab_space_size").and_then(value_to_i32) {
+        config.indentation.tab_space_size = Some(value);
+    }
+}
 
 #[serde_as]
 #[derive(Debug, Deserialize)]
@@ -38,7 +53,7 @@ struct TestCase {
     #[serde(flatten)]
     kind: TestCaseKind,
     #[serde(default)]
-    configs: AHashMap<String, Value>,
+    configs: JsonValue,
 }
 
 #[derive(Debug, Deserialize)]
@@ -49,17 +64,9 @@ enum TestCaseKind {
     Fail { fail_str: String },
 }
 
-// FIXME: Simplify FluffConfig handling. It's quite chaotic right now.
 fn main() {
     let mut args = Args::default();
     args.parse_args(std::env::args().skip(1));
-
-    let mut linter = Linter::new(FluffConfig::default(), None, None, true);
-    let mut core = AHashMap::new();
-    core.insert(
-        "core".to_string(),
-        linter.config_mut().raw.get("core").unwrap().clone(),
-    );
 
     let pattern = args
         .file
@@ -75,27 +82,21 @@ fn main() {
         let file: TestFile = serde_yaml::from_str(&input).unwrap();
         let file_rules = file
             .rule
-            .split(",")
-            .map(|x| Value::String(x.into()))
-            .collect::<Vec<Value>>();
-
-        core.get_mut("core")
-            .unwrap()
-            .as_map_mut()
-            .unwrap()
-            .insert("rule_allowlist".into(), Value::Array(file_rules));
-
-        linter.config_mut().raw.extend(core.clone());
-        linter.config_mut().reload_reflow();
+            .split(',')
+            .map(|rule| rule.trim().to_string())
+            .collect::<Vec<String>>();
+        let mut base_config = FluffConfig::default();
+        base_config.core.rule_allowlist = Some(file_rules.clone());
+        base_config.reload_reflow();
 
         for case in file.cases {
             println!("Processing case: {}", case.name);
             let dialect_name = case
                 .configs
                 .get("core")
-                .and_then(|it| it.as_map())
+                .and_then(|it| it.as_object())
                 .and_then(|it| it.get("dialect"))
-                .and_then(|it| it.as_string())
+                .and_then(|it| it.as_str())
                 .unwrap_or("ansi");
 
             let dialect = DialectKind::from_str(dialect_name);
@@ -109,50 +110,27 @@ fn main() {
                 continue;
             }
 
-            let has_config = !case.configs.is_empty();
             let rule = &file.rule;
-            if has_config {
-                *linter.config_mut() = FluffConfig::new(case.configs.clone(), None, None);
-                linter.config_mut().raw.extend(core.clone());
+            let config = if case
+                .configs
+                .as_object()
+                .map(|configs| configs.is_empty())
+                .unwrap_or(true)
+            {
+                base_config.clone()
+            } else {
+                let mut config: FluffConfig =
+                    serde_json::from_value(case.configs.clone()).unwrap_or_default();
+                config.core.rule_allowlist = Some(file_rules.clone());
 
-                if let Some(core) = case.configs.get("core").and_then(|it| it.as_map()) {
-                    linter
-                        .config_mut()
-                        .raw
-                        .get_mut("core")
-                        .unwrap()
-                        .as_map_mut()
-                        .unwrap()
-                        .extend(core.clone());
+                if let Some(rules) = case.configs.get("rules").and_then(|it| it.as_object()) {
+                    apply_indent_overrides(&mut config, rules);
                 }
 
-                for (config, value) in &case
-                    .configs
-                    .get("rules")
-                    .cloned()
-                    .unwrap_or_default()
-                    .as_map()
-                    .cloned()
-                    .unwrap_or_default()
-                {
-                    if INDENT_CONFIG.contains(&config.as_str()) {
-                        linter
-                            .config_mut()
-                            .raw
-                            .get_mut("indentation")
-                            .unwrap()
-                            .as_map_mut()
-                            .unwrap()
-                            .insert(config.clone(), value.clone());
-                    }
-                }
-
-                linter.config_mut().reload_reflow();
-
-                // Recreate linter with proper templater after all config is set up
-                let templater = Linter::get_templater(linter.config());
-                linter = Linter::new(linter.config().clone(), None, Some(templater), true);
-            }
+                config.reload_reflow();
+                config
+            };
+            let mut linter = Linter::new(config, None, None, true);
 
             match case.kind {
                 TestCaseKind::Pass { pass_str } => {
@@ -163,16 +141,16 @@ The following test test can be used to recreate the issue:
 
 #[cfg(test)]
 mod tests {{
-    use sqruff_lib::core::{{config::FluffConfig, linter::core::Linter}};
+    use sqruff_lib::core::{{config::FluffConfigTyped, linter::core::Linter}};
 
     #[test]
     fn test_example() {{
-        let config = FluffConfig::from_source("
+        let config = FluffConfigTyped::from_source("
 [sqruff]
 rules = {rule}
 dialect = {dialect}
 ",
- None);
+ None).unwrap();
 
         let mut linter = Linter::new(config, None, None, true);
 
@@ -205,12 +183,6 @@ dialect = {dialect}
 
                     pretty_assertions::assert_eq!(actual, fix_str);
                 }
-            }
-
-            if has_config {
-                *linter.config_mut() = FluffConfig::default();
-                linter.config_mut().raw.extend(core.clone());
-                linter.config_mut().reload_reflow();
             }
         }
     }

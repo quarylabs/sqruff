@@ -1,32 +1,18 @@
-use ahash::{AHashMap, AHashSet};
+use ahash::AHashSet;
 use itertools::Itertools;
 use sqruff_lib_core::dialects::syntax::{SyntaxKind, SyntaxSet};
 use sqruff_lib_core::lint_fix::LintFix;
 use sqruff_lib_core::parser::segments::{ErasedSegment, SegmentBuilder, Tables};
 use sqruff_lib_core::utils::functional::segments::Segments;
 
-use crate::core::config::Value;
 use crate::core::rules::context::RuleContext;
 use crate::core::rules::crawlers::{Crawler, RootOnlyCrawler};
-use crate::core::rules::{Erased, ErasedRule, LintResult, Rule, RuleGroups};
+use crate::core::rules::{LintResult, Rule, RuleGroups};
 
 #[derive(Default, Clone, Debug)]
-pub struct RuleCV06 {
-    multiline_newline: bool,
-    require_final_semicolon: bool,
-}
+pub struct RuleCV06;
 
 impl Rule for RuleCV06 {
-    fn load_from_config(&self, config: &AHashMap<String, Value>) -> Result<ErasedRule, String> {
-        let multiline_newline = config["multiline_newline"].as_bool().unwrap();
-        let require_final_semicolon = config["require_final_semicolon"].as_bool().unwrap();
-        Ok(Self {
-            multiline_newline,
-            require_final_semicolon,
-        }
-        .erased())
-    }
-
     fn name(&self) -> &'static str {
         "convention.terminator"
     }
@@ -71,6 +57,7 @@ FROM foo;
     fn eval(&self, context: &RuleContext) -> Vec<LintResult> {
         debug_assert!(context.segment.is_type(SyntaxKind::File));
 
+        let rules = &context.config.rules.convention_terminator;
         let mut results = vec![];
         for (idx, segment) in context.segment.segments().iter().enumerate() {
             let mut res = None;
@@ -78,11 +65,19 @@ FROM foo;
                 // First we can simply handle the case of existing semi-colon alignment.
                 // If it's a terminator then we know it's raw.
 
-                res =
-                    self.handle_semicolon(context.tables, segment.clone(), context.segment.clone());
-            } else if self.require_final_semicolon && idx == context.segment.segments().len() - 1 {
+                res = self.handle_semicolon(
+                    context.tables,
+                    segment.clone(),
+                    context.segment.clone(),
+                    rules.multiline_newline,
+                );
+            } else if rules.require_final_semicolon && idx == context.segment.segments().len() - 1 {
                 // Otherwise, handle the end of the file separately.
-                res = self.ensure_final_semicolon(context.tables, context.segment.clone());
+                res = self.ensure_final_semicolon(
+                    context.tables,
+                    context.segment.clone(),
+                    rules.multiline_newline,
+                );
             }
             if let Some(res) = res {
                 results.push(res);
@@ -170,10 +165,11 @@ impl RuleCV06 {
         tables: &Tables,
         target_segment: ErasedSegment,
         parent_segment: ErasedSegment,
+        multiline_newline: bool,
     ) -> Option<LintResult> {
         let info = Self::get_segment_move_context(target_segment.clone(), parent_segment.clone());
         let semicolon_newline = if !info.is_one_line {
-            self.multiline_newline
+            multiline_newline
         } else {
             false
         };
@@ -352,6 +348,7 @@ impl RuleCV06 {
         &self,
         tables: &Tables,
         parent_segment: ErasedSegment,
+        multiline_newline: bool,
     ) -> Option<LintResult> {
         // Iterate backwards over complete stack to find
         // if the final semicolon is already present.
@@ -382,7 +379,7 @@ impl RuleCV06 {
         let semicolon_newline = if is_one_line {
             false
         } else {
-            self.multiline_newline
+            multiline_newline
         };
         if !semi_colon_exist_flag {
             // Create the final semicolon if it does not yet exist.

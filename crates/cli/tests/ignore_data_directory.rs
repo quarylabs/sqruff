@@ -210,12 +210,7 @@ fn test_lint_paths_traverses_ignored_directories() {
     fs::write(&sqruffignore_file, ".data\n").unwrap();
 
     // Create a linter instance
-    let mut linter = Linter::new(
-        FluffConfig::new(<_>::default(), None, None),
-        None,
-        None,
-        false,
-    );
+    let mut linter = Linter::new(FluffConfig::default(), None, None, false);
 
     // Create a dummy ignorer that doesn't ignore anything (to test the current broken behavior)
     // In the current implementation, the ignorer is applied AFTER file discovery

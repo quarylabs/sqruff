@@ -12,11 +12,11 @@ use sqruff_lib_core::parser::segments::object_reference::{
 };
 use sqruff_lib_core::utils::analysis::query::{Query, QueryInner, Selectable};
 
-use crate::core::config::Value;
+use crate::core::config::FluffConfig;
 use crate::core::rules::context::RuleContext;
 use crate::core::rules::crawlers::{Crawler, SegmentSeekerCrawler};
 use crate::core::rules::reference::object_ref_matches_table;
-use crate::core::rules::{Erased, ErasedRule, LintResult, Rule, RuleGroups};
+use crate::core::rules::{LintResult, Rule, RuleGroups};
 
 #[derive(Debug, Default, Clone)]
 struct RF01QueryData {
@@ -28,9 +28,7 @@ type QueryKey<'a> = *const RefCell<QueryInner<'a>>;
 type RF01State<'a> = AHashMap<QueryKey<'a>, RF01QueryData>;
 
 #[derive(Debug, Clone, Default)]
-pub struct RuleRF01 {
-    force_enable: bool,
-}
+pub struct RuleRF01;
 
 impl RuleRF01 {
     #[allow(clippy::only_used_in_recursion)]
@@ -192,13 +190,6 @@ impl RuleRF01 {
 }
 
 impl Rule for RuleRF01 {
-    fn load_from_config(&self, config: &AHashMap<String, Value>) -> Result<ErasedRule, String> {
-        Ok(RuleRF01 {
-            force_enable: config["force_enable"].as_bool().unwrap(),
-        }
-        .erased())
-    }
-
     fn name(&self) -> &'static str {
         "references.from"
     }
@@ -235,8 +226,8 @@ FROM foo
         &[RuleGroups::All, RuleGroups::Core, RuleGroups::References]
     }
 
-    fn force_enable(&self) -> bool {
-        self.force_enable
+    fn force_enable(&self, config: &FluffConfig) -> bool {
+        config.rules.references_from.force_enable
     }
 
     fn dialect_skip(&self) -> &'static [DialectKind] {

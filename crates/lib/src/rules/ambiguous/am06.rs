@@ -1,27 +1,19 @@
 use ahash::AHashMap;
 use sqruff_lib_core::dialects::syntax::{SyntaxKind, SyntaxSet};
 
-use crate::core::config::Value;
 use crate::core::rules::context::RuleContext;
 use crate::core::rules::crawlers::{Crawler, SegmentSeekerCrawler};
-use crate::core::rules::{Erased as _, ErasedRule, LintResult, Rule, RuleGroups};
+use crate::core::rules::{LintResult, Rule, RuleGroups};
 use crate::utils::functional::context::FunctionalContext;
 
 #[derive(Clone, Copy)]
 struct PriorGroupByOrderByConvention(GroupByAndOrderByConvention);
 
-#[derive(Debug, Clone)]
-pub struct RuleAM06 {
-    group_by_and_order_by_style: GroupByAndOrderByConvention,
-}
+#[derive(Clone, Copy)]
+struct CachedGroupByAndOrderByStyle(GroupByAndOrderByConvention);
 
-impl Default for RuleAM06 {
-    fn default() -> Self {
-        Self {
-            group_by_and_order_by_style: GroupByAndOrderByConvention::Consistent,
-        }
-    }
-}
+#[derive(Debug, Clone, Default)]
+pub struct RuleAM06;
 
 #[derive(Debug, Clone, Copy, PartialEq, strum_macros::EnumString)]
 #[strum(serialize_all = "lowercase")]
@@ -32,17 +24,6 @@ enum GroupByAndOrderByConvention {
 }
 
 impl Rule for RuleAM06 {
-    fn load_from_config(&self, config: &AHashMap<String, Value>) -> Result<ErasedRule, String> {
-        Ok(RuleAM06 {
-            group_by_and_order_by_style: config["group_by_and_order_by_style"]
-                .as_string()
-                .unwrap()
-                .parse()
-                .unwrap(),
-        }
-        .erased())
-    }
-
     fn name(&self) -> &'static str {
         "ambiguous.column_references"
     }
@@ -81,6 +62,21 @@ ORDER BY a ASC, b DESC
     }
 
     fn eval(&self, context: &RuleContext) -> Vec<LintResult> {
+        let group_by_and_order_by_style = context
+            .try_get::<CachedGroupByAndOrderByStyle>()
+            .map(|cached| cached.0)
+            .unwrap_or_else(|| {
+                let parsed = context
+                    .config
+                    .rules
+                    .ambiguous_column_references
+                    .group_by_and_order_by_style
+                    .parse()
+                    .unwrap_or(GroupByAndOrderByConvention::Consistent);
+                context.set(CachedGroupByAndOrderByStyle(parsed));
+                parsed
+            });
+
         let skip = FunctionalContext::new(context)
             .parent_stack()
             .any_match(|it| {
@@ -123,7 +119,7 @@ ORDER BY a ASC, b DESC
             return Vec::new();
         }
 
-        if self.group_by_and_order_by_style == GroupByAndOrderByConvention::Consistent {
+        if group_by_and_order_by_style == GroupByAndOrderByConvention::Consistent {
             if column_reference_category_set.len() > 1 {
                 return vec![LintResult::new(
                     context.segment.clone().into(),
@@ -153,7 +149,7 @@ ORDER BY a ASC, b DESC
             }
         } else if column_reference_category_set
             .into_iter()
-            .any(|category| *category != self.group_by_and_order_by_style)
+            .any(|category| *category != group_by_and_order_by_style)
         {
             return vec![LintResult::new(
                 context.segment.clone().into(),

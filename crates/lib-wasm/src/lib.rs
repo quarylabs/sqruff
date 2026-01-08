@@ -3,7 +3,7 @@ use lineage::{Lineage, Node};
 use sqruff_lib::core::config::FluffConfig;
 use sqruff_lib::core::linter::core::Linter as SqruffLinter;
 use sqruff_lib_core::parser::segments::Tables;
-use sqruff_lib_core::parser::{IndentationConfig, Parser};
+use sqruff_lib_core::parser::{IndentationConfig as ParserIndentationConfig, Parser};
 use wasm_bindgen::prelude::*;
 
 #[wasm_bindgen]
@@ -70,8 +70,9 @@ impl Result {
 impl Linter {
     #[wasm_bindgen(constructor)]
     pub fn new(source: &str) -> Self {
+        let config = FluffConfig::from_source(source, None).unwrap_or_default();
         Self {
-            base: SqruffLinter::new(FluffConfig::from_source(source, None), None, None, true),
+            base: SqruffLinter::new(config, None, None, true),
         }
     }
 
@@ -116,10 +117,23 @@ impl Linter {
             Tool::Format => result.fix_string(),
             Tool::Cst => cst.unwrap().stringify(false),
             Tool::Lineage => {
-                let parser = Parser::new(
-                    self.base.config().get_dialect(),
-                    IndentationConfig::default(),
-                );
+                let dialect = self
+                    .base
+                    .config()
+                    .dialect()
+                    .expect("Dialect is disabled. Please enable the corresponding feature.");
+                let indentation = &self.base.config().indentation;
+                let indentation_config = ParserIndentationConfig::from_bool_lookup(|key| match key {
+                    "indented_joins" => indentation.indented_joins.unwrap_or_default(),
+                    "indented_using_on" => indentation.indented_using_on.unwrap_or_default(),
+                    "indented_on_contents" => indentation.indented_on_contents.unwrap_or_default(),
+                    "indented_then" => indentation.indented_then.unwrap_or_default(),
+                    "indented_then_contents" => indentation.indented_then_contents.unwrap_or_default(),
+                    "indented_joins_on" => indentation.indented_joins_on.unwrap_or_default(),
+                    "indented_ctes" => indentation.indented_ctes.unwrap_or_default(),
+                    _ => false,
+                });
+                let parser = Parser::new(&dialect, indentation_config);
                 let (tables, node) = Lineage::new(parser, "", sql).build();
 
                 print_tree(&tables, node, "", "", "")

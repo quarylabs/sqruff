@@ -1,22 +1,16 @@
-use ahash::AHashMap;
 use itertools::Itertools;
 use sqruff_lib_core::dialects::syntax::SyntaxKind;
 use sqruff_lib_core::lint_fix::LintFix;
 use sqruff_lib_core::utils::functional::segments::Segments;
 
-use crate::core::config::Value;
 use crate::core::rules::context::RuleContext;
 use crate::core::rules::crawlers::{Crawler, RootOnlyCrawler};
-use crate::core::rules::{Erased, ErasedRule, LintPhase, LintResult, Rule, RuleGroups};
+use crate::core::rules::{LintPhase, LintResult, Rule, RuleGroups};
 
 #[derive(Debug, Default, Clone)]
 pub struct RuleLT13;
 
 impl Rule for RuleLT13 {
-    fn load_from_config(&self, _config: &AHashMap<String, Value>) -> Result<ErasedRule, String> {
-        Ok(RuleLT13.erased())
-    }
-
     fn lint_phase(&self) -> LintPhase {
         LintPhase::Post
     }

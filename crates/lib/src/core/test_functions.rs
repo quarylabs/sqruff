@@ -3,11 +3,12 @@ use sqruff_lib_core::dialects::init::DialectKind;
 use sqruff_lib_core::parser::segments::{ErasedSegment, Tables};
 use sqruff_lib_dialects::kind_to_dialect;
 
+use crate::core::config::FluffConfig;
 use crate::core::linter::core::Linter;
 
 pub fn parse_ansi_string(sql: &str) -> ErasedSegment {
     let tables = Tables::default();
-    let linter = Linter::new(<_>::default(), None, None, false);
+    let linter = Linter::new(FluffConfig::default(), None, None, false);
     linter
         .parse_string(&tables, sql, None)
         .unwrap()

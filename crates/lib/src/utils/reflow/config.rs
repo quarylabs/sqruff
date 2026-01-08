@@ -3,7 +3,7 @@ use std::str::FromStr;
 use ahash::AHashMap;
 use sqruff_lib_core::dialects::syntax::{SyntaxKind, SyntaxSet};
 
-use crate::core::config::{FluffConfig, Value};
+use crate::core::config::{FluffConfig, LayoutTypeConfig};
 use crate::utils::reflow::depth_map::{DepthInfo, StackPositionType};
 use crate::utils::reflow::reindent::{IndentUnit, TrailingComments};
 
@@ -87,14 +87,14 @@ impl BlockConfig {
 /// An interface onto the configuration of how segments should reflow.
 ///
 /// This acts as the primary translation engine between configuration
-/// held either in dicts for testing, or in the FluffConfig in live
+/// held either in dicts for testing, or in the typed config in live
 /// usage, and the configuration used during reflow operations.
 #[derive(Debug, Default, PartialEq, Eq, Clone)]
 pub struct ReflowConfig {
     configs: ConfigDictType,
     config_types: SyntaxSet,
     /// In production, these values are almost _always_ set because we
-    /// use `.from_fluff_config`, but the defaults are here to aid in
+    /// use `.from_typed`, but the defaults are here to aid in
     /// testing.
     pub(crate) indent_unit: IndentUnit,
     pub(crate) max_line_length: usize,
@@ -224,27 +224,33 @@ impl ReflowConfig {
         block_config
     }
 
-    pub fn from_fluff_config(config: &FluffConfig) -> ReflowConfig {
-        let configs = config.raw["layout"]["type"].as_map().unwrap().clone();
-        let config_types = configs
+    pub fn from_typed(typed: &FluffConfig) -> ReflowConfig {
+        let config_types = typed
+            .layout
+            .types
             .keys()
             .map(|x| x.parse().unwrap_or_else(|_| unimplemented!("{x}")))
             .collect::<SyntaxSet>();
 
-        let trailing_comments = config.raw["indentation"]["trailing_comments"]
-            .as_string()
-            .unwrap();
+        let trailing_comments = typed
+            .reflow
+            .trailing_comments
+            .as_deref()
+            .expect("trailing_comments must be configured");
         let trailing_comments = TrailingComments::from_str(trailing_comments).unwrap();
 
-        let tab_space_size = config.raw["indentation"]["tab_space_size"]
-            .as_int()
-            .unwrap() as usize;
-        let indent_unit = config.raw["indentation"]["indent_unit"]
-            .as_string()
-            .unwrap();
+        let tab_space_size = typed
+            .reflow
+            .tab_space_size
+            .expect("tab_space_size must be configured");
+        let indent_unit = typed
+            .reflow
+            .indent_unit
+            .as_deref()
+            .expect("indent_unit must be configured");
         let indent_unit = IndentUnit::from_type_and_size(indent_unit, tab_space_size);
 
-        let mut configs = convert_to_config_dict(configs);
+        let mut configs = convert_to_config_dict(&typed.layout.types);
         let keys: Vec<_> = configs.keys().copied().collect();
 
         for seg_type in keys {
@@ -268,41 +274,47 @@ impl ReflowConfig {
             configs,
             config_types,
             indent_unit,
-            max_line_length: config.raw["core"]["max_line_length"].as_int().unwrap() as usize,
-            hanging_indents: config.raw["indentation"]["hanging_indents"]
-                .as_bool()
-                .unwrap_or_default(),
-            allow_implicit_indents: config.raw["indentation"]["allow_implicit_indents"]
-                .as_bool()
-                .unwrap(),
+            max_line_length: typed
+                .reflow
+                .max_line_length
+                .expect("max_line_length must be configured"),
+            hanging_indents: typed.reflow.hanging_indents.unwrap_or_default(),
+            allow_implicit_indents: typed
+                .reflow
+                .allow_implicit_indents
+                .expect("allow_implicit_indents must be configured"),
             trailing_comments,
         }
     }
 }
 
-fn convert_to_config_dict(input: AHashMap<String, Value>) -> ConfigDictType {
+fn convert_to_config_dict(input: &AHashMap<String, LayoutTypeConfig>) -> ConfigDictType {
     let mut config_dict = ConfigDictType::new();
 
     for (key, value) in input {
-        match value {
-            Value::Map(map_value) => {
-                let element = map_value
-                    .into_iter()
-                    .map(|(inner_key, inner_value)| {
-                        if let Value::String(value_str) = inner_value {
-                            (inner_key, value_str.into())
-                        } else {
-                            panic!("Expected a Value::String, found another variant.");
-                        }
-                    })
-                    .collect::<ConfigElementType>();
-                config_dict.insert(
-                    key.parse().unwrap_or_else(|_| unimplemented!("{key}")),
-                    element,
-                );
-            }
-            _ => panic!("Expected a Value::Map, found another variant."),
+        let mut element = ConfigElementType::new();
+        if let Some(value) = &value.spacing_before {
+            element.insert("spacing_before".to_string(), value.clone());
         }
+        if let Some(value) = &value.spacing_after {
+            element.insert("spacing_after".to_string(), value.clone());
+        }
+        if let Some(value) = &value.spacing_within {
+            element.insert("spacing_within".to_string(), value.clone());
+        }
+        if let Some(value) = &value.line_position {
+            element.insert("line_position".to_string(), value.clone());
+        }
+        if let Some(value) = &value.align_within {
+            element.insert("align_within".to_string(), value.clone());
+        }
+        if let Some(value) = &value.align_scope {
+            element.insert("align_scope".to_string(), value.clone());
+        }
+        config_dict.insert(
+            key.parse().unwrap_or_else(|_| unimplemented!("{key}")),
+            element,
+        );
     }
 
     config_dict

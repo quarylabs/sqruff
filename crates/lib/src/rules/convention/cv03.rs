@@ -1,40 +1,16 @@
-use ahash::AHashMap;
 use sqruff_lib_core::dialects::syntax::{SyntaxKind, SyntaxSet};
 use sqruff_lib_core::lint_fix::LintFix;
 use sqruff_lib_core::parser::segments::SegmentBuilder;
 
-use crate::core::config::Value;
 use crate::core::rules::context::RuleContext;
 use crate::core::rules::crawlers::{Crawler, SegmentSeekerCrawler};
-use crate::core::rules::{Erased, ErasedRule, LintResult, Rule, RuleGroups};
+use crate::core::rules::{LintResult, Rule, RuleGroups};
 use crate::utils::functional::context::FunctionalContext;
 
-#[derive(Debug, Clone)]
-pub struct RuleCV03 {
-    select_clause_trailing_comma: String,
-}
-
-impl Default for RuleCV03 {
-    fn default() -> Self {
-        RuleCV03 {
-            select_clause_trailing_comma: "require".to_string(),
-        }
-    }
-}
+#[derive(Debug, Clone, Default)]
+pub struct RuleCV03;
 
 impl Rule for RuleCV03 {
-    fn load_from_config(&self, _config: &AHashMap<String, Value>) -> Result<ErasedRule, String> {
-        Ok(RuleCV03 {
-            select_clause_trailing_comma: _config
-                .get("select_clause_trailing_comma")
-                .unwrap()
-                .as_string()
-                .unwrap()
-                .to_owned(),
-        }
-        .erased())
-    }
-
     fn name(&self) -> &'static str {
         "convention.select_trailing_comma"
     }
@@ -74,6 +50,11 @@ FROM foo
     }
 
     fn eval(&self, rule_cx: &RuleContext) -> Vec<LintResult> {
+        let select_clause_trailing_comma = &rule_cx
+            .config
+            .rules
+            .convention_select_trailing_comma
+            .select_clause_trailing_comma;
         let segment = FunctionalContext::new(rule_cx).segment();
         let children = segment.children_all();
 
@@ -84,7 +65,7 @@ FROM foo
 
         let mut fixes = Vec::new();
 
-        if self.select_clause_trailing_comma == "forbid" {
+        if select_clause_trailing_comma == "forbid" {
             if last_content.is_type(SyntaxKind::Comma) {
                 if last_content.get_position_marker().is_none() {
                     fixes = vec![LintFix::delete(last_content.clone())];
@@ -122,7 +103,7 @@ FROM foo
                     None,
                 )];
             }
-        } else if self.select_clause_trailing_comma == "require"
+        } else if select_clause_trailing_comma == "require"
             && !last_content.is_type(SyntaxKind::Comma)
         {
             let new_comma = SegmentBuilder::comma(rule_cx.tables.next_id());

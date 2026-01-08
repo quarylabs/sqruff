@@ -1,61 +1,16 @@
-use ahash::{AHashMap, AHashSet};
-use regex::Regex;
+use ahash::AHashSet;
 use sqruff_lib_core::dialects::init::DialectKind;
 use sqruff_lib_core::dialects::syntax::{SyntaxKind, SyntaxSet};
 
-use crate::core::config::Value;
 use crate::core::rules::context::RuleContext;
 use crate::core::rules::crawlers::{Crawler, SegmentSeekerCrawler};
-use crate::core::rules::{Erased, ErasedRule, LintResult, Rule, RuleGroups};
+use crate::core::rules::{LintResult, Rule, RuleGroups};
 use crate::utils::identifers::identifiers_policy_applicable;
 
 #[derive(Clone, Default, Debug)]
-pub struct RuleRF05 {
-    quoted_identifiers_policy: String,
-    unquoted_identifiers_policy: String,
-    allow_space_in_identifier: bool,
-    additional_allowed_characters: String,
-    ignore_words: Vec<String>,
-    ignore_words_regex: Vec<Regex>,
-}
+pub struct RuleRF05;
 
 impl Rule for RuleRF05 {
-    fn load_from_config(&self, config: &AHashMap<String, Value>) -> Result<ErasedRule, String> {
-        Ok(RuleRF05 {
-            unquoted_identifiers_policy: config["unquoted_identifiers_policy"]
-                .as_string()
-                .unwrap()
-                .to_owned(),
-            quoted_identifiers_policy: config["quoted_identifiers_policy"]
-                .as_string()
-                .unwrap()
-                .to_owned(),
-            ignore_words: config["ignore_words"]
-                .map(|it| {
-                    it.as_array()
-                        .unwrap()
-                        .iter()
-                        .map(|it| it.as_string().unwrap().to_lowercase())
-                        .collect()
-                })
-                .unwrap_or_default(),
-            ignore_words_regex: config["ignore_words_regex"]
-                .map(|it| {
-                    it.as_array()
-                        .unwrap()
-                        .iter()
-                        .map(|it| Regex::new(it.as_string().unwrap()).unwrap())
-                        .collect()
-                })
-                .unwrap_or_default(),
-            allow_space_in_identifier: config["allow_space_in_identifier"].as_bool().unwrap(),
-            additional_allowed_characters: config["additional_allowed_characters"]
-                .map(|it| it.as_string().unwrap().to_owned())
-                .unwrap_or_default(),
-        }
-        .erased())
-    }
-
     fn name(&self) -> &'static str {
         "references.special_chars"
     }
@@ -101,10 +56,12 @@ CREATE TABLE DBO.ColumnNames
     }
 
     fn eval(&self, context: &RuleContext) -> Vec<LintResult> {
-        if self
+        let rules = &context.config.rules.references_special_chars;
+        if rules
             .ignore_words
-            .contains(&context.segment.raw().to_lowercase())
-            || self
+            .iter()
+            .any(|word| word.eq_ignore_ascii_case(context.segment.raw().as_ref()))
+            || rules
                 .ignore_words_regex
                 .iter()
                 .any(|it| it.is_match(context.segment.raw().as_ref()))
@@ -112,15 +69,18 @@ CREATE TABLE DBO.ColumnNames
             return Vec::new();
         }
 
-        let mut policy = self.unquoted_identifiers_policy.as_str();
+        let mut policy = rules.unquoted_identifiers_policy.as_str();
         let mut identifier = context.segment.raw().to_string();
 
         if context.segment.is_type(SyntaxKind::QuotedIdentifier) {
-            policy = self.quoted_identifiers_policy.as_str();
+            policy = rules.quoted_identifiers_policy.as_str();
             identifier = identifier[1..identifier.len() - 1].to_string();
 
-            if self.ignore_words.contains(&identifier.to_lowercase())
-                || self
+            if rules
+                .ignore_words
+                .iter()
+                .any(|word| word.eq_ignore_ascii_case(&identifier))
+                || rules
                     .ignore_words_regex
                     .iter()
                     .any(|it| it.is_match(&identifier))
@@ -161,7 +121,7 @@ CREATE TABLE DBO.ColumnNames
                 }
             }
 
-            if self.allow_space_in_identifier {
+            if rules.allow_space_in_identifier {
                 identifier = identifier.replace(" ", "");
             }
         }
@@ -183,8 +143,10 @@ CREATE TABLE DBO.ColumnNames
             identifier = identifier[..identifier.len() - 1].to_string();
         }
 
-        let additional_allowed_characters =
-            self.get_additional_allowed_characters(context.dialect.name);
+        let additional_allowed_characters = Self::get_additional_allowed_characters(
+            rules.additional_allowed_characters.as_deref().unwrap_or(""),
+            context.dialect.name,
+        );
         if !additional_allowed_characters.is_empty() {
             identifier.retain(|it| !additional_allowed_characters.contains(&it));
         }
@@ -212,9 +174,12 @@ CREATE TABLE DBO.ColumnNames
 }
 
 impl RuleRF05 {
-    fn get_additional_allowed_characters(&self, dialect_name: DialectKind) -> AHashSet<char> {
+    fn get_additional_allowed_characters(
+        additional_allowed_characters: &str,
+        dialect_name: DialectKind,
+    ) -> AHashSet<char> {
         let mut result = AHashSet::new();
-        result.extend(self.additional_allowed_characters.chars());
+        result.extend(additional_allowed_characters.chars());
         if dialect_name == DialectKind::Bigquery {
             result.insert('-');
         }

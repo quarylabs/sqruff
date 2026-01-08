@@ -629,7 +629,8 @@ dialect = bigquery
 rules = AL02
     "#,
                 None,
-            ),
+            )
+            .unwrap(),
             None,
             None,
             false,
@@ -663,7 +664,8 @@ dialect = bigquery
 rules = AL02
     "#,
                 None,
-            ),
+            )
+            .unwrap(),
             None,
             None,
             false,
@@ -678,7 +680,8 @@ rules = AL02
 disable_noqa = True
     "#,
                 None,
-            ),
+            )
+            .unwrap(),
             None,
             None,
             false,
@@ -709,7 +712,8 @@ dialect = bigquery
 rules = AL02
     "#,
                 None,
-            ),
+            )
+            .unwrap(),
             None,
             None,
             false,

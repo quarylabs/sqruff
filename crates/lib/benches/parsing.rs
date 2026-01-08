@@ -1,3 +1,4 @@
+use ahash::AHashMap;
 use criterion::{Criterion, criterion_group, criterion_main};
 use sqruff_lib::core::config::FluffConfig;
 use sqruff_lib::core::test_functions::fresh_ansi_dialect;
@@ -88,11 +89,26 @@ fn parse(c: &mut Criterion) {
 
     for (name, source) in passes {
         let config = FluffConfig::default();
-        let config_for_parser = config.clone();
-        let parser: Parser = (&config_for_parser).into();
+        let config_dialect = config
+            .dialect()
+            .expect("Dialect is disabled. Please enable the corresponding feature.");
+        let indentation = &config.indentation;
+        let mut indentation_config = AHashMap::new();
+        for (key, value) in [
+            ("indented_joins", indentation.indented_joins),
+            ("indented_using_on", indentation.indented_using_on),
+            ("indented_on_contents", indentation.indented_on_contents),
+            ("indented_then", indentation.indented_then),
+            ("indented_then_contents", indentation.indented_then_contents),
+            ("indented_joins_on", indentation.indented_joins_on),
+            ("indented_ctes", indentation.indented_ctes),
+        ] {
+            indentation_config.insert(key.to_string(), value.unwrap_or_default());
+        }
+        let parser = Parser::new(&config_dialect, indentation_config);
         let mut ctx: ParseContext = (&parser).into();
         let segment = dialect.r#ref("FileSegment");
-        let mut segments = lex(config.get_dialect(), source);
+        let mut segments = lex(&config_dialect, source);
 
         if segments.last().unwrap().get_type() == SyntaxKind::EndOfFile {
             segments.pop();

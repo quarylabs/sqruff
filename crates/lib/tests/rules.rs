@@ -141,11 +141,11 @@ The following test test can be used to recreate the issue:
 
 #[cfg(test)]
 mod tests {{
-    use sqruff_lib::core::{{config::FluffConfigTyped, linter::core::Linter}};
+    use sqruff_lib::core::{{config::FluffConfig, linter::core::Linter}};
 
     #[test]
     fn test_example() {{
-        let config = FluffConfigTyped::from_source("
+        let config = FluffConfig::from_source("
 [sqruff]
 rules = {rule}
 dialect = {dialect}

@@ -1,9 +1,8 @@
-use ahash::AHashMap;
 use criterion::{Criterion, criterion_group, criterion_main};
 use sqruff_lib::core::config::FluffConfig;
 use sqruff_lib::core::test_functions::fresh_ansi_dialect;
 use sqruff_lib_core::dialects::syntax::SyntaxKind;
-use sqruff_lib_core::parser::Parser;
+use sqruff_lib_core::parser::{IndentationConfig as ParserIndentationConfig, Parser};
 use sqruff_lib_core::parser::context::ParseContext;
 use sqruff_lib_core::parser::matchable::MatchableTrait as _;
 use sqruff_lib_core::parser::segments::test_functions::lex;
@@ -93,18 +92,16 @@ fn parse(c: &mut Criterion) {
             .dialect()
             .expect("Dialect is disabled. Please enable the corresponding feature.");
         let indentation = &config.indentation;
-        let mut indentation_config = AHashMap::new();
-        for (key, value) in [
-            ("indented_joins", indentation.indented_joins),
-            ("indented_using_on", indentation.indented_using_on),
-            ("indented_on_contents", indentation.indented_on_contents),
-            ("indented_then", indentation.indented_then),
-            ("indented_then_contents", indentation.indented_then_contents),
-            ("indented_joins_on", indentation.indented_joins_on),
-            ("indented_ctes", indentation.indented_ctes),
-        ] {
-            indentation_config.insert(key.to_string(), value.unwrap_or_default());
-        }
+        let indentation_config = ParserIndentationConfig::from_bool_lookup(|key| match key {
+            "indented_joins" => indentation.indented_joins.unwrap_or_default(),
+            "indented_using_on" => indentation.indented_using_on.unwrap_or_default(),
+            "indented_on_contents" => indentation.indented_on_contents.unwrap_or_default(),
+            "indented_then" => indentation.indented_then.unwrap_or_default(),
+            "indented_then_contents" => indentation.indented_then_contents.unwrap_or_default(),
+            "indented_joins_on" => indentation.indented_joins_on.unwrap_or_default(),
+            "indented_ctes" => indentation.indented_ctes.unwrap_or_default(),
+            _ => false,
+        });
         let parser = Parser::new(&config_dialect, indentation_config);
         let mut ctx: ParseContext = (&parser).into();
         let segment = dialect.r#ref("FileSegment");

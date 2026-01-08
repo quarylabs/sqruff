@@ -1,11 +1,11 @@
 use std::io::{self, BufRead};
 
-use sqruff_lib::core::{config::FluffConfig, linter::core::Linter};
+use sqruff_lib::core::{config::FluffConfigTyped, linter::core::Linter};
 use sqruff_lib_core::parser::segments::Tables;
 
 use crate::commands::{ParseArgs, ParseFormat};
 
-pub(crate) fn run_parse(args: ParseArgs, config: FluffConfig) -> i32 {
+pub(crate) fn run_parse(args: ParseArgs, config: FluffConfigTyped) -> i32 {
     if args.paths.is_empty() || (args.paths.len() == 1 && args.paths[0].to_str() == Some("-")) {
         run_parse_stdin(config, args.format)
     } else {
@@ -13,7 +13,7 @@ pub(crate) fn run_parse(args: ParseArgs, config: FluffConfig) -> i32 {
     }
 }
 
-fn run_parse_stdin(config: FluffConfig, format: ParseFormat) -> i32 {
+fn run_parse_stdin(config: FluffConfigTyped, format: ParseFormat) -> i32 {
     let stdin = io::stdin();
     let mut sql = String::new();
 
@@ -33,7 +33,7 @@ fn run_parse_stdin(config: FluffConfig, format: ParseFormat) -> i32 {
     parse_and_output_tree(&sql, "<stdin>", &config, format)
 }
 
-fn run_parse_files(args: ParseArgs, config: FluffConfig) -> i32 {
+fn run_parse_files(args: ParseArgs, config: FluffConfigTyped) -> i32 {
     let mut exit_code = 0;
 
     for path in &args.paths {
@@ -62,7 +62,7 @@ fn run_parse_files(args: ParseArgs, config: FluffConfig) -> i32 {
 fn parse_and_output_tree(
     sql: &str,
     filename: &str,
-    config: &FluffConfig,
+    config: &FluffConfigTyped,
     format: ParseFormat,
 ) -> i32 {
     // Create a linter and parse the SQL

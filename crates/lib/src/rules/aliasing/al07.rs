@@ -7,10 +7,9 @@ use sqruff_lib_core::dialects::syntax::{SyntaxKind, SyntaxSet};
 use sqruff_lib_core::lint_fix::LintFix;
 use sqruff_lib_core::parser::segments::{ErasedSegment, SegmentBuilder, Tables};
 
-use crate::core::config::Value;
 use crate::core::rules::context::RuleContext;
 use crate::core::rules::crawlers::{Crawler, SegmentSeekerCrawler};
-use crate::core::rules::{Erased, ErasedRule, LintResult, Rule, RuleGroups};
+use crate::core::rules::{LintResult, Rule, RuleGroups};
 use crate::utils::functional::context::FunctionalContext;
 
 #[derive(Debug)]
@@ -22,9 +21,7 @@ struct TableAliasInfo {
 }
 
 #[derive(Debug, Clone, Default)]
-pub struct RuleAL07 {
-    force_enable: bool,
-}
+pub struct RuleAL07;
 
 impl RuleAL07 {
     fn lint_aliases_in_join(
@@ -213,13 +210,6 @@ impl RuleAL07 {
 }
 
 impl Rule for RuleAL07 {
-    fn load_from_config(&self, _config: &AHashMap<String, Value>) -> Result<ErasedRule, String> {
-        Ok(RuleAL07 {
-            force_enable: _config["force_enable"].as_bool().unwrap(),
-        }
-        .erased())
-    }
-
     fn name(&self) -> &'static str {
         "aliasing.forbid"
     }
@@ -270,7 +260,7 @@ FROM
     }
 
     fn eval(&self, context: &RuleContext) -> Vec<LintResult> {
-        if !self.force_enable {
+        if !context.config.rules.aliasing_forbid.force_enable {
             return Vec::new();
         }
 

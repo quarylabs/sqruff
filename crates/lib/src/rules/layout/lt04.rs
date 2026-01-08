@@ -1,13 +1,11 @@
 use std::ops::Deref;
 
-use ahash::AHashMap;
 use sqruff_lib_core::dialects::syntax::{SyntaxKind, SyntaxSet};
 
 use super::lt03::RuleLT03;
-use crate::core::config::Value;
 use crate::core::rules::context::RuleContext;
 use crate::core::rules::crawlers::{Crawler, SegmentSeekerCrawler};
-use crate::core::rules::{Erased, ErasedRule, LintResult, Rule, RuleGroups};
+use crate::core::rules::{LintResult, Rule, RuleGroups};
 use crate::utils::reflow::sequence::{ReflowSequence, TargetSide};
 
 #[derive(Debug, Default, Clone)]
@@ -16,9 +14,6 @@ pub struct RuleLT04 {
 }
 
 impl Rule for RuleLT04 {
-    fn load_from_config(&self, _config: &AHashMap<String, Value>) -> Result<ErasedRule, String> {
-        Ok(RuleLT04::default().erased())
-    }
     fn name(&self) -> &'static str {
         "layout.commas"
     }
@@ -68,9 +63,13 @@ FROM foo
     }
 
     fn eval(&self, context: &RuleContext) -> Vec<LintResult> {
-        let comma_positioning = context.config.raw["layout"]["type"]["comma"]["line_position"]
-            .as_string()
-            .unwrap();
+        let comma_positioning = context
+            .config
+            .layout
+            .types
+            .get("comma")
+            .and_then(|config| config.line_position.as_deref())
+            .expect("layout.type.comma.line_position must be configured");
 
         if self.check_trail_lead_shortcut(
             &context.segment,

@@ -11,7 +11,7 @@ pub struct PythonFluffConfig {
     templater_unwrap_wrapped_queries: bool,
 
     jinja_templater_paths: Vec<String>,
-    jinja_loader_search_path: Option<String>,
+    jinja_loader_search_path: Vec<String>,
     jinja_apply_dbt_builtins: bool,
     jinja_ignore_templating: Option<bool>,
     jinja_library_paths: Vec<String>,
@@ -30,79 +30,22 @@ impl PythonFluffConfig {
     }
 }
 
-impl From<FluffConfig> for PythonFluffConfig {
-    fn from(value: FluffConfig) -> Self {
+impl From<&FluffConfig> for PythonFluffConfig {
+    fn from(value: &FluffConfig) -> Self {
+        let templater = value.templater.clone();
         Self {
-            templater_unwrap_wrapped_queries: value
-                .get_section("templater")
-                .get("unwrap_wrapped_queries")
-                .map(|value| value.as_bool().unwrap())
-                .unwrap_or(false),
-            jinja_templater_paths: value
-                .get_section("templater")
-                .get("jinja")
-                .and_then(|value| value.as_map())
-                .and_then(|value| value.get("templater_paths"))
-                .map(|value| {
-                    value
-                        .as_array()
-                        .unwrap()
-                        .iter()
-                        .map(|v| v.as_string().unwrap().to_string())
-                        .collect::<Vec<_>>()
-                })
-                .unwrap_or_default(),
-            jinja_loader_search_path: value
-                .get_section("templater")
-                .get("jinja")
-                .and_then(|value| value.as_map().unwrap().get("loader_search_path"))
-                .map(|value| value.as_string().unwrap().to_string()),
-            jinja_apply_dbt_builtins: value
-                .get_section("templater")
-                .get("jinja")
-                .and_then(|value| value.as_map())
-                .and_then(|value| value.get("apply_dbt_builtins"))
-                .map(|value| value.as_bool().unwrap())
-                .unwrap_or(false),
-            jinja_ignore_templating: value
-                .get_section("templater")
-                .get("jinja")
-                .and_then(|value| value.as_map())
-                .and_then(|value| value.get("ignore_templating").map(|v| v.as_bool().unwrap())),
-            jinja_library_paths: value
-                .get_section("templater")
-                .get("jinja")
-                .and_then(|value| value.as_map())
-                .and_then(|value| value.get("library_paths"))
-                .map(|value| {
-                    value
-                        .as_array()
-                        .unwrap()
-                        .iter()
-                        .map(|v| v.as_string().unwrap().to_string())
-                        .collect::<Vec<_>>()
-                })
-                .unwrap_or_default(),
+            templater_unwrap_wrapped_queries: templater.unwrap_wrapped_queries.unwrap_or(false),
+            jinja_templater_paths: templater.jinja.templater_paths,
+            jinja_loader_search_path: templater.jinja.loader_search_path,
+            jinja_apply_dbt_builtins: templater.jinja.apply_dbt_builtins.unwrap_or(false),
+            jinja_ignore_templating: templater.jinja.ignore_templating,
+            jinja_library_paths: templater.jinja.library_paths,
             dbt_profile: None,
-            dbt_profiles_dir: value
-                .get_section("templater")
-                .get("dbt")
-                .map(|value| value.as_map().unwrap())
-                .and_then(|value| {
-                    value
-                        .get("profiles_dir")
-                        .map(|v| v.as_string().unwrap().to_string())
-                }),
+            dbt_profiles_dir: templater.dbt.profiles_dir,
             dbt_target: None,
             dbt_target_path: None,
             dbt_context: None,
-            dbt_project_dir: value.get_section("templater").get("dbt").and_then(|value| {
-                value
-                    .as_map()
-                    .unwrap()
-                    .get("project_dir")
-                    .map(|v| v.as_string().unwrap().to_string())
-            }),
+            dbt_project_dir: templater.dbt.project_dir,
         }
     }
 }
@@ -114,22 +57,16 @@ impl<'py> FluffConfig {
         templater_name: &str,
     ) -> Result<Bound<'py, PyDict>, SQLFluffUserError> {
         let empty = AHashMap::default();
-        let context = self
-            .get_section("templater")
-            .get(templater_name)
-            .map(|value| value.as_map().expect("templater section must be a map"))
-            .and_then(|value| value.get("context"))
-            .map(|value| value.as_map().expect("context section must be a map"))
-            .unwrap_or(&empty);
+        let context = match templater_name {
+            "jinja" => &self.templater.jinja.context,
+            "dbt" => &self.templater.dbt.context,
+            "python" => &self.templater.python.context,
+            _ => &empty,
+        };
         let hashmap = context
             .iter()
-            .map(|(k, v)| {
-                let value = v.as_string().ok_or(SQLFluffUserError::new(
-                    "Python templater context values must be strings".to_string(),
-                ))?;
-                Ok((k.to_string(), value.to_string()))
-            })
-            .collect::<Result<AHashMap<String, String>, SQLFluffUserError>>()?;
+            .map(|(k, v)| (k.to_string(), v.to_string()))
+            .collect::<AHashMap<String, String>>();
         // pass object with Rust tuple of positional arguments
         let py_dict = PyDict::new(py);
         for (k, v) in hashmap {
@@ -147,16 +84,19 @@ mod tests {
 
     #[test]
     fn test_fluff_base_config() {
-        let config = FluffConfig::from_source("", None);
+        let config = FluffConfig::from_source("", None).unwrap();
 
-        let python_fluff_config = PythonFluffConfig::from(config);
+        let python_fluff_config = PythonFluffConfig::from(&config);
 
         assert_eq!(python_fluff_config.templater_unwrap_wrapped_queries, true);
         assert_eq!(
             python_fluff_config.jinja_templater_paths,
             Vec::<String>::new()
         );
-        assert_eq!(python_fluff_config.jinja_loader_search_path, None);
+        assert_eq!(
+            python_fluff_config.jinja_loader_search_path,
+            Vec::<String>::new()
+        );
         assert_eq!(python_fluff_config.jinja_apply_dbt_builtins, true);
         assert_eq!(python_fluff_config.jinja_ignore_templating, None);
     }

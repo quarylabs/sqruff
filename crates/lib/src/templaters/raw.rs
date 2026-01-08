@@ -52,7 +52,7 @@ mod test {
             .process(
                 in_str,
                 "test.sql",
-                &FluffConfig::from_source("", None),
+                &FluffConfig::from_source("", None).unwrap(),
                 &None,
             )
             .unwrap();

@@ -70,7 +70,8 @@ impl Wasm {
 
     #[wasm_bindgen(js_name = updateConfig)]
     pub fn update_config(&mut self, source: &str) {
-        *self.0.linter.config_mut() = FluffConfig::from_source(source, None);
+        let config = FluffConfig::from_source(source, None).unwrap_or_default();
+        self.0.linter.set_config(config);
         self.0.recheck_files();
     }
 
@@ -182,7 +183,7 @@ impl LanguageServer {
                 let uri = params.text_document.uri.as_str();
 
                 if uri.ends_with(".sqlfluff") || uri.ends_with(".sqruff") {
-                    *self.linter.config_mut() = load_config();
+                    self.linter.set_config(load_config());
 
                     self.recheck_files();
                 }

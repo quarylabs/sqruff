@@ -1,4 +1,3 @@
-use ahash::AHashMap;
 use itertools::Itertools;
 use smol_str::{SmolStr, ToSmolStr};
 use sqruff_lib_core::dialects::init::DialectKind;
@@ -8,20 +7,15 @@ use sqruff_lib_core::parser::segments::{ErasedSegment, SegmentBuilder, Tables};
 use sqruff_lib_core::utils::analysis::select::get_select_statement_info;
 use sqruff_lib_core::utils::functional::segments::Segments;
 
-use crate::core::config::Value;
 use crate::core::rules::context::RuleContext;
 use crate::core::rules::crawlers::{Crawler, SegmentSeekerCrawler};
-use crate::core::rules::{Erased as _, ErasedRule, LintResult, Rule, RuleGroups};
+use crate::core::rules::{LintResult, Rule, RuleGroups};
 use crate::utils::functional::context::FunctionalContext;
 
 #[derive(Clone, Debug, Default)]
 pub struct RuleST07;
 
 impl Rule for RuleST07 {
-    fn load_from_config(&self, _config: &AHashMap<String, Value>) -> Result<ErasedRule, String> {
-        Ok(RuleST07.erased())
-    }
-
     fn name(&self) -> &'static str {
         "structure.using"
     }

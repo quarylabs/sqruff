@@ -23,15 +23,15 @@ pub fn rules() -> Vec<ErasedRule> {
         lt02::RuleLT02.erased(),
         lt03::RuleLT03.erased(),
         lt04::RuleLT04::default().erased(),
-        lt05::RuleLT05::default().erased(),
+        lt05::RuleLT05.erased(),
         lt06::RuleLT06.erased(),
         lt07::RuleLT07.erased(),
         lt08::RuleLT08.erased(),
-        lt09::RuleLT09::default().erased(),
+        lt09::RuleLT09.erased(),
         lt10::RuleLT10.erased(),
         lt11::RuleLT11.erased(),
         lt12::RuleLT12.erased(),
         lt13::RuleLT13.erased(),
-        lt15::RuleLT15::default().erased(),
+        lt15::RuleLT15.erased(),
     ]
 }

@@ -1,22 +1,16 @@
-use ahash::AHashMap;
 use sqruff_lib_core::dialects::syntax::{SyntaxKind, SyntaxSet};
 use sqruff_lib_core::parser::segments::ErasedSegment;
 use sqruff_lib_core::utils::functional::segments::Segments;
 
-use crate::core::config::Value;
 use crate::core::rules::context::RuleContext;
 use crate::core::rules::crawlers::{Crawler, SegmentSeekerCrawler};
-use crate::core::rules::{Erased, ErasedRule, LintResult, Rule, RuleGroups};
+use crate::core::rules::{LintResult, Rule, RuleGroups};
 use crate::utils::functional::context::FunctionalContext;
 
 #[derive(Debug, Clone)]
 pub struct RuleAL03;
 
 impl Rule for RuleAL03 {
-    fn load_from_config(&self, _config: &AHashMap<String, Value>) -> Result<ErasedRule, String> {
-        Ok(RuleAL03.erased())
-    }
-
     fn name(&self) -> &'static str {
         "aliasing.expression"
     }
@@ -103,12 +97,7 @@ FROM foo
             return Vec::new();
         }
 
-        if context
-            .config
-            .get("allow_scalar", "rules")
-            .as_bool()
-            .unwrap()
-        {
+        if context.config.rules.allow_scalar {
             let immediate_parent = parent_stack.last().unwrap().clone();
             let elements = Segments::new(immediate_parent, None)
                 .children_where(|it| it.is_type(SyntaxKind::SelectClauseElement));

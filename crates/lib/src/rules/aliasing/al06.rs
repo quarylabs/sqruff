@@ -1,21 +1,21 @@
-use ahash::AHashMap;
 use sqruff_lib_core::dialects::syntax::{SyntaxKind, SyntaxSet};
 use sqruff_lib_core::parser::segments::ErasedSegment;
 
-use crate::core::config::Value;
 use crate::core::rules::context::RuleContext;
 use crate::core::rules::crawlers::{Crawler, SegmentSeekerCrawler};
-use crate::core::rules::{Erased, ErasedRule, LintResult, Rule, RuleGroups};
+use crate::core::rules::{LintResult, Rule, RuleGroups};
 use crate::utils::functional::context::FunctionalContext;
 
 #[derive(Debug, Clone, Default)]
-pub struct RuleAL06 {
-    min_alias_length: Option<usize>,
-    max_alias_length: Option<usize>,
-}
+pub struct RuleAL06;
 
 impl RuleAL06 {
-    fn lint_aliases(&self, from_expression_elements: Vec<ErasedSegment>) -> Vec<LintResult> {
+    fn lint_aliases(
+        &self,
+        from_expression_elements: Vec<ErasedSegment>,
+        min_alias_length: Option<usize>,
+        max_alias_length: Option<usize>,
+    ) -> Vec<LintResult> {
         let mut violation_buff = Vec::new();
 
         for from_expression_element in from_expression_elements {
@@ -42,7 +42,7 @@ impl RuleAL06 {
                 return Vec::new();
             };
 
-            if let Some(min_alias_length) = self.min_alias_length
+            if let Some(min_alias_length) = min_alias_length
                 && let Some(alias_identifier_ref) =
                     alias_exp_ref.child(const { &SyntaxSet::new(&[SyntaxKind::Identifier, SyntaxKind::NakedIdentifier]) })
                 {
@@ -53,7 +53,7 @@ impl RuleAL06 {
                             Vec::new(),
                             format!(
                                 "Aliases should be at least '{:?}' character(s) long",
-                                self.min_alias_length
+                                min_alias_length
                             )
                             .into(),
                             None,
@@ -61,7 +61,7 @@ impl RuleAL06 {
                     }
                 }
 
-            if let Some(max_alias_length) = self.max_alias_length
+            if let Some(max_alias_length) = max_alias_length
                 && let Some(alias_identifier_ref) =
                     alias_exp_ref.child(const { &SyntaxSet::new(&[SyntaxKind::Identifier, SyntaxKind::NakedIdentifier]) })
                 {
@@ -73,7 +73,7 @@ impl RuleAL06 {
                             Vec::new(),
                             format!(
                                 "Aliases should be no more than '{:?}' character(s) long.",
-                                self.max_alias_length
+                                max_alias_length
                             )
                             .into(),
                             None,
@@ -87,14 +87,6 @@ impl RuleAL06 {
 }
 
 impl Rule for RuleAL06 {
-    fn load_from_config(&self, config: &AHashMap<String, Value>) -> Result<ErasedRule, String> {
-        Ok(RuleAL06 {
-            min_alias_length: config["min_alias_length"].as_int().map(|it| it as usize),
-            max_alias_length: config["max_alias_length"].as_int().map(|it| it as usize),
-        }
-        .erased())
-    }
-
     fn name(&self) -> &'static str {
         "aliasing.length"
     }
@@ -143,12 +135,17 @@ JOIN
     }
 
     fn eval(&self, context: &RuleContext) -> Vec<LintResult> {
+        let rules = &context.config.rules.aliasing_length;
         let children = FunctionalContext::new(context).segment().children_all();
         let from_expression_elements = children.recursive_crawl(
             const { &SyntaxSet::new(&[SyntaxKind::FromExpressionElement]) },
             true,
         );
-        self.lint_aliases(from_expression_elements.base)
+        self.lint_aliases(
+            from_expression_elements.base,
+            rules.min_alias_length,
+            rules.max_alias_length,
+        )
     }
 
     fn crawl_behaviour(&self) -> Crawler {

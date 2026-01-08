@@ -1,28 +1,14 @@
-use ahash::AHashMap;
 use sqruff_lib_core::dialects::syntax::{SyntaxKind, SyntaxSet};
 
 use super::cp01::handle_segment;
-use crate::core::config::Value;
 use crate::core::rules::context::RuleContext;
 use crate::core::rules::crawlers::{Crawler, SegmentSeekerCrawler};
-use crate::core::rules::{Erased, ErasedRule, LintResult, Rule, RuleGroups};
+use crate::core::rules::{LintResult, Rule, RuleGroups};
 
 #[derive(Debug, Default, Clone)]
-pub struct RuleCP05 {
-    extended_capitalisation_policy: String,
-}
+pub struct RuleCP05;
 
 impl Rule for RuleCP05 {
-    fn load_from_config(&self, config: &AHashMap<String, Value>) -> Result<ErasedRule, String> {
-        Ok(RuleCP05 {
-            extended_capitalisation_policy: config["extended_capitalisation_policy"]
-                .as_string()
-                .unwrap()
-                .to_string(),
-        }
-        .erased())
-    }
-
     fn name(&self) -> &'static str {
         "capitalisation.types"
     }
@@ -66,6 +52,11 @@ CREATE TABLE t (
     }
 
     fn eval(&self, context: &RuleContext) -> Vec<LintResult> {
+        let extended_capitalisation_policy = &context
+            .config
+            .rules
+            .capitalisation_types
+            .extended_capitalisation_policy;
         let mut results = Vec::new();
 
         if context.segment.is_type(SyntaxKind::PrimitiveType)
@@ -83,7 +74,7 @@ CREATE TABLE t (
 
                 results.push(handle_segment(
                     "Datatypes",
-                    &self.extended_capitalisation_policy,
+                    extended_capitalisation_policy,
                     "extended_capitalisation_policy",
                     seg.clone(),
                     context,

@@ -217,6 +217,7 @@ impl LintedFile {
 }
 
 #[cfg(test)]
+#[allow(clippy::single_range_in_vec_init)]
 mod test {
     use sqruff_lib_core::templaters::TemplatedFileSlice;
 

@@ -4,11 +4,11 @@ use sqruff_lib::core::linter::core::Linter;
 use sqruff_lib::core::test_functions::fresh_ansi_dialect;
 use sqruff_lib_core::dialects::init::DialectKind;
 use sqruff_lib_core::dialects::syntax::SyntaxKind;
-use sqruff_lib_core::parser::Parser;
 use sqruff_lib_core::parser::context::ParseContext;
 use sqruff_lib_core::parser::matchable::MatchableTrait;
 use sqruff_lib_core::parser::segments::Tables;
 use sqruff_lib_core::parser::segments::test_functions::lex;
+use sqruff_lib_core::parser::{IndentationConfig as ParserIndentationConfig, Parser};
 
 #[test]
 fn test_dialect_ansi_file_lex() {
@@ -148,12 +148,24 @@ fn test_dialect_ansi_specific_segment_parses() {
         ),
     ];
 
-    let dialect = fresh_ansi_dialect();
-    let config: FluffConfig = FluffConfig::new(<_>::default(), None, None);
+    let config = FluffConfig::default();
+    let dialect = config
+        .dialect()
+        .expect("Dialect is disabled. Please enable the corresponding feature.");
+    let indentation = &config.indentation;
+    let indentation_config = ParserIndentationConfig::from_bool_lookup(|key| match key {
+        "indented_joins" => indentation.indented_joins.unwrap_or_default(),
+        "indented_using_on" => indentation.indented_using_on.unwrap_or_default(),
+        "indented_on_contents" => indentation.indented_on_contents.unwrap_or_default(),
+        "indented_then" => indentation.indented_then.unwrap_or_default(),
+        "indented_then_contents" => indentation.indented_then_contents.unwrap_or_default(),
+        "indented_joins_on" => indentation.indented_joins_on.unwrap_or_default(),
+        "indented_ctes" => indentation.indented_ctes.unwrap_or_default(),
+        _ => false,
+    });
 
     for (segment_ref, sql_string) in cases {
-        let config = config.clone();
-        let parser: Parser = (&config).into();
+        let parser = Parser::new(&dialect, indentation_config);
         let mut ctx: ParseContext = (&parser).into();
 
         let segment = dialect.r#ref(segment_ref);
@@ -190,12 +202,7 @@ fn test_dialect_ansi_specific_segment_not_parse() {
     ];
 
     for (raw, err_locations) in tests {
-        let lnt = Linter::new(
-            FluffConfig::new(<_>::default(), None, None),
-            None,
-            None,
-            false,
-        );
+        let lnt = Linter::new(FluffConfig::default(), None, None, false);
         let tables = Tables::default();
         let parsed = lnt.parse_string(&tables, raw, None).unwrap();
         assert!(!parsed.violations.is_empty());
@@ -211,12 +218,7 @@ fn test_dialect_ansi_specific_segment_not_parse() {
 
 #[test]
 fn test_dialect_ansi_is_whitespace() {
-    let lnt = Linter::new(
-        FluffConfig::new(<_>::default(), None, None),
-        None,
-        None,
-        false,
-    );
+    let lnt = Linter::new(FluffConfig::default(), None, None, false);
     let file_content = std::fs::read_to_string(
         "../lib-dialects/test/fixtures/dialects/ansi/sqlfluff/select_in_multiline_comment.sql",
     )
@@ -244,12 +246,7 @@ fn test_dialect_ansi_parse_indented_joins() {
             [1, 5, 8, 11, 15, 17, 19, 23, 24, 26, 29, 31, 33, 34, 35].as_slice(),
         ),
     ];
-    let lnt = Linter::new(
-        FluffConfig::new(<_>::default(), None, None),
-        None,
-        None,
-        false,
-    );
+    let lnt = Linter::new(FluffConfig::default(), None, None, false);
 
     for (sql_string, meta_loc) in cases {
         let tables = Tables::default();

@@ -7,10 +7,12 @@ load("@rules_shellcheck//:def.bzl", "shellcheck_test")
 # Link all npm packages into node_modules
 npm_link_all_packages(name = "node_modules")
 
-# Prettier configuration
+# Prettier configuration and pnpm workspace files
 exports_files([
     ".prettierrc.json",
+    "package.json",
     "pnpm-lock.yaml",
+    "pnpm-workspace.yaml",
 ])
 
 # Files to check with prettier
@@ -18,25 +20,14 @@ filegroup(
     name = "prettier_srcs",
     srcs = glob(
         [
-            "editors/**/*.ts",
-            "editors/**/*.js",
-            "editors/**/*.json",
-            "editors/**/*.md",
-            "playground/**/*.ts",
-            "playground/**/*.tsx",
-            "playground/**/*.css",
-            "playground/**/*.html",
-            "playground/**/*.json",
             ".github/**/*.yaml",
             ".github/**/*.yml",
         ],
-        exclude = [
-            "**/node_modules/**",
-            "**/dist/**",
-            "**/out/**",
-            "**/.vscode-test/**",
-        ],
-    ) + ["README.md"],
+    ) + [
+        "README.md",
+        "//editors/code:prettier_srcs",
+        "//playground:prettier_srcs",
+    ],
 )
 
 # Prettier format check test
@@ -96,8 +87,8 @@ sh_test(
     data = [
         "LICENSE",
         "README.md",
-        "editors/code/LICENSE",
-        "editors/code/README.md",
+        "//editors/code:LICENSE",
+        "//editors/code:README.md",
     ],
 )
 
@@ -118,7 +109,7 @@ sh_test(
     srcs = [".hacking/scripts/check_versions_match.sh"],
     data = [
         "Cargo.toml",
-        "editors/code/package.json",
+        "//editors/code:package.json",
         "//crates/cli-python:pyproject.toml",
         "pyproject.toml",
     ],

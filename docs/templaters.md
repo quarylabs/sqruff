@@ -161,4 +161,4 @@ Not fully implemented yet. More details to come.
 
 ### dbt
 
-Not fully implemented yet. More details to come.
+dbt templater for processing dbt models with Jinja templating and manifest support.

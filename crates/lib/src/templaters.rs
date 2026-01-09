@@ -64,4 +64,35 @@ pub trait Templater: Send + Sync {
         config: &FluffConfig,
         formatter: &Option<Arc<dyn Formatter>>,
     ) -> Result<TemplatedFile, SQLFluffUserError>;
+
+    /// Whether this templater supports optimized batch processing.
+    /// When true, process_batch should be used for multiple files.
+    fn supports_batch_processing(&self) -> bool {
+        false
+    }
+
+    /// Process multiple files in a batch, allowing for shared state optimization.
+    /// This is particularly useful for templaters like dbt that have expensive
+    /// initialization (manifest loading) that can be shared across files.
+    ///
+    /// The default implementation just calls process() for each file.
+    /// Templaters that benefit from batch processing should override this.
+    ///
+    /// Arguments:
+    /// - files: Vector of (file_content, file_name) tuples
+    /// - config: The configuration to use
+    /// - formatter: Optional formatter for output
+    ///
+    /// Returns a vector of results in the same order as the input files.
+    fn process_batch(
+        &self,
+        files: &[(String, String)],
+        config: &FluffConfig,
+        formatter: &Option<Arc<dyn Formatter>>,
+    ) -> Vec<Result<TemplatedFile, SQLFluffUserError>> {
+        files
+            .iter()
+            .map(|(content, fname)| self.process(content, fname, config, formatter))
+            .collect()
+    }
 }

@@ -24,6 +24,15 @@ http_archive(
     strip_prefix = "cargo-machete-v0.9.1-x86_64-unknown-linux-musl",
     url = "https://github.com/bnjbvr/cargo-machete/releases/download/v0.9.1/cargo-machete-v0.9.1-x86_64-unknown-linux-musl.tar.gz",
 )
+
+# uv for Python package management and running tests
+http_archive(
+    name = "uv",
+    build_file_content = """exports_files(["uv"])""",
+    sha256 = "e170aed70ac0225feee612e855d3a57ae73c61ffb22c7e52c3fd33b87c286508",
+    strip_prefix = "uv-x86_64-unknown-linux-gnu",
+    url = "https://github.com/astral-sh/uv/releases/download/0.9.22/uv-x86_64-unknown-linux-gnu.tar.gz",
+)
 bazel_dep(name = "aspect_rules_js", version = "2.3.7")
 bazel_dep(name = "rules_nodejs", version = "6.3.4")
 bazel_dep(name = "rules_python", version = "1.7.0")
@@ -54,6 +63,13 @@ pnpm.pnpm(
     pnpm_version = "10.0.0",
 )
 use_repo(pnpm, "pnpm")
+
+# Python toolchain
+python = use_extension("@rules_python//python/extensions:python.bzl", "python")
+python.toolchain(
+    is_default = True,
+    python_version = "3.12",
+)
 
 # Rust toolchain
 rust = use_extension("@rules_rust//rust:extensions.bzl", "rust")

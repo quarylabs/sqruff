@@ -30,7 +30,7 @@ file:
       - from_expression:
         - from_expression_element:
           - table_expression:
-            - object_reference:
+            - table_reference:
               - naked_identifier: schema
               - dot: .
               - naked_identifier: test_table
@@ -72,7 +72,7 @@ file:
       - from_expression:
         - from_expression_element:
           - table_expression:
-            - object_reference:
+            - table_reference:
               - naked_identifier: schema
               - dot: .
               - naked_identifier: test_table

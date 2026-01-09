@@ -15,12 +15,12 @@ file:
         - expression:
           - column_reference:
             - naked_identifier: VALUE
-          - comparison_operator: '~'
+          - like_operator: '~'
           - quoted_literal: '''^\d{5}$'''
           - binary_operator: OR
           - column_reference:
             - naked_identifier: VALUE
-          - comparison_operator: '~'
+          - like_operator: '~'
           - quoted_literal: '''^\d{5}-\d{4}$'''
         - end_bracket: )
 - statement_terminator: ;

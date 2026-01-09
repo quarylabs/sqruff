@@ -1,0 +1,133 @@
+file:
+- statement:
+  - create_table_statement:
+    - keyword: CREATE
+    - keyword: TABLE
+    - table_reference:
+      - naked_identifier: db
+      - dot: .
+      - naked_identifier: foo
+    - bracketed:
+      - start_bracket: (
+      - column_definition:
+        - naked_identifier: col1
+        - data_type:
+          - primitive_type:
+            - keyword: string
+      - comma: ','
+      - column_definition:
+        - naked_identifier: col2
+        - data_type:
+          - primitive_type:
+            - keyword: int
+      - comma: ','
+      - column_definition:
+        - naked_identifier: col3
+        - data_type:
+          - primitive_type:
+            - keyword: decimal
+      - comma: ','
+      - column_definition:
+        - naked_identifier: col4
+        - data_type:
+          - primitive_type:
+            - keyword: decimal
+            - bracketed_arguments:
+              - bracketed:
+                - start_bracket: (
+                - numeric_literal: '10'
+                - comma: ','
+                - numeric_literal: '2'
+                - end_bracket: )
+      - comma: ','
+      - column_definition:
+        - naked_identifier: col5
+        - data_type:
+          - array_type:
+            - keyword: ARRAY
+            - start_angle_bracket: <
+            - data_type:
+              - primitive_type:
+                - keyword: double
+            - end_angle_bracket: '>'
+      - comma: ','
+      - column_definition:
+        - naked_identifier: col6
+        - data_type:
+          - keyword: MAP
+          - start_angle_bracket: <
+          - primitive_type:
+            - keyword: varchar
+          - comma: ','
+          - data_type:
+            - primitive_type:
+              - keyword: date
+          - end_angle_bracket: '>'
+      - comma: ','
+      - column_definition:
+        - naked_identifier: col7
+        - data_type:
+          - struct_type:
+            - keyword: STRUCT
+            - struct_type_schema:
+              - start_angle_bracket: <
+              - naked_identifier: field1
+              - colon: ':'
+              - data_type:
+                - primitive_type:
+                  - keyword: boolean
+              - comma: ','
+              - naked_identifier: field2
+              - colon: ':'
+              - data_type:
+                - array_type:
+                  - keyword: ARRAY
+                  - start_angle_bracket: <
+                  - data_type:
+                    - primitive_type:
+                      - keyword: double
+                      - keyword: precision
+                  - end_angle_bracket: '>'
+              - comma: ','
+              - naked_identifier: field3
+              - colon: ':'
+              - data_type:
+                - keyword: UNIONTYPE
+                - start_angle_bracket: <
+                - data_type:
+                  - primitive_type:
+                    - keyword: string
+                - comma: ','
+                - data_type:
+                  - primitive_type:
+                    - keyword: decimal
+                    - bracketed_arguments:
+                      - bracketed:
+                        - start_bracket: (
+                        - numeric_literal: '10'
+                        - comma: ','
+                        - numeric_literal: '2'
+                        - end_bracket: )
+                - end_angle_bracket: '>'
+              - end_angle_bracket: '>'
+      - comma: ','
+      - column_definition:
+        - naked_identifier: col8
+        - data_type:
+          - keyword: UNIONTYPE
+          - start_angle_bracket: <
+          - data_type:
+            - primitive_type:
+              - keyword: string
+          - comma: ','
+          - data_type:
+            - array_type:
+              - keyword: ARRAY
+              - start_angle_bracket: <
+              - data_type:
+                - primitive_type:
+                  - keyword: char
+              - end_angle_bracket: '>'
+          - end_angle_bracket: '>'
+      - end_bracket: )
+- statement_terminator: ;

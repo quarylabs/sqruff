@@ -72,7 +72,8 @@ file:
               '1 year, 3 quarters, 4 months, 5 weeks, 6 days, 7 minutes, 8 seconds,
                                           1000 milliseconds, 4000000 microseconds, 5000000001 nanoseconds'
         - alias_expression:
-          - keyword: as
+          - alias_operator:
+            - keyword: as
           - naked_identifier: complex_interval1
 - statement_terminator: ;
 - statement:
@@ -96,7 +97,8 @@ file:
               '1 y, 3 q, 4 mm, 5 w, 6 d, 7 h, 9 m, 8 s,
                                               1000 ms, 445343232 us, 898498273498 ns'
         - alias_expression:
-          - keyword: as
+          - alias_operator:
+            - keyword: as
           - naked_identifier: complex_interval2
 - statement_terminator: ;
 - statement:

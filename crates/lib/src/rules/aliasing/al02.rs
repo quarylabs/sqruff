@@ -90,6 +90,7 @@ FROM foo
         ) {
             return Vec::new();
         }
+        }
 
         self.base.eval(context)
     }

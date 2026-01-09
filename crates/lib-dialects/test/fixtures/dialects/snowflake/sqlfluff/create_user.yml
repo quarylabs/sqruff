@@ -5,6 +5,11 @@ file:
     - keyword: user
     - object_reference:
       - naked_identifier: user1
+    - keyword: type
+    - comparison_operator:
+      - raw_comparison_operator: =
+    - object_reference:
+      - naked_identifier: person
     - keyword: password
     - comparison_operator:
       - raw_comparison_operator: =
@@ -67,6 +72,10 @@ file:
     - keyword: user
     - object_reference:
       - naked_identifier: user2
+    - keyword: type
+    - comparison_operator:
+      - raw_comparison_operator: =
+    - quoted_literal: '''service'''
     - keyword: password
     - comparison_operator:
       - raw_comparison_operator: =
@@ -107,4 +116,134 @@ file:
     - comparison_operator:
       - raw_comparison_operator: =
     - boolean_literal: 'false'
+- statement_terminator: ;
+- statement:
+  - create_user_statement:
+    - keyword: create
+    - keyword: user
+    - object_reference:
+      - naked_identifier: user3
+    - keyword: type
+    - comparison_operator:
+      - raw_comparison_operator: =
+    - object_reference:
+      - naked_identifier: person
+    - keyword: rsa_public_key
+    - comparison_operator:
+      - raw_comparison_operator: =
+    - quoted_literal: '''<BASE 64 ENCODED PUBLIC KEY>'''
+    - keyword: default_role
+    - comparison_operator:
+      - raw_comparison_operator: =
+    - object_reference:
+      - naked_identifier: myrole
+    - keyword: display_name
+    - comparison_operator:
+      - raw_comparison_operator: =
+    - object_reference:
+      - naked_identifier: user1
+    - keyword: login_name
+    - comparison_operator:
+      - raw_comparison_operator: =
+    - object_reference:
+      - naked_identifier: my_login_name
+    - keyword: first_name
+    - comparison_operator:
+      - raw_comparison_operator: =
+    - object_reference:
+      - naked_identifier: User1
+    - keyword: middle_name
+    - comparison_operator:
+      - raw_comparison_operator: =
+    - object_reference:
+      - naked_identifier: abc
+    - keyword: last_name
+    - comparison_operator:
+      - raw_comparison_operator: =
+    - object_reference:
+      - naked_identifier: Test1
+    - keyword: default_warehouse
+    - comparison_operator:
+      - raw_comparison_operator: =
+    - object_reference:
+      - naked_identifier: my_default_warehouse
+    - keyword: default_namespace
+    - comparison_operator:
+      - raw_comparison_operator: =
+    - object_reference:
+      - naked_identifier: my_default_namespace
+    - keyword: default_secondary_roles
+    - comparison_operator:
+      - raw_comparison_operator: =
+    - bracketed:
+      - start_bracket: (
+      - quoted_literal: '''ALL'''
+      - end_bracket: )
+- statement_terminator: ;
+- statement:
+  - create_user_statement:
+    - keyword: create
+    - keyword: user
+    - object_reference:
+      - naked_identifier: user4
+    - keyword: type
+    - comparison_operator:
+      - raw_comparison_operator: =
+    - object_reference:
+      - naked_identifier: person
+    - keyword: rsa_public_key
+    - comparison_operator:
+      - raw_comparison_operator: =
+    - quoted_literal: '''<BASE 64 ENCODED PUBLIC KEY>'''
+    - keyword: rsa_public_key_2
+    - comparison_operator:
+      - raw_comparison_operator: =
+    - quoted_literal: '''<SECOND BASE 64 ENCODED PUBLIC KEY>'''
+    - keyword: default_role
+    - comparison_operator:
+      - raw_comparison_operator: =
+    - object_reference:
+      - naked_identifier: myrole
+    - keyword: display_name
+    - comparison_operator:
+      - raw_comparison_operator: =
+    - object_reference:
+      - naked_identifier: user1
+    - keyword: login_name
+    - comparison_operator:
+      - raw_comparison_operator: =
+    - object_reference:
+      - naked_identifier: my_login_name
+    - keyword: first_name
+    - comparison_operator:
+      - raw_comparison_operator: =
+    - object_reference:
+      - naked_identifier: User1
+    - keyword: middle_name
+    - comparison_operator:
+      - raw_comparison_operator: =
+    - object_reference:
+      - naked_identifier: abc
+    - keyword: last_name
+    - comparison_operator:
+      - raw_comparison_operator: =
+    - object_reference:
+      - naked_identifier: Test1
+    - keyword: default_warehouse
+    - comparison_operator:
+      - raw_comparison_operator: =
+    - object_reference:
+      - naked_identifier: my_default_warehouse
+    - keyword: default_namespace
+    - comparison_operator:
+      - raw_comparison_operator: =
+    - object_reference:
+      - naked_identifier: my_default_namespace
+    - keyword: default_secondary_roles
+    - comparison_operator:
+      - raw_comparison_operator: =
+    - bracketed:
+      - start_bracket: (
+      - quoted_literal: '''ALL'''
+      - end_bracket: )
 - statement_terminator: ;

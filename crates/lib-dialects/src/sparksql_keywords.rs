@@ -1,4 +1,4 @@
-pub(crate) const RESERVED_KEYWORDS: &[&str] = &[
+pub(crate) const RESERVED_KEYWORDS: [&str; 67] = [
     "ALL",
     "AND",
     "ANY",
@@ -68,7 +68,7 @@ pub(crate) const RESERVED_KEYWORDS: &[&str] = &[
     "WITH",
 ];
 
-pub(crate) const UNRESERVED_KEYWORDS: &[&str] = &[
+pub(crate) const UNRESERVED_KEYWORDS: [&str; 248] = [
     "ADD",
     "AFTER",
     "ALTER",
@@ -80,6 +80,7 @@ pub(crate) const UNRESERVED_KEYWORDS: &[&str] = &[
     "AT",
     "BERNOULLI",
     "BETWEEN",
+    "BINDING",
     "BUCKET",
     "BUCKETS",
     "BY",
@@ -96,6 +97,7 @@ pub(crate) const UNRESERVED_KEYWORDS: &[&str] = &[
     "COMMIT",
     "COMPACT",
     "COMPACTIONS",
+    "COMPENSATION",
     "COMPUTE",
     "CONCATENATE",
     "COST",
@@ -123,6 +125,7 @@ pub(crate) const UNRESERVED_KEYWORDS: &[&str] = &[
     "DIV",
     "DROP",
     "ESCAPED",
+    "EVOLUTION",
     "EXCHANGE",
     "EXISTS",
     "EXPLAIN",
@@ -273,9 +276,9 @@ pub(crate) const UNRESERVED_KEYWORDS: &[&str] = &[
     "UPDATE",
     "USE",
     "VALUES",
-    "VARIANT",
     "VAR",
     "VARIABLE",
+    "VARIANT",
     "VIEW",
     "VIEWS",
     "WRITE",
@@ -283,26 +286,21 @@ pub(crate) const UNRESERVED_KEYWORDS: &[&str] = &[
     "YEAR",
     "YEARS",
     "ZONE",
-    // Spark Core Data Sources
-    // https://spark.apache.org/docs/latest/sql-data-sources.html
     "AVRO",
     "CSV",
     "JSON",
     "PARQUET",
     "ORC",
     "JDBC",
-    // Community Contributed Data Sources
-    "DELTA", // https://github.com/delta-io/delta
-    "XML",   // https://github.com/databricks/spark-xml
+    "DELTA",
+    "XML",
     "ICEBERG",
-    // Delta Lake
     "DETAIL",
     "DRY",
     "GENERATE",
     "HISTORY",
     "RETAIN",
     "RUN",
-    // Databricks - Delta Live Tables
     "CHANGES",
     "DELETES",
     "EXPECT",
@@ -314,7 +312,6 @@ pub(crate) const UNRESERVED_KEYWORDS: &[&str] = &[
     "VIOLATION",
     "TRACK",
     "HISTORY",
-    // Databricks widget
     "WIDGET",
     "DROPDOWN",
     "TEXT",

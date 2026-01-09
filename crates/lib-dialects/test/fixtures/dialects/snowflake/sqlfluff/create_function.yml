@@ -392,3 +392,202 @@ file:
         }
         $$
 - statement_terminator: ;
+- statement:
+  - create_function_statement:
+    - keyword: CREATE
+    - keyword: OR
+    - keyword: REPLACE
+    - keyword: FUNCTION
+    - function_name:
+      - function_name_identifier: google_translate_python
+    - function_parameter_list:
+      - bracketed:
+        - start_bracket: (
+        - parameter: sentence
+        - data_type:
+          - data_type_identifier: STRING
+        - comma: ','
+        - parameter: language
+        - data_type:
+          - data_type_identifier: STRING
+        - end_bracket: )
+    - keyword: RETURNS
+    - data_type:
+      - data_type_identifier: STRING
+    - keyword: LANGUAGE
+    - keyword: PYTHON
+    - keyword: RUNTIME_VERSION
+    - comparison_operator:
+      - raw_comparison_operator: =
+    - quoted_literal: '''3.8'''
+    - keyword: HANDLER
+    - comparison_operator:
+      - raw_comparison_operator: =
+    - quoted_literal: '''get_translation'''
+    - keyword: EXTERNAL_ACCESS_INTEGRATIONS
+    - comparison_operator:
+      - raw_comparison_operator: =
+    - bracketed:
+      - start_bracket: (
+      - naked_identifier: google_apis_access_integration
+      - comma: ','
+      - naked_identifier: my_integration
+      - end_bracket: )
+    - keyword: PACKAGES
+    - comparison_operator:
+      - raw_comparison_operator: =
+    - bracketed:
+      - start_bracket: (
+      - quoted_literal: '''snowflake-snowpark-python'''
+      - comma: ','
+      - quoted_literal: '''requests'''
+      - end_bracket: )
+    - keyword: SECRETS
+    - comparison_operator:
+      - raw_comparison_operator: =
+    - bracketed:
+      - start_bracket: (
+      - quoted_literal: '''cred'''
+      - comparison_operator:
+        - raw_comparison_operator: =
+      - naked_identifier: oauth_token
+      - comma: ','
+      - quoted_literal: '''cred2'''
+      - comparison_operator:
+        - raw_comparison_operator: =
+      - naked_identifier: DATA_STAGE
+      - dot: .
+      - naked_identifier: AWS_SECRET_KEY
+      - end_bracket: )
+    - keyword: AS
+    - udf_body: |-
+        $$
+        import _snowflake
+        import requests
+        import json
+        session = requests.Session()
+        def get_translation(sentence, language):
+          token = _snowflake.get_oauth_access_token('cred')
+          url = "https://translation.googleapis.com/language/translate/v2"
+          data = {'q': sentence,'target': language}
+          response = session.post(url, json = data, headers = {"Authorization": "Bearer " + token})
+          return response.json()['data']['translations'][0]['translatedText']
+        $$
+- statement_terminator: ;
+- statement:
+  - create_function_statement:
+    - keyword: create
+    - keyword: or
+    - keyword: replace
+    - keyword: aggregate
+    - keyword: function
+    - function_name:
+      - function_name_identifier: addone
+    - function_parameter_list:
+      - bracketed:
+        - start_bracket: (
+        - parameter: i
+        - data_type:
+          - data_type_identifier: int
+        - end_bracket: )
+    - keyword: returns
+    - data_type:
+      - data_type_identifier: int
+    - keyword: language
+    - keyword: python
+    - keyword: runtime_version
+    - comparison_operator:
+      - raw_comparison_operator: =
+    - quoted_literal: '''3.8'''
+    - keyword: handler
+    - comparison_operator:
+      - raw_comparison_operator: =
+    - quoted_literal: '''addone_py'''
+    - keyword: as
+    - udf_body: |-
+        $$
+        def addone_py(i):
+          return i+1
+        $$
+- statement_terminator: ;
+- statement:
+  - create_function_statement:
+    - keyword: CREATE
+    - keyword: OR
+    - keyword: REPLACE
+    - keyword: FUNCTION
+    - function_name:
+      - naked_identifier: TEST_DB
+      - dot: .
+      - naked_identifier: TEST_SCHEMA
+      - dot: .
+      - function_name_identifier: TEST_TABLE
+    - function_parameter_list:
+      - bracketed:
+        - start_bracket: (
+        - parameter: COL_1
+        - data_type:
+          - data_type_identifier: VARCHAR
+        - keyword: DEFAULT
+        - expression:
+          - null_literal: 'NULL'
+        - comma: ','
+        - parameter: COL_2
+        - data_type:
+          - data_type_identifier: VARCHAR
+        - keyword: DEFAULT
+        - expression:
+          - null_literal: 'NULL'
+        - end_bracket: )
+    - keyword: RETURNS
+    - data_type:
+      - data_type_identifier: VARCHAR
+    - keyword: LANGUAGE
+    - keyword: SQL
+    - keyword: AS
+    - udf_body: |-
+        $$
+        SELECT
+                CASE
+                    WHEN (LOWER(COL_1) IS NOT NULL AND
+                                LOWER(COL_2) = 'test_marketing')
+                        THEN 'marketing_channel'
+                    ELSE '(Other)'
+        END
+        $$
+- statement_terminator: ;
+- statement_terminator: ;
+- statement:
+  - create_function_statement:
+    - keyword: CREATE
+    - keyword: TEMPORARY
+    - keyword: FUNCTION
+    - function_name:
+      - function_name_identifier: pi_udf
+    - function_parameter_list:
+      - bracketed:
+        - start_bracket: (
+        - end_bracket: )
+    - keyword: RETURNS
+    - data_type:
+      - data_type_identifier: FLOAT
+    - keyword: AS
+    - udf_body: '''3.141592654::FLOAT'''
+- statement_terminator: ;
+- statement:
+  - create_function_statement:
+    - keyword: CREATE
+    - keyword: TEMP
+    - keyword: FUNCTION
+    - function_name:
+      - function_name_identifier: pi_udf
+    - function_parameter_list:
+      - bracketed:
+        - start_bracket: (
+        - end_bracket: )
+    - keyword: RETURNS
+    - data_type:
+      - data_type_identifier: FLOAT
+    - keyword: AS
+    - udf_body: '''3.141592654::FLOAT'''
+- statement_terminator: ;

@@ -51,16 +51,18 @@ file:
               - keyword: AS
               - data_type:
                 - keyword: TIMESTAMP
-                - bracketed:
-                  - start_bracket: (
-                  - numeric_literal: '6'
-                  - end_bracket: )
+                - bracketed_arguments:
+                  - bracketed:
+                    - start_bracket: (
+                    - numeric_literal: '6'
+                    - end_bracket: )
                 - keyword: WITH
                 - keyword: TIME
                 - keyword: ZONE
               - end_bracket: )
         - alias_expression:
-          - keyword: AS
+          - alias_operator:
+            - keyword: AS
           - naked_identifier: _log_time
       - comma: ','
     - from_clause:

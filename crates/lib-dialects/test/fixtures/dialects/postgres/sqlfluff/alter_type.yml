@@ -3,8 +3,8 @@ file:
   - alter_type_statement:
     - keyword: ALTER
     - keyword: TYPE
-    - object_reference:
-      - naked_identifier: foo
+    - data_type:
+      - data_type_identifier: foo
     - keyword: RENAME
     - keyword: TO
     - object_reference:
@@ -14,8 +14,8 @@ file:
   - alter_type_statement:
     - keyword: ALTER
     - keyword: TYPE
-    - object_reference:
-      - naked_identifier: foo
+    - data_type:
+      - data_type_identifier: foo
     - keyword: OWNER
     - keyword: TO
     - keyword: CURRENT_USER
@@ -24,8 +24,8 @@ file:
   - alter_type_statement:
     - keyword: ALTER
     - keyword: TYPE
-    - object_reference:
-      - naked_identifier: foo
+    - data_type:
+      - data_type_identifier: foo
     - keyword: OWNER
     - keyword: TO
     - object_reference:
@@ -35,20 +35,19 @@ file:
   - alter_type_statement:
     - keyword: ALTER
     - keyword: TYPE
-    - object_reference:
-      - naked_identifier: foo
+    - data_type:
+      - data_type_identifier: foo
     - keyword: SET
     - keyword: SCHEMA
-    - table_reference:
-      - object_reference:
-        - naked_identifier: new_schema
+    - schema_reference:
+      - naked_identifier: new_schema
 - statement_terminator: ;
 - statement:
   - alter_type_statement:
     - keyword: ALTER
     - keyword: TYPE
-    - object_reference:
-      - naked_identifier: compfoo
+    - data_type:
+      - data_type_identifier: compfoo
     - keyword: ADD
     - keyword: ATTRIBUTE
     - column_reference:
@@ -75,8 +74,8 @@ file:
   - alter_type_statement:
     - keyword: ALTER
     - keyword: TYPE
-    - object_reference:
-      - naked_identifier: compfoo
+    - data_type:
+      - data_type_identifier: compfoo
     - keyword: RENAME
     - keyword: ATTRIBUTE
     - column_reference:
@@ -89,8 +88,8 @@ file:
   - alter_type_statement:
     - keyword: ALTER
     - keyword: TYPE
-    - object_reference:
-      - naked_identifier: colors
+    - data_type:
+      - data_type_identifier: colors
     - keyword: ADD
     - keyword: VALUE
     - quoted_literal: '''orange'''
@@ -101,8 +100,8 @@ file:
   - alter_type_statement:
     - keyword: ALTER
     - keyword: TYPE
-    - object_reference:
-      - naked_identifier: foo
+    - data_type:
+      - data_type_identifier: foo
     - keyword: ADD
     - keyword: VALUE
     - quoted_literal: '''baz'''
@@ -111,8 +110,8 @@ file:
   - alter_type_statement:
     - keyword: ALTER
     - keyword: TYPE
-    - object_reference:
-      - naked_identifier: foo
+    - data_type:
+      - data_type_identifier: foo
     - keyword: ADD
     - keyword: VALUE
     - quoted_literal: '''qux'''
@@ -123,8 +122,8 @@ file:
   - alter_type_statement:
     - keyword: ALTER
     - keyword: TYPE
-    - object_reference:
-      - naked_identifier: foo
+    - data_type:
+      - data_type_identifier: foo
     - keyword: ADD
     - keyword: VALUE
     - quoted_literal: '''quux'''
@@ -135,10 +134,10 @@ file:
   - alter_type_statement:
     - keyword: ALTER
     - keyword: TYPE
-    - object_reference:
+    - data_type:
       - naked_identifier: financial
       - dot: .
-      - naked_identifier: reporting_statuses
+      - data_type_identifier: reporting_statuses
     - keyword: RENAME
     - keyword: VALUE
     - quoted_literal: '''partially'''

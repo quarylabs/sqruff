@@ -12,7 +12,7 @@ file:
       - from_expression:
         - from_expression_element:
           - table_expression:
-            - object_reference:
+            - table_reference:
               - naked_identifier: sales
         - unpivot_clause:
           - keyword: UNPIVOT
@@ -20,38 +20,43 @@ file:
           - keyword: NULLS
           - bracketed:
             - start_bracket: (
-            - naked_identifier: sales
-            - keyword: FOR
-            - naked_identifier: quarter
-            - keyword: IN
-            - bracketed:
-              - start_bracket: (
-              - column_reference:
-                - naked_identifier: q1
-              - alias_expression:
-                - keyword: AS
-                - quoted_identifier: '`Jan-Mar`'
-              - comma: ','
-              - column_reference:
-                - naked_identifier: q2
-              - alias_expression:
-                - keyword: AS
-                - quoted_identifier: '`Apr-Jun`'
-              - comma: ','
-              - column_reference:
-                - naked_identifier: q3
-              - alias_expression:
-                - keyword: AS
-                - quoted_identifier: '`Jul-Sep`'
-              - comma: ','
-              - column_reference:
-                - naked_identifier: sales
-                - dot: .
-                - naked_identifier: q4
-              - alias_expression:
-                - keyword: AS
-                - quoted_identifier: '`Oct-Dec`'
-              - end_bracket: )
+            - unpivot_single_column:
+              - naked_identifier: sales
+              - keyword: FOR
+              - naked_identifier: quarter
+              - keyword: IN
+              - bracketed:
+                - start_bracket: (
+                - column_reference:
+                  - naked_identifier: q1
+                - alias_expression:
+                  - alias_operator:
+                    - keyword: AS
+                  - quoted_identifier: '`Jan-Mar`'
+                - comma: ','
+                - column_reference:
+                  - naked_identifier: q2
+                - alias_expression:
+                  - alias_operator:
+                    - keyword: AS
+                  - quoted_identifier: '`Apr-Jun`'
+                - comma: ','
+                - column_reference:
+                  - naked_identifier: q3
+                - alias_expression:
+                  - alias_operator:
+                    - keyword: AS
+                  - quoted_identifier: '`Jul-Sep`'
+                - comma: ','
+                - column_reference:
+                  - naked_identifier: sales
+                  - dot: .
+                  - naked_identifier: q4
+                - alias_expression:
+                  - alias_operator:
+                    - keyword: AS
+                  - quoted_identifier: '`Oct-Dec`'
+                - end_bracket: )
             - end_bracket: )
 - statement_terminator: ;
 - statement:
@@ -67,54 +72,57 @@ file:
       - from_expression:
         - from_expression_element:
           - table_expression:
-            - object_reference:
+            - table_reference:
               - naked_identifier: oncall
         - unpivot_clause:
           - keyword: UNPIVOT
           - bracketed:
             - start_bracket: (
-            - bracketed:
-              - start_bracket: (
-              - naked_identifier: name
-              - comma: ','
-              - naked_identifier: email
-              - comma: ','
-              - naked_identifier: phone
-              - end_bracket: )
-            - keyword: FOR
-            - naked_identifier: precedence
-            - keyword: IN
-            - bracketed:
-              - start_bracket: (
+            - unpivot_multi_column:
               - bracketed:
                 - start_bracket: (
-                - column_reference:
-                  - naked_identifier: name1
+                - naked_identifier: name
                 - comma: ','
-                - column_reference:
-                  - naked_identifier: email1
+                - naked_identifier: email
                 - comma: ','
-                - column_reference:
-                  - naked_identifier: phone1
+                - naked_identifier: phone
                 - end_bracket: )
-              - alias_expression:
-                - keyword: AS
-                - naked_identifier: primary
-              - comma: ','
+              - keyword: FOR
+              - naked_identifier: precedence
+              - keyword: IN
               - bracketed:
                 - start_bracket: (
-                - column_reference:
-                  - naked_identifier: name2
+                - bracketed:
+                  - start_bracket: (
+                  - column_reference:
+                    - naked_identifier: name1
+                  - comma: ','
+                  - column_reference:
+                    - naked_identifier: email1
+                  - comma: ','
+                  - column_reference:
+                    - naked_identifier: phone1
+                  - end_bracket: )
+                - alias_expression:
+                  - alias_operator:
+                    - keyword: AS
+                  - naked_identifier: primary
                 - comma: ','
-                - column_reference:
-                  - naked_identifier: email2
-                - comma: ','
-                - column_reference:
-                  - naked_identifier: phone2
+                - bracketed:
+                  - start_bracket: (
+                  - column_reference:
+                    - naked_identifier: name2
+                  - comma: ','
+                  - column_reference:
+                    - naked_identifier: email2
+                  - comma: ','
+                  - column_reference:
+                    - naked_identifier: phone2
+                  - end_bracket: )
+                - alias_expression:
+                  - alias_operator:
+                    - keyword: AS
+                  - naked_identifier: secondary
                 - end_bracket: )
-              - alias_expression:
-                - keyword: AS
-                - naked_identifier: secondary
-              - end_bracket: )
             - end_bracket: )
 - statement_terminator: ;

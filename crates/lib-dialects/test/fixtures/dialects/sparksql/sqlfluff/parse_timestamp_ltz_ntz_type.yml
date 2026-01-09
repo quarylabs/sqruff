@@ -4,18 +4,12 @@ file:
     - select_clause:
       - keyword: select
       - select_clause_element:
-        - expression:
-          - data_type:
-            - primitive_type:
-              - keyword: timestamp_ntz
-          - quoted_literal: '''1970-01-01'''
+        - keyword: timestamp_ntz
+        - date_constructor_literal: '''1970-01-01'''
       - comma: ','
       - select_clause_element:
-        - expression:
-          - data_type:
-            - primitive_type:
-              - keyword: TIMESTAMP_LTZ
-          - quoted_literal: '''1970-01-01'''
+        - keyword: TIMESTAMP_LTZ
+        - date_constructor_literal: '''1970-01-01'''
       - comma: ','
       - select_clause_element:
         - function:

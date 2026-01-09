@@ -3,6 +3,6 @@ file:
   - describe_statement:
     - keyword: DESCRIBE
     - keyword: VOLUME
-    - object_reference:
+    - volume_reference:
       - naked_identifier: VACCINE_VOLUME
 - statement_terminator: ;

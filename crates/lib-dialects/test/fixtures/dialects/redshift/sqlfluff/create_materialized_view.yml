@@ -45,14 +45,16 @@ file:
           - function:
             - function_name:
               - function_name_identifier: sum
-            - bracketed:
-              - start_bracket: (
-              - expression:
-                - column_reference:
-                  - naked_identifier: qtysold
-              - end_bracket: )
+            - function_contents:
+              - bracketed:
+                - start_bracket: (
+                - expression:
+                  - column_reference:
+                    - naked_identifier: qtysold
+                - end_bracket: )
           - alias_expression:
-            - keyword: as
+            - alias_operator:
+              - keyword: as
             - naked_identifier: sold
       - from_clause:
         - keyword: from
@@ -205,7 +207,8 @@ file:
           - column_reference:
             - naked_identifier: ball
           - alias_expression:
-            - keyword: AS
+            - alias_operator:
+              - keyword: AS
             - naked_identifier: baseball
       - from_clause:
         - keyword: FROM

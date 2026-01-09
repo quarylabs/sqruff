@@ -3,18 +3,18 @@ file:
   - alter_index_statement:
     - keyword: ALTER
     - keyword: INDEX
-    - database_reference:
+    - index_reference:
       - naked_identifier: distributors
     - keyword: RENAME
     - keyword: TO
-    - database_reference:
+    - index_reference:
       - naked_identifier: suppliers
 - statement_terminator: ;
 - statement:
   - alter_index_statement:
     - keyword: ALTER
     - keyword: INDEX
-    - database_reference:
+    - index_reference:
       - naked_identifier: distributors
     - keyword: SET
     - keyword: TABLESPACE
@@ -25,7 +25,7 @@ file:
   - alter_index_statement:
     - keyword: ALTER
     - keyword: INDEX
-    - database_reference:
+    - index_reference:
       - naked_identifier: distributors
     - keyword: SET
     - bracketed:
@@ -40,7 +40,7 @@ file:
   - alter_index_statement:
     - keyword: ALTER
     - keyword: INDEX
-    - database_reference:
+    - index_reference:
       - naked_identifier: coord_idx
     - keyword: ALTER
     - keyword: COLUMN
@@ -55,18 +55,18 @@ file:
     - keyword: INDEX
     - keyword: IF
     - keyword: EXISTS
-    - database_reference:
+    - index_reference:
       - naked_identifier: foo
     - keyword: ATTACH
     - keyword: PARTITION
-    - database_reference:
+    - index_reference:
       - naked_identifier: bar
 - statement_terminator: ;
 - statement:
   - alter_index_statement:
     - keyword: ALTER
     - keyword: INDEX
-    - database_reference:
+    - index_reference:
       - naked_identifier: foo
     - keyword: NO
     - keyword: DEPENDS
@@ -79,7 +79,7 @@ file:
   - alter_index_statement:
     - keyword: ALTER
     - keyword: INDEX
-    - database_reference:
+    - index_reference:
       - naked_identifier: foo
     - keyword: RESET
     - bracketed:
@@ -93,7 +93,7 @@ file:
   - alter_index_statement:
     - keyword: ALTER
     - keyword: INDEX
-    - database_reference:
+    - index_reference:
       - naked_identifier: foo
     - keyword: ALTER
     - numeric_literal: '4'

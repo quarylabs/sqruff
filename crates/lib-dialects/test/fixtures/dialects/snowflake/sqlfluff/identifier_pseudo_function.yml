@@ -3,25 +3,23 @@ file:
   - use_statement:
     - keyword: USE
     - keyword: SCHEMA
-    - table_reference:
-      - object_reference:
-        - keyword: identifier
-        - bracketed:
-          - start_bracket: (
-          - quoted_identifier: '''my_schema'''
-          - end_bracket: )
+    - schema_reference:
+      - keyword: identifier
+      - bracketed:
+        - start_bracket: (
+        - quoted_identifier: '''my_schema'''
+        - end_bracket: )
 - statement_terminator: ;
 - statement:
   - use_statement:
     - keyword: USE
     - keyword: SCHEMA
-    - table_reference:
-      - object_reference:
-        - keyword: identifier
-        - bracketed:
-          - start_bracket: (
-          - quoted_identifier: '''{{ params.schema_name }}'''
-          - end_bracket: )
+    - schema_reference:
+      - keyword: identifier
+      - bracketed:
+        - start_bracket: (
+        - quoted_identifier: '''{{ params.schema_name }}'''
+        - end_bracket: )
 - statement_terminator: ;
 - statement:
   - create_statement:
@@ -42,13 +40,12 @@ file:
     - keyword: or
     - keyword: replace
     - keyword: schema
-    - table_reference:
-      - object_reference:
-        - keyword: identifier
-        - bracketed:
-          - start_bracket: (
-          - quoted_identifier: '''my_schema'''
-          - end_bracket: )
+    - schema_reference:
+      - keyword: identifier
+      - bracketed:
+        - start_bracket: (
+        - quoted_identifier: '''my_schema'''
+        - end_bracket: )
 - statement_terminator: ;
 - statement:
   - create_table_statement:
@@ -107,13 +104,12 @@ file:
   - use_statement:
     - keyword: use
     - keyword: schema
-    - table_reference:
-      - object_reference:
-        - keyword: identifier
-        - bracketed:
-          - start_bracket: (
-          - variable: $schema_name
-          - end_bracket: )
+    - schema_reference:
+      - keyword: identifier
+      - bracketed:
+        - start_bracket: (
+        - variable: $schema_name
+        - end_bracket: )
 - statement_terminator: ;
 - statement:
   - insert_statement:

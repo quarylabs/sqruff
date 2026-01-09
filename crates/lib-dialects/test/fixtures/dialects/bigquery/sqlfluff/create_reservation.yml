@@ -1,0 +1,17 @@
+file:
+- statement:
+  - create_reservation_statement:
+    - keyword: CREATE
+    - keyword: RESERVATION
+    - table_reference:
+      - quoted_identifier: '`example_project.region-us.example-reservation`'
+    - options_segment:
+      - keyword: OPTIONS
+      - bracketed:
+        - start_bracket: (
+        - parameter: slot_capacity
+        - comparison_operator:
+          - raw_comparison_operator: =
+        - numeric_literal: '123'
+        - end_bracket: )
+- statement_terminator: ;

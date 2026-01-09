@@ -1,30 +1,33 @@
 file:
 - statement:
-  - keyword: DROP
-  - keyword: STATISTICS
-  - keyword: IF
-  - keyword: EXISTS
-  - object_reference:
-    - naked_identifier: accounting
-    - dot: .
-    - naked_identifier: users_uid_creation
-  - comma: ','
-  - object_reference:
-    - naked_identifier: public
-    - dot: .
-    - naked_identifier: grants_user_role
+  - drop_statistics_statement:
+    - keyword: DROP
+    - keyword: STATISTICS
+    - keyword: IF
+    - keyword: EXISTS
+    - statistics_reference:
+      - naked_identifier: accounting
+      - dot: .
+      - naked_identifier: users_uid_creation
+    - comma: ','
+    - statistics_reference:
+      - naked_identifier: public
+      - dot: .
+      - naked_identifier: grants_user_role
 - statement_terminator: ;
 - statement:
-  - keyword: DROP
-  - keyword: STATISTICS
-  - object_reference:
-    - naked_identifier: foo
-  - keyword: CASCADE
+  - drop_statistics_statement:
+    - keyword: DROP
+    - keyword: STATISTICS
+    - statistics_reference:
+      - naked_identifier: foo
+    - keyword: CASCADE
 - statement_terminator: ;
 - statement:
-  - keyword: DROP
-  - keyword: STATISTICS
-  - object_reference:
-    - naked_identifier: bar
-  - keyword: RESTRICT
+  - drop_statistics_statement:
+    - keyword: DROP
+    - keyword: STATISTICS
+    - statistics_reference:
+      - naked_identifier: bar
+    - keyword: RESTRICT
 - statement_terminator: ;

@@ -57,13 +57,13 @@ file:
     - keyword: OPTIONS
     - bracketed:
       - start_bracket: (
-      - naked_identifier: host
+      - naked_identifier_all: host
       - quoted_literal: '''foo'''
       - comma: ','
-      - naked_identifier: dbname
+      - naked_identifier_all: dbname
       - quoted_literal: '''foodb'''
       - comma: ','
-      - naked_identifier: port
+      - naked_identifier_all: port
       - quoted_literal: '''5432'''
       - end_bracket: )
 - statement_terminator: ;

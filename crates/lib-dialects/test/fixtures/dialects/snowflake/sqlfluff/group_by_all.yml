@@ -26,7 +26,8 @@ file:
                   - naked_identifier: quantity
               - end_bracket: )
         - alias_expression:
-          - keyword: as
+          - alias_operator:
+            - keyword: as
           - naked_identifier: gross_revenue
     - from_clause:
       - keyword: from

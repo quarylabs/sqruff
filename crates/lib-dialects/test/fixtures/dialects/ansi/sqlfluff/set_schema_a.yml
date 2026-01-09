@@ -3,6 +3,5 @@ file:
   - set_schema_statement:
     - keyword: set
     - keyword: schema
-    - table_reference:
-      - object_reference:
-        - naked_identifier: my_schema
+    - schema_reference:
+      - naked_identifier: my_schema

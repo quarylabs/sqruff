@@ -1,3 +1,0 @@
-SUMMARIZE tbl;
-
-SUMMARIZE SELECT * FROM tbl;

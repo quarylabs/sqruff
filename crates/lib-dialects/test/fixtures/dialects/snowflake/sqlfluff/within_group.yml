@@ -14,14 +14,16 @@ file:
               - column_reference:
                 - naked_identifier: column1
               - alias_expression:
-                - keyword: as
+                - alias_operator:
+                  - keyword: as
                 - naked_identifier: name
             - comma: ','
             - select_clause_element:
               - column_reference:
                 - naked_identifier: column2
               - alias_expression:
-                - keyword: as
+                - alias_operator:
+                  - keyword: as
                 - naked_identifier: colour
           - from_clause:
             - keyword: from
@@ -120,7 +122,8 @@ file:
                     - naked_identifier: name
                 - end_bracket: )
           - alias_expression:
-            - keyword: as
+            - alias_operator:
+              - keyword: as
             - naked_identifier: fruits
       - from_clause:
         - keyword: from

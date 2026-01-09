@@ -1,0 +1,19 @@
+file:
+- batch:
+  - statement:
+    - create_role_statement:
+      - keyword: CREATE
+      - keyword: ROLE
+      - role_reference:
+        - naked_identifier: testuser
+  - statement_terminator: ;
+  - statement:
+    - create_role_statement:
+      - keyword: CREATE
+      - keyword: ROLE
+      - role_reference:
+        - naked_identifier: testuser
+      - keyword: AUTHORIZATION
+      - role_reference:
+        - naked_identifier: dbo
+  - statement_terminator: ;

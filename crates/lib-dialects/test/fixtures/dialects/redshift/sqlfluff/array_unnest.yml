@@ -14,20 +14,23 @@ file:
               - select_clause_element:
                 - numeric_literal: '10'
                 - alias_expression:
-                  - keyword: AS
+                  - alias_operator:
+                    - keyword: AS
                   - naked_identifier: shop_id
               - comma: ','
               - select_clause_element:
                 - function:
                   - function_name:
                     - function_name_identifier: json_parse
-                  - bracketed:
-                    - start_bracket: (
-                    - expression:
-                      - quoted_literal: '''[1, 2]'''
-                    - end_bracket: )
+                  - function_contents:
+                    - bracketed:
+                      - start_bracket: (
+                      - expression:
+                        - quoted_literal: '''[1, 2]'''
+                      - end_bracket: )
                 - alias_expression:
-                  - keyword: AS
+                  - alias_operator:
+                    - keyword: AS
                   - naked_identifier: inventory
           - set_operator:
             - keyword: UNION
@@ -38,20 +41,23 @@ file:
               - select_clause_element:
                 - numeric_literal: '20'
                 - alias_expression:
-                  - keyword: AS
+                  - alias_operator:
+                    - keyword: AS
                   - naked_identifier: shop_id
               - comma: ','
               - select_clause_element:
                 - function:
                   - function_name:
                     - function_name_identifier: json_parse
-                  - bracketed:
-                    - start_bracket: (
-                    - expression:
-                      - quoted_literal: '''[3, 4, 5]'''
-                    - end_bracket: )
+                  - function_contents:
+                    - bracketed:
+                      - start_bracket: (
+                      - expression:
+                        - quoted_literal: '''[3, 4, 5]'''
+                      - end_bracket: )
                 - alias_expression:
-                  - keyword: AS
+                  - alias_operator:
+                    - keyword: AS
                   - naked_identifier: inventory
           - set_operator:
             - keyword: UNION
@@ -62,20 +68,23 @@ file:
               - select_clause_element:
                 - numeric_literal: '30'
                 - alias_expression:
-                  - keyword: AS
+                  - alias_operator:
+                    - keyword: AS
                   - naked_identifier: shop_id
               - comma: ','
               - select_clause_element:
                 - function:
                   - function_name:
                     - function_name_identifier: json_parse
-                  - bracketed:
-                    - start_bracket: (
-                    - expression:
-                      - quoted_literal: '''[6, 7, 8, 9]'''
-                    - end_bracket: )
+                  - function_contents:
+                    - bracketed:
+                      - start_bracket: (
+                      - expression:
+                        - quoted_literal: '''[6, 7, 8, 9]'''
+                      - end_bracket: )
                 - alias_expression:
-                  - keyword: AS
+                  - alias_operator:
+                    - keyword: AS
                   - naked_identifier: inventory
         - end_bracket: )
     - select_statement:
@@ -129,14 +138,16 @@ file:
           - dot: .
           - naked_identifier: o_orderkey
         - alias_expression:
-          - keyword: AS
+          - alias_operator:
+            - keyword: AS
           - naked_identifier: orderkey
       - comma: ','
       - select_clause_element:
         - column_reference:
           - naked_identifier: index
         - alias_expression:
-          - keyword: AS
+          - alias_operator:
+            - keyword: AS
           - naked_identifier: orderkey_index
     - from_clause:
       - keyword: FROM
@@ -194,7 +205,8 @@ file:
             - data_type:
               - keyword: VARCHAR
         - alias_expression:
-          - keyword: AS
+          - alias_operator:
+            - keyword: AS
           - naked_identifier: value_b
       - comma: ','
       - select_clause_element:
@@ -208,15 +220,16 @@ file:
                 - function:
                   - function_name:
                     - function_name_identifier: MOD
-                  - bracketed:
-                    - start_bracket: (
-                    - expression:
-                      - column_reference:
-                        - naked_identifier: idx
-                    - comma: ','
-                    - expression:
-                      - numeric_literal: '3'
-                    - end_bracket: )
+                  - function_contents:
+                    - bracketed:
+                      - start_bracket: (
+                      - expression:
+                        - column_reference:
+                          - naked_identifier: idx
+                      - comma: ','
+                      - expression:
+                        - numeric_literal: '3'
+                      - end_bracket: )
                 - binary_operator: +
                 - numeric_literal: '1'
               - end_square_bracket: ']'
@@ -224,7 +237,8 @@ file:
             - data_type:
               - keyword: FLOAT8
         - alias_expression:
-          - keyword: AS
+          - alias_operator:
+            - keyword: AS
           - naked_identifier: value_c
     - from_clause:
       - keyword: FROM

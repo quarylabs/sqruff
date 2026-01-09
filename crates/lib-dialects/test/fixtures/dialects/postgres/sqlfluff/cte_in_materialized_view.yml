@@ -38,7 +38,8 @@ file:
                           - naked_identifier: amount
                       - end_bracket: )
                 - alias_expression:
-                  - keyword: AS
+                  - alias_operator:
+                    - keyword: AS
                   - naked_identifier: total_sales
             - from_clause:
               - keyword: FROM
@@ -131,7 +132,8 @@ file:
                       - naked_identifier: quantity
                   - end_bracket: )
             - alias_expression:
-              - keyword: AS
+              - alias_operator:
+                - keyword: AS
               - naked_identifier: product_units
           - comma: ','
           - select_clause_element:
@@ -146,7 +148,8 @@ file:
                       - naked_identifier: amount
                   - end_bracket: )
             - alias_expression:
-              - keyword: AS
+              - alias_operator:
+                - keyword: AS
               - naked_identifier: product_sales
         - from_clause:
           - keyword: FROM

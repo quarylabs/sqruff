@@ -36,8 +36,11 @@ file:
         - comparison_operator:
           - raw_comparison_operator: '>'
         - numeric_literal: '0'
-    - keyword: RETURNING
-    - star: '*'
+    - returning_clause:
+      - keyword: RETURNING
+      - wildcard_expression:
+        - wildcard_identifier:
+          - star: '*'
 - statement_terminator: ;
 - statement:
   - delete_statement:
@@ -57,10 +60,15 @@ file:
         - comparison_operator:
           - raw_comparison_operator: '>'
         - numeric_literal: '0'
-    - keyword: RETURNING
-    - expression:
-      - column_reference:
-        - naked_identifier: a
+    - returning_clause:
+      - keyword: RETURNING
+      - wildcard_expression:
+        - wildcard_identifier:
+          - star: '*'
+      - comma: ','
+      - expression:
+        - column_reference:
+          - naked_identifier: id
 - statement_terminator: ;
 - statement:
   - delete_statement:
@@ -80,15 +88,19 @@ file:
         - comparison_operator:
           - raw_comparison_operator: '>'
         - numeric_literal: '0'
-    - keyword: RETURNING
-    - expression:
-      - column_reference:
-        - naked_identifier: a
-    - comma: ','
-    - expression:
-      - column_reference:
-        - naked_identifier: b
-    - alias_expression:
-      - keyword: AS
-      - naked_identifier: bee
+    - returning_clause:
+      - keyword: RETURNING
+      - expression:
+        - column_reference:
+          - naked_identifier: id
+      - alias_expression:
+        - naked_identifier: foo
+      - comma: ','
+      - expression:
+        - column_reference:
+          - naked_identifier: id_2
+      - alias_expression:
+        - alias_operator:
+          - keyword: AS
+        - naked_identifier: bar
 - statement_terminator: ;

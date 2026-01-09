@@ -84,7 +84,8 @@ file:
       - select_clause_element:
         - quoted_literal: B""" triple ''' quoted '' "" string are """
         - alias_expression:
-          - keyword: as
+          - alias_operator:
+            - keyword: as
           - naked_identifier: hard
     - from_clause:
       - keyword: FROM

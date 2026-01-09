@@ -14,7 +14,8 @@ file:
             - data_type:
               - data_type_identifier: boolean
         - alias_expression:
-          - keyword: as
+          - alias_operator:
+            - keyword: as
           - naked_identifier: bool
 - statement_terminator: ;
 - statement:

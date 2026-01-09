@@ -1,0 +1,172 @@
+file:
+- statement:
+  - set_expression:
+    - select_statement:
+      - select_clause:
+        - keyword: SELECT
+        - select_clause_element:
+          - column_reference:
+            - naked_identifier: col
+      - from_clause:
+        - keyword: FROM
+        - from_expression:
+          - from_expression_element:
+            - table_expression:
+              - table_reference:
+                - naked_identifier: tab1
+    - set_operator:
+      - keyword: MINUS
+    - bracketed:
+      - start_bracket: (
+      - select_statement:
+        - select_clause:
+          - keyword: SELECT
+          - select_clause_element:
+            - column_reference:
+              - naked_identifier: col
+        - from_clause:
+          - keyword: FROM
+          - from_expression:
+            - from_expression_element:
+              - table_expression:
+                - table_reference:
+                  - naked_identifier: tab2
+      - end_bracket: )
+- statement_terminator: ;
+- statement:
+  - set_expression:
+    - select_statement:
+      - select_clause:
+        - keyword: SELECT
+        - select_clause_element:
+          - column_reference:
+            - naked_identifier: col
+      - from_clause:
+        - keyword: FROM
+        - from_expression:
+          - from_expression_element:
+            - table_expression:
+              - table_reference:
+                - naked_identifier: tab1
+    - set_operator:
+      - keyword: EXCEPT
+    - bracketed:
+      - start_bracket: (
+      - select_statement:
+        - select_clause:
+          - keyword: SELECT
+          - select_clause_element:
+            - column_reference:
+              - naked_identifier: col
+        - from_clause:
+          - keyword: FROM
+          - from_expression:
+            - from_expression_element:
+              - table_expression:
+                - table_reference:
+                  - naked_identifier: tab2
+      - end_bracket: )
+- statement_terminator: ;
+- statement:
+  - set_expression:
+    - select_statement:
+      - select_clause:
+        - keyword: SELECT
+        - select_clause_element:
+          - column_reference:
+            - naked_identifier: col
+      - from_clause:
+        - keyword: FROM
+        - from_expression:
+          - from_expression_element:
+            - table_expression:
+              - table_reference:
+                - naked_identifier: tab1
+    - set_operator:
+      - keyword: UNION
+    - bracketed:
+      - start_bracket: (
+      - select_statement:
+        - select_clause:
+          - keyword: SELECT
+          - select_clause_element:
+            - column_reference:
+              - naked_identifier: col
+        - from_clause:
+          - keyword: FROM
+          - from_expression:
+            - from_expression_element:
+              - table_expression:
+                - table_reference:
+                  - naked_identifier: tab2
+      - end_bracket: )
+- statement_terminator: ;
+- statement:
+  - set_expression:
+    - select_statement:
+      - select_clause:
+        - keyword: SELECT
+        - select_clause_element:
+          - column_reference:
+            - naked_identifier: col
+      - from_clause:
+        - keyword: FROM
+        - from_expression:
+          - from_expression_element:
+            - table_expression:
+              - table_reference:
+                - naked_identifier: tab1
+    - set_operator:
+      - keyword: INTERSECT
+    - bracketed:
+      - start_bracket: (
+      - select_statement:
+        - select_clause:
+          - keyword: SELECT
+          - select_clause_element:
+            - column_reference:
+              - naked_identifier: col
+        - from_clause:
+          - keyword: FROM
+          - from_expression:
+            - from_expression_element:
+              - table_expression:
+                - table_reference:
+                  - naked_identifier: tab2
+      - end_bracket: )
+- statement_terminator: ;
+- statement:
+  - set_expression:
+    - select_statement:
+      - select_clause:
+        - keyword: SELECT
+        - select_clause_element:
+          - column_reference:
+            - naked_identifier: col
+      - from_clause:
+        - keyword: FROM
+        - from_expression:
+          - from_expression_element:
+            - table_expression:
+              - table_reference:
+                - naked_identifier: tab1
+    - set_operator:
+      - keyword: UNION
+      - keyword: ALL
+    - bracketed:
+      - start_bracket: (
+      - select_statement:
+        - select_clause:
+          - keyword: SELECT
+          - select_clause_element:
+            - column_reference:
+              - naked_identifier: col
+        - from_clause:
+          - keyword: FROM
+          - from_expression:
+            - from_expression_element:
+              - table_expression:
+                - table_reference:
+                  - naked_identifier: tab2
+      - end_bracket: )
+- statement_terminator: ;

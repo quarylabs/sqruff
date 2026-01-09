@@ -1,0 +1,27 @@
+file:
+- statement:
+  - create_user_statement:
+    - keyword: CREATE
+    - keyword: USER
+    - naked_identifier: new_user
+    - keyword: IDENTIFIED
+    - keyword: BY
+    - quoted_literal: '''secret'''
+- statement_terminator: ;
+- statement:
+  - create_user_statement:
+    - keyword: CREATE
+    - keyword: USER
+    - naked_identifier: another_user
+    - keyword: IDENTIFIED
+    - keyword: WITH
+    - naked_identifier: sha256_password
+    - keyword: BY
+    - quoted_literal: '''hash'''
+- statement_terminator: ;
+- statement:
+  - create_user_statement:
+    - keyword: CREATE
+    - keyword: USER
+    - naked_identifier: yet_another_user
+- statement_terminator: ;

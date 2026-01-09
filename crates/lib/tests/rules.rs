@@ -7,6 +7,8 @@ use serde_with::{KeyValueMap, serde_as};
 use sqruff_lib::core::config::{FluffConfig, Value};
 use sqruff_lib::core::linter::core::Linter;
 use sqruff_lib_core::dialects::init::DialectKind;
+use sqruff_lib_core::dialects::syntax::{SyntaxKind, SyntaxSet};
+use sqruff_lib_core::parser::segments::Tables;
 
 #[derive(Default)]
 pub struct Args {
@@ -199,6 +201,26 @@ dialect = {dialect}
                         &fail_str, &fix_str,
                         "Fail and fix strings should not be equal"
                     );
+
+                    // Verify that both input and output can be parsed without errors.
+                    let tables = Tables::default();
+                    for (label, sql) in [("fail_str", &fail_str), ("fix_str", &fix_str)] {
+                        let parsed = linter.parse_string(&tables, sql, None).unwrap();
+                        if let Some(tree) = &parsed.tree {
+                            let unparsables = tree.recursive_crawl(
+                                &SyntaxSet::single(SyntaxKind::Unparsable),
+                                true,
+                                &SyntaxSet::EMPTY,
+                                true,
+                            );
+                            assert!(
+                                unparsables.is_empty(),
+                                "{label} contains unparsable sections:\n\
+                                 {label}: {sql}\n\
+                                 unparsable segments: {unparsables:?}"
+                            );
+                        }
+                    }
 
                     let linted = linter.lint_string_wrapped(&fail_str, true);
                     let actual = linted.fix_string();

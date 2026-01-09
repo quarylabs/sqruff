@@ -122,18 +122,17 @@ jobs:
       - name: Run lint checks
         run: bazel test --config=ci //:prettier_check //:shellcheck //:check_files_match //:ratchet_check //:check_versions_match //:ruff_check
   python:
-    name: Run python checks
+    name: Python tests
     runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        python-version: ["3.10", "3.11", "3.12", "3.13"]
     steps:
       - uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # ratchet:actions/checkout@v5
-      - uses: actions/setup-python@83679a892e2d95755f2dac6acb0bfd1e9ac5d548 # ratchet:actions/setup-python@v6
+      - uses: bazel-contrib/setup-bazel@8310a45e30297e76bc8fbae427fb6068efa01eb8 # ratchet:bazel-contrib/setup-bazel@0.16.0
         with:
-          python-version: ${{ matrix.python-version }}
-      - run: make python_install
-      - run: make python_ci
+          bazelisk-cache: true
+          disk-cache: ${{ github.workflow }}
+          repository-cache: true
+      - name: Run pytest for all Python versions
+        run: bazel test --config=ci //:pytest_py310 //:pytest_py311 //:pytest_py312 //:pytest_py313
   build-binaries:
     name: Build binaries for all platforms
     runs-on: ${{ matrix.platform.os }}

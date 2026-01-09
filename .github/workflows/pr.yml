@@ -120,7 +120,7 @@ jobs:
           disk-cache: ${{ github.workflow }}
           repository-cache: true
       - name: Run lint checks
-        run: bazel test --config=ci //:prettier_check //:shellcheck //:check_files_match //:ratchet_check //:check_versions_match
+        run: bazel test --config=ci //:prettier_check //:shellcheck //:check_files_match //:ratchet_check //:check_versions_match //:ruff_check
   python:
     name: Run python checks
     runs-on: ubuntu-latest

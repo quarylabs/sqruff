@@ -109,8 +109,8 @@ FROM foo AS voo
         if self.target_parent_types.contains(last_seg_ty) {
             let as_keyword = rule_cx
                 .segment
-                .segments()
-                .iter()
+                .get_raw_segments()
+                .into_iter()
                 .find(|seg| seg.raw().eq_ignore_ascii_case("AS"));
 
             if let Some(as_keyword) = as_keyword {
@@ -118,12 +118,12 @@ FROM foo AS voo
                     return vec![LintResult::new(
                         as_keyword.clone().into(),
                         ReflowSequence::from_around_target(
-                            as_keyword,
+                            &as_keyword,
                             &rule_cx.parent_stack[0],
                             TargetSide::Both,
                             rule_cx.config,
                         )
-                        .without(as_keyword)
+                        .without(&as_keyword)
                         .respace(rule_cx.tables, false, Filter::All)
                         .fixes(),
                         None,

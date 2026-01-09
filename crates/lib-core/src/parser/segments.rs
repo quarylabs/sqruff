@@ -506,7 +506,10 @@ impl ErasedSegment {
     pub fn is_comment(&self) -> bool {
         matches!(
             self.value.syntax_kind,
-            SyntaxKind::Comment | SyntaxKind::InlineComment | SyntaxKind::BlockComment
+            SyntaxKind::Comment
+                | SyntaxKind::InlineComment
+                | SyntaxKind::BlockComment
+                | SyntaxKind::NotebookStart
         )
     }
 
@@ -1029,6 +1032,7 @@ pub struct NodeOrToken {
 }
 
 #[derive(Debug, Clone)]
+#[allow(clippy::large_enum_variant)]
 pub enum NodeOrTokenKind {
     Node(NodeData),
     Token(TokenData),

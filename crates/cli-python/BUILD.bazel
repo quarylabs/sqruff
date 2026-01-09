@@ -3,6 +3,13 @@ exports_files([
     "pyproject.toml",
 ])
 
+# Python source files for linting
+filegroup(
+    name = "python_srcs",
+    srcs = glob(["python/**/*.py"]),
+    visibility = ["//visibility:public"],
+)
+
 filegroup(
     name = "machete_srcs",
     srcs = glob(

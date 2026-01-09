@@ -24,7 +24,7 @@ python_generate_gha: ## Generate GitHub Actions workflow
 	maturin generate-ci github --manifest-path "crates/cli/Cargo.toml" --output .github/workflows/python-ci.yaml
 
 .PHONY: python_ci
-python_ci: python_lint python_test ## Run python CI 
+python_ci: python_test ## Run python CI (ruff checks moved to bazel) 
 
 .PHONY: rust_fmt
 rust_fmt: ## Format rust code

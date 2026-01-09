@@ -18,7 +18,7 @@ rust_library(
     ],
 )
 
-# WASM build target - explicit deps without pyo3 (doesn't support WASM)
+# Explicit deps for WASM build - excludes pyo3 which doesn't support WASM
 # Uses crate_deps() so versions stay aligned with Cargo.lock
 WASM_CRATE_NAMES = [
     "ahash",
@@ -46,12 +46,14 @@ WASM_PROC_MACRO_CRATE_NAMES = [
     "strum_macros",
 ]
 
-rust_shared_library(
-    name = "sqruff-lib-wasm",
+# rust_library for WASM - can be used as a dependency by other WASM targets
+# Uses explicit deps to exclude pyo3 which doesn't support WASM
+rust_library(
+    name = "sqruff-lib-for-wasm",
     srcs = glob(["src/**/*.rs"]),
     compile_data = glob(["src/**/*.cfg"]),
     crate_features = ALL_FEATURES,
-    platform = "@rules_rust//rust/platform:wasm",
+    crate_name = "sqruff_lib",
     proc_macro_deps = crate_deps(WASM_PROC_MACRO_CRATE_NAMES),
     visibility = ["//visibility:public"],
     deps = crate_deps(WASM_CRATE_NAMES) + [

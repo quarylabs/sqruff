@@ -27,6 +27,7 @@ http_archive(
 bazel_dep(name = "aspect_rules_js", version = "2.3.7")
 bazel_dep(name = "rules_nodejs", version = "6.3.4")
 bazel_dep(name = "rules_rust", version = "0.68.1")
+bazel_dep(name = "rules_rust_wasm_bindgen", version = "0.68.1")
 bazel_dep(name = "rules_shell", version = "0.6.1")
 bazel_dep(name = "rules_shellcheck", version = "0.4.0")
 
@@ -36,6 +37,11 @@ node.toolchain(node_version = "22.12.0")
 npm = use_extension("@aspect_rules_js//npm:extensions.bzl", "npm")
 npm.npm_translate_lock(
     name = "npm",
+    data = [
+        "//:package.json",
+        "//:pnpm-workspace.yaml",
+        "//editors/code:package.json",
+    ],
     pnpm_lock = "//:pnpm-lock.yaml",
 )
 use_repo(npm, "npm")
@@ -61,6 +67,9 @@ register_toolchains("@rust_toolchains//:all")
 # Required for WASM cross-compilation
 register_toolchains("@rules_rust//rust/private/dummy_cc_toolchain:dummy_cc_wasm32_toolchain")
 
+# wasm-bindgen dependencies for generating JS bindings from WASM
+# The rules_rust_wasm_bindgen module handles toolchain registration internally
+
 # Crate universe - reads from Cargo.toml workspace
 crate = use_extension("@rules_rust//crate_universe:extensions.bzl", "crate")
 crate.from_cargo(
@@ -80,4 +89,15 @@ crate.from_cargo(
         "//crates/sqlinference:Cargo.toml",
     ],
 )
+
+# Annotations for pyo3 crates - set PYO3_NO_PYTHON to avoid build script failures on WASM
+crate.annotation(
+    crate = "pyo3-build-config",
+    build_script_env = {"PYO3_NO_PYTHON": "1"},
+)
+crate.annotation(
+    crate = "pyo3-ffi",
+    build_script_env = {"PYO3_NO_PYTHON": "1"},
+)
+
 use_repo(crate, "crates")

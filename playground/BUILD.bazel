@@ -1,0 +1,23 @@
+load("@aspect_rules_js//js:defs.bzl", "js_library")
+
+# Source files for prettier formatting
+js_library(
+    name = "prettier_srcs",
+    srcs = glob(
+        [
+            "**/*.ts",
+            "**/*.tsx",
+            "**/*.js",
+            "**/*.css",
+            "**/*.html",
+            "**/*.json",
+        ],
+        allow_empty = True,
+        exclude = [
+            "node_modules/**",
+            "dist/**",
+            "src/pkg/**",
+        ],
+    ),
+    visibility = ["//visibility:public"],
+)

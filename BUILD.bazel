@@ -13,30 +13,13 @@ exports_files([
     "pnpm-lock.yaml",
 ])
 
-# Files to check with prettier
+# Files to check with prettier (root package only)
 filegroup(
     name = "prettier_srcs",
-    srcs = glob(
-        [
-            "editors/**/*.ts",
-            "editors/**/*.js",
-            "editors/**/*.json",
-            "editors/**/*.md",
-            "playground/**/*.ts",
-            "playground/**/*.tsx",
-            "playground/**/*.css",
-            "playground/**/*.html",
-            "playground/**/*.json",
-            ".github/**/*.yaml",
-            ".github/**/*.yml",
-        ],
-        exclude = [
-            "**/node_modules/**",
-            "**/dist/**",
-            "**/out/**",
-            "**/.vscode-test/**",
-        ],
-    ) + ["README.md"],
+    srcs = glob([
+        ".github/**/*.yaml",
+        ".github/**/*.yml",
+    ]) + ["README.md"],
 )
 
 # Prettier format check test
@@ -57,6 +40,8 @@ prettier_bin.prettier_test(
         ":node_modules/prettier",
         ":prettier_srcs",
         ".prettierrc.json",
+        "//editors/code:prettier_srcs",
+        "//playground:prettier_srcs",
     ],
 )
 
@@ -77,6 +62,8 @@ prettier_bin.prettier_binary(
         ":node_modules/prettier",
         ":prettier_srcs",
         ".prettierrc.json",
+        "//editors/code:prettier_srcs",
+        "//playground:prettier_srcs",
     ],
 )
 
@@ -96,8 +83,8 @@ sh_test(
     data = [
         "LICENSE",
         "README.md",
-        "editors/code/LICENSE",
-        "editors/code/README.md",
+        "//editors/code:LICENSE",
+        "//editors/code:README.md",
     ],
 )
 
@@ -118,7 +105,7 @@ sh_test(
     srcs = [".hacking/scripts/check_versions_match.sh"],
     data = [
         "Cargo.toml",
-        "editors/code/package.json",
+        "//editors/code:package.json",
         "//crates/cli-python:pyproject.toml",
         "pyproject.toml",
     ],

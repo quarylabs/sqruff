@@ -1897,7 +1897,7 @@ SELECT
 FROM foo
 ```
 
-**Dialects where this rule is skipped:** `redshift`, `bigquery`, `sparksql`
+**Dialects where this rule is skipped:** `athena`, `redshift`, `bigquery`, `databricks`, `duckdb`, `sparksql`
 
 ### references.qualification
 

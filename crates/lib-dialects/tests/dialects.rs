@@ -61,7 +61,7 @@ fn main() {
     // check if all dialects have a corresponding folder
     for dialect in &dialects {
         let dialect_dir = dialects_dir.join(dialect);
-        assert!(dialects_dirs.contains(&dialect_dir));
+        assert!(dialects_dirs.contains(&dialect_dir), "{}", dialect);
     }
 
     if arg_dialect.is_none() {

@@ -63,16 +63,24 @@ impl Dialect {
 
     #[track_caller]
     pub fn replace_grammar(&mut self, name: &'static str, match_grammar: Matchable) {
-        match self
-            .library
-            .get_mut(name)
-            .unwrap_or_else(|| panic!("Failed to get mutable reference for {name}"))
-        {
-            DialectElementType::Matchable(matchable) => {
-                matchable.as_node_matcher().unwrap().replace(match_grammar);
+        match self.library.entry(Cow::Borrowed(name)) {
+            Entry::Occupied(entry) => {
+                let target = entry.into_mut();
+                match target {
+                    DialectElementType::Matchable(matchable) => {
+                        if let Some(node_matcher) = matchable.as_node_matcher() {
+                            node_matcher.replace(match_grammar);
+                        } else {
+                            *target = DialectElementType::Matchable(match_grammar);
+                        }
+                    }
+                    DialectElementType::SegmentGenerator(_) => {
+                        *target = DialectElementType::Matchable(match_grammar);
+                    }
+                }
             }
-            DialectElementType::SegmentGenerator(_) => {
-                unreachable!("Attempted to fetch non grammar [{name}] with `Dialect::grammar`.")
+            Entry::Vacant(entry) => {
+                entry.insert(match_grammar.into());
             }
         }
     }
@@ -225,7 +233,11 @@ impl Dialect {
         }
         self.library = library;
 
-        for keyword_set in ["unreserved_keywords", "reserved_keywords"] {
+        for keyword_set in [
+            "unreserved_keywords",
+            "reserved_keywords",
+            "future_reserved_keywords",
+        ] {
             if let Some(keywords) = self.sets.get(keyword_set) {
                 for &kw in keywords {
                     if !self.library.contains_key(kw) {

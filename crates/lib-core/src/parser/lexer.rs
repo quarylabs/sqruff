@@ -301,6 +301,7 @@ impl Pattern {
         }
     }
 
+    #[track_caller]
     pub fn legacy(
         name: &'static str,
         starts_with: fn(&str) -> bool,
@@ -378,6 +379,10 @@ impl<'text> Cursor<'text> {
         self.chars.clone().next().unwrap_or(Self::EOF)
     }
 
+    pub fn peek_next(&self) -> char {
+        self.chars.clone().nth(1).unwrap_or(Self::EOF)
+    }
+
     pub fn shift(&mut self) -> char {
         self.chars.next().unwrap_or(Self::EOF)
     }
@@ -391,6 +396,37 @@ impl<'text> Cursor<'text> {
     fn lexed(&self) -> &'text str {
         let len = self.text.len() - self.chars.as_str().len();
         &self.text[..len]
+    }
+}
+
+pub fn nested_block_comment(cursor: &mut Cursor) -> bool {
+    if cursor.peek() != '/' || cursor.peek_next() != '*' {
+        return false;
+    }
+    cursor.shift();
+    cursor.shift();
+    let mut depth = 1;
+    loop {
+        let ch = cursor.peek();
+        if ch == Cursor::EOF {
+            return false;
+        }
+        if ch == '/' && cursor.peek_next() == '*' {
+            cursor.shift();
+            cursor.shift();
+            depth += 1;
+            continue;
+        }
+        if ch == '*' && cursor.peek_next() == '/' {
+            cursor.shift();
+            cursor.shift();
+            depth -= 1;
+            if depth == 0 {
+                return true;
+            }
+            continue;
+        }
+        cursor.shift();
     }
 }
 

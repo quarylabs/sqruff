@@ -240,10 +240,13 @@ FROM foo
     }
 
     fn dialect_skip(&self) -> &'static [DialectKind] {
-        // TODO Add others when finished, whole list["databricks", "hive", "soql"]
+        // Disabled by default for dialects with dot-access semantics.
         &[
+            DialectKind::Athena,
             DialectKind::Redshift,
             DialectKind::Bigquery,
+            DialectKind::Databricks,
+            DialectKind::Duckdb,
             DialectKind::Sparksql,
         ]
     }

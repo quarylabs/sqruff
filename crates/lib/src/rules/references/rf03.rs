@@ -355,7 +355,6 @@ FROM foo
     }
 
     fn dialect_skip(&self) -> &'static [DialectKind] {
-        // TODO: add hive
         &[DialectKind::Bigquery, DialectKind::Redshift]
     }
 

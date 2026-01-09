@@ -325,6 +325,10 @@ impl RuleLT09 {
         let mut fixes = vec![LintFix::delete(
             select_children[select_targets_info.first_select_target_idx.unwrap()].clone(),
         )];
+        let target_idx = select_targets_info.first_select_target_idx.unwrap();
+        if target_idx > 0 && select_children[target_idx - 1].is_type(SyntaxKind::Whitespace) {
+            fixes.push(LintFix::delete(select_children[target_idx - 1].clone()));
+        }
 
         let start_idx = if !modifier.is_empty() {
             let buff = std::mem::take(&mut insert_buff);

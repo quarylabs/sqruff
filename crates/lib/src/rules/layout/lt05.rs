@@ -1,27 +1,16 @@
-use ahash::{AHashMap, AHashSet};
+use ahash::AHashSet;
 use itertools::enumerate;
 use sqruff_lib_core::dialects::syntax::SyntaxKind;
 
-use crate::core::config::Value;
 use crate::core::rules::context::RuleContext;
 use crate::core::rules::crawlers::{Crawler, RootOnlyCrawler};
-use crate::core::rules::{Erased, ErasedRule, LintResult, Rule, RuleGroups};
+use crate::core::rules::{LintResult, Rule, RuleGroups};
 use crate::utils::reflow::sequence::ReflowSequence;
 
 #[derive(Debug, Default, Clone)]
-pub struct RuleLT05 {
-    ignore_comment_lines: bool,
-    ignore_comment_clauses: bool,
-}
+pub struct RuleLT05;
 
 impl Rule for RuleLT05 {
-    fn load_from_config(&self, config: &AHashMap<String, Value>) -> Result<ErasedRule, String> {
-        Ok(RuleLT05 {
-            ignore_comment_lines: config["ignore_comment_lines"].as_bool().unwrap(),
-            ignore_comment_clauses: config["ignore_comment_clauses"].as_bool().unwrap(),
-        }
-        .erased())
-    }
     fn name(&self) -> &'static str {
         "layout.long_lines"
     }
@@ -67,13 +56,19 @@ FROM my_table"#
         &[RuleGroups::All, RuleGroups::Core, RuleGroups::Layout]
     }
     fn eval(&self, context: &RuleContext) -> Vec<LintResult> {
+        let rules = &context.config.rules.layout_long_lines;
+        let max_line_length = context
+            .config
+            .core
+            .max_line_length
+            .expect("max_line_length must be configured");
         let mut results = ReflowSequence::from_root(&context.segment, context.config)
             .break_long_lines(context.tables)
             .results();
 
         let mut to_remove = AHashSet::new();
 
-        if self.ignore_comment_lines {
+        if rules.ignore_comment_lines {
             let raw_segments = context.segment.get_raw_segments();
             for (res_idx, res) in enumerate(&results) {
                 if res.anchor.as_ref().unwrap().is_type(SyntaxKind::Comment)
@@ -110,7 +105,7 @@ FROM my_table"#
             }
         }
 
-        if self.ignore_comment_clauses {
+        if rules.ignore_comment_clauses {
             let raw_segments = context.segment.get_raw_segments();
             for (res_idx, res) in enumerate(&results) {
                 let raw_idx = raw_segments
@@ -139,13 +134,7 @@ FROM my_table"#
                         {
                             let line_pos =
                                 ps.segment.get_position_marker().unwrap().working_line_pos;
-                            if (line_pos as i32)
-                                < context
-                                    .config
-                                    .get("max_line_length", "core")
-                                    .as_int()
-                                    .unwrap()
-                            {
+                            if (line_pos as i32) < max_line_length {
                                 to_remove.insert(res_idx);
                                 is_break = true;
                                 break;

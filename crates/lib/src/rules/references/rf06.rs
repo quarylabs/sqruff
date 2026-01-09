@@ -1,55 +1,17 @@
-use regex::Regex;
 use sqruff_lib_core::dialects::init::DialectKind;
 use sqruff_lib_core::dialects::syntax::{SyntaxKind, SyntaxSet};
 use sqruff_lib_core::lint_fix::LintFix;
 use sqruff_lib_core::parser::segments::SegmentBuilder;
 
-use crate::core::config::Value;
 use crate::core::rules::context::RuleContext;
 use crate::core::rules::crawlers::{Crawler, SegmentSeekerCrawler};
-use crate::core::rules::{Erased, ErasedRule, LintResult, Rule, RuleGroups};
+use crate::core::rules::{LintResult, Rule, RuleGroups};
 use crate::utils::functional::context::FunctionalContext;
 
 #[derive(Default, Debug, Clone)]
-pub struct RuleRF06 {
-    prefer_quoted_identifiers: bool,
-    prefer_quoted_keywords: bool,
-    ignore_words: Vec<String>,
-    ignore_words_regex: Vec<Regex>,
-    force_enable: bool,
-}
+pub struct RuleRF06;
 
 impl Rule for RuleRF06 {
-    fn load_from_config(
-        &self,
-        config: &ahash::AHashMap<String, Value>,
-    ) -> Result<ErasedRule, String> {
-        Ok(Self {
-            prefer_quoted_identifiers: config["prefer_quoted_identifiers"].as_bool().unwrap(),
-            prefer_quoted_keywords: config["prefer_quoted_keywords"].as_bool().unwrap(),
-            ignore_words: config["ignore_words"]
-                .map(|it| {
-                    it.as_array()
-                        .unwrap()
-                        .iter()
-                        .map(|it| it.as_string().unwrap().to_lowercase())
-                        .collect()
-                })
-                .unwrap_or_default(),
-            ignore_words_regex: config["ignore_words_regex"]
-                .map(|it| {
-                    it.as_array()
-                        .unwrap()
-                        .iter()
-                        .map(|it| Regex::new(it.as_string().unwrap()).unwrap())
-                        .collect()
-                })
-                .unwrap_or_default(),
-            force_enable: config["force_enable"].as_bool().unwrap(),
-        }
-        .erased())
-    }
-
     fn name(&self) -> &'static str {
         "references.quoting"
     }
@@ -105,10 +67,11 @@ SELECT 123 as `foo` -- For BigQuery, MySql, ...
     }
 
     fn eval(&self, context: &RuleContext) -> Vec<LintResult> {
+        let rules = &context.config.rules.references_quoting;
         if matches!(
             context.dialect.name,
             DialectKind::Postgres | DialectKind::Snowflake
-        ) && !self.force_enable
+        ) && !rules.force_enable
         {
             return Vec::new();
         }
@@ -146,20 +109,21 @@ SELECT 123 as `foo` -- For BigQuery, MySql, ...
                 .sets("unreserved_keywords")
                 .contains(identifier_contents.to_uppercase().as_str());
 
-        let context_policy = if self.prefer_quoted_identifiers {
+        let context_policy = if rules.prefer_quoted_identifiers {
             SyntaxKind::NakedIdentifier
         } else {
             SyntaxKind::QuotedIdentifier
         };
 
-        if self
+        if rules
             .ignore_words
-            .contains(&identifier_contents.to_lowercase())
+            .iter()
+            .any(|word| word.eq_ignore_ascii_case(&identifier_contents))
         {
             return Vec::new();
         }
 
-        if self
+        if rules
             .ignore_words_regex
             .iter()
             .any(|regex| regex.is_match(identifier_contents.as_ref()))
@@ -167,7 +131,7 @@ SELECT 123 as `foo` -- For BigQuery, MySql, ...
             return Vec::new();
         }
 
-        if self.prefer_quoted_keywords && identifier_is_keyword {
+        if rules.prefer_quoted_keywords && identifier_is_keyword {
             return if !identifier_is_quoted {
                 vec![LintResult::new(
                     context.segment.clone().into(),
@@ -195,7 +159,7 @@ SELECT 123 as `foo` -- For BigQuery, MySql, ...
             return Vec::new();
         }
 
-        if self.prefer_quoted_identifiers {
+        if rules.prefer_quoted_identifiers {
             return vec![LintResult::new(
                 context.segment.clone().into(),
                 Vec::new(),

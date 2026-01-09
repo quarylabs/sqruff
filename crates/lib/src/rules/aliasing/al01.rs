@@ -1,12 +1,9 @@
-use ahash::AHashMap;
-use sqruff_lib_core::dialects::syntax::{SyntaxKind, SyntaxSet};
-use sqruff_lib_core::parser::segments::SegmentBuilder;
-
-use crate::core::config::Value;
 use crate::core::rules::context::RuleContext;
 use crate::core::rules::crawlers::{Crawler, SegmentSeekerCrawler};
-use crate::core::rules::{Erased, ErasedRule, LintResult, Rule, RuleGroups};
+use crate::core::rules::{LintResult, Rule, RuleGroups};
 use crate::utils::reflow::sequence::{Filter, ReflowInsertPosition, ReflowSequence, TargetSide};
+use sqruff_lib_core::dialects::syntax::{SyntaxKind, SyntaxSet};
+use sqruff_lib_core::parser::segments::SegmentBuilder;
 
 #[derive(Debug, PartialEq, Eq, Clone, Copy)]
 pub enum Aliasing {
@@ -14,18 +11,22 @@ pub enum Aliasing {
     Implicit,
 }
 
+impl Aliasing {
+    pub(crate) fn from_config(value: &str) -> Self {
+        if value.eq_ignore_ascii_case("implicit") {
+            Self::Implicit
+        } else {
+            Self::Explicit
+        }
+    }
+}
+
 #[derive(Debug, Clone)]
 pub struct RuleAL01 {
-    aliasing: Aliasing,
     target_parent_types: SyntaxSet,
 }
 
 impl RuleAL01 {
-    pub fn aliasing(mut self, aliasing: Aliasing) -> Self {
-        self.aliasing = aliasing;
-        self
-    }
-
     pub fn target_parent_types(mut self, target_parent_types: SyntaxSet) -> Self {
         self.target_parent_types = target_parent_types;
         self
@@ -35,7 +36,6 @@ impl RuleAL01 {
 impl Default for RuleAL01 {
     fn default() -> Self {
         Self {
-            aliasing: Aliasing::Explicit,
             target_parent_types: const {
                 SyntaxSet::new(&[
                     SyntaxKind::FromExpressionElement,
@@ -47,25 +47,6 @@ impl Default for RuleAL01 {
 }
 
 impl Rule for RuleAL01 {
-    fn load_from_config(&self, _config: &AHashMap<String, Value>) -> Result<ErasedRule, String> {
-        let aliasing = match _config.get("aliasing").unwrap().as_string().unwrap() {
-            "explicit" => Aliasing::Explicit,
-            "implicit" => Aliasing::Implicit,
-            _ => unreachable!(),
-        };
-
-        Ok(RuleAL01 {
-            aliasing,
-            target_parent_types: const {
-                SyntaxSet::new(&[
-                    SyntaxKind::FromExpressionElement,
-                    SyntaxKind::MergeStatement,
-                ])
-            },
-        }
-        .erased())
-    }
-
     fn name(&self) -> &'static str {
         "aliasing.table"
     }
@@ -103,6 +84,25 @@ FROM foo AS voo
     }
 
     fn eval(&self, rule_cx: &RuleContext) -> Vec<LintResult> {
+        let aliasing = Aliasing::from_config(&rule_cx.config.rules.aliasing_table.aliasing);
+        self.eval_with_aliasing(rule_cx, aliasing)
+    }
+
+    fn is_fix_compatible(&self) -> bool {
+        true
+    }
+
+    fn crawl_behaviour(&self) -> Crawler {
+        SegmentSeekerCrawler::new(const { SyntaxSet::new(&[SyntaxKind::AliasExpression]) }).into()
+    }
+}
+
+impl RuleAL01 {
+    pub(crate) fn eval_with_aliasing(
+        &self,
+        rule_cx: &RuleContext,
+        aliasing: Aliasing,
+    ) -> Vec<LintResult> {
         let last_seg = rule_cx.parent_stack.last().unwrap();
         let last_seg_ty = last_seg.get_type();
 
@@ -114,7 +114,7 @@ FROM foo AS voo
                 .find(|seg| seg.raw().eq_ignore_ascii_case("AS"));
 
             if let Some(as_keyword) = as_keyword {
-                if self.aliasing == Aliasing::Implicit {
+                if aliasing == Aliasing::Implicit {
                     return vec![LintResult::new(
                         as_keyword.clone().into(),
                         ReflowSequence::from_around_target(
@@ -130,7 +130,7 @@ FROM foo AS voo
                         None,
                     )];
                 }
-            } else if self.aliasing != Aliasing::Implicit {
+            } else if aliasing != Aliasing::Implicit {
                 let identifier = rule_cx
                     .segment
                     .get_raw_segments()
@@ -160,13 +160,5 @@ FROM foo AS voo
         }
 
         Vec::new()
-    }
-
-    fn is_fix_compatible(&self) -> bool {
-        true
-    }
-
-    fn crawl_behaviour(&self) -> Crawler {
-        SegmentSeekerCrawler::new(const { SyntaxSet::new(&[SyntaxKind::AliasExpression]) }).into()
     }
 }

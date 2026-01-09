@@ -36,7 +36,7 @@ impl Templater for JinjaTemplater {
             let fun: Py<PyAny> = main_module.getattr("process_from_rust")?.into();
 
             let py_dict = config.to_python_context(py, "jinja").unwrap();
-            let python_fluff_config: PythonFluffConfig = config.clone().into();
+            let python_fluff_config: PythonFluffConfig = config.into();
             let args = (
                 in_str.to_string(),
                 f_name.to_string(),
@@ -78,7 +78,7 @@ FROM events
     [sqruff]
     templater = jinja
         ";
-        let config = FluffConfig::from_source(source, None);
+        let config = FluffConfig::from_source(source, None).unwrap();
         let templater = JinjaTemplater;
 
         let processed = templater
@@ -97,7 +97,7 @@ FROM events
     [sqruff]
     templater = jinja
         ";
-        let config = FluffConfig::from_source(source, None);
+        let config = FluffConfig::from_source(source, None).unwrap();
         let templater = JinjaTemplater;
         let instr = r#"{% if True %}
     {% set some_var %}1{% endset %}

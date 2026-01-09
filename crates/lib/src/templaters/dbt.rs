@@ -36,7 +36,7 @@ impl Templater for DBTTemplater {
             let fun: Py<PyAny> = main_module.getattr("process_from_rust")?.into();
 
             let py_dict = config.to_python_context(py, "dbt").unwrap();
-            let python_fluff_config: PythonFluffConfig = config.clone().into();
+            let python_fluff_config: PythonFluffConfig = config.into();
             let args = (
                 in_str.to_string(),
                 f_name.to_string(),

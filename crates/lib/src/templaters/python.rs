@@ -63,7 +63,7 @@ At the moment, dot notation is not supported in the templater."
             let fun: Py<PyAny> = main_module.getattr("process_from_rust")?.into();
             // pass object with Rust tuple of positional arguments
             let py_dict = config.to_python_context(py, "python").unwrap();
-            let python_fluff_config: PythonFluffConfig = config.clone().into();
+            let python_fluff_config: PythonFluffConfig = config.into();
             let args = (
                 in_str.to_string(),
                 f_name.to_string(),
@@ -221,7 +221,7 @@ templater = python
 [sqruff:templater:python:context]
 blah = foo
 ";
-        let config = FluffConfig::from_source(source, None);
+        let config = FluffConfig::from_source(source, None).unwrap();
 
         let templater = PythonTemplater;
 
@@ -241,7 +241,7 @@ templater = python
 [sqruff:templater:python:context]
 noblah = foo
 ";
-        let config = FluffConfig::from_source(source, None);
+        let config = FluffConfig::from_source(source, None).unwrap();
 
         let templater = PythonTemplater;
 

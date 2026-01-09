@@ -1,12 +1,9 @@
-use ahash::AHashMap;
-use regex::Regex;
 use sqruff_lib_core::dialects::syntax::{SyntaxKind, SyntaxSet};
 
 use super::cp01::RuleCP01;
-use crate::core::config::Value;
 use crate::core::rules::context::RuleContext;
 use crate::core::rules::crawlers::{Crawler, SegmentSeekerCrawler};
-use crate::core::rules::{Erased, ErasedRule, LintResult, Rule, RuleGroups};
+use crate::core::rules::{LintResult, Rule, RuleGroups};
 
 #[derive(Debug, Clone)]
 pub struct RuleCP03 {
@@ -26,39 +23,6 @@ impl Default for RuleCP03 {
 }
 
 impl Rule for RuleCP03 {
-    fn load_from_config(&self, config: &AHashMap<String, Value>) -> Result<ErasedRule, String> {
-        Ok(RuleCP03 {
-            base: RuleCP01 {
-                capitalisation_policy: config["extended_capitalisation_policy"]
-                    .as_string()
-                    .unwrap()
-                    .into(),
-                description_elem: "Function names",
-                ignore_words: config["ignore_words"]
-                    .map(|it| {
-                        it.as_array()
-                            .unwrap()
-                            .iter()
-                            .map(|it| it.as_string().unwrap().to_lowercase())
-                            .collect()
-                    })
-                    .unwrap_or_default(),
-                ignore_words_regex: config["ignore_words_regex"]
-                    .map(|it| {
-                        it.as_array()
-                            .unwrap()
-                            .iter()
-                            .map(|it| Regex::new(it.as_string().unwrap()).unwrap())
-                            .collect()
-                    })
-                    .unwrap_or_default(),
-
-                ..Default::default()
-            },
-        }
-        .erased())
-    }
-
     fn name(&self) -> &'static str {
         "capitalisation.functions"
     }
@@ -103,7 +67,13 @@ FROM foo
     }
 
     fn eval(&self, context: &RuleContext) -> Vec<LintResult> {
-        self.base.eval(context)
+        let rules = &context.config.rules.capitalisation_functions;
+        self.base.eval_with_config(
+            context,
+            &rules.extended_capitalisation_policy,
+            &rules.ignore_words,
+            &rules.ignore_words_regex,
+        )
     }
 
     fn is_fix_compatible(&self) -> bool {

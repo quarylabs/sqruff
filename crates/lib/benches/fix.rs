@@ -1,6 +1,4 @@
 use criterion::{Criterion, criterion_group, criterion_main};
-#[cfg(unix)]
-use pprof::criterion::{Output, PProfProfiler};
 use sqruff_lib::core::linter::core::Linter;
 use sqruff_lib_core::parser::segments::Tables;
 use std::hint::black_box;
@@ -83,14 +81,5 @@ fn fix(c: &mut Criterion) {
         });
     }
 }
-#[cfg(unix)]
-criterion_group! {
-    name = benches;
-    config = Criterion::default().with_profiler(PProfProfiler::new(100, Output::Flamegraph(None)));
-    targets = fix
-}
-
-#[cfg(not(unix))]
 criterion_group!(benches, fix);
-
 criterion_main!(benches);

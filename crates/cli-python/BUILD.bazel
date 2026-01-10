@@ -10,6 +10,16 @@ filegroup(
     visibility = ["//visibility:public"],
 )
 
+# Test fixtures for Python tests
+filegroup(
+    name = "test_fixtures",
+    srcs = glob(
+        ["tests/**/*"],
+        exclude = ["tests/**/*.rs"],
+    ),
+    visibility = ["//visibility:public"],
+)
+
 filegroup(
     name = "machete_srcs",
     srcs = glob(

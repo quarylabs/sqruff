@@ -12,6 +12,9 @@
   <a aria-label="Quary logo" href="https://quary.dev/">
     <img src="https://img.shields.io/badge/MADE%20BY%20Quary-000000.svg?style=for-the-badge&logo=Quary&labelColor=000">
   </a>
+  <a aria-label="CodSpeed" href="https://codspeed.io/quarylabs/sqruff?utm_source=badge">
+    <img src="https://img.shields.io/endpoint?url=https://codspeed.io/badge.json?utm_source=badge" alt="CodSpeed Badge"/>
+  </a>
 </p>
 
 `sqruff` is a SQL linter and formatter written in Rust. Key features include:
@@ -166,7 +169,7 @@ temp/
 
 #### Ignoring errors
 
-The NoQA directive is a way to disable specific rules or all rules for a specific line or range of lines. Similar to flake8’s ignore, individual lines can be ignored by adding `-- noqa` to the end of the line.
+The NoQA directive is a way to disable specific rules or all rules for a specific line or range of lines. Similar to flake8's ignore, individual lines can be ignored by adding `-- noqa` to the end of the line.
 
 ##### Ignoring single-line errors
 
@@ -182,7 +185,7 @@ SeLeCt  1 from tBl ;    -- noqa: CP02,CP03
 
 ##### Ignoring multiple line errors
 
-Similar to pylint’s “pylint directive”, ranges of lines can be ignored by adding `-- noqa:disable=<rule>[,...] | all` to the line. Following this directive, specified rules (or all rules, if “all” was specified) will be ignored until a corresponding `-– noqa:enable=<rule>[,…] | all`.
+Similar to pylint's "pylint directive", ranges of lines can be ignored by adding `-- noqa:disable=<rule>[,...] | all` to the line. Following this directive, specified rules (or all rules, if "all" was specified) will be ignored until a corresponding `-– noqa:enable=<rule>[,…] | all`.
 
 For example:
 

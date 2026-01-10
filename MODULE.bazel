@@ -97,7 +97,8 @@ crate.from_cargo(
         "//:Cargo.toml",
         "//crates/cli:Cargo.toml",
         "//crates/cli-lib:Cargo.toml",
-        "//crates/cli-python:Cargo.toml",
+        # cli-python excluded - requires pyo3/Python which needs special setup
+        # Python tests are run separately via uv/pytest
         "//crates/lib:Cargo.toml",
         "//crates/lib-core:Cargo.toml",
         "//crates/lib-dialects:Cargo.toml",
@@ -106,16 +107,6 @@ crate.from_cargo(
         "//crates/lsp:Cargo.toml",
         "//crates/sqlinference:Cargo.toml",
     ],
-)
-
-# Annotations for pyo3 crates - set PYO3_NO_PYTHON to avoid build script failures on WASM
-crate.annotation(
-    crate = "pyo3-build-config",
-    build_script_env = {"PYO3_NO_PYTHON": "1"},
-)
-crate.annotation(
-    crate = "pyo3-ffi",
-    build_script_env = {"PYO3_NO_PYTHON": "1"},
 )
 
 use_repo(crate, "crates")

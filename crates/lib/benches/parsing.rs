@@ -1,6 +1,4 @@
 use criterion::{Criterion, criterion_group, criterion_main};
-#[cfg(unix)]
-use pprof::criterion::{Output, PProfProfiler};
 use sqruff_lib::core::config::FluffConfig;
 use sqruff_lib::core::test_functions::fresh_ansi_dialect;
 use sqruff_lib_core::dialects::syntax::SyntaxKind;
@@ -109,14 +107,5 @@ fn parse(c: &mut Criterion) {
     }
 }
 
-#[cfg(unix)]
-criterion_group! {
-    name = benches;
-    config = Criterion::default().with_profiler(PProfProfiler::new(100, Output::Flamegraph(None)));
-    targets = parse
-}
-
-#[cfg(not(unix))]
 criterion_group!(benches, parse);
-
 criterion_main!(benches);

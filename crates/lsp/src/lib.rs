@@ -101,7 +101,7 @@ impl Wasm {
 impl LanguageServer {
     pub fn new(send_diagnostics_callback: impl Fn(PublishDiagnosticsParams) + 'static) -> Self {
         Self {
-            linter: Linter::new(load_config(), None, None, false),
+            linter: Linter::new(load_config(), None, None, true),
             send_diagnostics_callback: Box::new(send_diagnostics_callback),
             documents: AHashMap::new(),
         }

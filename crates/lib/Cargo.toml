@@ -76,7 +76,7 @@ getrandom = { version = "0.2", features = ["js"] }
 [dev-dependencies]
 sqruff-lib = { path = "." }
 serde_yaml = "0.9.34"
-criterion = "0.8"
+criterion = { version = "4.2.1", package = "codspeed-criterion-compat" }
 expect-test = "1.5"
 glob = "0.3"
 serde_json = "1"

@@ -73,13 +73,6 @@ pnpm.pnpm(
 )
 use_repo(pnpm, "pnpm")
 
-# Python toolchain
-python = use_extension("@rules_python//python/extensions:python.bzl", "python")
-python.toolchain(
-    is_default = True,
-    python_version = "3.12",
-)
-
 # Rust toolchain
 rust = use_extension("@rules_rust//rust:extensions.bzl", "rust")
 rust.toolchain(

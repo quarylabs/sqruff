@@ -1,6 +1,7 @@
 #!/bin/bash
 # Check for unused Rust dependencies using cargo-machete.
-# Uses --with-metadata for accurate detection (text search has false positives with symlinked files).
+# Copies files to a temp directory first because cargo-machete's file walker
+# doesn't follow symlinks, and bazel runfiles use symlinks.
 set -eo pipefail
 
 cd "$RUNFILES_DIR/_main"
@@ -13,4 +14,11 @@ ln -s "$CARGO_BIN" "$BINDIR/cargo"
 ln -s "$MACHETE_BIN" "$BINDIR/cargo-machete"
 export PATH="$BINDIR:$PATH"
 
-cargo machete --with-metadata
+# Copy files to a temp directory to resolve symlinks
+# cargo-machete uses the `ignore` crate which doesn't follow symlinks
+WORKDIR=$(mktemp -d)
+cp -rL . "$WORKDIR/"
+cd "$WORKDIR"
+
+# Run cargo machete
+cargo machete

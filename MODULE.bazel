@@ -5,7 +5,7 @@ module(
     version = "0.0.0",
 )
 
-bazel_dep(name = "aspect_bazel_lib", version = "2.19.1")
+bazel_dep(name = "aspect_bazel_lib", version = "2.22.0")
 
 # Ratchet for GitHub Actions version pinning
 http_archive = use_repo_rule("@bazel_tools//tools/build_defs/repo:http.bzl", "http_archive")
@@ -27,6 +27,15 @@ http_archive(
 bazel_dep(name = "aspect_rules_js", version = "2.3.7")
 bazel_dep(name = "rules_nodejs", version = "6.3.4")
 bazel_dep(name = "rules_python", version = "1.7.0")
+
+# Python toolchain for hermetic Python builds (required by pyo3)
+python = use_extension("@rules_python//python/extensions:python.bzl", "python")
+python.toolchain(
+    is_default = True,
+    python_version = "3.12",
+)
+use_repo(python, "python_3_12", "python_versions")
+register_toolchains("@python_versions//:all")
 bazel_dep(name = "aspect_rules_lint", version = "1.13.0")
 bazel_dep(name = "rules_rust", version = "0.68.1")
 bazel_dep(name = "rules_rust_wasm_bindgen", version = "0.68.1")
@@ -92,14 +101,14 @@ crate.from_cargo(
     ],
 )
 
-# Annotations for pyo3 crates - set PYO3_NO_PYTHON to avoid build script failures on WASM
+# Annotations for pyo3 crates - use Python toolchain for build scripts
 crate.annotation(
     crate = "pyo3-build-config",
-    build_script_env = {"PYO3_NO_PYTHON": "1"},
+    build_script_toolchains = ["@rules_python//python:current_py_toolchain"],
 )
 crate.annotation(
     crate = "pyo3-ffi",
-    build_script_env = {"PYO3_NO_PYTHON": "1"},
+    build_script_toolchains = ["@rules_python//python:current_py_toolchain"],
 )
 
 use_repo(crate, "crates")

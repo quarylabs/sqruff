@@ -12,6 +12,9 @@
   <a aria-label="Quary logo" href="https://quary.dev/">
     <img src="https://img.shields.io/badge/MADE%20BY%20Quary-000000.svg?style=for-the-badge&logo=Quary&labelColor=000">
   </a>
+  <a aria-label="CodSpeed" href="https://codspeed.io/quarylabs/sqruff?utm_source=badge">
+    <img src="https://img.shields.io/endpoint?url=https://codspeed.io/badge.json?utm_source=badge" alt="CodSpeed Badge"/>
+  </a>
 </p>
 
 `sqruff` is a SQL linter and formatter written in Rust. Key features include:

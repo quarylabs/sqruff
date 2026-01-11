@@ -25,3 +25,10 @@ filegroup(
     ) + ["Cargo.toml"],
     visibility = ["//visibility:public"],
 )
+
+# Additional files needed for codegen-docs feature
+filegroup(
+    name = "codegen_srcs",
+    srcs = glob(["src/docs/*.md"]),
+    visibility = ["//visibility:public"],
+)

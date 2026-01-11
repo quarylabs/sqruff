@@ -177,3 +177,32 @@ sh_test(
         "MACHETE": "$(rlocationpath @cargo_machete//:cargo-machete)",
     },
 )
+
+# Codegen docs check - verifies generated documentation is up-to-date
+sh_test(
+    name = "codegen_docs_check",
+    size = "large",
+    srcs = [".hacking/scripts/codegen_docs_check.sh"],
+    data = [
+        "Cargo.lock",
+        "Cargo.toml",
+        "docs/cli.md",
+        "docs/rules.md",
+        "docs/templaters.md",
+        "//crates/cli:machete_srcs",
+        "//crates/cli-lib:machete_srcs",
+        "//crates/cli-lib:codegen_srcs",
+        "//crates/cli-python:machete_srcs",
+        "//crates/lib:machete_srcs",
+        "//crates/lib-core:machete_srcs",
+        "//crates/lib-dialects:machete_srcs",
+        "//crates/lib-wasm:machete_srcs",
+        "//crates/lineage:machete_srcs",
+        "//crates/lsp:machete_srcs",
+        "//crates/sqlinference:machete_srcs",
+        "@rules_rust//rust/toolchain:current_cargo_files",
+    ],
+    env = {
+        "CARGO": "$(rlocationpath @rules_rust//rust/toolchain:current_cargo_files)",
+    },
+)

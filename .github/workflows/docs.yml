@@ -15,12 +15,5 @@ jobs:
       - uses: stefanzweifel/git-auto-commit-action@04702edda442b2e678b25b537cec683a1493fcb9 # ratchet:stefanzweifel/git-auto-commit-action@v6
         with:
           push_options: "--force"
-  codegen-check:
-    name: codegen-check
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # ratchet:actions/checkout@v5
-      - uses: Swatinem/rust-cache@779680da715d629ac1d338a641029a2f4372abb5 # ratchet:Swatinem/rust-cache@v2
-      - uses: dtolnay/rust-toolchain@4305c38b25d97ef35a8ad1f985ccf2d2242004f2 # ratchet:dtolnay/rust-toolchain@stable
-      - run: env GITHUB_ACTIONS=false cargo r --bin sqruff -F codegen-docs
-      - run: git diff --quiet || exit 1
+  # Note: codegen-check has been moved to a Bazel test.
+  # Run with: bazel test //:codegen_docs_check

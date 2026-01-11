@@ -14,7 +14,7 @@ permissions:
 jobs:
   benchmarks:
     name: Run benchmarks
-    runs-on: ubuntu-latest
+    runs-on: codspeed-macro
     steps:
       - uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # ratchet:actions/checkout@v4
 
@@ -36,5 +36,5 @@ jobs:
       - name: Run the benchmarks
         uses: CodSpeedHQ/action@dbda7111f8ac363564b0c51b992d4ce76bb89f2f # ratchet:CodSpeedHQ/action@v4
         with:
-          mode: simulation
           run: cargo codspeed run --package sqruff-lib
+          mode: walltime

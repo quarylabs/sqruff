@@ -152,6 +152,7 @@ rust_clippy(
 )
 
 # Cargo machete - check for unused dependencies
+# Note: Files are copied to a temp directory because cargo-machete doesn't follow symlinks
 sh_test(
     name = "cargo_machete",
     size = "small",

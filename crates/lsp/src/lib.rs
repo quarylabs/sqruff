@@ -70,7 +70,10 @@ impl Wasm {
 
     #[wasm_bindgen(js_name = updateConfig)]
     pub fn update_config(&mut self, source: &str) {
-        *self.0.linter.config_mut() = FluffConfig::from_source(source, None);
+        let config = FluffConfig::from_source(source, None);
+        let include_parse_errors = config.lsp_parse_errors();
+        *self.0.linter.config_mut() = config;
+        self.0.linter.set_include_parse_errors(include_parse_errors);
         self.0.recheck_files();
     }
 
@@ -100,8 +103,10 @@ impl Wasm {
 
 impl LanguageServer {
     pub fn new(send_diagnostics_callback: impl Fn(PublishDiagnosticsParams) + 'static) -> Self {
+        let config = load_config();
+        let include_parse_errors = config.lsp_parse_errors();
         Self {
-            linter: Linter::new(load_config(), None, None, true),
+            linter: Linter::new(config, None, None, include_parse_errors),
             send_diagnostics_callback: Box::new(send_diagnostics_callback),
             documents: AHashMap::new(),
         }
@@ -182,7 +187,10 @@ impl LanguageServer {
                 let uri = params.text_document.uri.as_str();
 
                 if uri.ends_with(".sqlfluff") || uri.ends_with(".sqruff") {
-                    *self.linter.config_mut() = load_config();
+                    let config = load_config();
+                    let include_parse_errors = config.lsp_parse_errors();
+                    *self.linter.config_mut() = config;
+                    self.linter.set_include_parse_errors(include_parse_errors);
 
                     self.recheck_files();
                 }

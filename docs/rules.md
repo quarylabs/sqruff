@@ -2453,3 +2453,4 @@ left join bar
     on foo.a = bar.a
     and foo.b = bar.b
 ```
+

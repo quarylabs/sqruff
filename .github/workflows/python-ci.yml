@@ -112,22 +112,22 @@ jobs:
       - name: Install Python 3.10
         uses: actions/setup-python@83679a892e2d95755f2dac6acb0bfd1e9ac5d548 # ratchet:actions/setup-python@v6
         with:
-          python-version: '3.10'
+          python-version: "3.10"
           architecture: ${{ matrix.platform.target }}
       - name: Install Python 3.11
         uses: actions/setup-python@83679a892e2d95755f2dac6acb0bfd1e9ac5d548 # ratchet:actions/setup-python@v6
         with:
-          python-version: '3.11'
+          python-version: "3.11"
           architecture: ${{ matrix.platform.target }}
       - name: Install Python 3.12
         uses: actions/setup-python@83679a892e2d95755f2dac6acb0bfd1e9ac5d548 # ratchet:actions/setup-python@v6
         with:
-          python-version: '3.12'
+          python-version: "3.12"
           architecture: ${{ matrix.platform.target }}
       - name: Install Python 3.13
         uses: actions/setup-python@83679a892e2d95755f2dac6acb0bfd1e9ac5d548 # ratchet:actions/setup-python@v6
         with:
-          python-version: '3.13'
+          python-version: "3.13"
           architecture: ${{ matrix.platform.target }}
       - name: Install Python 3.13 free-threaded
         uses: actions/setup-python@83679a892e2d95755f2dac6acb0bfd1e9ac5d548 # ratchet:actions/setup-python@v6

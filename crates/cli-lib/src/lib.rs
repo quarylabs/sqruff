@@ -14,7 +14,9 @@ use crate::formatters::OutputStreamFormatter;
 use crate::formatters::github_annotation_native_formatter::GithubAnnotationNativeFormatter;
 use crate::formatters::json::JsonFormatter;
 
+pub mod baseline;
 pub mod commands;
+mod commands_baseline;
 mod commands_dialects;
 mod commands_fix;
 mod commands_info;
@@ -92,7 +94,12 @@ where
                 1
             }
             Ok(false) => commands_lint::run_lint(args, config, ignorer, collect_parse_errors),
-            Ok(true) => commands_lint::run_lint_stdin(config, args.format, collect_parse_errors),
+            Ok(true) => commands_lint::run_lint_stdin(
+                config,
+                args.format,
+                args.baseline,
+                collect_parse_errors,
+            ),
         },
         Commands::Fix(args) => match is_std_in_flag_input(&args.paths) {
             Err(e) => {
@@ -122,6 +129,16 @@ where
             commands_templaters::templaters();
             0
         }
+        Commands::Baseline(args) => match is_std_in_flag_input(&args.paths) {
+            Err(e) => {
+                eprintln!("{e}");
+                1
+            }
+            Ok(false) => {
+                commands_baseline::run_baseline(args, config, ignorer, collect_parse_errors)
+            }
+            Ok(true) => commands_baseline::run_baseline_stdin(config, args.output),
+        },
         #[cfg(feature = "parser")]
         Commands::Parse(args) => commands_parse::run_parse(args, config),
     }

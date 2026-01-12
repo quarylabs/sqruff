@@ -1017,7 +1017,7 @@ fn increment_balance(
     let mut matched_indents = AHashMap::new();
 
     if indent_stats.trough < 0 {
-        for b in (0..indent_stats.trough.abs()).step_by(1) {
+        for b in 0..indent_stats.trough.abs() {
             let key = FloatTypeWrapper::new((balance + -b) as f64);
             matched_indents
                 .entry(key)

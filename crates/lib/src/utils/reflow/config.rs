@@ -54,26 +54,32 @@ impl BlockConfig {
         line_position: Option<&'static str>,
         config: Option<&ConfigElementType>,
     ) {
-        let empty = AHashMap::new();
-        let config = config.unwrap_or(&empty);
-
         self.spacing_before = before
-            .or_else(|| config.get("spacing_before").map(|it| it.parse().unwrap()))
+            .or_else(|| {
+                config
+                    .and_then(|c| c.get("spacing_before"))
+                    .map(|it| it.parse().unwrap())
+            })
             .unwrap_or(self.spacing_before);
 
         self.spacing_after = after
-            .or_else(|| config.get("spacing_after").map(|it| it.parse().unwrap()))
+            .or_else(|| {
+                config
+                    .and_then(|c| c.get("spacing_after"))
+                    .map(|it| it.parse().unwrap())
+            })
             .unwrap_or(self.spacing_after);
 
-        self.spacing_within =
-            within.or_else(|| config.get("spacing_within").map(|it| it.parse().unwrap()));
+        self.spacing_within = within.or_else(|| {
+            config
+                .and_then(|c| c.get("spacing_within"))
+                .map(|it| it.parse().unwrap())
+        });
 
         self.line_position = line_position.or_else(|| {
-            let line_position = config.get("line_position");
-            match line_position {
-                Some(value) => Some(Self::convert_line_position(value)),
-                None => None,
-            }
+            config
+                .and_then(|c| c.get("line_position"))
+                .map(|value| Self::convert_line_position(value))
         });
     }
 }

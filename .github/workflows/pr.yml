@@ -121,9 +121,21 @@ jobs:
           repository-cache: true
       - name: Verify Bazel lockfile is in sync with Cargo.lock
         run: |
-          # Check if MODULE.bazel.lock is up-to-date with Cargo.lock
-          # If this fails, run: bazel mod deps --lockfile_mode=update
-          bazel mod deps --lockfile_mode=error
+          # Regenerate the lockfile and check if it matches what's committed
+          bazel mod deps --lockfile_mode=update
+          if ! git diff --quiet MODULE.bazel.lock; then
+            echo ""
+            echo "ERROR: MODULE.bazel.lock is out of sync!"
+            echo ""
+            echo "The lockfile needs to be updated. Run locally:"
+            echo "  bazel mod deps --lockfile_mode=update"
+            echo ""
+            echo "Then commit the updated MODULE.bazel.lock file."
+            echo ""
+            echo "Diff:"
+            git diff MODULE.bazel.lock | head -100
+            exit 1
+          fi
       - name: Run lint checks
         run: bazel test --config=ci //...
   python:

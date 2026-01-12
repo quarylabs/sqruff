@@ -5,9 +5,11 @@ set -eo pipefail
 
 echo "Checking Bazel and Cargo dependency synchronization..."
 
-# Run bazel mod deps with lockfile_mode=error to check if lock file is up-to-date
-# This will fail if MODULE.bazel.lock needs to be regenerated
-if ! bazel mod deps --lockfile_mode=error 2>&1; then
+# Regenerate the lockfile
+bazel mod deps --lockfile_mode=update
+
+# Check if there are any changes
+if ! git diff --quiet MODULE.bazel.lock; then
     echo ""
     echo "=========================================="
     echo "ERROR: Bazel lock file is out of sync!"
@@ -19,10 +21,9 @@ if ! bazel mod deps --lockfile_mode=error 2>&1; then
     echo "  - MODULE.bazel was modified"
     echo "  - A Cargo.toml file was modified"
     echo ""
-    echo "To fix this, run:"
-    echo "  bazel mod deps --lockfile_mode=update"
-    echo ""
-    echo "Then commit the updated MODULE.bazel.lock file."
+    echo "The lockfile has been updated. Please commit the changes:"
+    echo "  git add MODULE.bazel.lock"
+    echo "  git commit -m 'chore: update MODULE.bazel.lock'"
     echo ""
     exit 1
 fi

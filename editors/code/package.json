@@ -49,7 +49,7 @@
     "@types/vscode": "1.96.0",
     "@vscode/test-cli": "^0.0.12",
     "@vscode/test-electron": "^2.5.2",
-    "@vscode/test-web": "^0.0.77",
+    "@vscode/test-web": "^0.0.78",
     "@vscode/vsce": "^3.7.1",
     "esbuild": "^0.27.2",
     "eslint": "^9.39.2",

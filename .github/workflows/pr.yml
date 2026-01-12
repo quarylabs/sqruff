@@ -119,6 +119,11 @@ jobs:
           bazelisk-cache: true
           disk-cache: ${{ github.workflow }}
           repository-cache: true
+      - name: Verify Bazel lockfile is in sync with Cargo.lock
+        run: |
+          # Check if MODULE.bazel.lock is up-to-date with Cargo.lock
+          # If this fails, run: bazel mod deps --lockfile_mode=update
+          bazel mod deps --lockfile_mode=error
       - name: Run lint checks
         run: bazel test --config=ci //...
   python:

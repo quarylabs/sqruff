@@ -17,3 +17,8 @@ test --test_output=errors
 # CI-specific settings
 build:ci --color=yes
 test:ci --test_output=all
+
+# Ensure MODULE.bazel.lock is up-to-date with Cargo.lock in CI
+# If Cargo.lock changes, MODULE.bazel.lock must be regenerated with:
+#   bazel mod deps --lockfile_mode=update
+common:ci --lockfile_mode=error

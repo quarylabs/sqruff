@@ -33,7 +33,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # ratchet:actions/checkout@v5
-      - uses: bazel-contrib/setup-bazel@8310a45e30297e76bc8fbae427fb6068efa01eb8 # ratchet:bazel-contrib/setup-bazel@0.16.0
+      - uses: bazel-contrib/setup-bazel@43d7d5ceab59a307da44fc7585faa2a2fff4f88d # ratchet:bazel-contrib/setup-bazel@0.16.0
         with:
           bazelisk-cache: true
           disk-cache: ${{ github.workflow }}
@@ -114,7 +114,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # ratchet:actions/checkout@v5
-      - uses: bazel-contrib/setup-bazel@8310a45e30297e76bc8fbae427fb6068efa01eb8 # ratchet:bazel-contrib/setup-bazel@0.16.0
+      - uses: bazel-contrib/setup-bazel@43d7d5ceab59a307da44fc7585faa2a2fff4f88d # ratchet:bazel-contrib/setup-bazel@0.16.0
         with:
           bazelisk-cache: true
           disk-cache: ${{ github.workflow }}

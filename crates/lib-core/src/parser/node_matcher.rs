@@ -9,13 +9,6 @@ use crate::parser::match_result::{MatchResult, Matched};
 use crate::parser::matchable::Matchable;
 use crate::parser::segments::ErasedSegment;
 
-#[macro_export]
-macro_rules! vec_of_erased {
-    ($($elem:expr),* $(,)?) => {{
-        vec![$(ToMatchable::to_matchable($elem)),*]
-    }};
-}
-
 #[derive(Clone)]
 pub struct NodeMatcher {
     node_kind: SyntaxKind,

@@ -6,7 +6,6 @@ use sqruff_lib_core::parser::grammar::Ref;
 use sqruff_lib_core::parser::grammar::anyof::one_of;
 use sqruff_lib_core::parser::lexer::Matcher;
 use sqruff_lib_core::parser::node_matcher::NodeMatcher;
-use sqruff_lib_core::vec_of_erased;
 
 use super::ansi;
 
@@ -35,18 +34,18 @@ pub fn raw_dialect() -> Dialect {
         ),
         (
             "ArithmeticBinaryOperatorGrammar".into(),
-            one_of(vec_of_erased![
-                Ref::new("PlusSegment"),
-                Ref::new("MinusSegment"),
-                Ref::new("DivideSegment"),
-                Ref::new("MultiplySegment"),
-                Ref::new("ModuloSegment"),
-                Ref::new("BitwiseAndSegment"),
-                Ref::new("BitwiseOrSegment"),
-                Ref::new("BitwiseXorSegment"),
-                Ref::new("BitwiseLShiftSegment"),
-                Ref::new("BitwiseRShiftSegment"),
-                Ref::new("DivBinaryOperatorSegment"),
+            one_of(vec![
+                Ref::new("PlusSegment").to_matchable(),
+                Ref::new("MinusSegment").to_matchable(),
+                Ref::new("DivideSegment").to_matchable(),
+                Ref::new("MultiplySegment").to_matchable(),
+                Ref::new("ModuloSegment").to_matchable(),
+                Ref::new("BitwiseAndSegment").to_matchable(),
+                Ref::new("BitwiseOrSegment").to_matchable(),
+                Ref::new("BitwiseXorSegment").to_matchable(),
+                Ref::new("BitwiseLShiftSegment").to_matchable(),
+                Ref::new("BitwiseRShiftSegment").to_matchable(),
+                Ref::new("DivBinaryOperatorSegment").to_matchable(),
             ])
             .to_matchable()
             .into(),

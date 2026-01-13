@@ -12,7 +12,6 @@ use sqruff_lib_core::parser::node_matcher::NodeMatcher;
 use sqruff_lib_core::parser::parsers::TypedParser;
 use sqruff_lib_core::parser::segments::meta::MetaSegment;
 use sqruff_lib_core::parser::types::ParseMode;
-use sqruff_lib_core::vec_of_erased;
 
 use crate::sqlite_keywords::{RESERVED_KEYWORDS, UNRESERVED_KEYWORDS};
 
@@ -59,7 +58,7 @@ pub fn raw_dialect() -> Dialect {
             sqlite_dialect
                 .grammar("LiteralGrammar")
                 .copy(
-                    Some(vec_of_erased![Ref::new("BytesQuotedLiteralSegment")]),
+                    Some(vec![Ref::new("BytesQuotedLiteralSegment").to_matchable()]),
                     None,
                     None,
                     None,
@@ -74,22 +73,24 @@ pub fn raw_dialect() -> Dialect {
         ),
         (
             "BooleanBinaryOperatorGrammar".into(),
-            one_of(vec_of_erased![
-                Ref::new("AndOperatorGrammar"),
-                Ref::new("OrOperatorGrammar"),
-                Ref::keyword("REGEXP")
+            one_of(vec![
+                Ref::new("AndOperatorGrammar").to_matchable(),
+                Ref::new("OrOperatorGrammar").to_matchable(),
+                Ref::keyword("REGEXP").to_matchable(),
             ])
             .to_matchable()
             .into(),
         ),
         (
             "PrimaryKeyGrammar".into(),
-            Sequence::new(vec_of_erased![
-                Ref::keyword("PRIMARY"),
-                Ref::keyword("KEY"),
-                Sequence::new(vec_of_erased![Ref::keyword("AUTOINCREMENT")]).config(|config| {
-                    config.optional();
-                })
+            Sequence::new(vec![
+                Ref::keyword("PRIMARY").to_matchable(),
+                Ref::keyword("KEY").to_matchable(),
+                Sequence::new(vec![Ref::keyword("AUTOINCREMENT").to_matchable()])
+                    .config(|config| {
+                        config.optional();
+                    })
+                    .to_matchable(),
             ])
             .to_matchable()
             .into(),
@@ -100,28 +101,31 @@ pub fn raw_dialect() -> Dialect {
         ),
         (
             "DateTimeLiteralGrammar".into(),
-            Sequence::new(vec_of_erased![
-                one_of(vec_of_erased![
-                    Ref::keyword("DATE"),
-                    Ref::keyword("DATETIME")
-                ]),
+            Sequence::new(vec![
+                one_of(vec![
+                    Ref::keyword("DATE").to_matchable(),
+                    Ref::keyword("DATETIME").to_matchable(),
+                ])
+                .to_matchable(),
                 TypedParser::new(SyntaxKind::SingleQuote, SyntaxKind::DateConstructorLiteral)
+                    .to_matchable(),
             ])
             .to_matchable()
             .into(),
         ),
         (
             "BaseExpressionElementGrammar".into(),
-            one_of(vec_of_erased![
-                Ref::new("LiteralGrammar"),
-                Ref::new("BareFunctionSegment"),
-                Ref::new("FunctionSegment"),
-                Ref::new("ColumnReferenceSegment"),
-                Ref::new("ExpressionSegment"),
-                Sequence::new(vec_of_erased![
-                    Ref::new("DatatypeSegment"),
-                    Ref::new("LiteralGrammar")
+            one_of(vec![
+                Ref::new("LiteralGrammar").to_matchable(),
+                Ref::new("BareFunctionSegment").to_matchable(),
+                Ref::new("FunctionSegment").to_matchable(),
+                Ref::new("ColumnReferenceSegment").to_matchable(),
+                Ref::new("ExpressionSegment").to_matchable(),
+                Sequence::new(vec![
+                    Ref::new("DatatypeSegment").to_matchable(),
+                    Ref::new("LiteralGrammar").to_matchable(),
                 ])
+                .to_matchable(),
             ])
             .to_matchable()
             .into(),
@@ -152,7 +156,7 @@ pub fn raw_dialect() -> Dialect {
         ),
         (
             "LikeGrammar".into(),
-            Sequence::new(vec_of_erased![Ref::keyword("LIKE")])
+            Sequence::new(vec![Ref::keyword("LIKE").to_matchable()])
                 .to_matchable()
                 .into(),
         ),
@@ -174,56 +178,76 @@ pub fn raw_dialect() -> Dialect {
         ),
         (
             "OrderByClauseTerminators".into(),
-            one_of(vec_of_erased![
-                Ref::keyword("LIMIT"),
-                Ref::keyword("WINDOW"),
-                Ref::new("FrameClauseUnitGrammar")
+            one_of(vec![
+                Ref::keyword("LIMIT").to_matchable(),
+                Ref::keyword("WINDOW").to_matchable(),
+                Ref::new("FrameClauseUnitGrammar").to_matchable(),
             ])
             .to_matchable()
             .into(),
         ),
         (
             "WhereClauseTerminatorGrammar".into(),
-            one_of(vec_of_erased![
-                Ref::keyword("LIMIT"),
-                Sequence::new(vec_of_erased![Ref::keyword("GROUP"), Ref::keyword("BY")]),
-                Sequence::new(vec_of_erased![Ref::keyword("ORDER"), Ref::keyword("BY")]),
-                Ref::keyword("WINDOW")
+            one_of(vec![
+                Ref::keyword("LIMIT").to_matchable(),
+                Sequence::new(vec![
+                    Ref::keyword("GROUP").to_matchable(),
+                    Ref::keyword("BY").to_matchable(),
+                ])
+                .to_matchable(),
+                Sequence::new(vec![
+                    Ref::keyword("ORDER").to_matchable(),
+                    Ref::keyword("BY").to_matchable(),
+                ])
+                .to_matchable(),
+                Ref::keyword("WINDOW").to_matchable(),
             ])
             .to_matchable()
             .into(),
         ),
         (
             "FromClauseTerminatorGrammar".into(),
-            one_of(vec_of_erased![
-                Ref::keyword("WHERE"),
-                Ref::keyword("LIMIT"),
-                Sequence::new(vec_of_erased![Ref::keyword("GROUP"), Ref::keyword("BY")]),
-                Sequence::new(vec_of_erased![Ref::keyword("ORDER"), Ref::keyword("BY")]),
-                Ref::keyword("WINDOW"),
-                Ref::new("SetOperatorSegment"),
-                Ref::new("WithNoSchemaBindingClauseSegment"),
-                Ref::new("WithDataClauseSegment")
+            one_of(vec![
+                Ref::keyword("WHERE").to_matchable(),
+                Ref::keyword("LIMIT").to_matchable(),
+                Sequence::new(vec![
+                    Ref::keyword("GROUP").to_matchable(),
+                    Ref::keyword("BY").to_matchable(),
+                ])
+                .to_matchable(),
+                Sequence::new(vec![
+                    Ref::keyword("ORDER").to_matchable(),
+                    Ref::keyword("BY").to_matchable(),
+                ])
+                .to_matchable(),
+                Ref::keyword("WINDOW").to_matchable(),
+                Ref::new("SetOperatorSegment").to_matchable(),
+                Ref::new("WithNoSchemaBindingClauseSegment").to_matchable(),
+                Ref::new("WithDataClauseSegment").to_matchable(),
             ])
             .to_matchable()
             .into(),
         ),
         (
             "GroupByClauseTerminatorGrammar".into(),
-            one_of(vec_of_erased![
-                Sequence::new(vec_of_erased![Ref::keyword("ORDER"), Ref::keyword("BY")]),
-                Ref::keyword("LIMIT"),
-                Ref::keyword("HAVING"),
-                Ref::keyword("WINDOW")
+            one_of(vec![
+                Sequence::new(vec![
+                    Ref::keyword("ORDER").to_matchable(),
+                    Ref::keyword("BY").to_matchable(),
+                ])
+                .to_matchable(),
+                Ref::keyword("LIMIT").to_matchable(),
+                Ref::keyword("HAVING").to_matchable(),
+                Ref::keyword("WINDOW").to_matchable(),
             ])
             .to_matchable()
             .into(),
         ),
         (
             "PostFunctionGrammar".into(),
-            Sequence::new(vec_of_erased![
-                Ref::new("FilterClauseGrammar").optional(),
-                Ref::new("OverClauseSegment"),
+            Sequence::new(vec![
+                Ref::new("FilterClauseGrammar").optional().to_matchable(),
+                Ref::new("OverClauseSegment").to_matchable(),
             ])
             .to_matchable()
             .into(),
@@ -234,97 +258,113 @@ pub fn raw_dialect() -> Dialect {
         ),
         (
             "SelectClauseTerminatorGrammar".into(),
-            one_of(vec_of_erased![
-                Ref::keyword("FROM"),
-                Ref::keyword("WHERE"),
-                Sequence::new(vec_of_erased![Ref::keyword("ORDER"), Ref::keyword("BY")]),
-                Ref::keyword("LIMIT"),
-                Ref::new("SetOperatorSegment")
+            one_of(vec![
+                Ref::keyword("FROM").to_matchable(),
+                Ref::keyword("WHERE").to_matchable(),
+                Sequence::new(vec![
+                    Ref::keyword("ORDER").to_matchable(),
+                    Ref::keyword("BY").to_matchable(),
+                ])
+                .to_matchable(),
+                Ref::keyword("LIMIT").to_matchable(),
+                Ref::new("SetOperatorSegment").to_matchable(),
             ])
             .to_matchable()
             .into(),
         ),
         (
             "FunctionContentsGrammar".into(),
-            AnyNumberOf::new(vec_of_erased![
-                Ref::new("ExpressionSegment"),
-                Sequence::new(vec_of_erased![
-                    Ref::new("ExpressionSegment"),
-                    Ref::keyword("AS"),
-                    Ref::new("DatatypeSegment")
-                ]),
-                Sequence::new(vec_of_erased![
-                    Ref::new("TrimParametersGrammar"),
+            AnyNumberOf::new(vec![
+                Ref::new("ExpressionSegment").to_matchable(),
+                Sequence::new(vec![
+                    Ref::new("ExpressionSegment").to_matchable(),
+                    Ref::keyword("AS").to_matchable(),
+                    Ref::new("DatatypeSegment").to_matchable(),
+                ])
+                .to_matchable(),
+                Sequence::new(vec![
+                    Ref::new("TrimParametersGrammar").to_matchable(),
                     Ref::new("ExpressionSegment")
                         .optional()
                         .exclude(Ref::keyword("FROM"))
                         .config(|config| {
                             config.exclude = Ref::keyword("FROM").to_matchable().into();
-                        }),
-                    Ref::keyword("FROM"),
-                    Ref::new("ExpressionSegment")
-                ]),
-                Sequence::new(vec_of_erased![
-                    one_of(vec_of_erased![
-                        Ref::new("DatetimeUnitSegment"),
-                        Ref::new("ExpressionSegment")
-                    ]),
-                    Ref::keyword("FROM"),
-                    Ref::new("ExpressionSegment")
-                ]),
-                Sequence::new(vec_of_erased![
-                    Ref::keyword("DISTINCT").optional(),
-                    one_of(vec_of_erased![
-                        Ref::new("StarSegment"),
-                        Delimited::new(vec_of_erased![Ref::new(
-                            "FunctionContentsExpressionGrammar"
-                        )])
+                        })
+                        .to_matchable(),
+                    Ref::keyword("FROM").to_matchable(),
+                    Ref::new("ExpressionSegment").to_matchable(),
+                ])
+                .to_matchable(),
+                Sequence::new(vec![
+                    one_of(vec![
+                        Ref::new("DatetimeUnitSegment").to_matchable(),
+                        Ref::new("ExpressionSegment").to_matchable(),
                     ])
-                ]),
-                Ref::new("OrderByClauseSegment"),
-                Sequence::new(vec_of_erased![
-                    one_of(vec_of_erased![
-                        Ref::new("QuotedLiteralSegment"),
-                        Ref::new("SingleIdentifierGrammar"),
-                        Ref::new("ColumnReferenceSegment")
-                    ]),
-                    Ref::keyword("IN"),
-                    one_of(vec_of_erased![
-                        Ref::new("QuotedLiteralSegment"),
-                        Ref::new("SingleIdentifierGrammar"),
-                        Ref::new("ColumnReferenceSegment")
+                    .to_matchable(),
+                    Ref::keyword("FROM").to_matchable(),
+                    Ref::new("ExpressionSegment").to_matchable(),
+                ])
+                .to_matchable(),
+                Sequence::new(vec![
+                    Ref::keyword("DISTINCT").optional().to_matchable(),
+                    one_of(vec![
+                        Ref::new("StarSegment").to_matchable(),
+                        Delimited::new(vec![
+                            Ref::new("FunctionContentsExpressionGrammar").to_matchable(),
+                        ])
+                        .to_matchable(),
                     ])
-                ]),
-                Ref::new("IndexColumnDefinitionSegment")
+                    .to_matchable(),
+                ])
+                .to_matchable(),
+                Ref::new("OrderByClauseSegment").to_matchable(),
+                Sequence::new(vec![
+                    one_of(vec![
+                        Ref::new("QuotedLiteralSegment").to_matchable(),
+                        Ref::new("SingleIdentifierGrammar").to_matchable(),
+                        Ref::new("ColumnReferenceSegment").to_matchable(),
+                    ])
+                    .to_matchable(),
+                    Ref::keyword("IN").to_matchable(),
+                    one_of(vec![
+                        Ref::new("QuotedLiteralSegment").to_matchable(),
+                        Ref::new("SingleIdentifierGrammar").to_matchable(),
+                        Ref::new("ColumnReferenceSegment").to_matchable(),
+                    ])
+                    .to_matchable(),
+                ])
+                .to_matchable(),
+                Ref::new("IndexColumnDefinitionSegment").to_matchable(),
             ])
             .to_matchable()
             .into(),
         ),
         (
             "Expression_A_Unary_Operator_Grammar".into(),
-            one_of(vec_of_erased![
+            one_of(vec![
                 Ref::new("SignedSegmentGrammar")
-                    .exclude(Sequence::new(vec_of_erased![Ref::new(
-                        "QualifiedNumericLiteralSegment"
-                    )]))
+                    .exclude(Sequence::new(vec![
+                        Ref::new("QualifiedNumericLiteralSegment").to_matchable(),
+                    ]))
                     .config(|config| {
-                        config.exclude = Sequence::new(vec_of_erased![Ref::new(
-                            "QualifiedNumericLiteralSegment"
-                        )])
+                        config.exclude = Sequence::new(vec![
+                            Ref::new("QualifiedNumericLiteralSegment").to_matchable(),
+                        ])
                         .to_matchable()
                         .into();
-                    }),
-                Ref::new("TildeSegment"),
-                Ref::new("NotOperatorGrammar")
+                    })
+                    .to_matchable(),
+                Ref::new("TildeSegment").to_matchable(),
+                Ref::new("NotOperatorGrammar").to_matchable(),
             ])
             .to_matchable()
             .into(),
         ),
         (
             "IsClauseGrammar".into(),
-            one_of(vec_of_erased![
-                Ref::keyword("NULL"),
-                Ref::new("BooleanLiteralGrammar")
+            one_of(vec![
+                Ref::keyword("NULL").to_matchable(),
+                Ref::new("BooleanLiteralGrammar").to_matchable(),
             ])
             .to_matchable()
             .into(),
@@ -333,29 +373,33 @@ pub fn raw_dialect() -> Dialect {
     sqlite_dialect.add([(
         "SetOperatorSegment".into(),
         NodeMatcher::new(SyntaxKind::SetOperator, |_| {
-            one_of(vec_of_erased![
-                Sequence::new(vec_of_erased![
-                    Ref::keyword("UNION"),
-                    one_of(vec_of_erased![
-                        Ref::keyword("DISTINCT"),
-                        Ref::keyword("ALL")
+            one_of(vec![
+                Sequence::new(vec![
+                    Ref::keyword("UNION").to_matchable(),
+                    one_of(vec![
+                        Ref::keyword("DISTINCT").to_matchable(),
+                        Ref::keyword("ALL").to_matchable(),
                     ])
                     .config(|config| {
                         config.optional();
                     })
-                ]),
-                Sequence::new(vec_of_erased![
-                    one_of(vec_of_erased![
-                        Ref::keyword("INTERSECT"),
-                        Ref::keyword("EXCEPT")
-                    ]),
-                    Ref::keyword("ALL").optional()
+                    .to_matchable(),
                 ])
+                .to_matchable(),
+                Sequence::new(vec![
+                    one_of(vec![
+                        Ref::keyword("INTERSECT").to_matchable(),
+                        Ref::keyword("EXCEPT").to_matchable(),
+                    ])
+                    .to_matchable(),
+                    Ref::keyword("ALL").optional().to_matchable(),
+                ])
+                .to_matchable(),
             ])
             .config(|config| {
-                config.exclude = Sequence::new(vec_of_erased![
-                    Ref::keyword("EXCEPT"),
-                    Bracketed::new(vec_of_erased![Anything::new()])
+                config.exclude = Sequence::new(vec![
+                    Ref::keyword("EXCEPT").to_matchable(),
+                    Bracketed::new(vec![Anything::new().to_matchable()]).to_matchable(),
                 ])
                 .to_matchable()
                 .into();
@@ -368,41 +412,48 @@ pub fn raw_dialect() -> Dialect {
 
     sqlite_dialect.replace_grammar(
         "DatatypeSegment",
-        one_of(vec_of_erased![
-            Sequence::new(vec_of_erased![
-                Ref::keyword("DOUBLE"),
-                Ref::keyword("PRECISION")
-            ]),
-            Sequence::new(vec_of_erased![
-                Ref::keyword("UNSIGNED"),
-                Ref::keyword("BIG"),
-                Ref::keyword("INT")
-            ]),
-            Sequence::new(vec_of_erased![
-                one_of(vec_of_erased![
-                    Sequence::new(vec_of_erased![
-                        one_of(vec_of_erased![
-                            Ref::keyword("VARYING"),
-                            Ref::keyword("NATIVE")
-                        ]),
-                        one_of(vec_of_erased![Ref::keyword("CHARACTER")])
-                    ]),
-                    Ref::new("DatatypeIdentifierSegment")
-                ]),
-                Ref::new("BracketedArguments").optional()
+        one_of(vec![
+            Sequence::new(vec![
+                Ref::keyword("DOUBLE").to_matchable(),
+                Ref::keyword("PRECISION").to_matchable(),
             ])
+            .to_matchable(),
+            Sequence::new(vec![
+                Ref::keyword("UNSIGNED").to_matchable(),
+                Ref::keyword("BIG").to_matchable(),
+                Ref::keyword("INT").to_matchable(),
+            ])
+            .to_matchable(),
+            Sequence::new(vec![
+                one_of(vec![
+                    Sequence::new(vec![
+                        one_of(vec![
+                            Ref::keyword("VARYING").to_matchable(),
+                            Ref::keyword("NATIVE").to_matchable(),
+                        ])
+                        .to_matchable(),
+                        one_of(vec![Ref::keyword("CHARACTER").to_matchable()]).to_matchable(),
+                    ])
+                    .to_matchable(),
+                    Ref::new("DatatypeIdentifierSegment").to_matchable(),
+                ])
+                .to_matchable(),
+                Ref::new("BracketedArguments").optional().to_matchable(),
+            ])
+            .to_matchable(),
         ])
         .to_matchable(),
     );
     sqlite_dialect.add([(
         "TableEndClauseSegment".into(),
         NodeMatcher::new(SyntaxKind::TableEndClauseSegment, |_| {
-            Delimited::new(vec_of_erased![
-                Sequence::new(vec_of_erased![
-                    Ref::keyword("WITHOUT"),
-                    Ref::keyword("ROWID")
-                ]),
-                Ref::keyword("STRICT")
+            Delimited::new(vec![
+                Sequence::new(vec![
+                    Ref::keyword("WITHOUT").to_matchable(),
+                    Ref::keyword("ROWID").to_matchable(),
+                ])
+                .to_matchable(),
+                Ref::keyword("STRICT").to_matchable(),
             ])
             .to_matchable()
         })
@@ -412,17 +463,25 @@ pub fn raw_dialect() -> Dialect {
 
     sqlite_dialect.replace_grammar(
         "ValuesClauseSegment",
-        Sequence::new(vec_of_erased![
-            Ref::keyword("VALUES"),
-            Delimited::new(vec_of_erased![Sequence::new(vec_of_erased![
-                Bracketed::new(vec_of_erased![Delimited::new(vec_of_erased![
-                    Ref::keyword("DEFAULT"),
-                    Ref::new("ExpressionSegment")
-                ])])
-                .config(|config| {
-                    config.parse_mode(ParseMode::Greedy);
-                })
-            ])])
+        Sequence::new(vec![
+            Ref::keyword("VALUES").to_matchable(),
+            Delimited::new(vec![
+                Sequence::new(vec![
+                    Bracketed::new(vec![
+                        Delimited::new(vec![
+                            Ref::keyword("DEFAULT").to_matchable(),
+                            Ref::new("ExpressionSegment").to_matchable(),
+                        ])
+                        .to_matchable(),
+                    ])
+                    .config(|config| {
+                        config.parse_mode(ParseMode::Greedy);
+                    })
+                    .to_matchable(),
+                ])
+                .to_matchable(),
+            ])
+            .to_matchable(),
         ])
         .to_matchable(),
     );
@@ -430,16 +489,20 @@ pub fn raw_dialect() -> Dialect {
         (
             "IndexColumnDefinitionSegment".into(),
             NodeMatcher::new(SyntaxKind::IndexColumnDefinition, |_| {
-                Sequence::new(vec_of_erased![
-                    one_of(vec_of_erased![
-                        Ref::new("SingleIdentifierGrammar"),
-                        Ref::new("ExpressionSegment")
-                    ]),
-                    one_of(vec_of_erased![Ref::keyword("ASC"), Ref::keyword("DESC")]).config(
-                        |config| {
-                            config.optional();
-                        }
-                    )
+                Sequence::new(vec![
+                    one_of(vec![
+                        Ref::new("SingleIdentifierGrammar").to_matchable(),
+                        Ref::new("ExpressionSegment").to_matchable(),
+                    ])
+                    .to_matchable(),
+                    one_of(vec![
+                        Ref::keyword("ASC").to_matchable(),
+                        Ref::keyword("DESC").to_matchable(),
+                    ])
+                    .config(|config| {
+                        config.optional();
+                    })
+                    .to_matchable(),
                 ])
                 .to_matchable()
             })
@@ -449,35 +512,43 @@ pub fn raw_dialect() -> Dialect {
         (
             "InsertStatementSegment".into(),
             NodeMatcher::new(SyntaxKind::InsertStatement, |_| {
-                Sequence::new(vec_of_erased![
-                    one_of(vec_of_erased![
-                        Sequence::new(vec_of_erased![
-                            Ref::keyword("INSERT"),
-                            Sequence::new(vec_of_erased![
-                                Ref::keyword("OR"),
-                                one_of(vec_of_erased![
-                                    Ref::keyword("ABORT"),
-                                    Ref::keyword("FAIL"),
-                                    Ref::keyword("IGNORE"),
-                                    Ref::keyword("REPLACE"),
-                                    Ref::keyword("ROLLBACK")
+                Sequence::new(vec![
+                    one_of(vec![
+                        Sequence::new(vec![
+                            Ref::keyword("INSERT").to_matchable(),
+                            Sequence::new(vec![
+                                Ref::keyword("OR").to_matchable(),
+                                one_of(vec![
+                                    Ref::keyword("ABORT").to_matchable(),
+                                    Ref::keyword("FAIL").to_matchable(),
+                                    Ref::keyword("IGNORE").to_matchable(),
+                                    Ref::keyword("REPLACE").to_matchable(),
+                                    Ref::keyword("ROLLBACK").to_matchable(),
                                 ])
+                                .to_matchable(),
                             ])
                             .config(|config| {
                                 config.optional();
                             })
-                        ]),
-                        Ref::keyword("REPLACE")
-                    ]),
-                    Ref::keyword("INTO"),
-                    Ref::new("TableReferenceSegment"),
-                    Ref::new("BracketedColumnReferenceListGrammar").optional(),
-                    one_of(vec_of_erased![
-                        Ref::new("ValuesClauseSegment"),
-                        optionally_bracketed(vec_of_erased![Ref::new("SelectableGrammar")]),
-                        Ref::new("DefaultValuesGrammar")
-                    ]),
-                    Ref::new("ReturningClauseSegment").optional()
+                            .to_matchable(),
+                        ])
+                        .to_matchable(),
+                        Ref::keyword("REPLACE").to_matchable(),
+                    ])
+                    .to_matchable(),
+                    Ref::keyword("INTO").to_matchable(),
+                    Ref::new("TableReferenceSegment").to_matchable(),
+                    Ref::new("BracketedColumnReferenceListGrammar")
+                        .optional()
+                        .to_matchable(),
+                    one_of(vec![
+                        Ref::new("ValuesClauseSegment").to_matchable(),
+                        optionally_bracketed(vec![Ref::new("SelectableGrammar").to_matchable()])
+                            .to_matchable(),
+                        Ref::new("DefaultValuesGrammar").to_matchable(),
+                    ])
+                    .to_matchable(),
+                    Ref::new("ReturningClauseSegment").optional().to_matchable(),
                 ])
                 .to_matchable()
             })
@@ -487,11 +558,11 @@ pub fn raw_dialect() -> Dialect {
         (
             "DeleteStatementSegment".into(),
             NodeMatcher::new(SyntaxKind::DeleteStatement, |_| {
-                Sequence::new(vec_of_erased![
-                    Ref::keyword("DELETE"),
-                    Ref::new("FromClauseSegment"),
-                    Ref::new("WhereClauseSegment").optional(),
-                    Ref::new("ReturningClauseSegment").optional()
+                Sequence::new(vec![
+                    Ref::keyword("DELETE").to_matchable(),
+                    Ref::new("FromClauseSegment").to_matchable(),
+                    Ref::new("WhereClauseSegment").optional().to_matchable(),
+                    Ref::new("ReturningClauseSegment").optional().to_matchable(),
                 ])
                 .to_matchable()
             })
@@ -501,16 +572,17 @@ pub fn raw_dialect() -> Dialect {
         (
             "UpdateStatementSegment".into(),
             NodeMatcher::new(SyntaxKind::UpdateStatement, |_| {
-                Sequence::new(vec_of_erased![
-                    Ref::keyword("UPDATE"),
-                    Ref::new("TableReferenceSegment"),
+                Sequence::new(vec![
+                    Ref::keyword("UPDATE").to_matchable(),
+                    Ref::new("TableReferenceSegment").to_matchable(),
                     Ref::new("AliasExpressionSegment")
                         .exclude(Ref::keyword("SET"))
-                        .optional(),
-                    Ref::new("SetClauseListSegment"),
-                    Ref::new("FromClauseSegment").optional(),
-                    Ref::new("WhereClauseSegment").optional(),
-                    Ref::new("ReturningClauseSegment").optional()
+                        .optional()
+                        .to_matchable(),
+                    Ref::new("SetClauseListSegment").to_matchable(),
+                    Ref::new("FromClauseSegment").optional().to_matchable(),
+                    Ref::new("WhereClauseSegment").optional().to_matchable(),
+                    Ref::new("ReturningClauseSegment").optional().to_matchable(),
                 ])
                 .to_matchable()
             })
@@ -524,30 +596,35 @@ pub fn raw_dialect() -> Dialect {
         .match_grammar(&sqlite_dialect)
         .unwrap()
         .copy(
-            Some(vec_of_erased![
-                one_of(vec_of_erased![
-                    Ref::keyword("DEFERRABLE"),
-                    Sequence::new(vec_of_erased![
-                        Ref::keyword("NOT"),
-                        Ref::keyword("DEFERRABLE")
+            Some(vec![
+                one_of(vec![
+                    Ref::keyword("DEFERRABLE").to_matchable(),
+                    Sequence::new(vec![
+                        Ref::keyword("NOT").to_matchable(),
+                        Ref::keyword("DEFERRABLE").to_matchable(),
                     ])
-                ])
-                .config(|config| {
-                    config.optional();
-                }),
-                one_of(vec_of_erased![
-                    Sequence::new(vec_of_erased![
-                        Ref::keyword("INITIALLY"),
-                        Ref::keyword("DEFERRED")
-                    ]),
-                    Sequence::new(vec_of_erased![
-                        Ref::keyword("INITIALLY"),
-                        Ref::keyword("IMMEDIATE")
-                    ])
+                    .to_matchable(),
                 ])
                 .config(|config| {
                     config.optional();
                 })
+                .to_matchable(),
+                one_of(vec![
+                    Sequence::new(vec![
+                        Ref::keyword("INITIALLY").to_matchable(),
+                        Ref::keyword("DEFERRED").to_matchable(),
+                    ])
+                    .to_matchable(),
+                    Sequence::new(vec![
+                        Ref::keyword("INITIALLY").to_matchable(),
+                        Ref::keyword("IMMEDIATE").to_matchable(),
+                    ])
+                    .to_matchable(),
+                ])
+                .config(|config| {
+                    config.optional();
+                })
+                .to_matchable(),
             ]),
             None,
             None,
@@ -559,80 +636,96 @@ pub fn raw_dialect() -> Dialect {
 
     sqlite_dialect.replace_grammar(
         "TableConstraintSegment",
-        Sequence::new(vec_of_erased![
-            Sequence::new(vec_of_erased![
-                Ref::keyword("CONSTRAINT"),
-                Ref::new("ObjectReferenceSegment")
-            ])
-            .config(|config| {
-                config.optional();
-            }),
-            one_of(vec_of_erased![
-                Sequence::new(vec_of_erased![
-                    Ref::keyword("CHECK"),
-                    Bracketed::new(vec_of_erased![Ref::new("ExpressionSegment")])
-                ]),
-                Sequence::new(vec_of_erased![
-                    Ref::keyword("UNIQUE"),
-                    Ref::new("BracketedColumnReferenceListGrammar")
-                ]),
-                Sequence::new(vec_of_erased![
-                    Ref::new("PrimaryKeyGrammar"),
-                    Ref::new("BracketedColumnReferenceListGrammar")
-                ]),
-                Sequence::new(vec_of_erased![
-                    Ref::new("ForeignKeyGrammar"),
-                    Ref::new("BracketedColumnReferenceListGrammar"),
-                    Ref::new("ReferenceDefinitionGrammar")
-                ])
-            ]),
-            one_of(vec_of_erased![
-                Ref::keyword("DEFERRABLE"),
-                Sequence::new(vec_of_erased![
-                    Ref::keyword("NOT"),
-                    Ref::keyword("DEFERRABLE")
-                ])
-            ])
-            .config(|config| {
-                config.optional();
-            }),
-            one_of(vec_of_erased![
-                Sequence::new(vec_of_erased![
-                    Ref::keyword("INITIALLY"),
-                    Ref::keyword("DEFERRED")
-                ]),
-                Sequence::new(vec_of_erased![
-                    Ref::keyword("INITIALLY"),
-                    Ref::keyword("IMMEDIATE")
-                ])
+        Sequence::new(vec![
+            Sequence::new(vec![
+                Ref::keyword("CONSTRAINT").to_matchable(),
+                Ref::new("ObjectReferenceSegment").to_matchable(),
             ])
             .config(|config| {
                 config.optional();
             })
+            .to_matchable(),
+            one_of(vec![
+                Sequence::new(vec![
+                    Ref::keyword("CHECK").to_matchable(),
+                    Bracketed::new(vec![Ref::new("ExpressionSegment").to_matchable()])
+                        .to_matchable(),
+                ])
+                .to_matchable(),
+                Sequence::new(vec![
+                    Ref::keyword("UNIQUE").to_matchable(),
+                    Ref::new("BracketedColumnReferenceListGrammar").to_matchable(),
+                ])
+                .to_matchable(),
+                Sequence::new(vec![
+                    Ref::new("PrimaryKeyGrammar").to_matchable(),
+                    Ref::new("BracketedColumnReferenceListGrammar").to_matchable(),
+                ])
+                .to_matchable(),
+                Sequence::new(vec![
+                    Ref::new("ForeignKeyGrammar").to_matchable(),
+                    Ref::new("BracketedColumnReferenceListGrammar").to_matchable(),
+                    Ref::new("ReferenceDefinitionGrammar").to_matchable(),
+                ])
+                .to_matchable(),
+            ])
+            .to_matchable(),
+            one_of(vec![
+                Ref::keyword("DEFERRABLE").to_matchable(),
+                Sequence::new(vec![
+                    Ref::keyword("NOT").to_matchable(),
+                    Ref::keyword("DEFERRABLE").to_matchable(),
+                ])
+                .to_matchable(),
+            ])
+            .config(|config| {
+                config.optional();
+            })
+            .to_matchable(),
+            one_of(vec![
+                Sequence::new(vec![
+                    Ref::keyword("INITIALLY").to_matchable(),
+                    Ref::keyword("DEFERRED").to_matchable(),
+                ])
+                .to_matchable(),
+                Sequence::new(vec![
+                    Ref::keyword("INITIALLY").to_matchable(),
+                    Ref::keyword("IMMEDIATE").to_matchable(),
+                ])
+                .to_matchable(),
+            ])
+            .config(|config| {
+                config.optional();
+            })
+            .to_matchable(),
         ])
         .to_matchable(),
     );
 
     sqlite_dialect.replace_grammar(
         "TransactionStatementSegment",
-        Sequence::new(vec_of_erased![
-            one_of(vec_of_erased![
-                Ref::keyword("BEGIN"),
-                Ref::keyword("COMMIT"),
-                Ref::keyword("ROLLBACK"),
-                Ref::keyword("END")
-            ]),
-            one_of(vec_of_erased![Ref::keyword("TRANSACTION")]).config(|config| {
-                config.optional();
-            }),
-            Sequence::new(vec_of_erased![
-                Ref::keyword("TO"),
-                Ref::keyword("SAVEPOINT"),
-                Ref::new("ObjectReferenceSegment")
+        Sequence::new(vec![
+            one_of(vec![
+                Ref::keyword("BEGIN").to_matchable(),
+                Ref::keyword("COMMIT").to_matchable(),
+                Ref::keyword("ROLLBACK").to_matchable(),
+                Ref::keyword("END").to_matchable(),
+            ])
+            .to_matchable(),
+            one_of(vec![Ref::keyword("TRANSACTION").to_matchable()])
+                .config(|config| {
+                    config.optional();
+                })
+                .to_matchable(),
+            Sequence::new(vec![
+                Ref::keyword("TO").to_matchable(),
+                Ref::keyword("SAVEPOINT").to_matchable(),
+                Ref::new("ObjectReferenceSegment").to_matchable(),
             ])
             .config(|config| {
                 config.optional();
             })
+            .to_matchable(),
         ])
         .to_matchable(),
     );
@@ -652,45 +745,48 @@ pub fn raw_dialect() -> Dialect {
     sqlite_dialect.add([(
         "PragmaStatementSegment".into(),
         NodeMatcher::new(SyntaxKind::PragmaStatement, |_| {
-            let pragma_value = one_of(vec_of_erased![
-                Ref::new("LiteralGrammar"),
-                Ref::new("BooleanLiteralGrammar"),
-                Ref::keyword("YES"),
-                Ref::keyword("NO"),
-                Ref::keyword("ON"),
-                Ref::keyword("OFF"),
-                Ref::keyword("NONE"),
-                Ref::keyword("FULL"),
-                Ref::keyword("INCREMENTAL"),
-                Ref::keyword("DELETE"),
-                Ref::keyword("TRUNCATE"),
-                Ref::keyword("PERSIST"),
-                Ref::keyword("MEMORY"),
-                Ref::keyword("WAL"),
-                Ref::keyword("NORMAL"),
-                Ref::keyword("EXCLUSIVE"),
-                Ref::keyword("FAST"),
-                Ref::keyword("EXTRA"),
-                Ref::keyword("DEFAULT"),
-                Ref::keyword("FILE"),
-                Ref::keyword("PASSIVE"),
-                Ref::keyword("RESTART"),
-                Ref::keyword("RESET")
+            let pragma_value = one_of(vec![
+                Ref::new("LiteralGrammar").to_matchable(),
+                Ref::new("BooleanLiteralGrammar").to_matchable(),
+                Ref::keyword("YES").to_matchable(),
+                Ref::keyword("NO").to_matchable(),
+                Ref::keyword("ON").to_matchable(),
+                Ref::keyword("OFF").to_matchable(),
+                Ref::keyword("NONE").to_matchable(),
+                Ref::keyword("FULL").to_matchable(),
+                Ref::keyword("INCREMENTAL").to_matchable(),
+                Ref::keyword("DELETE").to_matchable(),
+                Ref::keyword("TRUNCATE").to_matchable(),
+                Ref::keyword("PERSIST").to_matchable(),
+                Ref::keyword("MEMORY").to_matchable(),
+                Ref::keyword("WAL").to_matchable(),
+                Ref::keyword("NORMAL").to_matchable(),
+                Ref::keyword("EXCLUSIVE").to_matchable(),
+                Ref::keyword("FAST").to_matchable(),
+                Ref::keyword("EXTRA").to_matchable(),
+                Ref::keyword("DEFAULT").to_matchable(),
+                Ref::keyword("FILE").to_matchable(),
+                Ref::keyword("PASSIVE").to_matchable(),
+                Ref::keyword("RESTART").to_matchable(),
+                Ref::keyword("RESET").to_matchable(),
             ]);
 
-            Sequence::new(vec_of_erased![
-                Ref::keyword("PRAGMA"),
-                Ref::new("PragmaReferenceSegment"),
-                Bracketed::new(vec_of_erased![pragma_value.clone()]).config(|config| {
-                    config.optional();
-                }),
-                Sequence::new(vec_of_erased![
-                    Ref::new("EqualsSegment"),
-                    optionally_bracketed(vec_of_erased![pragma_value])
+            Sequence::new(vec![
+                Ref::keyword("PRAGMA").to_matchable(),
+                Ref::new("PragmaReferenceSegment").to_matchable(),
+                Bracketed::new(vec![pragma_value.clone().to_matchable()])
+                    .config(|config| {
+                        config.optional();
+                    })
+                    .to_matchable(),
+                Sequence::new(vec![
+                    Ref::new("EqualsSegment").to_matchable(),
+                    optionally_bracketed(vec![pragma_value.to_matchable()]).to_matchable(),
                 ])
                 .config(|config| {
                     config.optional();
                 })
+                .to_matchable(),
             ])
             .to_matchable()
         })
@@ -700,84 +796,96 @@ pub fn raw_dialect() -> Dialect {
 
     sqlite_dialect.replace_grammar(
         "CreateTriggerStatementSegment",
-        Sequence::new(vec_of_erased![
-            Ref::keyword("CREATE"),
-            Ref::new("TemporaryGrammar").optional(),
-            Ref::keyword("TRIGGER"),
-            Ref::new("IfNotExistsGrammar").optional(),
-            Ref::new("TriggerReferenceSegment"),
-            one_of(vec_of_erased![
-                Ref::keyword("BEFORE"),
-                Ref::keyword("AFTER"),
-                Sequence::new(vec_of_erased![Ref::keyword("INSTEAD"), Ref::keyword("OF")])
+        Sequence::new(vec![
+            Ref::keyword("CREATE").to_matchable(),
+            Ref::new("TemporaryGrammar").optional().to_matchable(),
+            Ref::keyword("TRIGGER").to_matchable(),
+            Ref::new("IfNotExistsGrammar").optional().to_matchable(),
+            Ref::new("TriggerReferenceSegment").to_matchable(),
+            one_of(vec![
+                Ref::keyword("BEFORE").to_matchable(),
+                Ref::keyword("AFTER").to_matchable(),
+                Sequence::new(vec![
+                    Ref::keyword("INSTEAD").to_matchable(),
+                    Ref::keyword("OF").to_matchable(),
+                ])
+                .to_matchable(),
             ])
             .config(|config| {
                 config.optional();
-            }),
-            one_of(vec_of_erased![
-                Ref::keyword("DELETE"),
-                Ref::keyword("INSERT"),
-                Sequence::new(vec_of_erased![
-                    Ref::keyword("UPDATE"),
-                    Sequence::new(vec_of_erased![
-                        Ref::keyword("OF"),
-                        Delimited::new(vec_of_erased![Ref::new("ColumnReferenceSegment")])
+            })
+            .to_matchable(),
+            one_of(vec![
+                Ref::keyword("DELETE").to_matchable(),
+                Ref::keyword("INSERT").to_matchable(),
+                Sequence::new(vec![
+                    Ref::keyword("UPDATE").to_matchable(),
+                    Sequence::new(vec![
+                        Ref::keyword("OF").to_matchable(),
+                        Delimited::new(vec![Ref::new("ColumnReferenceSegment").to_matchable()])
+                            .to_matchable(),
                     ])
                     .config(|config| {
                         config.optional();
                     })
+                    .to_matchable(),
                 ])
-            ]),
-            Ref::keyword("ON"),
-            Ref::new("TableReferenceSegment"),
-            Sequence::new(vec_of_erased![
-                Ref::keyword("FOR"),
-                Ref::keyword("EACH"),
-                Ref::keyword("ROW")
+                .to_matchable(),
+            ])
+            .to_matchable(),
+            Ref::keyword("ON").to_matchable(),
+            Ref::new("TableReferenceSegment").to_matchable(),
+            Sequence::new(vec![
+                Ref::keyword("FOR").to_matchable(),
+                Ref::keyword("EACH").to_matchable(),
+                Ref::keyword("ROW").to_matchable(),
             ])
             .config(|config| {
                 config.optional();
-            }),
-            Sequence::new(vec_of_erased![
-                Ref::keyword("WHEN"),
-                Bracketed::new(vec_of_erased![Ref::new("ExpressionSegment")])
+            })
+            .to_matchable(),
+            Sequence::new(vec![
+                Ref::keyword("WHEN").to_matchable(),
+                Bracketed::new(vec![Ref::new("ExpressionSegment").to_matchable()]).to_matchable(),
             ])
             .config(|config| {
                 config.optional();
-            }),
-            Ref::keyword("BEGIN"),
-            Delimited::new(vec_of_erased![
-                Ref::new("UpdateStatementSegment"),
-                Ref::new("InsertStatementSegment"),
-                Ref::new("DeleteStatementSegment"),
-                Ref::new("SelectableGrammar")
+            })
+            .to_matchable(),
+            Ref::keyword("BEGIN").to_matchable(),
+            Delimited::new(vec![
+                Ref::new("UpdateStatementSegment").to_matchable(),
+                Ref::new("InsertStatementSegment").to_matchable(),
+                Ref::new("DeleteStatementSegment").to_matchable(),
+                Ref::new("SelectableGrammar").to_matchable(),
             ])
             .config(|config| {
                 config.delimiter(
-                    AnyNumberOf::new(vec_of_erased![Ref::new("DelimiterGrammar")]).config(
+                    AnyNumberOf::new(vec![Ref::new("DelimiterGrammar").to_matchable()]).config(
                         |config| {
                             config.min_times = 1;
                         },
                     ),
                 );
                 config.allow_trailing = true;
-            }),
-            Ref::keyword("END")
+            })
+            .to_matchable(),
+            Ref::keyword("END").to_matchable(),
         ])
         .to_matchable(),
     );
     sqlite_dialect.add([(
         "UnorderedSelectStatementSegment".into(),
         NodeMatcher::new(SyntaxKind::SelectStatement, |_| {
-            Sequence::new(vec_of_erased![
-                Ref::new("SelectClauseSegment"),
-                MetaSegment::dedent(),
-                Ref::new("FromClauseSegment").optional(),
-                Ref::new("WhereClauseSegment").optional(),
-                Ref::new("GroupByClauseSegment").optional(),
-                Ref::new("HavingClauseSegment").optional(),
-                Ref::new("OverlapsClauseSegment").optional(),
-                Ref::new("NamedWindowSegment").optional()
+            Sequence::new(vec![
+                Ref::new("SelectClauseSegment").to_matchable(),
+                MetaSegment::dedent().to_matchable(),
+                Ref::new("FromClauseSegment").optional().to_matchable(),
+                Ref::new("WhereClauseSegment").optional().to_matchable(),
+                Ref::new("GroupByClauseSegment").optional().to_matchable(),
+                Ref::new("HavingClauseSegment").optional().to_matchable(),
+                Ref::new("OverlapsClauseSegment").optional().to_matchable(),
+                Ref::new("NamedWindowSegment").optional().to_matchable(),
             ])
             .to_matchable()
         })
@@ -793,11 +901,11 @@ pub fn raw_dialect() -> Dialect {
                 .match_grammar(sqlite_dialect)
                 .unwrap()
                 .copy(
-                    Some(vec_of_erased![
-                        Ref::new("OrderByClauseSegment").optional(),
-                        Ref::new("FetchClauseSegment").optional(),
-                        Ref::new("LimitClauseSegment").optional(),
-                        Ref::new("NamedWindowSegment").optional(),
+                    Some(vec![
+                        Ref::new("OrderByClauseSegment").optional().to_matchable(),
+                        Ref::new("FetchClauseSegment").optional().to_matchable(),
+                        Ref::new("LimitClauseSegment").optional().to_matchable(),
+                        Ref::new("NamedWindowSegment").optional().to_matchable(),
                     ]),
                     None,
                     None,
@@ -812,96 +920,119 @@ pub fn raw_dialect() -> Dialect {
 
     sqlite_dialect.replace_grammar(
         "CreateIndexStatementSegment",
-        Sequence::new(vec_of_erased![
-            Ref::keyword("CREATE"),
-            Ref::keyword("UNIQUE").optional(),
-            Ref::keyword("INDEX"),
-            Ref::new("IfNotExistsGrammar").optional(),
-            Ref::new("IndexReferenceSegment"),
-            Ref::keyword("ON"),
-            Ref::new("TableReferenceSegment"),
-            Sequence::new(vec_of_erased![Bracketed::new(vec_of_erased![
-                Delimited::new(vec_of_erased![Ref::new("IndexColumnDefinitionSegment")])
-            ])]),
-            Ref::new("WhereClauseSegment").optional()
+        Sequence::new(vec![
+            Ref::keyword("CREATE").to_matchable(),
+            Ref::keyword("UNIQUE").optional().to_matchable(),
+            Ref::keyword("INDEX").to_matchable(),
+            Ref::new("IfNotExistsGrammar").optional().to_matchable(),
+            Ref::new("IndexReferenceSegment").to_matchable(),
+            Ref::keyword("ON").to_matchable(),
+            Ref::new("TableReferenceSegment").to_matchable(),
+            Sequence::new(vec![
+                Bracketed::new(vec![
+                    Delimited::new(vec![
+                        Ref::new("IndexColumnDefinitionSegment").to_matchable(),
+                    ])
+                    .to_matchable(),
+                ])
+                .to_matchable(),
+            ])
+            .to_matchable(),
+            Ref::new("WhereClauseSegment").optional().to_matchable(),
         ])
         .to_matchable(),
     );
 
     sqlite_dialect.replace_grammar(
         "StatementSegment",
-        one_of(vec_of_erased![
-            Ref::new("AlterTableStatementSegment"),
-            Ref::new("CreateIndexStatementSegment"),
-            Ref::new("CreateTableStatementSegment"),
-            Ref::new("CreateTriggerStatementSegment"),
-            Ref::new("CreateViewStatementSegment"),
-            Ref::new("DeleteStatementSegment"),
-            Ref::new("DropIndexStatementSegment"),
-            Ref::new("DropTableStatementSegment"),
-            Ref::new("DropTriggerStatementSegment"),
-            Ref::new("DropViewStatementSegment"),
-            Ref::new("ExplainStatementSegment"),
-            Ref::new("InsertStatementSegment"),
-            Ref::new("PragmaStatementSegment"),
-            Ref::new("SelectableGrammar"),
-            Ref::new("TransactionStatementSegment"),
-            Ref::new("UpdateStatementSegment"),
-            Bracketed::new(vec_of_erased![Ref::new("StatementSegment")])
+        one_of(vec![
+            Ref::new("AlterTableStatementSegment").to_matchable(),
+            Ref::new("CreateIndexStatementSegment").to_matchable(),
+            Ref::new("CreateTableStatementSegment").to_matchable(),
+            Ref::new("CreateTriggerStatementSegment").to_matchable(),
+            Ref::new("CreateViewStatementSegment").to_matchable(),
+            Ref::new("DeleteStatementSegment").to_matchable(),
+            Ref::new("DropIndexStatementSegment").to_matchable(),
+            Ref::new("DropTableStatementSegment").to_matchable(),
+            Ref::new("DropTriggerStatementSegment").to_matchable(),
+            Ref::new("DropViewStatementSegment").to_matchable(),
+            Ref::new("ExplainStatementSegment").to_matchable(),
+            Ref::new("InsertStatementSegment").to_matchable(),
+            Ref::new("PragmaStatementSegment").to_matchable(),
+            Ref::new("SelectableGrammar").to_matchable(),
+            Ref::new("TransactionStatementSegment").to_matchable(),
+            Ref::new("UpdateStatementSegment").to_matchable(),
+            Bracketed::new(vec![Ref::new("StatementSegment").to_matchable()]).to_matchable(),
         ])
         .to_matchable(),
     );
 
     sqlite_dialect.replace_grammar(
         "AlterTableStatementSegment",
-        Sequence::new(vec_of_erased![
-            Ref::keyword("ALTER"),
-            Ref::keyword("TABLE"),
-            Ref::new("TableReferenceSegment"),
-            one_of(vec_of_erased![
-                Sequence::new(vec_of_erased![
-                    Ref::keyword("RENAME"),
-                    Ref::keyword("TO"),
-                    one_of(vec_of_erased![one_of(vec_of_erased![
-                        Ref::new("ParameterNameSegment"),
-                        Ref::new("QuotedIdentifierSegment")
-                    ])])
-                ]),
-                Sequence::new(vec_of_erased![
-                    Ref::keyword("RENAME"),
-                    Ref::keyword("COLUMN").optional(),
-                    Ref::new("ColumnReferenceSegment"),
-                    Ref::keyword("TO"),
-                    Ref::new("ColumnReferenceSegment")
-                ]),
-                Sequence::new(vec_of_erased![
-                    Ref::keyword("ADD"),
-                    Ref::keyword("COLUMN").optional(),
-                    Ref::new("ColumnDefinitionSegment"),
-                ]),
-                Sequence::new(vec_of_erased![
-                    Ref::keyword("DROP"),
-                    Ref::keyword("COLUMN").optional(),
-                    Ref::new("ColumnReferenceSegment")
-                ]),
-            ]),
+        Sequence::new(vec![
+            Ref::keyword("ALTER").to_matchable(),
+            Ref::keyword("TABLE").to_matchable(),
+            Ref::new("TableReferenceSegment").to_matchable(),
+            one_of(vec![
+                Sequence::new(vec![
+                    Ref::keyword("RENAME").to_matchable(),
+                    Ref::keyword("TO").to_matchable(),
+                    one_of(vec![
+                        one_of(vec![
+                            Ref::new("ParameterNameSegment").to_matchable(),
+                            Ref::new("QuotedIdentifierSegment").to_matchable(),
+                        ])
+                        .to_matchable(),
+                    ])
+                    .to_matchable(),
+                ])
+                .to_matchable(),
+                Sequence::new(vec![
+                    Ref::keyword("RENAME").to_matchable(),
+                    Ref::keyword("COLUMN").optional().to_matchable(),
+                    Ref::new("ColumnReferenceSegment").to_matchable(),
+                    Ref::keyword("TO").to_matchable(),
+                    Ref::new("ColumnReferenceSegment").to_matchable(),
+                ])
+                .to_matchable(),
+                Sequence::new(vec![
+                    Ref::keyword("ADD").to_matchable(),
+                    Ref::keyword("COLUMN").optional().to_matchable(),
+                    Ref::new("ColumnDefinitionSegment").to_matchable(),
+                ])
+                .to_matchable(),
+                Sequence::new(vec![
+                    Ref::keyword("DROP").to_matchable(),
+                    Ref::keyword("COLUMN").optional().to_matchable(),
+                    Ref::new("ColumnReferenceSegment").to_matchable(),
+                ])
+                .to_matchable(),
+            ])
+            .to_matchable(),
         ])
         .to_matchable(),
     );
 
     sqlite_dialect.add([(
         "ReturningClauseSegment".into(),
-        Sequence::new(vec_of_erased![
-            Ref::keyword("RETURNING"),
-            MetaSegment::indent(),
-            one_of(vec_of_erased![
-                Ref::new("StarSegment"),
-                Delimited::new(vec_of_erased![Sequence::new(vec_of_erased![
-                    Ref::new("ExpressionSegment"),
-                    Ref::new("AsAliasExpressionSegment").optional(),
-                ])])
-            ]),
-            MetaSegment::dedent(),
+        Sequence::new(vec![
+            Ref::keyword("RETURNING").to_matchable(),
+            MetaSegment::indent().to_matchable(),
+            one_of(vec![
+                Ref::new("StarSegment").to_matchable(),
+                Delimited::new(vec![
+                    Sequence::new(vec![
+                        Ref::new("ExpressionSegment").to_matchable(),
+                        Ref::new("AsAliasExpressionSegment")
+                            .optional()
+                            .to_matchable(),
+                    ])
+                    .to_matchable(),
+                ])
+                .to_matchable(),
+            ])
+            .to_matchable(),
+            MetaSegment::dedent().to_matchable(),
         ])
         .to_matchable()
         .into(),
@@ -910,11 +1041,11 @@ pub fn raw_dialect() -> Dialect {
     sqlite_dialect.add([(
         "AsAliasExpressionSegment".into(),
         NodeMatcher::new(SyntaxKind::AliasExpression, |_| {
-            Sequence::new(vec_of_erased![
-                MetaSegment::indent(),
-                Ref::keyword("AS"),
-                Ref::new("SingleIdentifierGrammar"),
-                MetaSegment::dedent(),
+            Sequence::new(vec![
+                MetaSegment::indent().to_matchable(),
+                Ref::keyword("AS").to_matchable(),
+                Ref::new("SingleIdentifierGrammar").to_matchable(),
+                MetaSegment::dedent().to_matchable(),
             ])
             .to_matchable()
         })

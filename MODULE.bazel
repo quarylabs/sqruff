@@ -26,6 +26,7 @@ http_archive(
 )
 bazel_dep(name = "aspect_rules_js", version = "2.3.7")
 bazel_dep(name = "rules_nodejs", version = "6.3.4")
+bazel_dep(name = "rules_playwright", version = "0.5.3")
 bazel_dep(name = "rules_python", version = "1.7.0")
 
 # Python toolchain for hermetic Python builds (required by pyo3)
@@ -64,6 +65,14 @@ pnpm.pnpm(
     pnpm_version = "10.0.0",
 )
 use_repo(pnpm, "pnpm")
+
+# Playwright browsers for e2e testing
+playwright = use_extension("@rules_playwright//playwright:extensions.bzl", "playwright")
+playwright.repo(
+    name = "playwright",
+    playwright_version = "1.57.0",
+)
+use_repo(playwright, "playwright")
 
 # Rust toolchain
 rust = use_extension("@rules_rust//rust:extensions.bzl", "rust")

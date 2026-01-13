@@ -21,7 +21,7 @@ jobs:
       - name: Checkout
         uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # ratchet:actions/checkout@v5
       - name: Build playground with Bazel
-        uses: bazel-contrib/setup-bazel@e2567afeb14c4eb0d0f1117ed9cf94e20a8e9c47 # ratchet:bazel-contrib/setup-bazel@0.14.0
+      - uses: bazel-contrib/setup-bazel@083175551ceeceebc757ebee2127fde78840ca77 # ratchet:bazel-contrib/setup-bazel@0.18.0
         with:
           bazelisk-cache: true
           disk-cache: ${{ github.workflow }}

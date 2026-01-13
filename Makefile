@@ -4,20 +4,20 @@ help: ## Display this help screen
 
 .PHONY: python_fmt
 python_fmt: ## Format python code
-	ruff format .
+	uv run ruff format .
 
 .PHONY: python_lint
 python_lint: ## Lint python code
-	ruff format --check .
-	ruff check .
+	uv run ruff format --check .
+	uv run ruff check .
 
 .PHONY: python_test
 python_test: ## Run python tests
-	pytest
+	uv run pytest
 
-.PHONY: python_install
-python_install: ## Install python dev dependencies
-	pip install -e ".[dev]"
+.PHONY: python_sync
+python_sync: ## Sync python dependencies using uv (uses uv.lock)
+	uv sync --extra dev
 
 .PHONY: python_generate_gha
 python_generate_gha: ## Generate GitHub Actions workflow
@@ -39,7 +39,7 @@ rust_lint: ## Lint rust code
 
 .PHONY: rust_test
 rust_test: ## Run rust tests
-	cd crates/cli-python && maturin develop
+	cd crates/cli-python && uv run maturin develop
 	cargo test --no-fail-fast --manifest-path ./crates/cli/Cargo.toml
 	cargo test --no-fail-fast --all --all-features --exclude sqruff
 

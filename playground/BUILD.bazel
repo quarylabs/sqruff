@@ -1,23 +1,134 @@
-load("@aspect_rules_js//js:defs.bzl", "js_library")
+"""Bazel build configuration for the sqruff playground.
 
-# Source files for prettier formatting
+The playground is a React/TypeScript web application that uses WASM bindings
+to run sqruff in the browser.
+
+Build:
+- bazel build //playground:build
+
+Development:
+- bazel run //playground:dev
+
+The WASM bindings are built automatically from //crates/lib-wasm:sqruff-wasm-bindgen.
+"""
+
+load("@aspect_bazel_lib//lib:copy_to_directory.bzl", "copy_to_directory")
+load("@aspect_rules_js//js:defs.bzl", "js_library")
+load("@npm//:defs.bzl", "npm_link_all_packages")
+load("@npm//playground:vite/package_json.bzl", vite_bin = "bin")
+
+# Export package.json for the pnpm workspace data attribute
+exports_files(["package.json"])
+
+# Source files for prettier formatting (referenced by root BUILD.bazel)
+# Wrapped in js_library to support cross-package usage with js_binary
 js_library(
     name = "prettier_srcs",
+    srcs = glob([
+        "**/*.ts",
+        "**/*.tsx",
+        "**/*.css",
+        "**/*.html",
+        "**/*.json",
+    ], exclude = [
+        "node_modules/**",
+        "dist/**",
+        "src/pkg/**",
+    ]),
+    visibility = ["//visibility:public"],
+)
+
+# Link npm packages for the playground workspace
+npm_link_all_packages(name = "node_modules")
+
+# All playground source files (TypeScript, CSS, config files)
+filegroup(
+    name = "playground_srcs",
     srcs = glob(
         [
-            "**/*.ts",
-            "**/*.tsx",
-            "**/*.js",
-            "**/*.css",
-            "**/*.html",
-            "**/*.json",
+            "src/**/*.ts",
+            "src/**/*.tsx",
+            "src/**/*.css",
+            "src/**/*.d.ts",
         ],
-        allow_empty = True,
         exclude = [
-            "node_modules/**",
-            "dist/**",
             "src/pkg/**",
         ],
-    ),
+    ) + [
+        "index.html",
+        "postcss.config.cjs",
+        "tailwind.config.cjs",
+        "tsconfig.json",
+        "tsconfig.node.json",
+        "vite.config.ts",
+    ],
     visibility = ["//visibility:public"],
+)
+
+# Generate package.json for the WASM package (matches what wasm-pack creates)
+genrule(
+    name = "wasm_pkg_json",
+    outs = ["_wasm_pkg_json/package.json"],
+    cmd = """echo '{"name": "sqruff-wasm", "main": "sqruff_wasm.js", "types": "sqruff_wasm.d.ts"}' > $@""",
+)
+
+# Copy WASM bindgen output to src/pkg/ structure expected by Vite
+# This takes the output from rust_wasm_bindgen and places it where
+# the TypeScript imports expect it
+# root_paths flattens the directory structure so files end up directly in src/pkg/
+copy_to_directory(
+    name = "wasm_pkg",
+    srcs = [
+        "//crates/lib-wasm:sqruff-wasm-bindgen",
+        ":wasm_pkg_json",
+    ],
+    out = "src/pkg",
+    root_paths = [
+        "crates/lib-wasm/sqruff-wasm-bindgen",
+        "playground/_wasm_pkg_json",
+    ],
+    visibility = ["//visibility:public"],
+)
+
+# Common data dependencies for Vite builds
+VITE_DATA = [
+    ":node_modules/@monaco-editor/react",
+    ":node_modules/@tailwindcss/postcss",
+    ":node_modules/@vitejs/plugin-react-swc",
+    ":node_modules/autoprefixer",
+    ":node_modules/classnames",
+    ":node_modules/fflate",
+    ":node_modules/lodash-es",
+    ":node_modules/monaco-editor",
+    ":node_modules/postcss",
+    ":node_modules/react",
+    ":node_modules/react-dom",
+    ":node_modules/react-resizable-panels",
+    ":node_modules/tailwindcss",
+    ":node_modules/typescript",
+    ":node_modules/vite",
+    ":playground_srcs",
+    ":wasm_pkg",
+]
+
+# Build the playground using Vite
+# Produces dist/ directory with JS, HTML, CSS, and WASM files
+# Usage: bazel build //playground:build
+vite_bin.vite(
+    name = "build",
+    srcs = VITE_DATA,
+    args = ["build"],
+    chdir = package_name(),
+    out_dirs = ["dist"],
+    visibility = ["//visibility:public"],
+)
+
+# Development server for the playground
+# WASM bindings are built automatically as a dependency
+# Usage: bazel run //playground:dev
+vite_bin.vite_binary(
+    name = "dev",
+    args = ["--host"],
+    chdir = package_name(),
+    data = VITE_DATA,
 )

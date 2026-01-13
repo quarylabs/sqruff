@@ -7,19 +7,27 @@ load("@rules_shellcheck//:def.bzl", "shellcheck_test")
 # Link all npm packages into node_modules
 npm_link_all_packages(name = "node_modules")
 
-# Prettier configuration
+# Prettier configuration and pnpm workspace files
 exports_files([
     ".prettierrc.json",
+    "package.json",
     "pnpm-lock.yaml",
+    "pnpm-workspace.yaml",
 ])
 
 # Files to check with prettier (root package only)
 filegroup(
     name = "prettier_srcs",
-    srcs = glob([
-        ".github/**/*.yaml",
-        ".github/**/*.yml",
-    ]) + ["README.md"],
+    srcs = glob(
+        [
+            ".github/**/*.yaml",
+            ".github/**/*.yml",
+        ],
+    ) + [
+        "README.md",
+        "//editors/code:prettier_srcs",
+        "//playground:prettier_srcs",
+    ],
 )
 
 # Prettier format check test

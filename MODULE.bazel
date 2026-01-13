@@ -51,6 +51,7 @@ npm.npm_translate_lock(
     data = [
         "//:package.json",
         "//:pnpm-workspace.yaml",
+        "//playground:package.json",
         "//editors/code:package.json",
     ],
     pnpm_lock = "//:pnpm-lock.yaml",
@@ -77,9 +78,6 @@ register_toolchains("@rust_toolchains//:all")
 
 # Required for WASM cross-compilation
 register_toolchains("@rules_rust//rust/private/dummy_cc_toolchain:dummy_cc_wasm32_toolchain")
-
-# wasm-bindgen dependencies for generating JS bindings from WASM
-# The rules_rust_wasm_bindgen module handles toolchain registration internally
 
 # Crate universe - reads from Cargo.toml workspace
 crate = use_extension("@rules_rust//crate_universe:extensions.bzl", "crate")

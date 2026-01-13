@@ -83,12 +83,12 @@ FROM foo
     }
 
     fn eval(&self, context: &RuleContext) -> Vec<LintResult> {
-        if let Some(alias_operator) =
-            context.segment.child(&SyntaxSet::new(&[SyntaxKind::AliasOperator]))
+        if context
+            .segment
+            .child(&SyntaxSet::new(&[SyntaxKind::AliasOperator]))
+            .is_some_and(|alias_operator| alias_operator.raw() == "=")
         {
-            if alias_operator.raw() == "=" {
-                return Vec::new();
-            }
+            return Vec::new();
         }
 
         self.base.eval(context)
